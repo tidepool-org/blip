@@ -1,0 +1,17 @@
+{
+  "framework": "mocha+chai",
+  "src_files": [
+    "app/**/*.js",
+    "test/**/*.js"
+  ],
+  "serve_files": [
+    "bower_components/react/react.js",
+    "bower_components/director/build/director.js",
+    "bower_components/lodash/dist/lodash.js",
+    "bower_components/bows/dist/bows.js",
+    "bower_components/jquery/jquery.js",
+    "tmp/test/tests.js"
+  ],
+  "before_tests": "gulp before-tests",
+  "launch_in_dev": ["chrome"]
+}

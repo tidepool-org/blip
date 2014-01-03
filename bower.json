@@ -1,0 +1,11 @@
+{
+  "name": "blip",
+  "version": "0.0.0",
+  "dependencies": {
+    "react": "~0.8.0",
+    "director": "~1.2.1",
+    "bows": "https://github.com/latentflip/bows.git#beb35328d5c224fc5635928a1b45b32e0d839caa",
+    "lodash": "~2.4.1",
+    "jquery": "~2.0.3"
+  }
+}
