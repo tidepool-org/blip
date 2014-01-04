@@ -1,0 +1,22 @@
+{
+  "name": "tideline",
+  "version": "0.0.0",
+  "authors": [
+    "Jana E. Beck <jana.eliz.beck@gmail.com>"
+  ],
+  "description": "Refactor of Tidepool's timeline data visualization(s).",
+  "license": "BSD",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "d3": "~3.3.13",
+    "jquery": "~2.0.3",
+    "bootstrap": "~3.0.3"
+  }
+}
