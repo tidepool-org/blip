@@ -1,13 +1,13 @@
 var expect = chai.expect;
 var React = window.React;
 
-var Login = require('../../app/login');
+var LoginForm = require('../../app/components/loginform');
 
-describe('Login', function() {
+describe('LoginForm', function() {
   var component, container;
 
   beforeEach(function() {
-    component = Login();
+    component = LoginForm();
     container = document.createElement('div');
     document.documentElement.appendChild(container);
     React.renderComponent(component, container);

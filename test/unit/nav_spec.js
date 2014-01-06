@@ -1,7 +1,7 @@
 var expect = chai.expect;
 var React = window.React;
 
-var Nav = require('../../app/nav');
+var Nav = require('../../app/components/nav');
 
 describe('Nav', function() {
   var component, container;

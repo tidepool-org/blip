@@ -73,11 +73,12 @@ The following snippets of documentation should help you find your way around and
 
 ### Code organization
 
-- **App** (`app/app.js`): Expose a global `window.app` object where everything else is attached; create the main React component `app.component`.
-- **Router** (`app/router.js`): Handle client-side URI routing (using [director](https://github.com/flatiron/director))
+- **App** (`app/app.js`): Expose a global `window.app` object where everything else is attached; create the main React component `app.component`
+- **Router** (`app/router.js`): Handle client-side URI routing (using [director](https://github.com/flatiron/director)); attached to the global `app` object
 - **Core** (`app/core`): Scripts and styles shared by all app components
-- **Components** (`app/<component>`): Each app component has its own directory (which can also hold sub-components) and contains both scripts and styles for that component
-- **Services** (`app/core/<service>.js`): Singletons that can be used anywhere in the app, and are attached to the global `app` object (for example, `app.auth` which handle user authentication)
+- **Components** (`app/components`): Reusable React components, the building-blocks of the application
+- **Pages** (`app/pages`): Higher-level React components that combine reusable components together; switch from page to page on route change
+- **Services** (`app/core/<service>.js`): Singletons used to interface with external services or to provide some common utility; they are attached to the global `app` object (for example, `app.auth` which handles user authentication)
 
 ### React components
 
@@ -88,6 +89,11 @@ When writing [React](http://facebook.github.io/react) components, try to follow 
 - Use the `propTypes` attribute to document what props the component expects
 
 See ["Writing good React components"](http://blog.whn.se/post/69621609605/writing-good-react-components).
+
+More on state:
+- The main `AppComponent` holds all of the state global to the app (like if the user is logged in or not)
+- Each page (`app/pages`) can hold some state specific to that page
+- Reusable components (`app/components`) typically hold no state (with rare exceptions)
 
 ### Development server
 

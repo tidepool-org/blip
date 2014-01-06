@@ -3,23 +3,62 @@ var React = window.React;
 var _ = window._;
 
 var Nav = React.createClass({
-  render: function() {
-    var versionElement = this.getVersionElement();
-    var userElement = this.getUserElement();
+  propTypes: {
+    version: React.PropTypes.string,
+    user: React.PropTypes.object,
+    onLogout: React.PropTypes.func
+  },
 
-    /* jshint ignore:start */
+  render: function() {
+    var version = this.renderVersion();
+    var user = this.renderUser();
+
     return (
+      /* jshint ignore:start */
       <div className="nav">
         <div className="nav-inner">
           <ul>
             <li><a href="#/">Blip</a></li>
-            {versionElement}
+            {version}
           </ul>
-          {userElement}
+          {user}
         </div>
       </div>
+      /* jshint ignore:end */
     );
-    /* jshint ignore:end */
+  },
+
+  renderVersion: function() {
+    var version = this.props.version;
+    if (version) {
+      version = 'v' + version;
+      return (
+        /* jshint ignore:start */
+        <li className="nav-version" ref="version">{version}</li>
+        /* jshint ignore:end */
+      );
+    }
+    return null;
+  },
+
+  renderUser: function() {
+    var user = this.props.user;
+    if (!_.isEmpty(user)) {
+      var fullName = this.getUserFullName(user);
+      return (
+        /* jshint ignore:start */
+        <ul className="nav-right">
+          <li>Logged in as <span>{fullName}</span></li>
+          <li><a href="" onClick={this.handleLogout}>Logout</a></li>
+        </ul>
+        /* jshint ignore:end */
+      );
+    }
+    return null;
+  },
+
+  getUserFullName: function(user) {
+    return user.firstName + ' ' + user.lastName;
   },
 
   handleLogout: function(e) {
@@ -28,39 +67,6 @@ var Nav = React.createClass({
     if (logout) {
       logout();
     }
-  },
-
-  getVersionElement: function() {
-    var version = this.props.version;
-    if (version) {
-      version = 'v' + version;
-      /* jshint ignore:start */
-      return (
-        <li className="nav-version" ref="version">{version}</li>
-      );
-      /* jshint ignore:end */
-    }
-    return null;
-  },
-
-  getUserElement: function() {
-    var user = this.props.user;
-    if (!_.isEmpty(user)) {
-      var fullName = this.getUserFullName(user);
-      /* jshint ignore:start */
-      return (
-        <ul className="nav-right">
-          <li>Logged in as <span>{fullName}</span></li>
-          <li><a href="" onClick={this.handleLogout}>Logout</a></li>
-        </ul>
-      );
-      /* jshint ignore:end */
-    }
-    return null;
-  },
-
-  getUserFullName: function(user) {
-    return user.firstName + ' ' + user.lastName;
   }
 });
 

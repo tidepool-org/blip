@@ -9,11 +9,12 @@ var auth = require('./core/auth');
 var api = require('./core/api');
 var user = require('./core/user');
 
-var Nav = require('./nav');
-var Notification = require('./notification');
-var Login = require('./login');
-var Logout = require('./logout');
-var Profile = require('./profile');
+var Nav = require('./components/nav');
+var LogoutOverlay = require('./components/logoutoverlay');
+var Notification = require('./components/notification');
+
+var Login = require('./pages/login');
+var Profile = require('./pages/profile');
 
 var app = {
   log: bows('App'),
@@ -38,10 +39,7 @@ var AppComponent = React.createClass({
       notification: null,
       page: null,
       user: null,
-      loggingIn: false,
-      loginError: null,
-      loggingOut: false,
-      loggingOutComplete: false
+      loggingOut: false
     };
   },
 
@@ -91,7 +89,7 @@ var AppComponent = React.createClass({
     if (this.state.loggingOut) {
       return (
         /* jshint ignore:start */
-        <Logout fadeOut={this.state.loggingOutComplete} />
+        <LogoutOverlay ref="logoutOverlay" />
         /* jshint ignore:end */
       );
     }
@@ -101,14 +99,14 @@ var AppComponent = React.createClass({
 
   renderNav: function() {
     if (this.state.authenticated) {
-      /* jshint ignore:start */
       return (
+        /* jshint ignore:start */
         <Nav
           version={config.VERSION}
           user={this.state.user}
           onLogout={this.logout} />
+        /* jshint ignore:end */
       );
-      /* jshint ignore:end */
     }
 
     return null;
@@ -116,13 +114,13 @@ var AppComponent = React.createClass({
 
   renderNotification: function() {
     if (this.state.notification) {
-      /* jshint ignore:start */
       return (
+        /* jshint ignore:start */
         <Notification 
           message={this.state.notification}
           onClose={this.closeNotification} />
+        /* jshint ignore:end */
       );
-      /* jshint ignore:end */
     }
 
     return null;
@@ -142,9 +140,8 @@ var AppComponent = React.createClass({
     return (
       /* jshint ignore:start */
       <Login 
-        loggingIn={this.state.loggingIn}
-        onLogin={this.login}
-        message={this.state.loginError} />
+        login={app.auth.login.bind(app.auth)}
+        onLoginSuccess={this.handleLoginSuccess} />
       /* jshint ignore:end */
     );
   },
@@ -165,30 +162,10 @@ var AppComponent = React.createClass({
     );
   },
 
-  login: function() {
-    var self = this;
-
-    if (this.state.loggingIn) {
-      return;
-    }
-
-    this.setState({loggingIn: true});
-
-    app.auth.login(function(err) {
-      if (err) {
-        self.setState({
-          loggingIn: false,
-          loginError: err.message || 'An error occured while logging in.'
-        });
-        return;
-      }
-      self.setState({
-        authenticated: true,
-        loggingIn: false
-      });
-      self.fetchUser();
-      router.setRoute('/profile');
-    });
+  handleLoginSuccess: function() {
+    this.setState({authenticated: true});
+    this.fetchUser();
+    app.router.setRoute('/profile');
   },
 
   logout: function() {
@@ -198,10 +175,7 @@ var AppComponent = React.createClass({
       return;
     }
 
-    this.setState({
-      loggingOut: true,
-      loggingOutComplete: false
-    });
+    this.setState({loggingOut: true});
 
     app.auth.logout(function(err) {
       if (err) {
@@ -211,19 +185,17 @@ var AppComponent = React.createClass({
         });
         return;
       }
-      self.setState({
-        authenticated: false,
-        loggingOutComplete: true
-      });
-      self.clearUserData();
-
-      // Fade out overlay
-      setTimeout(function() {
+      self.refs.logoutOverlay.fadeOut(function() {
         self.setState({loggingOut: false});
-      }, 200);
-
-      router.setRoute('/login');
+      });
+      self.handleLogoutSuccess();
     });
+  },
+
+  handleLogoutSuccess: function() {
+    this.setState({authenticated: false});
+    this.clearUserData();
+    router.setRoute('/login');
   },
 
   closeNotification: function() {
