@@ -1,14 +1,15 @@
 var Router = window.Router;
 var bows = window.bows;
 var _ = window._;
-/* global app */
 
-var router;
+var router = new Router();
+
+router.log = bows('Router');
 
 var configuration = {
   before: function() {
     var routeBase = router.getRoute(0);
-    var isAuthenticated = app.component.state.authenticated;
+    var isAuthenticated = router.isAuthenticated();
     var isNoAuthRoute = _.contains(['login'], routeBase);
 
     if (router.ignoreFirstRoute) {
@@ -36,33 +37,20 @@ var configuration = {
   }
 };
 
-var routes = {
-  '/': index,
-  '/login': login,
-  '/profile': profile
-};
-
-function index() {
-  // Default logged-in route
-  router.setRoute('/profile');
-}
-
-function login() {
-  setContent('login');
-}
-
-function profile() {
-  setContent('profile');
-}
-
-function setContent(content) {
-  app.component.setState({content: 'profile'});
-}
-
-router = new Router(routes);
 router.configure(configuration);
 
-router.log = bows('Router');
+router.setup = function(routes, options) {
+  var self = this;
+
+  this.isAuthenticated = options.isAuthenticated ||
+                         function() { return true; };
+  
+  _.forEach(routes, function(handler, route) {
+    self.on(route, handler);
+  });
+
+  return this;
+};
 
 router.start = function() {
   this.init('/');
@@ -70,6 +58,7 @@ router.start = function() {
   this.log('Router started');
 };
 
+// Inspired by:
 // https://github.com/flatiron/director/issues/199
 router.fireInitialRoute = function() {
   var initialRoute = window.location.hash.replace(/^#/, '');

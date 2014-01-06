@@ -1,6 +1,7 @@
 /** @jsx React.DOM */
 var React = window.React;
 var bows = window.bows;
+var _ = window._;
 var config = window.config;
 
 var router = require('./router');
@@ -15,7 +16,19 @@ var Logout = require('./logout');
 var Profile = require('./profile');
 
 var app = {
-  log: bows('App')
+  log: bows('App'),
+  auth: auth,
+  api: api,
+  user: user,
+  router: router
+};
+
+window.app = app;
+
+var routes = {
+  '/': 'showProfile',
+  '/login': 'showLogin',
+  '/profile': 'showProfile'
 };
 
 var AppComponent = React.createClass({
@@ -23,12 +36,12 @@ var AppComponent = React.createClass({
     return {
       authenticated: app.auth.isAuthenticated(),
       notification: null,
+      page: null,
+      user: null,
       loggingIn: false,
       loginError: null,
       loggingOut: false,
-      loggingOutComplete: false,
-      user: null,
-      content: ''
+      loggingOutComplete: false
     };
   },
 
@@ -37,40 +50,56 @@ var AppComponent = React.createClass({
       this.fetchUser();
     }
 
+    this.setupAndStartRouter();
+  },
+
+  setupAndStartRouter: function() {
+    var self = this;
+
+    var routingTable = {};
+    _.forEach(routes, function(handlerName, route) {
+      routingTable[route] = self[handlerName];
+    });
+
+    var isAuthenticated = function() {
+      return self.state.authenticated;
+    };
+
+    app.router.setup(routingTable, {isAuthenticated: isAuthenticated});
     app.router.start();
   },
 
   render: function() {
-    var overlay = this.getOverlay();
-    var nav = this.getNav();
-    var notification = this.getNotification();
-    var content = this.getContent();
+    var overlay = this.renderOverlay();
+    var nav = this.renderNav();
+    var notification = this.renderNotification();
+    var page = this.renderPage();
 
-    /* jshint ignore:start */
     return (
+      /* jshint ignore:start */
       <div className="app">
         {overlay}
         {nav}
         {notification}
-        {content}
+        {page}
       </div>
+      /* jshint ignore:end */
     );
-    /* jshint ignore:end */
   },
 
-  getOverlay: function() {
+  renderOverlay: function() {
     if (this.state.loggingOut) {
-      /* jshint ignore:start */
       return (
+        /* jshint ignore:start */
         <Logout fadeOut={this.state.loggingOutComplete} />
+        /* jshint ignore:end */
       );
-      /* jshint ignore:end */
     }
 
     return null;
   },
 
-  getNav: function() {
+  renderNav: function() {
     if (this.state.authenticated) {
       /* jshint ignore:start */
       return (
@@ -85,33 +114,7 @@ var AppComponent = React.createClass({
     return null;
   },
 
-  getContent: function() {
-    if (!this.state.authenticated) {
-      /* jshint ignore:start */
-      return (
-        <Login 
-          loggingIn={this.state.loggingIn}
-          onLogin={this.login}
-          message={this.state.loginError} />
-      );
-      /* jshint ignore:end */
-    }
-
-    if (this.state.content === 'profile') {
-      /* jshint ignore:start */
-      return (
-        <Profile 
-          user={this.state.user}
-          onValidate={this.validateUser}
-          onSave={this.updateUser}/>
-      );
-      /* jshint ignore:end */
-    }
-
-    return null;
-  },
-
-  getNotification: function() {
+  renderNotification: function() {
     if (this.state.notification) {
       /* jshint ignore:start */
       return (
@@ -123,6 +126,43 @@ var AppComponent = React.createClass({
     }
 
     return null;
+  },
+
+  // Override on route change
+  renderPage: function() {
+    return null;
+  },
+
+  showLogin: function() {
+    this.renderPage = this.renderLogin;
+    this.setState({page: 'login'});
+  },
+
+  renderLogin: function() {
+    return (
+      /* jshint ignore:start */
+      <Login 
+        loggingIn={this.state.loggingIn}
+        onLogin={this.login}
+        message={this.state.loginError} />
+      /* jshint ignore:end */
+    );
+  },
+
+  showProfile: function() {
+    this.renderPage = this.renderProfile;
+    this.setState({page: 'profile'});
+  },
+
+  renderProfile: function() {
+    return (
+      /* jshint ignore:start */
+      <Profile 
+          user={this.state.user}
+          onValidate={this.validateUser}
+          onSave={this.updateUser}/>
+      /* jshint ignore:end */
+    );
   },
 
   login: function() {
@@ -232,11 +272,6 @@ var AppComponent = React.createClass({
 app.start = function() {
   var self = this;
 
-  this.auth = auth;
-  this.api = api;
-  this.user = user;
-  this.router = router;
-
   this.init(function() {
     self.component = React.renderComponent(
       /* jshint ignore:start */
@@ -263,7 +298,5 @@ app.init = function(callback) {
 
   initApi();
 };
-
-window.app = app;
 
 module.exports = app;
