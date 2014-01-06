@@ -160,6 +160,12 @@ foo.init = function() {
 }
 ```
 
+There are additional "demo" settings you can use to help in development:
+
+- `DEMO_DELAY`: Set this to a value in milliseconds, and all "fake" demo external calls (to an API for example), will be delayed by that amount. This is useful to test how the app feels like on a slow internet connection for example.
+- `DEMO_VARIANT`: Use this to trigger some "special" events to test how the interface responds. For instance, setting `DEMO_VARIANT='auth.login.error'` will trigger an error when logging in.
+
+
 ## Testing
 
 We use [Mocha](http://visionmedia.github.io/mocha/) with [Chai](http://chaijs.com/) for the test framework, and [Testem](https://github.com/airportyh/testem) as the test runner.

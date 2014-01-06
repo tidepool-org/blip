@@ -42,10 +42,10 @@ function addDemoOverrides(auth) {
         if (token) {
           this.saveSession(token);
         }
-        setTimeout(callback, config.DEMO_DELAY || 0);
+        setTimeout(callback, config.DEMO_DELAY);
       }
       else {
-        setTimeout(callback, config.DEMO_DELAY || 0);
+        setTimeout(callback, config.DEMO_DELAY);
       }
       this.log('[demo] Session loaded');
     },
@@ -70,7 +70,9 @@ function addDemoOverrides(auth) {
       var self = this;
       setTimeout(function() {
         var err;
-        // err = {message: 'Wrong username or password.'};
+        if (config.DEMO_VARIANT === 'auth.login.error') {
+          err = {message: 'Wrong username or password.'};
+        }
         if (!err) {
           self.saveSession(self.demoToken);
           self.log('[demo] Login success');
@@ -79,14 +81,16 @@ function addDemoOverrides(auth) {
           self.log('[demo] Login failed');
         }
         callback(err);
-      }, config.DEMO_DELAY || 0);
+      }, config.DEMO_DELAY);
     },
 
     logout: function(callback) {
       var self = this;
       setTimeout(function() {
         var err;
-        // err = {message: 'Logout failed, please try again.'};
+        if (config.DEMO_VARIANT === 'auth.logout.error') {
+          err = {message: 'Logout failed, please try again.'};
+        }
         if (!err) {
           self.destroySession();
           self.log('[demo] Logout success');
@@ -95,7 +99,7 @@ function addDemoOverrides(auth) {
           self.log('[demo] Logout failed');
         }
         callback(err);
-      }, config.DEMO_DELAY || 0);
+      }, config.DEMO_DELAY);
     }
 
   });

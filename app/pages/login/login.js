@@ -66,7 +66,7 @@ var Login = React.createClass({
       if (err) {
         self.setState({
           loggingIn: false,
-          errorMessage: err.message || 'An error occured while logging in.'
+          message: err.message || 'An error occured while logging in.'
         });
         return;
       }

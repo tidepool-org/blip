@@ -25,7 +25,7 @@ function addDemoOverrides(api) {
     api.log('[demo] GET ' + uri);
     setTimeout(function() {
       api._get(uri, callback);
-    }, config.DEMO_DELAY || 0);
+    }, config.DEMO_DELAY);
   };
 
   api.user.put = function(user, callback) {
@@ -33,9 +33,11 @@ function addDemoOverrides(api) {
     api.log('[demo] PUT ' + uri);
     setTimeout(function() {
       var err;
-      // err = true;
+      if (config.DEMO_VARIANT === 'api.user.put.error') {
+        err = true;
+      }
       callback(err, user);
-    }, config.DEMO_DELAY || 0);
+    }, config.DEMO_DELAY);
   };
 
   // ----- Private methods -----
