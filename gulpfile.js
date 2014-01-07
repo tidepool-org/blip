@@ -26,7 +26,7 @@ gulp.task('jshint-app', function() {
 });
 
 gulp.task('jshint-test', function() {
-  gulp.src('test/unit/**/*.js')
+  gulp.src('test/**/*.js')
     .pipe(jshint(_.extend(jshintrc, {
       newcap: false,
       undef: false,
@@ -46,7 +46,7 @@ gulp.task('jshint-watch', function(){
     gulp.run('jshint-app');
   });
 
-  gulp.watch('test/unit/**/*.js', function(event) {
+  gulp.watch('test/**/*.js', function(event) {
     gulp.run('jshint-test');
   });
 

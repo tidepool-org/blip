@@ -26,6 +26,8 @@ Table of contents:
     - [JSHint](#jshint)
     - [Demo mode](#demo-mode)
 - [Testing](#testing)
+    - [Unit tests](#unit-tests)
+    - [End-to-end tests](#end-to-end-tests)
 - [Deployment](#deployment)
     - [Build](#build)
     - [Deploy](#deploy)
@@ -175,9 +177,11 @@ There are additional "demo" settings you can use to help in development:
 
 ## Testing
 
+### Unit tests
+
 We use [Mocha](http://visionmedia.github.io/mocha/) with [Chai](http://chaijs.com/) for the test framework, and [Testem](https://github.com/airportyh/testem) as the test runner.
 
-To run the tests, first install Testem:
+To run the tests locally, first install Testem:
 
 ```bash
 $ npm install -g testem
@@ -190,6 +194,33 @@ $ testem
 ```
 
 This will open and run the tests in Chrome by default. You can also open other browsers and point them to the specified URL.
+
+### End-to-end tests
+
+End-to-end (E2E) tests use [Selenium](https://code.google.com/p/selenium/) for browser automation with the [WebDriverJS](https://code.google.com/p/selenium/wiki/WebDriverJs) Node.js bindings. They also use the Mocha with Chai framework.
+
+To run E2E tests locally on Chrome, first insall the Selenium [ChromeDriver](https://code.google.com/p/selenium/wiki/ChromeDriver):
+
+```bash
+$ make install-selenium
+```
+
+This will download and unzip the `chromedriver` executable in the `test/bin` directory.
+
+**Note**: If not on Mac OSX, change the `CHROMEDRIVER_ZIP` environment variable to the correct one for your OS (see the [ChromeDriver downloads](http://chromedriver.storage.googleapis.com/index.html)), and `test/scripts/install_selenium.sh`).
+
+Before running the tests, build the app (in demo mode, for now) and start a local server in a separate terminal:
+
+```bash
+$ export DEMO=true; gulp
+$ node server
+```
+
+Finally, run the tests with:
+
+```bash
+$ make test-e2e
+```
 
 ## Deployment
 
