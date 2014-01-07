@@ -16,7 +16,7 @@ var api = {
 
 // ---------- BEGIN DEMO OVERRIDES ----------
 function addDemoOverrides(api) {
-  api.demoEndpoint = 'demo';
+  api.demoEndpoint = config.DEMO_ENDPOINT;
 
   // ----- User -----
 

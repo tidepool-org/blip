@@ -15,6 +15,8 @@ var config = {
   DEMO: process.env.DEMO || true,
   DEMO_DIR: process.env.DEMO_DIR || 'demo/sample'
 };
+process.env.DEMO_ENDPOINT = 'build/' + pkg.version + '/demo';
+config.DEMO_ENDPOINT = process.env.DEMO_ENDPOINT;
 var jshintrc = JSON.parse(fs.readFileSync('.jshintrc'));
 
 gulp.task('jshint-app', function() {
@@ -110,7 +112,7 @@ gulp.task('index', function(cb) {
 gulp.task('demo', function(cb) {
   if (config.DEMO) {
     gulp.src(config.DEMO_DIR + '/**')
-      .pipe(gulp.dest('dist/demo'))
+      .pipe(gulp.dest('dist/' + config.DEMO_ENDPOINT))
       .on('end', cb);
   }
   else {

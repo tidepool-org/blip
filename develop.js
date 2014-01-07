@@ -12,6 +12,7 @@ var pkg = require('./package.json');
 var config = {
   DEMO_DIR: process.env.DEMO_DIR || 'demo/sample'
 };
+process.env.DEMO_ENDPOINT = 'demo';
 
 var app = connect();
 
