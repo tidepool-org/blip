@@ -23,7 +23,7 @@ The main unit of each tideline is the container, which creates:
  
  - a group to contain other horizontal navigation elements (classes `x` and `d3-nav`)
  
- The horizontal sections comprising sub-units of visualization plotted against the same x-axis are referred to in this repository as *pools*. Each pool is an SVG group element embedded within `g#mainGroup` and may contain one or more of the following:
+The horizontal sections comprising sub-units of visualization plotted against the same x-axis are referred to in this repository as *pools*. Each pool is an SVG group element embedded within `g#mainGroup` and may contain one or more of the following:
  
  - a 'fill' group (ID ending in `_fill`) containing elements that form the background for the pool
  
