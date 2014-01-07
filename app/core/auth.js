@@ -66,7 +66,7 @@ function addDemoOverrides(auth) {
       }
     },
 
-    login: function(callback) {
+    login: function(username, password, callback) {
       var self = this;
       setTimeout(function() {
         var err;

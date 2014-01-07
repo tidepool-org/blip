@@ -23,6 +23,9 @@ var Login = React.createClass({
     return (
       /* jshint ignore:start */
       <div className="login">
+        <ul>
+          <li><a href="#/signup">Sign up</a></li>
+        </ul>
         {loginForm}
         {message}
         <p><a href="#">Forgot your password?</a></p>
@@ -53,7 +56,7 @@ var Login = React.createClass({
     return null;
   },
 
-  handleLogin: function() {
+  handleLogin: function(username, password) {
     var self = this;
 
     if (this.state.loggingIn) {
@@ -62,7 +65,16 @@ var Login = React.createClass({
 
     this.setState({loggingIn: true});
 
-    this.props.login(function(err) {
+    var validationError = this.validate(username, password);
+    if (validationError) {
+      this.setState({
+        loggingIn: false,
+        message: validationError
+      });
+      return;
+    }
+
+    this.props.login(username, password, function(err) {
       if (err) {
         self.setState({
           loggingIn: false,
@@ -73,6 +85,20 @@ var Login = React.createClass({
       self.setState({loggingIn: false});
       self.props.onLoginSuccess();
     });
+  },
+
+  validate: function(username, password) {
+    if (!username && !password) {
+      return 'Missing email and password.';
+    }
+
+    if (!username) {
+      return 'Missing email.';
+    }
+
+    if (!password) {
+      return 'Missing password.';
+    }
   }
 });
 
