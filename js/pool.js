@@ -1,37 +1,45 @@
+var data = require('./data');
+
 module.exports = function(container) {
+
+  var d = data();
 
   // TMP: colors, etc. for demo-ing
   var colors = d3.scale.category20(),
     grays = ['#f7f7f7', '#d9d9d9', '#bdbdbd', '#969696', '#636363', '#252525'];
 
-  var id, yPosition, group,
+  var allData = [],
+    id, yPosition, group,
     mainSVG = d3.select('#mainSVG'),
+    xScale,
     yScale = d3.scale.linear(),
-    width = 78,
+    fillGap = 1,
+    width,
     height = 60,
     pad = 5;
 
-  function pool(selection) {
-    selection.each(function(data) {
-      // select the pool group if it already exists
-      var mainGroup = d3.select(this).selectAll('#' + id).data([data]);
-      // otherwise create a new pool group
-      group = mainGroup.enter().append('g').attr({
-        'id': id,
-        'transform': 'translate(0,' + yPosition + ')'
-      });
-      pool.updateYScale(data).fillPool().plotPool();
+  function pool(selection, endpoints) {
+    var poolData = d(endpoints);
+    pool.allData(poolData);
+    // select the pool group if it already exists
+    group = selection.selectAll('#' + id).data([allData]);
+    // otherwise create a new pool group
+    group.enter().append('g').attr({
+      'id': id,
+      'transform': 'translate(0,' + yPosition + ')'
     });
+    pool.updateYScale(allData).fillPool(xScale(endpoints[0])).plotPool();
   }
 
   pool.fillPool = function(init) {
-    if (!arguments.length) { init = 0; }
+    var rectGroup = group.selectAll('#' + id + '_fill').data(group.data());
+    rectGroup.enter().append('g').attr('id', id + '_fill');
     for (var i = 0; i < 24; i++) {
-      group.append('rect')
+      rectGroup.append('rect')
         .attr({
           'width': width,
           'height': height,
-          'x': init + (i * (width + 2)) + 1,
+          'x': init + (i * (width + fillGap)) + fillGap/2,
           'y': 0,
           'fill': grays[j],
           'class': 'd3-rect'
@@ -41,14 +49,15 @@ module.exports = function(container) {
   };
 
   pool.plotPool = function() {
-    var plotGroup = group.append('g').attr('id', id + '_random');
+    var plotGroup = group.selectAll('#' + id + '_random').data(group.data());
+    plotGroup.enter().append('g').attr('id', id + '_random');
     plotGroup.selectAll('circle')
       .data(plotGroup.data()[0])
       .enter()
       .append('circle')
       .attr({
         'cx': function(d) {
-          return container.xScale(d.timestamp);
+          return xScale(d.timestamp);
         },
         'cy': function(d) {
           return yScale(d.value);
@@ -68,6 +77,12 @@ module.exports = function(container) {
   };
 
   // getters & setters
+  pool.allData = function(_) {
+    if (!arguments.length) return allData;
+    allData = allData.concat(_);
+    return pool;
+  }
+
   pool.id = function(_) {
     if (!arguments.length) return id;
     id = _;
@@ -86,12 +101,6 @@ module.exports = function(container) {
     return pool;
   };
 
-  pool.width = function(_) {
-    if (!arguments.length) return width;
-    width = _;
-    return pool;
-  };
-
   pool.height = function(_) {
     if (!arguments.length) return height;
     height = _;
@@ -103,6 +112,13 @@ module.exports = function(container) {
     pad = _;
     return pool;
   };
+
+  pool.xScale = function(_) {
+    if (!arguments.length) return xScale;
+    xScale = _;
+    width = xScale(new Date(2014, 0, 1, 2, 0, 0, 0)) - fillGap;
+    return pool;
+  }
 
   return pool;
 };

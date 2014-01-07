@@ -1,14 +1,20 @@
 var pool = require('./pool');
 
-module.exports = function() {
+module.exports = function(data) {
+
+  var MS_IN_24 = 86400000;
 
   var id = 'mainSVG',
     width = 960,
-    height = 530,
+    height = 580,
     pad = 0,
     pools = [],
     xScale = d3.time.scale(),
-    xAxis = d3.svg.axis().scale(xScale).orient("bottom");
+    xAxis = d3.svg.axis().scale(xScale).orient("bottom"),
+    horizon,
+    beginningOfData,
+    endOfData,
+    currentPosition = 0;
 
   container.newPool = function() {
     var p = pool(container);
@@ -17,48 +23,85 @@ module.exports = function() {
   };
 
   function container(selection) {
-    selection.each(function(data) {
-      // select the SVG if it already exists
-      var mainSVG = d3.select(this).selectAll('svg').data([data]);
-      // otherwise create a new SVG
-      var mainGroup = mainSVG.enter().append('svg').append('g').attr('id', 'mainGroup');
+    // select the SVG if it already exists
+    var mainSVG = selection.selectAll('svg').data([data]);
+    // otherwise create a new SVG
+    var mainGroup = mainSVG.enter().append('svg').append('g').attr('id', 'mainGroup');
 
-      // update SVG dimenions and ID
-      mainSVG.attr({
-        'id': id,
-        'width': width,
-        'height': height
+    // update SVG dimenions and ID
+    mainSVG.attr({
+      'id': id,
+      'width': width,
+      'height': height
+    });
+
+    container.updateXScale(data);
+
+    mainSVG.append('g')
+      .attr('class', 'x axis')
+      .attr('transform', 'translate(0,' + (height - 50) + ')')
+      .call(xAxis);
+
+    var xNav = mainSVG.append('g')
+      .attr('class', 'x d3-nav')
+      .attr('transform', 'translate(' + (width / 2) + ',0)');
+
+    xNav.append('path')
+      .attr({
+        'd': 'M -100 10 L -140 25 -100 40 Z',
+        'fill': 'white',
+        'stroke': 'black',
+        'id': 'd3-nav-back'
       });
 
-      container.updateXScale(data);
+    xNav.append('path')
+      .attr({
+        'd': 'M 100 10 L 140 25 100 40 Z',
+        'fill': 'white',
+        'stroke': 'black',
+        'id': 'd3-nav-forward'
+      });
 
-      mainSVG.append('g')
-        .attr('class', 'x axis')
-        .attr('transform', 'translate(0,' + (height - 50) + ')')
-        .call(xAxis);
-
-      var pan = d3.behavior.zoom()
-        .scaleExtent([1, 1])
-        .x(xScale)
-        .on('zoom', function() {
-          for (var i = 0; i < pools.length; i++) {
-            pools[i].pan(d3.event);
-            d3.select('.x.axis').call(xAxis);
+    var pan = d3.behavior.zoom()
+      .scaleExtent([1, 1])
+      .x(xScale)
+      .on('zoom', function() {
+        // update horizon
+        horizon = xScale.domain()[1];
+        if (endOfData - horizon < MS_IN_24) {
+          console.log('Creating new data!');
+          for (j = 0; j < pools.length; j++) {
+            var plusTwo = new Date(container.endOfData());
+            plusTwo.setDate(plusTwo.getDate() + 2);
+            pools[j](mainGroup, [container.endOfData(), plusTwo]);
           }
-          console.log(xScale.domain());
-        });
+          // update endOfData
+          container.endOfData(plusTwo);
+        }
+        for (var i = 0; i < pools.length; i++) {
+          pools[i].pan(d3.event);
+        }
+        d3.select('.x.axis').call(xAxis);
+      });
 
-      mainSVG.call(pan);
+    mainSVG.call(pan);
 
-      // TODO: update inner group dimensions if decide to have a margin
-      // mainGroup.attr('transform', 'translate(' + margin.left + "," + margin.top + ')');
+    $('#d3-nav-forward').on('click', function() {
+      console.log('Jumped forward a day.');
+      currentPosition = currentPosition - width;
+      pan.translate([currentPosition, 0]);
+      pan.event(d3.transition(mainSVG));
     });
+
+    // TODO: update inner group dimensions if decide to have a margin
+    // mainGroup.attr('transform', 'translate(' + margin.left + "," + margin.top + ')');
   }
 
   container.updateXScale = function(_) {
     if (!arguments.length) return xScale;
-    xScale.domain([_[0].timestamp, _[288].timestamp]).range([pad, width - pad]);
-    xScale.ticks(d3.time.hour, 1);
+    container.horizon(_[0].timestamp);
+    container.endOfData(_[_.length - 1].timestamp);
+    xScale.domain([_[0].timestamp, horizon]).range([pad, width - pad]);
     container.xScale = xScale;
     return container;
   };
@@ -80,6 +123,25 @@ module.exports = function() {
     height = _;
     return container;
   };
+
+  container.horizon = function(d) {
+    if (!arguments.length) return horizon;
+    horizon = new Date(d);
+    horizon.setDate(horizon.getDate() + 1);
+    return container;
+  }
+
+  container.beginningOfData = function(d) {
+    if (!arguments.length) return beginningOfData;
+    beginningOfData = new Date(d);
+    return container;
+  }
+
+  container.endOfData = function(d) {
+    if (!arguments.length) return endOfData;
+    endOfData = new Date(d);
+    return container;
+  }
 
   container.pad = function(_) {
     if (!arguments.length) return pad;
