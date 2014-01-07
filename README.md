@@ -22,6 +22,7 @@ Table of contents:
     - [Config object](#config-object)
     - [Vendor packages](#vendor-packages)
     - [Debugging](#debugging)
+    - [CSS](#css)
     - [JSHint](#jshint)
     - [Demo mode](#demo-mode)
 - [Testing](#testing)
@@ -137,6 +138,12 @@ app.foo = {
   }
 };
 ```
+
+### CSS
+
+Prefix all CSS classes with the component name. For example, if I'm working on the `PatientList` component, I'll prefix CSS classes with `patient-list-`.
+
+Keep styles in the same folder as the component, and import them in the main `app/style.less` stylesheet.
 
 ### JSHint
 
