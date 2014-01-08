@@ -1,25 +1,13 @@
 var webdriver = require('selenium-webdriver');
 var expect = require('chai').expect;
+var helpers = require('../lib/e2ehelpers');
 
 describe('Login', function() {
-  var driver;
-
-  var createNewDriver = function() {
-    return new webdriver.Builder().
-      withCapabilities(webdriver.Capabilities.chrome()).
-      build();
-  };
-
-  var openApp = function () {
-    var deferred = webdriver.promise.defer();
-    driver.get('http://localhost:3000').then(function () {
-      deferred.fulfill();
-    });
-    return deferred.promise;
-  };
+  var driver = helpers.getDriver();
+  var openApp = helpers.openApp;
 
   before(function() {
-    driver = createNewDriver();
+    driver = helpers.newDriver();
   });
 
   after(function(done) {
