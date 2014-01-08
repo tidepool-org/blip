@@ -147,6 +147,8 @@ Prefix all CSS classes with the component name. For example, if I'm working on t
 
 Keep styles in the same folder as the component, and import them in the main `app/style.less` stylesheet.
 
+If using class names to select elements from JavaScript (for tests, or using jQuery), prefix them with `js-`. That way style changes and script changes can be done more independently.
+
 ### JSHint
 
 In a separate terminal, you can watch and lint JS files with:
