@@ -5,6 +5,7 @@ var helpers = require('../lib/e2ehelpers');
 describe('Login', function() {
   var driver = helpers.getDriver();
   var openApp = helpers.openApp;
+  var By = webdriver.By;
 
   before(function() {
     driver = helpers.newDriver();
@@ -14,13 +15,27 @@ describe('Login', function() {
     driver.quit().then(done);
   });
 
-  it('should have correct page title', function(done) {
+  it('should show an error if password is not filled in', function(done) {
     openApp()
-      .then(function() {
-        return driver.getTitle();
-      }).then(function(title) {
-        expect(title).to.equal('Blip');
+      .then(fillOutUsername)
+      .then(submitForm)
+      .then(getMessageText)
+      .then(function(text) {
+        expect(text).to.be.ok;
         done();
       });
   });
+
+  function fillOutUsername() {
+    var username = 'demo@example.com';
+    return driver.findElement(By.name('username')).sendKeys(username);
+  }
+
+  function submitForm() {
+    return driver.findElement(By.css('.js-login-form-button')).click();
+  }
+
+  function getMessageText() {
+    return driver.findElement(By.css('.js-login-message')).getText();
+  }
 });

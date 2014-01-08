@@ -50,7 +50,7 @@ var LoginForm = React.createClass({
     return (
       /* jshint ignore:start */
       <button
-        className="login-form-button"
+        className="login-form-button js-login-form-button"
         onClick={this.handleLogin}
         ref="button"
         disabled={disabled}>{text}</button>

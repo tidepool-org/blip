@@ -49,7 +49,7 @@ var Login = React.createClass({
     if (message) {
       return (
         /* jshint ignore:start */
-        <div className="login-message">{message}</div>
+        <div className="login-message js-login-message">{message}</div>
         /* jshint ignore:end */
       );
     }
