@@ -14,6 +14,7 @@ var LogoutOverlay = require('./components/logoutoverlay');
 var Notification = require('./components/notification');
 
 var Login = require('./pages/login');
+var Signup = require('./pages/signup');
 var Profile = require('./pages/profile');
 
 var app = {
@@ -29,8 +30,11 @@ window.app = app;
 var routes = {
   '/': 'showProfile',
   '/login': 'showLogin',
+  '/signup': 'showSignup',
   '/profile': 'showProfile'
 };
+
+var noAuthRoutes = ['/login', '/signup'];
 
 var AppComponent = React.createClass({
   getInitialState: function() {
@@ -63,7 +67,10 @@ var AppComponent = React.createClass({
       return self.state.authenticated;
     };
 
-    app.router.setup(routingTable, {isAuthenticated: isAuthenticated});
+    app.router.setup(routingTable, {
+      isAuthenticated: isAuthenticated,
+      noAuthRoutes: noAuthRoutes
+    });
     app.router.start();
   },
 
@@ -146,6 +153,22 @@ var AppComponent = React.createClass({
     );
   },
 
+  showSignup: function() {
+    this.renderPage = this.renderSignup;
+    this.setState({page: 'signup'});
+  },
+
+  renderSignup: function() {
+    return (
+      /* jshint ignore:start */
+      <Signup  
+        onValidate={this.validateUser}
+        onSubmit={app.auth.signup.bind(app.auth)}
+        onSubmitSuccess={this.handleSignupSuccess} />
+      /* jshint ignore:end */
+    );
+  },
+
   showProfile: function() {
     this.renderPage = this.renderProfile;
     this.setState({page: 'profile'});
@@ -165,7 +188,15 @@ var AppComponent = React.createClass({
   handleLoginSuccess: function() {
     this.setState({authenticated: true});
     this.fetchUser();
-    app.router.setRoute('/profile');
+    app.router.setRoute('/');
+  },
+
+  handleSignupSuccess: function(user) {
+    this.setState({
+      authenticated: true,
+      user: user
+    });
+    app.router.setRoute('/');
   },
 
   logout: function() {

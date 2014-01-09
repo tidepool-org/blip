@@ -100,6 +100,28 @@ function addDemoOverrides(auth) {
         }
         callback(err);
       }, config.DEMO_DELAY);
+    },
+
+    signup: function(user, callback) {
+      var self = this;
+
+      user.id = '1';
+      delete user.password;
+
+      setTimeout(function() {
+        var err;
+        if (config.DEMO_VARIANT === 'auth.signup.error') {
+          err = {message: 'An account already exists for that username.'};
+        }
+        if (!err) {
+          self.saveSession(self.demoToken);
+          self.log('[demo] Signup success');
+        }
+        else {
+          self.log('[demo] Signup failed');
+        }
+        callback(err, user);
+      }, config.DEMO_DELAY);
     }
 
   });

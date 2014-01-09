@@ -10,7 +10,7 @@ var configuration = {
   before: function() {
     var routeBase = router.getRoute(0);
     var isAuthenticated = router.isAuthenticated();
-    var isNoAuthRoute = _.contains(['login'], routeBase);
+    var isNoAuthRoute = _.contains(router.noAuthRoutes, routeBase);
 
     if (router.ignoreFirstRoute) {
       router.ignoreFirstRoute = false;
@@ -41,15 +41,34 @@ router.configure(configuration);
 
 router.setup = function(routes, options) {
   var self = this;
+  options = options || {};
 
   this.isAuthenticated = options.isAuthenticated ||
                          function() { return true; };
+
+  this.noAuthRoutes = options.noAuthRoutes || [];
+  this.noAuthRoutes = this._parseNoAuthRoutes(this.noAuthRoutes);
   
   _.forEach(routes, function(handler, route) {
     self.on(route, handler);
   });
 
   return this;
+};
+
+router._parseNoAuthRoutes = function(routes) {
+  return _.map(routes, this._getRouteFirstFragment);
+};
+
+// Return first fragment of route
+// '/foo/bar' => 'foo'
+router._getRouteFirstFragment = function(route) {
+  var result = route.split('/');
+  // Get first fragment after leading '/'
+  if (result.length >= 2) {
+    return result[1];
+  }
+  return '';
 };
 
 router.start = function() {

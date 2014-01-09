@@ -106,11 +106,7 @@ var Profile = React.createClass({
       /* jshint ignore:end */
     );
   },
-
-  getMessage: function() {
-    return this.props.message;
-  },
-
+  
   handleChange: function(e) {
     var key = e.target.name;
     var value = e.target.value;
@@ -125,7 +121,7 @@ var Profile = React.createClass({
     e.preventDefault();
     var self = this;
 
-    var user = this.getUserFormValues();
+    var user = this.state.user;
     this.setState({
       validationErrors: {},
       message: null
@@ -150,13 +146,6 @@ var Profile = React.createClass({
         self.setState({message: null});
       }, this.MESSAGE_TIMEOUT);
     }
-  },
-
-  getUserFormValues: function() {
-    return {
-      firstName: this.refs.firstName.getDOMNode().value.trim(),
-      lastName: this.refs.lastName.getDOMNode().value.trim()
-    };
   },
 
   validateUser: function(user) {
