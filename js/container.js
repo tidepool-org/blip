@@ -4,7 +4,7 @@ module.exports = function(data) {
 
   var MS_IN_24 = 86400000;
 
-  var id = 'mainSVG',
+  var id = 'tidelineSVG',
     width = 960,
     height = 580,
     pad = 0,
@@ -26,7 +26,7 @@ module.exports = function(data) {
     // select the SVG if it already exists
     var mainSVG = selection.selectAll('svg').data([data]);
     // otherwise create a new SVG
-    var mainGroup = mainSVG.enter().append('svg').append('g').attr('id', 'mainGroup');
+    var mainGroup = mainSVG.enter().append('svg').append('g').attr('id', 'tidelineMain');
 
     // update SVG dimenions and ID
     mainSVG.attr({
@@ -39,11 +39,13 @@ module.exports = function(data) {
 
     mainSVG.append('g')
       .attr('class', 'x axis')
+      .attr('id', 'tidelineXAxis')
       .attr('transform', 'translate(0,' + (height - 50) + ')')
       .call(xAxis);
 
     var xNav = mainSVG.append('g')
-      .attr('class', 'x d3-nav')
+      .attr('class', 'x')
+      .attr('id', 'tidelineNav')
       .attr('transform', 'translate(' + (width / 2) + ',0)');
 
     xNav.append('path')
@@ -51,7 +53,7 @@ module.exports = function(data) {
         'd': 'M -100 10 L -140 25 -100 40 Z',
         'fill': 'white',
         'stroke': 'black',
-        'id': 'd3-nav-back'
+        'id': 'd3NavBack'
       });
 
     xNav.append('path')
@@ -59,7 +61,7 @@ module.exports = function(data) {
         'd': 'M 100 10 L 140 25 100 40 Z',
         'fill': 'white',
         'stroke': 'black',
-        'id': 'd3-nav-forward'
+        'id': 'd3NavForward'
       });
 
     var pan = d3.behavior.zoom()
@@ -97,14 +99,14 @@ module.exports = function(data) {
 
     mainSVG.call(pan);
 
-    $('#d3-nav-forward').on('click', function() {
+    $('#d3NavForward').on('click', function() {
       console.log('Jumped forward a day.');
       currentPosition = currentPosition - width;
       pan.translate([currentPosition, 0]);
       pan.event(mainSVG.transition().duration(500));
     });
 
-    $('#d3-nav-back').on('click', function() {
+    $('#d3NavBack').on('click', function() {
       console.log('Jumped back a day.');
       currentPosition = currentPosition + width;
       pan.translate([currentPosition, 0]);

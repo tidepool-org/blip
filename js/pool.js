@@ -10,7 +10,7 @@ module.exports = function(container) {
 
   var allData = [],
     id, yPosition, group,
-    mainSVG = d3.select('#mainSVG'),
+    mainSVG = d3.select('#tidelineSVG'),
     xScale,
     yScale = d3.scale.linear(),
     fillGap = 1,

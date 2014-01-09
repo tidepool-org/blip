@@ -7,7 +7,7 @@ This module is currently under construction; check back often for updates!
 
 This repository uses [Bower](http://bower.io/ 'Bower') to manage its dependencies. After cloning the repository, you can install all of the necessary dependencies with `bower install`.
 
-The module itself is organized in node.js-style (sub-)modules and can be bundled together using [browserify](http://browserify.org/ 'browserify'). Assuming browserify is installed (run `npm install -g browserify` if not), just run the following from the `js/` directory: `browserify index.js -o bundle.js`.
+The module itself is organized in node.js-style (sub-)modules and can be bundled together using [browserify](http://browserify.org/ 'browserify'). Assuming browserify is installed (run `npm install -g browserify` if not), just run the following: `browserify js/index.js -o js/bundle.js`. Then run `python -m SimpleHTTPServer` or similar to run the visualization locally and view at http://localhost:8000 in your browser.
 
 ## Code Philosophy and Organization
 
@@ -15,15 +15,15 @@ The tideline module is designed to be highly modular. To this end, its component
 
 The main unit of each tideline is the container, which creates:
 
- - an SVG element for visualization (ID `#mainSVG`)
+ - an SVG element for visualization (ID `#tidelineSVG`)
 	
- - a main group element to contain the sub-units of visualization (ID `#mainGroup`)
+ - a main group element to contain the sub-units of visualization (ID `#tidelineMain`)
  
- - a group to contain the horizontal axis (classes `x` and `axis`)
+ - a group to contain the horizontal axis (classes `x` and `axis`, ID `#tidelineXAxis`)
  
- - a group to contain other horizontal navigation elements (classes `x` and `d3-nav`)
+ - a group to contain other horizontal navigation elements (class `x`, ID `#tidelineNav`)
  
-The horizontal sections comprising sub-units of visualization plotted against the same x-axis are referred to in this repository as *pools*. Each pool is an SVG group element embedded within `g#mainGroup` and may contain one or more of the following:
+The horizontal sections comprising sub-units of visualization plotted against the same x-axis are referred to in this repository as *pools*. Each pool is an SVG group element with an ID formed from the prefix `pool_` plus an integer identifying the pool uniquely. Each pool is embedded within `g#tidelineMain` and may contain one or more of the following:
  
  - a 'fill' group (ID ending in `_fill`) containing elements that form the background for the pool
  
