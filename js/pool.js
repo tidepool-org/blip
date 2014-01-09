@@ -28,13 +28,13 @@ module.exports = function(container) {
       'id': id,
       'transform': 'translate(0,' + yPosition + ')'
     });
-    pool.updateYScale(allData).fillPool(xScale(endpoints[0])).plotPool();
+    pool.updateYScale(allData).fillPool(xScale(poolData[0].timestamp)).plotPool();
   }
 
   pool.fillPool = function(init) {
     var rectGroup = group.selectAll('#' + id + '_fill').data(group.data());
     rectGroup.enter().append('g').attr('id', id + '_fill');
-    for (var i = 0; i < 24; i++) {
+    for (var i = 0; i < 12; i++) {
       rectGroup.append('rect')
         .attr({
           'width': width,
@@ -42,7 +42,7 @@ module.exports = function(container) {
           'x': init + (i * (width + fillGap)) + fillGap/2,
           'y': 0,
           'fill': grays[j],
-          'class': 'd3-rect'
+          'class': 'd3-rect on-deck'
         });
     }
     return pool;
@@ -66,7 +66,7 @@ module.exports = function(container) {
         'fill': function(d) {
           return colors(d.value);
         },
-        'class': 'd3-circle'
+        'class': 'd3-circle on-deck'
       });
     return pool;
   };
@@ -116,6 +116,7 @@ module.exports = function(container) {
   pool.xScale = function(_) {
     if (!arguments.length) return xScale;
     xScale = _;
+    // width is equivalent to a duration of 2 hours minus the pixels for the gap in fill between sections
     width = xScale(new Date(2014, 0, 1, 2, 0, 0, 0)) - fillGap;
     return pool;
   }

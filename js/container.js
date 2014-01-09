@@ -67,16 +67,27 @@ module.exports = function(data) {
       .x(xScale)
       .on('zoom', function() {
         // update horizon
-        horizon = xScale.domain()[1];
-        if (endOfData - horizon < MS_IN_24) {
-          console.log('Creating new data!');
+        horizon.start = xScale.domain()[0];
+        horizon.end = xScale.domain()[1];
+        if (endOfData - horizon.end < MS_IN_24) {
+          console.log('Creating new data! (right)');
           for (j = 0; j < pools.length; j++) {
-            var plusTwo = new Date(container.endOfData());
-            plusTwo.setDate(plusTwo.getDate() + 2);
-            pools[j](mainGroup, [container.endOfData(), plusTwo]);
+            var plusOne = new Date(container.endOfData());
+            plusOne.setDate(plusOne.getDate() + 1);
+            pools[j](mainGroup, [endOfData, plusOne]);
           }
           // update endOfData
-          container.endOfData(plusTwo);
+          container.endOfData(plusOne);
+        }
+        else if (horizon.start - beginningOfData < MS_IN_24) {
+          console.log('Creating new data! (left)');
+          for (j = 0; j < pools.length; j++) {
+            var plusOne = new Date(container.beginningOfData());
+            plusOne.setDate(plusOne.getDate() - 1);
+            pools[j](mainGroup, [plusOne, beginningOfData]);
+          }
+          // update beginningOfData
+          container.beginningOfData(plusOne);
         }
         for (var i = 0; i < pools.length; i++) {
           pools[i].pan(d3.event);
@@ -90,7 +101,14 @@ module.exports = function(data) {
       console.log('Jumped forward a day.');
       currentPosition = currentPosition - width;
       pan.translate([currentPosition, 0]);
-      pan.event(d3.transition(mainSVG));
+      pan.event(mainSVG.transition().duration(500));
+    });
+
+    $('#d3-nav-back').on('click', function() {
+      console.log('Jumped back a day.');
+      currentPosition = currentPosition + width;
+      pan.translate([currentPosition, 0]);
+      pan.event(mainSVG.transition().duration(500));
     });
 
     // TODO: update inner group dimensions if decide to have a margin
@@ -100,9 +118,9 @@ module.exports = function(data) {
   container.updateXScale = function(_) {
     if (!arguments.length) return xScale;
     container.horizon(_[0].timestamp);
+    container.beginningOfData(_[0].timestamp);
     container.endOfData(_[_.length - 1].timestamp);
-    xScale.domain([_[0].timestamp, horizon]).range([pad, width - pad]);
-    container.xScale = xScale;
+    xScale.domain([horizon.start, horizon.end]).range([pad, width - pad]);
     return container;
   };
 
@@ -126,8 +144,11 @@ module.exports = function(data) {
 
   container.horizon = function(d) {
     if (!arguments.length) return horizon;
-    horizon = new Date(d);
-    horizon.setDate(horizon.getDate() + 1);
+    horizon = {
+      start: new Date(d),
+      end: new Date(d)
+    };
+    horizon.end.setDate(horizon.end.getDate() + 1);
     return container;
   }
 
