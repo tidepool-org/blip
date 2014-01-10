@@ -83,6 +83,16 @@ describe('User service', function() {
       expect(errors.passwordConfirm).to.equal(ERROR_PASSWORDS_DONT_MATCH);
     });
 
+    it('should validate matching passwords', function() {
+      userAttr = {
+        'password': 'foo',
+        'passwordConfirm': 'foo'
+      };
+      var errors = user.validate(userAttr);
+
+      expect(errors).to.be.empty;
+    });
+
   });
 
   function resetUserAttr() {
