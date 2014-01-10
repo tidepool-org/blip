@@ -13,14 +13,18 @@ var Profile = React.createClass({
 
   attributeToLabelMapping: {
     'firstName': 'First name',
-    'lastName': 'Last name'
+    'lastName': 'Last name',
+    'username': 'Email',
+    'password': 'Password',
+    'passwordConfirm': 'Confirm password'
   },
 
   getInitialState: function() {
+    var self = this;
     return {
       message: null,
       // New user values
-      user: this.props.user,
+      user: self.props.user,
       validationErrors: {}
     };
   },
@@ -31,6 +35,17 @@ var Profile = React.createClass({
     this.setState({user: nextProps.user});
   },
 
+  addPasswordAttributes: function(user) {
+    if (_.isEmpty(user)) {
+      return {};
+    }
+
+    return _.extend(user, {
+      password: '',
+      passwordConfirm: ''
+    });
+  },
+
   render: function() {
     var disabled = this.isDisabled();
     var saveButton = this.renderSaveButton(disabled);
@@ -38,12 +53,23 @@ var Profile = React.createClass({
 
     return (
       /* jshint ignore:start */
-      <form className="profile">
-        {this.renderInputForAttribute('firstName', {disabled: disabled})}
-        {this.renderInputForAttribute('lastName', {disabled: disabled})}
-        {saveButton}
-        <div className="profile-message">{message}</div>
-      </form>
+      <div className="profile">
+        <form>
+          {this.renderInputForAttribute('firstName', {disabled: disabled})}
+          {this.renderInputForAttribute('lastName', {disabled: disabled})}
+          {this.renderInputForAttribute('username', {disabled: disabled})}
+          {this.renderInputForAttribute('password', {
+            disabled: disabled,
+            type: 'password'
+          })}
+          {this.renderInputForAttribute('passwordConfirm', {
+            disabled: disabled,
+            type: 'password'
+          })}
+          {saveButton}
+          <div className="profile-message">{message}</div>
+        </form>
+      </div>
       /* jshint ignore:end */
     );
   },
@@ -55,6 +81,7 @@ var Profile = React.createClass({
 
   renderInputForAttribute: function(name, options) {
     options = options || {};
+    var type = options.type || null;
     var user = this.state.user || {};
     var disabled = options.disabled || null;
     var label = this.attributeToLabelMapping[name] + ': ';
@@ -67,6 +94,7 @@ var Profile = React.createClass({
         <div>
           <span className="profile-input-label">{label}</span>
           <input
+            type={type}
             className="profile-input-control"
             ref={name}
             name={name}
@@ -121,13 +149,14 @@ var Profile = React.createClass({
     e.preventDefault();
     var self = this;
 
-    var user = this.state.user;
     this.setState({
       validationErrors: {},
       message: null
     });
     clearTimeout(this.messageTimeoutId);
 
+    var user = _.clone(this.state.user);
+    user = this.omitPasswordAttributesIfNoChange(user);
     var validationErrors = this.validateUser(user);
     if (!_.isEmpty(validationErrors)) {
       self.setState({
@@ -146,6 +175,13 @@ var Profile = React.createClass({
         self.setState({message: null});
       }, this.MESSAGE_TIMEOUT);
     }
+  },
+
+  omitPasswordAttributesIfNoChange: function(user) {
+    if (!user.password && !user.passwordConfirm) {
+      return _.omit(user, ['password', 'passwordConfirm']);
+    }
+    return user;
   },
 
   validateUser: function(user) {

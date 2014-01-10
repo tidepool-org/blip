@@ -22,6 +22,15 @@ var user = {
     if (needsValidation('password')) {
       errors.password = this.validateRequired(attributes.password);
     }
+    if (needsValidation('passwordConfirm')) {
+      errors.passwordConfirm =
+        this.validateRequired(attributes.passwordConfirm);
+      if (!errors.passwordConfirm) {
+        errors.passwordConfirm =
+          this.validatePasswordConfirm(attributes.password,
+                                       attributes.passwordConfirm);
+      }
+    }
     if (needsValidation('firstName')) {
       errors.firstName = this.validateRequired(attributes.firstName);
     }
@@ -42,6 +51,12 @@ var user = {
   validateRequired: function(value) {
     if (!value) {
       return 'This field is required.';
+    }
+  },
+
+  validatePasswordConfirm: function(password, passwordConfirm) {
+    if (password !== passwordConfirm) {
+      return 'Passwords don\'t match';
     }
   }
 };
