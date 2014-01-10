@@ -1,6 +1,6 @@
 var pool = require('./pool');
 
-module.exports = function(data) {
+module.exports = function() {
 
   var MS_IN_24 = 86400000;
 
@@ -23,46 +23,61 @@ module.exports = function(data) {
   };
 
   function container(selection) {
-    // select the SVG if it already exists
-    var mainSVG = selection.selectAll('svg').data([data]);
-    // otherwise create a new SVG
-    var mainGroup = mainSVG.enter().append('svg').append('g').attr('id', 'tidelineMain');
+    selection.each(function(data) {
+      // select the SVG if it already exists
+      var mainSVG = selection.selectAll('svg').data([data]);
+      // otherwise create a new SVG and enter   
+      var mainGroup = mainSVG.enter().append('svg').append('g').attr('id', 'tidelineMain');
 
-    // update SVG dimenions and ID
-    mainSVG.attr({
-      'id': id,
-      'width': width,
-      'height': height
+      var poolGroup = mainGroup.append('g').attr('id', 'tidelinePools');
+
+      // update SVG dimenions and ID
+      mainSVG.attr({
+        'id': id,
+        'width': width,
+        'height': height
+      });
+
+      container.updateXScale(data);
+
+      mainGroup.append('g')
+        .attr('class', 'x axis')
+        .attr('id', 'tidelineXAxis')
+        // TODO: remove magic number 50
+        .attr('transform', 'translate(0,' + (height - 50) + ')')
+        .call(xAxis);
+
+      var xNav = mainGroup.append('g')
+        .attr('class', 'x')
+        .attr('id', 'tidelineNav')
+        .attr('transform', 'translate(' + (width / 2) + ',0)');
+
+      xNav.append('path')
+        .attr({
+          // TODO: remove magic numbers, colors
+          'd': 'M -100 10 L -140 25 -100 40 Z',
+          'fill': 'white',
+          'stroke': 'black',
+          'id': 'd3NavBack'
+        });
+
+      xNav.append('path')
+        .attr({
+          // TODO: remove magic numbers, colors
+          'd': 'M 100 10 L 140 25 100 40 Z',
+          'fill': 'white',
+          'stroke': 'black',
+          'id': 'd3NavForward'
+        });
+
+      // TODO: update inner group dimensions if decide to have a margin
+      // mainGroup.attr('transform', 'translate(' + margin.left + "," + margin.top + ')');   
     });
+  }
 
-    container.updateXScale(data);
-
-    mainSVG.append('g')
-      .attr('class', 'x axis')
-      .attr('id', 'tidelineXAxis')
-      .attr('transform', 'translate(0,' + (height - 50) + ')')
-      .call(xAxis);
-
-    var xNav = mainSVG.append('g')
-      .attr('class', 'x')
-      .attr('id', 'tidelineNav')
-      .attr('transform', 'translate(' + (width / 2) + ',0)');
-
-    xNav.append('path')
-      .attr({
-        'd': 'M -100 10 L -140 25 -100 40 Z',
-        'fill': 'white',
-        'stroke': 'black',
-        'id': 'd3NavBack'
-      });
-
-    xNav.append('path')
-      .attr({
-        'd': 'M 100 10 L 140 25 100 40 Z',
-        'fill': 'white',
-        'stroke': 'black',
-        'id': 'd3NavForward'
-      });
+  container.setNav = function() {
+    var mainGroup = d3.select('#tidelineMain');
+    var poolGroup = d3.select('#tidelinePools');
 
     var pan = d3.behavior.zoom()
       .scaleExtent([1, 1])
@@ -76,7 +91,7 @@ module.exports = function(data) {
           for (j = 0; j < pools.length; j++) {
             var plusOne = new Date(container.endOfData());
             plusOne.setDate(plusOne.getDate() + 1);
-            pools[j](mainGroup, [endOfData, plusOne]);
+            pools[j](poolGroup, [endOfData, plusOne]);
           }
           // update endOfData
           container.endOfData(plusOne);
@@ -86,7 +101,7 @@ module.exports = function(data) {
           for (j = 0; j < pools.length; j++) {
             var plusOne = new Date(container.beginningOfData());
             plusOne.setDate(plusOne.getDate() - 1);
-            pools[j](mainGroup, [plusOne, beginningOfData]);
+            pools[j](poolGroup, [plusOne, beginningOfData]);
           }
           // update beginningOfData
           container.beginningOfData(plusOne);
@@ -97,25 +112,22 @@ module.exports = function(data) {
         d3.select('.x.axis').call(xAxis);
       });
 
-    mainSVG.call(pan);
+    mainGroup.call(pan);
 
     $('#d3NavForward').on('click', function() {
       console.log('Jumped forward a day.');
       currentPosition = currentPosition - width;
       pan.translate([currentPosition, 0]);
-      pan.event(mainSVG.transition().duration(500));
+      pan.event(mainGroup.transition().duration(500));
     });
 
     $('#d3NavBack').on('click', function() {
       console.log('Jumped back a day.');
       currentPosition = currentPosition + width;
       pan.translate([currentPosition, 0]);
-      pan.event(mainSVG.transition().duration(500));
+      pan.event(mainGroup.transition().duration(500));
     });
-
-    // TODO: update inner group dimensions if decide to have a margin
-    // mainGroup.attr('transform', 'translate(' + margin.left + "," + margin.top + ')');
-  }
+  };
 
   container.updateXScale = function(_) {
     if (!arguments.length) return xScale;
