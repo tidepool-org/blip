@@ -22,7 +22,7 @@ var user = {
     if (needsValidation('password')) {
       errors.password = this.validateRequired(attributes.password);
     }
-    if (needsValidation('passwordConfirm')) {
+    if (needsValidation('password') && needsValidation('passwordConfirm')) {
       errors.passwordConfirm =
         this.validateRequired(attributes.passwordConfirm);
       if (!errors.passwordConfirm) {
