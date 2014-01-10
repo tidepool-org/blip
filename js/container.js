@@ -47,6 +47,9 @@ module.exports = function() {
         .attr('transform', 'translate(0,' + (height - 50) + ')')
         .call(xAxis);
 
+      mainGroup.append('g')
+        .attr('id', 'tidelineLabels');
+
       var xNav = mainGroup.append('g')
         .attr('class', 'x')
         .attr('id', 'tidelineNav')

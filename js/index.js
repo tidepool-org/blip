@@ -21,7 +21,7 @@ var poolGroup = d3.select('#tidelinePools');
 
 for (j = 0; j < 6; j++) {
   var pool = container.newPool();
-  pool.id('pool_' + j).yPosition((j * 80) + 60).xScale(container.updateXScale().copy());
+  pool.id('pool_' + j).yPosition((j * 80) + 60).label('This is pool #' + (j+1)).drawLabel().xScale(container.updateXScale().copy());
   pool(poolGroup, initialEndpoints);
   pool(poolGroup, onDeckLeft);
   pool(poolGroup, onDeckRight);

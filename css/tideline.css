@@ -21,3 +21,10 @@ svg {
   font-family: sans-serif;
   font-size: .5em;
 }
+
+.d3-pool-label {
+  font-family: sans-serif;
+  font-variant: small-caps;
+  font-size: .6em;
+  baseline-shift: super;
+}

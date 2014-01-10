@@ -9,7 +9,7 @@ module.exports = function(container) {
     grays = ['#f7f7f7', '#d9d9d9', '#bdbdbd', '#969696', '#636363', '#252525'];
 
   var allData = [],
-    id, yPosition, group,
+    id, yPosition, label, group,
     mainSVG = d3.select('#tidelineSVG'),
     xScale,
     yScale = d3.scale.linear(),
@@ -76,6 +76,18 @@ module.exports = function(container) {
     d3.selectAll('.d3-rect').attr('transform', 'translate(' + e.translate[0] + ',0)');
   };
 
+  pool.drawLabel = function() {
+    var labelGroup = d3.select('#tidelineLabels');
+    labelGroup.append('text')
+      .attr({
+        'id': 'pool_' + id + '_label',
+        'class': 'd3-pool-label',
+        'transform': 'translate(0,' + yPosition + ')'
+      })
+      .text(label);
+    return pool;
+  };
+
   // getters & setters
   pool.allData = function(_) {
     if (!arguments.length) return allData;
@@ -94,6 +106,12 @@ module.exports = function(container) {
     yPosition = _;
     return pool;
   };
+
+  pool.label = function(_) {
+    if (!arguments.length) return label;
+    label = _;
+    return pool;
+  }
 
   pool.updateYScale = function(_) {
     if (!arguments.length) return yScale;
