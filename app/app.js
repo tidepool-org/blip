@@ -28,7 +28,7 @@ var app = {
 window.app = app;
 
 var routes = {
-  '/': 'showProfile',
+  '/': 'redirectToDefaultRoute',
   '/login': 'showLogin',
   '/signup': 'showSignup',
   '/profile': 'showProfile'
@@ -138,6 +138,10 @@ var AppComponent = React.createClass({
     return null;
   },
 
+  redirectToDefaultRoute: function() {
+    app.router.setRoute('/profile');
+  },
+
   showLogin: function() {
     this.renderPage = this.renderLogin;
     this.setState({page: 'login'});
@@ -188,7 +192,7 @@ var AppComponent = React.createClass({
   handleLoginSuccess: function() {
     this.setState({authenticated: true});
     this.fetchUser();
-    app.router.setRoute('/');
+    this.redirectToDefaultRoute();
   },
 
   handleSignupSuccess: function(user) {
@@ -196,7 +200,7 @@ var AppComponent = React.createClass({
       authenticated: true,
       user: user
     });
-    app.router.setRoute('/');
+    this.redirectToDefaultRoute();
   },
 
   logout: function() {
