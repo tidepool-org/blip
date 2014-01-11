@@ -28,7 +28,7 @@ var helpers = {
   },
 
   authenticate: function() {
-    var username = 'demo@example.com';
+    var username = 'demo';
     var password = 'demo';
     var deferred = webdriver.promise.defer();
     driver.findElement(By.name('username')).sendKeys(username);

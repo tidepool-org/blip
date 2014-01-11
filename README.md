@@ -218,10 +218,18 @@ $ export DEMO=true; gulp
 $ node server
 ```
 
+(You can also run the tests in development with `export DEMO=true; node develop`.)
+
 Finally, run the tests with:
 
 ```bash
 $ make test-e2e
+```
+
+Since E2E tests can be a little slow, you can run only a particular test by setting the `E2E_TESTS` variable, for example:
+
+```bash
+$ make test-e2e E2E_TESTS=test/e2e/login_scenarios.js
 ```
 
 ## Deployment

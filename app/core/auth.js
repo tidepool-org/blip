@@ -23,6 +23,8 @@ var auth = {
 function addDemoOverrides(auth) {
   _.extend(auth, {
     demoToken: '123',
+    demoUsername: 'demo',
+    demoPassword: 'demo',
 
     // Required method
     demoInit: function(callback) {
@@ -50,11 +52,15 @@ function addDemoOverrides(auth) {
       this.log('[demo] Session loaded');
     },
 
-    saveSession: function(token) {
+    saveSession: function(token, options) {
+      options = options || {};
+      
       this.token = token;
-      var localStorage = window.localStorage;
-      if (localStorage && localStorage.setItem) {
-        localStorage.setItem('demoAuthToken', token);
+      if (options.remember) {
+        var localStorage = window.localStorage;
+        if (localStorage && localStorage.setItem) {
+          localStorage.setItem('demoAuthToken', token);
+        }
       }
     },
 
@@ -66,15 +72,21 @@ function addDemoOverrides(auth) {
       }
     },
 
-    login: function(username, password, callback) {
+    login: function(username, password, options, callback) {
       var self = this;
+
+      // Allow to not pass options object
+      if (typeof options === 'function') {
+        callback = options;
+      }
+
       setTimeout(function() {
         var err;
-        if (config.DEMO_VARIANT === 'auth.login.error') {
+        if (username !== self.demoUsername || password !== self.demoPassword) {
           err = {message: 'Wrong username or password.'};
         }
         if (!err) {
-          self.saveSession(self.demoToken);
+          self.saveSession(self.demoToken, options);
           self.log('[demo] Login success');
         }
         else {
