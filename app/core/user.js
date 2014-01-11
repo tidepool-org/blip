@@ -1,17 +1,55 @@
 var _ = window._;
 
+var validators = {
+  required: function() {
+    return function(value) {
+      if (!value) {
+        return 'This field is required.';
+      }
+    };
+  },
+
+  equalsPassword: function() {
+    return function(value, attributes) {
+      if (value !== attributes.password) {
+        return 'Passwords don\'t match';
+      }
+    };
+  },
+
+  // Run validators in a series, return first validation error encountered
+  series: function(validators) {
+    return function(value, attributes) {
+      var error;
+
+      _.forEach(validators, function(validator) {
+        error = validator(value, attributes);
+        if (error) {
+          // Stop
+          return false;
+        }
+      });
+
+      return error;
+    };
+  }
+};
+
 var user = {
-  attributes: {
-    username: {validate: 'required'},
-    password: {validate: 'required'},
+  _attributes: {
+    username: {validate: validators.required()},
+    password: {validate: validators.required()},
     passwordConfirm: {
-      validate: ['required', 'equalsPassword'],
+      validate: validators.series([
+        validators.required(),
+        validators.equalsPassword()
+      ]),
       validateOnlyIf: function(attributes) {
         return _.has(attributes, 'password');
       }
     },
-    firstName: {validate: 'required'},
-    lastName: {validate: 'required'}
+    firstName: {validate: validators.required()},
+    lastName: {validate: validators.required()}
   },
 
   validate: function(attributes, options) {
@@ -19,10 +57,10 @@ var user = {
     var self = this;
     var errors = {};
 
-    var allAttributeNames = _.keys(this.attributes);
+    var allAttributeNames = _.keys(this._attributes);
     _.forEach(allAttributeNames, function(name) {
-      if (self.attributeNeedsValidation(name, attributes, options)) {
-        errors[name] = self.validateAttribute(name, attributes);
+      if (self._attributeNeedsValidation(name, attributes, options)) {
+        errors[name] = self._validateAttribute(name, attributes);
       }
     });
 
@@ -36,21 +74,7 @@ var user = {
     return errors;
   },
 
-  validators: {
-    required: function(value) {
-      if (!value) {
-        return 'This field is required.';
-      }
-    },
-
-    equalsPassword: function(value, attributes) {
-      if (value !== attributes.password) {
-        return 'Passwords don\'t match';
-      }
-    }
-  },
-
-  attributeNeedsValidation: function(name, attributes, options) {
+  _attributeNeedsValidation: function(name, attributes, options) {
     options = options || {};
     var ignoreMissingAttributes = true;
     if (options.ignoreMissingAttributes === false) {
@@ -61,7 +85,7 @@ var user = {
       return false;
     }
 
-    var validateOnlyIf = this.attributes[name].validateOnlyIf;
+    var validateOnlyIf = this._attributes[name].validateOnlyIf;
     if (validateOnlyIf && !validateOnlyIf(attributes)) {
       return false;
     }
@@ -69,45 +93,13 @@ var user = {
     return true;
   },
 
-  getValidatorsForAttribute: function(name) {
-    var self = this;
-    var validators = this.attributes[name].validate;
-
-    if (!validators) {
-      return [];
-    }
-
-    if (!_.isArray(validators)) {
-      validators = [validators];
-    }
-
-    validators = _.map(validators, function(validator) {
-      if (typeof validator === 'string') {
-        validator = self.validators[validator];
-      }
-
-      if (typeof validator !== 'function') {
-        // No-op
-        return function() {};
-      }
-
-      return validator;
-    });
-    
-    return validators;
-  },
-
-  validateAttribute: function(name, attributes) {
+  _validateAttribute: function(name, attributes) {
     var error;
 
-    var validators = this.getValidatorsForAttribute(name);
-    _.forEach(validators, function(validator) {
+    var validator = this._attributes[name].validate;
+    if (validator) {
       error = validator(attributes[name], attributes);
-      if (error) {
-        // Stop on first error for this attribute
-        return false;
-      }
-    });
+    }
 
     return error;
   }
