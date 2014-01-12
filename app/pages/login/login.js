@@ -25,7 +25,7 @@ var Login = React.createClass({
       <div className="login">
         <ul>
           <li><a href="#/">Blip</a></li>
-          <li><a href="#/signup">Sign up</a></li>
+          <li><a href="#/signup" className="js-signup-link">Sign up</a></li>
         </ul>
         {loginForm}
         {message}

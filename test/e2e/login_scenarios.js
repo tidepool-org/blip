@@ -2,9 +2,6 @@ var webdriver = require('selenium-webdriver');
 var expect = require('chai').expect;
 var helpers = require('../lib/e2ehelpers');
 
-// Error code (selenium-webdriver/lib/atoms/error.js)
-var NO_SUCH_ELEMENT = 7;
-
 describe('Login', function() {
   var driver = helpers.getDriver();
   var openApp = helpers.openApp;
@@ -89,17 +86,6 @@ describe('Login', function() {
   }
 
   function checkLoginButtonIsPresent() {
-    return driver.findElement(By.css('.js-login-form-button'))
-      .then(function() {
-        // No errors, element was found
-        return true;
-      }, function(err) {
-        if (err.code === NO_SUCH_ELEMENT) {
-          return false;
-        }
-        else {
-          throw err;
-        }
-      });
+    return helpers.elementExists(By.css('.js-login-form-button'));
   }
 });

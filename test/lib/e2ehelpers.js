@@ -36,6 +36,27 @@ var helpers = {
     driver.findElement(By.css('.js-login-form-button')).click()
       .then(deferred.fulfill);
     return deferred.promise;
+  },
+
+  elementExists: function(locator) {
+    return driver.findElement(locator)
+      .then(function() {
+        // No errors, element was found
+        return true;
+      }, function(err) {
+        if (err.code === helpers.errorCodes.NO_SUCH_ELEMENT) {
+          return false;
+        }
+        else {
+          throw err;
+        }
+      });
+  },
+
+  // See:
+  // selenium-webdriver/lib/atoms/error.js
+  errorCodes: {
+    NO_SUCH_ELEMENT: 7
   }
 };
 

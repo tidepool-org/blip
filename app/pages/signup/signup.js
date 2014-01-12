@@ -108,7 +108,7 @@ var Signup = React.createClass({
     return (
       /* jshint ignore:start */
       <button
-        className="signup-button"
+        className="signup-button js-signup-button"
         onClick={this.handleSubmit}
         disabled={disabled}>{text}</button>
       /* jshint ignore:end */
@@ -120,7 +120,7 @@ var Signup = React.createClass({
     if (message) {
       return (
         /* jshint ignore:start */
-        <div className="signup-message">{message}</div>
+        <div className="signup-message js-signup-message">{message}</div>
         /* jshint ignore:end */
       );
     }

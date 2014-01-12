@@ -122,7 +122,7 @@ function addDemoOverrides(auth) {
 
       setTimeout(function() {
         var err;
-        if (config.DEMO_VARIANT === 'auth.signup.error') {
+        if (user.username === self.demoUsername) {
           err = {message: 'An account already exists for that username.'};
         }
         if (!err) {
