@@ -19,7 +19,7 @@ describe('Signup', function() {
 
   beforeEach(function() {
     user = {
-      userusername: 'demo2',
+      username: 'demo2',
       password: 'demo',
       firstName: 'John',
       lastName: 'Doe'

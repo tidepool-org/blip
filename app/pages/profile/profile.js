@@ -67,7 +67,7 @@ var Profile = React.createClass({
             type: 'password'
           })}
           {saveButton}
-          <div className="profile-message">{message}</div>
+          <div className="profile-message js-profile-message">{message}</div>
         </form>
       </div>
       /* jshint ignore:end */
@@ -128,7 +128,7 @@ var Profile = React.createClass({
     return (
       /* jshint ignore:start */
       <button
-        className="profile-button"
+        className="profile-button js-profile-button"
         onClick={this.handleSave}
         disabled={disabled}>Save</button>
       /* jshint ignore:end */

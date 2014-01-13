@@ -2,14 +2,10 @@ var expect = chai.expect;
 var _ = window._;
 
 var user = require('../../app/core/user');
+var demoUser = require('../../demo/sample/user.json');
 
 describe('User service', function() {
-  var userInitialAttr = {
-    id: '1',
-    username: 'mary.smith@example.com',
-    firstName: 'Mary',
-    lastName: 'Smith'
-  };
+  var userInitialAttr = demoUser;
   var userAttr;
 
   beforeEach(function() {
