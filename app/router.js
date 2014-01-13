@@ -12,11 +12,6 @@ var configuration = {
     var isAuthenticated = router.isAuthenticated();
     var isNoAuthRoute = _.contains(router.noAuthRoutes, routeBase);
 
-    if (router.ignoreFirstRoute) {
-      router.ignoreFirstRoute = false;
-      return false;
-    }
-
     if (!isAuthenticated && !isNoAuthRoute) {
       router.log('Not logged in, redirecting');
       router.setRoute('login');
@@ -73,22 +68,7 @@ router._getRouteFirstFragment = function(route) {
 
 router.start = function() {
   this.init('/');
-  this.fireInitialRoute();
   this.log('Router started');
-};
-
-// Inspired by:
-// https://github.com/flatiron/director/issues/199
-router.fireInitialRoute = function() {
-  var initialRoute = window.location.hash.replace(/^#/, '');
-  if (initialRoute !== '/') {
-    this.ignoreFirstRoute = true;
-    this.setRoute('/');
-  }
-  this.setRoute(initialRoute);
-  if (!location.hash.replace(/^#\/*/, '') && (history && history.pushState)) {
-    history.pushState('', document.title, window.location.pathname + window.location.search);
-  }
 };
 
 module.exports = router;
