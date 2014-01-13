@@ -2,6 +2,8 @@
 var React = window.React;
 var _ = window._;
 
+var InputGroup = require('../../components/inputgroup');
+
 var Signup = React.createClass({
   propTypes: {
     onValidate: React.PropTypes.func,
@@ -37,8 +39,8 @@ var Signup = React.createClass({
     });
     var message = this.renderMessage();
 
+    /* jshint ignore:start */
     return (
-      /* jshint ignore:start */
       <div className="signup">
         <ul>
           <li><a href="#/">Blip</a></li>
@@ -53,51 +55,31 @@ var Signup = React.createClass({
           {message}
         </form>
       </div>
-      /* jshint ignore:end */
     );
+    /* jshint ignore:end */
   },
 
   renderInputForAttribute: function(name, options) {
     options = options || {};
     var type = options.type || null;
-    var user = this.state.user || {};
-    var label = this.attributeToLabelMapping[name] + ': ';
-    var validationError = this.renderValidationErrorForAttribute(name);
-    var className = validationError ? 'signup-input-error' : null;
-
+    var disabled = options.disabled || null;
+    var label = this.attributeToLabelMapping[name];
+    var value = this.state.user && this.state.user[name];
+    var error = this.state.validationErrors[name];
+    
+    /* jshint ignore:start */
     return (
-      /* jshint ignore:start */
-      <div className={className}>
-        <div>
-          <span className="signup-input-label">{label}</span>
-          <input
-            type={type}
-            className="signup-input-control"
-            ref={name}
-            name={name}
-            value={user[name]}
-            onChange={this.handleChange} />
-        </div>
-        {validationError}
-      </div>
-      /* jshint ignore:end */
+      <InputGroup
+        name={name}
+        label={label}
+        value={value}
+        error={error}
+        type={type}
+        disabled={disabled}
+        onChange={this.handleChange}/>
+      
     );
-  },
-
-  renderValidationErrorForAttribute: function(name) {
-    var message = this.state.validationErrors[name];
-
-    if (message) {
-      return (
-        /* jshint ignore:start */
-        <div className="signup-validation-error">
-          {message}
-        </div>
-        /* jshint ignore:end */
-      );
-    }
-
-    return null;
+    /* jshint ignore:end */
   },
 
   renderSubmitButton: function(options) {
@@ -105,24 +87,24 @@ var Signup = React.createClass({
     var text = options.text || 'Submit';
     var disabled = options.disabled || null;
 
+    /* jshint ignore:start */
     return (
-      /* jshint ignore:start */
       <button
         className="signup-button js-signup-button"
         onClick={this.handleSubmit}
         disabled={disabled}>{text}</button>
-      /* jshint ignore:end */
     );
+    /* jshint ignore:end */
   },
 
   renderMessage: function() {
     var message = this.state.message;
     if (message) {
+      /* jshint ignore:start */
       return (
-        /* jshint ignore:start */
         <div className="signup-message js-signup-message">{message}</div>
-        /* jshint ignore:end */
       );
+      /* jshint ignore:end */
     }
     return null;
   },

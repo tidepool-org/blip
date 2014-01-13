@@ -1,21 +1,17 @@
 var expect = chai.expect;
-var React = window.React;
 
 var Nav = require('../../app/components/nav');
 
 describe('Nav', function() {
-  var component, container;
+  var component;
 
   beforeEach(function() {
     component = Nav();
-    container = document.createElement('div');
-    document.documentElement.appendChild(container);
-    React.renderComponent(component, container);
+    helpers.mountComponent(component);
   });
 
   afterEach(function() {
-    React.unmountComponentAtNode(container);
-    document.documentElement.removeChild(container);
+    helpers.unmountComponent();
   });
 
   it('should correctly display app version number', function() {

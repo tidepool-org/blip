@@ -1,21 +1,17 @@
 var expect = chai.expect;
-var React = window.React;
 
 var LoginForm = require('../../app/components/loginform');
 
 describe('LoginForm', function() {
-  var component, container;
+  var component;
 
   beforeEach(function() {
     component = LoginForm();
-    container = document.createElement('div');
-    document.documentElement.appendChild(container);
-    React.renderComponent(component, container);
+    helpers.mountComponent(component);
   });
 
   afterEach(function() {
-    React.unmountComponentAtNode(container);
-    document.documentElement.removeChild(container);
+    helpers.unmountComponent();
   });
 
   it('should disable login button when logging in', function() {

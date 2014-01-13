@@ -2,6 +2,8 @@
 var React = window.React;
 var _ = window._;
 
+var InputGroup = require('../../components/inputgroup');
+
 var Profile = React.createClass({
   propTypes: {
     user: React.PropTypes.object,
@@ -35,24 +37,13 @@ var Profile = React.createClass({
     this.setState({user: nextProps.user});
   },
 
-  addPasswordAttributes: function(user) {
-    if (_.isEmpty(user)) {
-      return {};
-    }
-
-    return _.extend(user, {
-      password: '',
-      passwordConfirm: ''
-    });
-  },
-
   render: function() {
     var disabled = this.isDisabled();
     var saveButton = this.renderSaveButton(disabled);
     var message = this.state.message;
 
+    /* jshint ignore:start */
     return (
-      /* jshint ignore:start */
       <div className="profile">
         <form>
           {this.renderInputForAttribute('firstName', {disabled: disabled})}
@@ -70,8 +61,8 @@ var Profile = React.createClass({
           <div className="profile-message js-profile-message">{message}</div>
         </form>
       </div>
-      /* jshint ignore:end */
     );
+    /* jshint ignore:end */
   },
 
   isDisabled: function() {
@@ -82,57 +73,34 @@ var Profile = React.createClass({
   renderInputForAttribute: function(name, options) {
     options = options || {};
     var type = options.type || null;
-    var user = this.state.user || {};
     var disabled = options.disabled || null;
-    var label = this.attributeToLabelMapping[name] + ': ';
-    var validationError = this.renderValidationErrorForAttribute(name);
-    var className = validationError ? 'profile-input-error' : null;
-
+    var label = this.attributeToLabelMapping[name];
+    var value = this.state.user && this.state.user[name];
+    var error = this.state.validationErrors[name];
+    
+    /* jshint ignore:start */
     return (
-      /* jshint ignore:start */
-      <div className={className}>
-        <div>
-          <span className="profile-input-label">{label}</span>
-          <input
-            type={type}
-            className="profile-input-control"
-            ref={name}
-            name={name}
-            value={user[name]}
-            onChange={this.handleChange}
-            disabled={disabled} />
-        </div>
-        {validationError}
-      </div>
-      /* jshint ignore:end */
+      <InputGroup
+        name={name}
+        label={label}
+        value={value}
+        error={error}
+        type={type}
+        disabled={disabled}
+        onChange={this.handleChange}/>
     );
-  },
-
-  renderValidationErrorForAttribute: function(name) {
-    var message = this.state.validationErrors[name];
-
-    if (message) {
-      return (
-        /* jshint ignore:start */
-        <div className="profile-validation-error">
-          {message}
-        </div>
-        /* jshint ignore:end */
-      );
-    }
-
-    return null;
+    /* jshint ignore:end */
   },
 
   renderSaveButton: function(disabled) {
+    /* jshint ignore:start */
     return (
-      /* jshint ignore:start */
       <button
         className="profile-button js-profile-button"
         onClick={this.handleSave}
         disabled={disabled}>Save</button>
-      /* jshint ignore:end */
     );
+    /* jshint ignore:end */
   },
   
   handleChange: function(e) {

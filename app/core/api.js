@@ -36,6 +36,8 @@ function addDemoOverrides(api) {
       if (config.DEMO_VARIANT === 'api.user.put.error') {
         err = true;
       }
+      delete user.password;
+      delete user.passwordConfirm;
       callback(err, user);
     }, config.DEMO_DELAY);
   };
