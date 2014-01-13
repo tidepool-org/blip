@@ -121,13 +121,13 @@ gulp.task('demo', function(cb) {
 });
 
 gulp.task('clean', function(cb) {
-  gulp.src('dist')
+  gulp.src('dist', {read: false})
     .pipe(clean())
     .on('end', cb);
 });
 
 gulp.task('clean-tmp', function(cb) {
-  gulp.src('dist/tmp')
+  gulp.src('dist/tmp', {read: false})
     .pipe(clean())
     .on('end', cb);
 });
@@ -135,7 +135,11 @@ gulp.task('clean-tmp', function(cb) {
 gulp.task('build', function() {
   gulp.run('clean', function() {
     gulp.run('scripts', 'styles', 'index', 'demo', function(err) {
-      gulp.run('clean-tmp');
+      gulp.run('clean-tmp', function(err) {
+        // NOTE: this callback does nothing,
+        // but is a temporary fix to the following bug
+        // https://github.com/gulpjs/gulp/issues/139
+      });
     });
   });  
 });
