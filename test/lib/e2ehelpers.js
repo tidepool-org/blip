@@ -1,4 +1,5 @@
 var webdriver = require('selenium-webdriver');
+var _ = require('lodash');
 
 var APP_URL = 'http://localhost:3000';
 var DRIVER_CAPABILITIES = webdriver.Capabilities.chrome();
@@ -33,7 +34,7 @@ var helpers = {
     var deferred = webdriver.promise.defer();
     driver.findElement(By.name('username')).sendKeys(username);
     driver.findElement(By.name('password')).sendKeys(password);
-    driver.findElement(By.css('.js-login-form-button')).click()
+    driver.findElement(By.css('.js-login-button')).click()
       .then(deferred.fulfill);
     return deferred.promise;
   },
@@ -51,6 +52,29 @@ var helpers = {
           throw err;
         }
       });
+  },
+
+  // Wrapper around `driver.findElement` that throws a more useful error
+  // by printing the "locator" used to find the element and shortening stack
+  findElement: function(locator) {
+    var deferred = webdriver.promise.defer();
+    driver.findElement(locator)
+      .then(deferred.fulfill, function(err) {
+        if (err.code === helpers.errorCodes.NO_SUCH_ELEMENT) {
+          err.message = 'no such element ' + locator.toString();
+          // Stack is very long and not very useful here...
+          var stack = err.stack.split('\n');
+          // Filter out all lines from third-party code ('node_modules')
+          stack = _.filter(stack, function(line) {
+            return !_.contains(line, 'node_modules');
+          });
+          // Replace first line with new error message
+          stack[0] = err.toString();
+          err.stack = stack.join('\n');
+        }
+        deferred.reject(err);
+      });
+    return deferred.promise;
   },
 
   // See:

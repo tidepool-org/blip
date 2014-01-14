@@ -34,7 +34,7 @@ var Signup = React.createClass({
 
   render: function() {
     var submitButton = this.renderSubmitButton({
-      text: 'Create account',
+      text: this.state.signingUp ? 'Creating account...' : 'Create account',
       disabled: this.state.signingUp ? true : null
     });
     var message = this.renderMessage();
@@ -126,15 +126,14 @@ var Signup = React.createClass({
     if (this.state.signingUp) {
       return;
     }
-
-    this.setState({signingUp: true});
-
-    var user = this.state.user;
+    
     this.setState({
+      signingUp: true,
       validationErrors: {},
       message: null
     });
 
+    var user = this.state.user;
     var validationErrors = this.validateUser(user);
     if (!_.isEmpty(validationErrors)) {
       self.setState({

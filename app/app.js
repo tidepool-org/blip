@@ -151,8 +151,9 @@ var AppComponent = React.createClass({
     return (
       /* jshint ignore:start */
       <Login 
-        login={app.auth.login.bind(app.auth)}
-        onLoginSuccess={this.handleLoginSuccess} />
+        onValidate={this.validateUser}
+        onSubmit={app.auth.login.bind(app.auth)}
+        onSubmitSuccess={this.handleLoginSuccess} />
       /* jshint ignore:end */
     );
   },

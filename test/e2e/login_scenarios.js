@@ -34,8 +34,11 @@ describe('Login', function() {
       });
   });
 
-  it('should show an error if username is not filled in', function(done) {
+  it('should show an error if login failed', function(done) {
+    password = 'wrong';
+
     openApp()
+      .then(fillOutUsername)
       .then(fillOutPassword)
       .then(submitForm)
       .then(getMessageText)
@@ -45,47 +48,35 @@ describe('Login', function() {
       });
   });
 
-  it('should show an error if password is not filled in', function(done) {
-    openApp()
-      .then(fillOutUsername)
-      .then(submitForm)
-      .then(getMessageText)
-      .then(function(text) {
-        expect(text).to.be.ok;
-        done();
-      });
-  });
-
-  it('should show an error if login failed', function(done) {
-    password = 'wrong';
-
-    openApp()
-      .then(fillOutUsername)
-      .then(submitForm)
-      .then(getMessageText)
-      .then(function(text) {
-        expect(text).to.be.ok;
-        done();
-      });
-  });
-
   function fillOutUsername() {
-    return driver.findElement(By.name('username')).sendKeys(username);
+    return helpers.findElement(By.name('username'))
+      .then(function(q) {
+        return q.sendKeys(username);
+      });
   }
 
   function fillOutPassword() {
-    return driver.findElement(By.name('password')).sendKeys(password);
+    return helpers.findElement(By.name('password'))
+      .then(function(q) {
+        return q.sendKeys(password);
+      });
   }
 
   function submitForm() {
-    return driver.findElement(By.css('.js-login-form-button')).click();
+    return helpers.findElement(By.css('.js-login-button'))
+      .then(function(q) {
+        return q.click();
+      });
   }
 
   function getMessageText() {
-    return driver.findElement(By.css('.js-login-message')).getText();
+    return helpers.findElement(By.css('.js-login-message'))
+      .then(function(q) {
+        return q.getText();
+      });
   }
 
   function checkLoginButtonIsPresent() {
-    return helpers.elementExists(By.css('.js-login-form-button'));
+    return helpers.elementExists(By.css('.js-login-button'));
   }
 });
