@@ -3,14 +3,6 @@ svg {
   margin: 0 auto;
 }
 
-.axis {
-  cursor: move;
-}
-
-.axis:focus {
-  cursor: move;
-}
-
 .axis path, .axis line {
   fill: none;
   stroke: black;
