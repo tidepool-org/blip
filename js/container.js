@@ -47,6 +47,14 @@ module.exports = function() {
         .attr('transform', 'translate(0,' + (height - 50) + ')')
         .call(xAxis);
 
+      mainGroup.append('rect')
+        .attr({
+          'id': 'poolsInvisibleRect',
+          'width': width,
+          'height': height,
+          'opacity': 0.0
+        });
+
       mainGroup.append('g')
         .attr('id', 'tidelineLabels');
 
