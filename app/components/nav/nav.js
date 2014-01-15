@@ -47,7 +47,7 @@ var Nav = React.createClass({
       var fullName = this.getUserFullName(user);
       return (
         /* jshint ignore:start */
-        <ul className="nav-right">
+        <ul className="nav-right js-nav-user">
           <li>Logged in as <span>{fullName}</span></li>
           <li><a href="" onClick={this.handleLogout}>Logout</a></li>
         </ul>

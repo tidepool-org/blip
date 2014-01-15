@@ -32,9 +32,12 @@ var helpers = {
     var username = 'demo';
     var password = 'demo';
     var deferred = webdriver.promise.defer();
-    driver.findElement(By.name('username')).sendKeys(username);
-    driver.findElement(By.name('password')).sendKeys(password);
-    driver.findElement(By.css('.js-login-button')).click()
+    helpers.findElement(By.name('username'))
+      .then(function(q) { return q.sendKeys(username); });
+    helpers.findElement(By.name('password'))
+      .then(function(q) { return q.sendKeys(password); });
+    helpers.findElement(By.css('.js-form-submit'))
+      .then(function(q) { return q.click(); })
       .then(deferred.fulfill);
     return deferred.promise;
   },

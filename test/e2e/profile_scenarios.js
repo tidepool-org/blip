@@ -56,25 +56,36 @@ describe('Profile', function() {
   });
 
   function fillOutForm() {
-    driver.findElement(By.name('firstName')).sendKeys(user.firstName);
-    driver.findElement(By.name('lastName')).sendKeys(user.lastName);
-    driver.findElement(By.name('username')).sendKeys(user.username);
-    driver.findElement(By.name('password')).sendKeys(user.password);
-    return driver.findElement(By.name('passwordConfirm'))
-      .sendKeys(user.passwordConfirm);
+    helpers.findElement(By.name('firstName'))
+      .then(function(q) { return q.sendKeys(user.firstName); });
+    helpers.findElement(By.name('lastName'))
+      .then(function(q) { return q.sendKeys(user.lastName); });
+    helpers.findElement(By.name('username'))
+      .then(function(q) { return q.sendKeys(user.username); });
+    helpers.findElement(By.name('password'))
+      .then(function(q) { return q.sendKeys(user.password); });
+    return helpers.findElement(By.name('passwordConfirm'))
+      .then(function(q) { return q.sendKeys(user.passwordConfirm); });
   }
 
   function submitForm() {
-    return driver.findElement(By.css('.js-profile-button')).click();
+    return helpers.findElement(By.css('.js-form-submit'))
+      .then(function(q) {
+        return q.click();
+      });
   }
 
   function getMessageText() {
-    return driver.findElement(By.css('.js-profile-message')).getText();
+    return helpers.findElement(By.css('.js-form-notification'))
+      .then(function(q) {
+        return q.getText();
+      });
   }
 
   function expectInputValueToBe(inputName, expectedValue) {
     return function() {
-      return driver.findElement(By.name(inputName)).getAttribute('value')
+      return helpers.findElement(By.name(inputName))
+        .then(function(q) { return q.getAttribute('value'); })
         .then(function(value) {
           expect(value).to.equal(expectedValue);
         });

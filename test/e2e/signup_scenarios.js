@@ -31,9 +31,9 @@ describe('Signup', function() {
       .then(goToSignupPage)
       .then(fillOutForm)
       .then(submitForm)
-      .then(checkSignupButtonIsPresent)
+      .then(checkLoggedIn)
       .then(function(result) {
-        expect(result).to.be.false;
+        expect(result).to.be.true;
         done();
       });
   });
@@ -54,25 +54,38 @@ describe('Signup', function() {
   });
 
   function goToSignupPage() {
-    return driver.findElement(By.css('.js-signup-link')).click();
+    return helpers.findElement(By.css('.js-signup-link'))
+      .then(function(q) {
+        return q.click();
+      });
   }
 
   function fillOutForm() {
-    driver.findElement(By.name('firstName')).sendKeys(user.firstName);
-    driver.findElement(By.name('lastName')).sendKeys(user.lastName);
-    driver.findElement(By.name('username')).sendKeys(user.username);
-    return driver.findElement(By.name('password')).sendKeys(user.password);
+    helpers.findElement(By.name('firstName'))
+      .then(function(q) { return q.sendKeys(user.firstName); });
+    helpers.findElement(By.name('lastName'))
+      .then(function(q) { return q.sendKeys(user.lastName); });
+    helpers.findElement(By.name('username'))
+      .then(function(q) { return q.sendKeys(user.username); });
+    return helpers.findElement(By.name('password'))
+      .then(function(q) { return q.sendKeys(user.password); });
   }
 
   function submitForm() {
-    return driver.findElement(By.css('.js-signup-button')).click();
+    return helpers.findElement(By.css('.js-form-submit'))
+      .then(function(q) {
+        return q.click();
+      });
   }
 
   function getMessageText() {
-    return driver.findElement(By.css('.js-signup-message')).getText();
+    return helpers.findElement(By.css('.js-form-notification'))
+      .then(function(q) {
+        return q.getText();
+      });
   }
 
-  function checkSignupButtonIsPresent() {
-    return helpers.elementExists(By.css('.js-signup-button'));
+  function checkLoggedIn() {
+    return helpers.elementExists(By.css('.js-nav-user'));
   }
 });

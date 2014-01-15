@@ -72,8 +72,10 @@ function addDemoOverrides(auth) {
       }
     },
 
-    login: function(username, password, options, callback) {
+    login: function(user, options, callback) {
       var self = this;
+      var username = user.username;
+      var password = user.password;
 
       // Allow to not pass options object
       if (typeof options === 'function') {
@@ -117,6 +119,7 @@ function addDemoOverrides(auth) {
     signup: function(user, callback) {
       var self = this;
 
+      user = _.clone(user);
       user.id = '1';
       delete user.password;
 

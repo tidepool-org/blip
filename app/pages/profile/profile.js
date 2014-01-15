@@ -2,165 +2,135 @@
 var React = window.React;
 var _ = window._;
 
-var InputGroup = require('../../components/inputgroup');
+var SimpleForm = require('../../components/simpleform');
 
 var Profile = React.createClass({
   propTypes: {
     user: React.PropTypes.object,
-    onValidate: React.PropTypes.func,
-    onSave: React.PropTypes.func
+    onValidate: React.PropTypes.func.isRequired,
+    onSubmit: React.PropTypes.func.isRequired
   },
+
+  formInputs: [
+    {name: 'firstName', label: 'First name'},
+    {name: 'lastName', label: 'Last name'},
+    {name: 'username', label: 'Email'},
+    {name: 'password', label: 'Password', type: 'password'},
+    {name: 'passwordConfirm', label: 'Confirm assword', type: 'password'}
+  ],
 
   MESSAGE_TIMEOUT: 2000,
 
-  attributeToLabelMapping: {
-    'firstName': 'First name',
-    'lastName': 'Last name',
-    'username': 'Email',
-    'password': 'Password',
-    'passwordConfirm': 'Confirm password'
-  },
-
   getInitialState: function() {
-    var self = this;
     return {
-      message: null,
-      // New user values
-      user: self.props.user,
-      validationErrors: {}
+      formValues: this.props.user || {},
+      validationErrors: {},
+      notification: null
     };
   },
 
   componentWillReceiveProps: function(nextProps) {
-    // Keep new user attributes in sync with upstream changes
-    // (here `setState` will not trigger an additional render)
-    this.setState({user: nextProps.user});
+    // Keep form values in sync with upstream changes
+    this.setState({formValues: nextProps.user || {}});
   },
 
   render: function() {
-    var disabled = this.isDisabled();
-    var saveButton = this.renderSaveButton(disabled);
-    var message = this.state.message;
+    var form = this.renderForm();
 
     /* jshint ignore:start */
     return (
       <div className="profile">
-        <form>
-          {this.renderInputForAttribute('firstName', {disabled: disabled})}
-          {this.renderInputForAttribute('lastName', {disabled: disabled})}
-          {this.renderInputForAttribute('username', {disabled: disabled})}
-          {this.renderInputForAttribute('password', {
-            disabled: disabled,
-            type: 'password'
-          })}
-          {this.renderInputForAttribute('passwordConfirm', {
-            disabled: disabled,
-            type: 'password'
-          })}
-          {saveButton}
-          <div className="profile-message js-profile-message">{message}</div>
-        </form>
+        {form}
       </div>
     );
     /* jshint ignore:end */
   },
 
+  renderForm: function() {
+    var disabled = this.isDisabled();
+
+    /* jshint ignore:start */
+    return (
+      <SimpleForm
+        inputs={this.formInputs}
+        formValues={this.state.formValues}
+        validationErrors={this.state.validationErrors}
+        submitButtonText="Save"
+        onSubmit={this.handleSubmit}
+        notification={this.state.notification}
+        disabled={disabled}/>
+    );
+    /* jshint ignore:end */
+  },
+
   isDisabled: function() {
-    var user = this.state.user || {};
+    var user = this.props.user || {};
     return _.isEmpty(user) ? true : null;
   },
 
-  renderInputForAttribute: function(name, options) {
-    options = options || {};
-    var type = options.type || null;
-    var disabled = options.disabled || null;
-    var label = this.attributeToLabelMapping[name];
-    var value = this.state.user && this.state.user[name];
-    var error = this.state.validationErrors[name];
-    
-    /* jshint ignore:start */
-    return (
-      <InputGroup
-        name={name}
-        label={label}
-        value={value}
-        error={error}
-        type={type}
-        disabled={disabled}
-        onChange={this.handleChange}/>
-    );
-    /* jshint ignore:end */
-  },
-
-  renderSaveButton: function(disabled) {
-    /* jshint ignore:start */
-    return (
-      <button
-        className="profile-button js-profile-button"
-        onClick={this.handleSave}
-        disabled={disabled}>Save</button>
-    );
-    /* jshint ignore:end */
-  },
-  
-  handleChange: function(e) {
-    var key = e.target.name;
-    var value = e.target.value;
-    if (key) {
-      var user = _.clone(this.state.user);
-      user[key] = value;
-      this.setState({user: user});
-    }
-  },
-
-  handleSave: function(e) {
-    e.preventDefault();
+  handleSubmit: function(formValues) {
     var self = this;
 
-    this.setState({
-      validationErrors: {},
-      message: null
-    });
-    clearTimeout(this.messageTimeoutId);
+    this.resetFormStateBeforeSubmit(formValues);
 
-    var user = _.clone(this.state.user);
-    user = this.omitPasswordAttributesIfNoChange(user);
-    var validationErrors = this.validateUser(user);
+    var validationErrors = this.validateFormValues(formValues);
     if (!_.isEmpty(validationErrors)) {
-      self.setState({
-        validationErrors: validationErrors,
-        message: 'Some entries are invalid.'
-      });
       return;
     }
 
-    var save = this.props.onSave;
-    if (save) {
-      save(user);
-      // Save optimistically
-      this.setState({message: 'All changes saved.'});
-      this.messageTimeoutId = setTimeout(function() {
-        self.setState({message: null});
-      }, this.MESSAGE_TIMEOUT);
-    }
+    this.submitFormValues(formValues);
   },
 
-  omitPasswordAttributesIfNoChange: function(user) {
-    if (!user.password && !user.passwordConfirm) {
-      return _.omit(user, ['password', 'passwordConfirm']);
-    }
-    return user;
+  resetFormStateBeforeSubmit: function(formValues) {
+    this.setState({
+      formValues: formValues,
+      validationErrors: {},
+      notification: null
+    });
+    clearTimeout(this.messageTimeoutId);
   },
 
-  validateUser: function(user) {
-    var errors = {};
-
+  validateFormValues: function(formValues) {
+    var validationErrors = {};
     var validate = this.props.onValidate;
-    if (validate) {
-      errors = validate(user);
+
+    formValues = _.clone(formValues);
+    formValues = this.omitPasswordAttributesIfNoChange(formValues);
+
+    validationErrors = validate(formValues);
+    if (!_.isEmpty(validationErrors)) {
+      this.setState({
+        validationErrors: validationErrors,
+        notification: {
+          type: 'error',
+          message:'Some entries are invalid.'
+        }
+      });
     }
 
-    return errors;
+    return validationErrors;
+  },
+
+  omitPasswordAttributesIfNoChange: function(formValues) {
+    if (!formValues.password && !formValues.passwordConfirm) {
+      return _.omit(formValues, ['password', 'passwordConfirm']);
+    }
+    return formValues;
+  },
+
+  submitFormValues: function(formValues) {
+    var self = this;
+    var submit = this.props.onSubmit;
+
+    // Save optimistically
+    submit(formValues);
+    this.setState({
+      notification: {type: 'success', message: 'All changes saved.'}
+    });
+
+    this.messageTimeoutId = setTimeout(function() {
+      self.setState({notification: null});
+    }, this.MESSAGE_TIMEOUT);
   }
 });
 

@@ -185,7 +185,7 @@ var AppComponent = React.createClass({
       <Profile 
           user={this.state.user}
           onValidate={this.validateUser}
-          onSave={this.updateUser}/>
+          onSubmit={this.updateUser}/>
       /* jshint ignore:end */
     );
   },

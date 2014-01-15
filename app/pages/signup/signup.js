@@ -2,42 +2,33 @@
 var React = window.React;
 var _ = window._;
 
-var InputGroup = require('../../components/inputgroup');
+var SimpleForm = require('../../components/simpleform');
 
 var Signup = React.createClass({
   propTypes: {
-    onValidate: React.PropTypes.func,
-    onSubmit: React.PropTypes.func,
-    onSubmitSuccess: React.PropTypes.func
+    onValidate: React.PropTypes.func.isRequired,
+    onSubmit: React.PropTypes.func.isRequired,
+    onSubmitSuccess: React.PropTypes.func.isRequired
   },
 
-  attributeToLabelMapping: {
-    'firstName': 'First name',
-    'lastName': 'Last name',
-    'username': 'Email',
-    'password': 'Password'
-  },
+  formInputs: [
+    {name: 'firstName', label: 'First name'},
+    {name: 'lastName', label: 'Last name'},
+    {name: 'username', label: 'Email'},
+    {name: 'password', label: 'Password', type: 'password'}
+  ],
 
   getInitialState: function() {
     return {
-      signingUp: false,
-      message: null,
-      user: {
-        firstName: '',
-        lastName: '',
-        username: '',
-        password: ''
-      },
-      validationErrors: {}
+      working: false,
+      formValues: {},
+      validationErrors: {},
+      notification: null
     };
   },
 
   render: function() {
-    var submitButton = this.renderSubmitButton({
-      text: this.state.signingUp ? 'Creating account...' : 'Create account',
-      disabled: this.state.signingUp ? true : null
-    });
-    var message = this.renderMessage();
+    var form = this.renderForm();
 
     /* jshint ignore:start */
     return (
@@ -46,132 +37,94 @@ var Signup = React.createClass({
           <li><a href="#/">Blip</a></li>
           <li><a href="#/login">Log in</a></li>
         </ul>
-        <form>
-          {this.renderInputForAttribute('firstName')}
-          {this.renderInputForAttribute('lastName')}
-          {this.renderInputForAttribute('username')}
-          {this.renderInputForAttribute('password', {type: 'password'})}
-          {submitButton}
-          {message}
-        </form>
+        {form}
       </div>
     );
     /* jshint ignore:end */
   },
 
-  renderInputForAttribute: function(name, options) {
-    options = options || {};
-    var type = options.type || null;
-    var disabled = options.disabled || null;
-    var label = this.attributeToLabelMapping[name];
-    var value = this.state.user && this.state.user[name];
-    var error = this.state.validationErrors[name];
-    
+  renderForm: function() {
+    var submitButtonText = 'Create account';
+    if (this.state.working) {
+      submitButtonText = 'Creating account...';
+    }
+
     /* jshint ignore:start */
     return (
-      <InputGroup
-        name={name}
-        label={label}
-        value={value}
-        error={error}
-        type={type}
-        disabled={disabled}
-        onChange={this.handleChange}/>
-      
+      <SimpleForm
+        inputs={this.formInputs}
+        formValues={this.state.formValues}
+        validationErrors={this.state.validationErrors}
+        submitButtonText={submitButtonText}
+        submitDisabled={this.state.working}
+        onSubmit={this.handleSubmit}
+        notification={this.state.notification}/>
     );
     /* jshint ignore:end */
   },
 
-  renderSubmitButton: function(options) {
-    options = options || {};
-    var text = options.text || 'Submit';
-    var disabled = options.disabled || null;
-
-    /* jshint ignore:start */
-    return (
-      <button
-        className="signup-button js-signup-button"
-        onClick={this.handleSubmit}
-        disabled={disabled}>{text}</button>
-    );
-    /* jshint ignore:end */
-  },
-
-  renderMessage: function() {
-    var message = this.state.message;
-    if (message) {
-      /* jshint ignore:start */
-      return (
-        <div className="signup-message js-signup-message">{message}</div>
-      );
-      /* jshint ignore:end */
-    }
-    return null;
-  },
-
-  handleChange: function(e) {
-    var key = e.target.name;
-    var value = e.target.value;
-    if (key) {
-      var user = _.clone(this.state.user);
-      user[key] = value;
-      this.setState({user: user});
-    }
-  },
-
-  handleSubmit: function(e) {
-    e.preventDefault();
+  handleSubmit: function(formValues) {
     var self = this;
 
-    if (this.state.signingUp) {
+    if (this.state.working) {
       return;
     }
-    
-    this.setState({
-      signingUp: true,
-      validationErrors: {},
-      message: null
-    });
 
-    var user = this.state.user;
-    var validationErrors = this.validateUser(user);
+    this.resetFormStateBeforeSubmit(formValues);
+
+    var validationErrors = this.validateFormValues(formValues);
     if (!_.isEmpty(validationErrors)) {
-      self.setState({
-        signingUp: false,
-        validationErrors: validationErrors,
-        message: 'Some entries are invalid.'
-      });
       return;
     }
 
-    var submit = this.props.onSubmit;
-    if (submit) {
-      submit(user, function(err, user) {
-        if (err) {
-          self.setState({
-            signingUp: false,
-            message: err.message || 'An error occured while signing up.'
-          });
-          return;
-        }
-        self.setState({signingUp: false});
-        self.props.onSubmitSuccess(user);
-      });
-    }
-    else {
-      this.setState({signingUp: false});
-    }
+    this.submitFormValues(formValues);
   },
 
-  validateUser: function(user) {
-    var errors = {};
+  resetFormStateBeforeSubmit: function(formValues) {
+    this.setState({
+      working: true,
+      formValues: formValues,
+      validationErrors: {},
+      notification: null
+    });
+  },
 
+  validateFormValues: function(formValues) {
+    var validationErrors = {};
     var validate = this.props.onValidate;
-    if (validate) {
-      errors = validate(user);
+
+    validationErrors = validate(formValues);
+    if (!_.isEmpty(validationErrors)) {
+      this.setState({
+        working: false,
+        validationErrors: validationErrors,
+        notification: {
+          type: 'error',
+          message:'Some entries are invalid.'
+        }
+      });
     }
 
-    return errors;
+    return validationErrors;
+  },
+
+  submitFormValues: function(formValues) {
+    var self = this;
+    var submit = this.props.onSubmit;
+
+    submit(formValues, function(err, result) {
+      if (err) {
+        self.setState({
+          working: false,
+          notification: {
+            type: 'error',
+            message: err.message || 'An error occured while signing up.'
+          }
+        });
+        return;
+      }
+      self.props.onSubmitSuccess(result);
+    });
   }
 });
 

@@ -27,9 +27,9 @@ describe('Login', function() {
   it('should log in with correct credentials', function(done) {
     openApp()
       .then(authenticate)
-      .then(checkLoginButtonIsPresent)
+      .then(checkLoggedIn)
       .then(function(result) {
-        expect(result).to.be.false;
+        expect(result).to.be.true;
         done();
       });
   });
@@ -63,20 +63,20 @@ describe('Login', function() {
   }
 
   function submitForm() {
-    return helpers.findElement(By.css('.js-login-button'))
+    return helpers.findElement(By.css('.js-form-submit'))
       .then(function(q) {
         return q.click();
       });
   }
 
   function getMessageText() {
-    return helpers.findElement(By.css('.js-login-message'))
+    return helpers.findElement(By.css('.js-form-notification'))
       .then(function(q) {
         return q.getText();
       });
   }
 
-  function checkLoginButtonIsPresent() {
-    return helpers.elementExists(By.css('.js-login-button'));
+  function checkLoggedIn() {
+    return helpers.elementExists(By.css('.js-nav-user'));
   }
 });

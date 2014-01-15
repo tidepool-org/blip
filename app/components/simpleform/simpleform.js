@@ -1,0 +1,164 @@
+/** @jsx React.DOM */
+var React = window.React;
+var _ = window._;
+
+var InputGroup = require('../inputgroup');
+
+// Simple form with validation errors, submit button, and notification message
+var SimpleForm = React.createClass({
+  propTypes: {
+    inputs: React.PropTypes.array,
+    formValues: React.PropTypes.object,
+    validationErrors: React.PropTypes.object,
+    submitButtonText: React.PropTypes.string,
+    submitDisabled: React.PropTypes.bool,
+    onSubmit: React.PropTypes.func,
+    notification: React.PropTypes.object,
+    disabled: React.PropTypes.bool
+  },
+
+  getDefaultProps: function() {
+    return {
+      formValues: {},
+      validationErrors: {}
+    };
+  },
+
+  getInitialState: function() {
+    var formValues =
+      this.getInitialFormValues(this.props.inputs, this.props.formValues);
+    return {
+      formValues: formValues
+    };
+  },
+
+  // Make sure all inputs have a defined form value (can be blank)
+  getInitialFormValues: function(inputsProp, formValuesProp) {
+    var formValues = {};
+    _.forEach(inputsProp, function(input) {
+      var name = input.name;
+      formValues[name] = formValuesProp[name];
+    });
+    return formValues;
+  },
+
+  componentWillReceiveProps: function(nextProps) {
+    // Keep form values in sync with upstream changes
+    // (here `setState` will not trigger a double render)
+    var formValues =
+      this.getInitialFormValues(nextProps.inputs, nextProps.formValues);
+    this.setState({formValues: formValues});
+  },
+
+  render: function() {
+    var inputs = this.renderInputs();
+    var submitButton = this.renderSubmitButton();
+    var notification = this.renderNotification();
+
+    /* jshint ignore:start */
+    return (
+        <form className="simple-form">
+          {inputs}
+          {submitButton}
+          {notification}
+        </form>
+    );
+    /* jshint ignore:end */
+  },
+
+  renderInputs: function() {
+    var self = this;
+    var inputs = this.props.inputs;
+    if (inputs.length) {
+      /* jshint ignore:start */
+      return _.map(inputs, self.renderInput);
+      /* jshint ignore:end */
+    }
+
+    return null;
+  },
+
+  renderInput: function(input) {
+    var name = input.name;
+    var type = input.type;
+    var label = input.label;
+    var value = this.state.formValues[name];
+    var error = this.props.validationErrors[name];
+    var disabled = this.props.disabled || input.disabled;
+    
+    /* jshint ignore:start */
+    return (
+      <InputGroup
+        key={name}
+        name={name}
+        label={label}
+        value={value}
+        error={error}
+        type={type}
+        disabled={disabled}
+        onChange={this.handleChange}/>
+    );
+    /* jshint ignore:end */
+  },
+
+  renderSubmitButton: function() {
+    var text = this.props.submitButtonText || 'Submit';
+    var disabled = this.props.disabled || this.props.submitDisabled;
+
+    if (this.state.working) {
+      text = this.props.submitButtonTextWorking || text;
+      disabled = true;
+    }
+
+    /* jshint ignore:start */
+    return (
+      <button
+        className="simple-form-submit js-form-submit"
+        onClick={this.handleSubmit}
+        disabled={disabled}>{text}</button>
+    );
+    /* jshint ignore:end */
+  },
+
+  renderNotification: function() {
+    var notification = this.props.notification;
+    if (notification && notification.message) {
+      var type = notification.type || 'alert';
+      var className = [
+        'simple-form-notification',
+        'simple-form-notification-' + type,
+        'js-form-notification'
+      ].join(' ');
+      var message = notification.message;
+
+      /* jshint ignore:start */
+      return (
+        <div className={className}>{message}</div>
+      );
+      /* jshint ignore:end */
+    }
+    return null;
+  },
+
+  handleChange: function(e) {
+    var key = e.target.name;
+    var value = e.target.value;
+    if (key) {
+      var formValues = _.clone(this.state.formValues);
+      formValues[key] = value;
+      this.setState({formValues: formValues});
+    }
+  },
+
+  handleSubmit: function(e) {
+    e.preventDefault();
+
+    var submit = this.props.onSubmit;
+    if (submit) {
+      var formValues = _.clone(this.state.formValues);
+      submit(formValues);
+    }
+  }
+});
+
+module.exports = SimpleForm;
