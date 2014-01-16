@@ -5,12 +5,16 @@ module.exports = function() {
   var MS_IN_24 = 86400000;
 
   var id = 'tidelineSVG',
+    endpoints,
     width = 960,
     height = 580,
     pad = 0,
     pools = [],
     xScale = d3.time.scale(),
     xAxis = d3.svg.axis().scale(xScale).orient("bottom"),
+    pan,
+    scrollScale = d3.time.scale(),
+    xScroll = d3.svg.axis().scale(scrollScale).orient("bottom"),
     horizon,
     beginningOfData,
     endOfData,
@@ -81,6 +85,11 @@ module.exports = function() {
           'id': 'd3NavForward'
         });
 
+      mainGroup.append('g')
+        // TODO: change later when not (re-)using .axis CSS class
+        .attr('class', 'x scroll')
+        .attr('id', 'tidelineScroll');
+
       // TODO: update inner group dimensions if decide to have a margin
       // mainGroup.attr('transform', 'translate(' + margin.left + "," + margin.top + ')');   
     });
@@ -90,7 +99,7 @@ module.exports = function() {
     var mainGroup = d3.select('#tidelineMain');
     var poolGroup = d3.select('#tidelinePools');
 
-    var pan = d3.behavior.zoom()
+    pan = d3.behavior.zoom()
       .scaleExtent([1, 1])
       .x(xScale)
       .on('zoom', function() {
@@ -149,11 +158,72 @@ module.exports = function() {
     return container;
   };
 
+  container.updateScrollScale = function(_) {
+    if (!arguments.length) return scrollScale;
+    scrollScale.domain(endpoints).range([pad, width - pad]);
+    return container;
+  };
+
+  container.setScrollbar = function() {
+
+    var mainGroup = d3.select('#tidelineMain');
+    var scrollBar = d3.select('#tidelineScroll');
+
+    // TODO: remove magic number 20
+    scrollBar.attr('transform', 'translate(0,' + (height - 20) + ')')
+      .append('line')
+      .attr({
+        'x1': scrollScale(endpoints[0]),
+        'x2': scrollScale(endpoints[1]),
+        'y1': 0,
+        'y2': 0,
+        'stroke-width': 3,
+        'stroke': 'black'
+      });
+
+    var drag = d3.behavior.drag()
+      .origin(function(d) {
+        return d;
+      })
+      .on('dragstart', function() {
+        d3.event.sourceEvent.stopPropagation(); // silence other listeners
+      })
+      .on('drag', function(d) {
+        d.x += d3.event.dx;
+        d3.select(this).attr('cx', function(d) { return d.x; });
+        var date = scrollScale.invert(d.x);
+        console.log(date);
+        currentPosition = currentPosition - xScale(date) + width;
+        pan.translate([currentPosition, 0]);
+        pan.event(mainGroup);
+      });
+
+    scrollBar.selectAll('circle')
+      .data([{'x': scrollScale(endpoints[0]), 'y': 0}])
+      .enter()
+      .append('circle')
+      .attr({
+        'cx': function(d) { return d.x; },
+        'r': 5,
+        'fill': 'gray',
+        'id': 'scrollHandle'
+      })
+      .call(drag);
+  };
+
   container.id = function(_) {
     if (!arguments.length) return id;
     id = _;
     return container;
-  }
+  };
+
+  container.endpoints = function(x) {
+    if (!arguments.length) return endpoints;
+    endpoints = x;
+    container.updateScrollScale(endpoints);
+    container.setScrollbar();
+    return container;
+  };
 
   container.width = function(_) {
     if (!arguments.length) return width;
