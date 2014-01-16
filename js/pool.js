@@ -72,6 +72,8 @@ module.exports = function(container) {
   };
 
   pool.pan = function(e) {
+    console.log(e.translate[0]);
+    //container.currentTranslation(e.translate[0]);
     d3.selectAll('.d3-circle').attr('transform', 'translate(' + e.translate[0] + ',0)');
     d3.selectAll('.d3-rect').attr('transform', 'translate(' + e.translate[0] + ',0)');
   };

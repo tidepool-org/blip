@@ -18,7 +18,7 @@ module.exports = function() {
     horizon,
     beginningOfData,
     endOfData,
-    currentPosition = 0;
+    currentTranslation = 0;
 
   container.newPool = function() {
     var p = pool(container);
@@ -106,6 +106,7 @@ module.exports = function() {
         // update horizon
         horizon.start = xScale.domain()[0];
         horizon.end = xScale.domain()[1];
+        console.log(horizon);
         if (endOfData - horizon.end < MS_IN_24) {
           console.log('Creating new data! (right)');
           for (j = 0; j < pools.length; j++) {
@@ -136,15 +137,23 @@ module.exports = function() {
 
     $('#d3NavForward').on('click', function() {
       console.log('Jumped forward a day.');
-      currentPosition = currentPosition - width;
-      pan.translate([currentPosition, 0]);
+      currentTranslation -= width;
+      pan.translate([currentTranslation, 0]);
+      d3.select('#scrollHandle').transition().attr('cx', function(d) {
+        d.x = scrollScale(horizon.end);
+        return d.x;
+      });
       pan.event(mainGroup.transition().duration(500));
     });
 
     $('#d3NavBack').on('click', function() {
       console.log('Jumped back a day.');
-      currentPosition = currentPosition + width;
-      pan.translate([currentPosition, 0]);
+      currentTranslation += width;
+      pan.translate([currentTranslation, 0]);
+      d3.select('#scrollHandle').transition().attr('cx', function(d) {
+        d.x = scrollScale(new Date(horizon.start).setDate(horizon.start.getDate() - 1));
+        return d.x;
+      });
       pan.event(mainGroup.transition().duration(500));
     });
   };
@@ -192,9 +201,8 @@ module.exports = function() {
         d.x += d3.event.dx;
         d3.select(this).attr('cx', function(d) { return d.x; });
         var date = scrollScale.invert(d.x);
-        console.log(date);
-        currentPosition = currentPosition - xScale(date) + width;
-        pan.translate([currentPosition, 0]);
+        currentTranslation = currentTranslation - xScale(date) + width;
+        pan.translate([currentTranslation, 0]);
         pan.event(mainGroup);
       });
 
@@ -270,6 +278,12 @@ module.exports = function() {
     pools = _;
     return container;
   };
+
+  container.currentTranslation = function(x) {
+    if (!arguments.length) return currentTranslation;
+    currentTranslation -= x;
+    return container;
+  }
 
   return container;
 };
