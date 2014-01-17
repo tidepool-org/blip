@@ -13,7 +13,33 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+// Clearfix
+// ====================================
+// Source: http://nicolasgallagher.com/micro-clearfix-hack/
+
+.clearfix() {
+  &:before,
+  &:after {
+    content: " "; // 1
+    display: table; // 2
+  }
+  &:after {
+    clear: both;
+  }
+}
+
+// Box sizing
+// ====================================
+
+.box-sizing(@boxmodel) {
+  -webkit-box-sizing: @boxmodel;
+     -moz-box-sizing: @boxmodel;
+          box-sizing: @boxmodel;
+}
+
 // Transitions
+// ====================================
+
 .transition(@transition) {
   -webkit-transition: @transition;
           transition: @transition;
