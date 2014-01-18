@@ -108,7 +108,6 @@ module.exports = function() {
         // update horizon
         horizon.start = xScale.domain()[0];
         horizon.end = xScale.domain()[1];
-        console.log(horizon);
         if (endOfData - horizon.end < MS_IN_24) {
           console.log('Creating new data! (right)');
           for (j = 0; j < pools.length; j++) {
@@ -208,8 +207,7 @@ module.exports = function() {
         d.x += d3.event.dx;
         d3.select(this).attr('cx', function(d) { return d.x; });
         var date = scrollScale.invert(d.x);
-        console.log('Date', date);
-        currentTranslation = currentTranslation - xScale(date);
+        currentTranslation -= xScale(date);
         pan.translate([currentTranslation, 0]);
         pan.event(mainGroup);
       });
