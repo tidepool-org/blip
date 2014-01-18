@@ -18,6 +18,7 @@ module.exports = function() {
     horizon,
     beginningOfData,
     endOfData,
+    latestTranslation = 0,
     currentTranslation = 0;
 
   container.newPool = function() {
@@ -103,6 +104,7 @@ module.exports = function() {
       .scaleExtent([1, 1])
       .x(xScale)
       .on('zoom', function() {
+        scrollBarTrigger = true;
         // update horizon
         horizon.start = xScale.domain()[0];
         horizon.end = xScale.domain()[1];
@@ -131,29 +133,33 @@ module.exports = function() {
           pools[i].pan(d3.event);
         }
         d3.select('.x.axis').call(xAxis);
+        if (scrollBarTrigger) {        
+          d3.select('#scrollHandle').transition().ease('linear').attr('cx', function(d) {
+            d.x = scrollScale(horizon.start);
+            return d.x;
+          });
+        }
+      })
+      .on('zoomend', function() {
+        container.currentTranslation(latestTranslation);
+        console.log('Current translation ' + currentTranslation);
       });
 
     mainGroup.call(pan);
 
     $('#d3NavForward').on('click', function() {
       console.log('Jumped forward a day.');
+      scrollBarTrigger = true;
       currentTranslation -= width;
       pan.translate([currentTranslation, 0]);
-      d3.select('#scrollHandle').transition().attr('cx', function(d) {
-        d.x = scrollScale(horizon.end);
-        return d.x;
-      });
       pan.event(mainGroup.transition().duration(500));
     });
 
     $('#d3NavBack').on('click', function() {
       console.log('Jumped back a day.');
+      scrollBarTrigger = true;
       currentTranslation += width;
       pan.translate([currentTranslation, 0]);
-      d3.select('#scrollHandle').transition().attr('cx', function(d) {
-        d.x = scrollScale(new Date(horizon.start).setDate(horizon.start.getDate() - 1));
-        return d.x;
-      });
       pan.event(mainGroup.transition().duration(500));
     });
   };
@@ -196,12 +202,14 @@ module.exports = function() {
       })
       .on('dragstart', function() {
         d3.event.sourceEvent.stopPropagation(); // silence other listeners
+        scrollBarTrigger = false;
       })
       .on('drag', function(d) {
         d.x += d3.event.dx;
         d3.select(this).attr('cx', function(d) { return d.x; });
         var date = scrollScale.invert(d.x);
-        currentTranslation = currentTranslation - xScale(date) + width;
+        console.log('Date', date);
+        currentTranslation = currentTranslation - xScale(date);
         pan.translate([currentTranslation, 0]);
         pan.event(mainGroup);
       });
@@ -279,9 +287,15 @@ module.exports = function() {
     return container;
   };
 
+  container.latestTranslation = function(x) {
+    if (!arguments.length) return latestTranslation;
+    latestTranslation = x;
+    return container;
+  }
+
   container.currentTranslation = function(x) {
     if (!arguments.length) return currentTranslation;
-    currentTranslation -= x;
+    currentTranslation = x;
     return container;
   }
 
