@@ -15,6 +15,7 @@
 
 window.config = {
   VERSION: '<%= pkg.version %>' || '',
+  IMAGES_ENDPOINT: '<%= process.env.IMAGES_ENDPOINT %>' || 'images',
   DEMO: Boolean('<%= process.env.DEMO %>') || true,
   DEMO_DELAY: Number('<%= process.env.DEMO_DELAY %>') || 0,
   DEMO_VARIANT: '<%= process.env.DEMO_VARIANT %>' || '',

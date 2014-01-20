@@ -25,7 +25,7 @@ describe('InputGroup', function() {
   });
 
   it('should show correct label', function() {
-    var expectedLabel = props.label + ': ';
+    var expectedLabel = props.label;
     var label = component.refs.label.props.children;
 
     expect(label).to.equal(expectedLabel);

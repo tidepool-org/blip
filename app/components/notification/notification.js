@@ -27,13 +27,14 @@ var Notification = React.createClass({
 
     return (
       /* jshint ignore:start */
-      <div className="notification">
-        <span className="notification-message">{message}</span>
-        <span>{' '}</span>
-        <a 
-          className="notification-close"
-          href=""
-          onClick={this.handleClose}>Close</a>
+      <div className="notification notification-alert">
+        <div className="notification-inner">
+          <span className="notification-message">{message}</span>
+          <a 
+            className="notification-close"
+            href=""
+            onClick={this.handleClose}>Close</a>
+        </div>
       </div>
       /* jshint ignore:end */
     );

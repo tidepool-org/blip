@@ -17,30 +17,48 @@
 var React = window.React;
 var _ = window._;
 
-var Nav = React.createClass({
+var Navbar = React.createClass({
   propTypes: {
     version: React.PropTypes.string,
     user: React.PropTypes.object,
-    onLogout: React.PropTypes.func
+    onLogout: React.PropTypes.func,
+    imagesEndpoint: React.PropTypes.string
   },
 
   render: function() {
+    var logo = this.renderLogo();
     var version = this.renderVersion();
     var user = this.renderUser();
 
+    /* jshint ignore:start */
     return (
-      /* jshint ignore:start */
-      <div className="nav">
-        <div className="nav-inner">
-          <ul>
-            <li><a href="#/">Blip</a></li>
+      <div className="container-nav-outer navbar">
+        <div className="container-nav-inner nav-wrapper">
+          <ul className="nav nav-left">
+            {logo}
             {version}
           </ul>
           {user}
         </div>
       </div>
-      /* jshint ignore:end */
     );
+    /* jshint ignore:end */
+  },
+
+  renderLogo: function() {
+    var imageSource = this.props.imagesEndpoint + '/blip-logo.png';
+
+    /* jshint ignore:start */
+    return (
+      <li>
+        <a
+          href="#/"
+          className="navbar-logo">
+          <img src={imageSource} alt="Blip"/>
+        </a>
+      </li>
+    );
+    /* jshint ignore:end */
   },
 
   renderVersion: function() {
@@ -49,7 +67,9 @@ var Nav = React.createClass({
       version = 'v' + version;
       return (
         /* jshint ignore:start */
-        <li className="nav-version" ref="version">{version}</li>
+        <li className="navbar-version">
+          <div className="nav-text" ref="version">{version}</div>
+        </li>
         /* jshint ignore:end */
       );
     }
@@ -62,9 +82,24 @@ var Nav = React.createClass({
       var fullName = this.getUserFullName(user);
       return (
         /* jshint ignore:start */
-        <ul className="nav-right js-nav-user">
-          <li>Logged in as <span>{fullName}</span></li>
-          <li><a href="" onClick={this.handleLogout}>Logout</a></li>
+        <ul className="nav nav-right navbar-user js-navbar-user">
+          <li>
+            <a href="#/profile" className="navbar-label-link" title="Account">
+              <div className="navbar-label navbar-label-right">
+                {'Logged in as '}
+                <span className="navbar-user-name">{fullName}</span>
+              </div>
+              <div className="navbar-label-arrow-right"></div>
+            </a>
+          </li>
+          <li>
+            <a
+              href=""
+              className="navbar-user-icon"
+              onClick={this.handleLogout}
+              title="Logout"><i className="icon-logout"></i>
+            </a>
+          </li>
         </ul>
         /* jshint ignore:end */
       );
@@ -85,4 +120,4 @@ var Nav = React.createClass({
   }
 });
 
-module.exports = Nav;
+module.exports = Navbar;

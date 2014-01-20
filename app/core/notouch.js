@@ -13,23 +13,14 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-.simple-form-action-group {
-  text-align: right;
-  margin-top: @spacing-base;
+// Add the `no-touch` class to the `<html>` element if not on a touch screen
+// Also available in Modernizr
+// Code snippet from:
+// http://www.prowebdesign.ro/how-to-deal-with-hover-on-touch-screen-devices/
+function detectTouchScreen() {
+  if (!('ontouchstart' in document.documentElement)) {
+    document.documentElement.className += ' no-touch';
+  }
 }
 
-.simple-form-notification {
-  margin-top: @spacing-small;
-}
-
-.simple-form-notification-alert {
-  color: @orange-alert;
-}
-
-.simple-form-notification-error {
-  color: @red-error;
-}
-
-.simple-form-notification-success {
-  color: @green-success;
-}
+module.exports = detectTouchScreen;

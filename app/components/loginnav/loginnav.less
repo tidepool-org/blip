@@ -13,23 +13,37 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-.simple-form-action-group {
-  text-align: right;
+@login-nav-tidepool-logo-width:     185px;
+@login-nav-tidepool-logo-height:    20px;
+
+.login-nav {
   margin-top: @spacing-base;
+  margin-bottom: @spacing-base;
+
+  @media(min-width: @screen-md-min) {
+    margin-bottom: @spacing-large;
+  }
 }
 
-.simple-form-notification {
-  margin-top: @spacing-small;
+.login-nav a {
+  color: @gray-darker;
+  text-decoration: none;
+
+  &:hover,
+  &:focus {
+    color: @gray-darkest;
+    text-decoration: none;
+  }
 }
 
-.simple-form-notification-alert {
-  color: @orange-alert;
-}
+.login-nav-tidepool-logo {
+  > img {
+    width: (@login-nav-tidepool-logo-width*3/5);
+    height: (@login-nav-tidepool-logo-height*3/5);
 
-.simple-form-notification-error {
-  color: @red-error;
-}
-
-.simple-form-notification-success {
-  color: @green-success;
+    @media(min-width: @screen-md-min) {
+      width: @login-nav-tidepool-logo-width;
+      height: @login-nav-tidepool-logo-height;
+    }
+  }
 }

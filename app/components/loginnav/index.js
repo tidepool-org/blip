@@ -13,23 +13,4 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-.simple-form-action-group {
-  text-align: right;
-  margin-top: @spacing-base;
-}
-
-.simple-form-notification {
-  margin-top: @spacing-small;
-}
-
-.simple-form-notification-alert {
-  color: @orange-alert;
-}
-
-.simple-form-notification-error {
-  color: @red-error;
-}
-
-.simple-form-notification-success {
-  color: @green-success;
-}
+module.exports = require('./loginnav');

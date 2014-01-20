@@ -49,16 +49,19 @@ var InputGroup = React.createClass({
 
   renderLabel: function() {
     var text = this.props.label;
+    var htmlFor = this.props.name;
+
     if (text) {
-      text = text + ': ';
       return (
         /* jshint ignore:start */
-        <span
+        <label
           className="input-group-label"
-          ref="label">{text}</span>
+          htmlFor={htmlFor}
+          ref="label">{text}</label>
         /* jshint ignore:end */
       );
     }
+
     return null;
   },
 
@@ -67,7 +70,8 @@ var InputGroup = React.createClass({
       /* jshint ignore:start */
       <input
         type={this.props.type}
-        className="input-group-control"
+        className="input-group-control form-control"
+        id={this.props.name}
         name={this.props.name}
         value={this.props.value}
         onChange={this.props.onChange}
@@ -83,7 +87,7 @@ var InputGroup = React.createClass({
       return (
         /* jshint ignore:start */
         <div
-          className="input-group-message"
+          className="input-group-message form-help-block"
           ref="message">{error}</div>
         /* jshint ignore:end */
       );
@@ -92,7 +96,7 @@ var InputGroup = React.createClass({
   },
 
   getClassName: function() {
-    var className = 'input-group';
+    var className = 'input-group form-group';
     if (this.props.error) {
       className += ' input-group-error';
     }

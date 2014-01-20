@@ -13,23 +13,16 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-.simple-form-action-group {
-  text-align: right;
-  margin-top: @spacing-base;
+.login-form {
+  margin-bottom: @spacing-large;
 }
 
-.simple-form-notification {
-  margin-top: @spacing-small;
-}
+.login-form-box {
+  padding-top: @spacing-base;
+  padding-bottom: @spacing-base;
 
-.simple-form-notification-alert {
-  color: @orange-alert;
-}
-
-.simple-form-notification-error {
-  color: @red-error;
-}
-
-.simple-form-notification-success {
-  color: @green-success;
+  @media(min-width: @screen-md-min) {
+    padding-top: @spacing-large;
+    padding-bottom: @spacing-large;
+  }
 }

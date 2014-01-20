@@ -17,7 +17,7 @@
 // ====================================
 
 @gray-darkest:           #636363; // Hover state for links, buttons
-@gray-darker:            #989897; // Links, buttons, tabs
+@gray-darker:            #989897; // Nav links, buttons, tabs
 @gray-dark:              #808184; // Text on white background
 @gray:                   #e6e6e5; // Container on white background
 @gray-light:             #f2f2f2; // Container on gray background
@@ -33,7 +33,7 @@
 // Scaffolding
 // ====================================
 
-@body-bg:                #fff;
+@body-bg:                @gray-lighter;
 @text-color:             @gray-dark;
 
 @link-color:             @blue-light;
@@ -53,3 +53,38 @@
 @spacing-base:           20px;
 @spacing-small:          10px;
 @spacing-tiny:           5px;
+
+// Notification states
+// ====================================
+
+@state-success-text:             #3c763d;
+@state-success-bg:               #dff0d8;
+@state-success-border:           darken(spin(@state-success-bg, -10), 5%);
+
+@state-alert-text:               #8a6d3b;
+@state-alert-bg:                 #fcf8e3;
+@state-alert-border:             darken(spin(@state-alert-bg, -10), 5%);
+
+@state-error-text:               #a94442;
+@state-error-bg:                 #f2dede;
+@state-error-border:             darken(spin(@state-error-bg, -10), 5%);
+
+// Media queries breakpoints
+// ====================================
+
+// Medium screen / tablet
+@screen-md-min:              480px;
+
+// Large screen / desktop
+@screen-lg-min:              1020px;
+
+// So media queries don't overlap when required, provide a maximum
+@screen-sm-max:              (@screen-md-min - 1);
+@screen-md-max:              (@screen-lg-min - 1);
+
+// Z-index master list
+// ====================================
+
+@zindex-notification:        1030;
+@zindex-overlay-background:  1040;
+@zindex-overlay:             1050;

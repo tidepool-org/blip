@@ -1,12 +1,12 @@
 var expect = chai.expect;
 
-var Nav = require('../../app/components/nav');
+var Navbar = require('../../app/components/navbar');
 
-describe('Nav', function() {
+describe('Navbar', function() {
   var component;
 
   beforeEach(function() {
-    component = Nav();
+    component = Navbar();
     helpers.mountComponent(component);
   });
 

@@ -26,14 +26,16 @@ var LogoutOverlay = React.createClass({
   },
 
   render: function() {
-    var classString = 'logout-overlay';
+    var className = 'logout-overlay';
     if (this.state.fadeOut) {
-      classString += ' logout-overlay-fade-out';
+      className += ' logout-overlay-fade-out';
     }
     
     return (
       /* jshint ignore:start */
-      <div className={classString}>Logging out...</div>
+      <div className={className}>
+        <div className="logout-overlay-text">Logging out...</div>
+      </div>
       /* jshint ignore:end */
     );
   },

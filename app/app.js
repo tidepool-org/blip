@@ -24,7 +24,9 @@ var auth = require('./core/auth');
 var api = require('./core/api');
 var user = require('./core/user');
 
-var Nav = require('./components/nav');
+var detectTouchScreen = require('./core/notouch');
+
+var Navbar = require('./components/navbar');
 var LogoutOverlay = require('./components/logoutoverlay');
 var Notification = require('./components/notification');
 
@@ -91,7 +93,7 @@ var AppComponent = React.createClass({
 
   render: function() {
     var overlay = this.renderOverlay();
-    var nav = this.renderNav();
+    var navbar = this.renderNavbar();
     var notification = this.renderNotification();
     var page = this.renderPage();
 
@@ -99,7 +101,7 @@ var AppComponent = React.createClass({
       /* jshint ignore:start */
       <div className="app">
         {overlay}
-        {nav}
+        {navbar}
         {notification}
         {page}
       </div>
@@ -119,14 +121,15 @@ var AppComponent = React.createClass({
     return null;
   },
 
-  renderNav: function() {
+  renderNavbar: function() {
     if (this.state.authenticated) {
       return (
         /* jshint ignore:start */
-        <Nav
+        <Navbar
           version={config.VERSION}
           user={this.state.user}
-          onLogout={this.logout} />
+          onLogout={this.logout}
+          imagesEndpoint={config.IMAGES_ENDPOINT + '/navbar'} />
         /* jshint ignore:end */
       );
     }
@@ -310,6 +313,15 @@ app.start = function() {
 app.init = function(callback) {
   var self = this;
 
+  function beginInit() {
+    initNoTouch();
+  }
+
+  function initNoTouch() {
+    detectTouchScreen();
+    initApi();
+  }
+
   function initApi() {
     self.api.init();
     initAuth();
@@ -319,7 +331,7 @@ app.init = function(callback) {
     self.auth.init(callback);
   }
 
-  initApi();
+  beginInit();
 };
 
 module.exports = app;

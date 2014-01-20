@@ -77,6 +77,6 @@ describe('Login', function() {
   }
 
   function checkLoggedIn() {
-    return helpers.elementExists(By.css('.js-nav-user'));
+    return helpers.elementExists(By.css('.js-navbar-user'));
   }
 });

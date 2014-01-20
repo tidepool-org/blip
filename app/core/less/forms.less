@@ -13,60 +13,59 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-// Reset box-sizing
+// Non-controls
 // ====================================
 
-* {
-  .box-sizing(border-box);
-}
-*:before,
-*:after {
-  .box-sizing(border-box);
+label,
+.form-label {
+  display: block;
 }
 
+// Help text under form controls
+.form-help-block {
+  margin-top: @spacing-tiny;
+}
 
-// Body reset
+// Form controls
 // ====================================
 
-html {
-  // Remove the dark touch outlines on links
-  -webkit-tap-highlight-color: rgba(0,0,0,0);
-}
+@form-control-border-color:  @gray;
 
-body {
-  font-family: @font-family-base;
+.form-control {
+  display: block;
+  width: 100%;
+
+  min-height: (2*@line-height-base);
   font-size: @font-size-base;
   line-height: @line-height-base;
-  color: @text-color;
-  background-color: @body-bg;
-}
+  vertical-align: middle;
 
-// Make form elements use body font styles
-input,
-button,
-select,
-textarea {
-  font-family: inherit;
-  font-size: inherit;
-  line-height: inherit;
-}
+  padding: 0 @spacing-tiny;
 
-// Links
-// ====================================
+  border: 2px solid @form-control-border-color;
+  border-radius: 4px;
 
-a {
-  color: @link-color;
-  text-decoration: none;
+  color: #000;
 
-  &:hover,
+  // Remove inset shadow in iOS
+  -webkit-appearance: none;
+
+  .not-touch &:hover {
+    border-color: darken(@form-control-border-color, 15%);
+  }
+
   &:focus {
-    color: @link-hover-color;
-    text-decoration: underline;
+    // Disable default WebKit focus style
+    outline: 0;
+    
+    border-color: @blue-light;
   }
 }
 
-// Images
+// Form groups
 // ====================================
-img {
-  vertical-align: middle;
+// Designed to help with the organization and spacing of vertical forms.
+
+.form-group {
+  margin-bottom: @spacing-small;
 }

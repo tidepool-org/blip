@@ -13,23 +13,42 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-.simple-form-action-group {
-  text-align: right;
-  margin-top: @spacing-base;
+@nav-item-vertical-padding:   (@spacing-base/2);
+@nav-item-horizontal-padding: (@spacing-base/2);
+
+.nav-wrapper {
+  &:extend(.clearfix all);
 }
 
-.simple-form-notification {
-  margin-top: @spacing-small;
+.nav {
+  // Override default ul/ol
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  &:extend(.clearfix all);
+
+  > li {
+    display: block;
+    float: left;
+
+    > a,
+    .nav-text {
+      display: block;
+      padding: @nav-item-vertical-padding @nav-item-horizontal-padding;
+    }
+  }
 }
 
-.simple-form-notification-alert {
-  color: @orange-alert;
+.nav-left {
+  float: left;
+
+  // Compensate for nav item padding, so text aligns with edge
+  margin-left: -@nav-item-horizontal-padding;
 }
 
-.simple-form-notification-error {
-  color: @red-error;
-}
+.nav-right {
+  float: right;
 
-.simple-form-notification-success {
-  color: @green-success;
+  margin-right: -@nav-item-horizontal-padding;
 }

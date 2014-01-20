@@ -16,7 +16,10 @@
 
 var React = window.React;
 var _ = window._;
+var config = window.config;
 
+var LoginNav = require('../../components/loginnav');
+var LoginLogo = require('../../components/loginlogo');
 var SimpleForm = require('../../components/simpleform');
 
 var Login = React.createClass({
@@ -27,7 +30,7 @@ var Login = React.createClass({
   },
 
   formInputs: [
-    {name: 'username', label: 'Email'},
+    {name: 'username', label: 'Email', type: 'email'},
     {name: 'password', label: 'Password', type: 'password'}
   ],
 
@@ -46,18 +49,22 @@ var Login = React.createClass({
     /* jshint ignore:start */
     return (
       <div className="login">
-        <ul>
-          <li><a href="#/">Blip</a></li>
-          <li><a href="#/signup" className="js-signup-link">Sign up</a></li>
-        </ul>
-        {form}
+        <LoginNav
+          page="login"
+          imagesEndpoint={config.IMAGES_ENDPOINT + '/loginnav'} />
+        <LoginLogo imagesEndpoint={config.IMAGES_ENDPOINT + '/loginlogo'} />
+        <div className="container-small-outer login-form">
+          <div className="container-small-inner login-form-box">
+            {form}
+          </div>
+        </div>
       </div>
     );
     /* jshint ignore:end */
   },
 
   renderForm: function() {
-    var submitButtonText = this.state.working ? 'Logging in...' : 'Login';
+    var submitButtonText = this.state.working ? 'Logging in...' : 'Log in';
 
     /* jshint ignore:start */
     return (

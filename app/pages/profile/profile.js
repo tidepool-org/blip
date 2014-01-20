@@ -29,7 +29,7 @@ var Profile = React.createClass({
   formInputs: [
     {name: 'firstName', label: 'First name'},
     {name: 'lastName', label: 'Last name'},
-    {name: 'username', label: 'Email'},
+    {name: 'username', label: 'Email', type: 'email'},
     {name: 'password', label: 'Password', type: 'password'},
     {name: 'passwordConfirm', label: 'Confirm assword', type: 'password'}
   ],
@@ -55,7 +55,16 @@ var Profile = React.createClass({
     /* jshint ignore:start */
     return (
       <div className="profile">
-        {form}
+        <div className="container-box-outer profile-subnav">
+          <div className="container-box-inner profile-subnav-box">
+            <div className="profile-subnav-center">Account</div>
+          </div>
+        </div>
+        <div className="container-box-outer profile-content">
+          <div className="container-box-inner profile-content-box">
+            <div className="profile-form">{form}</div>
+          </div>
+        </div>
       </div>
     );
     /* jshint ignore:end */

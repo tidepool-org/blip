@@ -9,9 +9,9 @@ var template = require('gulp-template');
 var send = require('./lib/gulp-send');
 
 var pkg = require('./package.json');
-var config = {
-  DEMO_DIR: process.env.DEMO_DIR || 'demo/sample'
-};
+process.env.DEMO_DIR = process.env.DEMO_DIR || 'demo/sample';
+process.env.IMAGES_ENDPOINT = 'images';
+process.env.FONTS_ENDPOINT = 'fonts';
 process.env.DEMO_ENDPOINT = 'demo';
 
 var app = connect();
@@ -57,14 +57,22 @@ app.use('/style.css', function(req, res, next) {
     .pipe(send(res));
 });
 
-app.use('/demo', connect.static(__dirname + '/' + config.DEMO_DIR));
+app.use('/fonts', connect.static(__dirname + '/app/core/fonts'));
+
+app.use('/images/navbar', connect.static(__dirname + '/app/components/navbar/images'));
+app.use('/images/loginnav', connect.static(__dirname + '/app/components/loginnav/images'));
+app.use('/images/loginlogo', connect.static(__dirname + '/app/components/loginlogo/images'));
+
+app.use('/demo', connect.static(__dirname + '/' + process.env.DEMO_DIR));
 
 app.use('/', function(req, res, next) {
   res.setHeader('Content-Type', 'text/html');
 
   gulp.src('app/index.html')
     .pipe(template({
-      production: false
+      production: false,
+      process: {env: process.env},
+      pkg: pkg
     }))
     .pipe(send(res));
 });

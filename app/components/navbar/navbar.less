@@ -1,0 +1,142 @@
+/**
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ */
+
+@navbar-logo-width:     50px;
+@navbar-logo-height:    40px;
+@navbar-item-vertical-padding:    @nav-item-vertical-padding;
+@navbar-item-horizontal-padding:  @spacing-tiny;
+@navbar-label-vertical-padding:   0px;
+@navbar-label-horizontal-padding: @spacing-tiny;
+@navbar-label-height:             (@spacing-base + 2*@navbar-label-vertical-padding);
+
+.navbar {
+  margin-top: @spacing-base;
+  margin-bottom: @spacing-base;
+
+  @media(min-width: @screen-md-min) {
+    margin-bottom: @spacing-large;
+  }
+}
+
+.navbar a {
+  color: @gray-darker;
+  text-decoration: none;
+
+  &:hover,
+  &:focus {
+    color: @gray-darkest;
+    text-decoration: none;
+  }
+}
+
+.navbar-logo {
+  > img {
+    width: @navbar-logo-width;
+    height: @navbar-logo-height;
+  }
+}
+
+// Align vertically with logo
+.navbar-version,
+.navbar-user {
+  margin-top: (@spacing-base/2);
+  margin-bottom: (@spacing-base/2);
+}
+
+// Decrease default .nav items horizontal padding
+.navbar {
+  .nav > li {
+    > a,
+    .nav-text {
+      display: block;
+      padding-left: @navbar-item-horizontal-padding;
+      padding-right: @navbar-item-horizontal-padding;
+    }
+  }
+
+  .nav-left {
+    margin-left: -@navbar-item-horizontal-padding;
+  }
+
+  .nav-right {
+    margin-right: -@navbar-item-horizontal-padding;
+  }
+}
+
+// Navbar labels
+// ====================================
+
+.navbar-label {
+  display: inline-block;
+
+  padding: @navbar-label-vertical-padding @navbar-label-horizontal-padding;
+
+  color: #fff;
+  background-color: @gray-darker;
+}
+
+.navbar-label-link:hover > .navbar-label,
+.navbar-label-link:focus > .navbar-label {
+  background-color: @gray-darkest;
+}
+
+.navbar-label-arrow-right {
+  display: inline-block;
+
+  width: 0; 
+  height: 0; 
+  border-top: (@navbar-label-height/2) solid transparent;
+  border-bottom: (@navbar-label-height/2) solid transparent;
+  
+  border-left: 12px solid @gray-darker;
+
+  // Hack to align vertically with label
+  margin-bottom: -(@navbar-label-height/4 + 1px);
+}
+
+.navbar-label-right {
+  padding-left: @spacing-base;
+}
+
+.navbar-label-link:hover > .navbar-label-arrow-right,
+.navbar-label-link:focus > .navbar-label-arrow-right {
+  border-left-color: @gray-darkest;
+}
+
+.nav > li > a.navbar-label-link {
+  color: #fff;
+  background: none;
+
+  padding: (@navbar-item-vertical-padding - @navbar-label-vertical-padding) (@navbar-item-horizontal-padding - @navbar-label-horizontal-padding);
+
+  &:hover,
+  &:focus {
+    color: #fff;
+    background: none;
+  }
+}
+
+// Navbar user
+// ====================================
+
+// "Hack" to vertically align user icons with the rest
+.navbar-user-icon {
+  height: (2*@spacing-base);
+  margin-top: -2px;
+}
+
+.navbar-user-name {
+  font-weight: bold;
+}

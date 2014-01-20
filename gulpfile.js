@@ -8,15 +8,14 @@ var _ = require('lodash');
 var template = require('gulp-template');
 var uglify = require('gulp-uglify');
 var cssmin = require('gulp-minify-css');
+var imagemin = require('gulp-imagemin');
 var clean = require('gulp-clean');
 
 var pkg = require('./package.json');
-var config = {
-  DEMO: process.env.DEMO || true,
-  DEMO_DIR: process.env.DEMO_DIR || 'demo/sample'
-};
+process.env.DEMO_DIR = process.env.DEMO_DIR || 'demo/sample';
+process.env.FONTS_ENDPOINT = 'build/' + pkg.version + '/fonts';
+process.env.IMAGES_ENDPOINT = 'build/' + pkg.version + '/images';
 process.env.DEMO_ENDPOINT = 'build/' + pkg.version + '/demo';
-config.DEMO_ENDPOINT = process.env.DEMO_ENDPOINT;
 var jshintrc = JSON.parse(fs.readFileSync('.jshintrc'));
 
 gulp.task('jshint-app', function() {
@@ -103,16 +102,37 @@ gulp.task('index', function(cb) {
   gulp.src('app/index.html')
     .pipe(template({
       production: true,
+      process: {env: process.env},
       pkg: pkg
     }))
     .pipe(gulp.dest('dist'))
     .on('end', cb);
 });
 
+gulp.task('fonts', function(cb) {
+  gulp.src('app/core/fonts/**')
+    .pipe(gulp.dest('dist/' + process.env.FONTS_ENDPOINT))
+    .on('end', cb);
+});
+
+gulp.task('images', function () {
+  var images = [
+    {src: 'app/components/navbar/images/**', endpoint: 'navbar'},
+    {src: 'app/components/loginnav/images/**', endpoint: 'loginnav'},
+    {src: 'app/components/loginlogo/images/**', endpoint: 'loginlogo'}
+  ];
+
+  _.forEach(images, function(image) {
+    gulp.src(image.src)
+    .pipe(imagemin())
+    .pipe(gulp.dest('dist/' + process.env.IMAGES_ENDPOINT + '/' + image.endpoint));
+  });
+});
+
 gulp.task('demo', function(cb) {
-  if (config.DEMO) {
-    gulp.src(config.DEMO_DIR + '/**')
-      .pipe(gulp.dest('dist/' + config.DEMO_ENDPOINT))
+  if (process.env.DEMO) {
+    gulp.src(process.env.DEMO_DIR + '/**')
+      .pipe(gulp.dest('dist/' + process.env.DEMO_ENDPOINT))
       .on('end', cb);
   }
   else {
@@ -134,7 +154,7 @@ gulp.task('clean-tmp', function(cb) {
 
 gulp.task('build', function() {
   gulp.run('clean', function() {
-    gulp.run('scripts', 'styles', 'index', 'demo', function(err) {
+    gulp.run('scripts', 'styles', 'index', 'fonts', 'images', 'demo', function(err) {
       gulp.run('clean-tmp', function(err) {
         // NOTE: this callback does nothing,
         // but is a temporary fix to the following bug

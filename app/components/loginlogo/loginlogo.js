@@ -1,3 +1,4 @@
+/** @jsx React.DOM */
 /**
  * Copyright (c) 2014, Tidepool Project
  * 
@@ -13,23 +14,24 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-.simple-form-action-group {
-  text-align: right;
-  margin-top: @spacing-base;
-}
+var React = window.React;
 
-.simple-form-notification {
-  margin-top: @spacing-small;
-}
+var LoginLogo = React.createClass({
+  propTypes: {
+    imagesEndpoint: React.PropTypes.string
+  },
 
-.simple-form-notification-alert {
-  color: @orange-alert;
-}
+  render: function() {
+    var imageSource = this.props.imagesEndpoint + '/blip-logo-large.png';
 
-.simple-form-notification-error {
-  color: @red-error;
-}
+    /* jshint ignore:start */
+    return (
+      <div className="login-logo">
+        <img src={imageSource} alt="Blip"/>
+      </div>
+    );
+    /* jshint ignore:end */
+  }
+});
 
-.simple-form-notification-success {
-  color: @green-success;
-}
+module.exports = LoginLogo;
