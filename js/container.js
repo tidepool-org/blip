@@ -113,7 +113,7 @@ module.exports = function() {
           for (j = 0; j < pools.length; j++) {
             var plusOne = new Date(container.endOfData());
             plusOne.setDate(plusOne.getDate() + 1);
-            pools[j](poolGroup, [endOfData, plusOne]);
+            pools[j](poolGroup, container.data()([endOfData, plusOne]));
           }
           // update endOfData
           container.endOfData(plusOne);
@@ -123,7 +123,7 @@ module.exports = function() {
           for (j = 0; j < pools.length; j++) {
             var plusOne = new Date(container.beginningOfData());
             plusOne.setDate(plusOne.getDate() - 1);
-            pools[j](poolGroup, [plusOne, beginningOfData]);
+            pools[j](poolGroup, container.data()([plusOne, beginningOfData]));
           }
           // update beginningOfData
           container.beginningOfData(plusOne);
@@ -238,6 +238,12 @@ module.exports = function() {
     container.setScrollbar();
     return container;
   };
+
+  container.data = function(x) {
+    if (!arguments.length) return data;
+    data = x;
+    return container;
+  }
 
   container.width = function(_) {
     if (!arguments.length) return width;

@@ -1,8 +1,4 @@
-var data = require('./data');
-
 module.exports = function(container) {
-
-  var d = data();
 
   // TMP: colors, etc. for demo-ing
   var colors = d3.scale.category20(),
@@ -18,8 +14,7 @@ module.exports = function(container) {
     height = 60,
     pad = 5;
 
-  function pool(selection, endpoints) {
-    var poolData = d(endpoints);
+  function pool(selection, poolData) {
     pool.allData(poolData);
     // select the pool group if it already exists
     group = selection.selectAll('#' + id).data([allData]);
