@@ -23,6 +23,8 @@ Table of contents:
     - [Vendor packages](#vendor-packages)
     - [Debugging](#debugging)
     - [CSS](#css)
+    - [Images](#images)
+    - [Icons](#icons)
     - [JSHint](#jshint)
     - [Demo mode](#demo-mode)
 - [Testing](#testing)
@@ -145,7 +147,34 @@ app.foo = {
 
 Prefix all CSS classes with the component name. For example, if I'm working on the `PatientList` component, I'll prefix CSS classes with `patient-list-`.
 
-Keep styles in the same folder as the component, and import them in the main `app/style.less` stylesheet.
+Keep styles in the same folder as the component, and import them in the main `app/style.less` stylesheet. If working on a "core" style, don't forget to import the files in `app/core/core.less`.
+
+In organizing the core styles in different `.less` files, as well as naming core style classes, we more or less take inspiration from Twitter Bootstrap (see [https://github.com/twbs/bootstrap/tree/master/less](https://github.com/twbs/bootstrap/tree/master/less)).
+
+Some styles we'd rather not use on touch screens (for example hover effects which can be annoying while scrolling on touch screens). For that purpose, a small snippet (`app/core/notouch.js`) will add the `.no-touch` class to the root document element, so you can use:
+
+```less
+.no-touch .list-item:hover {
+  // This will not be used on touch screens
+  background-color: #ccc;
+}
+```
+
+Keep all elements and styles **responsive**, i.e. make sure they look good on any screen size. For media queries, we like to use the mobile-first approach, i.e. define styles for all screen sizes first, then override for bigger screen sizes. For example:
+
+```less
+.container {
+  // On mobile and up, fill whole screen
+  width: 100%;
+  
+  @media(min-width: 1024px) {
+    // When screen gets big enough, switch to fixed-width
+    width: 1024px;
+    margin-right: auto;
+    margin-left: auto;
+  }
+}
+```
 
 If using class names to select elements from JavaScript (for tests, or using jQuery), prefix them with `js-`. That way style changes and script changes can be done more independently.
 
@@ -156,6 +185,31 @@ In a separate terminal, you can watch and lint JS files with:
 ```bash
 $ gulp jshint-watch
 ```
+
+### Images
+
+Images should be placed directly inside each component's directory, under an `images/` subfolder. For example, the component located in the `navbar/` folder, might have an image `logo.png` that would be saved in `navbar/images/logo.png`.
+
+The app is then passed an `IMAGES_ENDPOINT` value in the `config` object, that you can use to generate the image `src` attribute by just appending the component's name and the name of the image file. In our example:
+
+```javascript
+var componentImageEndpoint = config.IMAGES_ENDPOINT + '/navbar';
+var imageSource = componentImageEndpoint + '/logo.png';
+```
+
+Reusable components (`app/components/`) shouldn't access the `config` object directly, so you should generate the `componentImageEndpoint` value above from a "page" component (`app/pages`), and pass it to the reusable component through a `props` value.
+
+At build-time, images all get bundled into `build/<version>/images/<component>/` directories. When adding images, don't forget to update the `develop.js` and `gulpfile.js` with the correct paths.
+
+### Icons
+
+We use an icon font for app icons (in `app/core/fonts/`). To use an icon, simply add the correct class to an element (convention is to use the `<i>` element), for example:
+
+```html
+<i class="icon-logout"></i>
+```
+
+Take a look at the `app/core/less/icons.less` file for available icons.
 
 ### Demo mode
 
