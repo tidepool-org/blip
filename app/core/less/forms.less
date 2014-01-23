@@ -43,14 +43,14 @@ label,
   padding: 0 @spacing-tiny;
 
   border: 2px solid @form-control-border-color;
-  border-radius: 4px;
+  border-radius: 0px;
 
   color: #000;
 
   // Remove inset shadow in iOS
   -webkit-appearance: none;
 
-  .not-touch &:hover {
+  &:hover {
     border-color: darken(@form-control-border-color, 15%);
   }
 
@@ -58,7 +58,7 @@ label,
     // Disable default WebKit focus style
     outline: 0;
     
-    border-color: @blue-light;
+    border-color: @blue-green;
   }
 }
 

@@ -17,9 +17,12 @@
 @navbar-logo-height:    40px;
 @navbar-item-vertical-padding:    @nav-item-vertical-padding;
 @navbar-item-horizontal-padding:  @spacing-tiny;
-@navbar-label-vertical-padding:   0px;
+
+@navbar-label-font-size:          14px;
+@navbar-label-padding-top:        2px;
+@navbar-label-height:             (@spacing-base + @navbar-label-padding-top);
+@navbar-label-line-height:        (@navbar-label-height - @navbar-label-padding-top);
 @navbar-label-horizontal-padding: @spacing-tiny;
-@navbar-label-height:             (@spacing-base + 2*@navbar-label-vertical-padding);
 
 .navbar {
   margin-top: @spacing-base;
@@ -38,6 +41,10 @@
   &:focus {
     color: @gray-darkest;
     text-decoration: none;
+  }
+
+  &:active {
+    color: @gray-light;
   }
 }
 
@@ -81,7 +88,12 @@
 .navbar-label {
   display: inline-block;
 
-  padding: @navbar-label-vertical-padding @navbar-label-horizontal-padding;
+  padding-left: @navbar-label-horizontal-padding;
+  padding-right: @navbar-label-horizontal-padding;
+
+  font-size: @navbar-label-font-size;
+  line-height: @navbar-label-line-height;
+  padding-top: @navbar-label-padding-top;
 
   color: #fff;
   background-color: @gray-darker;
@@ -90,6 +102,10 @@
 .navbar-label-link:hover > .navbar-label,
 .navbar-label-link:focus > .navbar-label {
   background-color: @gray-darkest;
+}
+
+.navbar-label-link:active > .navbar-label {
+  background-color: @gray-light;
 }
 
 .navbar-label-arrow-right {
@@ -115,11 +131,15 @@
   border-left-color: @gray-darkest;
 }
 
+.navbar-label-link:active > .navbar-label-arrow-right {
+  border-left-color: @gray-light;
+}
+
 .nav > li > a.navbar-label-link {
   color: #fff;
   background: none;
 
-  padding: (@navbar-item-vertical-padding - @navbar-label-vertical-padding) (@navbar-item-horizontal-padding - @navbar-label-horizontal-padding);
+  padding: @navbar-item-vertical-padding @navbar-item-horizontal-padding;
 
   &:hover,
   &:focus {

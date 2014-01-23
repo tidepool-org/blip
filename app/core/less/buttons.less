@@ -13,6 +13,7 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+@btn-hover-shadow-size:  2px;
 
 // Base button
 // ====================================
@@ -27,11 +28,13 @@
   background-image: none;
 
   border: 0;
-  border-radius: 4px;
+  border-radius: 0px;
 
   font-size: inherit;
   line-height: (1.5*@spacing-base);
-  padding: 0 (1.5*@spacing-base);
+  padding: 0 @spacing-base;
+
+  font-weight: bold;
 
   &:hover,
   &:focus {
@@ -64,7 +67,6 @@
 
   .no-touch &:hover,
   &:focus {
-    background-color: darken(@blue-green, 15%);
-    color: #fff;
+    background-color: @blue-green-dark;
   }
 }
