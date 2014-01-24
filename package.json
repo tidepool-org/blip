@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Tidepool's datetime library thingie.",
   "keywords": [
-    "discovery"
+    "datetime", "date", "time"
   ],
   "homepage": "https://github.com/tidepool-org/hakken",
   "bugs": "https://github.com/tidepool-org/hakken/issues",
