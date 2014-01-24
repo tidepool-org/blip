@@ -1,0 +1,32 @@
+{
+  "name": "sundial",
+  "version": "0.0.0",
+  "description": "Tidepool's datetime library thingie.",
+  "keywords": [
+    "discovery"
+  ],
+  "homepage": "https://github.com/tidepool-org/hakken",
+  "bugs": "https://github.com/tidepool-org/hakken/issues",
+  "license": "BSD-2-clause",
+  "author": {
+    "name": "Eric Tschetter",
+    "email": "cheddar@tidepool.org",
+    "url": "https://github.com/cheddar"
+  },
+  "contributors": [
+    {
+      "name": "Jamie Bate",
+      "email": "jamie@tidepool.org"
+    }
+  ],
+  "files": [ "lib" ],
+  "main": "lib/index.js",
+  "repository": "https://github.com/tidepool-org/sundial.git",
+  "dependencies": {
+    "moment": "2.5.1"
+  },
+  "devDependencies": {
+    "mocha": "1.17.1",
+    "should": "3.1.0"
+  }
+}

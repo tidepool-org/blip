@@ -1,4 +1,4 @@
-sundial
-=======
+datetime
+========
 
-Tidepool's datetime library
+Tidepool's library to wrapper date-time functionality
