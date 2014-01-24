@@ -1,6 +1,6 @@
 {
   "name": "sundial",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Tidepool's datetime library thingie.",
   "keywords": [
     "discovery"
@@ -19,7 +19,9 @@
       "email": "jamie@tidepool.org"
     }
   ],
-  "files": [ "lib" ],
+  "files": [
+    "lib"
+  ],
   "main": "lib/index.js",
   "repository": "https://github.com/tidepool-org/sundial.git",
   "dependencies": {
