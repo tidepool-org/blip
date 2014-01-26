@@ -13,6 +13,8 @@ d3.json('device-data.json', function(data) {
   $('#tidelineNavForward').on('click', container.panForward);
   $('#tidelineNavBack').on('click', container.panBack);
 
+  console.log(new Date(container.endpoints[0]), new Date(container.endpoints[1]));
+
   // start setting up pools
   // blood glucose data pool
   var poolBG = container.newPool().defaults()

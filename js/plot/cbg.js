@@ -42,8 +42,10 @@ module.exports = function(pool, opts) {
           'cy': function(d) {
             return opts.yScale(d.value);
           },
-          // move to LESS
-          'r': 2.5
+          'r': 2.5,
+          'id': function(d) {
+            return d.time + ' ' + d.value;
+          }
         })
         .classed({'d3-circle': true, 'cbg': true});
       circles.exit().remove();
