@@ -68,7 +68,7 @@ module.exports = function(pool, opts) {
     for(var i = 0; i < hourBreaks.length; i++) {
       var br = hourBreaks[i];
       var nextBr = hourBreaks[i + 1];
-      if ((date.getHours() > br) && (date.getHours() < nextBr)) {
+      if ((date.getHours() >= br) && (date.getHours() < nextBr)) {
         nearest = new Date(date.getFullYear(), date.getMonth(), date.getDate(), br, 0, 0);
       }
     }
