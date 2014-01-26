@@ -3,20 +3,38 @@
   <head>
     <meta charset="utf-8">
     <title>Tideline: Scroll Options</title>
-    <script type="text/javascript" src="bower_components/jquery/jquery.min.js"></script>
-    <script type="text/javascript" src="bower_components/d3/d3.min.js"></script>
-    <link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-    <link href="css/tideline.css" rel="stylesheet" type="text/css">
-    <style type="text/css">
-      .jumbotron {
-        margin-bottom: 0px;
-      }
-    </style>
+    <script type="text/javascript" src="../bower_components/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="../bower_components/d3/d3.min.js"></script>
+    <link href="../bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="../css/tideline.css" rel="stylesheet" type="text/css">
+    <link href="example.css" rel="stylesheet" type="text/css">
   </head>
   <body>
     <div class="container">
-      <div class="jumbotron" id="tidelineContainer"></div>
+      <div class="jumbotron" id="tideline">
+        <div class="row" id="tidelineNav">
+          <div class="col-xs-3">
+            <span class="tidelineNavLabel">One Day</span>
+            <span class="tidelineSpacer"></span>
+            <span class="tidelineNavLabel inactive">Two Weeks</span>
+          </div>
+          <div class="col-xs-6" id="tidelineLabel">
+            <img src="../img/blip_icons_back.svg" id="tidelineNavBack" />
+            <span class="tidelineSpacer"></span>
+            <span class="tidelineNavLabel">1 Monthary 1064</span>
+            <span class="tidelineSpacer"></span>
+            <img src="../img/blip_icons_next.svg" id="tidelineNavForward" />
+          </div>
+          <div class="col-xs-3 tidelineNavRightLabel">
+            <span class="tidelineNavLabel inactive">Most Recent</span>
+          </div>
+        </div>
+        <div class="row" id="tidelineMain">
+          <div class="col-xs-12" id="tidelineContainer"></div>
+        </div>
+      </div>
     </div>
-    <script type="text/javascript" src="js/bundle.js"></script>
+    <script type="text/javascript" src="../bower_components/underscore/underscore-min.js"></script>
+    <script type="text/javascript" src="bundle.js"></script>
   </body>
 </html>

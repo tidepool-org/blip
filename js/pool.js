@@ -2,17 +2,21 @@ module.exports = function(container) {
 
   // TMP: colors, etc. for demo-ing
   var colors = d3.scale.category20(),
-    grays = ['#f7f7f7', '#d9d9d9', '#bdbdbd', '#969696', '#636363', '#252525'];
+    grays = ['#636363', '#969696', '#bdbdbd', '#d9d9d9', '#d9d9d9', '#bdbdbd', '#969696', '#636363'];
 
   var allData = [],
-    id, yPosition, label, group,
-    mainSVG = d3.select('#tidelineSVG'),
-    xScale,
-    yScale = d3.scale.linear(),
-    fillGap = 1,
-    width,
-    height = 60,
-    pad = 5;
+    id, label,
+    index, weight, yPosition,
+    height, minHeight, maxHeight,
+    group,
+    mainSVG = d3.select(container.id()),
+    xScale = container.xScale().copy(),
+    plotTypes = [];
+
+  var defaults = {
+    minHeight: 100,
+    maxHeight: 300
+  };
 
   function pool(selection, poolData) {
     pool.allData(poolData);
@@ -23,56 +27,41 @@ module.exports = function(container) {
       'id': id,
       'transform': 'translate(0,' + yPosition + ')'
     });
-    pool.updateYScale(allData).fillPool(xScale(poolData[0].timestamp)).plotPool();
+    plotTypes.forEach(function(plotType) {
+      if (allData.length) {
+        plotType.data = _.where(allData, {'type': plotType.type});
+        dataGroup = group.selectAll('#' + id + '_' + plotType.type).data([plotType.data]);
+        dataGroup.enter().append('g').attr('id', id + '_' + plotType.type);
+        dataGroup.call(plotType.plot);
+      }
+      else {
+        pool.noDataFill(plotType);
+      }
+    });
+    pool.drawLabel();
   }
 
-  pool.fillPool = function(init) {
-    var rectGroup = group.selectAll('#' + id + '_fill').data(group.data());
-    rectGroup.enter().append('g').attr('id', id + '_fill');
-    for (var i = 0; i < 12; i++) {
-      rectGroup.append('rect')
-        .attr({
-          'width': width,
-          'height': height,
-          'x': init + (i * (width + fillGap)) + fillGap/2,
-          'y': 0,
-          'fill': grays[j],
-          'class': 'd3-rect on-deck'
-        });
+  // chainable methods
+  pool.defaults = function(obj) {
+    if (!arguments.length) {
+      properties = defaults;
     }
-    return pool;
-  };
+    else {
+      properties = obj;
+    }
+    this.minHeight(properties.minHeight).maxHeight(properties.maxHeight);
 
-  pool.plotPool = function() {
-    var plotGroup = group.selectAll('#' + id + '_random').data(group.data());
-    plotGroup.enter().append('g').attr('id', id + '_random');
-    plotGroup.selectAll('circle')
-      .data(plotGroup.data()[0])
-      .enter()
-      .append('circle')
-      .attr({
-        'cx': function(d) {
-          return xScale(d.timestamp);
-        },
-        'cy': function(d) {
-          return yScale(d.value);
-        },
-        'r': 3,
-        'fill': function(d) {
-          return colors(d.value);
-        },
-        'class': 'd3-circle on-deck'
-      });
     return pool;
   };
 
   pool.pan = function(e) {
     container.latestTranslation(e.translate[0]);
     d3.selectAll('.d3-circle').attr('transform', 'translate(' + e.translate[0] + ',0)');
-    d3.selectAll('.d3-rect').attr('transform', 'translate(' + e.translate[0] + ',0)');
+    d3.selectAll('.d3-rect-fill').attr('transform', 'translate(' + e.translate[0] + ',0)');
   };
 
-  pool.drawLabel = function() {
+  // only once methods
+  pool.drawLabel = _.once(function() {
     var labelGroup = d3.select('#tidelineLabels');
     labelGroup.append('text')
       .attr({
@@ -82,58 +71,123 @@ module.exports = function(container) {
       })
       .text(label);
     return pool;
-  };
+  });
+
+  pool.noDataFill = _.once(function(plotType) {
+    d3.select('#' + id).append('g').attr('id', id + '_' + plotType.type).call(plotType.plot);
+    return pool;
+  });
 
   // getters & setters
-  pool.allData = function(_) {
+  pool.allData = function(x) {
     if (!arguments.length) return allData;
-    allData = allData.concat(_);
+    allData = allData.concat(x);
+    var currentDomain = container.xScale().domain();
+    // TODO: parametrize what the buffer is with a buffer variable that sets number of days for minus and plus
+    var plusTwo = new Date(currentDomain[1]);
+    plusTwo.setDate(plusTwo.getDate() + 2);
+    var minusTwo = new Date(currentDomain[0]);
+    minusTwo.setDate(minusTwo.getDate() - 2);
+    if (currentDomain[0] < minusTwo) {
+      container.beginningOfData(minusTwo); 
+      allData = _.filter(allData, function(datapoint) {
+        var t = Date.parse(datapoint.time);
+        if (t > minusTwo) {
+          return t;
+        }
+      });
+    }
+    if (plusTwo > currentDomain[1]) {
+      container.endOfData(plusTwo);
+      allData = _.filter(allData, function(datapoint) {
+        var t = Date.parse(datapoint.time);
+        if (t < plusTwo) {
+          return t;
+        }
+      });
+    }
+    allData = _.sortBy(allData, 'time');
     return pool;
-  }
+  };
 
-  pool.id = function(_) {
+  pool.id = function(x) {
     if (!arguments.length) return id;
-    id = _;
+    id = x;
     return pool;
   };
 
-  pool.yPosition = function(_) {
-    if (!arguments.length) return yPosition;
-    yPosition = _;
-    return pool;
-  };
-
-  pool.label = function(_) {
+  pool.label = function(x) {
     if (!arguments.length) return label;
-    label = _;
-    return pool;
-  }
-
-  pool.updateYScale = function(_) {
-    if (!arguments.length) return yScale;
-    yScale.domain(d3.extent(_, function(d) { return d.value; })).range([height - pad, pad]);
+    label = x;
     return pool;
   };
 
-  pool.height = function(_) {
+  pool.index = function(x) {
+    if (!arguments.length) return index;
+    index = x;
+    return pool;
+  };
+
+  pool.weight = function(x) {
+    if (!arguments.length) return weight;
+    weight = x;
+    return pool;
+  };
+
+  pool.yPosition = function(x) {
+    if (!arguments.length) return yPosition;
+    yPosition = x;
+    return pool;
+  };
+
+  pool.minHeight = function(x) {
+    if (!arguments.length) return minHeight;
+    minHeight = x;
+    return pool;
+  };
+
+  pool.maxHeight = function(x) {
+    if (!arguments.length) return maxHeight;
+    maxHeight = x;
+    return pool;
+  };
+
+  pool.height = function(x) {
     if (!arguments.length) return height;
-    height = _;
+    x = x * pool.weight();
+    if (x <= maxHeight) {
+      if (x >= minHeight) {
+        height = x;
+      }
+      else {
+        height = minHeight;
+      }
+    }
+    else {
+      height = maxHeight;
+    }
     return pool;
   };
 
-  pool.pad = function(_) {
-    if (!arguments.length) return pad;
-    pad = _;
+  pool.mainSVG = function(x) {
+    if (!arguments.length) return mainSVG;
+    mainSVG = x;
     return pool;
   };
 
-  pool.xScale = function(_) {
+  pool.xScale = function(f) {
     if (!arguments.length) return xScale;
-    xScale = _;
-    // width is equivalent to a duration of 2 hours minus the pixels for the gap in fill between sections
-    width = xScale(new Date(2014, 0, 1, 2, 0, 0, 0)) - fillGap;
+    xScale = f;
     return pool;
-  }
+  };
+
+  pool.addPlotType = function (dataType, plotFunction) {
+    plotTypes.push({
+      type: dataType,
+      plot: plotFunction
+    });
+    return pool;
+  };
 
   return pool;
 };

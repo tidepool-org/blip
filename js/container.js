@@ -4,22 +4,140 @@ module.exports = function() {
 
   var MS_IN_24 = 86400000;
 
-  var id = 'tidelineSVG',
-    endpoints,
-    width = 960,
-    height = 580,
-    pad = 0,
-    pools = [],
+  var bucket,
+    id,
+    width, minWidth,
+    height, minHeight,
+    pad,
+    nav = {},
+    pools = [], gutter,
     xScale = d3.time.scale(),
-    xAxis = d3.svg.axis().scale(xScale).orient("bottom"),
-    pan,
-    scrollScale = d3.time.scale(),
-    xScroll = d3.svg.axis().scale(scrollScale).orient("bottom"),
-    horizon,
-    beginningOfData,
-    endOfData,
-    latestTranslation = 0,
-    currentTranslation = 0;
+    xAxis = d3.svg.axis().scale(xScale).orient('top').outerTickSize(0),
+    beginningOfData, endOfData, data, endpoints, outerEndpoints, initialEndpoints,
+    mainGroup, poolGroup, scrollNav;
+
+  var defaults = {
+    bucket: $('#tidelineContainer'),
+    id: 'tidelineSVG',
+    minWidth: 400,
+    minHeight: 400,
+    pad: 10,
+    nav: {
+      minNavHeight: 30,
+      scrollNav: true,
+      scrollNavHeight: 30,
+      latestTranslation: 0,
+      currentTranslation: 0
+    },
+    gutter: 10
+  };
+
+  function container(selection) {
+    selection.each(function(currentData) {
+      // select the SVG if it already exists
+      var mainSVG = selection.selectAll('svg').data([currentData]);
+      // otherwise create a new SVG and enter   
+      mainGroup = mainSVG.enter().append('svg').append('g').attr('id', 'tidelineMain');
+
+      // update SVG dimenions and ID
+      mainSVG.attr({
+        'id': id,
+        'width': width,
+        'height': function() {
+          height += pad * 2 + nav.axisHeight;
+          if (nav.scrollNav) {
+            height += nav.scrollNavHeight;
+          }
+          return height;
+        }
+      });
+
+      // set the domain and range for the main tideline x-scale
+      xScale.domain([Date.parse(currentData[0].time), Date.parse(currentData[currentData.length - 1].time)])
+        .range([0, width]);
+
+      mainGroup.append('g')
+        .attr('class', 'x axis')
+        .attr('id', 'tidelineXAxis')
+        .attr('transform', 'translate(0,' + nav.axisHeight + ')')
+        .call(xAxis);
+
+      poolGroup = mainGroup.append('g').attr('id', 'tidelinePools');
+
+      mainGroup.append('rect')
+        .attr({
+          'id': 'poolsInvisibleRect',
+          'width': width,
+          'height': function() {
+            if (nav.scrollNav) {
+              return (height - nav.scrollNavHeight);
+            }
+            else {
+              return height;
+            }
+          },
+          'opacity': 0.0
+        });
+
+      mainGroup.append('g')
+        .attr('id', 'tidelineLabels');
+
+      if (nav.scrollNav) {
+        scrollNav = mainGroup.append('g')
+          .attr('class', 'x scroll')
+          .attr('id', 'tidelineScrollNav');
+
+        nav.scrollScale = d3.time.scale()
+          .domain([Date.parse(data[0].time), Date.parse(currentData[0].time)])
+          .range([0, width]);
+      }
+    });
+  }
+
+  // non-chainable methods
+  container.getData = function(endpoints, direction) {
+    if (!arguments.length) {
+      endpoints = initialEndpoints;
+      direction = 'both';
+    }
+    var start = new Date(endpoints[0]);
+    var end = new Date(endpoints[1]);
+
+    readings = _.filter(data, function(datapoint) {
+      t = Date.parse(datapoint.time);
+      if (direction == 'both') {
+        if ((t >= start) && (t <= end)) {
+          return datapoint;
+        }
+      }
+      else if (direction == 'left') {
+        if ((t >= start) && (t < end)) {
+          return datapoint;
+        }
+      }
+      else if (direction == 'right') {
+        if ((t > start) && (t <= end)) {
+          return datapoint;
+        }
+      }
+    });
+
+    return readings;
+  };
+
+  container.panForward = function() {
+    console.log('Jumped forward a day.');
+    nav.currentTranslation -= width;
+    nav.pan.translate([nav.currentTranslation, 0]);
+    nav.pan.event(mainGroup.transition().duration(500));
+  };
+
+  container.panBack = function() {
+    console.log('Jumped back a day.');
+    nav.currentTranslation += width;
+    nav.pan.translate([nav.currentTranslation, 0]);
+    nav.pan.event(mainGroup.transition().duration(500));
+  };
 
   container.newPool = function() {
     var p = pool(container);
@@ -27,103 +145,78 @@ module.exports = function() {
     return p;
   };
 
-  function container(selection) {
-    selection.each(function(data) {
-      // select the SVG if it already exists
-      var mainSVG = selection.selectAll('svg').data([data]);
-      // otherwise create a new SVG and enter   
-      var mainGroup = mainSVG.enter().append('svg').append('g').attr('id', 'tidelineMain');
-
-      var poolGroup = mainGroup.append('g').attr('id', 'tidelinePools');
-
-      // update SVG dimenions and ID
-      mainSVG.attr({
-        'id': id,
-        'width': width,
-        'height': height
-      });
-
-      container.updateXScale(data);
-
-      mainGroup.append('g')
-        .attr('class', 'x axis')
-        .attr('id', 'tidelineXAxis')
-        // TODO: remove magic number 50
-        .attr('transform', 'translate(0,' + (height - 50) + ')')
-        .call(xAxis);
-
-      mainGroup.append('rect')
-        .attr({
-          'id': 'poolsInvisibleRect',
-          'width': width,
-          'height': height,
-          'opacity': 0.0
-        });
-
-      mainGroup.append('g')
-        .attr('id', 'tidelineLabels');
-
-      var xNav = mainGroup.append('g')
-        .attr('class', 'x')
-        .attr('id', 'tidelineNav')
-        .attr('transform', 'translate(' + (width / 2) + ',0)');
-
-      xNav.append('path')
-        .attr({
-          // TODO: remove magic numbers, colors
-          'd': 'M -100 10 L -140 25 -100 40 Z',
-          'fill': 'white',
-          'stroke': 'black',
-          'id': 'd3NavBack'
-        });
-
-      xNav.append('path')
-        .attr({
-          // TODO: remove magic numbers, colors
-          'd': 'M 100 10 L 140 25 100 40 Z',
-          'fill': 'white',
-          'stroke': 'black',
-          'id': 'd3NavForward'
-        });
-
-      mainGroup.append('g')
-        // TODO: change later when not (re-)using .axis CSS class
-        .attr('class', 'x scroll')
-        .attr('id', 'tidelineScroll');
-
-      // TODO: update inner group dimensions if decide to have a margin
-      // mainGroup.attr('transform', 'translate(' + margin.left + "," + margin.top + ')');   
+  container.arrangePools = function() {
+    var numPools = pools.length;
+    var cumWeight = 0;
+    pools.forEach(function(pool) {
+      cumWeight += pool.weight();
     });
-  }
+    var totalPoolsHeight = container.height() - container.axisHeight() - container.scrollNavHeight() - (numPools - 1) * container.gutter();
+    var poolScaleHeight = totalPoolsHeight/numPools;
+    var actualPoolsHeight = 0;
+    pools.forEach(function(pool) {
+      pool.height(poolScaleHeight);
+      actualPoolsHeight += pool.height();
+    });
+    actualPoolsHeight += (numPools - 1) * container.gutter();
+    var baseline = container.height() - container.scrollNavHeight();
+    var topline = container.axisHeight();
+    var content = baseline - topline;
+    var meridian = content/2 + topline;
+    var difference = content - actualPoolsHeight;
+    var offset = difference/2;
+    var currentYPosition = topline;
+    pools.forEach(function(pool) {
+      pool.yPosition(offset + currentYPosition);
+      currentYPosition += offset + pool.height() + container.gutter();
+    });
+  };
+
+  // chainable methods
+  container.defaults = function(obj) {
+    if (!arguments.length) {
+      properties = defaults;
+    }
+    else {
+      properties = obj;
+    }
+    this.bucket(properties.bucket);
+    this.id(properties.id);
+    this.minWidth(properties.minWidth).width(properties.width);
+    this.pad(properties.pad);
+    this.scrollNav(properties.nav.scrollNav);
+    this.minNavHeight(properties.nav.minNavHeight)
+      .axisHeight(properties.nav.minNavHeight)
+      .scrollNavHeight(properties.nav.scrollNavHeight);
+    this.minHeight(properties.minHeight).height(properties.minHeight);
+    this.latestTranslation(properties.nav.latestTranslation)
+      .currentTranslation(properties.nav.currentTranslation);
+    this.gutter(properties.gutter);
+
+    return container;
+  };
 
   container.setNav = function() {
-    var mainGroup = d3.select('#tidelineMain');
-    var poolGroup = d3.select('#tidelinePools');
-
-    pan = d3.behavior.zoom()
+    nav.pan = d3.behavior.zoom()
       .scaleExtent([1, 1])
       .x(xScale)
       .on('zoom', function() {
-        scrollBarTrigger = true;
-        // update horizon
-        horizon.start = xScale.domain()[0];
-        horizon.end = xScale.domain()[1];
-        if (endOfData - horizon.end < MS_IN_24) {
-          console.log('Creating new data! (right)');
+        if ((endOfData - xScale.domain()[1] < MS_IN_24) && !(endOfData.getTime() > outerEndpoints[1])) {
+          console.log('Fetching new data! (right)');
           for (j = 0; j < pools.length; j++) {
             var plusOne = new Date(container.endOfData());
             plusOne.setDate(plusOne.getDate() + 1);
-            pools[j](poolGroup, container.data()([endOfData, plusOne]));
+            pools[j](poolGroup, container.getData([endOfData, plusOne], 'right'));
           }
           // update endOfData
           container.endOfData(plusOne);
         }
-        else if (horizon.start - beginningOfData < MS_IN_24) {
-          console.log('Creating new data! (left)');
+        else if ((xScale.domain()[0] - beginningOfData < MS_IN_24) && !(beginningOfData.getTime() < outerEndpoints[0])) {
+          console.log('Fetching new data! (left)');
           for (j = 0; j < pools.length; j++) {
             var plusOne = new Date(container.beginningOfData());
             plusOne.setDate(plusOne.getDate() - 1);
-            pools[j](poolGroup, container.data()([plusOne, beginningOfData]));
+            pools[j](poolGroup, container.getData([plusOne, beginningOfData], 'left'));
           }
           // update beginningOfData
           container.beginningOfData(plusOne);
@@ -132,67 +225,34 @@ module.exports = function() {
           pools[i].pan(d3.event);
         }
         d3.select('.x.axis').call(xAxis);
-        if (scrollBarTrigger) {        
-          d3.select('#scrollHandle').transition().ease('linear').attr('cx', function(d) {
-            d.x = scrollScale(horizon.start);
-            return d.x;
-          });
-        }
       })
       .on('zoomend', function() {
-        container.currentTranslation(latestTranslation);
-        console.log('Current translation ' + currentTranslation);
+        // TODO: find a way to put transition of #scrollHandle back in 'zoom'
+        // BUG: after click-and-drag, weird jump first time perform panBack or panForward
+        d3.select('#scrollHandle').transition().ease('linear').attr('cx', function(d) {
+          d.x = nav.scrollScale(xScale.domain()[0]);
+          return d.x;
+        });
+        container.currentTranslation(nav.latestTranslation);
+        console.log('Current translation ' + nav.currentTranslation);
       });
 
-    mainGroup.call(pan);
+    mainGroup.call(nav.pan);
 
-    $('#d3NavForward').on('click', function() {
-      console.log('Jumped forward a day.');
-      scrollBarTrigger = true;
-      currentTranslation -= width;
-      pan.translate([currentTranslation, 0]);
-      pan.event(mainGroup.transition().duration(500));
-    });
-
-    $('#d3NavBack').on('click', function() {
-      console.log('Jumped back a day.');
-      scrollBarTrigger = true;
-      currentTranslation += width;
-      pan.translate([currentTranslation, 0]);
-      pan.event(mainGroup.transition().duration(500));
-    });
-  };
-
-  container.updateXScale = function(_) {
-    if (!arguments.length) return xScale;
-    container.horizon(_[0].timestamp);
-    container.beginningOfData(_[0].timestamp);
-    container.endOfData(_[_.length - 1].timestamp);
-    xScale.domain([horizon.start, horizon.end]).range([pad, width - pad]);
     return container;
   };
 
-  container.updateScrollScale = function(_) {
-    if (!arguments.length) return scrollScale;
-    scrollScale.domain(endpoints).range([pad, width - pad]);
-    return container;
-  };
-
-  container.setScrollbar = function() {
-
-    var mainGroup = d3.select('#tidelineMain');
-    var scrollBar = d3.select('#tidelineScroll');
-
-    // TODO: remove magic number 20
-    scrollBar.attr('transform', 'translate(0,' + (height - 20) + ')')
+  container.setScrollNav = function() {
+    scrollNav.attr('transform', 'translate(0,' + (height - nav.scrollNavHeight/2) + ')')
       .append('line')
       .attr({
-        'x1': scrollScale(endpoints[0]),
-        'x2': scrollScale(endpoints[1]),
+        'x1': nav.scrollScale(endpoints[0]),
+        'x2': nav.scrollScale(endpoints[1]),
         'y1': 0,
         'y2': 0,
-        'stroke-width': 3,
-        'stroke': 'black'
+        'stroke-width': 1,
+        'stroke': '#989897',
+        'shape-rendering': 'crispEdges'
       });
 
     var drag = d3.behavior.drag()
@@ -200,108 +260,220 @@ module.exports = function() {
         return d;
       })
       .on('dragstart', function() {
-        d3.event.sourceEvent.stopPropagation(); // silence other listeners
-        scrollBarTrigger = false;
+        d3.event.sourceEvent.stopPropagation(); // silence the click-and-drag listener
       })
       .on('drag', function(d) {
         d.x += d3.event.dx;
         d3.select(this).attr('cx', function(d) { return d.x; });
-        var date = scrollScale.invert(d.x);
-        currentTranslation -= xScale(date);
-        pan.translate([currentTranslation, 0]);
-        pan.event(mainGroup);
+        var date = nav.scrollScale.invert(d.x);
+        nav.currentTranslation += -xScale(date);
+        nav.pan.translate([nav.currentTranslation, 0]);
+        nav.pan.event(mainGroup);
       });
 
-    scrollBar.selectAll('circle')
-      .data([{'x': scrollScale(endpoints[0]), 'y': 0}])
+    scrollNav.selectAll('circle')
+      .data([{'x': nav.scrollScale(beginningOfData), 'y': 0}])
       .enter()
       .append('circle')
       .attr({
         'cx': function(d) { return d.x; },
         'r': 5,
-        'fill': 'gray',
+        'fill': '#989897',
         'id': 'scrollHandle'
       })
       .call(drag);
+
+    return container;
   };
 
-  container.id = function(_) {
+  // getters and setters
+  container.bucket = function(x) {
+    if (!arguments.length) return bucket;
+    bucket = x;
+    return container;
+  };
+
+  container.id = function(x) {
     if (!arguments.length) return id;
-    id = _;
+    id = x;
     return container;
   };
 
-  container.endpoints = function(x) {
-    if (!arguments.length) return endpoints;
-    endpoints = x;
-    container.updateScrollScale(endpoints);
-    container.setScrollbar();
-    return container;
-  };
-
-  container.data = function(x) {
-    if (!arguments.length) return data;
-    data = x;
-    return container;
-  }
-
-  container.width = function(_) {
+  container.width = function(x) {
     if (!arguments.length) return width;
-    width = _;
+    if (x >= minWidth) {
+      if (x > bucket.width()) {
+        width = bucket.width();
+      }
+      else {
+        width = x;
+      }
+    }
+    else {
+      width = minWidth;
+    }
     return container;
   };
 
-  container.height = function(_) {
+  container.minWidth = function(x) {
+    if (!arguments.length) return minWidth;
+    minWidth = x;
+    return container;
+  };
+
+  container.height = function(x) {
     if (!arguments.length) return height;
-    height = _;
+    var totalHeight = x + container.pad() * 2 + container.axisHeight();
+    if (nav.scrollNav) {
+      totalHeight += container.scrollNavHeight();
+    }
+    if (totalHeight >= minHeight) {
+      if (totalHeight > bucket.height()) {
+        height = bucket.height() - container.axisHeight() - container.pad() * 2;
+        if (nav.scrollNav) {
+          height -= container.scrollNavHeight();
+        }
+      }
+      else {
+        height = x; 
+      }
+    }
+    else {
+      height = minHeight;
+    }
     return container;
   };
 
-  container.horizon = function(d) {
-    if (!arguments.length) return horizon;
-    horizon = {
-      start: new Date(d),
-      end: new Date(d)
-    };
-    horizon.end.setDate(horizon.end.getDate() + 1);
+  container.minHeight = function(x) {
+    if (!arguments.length) return height;
+    minHeight = x;
     return container;
-  }
+  };
 
+  container.pad = function(x) {
+    if (!arguments.length) return pad;
+    pad = x;
+    return container;
+  };
+
+  // nav getters and setters
+  container.axisHeight = function(x) {
+    if (!arguments.length) return nav.axisHeight;
+    if (x >= nav.minNavHeight) {
+      nav.axisHeight = x;
+    }
+    else {
+      nav.axisHeight = nav.minNavHeight;
+    }
+    return container;
+  };
+
+  container.minNavHeight = function(x) {
+    if (!arguments.length) return nav.minNavHeight;
+    nav.minNavHeight = x;
+    return container;
+  };
+
+  // nav.scrollNav getters and setters
+  container.scrollNav = function(b) {
+    if (!arguments.length) return nav.scrollNav;
+    nav.scrollNav = b;
+    return container;
+  };
+
+  container.scrollNavHeight = function(x) {
+    if (!arguments.length) return nav.scrollNavHeight;
+    if (x >= nav.minNavHeight) {
+      nav.scrollNavHeight = x;
+    }
+    else {
+      nav.scrollNavHeight = nav.minNavHeight;
+    }
+    return container;
+  };
+
+  container.scrollScale = function(f) {
+    if (!arguments.length) return nav.scrollScale;
+    nav.scrollScale = f;
+    return container;
+  };
+
+  container.pan = function(f) {
+    if (!arguments.length) return nav.pan;
+    nav.pan = f;
+    return container;
+  };
+
+  container.latestTranslation = function(x) {
+    if (!arguments.length) return nav.latestTranslation;
+    nav.latestTranslation = x;
+    return container;
+  };
+
+  container.currentTranslation = function(x) {
+    if (!arguments.length) return nav.currentTranslation;
+    nav.currentTranslation = x;
+    return container;
+  };
+
+  // pools getter and setter
+  container.pools = function(a) {
+    if (!arguments.length) return pools;
+    pools = a;
+    return container;
+  };
+
+  container.gutter = function(x) {
+    if (!arguments.length) return gutter;
+    gutter = x;
+    return container;
+  };
+
+  // scales and axes getters and setters
+  container.xScale = function(f) {
+    if (!arguments.length) return xScale;
+    xScale = f;
+    return container;
+  };
+
+  container.xAxis = function(f) {
+    if (!arguments.length) return xAxis;
+    xAxis = f;
+    return container;
+  };
+
+  // data getters and setters
   container.beginningOfData = function(d) {
     if (!arguments.length) return beginningOfData;
     beginningOfData = new Date(d);
     return container;
-  }
+  };
 
   container.endOfData = function(d) {
     if (!arguments.length) return endOfData;
     endOfData = new Date(d);
     return container;
-  }
-
-  container.pad = function(_) {
-    if (!arguments.length) return pad;
-    pad = _;
-    return container;
   };
 
-  container.pools = function(_) {
-    if (!arguments.length) return pools;
-    pools = _;
+  container.data = function(a) {
+    if (!arguments.length) return data;
+    data = a;
+    var first = Date.parse(a[0].time);
+    var last = Date.parse(a[a.length - 1].time);
+    var minusOne = new Date(last);
+    minusOne.setDate(minusOne.getDate() - 1);
+    initialEndpoints = [minusOne, last];
+    container.beginningOfData(minusOne).endOfData(last);
+    endpoints = [first, last];
+    container.endpoints = endpoints;
+    var outerBeg = new Date(endpoints[0]);
+    outerBeg.setDate(outerBeg.getDate() - 1);
+    var outerEnd = new Date(endpoints[1]);
+    outerEnd.setDate(outerEnd.getDate() + 1);
+    outerEndpoints = [outerBeg, outerEnd];
+    container.initialEndpoints = initialEndpoints;
     return container;
   };
-
-  container.latestTranslation = function(x) {
-    if (!arguments.length) return latestTranslation;
-    latestTranslation = x;
-    return container;
-  }
-
-  container.currentTranslation = function(x) {
-    if (!arguments.length) return currentTranslation;
-    currentTranslation = x;
-    return container;
-  }
 
   return container;
 };

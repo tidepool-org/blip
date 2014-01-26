@@ -3,46 +3,39 @@
 
 #tideline {
   background-color: linen;
-}
 
-#tidelineNav {
-  background-color: @labels;
-}
+  #tidelineNav {
+    background-color: @labels;
 
-#tidelineNav img {
-  display: inline-block;
-  vertical-align: middle;
-}
+    .tidelineNavLabel {
+      font-size: 14px;
+      font-weight: bold;
+      color: white;
 
-#tidelineNavBack {
-  width: 32px;
-}
+      &.inactive {
+        font-weight: normal;
+      }
+    }
 
-#tidelineNavForward {
-  width: 32px;
-}
+    .tidelineNavRightLabel {
+      text-align: right !important;
+    }
 
-#tidelineLabel {
-  text-align: center;
-}
+    .tidelineSpacer {
+      display: inline-block;
+      width: 8px;
+    }
 
-.tidelineNavLabel {
-  font-size: 14px;
-  font-weight: bold;
-  color: white;
-}
+    #tidelineLabel {
+      text-align: center;
 
-.tidelineNavLabel.inactive {
-  font-weight: normal;
-}
-
-.tidelineNavRightLabel {
-  text-align: right !important;
-}
-
-.tidelineSpacer {
-  display: inline-block;
-  width: 8px;
+      img {
+        display: inline-block;
+        vertical-align: middle;
+        width: 32px;
+      }
+    }
+  }
 }
 
 #tidelineContainer {

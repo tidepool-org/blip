@@ -1,32 +1,36 @@
-var container = require('./container');
-var data = require('./data');
+d3.json('device-data.json', function(data) {
+  var container = require('../js/container')();
 
-var d = data();
+  // set up main one-day container
+  container.data(data).defaults().width(1000).height(700);
 
-var initialEndpoints = [new Date(2014, 0, 1, 0, 0, 0, 0), new Date(2014, 0, 2, 0, 0, 0, 0)];
+  d3.select('#tidelineContainer').datum(container.getData()).call(container);
 
-var container = container();
+  // set up click-and-drag and scroll navigation
+  container.setNav().setScrollNav();
 
-var s = new Date(initialEndpoints[0]), e = new Date(initialEndpoints[1]);
+  // attach click handlers to set up programmatic pan
+  $('#tidelineNavForward').on('click', container.panForward);
+  $('#tidelineNavBack').on('click', container.panBack);
 
-var onDeckLeft = [s.setDate(s.getDate() - 1), e.setDate(e.getDate() - 1)];
-var onDeckRight = [s.setDate(s.getDate() + 2), e.setDate(e.getDate() + 2)];
+  // start setting up pools
+  // blood glucose data pool
+  var poolBG = container.newPool().defaults()
+    .id('poolBG')
+    .label('Blood Glucose')
+    .index(container.pools().indexOf(poolBG))
+    .weight(1.5);
 
-d3.select('#tidelineContainer').datum(d(initialEndpoints)).call(container);
-container.setNav();
-container.endpoints([new Date(2014, 0, 1, 0, 0, 0, 0), new Date(2014, 0, 15, 23, 59, 59, 0)]);
-container.data(d);
+  container.arrangePools();
 
-var mainGroup = d3.select('#tidelineMain');
+  // add background fill rectangles to BG pool
+  poolBG.addPlotType('fill', require('../js/plot/fill')(poolBG, {endpoints: container.endpoints}));
 
-var poolGroup = d3.select('#tidelinePools');
+  // add CBG data to BG pool
+  poolBG.addPlotType('cbg', require('../js/plot/cbg')(poolBG));
 
-for (j = 0; j < 6; j++) {
-  var pool = container.newPool();
-  pool.id('pool_' + j).yPosition((j * 80) + 60).label('This is pool #' + (j+1)).drawLabel().xScale(container.updateXScale().copy());
-  pool(poolGroup, d(initialEndpoints));
-  pool(poolGroup, d(onDeckLeft));
-  pool(poolGroup, d(onDeckRight));
-}
-container.beginningOfData(onDeckLeft[0]);
-container.endOfData(onDeckRight[1]);
+  var poolGroup = d3.select('#tidelinePools');
+
+  // render BG pool
+  poolBG(poolGroup, container.getData(container.initialEndpoints, 'both'));
+});
