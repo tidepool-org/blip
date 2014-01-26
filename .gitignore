@@ -1,2 +1,4 @@
+.DS_Store
 bower_components/
-js/bundle.js
+example/bundle.js
+*.css
