@@ -108,7 +108,7 @@ module.exports = function() {
           .attr('class', 'x scroll')
           .attr('id', 'tidelineScrollNav');
 
-        nav.scrollScale = d3.time.scale()
+        nav.scrollScale = d3.time.scale.utc()
           .domain([Date.parse(data[0].time), Date.parse(currentData[0].time)])
           .range([container.axisGutter(), width]);
       }
