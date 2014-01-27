@@ -48,9 +48,15 @@ d3.json('device-data.json', function(data) {
 
   var fill = require('../js/plot/fill');
 
+  var scales = require('../js/plot/scales');
+
   // BG pool
   // set up y-axis
-  poolBG.yAxis(d3.svg.axis().scale(d3.scale.linear().domain([0, 400]).range([poolBG.height(), 0])).orient('left').outerTickSize(0).tickValues([40, 80, 120, 180, 300]));
+  poolBG.yAxis(d3.svg.axis()
+    .scale(scales.bg(_.where(data, {'type':'cbg'}), poolBG))
+    .orient('left')
+    .outerTickSize(0)
+    .tickValues([40, 80, 120, 180, 300]));
   // add background fill rectangles to BG pool
   poolBG.addPlotType('fill', fill(poolBG, {endpoints: container.endpoints}));
 
@@ -62,7 +68,11 @@ d3.json('device-data.json', function(data) {
 
   // bolus & carbs pool
   // set up y-axis
-  poolBolus.yAxis();
+  poolBolus.yAxis(d3.svg.axis()
+    .scale(scales.carbs(_.where(data, {'type': 'carbs'}), poolBolus))
+    .orient('left')
+    .outerTickSize(0)
+    .ticks(3));
   // add background fill rectangles to bolus pool
   poolBolus.addPlotType('fill', fill(poolBolus, {endpoints: container.endpoints}));
 
