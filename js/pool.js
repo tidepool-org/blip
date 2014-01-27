@@ -14,7 +14,7 @@ module.exports = function(container) {
     plotTypes = [];
 
   var defaults = {
-    minHeight: 100,
+    minHeight: 40,
     maxHeight: 300
   };
 
@@ -38,6 +38,7 @@ module.exports = function(container) {
         pool.noDataFill(plotType);
       }
     });
+    pool.drawAxis();
     pool.drawLabel();
   }
 
@@ -67,9 +68,19 @@ module.exports = function(container) {
       .attr({
         'id': 'pool_' + id + '_label',
         'class': 'd3-pool-label',
-        'transform': 'translate(0,' + yPosition + ')'
+        'transform': 'translate(' + container.axisGutter() + ',' + yPosition + ')'
       })
       .text(label);
+    return pool
+  });
+
+  pool.drawAxis = _.once(function() {
+    var axisGroup = d3.select('#tidelineYAxes');
+    axisGroup.append('g')
+      .attr('class', 'y axis')
+      .attr('id', 'pool_' + id + '_yAxis')
+      .attr('transform', 'translate(' + container.axisGutter() + ',' + yPosition + ')')
+      .call(pool.yAxis);
     return pool;
   });
 
@@ -178,6 +189,13 @@ module.exports = function(container) {
   pool.xScale = function(f) {
     if (!arguments.length) return xScale;
     xScale = f;
+    return pool;
+  };
+
+  // TODO: replace
+  pool.yAxis = function(f) {
+    if (!arguments.length) return pool.yAxis;
+    pool.yAxis = f;
     return pool;
   };
 

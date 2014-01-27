@@ -8,6 +8,8 @@ module.exports = function() {
     id,
     width, minWidth,
     height, minHeight,
+    gutter,
+    axisGutter,
     pad,
     nav = {},
     pools = [], gutter,
@@ -25,11 +27,12 @@ module.exports = function() {
     nav: {
       minNavHeight: 30,
       scrollNav: true,
-      scrollNavHeight: 30,
+      scrollNavHeight: 40,
       latestTranslation: 0,
       currentTranslation: 0
     },
-    gutter: 10
+    axisGutter: 40,
+    gutter: 30
   };
 
   function container(selection) {
@@ -54,7 +57,7 @@ module.exports = function() {
 
       // set the domain and range for the main tideline x-scale
       xScale.domain([container.initialEndpoints[0], container.initialEndpoints[1]])
-        .range([0, width]);
+        .range([container.axisGutter(), width]);
 
       mainGroup.append('g')
         .attr('class', 'x axis')
@@ -82,6 +85,24 @@ module.exports = function() {
       mainGroup.append('g')
         .attr('id', 'tidelineLabels');
 
+      mainGroup.append('g')
+        .attr('id', 'tidelineYAxes')
+        .append('rect')
+        .attr({
+          'id': 'yAxesInvisibleRect',
+          'height': function() {
+            if (nav.scrollNav) {
+              return (height - nav.scrollNavHeight);
+            }
+            else {
+              return height;
+            }
+          },
+          'width': container.axisGutter(),
+          'opacity': 1,
+          'fill': 'white'
+        });
+
       if (nav.scrollNav) {
         scrollNav = mainGroup.append('g')
           .attr('class', 'x scroll')
@@ -89,7 +110,7 @@ module.exports = function() {
 
         nav.scrollScale = d3.time.scale()
           .domain([Date.parse(data[0].time), Date.parse(currentData[0].time)])
-          .range([0, width]);
+          .range([container.axisGutter(), width]);
       }
     });
   }
@@ -150,7 +171,7 @@ module.exports = function() {
   };
 
   container.newPool = function() {
-    var p = pool(container);
+    var p = new pool(container);
     pools.push(p);
     return p;
   };
@@ -161,8 +182,9 @@ module.exports = function() {
     pools.forEach(function(pool) {
       cumWeight += pool.weight();
     });
-    var totalPoolsHeight = container.height() - container.axisHeight() - container.scrollNavHeight() - (numPools - 1) * container.gutter();
-    var poolScaleHeight = totalPoolsHeight/numPools;
+    var totalPoolsHeight = 
+      container.height() - container.axisHeight() - container.scrollNavHeight() - numPools * container.gutter();
+    var poolScaleHeight = totalPoolsHeight/cumWeight;
     var actualPoolsHeight = 0;
     pools.forEach(function(pool) {
       pool.height(poolScaleHeight);
@@ -170,11 +192,14 @@ module.exports = function() {
     });
     actualPoolsHeight += (numPools - 1) * container.gutter();
     var baseline = container.height() - container.scrollNavHeight();
-    var topline = container.axisHeight();
+    var topline = container.axisHeight() + container.gutter();
     var content = baseline - topline;
     var meridian = content/2 + topline;
     var difference = content - actualPoolsHeight;
     var offset = difference/2;
+    if (offset < 0) {
+      offset = 0;
+    }
     var currentYPosition = topline;
     pools.forEach(function(pool) {
       pool.yPosition(offset + currentYPosition);
@@ -201,6 +226,7 @@ module.exports = function() {
     this.minHeight(properties.minHeight).height(properties.minHeight);
     this.latestTranslation(properties.nav.latestTranslation)
       .currentTranslation(properties.nav.currentTranslation);
+    this.axisGutter(properties.axisGutter);
     this.gutter(properties.gutter);
 
     return container;
@@ -253,7 +279,7 @@ module.exports = function() {
   };
 
   container.setScrollNav = function() {
-    scrollNav.attr('transform', 'translate(0,' + (height - nav.scrollNavHeight/2) + ')')
+    scrollNav.attr('transform', 'translate(0,' + (height - nav.scrollNavHeight/4) + ')')
       .append('line')
       .attr({
         'x1': nav.scrollScale(endpoints[0]),
@@ -430,6 +456,12 @@ module.exports = function() {
   container.pools = function(a) {
     if (!arguments.length) return pools;
     pools = a;
+    return container;
+  };
+
+  container.axisGutter = function(x) {
+    if (!arguments.length) return axisGutter;
+    axisGutter = x;
     return container;
   };
 

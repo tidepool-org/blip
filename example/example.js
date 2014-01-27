@@ -16,6 +16,13 @@ d3.json('device-data.json', function(data) {
   console.log(new Date(container.endpoints[0]), new Date(container.endpoints[1]));
 
   // start setting up pools
+  // messages pool
+  var poolMessages = container.newPool().defaults()
+    .id('poolMessages')
+    .label('')
+    .index(container.pools().indexOf(poolMessages))
+    .weight(0.5);
+
   // blood glucose data pool
   var poolBG = container.newPool().defaults()
     .id('poolBG')
@@ -23,16 +30,61 @@ d3.json('device-data.json', function(data) {
     .index(container.pools().indexOf(poolBG))
     .weight(1.5);
 
+  // carbs and boluses data pool
+  var poolBolus = container.newPool().defaults()
+    .id('poolBolus')
+    .label('Bolus & Carbohydrates')
+    .index(container.pools().indexOf(poolBolus))
+    .weight(1.0);
+  
+  // basal data pool
+  var poolBasal = container.newPool().defaults()
+    .id('poolBasal')
+    .label('Basal Rates')
+    .index(container.pools().indexOf(poolBasal))
+    .weight(1.0);
+
   container.arrangePools();
 
+  var fill = require('../js/plot/fill');
+
+  // BG pool
+  // set up y-axis
+  poolBG.yAxis(d3.svg.axis().scale(d3.scale.linear().domain([0, 400]).range([poolBG.height(), 0])).orient('left').outerTickSize(0).tickValues([40, 80, 120, 180, 300]));
   // add background fill rectangles to BG pool
-  poolBG.addPlotType('fill', require('../js/plot/fill')(poolBG, {endpoints: container.endpoints}));
+  poolBG.addPlotType('fill', fill(poolBG, {endpoints: container.endpoints}));
 
   // add CBG data to BG pool
   poolBG.addPlotType('cbg', require('../js/plot/cbg')(poolBG));
+
+  // add SMBG data to BG pool
+  poolBG.addPlotType('smbg', require('../js/plot/smbg')(poolBG));
+
+  // bolus & carbs pool
+  // set up y-axis
+  poolBolus.yAxis();
+  // add background fill rectangles to bolus pool
+  poolBolus.addPlotType('fill', fill(poolBolus, {endpoints: container.endpoints}));
+
+  // basal pool
+  // add background fill rectangles to basal pool
+  poolBasal.addPlotType('fill', fill(poolBasal, {endpoints: container.endpoints}));
+
+  // messages pool
+  // add background fill rectangles to messages pool
+  poolMessages.addPlotType('fill', fill(poolMessages, {endpoints: container.endpoints}));
 
   var poolGroup = d3.select('#tidelinePools');
 
   // render BG pool
   poolBG(poolGroup, container.getData(container.initialEndpoints, 'both'));
+
+  // render bolus pool
+  poolBolus(poolGroup, container.getData(container.initialEndpoints, 'both'));
+
+  // render basal pool
+  poolBasal(poolGroup, container.getData(container.initialEndpoints, 'both'));
+
+  //render messages pool
+  poolMessages(poolGroup, container.getData(container.initialEndpoints, 'both'));
 });
