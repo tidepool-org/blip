@@ -5,16 +5,36 @@ svg {
   margin: 0 auto;
 }
 
-// x-axis
+// axes
 .axis {
   path, line {
     fill: none;
-    stroke: black;
     shape-rendering: crispEdges;
   }
   text {
+    fill: @text;
+  }
+}
+
+// x-axis
+.x.axis {
+  path, line {
+    stroke: @text;
+  }
+  text {
     font-family: sans-serif;
-    font-size: .5em;   
+    font-size: 2vh;
+  }
+}
+
+// y-axes
+.y.axis {
+  path, line {
+    stroke: white;
+  }
+  text {
+    font-family: sans-serif;
+    font-size: 2vh;
   }
 }
 
@@ -22,9 +42,9 @@ svg {
   font-family: sans-serif;
   text-transform: uppercase;
   font-weight: bold;
-  font-size: 16px;
+  font-size: 2.5vh;
   fill: @text;
-  baseline-shift: super;
+  baseline-shift: 30%;
 }
 
 .d3-rect-fill {
@@ -45,7 +65,7 @@ svg {
   }
 }
 
-.cbg {
+.cbg, .smbg {
   &.low {
     fill: @bg-low;
   }
