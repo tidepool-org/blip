@@ -86,15 +86,19 @@ d3.json('device-data.json', function(data) {
 
   var poolGroup = d3.select('#tidelinePools');
 
+  var initialData = container.getData(container.initialEndpoints, 'both');
+
+  container.allData(initialData);
+
   // render BG pool
-  poolBG(poolGroup, container.getData(container.initialEndpoints, 'both'));
+  poolBG(poolGroup, initialData);
 
   // render bolus pool
-  poolBolus(poolGroup, container.getData(container.initialEndpoints, 'both'));
+  poolBolus(poolGroup, initialData);
 
   // render basal pool
-  poolBasal(poolGroup, container.getData(container.initialEndpoints, 'both'));
+  poolBasal(poolGroup, initialData);
 
   //render messages pool
-  poolMessages(poolGroup, container.getData(container.initialEndpoints, 'both'));
+  poolMessages(poolGroup, initialData);
 });

@@ -4,7 +4,7 @@ module.exports = function(container) {
   var colors = d3.scale.category20(),
     grays = ['#636363', '#969696', '#bdbdbd', '#d9d9d9', '#d9d9d9', '#bdbdbd', '#969696', '#636363'];
 
-  var allData = [],
+  var data,
     id, label,
     index, weight, yPosition,
     height, minHeight, maxHeight,
@@ -19,17 +19,17 @@ module.exports = function(container) {
   };
 
   function pool(selection, poolData) {
-    pool.allData(poolData);
     // select the pool group if it already exists
-    group = selection.selectAll('#' + id).data([allData]);
+    group = selection.selectAll('#' + id).data([poolData]);
     // otherwise create a new pool group
     group.enter().append('g').attr({
       'id': id,
       'transform': 'translate(0,' + yPosition + ')'
     });
+    var dataFill = {'cbg': true, 'smbg': true, 'fill': false};
     plotTypes.forEach(function(plotType) {
-      if (allData.length) {
-        plotType.data = _.where(allData, {'type': plotType.type});
+      if (dataFill[plotType.type]) {
+        plotType.data = _.where(poolData, {'type': plotType.type});
         dataGroup = group.selectAll('#' + id + '_' + plotType.type).data([plotType.data]);
         dataGroup.enter().append('g').attr('id', id + '_' + plotType.type);
         dataGroup.call(plotType.plot);
@@ -57,8 +57,11 @@ module.exports = function(container) {
 
   pool.pan = function(e) {
     container.latestTranslation(e.translate[0]);
-    d3.selectAll('.d3-circle').attr('transform', 'translate(' + e.translate[0] + ',0)');
-    d3.selectAll('.d3-rect-fill').attr('transform', 'translate(' + e.translate[0] + ',0)');
+    plotTypes.forEach(function(plotType) {
+      d3.select('#' + id + '_' + plotType.type).attr('transform', 'translate(' + e.translate[0] + ',0)');
+    });
+    // d3.selectAll('.d3-circle').attr('transform', 'translate(' + e.translate[0] + ',0)');
+    // d3.selectAll('.d3-rect-fill').attr('transform', 'translate(' + e.translate[0] + ',0)');
   };
 
   // only once methods
@@ -90,37 +93,6 @@ module.exports = function(container) {
   });
 
   // getters & setters
-  pool.allData = function(x) {
-    if (!arguments.length) return allData;
-    allData = allData.concat(x);
-    var currentDomain = container.xScale().domain();
-    // TODO: parametrize what the buffer is with a buffer variable that sets number of days for minus and plus
-    var plusTwo = new Date(currentDomain[1]);
-    plusTwo.setDate(plusTwo.getDate() + 2);
-    var minusTwo = new Date(currentDomain[0]);
-    minusTwo.setDate(minusTwo.getDate() - 2);
-    if (currentDomain[0] < minusTwo) {
-      container.beginningOfData(minusTwo); 
-      allData = _.filter(allData, function(datapoint) {
-        var t = Date.parse(datapoint.time);
-        if (t > minusTwo) {
-          return t;
-        }
-      });
-    }
-    if (plusTwo > currentDomain[1]) {
-      container.endOfData(plusTwo);
-      allData = _.filter(allData, function(datapoint) {
-        var t = Date.parse(datapoint.time);
-        if (t < plusTwo) {
-          return t;
-        }
-      });
-    }
-    allData = _.sortBy(allData, 'time');
-    return pool;
-  };
-
   pool.id = function(x) {
     if (!arguments.length) return id;
     id = x;
