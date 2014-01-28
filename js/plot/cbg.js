@@ -8,8 +8,7 @@ module.exports = function(pool, opts) {
       'target': 180,
       'high': 200
     },
-    xScale: pool.xScale().copy(),
-    yScale: d3.scale.linear().domain([0, 400]).range([pool.height(), 0])
+    xScale: pool.xScale().copy()
   };
 
   _.defaults(opts, defaults);
@@ -30,13 +29,13 @@ module.exports = function(pool, opts) {
           },
           'class': function(d) {
             if (d.value < opts.classes['low']) {
-              return 'low';
+              return 'd3-bg-low';
             }
             else if (d.value < opts.classes['target']) {
-              return 'target';
+              return 'd3-bg-target';
             }
             else {
-              return 'high'
+              return 'd3-bg-high'
             }
           },
           'cy': function(d) {
@@ -47,7 +46,7 @@ module.exports = function(pool, opts) {
             return d.time + ' ' + d.value;
           }
         })
-        .classed({'d3-circle': true, 'cbg': true});
+        .classed({'d3-circle': true, 'd3-cbg': true});
       circles.exit().remove();
     });
   }

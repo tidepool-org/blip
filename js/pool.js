@@ -11,6 +11,7 @@ module.exports = function(container) {
     group,
     mainSVG = d3.select(container.id()),
     xScale = container.xScale().copy(),
+    yAxis = [],
     plotTypes = [];
 
   var defaults = {
@@ -26,7 +27,7 @@ module.exports = function(container) {
       'id': id,
       'transform': 'translate(0,' + yPosition + ')'
     });
-    var dataFill = {'cbg': true, 'smbg': true, 'fill': false};
+    var dataFill = {'cbg': true, 'smbg': true, 'carbs': true, 'bolus': true, 'fill': false};
     plotTypes.forEach(function(plotType) {
       if (dataFill[plotType.type]) {
         plotType.data = _.where(poolData, {'type': plotType.type});
@@ -60,8 +61,6 @@ module.exports = function(container) {
     plotTypes.forEach(function(plotType) {
       d3.select('#' + id + '_' + plotType.type).attr('transform', 'translate(' + e.translate[0] + ',0)');
     });
-    // d3.selectAll('.d3-circle').attr('transform', 'translate(' + e.translate[0] + ',0)');
-    // d3.selectAll('.d3-rect-fill').attr('transform', 'translate(' + e.translate[0] + ',0)');
   };
 
   // only once methods
@@ -79,11 +78,13 @@ module.exports = function(container) {
 
   pool.drawAxis = _.once(function() {
     var axisGroup = d3.select('#tidelineYAxes');
-    axisGroup.append('g')
-      .attr('class', 'y axis')
-      .attr('id', 'pool_' + id + '_yAxis')
-      .attr('transform', 'translate(' + container.axisGutter() + ',' + yPosition + ')')
-      .call(pool.yAxis);
+    yAxis.forEach(function(axis, i) {
+      axisGroup.append('g')
+        .attr('class', 'd3-y d3-axis')
+        .attr('id', 'pool_' + id + '_yAxis_' + i)
+        .attr('transform', 'translate(' + container.axisGutter() + ',' + yPosition + ')')
+        .call(axis);
+      });
     return pool;
   });
 
@@ -165,9 +166,9 @@ module.exports = function(container) {
   };
 
   // TODO: replace
-  pool.yAxis = function(f) {
-    if (!arguments.length) return pool.yAxis;
-    pool.yAxis = f;
+  pool.yAxis = function(x) {
+    if (!arguments.length) return yAxis;
+    yAxis.push(x);
     return pool;
   };
 

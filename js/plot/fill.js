@@ -60,7 +60,7 @@ module.exports = function(pool, opts) {
         },
         'height': pool.height(),
         'class': function(d) {
-          return 'd3-rect-fill ' + d.fill;
+          return 'd3-rect-fill d3-fill-' + d.fill;
         }
       });
   }

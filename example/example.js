@@ -51,9 +51,10 @@ d3.json('device-data.json', function(data) {
   var scales = require('../js/plot/scales');
 
   // BG pool
+  var scaleBG = scales.bg(_.where(data, {'type': 'cbg'}), poolBG);
   // set up y-axis
   poolBG.yAxis(d3.svg.axis()
-    .scale(scales.bg(_.where(data, {'type':'cbg'}), poolBG))
+    .scale(scaleBG)
     .orient('left')
     .outerTickSize(0)
     .tickValues([40, 80, 120, 180, 300]));
@@ -61,20 +62,34 @@ d3.json('device-data.json', function(data) {
   poolBG.addPlotType('fill', fill(poolBG, {endpoints: container.endpoints}));
 
   // add CBG data to BG pool
-  poolBG.addPlotType('cbg', require('../js/plot/cbg')(poolBG));
+  poolBG.addPlotType('cbg', require('../js/plot/cbg')(poolBG, {yScale: scaleBG}));
 
   // add SMBG data to BG pool
-  poolBG.addPlotType('smbg', require('../js/plot/smbg')(poolBG));
+  poolBG.addPlotType('smbg', require('../js/plot/smbg')(poolBG, {yScale: scaleBG}));
 
   // bolus & carbs pool
-  // set up y-axis
+  var scaleBolus = scales.bolus(_.where(data, {'type': 'bolus'}), poolBolus);
+  var scaleCarbs = scales.carbs(_.where(data, {'type': 'carbs'}), poolBolus);
+  // set up y-axis for bolus
   poolBolus.yAxis(d3.svg.axis()
-    .scale(scales.carbs(_.where(data, {'type': 'carbs'}), poolBolus))
+    .scale(scaleBolus)
+    .orient('left')
+    .outerTickSize(0)
+    .ticks(3));
+  // set up y-axis for carbs
+  poolBolus.yAxis(d3.svg.axis()
+    .scale(scaleCarbs)
     .orient('left')
     .outerTickSize(0)
     .ticks(3));
   // add background fill rectangles to bolus pool
   poolBolus.addPlotType('fill', fill(poolBolus, {endpoints: container.endpoints}));
+
+  // add carbs data to bolus pool
+  poolBolus.addPlotType('carbs', require('../js/plot/carbs')(poolBolus, {yScale: scaleCarbs}));
+
+  // add bolus data to bolus pool
+  poolBolus.addPlotType('bolus', require('../js/plot/bolus')(poolBolus, {yScale: scaleBolus}));
 
   // basal pool
   // add background fill rectangles to basal pool

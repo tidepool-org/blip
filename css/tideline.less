@@ -6,7 +6,7 @@ svg {
 }
 
 // axes
-.axis {
+.d3-axis {
   path, line {
     fill: none;
     shape-rendering: crispEdges;
@@ -17,7 +17,7 @@ svg {
 }
 
 // x-axis
-.x.axis {
+.d3-x.d3-axis {
   path, line {
     stroke: @text;
   }
@@ -28,7 +28,7 @@ svg {
 }
 
 // y-axes
-.y.axis {
+.d3-y.d3-axis {
   path, line {
     stroke: white;
   }
@@ -48,31 +48,39 @@ svg {
 }
 
 .d3-rect-fill {
-  &.darkest {
-    fill:@darkest;
+  &.d3-fill-darkest {
+    fill:@fill-darkest;
   }
-  &.dark {
-    fill:@dark;
+  &.d3-fill-dark {
+    fill:@fill-dark;
   }
-  &.light {
-    fill:@light;
+  &.d3-fill-light {
+    fill:@fill-light;
   }
-  &.lighter {
-    fill:@lighter;
+  &.d3-fill-lighter {
+    fill:@fill-lighter;
   }
-  &.lightest {
-    fill:@lightest;
+  &.d3-fill-lightest {
+    fill:@fill-lightest;
   }
 }
 
-.cbg, .smbg {
-  &.low {
+.d3-rect-carbs {
+  fill:@carbs;
+}
+
+.d3-rect-bolus {
+  fill:@bolus;
+}
+
+.d3-cbg, .d3-smbg {
+  &.d3-bg-low {
     fill: @bg-low;
   }
-  &.target {
+  &.d3-bg-target {
     fill: @bg-target;
   }
-  &.high {
+  &.d3-bg-high {
     fill: @bg-high;
   }
 }

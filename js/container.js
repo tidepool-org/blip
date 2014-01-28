@@ -61,7 +61,7 @@ module.exports = function() {
         .range([container.axisGutter(), width]);
 
       mainGroup.append('g')
-        .attr('class', 'x axis')
+        .attr('class', 'd3-x d3-axis')
         .attr('id', 'tidelineXAxis')
         .attr('transform', 'translate(0,' + nav.axisHeight + ')')
         .call(xAxis);
@@ -276,7 +276,7 @@ module.exports = function() {
         for (var i = 0; i < pools.length; i++) {
           pools[i].pan(d3.event);
         }
-        d3.select('.x.axis').call(xAxis);
+        d3.select('.d3-x.d3-axis').call(xAxis);
         if (scrollHandleTrigger) {
           d3.select('#scrollHandle').transition().ease('linear').attr('cx', function(d) {
             d.x = nav.scrollScale(xScale.domain()[0]);
