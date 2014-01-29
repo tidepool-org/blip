@@ -18,6 +18,31 @@
           font-weight: normal;
           font-style: normal;
         }
+
+        @font-face {
+          font-family: 'Open Sans';
+          font-style: normal;
+          font-weight: 400;
+          src: local('Open Sans'), local('OpenSans'), url('<%= process.env.FONTS_ENDPOINT %>/opensans.woff?v7') format('woff');
+        }
+        @font-face {
+          font-family: 'Open Sans';
+          font-style: normal;
+          font-weight: 700;
+          src: local('Open Sans Bold'), local('OpenSans-Bold'), url('<%= process.env.FONTS_ENDPOINT %>/opensans-bold.woff?v7') format('woff');
+        }
+        @font-face {
+          font-family: 'Open Sans';
+          font-style: italic;
+          font-weight: 400;
+          src: local('Open Sans Italic'), local('OpenSans-Italic'), url('<%= process.env.FONTS_ENDPOINT %>/opensans-italic.woff?v7') format('woff');
+        }
+        @font-face {
+          font-family: 'Open Sans';
+          font-style: italic;
+          font-weight: 700;
+          src: local('Open Sans Bold Italic'), local('OpenSans-BoldItalic'), url('<%= process.env.FONTS_ENDPOINT %>/opensans-bolditalic.woff?v7') format('woff');
+        }
     </style>
 
     <% if (production) { %>

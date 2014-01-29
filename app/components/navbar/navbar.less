@@ -19,9 +19,7 @@
 @navbar-item-horizontal-padding:  @spacing-tiny;
 
 @navbar-label-font-size:          14px;
-@navbar-label-padding-top:        2px;
-@navbar-label-height:             (@spacing-base + @navbar-label-padding-top);
-@navbar-label-line-height:        (@navbar-label-height - @navbar-label-padding-top);
+@navbar-label-line-height:        22px;
 @navbar-label-horizontal-padding: @spacing-tiny;
 
 .navbar {
@@ -85,6 +83,11 @@
 // Navbar labels
 // ====================================
 
+// Warning: the spacings below are "hacks" so things align properly
+// with Open Sans 14px as the label font
+// Eventually will have to revisit this UI piece and make it a nicer,
+// reusable component
+
 .navbar-label {
   display: inline-block;
 
@@ -92,8 +95,8 @@
   padding-right: @navbar-label-horizontal-padding;
 
   font-size: @navbar-label-font-size;
+  // "Hack" to make it look not too squeezed with font face and size
   line-height: @navbar-label-line-height;
-  padding-top: @navbar-label-padding-top;
 
   color: #fff;
   background-color: @gray-darker;
@@ -113,13 +116,13 @@
 
   width: 0; 
   height: 0; 
-  border-top: (@navbar-label-height/2) solid transparent;
-  border-bottom: (@navbar-label-height/2) solid transparent;
+  border-top: (@navbar-label-line-height/2) solid transparent;
+  border-bottom: (@navbar-label-line-height/2) solid transparent;
   
-  border-left: 12px solid @gray-darker;
+  border-left: 10px solid @gray-darker;
 
-  // Hack to align vertically with label
-  margin-bottom: -(@navbar-label-height/4 + 1px);
+  // "Hack" to align vertically with label
+  margin-bottom: -6px;
 }
 
 .navbar-label-right {
@@ -139,7 +142,8 @@
   color: #fff;
   background: none;
 
-  padding: @navbar-item-vertical-padding @navbar-item-horizontal-padding;
+  // "Hack" for vertical padding
+  padding: 9px @navbar-item-horizontal-padding;
 
   &:hover,
   &:focus {
@@ -150,12 +154,6 @@
 
 // Navbar user
 // ====================================
-
-// "Hack" to vertically align user icons with the rest
-.navbar-user-icon {
-  height: (2*@spacing-base);
-  margin-top: -2px;
-}
 
 .navbar-user-name {
   font-weight: bold;

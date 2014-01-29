@@ -24,6 +24,7 @@ Table of contents:
     - [Debugging](#debugging)
     - [CSS](#css)
     - [Images](#images)
+    - [Fonts](#fonts)
     - [Icons](#icons)
     - [JSHint](#jshint)
     - [Demo mode](#demo-mode)
@@ -200,6 +201,10 @@ var imageSource = componentImageEndpoint + '/logo.png';
 Reusable components (`app/components/`) shouldn't access the `config` object directly, so you should generate the `componentImageEndpoint` value above from a "page" component (`app/pages`), and pass it to the reusable component through a `props` value.
 
 At build-time, images all get bundled into `build/<version>/images/<component>/` directories. When adding images, don't forget to update the `develop.js` and `gulpfile.js` with the correct paths.
+
+### Fonts
+
+Font files are added to the `app/core/fonts` folder. The CSS rules to import the fonts are put in the Lodash template `app/index.html`, because we use a configuration variable to change the URL to the font files, according to whether we are working in development or building for production.
 
 ### Icons
 
