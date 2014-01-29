@@ -33,6 +33,7 @@ var Notification = require('./components/notification');
 var Login = require('./pages/login');
 var Signup = require('./pages/signup');
 var Profile = require('./pages/profile');
+var Patients = require('./pages/patients');
 
 var app = {
   log: bows('App'),
@@ -48,7 +49,8 @@ var routes = {
   '/': 'redirectToDefaultRoute',
   '/login': 'showLogin',
   '/signup': 'showSignup',
-  '/profile': 'showProfile'
+  '/profile': 'showProfile',
+  '/patients': 'showPatients'
 };
 
 var noAuthRoutes = ['/login', '/signup'];
@@ -60,7 +62,9 @@ var AppComponent = React.createClass({
       notification: null,
       page: null,
       user: null,
-      loggingOut: false
+      loggingOut: false,
+      patients: null,
+      fetchingPatients: false
     };
   },
 
@@ -157,7 +161,7 @@ var AppComponent = React.createClass({
   },
 
   redirectToDefaultRoute: function() {
-    app.router.setRoute('/profile');
+    app.router.setRoute('/patients');
   },
 
   showLogin: function() {
@@ -206,6 +210,24 @@ var AppComponent = React.createClass({
           onSubmit={this.updateUser}/>
       /* jshint ignore:end */
     );
+  },
+
+  showPatients: function() {
+    this.renderPage = this.renderPatients;
+    this.setState({page: 'patients'});
+    this.fetchPatients();
+  },
+
+  renderPatients: function() {
+    /* jshint ignore:start */
+    return (
+      <Patients 
+          user={this.state.user}
+          fetchingUser={_.isEmpty(this.state.user)}
+          patients={this.state.patients}
+          fetchingPatients={this.state.fetchingPatients}/>
+    );
+    /* jshint ignore:end */
   },
 
   handleLoginSuccess: function() {
@@ -264,9 +286,23 @@ var AppComponent = React.createClass({
     });
   },
 
+  fetchPatients: function() {
+    var self = this;
+
+    self.setState({fetchingPatients: true});
+
+    app.api.patients.get(function(err, patients) {
+      self.setState({
+        patients: patients,
+        fetchingPatients: false
+      });
+    });
+  },
+
   clearUserData: function() {
     this.setState({
-      user: null
+      user: null,
+      patients: null
     });
   },
 

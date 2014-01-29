@@ -2,5 +2,8 @@
   "id": "1",
   "username": "mary.smith@example.com",
   "firstName": "Mary",
-  "lastName": "Smith"
+  "lastName": "Smith",
+  "patient": {
+    "id": "11"
+  }
 }

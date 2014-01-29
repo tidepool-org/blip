@@ -26,7 +26,8 @@ var api = {
     }
   },
 
-  user: {}
+  user: {},
+  patients: {}
 };
 
 // ---------- BEGIN DEMO OVERRIDES ----------
@@ -54,6 +55,16 @@ function addDemoOverrides(api) {
       delete user.password;
       delete user.passwordConfirm;
       callback(err, user);
+    }, config.DEMO_DELAY);
+  };
+
+  // ----- Patients -----
+
+  api.patients.get = function(callback) {
+    var uri = '/patients.json';
+    api.log('[demo] GET ' + uri);
+    setTimeout(function() {
+      api._get(uri, callback);
     }, config.DEMO_DELAY);
   };
 

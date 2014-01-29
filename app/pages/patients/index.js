@@ -13,37 +13,4 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-@profile-form-width:       260px;
-// Match `.container-small` breakpoint
-@profile-form-breakpoint:  (2*130px + @profile-form-width);
-
-.profile-subnav-box {
-  padding-top: @spacing-small;
-  padding-bottom: @spacing-small;
-
-  color: #fff;
-  background-color: @gray-dark;
-}
-
-.profile-subnav-center {
-  text-align: center;
-}
-
-.profile-content {
-  margin-bottom: @spacing-large;
-}
-
-.profile-content-box {
-  padding-top: @spacing-base;
-  padding-bottom: @spacing-large;
-
-  background-color: #fff;
-}
-
-.profile-form {
-  @media(min-width: @profile-form-breakpoint) {
-    margin-left: auto;
-    margin-right: auto;
-    width: @profile-form-width;
-  }
-}
+module.exports = require('./patients');

@@ -13,37 +13,34 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-@profile-form-width:       260px;
-// Match `.container-small` breakpoint
-@profile-form-breakpoint:  (2*130px + @profile-form-width);
+// List groups
+// ====================================
 
-.profile-subnav-box {
-  padding-top: @spacing-small;
-  padding-bottom: @spacing-small;
-
-  color: #fff;
-  background-color: @gray-dark;
+// Parent
+// Use on <ul>, <ol>, or <div>
+.list-group {
+  // Override default ul/ol
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.profile-subnav-center {
-  text-align: center;
+// Individual list items
+// Use on <li> or <div> within the `.list-group` parent
+.list-group-item {
+  display: block;
 }
 
-.profile-content {
-  margin-bottom: @spacing-large;
-}
+// List item that's also a link
+// Use on <a> within the `.list-group-item` parent
+.list-group-item-link {
+  display: block;
 
-.profile-content-box {
-  padding-top: @spacing-base;
-  padding-bottom: @spacing-large;
-
-  background-color: #fff;
-}
-
-.profile-form {
-  @media(min-width: @profile-form-breakpoint) {
-    margin-left: auto;
-    margin-right: auto;
-    width: @profile-form-width;
+  // Override default link styles
+  &,
+  &:hover,
+  &:focus {
+    color: @text-color;
+    text-decoration: none;
   }
 }
