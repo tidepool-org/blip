@@ -3,7 +3,10 @@ d3.json('device-data.json', function(data) {
 
   var watson = require('./watson');
 
+  // Watson the data
   data = watson.data(data);
+  data = watson.normalize(data);
+  data = _.sortBy(data, 'normalTime');
 
   // set up main one-day container
   container.data(data).defaults().width(1000).height(700);
@@ -103,6 +106,9 @@ d3.json('device-data.json', function(data) {
   // messages pool
   // add background fill rectangles to messages pool
   poolMessages.addPlotType('fill', fill(poolMessages, {endpoints: container.endpoints}));
+
+  // add message images to messages pool
+  poolMessages.addPlotType('message', require('../js/plot/message')(poolMessages, {size: 30}));
 
   var poolGroup = d3.select('#tidelinePools');
 
