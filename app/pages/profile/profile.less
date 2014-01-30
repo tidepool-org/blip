@@ -13,20 +13,39 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-@profile-form-width:       260px;
+@profile-subnav-vertical-padding:  @spacing-small;
+@profile-form-width:               260px;
 // Match `.container-small` breakpoint
-@profile-form-breakpoint:  (2*130px + @profile-form-width);
+@profile-form-breakpoint:          (2*130px + @profile-form-width);
 
 .profile-subnav-box {
-  padding-top: @spacing-small;
-  padding-bottom: @spacing-small;
-
   color: #fff;
   background-color: @gray-dark;
 }
 
-.profile-subnav-center {
+.profile-subnav-title {
+  padding-top: @profile-subnav-vertical-padding;
+  padding-bottom: @profile-subnav-vertical-padding;
+  
   text-align: center;
+}
+
+.profile-subnav a {
+  padding-top: @profile-subnav-vertical-padding;
+  padding-bottom: @profile-subnav-vertical-padding;
+
+  color: #fff;
+  text-decoration: none;
+
+  &:hover,
+  &:focus {
+    color: @gray-darkest;
+    text-decoration: none;
+  }
+
+  &:active {
+    color: @gray;
+  }
 }
 
 .profile-content {

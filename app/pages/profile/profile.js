@@ -57,7 +57,17 @@ var Profile = React.createClass({
       <div className="profile">
         <div className="container-box-outer profile-subnav">
           <div className="container-box-inner profile-subnav-box">
-            <div className="profile-subnav-center">Account</div>
+            <div className="grid">
+              <div className="grid-item one-whole medium-one-third">
+                <a href="#/" className="profile-subnav-link">
+                  <i className="icon-back"></i>
+                  {' ' + 'Back'}
+                </a>
+              </div>
+              <div className="grid-item one-whole medium-one-third">
+                <div className="profile-subnav-title">Account</div>
+              </div>
+            </div>
           </div>
         </div>
         <div className="container-box-outer profile-content">
