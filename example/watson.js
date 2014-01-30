@@ -19,10 +19,6 @@ var normalize = function(a) {
     if (!i.normalTime) {
       i.normalTime = i.utcTime;
     }
-    // i['normalTime'] = i['deviceTime'];
-    // if (!i['normalTime']) {
-    //   i['normalTime'] = i['utcTime'];
-    // }
     return i;
   });
 };
