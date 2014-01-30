@@ -27,7 +27,7 @@ module.exports = function(container) {
       'id': id,
       'transform': 'translate(0,' + yPosition + ')'
     });
-    var dataFill = {'cbg': true, 'smbg': true, 'carbs': true, 'bolus': true, 'fill': false};
+    var dataFill = {'cbg': true, 'smbg': true, 'carbs': true, 'bolus': true, 'fill': false, 'message': true};
     plotTypes.forEach(function(plotType) {
       if (dataFill[plotType.type]) {
         plotType.data = _.where(poolData, {'type': plotType.type});

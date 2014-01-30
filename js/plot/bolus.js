@@ -15,13 +15,13 @@ module.exports = function(pool, opts) {
         .selectAll('rect')
         .data(currentData, function(d) {
           // leveraging the timestamp of each datapoint as the ID for D3's binding
-          return d.deviceTime;
+          return d.normalTime;
         });
       rects.enter()
         .append('rect')
         .attr({
           'x': function(d) {
-            return opts.xScale(Date.parse(d.deviceTime)) - opts.width/2;
+            return opts.xScale(Date.parse(d.normalTime)) - opts.width/2;
           },
           'y': function(d) {
             return opts.yScale(d.value);
@@ -32,7 +32,7 @@ module.exports = function(pool, opts) {
           },
           'class': 'd3-rect-bolus d3-bolus',
           'id': function(d) {
-            return d.deviceTime + ' ' + d.value;
+            return d.normalTime + ' ' + d.value;
           }
         });
         rects.exit().remove();
