@@ -29,14 +29,14 @@ var configuration = {
 
     if (!isAuthenticated && !isNoAuthRoute) {
       router.log('Not logged in, redirecting');
-      router.setRoute('login');
+      router.setRoute(router.defaultNotAuthenticatedRoute);
       // Stop current routing and let new routing take over
       return false;
     }
 
     if (isAuthenticated && isNoAuthRoute) {
       router.log('Already logged in, redirecting');
-      router.setRoute('profile');
+      router.setRoute(router.defaultAuthenticatedRoute);
       return false;
     }
   },
@@ -58,6 +58,11 @@ router.setup = function(routes, options) {
 
   this.noAuthRoutes = options.noAuthRoutes || [];
   this.noAuthRoutes = this._parseNoAuthRoutes(this.noAuthRoutes);
+
+  this.defaultNotAuthenticatedRoute =
+    options.defaultNotAuthenticatedRoute || '/';
+  this.defaultAuthenticatedRoute =
+    options.defaultAuthenticatedRoute || '/';
   
   _.forEach(routes, function(handler, route) {
     self.on(route, handler);

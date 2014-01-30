@@ -55,6 +55,9 @@ var routes = {
 
 var noAuthRoutes = ['/login', '/signup'];
 
+var defaultNotAuthenticatedRoute = '/login';
+var defaultAuthenticatedRoute = '/patients';
+
 var AppComponent = React.createClass({
   getInitialState: function() {
     return {
@@ -90,7 +93,9 @@ var AppComponent = React.createClass({
 
     app.router.setup(routingTable, {
       isAuthenticated: isAuthenticated,
-      noAuthRoutes: noAuthRoutes
+      noAuthRoutes: noAuthRoutes,
+      defaultNotAuthenticatedRoute: defaultNotAuthenticatedRoute,
+      defaultAuthenticatedRoute: defaultAuthenticatedRoute
     });
     app.router.start();
   },
@@ -161,7 +166,7 @@ var AppComponent = React.createClass({
   },
 
   redirectToDefaultRoute: function() {
-    app.router.setRoute('/patients');
+    app.router.setRoute(defaultAuthenticatedRoute);
   },
 
   showLogin: function() {
