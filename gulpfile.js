@@ -73,7 +73,7 @@ gulp.task('scripts', ['scripts-browserify', 'scripts-config'], function() {
     'bower_components/director/build/director.js',
     'bower_components/lodash/dist/lodash.js',
     'bower_components/bows/dist/bows.js',
-    'bower_components/jquery/jquery.js',
+    'bower_components/superagent/superagent.js',
     'dist/tmp/config.js',
     'dist/tmp/app.js',
     'app/start.js'

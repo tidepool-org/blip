@@ -13,9 +13,9 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var $ = window.$;
 var bows = window.bows;
 var config = window.config;
+var request = window.superagent;
 
 var api = {
   log: bows('Api'),
@@ -78,11 +78,16 @@ function addDemoOverrides(api) {
   api._get = function(uri, callback) {
     var url = this._url(uri);
 
-    $.getJSON(url, function(data) {
-      callback(null, data);
-    }).error(function(error) {
-      callback(error);
-    });
+    request
+      .get(url)
+      .end(function(err, res) {
+        if (err) {
+          return callback(err);
+        }
+
+        var data = res.body;
+        callback(null, data);
+      });
   };
 
   return api;
