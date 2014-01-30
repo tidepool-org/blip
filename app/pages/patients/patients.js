@@ -27,7 +27,7 @@ var Patients = React.createClass({
 
   render: function() {
     var userPatient = this.renderUserPatient();
-    var otherPatients = this.renderOtherPatients();
+    var sharedPatients = this.renderSharedPatients();
 
     /* jshint ignore:start */
     return (
@@ -35,10 +35,14 @@ var Patients = React.createClass({
         <div className="container-box-outer patients-box-outer">
           <div className="container-box-inner patients-box-inner">
             <div className="patients-content">
-              <div className="patients-section-title">YOUR CARE TEAM</div>
-              {userPatient}
-              <div className="patients-section-title">CARE TEAMS YOU BELONG TO</div>
-              {otherPatients}
+              <div className="patients-section js-patients-user">
+                <div className="patients-section-title">YOUR CARE TEAM</div>
+                {userPatient}
+              </div>
+              <div className="patients-section js-patients-shared">
+                <div className="patients-section-title">CARE TEAMS YOU BELONG TO</div>
+                {sharedPatients}
+              </div>
             </div>
           </div>
         </div>
@@ -84,7 +88,7 @@ var Patients = React.createClass({
     };
   },
 
-  renderOtherPatients: function() {
+  renderSharedPatients: function() {
     // Render a placeholder list while we wait for data
     var patients = [{}, {}];
 
@@ -125,7 +129,7 @@ var Patients = React.createClass({
 
   renderPatientListItem: function(patient) {
     var patientListItemContent;
-    var className = 'patient-list-item list-group-item';
+    var className = 'patient-list-item list-group-item js-patient';
 
     if (_.isEmpty(patient)) {
       className = className + ' patient-list-item-empty';
