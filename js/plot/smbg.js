@@ -22,13 +22,13 @@ module.exports = function(pool, opts) {
         .selectAll('circle')
         .data(currentData, function(d) {
           // leveraging the timestamp of each datapoint as the ID for D3's binding
-          return d.deviceTimestamp;
+          return d.deviceTime;
         });
       circles.enter()
         .append('circle')
         .attr({
           'cx': function(d) {
-            return opts.xScale(Date.parse(d.deviceTimestamp));
+            return opts.xScale(Date.parse(d.deviceTime));
           },
           'class': function(d) {
             if (d.value < opts.classes['low']) {
@@ -46,7 +46,7 @@ module.exports = function(pool, opts) {
           },
           'r': 7,
           'id': function(d) {
-            return d.deviceTimestamp + ' ' + d.value;
+            return d.deviceTime + ' ' + d.value;
           }
         })
         .classed({'d3-circle': true, 'd3-smbg': true});
