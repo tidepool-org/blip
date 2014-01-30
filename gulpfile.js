@@ -10,6 +10,8 @@ var uglify = require('gulp-uglify');
 var cssmin = require('gulp-minify-css');
 var imagemin = require('gulp-imagemin');
 var clean = require('gulp-clean');
+var es = require('event-stream');
+var runSequence = require('run-sequence');
 
 var pkg = require('./package.json');
 process.env.DEMO_DIR = process.env.DEMO_DIR || 'demo/sample';
@@ -19,13 +21,13 @@ process.env.DEMO_ENDPOINT = 'build/' + pkg.version + '/demo';
 var jshintrc = JSON.parse(fs.readFileSync('.jshintrc'));
 
 gulp.task('jshint-app', function() {
-  gulp.src('app/**/*.js')
+  return gulp.src('app/**/*.js')
     .pipe(jshint(jshintrc))
     .pipe(jshint.reporter('jshint-stylish'));
 });
 
 gulp.task('jshint-test', function() {
-  gulp.src('test/**/*.js')
+  return gulp.src('test/**/*.js')
     .pipe(jshint(_.extend(jshintrc, {
       newcap: false,
       undef: false,
@@ -34,47 +36,39 @@ gulp.task('jshint-test', function() {
     .pipe(jshint.reporter('jshint-stylish'));
 });
 
-gulp.task('jshint', function() {
-  gulp.run('jshint-app', 'jshint-test');
-});
+gulp.task('jshint', ['jshint-app', 'jshint-test']);
 
-gulp.task('jshint-watch', function(){
-  gulp.run('jshint');
+gulp.task('jshint-watch', ['jshint'], function(cb){
+  gulp.watch('app/**/*.js', ['jshint-app']);
 
-  gulp.watch('app/**/*.js', function(event) {
-    gulp.run('jshint-app');
-  });
-
-  gulp.watch('test/**/*.js', function(event) {
-    gulp.run('jshint-test');
-  });
+  gulp.watch('test/**/*.js', ['jshint-test']);
 
   console.log('Watching files for changes...');
+
+  return cb();
 });
 
-gulp.task('scripts-browserify', function(cb) {
-  gulp.src('app/app.js')
+gulp.task('scripts-browserify', function() {
+  return gulp.src('app/app.js')
     .pipe(browserify({
       transform: ['reactify'],
       debug: true
     }))
     .pipe(concat('app.js'))
-    .pipe(gulp.dest('dist/tmp'))
-    .on('end', cb);
+    .pipe(gulp.dest('dist/tmp'));
 });
 
-gulp.task('scripts-config', function(cb) {
-  gulp.src('app/config.js')
+gulp.task('scripts-config', function() {
+  return gulp.src('app/config.js')
     .pipe(template({
       process: {env: process.env},
       pkg: pkg
     }))
-    .pipe(gulp.dest('dist/tmp'))
-    .on('end', cb);
+    .pipe(gulp.dest('dist/tmp'));
 });
 
-gulp.task('scripts', ['scripts-browserify', 'scripts-config'], function(cb) {
-  gulp.src([
+gulp.task('scripts', ['scripts-browserify', 'scripts-config'], function() {
+  return gulp.src([
     'bower_components/react/react.js',
     'bower_components/director/build/director.js',
     'bower_components/lodash/dist/lodash.js',
@@ -85,34 +79,30 @@ gulp.task('scripts', ['scripts-browserify', 'scripts-config'], function(cb) {
     'app/start.js'
   ]).pipe(concat('all.js'))
     .pipe(uglify())
-    .pipe(gulp.dest('dist/build/' + pkg.version))
-    .on('end', cb);
+    .pipe(gulp.dest('dist/build/' + pkg.version));
 });
 
-gulp.task('styles', function(cb) {
-  gulp.src('app/style.less')
+gulp.task('styles', function() {
+  return gulp.src('app/style.less')
     .pipe(less())
     .pipe(concat('all.css'))
     .pipe(cssmin({keepSpecialComments: 0}))
-    .pipe(gulp.dest('dist/build/' + pkg.version))
-    .on('end', cb);
+    .pipe(gulp.dest('dist/build/' + pkg.version));
 });
 
-gulp.task('index', function(cb) {
-  gulp.src('app/index.html')
+gulp.task('index', function() {
+  return gulp.src('app/index.html')
     .pipe(template({
       production: true,
       process: {env: process.env},
       pkg: pkg
     }))
-    .pipe(gulp.dest('dist'))
-    .on('end', cb);
+    .pipe(gulp.dest('dist'));
 });
 
-gulp.task('fonts', function(cb) {
-  gulp.src('app/core/fonts/**')
-    .pipe(gulp.dest('dist/' + process.env.FONTS_ENDPOINT))
-    .on('end', cb);
+gulp.task('fonts', function() {
+  return gulp.src('app/core/fonts/**')
+    .pipe(gulp.dest('dist/' + process.env.FONTS_ENDPOINT));
 });
 
 gulp.task('images', function () {
@@ -122,59 +112,50 @@ gulp.task('images', function () {
     {src: 'app/components/loginlogo/images/**', endpoint: 'loginlogo'}
   ];
 
-  _.forEach(images, function(image) {
-    gulp.src(image.src)
-    .pipe(imagemin())
-    .pipe(gulp.dest('dist/' + process.env.IMAGES_ENDPOINT + '/' + image.endpoint));
+  var imageStreams = _.map(images, function(image) {
+    return gulp.src(image.src)
+      .pipe(imagemin())
+      .pipe(gulp.dest('dist/' + process.env.IMAGES_ENDPOINT + '/' + image.endpoint));
   });
+
+  return es.concat.apply(es, imageStreams);
 });
 
 gulp.task('demo', function(cb) {
   if (process.env.DEMO) {
-    gulp.src(process.env.DEMO_DIR + '/**')
-      .pipe(gulp.dest('dist/' + process.env.DEMO_ENDPOINT))
-      .on('end', cb);
+    return gulp.src(process.env.DEMO_DIR + '/**')
+      .pipe(gulp.dest('dist/' + process.env.DEMO_ENDPOINT));
   }
-  else {
-    cb();
-  }
+  
+  return cb();
 });
 
-gulp.task('clean', function(cb) {
-  gulp.src('dist', {read: false})
-    .pipe(clean())
-    .on('end', cb);
+gulp.task('clean', function() {
+  return gulp.src('dist', {read: false})
+    .pipe(clean());
 });
 
-gulp.task('clean-tmp', function(cb) {
-  gulp.src('dist/tmp', {read: false})
-    .pipe(clean())
-    .on('end', cb);
+gulp.task('clean-tmp', function() {
+  return gulp.src('dist/tmp', {read: false})
+    .pipe(clean());
 });
 
-gulp.task('build', function() {
-  gulp.run('clean', function() {
-    gulp.run('scripts', 'styles', 'index', 'fonts', 'images', 'demo', function(err) {
-      gulp.run('clean-tmp', function(err) {
-        // NOTE: this callback does nothing,
-        // but is a temporary fix to the following bug
-        // https://github.com/gulpjs/gulp/issues/139
-      });
-    });
-  });  
+gulp.task('build', function(cb) {
+  runSequence(
+    'clean',
+    ['scripts', 'styles', 'index', 'fonts', 'images', 'demo'],
+    'clean-tmp',
+  cb);
 });
 
-gulp.task('before-tests', function(cb) {
-  gulp.src('test/unit/**/*.js')
+gulp.task('before-tests', function() {
+  return gulp.src('test/unit/**/*.js')
     .pipe(browserify({
       transform: ['reactify'],
       debug: true
     }))
     .pipe(concat('tests.js'))
-    .pipe(gulp.dest('tmp/test'))
-    .on('end', cb);
+    .pipe(gulp.dest('tmp/test'));
 });
 
-gulp.task('default', function() {
-  gulp.run('build');
-});
+gulp.task('default', ['build']);
