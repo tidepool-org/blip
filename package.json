@@ -22,7 +22,8 @@
     "jshint-stylish": "~0.1.5",
     "mocha": "~1.17.1",
     "chai": "~1.9.0",
-    "selenium-webdriver": "~2.39.0"
+    "selenium-webdriver": "~2.39.0",
+    "chai-webdriver": "~0.5.1"
   },
   "engines": {
     "node": "0.10.x"

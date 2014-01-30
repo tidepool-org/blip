@@ -42,21 +42,6 @@ var helpers = {
     return deferred.promise;
   },
 
-  elementExists: function(locator) {
-    return driver.findElement(locator)
-      .then(function() {
-        // No errors, element was found
-        return true;
-      }, function(err) {
-        if (err.code === helpers.errorCodes.NO_SUCH_ELEMENT) {
-          return false;
-        }
-        else {
-          throw err;
-        }
-      });
-  },
-
   // Wrapper around `driver.findElement` that throws a more useful error
   // by printing the "locator" used to find the element and shortening stack
   findElement: function(locator) {

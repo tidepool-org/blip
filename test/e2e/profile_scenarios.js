@@ -1,5 +1,7 @@
 var webdriver = require('selenium-webdriver');
-var expect = require('chai').expect;
+var chai = require('chai');
+var expect = chai.expect;
+var chaiWebdriver = require('chai-webdriver');
 var helpers = require('../lib/e2ehelpers');
 
 var demoUser = require('../../demo/sample/user.json');
@@ -14,6 +16,7 @@ describe('Profile', function() {
 
   before(function() {
     driver = helpers.newDriver();
+    chai.use(chaiWebdriver(driver));
   });
 
   after(function(done) {
@@ -27,10 +30,11 @@ describe('Profile', function() {
   it('should show user attribute values', function(done) {
     openApp()
       .then(authenticate)
-      .then(expectInputValueToBe('firstName', user.firstName))
-      .then(expectInputValueToBe('lastName', user.lastName))
-      .then(expectInputValueToBe('username', user.username))
+      .then(goToProfile)
       .then(function() {
+        expect('[name="firstName"]').dom.to.have.value(user.firstName);
+        expect('[name="lastName"]').dom.to.have.value(user.lastName);
+        expect('[name="username"]').dom.to.have.value(user.username);
         done();
       });
   });
@@ -46,14 +50,21 @@ describe('Profile', function() {
 
     openApp()
       .then(authenticate)
+      .then(goToProfile)
       .then(fillOutForm)
       .then(submitForm)
-      .then(getMessageText)
-      .then(function(text) {
-        expect(text).to.equal('All changes saved.');
+      .then(function() {
+        expect('.js-form-notification').dom.to.contain.text('All changes saved');
         done();
       });
   });
+
+  function goToProfile() {
+    return helpers.findElement(By.css('.js-navbar-profile-link'))
+      .then(function(q) {
+        return q.click();
+      });
+  }
 
   function fillOutForm() {
     helpers.findElement(By.name('firstName'))
@@ -73,22 +84,5 @@ describe('Profile', function() {
       .then(function(q) {
         return q.click();
       });
-  }
-
-  function getMessageText() {
-    return helpers.findElement(By.css('.js-form-notification'))
-      .then(function(q) {
-        return q.getText();
-      });
-  }
-
-  function expectInputValueToBe(inputName, expectedValue) {
-    return function() {
-      return helpers.findElement(By.name(inputName))
-        .then(function(q) { return q.getAttribute('value'); })
-        .then(function(value) {
-          expect(value).to.equal(expectedValue);
-        });
-    };
   }
 });

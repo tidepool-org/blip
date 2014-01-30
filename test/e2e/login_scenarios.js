@@ -1,5 +1,7 @@
 var webdriver = require('selenium-webdriver');
-var expect = require('chai').expect;
+var chai = require('chai');
+var expect = chai.expect;
+var chaiWebdriver = require('chai-webdriver');
 var helpers = require('../lib/e2ehelpers');
 
 describe('Login', function() {
@@ -13,6 +15,7 @@ describe('Login', function() {
 
   before(function() {
     driver = helpers.newDriver();
+    chai.use(chaiWebdriver(driver));
   });
 
   after(function(done) {
@@ -27,9 +30,8 @@ describe('Login', function() {
   it('should log in with correct credentials', function(done) {
     openApp()
       .then(authenticate)
-      .then(checkLoggedIn)
-      .then(function(result) {
-        expect(result).to.be.true;
+      .then(function() {
+        expect('.js-navbar-user').dom.to.be.visible();
         done();
       });
   });
@@ -41,9 +43,8 @@ describe('Login', function() {
       .then(fillOutUsername)
       .then(fillOutPassword)
       .then(submitForm)
-      .then(getMessageText)
-      .then(function(text) {
-        expect(text).to.be.ok;
+      .then(function() {
+        expect('.js-form-notification').dom.to.contain.text('Wrong username or password');
         done();
       });
   });
@@ -67,16 +68,5 @@ describe('Login', function() {
       .then(function(q) {
         return q.click();
       });
-  }
-
-  function getMessageText() {
-    return helpers.findElement(By.css('.js-form-notification'))
-      .then(function(q) {
-        return q.getText();
-      });
-  }
-
-  function checkLoggedIn() {
-    return helpers.elementExists(By.css('.js-navbar-user'));
   }
 });

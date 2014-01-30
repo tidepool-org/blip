@@ -1,5 +1,7 @@
 var webdriver = require('selenium-webdriver');
-var expect = require('chai').expect;
+var chai = require('chai');
+var expect = chai.expect;
+var chaiWebdriver = require('chai-webdriver');
 var helpers = require('../lib/e2ehelpers');
 
 describe('Signup', function() {
@@ -11,6 +13,7 @@ describe('Signup', function() {
 
   before(function() {
     driver = helpers.newDriver();
+    chai.use(chaiWebdriver(driver));
   });
 
   after(function(done) {
@@ -31,9 +34,8 @@ describe('Signup', function() {
       .then(goToSignupPage)
       .then(fillOutForm)
       .then(submitForm)
-      .then(checkLoggedIn)
-      .then(function(result) {
-        expect(result).to.be.true;
+      .then(function() {
+        expect('.js-navbar-user').dom.to.be.visible();
         done();
       });
   });
@@ -46,9 +48,8 @@ describe('Signup', function() {
       .then(goToSignupPage)
       .then(fillOutForm)
       .then(submitForm)
-      .then(getMessageText)
-      .then(function(text) {
-        expect(text).to.be.ok;
+      .then(function() {
+        expect('.js-form-notification').dom.to.contain.text('already exists');
         done();
       });
   });
@@ -76,16 +77,5 @@ describe('Signup', function() {
       .then(function(q) {
         return q.click();
       });
-  }
-
-  function getMessageText() {
-    return helpers.findElement(By.css('.js-form-notification'))
-      .then(function(q) {
-        return q.getText();
-      });
-  }
-
-  function checkLoggedIn() {
-    return helpers.elementExists(By.css('.js-navbar-user'));
   }
 });

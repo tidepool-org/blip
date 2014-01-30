@@ -84,7 +84,7 @@ var Navbar = React.createClass({
         /* jshint ignore:start */
         <ul className="nav nav-right navbar-user js-navbar-user">
           <li>
-            <a href="#/profile" className="navbar-label-link" title="Account">
+            <a href="#/profile" className="navbar-label-link js-navbar-profile-link" title="Account">
               <div className="navbar-label navbar-label-right">
                 {'Logged in as '}
                 <span className="navbar-user-name">{fullName}</span>
