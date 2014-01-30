@@ -1,8 +1,15 @@
 d3.json('device-data.json', function(data) {
   var container = require('../js/container')();
 
+  var watson = require('./watson');
+
+  data = watson.data(data);
+
   // set up main one-day container
   container.data(data).defaults().width(1000).height(700);
+
+  watson.print('Start', new Date(container.endpoints[0]));
+  watson.print('End', new Date(container.endpoints[1]));
 
   d3.select('#tidelineContainer').datum(container.getData()).call(container);
 
@@ -12,8 +19,6 @@ d3.json('device-data.json', function(data) {
   // attach click handlers to set up programmatic pan
   $('#tidelineNavForward').on('click', container.panForward);
   $('#tidelineNavBack').on('click', container.panBack);
-
-  console.log(new Date(container.endpoints[0]), new Date(container.endpoints[1]));
 
   // start setting up pools
   // messages pool
