@@ -15,7 +15,7 @@ module.exports = function(container) {
     plotTypes = [];
 
   var defaults = {
-    minHeight: 40,
+    minHeight: 35,
     maxHeight: 300
   };
 
