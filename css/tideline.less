@@ -69,8 +69,10 @@ svg {
   fill: @carbs;
 }
 
-.d3-rect-bolus {
-  fill: @bolus;
+.d3-bolus {
+  &.d3-rect-bolus {
+    fill: @bolus;
+  }
 }
 
 .d3-cbg, .d3-smbg {
