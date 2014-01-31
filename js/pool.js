@@ -27,6 +27,7 @@ module.exports = function(container) {
       'id': id,
       'transform': 'translate(0,' + yPosition + ')'
     });
+    // TODO: this is diabetes-data specific, doesn't belong here, factor out into example.js/passed arguments
     var dataFill = {'cbg': true, 'smbg': true, 'carbs': true, 'bolus': true, 'fill': false, 'message': true};
     plotTypes.forEach(function(plotType) {
       if (dataFill[plotType.type]) {
