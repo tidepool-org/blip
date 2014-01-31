@@ -43,7 +43,7 @@ d3.json('device-data.json', function(data) {
     .id('poolBolus')
     .label('Bolus & Carbohydrates')
     .index(container.pools().indexOf(poolBolus))
-    .weight(1.0);
+    .weight(1.5);
   
   // basal data pool
   var poolBasal = container.newPool().defaults()
