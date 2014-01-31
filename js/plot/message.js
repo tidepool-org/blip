@@ -22,7 +22,7 @@ module.exports = function(pool, opts) {
       messages.enter()
         .append('image')
         .attr({ 
-          'xlink:href': '../img/post_it.svg',
+          'xlink:href': '../img/message/post_it.svg',
           'x': function(d) {
             return opts.xScale(Date.parse(d.normalTime)) - opts.size / 2;
           },
