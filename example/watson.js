@@ -27,6 +27,11 @@ var print = function(arg, d) {
   console.log(arg, d.toUTCString().replace(' GMT', ''));
 };
 
+var strip = function(d) {
+  return d.toUTCString().replace(' GMT', '');
+};
+
 module.exports.data = data;
 module.exports.normalize = normalize;
 module.exports.print = print;
+module.exports.strip = strip;
