@@ -1,14 +1,26 @@
+// Typography
+// ====================================
+
+@font-family-base:       "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+@font-size-base:         16px;
+@line-height-base:       20px;
+
 // e.g., navbar
 @labels: #989897;
 
+@import url(http://fonts.googleapis.com/css?family=Open+Sans);
+
 #tideline {
   background-color: white;
+  font-family: @font-family-base;
+  font-size: @font-size-base;
 
   #tidelineNav {
     background-color: @labels;
 
     .tidelineNavLabel {
-      font-size: 14px;
+      font-family: 'Open Sans';
+      font-size: 16px;
       font-weight: bold;
       color: white;
 

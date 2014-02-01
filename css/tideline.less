@@ -1,5 +1,11 @@
 @import 'tideline-colors.less';
 
+// typography
+// @font-family-base shared with blip, but sizes are specific to tideline
+@font-family-base: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+@font-size-labels: 16px;
+@font-size-axes: 14px;
+
 svg {
   display: block;
   margin: 0 auto;
@@ -22,8 +28,7 @@ svg {
     stroke: @text;
   }
   text {
-    font-family: sans-serif;
-    font-size: 2vh;
+    font-size: @font-size-axes;
   }
 }
 
@@ -33,16 +38,14 @@ svg {
     stroke: white;
   }
   text {
-    font-family: sans-serif;
-    font-size: 2vh;
+    font-size: @font-size-axes;
   }
 }
 
 .d3-pool-label {
-  font-family: sans-serif;
   text-transform: uppercase;
   font-weight: bold;
-  font-size: 2.5vh;
+  font-size: @font-size-labels;
   fill: @text;
   baseline-shift: 30%;
 }
