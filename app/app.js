@@ -65,9 +65,10 @@ var AppComponent = React.createClass({
       notification: null,
       page: null,
       user: null,
+      fetchingUser: true,
       loggingOut: false,
       patients: null,
-      fetchingPatients: false
+      fetchingPatients: true
     };
   },
 
@@ -137,6 +138,7 @@ var AppComponent = React.createClass({
         <Navbar
           version={config.VERSION}
           user={this.state.user}
+          fetchingUser={this.state.fetchingUser}
           onLogout={this.logout}
           imagesEndpoint={config.IMAGES_ENDPOINT + '/navbar'} />
         /* jshint ignore:end */
@@ -211,6 +213,7 @@ var AppComponent = React.createClass({
       /* jshint ignore:start */
       <Profile 
           user={this.state.user}
+          fetchingUser={this.state.fetchingUser}
           onValidate={this.validateUser}
           onSubmit={this.updateUser}/>
       /* jshint ignore:end */
@@ -228,7 +231,7 @@ var AppComponent = React.createClass({
     return (
       <Patients 
           user={this.state.user}
-          fetchingUser={_.isEmpty(this.state.user)}
+          fetchingUser={this.state.fetchingUser}
           patients={this.state.patients}
           fetchingPatients={this.state.fetchingPatients}/>
     );
@@ -236,15 +239,16 @@ var AppComponent = React.createClass({
   },
 
   handleLoginSuccess: function() {
-    this.setState({authenticated: true});
     this.fetchUser();
+    this.setState({authenticated: true});
     this.redirectToDefaultRoute();
   },
 
   handleSignupSuccess: function(user) {
     this.setState({
       authenticated: true,
-      user: user
+      user: user,
+      fetchingUser: false
     });
     this.redirectToDefaultRoute();
   },
@@ -286,8 +290,13 @@ var AppComponent = React.createClass({
   fetchUser: function() {
     var self = this;
 
+    self.setState({fetchingUser: true});
+
     app.api.user.get(function(err, user) {
-      self.setState({user: user});
+      self.setState({
+        user: user,
+        fetchingUser: false
+      });
     });
   },
 

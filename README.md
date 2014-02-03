@@ -28,6 +28,7 @@ Table of contents:
     - [Icons](#icons)
     - [JSHint](#jshint)
     - [Demo mode](#demo-mode)
+    - [Perceived speed](#perceived-speed)
 - [Testing](#testing)
     - [Unit tests](#unit-tests)
     - [End-to-end tests](#end-to-end-tests)
@@ -99,7 +100,7 @@ See ["Writing good React components"](http://blog.whn.se/post/69621609605/writin
 More on state:
 - The main `AppComponent` holds all of the state global to the app (like if the user is logged in or not)
 - Each page (`app/pages`) can hold some state specific to that page
-- Reusable components (`app/components`) typically hold no state (with rare exceptions)
+- Reusable components (`app/components`) typically hold no state (with rare exceptions, like forms)
 
 ### Development server
 
@@ -235,6 +236,18 @@ There are additional "demo" settings you can use to help in development:
 - `DEMO_DELAY`: Set this to a value in milliseconds, and all "fake" demo external calls (to an API for example), will be delayed by that amount. This is useful to test how the app feels like on a slow internet connection for example.
 - `DEMO_VARIANT`: Use this to trigger some "special" events to test how the interface responds. For instance, setting `DEMO_VARIANT='auth.login.error'` will trigger an error when logging in.
 
+### Perceived speed
+
+Fetching data from the server and rendering the UI to display that data is a classic pattern. The approach we try to follow (see [The Need for Speed](https://cloudup.com/blog/the-need-for-speed)) is to "render as soon as possible" and "save optimistically".
+
+In short, say a component `<Items />` needs to display a `data` object passed through the props by the parent, we will also give the component a `fetchingData` prop, so it can render accordingly. There are 4 possible situations (the component may choose to render more than one situation in the same way):
+
+- `data` is **falsy** and `fetchingData` is **truthy**: first data load, or reset, we can render for example an empty "skeleton" while we wait for data
+- `data` and `fetchingData` are both **falsy**: data load returned an empty set, we can display a message for example
+- `data` is **truthy** and `fetchingData` is **falsy**: display the data "normally"
+- `data` and `fetchingData` are both **truthy**: a data refresh, either don't do anything and wait for data to come back, or display some kind of loading indicator
+
+For forms, we try as much as possible to "save optimistically", meaning when the user "saves" the form, we immediately update the app state (and thus the UI), and then send the new data to the server to be saved. If the server returns an error, we should be able to rollback the app state and display some kind of error message.
 
 ## Testing
 

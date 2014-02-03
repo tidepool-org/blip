@@ -21,6 +21,7 @@ var Navbar = React.createClass({
   propTypes: {
     version: React.PropTypes.string,
     user: React.PropTypes.object,
+    fetchingUser: React.PropTypes.bool,
     onLogout: React.PropTypes.func,
     imagesEndpoint: React.PropTypes.string
   },
@@ -78,33 +79,36 @@ var Navbar = React.createClass({
 
   renderUser: function() {
     var user = this.props.user;
-    if (!_.isEmpty(user)) {
-      var fullName = this.getUserFullName(user);
-      return (
-        /* jshint ignore:start */
-        <ul className="nav nav-right navbar-user js-navbar-user">
-          <li>
-            <a href="#/profile" className="navbar-label-link js-navbar-profile-link" title="Account">
-              <div className="navbar-label navbar-label-right">
-                {'Logged in as '}
-                <span className="navbar-user-name">{fullName}</span>
-              </div>
-              <div className="navbar-label-arrow-right"></div>
-            </a>
-          </li>
-          <li>
-            <a
-              href=""
-              className="navbar-user-icon"
-              onClick={this.handleLogout}
-              title="Logout"><i className="icon-logout"></i>
-            </a>
-          </li>
-        </ul>
-        /* jshint ignore:end */
-      );
+
+    if (_.isEmpty(user)) {
+      return null;
     }
-    return null;
+
+    var fullName = this.getUserFullName(user);
+    
+    return (
+      /* jshint ignore:start */
+      <ul className="nav nav-right navbar-user js-navbar-user">
+        <li>
+          <a href="#/profile" className="navbar-label-link js-navbar-profile-link" title="Account">
+            <div className="navbar-label navbar-label-right">
+              {'Logged in as '}
+              <span className="navbar-user-name">{fullName}</span>
+            </div>
+            <div className="navbar-label-arrow-right"></div>
+          </a>
+        </li>
+        <li>
+          <a
+            href=""
+            className="navbar-user-icon"
+            onClick={this.handleLogout}
+            title="Logout"><i className="icon-logout"></i>
+          </a>
+        </li>
+      </ul>
+      /* jshint ignore:end */
+    );
   },
 
   getUserFullName: function(user) {

@@ -52,30 +52,37 @@ var Patients = React.createClass({
   },
 
   renderUserPatient: function() {
-    var patient = {};
+    var patient;
 
-    if (!this.props.fetchingUser) {
-      patient = this.extractPatientDataFromUser(this.props.user);
+    if (this.isResettingUserData()) {
+      // Render a placeholder list while we wait for data
+      return this.renderPatientList([{}]);
+    }
 
-      if (_.isEmpty(patient)) {
-        /* jshint ignore:start */
-        return (
-          <div className="patients-empty-list">
-            <a href="#">
-              <i className="icon-add"></i>
-              {' ' + 'Create your patient profile'}
-            </a>
-          </div>
-        );
-        /* jshint ignore:end */
-      }
+    patient = this.extractPatientDataFromUser(this.props.user);
+
+    if (_.isEmpty(patient)) {
+      /* jshint ignore:start */
+      return (
+        <div className="patients-empty-list">
+          <a href="#">
+            <i className="icon-add"></i>
+            {' ' + 'Create your patient profile'}
+          </a>
+        </div>
+      );
+      /* jshint ignore:end */
     }
 
     return this.renderPatientList([patient]);
   },
 
+  isResettingUserData: function() {
+    return (this.props.fetchingUser && !this.props.user);
+  },
+
   extractPatientDataFromUser: function(user) {
-    if (_.isEmpty(user) || !user.patient) {
+    if (!user || !user.patient) {
       return {};
     }
 
@@ -89,30 +96,37 @@ var Patients = React.createClass({
   },
 
   renderSharedPatients: function() {
-    // Render a placeholder list while we wait for data
-    var patients = [{}, {}];
+    var patients;
 
-    if (!this.props.fetchingPatients) {
-      patients = this.props.patients;
-
-      // For now, just add a "fake" links to patient pages
-      patients = _.map(patients, function(patient) {
-        patient.link = '#';
-        return patient;
-      });
-
-      if (_.isEmpty(patients)) {
-        /* jshint ignore:start */
-        return (
-          <div className="patients-empty-list patients-empty-list-message">
-            When someone adds you to their care team, it will appear here.
-          </div>
-        );
-        /* jshint ignore:end */
-      }
+    if (this.isResettingPatientsData()) {
+      // Render a placeholder list while we wait for data
+      patients = [{}, {}];
+      return this.renderPatientList(patients);
     }
 
+    patients = this.props.patients;
+
+    if (_.isEmpty(patients)) {
+      /* jshint ignore:start */
+      return (
+        <div className="patients-empty-list patients-empty-list-message">
+          When someone adds you to their care team, it will appear here.
+        </div>
+      );
+      /* jshint ignore:end */
+    }
+
+    // For now, just add a "fake" links to patient pages
+    patients = _.map(patients, function(patient) {
+      patient.link = '#';
+      return patient;
+    });
+
     return this.renderPatientList(patients);
+  },
+
+  isResettingPatientsData: function() {
+    return (this.props.fetchingPatients && !this.props.patients);
   },
 
   renderPatientList: function(patients) {

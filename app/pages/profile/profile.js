@@ -22,6 +22,7 @@ var SimpleForm = require('../../components/simpleform');
 var Profile = React.createClass({
   propTypes: {
     user: React.PropTypes.object,
+    fetchingUser: React.PropTypes.bool,
     onValidate: React.PropTypes.func.isRequired,
     onSubmit: React.PropTypes.func.isRequired
   },
@@ -81,7 +82,7 @@ var Profile = React.createClass({
   },
 
   renderForm: function() {
-    var disabled = this.isDisabled();
+    var disabled = this.isResettingUserData();
 
     /* jshint ignore:start */
     return (
@@ -97,9 +98,8 @@ var Profile = React.createClass({
     /* jshint ignore:end */
   },
 
-  isDisabled: function() {
-    var user = this.props.user || {};
-    return _.isEmpty(user) ? true : null;
+  isResettingUserData: function() {
+    return (this.props.fetchingUser && !this.props.user);
   },
 
   handleSubmit: function(formValues) {
