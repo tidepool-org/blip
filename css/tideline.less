@@ -74,7 +74,11 @@ svg {
 
 .d3-bolus {
   &.d3-rect-bolus {
-    fill: @bolus;
+    fill: @bolus;  
+  }
+  &.d3-path-bolus {
+    stroke: @bolus;
+    fill: none;
   }
   &.d3-path-extended {
     stroke: @bolus;
@@ -82,6 +86,9 @@ svg {
   &.d3-path-extended-triangle {
     stroke: @bolus;
     fill: @bolus;
+  }
+  &.d3-rect-recommended {
+    fill: @recommended;
   }
 }
 
