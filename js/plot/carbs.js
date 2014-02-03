@@ -4,7 +4,7 @@ module.exports = function(pool, opts) {
 
   var defaults = {
     xScale: pool.xScale().copy(),
-    width: 8
+    width: 12
   };
 
   _.defaults(opts, defaults);
