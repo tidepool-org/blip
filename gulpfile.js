@@ -91,7 +91,6 @@ gulp.task('index', function() {
   return gulp.src('app/index.html')
     .pipe(template({
       production: true,
-      process: {env: process.env},
       pkg: pkg
     }))
     .pipe(gulp.dest('dist'));

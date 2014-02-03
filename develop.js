@@ -12,7 +12,6 @@ var pkg = require('./package.json');
 var files = require('./files');
 process.env.DEMO_DIR = process.env.DEMO_DIR || 'demo/sample';
 process.env.IMAGES_ENDPOINT = 'images';
-process.env.FONTS_ENDPOINT = 'fonts';
 process.env.DEMO_ENDPOINT = 'demo';
 
 var app = connect();
@@ -74,7 +73,6 @@ app.use('/', function(req, res, next) {
   gulp.src('app/index.html')
     .pipe(template({
       production: false,
-      process: {env: process.env},
       pkg: pkg,
       files: files
     }))

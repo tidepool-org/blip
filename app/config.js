@@ -13,6 +13,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+// NOTE: This is a Lodash template
+
 window.config = {
   VERSION: '<%= pkg.version %>' || '',
   IMAGES_ENDPOINT: '<%= process.env.IMAGES_ENDPOINT %>' || 'images',
