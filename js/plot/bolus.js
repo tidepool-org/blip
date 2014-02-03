@@ -80,11 +80,28 @@ module.exports = function(pool, opts) {
             return bolus.x(d);
           },
           'y': function(d) {
-            return opts.yScale(d.recommended) - opts.bolusStroke;
+            return opts.yScale(d.recommended);
           },
           'width': opts.width,
-          'height': opts.bolusStroke * 2,
+          'height': function(d) {
+            return top - opts.yScale(d.recommended);
+          },
+          'stroke-width': opts.bolusStroke,
           'class': 'd3-rect-recommended d3-bolus',
+          'id': function(d) {
+            return d.normalTime + ' ' + d.value + ' ' + d.recommended + ' recommended';
+          }
+        });
+      override.append('path')
+        .attr({
+          'd': function(d) {
+            var leftEdge = bolus.x(d) + opts.bolusStroke / 2;
+            var rightEdge = leftEdge + opts.width - opts.bolusStroke;
+            var bolusHeight = opts.yScale(d.value) + opts.bolusStroke / 2;
+            return "M" + leftEdge + ' ' + bottom + "L" + rightEdge + ' ' + bottom + "L" + rightEdge + ' ' + bolusHeight + "L" + leftEdge + ' ' + bolusHeight + "Z";
+          },
+          'stroke-width': opts.bolusStroke,
+          'class': 'd3-path-bolus d3-bolus',
           'id': function(d) {
             return d.normalTime + ' ' + d.value + ' ' + d.recommended + ' recommended';
           }
