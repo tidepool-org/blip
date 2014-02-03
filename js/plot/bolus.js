@@ -4,7 +4,9 @@ module.exports = function(pool, opts) {
 
   var defaults = {
     xScale: pool.xScale().copy(),
-    width: 8
+    width: 12,
+    bolusStroke: 2,
+    triangleSize: 6
   };
 
   _.defaults(opts, defaults);
@@ -23,6 +25,7 @@ module.exports = function(pool, opts) {
           'class': 'd3-bolus-group'
         });
       var top = opts.yScale.range()[0];
+      // boluses where delivered = recommended
       bolusGroups.append('rect')
         .attr({
           'x': function(d) {
@@ -36,6 +39,52 @@ module.exports = function(pool, opts) {
             return top - opts.yScale(d.value);
           },
           'class': 'd3-rect-bolus d3-bolus',
+          'id': function(d) {
+            return d.normalTime + ' ' + d.value + ' ' + d.recommended + ' recommended';
+          }
+        });
+      // boluses where recommendation and delivery differ
+      var bottom = top - opts.bolusStroke / 2;
+      // boluses where recommended > delivered
+      var underride = bolusGroups.filter(function(d) {
+        if (d.recommended > d.value) {
+          return d;
+        }
+      });
+      underride.append('rect')
+        .attr({
+          'x': function(d) {
+            return bolus.x(d);
+          },
+          'y': function(d) {
+            return opts.yScale(d.recommended);
+          },
+          'width': opts.width,
+          'height': function(d) {
+            return opts.yScale(d.value) - opts.yScale(d.recommended);
+          },
+          'class': 'd3-rect-recommended d3-bolus',
+          'id': function(d) {
+            return d.normalTime + ' ' + d.value + ' ' + d.recommended + ' recommended';
+          }
+        });
+      // boluses where delivered > recommended
+      var override = bolusGroups.filter(function(d) {
+        if (d.value > d.recommended) {
+          return d;
+        }
+      });
+      override.append('rect')
+        .attr({
+          'x': function(d) {
+            return bolus.x(d);
+          },
+          'y': function(d) {
+            return opts.yScale(d.recommended) - opts.bolusStroke;
+          },
+          'width': opts.width,
+          'height': opts.bolusStroke * 2,
+          'class': 'd3-rect-recommended d3-bolus',
           'id': function(d) {
             return d.normalTime + ' ' + d.value + ' ' + d.recommended + ' recommended';
           }
