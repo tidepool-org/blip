@@ -1,4 +1,5 @@
 var expect = chai.expect;
+var helpers = require('../lib/unithelpers');
 
 var Navbar = require('../../app/components/navbar');
 

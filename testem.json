@@ -5,12 +5,8 @@
     "test/**/*.js"
   ],
   "serve_files": [
-    "bower_components/react/react.js",
-    "bower_components/director/build/director.js",
-    "bower_components/lodash/dist/lodash.js",
-    "bower_components/bows/dist/bows.js",
-    "bower_components/superagent/superagent.js",
-    "tmp/test/tests.js"
+    "tmp/test/vendor/*.js",
+    "tmp/test/unit/*.js"
   ],
   "before_tests": "gulp before-tests",
   "launch_in_dev": ["chrome"]

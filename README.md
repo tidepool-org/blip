@@ -130,7 +130,7 @@ Third-party dependencies are managed with [Bower](http://bower.io/). If a partic
 bower install --save https://github.com/user/repo.git#1.1.0
 ```
 
-Be sure to update `app/index.html`, `gulpfile.js`, and `testem.json` when installing a new package.
+Be sure to update `app/index.html` and `gulpfile.js` when installing a new package.
 
 ### Debugging
 

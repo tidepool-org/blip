@@ -148,14 +148,26 @@ gulp.task('build', function(cb) {
   cb);
 });
 
-gulp.task('before-tests', function() {
+gulp.task('before-tests-vendor', function() {
+  return gulp.src([
+    'bower_components/react/react.js',
+    'bower_components/director/build/director.js',
+    'bower_components/lodash/dist/lodash.js',
+    'bower_components/bows/dist/bows.js',
+    'bower_components/superagent/superagent.js'
+    ])
+    .pipe(gulp.dest('tmp/test/vendor'));
+});
+
+gulp.task('before-tests-unit', function() {
   return gulp.src('test/unit/**/*.js')
     .pipe(browserify({
       transform: ['reactify'],
       debug: true
     }))
-    .pipe(concat('tests.js'))
-    .pipe(gulp.dest('tmp/test'));
+    .pipe(gulp.dest('tmp/test/unit'));
 });
+
+gulp.task('before-tests', ['before-tests-vendor', 'before-tests-unit']);
 
 gulp.task('default', ['build']);
