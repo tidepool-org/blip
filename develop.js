@@ -9,6 +9,7 @@ var template = require('gulp-template');
 var send = require('./lib/gulp-send');
 
 var pkg = require('./package.json');
+var files = require('./files');
 process.env.DEMO_DIR = process.env.DEMO_DIR || 'demo/sample';
 process.env.IMAGES_ENDPOINT = 'images';
 process.env.FONTS_ENDPOINT = 'fonts';
@@ -59,9 +60,11 @@ app.use('/style.css', function(req, res, next) {
 
 app.use('/fonts', connect.static(__dirname + '/app/core/fonts'));
 
-app.use('/images/navbar', connect.static(__dirname + '/app/components/navbar/images'));
-app.use('/images/loginnav', connect.static(__dirname + '/app/components/loginnav/images'));
-app.use('/images/loginlogo', connect.static(__dirname + '/app/components/loginlogo/images'));
+files.images.forEach(function(image) {
+  var endpoint = '/images/' + image.endpoint;
+  var dir = __dirname + '/' + image.dir;
+  app.use(endpoint, connect.static(dir));
+});
 
 app.use('/demo', connect.static(__dirname + '/' + process.env.DEMO_DIR));
 
@@ -72,7 +75,8 @@ app.use('/', function(req, res, next) {
     .pipe(template({
       production: false,
       process: {env: process.env},
-      pkg: pkg
+      pkg: pkg,
+      files: files
     }))
     .pipe(send(res));
 });

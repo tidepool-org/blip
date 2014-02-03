@@ -14,6 +14,7 @@ var es = require('event-stream');
 var runSequence = require('run-sequence');
 
 var pkg = require('./package.json');
+var files = require('./files');
 process.env.DEMO_DIR = process.env.DEMO_DIR || 'demo/sample';
 process.env.FONTS_ENDPOINT = 'build/' + pkg.version + '/fonts';
 process.env.IMAGES_ENDPOINT = 'build/' + pkg.version + '/images';
@@ -68,16 +69,12 @@ gulp.task('scripts-config', function() {
 });
 
 gulp.task('scripts', ['scripts-browserify', 'scripts-config'], function() {
-  return gulp.src([
-    'bower_components/react/react.js',
-    'bower_components/director/build/director.js',
-    'bower_components/lodash/dist/lodash.js',
-    'bower_components/bows/dist/bows.js',
-    'bower_components/superagent/superagent.js',
+  return gulp.src([].concat(files.js.vendor, [
     'dist/tmp/config.js',
     'dist/tmp/app.js',
     'app/start.js'
-  ]).pipe(concat('all.js'))
+  ]))
+    .pipe(concat('all.js'))
     .pipe(uglify())
     .pipe(gulp.dest('dist/build/' + pkg.version));
 });
@@ -106,16 +103,13 @@ gulp.task('fonts', function() {
 });
 
 gulp.task('images', function () {
-  var images = [
-    {src: 'app/components/navbar/images/**', endpoint: 'navbar'},
-    {src: 'app/components/loginnav/images/**', endpoint: 'loginnav'},
-    {src: 'app/components/loginlogo/images/**', endpoint: 'loginlogo'}
-  ];
+  var imageStreams = _.map(files.images, function(image) {
+    var src = image.dir + '/**';
+    var dest = 'dist/' + process.env.IMAGES_ENDPOINT + '/' + image.endpoint;
 
-  var imageStreams = _.map(images, function(image) {
-    return gulp.src(image.src)
+    return gulp.src(src)
       .pipe(imagemin())
-      .pipe(gulp.dest('dist/' + process.env.IMAGES_ENDPOINT + '/' + image.endpoint));
+      .pipe(gulp.dest(dest));
   });
 
   return es.concat.apply(es, imageStreams);
@@ -149,13 +143,7 @@ gulp.task('build', function(cb) {
 });
 
 gulp.task('before-tests-vendor', function() {
-  return gulp.src([
-    'bower_components/react/react.js',
-    'bower_components/director/build/director.js',
-    'bower_components/lodash/dist/lodash.js',
-    'bower_components/bows/dist/bows.js',
-    'bower_components/superagent/superagent.js'
-    ])
+  return gulp.src(files.js.vendor)
     .pipe(gulp.dest('tmp/test/vendor'));
 });
 

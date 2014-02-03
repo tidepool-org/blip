@@ -130,7 +130,7 @@ Third-party dependencies are managed with [Bower](http://bower.io/). If a partic
 bower install --save https://github.com/user/repo.git#1.1.0
 ```
 
-Be sure to update `app/index.html` and `gulpfile.js` when installing a new package.
+Be sure to update `files.js` when installing a new package.
 
 ### Debugging
 
@@ -201,7 +201,7 @@ var imageSource = componentImageEndpoint + '/logo.png';
 
 Reusable components (`app/components/`) shouldn't access the `config` object directly, so you should generate the `componentImageEndpoint` value above from a "page" component (`app/pages`), and pass it to the reusable component through a `props` value.
 
-At build-time, images all get bundled into `build/<version>/images/<component>/` directories. When adding images, don't forget to update the `develop.js` and `gulpfile.js` with the correct paths.
+At build-time, images all get bundled into `build/<version>/images/<component>/` directories. When adding images, don't forget to update `files.js` with the correct paths.
 
 ### Fonts
 
