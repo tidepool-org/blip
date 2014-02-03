@@ -1,10 +1,14 @@
+var watson = require('../../example/watson');
+
 module.exports = function(pool, opts) {
 
   var opts = opts || {};
 
   var defaults = {
     xScale: pool.xScale().copy(),
-    width: 8
+    width: 12,
+    bolusStroke: 2,
+    triangleSize: 6
   };
 
   _.defaults(opts, defaults);
@@ -40,12 +44,52 @@ module.exports = function(pool, opts) {
             return d.normalTime + ' ' + d.value + ' ' + d.recommended + ' recommended';
           }
         });
+      // square- and dual-wave boluses
+      var extendedBoluses = bolusGroups.filter(function(d) {
+        if (d.extended) {
+          return d;
+        }
+      });
+      extendedBoluses.append('path')
+        .attr({
+          'd': function(d) {
+            var rightEdge = bolus.x(d) + opts.width;
+            var doseHeight = opts.yScale(d.extendedDelivery) + opts.bolusStroke / 2;
+            var doseEnd = opts.xScale(Date.parse(d.normalTime) + d.duration) - opts.triangleSize / 2;
+            return "M" + rightEdge + ' ' + doseHeight + "L" + doseEnd + ' ' + doseHeight;
+          },
+          'stroke-width': opts.bolusStroke,
+          'class': 'd3-path-extended d3-bolus',
+          'id': function(d) {
+            return d.normalTime + ' ' + d.extendedDelivery + ' ' + ' ended at ' + watson.strip(new Date(opts.xScale.invert(opts.xScale(Date.parse(d.normalTime) + d.duration))));
+          }
+        });
+      extendedBoluses.append('path')
+        .attr({
+          'd': function(d) {      
+            var doseHeight = opts.yScale(d.extendedDelivery) + opts.bolusStroke / 2;
+            var doseEnd = opts.xScale(Date.parse(d.normalTime) + d.duration) - opts.triangleSize / 2;
+            return bolus.triangle(doseEnd, doseHeight);
+          },
+          'stroke-width': opts.bolusStroke,
+          'class': 'd3-path-extended-triangle d3-bolus',
+          'id': function(d) {
+            return d.normalTime + ' ' + d.extendedDelivery + ' ' + ' ended at ' + watson.strip(new Date(opts.xScale.invert(opts.xScale(Date.parse(d.normalTime) + d.duration))));
+          }
+        });
       boluses.exit().remove();
     });
   }
   
   bolus.x = function(d) {
     return opts.xScale(Date.parse(d.normalTime)) - opts.width/2;
+  };
+
+  bolus.triangle = function(x, y) {
+    var top = (x + opts.triangleSize) + ' ' + (y + opts.triangleSize/2);
+    var bottom = (x + opts.triangleSize) + ' ' + (y - opts.triangleSize/2);
+    var point = x + ' ' + y;
+    return "M" + top + "L" + bottom + "L" + point + "Z";
   };
 
   return bolus; 
