@@ -68,7 +68,7 @@ module.exports = function(pool, opts) {
         .attr({
           'd': function(d) {      
             var doseHeight = opts.yScale(d.extendedDelivery) + opts.bolusStroke / 2;
-            var doseEnd = opts.xScale(Date.parse(d.normalTime) + d.duration) - opts.triangleSize / 2;
+            var doseEnd = opts.xScale(Date.parse(d.normalTime) + d.duration) - opts.triangleSize;
             return bolus.triangle(doseEnd, doseHeight);
           },
           'stroke-width': opts.bolusStroke,
