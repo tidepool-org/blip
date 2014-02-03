@@ -1,0 +1,49 @@
+/**
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ */
+
+@patient-list-item-vertical-padding:   30px;
+@patient-list-item-horizontal-padding: @spacing-small;
+
+.patient-list-item {
+  padding: @patient-list-item-vertical-padding @patient-list-item-horizontal-padding;
+  margin-bottom: @spacing-small;
+  background: @gray-light;
+}
+
+// Empty "placeholder" list item:
+// give it about the same height as if it had data
+.patient-list-item-empty {
+  height: 80px;
+}
+
+.patient-list-item-name {
+  text-align: center;
+  font-weight: bold;
+}
+
+.patient-list-item-link {
+  // "Stretch" child <a> element to cover all of parent <li>
+  // (for bigger link target, and also for hover styles)
+  padding: @patient-list-item-vertical-padding @patient-list-item-horizontal-padding;
+  margin: -@patient-list-item-vertical-padding -@patient-list-item-horizontal-padding;
+  
+  // Hover does weird things on touch screens
+  // (list element blocks change state as you touch them to scroll down)
+  // Only enable on no-touch devices
+  .no-touch &:hover,
+  &:focus {
+    background-color: @gray;
+  }
+}

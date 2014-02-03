@@ -17,6 +17,8 @@
 var React = window.React;
 var _ = window._;
 
+var PatientList = require('../../components/patientlist');
+
 var Patients = React.createClass({
   propTypes: {
     user: React.PropTypes.object,
@@ -125,61 +127,16 @@ var Patients = React.createClass({
     return this.renderPatientList(patients);
   },
 
+  renderPatientList: function(patients) {
+    /* jshint ignore:start */
+    return (
+      <PatientList patients={patients} />
+    );
+    /* jshint ignore:end */
+  },
+
   isResettingPatientsData: function() {
     return (this.props.fetchingPatients && !this.props.patients);
-  },
-
-  renderPatientList: function(patients) {
-    var patientNodes = _.map(patients, this.renderPatientListItem);
-
-    /* jshint ignore:start */
-    return (
-      <ul className="patient-list list-group">
-        {patientNodes}
-      </ul>
-    );
-    /* jshint ignore:end */
-  },
-
-  renderPatientListItem: function(patient) {
-    var patientListItemContent;
-    var className = 'patient-list-item list-group-item js-patient';
-
-    if (_.isEmpty(patient)) {
-      className = className + ' patient-list-item-empty';
-    }
-
-    var fullName = this.getPatientFullName(patient);
-    /* jshint ignore:start */
-    patientListItemContent = (
-      <div className="patient-list-item-name">{fullName}</div>
-    );
-    /* jshint ignore:end */
-
-    if (patient.link) {
-      /* jshint ignore:start */
-      patientListItemContent = (
-        <a
-          className="patient-list-item-link list-group-item-link"
-          href={patient.link}>{patientListItemContent}</a>
-      );
-      /* jshint ignore:end */
-    }
-
-    /* jshint ignore:start */
-    return (
-      <li key={patient.id} className={className}>
-        {patientListItemContent}
-      </li>
-    );
-    /* jshint ignore:end */
-  },
-
-  getPatientFullName: function(patient) {
-    if (_.isEmpty(patient)) {
-      return '';
-    }
-    return patient.firstName + ' ' + patient.lastName;
   }
 });
 
