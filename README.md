@@ -251,9 +251,14 @@ For forms, we try as much as possible to "save optimistically", meaning when the
 
 ## Testing
 
+Rules for what to cover with unit or end-to-end tests are more or less:
+
+- **Unit** tests: All the small pieces, i.e. reusable UI **Components** and core **Services**
+- **End-to-end** tests: Higher-level app behavior, which will test the main **App** object, the **Router**, and **Pages**
+
 ### Unit tests
 
-We use [Mocha](http://visionmedia.github.io/mocha/) with [Chai](http://chaijs.com/) for the test framework, and [Testem](https://github.com/airportyh/testem) as the test runner.
+We use [Mocha](http://visionmedia.github.io/mocha/) with [Chai](http://chaijs.com/) for the test framework, [Sinon.JS](http://sinonjs.org/) and [Sinon-Chai](https://github.com/domenic/sinon-chai) for spy, stubs, and mocks, and [Testem](https://github.com/airportyh/testem) as the test runner.
 
 To run the tests locally, first install Testem:
 
