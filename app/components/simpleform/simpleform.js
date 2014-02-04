@@ -73,7 +73,9 @@ var SimpleForm = React.createClass({
     /* jshint ignore:start */
     return (
         <form className="simple-form">
-          {inputs}
+          <div className="simple-form-inputs" ref="inputs">
+            {inputs}
+          </div>
           <div className="simple-form-action-group">
             {submitButton}
             {notification}
@@ -132,7 +134,8 @@ var SimpleForm = React.createClass({
       <button
         className="simple-form-submit btn btn-primary js-form-submit"
         onClick={this.handleSubmit}
-        disabled={disabled}>{text}</button>
+        disabled={disabled}
+        ref="submitButton">{text}</button>
     );
     /* jshint ignore:end */
   },
@@ -150,7 +153,7 @@ var SimpleForm = React.createClass({
 
       /* jshint ignore:start */
       return (
-        <div className={className}>{message}</div>
+        <div className={className} ref="notification">{message}</div>
       );
       /* jshint ignore:end */
     }
@@ -168,7 +171,9 @@ var SimpleForm = React.createClass({
   },
 
   handleSubmit: function(e) {
-    e.preventDefault();
+    if (e) {
+      e.preventDefault();
+    }
 
     var submit = this.props.onSubmit;
     if (submit) {
