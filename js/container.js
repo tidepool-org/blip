@@ -1,5 +1,7 @@
 var pool = require('./pool');
 
+var tooltip = require('./plot/tooltip');
+
 module.exports = function() {
 
   var MS_IN_24 = 86400000;
@@ -16,7 +18,7 @@ module.exports = function() {
     xScale = d3.time.scale.utc(),
     xAxis = d3.svg.axis().scale(xScale).orient('top').outerTickSize(0),
     beginningOfData, endOfData, data, allData = [], buffer, endpoints, outerEndpoints, initialEndpoints,
-    mainGroup, poolGroup, scrollNav, scrollHandleTrigger = true;
+    mainGroup, poolGroup, scrollNav, scrollHandleTrigger = true, tooltips;
 
   var defaults = {
     bucket: $('#tidelineContainer'),
@@ -33,7 +35,8 @@ module.exports = function() {
     },
     axisGutter: 40,
     gutter: 30,
-    buffer: 5
+    buffer: 5,
+    tooltip: true
   };
 
   function container(selection) {
@@ -56,18 +59,6 @@ module.exports = function() {
         }
       });
 
-      // set the domain and range for the main tideline x-scale
-      xScale.domain([container.initialEndpoints[0], container.initialEndpoints[1]])
-        .range([container.axisGutter(), width]);
-
-      mainGroup.append('g')
-        .attr('class', 'd3-x d3-axis')
-        .attr('id', 'tidelineXAxis')
-        .attr('transform', 'translate(0,' + nav.axisHeight + ')')
-        .call(xAxis);
-
-      poolGroup = mainGroup.append('g').attr('id', 'tidelinePools');
-
       mainGroup.append('rect')
         .attr({
           'id': 'poolsInvisibleRect',
@@ -82,6 +73,18 @@ module.exports = function() {
           },
           'opacity': 0.0
         });
+
+      // set the domain and range for the main tideline x-scale
+      xScale.domain([container.initialEndpoints[0], container.initialEndpoints[1]])
+        .range([container.axisGutter(), width]);
+
+      mainGroup.append('g')
+        .attr('class', 'd3-x d3-axis')
+        .attr('id', 'tidelineXAxis')
+        .attr('transform', 'translate(0,' + nav.axisHeight + ')')
+        .call(xAxis);
+
+      poolGroup = mainGroup.append('g').attr('id', 'tidelinePools');
 
       mainGroup.append('g')
         .attr('id', 'tidelineLabels');
@@ -230,6 +233,7 @@ module.exports = function() {
     this.axisGutter(properties.axisGutter);
     this.gutter(properties.gutter);
     this.buffer(properties.buffer);
+    this.tooltips(properties.tooltips);
 
     return container;
   };
@@ -276,6 +280,8 @@ module.exports = function() {
         for (var i = 0; i < pools.length; i++) {
           pools[i].pan(d3.event);
         }
+        // TODO: check if container has tooltips before transforming them
+        d3.select('#d3-tooltip-group').attr('transform', 'translate(' + d3.event.translate[0] + ',0)');
         d3.select('.d3-x.d3-axis').call(xAxis);
         if (scrollHandleTrigger) {
           d3.select('#scrollHandle').transition().ease('linear').attr('cx', function(d) {
@@ -337,6 +343,13 @@ module.exports = function() {
       })
       .call(drag);
 
+    return container;
+  };
+
+  container.setTooltip = function() {
+    var tooltipGroup = mainGroup.append('g')
+      .attr('id', 'd3-tooltip-group');
+    container.tooltips = new tooltip(container, tooltipGroup).id(tooltipGroup.attr('id'));
     return container;
   };
 
@@ -562,13 +575,19 @@ module.exports = function() {
       });
     }
     allData = _.sortBy(allData, 'normalTime');
-    return pool;
+    return container;
   };
 
   container.buffer = function(x) {
     if (!arguments.length) return buffer;
     buffer = x;
-    return pool;
+    return container;
+  };
+
+  container.tooltips = function(b) {
+    if (!arguments.length) return tooltips;
+    tooltips = b;
+    return container;
   };
 
   return container;

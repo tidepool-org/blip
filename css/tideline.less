@@ -5,6 +5,7 @@
 @font-family-base: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 @font-size-labels: 16px;
 @font-size-axes: 14px;
+@font-size-tooltips: 11px;
 
 svg {
   display: block;
@@ -42,6 +43,7 @@ svg {
   }
 }
 
+// pool labels
 .d3-pool-label {
   text-transform: uppercase;
   font-weight: bold;
@@ -50,6 +52,7 @@ svg {
   baseline-shift: 30%;
 }
 
+// pool background rectangles
 .d3-rect-fill {
   &.d3-fill-darkest {
     fill: @fill-darkest;
@@ -68,10 +71,12 @@ svg {
   }
 }
 
+// carbs
 .d3-rect-carbs {
   fill: @carbs;
 }
 
+// boluses
 .d3-bolus {
   &.d3-rect-bolus {
     fill: @bolus;  
@@ -92,14 +97,29 @@ svg {
   }
 }
 
-.d3-cbg, .d3-smbg {
-  &.d3-bg-low {
-    fill: @bg-low;
+// blood glucose
+// cbg
+.d3-cbg {
+  &.d3-circle-cbg {
+    pointer-events: all;
+    &.d3-bg-low {
+      fill: @bg-low;
+    }
+    &.d3-bg-target {
+      fill: @bg-target;
+    }
+    &.d3-bg-high {
+      fill: @bg-high;
+    }
   }
-  &.d3-bg-target {
-    fill: @bg-target;
-  }
-  &.d3-bg-high {
-    fill: @bg-high;
+}
+
+// tooltips
+.d3-tooltip {
+  .d3-tooltip-text {
+    fill: @tooltips;
+    font-size: @font-size-tooltips;
+    text-anchor: middle;
+    dominant-baseline: central;
   }
 }

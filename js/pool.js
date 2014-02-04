@@ -53,6 +53,7 @@ module.exports = function(container) {
       properties = obj;
     }
     this.minHeight(properties.minHeight).maxHeight(properties.maxHeight);
+    this.tooltips(container.tooltips);
 
     return pool;
   };
@@ -179,6 +180,12 @@ module.exports = function(container) {
       plot: plotFunction
     });
     return pool;
+  };
+
+  pool.tooltips = function(x) {
+    if (!arguments.length) return tooltips;
+    tooltips = x;
+    return tooltips;
   };
 
   return pool;

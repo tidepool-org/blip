@@ -2,9 +2,9 @@ d3.json('device-data.json', function(data) {
   var container = require('../js/container')();
 
   var watson = require('./watson');
+  watson = new watson();
 
   // Watson the data
-  data = watson.data(data);
   data = watson.normalize(data);
   data = _.sortBy(data, 'normalTime');
 
@@ -15,6 +15,9 @@ d3.json('device-data.json', function(data) {
   watson.print('End', new Date(container.endpoints[1]));
 
   d3.select('#tidelineContainer').datum(container.getData()).call(container);
+
+  // set up tooltips group
+  container.setTooltip();
 
   // set up click-and-drag and scroll navigation
   container.setNav().setScrollNav();
@@ -127,4 +130,11 @@ d3.json('device-data.json', function(data) {
 
   //render messages pool
   poolMessages(poolGroup, initialData);
+
+  // add tooltips
+  container.tooltips.addGroup(d3.select('#' + poolBG.id()), 'cbg');
+  container.tooltips.addGroup(d3.select('#' + poolBG.id()), 'smbg');
+  container.tooltips.addGroup(d3.select('#' + poolBolus.id()), 'carbs');
+  container.tooltips.addGroup(d3.select('#' + poolBolus.id()), 'bolus');
+  container.tooltips.addGroup(d3.select('#' + poolBasal.id()), 'basal');
 });
