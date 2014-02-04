@@ -108,8 +108,11 @@ module.exports = function(pool, opts) {
     d3.select('#' + 'd3-tooltip-group_cbg')
       .call(tooltips, 
         d,
+        // tooltipXPos
+        opts.xScale(Date.parse(d.normalTime)),
         'cbg',
         opts.classes[category]['tooltip'], 
+        opts.tooltipSize,
         opts.tooltipSize, 
         // imageX
         opts.xScale(Date.parse(d.normalTime)), 
