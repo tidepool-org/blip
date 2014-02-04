@@ -1,0 +1,111 @@
+/**
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ */
+
+// Subnav
+// ====================================
+
+@patient-subnav-vertical-padding:  @spacing-small;
+
+.patient-subnav-inner {
+  color: #fff;
+  background-color: @gray-dark;
+}
+
+.patient-subnav-title {
+  padding-top: @patient-subnav-vertical-padding;
+  padding-bottom: @patient-subnav-vertical-padding;
+  
+  text-align: center;
+}
+
+.patient-subnav a {
+  padding-top: @patient-subnav-vertical-padding;
+  padding-bottom: @patient-subnav-vertical-padding;
+
+  color: #fff;
+  text-decoration: none;
+
+  &:hover,
+  &:focus {
+    color: @gray-darkest;
+    text-decoration: none;
+  }
+
+  &:active {
+    color: @gray;
+  }
+}
+
+// Content
+// ====================================
+
+@patient-content-width:            480px;
+@patient-content-breakpoint:       @screen-lg-min;
+
+.patient-content-outer {
+  margin-bottom: @spacing-large;
+}
+
+.patient-content-inner {
+  background-color: #fff;
+
+  padding-top: @spacing-base;
+  padding-bottom: @spacing-large;
+}
+
+.patient-content {
+  @media(min-width: @patient-content-breakpoint) {
+    margin-left: auto;
+    margin-right: auto;
+    width: @patient-content-width;
+  }
+}
+
+.patient-content-edit {
+  text-align: center;
+  margin-bottom: @spacing-small;
+}
+
+.patient-content-edit a {
+  font-weight: bold;
+  color: @gray-dark;
+  text-decoration: none;
+
+  &:hover,
+  &:focus {
+    color: @gray-darkest;
+    text-decoration: none;
+  }
+
+  &:active {
+    color: @gray;
+  }
+}
+
+// Patient attributes
+// ====================================
+
+.patient-attribute {
+  margin-bottom: @spacing-base;
+}
+
+.patient-attribute-empty .patient-attribute-value {
+  min-height: @line-height-base;
+}
+
+.patient-attribute-label {
+  color: @gray;
+  font-size: 14px;
+}

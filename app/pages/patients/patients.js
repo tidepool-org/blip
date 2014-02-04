@@ -17,6 +17,7 @@
 var React = window.React;
 var _ = window._;
 
+var user = require('../../core/user');
 var PatientList = require('../../components/patientlist');
 
 var Patients = React.createClass({
@@ -61,7 +62,7 @@ var Patients = React.createClass({
       return this.renderPatientList([{}]);
     }
 
-    patient = this.extractPatientDataFromUser(this.props.user);
+    patient = user.getPatientData(this.props.user);
 
     if (_.isEmpty(patient)) {
       /* jshint ignore:start */
@@ -81,20 +82,6 @@ var Patients = React.createClass({
 
   isResettingUserData: function() {
     return (this.props.fetchingUser && !this.props.user);
-  },
-
-  extractPatientDataFromUser: function(user) {
-    if (!user || !user.patient) {
-      return {};
-    }
-
-    return {
-      id: user.patient.id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      // For now, just add a "fake" link to patient page
-      link: '#'
-    };
   },
 
   renderSharedPatients: function() {
@@ -118,16 +105,14 @@ var Patients = React.createClass({
       /* jshint ignore:end */
     }
 
-    // For now, just add a "fake" links to patient pages
-    patients = _.map(patients, function(patient) {
-      patient.link = '#';
-      return patient;
-    });
-
     return this.renderPatientList(patients);
   },
 
   renderPatientList: function(patients) {
+    if (patients) {
+      patients = this.addLinkToPatients(patients);
+    }
+
     /* jshint ignore:start */
     return (
       <PatientList patients={patients} />
@@ -137,6 +122,15 @@ var Patients = React.createClass({
 
   isResettingPatientsData: function() {
     return (this.props.fetchingPatients && !this.props.patients);
+  },
+
+  addLinkToPatients: function(patients) {
+    return _.map(patients, function(patient) {
+      if (patient.id) {
+        patient.link = '#/patients/' + patient.id;
+      }
+      return patient;
+    });
   }
 });
 

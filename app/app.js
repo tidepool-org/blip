@@ -34,6 +34,7 @@ var Login = require('./pages/login');
 var Signup = require('./pages/signup');
 var Profile = require('./pages/profile');
 var Patients = require('./pages/patients');
+var Patient = require('./pages/patient');
 
 var app = {
   log: bows('App'),
@@ -50,7 +51,8 @@ var routes = {
   '/login': 'showLogin',
   '/signup': 'showSignup',
   '/profile': 'showProfile',
-  '/patients': 'showPatients'
+  '/patients': 'showPatients',
+  '/patients/:id': 'showPatient'
 };
 
 var noAuthRoutes = ['/login', '/signup'];
@@ -68,7 +70,9 @@ var AppComponent = React.createClass({
       fetchingUser: true,
       loggingOut: false,
       patients: null,
-      fetchingPatients: true
+      fetchingPatients: true,
+      patient: null,
+      fetchingPatient: true
     };
   },
 
@@ -238,6 +242,24 @@ var AppComponent = React.createClass({
     /* jshint ignore:end */
   },
 
+  showPatient: function(patientId) {
+    this.renderPage = this.renderPatient;
+    this.setState({page: 'patient/' + patientId});
+    this.fetchPatient(patientId);
+  },
+
+  renderPatient: function() {
+    /* jshint ignore:start */
+    return (
+      <Patient
+          user={this.state.user}
+          fetchingUser={this.state.fetchingUser}
+          patient={this.state.patient}
+          fetchingPatient={this.state.fetchingPatient}/>
+    );
+    /* jshint ignore:end */
+  },
+
   handleLoginSuccess: function() {
     this.fetchUser();
     this.setState({authenticated: true});
@@ -313,10 +335,35 @@ var AppComponent = React.createClass({
     });
   },
 
+  fetchPatient: function(patientId) {
+    var self = this;
+
+    self.setState({
+      patient: null,
+      fetchingPatient: true
+    });
+
+    app.api.patient.get(patientId, function(err, patient) {
+      if (err) {
+        // Unauthorized, or not found
+        // For now, redirect
+        self.lot('Error fetching patient with id ' + patientId);
+        self.redirectToDefaultRoute();
+        return;
+      }
+
+      self.setState({
+        patient: patient,
+        fetchingPatient: false
+      });
+    });
+  },
+
   clearUserData: function() {
     this.setState({
       user: null,
-      patients: null
+      patients: null,
+      patient: null
     });
   },
 

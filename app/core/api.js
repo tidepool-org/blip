@@ -27,7 +27,8 @@ var api = {
   },
 
   user: {},
-  patients: {}
+  patients: {},
+  patient: {}
 };
 
 // ---------- BEGIN DEMO OVERRIDES ----------
@@ -62,6 +63,16 @@ function addDemoOverrides(api) {
 
   api.patients.get = function(callback) {
     var uri = '/patients.json';
+    api.log('[demo] GET ' + uri);
+    setTimeout(function() {
+      api._get(uri, callback);
+    }, config.DEMO_DELAY);
+  };
+
+  // ----- Patient -----
+
+  api.patient.get = function(patientId, callback) {
+    var uri = '/patients/' + patientId + '.json';
     api.log('[demo] GET ' + uri);
     setTimeout(function() {
       api._get(uri, callback);

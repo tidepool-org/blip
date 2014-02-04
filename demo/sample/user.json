@@ -3,7 +3,5 @@
   "username": "mary.smith@example.com",
   "firstName": "Mary",
   "lastName": "Smith",
-  "patient": {
-    "id": "11"
-  }
+  "patient": {"id": "11"}
 }

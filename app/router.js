@@ -43,7 +43,7 @@ var configuration = {
 
   on: function() {
     var route = router.getRoute();
-    router.log('Route /' + route);
+    router.log('Route /' + route.join('/'));
   }
 };
 

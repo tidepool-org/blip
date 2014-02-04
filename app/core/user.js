@@ -117,6 +117,19 @@ var user = {
     }
 
     return error;
+  },
+
+  getPatientData: function(attributes) {
+    if (!(attributes && attributes.patient)) {
+      return {};
+    }
+
+    var patient = _.extend(attributes.patient, {
+      firstName: attributes.firstName,
+      lastName: attributes.lastName
+    });
+
+    return patient;
   }
 };
 
