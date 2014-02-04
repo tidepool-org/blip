@@ -1,37 +1,32 @@
-// 'Good old Watson! You are the one fixed point in a changing age.' - Sherlock Holmes, His Last Bow
+// 'Good old Watson! You are the one fixed point in a changing age.' - Sherlock Holmes, "His Last Bow"
 
-var data = function(a) {
-  messages = _.where(a, {'type': 'message'});
-  watson = _.map(_.reject(a, function(i) {
-    if (i.type === 'message') {
+module.exports = function() {
+
+  function watson() {
+    console.log("Start her up, Watson, for it's time that we were on our way.");
+  }
+
+  watson.normalize = function(a) {
+    return _.map(a, function(i) {
+      i.normalTime = i.deviceTime + 'Z';
+      if (i.utcTime) {
+        var d = new Date(i.utcTime);
+        var offsetMinutes = d.getTimezoneOffset();
+        d.setMinutes(d.getMinutes() - offsetMinutes);
+        i.normalTime = d.toISOString();
+      }
       return i;
-    }}), function(i) {
-      i.deviceTime = i.deviceTime + 'Z';
-      return i;
-  });
+    });
+  };
 
-  return watson.concat(messages);
+  watson.print = function(arg, d) {
+    console.log(arg, d.toUTCString().replace(' GMT', ''));
+    return;
+  };
+
+  watson.strip = function(d) {
+    return d.toUTCString().replace(' GMT', '');
+  };
+
+  return watson;
 };
-
-var normalize = function(a) {
-  return _.map(a, function(i) {
-    i.normalTime = i.deviceTime;
-    if (!i.normalTime) {
-      i.normalTime = i.utcTime;
-    }
-    return i;
-  });
-};
-
-var print = function(arg, d) {
-  console.log(arg, d.toUTCString().replace(' GMT', ''));
-};
-
-var strip = function(d) {
-  return d.toUTCString().replace(' GMT', '');
-};
-
-module.exports.data = data;
-module.exports.normalize = normalize;
-module.exports.print = print;
-module.exports.strip = strip;
