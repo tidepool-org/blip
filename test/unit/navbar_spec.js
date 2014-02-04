@@ -1,7 +1,5 @@
-var expect = chai.expect;
-var helpers = require('../lib/unithelpers');
-
 var Navbar = require('../../app/components/navbar');
+var demoUser = require('../../demo/sample/user.json');
 
 describe('Navbar', function() {
   var component;
@@ -15,6 +13,15 @@ describe('Navbar', function() {
     helpers.unmountComponent();
   });
 
+  it('should display logo image from correct endpoint', function() {
+    var imagesEndpoint = 'images/navbar/';
+ 
+    component.setProps({imagesEndpoint: imagesEndpoint});
+    var src = component.refs.logo.props.src;
+
+    expect(src).to.contain(imagesEndpoint);
+  });
+
   it('should correctly display app version number', function() {
     var versionNumber = '0.0.0';
     var expectedVersion = 'v' + versionNumber;
@@ -23,5 +30,43 @@ describe('Navbar', function() {
     var renderedVersion = component.refs.version.props.children;
 
     expect(renderedVersion).to.equal(expectedVersion);
+  });
+
+  it('should not show user if none given', function() {
+    component.setProps({user: null});
+    var userNode = component.refs.user;
+
+    expect(userNode).to.not.exist;
+  });
+
+  it('should show user if object given', function() {
+    component.setProps({user: demoUser});
+    var userNode = component.refs.user;
+
+    expect(userNode).to.exist;
+  });
+
+  it('should correctly display user full name', function() {
+    var user = demoUser;
+    var expectedFullName = user.firstName + ' ' + user.lastName;
+
+    component.setProps({user: user});
+    var fullName = component.refs.userFullName.props.children;
+
+    expect(fullName).to.equal(expectedFullName);
+  });
+
+  it('should call callback when logout clicked', function() {
+    var user = demoUser;
+    var handleLogout = sinon.spy();
+ 
+    component.setProps({
+      user: user,
+      onLogout: handleLogout
+    });
+    var clickLogout = component.refs.logout.props.onClick;
+    clickLogout();
+
+    expect(handleLogout).to.have.been.called;
   });
 });

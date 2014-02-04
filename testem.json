@@ -1,11 +1,12 @@
 {
-  "framework": "mocha+chai",
+  "framework": "mocha",
   "src_files": [
     "app/**/*.js",
     "test/**/*.js"
   ],
   "serve_files": [
     "tmp/test/vendor/*.js",
+    "tmp/test/setup.js",
     "tmp/test/unit/*.js"
   ],
   "before_tests": "gulp before-tests",

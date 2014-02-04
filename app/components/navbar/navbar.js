@@ -27,6 +27,7 @@ var Navbar = React.createClass({
   },
 
   render: function() {
+    window.navbar = this;
     var logo = this.renderLogo();
     var version = this.renderVersion();
     var user = this.renderUser();
@@ -55,7 +56,7 @@ var Navbar = React.createClass({
         <a
           href="#/"
           className="navbar-logo">
-          <img src={imageSource} alt="Blip"/>
+          <img src={imageSource} alt="Blip" ref="logo" />
         </a>
       </li>
     );
@@ -88,12 +89,12 @@ var Navbar = React.createClass({
     
     return (
       /* jshint ignore:start */
-      <ul className="nav nav-right navbar-user js-navbar-user">
+      <ul className="nav nav-right navbar-user js-navbar-user" ref="user">
         <li>
           <a href="#/profile" className="navbar-label-link js-navbar-profile-link" title="Account">
             <div className="navbar-label navbar-label-right">
               {'Logged in as '}
-              <span className="navbar-user-name">{fullName}</span>
+              <span className="navbar-user-name" ref="userFullName">{fullName}</span>
             </div>
             <div className="navbar-label-arrow-right"></div>
           </a>
@@ -103,7 +104,7 @@ var Navbar = React.createClass({
             href=""
             className="navbar-user-icon"
             onClick={this.handleLogout}
-            title="Logout"><i className="icon-logout"></i>
+            title="Logout" ref="logout"><i className="icon-logout"></i>
           </a>
         </li>
       </ul>
@@ -116,7 +117,10 @@ var Navbar = React.createClass({
   },
 
   handleLogout: function(e) {
-    e.preventDefault();
+    if (e) {
+      e.preventDefault();
+    }
+    
     var logout = this.props.onLogout;
     if (logout) {
       logout();

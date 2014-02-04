@@ -4,7 +4,9 @@ var container;
 
 var helpers = {
   mountComponent: function(component) {
-    container = document.createElement('div');
+    if (!container) {
+      container = document.createElement('div');
+    }
     document.documentElement.appendChild(container);
     React.renderComponent(component, container);
   },

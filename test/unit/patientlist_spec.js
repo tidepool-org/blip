@@ -1,7 +1,3 @@
-var expect = chai.expect;
-var _ = window._;
-var helpers = require('../lib/unithelpers');
-
 var PatientList = require('../../app/components/patientlist');
 var demoPatients = require('../../demo/sample/patients.json');
 

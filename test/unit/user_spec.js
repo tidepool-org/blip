@@ -1,6 +1,3 @@
-var expect = chai.expect;
-var _ = window._;
-
 var user = require('../../app/core/user');
 var demoUser = require('../../demo/sample/user.json');
 

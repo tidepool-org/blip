@@ -1,6 +1,3 @@
-var expect = chai.expect;
-var helpers = require('../lib/unithelpers');
-
 var InputGroup = require('../../app/components/inputgroup');
 
 describe('InputGroup', function() {

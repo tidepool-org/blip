@@ -146,6 +146,15 @@ gulp.task('before-tests-vendor', function() {
     .pipe(gulp.dest('tmp/test/vendor'));
 });
 
+gulp.task('before-tests-setup', function() {
+  return gulp.src('test/lib/unitsetup.js')
+    .pipe(browserify({
+      debug: true
+    }))
+    .pipe(concat('setup.js'))
+    .pipe(gulp.dest('tmp/test'));
+});
+
 gulp.task('before-tests-unit', function() {
   return gulp.src('test/unit/**/*.js')
     .pipe(browserify({
@@ -155,6 +164,10 @@ gulp.task('before-tests-unit', function() {
     .pipe(gulp.dest('tmp/test/unit'));
 });
 
-gulp.task('before-tests', ['before-tests-vendor', 'before-tests-unit']);
+gulp.task('before-tests', [
+  'before-tests-vendor',
+  'before-tests-setup',
+  'before-tests-unit'
+]);
 
 gulp.task('default', ['build']);
