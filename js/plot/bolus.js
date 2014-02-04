@@ -1,4 +1,5 @@
 var watson = require('../../example/watson');
+watson = new watson();
 
 module.exports = function(pool, opts) {
 
@@ -67,7 +68,7 @@ module.exports = function(pool, opts) {
           },
           'class': 'd3-rect-recommended d3-bolus',
           'id': function(d) {
-            return d.normalTime + ' ' + d.value + ' ' + d.recommended + ' recommended';
+            return d.deviceTime + ' ' + d.value + ' ' + d.recommended + ' recommended';
           }
         });
       // boluses where delivered > recommended
@@ -105,7 +106,7 @@ module.exports = function(pool, opts) {
           'stroke-width': opts.bolusStroke,
           'class': 'd3-path-bolus d3-bolus',
           'id': function(d) {
-            return d.normalTime + ' ' + d.value + ' ' + d.recommended + ' recommended';
+            return d.deviceTime + ' ' + d.value + ' ' + d.recommended + ' recommended';
           }
         });
       // square- and dual-wave boluses
@@ -125,7 +126,7 @@ module.exports = function(pool, opts) {
           'stroke-width': opts.bolusStroke,
           'class': 'd3-path-extended d3-bolus',
           'id': function(d) {
-            return d.normalTime + ' ' + d.extendedDelivery + ' ' + ' ended at ' + watson.strip(new Date(opts.xScale.invert(opts.xScale(Date.parse(d.normalTime) + d.duration))));
+            return d.deviceTime + ' ' + d.extendedDelivery + ' ' + ' ended at ' + watson.strip(new Date(opts.xScale.invert(opts.xScale(Date.parse(d.normalTime) + d.duration))));
           }
         });
       extendedBoluses.append('path')
@@ -138,7 +139,7 @@ module.exports = function(pool, opts) {
           'stroke-width': opts.bolusStroke,
           'class': 'd3-path-extended-triangle d3-bolus',
           'id': function(d) {
-            return d.normalTime + ' ' + d.extendedDelivery + ' ' + ' ended at ' + watson.strip(new Date(opts.xScale.invert(opts.xScale(Date.parse(d.normalTime) + d.duration))));
+            return d.deviceTime + ' ' + d.extendedDelivery + ' ' + ' ended at ' + watson.strip(new Date(opts.xScale.invert(opts.xScale(Date.parse(d.normalTime) + d.duration))));
           }
         });
       boluses.exit().remove();
