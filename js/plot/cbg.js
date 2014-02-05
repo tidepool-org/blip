@@ -83,6 +83,7 @@ module.exports = function(pool, opts) {
           }
         })
         .classed({'d3-circle-cbg': true, 'd3-bg-high': true});
+      allCBG.exit().remove();
 
       // tooltips
       d3.selectAll('.d3-circle-cbg').on('mouseover', function() {
@@ -100,7 +101,6 @@ module.exports = function(pool, opts) {
         var id = d3.select(this).attr('id').replace('cbg_', 'tooltip_');
         d3.select('#' + id).remove();
       });
-      allCBG.exit().remove();
     });
   }
 
@@ -111,6 +111,8 @@ module.exports = function(pool, opts) {
         // tooltipXPos
         opts.xScale(Date.parse(d.normalTime)),
         'cbg',
+        // timestamp
+        false,
         opts.classes[category]['tooltip'], 
         opts.tooltipSize,
         opts.tooltipSize, 

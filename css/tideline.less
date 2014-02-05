@@ -5,7 +5,8 @@
 @font-family-base: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 @font-size-labels: 16px;
 @font-size-axes: 14px;
-@font-size-tooltips: 11px;
+@font-size-small-tooltips: 11px;
+@font-size-large-tooltips: 14px;
 
 svg {
   display: block;
@@ -118,8 +119,16 @@ svg {
 .d3-tooltip {
   .d3-tooltip-text {
     fill: @tooltips;
-    font-size: @font-size-tooltips;
+    font-size: @font-size-small-tooltips;
     text-anchor: middle;
     dominant-baseline: central;
+    &.d3-smbg {
+      font-size: @font-size-large-tooltips;
+      font-weight: bold;
+    }
+  }
+  .d3-tooltip-rect {
+    fill: @fill-lightest;
+    opacity: 0.5;
   }
 }
