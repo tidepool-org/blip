@@ -133,6 +133,15 @@ describe('Tidepool Dates', function() {
 
         done();
       });
+      it('should "convert" to UTC time with a timezoneOffset of 0', function(){
+        var TidepoolDateTime, tpDateTime, convertedUTC, isUTC;
+
+        TidepoolDateTime = require('../lib/');
+
+        tpDateTime = new TidepoolDateTime();
+        convertedUTC = tpDateTime.convertToAdjustedUTC('02/05/14T01:01:01', 'MM/DD/YYTHH:mm:ss', 0);
+        convertedUTC.should.equal('2014-02-05T01:01:01+00:00');
+      });
       it('should use the given offset when the date does no include it and be utc',function(done){
         var TidepoolDateTime, tpDateTime, convertedUTC, isUTC;
 
