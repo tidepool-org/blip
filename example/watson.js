@@ -15,6 +15,9 @@ module.exports = function() {
         d.setMinutes(d.getMinutes() - offsetMinutes);
         i.normalTime = d.toISOString();
       }
+      else if (i.type === 'basal-rate-segment') {
+        i.normalTime = i.start;
+      }
       return i;
     });
   };
