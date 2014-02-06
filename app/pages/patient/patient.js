@@ -17,6 +17,8 @@
 var React = window.React;
 var _ = window._;
 
+var user = require('../../core/user');
+
 var Patient = React.createClass({
   propTypes: {
     user: React.PropTypes.object,
@@ -82,10 +84,16 @@ var Patient = React.createClass({
       return null;
     }
 
+    var editUrl = [
+      '#/patients',
+      this.props.patient.id,
+      'edit'
+    ].join('/');
+
     /* jshint ignore:start */
     return (
       <div className="patient-content-edit">
-        <a href="#">
+        <a href={editUrl}>
           <i className="icon-profile"></i>
           {' ' + 'Edit patient profile'}
         </a>
@@ -95,15 +103,7 @@ var Patient = React.createClass({
   },
 
   isUserPatient: function() {
-    var user = this.props.user || {};
-    var userPatient = user.patient || {};
-    var patient = this.props.patient || {};
-
-    if (!(patient.id && userPatient.id)) {
-      return false;
-    }
-
-    return (patient.id === userPatient.id);
+    return user.isUserPatient(this.props.user, this.props.patient);
   },
 
   renderPatient: function() {
@@ -149,7 +149,7 @@ var Patient = React.createClass({
       </div>
     );
     /* jshint ignore:end */
-  },
+  }
 });
 
 module.exports = Patient;

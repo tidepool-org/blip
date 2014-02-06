@@ -13,20 +13,4 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-@import "core/core.less";
-
-@import "components/navbar/navbar.less";
-@import "components/notification/notification.less";
-@import "components/inputgroup/inputgroup.less";
-@import "components/simpleform/simpleform.less";
-@import "components/logoutoverlay/logoutoverlay.less";
-@import "components/loginnav/loginnav.less";
-@import "components/loginlogo/loginlogo.less";
-@import "components/patientlist/patientlist.less";
-
-@import "pages/login/login.less";
-@import "pages/signup/signup.less";
-@import "pages/profile/profile.less";
-@import "pages/patients/patients.less";
-@import "pages/patient/patient.less";
-@import "pages/patientedit/patientedit.less";
+module.exports = require('./patientedit');

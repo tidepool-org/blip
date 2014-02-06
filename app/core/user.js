@@ -130,6 +130,18 @@ var user = {
     });
 
     return patient;
+  },
+
+  isUserPatient: function(userAttr, patientAttr) {
+    userAttr = userAttr || {};
+    var userPatientAttr = userAttr.patient || {};
+    patientAttr = patientAttr || {};
+
+    if (!(patientAttr.id && userPatientAttr.id)) {
+      return false;
+    }
+
+    return (patientAttr.id === userPatientAttr.id);
   }
 };
 

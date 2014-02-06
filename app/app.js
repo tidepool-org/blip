@@ -35,6 +35,9 @@ var Signup = require('./pages/signup');
 var Profile = require('./pages/profile');
 var Patients = require('./pages/patients');
 var Patient = require('./pages/patient');
+var PatientEdit = require('./pages/patientedit');
+
+var DEBUG = window.localStorage && window.localStorage.debug;
 
 var app = {
   log: bows('App'),
@@ -52,13 +55,30 @@ var routes = {
   '/signup': 'showSignup',
   '/profile': 'showProfile',
   '/patients': 'showPatients',
-  '/patients/:id': 'showPatient'
+  '/patients/:id': 'showPatient',
+  '/patients/:id/edit': 'showPatientEdit'
 };
 
 var noAuthRoutes = ['/login', '/signup'];
 
 var defaultNotAuthenticatedRoute = '/login';
 var defaultAuthenticatedRoute = '/patients';
+
+// Shallow difference of two objects
+// Returns all attributes and their values in `destination`
+// that have different values from `source`
+function objectDifference(destination, source) {
+  var result = {};
+
+  _.forEach(source, function(sourceValue, key) {
+    var destinactionValue = destination[key];
+    if (!_.isEqual(sourceValue, destinactionValue)) {
+      result[key] = destinactionValue;
+    }
+  });
+
+  return result;
+}
 
 var AppComponent = React.createClass({
   getInitialState: function() {
@@ -103,6 +123,17 @@ var AppComponent = React.createClass({
       defaultAuthenticatedRoute: defaultAuthenticatedRoute
     });
     app.router.start();
+  },
+
+  componentWillUpdate: function(nextProps, nextState) {
+    // Called on props or state changes
+    // Since app main component has no props,
+    // this will be called on a state change
+    app.log('State changed');
+    if (DEBUG) {
+      var stateDiff = objectDifference(nextState, this.state);
+      app.log(stateDiff);
+    }
   },
 
   render: function() {
@@ -244,11 +275,25 @@ var AppComponent = React.createClass({
 
   showPatient: function(patientId) {
     this.renderPage = this.renderPatient;
-    this.setState({page: 'patient/' + patientId});
+    this.setState({
+      page: 'patient/' + patientId,
+      // Reset patient object to avoid showing previous one
+      patient: null,
+      // Indicate renderPatient() that we are fetching the patient
+      // (important to have this on next render)
+      fetchingPatient: true
+    });
     this.fetchPatient(patientId);
   },
 
   renderPatient: function() {
+    // On each state change check if patient object was returned from server
+    if (this.isDoneFetchingAndNotFoundPatient()) {
+      app.log('Patient not found');
+      this.redirectToDefaultRoute();
+      return;
+    }
+
     /* jshint ignore:start */
     return (
       <Patient
@@ -258,6 +303,63 @@ var AppComponent = React.createClass({
           fetchingPatient={this.state.fetchingPatient}/>
     );
     /* jshint ignore:end */
+  },
+
+  isDoneFetchingAndNotFoundPatient: function() {
+    // Wait for patient object to come back from server
+    if (this.state.fetchingPatient) {
+      return false;
+    }
+
+    return !this.state.patient;
+  },
+
+  showPatientEdit: function(patientId) {
+    this.renderPage = this.renderPatientEdit;
+    this.setState({
+      page: 'patient/' + patientId + '/edit',
+      // Reset patient object to avoid showing previous one
+      patient: null,
+      // Indicate renderPatientEdit() that we are fetching the patient
+      // (important to have this on next render)
+      fetchingPatient: true
+    });
+    this.fetchPatient(patientId);
+  },
+
+  renderPatientEdit: function() {
+    // On each state change check if user can edit this patient
+    if (this.isDoneFetchingAndNotUserPatient()) {
+      var patientId = this.state.patient && this.state.patient.id;
+      var route = '/patients';
+      if (patientId) {
+        route = route + '/' + patientId;
+      }
+      app.log('Not allowed to edit patient with id ' + patientId);
+      app.router.setRoute(route);
+      return;
+    }
+
+    /* jshint ignore:start */
+    return (
+      <PatientEdit
+          user={this.state.user}
+          fetchingUser={this.state.fetchingUser}
+          patient={this.state.patient}
+          fetchingPatient={this.state.fetchingPatient}
+          onValidate={this.validatePatient}
+          onSubmit={this.updatePatient}/>
+    );
+    /* jshint ignore:end */
+  },
+
+  isDoneFetchingAndNotUserPatient: function(patientId) {
+    // Wait to have both user and patient objects back from server
+    if (this.state.fetchingUser || this.state.fetchingPatient) {
+      return false;
+    }
+
+    return !user.isUserPatient(this.state.user, this.state.patient);
   },
 
   handleLoginSuccess: function() {
@@ -338,17 +440,13 @@ var AppComponent = React.createClass({
   fetchPatient: function(patientId) {
     var self = this;
 
-    self.setState({
-      patient: null,
-      fetchingPatient: true
-    });
+    self.setState({fetchingPatient: true});
 
     app.api.patient.get(patientId, function(err, patient) {
       if (err) {
         // Unauthorized, or not found
-        // For now, redirect
-        self.lot('Error fetching patient with id ' + patientId);
-        self.redirectToDefaultRoute();
+        app.log('Error fetching patient with id ' + patientId);
+        self.setState({fetchingPatient: false});
         return;
       }
 
@@ -389,6 +487,17 @@ var AppComponent = React.createClass({
       }
       self.setState({user: user});
     });
+  },
+
+  validatePatient: function(patient) {
+    console.log('TODO: App#validatePatient');
+    return {};
+  },
+
+  updatePatient: function(patient) {
+    console.log('TODO: App#updatePatient');
+    patient = _.assign(_.cloneDeep(this.state.patient), patient);
+    this.setState({patient: patient});
   }
 });
 

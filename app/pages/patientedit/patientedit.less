@@ -1,0 +1,89 @@
+/**
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ */
+
+// Subnav
+// ====================================
+
+@patient-edit-subnav-vertical-padding:  @spacing-small;
+
+.patient-edit-subnav-inner {
+  color: #fff;
+  background-color: @gray-dark;
+}
+
+.patient-edit-subnav-title {
+  padding-top: @patient-edit-subnav-vertical-padding;
+  padding-bottom: @patient-edit-subnav-vertical-padding;
+  
+  text-align: center;
+}
+
+.patient-edit-subnav a {
+  display: inline-block;
+  padding-top: @patient-edit-subnav-vertical-padding;
+  padding-bottom: @patient-edit-subnav-vertical-padding;
+
+  color: #fff;
+  text-decoration: none;
+
+  &:hover,
+  &:focus {
+    color: @gray-darkest;
+    text-decoration: none;
+  }
+
+  &:active {
+    color: @gray;
+  }
+}
+
+// Content
+// ====================================
+
+@patient-edit-content-width:               260px;
+// Match `.container-small` breakpoint
+@patient-edit-content-breakpoint:          (2*130px + @profile-form-width);
+
+.patient-edit-content-outer {
+  margin-bottom: @spacing-large;
+}
+
+.patient-edit-content-inner {
+  background-color: #fff;
+
+  padding-top: @spacing-base;
+  padding-bottom: @spacing-large;
+}
+
+.patient-edit-content {
+  @media(min-width: @patient-edit-content-breakpoint) {
+    margin-left: auto;
+    margin-right: auto;
+    width: @patient-edit-content-width;
+  }
+}
+
+// Patient name
+// ====================================
+
+.patient-edit-name {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: @spacing-base;
+}
+
+.patient-edit-name-empty {
+  min-height: @line-height-base;
+}
