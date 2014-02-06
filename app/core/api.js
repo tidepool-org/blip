@@ -79,6 +79,18 @@ function addDemoOverrides(api) {
     }, config.DEMO_DELAY);
   };
 
+  api.patient.put = function(patientId, patient, callback) {
+    var uri = '/patients/' + patientId + '.json';
+    api.log('[demo] PUT ' + uri);
+    setTimeout(function() {
+      var err;
+      if (config.DEMO_VARIANT === 'api.patient.put.error') {
+        err = true;
+      }
+      callback(err, patient);
+    }, config.DEMO_DELAY);
+  };
+
   // ----- Private methods -----
 
   api._url = function(uri) {

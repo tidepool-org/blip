@@ -475,6 +475,8 @@ var AppComponent = React.createClass({
     var self = this;
     var previousUser = this.state.user;
 
+    user = _.assign(_.cloneDeep(this.state.user), user);
+
     // Optimistic update
     self.setState({user: user});
 
@@ -496,9 +498,25 @@ var AppComponent = React.createClass({
   },
 
   updatePatient: function(patient) {
-    console.log('TODO: App#updatePatient');
+    var self = this;
+    var previousPatient = this.state.patient;
+
     patient = _.assign(_.cloneDeep(this.state.patient), patient);
-    this.setState({patient: patient});
+
+    // Optimistic update
+    self.setState({patient: patient});
+
+    app.api.patient.put(patient.id, patient, function(err, patient) {
+      if (err) {
+        self.setState({
+          notification: err.message || 'An error occured while saving patient.'
+        });
+        // Rollback
+        self.setState({patient: previousPatient});
+        return;
+      }
+      self.setState({patient: patient});
+    });
   }
 });
 

@@ -33,7 +33,7 @@ var PatientEdit = React.createClass({
     {
       name: 'diagnosisYear',
       label: 'Year of diagnosis *',
-      type: 'text',
+      type: 'number',
       placeholder: 'YYYY'
     },
     {
