@@ -23,6 +23,7 @@ var router = require('./router');
 var auth = require('./core/auth');
 var api = require('./core/api');
 var user = require('./core/user');
+var patient = require('./core/patient');
 
 var detectTouchScreen = require('./core/notouch');
 
@@ -44,6 +45,7 @@ var app = {
   auth: auth,
   api: api,
   user: user,
+  patient: patient,
   router: router
 };
 
@@ -490,8 +492,7 @@ var AppComponent = React.createClass({
   },
 
   validatePatient: function(patient) {
-    console.log('TODO: App#validatePatient');
-    return {};
+    return app.patient.validate(patient);
   },
 
   updatePatient: function(patient) {

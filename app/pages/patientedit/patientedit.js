@@ -161,7 +161,45 @@ var PatientEdit = React.createClass({
   },
 
   handleSubmit: function(formValues) {
+    var self = this;
+
+    this.resetFormStateBeforeSubmit(formValues);
+
+    var validationErrors = this.validateFormValues(formValues);
+    if (!_.isEmpty(validationErrors)) {
+      return;
+    }
+
     this.submitFormValues(formValues);
+  },
+
+  resetFormStateBeforeSubmit: function(formValues) {
+    this.setState({
+      formValues: formValues,
+      validationErrors: {},
+      notification: null
+    });
+    clearTimeout(this.messageTimeoutId);
+  },
+
+  validateFormValues: function(formValues) {
+    var validationErrors = {};
+    var validate = this.props.onValidate;
+
+    formValues = _.clone(formValues);
+
+    validationErrors = validate(formValues);
+    if (!_.isEmpty(validationErrors)) {
+      this.setState({
+        validationErrors: validationErrors,
+        notification: {
+          type: 'error',
+          message:'Some entries are invalid.'
+        }
+      });
+    }
+
+    return validationErrors;
   },
 
   submitFormValues: function(formValues) {
