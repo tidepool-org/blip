@@ -103,6 +103,7 @@ var SimpleForm = React.createClass({
     var label = input.label;
     var value = this.state.formValues[name];
     var error = this.props.validationErrors[name];
+    var placeholder = input.placeholder;
     var disabled = this.props.disabled || input.disabled;
     
     /* jshint ignore:start */
@@ -114,6 +115,7 @@ var SimpleForm = React.createClass({
         value={value}
         error={error}
         type={type}
+        placeholder={placeholder}
         disabled={disabled}
         onChange={this.handleChange}/>
     );

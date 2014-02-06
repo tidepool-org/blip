@@ -28,9 +28,20 @@ var PatientEdit = React.createClass({
   },
 
   formInputs: [
-    {name: 'birthday', label: 'Date of birth *'},
-    {name: 'diagnosisYear', label: 'Year of diagnosis *'},
-    {name: 'aboutMe', label: 'About me'}
+    {name: 'birthday', label: 'Date of birth *', type: 'date'},
+    {
+      name: 'diagnosisYear',
+      label: 'Year of diagnosis *',
+      type: 'number',
+      placeholder: 'YYYY'
+    },
+    {
+      name: 'aboutMe',
+      label: 'About me',
+      type: 'textarea',
+      placeholder: 'Anything you would like to share about yourself ' +
+                   'in your profile?'
+    }
   ],
 
   MESSAGE_TIMEOUT: 2000,
@@ -150,15 +161,6 @@ var PatientEdit = React.createClass({
   },
 
   handleSubmit: function(formValues) {
-    var self = this;
-
-    // this.resetFormStateBeforeSubmit(formValues);
-
-    // var validationErrors = this.validateFormValues(formValues);
-    // if (!_.isEmpty(validationErrors)) {
-    //   return;
-    // }
-
     this.submitFormValues(formValues);
   },
 

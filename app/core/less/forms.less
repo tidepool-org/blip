@@ -29,20 +29,22 @@ label,
 // Form controls
 // ====================================
 
+@form-control-border-size:   2px;
 @form-control-border-color:  @gray-light;
+@form-control-height:        (2*@line-height-base);
 
 .form-control {
   display: block;
   width: 100%;
 
-  min-height: (2*@line-height-base);
   font-size: @font-size-base;
+  height: @form-control-height;
   line-height: @line-height-base;
   vertical-align: middle;
 
-  padding: 0 @spacing-tiny;
+  padding: ((@form-control-height - @line-height-base)/2 - @form-control-border-size) @spacing-tiny;
 
-  border: 2px solid @form-control-border-color;
+  border: @form-control-border-size solid @form-control-border-color;
   border-radius: 0px;
 
   color: #000;
@@ -60,6 +62,21 @@ label,
     
     border-color: @blue-green;
   }
+
+  // Reset height for `textarea`s
+  textarea& {
+    height: auto;
+  }
+}
+
+// Special styles for iOS date input
+//
+// In Mobile Safari, date inputs require a pixel line-height that matches the
+// given height of the input.
+input[type="date"] {
+  line-height: @form-control-height;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 // Form groups

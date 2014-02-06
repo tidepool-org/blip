@@ -24,9 +24,13 @@ var InputGroup = React.createClass({
     value: React.PropTypes.string,
     error: React.PropTypes.string,
     type: React.PropTypes.string,
+    placeholder: React.PropTypes.string,
+    rows: React.PropTypes.number,
     disabled: React.PropTypes.bool,
     onChange: React.PropTypes.func
   },
+
+  DEFAULT_TEXTAREA_ROWS: 3,
 
   render: function() {
     var className = this.getClassName();
@@ -66,17 +70,43 @@ var InputGroup = React.createClass({
   },
 
   renderInput: function() {
+    var type = this.props.type;
+
+    if (type === 'textarea') {
+      return this.renderTextArea();
+    }
+    
     return (
       /* jshint ignore:start */
       <input
-        type={this.props.type}
+        type={type}
         className="input-group-control form-control"
         id={this.props.name}
         name={this.props.name}
         value={this.props.value}
+        placeholder={this.props.placeholder}
         onChange={this.props.onChange}
         disabled={this.props.disabled}
         ref="control"/>
+      /* jshint ignore:end */
+    );
+  },
+
+  renderTextArea: function() {
+    var rows = this.props.rows || this.DEFAULT_TEXTAREA_ROWS;
+
+    return (
+      /* jshint ignore:start */
+      <textarea
+        className="input-group-control form-control"
+        id={this.props.name}
+        name={this.props.name}
+        value={this.props.value}
+        placeholder={this.props.placeholder}
+        rows={rows}
+        onChange={this.props.onChange}
+        disabled={this.props.disabled}
+        ref="control"></textarea>
       /* jshint ignore:end */
     );
   },
