@@ -8,7 +8,8 @@ var files = {
       'bower_components/director/build/director.js',
       'bower_components/lodash/dist/lodash.js',
       'bower_components/bows/dist/bows.js',
-      'bower_components/superagent/superagent.js'
+      'bower_components/superagent/superagent.js',
+      'bower_components/moment/moment.js'
     ]
   },
 

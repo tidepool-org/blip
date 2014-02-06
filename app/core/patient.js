@@ -14,19 +14,53 @@
  */
 
 var _ = window._;
+var moment = window.moment;
 
 var validation = require('./lib/validation');
+
+var MAX_ABOUTME_LENGTH = 256;
+var DATE_FORMAT = 'YYYY-MM-DD';
 
 var patient = {};
 
 _.assign(patient, validation.mixin);
 
-var patientValidators = {};
+var patientValidators = {
+  isValidYear: function() {
+    return function(value) {
+      var error = 'Not a valid year.';
+      
+      if (value.length < 4) {
+        return error;
+      }
+
+      var isPositiveInteger = parseInt(value, 10) > 0;
+      if (!isPositiveInteger) {
+        return error;
+      }
+    };
+  }
+};
 
 _.assign(patient, {
   _attributes: {
-    birthday: {validate: validation.required()},
-    diagnosisYear: {validate: validation.required()}
+    birthday: {
+      validate: validation.series([
+        validation.required(),
+        validation.isValidDate()
+      ])
+    },
+    diagnosisYear: {
+      validate: validation.series([
+        validation.required(),
+        patientValidators.isValidYear()
+      ])
+    },
+    aboutMe: {validate: validation.hasLengthLessThan(MAX_ABOUTME_LENGTH)}
+  },
+
+  formatDate: function(value) {
+    return moment(value).format(DATE_FORMAT);
   }
 });
 

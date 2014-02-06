@@ -55,12 +55,32 @@ You can define your own validator factories:
 */
 
 var _ = window._;
+var moment = window.moment;
 
 var validation = {
   required: function() {
     return function(value) {
       if (!value) {
         return 'This field is required.';
+      }
+    };
+  },
+
+  isValidDate: function() {
+    return function(value) {
+      var m = moment(value);
+      // Be careful, if `value` is empty, `m` can be null
+      var isValid = m && m.isValid();
+      if (!isValid) {
+        return 'Not a valid date.';
+      }
+    };
+  },
+
+  hasLengthLessThan: function(maxLength) {
+    return function(value) {
+      if (value.length > maxLength) {
+        return 'Please keep value under ' + maxLength + ' characters.';
       }
     };
   },

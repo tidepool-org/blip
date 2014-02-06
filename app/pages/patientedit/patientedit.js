@@ -18,6 +18,7 @@ var React = window.React;
 var _ = window._;
 
 var SimpleForm = require('../../components/simpleform');
+var patient = require('../../core/patient');
 
 var PatientEdit = React.createClass({
   propTypes: {
@@ -32,7 +33,7 @@ var PatientEdit = React.createClass({
     {
       name: 'diagnosisYear',
       label: 'Year of diagnosis *',
-      type: 'number',
+      type: 'text',
       placeholder: 'YYYY'
     },
     {
@@ -187,6 +188,7 @@ var PatientEdit = React.createClass({
     var validate = this.props.onValidate;
 
     formValues = _.clone(formValues);
+    formValues = this.formatUserInput(formValues);
 
     validationErrors = validate(formValues);
     if (!_.isEmpty(validationErrors)) {
@@ -202,9 +204,18 @@ var PatientEdit = React.createClass({
     return validationErrors;
   },
 
+  formatUserInput: function(formValues) {
+    if (formValues.birthday) {
+      formValues.birthday = patient.formatDate(formValues.birthday);
+    }
+
+    formValues.diagnosisYear = String(parseInt(formValues.diagnosisYear, 10));
+
+    return formValues;
+  },
+
   submitFormValues: function(formValues) {
     var self = this;
-    console.log('submit');
     var submit = this.props.onSubmit;
 
     // Save optimistically
