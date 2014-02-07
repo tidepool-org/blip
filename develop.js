@@ -24,6 +24,11 @@ app.use('/app.js', function(req, res, next) {
       transform: ['reactify'],
       debug: true
     }))
+    // Error handling: can't just pass `next`,
+    // need to explicitly give it a function
+    .on('error', function(err) {
+      next(err);
+    })
     .pipe(concat('app.js'))
     .pipe(send(res));
 });
@@ -43,6 +48,9 @@ app.use('/config.js', function(req, res) {
       process: {env: process.env},
       pkg: pkg
     }))
+    .on('error', function(err) {
+      next(err);
+    })
     .pipe(send(res));
 });
 
@@ -53,6 +61,9 @@ app.use('/style.css', function(req, res, next) {
 
   gulp.src('app/style.less')
     .pipe(less())
+    .on('error', function(err) {
+      next(err);
+    })
     .pipe(concat('style.css'))
     .pipe(send(res));
 });
@@ -76,6 +87,9 @@ app.use('/', function(req, res, next) {
       pkg: pkg,
       files: files
     }))
+    .on('error', function(err) {
+      next(err);
+    })
     .pipe(send(res));
 });
 
