@@ -22,6 +22,8 @@ var Navbar = React.createClass({
     version: React.PropTypes.string,
     user: React.PropTypes.object,
     fetchingUser: React.PropTypes.bool,
+    patient: React.PropTypes.object,
+    fetchingPatient: React.PropTypes.bool,
     onLogout: React.PropTypes.func,
     imagesEndpoint: React.PropTypes.string
   },
@@ -30,17 +32,27 @@ var Navbar = React.createClass({
     window.navbar = this;
     var logo = this.renderLogo();
     var version = this.renderVersion();
+    var patient = this.renderPatient();
     var user = this.renderUser();
 
     /* jshint ignore:start */
     return (
       <div className="container-nav-outer navbar">
         <div className="container-nav-inner nav-wrapper">
-          <ul className="nav nav-left">
-            {logo}
-            {version}
-          </ul>
-          {user}
+          <div className="grid">
+            <div className="grid-item one-whole large-one-third">
+              <ul className="nav nav-left">
+                {logo}
+                {version}
+              </ul>
+            </div>
+            <div className="grid-item one-whole large-one-third">
+              {patient}
+            </div>
+            <div className="grid-item one-whole large-one-third">
+              {user}
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -76,6 +88,27 @@ var Navbar = React.createClass({
       );
     }
     return null;
+  },
+
+  renderPatient: function() {
+    var patient = this.props.patient;
+
+    if (_.isEmpty(patient)) {
+      return null;
+    }
+
+    var fullName = this.getPatientFullName(patient);
+    var patientUrl = '#/patients/' + patient.id;
+    
+    return (
+      /* jshint ignore:start */
+      <div className="navbar-patient js-navbar-patient" ref="patient">
+        <a className="navbar-patient-name" href={patientUrl} title="Patient profile">
+          {fullName}
+        </a>
+      </div>
+      /* jshint ignore:end */
+    );
   },
 
   renderUser: function() {
@@ -114,6 +147,10 @@ var Navbar = React.createClass({
 
   getUserFullName: function(user) {
     return user.firstName + ' ' + user.lastName;
+  },
+
+  getPatientFullName: function(patient) {
+    return patient.firstName + ' ' + patient.lastName;
   },
 
   handleLogout: function(e) {

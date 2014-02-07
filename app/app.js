@@ -170,12 +170,20 @@ var AppComponent = React.createClass({
 
   renderNavbar: function() {
     if (this.state.authenticated) {
+      var patient;
+
+      if (this.isPatientVisibleInNavbar()) {
+        patient = this.state.patient;
+      }
+
       return (
         /* jshint ignore:start */
         <Navbar
           version={config.VERSION}
           user={this.state.user}
           fetchingUser={this.state.fetchingUser}
+          patient={patient}
+          fetchingPatient={this.state.fetchingPatient}
           onLogout={this.logout}
           imagesEndpoint={config.IMAGES_ENDPOINT + '/navbar'} />
         /* jshint ignore:end */
@@ -183,6 +191,13 @@ var AppComponent = React.createClass({
     }
 
     return null;
+  },
+
+  isPatientVisibleInNavbar: function() {
+    // Only show patient name in navbar on certain pages
+    var page = this.state.page;
+    var result = page && page.match(/^patients\//);
+    return Boolean(result);
   },
 
   renderNotification: function() {
@@ -278,7 +293,7 @@ var AppComponent = React.createClass({
   showPatient: function(patientId) {
     this.renderPage = this.renderPatient;
     this.setState({
-      page: 'patient/' + patientId,
+      page: 'patients/' + patientId,
       // Reset patient object to avoid showing previous one
       patient: null,
       // Indicate renderPatient() that we are fetching the patient
@@ -319,7 +334,7 @@ var AppComponent = React.createClass({
   showPatientEdit: function(patientId) {
     this.renderPage = this.renderPatientEdit;
     this.setState({
-      page: 'patient/' + patientId + '/edit',
+      page: 'patients/' + patientId + '/edit',
       // Reset patient object to avoid showing previous one
       patient: null,
       // Indicate renderPatientEdit() that we are fetching the patient

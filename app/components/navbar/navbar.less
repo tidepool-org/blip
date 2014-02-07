@@ -17,10 +17,7 @@
 @navbar-logo-height:    40px;
 @navbar-item-vertical-padding:    @nav-item-vertical-padding;
 @navbar-item-horizontal-padding:  @spacing-tiny;
-
-@navbar-label-font-size:          14px;
-@navbar-label-line-height:        22px;
-@navbar-label-horizontal-padding: @spacing-tiny;
+@navbar-height:         (@navbar-logo-height + 2*@navbar-item-vertical-padding);
 
 .navbar {
   margin-top: @spacing-base;
@@ -82,6 +79,10 @@
 
 // Navbar labels
 // ====================================
+
+@navbar-label-font-size:          14px;
+@navbar-label-line-height:        22px;
+@navbar-label-horizontal-padding: @spacing-tiny;
 
 // Warning: the spacings below are "hacks" so things align properly
 // with Open Sans 14px as the label font
@@ -157,4 +158,24 @@
 
 .navbar-user-name {
   font-weight: bold;
+}
+
+// Navbar patient
+// ====================================
+
+@navbar-patient-line-height:    30px;
+
+.navbar-patient {
+  text-align: center;
+
+  > a {
+    font-weight: bold;
+    font-size: 20px;
+    line-height: @navbar-patient-line-height;
+    display: inline-block;
+
+    padding: @navbar-item-vertical-padding @navbar-item-horizontal-padding;
+    margin-top: ((@navbar-height - @navbar-patient-line-height)/2 - @navbar-item-vertical-padding);
+    margin-bottom: ((@navbar-height - @navbar-patient-line-height)/2 - @navbar-item-vertical-padding);
+  }
 }
