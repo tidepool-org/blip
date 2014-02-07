@@ -79,6 +79,10 @@ files.images.forEach(function(image) {
 app.use('/demo', connect.static(__dirname + '/' + process.env.DEMO_DIR));
 
 app.use('/', function(req, res, next) {
+  if (req.url !== '/') {
+    return next();
+  }
+
   res.setHeader('Content-Type', 'text/html');
 
   gulp.src('app/index.html')
@@ -91,6 +95,11 @@ app.use('/', function(req, res, next) {
       next(err);
     })
     .pipe(send(res));
+});
+
+app.use(function(req, res, next) {
+  res.writeHead(404, {'Content-Type': 'text/plain'});
+  res.end('Not found');
 });
 
 app.use(connect.errorHandler());
