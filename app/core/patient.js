@@ -61,6 +61,38 @@ _.assign(patient, {
 
   formatDate: function(value) {
     return moment(value).format(DATE_FORMAT);
+  },
+
+  getYearsAgo: function(date) {
+    return moment().diff(date, 'years');
+  },
+
+  getYearsOldText: function(date) {
+    var result = this.getYearsAgo(date);
+
+    if (result === 1) {
+      return result + ' year old';
+    }
+
+    if (result > 1) {
+      return result + ' years old';
+    }
+  },
+
+  getYearsAgoText: function(date) {
+    var result = this.getYearsAgo(date);
+
+    if (result === 0) {
+      return 'This year';
+    }
+
+    if (result === 1) {
+      return result + ' year ago';
+    }
+
+    if (result > 1) {
+      return result + ' years ago';
+    }
   }
 });
 
