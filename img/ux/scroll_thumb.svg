@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 16.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="16px" height="16px" viewBox="-0.5 -0.5 16 16" enable-background="new -0.5 -0.5 16 16" xml:space="preserve">
+<symbol  id="ir_2" viewBox="-6.8 -6.8 13.601 13.601">
+	<g>
+		<path fill="#989897" d="M4.809,4.81C3.522,6.094,1.815,6.801,0,6.801c-1.818,0-3.525-0.707-4.811-1.991
+			c-2.652-2.65-2.652-6.968,0-9.618C-3.526-6.093-1.819-6.8-0.002-6.8c1.818,0,3.525,0.707,4.811,1.992C6.091-3.525,6.8-1.817,6.8,0
+			S6.091,3.525,4.809,4.81z M-3.443,3.442C-2.493,4.392-1.247,4.867,0,4.867c1.244,0,2.49-0.476,3.441-1.425l-6.885-6.886
+			C-5.345-1.541-5.345,1.541-3.443,3.442z"/>
+	</g>
+</symbol>
+<use xlink:href="#ir_2"  width="13.601" height="13.601" id="XMLID_1_" x="-6.8" y="-6.8" transform="matrix(1.1764 0 0 -1.1765 7.4995 7.4995)" overflow="visible"/>
+</svg>

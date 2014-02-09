@@ -2,7 +2,7 @@ var pool = require('./pool');
 
 var tooltip = require('./plot/tooltip');
 
-module.exports = function() {
+module.exports = function(emitter) {
 
   var MS_IN_24 = 86400000;
 
@@ -12,24 +12,23 @@ module.exports = function() {
     height, minHeight,
     gutter,
     axisGutter,
-    pad,
     nav = {},
     pools = [], gutter,
     xScale = d3.time.scale.utc(),
-    xAxis = d3.svg.axis().scale(xScale).orient('top').outerTickSize(0),
-    beginningOfData, endOfData, data, allData = [], buffer, endpoints, outerEndpoints, initialEndpoints,
-    mainGroup, poolGroup, scrollNav, scrollHandleTrigger = true, tooltips;
+    xAxis = d3.svg.axis().scale(xScale).orient('top').outerTickSize(0).tickFormat(d3.time.format.utc("%-I %p")),
+    beginningOfData, endOfData, data, allData = [], buffer, endpoints,
+    mainGroup, scrollHandleTrigger = true, tooltips;
 
   var defaults = {
     bucket: $('#tidelineContainer'),
     id: 'tidelineSVG',
     minWidth: 400,
     minHeight: 400,
-    pad: 10,
     nav: {
       minNavHeight: 30,
       scrollNav: true,
       scrollNavHeight: 40,
+      scrollThumbRadius: 8,
       latestTranslation: 0,
       currentTranslation: 0
     },
@@ -51,7 +50,7 @@ module.exports = function() {
         'id': id,
         'width': width,
         'height': function() {
-          height += pad * 2 + nav.axisHeight;
+          height += + nav.axisHeight;
           if (nav.scrollNav) {
             height += nav.scrollNavHeight;
           }
@@ -81,10 +80,12 @@ module.exports = function() {
       mainGroup.append('g')
         .attr('class', 'd3-x d3-axis')
         .attr('id', 'tidelineXAxis')
-        .attr('transform', 'translate(0,' + nav.axisHeight + ')')
+        .attr('transform', 'translate(0,' + (nav.axisHeight - 1) + ')')
         .call(xAxis);
 
-      poolGroup = mainGroup.append('g').attr('id', 'tidelinePools');
+      d3.selectAll('#tidelineXAxis g.tick text').style('text-anchor', 'start').attr('transform', 'translate(5,5)');
+
+      container.poolGroup = mainGroup.append('g').attr('id', 'tidelinePools');
 
       mainGroup.append('g')
         .attr('id', 'tidelineLabels');
@@ -103,7 +104,6 @@ module.exports = function() {
             }
           },
           'width': container.axisGutter(),
-          'opacity': 1,
           'fill': 'white'
         });
 
@@ -113,8 +113,8 @@ module.exports = function() {
           .attr('id', 'tidelineScrollNav');
 
         nav.scrollScale = d3.time.scale.utc()
-          .domain([Date.parse(data[0].normalTime), Date.parse(currentData[0].normalTime)])
-          .range([container.axisGutter(), width]);
+          .domain([endpoints[0], container.currentEndpoints[0]])
+          .range([container.axisGutter() + nav.scrollThumbRadius, width - nav.scrollThumbRadius]);
       }
     });
   }
@@ -122,11 +122,14 @@ module.exports = function() {
   // non-chainable methods
   container.getData = function(endpoints, direction) {
     if (!arguments.length) {
-      endpoints = initialEndpoints;
+      endpoints = container.initialEndpoints;
       direction = 'both';
     }
+
     var start = new Date(endpoints[0]);
     var end = new Date(endpoints[1]);
+
+    container.currentEndpoints = [start, end];
 
     readings = _.filter(data, function(datapoint) {
       t = Date.parse(datapoint.normalTime);
@@ -186,8 +189,9 @@ module.exports = function() {
     pools.forEach(function(pool) {
       cumWeight += pool.weight();
     });
+    // TODO: adjust for when no scrollNav
     var totalPoolsHeight = 
-      container.height() - container.axisHeight() - container.scrollNavHeight() - numPools * container.gutter();
+      container.height() - container.axisHeight() - container.scrollNavHeight() - (numPools - 1) * container.gutter();
     var poolScaleHeight = totalPoolsHeight/cumWeight;
     var actualPoolsHeight = 0;
     pools.forEach(function(pool) {
@@ -195,20 +199,15 @@ module.exports = function() {
       actualPoolsHeight += pool.height();
     });
     actualPoolsHeight += (numPools - 1) * container.gutter();
-    var baseline = container.height() - container.scrollNavHeight();
-    var topline = container.axisHeight() + container.gutter();
-    var content = baseline - topline;
-    var meridian = content/2 + topline;
-    var difference = content - actualPoolsHeight;
-    var offset = difference/2;
-    if (offset < 0) {
-      offset = 0;
-    }
-    var currentYPosition = topline;
+    var currentYPosition = container.axisHeight();
     pools.forEach(function(pool) {
-      pool.yPosition(offset + currentYPosition);
-      currentYPosition += offset + pool.height() + container.gutter();
+      pool.yPosition(currentYPosition);
+      currentYPosition += pool.height() + container.gutter();
     });
+  };
+
+  container.destroy = function() {
+    d3.select('#' + this.id()).remove();
   };
 
   // chainable methods
@@ -222,10 +221,10 @@ module.exports = function() {
     this.bucket(properties.bucket);
     this.id(properties.id);
     this.minWidth(properties.minWidth).width(properties.width);
-    this.pad(properties.pad);
     this.scrollNav(properties.nav.scrollNav);
     this.minNavHeight(properties.nav.minNavHeight)
       .axisHeight(properties.nav.minNavHeight)
+      .scrollThumbRadius(properties.nav.scrollThumbRadius)
       .scrollNavHeight(properties.nav.scrollNavHeight);
     this.minHeight(properties.minHeight).height(properties.minHeight);
     this.latestTranslation(properties.nav.latestTranslation)
@@ -239,12 +238,14 @@ module.exports = function() {
   };
 
   container.setNav = function() {
+    var maxTranslation = -xScale(endpoints[0]) + axisGutter;
+    var minTranslation = -xScale(endpoints[1]) + width;
     nav.pan = d3.behavior.zoom()
       .scaleExtent([1, 1])
       .x(xScale)
       .on('zoom', function() {
         if ((endOfData - xScale.domain()[1] < MS_IN_24) && !(endOfData.getTime() === endpoints[1])) {
-          console.log('Fetching new data! (right)');
+          console.log('Rendering new data! (right)');
           var plusOne = new Date(container.endOfData());
           plusOne.setDate(plusOne.getDate() + 1);
           var newData = container.getData([endOfData, plusOne], 'right');
@@ -257,11 +258,11 @@ module.exports = function() {
           }
           container.allData(newData);
           for (j = 0; j < pools.length; j++) {
-            pools[j](poolGroup, container.allData());
+            pools[j](container.poolGroup, container.allData());
           }
         }
         if ((xScale.domain()[0] - beginningOfData < MS_IN_24) && !(beginningOfData.getTime() === endpoints[0])) {
-          console.log('Fetching new data! (left)');
+          console.log('Rendering new data! (left)');
           var plusOne = new Date(container.beginningOfData());
           plusOne.setDate(plusOne.getDate() - 1);
           var newData = container.getData([plusOne, beginningOfData], 'left');
@@ -274,21 +275,31 @@ module.exports = function() {
           }
           container.allData(newData);
           for (j = 0; j < pools.length; j++) {
-            pools[j](poolGroup, container.allData());
+            pools[j](container.poolGroup, container.allData());
           }
         }
+        var e = d3.event;
+        if (e.translate[0] < minTranslation) {
+          e.translate[0] = minTranslation;
+        }
+        else if (e.translate[0] > maxTranslation) {
+          e.translate[0] = maxTranslation;
+        }
+        nav.pan.translate([e.translate[0], 0]);
         for (var i = 0; i < pools.length; i++) {
-          pools[i].pan(d3.event);
+          pools[i].pan(e);
         }
         // TODO: check if container has tooltips before transforming them
-        d3.select('#d3-tooltip-group').attr('transform', 'translate(' + d3.event.translate[0] + ',0)');
+        d3.select('#d3-tooltip-group').attr('transform', 'translate(' + e.translate[0] + ',0)');
         d3.select('.d3-x.d3-axis').call(xAxis);
+        d3.selectAll('#tidelineXAxis g.tick text').style('text-anchor', 'start').attr('transform', 'translate(5,5)');
         if (scrollHandleTrigger) {
-          d3.select('#scrollHandle').transition().ease('linear').attr('cx', function(d) {
+          d3.select('#scrollThumb').transition().ease('linear').attr('x', function(d) {
             d.x = nav.scrollScale(xScale.domain()[0]);
-            return d.x;
+            return d.x - nav.scrollThumbRadius;
           });       
         }
+        container.navString(xScale.domain());
       })
       .on('zoomend', function() {
         container.currentTranslation(nav.latestTranslation);
@@ -301,18 +312,18 @@ module.exports = function() {
   };
 
   container.setScrollNav = function() {
-    scrollNav.attr('transform', 'translate(0,' + (height - nav.scrollNavHeight/4) + ')')
+    var translationAdjustment = axisGutter;
+    scrollNav.attr('transform', 'translate(0,'  + (height - (nav.scrollNavHeight / 2)) + ')')
       .append('line')
       .attr({
-        'x1': nav.scrollScale(endpoints[0]),
-        'x2': nav.scrollScale(endpoints[1]),
+        'x1': nav.scrollScale(endpoints[0]) - nav.scrollThumbRadius,
+        'x2': nav.scrollScale(container.initialEndpoints[0]) + nav.scrollThumbRadius,
         'y1': 0,
-        'y2': 0,
-        'stroke-width': 1,
-        // TODO: move to LESS
-        'stroke': '#989897',
-        'shape-rendering': 'crispEdges'
+        'y2': 0
       });
+
+    var dxRightest = nav.scrollScale.range()[1];
+    var dxLeftest = nav.scrollScale.range()[0];
 
     var drag = d3.behavior.drag()
       .origin(function(d) {
@@ -323,27 +334,59 @@ module.exports = function() {
       })
       .on('drag', function(d) {
         d.x += d3.event.dx;
-        d3.select(this).attr('cx', function(d) { return d.x; });
+        if (d.x > dxRightest) {
+          d.x = dxRightest;
+        }
+        else if (d.x < dxLeftest) {
+          d.x = dxLeftest;
+        }
+        d3.select(this).attr('x', function(d) { return d.x - nav.scrollThumbRadius; });
         var date = nav.scrollScale.invert(d.x);
-        nav.currentTranslation += -xScale(date);
+        nav.currentTranslation += -xScale(date) + translationAdjustment;
         scrollHandleTrigger = false;
         nav.pan.translate([nav.currentTranslation, 0]);
         nav.pan.event(mainGroup);
       });
 
-    scrollNav.selectAll('circle')
-      .data([{'x': nav.scrollScale(beginningOfData), 'y': 0}])
+    scrollNav.selectAll('image')
+      .data([{'x': nav.scrollScale(container.currentEndpoints[0]), 'y': 0}])
       .enter()
-      .append('circle')
+      .append('image')
       .attr({
-        'cx': function(d) { return d.x; },
-        'r': 5,
-        'fill': '#989897',
-        'id': 'scrollHandle'
+        'xlink:href': '../img/ux/scroll_thumb.svg',
+        'x': function(d) { return d.x - nav.scrollThumbRadius; },
+        'y': -nav.scrollThumbRadius,
+        'width': nav.scrollThumbRadius * 2,
+        'height': nav.scrollThumbRadius * 2,
+        'id': 'scrollThumb'
       })
       .call(drag);
 
     return container;
+  };
+
+  container.setAtDate = function (date) {
+    nav.currentTranslation = -xScale(date) + axisGutter;
+    nav.pan.translate([nav.currentTranslation, 0]);
+    nav.pan.event(mainGroup);
+
+    container.navString(xScale.domain());
+
+    return container;
+  };
+
+  container.navString = function(a) {
+    var formatDate = d3.time.format.utc("%A %-d %B");
+    var beginning = formatDate(a[0]);
+    var end = formatDate(a[1])
+    var navString;
+    if (beginning === end) {
+      navString = beginning;
+    }
+    else {
+      navString = beginning + ' - ' + end;
+    }
+    emitter.emit('navigated', navString);
   };
 
   container.setTooltip = function() {
@@ -390,13 +433,13 @@ module.exports = function() {
 
   container.height = function(x) {
     if (!arguments.length) return height;
-    var totalHeight = x + container.pad() * 2 + container.axisHeight();
+    var totalHeight = x + container.axisHeight();
     if (nav.scrollNav) {
       totalHeight += container.scrollNavHeight();
     }
     if (totalHeight >= minHeight) {
       if (totalHeight > bucket.height()) {
-        height = bucket.height() - container.axisHeight() - container.pad() * 2;
+        height = bucket.height() - container.axisHeight();
         if (nav.scrollNav) {
           height -= container.scrollNavHeight();
         }
@@ -414,12 +457,6 @@ module.exports = function() {
   container.minHeight = function(x) {
     if (!arguments.length) return height;
     minHeight = x;
-    return container;
-  };
-
-  container.pad = function(x) {
-    if (!arguments.length) return pad;
-    pad = x;
     return container;
   };
 
@@ -445,6 +482,12 @@ module.exports = function() {
   container.scrollNav = function(b) {
     if (!arguments.length) return nav.scrollNav;
     nav.scrollNav = b;
+    return container;
+  };
+
+  container.scrollThumbRadius = function(x) {
+    if (!arguments.length) return nav.scrollThumbRadius;
+    nav.scrollThumbRadius = x;
     return container;
   };
 
@@ -530,31 +573,35 @@ module.exports = function() {
 
   container.data = function(a) {
     if (!arguments.length) return data;
+
     data = a;
+
     var first = Date.parse(a[0].normalTime);
     var last = Date.parse(a[a.length - 1].normalTime);
+
     var minusOne = new Date(last);
     minusOne.setDate(minusOne.getDate() - 1);
-    initialEndpoints = [minusOne, last];
+    container.initialEndpoints = [minusOne, last];
+    container.currentEndpoints = container.initialEndpoints;
+
     container.beginningOfData(minusOne).endOfData(last);
+
     endpoints = [first, last];
     container.endpoints = endpoints;
-    var outerBeg = new Date(endpoints[0]);
-    outerBeg.setDate(outerBeg.getDate() - 1);
-    var outerEnd = new Date(endpoints[1]);
-    outerEnd.setDate(outerEnd.getDate() + 1);
-    outerEndpoints = [outerBeg, outerEnd];
-    container.initialEndpoints = initialEndpoints;
+
     return container;
   };
 
-  container.allData = function(x) {
+  container.allData = function(x, a) {
     if (!arguments.length) return allData;
+    if (!a) {
+      a = xScale.domain();
+    }
     allData = allData.concat(x);
     console.log('Length of allData array is', allData.length);
-    var plus = new Date(xScale.domain()[1]);
+    var plus = new Date(a[1]);
     plus.setDate(plus.getDate() + container.buffer());
-    var minus = new Date(xScale.domain()[0]);
+    var minus = new Date(a[0]);
     minus.setDate(minus.getDate() - container.buffer());
     if (beginningOfData < minus) {
       container.beginningOfData(minus); 
@@ -575,6 +622,7 @@ module.exports = function() {
       });
     }
     allData = _.sortBy(allData, 'normalTime');
+    allData = _.uniq(allData, true);
     return container;
   };
 

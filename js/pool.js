@@ -1,9 +1,5 @@
 module.exports = function(container) {
 
-  // TMP: colors, etc. for demo-ing
-  var colors = d3.scale.category20(),
-    grays = ['#636363', '#969696', '#bdbdbd', '#d9d9d9', '#d9d9d9', '#bdbdbd', '#969696', '#636363'];
-
   var data,
     id, label,
     index, weight, yPosition,
@@ -15,7 +11,7 @@ module.exports = function(container) {
     plotTypes = [];
 
   var defaults = {
-    minHeight: 35,
+    minHeight: 20,
     maxHeight: 300
   };
 
@@ -65,6 +61,13 @@ module.exports = function(container) {
     });
   };
 
+  pool.scroll = function(e) {
+    container.latestTranslation(e.translate[1]);
+    plotTypes.forEach(function(plotType) {
+      d3.select('#' + id + '_' + plotType.type).attr('transform', 'translate(0,' + e.translate[1] + ')');
+    });
+  };
+
   // only once methods
   pool.drawLabel = _.once(function() {
     var labelGroup = d3.select('#tidelineLabels');
@@ -84,7 +87,7 @@ module.exports = function(container) {
       axisGroup.append('g')
         .attr('class', 'd3-y d3-axis')
         .attr('id', 'pool_' + id + '_yAxis_' + i)
-        .attr('transform', 'translate(' + container.axisGutter() + ',' + yPosition + ')')
+        .attr('transform', 'translate(' + (container.axisGutter() - 1) + ',' + yPosition + ')')
         .call(axis);
       });
     return pool;

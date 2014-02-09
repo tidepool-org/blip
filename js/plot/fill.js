@@ -19,7 +19,8 @@ module.exports = function(pool, opts) {
       21: 'darkest'
     },
     duration: 3,
-    scale: pool.xScale().copy()
+    scale: pool.xScale().copy(),
+    gutter: 0
   };
 
   _.defaults(opts || {}, defaults);
@@ -46,6 +47,7 @@ module.exports = function(pool, opts) {
       });
       current = next;
     }
+
     selection.selectAll('rect')
       .data(fills)
       .enter()
@@ -54,11 +56,11 @@ module.exports = function(pool, opts) {
         'x': function(d) {
           return d.x;
         },
-        'y': 0,
+        'y': 0 + opts.gutter,
         'width': function(d) {
           return d.width;
         },
-        'height': pool.height(),
+        'height': pool.height() - 2 * opts.gutter,
         'class': function(d) {
           return 'd3-rect-fill d3-fill-' + d.fill;
         }

@@ -30,7 +30,7 @@ module.exports = function(pool, opts) {
           'width': opts.size,
           'height': opts.size,
           'id': function(d) {
-            return d.id;
+            return 'message_' + d.id;
           }
         })
         .classed({'d3-image': true, 'd3-message': true});

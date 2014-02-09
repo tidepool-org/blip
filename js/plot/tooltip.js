@@ -128,14 +128,9 @@ module.exports = function(container, tooltipsGroup) {
   tooltip.timestamp = function(d, tooltipGroup, imageX, imageY, textX, textY, tooltipWidth, tooltipHeight) {
     var timestampY = imageY() - timestampHeight;
     var timestampTextY = textY() - timestampHeight;
-    var t = d.deviceTime.slice(11,16);
-    var timeSuffix;
-    if (parseInt(t.slice(0,2)) > 11) {
-      timeSuffix = ' pm'
-    }
-    else {
-      timeSuffix = ' am'
-    }
+
+    var formatTime = d3.time.format.utc("%-I:%M %p")
+    var t = formatTime(new Date(d.normalTime));
     tooltipGroup.append('rect')
       .attr({
         'x': imageX,
@@ -151,7 +146,7 @@ module.exports = function(container, tooltipsGroup) {
         'baseline-shift': (tooltipHeight - timestampHeight) / 2,
         'class': 'd3-tooltip-text'
       })
-      .text('at ' + t + timeSuffix);
+      .text('at ' + t);
   };
 
   tooltip.addGroup = function(pool, type) {

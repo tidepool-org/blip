@@ -15,32 +15,33 @@ svg {
 
 // axes
 .d3-axis {
-  path, line {
-    fill: none;
-    shape-rendering: crispEdges;
+  shape-rendering: crispEdges;
+  path {
+    stroke: white;
   }
+  line {
+    stroke: @ticks;
+  }
+  text {
+    font-size: @font-size-axes;
+    fill: @light-labels;
+    text-transform: lowercase;
+  }
+}
+
+// y-axes
+.d3-axis.d3-y {
   text {
     fill: @text;
   }
 }
 
-// x-axis
-.d3-x.d3-axis {
-  path, line {
-    stroke: @text;
-  }
-  text {
-    font-size: @font-size-axes;
-  }
-}
-
-// y-axes
-.d3-y.d3-axis {
-  path, line {
-    stroke: white;
-  }
-  text {
-    font-size: @font-size-axes;
+// scrollbars
+.scroll {
+  line {
+    stroke: @light-labels;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
   }
 }
 
@@ -118,10 +119,11 @@ svg {
 // tooltips
 .d3-tooltip {
   .d3-tooltip-text {
-    fill: @tooltips;
+    fill: @light-labels;
     font-size: @font-size-small-tooltips;
     text-anchor: middle;
     dominant-baseline: central;
+    text-transform: lowercase;
     &.d3-smbg {
       font-size: @font-size-large-tooltips;
       font-weight: bold;

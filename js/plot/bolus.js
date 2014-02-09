@@ -43,7 +43,7 @@ module.exports = function(pool, opts) {
           },
           'class': 'd3-rect-bolus d3-bolus',
           'id': function(d) {
-            return d.normalTime + ' ' + d.value + ' ' + d.recommended + ' recommended';
+            return 'bolus_' + d.id;
           }
         });
       // boluses where recommendation and delivery differ
@@ -68,7 +68,7 @@ module.exports = function(pool, opts) {
           },
           'class': 'd3-rect-recommended d3-bolus',
           'id': function(d) {
-            return d.deviceTime + ' ' + d.value + ' ' + d.recommended + ' recommended';
+            return 'bolus_' + d.id;
           }
         });
       // boluses where delivered > recommended
@@ -92,7 +92,7 @@ module.exports = function(pool, opts) {
           'stroke-width': opts.bolusStroke,
           'class': 'd3-rect-recommended d3-bolus',
           'id': function(d) {
-            return d.normalTime + ' ' + d.value + ' ' + d.recommended + ' recommended';
+            return 'bolus_' + d.id;
           }
         });
       override.append('path')
@@ -106,7 +106,7 @@ module.exports = function(pool, opts) {
           'stroke-width': opts.bolusStroke,
           'class': 'd3-path-bolus d3-bolus',
           'id': function(d) {
-            return d.deviceTime + ' ' + d.value + ' ' + d.recommended + ' recommended';
+            return 'bolus_' + d.id;
           }
         });
       // square- and dual-wave boluses
@@ -126,7 +126,7 @@ module.exports = function(pool, opts) {
           'stroke-width': opts.bolusStroke,
           'class': 'd3-path-extended d3-bolus',
           'id': function(d) {
-            return d.deviceTime + ' ' + d.extendedDelivery + ' ' + ' ended at ' + watson.strip(new Date(opts.xScale.invert(opts.xScale(Date.parse(d.normalTime) + d.duration))));
+            return 'bolus_' + d.id;
           }
         });
       extendedBoluses.append('path')
@@ -139,7 +139,7 @@ module.exports = function(pool, opts) {
           'stroke-width': opts.bolusStroke,
           'class': 'd3-path-extended-triangle d3-bolus',
           'id': function(d) {
-            return d.deviceTime + ' ' + d.extendedDelivery + ' ' + ' ended at ' + watson.strip(new Date(opts.xScale.invert(opts.xScale(Date.parse(d.normalTime) + d.duration))));
+            return 'bolus_' + d.id;
           }
         });
       boluses.exit().remove();

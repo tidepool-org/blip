@@ -21,11 +21,19 @@
     .tidelineNavLabel {
       font-family: 'Open Sans';
       font-size: 16px;
-      font-weight: bold;
+      font-weight: normal;
       color: white;
+
+      &.active {
+        font-weight: bold;
+      }
 
       &.inactive {
         font-weight: normal;
+      }
+      a {
+        color: white;
+        text-decoration: none;
       }
     }
 
@@ -52,5 +60,5 @@
 
 #tidelineContainer {
   margin: 0 auto;
-  height: 80vh;
+  height: 85vh;
 }

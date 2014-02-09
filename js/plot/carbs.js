@@ -30,7 +30,7 @@ module.exports = function(pool, opts) {
           },
           'class': 'd3-rect-carbs d3-carbs',
           'id': function(d) {
-            return d.normalTime + ' ' + d.value;
+            return 'carbs_' + d.id;
           }
         });
         rects.exit().remove();
