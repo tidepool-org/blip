@@ -14,6 +14,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+
+var log = require('bows')('Example');
 // things common to one-day and two-week views
 // common event emitter
 var EventEmitter = require('events').EventEmitter;
@@ -21,7 +23,6 @@ var emitter = new EventEmitter;
 emitter.on('navigated', function(navString) {
   $('#tidelineNavString').html(navString); 
 });
-var twoWeek = require('../js/two-week')(emitter);
 
 // common pool modules
 var fill = require('../js/plot/fill');
@@ -34,20 +35,33 @@ var watson = require('./watson')();
 d3.select(el).call(watson);
 
 // set up one-day view
-var oneDay = oneDayChart(el), twoWeek = twoWeekChart(el); 
+var oneDay = new oneDayChart(el), twoWeek = twoWeekChart(el); 
+
+
+// Note to Nico: this (all the code within d3.json() below) is all rough-and-ready...
+// obviously a lot of it could be refactored
+// but it should be a decent demo of how the interaction between one-day and two-week views could work
+// the TODO issue noted appears to be a thorny one, so I'd like to avoid it for now since there's so much else to do
 
 // load data and draw charts
 d3.json('device-data.json', function(data) {
+  log('Data loaded.');
   // Watson the data
   var data = watson.normalize(data);
   data = _.sortBy(data, 'normalTime');
 
-  oneDay.initialize(data)
-    .setUpPools(data)
-    .locate('2014-03-06T06:23:45Z');
+  log('Initial one-day view.');
+  oneDay.initialize(data).locate('2014-03-06T12:00:00Z');
+  // attach click handlers to set up programmatic pan
+  $('#tidelineNavForward').on('click', oneDay.panForward);
+  $('#tidelineNavBack').on('click', oneDay.panBack);
 
   $('#twoWeekView').on('click', function() {
+    log('Navigated to two-week view from nav bar.');
     var date = oneDay.getCurrentDay();
+    // remove click handlers for programmatic pan
+    $('#tidelineNavForward').off('click');
+    $('#tidelineNavBack').off('click');
     oneDay.destroy();
     $(this).parent().addClass('active');
     $('#oneDayView').parent().removeClass('active');
@@ -61,6 +75,7 @@ d3.json('device-data.json', function(data) {
   });
 
   $('#oneDayView').on('click', function() {
+    log('Navigated to one-day view from nav bar.');
     twoWeek.destroy();
     $(this).parent().addClass('active');
     $('#twoWeekView').parent().removeClass('active');
@@ -71,15 +86,48 @@ d3.json('device-data.json', function(data) {
     // such that its necessary to create a new oneDay object every time you want to rerender
     oneDay = new oneDayChart(el);
     // takes user to one-day view of most recent data
-    oneDay.initialize(data)
-      .setUpPools(data)
-      .locate();
+    oneDay.initialize(data).locate();
+    // attach click handlers to set up programmatic pan
+    $('#tidelineNavForward').on('click', oneDay.panForward);
+    $('#tidelineNavBack').on('click', oneDay.panBack);
+  });
+
+  $('#oneDayMostRecent').on('click', function() {
+    log('Navigated to most recent one-day view.');
+    twoWeek.destroy();
+    $(this).parent().addClass('active');
+    $('#twoWeekView').parent().removeClass('active');
+    $('#oneDayMostRecent').parent().addClass('active');
+    $('.one-day').css('visibility', 'visible');
+    $('.two-week').css('visibility', 'hidden');
+    // TODO: this shouldn't be necessary, but I've screwed something up with the global one-day.js variables
+    // such that its necessary to create a new oneDay object every time you want to rerender
+    oneDay = new oneDayChart(el);
+    // takes user to one-day view of most recent data
+    oneDay.initialize(data).locate();
+    // attach click handlers to set up programmatic pan
+    $('#tidelineNavForward').on('click', oneDay.panForward);
+    $('#tidelineNavBack').on('click', oneDay.panBack);
+  })
+
+  emitter.on('selectSMBG', function(date) {
+    log('Navigated to one-day view from double clicking a two-week view SMBG.');
+    twoWeek.destroy();
+    $('#oneDayView').parent().addClass('active');
+    $('#twoWeekView').parent().removeClass('active');
+    $('#oneDayMostRecent').parent().removeClass('active');
+    $('.one-day').css('visibility', 'visible');
+    $('.two-week').css('visibility', 'hidden');
+    // TODO: this shouldn't be necessary, but I've screwed something up with the global one-day.js variables
+    // such that its necessary to create a new oneDay object every time you want to rerender
+    oneDay = new oneDayChart(el);
+    // takes user to one-day view of date given by the .d3-smbg-time emitter
+    oneDay.initialize(data).locate(date);
+    // attach click handlers to set up programmatic pan
+    $('#tidelineNavForward').on('click', oneDay.panForward);
+    $('#tidelineNavBack').on('click', oneDay.panBack);
   });
 });
-
-// attach click handlers to set up programmatic pan
-$('#tidelineNavForward').on('click', oneDay.panForward);
-$('#tidelineNavBack').on('click', oneDay.panBack);
 
 // // one-day visualization
 // // =====================
@@ -92,6 +140,7 @@ function oneDayChart(el) {
   var poolMessages, poolBG, poolBolus, poolBasal, poolStats;
 
   var create = function(el) {
+
     if (!el) {
       throw new Error('Sorry, you must provide a DOM element! :(');
     }
@@ -102,7 +151,13 @@ function oneDayChart(el) {
     return chart;
   };
 
-  chart.setUpPools = function(data) {
+  chart.initialize = function(data) {
+
+    // initialize chart with data
+    chart.data(data);
+    d3.select(el).datum([null]).call(chart);
+    chart.setTooltip();
+
     // messages pool
     poolMessages = chart.newPool().defaults()
       .id('poolMessages')
@@ -132,7 +187,7 @@ function oneDayChart(el) {
       .weight(1.0);
 
     // stats widget
-    // var poolStats = chart.newPool().defaults()
+    // poolStats = chart.newPool().defaults()
     //   .id('poolStats')
     //   .index(chart.pools().indexOf(poolStats))
     //   .weight(1.0);
@@ -191,16 +246,6 @@ function oneDayChart(el) {
     // add message images to messages pool
     poolMessages.addPlotType('message', require('../js/plot/message')(poolMessages, {size: 30}));
 
-    return chart;    
-  };
-
-  chart.initialize = function(data) {
-
-    // initialize chart with data
-    chart.data(data);
-    d3.select(el).datum([null]).call(chart);
-    chart.setTooltip();
-
     return chart;
   };
 
@@ -229,17 +274,10 @@ function oneDayChart(el) {
     // set up click-and-drag and scroll navigation
     chart.setNav().setScrollNav().setAtDate(start);
 
-    // render BG pool
-    poolBG(chart.poolGroup, localData);
-
-    // render bolus pool
-    poolBolus(chart.poolGroup, localData);
-
-    // render basal pool
-    poolBasal(chart.poolGroup, localData);
-
-    //render messages pool
-    poolMessages(chart.poolGroup, localData);
+    // render pools
+    chart.pools().forEach(function(pool) {
+      pool(chart.poolGroup, localData);
+    });
 
     // add tooltips
     chart.tooltips.addGroup(d3.select('#' + poolBG.id()), 'cbg');
@@ -293,7 +331,6 @@ function twoWeekChart(el) {
     chart.setNav().setScrollNav();
 
     days = chart.days;
-    console.log(days, chart.pools());
     // make pools for each day
     days.forEach(function(day, i) {
       var newPool = chart.newPool().defaults()
@@ -301,8 +338,6 @@ function twoWeekChart(el) {
         .index(chart.pools().indexOf(newPool))
         .weight(1.0);
     });
-
-    console.log('Got here!');
     chart.arrangePools();
 
     var fillEndpoints = [new Date('2014-01-01T00:00:00Z'), new Date('2014-01-02T00:00:00Z')];
@@ -316,7 +351,7 @@ function twoWeekChart(el) {
         scale: fillScale,
         gutter: 0.5
       }));
-      pool.addPlotType('smbg', require('../js/plot/smbg-time')(pool));
+      pool.addPlotType('smbg', require('../js/plot/smbg-time')(pool, {emitter: emitter}));
       pool(chart.daysGroup, chart.dataPerDay[i]);
     });
 

@@ -225,7 +225,8 @@ module.exports = function(emitter) {
   };
 
   container.destroy = function() {
-    d3.select('#' + this.id()).remove();
+    $('#' + this.id()).remove();
+    delete pool;
   };
 
   container.date = function() {
@@ -401,7 +402,7 @@ module.exports = function(emitter) {
   container.navString = function(a) {
     var formatDate = d3.time.format.utc("%A %-d %B");
     var beginning = formatDate(a[0]);
-    var end = formatDate(a[1])
+    var end = formatDate(a[1]);
     var navString;
     if (beginning === end) {
       navString = beginning;

@@ -17,7 +17,6 @@
 
 var log = require('bows')('Two Week');
 
-
 module.exports = function(emitter) {
   var pool = require('./pool');
 
@@ -211,7 +210,7 @@ module.exports = function(emitter) {
   };
 
   container.destroy = function() {
-    d3.select('#' + this.id()).remove();
+    $('#' + this.id()).remove();
   };
 
   container.navString = function(a) {
@@ -245,7 +244,7 @@ module.exports = function(emitter) {
   container.setNav = function() {
     var maxTranslation = -yScale(dataStartNoon) + yScale.range()[1] - (height - nav.axisHeight - statsHeight);
     var minTranslation = -yScale(dataEndNoon) + yScale.range()[1] - (height - nav.axisHeight - statsHeight);
-    nav.pan = d3.behavior.zoom()
+    nav.scroll = d3.behavior.zoom()
       .scaleExtent([1, 1])
       .y(yScale)
       .on('zoom', function() {
@@ -256,7 +255,7 @@ module.exports = function(emitter) {
         else if (e.translate[1] > maxTranslation) {
           e.translate[1] = maxTranslation;
         }
-        nav.pan.translate([0, e.translate[1]]);
+        nav.scroll.translate([0, e.translate[1]]);
         d3.select('.d3-y.d3-axis').call(yAxis);
         for (var i = 0; i < pools.length; i++) {
           pools[i].scroll(e);
@@ -274,7 +273,7 @@ module.exports = function(emitter) {
         scrollHandleTrigger = true;
       });
 
-    mainGroup.call(nav.pan);
+    mainGroup.call(nav.scroll);
 
     return container;
   };
@@ -324,8 +323,8 @@ module.exports = function(emitter) {
         var date = nav.scrollScale.invert(d.y);
         nav.currentTranslation -= yScale(date) - translationAdjustment;
         scrollHandleTrigger = false;
-        nav.pan.translate([0, nav.currentTranslation]);
-        nav.pan.event(mainGroup);
+        nav.scroll.translate([0, nav.currentTranslation]);
+        nav.scroll.event(mainGroup);
       });
 
     scrollNav.selectAll('image')
@@ -453,9 +452,9 @@ module.exports = function(emitter) {
     return container;
   };
 
-  container.pan = function(f) {
-    if (!arguments.length) return nav.pan;
-    nav.pan = f;
+  container.scroll = function(f) {
+    if (!arguments.length) return nav.scroll;
+    nav.scroll = f;
     return container;
   };
 
