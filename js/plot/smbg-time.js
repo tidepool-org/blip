@@ -32,6 +32,7 @@ module.exports = function(pool, opts) {
       'very-high': {'boundary': 300}
     },
     size: 16,
+    rectWidth: 32,
     xScale: pool.xScale().copy()
   };
 
@@ -40,13 +41,15 @@ module.exports = function(pool, opts) {
   function smbg(selection) {
     selection.each(function(currentData) {
       var circles = d3.select(this)
-        .selectAll('image')
+        .selectAll('g')
         .data(currentData, function(d) {
           // leveraging the timestamp of each datapoint as the ID for D3's binding
           return d.normalTime;
         });
-      circles.enter()
-        .append('image')
+      var circleGroups = circles.enter()
+        .append('g')
+        .attr('class', 'd3-smbg-time-group');
+      circleGroups.append('image')
         .attr({
           'xlink:href': function(d) {
             if (d.value <= opts.classes['very-low']['boundary']) {
@@ -99,7 +102,70 @@ module.exports = function(pool, opts) {
           d3.event.stopPropagation(); // silence the click-and-drag listener
           opts.emitter.emit('selectSMBG', d.normalTime);
         });
+
+      circleGroups.append('rect')
+        .style('display', 'none')
+        .attr({
+          'x': function(d) {
+            var localTime = new Date(d.normalTime);
+            var hour = localTime.getUTCHours();
+            var min = localTime.getUTCMinutes();
+            var sec = localTime.getUTCSeconds();
+            var msec = localTime.getUTCMilliseconds();
+            var t = hour * MS_IN_HOUR + min * MS_IN_MIN + sec * 1000 + msec;
+            return opts.xScale(t) - opts.rectWidth / 2;
+          },
+          'y': 0,
+          'width': opts.size * 2,
+          'height': pool.height() / 2,
+          'class': 'd3-smbg-numbers d3-rect-smbg d3-smbg-time'
+        });
+
+      circleGroups.append('text')
+        .style('display', 'none')
+        .attr({
+          'x': function(d) {
+            var localTime = new Date(d.normalTime);
+            var hour = localTime.getUTCHours();
+            var min = localTime.getUTCMinutes();
+            var sec = localTime.getUTCSeconds();
+            var msec = localTime.getUTCMilliseconds();
+            var t = hour * MS_IN_HOUR + min * MS_IN_MIN + sec * 1000 + msec;
+            return opts.xScale(t);
+          },
+          'y': pool.height() / 2 - opts.size / 8,
+          'class': 'd3-smbg-numbers d3-text-smbg d3-smbg-time'
+        })
+        .text(function(d) {
+          return d.value;
+        });
+
       circles.exit().remove();
+
+      opts.emitter.on('numbers', function(toggle) {
+        if (toggle === 'show') {
+          d3.selectAll('.d3-smbg-numbers')
+            .style('display', 'inline');
+          d3.selectAll('.d3-image-smbg')
+            .transition()
+            .duration(750)
+            .attr({
+              'height': opts.size * 0.75,
+              'y': pool.height() / 2
+            });
+        }
+        else if (toggle === 'hide') {
+          d3.selectAll('.d3-smbg-numbers')
+            .style('display', 'none');
+          d3.selectAll('.d3-image-smbg')
+            .transition()
+            .duration(750)
+            .attr({
+              'height': opts.size,
+              'y': pool.height() / 2 - opts.size / 2
+            });
+        }
+      });
     });
   }
 

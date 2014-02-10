@@ -72,7 +72,7 @@ module.exports = function(emitter) {
       navGutter: 20
     },
     axisGutter: 60,
-    statsHeight: 100
+    statsHeight: 50
   };
 
   function container(selection) {
@@ -211,6 +211,7 @@ module.exports = function(emitter) {
 
   container.destroy = function() {
     $('#' + this.id()).remove();
+    emitter.removeAllListeners('numbers');
   };
 
   container.navString = function(a) {

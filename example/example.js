@@ -20,6 +20,7 @@ var log = require('bows')('Example');
 // common event emitter
 var EventEmitter = require('events').EventEmitter;
 var emitter = new EventEmitter;
+emitter.setMaxListeners(100);
 emitter.on('navigated', function(navString) {
   $('#tidelineNavString').html(navString); 
 });
@@ -126,6 +127,19 @@ d3.json('device-data.json', function(data) {
     // attach click handlers to set up programmatic pan
     $('#tidelineNavForward').on('click', oneDay.panForward);
     $('#tidelineNavBack').on('click', oneDay.panBack);
+  });
+
+  $('#showHideNumbers').on('click', function() {
+    if ($(this).parent().hasClass('active')) {
+      emitter.emit('numbers', 'hide');
+      $(this).parent().removeClass('active');
+      $(this).html('Show Values');
+    }
+    else {
+      emitter.emit('numbers', 'show');
+      $(this).parent().addClass('active');
+      $(this).html('Hide Values');
+    }
   });
 });
 
