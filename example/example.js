@@ -1,3 +1,19 @@
+/* 
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
 // things common to one-day and two-week views
 // common event emitter
 var EventEmitter = require('events').EventEmitter;
@@ -13,6 +29,7 @@ var scales = require('../js/plot/scales');
 
 // dear old Watson
 var watson = require('./watson')();
+d3.select('#tidelineContainer').call(watson);
 
 // set up one-day view
 var oneDay = oneDayChart('#tidelineContainer');
@@ -25,10 +42,10 @@ d3.json('device-data.json', function(data) {
   // Watson the data
   var data = watson.normalize(data);
   data = _.sortBy(data, 'normalTime');
-  // oneDay.initialize(data)
-  //   .setUpPools(data)
-  //   .locate('2014-03-06T06:23:45Z');
-  twoWeek.initialize(data);
+  oneDay.initialize(data)
+    .setUpPools(data)
+    .locate('2014-03-06T06:23:45Z');
+  // twoWeek.initialize(data);
 });
 
 // attach click handlers to set up programmatic pan

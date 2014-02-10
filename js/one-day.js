@@ -1,3 +1,22 @@
+/* 
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+var log = require('bows')('One Day');
+
 var pool = require('./pool');
 
 var tooltip = require('./plot/tooltip');
@@ -154,7 +173,7 @@ module.exports = function(emitter) {
   };
 
   container.panForward = function() {
-    console.log('Jumped forward a day.');
+    log('Jumped forward a day.');
     nav.currentTranslation -= width - container.axisGutter();
     mainGroup.transition().duration(500).tween('zoom', function() {
       var ix = d3.interpolate(nav.currentTranslation + width - container.axisGutter(), nav.currentTranslation);
@@ -166,7 +185,7 @@ module.exports = function(emitter) {
   };
 
   container.panBack = function() {
-    console.log('Jumped back a day.');
+    log('Jumped back a day.');
     nav.currentTranslation += width - container.axisGutter();
     mainGroup.transition().duration(500).tween('zoom', function() {
       var ix = d3.interpolate(nav.currentTranslation - width + container.axisGutter(), nav.currentTranslation);
@@ -245,7 +264,7 @@ module.exports = function(emitter) {
       .x(xScale)
       .on('zoom', function() {
         if ((endOfData - xScale.domain()[1] < MS_IN_24) && !(endOfData.getTime() === endpoints[1])) {
-          console.log('Rendering new data! (right)');
+          log('Rendering new data! (right)');
           var plusOne = new Date(container.endOfData());
           plusOne.setDate(plusOne.getDate() + 1);
           var newData = container.getData([endOfData, plusOne], 'right');
@@ -262,7 +281,7 @@ module.exports = function(emitter) {
           }
         }
         if ((xScale.domain()[0] - beginningOfData < MS_IN_24) && !(beginningOfData.getTime() === endpoints[0])) {
-          console.log('Rendering new data! (left)');
+          log('Rendering new data! (left)');
           var plusOne = new Date(container.beginningOfData());
           plusOne.setDate(plusOne.getDate() - 1);
           var newData = container.getData([plusOne, beginningOfData], 'left');
@@ -598,7 +617,7 @@ module.exports = function(emitter) {
       a = xScale.domain();
     }
     allData = allData.concat(x);
-    console.log('Length of allData array is', allData.length);
+    log('Length of allData array is', allData.length);
     var plus = new Date(a[1]);
     plus.setDate(plus.getDate() + container.buffer());
     var minus = new Date(a[0]);

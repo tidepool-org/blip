@@ -2,3 +2,4 @@
 bower_components/
 example/bundle.js
 *.css
+node_modules/
