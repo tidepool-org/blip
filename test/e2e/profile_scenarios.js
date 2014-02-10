@@ -4,7 +4,7 @@ var expect = chai.expect;
 var chaiWebdriver = require('chai-webdriver');
 var helpers = require('../lib/e2ehelpers');
 
-var demoUser = require('../../demo/sample/user.json');
+var testUser = require('../../data/sample/user.json');
 
 describe('Profile', function() {
   var driver = helpers.getDriver();
@@ -24,7 +24,7 @@ describe('Profile', function() {
   });
 
   beforeEach(function() {
-    user = demoUser;
+    user = testUser;
   });
 
   it('should show user attribute values', function(done) {

@@ -13,14 +13,15 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-// NOTE: This is a Lodash template
+// Bundle that provides mock services
+// Packaged separately and included only if needed
+// Exposes all mocks on the global `window.mock` object
 
-window.config = {
-  VERSION: '<%= pkg.version %>' || '',
-  IMAGES_ENDPOINT: '<%= process.env.IMAGES_ENDPOINT %>' || 'images',
-  DEMO: Boolean('<%= process.env.DEMO %>') || true,
-  DEMO_DELAY: Number('<%= process.env.DEMO_DELAY %>') || 0,
-  DEMO_VARIANT: '<%= process.env.DEMO_VARIANT %>' || '',
-  DEMO_ENDPOINT: '<%= process.env.DEMO_ENDPOINT %>' || 'demo',
-  MOCK: Boolean('<%= process.env.MOCK %>') || true
-};
+var mock = {};
+
+window.mock = mock;
+
+mock.api = require('./api');
+mock.auth = require('./auth');
+
+module.exports = mock;

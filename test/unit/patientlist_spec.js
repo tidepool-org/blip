@@ -1,5 +1,5 @@
 var PatientList = require('../../app/components/patientlist');
-var demoPatients = require('../../demo/sample/patients.json');
+var testPatients = _.toArray(window.data.patients);
 
 describe('PatientList', function() {
   var component;
@@ -23,7 +23,7 @@ describe('PatientList', function() {
   });
 
   it('should render patient list items', function() {
-    var patients = demoPatients;
+    var patients = testPatients;
 
     component.setProps({patients: patients});
     var count = component.getDOMNode().children.length;

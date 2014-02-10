@@ -24,8 +24,11 @@
     <% _.forEach(files.js.vendor, function(file) { %>
     <script type="text/javascript" src="<%= file %>"></script>
     <% }) %>
-
     <script type="text/javascript" src="config.js"></script>
+      <% if (mock) { %>
+    <script type="text/javascript" src="data.js"></script>
+    <script type="text/javascript" src="mock.js"></script>
+      <% } %>
     <script type="text/javascript" src="app.js"></script>
     <script type="text/javascript" src="start.js"></script>
     <% } %>

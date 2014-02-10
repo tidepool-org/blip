@@ -40,6 +40,14 @@ var PatientEdit = require('./pages/patientedit');
 
 var DEBUG = window.localStorage && window.localStorage.debug;
 
+// Override with mock services if necessary
+if (config.MOCK) {
+  var mock = window.mock;
+  var mockData = window.data || {};
+  api = mock.api(api, {data: mockData});
+  auth = mock.auth(auth);
+}
+
 var app = {
   log: bows('App'),
   auth: auth,
@@ -547,6 +555,10 @@ app.start = function() {
     );
 
     self.log('App started');
+
+    if (config.MOCK) {
+      self.log('App running with mock services');
+    }
   });
 };
 
@@ -559,11 +571,6 @@ app.init = function(callback) {
 
   function initNoTouch() {
     detectTouchScreen();
-    initApi();
-  }
-
-  function initApi() {
-    self.api.init();
     initAuth();
   }
 

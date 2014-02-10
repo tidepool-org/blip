@@ -4,8 +4,6 @@ var expect = chai.expect;
 var chaiWebdriver = require('chai-webdriver');
 var helpers = require('../lib/e2ehelpers');
 
-var patients = require('../../demo/sample/patients.json');
-
 describe('Patients', function() {
   var driver = helpers.getDriver();
   var openApp = helpers.openApp;
@@ -35,7 +33,7 @@ describe('Patients', function() {
       .then(authenticate)
       .then(function() {
         expect('.js-patients-shared .js-patient')
-          .dom.to.have.count(patients.length);
+          .dom.to.have.count(3);
         done();
       });
   });

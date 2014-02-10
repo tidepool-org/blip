@@ -1,8 +1,8 @@
 var user = require('../../app/core/user');
-var demoUser = require('../../demo/sample/user.json');
+var testUser = window.data.user;
 
 describe('User service', function() {
-  var userInitialAttr = demoUser;
+  var userInitialAttr = testUser;
   var userAttr;
 
   beforeEach(function() {

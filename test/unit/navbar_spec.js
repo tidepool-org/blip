@@ -1,5 +1,5 @@
 var Navbar = require('../../app/components/navbar');
-var demoUser = require('../../demo/sample/user.json');
+var testUser = window.data.user;
 
 describe('Navbar', function() {
   var component;
@@ -40,14 +40,14 @@ describe('Navbar', function() {
   });
 
   it('should show user if object given', function() {
-    component.setProps({user: demoUser});
+    component.setProps({user: testUser});
     var userNode = component.refs.user;
 
     expect(userNode).to.exist;
   });
 
   it('should correctly display user full name', function() {
-    var user = demoUser;
+    var user = testUser;
     var expectedFullName = user.firstName + ' ' + user.lastName;
 
     component.setProps({user: user});
@@ -57,7 +57,7 @@ describe('Navbar', function() {
   });
 
   it('should call callback when logout clicked', function() {
-    var user = demoUser;
+    var user = testUser;
     var handleLogout = sinon.spy();
  
     component.setProps({

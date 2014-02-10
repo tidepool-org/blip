@@ -1,3 +1,5 @@
+var fs = require('fs');
+var util = require('util');
 var gulp = require('gulp');
 var jshint = require('gulp-jshint');
 var browserify = require('gulp-browserify');
@@ -12,17 +14,17 @@ var imagemin = require('gulp-imagemin');
 var clean = require('gulp-clean');
 var es = require('event-stream');
 var runSequence = require('run-sequence');
+var jsonToObject = require('./lib/gulp-json2obj');
 
 var pkg = require('./package.json');
 var files = require('./files');
-process.env.DEMO_DIR = process.env.DEMO_DIR || 'demo/sample';
+process.env.MOCK_DATA_DIR = process.env.MOCK_DATA_DIR || 'data/sample';
 process.env.FONTS_ENDPOINT = 'build/' + pkg.version + '/fonts';
 process.env.IMAGES_ENDPOINT = 'build/' + pkg.version + '/images';
-process.env.DEMO_ENDPOINT = 'build/' + pkg.version + '/demo';
 var jshintrc = JSON.parse(fs.readFileSync('.jshintrc'));
 
 gulp.task('jshint-app', function() {
-  return gulp.src('app/**/*.js')
+  return gulp.src(['app/**/*.js', 'mock/**/*.js'])
     .pipe(jshint(jshintrc))
     .pipe(jshint.reporter('jshint-stylish'));
 });
@@ -40,7 +42,7 @@ gulp.task('jshint-test', function() {
 gulp.task('jshint', ['jshint-app', 'jshint-test']);
 
 gulp.task('jshint-watch', ['jshint'], function(cb){
-  gulp.watch('app/**/*.js', ['jshint-app']);
+  gulp.watch(['app/**/*.js', 'mock/**/*.js'], ['jshint-app']);
 
   gulp.watch('test/**/*.js', ['jshint-test']);
 
@@ -52,8 +54,7 @@ gulp.task('jshint-watch', ['jshint'], function(cb){
 gulp.task('scripts-browserify', function() {
   return gulp.src('app/app.js')
     .pipe(browserify({
-      transform: ['reactify'],
-      debug: true
+      transform: ['reactify']
     }))
     .pipe(concat('app.js'))
     .pipe(gulp.dest('dist/tmp'));
@@ -68,12 +69,58 @@ gulp.task('scripts-config', function() {
     .pipe(gulp.dest('dist/tmp'));
 });
 
-gulp.task('scripts', ['scripts-browserify', 'scripts-config'], function() {
-  return gulp.src([].concat(files.js.vendor, [
-    'dist/tmp/config.js',
+gulp.task('scripts-mock', function(cb) {
+  if (process.env.MOCK) {
+    // {read: false} necessary for standalone option, see:
+    // https://github.com/deepak1556/gulp-browserify/issues/9
+    return gulp.src('mock/index.js', {read: false})
+      .pipe(browserify({standalone: 'mock'}))
+      .pipe(concat('mock.js'))
+      .pipe(gulp.dest('dist/tmp'));
+  }
+  else {
+    cb();
+  }
+});
+
+gulp.task('scripts-mock-data', function(cb) {
+  if (process.env.MOCK) {
+    var data = {};
+
+    gulp.src(process.env.MOCK_DATA_DIR + '/**/*.json')
+      .pipe(jsonToObject(data))
+      .on('end', function() {
+        var contents = 'window.data = ';
+        contents = contents + util.inspect(data, {depth: null});
+        contents = contents + ';';
+        fs.writeFile('dist/tmp/data.js', contents, cb);
+      });
+  }
+  else {
+    cb();
+  }
+});
+
+gulp.task('scripts', [
+  'scripts-browserify',
+  'scripts-config',
+  'scripts-mock',
+  'scripts-mock-data'
+], function() {
+  var src = files.js.vendor;
+  src.push('dist/tmp/config.js');
+  if (process.env.MOCK) {
+    src = src.concat([
+      'dist/tmp/data.js',
+      'dist/tmp/mock.js'
+    ]);
+  }
+  src = src.concat([
     'dist/tmp/app.js',
     'app/start.js'
-  ]))
+  ]);
+
+  return gulp.src(src)
     .pipe(concat('all.js'))
     .pipe(uglify())
     .pipe(gulp.dest('dist/build/' + pkg.version));
@@ -91,7 +138,8 @@ gulp.task('index', function() {
   return gulp.src('app/index.html')
     .pipe(template({
       production: true,
-      pkg: pkg
+      pkg: pkg,
+      mock: process.env.MOCK
     }))
     .pipe(gulp.dest('dist'));
 });
@@ -114,15 +162,6 @@ gulp.task('images', function () {
   return es.concat.apply(es, imageStreams);
 });
 
-gulp.task('demo', function(cb) {
-  if (process.env.DEMO) {
-    return gulp.src(process.env.DEMO_DIR + '/**')
-      .pipe(gulp.dest('dist/' + process.env.DEMO_ENDPOINT));
-  }
-  
-  return cb();
-});
-
 gulp.task('clean', function() {
   return gulp.src('dist', {read: false})
     .pipe(clean());
@@ -136,7 +175,7 @@ gulp.task('clean-tmp', function() {
 gulp.task('build', function(cb) {
   runSequence(
     'clean',
-    ['scripts', 'styles', 'index', 'fonts', 'images', 'demo'],
+    ['scripts', 'styles', 'index', 'fonts', 'images'],
     'clean-tmp',
   cb);
 });
@@ -144,6 +183,19 @@ gulp.task('build', function(cb) {
 gulp.task('before-tests-vendor', function() {
   return gulp.src(files.js.vendor)
     .pipe(gulp.dest('tmp/test/vendor'));
+});
+
+gulp.task('before-tests-data', function(cb) {
+  var data = {};
+
+  gulp.src('data/sample/**/*.json')
+    .pipe(jsonToObject(data))
+    .on('end', function() {
+      var contents = 'window.data = ';
+      contents = contents + util.inspect(data, {depth: null});
+      contents = contents + ';';
+      fs.writeFile('tmp/test/data.js', contents, cb);
+    });
 });
 
 gulp.task('before-tests-setup', function() {
@@ -166,6 +218,7 @@ gulp.task('before-tests-unit', function() {
 
 gulp.task('before-tests', [
   'before-tests-vendor',
+  'before-tests-data',
   'before-tests-setup',
   'before-tests-unit'
 ]);

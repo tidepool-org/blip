@@ -6,6 +6,7 @@
   ],
   "serve_files": [
     "tmp/test/vendor/*.js",
+    "tmp/test/data.js",
     "tmp/test/setup.js",
     "tmp/test/unit/*.js"
   ],
