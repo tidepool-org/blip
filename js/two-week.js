@@ -31,7 +31,7 @@ module.exports = function(emitter) {
     nav = {},
     pools = [],
     xScale = d3.scale.linear(),
-    xAxis = d3.svg.axis().scale(xScale).orient('top').outerTickSize(0)
+    xAxis = d3.svg.axis().scale(xScale).orient('top').outerTickSize(0).innerTickSize(15)
       .tickValues(function() {
         a = []
         for (i = 0; i < 8; i++) {
@@ -121,7 +121,7 @@ module.exports = function(emitter) {
         .attr('transform', 'translate(0,' + (nav.axisHeight - 1) + ')')
         .call(xAxis);
 
-      d3.selectAll('#tidelineXAxis g.tick text').style('text-anchor', 'start').attr('transform', 'translate(5,5)');
+      d3.selectAll('#tidelineXAxis g.tick text').style('text-anchor', 'start').attr('transform', 'translate(5,15)');
 
       // set the domain and range for the main two-week y-scale
       yScale.domain(viewEndpoints)

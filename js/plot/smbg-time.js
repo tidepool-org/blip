@@ -121,8 +121,8 @@ module.exports = function(pool, opts) {
           'class': 'd3-smbg-numbers d3-rect-smbg d3-smbg-time'
         });
 
+      // NB: cannot do same display: none strategy because dominant-baseline attribute cannot be applied
       circleGroups.append('text')
-        .style('display', 'none')
         .attr({
           'x': function(d) {
             var localTime = new Date(d.normalTime);
@@ -133,7 +133,8 @@ module.exports = function(pool, opts) {
             var t = hour * MS_IN_HOUR + min * MS_IN_MIN + sec * 1000 + msec;
             return opts.xScale(t);
           },
-          'y': pool.height() / 2 - opts.size / 8,
+          'y': pool.height() / 4,
+          'opacity': '0',
           'class': 'd3-smbg-numbers d3-text-smbg d3-smbg-time'
         })
         .text(function(d) {
@@ -144,22 +145,30 @@ module.exports = function(pool, opts) {
 
       opts.emitter.on('numbers', function(toggle) {
         if (toggle === 'show') {
-          d3.selectAll('.d3-smbg-numbers')
+          d3.selectAll('.d3-rect-smbg')
             .style('display', 'inline');
+          d3.selectAll('.d3-text-smbg')
+            .transition()
+            .duration(500)
+            .attr('opacity', 1);
           d3.selectAll('.d3-image-smbg')
             .transition()
-            .duration(750)
+            .duration(500)
             .attr({
               'height': opts.size * 0.75,
               'y': pool.height() / 2
             });
         }
         else if (toggle === 'hide') {
-          d3.selectAll('.d3-smbg-numbers')
+          d3.selectAll('.d3-rect-smbg')
             .style('display', 'none');
+          d3.selectAll('.d3-text-smbg')
+            .transition()
+            .duration(500)
+            .attr('opacity', 0);
           d3.selectAll('.d3-image-smbg')
             .transition()
-            .duration(750)
+            .duration(500)
             .attr({
               'height': opts.size,
               'y': pool.height() / 2 - opts.size / 2

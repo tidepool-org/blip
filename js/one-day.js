@@ -33,7 +33,7 @@ module.exports = function(emitter) {
     nav = {},
     pools = [], gutter,
     xScale = d3.time.scale.utc(),
-    xAxis = d3.svg.axis().scale(xScale).orient('top').outerTickSize(0).tickFormat(d3.time.format.utc("%-I %p")),
+    xAxis = d3.svg.axis().scale(xScale).orient('top').outerTickSize(0).innerTickSize(15).tickFormat(d3.time.format.utc("%-I %p")),
     beginningOfData, endOfData, data, allData = [], buffer, endpoints,
     mainGroup, scrollHandleTrigger = true, tooltips;
 
@@ -101,7 +101,7 @@ module.exports = function(emitter) {
         .attr('transform', 'translate(0,' + (nav.axisHeight - 1) + ')')
         .call(xAxis);
 
-      d3.selectAll('#tidelineXAxis g.tick text').style('text-anchor', 'start').attr('transform', 'translate(5,5)');
+      d3.selectAll('#tidelineXAxis g.tick text').style('text-anchor', 'start').attr('transform', 'translate(5,15)');
 
       container.poolGroup = mainGroup.append('g').attr('id', 'tidelinePools');
 
@@ -316,7 +316,7 @@ module.exports = function(emitter) {
         // TODO: check if container has tooltips before transforming them
         d3.select('#d3-tooltip-group').attr('transform', 'translate(' + e.translate[0] + ',0)');
         d3.select('.d3-x.d3-axis').call(xAxis);
-        d3.selectAll('#tidelineXAxis g.tick text').style('text-anchor', 'start').attr('transform', 'translate(5,5)');
+        d3.selectAll('#tidelineXAxis g.tick text').style('text-anchor', 'start').attr('transform', 'translate(5,15)');
         if (scrollHandleTrigger) {
           d3.select('#scrollThumb').transition().ease('linear').attr('x', function(d) {
             d.x = nav.scrollScale(xScale.domain()[0]);
