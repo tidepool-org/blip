@@ -27,7 +27,7 @@ Table of contents:
     - [Fonts](#fonts)
     - [Icons](#icons)
     - [JSHint](#jshint)
-    - [Demo mode](#demo-mode)
+    - [Mock mode](#mock-mode)
     - [Perceived speed](#perceived-speed)
 - [Testing](#testing)
     - [Unit tests](#unit-tests)
@@ -53,10 +53,10 @@ $ bower install
 
 ## Quick start
 
-Start the development server (in "demo mode") with:
+Start the development server (in "mock mode") with:
 
 ```bash
-$ export DEMO=true
+$ export MOCK=true
 $ node develop
 ```
 
@@ -217,24 +217,18 @@ We use an icon font for app icons (in `app/core/fonts/`). To use an icon, simply
 
 Take a look at the `app/core/less/icons.less` file for available icons.
 
-### Demo mode
+### Mock mode
 
-For local development or demoing, you can run the app in "demo" mode by setting the environment variable `DEMO=true`. In this mode, the app will not make any calls to external services, and use local `.json` files for data. The app will use the demo data files in the `demo/sample` folder, or the one specified by the `DEMO_DIR` environment variable.
+For local development, demoing, or testing, you can run the app in "mock" mode by setting the environment variable `MOCK=true`. In this mode, the app will not make any calls to external services, and use dummy data contained in `.json` files.
 
-All app objects (mostly app services) that make external calls should override these in their `init()` method:
+All app objects (mostly app services) that make any external call should have their methods making these external calls patched by a mock. These are located in the `mock/` directory. To create one, export a `patch(service, options)` function (see existing mocks for examples).
 
-```javascript
-foo.init = function() {
-  if (config.DEMO) {
-    addDemoOverrides(this);
-  }
-}
-```
+Mock data is generated from `.json` files, which are combined into a JavaScript object that mirrors the directory structure of the data files (for example `patients/11.json` will be available at `data.patients['11']`). Set the data file directory to use with the `MOCK_DATA_DIR` environment variable.
 
-There are additional "demo" settings you can use to help in development:
+There are additional "mock" settings you can use to help in development:
 
-- `DEMO_DELAY`: Set this to a value in milliseconds, and all "fake" demo external calls (to an API for example), will be delayed by that amount. This is useful to test how the app feels like on a slow internet connection for example.
-- `DEMO_VARIANT`: Use this to trigger some "special" events to test how the interface responds. For instance, setting `DEMO_VARIANT='auth.login.error'` will trigger an error when logging in.
+- `MOCK_DELAY`: Set this to a value in milliseconds, and all mock external calls (to an API for example), will be delayed by that amount. This is useful to test how the app feels like on a slow internet connection for example.
+- `MOCK_VARIANT`: Use this to trigger some "special" events to test how the interface responds. For instance, setting `MOCK_VARIANT='auth.login.error'` will trigger an error when logging in.
 
 ### Perceived speed
 
@@ -288,14 +282,14 @@ This will download and unzip the `chromedriver` executable in the `test/bin` dir
 
 **Note**: If not on Mac OSX, change the `CHROMEDRIVER_ZIP` environment variable to the correct one for your OS (see the [ChromeDriver downloads](http://chromedriver.storage.googleapis.com/index.html)), and `test/scripts/install_selenium.sh`).
 
-Before running the tests, build the app (in demo mode, for now) and start a local server in a separate terminal:
+Before running the tests, build the app (in mock mode) and start a local server in a separate terminal:
 
 ```bash
-$ export DEMO=true; gulp
+$ export MOCK=true; gulp
 $ node server
 ```
 
-(You can also run the tests in development with `export DEMO=true; node develop`.)
+(You can also run the tests in development with `export MOCK=true; node develop`.)
 
 Finally, run the tests with:
 
