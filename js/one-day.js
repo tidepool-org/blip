@@ -17,11 +17,10 @@
 
 var log = require('bows')('One Day');
 
-var pool = require('./pool');
-
-var tooltip = require('./plot/tooltip');
-
 module.exports = function(emitter) {
+  var pool = require('./pool');
+
+  var tooltip = require('./plot/tooltip');
 
   var MS_IN_24 = 86400000;
 
@@ -227,6 +226,11 @@ module.exports = function(emitter) {
 
   container.destroy = function() {
     d3.select('#' + this.id()).remove();
+  };
+
+  container.date = function() {
+    var d = new Date(xScale.domain()[0]);
+    return new Date(d.setUTCHours(d.getUTCHours() + 12));
   };
 
   // chainable methods

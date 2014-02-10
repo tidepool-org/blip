@@ -17,9 +17,9 @@
 
 var log = require('bows')('Two Week');
 
-var pool = require('./pool');
 
 module.exports = function(emitter) {
+  var pool = require('./pool');
 
   var MS_IN_24 = 86400000;
 
@@ -58,7 +58,7 @@ module.exports = function(emitter) {
     yScale = d3.time.scale.utc(),
     yAxis = d3.svg.axis().scale(yScale).orient('left').outerTickSize(0).tickFormat(d3.time.format.utc("%a %-d")),
     data, allData = [], endpoints, viewEndpoints, dataStartNoon, viewIndex,
-    mainGroup, poolGroup, scrollNav, scrollHandleTrigger = true;
+    mainGroup, scrollNav, scrollHandleTrigger = true;
 
   var defaults = {
     bucket: $('#tidelineContainer'),
@@ -98,7 +98,7 @@ module.exports = function(emitter) {
           'opacity': 0.0
         });
 
-      poolGroup = mainGroup.append('g').attr('id', 'tidelinePools');
+      container.poolGroup = mainGroup.append('g').attr('id', 'tidelinePools');
 
       // set the domain and range for the two-week x-scale
       xScale.domain([0, MS_IN_24])
@@ -149,9 +149,9 @@ module.exports = function(emitter) {
         .attr('transform', 'translate(' + (axisGutter - 1) + ',0)')
         .call(yAxis);
 
-      container.daysGroup = poolGroup.append('g').attr('id', 'poolBG');
+      container.daysGroup = container.poolGroup.append('g').attr('id', 'daysGroup');
 
-      statsGroup = poolGroup.append('g').attr('id', 'poolStats')
+      statsGroup = container.poolGroup.append('g').attr('id', 'poolStats')
         .attr('transform', 'translate(' + container.axisGutter() + ',' + (height - container.statsHeight()) + ')')
         .append('rect')
         .attr({
@@ -208,6 +208,16 @@ module.exports = function(emitter) {
       pool.yPosition(currentYPosition);
       currentYPosition += pool.height();
     }
+  };
+
+  container.destroy = function() {
+    d3.select('#' + this.id()).remove();
+  };
+
+  container.navString = function(a) {
+    var monthDay = d3.time.format.utc("%B %-d");
+    var navString = monthDay(new Date(a[0].setUTCDate(a[0].getUTCDate() + 1))) + ' - ' + monthDay(a[1]);
+    emitter.emit('navigated', navString);
   };
 
   // chainable methods
@@ -333,12 +343,6 @@ module.exports = function(emitter) {
       .call(drag);
 
     return container;
-  };
-
-  container.navString = function(a) {
-    var monthDay = d3.time.format.utc("%B %-d");
-    var navString = monthDay(new Date(a[0].setUTCDate(a[0].getUTCDate() + 1))) + ' - ' + monthDay(a[1]);
-    emitter.emit('navigated', navString);
   };
 
   // TODO: use for number reveal on click?

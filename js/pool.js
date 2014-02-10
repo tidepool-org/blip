@@ -70,6 +70,7 @@ module.exports = function(container) {
     this.minHeight(properties.minHeight).maxHeight(properties.maxHeight);
     this.tooltips(container.tooltips);
 
+    log('Pool defaults set.');
     return pool;
   };
 

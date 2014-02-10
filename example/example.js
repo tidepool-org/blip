@@ -27,25 +27,54 @@ var twoWeek = require('../js/two-week')(emitter);
 var fill = require('../js/plot/fill');
 var scales = require('../js/plot/scales');
 
+var el = '#tidelineContainer';
+
 // dear old Watson
 var watson = require('./watson')();
-d3.select('#tidelineContainer').call(watson);
+d3.select(el).call(watson);
 
 // set up one-day view
-var oneDay = oneDayChart('#tidelineContainer');
-
-// set up two-week view
-var twoWeek = twoWeekChart('#tidelineContainer');
+var oneDay = oneDayChart(el), twoWeek = twoWeekChart(el); 
 
 // load data and draw charts
 d3.json('device-data.json', function(data) {
   // Watson the data
   var data = watson.normalize(data);
   data = _.sortBy(data, 'normalTime');
+
   oneDay.initialize(data)
     .setUpPools(data)
     .locate('2014-03-06T06:23:45Z');
-  // twoWeek.initialize(data);
+
+  $('#twoWeekView').on('click', function() {
+    var date = oneDay.getCurrentDay();
+    oneDay.destroy();
+    $(this).parent().addClass('active');
+    $('#oneDayView').parent().removeClass('active');
+    $('.one-day').css('visibility', 'hidden');
+    $('.two-week').css('visibility', 'visible');
+    // TODO: this shouldn't be necessary, but I've screwed something up with the global two-week.js variables
+    // such that its necessary to create a new twoWeek object every time you want to rerender
+    twoWeek = new twoWeekChart(el);
+    // takes user to two-week view with day user was viewing in one-day view at the end of the two-week view window
+    twoWeek.initialize(data, date);
+  });
+
+  $('#oneDayView').on('click', function() {
+    twoWeek.destroy();
+    $(this).parent().addClass('active');
+    $('#twoWeekView').parent().removeClass('active');
+    $('#oneDayMostRecent').parent().addClass('active');
+    $('.one-day').css('visibility', 'visible');
+    $('.two-week').css('visibility', 'hidden');
+    // TODO: this shouldn't be necessary, but I've screwed something up with the global one-day.js variables
+    // such that its necessary to create a new oneDay object every time you want to rerender
+    oneDay = new oneDayChart(el);
+    // takes user to one-day view of most recent data
+    oneDay.initialize(data)
+      .setUpPools(data)
+      .locate();
+  });
 });
 
 // attach click handlers to set up programmatic pan
@@ -163,7 +192,7 @@ function oneDayChart(el) {
     poolMessages.addPlotType('message', require('../js/plot/message')(poolMessages, {size: 30}));
 
     return chart;    
-  }
+  };
 
   chart.initialize = function(data) {
 
@@ -222,6 +251,10 @@ function oneDayChart(el) {
     return chart;
   };
 
+  chart.getCurrentDay = function() {
+    return chart.date();
+  };
+
   return create(el);
 };
 
@@ -232,6 +265,8 @@ function oneDayChart(el) {
 function twoWeekChart(el) {
 
   var chart = require('../js/two-week')(emitter);
+
+  var pools = [];
 
   var create = function(el) {
     if (!el) {
@@ -257,30 +292,32 @@ function twoWeekChart(el) {
     d3.select(el).datum([null]).call(chart);
     chart.setNav().setScrollNav();
 
-    var days = twoWeek.days;
+    days = chart.days;
+    console.log(days, chart.pools());
     // make pools for each day
     days.forEach(function(day, i) {
-      var newPool = twoWeek.newPool().defaults()
+      var newPool = chart.newPool().defaults()
         .id('poolBG_' + day)
-        .index(twoWeek.pools().indexOf(newPool))
+        .index(chart.pools().indexOf(newPool))
         .weight(1.0);
     });
 
-    twoWeek.arrangePools();
+    console.log('Got here!');
+    chart.arrangePools();
 
     var fillEndpoints = [new Date('2014-01-01T00:00:00Z'), new Date('2014-01-02T00:00:00Z')];
     var fillScale = d3.time.scale.utc()
       .domain(fillEndpoints)
-      .range([twoWeek.axisGutter(), twoWeek.width() - twoWeek.navGutter()]);
+      .range([chart.axisGutter(), chart.width() - chart.navGutter()]);
 
-    twoWeek.pools().forEach(function(pool, i) {
+    chart.pools().forEach(function(pool, i) {
       pool.addPlotType('fill', fill(pool, {
         endpoints: fillEndpoints,
         scale: fillScale,
         gutter: 0.5
       }));
       pool.addPlotType('smbg', require('../js/plot/smbg-time')(pool));
-      pool(twoWeek.daysGroup, twoWeek.dataPerDay[i]);
+      pool(chart.daysGroup, chart.dataPerDay[i]);
     });
 
     return chart;

@@ -32,7 +32,14 @@
   font-family: @font-family-base;
   font-size: @font-size-base;
 
-  #tidelineNav {
+  .one-day {
+    visibility: visible;
+  }
+  .two-week {
+    visibility: hidden;
+  }
+
+  .tidelineNav {
     background-color: @labels;
 
     .tidelineNavLabel {
@@ -43,10 +50,6 @@
 
       &.active {
         font-weight: bold;
-      }
-
-      &.inactive {
-        font-weight: normal;
       }
       a {
         color: white;
