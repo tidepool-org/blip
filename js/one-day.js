@@ -645,7 +645,9 @@ module.exports = function(emitter) {
         }
       });
     }
-    allData = _.sortBy(allData, 'normalTime');
+    allData = _.sortBy(allData, function(d) {
+      return new Date(d.normalTime).valueOf();
+    });
     allData = _.uniq(allData, true);
     return container;
   };

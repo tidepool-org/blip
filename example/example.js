@@ -49,7 +49,9 @@ d3.json('device-data.json', function(data) {
   log('Data loaded.');
   // Watson the data
   var data = watson.normalize(data);
-  data = _.sortBy(data, 'normalTime');
+  data = _.sortBy(data, function(d) {
+    return new Date(d.normalTime).valueOf();
+  });
 
   log('Initial one-day view.');
   oneDay.initialize(data).locate('2014-03-06T12:00:00Z');
