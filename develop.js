@@ -50,7 +50,7 @@ app.use('/tidepoolplatform.js', function(req, res) {
 
 app.use('/config.js', function(req, res) {
   res.setHeader('Content-Type', 'text/javascript');
-  
+
   gulp.src('app/config.js')
     .pipe(template({
       process: {env: process.env},
