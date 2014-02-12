@@ -1,5 +1,5 @@
 window.tidepoolPlatform = function(host, api, auth){
-  var log = bows('tidepoolplatform.js');
+  var log = bows('tidepoolplatform');
 
   var sessionTokenHeader = 'x-tidepool-session-token';
   var token = null;
