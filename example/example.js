@@ -28,6 +28,7 @@ emitter.on('navigated', function(navString) {
 // common pool modules
 var fill = require('../js/plot/fill');
 var scales = require('../js/plot/scales');
+var basalUtil = require('../js/data/basal-util')();
 
 var el = '#tidelineContainer';
 
@@ -36,7 +37,7 @@ var watson = require('./watson')();
 d3.select(el).call(watson);
 
 // set up one-day view
-var oneDay = new oneDayChart(el), twoWeek = twoWeekChart(el); 
+var oneDay = new oneDayChart(el), twoWeek = twoWeekChart(el);
 
 
 // Note to Nico: this (all the code within d3.json() below) is all rough-and-ready...
@@ -47,8 +48,16 @@ var oneDay = new oneDayChart(el), twoWeek = twoWeekChart(el);
 // load data and draw charts
 d3.json('device-data.json', function(data) {
   log('Data loaded.');
+  // munge basal segments
+  var vizReadyBasals = basalUtil(data);
+  log('Number of overlapping basal segments is ' + vizReadyBasals.nonContinuousSegments.length + '.');
+  data = _.reject(data, function(d) {
+    return d.type === 'basal-rate-segment';
+  });
+  data = data.concat(vizReadyBasals.actualSegments.concat(vizReadyBasals.undeliveredSegments));
   // Watson the data
   var data = watson.normalize(data);
+  // ensure the data is properly sorted
   data = _.sortBy(data, function(d) {
     return new Date(d.normalTime).valueOf();
   });
@@ -219,13 +228,13 @@ function oneDayChart(el) {
       .outerTickSize(0)
       .tickValues([40, 80, 120, 180, 300]));
     // add background fill rectangles to BG pool
-    poolBG.addPlotType('fill', fill(poolBG, {endpoints: chart.endpoints}));
+    poolBG.addPlotType('fill', fill(poolBG, {endpoints: chart.endpoints}), false);
 
     // add CBG data to BG pool
-    poolBG.addPlotType('cbg', require('../js/plot/cbg')(poolBG, {yScale: scaleBG}));
+    poolBG.addPlotType('cbg', require('../js/plot/cbg')(poolBG, {yScale: scaleBG}), true);
 
     // add SMBG data to BG pool
-    poolBG.addPlotType('smbg', require('../js/plot/smbg')(poolBG, {yScale: scaleBG}));
+    poolBG.addPlotType('smbg', require('../js/plot/smbg')(poolBG, {yScale: scaleBG}), true);
 
     // bolus & carbs pool
     var scaleBolus = scales.bolus(_.where(data, {'type': 'bolus'}), poolBolus);
@@ -243,24 +252,34 @@ function oneDayChart(el) {
       .outerTickSize(0)
       .ticks(3));
     // add background fill rectangles to bolus pool
-    poolBolus.addPlotType('fill', fill(poolBolus, {endpoints: chart.endpoints}));
+    poolBolus.addPlotType('fill', fill(poolBolus, {endpoints: chart.endpoints}), false);
 
     // add carbs data to bolus pool
-    poolBolus.addPlotType('carbs', require('../js/plot/carbs')(poolBolus, {yScale: scaleCarbs}));
+    poolBolus.addPlotType('carbs', require('../js/plot/carbs')(poolBolus, {yScale: scaleCarbs}), true);
 
     // add bolus data to bolus pool
-    poolBolus.addPlotType('bolus', require('../js/plot/bolus')(poolBolus, {yScale: scaleBolus}));
+    poolBolus.addPlotType('bolus', require('../js/plot/bolus')(poolBolus, {yScale: scaleBolus}), true);
 
     // basal pool
+    var scaleBasal = scales.basal(_.where(data, {'type': 'basal-rate-segment'}), poolBasal);
+    // set up y-axis
+    poolBasal.yAxis(d3.svg.axis()
+      .scale(scaleBasal)
+      .orient('left')
+      .outerTickSize(0)
+      .ticks(5));
     // add background fill rectangles to basal pool
-    poolBasal.addPlotType('fill', fill(poolBasal, {endpoints: chart.endpoints}));
+    poolBasal.addPlotType('fill', fill(poolBasal, {endpoints: chart.endpoints}), false);
+
+    // add basal data to basal pool
+    poolBasal.addPlotType('basal-rate-segment', require('../js/plot/basal')(poolBasal, {yScale: scaleBasal}), true);
 
     // messages pool
     // add background fill rectangles to messages pool
-    poolMessages.addPlotType('fill', fill(poolMessages, {endpoints: chart.endpoints}));
+    poolMessages.addPlotType('fill', fill(poolMessages, {endpoints: chart.endpoints}), false);
 
     // add message images to messages pool
-    poolMessages.addPlotType('message', require('../js/plot/message')(poolMessages, {size: 30}));
+    poolMessages.addPlotType('message', require('../js/plot/message')(poolMessages, {size: 30}), true);
 
     return chart;
   };
@@ -366,8 +385,8 @@ function twoWeekChart(el) {
         endpoints: fillEndpoints,
         scale: fillScale,
         gutter: 0.5
-      }));
-      pool.addPlotType('smbg', require('../js/plot/smbg-time')(pool, {emitter: emitter}));
+      }), false);
+      pool.addPlotType('smbg', require('../js/plot/smbg-time')(pool, {emitter: emitter}), true);
       pool(chart.daysGroup, chart.dataPerDay[i]);
     });
 

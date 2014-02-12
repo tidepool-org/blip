@@ -183,6 +183,14 @@ module.exports = function() {
       }
     });
 
+    // add vizType = 'actual' or 'undelivered'
+    actual.forEach(function(segment) {
+      segment.vizType = 'actual';
+    });
+    undelivered.forEach(function(segment) {
+      segment.vizType = 'undelivered';
+    });
+
     return {
       "actualSegments": actual,
       "undeliveredSegments": undelivered,

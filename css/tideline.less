@@ -147,6 +147,23 @@ svg {
   }
 }
 
+// basal
+.d3-basal {
+  &.d3-rect-basal {
+    fill: @basal;
+    opacity: 0.3;
+  }
+  &.d3-path-basal {
+    fill: none;
+    stroke: @basal;
+    stroke-width: 1.5;
+    &.d3-path-basal-undelivered {
+      stroke-dasharray: 1.5,3;
+      stroke-linecap: round;
+    }
+  }
+}
+
 // tooltips
 .d3-tooltip {
   .d3-tooltip-text {

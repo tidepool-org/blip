@@ -47,7 +47,8 @@ module.exports = function() {
         i.normalTime = d.toISOString();
       }
       else if (i.type === 'basal-rate-segment') {
-        i.normalTime = i.start;
+        i.normalTime = i.start + 'Z';
+        i.normalEnd = i.end + 'Z';
       }
       return i;
     });

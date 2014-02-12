@@ -36,8 +36,8 @@ var scales = {
   },
   basal: function(data, pool) {
     var scale = d3.scale.linear()
-      .domain([0, d3.max(data, function(d) { return d.value; })])
-      .range([pool.height(), 0]);
+      .domain([0, d3.max(data, function(d) { return d.value; }) * 1.1])
+      .rangeRound([pool.height(), 0]);
     return scale;
   }
 };
