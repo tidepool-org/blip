@@ -46,6 +46,8 @@ if (config.MOCK) {
   var mockData = window.data || {};
   api = mock.api(api, {data: mockData});
   auth = mock.auth(auth);
+} else {
+  tidepoolPlatform(config.API_HOST, api, auth);
 }
 
 var app = {
@@ -454,7 +456,7 @@ var AppComponent = React.createClass({
 
     self.setState({fetchingPatients: true});
 
-    app.api.patients.get(function(err, patients) {
+    app.api.patient.getAll(function(err, patients) {
       self.setState({
         patients: patients,
         fetchingPatients: false

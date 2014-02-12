@@ -41,9 +41,16 @@ app.use('/start.js', function(req, res) {
   stream.pipe(res);
 });
 
+app.use('/tidepoolplatform.js', function(req, res) {
+  res.setHeader('Content-Type', 'text/javascript');
+
+  var stream = fs.createReadStream(__dirname + '/app/tidepoolplatform.js');
+  stream.pipe(res);
+});
+
 app.use('/config.js', function(req, res) {
   res.setHeader('Content-Type', 'text/javascript');
-  
+
   gulp.src('app/config.js')
     .pipe(template({
       process: {env: process.env},
