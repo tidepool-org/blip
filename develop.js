@@ -41,10 +41,10 @@ app.use('/start.js', function(req, res) {
   stream.pipe(res);
 });
 
-app.use('/tidepool-platform.js', function(req, res) {
+app.use('/tidepoolplatform.js', function(req, res) {
   res.setHeader('Content-Type', 'text/javascript');
 
-  var stream = fs.createReadStream(__dirname + '/app/tidepool-platform.js');
+  var stream = fs.createReadStream(__dirname + '/app/tidepoolplatform.js');
   stream.pipe(res);
 });
 

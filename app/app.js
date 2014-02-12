@@ -47,7 +47,7 @@ if (config.MOCK) {
   api = mock.api(api, {data: mockData});
   auth = mock.auth(auth);
 } else {
-  _tidepool_platform(config.API_HOST, api, auth);
+  tidepoolPlatform(config.API_HOST, api, auth);
 }
 
 var app = {

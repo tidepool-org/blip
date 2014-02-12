@@ -1,5 +1,5 @@
-window._tidepool_platform = (function(host, api, auth){
-  var log = bows('tidepool-platform.js');
+window.tidepoolPlatform = function(host, api, auth){
+  var log = bows('tidepoolplatform.js');
 
   var sessionTokenHeader = 'x-tidepool-session-token';
   var token = null;
@@ -104,8 +104,7 @@ window._tidepool_platform = (function(host, api, auth){
           } else {
             return cb({ message: 'Couldn\'t POST new user metadata: ' + res.status });
           }
-        }
-      )
+        });
     };
   }
 
@@ -146,10 +145,10 @@ window._tidepool_platform = (function(host, api, auth){
 
     api.login = function(user, cb) {
       if (user.username == null) {
-        return cb({ message: "Must specify an username" });
+        return cb({ message: 'Must specify an username' });
       }
       if (user.password == null) {
-        return cb({ message: "Must specify a password" });
+        return cb({ message: 'Must specify a password' });
       }
 
       superagent.post(makeUrl('/auth/login'))
@@ -164,9 +163,9 @@ window._tidepool_platform = (function(host, api, auth){
             saveSession(res.body.userid, res.headers[sessionTokenHeader]);
             cb(null, res.body);
           } else if (res.status === 401) {
-            cb({ message: "Unauthorized" });
+            cb({ message: 'Unauthorized' });
           } else {
-            cb({ message: "Unknown status code " + res.status });
+            cb({ message: 'Unknown status code ' + res.status });
           }
         });
     };
@@ -185,10 +184,10 @@ window._tidepool_platform = (function(host, api, auth){
 
     api.signup = function(user, cb) {
       if (user.username == null) {
-        return cb({ message: "Must specify a username" });
+        return cb({ message: 'Must specify a username' });
       }
       if (user.password == null) {
-        return cb({ message: "Must specify a password" });
+        return cb({ message: 'Must specify a password' });
       }
 
       var userApiUser = _.assign({}, _.pick(user, 'username', 'password'), { emails: [user.username] });
@@ -211,15 +210,15 @@ window._tidepool_platform = (function(host, api, auth){
               return cb(null, _.assign({}, userApiBody, profile));
             });
           } else if (res.status === 401) {
-            cb({ message: "Unauthorized" });
+            cb({ message: 'Unauthorized' });
           } else {
-            cb({ message: "Unknown response code " + res.status });
+            cb({ message: 'Unknown response code ' + res.status });
           }
         });
-    }
+    };
   }
 
   setupUser(api.user);
   setupPatient(api.patient);
   setupAuth(auth);
-});
+};
