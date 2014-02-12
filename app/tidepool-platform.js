@@ -160,7 +160,6 @@ window._tidepool_platform = (function(host, api, auth){
             return cb(err);
           }
 
-          console.log('got user', res.body);
           if (res.status === 200) {
             saveSession(res.body.userid, res.headers[sessionTokenHeader]);
             cb(null, res.body);
@@ -193,7 +192,6 @@ window._tidepool_platform = (function(host, api, auth){
       }
 
       var userApiUser = _.assign({}, _.pick(user, 'username', 'password'), { emails: [user.username] });
-      console.log('sending!', userApiUser);
       superagent.post(makeUrl('/auth/user'))
         .send(userApiUser)
         .end(
@@ -201,8 +199,6 @@ window._tidepool_platform = (function(host, api, auth){
           if (err != null) {
             return cb(err);
           }
-
-          console.log('got!', res.body);
 
           if (res.status === 201) {
             var userApiBody = res.body;
