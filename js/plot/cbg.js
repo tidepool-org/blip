@@ -37,8 +37,7 @@ module.exports = function(pool, opts) {
     selection.each(function(currentData) {
       var allCBG = d3.select(this).selectAll('circle')
         .data(currentData, function(d) {
-          // leveraging the timestamp of each datapoint as the ID for D3's binding
-          return d.normalTime;
+          return d.id;
         });
       var cbgGroups = allCBG.enter()
         .append('circle')

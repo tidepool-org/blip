@@ -43,8 +43,7 @@ module.exports = function(pool, opts) {
       var circles = d3.select(this)
         .selectAll('image')
         .data(currentData, function(d) {
-          // leveraging the timestamp of each datapoint as the ID for D3's binding
-          return d.normalTime;
+          return d.id;
         });
       circles.enter()
         .append('image')

@@ -15,9 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-var watson = require('../../example/watson');
-watson = new watson();
-
 module.exports = function(pool, opts) {
 
   var opts = opts || {};
@@ -36,8 +33,7 @@ module.exports = function(pool, opts) {
       var boluses = d3.select(this)
         .selectAll('g')
         .data(currentData, function(d) {
-          // leveraging the timestamp of each datapoint as the ID for D3's binding
-          return d.normalTime;
+          return d.id;
         });
       var bolusGroups = boluses.enter()
         .append('g')

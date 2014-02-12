@@ -30,10 +30,8 @@ module.exports = function(pool, opts) {
       var messages = d3.select(this)
         .selectAll('image')
         .data(currentData, function(d) {
-          // leveraging the timestamp of each datapoint as the ID for D3's binding
-          // only top-level message get an icon on the timeline
           if (d.parentMessage === '') {
-            return d.normalTime;
+            return d.id;
           }
         });
       messages.enter()

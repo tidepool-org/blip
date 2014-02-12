@@ -31,8 +31,7 @@ module.exports = function(pool, opts) {
       var rects = d3.select(this)
         .selectAll('rect')
         .data(currentData, function(d) {
-          // leveraging the timestamp of each datapoint as the ID for D3's binding
-          return d.normalTime;
+          return d.id;
         });
       rects.enter()
         .append('rect')
