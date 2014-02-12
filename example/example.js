@@ -267,7 +267,7 @@ function oneDayChart(el) {
       .scale(scaleBasal)
       .orient('left')
       .outerTickSize(0)
-      .ticks(5));
+      .ticks(4));
     // add background fill rectangles to basal pool
     poolBasal.addPlotType('fill', fill(poolBasal, {endpoints: chart.endpoints}), false);
 
