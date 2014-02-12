@@ -22,5 +22,6 @@ window.config = {
   DEMO_DELAY: Number('<%= process.env.DEMO_DELAY %>') || 0,
   DEMO_VARIANT: '<%= process.env.DEMO_VARIANT %>' || '',
   DEMO_ENDPOINT: '<%= process.env.DEMO_ENDPOINT %>' || 'demo',
-  MOCK: Boolean('<%= process.env.MOCK %>') || true
+  MOCK: Boolean('<%= process.env.MOCK %>') || true,
+  API_HOST: '<%= process.env.API_HOST %>' || 'https://devel-api.tidepool.io'
 };

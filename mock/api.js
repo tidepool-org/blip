@@ -41,9 +41,9 @@ var patch = function(api, options) {
     }, config.MOCK_DELAY);
   };
 
-  // ----- Patients -----
+  // ----- Patient -----
 
-  api.patients.get = function(callback) {
+  api.patient.getAll = function(callback) {
     api.log('[mock] GET /patients');
     var patients = _.toArray(data.patients);
     var userPatientId = data.user.patient && data.user.patient.id;
@@ -54,8 +54,6 @@ var patch = function(api, options) {
       callback(null, patients);
     }, config.MOCK_DELAY);
   };
-
-  // ----- Patient -----
 
   api.patient.get = function(patientId, callback) {
     api.log('[mock] GET /patients/' + patientId);
