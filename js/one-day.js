@@ -37,6 +37,8 @@ module.exports = function(emitter) {
     beginningOfData, endOfData, data, allData = [], buffer, endpoints,
     mainGroup, scrollHandleTrigger = true, tooltips;
 
+  container.dataFill = {};
+
   var defaults = {
     bucket: $('#tidelineContainer'),
     id: 'tidelineSVG',
@@ -51,7 +53,7 @@ module.exports = function(emitter) {
       currentTranslation: 0
     },
     axisGutter: 40,
-    gutter: 30,
+    gutter: 40,
     buffer: 5,
     tooltip: true
   };

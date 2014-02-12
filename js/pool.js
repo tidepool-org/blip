@@ -42,10 +42,8 @@ module.exports = function(container) {
       'id': id,
       'transform': 'translate(0,' + yPosition + ')'
     });
-    // TODO: this is diabetes-data specific, doesn't belong here, factor out into example.js/passed arguments
-    var dataFill = {'cbg': true, 'smbg': true, 'carbs': true, 'bolus': true, 'fill': false, 'message': true};
     plotTypes.forEach(function(plotType) {
-      if (dataFill[plotType.type]) {
+      if (container.dataFill[plotType.type]) {
         plotType.data = _.where(poolData, {'type': plotType.type});
         dataGroup = group.selectAll('#' + id + '_' + plotType.type).data([plotType.data]);
         dataGroup.enter().append('g').attr('id', id + '_' + plotType.type);
@@ -196,11 +194,14 @@ module.exports = function(container) {
     return pool;
   };
 
-  pool.addPlotType = function (dataType, plotFunction) {
+  pool.addPlotType = function (dataType, plotFunction, dataFillBoolean) {
     plotTypes.push({
       type: dataType,
       plot: plotFunction
     });
+    if (dataFillBoolean) {
+      container.dataFill[dataType] = true;
+    }
     return pool;
   };
 

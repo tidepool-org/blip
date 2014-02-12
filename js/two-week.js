@@ -59,6 +59,8 @@ module.exports = function(emitter) {
     data, allData = [], endpoints, viewEndpoints, dataStartNoon, viewIndex,
     mainGroup, scrollNav, scrollHandleTrigger = true;
 
+  container.dataFill = {};
+
   var defaults = {
     bucket: $('#tidelineContainer'),
     id: 'tidelineSVG',
@@ -342,14 +344,6 @@ module.exports = function(emitter) {
       })
       .call(drag);
 
-    return container;
-  };
-
-  // TODO: use for number reveal on click?
-  container.setTooltip = function() {
-    var tooltipGroup = mainGroup.append('g')
-      .attr('id', 'd3-tooltip-group');
-    container.tooltips = new tooltip(container, tooltipGroup).id(tooltipGroup.attr('id'));
     return container;
   };
 
