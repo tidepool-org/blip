@@ -15,11 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
- var log = require('bows')('Basal');
-
 module.exports = function(pool, opts) {
 
-  var opts = opts || {};
+  opts = opts || {};
 
   var defaults = {
     xScale: pool.xScale().copy()
@@ -51,7 +49,13 @@ module.exports = function(pool, opts) {
             return basal.width(d);
           },
           'height': function(d) {
-            return pool.height() - opts.yScale(d.value);
+            var height = pool.height() - opts.yScale(d.value);
+            if (height < 0) {
+              return 0;
+            }
+            else {
+              return height;
+            }
           },
           'x': function(d) {
             return opts.xScale(new Date(d.normalTime));
@@ -63,11 +67,7 @@ module.exports = function(pool, opts) {
         });
       rects.exit().remove();
 
-      var pathGroup = d3.select('#d3-basal-paths');
-
-      if (pathGroup[0].length !== 0) {
-        pathGroup = d3.select(this).append('g').attr('id', 'd3-basal-paths');
-      }
+      var basalGroup = d3.select(this);
 
       var actualPoints = [];
 
@@ -82,16 +82,13 @@ module.exports = function(pool, opts) {
         });
       });
 
-      log(pathGroup);
-
-      pathGroup.append('path')
+      d3.select(this).append('path')
         .attr({
         'd': line(actualPoints),
         'class': 'd3-basal d3-path-basal'
       });
 
       if (undelivered.length !== 0) {
-        log(undelivered);
         var undeliveredPairs = [];
 
         undelivered.forEach(function(d) {
@@ -106,7 +103,7 @@ module.exports = function(pool, opts) {
         });
 
         undeliveredPairs.forEach(function(pair) {
-          pathGroup.append('path')
+          basalGroup.append('path')
             .attr({
               'd': line(pair),
               'class': 'd3-basal d3-path-basal d3-path-basal-undelivered'
@@ -120,5 +117,5 @@ module.exports = function(pool, opts) {
     return opts.xScale(new Date(d.normalEnd)) - opts.xScale(new Date(d.normalTime));
   };
 
-  return basal; 
+  return basal;
 };
