@@ -22,13 +22,13 @@ var EventEmitter = require('events').EventEmitter;
 var emitter = new EventEmitter;
 emitter.setMaxListeners(100);
 emitter.on('navigated', function(navString) {
-  $('#tidelineNavString').html(navString); 
+  $('#tidelineNavString').html(navString);
 });
 
 // common pool modules
 var fill = require('../js/plot/fill');
 var scales = require('../js/plot/scales');
-var basalUtil = require('../js/data/basal-util')();
+var BasalUtil = require('../js/data/basal-util');
 
 var el = '#tidelineContainer';
 
@@ -49,14 +49,13 @@ var oneDay = new oneDayChart(el), twoWeek = twoWeekChart(el);
 d3.json('device-data.json', function(data) {
   log('Data loaded.');
   // munge basal segments
-  var vizReadyBasals = basalUtil(data);
-  log('Number of overlapping basal segments is ' + vizReadyBasals.nonContinuousSegments.length + '.');
+  var vizReadyBasals = new BasalUtil(data);
   data = _.reject(data, function(d) {
     return d.type === 'basal-rate-segment';
   });
-  data = data.concat(vizReadyBasals.actualSegments.concat(vizReadyBasals.undeliveredSegments));
+  data = data.concat(vizReadyBasals.actual.concat(vizReadyBasals.undelivered));
   // Watson the data
-  var data = watson.normalize(data);
+  data = watson.normalize(data);
   // ensure the data is properly sorted
   data = _.sortBy(data, function(d) {
     return new Date(d.normalTime).valueOf();
@@ -120,7 +119,7 @@ d3.json('device-data.json', function(data) {
     // attach click handlers to set up programmatic pan
     $('#tidelineNavForward').on('click', oneDay.panForward);
     $('#tidelineNavBack').on('click', oneDay.panBack);
-  })
+  });
 
   emitter.on('selectSMBG', function(date) {
     log('Navigated to one-day view from double clicking a two-week view SMBG.');
@@ -288,15 +287,16 @@ function oneDayChart(el) {
   // if called without an argument, locates the chart at the most recent 24 hours of data
   chart.locate = function(datetime) {
 
-    var start, localData;
+    var start, end, localData;
 
     if (!arguments.length) {
       start = chart.initialEndpoints[0];
+      end = chart.initialEndpoints[1];
       localData = chart.getData(chart.initialEndpoints, 'both');
     }
     else {
       start = new Date(datetime);
-      var end = new Date(start);
+      end = new Date(start);
       start.setUTCHours(start.getUTCHours() - 12);
       end.setUTCHours(end.getUTCHours() + 12);
 
@@ -329,7 +329,7 @@ function oneDayChart(el) {
   };
 
   return create(el);
-};
+}
 
 // // two-week visualization
 // // =====================
@@ -394,4 +394,4 @@ function twoWeekChart(el) {
   };
 
   return create(el);
-};
+}
