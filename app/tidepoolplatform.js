@@ -25,6 +25,14 @@ window.tidepoolPlatform = function(host, api, auth){
 
       app.api.patient.put(userid, user, cb);
     };
+
+    api.getToken = function() {
+      return token;
+    }
+
+    api.getUserid = function() {
+      return userid;
+    }
   }
 
   function setupPatient(api) {

@@ -30,6 +30,7 @@ var Patients = React.createClass({
 
   render: function() {
     var userPatient = this.renderUserPatient();
+    var uploadLink = this.renderUploadLink();
     var sharedPatients = this.renderSharedPatients();
 
     /* jshint ignore:start */
@@ -49,6 +50,8 @@ var Patients = React.createClass({
             </div>
           </div>
         </div>
+                        {uploadLink}
+
       </div>
     );
     /* jshint ignore:end */
@@ -82,6 +85,55 @@ var Patients = React.createClass({
 
   isResettingUserData: function() {
     return (this.props.fetchingUser && !this.props.user);
+  },
+
+  renderUploadLink: function() {
+    if (window.openUpload == null) {
+      window.openUpload = this.openUpload.bind(this);
+    }
+
+    return (
+      <div>
+        <form onSubmit={this.openUpload}><button>Upload data!</button></form>
+        <div id="forData"></div>
+      </div>
+      );
+  },
+
+  openUpload: function(e) {
+    e.preventDefault();
+    var token = app.api.user.getToken();
+    if (token == null) {
+      alert('You are not logged in!');
+    }
+
+    var uploadWindow = window.open('https://devel-uploads.tidepool.io?token=' + token, 'the thing', 'scrollbars=1,height=400,width=400');
+//    var uploadWindow = window.open('http://localhost:9122?token=' + token, 'the thing', 'scrollbars=1,height=400,width=400');
+    function checkForClose() {
+      setTimeout(
+        function(){
+          if (uploadWindow.closed !== false) {
+            // The upload window was closed, so show us some data!  Sorry nico.
+            console.log('Upload window closed!  Show data, whoot whoot!');
+            superagent.get('https://devel-api.tidepool.io/data/' + app.api.user.getUserid())
+              .set('x-tidepool-session-token', token)
+              .end(
+              function(err, res){
+                if (err == null) {
+                  window.theRes = res;
+                  document.getElementById('forData').innerHTML=res.text;
+                }
+              });
+          } else {
+            // Still open, keep checking
+            checkForClose();
+          }
+        },
+        1000
+      );
+    }
+    checkForClose();
+    uploadWindow.focus();
   },
 
   renderSharedPatients: function() {
