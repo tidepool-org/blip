@@ -28,7 +28,7 @@ emitter.on('navigated', function(navString) {
 // common pool modules
 var fill = require('../js/plot/fill');
 var scales = require('../js/plot/scales');
-var BasalUtil = require('../js/data/basal-util');
+var BasalUtil = require('../js/data/basalutil');
 
 var el = '#tidelineContainer';
 
