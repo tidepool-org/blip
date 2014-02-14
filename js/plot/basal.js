@@ -22,6 +22,12 @@ module.exports = function(pool, opts) {
   opts = opts || {};
 
   var defaults = {
+    classes: {
+      'reg': {'tooltip': 'basal_tooltip_reg.svg'},
+      'temp': {'tooltip': 'basal_tooltip_temp.svg'}
+    },
+    tooltipWidth: 144,
+    tooltipHeight: 20,
     xScale: pool.xScale().copy()
   };
 
@@ -71,9 +77,33 @@ module.exports = function(pool, opts) {
           'y': function(d) {
             return opts.yScale(d.value);
           },
-          'class': 'd3-basal d3-rect-basal'
+          'class': function(d) {
+            if (d.deliveryType === 'temp') {
+              return 'd3-basal d3-rect-basal d3-basal-temp';
+            }
+            else {
+              return 'd3-basal d3-rect-basal';
+            }
+          },
+          'id': function(d) {
+            return 'basal_' + d.id;
+          }
         });
       rects.exit().remove();
+
+      // tooltips
+      d3.selectAll('.d3-rect-basal').on('mouseover', function() {
+        if (d3.select(this).classed('d3-basal-temp')) {
+          basal.addTooltip(d3.select(this).datum(), 'temp');
+        }
+        else {
+          basal.addTooltip(d3.select(this).datum(), 'reg');
+        }
+      });
+      d3.selectAll('.d3-rect-basal').on('mouseout', function() {
+        var id = d3.select(this).attr('id').replace('basal_', 'tooltip_');
+        d3.select('#' + id).remove();
+      });
 
       var basalGroup = d3.select(this);
 
@@ -159,8 +189,51 @@ module.exports = function(pool, opts) {
     });
   }
 
+  basal.timespan = function(d) {
+
+  };
+
   basal.width = function(d) {
     return opts.xScale(new Date(d.normalEnd)) - opts.xScale(new Date(d.normalTime));
+  };
+
+  basal.addTooltip = function(d, category) {
+    d3.select('#' + 'd3-tooltip-group_basal')
+      .call(tooltips,
+        d,
+        // tooltipXPos
+        opts.xScale(Date.parse(d.normalTime)),
+        'basal',
+        // timestamp
+        false,
+        opts.classes[category]['tooltip'],
+        opts.tooltipWidth,
+        opts.tooltipHeight,
+        // imageX
+        opts.xScale(Date.parse(d.normalTime)) - opts.tooltipWidth / 2 + basal.width(d) / 2,
+        // imageY
+        function() {
+          var y = opts.yScale(d.value) - opts.tooltipHeight * 2;
+          if (y < 0) {
+            return 0;
+          }
+          else {
+            return y;
+          }
+        },
+        // textX
+        opts.xScale(Date.parse(d.normalTime)) + basal.width(d) / 2,
+        // textY
+        function() {
+          var y = opts.yScale(d.value) - opts.tooltipHeight * 2;
+          if (y < 0) {
+            return opts.tooltipHeight / 2;
+          }
+          else {
+            return opts.yScale(d.value) - opts.tooltipHeight * 1.5;
+          }
+        },
+        d.value + ' U');
   };
 
   return basal;

@@ -17,7 +17,7 @@
 
 module.exports = function(pool, opts) {
 
-  var opts = opts || {};
+  opts = opts || {};
 
   var cbgCircles, tooltips = pool.tooltips();
 
@@ -104,13 +104,13 @@ module.exports = function(pool, opts) {
       // tooltips
       d3.selectAll('.d3-circle-cbg').on('mouseover', function() {
         if (d3.select(this).classed('d3-bg-low')) {
-          cbg.addTooltip(d3.select(this).datum(), 'low'); 
+          cbg.addTooltip(d3.select(this).datum(), 'low');
         }
         else if (d3.select(this).classed('d3-bg-target')) {
-          cbg.addTooltip(d3.select(this).datum(), 'target'); 
+          cbg.addTooltip(d3.select(this).datum(), 'target');
         }
         else {
-          cbg.addTooltip(d3.select(this).datum(), 'high'); 
+          cbg.addTooltip(d3.select(this).datum(), 'high');
         }
       });
       d3.selectAll('.d3-circle-cbg').on('mouseout', function() {
@@ -122,22 +122,22 @@ module.exports = function(pool, opts) {
 
   cbg.addTooltip = function(d, category) {
     d3.select('#' + 'd3-tooltip-group_cbg')
-      .call(tooltips, 
+      .call(tooltips,
         d,
         // tooltipXPos
         opts.xScale(Date.parse(d.normalTime)),
         'cbg',
         // timestamp
         false,
-        opts.classes[category]['tooltip'], 
+        opts.classes[category]['tooltip'],
         opts.tooltipSize,
-        opts.tooltipSize, 
+        opts.tooltipSize,
         // imageX
-        opts.xScale(Date.parse(d.normalTime)), 
+        opts.xScale(Date.parse(d.normalTime)),
         // imageY
         function() {
           if ((category === 'low') || (category === 'target')) {
-            return opts.yScale(d.value) - opts.tooltipSize; 
+            return opts.yScale(d.value) - opts.tooltipSize;
           }
           else {
             return opts.yScale(d.value);
@@ -148,7 +148,7 @@ module.exports = function(pool, opts) {
         // textY
         function() {
           if ((category === 'low') || (category === 'target')) {
-            return opts.yScale(d.value) - opts.tooltipSize / 2; 
+            return opts.yScale(d.value) - opts.tooltipSize / 2;
           }
           else {
             return opts.yScale(d.value) + opts.tooltipSize / 2;
@@ -156,5 +156,5 @@ module.exports = function(pool, opts) {
         });
   };
 
-  return cbg; 
+  return cbg;
 };

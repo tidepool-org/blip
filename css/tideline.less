@@ -152,6 +152,9 @@ svg {
   &.d3-rect-basal {
     fill: @basal;
     opacity: 0.3;
+    &:hover {
+      opacity: 0.4;
+    }
   }
   &.d3-path-basal {
     fill: none;
@@ -171,10 +174,16 @@ svg {
     font-size: @font-size-small-tooltips;
     text-anchor: middle;
     dominant-baseline: central;
-    text-transform: lowercase;
     &.d3-smbg {
       font-size: @font-size-large-tooltips;
       font-weight: bold;
+    }
+    &.d3-basal {
+      font-size: @font-size-large-tooltips;
+      font-weight: bold;
+    }
+    &.d3-tooltip-timestamp {
+      text-transform: lowercase;
     }
   }
   .d3-tooltip-rect {

@@ -28,7 +28,7 @@ module.exports = function(container, tooltipsGroup) {
     tooltipWidth,
     tooltipHeight,
     imageX, imageY,
-    textX, textY) {
+    textX, textY, customText) {
     var tooltipGroup = selection.append('g')
       .attr('class', 'd3-tooltip')
       .attr('id', 'tooltip_' + d.id);
@@ -86,7 +86,8 @@ module.exports = function(container, tooltipsGroup) {
       }
     }
     // if the data point is three hours from the end of the data in view or less, use a left tooltip
-    else if (locationInWindow > container.width() - (((container.width() - container.axisGutter()) / 24) * 3)) {
+    else if ((locationInWindow > container.width() - (((container.width() - container.axisGutter()) / 24) * 3)) &&
+      (path !== 'basal')) {
       tooltipGroup.append('image')
         .attr({
           'xlink:href': function() {
@@ -133,7 +134,12 @@ module.exports = function(container, tooltipsGroup) {
             'class': 'd3-tooltip-text d3-' + path
         })
         .text(function() {
-          return d.value;
+          if (customText) {
+            return customText;
+          }
+          else {
+            return d.value;
+          }
         });
     }
 
@@ -146,7 +152,7 @@ module.exports = function(container, tooltipsGroup) {
     var timestampY = imageY() - timestampHeight;
     var timestampTextY = textY() - timestampHeight;
 
-    var formatTime = d3.time.format.utc("%-I:%M %p")
+    var formatTime = d3.time.format.utc("%-I:%M %p");
     var t = formatTime(new Date(d.normalTime));
     tooltipGroup.append('rect')
       .attr({
@@ -161,7 +167,7 @@ module.exports = function(container, tooltipsGroup) {
         'x': textX,
         'y': timestampTextY,
         'baseline-shift': (tooltipHeight - timestampHeight) / 2,
-        'class': 'd3-tooltip-text'
+        'class': 'd3-tooltip-text d3-tooltip-timestamp'
       })
       .text('at ' + t);
   };
