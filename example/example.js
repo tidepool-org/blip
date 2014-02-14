@@ -271,7 +271,7 @@ function oneDayChart(el) {
     poolBasal.addPlotType('fill', fill(poolBasal, {endpoints: chart.endpoints}), false);
 
     // add basal data to basal pool
-    poolBasal.addPlotType('basal-rate-segment', require('../js/plot/basal')(poolBasal, {yScale: scaleBasal}), true);
+    poolBasal.addPlotType('basal-rate-segment', require('../js/plot/basal')(poolBasal, {yScale: scaleBasal, data: _.where(data, {'type': 'basal-rate-segment'}) }), true);
 
     // messages pool
     // add background fill rectangles to messages pool
