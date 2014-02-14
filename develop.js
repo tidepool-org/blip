@@ -140,5 +140,6 @@ app.use(function(req, res, next) {
 
 app.use(connect.errorHandler());
 
-http.createServer(app).listen(3000);
-console.log('Connect server started on port 3000');
+var server = http.createServer(app).listen(process.env.PORT || 3000, function listening ( ) {
+  console.log('Connect server started on port', server.address( ).port);
+});
