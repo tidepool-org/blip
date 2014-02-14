@@ -37,5 +37,6 @@ window.config = {
       return mockValue === 'true';
     }
   })(),
+  UPLOAD_API: '<%= process.env.UPLOAD_API %>' || 'https://devel-uploads.tidepool.io',
   API_HOST: '<%= process.env.API_HOST %>' || 'https://devel-api.tidepool.io'
 };

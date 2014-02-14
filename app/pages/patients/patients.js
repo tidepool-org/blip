@@ -107,7 +107,8 @@ var Patients = React.createClass({
       alert('You are not logged in!');
     }
 
-    var uploadWindow = window.open('https://devel-uploads.tidepool.io?token=' + token, 'the thing', 'scrollbars=1,height=400,width=400');
+    var uploadURL = config.UPLOAD_API + '?token=' + token;
+    var uploadWindow = window.open(uploadURL, 'the thing', 'scrollbars=1,height=400,width=400');
 //    var uploadWindow = window.open('http://localhost:9122?token=' + token, 'the thing', 'scrollbars=1,height=400,width=400');
     function checkForClose() {
       setTimeout(
@@ -115,7 +116,8 @@ var Patients = React.createClass({
           if (uploadWindow.closed !== false) {
             // The upload window was closed, so show us some data!  Sorry nico.
             console.log('Upload window closed!  Show data, whoot whoot!');
-            superagent.get('https://devel-api.tidepool.io/data/' + app.api.user.getUserid())
+            var apiURL = config.API_HOST + '/data/' + app.api.user.getUserid();
+            superagent.get(apiURL)
               .set('x-tidepool-session-token', token)
               .end(
               function(err, res){
