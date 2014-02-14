@@ -50,6 +50,16 @@
         "id": "ca1694c6-79e9-481f-b5c5-a296853d0e29"
     },
     {
+      "delivered": 0.5,
+      "end": "2014-02-12T16:00:00",
+      "deliveryType": "temp",
+      "inferred": false,
+      "value": 0.5,
+      "start": "2014-02-12T07:00:00",
+      "type": "basal-rate-segment",
+      "id": "ca1694c6-79e9-481f-b5c5-a296853d0e29"
+    },
+    {
         "delivered": 0.8,
         "end": "2014-02-12T15:00:00",
         "deliveryType": "scheduled",
@@ -68,16 +78,6 @@
         "start": "2014-02-12T15:00:00",
         "type": "basal-rate-segment",
         "id": "66b61050-22e7-4224-8fa5-98a869b9bcf5"
-    },
-    {
-        "delivered": 0.5,
-        "end": "2014-02-12T16:00:00",
-        "deliveryType": "temp",
-        "inferred": false,
-        "value": 0.5,
-        "start": "2014-02-12T07:00:00",
-        "type": "basal-rate-segment",
-        "id": "ca1694c6-79e9-481f-b5c5-a296853d0e29"
     },
     {
         "delivered": 0.8,

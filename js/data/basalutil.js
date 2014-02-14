@@ -7,149 +7,99 @@ catch(ReferenceError) {
   console.log('Not using bows.');
 }
 
+var keysToOmit = ['id', 'start', 'end'];
+
 function BasalUtil(data) {
-  this.actual = [];
-  this.undelivered = [];
+  var actuals = [];
+  var undelivereds = [];
 
-  var sliceCurrent = function(current, next, pushLocation) {
-    var earliest = _.min([current.end, next], function(d) {
-      return new Date(d).valueOf();
-    });
-    if (earliest === current.end) {
-      pushLocation.push(current);
-    }
-    else {
-      current.end = next;
-      pushLocation.push(current);
-    }
-  };
+  function addToActuals(e) {
+    actuals.push(_.extend({}, e, {vizType: 'actual'}));
+  }
 
-  var temp = _.where(data, {'deliveryType': 'temp'});
-  var scheduled = _.where(data, {'deliveryType': 'scheduled'});
+  function addToUndelivered(e) {
+    undelivereds.push(_.extend({}, e, {vizType: 'undelivered'}));
+  }
 
-  // ensure both collections are properly sorted
-  temp = _.sortBy(temp, function(t) {
-    return new Date(t.start).valueOf();
-  });
-  scheduled = _.sortBy(scheduled, function(s) {
-    return new Date(s.start).valueOf();
-  });
+  function processElement(e) {
+    if (e.deliveryType === 'temp' || e.deliveryType === 'scheduled') {
+      if (actuals.length === 0) {
+        addToActuals(e);
+      } else {
+        var lastActual = actuals[actuals.length - 1];
+        if (e.start === lastActual.end) {
+          if (_.isEqual(_.omit(e, keysToOmit), _.omit(lastActual, keysToOmit))) {
+            lastActual.end = e.end;
+          } else {
+            addToActuals(e);
+          }
+        } else if (e.start < lastActual.end) {
+          // It is overlapping, so let's see how we should deal with it.
 
-  // create an ordered list of the unique start datetimes in all basal segments
-  var datetimes = [];
+          if (e.start < lastActual.start) {
+            // The current element is completely newer than the last actual, so we have to rewind a bit.
+            var removedActual = actuals.pop();
+            processElement(e);
+            processElement(removedActual);
+          } else if (e.deliveryType === 'temp') {
+            // It's a temp, which wins no matter what it was before.
+            // Start by setting up shared adjustments to the segments (clone lastActual and reshape it)
+            var undeliveredClone = _.clone(lastActual);
 
-  temp.forEach(function(i) {
-    datetimes.push(i.start);
-    datetimes.push(i.end);
-  });
-  scheduled.forEach(function(i) {
-    datetimes.push(i.start);
-    datetimes.push(i.end);
-  });
+            if (e.end >= lastActual.end) {
+              // The temp segment is longer than the current, throw away the rest of the current
+              lastActual.end = e.start;
+              undeliveredClone.start = e.start;
+              addToUndelivered(undeliveredClone);
+              addToActuals(e);
+            } else {
+              // The current exceeds the temp, so replace the current "chunk" and re-attach the schedule
+              lastActual.end = e.start;
+              var endingSegment = _.clone(undeliveredClone);
+              undeliveredClone.start = e.start;
+              undeliveredClone.end = e.end;
+              addToUndelivered(undeliveredClone);
+              addToActuals(_.clone(e));
 
-  datetimes = _.sortBy(_.uniq(datetimes), function(i) {
-    return new Date(i).valueOf();
-  });
+              // Re-attach the end of the schedule
+              endingSegment.start = e.end;
+              addToActuals(endingSegment);
+            }
+          } else {
+            // e.deliveryType === 'scheduled'
+            if (lastActual.deliveryType === 'scheduled') {
+              // Scheduled overlapping a scheduled, this should not happen.
+              log('Scheduled overlapped a scheduled.  Should never happen.', lastActual, e);
+            } else {
+              // Scheduled overlapping a temp, this can happen and the schedule should be skipped
+              var undeliveredClone = _.clone(e);
+              var deliveredClone = _.clone(e);
 
-  var actualSegments = [];
-
-  datetimes.forEach(function(dt, i) {
-    if (i < datetimes.length - 1) {
-      actualSegments.push({
-        'start': dt,
-        'end': datetimes[i + 1]
-      });
-    }
-  });
-
-  actualSegments.forEach(function(actSegment) {
-    var matching;
-    try {
-      matching = _.filter(data, function(segment){
-        var start = new Date(segment.start).valueOf();
-        var end = new Date(segment.end).valueOf();
-        var actStart = new Date(actSegment.start).valueOf();
-        var actEnd = new Date(actSegment.end).valueOf();
-        return ((start === actStart) && (end === actEnd) ||
-          (start === actStart) ||
-          (end === actEnd) ||
-          (start < actStart) && (end > actEnd));
-      });
-      if (matching.length > 2) {
-        throw "OverlappingTempBasals";
+              if (e.end >= lastActual.end) {
+                // Scheduled is longer than the temp, so preserve the tail
+                undeliveredClone.end = e.end;
+                deliveredClone.start = lastActual.end;
+                addToUndelivered(undeliveredClone);
+                addToActuals(deliveredClone);
+              } else {
+                // Scheduled is shorter than the temp, so completely skip it
+                addToUndelivered(undeliveredClone);
+              }
+            }
+          }
+        } else {
+          // e.start > lastActual.end
+          log('e.start[' + e.start + '] > lastActual.end[' + lastActual.end + '].  '
+              + 'BAD!!!! AAAHHHHHHH.  Sort input data plz, thx, cheezburger');
+        }
       }
     }
-    catch(OverlappingTempBasals) {
-      if(!log) {
-        console.log('Possible overlapping temp basals!');
-      }
-      else {
-        log('Possible overlapping temp basals!');
-      }
-    }
+  }
 
-    var temp = _.find(matching, function(m) {
-      return m.deliveryType === 'temp';
-    });
-    if (temp) {
-      var tempMatch = _.clone(temp);
-      tempMatch.start = actSegment.start;
-      tempMatch.end = actSegment.end;
-      this.actual.push(tempMatch);
-    }
-    else {
-      var match = _.clone(matching[0]);
-      match.start = actSegment.start;
-      match.end = actSegment.end;
-      this.actual.push(match);
-    }
-  }, this);
+  data.forEach(processElement);
 
-  var temps = _.where(this.actual, {'deliveryType': 'temp'});
-
-  temps.forEach(function(temp, i, temps) {
-    var matching = _.filter(scheduled, function(d) {
-      var start = new Date(d.start).valueOf();
-      var end = new Date(d.end).valueOf();
-      var tempStart = new Date(temp.start).valueOf();
-      var tempEnd = new Date(temp.end).valueOf();
-      return ((start === tempStart) && (end === tempEnd) ||
-        (start === tempStart) ||
-        (end === tempEnd) ||
-        (start < tempStart) && (end > tempEnd));
-    });
-    matching.forEach(function(m) {
-      var match = _.clone(m);
-      match.start = temp.start;
-      match.end = temp.end;
-      this.undelivered.push(match);
-    }, this);
-  }, this);
-
-  // re-sort the results!
-  this.actual = _.sortBy(this.actual, function(segment) {
-    return new Date(segment.start).valueOf();
-  });
-
-  this.undelivered = _.sortBy(this.undelivered, function(segment) {
-    return new Date(segment.start).valueOf();
-  });
-
-  // add vizType = 'actual' or 'undelivered'
-  this.actual.forEach(function(segment) {
-    segment.vizType = 'actual';
-  });
-  this.undelivered.forEach(function(segment) {
-    segment.vizType = 'undelivered';
-  });
-
-  this.getCurrentSegments = function(s, e) {
-
-  };
-
-  this.getTotalDose = function(s, e) {
-
-  };
+  this.actual = actuals;
+  this.undelivered = undelivereds;
 }
 
 module.exports = BasalUtil;
