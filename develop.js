@@ -1,6 +1,7 @@
 var http = require('http');
 var fs = require('fs');
 var util = require('util');
+var path = require('path');
 var connect = require('connect');
 var gulp = require('gulp');
 var browserify = require('gulp-browserify');
@@ -14,13 +15,14 @@ var pkg = require('./package.json');
 var files = require('./files');
 process.env.MOCK_DATA_DIR = process.env.MOCK_DATA_DIR || 'data/sample';
 process.env.IMAGES_ENDPOINT = 'images';
+var ROOT = __dirname;
 
 var app = connect();
 
 app.use('/app.js', function(req, res, next) {
   res.setHeader('Content-Type', 'text/javascript');
 
-  gulp.src('app/app.js')
+  gulp.src(path.join(ROOT, 'app/app.js'))
     .pipe(browserify({
       transform: ['reactify'],
       debug: true
@@ -51,7 +53,7 @@ app.use('/tidepoolplatform.js', function(req, res) {
 app.use('/config.js', function(req, res) {
   res.setHeader('Content-Type', 'text/javascript');
 
-  gulp.src('app/config.js')
+  gulp.src(path.join(ROOT, 'app/config.js'))
     .pipe(template({
       process: {env: process.env},
       pkg: pkg
@@ -65,7 +67,7 @@ app.use('/config.js', function(req, res) {
 app.use('/mock.js', function(req, res, next) {
   res.setHeader('Content-Type', 'text/javascript');
 
-  gulp.src('mock/index.js')
+  gulp.src(path.join(ROOT, 'mock/index.js'))
     .pipe(browserify({
       debug: true
     }))
@@ -96,7 +98,7 @@ app.use('/bower_components', connect.static(__dirname + '/bower_components'));
 app.use('/style.css', function(req, res, next) {
   res.setHeader('Content-Type', 'text/css');
 
-  gulp.src('app/style.less')
+  gulp.src(path.join(ROOT, 'app/style.less'))
     .pipe(less())
     .on('error', function(err) {
       next(err);
@@ -120,7 +122,7 @@ app.use('/', function(req, res, next) {
 
   res.setHeader('Content-Type', 'text/html');
 
-  gulp.src('app/index.html')
+  gulp.src(path.join(ROOT, 'app/index.html'))
     .pipe(template({
       production: false,
       pkg: pkg,
