@@ -31,7 +31,7 @@ window.config = {
   DEMO_ENDPOINT: '<%= process.env.DEMO_ENDPOINT %>' || 'demo',
   MOCK: (function(){
     var mockValue = '<%= process.env.MOCK %>';
-    if (mockValue === '') {
+    if (mockValue !== '') {
       return true;
     } else {
       return mockValue === 'true';
