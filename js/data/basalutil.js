@@ -4,10 +4,9 @@ try {
   var log = require('bows')('BasalUtil');
 }
 catch(ReferenceError) {
-  console.log('Not using bows.');
 }
 
-var keysToOmit = ['id', 'start', 'end'];
+var keysToOmit = ['id', 'start', 'end', 'vizType'];
 
 function BasalUtil(data) {
   var actuals = [];
@@ -89,8 +88,8 @@ function BasalUtil(data) {
           }
         } else {
           // e.start > lastActual.end
-          log('e.start[' + e.start + '] > lastActual.end[' + lastActual.end + '].  '
-              + 'BAD!!!! AAAHHHHHHH.  Sort input data plz, thx, cheezburger');
+          log('e.start[' + e.start + '] > lastActual.end[' + lastActual.end + '].  ' +
+            'BAD!!!! AAAHHHHHHH.  Sort input data plz, thx, cheezburger');
         }
       }
     }

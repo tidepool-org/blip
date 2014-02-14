@@ -1,7 +1,7 @@
 // Usage:
 // node munge-basals.js | json > result.json
 
-var BasalUtil = require('../js/data/basal-util');
+var BasalUtil = require('../js/data/basalutil');
 
 var filename = process.argv[2];
 

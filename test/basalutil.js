@@ -72,6 +72,15 @@ function testData (data) {
       it('should not have any duplicates', function() {
         expect(_.uniq(basal.actual)).to.be.eql(basal.actual);
       });
+
+      it('should have squashed contiguous identical segments', function() {
+        var keysToOmit = ['id', 'start', 'end'];
+        basal.actual.forEach(function(segment, i, segments) {
+          if ((i < (segments.length - 1)) && segment.type === 'scheduled') {
+            expect(_.omit(segment, keysToOmit)).to.not.eql(_.omit(segments[i + 1], keysToOmit));
+          }
+        });
+      });
     });
 
     describe('basal.undelivered', function() {
