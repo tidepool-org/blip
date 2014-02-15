@@ -18,24 +18,8 @@
 window.config = {
   VERSION: '<%= pkg.version %>' || '',
   IMAGES_ENDPOINT: '<%= process.env.IMAGES_ENDPOINT %>' || 'images',
-  DEMO: (function(){
-    var demoValue = '<%= process.env.DEMO %>';
-    if (demoValue === '' ) {
-      return true;
-    } else {
-      return demoValue === 'true';
-    }
-  })(),
-  DEMO_DELAY: Number('<%= process.env.DEMO_DELAY %>') || 0,
-  DEMO_VARIANT: '<%= process.env.DEMO_VARIANT %>' || '',
-  DEMO_ENDPOINT: '<%= process.env.DEMO_ENDPOINT %>' || 'demo',
-  MOCK: (function(){
-    var mockValue = '<%= process.env.MOCK %>';
-    if (mockValue === '') {
-      return true;
-    } else {
-      return mockValue === 'true';
-    }
-  })(),
+  MOCK: Boolean('<%= process.env.MOCK %>') || false,
+  MOCK_DELAY: Number('<%= process.env.MOCK_DELAY %>') || 0,
+  MOCK_VARIANT: '<%= process.env.MOCK_VARIANT %>' || '',
   API_HOST: '<%= process.env.API_HOST %>' || 'https://devel-api.tidepool.io'
 };
