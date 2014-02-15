@@ -28,7 +28,8 @@ module.exports = function(container, tooltipsGroup) {
     tooltipWidth,
     tooltipHeight,
     imageX, imageY,
-    textX, textY, customText) {
+    textX, textY,
+    customText, tspan) {
     var tooltipGroup = selection.append('g')
       .attr('class', 'd3-tooltip')
       .attr('id', 'tooltip_' + d.id);
@@ -127,20 +128,42 @@ module.exports = function(container, tooltipsGroup) {
           'class': 'd3-tooltip-image'
         });
 
-      tooltipGroup.append('text')
-        .attr({
-          'x': textX,
-          'y': textY,
+      if (tspan) {
+        tooltipGroup.append('text')
+          .attr({
+            'x': textX,
+            'y': textY,
             'class': 'd3-tooltip-text d3-' + path
-        })
-        .text(function() {
-          if (customText) {
-            return customText;
-          }
-          else {
-            return d.value;
-          }
-        });
+          })
+          .text(function() {
+            if (customText) {
+              return customText;
+            }
+            else {
+              return d.value;
+            }
+          });
+        tooltipGroup.select('text')
+          .append('tspan')
+          .text(' ' + tspan);
+      }
+      else {
+        tooltipGroup.append('text')
+          .attr({
+            'x': textX,
+            'y': textY,
+            'class': 'd3-tooltip-text d3-' + path
+          })
+          .text(function() {
+            if (customText) {
+              return customText;
+            }
+            else {
+              return d.value;
+            }
+          });
+      }
+
     }
 
     if (makeTimestamp) {

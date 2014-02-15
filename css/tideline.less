@@ -151,10 +151,10 @@ svg {
 .d3-basal {
   &.d3-rect-basal {
     fill: @basal;
-    opacity: 0.3;
-    &:hover {
-      opacity: 0.4;
-    }
+  }
+  &.d3-basal-invisible {
+    fill: @basal;
+    opacity: 0.0;
   }
   &.d3-path-basal {
     fill: none;
@@ -169,7 +169,7 @@ svg {
 
 // tooltips
 .d3-tooltip {
-  .d3-tooltip-text {
+  text.d3-tooltip-text {
     fill: @light-labels;
     font-size: @font-size-small-tooltips;
     text-anchor: middle;
@@ -184,6 +184,10 @@ svg {
     }
     &.d3-tooltip-timestamp {
       text-transform: lowercase;
+    }
+    tspan {
+      font-weight: normal;
+      dominant-baseline: central;
     }
   }
   .d3-tooltip-rect {
