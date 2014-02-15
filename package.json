@@ -1,6 +1,10 @@
 {
   "name": "tideline",
   "version": "0.0.0",
+  "dependencies": {
+    "duration-js": "3.3.3",
+    "bows": "~0.3.0"
+  },
   "devDependencies": {
     "chai": "1.8.1",
     "mocha": "1.16.2",
