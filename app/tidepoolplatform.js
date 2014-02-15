@@ -28,11 +28,11 @@ window.tidepoolPlatform = function(host, api, auth){
 
     api.getToken = function() {
       return token;
-    }
+    };
 
     api.getUserid = function() {
       return userid;
-    }
+    };
   }
 
   function setupPatient(api) {

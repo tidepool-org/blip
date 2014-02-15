@@ -92,12 +92,14 @@ var Patients = React.createClass({
       window.openUpload = this.openUpload.bind(this);
     }
 
+    /* jshint ignore:start */
     return (
       <div>
         <form onSubmit={this.openUpload}><button>Upload data!</button></form>
         <div id="forData"></div>
       </div>
       );
+    /* jshint ignore:end */
   },
 
   openUpload: function(e) {
