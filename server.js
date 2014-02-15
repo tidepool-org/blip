@@ -5,8 +5,10 @@ var buildDir = 'dist';
 
 var app = connect();
 
-app.use(connect.static(__dirname + '/' + buildDir));
+var staticDir = __dirname + '/' + buildDir;
+app.use(connect.static(staticDir));
 
-http.createServer(app).listen(3000);
-console.log('Connect server started on port 3000');
-console.log('Serving static directory "' + buildDir + '/"'); 
+var server = http.createServer(app).listen(process.env.PORT || 3000, function() {
+  console.log('Connect server started on port', server.address().port);
+  console.log('Serving static directory "' + staticDir + '/"'); 
+});
