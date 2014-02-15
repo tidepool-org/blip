@@ -17,7 +17,7 @@
 
 module.exports = function(pool, opts) {
 
-  var opts = opts || {};
+  opts = opts || {};
 
   var defaults = {
     xScale: pool.xScale().copy(),
@@ -144,7 +144,7 @@ module.exports = function(pool, opts) {
         });
       extendedBoluses.append('path')
         .attr({
-          'd': function(d) {      
+          'd': function(d) {
             var doseHeight = opts.yScale(d.extendedDelivery) + opts.bolusStroke / 2;
             var doseEnd = opts.xScale(Date.parse(d.normalTime) + d.duration) - opts.triangleSize;
             return bolus.triangle(doseEnd, doseHeight);
@@ -170,5 +170,5 @@ module.exports = function(pool, opts) {
     return "M" + top + "L" + bottom + "L" + point + "Z";
   };
 
-  return bolus; 
+  return bolus;
 };
