@@ -113,7 +113,9 @@ function testData (data) {
         });
         var undeliveredDuration = 0;
         basal.undelivered.forEach(function(segment) {
-          undeliveredDuration += Date.parse(segment.end) - Date.parse(segment.start);
+          if (segment.deliveryType === 'scheduled') {
+            undeliveredDuration += Date.parse(segment.end) - Date.parse(segment.start);
+          }
         });
         expect(undeliveredDuration).to.equal(tempDuration);
       });
