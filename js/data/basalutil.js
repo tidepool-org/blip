@@ -44,16 +44,15 @@ function BasalUtil(data) {
             // It's a temp, which wins no matter what it was before.
             // Start by setting up shared adjustments to the segments (clone lastActual and reshape it)
             var undeliveredClone = _.clone(lastActual);
+            lastActual.end = e.start;
 
-            if (e.end >= lastActual.end) {
+            if (e.end >= undeliveredClone.end) {
               // The temp segment is longer than the current, throw away the rest of the current
-              lastActual.end = e.start;
               undeliveredClone.start = e.start;
               addToUndelivered(undeliveredClone);
               addToActuals(e);
             } else {
               // The current exceeds the temp, so replace the current "chunk" and re-attach the schedule
-              lastActual.end = e.start;
               var endingSegment = _.clone(undeliveredClone);
               undeliveredClone.start = e.start;
               undeliveredClone.end = e.end;
@@ -72,11 +71,11 @@ function BasalUtil(data) {
             } else {
               // Scheduled overlapping a temp, this can happen and the schedule should be skipped
               var undeliveredClone = _.clone(e);
-              var deliveredClone = _.clone(e);
 
-              if (e.end >= lastActual.end) {
+              if (e.end > lastActual.end) {
                 // Scheduled is longer than the temp, so preserve the tail
-                undeliveredClone.end = e.end;
+                var deliveredClone = _.clone(e);
+                undeliveredClone.end = lastActual.end;
                 deliveredClone.start = lastActual.end;
                 addToUndelivered(undeliveredClone);
                 addToActuals(deliveredClone);

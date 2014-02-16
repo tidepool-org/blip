@@ -105,6 +105,20 @@ function testData (data) {
       it('should not have any duplicates', function() {
         expect(_.uniq(basal.undelivered)).to.be.eql(basal.undelivered);
       });
+
+      it('should have a total duration equal to the total duration of temp segments from the actual stream', function() {
+        var tempDuration = 0;
+        _.where(basal.actual, {'deliveryType': 'temp'}).forEach(function(segment) {
+          tempDuration += Date.parse(segment.end) - Date.parse(segment.start);
+        });
+        var undeliveredDuration = 0;
+        basal.undelivered.forEach(function(segment) {
+          if (segment.deliveryType === 'scheduled') {
+            undeliveredDuration += Date.parse(segment.end) - Date.parse(segment.start);
+          }
+        });
+        expect(undeliveredDuration).to.equal(tempDuration);
+      });
     });
   });
 }
