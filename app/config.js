@@ -18,7 +18,11 @@
 window.config = {
   VERSION: '<%= pkg.version %>' || '',
   IMAGES_ENDPOINT: '<%= process.env.IMAGES_ENDPOINT %>' || 'images',
-  MOCK: Boolean('<%= process.env.MOCK %>') || false,
+  MOCK: (function(){
+    var mockValue = '<%= process.env.MOCK || false %>';
+    return mockValue === 'true';
+  })(),
+  UPLOAD_API: '<%= process.env.UPLOAD_API %>' || 'https://devel-uploads.tidepool.io',
   MOCK_DELAY: Number('<%= process.env.MOCK_DELAY %>') || 0,
   MOCK_VARIANT: '<%= process.env.MOCK_VARIANT %>' || '',
   API_HOST: '<%= process.env.API_HOST %>' || 'https://devel-api.tidepool.io'
