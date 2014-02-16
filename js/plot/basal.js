@@ -17,23 +17,25 @@
 
 var log = require('bows')('Basal');
 
+var Duration = require('duration-js');
+
 module.exports = function(pool, opts) {
+
+  var QUARTER = ' ¼', HALF = ' ½', THREE_QUARTER = ' ¾', THIRD = ' ⅓', TWO_THIRDS = ' ⅔';
 
   opts = opts || {};
 
   var defaults = {
     classes: {
-      'reg': {'tooltip': 'basal_tooltip_reg.svg'},
-      'temp': {'tooltip': 'basal_tooltip_temp.svg'}
+      'reg': {'tooltip': 'basal_tooltip_reg.svg', 'height': 20},
+      'temp': {'tooltip': 'basal_tooltip_temp_large.svg', 'height': 40}
     },
     tooltipWidth: 144,
-    tooltipHeight: 20,
-    xScale: pool.xScale().copy()
+    xScale: pool.xScale().copy(),
+    pathStroke: 1.5
   };
 
   _.defaults(opts, defaults);
-
-  var drawnPaths = [];
 
   function basal(selection) {
     selection.each(function(currentData) {
@@ -48,16 +50,24 @@ module.exports = function(pool, opts) {
         .interpolate('step-after');
 
       var actual = _.where(currentData, {'vizType': 'actual'});
-      var undelivered = _.where(currentData, {'vizType': 'undelivered'});
+      var undelivered = _.where(currentData, {'vizType': 'undelivered', 'deliveryType': 'scheduled'});
+
+      // TODO: waiting on @cheddar to fix basalutil.js
+      // var temp = basal.unsquash_temp(_.where(actual, {'deliveryType': 'temp'}), undelivered);
 
       var rects = d3.select(this)
-        .selectAll('rect')
+        .selectAll('g')
         .data(actual, function(d) {
           // leveraging the timestamp of each datapoint as the ID for D3's binding
           return d.normalTime;
         });
-      rects.enter()
-        .append('rect')
+      var rectGroups = rects.enter()
+        .append('g')
+        .attr('class', 'd3-basal-group')
+        .attr('id', function(d) {
+          return 'basal_group_' + d.id;
+        });
+      rectGroups.append('rect')
         .attr({
           'width': function(d) {
             return basal.width(d);
@@ -77,32 +87,77 @@ module.exports = function(pool, opts) {
           'y': function(d) {
             return opts.yScale(d.value);
           },
+          'opacity': '0.3',
           'class': function(d) {
+            var classes;
             if (d.deliveryType === 'temp') {
-              return 'd3-basal d3-rect-basal d3-basal-temp';
+              classes = 'd3-basal d3-rect-basal d3-basal-temp';
             }
             else {
-              return 'd3-basal d3-rect-basal';
+              classes = 'd3-basal d3-rect-basal';
             }
+            if (d.delivered !== 0) {
+              classes += ' d3-rect-basal-nonzero';
+            }
+            return classes;
           },
           'id': function(d) {
             return 'basal_' + d.id;
           }
         });
+      rectGroups.append('rect')
+        .attr({
+          'width': function(d) {
+            return basal.width(d);
+          },
+          'height': pool.height(),
+          'x': function(d) {
+            return opts.xScale(new Date(d.normalTime));
+          },
+          'y': function(d) {
+            return opts.yScale.range()[1];
+          },
+          'class': function(d) {
+            if (d.deliveryType === 'temp') {
+              return 'd3-basal d3-basal-invisible d3-basal-temp';
+            }
+            else {
+              return 'd3-basal d3-basal-invisible';
+            }
+          },
+          'id': function(d) {
+            return 'basal_invisible_' + d.id;
+          }
+        });
+      rectGroups.filter(function(d) {
+          if (d.delivered !== 0) {
+            return d;
+          }
+        })
+        .selectAll('.d3-basal-invisible')
+        .classed('d3-basal-nonzero', true);
       rects.exit().remove();
 
       // tooltips
-      d3.selectAll('.d3-rect-basal').on('mouseover', function() {
-        if (d3.select(this).classed('d3-basal-temp')) {
-          basal.addTooltip(d3.select(this).datum(), 'temp');
+      d3.selectAll('.d3-basal-invisible').on('mouseover', function() {
+        var invisiRect = d3.select(this);
+        var id = invisiRect.attr('id').replace('basal_invisible_', '');
+        var d = d3.select('#basal_group_' + id).datum();
+        if (invisiRect.classed('d3-basal-temp')) {
+          basal.addTooltip(d, 'temp');
         }
         else {
-          basal.addTooltip(d3.select(this).datum(), 'reg');
+          basal.addTooltip(d, 'reg');
+        }
+        if (invisiRect.classed('d3-basal-nonzero')) {
+          log('hi');
+          d3.select('#basal_' + id).attr('opacity', '0.35');
         }
       });
-      d3.selectAll('.d3-rect-basal').on('mouseout', function() {
-        var id = d3.select(this).attr('id').replace('basal_', 'tooltip_');
-        d3.select('#' + id).remove();
+      d3.selectAll('.d3-basal-invisible').on('mouseout', function() {
+        var id = d3.select(this).attr('id').replace('basal_invisible_', '');
+        d3.select('#tooltip_' + id).remove();
+        d3.select('#basal_' + id).attr('opacity', '0.3');
       });
 
       var basalGroup = d3.select(this);
@@ -112,11 +167,11 @@ module.exports = function(pool, opts) {
       actual.forEach(function(d) {
         actualPoints.push({
           'x': opts.xScale(new Date(d.normalTime)),
-          'y': opts.yScale(d.value),
+          'y': opts.yScale(d.value) - opts.pathStroke / 2,
         },
         {
           'x': opts.xScale(new Date(d.normalEnd)),
-          'y': opts.yScale(d.value),
+          'y': opts.yScale(d.value) - opts.pathStroke / 2,
         });
       });
 
@@ -189,8 +244,67 @@ module.exports = function(pool, opts) {
     });
   }
 
-  basal.timespan = function(d) {
+  basal.unsquash_temp = function(toUnsquash, referenceArray) {
+    var unsquasheds = [];
+    var unsquashed;
+    toUnsquash.forEach(function(segment, i, segments) {
+      var start = _.findWhere(referenceArray, {'normalTime': segment.normalTime});
+      var startIndex = referenceArray.indexOf(start);
+      if ((startIndex < (referenceArray.length - 1)) && (start.end === referenceArray[startIndex + 1].start)) {
+        var end = _.findWhere(referenceArray, {'normalEnd': segment.normalEnd});
+        var endIndex = referenceArray.indexOf(end);
+        unsquashed = [];
+        var index = startIndex;
+        while (index <= endIndex) {
+          var slice = _.clone(segment);
+          slice.normalTime = referenceArray[index].normalTime;
+          slice.normalEnd = referenceArray[index].normalEnd;
+          unsquashed.push(slice);
+          index++;
+        }
+      }
+      else {
+        unsquashed = _.clone(segment);
+      }
+      unsquasheds.push(unsquashed);
+    });
+    return unsquasheds;
+  };
 
+  basal.timespan = function(d) {
+    var start = Date.parse(d.normalTime);
+    var end = Date.parse(d.normalEnd);
+    var diff = end - start;
+    var dur = Duration.parse(diff + 'ms');
+    var hours = dur.hours();
+    var minutes = dur.minutes() - (hours * 60);
+    if (hours !== 0) {
+      if (hours === 1) {
+        switch(minutes) {
+          case 0: return 'over ' + hours + ' hr';
+          case 15: return 'over ' + hours + QUARTER + ' hr';
+          case 20: return 'over ' + hours + THIRD + ' hr';
+          case 30: return 'over ' + hours + HALF + ' hr';
+          case 40: return 'over ' + hours + TWO_THIRDS + ' hr';
+          case 45: return 'over ' + hours + THREE_QUARTER + ' hr';
+          default: return 'over ' + hours + ' hr ' + minutes + ' min';
+        }
+      }
+      else {
+        switch(minutes) {
+          case 0: return 'over ' + hours + ' hrs';
+          case 15: return 'over ' + hours + QUARTER + ' hrs';
+          case 20: return 'over ' + hours + THIRD + ' hrs';
+          case 30: return 'over ' + hours + HALF + ' hrs';
+          case 40: return 'over ' + hours + TWO_THIRDS + ' hrs';
+          case 45: return 'over ' + hours + THREE_QUARTER + ' hrs';
+          default: return 'over ' + hours + ' hrs ' + minutes + ' min';
+        }
+      }
+    }
+    else {
+      return 'over ' + minutes + ' min';
+    }
   };
 
   basal.width = function(d) {
@@ -198,8 +312,8 @@ module.exports = function(pool, opts) {
   };
 
   basal.addTooltip = function(d, category) {
-    d3.select('#' + 'd3-tooltip-group_basal')
-      .call(tooltips,
+    var tooltipHeight = opts.classes[category].height;
+    d3.select('#' + 'd3-tooltip-group_basal').call(tooltips,
         d,
         // tooltipXPos
         opts.xScale(Date.parse(d.normalTime)),
@@ -208,12 +322,12 @@ module.exports = function(pool, opts) {
         false,
         opts.classes[category]['tooltip'],
         opts.tooltipWidth,
-        opts.tooltipHeight,
+        tooltipHeight,
         // imageX
         opts.xScale(Date.parse(d.normalTime)) - opts.tooltipWidth / 2 + basal.width(d) / 2,
         // imageY
         function() {
-          var y = opts.yScale(d.value) - opts.tooltipHeight * 2;
+          var y = opts.yScale(d.value) - tooltipHeight * 2;
           if (y < 0) {
             return 0;
           }
@@ -225,15 +339,51 @@ module.exports = function(pool, opts) {
         opts.xScale(Date.parse(d.normalTime)) + basal.width(d) / 2,
         // textY
         function() {
-          var y = opts.yScale(d.value) - opts.tooltipHeight * 2;
-          if (y < 0) {
-            return opts.tooltipHeight / 2;
+          var y = opts.yScale(d.value) - tooltipHeight * 2;
+          if (category === 'temp') {
+            if (y < 0) {
+              return tooltipHeight * (3 / 10);
+            }
+            else {
+              return opts.yScale(d.value) - tooltipHeight * 1.7;
+            }
           }
           else {
-            return opts.yScale(d.value) - opts.tooltipHeight * 1.5;
+            if (y < 0) {
+              return tooltipHeight / 2;
+            }
+            else {
+              return opts.yScale(d.value) - tooltipHeight * 1.5;
+            }
           }
         },
-        d.value + ' U');
+        function() {
+          if (d.value === 0) {
+            return '0.0 U';
+          }
+          else {
+            return d.value + ' U';
+          }
+        }(),
+        basal.timespan(d));
+    if (category === 'temp') {
+      d3.select('#tooltip_' + d.id).append('text')
+        .attr({
+          'class': 'd3-tooltip-text d3-basal',
+          'x': opts.xScale(Date.parse(d.normalTime)) + basal.width(d) / 2,
+          'y': function() {
+            var y = opts.yScale(d.value) - tooltipHeight * 2;
+            if (y < 0) {
+              return tooltipHeight * (7 / 10);
+            }
+            else {
+              return opts.yScale(d.value) - tooltipHeight * 1.3;
+            }
+          }
+        })
+        .append('tspan')
+        .text('(0.0 U scheduled)');
+    }
   };
 
   return basal;
