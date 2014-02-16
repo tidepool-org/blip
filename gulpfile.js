@@ -116,6 +116,7 @@ gulp.task('scripts', [
     ]);
   }
   src = src.concat([
+    'app/tidepoolplatform.js',
     'dist/tmp/app.js',
     'app/start.js'
   ]);

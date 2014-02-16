@@ -219,7 +219,7 @@ Take a look at the `app/core/less/icons.less` file for available icons.
 
 ### Mock mode
 
-For local development, demoing, or testing, you can run the app in "mock" mode by setting the environment variable `MOCK=true`. In this mode, the app will not make any calls to external services, and use dummy data contained in `.json` files.
+For local development, demoing, or testing, you can run the app in "mock" mode by setting the environment variable `MOCK=true` (or anything other than an empty string, to turn it off use `MOCK=''`). In this mode, the app will not make any calls to external services, and use dummy data contained in `.json` files.
 
 All app objects (mostly app services) that make any external call should have their methods making these external calls patched by a mock. These are located in the `mock/` directory. To create one, export a `patch(service, options)` function (see existing mocks for examples).
 
