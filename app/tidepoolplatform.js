@@ -226,7 +226,35 @@ window.tidepoolPlatform = function(host, api, auth){
     };
   }
 
+  function setupPatientData(api) {
+    api.get = function(patientId, options, cb) {
+      if (token == null || userid == null) {
+        return cb({ message: 'Not logged in' });
+      }
+
+      if (typeof options === 'function') {
+        cb = options;
+      }
+
+      superagent.get(makeUrl('/data/' + patientId))
+        .set(sessionTokenHeader, token)
+        .end(
+        function(err, res){
+          if (err != null) {
+            return cb(err);
+          }
+
+          if (res.status === 200) {
+            cb(null, res.body);
+          } else {
+            cb(null, null);
+          }
+        });
+    };
+  }
+
   setupUser(api.user);
   setupPatient(api.patient);
   setupAuth(auth);
+  setupPatientData(api.patientData);
 };

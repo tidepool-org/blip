@@ -183,7 +183,7 @@ var Patients = React.createClass({
   addLinkToPatients: function(patients) {
     return _.map(patients, function(patient) {
       if (patient.id) {
-        patient.link = '#/patients/' + patient.id;
+        patient.link = '#/patients/' + patient.id + '/data';
       }
       return patient;
     });

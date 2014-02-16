@@ -74,13 +74,15 @@ var Patient = React.createClass({
   },
 
   renderSubnav: function() {
+    var backUrl = this.getBackUrl();
+
     /* jshint ignore:start */
     return (
       <div className="container-box-outer patient-subnav-outer">
         <div className="container-box-inner patient-subnav-inner">
           <div className="grid patient-subnav">
             <div className="grid-item one-whole medium-one-third">
-              <a href="#/">
+              <a href={backUrl}>
                 <i className="icon-back"></i>
                 {' ' + 'Back'}
               </a>
@@ -93,6 +95,17 @@ var Patient = React.createClass({
       </div>
     );
     /* jshint ignore:end */
+  },
+
+  getBackUrl: function() {
+    var backUrl = '#/';
+    var patient = this.props.patient;
+
+    if (patient && patient.id) {
+      backUrl = '#/patients/' + patient.id + '/data';
+    }
+
+    return backUrl;
   },
 
   renderEditLink: function() {

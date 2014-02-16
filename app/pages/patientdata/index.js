@@ -13,14 +13,4 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var bows = window.bows;
-
-var api = {
-  log: bows('Api'),
-
-  user: {},
-  patient: {},
-  patientData: {}
-};
-
-module.exports = api;
+module.exports = require('./patientdata');

@@ -83,6 +83,20 @@ var patch = function(api, options) {
     }, config.MOCK_DELAY);
   };
 
+  // ----- Patient Data -----
+
+  api.patientData.get = function(patientId, options, callback) {
+    api.log('[mock] GET /patients/' + patientId + '/data');
+    if (typeof options === 'function') {
+      callback = options;
+    }
+    var patientData = data.patientdata && data.patientdata[patientId];
+    patientData = patientData || [];
+    setTimeout(function() {
+      callback(null, patientData);
+    }, config.MOCK_DELAY);
+  };
+
   return api;
 };
 

@@ -37,6 +37,7 @@ var Profile = require('./pages/profile');
 var Patients = require('./pages/patients');
 var Patient = require('./pages/patient');
 var PatientEdit = require('./pages/patientedit');
+var PatientData = require('./pages/patientdata');
 
 var DEBUG = window.localStorage && window.localStorage.debug;
 
@@ -68,7 +69,8 @@ var routes = {
   '/profile': 'showProfile',
   '/patients': 'showPatients',
   '/patients/:id': 'showPatient',
-  '/patients/:id/edit': 'showPatientEdit'
+  '/patients/:id/edit': 'showPatientEdit',
+  '/patients/:id/data': 'showPatientData'
 };
 
 var noAuthRoutes = ['/login', '/signup'];
@@ -104,7 +106,9 @@ var AppComponent = React.createClass({
       patients: null,
       fetchingPatients: true,
       patient: null,
-      fetchingPatient: true
+      fetchingPatient: true,
+      patientData: null,
+      fetchingPatientData: true
     };
   },
 
@@ -389,6 +393,36 @@ var AppComponent = React.createClass({
     return !user.isUserPatient(this.state.user, this.state.patient);
   },
 
+  showPatientData: function(patientId) {
+    this.renderPage = this.renderPatientData;
+    this.setState({
+      page: 'patients/' + patientId + '/data',
+      patient: null,
+      fetchingPatient: true,
+      patientData: null,
+      fetchingPatientData: true
+    });
+    this.fetchPatient(patientId);
+    this.fetchPatientData(patientId);
+  },
+
+  renderPatientData: function() {
+    // On each state change check if patient object was returned from server
+    if (this.isDoneFetchingAndNotFoundPatient()) {
+      app.log('Patient not found');
+      this.redirectToDefaultRoute();
+      return;
+    }
+
+    /* jshint ignore:start */
+    return (
+      <PatientData
+          patientData={this.state.patientData}
+          fetchingPatientData={this.state.fetchingPatientData}/>
+    );
+    /* jshint ignore:end */
+  },
+
   handleLoginSuccess: function() {
     this.fetchUser();
     this.setState({authenticated: true});
@@ -484,11 +518,31 @@ var AppComponent = React.createClass({
     });
   },
 
+  fetchPatientData: function(patientId) {
+    var self = this;
+
+    self.setState({fetchingPatientData: true});
+
+    app.api.patientData.get(patientId, function(err, patientData) {
+      if (err) {
+        app.log('Error fetching data for patient with id ' + patientId);
+        self.setState({fetchingPatientData: false});
+        return;
+      }
+
+      self.setState({
+        patientData: patientData,
+        fetchingPatientData: false
+      });
+    });
+  },
+
   clearUserData: function() {
     this.setState({
       user: null,
       patients: null,
-      patient: null
+      patient: null,
+      patientData: null
     });
   },
 

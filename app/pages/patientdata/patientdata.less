@@ -1,0 +1,95 @@
+/**
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ */
+
+// Subnav
+// ====================================
+
+@patient-data-subnav-vertical-padding:  @spacing-small;
+
+.patient-data-subnav-inner {
+  color: #fff;
+  background-color: @gray-dark;
+}
+
+.patient-data-subnav-title {
+  padding-top: @patient-data-subnav-vertical-padding;
+  padding-bottom: @patient-data-subnav-vertical-padding;
+  
+  text-align: center;
+}
+
+.patient-data-subnav a {
+  display: inline-block;
+  padding-top: @patient-data-subnav-vertical-padding;
+  padding-bottom: @patient-data-subnav-vertical-padding;
+
+  color: #fff;
+  text-decoration: none;
+
+  &:hover,
+  &:focus {
+    color: @gray-darkest;
+    text-decoration: none;
+  }
+
+  &:active {
+    color: @gray;
+  }
+}
+
+// Content
+// ====================================
+
+@patient-data-content-width:            480px;
+@patient-data-content-breakpoint:       @screen-lg-min;
+
+.patient-data-content-outer {
+  margin-bottom: @spacing-large;
+}
+
+.patient-data-content-inner {
+  background-color: #fff;
+
+  padding-top: @spacing-base;
+  padding-bottom: @spacing-large;
+
+  min-height: 400px;
+}
+
+.patient-data-content {
+  @media(min-width: @patient-data-content-breakpoint) {
+    margin-left: auto;
+    margin-right: auto;
+    width: @patient-data-content-width;
+  }
+}
+
+// Messages
+// ====================================
+
+.patient-data-message {
+  text-align: center;
+  font-style: italic;
+  padding: 30px @spacing-small;
+  margin-top: 80px;
+}
+
+.patient-data-message-loading {
+  background: @gray-light;
+}
+
+.patient-data-message-no-data {
+  color: @gray-dark;
+}
