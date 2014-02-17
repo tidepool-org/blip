@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-var log = require('bows')('Pool');
+var log = require('./lib/bows')('Pool');
  
 module.exports = function(container) {
 

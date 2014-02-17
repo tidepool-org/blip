@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-var log = require('bows')('Basal');
+var log = require('../lib/bows')('Basal');
 
 var Duration = require('duration-js');
 
