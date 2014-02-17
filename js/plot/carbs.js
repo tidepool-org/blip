@@ -15,16 +15,59 @@
  * == BSD2 LICENSE ==
  */
 
+var log = require('bows')('Carbs');
+
 module.exports = function(pool, opts) {
 
-  var opts = opts || {};
+  var MS_IN_ONE = 60000;
+
+  opts = opts || {};
 
   var defaults = {
     xScale: pool.xScale().copy(),
-    width: 12
+    width: 12,
+    tooltipHeight: 24,
+    tooltipWidth: 70,
+    bolusTooltipCatcher: 5,
+    tooltipTimestamp: true
   };
 
   _.defaults(opts, defaults);
+
+  var bolusTooltipBuffer = opts.bolusTooltipCatcher * MS_IN_ONE;
+
+  // catch bolus tooltips events
+  opts.emitter.on('bolusTooltipOn', function(t) {
+    var c = _.find(opts.data, function(d) {
+      var carbT = Date.parse(d.normalTime);
+      if (carbT >= (t - bolusTooltipBuffer) && (carbT <= (t + bolusTooltipBuffer))) {
+        return d;
+      }
+    });
+    if (c) {
+      carbs.addTooltip(c, false);
+    }
+  });
+  opts.emitter.on('bolusTooltipOff', function(t) {
+    var c = _.find(opts.data, function(d) {
+      var carbT = Date.parse(d.normalTime);
+      if (carbT >= (t - bolusTooltipBuffer) && (carbT <= (t + bolusTooltipBuffer))) {
+        return d;
+      }
+    });
+    if (c) {
+      d3.select('#tooltip_' + c.id).remove();
+    }
+  });
+
+  opts.emitter.on('noCarbTimestamp', function(bool) {
+    if (bool) {
+      opts.tooltipTimestamp = false;
+    }
+    else {
+      opts.tooltipTimestamp = true;
+    }
+  });
 
   function carbs(selection) {
     selection.each(function(currentData) {
@@ -50,8 +93,50 @@ module.exports = function(pool, opts) {
           }
         });
         rects.exit().remove();
+
+      // tooltips
+      d3.selectAll('.d3-rect-carbs').on('mouseover', function() {
+        var d = d3.select(this).datum();
+        var t = Date.parse(d.normalTime);
+        opts.emitter.emit('carbTooltipOn', t);
+        carbs.addTooltip(d, opts.tooltipTimestamp);
+      });
+      d3.selectAll('.d3-rect-carbs').on('mouseout', function() {
+        var d = d3.select(this).datum();
+        var t = Date.parse(d.normalTime);
+        d3.select('#tooltip_' + d.id).remove();
+        opts.emitter.emit('carbTooltipOff', t);
+      });
     });
   }
 
-  return carbs; 
+  carbs.addTooltip = function(d, category) {
+    d3.select('#' + 'd3-tooltip-group_carbs')
+      .call(tooltips,
+        d,
+        // tooltipXPos
+        opts.xScale(Date.parse(d.normalTime)),
+        'carbs',
+        // timestamp
+        category,
+        'tooltip_carbs.svg',
+        opts.tooltipWidth,
+        opts.tooltipHeight,
+        // imageX
+        opts.xScale(Date.parse(d.normalTime)),
+        // imageY
+        function() {
+          return opts.yScale.range()[0];
+        },
+        // textX
+        opts.xScale(Date.parse(d.normalTime)) + opts.tooltipWidth / 2,
+        // textY
+        function() {
+          return opts.tooltipHeight / 2;
+        },
+        // customText
+        d.value + 'g');
+  };
+
+  return carbs;
 };

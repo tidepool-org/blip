@@ -15,18 +15,56 @@
  * == BSD2 LICENSE ==
  */
 
+var log = require('bows')('Bolus');
+
 module.exports = function(pool, opts) {
+
+  var MS_IN_ONE = 60000;
 
   opts = opts || {};
 
   var defaults = {
+    classes: {
+      'unspecial': {'tooltip': 'tooltip_bolus_small.svg', 'width': 70, 'height': 24},
+      'two-line': {'tooltip': 'tooltip_bolus_large.svg', 'width': 98, 'height': 39},
+      'three-line': {'tooltip': 'tooltip_bolus_extralarge.svg', 'width': 98, 'height': 58}
+    },
     xScale: pool.xScale().copy(),
     width: 12,
     bolusStroke: 2,
-    triangleSize: 6
+    triangleSize: 6,
+    carbTooltipCatcher: 5
   };
 
   _.defaults(opts, defaults);
+
+  var carbTooltipBuffer = opts.carbTooltipCatcher * MS_IN_ONE;
+
+  // catch bolus tooltips events
+  opts.emitter.on('carbTooltipOn', function(t) {
+    var b = _.find(opts.data, function(d) {
+      var bolusT = Date.parse(d.normalTime);
+      if (bolusT >= (t - carbTooltipBuffer) && (bolusT <= (t + carbTooltipBuffer))) {
+        return d;
+      }
+    });
+    if (b) {
+      bolus.addTooltip(b, bolus.getTooltipCategory(b));
+      opts.emitter.emit('noCarbTimestamp', true);
+    }
+  });
+  opts.emitter.on('carbTooltipOff', function(t) {
+    var b = _.find(opts.data, function(d) {
+      var bolusT = Date.parse(d.normalTime);
+      if (bolusT >= (t - carbTooltipBuffer) && (bolusT <= (t + carbTooltipBuffer))) {
+        return d;
+      }
+    });
+    if (b) {
+      d3.select('#tooltip_' + b.id).remove();
+      opts.emitter.emit('noCarbTimestamp', false);
+    }
+  });
 
   function bolus(selection) {
     selection.each(function(currentData) {
@@ -156,8 +194,77 @@ module.exports = function(pool, opts) {
           }
         });
       boluses.exit().remove();
+
+      // tooltips
+      d3.selectAll('.d3-rect-bolus, .d3-rect-recommended').on('mouseover', function() {
+        var d = d3.select(this).datum();
+        var t = Date.parse(d.normalTime);
+        bolus.addTooltip(d, bolus.getTooltipCategory(d));
+        opts.emitter.emit('bolusTooltipOn', t);
+      });
+      d3.selectAll('.d3-rect-bolus, .d3-rect-recommended').on('mouseout', function() {
+        var d = _.clone(d3.select(this).datum());
+        var t = Date.parse(d.normalTime);
+        d3.select('#tooltip_' + d.id).remove();
+        opts.emitter.emit('bolusTooltipOff', t);
+      });
     });
   }
+
+  bolus.getTooltipCategory = function(d) {
+    var category;
+    if (((d.recommended === null) || (d.recommended === d.value)) && !d.extended) {
+      category = 'unspecial';
+    }
+    else if ((d.recommended !== d.value) && d.extended) {
+      category = 'three-line';
+    }
+    else {
+      category = 'two-line';
+    }
+    return category;
+  };
+
+  bolus.addTooltip = function(d, category) {
+    var tooltipWidth = opts.classes[category].width;
+    var tooltipHeight = opts.classes[category].height;
+    d3.select('#' + 'd3-tooltip-group_bolus')
+      .call(tooltips,
+        d,
+        // tooltipXPos
+        opts.xScale(Date.parse(d.normalTime)),
+        'bolus',
+        // timestamp
+        true,
+        opts.classes[category]['tooltip'],
+        tooltipWidth,
+        tooltipHeight,
+        // imageX
+        opts.xScale(Date.parse(d.normalTime)),
+        // imageY
+        function() {
+          // return opts.yScale(d.value) - tooltipHeight;
+          return pool.height() - tooltipHeight;
+        },
+        // textX
+        opts.xScale(Date.parse(d.normalTime)) + tooltipWidth / 2,
+        // textY
+        function() {
+          // if (category === 'unspecial') {
+          //   log(opts.yScale(d.value) - tooltipHeight/ 2);
+          //   return opts.yScale(d.value) - tooltipHeight / 2;
+          // }
+          // else if (category === 'two-line') {
+          //   return opts.yScale(d.value) - tooltipHeight / 2;
+          // }
+          // else if (category === 'three-line') {
+          //   return opts.yScale(d.value) - tooltipHeight / 2;
+          // }
+          return pool.height() - tooltipHeight / 2;
+        },
+        // customText
+        d.value + 'U');
+  };
   
   bolus.x = function(d) {
     return opts.xScale(Date.parse(d.normalTime)) - opts.width/2;

@@ -254,10 +254,18 @@ function oneDayChart(el) {
     poolBolus.addPlotType('fill', fill(poolBolus, {endpoints: chart.endpoints}), false);
 
     // add carbs data to bolus pool
-    poolBolus.addPlotType('carbs', require('../js/plot/carbs')(poolBolus, {yScale: scaleCarbs}), true);
+    poolBolus.addPlotType('carbs',require('../js/plot/carbs')(poolBolus, {
+      yScale: scaleCarbs,
+      emitter: emitter,
+      data: _.where(data, {'type': 'carbs'})
+    }), true);
 
     // add bolus data to bolus pool
-    poolBolus.addPlotType('bolus', require('../js/plot/bolus')(poolBolus, {yScale: scaleBolus}), true);
+    poolBolus.addPlotType('bolus', require('../js/plot/bolus')(poolBolus, {
+      yScale: scaleBolus,
+      emitter: emitter,
+      data: _.where(data, {'type': 'bolus'})
+    }), true);
 
     // basal pool
     var scaleBasal = scales.basal(_.where(data, {'type': 'basal-rate-segment'}), poolBasal);
