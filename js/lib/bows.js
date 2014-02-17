@@ -15,7 +15,11 @@
  * == BSD2 LICENSE ==
  */
 
-var bows = window.bows;
+var bows;
+
+if (typeof window !== 'undefined') {
+  bows = window.bows;
+}
 
 if (!bows) {
   // Optional dependency
