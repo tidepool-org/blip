@@ -55774,5 +55774,12 @@
         "utcTime": "2014-03-16T09:07:51Z",
         "type": "message",
         "id": "8ea9e378-aea7-41b5-bc3f-9d7287c3e17f"
+    },
+    {
+        "units": "grams",
+        "deviceTime": "2014-03-16T10:33:06",
+        "type": "carbs",
+        "id": "7bd72bf0-3821-4ab8-a046-be5649fd3c1d",
+        "value": 34
     }
 ]

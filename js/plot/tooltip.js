@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
- var log = require('bows')('Tooltip');
+var log = require('bows')('Tooltip');
 
 module.exports = function(container, tooltipsGroup) {
 
@@ -201,8 +201,10 @@ module.exports = function(container, tooltipsGroup) {
   }
 
   tooltip.timestamp = function(d, tooltipGroup, imageX, imageY, textX, textY, tooltipWidth, tooltipHeight) {
+    var magic = timestampHeight * 1.2;
     var timestampY = imageY() - timestampHeight;
-    var timestampTextY = textY() - timestampHeight;
+    // MAGIC number 12
+    var timestampTextY = timestampY + magic / 2;
 
     var formatTime = d3.time.format.utc("%-I:%M %p");
     var t = formatTime(new Date(d.normalTime));
@@ -218,7 +220,8 @@ module.exports = function(container, tooltipsGroup) {
       .attr({
         'x': textX,
         'y': timestampTextY,
-        'baseline-shift': (tooltipHeight - timestampHeight) / 2,
+        // MORE MAGIC 24
+        'baseline-shift': (magic - timestampHeight) / 2,
         'class': 'd3-tooltip-text d3-tooltip-timestamp'
       })
       .text('at ' + t);
