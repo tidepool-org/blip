@@ -25,6 +25,7 @@ var api = require('./core/api');
 var user = require('./core/user');
 var patient = require('./core/patient');
 var tideline = require('./core/tideline');
+var chartUtil = require('./core/chartutil');
 
 var detectTouchScreen = require('./core/notouch');
 
@@ -531,11 +532,17 @@ var AppComponent = React.createClass({
         return;
       }
 
+      patientData = self.processPatientData(patientData);
+
       self.setState({
         patientData: patientData,
         fetchingPatientData: false
       });
     });
+  },
+
+  processPatientData: function(data) {
+    return chartUtil.processData(data);
   },
 
   clearUserData: function() {
