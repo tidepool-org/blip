@@ -30,7 +30,7 @@ module.exports = function(pool, opts) {
       'reg': {'tooltip': 'basal_tooltip_reg.svg', 'height': 20},
       'temp': {'tooltip': 'basal_tooltip_temp_large.svg', 'height': 40}
     },
-    tooltipWidth: 144,
+    tooltipWidth: 180,
     xScale: pool.xScale().copy(),
     pathStroke: 1.5
   };
