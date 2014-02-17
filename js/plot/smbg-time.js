@@ -21,7 +21,7 @@ module.exports = function(pool, opts) {
 
   MS_IN_MIN = 60 * 1000;
 
-  var opts = opts || {};
+  opts = opts || {};
 
   var defaults = {
     classes: {
@@ -177,5 +177,5 @@ module.exports = function(pool, opts) {
     });
   }
 
-  return smbg; 
+  return smbg;
 };
