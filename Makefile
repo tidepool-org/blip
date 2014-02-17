@@ -4,7 +4,7 @@ dist:
 	lessc css/tideline.less dist/tideline.css
 
 example:
-	browserify example/example.js > example/bundle.js
+	browserify --debug example/example.js > example/bundle.js
 	lessc example/example.less example/example.css
 
 test:

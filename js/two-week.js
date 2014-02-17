@@ -26,6 +26,7 @@ module.exports = function(emitter) {
     id,
     width, minWidth,
     height, minHeight,
+    imagesBaseUrl,
     statsHeight,
     axisGutter,
     nav = {},
@@ -66,6 +67,7 @@ module.exports = function(emitter) {
     id: 'tidelineSVG',
     minWidth: 400,
     minHeight: 400,
+    imagesBaseUrl: 'img',
     nav: {
       minNavHeight: 30,
       latestTranslation: 0,
@@ -240,6 +242,7 @@ module.exports = function(emitter) {
     this.latestTranslation(properties.nav.latestTranslation)
       .currentTranslation(properties.nav.currentTranslation);
     this.axisGutter(properties.axisGutter);
+    this.imagesBaseUrl(properties.imagesBaseUrl);
 
     return container;
   };
@@ -335,7 +338,7 @@ module.exports = function(emitter) {
       .enter()
       .append('image')
       .attr({
-        'xlink:href': '../img/ux/scroll_thumb.svg',
+        'xlink:href': imagesBaseUrl + '/ux/scroll_thumb.svg',
         'x': xPos - nav.scrollThumbRadius,
         'y': function(d) { return d.y - nav.scrollThumbRadius; },
         'width': 2 * nav.scrollThumbRadius,
@@ -408,6 +411,12 @@ module.exports = function(emitter) {
   container.minHeight = function(x) {
     if (!arguments.length) return height;
     minHeight = x;
+    return container;
+  };
+
+  container.imagesBaseUrl = function(x) {
+    if (!arguments.length) return imagesBaseUrl;
+    imagesBaseUrl = x;
     return container;
   };
 

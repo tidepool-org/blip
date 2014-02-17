@@ -33,13 +33,21 @@ var scales = tideline.plot.scales;
 var BasalUtil = tideline.data.BasalUtil;
 
 var el = '#tidelineContainer';
+var imagesBaseUrl = '../img';
 
 // dear old Watson
 var watson = require('./watson')();
 d3.select(el).call(watson);
 
-// set up one-day view
-var oneDay = new oneDayChart(el), twoWeek = twoWeekChart(el);
+// set up one-day and two-week view
+var createNewOneDayChart = function() {
+  return new oneDayChart(el, {imagesBaseUrl: imagesBaseUrl});
+};
+var createNewTwoWeekChart = function() {
+  return new twoWeekChart(el, {imagesBaseUrl: imagesBaseUrl});
+};
+var oneDay = createNewOneDayChart();
+var twoWeek = createNewTwoWeekChart();
 
 
 // Note to Nico: this (all the code within d3.json() below) is all rough-and-ready...
@@ -82,7 +90,7 @@ d3.json('device-data.json', function(data) {
     $('.two-week').css('visibility', 'visible');
     // TODO: this shouldn't be necessary, but I've screwed something up with the global two-week.js variables
     // such that its necessary to create a new twoWeek object every time you want to rerender
-    twoWeek = new twoWeekChart(el);
+    twoWeek = createNewTwoWeekChart();
     // takes user to two-week view with day user was viewing in one-day view at the end of the two-week view window
     twoWeek.initialize(data, date);
   });
@@ -97,7 +105,7 @@ d3.json('device-data.json', function(data) {
     $('.two-week').css('visibility', 'hidden');
     // TODO: this shouldn't be necessary, but I've screwed something up with the global one-day.js variables
     // such that its necessary to create a new oneDay object every time you want to rerender
-    oneDay = new oneDayChart(el);
+    oneDay = createNewOneDayChart();
     // takes user to one-day view of most recent data
     oneDay.initialize(data).locate();
     // attach click handlers to set up programmatic pan
@@ -115,7 +123,7 @@ d3.json('device-data.json', function(data) {
     $('.two-week').css('visibility', 'hidden');
     // TODO: this shouldn't be necessary, but I've screwed something up with the global one-day.js variables
     // such that its necessary to create a new oneDay object every time you want to rerender
-    oneDay = new oneDayChart(el);
+    oneDay = createNewOneDayChart();
     // takes user to one-day view of most recent data
     oneDay.initialize(data).locate();
     // attach click handlers to set up programmatic pan
@@ -133,7 +141,7 @@ d3.json('device-data.json', function(data) {
     $('.two-week').css('visibility', 'hidden');
     // TODO: this shouldn't be necessary, but I've screwed something up with the global one-day.js variables
     // such that its necessary to create a new oneDay object every time you want to rerender
-    oneDay = new oneDayChart(el);
+    oneDay = createNewOneDayChart();
     // takes user to one-day view of date given by the .d3-smbg-time emitter
     oneDay.initialize(data).locate(date);
     // attach click handlers to set up programmatic pan
@@ -159,13 +167,14 @@ d3.json('device-data.json', function(data) {
 // // =====================
 // // create a 'oneDay' object that is a wrapper around tideline components
 // // for blip's (one-day) data visualization
-function oneDayChart(el) {
+function oneDayChart(el, options) {
+  options = options || {};
 
   var chart = tideline.oneDay(emitter);
 
   var poolMessages, poolBG, poolBolus, poolBasal, poolStats;
 
-  var create = function(el) {
+  var create = function(el, options) {
 
     if (!el) {
       throw new Error('Sorry, you must provide a DOM element! :(');
@@ -173,6 +182,10 @@ function oneDayChart(el) {
 
     // basic chart set up
     chart.defaults().width($(el).width()).height($(el).height());
+
+    if (options.imagesBaseUrl) {
+      chart.imagesBaseUrl(options.imagesBaseUrl);
+    }
 
     return chart;
   };
@@ -330,26 +343,31 @@ function oneDayChart(el) {
     return chart.date();
   };
 
-  return create(el);
+  return create(el, options);
 }
 
 // // two-week visualization
 // // =====================
 // // create a 'twoWeek' object that is a wrapper around tideline components
 // // for blip's (two-week) data visualization
-function twoWeekChart(el) {
+function twoWeekChart(el, options) {
+  options = options || {};
 
   var chart = tideline.twoWeek(emitter);
 
   var pools = [];
 
-  var create = function(el) {
+  var create = function(el, options) {
     if (!el) {
       throw new Error('Sorry, you must provide a DOM element! :(');
     }
 
     // basic chart set up
     chart.defaults().width($(el).width()).height($(el).height());
+
+    if (options.imagesBaseUrl) {
+      chart.imagesBaseUrl(options.imagesBaseUrl);
+    }
 
     return chart;
   };
@@ -395,5 +413,5 @@ function twoWeekChart(el) {
     return chart;
   };
 
-  return create(el);
+  return create(el, options);
 }

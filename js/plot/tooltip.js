@@ -34,6 +34,8 @@ module.exports = function(container, tooltipsGroup) {
       .attr('class', 'd3-tooltip')
       .attr('id', 'tooltip_' + d.id);
 
+    var imagesBaseUrl = container.imagesBaseUrl();
+
     var currentTranslation = container.currentTranslation();
 
     var locationInWindow = currentTranslation + tooltipXPos;
@@ -43,7 +45,7 @@ module.exports = function(container, tooltipsGroup) {
       if (locationInWindow < (((container.width() - container.axisGutter()) / 24) * 3)) {
         tooltipGroup.append('image')
           .attr({
-            'xlink:href': '../img/' + path + '/' + image,
+            'xlink:href': imagesBaseUrl + '/' + path + '/' + image,
             'x': imageX,
             'y': imageY,
             'width': tooltipWidth,
@@ -65,7 +67,7 @@ module.exports = function(container, tooltipsGroup) {
         tooltipGroup.append('image')
           .attr({
             'xlink:href': function() {
-              var str =  '../img/' + path + '/' + image;
+              var str =  imagesBaseUrl + '/' + path + '/' + image;
               return str.replace('.svg', '_left.svg');
             },
             'x': imageX - tooltipWidth,
@@ -92,7 +94,7 @@ module.exports = function(container, tooltipsGroup) {
       tooltipGroup.append('image')
         .attr({
           'xlink:href': function() {
-            var str =  '../img/' + path + '/' + image;
+            var str =  imagesBaseUrl + '/' + path + '/' + image;
             return str.replace('.svg', '_left.svg');
           },
           'x': imageX - tooltipWidth,
@@ -120,7 +122,7 @@ module.exports = function(container, tooltipsGroup) {
     else {
       tooltipGroup.append('image')
         .attr({
-          'xlink:href': '../img/' + path + '/' + image,
+          'xlink:href': imagesBaseUrl + '/' + path + '/' + image,
           'x': imageX,
           'y': imageY,
           'width': tooltipWidth,

@@ -17,7 +17,7 @@
 
 var log = require('./lib/bows')('One Day');
 
-module.exports = function(emitter) {
+module.exports = function(emitter, options) {
   var pool = require('./pool');
 
   var tooltip = require('./plot/tooltip');
@@ -28,6 +28,7 @@ module.exports = function(emitter) {
     id,
     width, minWidth,
     height, minHeight,
+    imagesBaseUrl,
     gutter,
     axisGutter,
     nav = {},
@@ -44,6 +45,7 @@ module.exports = function(emitter) {
     id: 'tidelineSVG',
     minWidth: 400,
     minHeight: 400,
+    imagesBaseUrl: 'img',
     nav: {
       minNavHeight: 30,
       scrollNav: true,
@@ -259,6 +261,7 @@ module.exports = function(emitter) {
     this.gutter(properties.gutter);
     this.buffer(properties.buffer);
     this.tooltips(properties.tooltips);
+    this.imagesBaseUrl(properties.imagesBaseUrl);
 
     return container;
   };
@@ -379,7 +382,7 @@ module.exports = function(emitter) {
       .enter()
       .append('image')
       .attr({
-        'xlink:href': '../img/ux/scroll_thumb.svg',
+        'xlink:href': imagesBaseUrl + '/ux/scroll_thumb.svg',
         'x': function(d) { return d.x - nav.scrollThumbRadius; },
         'y': -nav.scrollThumbRadius,
         'width': nav.scrollThumbRadius * 2,
@@ -483,6 +486,12 @@ module.exports = function(emitter) {
   container.minHeight = function(x) {
     if (!arguments.length) return height;
     minHeight = x;
+    return container;
+  };
+
+  container.imagesBaseUrl = function(x) {
+    if (!arguments.length) return imagesBaseUrl;
+    imagesBaseUrl = x;
     return container;
   };
 
