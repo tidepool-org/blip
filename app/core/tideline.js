@@ -13,19 +13,11 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-@import "less/tideline.less";
+// Expose Tideline library on global `window` object
+// Deprecate when Tideline introduces a distribution bundle
 
-@import "less/variables.less";
-@import "less/mixins.less";
-@import "less/fonts.less";
+var tideline = require('../../bower_components/tideline/js');
 
-@import "less/normalize.less";
+window.tideline = tideline;
 
-@import "less/containers.less";
-@import "less/scaffolding.less";
-@import "less/forms.less";
-@import "less/buttons.less";
-@import "less/nav.less";
-@import "less/lists.less";
-@import "less/grid.less";
-@import "less/icons.less";
+module.exports = tideline;

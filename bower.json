@@ -7,6 +7,10 @@
     "bows": "https://github.com/latentflip/bows.git#beb35328d5c224fc5635928a1b45b32e0d839caa",
     "lodash": "~2.4.1",
     "superagent": "visionmedia/superagent#0.16.0",
-    "moment": "~2.5.1"
+    "moment": "~2.5.1",
+    "d3": "~3.4.1",
+    "jquery": "~2.1.0",
+    "Duration.js": "https://github.com/icholy/Duration.js.git#3.3.3",
+    "tideline": "https://github.com/tidepool-org/tideline.git#edf86266d08012dfde68f842627cd4f91b43456e"
   }
 }

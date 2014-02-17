@@ -24,6 +24,7 @@ var auth = require('./core/auth');
 var api = require('./core/api');
 var user = require('./core/user');
 var patient = require('./core/patient');
+var tideline = require('./core/tideline');
 
 var detectTouchScreen = require('./core/notouch');
 
