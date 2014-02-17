@@ -396,10 +396,10 @@ module.exports = function(pool, opts) {
         },
         function() {
           if (d.value === 0) {
-            return '0.0 U';
+            return '0.0U';
           }
           else {
-            return d.value + ' U';
+            return d.value + 'U';
           }
         }(),
         basal.timespan(d));
@@ -419,7 +419,7 @@ module.exports = function(pool, opts) {
           }
         })
         .append('tspan')
-        .text('(' + unD.value + ' U scheduled)');
+        .text('(' + unD.value + 'U scheduled)');
     }
   };
 
