@@ -48,14 +48,17 @@ module.exports = function(container, tooltipsGroup) {
     if (path === 'basal') {
       if (locationInWindow > container.width() - (((container.width() - container.axisGutter()) / 24) * 3)) {
         newBasalPosition = -currentTranslation + container.width() - tooltipWidth;
-        translation = newBasalPosition - imageX;
-        imageX = newBasalPosition;
-        log(imageX, newBasalPosition);
+        if (newBasalPosition < imageX) {
+          translation = newBasalPosition - imageX;
+          imageX = newBasalPosition;
+        }
       }
       else if (locationInWindow < (((container.width() - container.axisGutter()) / 24) * 3)) {
         newBasalPosition = -currentTranslation + container.axisGutter();
-        translation = newBasalPosition - imageX;
-        imageX = newBasalPosition;
+        if (newBasalPosition > imageX) {
+          translation = newBasalPosition - imageX;
+          imageX = newBasalPosition;
+        }
       }
     }
 
