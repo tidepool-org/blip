@@ -15,7 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
-var log = require('bows')('Example');
+var tideline = require('../js');
+var log = window.bows('Example');
+
 // things common to one-day and two-week views
 // common event emitter
 var EventEmitter = require('events').EventEmitter;
@@ -26,9 +28,9 @@ emitter.on('navigated', function(navString) {
 });
 
 // common pool modules
-var fill = require('../js/plot/fill');
-var scales = require('../js/plot/scales');
-var BasalUtil = require('../js/data/basalutil');
+var fill = tideline.plot.fill;
+var scales = tideline.plot.scales;
+var BasalUtil = tideline.data.BasalUtil;
 
 var el = '#tidelineContainer';
 
@@ -159,7 +161,7 @@ d3.json('device-data.json', function(data) {
 // // for blip's (one-day) data visualization
 function oneDayChart(el) {
 
-  var chart = require('../js/one-day')(emitter);
+  var chart = tideline.oneDay(emitter);
 
   var poolMessages, poolBG, poolBolus, poolBasal, poolStats;
 
@@ -230,10 +232,10 @@ function oneDayChart(el) {
     poolBG.addPlotType('fill', fill(poolBG, {endpoints: chart.endpoints}), false);
 
     // add CBG data to BG pool
-    poolBG.addPlotType('cbg', require('../js/plot/cbg')(poolBG, {yScale: scaleBG}), true);
+    poolBG.addPlotType('cbg', tideline.plot.cbg(poolBG, {yScale: scaleBG}), true);
 
     // add SMBG data to BG pool
-    poolBG.addPlotType('smbg', require('../js/plot/smbg')(poolBG, {yScale: scaleBG}), true);
+    poolBG.addPlotType('smbg', tideline.plot.smbg(poolBG, {yScale: scaleBG}), true);
 
     // bolus & carbs pool
     var scaleBolus = scales.bolus(_.where(data, {'type': 'bolus'}), poolBolus);
@@ -254,10 +256,10 @@ function oneDayChart(el) {
     poolBolus.addPlotType('fill', fill(poolBolus, {endpoints: chart.endpoints}), false);
 
     // add carbs data to bolus pool
-    poolBolus.addPlotType('carbs', require('../js/plot/carbs')(poolBolus, {yScale: scaleCarbs}), true);
+    poolBolus.addPlotType('carbs', tideline.plot.carbs(poolBolus, {yScale: scaleCarbs}), true);
 
     // add bolus data to bolus pool
-    poolBolus.addPlotType('bolus', require('../js/plot/bolus')(poolBolus, {yScale: scaleBolus}), true);
+    poolBolus.addPlotType('bolus', tideline.plot.bolus(poolBolus, {yScale: scaleBolus}), true);
 
     // basal pool
     var scaleBasal = scales.basal(_.where(data, {'type': 'basal-rate-segment'}), poolBasal);
@@ -271,14 +273,14 @@ function oneDayChart(el) {
     poolBasal.addPlotType('fill', fill(poolBasal, {endpoints: chart.endpoints}), false);
 
     // add basal data to basal pool
-    poolBasal.addPlotType('basal-rate-segment', require('../js/plot/basal')(poolBasal, {yScale: scaleBasal, data: _.where(data, {'type': 'basal-rate-segment'}) }), true);
+    poolBasal.addPlotType('basal-rate-segment', tideline.plot.basal(poolBasal, {yScale: scaleBasal, data: _.where(data, {'type': 'basal-rate-segment'}) }), true);
 
     // messages pool
     // add background fill rectangles to messages pool
     poolMessages.addPlotType('fill', fill(poolMessages, {endpoints: chart.endpoints}), false);
 
     // add message images to messages pool
-    poolMessages.addPlotType('message', require('../js/plot/message')(poolMessages, {size: 30}), true);
+    poolMessages.addPlotType('message', tideline.plot.message(poolMessages, {size: 30}), true);
 
     return chart;
   };
@@ -337,7 +339,7 @@ function oneDayChart(el) {
 // // for blip's (two-week) data visualization
 function twoWeekChart(el) {
 
-  var chart = require('../js/two-week')(emitter);
+  var chart = tideline.twoWeek(emitter);
 
   var pools = [];
 
@@ -386,7 +388,7 @@ function twoWeekChart(el) {
         scale: fillScale,
         gutter: 0.5
       }), false);
-      pool.addPlotType('smbg', require('../js/plot/smbg-time')(pool, {emitter: emitter}), true);
+      pool.addPlotType('smbg', tideline.plot.smbgTime(pool, {emitter: emitter}), true);
       pool(chart.daysGroup, chart.dataPerDay[i]);
     });
 

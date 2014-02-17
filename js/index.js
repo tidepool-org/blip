@@ -21,7 +21,7 @@ module.exports = {
   twoWeek: require('./two-week'),
 
   data: {
-    basalUtil: require('./data/basalUtil')
+    BasalUtil: require('./data/basalutil')
   },
 
   plot: {
