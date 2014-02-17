@@ -32,7 +32,9 @@ module.exports = function(pool, opts) {
     },
     tooltipWidth: 180,
     xScale: pool.xScale().copy(),
-    pathStroke: 1.5
+    pathStroke: 1.5,
+    opacity: 0.3,
+    opacityDelta: 0.1
   };
 
   _.defaults(opts, defaults);
@@ -260,10 +262,10 @@ module.exports = function(pool, opts) {
         }
         if (invisiRect.classed('d3-basal-nonzero')) {
           if (invisiRect.classed('d3-basal-temp')) {
-            d3.select('#basal_' + d.link.replace('link_', '')).attr('opacity', '0.35');
+            d3.select('#basal_' + d.link.replace('link_', '')).attr('opacity', opts.opacity + opts.opacityDelta);
           }
           else {
-            d3.select('#basal_' + id).attr('opacity', '0.35');
+            d3.select('#basal_' + id).attr('opacity', opts.opacity + opts.opacityDelta);
           }
         }
       });
@@ -273,10 +275,10 @@ module.exports = function(pool, opts) {
         var d = d3.select('#basal_group_' + id).datum();
         d3.select('#tooltip_' + id).remove();
         if (invisiRect.classed('d3-basal-temp')) {
-          d3.select('#basal_' + d.link.replace('link_', '')).attr('opacity', '0.3');
+          d3.select('#basal_' + d.link.replace('link_', '')).attr('opacity', opts.opacity);
         }
         else {
-          d3.select('#basal_' + id).attr('opacity', '0.3');
+          d3.select('#basal_' + id).attr('opacity', opts.opacity);
         }
       });
     });
@@ -404,7 +406,7 @@ module.exports = function(pool, opts) {
         }(),
         basal.timespan(d));
     if (category === 'temp') {
-      d3.select('#tooltip_' + d.id).append('text')
+      d3.select('#tooltip_' + d.id).select('.d3-tooltip-text-group').append('text')
         .attr({
           'class': 'd3-tooltip-text d3-basal',
           'x': opts.xScale(Date.parse(d.normalTime)) + basal.width(d) / 2,

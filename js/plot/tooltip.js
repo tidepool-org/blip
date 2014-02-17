@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+ var log = require('bows')('Tooltip');
+
 module.exports = function(container, tooltipsGroup) {
 
   var id, timestampHeight = 20;
@@ -37,6 +39,25 @@ module.exports = function(container, tooltipsGroup) {
     var currentTranslation = container.currentTranslation();
 
     var locationInWindow = currentTranslation + tooltipXPos;
+
+    var translation = 0;
+
+    var newBasalPosition;
+
+    // moving basal tooltips at edges of display
+    if (path === 'basal') {
+      if (locationInWindow > container.width() - (((container.width() - container.axisGutter()) / 24) * 3)) {
+        newBasalPosition = -currentTranslation + container.width() - tooltipWidth;
+        translation = newBasalPosition - imageX;
+        imageX = newBasalPosition;
+        log(imageX, newBasalPosition);
+      }
+      else if (locationInWindow < (((container.width() - container.axisGutter()) / 24) * 3)) {
+        newBasalPosition = -currentTranslation + container.axisGutter();
+        translation = newBasalPosition - imageX;
+        imageX = newBasalPosition;
+      }
+    }
 
     // for now (unless I can persude Sara and Alix otherwise), high cbg values are a special case
     if (image.indexOf('cbg_tooltip_high') != -1) {
@@ -129,7 +150,12 @@ module.exports = function(container, tooltipsGroup) {
         });
 
       if (tspan) {
-        tooltipGroup.append('text')
+        tooltipGroup.append('g')
+        .attr({
+          'class': 'd3-tooltip-text-group',
+          'transform': 'translate(' + translation + ',0)'
+        })
+        .append('text')
           .attr({
             'x': textX,
             'y': textY,
