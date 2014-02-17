@@ -12,6 +12,7 @@ Dependencies:
 - [D3.js](http://d3js.org/)
 - [Underscore](http://underscorejs.org/) or [Lo-Dash](http://lodash.com/)
 - [jQuery](http://jquery.com/)
+- [Duration.js](https://github.com/icholy/Duration.js)
 
 Optional dependencies:
 

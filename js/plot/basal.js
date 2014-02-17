@@ -15,9 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+var Duration = require('../lib/duration');
 var log = require('../lib/bows')('Basal');
-
-var Duration = require('duration-js');
 
 module.exports = function(pool, opts) {
 
