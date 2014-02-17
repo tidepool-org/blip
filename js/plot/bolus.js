@@ -17,7 +17,11 @@
 
 var log = require('bows')('Bolus');
 
+var Duration = require('duration-js');
+
 module.exports = function(pool, opts) {
+
+  var QUARTER = ' ¼', HALF = ' ½', THREE_QUARTER = ' ¾', THIRD = ' ⅓', TWO_THIRDS = ' ⅔';
 
   var MS_IN_ONE = 60000;
 
@@ -243,27 +247,113 @@ module.exports = function(pool, opts) {
         opts.xScale(Date.parse(d.normalTime)),
         // imageY
         function() {
-          // return opts.yScale(d.value) - tooltipHeight;
           return pool.height() - tooltipHeight;
         },
         // textX
         opts.xScale(Date.parse(d.normalTime)) + tooltipWidth / 2,
         // textY
         function() {
-          // if (category === 'unspecial') {
-          //   log(opts.yScale(d.value) - tooltipHeight/ 2);
-          //   return opts.yScale(d.value) - tooltipHeight / 2;
-          // }
-          // else if (category === 'two-line') {
-          //   return opts.yScale(d.value) - tooltipHeight / 2;
-          // }
-          // else if (category === 'three-line') {
-          //   return opts.yScale(d.value) - tooltipHeight / 2;
-          // }
-          return pool.height() - tooltipHeight / 2;
+          if (category === 'unspecial') {
+            return pool.height() - tooltipHeight * (9/16);
+          }
+          else if (category === 'two-line') {
+            return pool.height() - tooltipHeight * (3/4);
+          }
+          else if (category === 'three-line') {
+            return pool.height() - tooltipHeight * (13/16);
+          }
+          else {
+            return pool.height() - tooltipHeight;
+          }
+          
         },
         // customText
-        d.value + 'U');
+        function() {
+          if (!d.extended) {
+            return d.value + 'U';
+          }
+          else {
+            return d.value + 'U total';
+          }
+        }()
+        );
+
+    if (category === 'two-line') {
+      d3.select('#tooltip_' + d.id).append('text')
+        .attr({
+          'class': 'd3-tooltip-text d3-bolus',
+          'x': opts.xScale(Date.parse(d.normalTime)) + tooltipWidth / 2,
+          'y': pool.height() - tooltipHeight / 3
+        })
+        .append('tspan')
+        .text(function() {
+          if (d.recommended !== d.value) {
+            return d.recommended + "U recom'd";
+          }
+          else if (d.extended) {
+            return d.extendedDelivery + 'U ' + bolus.timespan(d);
+          }
+        })
+        .attr('class', 'd3-bolus');
+    }
+    else if (category === 'three-line') {
+      d3.select('#tooltip_' + d.id).append('text')
+        .attr({
+          'class': 'd3-tooltip-text d3-bolus',
+          'x': opts.xScale(Date.parse(d.normalTime)) + tooltipWidth / 2,
+          'y': pool.height() - tooltipHeight / 2
+        })
+        .append('tspan')
+        .text(function() {
+          return d.recommended + "U recom'd";
+        })
+        .attr('class', 'd3-bolus');
+
+      d3.select('#tooltip_' + d.id).append('text')
+        .attr({
+          'class': 'd3-tooltip-text d3-bolus',
+          'x': opts.xScale(Date.parse(d.normalTime)) + tooltipWidth / 2,
+          'y': pool.height() - tooltipHeight / 4
+        })
+        .append('tspan')
+        .text(function() {
+          return d.extendedDelivery + 'U ' + bolus.timespan(d);
+        })
+        .attr('class', 'd3-bolus');
+    }
+  };
+
+  bolus.timespan = function(d) {
+    var dur = Duration.parse(d.duration + 'ms');
+    var hours = dur.hours();
+    var minutes = dur.minutes() - (hours * 60);
+    if (hours !== 0) {
+      if (hours === 1) {
+        switch(minutes) {
+          case 0: return 'over ' + hours + ' hr';
+          case 15: return 'over ' + hours + QUARTER + ' hr';
+          case 20: return 'over ' + hours + THIRD + ' hr';
+          case 30: return 'over ' + hours + HALF + ' hr';
+          case 40: return 'over ' + hours + TWO_THIRDS + ' hr';
+          case 45: return 'over ' + hours + THREE_QUARTER + ' hr';
+          default: return 'over ' + hours + ' hr ' + minutes + ' min';
+        }
+      }
+      else {
+        switch(minutes) {
+          case 0: return 'over ' + hours + ' hrs';
+          case 15: return 'over ' + hours + QUARTER + ' hrs';
+          case 20: return 'over ' + hours + THIRD + ' hrs';
+          case 30: return 'over ' + hours + HALF + ' hrs';
+          case 40: return 'over ' + hours + TWO_THIRDS + ' hrs';
+          case 45: return 'over ' + hours + THREE_QUARTER + ' hrs';
+          default: return 'over ' + hours + ' hrs ' + minutes + ' min';
+        }
+      }
+    }
+    else {
+      return 'over ' + minutes + ' min';
+    }
   };
   
   bolus.x = function(d) {

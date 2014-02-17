@@ -126,13 +126,23 @@ module.exports = function(pool, opts) {
         opts.xScale(Date.parse(d.normalTime)),
         // imageY
         function() {
-          return opts.yScale.range()[0];
+          if (category) {
+            return opts.yScale(d.value);
+          }
+          else {
+            return opts.yScale.range()[0];
+          }
         },
         // textX
         opts.xScale(Date.parse(d.normalTime)) + opts.tooltipWidth / 2,
         // textY
         function() {
-          return opts.tooltipHeight / 2;
+          if (category) {
+            return opts.yScale(d.value) + opts.tooltipHeight / 2;
+          }
+          else {
+            return opts.tooltipHeight / 2;
+          }
         },
         // customText
         d.value + 'g');
