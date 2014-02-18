@@ -16,6 +16,7 @@
 
 var React = window.React;
 var _ = window._;
+var config = window.config;
 
 var user = require('../../core/user');
 var PatientList = require('../../components/patientlist');
@@ -88,6 +89,10 @@ var Patients = React.createClass({
   },
 
   renderUploadLink: function() {
+    if (config.MOCK) {
+      return null;
+    }
+
     if (window.openUpload == null) {
       window.openUpload = this.openUpload.bind(this);
     }
