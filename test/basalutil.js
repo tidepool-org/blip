@@ -122,3 +122,45 @@ function testData (data) {
     });
   });
 }
+
+
+describe('totalBasal', function() {
+  it('should be a function', function() {
+    var basal = new BasalUtil(_.findWhere(fx, {'name': 'current-demo'}).json);
+    assert.isFunction(basal.totalBasal);
+  });
+
+  it('should return 20.0 on the template schedule for twenty-four hours', function() {
+    var template = new BasalUtil(_.findWhere(fx, {'name': 'template'}).json);
+    var start = new Date("2014-02-12T00:00:00").valueOf();
+    var end = new Date("2014-02-13T00:00:00").valueOf();
+    expect(template.totalBasal(start, end)).to.equal(20.0);
+  });
+
+  it('should return 1.45 on the template schedule from 1 to 3 a.m.', function() {
+    var template = new BasalUtil(_.findWhere(fx, {'name': 'template'}).json);
+    var start = new Date("2014-02-12T01:00:00").valueOf();
+    var end = new Date("2014-02-12T03:00:00").valueOf();
+    expect(template.totalBasal(start, end)).to.equal(1.45);
+  });
+});
+
+describe('segmentDose', function() {
+  var basal = new BasalUtil(_.findWhere(fx, {'name': 'current-demo'}).json);
+
+  it('should be a function', function() {
+    assert.isFunction(basal.segmentDose);
+  });
+
+  it('should return 1.0', function() {
+    expect(basal.segmentDose(3600000.0, 1)).to.equal(1.0);
+  });
+
+  it('should return 2.0', function() {
+    expect(basal.segmentDose(7200000.0, 1)).to.equal(2.0);
+  });
+
+  it('should return 1.2', function() {
+    expect(basal.segmentDose(5400000.0, 0.8)).to.equal(1.2);
+  });
+});
