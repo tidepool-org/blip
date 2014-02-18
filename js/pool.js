@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-var log = require('bows')('Pool');
+var log = require('./lib/bows')('Pool');
  
 module.exports = function(container) {
 
@@ -26,6 +26,7 @@ module.exports = function(container) {
     group,
     mainSVG = d3.select(container.id()),
     xScale = container.xScale().copy(),
+    imagesBaseUrl = container.imagesBaseUrl(),
     yAxis = [],
     plotTypes = [];
 
@@ -184,6 +185,12 @@ module.exports = function(container) {
   pool.xScale = function(f) {
     if (!arguments.length) return xScale;
     xScale = f;
+    return pool;
+  };
+
+  pool.imagesBaseUrl = function(x) {
+    if (!arguments.length) return imagesBaseUrl;
+    imagesBaseUrl = x;
     return pool;
   };
 

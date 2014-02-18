@@ -33,7 +33,8 @@ module.exports = function(pool, opts) {
     },
     size: 16,
     rectWidth: 32,
-    xScale: pool.xScale().copy()
+    xScale: pool.xScale().copy(),
+    imagesBaseUrl: pool.imagesBaseUrl()
   };
 
   _.defaults(opts, defaults);
@@ -52,19 +53,19 @@ module.exports = function(pool, opts) {
         .attr({
           'xlink:href': function(d) {
             if (d.value <= opts.classes['very-low']['boundary']) {
-              return '../img/smbg/very_low.svg';
+              return opts.imagesBaseUrl + '/smbg/very_low.svg';
             }
             else if ((d.value > opts.classes['very-low']['boundary']) && (d.value <= opts.classes['low']['boundary'])) {
-              return '../img/smbg/low.svg';
+              return opts.imagesBaseUrl + '/smbg/low.svg';
             }
             else if ((d.value > opts.classes['low']['boundary']) && (d.value <= opts.classes['target']['boundary'])) {
-              return '../img/smbg/target.svg';
+              return opts.imagesBaseUrl + '/smbg/target.svg';
             }
             else if ((d.value > opts.classes['target']['boundary']) && (d.value <= opts.classes['high']['boundary'])) {
-              return '../img/smbg/high.svg';
+              return opts.imagesBaseUrl + '/smbg/high.svg';
             }
             else if (d.value > opts.classes['high']['boundary']) {
-              return '../img/smbg/very_high.svg';
+              return opts.imagesBaseUrl + '/smbg/very_high.svg';
             }
           },
           'x': function(d) {

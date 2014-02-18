@@ -30,7 +30,7 @@
 
 module.exports = function() {
 
-  var log = require('bows')('Watson');
+  var log = window.bows('Watson');
 
   function watson() {
     log("Start her up, Watson, for it's time that we were on our way.");

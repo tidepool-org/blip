@@ -17,7 +17,11 @@
   "dependencies": {
     "d3": "~3.3.13",
     "jquery": "~2.0.3",
-    "bootstrap": "~3.0.3",
-    "underscore": "~1.5.2"
+    "underscore": "~1.5.2",
+    "Duration.js": "https://github.com/icholy/Duration.js.git#3.3.3"
+  },
+  "devDependencies": {
+    "bows": "https://github.com/latentflip/bows.git#beb35328d5c224fc5635928a1b45b32e0d839caa",
+    "bootstrap": "~3.0.3"
   }
 }

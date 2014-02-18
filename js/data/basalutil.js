@@ -1,10 +1,5 @@
-var _ = require('underscore');
-
-try {
-  var log = require('bows')('BasalUtil');
-}
-catch(ReferenceError) {
-}
+var _ = require('../lib/underscore');
+var log = require('../lib/bows')('BasalUtil');
 
 var keysToOmit = ['id', 'start', 'end', 'vizType'];
 

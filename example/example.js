@@ -15,7 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
-var log = require('bows')('Example');
+var tideline = require('../js');
+var log = window.bows('Example');
+
 // things common to one-day and two-week views
 // common event emitter
 var EventEmitter = require('events').EventEmitter;
@@ -26,18 +28,26 @@ emitter.on('navigated', function(navString) {
 });
 
 // common pool modules
-var fill = require('../js/plot/fill');
-var scales = require('../js/plot/scales');
-var BasalUtil = require('../js/data/basalutil');
+var fill = tideline.plot.fill;
+var scales = tideline.plot.scales;
+var BasalUtil = tideline.data.BasalUtil;
 
 var el = '#tidelineContainer';
+var imagesBaseUrl = '../img';
 
 // dear old Watson
 var watson = require('./watson')();
 d3.select(el).call(watson);
 
-// set up one-day view
-var oneDay = new oneDayChart(el), twoWeek = twoWeekChart(el);
+// set up one-day and two-week view
+var createNewOneDayChart = function() {
+  return new oneDayChart(el, {imagesBaseUrl: imagesBaseUrl});
+};
+var createNewTwoWeekChart = function() {
+  return new twoWeekChart(el, {imagesBaseUrl: imagesBaseUrl});
+};
+var oneDay = createNewOneDayChart();
+var twoWeek = createNewTwoWeekChart();
 
 
 // Note to Nico: this (all the code within d3.json() below) is all rough-and-ready...
@@ -80,7 +90,7 @@ d3.json('device-data.json', function(data) {
     $('.two-week').css('visibility', 'visible');
     // TODO: this shouldn't be necessary, but I've screwed something up with the global two-week.js variables
     // such that its necessary to create a new twoWeek object every time you want to rerender
-    twoWeek = new twoWeekChart(el);
+    twoWeek = createNewTwoWeekChart();
     // takes user to two-week view with day user was viewing in one-day view at the end of the two-week view window
     twoWeek.initialize(data, date);
   });
@@ -95,7 +105,7 @@ d3.json('device-data.json', function(data) {
     $('.two-week').css('visibility', 'hidden');
     // TODO: this shouldn't be necessary, but I've screwed something up with the global one-day.js variables
     // such that its necessary to create a new oneDay object every time you want to rerender
-    oneDay = new oneDayChart(el);
+    oneDay = createNewOneDayChart();
     // takes user to one-day view of most recent data
     oneDay.initialize(data).locate();
     // attach click handlers to set up programmatic pan
@@ -114,7 +124,7 @@ d3.json('device-data.json', function(data) {
     $('.two-week').css('visibility', 'hidden');
     // TODO: this shouldn't be necessary, but I've screwed something up with the global one-day.js variables
     // such that its necessary to create a new oneDay object every time you want to rerender
-    oneDay = new oneDayChart(el);
+    oneDay = createNewOneDayChart();
     // takes user to one-day view of most recent data
     oneDay.initialize(data).locate();
     // attach click handlers to set up programmatic pan
@@ -132,7 +142,7 @@ d3.json('device-data.json', function(data) {
     $('.two-week').css('visibility', 'hidden');
     // TODO: this shouldn't be necessary, but I've screwed something up with the global one-day.js variables
     // such that its necessary to create a new oneDay object every time you want to rerender
-    oneDay = new oneDayChart(el);
+    oneDay = createNewOneDayChart();
     // takes user to one-day view of date given by the .d3-smbg-time emitter
     oneDay.initialize(data).locate(date);
     // attach click handlers to set up programmatic pan
@@ -158,13 +168,14 @@ d3.json('device-data.json', function(data) {
 // // =====================
 // // create a 'oneDay' object that is a wrapper around tideline components
 // // for blip's (one-day) data visualization
-function oneDayChart(el) {
+function oneDayChart(el, options) {
+  options = options || {};
 
-  var chart = require('../js/one-day')(emitter);
+  var chart = tideline.oneDay(emitter);
 
   var poolMessages, poolBG, poolBolus, poolBasal, poolStats;
 
-  var create = function(el) {
+  var create = function(el, options) {
 
     if (!el) {
       throw new Error('Sorry, you must provide a DOM element! :(');
@@ -172,6 +183,10 @@ function oneDayChart(el) {
 
     // basic chart set up
     chart.defaults().width($(el).width()).height($(el).height());
+
+    if (options.imagesBaseUrl) {
+      chart.imagesBaseUrl(options.imagesBaseUrl);
+    }
 
     return chart;
   };
@@ -231,10 +246,10 @@ function oneDayChart(el) {
     poolBG.addPlotType('fill', fill(poolBG, {endpoints: chart.endpoints}), false);
 
     // add CBG data to BG pool
-    poolBG.addPlotType('cbg', require('../js/plot/cbg')(poolBG, {yScale: scaleBG}), true);
+    poolBG.addPlotType('cbg', tideline.plot.cbg(poolBG, {yScale: scaleBG}), true);
 
     // add SMBG data to BG pool
-    poolBG.addPlotType('smbg', require('../js/plot/smbg')(poolBG, {yScale: scaleBG}), true);
+    poolBG.addPlotType('smbg', tideline.plot.smbg(poolBG, {yScale: scaleBG}), true);
 
     // bolus & carbs pool
     var scaleBolus = scales.bolus(_.where(data, {'type': 'bolus'}), poolBolus);
@@ -255,14 +270,14 @@ function oneDayChart(el) {
     poolBolus.addPlotType('fill', fill(poolBolus, {endpoints: chart.endpoints}), false);
 
     // add carbs data to bolus pool
-    poolBolus.addPlotType('carbs',require('../js/plot/carbs')(poolBolus, {
+    poolBolus.addPlotType('carbs', tideline.plot.carbs(poolBolus, {
       yScale: scaleCarbs,
       emitter: emitter,
       data: _.where(data, {'type': 'carbs'})
     }), true);
 
     // add bolus data to bolus pool
-    poolBolus.addPlotType('bolus', require('../js/plot/bolus')(poolBolus, {
+    poolBolus.addPlotType('bolus', tideline.plot.bolus(poolBolus, {
       yScale: scaleBolus,
       emitter: emitter,
       data: _.where(data, {'type': 'bolus'})
@@ -280,14 +295,14 @@ function oneDayChart(el) {
     poolBasal.addPlotType('fill', fill(poolBasal, {endpoints: chart.endpoints}), false);
 
     // add basal data to basal pool
-    poolBasal.addPlotType('basal-rate-segment', require('../js/plot/basal')(poolBasal, {yScale: scaleBasal, data: _.where(data, {'type': 'basal-rate-segment'}) }), true);
+    poolBasal.addPlotType('basal-rate-segment', tideline.plot.basal(poolBasal, {yScale: scaleBasal, data: _.where(data, {'type': 'basal-rate-segment'}) }), true);
 
     // messages pool
     // add background fill rectangles to messages pool
     poolMessages.addPlotType('fill', fill(poolMessages, {endpoints: chart.endpoints}), false);
 
     // add message images to messages pool
-    poolMessages.addPlotType('message', require('../js/plot/message')(poolMessages, {size: 30}), true);
+    poolMessages.addPlotType('message', tideline.plot.message(poolMessages, {size: 30}), true);
 
     return chart;
   };
@@ -337,26 +352,31 @@ function oneDayChart(el) {
     return chart.date();
   };
 
-  return create(el);
+  return create(el, options);
 }
 
 // // two-week visualization
 // // =====================
 // // create a 'twoWeek' object that is a wrapper around tideline components
 // // for blip's (two-week) data visualization
-function twoWeekChart(el) {
+function twoWeekChart(el, options) {
+  options = options || {};
 
-  var chart = require('../js/two-week')(emitter);
+  var chart = tideline.twoWeek(emitter);
 
   var pools = [];
 
-  var create = function(el) {
+  var create = function(el, options) {
     if (!el) {
       throw new Error('Sorry, you must provide a DOM element! :(');
     }
 
     // basic chart set up
     chart.defaults().width($(el).width()).height($(el).height());
+
+    if (options.imagesBaseUrl) {
+      chart.imagesBaseUrl(options.imagesBaseUrl);
+    }
 
     return chart;
   };
@@ -395,12 +415,12 @@ function twoWeekChart(el) {
         scale: fillScale,
         gutter: 0.5
       }), false);
-      pool.addPlotType('smbg', require('../js/plot/smbg-time')(pool, {emitter: emitter}), true);
+      pool.addPlotType('smbg', tideline.plot.smbgTime(pool, {emitter: emitter}), true);
       pool(chart.daysGroup, chart.dataPerDay[i]);
     });
 
     return chart;
   };
 
-  return create(el);
+  return create(el, options);
 }

@@ -20,7 +20,8 @@ module.exports = function(pool, opts) {
   var opts = opts || {};
 
   var defaults = {
-    xScale: pool.xScale().copy()
+    xScale: pool.xScale().copy(),
+    imagesBaseUrl: pool.imagesBaseUrl()
   };
 
   _.defaults(opts, defaults);
@@ -37,7 +38,7 @@ module.exports = function(pool, opts) {
       messages.enter()
         .append('image')
         .attr({ 
-          'xlink:href': '../img/message/post_it.svg',
+          'xlink:href': opts.imagesBaseUrl + '/message/post_it.svg',
           'x': function(d) {
             return opts.xScale(Date.parse(d.normalTime)) - opts.size / 2;
           },
