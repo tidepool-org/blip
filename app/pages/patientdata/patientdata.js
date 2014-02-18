@@ -19,6 +19,7 @@ var _ = window._;
 var config = window.config;
 
 var ChartDaily = require('../../components/chartdaily');
+var ChartWeekly = require('../../components/chartweekly');
 
 var PatientData = React.createClass({
   propTypes: {
@@ -29,7 +30,8 @@ var PatientData = React.createClass({
   getInitialState: function() {
     return {
       chartType: 'daily',
-      title: 'Patient data'
+      title: 'Patient data',
+      datetimeLocation: null
     };
   },
 
@@ -162,7 +164,13 @@ var PatientData = React.createClass({
     if (this.state.chartType === 'weekly') {
       /* jshint ignore:start */
       return (
-        <div>Weekly chart</div>
+        <ChartWeekly
+          patientData={this.props.patientData}
+          datetimeLocation={this.state.datetimeLocation}
+          onDatetimeLocationChange={this.handleDatetimeLocationChange}
+          onSelectDataPoint={this.handleWeeklySelectDataPoint}
+          imagesEndpoint={config.IMAGES_ENDPOINT + '/tideline'}
+          ref="chart" />
       );
       /* jshint ignore:end */
     }
@@ -171,6 +179,7 @@ var PatientData = React.createClass({
     return (
       <ChartDaily
         patientData={this.props.patientData}
+        datetimeLocation={this.state.datetimeLocation}
         onDatetimeLocationChange={this.handleDatetimeLocationChange}
         imagesEndpoint={config.IMAGES_ENDPOINT + '/tideline'}
         ref="chart" />
@@ -199,7 +208,12 @@ var PatientData = React.createClass({
       return;
     }
 
-    this.setState({chartType: 'weekly'});
+    var datetimeLocation = this.refs.chart.getCurrentDay();
+    datetimeLocation = datetimeLocation.toISOString();
+    this.setState({
+      chartType: 'weekly',
+      datetimeLocation: datetimeLocation
+    });
   },
 
   handleGoToMostRecentDaily: function(e) {
@@ -233,6 +247,13 @@ var PatientData = React.createClass({
 
   handleDatetimeLocationChange: function(datetimeLocationString) {
     this.setState({title: datetimeLocationString});
+  },
+
+  handleWeeklySelectDataPoint: function(datetimeLocation) {
+    this.setState({
+      chartType: 'daily',
+      datetimeLocation: datetimeLocation
+    });
   }
 });
 
