@@ -95,9 +95,9 @@ module.exports = function(pool, opts) {
       hourBreaks.push(i);
       i += opts.duration;
     }
-    for(var i = 0; i < hourBreaks.length; i++) {
-      var br = hourBreaks[i];
-      var nextBr = hourBreaks[i + 1];
+    for(var j = 0; j < hourBreaks.length; j++) {
+      var br = hourBreaks[j];
+      var nextBr = hourBreaks[j + 1];
       if ((date.getHours() >= br) && (date.getHours() < nextBr)) {
         nearest = new Date(date.getFullYear(), date.getMonth(), date.getDate(), br, 0, 0);
       }
