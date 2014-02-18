@@ -269,11 +269,12 @@ module.exports = function(pool, opts) {
         },
         // customText
         function() {
-          if (!d.extended) {
-            return d.value + 'U';
-          }
-          else {
-            return d.value + 'U total';
+          return d.value + 'U';
+        }(),
+        // tspan
+        function() {
+          if (d.extended) {
+            return ' total';
           }
         }()
       );

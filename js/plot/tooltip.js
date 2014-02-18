@@ -136,7 +136,7 @@ module.exports = function(container, tooltipsGroup) {
         tooltipGroup.append('g')
           .attr({
             'class': 'd3-tooltip-text-group',
-            'transform': 'translate(' + tooltipWidth + ',0)'
+            'transform': 'translate(' + translation + ',0)'
           })
           .append('text')
           .attr({
