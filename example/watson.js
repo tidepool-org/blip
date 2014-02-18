@@ -28,15 +28,10 @@
 // one-day.js, two-week.js, and pool.js.
 //
 
-module.exports = function() {
+var log = window.bows('Watson');
 
-  var log = window.bows('Watson');
-
-  function watson() {
-    log("Start her up, Watson, for it's time that we were on our way.");
-  }
-
-  watson.normalize = function(a) {
+var watson = {
+  normalize: function(a) {
     log('Watson normalized the data.');
     return _.map(a, function(i) {
       i.normalTime = i.deviceTime + 'Z';
@@ -52,16 +47,14 @@ module.exports = function() {
       }
       return i;
     });
-  };
-
-  watson.print = function(arg, d) {
+  },
+  print: function(arg, d) {
     console.log(arg, d.toUTCString().replace(' GMT', ''));
     return;
-  };
-
-  watson.strip = function(d) {
+  },
+  strip: function(d) {
     return d.toUTCString().replace(' GMT', '');
-  };
-
-  return watson;
+  }
 };
+
+module.exports = watson;

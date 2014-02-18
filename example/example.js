@@ -36,8 +36,7 @@ var el = '#tidelineContainer';
 var imagesBaseUrl = '../img';
 
 // dear old Watson
-var watson = require('./watson')();
-d3.select(el).call(watson);
+var watson = require('./watson');
 
 // set up one-day and two-week view
 var createNewOneDayChart = function() {
