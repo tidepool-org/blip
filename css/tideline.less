@@ -178,6 +178,14 @@ svg {
       font-size: @font-size-large-tooltips;
       font-weight: bold;
     }
+    &.d3-carbs {
+      font-size: @font-size-large-tooltips;
+      font-weight: bold;
+    }
+    &.d3-bolus {
+      font-size: @font-size-large-tooltips;
+      font-weight: bold;
+    }
     &.d3-basal {
       font-size: @font-size-large-tooltips;
       font-weight: bold;
@@ -188,6 +196,9 @@ svg {
     tspan {
       font-weight: normal;
       dominant-baseline: central;
+      &.d3-bolus {
+        font-size: @font-size-small-tooltips;
+      }
     }
   }
   .d3-tooltip-rect {

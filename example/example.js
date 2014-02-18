@@ -83,7 +83,7 @@ d3.json('device-data.json', function(data) {
     // remove click handlers for programmatic pan
     $('#tidelineNavForward').off('click');
     $('#tidelineNavBack').off('click');
-    oneDay.destroy();
+    oneDay.stopListening().destroy();
     $(this).parent().addClass('active');
     $('#oneDayView').parent().removeClass('active');
     $('.one-day').css('visibility', 'hidden');
@@ -116,6 +116,7 @@ d3.json('device-data.json', function(data) {
   $('#oneDayMostRecent').on('click', function() {
     log('Navigated to most recent one-day view.');
     twoWeek.destroy();
+    oneDay.stopListening();
     $(this).parent().addClass('active');
     $('#twoWeekView').parent().removeClass('active');
     $('#oneDayMostRecent').parent().addClass('active');
@@ -269,10 +270,18 @@ function oneDayChart(el, options) {
     poolBolus.addPlotType('fill', fill(poolBolus, {endpoints: chart.endpoints}), false);
 
     // add carbs data to bolus pool
-    poolBolus.addPlotType('carbs', tideline.plot.carbs(poolBolus, {yScale: scaleCarbs}), true);
+    poolBolus.addPlotType('carbs', tideline.plot.carbs(poolBolus, {
+      yScale: scaleCarbs,
+      emitter: emitter,
+      data: _.where(data, {'type': 'carbs'})
+    }), true);
 
     // add bolus data to bolus pool
-    poolBolus.addPlotType('bolus', tideline.plot.bolus(poolBolus, {yScale: scaleBolus}), true);
+    poolBolus.addPlotType('bolus', tideline.plot.bolus(poolBolus, {
+      yScale: scaleBolus,
+      emitter: emitter,
+      data: _.where(data, {'type': 'bolus'})
+    }), true);
 
     // basal pool
     var scaleBasal = scales.basal(_.where(data, {'type': 'basal-rate-segment'}), poolBasal);

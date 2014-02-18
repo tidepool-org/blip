@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+var log = require('bows')('Tooltip');
+
 module.exports = function(container, tooltipsGroup) {
 
   var id, timestampHeight = 20;
@@ -39,6 +41,34 @@ module.exports = function(container, tooltipsGroup) {
     var currentTranslation = container.currentTranslation();
 
     var locationInWindow = currentTranslation + tooltipXPos;
+
+    var translation = 0;
+
+    var newBasalPosition;
+
+    // moving basal tooltips at edges of display
+    if (path === 'basal') {
+      if (locationInWindow > container.width() - (((container.width() - container.axisGutter()) / 24) * 3)) {
+        newBasalPosition = -currentTranslation + container.width() - tooltipWidth;
+        if (newBasalPosition < imageX) {
+          translation = newBasalPosition - imageX;
+          imageX = newBasalPosition;
+        }
+      }
+      else if (locationInWindow < (((container.width() - container.axisGutter()) / 24) * 3)) {
+        newBasalPosition = -currentTranslation + container.axisGutter();
+        if (newBasalPosition > imageX) {
+          translation = newBasalPosition - imageX;
+          imageX = newBasalPosition;
+        }
+      }
+    }
+    // and bolus, carbs
+    if ((path === 'bolus') || (path === 'carbs')) {
+      if (locationInWindow > container.width() - (((container.width() - container.axisGutter()) / 24) * 3)) {
+        translation = -tooltipWidth;
+      }
+    }
 
     // for now (unless I can persude Sara and Alix otherwise), high cbg values are a special case
     if (image.indexOf('cbg_tooltip_high') != -1) {
@@ -104,15 +134,51 @@ module.exports = function(container, tooltipsGroup) {
           'class': 'd3-tooltip-image'
         });
 
-      tooltipGroup.append('text')
-        .attr({
-          'x': textX - tooltipWidth,
-          'y': textY,
+      if (tspan) {
+        tooltipGroup.append('g')
+          .attr({
+            'class': 'd3-tooltip-text-group',
+            'transform': 'translate(' + translation + ',0)'
+          })
+          .append('text')
+          .attr({
+            'x': textX,
+            'y': textY,
             'class': 'd3-tooltip-text d3-' + path
-        })
-        .text(function() {
-          return d.value;
-        });
+          })
+          .text(function() {
+            if (customText) {
+              return customText;
+            }
+            else {
+              return d.value;
+            }
+          });
+        tooltipGroup.select('.d3-tooltip-text-group').select('text')
+          .append('tspan')
+          .text(' ' + tspan);
+      }
+      else {
+        tooltipGroup.append('g')
+          .attr({
+            'class': 'd3-tooltip-text-group',
+            'transform': 'translate(' + translation + ',0)'
+          })
+          .append('text')
+          .attr({
+            'x': textX,
+            'y': textY,
+            'class': 'd3-tooltip-text d3-' + path
+          })
+          .text(function() {
+            if (customText) {
+              return customText;
+            }
+            else {
+              return d.value;
+            }
+          });
+      }
 
       // adjust the values needed for the timestamp
       // TODO: really this should be refactored
@@ -131,26 +197,36 @@ module.exports = function(container, tooltipsGroup) {
         });
 
       if (tspan) {
-        tooltipGroup.append('text')
-          .attr({
-            'x': textX,
-            'y': textY,
-            'class': 'd3-tooltip-text d3-' + path
-          })
-          .text(function() {
-            if (customText) {
-              return customText;
-            }
-            else {
-              return d.value;
-            }
-          });
-        tooltipGroup.select('text')
+        tooltipGroup.append('g')
+        .attr({
+          'class': 'd3-tooltip-text-group',
+          'transform': 'translate(' + translation + ',0)'
+        })
+        .append('text')
+        .attr({
+          'x': textX,
+          'y': textY,
+          'class': 'd3-tooltip-text d3-' + path
+        })
+        .text(function() {
+          if (customText) {
+            return customText;
+          }
+          else {
+            return d.value;
+          }
+        });
+        tooltipGroup.select('.d3-tooltip-text-group').select('text')
           .append('tspan')
           .text(' ' + tspan);
       }
       else {
-        tooltipGroup.append('text')
+        tooltipGroup.append('g')
+          .attr({
+            'class': 'd3-tooltip-text-group',
+            'transform': 'translate(' + translation + ',0)'
+          })
+          .append('text')
           .attr({
             'x': textX,
             'y': textY,
@@ -174,8 +250,9 @@ module.exports = function(container, tooltipsGroup) {
   }
 
   tooltip.timestamp = function(d, tooltipGroup, imageX, imageY, textX, textY, tooltipWidth, tooltipHeight) {
+    var magic = timestampHeight * 1.2;
     var timestampY = imageY() - timestampHeight;
-    var timestampTextY = textY() - timestampHeight;
+    var timestampTextY = timestampY + magic / 2;
 
     var formatTime = d3.time.format.utc("%-I:%M %p");
     var t = formatTime(new Date(d.normalTime));
@@ -191,7 +268,7 @@ module.exports = function(container, tooltipsGroup) {
       .attr({
         'x': textX,
         'y': timestampTextY,
-        'baseline-shift': (tooltipHeight - timestampHeight) / 2,
+        'baseline-shift': (magic - timestampHeight) / 2,
         'class': 'd3-tooltip-text d3-tooltip-timestamp'
       })
       .text('at ' + t);
