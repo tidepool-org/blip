@@ -1,5 +1,9 @@
 {
   "name": "tideline",
+  "repository": {
+      "type" : "git",
+      "url" : "https://github.com/tidepool-org/tideline.git"
+  },
   "version": "0.0.0",
   "dependencies": {
     "duration-js": "3.3.3",
