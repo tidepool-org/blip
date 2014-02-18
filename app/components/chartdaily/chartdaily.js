@@ -22,7 +22,8 @@ var chartDailyFactory = require('./chartdailyfactory');
 var ChartDaily = React.createClass({
   propTypes: {
     patientData: React.PropTypes.array,
-    locatedOnDate: React.PropTypes.string,
+    datetimeLocation: React.PropTypes.string,
+    onDatetimeLocationChange: React.PropTypes.func,
     imagesEndpoint: React.PropTypes.string
   },
 
@@ -50,25 +51,51 @@ var ChartDaily = React.createClass({
     var el = this.refs.chart.getDOMNode();
     var imagesBaseUrl = this.props.imagesEndpoint;
     var data = this.props.patientData;
-    var locatedOnDate = this.props.locatedOnDate;
+    var datetimeLocation = this.props.datetimeLocation;
 
     if (_.isEmpty(data)) {
       throw new Error('Cannot create new chart with no data');
     }
 
     var chart = chartDailyFactory(el, {imagesBaseUrl: imagesBaseUrl});
+    this.chart = chart;
+    this.bindEvents();
+
     chart.initialize(data);
 
-    if (locatedOnDate) {
-      chart.locate(locatedOnDate);
+    if (datetimeLocation) {
+      chart.locate(datetimeLocation);
     }
     else {
       chart.locate();
     }
+  },
 
-    this.chart = chart;
+  bindEvents: function() {
+    if (this.props.onDatetimeLocationChange) {
+      this.chart.emitter.on('navigated', this.props.onDatetimeLocationChange);
+    }
+  },
+
+  locate: function(datetime) {
+    if (!datetime) {
+      return this.chart.locate();
+    }
+
+    return this.chart.locate(datetime);
+  },
+
+  panForward: function() {
+    return this.chart.panForward();
+  },
+
+  panBack: function() {
+    return this.chart.panBack();
+  },
+
+  getCurrentDay: function() {
+    return this.chart.getCurrentDay();
   }
-
 });
 
 module.exports = ChartDaily;

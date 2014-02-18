@@ -26,6 +26,13 @@ var PatientData = React.createClass({
     fetchingPatientData: React.PropTypes.bool
   },
 
+  getInitialState: function() {
+    return {
+      chartType: 'daily',
+      title: 'Patient data'
+    };
+  },
+
   render: function() {
     var subnav = this.renderSubnav();
     var patientData = this.renderPatientData();
@@ -47,19 +54,70 @@ var PatientData = React.createClass({
   },
 
   renderSubnav: function() {
+    var left = null;
+    var right = null;
+    /* jshint ignore:start */
+    center = (
+      <div className="patient-data-subnav-text">
+        {this.state.title}
+      </div>
+    );
+    /* jshint ignore:end */
+
+    if (!(this.props.fetchingPatientData || _.isEmpty(this.props.patientData))) {
+      var dailyLinkClass = 'patient-data-subnav-active';
+      var weeklyLinkClass = null;
+      if (this.state.chartType === 'weekly') {
+        dailyLinkClass = null;
+        weeklyLinkClass = 'patient-data-subnav-active';
+      }
+
+      /* jshint ignore:start */
+      left = (
+        <div>
+          <a href="" className={dailyLinkClass} onClick={this.handleSwitchToDaily}>One day</a>
+          <a href="" className={weeklyLinkClass} onClick={this.handleSwitchToWeekly}>Two weeks</a>
+        </div>
+      );
+      /* jshint ignore:end */
+
+      if (this.state.chartType === 'daily') {
+        /* jshint ignore:start */
+        center = (
+          <div>
+            <a href="" onClick={this.handlePanBack}><i className="icon-back"></i></a>
+            <div className="patient-data-subnav-text patient-data-subnav-text-dates">
+              {this.state.title}
+            </div>
+            <a href="" onClick={this.handlePanForward}><i className="icon-next"></i></a>
+          </div>
+        );
+        /* jshint ignore:end */
+
+        /* jshint ignore:start */
+        right = (
+          <a href="" onClick={this.handleGoToMostRecentDaily}>Most recent</a>
+        );
+        /* jshint ignore:end */
+
+        // NOTE: Temporarily disable "Most recent" function until fixed
+        right = null;
+      }
+    }
+
     /* jshint ignore:start */
     return (
       <div className="container-box-outer patient-data-subnav-outer">
         <div className="container-box-inner patient-data-subnav-inner">
           <div className="grid patient-data-subnav">
-            <div className="grid-item one-whole medium-one-third">
-              <a href="#/">
-                <i className="icon-back"></i>
-                {' ' + 'Back'}
-              </a>
+            <div className="grid-item one-whole large-one-fifth patient-data-subnav-left">
+              {left}
             </div>
-            <div className="grid-item one-whole medium-one-third">
-              <div className="patient-data-subnav-title">Patient data</div>
+            <div className="grid-item one-whole large-three-fifths patient-data-subnav-center">
+              {center}
+            </div>
+            <div className="grid-item one-whole large-one-fifth patient-data-subnav-right">
+              {right}
             </div>
           </div>
         </div>
@@ -101,13 +159,80 @@ var PatientData = React.createClass({
   },
 
   renderChart: function() {
+    if (this.state.chartType === 'weekly') {
+      /* jshint ignore:start */
+      return (
+        <div>Weekly chart</div>
+      );
+      /* jshint ignore:end */
+    }
+
     /* jshint ignore:start */
     return (
       <ChartDaily
         patientData={this.props.patientData}
-        imagesEndpoint={config.IMAGES_ENDPOINT + '/tideline'} />
+        onDatetimeLocationChange={this.handleDatetimeLocationChange}
+        imagesEndpoint={config.IMAGES_ENDPOINT + '/tideline'}
+        ref="chart" />
     );
     /* jshint ignore:end */
+  },
+
+  handleSwitchToDaily: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+
+    if (this.state.chartType === 'daily') {
+      return;
+    }
+
+    this.setState({chartType: 'daily'});
+  },
+
+  handleSwitchToWeekly: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+
+    if (this.state.chartType === 'weekly') {
+      return;
+    }
+
+    this.setState({chartType: 'weekly'});
+  },
+
+  handleGoToMostRecentDaily: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+
+    if (this.state.chartType === 'daily') {
+      this.refs.chart.locate();
+      return;
+    }
+
+    this.setState({chartType: 'daily'});
+  },
+
+  handlePanBack: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+
+    this.refs.chart.panBack();
+  },
+
+  handlePanForward: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+
+    this.refs.chart.panForward();
+  },
+
+  handleDatetimeLocationChange: function(datetimeLocationString) {
+    this.setState({title: datetimeLocationString});
   }
 });
 
