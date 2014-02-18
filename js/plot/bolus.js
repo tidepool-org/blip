@@ -276,10 +276,10 @@ module.exports = function(pool, opts) {
             return d.value + 'U total';
           }
         }()
-        );
+      );
 
     if (category === 'two-line') {
-      d3.select('#tooltip_' + d.id).append('text')
+      d3.select('#tooltip_' + d.id).select('.d3-tooltip-text-group').append('text')
         .attr({
           'class': 'd3-tooltip-text d3-bolus',
           'x': opts.xScale(Date.parse(d.normalTime)) + tooltipWidth / 2,
@@ -297,7 +297,7 @@ module.exports = function(pool, opts) {
         .attr('class', 'd3-bolus');
     }
     else if (category === 'three-line') {
-      d3.select('#tooltip_' + d.id).append('text')
+      d3.select('#tooltip_' + d.id).select('.d3-tooltip-text-group').append('text')
         .attr({
           'class': 'd3-tooltip-text d3-bolus',
           'x': opts.xScale(Date.parse(d.normalTime)) + tooltipWidth / 2,
@@ -309,7 +309,7 @@ module.exports = function(pool, opts) {
         })
         .attr('class', 'd3-bolus');
 
-      d3.select('#tooltip_' + d.id).append('text')
+      d3.select('#tooltip_' + d.id).select('.d3-tooltip-text-group').append('text')
         .attr({
           'class': 'd3-tooltip-text d3-bolus',
           'x': opts.xScale(Date.parse(d.normalTime)) + tooltipWidth / 2,
