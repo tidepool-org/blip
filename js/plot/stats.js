@@ -15,26 +15,19 @@
  * == BSD2 LICENSE ==
  */
 
-module.exports = {
-  pool: require('./pool'),
-  oneDay: require('./one-day'),
-  twoWeek: require('./two-week'),
+var log = require('../lib/bows')('Stats');
 
-  data: {
-    BasalUtil: require('./data/basalutil')
-  },
+module.exports = function(pool, opts) {
 
-  plot: {
-    basal: require('./plot/basal'),
-    bolus: require('./plot/bolus'),
-    carbs: require('./plot/carbs'),
-    cbg: require('./plot/cbg'),
-    fill: require('./plot/fill'),
-    message: require('./plot/message'),
-    scales: require('./plot/scales'),
-    smbgTime: require('./plot/smbg-time'),
-    smbg: require('./plot/smbg'),
-    stats: require('./plot/stats'),
-    tooltip: require('./plot/tooltip')
+  opts = opts || {};
+
+  var defaults = {};
+
+  _.defaults(opts, defaults);
+
+  function stats(selection) {
+    log(opts.basal.totalBasal(new Date("2014-02-14T06:00:00"), new Date("2014-02-14T13:00:00")));
   }
+
+  return stats;
 };

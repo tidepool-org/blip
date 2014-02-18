@@ -48,6 +48,8 @@ var createNewTwoWeekChart = function() {
 var oneDay = createNewOneDayChart();
 var twoWeek = createNewTwoWeekChart();
 
+var basalUtil;
+
 
 // Note to Nico: this (all the code within d3.json() below) is all rough-and-ready...
 // obviously a lot of it could be refactored
@@ -58,11 +60,11 @@ var twoWeek = createNewTwoWeekChart();
 d3.json('device-data.json', function(data) {
   log('Data loaded.');
   // munge basal segments
-  var vizReadyBasals = new BasalUtil(data);
+  basalUtil = new BasalUtil(data);
   data = _.reject(data, function(d) {
     return d.type === 'basal-rate-segment';
   });
-  data = data.concat(vizReadyBasals.actual.concat(vizReadyBasals.undelivered));
+  data = data.concat(basalUtil.actual.concat(basalUtil.undelivered));
   // Watson the data
   data = watson.normalize(data);
   // ensure the data is properly sorted
@@ -226,10 +228,10 @@ function oneDayChart(el, options) {
       .weight(1.0);
 
     // stats widget
-    // poolStats = chart.newPool().defaults()
-    //   .id('poolStats')
-    //   .index(chart.pools().indexOf(poolStats))
-    //   .weight(1.0);
+    poolStats = chart.newPool().defaults()
+      .id('poolStats')
+      .index(chart.pools().indexOf(poolStats))
+      .weight(1.0);
 
     chart.arrangePools();
 
@@ -294,7 +296,10 @@ function oneDayChart(el, options) {
     poolBasal.addPlotType('fill', fill(poolBasal, {endpoints: chart.endpoints}), false);
 
     // add basal data to basal pool
-    poolBasal.addPlotType('basal-rate-segment', tideline.plot.basal(poolBasal, {yScale: scaleBasal, data: _.where(data, {'type': 'basal-rate-segment'}) }), true);
+    poolBasal.addPlotType('basal-rate-segment', tideline.plot.basal(poolBasal, {
+      yScale: scaleBasal,
+      data: _.where(data, {'type': 'basal-rate-segment'})
+    }), true);
 
     // messages pool
     // add background fill rectangles to messages pool
@@ -302,6 +307,9 @@ function oneDayChart(el, options) {
 
     // add message images to messages pool
     poolMessages.addPlotType('message', tideline.plot.message(poolMessages, {size: 30}), true);
+
+    // stats pool
+    poolStats.addPlotType('stats', tideline.plot.stats(poolStats, {basal: basalUtil}), false);
 
     return chart;
   };
