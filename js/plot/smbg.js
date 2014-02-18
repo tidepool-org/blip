@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+var log = require('../lib/bows')('SMBG');
+
 module.exports = function(pool, opts) {
 
   opts = opts || {};

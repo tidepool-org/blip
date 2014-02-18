@@ -15,9 +15,11 @@
  * == BSD2 LICENSE ==
  */
 
+var log = require('../lib/bows')('Message');
+
 module.exports = function(pool, opts) {
 
-  var opts = opts || {};
+  opts = opts || {};
 
   var defaults = {
     xScale: pool.xScale().copy(),
@@ -37,7 +39,7 @@ module.exports = function(pool, opts) {
         });
       messages.enter()
         .append('image')
-        .attr({ 
+        .attr({
           'xlink:href': opts.imagesBaseUrl + '/message/post_it.svg',
           'x': function(d) {
             return opts.xScale(Date.parse(d.normalTime)) - opts.size / 2;
@@ -54,5 +56,5 @@ module.exports = function(pool, opts) {
     });
   }
 
-  return cbg; 
+  return cbg;
 };

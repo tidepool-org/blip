@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+var log = require('../lib/bows')('Fill');
+
 module.exports = function(pool, opts) {
 
   var first = new Date(opts.endpoints[0]),
@@ -102,5 +104,5 @@ module.exports = function(pool, opts) {
     }
   };
   
-  return fill;  
+  return fill;
 };

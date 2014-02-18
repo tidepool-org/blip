@@ -14,6 +14,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+
+var log = require('../lib/bows')('Two-Week SMBG');
  
 module.exports = function(pool, opts) {
 

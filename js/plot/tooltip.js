@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-var log = require('bows')('Tooltip');
+var log = require('../lib/bows')('Tooltip');
 
 module.exports = function(container, tooltipsGroup) {
 
