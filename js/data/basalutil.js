@@ -98,8 +98,8 @@ function BasalUtil(data) {
   };
 
   this.totalBasal = function(s, e) {
-    var dose = 0.0;
     // return the total basal dose between two arbitrary datetimes
+    var dose = 0.0;
     var firstSegment = _.find(this.actual, function(segment) {
       return (new Date(segment.start).valueOf() <= s) && (s <= new Date(segment.end).valueOf());
     });
