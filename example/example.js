@@ -74,7 +74,6 @@ d3.json('device-data.json', function(data) {
     $('#tidelineNavForward').off('click');
     $('#tidelineNavBack').off('click');
     oneDay.destroy();
-    emitter.removeAllListeners();
     $(this).parent().addClass('active');
     $('#oneDayView').parent().removeClass('active');
     $('.one-day').css('visibility', 'hidden');
@@ -89,7 +88,6 @@ d3.json('device-data.json', function(data) {
   $('#oneDayView').on('click', function() {
     log('Navigated to one-day view from nav bar.');
     twoWeek.destroy();
-    emitter.removeAllListeners();
     $(this).parent().addClass('active');
     $('#twoWeekView').parent().removeClass('active');
     $('#oneDayMostRecent').parent().addClass('active');
@@ -108,7 +106,7 @@ d3.json('device-data.json', function(data) {
   $('#oneDayMostRecent').on('click', function() {
     log('Navigated to most recent one-day view.');
     twoWeek.destroy();
-    emitter.removeAllListeners();
+    oneDay.stopListening();
     $(this).parent().addClass('active');
     $('#twoWeekView').parent().removeClass('active');
     $('#oneDayMostRecent').parent().addClass('active');

@@ -226,6 +226,14 @@ module.exports = function(emitter) {
     });
   };
 
+  container.stopListening = function() {
+    emitter.removeAllListeners('carbTooltipOn');
+    emitter.removeAllListeners('carbTooltipOff');
+    emitter.removeAllListeners('bolusTooltipOn');
+    emitter.removeAllListeners('bolusTooltipOff');
+    emitter.removeAllListeners('noCarbTimestamp');
+  };
+
   container.destroy = function() {
     $('#' + this.id()).remove();
     delete pool;
