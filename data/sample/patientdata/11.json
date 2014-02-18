@@ -1,0 +1,2759 @@
+[
+  {
+    "value": 79,
+    "id": "ab625be0-b9eb-4fbb-876a-d7fcec082269",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T00:00:05"
+  },
+  {
+    "value": 78,
+    "id": "2b28e937-68b3-4a97-b8dc-ea7a723f9e0d",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T00:30:05"
+  },
+  {
+    "value": 84,
+    "id": "23b3f6d2-7cb6-4307-8d38-4e14a63b9495",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T00:35:05"
+  },
+  {
+    "value": 88,
+    "id": "717bd797-5136-4e1b-89ad-6476f017001b",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T00:40:05"
+  },
+  {
+    "value": 87,
+    "id": "1ac2bade-36e0-4632-8f0a-ca90d2d358ae",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T00:45:05"
+  },
+  {
+    "value": 86,
+    "id": "806f8c82-fe3b-40ca-8eb7-14fae576b019",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T00:50:05"
+  },
+  {
+    "value": 85,
+    "id": "1ad289cb-26ce-496c-8ae5-299d7a4dd099",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T00:55:05"
+  },
+  {
+    "value": 84,
+    "id": "1350c7e7-fcae-4e57-9d2a-b5119eba5fbc",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T01:00:05"
+  },
+  {
+    "value": 85,
+    "id": "1181fd63-1370-4e29-a03f-0a6d48adae00",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T01:05:05"
+  },
+  {
+    "value": 85,
+    "id": "b844c925-e5cd-4645-ac97-8e676f2fd442",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T01:10:05"
+  },
+  {
+    "value": 83,
+    "id": "f9cb82da-4555-4306-befb-2b41d96ae228",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T01:15:05"
+  },
+  {
+    "value": 84,
+    "id": "67e8c5da-abe2-447d-8545-62cca57847f9",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T01:20:05"
+  },
+  {
+    "value": 83,
+    "id": "293859f6-2389-4d69-9272-0e63ae90878d",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T01:25:05"
+  },
+  {
+    "value": 85,
+    "id": "20cc7503-263e-4528-898c-36f2763ee36f",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T01:30:05"
+  },
+  {
+    "value": 85,
+    "id": "8bb9451e-5f61-41c2-8679-eee7adce3cc1",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T01:35:05"
+  },
+  {
+    "value": 84,
+    "id": "70300cfc-9151-41d6-93ab-75546000b597",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T01:40:05"
+  },
+  {
+    "value": 80,
+    "id": "211aa2e0-c2fe-46c1-930c-eb57bc91764a",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T01:45:05"
+  },
+  {
+    "value": 80,
+    "id": "71544454-7a0e-477e-807a-bb197dccc51f",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T01:50:05"
+  },
+  {
+    "value": 79,
+    "id": "047733ce-f9e4-4bf2-b97e-24b67b501fba",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T01:55:05"
+  },
+  {
+    "value": 79,
+    "id": "272b59f0-0734-4511-ac2f-5301fbffa4a6",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T02:00:05"
+  },
+  {
+    "value": 79,
+    "id": "767b5840-a065-4332-88ef-5c3443f3f3c1",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T02:05:05"
+  },
+  {
+    "value": 80,
+    "id": "2de842f0-ff88-4237-bb02-f6311964f24d",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T02:10:05"
+  },
+  {
+    "value": 77,
+    "id": "57987837-ca30-4f62-9a6b-f484b62524d8",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T02:15:05"
+  },
+  {
+    "value": 77,
+    "id": "c215d90d-ce31-400f-8afe-4bac3eb5ef09",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T02:20:05"
+  },
+  {
+    "value": 77,
+    "id": "7393d006-cde8-474c-a4e5-ab46f6aab31e",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T02:25:05"
+  },
+  {
+    "value": 76,
+    "id": "837832c7-1961-4662-b806-01fb6754a53e",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T02:30:05"
+  },
+  {
+    "value": 76,
+    "id": "db3e83e1-dda5-43d0-867a-704ac568e688",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T02:35:05"
+  },
+  {
+    "value": 75,
+    "id": "a5a871e5-ecfe-43d9-a4ed-6a41c1cd5290",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T02:40:05"
+  },
+  {
+    "value": 75,
+    "id": "8b0cdcdc-51c2-4cca-8383-dc379d6e09a7",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T02:45:05"
+  },
+  {
+    "value": 74,
+    "id": "4d440470-8acb-4196-8cb9-431ef31022e6",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T02:50:05"
+  },
+  {
+    "value": 75,
+    "id": "ab59a0a7-4e3c-4eee-880d-61d3e1bc6ca9",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T02:55:05"
+  },
+  {
+    "value": 76,
+    "id": "f14e2fa6-ef52-4976-8b3c-ac937cecbb32",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T03:00:05"
+  },
+  {
+    "value": 76,
+    "id": "92b36e15-ced9-4522-aac2-1a0bed81163c",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T03:05:05"
+  },
+  {
+    "value": 77,
+    "id": "be1b3588-1f26-4930-9aa2-eedf4a6ee082",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T03:10:05"
+  },
+  {
+    "value": 78,
+    "id": "0a288294-13d6-477f-9bb2-fbcd368a68d1",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T03:15:05"
+  },
+  {
+    "value": 79,
+    "id": "35467daa-ae6a-40c4-a318-425ff88d83d7",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T03:20:05"
+  },
+  {
+    "value": 79,
+    "id": "c3ac2131-3b1c-4ca2-99ec-b8eda990cebe",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T03:25:05"
+  },
+  {
+    "value": 78,
+    "id": "9d81bd71-d8a9-443a-894e-2aeb601b5768",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T03:30:05"
+  },
+  {
+    "value": 78,
+    "id": "bdb3a4bd-141e-45a0-aed4-fcdaed749bf3",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T03:35:05"
+  },
+  {
+    "value": 80,
+    "id": "bfe7b834-e72d-43b1-a889-495e0ad2cfd2",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T03:40:05"
+  },
+  {
+    "value": 81,
+    "id": "561c2882-a739-4c2c-9dc8-bb583dada7dd",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T03:45:05"
+  },
+  {
+    "value": 81,
+    "id": "ca308393-8e97-4630-8efb-347e9eb00ff0",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T03:50:05"
+  },
+  {
+    "value": 79,
+    "id": "e2da40e1-2066-442d-805c-5bd24b04e566",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T03:55:05"
+  },
+  {
+    "value": 79,
+    "id": "25391cac-fc44-434d-b77e-fa97010c01d9",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T04:00:05"
+  },
+  {
+    "value": 80,
+    "id": "996f435e-ba68-4186-884f-156c1857815c",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T04:05:05"
+  },
+  {
+    "value": 80,
+    "id": "d98ac0a9-94d7-4923-a6af-d2266c5b547b",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T04:10:05"
+  },
+  {
+    "value": 82,
+    "id": "230c5cb7-a0c5-45e9-bf7d-2caca3600eef",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T04:15:05"
+  },
+  {
+    "value": 83,
+    "id": "33a3ccbf-8eea-4032-8b30-9a6d142f4cdb",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T04:20:05"
+  },
+  {
+    "value": 83,
+    "id": "89d7ebfe-0684-4056-bddc-b63396f7b91f",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T04:25:05"
+  },
+  {
+    "value": 84,
+    "id": "33513535-8165-477c-a8d1-5ad27027e1fc",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T04:30:05"
+  },
+  {
+    "value": 84,
+    "id": "136b5ca7-8898-43fb-b4f6-59a59be4d041",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T04:35:05"
+  },
+  {
+    "id": "86d5600f-5471-42ec-879a-1858e0b4a367",
+    "initialDelivery": 3,
+    "extendedDelivery": 0.2999999999999998,
+    "value": 3.3,
+    "recommended": 3.3,
+    "deviceTime": "2014-03-14T04:39:39",
+    "duration": 7200000,
+    "extended": true,
+    "type": "bolus"
+  },
+  {
+    "value": 83,
+    "id": "ee0de1a7-6dd6-4cc2-ad90-913e50e4747c",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T04:40:05"
+  },
+  {
+    "value": 77,
+    "id": "b3737f74-d362-41a7-9dcf-a512280a0aa0",
+    "type": "smbg",
+    "deviceTime": "2014-03-14T04:41:39"
+  },
+  {
+    "value": 50,
+    "id": "d859b683-0ea5-4155-b682-cc1c19257b6d",
+    "type": "carbs",
+    "deviceTime": "2014-03-14T04:41:39",
+    "units": "grams"
+  },
+  {
+    "value": 76,
+    "id": "6a313eab-5b70-4ee9-ac37-1b70f2e05234",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T04:45:05"
+  },
+  {
+    "value": 76,
+    "id": "bc651eed-ee32-4380-b6c0-b923ff7c57d7",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T04:50:05"
+  },
+  {
+    "value": 76,
+    "id": "9c26bd5b-9194-4220-9550-a2747a665c38",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T04:55:05"
+  },
+  {
+    "value": 75,
+    "id": "049b19e1-7219-4e2a-a8ad-f47a86b45184",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T05:00:05"
+  },
+  {
+    "value": 74,
+    "id": "8bd79ff5-7f0e-4bf0-aaf6-7c89c90673ed",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T05:05:05"
+  },
+  {
+    "value": 73,
+    "id": "05eedbf2-8d20-4ca9-adce-71fee88ee0d2",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T05:10:05"
+  },
+  {
+    "value": 75,
+    "id": "9699e6ff-a342-40c6-9f04-5989d83937ad",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T05:15:05"
+  },
+  {
+    "value": 76,
+    "id": "09d4cb7c-1659-4c13-8ec4-655c9eab70e3",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T05:20:05"
+  },
+  {
+    "value": 78,
+    "id": "f5e1db2d-4def-4a3c-bf74-96bb0ccc1a40",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T05:25:05"
+  },
+  {
+    "value": 1.6,
+    "id": "c1e9052c-2df5-47e0-8f55-8e4d9bf194e0",
+    "type": "bolus",
+    "deviceTime": "2014-03-14T05:28:06",
+    "recommended": 1.6
+  },
+  {
+    "value": 80,
+    "id": "b415afd7-ca3d-4af6-bfcc-85b008e9407b",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T05:30:05"
+  },
+  {
+    "value": 83,
+    "id": "debc4295-9771-4a7e-99e5-0daf6eb92a36",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T05:35:05"
+  },
+  {
+    "value": 86,
+    "id": "27588af2-ca14-4f29-b5c4-13ec6e02b20d",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T05:40:05"
+  },
+  {
+    "value": 90,
+    "id": "22ff349c-c789-42cb-b22a-0e20cdc473f1",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T05:45:05"
+  },
+  {
+    "value": 93,
+    "id": "6406be00-adbc-429b-bde7-c3a80e80ecc4",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T05:50:05"
+  },
+  {
+    "value": 94,
+    "id": "b604023f-fec0-474b-805f-21f40b7f79e6",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T05:55:05"
+  },
+  {
+    "value": 96,
+    "id": "cbc54e97-7432-4adb-94e5-6e3c079e9bcc",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T06:00:05"
+  },
+  {
+    "value": 100,
+    "id": "6be275b0-15e5-4930-8dde-c53459ee6b38",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T06:05:05"
+  },
+  {
+    "value": 103,
+    "id": "57ee9fef-84db-4faf-a58b-9ef3a39b412d",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T06:10:05"
+  },
+  {
+    "value": 102,
+    "id": "05a22d58-6e97-41a1-b965-00f349063735",
+    "type": "smbg",
+    "deviceTime": "2014-03-14T06:11:58"
+  },
+  {
+    "value": 36,
+    "id": "3654dab3-bd6b-4437-b2cc-5c14e52e21d9",
+    "type": "carbs",
+    "deviceTime": "2014-03-14T06:11:58",
+    "units": "grams"
+  },
+  {
+    "value": 2.4,
+    "id": "3630bbde-7046-4df3-94e5-4acf061b9a06",
+    "type": "bolus",
+    "deviceTime": "2014-03-14T06:11:58",
+    "recommended": 2.4
+  },
+  {
+    "value": 104,
+    "id": "8b029fde-ed05-4276-8ea4-8b1a92c9d4d3",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T06:15:05"
+  },
+  {
+    "value": 108,
+    "id": "43387c03-331d-4397-a5ba-82b836da3ccc",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T06:20:05"
+  },
+  {
+    "value": 108,
+    "id": "c3fa5893-204a-443e-90cd-06d2176850d3",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T06:25:05"
+  },
+  {
+    "value": 110,
+    "id": "d6d56291-0a89-4fb8-ace1-38a16762d521",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T06:30:05"
+  },
+  {
+    "value": 112,
+    "id": "cc9c1d2e-4ed6-4e98-acf8-d5d9a46596e2",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T06:35:05"
+  },
+  {
+    "value": 112,
+    "id": "194c1f91-1349-4341-96d3-67c78469d2d3",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T06:40:05"
+  },
+  {
+    "value": 6.1,
+    "id": "124ed56c-b0f7-493f-88ed-c468a67ec7d4",
+    "type": "bolus",
+    "deviceTime": "2014-03-14T06:41:15",
+    "recommended": 6.1
+  },
+  {
+    "value": 98,
+    "id": "e79d7869-1527-44b2-a831-66d15236bd8c",
+    "type": "smbg",
+    "deviceTime": "2014-03-14T06:44:15"
+  },
+  {
+    "value": 91,
+    "id": "df015860-e5f2-4159-baeb-0852e82d91e2",
+    "type": "carbs",
+    "deviceTime": "2014-03-14T06:44:15",
+    "units": "grams"
+  },
+  {
+    "value": 114,
+    "id": "b1d104f9-fd36-42bf-b706-6dc3045abeed",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T06:45:05"
+  },
+  {
+    "value": 113,
+    "id": "a214917b-50e7-4ea0-adf9-2006d3e94472",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T06:50:05"
+  },
+  {
+    "value": 97,
+    "id": "30f4e934-23f3-4eb7-ab92-ba327556765e",
+    "type": "smbg",
+    "deviceTime": "2014-03-14T06:52:49"
+  },
+  {
+    "value": 33,
+    "id": "e43c76d8-eb0c-494b-951c-580a7cef6a7d",
+    "type": "carbs",
+    "deviceTime": "2014-03-14T06:52:49",
+    "units": "grams"
+  },
+  {
+    "id": "a0090ea0-9bba-417f-8f86-3859ca487653",
+    "type": "bolus",
+    "extended": true,
+    "duration": 1800000,
+    "extendedDelivery": 2.2,
+    "recommended": 2.2,
+    "value": 2.2,
+    "deviceTime": "2014-03-14T06:52:49"
+  },
+  {
+    "value": 113,
+    "id": "6b257c2c-9c3d-4eee-8ef6-131bdab9c2c5",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T06:55:05"
+  },
+  {
+    "value": 111,
+    "id": "334a5f9b-ac73-4fe2-a6a9-64ac2494008e",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T07:00:05"
+  },
+  {
+    "value": 109,
+    "id": "cb3a33d6-754e-4f9a-9be8-185776df894a",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T07:05:05"
+  },
+  {
+    "value": 109,
+    "id": "12f2ea68-11ae-4c45-96b2-3bb19520c5ca",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T07:10:05"
+  },
+  {
+    "value": 106,
+    "id": "6bbd58bc-f906-4654-a9b6-9e9da735720e",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T07:15:05"
+  },
+  {
+    "value": 103,
+    "id": "2ff7e3a1-823f-48cb-b5ff-9f97df78337d",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T07:20:05"
+  },
+  {
+    "value": 102,
+    "id": "58f0c3cc-6f8e-417c-bfd0-6e82ea053464",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T07:25:05"
+  },
+  {
+    "value": 102,
+    "id": "23d46cf2-11d8-42fc-94ed-d57b03492610",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T07:30:05"
+  },
+  {
+    "value": 102,
+    "id": "f351aa93-df88-46c9-bad1-0b3466a07b02",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T07:35:05"
+  },
+  {
+    "value": 106,
+    "id": "4fcfacd2-008e-4326-afa1-a42fbf65e1d7",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T07:40:05"
+  },
+  {
+    "value": 104,
+    "id": "fab48881-c4a4-4cd7-bb1c-24fe0bde9b14",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T07:45:05"
+  },
+  {
+    "value": 103,
+    "id": "89b7dde4-6fe5-4ffb-9c40-4e292c518523",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T07:50:05"
+  },
+  {
+    "value": 106,
+    "id": "2f4ccb88-22b5-4c8b-aabc-397ff6b5fc69",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T07:55:05"
+  },
+  {
+    "value": 106,
+    "id": "32e16edb-ca16-46ef-93f7-5f2a842d527e",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T08:00:05"
+  },
+  {
+    "value": 108,
+    "id": "75eed13a-c75d-4970-8bef-d2e74547d692",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T08:05:05"
+  },
+  {
+    "value": 107,
+    "id": "c269825b-8ff4-4ff1-ae40-5d205430c1d1",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T08:10:05"
+  },
+  {
+    "value": 111,
+    "id": "cd5deeb9-6f75-4fca-9910-74b56f8e219b",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T08:15:05"
+  },
+  {
+    "value": 111,
+    "id": "affb574b-1efb-4ea6-9aae-2d21ffa4a6e3",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T08:20:05"
+  },
+  {
+    "value": 108,
+    "id": "56d65d4b-7c57-4d3c-8205-7a05c1aa6395",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T08:25:05"
+  },
+  {
+    "value": 104,
+    "id": "f062bb09-536e-4282-b963-8a39181d899d",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T08:30:05"
+  },
+  {
+    "value": 102,
+    "id": "66ba9e51-eb56-422a-a07f-72b6e9196c1f",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T08:35:05"
+  },
+  {
+    "value": 100,
+    "id": "e1a42d5f-67b2-451e-b2f5-d0f087ec1ff5",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T08:40:05"
+  },
+  {
+    "value": 97,
+    "id": "fa992a09-71ca-4f56-bdac-ea8d8f7a951f",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T08:45:05"
+  },
+  {
+    "value": 94,
+    "id": "6b609271-4131-4ed8-901b-ea510af2700d",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T08:50:05"
+  },
+  {
+    "value": 93,
+    "id": "eaff92fe-159c-4419-a410-a964290163ff",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T08:55:05"
+  },
+  {
+    "value": 91,
+    "id": "176a3bec-6200-466b-bd4c-b7cd28a5e492",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T09:00:05"
+  },
+  {
+    "value": 89,
+    "id": "f77da61c-f137-4029-ba32-4d2efa4efef6",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T09:05:05"
+  },
+  {
+    "value": 86,
+    "id": "8672be21-2e09-40fb-8822-3d73272d12f9",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T09:10:05"
+  },
+  {
+    "value": 84,
+    "id": "4a5132da-10aa-454c-88be-5736b0be6249",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T09:15:05"
+  },
+  {
+    "value": 84,
+    "id": "dfe04b2d-bf22-48d4-b107-75d31d5eafe0",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T09:20:05"
+  },
+  {
+    "value": 84,
+    "id": "bb40b8f5-af65-4177-a3c7-cdd3caf35db5",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T09:25:05"
+  },
+  {
+    "value": 84,
+    "id": "bf7d6d62-8b2f-40d8-a34e-5cd702793b98",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T09:30:05"
+  },
+  {
+    "value": 82,
+    "id": "60ca5dc0-8cbf-4ad7-8488-c5ccd76ac11e",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T09:35:05"
+  },
+  {
+    "value": 80,
+    "id": "10912963-65ff-49b9-89c1-d9b787b72794",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T09:40:05"
+  },
+  {
+    "value": 79,
+    "id": "f85a1183-0adb-42f3-a318-c5ec3833445e",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T09:45:05"
+  },
+  {
+    "value": 76,
+    "id": "74dde757-9fed-49be-8d9a-d1979d70fa0f",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T09:50:05"
+  },
+  {
+    "value": 69,
+    "id": "6420742e-4604-44c7-b36d-25cbb1139049",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T09:55:05"
+  },
+  {
+    "value": 60,
+    "id": "b1073044-7b68-4f61-8c1b-52b679cdd71d",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T10:00:05"
+  },
+  {
+    "value": 53,
+    "id": "3283cd12-5000-4d00-b724-28a982245981",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T10:05:05"
+  },
+  {
+    "value": 49,
+    "id": "70d9ebe9-c55c-4981-b6ad-00f02fabdcb9",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T10:10:05"
+  },
+  {
+    "value": 47,
+    "id": "52662baa-80ec-49cb-a245-e8ccd8a9d886",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T10:15:05"
+  },
+  {
+    "value": 47,
+    "id": "0924c1e3-3ff5-4297-8921-0167c606a620",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T10:20:05"
+  },
+  {
+    "value": 71,
+    "id": "f8d1e622-cb1e-4938-babd-586ea33b2ab7",
+    "type": "smbg",
+    "deviceTime": "2014-03-14T10:23:51"
+  },
+  {
+    "value": 77,
+    "id": "014ba29a-8f4a-41cb-849e-f31cca1a60d8",
+    "type": "carbs",
+    "deviceTime": "2014-03-14T10:23:51",
+    "units": "grams"
+  },
+  {
+    "id": "a8624d9d-28b9-47a9-a306-075cfa4878ed",
+    "initialDelivery": 2.5,
+    "extendedDelivery": 2.5999999999999996,
+    "value": 5.1,
+    "recommended": 5.1,
+    "deviceTime": "2014-03-14T10:23:51",
+    "duration": 10800000,
+    "extended": true,
+    "type": "bolus"
+  },
+  {
+    "value": 48,
+    "id": "acbf17ec-b74c-414d-b601-73a3ee0a3a52",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T10:25:05"
+  },
+  {
+    "value": 52,
+    "id": "d1c18cb3-eec4-4b54-a354-4ba536fe611f",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T10:30:05"
+  },
+  {
+    "value": 63,
+    "id": "f58b5de9-a5db-4f4d-88ca-954e695d9d37",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T10:35:05"
+  },
+  {
+    "value": 76,
+    "id": "de71a603-0a0c-4b7e-b8a8-4c4352c57bfb",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T10:40:05"
+  },
+  {
+    "value": 91,
+    "id": "0fdcbc43-e60d-4fc2-b0e0-cc1dbe516a0f",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T10:45:05"
+  },
+  {
+    "value": 102,
+    "id": "818d88ca-7b8e-42d5-bac9-223eaf5310e4",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T10:50:05"
+  },
+  {
+    "value": 130,
+    "id": "8d7a1b7c-e672-4cbb-a493-5f2f6590ba53",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T10:55:05"
+  },
+  {
+    "value": 141,
+    "id": "42dad7e7-1f2f-4e44-b53f-34fb96f1374f",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T11:00:05"
+  },
+  {
+    "value": 133,
+    "id": "46b97c66-b77e-415e-9af3-391e41afaf0d",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T11:05:05"
+  },
+  {
+    "value": 134,
+    "id": "e3747899-d15d-4876-8337-9f27370682ac",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T11:10:05"
+  },
+  {
+    "value": 130,
+    "id": "fb028ad9-4536-4d34-90d4-69c7bc779ad4",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T11:15:05"
+  },
+  {
+    "value": 123,
+    "id": "4eab31ae-0a3d-4c43-a13d-ac468ee85d03",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T11:20:05"
+  },
+  {
+    "value": 113,
+    "id": "46c401ef-3bc0-48d6-9bfd-29f599d6ebe7",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T11:25:05"
+  },
+  {
+    "value": 101,
+    "id": "8971b46d-910e-447f-9960-3018cbd709b2",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T11:30:05"
+  },
+  {
+    "value": 90,
+    "id": "a68a0a72-5621-470e-837e-2cfa9c947734",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T11:35:05"
+  },
+  {
+    "value": 80,
+    "id": "63d87d82-e220-414d-8eea-892da5b2a7dd",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T11:40:05"
+  },
+  {
+    "value": 64,
+    "id": "139128b2-02e4-4ac8-8425-abb5aa57ff9c",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T11:45:05"
+  },
+  {
+    "value": 66,
+    "id": "b01d9fd8-3bd1-4825-9276-a57a1821cfa0",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T11:50:05"
+  },
+  {
+    "value": 65,
+    "id": "d571925c-0f90-47fa-9ec3-138220b8af45",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T11:55:05"
+  },
+  {
+    "value": 67,
+    "id": "e1c09344-8956-46ad-8d69-9acaa07abbee",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T12:00:05"
+  },
+  {
+    "id": "7c1b8d7c-711e-485b-85cf-0e838c163d95",
+    "type": "message",
+    "utcTime": "2014-03-14T12:02:07Z",
+    "parentMessage": "",
+    "messageText": "Shankle biltong occaecat meatball tempor pastrami. Laboris pork loin short loin ribeye deserunt non kielbasa consequat porchetta eiusmod rump pork chop. Do boudin fugiat pork, excepteur jowl dolore incididunt dolore sint ad reprehenderit hamburger brisket aliqua."
+  },
+  {
+    "value": 71,
+    "id": "fa1fb01e-f913-41d6-8ccf-08717f22f3f8",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T12:05:05"
+  },
+  {
+    "id": "445b1558-97b8-4fca-8104-fa9a7573eb46",
+    "type": "message",
+    "utcTime": "2014-03-14T12:06:07Z",
+    "parentMessage": "7c1b8d7c-711e-485b-85cf-0e838c163d95",
+    "messageText": "Qui et aliquip laboris consectetur, andouille commodo cillum dolore biltong. Culpa enim ut andouille, sirloin id beef non quis labore deserunt."
+  },
+  {
+    "value": 75,
+    "id": "176cda80-87ff-4b5d-8233-e24fa513faf1",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T12:10:05"
+  },
+  {
+    "value": 77,
+    "id": "8634ec32-e8c3-4cb5-9f59-99ea67ed1cff",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T12:15:05"
+  },
+  {
+    "id": "248ac9c2-72aa-4b1a-aee4-f54f7ab81363",
+    "type": "message",
+    "utcTime": "2014-03-14T12:16:07Z",
+    "parentMessage": "7c1b8d7c-711e-485b-85cf-0e838c163d95",
+    "messageText": "Et swine ut, biltong qui turducken officia brisket beef ribs t-bone shoulder duis irure kielbasa pariatur. Bacon rump deserunt ball tip chicken enim."
+  },
+  {
+    "value": 77,
+    "id": "68331923-3d1d-49ff-9697-960c15a9f585",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T12:20:05"
+  },
+  {
+    "value": 79,
+    "id": "220e6d9f-d54e-4c95-9c0a-5e678345fa4e",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T12:25:05"
+  },
+  {
+    "id": "e5a8db4b-8c37-485f-88e0-af063cc9df2e",
+    "type": "message",
+    "utcTime": "2014-03-14T12:26:07Z",
+    "parentMessage": "7c1b8d7c-711e-485b-85cf-0e838c163d95",
+    "messageText": "Consequat ground round pork loin voluptate tail."
+  },
+  {
+    "value": 78,
+    "id": "bdeb6157-5031-4a56-b47d-55d9645312ea",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T12:30:05"
+  },
+  {
+    "value": 80,
+    "id": "afc64f7a-81e2-44e3-b7df-4174e3c1ea60",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T12:35:05"
+  },
+  {
+    "value": 83,
+    "id": "0584bd83-41bd-4bd6-8d78-14d2a5ac5827",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T12:40:05"
+  },
+  {
+    "value": 87,
+    "id": "2b5e3558-60be-4310-b510-aed601b9d72d",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T12:45:05"
+  },
+  {
+    "value": 87,
+    "id": "aaa5b0af-d0bc-487b-8fd5-61d1b399a124",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T12:50:05"
+  },
+  {
+    "value": 83,
+    "id": "f8e47c1f-f031-42cc-b016-4e6cd2e63922",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T12:55:05"
+  },
+  {
+    "value": 85,
+    "id": "47ffdb67-8260-4939-afdb-88a70b08fa08",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T13:00:05"
+  },
+  {
+    "value": 81,
+    "id": "82a9b2d6-9410-4791-8aea-a2f38c33db6a",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T13:05:05"
+  },
+  {
+    "value": 75,
+    "id": "129d5747-0c53-481b-be08-2c54a799bca5",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T13:10:05"
+  },
+  {
+    "value": 70,
+    "id": "832d4061-7ac9-4043-b957-1f2f2645850f",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T13:15:05"
+  },
+  {
+    "value": 67,
+    "id": "27fff357-277a-4af2-86bf-29cee926ed30",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T13:20:05"
+  },
+  {
+    "value": 67,
+    "id": "5dd65ef5-7634-4347-8c92-0871f858ea5b",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T13:25:05"
+  },
+  {
+    "value": 67,
+    "id": "4807027f-f348-4b30-9ed4-81dd48a62ffb",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T13:30:05"
+  },
+  {
+    "value": 66,
+    "id": "49d6547f-6798-4eb1-8cfb-e1da1d62dcbf",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T13:35:05"
+  },
+  {
+    "value": 65,
+    "id": "b6344ce8-96ed-46d2-b3aa-ac1541b96b08",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T13:40:05"
+  },
+  {
+    "value": 74,
+    "id": "1aa4df52-ce2d-428c-b683-eea99f651265",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T13:45:05"
+  },
+  {
+    "value": 70,
+    "id": "6a440e92-a877-4301-a0f1-fdb6779329dc",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T13:50:05"
+  },
+  {
+    "value": 76,
+    "id": "3945f477-7f0e-480d-ac1b-50ce48f9e1c2",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T13:55:05"
+  },
+  {
+    "value": 83,
+    "id": "55ad6f1e-9d36-43b4-a766-28f2f261308b",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T14:00:05"
+  },
+  {
+    "value": 89,
+    "id": "17a5eafa-a385-4628-8d0e-1dbcd7251c9d",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T14:05:05"
+  },
+  {
+    "value": 92,
+    "id": "73f9b6f5-c459-43a4-84aa-36124000c76c",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T14:10:05"
+  },
+  {
+    "value": 92,
+    "id": "ccc99b0c-c43b-4972-b2af-62c840fe90a3",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T14:15:05"
+  },
+  {
+    "value": 91,
+    "id": "392d5b72-e273-46c8-b8f2-873c4bac9a04",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T14:20:05"
+  },
+  {
+    "value": 91,
+    "id": "8dc32fdd-3ddd-4857-96e6-cd3fb058f4b5",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T14:25:05"
+  },
+  {
+    "value": 91,
+    "id": "4676aba2-4800-4e1e-a1a2-713ac9d0cb76",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T14:30:05"
+  },
+  {
+    "value": 93,
+    "id": "d882132d-9c9b-4a1f-b23f-4bd95d0cbf48",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T14:35:05"
+  },
+  {
+    "value": 100,
+    "id": "10cb1da2-8df1-4f83-9463-1041881d3d28",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T14:40:05"
+  },
+  {
+    "value": 100,
+    "id": "6baf5953-fc67-457d-af6f-a163e05cb219",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T14:45:05"
+  },
+  {
+    "value": 101,
+    "id": "f162f82a-abc3-43c4-af93-121af6a9d6b2",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T14:50:05"
+  },
+  {
+    "value": 106,
+    "id": "edafbb89-4483-495f-a9d5-dfa601ee1098",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T14:55:05"
+  },
+  {
+    "value": 109,
+    "id": "2dcc98bd-b74e-4d35-9723-822a6ae741e2",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T15:00:05"
+  },
+  {
+    "value": 109,
+    "id": "d5df5009-72a0-470c-8c8f-e5beea8369ae",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T15:05:05"
+  },
+  {
+    "value": 108,
+    "id": "0ff341a8-e814-470b-806f-191229d7ec11",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T15:10:05"
+  },
+  {
+    "value": 109,
+    "id": "d4cbaec9-f40f-450c-ac27-a086f0c19ea9",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T15:15:05"
+  },
+  {
+    "value": 111,
+    "id": "957c4027-a065-4ac8-84c0-0a9d8c3f045b",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T15:20:05"
+  },
+  {
+    "value": 114,
+    "id": "c599eb4d-ae6a-4c21-b7b2-ee906158d35d",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T15:25:05"
+  },
+  {
+    "value": 115,
+    "id": "e9704533-adc4-4ddf-94c3-f91f21a823ae",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T15:30:05"
+  },
+  {
+    "value": 115,
+    "id": "fa5c2039-cce8-490c-be88-4d9ff3d1642c",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T15:35:05"
+  },
+  {
+    "value": 113,
+    "id": "c2025b68-1560-4a66-a6e1-527c526ce49e",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T15:40:05"
+  },
+  {
+    "value": 111,
+    "id": "93124516-7e47-4620-b17a-c4c5c8e64807",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T15:45:05"
+  },
+  {
+    "value": 100,
+    "id": "e84c5376-ec84-4e41-91c1-fbcef8e25c4e",
+    "type": "smbg",
+    "deviceTime": "2014-03-14T15:45:45"
+  },
+  {
+    "value": 110,
+    "id": "615cefbf-2139-4199-bf73-7665f995fa47",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T15:50:05"
+  },
+  {
+    "value": 111,
+    "id": "e0f8a856-e234-4e72-b6e7-b513acc6bb8e",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T15:55:05"
+  },
+  {
+    "value": 111,
+    "id": "95abd8e2-2652-4b5b-9347-4cf00439cef0",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T16:00:05"
+  },
+  {
+    "value": 111,
+    "id": "0135c9b6-eb96-4b2c-a222-e716c8b14bbd",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T16:05:05"
+  },
+  {
+    "value": 109,
+    "id": "59edad6b-8aab-4272-a694-2e754173b5f2",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T16:10:05"
+  },
+  {
+    "value": 107,
+    "id": "a7df6ab5-847d-4797-91ed-d04cc1871868",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T16:15:05"
+  },
+  {
+    "value": 103,
+    "id": "e6c77d89-c12b-4ef4-b1fa-04ebb0962e65",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T16:20:05"
+  },
+  {
+    "value": 101,
+    "id": "1df28a88-9fe8-4f61-af8f-c3e4f7ec7790",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T16:25:05"
+  },
+  {
+    "value": 100,
+    "id": "30f5dc91-fb3d-406d-a6b3-97a3bd2f3b72",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T16:30:05"
+  },
+  {
+    "value": 100,
+    "id": "63cbd35f-c020-46be-9b6c-4debcdd01a93",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T16:35:05"
+  },
+  {
+    "value": 99,
+    "id": "6f0c1055-9ac8-4ee1-beec-318ab561716c",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T16:40:05"
+  },
+  {
+    "value": 98,
+    "id": "5b2997ce-8778-4c04-9aee-50b770b5a3a1",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T16:45:05"
+  },
+  {
+    "value": 100,
+    "id": "47bca76d-49f0-4b60-885f-cdc5192f8352",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T16:50:05"
+  },
+  {
+    "value": 103,
+    "id": "d8196c44-263f-4b7b-9864-4eeea1eaf3c6",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T16:55:05"
+  },
+  {
+    "value": 112,
+    "id": "c454b696-5332-4ac3-88f2-8fa4fffadbb0",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T17:00:05"
+  },
+  {
+    "value": 120,
+    "id": "86381a86-11bb-4f84-9b3c-63a68d573234",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T17:05:05"
+  },
+  {
+    "value": 123,
+    "id": "e794f75f-026e-4839-a722-353c3e00d274",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T17:10:05"
+  },
+  {
+    "value": 120,
+    "id": "b6d14e63-7f5a-4998-9ecd-feaa972bef3a",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T17:15:05"
+  },
+  {
+    "value": 125,
+    "id": "bbac818a-5ce9-4ea4-9873-ab1dde93421a",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T17:20:05"
+  },
+  {
+    "value": 126,
+    "id": "e28a4773-41a2-4f33-bdee-f99bb73224c1",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T17:25:05"
+  },
+  {
+    "value": 0.4,
+    "id": "d5a1fc65-fca8-4672-823d-6058468e1f48",
+    "type": "bolus",
+    "deviceTime": "2014-03-14T17:25:06",
+    "recommended": 0.4
+  },
+  {
+    "value": 127,
+    "id": "aad6a17c-6058-4495-a18e-97941f2c4e31",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T17:30:05"
+  },
+  {
+    "value": 128,
+    "id": "19e258be-d641-4eef-8a95-2a8c9273eb2d",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T17:35:05"
+  },
+  {
+    "value": 129,
+    "id": "2295ce3a-dfaf-439c-a3e1-98346af405f5",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T17:40:05"
+  },
+  {
+    "value": 130,
+    "id": "480bbeb0-a598-4331-a8cf-da3e61f85a79",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T17:45:05"
+  },
+  {
+    "value": 125,
+    "id": "4de432b0-7b4b-461e-83dc-6c2bd0f078b4",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T17:50:05"
+  },
+  {
+    "value": 120,
+    "id": "dbf33d12-f208-4d03-9e81-f532513ea4e2",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T17:55:05"
+  },
+  {
+    "value": 115,
+    "id": "653e0e90-e4d5-463d-8a46-ce694449ed7b",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T18:00:05"
+  },
+  {
+    "value": 112,
+    "id": "86ef6187-c7bc-49d6-af76-ea4711a83bd8",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T18:05:05"
+  },
+  {
+    "value": 110,
+    "id": "7881f9ad-1d2a-44ba-9766-c75eaf0ea67a",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T18:10:05"
+  },
+  {
+    "value": 108,
+    "id": "1c78f801-d5f2-4747-8218-6fa0fa370f4a",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T18:15:05"
+  },
+  {
+    "value": 107,
+    "id": "ab3def76-aecb-44c4-8c6d-392978474f08",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T18:20:05"
+  },
+  {
+    "value": 106,
+    "id": "ec9e8c54-577f-4b72-9a6b-b4cdaa5b7c58",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T18:25:05"
+  },
+  {
+    "value": 107,
+    "id": "9c1030d7-c992-48c1-b8fb-9e877b09a6f0",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T18:30:05"
+  },
+  {
+    "value": 107,
+    "id": "2d73c30e-3ffd-4dcd-a81f-b40ac13a63c6",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T18:35:05"
+  },
+  {
+    "value": 106,
+    "id": "bea865e4-d253-44ac-b91a-97f4719493cd",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T18:40:05"
+  },
+  {
+    "value": 106,
+    "id": "498a1175-efd9-4ee0-911b-406558ac2863",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T18:45:05"
+  },
+  {
+    "id": "b583776f-b9c8-4537-bb47-09b689127f34",
+    "type": "bolus",
+    "extended": true,
+    "duration": 14400000,
+    "extendedDelivery": 3.5,
+    "recommended": 3.5,
+    "value": 3.5,
+    "deviceTime": "2014-03-14T18:49:01"
+  },
+  {
+    "value": 106,
+    "id": "787be0c1-49e7-4e7a-aec7-42a6942263dd",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T18:50:05"
+  },
+  {
+    "value": 91,
+    "id": "ff779006-03d4-4abc-a143-599b266b9703",
+    "type": "smbg",
+    "deviceTime": "2014-03-14T18:52:01"
+  },
+  {
+    "value": 52,
+    "id": "ed8c7ab2-4715-42f4-9173-0af809dcfb71",
+    "type": "carbs",
+    "deviceTime": "2014-03-14T18:52:01",
+    "units": "grams"
+  },
+  {
+    "value": 106,
+    "id": "4c88337d-3537-4cc4-aadb-57fc98a1c299",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T18:55:05"
+  },
+  {
+    "value": 106,
+    "id": "36b18896-f07e-44f7-9907-5695980b680a",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T19:00:05"
+  },
+  {
+    "value": 106,
+    "id": "e18c9662-2e16-4d08-b189-0cd20b1a482c",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T19:05:05"
+  },
+  {
+    "value": 106,
+    "id": "0d64b32b-a795-44f0-ba76-c1d17e746601",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T19:10:05"
+  },
+  {
+    "value": 107,
+    "id": "ec783949-1e2a-486c-8c46-c5aa15c1da33",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T19:15:05"
+  },
+  {
+    "value": 108,
+    "id": "6a8c3f37-fa9e-488b-ac17-96e2bf882739",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T19:20:05"
+  },
+  {
+    "value": 107,
+    "id": "2fe5459e-907f-4cb6-b342-5c06ac3ea220",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T19:25:05"
+  },
+  {
+    "value": 105,
+    "id": "584fd000-3f0b-4853-b75e-3f6cca9b7f49",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T19:30:05"
+  },
+  {
+    "value": 104,
+    "id": "625722f7-0605-422f-80e6-fe402846927c",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T19:35:05"
+  },
+  {
+    "value": 103,
+    "id": "92ed936b-db2f-4adc-b92f-ad2a328edbdc",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T19:40:05"
+  },
+  {
+    "value": 101,
+    "id": "bb112dff-a3a3-409f-83d8-d360b2e6300b",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T19:45:05"
+  },
+  {
+    "value": 101,
+    "id": "a1dd48c9-f6de-4de1-8d55-12dff53e3150",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T19:50:05"
+  },
+  {
+    "value": 101,
+    "id": "eae33697-4160-40b4-81e7-9b0e5a1be908",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T19:55:05"
+  },
+  {
+    "value": 100,
+    "id": "9c027bbd-35dc-4ed9-8044-c05961901733",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T20:00:05"
+  },
+  {
+    "value": 99,
+    "id": "51956227-3c05-4b5f-b6db-be7fa826894a",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T20:05:05"
+  },
+  {
+    "value": 99,
+    "id": "b3121372-6679-49af-8cb8-f3c9cbaa9d95",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T20:10:05"
+  },
+  {
+    "value": 98,
+    "id": "57306077-1376-4b10-8f0c-b6414d054a59",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T20:15:05"
+  },
+  {
+    "value": 99,
+    "id": "8ae24c11-fedd-4b4b-bb1e-9a81176515f8",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T20:20:05"
+  },
+  {
+    "value": 102,
+    "id": "92c12b44-e46d-41e4-baf1-b52d9b127363",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T20:25:05"
+  },
+  {
+    "value": 105,
+    "id": "13035ebb-3f37-4620-af22-60ae5c6965a9",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T20:30:05"
+  },
+  {
+    "value": 108,
+    "id": "341e9027-e08c-4fb7-8c99-5317fcb77988",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T20:35:05"
+  },
+  {
+    "value": 111,
+    "id": "0c7dd30b-ebf5-4bf6-b29e-6f1dbaa07697",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T20:40:05"
+  },
+  {
+    "value": 114,
+    "id": "a7d2c802-f72c-4155-b02e-23519bbd6de4",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T20:45:05"
+  },
+  {
+    "value": 117,
+    "id": "0ce22d64-7b7d-432e-91be-e26b7b862808",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T20:50:05"
+  },
+  {
+    "value": 121,
+    "id": "bbdd45dd-b56b-4b13-b6e2-d884ceeb7a56",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T20:55:05"
+  },
+  {
+    "value": 124,
+    "id": "7f7d35bb-1501-4b2e-8fe2-7422b238ef2e",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T21:00:05"
+  },
+  {
+    "value": 128,
+    "id": "d39793bb-3f37-4690-bf10-cebe32758b0e",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T21:05:05"
+  },
+  {
+    "value": 133,
+    "id": "e3b4cd2f-1baf-4549-acf7-32c79db6c15d",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T21:10:05"
+  },
+  {
+    "value": 137,
+    "id": "a4b79936-db3c-456c-b030-e05d5f80dddc",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T21:15:05"
+  },
+  {
+    "value": 140,
+    "id": "e9d8d9cc-66f7-41ba-871d-51c1b2568b0d",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T21:20:05"
+  },
+  {
+    "value": 144,
+    "id": "93883495-21c4-46da-a4ff-3d05b3fad917",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T21:25:05"
+  },
+  {
+    "value": 145,
+    "id": "548247b6-3a5f-4eea-8895-89854345bf2a",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T21:30:05"
+  },
+  {
+    "value": 146,
+    "id": "ce7ed6e0-3a3a-4f9f-89ff-46450fe321d8",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T21:35:05"
+  },
+  {
+    "value": 144,
+    "id": "9eda1636-7f4a-4eff-8f04-56b255d94918",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T21:40:05"
+  },
+  {
+    "value": 144,
+    "id": "f820f58e-3e95-4f41-b64e-09f0c5af4ab7",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T21:45:05"
+  },
+  {
+    "value": 142,
+    "id": "fb22d9d9-850a-4336-8fb9-55ec4e2f8af2",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T21:50:05"
+  },
+  {
+    "value": 141,
+    "id": "51a16826-bc8e-4d63-9ff9-58fb1789346d",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T21:55:05"
+  },
+  {
+    "value": 138,
+    "id": "d9a3ec38-1e4e-400c-b8e0-cd07ac1c5a29",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T22:00:05"
+  },
+  {
+    "value": 135,
+    "id": "d76aec7a-3cca-41e3-94cb-6e41184e69d1",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T22:05:05"
+  },
+  {
+    "value": 133,
+    "id": "8f4d35d6-df89-4e88-b6ba-0dbc5e4323ec",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T22:10:05"
+  },
+  {
+    "value": 131,
+    "id": "abc0bf85-32cb-4ceb-8acf-dd73f4ec449d",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T22:15:05"
+  },
+  {
+    "value": 129,
+    "id": "f131c269-39a9-40fe-89be-bcd893062e7f",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T22:20:05"
+  },
+  {
+    "value": 128,
+    "id": "c5868f5d-8ad4-4d82-99f0-aa7b222034e0",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T22:25:05"
+  },
+  {
+    "value": 126,
+    "id": "60816ea9-a872-4c47-aea6-14a012b7cbd0",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T22:30:05"
+  },
+  {
+    "value": 124,
+    "id": "0291edd0-91b5-4969-9d99-71460f423258",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T22:35:05"
+  },
+  {
+    "value": 122,
+    "id": "99bf3d3d-aa0d-4dbc-b110-2b776cf369f4",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T22:40:05"
+  },
+  {
+    "value": 121,
+    "id": "9500ee83-fc54-4b39-9f6b-5f2d7106e6be",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T22:45:05"
+  },
+  {
+    "value": 120,
+    "id": "52cd9346-b433-4478-a853-51e9ce2d73af",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T22:50:05"
+  },
+  {
+    "value": 121,
+    "id": "513f842a-5940-42ef-8aca-64a6f345592a",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T22:55:05"
+  },
+  {
+    "value": 119,
+    "id": "ca52de82-fd0b-424c-9e04-970cefb8fa45",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T23:00:05"
+  },
+  {
+    "value": 118,
+    "id": "e58707ef-690b-4a84-ad32-d7b4eb5731f1",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T23:05:05"
+  },
+  {
+    "value": 118,
+    "id": "efc764ac-0747-4a3c-a1bf-6d99efbbd1a2",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T23:10:05"
+  },
+  {
+    "value": 117,
+    "id": "e1ea60e5-5325-48f4-be93-a036144c7da4",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T23:15:05"
+  },
+  {
+    "value": 115,
+    "id": "cff790a2-109f-41ac-90ae-3044c5a8db96",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T23:20:05"
+  },
+  {
+    "value": 113,
+    "id": "bc1db591-7be3-4048-b00d-00f9001919f6",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T23:25:05"
+  },
+  {
+    "value": 111,
+    "id": "d8dee689-fbd9-44a4-a789-0b9d40af9b27",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T23:30:05"
+  },
+  {
+    "value": 110,
+    "id": "4ed0a96b-4397-4984-8c3b-27c6ecd71aa5",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T23:35:05"
+  },
+  {
+    "value": 108,
+    "id": "6639457d-245e-4187-a076-1f9269157632",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T23:40:05"
+  },
+  {
+    "value": 107,
+    "id": "f9060ec3-6773-4886-8487-ba8aa1b1e2b2",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T23:45:05"
+  },
+  {
+    "value": 105,
+    "id": "313fa48e-c238-46e4-a7fb-e303865ccf93",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T23:50:05"
+  },
+  {
+    "value": 103,
+    "id": "d7940fd9-06f8-4d20-b765-a6f9370fde87",
+    "type": "cbg",
+    "deviceTime": "2014-03-14T23:55:05"
+  },
+  {
+    "value": 102,
+    "id": "00ee3856-e3a6-430a-96ae-bf704e47ec62",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T00:00:05"
+  },
+  {
+    "value": 99,
+    "id": "998b0747-5bcc-450b-8050-9eae98568c18",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T00:05:05"
+  },
+  {
+    "value": 98,
+    "id": "16220b1a-607c-44a3-bafb-999cbd1eb526",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T00:10:05"
+  },
+  {
+    "value": 98,
+    "id": "cc0d486c-0b6a-44f0-80f1-f7b42351cd55",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T00:15:05"
+  },
+  {
+    "value": 97,
+    "id": "4466508f-f867-4d49-80da-49fcd1f5960c",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T00:20:05"
+  },
+  {
+    "value": 98,
+    "id": "31ff0cef-990c-489f-a229-2e90ac55ae30",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T00:25:05"
+  },
+  {
+    "value": 97,
+    "id": "a6265eda-2155-4ec1-900d-2841f6e9752a",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T00:30:05"
+  },
+  {
+    "value": 97,
+    "id": "176530a7-f8d7-4c57-ae3b-86c4bb2cda11",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T00:35:05"
+  },
+  {
+    "value": 97,
+    "id": "86b5a839-0431-49a7-b38b-cb3620ad7243",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T00:40:05"
+  },
+  {
+    "value": 97,
+    "id": "18fa7fe3-50b5-4d0d-8029-52a2827092c0",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T01:05:05"
+  },
+  {
+    "value": 98,
+    "id": "36448db5-900e-485b-9662-71c0d0d4ae15",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T01:10:05"
+  },
+  {
+    "value": 99,
+    "id": "3db3f06f-b87d-4bd8-ba23-8dcf63132119",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T01:15:05"
+  },
+  {
+    "value": 99,
+    "id": "b50ba9bc-9070-4457-a1ff-a5c1baf0496f",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T01:20:05"
+  },
+  {
+    "value": 98,
+    "id": "7ecccf66-04a2-47c3-bdf2-6d8bd1bc44b4",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T01:25:05"
+  },
+  {
+    "value": 99,
+    "id": "c2a90c16-4697-46ed-801a-8c72207cd17d",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T01:30:05"
+  },
+  {
+    "value": 104,
+    "id": "2e004849-2418-4c0e-9155-837f1941e760",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T01:35:05"
+  },
+  {
+    "value": 110,
+    "id": "c402df78-7976-4cb0-a334-c38a2460d2ce",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T01:40:05"
+  },
+  {
+    "value": 120,
+    "id": "9092ad8d-a26e-4f61-8bbd-8117a8b82b1b",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T01:45:05"
+  },
+  {
+    "value": 127,
+    "id": "05685bf2-828d-4cde-94f7-9325010a34a7",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T01:50:05"
+  },
+  {
+    "value": 133,
+    "id": "1addd32c-e286-4688-aedc-c11b0968506d",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T01:55:05"
+  },
+  {
+    "value": 139,
+    "id": "5609bd94-44b4-4de1-a8d5-d4f0b0420ee0",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T02:00:05"
+  },
+  {
+    "value": 143,
+    "id": "2876c11a-4811-4e16-b0ef-7f02596a3cf8",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T02:05:05"
+  },
+  {
+    "value": 143,
+    "id": "276f3335-3e7d-4c8c-9b7d-48f1a2f928f7",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T02:10:05"
+  },
+  {
+    "value": 143,
+    "id": "fef043df-069e-4915-847f-8cd860b81748",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T02:15:05"
+  },
+  {
+    "value": 144,
+    "id": "d26cfd33-27c9-4c3b-91fc-b2f9c0fda6f8",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T02:20:05"
+  },
+  {
+    "value": 142,
+    "id": "58f265ef-2a47-4bb6-83c2-5411afe65e83",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T02:25:05"
+  },
+  {
+    "value": 142,
+    "id": "c6d237bc-f5b1-4e73-9489-14072d788332",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T02:30:05"
+  },
+  {
+    "value": 140,
+    "id": "736f2a5e-cbc0-4b30-aaef-2abb677284a0",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T02:35:05"
+  },
+  {
+    "value": 140,
+    "id": "dc593c13-b1d4-4076-816c-8512d775170b",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T02:40:05"
+  },
+  {
+    "value": 141,
+    "id": "ea50407f-0ac7-49cf-8484-692da35dc6da",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T02:45:05"
+  },
+  {
+    "value": 145,
+    "id": "b8978d33-f32c-41f2-9873-11ab07107bfa",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T02:50:05"
+  },
+  {
+    "value": 133,
+    "id": "9fe35f46-26e6-4afc-adfa-c008865740ff",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T02:55:05"
+  },
+  {
+    "value": 127,
+    "id": "3d5fc1ac-d5ff-451a-9105-b069df8766b9",
+    "type": "smbg",
+    "deviceTime": "2014-03-15T02:59:30"
+  },
+  {
+    "value": 39,
+    "id": "51df8bc7-b2db-4388-bd40-8755aa756f18",
+    "type": "carbs",
+    "deviceTime": "2014-03-15T02:59:30",
+    "units": "grams"
+  },
+  {
+    "id": "20ca2def-745a-455e-a2f9-3027f4abdb31",
+    "type": "bolus",
+    "extended": true,
+    "duration": 2700000,
+    "extendedDelivery": 2.6,
+    "recommended": 2.6,
+    "value": 2.6,
+    "deviceTime": "2014-03-15T02:59:30"
+  },
+  {
+    "value": 132,
+    "id": "114fc17a-1dfb-4ef5-98a9-7a76e86ae682",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T03:00:05"
+  },
+  {
+    "value": 137,
+    "id": "c199e3f6-3de7-461b-ac47-47291004c0ce",
+    "type": "smbg",
+    "deviceTime": "2014-03-15T03:01:31"
+  },
+  {
+    "value": 136,
+    "id": "66ab5f39-96fa-4d4b-874b-a3d42c1ecff2",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T03:05:05"
+  },
+  {
+    "value": 139,
+    "id": "7e8f2792-1c1c-49d3-9591-7fdc24934d9c",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T03:10:05"
+  },
+  {
+    "value": 142,
+    "id": "e7e90a99-b98b-4d35-8a99-442aec3be289",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T03:15:05"
+  },
+  {
+    "value": 142,
+    "id": "b05a6f23-67a0-4de8-aa6a-70d75a166d43",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T03:20:05"
+  },
+  {
+    "value": 140,
+    "id": "32f95e4e-e3cc-47f9-8fcc-b25ec3252de9",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T03:25:05"
+  },
+  {
+    "value": 137,
+    "id": "04b8a3bf-06ca-4c75-b11d-0d9883887d55",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T03:30:05"
+  },
+  {
+    "value": 131,
+    "id": "027da638-531f-4f69-bc58-3b624815d509",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T03:35:05"
+  },
+  {
+    "value": 125,
+    "id": "78c75364-766d-4e70-84c6-5f337156e7cb",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T03:40:05"
+  },
+  {
+    "value": 122,
+    "id": "1b498e79-1ba3-4634-9c43-6b255acb23d2",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T03:45:05"
+  },
+  {
+    "value": 123,
+    "id": "13a4f299-9706-4252-a0a4-da76b224e97e",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T03:50:05"
+  },
+  {
+    "value": 129,
+    "id": "fe0054b8-555c-4893-a0b0-5812e3b77f5b",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T03:55:05"
+  },
+  {
+    "value": 123,
+    "id": "005e194f-d207-4fc1-8d0b-2761ada74767",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T04:00:05"
+  },
+  {
+    "value": 125,
+    "id": "790130aa-a159-47ab-8845-7f8c90bdb61f",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T04:05:05"
+  },
+  {
+    "value": 120,
+    "id": "e53847f1-c517-4f60-a7e8-18f7bd1f0bc1",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T04:10:05"
+  },
+  {
+    "value": 121,
+    "id": "dfb6763e-adc7-4631-9e50-d3e13652dded",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T04:15:05"
+  },
+  {
+    "value": 121,
+    "id": "0385cf84-8604-4443-beab-4c47b9db0da4",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T04:20:05"
+  },
+  {
+    "value": 121,
+    "id": "345ae6b5-c24f-41dd-9e2e-c09b6cc5520e",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T04:25:05"
+  },
+  {
+    "value": 121,
+    "id": "bf8a1f31-bbd0-4b55-b10b-ca078b43d2b5",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T04:30:05"
+  },
+  {
+    "value": 118,
+    "id": "d2f33bb3-c580-44b5-9cb8-c58152088724",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T04:35:05"
+  },
+  {
+    "value": 122,
+    "id": "e7ba6d8f-7c04-4701-9548-c6990dde9cd4",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T04:40:05"
+  },
+  {
+    "value": 126,
+    "id": "883dd5de-cca9-4b89-8fae-e2da89d672fe",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T04:45:05"
+  },
+  {
+    "value": 131,
+    "id": "2c4fdb1b-2c27-4770-9ee4-2357ab0f65c7",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T04:50:05"
+  },
+  {
+    "value": 121,
+    "id": "3a10107d-35a1-45bd-b318-046db5ce6bb2",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T04:55:05"
+  },
+  {
+    "value": 120,
+    "id": "5aac8d1b-3667-451f-813d-64ef3bacb732",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T05:10:05"
+  },
+  {
+    "value": 124,
+    "id": "a893eab5-2b9b-4ff3-8ac0-e8a950e4d7f5",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T05:15:05"
+  },
+  {
+    "value": 126,
+    "id": "0c11d7c6-90e3-4049-8540-399f5dfb464a",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T05:20:05"
+  },
+  {
+    "value": 130,
+    "id": "3b389a59-7739-49d1-a0bf-53be8777e617",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T05:25:05"
+  },
+  {
+    "value": 133,
+    "id": "e388060e-9777-4dd8-98e6-92aa93ab5f3b",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T05:30:05"
+  },
+  {
+    "value": 2.7,
+    "id": "e50e5b37-d735-4445-96e0-7f2454ee70f2",
+    "type": "bolus",
+    "deviceTime": "2014-03-15T05:30:06",
+    "recommended": 2.7
+  },
+  {
+    "value": 136,
+    "id": "76573827-0101-436a-aec1-93f6575ca81b",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T05:35:05"
+  },
+  {
+    "value": 139,
+    "id": "c37df182-0f74-4457-b8ff-f5619b9a2228",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T05:40:05"
+  },
+  {
+    "value": 142,
+    "id": "4652d1e8-e0ca-4508-a364-3b53c5a819db",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T05:45:05"
+  },
+  {
+    "value": 146,
+    "id": "3045710e-0f22-49e9-a744-01511ad657b5",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T05:50:05"
+  },
+  {
+    "value": 138,
+    "id": "ce3aa469-c943-4fb2-a192-8c1d927bea9f",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T05:55:05"
+  },
+  {
+    "value": 134,
+    "id": "2e39da30-bb1f-42dd-ba5a-84f6cb37487b",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T06:00:05"
+  },
+  {
+    "value": 135,
+    "id": "e7de1ae3-153c-4af1-b6f5-8f2500d8ab9f",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T06:05:05"
+  },
+  {
+    "value": 136,
+    "id": "013acdd5-f9d8-4c12-94ff-8df0e81e07ff",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T06:10:05"
+  },
+  {
+    "value": 137,
+    "id": "3542a3ad-3e00-4ca7-ab13-cb8900d2df1f",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T06:15:05"
+  },
+  {
+    "value": 139,
+    "id": "85b14a31-9482-40fe-9f13-e12881238d36",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T06:20:05"
+  },
+  {
+    "value": 142,
+    "id": "01b773df-c55e-4830-8bbe-4d932de41d12",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T06:25:05"
+  },
+  {
+    "value": 155,
+    "id": "7a9fb354-fc8d-48a4-8d7e-9cc339b58707",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T06:30:05"
+  },
+  {
+    "value": 162,
+    "id": "825cb07c-4ea3-438f-9c05-223e0c6e7edb",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T06:35:05"
+  },
+  {
+    "value": 160,
+    "id": "d8ff3f17-d30c-4d76-b729-e86a4b61ce71",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T06:40:05"
+  },
+  {
+    "value": 161,
+    "id": "46e37003-e9db-4eec-8412-1453856536ad",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T06:45:05"
+  },
+  {
+    "value": 157,
+    "id": "9237fc3f-8a8f-4123-91b9-8e6f97ffe791",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T06:50:05"
+  },
+  {
+    "value": 164,
+    "id": "dc4e7ae1-afe7-4812-b143-fc366a8b59f3",
+    "type": "smbg",
+    "deviceTime": "2014-03-15T06:54:27"
+  },
+  {
+    "value": 45,
+    "id": "1aae12df-9d58-429b-a48a-6386b884910a",
+    "type": "carbs",
+    "deviceTime": "2014-03-15T06:54:27",
+    "units": "grams"
+  },
+  {
+    "id": "c4acd1cd-618e-4753-91be-d7d075e6e8d1",
+    "type": "bolus",
+    "extended": true,
+    "duration": 5400000,
+    "extendedDelivery": 3,
+    "recommended": 3,
+    "value": 3,
+    "deviceTime": "2014-03-15T06:54:27"
+  },
+  {
+    "value": 160,
+    "id": "bd8eed35-a711-46c7-bc83-b837ffef7887",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T06:55:05"
+  },
+  {
+    "value": 162,
+    "id": "c490e4c8-163e-4055-86e1-ce49976537cb",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T07:00:05"
+  },
+  {
+    "value": 158,
+    "id": "4119f369-cbc6-4ada-a767-ffd5151743e5",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T07:05:05"
+  },
+  {
+    "value": 158,
+    "id": "2a0ac3a9-935a-4f79-9751-71879127712b",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T07:10:05"
+  },
+  {
+    "value": 149,
+    "id": "c0bb33f2-39ca-4cdd-b81c-56a874425e6d",
+    "type": "smbg",
+    "deviceTime": "2014-03-15T07:12:25"
+  },
+  {
+    "value": 20,
+    "id": "03b438e5-6274-4af3-bf5b-c346f52b53cf",
+    "type": "carbs",
+    "deviceTime": "2014-03-15T07:12:25",
+    "units": "grams"
+  },
+  {
+    "value": 1.3,
+    "id": "40103b7d-9557-4618-8802-740137d0884f",
+    "type": "bolus",
+    "deviceTime": "2014-03-15T07:12:25",
+    "recommended": 1.3
+  },
+  {
+    "value": 161,
+    "id": "52e70713-c715-4253-bd80-fb2789fb0991",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T07:15:05"
+  },
+  {
+    "value": 134,
+    "id": "27e50d37-3b8d-45d0-80ae-d4196311300c",
+    "type": "smbg",
+    "deviceTime": "2014-03-15T07:18:20"
+  },
+  {
+    "value": 50,
+    "id": "810325c2-74a3-4aae-ac52-12a875172ca5",
+    "type": "carbs",
+    "deviceTime": "2014-03-15T07:18:20",
+    "units": "grams"
+  },
+  {
+    "id": "6015041e-f670-4597-806a-1c7544a023f9",
+    "initialDelivery": 2.3,
+    "extendedDelivery": 1,
+    "value": 3.3,
+    "recommended": 3.3,
+    "deviceTime": "2014-03-15T07:18:20",
+    "duration": 3600000,
+    "extended": true,
+    "type": "bolus"
+  },
+  {
+    "value": 159,
+    "id": "97b5a547-a7b4-4881-bdc3-81de4957c677",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T07:20:05"
+  },
+  {
+    "value": 155,
+    "id": "34283140-fd62-4099-acb4-84407ed229fe",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T07:25:05"
+  },
+  {
+    "value": 154,
+    "id": "633971d2-6e21-4c01-a2b9-b6982aad8210",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T07:30:05"
+  },
+  {
+    "value": 156,
+    "id": "e3c11966-3a37-41d3-8ce4-42a5b77fa881",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T07:35:05"
+  },
+  {
+    "value": 155,
+    "id": "1350749c-bd41-45b9-b4f9-147dd1760ec7",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T07:40:05"
+  },
+  {
+    "value": 155,
+    "id": "92b4a961-23e9-4647-8842-84d489f73e41",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T07:45:05"
+  },
+  {
+    "value": 159,
+    "id": "52c2effb-bdc4-4faa-b955-2c71a2994393",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T07:50:05"
+  },
+  {
+    "value": 164,
+    "id": "247abb53-c722-4f09-9585-f0dcc4b2a177",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T07:55:05"
+  },
+  {
+    "value": 162,
+    "id": "e79ce611-3909-49d8-8559-3f0d5db9bd02",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T08:00:05"
+  },
+  {
+    "value": 161,
+    "id": "73ea9011-f0af-45ac-b6ca-aba266887a0c",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T08:05:05"
+  },
+  {
+    "value": 160,
+    "id": "d6c53fb6-c0f9-4d10-85ba-407c762c133b",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T08:10:05"
+  },
+  {
+    "value": 159,
+    "id": "efc3ad9b-019b-43a4-9990-ffc1ac7619e5",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T08:15:05"
+  },
+  {
+    "value": 158,
+    "id": "427423bc-4040-4fb5-a580-52fea4bfae68",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T08:20:05"
+  },
+  {
+    "value": 154,
+    "id": "987696c4-0faa-4229-87fd-43a61706216f",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T08:25:05"
+  },
+  {
+    "value": 155,
+    "id": "43189878-4987-4206-bdaf-1f4d52bda140",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T09:00:05"
+  },
+  {
+    "value": 155,
+    "id": "9c68e773-3818-46c0-aa7d-b23e1b00f65c",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T09:05:05"
+  },
+  {
+    "value": 153,
+    "id": "0d5e6c1b-e887-455f-87f2-1dc1d030bd6d",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T09:10:05"
+  },
+  {
+    "value": 152,
+    "id": "5fa38a1c-4fd7-4f58-b938-6127ea06ce09",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T09:15:05"
+  },
+  {
+    "value": 148,
+    "id": "da4a5fd9-6c75-4ab7-bbb6-6b32d5229612",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T09:20:05"
+  },
+  {
+    "value": 145,
+    "id": "5fd80325-8f18-49b2-aa20-58e21d10be7d",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T09:25:05"
+  },
+  {
+    "value": 142,
+    "id": "c6d546ed-3885-4b4f-aa25-c60d2fc9a375",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T09:30:05"
+  },
+  {
+    "value": 138,
+    "id": "5e9601ae-eda1-462a-a250-655791cafc61",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T09:35:05"
+  },
+  {
+    "value": 134,
+    "id": "6158706f-19e5-46ca-94f1-122ecabd14c6",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T09:40:05"
+  },
+  {
+    "value": 133,
+    "id": "456d16ce-a829-4e5a-b3c5-572c74efad78",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T09:45:05"
+  },
+  {
+    "value": 132,
+    "id": "3e99a067-5d65-4480-a69a-9f3b8442307b",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T09:50:05"
+  },
+  {
+    "value": 131,
+    "id": "857544b0-dd95-49a9-9bc9-7751c468385e",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T09:55:05"
+  },
+  {
+    "id": "a4e94f0b-037e-4d59-ab57-cba0e85fa698",
+    "type": "message",
+    "utcTime": "2014-03-15T09:57:54Z",
+    "parentMessage": "",
+    "messageText": "Bacon mollit aute tail velit tenderloin nulla shankle dolore nostrud eiusmod. Short loin sunt pork chop kielbasa elit, filet mignon landjaeger ham pastrami bresaola."
+  },
+  {
+    "value": 130,
+    "id": "d280ca88-45fe-43d2-942b-3432f449a620",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T10:00:05"
+  },
+  {
+    "value": 128,
+    "id": "18ecd228-607b-4461-8010-7c03420e0f1b",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T10:05:05"
+  },
+  {
+    "value": 123,
+    "id": "56dc7f3b-b2a2-41b2-82f9-e1993fc940aa",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T10:10:05"
+  },
+  {
+    "value": 120,
+    "id": "ea5d9206-1f6e-41c7-9aaa-9343fe6d91f2",
+    "type": "cbg",
+    "deviceTime": "2014-03-15T10:15:05"
+  },
+  {
+    "value": 94,
+    "id": "d4edbd37-43a4-487f-9c4e-b29db64fd432",
+    "type": "smbg",
+    "deviceTime": "2014-03-15T12:02:33"
+  },
+  {
+    "value": 50,
+    "id": "19cf3a32-83cc-4b56-a84d-c9319851b65c",
+    "type": "carbs",
+    "deviceTime": "2014-03-15T12:02:33",
+    "units": "grams"
+  },
+  {
+    "id": "ee88d4ff-ae23-488f-804c-fd82b9701be9",
+    "initialDelivery": 0.6,
+    "extendedDelivery": 2.5,
+    "value": 3.1,
+    "recommended": 3.3,
+    "deviceTime": "2014-03-15T12:02:33",
+    "duration": 2700000,
+    "extended": true,
+    "type": "bolus"
+  },
+  {
+    "value": 1.4,
+    "id": "6424f73f-4da1-4dd2-8626-c5262a403401",
+    "type": "bolus",
+    "deviceTime": "2014-03-15T17:35:06",
+    "recommended": 1.4
+  },
+  {
+    "value": 111,
+    "id": "42388014-ccdf-4d3f-abb4-a64d4e67ec5d",
+    "type": "smbg",
+    "deviceTime": "2014-03-15T21:46:57"
+  },
+  {
+    "value": 78,
+    "id": "c038630b-26e3-4509-9fe0-0d6dac2ea375",
+    "type": "carbs",
+    "deviceTime": "2014-03-15T21:46:57",
+    "units": "grams"
+  },
+  {
+    "id": "ea13ae73-ea9a-4a07-87f7-a4303b31f4d3",
+    "type": "bolus",
+    "extended": true,
+    "duration": 14400000,
+    "extendedDelivery": 5.2,
+    "recommended": 5.2,
+    "value": 5.2,
+    "deviceTime": "2014-03-15T21:46:57"
+  },
+  {
+    "value": 118,
+    "id": "9df61155-583a-4376-afaa-52d3686d3a39",
+    "type": "smbg",
+    "deviceTime": "2014-03-16T04:25:10"
+  },
+  {
+    "value": 32,
+    "id": "60076c5d-64a3-4adc-a99a-6c16d35b1530",
+    "type": "carbs",
+    "deviceTime": "2014-03-16T04:25:10",
+    "units": "grams"
+  },
+  {
+    "value": 2.1,
+    "id": "ef7549e9-d81e-466f-99f3-38f37f4d3e9e",
+    "type": "bolus",
+    "deviceTime": "2014-03-16T04:25:10",
+    "recommended": 2.1
+  },
+  {
+    "value": 1.6,
+    "id": "d98efd6d-db29-4349-a6d9-fc5968d657d6",
+    "type": "bolus",
+    "deviceTime": "2014-03-16T05:30:06",
+    "recommended": 1.6
+  },
+  {
+    "id": "8ea9e378-aea7-41b5-bc3f-9d7287c3e17f",
+    "type": "message",
+    "utcTime": "2014-03-16T09:07:51Z",
+    "parentMessage": "",
+    "messageText": "Ex kevin anim do excepteur pancetta. Pork sirloin laboris ex sint aute tongue ea voluptate fugiat ground round dolore magna."
+  },
+  {
+    "value": 34,
+    "id": "7bd72bf0-3821-4ab8-a046-be5649fd3c1d",
+    "type": "carbs",
+    "deviceTime": "2014-03-16T10:33:06",
+    "units": "grams"
+  }
+]

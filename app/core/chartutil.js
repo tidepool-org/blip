@@ -17,7 +17,6 @@ var _ = window._;
 
 var tideline = window.tideline;
 var watson = require('../../bower_components/tideline/example/watson');
-watson = watson();
 
 var BasalUtil = tideline.data.BasalUtil;
 

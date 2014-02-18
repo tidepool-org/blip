@@ -109,7 +109,8 @@ app.use('/style.css', function(req, res, next) {
 
 app.use('/fonts', connect.static(__dirname + '/app/core/fonts'));
 
-files.images.forEach(function(image) {
+var imagesAndSvg = files.images.concat(files.svg);
+imagesAndSvg.forEach(function(image) {
   var endpoint = '/images/' + image.endpoint;
   var dir = __dirname + '/' + image.dir;
   app.use(endpoint, connect.static(dir));

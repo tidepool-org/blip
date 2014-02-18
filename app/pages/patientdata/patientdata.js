@@ -16,6 +16,9 @@
 
 var React = window.React;
 var _ = window._;
+var config = window.config;
+
+var ChartDaily = require('../../components/chartdaily');
 
 var PatientData = React.createClass({
   propTypes: {
@@ -50,6 +53,10 @@ var PatientData = React.createClass({
         <div className="container-box-inner patient-data-subnav-inner">
           <div className="grid patient-data-subnav">
             <div className="grid-item one-whole medium-one-third">
+              <a href="#/">
+                <i className="icon-back"></i>
+                {' ' + 'Back'}
+              </a>
             </div>
             <div className="grid-item one-whole medium-one-third">
               <div className="patient-data-subnav-title">Patient data</div>
@@ -94,13 +101,11 @@ var PatientData = React.createClass({
   },
 
   renderChart: function() {
-    var summary = _.countBy(this.props.patientData, 'type');
-
     /* jshint ignore:start */
     return (
-      <pre className="patient-data-json">
-        {JSON.stringify(summary, null, 2)}
-      </pre>
+      <ChartDaily
+        patientData={this.props.patientData}
+        imagesEndpoint={config.IMAGES_ENDPOINT + '/tideline'} />
     );
     /* jshint ignore:end */
   }

@@ -52,8 +52,7 @@
 // Content
 // ====================================
 
-@patient-data-content-width:            480px;
-@patient-data-content-breakpoint:       @screen-lg-min;
+@patient-data-chart-height:             500px;
 
 .patient-data-content-outer {
   margin-bottom: @spacing-large;
@@ -62,18 +61,15 @@
 .patient-data-content-inner {
   background-color: #fff;
 
-  padding-top: @spacing-base;
   padding-bottom: @spacing-large;
-
-  min-height: 400px;
+  // Bug with message:
+  // If no padding top is set, message top margin will "push" this white block
+  // down, instead of "stretching" it
+  padding-top: 5px;
 }
 
 .patient-data-content {
-  @media(min-width: @patient-data-content-breakpoint) {
-    margin-left: auto;
-    margin-right: auto;
-    width: @patient-data-content-width;
-  }
+  min-height: @patient-data-chart-height;
 }
 
 // Messages
@@ -84,6 +80,12 @@
   font-style: italic;
   padding: 30px @spacing-small;
   margin-top: 80px;
+
+  @media(min-width: @patient-content-breakpoint) {
+    margin-left: auto;
+    margin-right: auto;
+    width: 480px;
+  }
 }
 
 .patient-data-message-loading {
