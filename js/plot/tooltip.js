@@ -63,8 +63,8 @@ module.exports = function(container, tooltipsGroup) {
         }
       }
     }
-    // and bolus, carbs, cbg
-    if ((path === 'bolus') || (path === 'carbs') || (path === 'cbg')) {
+    // and bolus, carbs, cbg, smbg
+    if ((path === 'bolus') || (path === 'carbs') || (path === 'cbg') || (path === 'smbg')) {
       if (locationInWindow > container.width() - (((container.width() - container.axisGutter()) / 24) * 3)) {
         translation = -tooltipWidth;
       }
