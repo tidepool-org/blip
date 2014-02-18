@@ -92,9 +92,13 @@ function BasalUtil(data) {
     }
   }
 
+  function fixFloatingPoint (n) {
+    return parseFloat(n.toFixed(3));
+  }
+
   this.segmentDose = function(duration, rate) {
     var hours = duration / MS_IN_HOUR;
-    return hours * rate;
+    return fixFloatingPoint(hours * rate);
   };
 
   this.totalBasal = function(s, e) {
@@ -115,7 +119,7 @@ function BasalUtil(data) {
       index++;
     }
     dose += this.segmentDose(e - new Date(lastSegment.start), lastSegment.value);
-    return dose;
+    return fixFloatingPoint(dose);
   };
 
   data.forEach(processElement);
