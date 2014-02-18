@@ -73,7 +73,7 @@ d3.json('device-data.json', function(data) {
     // remove click handlers for programmatic pan
     $('#tidelineNavForward').off('click');
     $('#tidelineNavBack').off('click');
-    oneDay.destroy();
+    oneDay.stopListening().destroy();
     $(this).parent().addClass('active');
     $('#oneDayView').parent().removeClass('active');
     $('.one-day').css('visibility', 'hidden');

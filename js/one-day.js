@@ -232,6 +232,8 @@ module.exports = function(emitter) {
     emitter.removeAllListeners('bolusTooltipOn');
     emitter.removeAllListeners('bolusTooltipOff');
     emitter.removeAllListeners('noCarbTimestamp');
+
+    return container;
   };
 
   container.destroy = function() {
