@@ -547,12 +547,14 @@ module.exports = function(emitter) {
     dataEndNoon = new Date(dataEndNoon.toISOString().slice(0,11) + noon);
 
     if (!viewEndDate) {
-      viewEndDate = last;
+      viewEndDate = new Date(days[0]);
+    } else {
+      viewEndDate = new Date(viewEndDate);
     }
+
     var viewBeginning = new Date(viewEndDate);
     viewBeginning.setUTCDate(viewBeginning.getUTCDate() - 14);
     viewEndpoints = [new Date(viewBeginning.toISOString().slice(0,11) + noon), new Date(viewEndDate.toISOString().slice(0,11) + noon)];
-
     viewIndex = days.indexOf(viewEndDate.toISOString().slice(0,10));
 
     container.dataPerDay = [];
