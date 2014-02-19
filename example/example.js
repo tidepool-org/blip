@@ -50,6 +50,8 @@ var twoWeek = createNewTwoWeekChart();
 
 var basalUtil;
 
+var bolusUtil;
+
 
 // Note to Nico: this (all the code within d3.json() below) is all rough-and-ready...
 // obviously a lot of it could be refactored
@@ -59,8 +61,9 @@ var basalUtil;
 // load data and draw charts
 d3.json('device-data.json', function(data) {
   log('Data loaded.');
+  bolusUtil = new BolusUtil(_.where(data, {'type': 'bolus'}));
   // munge basal segments
-  basalUtil = new BasalUtil(data);
+  basalUtil = new BasalUtil(_.where(data, {'type': 'basal-rate-segment'}));
   data = _.reject(data, function(d) {
     return d.type === 'basal-rate-segment';
   });
