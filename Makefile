@@ -10,7 +10,12 @@ example:
 test:
 	./node_modules/.bin/mocha --reporter spec
 
-server:
-	python -m SimpleHTTPServer
+minimal-test:
+	./node_modules/.bin/mocha --reporter nyan
 
-.PHONY: dist example test server
+server:
+	python dev/simple_server.py
+
+develop: minimal-test example server
+
+.PHONY: dist example test minimal-test server run
