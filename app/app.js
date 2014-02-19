@@ -534,6 +534,8 @@ var AppComponent = React.createClass({
 
       patientData = self.processPatientData(patientData);
 
+      self.logPatientDataInfo(patientData);
+
       self.setState({
         patientData: patientData,
         fetchingPatientData: false
@@ -543,6 +545,12 @@ var AppComponent = React.createClass({
 
   processPatientData: function(data) {
     return chartUtil.processData(data);
+  },
+
+  logPatientDataInfo: function(data) {
+    data = data || [];
+    app.log('Patient data total count', data.length);
+    app.log('Patient data count by type', _.countBy(data, 'type'));
   },
 
   clearUserData: function() {
