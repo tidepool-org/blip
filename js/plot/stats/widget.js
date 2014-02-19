@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-var log = require('../lib/bows')('Stats');
+var log = require('../../lib/bows')('Stats');
 
 module.exports = function(pool, opts) {
 
@@ -26,6 +26,7 @@ module.exports = function(pool, opts) {
   _.defaults(opts, defaults);
 
   function stats(selection) {
+    
     log(opts.basal.totalBasal(new Date("2014-02-14T06:00:00"), new Date("2014-02-14T13:00:00")));
   }
 

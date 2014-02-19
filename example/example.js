@@ -30,7 +30,6 @@ emitter.on('navigated', function(navString) {
 // common pool modules
 var fill = tideline.plot.fill;
 var scales = tideline.plot.scales;
-var BasalUtil = tideline.data.BasalUtil;
 
 var el = '#tidelineContainer';
 var imagesBaseUrl = '../img';
@@ -49,9 +48,7 @@ var oneDay = createNewOneDayChart();
 var twoWeek = createNewTwoWeekChart();
 
 var basalUtil;
-
 var bolusUtil;
-
 
 // Note to Nico: this (all the code within d3.json() below) is all rough-and-ready...
 // obviously a lot of it could be refactored
@@ -61,9 +58,9 @@ var bolusUtil;
 // load data and draw charts
 d3.json('device-data.json', function(data) {
   log('Data loaded.');
-  bolusUtil = new BolusUtil(_.where(data, {'type': 'bolus'}));
+  bolusUtil = new tideline.data.BolusUtil(_.where(data, {'type': 'bolus'}));
   // munge basal segments
-  basalUtil = new BasalUtil(_.where(data, {'type': 'basal-rate-segment'}));
+  basalUtil = new tideline.data.BasalUtil(_.where(data, {'type': 'basal-rate-segment'}));
   data = _.reject(data, function(d) {
     return d.type === 'basal-rate-segment';
   });
@@ -312,7 +309,7 @@ function oneDayChart(el, options) {
     poolMessages.addPlotType('message', tideline.plot.message(poolMessages, {size: 30}), true);
 
     // stats pool
-    poolStats.addPlotType('stats', tideline.plot.stats(poolStats, {basal: basalUtil}), false);
+    poolStats.addPlotType('stats', tideline.plot.stats.widget(poolStats, {bolus: bolusUtil, basal: basalUtil}), false);
 
     return chart;
   };
