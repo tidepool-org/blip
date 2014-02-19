@@ -39,7 +39,7 @@ module.exports = function(host, superagent) {
         .end(
         function(err, res) {
           if (err != null) {
-            return cb(err);
+            return cb(err,null);
           }
 
           if (res.status === 200) {
@@ -87,8 +87,7 @@ module.exports = function(host, superagent) {
         .end(
         function(err, res){
           if (err) {
-            log(err);
-            return;
+            return cb(err,null);
           }
 
           if (res.status === 200) {
@@ -105,7 +104,7 @@ module.exports = function(host, superagent) {
       .end(
         function(err, res){
           if (err != null) {
-            return cb(err);
+            return cb(err,null);
           }
 
           if (res.status !== 200) {
@@ -157,7 +156,7 @@ module.exports = function(host, superagent) {
         .send({group:groupMembers})
         .end(function(err, res){
           if (err != null) {
-            return cb(err);
+            return cb(err,null);
           }
 
           if (res.status !== 201) {
@@ -190,7 +189,7 @@ module.exports = function(host, superagent) {
         function(err, res) {
 
           if (err != null) {
-            return cb(err);
+            return cb(err,null);
           }
           if (res.status === 200) {
             cb(null, res.body.messages);
@@ -209,7 +208,7 @@ module.exports = function(host, superagent) {
         .end(
         function(err, res) {
           if (err != null) {
-            return cb(err);
+            return cb(err,null);
           }
 
           if (res.status === 201) {
@@ -230,7 +229,7 @@ module.exports = function(host, superagent) {
         .end(
         function(err, res) {
           if (err != null) {
-            return cb(err);
+            return cb(err,null);
           }
 
           if (res.status === 201) {
@@ -249,7 +248,7 @@ module.exports = function(host, superagent) {
         .end(
         function(err, res) {
           if (err != null) {
-            return cb(err);
+            return cb(err,null);
           }
 
           if (res.status === 200) {
