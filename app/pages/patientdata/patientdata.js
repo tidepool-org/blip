@@ -31,13 +31,15 @@ var PatientData = React.createClass({
     return {
       chartType: 'daily',
       title: 'Patient data',
-      datetimeLocation: null
+      datetimeLocation: null,
+      showingValuesWeekly: false
     };
   },
 
   render: function() {
     var subnav = this.renderSubnav();
     var patientData = this.renderPatientData();
+    var footer = this.renderFooter();
 
     /* jshint ignore:start */
     return (
@@ -50,6 +52,7 @@ var PatientData = React.createClass({
             </div>
           </div>
         </div>
+        {footer}
       </div>
     );
     /* jshint ignore:end */
@@ -184,6 +187,45 @@ var PatientData = React.createClass({
     /* jshint ignore:end */
   },
 
+  renderFooter: function() {
+    if (this.props.fetchingPatientData || _.isEmpty(this.props.patientData)) {
+      return null;
+    }
+
+    var right;
+
+    if (this.state.chartType === 'weekly') {
+      var toggleText = 'Show values';
+      if (this.state.showingValuesWeekly) {
+        toggleText = 'Hide values';
+      }
+
+      /* jshint ignore:start */
+      right = (
+        <a href="" onClick={this.handleToggleValuesWeekly}>
+          {toggleText}
+        </a>
+      );
+      /* jshint ignore:end */
+    }
+
+    /* jshint ignore:start */
+    return (
+      <div className="container-box-outer patient-data-footer-outer">
+        <div className="container-box-inner patient-data-footer-inner">
+          <div className="grid patient-data-footer">
+            <div className="grid-item one-whole medium-one-half patient-data-footer-left">
+            </div>
+            <div className="grid-item one-whole medium-one-half patient-data-footer-right">
+              {right}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+    /* jshint ignore:end */
+  },
+
   handleSwitchToDaily: function(e) {
     if (e) {
       e.preventDefault();
@@ -209,7 +251,8 @@ var PatientData = React.createClass({
     datetimeLocation = datetimeLocation.toISOString();
     this.setState({
       chartType: 'weekly',
-      datetimeLocation: datetimeLocation
+      datetimeLocation: datetimeLocation,
+      showingValuesWeekly: false
     });
   },
 
@@ -255,6 +298,21 @@ var PatientData = React.createClass({
       chartType: 'daily',
       datetimeLocation: datetimeLocation
     });
+  },
+
+  handleToggleValuesWeekly: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+
+    if (this.state.showingValuesWeekly) {
+      this.refs.chart.hideValues();
+    }
+    else {
+      this.refs.chart.showValues();
+    }
+
+    this.setState({showingValuesWeekly: !this.state.showingValuesWeekly});
   }
 });
 

@@ -82,6 +82,14 @@ var ChartWeekly = React.createClass({
     if (this.props.onSelectDataPoint) {
       this.chart.emitter.on('selectSMBG', this.props.onSelectDataPoint);
     }
+  },
+
+  showValues: function() {
+    this.chart.emitter.emit('numbers', 'show');
+  },
+
+  hideValues: function() {
+    return this.chart.emitter.emit('numbers', 'hide');
   }
 });
 

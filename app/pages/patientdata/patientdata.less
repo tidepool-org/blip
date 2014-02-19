@@ -13,6 +13,10 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+.patient-data {
+  margin-bottom: @spacing-large;
+}
+
 // Subnav
 // ====================================
 
@@ -79,18 +83,14 @@
 
 @patient-data-chart-height:             500px;
 
-.patient-data-content-outer {
-  margin-bottom: @spacing-large;
-}
-
 .patient-data-content-inner {
   background-color: #fff;
 
-  padding-bottom: @spacing-large;
   // Bug with message:
   // If no padding top is set, message top margin will "push" this white block
   // down, instead of "stretching" it
   padding-top: 5px;
+  padding-bottom: 5px;
 }
 
 .patient-data-content {
@@ -119,4 +119,46 @@
 
 .patient-data-message-no-data {
   color: @gray-dark;
+}
+
+// Footer
+// ====================================
+
+@patient-data-footer-vertical-padding:    @spacing-small;
+@patient-data-footer-horizontal-padding:  @spacing-small;
+
+.patient-data-footer-inner {
+  color: @gray-darker;
+  background-color: @gray;
+
+  padding-left: 0;
+  padding-right: 0;
+
+  min-height: (2*@spacing-small + @line-height-base);
+}
+
+.patient-data-footer a {
+  display: inline-block;
+  padding: @patient-data-footer-vertical-padding @patient-data-footer-horizontal-padding;
+
+  color: @gray-darker;
+  text-decoration: none;
+
+  &:hover,
+  &:focus {
+    color: @gray-darkest;
+    text-decoration: none;
+  }
+
+  &:active {
+    color: @gray-dark;
+  }
+}
+
+.patient-data-footer-left {
+  text-align: left;
+}
+
+.patient-data-footer-right {
+  text-align: right;
 }
