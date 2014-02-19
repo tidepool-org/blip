@@ -78,7 +78,7 @@ d3.json('device-data.json', function(data) {
 
   $('#twoWeekView').on('click', function() {
     log('Navigated to two-week view from nav bar.');
-    var date = oneDay.getCurrentDay();
+    var date = oneDay.getCurrentDay().end;
     // remove click handlers for programmatic pan
     $('#tidelineNavForward').off('click');
     $('#tidelineNavBack').off('click');
