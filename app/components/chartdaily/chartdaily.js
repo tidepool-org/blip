@@ -16,6 +16,7 @@
 
 var React = window.React;
 var _ = window._;
+var bows = window.bows;
 
 var chartDailyFactory = require('./chartdailyfactory');
 
@@ -27,16 +28,16 @@ var ChartDaily = React.createClass({
     imagesEndpoint: React.PropTypes.string
   },
 
+  log: bows('Chart Daily'),
+
   chart: null,
 
   componentDidMount: function() {
-    this.mountNewChart();
+    this.mountChart();
   },
 
   componentWillUnmount: function() {
-    if (this.chart) {
-      this.chart.stopListening().destroy();
-    }
+    this.unmountChart();
   },
 
   render: function() {
@@ -47,7 +48,9 @@ var ChartDaily = React.createClass({
     /* jshint ignore:end */
   },
 
-  mountNewChart: function() {
+  mountChart: function() {
+    this.log('Mounting chart');
+
     var el = this.refs.chart.getDOMNode();
     var imagesBaseUrl = this.props.imagesEndpoint;
     var data = this.props.patientData;
@@ -68,6 +71,13 @@ var ChartDaily = React.createClass({
     }
     else {
       chart.locate();
+    }
+  },
+
+  unmountChart: function() {
+    if (this.chart) {
+      this.log('Unmounting chart');
+      this.chart.stopListening().destroy();
     }
   },
 

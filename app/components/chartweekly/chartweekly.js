@@ -28,16 +28,16 @@ var ChartWeekly = React.createClass({
     imagesEndpoint: React.PropTypes.string
   },
 
+  log: bows('Chart Weekly'),
+
   chart: null,
 
   componentDidMount: function() {
-    this.mountNewChart();
+    this.mountChart();
   },
 
   componentWillUnmount: function() {
-    if (this.chart) {
-      this.chart.destroy();
-    }
+    this.unmountChart();
   },
 
   render: function() {
@@ -48,7 +48,9 @@ var ChartWeekly = React.createClass({
     /* jshint ignore:end */
   },
 
-  mountNewChart: function() {
+  mountChart: function() {
+    this.log('Mounting chart');
+    
     var el = this.refs.chart.getDOMNode();
     var imagesBaseUrl = this.props.imagesEndpoint;
     var data = this.props.patientData;
@@ -63,6 +65,13 @@ var ChartWeekly = React.createClass({
     this.bindEvents();
 
     chart.initialize(data, datetimeLocation);
+  },
+
+  unmountChart: function() {
+    if (this.chart) {
+      this.log('Unmounting chart');
+      this.chart.destroy();
+    }
   },
 
   bindEvents: function() {

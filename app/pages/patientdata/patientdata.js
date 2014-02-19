@@ -101,9 +101,6 @@ var PatientData = React.createClass({
           <a href="" onClick={this.handleGoToMostRecentDaily}>Most recent</a>
         );
         /* jshint ignore:end */
-
-        // NOTE: Temporarily disable "Most recent" function until fixed
-        right = null;
       }
     }
 
@@ -222,7 +219,11 @@ var PatientData = React.createClass({
     }
 
     if (this.state.chartType === 'daily') {
-      this.refs.chart.locate();
+      // At the moment, can't just call `chart.locate()` (buggy)
+      // Need to re-render completely, which is a bit inefficient,
+      // but that might change in the future
+      this.refs.chart.unmountChart();
+      this.refs.chart.mountChart();
       return;
     }
 
