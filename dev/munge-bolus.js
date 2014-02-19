@@ -16,7 +16,8 @@
  */
 
 // Usage:
-// node munge-basals.js | json > result.json
+// node munge-bolus.js <path-to-file> | json > output.json
+
 var _ = require('../js/lib/underscore');
 var BolusUtil = require('../js/data/bolusutil');
 

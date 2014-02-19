@@ -1,5 +1,5 @@
 // Usage:
-// node munge-basals.js | json > result.json
+// node munge-basals.js <path-to-file> | json > output.json
 
 var BasalUtil = require('../js/data/basalutil');
 
