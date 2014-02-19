@@ -12,7 +12,11 @@ var BasalUtil = require('../js/data/basalutil');
 
 var MS_IN_HOUR = 3600000.0;
 
-fx.forEach(testData);
+
+
+describe('basal constructor under different data scenarios', function () {
+  fx.forEach(testData);
+});
 
 function testData (data) {
   var name = data.name;
@@ -125,50 +129,53 @@ function testData (data) {
   });
 }
 
-describe('totalBasal', function() {
-  var template = new BasalUtil(_.findWhere(fx, {'name': 'template'}).json);
-  var temp = new BasalUtil(_.findWhere(fx, {'name': 'contained'}).json);
+describe('basal utilities', function() {
+  describe('totalBasal', function() {
+    var template = new BasalUtil(_.findWhere(fx, {'name': 'template'}).json);
+    var temp = new BasalUtil(_.findWhere(fx, {'name': 'contained'}).json);
 
-  it('should be a function', function() {
+    it('should be a function', function() {
+      var basal = new BasalUtil(_.findWhere(fx, {'name': 'current-demo'}).json);
+      assert.isFunction(basal.totalBasal);
+    });
+
+    it('should return 20.0 on basal-template.json for twenty-four hours', function() {
+      var start = new Date("2014-02-12T00:00:00").valueOf();
+      var end = new Date("2014-02-13T00:00:00").valueOf();
+      expect(template.totalBasal(start, end)).to.equal(20.0);
+    });
+
+    it('should return 1.45 on basal-template.json from 1 to 3 a.m.', function() {
+      var start = new Date("2014-02-12T01:00:00").valueOf();
+      var end = new Date("2014-02-12T03:00:00").valueOf();
+      expect(template.totalBasal(start, end)).to.equal(1.45);
+    });
+
+    it('should return 5.35 on basal-contained.json from 8:30 a.m. to 3:30 p.m.', function() {
+      var start = new Date("2014-02-12T08:30:00").valueOf();
+      var end = new Date("2014-02-12T15:30:00").valueOf();
+      expect(temp.totalBasal(start, end)).to.equal(5.35);
+    });
+  });
+
+  describe('segmentDose', function() {
     var basal = new BasalUtil(_.findWhere(fx, {'name': 'current-demo'}).json);
-    assert.isFunction(basal.totalBasal);
-  });
 
-  it('should return 20.0 on basal-template.json for twenty-four hours', function() {
-    var start = new Date("2014-02-12T00:00:00").valueOf();
-    var end = new Date("2014-02-13T00:00:00").valueOf();
-    expect(template.totalBasal(start, end)).to.equal(20.0);
-  });
+    it('should be a function', function() {
+      assert.isFunction(basal.segmentDose);
+    });
 
-  it('should return 1.45 on basal-template.json from 1 to 3 a.m.', function() {
-    var start = new Date("2014-02-12T01:00:00").valueOf();
-    var end = new Date("2014-02-12T03:00:00").valueOf();
-    expect(template.totalBasal(start, end)).to.equal(1.45);
-  });
+    it('should return 0.0 on a zero rate', function() {
+      expect(basal.segmentDose(MS_IN_HOUR, 0)).to.equal(0.0);
+    });
 
-  it('should return 5.35 on basal-contained.json from 8:30 a.m. to 3:30 p.m.', function() {
-    var start = new Date("2014-02-12T08:30:00").valueOf();
-    var end = new Date("2014-02-12T15:30:00").valueOf();
-    expect(temp.totalBasal(start, end)).to.equal(5.35);
+    it('should return 1.0 on a rate of 1U for one hour', function() {
+      expect(basal.segmentDose(MS_IN_HOUR, 1)).to.equal(1.0);
+    });
+
+    it('should return 1.2 on a rate of 0.8U for 1.5 hours', function() {
+      expect(basal.segmentDose(MS_IN_HOUR * 1.5, 0.8)).to.equal(1.2);
+    });
   });
 });
 
-describe('segmentDose', function() {
-  var basal = new BasalUtil(_.findWhere(fx, {'name': 'current-demo'}).json);
-
-  it('should be a function', function() {
-    assert.isFunction(basal.segmentDose);
-  });
-
-  it('should return 0.0 on a zero rate', function() {
-    expect(basal.segmentDose(MS_IN_HOUR, 0)).to.equal(0.0);
-  });
-
-  it('should return 1.0 on a rate of 1U for one hour', function() {
-    expect(basal.segmentDose(MS_IN_HOUR, 1)).to.equal(1.0);
-  });
-
-  it('should return 1.2 on a rate of 0.8U for 1.5 hours', function() {
-    expect(basal.segmentDose(MS_IN_HOUR * 1.5, 0.8)).to.equal(1.2);
-  });
-});
