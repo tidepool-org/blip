@@ -11,6 +11,6 @@
     "d3": "~3.4.1",
     "jquery": "~2.1.0",
     "Duration.js": "https://github.com/icholy/Duration.js.git#3.3.3",
-    "tideline": "https://github.com/tidepool-org/tideline.git#ef9cb3c6f62ffa7e6913469f15a71747e0a247dd"
+    "tideline": "https://github.com/tidepool-org/tideline.git#ba627c776930eb514955abfbdb5e5e32488d1aae"
   }
 }

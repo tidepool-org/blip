@@ -85,11 +85,11 @@ function chartDailyFactory(el, options) {
       .weight(1.5);
     
     // basal data pool
-    // poolBasal = chart.newPool().defaults()
-    //   .id('poolBasal')
-    //   .label('Basal Rates')
-    //   .index(chart.pools().indexOf(poolBasal))
-    //   .weight(1.0);
+    poolBasal = chart.newPool().defaults()
+      .id('poolBasal')
+      .label('Basal Rates')
+      .index(chart.pools().indexOf(poolBasal))
+      .weight(1.0);
 
     chart.arrangePools();
 
@@ -143,18 +143,18 @@ function chartDailyFactory(el, options) {
     }), true);
 
     // basal pool
-    // var scaleBasal = scales.basal(_.where(data, {'type': 'basal-rate-segment'}), poolBasal);
-    // // set up y-axis
-    // poolBasal.yAxis(d3.svg.axis()
-    //   .scale(scaleBasal)
-    //   .orient('left')
-    //   .outerTickSize(0)
-    //   .ticks(4));
-    // // add background fill rectangles to basal pool
-    // poolBasal.addPlotType('fill', fill(poolBasal, {endpoints: chart.endpoints}), false);
+    var scaleBasal = scales.basal(_.where(data, {'type': 'basal-rate-segment'}), poolBasal);
+    // set up y-axis
+    poolBasal.yAxis(d3.svg.axis()
+      .scale(scaleBasal)
+      .orient('left')
+      .outerTickSize(0)
+      .ticks(4));
+    // add background fill rectangles to basal pool
+    poolBasal.addPlotType('fill', fill(poolBasal, {endpoints: chart.endpoints}), false);
 
-    // // add basal data to basal pool
-    // poolBasal.addPlotType('basal-rate-segment', tideline.plot.basal(poolBasal, {yScale: scaleBasal, data: _.where(data, {'type': 'basal-rate-segment'}) }), true);
+    // add basal data to basal pool
+    poolBasal.addPlotType('basal-rate-segment', tideline.plot.basal(poolBasal, {yScale: scaleBasal, data: _.where(data, {'type': 'basal-rate-segment'}) }), true);
 
     // messages pool
     // add background fill rectangles to messages pool
@@ -202,7 +202,7 @@ function chartDailyFactory(el, options) {
     chart.tooltips.addGroup(d3.select('#' + poolBG.id()), 'smbg');
     chart.tooltips.addGroup(d3.select('#' + poolBolus.id()), 'carbs');
     chart.tooltips.addGroup(d3.select('#' + poolBolus.id()), 'bolus');
-    // chart.tooltips.addGroup(d3.select('#' + poolBasal.id()), 'basal');
+    chart.tooltips.addGroup(d3.select('#' + poolBasal.id()), 'basal');
 
     return chart;
   };
