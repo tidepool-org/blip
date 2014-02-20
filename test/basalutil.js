@@ -21,7 +21,7 @@ var chai = require('chai');
 var assert = chai.assert;
 var expect = chai.expect;
 
-var _ = require('underscore');
+var _ = require('lodash');
 
 var fx = require('./fixtures');
 

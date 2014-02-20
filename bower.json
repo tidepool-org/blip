@@ -17,7 +17,7 @@
   "dependencies": {
     "d3": "~3.3.13",
     "jquery": "~2.0.3",
-    "underscore": "~1.5.2",
+    "lodash": "~2.4.1",
     "Duration.js": "https://github.com/icholy/Duration.js.git#3.3.3"
   },
   "devDependencies": {
