@@ -24,6 +24,9 @@
 @font-size-axes: 14px;
 @font-size-small-tooltips: 11px;
 @font-size-large-tooltips: 14px;
+@font-size-puddle-head: 20px;
+@font-size-puddle-lead: 16px;
+@font-size-puddle-number: 32px;
 
 svg {
   display: block;
@@ -69,6 +72,12 @@ svg {
   font-size: @font-size-labels;
   fill: @text;
   baseline-shift: 30%;
+}
+
+// pool legends
+.d3-pool-legend {
+  font-size: @font-size-axes;
+  fill: @pool-legend;
 }
 
 // pool background rectangles
@@ -207,5 +216,56 @@ svg {
   .d3-tooltip-rect {
     fill: @fill-lightest;
     opacity: 0.5;
+  }
+}
+
+// stats
+.d3-stats {
+  text {
+    text-anchor: start;
+    dominant-baseline: hanging;
+    &.d3-stats-head {
+      font-size: @font-size-puddle-head;
+      font-weight: bold;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      fill: @stats-head;
+    }
+    &.d3-stats-lead {
+      font-size: @font-size-puddle-lead;
+      fill: @stats-lead;
+    }
+    tspan {
+      font-size: @font-size-puddle-number;
+      font-weight: bold;
+      &.d3-stats-high {
+        fill: @bg-high;
+      }
+      &.d3-stats-target {
+        fill: @bg-target;
+      }
+      &.d3-stats-low {
+        fill: @bg-low;
+      }
+      &.d3-stats-percentage {
+        fill: @stats-percentage;
+      }
+      &.d3-stats-basal {
+        fill: @basal;
+      }
+      &.d3-stats-bolus {
+        fill: @bolus;
+      }
+    }
+  }
+  .d3-stats-pie {
+    path.d3-stats-slice {
+      &.d3-basal {
+        fill: @basal;
+      }
+      &.d3-bolus {
+        fill: @bolus;
+      }
+    }    
   }
 }

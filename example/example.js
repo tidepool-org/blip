@@ -244,13 +244,13 @@ function oneDayChart(el, options) {
       .outerTickSize(0)
       .tickValues([40, 80, 120, 180, 300]));
     // add background fill rectangles to BG pool
-    poolBG.addPlotType('fill', fill(poolBG, {endpoints: chart.endpoints}), false);
+    poolBG.addPlotType('fill', fill(poolBG, {endpoints: chart.endpoints}), false, true);
 
     // add CBG data to BG pool
-    poolBG.addPlotType('cbg', tideline.plot.cbg(poolBG, {yScale: scaleBG}), true);
+    poolBG.addPlotType('cbg', tideline.plot.cbg(poolBG, {yScale: scaleBG}), true, true);
 
     // add SMBG data to BG pool
-    poolBG.addPlotType('smbg', tideline.plot.smbg(poolBG, {yScale: scaleBG}), true);
+    poolBG.addPlotType('smbg', tideline.plot.smbg(poolBG, {yScale: scaleBG}), true, true);
 
     // bolus & carbs pool
     var scaleBolus = scales.bolus(_.where(data, {'type': 'bolus'}), poolBolus);
@@ -268,21 +268,21 @@ function oneDayChart(el, options) {
       .outerTickSize(0)
       .ticks(3));
     // add background fill rectangles to bolus pool
-    poolBolus.addPlotType('fill', fill(poolBolus, {endpoints: chart.endpoints}), false);
+    poolBolus.addPlotType('fill', fill(poolBolus, {endpoints: chart.endpoints}), false, true);
 
     // add carbs data to bolus pool
     poolBolus.addPlotType('carbs', tideline.plot.carbs(poolBolus, {
       yScale: scaleCarbs,
       emitter: emitter,
       data: _.where(data, {'type': 'carbs'})
-    }), true);
+    }), true, true);
 
     // add bolus data to bolus pool
     poolBolus.addPlotType('bolus', tideline.plot.bolus(poolBolus, {
       yScale: scaleBolus,
       emitter: emitter,
       data: _.where(data, {'type': 'bolus'})
-    }), true);
+    }), true, true);
 
     // basal pool
     var scaleBasal = scales.basal(_.where(data, {'type': 'basal-rate-segment'}), poolBasal);
@@ -293,23 +293,28 @@ function oneDayChart(el, options) {
       .outerTickSize(0)
       .ticks(4));
     // add background fill rectangles to basal pool
-    poolBasal.addPlotType('fill', fill(poolBasal, {endpoints: chart.endpoints}), false);
+    poolBasal.addPlotType('fill', fill(poolBasal, {endpoints: chart.endpoints}), false, true);
 
     // add basal data to basal pool
     poolBasal.addPlotType('basal-rate-segment', tideline.plot.basal(poolBasal, {
       yScale: scaleBasal,
       data: _.where(data, {'type': 'basal-rate-segment'})
-    }), true);
+    }), true, true);
 
     // messages pool
     // add background fill rectangles to messages pool
-    poolMessages.addPlotType('fill', fill(poolMessages, {endpoints: chart.endpoints}), false);
+    poolMessages.addPlotType('fill', fill(poolMessages, {endpoints: chart.endpoints}), false, true);
 
     // add message images to messages pool
-    poolMessages.addPlotType('message', tideline.plot.message(poolMessages, {size: 30}), true);
+    poolMessages.addPlotType('message', tideline.plot.message(poolMessages, {size: 30}), true, true);
 
     // stats pool
-    poolStats.addPlotType('stats', tideline.plot.stats.widget(poolStats, {bolus: bolusUtil, basal: basalUtil}), false);
+    poolStats.addPlotType('stats', tideline.plot.stats.widget(poolStats, {
+      bolus: bolusUtil,
+      basal: basalUtil,
+      xPosition: chart.axisGutter(),
+      emitter: emitter
+    }), true, false);
 
     return chart;
   };
@@ -337,13 +342,13 @@ function oneDayChart(el, options) {
 
     chart.allData(localData, [start, end]);
 
-    // set up click-and-drag and scroll navigation
-    chart.setNav().setScrollNav().setAtDate(start);
-
     // render pools
     chart.pools().forEach(function(pool) {
       pool(chart.poolGroup, localData);
     });
+
+    // set up click-and-drag and scroll navigation
+    chart.setNav().setScrollNav().setAtDate(start);
 
     // add tooltips
     chart.tooltips.addGroup(d3.select('#' + poolBG.id()), 'cbg');
