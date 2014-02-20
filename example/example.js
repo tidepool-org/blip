@@ -78,7 +78,7 @@ d3.json('device-data.json', function(data) {
 
   $('#twoWeekView').on('click', function() {
     log('Navigated to two-week view from nav bar.');
-    var date = oneDay.getCurrentDay().end;
+    var date = oneDay.getCurrentDay();
     // remove click handlers for programmatic pan
     $('#tidelineNavForward').off('click');
     $('#tidelineNavBack').off('click');
@@ -348,7 +348,7 @@ function oneDayChart(el, options) {
   };
 
   chart.getCurrentDay = function() {
-    return chart.date();
+    return chart.getCurrentDomain().end;
   };
 
   return create(el, options);
