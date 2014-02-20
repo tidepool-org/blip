@@ -21,21 +21,27 @@ module.exports = function(opts) {
 
   opts = opts || {};
 
-  var defaults = {};
+  var defaults = {
+    headSize: 16,
+    leadSize: 14,
+    displaySize: 24
+  };
 
   _.defaults(opts, defaults);
 
   function puddle(selection, txt) {
-    // selection.call(puddle.addRect);
+    selection.call(puddle.addRect);
     selection.call(puddle.addHead);
     selection.call(puddle.addLead);
   }
 
   puddle.dataDisplay = function(selection, display) {
+    selection.selectAll('text.d3-stats-display').remove();
     var displayGroup = selection.append('text')
       .attr({
         'x': opts.width / 3,
-        'y': opts.height * (3/5)
+        'y': opts.height / 2 + (opts.leadSize * 2),
+        'class': 'd3-stats-display'
       });
 
     display.forEach(function(txt) {
@@ -73,7 +79,7 @@ module.exports = function(opts) {
     selection.append('text')
       .attr({
         'x': opts.width / 3,
-        'y': opts.height / 5,
+        'y': opts.height / 2,
         'class': 'd3-stats-lead'
       })
       .text(opts.lead);

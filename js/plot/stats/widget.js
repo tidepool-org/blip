@@ -24,19 +24,20 @@ module.exports = function(pool, opts) {
   opts = opts || {};
 
   var defaults = {
-    'pieRadius': 50
+    'pieRadius': pool.height() * 0.45
   };
 
   var data = {
     'ratio': [],
     'range': [],
-    'average': []
+    'average': [],
+    'cbgReadings': 0
   };
 
-  var pies = [];
+  var pies = [], pie, arc;
 
   opts.emitter.on('currentDomain', function(domain) {
-    var start = domain[0], end = domain[1];
+    var start = domain[0].valueOf(), end = domain[1].valueOf();
     stats.getData(start, end);
     stats.draw();
   });
@@ -60,7 +61,7 @@ module.exports = function(pool, opts) {
     // create basal-to-bolus ratio puddle
     stats.newPuddle('Ratio', 'Basal : Bolus', 'Basal to bolus insulin ratio', true);
     // create time-in-range puddle
-    stats.newPuddle('Range', 'Time in Range', 'Your target range is 80 - 180 mg/dL', true);
+    stats.newPuddle('Range', 'Time in Target Range', 'Target range: 80 - 180 mg/dL', true);
     // create average BG puddle
     stats.newPuddle('Average', 'Average BG', 'For these two weeks', false);
     puddles.forEach(function(puddle, i) {
@@ -89,7 +90,8 @@ module.exports = function(pool, opts) {
           });
         }
         else {
-          stats.updatePie(thisPie);
+          log('Updating pie...');
+          stats.updatePie(thisPie, data[puddle.id.toLowerCase()]);
         }
       }
       var display = stats.getDisplay(puddle.id);
@@ -106,11 +108,11 @@ module.exports = function(pool, opts) {
         'class': 'd3-stats-pie'
       });
 
-    var pie = d3.layout.pie().value(function(d) {
+    pie = d3.layout.pie().value(function(d) {
       return d.value;
     });
 
-    var arc = d3.svg.arc()
+    arc = d3.svg.arc()
       .innerRadius(0)
       .outerRadius(opts.pieRadius);
 
@@ -128,8 +130,11 @@ module.exports = function(pool, opts) {
     return slices;
   };
 
-  stats.updatePie = function(pie) {
-    var slices = pie.slices;
+  stats.updatePie = function(thisPie, data) {
+    thisPie.slices.data(pie(data))
+      .attr({
+        'd': arc
+      });
   };
 
   stats.newPuddle = function(id, head, lead, pieBoolean) {
@@ -148,6 +153,10 @@ module.exports = function(pool, opts) {
     switch (id) {
       case 'Ratio':
         return stats.ratioDisplay();
+      case 'Range':
+        return stats.rangeDisplay();
+      case 'Average':
+        return stats.averageDisplay();
     }
   };
 
@@ -165,6 +174,16 @@ module.exports = function(pool, opts) {
       }];
   };
 
+  stats.rangeDisplay = function() {
+    var target = _.findWhere(data.range, {'type': 'bg-target'}).value;
+    var total = parseFloat(data.cbgReadings);
+    return [{'text': stats.formatPercentage(target/total), 'class': 'd3-stats-percentage'}];
+  };
+
+  stats.averageDisplay = function() {
+    return [{'text': data.average.value + ' mg/dL', 'class': 'd3-stats-' + data.average.category}];
+  };
+
   stats.getData = function(start, end) {
     data.ratio = [
       {
@@ -175,6 +194,22 @@ module.exports = function(pool, opts) {
         'type': 'basal',
         'value': opts.basal.totalBasal(start, end)
       }];
+    var range = opts.cbg.rangeBreakdown(start, end);
+    data.range = [
+      {
+        'type': 'bg-low',
+        'value': range.low || 0,
+      },
+      {
+        'type': 'bg-target',
+        'value': range.target || 0,
+      },
+      {
+        'type': 'bg-high',
+        'value': range.high || 0
+      }];
+    data.cbgReadings = range.total;
+    data.average = opts.cbg.average(start, end);
   };
 
   stats.formatPercentage = function(f) {

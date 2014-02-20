@@ -24,9 +24,9 @@
 @font-size-axes: 14px;
 @font-size-small-tooltips: 11px;
 @font-size-large-tooltips: 14px;
-@font-size-puddle-head: 20px;
-@font-size-puddle-lead: 16px;
-@font-size-puddle-number: 32px;
+@font-size-puddle-head: 16px;
+@font-size-puddle-lead: 14px;
+@font-size-puddle-number: 24px;
 
 svg {
   display: block;
@@ -223,8 +223,8 @@ svg {
 .d3-stats {
   text {
     text-anchor: start;
-    dominant-baseline: hanging;
     &.d3-stats-head {
+      dominant-baseline: hanging;
       font-size: @font-size-puddle-head;
       font-weight: bold;
       letter-spacing: 0.1em;
@@ -265,6 +265,15 @@ svg {
       }
       &.d3-bolus {
         fill: @bolus;
+      }
+      &.d3-bg-low {
+        fill: @bg-low;
+      }
+      &.d3-bg-target {
+        fill: @bg-target;
+      }
+      &.d3-bg-high {
+        fill: @bg-high;
       }
     }    
   }
