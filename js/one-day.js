@@ -499,7 +499,7 @@ module.exports = function(emitter) {
   };
 
   container.minHeight = function(x) {
-    if (!arguments.length) return height;
+    if (!arguments.length) return minHeight;
     minHeight = x;
     return container;
   };

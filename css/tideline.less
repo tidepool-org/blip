@@ -135,10 +135,12 @@ svg {
 // two-week view smbg
 .d3-smbg-numbers {
   &.d3-rect-smbg {
+    pointer-events: none;
     fill: @fill-lightest;
     opacity: 0.5;
   }
   &.d3-text-smbg {
+    pointer-events: none;
     fill: @text;
     font-size: @font-size-large-tooltips;
     font-weight: bold;
@@ -169,6 +171,7 @@ svg {
 
 // tooltips
 .d3-tooltip {
+  pointer-events: none;
   text.d3-tooltip-text {
     fill: @light-labels;
     font-size: @font-size-small-tooltips;

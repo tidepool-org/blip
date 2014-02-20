@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = require('../lib/underscore');
+var _ = require('../lib/lodash');
 var log = require('../lib/bows')('BasalUtil');
 
 var keysToOmit = ['id', 'start', 'end', 'vizType'];

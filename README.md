@@ -44,7 +44,7 @@ You will also need to copy the `img/` directory to a path served by your server.
 
 ## Development
 
-Tu run the example, build the standalone bundle, and run the tests you will need to have a couple of tools installed.
+To run the example, build the standalone bundle, and run the tests you will need to have a couple of tools installed.
 
 Make sure you have [Bower](http://bower.io/), [browserify](http://browserify.org/), and [LESS](http://lesscss.org/) installed:
 
@@ -61,7 +61,7 @@ $ bower install
 $ npm install
 ```
 
-## Running the example
+### Running the example
 
 To build the assets in the `example/` directory, run:
 
@@ -75,9 +75,9 @@ If you have Python installed, you can run a server with:
 $ make server
 ```
 
-And point your browser to `http://localhost:8000/example/`.
+And point your browser to `http://localhost:8081/example/`.
 
-## Build
+### Build
 
 To build standalone `tideline.js` and `tideline.css` files, run:
 
@@ -89,7 +89,7 @@ The files will be created in the `dist/` directory.
 
 The script file will expose a global `window.tideline` object. 
 
-## Test
+### Test
 
 To run the Node tests using [Mocha](http://visionmedia.github.io/mocha/):
 
@@ -97,24 +97,18 @@ To run the Node tests using [Mocha](http://visionmedia.github.io/mocha/):
 $ make test
 ```
 
+### Running everything for development
+
+To run a minimal reporter version of the test suite, build the example, and serve it to yourself for testing during development, run:
+
+```bash
+$ make develop
+```
+
 ## Code Philosophy and Organization
 
-The tideline module is designed to be highly modular. To this end, its component parts (thus far, [container.js](https://github.com/tidepool-org/tideline/blob/master/js/container.js 'Tideline: container.js') and [pool.js](https://github.com/tidepool-org/tideline/blob/master/js/pool.js 'Tideline: pool.js')) are organized roughly according to the principles laid out in Mike Bostock's ["Towards Reusable Charts"](http://bost.ocks.org/mike/chart/ 'Mike Bostock: Towards Reusable Charts').
+Tideline is designed to be highly modular. 
 
-The main unit of each tideline is the container, which creates:
+The horizontal sections comprising sub-units of visualization plotted against the same x-axis are referred to in this repository as *pools*.
 
- - an SVG element for visualization (ID `#tidelineSVG`)
-	
- - a main group element to contain the sub-units of visualization (ID `#tidelineMain`)
- 
- - a group to contain the horizontal axis (classes `x` and `axis`, ID `#tidelineXAxis`)
- 
- - a group to contain other horizontal navigation elements (class `x`, ID `#tidelineNav`)
- 
-The horizontal sections comprising sub-units of visualization plotted against the same x-axis are referred to in this repository as *pools*. Each pool is an SVG group element with an ID formed from the prefix `pool_` plus an integer identifying the pool uniquely. Each pool is embedded within `g#tidelineMain` and may contain one or more of the following:
- 
- - a 'fill' group (ID ending in `_fill`) containing elements that form the background for the pool
- 
- - a 'data' group (ID ending in `_data`) containing elements representing the data of interest
- 
- - a 'random' group (ID ending in `_random`) containing elements representing random data (for development purposes)
+**More coming soon!**
