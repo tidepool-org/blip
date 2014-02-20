@@ -554,6 +554,13 @@ module.exports = function(emitter) {
 
     var viewBeginning = new Date(viewEndDate);
     viewBeginning.setUTCDate(viewBeginning.getUTCDate() - 14);
+    var firstDayInView = new Date(days[days.length - 1]);
+    if (viewBeginning < firstDayInView) {
+      firstDayInView.setUTCDate(firstDayInView.getUTCDate() - 1);
+      viewBeginning = new Date(firstDayInView);
+      viewEndDate = new Date(firstDayInView);
+      viewEndDate.setUTCDate(viewEndDate.getUTCDate() + 14);
+    }
     viewEndpoints = [new Date(viewBeginning.toISOString().slice(0,11) + noon), new Date(viewEndDate.toISOString().slice(0,11) + noon)];
     viewIndex = days.indexOf(viewEndDate.toISOString().slice(0,10));
 

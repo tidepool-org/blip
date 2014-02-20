@@ -364,7 +364,7 @@ function oneDayChart(el, options) {
   };
 
   chart.getCurrentDay = function() {
-    return chart.date();
+    return chart.getCurrentDomain().end;
   };
 
   return create(el, options);
