@@ -243,9 +243,14 @@ module.exports = function(emitter) {
     delete pool;
   };
 
-  container.date = function() {
+  container.getCurrentDomain = function() {
+    var currentDomain = xScale.domain();
     var d = new Date(xScale.domain()[0]);
-    return new Date(d.setUTCHours(d.getUTCHours() + 12));
+    return {
+      'start': new Date(currentDomain[0]),
+      'end': new Date(currentDomain[1]),
+      'center': new Date(d.setUTCHours(d.getUTCHours() + 12))
+    };
   };
 
   // chainable methods

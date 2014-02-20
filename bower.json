@@ -23,8 +23,5 @@
   "devDependencies": {
     "bows": "https://github.com/latentflip/bows.git#beb35328d5c224fc5635928a1b45b32e0d839caa",
     "bootstrap": "~3.0.3"
-  },
-  "resolutions": {
-    "jquery": "~2.1.0"
   }
 }
