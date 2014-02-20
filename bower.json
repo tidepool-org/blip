@@ -12,5 +12,9 @@
     "jquery": "~2.1.0",
     "Duration.js": "https://github.com/icholy/Duration.js.git#3.3.3",
     "tideline": "https://github.com/tidepool-org/tideline.git#ba627c776930eb514955abfbdb5e5e32488d1aae"
+  },
+  "resolutions": {
+    "d3": "~3.4.1",
+    "jquery": "~2.1.0"
   }
 }
