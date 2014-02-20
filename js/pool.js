@@ -75,7 +75,9 @@ module.exports = function(container) {
   pool.pan = function(e) {
     container.latestTranslation(e.translate[0]);
     plotTypes.forEach(function(plotType) {
-      d3.select('#' + id + '_' + plotType.type).attr('transform', 'translate(' + e.translate[0] + ',0)');
+      if (plotType.panBoolean) {
+        d3.select('#' + id + '_' + plotType.type).attr('transform', 'translate(' + e.translate[0] + ',0)');
+      }
     });
   };
 
@@ -84,6 +86,10 @@ module.exports = function(container) {
     plotTypes.forEach(function(plotType) {
       d3.select('#' + id + '_' + plotType.type).attr('transform', 'translate(0,' + e.translate[1] + ')');
     });
+  };
+
+  pool.width = function() {
+    return container.width() - container.axisGutter();
   };
 
   // only once methods
@@ -96,7 +102,7 @@ module.exports = function(container) {
         'transform': 'translate(' + container.axisGutter() + ',' + yPosition + ')'
       })
       .text(label);
-    return pool
+    return pool;
   });
 
   pool.drawAxis = _.once(function() {
@@ -201,10 +207,11 @@ module.exports = function(container) {
     return pool;
   };
 
-  pool.addPlotType = function (dataType, plotFunction, dataFillBoolean) {
+  pool.addPlotType = function (dataType, plotFunction, dataFillBoolean, panBoolean) {
     plotTypes.push({
       type: dataType,
-      plot: plotFunction
+      plot: plotFunction,
+      panBoolean: panBoolean
     });
     if (dataFillBoolean) {
       container.dataFill[dataType] = true;
