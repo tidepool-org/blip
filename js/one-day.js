@@ -243,7 +243,7 @@ module.exports = function(emitter) {
     delete pool;
   };
 
-  container.date = function() {
+  container.getCurrentDomain = function() {
     var currentDomain = xScale.domain();
     var d = new Date(xScale.domain()[0]);
     return {
