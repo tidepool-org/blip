@@ -15,24 +15,20 @@
  * == BSD2 LICENSE ==
  */
 
-/*jshint expr: true */
+// Usage:
+// node munge-bolus.js <path-to-file> | json > output.json
 
-var chai = require('chai');
-var assert = chai.assert;
-var expect = chai.expect;
-
-var _ = require('underscore');
+var _ = require('../js/lib/underscore');
 var watson = require('../example/watson');
+var CBGUtil = require('../js/data/cbgutil');
 
-var data = watson.normalize(require('../example/device-data.json'));
+var filename = process.argv[2];
 
-var BolusUtil = require('../js/data/bolusutil');
+var data = watson.normalize(require(filename));
 
-describe('bolus utilities', function() {
-  describe('totalBolus', function() {
-    var bolus = new BolusUtil(_.where(data, {'type': 'bolus'}));
-    it('should be a function', function() {
-      assert.isFunction(bolus.totalBolus);
-    });
-  });
-});
+var c = new CBGUtil(_.where(data, {'type': 'cbg'}));
+
+var start = new Date("2014-02-14T00:00:00").valueOf();
+var end = new Date("2014-02-15T00:00:00").valueOf();
+
+console.log(c.rangeBreakdown(start, end));

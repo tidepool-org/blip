@@ -26,13 +26,13 @@ var watson = require('../example/watson');
 
 var data = watson.normalize(require('../example/device-data.json'));
 
-var BolusUtil = require('../js/data/bolusutil');
+var CBGUtil = require('../js/data/cbgutil');
 
-describe('bolus utilities', function() {
-  describe('totalBolus', function() {
-    var bolus = new BolusUtil(_.where(data, {'type': 'bolus'}));
+describe('cbg utilities', function() {
+  describe('rangeBreakdown', function() {
+    var cbg = new CBGUtil(_.where(data, {'type': 'cbg'}));
     it('should be a function', function() {
-      assert.isFunction(bolus.totalBolus);
+      assert.isFunction(cbg.rangeBreakdown);
     });
   });
 });

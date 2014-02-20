@@ -22,14 +22,13 @@ var assert = chai.assert;
 var expect = chai.expect;
 
 var _ = require('underscore');
+var watson = require('../example/watson');
 
 var fx = require('./fixtures');
 
 var BasalUtil = require('../js/data/basalutil');
 
 var MS_IN_HOUR = 3600000.0;
-
-
 
 describe('basal constructor under different data scenarios', function () {
   fx.forEach(testData);
@@ -149,10 +148,13 @@ function testData (data) {
 describe('basal utilities', function() {
   describe('totalBasal', function() {
     var template = new BasalUtil(_.findWhere(fx, {'name': 'template'}).json);
+    template.normalizedActual = watson.normalize(template.actual);
     var temp = new BasalUtil(_.findWhere(fx, {'name': 'contained'}).json);
+    temp.normalizedActual = watson.normalize(temp.actual);
 
     it('should be a function', function() {
       var basal = new BasalUtil(_.findWhere(fx, {'name': 'current-demo'}).json);
+      basal.normalizedActual = watson.normalize(basal.actual);
       assert.isFunction(basal.totalBasal);
     });
 
@@ -177,6 +179,7 @@ describe('basal utilities', function() {
 
   describe('segmentDose', function() {
     var basal = new BasalUtil(_.findWhere(fx, {'name': 'current-demo'}).json);
+    basal.normalizedActual = watson.normalize(basal.actual);
 
     it('should be a function', function() {
       assert.isFunction(basal.segmentDose);

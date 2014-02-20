@@ -121,21 +121,21 @@ function BasalUtil(data) {
   this.totalBasal = function(s, e) {
     // return the total basal dose between two arbitrary datetimes
     var dose = 0.0;
-    var firstSegment = _.find(this.actual, function(segment) {
-      return (new Date(segment.start).valueOf() <= s) && (s <= new Date(segment.end).valueOf());
+    var firstSegment = _.find(this.normalizedActual, function(segment) {
+      return (new Date(segment.normalTime).valueOf() <= s) && (s <= new Date(segment.normalEnd).valueOf());
     });
-    var index = this.actual.indexOf(firstSegment) + 1;
-    var lastSegment = _.find(this.actual, function(segment) {
-      return (new Date(segment.start).valueOf() <= e) && (e <= new Date(segment.end).valueOf());
+    var index = this.normalizedActual.indexOf(firstSegment) + 1;
+    var lastSegment = _.find(this.normalizedActual, function(segment) {
+      return (new Date(segment.normalTime).valueOf() <= e) && (e <= new Date(segment.normalEnd).valueOf());
     });
-    var lastIndex = this.actual.indexOf(lastSegment);
-    dose += this.segmentDose(new Date(firstSegment.end) - s, firstSegment.value);
+    var lastIndex = this.normalizedActual.indexOf(lastSegment);
+    dose += this.segmentDose(new Date(firstSegment.normalEnd) - s, firstSegment.value);
     while(index < lastIndex) {
-      var segment = this.actual[index];
-      dose += this.segmentDose((new Date(segment.end) - new Date(segment.start)), segment.value);
+      var segment = this.normalizedActual[index];
+      dose += this.segmentDose((new Date(segment.normalEnd) - new Date(segment.normalTime)), segment.value);
       index++;
     }
-    dose += this.segmentDose(e - new Date(lastSegment.start), lastSegment.value);
+    dose += this.segmentDose(e - new Date(lastSegment.normalTime), lastSegment.value);
     return fixFloatingPoint(dose);
   };
 

@@ -28,7 +28,14 @@
 // one-day.js, two-week.js, and pool.js.
 //
 
-var log = window.bows('Watson');
+var _ = require('../js/lib/underscore');
+
+try {
+  var log = window.bows('Watson');
+}
+catch (ReferenceError) {
+  var log = require('../js/lib/bows')('Watson');
+}
 
 var watson = {
   normalize: function(a) {

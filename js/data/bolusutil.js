@@ -27,11 +27,11 @@ function BolusUtil(data) {
   this.totalBolus = function(s, e) {
     var dose = 0.0;
     var firstBolus = _.find(this.data, function(bolus) {
-      var d = new Date(bolus.deviceTime);
+      var d = new Date(bolus.normalTime).valueOf();
       return (d >= s) && (d <= e);
     });
     var index = this.data.indexOf(firstBolus);
-    while (new Date(this.data[index].deviceTime) <= e) {
+    while (new Date(this.data[index].normalTime).valueOf() <= e) {
       var bolus = this.data[index];
       dose += bolus.value;
       index++;

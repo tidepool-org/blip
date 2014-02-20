@@ -58,7 +58,6 @@ var bolusUtil;
 // load data and draw charts
 d3.json('device-data.json', function(data) {
   log('Data loaded.');
-  bolusUtil = new tideline.data.BolusUtil(_.where(data, {'type': 'bolus'}));
   // munge basal segments
   basalUtil = new tideline.data.BasalUtil(_.where(data, {'type': 'basal-rate-segment'}));
   data = _.reject(data, function(d) {
@@ -67,6 +66,9 @@ d3.json('device-data.json', function(data) {
   data = data.concat(basalUtil.actual.concat(basalUtil.undelivered));
   // Watson the data
   data = watson.normalize(data);
+  basalUtil.normalizedActual = watson.normalize(basalUtil.actual);
+  bolusUtil = new tideline.data.BolusUtil(_.where(data, {'type': 'bolus'}));
+  cbgUtil = new tideline.data.CBGUtil(_.where(data, {'type': 'cbg'}));
   // ensure the data is properly sorted
   data = _.sortBy(data, function(d) {
     return new Date(d.normalTime).valueOf();
@@ -310,6 +312,7 @@ function oneDayChart(el, options) {
 
     // stats pool
     poolStats.addPlotType('stats', tideline.plot.stats.widget(poolStats, {
+      cbg: cbgUtil,
       bolus: bolusUtil,
       basal: basalUtil,
       xPosition: chart.axisGutter(),

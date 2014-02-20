@@ -19,15 +19,16 @@
 // node munge-bolus.js <path-to-file> | json > output.json
 
 var _ = require('../js/lib/underscore');
+var watson = require('../example/watson');
 var BolusUtil = require('../js/data/bolusutil');
 
 var filename = process.argv[2];
 
-var data = require(filename);
+var data = watson.normalize(require(filename));
 
 var b = new BolusUtil(_.where(data, {'type': 'bolus'}));
 
-var start = new Date("2014-02-14T00:00:00");
-var end = new Date("2014-02-15T00:00:00");
+var start = new Date("2014-02-14T00:00:00").valueOf();
+var end = new Date("2014-02-15T00:00:00").valueOf();
 
 console.log(b.totalBolus(start, end));

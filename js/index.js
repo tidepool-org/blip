@@ -22,7 +22,8 @@ module.exports = {
 
   data: {
     BasalUtil: require('./data/basalutil'),
-    BolusUtil: require('./data/bolusutil')
+    BolusUtil: require('./data/bolusutil'),
+    CBGUtil: require('./data/cbgutil')
   },
 
   plot: {
