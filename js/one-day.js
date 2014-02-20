@@ -425,6 +425,7 @@ module.exports = function(emitter) {
     else {
       navString = beginning + ' - ' + end;
     }
+    emitter.emit('currentDomain', a);
     emitter.emit('navigated', navString);
   };
 
