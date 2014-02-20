@@ -20,11 +20,6 @@ var _;
 if (typeof window !== 'undefined') {
   _ = window._;
 }
-else {
-  // Required for node tests
-  // Will not get bundled into browserify build because inside an "if" block
-  _ = require('underscore');
-}
 
 if (!_) {
   throw new Error('Underscore or Lodash is a required dependency');
