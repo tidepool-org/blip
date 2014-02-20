@@ -7,9 +7,7 @@
   "version": "0.0.0",
   "devDependencies": {
     "chai": "1.8.1",
-    "mocha": "1.16.2"
-  },
-  "dependencies": {
+    "mocha": "1.16.2",
     "lodash": "~2.4.1"
   }
 }
