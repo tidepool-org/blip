@@ -23,7 +23,7 @@ if (typeof window !== 'undefined') {
 else {
   // Required for node tests
   // Will not get bundled into browserify build because inside an "if" block
-  _ = require('underscore');
+  _ = require('lodash');
 }
 
 if (!_) {
