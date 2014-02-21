@@ -262,15 +262,15 @@ var PatientData = React.createClass({
     }
 
     if (this.state.chartType === 'daily') {
-      // At the moment, can't just call `chart.locate()` (buggy)
-      // Need to re-render completely, which is a bit inefficient,
-      // but that might change in the future
-      this.refs.chart.unmountChart();
-      this.refs.chart.mountChart();
+      this.setState({datetimeLocation: null});
+      this.refs.chart.locateToMostRecent();
       return;
     }
 
-    this.setState({chartType: 'daily'});
+    this.setState({
+      chartType: 'daily',
+      datetimeLocation: null
+    });
   },
 
   handlePanBack: function(e) {
