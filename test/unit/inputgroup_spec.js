@@ -9,7 +9,8 @@ describe('InputGroup', function() {
     value: 'initial value',
     error: null,
     type: null,
-    disabled: null
+    disabled: null,
+    onChange: function() {}
   };
 
   beforeEach(function() {
