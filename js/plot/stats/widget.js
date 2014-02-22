@@ -109,8 +109,9 @@ module.exports = function(pool, opts) {
       });
 
     pie = d3.layout.pie().value(function(d) {
-      return d.value;
-    });
+        return d.value;
+      })
+      .sort(null);
 
     arc = d3.svg.arc()
       .innerRadius(0)
