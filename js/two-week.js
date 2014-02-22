@@ -34,7 +34,7 @@ module.exports = function(emitter) {
     xScale = d3.scale.linear(),
     xAxis = d3.svg.axis().scale(xScale).orient('top').outerTickSize(0).innerTickSize(15)
       .tickValues(function() {
-        a = []
+        a = [];
         for (i = 0; i < 8; i++) {
           a.push((MS_IN_24/8) * i);
         }
@@ -57,7 +57,7 @@ module.exports = function(emitter) {
       }),
     yScale = d3.time.scale.utc(),
     yAxis = d3.svg.axis().scale(yScale).orient('left').outerTickSize(0).tickFormat(d3.time.format.utc("%a %-d")),
-    data, allData = [], endpoints, viewEndpoints, dataStartNoon, viewIndex,
+    data, allData = [], endpoints, viewEndpoints, dataStartNoon, lessThanTwoWeeks = false, viewIndex,
     mainGroup, scrollNav, scrollHandleTrigger = true;
 
   container.dataFill = {};
@@ -189,7 +189,7 @@ module.exports = function(emitter) {
     // all two-week pools have a weight of 1.0
     var weight = 1.0;
     var cumWeight = weight * numPools;
-    var totalPoolsHeight = 
+    var totalPoolsHeight =
       container.height() - container.axisHeight() - container.statsHeight();
     var poolScaleHeight = totalPoolsHeight/cumWeight;
     var actualPoolsHeight = 0;
@@ -206,8 +206,8 @@ module.exports = function(emitter) {
       currentYPosition -= pool.height();
     }
     currentYPosition = nextBatchYPosition;
-    for (var i = viewIndex - 1; i >= 0; i--) {
-      pool = pools[i];
+    for (var j = viewIndex - 1; j >= 0; j--) {
+      pool = pools[j];
       pool.yPosition(currentYPosition);
       currentYPosition += pool.height();
     }
@@ -271,7 +271,7 @@ module.exports = function(emitter) {
           d3.select('#scrollThumb').transition().ease('linear').attr('y', function(d) {
             d.y = nav.scrollScale(yScale.domain()[0]);
             return d.y - nav.scrollThumbRadius;
-          });       
+          });
         }
       })
       .on('zoomend', function() {
@@ -285,67 +285,69 @@ module.exports = function(emitter) {
   };
 
   container.setScrollNav = function() {
-    var translationAdjustment = yScale.range()[1] - (height - nav.axisHeight - statsHeight);
-    var xPos = nav.navGutter / 2;
+    if (!lessThanTwoWeeks) {
+      var translationAdjustment = yScale.range()[1] - (height - nav.axisHeight - statsHeight);
+      var xPos = nav.navGutter / 2;
 
-    scrollNav.append('rect')
-    .attr({
-      'x': 0,
-      'y': nav.scrollScale(dataStartNoon) - nav.scrollThumbRadius,
-      'width': nav.navGutter,
-      'height': height - nav.axisHeight,
-      'fill': 'white',
-      'id': 'scrollNavInvisibleRect'
-    });
-
-    scrollNav.attr('transform', 'translate(' + (width - nav.navGutter) + ',0)')
-      .append('line')
+      scrollNav.append('rect')
       .attr({
-        'x1': xPos,
-        'x2': xPos,
-        'y1': nav.scrollScale(dataStartNoon) - nav.scrollThumbRadius,
-        'y2': nav.scrollScale(dataEndNoon) + nav.scrollThumbRadius
+        'x': 0,
+        'y': nav.scrollScale(dataStartNoon) - nav.scrollThumbRadius,
+        'width': nav.navGutter,
+        'height': height - nav.axisHeight,
+        'fill': 'white',
+        'id': 'scrollNavInvisibleRect'
       });
 
-    var dyLowest = nav.scrollScale.range()[1];
-    var dyHighest = nav.scrollScale.range()[0];
+      scrollNav.attr('transform', 'translate(' + (width - nav.navGutter) + ',0)')
+        .append('line')
+        .attr({
+          'x1': xPos,
+          'x2': xPos,
+          'y1': nav.scrollScale(dataStartNoon) - nav.scrollThumbRadius,
+          'y2': nav.scrollScale(dataEndNoon) + nav.scrollThumbRadius
+        });
 
-    var drag = d3.behavior.drag()
-      .origin(function(d) {
-        return d;
-      })
-      .on('dragstart', function() {
-        d3.event.sourceEvent.stopPropagation(); // silence the click-and-drag listener
-      })
-      .on('drag', function(d) {
-        d.y += d3.event.dy;
-        if (d.y > dyLowest) {
-          d.y = dyLowest;
-        }
-        else if (d.y < dyHighest) {
-          d.y = dyHighest;
-        }
-        d3.select(this).attr('y', function(d) { return d.y - nav.scrollThumbRadius; });
-        var date = nav.scrollScale.invert(d.y);
-        nav.currentTranslation -= yScale(date) - translationAdjustment;
-        scrollHandleTrigger = false;
-        nav.scroll.translate([0, nav.currentTranslation]);
-        nav.scroll.event(mainGroup);
-      });
+      var dyLowest = nav.scrollScale.range()[1];
+      var dyHighest = nav.scrollScale.range()[0];
 
-    scrollNav.selectAll('image')
-      .data([{'x': 0, 'y': nav.scrollScale(viewEndpoints[0])}])
-      .enter()
-      .append('image')
-      .attr({
-        'xlink:href': imagesBaseUrl + '/ux/scroll_thumb.svg',
-        'x': xPos - nav.scrollThumbRadius,
-        'y': function(d) { return d.y - nav.scrollThumbRadius; },
-        'width': 2 * nav.scrollThumbRadius,
-        'height': 2 * nav.scrollThumbRadius,
-        'id': 'scrollThumb'
-      })
-      .call(drag);
+      var drag = d3.behavior.drag()
+        .origin(function(d) {
+          return d;
+        })
+        .on('dragstart', function() {
+          d3.event.sourceEvent.stopPropagation(); // silence the click-and-drag listener
+        })
+        .on('drag', function(d) {
+          d.y += d3.event.dy;
+          if (d.y > dyLowest) {
+            d.y = dyLowest;
+          }
+          else if (d.y < dyHighest) {
+            d.y = dyHighest;
+          }
+          d3.select(this).attr('y', function(d) { return d.y - nav.scrollThumbRadius; });
+          var date = nav.scrollScale.invert(d.y);
+          nav.currentTranslation -= yScale(date) - translationAdjustment;
+          scrollHandleTrigger = false;
+          nav.scroll.translate([0, nav.currentTranslation]);
+          nav.scroll.event(mainGroup);
+        });
+
+      scrollNav.selectAll('image')
+        .data([{'x': 0, 'y': nav.scrollScale(viewEndpoints[0])}])
+        .enter()
+        .append('image')
+        .attr({
+          'xlink:href': imagesBaseUrl + '/ux/scroll_thumb.svg',
+          'x': xPos - nav.scrollThumbRadius,
+          'y': function(d) { return d.y - nav.scrollThumbRadius; },
+          'width': 2 * nav.scrollThumbRadius,
+          'height': 2 * nav.scrollThumbRadius,
+          'id': 'scrollThumb'
+        })
+        .call(drag);
+    }
 
     return container;
   };
@@ -399,7 +401,7 @@ module.exports = function(emitter) {
         }
       }
       else {
-        height = x; 
+        height = x;
       }
     }
     else {
@@ -447,7 +449,7 @@ module.exports = function(emitter) {
   container.scrollThumbRadius = function(x) {
     if (!arguments.length) return nav.scrollThumbRadius;
     nav.scrollThumbRadius = x;
-    return container
+    return container;
   };
 
   container.navGutter = function(x) {
@@ -532,6 +534,18 @@ module.exports = function(emitter) {
       currentDay = newDay;
     }
 
+    if (days.length < 14) {
+      var day = new Date(firstDay);
+      // fill in previous days if less than two weeks data
+      while (days.length < 14) {
+        day.setUTCDate(day.getUTCDate() - 1);
+        days.unshift(day.toISOString().slice(0,10));
+        currentDay = day;
+      }
+      first = days[0];
+      lessThanTwoWeeks = true;
+    }
+
     this.days = days.reverse();
 
     dataStartNoon = new Date(first);
@@ -574,9 +588,9 @@ module.exports = function(emitter) {
       };
       container.dataPerDay.push(_.filter(data, function(d) {
         var date = new Date(d.normalTime);
-        if ((date.getUTCFullYear() === parseInt(thisDay.year))
-          && (date.getUTCMonth() + 1 === parseInt(thisDay.month))
-          && (date.getUTCDate() === parseInt(thisDay.day))) {
+        if ((date.getUTCFullYear() === parseInt(thisDay.year, 10)) &&
+          (date.getUTCMonth() + 1 === parseInt(thisDay.month, 10)) &&
+          (date.getUTCDate() === parseInt(thisDay.day, 10))) {
           return d;
         }
       }));
