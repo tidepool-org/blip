@@ -323,10 +323,25 @@ function oneDayChart(el, options) {
     }
     else {
       start = new Date(datetime);
+      var plusHalf = new Date(start);
+      plusHalf.setUTCHours(plusHalf.getUTCHours() + 12);
+      var minusHalf = new Date(start);
+      minusHalf.setUTCHours(minusHalf.getUTCHours() - 12);
       if ((start.valueOf() < chart.endpoints[0]) || (start.valueOf() > chart.endpoints[1])) {
         log("Please don't ask tideline to locate at a date that's outside of your data!");
         log("Rendering most recent data instead.");
         mostRecent();
+      }
+      else if (plusHalf.valueOf() > chart.endpoints[1]) {
+        mostRecent();
+      }
+      else if (minusHalf.valueOf() < chart.endpoints[0]) {
+        start = chart.endpoints[0];
+        var firstEnd = new Date(start);
+        firstEnd.setUTCDate(firstEnd.getUTCDate() + 1);
+        end = firstEnd;
+        localData = chart.getData([start, firstEnd], 'both');
+        chart.beginningOfData(start).endOfData(end);
       }
       else {
         end = new Date(start);
