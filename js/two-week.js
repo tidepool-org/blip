@@ -520,7 +520,7 @@ module.exports = function(emitter) {
     container.endpoints = endpoints;
 
     function createDay(d) {
-      return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0);
+      return new Date(d.toISOString().slice(0,11) + '00:00:00Z');
     }
     var days = [];
     var firstDay = createDay(new Date(container.endpoints[0]));

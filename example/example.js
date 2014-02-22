@@ -71,7 +71,7 @@ d3.json('device-data.json', function(data) {
   });
 
   log('Initial one-day view.');
-  oneDay.initialize(data).locate('2014-03-06T12:00:00Z');
+  oneDay.initialize(data).locate();
   // attach click handlers to set up programmatic pan
   $('#tidelineNavForward').on('click', oneDay.panForward);
   $('#tidelineNavBack').on('click', oneDay.panBack);
