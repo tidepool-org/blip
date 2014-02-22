@@ -14,6 +14,7 @@
  */
 
 var _ = window._;
+var bows = window.bows;
 
 var tideline = window.tideline;
 var EventEmitter = require('events').EventEmitter;
@@ -23,6 +24,7 @@ var scales = tideline.plot.scales;
 
 // Create a 'One Day' chart object that is a wrapper around Tideline components
 function chartDailyFactory(el, options) {
+  var log = bows('Daily Factory');
   options = options || {};
 
   var emitter = new EventEmitter();
@@ -172,19 +174,30 @@ function chartDailyFactory(el, options) {
 
     var start, end, localData;
 
-    if (!arguments.length) {
+    var mostRecent = function() {
       start = chart.initialEndpoints[0];
       end = chart.initialEndpoints[1];
       localData = chart.getData(chart.initialEndpoints, 'both');
+    };
+
+    if (!arguments.length) {
+      mostRecent();
     }
     else {
       start = new Date(datetime);
-      end = new Date(start);
-      start.setUTCHours(start.getUTCHours() - 12);
-      end.setUTCHours(end.getUTCHours() + 12);
+      if ((start.valueOf() < chart.endpoints[0]) || (start.valueOf() > chart.endpoints[1])) {
+        log('Please don\'t ask tideline to locate at a date that\'s outside of your data!');
+        log('Rendering most recent data instead.');
+        mostRecent();
+      }
+      else {
+        end = new Date(start);
+        start.setUTCHours(start.getUTCHours() - 12);
+        end.setUTCHours(end.getUTCHours() + 12);
 
-      localData = chart.getData([start, end], 'both');
-      chart.beginningOfData(start).endOfData(end);
+        localData = chart.getData([start, end], 'both');
+        chart.beginningOfData(start).endOfData(end);
+      }
     }
 
     chart.allData(localData, [start, end]);
