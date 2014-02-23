@@ -44,7 +44,7 @@ describe('platform client', function() {
             saveSession(sessionData.userid,sessionData.token);
           });
         },
-        10 * 60
+        10 * 60 * 1000
       );
     }
   };
@@ -71,7 +71,7 @@ describe('platform client', function() {
 
   before(function(done){
 
-    platform = require('../index')('http://localhost:8009',superagent);
+    platform = require('../index')('https://devel-api.tidepool.io',superagent);
 
     createUser(function(error,data){
       if(error){
@@ -106,6 +106,8 @@ describe('platform client', function() {
 
     it('returns the team group asked for', function(done) {
 
+      this.timeout(5000);
+
       platform.getGroupForUser(userId,'team',token, function(error,team){
         expect(error).to.not.exist;
         expect(team).to.exist;
@@ -135,6 +137,8 @@ describe('platform client', function() {
     });
 
     it('add a note and then comment on it, then get the whole thread', function(done) {
+
+      this.timeout(5000);
 
       var message = {
         userid : userId,
