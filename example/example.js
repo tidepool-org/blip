@@ -234,7 +234,11 @@ function oneDayChart(el, options) {
     chart.arrangePools();
 
     // BG pool
-    var scaleBG = scales.bg(_.where(data, {'type': 'cbg'}), poolBG);
+    var scaleBG = scales.bg(_.filter(data, function(d) {
+      if ((d.type === 'cbg') || (d.type === 'smbg')) {
+        return d;
+      }
+    }), poolBG);
     // set up y-axis
     poolBG.yAxis(d3.svg.axis()
       .scale(scaleBG)
