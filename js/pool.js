@@ -46,9 +46,11 @@ module.exports = function(container) {
     plotTypes.forEach(function(plotType) {
       if (container.dataFill[plotType.type]) {
         plotType.data = _.where(poolData, {'type': plotType.type});
-        dataGroup = group.selectAll('#' + id + '_' + plotType.type).data([plotType.data]);
-        dataGroup.enter().append('g').attr('id', id + '_' + plotType.type);
-        dataGroup.call(plotType.plot);
+        if (plotType.data.length !== 0) {
+          dataGroup = group.selectAll('#' + id + '_' + plotType.type).data([plotType.data]);
+          dataGroup.enter().append('g').attr('id', id + '_' + plotType.type);
+          dataGroup.call(plotType.plot);
+        }
       }
       else {
         pool.noDataFill(plotType);
@@ -96,7 +98,7 @@ module.exports = function(container) {
         'transform': 'translate(' + container.axisGutter() + ',' + yPosition + ')'
       })
       .text(label);
-    return pool
+    return pool;
   });
 
   pool.drawAxis = _.once(function() {
