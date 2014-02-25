@@ -301,7 +301,8 @@ var AppComponent = React.createClass({
           user={this.state.user}
           fetchingUser={this.state.fetchingUser}
           patients={this.state.patients}
-          fetchingPatients={this.state.fetchingPatients}/>
+          fetchingPatients={this.state.fetchingPatients}
+          onUploadSuccess={this.showMyData}/>
     );
     /* jshint ignore:end */
   },
@@ -393,6 +394,10 @@ var AppComponent = React.createClass({
     }
 
     return !user.isUserPatient(this.state.user, this.state.patient);
+  },
+
+  showMyData: function() {
+    this.showPatientData(app.api.user.getUserid());
   },
 
   showPatientData: function(patientId) {

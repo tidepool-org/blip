@@ -26,7 +26,8 @@ var Patients = React.createClass({
     user: React.PropTypes.object,
     fetchingUser: React.PropTypes.bool,
     patients: React.PropTypes.array,
-    fetchingPatients: React.PropTypes.bool
+    fetchingPatients: React.PropTypes.bool,
+    onUploadSuccess: React.PropTypes.func.isRequired
   },
 
   render: function() {
@@ -108,6 +109,8 @@ var Patients = React.createClass({
   },
 
   openUpload: function(e) {
+    var self = this;
+
     e.preventDefault();
     var token = app.api.user.getToken();
     if (token == null) {
@@ -116,23 +119,13 @@ var Patients = React.createClass({
 
     var uploadURL = config.UPLOAD_API + '?token=' + token;
     var uploadWindow = window.open(uploadURL, 'the thing', 'scrollbars=1,height=400,width=400');
-//    var uploadWindow = window.open('http://localhost:9122?token=' + token, 'the thing', 'scrollbars=1,height=400,width=400');
     function checkForClose() {
       setTimeout(
         function(){
           if (uploadWindow.closed !== false) {
             // The upload window was closed, so show us some data!  Sorry nico.
             console.log('Upload window closed!  Show data, whoot whoot!');
-            var apiURL = config.API_HOST + '/data/' + app.api.user.getUserid();
-            superagent.get(apiURL)
-              .set('x-tidepool-session-token', token)
-              .end(
-              function(err, res){
-                if (err == null) {
-                  window.theRes = res;
-                  document.getElementById('forData').innerHTML=res.text;
-                }
-              });
+            self.props.onUploadSuccess();
           } else {
             // Still open, keep checking
             checkForClose();
