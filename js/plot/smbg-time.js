@@ -17,8 +17,7 @@
 
 var log = require('../lib/bows')('Two-Week SMBG');
  
-module.exports = function(pool, opts) {
-
+function SMBGTime (opts) {
   MS_IN_HOUR = 3600000;
 
   MS_IN_MIN = 60 * 1000;
@@ -34,151 +33,157 @@ module.exports = function(pool, opts) {
       'very-high': {'boundary': 300}
     },
     size: 16,
-    rectWidth: 32,
-    xScale: pool.xScale().copy(),
-    imagesBaseUrl: pool.imagesBaseUrl()
+    rectWidth: 32
   };
 
-  _.defaults(opts, defaults);
+  this.opts = _.defaults(opts, defaults);
 
-  function smbg(selection) {
-    selection.each(function(currentData) {
-      var circles = d3.select(this)
-        .selectAll('g')
-        .data(currentData, function(d) {
-          return d.id;
-        });
-      var circleGroups = circles.enter()
-        .append('g')
-        .attr('class', 'd3-smbg-time-group');
-      circleGroups.append('image')
-        .attr({
-          'xlink:href': function(d) {
-            if (d.value <= opts.classes['very-low']['boundary']) {
-              return opts.imagesBaseUrl + '/smbg/very_low.svg';
-            }
-            else if ((d.value > opts.classes['very-low']['boundary']) && (d.value <= opts.classes['low']['boundary'])) {
-              return opts.imagesBaseUrl + '/smbg/low.svg';
-            }
-            else if ((d.value > opts.classes['low']['boundary']) && (d.value <= opts.classes['target']['boundary'])) {
-              return opts.imagesBaseUrl + '/smbg/target.svg';
-            }
-            else if ((d.value > opts.classes['target']['boundary']) && (d.value <= opts.classes['high']['boundary'])) {
-              return opts.imagesBaseUrl + '/smbg/high.svg';
-            }
-            else if (d.value > opts.classes['high']['boundary']) {
-              return opts.imagesBaseUrl + '/smbg/very_high.svg';
-            }
-          },
-          'x': function(d) {
-            var localTime = new Date(d.normalTime);
-            var hour = localTime.getUTCHours();
-            var min = localTime.getUTCMinutes();
-            var sec = localTime.getUTCSeconds();
-            var msec = localTime.getUTCMilliseconds();
-            var t = hour * MS_IN_HOUR + min * MS_IN_MIN + sec * 1000 + msec;
-            return opts.xScale(t) - opts.size / 2;
-          },
-          'y': function(d) {
-            return pool.height() / 2 - opts.size / 2;
-          },
-          'width': opts.size,
-          'height': opts.size,
-          'id': function(d) {
-            return 'smbg_time_' + d.id;
-          },
-          'class': function(d) {
-            if (d.value <= opts.classes['low']['boundary']) {
-              return 'd3-bg-low';
-            }
-            else if ((d.value > opts.classes['low']['boundary']) && (d.value <= opts.classes['target']['boundary'])) {
-              return 'd3-bg-target';
-            }
-            else if (d.value > opts.classes['target']['boundary']) {
-              return 'd3-bg-high';
-            }
-          }
-        })
-        .classed({'d3-image': true, 'd3-smbg-time': true, 'd3-image-smbg': true})
-        .on('dblclick', function(d) {
-          d3.event.stopPropagation(); // silence the click-and-drag listener
-          opts.emitter.emit('selectSMBG', d.normalTime);
-        });
+  this.draw = function(pool) {
+    this.pool = pool;
+    var smbg = this;
+    return function(selection) {
+      selection.each(function(currentData) {
+        // pool-dependent variables
+        var xScale = smbg.pool.xScale().copy();
 
-      circleGroups.append('rect')
-        .style('display', 'none')
-        .attr({
-          'x': function(d) {
-            var localTime = new Date(d.normalTime);
-            var hour = localTime.getUTCHours();
-            var min = localTime.getUTCMinutes();
-            var sec = localTime.getUTCSeconds();
-            var msec = localTime.getUTCMilliseconds();
-            var t = hour * MS_IN_HOUR + min * MS_IN_MIN + sec * 1000 + msec;
-            return opts.xScale(t) - opts.rectWidth / 2;
-          },
-          'y': 0,
-          'width': opts.size * 2,
-          'height': pool.height() / 2,
-          'class': 'd3-smbg-numbers d3-rect-smbg d3-smbg-time'
-        });
+        var circles = d3.select(this)
+          .selectAll('g')
+          .data(currentData, function(d) {
+            return d.id;
+          });
 
-      // NB: cannot do same display: none strategy because dominant-baseline attribute cannot be applied
-      circleGroups.append('text')
-        .attr({
-          'x': function(d) {
-            var localTime = new Date(d.normalTime);
-            var hour = localTime.getUTCHours();
-            var min = localTime.getUTCMinutes();
-            var sec = localTime.getUTCSeconds();
-            var msec = localTime.getUTCMilliseconds();
-            var t = hour * MS_IN_HOUR + min * MS_IN_MIN + sec * 1000 + msec;
-            return opts.xScale(t);
-          },
-          'y': pool.height() / 4,
-          'opacity': '0',
-          'class': 'd3-smbg-numbers d3-text-smbg d3-smbg-time'
-        })
-        .text(function(d) {
-          return d.value;
-        });
+        var circleGroups = circles.enter()
+          .append('g')
+          .attr('class', 'd3-smbg-time-group');
 
-      circles.exit().remove();
+        circleGroups.append('image')
+          .attr({
+            'xlink:href': function(d) {
+              if (d.value <= smbg.opts.classes['very-low']['boundary']) {
+                return smbg.pool.imagesBaseUrl() + '/smbg/very_low.svg';
+              }
+              else if ((d.value > smbg.opts.classes['very-low']['boundary']) && (d.value <= smbg.opts.classes['low']['boundary'])) {
+                return smbg.pool.imagesBaseUrl() + '/smbg/low.svg';
+              }
+              else if ((d.value > smbg.opts.classes['low']['boundary']) && (d.value <= smbg.opts.classes['target']['boundary'])) {
+                return smbg.pool.imagesBaseUrl() + '/smbg/target.svg';
+              }
+              else if ((d.value > smbg.opts.classes['target']['boundary']) && (d.value <= smbg.opts.classes['high']['boundary'])) {
+                return smbg.pool.imagesBaseUrl() + '/smbg/high.svg';
+              }
+              else if (d.value > smbg.opts.classes['high']['boundary']) {
+                return smbg.pool.imagesBaseUrl() + '/smbg/very_high.svg';
+              }
+            },
+            'x': function(d) {
+              var localTime = new Date(d.normalTime);
+              var hour = localTime.getUTCHours();
+              var min = localTime.getUTCMinutes();
+              var sec = localTime.getUTCSeconds();
+              var msec = localTime.getUTCMilliseconds();
+              var t = hour * MS_IN_HOUR + min * MS_IN_MIN + sec * 1000 + msec;
+              return xScale(t) - smbg.opts.size / 2;
+            },
+            'y': function(d) {
+              return pool.height() / 2 - smbg.opts.size / 2;
+            },
+            'width': smbg.opts.size,
+            'height': smbg.opts.size,
+            'id': function(d) {
+              return 'smbg_time_' + d.id;
+            },
+            'class': function(d) {
+              if (d.value <= smbg.opts.classes['low']['boundary']) {
+                return 'd3-bg-low';
+              }
+              else if ((d.value > smbg.opts.classes['low']['boundary']) && (d.value <= smbg.opts.classes['target']['boundary'])) {
+                return 'd3-bg-target';
+              }
+              else if (d.value > smbg.opts.classes['target']['boundary']) {
+                return 'd3-bg-high';
+              }
+            }
+          })
+          .classed({'d3-image': true, 'd3-smbg-time': true, 'd3-image-smbg': true})
+          .on('dblclick', function(d) {
+            d3.event.stopPropagation(); // silence the click-and-drag listener
+            smbg.opts.emitter.emit('selectSMBG', d.normalTime);
+          });
 
-      opts.emitter.on('numbers', function(toggle) {
-        if (toggle === 'show') {
-          d3.selectAll('.d3-rect-smbg')
-            .style('display', 'inline');
-          d3.selectAll('.d3-text-smbg')
-            .transition()
-            .duration(500)
-            .attr('opacity', 1);
-          d3.selectAll('.d3-image-smbg')
-            .transition()
-            .duration(500)
-            .attr({
-              'height': opts.size * 0.75,
-              'y': pool.height() / 2
-            });
-        }
-        else if (toggle === 'hide') {
-          d3.selectAll('.d3-rect-smbg')
-            .style('display', 'none');
-          d3.selectAll('.d3-text-smbg')
-            .transition()
-            .duration(500)
-            .attr('opacity', 0);
-          d3.selectAll('.d3-image-smbg')
-            .transition()
-            .duration(500)
-            .attr({
-              'height': opts.size,
-              'y': pool.height() / 2 - opts.size / 2
-            });
-        }
+        circleGroups.append('rect')
+          .style('display', 'none')
+          .attr({
+            'x': function(d) {
+              var localTime = new Date(d.normalTime);
+              var hour = localTime.getUTCHours();
+              var min = localTime.getUTCMinutes();
+              var sec = localTime.getUTCSeconds();
+              var msec = localTime.getUTCMilliseconds();
+              var t = hour * MS_IN_HOUR + min * MS_IN_MIN + sec * 1000 + msec;
+              return xScale(t) - smbg.opts.rectWidth / 2;
+            },
+            'y': 0,
+            'width': smbg.opts.size * 2,
+            'height': pool.height() / 2,
+            'class': 'd3-smbg-numbers d3-rect-smbg d3-smbg-time'
+          });
+
+        // NB: cannot do same display: none strategy because dominant-baseline attribute cannot be applied
+        circleGroups.append('text')
+          .attr({
+            'x': function(d) {
+              var localTime = new Date(d.normalTime);
+              var hour = localTime.getUTCHours();
+              var min = localTime.getUTCMinutes();
+              var sec = localTime.getUTCSeconds();
+              var msec = localTime.getUTCMilliseconds();
+              var t = hour * MS_IN_HOUR + min * MS_IN_MIN + sec * 1000 + msec;
+              return xScale(t);
+            },
+            'y': pool.height() / 4,
+            'opacity': '0',
+            'class': 'd3-smbg-numbers d3-text-smbg d3-smbg-time'
+          })
+          .text(function(d) {
+            return d.value;
+          });
+
+        circles.exit().remove();
       });
-    });
-  }
+    };
+  };
 
-  return smbg;
-};
+  this.showValues = function() {
+    d3.selectAll('.d3-rect-smbg')
+      .style('display', 'inline');
+    d3.selectAll('.d3-text-smbg')
+      .transition()
+      .duration(500)
+      .attr('opacity', 1);
+    d3.selectAll('.d3-image-smbg')
+      .transition()
+      .duration(500)
+      .attr({
+        'height': this.opts.size * 0.75,
+        'y': this.pool.height() / 2
+      });
+  };
+
+  this.hideValues = function() {
+    d3.selectAll('.d3-rect-smbg')
+      .style('display', 'none');
+    d3.selectAll('.d3-text-smbg')
+      .transition()
+      .duration(500)
+      .attr('opacity', 0);
+    d3.selectAll('.d3-image-smbg')
+      .transition()
+      .duration(500)
+      .attr({
+        'height': this.opts.size,
+        'y': this.pool.height() / 2 - this.opts.size / 2
+      });
+  };
+}
+
+module.exports = SMBGTime;

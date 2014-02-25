@@ -32,7 +32,7 @@ module.exports = {
     fill: require('./plot/fill'),
     message: require('./plot/message'),
     scales: require('./plot/scales'),
-    smbgTime: require('./plot/smbg-time'),
+    SMBGTime: require('./plot/smbg-time'),
     smbg: require('./plot/smbg'),
     tooltip: require('./plot/tooltip')
   }

@@ -22,7 +22,6 @@ var log = window.bows('Example');
 // common event emitter
 var EventEmitter = require('events').EventEmitter;
 var emitter = new EventEmitter;
-emitter.setMaxListeners(100);
 emitter.on('navigated', function(navString) {
   $('#tidelineNavString').html(navString);
 });
@@ -55,7 +54,7 @@ var twoWeek = createNewTwoWeekChart();
 // the TODO issue noted appears to be a thorny one, so I'd like to avoid it for now since there's so much else to do
 
 // load data and draw charts
-d3.json('no-basals.json', function(data) {
+d3.json('device-data.json', function(data) {
   log('Data loaded.');
   // munge basal segments
   var vizReadyBasals = new BasalUtil(data);
@@ -438,14 +437,25 @@ function twoWeekChart(el, options) {
       .domain(fillEndpoints)
       .range([chart.axisGutter(), chart.width() - chart.navGutter()]);
 
+    var smbgTime = new tideline.plot.SMBGTime({emitter: emitter});
+
     chart.pools().forEach(function(pool, i) {
       pool.addPlotType('fill', fill(pool, {
         endpoints: fillEndpoints,
         scale: fillScale,
         gutter: 0.5
       }), false);
-      pool.addPlotType('smbg', tideline.plot.smbgTime(pool, {emitter: emitter}), true);
+      pool.addPlotType('smbg', smbgTime.draw(pool), true);
       pool(chart.daysGroup, chart.dataPerDay[i]);
+    });
+
+    emitter.on('numbers', function(toggle) {
+      if (toggle === 'show') {
+        smbgTime.showValues();
+      }
+      else if (toggle === 'hide') {
+        smbgTime.hideValues();
+      }
     });
 
     return chart;
