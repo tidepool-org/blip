@@ -55,7 +55,7 @@ var twoWeek = createNewTwoWeekChart();
 // the TODO issue noted appears to be a thorny one, so I'd like to avoid it for now since there's so much else to do
 
 // load data and draw charts
-d3.json('device-data.json', function(data) {
+d3.json('no-basals.json', function(data) {
   log('Data loaded.');
   // munge basal segments
   var vizReadyBasals = new BasalUtil(data);
@@ -234,7 +234,11 @@ function oneDayChart(el, options) {
     chart.arrangePools();
 
     // BG pool
-    var scaleBG = scales.bg(_.where(data, {'type': 'cbg'}), poolBG);
+    var scaleBG = scales.bg(_.filter(data, function(d) {
+      if ((d.type === 'cbg') || (d.type === 'smbg')) {
+        return d;
+      }
+    }), poolBG);
     // set up y-axis
     poolBG.yAxis(d3.svg.axis()
       .scale(scaleBG)
