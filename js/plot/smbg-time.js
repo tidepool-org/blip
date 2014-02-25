@@ -36,15 +36,14 @@ function SMBGTime (opts) {
     rectWidth: 32
   };
 
-  this.opts = _.defaults(opts, defaults);
+  opts = _.defaults(opts, defaults);
 
   this.draw = function(pool) {
-    this.pool = pool;
-    var smbg = this;
+    opts.pool = pool;
     return function(selection) {
       selection.each(function(currentData) {
         // pool-dependent variables
-        var xScale = smbg.pool.xScale().copy();
+        var xScale = opts.pool.xScale().copy();
 
         var circles = d3.select(this)
           .selectAll('g')
@@ -59,20 +58,20 @@ function SMBGTime (opts) {
         circleGroups.append('image')
           .attr({
             'xlink:href': function(d) {
-              if (d.value <= smbg.opts.classes['very-low']['boundary']) {
-                return smbg.pool.imagesBaseUrl() + '/smbg/very_low.svg';
+              if (d.value <= opts.classes['very-low']['boundary']) {
+                return opts.pool.imagesBaseUrl() + '/smbg/very_low.svg';
               }
-              else if ((d.value > smbg.opts.classes['very-low']['boundary']) && (d.value <= smbg.opts.classes['low']['boundary'])) {
-                return smbg.pool.imagesBaseUrl() + '/smbg/low.svg';
+              else if ((d.value > opts.classes['very-low']['boundary']) && (d.value <= opts.classes['low']['boundary'])) {
+                return opts.pool.imagesBaseUrl() + '/smbg/low.svg';
               }
-              else if ((d.value > smbg.opts.classes['low']['boundary']) && (d.value <= smbg.opts.classes['target']['boundary'])) {
-                return smbg.pool.imagesBaseUrl() + '/smbg/target.svg';
+              else if ((d.value > opts.classes['low']['boundary']) && (d.value <= opts.classes['target']['boundary'])) {
+                return opts.pool.imagesBaseUrl() + '/smbg/target.svg';
               }
-              else if ((d.value > smbg.opts.classes['target']['boundary']) && (d.value <= smbg.opts.classes['high']['boundary'])) {
-                return smbg.pool.imagesBaseUrl() + '/smbg/high.svg';
+              else if ((d.value > opts.classes['target']['boundary']) && (d.value <= opts.classes['high']['boundary'])) {
+                return opts.pool.imagesBaseUrl() + '/smbg/high.svg';
               }
-              else if (d.value > smbg.opts.classes['high']['boundary']) {
-                return smbg.pool.imagesBaseUrl() + '/smbg/very_high.svg';
+              else if (d.value > opts.classes['high']['boundary']) {
+                return opts.pool.imagesBaseUrl() + '/smbg/very_high.svg';
               }
             },
             'x': function(d) {
@@ -82,24 +81,24 @@ function SMBGTime (opts) {
               var sec = localTime.getUTCSeconds();
               var msec = localTime.getUTCMilliseconds();
               var t = hour * MS_IN_HOUR + min * MS_IN_MIN + sec * 1000 + msec;
-              return xScale(t) - smbg.opts.size / 2;
+              return xScale(t) - opts.size / 2;
             },
             'y': function(d) {
-              return pool.height() / 2 - smbg.opts.size / 2;
+              return pool.height() / 2 - opts.size / 2;
             },
-            'width': smbg.opts.size,
-            'height': smbg.opts.size,
+            'width': opts.size,
+            'height': opts.size,
             'id': function(d) {
               return 'smbg_time_' + d.id;
             },
             'class': function(d) {
-              if (d.value <= smbg.opts.classes['low']['boundary']) {
+              if (d.value <= opts.classes['low']['boundary']) {
                 return 'd3-bg-low';
               }
-              else if ((d.value > smbg.opts.classes['low']['boundary']) && (d.value <= smbg.opts.classes['target']['boundary'])) {
+              else if ((d.value > opts.classes['low']['boundary']) && (d.value <= opts.classes['target']['boundary'])) {
                 return 'd3-bg-target';
               }
-              else if (d.value > smbg.opts.classes['target']['boundary']) {
+              else if (d.value > opts.classes['target']['boundary']) {
                 return 'd3-bg-high';
               }
             }
@@ -107,7 +106,7 @@ function SMBGTime (opts) {
           .classed({'d3-image': true, 'd3-smbg-time': true, 'd3-image-smbg': true})
           .on('dblclick', function(d) {
             d3.event.stopPropagation(); // silence the click-and-drag listener
-            smbg.opts.emitter.emit('selectSMBG', d.normalTime);
+            opts.emitter.emit('selectSMBG', d.normalTime);
           });
 
         circleGroups.append('rect')
@@ -120,10 +119,10 @@ function SMBGTime (opts) {
               var sec = localTime.getUTCSeconds();
               var msec = localTime.getUTCMilliseconds();
               var t = hour * MS_IN_HOUR + min * MS_IN_MIN + sec * 1000 + msec;
-              return xScale(t) - smbg.opts.rectWidth / 2;
+              return xScale(t) - opts.rectWidth / 2;
             },
             'y': 0,
-            'width': smbg.opts.size * 2,
+            'width': opts.size * 2,
             'height': pool.height() / 2,
             'class': 'd3-smbg-numbers d3-rect-smbg d3-smbg-time'
           });
@@ -164,8 +163,8 @@ function SMBGTime (opts) {
       .transition()
       .duration(500)
       .attr({
-        'height': this.opts.size * 0.75,
-        'y': this.pool.height() / 2
+        'height': opts.size * 0.75,
+        'y': opts.pool.height() / 2
       });
   };
 
@@ -180,8 +179,8 @@ function SMBGTime (opts) {
       .transition()
       .duration(500)
       .attr({
-        'height': this.opts.size,
-        'y': this.pool.height() / 2 - this.opts.size / 2
+        'height': opts.size,
+        'y': opts.pool.height() / 2 - opts.size / 2
       });
   };
 }
