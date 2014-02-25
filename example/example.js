@@ -415,7 +415,11 @@ function twoWeekChart(el, options) {
       chart.data(_.where(data, {'type': 'smbg'}));
     }
     else {
-      chart.data(_.where(data, {'type': 'smbg'}), datetime);
+      var smbgData = _.where(data, {'type': 'smbg'});
+      if (datetime.valueOf() > Date.parse(smbgData[smbgData.length - 1].normalTime)) {
+        datetime = smbgData[smbgData.length - 1].normalTime;
+      }
+      chart.data(smbgData, datetime);
     }
 
     // initialize chart
