@@ -178,7 +178,6 @@ module.exports = function(el, emitter) {
     pools.forEach(function(pool) {
       cumWeight += pool.weight();
     });
-    // TODO: adjust for when no scrollNav
     var totalPoolsHeight =
       container.height() - nav.axisHeight - nav.scrollNavHeight - (numPools - 1) * gutter;
     var poolScaleHeight = totalPoolsHeight/cumWeight;
@@ -331,7 +330,6 @@ module.exports = function(el, emitter) {
         for (var i = 0; i < pools.length; i++) {
           pools[i].pan(e);
         }
-        // TODO: check if container has tooltips before transforming them
         mainGroup.select('#d3-tooltip-group').attr('transform', 'translate(' + e.translate[0] + ',0)');
         mainGroup.select('.d3-x.d3-axis').call(xAxis);
         mainGroup.selectAll('#tidelineXAxis g.tick text').style('text-anchor', 'start').attr('transform', 'translate(5,15)');

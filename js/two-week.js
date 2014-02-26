@@ -75,7 +75,6 @@ module.exports = function(el, emitter) {
 
   container.arrangePools = function() {
     // 14 days = 2 weeks
-    // TODO: eventually factor this out so that this view could be generalized to another time period
     var numPools = 14;
     // all two-week pools have a weight of 1.0
     var weight = 1.0;

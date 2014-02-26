@@ -181,7 +181,6 @@ module.exports = function(container, tooltipsGroup) {
       }
 
       // adjust the values needed for the timestamp
-      // TODO: really this should be refactored
       imageX = imageX - tooltipWidth;
       textX = textX - tooltipWidth;
     }
