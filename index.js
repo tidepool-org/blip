@@ -178,6 +178,58 @@ module.exports = function(host, superagent) {
             });
         });
     },
+    addUserToGroup : function(groupId,userId,token,cb){
+      if (userId == null) {
+        return cb({ message: 'Must specify a userId' });
+      }
+      if (groupId == null) {
+        return cb({ message: 'Must specify a groupId' });
+      }
+
+      superagent
+        .put(makeUrl('/group/'+groupId+'/user'))
+        .set(sessionTokenHeader, token)
+        .send({userid:userId})
+        .end(function(err, res){
+          if (err != null) {
+            return cb(err,null);
+          }
+
+          if (res.status === 200) {
+            cb(null, res.body.id);
+          } else if (res.status === 204) {
+            cb({ message: 'No group found' });
+          } else {
+            cb({ message: 'Unknown status code ' + res.status });
+          }
+
+        });
+    },
+    removeUserFromGroup : function(groupId,userId,token,cb){
+      if (userId == null) {
+        return cb({ message: 'Must specify a userId' });
+      }
+      if (groupId == null) {
+        return cb({ message: 'Must specify a groupId' });
+      }
+
+      superagent
+        .del(makeUrl('/group/'+groupId+'/user'))
+        .set(sessionTokenHeader, token)
+        .send({userid:userId})
+        .end(function(err, res){
+          if (err != null) {
+            return cb(err,null);
+          }
+
+          if (res.status === 204) {
+            cb(null, null);
+          } else {
+            cb({ message: 'Unknown status code ' + res.status });
+          }
+
+        });
+    },
     getUserTeamAndMessages :function(userId,token,cb){
       return cb(null,null);
     },
