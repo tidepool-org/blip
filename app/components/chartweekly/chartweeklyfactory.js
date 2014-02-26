@@ -18,14 +18,14 @@ var _ = window._;
 var tideline = window.tideline;
 var EventEmitter = require('events').EventEmitter;
 
-var fill = tideline.plot.fill;
+var fill = tideline.plot.util.fill;
 
 // Create a 'Two Weeks' chart object that is a wrapper around Tideline components
 function chartWeeklyFactory(el, options) {
+  var log = bows('Weekly Factory');
   options = options || {};
 
-  var emitter = new EventEmitter();
-  emitter.setMaxListeners(100);
+  var emitter = new EventEmitter;
 
   var chart = tideline.twoWeek(emitter);
   chart.emitter = emitter;
@@ -45,36 +45,44 @@ function chartWeeklyFactory(el, options) {
     }
 
     // basic chart set up
-    chart.defaults().width(width).height(height);
+    chart.width(width).height(height);
 
     if (options.imagesBaseUrl) {
       chart.imagesBaseUrl(options.imagesBaseUrl);
     }
 
+    d3.select(el).call(chart);
+
     return chart;
   };
 
-  chart.initialize = function(data, datetime) {
+  chart.load = function(data, datetime) {
 
     if (!datetime) {
       chart.data(_.where(data, {'type': 'smbg'}));
     }
     else {
-      chart.data(_.where(data, {'type': 'smbg'}), datetime);
+      var smbgData = _.where(data, {'type': 'smbg'});
+      if (datetime.valueOf() > Date.parse(smbgData[smbgData.length - 1].normalTime)) {
+        datetime = smbgData[smbgData.length - 1].normalTime;
+      }
+      chart.data(smbgData, datetime);
     }
 
-    // initialize chart
-    d3.select(el).datum([null]).call(chart);
-    chart.setNav().setScrollNav();
+    chart.setup();
 
     days = chart.days;
+
     // make pools for each day
     days.forEach(function(day, i) {
-      var newPool = chart.newPool().defaults()
-        .id('poolBG_' + day)
+      var newPool = chart.newPool()
+        .id('poolBG_' + day, chart.daysGroup())
         .index(chart.pools().indexOf(newPool))
         .weight(1.0);
     });
+
+    chart.setAxes().setNav().setScrollNav();
+
     chart.arrangePools();
 
     var fillEndpoints = [new Date('2014-01-01T00:00:00Z'), new Date('2014-01-02T00:00:00Z')];
@@ -82,14 +90,25 @@ function chartWeeklyFactory(el, options) {
       .domain(fillEndpoints)
       .range([chart.axisGutter(), chart.width() - chart.navGutter()]);
 
+    var smbgTime = new tideline.plot.SMBGTime({emitter: emitter});
+
     chart.pools().forEach(function(pool, i) {
       pool.addPlotType('fill', fill(pool, {
         endpoints: fillEndpoints,
-        scale: fillScale,
+        xScale: fillScale,
         gutter: 0.5
       }), false);
-      pool.addPlotType('smbg', tideline.plot.smbgTime(pool, {emitter: emitter}), true);
-      pool(chart.daysGroup, chart.dataPerDay[i]);
+      pool.addPlotType('smbg', smbgTime.draw(pool), true);
+      pool.render(chart.daysGroup(), chart.dataPerDay[i]);
+    });
+
+    emitter.on('numbers', function(toggle) {
+      if (toggle === 'show') {
+        smbgTime.showValues();
+      }
+      else if (toggle === 'hide') {
+        smbgTime.hideValues();
+      }
     });
 
     return chart;

@@ -19,16 +19,15 @@ var bows = window.bows;
 var tideline = window.tideline;
 var EventEmitter = require('events').EventEmitter;
 
-var fill = tideline.plot.fill;
-var scales = tideline.plot.scales;
+var fill = tideline.plot.util.fill;
+var scales = tideline.plot.util.scales;
 
 // Create a 'One Day' chart object that is a wrapper around Tideline components
 function chartDailyFactory(el, options) {
   var log = bows('Daily Factory');
   options = options || {};
 
-  var emitter = new EventEmitter();
-  emitter.setMaxListeners(100);
+  var emitter = new EventEmitter;
 
   var chart = tideline.oneDay(emitter);
   chart.emitter = emitter;
@@ -49,51 +48,64 @@ function chartDailyFactory(el, options) {
     }
 
     // basic chart set up
-    chart.defaults().width(width).height(height);
+    chart.width(width).height(height);
 
     if (options.imagesBaseUrl) {
       chart.imagesBaseUrl(options.imagesBaseUrl);
     }
 
+    d3.select(el).call(chart);
+
     return chart;
   };
 
-  chart.initialize = function(data) {
-
-    // initialize chart with data
-    chart.data(data);
-    d3.select(el).datum([null]).call(chart);
-    chart.setTooltip();
-
+  chart.setupPools = function() {
     // messages pool
-    poolMessages = chart.newPool().defaults()
-      .id('poolMessages')
+    poolMessages = chart.newPool()
+      .id('poolMessages', chart.poolGroup())
       .label('')
       .index(chart.pools().indexOf(poolMessages))
       .weight(0.5);
 
     // blood glucose data pool
-    poolBG = chart.newPool().defaults()
-      .id('poolBG')
+    poolBG = chart.newPool()
+      .id('poolBG', chart.poolGroup())
       .label('Blood Glucose')
       .index(chart.pools().indexOf(poolBG))
       .weight(1.5);
 
     // carbs and boluses data pool
-    poolBolus = chart.newPool().defaults()
-      .id('poolBolus')
+    poolBolus = chart.newPool()
+      .id('poolBolus', chart.poolGroup())
       .label('Bolus & Carbohydrates')
       .index(chart.pools().indexOf(poolBolus))
       .weight(1.5);
     
     // basal data pool
-    poolBasal = chart.newPool().defaults()
-      .id('poolBasal')
+    poolBasal = chart.newPool()
+      .id('poolBasal', chart.poolGroup())
       .label('Basal Rates')
       .index(chart.pools().indexOf(poolBasal))
       .weight(1.0);
 
     chart.arrangePools();
+
+    chart.setTooltip();
+
+    // add tooltips
+    chart.tooltips().addGroup(d3.select('#' + poolBG.id()), 'cbg');
+    chart.tooltips().addGroup(d3.select('#' + poolBG.id()), 'smbg');
+    chart.tooltips().addGroup(d3.select('#' + poolBolus.id()), 'carbs');
+    chart.tooltips().addGroup(d3.select('#' + poolBolus.id()), 'bolus');
+    chart.tooltips().addGroup(d3.select('#' + poolBasal.id()), 'basal');
+
+    return chart;
+  };
+
+  chart.load = function(data, datetime) {
+    chart.stopListening();
+    // initialize chart with data
+    chart.data(data).setAxes().setNav().setScrollNav();
 
     // BG pool
     var scaleBG = scales.bg(_.filter(data, function(d) {
@@ -207,7 +219,6 @@ function chartDailyFactory(el, options) {
         firstEnd.setUTCDate(firstEnd.getUTCDate() + 1);
         end = firstEnd;
         localData = chart.getData([start, firstEnd], 'both');
-        chart.beginningOfData(start).endOfData(end);
       }
       else {
         end = new Date(start);
@@ -215,26 +226,18 @@ function chartDailyFactory(el, options) {
         end.setUTCHours(end.getUTCHours() + 12);
 
         localData = chart.getData([start, end], 'both');
-        chart.beginningOfData(start).endOfData(end);
       }
     }
 
+    chart.beginningOfData(start).endOfData(end);
     chart.allData(localData, [start, end]);
 
-    // set up click-and-drag and scroll navigation
-    chart.setNav().setScrollNav().setAtDate(start);
+    chart.setAtDate(start);
 
     // render pools
     chart.pools().forEach(function(pool) {
-      pool(chart.poolGroup, localData);
+      pool.render(chart.poolGroup(), localData);
     });
-
-    // add tooltips
-    chart.tooltips.addGroup(d3.select('#' + poolBG.id()), 'cbg');
-    chart.tooltips.addGroup(d3.select('#' + poolBG.id()), 'smbg');
-    chart.tooltips.addGroup(d3.select('#' + poolBolus.id()), 'carbs');
-    chart.tooltips.addGroup(d3.select('#' + poolBolus.id()), 'bolus');
-    chart.tooltips.addGroup(d3.select('#' + poolBasal.id()), 'basal');
 
     return chart;
   };
