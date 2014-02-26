@@ -17,7 +17,7 @@
 
 var log = require('./lib/bows')('One Day');
 
-module.exports = function(el, emitter) {
+module.exports = function(emitter) {
   // required externals
   var Pool = require('./pool');
   var tooltip = require('./plot/util/tooltip');

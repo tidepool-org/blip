@@ -27,7 +27,7 @@ function chartDailyFactory(el, options, emitter) {
   var log = bows('Daily Factory');
   options = options || {};
 
-  var chart = tideline.oneDay(el, emitter);
+  var chart = tideline.oneDay(emitter);
   chart.emitter = emitter;
 
   var poolMessages, poolBG, poolBolus, poolBasal, poolStats;

@@ -17,7 +17,7 @@
 
 var log = require('./lib/bows')('Two Week');
 
-module.exports = function(el, emitter) {
+module.exports = function(emitter) {
   // required externals
   var Pool = require('./pool');
 

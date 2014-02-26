@@ -26,7 +26,7 @@ function chartWeeklyFactory(el, options, emitter) {
   var log = bows('Weekly Factory');
   options = options || {};
 
-  var chart = tideline.twoWeek(el, emitter);
+  var chart = tideline.twoWeek(emitter);
   chart.emitter = emitter;
 
   var pools = [];
