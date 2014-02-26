@@ -14,20 +14,6 @@ var app = connect();
 
 var staticDir = __dirname + '/' + buildDir;
 
-app.use('/config.js', function(req, res) {
-  res.setHeader('Content-Type', 'text/javascript');
-
-  gulp.src(path.join(ROOT, 'app/config.js'))
-    .pipe(template({
-                     process: {env: process.env},
-                     pkg: pkg
-                   }))
-    .on('error', function(err) {
-          next(err);
-        })
-    .pipe(send(res));
-});
-
 app.use(connect.static(staticDir));
 
 var server = http.createServer(app).listen(process.env.PORT || 3000, function() {
