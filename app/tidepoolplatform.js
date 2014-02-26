@@ -245,7 +245,18 @@ window.tidepoolPlatform = function(host, api, auth){
           }
 
           if (res.status === 200) {
-            cb(null, res.body);
+            // Rename _id to id in order to work around the fact that we do not have a proper id field in
+            // the database yet.  Eventually, we will attach ids to events in the db.  At that point, this
+            // mapping can be removed.
+            var retVal = res.body.map(function(e){
+              if (e['id'] === undefined) {
+                e['id'] = e._id;
+              }
+              e.value = Number(e.value);
+              return e;
+            });
+
+            cb(null, retVal);
           } else {
             cb(null, null);
           }
