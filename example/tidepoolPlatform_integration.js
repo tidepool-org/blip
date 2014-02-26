@@ -258,6 +258,39 @@ describe('platform client', function() {
       });
     });
 
+    it('mrT1 adds careTeamMember to the team and then careTeamMember adds a note for mrT1', function(done) {
+      this.timeout(5000);
+
+      platform.addUserToGroup(mrT1TeamId, careTeamMember.id, mrT1.token, function(error,team){
+        if(error){
+          throw error;
+        }
+        var message = {
+          userid : careTeamMember.id,
+          groupid : mrT1TeamId,
+          timestamp : new Date().toISOString(),
+          messagetext : 'Don\'t cry because it\'s over, smile because it happened.'
+        };
+        //add note
+        platform.startMessageThread(mrT1TeamId, message, careTeamMember.token, function(error,data){
+
+          var messageId = data;
+          //get the whole thread
+          platform.getMessageThread(messageId, careTeamMember.token, function(error,data){
+            expect(error).to.not.exist;
+            expect(data).to.exist;
+            expect(data.length).to.equal(1);
+            var firstMessage = data[0];
+
+            expect(firstMessage.groupid).to.equal(mrT1TeamId);
+            expect(firstMessage.parentmessage).to.not.exist;
+            expect(firstMessage.messagetext).to.equal(message.messagetext);
+            done();
+          });
+        });
+      });
+    });
+
   });
 
 });
