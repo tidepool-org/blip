@@ -22,13 +22,13 @@ module.exports = function(pool, opts) {
   opts = opts || {};
 
   var defaults = {
-    xScale: pool.xScale().copy(),
     imagesBaseUrl: pool.imagesBaseUrl()
   };
 
   _.defaults(opts, defaults);
 
   function cbg(selection) {
+    opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
       var messages = d3.select(this)
         .selectAll('image')

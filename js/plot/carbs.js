@@ -24,7 +24,6 @@ module.exports = function(pool, opts) {
   opts = opts || {};
 
   var defaults = {
-    xScale: pool.xScale().copy(),
     width: 12,
     tooltipHeight: 24,
     tooltipWidth: 70,
@@ -70,6 +69,7 @@ module.exports = function(pool, opts) {
   });
 
   function carbs(selection) {
+    opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
       var rects = d3.select(this)
         .selectAll('rect')
@@ -112,7 +112,7 @@ module.exports = function(pool, opts) {
 
   carbs.addTooltip = function(d, category) {
     d3.select('#' + 'd3-tooltip-group_carbs')
-      .call(tooltips,
+      .call(pool.tooltips(),
         d,
         // tooltipXPos
         opts.xScale(Date.parse(d.normalTime)),

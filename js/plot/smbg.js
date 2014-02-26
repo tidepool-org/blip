@@ -30,7 +30,6 @@ module.exports = function(pool, opts) {
       'very-high': {'boundary': 300}
     },
     size: 16,
-    xScale: pool.xScale().copy(),
     yScale: d3.scale.linear().domain([0, 400]).range([pool.height(), 0]),
     imagesBaseUrl: pool.imagesBaseUrl(),
     tooltipWidth: 70,
@@ -39,9 +38,8 @@ module.exports = function(pool, opts) {
 
   _.defaults(opts, defaults);
 
-  var tooltips = pool.tooltips();
-
   function smbg(selection) {
+    opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
       var circles = d3.select(this)
         .selectAll('image')
@@ -115,7 +113,7 @@ module.exports = function(pool, opts) {
 
   smbg.addTooltip = function(d, category) {
     d3.select('#' + 'd3-tooltip-group_smbg')
-      .call(tooltips,
+      .call(pool.tooltips(),
         d,
         // tooltipXPos
         opts.xScale(Date.parse(d.normalTime)),

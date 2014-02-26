@@ -17,32 +17,22 @@
 
 var log = require('./lib/bows')('Pool');
  
-module.exports = function(container) {
+function Pool (container) {
 
   var data,
     id, label,
     index, weight, yPosition,
-    height, minHeight, maxHeight,
+    height, minHeight = 20, maxHeight = 300,
     group,
     mainSVG = d3.select(container.id()),
-    xScale = container.xScale().copy(),
+    xScale,
     imagesBaseUrl = container.imagesBaseUrl(),
     yAxis = [],
-    plotTypes = [];
+    plotTypes = [],
+    tooltips;
 
-  var defaults = {
-    minHeight: 20,
-    maxHeight: 300
-  };
-
-  function pool(selection, poolData) {
-    // select the pool group if it already exists
-    group = selection.selectAll('#' + id).data([poolData]);
-    // otherwise create a new pool group
-    group.enter().append('g').attr({
-      'id': id,
-      'transform': 'translate(0,' + yPosition + ')'
-    });
+  this.render = function(selection, poolData) {
+    var pool = this;
     plotTypes.forEach(function(plotType) {
       if (container.dataFill[plotType.type]) {
         plotType.data = _.where(poolData, {'type': plotType.type});
@@ -56,40 +46,44 @@ module.exports = function(container) {
         pool.noDataFill(plotType);
       }
     });
-    pool.drawAxis();
-    pool.drawLabel();
-  }
-
-  // chainable methods
-  pool.defaults = function(obj) {
-    if (!arguments.length) {
-      properties = defaults;
-    }
-    else {
-      properties = obj;
-    }
-    this.minHeight(properties.minHeight).maxHeight(properties.maxHeight);
-    this.tooltips(container.tooltips);
-
-    return pool;
+    this.drawAxis();
+    this.drawLabel();
   };
 
-  pool.pan = function(e) {
+  this.clear = function() {
+    plotTypes.forEach(function(plotType) {
+      if (container.dataFill[plotType.type]) {
+        group.select('#' + id + '_' + plotType.type).remove();
+      }
+    });
+  };
+
+  // non-chainable methods
+  this.pan = function(e) {
     container.latestTranslation(e.translate[0]);
     plotTypes.forEach(function(plotType) {
       d3.select('#' + id + '_' + plotType.type).attr('transform', 'translate(' + e.translate[0] + ',0)');
     });
   };
 
-  pool.scroll = function(e) {
+  this.scroll = function(e) {
     container.latestTranslation(e.translate[1]);
     plotTypes.forEach(function(plotType) {
       d3.select('#' + id + '_' + plotType.type).attr('transform', 'translate(0,' + e.translate[1] + ')');
     });
   };
 
+  // getters only
+  this.group = function() {
+    return group;
+  };
+
+  this.imagesBaseUrl = function() {
+    return imagesBaseUrl;
+  };
+
   // only once methods
-  pool.drawLabel = _.once(function() {
+  this.drawLabel = _.once(function() {
     var labelGroup = d3.select('#tidelineLabels');
     labelGroup.append('text')
       .attr({
@@ -98,10 +92,10 @@ module.exports = function(container) {
         'transform': 'translate(' + container.axisGutter() + ',' + yPosition + ')'
       })
       .text(label);
-    return pool;
+    return this;
   });
 
-  pool.drawAxis = _.once(function() {
+  this.drawAxis = _.once(function() {
     var axisGroup = d3.select('#tidelineYAxes');
     yAxis.forEach(function(axis, i) {
       axisGroup.append('g')
@@ -110,60 +104,43 @@ module.exports = function(container) {
         .attr('transform', 'translate(' + (container.axisGutter() - 1) + ',' + yPosition + ')')
         .call(axis);
       });
-    return pool;
+    return this;
   });
 
-  pool.noDataFill = _.once(function(plotType) {
+  this.noDataFill = _.once(function(plotType) {
     d3.select('#' + id).append('g').attr('id', id + '_' + plotType.type).call(plotType.plot);
-    return pool;
+    return this;
   });
 
   // getters & setters
-  pool.id = function(x) {
+  this.id = function(x, selection) {
     if (!arguments.length) return id;
     id = x;
-    return pool;
+    group = selection.append('g').attr('id', id);
+    return this;
   };
 
-  pool.label = function(x) {
+  this.label = function(x) {
     if (!arguments.length) return label;
     label = x;
-    return pool;
+    return this;
   };
 
-  pool.index = function(x) {
+  this.index = function(x) {
     if (!arguments.length) return index;
     index = x;
-    return pool;
+    return this;
   };
 
-  pool.weight = function(x) {
+  this.weight = function(x) {
     if (!arguments.length) return weight;
     weight = x;
-    return pool;
+    return this;
   };
 
-  pool.yPosition = function(x) {
-    if (!arguments.length) return yPosition;
-    yPosition = x;
-    return pool;
-  };
-
-  pool.minHeight = function(x) {
-    if (!arguments.length) return minHeight;
-    minHeight = x;
-    return pool;
-  };
-
-  pool.maxHeight = function(x) {
-    if (!arguments.length) return maxHeight;
-    maxHeight = x;
-    return pool;
-  };
-
-  pool.height = function(x) {
+  this.height = function(x) {
     if (!arguments.length) return height;
-    x = x * pool.weight();
+    x = x * this.weight();
     if (x <= maxHeight) {
       if (x >= minHeight) {
         height = x;
@@ -175,35 +152,34 @@ module.exports = function(container) {
     else {
       height = maxHeight;
     }
-    return pool;
+    return this;
   };
 
-  pool.mainSVG = function(x) {
-    if (!arguments.length) return mainSVG;
-    mainSVG = x;
-    return pool;
+  this.yPosition = function(x) {
+    if (!arguments.length) return yPosition;
+    yPosition = x;
+    return this;
   };
 
-  pool.xScale = function(f) {
+  this.tooltips = function(f) {
+    if (!arguments.length) return tooltips;
+    tooltips = f;
+    return this;
+  };
+
+  this.xScale = function(f) {
     if (!arguments.length) return xScale;
     xScale = f;
-    return pool;
+    return this;
   };
 
-  pool.imagesBaseUrl = function(x) {
-    if (!arguments.length) return imagesBaseUrl;
-    imagesBaseUrl = x;
-    return pool;
-  };
-
-  // TODO: replace
-  pool.yAxis = function(x) {
+  this.yAxis = function(x) {
     if (!arguments.length) return yAxis;
     yAxis.push(x);
-    return pool;
+    return this;
   };
 
-  pool.addPlotType = function (dataType, plotFunction, dataFillBoolean) {
+  this.addPlotType = function (dataType, plotFunction, dataFillBoolean) {
     plotTypes.push({
       type: dataType,
       plot: plotFunction
@@ -211,14 +187,10 @@ module.exports = function(container) {
     if (dataFillBoolean) {
       container.dataFill[dataType] = true;
     }
-    return pool;
+    return this;
   };
 
-  pool.tooltips = function(x) {
-    if (!arguments.length) return tooltips;
-    tooltips = x;
-    return tooltips;
-  };
+  return this;
+}
 
-  return pool;
-};
+module.exports = Pool;

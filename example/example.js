@@ -16,6 +16,8 @@
  */
 
 var tideline = require('../js');
+var chartDailyFactory = require('./chartdailyfactory');
+var chartWeeklyFactory = require('./chartweeklyfactory');
 var log = window.bows('Example');
 
 // things common to one-day and two-week views
@@ -26,9 +28,15 @@ emitter.on('navigated', function(navString) {
   $('#tidelineNavString').html(navString);
 });
 
-// common pool modules
-var fill = tideline.plot.fill;
-var scales = tideline.plot.scales;
+emitter.on('mostRecent', function(mostRecent) {
+  if (mostRecent) {
+    $('#oneDayMostRecent').parent().addClass('active');
+  }
+  else {
+    $('#oneDayMostRecent').parent().removeClass('active');
+  }
+});
+
 var BasalUtil = tideline.data.BasalUtil;
 
 var el = '#tidelineContainer';
@@ -37,24 +45,15 @@ var imagesBaseUrl = '../img';
 // dear old Watson
 var watson = require('./watson');
 
-// set up one-day and two-week view
-var createNewOneDayChart = function() {
-  return new oneDayChart(el, {imagesBaseUrl: imagesBaseUrl});
-};
-var createNewTwoWeekChart = function() {
-  return new twoWeekChart(el, {imagesBaseUrl: imagesBaseUrl});
-};
-var oneDay = createNewOneDayChart();
-var twoWeek = createNewTwoWeekChart();
+var oneDay = chartDailyFactory(el, {imagesBaseUrl: imagesBaseUrl}, emitter).setupPools();
+// attach click handlers to set up programmatic pan
+$('#tidelineNavForward').on('click', oneDay.panForward);
+$('#tidelineNavBack').on('click', oneDay.panBack);
 
-
-// Note to Nico: this (all the code within d3.json() below) is all rough-and-ready...
-// obviously a lot of it could be refactored
-// but it should be a decent demo of how the interaction between one-day and two-week views could work
-// the TODO issue noted appears to be a thorny one, so I'd like to avoid it for now since there's so much else to do
+var twoWeek = chartWeeklyFactory(el, {imagesBaseUrl: imagesBaseUrl}, emitter);
 
 // load data and draw charts
-d3.json('device-data.json', function(data) {
+d3.json('data/device-data.json', function(data) {
   log('Data loaded.');
   // munge basal segments
   var vizReadyBasals = new BasalUtil(data);
@@ -70,82 +69,60 @@ d3.json('device-data.json', function(data) {
   });
 
   log('Initial one-day view.');
-  oneDay.initialize(data).locate();
-  // attach click handlers to set up programmatic pan
-  $('#tidelineNavForward').on('click', oneDay.panForward);
-  $('#tidelineNavBack').on('click', oneDay.panBack);
+  oneDay.load(data).locate('2014-03-06T09:00:00');
 
   $('#twoWeekView').on('click', function() {
     log('Navigated to two-week view from nav bar.');
     var date = oneDay.getCurrentDay();
-    // remove click handlers for programmatic pan
-    $('#tidelineNavForward').off('click');
-    $('#tidelineNavBack').off('click');
-    oneDay.stopListening().destroy();
+    oneDay.clear().hide();
+
     $(this).parent().addClass('active');
     $('#oneDayView').parent().removeClass('active');
     $('.one-day').css('visibility', 'hidden');
     $('.two-week').css('visibility', 'visible');
-    // TODO: this shouldn't be necessary, but I've screwed something up with the global two-week.js variables
-    // such that its necessary to create a new twoWeek object every time you want to rerender
-    twoWeek = createNewTwoWeekChart();
+    
     // takes user to two-week view with day user was viewing in one-day view at the end of the two-week view window
-    twoWeek.initialize(data, date);
+    twoWeek.show().load(data, date);
   });
 
   $('#oneDayView').on('click', function() {
     log('Navigated to one-day view from nav bar.');
-    twoWeek.destroy();
+    twoWeek.clear().hide();
+
     $(this).parent().addClass('active');
+    
     $('#twoWeekView').parent().removeClass('active');
-    $('#oneDayMostRecent').parent().addClass('active');
     $('.one-day').css('visibility', 'visible');
     $('.two-week').css('visibility', 'hidden');
-    // TODO: this shouldn't be necessary, but I've screwed something up with the global one-day.js variables
-    // such that its necessary to create a new oneDay object every time you want to rerender
-    oneDay = createNewOneDayChart();
+    
     // takes user to one-day view of most recent data
-    oneDay.initialize(data).locate();
-    // attach click handlers to set up programmatic pan
-    $('#tidelineNavForward').on('click', oneDay.panForward);
-    $('#tidelineNavBack').on('click', oneDay.panBack);
+    oneDay.show().locate();
   });
 
   $('#oneDayMostRecent').on('click', function() {
     log('Navigated to most recent one-day view.');
-    twoWeek.destroy();
-    oneDay.stopListening();
+    oneDay.clear().locate();
+
     $(this).parent().addClass('active');
+
     $('#twoWeekView').parent().removeClass('active');
     $('#oneDayMostRecent').parent().addClass('active');
     $('.one-day').css('visibility', 'visible');
     $('.two-week').css('visibility', 'hidden');
-    // TODO: this shouldn't be necessary, but I've screwed something up with the global one-day.js variables
-    // such that its necessary to create a new oneDay object every time you want to rerender
-    oneDay = createNewOneDayChart();
-    // takes user to one-day view of most recent data
-    oneDay.initialize(data).locate();
-    // attach click handlers to set up programmatic pan
-    $('#tidelineNavForward').on('click', oneDay.panForward);
-    $('#tidelineNavBack').on('click', oneDay.panBack);
   });
 
   emitter.on('selectSMBG', function(date) {
     log('Navigated to one-day view from double clicking a two-week view SMBG.');
-    twoWeek.destroy();
+    twoWeek.clear().hide();
+
     $('#oneDayView').parent().addClass('active');
     $('#twoWeekView').parent().removeClass('active');
     $('#oneDayMostRecent').parent().removeClass('active');
     $('.one-day').css('visibility', 'visible');
     $('.two-week').css('visibility', 'hidden');
-    // TODO: this shouldn't be necessary, but I've screwed something up with the global one-day.js variables
-    // such that its necessary to create a new oneDay object every time you want to rerender
-    oneDay = createNewOneDayChart();
+
     // takes user to one-day view of date given by the .d3-smbg-time emitter
-    oneDay.initialize(data).locate(date);
-    // attach click handlers to set up programmatic pan
-    $('#tidelineNavForward').on('click', oneDay.panForward);
-    $('#tidelineNavBack').on('click', oneDay.panBack);
+    oneDay.show().load(data).locate(date);
   });
 
   $('#showHideNumbers').on('click', function() {
@@ -161,309 +138,3 @@ d3.json('device-data.json', function(data) {
     }
   });
 });
-
-// // one-day visualization
-// // =====================
-// // create a 'oneDay' object that is a wrapper around tideline components
-// // for blip's (one-day) data visualization
-function oneDayChart(el, options) {
-  options = options || {};
-
-  var chart = tideline.oneDay(emitter);
-
-  var poolMessages, poolBG, poolBolus, poolBasal, poolStats;
-
-  var create = function(el, options) {
-
-    if (!el) {
-      throw new Error('Sorry, you must provide a DOM element! :(');
-    }
-
-    // basic chart set up
-    chart.defaults().width($(el).width()).height($(el).height());
-
-    if (options.imagesBaseUrl) {
-      chart.imagesBaseUrl(options.imagesBaseUrl);
-    }
-
-    return chart;
-  };
-
-  chart.initialize = function(data) {
-
-    // initialize chart with data
-    chart.data(data);
-    d3.select(el).datum([null]).call(chart);
-    chart.setTooltip();
-
-    // messages pool
-    poolMessages = chart.newPool().defaults()
-      .id('poolMessages')
-      .label('')
-      .index(chart.pools().indexOf(poolMessages))
-      .weight(0.5);
-
-    // blood glucose data pool
-    poolBG = chart.newPool().defaults()
-      .id('poolBG')
-      .label('Blood Glucose')
-      .index(chart.pools().indexOf(poolBG))
-      .weight(1.5);
-
-    // carbs and boluses data pool
-    poolBolus = chart.newPool().defaults()
-      .id('poolBolus')
-      .label('Bolus & Carbohydrates')
-      .index(chart.pools().indexOf(poolBolus))
-      .weight(1.5);
-    
-    // basal data pool
-    poolBasal = chart.newPool().defaults()
-      .id('poolBasal')
-      .label('Basal Rates')
-      .index(chart.pools().indexOf(poolBasal))
-      .weight(1.0);
-
-    // stats widget
-    // poolStats = chart.newPool().defaults()
-    //   .id('poolStats')
-    //   .index(chart.pools().indexOf(poolStats))
-    //   .weight(1.0);
-
-    chart.arrangePools();
-
-    // BG pool
-    var scaleBG = scales.bg(_.filter(data, function(d) {
-      if ((d.type === 'cbg') || (d.type === 'smbg')) {
-        return d;
-      }
-    }), poolBG);
-    // set up y-axis
-    poolBG.yAxis(d3.svg.axis()
-      .scale(scaleBG)
-      .orient('left')
-      .outerTickSize(0)
-      .tickValues([40, 80, 120, 180, 300]));
-    // add background fill rectangles to BG pool
-    poolBG.addPlotType('fill', fill(poolBG, {endpoints: chart.endpoints}), false);
-
-    // add CBG data to BG pool
-    poolBG.addPlotType('cbg', tideline.plot.cbg(poolBG, {yScale: scaleBG}), true);
-
-    // add SMBG data to BG pool
-    poolBG.addPlotType('smbg', tideline.plot.smbg(poolBG, {yScale: scaleBG}), true);
-
-    // bolus & carbs pool
-    var scaleBolus = scales.bolus(_.where(data, {'type': 'bolus'}), poolBolus);
-    var scaleCarbs = scales.carbs(_.where(data, {'type': 'carbs'}), poolBolus);
-    // set up y-axis for bolus
-    poolBolus.yAxis(d3.svg.axis()
-      .scale(scaleBolus)
-      .orient('left')
-      .outerTickSize(0)
-      .ticks(3));
-    // set up y-axis for carbs
-    poolBolus.yAxis(d3.svg.axis()
-      .scale(scaleCarbs)
-      .orient('left')
-      .outerTickSize(0)
-      .ticks(3));
-    // add background fill rectangles to bolus pool
-    poolBolus.addPlotType('fill', fill(poolBolus, {endpoints: chart.endpoints}), false);
-
-    // add carbs data to bolus pool
-    poolBolus.addPlotType('carbs', tideline.plot.carbs(poolBolus, {
-      yScale: scaleCarbs,
-      emitter: emitter,
-      data: _.where(data, {'type': 'carbs'})
-    }), true);
-
-    // add bolus data to bolus pool
-    poolBolus.addPlotType('bolus', tideline.plot.bolus(poolBolus, {
-      yScale: scaleBolus,
-      emitter: emitter,
-      data: _.where(data, {'type': 'bolus'})
-    }), true);
-
-    // basal pool
-    var scaleBasal = scales.basal(_.where(data, {'type': 'basal-rate-segment'}), poolBasal);
-    // set up y-axis
-    poolBasal.yAxis(d3.svg.axis()
-      .scale(scaleBasal)
-      .orient('left')
-      .outerTickSize(0)
-      .ticks(4));
-    // add background fill rectangles to basal pool
-    poolBasal.addPlotType('fill', fill(poolBasal, {endpoints: chart.endpoints}), false);
-
-    // add basal data to basal pool
-    poolBasal.addPlotType('basal-rate-segment', tideline.plot.basal(poolBasal, {yScale: scaleBasal, data: _.where(data, {'type': 'basal-rate-segment'}) }), true);
-
-    // messages pool
-    // add background fill rectangles to messages pool
-    poolMessages.addPlotType('fill', fill(poolMessages, {endpoints: chart.endpoints}), false);
-
-    // add message images to messages pool
-    poolMessages.addPlotType('message', tideline.plot.message(poolMessages, {size: 30}), true);
-
-    return chart;
-  };
-
-  // locate the chart around a certain datetime
-  // if called without an argument, locates the chart at the most recent 24 hours of data
-  chart.locate = function(datetime) {
-
-    var start, end, localData;
-
-    var mostRecent = function() {
-      start = chart.initialEndpoints[0];
-      end = chart.initialEndpoints[1];
-      localData = chart.getData(chart.initialEndpoints, 'both');
-    };
-
-    if (!arguments.length) {
-      mostRecent();
-    }
-    else {
-      start = new Date(datetime);
-      var plusHalf = new Date(start);
-      plusHalf.setUTCHours(plusHalf.getUTCHours() + 12);
-      var minusHalf = new Date(start);
-      minusHalf.setUTCHours(minusHalf.getUTCHours() - 12);
-      if ((start.valueOf() < chart.endpoints[0]) || (start.valueOf() > chart.endpoints[1])) {
-        log("Please don't ask tideline to locate at a date that's outside of your data!");
-        log("Rendering most recent data instead.");
-        mostRecent();
-      }
-      else if (plusHalf.valueOf() > chart.endpoints[1]) {
-        mostRecent();
-      }
-      else if (minusHalf.valueOf() < chart.endpoints[0]) {
-        start = chart.endpoints[0];
-        var firstEnd = new Date(start);
-        firstEnd.setUTCDate(firstEnd.getUTCDate() + 1);
-        end = firstEnd;
-        localData = chart.getData([start, firstEnd], 'both');
-        chart.beginningOfData(start).endOfData(end);
-      }
-      else {
-        end = new Date(start);
-        start.setUTCHours(start.getUTCHours() - 12);
-        end.setUTCHours(end.getUTCHours() + 12);
-
-        localData = chart.getData([start, end], 'both');
-        chart.beginningOfData(start).endOfData(end);
-      }
-    }
-
-    chart.allData(localData, [start, end]);
-
-    // set up click-and-drag and scroll navigation
-    chart.setNav().setScrollNav().setAtDate(start);
-
-    // render pools
-    chart.pools().forEach(function(pool) {
-      pool(chart.poolGroup, localData);
-    });
-
-    // add tooltips
-    chart.tooltips.addGroup(d3.select('#' + poolBG.id()), 'cbg');
-    chart.tooltips.addGroup(d3.select('#' + poolBG.id()), 'smbg');
-    chart.tooltips.addGroup(d3.select('#' + poolBolus.id()), 'carbs');
-    chart.tooltips.addGroup(d3.select('#' + poolBolus.id()), 'bolus');
-    chart.tooltips.addGroup(d3.select('#' + poolBasal.id()), 'basal');
-
-    return chart;
-  };
-
-  chart.getCurrentDay = function() {
-    return chart.getCurrentDomain().end;
-  };
-
-  return create(el, options);
-}
-
-// // two-week visualization
-// // =====================
-// // create a 'twoWeek' object that is a wrapper around tideline components
-// // for blip's (two-week) data visualization
-function twoWeekChart(el, options) {
-  options = options || {};
-
-  var chart = tideline.twoWeek(emitter);
-
-  var pools = [];
-
-  var create = function(el, options) {
-    if (!el) {
-      throw new Error('Sorry, you must provide a DOM element! :(');
-    }
-
-    // basic chart set up
-    chart.defaults().width($(el).width()).height($(el).height());
-
-    if (options.imagesBaseUrl) {
-      chart.imagesBaseUrl(options.imagesBaseUrl);
-    }
-
-    return chart;
-  };
-
-  chart.initialize = function(data, datetime) {
-
-    if (!datetime) {
-      chart.data(_.where(data, {'type': 'smbg'}));
-    }
-    else {
-      var smbgData = _.where(data, {'type': 'smbg'});
-      if (datetime.valueOf() > Date.parse(smbgData[smbgData.length - 1].normalTime)) {
-        datetime = smbgData[smbgData.length - 1].normalTime;
-      }
-      chart.data(smbgData, datetime);
-    }
-
-    // initialize chart
-    d3.select(el).datum([null]).call(chart);
-    chart.setNav().setScrollNav();
-
-    days = chart.days;
-    // make pools for each day
-    days.forEach(function(day, i) {
-      var newPool = chart.newPool().defaults()
-        .id('poolBG_' + day)
-        .index(chart.pools().indexOf(newPool))
-        .weight(1.0);
-    });
-    chart.arrangePools();
-
-    var fillEndpoints = [new Date('2014-01-01T00:00:00Z'), new Date('2014-01-02T00:00:00Z')];
-    var fillScale = d3.time.scale.utc()
-      .domain(fillEndpoints)
-      .range([chart.axisGutter(), chart.width() - chart.navGutter()]);
-
-    var smbgTime = new tideline.plot.SMBGTime({emitter: emitter});
-
-    chart.pools().forEach(function(pool, i) {
-      pool.addPlotType('fill', fill(pool, {
-        endpoints: fillEndpoints,
-        scale: fillScale,
-        gutter: 0.5
-      }), false);
-      pool.addPlotType('smbg', smbgTime.draw(pool), true);
-      pool(chart.daysGroup, chart.dataPerDay[i]);
-    });
-
-    emitter.on('numbers', function(toggle) {
-      if (toggle === 'show') {
-        smbgTime.showValues();
-      }
-      else if (toggle === 'hide') {
-        smbgTime.hideValues();
-      }
-    });
-
-    return chart;
-  };
-
-  return create(el, options);
-}

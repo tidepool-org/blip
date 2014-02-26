@@ -29,11 +29,13 @@ module.exports = {
     bolus: require('./plot/bolus'),
     carbs: require('./plot/carbs'),
     cbg: require('./plot/cbg'),
-    fill: require('./plot/fill'),
     message: require('./plot/message'),
-    scales: require('./plot/scales'),
     SMBGTime: require('./plot/smbg-time'),
     smbg: require('./plot/smbg'),
-    tooltip: require('./plot/tooltip')
+    util: {
+      fill: require('./plot/util/fill'),
+      scales: require('./plot/util/scales'),
+      tooltip: require('./plot/util/tooltip')
+    }
   }
 };

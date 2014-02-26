@@ -32,7 +32,6 @@ module.exports = function(pool, opts) {
       'two-line': {'tooltip': 'tooltip_bolus_large.svg', 'width': 98, 'height': 39},
       'three-line': {'tooltip': 'tooltip_bolus_extralarge.svg', 'width': 98, 'height': 58}
     },
-    xScale: pool.xScale().copy(),
     width: 12,
     bolusStroke: 2,
     triangleSize: 6,
@@ -70,6 +69,7 @@ module.exports = function(pool, opts) {
   });
 
   function bolus(selection) {
+    opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
       var boluses = d3.select(this)
         .selectAll('g')
@@ -232,7 +232,7 @@ module.exports = function(pool, opts) {
     var tooltipWidth = opts.classes[category].width;
     var tooltipHeight = opts.classes[category].height;
     d3.select('#' + 'd3-tooltip-group_bolus')
-      .call(tooltips,
+      .call(pool.tooltips(),
         d,
         // tooltipXPos
         opts.xScale(Date.parse(d.normalTime)),

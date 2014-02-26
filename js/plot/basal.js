@@ -30,7 +30,6 @@ module.exports = function(pool, opts) {
       'temp': {'tooltip': 'basal_tooltip_temp_large.svg', 'height': 40}
     },
     tooltipWidth: 180,
-    xScale: pool.xScale().copy(),
     pathStroke: 1.5,
     opacity: 0.3,
     opacityDelta: 0.1
@@ -39,6 +38,7 @@ module.exports = function(pool, opts) {
   _.defaults(opts, defaults);
 
   function basal(selection) {
+    opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
 
       // to prevent blank rectangle at beginning of domain
@@ -351,7 +351,8 @@ module.exports = function(pool, opts) {
 
   basal.addTooltip = function(d, category, unD) {
     var tooltipHeight = opts.classes[category].height;
-    d3.select('#' + 'd3-tooltip-group_basal').call(tooltips,
+    d3.select('#' + 'd3-tooltip-group_basal')
+      .call(pool.tooltips(),
         d,
         // tooltipXPos
         opts.xScale(Date.parse(d.normalTime)),

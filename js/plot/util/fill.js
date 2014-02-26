@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-var log = require('../lib/bows')('Fill');
+var log = require('../../lib/bows')('Fill');
 
 module.exports = function(pool, opts) {
 
@@ -38,19 +38,21 @@ module.exports = function(pool, opts) {
       21: 'darkest'
     },
     duration: 3,
-    scale: pool.xScale().copy(),
     gutter: 0
   };
 
   _.defaults(opts || {}, defaults);
 
   function fill(selection) {
+    if (!opts.xScale) {
+      opts.xScale = pool.xScale().copy();
+    }
     fill.findNearest(opts.endpoints[1]);
     var otherNear = new Date(nearest);
     otherNear.setMinutes(otherNear.getMinutes() - otherNear.getTimezoneOffset());
     fills.push({
-      width: opts.scale(last) - opts.scale(nearest),
-      x: opts.scale(otherNear),
+      width: opts.xScale(last) - opts.xScale(nearest),
+      x: opts.xScale(otherNear),
       fill: opts.classes[nearest.getHours()]
     });
     current = new Date(nearest);
@@ -60,8 +62,8 @@ module.exports = function(pool, opts) {
       var otherNext = new Date(next);
       otherNext.setMinutes(otherNext.getMinutes() - otherNext.getTimezoneOffset());
       fills.push({
-        width: opts.scale(current) - opts.scale(next),
-        x: opts.scale(otherNext),
+        width: opts.xScale(current) - opts.xScale(next),
+        x: opts.xScale(otherNext),
         fill: opts.classes[next.getHours()]
       });
       current = next;

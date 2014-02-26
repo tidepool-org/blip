@@ -21,21 +21,19 @@ module.exports = function(pool, opts) {
 
   opts = opts || {};
 
-  var cbgCircles, tooltips = pool.tooltips();
-
   var defaults = {
     classes: {
       'low': {'boundary': 80, 'tooltip': 'cbg_tooltip_low.svg'},
       'target': {'boundary': 180, 'tooltip': 'cbg_tooltip_target.svg'},
       'high': {'boundary': 200, 'tooltip': 'cbg_tooltip_high.svg'}
     },
-    xScale: pool.xScale().copy(),
     tooltipSize: 24
   };
 
   _.defaults(opts, defaults);
 
   function cbg(selection) {
+    opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
       var allCBG = d3.select(this).selectAll('circle')
         .data(currentData, function(d) {
@@ -124,7 +122,7 @@ module.exports = function(pool, opts) {
 
   cbg.addTooltip = function(d, category) {
     d3.select('#' + 'd3-tooltip-group_cbg')
-      .call(tooltips,
+      .call(pool.tooltips(),
         d,
         // tooltipXPos
         opts.xScale(Date.parse(d.normalTime)),
