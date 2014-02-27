@@ -28,7 +28,18 @@
 // one-day.js, two-week.js, and pool.js.
 //
 
-var log = window.bows('Watson');
+var _ = require('lodash');
+// Tideline expects a global `window` object to grab its dependencies
+// Not very pretty to add one this way, but as long as we run
+// these tests in Node (vs. in the browser), this is required
+global.window = {_: _};
+
+try {
+  var log = window.bows('Watson');
+}
+catch (ReferenceError) {
+  var log = require('../js/lib/bows')('Watson');
+}
 
 var watson = {
   normalize: function(a) {

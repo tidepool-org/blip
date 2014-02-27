@@ -15,38 +15,20 @@
  * == BSD2 LICENSE ==
  */
 
-// e.g., pool labels
-@text: #808080;
-@pool-legend: #CCCCCC;
-@light-labels: #989897;
+// Usage:
+// node munge-bolus.js <path-to-file> | json > output.json
 
-// stats
-@stats-head: #4E4E4F;
-@stats-lead: #676767;
-@stats-percentage: #808184;
+var _ = require('../js/lib/underscore');
+var watson = require('../example/watson');
+var CBGUtil = require('../js/data/cbgutil');
 
-// axes
-@ticks: #B9C8D0;
-@two-week-weekend: #BAC9D1;
+var filename = process.argv[2];
 
-// one-day view tideline background rectangle fill colors
-@fill-darkest: #DCE4E7;
-@fill-dark: #E3EAED;
-@fill-lighter: #E9EFF1;
-@fill-light: #F2F4F6;
-@fill-lightest: #F8F9FA;
+var data = watson.normalize(require(filename));
 
-// blood glucose colors
-@bg-low: #FF8B7C;
-@bg-target: #9AD859;
-@bg-high: #BB9AE7;
+var c = new CBGUtil(_.where(data, {'type': 'cbg'}));
 
-// carbs color
-@carbs: #FFD382;
+var start = new Date("2014-02-14T00:00:00").valueOf();
+var end = new Date("2014-02-15T00:00:00").valueOf();
 
-// bolus color
-@bolus: #79D0F2;
-@recommended: #BCECFA;
-
-// basal colors
-@basal: #029EB3;
+console.log(c.rangeBreakdown(start, end));

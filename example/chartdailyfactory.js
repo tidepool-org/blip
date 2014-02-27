@@ -18,6 +18,7 @@
 var bows = window.bows;
 
 var tideline = require('../js');
+var watson = require('./watson');
 
 var fill = tideline.plot.util.fill;
 var scales = tideline.plot.util.scales;
@@ -74,6 +75,12 @@ function chartDailyFactory(el, options, emitter) {
       .index(chart.pools().indexOf(poolBasal))
       .weight(1.0);
 
+    // stats data pool
+    poolStats = chart.newPool()
+      .id('poolStats', chart.poolGroup())
+      .index(chart.pools().indexOf(poolStats))
+      .weight(1.0);
+
     chart.arrangePools();
 
     chart.setTooltip();
@@ -89,6 +96,12 @@ function chartDailyFactory(el, options, emitter) {
   };
 
   chart.load = function(data, datetime) {
+    // data munging utilities for stats
+    var basalUtil = new tideline.data.BasalUtil(_.where(data, {'type': 'basal-rate-segment'}));
+    basalUtil.normalizedActual = watson.normalize(basalUtil.actual);
+    var bolusUtil = new tideline.data.BolusUtil(_.where(data, {'type': 'bolus'}));
+    var cbgUtil = new tideline.data.CBGUtil(_.where(data, {'type': 'cbg'}));
+
     chart.stopListening();
     // initialize chart with data
     chart.data(data).setAxes().setNav().setScrollNav();
@@ -106,13 +119,13 @@ function chartDailyFactory(el, options, emitter) {
       .outerTickSize(0)
       .tickValues([40, 80, 120, 180, 300]));
     // add background fill rectangles to BG pool
-    poolBG.addPlotType('fill', fill(poolBG, {endpoints: chart.endpoints}), false);
+    poolBG.addPlotType('fill', fill(poolBG, {endpoints: chart.endpoints}), false, true);
 
     // add CBG data to BG pool
-    poolBG.addPlotType('cbg', tideline.plot.cbg(poolBG, {yScale: scaleBG}), true);
+    poolBG.addPlotType('cbg', tideline.plot.cbg(poolBG, {yScale: scaleBG}), true, true);
 
     // add SMBG data to BG pool
-    poolBG.addPlotType('smbg', tideline.plot.smbg(poolBG, {yScale: scaleBG}), true);
+    poolBG.addPlotType('smbg', tideline.plot.smbg(poolBG, {yScale: scaleBG}), true, true);
 
     // bolus & carbs pool
     var scaleBolus = scales.bolus(_.where(data, {'type': 'bolus'}), poolBolus);
@@ -130,21 +143,21 @@ function chartDailyFactory(el, options, emitter) {
       .outerTickSize(0)
       .ticks(3));
     // add background fill rectangles to bolus pool
-    poolBolus.addPlotType('fill', fill(poolBolus, {endpoints: chart.endpoints}), false);
+    poolBolus.addPlotType('fill', fill(poolBolus, {endpoints: chart.endpoints}), false, true);
 
     // add carbs data to bolus pool
     poolBolus.addPlotType('carbs', tideline.plot.carbs(poolBolus, {
       yScale: scaleCarbs,
       emitter: emitter,
       data: _.where(data, {'type': 'carbs'})
-    }), true);
+    }), true, true);
 
     // add bolus data to bolus pool
     poolBolus.addPlotType('bolus', tideline.plot.bolus(poolBolus, {
       yScale: scaleBolus,
       emitter: emitter,
       data: _.where(data, {'type': 'bolus'})
-    }), true);
+    }), true, true);
 
     // basal pool
     var scaleBasal = scales.basal(_.where(data, {'type': 'basal-rate-segment'}), poolBasal);
@@ -155,17 +168,26 @@ function chartDailyFactory(el, options, emitter) {
       .outerTickSize(0)
       .ticks(4));
     // add background fill rectangles to basal pool
-    poolBasal.addPlotType('fill', fill(poolBasal, {endpoints: chart.endpoints}), false);
+    poolBasal.addPlotType('fill', fill(poolBasal, {endpoints: chart.endpoints}), false, true);
 
     // add basal data to basal pool
-    poolBasal.addPlotType('basal-rate-segment', tideline.plot.basal(poolBasal, {yScale: scaleBasal, data: _.where(data, {'type': 'basal-rate-segment'}) }), true);
+    poolBasal.addPlotType('basal-rate-segment', tideline.plot.basal(poolBasal, {yScale: scaleBasal, data: _.where(data, {'type': 'basal-rate-segment'}) }), true, true);
 
     // messages pool
     // add background fill rectangles to messages pool
-    poolMessages.addPlotType('fill', fill(poolMessages, {endpoints: chart.endpoints}), false);
+    poolMessages.addPlotType('fill', fill(poolMessages, {endpoints: chart.endpoints}), false, true);
 
     // add message images to messages pool
-    poolMessages.addPlotType('message', tideline.plot.message(poolMessages, {size: 30}), true);
+    poolMessages.addPlotType('message', tideline.plot.message(poolMessages, {size: 30}), true, true);
+
+    // stats pool
+    poolStats.addPlotType('stats', tideline.plot.stats.widget(poolStats, {
+      cbg: cbgUtil,
+      bolus: bolusUtil,
+      basal: basalUtil,
+      xPosition: chart.axisGutter(),
+      emitter: emitter
+    }), false, false);
 
     return chart;
   };
@@ -224,6 +246,8 @@ function chartDailyFactory(el, options, emitter) {
     chart.pools().forEach(function(pool) {
       pool.render(chart.poolGroup(), localData);
     });
+
+    //emitter.emit('currentDomain', [start, end]);
 
     return chart;
   };

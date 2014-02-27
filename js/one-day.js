@@ -217,6 +217,7 @@ module.exports = function(emitter) {
       navString = beginning + ' - ' + end;
     }
     if (!d3.select('#' + id).classed('hidden')) {
+      emitter.emit('currentDomain', a);
       emitter.emit('navigated', navString);
       if (a[1].valueOf() === endpoints[1].valueOf()) {
         emitter.emit('mostRecent', true);

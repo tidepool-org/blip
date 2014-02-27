@@ -62,7 +62,9 @@ function Pool (container) {
   this.pan = function(e) {
     container.latestTranslation(e.translate[0]);
     plotTypes.forEach(function(plotType) {
-      d3.select('#' + id + '_' + plotType.type).attr('transform', 'translate(' + e.translate[0] + ',0)');
+      if (plotType.panBoolean) {
+        d3.select('#' + id + '_' + plotType.type).attr('transform', 'translate(' + e.translate[0] + ',0)');
+      }
     });
   };
 
@@ -76,6 +78,10 @@ function Pool (container) {
   // getters only
   this.group = function() {
     return group;
+  };
+
+  this.width = function() {
+    return container.width() - container.axisGutter();
   };
 
   this.imagesBaseUrl = function() {
@@ -179,10 +185,11 @@ function Pool (container) {
     return this;
   };
 
-  this.addPlotType = function (dataType, plotFunction, dataFillBoolean) {
+  this.addPlotType = function (dataType, plotFunction, dataFillBoolean, panBoolean) {
     plotTypes.push({
       type: dataType,
-      plot: plotFunction
+      plot: plotFunction,
+      panBoolean: panBoolean
     });
     if (dataFillBoolean) {
       container.dataFill[dataType] = true;

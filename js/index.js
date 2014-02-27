@@ -21,7 +21,9 @@ module.exports = {
   twoWeek: require('./two-week'),
 
   data: {
-    BasalUtil: require('./data/basalutil')
+    BasalUtil: require('./data/basalutil'),
+    BolusUtil: require('./data/bolusutil'),
+    CBGUtil: require('./data/cbgutil')
   },
 
   plot: {
@@ -32,6 +34,10 @@ module.exports = {
     message: require('./plot/message'),
     SMBGTime: require('./plot/smbg-time'),
     smbg: require('./plot/smbg'),
+    stats: {
+      puddle: require('./plot/stats/puddle'),
+      widget: require('./plot/stats/widget')
+    },
     util: {
       fill: require('./plot/util/fill'),
       scales: require('./plot/util/scales'),
