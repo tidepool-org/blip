@@ -259,6 +259,10 @@ window.tidepoolPlatform = function(host, api, auth){
 
     api.init = function(cb) { return cb(); };
 
+    api.isAuthenticated = function() {
+      return Boolean(token);
+    };
+
     api.login = function(user, cb) {
       if (user.username == null) {
         return cb({ message: 'Must specify an username' });

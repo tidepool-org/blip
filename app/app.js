@@ -519,6 +519,11 @@ var AppComponent = React.createClass({
   },
 
   handleLogoutSuccess: function() {
+    // Nasty race condition between React state change and router it seems,
+    // need to call `showLogin()` to make sure we don't try to render something
+    // else, although it will get called again after router changes route, but
+    // that's ok
+    this.showLogin();
     this.setState({authenticated: false});
     this.clearUserData();
     router.setRoute('/login');
