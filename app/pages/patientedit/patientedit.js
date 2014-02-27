@@ -86,7 +86,7 @@ var PatientEdit = React.createClass({
   },
 
   renderSubnav: function() {
-    var backUrl = this.getBackUrl();
+    var backButton = this.renderBackButton();
     var title = this.getTitle();
 
     /* jshint ignore:start */
@@ -95,10 +95,7 @@ var PatientEdit = React.createClass({
         <div className="container-box-inner patient-edit-subnav-inner">
           <div className="grid patient-edit-subnav">
             <div className="grid-item one-whole medium-one-third">
-              <a href={backUrl}>
-                <i className="icon-back"></i>
-                {' ' + 'Back'}
-              </a>
+              {backButton}
             </div>
             <div className="grid-item one-whole medium-one-third">
               <div className="patient-edit-subnav-title">{title}</div>
@@ -110,15 +107,23 @@ var PatientEdit = React.createClass({
     /* jshint ignore:end */
   },
 
-  getBackUrl: function() {
-    var backUrl = '#/patients';
+  renderBackButton: function() {
+    var url = '#/';
+    var text = 'Patient profile';
     var patient = this.props.patient;
 
     if (patient && patient.id) {
-      backUrl = '#/patients/' + patient.id;
+      url = '#/patients/' + patient.id;
     }
 
-    return backUrl;
+    /* jshint ignore:start */
+    return (
+      <a href={url}>
+        <i className="icon-back"></i>
+        {' ' + text}
+      </a>
+    );
+    /* jshint ignore:end */
   },
 
   getTitle: function() {

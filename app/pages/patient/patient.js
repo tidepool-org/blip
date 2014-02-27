@@ -79,7 +79,7 @@ var Patient = React.createClass({
   },
 
   renderSubnav: function() {
-    var backUrl = this.getBackUrl();
+    var backButton = this.renderBackButton();
 
     /* jshint ignore:start */
     return (
@@ -87,10 +87,7 @@ var Patient = React.createClass({
         <div className="container-box-inner patient-subnav-inner">
           <div className="grid patient-subnav">
             <div className="grid-item one-whole medium-one-third">
-              <a href={backUrl}>
-                <i className="icon-back"></i>
-                {' ' + 'Back'}
-              </a>
+              {backButton}
             </div>
             <div className="grid-item one-whole medium-one-third">
               <div className="patient-subnav-title">Patient profile</div>
@@ -102,15 +99,23 @@ var Patient = React.createClass({
     /* jshint ignore:end */
   },
 
-  getBackUrl: function() {
-    var backUrl = '#/';
+  renderBackButton: function() {
+    var url = '#/';
+    var text = 'Patient data';
     var patient = this.props.patient;
 
     if (patient && patient.id) {
-      backUrl = '#/patients/' + patient.id + '/data';
+      url = '#/patients/' + patient.id + '/data';
     }
 
-    return backUrl;
+    /* jshint ignore:start */
+    return (
+      <a href={url}>
+        <i className="icon-back"></i>
+        {' ' + text}
+      </a>
+    );
+    /* jshint ignore:end */
   },
 
   renderUploadLink: function() {
