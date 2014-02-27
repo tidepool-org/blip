@@ -67,6 +67,16 @@ var patch = function(api, options) {
     }, config.MOCK_DELAY);
   };
 
+  api.patient.post = function(patient, callback) {
+    api.log('[mock] POST /patients');
+    patient = _.clone(patient);
+    // Default mock id of patient assigned to user of id '1'
+    patient.id = '11';
+    setTimeout(function() {
+      callback(null, patient);
+    }, config.MOCK_DELAY);
+  };
+
   api.patient.put = function(patientId, patient, callback) {
     api.log('[mock] PUT /patients/' + patientId);
     var updatedPatient;
