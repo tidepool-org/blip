@@ -178,6 +178,7 @@ module.exports = function(emitter) {
     pools.forEach(function(pool) {
       cumWeight += pool.weight();
     });
+    gutter = 0.25 * (container.height() / cumWeight);
     var totalPoolsHeight =
       container.height() - nav.axisHeight - nav.scrollNavHeight - (numPools - 1) * gutter;
     var poolScaleHeight = totalPoolsHeight/cumWeight;
