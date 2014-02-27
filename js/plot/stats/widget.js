@@ -16,6 +16,7 @@
  */
 
 var log = require('../../lib/bows')('Stats');
+var scales = require('../util/scales');
 
 module.exports = function(pool, opts) {
 
@@ -24,6 +25,15 @@ module.exports = function(pool, opts) {
   opts = opts || {};
 
   var defaults = {
+    classes: {
+      'very-low': {'boundary': 60},
+      'low': {'boundary': 80},
+      'target': {'boundary': 180},
+      'high': {'boundary': 200},
+      'very-high': {'boundary': 300}
+    },
+    imagesBaseUrl: pool.imagesBaseUrl(),
+    size: 16,
     'pieRadius': pool.height() * 0.45
   };
 
@@ -44,7 +54,7 @@ module.exports = function(pool, opts) {
 
   _.defaults(opts, defaults);
 
-  var widgetGroup;
+  var widgetGroup, rectScale;
 
   var puddles = [];
 
@@ -53,31 +63,46 @@ module.exports = function(pool, opts) {
     stats.initialize();
   }
 
-  stats.initialize = function() {
+  stats.initialize = _.once(function() {
     // move this group inside the container's axisGutter
     widgetGroup.attr({
-      'transform': 'translate(' + opts.xPosition + ",0)"
+      'transform': 'translate(' + opts.xPosition + ',' + opts.yPosition + ')'
     });
     // create basal-to-bolus ratio puddle
-    stats.newPuddle('Ratio', 'Basal : Bolus', 'Basal to bolus insulin ratio', true);
+    stats.newPuddle('Ratio', 'Basal : Bolus', 'Basal to bolus insulin ratio', 1.0, true);
     // create time-in-range puddle
-    stats.newPuddle('Range', 'Time in Target Range', 'Target range: 80 - 180 mg/dL', true);
+    stats.newPuddle('Range', 'Time in Target Range', 'Target range: 80 - 180 mg/dL', 1.2, true);
     // create average BG puddle
-    stats.newPuddle('Average', 'Average BG', 'For these two weeks', false);
+    if (opts.oneDay) {
+      stats.newPuddle('Average', 'Average BG', 'This day', 0.9, false);
+    }
+    else {
+      stats.newPuddle('Average', 'Average BG', 'These two weeks', 0.9, false);
+    }
+    stats.arrangePuddles();
+  });
+
+  stats.arrangePuddles = function() {
+    var cumWeight = _.reduce(puddles, function(memo, puddle) { return memo + puddle.weight; }, 0);
+    var currentWeight = 0;
+    var currX = 0;
     puddles.forEach(function(puddle, i) {
+      currentWeight += puddle.weight;
+      puddle.width((puddle.weight/cumWeight) * pool.width());
       var puddleGroup = widgetGroup.append('g')
         .attr({
-          'transform': 'translate(' + ((pool.width() / 3) * i) + ',0)',
+          'transform': 'translate(' + currX + ',0)',
           'class': 'd3-stats',
           'id': 'puddle_' + puddle.id
         });
+      currX = (currentWeight / cumWeight) * pool.width();
       puddleGroup.call(puddle);
     });
   };
 
   stats.draw = function() {
     puddles.forEach(function(puddle) {
-      var puddleGroup = d3.select('#puddle_' + puddle.id);
+      var puddleGroup = pool.group().select('#puddle_' + puddle.id);
       if (puddle.pie) {
         var thisPie = _.find(pies, function(p) {
           return p.id === puddle.id;
@@ -90,13 +115,98 @@ module.exports = function(pool, opts) {
           });
         }
         else {
-          log('Updating pie...');
           stats.updatePie(thisPie, data[puddle.id.toLowerCase()]);
+        }
+      }
+      else {
+        if (!stats.rectGroup) {
+          stats.createRect(puddle, puddleGroup, data[puddle.id.toLowerCase()]);
+        }
+        else {
+          stats.updateAverage(data[puddle.id.toLowerCase()]);
         }
       }
       var display = stats.getDisplay(puddle.id);
       puddle.dataDisplay(puddleGroup, display);
     });
+  };
+
+  stats.createRect = function(puddle, puddleGroup, data) {
+    var rectGroup = puddleGroup.append('g')
+      .attr('id', 'd3-stats-rect-group');
+
+    puddle.height(pool.height() * (4/5));
+
+    rectGroup.append('rect')
+      .attr({
+        'x': puddle.width() / 16,
+        'y': pool.height() / 10,
+        'width': puddle.width() / 8,
+        'height': pool.height() * (4/5),
+        'class': 'd3-stats-rect rect-left'
+      });
+
+    rectGroup.append('rect')
+      .attr({
+        'x': puddle.width() * (3/16),
+        'y': pool.height() / 10,
+        'width': puddle.width() / 8,
+        'height': pool.height() * (4/5),
+        'class': 'd3-stats-rect rect-right'
+      });
+
+    rectScale = scales.bg(opts.cbg.data, puddle);
+
+    rectGroup.append('line')
+      .attr({
+        'x1': puddle.width() / 16,
+        'x2': puddle.width() * (5/16),
+        'y1': rectScale(80) + (pool.height() / 10),
+        'y2': rectScale(80) + (pool.height() / 10),
+        'class': 'd3-stats-rect-line'
+      });
+
+    rectGroup.append('line')
+      .attr({
+        'x1': puddle.width() / 16,
+        'x2': puddle.width() * (5/16),
+        'y1': rectScale(180) + (pool.height() / 10),
+        'y2': rectScale(180) + (pool.height() / 10),
+        'class': 'd3-stats-rect-line'
+      });
+
+    rectGroup.append('image')
+      .attr({
+        'xlink:href': function() {
+          if (data.value <= opts.classes['very-low']['boundary']) {
+            return opts.imagesBaseUrl + '/smbg/very_low.svg';
+          }
+          else if ((data.value > opts.classes['very-low']['boundary']) && (data.value <= opts.classes['low']['boundary'])) {
+            return opts.imagesBaseUrl + '/smbg/low.svg';
+          }
+          else if ((data.value > opts.classes['low']['boundary']) && (data.value <= opts.classes['target']['boundary'])) {
+            return opts.imagesBaseUrl + '/smbg/target.svg';
+          }
+          else if ((data.value > opts.classes['target']['boundary']) && (data.value <= opts.classes['high']['boundary'])) {
+            return opts.imagesBaseUrl + '/smbg/high.svg';
+          }
+          else if (data.value > opts.classes['high']['boundary']) {
+            return opts.imagesBaseUrl + '/smbg/very_high.svg';
+          }
+        },
+        'x': (puddle.width() * (3/16)) - (opts.size / 2),
+        'y': rectScale(data.value) - (opts.size / 2) + (puddle.height() / 10),
+        'width': opts.size,
+        'height': opts.size,
+        'class': 'd3-image d3-stats-image'
+      });
+  };
+
+  stats.updateAverage = function(data) {
+    rectGroup.select('.d3-stats-image')
+      .attr({
+        'y': rectScale(data.value) - (opts.size / 2) + (puddle.height() / 10)
+      });
   };
 
   stats.createPie = function(puddleGroup, data) {
@@ -138,13 +248,22 @@ module.exports = function(pool, opts) {
       });
   };
 
-  stats.newPuddle = function(id, head, lead, pieBoolean) {
+  stats.newPuddle = function(id, head, lead, weight, pieBoolean) {
     var p = new puddle({
       'id': id,
       'head': head,
       'lead': lead,
       'width': pool.width()/3,
       'height': pool.height(),
+      'weight': weight,
+      'xOffset': function() {
+        if (pieBoolean) {
+          return (pool.width()/3) / 3;
+        }
+        else {
+          return (pool.width()/3) * (2 / 5);
+        }
+      },
       'pie': pieBoolean
     });
     puddles.push(p);

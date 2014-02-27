@@ -186,7 +186,9 @@ function chartDailyFactory(el, options, emitter) {
       bolus: bolusUtil,
       basal: basalUtil,
       xPosition: chart.axisGutter(),
-      emitter: emitter
+      yPosition: 0,
+      emitter: emitter,
+      oneDay: true
     }), false, false);
 
     return chart;
@@ -240,14 +242,12 @@ function chartDailyFactory(el, options, emitter) {
     chart.beginningOfData(start).endOfData(end);
     chart.allData(localData, [start, end]);
 
-    chart.setAtDate(start);
+    chart.setAtDate(start).navString([start, end]);
 
     // render pools
     chart.pools().forEach(function(pool) {
       pool.render(chart.poolGroup(), localData);
     });
-
-    //emitter.emit('currentDomain', [start, end]);
 
     return chart;
   };

@@ -36,7 +36,7 @@ module.exports = function(emitter) {
       currentTranslation: 0
     },
     axisGutter = 60,
-    statsHeight = 50,
+    statsHeight = 100,
     pools = [], poolGroup, daysGroup,
     xScale = d3.scale.linear(), yScale = d3.time.scale.utc(),
     data, allData = [], endpoints, viewEndpoints, dataStartNoon, lessThanTwoWeeks = false, viewIndex,
@@ -103,7 +103,21 @@ module.exports = function(emitter) {
       currentYPosition += pool.height();
       pool.group().attr('transform', 'translate(0,' + pool.yPosition() + ')');
     }
-    container.navString(yScale.domain());
+
+    // setup stats group
+    container.poolStats = new Pool(container);
+    container.poolStats.id('poolStats', poolGroup).weight(1.0).height(statsHeight * (4/5));
+    container.poolStats.group().attr({
+      'transform': 'translate(' + axisGutter + ',' + (height - statsHeight) + ')'
+    });
+    container.poolStats.group().append('rect')
+      .attr({
+        'x': 0,
+        'y': 0,
+        'width': width - axisGutter - nav.navGutter,
+        'height': statsHeight,
+        'fill': 'white'
+      });
   };
 
   container.clear = function() {
@@ -132,9 +146,13 @@ module.exports = function(emitter) {
   };
 
   container.navString = function(a) {
+    if (!arguments.length) {
+      a = yScale.domain();
+    }
     var monthDay = d3.time.format.utc("%B %-d");
     var navString = monthDay(new Date(a[0].setUTCDate(a[0].getUTCDate() + 1))) + ' - ' + monthDay(a[1]);
     if (!d3.select('#' + id).classed('hidden')) {
+      emitter.emit('currentDomain', a);
       emitter.emit('navigated', navString);
     }
   };
@@ -195,17 +213,6 @@ module.exports = function(emitter) {
       });
 
     daysGroup = poolGroup.append('g').attr('id', 'daysGroup');
-
-    statsGroup = poolGroup.append('g').attr('id', 'poolStats')
-      .attr('transform', 'translate(' + axisGutter + ',' + (height - statsHeight) + ')')
-      .append('rect')
-      .attr({
-        'x': 0,
-        'y': 0,
-        'width': width - axisGutter - nav.navGutter,
-        'height': statsHeight,
-        'fill': 'white'
-      });
 
     scrollNav = mainGroup.append('g')
       .attr('class', 'y scroll')

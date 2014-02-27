@@ -230,7 +230,7 @@ svg {
       dominant-baseline: hanging;
       font-size: @font-size-puddle-head;
       font-weight: bold;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
       fill: @stats-head;
     }
@@ -279,5 +279,18 @@ svg {
         fill: @bg-high;
       }
     }    
+  }
+  .d3-stats-rect {
+    &.rect-left {
+      fill: @fill-dark;
+    }
+    &.rect-right {
+      fill: @fill-darkest;
+    }
+  }
+  .d3-stats-rect-line {
+    stroke: white;
+    stroke-width: 2px;
+    stroke-dasharray: 3,5; 
   }
 }

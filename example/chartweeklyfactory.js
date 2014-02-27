@@ -18,6 +18,7 @@
 var bows = window.bows;
 
 var tideline = require('../js');
+var watson = require('./watson');
 
 var fill = tideline.plot.util.fill;
 
@@ -45,6 +46,11 @@ function chartWeeklyFactory(el, options, emitter) {
   };
 
   chart.load = function(data, datetime) {
+    // data munging utilities for stats
+    var basalUtil = new tideline.data.BasalUtil(_.where(data, {'type': 'basal-rate-segment'}));
+    basalUtil.normalizedActual = watson.normalize(basalUtil.actual);
+    var bolusUtil = new tideline.data.BolusUtil(_.where(data, {'type': 'bolus'}));
+    var cbgUtil = new tideline.data.CBGUtil(_.where(data, {'type': 'cbg'}));
 
     if (!datetime) {
       chart.data(_.where(data, {'type': 'smbg'}));
@@ -90,7 +96,21 @@ function chartWeeklyFactory(el, options, emitter) {
       pool.render(chart.daysGroup(), chart.dataPerDay[i]);
     });
 
-     emitter.on('numbers', function(toggle) {
+    chart.poolStats.addPlotType('stats', tideline.plot.stats.widget(chart.poolStats, {
+      cbg: cbgUtil,
+      bolus: bolusUtil,
+      basal: basalUtil,
+      xPosition: 0,
+      yPosition: chart.poolStats.height() / 10,
+      emitter: emitter,
+      oneDay: false
+    }), false, false);
+
+    chart.poolStats.render(chart.poolGroup());
+
+    chart.navString();
+
+    emitter.on('numbers', function(toggle) {
       if (toggle === 'show') {
         smbgTime.showValues();
       }

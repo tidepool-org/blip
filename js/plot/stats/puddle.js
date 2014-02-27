@@ -29,8 +29,9 @@ module.exports = function(opts) {
 
   _.defaults(opts, defaults);
 
+  var height;
+
   function puddle(selection, txt) {
-    selection.call(puddle.addRect);
     selection.call(puddle.addHead);
     selection.call(puddle.addLead);
   }
@@ -39,7 +40,7 @@ module.exports = function(opts) {
     selection.selectAll('text.d3-stats-display').remove();
     var displayGroup = selection.append('text')
       .attr({
-        'x': opts.width / 3,
+        'x': opts.xOffset,
         'y': opts.height / 2 + (opts.leadSize * 2),
         'class': 'd3-stats-display'
       });
@@ -51,24 +52,10 @@ module.exports = function(opts) {
     });
   };
 
-  // TODO: remove - only for development
-  puddle.addRect = _.once(function(selection) {
-    selection.append('rect')
-      .attr({
-        'x': 0,
-        'y': 0,
-        'width': opts.width,
-        'height': opts.height,
-        'fill': '#BAC9D1',
-        'stroke': '#FFFFFF',
-        'stroke-width': 1
-      });
-  });
-
   puddle.addHead = _.once(function(selection) {
     selection.append('text')
       .attr({
-        'x': opts.width / 3,
+        'x': opts.xOffset,
         'y': 0,
         'class': 'd3-stats-head'
       })
@@ -78,14 +65,28 @@ module.exports = function(opts) {
   puddle.addLead = _.once(function(selection) {
     selection.append('text')
       .attr({
-        'x': opts.width / 3,
+        'x': opts.xOffset,
         'y': opts.height / 2,
         'class': 'd3-stats-lead'
       })
       .text(opts.lead);
   });
 
+  puddle.width = function(x) {
+    if (!arguments.length) return opts.width;
+    opts.width = x;
+    return puddle;
+  };
+
+  puddle.height = function(x) {
+    if (!arguments.length) return height;
+    height = x;
+    return puddle;
+  };
+
   puddle.id = opts.id;
+
+  puddle.weight = opts.weight;
 
   puddle.pie = opts.pie;
 

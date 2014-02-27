@@ -32,7 +32,7 @@ function BolusUtil(data) {
     });
     if (firstBolus) {
       var index = this.data.indexOf(firstBolus);
-      while (new Date(this.data[index].normalTime).valueOf() <= e) {
+      while (index < (data.length - 1) && (new Date(this.data[index].normalTime).valueOf() <= e)) {
         var bolus = this.data[index];
         dose += bolus.value;
         index++;

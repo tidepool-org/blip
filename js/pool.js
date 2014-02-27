@@ -42,6 +42,10 @@ function Pool (container) {
           dataGroup.call(plotType.plot);
         }
       }
+      else if (plotType.type === 'stats') {
+        var statsGroup = group.selectAll('#' + id + '_stats').data([null]);
+        statsGroup.enter().append('g').attr('id', id + '_stats').call(plotType.plot);
+      }
       else {
         pool.noDataFill(plotType);
       }
@@ -52,7 +56,7 @@ function Pool (container) {
 
   this.clear = function() {
     plotTypes.forEach(function(plotType) {
-      if (container.dataFill[plotType.type]) {
+      if (container.dataFill[plotType.type])  {
         group.select('#' + id + '_' + plotType.type).remove();
       }
     });
