@@ -50,7 +50,12 @@ if (config.MOCK) {
   api = mock.api(api, {data: mockData});
   auth = mock.auth(auth);
 } else {
-  tidepoolPlatform(config.API_HOST, api, auth);
+  tidepoolPlatform({
+    apiHost: config.API_HOST,
+    uploadApi: config.UPLOAD_API,
+    apiService: api,
+    authService: auth
+  });
 }
 
 var app = {
@@ -302,8 +307,7 @@ var AppComponent = React.createClass({
           user={this.state.user}
           fetchingUser={this.state.fetchingUser}
           patients={this.state.patients}
-          fetchingPatients={this.state.fetchingPatients}
-          onUploadSuccess={this.showMyData}/>
+          fetchingPatients={this.state.fetchingPatients}/>
     );
     /* jshint ignore:end */
   },
@@ -335,7 +339,8 @@ var AppComponent = React.createClass({
           user={this.state.user}
           fetchingUser={this.state.fetchingUser}
           patient={this.state.patient}
-          fetchingPatient={this.state.fetchingPatient}/>
+          fetchingPatient={this.state.fetchingPatient}
+          getUploadUrl={app.api.getUploadUrl.bind(app.api)}/>
     );
     /* jshint ignore:end */
   },
@@ -443,10 +448,6 @@ var AppComponent = React.createClass({
     }
 
     return !user.isUserPatient(this.state.user, this.state.patient);
-  },
-
-  showMyData: function() {
-    this.showPatientData(app.api.user.getUserid());
   },
 
   showPatientData: function(patientId) {

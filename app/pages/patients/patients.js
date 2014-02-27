@@ -26,13 +26,11 @@ var Patients = React.createClass({
     user: React.PropTypes.object,
     fetchingUser: React.PropTypes.bool,
     patients: React.PropTypes.array,
-    fetchingPatients: React.PropTypes.bool,
-    onUploadSuccess: React.PropTypes.func.isRequired
+    fetchingPatients: React.PropTypes.bool
   },
 
   render: function() {
     var userPatient = this.renderUserPatient();
-    var uploadLink = this.renderUploadLink();
     var sharedPatients = this.renderSharedPatients();
 
     /* jshint ignore:start */
@@ -52,8 +50,6 @@ var Patients = React.createClass({
             </div>
           </div>
         </div>
-                        {uploadLink}
-
       </div>
     );
     /* jshint ignore:end */
@@ -87,55 +83,6 @@ var Patients = React.createClass({
 
   isResettingUserData: function() {
     return (this.props.fetchingUser && !this.props.user);
-  },
-
-  renderUploadLink: function() {
-    if (config.MOCK) {
-      return null;
-    }
-
-    if (window.openUpload == null) {
-      window.openUpload = this.openUpload.bind(this);
-    }
-
-    /* jshint ignore:start */
-    return (
-      <div>
-        <form onSubmit={this.openUpload}><button>Upload data!</button></form>
-        <div id="forData"></div>
-      </div>
-      );
-    /* jshint ignore:end */
-  },
-
-  openUpload: function(e) {
-    var self = this;
-
-    e.preventDefault();
-    var token = window.app.api.user.getToken();
-    if (token == null) {
-      window.alert('You are not logged in!');
-    }
-
-    var uploadURL = config.UPLOAD_API + '?token=' + token;
-    var uploadWindow = window.open(uploadURL, 'the thing', 'scrollbars=1,height=400,width=400');
-    function checkForClose() {
-      setTimeout(
-        function(){
-          if (uploadWindow.closed !== false) {
-            // The upload window was closed, so show us some data!  Sorry nico.
-            console.log('Upload window closed!  Show data, whoot whoot!');
-            self.props.onUploadSuccess();
-          } else {
-            // Still open, keep checking
-            checkForClose();
-          }
-        },
-        1000
-      );
-    }
-    checkForClose();
-    uploadWindow.focus();
   },
 
   renderSharedPatients: function() {

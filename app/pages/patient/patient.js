@@ -17,6 +17,7 @@
 var React = window.React;
 var _ = window._;
 var moment = window.moment;
+var config = window.config;
 
 var user = require('../../core/user');
 var patient = require('../../core/patient');
@@ -28,7 +29,8 @@ var Patient = React.createClass({
     user: React.PropTypes.object,
     fetchingUser: React.PropTypes.bool,
     patient: React.PropTypes.object,
-    fetchingPatient: React.PropTypes.bool
+    fetchingPatient: React.PropTypes.bool,
+    getUploadUrl: React.PropTypes.func
   },
 
   patientDisplayAttributes: [
@@ -54,6 +56,7 @@ var Patient = React.createClass({
 
   render: function() {
     var subnav = this.renderSubnav();
+    var uploadLink = this.renderUploadLink();
     var editLink = this.renderEditLink();
     var patient = this.renderPatient();
 
@@ -64,6 +67,7 @@ var Patient = React.createClass({
         <div className="container-box-outer patient-content-outer">
           <div className="container-box-inner patient-content-inner">
             <div className="patient-content">
+              {uploadLink}
               {editLink}
               {patient}
             </div>
@@ -75,7 +79,7 @@ var Patient = React.createClass({
   },
 
   renderSubnav: function() {
-    var backUrl = this.getBackUrl();
+    var backButton = this.renderBackButton();
 
     /* jshint ignore:start */
     return (
@@ -83,10 +87,7 @@ var Patient = React.createClass({
         <div className="container-box-inner patient-subnav-inner">
           <div className="grid patient-subnav">
             <div className="grid-item one-whole medium-one-third">
-              <a href={backUrl}>
-                <i className="icon-back"></i>
-                {' ' + 'Back'}
-              </a>
+              {backButton}
             </div>
             <div className="grid-item one-whole medium-one-third">
               <div className="patient-subnav-title">Patient profile</div>
@@ -98,15 +99,50 @@ var Patient = React.createClass({
     /* jshint ignore:end */
   },
 
-  getBackUrl: function() {
-    var backUrl = '#/';
+  renderBackButton: function() {
+    var url = '#/';
+    var text = 'Patient data';
     var patient = this.props.patient;
 
     if (patient && patient.id) {
-      backUrl = '#/patients/' + patient.id + '/data';
+      url = '#/patients/' + patient.id + '/data';
     }
 
-    return backUrl;
+    /* jshint ignore:start */
+    return (
+      <a href={url}>
+        <i className="icon-back"></i>
+        {' ' + text}
+      </a>
+    );
+    /* jshint ignore:end */
+  },
+
+  renderUploadLink: function() {
+    if (config.MOCK) {
+      return null;
+    }
+
+    if (!this.isUserPatient()) {
+      return null;
+    }
+
+    var uploadUrl = this.props.getUploadUrl();
+    if (!uploadUrl) {
+      return null;
+    }
+
+    /* jshint ignore:start */
+    return (
+      <div className="patient-content-link">
+        <a href={uploadUrl} target="_blank">
+          <i className="icon-upload"></i>
+          {' ' + 'Upload device data'}
+        </a>
+        <div className="patient-content-link-help">Opens a new window</div>
+      </div>
+    );
+    /* jshint ignore:end */
   },
 
   renderEditLink: function() {
@@ -122,7 +158,7 @@ var Patient = React.createClass({
 
     /* jshint ignore:start */
     return (
-      <div className="patient-content-edit">
+      <div className="patient-content-link">
         <a href={editUrl}>
           <i className="icon-profile"></i>
           {' ' + 'Edit patient profile'}
