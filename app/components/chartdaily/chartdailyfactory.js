@@ -15,6 +15,7 @@
 
 var _ = window._;
 var bows = window.bows;
+var d3 = window.d3;
 
 var tideline = window.tideline;
 var EventEmitter = require('events').EventEmitter;

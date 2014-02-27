@@ -31,7 +31,7 @@ gulp.task('jshint-app', function() {
 
 gulp.task('jshint-test', function() {
   return gulp.src('test/**/*.js')
-    .pipe(jshint(_.extend(jshintrc, {
+    .pipe(jshint(_.extend({}, jshintrc, {
       newcap: false,
       undef: false,
       expr: true

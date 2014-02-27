@@ -26,8 +26,8 @@ var user = require('./core/user');
 var patient = require('./core/patient');
 var tideline = require('./core/tideline');
 var chartUtil = require('./core/chartutil');
-
 var detectTouchScreen = require('./core/notouch');
+var tidepoolPlatform = window.tidepoolPlatform;
 
 var Navbar = require('./components/navbar');
 var LogoutOverlay = require('./components/logoutoverlay');
@@ -70,6 +70,7 @@ var routes = {
   '/signup': 'showSignup',
   '/profile': 'showProfile',
   '/patients': 'showPatients',
+  '/patients/new': 'showPatientNew',
   '/patients/:id': 'showPatient',
   '/patients/:id/edit': 'showPatientEdit',
   '/patients/:id/data': 'showPatientData'
@@ -160,25 +161,25 @@ var AppComponent = React.createClass({
     var notification = this.renderNotification();
     var page = this.renderPage();
 
+    /* jshint ignore:start */
     return (
-      /* jshint ignore:start */
       <div className="app">
         {overlay}
         {navbar}
         {notification}
         {page}
       </div>
-      /* jshint ignore:end */
     );
+    /* jshint ignore:end */
   },
 
   renderOverlay: function() {
     if (this.state.loggingOut) {
+      /* jshint ignore:start */
       return (
-        /* jshint ignore:start */
         <LogoutOverlay ref="logoutOverlay" />
-        /* jshint ignore:end */
       );
+      /* jshint ignore:end */
     }
 
     return null;
@@ -348,6 +349,56 @@ var AppComponent = React.createClass({
     return !this.state.patient;
   },
 
+  showPatientNew: function() {
+    this.renderPage = this.renderPatientNew;
+    this.setState({
+      page: 'patients/new',
+      patient: null,
+      fetchingPatient: false
+    });
+  },
+
+  renderPatientNew: function() {
+    var patient;
+
+    // Make sure user doesn't already have a patient
+    if (this.isDoneFetchingAndUserHasPatient()) {
+      patient = user.getPatientData(this.state.user);
+      var patientId = patient.id;
+      var route = '/patients';
+      if (patientId) {
+        route = route + '/' + patientId;
+      }
+      app.log('User already has patient');
+      app.router.setRoute(route);
+      return;
+    }
+
+    patient = _.pick(this.state.user, 'firstName', 'lastName');
+    var fetchingPatient = this.state.fetchingUser;
+
+    /* jshint ignore:start */
+    return (
+      <PatientEdit
+          patient={patient}
+          fetchingPatient={fetchingPatient}
+          isNewPatient={true}
+          onValidate={this.validatePatient}
+          onSubmit={app.api.patient.post.bind(app.api.patient)}
+          onSubmitSuccess={this.handlePatientCreationSuccess}/>
+    );
+    /* jshint ignore:end */
+  },
+
+  isDoneFetchingAndUserHasPatient: function() {
+    // Wait to have user object back from server
+    if (this.state.fetchingUser) {
+      return false;
+    }
+
+    return !_.isEmpty(user.getPatientData(this.state.user));
+  },
+
   showPatientEdit: function(patientId) {
     this.renderPage = this.renderPatientEdit;
     this.setState({
@@ -377,8 +428,6 @@ var AppComponent = React.createClass({
     /* jshint ignore:start */
     return (
       <PatientEdit
-          user={this.state.user}
-          fetchingUser={this.state.fetchingUser}
           patient={this.state.patient}
           fetchingPatient={this.state.fetchingPatient}
           onValidate={this.validatePatient}
@@ -387,7 +436,7 @@ var AppComponent = React.createClass({
     /* jshint ignore:end */
   },
 
-  isDoneFetchingAndNotUserPatient: function(patientId) {
+  isDoneFetchingAndNotUserPatient: function() {
     // Wait to have both user and patient objects back from server
     if (this.state.fetchingUser || this.state.fetchingPatient) {
       return false;
@@ -470,6 +519,11 @@ var AppComponent = React.createClass({
   },
 
   handleLogoutSuccess: function() {
+    // Nasty race condition between React state change and router it seems,
+    // need to call `showLogin()` to make sure we don't try to render something
+    // else, although it will get called again after router changes route, but
+    // that's ok
+    this.showLogin();
     this.setState({authenticated: false});
     this.clearUserData();
     router.setRoute('/login');
@@ -597,11 +651,24 @@ var AppComponent = React.createClass({
     return app.patient.validate(patient);
   },
 
+  handlePatientCreationSuccess: function(patient) {
+    this.setState({
+      user: _.extend({}, this.state.user, {
+        patient: {id: patient.id}
+      }),
+      patient: patient
+    });
+    var route = '/patients/' + patient.id;
+    app.router.setRoute(route);
+  },
+
   updatePatient: function(patient) {
     var self = this;
     var previousPatient = this.state.patient;
 
     patient = _.assign(_.cloneDeep(this.state.patient), patient);
+    // Don't save info already in user's profile
+    patient = _.omit(patient, 'firstName', 'lastName');
 
     // Optimistic update
     self.setState({patient: patient});

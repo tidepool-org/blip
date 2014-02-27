@@ -24,8 +24,10 @@ var PatientEdit = React.createClass({
   propTypes: {
     patient: React.PropTypes.object,
     fetchingPatient: React.PropTypes.bool,
+    isNewPatient: React.PropTypes.bool,
     onValidate: React.PropTypes.func.isRequired,
-    onSubmit: React.PropTypes.func.isRequired
+    onSubmit: React.PropTypes.func.isRequired,
+    onSubmitSuccess: React.PropTypes.func
   },
 
   formInputs: [
@@ -49,6 +51,7 @@ var PatientEdit = React.createClass({
 
   getInitialState: function() {
     return {
+      working: false,
       formValues: this.props.patient || {},
       validationErrors: {},
       notification: null
@@ -84,6 +87,7 @@ var PatientEdit = React.createClass({
 
   renderSubnav: function() {
     var backUrl = this.getBackUrl();
+    var title = this.getTitle();
 
     /* jshint ignore:start */
     return (
@@ -97,7 +101,7 @@ var PatientEdit = React.createClass({
               </a>
             </div>
             <div className="grid-item one-whole medium-one-third">
-              <div className="patient-edit-subnav-title">Edit patient profile</div>
+              <div className="patient-edit-subnav-title">{title}</div>
             </div>
           </div>
         </div>
@@ -107,7 +111,7 @@ var PatientEdit = React.createClass({
   },
 
   getBackUrl: function() {
-    var backUrl = '#/';
+    var backUrl = '#/patients';
     var patient = this.props.patient;
 
     if (patient && patient.id) {
@@ -115,6 +119,14 @@ var PatientEdit = React.createClass({
     }
 
     return backUrl;
+  },
+
+  getTitle: function() {
+    var title = ' patient profile';
+    if (this.props.isNewPatient) {
+      return 'Create ' + title;
+    }
+    return 'Edit ' + title;
   },
 
   renderName: function() {
@@ -141,6 +153,7 @@ var PatientEdit = React.createClass({
   },
 
   renderForm: function() {
+    var submitButtonText = this.getSubmitButtonText();
     var disabled = this.isResettingPatientData();
 
     /* jshint ignore:start */
@@ -149,12 +162,24 @@ var PatientEdit = React.createClass({
         inputs={this.formInputs}
         formValues={this.state.formValues}
         validationErrors={this.state.validationErrors}
-        submitButtonText="Save"
+        submitButtonText={submitButtonText}
+        submitDisabled={this.state.working}
         onSubmit={this.handleSubmit}
         notification={this.state.notification}
         disabled={disabled}/>
     );
     /* jshint ignore:end */
+  },
+
+  getSubmitButtonText: function() {
+    var text = 'Save';
+    if (this.props.isNewPatient) {
+      text = 'Create patient profile';
+      if (this.state.working) {
+        text = 'Creating patient profile...';
+      }
+    }
+    return text;
   },
 
   isResettingPatientData: function() {
@@ -166,6 +191,8 @@ var PatientEdit = React.createClass({
 
     this.resetFormStateBeforeSubmit(formValues);
 
+    formValues = this.formatUserInput(formValues);
+
     var validationErrors = this.validateFormValues(formValues);
     if (!_.isEmpty(validationErrors)) {
       return;
@@ -175,7 +202,13 @@ var PatientEdit = React.createClass({
   },
 
   resetFormStateBeforeSubmit: function(formValues) {
+    var working = false;
+    if (this.props.isNewPatient) {
+      working = true;
+    }
+
     this.setState({
+      working: working,
       formValues: formValues,
       validationErrors: {},
       notification: null
@@ -187,12 +220,10 @@ var PatientEdit = React.createClass({
     var validationErrors = {};
     var validate = this.props.onValidate;
 
-    formValues = _.clone(formValues);
-    formValues = this.formatUserInput(formValues);
-
     validationErrors = validate(formValues);
     if (!_.isEmpty(validationErrors)) {
       this.setState({
+        working: false,
         validationErrors: validationErrors,
         notification: {
           type: 'error',
@@ -209,12 +240,25 @@ var PatientEdit = React.createClass({
       formValues.birthday = patient.formatDate(formValues.birthday);
     }
 
-    formValues.diagnosisYear = String(parseInt(formValues.diagnosisYear, 10));
+    if (formValues.diagnosisYear) {
+      formValues.diagnosisYear = String(parseInt(formValues.diagnosisYear, 10));
+    }
+
+    if (!formValues.aboutMe) {
+      delete formValues.aboutMe;
+    }
 
     return formValues;
   },
 
   submitFormValues: function(formValues) {
+    if (this.props.isNewPatient) {
+      return this.submitFormValuesForCreation(formValues);
+    }
+    return this.submitFormValuesForUpdate(formValues);
+  },
+
+  submitFormValuesForUpdate: function(formValues) {
     var self = this;
     var submit = this.props.onSubmit;
 
@@ -227,6 +271,29 @@ var PatientEdit = React.createClass({
     this.messageTimeoutId = setTimeout(function() {
       self.setState({notification: null});
     }, this.MESSAGE_TIMEOUT);
+  },
+
+  submitFormValuesForCreation: function(formValues) {
+    var self = this;
+    var submit = this.props.onSubmit;
+    var submitSuccess = this.props.onSubmitSuccess;
+
+    submit(formValues, function(err, result) {
+      if (err) {
+        self.setState({
+          working: false,
+          notification: {
+            type: 'error',
+            message: err.message ||
+              'An error occured while creating your patient profile.'
+          }
+        });
+        return;
+      }
+      if (submitSuccess) {
+        submitSuccess(result);
+      }
+    });
   }
 });
 

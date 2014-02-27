@@ -1,9 +1,15 @@
 window.tidepoolPlatform = function(host, api, auth){
-  var log = bows('tidepoolplatform');
+  var _ = window._;
+  var superagent = window.superagent;
+  var bows = window.bows;
+
+  var log = bows('Tidepool');
 
   var sessionTokenHeader = 'x-tidepool-session-token';
   var token = null;
   var userid = null;
+
+  var PATIENT_GETALL_NOT_IMPLEMENTED = true;
 
   function makeUrl(path) {
     return host + path;
@@ -12,18 +18,83 @@ window.tidepoolPlatform = function(host, api, auth){
   function setupUser(api) {
     api.get = function(cb) {
       if (token == null || userid == null) {
-        cb({ message: 'Not logged in' });
+        return cb({ message: 'Not logged in' });
       }
 
-      app.api.patient.get(userid, cb);
+      // First fetch user account data (username)
+      var uri = '/auth/user';
+      log('GET ' + uri);
+      superagent.get(makeUrl(uri))
+        .set(sessionTokenHeader, token)
+        .end(function(err, res) {
+          if (err != null) {
+            return cb(err);
+          }
+
+          if (res.status !== 200) {
+            return cb({status: res.status, response: res.body});
+          }
+
+          var user = res.body;
+          // Then fetch user profile information (first name, last name, etc.)
+          uri = '/metadata/' + userid + '/profile';
+          log('GET ' + uri);
+          superagent.get(makeUrl(uri))
+            .set(sessionTokenHeader, token)
+            .end(function(err, res) {
+              if (err != null) {
+                return cb(err);
+              }
+
+              if (res.status !== 200) {
+                return cb({status: res.status, response: res.body});
+              }
+
+              var data = res.body;
+              data.id = userid;
+              data.username = user.username;
+              // If user profile has patient data, just give the "patient id"
+              // (which is the same as the userid for this backend)
+              if (data.patient != null) {
+                data.patient = {id: userid};
+              }
+              cb(null, data);
+            });
+        });
     };
 
     api.put = function(user, cb) {
       if (token == null || userid == null) {
-        cb({ message: 'Not logged in' });
+        return cb({ message: 'Not logged in' });
       }
 
-      app.api.patient.put(userid, user, cb);
+      // NOTE: Current backend does not yet support changing
+      // username or password, only profile info
+      var profile = _.omit(user, 'username', 'password');
+      var uri = '/metadata/' + userid + '/profile';
+      log('POST ' + uri);
+      superagent.post(makeUrl(uri))
+        .set(sessionTokenHeader, token)
+        .send(profile)
+        .end(function(err, res) {
+          if (err != null) {
+            return cb(err);
+          }
+
+          if (res.status !== 200) {
+            return cb({status: res.status, response: res.body});
+          }
+
+          var data = res.body;
+          data.id = userid;
+          data.username = user.username;
+          // If user profile has patient data, just give the "patient id"
+          // (which is the same as the userid for this backend)
+          if (data.patient != null) {
+            data.patient = {id: userid};
+          }
+          cb(null, data);
+        });
     };
 
     api.getToken = function() {
@@ -37,8 +108,13 @@ window.tidepoolPlatform = function(host, api, auth){
 
   function setupPatient(api) {
     api.getAll = function(cb) {
+      if (PATIENT_GETALL_NOT_IMPLEMENTED) {
+        log('api.patient.getAll() not implemented yet');
+        return cb(null, []);
+      }
+
       if (token == null || userid == null) {
-        cb({ message: 'Not logged in' });
+        return cb({ message: 'Not logged in' });
       }
 
       superagent.get(makeUrl('/metadata/' + userid + '/groups'))
@@ -78,42 +154,76 @@ window.tidepoolPlatform = function(host, api, auth){
 
     api.get = function(patientId, cb) {
       if (token == null || userid == null) {
-        cb({ message: 'Not logged in' });
+        return cb({ message: 'Not logged in' });
       }
 
-      superagent.get(makeUrl('/metadata/' + patientId + '/profile'))
+      // For this backend, the "patientId" is actually a "userId"
+      // And patient data is contained in the `patient` attribute of
+      // the user's profile
+      var uri = '/metadata/' + patientId + '/profile';
+      log('GET ' + uri);
+      superagent.get(makeUrl(uri))
         .set(sessionTokenHeader, token)
-        .end(
-        function(err, res){
+        .end(function(err, res) {
           if (err != null) {
             return cb(err);
           }
 
-          if (res.status === 200) {
-            cb(null, res.body);
-          } else {
-            cb(null, null);
+          if (res.status !== 200) {
+            return cb({status: res.status, response: res.body});
           }
+
+          var profile = res.body;
+          if (profile.patient == null) {
+            // No patient profile for this user yet, return "not found"
+            return cb({status: 404, response: 'Not found'});
+          }
+          // Merge user profile attributes with patient
+          var patient = profile.patient;
+          patient.id = patientId;
+          patient.firstName = profile.firstName;
+          patient.lastName = profile.lastName;
+          cb(null, patient);
         });
     };
 
-    api.put = function(patientId, patient, cb) {
-      superagent.post(makeUrl('/metadata/' + patientId + '/profile'))
+    api.post = function(patient, cb) {
+      return putPatient(userid, patient, cb);
+    };
+
+    api.put = putPatient;
+
+    function putPatient(patientId, patient, cb) {
+      if (token == null || userid == null) {
+        return cb({ message: 'Not logged in' });
+      }
+
+      // For this backend, patient data is contained in the `patient`
+      // attribute of the user's profile
+      var profileSent = {patient: patient};
+      var uri = '/metadata/' + patientId + '/profile';
+      log('POST ' + uri);
+      superagent.post(makeUrl(uri))
         .set(sessionTokenHeader, token)
-        .send(patient)
-        .end(
-        function(err, res){
+        .send(profileSent)
+        .end(function(err, res) {
           if (err != null) {
             return cb(err);
           }
 
-          if (res.status === 200) {
-            return cb(null, res.body);
-          } else {
-            return cb({ message: 'Couldn\'t POST new user metadata: ' + res.status });
+          if (res.status !== 200) {
+            return cb({status: res.status, response: res.body});
           }
+
+          var profile = res.body;
+          // Merge user profile attributes with patient
+          var patient = profile.patient;
+          patient.id = patientId;
+          patient.firstName = profile.firstName;
+          patient.lastName = profile.lastName;
+          cb(null, patient);
         });
-    };
+    }
   }
 
   function setupAuth(api) {
@@ -127,7 +237,9 @@ window.tidepoolPlatform = function(host, api, auth){
               return;
             }
 
-            superagent.get(makeUrl('/auth/login'))
+            var uri = '/auth/login';
+            log('GET ' + uri);
+            superagent.get(makeUrl(uri))
               .set(sessionTokenHeader, token)
               .end(
               function(err, res){
@@ -151,6 +263,10 @@ window.tidepoolPlatform = function(host, api, auth){
 
     api.init = function(cb) { return cb(); };
 
+    api.isAuthenticated = function() {
+      return Boolean(token);
+    };
+
     api.login = function(user, cb) {
       if (user.username == null) {
         return cb({ message: 'Must specify an username' });
@@ -159,7 +275,9 @@ window.tidepoolPlatform = function(host, api, auth){
         return cb({ message: 'Must specify a password' });
       }
 
-      superagent.post(makeUrl('/auth/login'))
+      var uri = '/auth/login';
+      log('POST ' + uri);
+      superagent.post(makeUrl(uri))
         .auth(user.username, user.password)
         .end(
         function(err, res) {
@@ -169,7 +287,7 @@ window.tidepoolPlatform = function(host, api, auth){
 
           if (res.status === 200) {
             saveSession(res.body.userid, res.headers[sessionTokenHeader]);
-            cb(null, res.body);
+            cb();
           } else if (res.status === 401) {
             cb({ message: 'Unauthorized' });
           } else {
@@ -180,12 +298,14 @@ window.tidepoolPlatform = function(host, api, auth){
 
     api.logout = function(cb) {
       if (token == null) {
-        cb(null);
+        return cb(null);
       }
 
       var oldToken = token;
       saveSession(null, null);
-      superagent.post(makeUrl('/auth/logout'))
+      var uri = '/auth/logout';
+      log('POST ' + uri);
+      superagent.post(makeUrl(uri))
         .set(sessionTokenHeader, oldToken)
         .end(function(err, res){ cb(err); });
     };
@@ -198,30 +318,50 @@ window.tidepoolPlatform = function(host, api, auth){
         return cb({ message: 'Must specify a password' });
       }
 
-      var userApiUser = _.assign({}, _.pick(user, 'username', 'password'), { emails: [user.username] });
-      superagent.post(makeUrl('/auth/user'))
+      // First, create user account
+      var userApiUser = _.assign(
+        {},
+        _.pick(user, 'username', 'password'),
+        {emails: [user.username]}
+      );
+      var uri = '/auth/user';
+      log('POST ' + uri);
+      superagent.post(makeUrl(uri))
         .send(userApiUser)
-        .end(
-        function(err, res){
+        .end(function(err, res) {
           if (err != null) {
             return cb(err);
           }
 
-          if (res.status === 201) {
-            var userApiBody = res.body;
-            saveSession(userApiBody.userid, res.headers[sessionTokenHeader]);
-            app.api.user.put(_.omit(user, 'username', 'password', 'email'), function(err, profile){
+          if (res.status !== 201) {
+            return cb({status: res.status, response: res.body});
+          }
+
+          var userApiBody = res.body;
+          saveSession(userApiBody.userid, res.headers[sessionTokenHeader]);
+
+          // Then, add additional user info (first name, etc.) to profile
+          var profile = _.omit(user, 'username', 'password');
+          uri = '/metadata/' + userid + '/profile';
+          log('POST ' + uri);
+          superagent.post(makeUrl(uri))
+            .set(sessionTokenHeader, token)
+            .send(profile)
+            .end(function(err, res) {
               if (err != null) {
                 return cb(err);
               }
 
-              return cb(null, _.assign({}, userApiBody, profile));
+              if (res.status !== 200) {
+                return cb({status: res.status, response: res.body});
+              }
+
+              // Add back some account info to profile for response
+              var data = res.body;
+              data.id = userid;
+              data.username = user.username;
+              cb(null, data);
             });
-          } else if (res.status === 401) {
-            cb({ message: 'Unauthorized' });
-          } else {
-            cb({ message: 'Unknown response code ' + res.status });
-          }
         });
     };
   }
@@ -236,7 +376,9 @@ window.tidepoolPlatform = function(host, api, auth){
         cb = options;
       }
 
-      superagent.get(makeUrl('/data/' + patientId))
+      var uri = '/data/' + patientId;
+      log('GET ' + uri);
+      superagent.get(makeUrl(uri))
         .set(sessionTokenHeader, token)
         .end(
         function(err, res){
@@ -249,8 +391,8 @@ window.tidepoolPlatform = function(host, api, auth){
             // the database yet.  Eventually, we will attach ids to events in the db.  At that point, this
             // mapping can be removed.
             var retVal = res.body.map(function(e){
-              if (e['id'] === undefined) {
-                e['id'] = e._id;
+              if (e.id === undefined) {
+                e.id = e._id;
               }
               e.value = Number(e.value);
               return e;

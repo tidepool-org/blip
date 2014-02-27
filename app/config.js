@@ -25,7 +25,8 @@ window.config = {
     } else {
       return mockValue === 'true';
     }
-  })(),MOCK_DELAY: Number('<%= process.env.MOCK_DELAY %>') || 0,
+  })(),
+  MOCK_DELAY: Number('<%= process.env.MOCK_DELAY %>') || 0,
   MOCK_VARIANT: '<%= process.env.MOCK_VARIANT %>' || '',
   UPLOAD_API: '<%= process.env.UPLOAD_API %>' || 'https://devel-uploads.tidepool.io',
   API_HOST: '<%= process.env.API_HOST %>' || 'https://devel-api.tidepool.io'

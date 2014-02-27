@@ -73,7 +73,7 @@ var Patients = React.createClass({
       /* jshint ignore:start */
       return (
         <div className="patients-empty-list">
-          <a href="#">
+          <a href="#/patients/new">
             <i className="icon-add"></i>
             {' ' + 'Create your patient profile'}
           </a>
@@ -112,9 +112,9 @@ var Patients = React.createClass({
     var self = this;
 
     e.preventDefault();
-    var token = app.api.user.getToken();
+    var token = window.app.api.user.getToken();
     if (token == null) {
-      alert('You are not logged in!');
+      window.alert('You are not logged in!');
     }
 
     var uploadURL = config.UPLOAD_API + '?token=' + token;
