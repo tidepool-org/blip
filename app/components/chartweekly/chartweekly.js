@@ -16,6 +16,7 @@
 
 var React = window.React;
 var _ = window._;
+var bows = window.bows;
 
 var chartWeeklyFactory = require('./chartweeklyfactory');
 

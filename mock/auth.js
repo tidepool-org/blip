@@ -13,6 +13,7 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+var _ = window._;
 var config = window.config;
 
 var patch = function(auth, options) {

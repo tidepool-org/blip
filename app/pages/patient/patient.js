@@ -16,6 +16,7 @@
 
 var React = window.React;
 var _ = window._;
+var moment = window.moment;
 
 var user = require('../../core/user');
 var patient = require('../../core/patient');

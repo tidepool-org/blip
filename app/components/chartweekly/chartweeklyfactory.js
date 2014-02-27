@@ -14,6 +14,7 @@
  */
 
 var _ = window._;
+var d3 = window.d3;
 
 var tideline = window.tideline;
 var EventEmitter = require('events').EventEmitter;
@@ -67,7 +68,7 @@ function chartWeeklyFactory(el, options) {
     d3.select(el).datum([null]).call(chart);
     chart.setNav().setScrollNav();
 
-    days = chart.days;
+    var days = chart.days;
     // make pools for each day
     days.forEach(function(day, i) {
       var newPool = chart.newPool().defaults()

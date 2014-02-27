@@ -1,4 +1,8 @@
 window.tidepoolPlatform = function(host, api, auth){
+  var _ = window._;
+  var superagent = window.superagent;
+  var bows = window.bows;
+
   var log = bows('Tidepool');
 
   var sessionTokenHeader = 'x-tidepool-session-token';

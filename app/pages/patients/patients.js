@@ -112,9 +112,9 @@ var Patients = React.createClass({
     var self = this;
 
     e.preventDefault();
-    var token = app.api.user.getToken();
+    var token = window.app.api.user.getToken();
     if (token == null) {
-      alert('You are not logged in!');
+      window.alert('You are not logged in!');
     }
 
     var uploadURL = config.UPLOAD_API + '?token=' + token;
