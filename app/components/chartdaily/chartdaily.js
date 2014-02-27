@@ -55,12 +55,15 @@ var ChartDaily = React.createClass({
   mountChart: function() {
     this.log('Mounting chart');
 
-    var el = this.refs.chart.getDOMNode();
-    var imagesBaseUrl = this.props.imagesEndpoint;
+    if (!this.chart) {
+      this.log('Creating new chart.');
+      var el = this.refs.chart.getDOMNode();
+      var imagesBaseUrl = this.props.imagesEndpoint;
 
-    var chart = chartDailyFactory(el, {imagesBaseUrl: imagesBaseUrl});
-    this.chart = chart;
-    this.bindEvents();
+      var chart = chartDailyFactory(this.refs.chart.getDOMNode(), {imagesBaseUrl: imagesBaseUrl}).setupPools();
+      this.chart = chart;
+      this.bindEvents();
+    }
   },
 
   initializeChart: function(data, datetimeLocation) {
@@ -70,7 +73,7 @@ var ChartDaily = React.createClass({
       throw new Error('Cannot create new chart with no data');
     }
 
-    chart.initialize(data);
+    chart.load(data);
 
     if (datetimeLocation) {
       chart.locate(datetimeLocation);
@@ -83,7 +86,7 @@ var ChartDaily = React.createClass({
   unmountChart: function() {
     if (this.chart) {
       this.log('Unmounting chart');
-      this.chart.stopListening().destroy();
+      this.chart.clear().hide();
     }
   },
 
@@ -102,13 +105,8 @@ var ChartDaily = React.createClass({
   },
 
   locateToMostRecent: function() {
-    // At the moment, can't just call `chart.locate()` (buggy)
-    // Need to re-render completely, which is a bit inefficient,
-    // but that might change in the future
-    var data = this.props.patientData;
-    this.unmountChart();
-    this.mountChart();
-    this.initializeChart(data);
+    this.log('Navigated to most recent data.');
+    this.chart.clear().locate();
   },
 
   panForward: function() {

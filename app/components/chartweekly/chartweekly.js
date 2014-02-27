@@ -55,13 +55,16 @@ var ChartWeekly = React.createClass({
 
   mountChart: function() {
     this.log('Mounting chart');
-    
-    var el = this.refs.chart.getDOMNode();
-    var imagesBaseUrl = this.props.imagesEndpoint;
 
-    var chart = chartWeeklyFactory(el, {imagesBaseUrl: imagesBaseUrl});
-    this.chart = chart;
-    this.bindEvents();
+    if (!this.chart) {
+      this.log('Creating new chart.');
+      var el = this.refs.chart.getDOMNode();
+      var imagesBaseUrl = this.props.imagesEndpoint;
+
+      var chart = chartWeeklyFactory(el, {imagesBaseUrl: imagesBaseUrl});
+      this.chart = chart;
+      this.bindEvents();
+    }
   },
 
   initializeChart: function(data, datetimeLocation) {
@@ -71,13 +74,13 @@ var ChartWeekly = React.createClass({
       throw new Error('Cannot create new chart with no data');
     }
 
-    chart.initialize(data, datetimeLocation);
+    chart.show().load(data, datetimeLocation);
   },
 
   unmountChart: function() {
     if (this.chart) {
       this.log('Unmounting chart');
-      this.chart.destroy();
+      this.chart.clear().hide();
     }
   },
 
