@@ -11,6 +11,6 @@
     "moment": "~2.5.1",
     "react": "0.9.0",
     "superagent": "visionmedia/superagent#0.16.0",
-    "tideline": "https://github.com/tidepool-org/tideline.git#8632b2fbb6eef2ea292434bb032512c9e02ce1a6"
+    "tideline": "https://github.com/tidepool-org/tideline.git#feb76b166b586c4cecd85b9115d81fc298df4ab1"
   }
 }
