@@ -131,12 +131,14 @@ function BasalUtil(data) {
       });
       var lastIndex = this.normalizedActual.indexOf(lastSegment);
       dose += this.segmentDose(new Date(firstSegment.normalEnd) - s, firstSegment.value);
-      while(index < lastIndex) {
+      while (index < lastIndex) {
         var segment = this.normalizedActual[index];
         dose += this.segmentDose((new Date(segment.normalEnd) - new Date(segment.normalTime)), segment.value);
         index++;
       }
-      dose += this.segmentDose(e - new Date(lastSegment.normalTime), lastSegment.value);
+      if (lastSegment) {
+        dose += this.segmentDose(e - new Date(lastSegment.normalTime), lastSegment.value);
+      }
     }
     return fixFloatingPoint(dose);
   };

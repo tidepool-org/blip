@@ -123,7 +123,7 @@ module.exports = function(pool, opts) {
           stats.createRect(puddle, puddleGroup, data[puddle.id.toLowerCase()]);
         }
         else {
-          stats.updateAverage(data[puddle.id.toLowerCase()]);
+          stats.updateAverage(data[puddle.id.toLowerCase()], puddle);
         }
       }
       var display = stats.getDisplay(puddle.id);
@@ -174,39 +174,95 @@ module.exports = function(pool, opts) {
         'y2': rectScale(180) + (pool.height() / 10),
         'class': 'd3-stats-rect-line'
       });
+    var imageY = rectScale(data.value) - (opts.size / 2) + (puddle.height() / 10);
+    // don't append an image if imageY is NaN
+    if (imageY) {
+      rectGroup.append('image')
+        .attr({
+          'xlink:href': function() {
+            if (data.value <= opts.classes['very-low']['boundary']) {
+              return opts.imagesBaseUrl + '/smbg/very_low.svg';
+            }
+            else if ((data.value > opts.classes['very-low']['boundary']) && (data.value <= opts.classes['low']['boundary'])) {
+              return opts.imagesBaseUrl + '/smbg/low.svg';
+            }
+            else if ((data.value > opts.classes['low']['boundary']) && (data.value <= opts.classes['target']['boundary'])) {
+              return opts.imagesBaseUrl + '/smbg/target.svg';
+            }
+            else if ((data.value > opts.classes['target']['boundary']) && (data.value <= opts.classes['high']['boundary'])) {
+              return opts.imagesBaseUrl + '/smbg/high.svg';
+            }
+            else if (data.value > opts.classes['high']['boundary']) {
+              return opts.imagesBaseUrl + '/smbg/very_high.svg';
+            }
+          },
+          'x': (puddle.width() * (3/16)) - (opts.size / 2),
+          'y': imageY,
+          'width': opts.size,
+          'height': opts.size,
+          'class': 'd3-image d3-stats-image'
+        });
+    }
+    else {
+      rectGroup.append('image')
+        .attr({
+          'xlink:href': function() {
+            if (data.value <= opts.classes['very-low']['boundary']) {
+              return opts.imagesBaseUrl + '/smbg/very_low.svg';
+            }
+            else if ((data.value > opts.classes['very-low']['boundary']) && (data.value <= opts.classes['low']['boundary'])) {
+              return opts.imagesBaseUrl + '/smbg/low.svg';
+            }
+            else if ((data.value > opts.classes['low']['boundary']) && (data.value <= opts.classes['target']['boundary'])) {
+              return opts.imagesBaseUrl + '/smbg/target.svg';
+            }
+            else if ((data.value > opts.classes['target']['boundary']) && (data.value <= opts.classes['high']['boundary'])) {
+              return opts.imagesBaseUrl + '/smbg/high.svg';
+            }
+            else if (data.value > opts.classes['high']['boundary']) {
+              return opts.imagesBaseUrl + '/smbg/very_high.svg';
+            }
+            else {
+              return opts.imagesBaseUrl + '/ux/scroll_thumb.svg';
+            }
+          },
+          'x': (puddle.width() * (3/16)) - (opts.size / 2),
+          'y': rectScale(100) - (opts.size / 2) + (puddle.height() / 10),
+          'width': opts.size,
+          'height': opts.size,
+          'class': 'd3-image d3-stats-image hidden'
+        });
+    }
 
-    rectGroup.append('image')
-      .attr({
-        'xlink:href': function() {
-          if (data.value <= opts.classes['very-low']['boundary']) {
-            return opts.imagesBaseUrl + '/smbg/very_low.svg';
-          }
-          else if ((data.value > opts.classes['very-low']['boundary']) && (data.value <= opts.classes['low']['boundary'])) {
-            return opts.imagesBaseUrl + '/smbg/low.svg';
-          }
-          else if ((data.value > opts.classes['low']['boundary']) && (data.value <= opts.classes['target']['boundary'])) {
-            return opts.imagesBaseUrl + '/smbg/target.svg';
-          }
-          else if ((data.value > opts.classes['target']['boundary']) && (data.value <= opts.classes['high']['boundary'])) {
-            return opts.imagesBaseUrl + '/smbg/high.svg';
-          }
-          else if (data.value > opts.classes['high']['boundary']) {
-            return opts.imagesBaseUrl + '/smbg/very_high.svg';
-          }
-        },
-        'x': (puddle.width() * (3/16)) - (opts.size / 2),
-        'y': rectScale(data.value) - (opts.size / 2) + (puddle.height() / 10),
-        'width': opts.size,
-        'height': opts.size,
-        'class': 'd3-image d3-stats-image'
-      });
+    stats.rectGroup = rectGroup;
   };
 
-  stats.updateAverage = function(data) {
-    rectGroup.select('.d3-stats-image')
-      .attr({
-        'y': rectScale(data.value) - (opts.size / 2) + (puddle.height() / 10)
-      });
+  stats.updateAverage = function(data, puddle) {
+    var imageY = rectScale(data.value) - (opts.size / 2) + (puddle.height() / 10);
+    if (imageY) {
+      stats.rectGroup.selectAll('.d3-stats-image')
+        .attr({
+          'xlink:href': function() {
+            if (data.value <= opts.classes['very-low']['boundary']) {
+              return opts.imagesBaseUrl + '/smbg/very_low.svg';
+            }
+            else if ((data.value > opts.classes['very-low']['boundary']) && (data.value <= opts.classes['low']['boundary'])) {
+              return opts.imagesBaseUrl + '/smbg/low.svg';
+            }
+            else if ((data.value > opts.classes['low']['boundary']) && (data.value <= opts.classes['target']['boundary'])) {
+              return opts.imagesBaseUrl + '/smbg/target.svg';
+            }
+            else if ((data.value > opts.classes['target']['boundary']) && (data.value <= opts.classes['high']['boundary'])) {
+              return opts.imagesBaseUrl + '/smbg/high.svg';
+            }
+            else if (data.value > opts.classes['high']['boundary']) {
+              return opts.imagesBaseUrl + '/smbg/very_high.svg';
+            }
+          },
+          'y': imageY
+        })
+        .classed('hidden', false);
+      }
   };
 
   stats.createPie = function(puddleGroup, data) {
