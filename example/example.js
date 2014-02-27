@@ -23,7 +23,7 @@ var log = window.bows('Example');
 // things common to one-day and two-week views
 // common event emitter
 var EventEmitter = require('events').EventEmitter;
-var emitter = new EventEmitter;
+var emitter = new EventEmitter();
 emitter.on('navigated', function(navString) {
   $('#tidelineNavString').html(navString);
 });
