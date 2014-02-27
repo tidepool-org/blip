@@ -1,7 +1,12 @@
-window.tidepoolPlatform = function(host, api, auth){
+window.tidepoolPlatform = function(options){
   var _ = window._;
   var superagent = window.superagent;
   var bows = window.bows;
+
+  var apiHost = options.apiHost;
+  var uploadApi = options.uploadApi;
+  var apiService = options.apiService;
+  var authService = options.authService;
 
   var log = bows('Tidepool');
 
@@ -12,7 +17,7 @@ window.tidepoolPlatform = function(host, api, auth){
   var PATIENT_GETALL_NOT_IMPLEMENTED = true;
 
   function makeUrl(path) {
-    return host + path;
+    return apiHost + path;
   }
 
   function setupUser(api) {
@@ -95,14 +100,6 @@ window.tidepoolPlatform = function(host, api, auth){
           }
           cb(null, data);
         });
-    };
-
-    api.getToken = function() {
-      return token;
-    };
-
-    api.getUserid = function() {
-      return userid;
     };
   }
 
@@ -406,8 +403,18 @@ window.tidepoolPlatform = function(host, api, auth){
     };
   }
 
-  setupUser(api.user);
-  setupPatient(api.patient);
-  setupAuth(auth);
-  setupPatientData(api.patientData);
+  function setupUpload(api) {
+    api.getUploadUrl = function() {
+      if (token == null) {
+        return null;
+      }
+      return uploadApi + '?token=' + token;
+    };
+  }
+
+  setupUser(apiService.user);
+  setupPatient(apiService.patient);
+  setupAuth(authService);
+  setupPatientData(apiService.patientData);
+  setupUpload(apiService);
 };
