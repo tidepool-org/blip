@@ -89,7 +89,6 @@ d3.json('data/device-data.json', function(data) {
   $('#oneDayView').on('click', function() {
     log('Navigated to one-day view from nav bar.');
     twoWeek.clear().hide();
-    oneDay.clear();
 
     $(this).parent().addClass('active');
     
@@ -98,12 +97,12 @@ d3.json('data/device-data.json', function(data) {
     $('.two-week').css('visibility', 'hidden');
     
     // takes user to one-day view of most recent data
-    oneDay.show().load(data).locate();
+    oneDay.show().locate();
   });
 
   $('#oneDayMostRecent').on('click', function() {
     log('Navigated to most recent one-day view.');
-    oneDay.clear().load(data).locate();
+    oneDay.clear().locate();
 
     $(this).parent().addClass('active');
 

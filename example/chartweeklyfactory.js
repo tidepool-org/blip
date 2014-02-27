@@ -65,7 +65,7 @@ function chartWeeklyFactory(el, options, emitter) {
 
     chart.setup();
 
-    days = chart.days;
+    var days = chart.days;
 
     // make pools for each day
     days.forEach(function(day, i) {
@@ -92,7 +92,7 @@ function chartWeeklyFactory(el, options, emitter) {
         xScale: fillScale,
         gutter: 0.5
       }), false);
-      pool.addPlotType('smbg', smbgTime.draw(pool), true);
+      pool.addPlotType('smbg', smbgTime.draw(pool), true, true);
       pool.render(chart.daysGroup(), chart.dataPerDay[i]);
     });
 
