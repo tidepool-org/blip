@@ -647,7 +647,12 @@ var AppComponent = React.createClass({
   },
 
   handlePatientCreationSuccess: function(patient) {
-    this.setState({patient: patient});
+    this.setState({
+      user: _.extend({}, this.state.user, {
+        patient: {id: patient.id}
+      }),
+      patient: patient
+    });
     var route = '/patients/' + patient.id;
     app.router.setRoute(route);
   },
