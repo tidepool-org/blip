@@ -14,9 +14,13 @@
  */
 
 var _ = window._;
+var bows = window.bows;
 var d3 = window.d3;
 
 var tideline = window.tideline;
+// TODO: remove when resolve TODO below
+var watson = require('../../../bower_components/tideline/example/watson');
+
 var EventEmitter = require('events').EventEmitter;
 
 var fill = tideline.plot.util.fill;
@@ -58,6 +62,13 @@ function chartWeeklyFactory(el, options) {
   };
 
   chart.load = function(data, datetime) {
+    // data munging utilities for stats
+    // TODO: this stuff probably belongs in chartutil.js
+    // and a common basalUtil, bolusUtil, and cbgUtil can be shared between one-day and two-week
+    var basalUtil = new tideline.data.BasalUtil(_.where(data, {'type': 'basal-rate-segment'}));
+    basalUtil.normalizedActual = watson.normalize(basalUtil.actual);
+    var bolusUtil = new tideline.data.BolusUtil(_.where(data, {'type': 'bolus'}));
+    var cbgUtil = new tideline.data.CBGUtil(_.where(data, {'type': 'cbg'}));
 
     if (!datetime) {
       chart.data(_.where(data, {'type': 'smbg'}));
@@ -99,9 +110,23 @@ function chartWeeklyFactory(el, options) {
         xScale: fillScale,
         gutter: 0.5
       }), false);
-      pool.addPlotType('smbg', smbgTime.draw(pool), true);
+      pool.addPlotType('smbg', smbgTime.draw(pool), true, true);
       pool.render(chart.daysGroup(), chart.dataPerDay[i]);
     });
+
+    chart.poolStats.addPlotType('stats', tideline.plot.stats.widget(chart.poolStats, {
+      cbg: cbgUtil,
+      bolus: bolusUtil,
+      basal: basalUtil,
+      xPosition: 0,
+      yPosition: chart.poolStats.height() / 10,
+      emitter: emitter,
+      oneDay: false
+    }), false, false);
+
+    chart.poolStats.render(chart.poolGroup());
+
+    chart.navString();
 
     emitter.on('numbers', function(toggle) {
       if (toggle === 'show') {

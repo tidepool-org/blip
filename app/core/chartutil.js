@@ -29,7 +29,7 @@ util.processData = function(data) {
   }
 
   // Munge basal segments
-  var vizReadyBasals = new BasalUtil(data);
+  var vizReadyBasals = new BasalUtil(_.where(data, {'type': 'basal-rate-segment'}));
   data = _.reject(data, function(d) {
     return d.type === 'basal-rate-segment';
   });
