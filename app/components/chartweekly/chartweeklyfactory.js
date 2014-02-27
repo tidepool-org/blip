@@ -25,7 +25,7 @@ function chartWeeklyFactory(el, options) {
   var log = bows('Weekly Factory');
   options = options || {};
 
-  var emitter = new EventEmitter;
+  var emitter = new EventEmitter();
 
   var chart = tideline.twoWeek(emitter);
   chart.emitter = emitter;
@@ -71,7 +71,7 @@ function chartWeeklyFactory(el, options) {
 
     chart.setup();
 
-    days = chart.days;
+    var days = chart.days;
 
     // make pools for each day
     days.forEach(function(day, i) {

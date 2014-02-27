@@ -27,7 +27,7 @@ function chartDailyFactory(el, options) {
   var log = bows('Daily Factory');
   options = options || {};
 
-  var emitter = new EventEmitter;
+  var emitter = new EventEmitter();
 
   var chart = tideline.oneDay(emitter);
   chart.emitter = emitter;
