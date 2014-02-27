@@ -8,7 +8,7 @@ Client-side library interacting with the tidepool platform
 
 to run the example you need a running versions of the following
 
-- [Armarda](https://github.com/tidepool-org/armada)
+- [Armada](https://github.com/tidepool-org/armada)
 - [User-api](https://github.com/tidepool-org/user-api)
 - [Message-api](https://github.com/tidepool-org/message-api)
 - [Seagull](https://github.com/tidepool-org/seagull)
