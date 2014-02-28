@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "0.0.0",
+  "version": "0.0.3",
   "dependencies": {
     "bows": "https://github.com/latentflip/bows.git#beb35328d5c224fc5635928a1b45b32e0d839caa",
     "d3": "3.4.2",
