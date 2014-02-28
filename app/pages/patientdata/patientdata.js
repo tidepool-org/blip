@@ -25,6 +25,8 @@ var PatientData = React.createClass({
   propTypes: {
     patientData: React.PropTypes.array,
     fetchingPatientData: React.PropTypes.bool,
+    isUserPatient: React.PropTypes.bool,
+    uploadUrl: React.PropTypes.string,
     onRefresh: React.PropTypes.func
   },
 
@@ -165,10 +167,28 @@ var PatientData = React.createClass({
   },
 
   renderNoData: function() {
+    var content = 'This patient doesn\'t have any data yet.';
+
+    if (this.props.isUserPatient) {
+      /* jshint ignore:start */
+      content = (
+        <div>
+          <p>{'It looks like you don\'t have any data yet!'}</p>
+          <p>
+            <a href={this.props.uploadUrl} target="_blank">Upload your data</a>
+            {' or if you already have, try '}
+            <a href="" onClick={this.handleRefresh}>refreshing</a>
+            {'.'}
+          </p>
+        </div>
+      );
+      /* jshint ignore:end */
+    }
+
     /* jshint ignore:start */
     return (
       <div className="patient-data-message patient-data-message-no-data">
-        {'This patient doesn\'t have any data yet.'}
+        {content}
       </div>
     );
     /* jshint ignore:end */

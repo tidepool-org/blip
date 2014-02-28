@@ -197,7 +197,7 @@ var AppComponent = React.createClass({
 
       if (this.isPatientVisibleInNavbar()) {
         patient = this.state.patient;
-        isUserPatient = user.isUserPatient(this.state.user, patient);
+        isUserPatient = this.isUserPatient();
         uploadUrl = api.getUploadUrl();
       }
 
@@ -451,7 +451,11 @@ var AppComponent = React.createClass({
       return false;
     }
 
-    return !user.isUserPatient(this.state.user, this.state.patient);
+    return !this.isUserPatient();
+  },
+
+  isUserPatient: function() {
+    return user.isUserPatient(this.state.user, this.state.patient);
   },
 
   showPatientData: function(patientId) {
@@ -480,6 +484,8 @@ var AppComponent = React.createClass({
       <PatientData
           patientData={this.state.patientData}
           fetchingPatientData={this.state.fetchingPatientData}
+          isUserPatient={this.isUserPatient()}
+          uploadUrl={api.getUploadUrl()}
           onRefresh={this.fetchCurrentPatientData}/>
     );
     /* jshint ignore:end */
@@ -674,7 +680,7 @@ var AppComponent = React.createClass({
       }),
       patient: patient
     });
-    var route = '/patients/' + patient.id;
+    var route = '/patients/' + patient.id + '/data';
     app.router.setRoute(route);
   },
 
