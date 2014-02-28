@@ -474,12 +474,13 @@ var AppComponent = React.createClass({
       this.redirectToDefaultRoute();
       return;
     }
-
+    
     /* jshint ignore:start */
     return (
       <PatientData
           patientData={this.state.patientData}
-          fetchingPatientData={this.state.fetchingPatientData}/>
+          fetchingPatientData={this.state.fetchingPatientData}
+          onRefresh={this.fetchCurrentPatientData}/>
     );
     /* jshint ignore:end */
   },
@@ -615,6 +616,16 @@ var AppComponent = React.createClass({
     data = data || [];
     app.log('Patient data total count', data.length);
     app.log('Patient data count by type', _.countBy(data, 'type'));
+  },
+
+  fetchCurrentPatientData: function() {
+    var patient = this.state.patient;
+
+    if (!patient) {
+      return;
+    }
+
+    this.fetchPatientData(patient.id);
   },
 
   clearUserData: function() {

@@ -24,13 +24,16 @@ var ChartWeekly = require('../../components/chartweekly');
 var PatientData = React.createClass({
   propTypes: {
     patientData: React.PropTypes.array,
-    fetchingPatientData: React.PropTypes.bool
+    fetchingPatientData: React.PropTypes.bool,
+    onRefresh: React.PropTypes.func
   },
+
+  DEFAULT_TITLE: 'Patient data',
 
   getInitialState: function() {
     return {
       chartType: 'daily',
-      title: 'Patient data',
+      title: this.DEFAULT_TITLE,
       datetimeLocation: null,
       showingValuesWeekly: false
     };
@@ -86,6 +89,14 @@ var PatientData = React.createClass({
       );
       /* jshint ignore:end */
 
+      /* jshint ignore:start */
+      right = (
+        <div>
+          <a href="" onClick={this.handleRefresh}>Refresh</a>
+        </div>
+      );
+      /* jshint ignore:end */
+
       if (this.state.chartType === 'daily') {
         /* jshint ignore:start */
         center = (
@@ -101,7 +112,10 @@ var PatientData = React.createClass({
 
         /* jshint ignore:start */
         right = (
-          <a href="" onClick={this.handleGoToMostRecentDaily}>Most recent</a>
+          <div>
+            <a href="" onClick={this.handleRefresh}>Refresh</a>
+            <a href="" onClick={this.handleGoToMostRecentDaily}>Most recent</a>
+          </div>
         );
         /* jshint ignore:end */
       }
@@ -112,13 +126,13 @@ var PatientData = React.createClass({
       <div className="container-box-outer patient-data-subnav-outer">
         <div className="container-box-inner patient-data-subnav-inner">
           <div className="grid patient-data-subnav">
-            <div className="grid-item one-whole large-one-fifth patient-data-subnav-left">
+            <div className="grid-item one-whole large-one-quarter patient-data-subnav-left">
               {left}
             </div>
-            <div className="grid-item one-whole large-three-fifths patient-data-subnav-center">
+            <div className="grid-item one-whole large-two-quarters patient-data-subnav-center">
               {center}
             </div>
-            <div className="grid-item one-whole large-one-fifth patient-data-subnav-right">
+            <div className="grid-item one-whole large-one-quarter patient-data-subnav-right">
               {right}
             </div>
           </div>
@@ -271,6 +285,18 @@ var PatientData = React.createClass({
       chartType: 'daily',
       datetimeLocation: null
     });
+  },
+
+  handleRefresh: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+
+    var refresh = this.props.onRefresh;
+    if (refresh) {
+      this.setState({title: this.DEFAULT_TITLE});
+      refresh();
+    }
   },
 
   handlePanBack: function(e) {
