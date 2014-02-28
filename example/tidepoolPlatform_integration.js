@@ -210,7 +210,7 @@ describe('platform client', function() {
 
   });
 
-  describe('groups for careTeamMember add mrT1 to patients',function(){
+  describe('team for mrT1',function(){
 
     var mrT1TeamId;
 
@@ -220,75 +220,52 @@ describe('platform client', function() {
         mrT1TeamId = team.id;
         done();
       });
-
     });
 
-    it('mrT1 adds careTeamMember to the team', function(done) {
+    it('mrT1 invites careTeamMember to the team', function(done) {
       this.timeout(5000);
 
-      platform.addUserToGroup(mrT1TeamId, careTeamMember.id, mrT1.token, function(error,team){
+      platform.inviteToJoinTeam(careTeamMember.id, mrT1.id, mrT1.token, function(error,groups){
         if(error){
           throw error;
         }
 
-        platform.getGroupForUser(mrT1.id,'team', mrT1.token, function(error,team){
+        platform.getGroupForUser(mrT1.id,'invited', mrT1.token, function(error,invited){
+          console.log('error: ',error);
+          console.log('invited: ',invited);
           expect(error).to.not.exist;
-          expect(team).to.exist;
-          expect(team.members).to.include(careTeamMember.id);
-          expect(team.members).to.include(mrT1.id);
+          expect(invited).to.exist;
+          expect(invited.members).to.include(careTeamMember.id);
           done();
         });
       });
     });
 
-    it('mrT1 removes careTeamMember from the team', function(done) {
+    it('careTeamMember has an invitation from mrT1', function(done) {
       this.timeout(5000);
-      platform.removeUserFromGroup(mrT1TeamId, careTeamMember.id, mrT1.token, function(error,team){
+
+      platform.inviteToJoinTeam(careTeamMember.id, mrT1.id, mrT1.token, function(error,groups){
         if(error){
           throw error;
         }
 
-        platform.getGroupForUser(mrT1.id,'team', mrT1.token, function(error,team){
+        platform.getGroupForUser(careTeamMember.id,'invitedby', careTeamMember.token, function(error,invitedBy){
+          console.log('error: ',error);
+          console.log('invitedBy: ',invitedBy);
           expect(error).to.not.exist;
-          expect(team).to.exist;
-          expect(team.members).to.not.include(careTeamMember.id);
-          expect(team.members).to.include(mrT1.id);
+          expect(invitedBy).to.exist;
+          expect(invitedBy.members).to.include(mrT1.id);
           done();
         });
       });
     });
 
-    it('mrT1 adds careTeamMember to the team and then careTeamMember adds a note for mrT1', function(done) {
-      this.timeout(5000);
+    it.skip('mrT1 removes careTeamMember from the team', function(done) {
+      done();
+    });
 
-      platform.addUserToGroup(mrT1TeamId, careTeamMember.id, mrT1.token, function(error,team){
-        if(error){
-          throw error;
-        }
-        var message = {
-          userid : careTeamMember.id,
-          groupid : mrT1TeamId,
-          timestamp : new Date().toISOString(),
-          messagetext : 'Don\'t cry because it\'s over, smile because it happened.'
-        };
-        //add note
-        platform.startMessageThread(mrT1TeamId, message, careTeamMember.token, function(error,data){
-
-          var messageId = data;
-          //get the whole thread
-          platform.getMessageThread(messageId, careTeamMember.token, function(error,data){
-            expect(error).to.not.exist;
-            expect(data).to.exist;
-            expect(data.length).to.equal(1);
-            var firstMessage = data[0];
-
-            expect(firstMessage.groupid).to.equal(mrT1TeamId);
-            expect(firstMessage.parentmessage).to.not.exist;
-            expect(firstMessage.messagetext).to.equal(message.messagetext);
-            done();
-          });
-        });
-      });
+    it.skip('careTeamMember is now in the team of mrT1 and adds a note for mrT1', function(done) {
+      done();
     });
 
   });

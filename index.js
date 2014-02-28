@@ -16,10 +16,11 @@
 'use strict';
 
 var _ = require('lodash');
+var async = require('async');
 
 module.exports = function(host, superagent) {
   var sessionTokenHeader = 'x-tidepool-session-token';
-  
+
   function makeUrl(path) {
     return host + path;
   }
@@ -50,7 +51,6 @@ module.exports = function(host, superagent) {
             cb({ message: 'Unknown status code ' + res.status });
           }
         });
-
     },
     signUp: function(user, cb){
       if (user.username == null) {
@@ -79,7 +79,6 @@ module.exports = function(host, superagent) {
           cb({ message: 'Unknown response code ' + res.status });
         }
       });
-
     },
     refreshUserToken : function(token,newUserid,cb){
       superagent.get(makeUrl('/auth/login'))
@@ -178,57 +177,111 @@ module.exports = function(host, superagent) {
             });
         });
     },
-    addUserToGroup : function(groupId,userId,token,cb){
-      if (userId == null) {
-        return cb({ message: 'Must specify a userId' });
+    inviteToJoinTeam : function(invitedUser, invitedByUser, token,cb){
+      if (invitedUser == null) {
+        return cb({ message: 'Must specify a invitedUser' });
       }
-      if (groupId == null) {
-        return cb({ message: 'Must specify a groupId' });
+      if (invitedByUser == null) {
+        return cb({ message: 'Must specify a invitedByUser' });
       }
 
-      superagent
-        .put(makeUrl('/group/'+groupId+'/user'))
-        .set(sessionTokenHeader, token)
-        .send({userid:userId})
-        .end(function(err, res){
-          if (err != null) {
-            return cb(err,null);
-          }
+      var self = this;
 
-          if (res.status === 200) {
-            cb(null, res.body.id);
-          } else if (res.status === 204) {
-            cb({ message: 'No group found' });
-          } else {
-            cb({ message: 'Unknown status code ' + res.status });
-          }
-
-        });
+      async.parallel({
+        inviteUser: function(callback){
+          self.getGroupForUser(invitedByUser,'invited',token,function(error,invitedGroup){
+            superagent
+            .put(makeUrl('/group/'+invitedGroup.id+'/user'))
+            .set(sessionTokenHeader, token)
+            .send({userid:invitedUser})
+            .end(function(err, res){
+              if (err != null) {
+                callback(err,null);
+              }
+              if (res.status === 200) {
+                callback(null, res.body.group);
+              } else {
+                callback({ message: 'Unknown status code ' + res.status }, null);
+              }
+            });
+          });
+        },
+        registerInvitation: function(callback){
+          self.getGroupForUser(invitedUser,'invitedby',token,function(error,invitedByGroup){
+            superagent
+            .put(makeUrl('/group/'+invitedByGroup.id+'/user'))
+            .set(sessionTokenHeader, token)
+            .send({userid:invitedByUser})
+            .end(function(err, res){
+              if (err != null) {
+                callback(err,null);
+              }
+              if (res.status === 200) {
+                callback(null, res.body.group);
+              } else {
+                callback({ message: 'Unknown status code ' + res.status }, null);
+              }
+            });
+          });
+        }
+      },
+      function(error, results) {
+        if(error){
+          return cb(error,null);
+        }
+        console.log('invite results ',results);
+        return cb(null,results);
+      });
     },
-    removeUserFromGroup : function(groupId,userId,token,cb){
-      if (userId == null) {
-        return cb({ message: 'Must specify a userId' });
-      }
-      if (groupId == null) {
-        return cb({ message: 'Must specify a groupId' });
+    acceptInviteToJoinTeam : function(invitedUser,token,cb){
+      if (invitedUser == null) {
+        return cb({ message: 'Must specify a invitedUser' });
       }
 
-      superagent
-        .del(makeUrl('/group/'+groupId+'/user'))
-        .set(sessionTokenHeader, token)
-        .send({userid:userId})
-        .end(function(err, res){
-          if (err != null) {
-            return cb(err,null);
-          }
-
-          if (res.status === 204) {
-            cb(null, null);
-          } else {
-            cb({ message: 'Unknown status code ' + res.status });
-          }
-
-        });
+      async.parallel({
+        addToTeam: function(callback){
+          getGroupForUser(invitedByUser,'team',token,function(error,teamGroup){
+            superagent
+            .put(makeUrl('/group/'+teamGroup.id+'/user'))
+            .set(sessionTokenHeader, token)
+            .send({userid:invitedByUser})
+            .end(function(err, res){
+              if (err != null) {
+                callback(err,null);
+              }
+              if (res.status === 200) {
+                callback(null, res.body.id);
+              } else {
+                callback({ message: 'Unknown status code ' + res.status }, null);
+              }
+            });
+          });
+        },
+        addToPatients: function(callback){
+            getGroupForUser(invitedByUser,'invitedby',token,function(error,invitedByGroup){
+            superagent
+            .put(makeUrl('/group/'+invitedByGroup.id+'/user'))
+            .set(sessionTokenHeader, token)
+            .send({userid:invitedByUser})
+            .end(function(err, res){
+              if (err != null) {
+                callback(err,null);
+              }
+              if (res.status === 200) {
+                callback(null, res.body.id);
+              } else {
+                callback({ message: 'Unknown status code ' + res.status }, null);
+              }
+            });
+          });
+        }
+      },
+      function(error, results) {
+        if(error){
+          return cb(error,null);
+        }
+        return cb(null,results);
+      });
     },
     getUserTeamAndMessages :function(userId,token,cb){
       return cb(null,null);
