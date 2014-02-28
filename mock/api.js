@@ -107,6 +107,11 @@ var patch = function(api, options) {
     }, config.MOCK_DELAY);
   };
 
+  // ----- Upload -----
+  api.getUploadUrl = function() {
+    return 'about:blank';
+  };
+
   return api;
 };
 

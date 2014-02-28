@@ -24,6 +24,8 @@ var Navbar = React.createClass({
     fetchingUser: React.PropTypes.bool,
     patient: React.PropTypes.object,
     fetchingPatient: React.PropTypes.bool,
+    isUserPatient: React.PropTypes.bool,
+    uploadUrl: React.PropTypes.string,
     onLogout: React.PropTypes.func,
     imagesEndpoint: React.PropTypes.string
   },
@@ -99,16 +101,45 @@ var Navbar = React.createClass({
 
     var fullName = this.getPatientFullName(patient);
     var patientUrl = '#/patients/' + patient.id;
+    var uploadLink = this.renderUploadLink();
     
     return (
       /* jshint ignore:start */
       <div className="navbar-patient js-navbar-patient" ref="patient">
-        <a className="navbar-patient-name" href={patientUrl} title="Patient profile">
+        <div className="navbar-patient-name">
           {fullName}
-        </a>
+        </div>
+        <div className="navbar-patient-links">
+          <a href={patientUrl}>
+            <i className="icon-profile"></i>
+            {'View profile'}
+          </a>
+          {uploadLink}
+        </div>
       </div>
       /* jshint ignore:end */
     );
+  },
+
+  renderUploadLink: function() {
+    if (!this.props.isUserPatient) {
+      return null;
+    }
+
+    var uploadUrl = this.props.uploadUrl;
+    if (!uploadUrl) {
+      return null;
+    }
+
+    // Upload icon is a bit to the right, need an extra space in the text
+    /* jshint ignore:start */
+    return (
+      <a href={uploadUrl} target="_blank">
+        <i className="icon-upload"></i>
+        {' ' + 'Upload data'}
+      </a>
+    );
+    /* jshint ignore:end */
   },
 
   renderUser: function() {

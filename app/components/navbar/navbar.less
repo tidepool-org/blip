@@ -163,19 +163,24 @@
 // Navbar patient
 // ====================================
 
-@navbar-patient-line-height:    30px;
-
 .navbar-patient {
   text-align: center;
+}
 
-  > a {
-    font-weight: bold;
-    font-size: 20px;
-    line-height: @navbar-patient-line-height;
-    display: inline-block;
+.navbar-patient-name {
+  display: inline-block;
+  font-weight: bold;
+  font-size: 20px;
+  line-height: 30px;
 
-    padding: @navbar-item-vertical-padding @navbar-item-horizontal-padding;
-    margin-top: ((@navbar-height - @navbar-patient-line-height)/2 - @navbar-item-vertical-padding);
-    margin-bottom: ((@navbar-height - @navbar-patient-line-height)/2 - @navbar-item-vertical-padding);
-  }
+  padding: 0 @navbar-item-horizontal-padding;
+}
+
+.navbar-patient-links a {
+  display: inline-block;
+  font-weight: bold;
+  font-size: 14px;
+  line-height: 20px;
+
+  padding: @spacing-tiny @navbar-item-horizontal-padding;
 }

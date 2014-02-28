@@ -193,9 +193,13 @@ var AppComponent = React.createClass({
   renderNavbar: function() {
     if (this.state.authenticated) {
       var patient;
+      var isUserPatient;
+      var uploadUrl;
 
       if (this.isPatientVisibleInNavbar()) {
         patient = this.state.patient;
+        isUserPatient = user.isUserPatient(this.state.user, patient);
+        uploadUrl = api.getUploadUrl();
       }
 
       return (
@@ -206,6 +210,8 @@ var AppComponent = React.createClass({
           fetchingUser={this.state.fetchingUser}
           patient={patient}
           fetchingPatient={this.state.fetchingPatient}
+          isUserPatient={isUserPatient}
+          uploadUrl={uploadUrl}
           onLogout={this.logout}
           imagesEndpoint={config.IMAGES_ENDPOINT + '/navbar'} />
         /* jshint ignore:end */
@@ -339,8 +345,7 @@ var AppComponent = React.createClass({
           user={this.state.user}
           fetchingUser={this.state.fetchingUser}
           patient={this.state.patient}
-          fetchingPatient={this.state.fetchingPatient}
-          getUploadUrl={app.api.getUploadUrl.bind(app.api)}/>
+          fetchingPatient={this.state.fetchingPatient}/>
     );
     /* jshint ignore:end */
   },
