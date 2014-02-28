@@ -153,10 +153,9 @@ var AppComponent = React.createClass({
     // Called on props or state changes
     // Since app main component has no props,
     // this will be called on a state change
-    app.log('State changed');
     if (DEBUG) {
       var stateDiff = objectDifference(nextState, this.state);
-      app.log(stateDiff);
+      app.log('State changed', stateDiff);
     }
   },
 
