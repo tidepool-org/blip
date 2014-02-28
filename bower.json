@@ -4,7 +4,7 @@
   "authors": [
     "Jana E. Beck <jana.eliz.beck@gmail.com>"
   ],
-  "description": "Refactor of Tidepool's timeline data visualization(s).",
+  "description": "Tidepool's timeline data visualization(s).",
   "license": "BSD",
   "private": true,
   "ignore": [
@@ -16,12 +16,12 @@
   ],
   "dependencies": {
     "d3": "~3.4.2",
-    "jquery": "~2.1.0",
     "lodash": "~2.4.1",
     "Duration.js": "https://github.com/icholy/Duration.js.git#3.3.3"
   },
   "devDependencies": {
     "bows": "https://github.com/latentflip/bows.git#beb35328d5c224fc5635928a1b45b32e0d839caa",
-    "bootstrap": "~3.0.3"
+    "bootstrap": "~3.0.3",
+    "jquery": "~2.1.0"
   }
 }
