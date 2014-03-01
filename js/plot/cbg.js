@@ -15,6 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
+var d3 = window.d3;
+var _ = window._;
+
 var log = require('../lib/bows')('CBG');
 
 module.exports = function(pool, opts) {
@@ -43,17 +46,17 @@ module.exports = function(pool, opts) {
         .append('circle')
         .attr('class', 'd3-cbg');
       var cbgLow = cbgGroups.filter(function(d) {
-        if (d.value <= opts.classes['low']['boundary']) {
+        if (d.value <= opts.classes.low.boundary) {
           return d;
         }
       });
       var cbgTarget = cbgGroups.filter(function(d) {
-        if ((d.value > opts.classes['low']['boundary']) && (d.value <= opts.classes['target']['boundary'])) {
+        if ((d.value > opts.classes.low.boundary) && (d.value <= opts.classes.target.boundary)) {
           return d;
         }
       });
       var cbgHigh = cbgGroups.filter(function(d) {
-        if (d.value > opts.classes['target']['boundary']) {
+        if (d.value > opts.classes.target.boundary) {
           return d;
         }
       });
@@ -121,7 +124,7 @@ module.exports = function(pool, opts) {
   }
 
   cbg.addTooltip = function(d, category) {
-    d3.select('#' + 'd3-tooltip-group_cbg')
+    d3.select('#' + 'tidelineTooltips_cbg')
       .call(pool.tooltips(),
         d,
         // tooltipXPos
@@ -129,7 +132,7 @@ module.exports = function(pool, opts) {
         'cbg',
         // timestamp
         false,
-        opts.classes[category]['tooltip'],
+        opts.classes[category].tooltip,
         opts.tooltipSize,
         opts.tooltipSize,
         // imageX

@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+var _ = window._;
+
 var log = require('../../lib/bows')('Puddle');
 
 module.exports = function(opts) {
@@ -48,7 +50,7 @@ module.exports = function(opts) {
     display.forEach(function(txt) {
       displayGroup.append('tspan')
         .attr('class', txt['class'])
-        .text(txt['text']);
+        .text(txt.text);
     });
   };
 

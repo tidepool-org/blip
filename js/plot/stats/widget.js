@@ -15,12 +15,15 @@
  * == BSD2 LICENSE ==
  */
 
+var d3 = window.d3;
+var _ = window._;
+
 var log = require('../../lib/bows')('Stats');
 var scales = require('../util/scales');
 
 module.exports = function(pool, opts) {
 
-  var puddle = require('./puddle');
+  var Puddle = require('./puddle');
 
   opts = opts || {};
 
@@ -180,19 +183,19 @@ module.exports = function(pool, opts) {
       rectGroup.append('image')
         .attr({
           'xlink:href': function() {
-            if (data.value <= opts.classes['very-low']['boundary']) {
+            if (data.value <= opts.classes['very-low'].boundary) {
               return opts.imagesBaseUrl + '/smbg/very_low.svg';
             }
-            else if ((data.value > opts.classes['very-low']['boundary']) && (data.value <= opts.classes['low']['boundary'])) {
+            else if ((data.value > opts.classes['very-low'].boundary) && (data.value <= opts.classes.low.boundary)) {
               return opts.imagesBaseUrl + '/smbg/low.svg';
             }
-            else if ((data.value > opts.classes['low']['boundary']) && (data.value <= opts.classes['target']['boundary'])) {
+            else if ((data.value > opts.classes.low.boundary) && (data.value <= opts.classes.target.boundary)) {
               return opts.imagesBaseUrl + '/smbg/target.svg';
             }
-            else if ((data.value > opts.classes['target']['boundary']) && (data.value <= opts.classes['high']['boundary'])) {
+            else if ((data.value > opts.classes.target.boundary) && (data.value <= opts.classes.high.boundary)) {
               return opts.imagesBaseUrl + '/smbg/high.svg';
             }
-            else if (data.value > opts.classes['high']['boundary']) {
+            else if (data.value > opts.classes.high.boundary) {
               return opts.imagesBaseUrl + '/smbg/very_high.svg';
             }
           },
@@ -207,19 +210,19 @@ module.exports = function(pool, opts) {
       rectGroup.append('image')
         .attr({
           'xlink:href': function() {
-            if (data.value <= opts.classes['very-low']['boundary']) {
+            if (data.value <= opts.classes['very-low'].boundary) {
               return opts.imagesBaseUrl + '/smbg/very_low.svg';
             }
-            else if ((data.value > opts.classes['very-low']['boundary']) && (data.value <= opts.classes['low']['boundary'])) {
+            else if ((data.value > opts.classes['very-low'].boundary) && (data.value <= opts.classes.low.boundary)) {
               return opts.imagesBaseUrl + '/smbg/low.svg';
             }
-            else if ((data.value > opts.classes['low']['boundary']) && (data.value <= opts.classes['target']['boundary'])) {
+            else if ((data.value > opts.classes.low.boundary) && (data.value <= opts.classes.target.boundary)) {
               return opts.imagesBaseUrl + '/smbg/target.svg';
             }
-            else if ((data.value > opts.classes['target']['boundary']) && (data.value <= opts.classes['high']['boundary'])) {
+            else if ((data.value > opts.classes.target.boundary) && (data.value <= opts.classes.high.boundary)) {
               return opts.imagesBaseUrl + '/smbg/high.svg';
             }
-            else if (data.value > opts.classes['high']['boundary']) {
+            else if (data.value > opts.classes.high.boundary) {
               return opts.imagesBaseUrl + '/smbg/very_high.svg';
             }
             else {
@@ -243,26 +246,26 @@ module.exports = function(pool, opts) {
       stats.rectGroup.selectAll('.d3-stats-image')
         .attr({
           'xlink:href': function() {
-            if (data.value <= opts.classes['very-low']['boundary']) {
+            if (data.value <= opts.classes['very-low'].boundary) {
               return opts.imagesBaseUrl + '/smbg/very_low.svg';
             }
-            else if ((data.value > opts.classes['very-low']['boundary']) && (data.value <= opts.classes['low']['boundary'])) {
+            else if ((data.value > opts.classes['very-low'].boundary) && (data.value <= opts.classes.low.boundary)) {
               return opts.imagesBaseUrl + '/smbg/low.svg';
             }
-            else if ((data.value > opts.classes['low']['boundary']) && (data.value <= opts.classes['target']['boundary'])) {
+            else if ((data.value > opts.classes.low.boundary) && (data.value <= opts.classes.target.boundary)) {
               return opts.imagesBaseUrl + '/smbg/target.svg';
             }
-            else if ((data.value > opts.classes['target']['boundary']) && (data.value <= opts.classes['high']['boundary'])) {
+            else if ((data.value > opts.classes.target.boundary) && (data.value <= opts.classes.high.boundary)) {
               return opts.imagesBaseUrl + '/smbg/high.svg';
             }
-            else if (data.value > opts.classes['high']['boundary']) {
+            else if (data.value > opts.classes.high.boundary) {
               return opts.imagesBaseUrl + '/smbg/very_high.svg';
             }
           },
           'y': imageY
         })
         .classed('hidden', false);
-      }
+    }
   };
 
   stats.createPie = function(puddleGroup, data) {
@@ -305,7 +308,7 @@ module.exports = function(pool, opts) {
   };
 
   stats.newPuddle = function(id, head, lead, weight, pieBoolean) {
-    var p = new puddle({
+    var p = new Puddle({
       'id': id,
       'head': head,
       'lead': lead,
@@ -327,12 +330,12 @@ module.exports = function(pool, opts) {
 
   stats.getDisplay = function(id) {
     switch (id) {
-      case 'Ratio':
-        return stats.ratioDisplay();
-      case 'Range':
-        return stats.rangeDisplay();
-      case 'Average':
-        return stats.averageDisplay();
+    case 'Ratio':
+      return stats.ratioDisplay();
+    case 'Range':
+      return stats.rangeDisplay();
+    case 'Average':
+      return stats.averageDisplay();
     }
   };
 
@@ -369,7 +372,8 @@ module.exports = function(pool, opts) {
       {
         'type': 'basal',
         'value': opts.basal.totalBasal(start, end)
-      }];
+      }
+    ];
     var range = opts.cbg.rangeBreakdown(start, end);
     data.range = [
       {
@@ -383,7 +387,8 @@ module.exports = function(pool, opts) {
       {
         'type': 'bg-high',
         'value': range.high || 0
-      }];
+      }
+    ];
     data.cbgReadings = range.total;
     data.average = opts.cbg.average(start, end);
   };

@@ -15,6 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
+var d3 = window.d3;
+var _ = window._;
+
 var log = require('./lib/bows')('Two Week');
 
 module.exports = function(emitter) {
@@ -37,9 +40,9 @@ module.exports = function(emitter) {
     },
     axisGutter = 60,
     statsHeight = 100,
-    pools = [], poolGroup, daysGroup,
-    xScale = d3.scale.linear(), yScale = d3.time.scale.utc(),
-    data, allData = [], endpoints, viewEndpoints, dataStartNoon, lessThanTwoWeeks = false, viewIndex,
+    pools = [], poolGroup, days, daysGroup,
+    xScale = d3.scale.linear(), xAxis, yScale = d3.time.scale.utc(), yAxis,
+    data, allData = [], endpoints, viewEndpoints, dataStartNoon, dataEndNoon, lessThanTwoWeeks = false, viewIndex,
     mainGroup, scrollNav, scrollHandleTrigger = true;
 
   container.dataFill = {};
@@ -91,14 +94,14 @@ module.exports = function(emitter) {
     var currentYPosition = container.height() - statsHeight - poolScaleHeight;
     var nextBatchYPosition = currentYPosition + poolScaleHeight;
     for (var i = viewIndex; i < pools.length; i++) {
-      pool = pools[i];
+      var pool = pools[i];
       pool.yPosition(currentYPosition);
       currentYPosition -= pool.height();
       pool.group().attr('transform', 'translate(0,' + pool.yPosition() + ')');
     }
     currentYPosition = nextBatchYPosition;
     for (var j = viewIndex - 1; j >= 0; j--) {
-      pool = pools[j];
+      var pool = pools[j];
       pool.yPosition(currentYPosition);
       currentYPosition += pool.height();
       pool.group().attr('transform', 'translate(0,' + pool.yPosition() + ')');
@@ -149,7 +152,7 @@ module.exports = function(emitter) {
     if (!arguments.length) {
       a = yScale.domain();
     }
-    var monthDay = d3.time.format.utc("%B %-d");
+    var monthDay = d3.time.format.utc('%B %-d');
     var navString = monthDay(new Date(a[0].setUTCDate(a[0].getUTCDate() + 1))) + ' - ' + monthDay(a[1]);
     if (!d3.select('#' + id).classed('hidden')) {
       emitter.emit('currentDomain', a);
@@ -227,14 +230,14 @@ module.exports = function(emitter) {
       .range([axisGutter, width - nav.navGutter]);
     xAxis = d3.svg.axis().scale(xScale).orient('top').outerTickSize(0).innerTickSize(15)
       .tickValues(function() {
-        a = [];
-        for (i = 0; i < 8; i++) {
+        var a = [];
+        for (var i = 0; i < 8; i++) {
           a.push((MS_IN_24/8) * i);
         }
         return a;
       })
       .tickFormat(function(d) {
-        hour = d/(MS_IN_24/24);
+        var hour = d/(MS_IN_24/24);
         if ((hour > 0) && (hour < 12)) {
           return hour + ' am';
         }
@@ -263,7 +266,7 @@ module.exports = function(emitter) {
       .range([nav.axisHeight, height - statsHeight])
       .ticks(d3.time.day.utc, 1);
 
-    yAxis = d3.svg.axis().scale(yScale).orient('left').outerTickSize(0).tickFormat(d3.time.format.utc("%a %-d"));
+    yAxis = d3.svg.axis().scale(yScale).orient('left').outerTickSize(0).tickFormat(d3.time.format.utc('%a %-d'));
 
     mainGroup.select('#tidelineYAxisGroup')
       .append('g')
@@ -444,7 +447,7 @@ module.exports = function(emitter) {
     function createDay(d) {
       return new Date(d.toISOString().slice(0,11) + '00:00:00Z');
     }
-    var days = [];
+    days = [];
     var firstDay = createDay(new Date(container.endpoints[0]));
     var lastDay = createDay(new Date(container.endpoints[1]));
     days.push(firstDay.toISOString().slice(0,10));

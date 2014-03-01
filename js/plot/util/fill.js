@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+var _ = window._;
+
 var log = require('../../lib/bows')('Fill');
 
 module.exports = function(pool, opts) {
@@ -55,7 +57,7 @@ module.exports = function(pool, opts) {
       x: opts.xScale(otherNear),
       fill: opts.classes[nearest.getHours()]
     });
-    current = new Date(nearest);
+    var current = new Date(nearest);
     while (current > first) {
       var next = new Date(current);
       next.setHours(current.getHours() - opts.duration);

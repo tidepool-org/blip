@@ -15,6 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
+var d3 = window.d3;
+var _ = window._;
+
 var log = require('./lib/bows')('One Day');
 
 module.exports = function(emitter) {
@@ -40,10 +43,10 @@ module.exports = function(emitter) {
     axisGutter = 40, gutter = 40,
     buffer = 5,
     pools = [], poolGroup,
-    xScale = d3.time.scale.utc(),
+    xScale = d3.time.scale.utc(), xAxis,
     beginningOfData, endOfData, data, allData = [], endpoints,
     mainGroup,
-    scrollHandleTrigger = true, tooltips;
+    scrollNav, scrollHandleTrigger = true, tooltips;
 
   container.dataFill = {};
 
@@ -120,19 +123,19 @@ module.exports = function(emitter) {
 
     container.currentEndpoints = [start, end];
 
-    readings = _.filter(data, function(datapoint) {
-      t = Date.parse(datapoint.normalTime);
-      if (direction == 'both') {
+    var readings = _.filter(data, function(datapoint) {
+      var t = Date.parse(datapoint.normalTime);
+      if (direction === 'both') {
         if ((t >= start) && (t <= end)) {
           return datapoint;
         }
       }
-      else if (direction == 'left') {
+      else if (direction === 'left') {
         if ((t >= start) && (t < end)) {
           return datapoint;
         }
       }
-      else if (direction == 'right') {
+      else if (direction === 'right') {
         if ((t > start) && (t <= end)) {
           return datapoint;
         }
@@ -183,9 +186,9 @@ module.exports = function(emitter) {
       container.height() - nav.axisHeight - nav.scrollNavHeight - (numPools - 1) * gutter;
     var poolScaleHeight = totalPoolsHeight/cumWeight;
     var actualPoolsHeight = 0;
-      pools.forEach(function(pool) {
-        pool.height(poolScaleHeight);
-        actualPoolsHeight += pool.height();
+    pools.forEach(function(pool) {
+      pool.height(poolScaleHeight);
+      actualPoolsHeight += pool.height();
     });
     actualPoolsHeight += (numPools - 1) * gutter;
     var currentYPosition = nav.axisHeight;
@@ -207,7 +210,7 @@ module.exports = function(emitter) {
   };
 
   container.navString = function(a) {
-    var formatDate = d3.time.format.utc("%A %-d %B");
+    var formatDate = d3.time.format.utc('%A %-d %B');
     var beginning = formatDate(a[0]);
     var end = formatDate(a[1]);
     var navString;
@@ -261,7 +264,7 @@ module.exports = function(emitter) {
       .orient('top')
       .outerTickSize(0)
       .innerTickSize(15)
-      .tickFormat(d3.time.format.utc("%-I %p"));
+      .tickFormat(d3.time.format.utc('%-I %p'));
 
     mainGroup.select('#tidelineXAxis').call(xAxis);
 
@@ -300,7 +303,7 @@ module.exports = function(emitter) {
             container.endOfData(endpoints[1]);
           }
           container.allData(newData);
-          for (j = 0; j < pools.length; j++) {
+          for (var j = 0; j < pools.length; j++) {
             pools[j].render(poolGroup, container.allData());
           }
         }
@@ -317,7 +320,7 @@ module.exports = function(emitter) {
             container.beginningOfData(endpoints[0]);
           }
           container.allData(newData);
-          for (j = 0; j < pools.length; j++) {
+          for (var j = 0; j < pools.length; j++) {
             pools[j].render(poolGroup, container.allData());
           }
         }
@@ -332,7 +335,7 @@ module.exports = function(emitter) {
         for (var i = 0; i < pools.length; i++) {
           pools[i].pan(e);
         }
-        mainGroup.select('#d3-tooltip-group').attr('transform', 'translate(' + e.translate[0] + ',0)');
+        mainGroup.select('#tidelineTooltips').attr('transform', 'translate(' + e.translate[0] + ',0)');
         mainGroup.select('.d3-x.d3-axis').call(xAxis);
         mainGroup.selectAll('#tidelineXAxis g.tick text').style('text-anchor', 'start').attr('transform', 'translate(5,15)');
         if (scrollHandleTrigger) {
@@ -410,7 +413,7 @@ module.exports = function(emitter) {
 
   container.setTooltip = function() {
     var tooltipGroup = mainGroup.append('g')
-      .attr('id', 'd3-tooltip-group');
+      .attr('id', 'tidelineTooltips');
     tooltips = tooltip(container, tooltipGroup).id(tooltipGroup.attr('id'));
     pools.forEach(function(pool) {
       pool.tooltips(tooltips);

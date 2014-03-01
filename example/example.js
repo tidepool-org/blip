@@ -15,6 +15,10 @@
  * == BSD2 LICENSE ==
  */
 
+var $ = window.$;
+var d3 = window.d3;
+var _ = window._;
+
 var tideline = require('../js');
 var chartDailyFactory = require('./chartdailyfactory');
 var chartWeeklyFactory = require('./chartweeklyfactory');
@@ -56,7 +60,7 @@ var twoWeek = chartWeeklyFactory(el, {imagesBaseUrl: imagesBaseUrl}, emitter);
 d3.json('data/device-data.json', function(data) {
   log('Data loaded.');
   // munge basal segments
-  basalUtil = new tideline.data.BasalUtil(_.where(data, {'type': 'basal-rate-segment'}));
+  var basalUtil = new tideline.data.BasalUtil(_.where(data, {'type': 'basal-rate-segment'}));
   data = _.reject(data, function(d) {
     return d.type === 'basal-rate-segment';
   });

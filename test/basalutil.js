@@ -16,6 +16,7 @@
  */
 
 /*jshint expr: true */
+/*global describe, it */
 
 var chai = require('chai');
 var assert = chai.assert;
@@ -169,20 +170,20 @@ describe('basal utilities', function() {
     });
 
     it('should return 20.0 on basal-template.json for twenty-four hours', function() {
-      var start = new Date("2014-02-12T00:00:00").valueOf();
-      var end = new Date("2014-02-13T00:00:00").valueOf();
+      var start = new Date('2014-02-12T00:00:00').valueOf();
+      var end = new Date('2014-02-13T00:00:00').valueOf();
       expect(template.totalBasal(start, end)).to.equal(20.0);
     });
 
     it('should return 1.45 on basal-template.json from 1 to 3 a.m.', function() {
-      var start = new Date("2014-02-12T01:00:00").valueOf();
-      var end = new Date("2014-02-12T03:00:00").valueOf();
+      var start = new Date('2014-02-12T01:00:00').valueOf();
+      var end = new Date('2014-02-12T03:00:00').valueOf();
       expect(template.totalBasal(start, end)).to.equal(1.45);
     });
 
     it('should return 5.35 on basal-contained.json from 8:30 a.m. to 3:30 p.m.', function() {
-      var start = new Date("2014-02-12T08:30:00").valueOf();
-      var end = new Date("2014-02-12T15:30:00").valueOf();
+      var start = new Date('2014-02-12T08:30:00').valueOf();
+      var end = new Date('2014-02-12T15:30:00').valueOf();
       expect(temp.totalBasal(start, end)).to.equal(5.35);
     });
   });

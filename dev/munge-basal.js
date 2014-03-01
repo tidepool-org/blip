@@ -26,7 +26,7 @@ var data = require(filename);
 
 var b = new BasalUtil(data);
 
-var start = new Date("2014-02-16T00:00:00").valueOf();
-var end = new Date("2014-02-17T00:00:00").valueOf();
+var start = new Date('2014-02-16T00:00:00').valueOf();
+var end = new Date('2014-02-17T00:00:00').valueOf();
 
 console.log(b.totalBasal(start, end));

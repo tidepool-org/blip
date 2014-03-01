@@ -15,6 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
+var d3 = window.d3;
+var _ = window._;
+
 var log = require('../lib/bows')('Message');
 
 module.exports = function(pool, opts) {

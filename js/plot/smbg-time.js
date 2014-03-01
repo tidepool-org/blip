@@ -15,12 +15,15 @@
  * == BSD2 LICENSE ==
  */
 
+var d3 = window.d3;
+var _ = window._;
+
 var log = require('../lib/bows')('Two-Week SMBG');
  
 function SMBGTime (opts) {
-  MS_IN_HOUR = 3600000;
+  var MS_IN_HOUR = 3600000;
 
-  MS_IN_MIN = 60 * 1000;
+  var MS_IN_MIN = 60 * 1000;
 
   opts = opts || {};
 
@@ -58,19 +61,19 @@ function SMBGTime (opts) {
         circleGroups.append('image')
           .attr({
             'xlink:href': function(d) {
-              if (d.value <= opts.classes['very-low']['boundary']) {
+              if (d.value <= opts.classes['very-low'].boundary) {
                 return opts.pool.imagesBaseUrl() + '/smbg/very_low.svg';
               }
-              else if ((d.value > opts.classes['very-low']['boundary']) && (d.value <= opts.classes['low']['boundary'])) {
+              else if ((d.value > opts.classes['very-low'].boundary) && (d.value <= opts.classes.low.boundary)) {
                 return opts.pool.imagesBaseUrl() + '/smbg/low.svg';
               }
-              else if ((d.value > opts.classes['low']['boundary']) && (d.value <= opts.classes['target']['boundary'])) {
+              else if ((d.value > opts.classes.low.boundary) && (d.value <= opts.classes.target.boundary)) {
                 return opts.pool.imagesBaseUrl() + '/smbg/target.svg';
               }
-              else if ((d.value > opts.classes['target']['boundary']) && (d.value <= opts.classes['high']['boundary'])) {
+              else if ((d.value > opts.classes.target.boundary) && (d.value <= opts.classes.high.boundary)) {
                 return opts.pool.imagesBaseUrl() + '/smbg/high.svg';
               }
-              else if (d.value > opts.classes['high']['boundary']) {
+              else if (d.value > opts.classes.high.boundary) {
                 return opts.pool.imagesBaseUrl() + '/smbg/very_high.svg';
               }
             },
@@ -92,13 +95,13 @@ function SMBGTime (opts) {
               return 'smbg_time_' + d.id;
             },
             'class': function(d) {
-              if (d.value <= opts.classes['low']['boundary']) {
+              if (d.value <= opts.classes.low.boundary) {
                 return 'd3-bg-low';
               }
-              else if ((d.value > opts.classes['low']['boundary']) && (d.value <= opts.classes['target']['boundary'])) {
+              else if ((d.value > opts.classes.low.boundary) && (d.value <= opts.classes.target.boundary)) {
                 return 'd3-bg-target';
               }
-              else if (d.value > opts.classes['target']['boundary']) {
+              else if (d.value > opts.classes.target.boundary) {
                 return 'd3-bg-high';
               }
             }

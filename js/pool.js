@@ -15,6 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
+var d3 = window.d3;
+var _ = window._;
+
 var log = require('./lib/bows')('Pool');
  
 function Pool (container) {
@@ -37,7 +40,7 @@ function Pool (container) {
       if (container.dataFill[plotType.type]) {
         plotType.data = _.where(poolData, {'type': plotType.type});
         if (plotType.data.length !== 0) {
-          dataGroup = group.selectAll('#' + id + '_' + plotType.type).data([plotType.data]);
+          var dataGroup = group.selectAll('#' + id + '_' + plotType.type).data([plotType.data]);
           dataGroup.enter().append('g').attr('id', id + '_' + plotType.type);
           dataGroup.call(plotType.plot);
         }
@@ -113,7 +116,7 @@ function Pool (container) {
         .attr('id', 'pool_' + id + '_yAxis_' + i)
         .attr('transform', 'translate(' + (container.axisGutter() - 1) + ',' + yPosition + ')')
         .call(axis);
-      });
+    });
     return this;
   });
 

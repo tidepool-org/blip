@@ -15,6 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
+var d3 = window.d3;
+var _ = window._;
+
 var Duration = require('../lib/duration');
 var log = require('../lib/bows')('Basal');
 
@@ -243,7 +246,7 @@ module.exports = function(pool, opts) {
             });
         });
 
-        basal.link_temp(_.where(actual, {'deliveryType': 'temp'}), undelivered);
+        basal.linkTemp(_.where(actual, {'deliveryType': 'temp'}), undelivered);
       }
 
       // tooltips
@@ -283,7 +286,7 @@ module.exports = function(pool, opts) {
     });
   }
 
-  basal.link_temp = function(toLink, referenceArray) {
+  basal.linkTemp = function(toLink, referenceArray) {
     referenceArray = referenceArray.slice(0);
     referenceArray = _.sortBy(referenceArray, function(segment) {
       return Date.parse(segment.normalTime);
@@ -319,24 +322,38 @@ module.exports = function(pool, opts) {
     if (hours !== 0) {
       if (hours === 1) {
         switch(minutes) {
-          case 0: return 'over ' + hours + ' hr';
-          case 15: return 'over ' + hours + QUARTER + ' hr';
-          case 20: return 'over ' + hours + THIRD + ' hr';
-          case 30: return 'over ' + hours + HALF + ' hr';
-          case 40: return 'over ' + hours + TWO_THIRDS + ' hr';
-          case 45: return 'over ' + hours + THREE_QUARTER + ' hr';
-          default: return 'over ' + hours + ' hr ' + minutes + ' min';
+        case 0:
+          return 'over ' + hours + ' hr';
+        case 15:
+          return 'over ' + hours + QUARTER + ' hr';
+        case 20:
+          return 'over ' + hours + THIRD + ' hr';
+        case 30:
+          return 'over ' + hours + HALF + ' hr';
+        case 40:
+          return 'over ' + hours + TWO_THIRDS + ' hr';
+        case 45:
+          return 'over ' + hours + THREE_QUARTER + ' hr';
+        default:
+          return 'over ' + hours + ' hr ' + minutes + ' min';
         }
       }
       else {
         switch(minutes) {
-          case 0: return 'over ' + hours + ' hrs';
-          case 15: return 'over ' + hours + QUARTER + ' hrs';
-          case 20: return 'over ' + hours + THIRD + ' hrs';
-          case 30: return 'over ' + hours + HALF + ' hrs';
-          case 40: return 'over ' + hours + TWO_THIRDS + ' hrs';
-          case 45: return 'over ' + hours + THREE_QUARTER + ' hrs';
-          default: return 'over ' + hours + ' hrs ' + minutes + ' min';
+        case 0:
+          return 'over ' + hours + ' hrs';
+        case 15:
+          return 'over ' + hours + QUARTER + ' hrs';
+        case 20:
+          return 'over ' + hours + THIRD + ' hrs';
+        case 30:
+          return 'over ' + hours + HALF + ' hrs';
+        case 40:
+          return 'over ' + hours + TWO_THIRDS + ' hrs';
+        case 45:
+          return 'over ' + hours + THREE_QUARTER + ' hrs';
+        default:
+          return 'over ' + hours + ' hrs ' + minutes + ' min';
         }
       }
     }
@@ -351,7 +368,7 @@ module.exports = function(pool, opts) {
 
   basal.addTooltip = function(d, category, unD) {
     var tooltipHeight = opts.classes[category].height;
-    d3.select('#' + 'd3-tooltip-group_basal')
+    d3.select('#' + 'tidelineTooltips_basal')
       .call(pool.tooltips(),
         d,
         // tooltipXPos
@@ -359,7 +376,7 @@ module.exports = function(pool, opts) {
         'basal',
         // timestamp
         false,
-        opts.classes[category]['tooltip'],
+        opts.classes[category].tooltip,
         opts.tooltipWidth,
         tooltipHeight,
         // imageX
@@ -396,14 +413,14 @@ module.exports = function(pool, opts) {
             }
           }
         },
-        function() {
+        (function() {
           if (d.value === 0) {
             return '0.0U';
           }
           else {
             return d.value + 'U';
           }
-        }(),
+        }()),
         basal.timespan(d));
     if (category === 'temp') {
       d3.select('#tooltip_' + d.id).select('.d3-tooltip-text-group').append('text')

@@ -15,6 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
+var d3 = window.d3;
+var _ = window._;
+
 var log = require('../lib/bows')('SMBG');
 
 module.exports = function(pool, opts) {
@@ -50,19 +53,19 @@ module.exports = function(pool, opts) {
         .append('image')
         .attr({
           'xlink:href': function(d) {
-            if (d.value <= opts.classes['very-low']['boundary']) {
+            if (d.value <= opts.classes['very-low'].boundary) {
               return opts.imagesBaseUrl + '/smbg/very_low.svg';
             }
-            else if ((d.value > opts.classes['very-low']['boundary']) && (d.value <= opts.classes['low']['boundary'])) {
+            else if ((d.value > opts.classes['very-low'].boundary) && (d.value <= opts.classes.low.boundary)) {
               return opts.imagesBaseUrl + '/smbg/low.svg';
             }
-            else if ((d.value > opts.classes['low']['boundary']) && (d.value <= opts.classes['target']['boundary'])) {
+            else if ((d.value > opts.classes.low.boundary) && (d.value <= opts.classes.target.boundary)) {
               return opts.imagesBaseUrl + '/smbg/target.svg';
             }
-            else if ((d.value > opts.classes['target']['boundary']) && (d.value <= opts.classes['high']['boundary'])) {
+            else if ((d.value > opts.classes.target.boundary) && (d.value <= opts.classes.high.boundary)) {
               return opts.imagesBaseUrl + '/smbg/high.svg';
             }
-            else if (d.value > opts.classes['high']['boundary']) {
+            else if (d.value > opts.classes.high.boundary) {
               return opts.imagesBaseUrl + '/smbg/very_high.svg';
             }
           },
@@ -78,13 +81,13 @@ module.exports = function(pool, opts) {
             return 'smbg_' + d.id;
           },
           'class': function(d) {
-            if (d.value <= opts.classes['low']['boundary']) {
+            if (d.value <= opts.classes.low.boundary) {
               return 'd3-bg-low';
             }
-            else if ((d.value > opts.classes['low']['boundary']) && (d.value <= opts.classes['target']['boundary'])) {
+            else if ((d.value > opts.classes.low.boundary) && (d.value <= opts.classes.target.boundary)) {
               return 'd3-bg-target';
             }
-            else if (d.value > opts.classes['target']['boundary']) {
+            else if (d.value > opts.classes.target.boundary) {
               return 'd3-bg-high';
             }
           }
@@ -112,7 +115,7 @@ module.exports = function(pool, opts) {
   }
 
   smbg.addTooltip = function(d, category) {
-    d3.select('#' + 'd3-tooltip-group_smbg')
+    d3.select('#' + 'tidelineTooltips_smbg')
       .call(pool.tooltips(),
         d,
         // tooltipXPos
@@ -120,7 +123,7 @@ module.exports = function(pool, opts) {
         'smbg',
         // timestamp
         true,
-        opts.classes[category]['tooltip'],
+        opts.classes[category].tooltip,
         opts.tooltipWidth,
         opts.tooltipHeight,
         // imageX

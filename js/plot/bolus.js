@@ -15,6 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
+var d3 = window.d3;
+var _ = window._;
+
 var Duration = require('../lib/duration');
 var log = require('../lib/bows')('Bolus');
 
@@ -155,7 +158,7 @@ module.exports = function(pool, opts) {
             var leftEdge = bolus.x(d) + opts.bolusStroke / 2;
             var rightEdge = leftEdge + opts.width - opts.bolusStroke;
             var bolusHeight = opts.yScale(d.value) + opts.bolusStroke / 2;
-            return "M" + leftEdge + ' ' + bottom + "L" + rightEdge + ' ' + bottom + "L" + rightEdge + ' ' + bolusHeight + "L" + leftEdge + ' ' + bolusHeight + "Z";
+            return 'M' + leftEdge + ' ' + bottom + 'L' + rightEdge + ' ' + bottom + 'L' + rightEdge + ' ' + bolusHeight + 'L' + leftEdge + ' ' + bolusHeight + 'Z';
           },
           'stroke-width': opts.bolusStroke,
           'class': 'd3-path-bolus d3-bolus',
@@ -175,7 +178,7 @@ module.exports = function(pool, opts) {
             var rightEdge = bolus.x(d) + opts.width;
             var doseHeight = opts.yScale(d.extendedDelivery) + opts.bolusStroke / 2;
             var doseEnd = opts.xScale(Date.parse(d.normalTime) + d.duration) - opts.triangleSize / 2;
-            return "M" + rightEdge + ' ' + doseHeight + "L" + doseEnd + ' ' + doseHeight;
+            return 'M' + rightEdge + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
           },
           'stroke-width': opts.bolusStroke,
           'class': 'd3-path-extended d3-bolus',
@@ -231,7 +234,7 @@ module.exports = function(pool, opts) {
   bolus.addTooltip = function(d, category) {
     var tooltipWidth = opts.classes[category].width;
     var tooltipHeight = opts.classes[category].height;
-    d3.select('#' + 'd3-tooltip-group_bolus')
+    d3.select('#' + 'tidelineTooltips_bolus')
       .call(pool.tooltips(),
         d,
         // tooltipXPos
@@ -239,7 +242,7 @@ module.exports = function(pool, opts) {
         'bolus',
         // timestamp
         true,
-        opts.classes[category]['tooltip'],
+        opts.classes[category].tooltip,
         tooltipWidth,
         tooltipHeight,
         // imageX
@@ -267,15 +270,15 @@ module.exports = function(pool, opts) {
           
         },
         // customText
-        function() {
+        (function() {
           return d.value + 'U';
-        }(),
+        }()),
         // tspan
-        function() {
+        (function() {
           if (d.extended) {
             return ' total';
           }
-        }()
+        }())
       );
 
     if (category === 'two-line') {
@@ -330,24 +333,38 @@ module.exports = function(pool, opts) {
     if (hours !== 0) {
       if (hours === 1) {
         switch(minutes) {
-          case 0: return 'over ' + hours + ' hr';
-          case 15: return 'over ' + hours + QUARTER + ' hr';
-          case 20: return 'over ' + hours + THIRD + ' hr';
-          case 30: return 'over ' + hours + HALF + ' hr';
-          case 40: return 'over ' + hours + TWO_THIRDS + ' hr';
-          case 45: return 'over ' + hours + THREE_QUARTER + ' hr';
-          default: return 'over ' + hours + ' hr ' + minutes + ' min';
+        case 0:
+          return 'over ' + hours + ' hr';
+        case 15:
+          return 'over ' + hours + QUARTER + ' hr';
+        case 20:
+          return 'over ' + hours + THIRD + ' hr';
+        case 30:
+          return 'over ' + hours + HALF + ' hr';
+        case 40:
+          return 'over ' + hours + TWO_THIRDS + ' hr';
+        case 45:
+          return 'over ' + hours + THREE_QUARTER + ' hr';
+        default:
+          return 'over ' + hours + ' hr ' + minutes + ' min';
         }
       }
       else {
         switch(minutes) {
-          case 0: return 'over ' + hours + ' hrs';
-          case 15: return 'over ' + hours + QUARTER + ' hrs';
-          case 20: return 'over ' + hours + THIRD + ' hrs';
-          case 30: return 'over ' + hours + HALF + ' hrs';
-          case 40: return 'over ' + hours + TWO_THIRDS + ' hrs';
-          case 45: return 'over ' + hours + THREE_QUARTER + ' hrs';
-          default: return 'over ' + hours + ' hrs ' + minutes + ' min';
+        case 0:
+          return 'over ' + hours + ' hrs';
+        case 15:
+          return 'over ' + hours + QUARTER + ' hrs';
+        case 20:
+          return 'over ' + hours + THIRD + ' hrs';
+        case 30:
+          return 'over ' + hours + HALF + ' hrs';
+        case 40:
+          return 'over ' + hours + TWO_THIRDS + ' hrs';
+        case 45:
+          return 'over ' + hours + THREE_QUARTER + ' hrs';
+        default:
+          return 'over ' + hours + ' hrs ' + minutes + ' min';
         }
       }
     }
@@ -364,7 +381,7 @@ module.exports = function(pool, opts) {
     var top = (x + opts.triangleSize) + ' ' + (y + opts.triangleSize/2);
     var bottom = (x + opts.triangleSize) + ' ' + (y - opts.triangleSize/2);
     var point = x + ' ' + y;
-    return "M" + top + "L" + bottom + "L" + point + "Z";
+    return 'M' + top + 'L' + bottom + 'L' + point + 'Z';
   };
 
   return bolus;

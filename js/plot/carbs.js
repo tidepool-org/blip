@@ -15,6 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
+var d3 = window.d3;
+var _ = window._;
+
 var log = require('../lib/bows')('Carbs');
 
 module.exports = function(pool, opts) {
@@ -92,7 +95,7 @@ module.exports = function(pool, opts) {
             return 'carbs_' + d.id;
           }
         });
-        rects.exit().remove();
+      rects.exit().remove();
 
       // tooltips
       d3.selectAll('.d3-rect-carbs').on('mouseover', function() {
@@ -111,7 +114,7 @@ module.exports = function(pool, opts) {
   }
 
   carbs.addTooltip = function(d, category) {
-    d3.select('#' + 'd3-tooltip-group_carbs')
+    d3.select('#' + 'tidelineTooltips_carbs')
       .call(pool.tooltips(),
         d,
         // tooltipXPos

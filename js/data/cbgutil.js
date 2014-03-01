@@ -70,7 +70,7 @@ function CBGUtil(data) {
     var sum = _.reduce(data, function(memo, d) {
       return memo + d.value;
     }, 0);
-    var average = parseInt((sum/data.length).toFixed(0));
+    var average = parseInt((sum/data.length).toFixed(0), 10);
     return {'value': average, 'category': getCategory(average)};
   };
 

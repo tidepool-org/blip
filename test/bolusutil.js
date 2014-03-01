@@ -16,6 +16,7 @@
  */
 
 /*jshint expr: true */
+/*global describe, it */
 
 var chai = require('chai');
 var assert = chai.assert;

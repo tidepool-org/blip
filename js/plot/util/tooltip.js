@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+var d3 = window.d3;
+
 var log = require('../../lib/bows')('Tooltip');
 
 module.exports = function(container, tooltipsGroup) {
@@ -71,7 +73,7 @@ module.exports = function(container, tooltipsGroup) {
     }
 
     // for now (unless I can persude Sara and Alix otherwise), high cbg values are a special case
-    if (image.indexOf('cbg_tooltip_high') != -1) {
+    if (image.indexOf('cbg_tooltip_high') !== -1) {
       if (locationInWindow < (((container.width() - container.axisGutter()) / 24) * 3)) {
         tooltipGroup.append('image')
           .attr({
@@ -253,7 +255,7 @@ module.exports = function(container, tooltipsGroup) {
     var timestampY = imageY() - timestampHeight;
     var timestampTextY = timestampY + magic / 2;
 
-    var formatTime = d3.time.format.utc("%-I:%M %p");
+    var formatTime = d3.time.format.utc('%-I:%M %p');
     var t = formatTime(new Date(d.normalTime));
     tooltipGroup.append('rect')
       .attr({

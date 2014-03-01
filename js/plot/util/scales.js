@@ -15,6 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
+var d3 = window.d3;
+var _ = window._;
+
 var scales = {
   bg: function(data, pool) {
     var scale = d3.scale.linear()

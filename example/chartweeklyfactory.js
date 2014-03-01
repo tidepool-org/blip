@@ -15,6 +15,10 @@
  * == BSD2 LICENSE ==
  */
 
+var $ = window.$;
+var d3 = window.d3;
+var _ = window._;
+
 var bows = window.bows;
 
 var tideline = require('../js');
