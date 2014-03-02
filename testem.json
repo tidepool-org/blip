@@ -10,6 +10,6 @@
     "tmp/test/setup.js",
     "tmp/test/unit/*.js"
   ],
-  "before_tests": "gulp before-tests",
+  "before_tests": "node_modules/.bin/gulp before-tests",
   "launch_in_dev": ["chrome"]
 }

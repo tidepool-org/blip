@@ -26,7 +26,8 @@ describe('InputGroup', function() {
     var expectedLabel = props.label;
     var label = component.refs.label.props.children;
 
-    expect(label).to.equal(expectedLabel);
+    expect(false).to.be.ok;
+    // expect(label).to.equal(expectedLabel);
   });
 
   it('should set initial value', function() {
