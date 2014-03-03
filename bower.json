@@ -10,6 +10,7 @@
     "jquery": "~2.1.0",
     "moment": "~2.5.1",
     "react": "0.9.0",
+    "rxjs": "2.2.13",
     "superagent": "visionmedia/superagent#0.16.0",
     "tideline": "https://github.com/tidepool-org/tideline.git#v0.0.1"
   }

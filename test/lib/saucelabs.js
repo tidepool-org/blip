@@ -69,7 +69,7 @@ var sauce = {
     if (browserEnv) {
       result = browserEnv.split(':');
     }
-    if (!result.length >= 3) {
+    if (result.length < 3) {
       throw new Error('Unrecognized BROWSER env variable "' +
                       browserEnv + '"');
     }

@@ -395,7 +395,16 @@ window.tidepoolPlatform = function(options){
               return e;
             });
 
-            cb(null, retVal);
+            var rx = require('rxjs');
+            var dataHelpers = require('./core/lib/data/dataHelpers.js');
+            var observable = dataHelpers.convertBolus(dataHelpers.convertBasal(rx.Observable.fromArray()));
+
+            observable.subscribe(
+              function(data) {
+                cb(null, data);
+              },
+              cb
+            );
           } else {
             cb(null, null);
           }
