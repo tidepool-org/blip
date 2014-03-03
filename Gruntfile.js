@@ -31,19 +31,20 @@ module.exports = function(grunt) {
         build: buildLabel,
         concurrency: 3,
         browsers: browsers,
-        testname: 'Blip',
-        tags: []
+        testname: 'Blip'
       },
       local: {
         options: {
-          testname: 'Blip (local)'
+          testname: 'Blip (local)',
+          tags: ['unit', 'local']
         }
       },
       travis: {
         options: {
           // WARNING: if `identifier` is set to null or undefined,
           // grunt task will fail
-          identifier: tunnelIdentifier
+          identifier: tunnelIdentifier,
+          tags: ['unit', 'ci']
         }
       }
     }
