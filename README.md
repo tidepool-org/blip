@@ -1,7 +1,6 @@
 # Blip
 
 [![Build Status](https://travis-ci.org/tidepool-org/blip.png?branch=master)](https://travis-ci.org/tidepool-org/blip)
-[![Selenium Test Status](https://saucelabs.com/buildstatus/tidepool-robot)](https://saucelabs.com/u/tidepool-robot)
 
 Blip is a web app for Type-1 Diabetes (T1D) built on top of the [Tidepool](http://tidepool.org/) platform. It allows patients and their "care team" (family, doctors) to visualize their device data and message each other.
 
