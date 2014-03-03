@@ -34,6 +34,7 @@ Table of contents:
 - [Testing](#testing)
     - [Unit tests](#unit-tests)
     - [End-to-end tests](#end-to-end-tests)
+    - [Travis CI and Sauce Labs](#travis-ci-and-sauce-labs)
 - [Deployment](#deployment)
     - [Build](#build)
     - [Deploy](#deploy)
@@ -304,6 +305,37 @@ Since E2E tests can be a little slow, you can run only a particular test by sett
 ```bash
 $ make test-e2e E2E_TESTS=test/e2e/login_scenarios.js
 ```
+
+### Travis CI and Sauce Labs
+
+We automate our builds and testing using [Travis CI](https://travis-ci.org/), and run both unit and end-to-end tests in different browsers and platforms thanks to [Sauce Labs](https://saucelabs.com).
+
+If you have the username and access key to our Sauce Labs account, you can also run the tests in different browsers from your local machine. Follow the instructions below, for each type of tests.
+
+In both cases, you will need to export the Sauce Labs credentials as environment variables:
+
+- `$ export SAUCE_USERNAME='...'`
+- `$ export SAUCE_ACCESS_KEY='...'`
+
+**Running Sauce Labs unit tests from local machine:**
+
+- Build the unit tests with `$ gulp before-tests`.
+
+- (Optional) You can verify the unit tests pass in your local browser first by running `$ grunt test-server` and pointing your browser to `http://localhost:9999/`. Hit `Ctrl/Cmd + C` when done.
+
+- Run the unit tests in Sauce Labs with `$ grunt test-saucelabs-local` (will spin up the test server on `localhost:9999` and send commands to Sauce Labs).
+
+**Running Sauce Labs end-to-end tests from local machine:**
+
+- Download [Sauce Connect](https://saucelabs.com/docs/connect) for your system. Unzip the archive, and copy `bin/sc` from the Sauce Connect directory to this project's `test/bin` folder.
+
+- In a separate terminal, start Sauce Connect with `$ make sc`.
+
+- Tell the end-to-end tests to use Sauce Labs by setting the environment variable `$ export SAUCE=true`.
+
+- (Optional) You can specify a browser and platform to use in Sauce Labs by setting an environment variable with the pattern: `$ export BROWSER='<browserName>:<version>:<platform>'` (ex: `$ export BROWSER='chrome:32:Windows 8.1`).
+
+- Build the app and run the end-to-end tests just like you would locally ([instructions above](#end-to-end-tests)). 
 
 ## Deployment
 
