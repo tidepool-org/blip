@@ -18,9 +18,9 @@ install:
   - "./node_modules/.bin/bower install"
 
 before_script:
-  - "./test/ci/build"
+  - "./test/ci/build.sh"
 
 addons:
   sauce_connect: true
 
-script: "./test/ci/test"
+script: "./test/ci/test.sh"
