@@ -13,15 +13,6 @@ describe('Login', function() {
   var username;
   var password;
 
-  before(function() {
-    driver = helpers.newDriver();
-    chai.use(chaiWebdriver(driver));
-  });
-
-  after(function(done) {
-    driver.quit().then(done);
-  });
-
   beforeEach(function() {
     username = 'demo';
     password = 'demo';

@@ -27,6 +27,7 @@
     "lodash": "2.4.1",
     "mocha": "1.17.1",
     "reactify": "0.8.1",
+    "require-guard": "1.0.1",
     "run-sequence": "0.3.6",
     "selenium-webdriver": "2.39.0",
     "sinon": "1.8.2",

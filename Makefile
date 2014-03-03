@@ -9,5 +9,8 @@ test-e2e:
 		./node_modules/.bin/mocha \
 			--reporter $(REPORTER) \
 			--timeout 60000 \
-			--slow 10000 \
-			$(E2E_TESTS)
+			--slow 30000 \
+			test/lib/e2esetup.js $(E2E_TESTS)
+
+sc:
+	./test/bin/sc -u $$SAUCE_USERNAME -k $$SAUCE_ACCESS_KEY

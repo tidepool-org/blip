@@ -1,8 +1,12 @@
+// Prevent this file from being reloaded more than once during execution
+// This allows us to re-use the same WebDriver instance for all tests
+require('require-guard')()
+
 var webdriver = require('selenium-webdriver');
 var _ = require('lodash');
+var sauce = require('./saucelabs');
 
 var APP_URL = 'http://localhost:3000';
-var DRIVER_CAPABILITIES = webdriver.Capabilities.chrome();
 
 var By = webdriver.By;
 
@@ -14,8 +18,13 @@ var helpers = {
   },
 
   newDriver: function() {
+    if (process.env.SAUCE) {
+      driver = sauce.createNewDriver();
+      return driver;
+    }
+
     driver = new webdriver.Builder().
-      withCapabilities(DRIVER_CAPABILITIES).
+      withCapabilities(webdriver.Capabilities.chrome()).
       build();
     return driver;
   },

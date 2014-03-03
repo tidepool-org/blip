@@ -11,15 +11,6 @@ describe('Signup', function() {
 
   var user;
 
-  before(function() {
-    driver = helpers.newDriver();
-    chai.use(chaiWebdriver(driver));
-  });
-
-  after(function(done) {
-    driver.quit().then(done);
-  });
-
   beforeEach(function() {
     user = {
       username: 'demo2',
