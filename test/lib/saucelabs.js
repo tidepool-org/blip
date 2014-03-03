@@ -37,7 +37,7 @@ var sauce = {
       tags[1] = 'ci';
 
       caps
-        .set('tunnelIdentifier', tunnelIdentifier)
+        .set('tunnel-identifier', tunnelIdentifier)
         .set('build', buildLabel);
     }
 
