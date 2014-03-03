@@ -240,6 +240,9 @@ gulp.task('before-tests-unit', function() {
 });
 
 gulp.task('before-tests-index', function() {
+  // NOTE: `expandFiles` expects files to be present at the given location
+  // on the file system (uses "file exists" test), else it will return 
+  // nothing for each file "not found"
   var testFiles = expandFiles(testem.serve_files);
   testFiles = _.map(testFiles, function(file) {
     return file.replace('tmp/test/', '');
@@ -252,13 +255,18 @@ gulp.task('before-tests-index', function() {
     .pipe(gulp.dest('tmp/test'));
 });
 
-gulp.task('before-tests', [
-  'before-tests-mocha',
-  'before-tests-vendor',
-  'before-tests-data',
-  'before-tests-setup',
-  'before-tests-unit',
-  'before-tests-index'
-]);
+gulp.task('before-tests', function(cb) {
+  // IMPORTANT: 'before-tests-index' needs all test files to be built first
+  runSequence(
+    [
+      'before-tests-mocha',
+      'before-tests-vendor',
+      'before-tests-data',
+      'before-tests-setup',
+      'before-tests-unit'
+    ],
+    'before-tests-index',
+  cb);
+});
 
 gulp.task('default', ['build']);

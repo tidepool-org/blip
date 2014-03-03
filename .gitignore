@@ -25,3 +25,4 @@ config/*
 data/*
 !data/sample
 test/bin
+sauce_connect.log
