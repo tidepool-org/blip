@@ -13,10 +13,11 @@ addons:
   sauce_connect: true
 
 install:
-  - npm install
-  - ./node_modules/.bin/bower install
+  - "npm install"
+  - "./node_modules/.bin/bower install"
 
 before_script:
-  - ./node_modules/.bin/gulp before-tests
+  - "./node_modules/.bin/gulp before-tests"
+  - "ls -l ./tmp/test"
 
 script: "./node_modules/.bin/grunt test-saucelabs-travis"

@@ -217,7 +217,7 @@ gulp.task('before-tests-data', function(cb) {
       var contents = 'window.data = ';
       contents = contents + util.inspect(data, {depth: null});
       contents = contents + ';';
-      fs.writeFile('tmp/test/data.js', contents, cb);
+      fs.writeFile('./tmp/test/data.js', contents, cb);
     });
 });
 
