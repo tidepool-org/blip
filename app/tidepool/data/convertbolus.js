@@ -20,7 +20,7 @@
 
 var util = require('util');
 
-var selfJoin = require('../rx/selfJoin.js');
+var selfJoin = require('../rx/joinself.js');
 
 /**
  * A map of "builders".  Builders factories for handlers, which know how to handle joining a specific type of event.
@@ -97,7 +97,7 @@ var builders = {
  * @param eventStream an Observable to have its bolus events self-joined.
  */
 module.exports = function (eventStream) {
-  return selfJoin(
+  return joinself(
     eventStream,
     [function(e){
       if (e.type === 'bolus') {

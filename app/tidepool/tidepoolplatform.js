@@ -1,4 +1,4 @@
-var dataHelpers = require('./data/helperdata.js');
+var dataHelpers = require('./data/datahelpers.js');
 
 module.exports = function(options){
   var _ = window._;

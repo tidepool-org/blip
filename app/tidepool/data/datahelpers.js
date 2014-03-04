@@ -17,5 +17,5 @@
 
 'use strict';
 
-exports.convertBasal = require('./basalconvert.js');
-exports.convertBolus = require('./bolusconvert.js');
+exports.convertBasal = require('./convertbasal.js');
+exports.convertBolus = require('./convertbolus.js');

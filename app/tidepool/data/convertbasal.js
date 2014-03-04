@@ -20,7 +20,7 @@
 var moment = window.moment;
 var _ = window._;
 
-var selfJoin = require('../rx/selfJoin.js');
+var selfJoin = require('../rx/joinself.js');
 
 function isScheduledBasal(e) {
   return e.type === 'basal-rate-change' && e.deliveryType === 'scheduled';
@@ -93,7 +93,7 @@ function tempBasalMappingFn(event) {
  * @param eventStream an Observable to have its bolus events self-joined.
  */
 module.exports = function (eventStream) {
-  return selfJoin(
+  return joinself(
     eventStream,
     [
       function(e){
