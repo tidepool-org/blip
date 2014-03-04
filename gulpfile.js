@@ -262,8 +262,8 @@ gulp.task('before-tests-index', function() {
 gulp.task('before-tests', function(cb) {
   // IMPORTANT: 'before-tests-index' needs all test files to be built first
   runSequence(
+    'clean-test',
     [
-      'clean-test',
       'before-tests-mocha',
       'before-tests-vendor',
       'before-tests-data',

@@ -17,6 +17,8 @@
 
 'use strict';
 
+var Rx = window.Rx;
+
 if (Rx.Observable.prototype.tidepoolSelfJoin == null) {
   /**
    * A self-join is a join operation done on a single stream of objects.

@@ -3,7 +3,6 @@
   "version": "0.0.4",
   "private": true,
   "dependencies": {
-    "rx": "2.2.13"
   },
   "devDependencies": {
     "bower": "1.2.8",
