@@ -1,9 +1,8 @@
 {
   "name": "blip",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "private": true,
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "bower": "1.2.8",
     "chai-webdriver": "0.5.3",
