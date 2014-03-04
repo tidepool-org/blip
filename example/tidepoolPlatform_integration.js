@@ -87,7 +87,7 @@ describe('platform client', function() {
     });
   });
 
-  describe.skip('get the team for mrT1',function(){
+  describe('get the team for mrT1',function(){
 
     it('returns the team group for mrT1', function(done) {
 
@@ -105,7 +105,7 @@ describe('platform client', function() {
 
   });
 
-  describe.skip('messaging for mrT1',function(){
+  describe('messaging for mrT1',function(){
 
     var mrT1TeamId;
 
@@ -131,6 +131,7 @@ describe('platform client', function() {
         timestamp : new Date().toISOString(),
         messagetext : 'In three words I can sum up everything I have learned about life: it goes on.'
       };
+
       //add note
       platform.startMessageThread(mrT1TeamId, message, mrT1.token, function(error,data){
 
@@ -182,7 +183,7 @@ describe('platform client', function() {
 
         expect(error).to.not.exist;
         expect(data).to.exist;
-        console.log('messages ',data);
+        expect(data.length).to.be.at.least(2);
         done();
       });
     });
@@ -191,36 +192,32 @@ describe('platform client', function() {
 
   describe('mrT1 sets up his team',function(){
 
-    var mrT1TeamId;
-
-    before(function(done){
-      this.timeout(5000);
-      platform.getUsersTeam(mrT1.id, mrT1.token, function(error,team){
-        mrT1TeamId = team.id;
-        done();
-      });
-    });
-
     it('and invites careTeamMember to the team', function(done) {
-      this.timeout(5000);
+      this.timeout(10000);
 
-      platform.getUsersGroups(careTeamMember.id,careTeamMember.token);
-      
-      platform.getUsersGroups(mrT1.id,mrT1.token);
-
-      platform.inviteToJoinTeam(careTeamMember.id, mrT1.id, mrT1.token, function(error,groups){
+      platform.inviteToJoinTeam(mrT1.id, careTeamMember.id, mrT1.token, function(error,updates){
         if(error){
           throw error;
         }
-        console.log('invited to join: ',groups);
+        expect(updates.inviter.invited.members).to.include(careTeamMember.id);
+        expect(updates.invitee.invitedby.members).to.include(mrT1.id);
         done();
       });
     });
 
-    it.skip('careTeamMember is now in the team of mrT1 and adds a note for mrT1', function(done) {
-      done();
-    });
+    it('careTeamMember accepts the invite to join the team of mrT1', function(done) {
+      this.timeout(10000);
 
+      platform.acceptInviteToJoinTeam(mrT1.id, careTeamMember.id, careTeamMember.token, function(error,updates){
+        if(error){
+          throw error;
+        }
+        expect(updates.inviter.team.members).to.include(careTeamMember.id);
+        expect(updates.invitee.patients.members).to.include(mrT1.id);
+        done();
+      });
+
+    });
   });
 
 });
