@@ -18,7 +18,7 @@
 /* jshint expr: true, -W015 */
 'use strict';
 
-var dataHelpers = require('../../app/tidepool/data/dataHelpers.js');
+var dataHelpers = require('../../app/tidepool/data/helperdata.js');
 var rx = window.Rx;
 
 var expect = require('salinity').expect;
@@ -47,7 +47,7 @@ describe('dataHelpers', function(){
          }]
       );
 
-      dataHelpers.convertBolus(obs).toArray().subscribe(
+      helperdata.convertBolus(obs).toArray().subscribe(
         function(converted) {
           expect(converted).deep.equals(
             [{
@@ -91,7 +91,7 @@ describe('dataHelpers', function(){
       );
 
       try {
-        dataHelpers.convertBolus(obs).subscribe(
+        helperdata.convertBolus(obs).subscribe(
           function(e){
             done(new Error('onNext should never get called'));
           },
@@ -130,7 +130,7 @@ describe('dataHelpers', function(){
          }]
       );
 
-      dataHelpers.convertBolus(obs).subscribe(
+      helperdata.convertBolus(obs).subscribe(
         function(e){
           done(new Error('onNext should never get called'));
         },
@@ -161,7 +161,7 @@ describe('dataHelpers', function(){
          }]
       );
 
-      dataHelpers.convertBolus(obs).toArray().subscribe(
+      helperdata.convertBolus(obs).toArray().subscribe(
         function(converted) {
           expect(converted).deep.equals(
             [{
@@ -207,7 +207,7 @@ describe('dataHelpers', function(){
          { _id: 'billy3', type: 'Do you consider yourself a comedian?' }]
       );
 
-      dataHelpers.convertBolus(obs).toArray().subscribe(
+      helperdata.convertBolus(obs).toArray().subscribe(
         function(converted) {
           expect(converted).deep.equals(
             [{
@@ -259,7 +259,7 @@ describe('dataHelpers', function(){
          }]
       );
 
-      dataHelpers.convertBasal(obs).toArray().subscribe(
+      helperdata.convertBasal(obs).toArray().subscribe(
         function(converted) {
           expect(converted).deep.equals(
             [{

@@ -1,4 +1,4 @@
-var dataHelpers = require('./data/dataHelpers.js');
+var dataHelpers = require('./data/helperdata.js');
 
 module.exports = function(options){
   var _ = window._;
@@ -390,7 +390,7 @@ module.exports = function(options){
             // Rename _id to id in order to work around the fact that we do not have a proper id field in
             // the database yet.  Eventually, we will attach ids to events in the db.  At that point, this
             // mapping can be removed.
-            var observable = dataHelpers.convertBolus(dataHelpers.convertBasal(rx.Observable.fromArray(res.body)))
+            var observable = helperdata.convertBolus(helperdata.convertBasal(rx.Observable.fromArray(res.body)))
               .map(function(e){
                 if (e.id === undefined) {
                   e.id = e._id;
