@@ -219,7 +219,7 @@ module.exports = function(pool, opts) {
 
   bolus.getTooltipCategory = function(d) {
     var category;
-    if (((d.recommended === null) || (d.recommended === d.value)) && !d.extended) {
+    if (((d.recommended == null) || (d.recommended === d.value)) && !d.extended) {
       category = 'unspecial';
     }
     else if ((d.recommended !== d.value) && d.extended) {
