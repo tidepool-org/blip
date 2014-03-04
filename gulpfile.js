@@ -195,6 +195,10 @@ gulp.task('build', function(cb) {
   cb);
 });
 
+gulp.task('clean-test', function(){
+  return gulp.src('tmp/test').pipe(clean());
+});
+
 gulp.task('before-tests-mocha', function() {
   return gulp.src([
       'node_modules/mocha/mocha.css',
@@ -258,6 +262,7 @@ gulp.task('before-tests-index', function() {
 gulp.task('before-tests', function(cb) {
   // IMPORTANT: 'before-tests-index' needs all test files to be built first
   runSequence(
+    'clean-test',
     [
       'before-tests-mocha',
       'before-tests-vendor',

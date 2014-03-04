@@ -1,7 +1,10 @@
-window.tidepoolPlatform = function(options){
+var dataHelpers = require('./data/datahelpers.js');
+
+module.exports = function(options){
   var _ = window._;
   var superagent = window.superagent;
   var bows = window.bows;
+  var Rx = window.Rx;
 
   var apiHost = options.apiHost;
   var uploadApi = options.uploadApi;
@@ -387,15 +390,24 @@ window.tidepoolPlatform = function(options){
             // Rename _id to id in order to work around the fact that we do not have a proper id field in
             // the database yet.  Eventually, we will attach ids to events in the db.  At that point, this
             // mapping can be removed.
-            var retVal = res.body.map(function(e){
-              if (e.id === undefined) {
-                e.id = e._id;
-              }
-              e.value = Number(e.value);
-              return e;
-            });
-
-            cb(null, retVal);
+            Rx.Observable.fromArray(res.body)
+              .tidepoolConvertBasal()
+              .tidepoolConvertBolus()
+              .map(function(e){
+                if (e.id === undefined) {
+                  e.id = e._id;
+                }
+                e.value = Number(e.value);
+                return e;
+              })
+              .toArray()
+              .subscribe(function(data) {
+                window.theData = data;
+                cb(null, data);
+                cb(null, data);
+              },
+              cb
+            );
           } else {
             cb(null, null);
           }

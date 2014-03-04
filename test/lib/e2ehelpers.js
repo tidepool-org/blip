@@ -1,6 +1,6 @@
 // Prevent this file from being reloaded more than once during execution
 // This allows us to re-use the same WebDriver instance for all tests
-require('require-guard')()
+require('require-guard')();
 
 var webdriver = require('selenium-webdriver');
 var _ = require('lodash');

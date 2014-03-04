@@ -5,6 +5,17 @@
   "camelcase": true,
   "eqeqeq": true,
   "eqnull": true,
+  "globals": {
+    "process": false,
+    "require": false,
+    "define": false,
+    "console": false,
+    "it": false,
+    "describe": false,
+    "before": false,
+    "beforeEach": false,
+    "after": false
+  },
   "immed": true,
   "indent": 2,
   "latedef": "nofunc",

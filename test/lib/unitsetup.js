@@ -1,12 +1,8 @@
-var chai = require('chai');
-var sinon = require('sinon');
-var sinonChai = require('sinon-chai');
-var expect = chai.expect;
+var salinity = require('salinity');
 var helpers = require('./unithelpers');
-chai.use(sinonChai);
 
 // Add to global object for all tests to use
-window.chai = chai;
-window.sinon = sinon;
-window.expect = expect;
+window.chai = salinity.chai;
+window.sinon = salinity.sinon;
+window.expect = salinity.expect;
 window.helpers = helpers;

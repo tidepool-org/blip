@@ -1,4 +1,4 @@
-var chai = require('chai');
+var chai = require('salinity').chai;
 var chaiWebdriver = require('chai-webdriver');
 var helpers = require('./e2ehelpers');
 

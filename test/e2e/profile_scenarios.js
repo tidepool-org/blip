@@ -1,7 +1,5 @@
 var webdriver = require('selenium-webdriver');
-var chai = require('chai');
-var expect = chai.expect;
-var chaiWebdriver = require('chai-webdriver');
+var expect = require('salinity').expect;
 var helpers = require('../lib/e2ehelpers');
 
 var testUser = require('../../data/sample/user.json');
