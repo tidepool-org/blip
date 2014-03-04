@@ -20,7 +20,7 @@
 
 var util = require('util');
 
-var selfJoin = require('../rx/joinself.js');
+var selfJoin = require('../rx/selfjoin.js');
 
 /**
  * A map of "builders".  Builders factories for handlers, which know how to handle joining a specific type of event.

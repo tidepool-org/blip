@@ -20,7 +20,7 @@
 var moment = window.moment;
 var _ = window._;
 
-var selfJoin = require('../rx/joinself.js');
+var selfJoin = require('../rx/selfjoin.js');
 
 function isScheduledBasal(e) {
   return e.type === 'basal-rate-change' && e.deliveryType === 'scheduled';
