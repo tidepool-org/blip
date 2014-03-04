@@ -4,7 +4,7 @@ module.exports = function(options){
   var _ = window._;
   var superagent = window.superagent;
   var bows = window.bows;
-  var rx = window.Rx;
+  var Rx = window.Rx;
 
   var apiHost = options.apiHost;
   var uploadApi = options.uploadApi;
@@ -390,7 +390,9 @@ module.exports = function(options){
             // Rename _id to id in order to work around the fact that we do not have a proper id field in
             // the database yet.  Eventually, we will attach ids to events in the db.  At that point, this
             // mapping can be removed.
-            var observable = helperdata.convertBolus(helperdata.convertBasal(rx.Observable.fromArray(res.body)))
+            Rx.Observable.fromArray(res.body)
+              .tidepoolConvertBasal()
+              .tidepoolConvertBolus()
               .map(function(e){
                 if (e.id === undefined) {
                   e.id = e._id;

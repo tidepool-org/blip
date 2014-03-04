@@ -18,15 +18,17 @@
 /* jshint expr: true, -W015 */
 'use strict';
 
-var dataHelpers = require('../../app/tidepool/data/datahelpers.js');
+// Require to attach things to Rx prototype
+require('../../app/tidepool/data/datahelpers.js');
+
 var rx = window.Rx;
 
 var expect = require('salinity').expect;
 
 describe('dataHelpers', function(){
-  describe('convertBolus', function(){
+  describe('tidepoolConvertBolus', function(){
     it('combines boluses', function(done){
-      var obs = rx.Observable.fromArray(
+      rx.Observable.fromArray(
         [{
            _id: 'abcd', deviceTime: '2014-01-01T01:00:00', value: 3.6,
            type: 'bolus', subType: 'dual/normal', groupId: 'myJoinKey'
@@ -44,10 +46,10 @@ describe('dataHelpers', function(){
            _id: '12345', deviceTime: '2014-01-01T01:00:00Z', value: 1.7,
            type: 'bolus', subType: 'dual/square', groupId: 'yourJoinKey',
            duration: 14400000
-         }]
-      );
-
-      helperdata.convertBolus(obs).toArray().subscribe(
+         }])
+        .tidepoolConvertBolus()
+        .toArray()
+        .subscribe(
         function(converted) {
           expect(converted).deep.equals(
             [{
@@ -69,47 +71,42 @@ describe('dataHelpers', function(){
     });
 
     it('fails if it gets something with the same subType before completing its current bolus', function(done){
-      var obs = rx.Observable.fromArray(
-        [{
-           _id: 'abcd', deviceTime: '2014-01-01T01:00:00', value: 3.6,
-           type: 'bolus', subType: 'dual/normal', groupId: 'myJoinKey'
-         },
-         {
-           _id: '1234', deviceTime: '2014-01-01T01:00:00', value: 0.1,
-           type: 'bolus', subType: 'dual/normal', groupId: 'yourJoinKey'
-         },
-         {
-           _id: 'abcde', deviceTime: '2014-01-01T01:00:00Z', value: 1.7,
-           type: 'bolus', subType: 'dual/square', groupId: 'myJoinKey',
-           duration: 14400000
-         },
-         {
-           _id: '12345', deviceTime: '2014-01-01T01:00:00Z', value: 1.7,
-           type: 'bolus', subType: 'dual/square', groupId: 'yourJoinKey',
-           duration: 14400000
-         }]
+      rx.Observable.fromArray(
+          [{
+             _id: 'abcd', deviceTime: '2014-01-01T01:00:00', value: 3.6,
+             type: 'bolus', subType: 'dual/normal', groupId: 'myJoinKey'
+           },
+           {
+             _id: '1234', deviceTime: '2014-01-01T01:00:00', value: 0.1,
+             type: 'bolus', subType: 'dual/normal', groupId: 'yourJoinKey'
+           },
+           {
+             _id: 'abcde', deviceTime: '2014-01-01T01:00:00Z', value: 1.7,
+             type: 'bolus', subType: 'dual/square', groupId: 'myJoinKey',
+             duration: 14400000
+           },
+           {
+             _id: '12345', deviceTime: '2014-01-01T01:00:00Z', value: 1.7,
+             type: 'bolus', subType: 'dual/square', groupId: 'yourJoinKey',
+             duration: 14400000
+           }])
+        .tidepoolConvertBolus()
+        .subscribe(
+        function(e){
+          done(new Error('onNext should never get called'));
+        },
+        function(err){
+          expect(err).to.exist;
+          done();
+        },
+        function(){
+          done(new Error('onComplete should never get called'));
+        }
       );
-
-      try {
-        helperdata.convertBolus(obs).subscribe(
-          function(e){
-            done(new Error('onNext should never get called'));
-          },
-          function(err){
-            expect(err).to.exist;
-            done();
-          },
-          function(){
-            done(new Error('onComplete should never get called'));
-          }
-        );
-      } catch (err) {
-        console.log(err);
-      }
     });
 
     it('fails if it gets events with different joinKeys before completing its current bolus', function(done){
-      var obs = rx.Observable.fromArray(
+      rx.Observable.fromArray(
         [{
            _id: 'abcd', deviceTime: '2014-01-01T01:00:00', value: 3.6,
            type: 'bolus', subType: 'dual/normal', groupId: 'myJoinKey'
@@ -127,10 +124,9 @@ describe('dataHelpers', function(){
            _id: 'abcde', deviceTime: '2014-01-01T01:00:00Z', value: 1.7,
            type: 'bolus', subType: 'dual/square', groupId: 'myJoinKey',
            duration: 14400000
-         }]
-      );
-
-      helperdata.convertBolus(obs).subscribe(
+         }])
+        .tidepoolConvertBolus()
+        .subscribe(
         function(e){
           done(new Error('onNext should never get called'));
         },
@@ -145,7 +141,7 @@ describe('dataHelpers', function(){
     });
 
     it('passes through incomplete bolus records when completed', function(done){
-      var obs = rx.Observable.fromArray(
+      rx.Observable.fromArray(
         [{
            _id: 'abcd', deviceTime: '2014-01-01T01:00:00', value: 3.6,
            type: 'bolus', subType: 'dual/normal', groupId: 'myJoinKey'
@@ -158,10 +154,10 @@ describe('dataHelpers', function(){
          {
            _id: '1234', deviceTime: '2014-01-01T01:00:00', value: 0.1,
            type: 'bolus', subType: 'dual/normal', groupId: 'yourJoinKey'
-         }]
-      );
-
-      helperdata.convertBolus(obs).toArray().subscribe(
+         }])
+        .tidepoolConvertBolus()
+        .toArray()
+        .subscribe(
         function(converted) {
           expect(converted).deep.equals(
             [{
@@ -180,8 +176,8 @@ describe('dataHelpers', function(){
       );
     });
 
-    it('let\'s non-boluses pass through', function(done){
-      var obs = rx.Observable.fromArray(
+    it('lets non-boluses pass through', function(done){
+      rx.Observable.fromArray(
         [{
            _id: 'abcd', deviceTime: '2014-01-01T01:00:00', value: 3.6,
            type: 'bolus', subType: 'dual/normal', groupId: 'myJoinKey'
@@ -204,10 +200,10 @@ describe('dataHelpers', function(){
            type: 'bolus', subType: 'dual/square', groupId: 'yourJoinKey',
            duration: 14400000
          },
-         { _id: 'billy3', type: 'Do you consider yourself a comedian?' }]
-      );
-
-      helperdata.convertBolus(obs).toArray().subscribe(
+         { _id: 'billy3', type: 'Do you consider yourself a comedian?' }])
+        .tidepoolConvertBolus()
+        .toArray()
+        .subscribe(
         function(converted) {
           expect(converted).deep.equals(
             [{
@@ -236,7 +232,7 @@ describe('dataHelpers', function(){
 
   describe('convertBasal', function(){
     it('combines basals', function(done){
-      var obs = rx.Observable.fromArray(
+      rx.Observable.fromArray(
         [{
            _id: 'abcd', type: 'basal-rate-change', deliveryType: 'scheduled',
            deviceTime: '2014-03-07T01:00:00', value: 0.65,
@@ -256,10 +252,10 @@ describe('dataHelpers', function(){
            _id: 'abcdefg', type: 'basal-rate-change', deliveryType: 'scheduled',
            deviceTime: '2014-03-07T12:00:00', value: 1.02,
            scheduleName: 'night-shift'
-         }]
-      );
-
-      helperdata.convertBasal(obs).toArray().subscribe(
+         }])
+        .tidepoolConvertBasal()
+        .toArray()
+        .subscribe(
         function(converted) {
           expect(converted).deep.equals(
             [{

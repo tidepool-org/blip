@@ -20,6 +20,7 @@
 var moment = window.moment;
 var _ = window._;
 
+// Require it so that it gets registered
 var selfJoin = require('../rx/selfjoin.js');
 
 function isScheduledBasal(e) {
@@ -86,19 +87,24 @@ function tempBasalMappingFn(event) {
   };
 }
 
-/**
- * A function that does a self-join on the provided eventStream (an Observable) in order to join together
- * basal records.
+if (Rx.Observable.prototype.tidepoolConvertBasal == null) {
+  /**
+   * A function that does a self-join on the provided eventStream (an Observable) in order to join together
+   * basal records.
 
- * @param eventStream an Observable to have its bolus events self-joined.
- */
-module.exports = function (eventStream) {
-  return joinself(
-    eventStream,
-    [
-      function(e){
-        return isScheduledBasal(e) ? makeNewBasalHandler() : null;
-      }
-    ]
-  ).map(tempBasalMappingFn);
+   * @param eventStream an Observable to have its bolus events self-joined.
+   */
+  Rx.Observable.prototype.tidepoolConvertBasal = function () {
+    return this.tidepoolSelfJoin(
+      [
+        function(e){
+          return isScheduledBasal(e) ? makeNewBasalHandler() : null;
+        }
+      ]
+    ).map(tempBasalMappingFn);
+  };
+}
+
+module.exports = function(eventStream) {
+  return eventStream.tidepoolConvertBasal();
 };

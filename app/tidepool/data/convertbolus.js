@@ -20,6 +20,7 @@
 
 var util = require('util');
 
+// Require it so that it gets registered
 var selfJoin = require('../rx/selfjoin.js');
 
 /**
@@ -86,27 +87,32 @@ var builders = {
   }
 };
 
-/**
- * A function that does a self-join on the provided eventStream (an Observable) in order to join together
- * bolus records.
- *
- * The idea is basically to intercept a bolus record and if it is of a subType that needs to be joined with
- * other records, we set it aside and start buffering up all other events while we wait for the joined event
- * to be completed.  Once completed, the joined event is emitted and all buffered events are also emitted.
+if (Rx.Observable.prototype.tidepoolConvertBolus == null) {
+  /**
+   * A function that does a self-join on the provided eventStream (an Observable) in order to join together
+   * bolus records.
+   *
+   * The idea is basically to intercept a bolus record and if it is of a subType that needs to be joined with
+   * other records, we set it aside and start buffering up all other events while we wait for the joined event
+   * to be completed.  Once completed, the joined event is emitted and all buffered events are also emitted.
 
- * @param eventStream an Observable to have its bolus events self-joined.
- */
-module.exports = function (eventStream) {
-  return joinself(
-    eventStream,
-    [function(e){
-      if (e.type === 'bolus') {
-        var builder = builders[e.subType];
-        if (builder == null) {
-          return null;
+   * @param eventStream an Observable to have its bolus events self-joined.
+   */
+  Rx.Observable.prototype.tidepoolConvertBolus = function () {
+    return this.tidepoolSelfJoin(
+      [function(e){
+        if (e.type === 'bolus') {
+          var builder = builders[e.subType];
+          if (builder == null) {
+            return null;
+          }
+          return builder();
         }
-        return builder();
-      }
-    }]
-  );
+      }]
+    );
+  };
+}
+
+module.exports = function(eventStream) {
+  return eventStream.tidepoolConvertBolus();
 };
