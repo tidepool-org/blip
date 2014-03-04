@@ -21,10 +21,144 @@ var async = require('async');
 module.exports = function(host, superagent) {
   var sessionTokenHeader = 'x-tidepool-session-token';
 
+  /*
+    Make the URL
+  */
   function makeUrl(path) {
     return host + path;
   }
 
+  /*
+    Return the user group (e.g. team, invited, patients) asked for.
+    If the group does not exist an empty one is created.
+  */
+  function getUserGroup(userId,groupType,token,cb){
+    if (userId == null) {
+      return cb({ message: 'Must specify a userId' });
+    }
+    if (groupType == null) {
+      return cb({ message: 'Must specify a groupType' });
+    }
+    async.waterfall([
+        function(callback){
+          //find
+          superagent
+            .get(makeUrl('/metadata/' + userId + '/groups'))
+            .set(sessionTokenHeader, token)
+            .end(function(err, res){
+              callback(err, res.body);
+            });
+        },
+        function(existingGroups, callback){
+          if(existingGroups[groupType]){
+            console.log('we found the group? ',groupType);
+            callback(null,existingGroups[groupType]);
+          }else{
+            console.log('we need to create the group? ',groupType);
+            createUserGroup(userId,groupType,existingGroups,token,callback);
+          }
+        },
+        function(groupId, callback){
+
+          superagent
+            .get(makeUrl('/group/' + groupId + '/members'))
+            .set(sessionTokenHeader, token)
+            .end(function(error, res){
+
+              if(error){
+                callback(error);
+              } else if (res.status !== 200) {
+                callback({ message: 'Unknown response code from groups ' + res.status });
+              } else {
+                var group = {
+                  id: groupId,
+                  members: res.body.members
+                };
+                callback(null,group);
+              }
+            });
+        }
+      ],
+      function (err, result) {
+        return cb(err,result);
+      });
+  }
+  /*
+    Create the user group (e.g. team, invited, patients ...) asked for and link to the user.
+  */
+  function createUserGroup(userId,groupType,existingGroups,token,cb){
+    if (userId == null) {
+      return cb({ message: 'Must specify a userId' });
+    }
+    if (groupType == null) {
+      return cb({ message: 'Must specify a groupType' });
+    }
+    async.waterfall([
+      function(callback){
+        superagent
+          .post(makeUrl('/group'))
+          .set(sessionTokenHeader, token)
+          .send({ group : { members : [] }})
+          .end(function(err, res){
+            if (err != null) {
+              callback(err,null);
+            } else if (res.status !== 201) {
+              callback({ message: 'Unknown response code from groups ' + res.status });
+            }
+            callback(null,res.body.id);
+          });
+      },
+      function(groupId, callback){
+
+        console.log('the existing groups ',existingGroups);
+
+        existingGroups[groupType] = groupId;
+        console.log('the existing groups now ',existingGroups);
+
+        superagent
+          .post(makeUrl('/metadata/' + userId + '/groups'))
+          .set(sessionTokenHeader, token)
+          .send(existingGroups)
+          .end(function(err, res){
+
+              console.log('result of adding to metadata ',res.body);
+              if (err != null) {
+                callback(err);
+              } else if (res.status !== 200) {
+                callback({ message: 'Unknown response code from metadata ' + res.status });
+              }
+              callback(null,groupId);
+            });
+      }
+    ],
+    function (err, result) {
+      return cb(err,result);
+    });
+  }
+  /*
+    Add a member to the user group (e.g. team, invited, patients ...)
+  */
+  function addMemberToUserGroup(groupId,memberId,token,cb){
+    if (groupId == null) {
+      return cb({ message: 'Must specify a groupId' });
+    }
+    if (memberId == null) {
+      return cb({ message: 'Must specify a memberId to add' });
+    }
+
+    superagent
+      .put(makeUrl('/group/' + groupId + '/user'))
+      .set(sessionTokenHeader, token)
+      .send({userid : memberId})
+      .end(function(err, res){
+        if (err != null) {
+          return cb(err,null);
+        } else if (res.status !== 200) {
+          return cb({ message: 'Unknown response code from groups ' + res.status });
+        }
+        return cb(null,res.body);
+      });
+  }
   return {
     login: function(user, cb){
       if (user.username == null) {
@@ -96,86 +230,38 @@ module.exports = function(host, superagent) {
           }
         });
     },
-    getGroupForUser: function (userId,groupType,token,cb){
-      superagent
-      .get(makeUrl('/metadata/' + userId + '/groups'))
-      .set(sessionTokenHeader, token)
-      .end(
-        function(err, res){
-          if (err != null) {
-            return cb(err,null);
-          }
-
-          if (res.status !== 200) {
-            return cb({ message: 'Unknown response code from metadata ' + res.status });
-          } else {
-            if (res.body == null || res.body.groupType == null) {
-              return cb(null, []);
-            }
-
-            var groupId = res.body.groupType;
-
-            superagent
-            .get(makeUrl('/group/' + groupId + '/members'))
-            .set(sessionTokenHeader, token)
-            .end(
-              function(membersErr, membersResult){
-                if (membersErr != null) {
-                  return cb(membersErr);
-                }
-
-                if (membersResult.status === 200) {
-                  var group = {
-                    id: groupId,
-                    members: membersResult.body.members
-                  };
-                  return cb(null, group);
-                }
-                else {
-                  return cb({ message: 'Unknown response code from groups ' + res.status });
-                }
-              });
-          }
-        });
-    },
-    addGroupForUser : function(userId,groupMembers,groupType,token,cb){
+    getUsersGroups : function(userId, token, cb){
       if (userId == null) {
         return cb({ message: 'Must specify a userId' });
       }
-      if (groupType == null) {
-        return cb({ message: 'Must specify a groupType' });
-      }
-      if (groupMembers == null) {
-        return cb({ message: 'Must specify groupMembers' });
-      }
-
+      //find
       superagent
-        .post(makeUrl('/group'))
+        .get(makeUrl('/metadata/' + userId + '/groups'))
         .set(sessionTokenHeader, token)
-        .send({group:groupMembers})
         .end(function(err, res){
-          if (err != null) {
-            return cb(err,null);
-          }
-
-          if (res.status !== 201) {
-            return cb({ message: 'Unknown response code from groups ' + res.status });
-          }
-          var groupId = res.body.id;
-          superagent
-            .post(makeUrl('/metadata/' + userId + '/groups'))
-            .set(sessionTokenHeader, token)
-            .send({groupType:groupId})
-            .end(function(metaDataErr, metaDataRes){
-              if (metaDataErr != null) {
-                return cb(metaDataErr);
-              }
-              if (res.status !== 201) {
-                return cb({ message: 'Unknown response code from metadata ' + res.status });
-              }
-              return cb(null,groupId);
-            });
+          console.log('current group types: ',res.body);
+          //return cb(err, res.body);
         });
+    },
+    getUsersTeam : function(userId, token, cb){
+      if (userId == null) {
+        return cb({ message: 'Must specify a userId' });
+      }
+
+      async.waterfall([
+        function(callback){
+          getUserGroup(userId,'team',token, callback);
+        },
+        function(team, callback){
+          if(_.contains(team.members,userId)){
+            callback(null,team);
+          }else{
+            addMemberToUserGroup(team.id,userId,token,callback);
+          }
+        }
+      ], function (err, team) {
+        return cb(err,team);
+      });
     },
     inviteToJoinTeam : function(invitedUser, invitedByUser, token,cb){
       if (invitedUser == null) {
@@ -185,106 +271,78 @@ module.exports = function(host, superagent) {
         return cb({ message: 'Must specify a invitedByUser' });
       }
 
-      var self = this;
+      async.auto({
+        getInviteGroup: function(callback){
+          getUserGroup(invitedByUser,'invited',token,callback);
+        },
+        getInvitedByGroup: function(callback){
+          getUserGroup(invitedUser,'invitedby',token, callback);
+        },
+        addToInvited: ['getInviteGroup', function(callback,results){
+          //console.log('getInviteGroup: ',results);
+          var inviteGroup = results.getInviteGroup;
+          addMemberToUserGroup(inviteGroup.id,invitedUser,token,callback);
+        }],
+        recordWhoInvited: ['getInvitedByGroup', function(callback, results){
+          //console.log('getInvitedByGroup: ',results);
+          var invitedByGroup = results.getInvitedByGroup;
+          addMemberToUserGroup(invitedByGroup.id,invitedByUser,token,callback);
+        }],
+        inviteProcessComplete: ['addToInvited','recordWhoInvited', function(callback, results){
+          console.log('inviteProcessComplete Results: ',results);
+          return cb(null,results);
+        }]
+      });
 
-      async.parallel({
-        inviteUser: function(callback){
-          self.getGroupForUser(invitedByUser,'invited',token,function(error,invitedGroup){
-            superagent
-            .put(makeUrl('/group/'+invitedGroup.id+'/user'))
-            .set(sessionTokenHeader, token)
-            .send({userid:invitedUser})
-            .end(function(err, res){
-              if (err != null) {
-                callback(err,null);
-              }
-              if (res.status === 200) {
-                callback(null, res.body.group);
-              } else {
-                callback({ message: 'Unknown status code ' + res.status }, null);
-              }
+      /*async.parallel({
+        sendInvite: function(callback){
+          getUserGroup(invitedByUser,'invited',token,function(error,invitedGroup){
+            addMemberToUserGroup(invitedGroup.id,invitedUser,token,function(error,invited){
+              callback(error,invited);
             });
           });
         },
-        registerInvitation: function(callback){
-          self.getGroupForUser(invitedUser,'invitedby',token,function(error,invitedByGroup){
-            superagent
-            .put(makeUrl('/group/'+invitedByGroup.id+'/user'))
-            .set(sessionTokenHeader, token)
-            .send({userid:invitedByUser})
-            .end(function(err, res){
-              if (err != null) {
-                callback(err,null);
-              }
-              if (res.status === 200) {
-                callback(null, res.body.group);
-              } else {
-                callback({ message: 'Unknown status code ' + res.status }, null);
-              }
+        addInvite: function(callback){
+          getUserGroup(invitedUser,'invitedby',token,function(error,invitedByGroup){
+            addMemberToUserGroup(invitedByGroup.id,invitedByUser,token,function(error,invitedBy){
+              callback(error,invitedBy);
             });
           });
         }
       },
       function(error, results) {
-        if(error){
-          return cb(error,null);
-        }
-        console.log('invite results ',results);
-        return cb(null,results);
+          console.log('inviteToJoinTeam Error: ',error);
+          console.log('inviteToJoinTeam Results: ',results);
+          return cb(error,results);
       });
+      */
     },
     acceptInviteToJoinTeam : function(invitedUser,token,cb){
       if (invitedUser == null) {
         return cb({ message: 'Must specify a invitedUser' });
       }
 
-      async.parallel({
-        addToTeam: function(callback){
-          getGroupForUser(invitedByUser,'team',token,function(error,teamGroup){
-            superagent
-            .put(makeUrl('/group/'+teamGroup.id+'/user'))
-            .set(sessionTokenHeader, token)
-            .send({userid:invitedByUser})
-            .end(function(err, res){
-              if (err != null) {
-                callback(err,null);
-              }
-              if (res.status === 200) {
-                callback(null, res.body.id);
-              } else {
-                callback({ message: 'Unknown status code ' + res.status }, null);
-              }
-            });
-          });
+      async.auto({
+        get_team: function(callback){
+          getUserGroup(invitedUser,'team',token,callback);
         },
-        addToPatients: function(callback){
-            getGroupForUser(invitedByUser,'invitedby',token,function(error,invitedByGroup){
-            superagent
-            .put(makeUrl('/group/'+invitedByGroup.id+'/user'))
-            .set(sessionTokenHeader, token)
-            .send({userid:invitedByUser})
-            .end(function(err, res){
-              if (err != null) {
-                callback(err,null);
-              }
-              if (res.status === 200) {
-                callback(null, res.body.id);
-              } else {
-                callback({ message: 'Unknown status code ' + res.status }, null);
-              }
-            });
-          });
-        }
-      },
-      function(error, results) {
-        if(error){
-          return cb(error,null);
-        }
-        return cb(null,results);
+        get_patients: function(callback){
+          getUserGroup(invitedUser,'patients',token, callback);
+        },
+        add_to_team: ['get_invite', function(callback, results){
+          var teamGroup = results.get_team;
+          addMemberToUserGroup(teamGroup.id,invitedUser,token,callback);
+        }],
+        add_to_patients: ['get_patients', function(callback, results){
+          var patientsGroup = results.get_patients;
+          addMemberToUserGroup(patientsGroup.id,invitedUser,token,callback);
+        }],
+        acceptance_complete: ['add_to_team','add_to_patients', function(callback, results){
+          console.log('acceptInviteToJoinTeam Error: ',error);
+          console.log('acceptInviteToJoinTeam Results: ',results);
+          return cb(error,results);
+        }]
       });
-    },
-    getUserTeamAndMessages :function(userId,token,cb){
-      return cb(null,null);
     },
     getAllMessagesForTeam : function(groupId, start, end, token, cb){
       superagent
