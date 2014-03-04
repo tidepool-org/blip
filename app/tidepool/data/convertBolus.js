@@ -18,7 +18,7 @@
 'use strict';
 /* jshint -W015 */
 
-var except = require('amoeba').except;
+var util = require('util');
 
 var selfJoin = require('../rx/selfJoin.js');
 
@@ -64,7 +64,9 @@ var builders = {
         }
 
         if (normal.groupId !== square.groupId) {
-          throw except.IAE('Mismatched joinKeys[%s][%s] at ts[%s]', normal.groupId, square.groupId, normal.deviceTime);
+          throw new Error(
+            util.format('Mismatched joinKeys[%s][%s] at ts[%s]', normal.groupId, square.groupId, normal.deviceTime)
+          );
         }
 
         return [

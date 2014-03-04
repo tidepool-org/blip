@@ -18,8 +18,8 @@
 /* jshint expr: true, -W015 */
 'use strict';
 
-var dataHelpers = require('../../app/core/lib/data/dataHelpers.js');
-var rx = require('rxjs');
+var dataHelpers = require('../../app/tidepool/data/dataHelpers.js');
+var rx = window.Rx;
 
 var expect = require('salinity').expect;
 

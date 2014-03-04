@@ -17,7 +17,7 @@
 
 'use strict';
 
-var rx = require('rxjs');
+var rx = window.Rx;
 
 
 /**

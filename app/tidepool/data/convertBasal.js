@@ -17,15 +17,13 @@
 
 'use strict';
 
-var _ = require('lodash');
-var moment = require('moment');
+var moment = window.moment;
+var _ = window._;
 
 var selfJoin = require('../rx/selfJoin.js');
 
 function isScheduledBasal(e) {
-  if (e.type.indexOf('basal') >= 0) {
-    return e.type === 'basal-rate-change' && e.deliveryType === 'scheduled';
-  }
+  return e.type === 'basal-rate-change' && e.deliveryType === 'scheduled';
 }
 
 function makeNewBasalHandler() {

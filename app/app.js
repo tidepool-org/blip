@@ -27,7 +27,7 @@ var patient = require('./core/patient');
 var tideline = require('./core/tideline');
 var chartUtil = require('./core/chartutil');
 var detectTouchScreen = require('./core/notouch');
-var tidepoolPlatform = window.tidepoolPlatform;
+var tidepoolPlatform = require('./tidepool/tidepoolplatform');
 
 var Navbar = require('./components/navbar');
 var LogoutOverlay = require('./components/logoutoverlay');

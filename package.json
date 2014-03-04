@@ -2,10 +2,11 @@
   "name": "blip",
   "version": "0.0.4",
   "private": true,
-  "dependencies": {},
+  "dependencies": {
+    "rx": "2.2.13"
+  },
   "devDependencies": {
     "bower": "1.2.8",
-    "chai": "1.9.0",
     "chai-webdriver": "0.5.3",
     "connect": "2.13.0",
     "event-stream": "3.1.0",
@@ -30,8 +31,7 @@
     "require-guard": "1.0.1",
     "run-sequence": "0.3.6",
     "selenium-webdriver": "2.39.0",
-    "sinon": "1.8.2",
-    "sinon-chai": "2.5.0",
+    "salinity": "0.0.5",
     "testem": "0.6.8"
   },
   "engines": {
