@@ -51,6 +51,7 @@ var configuration = {
   on: function() {
     var route = router.getRoute();
     router.log('Route /' + route.join('/'));
+    router.onRouteChange();
   }
 };
 
@@ -70,6 +71,9 @@ router.setup = function(routes, options) {
     options.defaultNotAuthenticatedRoute || '/';
   this.defaultAuthenticatedRoute =
     options.defaultAuthenticatedRoute || '/';
+
+  this.onRouteChange = options.onRouteChange ||
+                       function() {};
 
   routes = this._addRoutesWithQueryStrings(routes);
   
@@ -154,8 +158,40 @@ router.qs = function() {
 
 router.search = function(newSearch) {
   var qs = this.qs();
-  var search = queryString.parse(qs);
+  var search = this.parseQueryString(qs);
   return search;
+};
+
+router.parseQueryString = function(qs) {
+  var parsed = queryString.parse(qs);
+  _.forEach(parsed, function(value, key) {
+    // Handle '?foo', '?foo=true' as Boolean true
+    if (value === null || value === 'true') {
+      parsed[key] = true;
+      return;
+    }
+    // Handle '?foo=false' as Boolean false
+    if (value === 'false') {
+      parsed[key] = false;
+      return;
+    }
+    // Handle '?foo=null' as `null`
+    if (value === 'null') {
+      parsed[key] = null;
+      return;
+    }
+    // Handle integers
+    if (value.match(/^[0-9]+$/)) {
+      parsed[key] = parseInt(value, 10);
+      return;
+    }
+    // Handle floats
+    if (value.match(/^[0-9.]+$/)) {
+      parsed[key] = parseFloat(value);
+      return;
+    }
+  });
+  return parsed;
 };
 
 router.start = function() {

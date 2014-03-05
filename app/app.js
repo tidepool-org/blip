@@ -43,13 +43,14 @@ var PatientData = require('./pages/patientdata');
 
 var DEBUG = window.localStorage && window.localStorage.debug;
 
+// Initialize services talking to external APIs
 // Override with mock services if necessary
 if (config.MOCK) {
   var mock = window.mock;
-  var mockData = window.data || {};
-  api = mock.api(api, {data: mockData});
-  auth = mock.auth(auth);
-} else {
+  api = mock.patchApi(api);
+  auth = mock.patchAuth(auth);
+}
+else {
   tidepoolPlatform({
     apiHost: config.API_HOST,
     uploadApi: config.UPLOAD_API,
@@ -140,11 +141,25 @@ var AppComponent = React.createClass({
       return self.state.authenticated;
     };
 
+    // If in mock mode, update mock params on each route change
+    var onRouteChangeMock = function() {};
+    if (config.MOCK) {
+      onRouteChangeMock = function() {
+        var search = app.router.search();
+        mock.setParams(search);
+      };
+    }
+
+    var onRouteChange = function() {
+      onRouteChangeMock();
+    };
+
     app.router.setup(routingTable, {
       isAuthenticated: isAuthenticated,
       noAuthRoutes: noAuthRoutes,
       defaultNotAuthenticatedRoute: defaultNotAuthenticatedRoute,
-      defaultAuthenticatedRoute: defaultAuthenticatedRoute
+      defaultAuthenticatedRoute: defaultAuthenticatedRoute,
+      onRouteChange: onRouteChange
     });
     app.router.start();
   },
@@ -737,6 +752,18 @@ app.init = function(callback) {
 
   function initNoTouch() {
     detectTouchScreen();
+    initMock();
+  }
+
+  function initMock() {
+    if (config.MOCK) {
+      // Load mock params from config variables and URL query string
+      // (the latter overrides the former)
+      var paramsConfig = self.router.parseQueryString(config.MOCK_PARAMS);
+      var paramsUrl = self.router.search();
+      var params = _.assign(paramsConfig, paramsUrl);
+      mock.init(params);
+    }
     initAuth();
   }
 
