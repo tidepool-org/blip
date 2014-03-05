@@ -19,6 +19,7 @@
 
 var moment = window.moment;
 var _ = window._;
+var Rx = window.Rx;
 
 // Require it so that it gets registered
 var selfJoin = require('../rx/selfjoin.js');

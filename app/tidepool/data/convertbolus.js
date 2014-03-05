@@ -19,6 +19,7 @@
 /* jshint -W015 */
 
 var util = require('util');
+var Rx = window.Rx;
 
 // Require it so that it gets registered
 var selfJoin = require('../rx/selfjoin.js');
