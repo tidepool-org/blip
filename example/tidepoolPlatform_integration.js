@@ -188,6 +188,21 @@ describe('platform client', function() {
       });
     });
 
+    it('allows mrT1 to get just the parent messages for his team ', function(done) {
+
+      platform.getNotesForTeam(mrT1TeamId, mrT1.token, function(error,data){
+
+        expect(error).to.not.exist;
+        expect(data).to.exist;
+
+        for (var i = data.length - 1; i >= 0; i--) {
+          expect(data[i].parentmessage).to.not.exist;
+        };
+
+        done();
+      });
+    });
+
   });
 
   describe('mrT1 sets up his team',function(){

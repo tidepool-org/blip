@@ -351,6 +351,25 @@ module.exports = function(host, superagent) {
           }
         });
     },
+    getNotesForTeam : function(groupId, token, cb){
+      superagent
+        .get(makeUrl('/message/notes/'+groupId))
+        .set(sessionTokenHeader, token)
+        .end(
+        function(err, res) {
+
+          if (err != null) {
+            return cb(err,null);
+          }
+          if (res.status === 200) {
+            cb(null, res.body.messages);
+          } else if (res.status === 401) {
+            cb({ message: 'Unauthorized' });
+          } else {
+            cb({ message: 'Unknown status code ' + res.status });
+          }
+        });
+    },
     replyToMessageThread : function(messageId,comment,token,cb){
       superagent
         .post(makeUrl('/message/reply/'+messageId))
