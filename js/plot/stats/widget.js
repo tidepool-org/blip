@@ -158,7 +158,7 @@ module.exports = function(pool, opts) {
         'class': 'd3-stats-rect rect-right'
       });
 
-    rectScale = scales.bg(opts.cbg.data, puddle);
+    rectScale = scales.bgLog(opts.cbg.data, puddle, 0);
 
     rectGroup.append('line')
       .attr({

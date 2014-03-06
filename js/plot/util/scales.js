@@ -19,10 +19,16 @@ var d3 = window.d3;
 var _ = window._;
 
 var scales = {
-  bg: function(data, pool) {
+  bg: function(data, pool, pad) {
     var scale = d3.scale.linear()
       .domain([0, d3.max(data, function(d) { return d.value; })])
-      .range([pool.height(), 0]);
+      .range([pool.height() - pad, pad]);
+    return scale;
+  },
+  bgLog: function(data, pool, pad) {
+    var scale = d3.scale.log()
+      .domain(d3.extent(data, function(d) { return d.value; }))
+      .range([pool.height() - pad, pad]);
     return scale;
   },
   carbs: function(data, pool) {
