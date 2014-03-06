@@ -222,16 +222,34 @@ Take a look at the `app/core/less/icons.less` file for available icons.
 
 ### Mock mode
 
-For local development, demoing, or testing, you can run the app in "mock" mode by setting the environment variable `MOCK=true` (or anything other than an empty string, to turn it off use `MOCK=''`). In this mode, the app will not make any calls to external services, and use dummy data contained in `.json` files.
+For local development, demoing, or testing, you can run the app in "mock" mode by setting the environment variable `MOCK=true` (to turn it off use `MOCK=''`). In this mode, the app will not make any calls to external services, and use dummy data contained in `.json` files.
 
-All app objects (mostly app services) that make any external call should have their methods making these external calls patched by a mock. These are located in the `mock/` directory. To create one, export a `patch(service, options)` function (see existing mocks for examples).
+All app objects (mostly app services) that make any external call should have their methods making these external calls patched by a mock. These are located in the `mock/` directory. To create one, return a `patchService(service)` function (see existing mocks for examples).
 
-Mock data is generated from `.json` files, which are combined into a JavaScript object that mirrors the directory structure of the data files (for example `patients/11.json` will be available at `data.patients['11']`). Set the data file directory to use with the `MOCK_DATA_DIR` environment variable.
+Mock data is generated from `.json` files, which are combined into a JavaScript object that mirrors the directory structure of the data files (for example `patients/11.json` will be available at `data.patients['11']`). Set the data file directory to use with the `MOCK_DATA_DIR` environment variable (defaults to `data/sample`).
 
-There are additional "mock" settings you can use to help in development:
+You can configure the behavior of mock services using **mock parameters**. These are passed through the URL query string (before the hash), for example:
 
-- `MOCK_DELAY`: Set this to a value in milliseconds, and all mock external calls (to an API for example), will be delayed by that amount. This is useful to test how the app feels like on a slow internet connection for example.
-- `MOCK_VARIANT`: Use this to trigger some "special" events to test how the interface responds. For instance, setting `MOCK_VARIANT='auth.login.error'` will trigger an error when logging in.
+```
+http://localhost:3000/?auth.skip&app.patient.getall.delay=2000#/patients
+```
+
+With the URL above, mock services will receive the parameters:
+
+```javascript
+{
+  'auth.skip': true,
+  'app.patient.getall.delay': 2000
+}
+```
+
+Mock parameters are very useful in development (for example, you don't necessarily want to sign in every time you refresh). They are helpful when testing (manually or automatically) different behaviors: What happens if this API call returns an empty list? What is displayed while we are waiting for data to come back from the server? Etc.
+
+To find out which mock parameters are available, please see the corresponding service and method in the `mock/` folder (look for calls to `getParam()`).
+
+The naming convention for these parameters is **all lower-case**, and **name-spaced with periods**. For example, to have the call to `api.patient.getAll()` return an empty list, I would use the name `api.patient.getall.empty`.
+
+If you would like to build the app with mock parameters "baked-in", you can also use the `MOCK_PARAMS` environement variable, which works like a query string (ex: `$ export MOCK_PARAMS='auth.skip&api.delay=1000'`). If the same parameter is set in the URL and the environment variable, the URL's value will be used.
 
 ### Perceived speed
 
