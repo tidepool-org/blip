@@ -28,8 +28,14 @@ var createPatch = function(options) {
 
     api.user.get = function(callback) {
       api.log('[mock] GET /user');
+
+      var user = _.clone(data.user);
+      if (getParam('api.user.get.nopatient')) {
+        user = _.omit(user, 'patient');
+      }
+
       setTimeout(function() {
-        callback(null, data.user);
+        callback(null, user);
       }, getDelayFor('api.user.get'));
     };
 
@@ -50,11 +56,16 @@ var createPatch = function(options) {
 
     api.patient.getAll = function(callback) {
       api.log('[mock] GET /patients');
-      var patients = _.toArray(data.patients);
-      var userPatientId = data.user.patient && data.user.patient.id;
-      patients = _.filter(patients, function(patient) {
-        return patient.id !== userPatientId;
-      });
+      var patients = [];
+
+      if (!getParam('api.patient.getall.empty')) {
+        patients = _.toArray(data.patients);
+        var userPatientId = data.user.patient && data.user.patient.id;
+        patients = _.filter(patients, function(patient) {
+          return patient.id !== userPatientId;
+        });
+      }
+      
       setTimeout(function() {
         callback(null, patients);
       }, getDelayFor('api.patient.getall'));

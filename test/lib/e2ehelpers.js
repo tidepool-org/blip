@@ -2,11 +2,14 @@
 // This allows us to re-use the same WebDriver instance for all tests
 require('require-guard')();
 
+var crypto = require('crypto');
 var webdriver = require('selenium-webdriver');
 var _ = require('lodash');
+var queryString = require('query-string');
 var sauce = require('./saucelabs');
 
 var APP_URL = 'http://localhost:3000';
+var noAuthRoutes = ['/login', '/signup'];
 
 var By = webdriver.By;
 
@@ -31,24 +34,44 @@ var helpers = {
 
   openApp: function() {
     var deferred = webdriver.promise.defer();
-    driver.get(APP_URL).then(function () {
-      deferred.fulfill();
-    });
+    driver.get(APP_URL)
+      .then(deferred.fulfill);
     return deferred.promise;
   },
 
-  authenticate: function() {
-    var username = 'demo';
-    var password = 'demo';
+  openAppTo: function(path, qs) {
+    qs = qs || {};
     var deferred = webdriver.promise.defer();
-    helpers.findElement(By.name('username'))
-      .then(function(q) { return q.sendKeys(username); });
-    helpers.findElement(By.name('password'))
-      .then(function(q) { return q.sendKeys(password); });
-    helpers.findElement(By.css('.js-form-submit'))
-      .then(function(q) { return q.click(); })
+
+    // Add random token to query string to force refresh
+    qs.token = helpers._randomToken();
+    // Go to requested url
+    var url = helpers._makeUrl(path, qs);
+    driver.get(url)
       .then(deferred.fulfill);
+
     return deferred.promise;
+  },
+
+  _randomToken: function(len) {
+    len = len || 6;
+    return crypto.randomBytes(Math.ceil(len/2))
+      .toString('hex')
+      .slice(0, len);
+  },
+
+  _makeUrl: function(path, qs) {
+    path = path || '/';
+    qs = qs || {};
+    qs = queryString.stringify(qs);
+    if (qs) {
+      qs = '?' + qs;
+    }
+    else {
+      qs = '';
+    }
+    var url = [APP_URL, qs, '/#', path].join('');
+    return url;
   },
 
   // Wrapper around `driver.findElement` that throws a more useful error
@@ -72,6 +95,12 @@ var helpers = {
         deferred.reject(err);
       });
     return deferred.promise;
+  },
+
+  sleep: function(delay) {
+    return function() {
+      return driver.sleep(delay);
+    };
   },
 
   // See:
