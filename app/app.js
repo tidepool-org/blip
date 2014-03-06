@@ -24,6 +24,7 @@ var auth = require('./core/auth');
 var api = require('./core/api');
 var user = require('./core/user');
 var patient = require('./core/patient');
+var queryString = require('./core/querystring');
 var tideline = require('./core/tideline');
 var chartUtil = require('./core/chartutil');
 var detectTouchScreen = require('./core/notouch');
@@ -749,8 +750,8 @@ app.init = function(callback) {
     if (config.MOCK) {
       // Load mock params from config variables 
       // and URL query string (before hash)
-      var paramsConfig = self.router.parseQueryString(config.MOCK_PARAMS);
-      var paramsUrl = self.router.parseQueryString(window.location.search);
+      var paramsConfig = queryString.parseTypes(config.MOCK_PARAMS);
+      var paramsUrl = queryString.parseTypes(window.location.search);
       var params = _.assign(paramsConfig, paramsUrl);
 
       mock.init(params);

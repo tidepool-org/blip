@@ -16,7 +16,8 @@
 var Router = window.Router;
 var bows = window.bows;
 var _ = window._;
-var queryString = window.queryString;
+
+var queryString = require('./core/querystring');
 
 var router = new Router();
 
@@ -156,40 +157,8 @@ router.qs = function() {
 
 router.search = function(newSearch) {
   var qs = this.qs();
-  var search = this.parseQueryString(qs);
+  var search = queryString.parseTypes(qs);
   return search;
-};
-
-router.parseQueryString = function(qs) {
-  var parsed = queryString.parse(qs);
-  _.forEach(parsed, function(value, key) {
-    // Handle '?foo', '?foo=true' as Boolean true
-    if (value === null || value === 'true') {
-      parsed[key] = true;
-      return;
-    }
-    // Handle '?foo=false' as Boolean false
-    if (value === 'false') {
-      parsed[key] = false;
-      return;
-    }
-    // Handle '?foo=null' as `null`
-    if (value === 'null') {
-      parsed[key] = null;
-      return;
-    }
-    // Handle integers
-    if (value.match(/^[0-9]+$/)) {
-      parsed[key] = parseInt(value, 10);
-      return;
-    }
-    // Handle floats
-    if (value.match(/^[0-9.]+$/)) {
-      parsed[key] = parseFloat(value);
-      return;
-    }
-  });
-  return parsed;
 };
 
 router.start = function() {
