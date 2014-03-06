@@ -141,18 +141,8 @@ var AppComponent = React.createClass({
       return self.state.authenticated;
     };
 
-    // If in mock mode, update mock params on each route change
-    var onRouteChangeMock = function() {};
-    if (config.MOCK) {
-      onRouteChangeMock = function() {
-        var search = app.router.search();
-        mock.setParams(search);
-      };
-    }
-
-    var onRouteChange = function() {
-      onRouteChangeMock();
-    };
+    // Currently no-op
+    var onRouteChange = function() {};
 
     app.router.setup(routingTable, {
       isAuthenticated: isAuthenticated,
@@ -757,12 +747,14 @@ app.init = function(callback) {
 
   function initMock() {
     if (config.MOCK) {
-      // Load mock params from config variables and URL query string
-      // (the latter overrides the former)
+      // Load mock params from config variables 
+      // and URL query string (before hash)
       var paramsConfig = self.router.parseQueryString(config.MOCK_PARAMS);
-      var paramsUrl = self.router.search();
+      var paramsUrl = self.router.parseQueryString(window.location.search);
       var params = _.assign(paramsConfig, paramsUrl);
+
       mock.init(params);
+      self.log('Mock services initialized with params', params);
     }
     initAuth();
   }

@@ -33,8 +33,7 @@ var configuration = {
 
     if (!isAuthenticated && !isNoAuthRoute) {
       router.log('Not logged in, redirecting');
-      // Redirect but keep query string
-      redirectRoute = router.defaultNotAuthenticatedRoute + router.qs();
+      redirectRoute = router.defaultNotAuthenticatedRoute;
       router.setRoute(redirectRoute);
       // Stop current routing and let new routing take over
       return false;
@@ -42,7 +41,7 @@ var configuration = {
 
     if (isAuthenticated && isNoAuthRoute) {
       router.log('Already logged in, redirecting');
-      redirectRoute = router.defaultAuthenticatedRoute + router.qs();
+      redirectRoute = router.defaultAuthenticatedRoute;
       router.setRoute(redirectRoute);
       return false;
     }
@@ -72,8 +71,7 @@ router.setup = function(routes, options) {
   this.defaultAuthenticatedRoute =
     options.defaultAuthenticatedRoute || '/';
 
-  this.onRouteChange = options.onRouteChange ||
-                       function() {};
+  this.onRouteChange = options.onRouteChange || function() {};
 
   routes = this._addRoutesWithQueryStrings(routes);
   
@@ -133,9 +131,9 @@ router._addQueryStringFragmentToRoute = function(route) {
 // Inspired by AngularJS' `$location` service
 // http://docs.angularjs.org/guide/dev_guide.services.$location
 router.url = function() {
-  var url = window.location && window.location.hash;
+  var url = window.location.hash;
   url = url || '';
-  url.replace(/^#/, '');
+  url = url.replace(/^#/, '');
   return url;
 };
 

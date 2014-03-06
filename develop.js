@@ -117,7 +117,7 @@ imagesAndSvg.forEach(function(image) {
 });
 
 app.use('/', function(req, res, next) {
-  if (req.url !== '/') {
+  if (!(req.url === '/' || req.url.match(/^\/\?/))) {
     return next();
   }
 
