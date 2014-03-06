@@ -152,11 +152,9 @@ module.exports = function(emitter) {
     if (!arguments.length) {
       a = yScale.domain();
     }
-    var monthDay = d3.time.format.utc('%B %-d');
-    var navString = monthDay(new Date(a[0].setUTCDate(a[0].getUTCDate() + 1))) + ' - ' + monthDay(a[1]);
     if (!d3.select('#' + id).classed('hidden')) {
       emitter.emit('currentDomain', a);
-      emitter.emit('navigated', navString);
+      emitter.emit('navigated', [a[0].toISOString(), a[1].toISOString()]);
     }
   };
 
