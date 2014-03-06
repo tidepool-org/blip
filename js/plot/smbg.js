@@ -19,6 +19,7 @@ var d3 = window.d3;
 var _ = window._;
 
 var log = require('../lib/bows')('SMBG');
+var scales = require('./util/scales');
 
 module.exports = function(pool, opts) {
 
@@ -33,7 +34,6 @@ module.exports = function(pool, opts) {
       'very-high': {'boundary': 300}
     },
     size: 16,
-    yScale: d3.scale.linear().domain([0, 400]).range([pool.height(), 0]),
     imagesBaseUrl: pool.imagesBaseUrl(),
     tooltipWidth: 70,
     tooltipHeight: 24

@@ -37,6 +37,8 @@ function chartDailyFactory(el, options, emitter) {
 
   var poolMessages, poolBG, poolBolus, poolBasal, poolStats;
 
+  var SMBG_SIZE = 16;
+
   var create = function(el, options) {
     // basic chart set up
     chart.width($(el).width()).height($(el).height());
@@ -111,17 +113,18 @@ function chartDailyFactory(el, options, emitter) {
     chart.data(data).setAxes().setNav().setScrollNav();
 
     // BG pool
-    var scaleBG = scales.bg(_.filter(data, function(d) {
+    var scaleBG = scales.bgLog(_.filter(data, function(d) {
       if ((d.type === 'cbg') || (d.type === 'smbg')) {
         return d;
       }
-    }), poolBG);
+    }), poolBG, SMBG_SIZE/2);
     // set up y-axis
     poolBG.yAxis(d3.svg.axis()
       .scale(scaleBG)
       .orient('left')
       .outerTickSize(0)
-      .tickValues([40, 80, 120, 180, 300]));
+      .tickValues([40, 80, 120, 180, 300])
+      .tickFormat(d3.format('g')));
     // add background fill rectangles to BG pool
     poolBG.addPlotType('fill', fill(poolBG, {endpoints: chart.endpoints}), false, true);
 
