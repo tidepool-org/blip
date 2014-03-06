@@ -217,6 +217,7 @@ function chartDailyFactory(el, options, emitter) {
       mostRecent();
     }
     else {
+      // translate the desired center-of-view datetime into an edgepoint for tideline
       start = new Date(datetime);
       var plusHalf = new Date(start);
       plusHalf.setUTCHours(plusHalf.getUTCHours() + 12);
