@@ -210,15 +210,14 @@ module.exports = function(emitter) {
   };
 
   container.navString = function(a) {
-    var formatDate = d3.time.format.utc('%A %-d %B');
-    var beginning = formatDate(a[0]);
-    var end = formatDate(a[1]);
+    var beginning = a[0];
+    var end = a[1];
     var navString;
-    if (beginning === end) {
-      navString = beginning;
+    if (beginning.getUTCHours() <= 11) {
+      navString = beginning.toISOString();
     }
     else {
-      navString = beginning + ' - ' + end;
+      navString = end.toISOString();
     }
     if (!d3.select('#' + id).classed('hidden')) {
       emitter.emit('currentDomain', a);

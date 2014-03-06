@@ -29,7 +29,9 @@ var log = window.bows('Example');
 var EventEmitter = require('events').EventEmitter;
 var emitter = new EventEmitter();
 emitter.on('navigated', function(navString) {
-  $('#tidelineNavString').html(navString);
+  var d = new Date(navString);
+  var formatDate = d3.time.format.utc('%A, %B %-d');
+  $('#tidelineNavString').html(formatDate(d));
 });
 
 emitter.on('mostRecent', function(mostRecent) {
