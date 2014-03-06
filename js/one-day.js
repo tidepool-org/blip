@@ -258,12 +258,18 @@ module.exports = function(emitter) {
     xScale.domain([container.initialEndpoints[0], container.initialEndpoints[1]])
       .range([axisGutter, width]);
 
+    var tickFormat = d3.time.format.utc.multi([
+      ['%b %-d', function(d) { return d.getUTCHours() === 0; }],
+      ['%-I am', function(d) { return d.getUTCHours() < 11; }],
+      ['%-I pm', function(d) { return true; }],
+    ]);
+
     xAxis = d3.svg.axis()
       .scale(xScale)
       .orient('top')
       .outerTickSize(0)
       .innerTickSize(15)
-      .tickFormat(d3.time.format.utc('%-I %p'));
+      .tickFormat(tickFormat);
 
     mainGroup.select('#tidelineXAxis').call(xAxis);
 
