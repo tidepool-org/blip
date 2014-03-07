@@ -13,6 +13,6 @@
     "react": "0.9.0",
     "rxjs": "2.2.13",
     "superagent": "visionmedia/superagent#0.16.0",
-    "tideline": "https://github.com/tidepool-org/tideline.git#v0.0.1"
+    "tideline": "https://github.com/tidepool-org/tideline.git#5410f31e040fc80225b99221e17e2cbfc5908e37"
   }
 }

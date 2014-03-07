@@ -38,6 +38,8 @@ function chartDailyFactory(el, options) {
 
   var poolMessages, poolBG, poolBolus, poolBasal, poolStats;
 
+  var SMBG_SIZE = 16;
+
   var create = function(el, options) {
 
     if (!el) {
@@ -126,17 +128,18 @@ function chartDailyFactory(el, options) {
     chart.data(data).setAxes().setNav().setScrollNav();
 
     // BG pool
-    var scaleBG = scales.bg(_.filter(data, function(d) {
+    var scaleBG = scales.bgLog(_.filter(data, function(d) {
       if ((d.type === 'cbg') || (d.type === 'smbg')) {
         return d;
       }
-    }), poolBG);
+    }), poolBG, SMBG_SIZE/2);
     // set up y-axis
     poolBG.yAxis(d3.svg.axis()
       .scale(scaleBG)
       .orient('left')
       .outerTickSize(0)
-      .tickValues([40, 80, 120, 180, 300]));
+      .tickValues([40, 80, 120, 180, 300])
+      .tickFormat(d3.format('g')));
     // add background fill rectangles to BG pool
     poolBG.addPlotType('fill', fill(poolBG, {endpoints: chart.endpoints}), false, true);
 
@@ -229,6 +232,7 @@ function chartDailyFactory(el, options) {
       mostRecent();
     }
     else {
+      // translate the desired center-of-view datetime into an edgepoint for tideline
       start = new Date(datetime);
       var plusHalf = new Date(start);
       plusHalf.setUTCHours(plusHalf.getUTCHours() + 12);
