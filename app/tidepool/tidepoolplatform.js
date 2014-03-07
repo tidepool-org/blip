@@ -387,16 +387,10 @@ module.exports = function(options){
           }
 
           if (res.status === 200) {
-            // Rename _id to id in order to work around the fact that we do not have a proper id field in
-            // the database yet.  Eventually, we will attach ids to events in the db.  At that point, this
-            // mapping can be removed.
             Rx.Observable.fromArray(res.body)
               .tidepoolConvertBasal()
               .tidepoolConvertBolus()
               .map(function(e){
-                if (e.id === undefined) {
-                  e.id = e._id;
-                }
                 e.value = Number(e.value);
                 return e;
               })
