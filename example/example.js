@@ -29,7 +29,17 @@ var log = window.bows('Example');
 var EventEmitter = require('events').EventEmitter;
 var emitter = new EventEmitter();
 emitter.on('navigated', function(navString) {
-  $('#tidelineNavString').html(navString);
+  if (navString.length === 1) {
+    var d = new Date(navString);
+    var formatDate = d3.time.format.utc('%A, %B %-d');
+    $('#tidelineNavString').html(formatDate(d));
+  }
+  else {
+    var beg = new Date(navString[0]);
+    var end = new Date(navString[1]);
+    var monthDay = d3.time.format.utc('%B %-d');
+    $('#tidelineNavString').html(monthDay(beg) + ' - ' + monthDay(end));
+  }
 });
 
 emitter.on('mostRecent', function(mostRecent) {

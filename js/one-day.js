@@ -210,19 +210,18 @@ module.exports = function(emitter) {
   };
 
   container.navString = function(a) {
-    var formatDate = d3.time.format.utc('%A %-d %B');
-    var beginning = formatDate(a[0]);
-    var end = formatDate(a[1]);
+    var beginning = a[0];
+    var end = a[1];
     var navString;
-    if (beginning === end) {
-      navString = beginning;
+    if (beginning.getUTCHours() <= 11) {
+      navString = beginning.toISOString();
     }
     else {
-      navString = beginning + ' - ' + end;
+      navString = end.toISOString();
     }
     if (!d3.select('#' + id).classed('hidden')) {
       emitter.emit('currentDomain', a);
-      emitter.emit('navigated', navString);
+      emitter.emit('navigated', [navString]);
       if (a[1].valueOf() === endpoints[1].valueOf()) {
         emitter.emit('mostRecent', true);
       }
@@ -259,12 +258,18 @@ module.exports = function(emitter) {
     xScale.domain([container.initialEndpoints[0], container.initialEndpoints[1]])
       .range([axisGutter, width]);
 
+    var tickFormat = d3.time.format.utc.multi([
+      ['%b %-d', function(d) { return d.getUTCHours() === 0; }],
+      ['%-I am', function(d) { return d.getUTCHours() < 11; }],
+      ['%-I pm', function(d) { return true; }],
+    ]);
+
     xAxis = d3.svg.axis()
       .scale(xScale)
       .orient('top')
       .outerTickSize(0)
       .innerTickSize(15)
-      .tickFormat(d3.time.format.utc('%-I %p'));
+      .tickFormat(tickFormat);
 
     mainGroup.select('#tidelineXAxis').call(xAxis);
 
