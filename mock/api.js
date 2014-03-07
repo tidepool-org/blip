@@ -14,105 +14,124 @@
  */
 
 var _ = window._;
-var config = window.config;
 
-var patch = function(api, options) {
-  var data = options.data || {};
+var createPatch = function(options) {
+  var patch = function(api) {
+    var getParam = options.getParam || {};
+    var data = options.data || {};
 
-  // ----- User -----
+    var getDelayFor = function(name) {
+      return (getParam('delay') || getParam(name + '.delay') || 0);
+    };
 
-  api.user.get = function(callback) {
-    api.log('[mock] GET /user');
-    setTimeout(function() {
-      callback(null, data.user);
-    }, config.MOCK_DELAY);
-  };
+    // ----- User -----
 
-  api.user.put = function(user, callback) {
-    api.log('[mock] PUT /user');
-    setTimeout(function() {
-      var err;
-      if (config.MOCK_VARIANT === 'api.user.put.error') {
-        err = true;
+    api.user.get = function(callback) {
+      api.log('[mock] GET /user');
+
+      var user = _.clone(data.user);
+      if (getParam('api.user.get.nopatient')) {
+        user = _.omit(user, 'patient');
       }
-      delete user.password;
-      delete user.passwordConfirm;
-      callback(err, user);
-    }, config.MOCK_DELAY);
+
+      setTimeout(function() {
+        callback(null, user);
+      }, getDelayFor('api.user.get'));
+    };
+
+    api.user.put = function(user, callback) {
+      api.log('[mock] PUT /user');
+      setTimeout(function() {
+        var err;
+        if (getParam('api.user.put.error')) {
+          err = true;
+        }
+        delete user.password;
+        delete user.passwordConfirm;
+        callback(err, user);
+      }, getDelayFor('api.user.put'));
+    };
+
+    // ----- Patient -----
+
+    api.patient.getAll = function(callback) {
+      api.log('[mock] GET /patients');
+      var patients = [];
+
+      if (!getParam('api.patient.getall.empty')) {
+        patients = _.toArray(data.patients);
+        var userPatientId = data.user.patient && data.user.patient.id;
+        patients = _.filter(patients, function(patient) {
+          return patient.id !== userPatientId;
+        });
+      }
+      
+      setTimeout(function() {
+        callback(null, patients);
+      }, getDelayFor('api.patient.getall'));
+    };
+
+    api.patient.get = function(patientId, callback) {
+      api.log('[mock] GET /patients/' + patientId);
+      var patient = data.patients[patientId];
+      var err;
+      if (!patient) {
+        err = {message: 'Not found'};
+      }
+      setTimeout(function() {
+        callback(err, patient);
+      }, getDelayFor('api.patient.get'));
+    };
+
+    api.patient.post = function(patient, callback) {
+      api.log('[mock] POST /patients');
+      patient = _.clone(patient);
+      // Default mock id of patient assigned to user of id '1'
+      patient.id = '11';
+      setTimeout(function() {
+        callback(null, patient);
+      }, getDelayFor('api.patient.post'));
+    };
+
+    api.patient.put = function(patientId, patient, callback) {
+      api.log('[mock] PUT /patients/' + patientId);
+      var updatedPatient;
+      var err;
+      if (!data.patients[patientId]) {
+        err = {message: 'Not found'};
+      }
+      else {
+        updatedPatient = _.assign(data.patients[patientId], patient);
+        updatedPatient = _.cloneDeep(updatedPatient);
+      }
+      setTimeout(function() {
+        callback(err, updatedPatient);
+      }, getDelayFor('api.patient.put'));
+    };
+
+    // ----- Patient Data -----
+
+    api.patientData.get = function(patientId, options, callback) {
+      api.log('[mock] GET /patients/' + patientId + '/data');
+      if (typeof options === 'function') {
+        callback = options;
+      }
+      var patientData = data.patientdata && data.patientdata[patientId];
+      patientData = patientData || [];
+      setTimeout(function() {
+        callback(null, patientData);
+      }, getDelayFor('api.patientdata.get'));
+    };
+
+    // ----- Upload -----
+    api.getUploadUrl = function() {
+      return 'about:blank';
+    };
+
+    return api;
   };
 
-  // ----- Patient -----
-
-  api.patient.getAll = function(callback) {
-    api.log('[mock] GET /patients');
-    var patients = _.toArray(data.patients);
-    var userPatientId = data.user.patient && data.user.patient.id;
-    patients = _.filter(patients, function(patient) {
-      return patient.id !== userPatientId;
-    });
-    setTimeout(function() {
-      callback(null, patients);
-    }, config.MOCK_DELAY);
-  };
-
-  api.patient.get = function(patientId, callback) {
-    api.log('[mock] GET /patients/' + patientId);
-    var patient = data.patients[patientId];
-    var err;
-    if (!patient) {
-      err = {message: 'Not found'};
-    }
-    setTimeout(function() {
-      callback(err, patient);
-    }, config.MOCK_DELAY);
-  };
-
-  api.patient.post = function(patient, callback) {
-    api.log('[mock] POST /patients');
-    patient = _.clone(patient);
-    // Default mock id of patient assigned to user of id '1'
-    patient.id = '11';
-    setTimeout(function() {
-      callback(null, patient);
-    }, config.MOCK_DELAY);
-  };
-
-  api.patient.put = function(patientId, patient, callback) {
-    api.log('[mock] PUT /patients/' + patientId);
-    var updatedPatient;
-    var err;
-    if (!data.patients[patientId]) {
-      err = {message: 'Not found'};
-    }
-    else {
-      updatedPatient = _.assign(data.patients[patientId], patient);
-      updatedPatient = _.cloneDeep(updatedPatient);
-    }
-    setTimeout(function() {
-      callback(err, updatedPatient);
-    }, config.MOCK_DELAY);
-  };
-
-  // ----- Patient Data -----
-
-  api.patientData.get = function(patientId, options, callback) {
-    api.log('[mock] GET /patients/' + patientId + '/data');
-    if (typeof options === 'function') {
-      callback = options;
-    }
-    var patientData = data.patientdata && data.patientdata[patientId];
-    patientData = patientData || [];
-    setTimeout(function() {
-      callback(null, patientData);
-    }, config.MOCK_DELAY);
-  };
-
-  // ----- Upload -----
-  api.getUploadUrl = function() {
-    return 'about:blank';
-  };
-
-  return api;
+  return patch;
 };
 
-module.exports = patch;
+module.exports = createPatch;

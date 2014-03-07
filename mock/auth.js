@@ -14,126 +14,143 @@
  */
 
 var _ = window._;
-var config = window.config;
 
-var patch = function(auth, options) {
-  auth.mockToken = '123';
-  auth.mockUsername = 'demo';
-  auth.mockPassword = 'demo';
+var createPatch = function(options) {
+  var patch = function(auth) {
+    var getParam = options.getParam || {};
 
-  auth.init = function(callback) {
-    var self = this;
+    auth.mockToken = '123';
+    auth.mockUsername = 'demo';
+    auth.mockPassword = 'demo';
 
-    this.loadSession(function() {
-      self.log('[demo] Auth initialized');
-      callback();
-    });
-  };
+    var getDelayFor = function(name) {
+      return (getParam('delay') || getParam(name + '.delay') || 0);
+    };
 
-  auth.loadSession = function(callback) {
-    var token;
-    var localStorage = window.localStorage;
-    if (localStorage && localStorage.getItem) {
-      token = localStorage.getItem('demoAuthToken');
-      if (token) {
-        this.saveSession(token);
-      }
-      setTimeout(callback, config.MOCK_DELAY);
-    }
-    else {
-      setTimeout(callback, config.MOCK_DELAY);
-    }
-    this.log('[demo] Session loaded');
-  };
+    auth.init = function(callback) {
+      var self = this;
 
-  auth.saveSession = function(token, options) {
-    options = options || {};
-    
-    this.token = token;
-    if (options.remember) {
+      this.loadSession(function() {
+        self.log('[mock] Auth initialized');
+        callback();
+      });
+    };
+
+    auth.loadSession = function(callback) {
+      var token;
       var localStorage = window.localStorage;
-      if (localStorage && localStorage.setItem) {
-        localStorage.setItem('demoAuthToken', token);
+
+      if (getParam('auth.skip')) {
+        this.log('[mock] Skipping auth');
+        this.saveSession(this.mockToken);
+        setTimeout(callback, getDelayFor('auth.loadsession'));
+        return;
       }
-    }
-  };
 
-  auth.destroySession = function() {
-    this.token = null;
-    var localStorage = window.localStorage;
-    if (localStorage && localStorage.removeItem) {
-      localStorage.removeItem('demoAuthToken');
-    }
-  };
-
-  auth.login = function(user, options, callback) {
-    var self = this;
-    var username = user.username;
-    var password = user.password;
-
-    // Allow to not pass options object
-    if (typeof options === 'function') {
-      callback = options;
-    }
-
-    setTimeout(function() {
-      var err;
-      if (username !== self.mockUsername || password !== self.mockPassword) {
-        err = {message: 'Wrong username or password.'};
-      }
-      if (!err) {
-        self.saveSession(self.mockToken, options);
-        self.log('[demo] Login success');
+      if (localStorage && localStorage.getItem) {
+        token = localStorage.getItem('mockAuthToken');
+        if (token) {
+          this.saveSession(token);
+        }
+        setTimeout(callback, getDelayFor('auth.loadsession'));
       }
       else {
-        self.log('[demo] Login failed');
+        setTimeout(callback, getDelayFor('auth.loadsession'));
       }
-      callback(err);
-    }, config.MOCK_DELAY);
+      this.log('[mock] Session loaded');
+    };
+
+    auth.saveSession = function(token, options) {
+      options = options || {};
+      
+      this.token = token;
+      if (options.remember) {
+        var localStorage = window.localStorage;
+        if (localStorage && localStorage.setItem) {
+          localStorage.setItem('mockAuthToken', token);
+        }
+      }
+    };
+
+    auth.destroySession = function() {
+      this.token = null;
+      var localStorage = window.localStorage;
+      if (localStorage && localStorage.removeItem) {
+        localStorage.removeItem('mockAuthToken');
+      }
+    };
+
+    auth.login = function(user, options, callback) {
+      var self = this;
+      var username = user.username;
+      var password = user.password;
+
+      // Allow to not pass options object
+      if (typeof options === 'function') {
+        callback = options;
+      }
+
+      setTimeout(function() {
+        var err;
+        if (username !== self.mockUsername || password !== self.mockPassword) {
+          err = {message: 'Wrong username or password.'};
+        }
+        if (!err) {
+          self.saveSession(self.mockToken, options);
+          self.log('[mock] Login success');
+        }
+        else {
+          self.log('[mock] Login failed');
+        }
+        callback(err);
+      }, getDelayFor('auth.login'));
+    };
+
+    auth.logout = function(callback) {
+      var self = this;
+      setTimeout(function() {
+        var err;
+        if (getParam('auth.logout.error')) {
+          err = {message: 'Logout failed, please try again.'};
+        }
+        if (!err) {
+          self.destroySession();
+          self.log('[mock] Logout success');
+        }
+        else {
+          self.log('[mock] Logout failed');
+        }
+        callback(err);
+      }, getDelayFor('auth.logout'));
+    };
+
+    auth.signup = function(user, callback) {
+      var self = this;
+
+      user = _.clone(user);
+      user.id = '1';
+      delete user.password;
+
+      setTimeout(function() {
+        var err;
+        if (user.username === self.mockUsername) {
+          err = {message: 'An account already exists for that username.'};
+        }
+        if (!err) {
+          self.saveSession(self.mockToken);
+          self.log('[mock] Signup success');
+        }
+        else {
+          self.log('[mock] Signup failed');
+        }
+        callback(err, user);
+      }, getDelayFor('auth.signup'));
+    };
+
+    return auth;
   };
 
-  auth.logout = function(callback) {
-    var self = this;
-    setTimeout(function() {
-      var err;
-      if (config.MOCK_VARIANT === 'auth.logout.error') {
-        err = {message: 'Logout failed, please try again.'};
-      }
-      if (!err) {
-        self.destroySession();
-        self.log('[demo] Logout success');
-      }
-      else {
-        self.log('[demo] Logout failed');
-      }
-      callback(err);
-    }, config.MOCK_DELAY);
-  };
-
-  auth.signup = function(user, callback) {
-    var self = this;
-
-    user = _.clone(user);
-    user.id = '1';
-    delete user.password;
-
-    setTimeout(function() {
-      var err;
-      if (user.username === self.mockUsername) {
-        err = {message: 'An account already exists for that username.'};
-      }
-      if (!err) {
-        self.saveSession(self.mockToken);
-        self.log('[demo] Signup success');
-      }
-      else {
-        self.log('[demo] Signup failed');
-      }
-      callback(err, user);
-    }, config.MOCK_DELAY);
-  };
-
-  return auth;
+  return patch;
 };
 
-module.exports = patch;
+module.exports = createPatch;

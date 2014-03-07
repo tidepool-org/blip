@@ -3,9 +3,7 @@ var expect = require('salinity').expect;
 var helpers = require('../lib/e2ehelpers');
 
 describe('Login', function() {
-  var driver = helpers.getDriver();
   var openApp = helpers.openApp;
-  var authenticate = helpers.authenticate;
   var By = webdriver.By;
 
   var username;
@@ -18,7 +16,9 @@ describe('Login', function() {
 
   it('should log in with correct credentials', function(done) {
     openApp()
-      .then(authenticate)
+      .then(fillOutUsername)
+      .then(fillOutPassword)
+      .then(submitForm)
       .then(function() {
         expect('.js-navbar-user').dom.to.be.visible();
         done();

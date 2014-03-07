@@ -17,11 +17,34 @@
 // Packaged separately and included only if needed
 // Exposes all mocks on the global `window.mock` object
 
-var mock = {};
+var _ = window._;
 
+var mock = {};
 window.mock = mock;
 
-mock.api = require('./api');
-mock.auth = require('./auth');
+mock.params = {};
+mock.data = window.data || {};
+
+mock.setParams = function(newParams) {
+  this.params = _.assign(this.params, newParams);
+  return this.params;
+};
+
+mock.getParam = function(name) {
+  return mock.params[name];
+};
+
+mock.init = function(params) {
+  this.setParams(params);
+};
+
+mock.patchApi = require('./api')({
+  getParam: mock.getParam,
+  data: mock.data
+});
+
+mock.patchAuth = require('./auth')({
+  getParam: mock.getParam
+});
 
 module.exports = mock;

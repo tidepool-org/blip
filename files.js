@@ -13,7 +13,8 @@ var files = {
       'bower_components/d3/d3.js',
       'bower_components/jquery/dist/jquery.js',
       'bower_components/Duration.js/duration.js',
-      'bower_components/rxjs/rx.lite.js'
+      'bower_components/rxjs/rx.lite.js',
+      'bower_components/query-string/query-string.js'
     ]
   },
 

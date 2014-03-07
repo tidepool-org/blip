@@ -24,6 +24,7 @@ var auth = require('./core/auth');
 var api = require('./core/api');
 var user = require('./core/user');
 var patient = require('./core/patient');
+var queryString = require('./core/querystring');
 var tideline = require('./core/tideline');
 var chartUtil = require('./core/chartutil');
 var detectTouchScreen = require('./core/notouch');
@@ -43,13 +44,14 @@ var PatientData = require('./pages/patientdata');
 
 var DEBUG = window.localStorage && window.localStorage.debug;
 
+// Initialize services talking to external APIs
 // Override with mock services if necessary
 if (config.MOCK) {
   var mock = window.mock;
-  var mockData = window.data || {};
-  api = mock.api(api, {data: mockData});
-  auth = mock.auth(auth);
-} else {
+  api = mock.patchApi(api);
+  auth = mock.patchAuth(auth);
+}
+else {
   tidepoolPlatform({
     apiHost: config.API_HOST,
     uploadApi: config.UPLOAD_API,
@@ -140,11 +142,15 @@ var AppComponent = React.createClass({
       return self.state.authenticated;
     };
 
+    // Currently no-op
+    var onRouteChange = function() {};
+
     app.router.setup(routingTable, {
       isAuthenticated: isAuthenticated,
       noAuthRoutes: noAuthRoutes,
       defaultNotAuthenticatedRoute: defaultNotAuthenticatedRoute,
-      defaultAuthenticatedRoute: defaultAuthenticatedRoute
+      defaultAuthenticatedRoute: defaultAuthenticatedRoute,
+      onRouteChange: onRouteChange
     });
     app.router.start();
   },
@@ -737,6 +743,20 @@ app.init = function(callback) {
 
   function initNoTouch() {
     detectTouchScreen();
+    initMock();
+  }
+
+  function initMock() {
+    if (config.MOCK) {
+      // Load mock params from config variables 
+      // and URL query string (before hash)
+      var paramsConfig = queryString.parseTypes(config.MOCK_PARAMS);
+      var paramsUrl = queryString.parseTypes(window.location.search);
+      var params = _.assign(paramsConfig, paramsUrl);
+
+      mock.init(params);
+      self.log('Mock services initialized with params', params);
+    }
     initAuth();
   }
 

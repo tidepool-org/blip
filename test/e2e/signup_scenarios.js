@@ -3,8 +3,7 @@ var expect = require('salinity').expect;
 var helpers = require('../lib/e2ehelpers');
 
 describe('Signup', function() {
-  var driver = helpers.getDriver();
-  var openApp = helpers.openApp;
+  var openAppTo = helpers.openAppTo;
   var By = webdriver.By;
 
   var user;
@@ -19,8 +18,7 @@ describe('Signup', function() {
   });
 
   it('should create account with form filled out', function(done) {
-    openApp()
-      .then(goToSignupPage)
+    openAppToSignup()
       .then(fillOutForm)
       .then(submitForm)
       .then(function() {
@@ -33,8 +31,7 @@ describe('Signup', function() {
     // Username that already exists
     user.username = 'demo';
 
-    openApp()
-      .then(goToSignupPage)
+    openAppToSignup()
       .then(fillOutForm)
       .then(submitForm)
       .then(function() {
@@ -43,11 +40,8 @@ describe('Signup', function() {
       });
   });
 
-  function goToSignupPage() {
-    return helpers.findElement(By.css('.js-signup-link'))
-      .then(function(q) {
-        return q.click();
-      });
+  function openAppToSignup(qs) {
+    return openAppTo('/signup', qs);
   }
 
   function fillOutForm() {

@@ -69,7 +69,7 @@ var Patients = React.createClass({
       /* jshint ignore:start */
       return (
         <div className="patients-empty-list">
-          <a href="#/patients/new">
+          <a className="js-create-patient-profile" href="#/patients/new">
             <i className="icon-add"></i>
             {' ' + 'Create your patient profile'}
           </a>
@@ -99,7 +99,7 @@ var Patients = React.createClass({
     if (_.isEmpty(patients)) {
       /* jshint ignore:start */
       return (
-        <div className="patients-empty-list patients-empty-list-message">
+        <div className="patients-empty-list patients-empty-list-message js-patients-shared-empty">
           When someone adds you to their care team, it will appear here.
         </div>
       );

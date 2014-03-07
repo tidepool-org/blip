@@ -1,13 +1,12 @@
 var webdriver = require('selenium-webdriver');
 var expect = require('salinity').expect;
 var helpers = require('../lib/e2ehelpers');
+var _ = require('lodash');
 
 var testUser = require('../../data/sample/user.json');
 
 describe('Profile', function() {
-  var driver = helpers.getDriver();
-  var openApp = helpers.openApp;
-  var authenticate = helpers.authenticate;
+  var openAppTo = helpers.openAppTo;
   var By = webdriver.By;
 
   var user;
@@ -17,9 +16,7 @@ describe('Profile', function() {
   });
 
   it('should show user attribute values', function(done) {
-    openApp()
-      .then(authenticate)
-      .then(goToProfile)
+    openAppToProfile()
       .then(function() {
         expect('[name="firstName"]').dom.to.have.value(user.firstName);
         expect('[name="lastName"]').dom.to.have.value(user.lastName);
@@ -37,9 +34,7 @@ describe('Profile', function() {
       passwordConfirm: 'pw'
     };
 
-    openApp()
-      .then(authenticate)
-      .then(goToProfile)
+    openAppToProfile()
       .then(fillOutForm)
       .then(submitForm)
       .then(function() {
@@ -48,11 +43,10 @@ describe('Profile', function() {
       });
   });
 
-  function goToProfile() {
-    return helpers.findElement(By.css('.js-navbar-profile-link'))
-      .then(function(q) {
-        return q.click();
-      });
+  function openAppToProfile(qs) {
+    return openAppTo('/profile', _.assign({
+      'auth.skip': true
+    }, qs));
   }
 
   function fillOutForm() {

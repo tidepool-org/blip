@@ -25,6 +25,7 @@
     "jshint-stylish": "0.1.5",
     "lodash": "2.4.1",
     "mocha": "1.17.1",
+    "query-string": "0.2.0",
     "reactify": "0.8.1",
     "require-guard": "1.0.1",
     "run-sequence": "0.3.6",
