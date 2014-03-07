@@ -261,7 +261,6 @@ function chartDailyFactory(el, options, emitter) {
   };
 
   chart.getCurrentDay = function() {
-    log(chart.getCurrentDomain().center);
     return chart.getCurrentDomain().center;
   };
 

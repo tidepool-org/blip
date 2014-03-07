@@ -79,9 +79,9 @@ function chartWeeklyFactory(el, options, emitter) {
         .weight(1.0);
     });
 
-    chart.setAxes().setNav().setScrollNav();
-
     chart.arrangePools();
+
+    chart.setAxes().setNav().setScrollNav();
 
     var fillEndpoints = [new Date('2014-01-01T00:00:00Z'), new Date('2014-01-02T00:00:00Z')];
     var fillScale = d3.time.scale.utc()

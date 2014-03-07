@@ -42,8 +42,9 @@ module.exports = function(emitter) {
     statsHeight = 100,
     pools = [], poolGroup, days, daysGroup,
     xScale = d3.scale.linear(), xAxis, yScale = d3.time.scale.utc(), yAxis,
-    data, allData = [], endpoints, viewEndpoints, dataStartNoon, dataEndNoon, lessThanTwoWeeks = false,
-    sortReverse = false, viewIndex,
+    data, allData = [], endpoints, viewEndpoints, dataStartNoon, dataEndNoon, poolScaleHeight,
+    lessThanTwoWeeks = false,
+    sortReverse = true, viewIndex,
     mainGroup, scrollNav, scrollHandleTrigger = true;
 
   container.dataFill = {};
@@ -85,27 +86,47 @@ module.exports = function(emitter) {
     var cumWeight = weight * numPools;
     var totalPoolsHeight =
       container.height() - nav.axisHeight - statsHeight;
-    var poolScaleHeight = totalPoolsHeight/cumWeight;
+    poolScaleHeight = totalPoolsHeight/cumWeight;
     var actualPoolsHeight = 0;
     pools.forEach(function(pool) {
       pool.height(poolScaleHeight);
       actualPoolsHeight += pool.height();
       poolScaleHeight = pool.height();
     });
-    var currentYPosition = container.height() - statsHeight - poolScaleHeight;
-    var nextBatchYPosition = currentYPosition + poolScaleHeight;
-    for (var i = viewIndex; i < pools.length; i++) {
-      var pool = pools[i];
-      pool.yPosition(currentYPosition);
-      currentYPosition -= pool.height();
-      pool.group().attr('transform', 'translate(0,' + pool.yPosition() + ')');
+    var currentYPosition, nextBatchYPosition, pool;
+    if (sortReverse) {
+      currentYPosition = nav.axisHeight;
+      nextBatchYPosition = currentYPosition - poolScaleHeight;
+      for (var i = viewIndex; i >= 0; i--) {
+        pool = pools[i];
+        pool.yPosition(currentYPosition);
+        currentYPosition += pool.height();
+        pool.group().attr('transform', 'translate(0,' + pool.yPosition() + ')');
+      }
+      currentYPosition = nextBatchYPosition;
+      for (var j = viewIndex + 1; j < pools.length; j++) {
+        pool = pools[j];
+        pool.yPosition(currentYPosition);
+        currentYPosition -= pool.height();
+        pool.group().attr('transform', 'translate(0,' + pool.yPosition() + ')');
+      }
     }
-    currentYPosition = nextBatchYPosition;
-    for (var j = viewIndex - 1; j >= 0; j--) {
-      var pool = pools[j];
-      pool.yPosition(currentYPosition);
-      currentYPosition += pool.height();
-      pool.group().attr('transform', 'translate(0,' + pool.yPosition() + ')');
+    else {
+      currentYPosition = container.height() - statsHeight - poolScaleHeight;
+      nextBatchYPosition = currentYPosition + poolScaleHeight;
+      for (var k = viewIndex; k < pools.length; k++) {
+        pool = pools[k];
+        pool.yPosition(currentYPosition);
+        currentYPosition -= pool.height();
+        pool.group().attr('transform', 'translate(0,' + pool.yPosition() + ')');
+      }
+      currentYPosition = nextBatchYPosition;
+      for (var l = viewIndex - 1; l >= 0; l--) {
+        pool = pools[l];
+        pool.yPosition(currentYPosition);
+        currentYPosition += pool.height();
+        pool.group().attr('transform', 'translate(0,' + pool.yPosition() + ')');
+      }
     }
 
     // setup stats group
@@ -154,9 +175,20 @@ module.exports = function(emitter) {
       a = yScale.domain();
     }
     var monthDay = d3.time.format.utc('%B %-d');
-    var navString = monthDay(new Date(a[0].setUTCDate(a[0].getUTCDate() + 1))) + ' - ' + monthDay(a[1]);
+    var navString;
+    if (sortReverse) {
+      navString = monthDay(new Date(a[1].setUTCDate(a[1].getUTCDate() + 1))) + ' - ' + monthDay(a[0]);
+    }
+    else {
+      navString = monthDay(new Date(a[0].setUTCDate(a[0].getUTCDate() + 1))) + ' - ' + monthDay(a[1]);
+    }
     if (!d3.select('#' + id).classed('hidden')) {
-      emitter.emit('currentDomain', a);
+      if (sortReverse) {
+        emitter.emit('currentDomain', a.reverse());
+      }
+      else {
+        emitter.emit('currentDomain', a);
+      }
       emitter.emit('navigated', navString);
     }
   };
@@ -276,9 +308,18 @@ module.exports = function(emitter) {
       .attr('transform', 'translate(' + (axisGutter - 1) + ',0)')
       .call(yAxis);
 
-    nav.scrollScale = d3.time.scale.utc()
-      .domain([dataStartNoon, dataEndNoon])
-      .range([nav.axisHeight + nav.scrollThumbRadius, height - statsHeight - nav.scrollThumbRadius]);
+    if (sortReverse) {
+      var start = new Date(dataStartNoon);
+      start.setUTCDate(start.getUTCDate() - 1);
+      nav.scrollScale = d3.time.scale.utc()
+          .domain([dataEndNoon, start])
+          .range([nav.axisHeight + nav.scrollThumbRadius, height - statsHeight - nav.scrollThumbRadius]);
+    }
+    else {
+      nav.scrollScale = d3.time.scale.utc()
+        .domain([dataStartNoon, dataEndNoon])
+        .range([nav.axisHeight + nav.scrollThumbRadius, height - statsHeight - nav.scrollThumbRadius]);
+    }
 
     pools.forEach(function(pool) {
       pool.xScale(xScale.copy());
@@ -288,8 +329,15 @@ module.exports = function(emitter) {
   };
 
   container.setNav = function() {
-    var maxTranslation = -yScale(dataStartNoon) + yScale.range()[1] - (height - nav.axisHeight - statsHeight);
-    var minTranslation = -yScale(dataEndNoon) + yScale.range()[1] - (height - nav.axisHeight - statsHeight);
+    var maxTranslation, minTranslation;
+    if (sortReverse) {
+      maxTranslation = yScale(dataStartNoon) - yScale(dataEndNoon) + poolScaleHeight + (14 - (viewIndex + 1)) * poolScaleHeight;
+      minTranslation = (14 - (viewIndex + 1)) * poolScaleHeight;
+    }
+    else {
+      maxTranslation = -yScale(dataStartNoon) + nav.axisHeight;
+      minTranslation = -yScale(dataEndNoon) + nav.axisHeight;
+    }
     nav.scroll = d3.behavior.zoom()
       .scaleExtent([1, 1])
       .y(yScale)
@@ -309,7 +357,12 @@ module.exports = function(emitter) {
         container.navString(yScale.domain());
         if (scrollHandleTrigger) {
           mainGroup.select('#scrollThumb').transition().ease('linear').attr('y', function(d) {
-            d.y = nav.scrollScale(yScale.domain()[0]);
+            if (sortReverse) {
+              d.y = nav.scrollScale(yScale.domain()[1]);
+            }
+            else {
+              d.y = nav.scrollScale(yScale.domain()[0]);
+            }
             return d.y - nav.scrollThumbRadius;
           });
         }
@@ -326,27 +379,61 @@ module.exports = function(emitter) {
 
   container.setScrollNav = function() {
     if (!lessThanTwoWeeks) {
-      var translationAdjustment = yScale.range()[1] - (height - nav.axisHeight - statsHeight);
-      var xPos = nav.navGutter / 2;
+      var translationAdjustment, yStart, xPos;
+      if (sortReverse) {
+        yStart = nav.scrollScale(viewEndpoints[1]);
+        translationAdjustment = height - statsHeight;
 
-      scrollNav.append('rect')
-      .attr({
-        'x': 0,
-        'y': nav.scrollScale(dataStartNoon) - nav.scrollThumbRadius,
-        'width': nav.navGutter,
-        'height': height - nav.axisHeight,
-        'fill': 'white',
-        'id': 'scrollNavInvisibleRect'
-      });
-
-      scrollNav.attr('transform', 'translate(' + (width - nav.navGutter) + ',0)')
-        .append('line')
+        scrollNav.append('rect')
         .attr({
-          'x1': xPos,
-          'x2': xPos,
-          'y1': nav.scrollScale(dataStartNoon) - nav.scrollThumbRadius,
-          'y2': nav.scrollScale(dataEndNoon) + nav.scrollThumbRadius
+          'x': 0,
+          'y': nav.scrollScale(dataEndNoon) - nav.scrollThumbRadius,
+          'width': nav.navGutter,
+          'height': height - nav.axisHeight,
+          'fill': 'white',
+          'id': 'scrollNavInvisibleRect'
         });
+
+        xPos = nav.navGutter / 2;
+
+
+        var start = new Date(dataStartNoon);
+        start.setUTCDate(start.getUTCDate() - 1);
+
+        scrollNav.attr('transform', 'translate(' + (width - nav.navGutter) + ',0)')
+          .append('line')
+          .attr({
+            'x1': xPos,
+            'x2': xPos,
+            'y1': nav.scrollScale(dataEndNoon) - nav.scrollThumbRadius,
+            'y2': nav.scrollScale(start) + nav.scrollThumbRadius
+          });
+      }
+      else {
+        yStart = nav.scrollScale(viewEndpoints[0]);
+        translationAdjustment = nav.axisHeight;
+
+        scrollNav.append('rect')
+        .attr({
+          'x': 0,
+          'y': nav.scrollScale(dataStartNoon) - nav.scrollThumbRadius,
+          'width': nav.navGutter,
+          'height': height - nav.axisHeight,
+          'fill': 'white',
+          'id': 'scrollNavInvisibleRect'
+        });
+
+        xPos = nav.navGutter / 2;
+
+        scrollNav.attr('transform', 'translate(' + (width - nav.navGutter) + ',0)')
+          .append('line')
+          .attr({
+            'x1': xPos,
+            'x2': xPos,
+            'y1': nav.scrollScale(dataStartNoon) - nav.scrollThumbRadius,
+            'y2': nav.scrollScale(dataEndNoon) + nav.scrollThumbRadius
+          });
+      }
 
       var dyLowest = nav.scrollScale.range()[1];
       var dyHighest = nav.scrollScale.range()[0];
@@ -375,13 +462,15 @@ module.exports = function(emitter) {
         });
 
       scrollNav.selectAll('image')
-        .data([{'x': 0, 'y': nav.scrollScale(viewEndpoints[0])}])
+        .data([{'x': 0, 'y': yStart}])
         .enter()
         .append('image')
         .attr({
           'xlink:href': imagesBaseUrl + '/ux/scroll_thumb.svg',
           'x': xPos - nav.scrollThumbRadius,
-          'y': function(d) { return d.y - nav.scrollThumbRadius; },
+          'y': function(d) {
+            return d.y - nav.scrollThumbRadius;
+          },
           'width': 2 * nav.scrollThumbRadius,
           'height': 2 * nav.scrollThumbRadius,
           'id': 'scrollThumb'
@@ -476,7 +565,9 @@ module.exports = function(emitter) {
     dataStartNoon.setUTCHours(12);
     dataStartNoon.setUTCMinutes(0);
     dataStartNoon.setUTCSeconds(0);
-    dataStartNoon.setUTCDate(dataStartNoon.getUTCDate() - 1);
+    if (!sortReverse) {
+      dataStartNoon.setUTCDate(dataStartNoon.getUTCDate() - 1);
+    }
 
     var noon = '12:00:00Z';
 
@@ -490,29 +581,32 @@ module.exports = function(emitter) {
       viewEndDate = new Date(viewEndDate);
     }
 
-    var viewBeginning;
+    var viewBeginning = new Date(viewEndDate);
+    viewBeginning.setUTCDate(viewBeginning.getUTCDate() - 14);
+    var firstDayInView;
 
     if (sortReverse) {
       this.days = days;
 
-      viewBeginning = new Date(viewEndDate);
-
+      firstDayInView = new Date(days[0]);
     }
     else {
       this.days = days.reverse();
 
-      viewBeginning = new Date(viewEndDate);
-      viewBeginning.setUTCDate(viewBeginning.getUTCDate() - 14);
-      var firstDayInView = new Date(days[days.length - 1]);
-      if (viewBeginning < firstDayInView) {
-        firstDayInView.setUTCDate(firstDayInView.getUTCDate() - 1);
-        viewBeginning = new Date(firstDayInView);
-        viewEndDate = new Date(firstDayInView);
-        viewEndDate.setUTCDate(viewEndDate.getUTCDate() + 14);
-      }
-      viewEndpoints = [new Date(viewBeginning.toISOString().slice(0,11) + noon), new Date(viewEndDate.toISOString().slice(0,11) + noon)];
-      viewIndex = days.indexOf(viewEndDate.toISOString().slice(0,10));
+      firstDayInView = new Date(days[days.length - 1]);
     }
+
+    if (viewBeginning < firstDayInView) {
+      firstDayInView.setUTCDate(firstDayInView.getUTCDate() - 1);
+      viewBeginning = new Date(firstDayInView);
+      viewEndDate = new Date(firstDayInView);
+      viewEndDate.setUTCDate(viewEndDate.getUTCDate() + 14);
+    }
+    viewEndpoints = [new Date(viewBeginning.toISOString().slice(0,11) + noon), new Date(viewEndDate.toISOString().slice(0,11) + noon)];
+    if (sortReverse) {
+      viewEndpoints = viewEndpoints.reverse();
+    }
+    viewIndex = days.indexOf(viewEndDate.toISOString().slice(0,10));
 
     container.dataPerDay = [];
 
