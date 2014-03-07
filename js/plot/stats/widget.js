@@ -71,16 +71,21 @@ module.exports = function(pool, opts) {
     widgetGroup.attr({
       'transform': 'translate(' + opts.xPosition + ',' + opts.yPosition + ')'
     });
-    // create basal-to-bolus ratio puddle
-    stats.newPuddle('Ratio', 'Basal : Bolus', 'Basal to bolus insulin ratio', 1.0, true);
-    // create time-in-range puddle
-    stats.newPuddle('Range', 'Time in Target Range', 'Target range: 80 - 180 mg/dL', 1.2, true);
-    // create average BG puddle
     if (opts.oneDay) {
+      // create basal-to-bolus ratio puddle
+      stats.newPuddle('Ratio', 'Basal : Bolus', 'Basal to bolus insulin ratio', 1.0, true);
+      // create time-in-range puddle
+      stats.newPuddle('Range', 'Time in Target Range', 'Target range: 80 - 180 mg/dL', 1.2, true);
+      // create average BG puddle
       stats.newPuddle('Average', 'Average BG', 'This day', 0.9, false);
     }
     else {
-      stats.newPuddle('Average', 'Average BG', 'These two weeks', 0.9, false);
+      // create basal-to-bolus ratio puddle
+      stats.newPuddle('Ratio', 'Basal : Bolus', 'Basal to bolus insulin ratio', 1.1, true);
+      // create time-in-range puddle
+      stats.newPuddle('Range', 'Time in Target Range', 'Target range: 80 - 180 mg/dL', 1.2, true);
+      // create average BG puddle
+      stats.newPuddle('Average', 'Average BG', 'These two weeks', 1.0, false);
     }
     stats.arrangePuddles();
   });
