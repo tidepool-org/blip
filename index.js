@@ -212,6 +212,61 @@ module.exports = function(host, superagent) {
         }
       });
     },
+    addOrUpdateProfile : function(user, token, cb){
+      if (user.fullname == null) {
+        return cb({ message: 'Must specify an fullname' });
+      }
+      if (user.shortname == null) {
+        return cb({ message: 'Must specify an shortname' });
+      }
+      if (user.id == null) {
+        return cb({ message: 'Must specify an id' });
+      }
+
+      var userProfile = _.assign({}, _.pick(user, 'fullname', 'shortname', 'publicbio'));
+
+      superagent
+      .put(makeUrl('/metadata/' + user.id + '/profile'))
+      .set(sessionTokenHeader, token)
+      .send(userProfile)
+      .end(
+      function(err, res){
+        if (err != null) {
+          return cb(err);
+        }
+
+        if (res.status === 200) {
+          cb(null,true);
+        } else if (res.status === 401) {
+          cb({ message: 'Unauthorized' });
+        } else {
+          cb({ message: 'Unknown response code ' + res.status });
+        }
+      });
+    },
+    findProfile : function(userId, token, cb){
+      if (userId == null) {
+        return cb({ message: 'Must specify a userId' });
+      }
+
+      superagent
+      .get(makeUrl('/metadata/' + userId + '/profile'))
+      .set(sessionTokenHeader, token)
+      .end(
+      function(err, res){
+        if (err != null) {
+          return cb(err);
+        }
+
+        if (res.status === 200) {
+          cb(null,res.body);
+        } else if (res.status === 401) {
+          cb({ message: 'Unauthorized' });
+        } else {
+          cb({ message: 'Unknown response code ' + res.status });
+        }
+      });
+    },
     refreshUserToken : function(token,newUserid,cb){
       superagent.get(makeUrl('/auth/login'))
         .set(sessionTokenHeader, token)

@@ -26,7 +26,10 @@ describe('platform client', function() {
     token: null,
     username : 'fake',
     password : 'fak3U53r',
-    emails :['fake@user.com']
+    emails :['fake@user.com'],
+    fullname : 'Jamie T1d',
+    shortname : 'Jamie',
+    publicbio : 'To live is the rarest thing in the world. Most people exist, that is all.'
   };
 
   var careTeamMember = {
@@ -34,7 +37,10 @@ describe('platform client', function() {
     token : null ,
     username : 'dr fake',
     password : 'fak3U53r',
-    emails :['dr.fake@user.com']
+    emails :['dr.fake@user.com'],
+    fullname : 'Dr Doogie Howser ',
+    shortname : 'Doogie',
+    publicbio : 'A teenage physician who also faces the problems of being a normal teenager'
   };
 
   var createUser=function(userToAdd,cb){
@@ -60,7 +66,7 @@ describe('platform client', function() {
 
   before(function(done){
     this.timeout(5000);
-    platform = require('../index')('https://devel-api.tidepool.io',superagent);
+    platform = require('../index')('http://localhost:8009',superagent);
 
     createUser(mrT1,function(error,data){
       if(error){
@@ -85,6 +91,54 @@ describe('platform client', function() {
       expect(data).to.exist;
       done();
     });
+  });
+
+  describe('sets up the profiles',function(){
+
+    it('for mrT1', function(done) {
+      this.timeout(5000);
+      platform.addOrUpdateProfile(mrT1, mrT1.token, function(error,added){
+        expect(error).to.not.exist;
+        expect(added).to.be.true;
+        done();
+      });
+    });
+
+    it('for mrT1 we can get the profile', function(done) {
+      this.timeout(5000);
+      platform.findProfile(mrT1.id, mrT1.token, function(error,profile){
+        expect(error).to.not.exist;
+        expect(profile).to.be.exist;
+
+        expect(profile.fullname).to.equal(mrT1.fullname);
+        expect(profile.shortname).to.equal(mrT1.shortname);
+        expect(profile.publicbio).to.equal(mrT1.publicbio);
+        done();
+      });
+    });
+
+    it('for careTeamMember', function(done) {
+      this.timeout(5000);
+      platform.addOrUpdateProfile(careTeamMember, careTeamMember.token, function(error,added){
+        expect(error).to.not.exist;
+        expect(added).to.be.true;
+        done();
+      });
+    });
+
+    it('for careTeamMember we can get the profile', function(done) {
+      this.timeout(5000);
+      platform.findProfile(careTeamMember.id, careTeamMember.token, function(error,profile){
+        expect(error).to.not.exist;
+        expect(profile).to.be.exist;
+
+        expect(profile.fullname).to.equal(careTeamMember.fullname);
+        expect(profile.shortname).to.equal(careTeamMember.shortname);
+        expect(profile.publicbio).to.equal(careTeamMember.publicbio);
+        done();
+      });
+    });
+
   });
 
   describe('get the team for mrT1',function(){
@@ -197,7 +251,7 @@ describe('platform client', function() {
 
         for (var i = data.length - 1; i >= 0; i--) {
           expect(data[i].parentmessage).to.not.exist;
-        };
+        }
 
         done();
       });
