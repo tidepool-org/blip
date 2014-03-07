@@ -517,6 +517,14 @@ module.exports = function(emitter) {
     return container;
   };
 
+  container.sortReverse = function(b) {
+    if (!arguments.length) return sortReverse;
+    if (b === (true || false)) {
+      sortReverse = b;
+    }
+    return container;
+  };
+
   // data getters and setters
   container.data = function(a, viewEndDate) {
     if (!arguments.length) return data;
