@@ -16,6 +16,7 @@
 
 var React = window.React;
 var _ = window._;
+var moment = window.moment;
 var config = window.config;
 
 var ChartDaily = require('../../components/chartdaily');
@@ -31,6 +32,8 @@ var PatientData = React.createClass({
   },
 
   DEFAULT_TITLE: 'Patient data',
+  CHARTDAILY_TITLE_DATE_FORMAT: 'dddd, MMMM Do',
+  CHARTWEEKLY_TITLE_DATE_FORMAT: 'MMMM Do',
 
   getInitialState: function() {
     return {
@@ -335,8 +338,39 @@ var PatientData = React.createClass({
     this.refs.chart.panForward();
   },
 
-  handleDatetimeLocationChange: function(datetimeLocationString) {
-    this.setState({title: datetimeLocationString});
+  handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
+    var d = datetimeLocationEndpoints;
+    var title = this.state.title;
+    var datetimeLocation = this.state.datetimeLocation;
+
+    if (d && d.length >= 1 && this.state.chartType === 'daily') {
+      title = this.getTitleDaily(d);
+      datetimeLocation = d[0];
+    }
+    else if (d && d.length >= 2 && this.state.chartType === 'weekly') {
+      title = this.getTitleWeekly(d);
+      datetimeLocation = d[1];
+    }
+    else {
+      throw new Error('Expected an array of datetime locations');
+    }
+
+    this.setState({
+      title: title,
+      datetimeLocation: datetimeLocation
+    });
+  },
+
+  getTitleDaily: function(datetimeLocationEndpoints) {
+    var d = datetimeLocationEndpoints;
+    return moment.utc(d[0]).format(this.CHARTDAILY_TITLE_DATE_FORMAT);
+  },
+
+  getTitleWeekly: function(datetimeLocationEndpoints) {
+    var d = datetimeLocationEndpoints;
+    var start = moment.utc(d[0]).format(this.CHARTWEEKLY_TITLE_DATE_FORMAT);
+    var end = moment.utc(d[1]).format(this.CHARTWEEKLY_TITLE_DATE_FORMAT);
+    return start + ' - ' + end;
   },
 
   handleWeeklySelectDataPoint: function(datetimeLocation) {
