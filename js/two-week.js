@@ -174,22 +174,16 @@ module.exports = function(emitter) {
     if (!arguments.length) {
       a = yScale.domain();
     }
-    var monthDay = d3.time.format.utc('%B %-d');
-    var navString;
     if (sortReverse) {
-      navString = monthDay(new Date(a[1].setUTCDate(a[1].getUTCDate() + 1))) + ' - ' + monthDay(a[0]);
+      a.reverse();
+      a[0].setUTCDate(a[0].getUTCDate() + 1);
     }
     else {
-      navString = monthDay(new Date(a[0].setUTCDate(a[0].getUTCDate() + 1))) + ' - ' + monthDay(a[1]);
+      a[0].setUTCDate(a[0].getUTCDate() + 1);
     }
     if (!d3.select('#' + id).classed('hidden')) {
-      if (sortReverse) {
-        emitter.emit('currentDomain', a.reverse());
-      }
-      else {
-        emitter.emit('currentDomain', a);
-      }
-      emitter.emit('navigated', navString);
+      emitter.emit('currentDomain', a);
+      emitter.emit('navigated', [a[0].toISOString(), a[1].toISOString()]);
     }
   };
 
