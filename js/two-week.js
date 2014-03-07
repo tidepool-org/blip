@@ -154,7 +154,8 @@ module.exports = function(emitter) {
     }
     if (!d3.select('#' + id).classed('hidden')) {
       emitter.emit('currentDomain', a);
-      emitter.emit('navigated', [a[0].toISOString(), a[1].toISOString()]);
+      var beginning = new Date(a[0].setUTCDate(a[0].getUTCDate() + 1));
+      emitter.emit('navigated', [beginning.toISOString(), a[1].toISOString()]);
     }
   };
 
