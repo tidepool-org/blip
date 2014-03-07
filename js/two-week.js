@@ -42,7 +42,8 @@ module.exports = function(emitter) {
     statsHeight = 100,
     pools = [], poolGroup, days, daysGroup,
     xScale = d3.scale.linear(), xAxis, yScale = d3.time.scale.utc(), yAxis,
-    data, allData = [], endpoints, viewEndpoints, dataStartNoon, dataEndNoon, lessThanTwoWeeks = false, viewIndex,
+    data, allData = [], endpoints, viewEndpoints, dataStartNoon, dataEndNoon, lessThanTwoWeeks = false,
+    sortReverse = false, viewIndex,
     mainGroup, scrollNav, scrollHandleTrigger = true;
 
   container.dataFill = {};
@@ -471,8 +472,6 @@ module.exports = function(emitter) {
       lessThanTwoWeeks = true;
     }
 
-    this.days = days.reverse();
-
     dataStartNoon = new Date(first);
     dataStartNoon.setUTCHours(12);
     dataStartNoon.setUTCMinutes(0);
@@ -491,17 +490,29 @@ module.exports = function(emitter) {
       viewEndDate = new Date(viewEndDate);
     }
 
-    var viewBeginning = new Date(viewEndDate);
-    viewBeginning.setUTCDate(viewBeginning.getUTCDate() - 14);
-    var firstDayInView = new Date(days[days.length - 1]);
-    if (viewBeginning < firstDayInView) {
-      firstDayInView.setUTCDate(firstDayInView.getUTCDate() - 1);
-      viewBeginning = new Date(firstDayInView);
-      viewEndDate = new Date(firstDayInView);
-      viewEndDate.setUTCDate(viewEndDate.getUTCDate() + 14);
+    var viewBeginning;
+
+    if (sortReverse) {
+      this.days = days;
+
+      viewBeginning = new Date(viewEndDate);
+
     }
-    viewEndpoints = [new Date(viewBeginning.toISOString().slice(0,11) + noon), new Date(viewEndDate.toISOString().slice(0,11) + noon)];
-    viewIndex = days.indexOf(viewEndDate.toISOString().slice(0,10));
+    else {
+      this.days = days.reverse();
+
+      viewBeginning = new Date(viewEndDate);
+      viewBeginning.setUTCDate(viewBeginning.getUTCDate() - 14);
+      var firstDayInView = new Date(days[days.length - 1]);
+      if (viewBeginning < firstDayInView) {
+        firstDayInView.setUTCDate(firstDayInView.getUTCDate() - 1);
+        viewBeginning = new Date(firstDayInView);
+        viewEndDate = new Date(firstDayInView);
+        viewEndDate.setUTCDate(viewEndDate.getUTCDate() + 14);
+      }
+      viewEndpoints = [new Date(viewBeginning.toISOString().slice(0,11) + noon), new Date(viewEndDate.toISOString().slice(0,11) + noon)];
+      viewIndex = days.indexOf(viewEndDate.toISOString().slice(0,10));
+    }
 
     container.dataPerDay = [];
 
