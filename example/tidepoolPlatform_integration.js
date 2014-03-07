@@ -66,7 +66,7 @@ describe('platform client', function() {
 
   before(function(done){
     this.timeout(5000);
-    platform = require('../index')('http://localhost:8009',superagent);
+    platform = require('../index')('https://devel-api.tidepool.io',superagent);
 
     createUser(mrT1,function(error,data){
       if(error){
