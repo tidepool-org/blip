@@ -68,21 +68,21 @@ module.exports = function(pool, opts) {
 
       // TODO: remove this when we have guaranteed unique IDs for each basal rate segment again
       currentData.forEach(function(d) {
-        if ((d.id.search('_actual') === -1) && (d.id.search('_undelivered') === -1)) {
-          d.id = d.id + '_' + d.start.replace(/:/g, '') + '_' + d.vizType;
+        if ((d._id.search('_actual') === -1) && (d._id.search('_undelivered') === -1)) {
+          d._id = d._id + '_' + d.start.replace(/:/g, '') + '_' + d.vizType;
         }
       });
 
       var rects = d3.select(this)
         .selectAll('g')
         .data(currentData, function(d) {
-          return d.id;
+          return d._id;
         });
       var rectGroups = rects.enter()
         .append('g')
         .attr('class', 'd3-basal-group')
         .attr('id', function(d) {
-          return 'basal_group_' + d.id;
+          return 'basal_group_' + d._id;
         });
       rectGroups.filter(function(d){
         if (d.vizType === 'actual') {
@@ -124,7 +124,7 @@ module.exports = function(pool, opts) {
             return classes;
           },
           'id': function(d) {
-            return 'basal_' + d.id;
+            return 'basal_' + d._id;
           }
         });
       rectGroups.filter(function(d) {
@@ -153,7 +153,7 @@ module.exports = function(pool, opts) {
             }
           },
           'id': function(d) {
-            return 'basal_invisible_' + d.id;
+            return 'basal_invisible_' + d._id;
           }
         });
       rectGroups.filter(function(d) {
@@ -255,8 +255,8 @@ module.exports = function(pool, opts) {
         var id = invisiRect.attr('id').replace('basal_invisible_', '');
         var d = d3.select('#basal_group_' + id).datum();
         if (invisiRect.classed('d3-basal-temp')) {
-          var tempD = _.clone(_.findWhere(actual, {'deliveryType': 'temp', 'id': d.link.replace('link_', '')}));
-          tempD.id = d.id;
+          var tempD = _.clone(_.findWhere(actual, {'deliveryType': 'temp', '_id': d.link.replace('link_', '')}));
+          tempD._id = d._id;
           basal.addTooltip(tempD, 'temp', d);
         }
         else {
@@ -302,12 +302,12 @@ module.exports = function(pool, opts) {
         var endIndex = referenceArray.indexOf(end);
         var index = startIndex;
         while (index <= endIndex) {
-          referenceArray[index].link = 'link_' + segment.id;
+          referenceArray[index].link = 'link_' + segment._id;
           index++;
         }
       }
       else {
-        referenceArray[startIndex].link = 'link_' + segment.id;
+        referenceArray[startIndex].link = 'link_' + segment._id;
       }
     });
   };
@@ -423,7 +423,7 @@ module.exports = function(pool, opts) {
         }()),
         basal.timespan(d));
     if (category === 'temp') {
-      d3.select('#tooltip_' + d.id).select('.d3-tooltip-text-group').append('text')
+      d3.select('#tooltip_' + d._id).select('.d3-tooltip-text-group').append('text')
         .attr({
           'class': 'd3-tooltip-text d3-basal',
           'x': opts.xScale(Date.parse(d.normalTime)) + basal.width(d) / 2,

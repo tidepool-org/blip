@@ -66,7 +66,7 @@ module.exports = function(pool, opts) {
       }
     });
     if (b) {
-      d3.select('#tooltip_' + b.id).remove();
+      d3.select('#tooltip_' + b._id).remove();
       opts.emitter.emit('noCarbTimestamp', false);
     }
   });
@@ -77,7 +77,7 @@ module.exports = function(pool, opts) {
       var boluses = d3.select(this)
         .selectAll('g')
         .data(currentData, function(d) {
-          return d.id;
+          return d._id;
         });
       var bolusGroups = boluses.enter()
         .append('g')
@@ -100,7 +100,7 @@ module.exports = function(pool, opts) {
           },
           'class': 'd3-rect-bolus d3-bolus',
           'id': function(d) {
-            return 'bolus_' + d.id;
+            return 'bolus_' + d._id;
           }
         });
       // boluses where recommendation and delivery differ
@@ -125,7 +125,7 @@ module.exports = function(pool, opts) {
           },
           'class': 'd3-rect-recommended d3-bolus',
           'id': function(d) {
-            return 'bolus_' + d.id;
+            return 'bolus_' + d._id;
           }
         });
       // boluses where delivered > recommended
@@ -149,7 +149,7 @@ module.exports = function(pool, opts) {
           'stroke-width': opts.bolusStroke,
           'class': 'd3-rect-recommended d3-bolus',
           'id': function(d) {
-            return 'bolus_' + d.id;
+            return 'bolus_' + d._id;
           }
         });
       override.append('path')
@@ -163,7 +163,7 @@ module.exports = function(pool, opts) {
           'stroke-width': opts.bolusStroke,
           'class': 'd3-path-bolus d3-bolus',
           'id': function(d) {
-            return 'bolus_' + d.id;
+            return 'bolus_' + d._id;
           }
         });
       // square- and dual-wave boluses
@@ -183,7 +183,7 @@ module.exports = function(pool, opts) {
           'stroke-width': opts.bolusStroke,
           'class': 'd3-path-extended d3-bolus',
           'id': function(d) {
-            return 'bolus_' + d.id;
+            return 'bolus_' + d._id;
           }
         });
       extendedBoluses.append('path')
@@ -196,7 +196,7 @@ module.exports = function(pool, opts) {
           'stroke-width': opts.bolusStroke,
           'class': 'd3-path-extended-triangle d3-bolus',
           'id': function(d) {
-            return 'bolus_' + d.id;
+            return 'bolus_' + d._id;
           }
         });
       boluses.exit().remove();
@@ -211,7 +211,7 @@ module.exports = function(pool, opts) {
       d3.selectAll('.d3-rect-bolus, .d3-rect-recommended').on('mouseout', function() {
         var d = _.clone(d3.select(this).datum());
         var t = Date.parse(d.normalTime);
-        d3.select('#tooltip_' + d.id).remove();
+        d3.select('#tooltip_' + d._id).remove();
         opts.emitter.emit('bolusTooltipOff', t);
       });
     });
@@ -282,7 +282,7 @@ module.exports = function(pool, opts) {
       );
 
     if (category === 'two-line') {
-      d3.select('#tooltip_' + d.id).select('.d3-tooltip-text-group').append('text')
+      d3.select('#tooltip_' + d._id).select('.d3-tooltip-text-group').append('text')
         .attr({
           'class': 'd3-tooltip-text d3-bolus',
           'x': opts.xScale(Date.parse(d.normalTime)) + tooltipWidth / 2,
@@ -300,7 +300,7 @@ module.exports = function(pool, opts) {
         .attr('class', 'd3-bolus');
     }
     else if (category === 'three-line') {
-      d3.select('#tooltip_' + d.id).select('.d3-tooltip-text-group').append('text')
+      d3.select('#tooltip_' + d._id).select('.d3-tooltip-text-group').append('text')
         .attr({
           'class': 'd3-tooltip-text d3-bolus',
           'x': opts.xScale(Date.parse(d.normalTime)) + tooltipWidth / 2,
@@ -312,7 +312,7 @@ module.exports = function(pool, opts) {
         })
         .attr('class', 'd3-bolus');
 
-      d3.select('#tooltip_' + d.id).select('.d3-tooltip-text-group').append('text')
+      d3.select('#tooltip_' + d._id).select('.d3-tooltip-text-group').append('text')
         .attr({
           'class': 'd3-tooltip-text d3-bolus',
           'x': opts.xScale(Date.parse(d.normalTime)) + tooltipWidth / 2,

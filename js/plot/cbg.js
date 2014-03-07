@@ -40,7 +40,7 @@ module.exports = function(pool, opts) {
     selection.each(function(currentData) {
       var allCBG = d3.select(this).selectAll('circle')
         .data(currentData, function(d) {
-          return d.id;
+          return d._id;
         });
       var cbgGroups = allCBG.enter()
         .append('circle')
@@ -69,7 +69,7 @@ module.exports = function(pool, opts) {
           },
           'r': 2.5,
           'id': function(d) {
-            return 'cbg_' + d.id;
+            return 'cbg_' + d._id;
           }
         })
         .datum(function(d) {
@@ -85,7 +85,7 @@ module.exports = function(pool, opts) {
           },
           'r': 2.5,
           'id': function(d) {
-            return 'cbg_' + d.id;
+            return 'cbg_' + d._id;
           }
         })
         .classed({'d3-circle-cbg': true, 'd3-bg-target': true});
@@ -98,7 +98,7 @@ module.exports = function(pool, opts) {
           },
           'r': 2.5,
           'id': function(d) {
-            return 'cbg_' + d.id;
+            return 'cbg_' + d._id;
           }
         })
         .classed({'d3-circle-cbg': true, 'd3-bg-high': true});

@@ -58,7 +58,7 @@ module.exports = function(pool, opts) {
       }
     });
     if (c) {
-      d3.select('#tooltip_' + c.id).remove();
+      d3.select('#tooltip_' + c._id).remove();
     }
   });
 
@@ -77,7 +77,7 @@ module.exports = function(pool, opts) {
       var rects = d3.select(this)
         .selectAll('rect')
         .data(currentData, function(d) {
-          return d.id;
+          return d._id;
         });
       rects.enter()
         .append('rect')
@@ -92,7 +92,7 @@ module.exports = function(pool, opts) {
           },
           'class': 'd3-rect-carbs d3-carbs',
           'id': function(d) {
-            return 'carbs_' + d.id;
+            return 'carbs_' + d._id;
           }
         });
       rects.exit().remove();
@@ -107,7 +107,7 @@ module.exports = function(pool, opts) {
       d3.selectAll('.d3-rect-carbs').on('mouseout', function() {
         var d = d3.select(this).datum();
         var t = Date.parse(d.normalTime);
-        d3.select('#tooltip_' + d.id).remove();
+        d3.select('#tooltip_' + d._id).remove();
         opts.emitter.emit('carbTooltipOff', t);
       });
     });
