@@ -36,7 +36,7 @@ module.exports = function(container, tooltipsGroup) {
     customText, tspan) {
     var tooltipGroup = selection.append('g')
       .attr('class', 'd3-tooltip')
-      .attr('id', 'tooltip_' + d.id);
+      .attr('id', 'tooltip_' + d._id);
 
     var imagesBaseUrl = container.imagesBaseUrl();
 

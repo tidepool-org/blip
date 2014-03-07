@@ -51,7 +51,7 @@ function SMBGTime (opts) {
         var circles = d3.select(this)
           .selectAll('g')
           .data(currentData, function(d) {
-            return d.id;
+            return d._id;
           });
 
         var circleGroups = circles.enter()
@@ -92,7 +92,7 @@ function SMBGTime (opts) {
             'width': opts.size,
             'height': opts.size,
             'id': function(d) {
-              return 'smbg_time_' + d.id;
+              return 'smbg_time_' + d._id;
             },
             'class': function(d) {
               if (d.value <= opts.classes.low.boundary) {
