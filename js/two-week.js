@@ -341,7 +341,11 @@ module.exports = function(emitter) {
       .range([nav.axisHeight, height - statsHeight])
       .ticks(d3.time.day.utc, 1);
 
-    yAxis = d3.svg.axis().scale(yScale).orient('left').outerTickSize(0).tickFormat(d3.time.format.utc('%a %-d'));
+    yAxis = d3.svg.axis().scale(yScale)
+      .orient('left')
+      .outerTickSize(0)
+      .innerTickSize(15)
+      .tickFormat(d3.time.format.utc('%a %-d'));
 
     mainGroup.select('#tidelineYAxisGroup')
       .append('g')
@@ -349,6 +353,9 @@ module.exports = function(emitter) {
       .attr('id', 'tidelineYAxis')
       .attr('transform', 'translate(' + (axisGutter - 1) + ',0)')
       .call(yAxis);
+
+    mainGroup.selectAll('.d3-day-axis').selectAll('.tick').selectAll('line')
+      .attr('transform', 'translate(0,' + -(poolScaleHeight/2) + ')');
 
     if (sortReverse) {
       var start = new Date(dataStartNoon);
@@ -393,6 +400,8 @@ module.exports = function(emitter) {
         }
         nav.scroll.translate([0, e.translate[1]]);
         mainGroup.select('.d3-y.d3-axis').call(yAxis);
+        mainGroup.selectAll('.d3-day-axis').selectAll('.tick').selectAll('line')
+          .attr('transform', 'translate(0,' + -(poolScaleHeight/2) + ')');
         for (var i = 0; i < pools.length; i++) {
           pools[i].scroll(e);
         }
