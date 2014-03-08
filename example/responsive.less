@@ -1,0 +1,120 @@
+/* 
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+// Typography
+// ====================================
+
+@font-family-base:       "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+@font-size-base:         16px;
+@line-height-base:       20px;
+
+// e.g., navbar
+@labels: #989897;
+
+@import url(http://fonts.googleapis.com/css?family=Open+Sans);
+
+@import '../css/tideline.less';
+
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Open Sans'), local('OpenSans'), url('../fonts/opensans.woff') format('woff');
+}
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Open Sans Bold'), local('OpenSans-Bold'), url('../fonts/opensans-bold.woff') format('woff');
+}
+@font-face {
+  font-family: 'Open Sans';
+  font-style: italic;
+  font-weight: 400;
+  src: local('Open Sans Italic'), local('OpenSans-Italic'), url('../fonts/opensans-italic.woff') format('woff');
+}
+@font-face {
+  font-family: 'Open Sans';
+  font-style: italic;
+  font-weight: 700;
+  src: local('Open Sans Bold Italic'), local('OpenSans-BoldItalic'), url('../fonts/opensans-bolditalic.woff') format('woff');
+}
+
+.container {
+  min-width: 70vw;
+}
+
+#tideline {
+  background-color: white;
+  font-family: @font-family-base;
+  font-size: @font-size-base;
+
+  .one-day {
+    visibility: visible;
+  }
+  .two-week {
+    visibility: hidden;
+  }
+
+  .tidelineNav {
+    background-color: @labels;
+
+    .tidelineNavLabelWrapper {
+      min-width: 220px;
+      display: inline-block;
+    }
+
+    .tidelineNavLabel {
+      font-family: 'Open Sans';
+      font-size: 16px;
+      font-weight: normal;
+      color: white;
+
+      &.active {
+        font-weight: bold;
+      }
+      a {
+        color: white;
+        text-decoration: none;
+      }
+    }
+
+    .tidelineNavRightLabel {
+      text-align: right !important;
+    }
+
+    .tidelineSpacer {
+      display: inline-block;
+      width: 8px;
+    }
+
+    #tidelineLabel {
+      text-align: center;
+
+      img {
+        display: inline-block;
+        vertical-align: middle;
+        width: 32px;
+      }
+    }
+  }
+}
+
+#tidelineContainer {
+  margin: 0 auto;
+  height: 80vh;
+}
