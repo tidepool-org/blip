@@ -37,7 +37,7 @@ module.exports = function(pool, opts) {
         .selectAll('image')
         .data(currentData, function(d) {
           if (d.parentMessage === '') {
-            return d.id;
+            return d._id;
           }
         });
       messages.enter()
@@ -51,7 +51,7 @@ module.exports = function(pool, opts) {
           'width': opts.size,
           'height': opts.size,
           'id': function(d) {
-            return 'message_' + d.id;
+            return 'message_' + d._id;
           }
         })
         .classed({'d3-image': true, 'd3-message': true});
