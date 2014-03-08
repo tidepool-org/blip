@@ -60,9 +60,6 @@ var imagesBaseUrl = '../img';
 var watson = require('./watson');
 
 var oneDay = chartDailyFactory(el, {imagesBaseUrl: imagesBaseUrl}, emitter).setupPools();
-// attach click handlers to set up programmatic pan
-$('#tidelineNavForward').on('click', oneDay.panForward);
-$('#tidelineNavBack').on('click', oneDay.panBack);
 
 var twoWeek = chartWeeklyFactory(el, {imagesBaseUrl: imagesBaseUrl}, emitter);
 
@@ -84,6 +81,9 @@ d3.json('data/device-data.json', function(data) {
 
   log('Initial one-day view.');
   oneDay.load(data).locate('2014-03-06T09:00:00');
+  // attach click handlers to set up programmatic pan
+  $('#tidelineNavForward').on('click', oneDay.panForward);
+  $('#tidelineNavBack').on('click', oneDay.panBack);
 
   $('#twoWeekView').on('click', function() {
     log('Navigated to two-week view from nav bar.');
@@ -95,6 +95,11 @@ d3.json('data/device-data.json', function(data) {
     $('#oneDayView').parent().removeClass('active');
     $('.one-day').css('visibility', 'hidden');
     $('.two-week').css('visibility', 'visible');
+
+    $('.tideline-nav').off('click');
+    // attach click handlers to set up programmatic pan
+    $('#tidelineNavForward').on('click', twoWeek.panForward);
+    $('#tidelineNavBack').on('click', twoWeek.panBack);
     
     // takes user to two-week view with day user was viewing in one-day view at the end of the two-week view window
     twoWeek.show().load(data, date);
@@ -103,6 +108,11 @@ d3.json('data/device-data.json', function(data) {
   $('#oneDayView').on('click', function() {
     log('Navigated to one-day view from nav bar.');
     twoWeek.clear().hide();
+    
+    $('.tideline-nav').off('click');
+    // attach click handlers to set up programmatic pan
+    $('#tidelineNavForward').on('click', oneDay.panForward);
+    $('#tidelineNavBack').on('click', oneDay.panBack);
 
     $(this).parent().addClass('active');
     
@@ -129,6 +139,11 @@ d3.json('data/device-data.json', function(data) {
   emitter.on('selectSMBG', function(date) {
     log('Navigated to one-day view from double clicking a two-week view SMBG.');
     twoWeek.clear().hide();
+    
+    $('.tideline-nav').off('click');
+    // attach click handlers to set up programmatic pan
+    $('#tidelineNavForward').on('click', oneDay.panForward);
+    $('#tidelineNavBack').on('click', oneDay.panBack);
 
     $('#oneDayView').parent().addClass('active');
     $('#twoWeekView').parent().removeClass('active');

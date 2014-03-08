@@ -72,6 +72,54 @@ module.exports = function(emitter) {
   }
 
   // non-chainable methods
+  container.panForward = function() {
+    log('Jumped forward two weeks.');
+    if (sortReverse) {
+      nav.currentTranslation += height - nav.axisHeight - statsHeight;
+      mainGroup.transition().duration(500).tween('zoom', function() {
+        var iy = d3.interpolate(nav.currentTranslation - height + nav.axisHeight + statsHeight, nav.currentTranslation);
+        return function(t) {
+          nav.scroll.translate([0, iy(t)]);
+          nav.scroll.event(mainGroup);
+        };
+      });
+    }
+    else {
+      nav.currentTranslation -= height - nav.axisHeight - statsHeight;
+      mainGroup.transition().duration(500).tween('zoom', function() {
+        var iy = d3.interpolate(nav.currentTranslation + height - nav.axisHeight - statsHeight, nav.currentTranslation);
+        return function(t) {
+          nav.scroll.translate([0, iy(t)]);
+          nav.scroll.event(mainGroup);
+        };
+      });
+    }
+  };
+
+  container.panBack = function() {
+    log('Jumped back two weeks.');
+    if (sortReverse) {
+      nav.currentTranslation -= height - nav.axisHeight - statsHeight;
+      mainGroup.transition().duration(500).tween('zoom', function() {
+        var iy = d3.interpolate(nav.currentTranslation + height - nav.axisHeight - statsHeight, nav.currentTranslation);
+        return function(t) {
+          nav.scroll.translate([0, iy(t)]);
+          nav.scroll.event(mainGroup);
+        };
+      });
+    }
+    else {
+      nav.currentTranslation += height - nav.axisHeight - statsHeight;
+      mainGroup.transition().duration(500).tween('zoom', function() {
+        var iy = d3.interpolate(nav.currentTranslation - height + nav.axisHeight + statsHeight, nav.currentTranslation);
+        return function(t) {
+          nav.scroll.translate([0, iy(t)]);
+          nav.scroll.event(mainGroup);
+        };
+      });
+    }
+  };
+
   container.newPool = function() {
     var p = new Pool(container);
     pools.push(p);
