@@ -234,6 +234,20 @@ module.exports = function(pool, opts) {
   bolus.addTooltip = function(d, category) {
     var tooltipWidth = opts.classes[category].width;
     var tooltipHeight = opts.classes[category].height;
+    
+    // TODO: if we decide to keep same formatValue for basal and bolus, factor this out into a util/ module
+    var formatValue = function(x) {
+      var formatted = d3.format('.3f')(x);
+      // remove zero-padding on the right
+      while (formatted[formatted.length - 1] === '0') {
+        formatted = formatted.slice(0, formatted.length - 1);
+      }
+      if (formatted[formatted.length - 1] === '.') {
+        formatted = formatted + '0';
+      }
+      return formatted;
+    };
+
     d3.select('#' + 'tidelineTooltips_bolus')
       .call(pool.tooltips(),
         d,
@@ -271,7 +285,7 @@ module.exports = function(pool, opts) {
         },
         // customText
         (function() {
-          return d.value + 'U';
+          return formatValue(d.value) + 'U';
         }()),
         // tspan
         (function() {
@@ -291,10 +305,10 @@ module.exports = function(pool, opts) {
         .append('tspan')
         .text(function() {
           if (d.recommended !== d.value) {
-            return d.recommended + "U recom'd";
+            return formatValue(d.recommended) + "U recom'd";
           }
           else if (d.extended) {
-            return d.extendedDelivery + 'U ' + bolus.timespan(d);
+            return formatValue(d.extendedDelivery) + 'U ' + bolus.timespan(d);
           }
         })
         .attr('class', 'd3-bolus');
@@ -308,7 +322,7 @@ module.exports = function(pool, opts) {
         })
         .append('tspan')
         .text(function() {
-          return d.recommended + "U recom'd";
+          return formatValue(d.recommended) + "U recom'd";
         })
         .attr('class', 'd3-bolus');
 
@@ -320,7 +334,7 @@ module.exports = function(pool, opts) {
         })
         .append('tspan')
         .text(function() {
-          return d.extendedDelivery + 'U ' + bolus.timespan(d);
+          return formatValue(d.extendedDelivery) + 'U ' + bolus.timespan(d);
         })
         .attr('class', 'd3-bolus');
     }

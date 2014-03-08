@@ -368,6 +368,20 @@ module.exports = function(pool, opts) {
 
   basal.addTooltip = function(d, category, unD) {
     var tooltipHeight = opts.classes[category].height;
+
+    // TODO: if we decide to keep same formatValue for basal and bolus, factor this out into a util/ module
+    var formatValue = function(x) {
+      var formatted = d3.format('.3f')(x);
+      // remove zero-padding on the right
+      while (formatted[formatted.length - 1] === '0') {
+        formatted = formatted.slice(0, formatted.length - 1);
+      }
+      if (formatted[formatted.length - 1] === '.') {
+        formatted = formatted + '0';
+      }
+      return formatted;
+    };
+
     d3.select('#' + 'tidelineTooltips_basal')
       .call(pool.tooltips(),
         d,
@@ -413,14 +427,16 @@ module.exports = function(pool, opts) {
             }
           }
         },
+        // customText
         (function() {
           if (d.value === 0) {
             return '0.0U';
           }
           else {
-            return d.value + 'U';
+            return formatValue(d.value) + 'U';
           }
         }()),
+        // tspan
         basal.timespan(d));
     if (category === 'temp') {
       d3.select('#tooltip_' + d._id).select('.d3-tooltip-text-group').append('text')
@@ -438,7 +454,7 @@ module.exports = function(pool, opts) {
           }
         })
         .append('tspan')
-        .text('(' + unD.value + 'U scheduled)');
+        .text('(' + formatValue(unD.value) + 'U scheduled)');
     }
   };
 
