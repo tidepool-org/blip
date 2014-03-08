@@ -38,7 +38,7 @@ module.exports = function(emitter) {
       scrollThumbRadius: 8,
       currentTranslation: 0
     },
-    axisGutter = 60,
+    axisGutter = 50, dayTickSize = 45,
     statsHeight = 100,
     pools = [], poolGroup, days, daysGroup,
     xScale = d3.scale.linear(), xAxis, yScale = d3.time.scale.utc(), yAxis,
@@ -344,8 +344,8 @@ module.exports = function(emitter) {
     yAxis = d3.svg.axis().scale(yScale)
       .orient('left')
       .outerTickSize(0)
-      .innerTickSize(15)
-      .tickFormat(d3.time.format.utc('%a %-d'));
+      .innerTickSize(dayTickSize)
+      .tickFormat(d3.time.format.utc('%a'));
 
     mainGroup.select('#tidelineYAxisGroup')
       .append('g')
@@ -354,8 +354,7 @@ module.exports = function(emitter) {
       .attr('transform', 'translate(' + (axisGutter - 1) + ',0)')
       .call(yAxis);
 
-    mainGroup.selectAll('.d3-day-axis').selectAll('.tick').selectAll('line')
-      .attr('transform', 'translate(0,' + -(poolScaleHeight/2) + ')');
+    container.dayAxisHacks();
 
     if (sortReverse) {
       var start = new Date(dataStartNoon);
@@ -373,6 +372,55 @@ module.exports = function(emitter) {
     pools.forEach(function(pool) {
       pool.xScale(xScale.copy());
     });
+
+    return container;
+  };
+
+  container.dayAxisHacks = function() {
+    // TODO: demagicify all the magic numbers in this function
+    mainGroup.selectAll('.d3-day-axis').selectAll('.tick').selectAll('line')
+      .attr('transform', 'translate(0,' + -(poolScaleHeight/2) + ')');
+
+    var tickLabels = mainGroup.selectAll('.d3-day-axis').selectAll('.tick');
+
+    tickLabels.selectAll('.d3-date').remove();
+
+    var xPos = tickLabels.select('text').attr('x'), dy = tickLabels.select('text').attr('dy');
+
+    tickLabels.append('text')
+      .text(function(d) {
+        var day = d.getUTCDate();
+        return day;
+      })
+      .attr({
+        'x': xPos,
+        'y': 0,
+        'dy': dy,
+        'class': 'd3-date',
+        'text-anchor': 'end'
+      });
+
+    tickLabels.selectAll('text')
+      .attr({
+        'transform': function() {
+          if (d3.select(this).classed('d3-date')) {
+            return 'translate(' + (dayTickSize - 6) + ',8)';
+          }
+          else {
+            return 'translate(' + (dayTickSize - 6) + ',-6)';
+          }
+        }
+      })
+      .classed('d3-weekend', function(d) {
+        // Sunday is 0
+        var date = d.getUTCDay();
+        if ((date === 0) || (date === 6)) {
+          return true;
+        }
+        else {
+          return false;
+        }
+      });
 
     return container;
   };
@@ -400,8 +448,7 @@ module.exports = function(emitter) {
         }
         nav.scroll.translate([0, e.translate[1]]);
         mainGroup.select('.d3-y.d3-axis').call(yAxis);
-        mainGroup.selectAll('.d3-day-axis').selectAll('.tick').selectAll('line')
-          .attr('transform', 'translate(0,' + -(poolScaleHeight/2) + ')');
+        container.dayAxisHacks();
         for (var i = 0; i < pools.length; i++) {
           pools[i].scroll(e);
         }

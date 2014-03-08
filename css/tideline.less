@@ -23,6 +23,7 @@
 @font-size-labels: 16px;
 @font-size-axes-linear: 12px;
 @font-size-axes: 14px;
+@font-size-axes-days: 13px;
 @font-size-small-tooltips: 11px;
 @font-size-large-tooltips: 14px;
 @font-size-puddle-head: 16px;
@@ -57,6 +58,19 @@ svg {
   text {
     fill: @text;
     text-transform: lowercase;
+  }
+}
+
+// day axis in two-week view
+.d3-axis.d3-day-axis {
+  text {
+    font-size: @font-size-axes-days;
+    &.d3-weekend {
+      fill: @two-week-weekend;
+    }
+  }
+  line {
+    fill: @two-week-weekend;
   }
 }
 
