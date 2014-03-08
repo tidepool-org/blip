@@ -91,10 +91,27 @@ function chartWeeklyFactory(el, options, emitter) {
     var smbgTime = new tideline.plot.SMBGTime({emitter: emitter});
 
     chart.pools().forEach(function(pool, i) {
+      var gutter;
+      var d = new Date(pool.id().replace('poolBG_', ''));
+      var dayOfTheWeek = d.getUTCDay();
+      if ((dayOfTheWeek === 0) || (dayOfTheWeek === 6)) {
+        gutter = {'top': 1.5, 'bottom': 1.5};
+      }
+      // on Mondays the bottom gutter should be a weekend gutter
+      else if (dayOfTheWeek === 1) {
+        gutter = {'top': 0.5, 'bottom': 1.5};
+      }
+      // on Fridays the top gutter should be a weekend gutter
+      else if (dayOfTheWeek === 5) {
+        gutter = {'top': 1.5, 'bottom': 0.5};
+      }
+      else {
+        gutter = {'top': 0.5, 'bottom': 0.5};
+      }
       pool.addPlotType('fill', fill(pool, {
         endpoints: fillEndpoints,
         xScale: fillScale,
-        gutter: 0.5
+        gutter: gutter,
       }), false);
       pool.addPlotType('smbg', smbgTime.draw(pool), true, true);
       pool.render(chart.daysGroup(), chart.dataPerDay[i]);

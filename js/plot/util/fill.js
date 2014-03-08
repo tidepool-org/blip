@@ -79,11 +79,25 @@ module.exports = function(pool, opts) {
         'x': function(d) {
           return d.x;
         },
-        'y': 0 + opts.gutter,
+        'y': function() {
+          if (opts.gutter.top) {
+            return opts.gutter.top;
+          }
+          else {
+            return opts.gutter;
+          }
+        },
         'width': function(d) {
           return d.width;
         },
-        'height': pool.height() - 2 * opts.gutter,
+        'height': function() {
+          if (opts.gutter.top) {
+            return pool.height() - opts.gutter.top - opts.gutter.bottom;
+          }
+          else {
+            return pool.height() - 2 * opts.gutter;
+          }
+        },
         'class': function(d) {
           return 'd3-rect-fill d3-fill-' + d.fill;
         }
