@@ -391,7 +391,7 @@ module.exports = function(emitter) {
       .text(function(d) {
         var day = d.getUTCDate();
         var month = d.getUTCMonth() + 1;
-        return month + '.' + day;
+        return month + '-' + day;
       })
       .attr({
         'x': xPos,
