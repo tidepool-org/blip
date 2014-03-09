@@ -107,7 +107,7 @@ function SMBGTime (opts) {
             }
           })
           .classed({'d3-image': true, 'd3-smbg-time': true, 'd3-image-smbg': true})
-          .on('dblclick', function(d) {
+          .on('click', function(d) {
             d3.event.stopPropagation(); // silence the click-and-drag listener
             opts.emitter.emit('selectSMBG', d.normalTime);
           });
