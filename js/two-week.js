@@ -390,7 +390,8 @@ module.exports = function(emitter) {
     tickLabels.append('text')
       .text(function(d) {
         var day = d.getUTCDate();
-        return day;
+        var month = d.getUTCMonth() + 1;
+        return month + '.' + day;
       })
       .attr({
         'x': xPos,
