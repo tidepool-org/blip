@@ -399,6 +399,9 @@ module.exports = function(host, superagent) {
           }
           if (res.status === 200) {
             cb(null, res.body.messages);
+          } else if (res.status === 404) {
+            //just so happens there are no messages
+            cb(null, []);
           } else if (res.status === 401) {
             cb({ message: 'Unauthorized' });
           } else {
@@ -418,6 +421,9 @@ module.exports = function(host, superagent) {
           }
           if (res.status === 200) {
             cb(null, res.body.messages);
+          } else if (res.status === 404) {
+            //just so happens there are no messages
+            cb(null, []);
           } else if (res.status === 401) {
             cb({ message: 'Unauthorized' });
           } else {
