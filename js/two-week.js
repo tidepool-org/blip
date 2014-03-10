@@ -38,7 +38,7 @@ module.exports = function(emitter) {
       scrollThumbRadius: 8,
       currentTranslation: 0
     },
-    axisGutter = 50, dayTickSize = 45,
+    axisGutter = 52, dayTickSize = 0,
     statsHeight = 100,
     pools = [], poolGroup, days, daysGroup,
     xScale = d3.scale.linear(), xAxis, yScale = d3.time.scale.utc(), yAxis,
@@ -378,9 +378,6 @@ module.exports = function(emitter) {
 
   container.dayAxisHacks = function() {
     // TODO: demagicify all the magic numbers in this function
-    mainGroup.selectAll('.d3-day-axis').selectAll('.tick').selectAll('line')
-      .attr('transform', 'translate(0,' + -(poolScaleHeight/2) + ')');
-
     var tickLabels = mainGroup.selectAll('.d3-day-axis').selectAll('.tick');
 
     tickLabels.selectAll('.d3-date').remove();
@@ -389,8 +386,7 @@ module.exports = function(emitter) {
 
     tickLabels.append('text')
       .text(function(d) {
-        var day = d.getUTCDate();
-        return day;
+        return d3.time.format.utc('%b %-d')(d);
       })
       .attr({
         'x': xPos,
