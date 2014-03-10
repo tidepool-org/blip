@@ -133,7 +133,7 @@ Third-party dependencies are managed with [Bower](http://bower.io/). If a partic
 bower install --save https://github.com/user/repo.git#1.1.0
 ```
 
-Be sure to update `files.js` when installing a new package.
+Be sure to update `files.js` when installing a new package. After doing so, you will also need to restart `$ node develop`.
 
 ### Debugging
 
