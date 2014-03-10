@@ -211,15 +211,17 @@ var Patient = React.createClass({
   },
 
   getDiagnosisDisplayText: function(patientAttr) {
-    var diagnosisYear = patientAttr.diagnosisYear;
+    var diagnosisDate = patientAttr.diagnosisDate;
 
-    if (!diagnosisYear) {
+    if (!diagnosisDate) {
       return;
     }
 
-    var yearsAgo = patient.getYearsAgoText(diagnosisYear);
+    var yearsAgo = patient.getYearsAgoText(diagnosisDate);
+    var diagnosisDateDisplay =
+      moment(diagnosisDate).format(DATE_DISPLAY_FORMAT);
 
-    return [yearsAgo, ' (', diagnosisYear, ')'].join('');
+    return [yearsAgo, ' (', diagnosisDateDisplay, ')'].join('');
   }
 });
 

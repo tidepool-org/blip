@@ -3,6 +3,6 @@
   "firstName": "Mary",
   "lastName": "Smith",
   "birthday": "1987-03-08",
-  "diagnosisYear": "1994",
+  "diagnosisDate": "1994-02-01",
   "aboutMe": "Loves swimming and fishing. Owns a bakery in San Francisco. Favorite color is orange."
 }
