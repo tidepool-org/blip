@@ -25,23 +25,6 @@ var patient = {};
 
 _.assign(patient, validation.mixin);
 
-var patientValidators = {
-  isValidYear: function() {
-    return function(value) {
-      var error = 'Not a valid year.';
-      
-      if (value.length < 4) {
-        return error;
-      }
-
-      var isPositiveInteger = parseInt(value, 10) > 0;
-      if (!isPositiveInteger) {
-        return error;
-      }
-    };
-  }
-};
-
 _.assign(patient, {
   _attributes: {
     birthday: {
@@ -50,10 +33,10 @@ _.assign(patient, {
         validation.isValidDate()
       ])
     },
-    diagnosisYear: {
+    diagnosisDate: {
       validate: validation.series([
         validation.required(),
-        patientValidators.isValidYear()
+        validation.isValidDate()
       ])
     },
     aboutMe: {validate: validation.hasLengthLessThan(MAX_ABOUTME_LENGTH)}

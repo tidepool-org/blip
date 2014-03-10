@@ -31,12 +31,11 @@ var PatientEdit = React.createClass({
   },
 
   formInputs: [
-    {name: 'birthday', label: 'Date of birth *', type: 'date'},
+    {name: 'birthday', label: 'Date of birth *', placeholder: 'YYYY-MM-DD'},
     {
-      name: 'diagnosisYear',
-      label: 'Year of diagnosis *',
-      type: 'number',
-      placeholder: 'YYYY'
+      name: 'diagnosisDate',
+      label: 'Date of diagnosis *',
+      placeholder: 'YYYY-MM-DD'
     },
     {
       name: 'aboutMe',
@@ -196,6 +195,7 @@ var PatientEdit = React.createClass({
 
     this.resetFormStateBeforeSubmit(formValues);
 
+    formValues = _.clone(formValues);
     formValues = this.formatUserInput(formValues);
 
     var validationErrors = this.validateFormValues(formValues);
@@ -245,8 +245,8 @@ var PatientEdit = React.createClass({
       formValues.birthday = patient.formatDate(formValues.birthday);
     }
 
-    if (formValues.diagnosisYear) {
-      formValues.diagnosisYear = String(parseInt(formValues.diagnosisYear, 10));
+    if (formValues.diagnosisDate) {
+      formValues.diagnosisDate = patient.formatDate(formValues.diagnosisDate);
     }
 
     if (!formValues.aboutMe) {

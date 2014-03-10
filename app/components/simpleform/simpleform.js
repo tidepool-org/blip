@@ -126,11 +126,6 @@ var SimpleForm = React.createClass({
     var text = this.props.submitButtonText || 'Submit';
     var disabled = this.props.disabled || this.props.submitDisabled;
 
-    if (this.state.working) {
-      text = this.props.submitButtonTextWorking || text;
-      disabled = true;
-    }
-
     /* jshint ignore:start */
     return (
       <button

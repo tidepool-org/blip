@@ -14,4 +14,14 @@
  */
 
 /* global app */
-app.start();
+try {
+  app.start();
+}
+catch (e) {
+  var error = [
+    'Could not start app,',
+    'please check if source was compiled successfully',
+    '(Browserify, React JSX Transform).'
+  ].join(' ');
+  throw new Error(error + ' Original error: ' + e.message);
+}
