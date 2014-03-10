@@ -525,7 +525,7 @@ var AppComponent = React.createClass({
       if (err) {
         self.setState({
           loggingOut: false,
-          notification: err.message || 'An error occured while logging out.'
+          notification: 'An error occured while logging out.'
         });
         return;
       }
@@ -665,7 +665,7 @@ var AppComponent = React.createClass({
     app.api.user.put(user, function(err, user) {
       if (err) {
         self.setState({
-          notification: err.message || 'An error occured while saving user.'
+          notification: 'An error occured while saving user.'
         });
         // Rollback
         self.setState({user: previousUser});
@@ -704,7 +704,7 @@ var AppComponent = React.createClass({
     app.api.patient.put(patient.id, patient, function(err, patient) {
       if (err) {
         self.setState({
-          notification: err.message || 'An error occured while saving patient.'
+          notification: 'An error occured while saving patient.'
         });
         // Rollback
         self.setState({patient: previousPatient});

@@ -135,7 +135,7 @@ var Login = React.createClass({
           working: false,
           notification: {
             type: 'error',
-            message: err.message || 'An error occured while logging in.'
+            message: 'An error occured while logging in.'
           }
         });
         return;

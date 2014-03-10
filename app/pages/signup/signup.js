@@ -140,7 +140,7 @@ var Signup = React.createClass({
           working: false,
           notification: {
             type: 'error',
-            message: err.message || 'An error occured while signing up.'
+            message: 'An error occured while signing up.'
           }
         });
         return;
