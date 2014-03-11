@@ -45,7 +45,7 @@ var Patient = React.createClass({
       }
     },
     {
-      name: 'diagnosisYearsAgo',
+      name: 'diagnosis',
       label: 'Diagnosed',
       getValue: function(patient) {
         return this.getDiagnosisDisplayText(patient);
@@ -107,7 +107,7 @@ var Patient = React.createClass({
 
     /* jshint ignore:start */
     return (
-      <a href={url}>
+      <a className="js-back" href={url}>
         <i className="icon-back"></i>
         {' ' + text}
       </a>
@@ -129,7 +129,7 @@ var Patient = React.createClass({
     /* jshint ignore:start */
     return (
       <div className="patient-content-link">
-        <a href={editUrl}>
+        <a href={editUrl} className="js-edit-patient">
           <i className="icon-profile"></i>
           {' ' + 'Edit patient profile'}
         </a>
@@ -184,13 +184,16 @@ var Patient = React.createClass({
 
     var className = 'patient-attribute';
     if (attribute.fetching && !attribute.value) {
-      className = className + ' patient-attribute-empty';
+      className =
+        className + ' patient-attribute-empty js-patient-attribute-empty';
     }
 
     /* jshint ignore:start */
     return (
       <div key={attribute.name} className={className}>
-        <div className="patient-attribute-value">{attribute.value}</div>
+        <div
+          className="patient-attribute-value"
+          name={attribute.name}>{attribute.value}</div>
         <div className="patient-attribute-label">{attribute.label}</div>
       </div>
     );

@@ -51,7 +51,7 @@ var PatientData = React.createClass({
 
     /* jshint ignore:start */
     return (
-      <div className="patient-data">
+      <div className="patient-data js-patient-data-page">
         {subnav}
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
