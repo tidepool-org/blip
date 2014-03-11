@@ -219,14 +219,28 @@ module.exports = function(pool, opts) {
 
   bolus.getTooltipCategory = function(d) {
     var category;
-    if (((d.recommended == null) || (d.recommended === d.value)) && !d.extended) {
-      category = 'unspecial';
-    }
-    else if ((d.recommended !== d.value) && d.extended) {
-      category = 'three-line';
+    // when there's no 'recommended' field
+    if (d.recommended == null) {
+      if (d.extended == null) {
+        category = 'unspecial';
+      }
+      else {
+        category = 'two-line';
+      }
     }
     else {
-      category = 'two-line';
+      if ((d.extended == null) && (d.recommended === d.value)) {
+        category = 'unspecial';
+      }
+      else if ((d.extended == null) && (d.recommended !== d.value)) {
+        category = 'two-line';
+      }
+      else if ((d.recommended === d.value) && (d.extended != null)) {
+        category = 'two-line';
+      }
+      else if ((d.recommended !== d.value) && (d.extended != null)) {
+        category = 'three-line';
+      }
     }
     return category;
   };
@@ -304,10 +318,10 @@ module.exports = function(pool, opts) {
         })
         .append('tspan')
         .text(function() {
-          if (d.recommended !== d.value) {
+          if ((d.recommended != null) && (d.recommended !== d.value)) {
             return formatValue(d.recommended) + "U recom'd";
           }
-          else if (d.extended) {
+          else if (d.extended != null) {
             return formatValue(d.extendedDelivery) + 'U ' + bolus.timespan(d);
           }
         })
