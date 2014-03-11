@@ -66,7 +66,7 @@ describe('platform client', function() {
 
   before(function(done){
     this.timeout(5000);
-    platform = require('../index')('https://devel-api.tidepool.io',superagent);
+    platform = require('../index')('http://localhost:8009',superagent);
 
     createUser(mrT1,function(error,data){
       if(error){
@@ -148,6 +148,7 @@ describe('platform client', function() {
       this.timeout(5000);
 
       platform.getUsersTeam(mrT1.id, mrT1.token, function(error,team){
+        console.log('team ',team);
         expect(error).to.not.exist;
         expect(team).to.exist;
         expect(team.members).to.exist;
@@ -259,34 +260,161 @@ describe('platform client', function() {
 
   });
 
-  describe('mrT1 sets up his team',function(){
+  describe('mrT1 groups',function(){
 
-    it('and invites careTeamMember to the team', function(done) {
-      this.timeout(10000);
+    it('has a team', function(done) {
+      this.timeout(5000);
 
-      platform.inviteToJoinTeam(mrT1.id, careTeamMember.id, mrT1.token, function(error,updates){
+      platform.getUsersTeam(mrT1.id, mrT1.token, function(error,team){
         if(error){
           throw error;
         }
-        expect(updates.inviter.invited.members).to.include(careTeamMember.id);
-        expect(updates.invitee.invitedby.members).to.include(mrT1.id);
+        expect(error).to.not.exist;
+        expect(team).to.exist;
+        expect(team.members).to.exist;
+        expect(team.members).to.be.a('array');
+        expect(team.id).to.exist;
         done();
       });
     });
 
-    it('careTeamMember accepts the invite to join the team of mrT1', function(done) {
-      this.timeout(10000);
+    it('has patients', function(done) {
+      this.timeout(5000);
 
-      platform.acceptInviteToJoinTeam(mrT1.id, careTeamMember.id, careTeamMember.token, function(error,updates){
+      platform.getUsersPatients(mrT1.id, mrT1.token, function(error,patients){
         if(error){
           throw error;
         }
-        expect(updates.inviter.team.members).to.include(careTeamMember.id);
-        expect(updates.invitee.patients.members).to.include(mrT1.id);
+        expect(error).to.not.exist;
+        expect(patients).to.exist;
+        expect(patients.members).to.exist;
+        expect(patients.members).to.be.a('array');
+        expect(patients.id).to.exist;
         done();
       });
-
     });
+
+    it('has invited', function(done) {
+      this.timeout(5000);
+
+      platform.getInvitesToTeam(mrT1.id, mrT1.token, function(error,invites){
+        if(error){
+          throw error;
+        }
+        expect(error).to.not.exist;
+        expect(invites).to.exist;
+        expect(invites.members).to.exist;
+        expect(invites.members).to.be.a('array');
+        expect(invites.id).to.exist;
+        done();
+      });
+    });
+  });
+
+  describe('careTeamMember groups',function(){
+
+    it('has a team', function(done) {
+      this.timeout(5000);
+
+      platform.getUsersTeam(careTeamMember.id, careTeamMember.token, function(error,team){
+        if(error){
+          throw error;
+        }
+        expect(error).to.not.exist;
+        expect(team).to.exist;
+        expect(team.members).to.exist;
+        expect(team.members).to.be.a('array');
+        expect(team.id).to.exist;
+        done();
+      });
+    });
+
+    it('has patients', function(done) {
+      this.timeout(5000);
+
+      platform.getUsersPatients(careTeamMember.id, careTeamMember.token, function(error,patients){
+        if(error){
+          throw error;
+        }
+        expect(error).to.not.exist;
+        expect(patients).to.exist;
+        expect(patients.members).to.exist;
+        expect(patients.members).to.be.a('array');
+        expect(patients.id).to.exist;
+        done();
+      });
+    });
+
+    it('has invited', function(done) {
+      this.timeout(5000);
+
+      platform.getInvitesToTeam(careTeamMember.id, careTeamMember.token, function(error,invites){
+        if(error){
+          throw error;
+        }
+        expect(error).to.not.exist;
+        expect(invites).to.exist;
+        expect(invites.members).to.exist;
+        expect(invites.members).to.be.a('array');
+        expect(invites.id).to.exist;
+        done();
+      });
+    });
+  });
+
+  describe('groups managment for mrT1 ',function(){
+
+    it('allows him to invite another user to join the team', function(done) {
+      this.timeout(5000);
+
+      platform.inviteToJoinTeam(mrT1.id, careTeamMember.id, mrT1.token, function(error,team){
+        if(error){
+          throw error;
+        }
+        platform.getInvitesToTeam(mrT1.id, mrT1.token, function(error,invites){
+          if(error){
+            throw error;
+          }
+          expect(invites.members).to.include(careTeamMember.id);
+          done();
+        });
+      });
+    });
+
+    it('which means the invited user is added to his team when they accept an invite', function(done) {
+      this.timeout(5000);
+
+      platform.acceptInviteToJoinTeam(mrT1.id, careTeamMember.id, mrT1.token, function(error,team){
+        if(error){
+          throw error;
+        }
+        platform.getUsersTeam(mrT1.id, mrT1.token, function(error,team){
+          if(error){
+            throw error;
+          }
+          expect(team.members).to.include(careTeamMember.id);
+          done();
+        });
+      });
+    });
+
+    it('is added to careTeamMember patients list', function(done) {
+      this.timeout(5000);
+
+      platform.addToPatients(mrT1.id, careTeamMember.id, careTeamMember.token, function(error,team){
+        if(error){
+          throw error;
+        }
+        platform.getUsersPatients(careTeamMember.id, careTeamMember.token, function(error,patients){
+          if(error){
+            throw error;
+          }
+          expect(patients.members).to.include(mrT1.id);
+          done();
+        });
+      });
+    });
+
   });
 
 });
