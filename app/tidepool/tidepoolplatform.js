@@ -392,10 +392,25 @@ module.exports = function(options){
                 e.value = Number(e.value);
                 return e;
               })
+              .flatMap(function(datum) {
+                if (datum.type === 'wizard') {
+                  return Rx.Observable.fromArray(
+                    [ datum,
+                      { _id: datum._id + 'carbs',
+                        type: 'carbs',
+                        deviceTime: datum.deviceTime,
+                        value: datum.payload.carbInput,
+                        units: datum.payload.carbUnits
+                      }
+                    ]
+                  )
+                } else {
+                  return Rx.Observable.return(datum);
+                }
+              })
               .toArray()
-              .subscribe(function(data) {
-                window.theData = data;
-                cb(null, data);
+              .subscribe(
+              function(data) {
                 cb(null, data);
               },
               cb
