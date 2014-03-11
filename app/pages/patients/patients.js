@@ -35,7 +35,7 @@ var Patients = React.createClass({
 
     /* jshint ignore:start */
     return (
-      <div className="patients">
+      <div className="patients js-patients-page">
         <div className="container-box-outer patients-box-outer">
           <div className="container-box-inner patients-box-inner">
             <div className="patients-content">

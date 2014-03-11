@@ -18,8 +18,7 @@ describe('Patients', function() {
   it('should show shared patients', function(done) {
     openAppToPatients()
       .then(function() {
-        expect('.js-patients-shared .js-patient')
-          .dom.to.have.count(3);
+        expect('.js-patients-shared .js-patient').dom.to.have.count(3);
         done();
       });
   });
@@ -40,6 +39,26 @@ describe('Patients', function() {
     })
       .then(function() {
         expect('.js-patients-shared-empty').dom.to.be.visible();
+        done();
+      });
+  });
+
+  it('should show placeholder when fetching user patient', function(done) {
+    openAppToPatients({
+      'api.user.get.delay': 10000
+    })
+      .then(function() {
+        expect('.js-patients-user .js-patient-empty').dom.to.have.count(1);
+        done();
+      });
+  });
+
+  it('should show placeholder when fetching shared patients', function(done) {
+    openAppToPatients({
+      'api.patient.getall.delay': 10000
+    })
+      .then(function() {
+        expect('.js-patients-shared .js-patient-empty').dom.to.have.count(2);
         done();
       });
   });

@@ -43,6 +43,25 @@ describe('Profile', function() {
       });
   });
 
+  it('should have link to go back to home page', function(done) {
+    openAppToProfile()
+      .then(clickBackLink)
+      .then(function() {
+        expect('.js-patients-page').dom.to.be.visible();
+        done();
+      });
+  });
+
+  it.only('should disable form submit when fetching profile data', function(done) {
+    openAppToProfile({
+      'api.user.get.delay': 10000
+    })
+      .then(function() {
+        expect('.js-form-submit').dom.to.be.disabled();
+        done();
+      });
+  });
+
   function openAppToProfile(qs) {
     return openAppTo('/profile', _.assign({
       'auth.skip': true
@@ -64,6 +83,13 @@ describe('Profile', function() {
 
   function submitForm() {
     return helpers.findElement(By.css('.js-form-submit'))
+      .then(function(q) {
+        return q.click();
+      });
+  }
+
+  function clickBackLink() {
+    return helpers.findElement(By.css('.js-back'))
       .then(function(q) {
         return q.click();
       });

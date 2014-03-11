@@ -40,7 +40,7 @@ var PatientList = React.createClass({
     var className = 'patient-list-item list-group-item js-patient';
 
     if (_.isEmpty(patient)) {
-      className = className + ' patient-list-item-empty';
+      className = className + ' patient-list-item-empty js-patient-empty';
     }
 
     var fullName = this.getPatientFullName(patient);

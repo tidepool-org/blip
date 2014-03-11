@@ -60,7 +60,7 @@ var Profile = React.createClass({
           <div className="container-box-inner profile-subnav-box">
             <div className="grid">
               <div className="grid-item one-whole medium-one-third">
-                <a href="#/">
+                <a className="js-back" href="#/">
                   <i className="icon-back"></i>
                   {' ' + 'Back'}
                 </a>
