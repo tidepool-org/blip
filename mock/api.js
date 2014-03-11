@@ -44,7 +44,7 @@ var createPatch = function(options) {
       setTimeout(function() {
         var err;
         if (getParam('api.user.put.error')) {
-          err = true;
+          err = {status: 500};
         }
         delete user.password;
         delete user.passwordConfirm;
@@ -76,7 +76,7 @@ var createPatch = function(options) {
       var patient = data.patients[patientId];
       var err;
       if (!patient) {
-        err = {message: 'Not found'};
+        err = {status: 404, response: 'Not found'};
       }
       setTimeout(function() {
         callback(err, patient);
@@ -98,7 +98,7 @@ var createPatch = function(options) {
       var updatedPatient;
       var err;
       if (!data.patients[patientId]) {
-        err = {message: 'Not found'};
+        err = {status: 404, response: 'Not found'};
       }
       else {
         updatedPatient = _.assign(data.patients[patientId], patient);

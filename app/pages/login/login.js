@@ -131,11 +131,16 @@ var Login = React.createClass({
 
     submit(formValues, function(err) {
       if (err) {
+        var message = 'An error occured while logging in.';
+        if (err.status === 401) {
+          message = 'Wrong username or password.';
+        }
+
         self.setState({
           working: false,
           notification: {
             type: 'error',
-            message: 'An error occured while logging in.'
+            message: message
           }
         });
         return;

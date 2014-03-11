@@ -93,7 +93,7 @@ var createPatch = function(options) {
       setTimeout(function() {
         var err;
         if (username !== self.mockUsername || password !== self.mockPassword) {
-          err = {message: 'Wrong username or password.'};
+          err = {status: 401, response: 'Wrong username or password.'};
         }
         if (!err) {
           self.saveSession(self.mockToken, options);
@@ -111,7 +111,7 @@ var createPatch = function(options) {
       setTimeout(function() {
         var err;
         if (getParam('auth.logout.error')) {
-          err = {message: 'Logout failed, please try again.'};
+          err = {status: 500, response: 'Logout failed, please try again.'};
         }
         if (!err) {
           self.destroySession();
@@ -134,7 +134,10 @@ var createPatch = function(options) {
       setTimeout(function() {
         var err;
         if (user.username === self.mockUsername) {
-          err = {message: 'An account already exists for that username.'};
+          err = {
+            status: 400,
+            response: 'An account already exists for that username.'
+          };
         }
         if (!err) {
           self.saveSession(self.mockToken);

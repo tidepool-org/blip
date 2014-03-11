@@ -136,11 +136,16 @@ var Signup = React.createClass({
 
     submit(formValues, function(err, result) {
       if (err) {
+        var message = 'An error occured while signing up.';
+        if (err.status === 400) {
+          message = 'An account already exists for that email.';
+        }
+
         self.setState({
           working: false,
           notification: {
             type: 'error',
-            message: 'An error occured while signing up.'
+            message: message
           }
         });
         return;
