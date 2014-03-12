@@ -20,9 +20,6 @@ var _;
 if (typeof window !== 'undefined') {
   _ = window._;
 }
-else {
-  _ = require('lodash');
-}
 
 if (!_) {
   throw new Error('Underscore or Lodash is a required dependency');
