@@ -15,12 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-try {
-  var _ = require('../lib/lodash');
-}
-catch (Error) {
-  var _ = require('lodash');
-}
+var _ = require('lodash');
 try {
   var log = require('../lib/bows')('CBGUtil');
 }
