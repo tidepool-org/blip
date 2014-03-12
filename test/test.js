@@ -55140,7 +55140,7 @@ var watson = {
 };
 
 module.exports = watson;
-},{"../js/lib/bows":6,"lodash":38}],3:[function(require,module,exports){
+},{"../js/lib/bows":6,"lodash":37}],3:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -55158,12 +55158,7 @@ module.exports = watson;
  * == BSD2 LICENSE ==
  */
 
-try {
-  var _ = require('../lib/lodash');
-}
-catch (Error) {
-  var _ = require('lodash');
-}
+var _ = require('lodash');
 try {
   var log = require('../lib/bows')('BasalUtil');
 }
@@ -55305,7 +55300,7 @@ function BasalUtil(data) {
 }
 
 module.exports = BasalUtil;
-},{"../lib/bows":6,"../lib/lodash":7,"lodash":38}],4:[function(require,module,exports){
+},{"../lib/bows":6,"lodash":37}],4:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -55323,12 +55318,7 @@ module.exports = BasalUtil;
  * == BSD2 LICENSE ==
  */
 
-try {
-  var _ = require('../lib/lodash');
-}
-catch (Error) {
-  var _ = require('lodash');
-}
+var _ = require('lodash');
 try {
   var log = require('../lib/bows')('BolusUtil');
 }
@@ -55365,7 +55355,7 @@ function BolusUtil(data) {
 }
 
 module.exports = BolusUtil;
-},{"../lib/bows":6,"../lib/lodash":7,"lodash":38}],5:[function(require,module,exports){
+},{"../lib/bows":6,"lodash":37}],5:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -55383,12 +55373,7 @@ module.exports = BolusUtil;
  * == BSD2 LICENSE ==
  */
 
-try {
-  var _ = require('../lib/lodash');
-}
-catch (Error) {
-  var _ = require('lodash');
-}
+var _ = require('lodash');
 try {
   var log = require('../lib/bows')('CBGUtil');
 }
@@ -55479,7 +55464,7 @@ function CBGUtil(data) {
 }
 
 module.exports = CBGUtil;
-},{"../lib/bows":6,"../lib/lodash":7,"lodash":38}],6:[function(require,module,exports){
+},{"../lib/bows":6,"lodash":37}],6:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -55513,39 +55498,9 @@ if (!bows) {
 
 module.exports = bows;
 },{}],7:[function(require,module,exports){
-/* 
- * == BSD2 LICENSE ==
- * Copyright (c) 2014, Tidepool Project
- * 
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the associated License, which is identical to the BSD 2-Clause
- * License as published by the Open Source Initiative at opensource.org.
- * 
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
- * You should have received a copy of the License along with this program; if
- * not, you can obtain one from Tidepool Project at tidepool.org.
- * == BSD2 LICENSE ==
- */
-
-var _;
-
-if (typeof window !== 'undefined') {
-  _ = window._;
-}
-
-if (!_) {
-  throw new Error('Underscore or Lodash is a required dependency');
-}
-
-module.exports = _;
-
-},{}],8:[function(require,module,exports){
 module.exports = require('./lib/chai');
 
-},{"./lib/chai":9}],9:[function(require,module,exports){
+},{"./lib/chai":8}],8:[function(require,module,exports){
 /*!
  * chai
  * Copyright(c) 2011-2013 Jake Luer <jake@alogicalparadox.com>
@@ -55627,7 +55582,7 @@ exports.use(should);
 var assert = require('./chai/interface/assert');
 exports.use(assert);
 
-},{"./chai/assertion":10,"./chai/core/assertions":11,"./chai/interface/assert":12,"./chai/interface/expect":13,"./chai/interface/should":14,"./chai/utils":25,"assertion-error":33}],10:[function(require,module,exports){
+},{"./chai/assertion":9,"./chai/core/assertions":10,"./chai/interface/assert":11,"./chai/interface/expect":12,"./chai/interface/should":13,"./chai/utils":24,"assertion-error":32}],9:[function(require,module,exports){
 /*!
  * chai
  * http://chaijs.com
@@ -55759,7 +55714,7 @@ module.exports = function (_chai, util) {
   });
 };
 
-},{}],11:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 /*!
  * chai
  * http://chaijs.com
@@ -57031,7 +56986,7 @@ module.exports = function (chai, _) {
   });
 };
 
-},{}],12:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 /*!
  * chai
  * Copyright(c) 2011-2013 Jake Luer <jake@alogicalparadox.com>
@@ -58113,7 +58068,7 @@ module.exports = function (chai, util) {
   ('Throw', 'throws');
 };
 
-},{}],13:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /*!
  * chai
  * Copyright(c) 2011-2013 Jake Luer <jake@alogicalparadox.com>
@@ -58127,7 +58082,7 @@ module.exports = function (chai, util) {
 };
 
 
-},{}],14:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 /*!
  * chai
  * Copyright(c) 2011-2013 Jake Luer <jake@alogicalparadox.com>
@@ -58205,7 +58160,7 @@ module.exports = function (chai, util) {
   chai.Should = loadShould;
 };
 
-},{}],15:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 /*!
  * Chai - addChainingMethod utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -58301,7 +58256,7 @@ module.exports = function (ctx, name, method, chainingBehavior) {
   });
 };
 
-},{"./transferFlags":31}],16:[function(require,module,exports){
+},{"./transferFlags":30}],15:[function(require,module,exports){
 /*!
  * Chai - addMethod utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -58340,7 +58295,7 @@ module.exports = function (ctx, name, method) {
   };
 };
 
-},{}],17:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 /*!
  * Chai - addProperty utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -58382,7 +58337,7 @@ module.exports = function (ctx, name, getter) {
   });
 };
 
-},{}],18:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 /*!
  * Chai - flag utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -58416,7 +58371,7 @@ module.exports = function (obj, key, value) {
   }
 };
 
-},{}],19:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 /*!
  * Chai - getActual utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -58437,7 +58392,7 @@ module.exports = function (obj, args) {
   return 'undefined' !== typeof actual ? actual : obj._obj;
 };
 
-},{}],20:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 /*!
  * Chai - getEnumerableProperties utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -58464,7 +58419,7 @@ module.exports = function getEnumerableProperties(object) {
   return result;
 };
 
-},{}],21:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 /*!
  * Chai - message composition utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -58515,7 +58470,7 @@ module.exports = function (obj, args) {
   return flagMsg ? flagMsg + ': ' + msg : msg;
 };
 
-},{"./flag":18,"./getActual":19,"./inspect":26,"./objDisplay":27}],22:[function(require,module,exports){
+},{"./flag":17,"./getActual":18,"./inspect":25,"./objDisplay":26}],21:[function(require,module,exports){
 /*!
  * Chai - getName utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -58537,7 +58492,7 @@ module.exports = function (func) {
   return match && match[1] ? match[1] : "";
 };
 
-},{}],23:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 /*!
  * Chai - getPathValue utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -58641,7 +58596,7 @@ function _getPathValue (parsed, obj) {
   return res;
 };
 
-},{}],24:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 /*!
  * Chai - getProperties utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -58678,7 +58633,7 @@ module.exports = function getProperties(object) {
   return result;
 };
 
-},{}],25:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 /*!
  * chai
  * Copyright(c) 2011 Jake Luer <jake@alogicalparadox.com>
@@ -58788,7 +58743,7 @@ exports.overwriteMethod = require('./overwriteMethod');
 exports.addChainableMethod = require('./addChainableMethod');
 
 
-},{"./addChainableMethod":15,"./addMethod":16,"./addProperty":17,"./flag":18,"./getActual":19,"./getMessage":21,"./getName":22,"./getPathValue":23,"./inspect":26,"./objDisplay":27,"./overwriteMethod":28,"./overwriteProperty":29,"./test":30,"./transferFlags":31,"./type":32,"deep-eql":34}],26:[function(require,module,exports){
+},{"./addChainableMethod":14,"./addMethod":15,"./addProperty":16,"./flag":17,"./getActual":18,"./getMessage":20,"./getName":21,"./getPathValue":22,"./inspect":25,"./objDisplay":26,"./overwriteMethod":27,"./overwriteProperty":28,"./test":29,"./transferFlags":30,"./type":31,"deep-eql":33}],25:[function(require,module,exports){
 // This is (almost) directly from Node.js utils
 // https://github.com/joyent/node/blob/f8c335d0caf47f16d31413f89aa28eda3878e3aa/lib/util.js
 
@@ -59110,7 +59065,7 @@ function objectToString(o) {
   return Object.prototype.toString.call(o);
 }
 
-},{"./getEnumerableProperties":20,"./getName":22,"./getProperties":24}],27:[function(require,module,exports){
+},{"./getEnumerableProperties":19,"./getName":21,"./getProperties":23}],26:[function(require,module,exports){
 /*!
  * Chai - flag utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -59160,7 +59115,7 @@ module.exports = function (obj) {
   }
 };
 
-},{"./inspect":26}],28:[function(require,module,exports){
+},{"./inspect":25}],27:[function(require,module,exports){
 /*!
  * Chai - overwriteMethod utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -59213,7 +59168,7 @@ module.exports = function (ctx, name, method) {
   }
 };
 
-},{}],29:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 /*!
  * Chai - overwriteProperty utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -59269,7 +59224,7 @@ module.exports = function (ctx, name, getter) {
   });
 };
 
-},{}],30:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 /*!
  * Chai - test utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -59297,7 +59252,7 @@ module.exports = function (obj, args) {
   return negate ? !expr : expr;
 };
 
-},{"./flag":18}],31:[function(require,module,exports){
+},{"./flag":17}],30:[function(require,module,exports){
 /*!
  * Chai - transferFlags utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -59343,7 +59298,7 @@ module.exports = function (assertion, object, includeAll) {
   }
 };
 
-},{}],32:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 /*!
  * Chai - type utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -59390,7 +59345,7 @@ module.exports = function (obj) {
   return typeof obj;
 };
 
-},{}],33:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 /*!
  * assertion-error
  * Copyright(c) 2013 Jake Luer <jake@qualiancy.com>
@@ -59502,10 +59457,10 @@ AssertionError.prototype.toJSON = function (stack) {
   return props;
 };
 
-},{}],34:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 module.exports = require('./lib/eql');
 
-},{"./lib/eql":35}],35:[function(require,module,exports){
+},{"./lib/eql":34}],34:[function(require,module,exports){
 /*!
  * deep-eql
  * Copyright(c) 2013 Jake Luer <jake@alogicalparadox.com>
@@ -59764,10 +59719,10 @@ function objectEqual(a, b, m) {
   return true;
 }
 
-},{"buffer":52,"type-detect":36}],36:[function(require,module,exports){
+},{"buffer":51,"type-detect":35}],35:[function(require,module,exports){
 module.exports = require('./lib/type');
 
-},{"./lib/type":37}],37:[function(require,module,exports){
+},{"./lib/type":36}],36:[function(require,module,exports){
 /*!
  * type-detect
  * Copyright(c) 2013 jake luer <jake@alogicalparadox.com>
@@ -59911,7 +59866,7 @@ Library.prototype.test = function (obj, type) {
   }
 };
 
-},{}],38:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
  * @license
  * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
@@ -66698,7 +66653,7 @@ var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? 
   }
 }.call(this));
 
-},{}],39:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -66907,7 +66862,7 @@ describe('basal utilities', function() {
 });
 
 
-},{"../example/watson":2,"../js/data/basalutil":3,"./fixtures":51,"chai":8,"lodash":38}],40:[function(require,module,exports){
+},{"../example/watson":2,"../js/data/basalutil":3,"./fixtures":50,"chai":7,"lodash":37}],39:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -66947,7 +66902,7 @@ describe('bolus utilities', function() {
     });
   });
 });
-},{"../example/data/device-data.json":1,"../example/watson":2,"../js/data/bolusutil":4,"chai":8,"lodash":38}],41:[function(require,module,exports){
+},{"../example/data/device-data.json":1,"../example/watson":2,"../js/data/bolusutil":4,"chai":7,"lodash":37}],40:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -67015,7 +66970,7 @@ describe('cbg utilities', function() {
     });
   });
 });
-},{"../example/data/device-data.json":1,"../example/watson":2,"../js/data/cbgutil":5,"chai":8,"lodash":38}],42:[function(require,module,exports){
+},{"../example/data/device-data.json":1,"../example/watson":2,"../js/data/cbgutil":5,"chai":7,"lodash":37}],41:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -67108,7 +67063,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],43:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -67211,7 +67166,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],44:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -67314,7 +67269,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],45:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -67407,7 +67362,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],46:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -67500,7 +67455,7 @@ module.exports=[
         "id": "d7e6e692-3371-409b-8d7a-e6ee6097b2d1"
     }
 ]
-},{}],47:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -67593,7 +67548,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],48:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -67686,7 +67641,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],49:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -67779,7 +67734,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],50:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -67862,7 +67817,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],51:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -67893,7 +67848,7 @@ fixtures.push({'name': 'overlapping', 'json': require('./basal-overlapping')});
 fixtures.push({'name': 'temp-final', 'json': require('./basal-temp-final')});
 fixtures.push({'name': 'current-demo', 'json': require('../../example/data/device-data')});
 module.exports = fixtures;
-},{"../../example/data/device-data":1,"./basal-contained":42,"./basal-overlapping":43,"./basal-temp-both-ends":44,"./basal-temp-end":45,"./basal-temp-final":46,"./basal-temp-many-scheduled":47,"./basal-temp-start":48,"./basal-temp-two-scheduled":49,"./basal-template":50}],52:[function(require,module,exports){
+},{"../../example/data/device-data":1,"./basal-contained":41,"./basal-overlapping":42,"./basal-temp-both-ends":43,"./basal-temp-end":44,"./basal-temp-final":45,"./basal-temp-many-scheduled":46,"./basal-temp-start":47,"./basal-temp-two-scheduled":48,"./basal-template":49}],51:[function(require,module,exports){
 var base64 = require('base64-js')
 var ieee754 = require('ieee754')
 
@@ -68888,7 +68843,7 @@ function assert (test, message) {
   if (!test) throw new Error(message || 'Failed assertion')
 }
 
-},{"base64-js":53,"ieee754":54}],53:[function(require,module,exports){
+},{"base64-js":52,"ieee754":53}],52:[function(require,module,exports){
 var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 ;(function (exports) {
@@ -69015,7 +68970,7 @@ var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 }());
 
 
-},{}],54:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 exports.read = function(buffer, offset, isLE, mLen, nBytes) {
   var e, m,
       eLen = nBytes * 8 - mLen - 1,
@@ -69101,4 +69056,4 @@ exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128;
 };
 
-},{}]},{},[39,40,41])
+},{}]},{},[38,39,40])
