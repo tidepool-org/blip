@@ -21,7 +21,14 @@ try {
 catch (Error) {
   var _ = require('lodash');
 }
-var log = require('../lib/bows')('CBGUtil');
+try {
+  var log = require('../lib/bows')('CBGUtil');
+}
+catch (Error) {
+  log = function() {
+    return function() {};
+  };
+}
 
 function CBGUtil(data) {
 

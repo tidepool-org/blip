@@ -21,7 +21,14 @@ try {
 catch (Error) {
   var _ = require('lodash');
 }
-var log = require('../lib/bows')('BolusUtil');
+try {
+  var log = require('../lib/bows')('BolusUtil');
+}
+catch (Error) {
+  log = function() {
+    return function() {};
+  };
+}
 
 function BolusUtil(data) {
 

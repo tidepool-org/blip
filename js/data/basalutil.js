@@ -21,7 +21,14 @@ try {
 catch (Error) {
   var _ = require('lodash');
 }
-var log = require('../lib/bows')('BasalUtil');
+try {
+  var log = require('../lib/bows')('BasalUtil');
+}
+catch (Error) {
+  log = function() {
+    return function() {};
+  };
+}
 
 var keysToOmit = ['id', 'start', 'end', 'vizType'];
 
