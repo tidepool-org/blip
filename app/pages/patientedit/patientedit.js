@@ -117,7 +117,7 @@ var PatientEdit = React.createClass({
 
     /* jshint ignore:start */
     return (
-      <a href={url}>
+      <a className="js-back" href={url}>
         <i className="icon-back"></i>
         {' ' + text}
       </a>

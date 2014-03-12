@@ -29,7 +29,7 @@ describe('Profile', function() {
     user = {
       firstName: 'Johnny',
       lastName: 'Smith',
-      email: 'johnny.smith@example.com',
+      username: 'johnny.smith@example.com',
       password: 'pw',
       passwordConfirm: 'pw'
     };
@@ -52,7 +52,7 @@ describe('Profile', function() {
       });
   });
 
-  it.only('should disable form submit when fetching profile data', function(done) {
+  it('should disable form submit when fetching profile data', function(done) {
     openAppToProfile({
       'api.user.get.delay': 10000
     })
@@ -70,14 +70,19 @@ describe('Profile', function() {
 
   function fillOutForm() {
     helpers.findElement(By.name('firstName'))
+      .then(helpers.clearInput)
       .then(function(q) { return q.sendKeys(user.firstName); });
     helpers.findElement(By.name('lastName'))
+      .then(helpers.clearInput)
       .then(function(q) { return q.sendKeys(user.lastName); });
     helpers.findElement(By.name('username'))
+      .then(helpers.clearInput)
       .then(function(q) { return q.sendKeys(user.username); });
     helpers.findElement(By.name('password'))
+      .then(helpers.clearInput)
       .then(function(q) { return q.sendKeys(user.password); });
     return helpers.findElement(By.name('passwordConfirm'))
+      .then(helpers.clearInput)
       .then(function(q) { return q.sendKeys(user.passwordConfirm); });
   }
 

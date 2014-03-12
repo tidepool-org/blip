@@ -112,6 +112,17 @@ var helpers = {
     return deferred.promise;
   },
 
+  clearInput: function(el) {
+    var deferred = webdriver.promise.defer();
+    
+    driver.executeScript('arguments[0].value = \'\';', el)
+      .then(function() {
+        return deferred.fulfill(el);
+      });
+    
+    return deferred.promise;
+  },
+
   sleep: function(delay) {
     return function() {
       return driver.sleep(delay);

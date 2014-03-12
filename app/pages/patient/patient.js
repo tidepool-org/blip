@@ -60,7 +60,7 @@ var Patient = React.createClass({
 
     /* jshint ignore:start */
     return (
-      <div className="patient">
+      <div className="patient js-patient-page">
         {subnav}
         <div className="container-box-outer patient-content-outer">
           <div className="container-box-inner patient-content-inner">
