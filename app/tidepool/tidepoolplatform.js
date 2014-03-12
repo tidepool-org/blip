@@ -403,7 +403,7 @@ module.exports = function(options){
                         units: datum.payload.carbUnits
                       }
                     ]
-                  )
+                  );
                 } else {
                   return Rx.Observable.return(datum);
                 }
