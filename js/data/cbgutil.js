@@ -47,13 +47,34 @@ function CBGUtil(data) {
     }
   }
 
+  function checkIfUTCDate(s) {
+    var d = new Date(s);
+    if (s === d.toISOString()) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
   this.filter = function(s, e) {
-    return _.filter(this.data, function(d) {
-      var dTime = new Date(d.normalTime).valueOf();
-      if ((dTime >= s.valueOf()) && (dTime <= e.valueOf())) {
-        return d;
-      }
-    });
+    var startIsDate, endIsDate;
+    try {
+      startIsDate = checkIfUTCDate(s);
+      endIsDate = checkIfUTCDate(e);
+    }
+    catch (e) {
+      log('Invalid date passed to cbgUtil.filter', [s, e]);
+      throw e;
+    }
+    if (startIsDate && endIsDate) {
+      return _.filter(this.data, function(d) {
+        var dTime = new Date(d.normalTime).valueOf();
+        if ((dTime >= s.valueOf()) && (dTime <= e.valueOf())) {
+          return d;
+        }
+      });
+    }
   };
 
   this.rangeBreakdown = function(s, e) {

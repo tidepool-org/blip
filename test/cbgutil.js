@@ -23,10 +23,6 @@ var assert = chai.assert;
 var expect = chai.expect;
 
 var _ = require('lodash');
-// Tideline expects a global `window` object to grab its dependencies
-// Not very pretty to add one this way, but as long as we run
-// these tests in Node (vs. in the browser), this is required
-global.window = {_: _};
 
 var watson = require('../example/watson');
 var data = watson.normalize(require('../example/data/device-data.json'));
@@ -34,10 +30,38 @@ var data = watson.normalize(require('../example/data/device-data.json'));
 var CBGUtil = require('../js/data/cbgutil');
 
 describe('cbg utilities', function() {
+  var cbg = new CBGUtil(_.where(data, {'type': 'cbg'}));
+  describe('filter', function() {
+    it('should be a function', function() {
+      assert.isFunction(cbg.filter);
+    });
+    var passEmpty = function() {
+      cbg.filter('', '');
+    };
+    it('should throw RangeError when passed empty string instead of date', function() {
+      assert.throws(passEmpty, RangeError);
+    });
+    var passInvalid = function() {
+      cbg.filter('2014-03-06x12:00:00', '2014-03-07T12:00:00Z');
+    };
+    it('should throw RangeError when passed invalid date string', function() {
+      assert.throws(passInvalid, RangeError);
+    });
+    var passNonUTC = function() {
+      cbg.filter('2014-03-06T12:00:00', '2014-03-07T12:00:00Z');
+    };
+    it('should return an array', function() {
+      assert.typeOf(cbg.filter('', ''), 'array');
+    });
+  });
   describe('rangeBreakdown', function() {
-    var cbg = new CBGUtil(_.where(data, {'type': 'cbg'}));
     it('should be a function', function() {
       assert.isFunction(cbg.rangeBreakdown);
+    });
+  });
+  describe('average', function() {
+    it('should be a function', function() {
+      assert.isFunction(cbg.average);
     });
   });
 });
