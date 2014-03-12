@@ -17,6 +17,7 @@ describe('Patients', function() {
 
   it('should show shared patients', function(done) {
     openAppToPatients()
+      .then(helpers.sleep(200))
       .then(function() {
         expect('.js-patients-shared .js-patient').dom.to.have.count(3);
         done();
@@ -37,6 +38,8 @@ describe('Patients', function() {
     openAppToPatients({
       'api.patient.getall.empty': true
     })
+      // Wait a bit for loading placeholders to clear
+      .then(helpers.sleep(200))
       .then(function() {
         expect('.js-patients-shared-empty').dom.to.be.visible();
         done();
