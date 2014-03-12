@@ -13,8 +13,8 @@
   "testling": {
     "harness": "mocha-bdd",
     "browsers": [
-      "ie/8..latest",
       "chrome/latest",
+      "safari/latest",
       "firefox/latest"
     ],
     "html": "test/testling.html"
