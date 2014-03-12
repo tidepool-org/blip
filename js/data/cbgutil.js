@@ -15,15 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = require('lodash');
-try {
-  var log = require('../lib/bows')('CBGUtil');
-}
-catch (Error) {
-  log = function() {
-    return function() {};
-  };
-}
+var _ = require('../lib/')._;
+var log = require('../lib/').bows('CBGUtil');
 
 function CBGUtil(data) {
 
@@ -57,6 +50,9 @@ function CBGUtil(data) {
   function checkIfUTCDate(s) {
     var d = new Date(s);
     if (s === d.toISOString()) {
+      return true;
+    }
+    else if (typeof s === 'number') {
       return true;
     }
     else {

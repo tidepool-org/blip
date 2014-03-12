@@ -55069,7 +55069,7 @@ module.exports=[
     }
 ]
 },{}],2:[function(require,module,exports){
-var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/* 
+/* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
  * 
@@ -55100,16 +55100,12 @@ var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? 
 //
 
 var _ = require('lodash');
-// Tideline expects a global `window` object to grab its dependencies
-// Not very pretty to add one this way, but as long as we run
-// these tests in Node (vs. in the browser), this is required
-global.window = {_: _};
 
 try {
   var log = window.bows('Watson');
 }
 catch (ReferenceError) {
-  var log = require('../js/lib/bows')('Watson');
+  var log = require('../js/lib/').bows('Watson');
 }
 
 var watson = {
@@ -55140,7 +55136,7 @@ var watson = {
 };
 
 module.exports = watson;
-},{"../js/lib/bows":6,"lodash":37}],3:[function(require,module,exports){
+},{"../js/lib/":7,"lodash":53}],3:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -55158,15 +55154,8 @@ module.exports = watson;
  * == BSD2 LICENSE ==
  */
 
-var _ = require('lodash');
-try {
-  var log = require('../lib/bows')('BasalUtil');
-}
-catch (Error) {
-  log = function() {
-    return function() {};
-  };
-}
+var _ = require('../lib/')._;
+var log = require('../lib/').bows('BasalUtil');
 
 var keysToOmit = ['id', 'start', 'end', 'vizType'];
 
@@ -55300,7 +55289,7 @@ function BasalUtil(data) {
 }
 
 module.exports = BasalUtil;
-},{"../lib/bows":6,"lodash":37}],4:[function(require,module,exports){
+},{"../lib/":7}],4:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -55318,15 +55307,8 @@ module.exports = BasalUtil;
  * == BSD2 LICENSE ==
  */
 
-var _ = require('lodash');
-try {
-  var log = require('../lib/bows')('BolusUtil');
-}
-catch (Error) {
-  log = function() {
-    return function() {};
-  };
-}
+var _ = require('../lib/')._;
+var log = require('../lib/').bows('BolusUtil');
 
 function BolusUtil(data) {
 
@@ -55355,7 +55337,7 @@ function BolusUtil(data) {
 }
 
 module.exports = BolusUtil;
-},{"../lib/bows":6,"lodash":37}],5:[function(require,module,exports){
+},{"../lib/":7}],5:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -55373,15 +55355,8 @@ module.exports = BolusUtil;
  * == BSD2 LICENSE ==
  */
 
-var _ = require('lodash');
-try {
-  var log = require('../lib/bows')('CBGUtil');
-}
-catch (Error) {
-  log = function() {
-    return function() {};
-  };
-}
+var _ = require('../lib/')._;
+var log = require('../lib/').bows('CBGUtil');
 
 function CBGUtil(data) {
 
@@ -55415,6 +55390,9 @@ function CBGUtil(data) {
   function checkIfUTCDate(s) {
     var d = new Date(s);
     if (s === d.toISOString()) {
+      return true;
+    }
+    else if (typeof s === 'number') {
       return true;
     }
     else {
@@ -55464,7 +55442,7 @@ function CBGUtil(data) {
 }
 
 module.exports = CBGUtil;
-},{"../lib/bows":6,"lodash":37}],6:[function(require,module,exports){
+},{"../lib/":7}],6:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -55482,25 +55460,4208 @@ module.exports = CBGUtil;
  * == BSD2 LICENSE ==
  */
 
-var bows;
+module.exports = {
+  pool: require('./pool'),
+  oneDay: require('./one-day'),
+  twoWeek: require('./two-week'),
+
+  data: {
+    BasalUtil: require('./data/basalutil'),
+    BolusUtil: require('./data/bolusutil'),
+    CBGUtil: require('./data/cbgutil')
+  },
+
+  plot: {
+    basal: require('./plot/basal'),
+    bolus: require('./plot/bolus'),
+    carbs: require('./plot/carbs'),
+    cbg: require('./plot/cbg'),
+    message: require('./plot/message'),
+    SMBGTime: require('./plot/smbg-time'),
+    smbg: require('./plot/smbg'),
+    stats: {
+      puddle: require('./plot/stats/puddle'),
+      widget: require('./plot/stats/widget')
+    },
+    util: {
+      fill: require('./plot/util/fill'),
+      scales: require('./plot/util/scales'),
+      tooltip: require('./plot/util/tooltip')
+    }
+  }
+};
+
+},{"./data/basalutil":3,"./data/bolusutil":4,"./data/cbgutil":5,"./one-day":8,"./plot/basal":9,"./plot/bolus":10,"./plot/carbs":11,"./plot/cbg":12,"./plot/message":13,"./plot/smbg":15,"./plot/smbg-time":14,"./plot/stats/puddle":16,"./plot/stats/widget":17,"./plot/util/fill":18,"./plot/util/scales":19,"./plot/util/tooltip":20,"./pool":21,"./two-week":22}],7:[function(require,module,exports){
+var lib = {};
 
 if (typeof window !== 'undefined') {
-  bows = window.bows;
+  lib._ = window._;
+  lib.d3 = window.d3;
+  // only care about not having d3 when running in the browser
+  if (!lib.d3) {
+    throw new Error('d3.js is a required dependency');
+  }
+  lib.Duration = window.Duration;
+  // only care about not having Duration when running in the browser
+  if (!lib.Duration) {
+    throw new Error('Duration.js is a required dependency');
+  }
+  lib.bows = window.bows;
+}
+else {
+  lib._ = require('lodash');
 }
 
-if (!bows) {
+if (!lib._) {
+  throw new Error('Underscore or Lodash is a required dependency');
+}
+
+if (!lib.bows) {
   // Optional dependency
   // Return a factory for a log function that does nothing
-  bows = function() {
+  lib.bows = function() {
     return function() {};
   };
 }
 
-module.exports = bows;
-},{}],7:[function(require,module,exports){
+module.exports = lib;
+},{"lodash":53}],8:[function(require,module,exports){
+/* 
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+var d3 = require('./lib/').d3;
+var _ = require('./lib/')._;
+
+var log = require('./lib/').bows('One Day');
+
+module.exports = function(emitter) {
+  // required externals
+  var Pool = require('./pool');
+  var tooltip = require('./plot/util/tooltip');
+
+  // constants
+  var MS_IN_24 = 86400000;
+
+  // basic attributes
+  var id = 'tidelineSVGOneDay',
+    minWidth = 400, minHeight = 400,
+    width = minWidth, height = minHeight,
+    imagesBaseUrl = 'img',
+    nav = {
+      axisHeight: 30,
+      scrollNav: true,
+      scrollNavHeight: 40,
+      scrollThumbRadius: 8,
+      currentTranslation: 0
+    },
+    axisGutter = 40, gutter = 40,
+    buffer = 5,
+    pools = [], poolGroup,
+    xScale = d3.time.scale.utc(), xAxis,
+    beginningOfData, endOfData, data, allData = [], endpoints,
+    mainGroup,
+    scrollNav, scrollHandleTrigger = true, tooltips;
+
+  container.dataFill = {};
+
+  function container(selection) {
+    var mainSVG = selection.append('svg');
+
+    mainGroup = mainSVG.append('g').attr('id', 'tidelineMain');
+
+    // update SVG dimenions and ID
+    mainSVG.attr({
+      'id': id,
+      'width': width,
+      'height': height
+    });
+
+    mainGroup.append('rect')
+      .attr({
+        'id': 'poolsInvisibleRect',
+        'width': width,
+        'height': function() {
+          if (nav.scrollNav) {
+            return (height - nav.scrollNavHeight);
+          }
+          else {
+            return height;
+          }
+        },
+        'opacity': 0.0
+      });
+
+    mainGroup.append('g')
+      .attr('class', 'd3-x d3-axis')
+      .attr('id', 'tidelineXAxis')
+      .attr('transform', 'translate(0,' + (nav.axisHeight - 1) + ')');
+
+    poolGroup = mainGroup.append('g').attr('id', 'tidelinePools');
+
+    mainGroup.append('g')
+      .attr('id', 'tidelineLabels');
+
+    mainGroup.append('g')
+      .attr('id', 'tidelineYAxes')
+      .append('rect')
+      .attr({
+        'id': 'yAxesInvisibleRect',
+        'height': function() {
+          if (nav.scrollNav) {
+            return (height - nav.scrollNavHeight);
+          }
+          else {
+            return height;
+          }
+        },
+        'width': axisGutter,
+        'fill': 'white'
+      });
+
+    if (nav.scrollNav) {
+      scrollNav = mainGroup.append('g')
+        .attr('class', 'x scroll')
+        .attr('id', 'tidelineScrollNav');
+    }
+  }
+
+  // non-chainable methods
+  container.getData = function(endpoints, direction) {
+    if (!arguments.length) {
+      endpoints = container.initialEndpoints;
+      direction = 'both';
+    }
+
+    var start = new Date(endpoints[0]);
+    var end = new Date(endpoints[1]);
+
+    container.currentEndpoints = [start, end];
+
+    var readings = _.filter(data, function(datapoint) {
+      var t = Date.parse(datapoint.normalTime);
+      if (direction === 'both') {
+        if ((t >= start) && (t <= end)) {
+          return datapoint;
+        }
+      }
+      else if (direction === 'left') {
+        if ((t >= start) && (t < end)) {
+          return datapoint;
+        }
+      }
+      else if (direction === 'right') {
+        if ((t > start) && (t <= end)) {
+          return datapoint;
+        }
+      }
+    });
+
+    return readings;
+  };
+
+  container.panForward = function() {
+    log('Jumped forward a day.');
+    nav.currentTranslation -= width - axisGutter;
+    mainGroup.transition().duration(500).tween('zoom', function() {
+      var ix = d3.interpolate(nav.currentTranslation + width - axisGutter, nav.currentTranslation);
+      return function(t) {
+        nav.pan.translate([ix(t), 0]);
+        nav.pan.event(mainGroup);
+      };
+    });
+  };
+
+  container.panBack = function() {
+    log('Jumped back a day.');
+    nav.currentTranslation += width - axisGutter;
+    mainGroup.transition().duration(500).tween('zoom', function() {
+      var ix = d3.interpolate(nav.currentTranslation - width + axisGutter, nav.currentTranslation);
+      return function(t) {
+        nav.pan.translate([ix(t), 0]);
+        nav.pan.event(mainGroup);
+      };
+    });
+  };
+
+  container.newPool = function() {
+    var p = new Pool(container);
+    pools.push(p);
+    return p;
+  };
+
+  container.arrangePools = function() {
+    var numPools = pools.length;
+    var cumWeight = 0;
+    pools.forEach(function(pool) {
+      cumWeight += pool.weight();
+    });
+    gutter = 0.25 * (container.height() / cumWeight);
+    var totalPoolsHeight =
+      container.height() - nav.axisHeight - nav.scrollNavHeight - (numPools - 1) * gutter;
+    var poolScaleHeight = totalPoolsHeight/cumWeight;
+    var actualPoolsHeight = 0;
+    pools.forEach(function(pool) {
+      pool.height(poolScaleHeight);
+      actualPoolsHeight += pool.height();
+    });
+    actualPoolsHeight += (numPools - 1) * gutter;
+    var currentYPosition = nav.axisHeight;
+    pools.forEach(function(pool) {
+      pool.yPosition(currentYPosition);
+      currentYPosition += pool.height() + gutter;
+      pool.group().attr('transform', 'translate(0,' + pool.yPosition() + ')');
+    });
+  };
+
+  container.getCurrentDomain = function() {
+    var currentDomain = xScale.domain();
+    var d = new Date(xScale.domain()[0]);
+    return {
+      'start': new Date(currentDomain[0]),
+      'end': new Date(currentDomain[1]),
+      'center': new Date(d.setUTCHours(d.getUTCHours() + 12))
+    };
+  };
+
+  container.navString = function(a) {
+    var beginning = a[0];
+    var end = a[1];
+    var navString;
+    if (beginning.getUTCHours() <= 11) {
+      navString = beginning.toISOString();
+    }
+    else {
+      navString = end.toISOString();
+    }
+    if (!d3.select('#' + id).classed('hidden')) {
+      emitter.emit('currentDomain', a);
+      emitter.emit('navigated', [navString]);
+      if (a[1].valueOf() === endpoints[1].valueOf()) {
+        emitter.emit('mostRecent', true);
+      }
+      else {
+        emitter.emit('mostRecent', false);
+      }
+    }
+  };
+
+  // getters only
+  container.pools = function() {
+    return pools;
+  };
+
+  container.poolGroup = function() {
+    return poolGroup;
+  };
+
+  container.id = function() {
+    return id;
+  };
+
+  container.tooltips = function() {
+    return tooltips;
+  };
+
+  container.axisGutter = function() {
+    return axisGutter;
+  };
+
+  // chainable methods
+  container.setAxes = function() {
+    // set the domain and range for the main tideline x-scale
+    xScale.domain([container.initialEndpoints[0], container.initialEndpoints[1]])
+      .range([axisGutter, width]);
+
+    var tickFormat = d3.time.format.utc.multi([
+      ['%b %-d', function(d) { return d.getUTCHours() === 0; }],
+      ['%-I am', function(d) { return d.getUTCHours() < 11; }],
+      ['%-I pm', function(d) { return true; }],
+    ]);
+
+    xAxis = d3.svg.axis()
+      .scale(xScale)
+      .orient('top')
+      .outerTickSize(0)
+      .innerTickSize(15)
+      .tickFormat(tickFormat);
+
+    mainGroup.select('#tidelineXAxis').call(xAxis);
+
+    mainGroup.selectAll('#tidelineXAxis g.tick text').style('text-anchor', 'start').attr('transform', 'translate(5,15)');
+
+    if (nav.scrollNav) {
+      nav.scrollScale = d3.time.scale.utc()
+        .domain([endpoints[0], container.currentEndpoints[0]])
+        .range([axisGutter + nav.scrollThumbRadius, width - nav.scrollThumbRadius]);
+    }
+
+    pools.forEach(function(pool) {
+      pool.xScale(xScale.copy());
+    });
+
+    return container;
+  };
+
+  container.setNav = function() {
+    var maxTranslation = -xScale(endpoints[0]) + axisGutter;
+    var minTranslation = -(xScale(endpoints[1])) + width;
+    nav.pan = d3.behavior.zoom()
+      .scaleExtent([1, 1])
+      .x(xScale)
+      .on('zoom', function() {
+        if ((endOfData - xScale.domain()[1] < MS_IN_24) && !(endOfData.valueOf() === endpoints[1].valueOf())) {
+          log('Rendering new data! (right)');
+          var plusOne = new Date(container.endOfData());
+          plusOne.setDate(plusOne.getDate() + 1);
+          var newData = container.getData([endOfData, plusOne], 'right');
+          // update endOfData
+          if (plusOne <= endpoints[1]) {
+            container.endOfData(plusOne);
+          }
+          else {
+            container.endOfData(endpoints[1]);
+          }
+          container.allData(newData);
+          for (var j = 0; j < pools.length; j++) {
+            pools[j].render(poolGroup, container.allData());
+          }
+        }
+        if ((xScale.domain()[0] - beginningOfData < MS_IN_24) && !(beginningOfData.valueOf() === endpoints[0].valueOf())) {
+          log('Rendering new data! (left)');
+          var plusOne = new Date(container.beginningOfData());
+          plusOne.setDate(plusOne.getDate() - 1);
+          var newData = container.getData([plusOne, beginningOfData], 'left');
+          // update beginningOfData
+          if (plusOne >= endpoints[0]) {
+            container.beginningOfData(plusOne);
+          }
+          else {
+            container.beginningOfData(endpoints[0]);
+          }
+          container.allData(newData);
+          for (var j = 0; j < pools.length; j++) {
+            pools[j].render(poolGroup, container.allData());
+          }
+        }
+        var e = d3.event;
+        if (e.translate[0] < minTranslation) {
+          e.translate[0] = minTranslation;
+        }
+        else if (e.translate[0] > maxTranslation) {
+          e.translate[0] = maxTranslation;
+        }
+        nav.pan.translate([e.translate[0], 0]);
+        for (var i = 0; i < pools.length; i++) {
+          pools[i].pan(e);
+        }
+        mainGroup.select('#tidelineTooltips').attr('transform', 'translate(' + e.translate[0] + ',0)');
+        mainGroup.select('.d3-x.d3-axis').call(xAxis);
+        mainGroup.selectAll('#tidelineXAxis g.tick text').style('text-anchor', 'start').attr('transform', 'translate(5,15)');
+        if (scrollHandleTrigger) {
+          mainGroup.select('#scrollThumb').transition().ease('linear').attr('x', function(d) {
+            d.x = nav.scrollScale(xScale.domain()[0]);
+            return d.x - nav.scrollThumbRadius;
+          });
+        }
+        container.navString(xScale.domain());
+      })
+      .on('zoomend', function() {
+        container.currentTranslation(nav.latestTranslation);
+        scrollHandleTrigger = true;
+      });
+
+    mainGroup.call(nav.pan);
+
+    return container;
+  };
+
+  container.setScrollNav = function() {
+    var translationAdjustment = axisGutter;
+    scrollNav.selectAll('line').remove();
+    scrollNav.attr('transform', 'translate(0,'  + (height - (nav.scrollNavHeight / 2)) + ')')
+      .insert('line', '#scrollThumb')
+      .attr({
+        'x1': nav.scrollScale(endpoints[0]) - nav.scrollThumbRadius,
+        'x2': nav.scrollScale(container.initialEndpoints[0]) + nav.scrollThumbRadius,
+        'y1': 0,
+        'y2': 0
+      });
+
+    var dxRightest = nav.scrollScale.range()[1];
+    var dxLeftest = nav.scrollScale.range()[0];
+
+    var drag = d3.behavior.drag()
+      .origin(function(d) {
+        return d;
+      })
+      .on('dragstart', function() {
+        d3.event.sourceEvent.stopPropagation(); // silence the click-and-drag listener
+      })
+      .on('drag', function(d) {
+        d.x += d3.event.dx;
+        if (d.x > dxRightest) {
+          d.x = dxRightest;
+        }
+        else if (d.x < dxLeftest) {
+          d.x = dxLeftest;
+        }
+        d3.select(this).attr('x', function(d) { return d.x - nav.scrollThumbRadius; });
+        var date = nav.scrollScale.invert(d.x);
+        nav.currentTranslation += -xScale(date) + translationAdjustment;
+        scrollHandleTrigger = false;
+        nav.pan.translate([nav.currentTranslation, 0]);
+        nav.pan.event(mainGroup);
+      });
+
+    scrollNav.selectAll('image')
+      .data([{'x': nav.scrollScale(container.currentEndpoints[0]), 'y': 0}])
+      .enter()
+      .append('image')
+      .attr({
+        'xlink:href': imagesBaseUrl + '/ux/scroll_thumb.svg',
+        'x': function(d) { return d.x - nav.scrollThumbRadius; },
+        'y': -nav.scrollThumbRadius,
+        'width': nav.scrollThumbRadius * 2,
+        'height': nav.scrollThumbRadius * 2,
+        'id': 'scrollThumb'
+      })
+      .call(drag);
+
+    return container;
+  };
+
+  container.setTooltip = function() {
+    var tooltipGroup = mainGroup.append('g')
+      .attr('id', 'tidelineTooltips');
+    tooltips = tooltip(container, tooltipGroup).id(tooltipGroup.attr('id'));
+    pools.forEach(function(pool) {
+      pool.tooltips(tooltips);
+    });
+    return container;
+  };
+
+  container.setAtDate = function (date) {
+    nav.currentTranslation = -xScale(date) + axisGutter;
+    nav.pan.translate([nav.currentTranslation, 0]);
+    nav.pan.event(mainGroup);
+
+    return container;
+  };
+
+  container.stopListening = function() {
+    emitter.removeAllListeners('carbTooltipOn')
+      .removeAllListeners('carbTooltipOff')
+      .removeAllListeners('bolusTooltipOn')
+      .removeAllListeners('bolusTooltipOff')
+      .removeAllListeners('noCarbTimestamp');
+
+    return container;
+  };
+
+  container.clear = function() {
+    pools.forEach(function(pool) {
+      pool.clear();
+    });
+    container.currentTranslation(0).latestTranslation(0);
+    allData = [];
+
+    return container;
+  };
+
+  container.hide = function() {
+    d3.select('#' + id).classed('hidden', true);
+
+    return container;
+  };
+
+  container.show = function() {
+    d3.select('#' + id).classed('hidden', false);
+
+    return container;
+  };
+
+  // getters and setters
+  container.width = function(x) {
+    if (!arguments.length) return width;
+    if (x >= minWidth) {
+      width = x;
+    }
+    else {
+      width = minWidth;
+    }
+    return container;
+  };
+
+  container.height = function(x) {
+    if (!arguments.length) return height;
+    var totalHeight = x + nav.axisHeight;
+    if (nav.scrollNav) {
+      totalHeight += nav.scrollNavHeight;
+    }
+    if (totalHeight >= minHeight) {
+      height = x;
+    }
+    else {
+      height = minHeight;
+    }
+    return container;
+  };
+
+  container.imagesBaseUrl = function(x) {
+    if (!arguments.length) return imagesBaseUrl;
+    imagesBaseUrl = x;
+    return container;
+  };
+
+  container.latestTranslation = function(x) {
+    if (!arguments.length) return nav.latestTranslation;
+    nav.latestTranslation = x;
+    return container;
+  };
+
+  container.currentTranslation = function(x) {
+    if (!arguments.length) return nav.currentTranslation;
+    nav.currentTranslation = x;
+    return container;
+  };
+
+  container.beginningOfData = function(d) {
+    if (!arguments.length) return beginningOfData;
+    beginningOfData = new Date(d);
+    return container;
+  };
+
+  container.endOfData = function(d) {
+    if (!arguments.length) return endOfData;
+    endOfData = new Date(d);
+    return container;
+  };
+
+  container.buffer = function(x) {
+    if (!arguments.length) return buffer;
+    buffer = x;
+    return container;
+  };
+
+  container.data = function(a) {
+    if (!arguments.length) return data;
+
+    data = a;
+
+    var first = new Date(a[0].normalTime);
+    var last = new Date(a[a.length - 1].normalTime);
+
+    var minusOne = new Date(last);
+    minusOne.setDate(minusOne.getDate() - 1);
+    container.initialEndpoints = [minusOne, last];
+    container.currentEndpoints = container.initialEndpoints;
+
+    container.beginningOfData(minusOne).endOfData(last);
+
+    endpoints = [first, last];
+    container.endpoints = endpoints;
+
+    return container;
+  };
+
+  container.allData = function(x, a) {
+    if (!arguments.length) return allData;
+    if (!a) {
+      a = xScale.domain();
+    }
+    allData = allData.concat(x);
+    log('Length of allData array is', allData.length);
+    var plus = new Date(a[1]);
+    plus.setDate(plus.getDate() + container.buffer());
+    var minus = new Date(a[0]);
+    minus.setDate(minus.getDate() - container.buffer());
+    if (beginningOfData < minus) {
+      container.beginningOfData(minus);
+      allData = _.filter(allData, function(datapoint) {
+        var t = Date.parse(datapoint.normalTime);
+        if (t >= minus) {
+          return t;
+        }
+      });
+    }
+    if (endOfData > plus) {
+      container.endOfData(plus);
+      allData = _.filter(allData, function(datapoint) {
+        var t = Date.parse(datapoint.normalTime);
+        if (t <= plus) {
+          return t;
+        }
+      });
+    }
+    allData = _.sortBy(allData, function(d) {
+      return new Date(d.normalTime).valueOf();
+    });
+    allData = _.uniq(allData, true);
+    return container;
+  };
+
+  return container;
+};
+
+},{"./lib/":7,"./plot/util/tooltip":20,"./pool":21}],9:[function(require,module,exports){
+/* 
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+var d3 = require('../lib/').d3;
+var _ = require('../lib/')._;
+
+var Duration = require('../lib/').Duration;
+var log = require('../lib/').bows('Basal');
+
+module.exports = function(pool, opts) {
+
+  var QUARTER = ' ¼', HALF = ' ½', THREE_QUARTER = ' ¾', THIRD = ' ⅓', TWO_THIRDS = ' ⅔';
+
+  opts = opts || {};
+
+  var defaults = {
+    classes: {
+      'reg': {'tooltip': 'basal_tooltip_reg.svg', 'height': 20},
+      'temp': {'tooltip': 'basal_tooltip_temp_large.svg', 'height': 40}
+    },
+    tooltipWidth: 180,
+    pathStroke: 1.5,
+    opacity: 0.3,
+    opacityDelta: 0.1
+  };
+
+  _.defaults(opts, defaults);
+
+  function basal(selection) {
+    opts.xScale = pool.xScale().copy();
+    selection.each(function(currentData) {
+
+      // to prevent blank rectangle at beginning of domain
+      var index = opts.data.indexOf(currentData[0]);
+      // when near left edge currentData[0] will have index 0, so we don't want to decrement it
+      if (index !== 0) {
+        index--;
+      }
+      while ((index >= 0) && (opts.data[index].vizType !== 'actual')) {
+        index--;
+      }
+      // when index === 0 might catch a non-basal
+      if (opts.data[index].type === 'basal-rate-segment') {
+        currentData.unshift(opts.data[index]);
+      }
+
+      var line = d3.svg.line()
+        .x(function(d) { return d.x; })
+        .y(function(d) { return d.y; })
+        .interpolate('step-after');
+
+      var actual = _.where(currentData, {'vizType': 'actual'});
+      var undelivered = _.where(opts.data, {'vizType': 'undelivered', 'deliveryType': 'scheduled'});
+
+      // TODO: remove this when we have guaranteed unique IDs for each basal rate segment again
+      currentData.forEach(function(d) {
+        if ((d._id.search('_actual') === -1) && (d._id.search('_undelivered') === -1)) {
+          d._id = d._id + '_' + d.start.replace(/:/g, '') + '_' + d.vizType;
+        }
+      });
+
+      var rects = d3.select(this)
+        .selectAll('g')
+        .data(currentData, function(d) {
+          return d._id;
+        });
+      var rectGroups = rects.enter()
+        .append('g')
+        .attr('class', 'd3-basal-group')
+        .attr('id', function(d) {
+          return 'basal_group_' + d._id;
+        });
+      rectGroups.filter(function(d){
+        if (d.vizType === 'actual') {
+          return d;
+        }
+      })
+        .append('rect')
+        .attr({
+          'width': function(d) {
+            return basal.width(d);
+          },
+          'height': function(d) {
+            var height = pool.height() - opts.yScale(d.value);
+            if (height < 0) {
+              return 0;
+            }
+            else {
+              return height;
+            }
+          },
+          'x': function(d) {
+            return opts.xScale(new Date(d.normalTime));
+          },
+          'y': function(d) {
+            return opts.yScale(d.value);
+          },
+          'opacity': '0.3',
+          'class': function(d) {
+            var classes;
+            if (d.deliveryType === 'temp') {
+              classes = 'd3-basal d3-rect-basal d3-basal-temp';
+            }
+            else {
+              classes = 'd3-basal d3-rect-basal';
+            }
+            if (d.delivered !== 0) {
+              classes += ' d3-rect-basal-nonzero';
+            }
+            return classes;
+          },
+          'id': function(d) {
+            return 'basal_' + d._id;
+          }
+        });
+      rectGroups.filter(function(d) {
+        if (d.deliveryType !== 'temp') {
+          return d;
+        }
+      })
+        .append('rect')
+        .attr({
+          'width': function(d) {
+            return basal.width(d);
+          },
+          'height': pool.height(),
+          'x': function(d) {
+            return opts.xScale(new Date(d.normalTime));
+          },
+          'y': function(d) {
+            return opts.yScale.range()[1];
+          },
+          'class': function(d) {
+            if (d.vizType === 'undelivered') {
+              return 'd3-basal d3-basal-invisible d3-basal-temp';
+            }
+            else {
+              return 'd3-basal d3-basal-invisible';
+            }
+          },
+          'id': function(d) {
+            return 'basal_invisible_' + d._id;
+          }
+        });
+      rectGroups.filter(function(d) {
+          if (d.delivered !== 0) {
+            return d;
+          }
+        })
+        .selectAll('.d3-basal-invisible')
+        .classed('d3-basal-nonzero', true);
+      rects.exit().remove();
+
+      var basalGroup = d3.select(this);
+
+      var actualPoints = [];
+
+      actual.forEach(function(d) {
+        actualPoints.push({
+          'x': opts.xScale(new Date(d.normalTime)),
+          'y': opts.yScale(d.value) - opts.pathStroke / 2,
+        },
+        {
+          'x': opts.xScale(new Date(d.normalEnd)),
+          'y': opts.yScale(d.value) - opts.pathStroke / 2,
+        });
+      });
+
+      d3.selectAll('.d3-path-basal').remove();
+
+      d3.select(this).append('path')
+        .attr({
+        'd': line(actualPoints),
+        'class': 'd3-basal d3-path-basal'
+      });
+
+      if (undelivered.length !== 0) {
+        var undeliveredSequences = [];
+        var contiguous = [];
+        undelivered.forEach(function(segment, i, segments) {
+          if ((i < (segments.length - 1)) && (segment.end === segments[i + 1].start)) {
+            segment.contiguousWith = 'next';
+          }
+          else if ((i !== 0) && (segments[i - 1].end === segment.start)) {
+            segment.contiguousWith = 'previous';
+          }
+          else {
+            segment.contiguousWith = 'none';
+            undeliveredSequences.push([segment]);
+          }
+        });
+        undelivered = undelivered.reverse();
+
+        var anchors = _.where(undelivered, {'contiguousWith': 'previous'});
+
+        anchors.forEach(function(anchor) {
+          var index = undelivered.indexOf(anchor);
+          contiguous.push(undelivered[index]);
+          index++;
+          while (undelivered[index].contiguousWith === 'next') {
+            contiguous.push(undelivered[index]);
+            index++;
+            if (index > (undelivered.length - 1)) {
+              break;
+            }
+          }
+          undeliveredSequences.push(contiguous);
+          contiguous = [];
+        });
+
+        undeliveredSequences.forEach(function(seq) {
+          seq = seq.reverse();
+          var pathPoints = _.map(seq, function(segment) {
+            return [{
+              'x': opts.xScale(new Date(segment.normalTime)),
+              'y': opts.yScale(segment.value)
+            },
+            {
+              'x': opts.xScale(new Date(segment.normalEnd)),
+              'y': opts.yScale(segment.value)
+            }];
+          });
+          pathPoints = _.flatten(pathPoints);
+          pathPoints = _.uniq(pathPoints, function(point) {
+            return JSON.stringify(point);
+          });
+
+          basalGroup.append('path')
+            .attr({
+              'd': line(pathPoints),
+              'class': 'd3-basal d3-path-basal d3-path-basal-undelivered'
+            });
+        });
+
+        basal.linkTemp(_.where(actual, {'deliveryType': 'temp'}), undelivered);
+      }
+
+      // tooltips
+      d3.selectAll('.d3-basal-invisible').on('mouseover', function() {
+        var invisiRect = d3.select(this);
+        var id = invisiRect.attr('id').replace('basal_invisible_', '');
+        var d = d3.select('#basal_group_' + id).datum();
+        if (invisiRect.classed('d3-basal-temp')) {
+          var tempD = _.clone(_.findWhere(actual, {'deliveryType': 'temp', '_id': d.link.replace('link_', '')}));
+          tempD._id = d._id;
+          basal.addTooltip(tempD, 'temp', d);
+        }
+        else {
+          basal.addTooltip(d, 'reg');
+        }
+        if (invisiRect.classed('d3-basal-nonzero')) {
+          if (invisiRect.classed('d3-basal-temp')) {
+            d3.select('#basal_' + d.link.replace('link_', '')).attr('opacity', opts.opacity + opts.opacityDelta);
+          }
+          else {
+            d3.select('#basal_' + id).attr('opacity', opts.opacity + opts.opacityDelta);
+          }
+        }
+      });
+      d3.selectAll('.d3-basal-invisible').on('mouseout', function() {
+        var invisiRect = d3.select(this);
+        var id = invisiRect.attr('id').replace('basal_invisible_', '');
+        var d = d3.select('#basal_group_' + id).datum();
+        d3.select('#tooltip_' + id).remove();
+        if (invisiRect.classed('d3-basal-temp')) {
+          d3.select('#basal_' + d.link.replace('link_', '')).attr('opacity', opts.opacity);
+        }
+        else {
+          d3.select('#basal_' + id).attr('opacity', opts.opacity);
+        }
+      });
+    });
+  }
+
+  basal.linkTemp = function(toLink, referenceArray) {
+    referenceArray = referenceArray.slice(0);
+    referenceArray = _.sortBy(referenceArray, function(segment) {
+      return Date.parse(segment.normalTime);
+    });
+    toLink.forEach(function(segment, i, segments) {
+      var start = _.findWhere(referenceArray, {'normalTime': segment.normalTime});
+      if (start === undefined) {
+        log(segment, referenceArray);
+      }
+      var startIndex = referenceArray.indexOf(start);
+      if ((startIndex < (referenceArray.length - 1)) && (start.end === referenceArray[startIndex + 1].start)) {
+        var end = _.findWhere(referenceArray, {'normalEnd': segment.normalEnd});
+        var endIndex = referenceArray.indexOf(end);
+        var index = startIndex;
+        while (index <= endIndex) {
+          referenceArray[index].link = 'link_' + segment._id;
+          index++;
+        }
+      }
+      else {
+        referenceArray[startIndex].link = 'link_' + segment._id;
+      }
+    });
+  };
+
+  basal.timespan = function(d) {
+    var start = Date.parse(d.normalTime);
+    var end = Date.parse(d.normalEnd);
+    var diff = end - start;
+    var dur = Duration.parse(diff + 'ms');
+    var hours = dur.hours();
+    var minutes = dur.minutes() - (hours * 60);
+    if (hours !== 0) {
+      if (hours === 1) {
+        switch(minutes) {
+        case 0:
+          return 'over ' + hours + ' hr';
+        case 15:
+          return 'over ' + hours + QUARTER + ' hr';
+        case 20:
+          return 'over ' + hours + THIRD + ' hr';
+        case 30:
+          return 'over ' + hours + HALF + ' hr';
+        case 40:
+          return 'over ' + hours + TWO_THIRDS + ' hr';
+        case 45:
+          return 'over ' + hours + THREE_QUARTER + ' hr';
+        default:
+          return 'over ' + hours + ' hr ' + minutes + ' min';
+        }
+      }
+      else {
+        switch(minutes) {
+        case 0:
+          return 'over ' + hours + ' hrs';
+        case 15:
+          return 'over ' + hours + QUARTER + ' hrs';
+        case 20:
+          return 'over ' + hours + THIRD + ' hrs';
+        case 30:
+          return 'over ' + hours + HALF + ' hrs';
+        case 40:
+          return 'over ' + hours + TWO_THIRDS + ' hrs';
+        case 45:
+          return 'over ' + hours + THREE_QUARTER + ' hrs';
+        default:
+          return 'over ' + hours + ' hrs ' + minutes + ' min';
+        }
+      }
+    }
+    else {
+      return 'over ' + minutes + ' min';
+    }
+  };
+
+  basal.width = function(d) {
+    return opts.xScale(new Date(d.normalEnd)) - opts.xScale(new Date(d.normalTime));
+  };
+
+  basal.addTooltip = function(d, category, unD) {
+    var tooltipHeight = opts.classes[category].height;
+
+    // TODO: if we decide to keep same formatValue for basal and bolus, factor this out into a util/ module
+    var formatValue = function(x) {
+      var formatted = d3.format('.3f')(x);
+      // remove zero-padding on the right
+      while (formatted[formatted.length - 1] === '0') {
+        formatted = formatted.slice(0, formatted.length - 1);
+      }
+      if (formatted[formatted.length - 1] === '.') {
+        formatted = formatted + '0';
+      }
+      return formatted;
+    };
+
+    d3.select('#' + 'tidelineTooltips_basal')
+      .call(pool.tooltips(),
+        d,
+        // tooltipXPos
+        opts.xScale(Date.parse(d.normalTime)),
+        'basal',
+        // timestamp
+        false,
+        opts.classes[category].tooltip,
+        opts.tooltipWidth,
+        tooltipHeight,
+        // imageX
+        opts.xScale(Date.parse(d.normalTime)) - opts.tooltipWidth / 2 + basal.width(d) / 2,
+        // imageY
+        function() {
+          var y = opts.yScale(d.value) - tooltipHeight * 2;
+          if (y < 0) {
+            return 0;
+          }
+          else {
+            return y;
+          }
+        },
+        // textX
+        opts.xScale(Date.parse(d.normalTime)) + basal.width(d) / 2,
+        // textY
+        function() {
+          var y = opts.yScale(d.value) - tooltipHeight * 2;
+          if (category === 'temp') {
+            if (y < 0) {
+              return tooltipHeight * (3 / 10);
+            }
+            else {
+              return opts.yScale(d.value) - tooltipHeight * 1.7;
+            }
+          }
+          else {
+            if (y < 0) {
+              return tooltipHeight / 2;
+            }
+            else {
+              return opts.yScale(d.value) - tooltipHeight * 1.5;
+            }
+          }
+        },
+        // customText
+        (function() {
+          if (d.value === 0) {
+            return '0.0U';
+          }
+          else {
+            return formatValue(d.value) + 'U';
+          }
+        }()),
+        // tspan
+        basal.timespan(d));
+    if (category === 'temp') {
+      d3.select('#tooltip_' + d._id).select('.d3-tooltip-text-group').append('text')
+        .attr({
+          'class': 'd3-tooltip-text d3-basal',
+          'x': opts.xScale(Date.parse(d.normalTime)) + basal.width(d) / 2,
+          'y': function() {
+            var y = opts.yScale(d.value) - tooltipHeight * 2;
+            if (y < 0) {
+              return tooltipHeight * (7 / 10);
+            }
+            else {
+              return opts.yScale(d.value) - tooltipHeight * 1.3;
+            }
+          }
+        })
+        .append('tspan')
+        .text('(' + formatValue(unD.value) + 'U scheduled)');
+    }
+  };
+
+  return basal;
+};
+
+},{"../lib/":7}],10:[function(require,module,exports){
+/* 
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+var d3 = require('../lib/').d3;
+var _ = require('../lib/')._;
+
+var Duration = require('../lib/').Duration;
+var log = require('../lib/').bows('Bolus');
+
+module.exports = function(pool, opts) {
+
+  var QUARTER = ' ¼', HALF = ' ½', THREE_QUARTER = ' ¾', THIRD = ' ⅓', TWO_THIRDS = ' ⅔';
+
+  var MS_IN_ONE = 60000;
+
+  opts = opts || {};
+
+  var defaults = {
+    classes: {
+      'unspecial': {'tooltip': 'tooltip_bolus_small.svg', 'width': 70, 'height': 24},
+      'two-line': {'tooltip': 'tooltip_bolus_large.svg', 'width': 98, 'height': 39},
+      'three-line': {'tooltip': 'tooltip_bolus_extralarge.svg', 'width': 98, 'height': 58}
+    },
+    width: 12,
+    bolusStroke: 2,
+    triangleSize: 6,
+    carbTooltipCatcher: 5
+  };
+
+  _.defaults(opts, defaults);
+
+  var carbTooltipBuffer = opts.carbTooltipCatcher * MS_IN_ONE;
+
+  // catch bolus tooltips events
+  opts.emitter.on('carbTooltipOn', function(t) {
+    var b = _.find(opts.data, function(d) {
+      var bolusT = Date.parse(d.normalTime);
+      if (bolusT >= (t - carbTooltipBuffer) && (bolusT <= (t + carbTooltipBuffer))) {
+        return d;
+      }
+    });
+    if (b) {
+      bolus.addTooltip(b, bolus.getTooltipCategory(b));
+      opts.emitter.emit('noCarbTimestamp', true);
+    }
+  });
+  opts.emitter.on('carbTooltipOff', function(t) {
+    var b = _.find(opts.data, function(d) {
+      var bolusT = Date.parse(d.normalTime);
+      if (bolusT >= (t - carbTooltipBuffer) && (bolusT <= (t + carbTooltipBuffer))) {
+        return d;
+      }
+    });
+    if (b) {
+      d3.select('#tooltip_' + b._id).remove();
+      opts.emitter.emit('noCarbTimestamp', false);
+    }
+  });
+
+  function bolus(selection) {
+    opts.xScale = pool.xScale().copy();
+    selection.each(function(currentData) {
+      var boluses = d3.select(this)
+        .selectAll('g')
+        .data(currentData, function(d) {
+          return d._id;
+        });
+      var bolusGroups = boluses.enter()
+        .append('g')
+        .attr({
+          'class': 'd3-bolus-group'
+        });
+      var top = opts.yScale.range()[0];
+      // boluses where delivered = recommended
+      bolusGroups.append('rect')
+        .attr({
+          'x': function(d) {
+            return bolus.x(d);
+          },
+          'y': function(d) {
+            return opts.yScale(d.value);
+          },
+          'width': opts.width,
+          'height': function(d) {
+            return top - opts.yScale(d.value);
+          },
+          'class': 'd3-rect-bolus d3-bolus',
+          'id': function(d) {
+            return 'bolus_' + d._id;
+          }
+        });
+      // boluses where recommendation and delivery differ
+      var bottom = top - opts.bolusStroke / 2;
+      // boluses where recommended > delivered
+      var underride = bolusGroups.filter(function(d) {
+        if (d.recommended > d.value) {
+          return d;
+        }
+      });
+      underride.append('rect')
+        .attr({
+          'x': function(d) {
+            return bolus.x(d);
+          },
+          'y': function(d) {
+            return opts.yScale(d.recommended);
+          },
+          'width': opts.width,
+          'height': function(d) {
+            return opts.yScale(d.value) - opts.yScale(d.recommended);
+          },
+          'class': 'd3-rect-recommended d3-bolus',
+          'id': function(d) {
+            return 'bolus_' + d._id;
+          }
+        });
+      // boluses where delivered > recommended
+      var override = bolusGroups.filter(function(d) {
+        if (d.value > d.recommended) {
+          return d;
+        }
+      });
+      override.append('rect')
+        .attr({
+          'x': function(d) {
+            return bolus.x(d);
+          },
+          'y': function(d) {
+            return opts.yScale(d.recommended);
+          },
+          'width': opts.width,
+          'height': function(d) {
+            return top - opts.yScale(d.recommended);
+          },
+          'stroke-width': opts.bolusStroke,
+          'class': 'd3-rect-recommended d3-bolus',
+          'id': function(d) {
+            return 'bolus_' + d._id;
+          }
+        });
+      override.append('path')
+        .attr({
+          'd': function(d) {
+            var leftEdge = bolus.x(d) + opts.bolusStroke / 2;
+            var rightEdge = leftEdge + opts.width - opts.bolusStroke;
+            var bolusHeight = opts.yScale(d.value) + opts.bolusStroke / 2;
+            return 'M' + leftEdge + ' ' + bottom + 'L' + rightEdge + ' ' + bottom + 'L' + rightEdge + ' ' + bolusHeight + 'L' + leftEdge + ' ' + bolusHeight + 'Z';
+          },
+          'stroke-width': opts.bolusStroke,
+          'class': 'd3-path-bolus d3-bolus',
+          'id': function(d) {
+            return 'bolus_' + d._id;
+          }
+        });
+      // square- and dual-wave boluses
+      var extendedBoluses = bolusGroups.filter(function(d) {
+        if (d.extended) {
+          return d;
+        }
+      });
+      extendedBoluses.append('path')
+        .attr({
+          'd': function(d) {
+            var rightEdge = bolus.x(d) + opts.width;
+            var doseHeight = opts.yScale(d.extendedDelivery) + opts.bolusStroke / 2;
+            var doseEnd = opts.xScale(Date.parse(d.normalTime) + d.duration) - opts.triangleSize / 2;
+            return 'M' + rightEdge + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
+          },
+          'stroke-width': opts.bolusStroke,
+          'class': 'd3-path-extended d3-bolus',
+          'id': function(d) {
+            return 'bolus_' + d._id;
+          }
+        });
+      extendedBoluses.append('path')
+        .attr({
+          'd': function(d) {
+            var doseHeight = opts.yScale(d.extendedDelivery) + opts.bolusStroke / 2;
+            var doseEnd = opts.xScale(Date.parse(d.normalTime) + d.duration) - opts.triangleSize;
+            return bolus.triangle(doseEnd, doseHeight);
+          },
+          'stroke-width': opts.bolusStroke,
+          'class': 'd3-path-extended-triangle d3-bolus',
+          'id': function(d) {
+            return 'bolus_' + d._id;
+          }
+        });
+      boluses.exit().remove();
+
+      // tooltips
+      d3.selectAll('.d3-rect-bolus, .d3-rect-recommended').on('mouseover', function() {
+        var d = d3.select(this).datum();
+        var t = Date.parse(d.normalTime);
+        bolus.addTooltip(d, bolus.getTooltipCategory(d));
+        opts.emitter.emit('bolusTooltipOn', t);
+      });
+      d3.selectAll('.d3-rect-bolus, .d3-rect-recommended').on('mouseout', function() {
+        var d = _.clone(d3.select(this).datum());
+        var t = Date.parse(d.normalTime);
+        d3.select('#tooltip_' + d._id).remove();
+        opts.emitter.emit('bolusTooltipOff', t);
+      });
+    });
+  }
+
+  bolus.getTooltipCategory = function(d) {
+    var category;
+    // when there's no 'recommended' field
+    if (d.recommended == null) {
+      if (d.extended == null) {
+        category = 'unspecial';
+      }
+      else {
+        category = 'two-line';
+      }
+    }
+    else {
+      if ((d.extended == null) && (d.recommended === d.value)) {
+        category = 'unspecial';
+      }
+      else if ((d.extended == null) && (d.recommended !== d.value)) {
+        category = 'two-line';
+      }
+      else if ((d.recommended === d.value) && (d.extended != null)) {
+        category = 'two-line';
+      }
+      else if ((d.recommended !== d.value) && (d.extended != null)) {
+        category = 'three-line';
+      }
+    }
+    return category;
+  };
+
+  bolus.addTooltip = function(d, category) {
+    var tooltipWidth = opts.classes[category].width;
+    var tooltipHeight = opts.classes[category].height;
+    
+    // TODO: if we decide to keep same formatValue for basal and bolus, factor this out into a util/ module
+    var formatValue = function(x) {
+      var formatted = d3.format('.3f')(x);
+      // remove zero-padding on the right
+      while (formatted[formatted.length - 1] === '0') {
+        formatted = formatted.slice(0, formatted.length - 1);
+      }
+      if (formatted[formatted.length - 1] === '.') {
+        formatted = formatted + '0';
+      }
+      return formatted;
+    };
+
+    d3.select('#' + 'tidelineTooltips_bolus')
+      .call(pool.tooltips(),
+        d,
+        // tooltipXPos
+        opts.xScale(Date.parse(d.normalTime)),
+        'bolus',
+        // timestamp
+        true,
+        opts.classes[category].tooltip,
+        tooltipWidth,
+        tooltipHeight,
+        // imageX
+        opts.xScale(Date.parse(d.normalTime)),
+        // imageY
+        function() {
+          return pool.height() - tooltipHeight;
+        },
+        // textX
+        opts.xScale(Date.parse(d.normalTime)) + tooltipWidth / 2,
+        // textY
+        function() {
+          if (category === 'unspecial') {
+            return pool.height() - tooltipHeight * (9/16);
+          }
+          else if (category === 'two-line') {
+            return pool.height() - tooltipHeight * (3/4);
+          }
+          else if (category === 'three-line') {
+            return pool.height() - tooltipHeight * (13/16);
+          }
+          else {
+            return pool.height() - tooltipHeight;
+          }
+          
+        },
+        // customText
+        (function() {
+          return formatValue(d.value) + 'U';
+        }()),
+        // tspan
+        (function() {
+          if (d.extended) {
+            return ' total';
+          }
+        }())
+      );
+
+    if (category === 'two-line') {
+      d3.select('#tooltip_' + d._id).select('.d3-tooltip-text-group').append('text')
+        .attr({
+          'class': 'd3-tooltip-text d3-bolus',
+          'x': opts.xScale(Date.parse(d.normalTime)) + tooltipWidth / 2,
+          'y': pool.height() - tooltipHeight / 3
+        })
+        .append('tspan')
+        .text(function() {
+          if ((d.recommended != null) && (d.recommended !== d.value)) {
+            return formatValue(d.recommended) + "U recom'd";
+          }
+          else if (d.extended != null) {
+            return formatValue(d.extendedDelivery) + 'U ' + bolus.timespan(d);
+          }
+        })
+        .attr('class', 'd3-bolus');
+    }
+    else if (category === 'three-line') {
+      d3.select('#tooltip_' + d._id).select('.d3-tooltip-text-group').append('text')
+        .attr({
+          'class': 'd3-tooltip-text d3-bolus',
+          'x': opts.xScale(Date.parse(d.normalTime)) + tooltipWidth / 2,
+          'y': pool.height() - tooltipHeight / 2
+        })
+        .append('tspan')
+        .text(function() {
+          return formatValue(d.recommended) + "U recom'd";
+        })
+        .attr('class', 'd3-bolus');
+
+      d3.select('#tooltip_' + d._id).select('.d3-tooltip-text-group').append('text')
+        .attr({
+          'class': 'd3-tooltip-text d3-bolus',
+          'x': opts.xScale(Date.parse(d.normalTime)) + tooltipWidth / 2,
+          'y': pool.height() - tooltipHeight / 4
+        })
+        .append('tspan')
+        .text(function() {
+          return formatValue(d.extendedDelivery) + 'U ' + bolus.timespan(d);
+        })
+        .attr('class', 'd3-bolus');
+    }
+  };
+
+  bolus.timespan = function(d) {
+    var dur = Duration.parse(d.duration + 'ms');
+    var hours = dur.hours();
+    var minutes = dur.minutes() - (hours * 60);
+    if (hours !== 0) {
+      if (hours === 1) {
+        switch(minutes) {
+        case 0:
+          return 'over ' + hours + ' hr';
+        case 15:
+          return 'over ' + hours + QUARTER + ' hr';
+        case 20:
+          return 'over ' + hours + THIRD + ' hr';
+        case 30:
+          return 'over ' + hours + HALF + ' hr';
+        case 40:
+          return 'over ' + hours + TWO_THIRDS + ' hr';
+        case 45:
+          return 'over ' + hours + THREE_QUARTER + ' hr';
+        default:
+          return 'over ' + hours + ' hr ' + minutes + ' min';
+        }
+      }
+      else {
+        switch(minutes) {
+        case 0:
+          return 'over ' + hours + ' hrs';
+        case 15:
+          return 'over ' + hours + QUARTER + ' hrs';
+        case 20:
+          return 'over ' + hours + THIRD + ' hrs';
+        case 30:
+          return 'over ' + hours + HALF + ' hrs';
+        case 40:
+          return 'over ' + hours + TWO_THIRDS + ' hrs';
+        case 45:
+          return 'over ' + hours + THREE_QUARTER + ' hrs';
+        default:
+          return 'over ' + hours + ' hrs ' + minutes + ' min';
+        }
+      }
+    }
+    else {
+      return 'over ' + minutes + ' min';
+    }
+  };
+  
+  bolus.x = function(d) {
+    return opts.xScale(Date.parse(d.normalTime)) - opts.width/2;
+  };
+
+  bolus.triangle = function(x, y) {
+    var top = (x + opts.triangleSize) + ' ' + (y + opts.triangleSize/2);
+    var bottom = (x + opts.triangleSize) + ' ' + (y - opts.triangleSize/2);
+    var point = x + ' ' + y;
+    return 'M' + top + 'L' + bottom + 'L' + point + 'Z';
+  };
+
+  return bolus;
+};
+
+},{"../lib/":7}],11:[function(require,module,exports){
+/* 
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+var d3 = require('../lib/').d3;
+var _ = require('../lib/')._;
+
+var log = require('../lib/').bows('Carbs');
+
+module.exports = function(pool, opts) {
+
+  var MS_IN_ONE = 60000;
+
+  opts = opts || {};
+
+  var defaults = {
+    width: 12,
+    tooltipHeight: 24,
+    tooltipWidth: 70,
+    bolusTooltipCatcher: 5,
+    tooltipTimestamp: true
+  };
+
+  _.defaults(opts, defaults);
+
+  var bolusTooltipBuffer = opts.bolusTooltipCatcher * MS_IN_ONE;
+
+  // catch bolus tooltips events
+  opts.emitter.on('bolusTooltipOn', function(t) {
+    var c = _.find(opts.data, function(d) {
+      var carbT = Date.parse(d.normalTime);
+      if (carbT >= (t - bolusTooltipBuffer) && (carbT <= (t + bolusTooltipBuffer))) {
+        return d;
+      }
+    });
+    if (c) {
+      carbs.addTooltip(c, false);
+    }
+  });
+  opts.emitter.on('bolusTooltipOff', function(t) {
+    var c = _.find(opts.data, function(d) {
+      var carbT = Date.parse(d.normalTime);
+      if (carbT >= (t - bolusTooltipBuffer) && (carbT <= (t + bolusTooltipBuffer))) {
+        return d;
+      }
+    });
+    if (c) {
+      d3.select('#tooltip_' + c._id).remove();
+    }
+  });
+
+  opts.emitter.on('noCarbTimestamp', function(bool) {
+    if (bool) {
+      opts.tooltipTimestamp = false;
+    }
+    else {
+      opts.tooltipTimestamp = true;
+    }
+  });
+
+  function carbs(selection) {
+    opts.xScale = pool.xScale().copy();
+    selection.each(function(currentData) {
+      var rects = d3.select(this)
+        .selectAll('rect')
+        .data(currentData, function(d) {
+          return d._id;
+        });
+      rects.enter()
+        .append('rect')
+        .attr({
+          'x': function(d) {
+            return opts.xScale(Date.parse(d.normalTime)) - opts.width/2;
+          },
+          'y': 0,
+          'width': opts.width,
+          'height': function(d) {
+            return opts.yScale(d.value);
+          },
+          'class': 'd3-rect-carbs d3-carbs',
+          'id': function(d) {
+            return 'carbs_' + d._id;
+          }
+        });
+      rects.exit().remove();
+
+      // tooltips
+      d3.selectAll('.d3-rect-carbs').on('mouseover', function() {
+        var d = d3.select(this).datum();
+        var t = Date.parse(d.normalTime);
+        opts.emitter.emit('carbTooltipOn', t);
+        carbs.addTooltip(d, opts.tooltipTimestamp);
+      });
+      d3.selectAll('.d3-rect-carbs').on('mouseout', function() {
+        var d = d3.select(this).datum();
+        var t = Date.parse(d.normalTime);
+        d3.select('#tooltip_' + d._id).remove();
+        opts.emitter.emit('carbTooltipOff', t);
+      });
+    });
+  }
+
+  carbs.addTooltip = function(d, category) {
+    d3.select('#' + 'tidelineTooltips_carbs')
+      .call(pool.tooltips(),
+        d,
+        // tooltipXPos
+        opts.xScale(Date.parse(d.normalTime)),
+        'carbs',
+        // timestamp
+        category,
+        'tooltip_carbs.svg',
+        opts.tooltipWidth,
+        opts.tooltipHeight,
+        // imageX
+        opts.xScale(Date.parse(d.normalTime)),
+        // imageY
+        function() {
+          if (category) {
+            return opts.yScale(d.value);
+          }
+          else {
+            return opts.yScale.range()[0];
+          }
+        },
+        // textX
+        opts.xScale(Date.parse(d.normalTime)) + opts.tooltipWidth / 2,
+        // textY
+        function() {
+          if (category) {
+            return opts.yScale(d.value) + opts.tooltipHeight / 2;
+          }
+          else {
+            return opts.tooltipHeight / 2;
+          }
+        },
+        // customText
+        d.value + 'g');
+  };
+
+  return carbs;
+};
+},{"../lib/":7}],12:[function(require,module,exports){
+/* 
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+var d3 = require('../lib/').d3;
+var _ = require('../lib/')._;
+
+var log = require('../lib/').bows('CBG');
+
+module.exports = function(pool, opts) {
+
+  opts = opts || {};
+
+  var defaults = {
+    classes: {
+      'low': {'boundary': 80, 'tooltip': 'cbg_tooltip_low.svg'},
+      'target': {'boundary': 180, 'tooltip': 'cbg_tooltip_target.svg'},
+      'high': {'boundary': 200, 'tooltip': 'cbg_tooltip_high.svg'}
+    },
+    tooltipSize: 24
+  };
+
+  _.defaults(opts, defaults);
+
+  function cbg(selection) {
+    opts.xScale = pool.xScale().copy();
+    selection.each(function(currentData) {
+      var allCBG = d3.select(this).selectAll('circle')
+        .data(currentData, function(d) {
+          return d._id;
+        });
+      var cbgGroups = allCBG.enter()
+        .append('circle')
+        .attr('class', 'd3-cbg');
+      var cbgLow = cbgGroups.filter(function(d) {
+        if (d.value <= opts.classes.low.boundary) {
+          return d;
+        }
+      });
+      var cbgTarget = cbgGroups.filter(function(d) {
+        if ((d.value > opts.classes.low.boundary) && (d.value <= opts.classes.target.boundary)) {
+          return d;
+        }
+      });
+      var cbgHigh = cbgGroups.filter(function(d) {
+        if (d.value > opts.classes.target.boundary) {
+          return d;
+        }
+      });
+      cbgLow.attr({
+          'cx': function(d) {
+            return opts.xScale(Date.parse(d.normalTime));
+          },
+          'cy': function(d) {
+            return opts.yScale(d.value);
+          },
+          'r': 2.5,
+          'id': function(d) {
+            return 'cbg_' + d._id;
+          }
+        })
+        .datum(function(d) {
+          return d;
+        })
+        .classed({'d3-circle-cbg': true, 'd3-bg-low': true});
+      cbgTarget.attr({
+          'cx': function(d) {
+            return opts.xScale(Date.parse(d.normalTime));
+          },
+          'cy': function(d) {
+            return opts.yScale(d.value);
+          },
+          'r': 2.5,
+          'id': function(d) {
+            return 'cbg_' + d._id;
+          }
+        })
+        .classed({'d3-circle-cbg': true, 'd3-bg-target': true});
+      cbgHigh.attr({
+          'cx': function(d) {
+            return opts.xScale(Date.parse(d.normalTime));
+          },
+          'cy': function(d) {
+            return opts.yScale(d.value);
+          },
+          'r': 2.5,
+          'id': function(d) {
+            return 'cbg_' + d._id;
+          }
+        })
+        .classed({'d3-circle-cbg': true, 'd3-bg-high': true});
+      allCBG.exit().remove();
+
+      // tooltips
+      d3.selectAll('.d3-circle-cbg').on('mouseover', function() {
+        if (d3.select(this).classed('d3-bg-low')) {
+          cbg.addTooltip(d3.select(this).datum(), 'low');
+        }
+        else if (d3.select(this).classed('d3-bg-target')) {
+          cbg.addTooltip(d3.select(this).datum(), 'target');
+        }
+        else {
+          cbg.addTooltip(d3.select(this).datum(), 'high');
+        }
+      });
+      d3.selectAll('.d3-circle-cbg').on('mouseout', function() {
+        var id = d3.select(this).attr('id').replace('cbg_', 'tooltip_');
+        d3.select('#' + id).remove();
+      });
+    });
+  }
+
+  cbg.addTooltip = function(d, category) {
+    d3.select('#' + 'tidelineTooltips_cbg')
+      .call(pool.tooltips(),
+        d,
+        // tooltipXPos
+        opts.xScale(Date.parse(d.normalTime)),
+        'cbg',
+        // timestamp
+        false,
+        opts.classes[category].tooltip,
+        opts.tooltipSize,
+        opts.tooltipSize,
+        // imageX
+        opts.xScale(Date.parse(d.normalTime)),
+        // imageY
+        function() {
+          if ((category === 'low') || (category === 'target')) {
+            return opts.yScale(d.value) - opts.tooltipSize;
+          }
+          else {
+            return opts.yScale(d.value);
+          }
+        },
+        // textX
+        opts.xScale(Date.parse(d.normalTime)) + opts.tooltipSize / 2,
+        // textY
+        function() {
+          if ((category === 'low') || (category === 'target')) {
+            return opts.yScale(d.value) - opts.tooltipSize / 2;
+          }
+          else {
+            return opts.yScale(d.value) + opts.tooltipSize / 2;
+          }
+        });
+  };
+
+  return cbg;
+};
+},{"../lib/":7}],13:[function(require,module,exports){
+/* 
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+var d3 = require('../lib/').d3;
+var _ = require('../lib/')._;
+
+var log = require('../lib/').bows('Message');
+
+module.exports = function(pool, opts) {
+
+  opts = opts || {};
+
+  var defaults = {
+    imagesBaseUrl: pool.imagesBaseUrl()
+  };
+
+  _.defaults(opts, defaults);
+
+  function cbg(selection) {
+    opts.xScale = pool.xScale().copy();
+    selection.each(function(currentData) {
+      var messages = d3.select(this)
+        .selectAll('image')
+        .data(currentData, function(d) {
+          if (d.parentMessage === '') {
+            return d._id;
+          }
+        });
+      messages.enter()
+        .append('image')
+        .attr({
+          'xlink:href': opts.imagesBaseUrl + '/message/post_it.svg',
+          'x': function(d) {
+            return opts.xScale(Date.parse(d.normalTime)) - opts.size / 2;
+          },
+          'y': pool.height() / 2 - opts.size / 2,
+          'width': opts.size,
+          'height': opts.size,
+          'id': function(d) {
+            return 'message_' + d._id;
+          }
+        })
+        .classed({'d3-image': true, 'd3-message': true});
+      messages.exit().remove();
+    });
+  }
+
+  return cbg;
+};
+},{"../lib/":7}],14:[function(require,module,exports){
+/* 
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+var d3 = require('../lib/').d3;
+var _ = require('../lib/')._;
+
+var log = require('../lib/').bows('Two-Week SMBG');
+ 
+function SMBGTime (opts) {
+  var MS_IN_HOUR = 3600000;
+
+  var MS_IN_MIN = 60 * 1000;
+
+  opts = opts || {};
+
+  var defaults = {
+    classes: {
+      'very-low': {'boundary': 60},
+      'low': {'boundary': 80, 'tooltip': 'smbg_tooltip_low.svg'},
+      'target': {'boundary': 180, 'tooltip': 'smbg_tooltip_target.svg'},
+      'high': {'boundary': 200, 'tooltip': 'smbg_tooltip_high.svg'},
+      'very-high': {'boundary': 300}
+    },
+    size: 16,
+    rectWidth: 32
+  };
+
+  opts = _.defaults(opts, defaults);
+
+  this.draw = function(pool) {
+    opts.pool = pool;
+    return function(selection) {
+      selection.each(function(currentData) {
+        // pool-dependent variables
+        var xScale = opts.pool.xScale().copy();
+
+        var circles = d3.select(this)
+          .selectAll('g')
+          .data(currentData, function(d) {
+            return d._id;
+          });
+
+        var circleGroups = circles.enter()
+          .append('g')
+          .attr('class', 'd3-smbg-time-group');
+
+        circleGroups.append('image')
+          .attr({
+            'xlink:href': function(d) {
+              if (d.value <= opts.classes['very-low'].boundary) {
+                return opts.pool.imagesBaseUrl() + '/smbg/very_low.svg';
+              }
+              else if ((d.value > opts.classes['very-low'].boundary) && (d.value <= opts.classes.low.boundary)) {
+                return opts.pool.imagesBaseUrl() + '/smbg/low.svg';
+              }
+              else if ((d.value > opts.classes.low.boundary) && (d.value <= opts.classes.target.boundary)) {
+                return opts.pool.imagesBaseUrl() + '/smbg/target.svg';
+              }
+              else if ((d.value > opts.classes.target.boundary) && (d.value <= opts.classes.high.boundary)) {
+                return opts.pool.imagesBaseUrl() + '/smbg/high.svg';
+              }
+              else if (d.value > opts.classes.high.boundary) {
+                return opts.pool.imagesBaseUrl() + '/smbg/very_high.svg';
+              }
+            },
+            'x': function(d) {
+              var localTime = new Date(d.normalTime);
+              var hour = localTime.getUTCHours();
+              var min = localTime.getUTCMinutes();
+              var sec = localTime.getUTCSeconds();
+              var msec = localTime.getUTCMilliseconds();
+              var t = hour * MS_IN_HOUR + min * MS_IN_MIN + sec * 1000 + msec;
+              return xScale(t) - opts.size / 2;
+            },
+            'y': function(d) {
+              return pool.height() / 2 - opts.size / 2;
+            },
+            'width': opts.size,
+            'height': opts.size,
+            'id': function(d) {
+              return 'smbg_time_' + d._id;
+            },
+            'class': function(d) {
+              if (d.value <= opts.classes.low.boundary) {
+                return 'd3-bg-low';
+              }
+              else if ((d.value > opts.classes.low.boundary) && (d.value <= opts.classes.target.boundary)) {
+                return 'd3-bg-target';
+              }
+              else if (d.value > opts.classes.target.boundary) {
+                return 'd3-bg-high';
+              }
+            }
+          })
+          .classed({'d3-image': true, 'd3-smbg-time': true, 'd3-image-smbg': true})
+          .on('dblclick', function(d) {
+            d3.event.stopPropagation(); // silence the click-and-drag listener
+            opts.emitter.emit('selectSMBG', d.normalTime);
+          });
+
+        circleGroups.append('rect')
+          .style('display', 'none')
+          .attr({
+            'x': function(d) {
+              var localTime = new Date(d.normalTime);
+              var hour = localTime.getUTCHours();
+              var min = localTime.getUTCMinutes();
+              var sec = localTime.getUTCSeconds();
+              var msec = localTime.getUTCMilliseconds();
+              var t = hour * MS_IN_HOUR + min * MS_IN_MIN + sec * 1000 + msec;
+              return xScale(t) - opts.rectWidth / 2;
+            },
+            'y': 0,
+            'width': opts.size * 2,
+            'height': pool.height() / 2,
+            'class': 'd3-smbg-numbers d3-rect-smbg d3-smbg-time'
+          });
+
+        // NB: cannot do same display: none strategy because dominant-baseline attribute cannot be applied
+        circleGroups.append('text')
+          .attr({
+            'x': function(d) {
+              var localTime = new Date(d.normalTime);
+              var hour = localTime.getUTCHours();
+              var min = localTime.getUTCMinutes();
+              var sec = localTime.getUTCSeconds();
+              var msec = localTime.getUTCMilliseconds();
+              var t = hour * MS_IN_HOUR + min * MS_IN_MIN + sec * 1000 + msec;
+              return xScale(t);
+            },
+            'y': pool.height() / 4,
+            'opacity': '0',
+            'class': 'd3-smbg-numbers d3-text-smbg d3-smbg-time'
+          })
+          .text(function(d) {
+            return d.value;
+          });
+
+        circles.exit().remove();
+      });
+    };
+  };
+
+  this.showValues = function() {
+    d3.selectAll('.d3-rect-smbg')
+      .style('display', 'inline');
+    d3.selectAll('.d3-text-smbg')
+      .transition()
+      .duration(500)
+      .attr('opacity', 1);
+    d3.selectAll('.d3-image-smbg')
+      .transition()
+      .duration(500)
+      .attr({
+        'height': opts.size * 0.75,
+        'y': opts.pool.height() / 2
+      });
+  };
+
+  this.hideValues = function() {
+    d3.selectAll('.d3-rect-smbg')
+      .style('display', 'none');
+    d3.selectAll('.d3-text-smbg')
+      .transition()
+      .duration(500)
+      .attr('opacity', 0);
+    d3.selectAll('.d3-image-smbg')
+      .transition()
+      .duration(500)
+      .attr({
+        'height': opts.size,
+        'y': opts.pool.height() / 2 - opts.size / 2
+      });
+  };
+}
+
+module.exports = SMBGTime;
+},{"../lib/":7}],15:[function(require,module,exports){
+/* 
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+var d3 = require('../lib/').d3;
+var _ = require('../lib/')._;
+
+var log = require('../lib/').bows('SMBG');
+var scales = require('./util/scales');
+
+module.exports = function(pool, opts) {
+
+  opts = opts || {};
+
+  var defaults = {
+    classes: {
+      'very-low': {'boundary': 60},
+      'low': {'boundary': 80, 'tooltip': 'smbg_tooltip_low.svg'},
+      'target': {'boundary': 180, 'tooltip': 'smbg_tooltip_target.svg'},
+      'high': {'boundary': 200, 'tooltip': 'smbg_tooltip_high.svg'},
+      'very-high': {'boundary': 300}
+    },
+    size: 16,
+    imagesBaseUrl: pool.imagesBaseUrl(),
+    tooltipWidth: 70,
+    tooltipHeight: 24
+  };
+
+  _.defaults(opts, defaults);
+
+  function smbg(selection) {
+    opts.xScale = pool.xScale().copy();
+    selection.each(function(currentData) {
+      var circles = d3.select(this)
+        .selectAll('image')
+        .data(currentData, function(d) {
+          return d._id;
+        });
+      circles.enter()
+        .append('image')
+        .attr({
+          'xlink:href': function(d) {
+            if (d.value <= opts.classes['very-low'].boundary) {
+              return opts.imagesBaseUrl + '/smbg/very_low.svg';
+            }
+            else if ((d.value > opts.classes['very-low'].boundary) && (d.value <= opts.classes.low.boundary)) {
+              return opts.imagesBaseUrl + '/smbg/low.svg';
+            }
+            else if ((d.value > opts.classes.low.boundary) && (d.value <= opts.classes.target.boundary)) {
+              return opts.imagesBaseUrl + '/smbg/target.svg';
+            }
+            else if ((d.value > opts.classes.target.boundary) && (d.value <= opts.classes.high.boundary)) {
+              return opts.imagesBaseUrl + '/smbg/high.svg';
+            }
+            else if (d.value > opts.classes.high.boundary) {
+              return opts.imagesBaseUrl + '/smbg/very_high.svg';
+            }
+          },
+          'x': function(d) {
+            return opts.xScale(Date.parse(d.normalTime)) - opts.size / 2;
+          },
+          'y': function(d) {
+            return opts.yScale(d.value) - opts.size / 2;
+          },
+          'width': opts.size,
+          'height': opts.size,
+          'id': function(d) {
+            return 'smbg_' + d._id;
+          },
+          'class': function(d) {
+            if (d.value <= opts.classes.low.boundary) {
+              return 'd3-bg-low';
+            }
+            else if ((d.value > opts.classes.low.boundary) && (d.value <= opts.classes.target.boundary)) {
+              return 'd3-bg-target';
+            }
+            else if (d.value > opts.classes.target.boundary) {
+              return 'd3-bg-high';
+            }
+          }
+        })
+        .classed({'d3-image': true, 'd3-smbg': true, 'd3-image-smbg': true});
+      circles.exit().remove();
+
+      // tooltips
+      d3.selectAll('.d3-image-smbg').on('mouseover', function() {
+        if (d3.select(this).classed('d3-bg-low')) {
+          smbg.addTooltip(d3.select(this).datum(), 'low');
+        }
+        else if (d3.select(this).classed('d3-bg-target')) {
+          smbg.addTooltip(d3.select(this).datum(), 'target');
+        }
+        else {
+          smbg.addTooltip(d3.select(this).datum(), 'high');
+        }
+      });
+      d3.selectAll('.d3-image-smbg').on('mouseout', function() {
+        var id = d3.select(this).attr('id').replace('smbg_', 'tooltip_');
+        d3.select('#' + id).remove();
+      });
+    });
+  }
+
+  smbg.addTooltip = function(d, category) {
+    d3.select('#' + 'tidelineTooltips_smbg')
+      .call(pool.tooltips(),
+        d,
+        // tooltipXPos
+        opts.xScale(Date.parse(d.normalTime)),
+        'smbg',
+        // timestamp
+        true,
+        opts.classes[category].tooltip,
+        opts.tooltipWidth,
+        opts.tooltipHeight,
+        // imageX
+        opts.xScale(Date.parse(d.normalTime)),
+        // imageY
+        function() {
+          if ((category === 'low') || (category === 'target')) {
+            return opts.yScale(d.value) - opts.tooltipHeight;
+          }
+          else {
+            return opts.yScale(d.value);
+          }
+        },
+        // textX
+        opts.xScale(Date.parse(d.normalTime)) + opts.tooltipWidth / 2,
+        // textY
+        function() {
+          if ((category === 'low') || (category === 'target')) {
+            return opts.yScale(d.value) - opts.tooltipHeight / 2;
+          }
+          else {
+            return opts.yScale(d.value) + opts.tooltipHeight / 2;
+          }
+        });
+  };
+
+  return smbg;
+};
+},{"../lib/":7,"./util/scales":19}],16:[function(require,module,exports){
+/* 
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+var _ = require('../../lib/')._;
+
+var log = require('../../lib/').bows('Puddle');
+
+module.exports = function(opts) {
+
+  opts = opts || {};
+
+  var defaults = {
+    headSize: 16,
+    leadSize: 14,
+    displaySize: 24
+  };
+
+  _.defaults(opts, defaults);
+
+  var height;
+
+  function puddle(selection, txt) {
+    selection.call(puddle.addHead);
+    selection.call(puddle.addLead);
+  }
+
+  puddle.dataDisplay = function(selection, display) {
+    selection.selectAll('text.d3-stats-display').remove();
+    var displayGroup = selection.append('text')
+      .attr({
+        'x': opts.xOffset,
+        'y': opts.height / 2 + (opts.leadSize * 2),
+        'class': 'd3-stats-display'
+      });
+
+    display.forEach(function(txt) {
+      displayGroup.append('tspan')
+        .attr('class', txt['class'])
+        .text(txt.text);
+    });
+  };
+
+  puddle.addHead = _.once(function(selection) {
+    selection.append('text')
+      .attr({
+        'x': opts.xOffset,
+        'y': 0,
+        'class': 'd3-stats-head'
+      })
+      .text(opts.head);
+  });
+
+  puddle.addLead = _.once(function(selection) {
+    selection.append('text')
+      .attr({
+        'x': opts.xOffset,
+        'y': opts.height / 2,
+        'class': 'd3-stats-lead'
+      })
+      .text(opts.lead);
+  });
+
+  puddle.width = function(x) {
+    if (!arguments.length) return opts.width;
+    opts.width = x;
+    return puddle;
+  };
+
+  puddle.height = function(x) {
+    if (!arguments.length) return height;
+    height = x;
+    return puddle;
+  };
+
+  puddle.id = opts.id;
+
+  puddle.weight = opts.weight;
+
+  puddle.pie = opts.pie;
+
+  return puddle;
+};
+},{"../../lib/":7}],17:[function(require,module,exports){
+/* 
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+var d3 = require('../../lib/').d3;
+var _ = require('../../lib/')._;
+
+var log = require('../../lib/').bows('Stats');
+var scales = require('../util/scales');
+
+module.exports = function(pool, opts) {
+
+  var Puddle = require('./puddle');
+
+  opts = opts || {};
+
+  var defaults = {
+    classes: {
+      'very-low': {'boundary': 60},
+      'low': {'boundary': 80},
+      'target': {'boundary': 180},
+      'high': {'boundary': 200},
+      'very-high': {'boundary': 300}
+    },
+    imagesBaseUrl: pool.imagesBaseUrl(),
+    size: 16,
+    'pieRadius': pool.height() * 0.45
+  };
+
+  var data = {
+    'ratio': [],
+    'range': [],
+    'average': [],
+    'cbgReadings': 0
+  };
+
+  var pies = [], pie, arc;
+
+  opts.emitter.on('currentDomain', function(domain) {
+    var start = domain[0].valueOf(), end = domain[1].valueOf();
+    stats.getData(start, end);
+    stats.draw();
+  });
+
+  _.defaults(opts, defaults);
+
+  var widgetGroup, rectScale;
+
+  var puddles = [];
+
+  function stats(selection) {
+    widgetGroup = selection;
+    stats.initialize();
+  }
+
+  stats.initialize = _.once(function() {
+    // move this group inside the container's axisGutter
+    widgetGroup.attr({
+      'transform': 'translate(' + opts.xPosition + ',' + opts.yPosition + ')'
+    });
+    if (opts.oneDay) {
+      // create basal-to-bolus ratio puddle
+      stats.newPuddle('Ratio', 'Basal : Bolus', 'Basal to bolus insulin ratio', 1.0, true);
+      // create time-in-range puddle
+      stats.newPuddle('Range', 'Time in Target Range', 'Target range: 80 - 180 mg/dL', 1.2, true);
+      // create average BG puddle
+      stats.newPuddle('Average', 'Average BG', 'This day', 0.9, false);
+    }
+    else {
+      // create basal-to-bolus ratio puddle
+      stats.newPuddle('Ratio', 'Basal : Bolus', 'Basal to bolus insulin ratio', 1.1, true);
+      // create time-in-range puddle
+      stats.newPuddle('Range', 'Time in Target Range', 'Target range: 80 - 180 mg/dL', 1.2, true);
+      // create average BG puddle
+      stats.newPuddle('Average', 'Average BG', 'These two weeks', 1.0, false);
+    }
+    stats.arrangePuddles();
+  });
+
+  stats.arrangePuddles = function() {
+    var cumWeight = _.reduce(puddles, function(memo, puddle) { return memo + puddle.weight; }, 0);
+    var currentWeight = 0;
+    var currX = 0;
+    puddles.forEach(function(puddle, i) {
+      currentWeight += puddle.weight;
+      puddle.width((puddle.weight/cumWeight) * pool.width());
+      var puddleGroup = widgetGroup.append('g')
+        .attr({
+          'transform': 'translate(' + currX + ',0)',
+          'class': 'd3-stats',
+          'id': 'puddle_' + puddle.id
+        });
+      currX = (currentWeight / cumWeight) * pool.width();
+      puddleGroup.call(puddle);
+    });
+  };
+
+  stats.draw = function() {
+    puddles.forEach(function(puddle) {
+      var puddleGroup = pool.group().select('#puddle_' + puddle.id);
+      if (puddle.pie) {
+        var thisPie = _.find(pies, function(p) {
+          return p.id === puddle.id;
+        });
+        if (!thisPie) {
+          var slices = stats.createPie(puddleGroup, data[puddle.id.toLowerCase()]);
+          pies.push({
+            'id': puddle.id,
+            'slices': slices
+          });
+        }
+        else {
+          stats.updatePie(thisPie, data[puddle.id.toLowerCase()]);
+        }
+      }
+      else {
+        if (!stats.rectGroup) {
+          stats.createRect(puddle, puddleGroup, data[puddle.id.toLowerCase()]);
+        }
+        else {
+          stats.updateAverage(data[puddle.id.toLowerCase()], puddle);
+        }
+      }
+      var display = stats.getDisplay(puddle.id);
+      puddle.dataDisplay(puddleGroup, display);
+    });
+  };
+
+  stats.createRect = function(puddle, puddleGroup, data) {
+    var rectGroup = puddleGroup.append('g')
+      .attr('id', 'd3-stats-rect-group');
+
+    puddle.height(pool.height() * (4/5));
+
+    rectGroup.append('rect')
+      .attr({
+        'x': puddle.width() / 16,
+        'y': pool.height() / 10,
+        'width': puddle.width() / 8,
+        'height': pool.height() * (4/5),
+        'class': 'd3-stats-rect rect-left'
+      });
+
+    rectGroup.append('rect')
+      .attr({
+        'x': puddle.width() * (3/16),
+        'y': pool.height() / 10,
+        'width': puddle.width() / 8,
+        'height': pool.height() * (4/5),
+        'class': 'd3-stats-rect rect-right'
+      });
+
+    rectScale = scales.bgLog(opts.cbg.data, puddle, 0);
+
+    rectGroup.append('line')
+      .attr({
+        'x1': puddle.width() / 16,
+        'x2': puddle.width() * (5/16),
+        'y1': rectScale(80) + (pool.height() / 10),
+        'y2': rectScale(80) + (pool.height() / 10),
+        'class': 'd3-stats-rect-line'
+      });
+
+    rectGroup.append('line')
+      .attr({
+        'x1': puddle.width() / 16,
+        'x2': puddle.width() * (5/16),
+        'y1': rectScale(180) + (pool.height() / 10),
+        'y2': rectScale(180) + (pool.height() / 10),
+        'class': 'd3-stats-rect-line'
+      });
+    var imageY = rectScale(data.value) - (opts.size / 2) + (puddle.height() / 10);
+    // don't append an image if imageY is NaN
+    if (imageY) {
+      rectGroup.append('image')
+        .attr({
+          'xlink:href': function() {
+            if (data.value <= opts.classes['very-low'].boundary) {
+              return opts.imagesBaseUrl + '/smbg/very_low.svg';
+            }
+            else if ((data.value > opts.classes['very-low'].boundary) && (data.value <= opts.classes.low.boundary)) {
+              return opts.imagesBaseUrl + '/smbg/low.svg';
+            }
+            else if ((data.value > opts.classes.low.boundary) && (data.value <= opts.classes.target.boundary)) {
+              return opts.imagesBaseUrl + '/smbg/target.svg';
+            }
+            else if ((data.value > opts.classes.target.boundary) && (data.value <= opts.classes.high.boundary)) {
+              return opts.imagesBaseUrl + '/smbg/high.svg';
+            }
+            else if (data.value > opts.classes.high.boundary) {
+              return opts.imagesBaseUrl + '/smbg/very_high.svg';
+            }
+          },
+          'x': (puddle.width() * (3/16)) - (opts.size / 2),
+          'y': imageY,
+          'width': opts.size,
+          'height': opts.size,
+          'class': 'd3-image d3-stats-image'
+        });
+    }
+    else {
+      rectGroup.append('image')
+        .attr({
+          'xlink:href': function() {
+            if (data.value <= opts.classes['very-low'].boundary) {
+              return opts.imagesBaseUrl + '/smbg/very_low.svg';
+            }
+            else if ((data.value > opts.classes['very-low'].boundary) && (data.value <= opts.classes.low.boundary)) {
+              return opts.imagesBaseUrl + '/smbg/low.svg';
+            }
+            else if ((data.value > opts.classes.low.boundary) && (data.value <= opts.classes.target.boundary)) {
+              return opts.imagesBaseUrl + '/smbg/target.svg';
+            }
+            else if ((data.value > opts.classes.target.boundary) && (data.value <= opts.classes.high.boundary)) {
+              return opts.imagesBaseUrl + '/smbg/high.svg';
+            }
+            else if (data.value > opts.classes.high.boundary) {
+              return opts.imagesBaseUrl + '/smbg/very_high.svg';
+            }
+            else {
+              return opts.imagesBaseUrl + '/ux/scroll_thumb.svg';
+            }
+          },
+          'x': (puddle.width() * (3/16)) - (opts.size / 2),
+          'y': rectScale(100) - (opts.size / 2) + (puddle.height() / 10),
+          'width': opts.size,
+          'height': opts.size,
+          'class': 'd3-image d3-stats-image hidden'
+        });
+    }
+
+    stats.rectGroup = rectGroup;
+  };
+
+  stats.updateAverage = function(data, puddle) {
+    var imageY = rectScale(data.value) - (opts.size / 2) + (puddle.height() / 10);
+    if (imageY) {
+      stats.rectGroup.selectAll('.d3-stats-image')
+        .attr({
+          'xlink:href': function() {
+            if (data.value <= opts.classes['very-low'].boundary) {
+              return opts.imagesBaseUrl + '/smbg/very_low.svg';
+            }
+            else if ((data.value > opts.classes['very-low'].boundary) && (data.value <= opts.classes.low.boundary)) {
+              return opts.imagesBaseUrl + '/smbg/low.svg';
+            }
+            else if ((data.value > opts.classes.low.boundary) && (data.value <= opts.classes.target.boundary)) {
+              return opts.imagesBaseUrl + '/smbg/target.svg';
+            }
+            else if ((data.value > opts.classes.target.boundary) && (data.value <= opts.classes.high.boundary)) {
+              return opts.imagesBaseUrl + '/smbg/high.svg';
+            }
+            else if (data.value > opts.classes.high.boundary) {
+              return opts.imagesBaseUrl + '/smbg/very_high.svg';
+            }
+          },
+          'y': imageY
+        })
+        .classed('hidden', false);
+    }
+  };
+
+  stats.createPie = function(puddleGroup, data) {
+    var xOffset = (pool.width()/3) * (1/6);
+    var yOffset = pool.height() / 2;
+    var pieGroup = puddleGroup.append('g')
+      .attr({
+        'transform': 'translate(' + xOffset + ',' + yOffset + ')',
+        'class': 'd3-stats-pie'
+      });
+
+    pie = d3.layout.pie().value(function(d) {
+        return d.value;
+      })
+      .sort(null);
+
+    arc = d3.svg.arc()
+      .innerRadius(0)
+      .outerRadius(opts.pieRadius);
+
+    var slices = pieGroup.selectAll('g.d3-stats-slice')
+      .data(pie(data))
+      .enter()
+      .append('path')
+      .attr({
+        'd': arc,
+        'class': function(d) {
+          return 'd3-stats-slice d3-' + d.data.type;
+        }
+      });
+
+    return slices;
+  };
+
+  stats.updatePie = function(thisPie, data) {
+    thisPie.slices.data(pie(data))
+      .attr({
+        'd': arc
+      });
+  };
+
+  stats.newPuddle = function(id, head, lead, weight, pieBoolean) {
+    var p = new Puddle({
+      'id': id,
+      'head': head,
+      'lead': lead,
+      'width': pool.width()/3,
+      'height': pool.height(),
+      'weight': weight,
+      'xOffset': function() {
+        if (pieBoolean) {
+          return (pool.width()/3) / 3;
+        }
+        else {
+          return (pool.width()/3) * (2 / 5);
+        }
+      },
+      'pie': pieBoolean
+    });
+    puddles.push(p);
+  };
+
+  stats.getDisplay = function(id) {
+    switch (id) {
+    case 'Ratio':
+      return stats.ratioDisplay();
+    case 'Range':
+      return stats.rangeDisplay();
+    case 'Average':
+      return stats.averageDisplay();
+    }
+  };
+
+  stats.ratioDisplay = function() {
+    var bolus = _.findWhere(data.ratio, {'type': 'bolus'}).value;
+    var basal = _.findWhere(data.ratio, {'type': 'basal'}).value;
+    var total = bolus + basal;
+    return [{
+        'text': stats.formatPercentage(basal/total) + ' : ',
+        'class': 'd3-stats-basal'
+      },
+      {
+        'text': stats.formatPercentage(bolus/total),
+        'class': 'd3-stats-bolus'
+      }];
+  };
+
+  stats.rangeDisplay = function() {
+    var target = _.findWhere(data.range, {'type': 'bg-target'}).value;
+    var total = parseFloat(data.cbgReadings);
+    return [{'text': stats.formatPercentage(target/total), 'class': 'd3-stats-percentage'}];
+  };
+
+  stats.averageDisplay = function() {
+    return [{'text': data.average.value + ' mg/dL', 'class': 'd3-stats-' + data.average.category}];
+  };
+
+  stats.getData = function(start, end) {
+    data.ratio = [
+      {
+        'type': 'bolus',
+        'value': opts.bolus.totalBolus(start, end)
+      },
+      {
+        'type': 'basal',
+        'value': opts.basal.totalBasal(start, end)
+      }
+    ];
+    var range = opts.cbg.rangeBreakdown(start, end);
+    data.range = [
+      {
+        'type': 'bg-low',
+        'value': range.low || 0,
+      },
+      {
+        'type': 'bg-target',
+        'value': range.target || 0,
+      },
+      {
+        'type': 'bg-high',
+        'value': range.high || 0
+      }
+    ];
+    data.cbgReadings = range.total;
+    data.average = opts.cbg.average(start, end);
+  };
+
+  stats.formatPercentage = function(f) {
+    return parseInt(f.toFixed(2) * 100, 10) + '%';
+  };
+
+  return stats;
+};
+},{"../../lib/":7,"../util/scales":19,"./puddle":16}],18:[function(require,module,exports){
+/* 
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+var _ = require('../../lib/')._;
+
+var log = require('../../lib/').bows('Fill');
+
+module.exports = function(pool, opts) {
+
+  var first = new Date(opts.endpoints[0]),
+    last = new Date(opts.endpoints[1]),
+    nearest, fills = [];
+
+  first.setMinutes(first.getMinutes() + first.getTimezoneOffset());
+  last.setMinutes(last.getMinutes() + last.getTimezoneOffset());
+
+  var defaults = {
+    classes: {
+      0: 'darkest',
+      3: 'dark',
+      6: 'lighter',
+      9: 'light',
+      12: 'lightest',
+      15: 'lighter',
+      18: 'dark',
+      21: 'darkest'
+    },
+    duration: 3,
+    gutter: 0
+  };
+
+  _.defaults(opts || {}, defaults);
+
+  function fill(selection) {
+    if (!opts.xScale) {
+      opts.xScale = pool.xScale().copy();
+    }
+    fill.findNearest(opts.endpoints[1]);
+    var otherNear = new Date(nearest);
+    otherNear.setMinutes(otherNear.getMinutes() - otherNear.getTimezoneOffset());
+    fills.push({
+      width: opts.xScale(last) - opts.xScale(nearest),
+      x: opts.xScale(otherNear),
+      fill: opts.classes[nearest.getHours()]
+    });
+    var current = new Date(nearest);
+    while (current > first) {
+      var next = new Date(current);
+      next.setHours(current.getHours() - opts.duration);
+      var otherNext = new Date(next);
+      otherNext.setMinutes(otherNext.getMinutes() - otherNext.getTimezoneOffset());
+      fills.push({
+        width: opts.xScale(current) - opts.xScale(next),
+        x: opts.xScale(otherNext),
+        fill: opts.classes[next.getHours()]
+      });
+      current = next;
+    }
+
+    selection.selectAll('rect')
+      .data(fills)
+      .enter()
+      .append('rect')
+      .attr({
+        'x': function(d) {
+          return d.x;
+        },
+        'y': function() {
+          if (opts.gutter.top) {
+            return opts.gutter.top;
+          }
+          else {
+            return opts.gutter;
+          }
+        },
+        'width': function(d) {
+          return d.width;
+        },
+        'height': function() {
+          if (opts.gutter.top) {
+            return pool.height() - opts.gutter.top - opts.gutter.bottom;
+          }
+          else {
+            return pool.height() - 2 * opts.gutter;
+          }
+        },
+        'class': function(d) {
+          return 'd3-rect-fill d3-fill-' + d.fill;
+        }
+      });
+  }
+
+  fill.findNearest = function(d) {
+    var date = new Date(d);
+    date.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+    var hourBreaks = [];
+    var i = 0;
+    while (i <= 24) {
+      hourBreaks.push(i);
+      i += opts.duration;
+    }
+    for(var j = 0; j < hourBreaks.length; j++) {
+      var br = hourBreaks[j];
+      var nextBr = hourBreaks[j + 1];
+      if ((date.getHours() >= br) && (date.getHours() < nextBr)) {
+        nearest = new Date(date.getFullYear(), date.getMonth(), date.getDate(), br, 0, 0);
+      }
+    }
+  };
+  
+  return fill;
+};
+},{"../../lib/":7}],19:[function(require,module,exports){
+/* 
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+var d3 = require('../../lib/').d3;
+var _ = require('../../lib/')._;
+
+var scales = {
+  bg: function(data, pool, pad) {
+    var scale = d3.scale.linear()
+      .domain([0, d3.max(data, function(d) { return d.value; })])
+      .range([pool.height() - pad, pad]);
+    return scale;
+  },
+  bgLog: function(data, pool, pad) {
+    var scale = d3.scale.log()
+      .domain(d3.extent(data, function(d) { return d.value; }))
+      .range([pool.height() - pad, pad]);
+    return scale;
+  },
+  carbs: function(data, pool) {
+    var scale = d3.scale.linear()
+      .domain([0, d3.max(data, function(d) { return d.value; })])
+      .range([0, 0.475 * pool.height()]);
+    return scale;
+  },
+  bolus: function(data, pool) {
+    var scale = d3.scale.linear()
+      .domain([0, d3.max(data, function(d) { return d.value; })])
+      .range([pool.height(), 0.525 * pool.height()]);
+    return scale;
+  },
+  basal: function(data, pool) {
+    var scale = d3.scale.linear()
+      .domain([0, d3.max(data, function(d) { return d.value; }) * 1.1])
+      .rangeRound([pool.height(), 0]);
+    return scale;
+  }
+};
+
+module.exports = scales;
+},{"../../lib/":7}],20:[function(require,module,exports){
+/* 
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+var d3 = require('../../lib/').d3;
+
+var log = require('../../lib/').bows('Tooltip');
+
+module.exports = function(container, tooltipsGroup) {
+
+  var id, timestampHeight = 20;
+
+  function tooltip(selection,
+    d,
+    tooltipXPos,
+    path,
+    makeTimestamp,
+    image,
+    tooltipWidth,
+    tooltipHeight,
+    imageX, imageY,
+    textX, textY,
+    customText, tspan) {
+    var tooltipGroup = selection.append('g')
+      .attr('class', 'd3-tooltip')
+      .attr('id', 'tooltip_' + d._id);
+
+    var imagesBaseUrl = container.imagesBaseUrl();
+
+    var currentTranslation = container.currentTranslation();
+
+    var locationInWindow = currentTranslation + tooltipXPos;
+
+    var translation = 0;
+
+    var newBasalPosition;
+
+    // moving basal tooltips at edges of display
+    if (path === 'basal') {
+      if (locationInWindow > container.width() - (((container.width() - container.axisGutter()) / 24) * 3)) {
+        newBasalPosition = -currentTranslation + container.width() - tooltipWidth;
+        if (newBasalPosition < imageX) {
+          translation = newBasalPosition - imageX;
+          imageX = newBasalPosition;
+        }
+      }
+      else if (locationInWindow < (((container.width() - container.axisGutter()) / 24) * 3)) {
+        newBasalPosition = -currentTranslation + container.axisGutter();
+        if (newBasalPosition > imageX) {
+          translation = newBasalPosition - imageX;
+          imageX = newBasalPosition;
+        }
+      }
+    }
+    // and bolus, carbs, cbg, smbg
+    if ((path === 'bolus') || (path === 'carbs') || (path === 'cbg') || (path === 'smbg')) {
+      if (locationInWindow > container.width() - (((container.width() - container.axisGutter()) / 24) * 3)) {
+        translation = -tooltipWidth;
+      }
+    }
+
+    // for now (unless I can persude Sara and Alix otherwise), high cbg values are a special case
+    if (image.indexOf('cbg_tooltip_high') !== -1) {
+      if (locationInWindow < (((container.width() - container.axisGutter()) / 24) * 3)) {
+        tooltipGroup.append('image')
+          .attr({
+            'xlink:href': imagesBaseUrl + '/' + path + '/' + image,
+            'x': imageX,
+            'y': imageY,
+            'width': tooltipWidth,
+            'height': tooltipHeight,
+            'class': 'd3-tooltip-image'
+          });
+
+        tooltipGroup.append('text')
+          .attr({
+            'x': textX,
+            'y': textY,
+            'class': 'd3-tooltip-text d3-' + path
+          })
+          .text(function() {
+            return d.value;
+          });
+      }
+      else {
+        tooltipGroup.append('image')
+          .attr({
+            'xlink:href': function() {
+              var str =  imagesBaseUrl + '/' + path + '/' + image;
+              return str.replace('.svg', '_left.svg');
+            },
+            'x': imageX - tooltipWidth,
+            'y': imageY,
+            'width': tooltipWidth,
+            'height': tooltipHeight,
+            'class': 'd3-tooltip-image'
+          });
+
+        tooltipGroup.append('text')
+          .attr({
+            'x': textX - tooltipWidth,
+            'y': textY,
+            'class': 'd3-tooltip-text d3-' + path
+          })
+          .text(function() {
+            return d.value;
+          });
+      }
+    }
+    // if the data point is three hours from the end of the data in view or less, use a left tooltip
+    else if ((locationInWindow > container.width() - (((container.width() - container.axisGutter()) / 24) * 3)) &&
+      (path !== 'basal')) {
+      tooltipGroup.append('image')
+        .attr({
+          'xlink:href': function() {
+            var str =  imagesBaseUrl + '/' + path + '/' + image;
+            return str.replace('.svg', '_left.svg');
+          },
+          'x': imageX - tooltipWidth,
+          'y': imageY,
+          'width': tooltipWidth,
+          'height': tooltipHeight,
+          'class': 'd3-tooltip-image'
+        });
+
+      if (tspan) {
+        tooltipGroup.append('g')
+          .attr({
+            'class': 'd3-tooltip-text-group',
+            'transform': 'translate(' + translation + ',0)'
+          })
+          .append('text')
+          .attr({
+            'x': textX,
+            'y': textY,
+            'class': 'd3-tooltip-text d3-' + path
+          })
+          .text(function() {
+            if (customText) {
+              return customText;
+            }
+            else {
+              return d.value;
+            }
+          });
+        tooltipGroup.select('.d3-tooltip-text-group').select('text')
+          .append('tspan')
+          .text(' ' + tspan);
+      }
+      else {
+        tooltipGroup.append('g')
+          .attr({
+            'class': 'd3-tooltip-text-group',
+            'transform': 'translate(' + translation + ',0)'
+          })
+          .append('text')
+          .attr({
+            'x': textX,
+            'y': textY,
+            'class': 'd3-tooltip-text d3-' + path
+          })
+          .text(function() {
+            if (customText) {
+              return customText;
+            }
+            else {
+              return d.value;
+            }
+          });
+      }
+
+      // adjust the values needed for the timestamp
+      imageX = imageX - tooltipWidth;
+      textX = textX - tooltipWidth;
+    }
+    else {
+      tooltipGroup.append('image')
+        .attr({
+          'xlink:href': imagesBaseUrl + '/' + path + '/' + image,
+          'x': imageX,
+          'y': imageY,
+          'width': tooltipWidth,
+          'height': tooltipHeight,
+          'class': 'd3-tooltip-image'
+        });
+
+      if (tspan) {
+        tooltipGroup.append('g')
+        .attr({
+          'class': 'd3-tooltip-text-group',
+          'transform': 'translate(' + translation + ',0)'
+        })
+        .append('text')
+        .attr({
+          'x': textX,
+          'y': textY,
+          'class': 'd3-tooltip-text d3-' + path
+        })
+        .text(function() {
+          if (customText) {
+            return customText;
+          }
+          else {
+            return d.value;
+          }
+        });
+        tooltipGroup.select('.d3-tooltip-text-group').select('text')
+          .append('tspan')
+          .text(' ' + tspan);
+      }
+      else {
+        tooltipGroup.append('g')
+          .attr({
+            'class': 'd3-tooltip-text-group',
+            'transform': 'translate(' + translation + ',0)'
+          })
+          .append('text')
+          .attr({
+            'x': textX,
+            'y': textY,
+            'class': 'd3-tooltip-text d3-' + path
+          })
+          .text(function() {
+            if (customText) {
+              return customText;
+            }
+            else {
+              return d.value;
+            }
+          });
+      }
+
+    }
+
+    if (makeTimestamp) {
+      tooltip.timestamp(d, tooltipGroup, imageX, imageY, textX, textY, tooltipWidth, tooltipHeight);
+    }
+  }
+
+  tooltip.timestamp = function(d, tooltipGroup, imageX, imageY, textX, textY, tooltipWidth, tooltipHeight) {
+    var magic = timestampHeight * 1.2;
+    var timestampY = imageY() - timestampHeight;
+    var timestampTextY = timestampY + magic / 2;
+
+    var formatTime = d3.time.format.utc('%-I:%M %p');
+    var t = formatTime(new Date(d.normalTime));
+    tooltipGroup.append('rect')
+      .attr({
+        'x': imageX,
+        'y': timestampY,
+        'width': tooltipWidth,
+        'height': timestampHeight,
+        'class': 'd3-tooltip-rect'
+      });
+    tooltipGroup.append('text')
+      .attr({
+        'x': textX,
+        'y': timestampTextY,
+        'baseline-shift': (magic - timestampHeight) / 2,
+        'class': 'd3-tooltip-text d3-tooltip-timestamp'
+      })
+      .text('at ' + t);
+  };
+
+  tooltip.addGroup = function(pool, type) {
+    tooltipsGroup.append('g')
+      .attr('id', tooltip.id() + '_' + type)
+      .attr('transform', pool.attr('transform'));
+  };
+
+  // getters & setters
+  tooltip.id = function(x) {
+    if (!arguments.length) return id;
+    id = tooltipsGroup.attr('id');
+    return tooltip;
+  };
+
+  return tooltip;
+};
+},{"../../lib/":7}],21:[function(require,module,exports){
+/* 
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+var d3 = require('./lib/').d3;
+var _ = require('./lib/')._;
+
+var log = require('./lib/').bows('Pool');
+ 
+function Pool (container) {
+
+  var data,
+    id, label,
+    index, weight, yPosition,
+    height, minHeight = 20, maxHeight = 300,
+    group,
+    mainSVG = d3.select(container.id()),
+    xScale,
+    imagesBaseUrl = container.imagesBaseUrl(),
+    yAxis = [],
+    plotTypes = [],
+    tooltips;
+
+  this.render = function(selection, poolData) {
+    var pool = this;
+    plotTypes.forEach(function(plotType) {
+      if (container.dataFill[plotType.type]) {
+        plotType.data = _.where(poolData, {'type': plotType.type});
+        if (plotType.data.length !== 0) {
+          var dataGroup = group.selectAll('#' + id + '_' + plotType.type).data([plotType.data]);
+          dataGroup.enter().append('g').attr('id', id + '_' + plotType.type);
+          dataGroup.call(plotType.plot);
+        }
+      }
+      else if (plotType.type === 'stats') {
+        var statsGroup = group.selectAll('#' + id + '_stats').data([null]);
+        statsGroup.enter().append('g').attr('id', id + '_stats').call(plotType.plot);
+      }
+      else {
+        pool.noDataFill(plotType);
+      }
+    });
+    this.drawAxis();
+    this.drawLabel();
+  };
+
+  this.clear = function() {
+    plotTypes.forEach(function(plotType) {
+      if (container.dataFill[plotType.type])  {
+        group.select('#' + id + '_' + plotType.type).remove();
+      }
+    });
+  };
+
+  // non-chainable methods
+  this.pan = function(e) {
+    container.latestTranslation(e.translate[0]);
+    plotTypes.forEach(function(plotType) {
+      if (plotType.panBoolean) {
+        d3.select('#' + id + '_' + plotType.type).attr('transform', 'translate(' + e.translate[0] + ',0)');
+      }
+    });
+  };
+
+  this.scroll = function(e) {
+    container.latestTranslation(e.translate[1]);
+    plotTypes.forEach(function(plotType) {
+      d3.select('#' + id + '_' + plotType.type).attr('transform', 'translate(0,' + e.translate[1] + ')');
+    });
+  };
+
+  // getters only
+  this.group = function() {
+    return group;
+  };
+
+  this.width = function() {
+    return container.width() - container.axisGutter();
+  };
+
+  this.imagesBaseUrl = function() {
+    return imagesBaseUrl;
+  };
+
+  // only once methods
+  this.drawLabel = _.once(function() {
+    var labelGroup = d3.select('#tidelineLabels');
+    labelGroup.append('text')
+      .attr({
+        'id': 'pool_' + id + '_label',
+        'class': 'd3-pool-label',
+        'transform': 'translate(' + container.axisGutter() + ',' + yPosition + ')'
+      })
+      .text(label);
+    return this;
+  });
+
+  this.drawAxis = _.once(function() {
+    var axisGroup = d3.select('#tidelineYAxes');
+    yAxis.forEach(function(axis, i) {
+      axisGroup.append('g')
+        .attr('class', 'd3-y d3-axis')
+        .attr('id', 'pool_' + id + '_yAxis_' + i)
+        .attr('transform', 'translate(' + (container.axisGutter() - 1) + ',' + yPosition + ')')
+        .call(axis);
+    });
+    return this;
+  });
+
+  this.noDataFill = _.once(function(plotType) {
+    d3.select('#' + id).append('g').attr('id', id + '_' + plotType.type).call(plotType.plot);
+    return this;
+  });
+
+  // getters & setters
+  this.id = function(x, selection) {
+    if (!arguments.length) return id;
+    id = x;
+    group = selection.append('g').attr('id', id);
+    return this;
+  };
+
+  this.label = function(x) {
+    if (!arguments.length) return label;
+    label = x;
+    return this;
+  };
+
+  this.index = function(x) {
+    if (!arguments.length) return index;
+    index = x;
+    return this;
+  };
+
+  this.weight = function(x) {
+    if (!arguments.length) return weight;
+    weight = x;
+    return this;
+  };
+
+  this.height = function(x) {
+    if (!arguments.length) return height;
+    x = x * this.weight();
+    if (x <= maxHeight) {
+      if (x >= minHeight) {
+        height = x;
+      }
+      else {
+        height = minHeight;
+      }
+    }
+    else {
+      height = maxHeight;
+    }
+    return this;
+  };
+
+  this.yPosition = function(x) {
+    if (!arguments.length) return yPosition;
+    yPosition = x;
+    return this;
+  };
+
+  this.tooltips = function(f) {
+    if (!arguments.length) return tooltips;
+    tooltips = f;
+    return this;
+  };
+
+  this.xScale = function(f) {
+    if (!arguments.length) return xScale;
+    xScale = f;
+    return this;
+  };
+
+  this.yAxis = function(x) {
+    if (!arguments.length) return yAxis;
+    yAxis.push(x);
+    return this;
+  };
+
+  this.addPlotType = function (dataType, plotFunction, dataFillBoolean, panBoolean) {
+    plotTypes.push({
+      type: dataType,
+      plot: plotFunction,
+      panBoolean: panBoolean
+    });
+    if (dataFillBoolean) {
+      container.dataFill[dataType] = true;
+    }
+    return this;
+  };
+
+  return this;
+}
+
+module.exports = Pool;
+
+},{"./lib/":7}],22:[function(require,module,exports){
+/* 
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+var d3 = require('./lib/').d3;
+var _ = require('./lib/')._;
+
+var log = require('./lib/').bows('Two Week');
+
+module.exports = function(emitter) {
+  // required externals
+  var Pool = require('./pool');
+
+  // constants
+  var MS_IN_24 = 86400000;
+
+  // basic attributes
+  var id = 'tidelineSVGTwoWeek',
+    minWidth = 400, minHeight = 400,
+    width = minWidth, height = minHeight,
+    imagesBaseUrl = 'img',
+    nav = {
+      axisHeight: 30,
+      navGutter: 20,
+      scrollThumbRadius: 8,
+      currentTranslation: 0
+    },
+    axisGutter = 52, dayTickSize = 0,
+    statsHeight = 100,
+    pools = [], poolGroup, days, daysGroup,
+    xScale = d3.scale.linear(), xAxis, yScale = d3.time.scale.utc(), yAxis,
+    data, allData = [], endpoints, viewEndpoints, dataStartNoon, dataEndNoon, poolScaleHeight,
+    lessThanTwoWeeks = false,
+    sortReverse = true, viewIndex,
+    mainGroup, scrollNav, scrollHandleTrigger = true;
+
+  container.dataFill = {};
+
+  function container(selection) {
+    var mainSVG = selection.append('svg');
+
+    mainGroup = mainSVG.append('g').attr('id', 'tidelineMain');
+
+    // update SVG dimenions and ID
+    mainSVG.attr({
+      'id': id,
+      'width': width,
+      'height': height,
+      'class': 'hidden'
+    });
+
+    mainGroup.append('rect')
+      .attr({
+        'id': 'poolsInvisibleRect',
+        'width': width - nav.navGutter,
+        'height': height,
+        'opacity': 0.0
+      });
+  }
+
+  // non-chainable methods
+  container.panForward = function() {
+    log('Jumped forward two weeks.');
+    if (sortReverse) {
+      nav.currentTranslation += height - nav.axisHeight - statsHeight;
+      mainGroup.transition().duration(500).tween('zoom', function() {
+        var iy = d3.interpolate(nav.currentTranslation - height + nav.axisHeight + statsHeight, nav.currentTranslation);
+        return function(t) {
+          nav.scroll.translate([0, iy(t)]);
+          nav.scroll.event(mainGroup);
+        };
+      });
+    }
+    else {
+      nav.currentTranslation -= height - nav.axisHeight - statsHeight;
+      mainGroup.transition().duration(500).tween('zoom', function() {
+        var iy = d3.interpolate(nav.currentTranslation + height - nav.axisHeight - statsHeight, nav.currentTranslation);
+        return function(t) {
+          nav.scroll.translate([0, iy(t)]);
+          nav.scroll.event(mainGroup);
+        };
+      });
+    }
+  };
+
+  container.panBack = function() {
+    log('Jumped back two weeks.');
+    if (sortReverse) {
+      nav.currentTranslation -= height - nav.axisHeight - statsHeight;
+      mainGroup.transition().duration(500).tween('zoom', function() {
+        var iy = d3.interpolate(nav.currentTranslation + height - nav.axisHeight - statsHeight, nav.currentTranslation);
+        return function(t) {
+          nav.scroll.translate([0, iy(t)]);
+          nav.scroll.event(mainGroup);
+        };
+      });
+    }
+    else {
+      nav.currentTranslation += height - nav.axisHeight - statsHeight;
+      mainGroup.transition().duration(500).tween('zoom', function() {
+        var iy = d3.interpolate(nav.currentTranslation - height + nav.axisHeight + statsHeight, nav.currentTranslation);
+        return function(t) {
+          nav.scroll.translate([0, iy(t)]);
+          nav.scroll.event(mainGroup);
+        };
+      });
+    }
+  };
+
+  container.newPool = function() {
+    var p = new Pool(container);
+    pools.push(p);
+    return p;
+  };
+
+  container.arrangePools = function() {
+    // 14 days = 2 weeks
+    var numPools = 14;
+    // all two-week pools have a weight of 1.0
+    var weight = 1.0;
+    var cumWeight = weight * numPools;
+    var totalPoolsHeight =
+      container.height() - nav.axisHeight - statsHeight;
+    poolScaleHeight = totalPoolsHeight/cumWeight;
+    var actualPoolsHeight = 0;
+    pools.forEach(function(pool) {
+      pool.height(poolScaleHeight);
+      actualPoolsHeight += pool.height();
+      poolScaleHeight = pool.height();
+    });
+    var currentYPosition, nextBatchYPosition, pool;
+    if (sortReverse) {
+      currentYPosition = nav.axisHeight;
+      nextBatchYPosition = currentYPosition - poolScaleHeight;
+      for (var i = viewIndex; i >= 0; i--) {
+        pool = pools[i];
+        pool.yPosition(currentYPosition);
+        currentYPosition += pool.height();
+        pool.group().attr('transform', 'translate(0,' + pool.yPosition() + ')');
+      }
+      currentYPosition = nextBatchYPosition;
+      for (var j = viewIndex + 1; j < pools.length; j++) {
+        pool = pools[j];
+        pool.yPosition(currentYPosition);
+        currentYPosition -= pool.height();
+        pool.group().attr('transform', 'translate(0,' + pool.yPosition() + ')');
+      }
+    }
+    else {
+      currentYPosition = container.height() - statsHeight - poolScaleHeight;
+      nextBatchYPosition = currentYPosition + poolScaleHeight;
+      for (var k = viewIndex; k < pools.length; k++) {
+        pool = pools[k];
+        pool.yPosition(currentYPosition);
+        currentYPosition -= pool.height();
+        pool.group().attr('transform', 'translate(0,' + pool.yPosition() + ')');
+      }
+      currentYPosition = nextBatchYPosition;
+      for (var l = viewIndex - 1; l >= 0; l--) {
+        pool = pools[l];
+        pool.yPosition(currentYPosition);
+        currentYPosition += pool.height();
+        pool.group().attr('transform', 'translate(0,' + pool.yPosition() + ')');
+      }
+    }
+
+    // setup stats group
+    container.poolStats = new Pool(container);
+    container.poolStats.id('poolStats', poolGroup).weight(1.0).height(statsHeight * (4/5));
+    container.poolStats.group().attr({
+      'transform': 'translate(' + axisGutter + ',' + (height - statsHeight) + ')'
+    });
+    container.poolStats.group().append('rect')
+      .attr({
+        'x': 0,
+        'y': 0,
+        'width': width - axisGutter - nav.navGutter,
+        'height': statsHeight,
+        'fill': 'white'
+      });
+  };
+
+  container.clear = function() {
+    emitter.removeAllListeners('numbers');
+    container.currentTranslation(0).latestTranslation(0);
+    var ids = ['#tidelinePools', '#tidelineXAxisGroup', '#tidelineYAxisGroup', '#tidelineScrollNav'];
+    ids.forEach(function(id) {
+      mainGroup.select(id).remove();
+    });
+    data = [];
+    pools = [];
+
+    return container;
+  };
+
+  container.hide = function() {
+    d3.select('#' + id).classed('hidden', true);
+
+    return container;
+  };
+
+  container.show = function() {
+    d3.select('#' + id).classed('hidden', false);
+
+    return container;
+  };
+
+  container.navString = function(a) {
+    if (!arguments.length) {
+      a = yScale.domain();
+    }
+    if (sortReverse) {
+      a.reverse();
+      a[0].setUTCDate(a[0].getUTCDate() + 1);
+    }
+    else {
+      a[0].setUTCDate(a[0].getUTCDate() + 1);
+    }
+    if (!d3.select('#' + id).classed('hidden')) {
+      emitter.emit('currentDomain', a);
+      emitter.emit('navigated', [a[0].toISOString(), a[1].toISOString()]);
+    }
+  };
+
+  // getters only
+  container.pools = function() {
+    return pools;
+  };
+
+  container.poolGroup = function() {
+    return poolGroup;
+  };
+
+  container.days = function() {
+    return days;
+  };
+
+  container.daysGroup = function() {
+    return daysGroup;
+  };
+
+  container.id = function() {
+    return id;
+  };
+
+  container.axisGutter = function() {
+    return axisGutter;
+  };
+
+  container.navGutter = function() {
+    return nav.navGutter;
+  };
+
+  // chainable methods
+  container.setup = function() {
+    poolGroup = mainGroup.append('g').attr('id', 'tidelinePools');
+
+    mainGroup.append('g')
+      .attr('id', 'tidelineXAxisGroup')
+      .append('rect')
+      .attr({
+        'id': 'xAxisInvisibleRect',
+        'x': axisGutter,
+        'height': nav.axisHeight - 1,
+        'width': width - axisGutter,
+        'fill': 'white'
+      });
+
+    mainGroup.append('g')
+      .attr('id', 'tidelineYAxisGroup')
+      .append('rect')
+      .attr({
+        'id': 'yAxisInvisibleRect',
+        'x': 0,
+        'height': height,
+        'width': axisGutter,
+        'fill': 'white'
+      });
+
+    daysGroup = poolGroup.append('g').attr('id', 'daysGroup');
+
+    scrollNav = mainGroup.append('g')
+      .attr('class', 'y scroll')
+      .attr('id', 'tidelineScrollNav');
+
+    return container;
+  };
+
+  container.setAxes = function() {
+    // set the domain and range for the two-week x-scale
+    xScale.domain([0, MS_IN_24])
+      .range([axisGutter, width - nav.navGutter]);
+    xAxis = d3.svg.axis().scale(xScale).orient('top').outerTickSize(0).innerTickSize(15)
+      .tickValues(function() {
+        var a = [];
+        for (var i = 0; i < 8; i++) {
+          a.push((MS_IN_24/8) * i);
+        }
+        return a;
+      })
+      .tickFormat(function(d) {
+        var hour = d/(MS_IN_24/24);
+        if ((hour > 0) && (hour < 12)) {
+          return hour + ' am';
+        }
+        else if (hour > 12) {
+          return (hour - 12) + ' pm';
+        }
+        else if (hour === 0) {
+          return '12 am';
+        }
+        else {
+          return '12 pm';
+        }
+      });
+
+    mainGroup.select('#tidelineXAxisGroup')
+      .append('g')
+      .attr('class', 'd3-x d3-axis')
+      .attr('id', 'tidelineXAxis')
+      .attr('transform', 'translate(0,' + (nav.axisHeight - 1) + ')')
+      .call(xAxis);
+
+    mainGroup.selectAll('#tidelineXAxis g.tick text').style('text-anchor', 'start').attr('transform', 'translate(5,15)');
+
+    // set the domain and range for the main two-week y-scale
+    yScale.domain(viewEndpoints)
+      .range([nav.axisHeight, height - statsHeight])
+      .ticks(d3.time.day.utc, 1);
+
+    yAxis = d3.svg.axis().scale(yScale)
+      .orient('left')
+      .outerTickSize(0)
+      .innerTickSize(dayTickSize)
+      .tickFormat(d3.time.format.utc('%a'));
+
+    mainGroup.select('#tidelineYAxisGroup')
+      .append('g')
+      .attr('class', 'd3-y d3-axis d3-day-axis')
+      .attr('id', 'tidelineYAxis')
+      .attr('transform', 'translate(' + (axisGutter - 1) + ',0)')
+      .call(yAxis);
+
+    container.dayAxisHacks();
+
+    if (sortReverse) {
+      var start = new Date(dataStartNoon);
+      start.setUTCDate(start.getUTCDate() - 1);
+      nav.scrollScale = d3.time.scale.utc()
+          .domain([dataEndNoon, start])
+          .range([nav.axisHeight + nav.scrollThumbRadius, height - statsHeight - nav.scrollThumbRadius]);
+    }
+    else {
+      nav.scrollScale = d3.time.scale.utc()
+        .domain([dataStartNoon, dataEndNoon])
+        .range([nav.axisHeight + nav.scrollThumbRadius, height - statsHeight - nav.scrollThumbRadius]);
+    }
+
+    pools.forEach(function(pool) {
+      pool.xScale(xScale.copy());
+    });
+
+    return container;
+  };
+
+  container.dayAxisHacks = function() {
+    // TODO: demagicify all the magic numbers in this function
+    var tickLabels = mainGroup.selectAll('.d3-day-axis').selectAll('.tick');
+
+    tickLabels.selectAll('.d3-date').remove();
+
+    var xPos = tickLabels.select('text').attr('x'), dy = tickLabels.select('text').attr('dy');
+
+    tickLabels.append('text')
+      .text(function(d) {
+        return d3.time.format.utc('%b %-d')(d);
+      })
+      .attr({
+        'x': xPos,
+        'y': 0,
+        'dy': dy,
+        'class': 'd3-date',
+        'text-anchor': 'end'
+      });
+
+    tickLabels.selectAll('text')
+      .attr({
+        'transform': function() {
+          if (d3.select(this).classed('d3-date')) {
+            return 'translate(' + (dayTickSize - 6) + ',8)';
+          }
+          else {
+            return 'translate(' + (dayTickSize - 6) + ',-6)';
+          }
+        }
+      })
+      .classed('d3-weekend', function(d) {
+        // Sunday is 0
+        var date = d.getUTCDay();
+        if ((date === 0) || (date === 6)) {
+          return true;
+        }
+        else {
+          return false;
+        }
+      });
+
+    return container;
+  };
+
+  container.setNav = function() {
+    var maxTranslation, minTranslation;
+    if (sortReverse) {
+      maxTranslation = yScale(dataStartNoon) - yScale(dataEndNoon) + poolScaleHeight + (14 - (viewIndex + 1)) * poolScaleHeight;
+      minTranslation = (14 - (viewIndex + 1)) * poolScaleHeight;
+    }
+    else {
+      maxTranslation = -yScale(dataStartNoon) + nav.axisHeight;
+      minTranslation = -yScale(dataEndNoon) + nav.axisHeight;
+    }
+    nav.scroll = d3.behavior.zoom()
+      .scaleExtent([1, 1])
+      .y(yScale)
+      .on('zoom', function() {
+        var e = d3.event;
+        if (e.translate[1] < minTranslation) {
+          e.translate[1] = minTranslation;
+        }
+        else if (e.translate[1] > maxTranslation) {
+          e.translate[1] = maxTranslation;
+        }
+        nav.scroll.translate([0, e.translate[1]]);
+        mainGroup.select('.d3-y.d3-axis').call(yAxis);
+        container.dayAxisHacks();
+        for (var i = 0; i < pools.length; i++) {
+          pools[i].scroll(e);
+        }
+        container.navString(yScale.domain());
+        if (scrollHandleTrigger) {
+          mainGroup.select('#scrollThumb').transition().ease('linear').attr('y', function(d) {
+            if (sortReverse) {
+              d.y = nav.scrollScale(yScale.domain()[1]);
+            }
+            else {
+              d.y = nav.scrollScale(yScale.domain()[0]);
+            }
+            return d.y - nav.scrollThumbRadius;
+          });
+        }
+      })
+      .on('zoomend', function() {
+        container.currentTranslation(nav.latestTranslation);
+        scrollHandleTrigger = true;
+      });
+
+    mainGroup.call(nav.scroll);
+
+    return container;
+  };
+
+  container.setScrollNav = function() {
+    if (!lessThanTwoWeeks) {
+      var translationAdjustment, yStart, xPos;
+      if (sortReverse) {
+        yStart = nav.scrollScale(viewEndpoints[1]);
+        translationAdjustment = height - statsHeight;
+
+        scrollNav.append('rect')
+        .attr({
+          'x': 0,
+          'y': nav.scrollScale(dataEndNoon) - nav.scrollThumbRadius,
+          'width': nav.navGutter,
+          'height': height - nav.axisHeight,
+          'fill': 'white',
+          'id': 'scrollNavInvisibleRect'
+        });
+
+        xPos = nav.navGutter / 2;
+
+
+        var start = new Date(dataStartNoon);
+        start.setUTCDate(start.getUTCDate() - 1);
+
+        scrollNav.attr('transform', 'translate(' + (width - nav.navGutter) + ',0)')
+          .append('line')
+          .attr({
+            'x1': xPos,
+            'x2': xPos,
+            'y1': nav.scrollScale(dataEndNoon) - nav.scrollThumbRadius,
+            'y2': nav.scrollScale(start) + nav.scrollThumbRadius
+          });
+      }
+      else {
+        yStart = nav.scrollScale(viewEndpoints[0]);
+        translationAdjustment = nav.axisHeight;
+
+        scrollNav.append('rect')
+        .attr({
+          'x': 0,
+          'y': nav.scrollScale(dataStartNoon) - nav.scrollThumbRadius,
+          'width': nav.navGutter,
+          'height': height - nav.axisHeight,
+          'fill': 'white',
+          'id': 'scrollNavInvisibleRect'
+        });
+
+        xPos = nav.navGutter / 2;
+
+        scrollNav.attr('transform', 'translate(' + (width - nav.navGutter) + ',0)')
+          .append('line')
+          .attr({
+            'x1': xPos,
+            'x2': xPos,
+            'y1': nav.scrollScale(dataStartNoon) - nav.scrollThumbRadius,
+            'y2': nav.scrollScale(dataEndNoon) + nav.scrollThumbRadius
+          });
+      }
+
+      var dyLowest = nav.scrollScale.range()[1];
+      var dyHighest = nav.scrollScale.range()[0];
+
+      var drag = d3.behavior.drag()
+        .origin(function(d) {
+          return d;
+        })
+        .on('dragstart', function() {
+          d3.event.sourceEvent.stopPropagation(); // silence the click-and-drag listener
+        })
+        .on('drag', function(d) {
+          d.y += d3.event.dy;
+          if (d.y > dyLowest) {
+            d.y = dyLowest;
+          }
+          else if (d.y < dyHighest) {
+            d.y = dyHighest;
+          }
+          d3.select(this).attr('y', function(d) { return d.y - nav.scrollThumbRadius; });
+          var date = nav.scrollScale.invert(d.y);
+          nav.currentTranslation -= yScale(date) - translationAdjustment;
+          scrollHandleTrigger = false;
+          nav.scroll.translate([0, nav.currentTranslation]);
+          nav.scroll.event(mainGroup);
+        });
+
+      scrollNav.selectAll('image')
+        .data([{'x': 0, 'y': yStart}])
+        .enter()
+        .append('image')
+        .attr({
+          'xlink:href': imagesBaseUrl + '/ux/scroll_thumb.svg',
+          'x': xPos - nav.scrollThumbRadius,
+          'y': function(d) {
+            return d.y - nav.scrollThumbRadius;
+          },
+          'width': 2 * nav.scrollThumbRadius,
+          'height': 2 * nav.scrollThumbRadius,
+          'id': 'scrollThumb'
+        })
+        .call(drag);
+    }
+
+    return container;
+  };
+
+  // getters and setters
+  container.width = function(x) {
+    if (!arguments.length) return width;
+    if (x >= minWidth) {
+      width = x;
+    }
+    else {
+      width = minWidth;
+    }
+    return container;
+  };
+
+  container.height = function(x) {
+    if (!arguments.length) return height;
+    var totalHeight = x + nav.axisHeight;
+    if (totalHeight >= minHeight) {
+      height = x;
+    }
+    else {
+      height = minHeight;
+    }
+    return container;
+  };
+
+  container.imagesBaseUrl = function(x) {
+    if (!arguments.length) return imagesBaseUrl;
+    imagesBaseUrl = x;
+    return container;
+  };
+
+  container.latestTranslation = function(x) {
+    if (!arguments.length) return nav.latestTranslation;
+    nav.latestTranslation = x;
+    return container;
+  };
+
+  container.currentTranslation = function(x) {
+    if (!arguments.length) return nav.currentTranslation;
+    nav.currentTranslation = x;
+    return container;
+  };
+
+  container.sortReverse = function(b) {
+    if (!arguments.length) return sortReverse;
+    if (b === (true || false)) {
+      sortReverse = b;
+    }
+    return container;
+  };
+
+  // data getters and setters
+  container.data = function(a, viewEndDate) {
+    if (!arguments.length) return data;
+    data = a;
+
+    var first = new Date(a[0].normalTime);
+    var last = new Date(a[a.length - 1].normalTime);
+    
+    endpoints = [first, last];
+    container.endpoints = endpoints;
+
+    function createDay(d) {
+      return new Date(d.toISOString().slice(0,11) + '00:00:00Z');
+    }
+    days = [];
+    var firstDay = createDay(new Date(container.endpoints[0]));
+    var lastDay = createDay(new Date(container.endpoints[1]));
+    days.push(firstDay.toISOString().slice(0,10));
+    var currentDay = firstDay;
+    while (currentDay < lastDay) {
+      var newDay = new Date(currentDay);
+      newDay.setUTCDate(newDay.getUTCDate() + 1);
+      days.push(newDay.toISOString().slice(0,10));
+      currentDay = newDay;
+    }
+
+    if (days.length < 14) {
+      var day = new Date(firstDay);
+      // fill in previous days if less than two weeks data
+      while (days.length < 14) {
+        day.setUTCDate(day.getUTCDate() - 1);
+        days.unshift(day.toISOString().slice(0,10));
+        currentDay = day;
+      }
+      first = days[0];
+      lessThanTwoWeeks = true;
+    }
+
+    dataStartNoon = new Date(first);
+    dataStartNoon.setUTCHours(12);
+    dataStartNoon.setUTCMinutes(0);
+    dataStartNoon.setUTCSeconds(0);
+    if (!sortReverse) {
+      dataStartNoon.setUTCDate(dataStartNoon.getUTCDate() - 1);
+    }
+
+    var noon = '12:00:00Z';
+
+    dataEndNoon = new Date(last);
+    dataEndNoon.setUTCDate(dataEndNoon.getUTCDate() - 14);
+    dataEndNoon = new Date(dataEndNoon.toISOString().slice(0,11) + noon);
+
+    if (!viewEndDate) {
+      viewEndDate = new Date(days[0]);
+    } else {
+      viewEndDate = new Date(viewEndDate);
+    }
+
+    var viewBeginning = new Date(viewEndDate);
+    viewBeginning.setUTCDate(viewBeginning.getUTCDate() - 14);
+    var firstDayInView;
+
+    if (sortReverse) {
+      this.days = days;
+
+      firstDayInView = new Date(days[0]);
+    }
+    else {
+      this.days = days.reverse();
+
+      firstDayInView = new Date(days[days.length - 1]);
+    }
+
+    if (viewBeginning < firstDayInView) {
+      firstDayInView.setUTCDate(firstDayInView.getUTCDate() - 1);
+      viewBeginning = new Date(firstDayInView);
+      viewEndDate = new Date(firstDayInView);
+      viewEndDate.setUTCDate(viewEndDate.getUTCDate() + 14);
+    }
+    viewEndpoints = [new Date(viewBeginning.toISOString().slice(0,11) + noon), new Date(viewEndDate.toISOString().slice(0,11) + noon)];
+    if (sortReverse) {
+      viewEndpoints = viewEndpoints.reverse();
+    }
+    viewIndex = days.indexOf(viewEndDate.toISOString().slice(0,10));
+
+    container.dataPerDay = [];
+
+    this.days.forEach(function(day) {
+      var thisDay = {
+        'year': day.slice(0,4),
+        'month': day.slice(5,7),
+        'day': day.slice(8,10)
+      };
+      container.dataPerDay.push(_.filter(data, function(d) {
+        var date = new Date(d.normalTime);
+        if ((date.getUTCFullYear() === parseInt(thisDay.year, 10)) &&
+          (date.getUTCMonth() + 1 === parseInt(thisDay.month, 10)) &&
+          (date.getUTCDate() === parseInt(thisDay.day, 10))) {
+          return d;
+        }
+      }));
+    });
+    
+    return container;
+  };
+
+  return container;
+};
+
+},{"./lib/":7,"./pool":21}],23:[function(require,module,exports){
 module.exports = require('./lib/chai');
 
-},{"./lib/chai":8}],8:[function(require,module,exports){
+},{"./lib/chai":24}],24:[function(require,module,exports){
 /*!
  * chai
  * Copyright(c) 2011-2013 Jake Luer <jake@alogicalparadox.com>
@@ -55582,7 +59743,7 @@ exports.use(should);
 var assert = require('./chai/interface/assert');
 exports.use(assert);
 
-},{"./chai/assertion":9,"./chai/core/assertions":10,"./chai/interface/assert":11,"./chai/interface/expect":12,"./chai/interface/should":13,"./chai/utils":24,"assertion-error":32}],9:[function(require,module,exports){
+},{"./chai/assertion":25,"./chai/core/assertions":26,"./chai/interface/assert":27,"./chai/interface/expect":28,"./chai/interface/should":29,"./chai/utils":40,"assertion-error":48}],25:[function(require,module,exports){
 /*!
  * chai
  * http://chaijs.com
@@ -55714,7 +59875,7 @@ module.exports = function (_chai, util) {
   });
 };
 
-},{}],10:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 /*!
  * chai
  * http://chaijs.com
@@ -56986,7 +61147,7 @@ module.exports = function (chai, _) {
   });
 };
 
-},{}],11:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 /*!
  * chai
  * Copyright(c) 2011-2013 Jake Luer <jake@alogicalparadox.com>
@@ -58068,7 +62229,7 @@ module.exports = function (chai, util) {
   ('Throw', 'throws');
 };
 
-},{}],12:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 /*!
  * chai
  * Copyright(c) 2011-2013 Jake Luer <jake@alogicalparadox.com>
@@ -58082,7 +62243,7 @@ module.exports = function (chai, util) {
 };
 
 
-},{}],13:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 /*!
  * chai
  * Copyright(c) 2011-2013 Jake Luer <jake@alogicalparadox.com>
@@ -58160,7 +62321,7 @@ module.exports = function (chai, util) {
   chai.Should = loadShould;
 };
 
-},{}],14:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 /*!
  * Chai - addChainingMethod utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -58256,7 +62417,7 @@ module.exports = function (ctx, name, method, chainingBehavior) {
   });
 };
 
-},{"./transferFlags":30}],15:[function(require,module,exports){
+},{"./transferFlags":46}],31:[function(require,module,exports){
 /*!
  * Chai - addMethod utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -58295,7 +62456,7 @@ module.exports = function (ctx, name, method) {
   };
 };
 
-},{}],16:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 /*!
  * Chai - addProperty utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -58337,7 +62498,7 @@ module.exports = function (ctx, name, getter) {
   });
 };
 
-},{}],17:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 /*!
  * Chai - flag utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -58371,7 +62532,7 @@ module.exports = function (obj, key, value) {
   }
 };
 
-},{}],18:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 /*!
  * Chai - getActual utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -58392,7 +62553,7 @@ module.exports = function (obj, args) {
   return 'undefined' !== typeof actual ? actual : obj._obj;
 };
 
-},{}],19:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 /*!
  * Chai - getEnumerableProperties utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -58419,7 +62580,7 @@ module.exports = function getEnumerableProperties(object) {
   return result;
 };
 
-},{}],20:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 /*!
  * Chai - message composition utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -58470,7 +62631,7 @@ module.exports = function (obj, args) {
   return flagMsg ? flagMsg + ': ' + msg : msg;
 };
 
-},{"./flag":17,"./getActual":18,"./inspect":25,"./objDisplay":26}],21:[function(require,module,exports){
+},{"./flag":33,"./getActual":34,"./inspect":41,"./objDisplay":42}],37:[function(require,module,exports){
 /*!
  * Chai - getName utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -58492,7 +62653,7 @@ module.exports = function (func) {
   return match && match[1] ? match[1] : "";
 };
 
-},{}],22:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 /*!
  * Chai - getPathValue utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -58596,7 +62757,7 @@ function _getPathValue (parsed, obj) {
   return res;
 };
 
-},{}],23:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 /*!
  * Chai - getProperties utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -58633,7 +62794,7 @@ module.exports = function getProperties(object) {
   return result;
 };
 
-},{}],24:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 /*!
  * chai
  * Copyright(c) 2011 Jake Luer <jake@alogicalparadox.com>
@@ -58743,7 +62904,7 @@ exports.overwriteMethod = require('./overwriteMethod');
 exports.addChainableMethod = require('./addChainableMethod');
 
 
-},{"./addChainableMethod":14,"./addMethod":15,"./addProperty":16,"./flag":17,"./getActual":18,"./getMessage":20,"./getName":21,"./getPathValue":22,"./inspect":25,"./objDisplay":26,"./overwriteMethod":27,"./overwriteProperty":28,"./test":29,"./transferFlags":30,"./type":31,"deep-eql":33}],25:[function(require,module,exports){
+},{"./addChainableMethod":30,"./addMethod":31,"./addProperty":32,"./flag":33,"./getActual":34,"./getMessage":36,"./getName":37,"./getPathValue":38,"./inspect":41,"./objDisplay":42,"./overwriteMethod":43,"./overwriteProperty":44,"./test":45,"./transferFlags":46,"./type":47,"deep-eql":49}],41:[function(require,module,exports){
 // This is (almost) directly from Node.js utils
 // https://github.com/joyent/node/blob/f8c335d0caf47f16d31413f89aa28eda3878e3aa/lib/util.js
 
@@ -59065,7 +63226,7 @@ function objectToString(o) {
   return Object.prototype.toString.call(o);
 }
 
-},{"./getEnumerableProperties":19,"./getName":21,"./getProperties":23}],26:[function(require,module,exports){
+},{"./getEnumerableProperties":35,"./getName":37,"./getProperties":39}],42:[function(require,module,exports){
 /*!
  * Chai - flag utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -59115,7 +63276,7 @@ module.exports = function (obj) {
   }
 };
 
-},{"./inspect":25}],27:[function(require,module,exports){
+},{"./inspect":41}],43:[function(require,module,exports){
 /*!
  * Chai - overwriteMethod utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -59168,7 +63329,7 @@ module.exports = function (ctx, name, method) {
   }
 };
 
-},{}],28:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 /*!
  * Chai - overwriteProperty utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -59224,7 +63385,7 @@ module.exports = function (ctx, name, getter) {
   });
 };
 
-},{}],29:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 /*!
  * Chai - test utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -59252,7 +63413,7 @@ module.exports = function (obj, args) {
   return negate ? !expr : expr;
 };
 
-},{"./flag":17}],30:[function(require,module,exports){
+},{"./flag":33}],46:[function(require,module,exports){
 /*!
  * Chai - transferFlags utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -59298,7 +63459,7 @@ module.exports = function (assertion, object, includeAll) {
   }
 };
 
-},{}],31:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 /*!
  * Chai - type utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -59345,7 +63506,7 @@ module.exports = function (obj) {
   return typeof obj;
 };
 
-},{}],32:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 /*!
  * assertion-error
  * Copyright(c) 2013 Jake Luer <jake@qualiancy.com>
@@ -59457,10 +63618,10 @@ AssertionError.prototype.toJSON = function (stack) {
   return props;
 };
 
-},{}],33:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 module.exports = require('./lib/eql');
 
-},{"./lib/eql":34}],34:[function(require,module,exports){
+},{"./lib/eql":50}],50:[function(require,module,exports){
 /*!
  * deep-eql
  * Copyright(c) 2013 Jake Luer <jake@alogicalparadox.com>
@@ -59719,10 +63880,10 @@ function objectEqual(a, b, m) {
   return true;
 }
 
-},{"buffer":51,"type-detect":35}],35:[function(require,module,exports){
+},{"buffer":67,"type-detect":51}],51:[function(require,module,exports){
 module.exports = require('./lib/type');
 
-},{"./lib/type":36}],36:[function(require,module,exports){
+},{"./lib/type":52}],52:[function(require,module,exports){
 /*!
  * type-detect
  * Copyright(c) 2013 jake luer <jake@alogicalparadox.com>
@@ -59866,7 +64027,7 @@ Library.prototype.test = function (obj, type) {
   }
 };
 
-},{}],37:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
  * @license
  * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
@@ -66653,7 +70814,7 @@ var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? 
   }
 }.call(this));
 
-},{}],38:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -66683,7 +70844,8 @@ var watson = require('../example/watson');
 
 var fx = require('./fixtures');
 
-var BasalUtil = require('../js/data/basalutil');
+var tideline = require('../js/index');
+var BasalUtil = tideline.data.BasalUtil;
 
 var MS_IN_HOUR = 3600000.0;
 
@@ -66862,7 +71024,7 @@ describe('basal utilities', function() {
 });
 
 
-},{"../example/watson":2,"../js/data/basalutil":3,"./fixtures":50,"chai":7,"lodash":37}],39:[function(require,module,exports){
+},{"../example/watson":2,"../js/index":6,"./fixtures":66,"chai":23,"lodash":53}],55:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -66892,7 +71054,8 @@ var _ = require('lodash');
 var watson = require('../example/watson');
 var data = watson.normalize(require('../example/data/device-data.json'));
 
-var BolusUtil = require('../js/data/bolusutil');
+var tideline = require('../js/index');
+var BolusUtil = tideline.data.BolusUtil;
 
 describe('bolus utilities', function() {
   describe('totalBolus', function() {
@@ -66902,7 +71065,7 @@ describe('bolus utilities', function() {
     });
   });
 });
-},{"../example/data/device-data.json":1,"../example/watson":2,"../js/data/bolusutil":4,"chai":7,"lodash":37}],40:[function(require,module,exports){
+},{"../example/data/device-data.json":1,"../example/watson":2,"../js/index":6,"chai":23,"lodash":53}],56:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -66932,7 +71095,8 @@ var _ = require('lodash');
 var watson = require('../example/watson');
 var data = watson.normalize(require('../example/data/device-data.json'));
 
-var CBGUtil = require('../js/data/cbgutil');
+var tideline = require('../js/index');
+var CBGUtil = tideline.data.CBGUtil;
 
 describe('cbg utilities', function() {
   var cbg = new CBGUtil(_.where(data, {'type': 'cbg'}));
@@ -66955,9 +71119,9 @@ describe('cbg utilities', function() {
     var passNonUTC = function() {
       cbg.filter('2014-03-06T12:00:00', '2014-03-07T12:00:00Z');
     };
-    it('should return an array', function() {
-      assert.typeOf(cbg.filter('', ''), 'array');
-    });
+    // it('should return an array', function() {
+    //   assert.typeOf(cbg.filter('', ''), 'array');
+    // });
   });
   describe('rangeBreakdown', function() {
     it('should be a function', function() {
@@ -66970,7 +71134,7 @@ describe('cbg utilities', function() {
     });
   });
 });
-},{"../example/data/device-data.json":1,"../example/watson":2,"../js/data/cbgutil":5,"chai":7,"lodash":37}],41:[function(require,module,exports){
+},{"../example/data/device-data.json":1,"../example/watson":2,"../js/index":6,"chai":23,"lodash":53}],57:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -67063,7 +71227,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],42:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -67166,7 +71330,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],43:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -67269,7 +71433,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],44:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -67362,7 +71526,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],45:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -67455,7 +71619,7 @@ module.exports=[
         "id": "d7e6e692-3371-409b-8d7a-e6ee6097b2d1"
     }
 ]
-},{}],46:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -67548,7 +71712,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],47:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -67641,7 +71805,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],48:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -67734,7 +71898,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],49:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -67817,7 +71981,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],50:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -67848,7 +72012,7 @@ fixtures.push({'name': 'overlapping', 'json': require('./basal-overlapping')});
 fixtures.push({'name': 'temp-final', 'json': require('./basal-temp-final')});
 fixtures.push({'name': 'current-demo', 'json': require('../../example/data/device-data')});
 module.exports = fixtures;
-},{"../../example/data/device-data":1,"./basal-contained":41,"./basal-overlapping":42,"./basal-temp-both-ends":43,"./basal-temp-end":44,"./basal-temp-final":45,"./basal-temp-many-scheduled":46,"./basal-temp-start":47,"./basal-temp-two-scheduled":48,"./basal-template":49}],51:[function(require,module,exports){
+},{"../../example/data/device-data":1,"./basal-contained":57,"./basal-overlapping":58,"./basal-temp-both-ends":59,"./basal-temp-end":60,"./basal-temp-final":61,"./basal-temp-many-scheduled":62,"./basal-temp-start":63,"./basal-temp-two-scheduled":64,"./basal-template":65}],67:[function(require,module,exports){
 var base64 = require('base64-js')
 var ieee754 = require('ieee754')
 
@@ -68843,7 +73007,7 @@ function assert (test, message) {
   if (!test) throw new Error(message || 'Failed assertion')
 }
 
-},{"base64-js":52,"ieee754":53}],52:[function(require,module,exports){
+},{"base64-js":68,"ieee754":69}],68:[function(require,module,exports){
 var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 ;(function (exports) {
@@ -68970,7 +73134,7 @@ var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 }());
 
 
-},{}],53:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 exports.read = function(buffer, offset, isLE, mLen, nBytes) {
   var e, m,
       eLen = nBytes * 8 - mLen - 1,
@@ -69056,4 +73220,4 @@ exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128;
 };
 
-},{}]},{},[38,39,40])
+},{}]},{},[54,55,56])

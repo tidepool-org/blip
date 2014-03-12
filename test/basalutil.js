@@ -27,7 +27,8 @@ var watson = require('../example/watson');
 
 var fx = require('./fixtures');
 
-var BasalUtil = require('../js/data/basalutil');
+var tideline = require('../js/index');
+var BasalUtil = tideline.data.BasalUtil;
 
 var MS_IN_HOUR = 3600000.0;
 

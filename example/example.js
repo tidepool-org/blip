@@ -19,7 +19,7 @@ var $ = window.$;
 var d3 = window.d3;
 var _ = window._;
 
-var tideline = require('../js');
+var tideline = require('../js/index');
 var chartDailyFactory = require('./chartdailyfactory');
 var chartWeeklyFactory = require('./chartweeklyfactory');
 var log = window.bows('Example');

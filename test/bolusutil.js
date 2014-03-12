@@ -27,7 +27,8 @@ var _ = require('lodash');
 var watson = require('../example/watson');
 var data = watson.normalize(require('../example/data/device-data.json'));
 
-var BolusUtil = require('../js/data/bolusutil');
+var tideline = require('../js/index');
+var BolusUtil = tideline.data.BolusUtil;
 
 describe('bolus utilities', function() {
   describe('totalBolus', function() {

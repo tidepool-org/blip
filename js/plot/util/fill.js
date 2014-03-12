@@ -15,9 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = window._;
+var _ = require('../../lib/')._;
 
-var log = require('../../lib/bows')('Fill');
+var log = require('../../lib/').bows('Fill');
 
 module.exports = function(pool, opts) {
 

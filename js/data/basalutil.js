@@ -15,15 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = require('lodash');
-try {
-  var log = require('../lib/bows')('BasalUtil');
-}
-catch (Error) {
-  log = function() {
-    return function() {};
-  };
-}
+var _ = require('../lib/')._;
+var log = require('../lib/').bows('BasalUtil');
 
 var keysToOmit = ['id', 'start', 'end', 'vizType'];
 

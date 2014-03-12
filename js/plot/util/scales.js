@@ -15,8 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = window.d3;
-var _ = window._;
+var d3 = require('../../lib/').d3;
+var _ = require('../../lib/')._;
 
 var scales = {
   bg: function(data, pool, pad) {

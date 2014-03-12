@@ -15,9 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = window.d3;
+var d3 = require('../../lib/').d3;
 
-var log = require('../../lib/bows')('Tooltip');
+var log = require('../../lib/').bows('Tooltip');
 
 module.exports = function(container, tooltipsGroup) {
 

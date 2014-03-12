@@ -15,11 +15,11 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = window.d3;
-var _ = window._;
+var d3 = require('../lib/').d3;
+var _ = require('../lib/')._;
 
-var Duration = require('../lib/duration');
-var log = require('../lib/bows')('Bolus');
+var Duration = require('../lib/').Duration;
+var log = require('../lib/').bows('Bolus');
 
 module.exports = function(pool, opts) {
 
