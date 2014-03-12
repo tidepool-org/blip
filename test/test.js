@@ -55158,8 +55158,20 @@ module.exports = watson;
  * == BSD2 LICENSE ==
  */
 
-var _ = require('../lib/lodash');
-var log = require('../lib/bows')('BasalUtil');
+try {
+  var _ = require('../lib/lodash');
+}
+catch (Error) {
+  var _ = require('lodash');
+}
+try {
+  var log = require('../lib/bows')('BasalUtil');
+}
+catch (Error) {
+  log = function() {
+    return function() {};
+  };
+}
 
 var keysToOmit = ['id', 'start', 'end', 'vizType'];
 
@@ -55293,7 +55305,7 @@ function BasalUtil(data) {
 }
 
 module.exports = BasalUtil;
-},{"../lib/bows":6,"../lib/lodash":7}],4:[function(require,module,exports){
+},{"../lib/bows":6,"../lib/lodash":7,"lodash":38}],4:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -55311,8 +55323,20 @@ module.exports = BasalUtil;
  * == BSD2 LICENSE ==
  */
 
-var _ = require('../lib/lodash');
-var log = require('../lib/bows')('BolusUtil');
+try {
+  var _ = require('../lib/lodash');
+}
+catch (Error) {
+  var _ = require('lodash');
+}
+try {
+  var log = require('../lib/bows')('BolusUtil');
+}
+catch (Error) {
+  log = function() {
+    return function() {};
+  };
+}
 
 function BolusUtil(data) {
 
@@ -55341,7 +55365,7 @@ function BolusUtil(data) {
 }
 
 module.exports = BolusUtil;
-},{"../lib/bows":6,"../lib/lodash":7}],5:[function(require,module,exports){
+},{"../lib/bows":6,"../lib/lodash":7,"lodash":38}],5:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -55359,8 +55383,20 @@ module.exports = BolusUtil;
  * == BSD2 LICENSE ==
  */
 
-var _ = require('../lib/lodash');
-var log = require('../lib/bows')('CBGUtil');
+try {
+  var _ = require('../lib/lodash');
+}
+catch (Error) {
+  var _ = require('lodash');
+}
+try {
+  var log = require('../lib/bows')('CBGUtil');
+}
+catch (Error) {
+  log = function() {
+    return function() {};
+  };
+}
 
 function CBGUtil(data) {
 
@@ -55391,13 +55427,34 @@ function CBGUtil(data) {
     }
   }
 
+  function checkIfUTCDate(s) {
+    var d = new Date(s);
+    if (s === d.toISOString()) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
   this.filter = function(s, e) {
-    return _.filter(this.data, function(d) {
-      var dTime = new Date(d.normalTime).valueOf();
-      if ((dTime >= s.valueOf()) && (dTime <= e.valueOf())) {
-        return d;
-      }
-    });
+    var startIsDate, endIsDate;
+    try {
+      startIsDate = checkIfUTCDate(s);
+      endIsDate = checkIfUTCDate(e);
+    }
+    catch (e) {
+      log('Invalid date passed to cbgUtil.filter', [s, e]);
+      throw e;
+    }
+    if (startIsDate && endIsDate) {
+      return _.filter(this.data, function(d) {
+        var dTime = new Date(d.normalTime).valueOf();
+        if ((dTime >= s.valueOf()) && (dTime <= e.valueOf())) {
+          return d;
+        }
+      });
+    }
   };
 
   this.rangeBreakdown = function(s, e) {
@@ -55422,7 +55479,7 @@ function CBGUtil(data) {
 }
 
 module.exports = CBGUtil;
-},{"../lib/bows":6,"../lib/lodash":7}],6:[function(require,module,exports){
+},{"../lib/bows":6,"../lib/lodash":7,"lodash":38}],6:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -66642,7 +66699,7 @@ var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? 
 }.call(this));
 
 },{}],39:[function(require,module,exports){
-var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/* 
+/* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
  * 
@@ -66670,11 +66727,6 @@ var _ = require('lodash');
 var watson = require('../example/watson');
 
 var fx = require('./fixtures');
-
-// Tideline expects a global `window` object to grab its dependencies
-// Not very pretty to add one this way, but as long as we run
-// these tests in Node (vs. in the browser), this is required
-global.window = {_: _};
 
 var BasalUtil = require('../js/data/basalutil');
 
@@ -66856,7 +66908,7 @@ describe('basal utilities', function() {
 
 
 },{"../example/watson":2,"../js/data/basalutil":3,"./fixtures":51,"chai":8,"lodash":38}],40:[function(require,module,exports){
-var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/* 
+/* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
  * 
@@ -66881,10 +66933,6 @@ var assert = chai.assert;
 var expect = chai.expect;
 
 var _ = require('lodash');
-// Tideline expects a global `window` object to grab its dependencies
-// Not very pretty to add one this way, but as long as we run
-// these tests in Node (vs. in the browser), this is required
-global.window = {_: _};
 
 var watson = require('../example/watson');
 var data = watson.normalize(require('../example/data/device-data.json'));
@@ -66900,7 +66948,7 @@ describe('bolus utilities', function() {
   });
 });
 },{"../example/data/device-data.json":1,"../example/watson":2,"../js/data/bolusutil":4,"chai":8,"lodash":38}],41:[function(require,module,exports){
-var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/* 
+/* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
  * 
@@ -66925,10 +66973,6 @@ var assert = chai.assert;
 var expect = chai.expect;
 
 var _ = require('lodash');
-// Tideline expects a global `window` object to grab its dependencies
-// Not very pretty to add one this way, but as long as we run
-// these tests in Node (vs. in the browser), this is required
-global.window = {_: _};
 
 var watson = require('../example/watson');
 var data = watson.normalize(require('../example/data/device-data.json'));
@@ -66936,10 +66980,38 @@ var data = watson.normalize(require('../example/data/device-data.json'));
 var CBGUtil = require('../js/data/cbgutil');
 
 describe('cbg utilities', function() {
+  var cbg = new CBGUtil(_.where(data, {'type': 'cbg'}));
+  describe('filter', function() {
+    it('should be a function', function() {
+      assert.isFunction(cbg.filter);
+    });
+    var passEmpty = function() {
+      cbg.filter('', '');
+    };
+    it('should throw RangeError when passed empty string instead of date', function() {
+      assert.throws(passEmpty, RangeError);
+    });
+    var passInvalid = function() {
+      cbg.filter('2014-03-06x12:00:00', '2014-03-07T12:00:00Z');
+    };
+    it('should throw RangeError when passed invalid date string', function() {
+      assert.throws(passInvalid, RangeError);
+    });
+    var passNonUTC = function() {
+      cbg.filter('2014-03-06T12:00:00', '2014-03-07T12:00:00Z');
+    };
+    it('should return an array', function() {
+      assert.typeOf(cbg.filter('', ''), 'array');
+    });
+  });
   describe('rangeBreakdown', function() {
-    var cbg = new CBGUtil(_.where(data, {'type': 'cbg'}));
     it('should be a function', function() {
       assert.isFunction(cbg.rangeBreakdown);
+    });
+  });
+  describe('average', function() {
+    it('should be a function', function() {
+      assert.isFunction(cbg.average);
     });
   });
 });
