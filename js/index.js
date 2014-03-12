@@ -26,7 +26,7 @@ module.exports = {
     CBGUtil: require('./data/cbgutil')
   },
 
-  lib: require('./lib/'),
+  lib: require('./lib/index'),
 
   plot: {
     basal: require('./plot/basal'),
