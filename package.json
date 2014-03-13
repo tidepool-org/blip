@@ -19,8 +19,5 @@
     ],
     "html": "test/testling.html",
     "preprocess": "./test/testling.sh"
-  },
-  "dependencies": {
-    "bower": "~1.3.1"
   }
 }
