@@ -15,7 +15,7 @@
     "tests"
   ],
   "dependencies": {
-    "d3": "~3.4.2",
+    "d3": "~3.4.3",
     "Duration.js": "https://github.com/icholy/Duration.js.git#3.3.3",
     "lodash": "~2.4.1"
   },
