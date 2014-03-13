@@ -1,6 +1,11 @@
 tideline
 ========
 
+[![Browser Support](https://ci.testling.com/tidepool-org/tideline.png)
+](https://ci.testling.com/$tidepool-org/tideline)
+
+(Test suite not yet complete.)
+
 This repository is a self-contained module library for [Tidepool](http://tidepool.org/ 'Tidepool')'s timeline-style diabetes data visualization(s).
 
 This module is currently under construction; check back often for updates!
