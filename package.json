@@ -18,6 +18,6 @@
       "firefox/latest"
     ],
     "html": "test/testling.html",
-    "preprocess": "./testling.sh"
+    "preprocess": "./test/testling.sh"
   }
 }
