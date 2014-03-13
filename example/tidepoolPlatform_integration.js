@@ -17,98 +17,138 @@
 var expect = require('salinity').expect;
 var superagent = require('superagent');
 
-var token;
-var userId;
-
 describe('platform client', function() {
 
   var platform;
-  var user = {
-      username : 'fake',
-      password : 'fak3U53r',
-      emails :['fake@user.com']
-    };
 
-  var saveSession=function(newUserid,newToken){
-    // just as we would in the app
-    token = newToken;
-    userId = newUserid;
-
-    if (newToken != null) {
-      setTimeout(
-        function(){
-          if (token == null || newUserid !== userId) {
-            return;
-          }
-          platform.refreshUserToken(token,newUserid,function(error,sessionData){
-            saveSession(sessionData.userid,sessionData.token);
-          });
-        },
-        10 * 60 * 1000
-      );
-    }
+  var mrT1 = {
+    id : null,
+    token: null,
+    username : 'fake',
+    password : 'fak3U53r',
+    emails :['fake@user.com'],
+    fullname : 'Jamie T1d',
+    shortname : 'Jamie',
+    publicbio : 'To live is the rarest thing in the world. Most people exist, that is all.'
   };
 
-  var createUser=function(cb){
+  var careTeamMember = {
+    id : null,
+    token : null ,
+    username : 'dr fake',
+    password : 'fak3U53r',
+    emails :['dr.fake@user.com'],
+    fullname : 'Dr Doogie Howser ',
+    shortname : 'Doogie',
+    publicbio : 'A teenage physician who also faces the problems of being a normal teenager'
+  };
+
+  var createUser=function(userToAdd,cb){
     //try login first then create user if error
-    platform.login(user,function(error,data){
+    platform.login(userToAdd,function(error,data){
       if(data && data.userid){
-        userId = data.userid;
-        saveSession(data.userid,data.token);
+        userToAdd.id = data.userid;
+        userToAdd.token = data.token;
       }
       if(error){
-        platform.signUp(user,cb);
+        platform.signUp(userToAdd,function(error,data){
+          if(error){
+            return cb(error,null);
+          }
+          userToAdd.id = data.userid;
+          userToAdd.token = data.token;
+          return cb(null,userToAdd);
+        });
       }
-      cb(null,null);
-    });
-  };
-
-  var addUserTeamGroup=function(cb){
-    platform.addGroupForUser(userId, { members : [userId]}, 'team', token ,function(error,data){
-      cb(error,data);
+      return cb(null,userToAdd);
     });
   };
 
   before(function(done){
+    this.timeout(5000);
+    platform = require('../index')('http://localhost:8009',superagent);
 
-    platform = require('../index')('https://devel-api.tidepool.io',superagent);
-
-    createUser(function(error,data){
+    createUser(mrT1,function(error,data){
       if(error){
         throw error;
       }
-      done();
+      mrT1 = data;
+      createUser(careTeamMember,function(error,data){
+        if(error){
+          throw error;
+        }
+        careTeamMember = data;
+        done();
+      });
     });
 
   });
 
-  it('logs in user', function(done) {
-    platform.login(user,function(error,data){
-      saveSession(data.userid,data.token);
+  it('logs in mrT1', function(done) {
+    this.timeout(5000);
+    platform.login(mrT1,function(error,data){
       expect(error).to.not.exist;
       expect(data).to.exist;
       done();
     });
   });
 
-  describe('get team',function(){
+  describe('sets up the profiles',function(){
 
-    before(function(done){
-
-      addUserTeamGroup(function(error,data){
-        if(error){
-          throw error;
-        }
+    it('for mrT1', function(done) {
+      this.timeout(5000);
+      platform.addOrUpdateProfile(mrT1, mrT1.token, function(error,added){
+        expect(error).to.not.exist;
+        expect(added).to.be.true;
         done();
       });
-
     });
 
-    it('returns the team group asked for', function(done) {
+    it('for mrT1 we can get the profile', function(done) {
+      this.timeout(5000);
+      platform.findProfile(mrT1.id, mrT1.token, function(error,profile){
+        expect(error).to.not.exist;
+        expect(profile).to.be.exist;
+
+        expect(profile.fullname).to.equal(mrT1.fullname);
+        expect(profile.shortname).to.equal(mrT1.shortname);
+        expect(profile.publicbio).to.equal(mrT1.publicbio);
+        done();
+      });
+    });
+
+    it('for careTeamMember', function(done) {
+      this.timeout(5000);
+      platform.addOrUpdateProfile(careTeamMember, careTeamMember.token, function(error,added){
+        expect(error).to.not.exist;
+        expect(added).to.be.true;
+        done();
+      });
+    });
+
+    it('for careTeamMember we can get the profile', function(done) {
+      this.timeout(5000);
+      platform.findProfile(careTeamMember.id, careTeamMember.token, function(error,profile){
+        expect(error).to.not.exist;
+        expect(profile).to.be.exist;
+
+        expect(profile.fullname).to.equal(careTeamMember.fullname);
+        expect(profile.shortname).to.equal(careTeamMember.shortname);
+        expect(profile.publicbio).to.equal(careTeamMember.publicbio);
+        done();
+      });
+    });
+
+  });
+
+  describe('get the team for mrT1',function(){
+
+    it('returns the team group for mrT1', function(done) {
 
       this.timeout(5000);
 
-      platform.getGroupForUser(userId,'team',token, function(error,team){
+      platform.getUsersTeam(mrT1.id, mrT1.token, function(error,team){
+        console.log('team ',team);
         expect(error).to.not.exist;
         expect(team).to.exist;
         expect(team.members).to.exist;
@@ -120,34 +160,35 @@ describe('platform client', function() {
 
   });
 
-  describe('messages',function(){
+  describe('messaging for mrT1',function(){
 
-    var groupId;
+    var mrT1TeamId;
 
     before(function(done){
 
-      addUserTeamGroup(function(error,data){
+      this.timeout(5000);
+      platform.getUsersTeam(mrT1.id, mrT1.token, function(error,team){
         if(error){
           throw error;
         }
-        groupId = data;
+        mrT1TeamId = team.id;
         done();
       });
-
     });
 
-    it('add a note and then comment on it, then get the whole thread', function(done) {
+    it('allows mrT1 to add a note and then comments on it, then get the whole thread', function(done) {
 
       this.timeout(5000);
 
       var message = {
-        userid : userId,
-        groupid : groupId,
+        userid : mrT1.id,
+        groupid : mrT1TeamId,
         timestamp : new Date().toISOString(),
         messagetext : 'In three words I can sum up everything I have learned about life: it goes on.'
       };
+
       //add note
-      platform.startMessageThread(groupId, message, token, function(error,data){
+      platform.startMessageThread(mrT1TeamId, message, mrT1.token, function(error,data){
 
         expect(error).to.not.exist;
         expect(data).to.exist;
@@ -155,27 +196,27 @@ describe('platform client', function() {
         var messageId = data;
 
         var comment = {
-          userid : userId,
-          groupid : groupId,
+          userid : mrT1.id,
+          groupid : mrT1TeamId,
           timestamp : new Date().toISOString(),
           messagetext : 'Good point bro!'
         };
         //comment on the note
-        platform.replyToMessageThread(messageId,comment, token, function(error,data){
+        platform.replyToMessageThread(messageId,comment, mrT1.token, function(error,data){
 
           expect(error).to.not.exist;
           expect(data).to.exist;
 
           //get the whole thread
-          platform.getMessageThread(messageId, token, function(error,data){
+          platform.getMessageThread(messageId, mrT1.token, function(error,data){
             expect(error).to.not.exist;
             expect(data).to.exist;
             expect(data.length).to.equal(2);
             var firstMessage = data[0];
             var secondMessage = data[1];
 
-            expect(firstMessage.groupid).to.equal(groupId);
-            expect(secondMessage.groupid).to.equal(groupId);
+            expect(firstMessage.groupid).to.equal(mrT1TeamId);
+            expect(secondMessage.groupid).to.equal(mrT1TeamId);
             expect(firstMessage.parentmessage).to.not.exist;
             expect(firstMessage.messagetext).to.equal(message.messagetext);
             expect(secondMessage.parentmessage).to.equal(firstMessage.id);
@@ -188,17 +229,189 @@ describe('platform client', function() {
       });
     });
 
-    it('all messages for the group from the last two weeks', function(done) {
+    it('allows mrT1 to get all messages for his team for the last two weeks', function(done) {
       var twoWeeksAgo = new Date();
       twoWeeksAgo.setDate(twoWeeksAgo.getDate()-14);
       var today = new Date();
 
-      platform.getAllMessagesForTeam(groupId, twoWeeksAgo, today, token, function(error,data){
+      platform.getAllMessagesForTeam(mrT1TeamId, twoWeeksAgo, today, mrT1.token, function(error,data){
 
         expect(error).to.not.exist;
         expect(data).to.exist;
-        expect(data.length).to.equal(2);
+        expect(data.length).to.be.at.least(2);
         done();
+      });
+    });
+
+    it('allows mrT1 to get just the parent messages for his team ', function(done) {
+
+      platform.getNotesForTeam(mrT1TeamId, mrT1.token, function(error,data){
+
+        expect(error).to.not.exist;
+        expect(data).to.exist;
+
+        for (var i = data.length - 1; i >= 0; i--) {
+          expect(data[i].parentmessage).to.not.exist;
+        }
+
+        done();
+      });
+    });
+
+  });
+
+  describe('mrT1 groups',function(){
+
+    it('has a team', function(done) {
+      this.timeout(5000);
+
+      platform.getUsersTeam(mrT1.id, mrT1.token, function(error,team){
+        if(error){
+          throw error;
+        }
+        expect(error).to.not.exist;
+        expect(team).to.exist;
+        expect(team.members).to.exist;
+        expect(team.members).to.be.a('array');
+        expect(team.id).to.exist;
+        done();
+      });
+    });
+
+    it('has patients', function(done) {
+      this.timeout(5000);
+
+      platform.getUsersPatients(mrT1.id, mrT1.token, function(error,patients){
+        if(error){
+          throw error;
+        }
+        expect(error).to.not.exist;
+        expect(patients).to.exist;
+        expect(patients.members).to.exist;
+        expect(patients.members).to.be.a('array');
+        expect(patients.id).to.exist;
+        done();
+      });
+    });
+
+    it('has invited', function(done) {
+      this.timeout(5000);
+
+      platform.getInvitesToTeam(mrT1.id, mrT1.token, function(error,invites){
+        if(error){
+          throw error;
+        }
+        expect(error).to.not.exist;
+        expect(invites).to.exist;
+        expect(invites.members).to.exist;
+        expect(invites.members).to.be.a('array');
+        expect(invites.id).to.exist;
+        done();
+      });
+    });
+  });
+
+  describe('careTeamMember groups',function(){
+
+    it('has a team', function(done) {
+      this.timeout(5000);
+
+      platform.getUsersTeam(careTeamMember.id, careTeamMember.token, function(error,team){
+        if(error){
+          throw error;
+        }
+        expect(error).to.not.exist;
+        expect(team).to.exist;
+        expect(team.members).to.exist;
+        expect(team.members).to.be.a('array');
+        expect(team.id).to.exist;
+        done();
+      });
+    });
+
+    it('has patients', function(done) {
+      this.timeout(5000);
+
+      platform.getUsersPatients(careTeamMember.id, careTeamMember.token, function(error,patients){
+        if(error){
+          throw error;
+        }
+        expect(error).to.not.exist;
+        expect(patients).to.exist;
+        expect(patients.members).to.exist;
+        expect(patients.members).to.be.a('array');
+        expect(patients.id).to.exist;
+        done();
+      });
+    });
+
+    it('has invited', function(done) {
+      this.timeout(5000);
+
+      platform.getInvitesToTeam(careTeamMember.id, careTeamMember.token, function(error,invites){
+        if(error){
+          throw error;
+        }
+        expect(error).to.not.exist;
+        expect(invites).to.exist;
+        expect(invites.members).to.exist;
+        expect(invites.members).to.be.a('array');
+        expect(invites.id).to.exist;
+        done();
+      });
+    });
+  });
+
+  describe('groups managment for mrT1 ',function(){
+
+    it('allows him to invite another user to join the team', function(done) {
+      this.timeout(5000);
+
+      platform.inviteToJoinTeam(mrT1.id, careTeamMember.id, mrT1.token, function(error,team){
+        if(error){
+          throw error;
+        }
+        platform.getInvitesToTeam(mrT1.id, mrT1.token, function(error,invites){
+          if(error){
+            throw error;
+          }
+          expect(invites.members).to.include(careTeamMember.id);
+          done();
+        });
+      });
+    });
+
+    it('which means the invited user is added to his team when they accept an invite', function(done) {
+      this.timeout(5000);
+
+      platform.acceptInviteToJoinTeam(mrT1.id, careTeamMember.id, mrT1.token, function(error,team){
+        if(error){
+          throw error;
+        }
+        platform.getUsersTeam(mrT1.id, mrT1.token, function(error,team){
+          if(error){
+            throw error;
+          }
+          expect(team.members).to.include(careTeamMember.id);
+          done();
+        });
+      });
+    });
+
+    it('is added to careTeamMember patients list', function(done) {
+      this.timeout(5000);
+
+      platform.addToPatients(mrT1.id, careTeamMember.id, careTeamMember.token, function(error,team){
+        if(error){
+          throw error;
+        }
+        platform.getUsersPatients(careTeamMember.id, careTeamMember.token, function(error,patients){
+          if(error){
+            throw error;
+          }
+          expect(patients.members).to.include(mrT1.id);
+          done();
+        });
       });
     });
 

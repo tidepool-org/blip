@@ -1,5 +1,5 @@
 {
-  "name": "platform-client",
+  "name": "tidepool-platform-client",
   "version": "0.0.1",
   "description": "client-side library interacting with the tidepool platform",
   "main": "index.js",
@@ -10,6 +10,7 @@
   "author": "Tidepool",
   "license": "BSD-2-Clause",
   "dependencies": {
+    "async": "0.2.10",
     "lodash": "2.4.1"
   },
   "devDependencies": {

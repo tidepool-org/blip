@@ -6,7 +6,7 @@ Client-side library interacting with the tidepool platform
 
 ### Working Example
 
-to run the example you need a running versions of the following
+to run the example you need to be running platform components loacally, see the  [Runservers Script](https://github.com/tidepool-org/tools)
 
 - [Armada](https://github.com/tidepool-org/armada)
 - [User-api](https://github.com/tidepool-org/user-api)
