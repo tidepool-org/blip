@@ -1,7 +1,7 @@
 {
     "framework": "mocha",
     "serve_files": [ "test/test.js" ],
-    "test_page": "test/test.html",
+    "test_page": "test/html/test.html",
     "src_files": [
         "js/**/*.js",
         "test/**/*.js"

@@ -17,7 +17,6 @@
       "safari/latest",
       "firefox/latest"
     ],
-    "html": "test/testling.html",
-    "preprocess": "./test/testling.sh"
+    "html": "test/html/testling.html"
   }
 }
