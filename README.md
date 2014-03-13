@@ -2,7 +2,7 @@ tideline
 ========
 
 [![Browser Support](https://ci.testling.com/tidepool-org/tideline.png)
-](https://ci.testling.com/$tidepool-org/tideline)
+](https://ci.testling.com/tidepool-org/tideline)
 
 (Test suite not yet complete.)
 
