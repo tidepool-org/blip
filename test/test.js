@@ -55515,12 +55515,12 @@ else {
 }
 
 if (!lib._) {
-  throw new Error('Underscore or Lodash is a required dependency');
+  throw new Error('Underscore or Lodash is a required dependency!');
 }
 
 if (!lib.bows) {
-  // Optional dependency
-  // Return a factory for a log function that does nothing
+  // NB: optional dependency
+  // return a factory for a log function that does nothing
   lib.bows = function() {
     return function() {};
   };
@@ -70842,8 +70842,8 @@ var assert = chai.assert;
 var expect = chai.expect;
 
 var _ = require('lodash');
-var watson = require('../example/watson');
 
+var watson = require('../example/watson');
 var fx = require('./fixtures');
 
 var tideline = require('../js/index');

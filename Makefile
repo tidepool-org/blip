@@ -1,6 +1,6 @@
 dist:
 	mkdir -p dist
-	browserify js/index.js --standalone tideline > dist/tideline.js
+	browserify js/index.js --standalone tideline --ignore-missing > dist/tideline.js
 	lessc css/tideline.less dist/tideline.css
 
 example:

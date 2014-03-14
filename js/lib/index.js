@@ -19,12 +19,12 @@ else {
 }
 
 if (!lib._) {
-  throw new Error('Underscore or Lodash is a required dependency');
+  throw new Error('Underscore or Lodash is a required dependency!');
 }
 
 if (!lib.bows) {
-  // Optional dependency
-  // Return a factory for a log function that does nothing
+  // NB: optional dependency
+  // return a factory for a log function that does nothing
   lib.bows = function() {
     return function() {};
   };
