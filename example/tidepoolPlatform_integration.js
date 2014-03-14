@@ -148,7 +148,6 @@ describe('platform client', function() {
       this.timeout(5000);
 
       platform.getUsersTeam(mrT1.id, mrT1.token, function(error,team){
-        console.log('team ',team);
         expect(error).to.not.exist;
         expect(team).to.exist;
         expect(team.members).to.exist;
