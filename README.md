@@ -1,4 +1,4 @@
-platform-client
+tidepool-platform-client
 ===============
 
 Client-side library interacting with the tidepool platform
