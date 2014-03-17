@@ -77,15 +77,7 @@ function tempBasalMappingFn(event) {
   }
 
   var end = moment(event.deviceTime).add('ms', event.duration).format('YYYY-MM-DDThh:mm:ss');
-  return {
-    _id: event._id,
-    type: 'basal-rate-segment',
-    start: event.deviceTime,
-    end: end,
-    interval: event.deviceTime + '/' + end,
-    deliveryType: 'temp',
-    value: event.value
-  };
+  return _.assign({}, event, { type: 'basal-rate-segment', end: end, interval: event.deviceTime + '/' + end });
 }
 
 if (Rx.Observable.prototype.tidepoolConvertBasal == null) {
