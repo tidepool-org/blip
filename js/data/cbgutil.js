@@ -16,6 +16,7 @@
  */
 
 var _ = require('../lib/')._;
+var datetime = require('./util/datetime');
 var log = require('../lib/').bows('CBGUtil');
 
 function CBGUtil(data) {
@@ -31,10 +32,6 @@ function CBGUtil(data) {
     'high': 0
   };
 
-  function fixFloatingPoint (n) {
-    return parseFloat(n.toFixed(3));
-  }
-
   function getCategory (n) {
     if (n <= categories.low) {
       return 'low';
@@ -47,36 +44,19 @@ function CBGUtil(data) {
     }
   }
 
-  function checkIfUTCDate(s) {
-    var d = new Date(s);
-    if (s === d.toISOString()) {
-      return true;
-    }
-    else if (typeof s === 'number') {
-      return true;
-    }
-    else {
-      return false;
-    }
-  }
-
   this.filter = function(s, e) {
-    var startIsDate, endIsDate;
-    try {
-      startIsDate = checkIfUTCDate(s);
-      endIsDate = checkIfUTCDate(e);
-    }
-    catch (e) {
-      log('Invalid date passed to cbgUtil.filter', [s, e]);
-      throw e;
-    }
-    if (startIsDate && endIsDate) {
+    if (datetime.verifyEndpoints(s, e, this.endpoints)) {
+      var start = new Date(s).valueOf(), end = new Date(e).valueOf();
+      // TODO: optimize speed (for loop with break?)
       return _.filter(this.data, function(d) {
         var dTime = new Date(d.normalTime).valueOf();
-        if ((dTime >= s.valueOf()) && (dTime <= e.valueOf())) {
+        if ((dTime >= start) && (dTime <= end)) {
           return d;
         }
       });
+    }
+    else {
+      return [];
     }
   };
 
@@ -99,6 +79,7 @@ function CBGUtil(data) {
   };
 
   this.data = data;
+  this.endpoints = [this.data[0].normalTime, this.data[this.data.length - 1].normalTime];
 }
 
 module.exports = CBGUtil;

@@ -154,32 +154,44 @@ function testData (data) {
 
 describe('basal utilities', function() {
   describe('totalBasal', function() {
+    var basal = new BasalUtil(_.findWhere(fx, {'name': 'current-demo'}).json);
+    basal.normalizedActual = watson.normalize(basal.actual);
+    basal.endpoints = [basal.normalizedActual[0].normalTime, basal.normalizedActual[basal.normalizedActual.length - 1].normalEnd];
+    var basalData = _.where(_.findWhere(fx, {'name': 'current-demo'}).json, {'type': 'basal-rate-segment'});
     var template = new BasalUtil(_.findWhere(fx, {'name': 'template'}).json);
     template.normalizedActual = watson.normalize(template.actual);
+    template.endpoints = [template.normalizedActual[0].normalTime, template.normalizedActual[template.normalizedActual.length - 1].normalEnd];
     var temp = new BasalUtil(_.findWhere(fx, {'name': 'contained'}).json);
     temp.normalizedActual = watson.normalize(temp.actual);
+    temp.endpoints = [temp.normalizedActual[0].normalTime, temp.normalizedActual[temp.normalizedActual.length - 1].normalEnd];
 
     it('should be a function', function() {
-      var basal = new BasalUtil(_.findWhere(fx, {'name': 'current-demo'}).json);
-      basal.normalizedActual = watson.normalize(basal.actual);
       assert.isFunction(basal.totalBasal);
+    });
+    it('should return a number or NaN when given invalid date range', function() {
+      var type = typeof basal.totalBasal('', '');
+      expect((type === 'number') || isNaN(type)).to.be.true;
+    });
+    it('should return a number when passed a valid date range', function() {
+      var type = typeof basal.totalBasal(basalData[0].normalTime, basalData[1].normalTime);
+      expect(type === 'number').to.be.true;
     });
 
     it('should return 20.0 on basal-template.json for twenty-four hours', function() {
-      var start = new Date('2014-02-12T00:00:00').valueOf();
-      var end = new Date('2014-02-13T00:00:00').valueOf();
+      var start = new Date('2014-02-12T00:00:00.000Z').valueOf();
+      var end = new Date('2014-02-13T00:00:00.000Z').valueOf();
       expect(template.totalBasal(start, end)).to.equal(20.0);
     });
 
     it('should return 1.45 on basal-template.json from 1 to 3 a.m.', function() {
-      var start = new Date('2014-02-12T01:00:00').valueOf();
-      var end = new Date('2014-02-12T03:00:00').valueOf();
+      var start = new Date('2014-02-12T01:00:00.000Z').valueOf();
+      var end = new Date('2014-02-12T03:00:00.000Z').valueOf();
       expect(template.totalBasal(start, end)).to.equal(1.45);
     });
 
     it('should return 5.35 on basal-contained.json from 8:30 a.m. to 3:30 p.m.', function() {
-      var start = new Date('2014-02-12T08:30:00').valueOf();
-      var end = new Date('2014-02-12T15:30:00').valueOf();
+      var start = new Date('2014-02-12T08:30:00.000Z').valueOf();
+      var end = new Date('2014-02-12T15:30:00.000Z').valueOf();
       expect(temp.totalBasal(start, end)).to.equal(5.35);
     });
   });

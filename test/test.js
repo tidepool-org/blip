@@ -55108,11 +55108,13 @@ catch (ReferenceError) {
   var log = require('../js/lib/').bows('Watson');
 }
 
+var APPEND = '.000Z';
+
 var watson = {
   normalize: function(a) {
     log('Watson normalized the data.');
     return _.map(a, function(i) {
-      i.normalTime = i.deviceTime + 'Z';
+      i.normalTime = i.deviceTime + APPEND;
       if (i.utcTime) {
         var d = new Date(i.utcTime);
         var offsetMinutes = d.getTimezoneOffset();
@@ -55120,8 +55122,8 @@ var watson = {
         i.normalTime = d.toISOString();
       }
       else if (i.type === 'basal-rate-segment') {
-        i.normalTime = i.start + 'Z';
-        i.normalEnd = i.end + 'Z';
+        i.normalTime = i.start + APPEND;
+        i.normalEnd = i.end + APPEND;
       }
       return i;
     });
@@ -55136,7 +55138,7 @@ var watson = {
 };
 
 module.exports = watson;
-},{"../js/lib/":7,"lodash":53}],3:[function(require,module,exports){
+},{"../js/lib/":9,"lodash":56}],3:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -55155,6 +55157,8 @@ module.exports = watson;
  */
 
 var _ = require('../lib/')._;
+var format = require('./util/format');
+var datetime = require('./util/datetime');
 var log = require('../lib/').bows('BasalUtil');
 
 var keysToOmit = ['id', 'start', 'end', 'vizType'];
@@ -55248,38 +55252,40 @@ function BasalUtil(data) {
     }
   }
 
-  function fixFloatingPoint (n) {
-    return parseFloat(n.toFixed(3));
-  }
-
   this.segmentDose = function(duration, rate) {
     var hours = duration / MS_IN_HOUR;
-    return fixFloatingPoint(hours * rate);
+    return format.fixFloatingPoint(hours * rate);
   };
 
   this.totalBasal = function(s, e) {
-    // return the total basal dose between two arbitrary datetimes
-    var dose = 0.0;
-    var firstSegment = _.find(this.normalizedActual, function(segment) {
-      return (new Date(segment.normalTime).valueOf() <= s) && (s <= new Date(segment.normalEnd).valueOf());
-    });
-    if (firstSegment) {
-      var index = this.normalizedActual.indexOf(firstSegment) + 1;
-      var lastSegment = _.find(this.normalizedActual, function(segment) {
-        return (new Date(segment.normalTime).valueOf() <= e) && (e <= new Date(segment.normalEnd).valueOf());
+    if (datetime.verifyEndpoints(s, e, this.endpoints)) {
+      // return the total basal dose between two arbitrary datetimes
+      var dose = 0.0;
+      var start = new Date(s).valueOf(), end = new Date(e).valueOf();
+      var firstSegment = _.find(this.normalizedActual, function(segment) {
+        return (new Date(segment.normalTime).valueOf() <= start) && (start <= new Date(segment.normalEnd).valueOf());
       });
-      var lastIndex = this.normalizedActual.indexOf(lastSegment);
-      dose += this.segmentDose(new Date(firstSegment.normalEnd) - s, firstSegment.value);
-      while (index < lastIndex) {
-        var segment = this.normalizedActual[index];
-        dose += this.segmentDose((new Date(segment.normalEnd) - new Date(segment.normalTime)), segment.value);
-        index++;
+      if (firstSegment) {
+        var index = this.normalizedActual.indexOf(firstSegment) + 1;
+        var lastSegment = _.find(this.normalizedActual, function(segment) {
+          return (new Date(segment.normalTime).valueOf() <= end) && (end <= new Date(segment.normalEnd).valueOf());
+        });
+        var lastIndex = this.normalizedActual.indexOf(lastSegment);
+        dose += this.segmentDose(new Date(firstSegment.normalEnd) - start, firstSegment.value);
+        while (index < lastIndex) {
+          var segment = this.normalizedActual[index];
+          dose += this.segmentDose((new Date(segment.normalEnd) - new Date(segment.normalTime)), segment.value);
+          index++;
+        }
+        if (lastSegment) {
+          dose += this.segmentDose(e - new Date(lastSegment.normalTime), lastSegment.value);
+        }
       }
-      if (lastSegment) {
-        dose += this.segmentDose(e - new Date(lastSegment.normalTime), lastSegment.value);
-      }
+      return format.fixFloatingPoint(dose);
     }
-    return fixFloatingPoint(dose);
+    else {
+      return NaN;
+    }
   };
 
   data.forEach(processElement);
@@ -55289,7 +55295,7 @@ function BasalUtil(data) {
 }
 
 module.exports = BasalUtil;
-},{"../lib/":7}],4:[function(require,module,exports){
+},{"../lib/":9,"./util/datetime":6,"./util/format":7}],4:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -55308,36 +55314,42 @@ module.exports = BasalUtil;
  */
 
 var _ = require('../lib/')._;
+var format = require('./util/format');
+var datetime = require('./util/datetime');
 var log = require('../lib/').bows('BolusUtil');
 
 function BolusUtil(data) {
 
-  function fixFloatingPoint (n) {
-    return parseFloat(n.toFixed(3));
-  }
-
   this.totalBolus = function(s, e) {
-    var dose = 0.0;
-    var firstBolus = _.find(this.data, function(bolus) {
-      var d = new Date(bolus.normalTime).valueOf();
-      return (d >= s) && (d <= e);
-    });
-    if (firstBolus) {
-      var index = this.data.indexOf(firstBolus);
-      while (index < (data.length - 1) && (new Date(this.data[index].normalTime).valueOf() <= e)) {
-        var bolus = this.data[index];
-        dose += bolus.value;
-        index++;
+    if (datetime.verifyEndpoints(s, e, this.endpoints)) {
+      var dose = 0.0;
+      var start = new Date(s).valueOf(), end = new Date(e).valueOf();
+      var firstBolus = _.find(this.data, function(bolus) {
+        var d = new Date(bolus.normalTime).valueOf();
+        return (d >= start) && (d <= end);
+      });
+      if (firstBolus) {
+        var index = this.data.indexOf(firstBolus);
+        while (index < (data.length - 1) && (new Date(this.data[index].normalTime).valueOf() <= end)) {
+          var bolus = this.data[index];
+          dose += bolus.value;
+          index++;
+        }
       }
+      return format.fixFloatingPoint(dose);
     }
-    return fixFloatingPoint(dose);
+    else {
+      return NaN;
+    }
+
   };
 
   this.data = data;
+  this.endpoints = [this.data[0].normalTime, this.data[this.data.length - 1].normalTime];
 }
 
 module.exports = BolusUtil;
-},{"../lib/":7}],5:[function(require,module,exports){
+},{"../lib/":9,"./util/datetime":6,"./util/format":7}],5:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -55356,6 +55368,7 @@ module.exports = BolusUtil;
  */
 
 var _ = require('../lib/')._;
+var datetime = require('./util/datetime');
 var log = require('../lib/').bows('CBGUtil');
 
 function CBGUtil(data) {
@@ -55371,10 +55384,6 @@ function CBGUtil(data) {
     'high': 0
   };
 
-  function fixFloatingPoint (n) {
-    return parseFloat(n.toFixed(3));
-  }
-
   function getCategory (n) {
     if (n <= categories.low) {
       return 'low';
@@ -55387,36 +55396,19 @@ function CBGUtil(data) {
     }
   }
 
-  function checkIfUTCDate(s) {
-    var d = new Date(s);
-    if (s === d.toISOString()) {
-      return true;
-    }
-    else if (typeof s === 'number') {
-      return true;
-    }
-    else {
-      return false;
-    }
-  }
-
   this.filter = function(s, e) {
-    var startIsDate, endIsDate;
-    try {
-      startIsDate = checkIfUTCDate(s);
-      endIsDate = checkIfUTCDate(e);
-    }
-    catch (e) {
-      log('Invalid date passed to cbgUtil.filter', [s, e]);
-      throw e;
-    }
-    if (startIsDate && endIsDate) {
+    if (datetime.verifyEndpoints(s, e, this.endpoints)) {
+      var start = new Date(s).valueOf(), end = new Date(e).valueOf();
+      // TODO: optimize speed (for loop with break?)
       return _.filter(this.data, function(d) {
         var dTime = new Date(d.normalTime).valueOf();
-        if ((dTime >= s.valueOf()) && (dTime <= e.valueOf())) {
+        if ((dTime >= start) || (dTime <= end)) {
           return d;
         }
       });
+    }
+    else {
+      return [];
     }
   };
 
@@ -55439,10 +55431,106 @@ function CBGUtil(data) {
   };
 
   this.data = data;
+  this.endpoints = [this.data[0].normalTime, this.data[this.data.length - 1].normalTime];
 }
 
 module.exports = CBGUtil;
-},{"../lib/":7}],6:[function(require,module,exports){
+},{"../lib/":9,"./util/datetime":6}],6:[function(require,module,exports){
+/* 
+ * == BSD2 LICENSE ==
+ */
+
+function NaiveError(message) {
+  this.name = 'TimezoneNaiveError';
+  this.message = message || 'Timezone-naive date string encountered where expecting UTC date string.';
+}
+
+NaiveError.prototype = new Error();
+NaiveError.prototype.constructor = NaiveError;
+
+var datetime = {
+
+  adjustToInnerEndpoints: function(s, e, endpoints) {
+    var start = new Date(s).valueOf(), end = new Date(e).valueOf();
+    var thisTypeStart = new Date(endpoints[0]).valueOf(), thisTypeEnd = new Date(endpoints[1]).valueOf();
+    if (start < thisTypeStart) {
+      return [thisTypeStart, end];
+    }
+    else if (end > thisTypeEnd) {
+      return [start, thisTypeEnd];
+    }
+    else {
+      return [start, end];
+    }
+  },
+
+  checkIfDateInRange: function(s, endpoints) {
+    var d = new Date(s);
+    var start = new Date(endpoints[0]);
+    var end = new Date(endpoints[1]);
+    if ((d.valueOf() >= start.valueOf()) && (d.valueOf() <= end.valueOf())) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  },
+
+  checkIfUTCDate: function(s) {
+    var d = new Date(s);
+    if (typeof s === 'number') {
+      if (d.getUTCFullYear() < 2008) {
+        return false;
+      }
+      else {
+        return true;
+      }
+    }
+    else if (s.slice(s.length - 1, s.length) !== 'Z') {
+      return false;
+    }
+    else {
+      if (s === d.toISOString()) {
+        return true;
+      }
+      else {
+        return false;
+      }
+    }
+  },
+
+  verifyEndpoints: function(s, e, endpoints) {
+    if (this.checkIfUTCDate(s) && this.checkIfUTCDate(e)) {
+      endpoints = this.adjustToInnerEndpoints(s, e, endpoints);
+      s = endpoints[0];
+      e = endpoints[1];
+      if (this.checkIfDateInRange(s, endpoints) && this.checkIfDateInRange(e, endpoints)) {
+        return true;
+      }
+      else {
+        return false;
+      }
+    }
+    else {
+      return false;
+    }
+  }
+
+
+};
+
+module.exports = datetime;
+},{}],7:[function(require,module,exports){
+var format = {
+
+  fixFloatingPoint: function(n) {
+    return parseFloat(n.toFixed(3));
+  }
+
+};
+
+module.exports = format;
+},{}],8:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -55468,7 +55556,11 @@ module.exports = {
   data: {
     BasalUtil: require('./data/basalutil'),
     BolusUtil: require('./data/bolusutil'),
-    CBGUtil: require('./data/cbgutil')
+    CBGUtil: require('./data/cbgutil'),
+    util: {
+      datetime: require('./data/util/datetime'),
+      format: require('./data/util/format')
+    }
   },
 
   lib: require('./lib/index'),
@@ -55493,7 +55585,7 @@ module.exports = {
   }
 };
 
-},{"./data/basalutil":3,"./data/bolusutil":4,"./data/cbgutil":5,"./lib/index":7,"./one-day":8,"./plot/basal":9,"./plot/bolus":10,"./plot/carbs":11,"./plot/cbg":12,"./plot/message":13,"./plot/smbg":15,"./plot/smbg-time":14,"./plot/stats/puddle":16,"./plot/stats/widget":17,"./plot/util/fill":18,"./plot/util/scales":19,"./plot/util/tooltip":20,"./pool":21,"./two-week":22}],7:[function(require,module,exports){
+},{"./data/basalutil":3,"./data/bolusutil":4,"./data/cbgutil":5,"./data/util/datetime":6,"./data/util/format":7,"./lib/index":9,"./one-day":10,"./plot/basal":11,"./plot/bolus":12,"./plot/carbs":13,"./plot/cbg":14,"./plot/message":15,"./plot/smbg":17,"./plot/smbg-time":16,"./plot/stats/puddle":18,"./plot/stats/widget":19,"./plot/util/fill":20,"./plot/util/scales":21,"./plot/util/tooltip":22,"./pool":23,"./two-week":24}],9:[function(require,module,exports){
 var lib = {};
 
 if (typeof window !== 'undefined') {
@@ -55527,7 +55619,7 @@ if (!lib.bows) {
 }
 
 module.exports = lib;
-},{"lodash":53}],8:[function(require,module,exports){
+},{"lodash":56}],10:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -56119,7 +56211,7 @@ module.exports = function(emitter) {
   return container;
 };
 
-},{"./lib/":7,"./plot/util/tooltip":20,"./pool":21}],9:[function(require,module,exports){
+},{"./lib/":9,"./plot/util/tooltip":22,"./pool":23}],11:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -56583,7 +56675,7 @@ module.exports = function(pool, opts) {
   return basal;
 };
 
-},{"../lib/":7}],10:[function(require,module,exports){
+},{"../lib/":9}],12:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -57001,7 +57093,7 @@ module.exports = function(pool, opts) {
   return bolus;
 };
 
-},{"../lib/":7}],11:[function(require,module,exports){
+},{"../lib/":9}],13:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -57157,7 +57249,7 @@ module.exports = function(pool, opts) {
 
   return carbs;
 };
-},{"../lib/":7}],12:[function(require,module,exports){
+},{"../lib/":9}],14:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -57321,7 +57413,7 @@ module.exports = function(pool, opts) {
 
   return cbg;
 };
-},{"../lib/":7}],13:[function(require,module,exports){
+},{"../lib/":9}],15:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -57385,7 +57477,7 @@ module.exports = function(pool, opts) {
 
   return cbg;
 };
-},{"../lib/":7}],14:[function(require,module,exports){
+},{"../lib/":9}],16:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -57577,7 +57669,7 @@ function SMBGTime (opts) {
 }
 
 module.exports = SMBGTime;
-},{"../lib/":7}],15:[function(require,module,exports){
+},{"../lib/":9}],17:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -57732,7 +57824,7 @@ module.exports = function(pool, opts) {
 
   return smbg;
 };
-},{"../lib/":7,"./util/scales":19}],16:[function(require,module,exports){
+},{"../lib/":9,"./util/scales":21}],18:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -57829,7 +57921,7 @@ module.exports = function(opts) {
 
   return puddle;
 };
-},{"../../lib/":7}],17:[function(require,module,exports){
+},{"../../lib/":9}],19:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -58236,7 +58328,7 @@ module.exports = function(pool, opts) {
 
   return stats;
 };
-},{"../../lib/":7,"../util/scales":19,"./puddle":16}],18:[function(require,module,exports){
+},{"../../lib/":9,"../util/scales":21,"./puddle":18}],20:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -58363,7 +58455,7 @@ module.exports = function(pool, opts) {
   
   return fill;
 };
-},{"../../lib/":7}],19:[function(require,module,exports){
+},{"../../lib/":9}],21:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -58418,7 +58510,7 @@ var scales = {
 };
 
 module.exports = scales;
-},{"../../lib/":7}],20:[function(require,module,exports){
+},{"../../lib/":9}],22:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -58711,7 +58803,7 @@ module.exports = function(container, tooltipsGroup) {
 
   return tooltip;
 };
-},{"../../lib/":7}],21:[function(require,module,exports){
+},{"../../lib/":9}],23:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -58923,7 +59015,7 @@ function Pool (container) {
 
 module.exports = Pool;
 
-},{"./lib/":7}],22:[function(require,module,exports){
+},{"./lib/":9}],24:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -59660,10 +59752,10 @@ module.exports = function(emitter) {
   return container;
 };
 
-},{"./lib/":7,"./pool":21}],23:[function(require,module,exports){
+},{"./lib/":9,"./pool":23}],25:[function(require,module,exports){
 module.exports = require('./lib/chai');
 
-},{"./lib/chai":24}],24:[function(require,module,exports){
+},{"./lib/chai":26}],26:[function(require,module,exports){
 /*!
  * chai
  * Copyright(c) 2011-2013 Jake Luer <jake@alogicalparadox.com>
@@ -59745,7 +59837,7 @@ exports.use(should);
 var assert = require('./chai/interface/assert');
 exports.use(assert);
 
-},{"./chai/assertion":25,"./chai/core/assertions":26,"./chai/interface/assert":27,"./chai/interface/expect":28,"./chai/interface/should":29,"./chai/utils":40,"assertion-error":48}],25:[function(require,module,exports){
+},{"./chai/assertion":27,"./chai/core/assertions":28,"./chai/interface/assert":29,"./chai/interface/expect":30,"./chai/interface/should":31,"./chai/utils":42,"assertion-error":50}],27:[function(require,module,exports){
 /*!
  * chai
  * http://chaijs.com
@@ -59877,7 +59969,7 @@ module.exports = function (_chai, util) {
   });
 };
 
-},{}],26:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 /*!
  * chai
  * http://chaijs.com
@@ -61149,7 +61241,7 @@ module.exports = function (chai, _) {
   });
 };
 
-},{}],27:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 /*!
  * chai
  * Copyright(c) 2011-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62231,7 +62323,7 @@ module.exports = function (chai, util) {
   ('Throw', 'throws');
 };
 
-},{}],28:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 /*!
  * chai
  * Copyright(c) 2011-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62245,7 +62337,7 @@ module.exports = function (chai, util) {
 };
 
 
-},{}],29:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 /*!
  * chai
  * Copyright(c) 2011-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62323,7 +62415,7 @@ module.exports = function (chai, util) {
   chai.Should = loadShould;
 };
 
-},{}],30:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 /*!
  * Chai - addChainingMethod utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62419,7 +62511,7 @@ module.exports = function (ctx, name, method, chainingBehavior) {
   });
 };
 
-},{"./transferFlags":46}],31:[function(require,module,exports){
+},{"./transferFlags":48}],33:[function(require,module,exports){
 /*!
  * Chai - addMethod utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62458,7 +62550,7 @@ module.exports = function (ctx, name, method) {
   };
 };
 
-},{}],32:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 /*!
  * Chai - addProperty utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62500,7 +62592,7 @@ module.exports = function (ctx, name, getter) {
   });
 };
 
-},{}],33:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 /*!
  * Chai - flag utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62534,7 +62626,7 @@ module.exports = function (obj, key, value) {
   }
 };
 
-},{}],34:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 /*!
  * Chai - getActual utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62555,7 +62647,7 @@ module.exports = function (obj, args) {
   return 'undefined' !== typeof actual ? actual : obj._obj;
 };
 
-},{}],35:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 /*!
  * Chai - getEnumerableProperties utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62582,7 +62674,7 @@ module.exports = function getEnumerableProperties(object) {
   return result;
 };
 
-},{}],36:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 /*!
  * Chai - message composition utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62633,7 +62725,7 @@ module.exports = function (obj, args) {
   return flagMsg ? flagMsg + ': ' + msg : msg;
 };
 
-},{"./flag":33,"./getActual":34,"./inspect":41,"./objDisplay":42}],37:[function(require,module,exports){
+},{"./flag":35,"./getActual":36,"./inspect":43,"./objDisplay":44}],39:[function(require,module,exports){
 /*!
  * Chai - getName utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62655,7 +62747,7 @@ module.exports = function (func) {
   return match && match[1] ? match[1] : "";
 };
 
-},{}],38:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 /*!
  * Chai - getPathValue utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62759,7 +62851,7 @@ function _getPathValue (parsed, obj) {
   return res;
 };
 
-},{}],39:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 /*!
  * Chai - getProperties utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62796,7 +62888,7 @@ module.exports = function getProperties(object) {
   return result;
 };
 
-},{}],40:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 /*!
  * chai
  * Copyright(c) 2011 Jake Luer <jake@alogicalparadox.com>
@@ -62906,7 +62998,7 @@ exports.overwriteMethod = require('./overwriteMethod');
 exports.addChainableMethod = require('./addChainableMethod');
 
 
-},{"./addChainableMethod":30,"./addMethod":31,"./addProperty":32,"./flag":33,"./getActual":34,"./getMessage":36,"./getName":37,"./getPathValue":38,"./inspect":41,"./objDisplay":42,"./overwriteMethod":43,"./overwriteProperty":44,"./test":45,"./transferFlags":46,"./type":47,"deep-eql":49}],41:[function(require,module,exports){
+},{"./addChainableMethod":32,"./addMethod":33,"./addProperty":34,"./flag":35,"./getActual":36,"./getMessage":38,"./getName":39,"./getPathValue":40,"./inspect":43,"./objDisplay":44,"./overwriteMethod":45,"./overwriteProperty":46,"./test":47,"./transferFlags":48,"./type":49,"deep-eql":51}],43:[function(require,module,exports){
 // This is (almost) directly from Node.js utils
 // https://github.com/joyent/node/blob/f8c335d0caf47f16d31413f89aa28eda3878e3aa/lib/util.js
 
@@ -63228,7 +63320,7 @@ function objectToString(o) {
   return Object.prototype.toString.call(o);
 }
 
-},{"./getEnumerableProperties":35,"./getName":37,"./getProperties":39}],42:[function(require,module,exports){
+},{"./getEnumerableProperties":37,"./getName":39,"./getProperties":41}],44:[function(require,module,exports){
 /*!
  * Chai - flag utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -63278,7 +63370,7 @@ module.exports = function (obj) {
   }
 };
 
-},{"./inspect":41}],43:[function(require,module,exports){
+},{"./inspect":43}],45:[function(require,module,exports){
 /*!
  * Chai - overwriteMethod utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -63331,7 +63423,7 @@ module.exports = function (ctx, name, method) {
   }
 };
 
-},{}],44:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 /*!
  * Chai - overwriteProperty utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -63387,7 +63479,7 @@ module.exports = function (ctx, name, getter) {
   });
 };
 
-},{}],45:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 /*!
  * Chai - test utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -63415,7 +63507,7 @@ module.exports = function (obj, args) {
   return negate ? !expr : expr;
 };
 
-},{"./flag":33}],46:[function(require,module,exports){
+},{"./flag":35}],48:[function(require,module,exports){
 /*!
  * Chai - transferFlags utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -63461,7 +63553,7 @@ module.exports = function (assertion, object, includeAll) {
   }
 };
 
-},{}],47:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 /*!
  * Chai - type utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -63508,7 +63600,7 @@ module.exports = function (obj) {
   return typeof obj;
 };
 
-},{}],48:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 /*!
  * assertion-error
  * Copyright(c) 2013 Jake Luer <jake@qualiancy.com>
@@ -63620,10 +63712,10 @@ AssertionError.prototype.toJSON = function (stack) {
   return props;
 };
 
-},{}],49:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 module.exports = require('./lib/eql');
 
-},{"./lib/eql":50}],50:[function(require,module,exports){
+},{"./lib/eql":52}],52:[function(require,module,exports){
 /*!
  * deep-eql
  * Copyright(c) 2013 Jake Luer <jake@alogicalparadox.com>
@@ -63882,10 +63974,10 @@ function objectEqual(a, b, m) {
   return true;
 }
 
-},{"buffer":67,"type-detect":51}],51:[function(require,module,exports){
+},{"buffer":71,"type-detect":53}],53:[function(require,module,exports){
 module.exports = require('./lib/type');
 
-},{"./lib/type":52}],52:[function(require,module,exports){
+},{"./lib/type":54}],54:[function(require,module,exports){
 /*!
  * type-detect
  * Copyright(c) 2013 jake luer <jake@alogicalparadox.com>
@@ -64029,7 +64121,188 @@ Library.prototype.test = function (obj, type) {
   }
 };
 
-},{}],53:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
+var Duration = (function () {
+
+    var millisecond = 1,
+        second      = 1000 * millisecond,
+        minute      = 60   * second,
+        hour        = 60   * minute,
+        day         = 24   * hour,
+        week        = 7    * day;
+
+    var unitMap = {
+        "ms" : millisecond,
+        "s"  : second,
+        "m"  : minute,
+        "h"  : hour,
+        "d"  : day,
+        "w"  : week
+    };
+
+    var Duration = function (value) {
+        if (value instanceof Duration) {
+          return value;
+        }
+        switch (typeof value) {
+            case "number":
+                this._milliseconds = value;
+                break;
+            case "string":
+                this._milliseconds = Duration.parse(value).valueOf();
+                break;
+            case "undefined":
+                this._milliseconds = 0;
+                break;
+            default:
+                throw new Error("invalid duration: " + value);
+        }
+    };
+
+    Duration.millisecond = new Duration(millisecond);
+    Duration.second      = new Duration(second);
+    Duration.minute      = new Duration(minute);
+    Duration.hour        = new Duration(hour);
+    Duration.day         = new Duration(day);
+    Duration.week        = new Duration(week);
+
+    Duration.prototype.nanoseconds = function () {
+        return this._milliseconds * 1000000;
+    };
+
+    Duration.prototype.microseconds = function () {
+        return this._milliseconds * 1000;
+    };
+
+    Duration.prototype.milliseconds = function () {
+        return this._milliseconds;
+    };
+
+    Duration.prototype.seconds = function () {
+        return Math.floor(this._milliseconds / second);
+    };
+
+    Duration.prototype.minutes = function () {
+        return Math.floor(this._milliseconds / minute);
+    };
+
+    Duration.prototype.hours = function () {
+        return Math.floor(this._milliseconds / hour);
+    };
+
+    Duration.prototype.days = function () {
+      return Math.floor(this._milliseconds / day);
+    };
+
+    Duration.prototype.weeks = function () {
+      return Math.floor(this._milliseconds / week);
+    };
+
+    Duration.prototype.toString = function () {
+      var str          = "",
+          milliseconds = Math.abs(this._milliseconds),
+          sign         = this._milliseconds < 0 ? "-" : "";
+
+      // no units for 0 duration
+      if (milliseconds === 0) {
+        return "0";
+      }
+
+      // days
+      var days = Math.floor(milliseconds / day);
+      if (days !== 0) {
+        milliseconds -= day * days;
+        str += days.toString() + "d";
+      }
+
+      // hours
+      var hours = Math.floor(milliseconds / hour);
+      if (hours !== 0) {
+        milliseconds -= hour * hours;
+        str += hours.toString() + "h";
+      }
+
+      // minutes
+      var minutes = Math.floor(milliseconds / minute);
+      if (minutes !== 0) {
+        milliseconds -= minute * minutes;
+        str += minutes.toString() + "m";
+      }
+
+      // seconds
+      var seconds = Math.floor(milliseconds / second);
+      if (seconds !== 0) {
+        milliseconds -= second * seconds;
+        str += seconds.toString() + "s";
+      }
+
+      // milliseconds
+      if (milliseconds !== 0) {
+        str += milliseconds.toString() + "ms";
+      }
+
+      return sign + str;
+    };
+
+    Duration.prototype.valueOf = function () {
+      return this._milliseconds;
+    };
+
+    Duration.parse = function (duration) {
+
+        if (duration === "0" || duration === "+0" || duration === "-0") {
+          return new Duration(0);
+        }
+
+        var regex = /([\-\+\d\.]+)([a-z]+)/g,
+            total = 0,
+            count = 0,
+            sign  = duration[0] === '-' ? -1 : 1,
+            unit, value, match;
+
+        while (match = regex.exec(duration)) {
+
+            unit  = match[2];
+            value = Math.abs(parseFloat(match[1]));
+            count++;
+
+            if (isNaN(value)) {
+              throw new Error("invalid duration");
+            }
+
+            if (typeof unitMap[unit] === "undefined") {
+              throw new Error("invalid unit: " + unit);
+            }
+
+            total += value * unitMap[unit];
+        }
+
+        if (count === 0) {
+          throw new Error("invalid duration");
+        }
+
+        return new Duration(total * sign);
+    };
+
+    Duration.fromMicroseconds = function (us) {
+        var ms = Math.floor(us / 1000);
+        return new Duration(ms);
+    };
+
+    Duration.fromNanoseconds = function (ns) {
+        var ms = Math.floor(ns / 1000000);
+        return new Duration(ms);
+    };
+
+    return Duration;
+
+}).call(this);
+
+if (typeof module !== "undefined") {
+   module.exports = Duration;
+}
+
+},{}],56:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
  * @license
  * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
@@ -70816,7 +71089,7 @@ var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? 
   }
 }.call(this));
 
-},{}],54:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -70973,32 +71246,44 @@ function testData (data) {
 
 describe('basal utilities', function() {
   describe('totalBasal', function() {
+    var basal = new BasalUtil(_.findWhere(fx, {'name': 'current-demo'}).json);
+    basal.normalizedActual = watson.normalize(basal.actual);
+    basal.endpoints = [basal.normalizedActual[0].normalTime, basal.normalizedActual[basal.normalizedActual.length - 1].normalEnd];
+    var basalData = _.where(_.findWhere(fx, {'name': 'current-demo'}).json, {'type': 'basal-rate-segment'});
     var template = new BasalUtil(_.findWhere(fx, {'name': 'template'}).json);
     template.normalizedActual = watson.normalize(template.actual);
+    template.endpoints = [template.normalizedActual[0].normalTime, template.normalizedActual[template.normalizedActual.length - 1].normalEnd];
     var temp = new BasalUtil(_.findWhere(fx, {'name': 'contained'}).json);
     temp.normalizedActual = watson.normalize(temp.actual);
+    temp.endpoints = [temp.normalizedActual[0].normalTime, temp.normalizedActual[temp.normalizedActual.length - 1].normalEnd];
 
     it('should be a function', function() {
-      var basal = new BasalUtil(_.findWhere(fx, {'name': 'current-demo'}).json);
-      basal.normalizedActual = watson.normalize(basal.actual);
       assert.isFunction(basal.totalBasal);
+    });
+    it('should return a number or NaN when given invalid date range', function() {
+      var type = typeof basal.totalBasal('', '');
+      expect((type === 'number') || isNaN(type)).to.be.true;
+    });
+    it('should return a number when passed a valid date range', function() {
+      var type = typeof basal.totalBasal(basalData[0].normalTime, basalData[1].normalTime);
+      expect(type === 'number').to.be.true;
     });
 
     it('should return 20.0 on basal-template.json for twenty-four hours', function() {
-      var start = new Date('2014-02-12T00:00:00').valueOf();
-      var end = new Date('2014-02-13T00:00:00').valueOf();
+      var start = new Date('2014-02-12T00:00:00.000Z').valueOf();
+      var end = new Date('2014-02-13T00:00:00.000Z').valueOf();
       expect(template.totalBasal(start, end)).to.equal(20.0);
     });
 
     it('should return 1.45 on basal-template.json from 1 to 3 a.m.', function() {
-      var start = new Date('2014-02-12T01:00:00').valueOf();
-      var end = new Date('2014-02-12T03:00:00').valueOf();
+      var start = new Date('2014-02-12T01:00:00.000Z').valueOf();
+      var end = new Date('2014-02-12T03:00:00.000Z').valueOf();
       expect(template.totalBasal(start, end)).to.equal(1.45);
     });
 
     it('should return 5.35 on basal-contained.json from 8:30 a.m. to 3:30 p.m.', function() {
-      var start = new Date('2014-02-12T08:30:00').valueOf();
-      var end = new Date('2014-02-12T15:30:00').valueOf();
+      var start = new Date('2014-02-12T08:30:00.000Z').valueOf();
+      var end = new Date('2014-02-12T15:30:00.000Z').valueOf();
       expect(temp.totalBasal(start, end)).to.equal(5.35);
     });
   });
@@ -71026,7 +71311,7 @@ describe('basal utilities', function() {
 });
 
 
-},{"../example/watson":2,"../js/index":6,"./fixtures":66,"chai":23,"lodash":53}],55:[function(require,module,exports){
+},{"../example/watson":2,"../js/index":8,"./fixtures":70,"chai":25,"lodash":56}],58:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -71052,22 +71337,56 @@ var assert = chai.assert;
 var expect = chai.expect;
 
 var _ = require('lodash');
+var Duration = require('duration-js');
 
 var watson = require('../example/watson');
 var data = watson.normalize(require('../example/data/device-data.json'));
 
 var tideline = require('../js/index');
+var datetime = tideline.data.util.datetime;
+var format = tideline.data.util.format;
 var BolusUtil = tideline.data.BolusUtil;
 
 describe('bolus utilities', function() {
   describe('totalBolus', function() {
     var bolus = new BolusUtil(_.where(data, {'type': 'bolus'}));
+    var bolusData = _.where(data, {'type': 'bolus'});
+
     it('should be a function', function() {
       assert.isFunction(bolus.totalBolus);
     });
+
+    it('should have two UTC endpoints', function() {
+      expect(datetime.checkIfUTCDate(bolus.endpoints[0]) &&
+        datetime.checkIfUTCDate(bolus.endpoints[1])).to.be.true;
+    });
+
+    it('should return a number or NaN when given invalid date range', function() {
+      var type = typeof bolus.totalBolus('', '');
+      expect((type === 'number') || isNaN(type)).to.be.true;
+    });
+
+    it('should return a number when given valid date range', function() {
+      var type = typeof bolus.totalBolus(bolusData[0].normalTime, bolusData[1].normalTime);
+      expect(type === 'number').to.be.true;
+    });
+
+    it('should return b.value where b is the first bolus in the dataset and the date range is restricted to one bolus', function() {
+      var value = bolusData[0].value;
+      var d = Duration.parse('1ms');
+      var next = new Date(bolusData[1].normalTime) - d;
+      expect(bolus.totalBolus(bolusData[0].normalTime, next)).to.equal(value);
+    });
+
+    it('should return b1.value + b2.value where b1 & b2 are the first two boluses and the date range is set to their datetimes', function() {
+      var v1 = bolusData[0].value;
+      var v2 = bolusData[1].value;
+      var res = format.fixFloatingPoint(v1 + v2);
+      expect(bolus.totalBolus(bolusData[0].normalTime, bolusData[1].normalTime)).to.equal(res);
+    });
   });
 });
-},{"../example/data/device-data.json":1,"../example/watson":2,"../js/index":6,"chai":23,"lodash":53}],56:[function(require,module,exports){
+},{"../example/data/device-data.json":1,"../example/watson":2,"../js/index":8,"chai":25,"duration-js":55,"lodash":56}],59:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -71102,41 +71421,156 @@ var CBGUtil = tideline.data.CBGUtil;
 
 describe('cbg utilities', function() {
   var cbg = new CBGUtil(_.where(data, {'type': 'cbg'}));
+  var cbgData = _.where(data, {'type': 'cbg'});
+
   describe('filter', function() {
     it('should be a function', function() {
       assert.isFunction(cbg.filter);
     });
-    var passEmpty = function() {
-      cbg.filter('', '');
-    };
-    it('should throw RangeError when passed empty string instead of date', function() {
-      assert.throws(passEmpty, RangeError);
+
+    it('should return an array', function() {
+      assert.typeOf(cbg.filter('', ''), 'array');
     });
-    var passInvalid = function() {
-      cbg.filter('2014-03-06x12:00:00', '2014-03-07T12:00:00Z');
-    };
-    it('should throw RangeError when passed invalid date string', function() {
-      assert.throws(passInvalid, RangeError);
+
+    it('should return a non-empty array when passed a valid date range', function() {
+      expect(cbg.filter(cbgData[0].normalTime, cbgData[1].normalTime).length).to.be.above(0);
     });
-    var passNonUTC = function() {
-      cbg.filter('2014-03-06T12:00:00', '2014-03-07T12:00:00Z');
-    };
-    // it('should return an array', function() {
-    //   assert.typeOf(cbg.filter('', ''), 'array');
-    // });
   });
+
   describe('rangeBreakdown', function() {
     it('should be a function', function() {
       assert.isFunction(cbg.rangeBreakdown);
     });
+
+    it('should return an object', function() {
+      assert.typeOf(cbg.rangeBreakdown('', ''), 'object');
+    });
   });
+
   describe('average', function() {
     it('should be a function', function() {
       assert.isFunction(cbg.average);
     });
   });
 });
-},{"../example/data/device-data.json":1,"../example/watson":2,"../js/index":6,"chai":23,"lodash":53}],57:[function(require,module,exports){
+},{"../example/data/device-data.json":1,"../example/watson":2,"../js/index":8,"chai":25,"lodash":56}],60:[function(require,module,exports){
+/* 
+ * == BSD2 LICENSE ==
+ */
+
+/*jshint expr: true */
+/*global describe, it */
+
+var chai = require('chai');
+var assert = chai.assert;
+var expect = chai.expect;
+
+var _ = require('lodash');
+
+var tideline = require('../js/index');
+var dt = tideline.data.util.datetime;
+
+describe('datetime utility', function() {
+  describe('adjustToInnerEndpoints', function() {
+    var endLonger = ['2014-03-06T00:00:00.000Z', '2014-03-08T00:00:00.000Z'];
+    var startEarlier = ['2014-03-05T00:00:00.000Z', '2014-03-07T00:00:00.000Z'];
+    var wide = ['2014-01-01T00:00:00.000Z', '2014-06-01T00:00:00.000Z'];
+    var endpoints = [new Date('2014-03-06T00:00:00.000Z').valueOf(), new Date('2014-03-07T00:00:00.000Z').valueOf()];
+
+    it('should be a function', function() {
+      assert.isFunction(dt.adjustToInnerEndpoints);
+    });
+
+    it('should return 2014-03-06T00:00:00.000Z to 2014-03-07T00:00:00.000Z given an earlier start point', function() {
+      expect(dt.adjustToInnerEndpoints(startEarlier[0], startEarlier[1], endpoints)).to.eql(endpoints);
+    });
+
+    it('should return 2014-03-06T00:00:00.000Z to 2014-03-07T00:00:00.000Z given a later end point', function() {
+      expect(dt.adjustToInnerEndpoints(endLonger[0], endLonger[1], endpoints)).to.eql(endpoints);
+    });
+
+    it('should return 2014-03-06T00:00:00.000Z to 2014-03-07T00:00:00.000Z when this date range is completely contained within endpoints', function() {
+      expect(dt.adjustToInnerEndpoints(endpoints[0], endpoints[1], wide)).to.eql(endpoints);
+    });
+  });
+
+  describe('checkIfDateInRange', function() {
+    var s = '2014-03-06T12:00:00.000Z';
+    var endpoints = ['2014-03-06T00:00:00.000Z', '2014-03-07T00:00:00.000Z'];
+
+    it('should be a function', function() {
+      assert.isFunction(dt.checkIfDateInRange);
+    });
+
+    it('should return false when passed a date less than the start point', function() {
+      expect(dt.checkIfDateInRange('2014-03-05T00:00:00.000Z', endpoints)).to.be.false;
+    });
+
+    it('should return false when passed a date greater than the end point', function() {
+      expect(dt.checkIfDateInRange('2014-03-08T00:00:00.000Z', endpoints)).to.be.false;
+    });
+
+    it('should return true when passed a date equal to the start point', function() {
+      expect(dt.checkIfDateInRange('2014-03-06T00:00:00.000Z', endpoints)).to.be.true;
+    });
+
+    it('should return true when passed a date equal to the end point', function() {
+      expect(dt.checkIfDateInRange('2014-03-07T00:00:00.000Z', endpoints)).to.be.true;
+    });
+
+    it('should return true when passed a date between the end points', function() {
+      expect(dt.checkIfDateInRange(s, endpoints)).to.be.true;
+    });
+
+    it('should also perform on POSIX integer timestamps', function() {
+      var inRange = dt.checkIfDateInRange(1394107200000, [1394064000000, 1394150400000]);
+      var outOfRange = dt.checkIfDateInRange(1394020800000, [1394064000000, 1394150400000]);
+      expect(inRange && !outOfRange).to.be.true;
+    });
+  });
+
+  describe('checkIfUTCDate', function() {
+    it('should be a function', function() {
+      assert.isFunction(dt.checkIfUTCDate);
+    });
+
+    it('should return false when passed empty string instead of date', function() {
+      expect(dt.checkIfUTCDate('')).to.be.false;
+    });
+
+    it('should false when passed invalid date string', function() {
+      expect(dt.checkIfUTCDate('2014-03-06x12:00:00')).to.be.false;
+    });
+
+    it('should return false when passed timezone-naive date string', function() {
+      expect(dt.checkIfUTCDate('2014-03-06T12:00:00')).to.be.false;
+    });
+
+    it('should return false when passed a POSIX integer timestamp earlier than 2008-01-01T00:00:00', function() {
+      expect(dt.checkIfUTCDate(1199145599000)).to.be.false;
+    });
+
+    it('should return true when passed a POSIX integer timestamp 2008-01-01T00:00:00 or later', function() {
+      expect(dt.checkIfUTCDate(1199145600000)).to.be.true;
+    });
+
+    it('should return true when passed an ISO-formatted UTC date string', function() {
+      expect(dt.checkIfUTCDate('2014-03-06T12:00:00.000Z')).to.be.true;
+    });
+  });
+
+  describe('verifyEndpoints', function() {
+    it('should be a function', function() {
+      assert.isFunction(dt.verifyEndpoints);
+    });
+
+    it('should return true on a set of endpoints', function() {
+      var endpoints = ['2014-03-06T00:00:00.000Z', '2014-03-07T00:00:00.000Z'];
+      expect(dt.verifyEndpoints(endpoints[0], endpoints[1], endpoints)).to.be.true;
+    });
+  });
+});
+},{"../js/index":8,"chai":25,"lodash":56}],61:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -71229,7 +71663,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],58:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -71332,7 +71766,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],59:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -71435,7 +71869,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],60:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -71514,378 +71948,6 @@ module.exports=[
         "inferred": false,
         "value": 0.2,
         "start": "2014-02-12T18:00:00",
-        "type": "basal-rate-segment",
-        "id": "66b61050-22e7-4224-8fa5-98a869b9bcf5"
-    },
-    {
-        "delivered": 0.8,
-        "end": "2014-02-13T00:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 0.8,
-        "start": "2014-02-12T20:00:00",
-        "type": "basal-rate-segment",
-        "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
-    }
-]
-},{}],61:[function(require,module,exports){
-module.exports=[
-    {
-        "delivered": 0.8,
-        "end": "2014-02-12T02:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 0.8,
-        "start": "2014-02-12T00:00:00",
-        "type": "basal-rate-segment",
-        "id": "ae491e22-b122-4d53-98ab-c4c52ab9e7e1"
-    },
-    {
-        "delivered": 0.65,
-        "end": "2014-02-12T04:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 0.6500000000000001,
-        "start": "2014-02-12T02:00:00",
-        "type": "basal-rate-segment",
-        "id": "26a07670-4fb7-4dc7-97b4-96a0c549be4e"
-    },
-    {
-        "delivered": 0.75,
-        "end": "2014-02-12T05:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 0.7500000000000001,
-        "start": "2014-02-12T04:00:00",
-        "type": "basal-rate-segment",
-        "id": "99e1613c-93ba-4ad2-9cec-ad04f650d6c5"
-    },
-    {
-        "delivered": 0.85,
-        "end": "2014-02-12T06:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 0.8500000000000001,
-        "start": "2014-02-12T05:00:00",
-        "type": "basal-rate-segment",
-        "id": "8955a422-9110-4d2d-9bfe-73df2966584b"
-    },
-    {
-        "delivered": 1,
-        "end": "2014-02-12T09:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 1,
-        "start": "2014-02-12T06:00:00",
-        "type": "basal-rate-segment",
-        "id": "ca1694c6-79e9-481f-b5c5-a296853d0e29"
-    },
-    {
-        "delivered": 0.8,
-        "end": "2014-02-12T15:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 0.8,
-        "start": "2014-02-12T09:00:00",
-        "type": "basal-rate-segment",
-        "id": "d7e6e692-3371-409b-8d7a-e6ee6097b2d1"
-    },
-    {
-        "delivered": 0.9,
-        "end": "2014-02-12T20:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 0.9,
-        "start": "2014-02-12T15:00:00",
-        "type": "basal-rate-segment",
-        "id": "66b61050-22e7-4224-8fa5-98a869b9bcf5"
-    },
-    {
-        "delivered": 0.8,
-        "end": "2014-02-13T00:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 0.8,
-        "start": "2014-02-12T20:00:00",
-        "type": "basal-rate-segment",
-        "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
-    },
-    {
-        "delivered": 0.4,
-        "end": "2014-02-13T00:30:00",
-        "deliveryType": "temp",
-        "inferred": false,
-        "value": 0.4,
-        "start": "2014-02-12T21:00:00",
-        "type": "basal-rate-segment",
-        "id": "d7e6e692-3371-409b-8d7a-e6ee6097b2d1"
-    }
-]
-},{}],62:[function(require,module,exports){
-module.exports=[
-    {
-        "delivered": 0.8,
-        "end": "2014-02-12T02:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 0.8,
-        "start": "2014-02-12T00:00:00",
-        "type": "basal-rate-segment",
-        "id": "ae491e22-b122-4d53-98ab-c4c52ab9e7e1"
-    },
-    {
-        "delivered": 0.65,
-        "end": "2014-02-12T04:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 0.6500000000000001,
-        "start": "2014-02-12T02:00:00",
-        "type": "basal-rate-segment",
-        "id": "26a07670-4fb7-4dc7-97b4-96a0c549be4e"
-    },
-    {
-        "delivered": 0.75,
-        "end": "2014-02-12T05:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 0.7500000000000001,
-        "start": "2014-02-12T04:00:00",
-        "type": "basal-rate-segment",
-        "id": "99e1613c-93ba-4ad2-9cec-ad04f650d6c5"
-    },
-    {
-        "delivered": 0.85,
-        "end": "2014-02-12T06:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 0.8500000000000001,
-        "start": "2014-02-12T05:00:00",
-        "type": "basal-rate-segment",
-        "id": "8955a422-9110-4d2d-9bfe-73df2966584b"
-    },
-    {
-        "delivered": 1,
-        "end": "2014-02-12T09:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 1,
-        "start": "2014-02-12T06:00:00",
-        "type": "basal-rate-segment",
-        "id": "ca1694c6-79e9-481f-b5c5-a296853d0e29"
-    },
-    {
-      "delivered": 0.5,
-      "end": "2014-02-12T16:00:00",
-      "deliveryType": "temp",
-      "inferred": false,
-      "value": 0.5,
-      "start": "2014-02-12T07:00:00",
-      "type": "basal-rate-segment",
-      "id": "ca1694c6-79e9-481f-b5c5-a296853d0e29"
-    },
-    {
-        "delivered": 0.8,
-        "end": "2014-02-12T15:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 0.8,
-        "start": "2014-02-12T09:00:00",
-        "type": "basal-rate-segment",
-        "id": "d7e6e692-3371-409b-8d7a-e6ee6097b2d1"
-    },
-    {
-        "delivered": 0.9,
-        "end": "2014-02-12T20:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 0.9,
-        "start": "2014-02-12T15:00:00",
-        "type": "basal-rate-segment",
-        "id": "66b61050-22e7-4224-8fa5-98a869b9bcf5"
-    },
-    {
-        "delivered": 0.8,
-        "end": "2014-02-13T00:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 0.8,
-        "start": "2014-02-12T20:00:00",
-        "type": "basal-rate-segment",
-        "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
-    }
-]
-},{}],63:[function(require,module,exports){
-module.exports=[
-    {
-        "delivered": 0.8,
-        "end": "2014-02-12T02:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 0.8,
-        "start": "2014-02-12T00:00:00",
-        "type": "basal-rate-segment",
-        "id": "ae491e22-b122-4d53-98ab-c4c52ab9e7e1"
-    },
-    {
-        "delivered": 0.65,
-        "end": "2014-02-12T04:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 0.6500000000000001,
-        "start": "2014-02-12T02:00:00",
-        "type": "basal-rate-segment",
-        "id": "26a07670-4fb7-4dc7-97b4-96a0c549be4e"
-    },
-    {
-        "delivered": 0.3,
-        "end": "2014-02-12T03:00:00",
-        "deliveryType": "temp",
-        "inferred": false,
-        "value": 0.3,
-        "start": "2014-02-12T02:00:00",
-        "type": "basal-rate-segment",
-        "id": "26a07670-4fb7-4dc7-97b4-96a0c549be4e"
-    },
-    {
-        "delivered": 0.75,
-        "end": "2014-02-12T05:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 0.7500000000000001,
-        "start": "2014-02-12T04:00:00",
-        "type": "basal-rate-segment",
-        "id": "99e1613c-93ba-4ad2-9cec-ad04f650d6c5"
-    },
-    {
-        "delivered": 0.85,
-        "end": "2014-02-12T06:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 0.8500000000000001,
-        "start": "2014-02-12T05:00:00",
-        "type": "basal-rate-segment",
-        "id": "8955a422-9110-4d2d-9bfe-73df2966584b"
-    },
-    {
-        "delivered": 1,
-        "end": "2014-02-12T09:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 1,
-        "start": "2014-02-12T06:00:00",
-        "type": "basal-rate-segment",
-        "id": "ca1694c6-79e9-481f-b5c5-a296853d0e29"
-    },
-    {
-        "delivered": 0.8,
-        "end": "2014-02-12T15:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 0.8,
-        "start": "2014-02-12T09:00:00",
-        "type": "basal-rate-segment",
-        "id": "d7e6e692-3371-409b-8d7a-e6ee6097b2d1"
-    },
-    {
-        "delivered": 0.9,
-        "end": "2014-02-12T20:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 0.9,
-        "start": "2014-02-12T15:00:00",
-        "type": "basal-rate-segment",
-        "id": "66b61050-22e7-4224-8fa5-98a869b9bcf5"
-    },
-    {
-        "delivered": 0.8,
-        "end": "2014-02-13T00:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 0.8,
-        "start": "2014-02-12T20:00:00",
-        "type": "basal-rate-segment",
-        "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
-    }
-]
-},{}],64:[function(require,module,exports){
-module.exports=[
-    {
-        "delivered": 0.8,
-        "end": "2014-02-12T02:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 0.8,
-        "start": "2014-02-12T00:00:00",
-        "type": "basal-rate-segment",
-        "id": "ae491e22-b122-4d53-98ab-c4c52ab9e7e1"
-    },
-    {
-        "delivered": 0.65,
-        "end": "2014-02-12T04:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 0.6500000000000001,
-        "start": "2014-02-12T02:00:00",
-        "type": "basal-rate-segment",
-        "id": "26a07670-4fb7-4dc7-97b4-96a0c549be4e"
-    },
-    {
-        "delivered": 0.75,
-        "end": "2014-02-12T05:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 0.7500000000000001,
-        "start": "2014-02-12T04:00:00",
-        "type": "basal-rate-segment",
-        "id": "99e1613c-93ba-4ad2-9cec-ad04f650d6c5"
-    },
-    {
-        "delivered": 0.85,
-        "end": "2014-02-12T06:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 0.8500000000000001,
-        "start": "2014-02-12T05:00:00",
-        "type": "basal-rate-segment",
-        "id": "8955a422-9110-4d2d-9bfe-73df2966584b"
-    },
-    {
-        "delivered": 1,
-        "end": "2014-02-12T09:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 1,
-        "start": "2014-02-12T06:00:00",
-        "type": "basal-rate-segment",
-        "id": "ca1694c6-79e9-481f-b5c5-a296853d0e29"
-    },
-    {
-      "delivered": 0.5,
-      "end": "2014-02-12T11:00:00",
-      "deliveryType": "temp",
-      "inferred": false,
-      "value": 0.5,
-      "start": "2014-02-12T07:00:00",
-      "type": "basal-rate-segment",
-      "id": "ca1694c6-79e9-481f-b5c5-a296853d0e29"
-    },
-    {
-        "delivered": 0.8,
-        "end": "2014-02-12T15:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 0.8,
-        "start": "2014-02-12T09:00:00",
-        "type": "basal-rate-segment",
-        "id": "d7e6e692-3371-409b-8d7a-e6ee6097b2d1"
-    },
-    {
-        "delivered": 0.9,
-        "end": "2014-02-12T20:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 0.9,
-        "start": "2014-02-12T15:00:00",
         "type": "basal-rate-segment",
         "id": "66b61050-22e7-4224-8fa5-98a869b9bcf5"
     },
@@ -71981,9 +72043,381 @@ module.exports=[
         "start": "2014-02-12T20:00:00",
         "type": "basal-rate-segment",
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
+    },
+    {
+        "delivered": 0.4,
+        "end": "2014-02-13T00:30:00",
+        "deliveryType": "temp",
+        "inferred": false,
+        "value": 0.4,
+        "start": "2014-02-12T21:00:00",
+        "type": "basal-rate-segment",
+        "id": "d7e6e692-3371-409b-8d7a-e6ee6097b2d1"
     }
 ]
 },{}],66:[function(require,module,exports){
+module.exports=[
+    {
+        "delivered": 0.8,
+        "end": "2014-02-12T02:00:00",
+        "deliveryType": "scheduled",
+        "inferred": false,
+        "value": 0.8,
+        "start": "2014-02-12T00:00:00",
+        "type": "basal-rate-segment",
+        "id": "ae491e22-b122-4d53-98ab-c4c52ab9e7e1"
+    },
+    {
+        "delivered": 0.65,
+        "end": "2014-02-12T04:00:00",
+        "deliveryType": "scheduled",
+        "inferred": false,
+        "value": 0.6500000000000001,
+        "start": "2014-02-12T02:00:00",
+        "type": "basal-rate-segment",
+        "id": "26a07670-4fb7-4dc7-97b4-96a0c549be4e"
+    },
+    {
+        "delivered": 0.75,
+        "end": "2014-02-12T05:00:00",
+        "deliveryType": "scheduled",
+        "inferred": false,
+        "value": 0.7500000000000001,
+        "start": "2014-02-12T04:00:00",
+        "type": "basal-rate-segment",
+        "id": "99e1613c-93ba-4ad2-9cec-ad04f650d6c5"
+    },
+    {
+        "delivered": 0.85,
+        "end": "2014-02-12T06:00:00",
+        "deliveryType": "scheduled",
+        "inferred": false,
+        "value": 0.8500000000000001,
+        "start": "2014-02-12T05:00:00",
+        "type": "basal-rate-segment",
+        "id": "8955a422-9110-4d2d-9bfe-73df2966584b"
+    },
+    {
+        "delivered": 1,
+        "end": "2014-02-12T09:00:00",
+        "deliveryType": "scheduled",
+        "inferred": false,
+        "value": 1,
+        "start": "2014-02-12T06:00:00",
+        "type": "basal-rate-segment",
+        "id": "ca1694c6-79e9-481f-b5c5-a296853d0e29"
+    },
+    {
+      "delivered": 0.5,
+      "end": "2014-02-12T16:00:00",
+      "deliveryType": "temp",
+      "inferred": false,
+      "value": 0.5,
+      "start": "2014-02-12T07:00:00",
+      "type": "basal-rate-segment",
+      "id": "ca1694c6-79e9-481f-b5c5-a296853d0e29"
+    },
+    {
+        "delivered": 0.8,
+        "end": "2014-02-12T15:00:00",
+        "deliveryType": "scheduled",
+        "inferred": false,
+        "value": 0.8,
+        "start": "2014-02-12T09:00:00",
+        "type": "basal-rate-segment",
+        "id": "d7e6e692-3371-409b-8d7a-e6ee6097b2d1"
+    },
+    {
+        "delivered": 0.9,
+        "end": "2014-02-12T20:00:00",
+        "deliveryType": "scheduled",
+        "inferred": false,
+        "value": 0.9,
+        "start": "2014-02-12T15:00:00",
+        "type": "basal-rate-segment",
+        "id": "66b61050-22e7-4224-8fa5-98a869b9bcf5"
+    },
+    {
+        "delivered": 0.8,
+        "end": "2014-02-13T00:00:00",
+        "deliveryType": "scheduled",
+        "inferred": false,
+        "value": 0.8,
+        "start": "2014-02-12T20:00:00",
+        "type": "basal-rate-segment",
+        "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
+    }
+]
+},{}],67:[function(require,module,exports){
+module.exports=[
+    {
+        "delivered": 0.8,
+        "end": "2014-02-12T02:00:00",
+        "deliveryType": "scheduled",
+        "inferred": false,
+        "value": 0.8,
+        "start": "2014-02-12T00:00:00",
+        "type": "basal-rate-segment",
+        "id": "ae491e22-b122-4d53-98ab-c4c52ab9e7e1"
+    },
+    {
+        "delivered": 0.65,
+        "end": "2014-02-12T04:00:00",
+        "deliveryType": "scheduled",
+        "inferred": false,
+        "value": 0.6500000000000001,
+        "start": "2014-02-12T02:00:00",
+        "type": "basal-rate-segment",
+        "id": "26a07670-4fb7-4dc7-97b4-96a0c549be4e"
+    },
+    {
+        "delivered": 0.3,
+        "end": "2014-02-12T03:00:00",
+        "deliveryType": "temp",
+        "inferred": false,
+        "value": 0.3,
+        "start": "2014-02-12T02:00:00",
+        "type": "basal-rate-segment",
+        "id": "26a07670-4fb7-4dc7-97b4-96a0c549be4e"
+    },
+    {
+        "delivered": 0.75,
+        "end": "2014-02-12T05:00:00",
+        "deliveryType": "scheduled",
+        "inferred": false,
+        "value": 0.7500000000000001,
+        "start": "2014-02-12T04:00:00",
+        "type": "basal-rate-segment",
+        "id": "99e1613c-93ba-4ad2-9cec-ad04f650d6c5"
+    },
+    {
+        "delivered": 0.85,
+        "end": "2014-02-12T06:00:00",
+        "deliveryType": "scheduled",
+        "inferred": false,
+        "value": 0.8500000000000001,
+        "start": "2014-02-12T05:00:00",
+        "type": "basal-rate-segment",
+        "id": "8955a422-9110-4d2d-9bfe-73df2966584b"
+    },
+    {
+        "delivered": 1,
+        "end": "2014-02-12T09:00:00",
+        "deliveryType": "scheduled",
+        "inferred": false,
+        "value": 1,
+        "start": "2014-02-12T06:00:00",
+        "type": "basal-rate-segment",
+        "id": "ca1694c6-79e9-481f-b5c5-a296853d0e29"
+    },
+    {
+        "delivered": 0.8,
+        "end": "2014-02-12T15:00:00",
+        "deliveryType": "scheduled",
+        "inferred": false,
+        "value": 0.8,
+        "start": "2014-02-12T09:00:00",
+        "type": "basal-rate-segment",
+        "id": "d7e6e692-3371-409b-8d7a-e6ee6097b2d1"
+    },
+    {
+        "delivered": 0.9,
+        "end": "2014-02-12T20:00:00",
+        "deliveryType": "scheduled",
+        "inferred": false,
+        "value": 0.9,
+        "start": "2014-02-12T15:00:00",
+        "type": "basal-rate-segment",
+        "id": "66b61050-22e7-4224-8fa5-98a869b9bcf5"
+    },
+    {
+        "delivered": 0.8,
+        "end": "2014-02-13T00:00:00",
+        "deliveryType": "scheduled",
+        "inferred": false,
+        "value": 0.8,
+        "start": "2014-02-12T20:00:00",
+        "type": "basal-rate-segment",
+        "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
+    }
+]
+},{}],68:[function(require,module,exports){
+module.exports=[
+    {
+        "delivered": 0.8,
+        "end": "2014-02-12T02:00:00",
+        "deliveryType": "scheduled",
+        "inferred": false,
+        "value": 0.8,
+        "start": "2014-02-12T00:00:00",
+        "type": "basal-rate-segment",
+        "id": "ae491e22-b122-4d53-98ab-c4c52ab9e7e1"
+    },
+    {
+        "delivered": 0.65,
+        "end": "2014-02-12T04:00:00",
+        "deliveryType": "scheduled",
+        "inferred": false,
+        "value": 0.6500000000000001,
+        "start": "2014-02-12T02:00:00",
+        "type": "basal-rate-segment",
+        "id": "26a07670-4fb7-4dc7-97b4-96a0c549be4e"
+    },
+    {
+        "delivered": 0.75,
+        "end": "2014-02-12T05:00:00",
+        "deliveryType": "scheduled",
+        "inferred": false,
+        "value": 0.7500000000000001,
+        "start": "2014-02-12T04:00:00",
+        "type": "basal-rate-segment",
+        "id": "99e1613c-93ba-4ad2-9cec-ad04f650d6c5"
+    },
+    {
+        "delivered": 0.85,
+        "end": "2014-02-12T06:00:00",
+        "deliveryType": "scheduled",
+        "inferred": false,
+        "value": 0.8500000000000001,
+        "start": "2014-02-12T05:00:00",
+        "type": "basal-rate-segment",
+        "id": "8955a422-9110-4d2d-9bfe-73df2966584b"
+    },
+    {
+        "delivered": 1,
+        "end": "2014-02-12T09:00:00",
+        "deliveryType": "scheduled",
+        "inferred": false,
+        "value": 1,
+        "start": "2014-02-12T06:00:00",
+        "type": "basal-rate-segment",
+        "id": "ca1694c6-79e9-481f-b5c5-a296853d0e29"
+    },
+    {
+      "delivered": 0.5,
+      "end": "2014-02-12T11:00:00",
+      "deliveryType": "temp",
+      "inferred": false,
+      "value": 0.5,
+      "start": "2014-02-12T07:00:00",
+      "type": "basal-rate-segment",
+      "id": "ca1694c6-79e9-481f-b5c5-a296853d0e29"
+    },
+    {
+        "delivered": 0.8,
+        "end": "2014-02-12T15:00:00",
+        "deliveryType": "scheduled",
+        "inferred": false,
+        "value": 0.8,
+        "start": "2014-02-12T09:00:00",
+        "type": "basal-rate-segment",
+        "id": "d7e6e692-3371-409b-8d7a-e6ee6097b2d1"
+    },
+    {
+        "delivered": 0.9,
+        "end": "2014-02-12T20:00:00",
+        "deliveryType": "scheduled",
+        "inferred": false,
+        "value": 0.9,
+        "start": "2014-02-12T15:00:00",
+        "type": "basal-rate-segment",
+        "id": "66b61050-22e7-4224-8fa5-98a869b9bcf5"
+    },
+    {
+        "delivered": 0.8,
+        "end": "2014-02-13T00:00:00",
+        "deliveryType": "scheduled",
+        "inferred": false,
+        "value": 0.8,
+        "start": "2014-02-12T20:00:00",
+        "type": "basal-rate-segment",
+        "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
+    }
+]
+},{}],69:[function(require,module,exports){
+module.exports=[
+    {
+        "delivered": 0.8,
+        "end": "2014-02-12T02:00:00",
+        "deliveryType": "scheduled",
+        "inferred": false,
+        "value": 0.8,
+        "start": "2014-02-12T00:00:00",
+        "type": "basal-rate-segment",
+        "id": "ae491e22-b122-4d53-98ab-c4c52ab9e7e1"
+    },
+    {
+        "delivered": 0.65,
+        "end": "2014-02-12T04:00:00",
+        "deliveryType": "scheduled",
+        "inferred": false,
+        "value": 0.6500000000000001,
+        "start": "2014-02-12T02:00:00",
+        "type": "basal-rate-segment",
+        "id": "26a07670-4fb7-4dc7-97b4-96a0c549be4e"
+    },
+    {
+        "delivered": 0.75,
+        "end": "2014-02-12T05:00:00",
+        "deliveryType": "scheduled",
+        "inferred": false,
+        "value": 0.7500000000000001,
+        "start": "2014-02-12T04:00:00",
+        "type": "basal-rate-segment",
+        "id": "99e1613c-93ba-4ad2-9cec-ad04f650d6c5"
+    },
+    {
+        "delivered": 0.85,
+        "end": "2014-02-12T06:00:00",
+        "deliveryType": "scheduled",
+        "inferred": false,
+        "value": 0.8500000000000001,
+        "start": "2014-02-12T05:00:00",
+        "type": "basal-rate-segment",
+        "id": "8955a422-9110-4d2d-9bfe-73df2966584b"
+    },
+    {
+        "delivered": 1,
+        "end": "2014-02-12T09:00:00",
+        "deliveryType": "scheduled",
+        "inferred": false,
+        "value": 1,
+        "start": "2014-02-12T06:00:00",
+        "type": "basal-rate-segment",
+        "id": "ca1694c6-79e9-481f-b5c5-a296853d0e29"
+    },
+    {
+        "delivered": 0.8,
+        "end": "2014-02-12T15:00:00",
+        "deliveryType": "scheduled",
+        "inferred": false,
+        "value": 0.8,
+        "start": "2014-02-12T09:00:00",
+        "type": "basal-rate-segment",
+        "id": "d7e6e692-3371-409b-8d7a-e6ee6097b2d1"
+    },
+    {
+        "delivered": 0.9,
+        "end": "2014-02-12T20:00:00",
+        "deliveryType": "scheduled",
+        "inferred": false,
+        "value": 0.9,
+        "start": "2014-02-12T15:00:00",
+        "type": "basal-rate-segment",
+        "id": "66b61050-22e7-4224-8fa5-98a869b9bcf5"
+    },
+    {
+        "delivered": 0.8,
+        "end": "2014-02-13T00:00:00",
+        "deliveryType": "scheduled",
+        "inferred": false,
+        "value": 0.8,
+        "start": "2014-02-12T20:00:00",
+        "type": "basal-rate-segment",
+        "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
+    }
+]
+},{}],70:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -72014,7 +72448,7 @@ fixtures.push({'name': 'overlapping', 'json': require('./basal-overlapping')});
 fixtures.push({'name': 'temp-final', 'json': require('./basal-temp-final')});
 fixtures.push({'name': 'current-demo', 'json': require('../../example/data/device-data')});
 module.exports = fixtures;
-},{"../../example/data/device-data":1,"./basal-contained":57,"./basal-overlapping":58,"./basal-temp-both-ends":59,"./basal-temp-end":60,"./basal-temp-final":61,"./basal-temp-many-scheduled":62,"./basal-temp-start":63,"./basal-temp-two-scheduled":64,"./basal-template":65}],67:[function(require,module,exports){
+},{"../../example/data/device-data":1,"./basal-contained":61,"./basal-overlapping":62,"./basal-temp-both-ends":63,"./basal-temp-end":64,"./basal-temp-final":65,"./basal-temp-many-scheduled":66,"./basal-temp-start":67,"./basal-temp-two-scheduled":68,"./basal-template":69}],71:[function(require,module,exports){
 var base64 = require('base64-js')
 var ieee754 = require('ieee754')
 
@@ -73009,7 +73443,7 @@ function assert (test, message) {
   if (!test) throw new Error(message || 'Failed assertion')
 }
 
-},{"base64-js":68,"ieee754":69}],68:[function(require,module,exports){
+},{"base64-js":72,"ieee754":73}],72:[function(require,module,exports){
 var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 ;(function (exports) {
@@ -73136,7 +73570,7 @@ var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 }());
 
 
-},{}],69:[function(require,module,exports){
+},{}],73:[function(require,module,exports){
 exports.read = function(buffer, offset, isLE, mLen, nBytes) {
   var e, m,
       eLen = nBytes * 8 - mLen - 1,
@@ -73222,4 +73656,4 @@ exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128;
 };
 
-},{}]},{},[54,55,56])
+},{}]},{},[57,58,59,60])

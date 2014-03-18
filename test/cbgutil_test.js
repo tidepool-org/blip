@@ -28,13 +28,39 @@ var watson = require('../example/watson');
 var data = watson.normalize(require('../example/data/device-data.json'));
 
 var tideline = require('../js/index');
-var BolusUtil = tideline.data.BolusUtil;
+var CBGUtil = tideline.data.CBGUtil;
 
-describe('bolus utilities', function() {
-  describe('totalBolus', function() {
-    var bolus = new BolusUtil(_.where(data, {'type': 'bolus'}));
+describe('cbg utilities', function() {
+  var cbg = new CBGUtil(_.where(data, {'type': 'cbg'}));
+  var cbgData = _.where(data, {'type': 'cbg'});
+
+  describe('filter', function() {
     it('should be a function', function() {
-      assert.isFunction(bolus.totalBolus);
+      assert.isFunction(cbg.filter);
+    });
+
+    it('should return an array', function() {
+      assert.typeOf(cbg.filter('', ''), 'array');
+    });
+
+    it('should return a non-empty array when passed a valid date range', function() {
+      expect(cbg.filter(cbgData[0].normalTime, cbgData[1].normalTime).length).to.be.above(0);
+    });
+  });
+
+  describe('rangeBreakdown', function() {
+    it('should be a function', function() {
+      assert.isFunction(cbg.rangeBreakdown);
+    });
+
+    it('should return an object', function() {
+      assert.typeOf(cbg.rangeBreakdown('', ''), 'object');
+    });
+  });
+
+  describe('average', function() {
+    it('should be a function', function() {
+      assert.isFunction(cbg.average);
     });
   });
 });

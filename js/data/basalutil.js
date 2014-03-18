@@ -16,6 +16,8 @@
  */
 
 var _ = require('../lib/')._;
+var format = require('./util/format');
+var datetime = require('./util/datetime');
 var log = require('../lib/').bows('BasalUtil');
 
 var keysToOmit = ['id', 'start', 'end', 'vizType'];
@@ -109,38 +111,40 @@ function BasalUtil(data) {
     }
   }
 
-  function fixFloatingPoint (n) {
-    return parseFloat(n.toFixed(3));
-  }
-
   this.segmentDose = function(duration, rate) {
     var hours = duration / MS_IN_HOUR;
-    return fixFloatingPoint(hours * rate);
+    return format.fixFloatingPoint(hours * rate);
   };
 
   this.totalBasal = function(s, e) {
-    // return the total basal dose between two arbitrary datetimes
-    var dose = 0.0;
-    var firstSegment = _.find(this.normalizedActual, function(segment) {
-      return (new Date(segment.normalTime).valueOf() <= s) && (s <= new Date(segment.normalEnd).valueOf());
-    });
-    if (firstSegment) {
-      var index = this.normalizedActual.indexOf(firstSegment) + 1;
-      var lastSegment = _.find(this.normalizedActual, function(segment) {
-        return (new Date(segment.normalTime).valueOf() <= e) && (e <= new Date(segment.normalEnd).valueOf());
+    if (datetime.verifyEndpoints(s, e, this.endpoints)) {
+      // return the total basal dose between two arbitrary datetimes
+      var dose = 0.0;
+      var start = new Date(s).valueOf(), end = new Date(e).valueOf();
+      var firstSegment = _.find(this.normalizedActual, function(segment) {
+        return (new Date(segment.normalTime).valueOf() <= start) && (start <= new Date(segment.normalEnd).valueOf());
       });
-      var lastIndex = this.normalizedActual.indexOf(lastSegment);
-      dose += this.segmentDose(new Date(firstSegment.normalEnd) - s, firstSegment.value);
-      while (index < lastIndex) {
-        var segment = this.normalizedActual[index];
-        dose += this.segmentDose((new Date(segment.normalEnd) - new Date(segment.normalTime)), segment.value);
-        index++;
+      if (firstSegment) {
+        var index = this.normalizedActual.indexOf(firstSegment) + 1;
+        var lastSegment = _.find(this.normalizedActual, function(segment) {
+          return (new Date(segment.normalTime).valueOf() <= end) && (end <= new Date(segment.normalEnd).valueOf());
+        });
+        var lastIndex = this.normalizedActual.indexOf(lastSegment);
+        dose += this.segmentDose(new Date(firstSegment.normalEnd) - start, firstSegment.value);
+        while (index < lastIndex) {
+          var segment = this.normalizedActual[index];
+          dose += this.segmentDose((new Date(segment.normalEnd) - new Date(segment.normalTime)), segment.value);
+          index++;
+        }
+        if (lastSegment) {
+          dose += this.segmentDose(e - new Date(lastSegment.normalTime), lastSegment.value);
+        }
       }
-      if (lastSegment) {
-        dose += this.segmentDose(e - new Date(lastSegment.normalTime), lastSegment.value);
-      }
+      return format.fixFloatingPoint(dose);
     }
-    return fixFloatingPoint(dose);
+    else {
+      return NaN;
+    }
   };
 
   data.forEach(processElement);

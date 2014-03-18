@@ -105,6 +105,8 @@ function chartDailyFactory(el, options, emitter) {
     // data munging utilities for stats
     var basalUtil = new tideline.data.BasalUtil(_.where(data, {'type': 'basal-rate-segment'}));
     basalUtil.normalizedActual = watson.normalize(basalUtil.actual);
+    var basalUtilLen = basalUtil.normalizedActual.length;
+    basalUtil.endpoints = [basalUtil.normalizedActual[0].normalTime, basalUtil.normalizedActual[basalUtilLen - 1].normalEnd];
     var bolusUtil = new tideline.data.BolusUtil(_.where(data, {'type': 'bolus'}));
     var cbgUtil = new tideline.data.CBGUtil(_.where(data, {'type': 'cbg'}));
 
