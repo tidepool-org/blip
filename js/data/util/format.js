@@ -6,7 +6,7 @@ var format = {
 
   percentage: function(f) {
     if (isNaN(f)) {
-      return '--%';
+      return '-- %';
     }
     else {
       return parseInt(f.toFixed(2) * 100, 10) + '%';

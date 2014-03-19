@@ -116,15 +116,40 @@ module.exports = function(pool, opts) {
         var thisPie = _.find(pies, function(p) {
           return p.id === puddle.id;
         });
-        if (!thisPie) {
+        var createAPie = function(puddleGroup, data) {
           var slices = stats.createPie(puddleGroup, data[puddle.id.toLowerCase()]);
           pies.push({
             'id': puddle.id,
             'slices': slices
           });
+        };
+        // when NaN(s) present, create a no data view
+        if (stats.hasNaN(data[puddle.id.toLowerCase()])) {
+          pies = _.reject(pies, function(pie) {
+            return _.isEqual(pie, thisPie);
+          });
+          log('NaN(s) present. Creating a no data view for ' + puddle.id + ' puddle.');
+          createAPie(puddleGroup, data);
+        }
+        // or if good data, but no pie yet, create a pie
+        else if (!thisPie) {
+          log('Creating a pie for ' + puddle.id + ' puddle.');
+          createAPie(puddleGroup, data);
         }
         else {
-          stats.updatePie(thisPie, data[puddle.id.toLowerCase()]);
+          // or if no data view is the existing "pie", recreate a real pie
+          if (thisPie.slices === null) {
+            pies = _.reject(pies, function(pie) {
+              return _.isEqual(pie, thisPie);
+            });
+            log('Recreating a pie for ' + puddle.id + ' puddle.');
+            createAPie(puddleGroup, data);
+          }
+          // or just update the current pie
+          else {
+            log('Updating pie for ' + puddle.id + ' puddle.');
+            stats.updatePie(thisPie, data[puddle.id.toLowerCase()]);
+          }
         }
       }
       else {
@@ -132,7 +157,7 @@ module.exports = function(pool, opts) {
           stats.createRect(puddle, puddleGroup, data[puddle.id.toLowerCase()]);
         }
         else {
-          stats.updateAverage(data[puddle.id.toLowerCase()], puddle);
+          stats.updateAverage(puddle, puddleGroup, data[puddle.id.toLowerCase()]);
         }
       }
       var display = stats.getDisplay(puddle.id);
@@ -184,8 +209,8 @@ module.exports = function(pool, opts) {
         'class': 'd3-stats-rect-line'
       });
     var imageY = rectScale(data.value) - (opts.size / 2) + (puddle.height() / 10);
-    // don't append an image if imageY is NaN
-    if (imageY) {
+    // don't append an image if imageY is NaN or Infinity
+    if (isFinite(imageY)) {
       rectGroup.append('image')
         .attr({
           'xlink:href': function() {
@@ -244,11 +269,27 @@ module.exports = function(pool, opts) {
     }
 
     stats.rectGroup = rectGroup;
+
+    if (isNaN(data.value)) {
+      puddleGroup.classed('d3-insufficient-data', true);
+      stats.rectGroup.selectAll('.d3-stats-image').classed('hidden', true);
+    }
+    else {
+      puddleGroup.classed('d3-insufficient-data', false);
+      stats.rectGroup.selectAll('.d3-stats-image').classed('hidden', false);
+    }
   };
 
-  stats.updateAverage = function(data, puddle) {
+  stats.updateAverage = function(puddle, puddleGroup, data) {
+    if (isNaN(data.value)) {
+      puddleGroup.classed('d3-insufficient-data', true);
+      stats.rectGroup.selectAll('.d3-stats-image').classed('hidden', true);
+    }
+    else {
+      puddleGroup.classed('d3-insufficient-data', false);
+    }
     var imageY = rectScale(data.value) - (opts.size / 2) + (puddle.height() / 10);
-    if (imageY) {
+    if (isFinite(imageY)) {
       stats.rectGroup.selectAll('.d3-stats-image')
         .attr({
           'xlink:href': function() {
@@ -277,33 +318,47 @@ module.exports = function(pool, opts) {
   stats.createPie = function(puddleGroup, data) {
     var xOffset = (pool.width()/3) * (1/6);
     var yOffset = pool.height() / 2;
+    puddleGroup.selectAll('.d3-stats-pie').remove();
     var pieGroup = puddleGroup.append('g')
       .attr({
         'transform': 'translate(' + xOffset + ',' + yOffset + ')',
         'class': 'd3-stats-pie'
       });
+    if (stats.hasNaN(data)) {
+      puddleGroup.classed('d3-insufficient-data', true);
+      pieGroup.append('circle')
+        .attr({
+          'cx': 0,
+          'cy': 0,
+          'r': opts.pieRadius
+        });
 
-    pie = d3.layout.pie().value(function(d) {
-        return d.value;
-      })
-      .sort(null);
+      return null;
+    }
+    else {
+      puddleGroup.classed('d3-insufficient-data', false);
+      pie = d3.layout.pie().value(function(d) {
+          return d.value;
+        })
+        .sort(null);
 
-    arc = d3.svg.arc()
-      .innerRadius(0)
-      .outerRadius(opts.pieRadius);
+      arc = d3.svg.arc()
+        .innerRadius(0)
+        .outerRadius(opts.pieRadius);
 
-    var slices = pieGroup.selectAll('g.d3-stats-slice')
-      .data(pie(data))
-      .enter()
-      .append('path')
-      .attr({
-        'd': arc,
-        'class': function(d) {
-          return 'd3-stats-slice d3-' + d.data.type;
-        }
-      });
+      var slices = pieGroup.selectAll('g.d3-stats-slice')
+        .data(pie(data))
+        .enter()
+        .append('path')
+        .attr({
+          'd': arc,
+          'class': function(d) {
+            return 'd3-stats-slice d3-' + d.data.type;
+          }
+        });
 
-    return slices;
+      return slices;
+    }
   };
 
   stats.updatePie = function(thisPie, data) {
@@ -311,6 +366,16 @@ module.exports = function(pool, opts) {
       .attr({
         'd': arc
       });
+  };
+
+  stats.hasNaN = function(a) {
+    var found = false;
+    a.forEach(function(obj) {
+      if (isNaN(obj.value)) {
+        found = true;
+      }
+    });
+    return found;
   };
 
   stats.newPuddle = function(id, head, lead, weight, pieBoolean) {
@@ -366,7 +431,12 @@ module.exports = function(pool, opts) {
   };
 
   stats.averageDisplay = function() {
-    return [{'text': data.average.value + ' mg/dL', 'class': 'd3-stats-' + data.average.category}];
+    if (isNaN(data.average.value)) {
+      return [{'text': '--- mg/dL', 'class': 'd3-stats-' + data.average.category}];
+    }
+    else {
+      return [{'text': data.average.value + ' mg/dL', 'class': 'd3-stats-' + data.average.category}];
+    }
   };
 
   stats.getData = function(start, end) {
@@ -384,15 +454,15 @@ module.exports = function(pool, opts) {
     data.range = [
       {
         'type': 'bg-low',
-        'value': range.low || 0,
+        'value': range.low,
       },
       {
         'type': 'bg-target',
-        'value': range.target || 0,
+        'value': range.target,
       },
       {
         'type': 'bg-high',
-        'value': range.high || 0
+        'value': range.high
       }
     ];
     data.cbgReadings = range.total;
