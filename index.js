@@ -329,6 +329,34 @@ module.exports = function(host, superagent) {
       }
       findOrAddUserGroup(userId,'patients',token, cb);
     },
+    getPatientsInfo : function(patientIds, token, cb){
+      if (patientIds == null) {
+        return cb({ message: 'Must specify a patientIds' });
+      }
+
+      var idList = _(patientIds).uniq().join(',');
+
+      superagent
+        .get(makeUrl('/metadata/publicinfo?users='+idList))
+        .set(sessionTokenHeader, token)
+        .end(
+        function(error, res) {
+
+          if (error != null) {
+            return cb(error,null);
+          }
+          if (res.status === 200) {
+            cb(null, res.body);
+          } else if (res.status === 404) {
+            //just so happens there are no messages
+            cb(null, null);
+          } else if (res.status === 401) {
+            cb({ message: 'Unauthorized' });
+          } else {
+            cb({ message: 'Unknown status code ' + res.status });
+          }
+        });
+    },
     getInvitesToTeam : function(userId, token,cb){
       if (userId == null) {
         return cb({ message: 'Must specify a userId' });

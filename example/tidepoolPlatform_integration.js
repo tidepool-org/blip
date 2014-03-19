@@ -15,6 +15,7 @@
 
 'use strict';
 var expect = require('salinity').expect;
+
 var superagent = require('superagent');
 
 describe('platform client', function() {
@@ -162,6 +163,9 @@ describe('platform client', function() {
   describe('messaging for mrT1',function(){
 
     var mrT1TeamId;
+    var noteToAddId;
+    var noteToAdd;
+    var commentOnNote;
 
     before(function(done){
 
@@ -175,11 +179,11 @@ describe('platform client', function() {
       });
     });
 
-    it('allows mrT1 to add a note and then comments on it, then get the whole thread', function(done) {
+    it('allows mrT1 to add a note', function(done) {
 
       this.timeout(5000);
 
-      var message = {
+      noteToAdd = {
         userid : mrT1.id,
         groupid : mrT1TeamId,
         timestamp : new Date().toISOString(),
@@ -187,44 +191,52 @@ describe('platform client', function() {
       };
 
       //add note
-      platform.startMessageThread(mrT1TeamId, message, mrT1.token, function(error,data){
+      platform.startMessageThread(mrT1TeamId, noteToAdd, mrT1.token, function(error,data){
 
         expect(error).to.not.exist;
         expect(data).to.exist;
+        noteToAddId = data;
+        done();
+      });
+    });
 
-        var messageId = data;
+    it('and add a comment on the note', function(done) {
 
-        var comment = {
-          userid : mrT1.id,
-          groupid : mrT1TeamId,
-          timestamp : new Date().toISOString(),
-          messagetext : 'Good point bro!'
-        };
-        //comment on the note
-        platform.replyToMessageThread(messageId,comment, mrT1.token, function(error,data){
+      this.timeout(5000);
+      //comment on the note
+      commentOnNote = {
+        userid : mrT1.id,
+        groupid : mrT1TeamId,
+        timestamp : new Date().toISOString(),
+        messagetext : 'Good point bro!'
+      };
 
-          expect(error).to.not.exist;
-          expect(data).to.exist;
+      platform.replyToMessageThread(noteToAddId,commentOnNote, mrT1.token, function(error,data){
 
-          //get the whole thread
-          platform.getMessageThread(messageId, mrT1.token, function(error,data){
-            expect(error).to.not.exist;
-            expect(data).to.exist;
-            expect(data.length).to.equal(2);
-            var firstMessage = data[0];
-            var secondMessage = data[1];
+        expect(error).to.not.exist;
+        expect(data).to.exist;
+        done();
+      });
+    });
 
-            expect(firstMessage.groupid).to.equal(mrT1TeamId);
-            expect(secondMessage.groupid).to.equal(mrT1TeamId);
-            expect(firstMessage.parentmessage).to.not.exist;
-            expect(firstMessage.messagetext).to.equal(message.messagetext);
-            expect(secondMessage.parentmessage).to.equal(firstMessage.id);
-            expect(secondMessage.messagetext).to.equal(comment.messagetext);
-            done();
-          });
+    it('and then get the whole thread', function(done) {
 
-        });
+      this.timeout(5000);
 
+      platform.getMessageThread(noteToAddId, mrT1.token, function(error,data){
+        expect(error).to.not.exist;
+        expect(data).to.exist;
+        expect(data.length).to.equal(2);
+        var firstMessage = data[0];
+        var secondMessage = data[1];
+
+        expect(firstMessage.groupid).to.equal(mrT1TeamId);
+        expect(secondMessage.groupid).to.equal(mrT1TeamId);
+        expect(firstMessage.parentmessage).to.not.exist;
+        expect(firstMessage.messagetext).to.equal(noteToAdd.messagetext);
+        expect(secondMessage.parentmessage).to.equal(firstMessage.id);
+        expect(secondMessage.messagetext).to.equal(commentOnNote.messagetext);
+        done();
       });
     });
 
@@ -416,4 +428,53 @@ describe('platform client', function() {
 
   });
 
+  describe('careTeamMember',function(){
+
+    var careTeamMembersPatients;
+    var mrT1sTeam;
+    var notesForThePatientMrT1;
+
+    it('can get the patients and mrT1 is included', function(done) {
+      platform.getUsersPatients(careTeamMember.id, careTeamMember.token, function(error,patients){
+        expect(patients.members).to.exist;
+        expect(patients.members).to.include(mrT1.id);
+        careTeamMembersPatients = patients;
+        done();
+      });
+    });
+
+    it('mrT1 gets his team and careTeamMember is included', function(done) {
+      platform.getUsersTeam(mrT1.id, mrT1.token, function(error,team){
+        expect(team.members).to.exist;
+        expect(team.members).to.include(careTeamMember.id);
+        mrT1sTeam = team;
+        done();
+      });
+    });
+
+    it('can get the team for mrT1 and is included in the members', function(done) {
+      platform.getUsersTeam(mrT1.id,careTeamMember.token,function(error,patientsTeam){
+        expect(patientsTeam.members).to.include(careTeamMember.id);
+        done();
+      });
+    });
+
+    it('can get the notes for the team of mrT1', function(done) {
+      platform.getNotesForTeam(mrT1sTeam.id,careTeamMember.token,function(error,patientsNotes){
+        expect(patientsNotes).to.exist;
+        expect(patientsNotes).to.have.length.above(1);
+        notesForThePatientMrT1 = patientsNotes;
+        done();
+      });
+    });
+
+    it('can see the notes for patient mrT1 are the same as he sees', function(done) {
+      platform.getNotesForTeam(mrT1sTeam.id,mrT1.token,function(error,mrT1TeamNotes){
+        expect(mrT1TeamNotes).to.exist;
+        expect(mrT1TeamNotes).to.have.length.above(1);
+        expect(mrT1TeamNotes).that.deep.equals(notesForThePatientMrT1);
+        done();
+      });
+    });
+  });
 });
