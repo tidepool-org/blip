@@ -20,6 +20,7 @@ var _ = require('../../lib/')._;
 
 var log = require('../../lib/').bows('Stats');
 var scales = require('../util/scales');
+var format = require('../../data/util/format');
 
 module.exports = function(pool, opts) {
 
@@ -349,11 +350,11 @@ module.exports = function(pool, opts) {
     var basal = _.findWhere(data.ratio, {'type': 'basal'}).value;
     var total = bolus + basal;
     return [{
-        'text': stats.formatPercentage(basal/total) + ' : ',
+        'text': format.percentage(basal/total) + ' : ',
         'class': 'd3-stats-basal'
       },
       {
-        'text': stats.formatPercentage(bolus/total),
+        'text': format.percentage(bolus/total),
         'class': 'd3-stats-bolus'
       }];
   };
@@ -361,7 +362,7 @@ module.exports = function(pool, opts) {
   stats.rangeDisplay = function() {
     var target = _.findWhere(data.range, {'type': 'bg-target'}).value;
     var total = parseFloat(data.cbgReadings);
-    return [{'text': stats.formatPercentage(target/total), 'class': 'd3-stats-percentage'}];
+    return [{'text': format.percentage(target/total), 'class': 'd3-stats-percentage'}];
   };
 
   stats.averageDisplay = function() {
@@ -396,10 +397,6 @@ module.exports = function(pool, opts) {
     ];
     data.cbgReadings = range.total;
     data.average = opts.cbg.average(start, end);
-  };
-
-  stats.formatPercentage = function(f) {
-    return parseInt(f.toFixed(2) * 100, 10) + '%';
   };
 
   return stats;
