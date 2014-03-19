@@ -52,6 +52,14 @@ function BasalUtil(data) {
         if (lastSegment) {
           dose += this.segmentDose(e - new Date(lastSegment.normalTime), lastSegment.value);
         }
+        else {
+          // when there isn't a complete twenty-four hours of basal data
+          return NaN;
+        }
+      }
+      else {
+        // when there isn't a complete twenty-four hours of basal data
+        return NaN;
       }
       return format.fixFloatingPoint(dose);
     }

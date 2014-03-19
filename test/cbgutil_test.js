@@ -23,6 +23,7 @@ var assert = chai.assert;
 var expect = chai.expect;
 
 var _ = require('lodash');
+var Duration = require('duration-js');
 
 var watson = require('../example/watson');
 var data = watson.normalize(require('../example/data/device-data.json'));
@@ -33,6 +34,33 @@ var CBGUtil = tideline.data.CBGUtil;
 describe('cbg utilities', function() {
   var cbg = new CBGUtil(_.where(data, {'type': 'cbg'}));
   var cbgData = _.where(data, {'type': 'cbg'});
+  var NaNObject = {
+    'low': NaN,
+    'target': NaN,
+    'high': NaN,
+    'total': NaN
+  };
+  var startTime = new Date();
+  var random = function() { return Math.floor((Math.random() * 400) + 1); };
+  var inadequateData = [{
+    'normalTime': startTime.toISOString(),
+    'value': random()
+  }], i = 0;
+  var fiveMin = Duration.parse('5m');
+  while (i < cbg.threshold()) {
+    var next = new Date(startTime.valueOf() + fiveMin);
+    inadequateData.push({
+      'normalTime': next.toISOString(),
+      'value': random()
+    });
+    i++;
+    startTime = next;
+  }
+  var endTime = new Date(startTime.valueOf() + Duration.parse('24h'));
+  inadequateData.push({
+    'normalTime': endTime.toISOString()
+  });
+  var cbgInadequate = new CBGUtil(inadequateData);
 
   describe('filter', function() {
     it('should be a function', function() {
@@ -56,11 +84,30 @@ describe('cbg utilities', function() {
     it('should return an object', function() {
       assert.typeOf(cbg.rangeBreakdown('', ''), 'object');
     });
+
+    it('should return NaN for each component if less than threshold for complete day of data', function() {
+      expect(cbgInadequate.rangeBreakdown(startTime.valueOf(), endTime.valueOf())).to.eql(NaNObject);
+    });
   });
 
   describe('average', function() {
+    var start = new Date (cbgData[0].normalTime);
+    var day = Duration.parse('1d');
     it('should be a function', function() {
       assert.isFunction(cbg.average);
+    });
+
+    it('should return value of NaN when passed a valid but not long enough date range', function() {
+      expect(isNaN(cbg.average(cbgData[0].normalTime, cbgData[1].normalTime).value)).to.be.true;
+    });
+
+    it('should return value of NaN when passed a valid and long enough date range', function() {
+      expect(isNaN(cbg.average(cbgData[0].normalTime, new Date(start + day).toISOString()).value)).to.be.true;
+    });
+
+    it('should return a number value when passed a valid, long enough date range with enough data', function() {
+      var res = cbg.average(cbgData[0].normalTime, new Date(start.valueOf() + Duration.parse('24h')).toISOString()).value;
+      expect((typeof res === 'number') && !isNaN(res)).to.be.true;
     });
   });
 });
