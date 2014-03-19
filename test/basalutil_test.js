@@ -29,141 +29,18 @@ var fx = require('./fixtures');
 
 var tideline = require('../js/index');
 var BasalUtil = tideline.data.BasalUtil;
+var SegmentUtil = tideline.data.SegmentUtil;
 
 var MS_IN_HOUR = 3600000.0;
 
-describe('basal constructor under different data scenarios', function () {
-  fx.forEach(testData);
-});
-
-function testData (data) {
-  var name = data.name;
-  var basal = new BasalUtil(data.json);
-  describe(name, function() {
-    it('should be an array', function() {
-      assert.isArray(data.json);
-    });
-
-    it('should be composed of objects', function() {
-      data.json.forEach(function(d) {
-        assert.typeOf(d, 'object');
-      });
-    });
-
-    it('should be non-zero in length', function() {
-      expect(data.json).to.have.length.above(0);
-    });
-
-    describe('basal.actual', function() {
-      it('should be an array', function() {
-        assert.typeOf(basal.actual, 'array');
-      });
-
-      it('should have a non-zero length', function() {
-        expect(basal.actual).to.have.length.above(0);
-      });
-
-      it('should have a first segment with a start matching the first segment of input data', function() {
-        var basals = _.where(data.json, {'type': 'basal-rate-segment'});
-        expect(basal.actual[0].start).to.equal(basals[0].start);
-      });
-
-      it('should have a last segment with an end matching the last segment of input data', function() {
-        var basals = _.where(data.json, {'type': 'basal-rate-segment'});
-        var basalLength = basal.actual.length;
-        expect(basal.actual[basalLength - 1].end).to.equal(basals[basals.length - 1].end);
-      });
-
-      it('should be sorted in sequence', function() {
-        var sorted = _.sortBy(basal.actual, function(a) {
-          return new Date(a.start).valueOf();
-        });
-        expect(sorted).to.eql(basal.actual);
-      });
-
-      it('should be contiguous from start to end', function() {
-        var basalLength = basal.actual.length;
-        expect(_.find(basal.actual, function(segment, i, segments) {
-          if (i !== (basalLength - 1)) {
-            return segment.end !== segments[i + 1].start;
-          }
-          else {
-            return false;
-          }
-        })).to.be.undefined;
-      });
-
-      it('should not have any duplicates', function() {
-        expect(_.uniq(basal.actual)).to.be.eql(basal.actual);
-      });
-
-      it('should have squashed contiguous identical segments', function() {
-        var keysToOmit = ['id', 'start', 'end'];
-        basal.actual.forEach(function(segment, i, segments) {
-          if ((i < (segments.length - 1)) && segment.type === 'scheduled') {
-            expect(_.omit(segment, keysToOmit)).to.not.eql(_.omit(segments[i + 1], keysToOmit));
-          }
-        });
-      });
-    });
-
-    describe('basal.undelivered', function() {
-      it('should be an array', function() {
-        assert.typeOf(basal.undelivered, 'array', 'basal.undelivered is an array');
-      });
-
-      it('should have a non-zero length if there is a temp basal in the input data', function() {
-        var temps = _.where(data.json, {'deliveryType': 'temp'});
-        if (temps.length > 0) {
-          expect(basal.undelivered.length).to.be.above(0);
-        }
-      });
-
-      it('should be sorted in sequence', function() {
-        var sorted = _.sortBy(basal.undelivered, function(a) {
-          return new Date(a.start).valueOf();
-        });
-        expect(sorted).to.eql(basal.undelivered);
-      });
-
-      it('should not have any duplicates', function() {
-        expect(_.uniq(basal.undelivered)).to.be.eql(basal.undelivered);
-      });
-
-      it('should have a total duration equal to the total duration of temp segments from the actual stream', function() {
-        var tempDuration = 0;
-        _.where(basal.actual, {'deliveryType': 'temp'}).forEach(function(segment) {
-          tempDuration += Date.parse(segment.end) - Date.parse(segment.start);
-        });
-        var undeliveredDuration = 0;
-        basal.undelivered.forEach(function(segment) {
-          if (segment.deliveryType === 'scheduled') {
-            undeliveredDuration += Date.parse(segment.end) - Date.parse(segment.start);
-          }
-        });
-        try {
-          expect(undeliveredDuration).to.equal(tempDuration);
-        }
-        catch (e) {
-          console.log('Expected error with fixture ending in temp basal.');
-        }
-      });
-    });
-  });
-}
-
 describe('basal utilities', function() {
   describe('totalBasal', function() {
-    var basal = new BasalUtil(_.findWhere(fx, {'name': 'current-demo'}).json);
-    basal.normalizedActual = watson.normalize(basal.actual);
-    basal.endpoints = [basal.normalizedActual[0].normalTime, basal.normalizedActual[basal.normalizedActual.length - 1].normalEnd];
-    var basalData = _.where(_.findWhere(fx, {'name': 'current-demo'}).json, {'type': 'basal-rate-segment'});
-    var template = new BasalUtil(_.findWhere(fx, {'name': 'template'}).json);
-    template.normalizedActual = watson.normalize(template.actual);
-    template.endpoints = [template.normalizedActual[0].normalTime, template.normalizedActual[template.normalizedActual.length - 1].normalEnd];
-    var temp = new BasalUtil(_.findWhere(fx, {'name': 'contained'}).json);
-    temp.normalizedActual = watson.normalize(temp.actual);
-    temp.endpoints = [temp.normalizedActual[0].normalTime, temp.normalizedActual[temp.normalizedActual.length - 1].normalEnd];
+    var basalSegments = watson.normalize(new SegmentUtil(_.where(_.findWhere(fx, {'name': 'current-demo'}).json, {'type': 'basal-rate-segment'})).all);
+    var basal = new BasalUtil(basalSegments);
+    var templateSegments = watson.normalize(new SegmentUtil(_.findWhere(fx, {'name': 'template'}).json).all);
+    var template = new BasalUtil(templateSegments);
+    var tempSegments = watson.normalize(new SegmentUtil(_.findWhere(fx, {'name': 'contained'}).json).all);
+    var temp = new BasalUtil(tempSegments);
 
     it('should be a function', function() {
       assert.isFunction(basal.totalBasal);
@@ -173,7 +50,7 @@ describe('basal utilities', function() {
       expect((type === 'number') || isNaN(type)).to.be.true;
     });
     it('should return a number when passed a valid date range', function() {
-      var type = typeof basal.totalBasal(basalData[0].normalTime, basalData[1].normalTime);
+      var type = typeof basal.totalBasal(basal.data[0].normalTime, basal.data[1].normalTime);
       expect(type === 'number').to.be.true;
     });
 
