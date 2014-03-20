@@ -43,7 +43,7 @@ module.exports = function(opts) {
     var displayGroup = selection.append('text')
       .attr({
         'x': opts.xOffset,
-        'y': opts.height / 2 + (opts.leadSize * 2),
+        'y': opts.height / 2 + opts.leadSize,
         'class': 'd3-stats-display'
       });
 
