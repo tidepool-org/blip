@@ -265,8 +265,9 @@ describe('dataHelpers', function(){
              },
              {
                _id: 'abcde', type: 'basal-rate-segment', deliveryType: 'temp',
-               start: '2014-03-07T01:38:27', end: '2014-03-07T02:38:27', value: 1.7,
-               interval: '2014-03-07T01:38:27/2014-03-07T02:38:27'
+               deviceTime: '2014-03-07T01:38:27', start: '2014-03-07T01:38:27',
+               end: '2014-03-07T02:38:27', value: 1.7,
+               duration: 3600000, interval: '2014-03-07T01:38:27/2014-03-07T02:38:27'
              },
              {
                _id: 'abcdef', type: 'basal-rate-segment', deliveryType: 'scheduled',

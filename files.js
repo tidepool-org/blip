@@ -3,18 +3,21 @@
 
 var files = {
   js: {
+    // Provide path to vendor directory ("dir"),
+    // then relative path to unminified vendor bundle ("dist")
+    // and if it exists minified version ("distMin")
     vendor: [
-      'bower_components/react/react.js',
-      'bower_components/director/build/director.js',
-      'bower_components/lodash/dist/lodash.js',
-      'bower_components/bows/dist/bows.js',
-      'bower_components/superagent/superagent.js',
-      'bower_components/moment/moment.js',
-      'bower_components/d3/d3.js',
-      'bower_components/jquery/dist/jquery.js',
-      'bower_components/Duration.js/duration.js',
-      'bower_components/rxjs/rx.lite.js',
-      'bower_components/query-string/query-string.js'
+      {dir: 'bower_components/react', dist: 'react.js', distMin: 'react.min.js'},
+      {dir: 'bower_components/director', dist: 'build/director.js', distMin: 'build/director.min.js'},
+      {dir: 'bower_components/lodash', dist: 'dist/lodash.js', distMin: 'dist/lodash.min.js'},
+      {dir: 'bower_components/bows', dist: 'dist/bows.js', distMin: 'dist/bows.min.js'},
+      {dir: 'bower_components/superagent', dist: 'superagent.js'},
+      {dir: 'bower_components/moment', dist: 'moment.js', distMin: 'min/moment.min.js'},
+      {dir: 'bower_components/d3', dist: 'd3.js', distMin: 'd3.min.js'},
+      {dir: 'bower_components/jquery', dist: 'dist/jquery.js', distMin: 'dist/jquery.min.js'},
+      {dir: 'bower_components/Duration.js', dist: 'duration.js'},
+      {dir: 'bower_components/rxjs', dist: 'rx.lite.js'},
+      {dir: 'bower_components/query-string', dist: 'query-string.js'}
     ]
   },
 

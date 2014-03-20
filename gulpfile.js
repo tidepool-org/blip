@@ -1,12 +1,11 @@
 var fs = require('fs');
 var util = require('util');
+var _ = require('lodash');
 var gulp = require('gulp');
 var jshint = require('gulp-jshint');
 var browserify = require('gulp-browserify');
 var less = require('gulp-less');
 var concat = require('gulp-concat');
-var fs = require('fs');
-var _ = require('lodash');
 var template = require('gulp-template');
 var uglify = require('gulp-uglify');
 var cssmin = require('gulp-minify-css');
@@ -15,7 +14,8 @@ var clean = require('gulp-clean');
 var es = require('event-stream');
 var runSequence = require('run-sequence');
 var jsonToObject = require('./lib/gulp-json2obj');
-var expandFiles = require('grunt').file.expand;
+var expandFiles = require('simple-glob');
+var mkdirp = require('mkdirp');
 
 var pkg = require('./package.json');
 var files = require('./files');
@@ -53,21 +53,22 @@ gulp.task('jshint-watch', ['jshint'], function(cb){
   return cb();
 });
 
-gulp.task('scripts-browserify', function() {
-  return gulp.src('app/app.js')
-    .pipe(browserify({
-      transform: ['reactify']
-    }))
-    .pipe(concat('app.js'))
-    .pipe(gulp.dest('dist/tmp'));
-});
-
 gulp.task('scripts-config', function() {
   return gulp.src('app/config.js')
     .pipe(template({
       process: {env: process.env},
       pkg: pkg
     }))
+    .pipe(uglify())
+    .pipe(gulp.dest('dist/build/' + pkg.version));
+});
+
+gulp.task('scripts-browserify', function() {
+  return gulp.src('app/app.js')
+    .pipe(browserify({
+      transform: ['reactify']
+    }))
+    .pipe(concat('app.js'))
     .pipe(gulp.dest('dist/tmp'));
 });
 
@@ -95,7 +96,9 @@ gulp.task('scripts-mock-data', function(cb) {
         var contents = 'window.data = ';
         contents = contents + util.inspect(data, {depth: null});
         contents = contents + ';';
-        fs.writeFile('dist/tmp/data.js', contents, cb);
+        var dir = 'dist/tmp';
+        mkdirp.sync(dir);
+        fs.writeFile(dir + '/data.js', contents, cb);
       });
   }
   else {
@@ -103,14 +106,16 @@ gulp.task('scripts-mock-data', function(cb) {
   }
 });
 
-gulp.task('scripts', [
+gulp.task('scripts-all', [
   'scripts-browserify',
   'scripts-config',
   'scripts-mock',
   'scripts-mock-data'
-], function() {
-  var src = files.js.vendor;
-  src.push('dist/tmp/config.js');
+], function(cb) {
+  var vendorPaths = segmentVendorPaths(files.js.vendor);
+
+  // Vendor files that need minifying, and the app files
+  var src = vendorPaths.noMin;
   if (process.env.MOCK) {
     src = src.concat([
       'dist/tmp/data.js',
@@ -123,11 +128,35 @@ gulp.task('scripts', [
     'app/start.js'
   ]);
 
-  return gulp.src(src)
+  var vendorAlreadyMinified = gulp.src(vendorPaths.hasMin);
+  var restBeingMinified = gulp.src(src).pipe(uglify());
+
+  return es.concat.apply(es, [vendorAlreadyMinified, restBeingMinified])
     .pipe(concat('all.js'))
-    .pipe(uglify())
     .pipe(gulp.dest('dist/build/' + pkg.version));
 });
+
+// Build paths to vendor dist files, and separate between
+// those that already have a minified dist and those that don't
+function segmentVendorPaths(vendors) {
+  var noMin = _.filter(vendors, function(item) {
+    return !item.distMin;
+  });
+  noMin = _.map(noMin, makeVendorPath.bind(null, 'dist'));
+
+  var hasMin = _.filter(vendors, function(item) {
+    return item.distMin;
+  });
+  hasMin = _.map(hasMin, makeVendorPath.bind(null, 'distMin'));
+
+  return {noMin: noMin, hasMin: hasMin};
+}
+
+function makeVendorPath(build, vendor) {
+  return vendor.dir + '/' + vendor[build];
+}
+
+gulp.task('scripts', ['scripts-config', 'scripts-all']);
 
 gulp.task('styles', function() {
   return gulp.src('app/style.less')
@@ -208,7 +237,9 @@ gulp.task('before-tests-mocha', function() {
 });
 
 gulp.task('before-tests-vendor', function() {
-  return gulp.src(files.js.vendor)
+  var vendors = _.map(files.js.vendor, makeVendorPath.bind(null, 'dist'));
+
+  return gulp.src(vendors)
     .pipe(gulp.dest('tmp/test/vendor'));
 });
 
@@ -221,7 +252,9 @@ gulp.task('before-tests-data', function(cb) {
       var contents = 'window.data = ';
       contents = contents + util.inspect(data, {depth: null});
       contents = contents + ';';
-      fs.writeFile('./tmp/test/data.js', contents, cb);
+      var dir = 'tmp/test';
+      mkdirp.sync(dir);
+      fs.writeFile(dir + '/data.js', contents, cb);
     });
 });
 
