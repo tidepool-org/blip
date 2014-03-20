@@ -15,6 +15,7 @@ var es = require('event-stream');
 var runSequence = require('run-sequence');
 var jsonToObject = require('./lib/gulp-json2obj');
 var expandFiles = require('simple-glob');
+var mkdirp = require('mkdirp');
 
 var pkg = require('./package.json');
 var files = require('./files');
@@ -52,21 +53,22 @@ gulp.task('jshint-watch', ['jshint'], function(cb){
   return cb();
 });
 
-gulp.task('scripts-browserify', function() {
-  return gulp.src('app/app.js')
-    .pipe(browserify({
-      transform: ['reactify']
-    }))
-    .pipe(concat('app.js'))
-    .pipe(gulp.dest('dist/tmp'));
-});
-
 gulp.task('scripts-config', function() {
   return gulp.src('app/config.js')
     .pipe(template({
       process: {env: process.env},
       pkg: pkg
     }))
+    .pipe(uglify())
+    .pipe(gulp.dest('dist/build/' + pkg.version));
+});
+
+gulp.task('scripts-browserify', function() {
+  return gulp.src('app/app.js')
+    .pipe(browserify({
+      transform: ['reactify']
+    }))
+    .pipe(concat('app.js'))
     .pipe(gulp.dest('dist/tmp'));
 });
 
@@ -94,7 +96,9 @@ gulp.task('scripts-mock-data', function(cb) {
         var contents = 'window.data = ';
         contents = contents + util.inspect(data, {depth: null});
         contents = contents + ';';
-        fs.writeFile('dist/tmp/data.js', contents, cb);
+        var dir = 'dist/tmp';
+        mkdirp.sync(dir);
+        fs.writeFile(dir + '/data.js', contents, cb);
       });
   }
   else {
@@ -102,7 +106,7 @@ gulp.task('scripts-mock-data', function(cb) {
   }
 });
 
-gulp.task('scripts', [
+gulp.task('scripts-all', [
   'scripts-browserify',
   'scripts-config',
   'scripts-mock',
@@ -112,7 +116,6 @@ gulp.task('scripts', [
 
   // Vendor files that need minifying, and the app files
   var src = vendorPaths.noMin;
-  src.push('dist/tmp/config.js');
   if (process.env.MOCK) {
     src = src.concat([
       'dist/tmp/data.js',
@@ -152,6 +155,8 @@ function segmentVendorPaths(vendors) {
 function makeVendorPath(build, vendor) {
   return vendor.dir + '/' + vendor[build];
 }
+
+gulp.task('scripts', ['scripts-config', 'scripts-all']);
 
 gulp.task('styles', function() {
   return gulp.src('app/style.less')
@@ -247,7 +252,9 @@ gulp.task('before-tests-data', function(cb) {
       var contents = 'window.data = ';
       contents = contents + util.inspect(data, {depth: null});
       contents = contents + ';';
-      fs.writeFile('./tmp/test/data.js', contents, cb);
+      var dir = 'tmp/test';
+      mkdirp.sync(dir);
+      fs.writeFile(dir + '/data.js', contents, cb);
     });
 });
 
