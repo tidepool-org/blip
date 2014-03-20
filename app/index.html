@@ -21,8 +21,8 @@
     <% if (production) { %>
     <script type="text/javascript" src="build/<%= pkg.version %>/all.js"></script>
     <% } else { %>
-    <% _.forEach(files.js.vendor, function(file) { %>
-    <script type="text/javascript" src="<%= file %>"></script>
+    <% _.forEach(vendors, function(vendor) { %>
+    <script type="text/javascript" src="<%= vendor %>"></script>
     <% }) %>
     <script type="text/javascript" src="config.js"></script>
       <% if (mock) { %>

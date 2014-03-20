@@ -1,12 +1,11 @@
 var fs = require('fs');
 var util = require('util');
+var _ = require('lodash');
 var gulp = require('gulp');
 var jshint = require('gulp-jshint');
 var browserify = require('gulp-browserify');
 var less = require('gulp-less');
 var concat = require('gulp-concat');
-var fs = require('fs');
-var _ = require('lodash');
 var template = require('gulp-template');
 var uglify = require('gulp-uglify');
 var cssmin = require('gulp-minify-css');
@@ -108,8 +107,11 @@ gulp.task('scripts', [
   'scripts-config',
   'scripts-mock',
   'scripts-mock-data'
-], function() {
-  var src = files.js.vendor;
+], function(cb) {
+  var vendorPaths = segmentVendorPaths(files.js.vendor);
+
+  // Vendor files that need minifying, and the app files
+  var src = vendorPaths.noMin;
   src.push('dist/tmp/config.js');
   if (process.env.MOCK) {
     src = src.concat([
@@ -123,11 +125,33 @@ gulp.task('scripts', [
     'app/start.js'
   ]);
 
-  return gulp.src(src)
+  var vendorAlreadyMinified = gulp.src(vendorPaths.hasMin);
+  var restBeingMinified = gulp.src(src).pipe(uglify());
+
+  return es.concat.apply(es, [vendorAlreadyMinified, restBeingMinified])
     .pipe(concat('all.js'))
-    .pipe(uglify())
     .pipe(gulp.dest('dist/build/' + pkg.version));
 });
+
+// Build paths to vendor dist files, and separate between
+// those that already have a minified dist and those that don't
+function segmentVendorPaths(vendors) {
+  var noMin = _.filter(vendors, function(item) {
+    return !item.distMin;
+  });
+  noMin = _.map(noMin, makeVendorPath.bind(null, 'dist'));
+
+  var hasMin = _.filter(vendors, function(item) {
+    return item.distMin;
+  });
+  hasMin = _.map(hasMin, makeVendorPath.bind(null, 'distMin'));
+
+  return {noMin: noMin, hasMin: hasMin};
+}
+
+function makeVendorPath(build, vendor) {
+  return vendor.dir + '/' + vendor[build];
+}
 
 gulp.task('styles', function() {
   return gulp.src('app/style.less')
