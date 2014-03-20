@@ -14,7 +14,7 @@ var clean = require('gulp-clean');
 var es = require('event-stream');
 var runSequence = require('run-sequence');
 var jsonToObject = require('./lib/gulp-json2obj');
-var expandFiles = require('grunt').file.expand;
+var expandFiles = require('simple-glob');
 
 var pkg = require('./package.json');
 var files = require('./files');
@@ -232,7 +232,9 @@ gulp.task('before-tests-mocha', function() {
 });
 
 gulp.task('before-tests-vendor', function() {
-  return gulp.src(files.js.vendor)
+  var vendors = _.map(files.js.vendor, makeVendorPath.bind(null, 'dist'));
+
+  return gulp.src(vendors)
     .pipe(gulp.dest('tmp/test/vendor'));
 });
 
