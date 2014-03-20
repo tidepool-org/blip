@@ -2,6 +2,7 @@ var http = require('http');
 var fs = require('fs');
 var util = require('util');
 var path = require('path');
+var _ = require('lodash');
 var connect = require('connect');
 var gulp = require('gulp');
 var browserify = require('gulp-browserify');
@@ -116,6 +117,10 @@ imagesAndSvg.forEach(function(image) {
   app.use(endpoint, connect.static(dir));
 });
 
+var vendors = _.map(files.js.vendor, function(vendor) {
+  return vendor.dir + '/' + vendor.dist;
+});
+
 app.use('/', function(req, res, next) {
   if (!(req.url === '/' || req.url.match(/^\/\?/))) {
     return next();
@@ -127,7 +132,7 @@ app.use('/', function(req, res, next) {
     .pipe(template({
       production: false,
       pkg: pkg,
-      files: files,
+      vendors: vendors,
       mock: process.env.MOCK
     }))
     .on('error', function(err) {
