@@ -128,12 +128,10 @@ module.exports = function(pool, opts) {
           pies = _.reject(pies, function(pie) {
             return _.isEqual(pie, thisPie);
           });
-          log('NaN(s) present. Creating a no data view for ' + puddle.id + ' puddle.');
           createAPie(puddleGroup, data);
         }
         // or if good data, but no pie yet, create a pie
         else if (!thisPie) {
-          log('Creating a pie for ' + puddle.id + ' puddle.');
           createAPie(puddleGroup, data);
         }
         else {
@@ -142,12 +140,10 @@ module.exports = function(pool, opts) {
             pies = _.reject(pies, function(pie) {
               return _.isEqual(pie, thisPie);
             });
-            log('Recreating a pie for ' + puddle.id + ' puddle.');
             createAPie(puddleGroup, data);
           }
           // or just update the current pie
           else {
-            log('Updating pie for ' + puddle.id + ' puddle.');
             stats.updatePie(thisPie, data[puddle.id.toLowerCase()]);
           }
         }

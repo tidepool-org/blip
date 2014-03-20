@@ -230,6 +230,11 @@ module.exports = function(emitter) {
       a[0].setUTCDate(a[0].getUTCDate() + 1);
     }
     if (!d3.select('#' + id).classed('hidden')) {
+      // domain should go from midnight to midnight, not noon to noon
+      var beginning = new Date(a[0]);
+      a[0] = new Date(beginning.setUTCHours(beginning.getUTCHours() - 12));
+      var end = new Date(a[1]);
+      a[1] = new Date(end.setUTCHours(end.getUTCHours() + 12));
       emitter.emit('currentDomain', a);
       emitter.emit('navigated', [a[0].toISOString(), a[1].toISOString()]);
     }

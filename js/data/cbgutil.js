@@ -23,6 +23,7 @@ function CBGUtil(data) {
 
   var PERCENT_FOR_COMPLETE = 0.75;
   var MAX_CBG_READINGS_PER_24 = 288;
+  var MS_IN_24 = 86400000;
 
   var categories = {
     'low': 80,
@@ -73,7 +74,7 @@ function CBGUtil(data) {
 
   this.rangeBreakdown = function(s, e) {
     var filtered = this.filter(s, e);
-    if (filtered.length < this.threshold()) {
+    if (filtered.length < this.threshold(s, e)) {
       return breakdownNaN;
     }
     else {
@@ -88,7 +89,8 @@ function CBGUtil(data) {
 
   this.average = function(s, e) {
     var data = this.filter(s,e);
-    if (data.length > this.threshold()) {
+    var threshold = this.threshold(s, e);
+    if ((threshold > 0) && (data.length > threshold)) {
       var sum = _.reduce(data, function(memo, d) {
         return memo + d.value;
       }, 0);
@@ -100,8 +102,9 @@ function CBGUtil(data) {
     }
   };
 
-  this.threshold = function() {
-    return PERCENT_FOR_COMPLETE * MAX_CBG_READINGS_PER_24;
+  this.threshold = function(s, e) {
+    var difference = new Date(e) - new Date(s);
+    return Math.floor(PERCENT_FOR_COMPLETE * (MAX_CBG_READINGS_PER_24 * (difference/MS_IN_24)));
   };
 
   this.data = data;

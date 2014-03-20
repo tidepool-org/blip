@@ -55194,12 +55194,12 @@ function BasalUtil(data) {
           dose += this.segmentDose(e - new Date(lastSegment.normalTime), lastSegment.value);
         }
         else {
-          // when there isn't a complete twenty-four hours of basal data
+          // when there isn't a complete domain of basal data
           return NaN;
         }
       }
       else {
-        // when there isn't a complete twenty-four hours of basal data
+        // when there isn't a complete domain of basal data
         return NaN;
       }
       return format.fixFloatingPoint(dose);
@@ -55297,6 +55297,7 @@ function CBGUtil(data) {
 
   var PERCENT_FOR_COMPLETE = 0.75;
   var MAX_CBG_READINGS_PER_24 = 288;
+  var MS_IN_24 = 86400000;
 
   var categories = {
     'low': 80,
@@ -55347,7 +55348,7 @@ function CBGUtil(data) {
 
   this.rangeBreakdown = function(s, e) {
     var filtered = this.filter(s, e);
-    if (filtered.length < this.threshold()) {
+    if (filtered.length < this.threshold(s, e)) {
       return breakdownNaN;
     }
     else {
@@ -55362,7 +55363,8 @@ function CBGUtil(data) {
 
   this.average = function(s, e) {
     var data = this.filter(s,e);
-    if (data.length > this.threshold()) {
+    var threshold = this.threshold(s, e);
+    if ((threshold > 0) && (data.length > threshold)) {
       var sum = _.reduce(data, function(memo, d) {
         return memo + d.value;
       }, 0);
@@ -55374,8 +55376,9 @@ function CBGUtil(data) {
     }
   };
 
-  this.threshold = function() {
-    return PERCENT_FOR_COMPLETE * MAX_CBG_READINGS_PER_24;
+  this.threshold = function(s, e) {
+    var difference = new Date(e) - new Date(s);
+    return Math.floor(PERCENT_FOR_COMPLETE * (MAX_CBG_READINGS_PER_24 * (difference/MS_IN_24)));
   };
 
   this.data = data;
@@ -55593,6 +55596,15 @@ var format = {
 
   fixFloatingPoint: function(n) {
     return parseFloat(n.toFixed(3));
+  },
+
+  percentage: function(f) {
+    if (isNaN(f)) {
+      return '-- %';
+    }
+    else {
+      return parseInt(f.toFixed(2) * 100, 10) + '%';
+    }
   }
 
 };
@@ -58013,6 +58025,7 @@ var _ = require('../../lib/')._;
 
 var log = require('../../lib/').bows('Stats');
 var scales = require('../util/scales');
+var format = require('../../data/util/format');
 
 module.exports = function(pool, opts) {
 
@@ -58108,15 +58121,36 @@ module.exports = function(pool, opts) {
         var thisPie = _.find(pies, function(p) {
           return p.id === puddle.id;
         });
-        if (!thisPie) {
+        var createAPie = function(puddleGroup, data) {
           var slices = stats.createPie(puddleGroup, data[puddle.id.toLowerCase()]);
           pies.push({
             'id': puddle.id,
             'slices': slices
           });
+        };
+        // when NaN(s) present, create a no data view
+        if (stats.hasNaN(data[puddle.id.toLowerCase()])) {
+          pies = _.reject(pies, function(pie) {
+            return _.isEqual(pie, thisPie);
+          });
+          createAPie(puddleGroup, data);
+        }
+        // or if good data, but no pie yet, create a pie
+        else if (!thisPie) {
+          createAPie(puddleGroup, data);
         }
         else {
-          stats.updatePie(thisPie, data[puddle.id.toLowerCase()]);
+          // or if no data view is the existing "pie", recreate a real pie
+          if (thisPie.slices === null) {
+            pies = _.reject(pies, function(pie) {
+              return _.isEqual(pie, thisPie);
+            });
+            createAPie(puddleGroup, data);
+          }
+          // or just update the current pie
+          else {
+            stats.updatePie(thisPie, data[puddle.id.toLowerCase()]);
+          }
         }
       }
       else {
@@ -58124,7 +58158,7 @@ module.exports = function(pool, opts) {
           stats.createRect(puddle, puddleGroup, data[puddle.id.toLowerCase()]);
         }
         else {
-          stats.updateAverage(data[puddle.id.toLowerCase()], puddle);
+          stats.updateAverage(puddle, puddleGroup, data[puddle.id.toLowerCase()]);
         }
       }
       var display = stats.getDisplay(puddle.id);
@@ -58176,8 +58210,8 @@ module.exports = function(pool, opts) {
         'class': 'd3-stats-rect-line'
       });
     var imageY = rectScale(data.value) - (opts.size / 2) + (puddle.height() / 10);
-    // don't append an image if imageY is NaN
-    if (imageY) {
+    // don't append an image if imageY is NaN or Infinity
+    if (isFinite(imageY)) {
       rectGroup.append('image')
         .attr({
           'xlink:href': function() {
@@ -58236,11 +58270,27 @@ module.exports = function(pool, opts) {
     }
 
     stats.rectGroup = rectGroup;
+
+    if (isNaN(data.value)) {
+      puddleGroup.classed('d3-insufficient-data', true);
+      stats.rectGroup.selectAll('.d3-stats-image').classed('hidden', true);
+    }
+    else {
+      puddleGroup.classed('d3-insufficient-data', false);
+      stats.rectGroup.selectAll('.d3-stats-image').classed('hidden', false);
+    }
   };
 
-  stats.updateAverage = function(data, puddle) {
+  stats.updateAverage = function(puddle, puddleGroup, data) {
+    if (isNaN(data.value)) {
+      puddleGroup.classed('d3-insufficient-data', true);
+      stats.rectGroup.selectAll('.d3-stats-image').classed('hidden', true);
+    }
+    else {
+      puddleGroup.classed('d3-insufficient-data', false);
+    }
     var imageY = rectScale(data.value) - (opts.size / 2) + (puddle.height() / 10);
-    if (imageY) {
+    if (isFinite(imageY)) {
       stats.rectGroup.selectAll('.d3-stats-image')
         .attr({
           'xlink:href': function() {
@@ -58269,33 +58319,47 @@ module.exports = function(pool, opts) {
   stats.createPie = function(puddleGroup, data) {
     var xOffset = (pool.width()/3) * (1/6);
     var yOffset = pool.height() / 2;
+    puddleGroup.selectAll('.d3-stats-pie').remove();
     var pieGroup = puddleGroup.append('g')
       .attr({
         'transform': 'translate(' + xOffset + ',' + yOffset + ')',
         'class': 'd3-stats-pie'
       });
+    if (stats.hasNaN(data)) {
+      puddleGroup.classed('d3-insufficient-data', true);
+      pieGroup.append('circle')
+        .attr({
+          'cx': 0,
+          'cy': 0,
+          'r': opts.pieRadius
+        });
 
-    pie = d3.layout.pie().value(function(d) {
-        return d.value;
-      })
-      .sort(null);
+      return null;
+    }
+    else {
+      puddleGroup.classed('d3-insufficient-data', false);
+      pie = d3.layout.pie().value(function(d) {
+          return d.value;
+        })
+        .sort(null);
 
-    arc = d3.svg.arc()
-      .innerRadius(0)
-      .outerRadius(opts.pieRadius);
+      arc = d3.svg.arc()
+        .innerRadius(0)
+        .outerRadius(opts.pieRadius);
 
-    var slices = pieGroup.selectAll('g.d3-stats-slice')
-      .data(pie(data))
-      .enter()
-      .append('path')
-      .attr({
-        'd': arc,
-        'class': function(d) {
-          return 'd3-stats-slice d3-' + d.data.type;
-        }
-      });
+      var slices = pieGroup.selectAll('g.d3-stats-slice')
+        .data(pie(data))
+        .enter()
+        .append('path')
+        .attr({
+          'd': arc,
+          'class': function(d) {
+            return 'd3-stats-slice d3-' + d.data.type;
+          }
+        });
 
-    return slices;
+      return slices;
+    }
   };
 
   stats.updatePie = function(thisPie, data) {
@@ -58303,6 +58367,16 @@ module.exports = function(pool, opts) {
       .attr({
         'd': arc
       });
+  };
+
+  stats.hasNaN = function(a) {
+    var found = false;
+    a.forEach(function(obj) {
+      if (isNaN(obj.value)) {
+        found = true;
+      }
+    });
+    return found;
   };
 
   stats.newPuddle = function(id, head, lead, weight, pieBoolean) {
@@ -58342,11 +58416,11 @@ module.exports = function(pool, opts) {
     var basal = _.findWhere(data.ratio, {'type': 'basal'}).value;
     var total = bolus + basal;
     return [{
-        'text': stats.formatPercentage(basal/total) + ' : ',
+        'text': format.percentage(basal/total) + ' : ',
         'class': 'd3-stats-basal'
       },
       {
-        'text': stats.formatPercentage(bolus/total),
+        'text': format.percentage(bolus/total),
         'class': 'd3-stats-bolus'
       }];
   };
@@ -58354,11 +58428,16 @@ module.exports = function(pool, opts) {
   stats.rangeDisplay = function() {
     var target = _.findWhere(data.range, {'type': 'bg-target'}).value;
     var total = parseFloat(data.cbgReadings);
-    return [{'text': stats.formatPercentage(target/total), 'class': 'd3-stats-percentage'}];
+    return [{'text': format.percentage(target/total), 'class': 'd3-stats-percentage'}];
   };
 
   stats.averageDisplay = function() {
-    return [{'text': data.average.value + ' mg/dL', 'class': 'd3-stats-' + data.average.category}];
+    if (isNaN(data.average.value)) {
+      return [{'text': '--- mg/dL', 'class': 'd3-stats-' + data.average.category}];
+    }
+    else {
+      return [{'text': data.average.value + ' mg/dL', 'class': 'd3-stats-' + data.average.category}];
+    }
   };
 
   stats.getData = function(start, end) {
@@ -58376,28 +58455,24 @@ module.exports = function(pool, opts) {
     data.range = [
       {
         'type': 'bg-low',
-        'value': range.low || 0,
+        'value': range.low,
       },
       {
         'type': 'bg-target',
-        'value': range.target || 0,
+        'value': range.target,
       },
       {
         'type': 'bg-high',
-        'value': range.high || 0
+        'value': range.high
       }
     ];
     data.cbgReadings = range.total;
     data.average = opts.cbg.average(start, end);
   };
 
-  stats.formatPercentage = function(f) {
-    return parseInt(f.toFixed(2) * 100, 10) + '%';
-  };
-
   return stats;
 };
-},{"../../lib/":10,"../util/scales":22,"./puddle":19}],21:[function(require,module,exports){
+},{"../../data/util/format":8,"../../lib/":10,"../util/scales":22,"./puddle":19}],21:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -59317,6 +59392,11 @@ module.exports = function(emitter) {
       a[0].setUTCDate(a[0].getUTCDate() + 1);
     }
     if (!d3.select('#' + id).classed('hidden')) {
+      // domain should go from midnight to midnight, not noon to noon
+      var beginning = new Date(a[0]);
+      a[0] = new Date(beginning.setUTCHours(beginning.getUTCHours() - 12));
+      var end = new Date(a[1]);
+      a[1] = new Date(end.setUTCHours(end.getUTCHours() + 12));
       emitter.emit('currentDomain', a);
       emitter.emit('navigated', [a[0].toISOString(), a[1].toISOString()]);
     }
@@ -71461,12 +71541,35 @@ describe('cbg utilities', function() {
     });
 
     it('should return value of NaN when passed a valid and long enough date range', function() {
-      expect(isNaN(cbg.average(cbgData[0].normalTime, new Date(start + day).toISOString()).value)).to.be.true;
+      expect(isNaN(cbgInadequate.average(cbgData[0].normalTime, new Date(start.valueOf() + day).toISOString()).value)).to.be.true;
     });
 
     it('should return a number value when passed a valid, long enough date range with enough data', function() {
-      var res = cbg.average(cbgData[0].normalTime, new Date(start.valueOf() + Duration.parse('24h')).toISOString()).value;
+      var res = cbg.average(cbgData[0].normalTime, new Date(start.valueOf() + day).toISOString()).value;
       expect((typeof res === 'number') && !isNaN(res)).to.be.true;
+    });
+  });
+
+  describe('threshold', function() {
+    var start = new Date (cbgData[0].normalTime);
+    var d = new Date();
+    it('should return a number', function() {
+      assert.typeOf(cbg.threshold(cbg.endpoints[0], cbg.endpoints[1]), 'number');
+    });
+
+    it('should return 0 given a start and end five minutes apart or less', function() {
+      var five = Duration.parse('5m');
+      expect(cbg.threshold(d, new Date(d.valueOf() + five))).to.equal(0);
+    });
+
+    it('should return 216 given a start and end 24 hours apart', function() {
+      var day = Duration.parse('1d');
+      expect(cbg.threshold(d, new Date(d.valueOf() + day))).to.equal(216);
+    });
+
+    it('should return 3024 given a start and end 14 days apart', function() {
+      var fourteen = Duration.parse('14d');
+      expect(cbg.threshold(d, new Date(d.valueOf() + fourteen))).to.equal(3024);
     });
   });
 });

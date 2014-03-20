@@ -102,12 +102,35 @@ describe('cbg utilities', function() {
     });
 
     it('should return value of NaN when passed a valid and long enough date range', function() {
-      expect(isNaN(cbg.average(cbgData[0].normalTime, new Date(start + day).toISOString()).value)).to.be.true;
+      expect(isNaN(cbgInadequate.average(cbgData[0].normalTime, new Date(start.valueOf() + day).toISOString()).value)).to.be.true;
     });
 
     it('should return a number value when passed a valid, long enough date range with enough data', function() {
-      var res = cbg.average(cbgData[0].normalTime, new Date(start.valueOf() + Duration.parse('24h')).toISOString()).value;
+      var res = cbg.average(cbgData[0].normalTime, new Date(start.valueOf() + day).toISOString()).value;
       expect((typeof res === 'number') && !isNaN(res)).to.be.true;
+    });
+  });
+
+  describe('threshold', function() {
+    var start = new Date (cbgData[0].normalTime);
+    var d = new Date();
+    it('should return a number', function() {
+      assert.typeOf(cbg.threshold(cbg.endpoints[0], cbg.endpoints[1]), 'number');
+    });
+
+    it('should return 0 given a start and end five minutes apart or less', function() {
+      var five = Duration.parse('5m');
+      expect(cbg.threshold(d, new Date(d.valueOf() + five))).to.equal(0);
+    });
+
+    it('should return 216 given a start and end 24 hours apart', function() {
+      var day = Duration.parse('1d');
+      expect(cbg.threshold(d, new Date(d.valueOf() + day))).to.equal(216);
+    });
+
+    it('should return 3024 given a start and end 14 days apart', function() {
+      var fourteen = Duration.parse('14d');
+      expect(cbg.threshold(d, new Date(d.valueOf() + fourteen))).to.equal(3024);
     });
   });
 });
