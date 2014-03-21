@@ -16,9 +16,12 @@
 
 var React = window.React;
 var _ = window._;
+var moment = window.moment;
 
 var SimpleForm = require('../../components/simpleform');
 var patient = require('../../core/patient');
+
+var DISPLAY_DATE_FORMAT = 'MM-DD-YYYY';
 
 var PatientEdit = React.createClass({
   propTypes: {
@@ -31,11 +34,15 @@ var PatientEdit = React.createClass({
   },
 
   formInputs: [
-    {name: 'birthday', label: 'Date of birth *', placeholder: 'YYYY-MM-DD'},
+    {
+      name: 'birthday',
+      label: 'Date of birth *',
+      placeholder: DISPLAY_DATE_FORMAT
+    },
     {
       name: 'diagnosisDate',
       label: 'Date of diagnosis *',
-      placeholder: 'YYYY-MM-DD'
+      placeholder: DISPLAY_DATE_FORMAT
     },
     {
       name: 'aboutMe',
@@ -49,9 +56,12 @@ var PatientEdit = React.createClass({
   MESSAGE_TIMEOUT: 2000,
 
   getInitialState: function() {
+    var patient = this.props.patient;
+    var formValues = patient ? this.formatPatientForDisplay(patient) : {};
+
     return {
       working: false,
-      formValues: this.props.patient || {},
+      formValues: formValues,
       validationErrors: {},
       notification: null
     };
@@ -59,7 +69,10 @@ var PatientEdit = React.createClass({
 
   componentWillReceiveProps: function(nextProps) {
     // Keep form values in sync with upstream changes
-    this.setState({formValues: nextProps.patient || {}});
+    var patient = nextProps.patient;
+    var formValues = patient ? this.formatPatientForDisplay(patient) : {};
+
+    this.setState({formValues: formValues});
   },
 
   render: function() {
@@ -242,11 +255,11 @@ var PatientEdit = React.createClass({
 
   formatUserInput: function(formValues) {
     if (formValues.birthday) {
-      formValues.birthday = patient.formatDate(formValues.birthday);
+      formValues.birthday = patient.formatDate(formValues.birthday, DISPLAY_DATE_FORMAT);
     }
 
     if (formValues.diagnosisDate) {
-      formValues.diagnosisDate = patient.formatDate(formValues.diagnosisDate);
+      formValues.diagnosisDate = patient.formatDate(formValues.diagnosisDate, DISPLAY_DATE_FORMAT);
     }
 
     if (!formValues.aboutMe) {
@@ -254,6 +267,18 @@ var PatientEdit = React.createClass({
     }
 
     return formValues;
+  },
+
+  formatPatientForDisplay: function(patientToDisplay) {
+    if (patientToDisplay.birthday) {
+      patientToDisplay.birthday = moment(patientToDisplay.birthday).format(DISPLAY_DATE_FORMAT);
+    }
+
+    if (patientToDisplay.diagnosisDate) {
+      patientToDisplay.diagnosisDate = moment(patientToDisplay.diagnosisDate).format(DISPLAY_DATE_FORMAT);
+    }
+
+    return patientToDisplay;
   },
 
   submitFormValues: function(formValues) {
