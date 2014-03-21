@@ -81,18 +81,6 @@ function testData (data) {
         expect(sorted).to.eql(basal.actual);
       });
 
-      it('should be contiguous from start to end', function() {
-        var basalLength = basal.actual.length;
-        expect(_.find(basal.actual, function(segment, i, segments) {
-          if (i !== (basalLength - 1)) {
-            return segment.end !== segments[i + 1].start;
-          }
-          else {
-            return false;
-          }
-        })).to.be.undefined;
-      });
-
       it('should not have any duplicates', function() {
         expect(_.uniq(basal.actual)).to.be.eql(basal.actual);
       });

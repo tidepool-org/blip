@@ -49,12 +49,12 @@ describe('bolus utilities', function() {
 
     it('should return a number or NaN when given invalid date range', function() {
       var type = typeof bolus.totalBolus('', '');
-      expect((type === 'number') || isNaN(type)).to.be.true;
+      expect(type).equals('number');
     });
 
     it('should return a number when given valid date range', function() {
       var type = typeof bolus.totalBolus(bolusData[0].normalTime, bolusData[1].normalTime);
-      expect(type === 'number').to.be.true;
+      expect(type).equals('number');
     });
 
     it('should return b.value where b is the first bolus in the dataset and the date range is restricted to one bolus', function() {

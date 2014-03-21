@@ -79,7 +79,8 @@ function SegmentUtil(data) {
             // e.deliveryType === 'scheduled'
             if (lastActual.deliveryType === 'scheduled') {
               // Scheduled overlapping a scheduled, this should not happen.
-              log('Scheduled overlapped a scheduled.  Should never happen.', lastActual, e);
+              log('Scheduled overlapped a scheduled.  Should never happen, eliminating both.', lastActual, e);
+              actuals.pop();
             } else {
               // Scheduled overlapping a temp, this can happen and the schedule should be skipped
               
@@ -99,9 +100,9 @@ function SegmentUtil(data) {
             }
           }
         } else {
-          // e.start > lastActual.end
-          log('e.start[' + e.start + '] > lastActual.end[' + lastActual.end + '].  ' +
-            'BAD!!!! AAAHHHHHHH.  Sort input data plz, thx, cheezburger');
+          // e.start > lastActual.end, this means that we have a gap in the segments, act like this is
+          // the first event we saw and keep going.
+          addToActuals(e);
         }
       }
     }
