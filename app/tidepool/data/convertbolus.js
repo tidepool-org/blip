@@ -18,6 +18,7 @@
 'use strict';
 /* jshint -W015 */
 
+var _ = window._;
 var util = require('util');
 var Rx = window.Rx;
 
@@ -34,59 +35,67 @@ var selfJoin = require('../rx/selfjoin.js');
  * that should be emitted.  Returning an array is an indication that this handler is done handling things and should
  * be thrown away.
  */
-var builders = {
-  'dual/normal': function () {
-    var eventBuffer = [];
-    var normal = null;
-    var square = null;
-    return {
-      completed: function() {
-        return [normal, square].filter(function(e) { return e != null; }).concat(eventBuffer);
-      },
-      handle: function(event) {
-        if (event.type !== 'bolus') {
+function dualNormalBuilder() {
+  var eventBuffer = [];
+  var normal = null;
+  var square = null;
+  return {
+    completed: function () {
+      var retVal = [];
+
+      function addIfNotNull(e) {
+        if (e != null) {
+          retVal.push(_.assign({}, e, { _unmatched: true }));
+        }
+      }
+
+      addIfNotNull(normal);
+      addIfNotNull(square);
+      return retVal.concat(eventBuffer);
+    },
+    handle: function (event) {
+      if (event.type !== 'bolus') {
+        eventBuffer.push(event);
+        return null;
+      }
+
+      switch (event.subType) {
+        case 'dual/normal':
+          normal = event;
+          break;
+        case 'dual/square':
+          square = event;
+          break;
+        default:
           eventBuffer.push(event);
           return null;
-        }
-
-        switch (event.subType) {
-          case 'dual/normal':
-            normal = event;
-            break;
-          case 'dual/square':
-            square = event;
-            break;
-          default:
-            eventBuffer.push(event);
-            return null;
-        }
-
-        if (normal == null || square == null) {
-          return null;
-        }
-
-        if (normal.groupId !== square.groupId) {
-          throw new Error(
-            util.format('Mismatched joinKeys[%s][%s] at ts[%s]', normal.groupId, square.groupId, normal.deviceTime)
-          );
-        }
-
-        return [
-          {
-            _id: normal._id,
-            initialDelivery: normal.value,
-            extendedDelivery: square.value,
-            value: normal.value + square.value,
-            deviceTime: normal.deviceTime,
-            duration: square.duration,
-            extended: true,
-            type: 'bolus'
-          }
-        ].concat(eventBuffer);
       }
-    };
-  }
-};
+
+      if (normal == null || square == null) {
+        return null;
+      }
+
+      if (normal.groupId !== square.groupId) {
+        throw new Error(
+          util.format('Mismatched joinKeys[%s][%s] at ts[%s]', normal.groupId, square.groupId, normal.deviceTime)
+        );
+      }
+
+      return [
+        {
+          _id: normal._id,
+          initialDelivery: normal.value,
+          extendedDelivery: square.value,
+          value: normal.value + square.value,
+          deviceTime: normal.deviceTime,
+          duration: square.duration,
+          extended: true,
+          type: 'bolus'
+        }
+      ].concat(eventBuffer);
+    }
+  };
+}
 
 if (Rx.Observable.prototype.tidepoolConvertBolus == null) {
   /**
@@ -101,19 +110,23 @@ if (Rx.Observable.prototype.tidepoolConvertBolus == null) {
    */
   Rx.Observable.prototype.tidepoolConvertBolus = function () {
     return this.tidepoolSelfJoin(
-      [function(e){
-        if (e.type === 'bolus') {
-          var builder = builders[e.subType];
-          if (builder == null) {
+      [
+        function (e) {
+          if (! (e.type === 'bolus' && e.subType === 'dual/normal')) {
             return null;
           }
-          return builder();
+
+          if (e._unmatched) {
+            return null;
+          }
+
+          return dualNormalBuilder();
         }
-      }]
+      ]
     );
   };
 }
 
-module.exports = function(eventStream) {
+module.exports = function (eventStream) {
   return eventStream.tidepoolConvertBolus();
 };

@@ -25,25 +25,28 @@ var Rx = window.Rx;
 var selfJoin = require('../rx/selfjoin.js');
 
 function isScheduledBasal(e) {
-  return e.type === 'basal-rate-change' && e.deliveryType === 'scheduled';
+  return e.type === 'basal' && e.deliveryType === 'scheduled';
 }
 
 function makeNewBasalHandler() {
   var segmentStart = null;
   var eventBuffer = [];
+
+  function makeSegment(event) {
+    return _.assign(
+      {},
+      segmentStart,
+      {
+        type: 'basal-rate-segment',
+        start: segmentStart.deviceTime,
+        end: event == null ? null : event.deviceTime
+      }
+    );
+  }
+
   return {
-    completed: function(event) {
-      return [
-        _.assign(
-          {},
-          _.omit(segmentStart, 'deviceTime'),
-          { type: 'basal-rate-segment',
-            start: segmentStart.deviceTime,
-            end: null,
-            interval: segmentStart.deviceTime + '/' + segmentStart.deviceTime
-          }
-        )
-      ];
+    completed: function() {
+      return [makeSegment()].concat(eventBuffer);
     },
     handle: function (event) {
       if (! isScheduledBasal(event)) {
@@ -53,19 +56,11 @@ function makeNewBasalHandler() {
 
       if (segmentStart == null) {
         segmentStart = event;
+      } else if (segmentStart.deviceId !== event.deviceId) {
+        eventBuffer.push(event);
+        return null;
       } else {
-        return [
-          {
-            _id: segmentStart._id,
-            type: 'basal-rate-segment',
-            start: segmentStart.deviceTime,
-            end: event.deviceTime,
-            interval: segmentStart.deviceTime + '/' + event.deviceTime,
-            deliveryType: 'scheduled',
-            scheduleName: segmentStart.scheduleName,
-            value: segmentStart.value
-          }
-        ].concat(eventBuffer, [event]);
+        return [makeSegment(event)].concat(eventBuffer, [event]);
       }
     }
   };
@@ -76,13 +71,6 @@ function tempBasalMappingFn(event) {
     return event;
   }
 
-  var end = moment(event.deviceTime).add('ms', event.duration).format('YYYY-MM-DDThh:mm:ss');
-  return _.assign({}, event, {
-    type: 'basal-rate-segment',
-    start: event.deviceTime,
-    end: end,
-    interval: event.deviceTime + '/' + end
-  });
 }
 
 if (Rx.Observable.prototype.tidepoolConvertBasal == null) {
@@ -99,7 +87,46 @@ if (Rx.Observable.prototype.tidepoolConvertBasal == null) {
           return isScheduledBasal(e) ? makeNewBasalHandler() : null;
         }
       ]
-    ).map(tempBasalMappingFn);
+    ).tidepoolSelfJoin(
+      [
+        function(event) {
+          if (! (event.type === 'basal' && event.deliveryType === 'temp')) {
+            return null;
+          }
+
+          var temp = null;
+          var eventBuffer = [];
+          return {
+            handle: function(e) {
+              if (temp == null) {
+                temp = _.assign({}, e, {
+                  type: 'basal-rate-segment',
+                  start: e.deviceTime,
+                  end: moment(e.deviceTime).add('ms', e.duration).format('YYYY-MM-DDThh:mm:ss')
+                });
+                return null;
+              }
+
+              if (e.type === 'basal') {
+                if (temp.end < e.deviceTime) {
+                  // Exceeded the length of the temp, so just return
+                  return [temp].concat(eventBuffer).concat([e]);
+                } else if (e.deliveryType === 'temp-stop' && e.tempId === temp.id) {
+                  // We have a canceled temp basal
+                  temp.end = e.deviceTime;
+                  return [temp].concat(eventBuffer);
+                }
+              }
+
+              eventBuffer.push(e);
+              return null;
+            },
+            completed: function() {
+              return [temp].concat(eventBuffer);
+            }
+          };
+        }
+      ]);
   };
 }
 

@@ -388,10 +388,6 @@ module.exports = function(options){
             Rx.Observable.fromArray(res.body)
               .tidepoolConvertBasal()
               .tidepoolConvertBolus()
-              .map(function(e){
-                e.value = Number(e.value);
-                return e;
-              })
               .flatMap(function(datum) {
                 if (datum.type === 'wizard') {
                   return Rx.Observable.fromArray(
