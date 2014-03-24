@@ -38,12 +38,21 @@ module.exports = function(host, superagent) {
     if (groupType == null) {
       return cb({ message: 'Must specify a groupType' });
     }
+
     superagent
-      .get(makeUrl('/metadata/' + userId + '/groups'))
-      .set(sessionTokenHeader, token)
-      .end(function(err, res){
-        return cb(err, res.body[groupType]);
-      });
+    .get(makeUrl('/metadata/' + userId + '/groups'))
+    .set(sessionTokenHeader, token)
+    .end(function(error, res){
+      if(error){
+        cb(error);
+      } else if (res.status === 404) {
+        cb(null,null);
+      } else if(res.status === 200) {
+        cb(null,res.body[groupType]);
+      } else {
+        cb({ message: 'Unknown response code from groups ' + res.status });
+      }
+    });
   }
   /*
     Return the user group (e.g. team, invited, patients) asked for.
@@ -75,8 +84,6 @@ module.exports = function(host, superagent) {
       },
       function(groupId, callback){
         //find the requested group
-
-        //console.log('does group exist? ',groupId);
         if(groupId){
           superagent
             .get(makeUrl('/group/' + groupId + '/members'))
@@ -92,7 +99,6 @@ module.exports = function(host, superagent) {
                   id: groupId,
                   members: res.body.members
                 };
-                //console.log('asking for ['+groupType+'] #'+userId+' group #',group.id);
                 callback(null,group);
               }
             });
