@@ -7,6 +7,7 @@ env:
     - "MOCK=true"
     - "MOCK_DATA_DIR=data/sample"
     - "SAUCE=true"
+    # Env variables for Sauce credentials, see https://saucelabs.com/opensource/travis
     - secure: "O8RTZtTzl0nfMd0DfFqGp1GtSy7vXg3CqyiZCdJMJkXobM61Mfj/3ltHJSSxLx0Klf7iQ/NWUldBKGnzQm+f5J24CE8bLDEq3Oj1YiBy8SB3KSso+4lqacuK+DpsDdQyc74IZG9OqfuNjHCEzGCoEeI/6AW650DlLs78mGuTXI8="
     - secure: "ic4dHVqUT87hhYxmEfClsjoygIqS+Or616kbpKPp7UlbxUZTbSi/WlhHv7KxpQUk5fYBkEnXxedL/4HVlhoyeW6LuDxkKx/c/JqRA0B4aPW/tI0dNNTkQbrr7kLkLufyYTejq8fZedRYxgFyuzRK6PyDvbH8DKSpal2QfBrbRgk="
   matrix:
