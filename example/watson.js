@@ -52,7 +52,13 @@ var watson = {
       }
       else if (i.type === 'basal-rate-segment') {
         i.normalTime = i.start + APPEND;
-        i.normalEnd = i.end + APPEND;
+        if (i.end) {
+          i.normalEnd = i.end + APPEND;
+        }
+        else {
+          i.normalEnd = null;
+        }
+        
       }
       return i;
     });
