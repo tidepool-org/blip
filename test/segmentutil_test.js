@@ -105,7 +105,10 @@ function testData (data) {
       });
 
       it('can have gaps, but should not have overlaps', function() {
-        basal.actual.forEach(function(segment, i, segments) {
+        actuals = _.sortBy(basal.actual, function(d) {
+          return new Date(d.start).valueOf();
+        });
+        actuals.forEach(function(segment, i, segments) {
           if ((i < (segments.length - 1)) && segment.deliveryType === 'scheduled') {
             var e = new Date(segment.end).valueOf();
             var s = new Date(segments[i + 1].start).valueOf();
@@ -186,7 +189,10 @@ function testData (data) {
       });
 
       it('can have gaps, but should not have overlaps', function() {
-        basal.undelivered.forEach(function(segment, i, segments) {
+        undelivereds = _.sortBy(basal.undelivered, function(d) {
+          return new Date(d.start).valueOf();
+        });
+        undelivereds.forEach(function(segment, i, segments) {
           if ((i < (segments.length - 1)) && segment.deliveryType === 'scheduled') {
             var e = new Date(segment.end).valueOf();
             var s = new Date(segments[i + 1].start).valueOf();
