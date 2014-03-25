@@ -51582,7 +51582,7 @@ module.exports=[
         "end": "2014-04-05T01:50:55",
         "deliveryType": "temp",
         "inferred": false,
-        "value": 0.25,
+        "percentage": 50,
         "start": "2014-04-04T18:20:55",
         "_id": "9a235f60-6447-417a-b14a-f6f8f3ee2d41",
         "type": "basal-rate-segment"
@@ -54575,7 +54575,7 @@ module.exports=[
     },
     {
         "delivered": 0.8,
-        "end": "2014-04-06T13:39:27",
+        "end": null,
         "deliveryType": "scheduled",
         "inferred": true,
         "value": 0.8,
@@ -55123,7 +55123,13 @@ var watson = {
       }
       else if (i.type === 'basal-rate-segment') {
         i.normalTime = i.start + APPEND;
-        i.normalEnd = i.end + APPEND;
+        if (i.end) {
+          i.normalEnd = i.end + APPEND;
+        }
+        else {
+          i.normalEnd = null;
+        }
+        
       }
       return i;
     });
@@ -55138,7 +55144,7 @@ var watson = {
 };
 
 module.exports = watson;
-},{"../js/lib/":10,"lodash":57}],3:[function(require,module,exports){
+},{"../js/lib/":11,"lodash":58}],3:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -55217,7 +55223,7 @@ function BasalUtil(data) {
 }
 
 module.exports = BasalUtil;
-},{"../lib/":10,"./util/datetime":7,"./util/format":8}],4:[function(require,module,exports){
+},{"../lib/":11,"./util/datetime":8,"./util/format":9}],4:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -55271,7 +55277,7 @@ function BolusUtil(data) {
 }
 
 module.exports = BolusUtil;
-},{"../lib/":10,"./util/datetime":7,"./util/format":8}],5:[function(require,module,exports){
+},{"../lib/":11,"./util/datetime":8,"./util/format":9}],5:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -55386,7 +55392,45 @@ function CBGUtil(data) {
 }
 
 module.exports = CBGUtil;
-},{"../lib/":10,"./util/datetime":7}],6:[function(require,module,exports){
+},{"../lib/":11,"./util/datetime":8}],6:[function(require,module,exports){
+/* 
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+var _ = require('../lib/')._;
+
+function DeviceUtil(data) {
+  this.findLastDatum = function() {
+    var included = ['smbg', 'carbs', 'bolus'];
+    for (var j = data.length - 1; j > 0; j--) {
+      console.log(data[j].type);
+      if ((data[j].type === 'basal-rate-segment') && (data[j].end)) {
+        return data[j].end;
+      }
+      else if (included.indexOf(data[j].type !== -1)) {
+        return data[j].deviceTime;
+      }
+    }
+  };
+
+  this.data = data;
+}
+
+module.exports = DeviceUtil;
+},{"../lib/":11}],7:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -55412,6 +55456,7 @@ var keysToOmit = ['id', 'start', 'end', 'vizType'];
 function SegmentUtil(data) {
   var actuals = [];
   var undelivereds = [];
+  var overlaps = [];
 
   function addToActuals(e) {
     actuals.push(_.extend({}, e, {vizType: 'actual'}));
@@ -55468,7 +55513,7 @@ function SegmentUtil(data) {
             // e.deliveryType === 'scheduled'
             if (lastActual.deliveryType === 'scheduled') {
               // Scheduled overlapping a scheduled, this should not happen.
-              log('Scheduled overlapped a scheduled.  Should never happen.', lastActual, e);
+              overlaps.push([lastActual, e]);
             } else {
               // Scheduled overlapping a temp, this can happen and the schedule should be skipped
               
@@ -55498,6 +55543,11 @@ function SegmentUtil(data) {
 
   data.forEach(processElement);
 
+  log(overlaps.length, 'instances of scheduled overlapping a scheduled.');
+  if (overlaps.length > 0) {
+    log('First example', overlaps[0][0], overlaps[0][1]);
+  }
+
   this.actual = actuals;
   this.undelivered = undelivereds;
   this.all = this.actual.concat(this.undelivered);
@@ -55506,7 +55556,7 @@ function SegmentUtil(data) {
 }
 
 module.exports = SegmentUtil;
-},{"../lib/":10}],7:[function(require,module,exports){
+},{"../lib/":11}],8:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  */
@@ -55591,7 +55641,7 @@ var datetime = {
 };
 
 module.exports = datetime;
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 var format = {
 
   fixFloatingPoint: function(n) {
@@ -55610,7 +55660,7 @@ var format = {
 };
 
 module.exports = format;
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -55637,6 +55687,7 @@ module.exports = {
     BasalUtil: require('./data/basalutil'),
     BolusUtil: require('./data/bolusutil'),
     CBGUtil: require('./data/cbgutil'),
+    DeviceUtil: require('./data/deviceutil'),
     SegmentUtil: require('./data/segmentutil'),
     util: {
       datetime: require('./data/util/datetime'),
@@ -55666,7 +55717,7 @@ module.exports = {
   }
 };
 
-},{"./data/basalutil":3,"./data/bolusutil":4,"./data/cbgutil":5,"./data/segmentutil":6,"./data/util/datetime":7,"./data/util/format":8,"./lib/index":10,"./one-day":11,"./plot/basal":12,"./plot/bolus":13,"./plot/carbs":14,"./plot/cbg":15,"./plot/message":16,"./plot/smbg":18,"./plot/smbg-time":17,"./plot/stats/puddle":19,"./plot/stats/widget":20,"./plot/util/fill":21,"./plot/util/scales":22,"./plot/util/tooltip":23,"./pool":24,"./two-week":25}],10:[function(require,module,exports){
+},{"./data/basalutil":3,"./data/bolusutil":4,"./data/cbgutil":5,"./data/deviceutil":6,"./data/segmentutil":7,"./data/util/datetime":8,"./data/util/format":9,"./lib/index":11,"./one-day":12,"./plot/basal":13,"./plot/bolus":14,"./plot/carbs":15,"./plot/cbg":16,"./plot/message":17,"./plot/smbg":19,"./plot/smbg-time":18,"./plot/stats/puddle":20,"./plot/stats/widget":21,"./plot/util/fill":22,"./plot/util/scales":23,"./plot/util/tooltip":24,"./pool":25,"./two-week":26}],11:[function(require,module,exports){
 var lib = {};
 
 if (typeof window !== 'undefined') {
@@ -55700,7 +55751,7 @@ if (!lib.bows) {
 }
 
 module.exports = lib;
-},{"lodash":57}],11:[function(require,module,exports){
+},{"lodash":58}],12:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -56292,7 +56343,7 @@ module.exports = function(emitter) {
   return container;
 };
 
-},{"./lib/":10,"./plot/util/tooltip":23,"./pool":24}],12:[function(require,module,exports){
+},{"./lib/":11,"./plot/util/tooltip":24,"./pool":25}],13:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -56351,6 +56402,21 @@ module.exports = function(pool, opts) {
       // when index === 0 might catch a non-basal
       if (opts.data[index].type === 'basal-rate-segment') {
         currentData.unshift(opts.data[index]);
+      }
+
+      var originalLength = currentData.length;
+
+      // remove a basal segment if it has an invalid value attribute
+      var removed = [];
+      currentData = _.filter(currentData, function(d) {
+        if (!(d.value >= 0)) {
+          removed.push(d);
+        }
+        return d.value >= 0;
+      });
+      if (originalLength !== currentData.length) {
+        log(originalLength - currentData.length, 'basal segment(s) removed because of an invalid value attribute.', removed);
+        log('Basal/bolus ratio killed due to ^^^');
       }
 
       var line = d3.svg.line()
@@ -56756,7 +56822,7 @@ module.exports = function(pool, opts) {
   return basal;
 };
 
-},{"../lib/":10}],13:[function(require,module,exports){
+},{"../lib/":11}],14:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -57174,7 +57240,7 @@ module.exports = function(pool, opts) {
   return bolus;
 };
 
-},{"../lib/":10}],14:[function(require,module,exports){
+},{"../lib/":11}],15:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -57330,7 +57396,7 @@ module.exports = function(pool, opts) {
 
   return carbs;
 };
-},{"../lib/":10}],15:[function(require,module,exports){
+},{"../lib/":11}],16:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -57494,7 +57560,7 @@ module.exports = function(pool, opts) {
 
   return cbg;
 };
-},{"../lib/":10}],16:[function(require,module,exports){
+},{"../lib/":11}],17:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -57558,7 +57624,7 @@ module.exports = function(pool, opts) {
 
   return cbg;
 };
-},{"../lib/":10}],17:[function(require,module,exports){
+},{"../lib/":11}],18:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -57750,7 +57816,7 @@ function SMBGTime (opts) {
 }
 
 module.exports = SMBGTime;
-},{"../lib/":10}],18:[function(require,module,exports){
+},{"../lib/":11}],19:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -57905,7 +57971,7 @@ module.exports = function(pool, opts) {
 
   return smbg;
 };
-},{"../lib/":10,"./util/scales":22}],19:[function(require,module,exports){
+},{"../lib/":11,"./util/scales":23}],20:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -57951,7 +58017,7 @@ module.exports = function(opts) {
     var displayGroup = selection.append('text')
       .attr({
         'x': opts.xOffset,
-        'y': opts.height / 2 + (opts.leadSize * 2),
+        'y': opts.height / 2 + opts.leadSize,
         'class': 'd3-stats-display'
       });
 
@@ -58002,7 +58068,7 @@ module.exports = function(opts) {
 
   return puddle;
 };
-},{"../../lib/":10}],20:[function(require,module,exports){
+},{"../../lib/":11}],21:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -58472,7 +58538,7 @@ module.exports = function(pool, opts) {
 
   return stats;
 };
-},{"../../data/util/format":8,"../../lib/":10,"../util/scales":22,"./puddle":19}],21:[function(require,module,exports){
+},{"../../data/util/format":9,"../../lib/":11,"../util/scales":23,"./puddle":20}],22:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -58546,13 +58612,27 @@ module.exports = function(pool, opts) {
       current = next;
     }
 
+    if (opts.dataGutter) {
+      fills.shift();
+    }
+
     selection.selectAll('rect')
       .data(fills)
       .enter()
       .append('rect')
       .attr({
-        'x': function(d) {
-          return d.x;
+        'x': function(d, i) {
+          if (opts.dataGutter) {
+            if (i === fills.length  - 1) {
+              return d.x - opts.dataGutter;
+            }
+            else {
+              return d.x;
+            }
+          }
+          else {
+            return d.x;
+          }
         },
         'y': function() {
           if (opts.gutter.top) {
@@ -58562,8 +58642,18 @@ module.exports = function(pool, opts) {
             return opts.gutter;
           }
         },
-        'width': function(d) {
-          return d.width;
+        'width': function(d, i) {
+          if (opts.dataGutter) {
+            if ((i === 0) || (i === fills.length  - 1)) {
+              return d.width + opts.dataGutter;
+            }
+            else {
+              return d.width;
+            }
+          }
+          else {
+            return d.width;
+          }
         },
         'height': function() {
           if (opts.gutter.top) {
@@ -58599,7 +58689,7 @@ module.exports = function(pool, opts) {
   
   return fill;
 };
-},{"../../lib/":10}],22:[function(require,module,exports){
+},{"../../lib/":11}],23:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -58654,7 +58744,7 @@ var scales = {
 };
 
 module.exports = scales;
-},{"../../lib/":10}],23:[function(require,module,exports){
+},{"../../lib/":11}],24:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -58947,7 +59037,7 @@ module.exports = function(container, tooltipsGroup) {
 
   return tooltip;
 };
-},{"../../lib/":10}],24:[function(require,module,exports){
+},{"../../lib/":11}],25:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -59159,7 +59249,7 @@ function Pool (container) {
 
 module.exports = Pool;
 
-},{"./lib/":10}],25:[function(require,module,exports){
+},{"./lib/":11}],26:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -59200,7 +59290,7 @@ module.exports = function(emitter) {
       scrollThumbRadius: 8,
       currentTranslation: 0
     },
-    axisGutter = 52, dayTickSize = 0,
+    axisGutter = 52, dataGutter, dayTickSize = 0,
     statsHeight = 100,
     pools = [], poolGroup, days, daysGroup,
     xScale = d3.scale.linear(), xAxis, yScale = d3.time.scale.utc(), yAxis,
@@ -59441,7 +59531,7 @@ module.exports = function(emitter) {
       .attr({
         'id': 'xAxisInvisibleRect',
         'x': axisGutter,
-        'height': nav.axisHeight - 1,
+        'height': nav.axisHeight,
         'width': width - axisGutter,
         'fill': 'white'
       });
@@ -59469,7 +59559,7 @@ module.exports = function(emitter) {
   container.setAxes = function() {
     // set the domain and range for the two-week x-scale
     xScale.domain([0, MS_IN_24])
-      .range([axisGutter, width - nav.navGutter]);
+      .range([axisGutter + dataGutter, width - nav.navGutter - dataGutter]);
     xAxis = d3.svg.axis().scale(xScale).orient('top').outerTickSize(0).innerTickSize(15)
       .tickValues(function() {
         var a = [];
@@ -59772,6 +59862,12 @@ module.exports = function(emitter) {
     return container;
   };
 
+  container.dataGutter = function(x) {
+    if (!arguments.length) return dataGutter;
+    dataGutter = x;
+    return container;
+  };
+
   container.latestTranslation = function(x) {
     if (!arguments.length) return nav.latestTranslation;
     nav.latestTranslation = x;
@@ -59901,10 +59997,10 @@ module.exports = function(emitter) {
   return container;
 };
 
-},{"./lib/":10,"./pool":24}],26:[function(require,module,exports){
+},{"./lib/":11,"./pool":25}],27:[function(require,module,exports){
 module.exports = require('./lib/chai');
 
-},{"./lib/chai":27}],27:[function(require,module,exports){
+},{"./lib/chai":28}],28:[function(require,module,exports){
 /*!
  * chai
  * Copyright(c) 2011-2013 Jake Luer <jake@alogicalparadox.com>
@@ -59986,7 +60082,7 @@ exports.use(should);
 var assert = require('./chai/interface/assert');
 exports.use(assert);
 
-},{"./chai/assertion":28,"./chai/core/assertions":29,"./chai/interface/assert":30,"./chai/interface/expect":31,"./chai/interface/should":32,"./chai/utils":43,"assertion-error":51}],28:[function(require,module,exports){
+},{"./chai/assertion":29,"./chai/core/assertions":30,"./chai/interface/assert":31,"./chai/interface/expect":32,"./chai/interface/should":33,"./chai/utils":44,"assertion-error":52}],29:[function(require,module,exports){
 /*!
  * chai
  * http://chaijs.com
@@ -60118,7 +60214,7 @@ module.exports = function (_chai, util) {
   });
 };
 
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 /*!
  * chai
  * http://chaijs.com
@@ -61390,7 +61486,7 @@ module.exports = function (chai, _) {
   });
 };
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 /*!
  * chai
  * Copyright(c) 2011-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62472,7 +62568,7 @@ module.exports = function (chai, util) {
   ('Throw', 'throws');
 };
 
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 /*!
  * chai
  * Copyright(c) 2011-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62486,7 +62582,7 @@ module.exports = function (chai, util) {
 };
 
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 /*!
  * chai
  * Copyright(c) 2011-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62564,7 +62660,7 @@ module.exports = function (chai, util) {
   chai.Should = loadShould;
 };
 
-},{}],33:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 /*!
  * Chai - addChainingMethod utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62660,7 +62756,7 @@ module.exports = function (ctx, name, method, chainingBehavior) {
   });
 };
 
-},{"./transferFlags":49}],34:[function(require,module,exports){
+},{"./transferFlags":50}],35:[function(require,module,exports){
 /*!
  * Chai - addMethod utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62699,7 +62795,7 @@ module.exports = function (ctx, name, method) {
   };
 };
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 /*!
  * Chai - addProperty utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62741,7 +62837,7 @@ module.exports = function (ctx, name, getter) {
   });
 };
 
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 /*!
  * Chai - flag utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62775,7 +62871,7 @@ module.exports = function (obj, key, value) {
   }
 };
 
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 /*!
  * Chai - getActual utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62796,7 +62892,7 @@ module.exports = function (obj, args) {
   return 'undefined' !== typeof actual ? actual : obj._obj;
 };
 
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 /*!
  * Chai - getEnumerableProperties utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62823,7 +62919,7 @@ module.exports = function getEnumerableProperties(object) {
   return result;
 };
 
-},{}],39:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 /*!
  * Chai - message composition utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62874,7 +62970,7 @@ module.exports = function (obj, args) {
   return flagMsg ? flagMsg + ': ' + msg : msg;
 };
 
-},{"./flag":36,"./getActual":37,"./inspect":44,"./objDisplay":45}],40:[function(require,module,exports){
+},{"./flag":37,"./getActual":38,"./inspect":45,"./objDisplay":46}],41:[function(require,module,exports){
 /*!
  * Chai - getName utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62896,7 +62992,7 @@ module.exports = function (func) {
   return match && match[1] ? match[1] : "";
 };
 
-},{}],41:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 /*!
  * Chai - getPathValue utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -63000,7 +63096,7 @@ function _getPathValue (parsed, obj) {
   return res;
 };
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 /*!
  * Chai - getProperties utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -63037,7 +63133,7 @@ module.exports = function getProperties(object) {
   return result;
 };
 
-},{}],43:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 /*!
  * chai
  * Copyright(c) 2011 Jake Luer <jake@alogicalparadox.com>
@@ -63147,7 +63243,7 @@ exports.overwriteMethod = require('./overwriteMethod');
 exports.addChainableMethod = require('./addChainableMethod');
 
 
-},{"./addChainableMethod":33,"./addMethod":34,"./addProperty":35,"./flag":36,"./getActual":37,"./getMessage":39,"./getName":40,"./getPathValue":41,"./inspect":44,"./objDisplay":45,"./overwriteMethod":46,"./overwriteProperty":47,"./test":48,"./transferFlags":49,"./type":50,"deep-eql":52}],44:[function(require,module,exports){
+},{"./addChainableMethod":34,"./addMethod":35,"./addProperty":36,"./flag":37,"./getActual":38,"./getMessage":40,"./getName":41,"./getPathValue":42,"./inspect":45,"./objDisplay":46,"./overwriteMethod":47,"./overwriteProperty":48,"./test":49,"./transferFlags":50,"./type":51,"deep-eql":53}],45:[function(require,module,exports){
 // This is (almost) directly from Node.js utils
 // https://github.com/joyent/node/blob/f8c335d0caf47f16d31413f89aa28eda3878e3aa/lib/util.js
 
@@ -63469,7 +63565,7 @@ function objectToString(o) {
   return Object.prototype.toString.call(o);
 }
 
-},{"./getEnumerableProperties":38,"./getName":40,"./getProperties":42}],45:[function(require,module,exports){
+},{"./getEnumerableProperties":39,"./getName":41,"./getProperties":43}],46:[function(require,module,exports){
 /*!
  * Chai - flag utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -63519,7 +63615,7 @@ module.exports = function (obj) {
   }
 };
 
-},{"./inspect":44}],46:[function(require,module,exports){
+},{"./inspect":45}],47:[function(require,module,exports){
 /*!
  * Chai - overwriteMethod utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -63572,7 +63668,7 @@ module.exports = function (ctx, name, method) {
   }
 };
 
-},{}],47:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 /*!
  * Chai - overwriteProperty utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -63628,7 +63724,7 @@ module.exports = function (ctx, name, getter) {
   });
 };
 
-},{}],48:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 /*!
  * Chai - test utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -63656,7 +63752,7 @@ module.exports = function (obj, args) {
   return negate ? !expr : expr;
 };
 
-},{"./flag":36}],49:[function(require,module,exports){
+},{"./flag":37}],50:[function(require,module,exports){
 /*!
  * Chai - transferFlags utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -63702,7 +63798,7 @@ module.exports = function (assertion, object, includeAll) {
   }
 };
 
-},{}],50:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 /*!
  * Chai - type utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -63749,7 +63845,7 @@ module.exports = function (obj) {
   return typeof obj;
 };
 
-},{}],51:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 /*!
  * assertion-error
  * Copyright(c) 2013 Jake Luer <jake@qualiancy.com>
@@ -63861,10 +63957,10 @@ AssertionError.prototype.toJSON = function (stack) {
   return props;
 };
 
-},{}],52:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 module.exports = require('./lib/eql');
 
-},{"./lib/eql":53}],53:[function(require,module,exports){
+},{"./lib/eql":54}],54:[function(require,module,exports){
 /*!
  * deep-eql
  * Copyright(c) 2013 Jake Luer <jake@alogicalparadox.com>
@@ -64123,10 +64219,10 @@ function objectEqual(a, b, m) {
   return true;
 }
 
-},{"buffer":73,"type-detect":54}],54:[function(require,module,exports){
+},{"buffer":74,"type-detect":55}],55:[function(require,module,exports){
 module.exports = require('./lib/type');
 
-},{"./lib/type":55}],55:[function(require,module,exports){
+},{"./lib/type":56}],56:[function(require,module,exports){
 /*!
  * type-detect
  * Copyright(c) 2013 jake luer <jake@alogicalparadox.com>
@@ -64270,7 +64366,7 @@ Library.prototype.test = function (obj, type) {
   }
 };
 
-},{}],56:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 var Duration = (function () {
 
     var millisecond = 1,
@@ -64451,7 +64547,7 @@ if (typeof module !== "undefined") {
    module.exports = Duration;
 }
 
-},{}],57:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
  * @license
  * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
@@ -71238,7 +71334,7 @@ var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? 
   }
 }.call(this));
 
-},{}],58:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -71361,7 +71457,7 @@ describe('basal utilities', function() {
 });
 
 
-},{"../example/watson":2,"../js/index":9,"./fixtures":71,"chai":26,"duration-js":56,"lodash":57}],59:[function(require,module,exports){
+},{"../example/watson":2,"../js/index":10,"./fixtures":72,"chai":27,"duration-js":57,"lodash":58}],60:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -71436,7 +71532,7 @@ describe('bolus utilities', function() {
     });
   });
 });
-},{"../example/data/device-data.json":1,"../example/watson":2,"../js/index":9,"chai":26,"duration-js":56,"lodash":57}],60:[function(require,module,exports){
+},{"../example/data/device-data.json":1,"../example/watson":2,"../js/index":10,"chai":27,"duration-js":57,"lodash":58}],61:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -71573,7 +71669,7 @@ describe('cbg utilities', function() {
     });
   });
 });
-},{"../example/data/device-data.json":1,"../example/watson":2,"../js/index":9,"chai":26,"duration-js":56,"lodash":57}],61:[function(require,module,exports){
+},{"../example/data/device-data.json":1,"../example/watson":2,"../js/index":10,"chai":27,"duration-js":57,"lodash":58}],62:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  */
@@ -71690,7 +71786,7 @@ describe('datetime utility', function() {
     });
   });
 });
-},{"../js/index":9,"chai":26,"lodash":57}],62:[function(require,module,exports){
+},{"../js/index":10,"chai":27,"lodash":58}],63:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -71783,7 +71879,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],63:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -71886,7 +71982,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],64:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -71989,7 +72085,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],65:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -72082,7 +72178,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],66:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -72175,7 +72271,7 @@ module.exports=[
         "id": "d7e6e692-3371-409b-8d7a-e6ee6097b2d1"
     }
 ]
-},{}],67:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -72268,7 +72364,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],68:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -72361,7 +72457,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],69:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -72454,7 +72550,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],70:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -72537,7 +72633,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],71:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -72568,7 +72664,7 @@ fixtures.push({'name': 'overlapping', 'json': require('./basal-overlapping')});
 fixtures.push({'name': 'temp-final', 'json': require('./basal-temp-final')});
 fixtures.push({'name': 'current-demo', 'json': require('../../example/data/device-data')});
 module.exports = fixtures;
-},{"../../example/data/device-data":1,"./basal-contained":62,"./basal-overlapping":63,"./basal-temp-both-ends":64,"./basal-temp-end":65,"./basal-temp-final":66,"./basal-temp-many-scheduled":67,"./basal-temp-start":68,"./basal-temp-two-scheduled":69,"./basal-template":70}],72:[function(require,module,exports){
+},{"../../example/data/device-data":1,"./basal-contained":63,"./basal-overlapping":64,"./basal-temp-both-ends":65,"./basal-temp-end":66,"./basal-temp-final":67,"./basal-temp-many-scheduled":68,"./basal-temp-start":69,"./basal-temp-two-scheduled":70,"./basal-template":71}],73:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -72639,10 +72735,10 @@ function testData (data) {
         expect(basal.actual[0].start).to.equal(basals[0].start);
       });
 
-      it('should have a last segment with an end matching the last segment of input data', function() {
+      it('should have a last segment with an end matching the last segment of input data or null', function() {
         var basals = _.where(data.json, {'type': 'basal-rate-segment'});
         var basalLength = basal.actual.length;
-        expect(basal.actual[basalLength - 1].end).to.equal(basals[basals.length - 1].end);
+        expect(basal.actual[basalLength - 1].end).to.equal(basals[basals.length - 1].end || null);
       });
 
       it('should be sorted in sequence', function() {
@@ -72723,7 +72819,7 @@ function testData (data) {
   });
 }
 
-},{"../example/watson":2,"../js/index":9,"./fixtures":71,"chai":26,"lodash":57}],73:[function(require,module,exports){
+},{"../example/watson":2,"../js/index":10,"./fixtures":72,"chai":27,"lodash":58}],74:[function(require,module,exports){
 var base64 = require('base64-js')
 var ieee754 = require('ieee754')
 
@@ -73718,7 +73814,7 @@ function assert (test, message) {
   if (!test) throw new Error(message || 'Failed assertion')
 }
 
-},{"base64-js":74,"ieee754":75}],74:[function(require,module,exports){
+},{"base64-js":75,"ieee754":76}],75:[function(require,module,exports){
 var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 ;(function (exports) {
@@ -73845,7 +73941,7 @@ var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 }());
 
 
-},{}],75:[function(require,module,exports){
+},{}],76:[function(require,module,exports){
 exports.read = function(buffer, offset, isLE, mLen, nBytes) {
   var e, m,
       eLen = nBytes * 8 - mLen - 1,
@@ -73931,4 +74027,4 @@ exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128;
 };
 
-},{}]},{},[58,59,60,61,72])
+},{}]},{},[59,60,61,62,73])
