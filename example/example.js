@@ -78,9 +78,6 @@ d3.json('data/device-data.json', function(data) {
   data = _.sortBy(data, function(d) {
     return new Date(d.normalTime).valueOf();
   });
-  // load blip output data
-  // comment this out when you don't want to do this
-  // data = require('./data/blip-output.json');
 
   log('Initial one-day view.');
   oneDay.load(data).locate('2014-03-06T09:00:00');
