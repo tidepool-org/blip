@@ -68,10 +68,10 @@ function testData (data) {
         expect(basal.actual[0].start).to.equal(basals[0].start);
       });
 
-      it('should have a last segment with an end matching the last segment of input data', function() {
+      it('should have a last segment with an end matching the last segment of input data or null', function() {
         var basals = _.where(data.json, {'type': 'basal-rate-segment'});
         var basalLength = basal.actual.length;
-        expect(basal.actual[basalLength - 1].end).to.equal(basals[basals.length - 1].end);
+        expect(basal.actual[basalLength - 1].end).to.equal(basals[basals.length - 1].end || null);
       });
 
       it('should be sorted in sequence', function() {
