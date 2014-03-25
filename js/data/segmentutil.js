@@ -23,6 +23,7 @@ var keysToOmit = ['id', 'start', 'end', 'vizType'];
 function SegmentUtil(data) {
   var actuals = [];
   var undelivereds = [];
+  var overlaps = [];
 
   function addToActuals(e) {
     actuals.push(_.extend({}, e, {vizType: 'actual'}));
@@ -79,7 +80,7 @@ function SegmentUtil(data) {
             // e.deliveryType === 'scheduled'
             if (lastActual.deliveryType === 'scheduled') {
               // Scheduled overlapping a scheduled, this should not happen.
-              log('Scheduled overlapped a scheduled.  Should never happen.', lastActual, e);
+              overlaps.push([lastActual, e]);
             } else {
               // Scheduled overlapping a temp, this can happen and the schedule should be skipped
               
@@ -108,6 +109,11 @@ function SegmentUtil(data) {
   }
 
   data.forEach(processElement);
+
+  log(overlaps.length, 'instances of scheduled overlapping a scheduled.');
+  if (overlaps.length > 0) {
+    log('First example', overlaps[0][0], overlaps[0][1]);
+  }
 
   this.actual = actuals;
   this.undelivered = undelivereds;
