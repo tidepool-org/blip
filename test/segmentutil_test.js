@@ -71,7 +71,9 @@ function testData (data) {
       it('should have a last segment with an end matching the last segment of input data or null', function() {
         var basals = _.where(data.json, {'type': 'basal-rate-segment'});
         var basalLength = basal.actual.length;
-        expect(basal.actual[basalLength - 1].end).to.equal(basals[basals.length - 1].end || null);
+        if (basal.actual[basalLength - 1].end !== basals[basals.length - 1].end) {
+          expect(basal.actual[basalLength - 1].end).to.be.null;
+        }
       });
 
       it('should be sorted in sequence', function() {
@@ -86,10 +88,39 @@ function testData (data) {
       });
 
       it('should have squashed contiguous identical segments', function() {
-        var keysToOmit = ['id', 'start', 'end'];
         basal.actual.forEach(function(segment, i, segments) {
-          if ((i < (segments.length - 1)) && segment.type === 'scheduled') {
-            expect(_.omit(segment, keysToOmit)).to.not.eql(_.omit(segments[i + 1], keysToOmit));
+          if ((i < (segments.length - 1)) && segment.deliveryType === 'scheduled') {
+            if (segment.end === segments[i + 1].start) {
+              try {
+                expect(segment.value).to.not.eql(segments[i + 1].value);
+              }
+              catch(e) {
+                console.log('should have squashed contiguous identical segments');
+                console.log(segment, segments[i + 1]);
+                throw(e);
+              }
+            }
+          }
+        });
+      });
+
+      it('can have gaps, but should not have overlaps', function() {
+        basal.actual.forEach(function(segment, i, segments) {
+          if ((i < (segments.length - 1)) && segment.deliveryType === 'scheduled') {
+            var e = new Date(segment.end).valueOf();
+            var s = new Date(segments[i + 1].start).valueOf();
+            try {
+              expect(s >= e).to.be.true;
+            }
+            catch(e) {
+              if (name === 'overlapping') {
+                console.log("Expected 'can have gaps, but should not have overlaps' to fail on overlapping fixture, and it did.");
+              }
+              else {
+                throw(e);
+              }
+            }
+
           }
         });
       });
@@ -135,6 +166,44 @@ function testData (data) {
         catch (e) {
           console.log('Expected error with fixture ending in temp basal.');
         }
+      });
+
+      it('should have squashed contiguous identical segments', function() {
+        basal.undelivered.forEach(function(segment, i, segments) {
+          if ((i < (segments.length - 1)) && segment.deliveryType === 'scheduled') {
+            if (segment.end === segments[i + 1].start) {
+              try {
+                expect(segment.value).to.not.eql(segments[i + 1].value);
+              }
+              catch(e) {
+                console.log('should have squashed contiguous identical segments');
+                console.log(segment, segments[i + 1]);
+                throw(e);
+              }
+            }
+          }
+        });
+      });
+
+      it('can have gaps, but should not have overlaps', function() {
+        basal.undelivered.forEach(function(segment, i, segments) {
+          if ((i < (segments.length - 1)) && segment.deliveryType === 'scheduled') {
+            var e = new Date(segment.end).valueOf();
+            var s = new Date(segments[i + 1].start).valueOf();
+            try {
+              expect(s >= e).to.be.true;
+            }
+            catch(e) {
+              if (name === 'overlapping') {
+                console.log("Expected 'can have gaps, but should not have overlaps' to fail on overlapping fixture, and it did.");
+              }
+              else {
+                throw(e);
+              }
+            }
+
+          }
+        });
       });
     });
   });
