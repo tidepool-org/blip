@@ -51577,11 +51577,10 @@
         "_id": "5b627acb-9dce-4cc6-9e28-72d8e0870445"
     },
     {
-        "delivered": 0.25,
         "end": "2014-04-05T01:50:55",
         "deliveryType": "temp",
         "inferred": false,
-        "value": 0.25,
+        "percent": 50,
         "start": "2014-04-04T18:20:55",
         "_id": "9a235f60-6447-417a-b14a-f6f8f3ee2d41",
         "type": "basal-rate-segment"
