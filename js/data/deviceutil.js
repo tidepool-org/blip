@@ -15,26 +15,19 @@
  * == BSD2 LICENSE ==
  */
 
-/*jshint expr: true */
-/*global describe, it */
+var _ = require('../lib/')._;
 
-var chai = require('chai');
-var assert = chai.assert;
-var expect = chai.expect;
+function DeviceUtil(data) {
+  this.findLastDatum = function() {
+    var included = ['bolus', 'carbs', 'smbg'];
+    for (var j = data.length - 1; j > 0; j--) {
+      if (included.indexOf(data[j].type) !== -1) {
+        return data[j].normalTime;
+      }
+    }
+  };
 
-var _ = require('lodash');
+  this.data = data;
+}
 
-var watson = require('../example/watson');
-var data = watson.normalize(require('../example/data/device-data.json'));
-
-var tideline = require('../js/index');
-var BolusUtil = tideline.data.BolusUtil;
-
-describe('bolus utilities', function() {
-  describe('totalBolus', function() {
-    var bolus = new BolusUtil(_.where(data, {'type': 'bolus'}));
-    it('should be a function', function() {
-      assert.isFunction(bolus.totalBolus);
-    });
-  });
-});
+module.exports = DeviceUtil;

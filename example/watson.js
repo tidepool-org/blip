@@ -37,11 +37,13 @@ catch (ReferenceError) {
   var log = require('../js/lib/').bows('Watson');
 }
 
+var APPEND = '.000Z';
+
 var watson = {
   normalize: function(a) {
     log('Watson normalized the data.');
     return _.map(a, function(i) {
-      i.normalTime = i.deviceTime + 'Z';
+      i.normalTime = i.deviceTime + APPEND;
       if (i.utcTime) {
         var d = new Date(i.utcTime);
         var offsetMinutes = d.getTimezoneOffset();
@@ -49,8 +51,14 @@ var watson = {
         i.normalTime = d.toISOString();
       }
       else if (i.type === 'basal-rate-segment') {
-        i.normalTime = i.start + 'Z';
-        i.normalEnd = i.end + 'Z';
+        i.normalTime = i.start + APPEND;
+        if (i.end) {
+          i.normalEnd = i.end + APPEND;
+        }
+        else {
+          i.normalEnd = null;
+        }
+        
       }
       return i;
     });

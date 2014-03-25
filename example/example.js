@@ -67,17 +67,20 @@ var twoWeek = chartWeeklyFactory(el, {imagesBaseUrl: imagesBaseUrl}, emitter);
 d3.json('data/device-data.json', function(data) {
   log('Data loaded.');
   // munge basal segments
-  var basalUtil = new tideline.data.BasalUtil(_.where(data, {'type': 'basal-rate-segment'}));
+  var segments = new tideline.data.SegmentUtil(_.where(data, {'type': 'basal-rate-segment'}));
   data = _.reject(data, function(d) {
     return d.type === 'basal-rate-segment';
   });
-  data = data.concat(basalUtil.actual.concat(basalUtil.undelivered));
+  data = data.concat(segments.actual.concat(segments.undelivered));
   // Watson the data
   data = watson.normalize(data);
   // ensure the data is properly sorted
   data = _.sortBy(data, function(d) {
     return new Date(d.normalTime).valueOf();
   });
+  // load blip output data
+  // comment this out when you don't want to do this
+  // data = require('./data/blip-output.json');
 
   log('Initial one-day view.');
   oneDay.load(data).locate('2014-03-06T09:00:00');

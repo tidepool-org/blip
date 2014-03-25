@@ -16,32 +16,38 @@
  */
 
 var _ = require('../lib/')._;
+var format = require('./util/format');
+var datetime = require('./util/datetime');
 var log = require('../lib/').bows('BolusUtil');
 
 function BolusUtil(data) {
 
-  function fixFloatingPoint (n) {
-    return parseFloat(n.toFixed(3));
-  }
-
   this.totalBolus = function(s, e) {
-    var dose = 0.0;
-    var firstBolus = _.find(this.data, function(bolus) {
-      var d = new Date(bolus.normalTime).valueOf();
-      return (d >= s) && (d <= e);
-    });
-    if (firstBolus) {
-      var index = this.data.indexOf(firstBolus);
-      while (index < (data.length - 1) && (new Date(this.data[index].normalTime).valueOf() <= e)) {
-        var bolus = this.data[index];
-        dose += bolus.value;
-        index++;
+    if (datetime.verifyEndpoints(s, e, this.endpoints)) {
+      var dose = 0.0;
+      var start = new Date(s).valueOf(), end = new Date(e).valueOf();
+      var firstBolus = _.find(this.data, function(bolus) {
+        var d = new Date(bolus.normalTime).valueOf();
+        return (d >= start) && (d <= end);
+      });
+      if (firstBolus) {
+        var index = this.data.indexOf(firstBolus);
+        while (index < (data.length - 1) && (new Date(this.data[index].normalTime).valueOf() <= end)) {
+          var bolus = this.data[index];
+          dose += bolus.value;
+          index++;
+        }
       }
+      return format.fixFloatingPoint(dose);
     }
-    return fixFloatingPoint(dose);
+    else {
+      return NaN;
+    }
+
   };
 
   this.data = data;
+  this.endpoints = [this.data[0].normalTime, this.data[this.data.length - 1].normalTime];
 }
 
 module.exports = BolusUtil;

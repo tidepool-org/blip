@@ -12,10 +12,10 @@ responsive:
 	lessc example/responsive.less example/example.css
 
 test:
-	./node_modules/.bin/mocha test/*util.js --reporter spec
+	./node_modules/.bin/mocha test/*_test.js --reporter spec
 
 minimal-test:
-	./node_modules/.bin/mocha test/*util.js --reporter nyan
+	./node_modules/.bin/mocha test/*_test.js --reporter nyan
 
 server:
 	python dev/simple_server.py

@@ -58,6 +58,30 @@ module.exports = function(pool, opts) {
         currentData.unshift(opts.data[index]);
       }
 
+      // TODO: handle basal segments with null end (should only be last one)
+      currentData = _.map(currentData, function(d) {
+        if (!d.normalEnd) {
+          d.normalEnd = opts.lastDatum;
+          log('Replaced end: null with last datum from device.', d);
+        }
+        return d;
+      });
+
+      var originalLength = currentData.length;
+
+      // remove a basal segment if it has an invalid value attribute
+      var removed = [];
+      currentData = _.filter(currentData, function(d) {
+        if (!(d.value >= 0)) {
+          removed.push(d);
+        }
+        return d.value >= 0;
+      });
+      if (originalLength !== currentData.length) {
+        log(originalLength - currentData.length, 'basal segment(s) removed because of an invalid value attribute.', removed);
+        log('Basal/bolus ratio killed due to ^^^');
+      }
+
       var line = d3.svg.line()
         .x(function(d) { return d.x; })
         .y(function(d) { return d.y; })
@@ -182,11 +206,17 @@ module.exports = function(pool, opts) {
 
       d3.selectAll('.d3-path-basal').remove();
 
-      d3.select(this).append('path')
-        .attr({
-        'd': line(actualPoints),
-        'class': 'd3-basal d3-path-basal'
-      });
+      // don't draw an actual path if you've removed any segments for having an invalid value attribute
+      if (originalLength === currentData.length) {
+        d3.select(this).append('path')
+          .attr({
+          'd': line(actualPoints),
+          'class': 'd3-basal d3-path-basal'
+        });
+      }
+      else {
+        log('Not drawing actual basal path because there were one or more basal segments with an invalid value attribute.');
+      }
 
       if (undelivered.length !== 0) {
         var undeliveredSequences = [];

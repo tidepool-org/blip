@@ -8,9 +8,9 @@
     ],
     "launchers": {
         "Node": {
-            "command": "mocha test/*util.js --reporter spec"
+            "command": "mocha test/*_test.js --reporter spec"
         }
     },
-    "before_tests": "browserify test/*util.js -o test/test.js",
+    "before_tests": "browserify test/*_test.js -o test/test.js",
     "launch_in_dev": [ "chrome", "node" ]
 }

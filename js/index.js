@@ -23,7 +23,13 @@ module.exports = {
   data: {
     BasalUtil: require('./data/basalutil'),
     BolusUtil: require('./data/bolusutil'),
-    CBGUtil: require('./data/cbgutil')
+    CBGUtil: require('./data/cbgutil'),
+    DeviceUtil: require('./data/deviceutil'),
+    SegmentUtil: require('./data/segmentutil'),
+    util: {
+      datetime: require('./data/util/datetime'),
+      format: require('./data/util/format')
+    }
   },
 
   lib: require('./lib/index'),

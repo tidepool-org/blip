@@ -103,8 +103,8 @@ function chartDailyFactory(el, options, emitter) {
 
   chart.load = function(data, datetime) {
     // data munging utilities for stats
+    var deviceUtil = new tideline.data.DeviceUtil(data);
     var basalUtil = new tideline.data.BasalUtil(_.where(data, {'type': 'basal-rate-segment'}));
-    basalUtil.normalizedActual = watson.normalize(basalUtil.actual);
     var bolusUtil = new tideline.data.BolusUtil(_.where(data, {'type': 'bolus'}));
     var cbgUtil = new tideline.data.CBGUtil(_.where(data, {'type': 'cbg'}));
 
@@ -178,7 +178,11 @@ function chartDailyFactory(el, options, emitter) {
     poolBasal.addPlotType('fill', fill(poolBasal, {endpoints: chart.endpoints}), false, true);
 
     // add basal data to basal pool
-    poolBasal.addPlotType('basal-rate-segment', tideline.plot.basal(poolBasal, {yScale: scaleBasal, data: _.where(data, {'type': 'basal-rate-segment'}) }), true, true);
+    poolBasal.addPlotType('basal-rate-segment', tideline.plot.basal(poolBasal, {
+      yScale: scaleBasal,
+      data: _.where(data, {'type': 'basal-rate-segment'}),
+      lastDatum: deviceUtil.findLastDatum()
+    }), true, true);
 
     // messages pool
     // add background fill rectangles to messages pool
