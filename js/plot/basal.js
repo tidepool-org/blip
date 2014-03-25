@@ -280,39 +280,45 @@ module.exports = function(pool, opts) {
       }
 
       // tooltips
-      d3.selectAll('.d3-basal-invisible').on('mouseover', function() {
-        var invisiRect = d3.select(this);
-        var id = invisiRect.attr('id').replace('basal_invisible_', '');
-        var d = d3.select('#basal_group_' + id).datum();
-        if (invisiRect.classed('d3-basal-temp')) {
-          var tempD = _.clone(_.findWhere(actual, {'deliveryType': 'temp', '_id': d.link.replace('link_', '')}));
-          tempD._id = d._id;
-          basal.addTooltip(tempD, 'temp', d);
-        }
-        else {
-          basal.addTooltip(d, 'reg');
-        }
-        if (invisiRect.classed('d3-basal-nonzero')) {
+      // only try to make tooltips if we're not excluding any segments due to invalid value attribute
+      if (originalLength === currentData.length) {
+        d3.selectAll('.d3-basal-invisible').on('mouseover', function() {
+          var invisiRect = d3.select(this);
+          var id = invisiRect.attr('id').replace('basal_invisible_', '');
+          var d = d3.select('#basal_group_' + id).datum();
           if (invisiRect.classed('d3-basal-temp')) {
-            d3.select('#basal_' + d.link.replace('link_', '')).attr('opacity', opts.opacity + opts.opacityDelta);
+            var tempD = _.clone(_.findWhere(actual, {'deliveryType': 'temp', '_id': d.link.replace('link_', '')}));
+            tempD._id = d._id;
+            basal.addTooltip(tempD, 'temp', d);
           }
           else {
-            d3.select('#basal_' + id).attr('opacity', opts.opacity + opts.opacityDelta);
+            basal.addTooltip(d, 'reg');
           }
-        }
-      });
-      d3.selectAll('.d3-basal-invisible').on('mouseout', function() {
-        var invisiRect = d3.select(this);
-        var id = invisiRect.attr('id').replace('basal_invisible_', '');
-        var d = d3.select('#basal_group_' + id).datum();
-        d3.select('#tooltip_' + id).remove();
-        if (invisiRect.classed('d3-basal-temp')) {
-          d3.select('#basal_' + d.link.replace('link_', '')).attr('opacity', opts.opacity);
-        }
-        else {
-          d3.select('#basal_' + id).attr('opacity', opts.opacity);
-        }
-      });
+          if (invisiRect.classed('d3-basal-nonzero')) {
+            if (invisiRect.classed('d3-basal-temp')) {
+              d3.select('#basal_' + d.link.replace('link_', '')).attr('opacity', opts.opacity + opts.opacityDelta);
+            }
+            else {
+              d3.select('#basal_' + id).attr('opacity', opts.opacity + opts.opacityDelta);
+            }
+          }
+        });
+        d3.selectAll('.d3-basal-invisible').on('mouseout', function() {
+          var invisiRect = d3.select(this);
+          var id = invisiRect.attr('id').replace('basal_invisible_', '');
+          var d = d3.select('#basal_group_' + id).datum();
+          d3.select('#tooltip_' + id).remove();
+          if (invisiRect.classed('d3-basal-temp')) {
+            d3.select('#basal_' + d.link.replace('link_', '')).attr('opacity', opts.opacity);
+          }
+          else {
+            d3.select('#basal_' + id).attr('opacity', opts.opacity);
+          }
+        });
+      }
+      else {
+        log('Tooltips suppressed because segment(s) with invalid value attribute present.');
+      }
     });
   }
 
