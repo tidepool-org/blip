@@ -23,6 +23,7 @@ var assert = chai.assert;
 var expect = chai.expect;
 
 var _ = require('lodash');
+var Duration = require('duration-js');
 
 var watson = require('../example/watson');
 var fx = require('./fixtures');
@@ -35,7 +36,8 @@ var MS_IN_HOUR = 3600000.0;
 
 describe('basal utilities', function() {
   describe('totalBasal', function() {
-    var basalSegments = watson.normalize(new SegmentUtil(_.where(_.findWhere(fx, {'name': 'current-demo'}).json, {'type': 'basal-rate-segment'})).all);
+    var data = watson.normalize(_.findWhere(fx, {'name': 'current-demo'}).json);
+    var basalSegments = new SegmentUtil(_.where(data, {'type': 'basal-rate-segment'})).all;
     var basal = new BasalUtil(basalSegments);
     var templateSegments = watson.normalize(new SegmentUtil(_.findWhere(fx, {'name': 'template'}).json).all);
     var template = new BasalUtil(templateSegments);
@@ -45,13 +47,35 @@ describe('basal utilities', function() {
     it('should be a function', function() {
       assert.isFunction(basal.totalBasal);
     });
+
     it('should return a number or NaN when given invalid date range', function() {
       var type = typeof basal.totalBasal('', '');
-      expect((type === 'number') || isNaN(type)).to.be.true;
+      expect(type === 'number').to.be.true;
     });
+
     it('should return a number when passed a valid date range', function() {
       var type = typeof basal.totalBasal(basal.data[0].normalTime, basal.data[1].normalTime);
-      expect(type === 'number').to.be.true;
+      expect((type === 'number') && isNaN(basal.totalBasal(basal.data[0].normalTime, basal.data[1].normalTime))).to.be.true;
+    });
+
+    it('should return NaN if the start of data and start of basals do not align exactly or overlap', function() {
+      var d = new Date(data[0].normalTime);
+      var b = new Date(basal.data[0].normalTime);
+      if (d < b) {
+        var twentyFour = Duration.parse('24h');
+        var endTwentyFour = new Date(d.valueOf() + twentyFour);
+        expect(isNaN(basal.totalBasal(d.valueOf(), endTwentyFour.valueOf()))).to.be.true;
+      }
+    });
+
+    it('should return NaN if the end of data and end of basals do not align exactly or overlap', function() {
+      var d = new Date(data[data.length - 1].normalTime);
+      var b = new Date(basal.data[basal.data.length - 1].normalEnd);
+      if (b < d) {
+        var twentyFour = Duration.parse('24h');
+        var prevTwentyFour = new Date(d.valueOf() - twentyFour);
+        expect(isNaN(basal.totalBasal(prevTwentyFour.valueOf(), d.valueOf()))).to.be.true;
+      }
     });
 
     it('should return 20.0 on basal-template.json for twenty-four hours', function() {

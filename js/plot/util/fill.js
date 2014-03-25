@@ -71,13 +71,27 @@ module.exports = function(pool, opts) {
       current = next;
     }
 
+    if (opts.dataGutter) {
+      fills.shift();
+    }
+
     selection.selectAll('rect')
       .data(fills)
       .enter()
       .append('rect')
       .attr({
-        'x': function(d) {
-          return d.x;
+        'x': function(d, i) {
+          if (opts.dataGutter) {
+            if (i === fills.length  - 1) {
+              return d.x - opts.dataGutter;
+            }
+            else {
+              return d.x;
+            }
+          }
+          else {
+            return d.x;
+          }
         },
         'y': function() {
           if (opts.gutter.top) {
@@ -87,8 +101,18 @@ module.exports = function(pool, opts) {
             return opts.gutter;
           }
         },
-        'width': function(d) {
-          return d.width;
+        'width': function(d, i) {
+          if (opts.dataGutter) {
+            if ((i === 0) || (i === fills.length  - 1)) {
+              return d.width + opts.dataGutter;
+            }
+            else {
+              return d.width;
+            }
+          }
+          else {
+            return d.width;
+          }
         },
         'height': function() {
           if (opts.gutter.top) {

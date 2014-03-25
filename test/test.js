@@ -51582,7 +51582,7 @@ module.exports=[
         "end": "2014-04-05T01:50:55",
         "deliveryType": "temp",
         "inferred": false,
-        "value": 0.25,
+        "percentage": 50,
         "start": "2014-04-04T18:20:55",
         "_id": "9a235f60-6447-417a-b14a-f6f8f3ee2d41",
         "type": "basal-rate-segment"
@@ -54575,7 +54575,7 @@ module.exports=[
     },
     {
         "delivered": 0.8,
-        "end": "2014-04-06T13:39:27",
+        "end": null,
         "deliveryType": "scheduled",
         "inferred": true,
         "value": 0.8,
@@ -55123,7 +55123,13 @@ var watson = {
       }
       else if (i.type === 'basal-rate-segment') {
         i.normalTime = i.start + APPEND;
-        i.normalEnd = i.end + APPEND;
+        if (i.end) {
+          i.normalEnd = i.end + APPEND;
+        }
+        else {
+          i.normalEnd = null;
+        }
+        
       }
       return i;
     });
@@ -55138,7 +55144,7 @@ var watson = {
 };
 
 module.exports = watson;
-},{"../js/lib/":9,"lodash":56}],3:[function(require,module,exports){
+},{"../js/lib/":11,"lodash":58}],3:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -55161,13 +55167,296 @@ var format = require('./util/format');
 var datetime = require('./util/datetime');
 var log = require('../lib/').bows('BasalUtil');
 
-var keysToOmit = ['id', 'start', 'end', 'vizType'];
-
 var MS_IN_HOUR = 3600000.0;
 
 function BasalUtil(data) {
+
+  this.segmentDose = function(duration, rate) {
+    var hours = duration / MS_IN_HOUR;
+    return format.fixFloatingPoint(hours * rate);
+  };
+
+  this.totalBasal = function(s, e) {
+    if (datetime.verifyEndpoints(s, e, this.endpoints)) {
+      // return the total basal dose between two arbitrary datetimes
+      var dose = 0.0;
+      var start = new Date(s).valueOf(), end = new Date(e).valueOf();
+      var firstSegment = _.find(this.actual, function(segment) {
+        return (new Date(segment.normalTime).valueOf() <= start) && (start <= new Date(segment.normalEnd).valueOf());
+      });
+      if (firstSegment) {
+        var index = this.actual.indexOf(firstSegment) + 1;
+        var lastSegment = _.find(this.actual, function(segment) {
+          return (new Date(segment.normalTime).valueOf() <= end) && (end <= new Date(segment.normalEnd).valueOf());
+        });
+        var lastIndex = this.actual.indexOf(lastSegment);
+        dose += this.segmentDose(new Date(firstSegment.normalEnd) - start, firstSegment.value);
+        while (index < lastIndex) {
+          var segment = this.actual[index];
+          dose += this.segmentDose((new Date(segment.normalEnd) - new Date(segment.normalTime)), segment.value);
+          index++;
+        }
+        if (lastSegment) {
+          dose += this.segmentDose(e - new Date(lastSegment.normalTime), lastSegment.value);
+        }
+        else {
+          // when there isn't a complete domain of basal data
+          return NaN;
+        }
+      }
+      else {
+        // when there isn't a complete domain of basal data
+        return NaN;
+      }
+      return format.fixFloatingPoint(dose);
+    }
+    else {
+      return NaN;
+    }
+  };
+
+  this.actual = _.where(data, {'vizType': 'actual'});
+  this.undelivered = _.where(data, {'vizType': 'undelivered'});
+
+  this.data = data;
+  this.endpoints = [this.data[0].normalTime, this.data[this.data.length - 1].normalEnd];
+}
+
+module.exports = BasalUtil;
+},{"../lib/":11,"./util/datetime":8,"./util/format":9}],4:[function(require,module,exports){
+/* 
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+var _ = require('../lib/')._;
+var format = require('./util/format');
+var datetime = require('./util/datetime');
+var log = require('../lib/').bows('BolusUtil');
+
+function BolusUtil(data) {
+
+  this.totalBolus = function(s, e) {
+    if (datetime.verifyEndpoints(s, e, this.endpoints)) {
+      var dose = 0.0;
+      var start = new Date(s).valueOf(), end = new Date(e).valueOf();
+      var firstBolus = _.find(this.data, function(bolus) {
+        var d = new Date(bolus.normalTime).valueOf();
+        return (d >= start) && (d <= end);
+      });
+      if (firstBolus) {
+        var index = this.data.indexOf(firstBolus);
+        while (index < (data.length - 1) && (new Date(this.data[index].normalTime).valueOf() <= end)) {
+          var bolus = this.data[index];
+          dose += bolus.value;
+          index++;
+        }
+      }
+      return format.fixFloatingPoint(dose);
+    }
+    else {
+      return NaN;
+    }
+
+  };
+
+  this.data = data;
+  this.endpoints = [this.data[0].normalTime, this.data[this.data.length - 1].normalTime];
+}
+
+module.exports = BolusUtil;
+},{"../lib/":11,"./util/datetime":8,"./util/format":9}],5:[function(require,module,exports){
+/* 
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+var _ = require('../lib/')._;
+var datetime = require('./util/datetime');
+var log = require('../lib/').bows('CBGUtil');
+
+function CBGUtil(data) {
+
+  var PERCENT_FOR_COMPLETE = 0.75;
+  var MAX_CBG_READINGS_PER_24 = 288;
+  var MS_IN_24 = 86400000;
+
+  var categories = {
+    'low': 80,
+    'target': 180
+  };
+
+  var defaults = {
+    'low': 0,
+    'target': 0,
+    'high': 0,
+    'total': 0
+  };
+
+  var breakdownNaN = {
+    'low': NaN,
+    'target': NaN,
+    'high': NaN,
+    'total': NaN
+  };
+
+  function getCategory (n) {
+    if (n <= categories.low) {
+      return 'low';
+    }
+    else if ((n > categories.low) && (n <= categories.target)) {
+      return 'target';
+    }
+    else {
+      return 'high';
+    }
+  }
+
+  this.filter = function(s, e) {
+    if (datetime.verifyEndpoints(s, e, this.endpoints)) {
+      var start = new Date(s).valueOf(), end = new Date(e).valueOf();
+      // TODO: optimize speed (for loop with break?)
+      return _.filter(this.data, function(d) {
+        var dTime = new Date(d.normalTime).valueOf();
+        if ((dTime >= start) && (dTime <= end)) {
+          return d;
+        }
+      });
+    }
+    else {
+      return [];
+    }
+  };
+
+  this.rangeBreakdown = function(s, e) {
+    var filtered = this.filter(s, e);
+    if (filtered.length < this.threshold(s, e)) {
+      return breakdownNaN;
+    }
+    else {
+      var breakdown = _.countBy(filtered, function(d) {
+        return getCategory(d.value);
+      });
+      _.defaults(breakdown, defaults);
+      breakdown.total = breakdown.low + breakdown.target + breakdown.high;
+      return breakdown;
+    }
+  };
+
+  this.average = function(s, e) {
+    var data = this.filter(s,e);
+    var threshold = this.threshold(s, e);
+    if ((threshold > 0) && (data.length > threshold)) {
+      var sum = _.reduce(data, function(memo, d) {
+        return memo + d.value;
+      }, 0);
+      var average = parseInt((sum/data.length).toFixed(0), 10);
+      return {'value': average, 'category': getCategory(average)};
+    }
+    else {
+      return {'value': NaN, 'category': ''};
+    }
+  };
+
+  this.threshold = function(s, e) {
+    var difference = new Date(e) - new Date(s);
+    return Math.floor(PERCENT_FOR_COMPLETE * (MAX_CBG_READINGS_PER_24 * (difference/MS_IN_24)));
+  };
+
+  this.data = data;
+  this.endpoints = [this.data[0].normalTime, this.data[this.data.length - 1].normalTime];
+}
+
+module.exports = CBGUtil;
+},{"../lib/":11,"./util/datetime":8}],6:[function(require,module,exports){
+/* 
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+var _ = require('../lib/')._;
+
+function DeviceUtil(data) {
+  this.findLastDatum = function() {
+    var included = ['smbg', 'carbs', 'bolus'];
+    for (var j = data.length - 1; j > 0; j--) {
+      console.log(data[j].type);
+      if ((data[j].type === 'basal-rate-segment') && (data[j].end)) {
+        return data[j].end;
+      }
+      else if (included.indexOf(data[j].type !== -1)) {
+        return data[j].deviceTime;
+      }
+    }
+  };
+
+  this.data = data;
+}
+
+module.exports = DeviceUtil;
+},{"../lib/":11}],7:[function(require,module,exports){
+/* 
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+var _ = require('../lib/')._;
+var log = require('../lib/').bows('SegmentUtil');
+
+var keysToOmit = ['id', 'start', 'end', 'vizType'];
+
+function SegmentUtil(data) {
   var actuals = [];
   var undelivereds = [];
+  var overlaps = [];
 
   function addToActuals(e) {
     actuals.push(_.extend({}, e, {vizType: 'actual'}));
@@ -55224,7 +55513,7 @@ function BasalUtil(data) {
             // e.deliveryType === 'scheduled'
             if (lastActual.deliveryType === 'scheduled') {
               // Scheduled overlapping a scheduled, this should not happen.
-              log('Scheduled overlapped a scheduled.  Should never happen.', lastActual, e);
+              overlaps.push([lastActual, e]);
             } else {
               // Scheduled overlapping a temp, this can happen and the schedule should be skipped
               
@@ -55252,190 +55541,22 @@ function BasalUtil(data) {
     }
   }
 
-  this.segmentDose = function(duration, rate) {
-    var hours = duration / MS_IN_HOUR;
-    return format.fixFloatingPoint(hours * rate);
-  };
-
-  this.totalBasal = function(s, e) {
-    if (datetime.verifyEndpoints(s, e, this.endpoints)) {
-      // return the total basal dose between two arbitrary datetimes
-      var dose = 0.0;
-      var start = new Date(s).valueOf(), end = new Date(e).valueOf();
-      var firstSegment = _.find(this.normalizedActual, function(segment) {
-        return (new Date(segment.normalTime).valueOf() <= start) && (start <= new Date(segment.normalEnd).valueOf());
-      });
-      if (firstSegment) {
-        var index = this.normalizedActual.indexOf(firstSegment) + 1;
-        var lastSegment = _.find(this.normalizedActual, function(segment) {
-          return (new Date(segment.normalTime).valueOf() <= end) && (end <= new Date(segment.normalEnd).valueOf());
-        });
-        var lastIndex = this.normalizedActual.indexOf(lastSegment);
-        dose += this.segmentDose(new Date(firstSegment.normalEnd) - start, firstSegment.value);
-        while (index < lastIndex) {
-          var segment = this.normalizedActual[index];
-          dose += this.segmentDose((new Date(segment.normalEnd) - new Date(segment.normalTime)), segment.value);
-          index++;
-        }
-        if (lastSegment) {
-          dose += this.segmentDose(e - new Date(lastSegment.normalTime), lastSegment.value);
-        }
-      }
-      return format.fixFloatingPoint(dose);
-    }
-    else {
-      return NaN;
-    }
-  };
-
   data.forEach(processElement);
+
+  log(overlaps.length, 'instances of scheduled overlapping a scheduled.');
+  if (overlaps.length > 0) {
+    log('First example', overlaps[0][0], overlaps[0][1]);
+  }
 
   this.actual = actuals;
   this.undelivered = undelivereds;
+  this.all = this.actual.concat(this.undelivered);
+
+  return this;
 }
 
-module.exports = BasalUtil;
-},{"../lib/":9,"./util/datetime":6,"./util/format":7}],4:[function(require,module,exports){
-/* 
- * == BSD2 LICENSE ==
- * Copyright (c) 2014, Tidepool Project
- * 
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the associated License, which is identical to the BSD 2-Clause
- * License as published by the Open Source Initiative at opensource.org.
- * 
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
- * You should have received a copy of the License along with this program; if
- * not, you can obtain one from Tidepool Project at tidepool.org.
- * == BSD2 LICENSE ==
- */
-
-var _ = require('../lib/')._;
-var format = require('./util/format');
-var datetime = require('./util/datetime');
-var log = require('../lib/').bows('BolusUtil');
-
-function BolusUtil(data) {
-
-  this.totalBolus = function(s, e) {
-    if (datetime.verifyEndpoints(s, e, this.endpoints)) {
-      var dose = 0.0;
-      var start = new Date(s).valueOf(), end = new Date(e).valueOf();
-      var firstBolus = _.find(this.data, function(bolus) {
-        var d = new Date(bolus.normalTime).valueOf();
-        return (d >= start) && (d <= end);
-      });
-      if (firstBolus) {
-        var index = this.data.indexOf(firstBolus);
-        while (index < (data.length - 1) && (new Date(this.data[index].normalTime).valueOf() <= end)) {
-          var bolus = this.data[index];
-          dose += bolus.value;
-          index++;
-        }
-      }
-      return format.fixFloatingPoint(dose);
-    }
-    else {
-      return NaN;
-    }
-
-  };
-
-  this.data = data;
-  this.endpoints = [this.data[0].normalTime, this.data[this.data.length - 1].normalTime];
-}
-
-module.exports = BolusUtil;
-},{"../lib/":9,"./util/datetime":6,"./util/format":7}],5:[function(require,module,exports){
-/* 
- * == BSD2 LICENSE ==
- * Copyright (c) 2014, Tidepool Project
- * 
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the associated License, which is identical to the BSD 2-Clause
- * License as published by the Open Source Initiative at opensource.org.
- * 
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
- * You should have received a copy of the License along with this program; if
- * not, you can obtain one from Tidepool Project at tidepool.org.
- * == BSD2 LICENSE ==
- */
-
-var _ = require('../lib/')._;
-var datetime = require('./util/datetime');
-var log = require('../lib/').bows('CBGUtil');
-
-function CBGUtil(data) {
-
-  var categories = {
-    'low': 80,
-    'target': 180
-  };
-
-  var defaults = {
-    'low': 0,
-    'target': 0,
-    'high': 0
-  };
-
-  function getCategory (n) {
-    if (n <= categories.low) {
-      return 'low';
-    }
-    else if ((n > categories.low) && (n <= categories.target)) {
-      return 'target';
-    }
-    else {
-      return 'high';
-    }
-  }
-
-  this.filter = function(s, e) {
-    if (datetime.verifyEndpoints(s, e, this.endpoints)) {
-      var start = new Date(s).valueOf(), end = new Date(e).valueOf();
-      // TODO: optimize speed (for loop with break?)
-      return _.filter(this.data, function(d) {
-        var dTime = new Date(d.normalTime).valueOf();
-        if ((dTime >= start) || (dTime <= end)) {
-          return d;
-        }
-      });
-    }
-    else {
-      return [];
-    }
-  };
-
-  this.rangeBreakdown = function(s, e) {
-    var breakdown = _.countBy(this.filter(s, e), function(d) {
-      return getCategory(d.value);
-    });
-    _.defaults(breakdown, defaults);
-    breakdown.total = breakdown.low + breakdown.target + breakdown.high;
-    return breakdown;
-  };
-
-  this.average = function(s, e) {
-    var data = this.filter(s,e);
-    var sum = _.reduce(data, function(memo, d) {
-      return memo + d.value;
-    }, 0);
-    var average = parseInt((sum/data.length).toFixed(0), 10);
-    return {'value': average, 'category': getCategory(average)};
-  };
-
-  this.data = data;
-  this.endpoints = [this.data[0].normalTime, this.data[this.data.length - 1].normalTime];
-}
-
-module.exports = CBGUtil;
-},{"../lib/":9,"./util/datetime":6}],6:[function(require,module,exports){
+module.exports = SegmentUtil;
+},{"../lib/":11}],8:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  */
@@ -55520,17 +55641,26 @@ var datetime = {
 };
 
 module.exports = datetime;
-},{}],7:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 var format = {
 
   fixFloatingPoint: function(n) {
     return parseFloat(n.toFixed(3));
+  },
+
+  percentage: function(f) {
+    if (isNaN(f)) {
+      return '-- %';
+    }
+    else {
+      return parseInt(f.toFixed(2) * 100, 10) + '%';
+    }
   }
 
 };
 
 module.exports = format;
-},{}],8:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -55557,6 +55687,8 @@ module.exports = {
     BasalUtil: require('./data/basalutil'),
     BolusUtil: require('./data/bolusutil'),
     CBGUtil: require('./data/cbgutil'),
+    DeviceUtil: require('./data/deviceutil'),
+    SegmentUtil: require('./data/segmentutil'),
     util: {
       datetime: require('./data/util/datetime'),
       format: require('./data/util/format')
@@ -55585,7 +55717,7 @@ module.exports = {
   }
 };
 
-},{"./data/basalutil":3,"./data/bolusutil":4,"./data/cbgutil":5,"./data/util/datetime":6,"./data/util/format":7,"./lib/index":9,"./one-day":10,"./plot/basal":11,"./plot/bolus":12,"./plot/carbs":13,"./plot/cbg":14,"./plot/message":15,"./plot/smbg":17,"./plot/smbg-time":16,"./plot/stats/puddle":18,"./plot/stats/widget":19,"./plot/util/fill":20,"./plot/util/scales":21,"./plot/util/tooltip":22,"./pool":23,"./two-week":24}],9:[function(require,module,exports){
+},{"./data/basalutil":3,"./data/bolusutil":4,"./data/cbgutil":5,"./data/deviceutil":6,"./data/segmentutil":7,"./data/util/datetime":8,"./data/util/format":9,"./lib/index":11,"./one-day":12,"./plot/basal":13,"./plot/bolus":14,"./plot/carbs":15,"./plot/cbg":16,"./plot/message":17,"./plot/smbg":19,"./plot/smbg-time":18,"./plot/stats/puddle":20,"./plot/stats/widget":21,"./plot/util/fill":22,"./plot/util/scales":23,"./plot/util/tooltip":24,"./pool":25,"./two-week":26}],11:[function(require,module,exports){
 var lib = {};
 
 if (typeof window !== 'undefined') {
@@ -55619,7 +55751,7 @@ if (!lib.bows) {
 }
 
 module.exports = lib;
-},{"lodash":56}],10:[function(require,module,exports){
+},{"lodash":58}],12:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -56211,7 +56343,7 @@ module.exports = function(emitter) {
   return container;
 };
 
-},{"./lib/":9,"./plot/util/tooltip":22,"./pool":23}],11:[function(require,module,exports){
+},{"./lib/":11,"./plot/util/tooltip":24,"./pool":25}],13:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -56270,6 +56402,21 @@ module.exports = function(pool, opts) {
       // when index === 0 might catch a non-basal
       if (opts.data[index].type === 'basal-rate-segment') {
         currentData.unshift(opts.data[index]);
+      }
+
+      var originalLength = currentData.length;
+
+      // remove a basal segment if it has an invalid value attribute
+      var removed = [];
+      currentData = _.filter(currentData, function(d) {
+        if (!(d.value >= 0)) {
+          removed.push(d);
+        }
+        return d.value >= 0;
+      });
+      if (originalLength !== currentData.length) {
+        log(originalLength - currentData.length, 'basal segment(s) removed because of an invalid value attribute.', removed);
+        log('Basal/bolus ratio killed due to ^^^');
       }
 
       var line = d3.svg.line()
@@ -56675,7 +56822,7 @@ module.exports = function(pool, opts) {
   return basal;
 };
 
-},{"../lib/":9}],12:[function(require,module,exports){
+},{"../lib/":11}],14:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -57093,7 +57240,7 @@ module.exports = function(pool, opts) {
   return bolus;
 };
 
-},{"../lib/":9}],13:[function(require,module,exports){
+},{"../lib/":11}],15:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -57249,7 +57396,7 @@ module.exports = function(pool, opts) {
 
   return carbs;
 };
-},{"../lib/":9}],14:[function(require,module,exports){
+},{"../lib/":11}],16:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -57413,7 +57560,7 @@ module.exports = function(pool, opts) {
 
   return cbg;
 };
-},{"../lib/":9}],15:[function(require,module,exports){
+},{"../lib/":11}],17:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -57477,7 +57624,7 @@ module.exports = function(pool, opts) {
 
   return cbg;
 };
-},{"../lib/":9}],16:[function(require,module,exports){
+},{"../lib/":11}],18:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -57669,7 +57816,7 @@ function SMBGTime (opts) {
 }
 
 module.exports = SMBGTime;
-},{"../lib/":9}],17:[function(require,module,exports){
+},{"../lib/":11}],19:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -57824,7 +57971,7 @@ module.exports = function(pool, opts) {
 
   return smbg;
 };
-},{"../lib/":9,"./util/scales":21}],18:[function(require,module,exports){
+},{"../lib/":11,"./util/scales":23}],20:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -57870,7 +58017,7 @@ module.exports = function(opts) {
     var displayGroup = selection.append('text')
       .attr({
         'x': opts.xOffset,
-        'y': opts.height / 2 + (opts.leadSize * 2),
+        'y': opts.height / 2 + opts.leadSize,
         'class': 'd3-stats-display'
       });
 
@@ -57921,7 +58068,7 @@ module.exports = function(opts) {
 
   return puddle;
 };
-},{"../../lib/":9}],19:[function(require,module,exports){
+},{"../../lib/":11}],21:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -57944,6 +58091,7 @@ var _ = require('../../lib/')._;
 
 var log = require('../../lib/').bows('Stats');
 var scales = require('../util/scales');
+var format = require('../../data/util/format');
 
 module.exports = function(pool, opts) {
 
@@ -58039,15 +58187,36 @@ module.exports = function(pool, opts) {
         var thisPie = _.find(pies, function(p) {
           return p.id === puddle.id;
         });
-        if (!thisPie) {
+        var createAPie = function(puddleGroup, data) {
           var slices = stats.createPie(puddleGroup, data[puddle.id.toLowerCase()]);
           pies.push({
             'id': puddle.id,
             'slices': slices
           });
+        };
+        // when NaN(s) present, create a no data view
+        if (stats.hasNaN(data[puddle.id.toLowerCase()])) {
+          pies = _.reject(pies, function(pie) {
+            return _.isEqual(pie, thisPie);
+          });
+          createAPie(puddleGroup, data);
+        }
+        // or if good data, but no pie yet, create a pie
+        else if (!thisPie) {
+          createAPie(puddleGroup, data);
         }
         else {
-          stats.updatePie(thisPie, data[puddle.id.toLowerCase()]);
+          // or if no data view is the existing "pie", recreate a real pie
+          if (thisPie.slices === null) {
+            pies = _.reject(pies, function(pie) {
+              return _.isEqual(pie, thisPie);
+            });
+            createAPie(puddleGroup, data);
+          }
+          // or just update the current pie
+          else {
+            stats.updatePie(thisPie, data[puddle.id.toLowerCase()]);
+          }
         }
       }
       else {
@@ -58055,7 +58224,7 @@ module.exports = function(pool, opts) {
           stats.createRect(puddle, puddleGroup, data[puddle.id.toLowerCase()]);
         }
         else {
-          stats.updateAverage(data[puddle.id.toLowerCase()], puddle);
+          stats.updateAverage(puddle, puddleGroup, data[puddle.id.toLowerCase()]);
         }
       }
       var display = stats.getDisplay(puddle.id);
@@ -58107,8 +58276,8 @@ module.exports = function(pool, opts) {
         'class': 'd3-stats-rect-line'
       });
     var imageY = rectScale(data.value) - (opts.size / 2) + (puddle.height() / 10);
-    // don't append an image if imageY is NaN
-    if (imageY) {
+    // don't append an image if imageY is NaN or Infinity
+    if (isFinite(imageY)) {
       rectGroup.append('image')
         .attr({
           'xlink:href': function() {
@@ -58167,11 +58336,27 @@ module.exports = function(pool, opts) {
     }
 
     stats.rectGroup = rectGroup;
+
+    if (isNaN(data.value)) {
+      puddleGroup.classed('d3-insufficient-data', true);
+      stats.rectGroup.selectAll('.d3-stats-image').classed('hidden', true);
+    }
+    else {
+      puddleGroup.classed('d3-insufficient-data', false);
+      stats.rectGroup.selectAll('.d3-stats-image').classed('hidden', false);
+    }
   };
 
-  stats.updateAverage = function(data, puddle) {
+  stats.updateAverage = function(puddle, puddleGroup, data) {
+    if (isNaN(data.value)) {
+      puddleGroup.classed('d3-insufficient-data', true);
+      stats.rectGroup.selectAll('.d3-stats-image').classed('hidden', true);
+    }
+    else {
+      puddleGroup.classed('d3-insufficient-data', false);
+    }
     var imageY = rectScale(data.value) - (opts.size / 2) + (puddle.height() / 10);
-    if (imageY) {
+    if (isFinite(imageY)) {
       stats.rectGroup.selectAll('.d3-stats-image')
         .attr({
           'xlink:href': function() {
@@ -58200,33 +58385,47 @@ module.exports = function(pool, opts) {
   stats.createPie = function(puddleGroup, data) {
     var xOffset = (pool.width()/3) * (1/6);
     var yOffset = pool.height() / 2;
+    puddleGroup.selectAll('.d3-stats-pie').remove();
     var pieGroup = puddleGroup.append('g')
       .attr({
         'transform': 'translate(' + xOffset + ',' + yOffset + ')',
         'class': 'd3-stats-pie'
       });
+    if (stats.hasNaN(data)) {
+      puddleGroup.classed('d3-insufficient-data', true);
+      pieGroup.append('circle')
+        .attr({
+          'cx': 0,
+          'cy': 0,
+          'r': opts.pieRadius
+        });
 
-    pie = d3.layout.pie().value(function(d) {
-        return d.value;
-      })
-      .sort(null);
+      return null;
+    }
+    else {
+      puddleGroup.classed('d3-insufficient-data', false);
+      pie = d3.layout.pie().value(function(d) {
+          return d.value;
+        })
+        .sort(null);
 
-    arc = d3.svg.arc()
-      .innerRadius(0)
-      .outerRadius(opts.pieRadius);
+      arc = d3.svg.arc()
+        .innerRadius(0)
+        .outerRadius(opts.pieRadius);
 
-    var slices = pieGroup.selectAll('g.d3-stats-slice')
-      .data(pie(data))
-      .enter()
-      .append('path')
-      .attr({
-        'd': arc,
-        'class': function(d) {
-          return 'd3-stats-slice d3-' + d.data.type;
-        }
-      });
+      var slices = pieGroup.selectAll('g.d3-stats-slice')
+        .data(pie(data))
+        .enter()
+        .append('path')
+        .attr({
+          'd': arc,
+          'class': function(d) {
+            return 'd3-stats-slice d3-' + d.data.type;
+          }
+        });
 
-    return slices;
+      return slices;
+    }
   };
 
   stats.updatePie = function(thisPie, data) {
@@ -58234,6 +58433,16 @@ module.exports = function(pool, opts) {
       .attr({
         'd': arc
       });
+  };
+
+  stats.hasNaN = function(a) {
+    var found = false;
+    a.forEach(function(obj) {
+      if (isNaN(obj.value)) {
+        found = true;
+      }
+    });
+    return found;
   };
 
   stats.newPuddle = function(id, head, lead, weight, pieBoolean) {
@@ -58273,11 +58482,11 @@ module.exports = function(pool, opts) {
     var basal = _.findWhere(data.ratio, {'type': 'basal'}).value;
     var total = bolus + basal;
     return [{
-        'text': stats.formatPercentage(basal/total) + ' : ',
+        'text': format.percentage(basal/total) + ' : ',
         'class': 'd3-stats-basal'
       },
       {
-        'text': stats.formatPercentage(bolus/total),
+        'text': format.percentage(bolus/total),
         'class': 'd3-stats-bolus'
       }];
   };
@@ -58285,11 +58494,16 @@ module.exports = function(pool, opts) {
   stats.rangeDisplay = function() {
     var target = _.findWhere(data.range, {'type': 'bg-target'}).value;
     var total = parseFloat(data.cbgReadings);
-    return [{'text': stats.formatPercentage(target/total), 'class': 'd3-stats-percentage'}];
+    return [{'text': format.percentage(target/total), 'class': 'd3-stats-percentage'}];
   };
 
   stats.averageDisplay = function() {
-    return [{'text': data.average.value + ' mg/dL', 'class': 'd3-stats-' + data.average.category}];
+    if (isNaN(data.average.value)) {
+      return [{'text': '--- mg/dL', 'class': 'd3-stats-' + data.average.category}];
+    }
+    else {
+      return [{'text': data.average.value + ' mg/dL', 'class': 'd3-stats-' + data.average.category}];
+    }
   };
 
   stats.getData = function(start, end) {
@@ -58307,28 +58521,24 @@ module.exports = function(pool, opts) {
     data.range = [
       {
         'type': 'bg-low',
-        'value': range.low || 0,
+        'value': range.low,
       },
       {
         'type': 'bg-target',
-        'value': range.target || 0,
+        'value': range.target,
       },
       {
         'type': 'bg-high',
-        'value': range.high || 0
+        'value': range.high
       }
     ];
     data.cbgReadings = range.total;
     data.average = opts.cbg.average(start, end);
   };
 
-  stats.formatPercentage = function(f) {
-    return parseInt(f.toFixed(2) * 100, 10) + '%';
-  };
-
   return stats;
 };
-},{"../../lib/":9,"../util/scales":21,"./puddle":18}],20:[function(require,module,exports){
+},{"../../data/util/format":9,"../../lib/":11,"../util/scales":23,"./puddle":20}],22:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -58402,13 +58612,27 @@ module.exports = function(pool, opts) {
       current = next;
     }
 
+    if (opts.dataGutter) {
+      fills.shift();
+    }
+
     selection.selectAll('rect')
       .data(fills)
       .enter()
       .append('rect')
       .attr({
-        'x': function(d) {
-          return d.x;
+        'x': function(d, i) {
+          if (opts.dataGutter) {
+            if (i === fills.length  - 1) {
+              return d.x - opts.dataGutter;
+            }
+            else {
+              return d.x;
+            }
+          }
+          else {
+            return d.x;
+          }
         },
         'y': function() {
           if (opts.gutter.top) {
@@ -58418,8 +58642,18 @@ module.exports = function(pool, opts) {
             return opts.gutter;
           }
         },
-        'width': function(d) {
-          return d.width;
+        'width': function(d, i) {
+          if (opts.dataGutter) {
+            if ((i === 0) || (i === fills.length  - 1)) {
+              return d.width + opts.dataGutter;
+            }
+            else {
+              return d.width;
+            }
+          }
+          else {
+            return d.width;
+          }
         },
         'height': function() {
           if (opts.gutter.top) {
@@ -58455,7 +58689,7 @@ module.exports = function(pool, opts) {
   
   return fill;
 };
-},{"../../lib/":9}],21:[function(require,module,exports){
+},{"../../lib/":11}],23:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -58510,7 +58744,7 @@ var scales = {
 };
 
 module.exports = scales;
-},{"../../lib/":9}],22:[function(require,module,exports){
+},{"../../lib/":11}],24:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -58803,7 +59037,7 @@ module.exports = function(container, tooltipsGroup) {
 
   return tooltip;
 };
-},{"../../lib/":9}],23:[function(require,module,exports){
+},{"../../lib/":11}],25:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -59015,7 +59249,7 @@ function Pool (container) {
 
 module.exports = Pool;
 
-},{"./lib/":9}],24:[function(require,module,exports){
+},{"./lib/":11}],26:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -59056,7 +59290,7 @@ module.exports = function(emitter) {
       scrollThumbRadius: 8,
       currentTranslation: 0
     },
-    axisGutter = 52, dayTickSize = 0,
+    axisGutter = 52, dataGutter, dayTickSize = 0,
     statsHeight = 100,
     pools = [], poolGroup, days, daysGroup,
     xScale = d3.scale.linear(), xAxis, yScale = d3.time.scale.utc(), yAxis,
@@ -59248,6 +59482,11 @@ module.exports = function(emitter) {
       a[0].setUTCDate(a[0].getUTCDate() + 1);
     }
     if (!d3.select('#' + id).classed('hidden')) {
+      // domain should go from midnight to midnight, not noon to noon
+      var beginning = new Date(a[0]);
+      a[0] = new Date(beginning.setUTCHours(beginning.getUTCHours() - 12));
+      var end = new Date(a[1]);
+      a[1] = new Date(end.setUTCHours(end.getUTCHours() + 12));
       emitter.emit('currentDomain', a);
       emitter.emit('navigated', [a[0].toISOString(), a[1].toISOString()]);
     }
@@ -59292,7 +59531,7 @@ module.exports = function(emitter) {
       .attr({
         'id': 'xAxisInvisibleRect',
         'x': axisGutter,
-        'height': nav.axisHeight - 1,
+        'height': nav.axisHeight,
         'width': width - axisGutter,
         'fill': 'white'
       });
@@ -59320,7 +59559,7 @@ module.exports = function(emitter) {
   container.setAxes = function() {
     // set the domain and range for the two-week x-scale
     xScale.domain([0, MS_IN_24])
-      .range([axisGutter, width - nav.navGutter]);
+      .range([axisGutter + dataGutter, width - nav.navGutter - dataGutter]);
     xAxis = d3.svg.axis().scale(xScale).orient('top').outerTickSize(0).innerTickSize(15)
       .tickValues(function() {
         var a = [];
@@ -59623,6 +59862,12 @@ module.exports = function(emitter) {
     return container;
   };
 
+  container.dataGutter = function(x) {
+    if (!arguments.length) return dataGutter;
+    dataGutter = x;
+    return container;
+  };
+
   container.latestTranslation = function(x) {
     if (!arguments.length) return nav.latestTranslation;
     nav.latestTranslation = x;
@@ -59752,10 +59997,10 @@ module.exports = function(emitter) {
   return container;
 };
 
-},{"./lib/":9,"./pool":23}],25:[function(require,module,exports){
+},{"./lib/":11,"./pool":25}],27:[function(require,module,exports){
 module.exports = require('./lib/chai');
 
-},{"./lib/chai":26}],26:[function(require,module,exports){
+},{"./lib/chai":28}],28:[function(require,module,exports){
 /*!
  * chai
  * Copyright(c) 2011-2013 Jake Luer <jake@alogicalparadox.com>
@@ -59837,7 +60082,7 @@ exports.use(should);
 var assert = require('./chai/interface/assert');
 exports.use(assert);
 
-},{"./chai/assertion":27,"./chai/core/assertions":28,"./chai/interface/assert":29,"./chai/interface/expect":30,"./chai/interface/should":31,"./chai/utils":42,"assertion-error":50}],27:[function(require,module,exports){
+},{"./chai/assertion":29,"./chai/core/assertions":30,"./chai/interface/assert":31,"./chai/interface/expect":32,"./chai/interface/should":33,"./chai/utils":44,"assertion-error":52}],29:[function(require,module,exports){
 /*!
  * chai
  * http://chaijs.com
@@ -59969,7 +60214,7 @@ module.exports = function (_chai, util) {
   });
 };
 
-},{}],28:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 /*!
  * chai
  * http://chaijs.com
@@ -61241,7 +61486,7 @@ module.exports = function (chai, _) {
   });
 };
 
-},{}],29:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 /*!
  * chai
  * Copyright(c) 2011-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62323,7 +62568,7 @@ module.exports = function (chai, util) {
   ('Throw', 'throws');
 };
 
-},{}],30:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 /*!
  * chai
  * Copyright(c) 2011-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62337,7 +62582,7 @@ module.exports = function (chai, util) {
 };
 
 
-},{}],31:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 /*!
  * chai
  * Copyright(c) 2011-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62415,7 +62660,7 @@ module.exports = function (chai, util) {
   chai.Should = loadShould;
 };
 
-},{}],32:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 /*!
  * Chai - addChainingMethod utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62511,7 +62756,7 @@ module.exports = function (ctx, name, method, chainingBehavior) {
   });
 };
 
-},{"./transferFlags":48}],33:[function(require,module,exports){
+},{"./transferFlags":50}],35:[function(require,module,exports){
 /*!
  * Chai - addMethod utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62550,7 +62795,7 @@ module.exports = function (ctx, name, method) {
   };
 };
 
-},{}],34:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 /*!
  * Chai - addProperty utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62592,7 +62837,7 @@ module.exports = function (ctx, name, getter) {
   });
 };
 
-},{}],35:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 /*!
  * Chai - flag utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62626,7 +62871,7 @@ module.exports = function (obj, key, value) {
   }
 };
 
-},{}],36:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 /*!
  * Chai - getActual utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62647,7 +62892,7 @@ module.exports = function (obj, args) {
   return 'undefined' !== typeof actual ? actual : obj._obj;
 };
 
-},{}],37:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 /*!
  * Chai - getEnumerableProperties utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62674,7 +62919,7 @@ module.exports = function getEnumerableProperties(object) {
   return result;
 };
 
-},{}],38:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 /*!
  * Chai - message composition utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62725,7 +62970,7 @@ module.exports = function (obj, args) {
   return flagMsg ? flagMsg + ': ' + msg : msg;
 };
 
-},{"./flag":35,"./getActual":36,"./inspect":43,"./objDisplay":44}],39:[function(require,module,exports){
+},{"./flag":37,"./getActual":38,"./inspect":45,"./objDisplay":46}],41:[function(require,module,exports){
 /*!
  * Chai - getName utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62747,7 +62992,7 @@ module.exports = function (func) {
   return match && match[1] ? match[1] : "";
 };
 
-},{}],40:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 /*!
  * Chai - getPathValue utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62851,7 +63096,7 @@ function _getPathValue (parsed, obj) {
   return res;
 };
 
-},{}],41:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 /*!
  * Chai - getProperties utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -62888,7 +63133,7 @@ module.exports = function getProperties(object) {
   return result;
 };
 
-},{}],42:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 /*!
  * chai
  * Copyright(c) 2011 Jake Luer <jake@alogicalparadox.com>
@@ -62998,7 +63243,7 @@ exports.overwriteMethod = require('./overwriteMethod');
 exports.addChainableMethod = require('./addChainableMethod');
 
 
-},{"./addChainableMethod":32,"./addMethod":33,"./addProperty":34,"./flag":35,"./getActual":36,"./getMessage":38,"./getName":39,"./getPathValue":40,"./inspect":43,"./objDisplay":44,"./overwriteMethod":45,"./overwriteProperty":46,"./test":47,"./transferFlags":48,"./type":49,"deep-eql":51}],43:[function(require,module,exports){
+},{"./addChainableMethod":34,"./addMethod":35,"./addProperty":36,"./flag":37,"./getActual":38,"./getMessage":40,"./getName":41,"./getPathValue":42,"./inspect":45,"./objDisplay":46,"./overwriteMethod":47,"./overwriteProperty":48,"./test":49,"./transferFlags":50,"./type":51,"deep-eql":53}],45:[function(require,module,exports){
 // This is (almost) directly from Node.js utils
 // https://github.com/joyent/node/blob/f8c335d0caf47f16d31413f89aa28eda3878e3aa/lib/util.js
 
@@ -63320,7 +63565,7 @@ function objectToString(o) {
   return Object.prototype.toString.call(o);
 }
 
-},{"./getEnumerableProperties":37,"./getName":39,"./getProperties":41}],44:[function(require,module,exports){
+},{"./getEnumerableProperties":39,"./getName":41,"./getProperties":43}],46:[function(require,module,exports){
 /*!
  * Chai - flag utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -63370,7 +63615,7 @@ module.exports = function (obj) {
   }
 };
 
-},{"./inspect":43}],45:[function(require,module,exports){
+},{"./inspect":45}],47:[function(require,module,exports){
 /*!
  * Chai - overwriteMethod utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -63423,7 +63668,7 @@ module.exports = function (ctx, name, method) {
   }
 };
 
-},{}],46:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 /*!
  * Chai - overwriteProperty utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -63479,7 +63724,7 @@ module.exports = function (ctx, name, getter) {
   });
 };
 
-},{}],47:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 /*!
  * Chai - test utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -63507,7 +63752,7 @@ module.exports = function (obj, args) {
   return negate ? !expr : expr;
 };
 
-},{"./flag":35}],48:[function(require,module,exports){
+},{"./flag":37}],50:[function(require,module,exports){
 /*!
  * Chai - transferFlags utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -63553,7 +63798,7 @@ module.exports = function (assertion, object, includeAll) {
   }
 };
 
-},{}],49:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 /*!
  * Chai - type utility
  * Copyright(c) 2012-2013 Jake Luer <jake@alogicalparadox.com>
@@ -63600,7 +63845,7 @@ module.exports = function (obj) {
   return typeof obj;
 };
 
-},{}],50:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 /*!
  * assertion-error
  * Copyright(c) 2013 Jake Luer <jake@qualiancy.com>
@@ -63712,10 +63957,10 @@ AssertionError.prototype.toJSON = function (stack) {
   return props;
 };
 
-},{}],51:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 module.exports = require('./lib/eql');
 
-},{"./lib/eql":52}],52:[function(require,module,exports){
+},{"./lib/eql":54}],54:[function(require,module,exports){
 /*!
  * deep-eql
  * Copyright(c) 2013 Jake Luer <jake@alogicalparadox.com>
@@ -63974,10 +64219,10 @@ function objectEqual(a, b, m) {
   return true;
 }
 
-},{"buffer":71,"type-detect":53}],53:[function(require,module,exports){
+},{"buffer":74,"type-detect":55}],55:[function(require,module,exports){
 module.exports = require('./lib/type');
 
-},{"./lib/type":54}],54:[function(require,module,exports){
+},{"./lib/type":56}],56:[function(require,module,exports){
 /*!
  * type-detect
  * Copyright(c) 2013 jake luer <jake@alogicalparadox.com>
@@ -64121,7 +64366,7 @@ Library.prototype.test = function (obj, type) {
   }
 };
 
-},{}],55:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 var Duration = (function () {
 
     var millisecond = 1,
@@ -64302,7 +64547,7 @@ if (typeof module !== "undefined") {
    module.exports = Duration;
 }
 
-},{}],56:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {};/**
  * @license
  * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
@@ -71089,7 +71334,7 @@ var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? 
   }
 }.call(this));
 
-},{}],57:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -71115,158 +71360,59 @@ var assert = chai.assert;
 var expect = chai.expect;
 
 var _ = require('lodash');
+var Duration = require('duration-js');
 
 var watson = require('../example/watson');
 var fx = require('./fixtures');
 
 var tideline = require('../js/index');
 var BasalUtil = tideline.data.BasalUtil;
+var SegmentUtil = tideline.data.SegmentUtil;
 
 var MS_IN_HOUR = 3600000.0;
 
-describe('basal constructor under different data scenarios', function () {
-  fx.forEach(testData);
-});
-
-function testData (data) {
-  var name = data.name;
-  var basal = new BasalUtil(data.json);
-  describe(name, function() {
-    it('should be an array', function() {
-      assert.isArray(data.json);
-    });
-
-    it('should be composed of objects', function() {
-      data.json.forEach(function(d) {
-        assert.typeOf(d, 'object');
-      });
-    });
-
-    it('should be non-zero in length', function() {
-      expect(data.json).to.have.length.above(0);
-    });
-
-    describe('basal.actual', function() {
-      it('should be an array', function() {
-        assert.typeOf(basal.actual, 'array');
-      });
-
-      it('should have a non-zero length', function() {
-        expect(basal.actual).to.have.length.above(0);
-      });
-
-      it('should have a first segment with a start matching the first segment of input data', function() {
-        var basals = _.where(data.json, {'type': 'basal-rate-segment'});
-        expect(basal.actual[0].start).to.equal(basals[0].start);
-      });
-
-      it('should have a last segment with an end matching the last segment of input data', function() {
-        var basals = _.where(data.json, {'type': 'basal-rate-segment'});
-        var basalLength = basal.actual.length;
-        expect(basal.actual[basalLength - 1].end).to.equal(basals[basals.length - 1].end);
-      });
-
-      it('should be sorted in sequence', function() {
-        var sorted = _.sortBy(basal.actual, function(a) {
-          return new Date(a.start).valueOf();
-        });
-        expect(sorted).to.eql(basal.actual);
-      });
-
-      it('should be contiguous from start to end', function() {
-        var basalLength = basal.actual.length;
-        expect(_.find(basal.actual, function(segment, i, segments) {
-          if (i !== (basalLength - 1)) {
-            return segment.end !== segments[i + 1].start;
-          }
-          else {
-            return false;
-          }
-        })).to.be.undefined;
-      });
-
-      it('should not have any duplicates', function() {
-        expect(_.uniq(basal.actual)).to.be.eql(basal.actual);
-      });
-
-      it('should have squashed contiguous identical segments', function() {
-        var keysToOmit = ['id', 'start', 'end'];
-        basal.actual.forEach(function(segment, i, segments) {
-          if ((i < (segments.length - 1)) && segment.type === 'scheduled') {
-            expect(_.omit(segment, keysToOmit)).to.not.eql(_.omit(segments[i + 1], keysToOmit));
-          }
-        });
-      });
-    });
-
-    describe('basal.undelivered', function() {
-      it('should be an array', function() {
-        assert.typeOf(basal.undelivered, 'array', 'basal.undelivered is an array');
-      });
-
-      it('should have a non-zero length if there is a temp basal in the input data', function() {
-        var temps = _.where(data.json, {'deliveryType': 'temp'});
-        if (temps.length > 0) {
-          expect(basal.undelivered.length).to.be.above(0);
-        }
-      });
-
-      it('should be sorted in sequence', function() {
-        var sorted = _.sortBy(basal.undelivered, function(a) {
-          return new Date(a.start).valueOf();
-        });
-        expect(sorted).to.eql(basal.undelivered);
-      });
-
-      it('should not have any duplicates', function() {
-        expect(_.uniq(basal.undelivered)).to.be.eql(basal.undelivered);
-      });
-
-      it('should have a total duration equal to the total duration of temp segments from the actual stream', function() {
-        var tempDuration = 0;
-        _.where(basal.actual, {'deliveryType': 'temp'}).forEach(function(segment) {
-          tempDuration += Date.parse(segment.end) - Date.parse(segment.start);
-        });
-        var undeliveredDuration = 0;
-        basal.undelivered.forEach(function(segment) {
-          if (segment.deliveryType === 'scheduled') {
-            undeliveredDuration += Date.parse(segment.end) - Date.parse(segment.start);
-          }
-        });
-        try {
-          expect(undeliveredDuration).to.equal(tempDuration);
-        }
-        catch (e) {
-          console.log('Expected error with fixture ending in temp basal.');
-        }
-      });
-    });
-  });
-}
-
 describe('basal utilities', function() {
   describe('totalBasal', function() {
-    var basal = new BasalUtil(_.findWhere(fx, {'name': 'current-demo'}).json);
-    basal.normalizedActual = watson.normalize(basal.actual);
-    basal.endpoints = [basal.normalizedActual[0].normalTime, basal.normalizedActual[basal.normalizedActual.length - 1].normalEnd];
-    var basalData = _.where(_.findWhere(fx, {'name': 'current-demo'}).json, {'type': 'basal-rate-segment'});
-    var template = new BasalUtil(_.findWhere(fx, {'name': 'template'}).json);
-    template.normalizedActual = watson.normalize(template.actual);
-    template.endpoints = [template.normalizedActual[0].normalTime, template.normalizedActual[template.normalizedActual.length - 1].normalEnd];
-    var temp = new BasalUtil(_.findWhere(fx, {'name': 'contained'}).json);
-    temp.normalizedActual = watson.normalize(temp.actual);
-    temp.endpoints = [temp.normalizedActual[0].normalTime, temp.normalizedActual[temp.normalizedActual.length - 1].normalEnd];
+    var data = watson.normalize(_.findWhere(fx, {'name': 'current-demo'}).json);
+    var basalSegments = new SegmentUtil(_.where(data, {'type': 'basal-rate-segment'})).all;
+    var basal = new BasalUtil(basalSegments);
+    var templateSegments = watson.normalize(new SegmentUtil(_.findWhere(fx, {'name': 'template'}).json).all);
+    var template = new BasalUtil(templateSegments);
+    var tempSegments = watson.normalize(new SegmentUtil(_.findWhere(fx, {'name': 'contained'}).json).all);
+    var temp = new BasalUtil(tempSegments);
 
     it('should be a function', function() {
       assert.isFunction(basal.totalBasal);
     });
+
     it('should return a number or NaN when given invalid date range', function() {
       var type = typeof basal.totalBasal('', '');
-      expect((type === 'number') || isNaN(type)).to.be.true;
-    });
-    it('should return a number when passed a valid date range', function() {
-      var type = typeof basal.totalBasal(basalData[0].normalTime, basalData[1].normalTime);
       expect(type === 'number').to.be.true;
+    });
+
+    it('should return a number when passed a valid date range', function() {
+      var type = typeof basal.totalBasal(basal.data[0].normalTime, basal.data[1].normalTime);
+      expect((type === 'number') && isNaN(basal.totalBasal(basal.data[0].normalTime, basal.data[1].normalTime))).to.be.true;
+    });
+
+    it('should return NaN if the start of data and start of basals do not align exactly or overlap', function() {
+      var d = new Date(data[0].normalTime);
+      var b = new Date(basal.data[0].normalTime);
+      if (d < b) {
+        var twentyFour = Duration.parse('24h');
+        var endTwentyFour = new Date(d.valueOf() + twentyFour);
+        expect(isNaN(basal.totalBasal(d.valueOf(), endTwentyFour.valueOf()))).to.be.true;
+      }
+    });
+
+    it('should return NaN if the end of data and end of basals do not align exactly or overlap', function() {
+      var d = new Date(data[data.length - 1].normalTime);
+      var b = new Date(basal.data[basal.data.length - 1].normalEnd);
+      if (b < d) {
+        var twentyFour = Duration.parse('24h');
+        var prevTwentyFour = new Date(d.valueOf() - twentyFour);
+        expect(isNaN(basal.totalBasal(prevTwentyFour.valueOf(), d.valueOf()))).to.be.true;
+      }
     });
 
     it('should return 20.0 on basal-template.json for twenty-four hours', function() {
@@ -71311,7 +71457,7 @@ describe('basal utilities', function() {
 });
 
 
-},{"../example/watson":2,"../js/index":8,"./fixtures":70,"chai":25,"lodash":56}],58:[function(require,module,exports){
+},{"../example/watson":2,"../js/index":10,"./fixtures":72,"chai":27,"duration-js":57,"lodash":58}],60:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -71386,7 +71532,7 @@ describe('bolus utilities', function() {
     });
   });
 });
-},{"../example/data/device-data.json":1,"../example/watson":2,"../js/index":8,"chai":25,"duration-js":55,"lodash":56}],59:[function(require,module,exports){
+},{"../example/data/device-data.json":1,"../example/watson":2,"../js/index":10,"chai":27,"duration-js":57,"lodash":58}],61:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -71412,6 +71558,7 @@ var assert = chai.assert;
 var expect = chai.expect;
 
 var _ = require('lodash');
+var Duration = require('duration-js');
 
 var watson = require('../example/watson');
 var data = watson.normalize(require('../example/data/device-data.json'));
@@ -71422,6 +71569,33 @@ var CBGUtil = tideline.data.CBGUtil;
 describe('cbg utilities', function() {
   var cbg = new CBGUtil(_.where(data, {'type': 'cbg'}));
   var cbgData = _.where(data, {'type': 'cbg'});
+  var NaNObject = {
+    'low': NaN,
+    'target': NaN,
+    'high': NaN,
+    'total': NaN
+  };
+  var startTime = new Date();
+  var random = function() { return Math.floor((Math.random() * 400) + 1); };
+  var inadequateData = [{
+    'normalTime': startTime.toISOString(),
+    'value': random()
+  }], i = 0;
+  var fiveMin = Duration.parse('5m');
+  while (i < cbg.threshold()) {
+    var next = new Date(startTime.valueOf() + fiveMin);
+    inadequateData.push({
+      'normalTime': next.toISOString(),
+      'value': random()
+    });
+    i++;
+    startTime = next;
+  }
+  var endTime = new Date(startTime.valueOf() + Duration.parse('24h'));
+  inadequateData.push({
+    'normalTime': endTime.toISOString()
+  });
+  var cbgInadequate = new CBGUtil(inadequateData);
 
   describe('filter', function() {
     it('should be a function', function() {
@@ -71445,15 +71619,57 @@ describe('cbg utilities', function() {
     it('should return an object', function() {
       assert.typeOf(cbg.rangeBreakdown('', ''), 'object');
     });
+
+    it('should return NaN for each component if less than threshold for complete day of data', function() {
+      expect(cbgInadequate.rangeBreakdown(startTime.valueOf(), endTime.valueOf())).to.eql(NaNObject);
+    });
   });
 
   describe('average', function() {
+    var start = new Date (cbgData[0].normalTime);
+    var day = Duration.parse('1d');
     it('should be a function', function() {
       assert.isFunction(cbg.average);
     });
+
+    it('should return value of NaN when passed a valid but not long enough date range', function() {
+      expect(isNaN(cbg.average(cbgData[0].normalTime, cbgData[1].normalTime).value)).to.be.true;
+    });
+
+    it('should return value of NaN when passed a valid and long enough date range', function() {
+      expect(isNaN(cbgInadequate.average(cbgData[0].normalTime, new Date(start.valueOf() + day).toISOString()).value)).to.be.true;
+    });
+
+    it('should return a number value when passed a valid, long enough date range with enough data', function() {
+      var res = cbg.average(cbgData[0].normalTime, new Date(start.valueOf() + day).toISOString()).value;
+      expect((typeof res === 'number') && !isNaN(res)).to.be.true;
+    });
+  });
+
+  describe('threshold', function() {
+    var start = new Date (cbgData[0].normalTime);
+    var d = new Date();
+    it('should return a number', function() {
+      assert.typeOf(cbg.threshold(cbg.endpoints[0], cbg.endpoints[1]), 'number');
+    });
+
+    it('should return 0 given a start and end five minutes apart or less', function() {
+      var five = Duration.parse('5m');
+      expect(cbg.threshold(d, new Date(d.valueOf() + five))).to.equal(0);
+    });
+
+    it('should return 216 given a start and end 24 hours apart', function() {
+      var day = Duration.parse('1d');
+      expect(cbg.threshold(d, new Date(d.valueOf() + day))).to.equal(216);
+    });
+
+    it('should return 3024 given a start and end 14 days apart', function() {
+      var fourteen = Duration.parse('14d');
+      expect(cbg.threshold(d, new Date(d.valueOf() + fourteen))).to.equal(3024);
+    });
   });
 });
-},{"../example/data/device-data.json":1,"../example/watson":2,"../js/index":8,"chai":25,"lodash":56}],60:[function(require,module,exports){
+},{"../example/data/device-data.json":1,"../example/watson":2,"../js/index":10,"chai":27,"duration-js":57,"lodash":58}],62:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  */
@@ -71570,7 +71786,7 @@ describe('datetime utility', function() {
     });
   });
 });
-},{"../js/index":8,"chai":25,"lodash":56}],61:[function(require,module,exports){
+},{"../js/index":10,"chai":27,"lodash":58}],63:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -71663,7 +71879,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],62:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -71766,7 +71982,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],63:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -71869,7 +72085,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],64:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -71962,7 +72178,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],65:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -72055,7 +72271,7 @@ module.exports=[
         "id": "d7e6e692-3371-409b-8d7a-e6ee6097b2d1"
     }
 ]
-},{}],66:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -72148,7 +72364,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],67:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -72241,7 +72457,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],68:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -72334,7 +72550,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],69:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 module.exports=[
     {
         "delivered": 0.8,
@@ -72417,7 +72633,7 @@ module.exports=[
         "id": "d2fa3a4c-7692-4e65-b65b-b26a0c5341bb"
     }
 ]
-},{}],70:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -72448,7 +72664,162 @@ fixtures.push({'name': 'overlapping', 'json': require('./basal-overlapping')});
 fixtures.push({'name': 'temp-final', 'json': require('./basal-temp-final')});
 fixtures.push({'name': 'current-demo', 'json': require('../../example/data/device-data')});
 module.exports = fixtures;
-},{"../../example/data/device-data":1,"./basal-contained":61,"./basal-overlapping":62,"./basal-temp-both-ends":63,"./basal-temp-end":64,"./basal-temp-final":65,"./basal-temp-many-scheduled":66,"./basal-temp-start":67,"./basal-temp-two-scheduled":68,"./basal-template":69}],71:[function(require,module,exports){
+},{"../../example/data/device-data":1,"./basal-contained":63,"./basal-overlapping":64,"./basal-temp-both-ends":65,"./basal-temp-end":66,"./basal-temp-final":67,"./basal-temp-many-scheduled":68,"./basal-temp-start":69,"./basal-temp-two-scheduled":70,"./basal-template":71}],73:[function(require,module,exports){
+/* 
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
+/*jshint expr: true */
+/*global describe, it */
+
+var chai = require('chai');
+var assert = chai.assert;
+var expect = chai.expect;
+
+var _ = require('lodash');
+
+var watson = require('../example/watson');
+var fx = require('./fixtures');
+
+var tideline = require('../js/index');
+var BasalUtil = tideline.data.SegmentUtil;
+
+var MS_IN_HOUR = 3600000.0;
+
+describe('basal constructor under different data scenarios', function () {
+  fx.forEach(testData);
+});
+
+function testData (data) {
+  var name = data.name;
+  var basal = new BasalUtil(data.json);
+  describe(name, function() {
+    it('should be an array', function() {
+      assert.isArray(data.json);
+    });
+
+    it('should be composed of objects', function() {
+      data.json.forEach(function(d) {
+        assert.typeOf(d, 'object');
+      });
+    });
+
+    it('should be non-zero in length', function() {
+      expect(data.json).to.have.length.above(0);
+    });
+
+    describe('basal.actual', function() {
+      it('should be an array', function() {
+        assert.typeOf(basal.actual, 'array');
+      });
+
+      it('should have a non-zero length', function() {
+        expect(basal.actual).to.have.length.above(0);
+      });
+
+      it('should have a first segment with a start matching the first segment of input data', function() {
+        var basals = _.where(data.json, {'type': 'basal-rate-segment'});
+        expect(basal.actual[0].start).to.equal(basals[0].start);
+      });
+
+      it('should have a last segment with an end matching the last segment of input data or null', function() {
+        var basals = _.where(data.json, {'type': 'basal-rate-segment'});
+        var basalLength = basal.actual.length;
+        expect(basal.actual[basalLength - 1].end).to.equal(basals[basals.length - 1].end || null);
+      });
+
+      it('should be sorted in sequence', function() {
+        var sorted = _.sortBy(basal.actual, function(a) {
+          return new Date(a.start).valueOf();
+        });
+        expect(sorted).to.eql(basal.actual);
+      });
+
+      it('should be contiguous from start to end', function() {
+        var basalLength = basal.actual.length;
+        expect(_.find(basal.actual, function(segment, i, segments) {
+          if (i !== (basalLength - 1)) {
+            return segment.end !== segments[i + 1].start;
+          }
+          else {
+            return false;
+          }
+        })).to.be.undefined;
+      });
+
+      it('should not have any duplicates', function() {
+        expect(_.uniq(basal.actual)).to.be.eql(basal.actual);
+      });
+
+      it('should have squashed contiguous identical segments', function() {
+        var keysToOmit = ['id', 'start', 'end'];
+        basal.actual.forEach(function(segment, i, segments) {
+          if ((i < (segments.length - 1)) && segment.type === 'scheduled') {
+            expect(_.omit(segment, keysToOmit)).to.not.eql(_.omit(segments[i + 1], keysToOmit));
+          }
+        });
+      });
+    });
+
+    describe('basal.undelivered', function() {
+      it('should be an array', function() {
+        assert.typeOf(basal.undelivered, 'array', 'basal.undelivered is an array');
+      });
+
+      it('should have a non-zero length if there is a temp basal in the input data', function() {
+        var temps = _.where(data.json, {'deliveryType': 'temp'});
+        if (temps.length > 0) {
+          expect(basal.undelivered.length).to.be.above(0);
+        }
+      });
+
+      it('should be sorted in sequence', function() {
+        var sorted = _.sortBy(basal.undelivered, function(a) {
+          return new Date(a.start).valueOf();
+        });
+        expect(sorted).to.eql(basal.undelivered);
+      });
+
+      it('should not have any duplicates', function() {
+        expect(_.uniq(basal.undelivered)).to.be.eql(basal.undelivered);
+      });
+
+      it('should have a total duration equal to the total duration of temp segments from the actual stream', function() {
+        var tempDuration = 0;
+        _.where(basal.actual, {'deliveryType': 'temp'}).forEach(function(segment) {
+          tempDuration += Date.parse(segment.end) - Date.parse(segment.start);
+        });
+        var undeliveredDuration = 0;
+        basal.undelivered.forEach(function(segment) {
+          if (segment.deliveryType === 'scheduled') {
+            undeliveredDuration += Date.parse(segment.end) - Date.parse(segment.start);
+          }
+        });
+        try {
+          expect(undeliveredDuration).to.equal(tempDuration);
+        }
+        catch (e) {
+          console.log('Expected error with fixture ending in temp basal.');
+        }
+      });
+    });
+  });
+}
+
+},{"../example/watson":2,"../js/index":10,"./fixtures":72,"chai":27,"lodash":58}],74:[function(require,module,exports){
 var base64 = require('base64-js')
 var ieee754 = require('ieee754')
 
@@ -73443,7 +73814,7 @@ function assert (test, message) {
   if (!test) throw new Error(message || 'Failed assertion')
 }
 
-},{"base64-js":72,"ieee754":73}],72:[function(require,module,exports){
+},{"base64-js":75,"ieee754":76}],75:[function(require,module,exports){
 var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 ;(function (exports) {
@@ -73570,7 +73941,7 @@ var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 }());
 
 
-},{}],73:[function(require,module,exports){
+},{}],76:[function(require,module,exports){
 exports.read = function(buffer, offset, isLE, mLen, nBytes) {
   var e, m,
       eLen = nBytes * 8 - mLen - 1,
@@ -73656,4 +74027,4 @@ exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128;
 };
 
-},{}]},{},[57,58,59,60])
+},{}]},{},[59,60,61,62,73])

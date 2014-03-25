@@ -38,7 +38,7 @@ module.exports = function(emitter) {
       scrollThumbRadius: 8,
       currentTranslation: 0
     },
-    axisGutter = 52, dayTickSize = 0,
+    axisGutter = 52, dataGutter, dayTickSize = 0,
     statsHeight = 100,
     pools = [], poolGroup, days, daysGroup,
     xScale = d3.scale.linear(), xAxis, yScale = d3.time.scale.utc(), yAxis,
@@ -230,6 +230,11 @@ module.exports = function(emitter) {
       a[0].setUTCDate(a[0].getUTCDate() + 1);
     }
     if (!d3.select('#' + id).classed('hidden')) {
+      // domain should go from midnight to midnight, not noon to noon
+      var beginning = new Date(a[0]);
+      a[0] = new Date(beginning.setUTCHours(beginning.getUTCHours() - 12));
+      var end = new Date(a[1]);
+      a[1] = new Date(end.setUTCHours(end.getUTCHours() + 12));
       emitter.emit('currentDomain', a);
       emitter.emit('navigated', [a[0].toISOString(), a[1].toISOString()]);
     }
@@ -274,7 +279,7 @@ module.exports = function(emitter) {
       .attr({
         'id': 'xAxisInvisibleRect',
         'x': axisGutter,
-        'height': nav.axisHeight - 1,
+        'height': nav.axisHeight,
         'width': width - axisGutter,
         'fill': 'white'
       });
@@ -302,7 +307,7 @@ module.exports = function(emitter) {
   container.setAxes = function() {
     // set the domain and range for the two-week x-scale
     xScale.domain([0, MS_IN_24])
-      .range([axisGutter, width - nav.navGutter]);
+      .range([axisGutter + dataGutter, width - nav.navGutter - dataGutter]);
     xAxis = d3.svg.axis().scale(xScale).orient('top').outerTickSize(0).innerTickSize(15)
       .tickValues(function() {
         var a = [];
@@ -602,6 +607,12 @@ module.exports = function(emitter) {
   container.imagesBaseUrl = function(x) {
     if (!arguments.length) return imagesBaseUrl;
     imagesBaseUrl = x;
+    return container;
+  };
+
+  container.dataGutter = function(x) {
+    if (!arguments.length) return dataGutter;
+    dataGutter = x;
     return container;
   };
 

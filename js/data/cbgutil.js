@@ -21,6 +21,10 @@ var log = require('../lib/').bows('CBGUtil');
 
 function CBGUtil(data) {
 
+  var PERCENT_FOR_COMPLETE = 0.75;
+  var MAX_CBG_READINGS_PER_24 = 288;
+  var MS_IN_24 = 86400000;
+
   var categories = {
     'low': 80,
     'target': 180
@@ -29,7 +33,15 @@ function CBGUtil(data) {
   var defaults = {
     'low': 0,
     'target': 0,
-    'high': 0
+    'high': 0,
+    'total': 0
+  };
+
+  var breakdownNaN = {
+    'low': NaN,
+    'target': NaN,
+    'high': NaN,
+    'total': NaN
   };
 
   function getCategory (n) {
@@ -61,21 +73,38 @@ function CBGUtil(data) {
   };
 
   this.rangeBreakdown = function(s, e) {
-    var breakdown = _.countBy(this.filter(s, e), function(d) {
-      return getCategory(d.value);
-    });
-    _.defaults(breakdown, defaults);
-    breakdown.total = breakdown.low + breakdown.target + breakdown.high;
-    return breakdown;
+    var filtered = this.filter(s, e);
+    if (filtered.length < this.threshold(s, e)) {
+      return breakdownNaN;
+    }
+    else {
+      var breakdown = _.countBy(filtered, function(d) {
+        return getCategory(d.value);
+      });
+      _.defaults(breakdown, defaults);
+      breakdown.total = breakdown.low + breakdown.target + breakdown.high;
+      return breakdown;
+    }
   };
 
   this.average = function(s, e) {
     var data = this.filter(s,e);
-    var sum = _.reduce(data, function(memo, d) {
-      return memo + d.value;
-    }, 0);
-    var average = parseInt((sum/data.length).toFixed(0), 10);
-    return {'value': average, 'category': getCategory(average)};
+    var threshold = this.threshold(s, e);
+    if ((threshold > 0) && (data.length > threshold)) {
+      var sum = _.reduce(data, function(memo, d) {
+        return memo + d.value;
+      }, 0);
+      var average = parseInt((sum/data.length).toFixed(0), 10);
+      return {'value': average, 'category': getCategory(average)};
+    }
+    else {
+      return {'value': NaN, 'category': ''};
+    }
+  };
+
+  this.threshold = function(s, e) {
+    var difference = new Date(e) - new Date(s);
+    return Math.floor(PERCENT_FOR_COMPLETE * (MAX_CBG_READINGS_PER_24 * (difference/MS_IN_24)));
   };
 
   this.data = data;

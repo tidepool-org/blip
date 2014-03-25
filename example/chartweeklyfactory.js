@@ -42,6 +42,8 @@ function chartWeeklyFactory(el, options, emitter) {
 
     if (options.imagesBaseUrl) {
       chart.imagesBaseUrl(options.imagesBaseUrl);
+      // dataGutter should be imageSize/2
+      chart.dataGutter(8);
     }
 
     d3.select(el).call(chart);
@@ -85,7 +87,7 @@ function chartWeeklyFactory(el, options, emitter) {
     var fillEndpoints = [new Date('2014-01-01T00:00:00Z'), new Date('2014-01-02T00:00:00Z')];
     var fillScale = d3.time.scale.utc()
       .domain(fillEndpoints)
-      .range([chart.axisGutter(), chart.width() - chart.navGutter()]);
+      .range([chart.axisGutter() + chart.dataGutter(), chart.width() - chart.navGutter() - chart.dataGutter()]);
 
     var smbgTime = new tideline.plot.SMBGTime({emitter: emitter});
 
@@ -111,6 +113,7 @@ function chartWeeklyFactory(el, options, emitter) {
         endpoints: fillEndpoints,
         xScale: fillScale,
         gutter: gutter,
+        dataGutter: chart.dataGutter()
       }), false);
       pool.addPlotType('smbg', smbgTime.draw(pool), true, true);
       pool.render(chart.daysGroup(), chart.dataPerDay[i]);

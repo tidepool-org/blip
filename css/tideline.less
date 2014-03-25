@@ -254,6 +254,7 @@ svg {
       fill: @stats-lead;
     }
     tspan {
+      dominant-baseline: hanging;
       font-size: @font-size-puddle-number;
       font-weight: bold;
       &.d3-stats-high {
@@ -293,7 +294,7 @@ svg {
       &.d3-bg-high {
         fill: @bg-high;
       }
-    }    
+    }
   }
   .d3-stats-rect {
     &.rect-left {
@@ -311,6 +312,17 @@ svg {
   .d3-stats-image {
     &.hidden {
       display: none;
+    }
+  }
+  &.d3-insufficient-data {
+    circle {
+      fill: none;
+      stroke-width: 3;
+      stroke-dasharray: 8,5;
+      stroke: @stats-insufficient-data;
+    }
+    text, tspan {
+      fill: @stats-insufficient-data !important;
     }
   }
 }
