@@ -1,12 +1,16 @@
-tidepool-platform-client
-===============
+# tidepool-platform-client
 
-Client-side library interacting with the tidepool platform
+Client-side library to interact with the [Tidepool](http://tidepool.org/) platform.
 
+Dependencies:
+
+- [Lo-Dash](http://lodash.com/)
+- [Async](https://github.com/caolan/async)
+- [Superagent](http://visionmedia.github.io/superagent/)
 
 ### Working Example
 
-to run the example you need to be running platform components loacally, see the  [Runservers Script](https://github.com/tidepool-org/tools)
+To run the example you need to be running platform components locally, see the [Runservers Script](https://github.com/tidepool-org/tools).
 
 - [Armada](https://github.com/tidepool-org/armada)
 - [User-api](https://github.com/tidepool-org/user-api)
