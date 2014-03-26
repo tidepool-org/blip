@@ -15,8 +15,11 @@
 
 'use strict';
 
-var _ = require('lodash');
-var async = require('async');
+// Until we bundle into distribution file properly with UMD
+// Workaround to grab dependency from global `window` object if available
+// and not call `require`
+var _ = (typeof window !== 'undefined' && typeof window._ !== 'undefined') ? window._ : require('lodash');
+var async = (typeof window !== 'undefined' && typeof window.async !== 'undefined') ? window.async : require('async');
 
 module.exports = function(host, superagent) {
   var sessionTokenHeader = 'x-tidepool-session-token';
@@ -323,6 +326,9 @@ module.exports = function(host, superagent) {
           }
         });
     },
+
+    createUserGroup: createUserGroup,
+
     getUsersTeam : function(userId, token, cb){
       if (userId == null) {
         return cb({ message: 'Must specify a userId' });
