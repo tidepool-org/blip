@@ -15,15 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
-function NaiveError(message) {
-  this.name = 'TimezoneNaiveError';
-  this.message = message || 'Timezone-naive date string encountered where expecting UTC date string.';
-}
-
-NaiveError.prototype = new Error();
-NaiveError.prototype.constructor = NaiveError;
-
 var datetime = {
+
+  MS_IN_24: 86400000,
 
   adjustToInnerEndpoints: function(s, e, endpoints) {
     var start = new Date(s).valueOf(), end = new Date(e).valueOf();
@@ -37,6 +31,14 @@ var datetime = {
     else {
       return [start, end];
     }
+  },
+
+  isTwentyFourHours: function(s, e) {
+    var start = new Date(s).valueOf(), end = new Date(e).valueOf();
+    if (end - start === this.MS_IN_24) {
+      return true;
+    }
+    else { return false; }
   },
 
   checkIfDateInRange: function(s, endpoints) {

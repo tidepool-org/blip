@@ -28,6 +28,12 @@ var tideline = require('../js/index');
 var dt = tideline.data.util.datetime;
 
 describe('datetime utility', function() {
+  describe('MS_IN_24', function() {
+    it('should equal 86400000', function() {
+      expect(dt.MS_IN_24).to.equal(24*60*60*1000);
+    });
+  });
+
   describe('adjustToInnerEndpoints', function() {
     var endLonger = ['2014-03-06T00:00:00.000Z', '2014-03-08T00:00:00.000Z'];
     var startEarlier = ['2014-03-05T00:00:00.000Z', '2014-03-07T00:00:00.000Z'];
@@ -48,6 +54,24 @@ describe('datetime utility', function() {
 
     it('should return 2014-03-06T00:00:00.000Z to 2014-03-07T00:00:00.000Z when this date range is completely contained within endpoints', function() {
       expect(dt.adjustToInnerEndpoints(endpoints[0], endpoints[1], wide)).to.eql(endpoints);
+    });
+  });
+
+  describe('isTwentyFourHours', function() {
+    it('should be a function', function() {
+      assert.isFunction(dt.isTwentyFourHours);
+    });
+
+    it('should return false on two timestamps less than 24 hours apart', function() {
+      expect(dt.isTwentyFourHours('2014-03-06T00:00:00.000Z', '2014-03-06T01:00:00.000Z')).to.be.false;
+    });
+
+    it('should return false on two timestamps greater than 24 hours apart', function() {
+      expect(dt.isTwentyFourHours('2014-03-06T00:00:00.000Z', '2014-03-07T01:00:00.000Z')).to.be.false;
+    });
+
+    it('should return true on two timestamps exactly 24 hours apart', function() {
+      expect(dt.isTwentyFourHours('2014-03-06T00:00:00.000Z', '2014-03-07T00:00:00.000Z')).to.be.true;
     });
   });
 
