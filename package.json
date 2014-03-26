@@ -2,7 +2,7 @@
   "name": "tidepool-platform-client",
   "version": "0.0.7",
   "description": "Client-side library to interact with the Tidepool platform",
-  "main": "index.js",
+  "main": "tidepool.js",
   "scripts": {
     "test": "grunt test"
   },
