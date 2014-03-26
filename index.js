@@ -20,9 +20,8 @@
 // and not call `require`
 var _ = (typeof window !== 'undefined') ? window._ : require('lodash');
 var async = (typeof window !== 'undefined') ? window.async : require('async');
-var superagent = (typeof window !== 'undefined') ? window.superagent : require('superagent');
 
-module.exports = function(host) {
+module.exports = function(host, superagent) {
   var sessionTokenHeader = 'x-tidepool-session-token';
 
   /*
@@ -329,7 +328,7 @@ module.exports = function(host) {
     },
 
     createUserGroup: createUserGroup,
-    
+
     getUsersTeam : function(userId, token, cb){
       if (userId == null) {
         return cb({ message: 'Must specify a userId' });
