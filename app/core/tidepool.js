@@ -13,34 +13,11 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-// Bundle that provides mock services
-// Packaged separately and included only if needed
-// Exposes all mocks on the global `window.mock` object
+// Expose Tidepool platform client library on global `window` object
+// Deprecate when client introduces a distribution bundle
 
-var _ = window._;
+var tidepool = require('../../bower_components/tidepool-platform-client');
 
-var mock = {};
-window.mock = mock;
+window.tidepool = tidepool;
 
-mock.params = {};
-mock.data = window.data || {};
-
-mock.setParams = function(newParams) {
-  this.params = _.assign(this.params, newParams);
-  return this.params;
-};
-
-mock.getParam = function(name) {
-  return mock.params[name];
-};
-
-mock.init = function(params) {
-  this.setParams(params);
-};
-
-mock.patchApi = require('./api')({
-  getParam: mock.getParam,
-  data: mock.data
-});
-
-module.exports = mock;
+module.tidepool = tidepool;

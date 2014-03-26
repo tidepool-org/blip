@@ -1,14 +1,14 @@
 /**
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
@@ -20,11 +20,138 @@ var createPatch = function(options) {
     var getParam = options.getParam || {};
     var data = options.data || {};
 
+    var mockToken = '123';
+    var mockUsername = 'demo';
+    var mockPassword = 'demo';
+
     var getDelayFor = function(name) {
       return (getParam('delay') || getParam(name + '.delay') || 0);
     };
 
+    api.token = null;
+
+    api.init = function(callback) {
+      loadSession(function() {
+        api.log('[mock] Initialized');
+        callback();
+      });
+    };
+
     // ----- User -----
+
+    function loadSession(callback) {
+      var token;
+      var localStorage = window.localStorage;
+
+      if (getParam('auth.skip')) {
+        api.log('[mock] Skipping auth');
+        saveSession(mockToken);
+        setTimeout(callback, getDelayFor('auth.loadsession'));
+        return;
+      }
+
+      if (localStorage && localStorage.getItem) {
+        token = localStorage.getItem('mockAuthToken');
+        if (token) {
+          saveSession(token);
+        }
+        setTimeout(callback, getDelayFor('auth.loadsession'));
+      }
+      else {
+        setTimeout(callback, getDelayFor('auth.loadsession'));
+      }
+      api.log('[mock] Session loaded');
+    }
+
+    function saveSession(token, options) {
+      options = options || {};
+
+      api.token = token;
+      if (options.remember) {
+        var localStorage = window.localStorage;
+        if (localStorage && localStorage.setItem) {
+          localStorage.setItem('mockAuthToken', token);
+        }
+      }
+    }
+
+    function destroySession() {
+      api.token = null;
+      var localStorage = window.localStorage;
+      if (localStorage && localStorage.removeItem) {
+        localStorage.removeItem('mockAuthToken');
+      }
+    }
+
+    api.user.isAuthenticated = function() {
+      return Boolean(api.token);
+    };
+
+    api.user.login = function(user, options, callback) {
+      var username = user.username;
+      var password = user.password;
+
+      // Allow to not pass options object
+      if (typeof options === 'function') {
+        callback = options;
+      }
+
+      setTimeout(function() {
+        var err;
+        if (username !== mockUsername || password !== mockPassword) {
+          err = {status: 401, response: 'Wrong username or password.'};
+        }
+        if (!err) {
+          saveSession(mockToken, options);
+          api.log('[mock] Login success');
+        }
+        else {
+          api.log('[mock] Login failed');
+        }
+        callback(err);
+      }, getDelayFor('api.user.login'));
+    };
+
+    api.user.logout = function(callback) {
+      setTimeout(function() {
+        var err;
+        if (getParam('auth.logout.error')) {
+          err = {status: 500, response: 'Logout failed, please try again.'};
+        }
+        if (!err) {
+          destroySession();
+          api.log('[mock] Logout success');
+        }
+        else {
+          api.log('[mock] Logout failed');
+        }
+        callback(err);
+      }, getDelayFor('api.user.logout'));
+    };
+
+    api.user.signup = function(user, callback) {
+      user = _.clone(user);
+      user.id = '1';
+      delete user.password;
+
+      setTimeout(function() {
+        var err;
+        if (user.username === mockUsername) {
+          err = {
+            status: 400,
+            response: 'An account already exists for that username.'
+          };
+        }
+        if (!err) {
+          saveSession(mockToken);
+          api.log('[mock] Signup success');
+        }
+        else {
+          api.log('[mock] Signup failed');
+        }
+        callback(err, user);
+      }, getDelayFor('api.user.signup'));
+    };
 
     api.user.get = function(callback) {
       api.log('[mock] GET /user');
@@ -65,7 +192,7 @@ var createPatch = function(options) {
           return patient.id !== userPatientId;
         });
       }
-      
+
       setTimeout(function() {
         callback(null, patients);
       }, getDelayFor('api.patient.getall'));

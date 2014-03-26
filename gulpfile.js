@@ -66,7 +66,10 @@ gulp.task('scripts-config', function() {
 gulp.task('scripts-browserify', function() {
   return gulp.src('app/app.js')
     .pipe(browserify({
-      transform: ['reactify']
+      transform: ['reactify'],
+      // Don't bundle Tidepool platform dependencies
+      // (will be grabbed from global `window` object instead)
+      ignore: ['lodash', 'async']
     }))
     .pipe(concat('app.js'))
     .pipe(gulp.dest('dist/tmp'));
@@ -278,7 +281,7 @@ gulp.task('before-tests-unit', function() {
 
 gulp.task('before-tests-index', function() {
   // NOTE: `expandFiles` expects files to be present at the given location
-  // on the file system (uses "file exists" test), else it will return 
+  // on the file system (uses "file exists" test), else it will return
   // nothing for each file "not found"
   var testFiles = expandFiles(testem.serve_files);
   testFiles = _.map(testFiles, function(file) {
