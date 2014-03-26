@@ -72,7 +72,9 @@ function BasalUtil(data) {
   this.undelivered = _.where(data, {'vizType': 'undelivered'});
 
   this.data = data;
-  this.endpoints = [this.data[0].normalTime, this.data[this.data.length - 1].normalEnd];
+  if (this.data.length > 0) {
+    this.endpoints = [this.data[0].normalTime, this.data[this.data.length - 1].normalEnd];
+  }
 }
 
 module.exports = BasalUtil;

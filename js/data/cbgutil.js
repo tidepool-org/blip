@@ -108,7 +108,9 @@ function CBGUtil(data) {
   };
 
   this.data = data;
-  this.endpoints = [this.data[0].normalTime, this.data[this.data.length - 1].normalTime];
+  if (this.data.length > 0) {
+    this.endpoints = [this.data[0].normalTime, this.data[this.data.length - 1].normalTime];
+  }
 }
 
 module.exports = CBGUtil;
