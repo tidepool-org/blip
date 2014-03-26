@@ -22,6 +22,8 @@ server:
 
 develop: minimal-test example server
 
+no-test: example server
+
 resp: minimal-test responsive server
 
 .PHONY: dist example test minimal-test server run
