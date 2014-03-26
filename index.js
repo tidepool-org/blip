@@ -327,6 +327,9 @@ module.exports = function(host) {
           }
         });
     },
+
+    createUserGroup: createUserGroup,
+    
     getUsersTeam : function(userId, token, cb){
       if (userId == null) {
         return cb({ message: 'Must specify a userId' });
