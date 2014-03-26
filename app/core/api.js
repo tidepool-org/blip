@@ -16,6 +16,7 @@
 // Wrapper around the Tidepool client library
 
 var _ = window._;
+var async = window.async;
 var bows = window.bows;
 var config = window.config;
 
@@ -23,7 +24,7 @@ var config = window.config;
 var tidepoolPlatform = require('../tidepool/tidepoolplatform');
 var tidepoolPlatformApi;
 // New
-var tidepool = window.tidepool;
+var tidepool = window.tidepool(config.API_HOST);
 
 var api = {
   log: bows('Api')
@@ -46,6 +47,64 @@ api.init = function(cb) {
 
 api.user = {};
 api.patient = {};
+
+function patientFromUserProfile(profile) {
+  // Merge user profile attributes with patient
+  var patient = profile && profile.patient;
+  if (!patient) {
+    return;
+  }
+
+  patient.firstName = profile.firstName;
+  patient.lastName = profile.lastName;
+  return patient;
+}
+
+function getPatientProfile(patientId, cb) {
+  var token = tidepoolPlatformApi.getToken();
+  tidepool.findProfile(patientId, token, function(err, profile) {
+    if (err) {
+      return cb(err);
+    }
+
+    var patient = patientFromUserProfile(profile);
+    if (!patient) {
+      return cb();
+    }
+
+    patient.id = patientId;
+    return cb(null, patient);
+  });
+}
+
+// Get all patient profiles in current user's "patients" group
+api.patient.getAll = function(cb) {
+  api.log('GET /patients');
+
+  var token = tidepoolPlatformApi.getToken();
+  var userId = tidepoolPlatformApi.getUserId();
+
+  // First, get a list of of patient ids in user's "patients" group
+  tidepool.getUsersPatients(userId, token, function(err, team) {
+    if (err) {
+      return cb(err);
+    }
+
+    api.log('team', team);
+    var patientIds = (team && team.members) || [];
+    if (!patientIds.length) {
+      return cb(null, []);
+    }
+
+    // Second, get the patient profile info for each patient id
+    async.map(patientIds, getPatientProfile, function(err, patients) {
+      // Filter any patient ids that returned nothing
+      patients = _.filter(patients);
+      return cb(null, patients);
+    });
+  });
+};
+
 api.patientData = {};
 api.getUploadUrl = function() {};
 
