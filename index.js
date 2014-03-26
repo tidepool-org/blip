@@ -18,8 +18,8 @@
 // Until we bundle into distribution file properly with UMD
 // Workaround to grab dependency from global `window` object if available
 // and not call `require`
-var _ = (typeof window !== 'undefined') ? window._ : require('lodash');
-var async = (typeof window !== 'undefined') ? window.async : require('async');
+var _ = (typeof window !== 'undefined' && typeof window._ !== 'undefined') ? window._ : require('lodash');
+var async = (typeof window !== 'undefined' && typeof window.async !== 'undefined') ? window.async : require('async');
 
 module.exports = function(host, superagent) {
   var sessionTokenHeader = 'x-tidepool-session-token';

@@ -15,7 +15,7 @@
 
 'use strict';
 
-var superagent = (typeof window !== 'undefined') ? window.superagent : require('superagent');
+var superagent = (typeof window !== 'undefined' && typeof window.superagent !== 'undefined' ) ? window.superagent : require('superagent');
 
 var makeClient = require('./index');
 
