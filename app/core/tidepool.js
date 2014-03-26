@@ -16,7 +16,7 @@
 // Expose Tidepool platform client library on global `window` object
 // Deprecate when client introduces a distribution bundle
 
-var tidepool = require('../../bower_components/tidepool-platform-client');
+var tidepool = require('../../bower_components/tidepool-platform-client/tidepool');
 
 window.tidepool = tidepool;
 

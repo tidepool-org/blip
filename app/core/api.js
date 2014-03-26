@@ -24,7 +24,7 @@ var config = window.config;
 var tidepoolPlatform = require('../tidepool/tidepoolplatform');
 var tidepoolPlatformApi;
 // New
-var tidepool = window.tidepool(config.API_HOST);
+var tidepool = window.tidepool({host: config.API_HOST});
 
 var api = {
   log: bows('Api')
