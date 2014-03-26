@@ -8,8 +8,12 @@ module.exports = function(options){
 
   var apiHost = options.apiHost;
   var uploadApi = options.uploadApi;
-  var apiService = options.apiService;
-  var authService = options.authService;
+
+  var api = {
+    user: {},
+    patient: {},
+    patientData: {}
+  };
 
   var log = bows('Tidepool');
 
@@ -260,9 +264,6 @@ module.exports = function(options){
       }
     }
 
-
-    api.init = function(cb) { return cb(); };
-
     api.isAuthenticated = function() {
       return Boolean(token);
     };
@@ -431,9 +432,11 @@ module.exports = function(options){
     };
   }
 
-  setupUser(apiService.user);
-  setupPatient(apiService.patient);
-  setupAuth(authService);
-  setupPatientData(apiService.patientData);
-  setupUpload(apiService);
+  setupAuth(api.user);
+  setupUser(api.user);
+  setupPatient(api.patient);
+  setupPatientData(api.patientData);
+  setupUpload(api);
+
+  return api;
 };

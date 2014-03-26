@@ -2,17 +2,19 @@
   "name": "blip",
   "version": "0.0.7",
   "dependencies": {
+    "async": "0.2.10",
     "bows": "https://github.com/latentflip/bows.git#beb35328d5c224fc5635928a1b45b32e0d839caa",
     "d3": "3.4.2",
-    "director": "~1.2.2",
+    "director": "1.2.2",
     "Duration.js": "https://github.com/icholy/Duration.js.git#3.3.3",
-    "lodash": "~2.4.1",
-    "jquery": "~2.1.0",
-    "moment": "~2.5.1",
+    "lodash": "2.4.1",
+    "jquery": "2.1.0",
+    "moment": "2.5.1",
     "query-string": "0.2.0",
     "react": "0.9.0",
     "rxjs": "2.2.13",
     "superagent": "visionmedia/superagent#0.16.0",
-    "tideline": "https://github.com/tidepool-org/tideline.git#0.0.6"
+    "tideline": "https://github.com/tidepool-org/tideline.git#0.0.6",
+    "tidepool-platform-client": "https://github.com/tidepool-org/platform-client.git"
   }
 }

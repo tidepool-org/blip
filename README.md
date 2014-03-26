@@ -88,7 +88,7 @@ The following snippets of documentation should help you find your way around and
 - **Core** (`app/core`): Scripts and styles shared by all app components
 - **Components** (`app/components`): Reusable React components, the building-blocks of the application
 - **Pages** (`app/pages`): Higher-level React components that combine reusable components together; switch from page to page on route change
-- **Services** (`app/core/<service>.js`): Singletons used to interface with external services or to provide some common utility; they are attached to the global `app` object (for example, `app.auth` which handles user authentication)
+- **Services** (`app/core/<service>.js`): Singletons used to interface with external services or to provide some common utility; they are attached to the global `app` object (for example, `app.api` which handles communicating with the backend)
 
 ### React components
 
@@ -171,7 +171,7 @@ Keep all elements and styles **responsive**, i.e. make sure they look good on an
 .container {
   // On mobile and up, fill whole screen
   width: 100%;
-  
+
   @media(min-width: 1024px) {
     // When screen gets big enough, switch to fixed-width
     width: 1024px;
@@ -231,7 +231,7 @@ Mock data is generated from `.json` files, which are combined into a JavaScript 
 You can configure the behavior of mock services using **mock parameters**. These are passed through the URL query string (before the hash), for example:
 
 ```
-http://localhost:3000/?auth.skip&app.patient.getall.delay=2000#/patients
+http://localhost:3000/?auth.skip&api.patient.getall.delay=2000#/patients
 ```
 
 With the URL above, mock services will receive the parameters:
@@ -239,7 +239,7 @@ With the URL above, mock services will receive the parameters:
 ```javascript
 {
   'auth.skip': true,
-  'app.patient.getall.delay': 2000
+  'api.patient.getall.delay': 2000
 }
 ```
 
@@ -353,7 +353,7 @@ In both cases, you will need to export the Sauce Labs credentials as environment
 
 - (Optional) You can specify a browser and platform to use in Sauce Labs by setting an environment variable with the pattern: `$ export BROWSER='<browserName>:<version>:<platform>'` (ex: `$ export BROWSER='chrome:32:Windows 8.1`).
 
-- Build the app and run the end-to-end tests just like you would locally ([instructions above](#end-to-end-tests)). 
+- Build the app and run the end-to-end tests just like you would locally ([instructions above](#end-to-end-tests)).
 
 ## Deployment
 
@@ -408,4 +408,3 @@ $ s3_website push --site dist
 ```
 
 **Note**: If asked to delete files that exist in the Amazon S3 bucket but not locally, you might want to say no. Indeed, since all app assets are self-contained in a `build/<version>/` folder, only `index.html` gets overwritten, and you should keep older builds around for visitors that haven't gotten the new `index.html` yet.
-

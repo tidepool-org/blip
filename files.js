@@ -17,7 +17,8 @@ var files = {
       {dir: 'bower_components/jquery', dist: 'dist/jquery.js', distMin: 'dist/jquery.min.js'},
       {dir: 'bower_components/Duration.js', dist: 'duration.js'},
       {dir: 'bower_components/rxjs', dist: 'rx.lite.js'},
-      {dir: 'bower_components/query-string', dist: 'query-string.js'}
+      {dir: 'bower_components/query-string', dist: 'query-string.js'},
+      {dir: 'bower_components/async', dist: 'lib/async.js'}
     ]
   },
 
