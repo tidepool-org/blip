@@ -203,6 +203,12 @@ module.exports = function(host, superagent) {
       });
   }
   return {
+    /**
+     * Login user to the Tidepool platform
+     *
+     * @param user object with a username and password to login
+     * @returns {cb}  cb(err, response)
+     */
     login: function(user, cb){
       if (user.username == null) {
         return cb({ message: 'Must specify an username' });
@@ -229,6 +235,12 @@ module.exports = function(host, superagent) {
           }
         });
     },
+    /**
+     * Signup user to the Tidepool platform
+     *
+     * @param user object with a username and password
+     * @returns {cb}  cb(err, response)
+     */
     signUp: function(user, cb){
       if (user.username == null) {
         return cb({ message: 'Must specify an username' });
@@ -257,6 +269,13 @@ module.exports = function(host, superagent) {
         }
       });
     },
+    /**
+     * Add a new or update an existing profile for a user
+     *
+     * @param user object with a username and password
+     * @param token a user token
+     * @returns {cb}  cb(err, response)
+     */
     addOrUpdateProfile : function(user, token, cb){
       if (user.fullname == null) {
         return cb({ message: 'Must specify an fullname' });
@@ -289,6 +308,13 @@ module.exports = function(host, superagent) {
         }
       });
     },
+    /**
+     * Find a users profile
+     *
+     * @param userId of the user you are finding the profile of
+     * @param token a user token
+     * @returns {cb}  cb(err, response)
+     */
     findProfile : function(userId, token, cb){
       if (userId == null) {
         return cb({ message: 'Must specify a userId' });
@@ -310,7 +336,14 @@ module.exports = function(host, superagent) {
         }
       });
     },
-    refreshUserToken : function(token,newUserid,cb){
+    /**
+     * Refresh a users token
+     *
+     * @param token a user token
+     * @param userId id of the user we are doing the token refresh for
+     * @returns {cb}  cb(err, response)
+     */
+    refreshUserToken : function(token,userId,cb){
       superagent.get(makeUrl('/auth/login'))
         .set(sessionTokenHeader, token)
         .end(
@@ -320,27 +353,54 @@ module.exports = function(host, superagent) {
           }
 
           if (res.status === 200) {
-            cb(null,{userid:newUserid,token:res.headers[sessionTokenHeader]});
+            cb(null,{userid:userId,token:res.headers[sessionTokenHeader]});
           } else {
             cb({message:'Unknown response when refreshing token' + res.status},null);
           }
         });
     },
-
+    /**
+     * Create the required group type for a user
+     *
+     * @param userId id of the user
+     * @param groupType name of the type of group we are creating e.g. team
+     * @param token id of the user we are doing the token refresh for
+     * @returns {cb}  cb(err, response)
+     */
     createUserGroup: createUserGroup,
-
+    /**
+     * Get the users 'team'
+     *
+     * @param userId id of the user
+     * @param token of the user
+     * @returns {cb}  cb(err, response)
+     */
     getUsersTeam : function(userId, token, cb){
       if (userId == null) {
         return cb({ message: 'Must specify a userId' });
       }
       findOrAddUserGroup(userId,'team',token, cb);
     },
+    /**
+     * Get the users 'patients'
+     *
+     * @param userId id of the user
+     * @param token of the user
+     * @returns {cb}  cb(err, response)
+     */
     getUsersPatients : function(userId, token, cb){
       if (userId == null) {
         return cb({ message: 'Must specify a userId' });
       }
       findOrAddUserGroup(userId,'patients',token, cb);
     },
+    /**
+     * Get the listed users public info
+     *
+     * @param patientIds array of id's that we want the public info for
+     * @param token of the user
+     * @returns {cb}  cb(err, response)
+     */
     getPatientsInfo : function(patientIds, token, cb){
       if (patientIds == null) {
         return cb({ message: 'Must specify a patientIds' });
@@ -369,12 +429,27 @@ module.exports = function(host, superagent) {
           }
         });
     },
+    /**
+     * Get the users who have been invited to join the team
+     *
+     * @param userId id of the user
+     * @param token of the user
+     * @returns {cb}  cb(err, response)
+     */
     getInvitesToTeam : function(userId, token,cb){
       if (userId == null) {
         return cb({ message: 'Must specify a userId' });
       }
       findOrAddUserGroup(userId,'invited',token, cb);
     },
+    /**
+     * Invite a user to join the 'team'
+     *
+     * @param inviterId id of the user who is inviting
+     * @param inviteeId id of the user who is being invited
+     * @param token of the user
+     * @returns {cb}  cb(err, response)
+     */
     inviteToJoinTeam : function(inviterId, inviteeId, token,cb){
       if (inviterId == null) {
         return cb({ message: 'Must specify a inviterId' });
@@ -395,6 +470,14 @@ module.exports = function(host, superagent) {
         }
       });
     },
+    /**
+     * Accept an invite to join a users 'team'
+     *
+     * @param inviterId id of the user who is inviting
+     * @param inviteeId id of the user who is being invited
+     * @param token of the user
+     * @returns {cb}  cb(err, response)
+     */
     acceptInviteToJoinTeam : function(inviterId, inviteeId, token, cb){
       if (inviterId == null) {
         return cb({ message: 'Must specify a inviterId' });
@@ -415,6 +498,14 @@ module.exports = function(host, superagent) {
         }
       });
     },
+    /**
+     * Add the user to the patients list
+     *
+     * @param inviterId id of the user who is inviting
+     * @param inviteeId id of the user who is being invited
+     * @param token of the user
+     * @returns {cb}  cb(err, response)
+     */
     addToPatients : function(inviterId, inviteeId, token, cb){
       if (inviterId == null) {
         return cb({ message: 'Must specify a inviterId' });
@@ -435,6 +526,15 @@ module.exports = function(host, superagent) {
         }
       });
     },
+    /**
+     * Get messages for a team between the given dates
+     *
+     * @param groupId of the team to get the messages for
+     * @param start date
+     * @param end date
+     * @param token of the user
+     * @returns {cb}  cb(err, response)
+     */
     getAllMessagesForTeam : function(groupId, start, end, token, cb){
       superagent
         .get(makeUrl('/message/all/'+groupId+'?starttime='+start+'&endtime='+end))
@@ -457,6 +557,13 @@ module.exports = function(host, superagent) {
           }
         });
     },
+    /**
+     * Get all notes for a team
+     *
+     * @param groupId of the team to get the messages for
+     * @param token of the user
+     * @returns {cb}  cb(err, response)
+     */
     getNotesForTeam : function(groupId, token, cb){
       superagent
         .get(makeUrl('/message/notes/'+groupId))
@@ -479,6 +586,14 @@ module.exports = function(host, superagent) {
           }
         });
     },
+    /**
+     * Reply to a specfic message thread
+     *
+     * @param messageId of the root message
+     * @param comment on the message thread
+     * @param token of the user
+     * @returns {cb}  cb(err, response)
+     */
     replyToMessageThread : function(messageId,comment,token,cb){
       superagent
         .post(makeUrl('/message/reply/'+messageId))
@@ -499,6 +614,14 @@ module.exports = function(host, superagent) {
           }
         });
     },
+    /**
+     * Start a new message thread
+     *
+     * @param groupId of the team the message is for
+     * @param message that is the start of a new thread
+     * @param token of the user
+     * @returns {cb}  cb(err, response)
+     */
     startMessageThread : function(groupId,message,token,cb){
 
       superagent
@@ -520,6 +643,13 @@ module.exports = function(host, superagent) {
           }
         });
     },
+    /**
+     * Get a specific message thread
+     *
+     * @param messageId of the root message
+     * @param token of the user
+     * @returns {cb}  cb(err, response)
+     */
     getMessageThread : function(messageId,token,cb){
       superagent
         .get(makeUrl('/message/thread/'+messageId))
