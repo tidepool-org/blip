@@ -42,8 +42,8 @@ _.assign(patient, {
     aboutMe: {validate: validation.hasLengthLessThan(MAX_ABOUTME_LENGTH)}
   },
 
-  formatDate: function(value) {
-    return moment(value).format(DATE_FORMAT);
+  formatDate: function(value, inputFormat) {
+    return moment(value, inputFormat).format(DATE_FORMAT);
   },
 
   getYearsAgo: function(date) {
