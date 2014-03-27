@@ -27,7 +27,9 @@ var tidepoolPlatformApi;
 var tidepool = window.tidepool({host: config.API_HOST});
 
 var api = {
-  log: bows('Api')
+  log: bows('Api'),
+  token: null,
+  userId: null
 };
 
 api.init = function(cb) {
@@ -45,7 +47,115 @@ api.init = function(cb) {
   cb();
 };
 
+// ----- User -----
+
 api.user = {};
+
+function saveSession(newUserId, newToken) {
+  api.token = newToken;
+  api.userId = newUserId;
+
+  // NOTE: `tidepoolPlatformApi` to be deprecated
+  tidepoolPlatformApi.setToken(newToken);
+  tidepoolPlatformApi.setUserId(newUserId);
+
+  if (!newToken) {
+    api.log('Session cleared');
+    return;
+  }
+
+  api.log('Session saved');
+
+  var refreshSessionInterval = 10 * 60 * 1000;
+  var refreshSession = function() {
+    if (api.token == null || newUserId !== api.userId) {
+      api.log('Stopping session token refresh');
+      return;
+    }
+
+    api.log('Refreshing session token');
+    tidepool.refreshUserToken(api.token, newUserId, function(err, data) {
+      var hasNewSession = data && data.userid && data.token;
+      if (err || !hasNewSession) {
+        api.log('Failed refreshing session token', err);
+        return;
+      }
+
+      saveSession(data.userid, data.token);
+    });
+  };
+
+  setTimeout(refreshSession, refreshSessionInterval);
+}
+
+api.user.isAuthenticated = function() {
+  return Boolean(api.token);
+};
+
+api.user.login = function(user, cb) {
+  api.log('POST /user/login');
+
+  tidepool.login(user, function(err, data) {
+    if (err) {
+      return cb(err);
+    }
+
+    saveSession(data.userid, data.token);
+    cb();
+  });
+};
+
+api.user.signup = function(user, cb) {
+  api.log('POST /user');
+
+  // First, create user account
+  tidepool.signup(user, function(err, data) {
+    if (err) {
+      return cb(err);
+    }
+
+    var token = data.token;
+    var userId = data.userid;
+    saveSession(userId, token);
+
+    // Then, add additional user info (first name, etc.) to profile
+    var profile = _.omit(user, 'username', 'password');
+    profile.id = userId;
+    tidepool.addOrUpdateProfile(profile, token, function(err, data) {
+      if (err) {
+        return cb(err);
+      }
+
+      // Add back some account info to profile for response
+      data.id = userId;
+      data.username = user.username;
+      cb(null, data);
+    });
+  });
+};
+
+api.user.logout = function(cb) {
+  api.log('POST /user/logout');
+
+  if (!api.user.isAuthenticated()) {
+    return;
+  }
+
+  var token = api.token;
+  tidepool.logout(token, function(err) {
+    if (err) {
+      return cb(err);
+    }
+
+    // Clear session
+    saveSession(null, null);
+
+    cb();
+  });
+};
+
+// ----- Patient -----
+
 api.patient = {};
 
 function patientFromUserProfile(profile) {
@@ -81,8 +191,8 @@ function getPatientProfile(patientId, cb) {
 api.patient.getAll = function(cb) {
   api.log('GET /patients');
 
-  var token = tidepoolPlatformApi.getToken();
-  var userId = tidepoolPlatformApi.getUserId();
+  var token = api.token;
+  var userId = api.userId;
 
   // First, get a list of of patient ids in user's "patients" group
   tidepool.getUsersPatients(userId, token, function(err, team) {
@@ -90,7 +200,6 @@ api.patient.getAll = function(cb) {
       return cb(err);
     }
 
-    api.log('team', team);
     var patientIds = (team && team.members) || [];
     if (!patientIds.length) {
       return cb(null, []);
@@ -105,7 +214,12 @@ api.patient.getAll = function(cb) {
   });
 };
 
+// ----- Patient data -----
+
 api.patientData = {};
+
+// ----- Upload -----
+
 api.getUploadUrl = function() {};
 
 module.exports = api;
