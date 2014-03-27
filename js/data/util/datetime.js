@@ -20,6 +20,9 @@ var datetime = {
   MS_IN_24: 86400000,
 
   adjustToInnerEndpoints: function(s, e, endpoints) {
+    if (!endpoints) {
+      return null;
+    }
     var start = new Date(s).valueOf(), end = new Date(e).valueOf();
     var thisTypeStart = new Date(endpoints[0]).valueOf(), thisTypeEnd = new Date(endpoints[1]).valueOf();
     if (start < thisTypeStart) {
@@ -90,6 +93,9 @@ var datetime = {
   },
 
   verifyEndpoints: function(s, e, endpoints) {
+    if (!endpoints) {
+      return null;
+    }
     if (this.checkIfUTCDate(s) && this.checkIfUTCDate(e)) {
       endpoints = this.adjustToInnerEndpoints(s, e, endpoints);
       s = endpoints[0];
