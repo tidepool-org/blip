@@ -185,141 +185,6 @@ module.exports = function(options){
     }
   }
 
-  function setupAuth(api) {
-    function saveSession(newUserid, newToken) {
-      token = newToken;
-      userid = newUserid;
-      if (newToken != null) {
-        setTimeout(
-          function(){
-            if (token == null || newUserid !== userid) {
-              return;
-            }
-
-            var uri = '/auth/login';
-            log('GET ' + uri);
-            superagent.get(makeUrl(uri))
-              .set(sessionTokenHeader, token)
-              .end(
-              function(err, res){
-                if (err) {
-                  log(err);
-                  return;
-                }
-
-                if (res.status === 200) {
-                  saveSession(newUserid, res.headers[sessionTokenHeader]);
-                } else {
-                  log('Unknown response when refreshing token' + res.status);
-                }
-              });
-          },
-          10 * 60 * 1000
-        );
-      }
-    }
-
-    api.isAuthenticated = function() {
-      return Boolean(token);
-    };
-
-    api.login = function(user, cb) {
-      if (user.username == null) {
-        return cb({ message: 'Must specify an username' });
-      }
-      if (user.password == null) {
-        return cb({ message: 'Must specify a password' });
-      }
-
-      var uri = '/auth/login';
-      log('POST ' + uri);
-      superagent.post(makeUrl(uri))
-        .auth(user.username, user.password)
-        .end(
-        function(err, res) {
-          if (err != null) {
-            return cb(err);
-          }
-
-          if (res.status !== 200) {
-            return cb({status: res.status, response: res.body});
-          }
-
-          saveSession(res.body.userid, res.headers[sessionTokenHeader]);
-          cb();
-        });
-    };
-
-    api.logout = function(cb) {
-      if (token == null) {
-        return cb(null);
-      }
-
-      var oldToken = token;
-      saveSession(null, null);
-      var uri = '/auth/logout';
-      log('POST ' + uri);
-      superagent.post(makeUrl(uri))
-        .set(sessionTokenHeader, oldToken)
-        .end(function(err, res){ cb(err); });
-    };
-
-    api.signup = function(user, cb) {
-      if (user.username == null) {
-        return cb({ message: 'Must specify a username' });
-      }
-      if (user.password == null) {
-        return cb({ message: 'Must specify a password' });
-      }
-
-      // First, create user account
-      var userApiUser = _.assign(
-        {},
-        _.pick(user, 'username', 'password'),
-        {emails: [user.username]}
-      );
-      var uri = '/auth/user';
-      log('POST ' + uri);
-      superagent.post(makeUrl(uri))
-        .send(userApiUser)
-        .end(function(err, res) {
-          if (err != null) {
-            return cb(err);
-          }
-
-          if (res.status !== 201) {
-            return cb({status: res.status, response: res.body});
-          }
-
-          var userApiBody = res.body;
-          saveSession(userApiBody.userid, res.headers[sessionTokenHeader]);
-
-          // Then, add additional user info (first name, etc.) to profile
-          var profile = _.omit(user, 'username', 'password');
-          uri = '/metadata/' + userid + '/profile';
-          log('POST ' + uri);
-          superagent.post(makeUrl(uri))
-            .set(sessionTokenHeader, token)
-            .send(profile)
-            .end(function(err, res) {
-              if (err != null) {
-                return cb(err);
-              }
-
-              if (res.status !== 200) {
-                return cb({status: res.status, response: res.body});
-              }
-
-              // Add back some account info to profile for response
-              var data = res.body;
-              data.id = userid;
-              data.username = user.username;
-              cb(null, data);
-            });
-        });
-    };
-  }
-
   function setupPatientData(api) {
     api.get = function(patientId, options, cb) {
       if (token == null || userid == null) {
@@ -383,7 +248,6 @@ module.exports = function(options){
     };
   }
 
-  setupAuth(api.user);
   setupUser(api.user);
   setupPatient(api.patient);
   setupPatientData(api.patientData);
@@ -393,8 +257,18 @@ module.exports = function(options){
     return token;
   };
 
+  api.setToken = function(newToken) {
+    token = newToken;
+    return api;
+  };
+
   api.getUserId = function() {
     return userid;
+  };
+
+  api.setUserId = function(newUserId) {
+    userid = newUserId;
+    return api;
   };
 
   return api;
