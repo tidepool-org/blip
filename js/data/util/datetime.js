@@ -19,6 +19,12 @@ var datetime = {
 
   MS_IN_24: 86400000,
 
+  addDays: function(s, n) {
+    var d = new Date(s);
+    d.setUTCDate(d.getUTCDate() + n);
+    return d.toISOString();
+  },
+
   adjustToInnerEndpoints: function(s, e, endpoints) {
     if (!endpoints) {
       return null;

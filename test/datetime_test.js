@@ -34,6 +34,23 @@ describe('datetime utility', function() {
     });
   });
 
+  describe('addDays', function() {
+    it('should be a function', function() {
+      assert.isFunction(dt.addDays);
+    });
+
+    it('should return a string', function() {
+      var type = typeof dt.addDays(new Date(), 1);
+      expect(type).to.equal('string');
+    });
+
+    it('should return a datestring that parses as MS_IN_24 from the date arg', function() {
+      var d = new Date(1);
+      var passed = new Date(dt.addDays(d, 1));
+      expect(passed - d).to.equal(dt.MS_IN_24);
+    });
+  });
+
   describe('adjustToInnerEndpoints', function() {
     var endLonger = ['2014-03-06T00:00:00.000Z', '2014-03-08T00:00:00.000Z'];
     var startEarlier = ['2014-03-05T00:00:00.000Z', '2014-03-07T00:00:00.000Z'];
