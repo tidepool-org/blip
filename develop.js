@@ -26,6 +26,9 @@ app.use('/app.js', function(req, res, next) {
   gulp.src(path.join(ROOT, 'app/app.js'))
     .pipe(browserify({
       transform: ['reactify'],
+      // Don't bundle Tidepool platform dependencies
+      // (will be grabbed from global `window` object instead)
+      ignore: ['lodash', 'async'],
       debug: true
     }))
     // Error handling: can't just pass `next`,
@@ -39,7 +42,7 @@ app.use('/app.js', function(req, res, next) {
 
 app.use('/start.js', function(req, res) {
   res.setHeader('Content-Type', 'text/javascript');
-  
+
   var stream = fs.createReadStream(__dirname + '/app/start.js');
   stream.pipe(res);
 });

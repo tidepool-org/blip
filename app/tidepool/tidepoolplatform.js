@@ -8,8 +8,12 @@ module.exports = function(options){
 
   var apiHost = options.apiHost;
   var uploadApi = options.uploadApi;
-  var apiService = options.apiService;
-  var authService = options.authService;
+
+  var api = {
+    user: {},
+    patient: {},
+    patientData: {}
+  };
 
   var log = bows('Tidepool');
 
@@ -107,51 +111,6 @@ module.exports = function(options){
   }
 
   function setupPatient(api) {
-    api.getAll = function(cb) {
-      if (PATIENT_GETALL_NOT_IMPLEMENTED) {
-        log('api.patient.getAll() not implemented yet');
-        return cb(null, []);
-      }
-
-      if (token == null || userid == null) {
-        return cb({ message: 'Not logged in' });
-      }
-
-      superagent.get(makeUrl('/metadata/' + userid + '/groups'))
-        .set(sessionTokenHeader, token)
-        .end(
-        function(err, res){
-          if (err != null) {
-            return cb(err);
-          }
-
-          if (res.status !== 200) {
-            return cb({ message: 'Unknown response code from metadata ' + res.status });
-          } else {
-            if (res.body == null || res.body.patients == null) {
-              return cb(null, []);
-            }
-
-            var patientsGroup = res.body.patients;
-            superagent.get(makeUrl('/groups/' + patientsGroup + '/members'))
-              .set(sessionTokenHeader)
-              .end(
-              function(membersErr, membersResult){
-                if (membersErr != null) {
-                  return cb(membersErr);
-                }
-
-                if (membersResult.status === 200) {
-                  return cb(null, membersResult.body.groups);
-                }
-                else {
-                  return cb({ message: 'Unknown response code from groups ' + res.status });
-                }
-              });
-          }
-        });
-    };
-
     api.get = function(patientId, cb) {
       if (token == null || userid == null) {
         return cb({ message: 'Not logged in' });
@@ -259,9 +218,6 @@ module.exports = function(options){
         );
       }
     }
-
-
-    api.init = function(cb) { return cb(); };
 
     api.isAuthenticated = function() {
       return Boolean(token);
@@ -431,9 +387,19 @@ module.exports = function(options){
     };
   }
 
-  setupUser(apiService.user);
-  setupPatient(apiService.patient);
-  setupAuth(authService);
-  setupPatientData(apiService.patientData);
-  setupUpload(apiService);
+  setupAuth(api.user);
+  setupUser(api.user);
+  setupPatient(api.patient);
+  setupPatientData(api.patientData);
+  setupUpload(api);
+
+  api.getToken = function() {
+    return token;
+  };
+
+  api.getUserId = function() {
+    return userid;
+  };
+
+  return api;
 };

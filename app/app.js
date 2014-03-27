@@ -1,15 +1,15 @@
 /** @jsx React.DOM */
 /**
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
@@ -19,16 +19,18 @@ var bows = window.bows;
 var _ = window._;
 var config = window.config;
 
+// These requires will be deprecated when Tidepool Platform Client and Tideline
+// have distribution bundles and export on the `window` object
+var tidepool = require('./core/tidepool');
+var tideline = require('./core/tideline');
+
 var router = require('./router');
-var auth = require('./core/auth');
 var api = require('./core/api');
 var user = require('./core/user');
 var patient = require('./core/patient');
 var queryString = require('./core/querystring');
-var tideline = require('./core/tideline');
 var chartUtil = require('./core/chartutil');
 var detectTouchScreen = require('./core/notouch');
-var tidepoolPlatform = require('./tidepool/tidepoolplatform');
 
 var Navbar = require('./components/navbar');
 var LogoutOverlay = require('./components/logoutoverlay');
@@ -49,20 +51,10 @@ var DEBUG = window.localStorage && window.localStorage.debug;
 if (config.MOCK) {
   var mock = window.mock;
   api = mock.patchApi(api);
-  auth = mock.patchAuth(auth);
-}
-else {
-  tidepoolPlatform({
-    apiHost: config.API_HOST,
-    uploadApi: config.UPLOAD_API,
-    apiService: api,
-    authService: auth
-  });
 }
 
 var app = {
   log: bows('App'),
-  auth: auth,
   api: api,
   user: user,
   patient: patient,
@@ -107,7 +99,7 @@ function objectDifference(destination, source) {
 var AppComponent = React.createClass({
   getInitialState: function() {
     return {
-      authenticated: app.auth.isAuthenticated(),
+      authenticated: app.api.user.isAuthenticated(),
       notification: null,
       page: null,
       user: null,
@@ -237,7 +229,7 @@ var AppComponent = React.createClass({
     if (this.state.notification) {
       return (
         /* jshint ignore:start */
-        <Notification 
+        <Notification
           message={this.state.notification}
           onClose={this.closeNotification} />
         /* jshint ignore:end */
@@ -264,9 +256,9 @@ var AppComponent = React.createClass({
   renderLogin: function() {
     return (
       /* jshint ignore:start */
-      <Login 
+      <Login
         onValidate={this.validateUser}
-        onSubmit={app.auth.login.bind(app.auth)}
+        onSubmit={app.api.user.login.bind(app.api.user)}
         onSubmitSuccess={this.handleLoginSuccess} />
       /* jshint ignore:end */
     );
@@ -280,9 +272,9 @@ var AppComponent = React.createClass({
   renderSignup: function() {
     return (
       /* jshint ignore:start */
-      <Signup  
+      <Signup
         onValidate={this.validateUser}
-        onSubmit={app.auth.signup.bind(app.auth)}
+        onSubmit={app.api.user.signup.bind(app.api.user)}
         onSubmitSuccess={this.handleSignupSuccess} />
       /* jshint ignore:end */
     );
@@ -296,7 +288,7 @@ var AppComponent = React.createClass({
   renderProfile: function() {
     return (
       /* jshint ignore:start */
-      <Profile 
+      <Profile
           user={this.state.user}
           fetchingUser={this.state.fetchingUser}
           onValidate={this.validateUser}
@@ -314,7 +306,7 @@ var AppComponent = React.createClass({
   renderPatients: function() {
     /* jshint ignore:start */
     return (
-      <Patients 
+      <Patients
           user={this.state.user}
           fetchingUser={this.state.fetchingUser}
           patients={this.state.patients}
@@ -484,7 +476,7 @@ var AppComponent = React.createClass({
       this.redirectToDefaultRoute();
       return;
     }
-    
+
     /* jshint ignore:start */
     return (
       <PatientData
@@ -521,7 +513,7 @@ var AppComponent = React.createClass({
 
     this.setState({loggingOut: true});
 
-    app.auth.logout(function(err) {
+    app.api.user.logout(function(err) {
       if (err) {
         self.setState({
           loggingOut: false,
@@ -748,7 +740,7 @@ app.init = function(callback) {
 
   function initMock() {
     if (config.MOCK) {
-      // Load mock params from config variables 
+      // Load mock params from config variables
       // and URL query string (before hash)
       var paramsConfig = queryString.parseTypes(config.MOCK_PARAMS);
       var paramsUrl = queryString.parseTypes(window.location.search);
@@ -757,11 +749,11 @@ app.init = function(callback) {
       mock.init(params);
       self.log('Mock services initialized with params', params);
     }
-    initAuth();
+    initApi();
   }
 
-  function initAuth() {
-    self.auth.init(callback);
+  function initApi() {
+    self.api.init(callback);
   }
 
   beginInit();
