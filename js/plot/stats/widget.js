@@ -20,6 +20,7 @@ var _ = require('../../lib/')._;
 
 var log = require('../../lib/').bows('Stats');
 var scales = require('../util/scales');
+var dt = require('../../data/util/datetime');
 var format = require('../../data/util/format');
 
 module.exports = function(pool, opts) {
@@ -54,7 +55,7 @@ module.exports = function(pool, opts) {
   var pies = [], pie, arc;
 
   opts.emitter.on('currentDomain', function(domain) {
-    var start = domain[0].valueOf(), end = domain[1].valueOf();
+    var start = domain[0].toISOString(), end = domain[1].toISOString();
     stats.getData(start, end);
     stats.draw();
   });
@@ -439,14 +440,16 @@ module.exports = function(pool, opts) {
   };
 
   stats.getData = function(start, end) {
+    var basalData = opts.basal.totalBasal(start, end, opts.twoWeekOptions);
+    var excluded = basalData.excluded;
     data.ratio = [
       {
         'type': 'bolus',
-        'value': opts.bolus.totalBolus(start, end)
+        'value': opts.bolus.totalBolus(start, end, {'excluded': excluded})
       },
       {
         'type': 'basal',
-        'value': opts.basal.totalBasal(start, end, opts.twoWeekOptions).total
+        'value': basalData.total
       }
     ];
     var range = opts.cbg.rangeBreakdown(start, end);
