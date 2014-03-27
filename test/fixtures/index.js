@@ -26,6 +26,8 @@ fixtures.push({'name': 'many-scheduled', 'json': require('./basal-temp-many-sche
 fixtures.push({'name': 'both-ends', 'json': require('./basal-temp-both-ends')});
 fixtures.push({'name': 'overlapping', 'json': require('./basal-overlapping')});
 fixtures.push({'name': 'temp-final', 'json': require('./basal-temp-final')});
+fixtures.push({'name': 'gap', 'json': require('./basal-gap')});
+fixtures.push({'name': 'two-days', 'json': require('./basal-two-days')});
 fixtures.push({'name': 'current-demo', 'json': require('../../example/data/device-data')});
 fixtures.push({'name': 'blip-output', 'json': require('./blip-output')});
 module.exports = fixtures;
