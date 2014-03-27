@@ -56,7 +56,7 @@ describe('basal utilities', function() {
       assert.isFunction(basal.totalBasal);
     });
 
-    it('should return total that is a number or NaN when given invalid date range', function() {
+    it('should return total of NaN when given invalid date range', function() {
       var type = typeof basal.totalBasal('', '').total;
       expect(type === 'number').to.be.true;
     });

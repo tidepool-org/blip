@@ -111,14 +111,14 @@ function BasalUtil(data) {
           var endpoints = this.isContinuous(dayStart.toISOString(), dayEnd.toISOString());
           if (endpoints && datetime.isTwentyFourHours(dayStart.toISOString(), dayEnd.toISOString())) {
             if (isNaN(this.subtotal(endpoints))) {
-              excluded.push(dayStart.toISOString().slice(0,10));
+              excluded.push(dayStart.toISOString());
             }
             else {
               dose += this.subtotal(endpoints);
             }
           }
           else {
-            excluded.push(dayStart.toISOString().slice(0,10));
+            excluded.push(dayStart.toISOString());
           }
           start.setUTCDate(start.getUTCDate() + 1);
         }
