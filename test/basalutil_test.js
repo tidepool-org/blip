@@ -31,44 +31,52 @@ var fx = require('./fixtures');
 var tideline = require('../js/index');
 var BasalUtil = tideline.data.BasalUtil;
 var SegmentUtil = tideline.data.SegmentUtil;
+var format = tideline.data.util.format;
 
 var MS_IN_HOUR = 3600000.0;
 
 describe('basal utilities', function() {
   describe('totalBasal', function() {
-    var data = watson.normalize(_.findWhere(fx, {'name': 'current-demo'}).json);
+    var data = _.findWhere(fx, {'name': 'current-demo'}).json;
     var basalSegments = new SegmentUtil(_.where(data, {'type': 'basal-rate-segment'})).all;
-    var basal = new BasalUtil(basalSegments);
+    data = _.reject(data, function(d) {
+      return d.type === 'basal-rate-segment';
+    });
+    data = data.concat(basalSegments);
+    data = watson.normalize(data);
+    var basal = new BasalUtil(_.where(data, {'type': 'basal-rate-segment'}));
     var templateSegments = watson.normalize(new SegmentUtil(_.findWhere(fx, {'name': 'template'}).json).all);
     var template = new BasalUtil(templateSegments);
     var tempSegments = watson.normalize(new SegmentUtil(_.findWhere(fx, {'name': 'contained'}).json).all);
     var temp = new BasalUtil(tempSegments);
+    var twoDaySegments = watson.normalize(new SegmentUtil(_.findWhere(fx, {'name': 'two-days'}).json).all);
+    var twoDays = new BasalUtil(twoDaySegments);
 
     it('should be a function', function() {
       assert.isFunction(basal.totalBasal);
     });
 
-    it('should return a number or NaN when given invalid date range', function() {
-      var type = typeof basal.totalBasal('', '');
+    it('should return total that is a number or NaN when given invalid date range', function() {
+      var type = typeof basal.totalBasal('', '').total;
       expect(type === 'number').to.be.true;
     });
 
-    it('should return a number when passed a valid date range', function() {
-      var type = typeof basal.totalBasal(basal.data[0].normalTime, basal.data[1].normalTime);
-      expect((type === 'number') && isNaN(basal.totalBasal(basal.data[0].normalTime, basal.data[1].normalTime))).to.be.true;
+    it('should return total of NaN when passed a valid but not long enough date range', function() {
+      var type = typeof basal.totalBasal(basal.data[0].normalTime, basal.data[1].normalTime).total;
+      expect((type === 'number') && isNaN(basal.totalBasal(basal.data[0].normalTime, basal.data[1].normalTime).total)).to.be.true;
     });
 
-    it('should return NaN if the start of data and start of basals do not align exactly or overlap', function() {
+    it('should return total of NaN if the start of data and start of basals do not align exactly or overlap', function() {
       var d = new Date(data[0].normalTime);
       var b = new Date(basal.data[0].normalTime);
       if (d < b) {
         var twentyFour = Duration.parse('24h');
         var endTwentyFour = new Date(d.valueOf() + twentyFour);
-        expect(isNaN(basal.totalBasal(d.valueOf(), endTwentyFour.valueOf()))).to.be.true;
+        expect(isNaN(basal.totalBasal(d.valueOf(), endTwentyFour.valueOf()).total)).to.be.true;
       }
     });
 
-    it('should return NaN if the end of data and end of basals do not align exactly or overlap', function() {
+    it('should return total of NaN if the end of data and end of basals do not align exactly or overlap', function() {
       var d = new Date(data[data.length - 1].normalTime);
       var b = new Date(basal.data[basal.data.length - 1].normalEnd);
       if (b < d) {
@@ -78,22 +86,133 @@ describe('basal utilities', function() {
       }
     });
 
-    it('should return 20.0 on basal-template.json for twenty-four hours', function() {
+    it('should return total of 20.0 on basal-template.json for twenty-four hours', function() {
       var start = new Date('2014-02-12T00:00:00.000Z').valueOf();
       var end = new Date('2014-02-13T00:00:00.000Z').valueOf();
-      expect(template.totalBasal(start, end)).to.equal(20.0);
+      expect(template.totalBasal(start, end).total).to.equal(20.0);
     });
 
-    it('should return 1.45 on basal-template.json from 1 to 3 a.m.', function() {
-      var start = new Date('2014-02-12T01:00:00.000Z').valueOf();
-      var end = new Date('2014-02-12T03:00:00.000Z').valueOf();
-      expect(template.totalBasal(start, end)).to.equal(1.45);
+    it('should return total of 19.6 on basal-contained.json for twenty-four hours', function() {
+      var start = new Date('2014-02-12T00:00:00.000Z').valueOf();
+      var end = new Date('2014-02-13T00:00:00.000Z').valueOf();
+      expect(temp.totalBasal(start, end).total).to.equal(19.6);
     });
 
-    it('should return 5.35 on basal-contained.json from 8:30 a.m. to 3:30 p.m.', function() {
-      var start = new Date('2014-02-12T08:30:00.000Z').valueOf();
-      var end = new Date('2014-02-12T15:30:00.000Z').valueOf();
-      expect(temp.totalBasal(start, end)).to.equal(5.35);
+    it('should return 40.0 on basal-two-days.json for the extent of the data', function() {
+      var start = new Date('2014-02-12T00:00:00.000Z').valueOf();
+      var end = new Date('2014-02-14T00:00:00.000Z').valueOf();
+      expect(twoDays.totalBasal('2014-02-12T00:00:00.000Z', '2014-02-14T00:00:00.000Z', {
+        'midnightToMidnight': true,
+        'exclusionThreshold': 2
+      }).total).to.equal(40.0);
+    });
+
+    it('should return the same as subtotal on a 14-day span of data', function() {
+      var first = _.find(data, {'type': 'basal-rate-segment'});
+      var midnight = 'T00:00:00.000Z';
+      var start = new Date(first.normalTime.slice(0,10) + midnight);
+      start.setUTCDate(start.getUTCDate() + 1);
+      var end = new Date(start);
+      end.setUTCDate(end.getUTCDate() + 14);
+      var st = basal.subtotal(basal.isContinuous(start.toISOString(), end.toISOString()));
+      var t = basal.totalBasal(start.toISOString(), end.toISOString(), {'exclusionThreshold': 7});
+      expect(format.fixFloatingPoint(st)).to.equal(format.fixFloatingPoint(t.total));
+    });
+
+    it('should return the same as subtotal on a 14-day span of data when not given midnight-to-midnight domain', function() {
+      var basals = _.where(data, {'type': 'basal-rate-segment'});
+      var first = basals[112];
+      var end = new Date(first.normalTime);
+      end.setUTCDate(end.getUTCDate() + 14);
+      var st = basal.subtotal(basal.isContinuous(first.normalTime, end.toISOString()));
+      var t = basal.totalBasal(first.normalTime, end.toISOString(), {'exclusionThreshold': 7});
+      expect(format.fixFloatingPoint(st)).to.equal(format.fixFloatingPoint(t.total));
+    });
+
+    it('should have an excluded of length 7 when 7 days of data removed', function() {
+      var first = _.find(data, {'type': 'basal-rate-segment'});
+      var midnight = 'T00:00:00.000Z';
+      var start = new Date(first.normalTime.slice(0,10) + midnight);
+      start.setUTCDate(start.getUTCDate() + 1);
+      var end = new Date(start);
+      end.setUTCDate(end.getUTCDate() + 14);
+      var gap = new Date(start);
+      gap.setUTCDate(gap.getUTCDate() + 2);
+      for (var i = 0; i < 7; i++) {
+        var dateString = gap.toISOString().slice(0,10);
+        basal.actual = _.reject(basal.actual, function(d) {
+          return d.normalTime.slice(0,10) === dateString;
+        });
+        gap.setUTCDate(gap.getUTCDate() + 1);
+      }
+      var t = basal.totalBasal(start.toISOString(), end.toISOString(), {'exclusionThreshold': 7});
+      expect(t.excluded.length).to.equal(7);
+    });
+
+    it('should return total of NaN when a further day removed', function() {
+      var first = _.find(data, {'type': 'basal-rate-segment'});
+      var midnight = 'T00:00:00.000Z';
+      var start = new Date(first.normalTime.slice(0,10) + midnight);
+      start.setUTCDate(start.getUTCDate() + 1);
+      var end = new Date(start);
+      end.setUTCDate(end.getUTCDate() + 14);
+      var gap = new Date(start);
+      gap.setUTCDate(gap.getUTCDate() + 9);
+      var dateString = gap.toISOString().slice(0,10);
+      basal.actual = _.reject(basal.actual, function(d) {
+        return d.normalTime.slice(0,10) === dateString;
+      });
+      var t = basal.totalBasal(start.toISOString(), end.toISOString(), {'exclusionThreshold': 7});
+      expect(isNaN(t.total)).to.be.true;
+    });
+  });
+
+  describe('subtotal', function() {
+    var data = watson.normalize(_.findWhere(fx, {'name': 'template'}).json);
+    var basalSegments = new SegmentUtil(_.where(data, {'type': 'basal-rate-segment'})).all;
+    var basal = new BasalUtil(basalSegments);
+
+    it('should be a function', function() {
+      assert.isFunction(basal.subtotal);
+    });
+
+    it('should return 5.4 on basal-template.json from 6am to 12pm', function() {
+      var endpoints = {
+        'start': {
+          'datetime': '2014-02-12T06:00:00.000Z',
+          'index': 4
+        },
+        'end': {
+          'datetime': '2014-02-12T12:00:00.000Z',
+          'index': 5
+        }
+      };
+      expect(basal.subtotal(endpoints)).to.equal(5.4);
+    });
+
+    it('should return a number on a 14-day span of data', function() {
+
+    });
+  });
+
+  describe('isContinuous', function() {
+    var data = watson.normalize(_.findWhere(fx, {'name': 'template'}).json);
+    var basalSegments = new SegmentUtil(_.where(data, {'type': 'basal-rate-segment'})).all;
+    var basal = new BasalUtil(basalSegments);
+    var gapSegments = watson.normalize(new SegmentUtil(_.findWhere(fx, {'name': 'gap'}).json).all);
+    var gap = new BasalUtil(gapSegments);
+
+    it('should be a function', function() {
+      assert.isFunction(basal.isContinuous);
+    });
+
+    it('should return false on basal-gap.json', function() {
+      expect(gap.isContinuous('2014-02-12T00:00:00.000Z', '2014-02-13T00:00:00.000Z')).to.be.false;
+    });
+
+    it('should return true on basal-template.json', function() {
+      var type = typeof basal.isContinuous('2014-02-12T00:00:00.000Z', '2014-02-13T00:00:00.000Z');
+      expect(type === 'object').to.be.true;
     });
   });
 

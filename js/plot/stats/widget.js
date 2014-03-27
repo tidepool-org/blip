@@ -36,6 +36,9 @@ module.exports = function(pool, opts) {
       'high': {'boundary': 200},
       'very-high': {'boundary': 300}
     },
+    twoWeekOptions: {
+      'exclusionThreshold': 7
+    },
     imagesBaseUrl: pool.imagesBaseUrl(),
     size: 16,
     'pieRadius': pool.height() * 0.45
@@ -443,7 +446,7 @@ module.exports = function(pool, opts) {
       },
       {
         'type': 'basal',
-        'value': opts.basal.totalBasal(start, end)
+        'value': opts.basal.totalBasal(start, end, opts.twoWeekOptions).total
       }
     ];
     var range = opts.cbg.rangeBreakdown(start, end);
