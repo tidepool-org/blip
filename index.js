@@ -261,7 +261,7 @@ module.exports = function(host, superagent) {
      * @param user object with a username and password
      * @returns {cb}  cb(err, response)
      */
-    signUp: function(user, cb){
+    signup: function(user, cb){
       if (user.username == null) {
         return cb({ message: 'Must specify an username' });
       }
@@ -269,7 +269,11 @@ module.exports = function(host, superagent) {
         return cb({ message: 'Must specify a password' });
       }
 
-      var userApiUser = _.assign({}, _.pick(user, 'username', 'password'), { emails: [user.username] });
+      var userApiUser = _.assign(
+        {},
+        _.pick(user, 'username', 'password'),
+        {emails: [user.username]}
+      );
 
       superagent
       .post(makeUrl('/auth/user'))
@@ -288,24 +292,41 @@ module.exports = function(host, superagent) {
       });
     },
     /**
+     * Logout user with token
+     *
+     * @param token a user token
+     * @returns {cb}  cb(err, response)
+     */
+    logout : function(token, cb){
+      superagent
+      .post(makeUrl('/auth/logout'))
+      .set(sessionTokenHeader, token)
+      .end(
+      function(err, res){
+        if (err != null) {
+          return cb(err);
+        }
+
+        if (res.status !== 200) {
+          return handleHttpError(res, cb);
+        }
+
+        cb(null,res.body);
+      });
+    },
+    /**
      * Add a new or update an existing profile for a user
      *
-     * @param user object with a username and password
+     * @param user object with profile info and `id` attribute
      * @param token a user token
      * @returns {cb}  cb(err, response)
      */
     addOrUpdateProfile : function(user, token, cb){
-      if (user.fullname == null) {
-        return cb({ message: 'Must specify an fullname' });
-      }
-      if (user.shortname == null) {
-        return cb({ message: 'Must specify an shortname' });
-      }
       if (user.id == null) {
         return cb({ message: 'Must specify an id' });
       }
 
-      var userProfile = _.assign({}, _.pick(user, 'fullname', 'shortname', 'publicbio'));
+      var userProfile = _.omit(user, 'id', 'username', 'password');
 
       superagent
       .put(makeUrl('/metadata/' + user.id + '/profile'))
@@ -321,7 +342,7 @@ module.exports = function(host, superagent) {
           return handleHttpError(res, cb);
         }
 
-        cb(null,true);
+        cb(null,res.body);
       });
     },
     /**
