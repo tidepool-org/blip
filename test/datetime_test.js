@@ -57,24 +57,6 @@ describe('datetime utility', function() {
     });
   });
 
-  describe('isTwentyFourHours', function() {
-    it('should be a function', function() {
-      assert.isFunction(dt.isTwentyFourHours);
-    });
-
-    it('should return false on two timestamps less than 24 hours apart', function() {
-      expect(dt.isTwentyFourHours('2014-03-06T00:00:00.000Z', '2014-03-06T01:00:00.000Z')).to.be.false;
-    });
-
-    it('should return false on two timestamps greater than 24 hours apart', function() {
-      expect(dt.isTwentyFourHours('2014-03-06T00:00:00.000Z', '2014-03-07T01:00:00.000Z')).to.be.false;
-    });
-
-    it('should return true on two timestamps exactly 24 hours apart', function() {
-      expect(dt.isTwentyFourHours('2014-03-06T00:00:00.000Z', '2014-03-07T00:00:00.000Z')).to.be.true;
-    });
-  });
-
   describe('checkIfDateInRange', function() {
     var s = '2014-03-06T12:00:00.000Z';
     var endpoints = ['2014-03-06T00:00:00.000Z', '2014-03-07T00:00:00.000Z'];
@@ -137,6 +119,65 @@ describe('datetime utility', function() {
 
     it('should return true when passed an ISO-formatted UTC date string', function() {
       expect(dt.checkIfUTCDate('2014-03-06T12:00:00.000Z')).to.be.true;
+    });
+  });
+
+  describe('getNumDays', function() {
+    it('should be a function', function() {
+      assert.isFunction(dt.getNumDays);
+    });
+
+    it('should return a number', function() {
+      var type = typeof dt.getNumDays('','');
+      expect(type === 'number').to.be.true;
+    });
+
+    it('should return 1 when passed two timestamps exactly 24 hours apart', function() {
+      expect(dt.getNumDays('2014-03-06T00:00:00.000Z', '2014-03-07T00:00:00.000Z')).to.equal(1);
+    });
+
+    it('should return 2 when passed two timestamps minimally more than 24 hours apart', function() {
+      expect(dt.getNumDays('2014-03-06T00:00:00.000Z', '2014-03-07T00:00:00.001Z')).to.equal(2);
+    });
+
+    it('should return 14 when passed two timestamps exactly 14 days apart', function() {
+      expect(dt.getNumDays('2014-03-06T00:00:00.000Z', '2014-03-20T00:00:00.000Z')).to.equal(14);
+    });
+  });
+
+  describe('isLessThanTwentyFourHours', function() {
+    it('should be a function', function() {
+      assert.isFunction(dt.isLessThanTwentyFourHours);
+    });
+
+    it('should return true on two timestamps less than 24 hours apart', function() {
+      expect(dt.isLessThanTwentyFourHours('2014-03-06T00:00:00.000Z', '2014-03-06T01:00:00.000Z')).to.be.true;
+    });
+
+    it('should return false on two timestamps greater than 24 hours apart', function() {
+      expect(dt.isLessThanTwentyFourHours('2014-03-06T00:00:00.000Z', '2014-03-07T01:00:00.000Z')).to.be.false;
+    });
+
+    it('should return false on two timestamps exactly 24 hours apart', function() {
+      expect(dt.isLessThanTwentyFourHours('2014-03-06T00:00:00.000Z', '2014-03-07T00:00:00.000Z')).to.be.false;
+    });
+  });
+
+  describe('isTwentyFourHours', function() {
+    it('should be a function', function() {
+      assert.isFunction(dt.isTwentyFourHours);
+    });
+
+    it('should return false on two timestamps less than 24 hours apart', function() {
+      expect(dt.isTwentyFourHours('2014-03-06T00:00:00.000Z', '2014-03-06T01:00:00.000Z')).to.be.false;
+    });
+
+    it('should return false on two timestamps greater than 24 hours apart', function() {
+      expect(dt.isTwentyFourHours('2014-03-06T00:00:00.000Z', '2014-03-07T01:00:00.000Z')).to.be.false;
+    });
+
+    it('should return true on two timestamps exactly 24 hours apart', function() {
+      expect(dt.isTwentyFourHours('2014-03-06T00:00:00.000Z', '2014-03-07T00:00:00.000Z')).to.be.true;
     });
   });
 

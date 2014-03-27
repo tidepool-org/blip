@@ -33,14 +33,6 @@ var datetime = {
     }
   },
 
-  isTwentyFourHours: function(s, e) {
-    var start = new Date(s).valueOf(), end = new Date(e).valueOf();
-    if (end - start === this.MS_IN_24) {
-      return true;
-    }
-    else { return false; }
-  },
-
   checkIfDateInRange: function(s, endpoints) {
     var d = new Date(s);
     var start = new Date(endpoints[0]);
@@ -74,6 +66,27 @@ var datetime = {
         return false;
       }
     }
+  },
+
+  getNumDays: function(s, e) {
+    var start = new Date(s).valueOf(), end = new Date(e).valueOf();
+    return Math.ceil((end - start)/this.MS_IN_24);
+  },
+
+  isLessThanTwentyFourHours: function(s, e) {
+    var start = new Date(s).valueOf(), end = new Date(e).valueOf();
+    if (end - start < this.MS_IN_24) {
+      return true;
+    }
+    else { return false; }
+  },
+
+  isTwentyFourHours: function(s, e) {
+    var start = new Date(s).valueOf(), end = new Date(e).valueOf();
+    if (end - start === this.MS_IN_24) {
+      return true;
+    }
+    else { return false; }
   },
 
   verifyEndpoints: function(s, e, endpoints) {
