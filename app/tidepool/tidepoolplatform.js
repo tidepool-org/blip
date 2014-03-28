@@ -132,6 +132,9 @@ module.exports = function(options){
 
           if (res.status === 200) {
             Rx.Observable.fromArray(res.body)
+              .filter(function(e){
+                        return !(e.type === 'basal' && e.deliveryType === 'temp');
+                      })
               .tidepoolConvertBasal()
               .tidepoolConvertBolus()
               .flatMap(function(datum) {
@@ -142,7 +145,9 @@ module.exports = function(options){
                         type: 'carbs',
                         deviceTime: datum.deviceTime,
                         value: datum.payload.carbInput,
-                        units: datum.payload.carbUnits
+                        units: datum.payload.carbUnits,
+                        deviceId: datum.deviceId,
+                        annotations: [{ code: "generated-from-wizard" }].concat(datum.annotations || [])
                       }
                     ]
                   );
