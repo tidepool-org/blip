@@ -121,11 +121,28 @@ api.user.signup = function(user, cb) {
     // Then, add additional user info (first name, etc.) to profile
     var profile = _.omit(user, 'username', 'password');
     profile.id = userId;
-    tidepool.addOrUpdateProfile(profile, token, function(err, data) {
+    var createUserProfile = function(cb) {
+      tidepool.addOrUpdateProfile(profile, token, cb);
+    };
+
+    // Finally, create necessary groups for a new user account
+    var createUserPatientsGroup = function(cb) {
+      tidepool.createUserGroup(userId, 'patients', token, cb);
+    };
+
+    // NOTE: Can't run this in parallel, apparently the "seagull" api,
+    // which both of these calls are using, doesn't allow it
+    // (an error occurs when trying to read /metadata/:userId/profile later)
+    async.series({
+      profile: createUserProfile,
+      patientsGroupId: createUserPatientsGroup
+    },
+    function(err, results) {
       if (err) {
         return cb(err);
       }
 
+      var data = results.profile;
       // Add back some account info to profile for response
       data.id = userId;
       data.username = user.username;
