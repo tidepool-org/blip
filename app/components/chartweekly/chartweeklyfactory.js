@@ -54,6 +54,7 @@ function chartWeeklyFactory(el, options) {
 
     if (options.imagesBaseUrl) {
       chart.imagesBaseUrl(options.imagesBaseUrl);
+      chart.dataGutter(8);
     }
 
     d3.select(el).call(chart);
@@ -66,7 +67,6 @@ function chartWeeklyFactory(el, options) {
     // TODO: this stuff probably belongs in chartutil.js
     // and a common basalUtil, bolusUtil, and cbgUtil can be shared between one-day and two-week
     var basalUtil = new tideline.data.BasalUtil(_.where(data, {'type': 'basal-rate-segment'}));
-    basalUtil.normalizedActual = watson.normalize(basalUtil.actual);
     var bolusUtil = new tideline.data.BolusUtil(_.where(data, {'type': 'bolus'}));
     var cbgUtil = new tideline.data.CBGUtil(_.where(data, {'type': 'cbg'}));
 
@@ -100,7 +100,7 @@ function chartWeeklyFactory(el, options) {
     var fillEndpoints = [new Date('2014-01-01T00:00:00Z'), new Date('2014-01-02T00:00:00Z')];
     var fillScale = d3.time.scale.utc()
       .domain(fillEndpoints)
-      .range([chart.axisGutter(), chart.width() - chart.navGutter()]);
+      .range([chart.axisGutter() + chart.dataGutter(), chart.width() - chart.navGutter() - chart.dataGutter()]);
 
     var smbgTime = new tideline.plot.SMBGTime({emitter: emitter});
 
@@ -125,7 +125,8 @@ function chartWeeklyFactory(el, options) {
       pool.addPlotType('fill', fill(pool, {
         endpoints: fillEndpoints,
         xScale: fillScale,
-        gutter: gutter
+        gutter: gutter,
+        dataGutter: chart.dataGutter()
       }), false);
       pool.addPlotType('smbg', smbgTime.draw(pool), true, true);
       pool.render(chart.daysGroup(), chart.dataPerDay[i]);
