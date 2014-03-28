@@ -1,6 +1,6 @@
 {
   "name": "tideline",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "authors": [
     "Jana E. Beck <jana.eliz.beck@gmail.com>"
   ],
@@ -12,7 +12,8 @@
     "node_modules",
     "bower_components",
     "test",
-    "tests"
+    "tests",
+    "example"
   ],
   "dependencies": {
     "d3": "~3.4.3",
