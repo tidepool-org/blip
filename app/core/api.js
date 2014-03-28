@@ -224,7 +224,25 @@ api.patient.get = function(patientId, cb) {
 api.patient.post = function(patient, cb) {
   api.log('POST /patients');
   var patientId = api.userId;
-  return api.patient.put(patientId, patient, cb);
+
+  // First, create patient profile for user
+  api.patient.put(patientId, patient, function(err, patient) {
+    if (err) {
+      return cb(err);
+    }
+
+    // Then, create necessary groups for new patient
+    var userId = api.userId;
+    var token = api.token;
+    tidepool.createUserGroup(userId, 'team', token,
+    function(err, teamGroupId) {
+      if (err) {
+        return cb(err);
+      }
+
+      cb(null, patient);
+    });
+  });
 };
 
 api.patient.put = function(patientId, patient, cb) {
