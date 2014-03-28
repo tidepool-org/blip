@@ -23,7 +23,7 @@ module.exports = function(grunt) {
       options: {
         jshintrc: '.jshintrc'
       },
-      all: ['Gruntfile.js', 'lib/**/*.js', 'test/**/*.js']
+      all: ['*.js', 'lib/**/*.js', 'test/**/*.js']
     },
     mochaTest: {
       unit: {

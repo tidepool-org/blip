@@ -46,15 +46,19 @@ module.exports = function(host, superagent) {
     .get(makeUrl('/metadata/' + userId + '/groups'))
     .set(sessionTokenHeader, token)
     .end(function(error, res){
-      if(error){
-        cb(error);
-      } else if (res.status === 404) {
-        cb(null,null);
-      } else if(res.status === 200) {
-        cb(null,res.body[groupType]);
-      } else {
-        cb({ message: 'Unknown response code from groups ' + res.status });
+      if (error) {
+        return cb(error);
       }
+
+      if (res.status === 404) {
+        return cb(null,null);
+      }
+
+      if (res.status !== 200) {
+        return handleHttpError(res, cb);
+      }
+
+      cb(null,res.body[groupType]);
     });
   }
   /*
@@ -86,28 +90,29 @@ module.exports = function(host, superagent) {
         }
       },
       function(groupId, callback){
-        //find the requested group
-        if(groupId){
-          superagent
-            .get(makeUrl('/group/' + groupId + '/members'))
-            .set(sessionTokenHeader, token)
-            .end(function(error, res){
-
-              if(error){
-                callback(error);
-              } else if (res.status !== 200) {
-                callback({ message: 'Unknown response code from groups ' + res.status });
-              } else {
-                var group = {
-                  id: groupId,
-                  members: res.body.members
-                };
-                callback(null,group);
-              }
-            });
-        } else {
-          callback(null,null);
+        if (!groupId) {
+          return callback(null,null);
         }
+
+        //find the requested group
+        superagent
+          .get(makeUrl('/group/' + groupId + '/members'))
+          .set(sessionTokenHeader, token)
+          .end(function(error, res){
+            if(error) {
+              return callback(error);
+            }
+
+            if (res.status !== 200) {
+              return handleHttpError(res, callback);
+            }
+
+            var group = {
+              id: groupId,
+              members: res.body.members
+            };
+            callback(null,group);
+          });
       }
     ],
     function (err, result) {
@@ -133,10 +138,13 @@ module.exports = function(host, superagent) {
           .send({ group : { members : [] }})
           .end(function(err, res){
             if (err != null) {
-              callback(err,null);
-            } else if (res.status !== 201) {
-              callback({ message: 'Unknown response code from groups ' + res.status });
+              return callback(err,null);
             }
+
+            if (res.status !== 201) {
+              return handleHttpError(res, callback);
+            }
+
             callback(null,res.body.id);
           });
       },
@@ -163,12 +171,14 @@ module.exports = function(host, superagent) {
           .set(sessionTokenHeader, token)
           .send(existingGroups)
           .end(function(err, res){
-
               if (err != null) {
-                callback(err);
-              } else if (res.status !== 200) {
-                callback({ message: 'Unknown response code from metadata ' + res.status });
+                return callback(err);
               }
+
+              if (res.status !== 200) {
+                return handleHttpError(res, callback);
+              }
+
               callback(null,groupId);
             });
       }
@@ -194,14 +204,26 @@ module.exports = function(host, superagent) {
       .send({userid : memberId})
       .end(function(err, res){
         if (err != null) {
-          cb(err,null);
-        } else if (res.status !== 200) {
-          cb({ message: 'Unknown response code from groups ' + res.status });
-        } else {
-          cb(null,res.body);
+          return cb(err,null);
         }
+
+        if (res.status !== 200) {
+          return handleHttpError(res, cb);
+        }
+
+        cb(null,res.body);
       });
   }
+
+  /*
+    Handle an HTTP error (status code !== 2xx)
+    Create an error object and pass it to callback
+  */
+  function handleHttpError(res, cb) {
+    var err = {status: res.status, body: res.body};
+    cb(err);
+  }
+
   return {
     /**
      * Login user to the Tidepool platform
@@ -226,13 +248,11 @@ module.exports = function(host, superagent) {
             return cb(err,null);
           }
 
-          if (res.status === 200) {
-            cb(null,{userid:res.body.userid,token:res.headers[sessionTokenHeader],user:res.body});
-          } else if (res.status === 401) {
-            cb({ message: 'Unauthorized' });
-          } else {
-            cb({ message: 'Unknown status code ' + res.status });
+          if (res.status !== 200) {
+            return handleHttpError(res, cb);
           }
+
+          cb(null,{userid:res.body.userid,token:res.headers[sessionTokenHeader],user:res.body});
         });
     },
     /**
@@ -241,7 +261,7 @@ module.exports = function(host, superagent) {
      * @param user object with a username and password
      * @returns {cb}  cb(err, response)
      */
-    signUp: function(user, cb){
+    signup: function(user, cb){
       if (user.username == null) {
         return cb({ message: 'Must specify an username' });
       }
@@ -249,7 +269,11 @@ module.exports = function(host, superagent) {
         return cb({ message: 'Must specify a password' });
       }
 
-      var userApiUser = _.assign({}, _.pick(user, 'username', 'password'), { emails: [user.username] });
+      var userApiUser = _.assign(
+        {},
+        _.pick(user, 'username', 'password'),
+        {emails: [user.username]}
+      );
 
       superagent
       .post(makeUrl('/auth/user'))
@@ -260,34 +284,49 @@ module.exports = function(host, superagent) {
           return cb(err);
         }
 
-        if (res.status === 201) {
-          cb(null,{userid:res.body.userid,token:res.headers[sessionTokenHeader]});
-        } else if (res.status === 401) {
-          cb({ message: 'Unauthorized' });
-        } else {
-          cb({ message: 'Unknown response code ' + res.status });
+        if (res.status !== 201) {
+          return handleHttpError(res, cb);
         }
+
+        cb(null,{userid:res.body.userid,token:res.headers[sessionTokenHeader]});
+      });
+    },
+    /**
+     * Logout user with token
+     *
+     * @param token a user token
+     * @returns {cb}  cb(err, response)
+     */
+    logout : function(token, cb){
+      superagent
+      .post(makeUrl('/auth/logout'))
+      .set(sessionTokenHeader, token)
+      .end(
+      function(err, res){
+        if (err != null) {
+          return cb(err);
+        }
+
+        if (res.status !== 200) {
+          return handleHttpError(res, cb);
+        }
+
+        cb(null,res.body);
       });
     },
     /**
      * Add a new or update an existing profile for a user
      *
-     * @param user object with a username and password
+     * @param user object with profile info and `id` attribute
      * @param token a user token
      * @returns {cb}  cb(err, response)
      */
     addOrUpdateProfile : function(user, token, cb){
-      if (user.fullname == null) {
-        return cb({ message: 'Must specify an fullname' });
-      }
-      if (user.shortname == null) {
-        return cb({ message: 'Must specify an shortname' });
-      }
       if (user.id == null) {
         return cb({ message: 'Must specify an id' });
       }
 
-      var userProfile = _.assign({}, _.pick(user, 'fullname', 'shortname', 'publicbio'));
+      var userProfile = _.omit(user, 'id', 'username', 'password');
 
       superagent
       .put(makeUrl('/metadata/' + user.id + '/profile'))
@@ -299,13 +338,11 @@ module.exports = function(host, superagent) {
           return cb(err);
         }
 
-        if (res.status === 200) {
-          cb(null,true);
-        } else if (res.status === 401) {
-          cb({ message: 'Unauthorized' });
-        } else {
-          cb({ message: 'Unknown response code ' + res.status });
+        if (res.status !== 200) {
+          return handleHttpError(res, cb);
         }
+
+        cb(null,res.body);
       });
     },
     /**
@@ -327,13 +364,13 @@ module.exports = function(host, superagent) {
       function(err, res){
         if (err != null) {
           cb(err);
-        } else if (res.status === 200) {
-          cb(null,res.body);
-        } else if (res.status === 401) {
-          cb({ message: 'Unauthorized' });
-        } else {
-          cb({ message: 'Unknown response code ' + res.status });
         }
+
+        if (res.status !== 200) {
+          return handleHttpError(res, cb);
+        }
+
+        cb(null,res.body);
       });
     },
     /**
@@ -352,11 +389,11 @@ module.exports = function(host, superagent) {
             return cb(err,null);
           }
 
-          if (res.status === 200) {
-            cb(null,{userid:userId,token:res.headers[sessionTokenHeader]});
-          } else {
-            cb({message:'Unknown response when refreshing token' + res.status},null);
+          if (res.status !== 200) {
+            return handleHttpError(res, cb);
           }
+
+          cb(null,{userid:userId,token:res.headers[sessionTokenHeader]});
         });
     },
     /**
@@ -417,16 +454,17 @@ module.exports = function(host, superagent) {
           if (error != null) {
             return cb(error,null);
           }
-          if (res.status === 200) {
-            cb(null, res.body);
-          } else if (res.status === 404) {
-            //just so happens there are no messages
-            cb(null, null);
-          } else if (res.status === 401) {
-            cb({ message: 'Unauthorized' });
-          } else {
-            cb({ message: 'Unknown status code ' + res.status });
+
+          if (res.status === 404) {
+            // there are no patients for those ids
+            return cb(null, null);
           }
+
+          if (res.status !== 200) {
+            return handleHttpError(res, cb);
+          }
+
+          cb(null, res.body);
         });
     },
     /**
@@ -541,20 +579,20 @@ module.exports = function(host, superagent) {
         .set(sessionTokenHeader, token)
         .end(
         function(err, res) {
-
           if (err != null) {
             return cb(err,null);
           }
-          if (res.status === 200) {
-            cb(null, res.body.messages);
-          } else if (res.status === 404) {
-            //just so happens there are no messages
-            cb(null, []);
-          } else if (res.status === 401) {
-            cb({ message: 'Unauthorized' });
-          } else {
-            cb({ message: 'Unknown status code ' + res.status });
+
+          if (res.status === 404) {
+            // there are no messages for that group
+            return cb(null, []);
           }
+
+          if (res.status !== 200) {
+            return handleHttpError(res, cb);
+          }
+
+          cb(null, res.body.messages);
         });
     },
     /**
@@ -570,20 +608,20 @@ module.exports = function(host, superagent) {
         .set(sessionTokenHeader, token)
         .end(
         function(err, res) {
-
           if (err != null) {
             return cb(err,null);
           }
-          if (res.status === 200) {
-            cb(null, res.body.messages);
-          } else if (res.status === 404) {
-            //just so happens there are no messages
-            cb(null, []);
-          } else if (res.status === 401) {
-            cb({ message: 'Unauthorized' });
-          } else {
-            cb({ message: 'Unknown status code ' + res.status });
+
+          if (res.status === 404) {
+            // there are no messages for that group
+            return cb(null, []);
           }
+
+          if (res.status !== 200) {
+            return handleHttpError(res, cb);
+          }
+
+          cb(null, res.body.messages);
         });
     },
     /**
@@ -605,13 +643,11 @@ module.exports = function(host, superagent) {
             return cb(err,null);
           }
 
-          if (res.status === 201) {
-            cb(null, res.body.id);
-          } else if (res.status === 401) {
-            cb({ message: 'Unauthorized' });
-          } else {
-            cb({ message: 'Unknown status code ' + res.status });
+          if (res.status !== 201) {
+            return handleHttpError(res, cb);
           }
+
+          cb(null, res.body.id);
         });
     },
     /**
@@ -634,13 +670,11 @@ module.exports = function(host, superagent) {
             return cb(err,null);
           }
 
-          if (res.status === 201) {
-            cb(null, res.body.id);
-          } else if (res.status === 401) {
-            cb({ message: 'Unauthorized' });
-          } else {
-            cb({ message: 'Unknown status code ' + res.status });
+          if (res.status !== 201) {
+            return handleHttpError(res, cb);
           }
+
+          cb(null, res.body.id);
         });
     },
     /**
@@ -660,13 +694,11 @@ module.exports = function(host, superagent) {
             return cb(err,null);
           }
 
-          if (res.status === 200) {
-            cb(null, res.body.messages);
-          } else if (res.status === 401) {
-            cb({ message: 'Unauthorized' });
-          } else {
-            cb({ message: 'Unknown status code ' + res.status });
+          if (res.status !== 200) {
+            return handleHttpError(res, cb);
           }
+
+          cb(null, res.body.messages);
         });
     }
   };
