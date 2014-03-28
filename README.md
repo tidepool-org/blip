@@ -107,11 +107,19 @@ $ make test
 
 ### Running everything for development
 
-To run a minimal reporter version of the test suite, build the example, and serve it to yourself for testing during development, run:
+To run a minimal reporter version of the test suite, build the example, and serve it to yourself (again at `http://localhost:8081/example/`) for testing during development, run:
 
 ```bash
 $ make develop
 ```
+
+In circumstances when the test suite is currently failing, the above make target will error out before the server starts. If you are consciously working with broken tests, use the `no-test` target to build the example and serve it to yourself for development:
+
+```bash
+$ make no-test
+```
+
+(There is also an alternate version of `example.less` called `responsive.less` that uses viewport units for tideline's container sizing for *pseudo*-responsive (i.e., requires page refresh) dynamic sizing. If you're experiment with sizing variation and would like to develop against this version, use `make resp`.)
 
 ## Code Philosophy and Organization
 

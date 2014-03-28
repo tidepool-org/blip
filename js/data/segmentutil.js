@@ -18,7 +18,7 @@
 var _ = require('../lib/')._;
 var log = require('../lib/').bows('SegmentUtil');
 
-var keysToOmit = ['id', 'start', 'end', 'vizType'];
+var keysForEquality = ['type', 'deliveryType', 'value', 'deviceId', 'scheduleName', 'source'];
 
 function SegmentUtil(data) {
   var actuals = [];
@@ -31,7 +31,7 @@ function SegmentUtil(data) {
 
   function addToUndelivered(e) {
     undelivereds.push(_.extend({}, e, {vizType: 'undelivered'}));
-  }
+    }
 
   function processElement(e) {
     if (e.deliveryType === 'temp' || e.deliveryType === 'scheduled') {
@@ -40,7 +40,7 @@ function SegmentUtil(data) {
       } else {
         var lastActual = actuals[actuals.length - 1];
         if (e.start === lastActual.end) {
-          if (_.isEqual(_.omit(e, keysToOmit), _.omit(lastActual, keysToOmit))) {
+          if (_.isEqual(_.pick(e, keysForEquality), _.pick(lastActual, keysForEquality))) {
             lastActual.end = e.end;
           } else {
             addToActuals(e);
