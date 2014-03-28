@@ -15,7 +15,7 @@
     "rxjs": "2.2.13",
     "superagent": "visionmedia/superagent#0.16.0",
     "tideline": "0.0.7",
-    "tidepool-platform-client": "https://github.com/tidepool-org/platform-client.git"
+    "tidepool-platform-client": "0.0.9"
   },
   "resolutions": {
     "d3": "3.4.2"
