@@ -205,6 +205,11 @@ var createPatch = function(options) {
       if (!patient) {
         err = {status: 404, response: 'Not found'};
       }
+      
+      if (getParam('api.patient.get.emptyteam')) {
+        patient.team = [];
+      }
+
       setTimeout(function() {
         callback(err, patient);
       }, getDelayFor('api.patient.get'));

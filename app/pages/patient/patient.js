@@ -1,15 +1,15 @@
 /** @jsx React.DOM */
 /**
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
@@ -21,6 +21,7 @@ var config = window.config;
 
 var user = require('../../core/user');
 var patient = require('../../core/patient');
+var PeopleList = require('../../components/peoplelist');
 
 var DATE_DISPLAY_FORMAT = 'MMM D, YYYY';
 
@@ -57,6 +58,7 @@ var Patient = React.createClass({
     var subnav = this.renderSubnav();
     var editLink = this.renderEditLink();
     var patient = this.renderPatient();
+    var team = this.renderTeam();
 
     /* jshint ignore:start */
     return (
@@ -67,6 +69,7 @@ var Patient = React.createClass({
             <div className="patient-content">
               {editLink}
               {patient}
+              {team}
             </div>
           </div>
         </div>
@@ -144,7 +147,7 @@ var Patient = React.createClass({
 
   renderPatient: function() {
     var patient = this.props.patient || {};
-    
+
     var attributes = this.prepareDisplayAttributes(patient);
 
     return this.renderPatientAttributes(attributes);
@@ -196,6 +199,43 @@ var Patient = React.createClass({
           name={attribute.name}>{attribute.value}</div>
         <div className="patient-attribute-label">{attribute.label}</div>
       </div>
+    );
+    /* jshint ignore:end */
+  },
+
+  renderTeam: function() {
+    if (!this.isUserPatient()) {
+      return null;
+    }
+
+    var teamMembers = this.renderTeamMembers();
+
+    /* jshint ignore:start */
+    return (
+      <div className="patient-team">
+        <div className="patient-team-title">CARE TEAM</div>
+        {teamMembers}
+      </div>
+    );
+    /* jshint ignore:end */
+  },
+
+  renderTeamMembers: function() {
+    var members = this.props.patient && this.props.patient.team;
+
+    if (_.isEmpty(members)) {
+      /* jshint ignore:start */
+      return (
+        <div className="patient-team-empty">
+          People added to this care team will appear here.
+        </div>
+      );
+      /* jshint ignore:end */
+    }
+
+    /* jshint ignore:start */
+    return (
+      <PeopleList people={members} />
     );
     /* jshint ignore:end */
   },
