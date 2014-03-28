@@ -19,17 +19,53 @@ var d3 = require('../../lib/').d3;
 var _ = require('../../lib/')._;
 
 var scales = {
+  MAX_CBG: 401,
+
   bg: function(data, pool, pad) {
-    var scale = d3.scale.linear()
-      .domain([0, d3.max(data, function(d) { return d.value; })])
-      .range([pool.height() - pad, pad]);
-    return scale;
+    var ext = d3.extent(data, function(d) { return d.value; });
+    if (ext > this.MAX_CBG) {
+      return d3.scale.linear()
+        .domain([0, this.MAX_CBG])
+        .range([pool.height() - pad, pad])
+        .clamp();
+    }
+    else {
+      return d3.scale.linear()
+        .domain([0, ext[1]])
+        .range([pool.height() - pad, pad]);
+    }
   },
   bgLog: function(data, pool, pad) {
-    var scale = d3.scale.log()
-      .domain(d3.extent(data, function(d) { return d.value; }))
-      .range([pool.height() - pad, pad]);
-    return scale;
+    var ext = d3.extent(data, function(d) { return d.value; });
+    if (ext > this.MAX_CBG) {
+      return d3.scale.log()
+        .domain(ext[0], this.MAX_CBG)
+        .range([pool.height() - pad, pad])
+        .clamp();
+    }
+    else {
+      return d3.scale.log()
+        .domain(ext)
+        .range([pool.height() - pad, pad]);
+    }
+  },
+  bgTicks: function(data) {
+    var defaultTicks = [40, 80, 120, 180, 300];
+    // check for data that looks like mmol and generation of different defaultTicks should go here
+    var ext = d3.extent(data, function(d) { return d.value; });
+    // if the min of our data is greater than any of the defaultTicks, remove that tick
+    defaultTicks.forEach(function(tick) {
+      if (ext[0] > tick) {
+        defaultTicks.shift();
+      }
+    });
+    defaultTicks.reverse();
+    defaultTicks.forEach(function(tick) {
+      if (ext[1] < tick) {
+        defaultTicks.shift();
+      }
+    });
+    return defaultTicks.reverse();
   },
   carbs: function(data, pool) {
     var scale = d3.scale.linear()

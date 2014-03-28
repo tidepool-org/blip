@@ -4,7 +4,7 @@
     "type": "git",
     "url": "https://github.com/tidepool-org/tideline.git"
   },
-  "version": "0.0.6",
+  "version": "0.0.7",
   "devDependencies": {
     "chai": "1.8.1",
     "duration-js": "3.3.3",
