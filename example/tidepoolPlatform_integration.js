@@ -16,6 +16,7 @@
 'use strict';
 var expect = require('salinity').expect;
 var superagent = require('superagent');
+var _ = require('lodash');
 
 describe('platform client', function() {
 
@@ -28,8 +29,7 @@ describe('platform client', function() {
     password : 'fak3U53r',
     emails :['fake@user.com'],
     fullname : 'Jamie T1d',
-    shortname : 'Jamie',
-    publicbio : 'To live is the rarest thing in the world. Most people exist, that is all.'
+    shortname : 'Jamie'
   };
 
   var careTeamMember = {
@@ -39,8 +39,7 @@ describe('platform client', function() {
     password : 'fak3U53r',
     emails :['dr.fake@user.com'],
     fullname : 'Dr Doogie Howser ',
-    shortname : 'Doogie',
-    publicbio : 'A teenage physician who also faces the problems of being a normal teenager'
+    shortname : 'Doogie'
   };
 
   var createUser=function(userToAdd,cb){
@@ -99,7 +98,7 @@ describe('platform client', function() {
       this.timeout(5000);
       platform.addOrUpdateProfile(mrT1, mrT1.token, function(error,added){
         expect(error).to.not.exist;
-        expect(added).to.be.true;
+        expect(added).to.exist;
         done();
       });
     });
@@ -112,7 +111,9 @@ describe('platform client', function() {
 
         expect(profile.fullname).to.equal(mrT1.fullname);
         expect(profile.shortname).to.equal(mrT1.shortname);
-        expect(profile.publicbio).to.equal(mrT1.publicbio);
+        expect(profile).to.not.have.property('password');
+        expect(profile).to.not.have.property('username');
+
         done();
       });
     });
@@ -121,7 +122,7 @@ describe('platform client', function() {
       this.timeout(5000);
       platform.addOrUpdateProfile(careTeamMember, careTeamMember.token, function(error,added){
         expect(error).to.not.exist;
-        expect(added).to.be.true;
+        expect(added).to.exist;
         done();
       });
     });
@@ -134,7 +135,8 @@ describe('platform client', function() {
 
         expect(profile.fullname).to.equal(careTeamMember.fullname);
         expect(profile.shortname).to.equal(careTeamMember.shortname);
-        expect(profile.publicbio).to.equal(careTeamMember.publicbio);
+        expect(profile).to.not.have.property('password');
+        expect(profile).to.not.have.property('username');
         done();
       });
     });
