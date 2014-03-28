@@ -78,6 +78,7 @@ function BasalUtil(data) {
       };
     }
     else {
+      log('Basal data between', start.toISOString(), 'and', end.toISOString(), 'is not continuous.');
       return false;
     }
   };
