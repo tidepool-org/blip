@@ -18,6 +18,8 @@
 var d3 = require('./lib/').d3;
 var _ = require('./lib/')._;
 
+var TidelineData = require('./tidelinedata');
+
 var log = require('./lib/').bows('One Day');
 
 module.exports = function(emitter) {
@@ -44,7 +46,7 @@ module.exports = function(emitter) {
     buffer = 5,
     pools = [], poolGroup,
     xScale = d3.time.scale.utc(), xAxis,
-    beginningOfData, endOfData, data, allData = [], endpoints,
+    beginningOfData, endOfData, tidelineData, data, allData = [], endpoints,
     mainGroup,
     scrollNav, scrollHandleTrigger = true, tooltips;
 
@@ -532,7 +534,9 @@ module.exports = function(emitter) {
   container.data = function(a) {
     if (!arguments.length) return data;
 
-    data = a;
+    tidelineData = new TidelineData(a);
+
+    data = tidelineData.data;
 
     var first = new Date(a[0].normalTime);
     var last = new Date(a[a.length - 1].normalTime);

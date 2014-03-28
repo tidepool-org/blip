@@ -16,9 +16,10 @@
  */
 
 module.exports = {
+  TidelineData: require('./tidelinedata'),
   pool: require('./pool'),
-  oneDay: require('./one-day'),
-  twoWeek: require('./two-week'),
+  oneDay: require('./oneday'),
+  twoWeek: require('./twoweek'),
 
   data: {
     BasalUtil: require('./data/basalutil'),
@@ -40,7 +41,7 @@ module.exports = {
     carbs: require('./plot/carbs'),
     cbg: require('./plot/cbg'),
     message: require('./plot/message'),
-    SMBGTime: require('./plot/smbg-time'),
+    SMBGTime: require('./plot/smbgtime'),
     smbg: require('./plot/smbg'),
     stats: {
       puddle: require('./plot/stats/puddle'),
