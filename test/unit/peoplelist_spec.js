@@ -1,11 +1,11 @@
-var PatientList = require('../../app/components/patientlist');
+var PeopleList = require('../../app/components/peoplelist');
 var testPatients = _.toArray(window.data.patients);
 
-describe('PatientList', function() {
+describe('PeopleList', function() {
   var component;
 
   beforeEach(function() {
-    component = PatientList();
+    component = PeopleList();
     helpers.mountComponent(component);
   });
 
@@ -16,16 +16,16 @@ describe('PatientList', function() {
   it('should render empty list', function() {
     var patients = null;
 
-    component.setProps({patients: patients});
+    component.setProps({people: patients});
     var count = component.getDOMNode().children.length;
 
     expect(count).to.equal(0);
   });
 
-  it('should render patient list items', function() {
+  it('should render people list items', function() {
     var patients = testPatients;
 
-    component.setProps({patients: patients});
+    component.setProps({people: patients});
     var count = component.getDOMNode().children.length;
 
     expect(count).to.equal(patients.length);
@@ -34,11 +34,11 @@ describe('PatientList', function() {
   it('should render empty list items', function() {
     var patients = [{}, {}];
 
-    component.setProps({patients: patients});
+    component.setProps({people: patients});
     var count = component.getDOMNode().children.length;
     var listItem = component.getDOMNode().children[0];
 
     expect(count).to.equal(patients.length);
-    expect(listItem.className).to.contain('patient-list-item-empty');
+    expect(listItem.className).to.contain('people-list-item-empty');
   });
 });
