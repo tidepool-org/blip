@@ -121,7 +121,7 @@ describe('basal utilities', function() {
 
     it('should return the same as subtotal on a 14-day span of data when not given midnight-to-midnight domain', function() {
       var basals = _.where(data, {'type': 'basal-rate-segment'});
-      var first = basals[112];
+      var first = basals[12];
       var end = new Date(first.normalTime);
       end.setUTCDate(end.getUTCDate() + 14);
       var st = basal.subtotal(basal.isContinuous(first.normalTime, end.toISOString()));
@@ -129,7 +129,7 @@ describe('basal utilities', function() {
       expect(format.fixFloatingPoint(st)).to.equal(format.fixFloatingPoint(t.total));
     });
 
-    it('should have an excluded of length 7 when 7 days of data removed', function() {
+    it('should have an excluded of length 8 when span just over 7 days of data removed', function() {
       var first = _.find(data, {'type': 'basal-rate-segment'});
       var midnight = 'T00:00:00.000Z';
       var start = new Date(first.normalTime.slice(0,10) + midnight);
@@ -146,7 +146,7 @@ describe('basal utilities', function() {
         gap.setUTCDate(gap.getUTCDate() + 1);
       }
       var t = basal.totalBasal(start.toISOString(), end.toISOString(), {'exclusionThreshold': 7});
-      expect(t.excluded.length).to.equal(7);
+      expect(t.excluded.length).to.equal(8);
     });
 
     it('should return total of NaN when a further day removed', function() {
