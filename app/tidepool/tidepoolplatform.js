@@ -110,81 +110,6 @@ module.exports = function(options){
     };
   }
 
-  function setupPatient(api) {
-    api.get = function(patientId, cb) {
-      if (token == null || userid == null) {
-        return cb({ message: 'Not logged in' });
-      }
-
-      // For this backend, the "patientId" is actually a "userId"
-      // And patient data is contained in the `patient` attribute of
-      // the user's profile
-      var uri = '/metadata/' + patientId + '/profile';
-      log('GET ' + uri);
-      superagent.get(makeUrl(uri))
-        .set(sessionTokenHeader, token)
-        .end(function(err, res) {
-          if (err != null) {
-            return cb(err);
-          }
-
-          if (res.status !== 200) {
-            return cb({status: res.status, response: res.body});
-          }
-
-          var profile = res.body;
-          if (profile.patient == null) {
-            // No patient profile for this user yet, return "not found"
-            return cb({status: 404, response: 'Not found'});
-          }
-          // Merge user profile attributes with patient
-          var patient = profile.patient;
-          patient.id = patientId;
-          patient.firstName = profile.firstName;
-          patient.lastName = profile.lastName;
-          cb(null, patient);
-        });
-    };
-
-    api.post = function(patient, cb) {
-      return putPatient(userid, patient, cb);
-    };
-
-    api.put = putPatient;
-
-    function putPatient(patientId, patient, cb) {
-      if (token == null || userid == null) {
-        return cb({ message: 'Not logged in' });
-      }
-
-      // For this backend, patient data is contained in the `patient`
-      // attribute of the user's profile
-      var profileSent = {patient: patient};
-      var uri = '/metadata/' + patientId + '/profile';
-      log('POST ' + uri);
-      superagent.post(makeUrl(uri))
-        .set(sessionTokenHeader, token)
-        .send(profileSent)
-        .end(function(err, res) {
-          if (err != null) {
-            return cb(err);
-          }
-
-          if (res.status !== 200) {
-            return cb({status: res.status, response: res.body});
-          }
-
-          var profile = res.body;
-          // Merge user profile attributes with patient
-          var patient = profile.patient;
-          patient.id = patientId;
-          patient.firstName = profile.firstName;
-          patient.lastName = profile.lastName;
-          cb(null, patient);
-        });
-    }
-  }
-
   function setupPatientData(api) {
     api.get = function(patientId, options, cb) {
       if (token == null || userid == null) {
@@ -253,7 +178,6 @@ module.exports = function(options){
   }
 
   setupUser(api.user);
-  setupPatient(api.patient);
   setupPatientData(api.patientData);
   setupUpload(api);
 

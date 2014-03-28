@@ -204,6 +204,47 @@ function getPatientProfile(patientId, cb) {
   });
 }
 
+api.patient.get = function(patientId, cb) {
+  api.log('GET /patients/' + patientId);
+
+  getPatientProfile(patientId, function(err, patient) {
+    if (err) {
+      return cb(err);
+    }
+
+    if (!patient) {
+      // No patient profile for this user yet, return "not found"
+      return cb({status: 404, response: 'Not found'});
+    }
+
+    cb(null, patient);
+  });
+};
+
+api.patient.post = function(patient, cb) {
+  api.log('POST /patients');
+  var patientId = api.userId;
+  return api.patient.put(patientId, patient, cb);
+};
+
+api.patient.put = function(patientId, patient, cb) {
+  api.log('PUT /patients/' + patientId);
+
+  // For this backend, patient data is contained in the `patient`
+  // attribute of the user's profile
+  var token = api.token;
+  var profile = {id: patientId, patient: patient};
+  tidepool.addOrUpdateProfile(profile, token, function(err, profile) {
+    if (err) {
+      return cb(err);
+    }
+
+    var patient = patientFromUserProfile(profile);
+    patient.id = patientId;
+    return cb(null, patient);
+  });
+};
+
 // Get all patient profiles in current user's "patients" group
 api.patient.getAll = function(cb) {
   api.log('GET /patients');
