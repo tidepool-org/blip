@@ -39,7 +39,6 @@ api.init = function(cb) {
   });
 
   _.extend(api.user, tidepoolPlatformApi.user);
-  _.extend(api.patient, tidepoolPlatformApi.patient);
   _.extend(api.patientData,  tidepoolPlatformApi.patientData);
   api.getUploadUrl = tidepoolPlatformApi.getUploadUrl;
 
@@ -187,9 +186,20 @@ function patientFromUserProfile(profile) {
   return patient;
 }
 
+function getUserProfile(userId, cb) {
+  var token = api.token;
+  tidepool.findProfile(userId, token, function(err, profile) {
+    if (err) {
+      return cb(err);
+    }
+
+    profile.id = userId;
+    return cb(null, profile);
+  });
+}
+
 function getPatientProfile(patientId, cb) {
-  var token = tidepoolPlatformApi.getToken();
-  tidepool.findProfile(patientId, token, function(err, profile) {
+  return getUserProfile(patientId, function(err, profile) {
     if (err) {
       return cb(err);
     }
@@ -217,7 +227,32 @@ api.patient.get = function(patientId, cb) {
       return cb({status: 404, response: 'Not found'});
     }
 
-    cb(null, patient);
+    // If this is not the current user's patient, we're done
+    var userId = api.userId;
+    if (patientId !== userId) {
+      return cb(null, patient);
+    }
+
+    // If it is, fetch the patient's team members
+    var token = api.token;
+    patient.team = [];
+    tidepool.getUsersTeam(userId, token, function(err, group) {
+      if (err) {
+        return cb(err);
+      }
+
+      var peopleIds = (group && group.members) || [];
+      if (!peopleIds.length) {
+        return cb(null, patient);
+      }
+
+      async.map(peopleIds, getUserProfile, function(err, people) {
+        // Filter any people ids that returned nothing
+        people = _.filter(people);
+        patient.team = people;
+        return cb(null, patient);
+      });
+    });
   });
 };
 
@@ -271,12 +306,12 @@ api.patient.getAll = function(cb) {
   var userId = api.userId;
 
   // First, get a list of of patient ids in user's "patients" group
-  tidepool.getUsersPatients(userId, token, function(err, team) {
+  tidepool.getUsersPatients(userId, token, function(err, group) {
     if (err) {
       return cb(err);
     }
 
-    var patientIds = (team && team.members) || [];
+    var patientIds = (group && group.members) || [];
     if (!patientIds.length) {
       return cb(null, []);
     }
