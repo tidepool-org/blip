@@ -6,3 +6,4 @@ node_modules/
 .idea
 *.iml
 example/data/blip-output.json
+test/test.js
