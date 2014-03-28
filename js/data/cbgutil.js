@@ -24,6 +24,7 @@ function CBGUtil(data) {
   var PERCENT_FOR_COMPLETE = 0.75;
   var MAX_CBG_READINGS_PER_24 = 288;
   var MS_IN_24 = 86400000;
+  var currentIndex = 0;
 
   var categories = {
     'low': 80,
@@ -56,55 +57,125 @@ function CBGUtil(data) {
     }
   }
 
-  this.filter = function(s, e) {
-    if (datetime.verifyEndpoints(s, e, this.endpoints)) {
-      var start = new Date(s).valueOf(), end = new Date(e).valueOf();
-      // TODO: optimize speed (for loop with break?)
-      return _.filter(this.data, function(d) {
-        var dTime = new Date(d.normalTime).valueOf();
-        if ((dTime >= start) && (dTime <= end)) {
-          return d;
-        }
-      });
+  this.filtered = function(s, e) {
+    var start = new Date(s).valueOf(), end = new Date(e).valueOf();
+     // TODO: optimize speed (for loop with break?)
+    var data = this.data.slice(currentIndex);
+    var filteredObj = {
+      'data': [],
+      'excluded': []
+    };
+    var filtered = filteredObj.data;
+    _.forEach(data, function(d, i) {
+      var dTime = new Date(d.normalTime).valueOf();
+      if ((dTime >= start) && (dTime < end)) {
+        filtered.push(d);
+      }
+      else if (dTime >= end) {
+        currentIndex += i;
+        return false;
+      }
+      else {
+        currentIndex += i;
+        return false;
+      }
+    });
+    if (filtered.length < this.threshold(s, e)) {
+      filteredObj.excluded.push(new Date(s).toISOString());
+      filteredObj.data = [];
+      return filteredObj;
     }
     else {
-      return [];
+      return filteredObj;
     }
   };
 
-  this.rangeBreakdown = function(s, e) {
-    var filtered = this.filter(s, e);
-    if (filtered.length < this.threshold(s, e)) {
-      return breakdownNaN;
+  this.filter = function(s, e, exclusionThreshold) {
+    if (datetime.verifyEndpoints(s, e, this.endpoints)) {
+      if (datetime.isTwentyFourHours(s, e)) {
+        // TODO: factor this out as an updateCurrentIndex hidden function
+        currentIndex = _.findIndex(this.data, function(d) {
+          return new Date(d.normalTime).valueOf() >= new Date(s).valueOf();
+        });
+        return this.filtered(s, e);
+      }
+      else if (datetime.isLessThanTwentyFourHours(s, e)) {
+        log('Data domain less than twenty-four hours; cannot calculate bolus total.');
+        return {'data': [], 'excluded': []};
+      }
+      else {
+        currentIndex = _.findIndex(this.data, function(d) {
+          return new Date(d.normalTime).valueOf() >= new Date(s).valueOf();
+        });
+        var time = new Date(s).valueOf(), end = new Date(e).valueOf();
+        var result = [], excluded = [], next;
+        while (time < end) {
+          next = new Date(datetime.addDays(time, 1)).valueOf();
+          if (datetime.isTwentyFourHours(time, next)) {
+            var filtered = this.filtered(time, next);
+            result = result.concat(filtered.data);
+            excluded = excluded.concat(filtered.excluded);
+          }
+          time = new Date(next).valueOf();
+        }
+        if (excluded.length > exclusionThreshold) {
+          log(excluded.length, 'days excluded. Not enough CGM data in some days to calculate stats.')
+          return {'data': [], 'excluded': excluded};
+        }
+        else {
+          return {'data': result, 'excluded': excluded};
+        }
+      }
     }
     else {
-      var breakdown = _.countBy(filtered, function(d) {
+      return {'data': [], 'excluded': []};
+    }
+  };
+
+  this.rangeBreakdown = function(filtered) {
+    if (filtered.length > 0) {
+      var groups = _.countBy(filtered, function(d) {
         return getCategory(d.value);
       });
-      _.defaults(breakdown, defaults);
+      var breakdown = _.defaults(groups, defaults);
       breakdown.total = breakdown.low + breakdown.target + breakdown.high;
       return breakdown;
     }
+    else {
+      return breakdownNaN;
+    }
   };
 
-  this.average = function(s, e) {
-    var data = this.filter(s,e);
-    var threshold = this.threshold(s, e);
-    if ((threshold > 0) && (data.length > threshold)) {
-      var sum = _.reduce(data, function(memo, d) {
+  this.average = function(filtered) {
+    if (filtered.length > 0) {
+      var sum = _.reduce(filtered, function(memo, d) {
         return memo + d.value;
       }, 0);
-      var average = parseInt((sum/data.length).toFixed(0), 10);
+      var average = parseInt((sum/filtered.length).toFixed(0), 10);
       return {'value': average, 'category': getCategory(average)};
     }
     else {
-      return {'value': NaN, 'category': ''};
+      return {'value': NaN, 'category': '', 'excluded': filtered.excluded};
     }
   };
 
   this.threshold = function(s, e) {
     var difference = new Date(e) - new Date(s);
     return Math.floor(PERCENT_FOR_COMPLETE * (MAX_CBG_READINGS_PER_24 * (difference/MS_IN_24)));
+  };
+
+  this.getStats = function(s, e, opts) {
+    opts = opts || {};
+    currentIndex = 0;
+    var filtered = this.filter(s, e, opts.exclusionThreshold);
+    var average = this.average(filtered.data);
+    average.excluded = filtered.excluded;
+    var breakdown = this.rangeBreakdown(filtered.data);
+    breakdown.excluded = filtered.excluded;
+    return {
+      'average': average,
+      'breakdown': breakdown
+    };
   };
 
   this.data = data;

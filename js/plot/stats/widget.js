@@ -38,7 +38,7 @@ module.exports = function(pool, opts) {
       'very-high': {'boundary': 300}
     },
     twoWeekOptions: {
-      'exclusionThreshold': 7
+      'exclusionThreshold': 0
     },
     imagesBaseUrl: pool.imagesBaseUrl(),
     size: 16,
@@ -56,7 +56,7 @@ module.exports = function(pool, opts) {
 
   opts.emitter.on('currentDomain', function(domain) {
     var start = domain[0].toISOString(), end = domain[1].toISOString();
-    stats.getData(start, end);
+    stats.getStats(start, end);
     stats.draw();
   });
 
@@ -439,9 +439,10 @@ module.exports = function(pool, opts) {
     }
   };
 
-  stats.getData = function(start, end) {
+  stats.getStats = function(start, end) {
     var basalData = opts.basal.totalBasal(start, end, opts.twoWeekOptions);
     var excluded = basalData.excluded;
+    var cbgStats = opts.cbg.getStats(start, end, opts.twoWeekOptions);
     data.ratio = [
       {
         'type': 'bolus',
@@ -452,7 +453,7 @@ module.exports = function(pool, opts) {
         'value': basalData.total
       }
     ];
-    var range = opts.cbg.rangeBreakdown(start, end);
+    var range = cbgStats.breakdown;
     data.range = [
       {
         'type': 'bg-low',
@@ -468,7 +469,7 @@ module.exports = function(pool, opts) {
       }
     ];
     data.cbgReadings = range.total;
-    data.average = opts.cbg.average(start, end);
+    data.average = cbgStats.average;
   };
 
   return stats;

@@ -29,6 +29,7 @@ var watson = require('../example/watson');
 var data = watson.normalize(require('../example/data/device-data.json'));
 
 var tideline = require('../js/index');
+var dt = tideline.data.util.datetime;
 var CBGUtil = tideline.data.CBGUtil;
 
 describe('cbg utilities', function() {
@@ -40,39 +41,85 @@ describe('cbg utilities', function() {
     'high': NaN,
     'total': NaN
   };
-  var startTime = new Date();
-  var random = function() { return Math.floor((Math.random() * 400) + 1); };
-  var inadequateData = [{
-    'normalTime': startTime.toISOString(),
-    'value': random()
-  }], i = 0;
-  var fiveMin = Duration.parse('5m');
-  while (i < cbg.threshold()) {
-    var next = new Date(startTime.valueOf() + fiveMin);
-    inadequateData.push({
-      'normalTime': next.toISOString(),
+
+  
+  var generateDayOfCBG = function(startTime, n) {
+    var random = function() { return Math.floor((Math.random() * 400) + 1); };
+    var data = [{
+      'normalTime': startTime.toISOString(),
       'value': random()
-    });
-    i++;
-    startTime = next;
-  }
+    }], i = 0;
+    var fiveMin = Duration.parse('5m');
+    while (i < n) {
+      var next = new Date(startTime.valueOf() + fiveMin);
+      data.push({
+        'normalTime': next.toISOString(),
+        'value': random()
+      });
+      i++;
+      startTime = next;
+    }
+
+    return data;
+  };
+  var startTime = new Date();
   var endTime = new Date(startTime.valueOf() + Duration.parse('24h'));
-  inadequateData.push({
-    'normalTime': endTime.toISOString()
-  });
+
+  var inadequateData = generateDayOfCBG(startTime, 50);
   var cbgInadequate = new CBGUtil(inadequateData);
+
+  var dayData = generateDayOfCBG(endTime, 287);
+  var cbgDay = new CBGUtil(dayData);
+
+  var mixData = inadequateData.concat(dayData);
+  mixData = _.sortBy(mixData, function(d) {
+    return new Date(d.normalTime).valueOf();
+  });
+  var cbgMix = new CBGUtil(mixData);
+
+  describe('filtered', function() {
+    it('should be a function', function() {
+      assert.isFunction(cbg.filtered);
+    });
+
+    it('should return an object', function() {
+      assert.typeOf(cbg.filtered('', ''), 'object');
+    });
+
+    it('should return an object with two embedded arrays', function() {
+      var res = cbg.filtered('', '');
+      assert.typeOf(res.data, 'array');
+      assert.typeOf(res.excluded, 'array');
+    });
+
+    it('should return a non-empty array when passed a valid date range', function() {
+      expect(cbg.filtered(cbgData[0].normalTime, cbgData[1].normalTime).data.length).to.be.above(0);
+    });
+  });
 
   describe('filter', function() {
     it('should be a function', function() {
       assert.isFunction(cbg.filter);
     });
 
-    it('should return an array', function() {
-      assert.typeOf(cbg.filter('', ''), 'array');
+    it('should return an object', function() {
+      assert.typeOf(cbg.filter('', ''), 'object');
+    });
+
+    it('should return an object with two embedded arrays', function() {
+      var res = cbg.filter('', '');
+      assert.typeOf(res.data, 'array');
+      assert.typeOf(res.excluded, 'array');
+    });
+
+    it('should return an object with a data array with length 0 or >= 288', function() {
+      var l1 = cbg.filter('', '').data.length;
+      var l2 = cbg.filter(cbgData[0].normalTime, dt.addDays(cbgData[0].normalTime, 1)).data.length;
+      expect((l1 === 0) && (l2 >= 0)).to.be.true;
     });
 
     it('should return a non-empty array when passed a valid date range', function() {
-      expect(cbg.filter(cbgData[0].normalTime, cbgData[1].normalTime).length).to.be.above(0);
+      expect(cbg.filter(cbgData[0].normalTime, dt.addDays(cbgData[0].normalTime, 1)).data.length).to.be.above(0);
     });
   });
 
@@ -82,11 +129,17 @@ describe('cbg utilities', function() {
     });
 
     it('should return an object', function() {
-      assert.typeOf(cbg.rangeBreakdown('', ''), 'object');
+      assert.typeOf(cbg.rangeBreakdown(cbg.filter('', '').data), 'object');
     });
 
     it('should return NaN for each component if less than threshold for complete day of data', function() {
-      expect(cbgInadequate.rangeBreakdown(startTime.valueOf(), endTime.valueOf())).to.eql(NaNObject);
+      expect(cbgInadequate.rangeBreakdown(cbgInadequate.filter(startTime.valueOf(), endTime.valueOf()).data)).to.eql(NaNObject);
+    });
+
+    it('should return same breakdown for date range including and excluding a day of incomplete data', function() {
+      var res1 = cbgMix.rangeBreakdown(cbgMix.filter(startTime.toISOString(), dt.addDays(startTime, 2)).data);
+      var res2 = cbgMix.rangeBreakdown(cbgMix.filter(dt.addDays(startTime, 1), dt.addDays(startTime, 2)).data);
+      expect(res1).to.eql(res2);
     });
   });
 
@@ -98,16 +151,22 @@ describe('cbg utilities', function() {
     });
 
     it('should return value of NaN when passed a valid but not long enough date range', function() {
-      expect(isNaN(cbg.average(cbgData[0].normalTime, cbgData[1].normalTime).value)).to.be.true;
+      expect(isNaN(cbg.average(cbg.filter(cbgData[0].normalTime, cbgData[1].normalTime).data).value)).to.be.true;
     });
 
     it('should return value of NaN when passed a valid and long enough date range', function() {
-      expect(isNaN(cbgInadequate.average(cbgData[0].normalTime, new Date(start.valueOf() + day).toISOString()).value)).to.be.true;
+      expect(isNaN(cbgInadequate.average(cbgInadequate.filter(cbgData[0].normalTime, new Date(start.valueOf() + day).toISOString()).data).value)).to.be.true;
     });
 
     it('should return a number value when passed a valid, long enough date range with enough data', function() {
-      var res = cbg.average(cbgData[0].normalTime, new Date(start.valueOf() + day).toISOString()).value;
+      var res = cbg.average(cbg.filter(cbgData[0].normalTime, new Date(start.valueOf() + day).toISOString()).data).value;
       expect((typeof res === 'number') && !isNaN(res)).to.be.true;
+    });
+
+    it('should return same average for date range including and excluding a day of incomplete data', function() {
+      var res1 = cbgMix.average(cbgMix.filter(startTime.toISOString(), dt.addDays(startTime, 2)).data);
+      var res2 = cbgMix.average(cbgMix.filter(dt.addDays(startTime, 1), dt.addDays(startTime, 2)).data);
+      expect(res1).to.eql(res2);
     });
   });
 
