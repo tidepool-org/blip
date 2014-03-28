@@ -38,7 +38,7 @@ module.exports = function(pool, opts) {
       'very-high': {'boundary': 300}
     },
     twoWeekOptions: {
-      'exclusionThreshold': 0
+      'exclusionThreshold': 7
     },
     imagesBaseUrl: pool.imagesBaseUrl(),
     size: 16,
@@ -54,9 +54,14 @@ module.exports = function(pool, opts) {
 
   var pies = [], pie, arc;
 
+  var currentIndices = {};
+
+  var statResults = _.memoize(function(domain) {
+    stats.getStats(domain);
+  });
+
   opts.emitter.on('currentDomain', function(domain) {
-    var start = domain[0].toISOString(), end = domain[1].toISOString();
-    stats.getStats(start, end);
+    statResults(domain);
     stats.draw();
   });
 
@@ -439,7 +444,9 @@ module.exports = function(pool, opts) {
     }
   };
 
-  stats.getStats = function(start, end) {
+  stats.getStats = function(domainObj) {
+    var start = domainObj.domain[0].valueOf(), end = domainObj.domain[1].valueOf();
+    opts.twoWeekOptions.startIndex = domainObj.startIndex;
     var basalData = opts.basal.totalBasal(start, end, opts.twoWeekOptions);
     var excluded = basalData.excluded;
     var cbgStats = opts.cbg.getStats(start, end, opts.twoWeekOptions);

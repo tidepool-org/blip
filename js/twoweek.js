@@ -42,10 +42,11 @@ module.exports = function(emitter) {
     statsHeight = 100,
     pools = [], poolGroup, days, daysGroup,
     xScale = d3.scale.linear(), xAxis, yScale = d3.time.scale.utc(), yAxis,
-    data, allData = [], endpoints, viewEndpoints, dataStartNoon, dataEndNoon, poolScaleHeight,
+    data, endpoints, viewEndpoints, dataStartNoon, dataEndNoon, poolScaleHeight,
     lessThanTwoWeeks = false,
     sortReverse = true, viewIndex,
-    mainGroup, scrollNav, scrollHandleTrigger = true;
+    mainGroup, scrollNav, scrollHandleTrigger = true,
+    cachedDomain;
 
   container.dataFill = {};
 
@@ -221,6 +222,7 @@ module.exports = function(emitter) {
   container.navString = function(a) {
     if (!arguments.length) {
       a = yScale.domain();
+      cachedDomain = a;
     }
     if (sortReverse) {
       a.reverse();
@@ -231,11 +233,19 @@ module.exports = function(emitter) {
     }
     if (!d3.select('#' + id).classed('hidden')) {
       // domain should go from midnight to midnight, not noon to noon
-      var beginning = new Date(a[0]);
-      a[0] = new Date(beginning.setUTCHours(beginning.getUTCHours() - 12));
-      var end = new Date(a[1]);
-      a[1] = new Date(end.setUTCHours(end.getUTCHours() + 12));
-      emitter.emit('currentDomain', a);
+      a[0].setUTCHours(a[0].getUTCHours() - 12);
+      var topDate = a[0].toISOString().slice(0,10);
+      a[1].setUTCHours(a[1].getUTCHours() + 12);
+      var bottomDate = a[1].toISOString().slice(0,10);
+      var midnight = 'T00:00:00.000Z';
+      if ((topDate !== cachedDomain[0]) || (bottomDate !== cachedDomain[1])) {
+        log('Emitted current domain:', cachedDomain[0].toISOString(), cachedDomain[1].toISOString());
+        cachedDomain = [new Date(topDate + midnight), new Date(bottomDate + midnight)];
+        emitter.emit('currentDomain', {
+          'domain': cachedDomain,
+          'startIndex': data[0].index
+        });
+      }
       emitter.emit('navigated', [a[0].toISOString(), a[1].toISOString()]);
     }
   };
@@ -639,6 +649,7 @@ module.exports = function(emitter) {
   // data getters and setters
   container.data = function(a, viewEndDate) {
     if (!arguments.length) return data;
+
     data = a;
 
     var first = new Date(a[0].normalTime);

@@ -18,8 +18,6 @@
 var d3 = require('./lib/').d3;
 var _ = require('./lib/')._;
 
-var TidelineData = require('./tidelinedata');
-
 var log = require('./lib/').bows('One Day');
 
 module.exports = function(emitter) {
@@ -222,7 +220,10 @@ module.exports = function(emitter) {
       navString = end.toISOString();
     }
     if (!d3.select('#' + id).classed('hidden')) {
-      emitter.emit('currentDomain', a);
+      emitter.emit('currentDomain', {
+        'domain': a,
+        'startIndex': allData[0].index
+      });
       emitter.emit('navigated', [navString]);
       if (a[1].valueOf() === endpoints[1].valueOf()) {
         emitter.emit('mostRecent', true);
@@ -534,9 +535,7 @@ module.exports = function(emitter) {
   container.data = function(a) {
     if (!arguments.length) return data;
 
-    tidelineData = new TidelineData(a);
-
-    data = tidelineData.data;
+    data = a;
 
     var first = new Date(a[0].normalTime);
     var last = new Date(a[a.length - 1].normalTime);

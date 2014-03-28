@@ -20,6 +20,7 @@ var d3 = window.d3;
 var _ = window._;
 
 var tideline = require('../js/index');
+var TidelineData = tideline.TidelineData;
 var chartDailyFactory = require('./chartdailyfactory');
 var chartWeeklyFactory = require('./chartweeklyfactory');
 var log = window.bows('Example');
@@ -78,6 +79,10 @@ d3.json('data/device-data.json', function(data) {
   data = _.sortBy(data, function(d) {
     return new Date(d.normalTime).valueOf();
   });
+  var tidelineData = new TidelineData(data);
+
+  data = tidelineData.data;
+  log(data[0]);
 
   log('Initial one-day view.');
   oneDay.load(data).locate('2014-03-06T09:00:00');

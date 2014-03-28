@@ -24,7 +24,7 @@ function CBGUtil(data) {
   var PERCENT_FOR_COMPLETE = 0.75;
   var MAX_CBG_READINGS_PER_24 = 288;
   var MS_IN_24 = 86400000;
-  var currentIndex = 0;
+  var currentIndex = 0, currentData;
 
   var categories = {
     'low': 80,
@@ -59,14 +59,12 @@ function CBGUtil(data) {
 
   this.filtered = function(s, e) {
     var start = new Date(s).valueOf(), end = new Date(e).valueOf();
-     // TODO: optimize speed (for loop with break?)
-    var data = this.data.slice(currentIndex);
     var filteredObj = {
       'data': [],
       'excluded': []
     };
     var filtered = filteredObj.data;
-    _.forEach(data, function(d, i) {
+    _.forEach(currentData, function(d, i) {
       var dTime = new Date(d.normalTime).valueOf();
       if ((dTime >= start) && (dTime < end)) {
         filtered.push(d);
@@ -94,7 +92,7 @@ function CBGUtil(data) {
     if (datetime.verifyEndpoints(s, e, this.endpoints)) {
       if (datetime.isTwentyFourHours(s, e)) {
         // TODO: factor this out as an updateCurrentIndex hidden function
-        currentIndex = _.findIndex(this.data, function(d) {
+        currentIndex = _.findIndex(currentData, function(d) {
           return new Date(d.normalTime).valueOf() >= new Date(s).valueOf();
         });
         return this.filtered(s, e);
@@ -104,7 +102,7 @@ function CBGUtil(data) {
         return {'data': [], 'excluded': []};
       }
       else {
-        currentIndex = _.findIndex(this.data, function(d) {
+        currentIndex = _.findIndex(currentData, function(d) {
           return new Date(d.normalTime).valueOf() >= new Date(s).valueOf();
         });
         var time = new Date(s).valueOf(), end = new Date(e).valueOf();
@@ -119,7 +117,7 @@ function CBGUtil(data) {
           time = new Date(next).valueOf();
         }
         if (excluded.length > exclusionThreshold) {
-          log(excluded.length, 'days excluded. Not enough CGM data in some days to calculate stats.')
+          log(excluded.length, 'days excluded. Not enough CGM data in some days to calculate stats.');
           return {'data': [], 'excluded': excluded};
         }
         else {
@@ -166,7 +164,8 @@ function CBGUtil(data) {
 
   this.getStats = function(s, e, opts) {
     opts = opts || {};
-    currentIndex = 0;
+    currentIndex = opts.startIndex ? opts.startIndex : 0;
+    currentData = this.data.slice(currentIndex);
     var filtered = this.filter(s, e, opts.exclusionThreshold);
     var average = this.average(filtered.data);
     average.excluded = filtered.excluded;
