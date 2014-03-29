@@ -56,12 +56,8 @@ module.exports = function(pool, opts) {
 
   var currentIndices = {};
 
-  var statResults = _.memoize(function(domain) {
-    stats.getStats(domain);
-  });
-
   opts.emitter.on('currentDomain', function(domain) {
-    statResults(domain);
+    stats.getStats(domain);
     stats.draw();
   });
 
