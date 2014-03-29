@@ -48,13 +48,12 @@ module.exports = function(pool, opts) {
 
   function durationSegmentedDomain() {
     var first = new Date(opts.endpoints[0]);
-
-    // start on a divisible-by-opts.duration date.
-    first.setUTCHours(first.getUTCHours() - first.getUTCHours() % opts.duration);
-
-    return d3.time.hour.utc.range(first, opts.endpoints[1], opts.duration);
+    var last = new Date(opts.endpoints[1]);
+    // make sure we encapsulate the domain completely by padding the start and end with `opts.duration`
+    first.setUTCHours(first.getUTCHours() - first.getUTCHours() % opts.duration - opts.duration);
+    last.setUTCHours(last.getUTCHours() + last.getUTCHours() % opts.duration + opts.duration);
+    return d3.time.hour.utc.range(first, last, opts.duration);
   }
-
 
   function fill(selection) {
     if (!opts.xScale) {
