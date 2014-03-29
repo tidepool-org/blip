@@ -58,6 +58,9 @@ function CBGUtil(data) {
   }
 
   this.filtered = function(s, e) {
+    if (!currentData) {
+      currentData = this.data;
+    }
     var start = new Date(s).valueOf(), end = new Date(e).valueOf();
     var filteredObj = {
       'data': [],
@@ -70,10 +73,6 @@ function CBGUtil(data) {
         filtered.push(d);
       }
       else if (dTime >= end) {
-        currentIndex += i;
-        return false;
-      }
-      else {
         currentIndex += i;
         return false;
       }
@@ -91,10 +90,6 @@ function CBGUtil(data) {
   this.filter = function(s, e, exclusionThreshold) {
     if (datetime.verifyEndpoints(s, e, this.endpoints)) {
       if (datetime.isTwentyFourHours(s, e)) {
-        // TODO: factor this out as an updateCurrentIndex hidden function
-        currentIndex = _.findIndex(currentData, function(d) {
-          return new Date(d.normalTime).valueOf() >= new Date(s).valueOf();
-        });
         return this.filtered(s, e);
       }
       else if (datetime.isLessThanTwentyFourHours(s, e)) {
@@ -102,9 +97,6 @@ function CBGUtil(data) {
         return {'data': [], 'excluded': []};
       }
       else {
-        currentIndex = _.findIndex(currentData, function(d) {
-          return new Date(d.normalTime).valueOf() >= new Date(s).valueOf();
-        });
         var time = new Date(s).valueOf(), end = new Date(e).valueOf();
         var result = [], excluded = [], next;
         while (time < end) {
@@ -126,6 +118,7 @@ function CBGUtil(data) {
       }
     }
     else {
+      log('Endpoint verification failed!');
       return {'data': [], 'excluded': []};
     }
   };
@@ -164,7 +157,7 @@ function CBGUtil(data) {
 
   this.getStats = function(s, e, opts) {
     opts = opts || {};
-    currentIndex = opts.startIndex ? opts.startIndex : 0;
+    currentIndex = opts.startIndex ? _.findIndex(this.data, _.findWhere(this.data, {'index': opts.startIndex})) : 0;
     currentData = this.data.slice(currentIndex);
     var filtered = this.filter(s, e, opts.exclusionThreshold);
     var average = this.average(filtered.data);
