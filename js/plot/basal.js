@@ -206,8 +206,6 @@ module.exports = function(pool, opts) {
           actualPaths.push([]);
           actualPathsIndex += 1;
         }
-        log(actualPaths);
-
       });
 
       d3.selectAll('.d3-path-basal').remove();
