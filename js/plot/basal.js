@@ -58,15 +58,6 @@ module.exports = function(pool, opts) {
         currentData.unshift(opts.data[index]);
       }
 
-      // TODO: handle basal segments with null end (should only be last one)
-      currentData = _.map(currentData, function(d) {
-        if (!d.normalEnd) {
-          d.normalEnd = opts.lastDatum;
-          log('Replaced end: null with last datum from device.', d);
-        }
-        return d;
-      });
-
       var originalLength = currentData.length;
 
       // remove a basal segment if it has an invalid value attribute
