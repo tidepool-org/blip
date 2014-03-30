@@ -54146,16 +54146,6 @@
         "_id": "2b5e35c8-9969-437d-8c7c-4fe7d3ad0383"
     },
     {
-        "delivered": 0.75,
-        "end": "2014-04-06T05:00:00",
-        "deliveryType": "scheduled",
-        "inferred": false,
-        "value": 0.75,
-        "start": "2014-04-06T04:00:00",
-        "_id": "5a9a24d2-c717-4b25-968d-e714af0d4d4c",
-        "type": "basal-rate-segment"
-    },
-    {
         "deviceTime": "2014-04-06T04:00:08",
         "type": "cbg",
         "value": 111,

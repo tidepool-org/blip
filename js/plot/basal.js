@@ -182,28 +182,42 @@ module.exports = function(pool, opts) {
 
       var basalGroup = d3.select(this);
 
-      var actualPoints = [];
+      var actualPaths = [[]], actualPathsIndex = 0;
 
-      actual.forEach(function(d) {
-        actualPoints.push({
+      var pushPoints = function(d, actualPathsIndex) {
+        actualPaths[actualPathsIndex].push({
           'x': opts.xScale(new Date(d.normalTime)),
-          'y': opts.yScale(d.value) - opts.pathStroke / 2,
+          'y': opts.yScale(d.value) - opts.pathStroke / 2
         },
         {
           'x': opts.xScale(new Date(d.normalEnd)),
-          'y': opts.yScale(d.value) - opts.pathStroke / 2,
+          'y': opts.yScale(d.value) - opts.pathStroke / 2
         });
+      };
+
+      _.map(actual, function(d, i, segments) {
+        // if the segment is any one but the last
+        // current segment's normalEnd should === next segment's normalTime
+        if ((i < actual.length - 1) && (d.normalEnd === segments[i + 1].normalTime)) {
+          pushPoints(d, actualPathsIndex);
+        }
+        else {
+          pushPoints(d, actualPathsIndex);
+          actualPaths.push([]);
+          actualPathsIndex += 1;
+        }
       });
 
       d3.selectAll('.d3-path-basal').remove();
-
       // don't draw an actual path if you've removed any segments for having an invalid value attribute
       if (originalLength === currentData.length) {
-        d3.select(this).append('path')
-          .attr({
-          'd': line(actualPoints),
-          'class': 'd3-basal d3-path-basal'
-        });
+        actualPaths.forEach(function(path) {
+          d3.select(this).append('path')
+            .attr({
+            'd': line(path),
+            'class': 'd3-basal d3-path-basal'
+          });
+        }, this);
       }
       else {
         log('Not drawing actual basal path because there were one or more basal segments with an invalid value attribute.');
