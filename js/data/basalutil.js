@@ -16,8 +16,10 @@
  */
 
 var _ = require('../lib/')._;
+
 var format = require('./util/format');
 var datetime = require('./util/datetime');
+
 var log = require('../lib/').bows('BasalUtil');
 
 var MS_IN_HOUR = 3600000.0;
@@ -50,14 +52,13 @@ function BasalUtil(data) {
 
   this.isContinuous = function(s, e) {
     var start = new Date(s), end = new Date(e);
-    var firstSegment = _.find(this.actual, function(segment) {
+    var startIndex = _.findIndex(this.actual, function(segment) {
         return (new Date(segment.normalTime).valueOf() <= start) && (start <= new Date(segment.normalEnd).valueOf());
       });
-    var lastSegment = _.find(this.actual, function(segment) {
+    var endIndex = _.findIndex(this.actual, function(segment) {
         return (new Date(segment.normalTime).valueOf() <= end) && (end <= new Date(segment.normalEnd).valueOf());
       });
-    if (firstSegment && lastSegment) {
-      var startIndex = this.actual.indexOf(firstSegment), endIndex = this.actual.indexOf(lastSegment);
+    if ((startIndex >= 0) && (endIndex >= 0)) {
       var i = startIndex;
       while (i < endIndex) {
         var s1 = this.actual[i], s2 = this.actual[i + 1];
@@ -78,7 +79,6 @@ function BasalUtil(data) {
       };
     }
     else {
-      log('Basal data between', start.toISOString(), 'and', end.toISOString(), 'is not continuous.');
       return false;
     }
   };
@@ -92,7 +92,7 @@ function BasalUtil(data) {
           return {'total': this.subtotal(endpoints)};
         }
         else {
-          log('Basal data within this 24 hours is not continuous; cannot calculate basal total.');
+          log('Basal data within 24 hours starting', new Date(s).toISOString().slice(0,16), 'is not continuous; cannot calculate basal total.');
           return {'total': NaN};
         }
       }

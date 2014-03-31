@@ -85,6 +85,15 @@ describe('bolus utilities', function() {
       expect(res3).to.equal(format.fixFloatingPoint(res1 - res2));
     });
 
+    it('should compute a total exclusive of endpoint', function() {
+      var tEnd = bolusData[bolusData.length - 2].normalTime;
+      var b = bolusData[bolusData.length - 2].value;
+      var d = Duration.parse('1ms');
+      var tPlus = new Date(tEnd).valueOf() + d;
+      var res1 = bolus.totalBolus(datetime.addDays(tEnd, -1), tEnd);
+      var res2 = bolus.totalBolus(datetime.addDays(tPlus, -1), tPlus);
+      expect(format.fixFloatingPoint(res1)).to.equal(format.fixFloatingPoint(res2 - b));
+    });
   });
 
   describe('subtotal', function() {
@@ -99,11 +108,9 @@ describe('bolus utilities', function() {
       expect(bolus.subtotal(bolusData[0].normalTime, next)).to.equal(value);
     });
 
-    it('should return b1.value + b2.value where b1 & b2 are the first two boluses and the date range is set to their datetimes', function() {
+    it('should return b1.value where b1 & b2 are the first two boluses and the date range is set to their datetimes', function() {
       var v1 = bolusData[0].value;
-      var v2 = bolusData[1].value;
-      var res = format.fixFloatingPoint(v1 + v2);
-      expect(bolus.subtotal(bolusData[0].normalTime, bolusData[1].normalTime)).to.equal(res);
+      expect(bolus.subtotal(bolusData[0].normalTime, bolusData[1].normalTime)).to.equal(v1);
     });
   });
 });

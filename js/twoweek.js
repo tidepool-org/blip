@@ -239,7 +239,6 @@ module.exports = function(emitter) {
       var bottomDate = a[1].toISOString().slice(0,10);
       var midnight = 'T00:00:00.000Z';
       if ((topDate !== cachedDomain[0]) || (bottomDate !== cachedDomain[1])) {
-        log('Emitted current domain:', cachedDomain[0].toISOString(), cachedDomain[1].toISOString());
         cachedDomain = [new Date(topDate + midnight), new Date(bottomDate + midnight)];
         emitter.emit('currentDomain', {
           'domain': cachedDomain,

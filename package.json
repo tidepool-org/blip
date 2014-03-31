@@ -9,7 +9,8 @@
     "chai": "1.8.1",
     "duration-js": "3.3.3",
     "mocha": "1.16.2",
-    "lodash": "~2.4.1"
+    "lodash": "~2.4.1",
+    "crossfilter": "~1.3.7"
   },
   "testling": {
     "harness": "mocha-bdd",

@@ -29,7 +29,8 @@ module.exports = {
     SegmentUtil: require('./data/segmentutil'),
     util: {
       datetime: require('./data/util/datetime'),
-      format: require('./data/util/format')
+      format: require('./data/util/format'),
+      TidelineCrossFilter: ('./data/util/tidelinecrossfilter')
     }
   },
 

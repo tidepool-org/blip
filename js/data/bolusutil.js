@@ -16,8 +16,11 @@
  */
 
 var _ = require('../lib/')._;
+
 var format = require('./util/format');
 var datetime = require('./util/datetime');
+var TidelineCrossFilter = require('./util/tidelinecrossfilter');
+
 var log = require('../lib/').bows('BolusUtil');
 
 function BolusUtil(data) {
@@ -25,17 +28,16 @@ function BolusUtil(data) {
   this.subtotal = function(s, e) {
     var dose = 0.0;
     var start = new Date(s).valueOf(), end = new Date(e).valueOf();
-    var firstBolus = _.find(this.data, function(bolus) {
+    dataByDate.filter([start, end]);
+    var currentData = filterData.getAll(dataByDate);
+    var firstBolus = _.findIndex(currentData, function(bolus) {
       var d = new Date(bolus.normalTime).valueOf();
       return (d >= start) && (d <= end);
     });
-    if (firstBolus) {
-      var index = this.data.indexOf(firstBolus);
-      while (index < (data.length - 1) && (new Date(this.data[index].normalTime).valueOf() <= end)) {
-        var bolus = this.data[index];
-        dose += bolus.value;
-        index++;
-      }
+    if (firstBolus !== -1) {
+      _.forEach(currentData, function(d) {
+        dose += d.value;
+      });
     }
     return format.fixFloatingPoint(dose);
   };
@@ -80,6 +82,8 @@ function BolusUtil(data) {
   };
 
   this.data = data;
+  var filterData = new TidelineCrossFilter(data);
+  var dataByDate = filterData.addDimension('date');
   if (this.data.length > 0) {
     this.endpoints = [this.data[0].normalTime, this.data[this.data.length - 1].normalTime];
   }

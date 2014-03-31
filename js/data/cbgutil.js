@@ -16,7 +16,10 @@
  */
 
 var _ = require('../lib/')._;
+
 var datetime = require('./util/datetime');
+var TidelineCrossFilter = require('./util/tidelinecrossfilter');
+
 var log = require('../lib/').bows('CBGUtil');
 
 function CBGUtil(data) {
@@ -59,24 +62,15 @@ function CBGUtil(data) {
 
   this.filtered = function(s, e) {
     if (!currentData) {
-      currentData = this.data;
+      currentData = filterData.getAll(dataByDate);
     }
     var start = new Date(s).valueOf(), end = new Date(e).valueOf();
+    dataByDate.filter([start, end]);
     var filteredObj = {
-      'data': [],
+      'data': dataByDate.top(Infinity).reverse(),
       'excluded': []
     };
     var filtered = filteredObj.data;
-    _.forEach(currentData, function(d, i) {
-      var dTime = new Date(d.normalTime).valueOf();
-      if ((dTime >= start) && (dTime < end)) {
-        filtered.push(d);
-      }
-      else if (dTime >= end) {
-        currentIndex += i;
-        return false;
-      }
-    });
     if (filtered.length < this.threshold(s, e)) {
       filteredObj.excluded.push(new Date(s).toISOString());
       filteredObj.data = [];
@@ -157,8 +151,9 @@ function CBGUtil(data) {
 
   this.getStats = function(s, e, opts) {
     opts = opts || {};
-    currentIndex = opts.startIndex ? _.findIndex(this.data, _.findWhere(this.data, {'index': opts.startIndex})) : 0;
-    currentData = this.data.slice(currentIndex);
+    var start = new Date(s).valueOf(), end = new Date(e).valueOf();
+    dataByDate.filter([start, end]);
+    currentData = filterData.getAll(dataByDate);
     var filtered = this.filter(s, e, opts.exclusionThreshold);
     var average = this.average(filtered.data);
     average.excluded = filtered.excluded;
@@ -171,8 +166,10 @@ function CBGUtil(data) {
   };
 
   this.data = data;
+  var filterData = new TidelineCrossFilter(data);
+  var dataByDate = filterData.addDimension('date');
   if (this.data.length > 0) {
-    this.endpoints = [this.data[0].normalTime, this.data[this.data.length - 1].normalTime];
+    this.endpoints = [this.data[0].normalTime, this.data[data.length - 1].normalTime];
   }
 }
 

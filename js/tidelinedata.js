@@ -9,8 +9,10 @@ var log = require('./lib/').bows('TidelineData');
 function TidelineData(data) {
 
   data = _.map(data, function(d, i) {
-    d.index = i;
-    return d;
+    if (!d.index) {
+      d.index = i;
+      return d;
+    }
   });
 
   this.data = data;

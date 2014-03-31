@@ -3,19 +3,18 @@ var lib = {};
 if (typeof window !== 'undefined') {
   lib._ = window._;
   lib.d3 = window.d3;
+  lib.crossfilter = window.crossfilter;
   // only care about not having d3 when running in the browser
   if (!lib.d3) {
     throw new Error('d3.js is a required dependency');
   }
   lib.Duration = window.Duration;
-  // only care about not having Duration when running in the browser
-  if (!lib.Duration) {
-    throw new Error('Duration.js is a required dependency');
-  }
   lib.bows = window.bows;
 }
 else {
   lib._ = require('lodash');
+  lib.Duration = require('duration-js');
+  lib.crossfilter = require('crossfilter');
 }
 
 if (!lib._) {

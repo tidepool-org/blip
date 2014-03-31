@@ -82,7 +82,6 @@ d3.json('data/device-data.json', function(data) {
   var tidelineData = new TidelineData(data);
 
   data = tidelineData.data;
-  log(data[0]);
 
   log('Initial one-day view.');
   oneDay.load(data).locate('2014-03-06T09:00:00');
