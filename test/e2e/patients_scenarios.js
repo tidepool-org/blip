@@ -10,7 +10,7 @@ describe('Patients', function() {
   it('should show user patient', function(done) {
     openAppToPatients()
       .then(function() {
-        expect('.js-patients-user .js-patient').dom.to.have.count(1);
+        expect('.js-patients-user .js-person').dom.to.have.count(1);
         done();
       });
   });
@@ -19,7 +19,7 @@ describe('Patients', function() {
     openAppToPatients()
       .then(helpers.sleep(200))
       .then(function() {
-        expect('.js-patients-shared .js-patient').dom.to.have.count(3);
+        expect('.js-patients-shared .js-person').dom.to.have.count(3);
         done();
       });
   });
@@ -51,7 +51,7 @@ describe('Patients', function() {
       'api.user.get.delay': 10000
     })
       .then(function() {
-        expect('.js-patients-user .js-patient-empty').dom.to.have.count(1);
+        expect('.js-patients-user .js-person-empty').dom.to.have.count(1);
         done();
       });
   });
@@ -61,7 +61,7 @@ describe('Patients', function() {
       'api.patient.getall.delay': 10000
     })
       .then(function() {
-        expect('.js-patients-shared .js-patient-empty').dom.to.have.count(2);
+        expect('.js-patients-shared .js-person-empty').dom.to.have.count(2);
         done();
       });
   });
