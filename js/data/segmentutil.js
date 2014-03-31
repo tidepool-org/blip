@@ -18,11 +18,13 @@
 var _ = require('../lib/')._;
 var log = require('../lib/').bows('SegmentUtil');
 
+var Timeline = require('./util/timeline.js');
+
 var keysForEquality = ['type', 'deliveryType', 'value', 'deviceId', 'scheduleName', 'source'];
 
 function SegmentUtil(data) {
   var actuals = [];
-  var undelivereds = [];
+  var undelivereds = {};
   var overlaps = [];
 
   function addToActuals(e) {
@@ -30,8 +32,11 @@ function SegmentUtil(data) {
   }
 
   function addToUndelivered(e) {
-    undelivereds.push(_.extend({}, e, {vizType: 'undelivered'}));
+    if (undelivereds[e.deliveryType] == null) {
+      undelivereds[e.deliveryType] = new Timeline();
     }
+//    undelivereds[e.deliveryType].add(_.extend({}, e, {vizType: 'undelivered'}));
+  }
 
   function processElement(e) {
     if (e.deliveryType === 'temp' || e.deliveryType === 'scheduled') {
