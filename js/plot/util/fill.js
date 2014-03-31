@@ -66,10 +66,6 @@ module.exports = function(pool, opts) {
       pushFillFor(range[i], range[i + 1]);
     }
 
-    if (opts.dataGutter) {
-      fills.shift();
-    }
-
     selection.selectAll('rect')
       .data(fills)
       .enter()
@@ -77,7 +73,7 @@ module.exports = function(pool, opts) {
       .attr({
         'x': function(d, i) {
           if (opts.dataGutter) {
-            if (i === fills.length  - 1) {
+            if (i === 0) {
               return d.x - opts.dataGutter;
             }
             else {
