@@ -89,8 +89,9 @@ function testData (data) {
 
       it('should have squashed contiguous identical segments', function() {
         basal.actual.forEach(function(segment, i, segments) {
-          if ((i < (segments.length - 1)) && segment.deliveryType === 'scheduled') {
-            if (segment.end === segments[i + 1].start) {
+          if (i < (segments.length - 1)) {
+            var next = segments[i + 1];
+            if ((segment.end === next.start) && (segment.deliveryType === next.deliveryType)) {
               try {
                 expect(segment.value).to.not.eql(segments[i + 1].value);
               }
@@ -105,7 +106,7 @@ function testData (data) {
       });
 
       it('can have gaps, but should not have overlaps', function() {
-        actuals = _.sortBy(basal.actual, function(d) {
+        var actuals = _.sortBy(basal.actual, function(d) {
           return new Date(d.start).valueOf();
         });
         actuals.forEach(function(segment, i, segments) {
@@ -189,7 +190,7 @@ function testData (data) {
       });
 
       it('can have gaps, but should not have overlaps', function() {
-        undelivereds = _.sortBy(basal.undelivered, function(d) {
+        var undelivereds = _.sortBy(basal.undelivered, function(d) {
           return new Date(d.start).valueOf();
         });
         undelivereds.forEach(function(segment, i, segments) {
