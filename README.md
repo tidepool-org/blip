@@ -14,9 +14,10 @@ This module is currently under construction; check back often for updates!
 
 Front-end dependencies:
 
+- [Crossfilter](http://square.github.io/crossfilter/ 'Crossfilter')
 - [D3.js](http://d3js.org/ 'D3')
-- [Lo-Dash](http://lodash.com/ 'Lo-Dash') or [Underscore](http://underscorejs.org/ 'Underscore')
 - [Duration.js](https://github.com/icholy/Duration.js 'Duration.js')
+- [Lo-Dash](http://lodash.com/ 'Lo-Dash') or [Underscore](http://underscorejs.org/ 'Underscore')
 
 Development-only dependencies:
 
