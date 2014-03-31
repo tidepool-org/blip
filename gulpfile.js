@@ -69,7 +69,7 @@ gulp.task('scripts-browserify', function() {
       transform: ['reactify'],
       // Don't bundle Tidepool platform dependencies
       // (will be grabbed from global `window` object instead)
-      ignore: ['lodash', 'async']
+      ignore: ['lodash', 'async', 'duration-js', 'crossfilter']
     }))
     .pipe(concat('app.js'))
     .pipe(gulp.dest('dist/tmp'));
