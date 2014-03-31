@@ -66,6 +66,10 @@ module.exports = function(pool, opts) {
       pushFillFor(range[i], range[i + 1]);
     }
 
+    if (opts.dataGutter) {
+      fills.shift();
+    }
+
     selection.selectAll('rect')
       .data(fills)
       .enter()
