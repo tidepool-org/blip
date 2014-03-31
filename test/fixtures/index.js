@@ -29,5 +29,5 @@ fixtures.push({'name': 'temp-final', 'json': require('./basal-temp-final')});
 fixtures.push({'name': 'gap', 'json': require('./basal-gap')});
 fixtures.push({'name': 'two-days', 'json': require('./basal-two-days')});
 fixtures.push({'name': 'current-demo', 'json': require('../../example/data/device-data')});
-fixtures.push({'name': 'blip-output', 'json': require('./blip-output')});
+// fixtures.push({'name': 'blip-output', 'json': require('./blip-output')});
 module.exports = fixtures;
