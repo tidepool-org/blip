@@ -9,7 +9,6 @@ var concat = require('gulp-concat');
 var template = require('gulp-template');
 var uglify = require('gulp-uglify');
 var cssmin = require('gulp-minify-css');
-var imagemin = require('gulp-imagemin');
 var clean = require('gulp-clean');
 var es = require('event-stream');
 var runSequence = require('run-sequence');
@@ -190,7 +189,6 @@ gulp.task('images', function () {
     var dest = 'dist/' + process.env.IMAGES_ENDPOINT + '/' + image.endpoint;
 
     return gulp.src(src)
-      .pipe(imagemin())
       .pipe(gulp.dest(dest));
   });
 

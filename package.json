@@ -10,7 +10,6 @@
     "gulp-browserify": "0.4.6",
     "gulp-clean": "0.2.4",
     "gulp-concat": "2.1.7",
-    "gulp-imagemin": "0.1.5",
     "gulp-jshint": "1.4.2",
     "gulp-less": "1.2.1",
     "gulp-minify-css": "0.3.0",
