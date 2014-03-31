@@ -4,6 +4,7 @@
   "dependencies": {
     "async": "0.2.10",
     "bows": "https://github.com/latentflip/bows.git#beb35328d5c224fc5635928a1b45b32e0d839caa",
+    "crossfilter": "1.3.7",
     "d3": "3.4.4",
     "director": "1.2.2",
     "Duration.js": "https://github.com/icholy/Duration.js.git#3.3.3",
