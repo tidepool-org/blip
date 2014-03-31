@@ -40,8 +40,20 @@ module.exports = function(pool, opts) {
             return d._id;
           }
         });
-      messages.enter()
-        .append('image')
+      var messageGroups = messages.enter()
+        .append('g')
+        .attr('class', 'd3-message-group');
+      messageGroups.append('rect')
+        .attr({
+          'x': function(d) {
+            return opts.xScale(Date.parse(d.normalTime)) - opts.size / 2 - 4;
+          },
+          'y': pool.height() / 2 - opts.size / 2 - 4,
+          'width': opts.size + 8,
+          'height': opts.size + 8,
+          'class': 'd3-rect-message hidden'
+        });
+      messageGroups.append('image')
         .attr({
           'xlink:href': opts.imagesBaseUrl + '/message/post_it.svg',
           'x': function(d) {
@@ -55,6 +67,12 @@ module.exports = function(pool, opts) {
           }
         })
         .classed({'d3-image': true, 'd3-message': true});
+      messageGroups.on('click', function(d) {
+        d3.event.stopPropagation(); // silence the click-and-drag listener
+        opts.emitter.emit('messageThread', d._id);
+        log('Message clicked!');
+        d3.select(this).selectAll('.d3-rect-message').classed('hidden', false);
+      });
       messages.exit().remove();
     });
   }
