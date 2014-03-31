@@ -134,7 +134,7 @@ function testData (data) {
       });
 
       Object.keys(basal.undelivered).forEach(function(basalStream){
-        var theStream = basal.undelivered[basalStream].getArray();
+        var theStream = basal.undelivered[basalStream];
         describe(basalStream, function(){
           it('should have a non-zero length if there is a temp basal in the input data', function() {
             var temps = _.where(data.json, {'deliveryType': 'temp'});
@@ -173,7 +173,7 @@ function testData (data) {
             }
           });
 
-          it.skip('should have squashed contiguous identical segments', function() {
+          it('should have squashed contiguous identical segments', function() {
             theStream.forEach(function(segment, i, segments) {
               if ((i < (segments.length - 1)) && segment.deliveryType === 'scheduled') {
                 if (segment.end === segments[i + 1].start) {

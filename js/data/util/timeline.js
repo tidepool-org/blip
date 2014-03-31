@@ -6,11 +6,33 @@ var _ = require('../../lib/')._;
 var util = require('util');
 
 function buildError(message) {
-  return new Error(util.format.apply(util, [message].concat(Array.protoype.slice(arguments, 1))));
+  return new Error(util.format.apply(util, [message].concat(Array.prototype.slice.call(arguments, 1))));
 }
 
-Timeline = function () {
+/**
+ * A Timeline is an object that maintains a sorted list of events in a "timeline"
+ *
+ * Events must have `start` and `end` properties that are sortable with standard mathematical sort (<, >, =).
+ * When `add()`ed the data structure will find the "right" location for the event based on its start and
+ * will then re-apply the other events.  If there is any overlap between events, then the chunk of the
+ * overlapped event that is currently in the timeline is removed.
+ *
+ * This object can optionally "smoosh" events together that occur next to each other.  This is done by providing
+ * a smooshingPred function to the constructor.  If this is provided, then two events will be "smooshed" if they
+ * abut and the predicate returns true.  When smooshed, the "left" object (earlier object) is maintained and
+ * its "end" parameter is set to the end of the "right" object.
+ *
+ * @param smooshingPred The predicate for if two messages should be smooshed
+ * @constructor
+ */
+Timeline = function (smooshingPred) {
   this.theLine = [];
+
+  if (smooshingPred == null) {
+    this.smooshingPred = function () { return false; };
+  } else {
+    this.smooshingPred = smooshingPred;
+  }
 };
 
 Timeline.prototype.peek = function(){
@@ -23,6 +45,10 @@ Timeline.prototype.peek = function(){
 Timeline.prototype.add = function(e) {
   if (e.start == null || e.end == null) {
     throw buildError('Element had no start[%s] or end[%s]', e.start, e.end, e);
+  }
+
+  if (e.start > e.end) {
+    throw buildError('start[%s] > end[%s], wtf??', e.start, e.end, e);
   }
 
   var insertionIndex = this.theLine.length;
@@ -51,6 +77,13 @@ Timeline.prototype.add = function(e) {
         clone.end = e.end;
       }
       retVal = [clone];
+    }
+
+    if (prevTop.end === e.start) {
+      // Maybe smoosh
+      if (this.smooshingPred(prevTop, e)) {
+        prevTop.end = this.theLine.pop().end;
+      }
     }
   }
 
