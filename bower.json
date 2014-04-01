@@ -15,7 +15,7 @@
     "react": "0.9.0",
     "rxjs": "2.2.13",
     "superagent": "visionmedia/superagent#0.16.0",
-    "tideline": "https://github.com/tidepool-org/tideline.git#cheddar/undelivereds",
+    "tideline": "0.0.9",
     "tidepool-platform-client": "0.0.9"
   }
 }
