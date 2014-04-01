@@ -146,9 +146,9 @@ describe('Timeline', function(){
     });
 
     it('handles 0 length segments gracefully', function(){
-      expect(line.add({start:0,end:1,p:'a'})).deep.equals([]);
-      expect(line.add({start:1, end:1,p:'b'})).deep.equals([]);
-      expect(line.add({start:1, end:2,p:'c'})).deep.equals([]);
+      expect(line.add({start:0, end:1, p:'a'})).deep.equals([]);
+      expect(line.add({start:1, end:1, p:'b'})).deep.equals([]);
+      expect(line.add({start:1, end:2, p:'c'})).deep.equals([]);
 
       expect(line.getArray()).deep.equals(
         [
@@ -179,6 +179,34 @@ describe('Timeline', function(){
           {start: 2, end: 3, p: 'c'}
         ]
       );
+    });
+
+
+    it('handles swapping by replacement', function(){
+      expect(line.add({start: 0, end: 5, p: 'a'})).deep.equals([]);
+      expect(line.add({start: 2, end: 4, p: 'b'})).deep.equals([{start: 2, end: 4, p: 'a'}]);
+      expect(line.add({start: 2, end: 4, p: 'a'})).deep.equals([{start: 2, end: 4, p: 'b'}]);
+
+      expect(line.getArray()).deep.equals(
+        [
+          {start: 0, end: 5, p: 'a'}
+        ]
+      )
+    });
+
+    it('handles swapping by replacing with larger things that start at the same time', function(){
+      expect(line.add({start: 0, end: 1, p: 'a'})).deep.equals([]);
+      expect(line.add({start: 1, end: 4, p: 'b'})).deep.equals([]);
+      expect(line.add({start: 1, end: 10, p: 'a'})).deep.equals([{start: 1, end: 4, p: 'b'}]);
+      expect(line.add({start: 1, end: 4, p: 'b'})).deep.equals([{start: 1, end: 4, p: 'a'}]);
+
+      expect(line.getArray()).deep.equals(
+        [
+          {start: 0, end: 1, p: 'a'},
+          {start: 1, end: 4, p: 'b'},
+          {start: 4, end: 10, p: 'a'}
+        ]
+      )
     });
   });
 });

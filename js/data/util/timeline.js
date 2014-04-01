@@ -70,6 +70,7 @@ Timeline.prototype.add = function(e) {
   if (this.theLine.length > 1) {
     var prevTop = this.theLine[this.theLine.length - 2];
     if (prevTop.end > e.start) {
+      // e overlaps the previous top, so we have to chunk things up
       var clone = _.clone(prevTop);
       prevTop.end = e.start;
       clone.start = e.start;
@@ -88,9 +89,23 @@ Timeline.prototype.add = function(e) {
     }
   }
 
-  if (displacedEvents.length > 0 && displacedEvents[0].start === e.start) {
-    retVal.push(_.assign({}, displacedEvents[0], { end: e.end }));
-    displacedEvents[0].start = e.end;
+  if (displacedEvents.length > 0) {
+    var firstDisplaced = displacedEvents[0];
+    if (firstDisplaced.start === e.start) {
+      // The displaced event starts at the same time as our event and completely covers our event,
+      // which means the current event should splot itself over the displaced event.
+
+      var endPoint = e.end;
+      if (endPoint > firstDisplaced.end) {
+        endPoint = firstDisplaced.end;
+      }
+      retVal.push(_.assign({}, firstDisplaced, { end: endPoint }));
+      firstDisplaced.start = endPoint;
+
+      if (firstDisplaced.start == firstDisplaced.end) {
+        displacedEvents.shift(); // Remove the element
+      }
+    }
   }
 
   return Array.prototype.concat.apply(retVal, displacedEvents.map(this.add.bind(this)));
