@@ -68,11 +68,11 @@ var twoWeek = chartWeeklyFactory(el, {imagesBaseUrl: imagesBaseUrl}, emitter);
 d3.json('data/device-data.json', function(data) {
   log('Data loaded.');
   // munge basal segments
-  var segments = new tideline.data.SegmentUtil(_.where(data, {'type': 'basal-rate-segment'}));
+  var segments = tideline.data.SegmentUtil(_.where(data, {'type': 'basal-rate-segment'}));
   data = _.reject(data, function(d) {
     return d.type === 'basal-rate-segment';
   });
-  data = data.concat(segments.actual.concat(segments.undelivered));
+  data = data.concat(segments.actual.concat(segments.getUndelivered('scheduled')));
   // Watson the data
   data = watson.normalize(data);
   // ensure the data is properly sorted
