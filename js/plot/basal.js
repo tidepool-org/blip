@@ -335,7 +335,8 @@ module.exports = function(pool, opts) {
     toLink.forEach(function(segment, i, segments) {
       var start = _.findWhere(referenceArray, {'normalTime': segment.normalTime});
       if (start === undefined) {
-        log(segment, referenceArray);
+        log('Unable to find a matching undelivered for the given temp', segment, referenceArray);
+        return;
       }
       var startIndex = referenceArray.indexOf(start);
       if ((startIndex < (referenceArray.length - 1)) && (start.end === referenceArray[startIndex + 1].start)) {

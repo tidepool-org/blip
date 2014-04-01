@@ -56,6 +56,22 @@ describe('Timeline', function(){
       );
     });
 
+    it('handles overlapping overlaps', function(){
+      expect(line.add({start: 0, end: 2, p: 'a'})).deep.equals([]);
+      expect(line.add({start: 2, end: 4, p: 'c'})).deep.equals([]);
+      expect(line.add({start: 1, end: 3, p: 'b'})).deep.equals([{start: 1, end: 2, p: 'a'}, {start: 2, end: 3, p: 'b'}]);
+      expect(line.add({start: 3, end: 5, p: 'd'})).deep.equals([{start: 3, end: 4, p: 'c'}]);
+
+      expect(line.getArray()).deep.equals(
+        [
+          {start: 0, end: 1, p: 'a'},
+          {start: 1, end: 2, p: 'b'},
+          {start: 2, end: 3, p: 'c'},
+          {start: 3, end: 5, p: 'd'}
+        ]
+      );
+    });
+
     it('handles gaps in extended overlaps', function(){
       expect(line.add({start: 0, end: 10, p: 'a'})).deep.equals([]);
       expect(line.add({start: 1, end: 2, p: 'b'})).deep.equals([{start: 1, end: 2, p: 'a'}]);
@@ -77,6 +93,22 @@ describe('Timeline', function(){
       expect(line.add({start: 2, end: 3})).deep.equals([]);
 
       expect(line.getArray()).deep.equals([{start: 0, end: 1}, {start: 2, end: 3}]);
+    });
+
+    it('handles repeats', function(){
+      expect(line.add({start: 0, end: 2, p: 'a'})).deep.equals([]);
+      expect(line.add({start: 3, end: 5, p: 'c'})).deep.equals([]);
+      expect(line.add({start: 1, end: 3, p: 'b'})).deep.equals([{start: 1, end: 2, p: 'a'}]);
+      expect(line.add({start: 2, end: 5, p: 'c'})).deep.equals([{start: 2, end: 3, p: 'b'}, {start: 3, end: 5, p: 'c'}]);
+
+      expect(line.getArray()).deep.equals(
+        [
+          {start: 0, end: 1, p: 'a'},
+          {start: 1, end: 2, p: 'b'},
+          {start: 2, end: 3, p: 'c'},
+          {start: 3, end: 5, p: 'c'}
+        ]
+      );
     });
 
     it('un-does and re-applies events to ensure insertion as if ordered by start -- all of them', function(){
@@ -111,6 +143,20 @@ describe('Timeline', function(){
           {start: 2, end: 4, p: 'b'}
         ]
       );
+    });
+
+    it('handles 0 length segments gracefully', function(){
+      expect(line.add({start:0,end:1,p:'a'})).deep.equals([]);
+      expect(line.add({start:1, end:1,p:'b'})).deep.equals([]);
+      expect(line.add({start:1, end:2,p:'c'})).deep.equals([]);
+
+      expect(line.getArray()).deep.equals(
+        [
+          {start: 0, end: 1, p: 'a'},
+          {start: 1, end: 1, p: 'b'},
+          {start: 1, end: 2, p: 'c'}
+        ]
+      )
     });
   });
 

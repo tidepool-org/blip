@@ -59,7 +59,8 @@ Timeline.prototype.add = function(e) {
 
   // Find out where the event belongs and add it.
   for (; insertionIndex > 0; --insertionIndex) {
-    if (e.start > this.theLine[insertionIndex - 1].start) {
+    var currEle = this.theLine[insertionIndex - 1];
+    if (e.start === currEle.end || e.start > currEle.start) {
       break;
     }
   }
