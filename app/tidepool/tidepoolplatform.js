@@ -132,9 +132,6 @@ module.exports = function(options){
 
           if (res.status === 200) {
             Rx.Observable.fromArray(res.body)
-              .filter(function(e){
-                        return !(e.type === 'basal' && e.deliveryType === 'temp');
-                      })
               .tidepoolConvertBasal()
               .tidepoolConvertBolus()
               .flatMap(function(datum) {
