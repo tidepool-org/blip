@@ -128,7 +128,7 @@ module.exports = function(data){
         case 'temp':
           var eventToAdd = e;
           if (eventToAdd.percent != null) {
-            eventToAdd = _.assign({}, e, {value: e.percent * actuals.peek().value * 0.01});
+            eventToAdd = _.assign({}, e, {value: e.percent * actuals.peek().value});
           }
           addToActuals(eventToAdd).forEach(addToUndelivered);
           break;
