@@ -193,7 +193,10 @@ function chartDailyFactory(el, emitter, options) {
     poolMessages.addPlotType('fill', fill(poolMessages, {endpoints: chart.endpoints}), false, true);
 
     // add message images to messages pool
-    poolMessages.addPlotType('message', tideline.plot.message(poolMessages, {size: 30}), true, true);
+    poolMessages.addPlotType('message', tideline.plot.message(poolMessages, {
+      size: 30,
+      emitter: emitter
+    }), true, true);
 
     // stats pool
     poolStats.addPlotType('stats', tideline.plot.stats.widget(poolStats, {
