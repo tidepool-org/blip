@@ -8,7 +8,7 @@ var helpers = {
       container = document.createElement('div');
     }
     document.documentElement.appendChild(container);
-    React.renderComponent(component, container);
+    return React.renderComponent(component, container);
   },
 
   unmountComponent: function() {

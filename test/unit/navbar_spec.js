@@ -5,8 +5,7 @@ describe('Navbar', function() {
   var component;
 
   beforeEach(function() {
-    component = Navbar();
-    helpers.mountComponent(component);
+    component = helpers.mountComponent(Navbar());
   });
 
   afterEach(function() {
@@ -15,7 +14,7 @@ describe('Navbar', function() {
 
   it('should display logo image from correct endpoint', function() {
     var imagesEndpoint = 'images/navbar/';
- 
+
     component.setProps({imagesEndpoint: imagesEndpoint});
     var src = component.refs.logo.props.src;
 
@@ -59,7 +58,7 @@ describe('Navbar', function() {
   it('should call callback when logout clicked', function() {
     var user = testUser;
     var handleLogout = sinon.spy();
- 
+
     component.setProps({
       user: user,
       onLogout: handleLogout

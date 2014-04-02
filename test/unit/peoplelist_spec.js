@@ -5,8 +5,7 @@ describe('PeopleList', function() {
   var component;
 
   beforeEach(function() {
-    component = PeopleList();
-    helpers.mountComponent(component);
+    component = helpers.mountComponent(PeopleList());
   });
 
   afterEach(function() {
