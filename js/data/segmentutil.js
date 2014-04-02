@@ -20,7 +20,7 @@ var log = require('../lib/').bows('SegmentUtil');
 
 var Timeline = require('./util/timeline.js');
 
-var keysForEquality = ['type', 'deliveryType', 'value', 'deviceId', 'scheduleName', 'source'];
+var keysForEquality = ['type', 'deliveryType', 'value', 'percent', 'deviceId', 'scheduleName', 'source'];
 
 function eventsSmooshable(lhs, rhs) {
   return _.isEqual(_.pick(lhs, keysForEquality), _.pick(rhs, keysForEquality));
@@ -83,8 +83,11 @@ module.exports = function(data){
                 // No overlap!
                 addToActuals(e).forEach(addToUndelivered);
               } else {
-                // scheduled overlapping a scheduled, this is know to happen when a patient used multiple
-                // pumps at the exact same time.  Which is rare, to say the least.
+                // scheduled overlapping a scheduled, this is known to happen when a patient used multiple
+                // pumps at the exact same time.  Which is rare, to say the least.  We want to just eliminate
+                // both data points and act like we know nothing when this happens
+                overlaps.push(e);
+                overlaps.push(actuals.pop());
                 return;
               }
               break;
@@ -93,13 +96,51 @@ module.exports = function(data){
               if (lastActual.end <= e.start) {
                 // No overlap, yay!
                 addToActuals(e).forEach(addToUndelivered);
-              } else if (e.end <= lastActual.end) {
-                // The scheduled is completely obliterated by the temp
-                addToUndelivered(_.clone(e));
-              } else {
-                // There is overlap, the temp-covered portion goes directly to undelivered, the rest to actuals
-                addToUndelivered(_.assign({}, e, { end: lastActual.end }));
-                addToActuals(_.assign({}, e, { deviceTime: lastActual.end, start: lastActual.end })).forEach(addToUndelivered);
+              } else /*if (e.end <= lastActual.end)*/ {
+                // The scheduled is completely obliterated by the temp.  In this case, what we actually want
+                // to do is chunk up the temp into invididual chunks to line up with the scheduled.
+                // We accomplish this by
+                // 1. Add the scheduled to the actuals timeline, this will return the temp matching our scheduled.
+                // 2. Adjust the returned temp's value if it is a percent temp.
+                // 3. Push it back in, this will return the scheduled that we originally put in.
+                // 4. Push the scheduled into the undelivereds
+                var arrayWithTemp = addToActuals(e);
+                if (arrayWithTemp.length !== 1) {
+                  if (arrayWithTemp.length > 1) {
+                    // This is a very special case indeed.  If a patient uses 2 pumps at the same time, and
+                    // they have a temp basal that overrides a long chunk of schedules, it is possible that
+                    // one of those scheduleds overlaps another scheduled that was already overlapped by the
+                    // temp.  So, we make sure that all of the excess events are scheduleds, and if they are
+                    // we assume that is why we are here.  If they aren't, we got other problems.  The proper
+                    // thing to do in this case is to throw away these events, which is what the code will
+                    // naturally do
+                    while (arrayWithTemp.length > 1) {
+                      var element = arrayWithTemp.pop();
+                      if (element.deliveryType !== 'scheduled') {
+                        log('Expected these events to be scheduled, one wasn\'t', element, e);
+                        throw new Error('Expected these events to be scheduled, one wasn\'t');
+                      } else {
+                        overlaps.push(element);
+                      }
+                    }
+                  } else {
+                    log('Should\'ve gotten just the chunked temp, didn\'t.', arrayWithTemp, e);
+                    throw new Error('Should\'ve gotten just the chunked temp, didn\'t.');
+                  }
+                }
+
+                var tempMatchingScheduled = arrayWithTemp[0];
+                var tempPercent = tempMatchingScheduled.percent;
+                if (tempPercent != null) {
+                  tempMatchingScheduled = _.assign({}, tempMatchingScheduled, {value: e.value * tempPercent});
+                }
+
+                var arrayWithOriginalScheduled = addToActuals(tempMatchingScheduled);
+                if (arrayWithOriginalScheduled.length !== 1) {
+                  throw new Error('Should\'ve gotten just the original scheduled, didn\'t.', arrayWithOriginalScheduled);
+                }
+
+                addToUndelivered(_.clone(arrayWithOriginalScheduled[0]));
               }
               break;
             default:
@@ -107,7 +148,11 @@ module.exports = function(data){
           }
           break;
         case 'temp':
-          addToActuals(e).forEach(addToUndelivered);
+          var eventToAdd = e;
+          if (eventToAdd.percent != null) {
+            eventToAdd = _.assign({}, e, {value: e.percent * actuals.peek().value});
+          }
+          addToActuals(eventToAdd).forEach(addToUndelivered);
           break;
         default:
           log('Unknown deliveryType, ignoring', e);
