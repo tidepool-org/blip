@@ -18,93 +18,144 @@
 var _ = require('../lib/')._;
 var log = require('../lib/').bows('SegmentUtil');
 
-var keysForEquality = ['type', 'deliveryType', 'value', 'deviceId', 'scheduleName', 'source'];
+var Timeline = require('./util/timeline.js');
 
-function SegmentUtil(data) {
-  var actuals = [];
-  var undelivereds = [];
+var keysForEquality = ['type', 'deliveryType', 'value', 'percent', 'deviceId', 'scheduleName', 'source'];
+
+function eventsSmooshable(lhs, rhs) {
+  return _.isEqual(_.pick(lhs, keysForEquality), _.pick(rhs, keysForEquality));
+}
+
+function SegmentUtil(actual, undelivered) {
+  this.actual = actual;
+  this.undelivered = undelivered;
+}
+
+SegmentUtil.prototype.getUndelivered = function(type) {
+  var retVal = this.undelivered[type];
+  return retVal == null ? [] : retVal;
+};
+
+module.exports = function(data){
+  var maxTimestamp = '0000-01-01T00:00:00';
+  var actuals = new Timeline(eventsSmooshable);
+  var undelivereds = {};
   var overlaps = [];
 
   function addToActuals(e) {
-    actuals.push(_.extend({}, e, {vizType: 'actual'}));
+    return actuals.add(_.extend({}, e, {vizType: 'actual'}));
   }
 
   function addToUndelivered(e) {
-    undelivereds.push(_.extend({}, e, {vizType: 'undelivered'}));
+    if (undelivereds[e.deliveryType] == null) {
+      undelivereds[e.deliveryType] = new Timeline(eventsSmooshable);
     }
+    undelivereds[e.deliveryType].add(_.extend({}, e, {vizType: 'undelivered'}));
+  }
 
   function processElement(e) {
     if (e.deliveryType === 'temp' || e.deliveryType === 'scheduled') {
-      if (actuals.length === 0) {
-        addToActuals(e);
+      if (maxTimestamp > e.start) {
+        throw new Error('Unordered data, maxTimestamp[%s]', maxTimestamp, e);
       } else {
-        var lastActual = actuals[actuals.length - 1];
-        if (e.start === lastActual.end) {
-          if (_.isEqual(_.pick(e, keysForEquality), _.pick(lastActual, keysForEquality))) {
-            lastActual.end = e.end;
-          } else {
+        maxTimestamp = e.start;
+      }
+
+      if (e.start != null && e.end == null) {
+        // TODO: Jana, this is the point that sets the end equal to the start when end is null.
+        // TODO: Please adjust the code to add the actual end timestamp of the stream instead of e.start.
+        // TODO: If you are not named Jana and you are viewing this after April 30, 2014.
+        // TODO: Please just delete this TODO comment
+        e.end = e.start;
+      }
+
+      switch(e.deliveryType) {
+        case 'scheduled':
+          var lastActual = actuals.peek();
+          if (lastActual == null) {
             addToActuals(e);
+            return;
           }
-        } else if (e.start < lastActual.end) {
-          // It is overlapping, so let's see how we should deal with it.
 
-          if (e.start < lastActual.start) {
-            // The current element is completely newer than the last actual, so we have to rewind a bit.
-            var removedActual = actuals.pop();
-            processElement(e);
-            processElement(removedActual);
-          } else if (e.deliveryType === 'temp') {
-            // It's a temp, which wins no matter what it was before.
-            // Start by setting up shared adjustments to the segments (clone lastActual and reshape it)
-            var undeliveredClone = _.clone(lastActual);
-            lastActual.end = e.start;
-
-            if (e.end >= undeliveredClone.end) {
-              // The temp segment is longer than the current, throw away the rest of the current
-              undeliveredClone.start = e.start;
-              addToUndelivered(undeliveredClone);
-              addToActuals(e);
-            } else {
-              // The current exceeds the temp, so replace the current "chunk" and re-attach the schedule
-              var endingSegment = _.clone(undeliveredClone);
-              undeliveredClone.start = e.start;
-              undeliveredClone.end = e.end;
-              addToUndelivered(undeliveredClone);
-              addToActuals(_.clone(e));
-
-              // Re-attach the end of the schedule
-              endingSegment.start = e.end;
-              addToActuals(endingSegment);
-            }
-          } else {
-            // e.deliveryType === 'scheduled'
-            if (lastActual.deliveryType === 'scheduled') {
-              // Scheduled overlapping a scheduled, this should not happen.
-              overlaps.push([lastActual, e]);
-              actuals.pop();
-            } else {
-              // Scheduled overlapping a temp, this can happen and the schedule should be skipped
-              
-              var undeliveredClone = _.clone(e);
-
-              if (e.end > lastActual.end) {
-                // Scheduled is longer than the temp, so preserve the tail
-                var deliveredClone = _.clone(e);
-                undeliveredClone.end = lastActual.end;
-                deliveredClone.start = lastActual.end;
-                addToUndelivered(undeliveredClone);
-                addToActuals(deliveredClone);
+          switch(lastActual.deliveryType) {
+            case 'scheduled':
+              if (lastActual.end <= e.start) {
+                // No overlap!
+                addToActuals(e).forEach(addToUndelivered);
               } else {
-                // Scheduled is shorter than the temp, so completely skip it
-                addToUndelivered(undeliveredClone);
+                // scheduled overlapping a scheduled, this is known to happen when a patient used multiple
+                // pumps at the exact same time.  Which is rare, to say the least.  We want to just eliminate
+                // both data points and act like we know nothing when this happens
+                overlaps.push(e);
+                overlaps.push(actuals.pop());
+                return;
               }
-            }
+              break;
+            case 'temp':
+              // A scheduled is potentially overlapping a temp, figure out what's going on.
+              if (lastActual.end <= e.start) {
+                // No overlap, yay!
+                addToActuals(e).forEach(addToUndelivered);
+              } else /*if (e.end <= lastActual.end)*/ {
+                // The scheduled is completely obliterated by the temp.  In this case, what we actually want
+                // to do is chunk up the temp into invididual chunks to line up with the scheduled.
+                // We accomplish this by
+                // 1. Add the scheduled to the actuals timeline, this will return the temp matching our scheduled.
+                // 2. Adjust the returned temp's value if it is a percent temp.
+                // 3. Push it back in, this will return the scheduled that we originally put in.
+                // 4. Push the scheduled into the undelivereds
+                var arrayWithTemp = addToActuals(e);
+                if (arrayWithTemp.length !== 1) {
+                  if (arrayWithTemp.length > 1) {
+                    // This is a very special case indeed.  If a patient uses 2 pumps at the same time, and
+                    // they have a temp basal that overrides a long chunk of schedules, it is possible that
+                    // one of those scheduleds overlaps another scheduled that was already overlapped by the
+                    // temp.  So, we make sure that all of the excess events are scheduleds, and if they are
+                    // we assume that is why we are here.  If they aren't, we got other problems.  The proper
+                    // thing to do in this case is to throw away these events, which is what the code will
+                    // naturally do
+                    while (arrayWithTemp.length > 1) {
+                      var element = arrayWithTemp.pop();
+                      if (element.deliveryType !== 'scheduled') {
+                        log('Expected these events to be scheduled, one wasn\'t', element, e);
+                        throw new Error('Expected these events to be scheduled, one wasn\'t');
+                      } else {
+                        overlaps.push(element);
+                      }
+                    }
+                  } else {
+                    log('Should\'ve gotten just the chunked temp, didn\'t.', arrayWithTemp, e);
+                    throw new Error('Should\'ve gotten just the chunked temp, didn\'t.');
+                  }
+                }
+
+                var tempMatchingScheduled = arrayWithTemp[0];
+                var tempPercent = tempMatchingScheduled.percent;
+                if (tempPercent != null) {
+                  tempMatchingScheduled = _.assign({}, tempMatchingScheduled, {value: e.value * tempPercent});
+                }
+
+                var arrayWithOriginalScheduled = addToActuals(tempMatchingScheduled);
+                if (arrayWithOriginalScheduled.length !== 1) {
+                  throw new Error('Should\'ve gotten just the original scheduled, didn\'t.', arrayWithOriginalScheduled);
+                }
+
+                addToUndelivered(_.clone(arrayWithOriginalScheduled[0]));
+              }
+              break;
+            default:
+              log('W-T-F, this should never happen, moving on.', e, lastActual);
           }
-        } else {
-          // e.start > lastActual.end, this means that we have a gap in the segments, act like this is
-          // the first event we saw and keep going.
-          addToActuals(e);
-        }
+          break;
+        case 'temp':
+          var eventToAdd = e;
+          if (eventToAdd.percent != null) {
+            eventToAdd = _.assign({}, e, {value: e.percent * actuals.peek().value});
+          }
+          addToActuals(eventToAdd).forEach(addToUndelivered);
+          break;
+        default:
+          log('Unknown deliveryType, ignoring', e);
       }
     }
   }
@@ -116,11 +167,10 @@ function SegmentUtil(data) {
     log('First example', overlaps[0][0], overlaps[0][1]);
   }
 
-  this.actual = actuals;
-  this.undelivered = undelivereds;
-  this.all = this.actual.concat(this.undelivered);
-
-  return this;
-}
-
-module.exports = SegmentUtil;
+  var actual = actuals.getArray();
+  var undelivered = {};
+  Object.keys(undelivereds).forEach(function(key){
+    undelivered[key] = undelivereds[key].getArray();
+  });
+  return new SegmentUtil(actual, undelivered);
+};

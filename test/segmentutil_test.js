@@ -29,9 +29,7 @@ var fx = require('./fixtures');
 var tideline = require('../js/index');
 var BasalUtil = tideline.data.SegmentUtil;
 
-var MS_IN_HOUR = 3600000.0;
-
-describe('basal constructor under different data scenarios', function () {
+describe('segmentutil.js under different data scenarios', function () {
   fx.forEach(testData);
 });
 
@@ -96,7 +94,8 @@ function testData (data) {
               }
               catch(e) {
                 console.log('should have squashed contiguous identical segments');
-                console.log(segment, segments[i + 1]);
+                console.log(segment);
+                console.log(segments[i + 1]);
                 throw(e);
               }
             }
@@ -112,103 +111,87 @@ function testData (data) {
           if ((i < (segments.length - 1)) && segment.deliveryType === 'scheduled') {
             var e = new Date(segment.end).valueOf();
             var s = new Date(segments[i + 1].start).valueOf();
-            try {
-              expect(s >= e).to.be.true;
-            }
-            catch(e) {
-              if (name === 'overlapping') {
-                console.log("Expected 'can have gaps, but should not have overlaps' to fail on overlapping fixture, and it did.");
-              }
-              else {
-                throw(e);
-              }
-            }
-
+            expect(s >= e).to.be.true;
           }
         });
       });
     });
 
     describe('basal.undelivered', function() {
-      it('should be an array', function() {
-        assert.typeOf(basal.undelivered, 'array', 'basal.undelivered is an array');
+      it('should be an object', function() {
+        assert.typeOf(basal.undelivered, 'object', 'basal.undelivered should be an object');
       });
 
-      it('should have a non-zero length if there is a temp basal in the input data', function() {
-        var temps = _.where(data.json, {'deliveryType': 'temp'});
-        if (temps.length > 0) {
-          expect(basal.undelivered.length).to.be.above(0);
-        }
-      });
-
-      it('should be sorted in sequence', function() {
-        var sorted = _.sortBy(basal.undelivered, function(a) {
-          return new Date(a.start).valueOf();
-        });
-        expect(sorted).to.eql(basal.undelivered);
-      });
-
-      it('should not have any duplicates', function() {
-        expect(_.uniq(basal.undelivered)).to.be.eql(basal.undelivered);
-      });
-
-      it('should have a total duration equal to the total duration of temp segments from the actual stream', function() {
-        var tempDuration = 0;
-        _.where(basal.actual, {'deliveryType': 'temp'}).forEach(function(segment) {
-          tempDuration += Date.parse(segment.end) - Date.parse(segment.start);
-        });
-        var undeliveredDuration = 0;
-        basal.undelivered.forEach(function(segment) {
-          if (segment.deliveryType === 'scheduled') {
-            undeliveredDuration += Date.parse(segment.end) - Date.parse(segment.start);
-          }
-        });
-        try {
-          expect(undeliveredDuration).to.equal(tempDuration);
-        }
-        catch (e) {
-          console.log('Expected error with fixture ending in temp basal.');
-        }
-      });
-
-      it('should have squashed contiguous identical segments', function() {
-        basal.undelivered.forEach(function(segment, i, segments) {
-          if ((i < (segments.length - 1)) && segment.deliveryType === 'scheduled') {
-            if (segment.end === segments[i + 1].start) {
-              try {
-                expect(segment.value).to.not.eql(segments[i + 1].value);
-              }
-              catch(e) {
-                console.log('should have squashed contiguous identical segments');
-                console.log(segment, segments[i + 1]);
-                throw(e);
-              }
+      Object.keys(basal.undelivered).forEach(function(basalStream){
+        var theStream = basal.undelivered[basalStream];
+        describe(basalStream, function(){
+          it('should have a non-zero length if there is a temp basal in the input data', function() {
+            var temps = _.where(data.json, {'deliveryType': 'temp'});
+            if (temps.length > 0) {
+              expect(theStream.length).to.be.above(0);
             }
-          }
-        });
-      });
+          });
 
-      it('can have gaps, but should not have overlaps', function() {
-        var undelivereds = _.sortBy(basal.undelivered, function(d) {
-          return new Date(d.start).valueOf();
-        });
-        undelivereds.forEach(function(segment, i, segments) {
-          if ((i < (segments.length - 1)) && segment.deliveryType === 'scheduled') {
-            var e = new Date(segment.end).valueOf();
-            var s = new Date(segments[i + 1].start).valueOf();
+          it('should be sorted in sequence', function() {
+            var sorted = _.sortBy(theStream, function(a) {
+              return new Date(a.start).valueOf();
+            });
+            expect(sorted).to.eql(theStream);
+          });
+
+          it('should not have any duplicates', function() {
+            expect(_.uniq(theStream)).to.be.eql(theStream);
+          });
+
+          it('should have a total duration equal to the total duration of temp segments from the actual stream', function() {
+            var tempDuration = 0;
+            _.where(basal.actual, {'deliveryType': 'temp'}).forEach(function(segment) {
+              tempDuration += Date.parse(segment.end) - Date.parse(segment.start);
+            });
+            var undeliveredDuration = 0;
+            theStream.forEach(function(segment) {
+              if (segment.deliveryType === 'scheduled') {
+                undeliveredDuration += Date.parse(segment.end) - Date.parse(segment.start);
+              }
+            });
             try {
-              expect(s >= e).to.be.true;
+              expect(undeliveredDuration).to.equal(tempDuration);
             }
-            catch(e) {
-              if (name === 'overlapping') {
-                console.log("Expected 'can have gaps, but should not have overlaps' to fail on overlapping fixture, and it did.");
-              }
-              else {
-                throw(e);
-              }
+            catch (e) {
+              //console.log('Expected error with fixture ending in temp basal.');
             }
+          });
 
-          }
+          it('should have squashed contiguous identical segments', function() {
+            theStream.forEach(function(segment, i, segments) {
+              if ((i < (segments.length - 1)) && segment.deliveryType === 'scheduled') {
+                if (segment.end === segments[i + 1].start) {
+                  try {
+                    expect(segment.value).to.not.eql(segments[i + 1].value);
+                  }
+                  catch(e) {
+                    console.log('should have squashed contiguous identical segments');
+                    console.log(segment);
+                    console.log(segments[i + 1]);
+                    throw(e);
+                  }
+                }
+              }
+            });
+          });
+
+          it('can have gaps, but should not have overlaps', function() {
+            var undelivereds = _.sortBy(theStream, function(d) {
+              return new Date(d.start).valueOf();
+            });
+            undelivereds.forEach(function(segment, i, segments) {
+              if ((i < (segments.length - 1)) && segment.deliveryType === 'scheduled') {
+                var e = new Date(segment.end).valueOf();
+                var s = new Date(segments[i + 1].start).valueOf();
+                expect(s >= e).to.be.true;
+              }
+            });
+          });
         });
       });
     });

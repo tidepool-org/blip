@@ -35,7 +35,7 @@ module.exports = {
     data = _.reject(data, function(d) {
       return d.type === 'basal-rate-segment';
     });
-    data = data.concat(segments.actual.concat(segments.undelivered));
+    data = data.concat(segments.actual.concat(segments.getUndelivered('scheduled')));
     // Watson the data
     data = watson.normalizeAll(data);
     // Ensure the data is properly sorted

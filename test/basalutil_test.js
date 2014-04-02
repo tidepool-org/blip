@@ -35,21 +35,32 @@ var format = tideline.data.util.format;
 
 var MS_IN_HOUR = 3600000.0;
 
+function all(segmentUtil) {
+  var arraysToConcat = [];
+
+  arraysToConcat.push(segmentUtil.actual);
+  Object.keys(segmentUtil.undelivered).forEach(function(key){
+    arraysToConcat.push(segmentUtil.undelivered[key]);
+  });
+
+  return Array.prototype.concat.apply([], arraysToConcat);
+}
+
 describe('basal utilities', function() {
   describe('totalBasal', function() {
     var data = _.findWhere(fx, {'name': 'current-demo'}).json;
-    var basalSegments = new SegmentUtil(_.where(data, {'type': 'basal-rate-segment'})).all;
+    var basalSegments = all(new SegmentUtil(_.where(data, {'type': 'basal-rate-segment'})));
     data = _.reject(data, function(d) {
       return d.type === 'basal-rate-segment';
     });
     data = data.concat(basalSegments);
     data = watson.normalizeAll(data);
     var basal = new BasalUtil(_.where(data, {'type': 'basal-rate-segment'}));
-    var templateSegments = watson.normalizeAll(new SegmentUtil(_.findWhere(fx, {'name': 'template'}).json).all);
+    var templateSegments = watson.normalizeAll(all(new SegmentUtil(_.findWhere(fx, {'name': 'template'}).json)));
     var template = new BasalUtil(templateSegments);
-    var tempSegments = watson.normalizeAll(new SegmentUtil(_.findWhere(fx, {'name': 'contained'}).json).all);
+    var tempSegments = watson.normalizeAll(all(new SegmentUtil(_.findWhere(fx, {'name': 'contained'}).json)));
     var temp = new BasalUtil(tempSegments);
-    var twoDaySegments = watson.normalizeAll(new SegmentUtil(_.findWhere(fx, {'name': 'two-days'}).json).all);
+    var twoDaySegments = watson.normalizeAll(all(new SegmentUtil(_.findWhere(fx, {'name': 'two-days'}).json)));
     var twoDays = new BasalUtil(twoDaySegments);
 
     it('should be a function', function() {
@@ -169,7 +180,7 @@ describe('basal utilities', function() {
 
   describe('subtotal', function() {
     var data = watson.normalizeAll(_.findWhere(fx, {'name': 'template'}).json);
-    var basalSegments = new SegmentUtil(_.where(data, {'type': 'basal-rate-segment'})).all;
+    var basalSegments = all(new SegmentUtil(_.where(data, {'type': 'basal-rate-segment'})));
     var basal = new BasalUtil(basalSegments);
 
     it('should be a function', function() {
@@ -197,9 +208,9 @@ describe('basal utilities', function() {
 
   describe('isContinuous', function() {
     var data = watson.normalizeAll(_.findWhere(fx, {'name': 'template'}).json);
-    var basalSegments = new SegmentUtil(_.where(data, {'type': 'basal-rate-segment'})).all;
+    var basalSegments = all(new SegmentUtil(_.where(data, {'type': 'basal-rate-segment'})));
     var basal = new BasalUtil(basalSegments);
-    var gapSegments = watson.normalizeAll(new SegmentUtil(_.findWhere(fx, {'name': 'gap'}).json).all);
+    var gapSegments = watson.normalizeAll(all(new SegmentUtil(_.findWhere(fx, {'name': 'gap'}).json)));
     var gap = new BasalUtil(gapSegments);
 
     it('should be a function', function() {
