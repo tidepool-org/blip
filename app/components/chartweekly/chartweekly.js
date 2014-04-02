@@ -18,7 +18,10 @@ var React = window.React;
 var _ = window._;
 var bows = window.bows;
 
-var chartWeeklyFactory = require('./chartweeklyfactory');
+var tidelineBlip = window.tideline.blip;
+var chartWeeklyFactory = tidelineBlip.twoweek;
+
+var EventEmitter = require('events').EventEmitter;
 
 var ChartWeekly = React.createClass({
   propTypes: {
@@ -61,7 +64,7 @@ var ChartWeekly = React.createClass({
       var el = this.refs.chart.getDOMNode();
       var imagesBaseUrl = this.props.imagesEndpoint;
 
-      var chart = chartWeeklyFactory(el, {imagesBaseUrl: imagesBaseUrl});
+      var chart = chartWeeklyFactory(el, new EventEmitter(), {imagesBaseUrl: imagesBaseUrl});
       this.chart = chart;
       this.bindEvents();
     }

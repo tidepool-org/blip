@@ -18,7 +18,10 @@ var React = window.React;
 var _ = window._;
 var bows = window.bows;
 
-var chartDailyFactory = require('./chartdailyfactory');
+var tidelineBlip = window.tideline.blip;
+var chartDailyFactory = tidelineBlip.oneday;
+
+var EventEmitter = require('events').EventEmitter;
 
 var ChartDaily = React.createClass({
   propTypes: {
@@ -60,7 +63,7 @@ var ChartDaily = React.createClass({
       var el = this.refs.chart.getDOMNode();
       var imagesBaseUrl = this.props.imagesEndpoint;
 
-      var chart = chartDailyFactory(this.refs.chart.getDOMNode(), {imagesBaseUrl: imagesBaseUrl}).setupPools();
+      var chart = chartDailyFactory(this.refs.chart.getDOMNode(), new EventEmitter(), {imagesBaseUrl: imagesBaseUrl}).setupPools();
       this.chart = chart;
       this.bindEvents();
     }
