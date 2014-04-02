@@ -10,9 +10,9 @@
   "author": "Tidepool",
   "license": "BSD-2-Clause",
   "dependencies": {
-    "async": "0.2.10",
+    "async": "0.6.2",
     "lodash": "2.4.1",
-    "superagent": "0.16.0"
+    "superagent": "0.17.0"
   },
   "devDependencies": {
     "grunt": "0.4.1",
