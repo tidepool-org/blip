@@ -83,9 +83,11 @@ module.exports = function(data){
                 // No overlap!
                 addToActuals(e).forEach(addToUndelivered);
               } else {
+                // scheduled overlapping a scheduled, this is known to happen when a patient used multiple
+                // pumps at the exact same time.  Which is rare, to say the least.  We want to just eliminate
+                // both data points and act like we know nothing when this happens
                 overlaps.push(e);
-                // scheduled overlapping a scheduled, this is know to happen when a patient used multiple
-                // pumps at the exact same time.  Which is rare, to say the least.
+                overlaps.push(actuals.pop());
                 return;
               }
               break;
@@ -104,7 +106,27 @@ module.exports = function(data){
                 // 4. Push the scheduled into the undelivereds
                 var arrayWithTemp = addToActuals(e);
                 if (arrayWithTemp.length !== 1) {
-                  throw new Error('Should\'ve gotten just the chunked temp, didn\'t.', arrayWithTemp);
+                  if (arrayWithTemp.length > 1) {
+                    // This is a very special case indeed.  If a patient uses 2 pumps at the same time, and
+                    // they have a temp basal that overrides a long chunk of schedules, it is possible that
+                    // one of those scheduleds overlaps another scheduled that was already overlapped by the
+                    // temp.  So, we make sure that all of the excess events are scheduleds, and if they are
+                    // we assume that is why we are here.  If they aren't, we got other problems.  The proper
+                    // thing to do in this case is to throw away these events, which is what the code will
+                    // naturally do
+                    while (arrayWithTemp.length > 1) {
+                      var element = arrayWithTemp.pop();
+                      if (element.deliveryType !== 'scheduled') {
+                        log('Expected these events to be scheduled, one wasn\'t', element, e);
+                        throw new Error('Expected these events to be scheduled, one wasn\'t');
+                      } else {
+                        overlaps.push(element);
+                      }
+                    }
+                  } else {
+                    log('Should\'ve gotten just the chunked temp, didn\'t.', arrayWithTemp, e);
+                    throw new Error('Should\'ve gotten just the chunked temp, didn\'t.');
+                  }
                 }
 
                 var tempMatchingScheduled = arrayWithTemp[0];

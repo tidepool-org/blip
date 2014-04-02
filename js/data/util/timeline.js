@@ -42,6 +42,10 @@ Timeline.prototype.peek = function(){
   return this.theLine[this.theLine.length - 1];
 };
 
+Timeline.prototype.pop = function(){
+  return this.theLine.pop();
+};
+
 Timeline.prototype.add = function(e) {
   if (e.start == null || e.end == null) {
     throw buildError('Element had no start[%s] or end[%s]', e.start, e.end, e);
