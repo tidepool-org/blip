@@ -25,7 +25,7 @@ var expect = chai.expect;
 var _ = require('lodash');
 var Duration = require('duration-js');
 
-var watson = require('../example/watson');
+var watson = require('../plugins/data/watson');
 var fx = require('./fixtures');
 
 var tideline = require('../js/index');
@@ -43,13 +43,13 @@ describe('basal utilities', function() {
       return d.type === 'basal-rate-segment';
     });
     data = data.concat(basalSegments);
-    data = watson.normalize(data);
+    data = watson.normalizeAll(data);
     var basal = new BasalUtil(_.where(data, {'type': 'basal-rate-segment'}));
-    var templateSegments = watson.normalize(new SegmentUtil(_.findWhere(fx, {'name': 'template'}).json).all);
+    var templateSegments = watson.normalizeAll(new SegmentUtil(_.findWhere(fx, {'name': 'template'}).json).all);
     var template = new BasalUtil(templateSegments);
-    var tempSegments = watson.normalize(new SegmentUtil(_.findWhere(fx, {'name': 'contained'}).json).all);
+    var tempSegments = watson.normalizeAll(new SegmentUtil(_.findWhere(fx, {'name': 'contained'}).json).all);
     var temp = new BasalUtil(tempSegments);
-    var twoDaySegments = watson.normalize(new SegmentUtil(_.findWhere(fx, {'name': 'two-days'}).json).all);
+    var twoDaySegments = watson.normalizeAll(new SegmentUtil(_.findWhere(fx, {'name': 'two-days'}).json).all);
     var twoDays = new BasalUtil(twoDaySegments);
 
     it('should be a function', function() {
@@ -168,7 +168,7 @@ describe('basal utilities', function() {
   });
 
   describe('subtotal', function() {
-    var data = watson.normalize(_.findWhere(fx, {'name': 'template'}).json);
+    var data = watson.normalizeAll(_.findWhere(fx, {'name': 'template'}).json);
     var basalSegments = new SegmentUtil(_.where(data, {'type': 'basal-rate-segment'})).all;
     var basal = new BasalUtil(basalSegments);
 
@@ -196,10 +196,10 @@ describe('basal utilities', function() {
   });
 
   describe('isContinuous', function() {
-    var data = watson.normalize(_.findWhere(fx, {'name': 'template'}).json);
+    var data = watson.normalizeAll(_.findWhere(fx, {'name': 'template'}).json);
     var basalSegments = new SegmentUtil(_.where(data, {'type': 'basal-rate-segment'})).all;
     var basal = new BasalUtil(basalSegments);
-    var gapSegments = watson.normalize(new SegmentUtil(_.findWhere(fx, {'name': 'gap'}).json).all);
+    var gapSegments = watson.normalizeAll(new SegmentUtil(_.findWhere(fx, {'name': 'gap'}).json).all);
     var gap = new BasalUtil(gapSegments);
 
     it('should be a function', function() {
@@ -218,7 +218,7 @@ describe('basal utilities', function() {
 
   describe('segmentDose', function() {
     var basal = new BasalUtil(_.findWhere(fx, {'name': 'current-demo'}).json);
-    basal.normalizedActual = watson.normalize(basal.actual);
+    basal.normalizedActual = watson.normalizeAll(basal.actual);
 
     it('should be a function', function() {
       assert.isFunction(basal.segmentDose);

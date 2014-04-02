@@ -28,7 +28,13 @@
 // the main js/ directory.
 //
 
-var _ = require('lodash');
+try {
+  var _ = window._;
+}
+catch (ReferenceError) {
+  var _ = require('lodash');
+}
+
 
 try {
   var log = window.bows('Watson');
@@ -37,7 +43,7 @@ catch (ReferenceError) {
   var log = require('../../js/lib/').bows('Watson');
 }
 
-var watson = {
+module.exports = {
   APPEND: '.000Z',
 
   normalize: function(i) {
@@ -75,5 +81,3 @@ var watson = {
     }, this);
   }
 };
-
-module.exports = watson;

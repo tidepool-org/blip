@@ -1,6 +1,8 @@
 .DS_Store
 bower_components/
+dist/
 example/bundle.js
+example/dist/
 *.css
 node_modules/
 .idea

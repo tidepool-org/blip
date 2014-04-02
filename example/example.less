@@ -54,7 +54,7 @@
   src: local('Open Sans Bold Italic'), local('OpenSans-BoldItalic'), url('../fonts/opensans-bolditalic.woff') format('woff');
 }
 
-#tideline {
+#tidelineMain {
   background-color: white;
   font-family: @font-family-base;
   font-size: @font-size-base;
@@ -68,7 +68,7 @@
 
   .tidelineNav {
     background-color: @labels;
-    width: 990px;
+    width: 980px;
 
     .tidelineNavLabelWrapper {
       min-width: 220px;
@@ -111,8 +111,16 @@
   }
 }
 
-#tidelineContainer {
+#tidelineOuterContainer {
   margin: 0 auto;
-  width: 990px;
-  height: 590px;
+  width: 980px;
+  height: 600px;
+  padding: 5px 10px;
+
+  #tidelineContainer {
+    margin: 0 auto;
+    width: 960px;
+    height: 590px;
+    padding: 0;
+  }
 }

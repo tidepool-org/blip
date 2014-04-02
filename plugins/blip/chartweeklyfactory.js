@@ -1,33 +1,27 @@
-/* 
- * == BSD2 LICENSE ==
+/**
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
- * == BSD2 LICENSE ==
  */
 
-var $ = window.$;
-var d3 = window.d3;
 var _ = window._;
-
 var bows = window.bows;
+var d3 = window.d3;
 
-var tideline = require('../js');
-var watson = require('./watson');
-
+var tideline = window.tideline;
 var fill = tideline.plot.util.fill;
 
 // Create a 'Two Weeks' chart object that is a wrapper around Tideline components
-function chartWeeklyFactory(el, options, emitter) {
+function chartWeeklyFactory(el, emitter, options) {
   var log = bows('Weekly Factory');
   options = options || {};
 
@@ -37,12 +31,22 @@ function chartWeeklyFactory(el, options, emitter) {
   var pools = [];
 
   var create = function(el, options) {
+    if (!el) {
+      throw new Error('Sorry, you must provide a DOM element! :(');
+    }
+
+    var width = el.offsetWidth;
+    var height = el.offsetHeight;
+    if (!(width && height)) {
+      throw new Error('Chart element must have a set width and height ' +
+                      '(got: ' + width + ', ' + height + ')');
+    }
+
     // basic chart set up
-    chart.width($(el).width()).height($(el).height());
+    chart.width(width).height(height);
 
     if (options.imagesBaseUrl) {
       chart.imagesBaseUrl(options.imagesBaseUrl);
-      // dataGutter should be imageSize/2
       chart.dataGutter(8);
     }
 
@@ -53,6 +57,8 @@ function chartWeeklyFactory(el, options, emitter) {
 
   chart.load = function(data, datetime) {
     // data munging utilities for stats
+    // TODO: this stuff probably belongs in chartutil.js
+    // and a common basalUtil, bolusUtil, and cbgUtil can be shared between one-day and two-week
     var basalUtil = new tideline.data.BasalUtil(_.where(data, {'type': 'basal-rate-segment'}));
     var bolusUtil = new tideline.data.BolusUtil(_.where(data, {'type': 'bolus'}));
     var cbgUtil = new tideline.data.CBGUtil(_.where(data, {'type': 'cbg'}));

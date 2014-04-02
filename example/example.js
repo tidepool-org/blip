@@ -19,10 +19,13 @@ var $ = window.$;
 var d3 = window.d3;
 var _ = window._;
 
-var tideline = require('../js/index');
-var TidelineData = tideline.TidelineData;
-var chartDailyFactory = require('./chartdailyfactory');
-var chartWeeklyFactory = require('./chartweeklyfactory');
+// tideline dependencies & plugins
+var tideline = window.tideline;
+var preprocess = window.tideline.preprocess;
+var blip = window.tideline.blip;
+var chartDailyFactory = blip.oneday;
+var chartWeeklyFactory = blip.twoweek;
+
 var log = window.bows('Example');
 
 // things common to one-day and two-week views
@@ -52,36 +55,16 @@ emitter.on('mostRecent', function(mostRecent) {
   }
 });
 
-var BasalUtil = tideline.data.BasalUtil;
-
-var el = '#tidelineContainer';
+var el = document.getElementById('tidelineContainer');
 var imagesBaseUrl = '../img';
 
-// dear old Watson
-var watson = require('./watson');
-
-var oneDay = chartDailyFactory(el, {imagesBaseUrl: imagesBaseUrl}, emitter).setupPools();
-
-var twoWeek = chartWeeklyFactory(el, {imagesBaseUrl: imagesBaseUrl}, emitter);
+var oneDay = chartDailyFactory(el, emitter, {imagesBaseUrl: imagesBaseUrl}).setupPools();
+var twoWeek = chartWeeklyFactory(el, emitter, {imagesBaseUrl: imagesBaseUrl});
 
 // load data and draw charts
 d3.json('data/device-data.json', function(data) {
   log('Data loaded.');
-  // munge basal segments
-  var segments = new tideline.data.SegmentUtil(_.where(data, {'type': 'basal-rate-segment'}));
-  data = _.reject(data, function(d) {
-    return d.type === 'basal-rate-segment';
-  });
-  data = data.concat(segments.actual.concat(segments.undelivered));
-  // Watson the data
-  data = watson.normalize(data);
-  // ensure the data is properly sorted
-  data = _.sortBy(data, function(d) {
-    return new Date(d.normalTime).valueOf();
-  });
-  var tidelineData = new TidelineData(data);
-
-  data = tidelineData.data;
+  data = preprocess.processData(data);
 
   log('Initial one-day view.');
   oneDay.load(data).locate('2014-03-06T09:00:00');

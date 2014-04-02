@@ -24,7 +24,6 @@ var expect = chai.expect;
 
 var _ = require('lodash');
 
-var watson = require('../example/watson');
 var fx = require('./fixtures');
 
 var tideline = require('../js/index');

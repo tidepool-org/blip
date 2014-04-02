@@ -221,8 +221,7 @@ module.exports = function(emitter) {
     }
     if (!d3.select('#' + id).classed('hidden')) {
       emitter.emit('currentDomain', {
-        'domain': a,
-        'startIndex': allData[0].index
+        'domain': a
       });
       emitter.emit('navigated', [navString]);
       if (a[1].valueOf() === endpoints[1].valueOf()) {
