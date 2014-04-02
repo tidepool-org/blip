@@ -1,11 +1,11 @@
 .DS_Store
+*.css
+*.idea
+*.iml
 bower_components/
 dist/
 example/bundle.js
-example/dist/
-*.css
-node_modules/
-.idea
-*.iml
 example/data/blip-output.json
+example/dist/
+node_modules/
 test/test.js
