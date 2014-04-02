@@ -40,7 +40,7 @@ try {
   var log = window.bows('Watson');
 }
 catch (ReferenceError) {
-  var log = require('../../js/lib/').bows('Watson');
+  var log = require('../../../js/lib/').bows('Watson');
 }
 
 module.exports = {
