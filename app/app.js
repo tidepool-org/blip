@@ -29,7 +29,7 @@ var api = require('./core/api');
 var user = require('./core/user');
 var patient = require('./core/patient');
 var queryString = require('./core/querystring');
-var chartUtil = require('./core/chartutil');
+var chartUtil = window.tideline.preprocess;
 var detectTouchScreen = require('./core/notouch');
 
 var Navbar = require('./components/navbar');
