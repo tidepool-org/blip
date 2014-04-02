@@ -51579,7 +51579,7 @@
         "end": "2014-04-05T01:50:55",
         "deliveryType": "temp",
         "inferred": false,
-        "percent": 50,
+        "percent": 0.5,
         "start": "2014-04-04T18:20:55",
         "_id": "9a235f60-6447-417a-b14a-f6f8f3ee2d41",
         "type": "basal-rate-segment"
