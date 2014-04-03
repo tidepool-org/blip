@@ -19,6 +19,7 @@ var d3 = require('../lib/').d3;
 var _ = require('../lib/')._;
 
 var Duration = require('../lib/').Duration;
+var format = require('../data/util/format');
 var log = require('../lib/').bows('Basal');
 
 module.exports = function(pool, opts) {
@@ -475,6 +476,9 @@ module.exports = function(pool, opts) {
             return '0.0U';
           }
           else {
+            if (d.percent) {
+              return format.percentage(d.percent);
+            }
             return formatValue(d.value) + 'U';
           }
         }()),
