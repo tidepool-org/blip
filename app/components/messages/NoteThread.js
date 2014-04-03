@@ -57,7 +57,6 @@ var NoteThread = React.createClass({
       );
   },
   render: function() {
-console.log('render the messages ....');    
     var items = this.props.messages.map(function(message, i) {
       if(!message.parentmessage) {
         return this.renderNote(message);

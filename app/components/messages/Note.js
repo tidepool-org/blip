@@ -32,7 +32,8 @@ var Note = React.createClass({
   },
 
   niceTime: function(time){
-    return Date.parse(time);
+    var nice = new Date(time);
+    return nice.toLocaleString();
   },
 
   renderHeading : function(){
