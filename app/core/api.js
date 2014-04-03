@@ -47,6 +47,7 @@ api.init = function(cb) {
 
 api.user = {};
 api.patient = {};
+api.team = {};
 
 function patientFromUserProfile(profile) {
   // Merge user profile attributes with patient
@@ -102,6 +103,19 @@ api.patient.getAll = function(cb) {
       patients = _.filter(patients);
       return cb(null, patients);
     });
+  });
+};
+
+//Get all messages for the given thread
+api.team.getMessageThread = function(messageId,cb){
+  api.log('GET /thread');
+
+  var token = tidepoolPlatformApi.getToken();
+  tidepool.getMessageThread(messageId,token,function(error,messages){
+    if(error){
+      return cb(error);
+    }
+    return cb(null,messages);
   });
 };
 

@@ -11,6 +11,7 @@ var files = {
       {dir: 'bower_components/director', dist: 'build/director.js', distMin: 'build/director.min.js'},
       {dir: 'bower_components/lodash', dist: 'dist/lodash.js', distMin: 'dist/lodash.min.js'},
       {dir: 'bower_components/bows', dist: 'dist/bows.js', distMin: 'dist/bows.min.js'},
+      {dir: 'bower_components/crossfilter', dist: 'crossfilter.js', distMin: 'crossfilter.min.js'},
       {dir: 'bower_components/superagent', dist: 'superagent.js'},
       {dir: 'bower_components/moment', dist: 'moment.js', distMin: 'min/moment.min.js'},
       {dir: 'bower_components/d3', dist: 'd3.js', distMin: 'd3.min.js'},

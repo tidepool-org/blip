@@ -250,6 +250,16 @@ var createPatch = function(options) {
       }, getDelayFor('api.patientdata.get'));
     };
 
+    // ----- Team Data -----
+    api.team.getMessageThread = function(messageId,callback){
+      api.log('[mock] GET /thread/' + messageId);
+
+      var thread = data.messagedata[101];
+      setTimeout(function() {
+        callback(null, thread);
+      }, getDelayFor('api.team.messageThread.get'));
+    };
+
     // ----- Upload -----
     api.getUploadUrl = function() {
       return 'about:blank';

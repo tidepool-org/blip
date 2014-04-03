@@ -110,7 +110,8 @@ var AppComponent = React.createClass({
       patient: null,
       fetchingPatient: true,
       patientData: null,
-      fetchingPatientData: true
+      fetchingPatientData: true,
+      fetchingMessageData: true
     };
   },
 
@@ -484,7 +485,8 @@ var AppComponent = React.createClass({
           fetchingPatientData={this.state.fetchingPatientData}
           isUserPatient={this.isUserPatient()}
           uploadUrl={api.getUploadUrl()}
-          onRefresh={this.fetchCurrentPatientData}/>
+          onRefresh={this.fetchCurrentPatientData}
+          onFetchMessageThread={this.fetchMessageThread}/>
     );
     /* jshint ignore:end */
   },
@@ -609,6 +611,22 @@ var AppComponent = React.createClass({
         patientData: patientData,
         fetchingPatientData: false
       });
+    });
+  },
+
+  fetchMessageThread: function(messageId,callback) {
+    app.log('fetching messages for ' + messageId);
+
+    var self = this;
+    self.setState({fetchingMessageData: true});
+
+    api.team.getMessageThread(messageId,function(error,thread){
+      self.setState({fetchingMessageData: false});
+      if (error) {
+        app.log('Error fetching data for message thread with id ' + messageId);
+        return callback(null);
+      }
+      return callback(thread);
     });
   },
 
