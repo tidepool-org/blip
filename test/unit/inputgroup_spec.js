@@ -14,8 +14,7 @@ describe('InputGroup', function() {
   };
 
   beforeEach(function() {
-    component = InputGroup(props);
-    helpers.mountComponent(component);
+    component = helpers.mountComponent(InputGroup(props));
   });
 
   afterEach(function() {
