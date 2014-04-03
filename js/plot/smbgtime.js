@@ -167,6 +167,7 @@ function SMBGTime (opts) {
       .duration(500)
       .attr({
         'height': opts.size * 0.75,
+        'width': opts.size * 0.75,
         'y': opts.pool.height() / 2
       });
   };
@@ -183,6 +184,7 @@ function SMBGTime (opts) {
       .duration(500)
       .attr({
         'height': opts.size,
+        'width': opts.size,
         'y': opts.pool.height() / 2 - opts.size / 2
       });
   };
