@@ -26,7 +26,6 @@ var Note = React.createClass({
 
   propTypes: {
     author: React.PropTypes.string,
-    image: React.PropTypes.string,
     when: React.PropTypes.string,
     note: React.PropTypes.string
   },
@@ -36,28 +35,15 @@ var Note = React.createClass({
     return nice.toLocaleString();
   },
 
-  renderHeading : function(){
-    /* jshint ignore:start */
-    return (
-      <div>
-        <strong ref='messageAuthorAndGroup' className='note-header media-heading'> {this.props.author}</strong>
-      </div>
-    );
-    /* jshint ignore:end */
-  },
-
   render: function() {
-
-    var noteHeading = this.renderHeading();
 
     return this.transferPropsTo(
       /* jshint ignore:start */
       <div className='note media'>
-        <div ref='imgColumn' className='media-object pull-left'>
-          <div ref='authorImage' className={this.props.image}/>
-        </div>
         <div ref='detailColumn' className='media-body'>
-          {noteHeading}
+          <div>
+            <strong ref='messageAuthorAndGroup' className='note-header media-heading'> {this.props.author}</strong>
+          </div>
           <span ref='messageWhen' className='small note-when'>{this.niceTime(this.props.when)}</span>
           <p ref='messageText' className='note-message'>{this.props.note}</p>
         </div>
