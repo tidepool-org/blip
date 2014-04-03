@@ -598,7 +598,7 @@ var AppComponent = React.createClass({
 
     app.api.patientData.get(patientId, function(err, patientData) {
       if (err) {
-        app.log('Error fetching data for patient with id ' + patientId);
+        app.log('Error fetching data for patient with id ' + patientId, err);
         self.setState({fetchingPatientData: false});
         return;
       }

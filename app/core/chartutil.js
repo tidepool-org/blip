@@ -17,7 +17,9 @@ var _ = window._;
 
 var tideline = window.tideline;
 
+var SegmentUtil = tideline.data.SegmentUtil;
 var watson = tideline.watson;
+var SegmentUtil = tideline.data.SegmentUtil;
 var BasalUtil = tideline.data.BasalUtil;
 
 var util = {};
@@ -29,11 +31,11 @@ util.processData = function(data) {
   }
 
   // Munge basal segments
-  var vizReadyBasals = new BasalUtil(_.where(data, {'type': 'basal-rate-segment'}));
+  var segments = SegmentUtil(_.where(data, {'type': 'basal-rate-segment'}));
   data = _.reject(data, function(d) {
     return d.type === 'basal-rate-segment';
   });
-  data = data.concat(vizReadyBasals.actual.concat(vizReadyBasals.undelivered));
+  data = data.concat(segments.actual.concat(segments.getUndelivered('scheduled')));
   // Watson the data
   data = watson.normalize(data);
   // Ensure the data is properly sorted

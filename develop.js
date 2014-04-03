@@ -28,7 +28,7 @@ app.use('/app.js', function(req, res, next) {
       transform: ['reactify'],
       // Don't bundle Tidepool platform dependencies
       // (will be grabbed from global `window` object instead)
-      ignore: ['lodash', 'async'],
+      ignore: ['lodash', 'async', 'duration-js', 'crossfilter'],
       debug: true
     }))
     // Error handling: can't just pass `next`,

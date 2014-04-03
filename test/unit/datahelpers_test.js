@@ -168,7 +168,8 @@ describe('dataHelpers', function(){
              },
              {
                _id: '1234', deviceTime: '2014-01-01T01:00:00', value: 0.1,
-               type: 'bolus', subType: 'dual/normal', groupId: 'yourJoinKey'
+               type: 'bolus', subType: 'dual/normal', groupId: 'yourJoinKey',
+               _unmatched: true
              }]
           );
           done();
@@ -234,22 +235,22 @@ describe('dataHelpers', function(){
     it('combines basals', function(done){
       rx.Observable.fromArray(
         [{
-           _id: 'abcd', type: 'basal-rate-change', deliveryType: 'scheduled',
+           _id: 'abcd', type: 'basal', deliveryType: 'scheduled',
            deviceTime: '2014-03-07T01:00:00', value: 0.65,
            scheduleName: 'night-shift'
          },
          {
-           _id: 'abcde', type: 'basal-rate-change', deliveryType: 'temp',
+           _id: 'abcde', type: 'basal', deliveryType: 'temp',
            deviceTime: '2014-03-07T01:38:27', value: 1.7,
            duration: 3600000
          },
          {
-           _id: 'abcdef', type: 'basal-rate-change', deliveryType: 'scheduled',
+           _id: 'abcdef', type: 'basal', deliveryType: 'scheduled',
            deviceTime: '2014-03-07T04:00:00', value: 0.32,
            scheduleName: 'night-shift'
          },
          {
-           _id: 'abcdefg', type: 'basal-rate-change', deliveryType: 'scheduled',
+           _id: 'abcdefg', type: 'basal', deliveryType: 'scheduled',
            deviceTime: '2014-03-07T12:00:00', value: 1.02,
            scheduleName: 'night-shift'
          }])
@@ -260,24 +261,27 @@ describe('dataHelpers', function(){
           expect(converted).deep.equals(
             [{
                _id: 'abcd', type: 'basal-rate-segment', deliveryType: 'scheduled',
-               start: '2014-03-07T01:00:00', end: '2014-03-07T04:00:00', value: 0.65,
-               scheduleName: 'night-shift', interval: '2014-03-07T01:00:00/2014-03-07T04:00:00'
+               deviceTime: '2014-03-07T01:00:00', start: '2014-03-07T01:00:00',
+               end: '2014-03-07T04:00:00', value: 0.65,
+               scheduleName: 'night-shift'
              },
              {
                _id: 'abcde', type: 'basal-rate-segment', deliveryType: 'temp',
                deviceTime: '2014-03-07T01:38:27', start: '2014-03-07T01:38:27',
                end: '2014-03-07T02:38:27', value: 1.7,
-               duration: 3600000, interval: '2014-03-07T01:38:27/2014-03-07T02:38:27'
+               duration: 3600000
              },
              {
                _id: 'abcdef', type: 'basal-rate-segment', deliveryType: 'scheduled',
-               start: '2014-03-07T04:00:00', end: '2014-03-07T12:00:00', value: 0.32,
-               scheduleName: 'night-shift', interval: '2014-03-07T04:00:00/2014-03-07T12:00:00'
+               deviceTime: '2014-03-07T04:00:00', start: '2014-03-07T04:00:00',
+               end: '2014-03-07T12:00:00', value: 0.32,
+               scheduleName: 'night-shift'
              },
              {
                _id: 'abcdefg', type: 'basal-rate-segment', deliveryType: 'scheduled',
-               start: '2014-03-07T12:00:00', end: null, value: 1.02,
-               scheduleName: 'night-shift', interval: '2014-03-07T12:00:00/2014-03-07T12:00:00'
+               deviceTime: '2014-03-07T12:00:00', start: '2014-03-07T12:00:00',
+               end: null, value: 1.02,
+               scheduleName: 'night-shift'
              }
             ]
           );

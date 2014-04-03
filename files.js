@@ -15,7 +15,10 @@ var files = {
       {dir: 'bower_components/superagent', dist: 'superagent.js'},
       {dir: 'bower_components/moment', dist: 'moment.js', distMin: 'min/moment.min.js'},
       {dir: 'bower_components/d3', dist: 'd3.js', distMin: 'd3.min.js'},
-      {dir: 'bower_components/jquery', dist: 'dist/jquery.js', distMin: 'dist/jquery.min.js'},
+      {dir: 'bower_components/crossfilter', dist: 'crossfilter.js', distMin: 'crossfilter.min.js'},
+      // NOTE: don't use jQuery packaged "min", it tries to load a source map and
+      // makes the vendor bundle fail when parsed by the browser
+      {dir: 'bower_components/jquery', dist: 'dist/jquery.js'},
       {dir: 'bower_components/Duration.js', dist: 'duration.js'},
       {dir: 'bower_components/rxjs', dist: 'rx.lite.js'},
       {dir: 'bower_components/query-string', dist: 'query-string.js'},

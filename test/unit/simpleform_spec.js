@@ -10,8 +10,7 @@ describe('SimpleForm', function() {
   };
 
   beforeEach(function() {
-    component = SimpleForm(initialProps);
-    helpers.mountComponent(component);
+    component = helpers.mountComponent(SimpleForm(initialProps));
   });
 
   afterEach(function() {
@@ -67,7 +66,7 @@ describe('SimpleForm', function() {
     _.forEach(initialProps.inputs, function(input) {
       formValues[input.name] = 'foo';
     });
- 
+
     component.setProps({
       formValues: formValues,
       onSubmit: handleSubmit

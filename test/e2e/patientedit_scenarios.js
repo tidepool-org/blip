@@ -5,6 +5,9 @@ var _ = require('lodash');
 
 var patientId = '11';
 var testPatient = require('../../data/sample/patients/' + patientId +'.json');
+// Change dates to match format in form (MM-DD-YYYY)
+testPatient.birthday = '03-08-1987';
+testPatient.diagnosisDate = '02-01-1994';
 
 describe('Profile', function() {
   var openAppTo = helpers.openAppTo;
@@ -28,8 +31,8 @@ describe('Profile', function() {
 
   it('should allow to change patient attribute values', function(done) {
     patient = {
-      birthday: '1990-01-23',
-      diagnosisDate: '2003-02-21',
+      birthday: '01-23-1990',
+      diagnosisDate: '02-21-2003',
       aboutMe: 'I\'m testing this app'
     };
 

@@ -9,7 +9,6 @@ var concat = require('gulp-concat');
 var template = require('gulp-template');
 var uglify = require('gulp-uglify');
 var cssmin = require('gulp-minify-css');
-var imagemin = require('gulp-imagemin');
 var clean = require('gulp-clean');
 var es = require('event-stream');
 var runSequence = require('run-sequence');
@@ -69,7 +68,7 @@ gulp.task('scripts-browserify', function() {
       transform: ['reactify'],
       // Don't bundle Tidepool platform dependencies
       // (will be grabbed from global `window` object instead)
-      ignore: ['lodash', 'async']
+      ignore: ['lodash', 'async', 'duration-js', 'crossfilter']
     }))
     .pipe(concat('app.js'))
     .pipe(gulp.dest('dist/tmp'));
@@ -190,7 +189,6 @@ gulp.task('images', function () {
     var dest = 'dist/' + process.env.IMAGES_ENDPOINT + '/' + image.endpoint;
 
     return gulp.src(src)
-      .pipe(imagemin())
       .pipe(gulp.dest(dest));
   });
 

@@ -119,7 +119,6 @@ function chartDailyFactory(el, options) {
     // TODO: this stuff probably belongs in chartutil.js
     // and a common basalUtil, bolusUtil, and cbgUtil can be shared between one-day and two-week
     var basalUtil = new tideline.data.BasalUtil(_.where(data, {'type': 'basal-rate-segment'}));
-    basalUtil.normalizedActual = watson.normalize(basalUtil.actual);
     var bolusUtil = new tideline.data.BolusUtil(_.where(data, {'type': 'bolus'}));
     var cbgUtil = new tideline.data.CBGUtil(_.where(data, {'type': 'cbg'}));
 
@@ -128,17 +127,18 @@ function chartDailyFactory(el, options) {
     chart.data(data).setAxes().setNav().setScrollNav();
 
     // BG pool
-    var scaleBG = scales.bgLog(_.filter(data, function(d) {
+    var allBG = _.filter(data, function(d) {
       if ((d.type === 'cbg') || (d.type === 'smbg')) {
         return d;
       }
-    }), poolBG, SMBG_SIZE/2);
+    });
+    var scaleBG = scales.bgLog(allBG, poolBG, SMBG_SIZE/2);
     // set up y-axis
     poolBG.yAxis(d3.svg.axis()
       .scale(scaleBG)
       .orient('left')
       .outerTickSize(0)
-      .tickValues([40, 80, 120, 180, 300])
+      .tickValues(scales.bgTicks(allBG))
       .tickFormat(d3.format('g')));
     // add background fill rectangles to BG pool
     poolBG.addPlotType('fill', fill(poolBG, {endpoints: chart.endpoints}), false, true);
