@@ -19,7 +19,6 @@ var tideline = window.tideline;
 
 var SegmentUtil = tideline.data.SegmentUtil;
 var watson = tideline.watson;
-var SegmentUtil = tideline.data.SegmentUtil;
 var BasalUtil = tideline.data.BasalUtil;
 
 var util = {};
