@@ -19,8 +19,9 @@ var _ = window._;
 var moment = window.moment;
 var config = window.config;
 
-var ChartDaily = require('../../components/chartdaily');
-var ChartWeekly = require('../../components/chartweekly');
+var EventEmitter = require('events').EventEmitter;
+
+var Chart = require('../../components/chart');
 
 var PatientData = React.createClass({
   propTypes: {
@@ -31,9 +32,10 @@ var PatientData = React.createClass({
     onRefresh: React.PropTypes.func
   },
 
-  DEFAULT_TITLE: 'Patient data',
+  DEFAULT_TITLE: 'Your data',
   CHARTDAILY_TITLE_DATE_FORMAT: 'dddd, MMMM Do',
   CHARTWEEKLY_TITLE_DATE_FORMAT: 'MMMM Do',
+  emitter: new EventEmitter(),
 
   getInitialState: function() {
     return {
@@ -95,35 +97,25 @@ var PatientData = React.createClass({
       /* jshint ignore:end */
 
       /* jshint ignore:start */
-      right = (
+      center = (
         <div>
-          <a href="" onClick={this.handleRefresh}>Refresh</a>
+          <a href="" onClick={this.handlePanBack}><i className="icon-back"></i></a>
+          <div className="patient-data-subnav-text patient-data-subnav-text-dates">
+            {this.state.title}
+          </div>
+          <a href="" onClick={this.handlePanForward}><i className="icon-next"></i></a>
         </div>
       );
       /* jshint ignore:end */
 
-      if (this.state.chartType === 'daily') {
-        /* jshint ignore:start */
-        center = (
-          <div>
-            <a href="" onClick={this.handlePanBack}><i className="icon-back"></i></a>
-            <div className="patient-data-subnav-text patient-data-subnav-text-dates">
-              {this.state.title}
-            </div>
-            <a href="" onClick={this.handlePanForward}><i className="icon-next"></i></a>
-          </div>
-        );
-        /* jshint ignore:end */
-
-        /* jshint ignore:start */
-        right = (
-          <div>
-            <a href="" onClick={this.handleRefresh}>Refresh</a>
-            <a href="" onClick={this.handleGoToMostRecentDaily}>Most recent</a>
-          </div>
-        );
-        /* jshint ignore:end */
-      }
+      /* jshint ignore:start */
+      right = (
+        <div>
+          <a href="" onClick={this.handleRefresh}>Refresh</a>
+          <a href="" onClick={this.handleGoToMostRecent}>Most recent</a>
+        </div>
+      );
+      /* jshint ignore:end */
     }
 
     /* jshint ignore:start */
@@ -198,29 +190,18 @@ var PatientData = React.createClass({
   },
 
   renderChart: function() {
-    if (this.state.chartType === 'weekly') {
-      /* jshint ignore:start */
-      return (
-        <ChartWeekly
-          patientData={this.props.patientData}
-          datetimeLocation={this.state.datetimeLocation}
-          onDatetimeLocationChange={this.handleDatetimeLocationChange}
-          onSelectDataPoint={this.handleWeeklySelectDataPoint}
-          imagesEndpoint={config.IMAGES_ENDPOINT + '/tideline'}
-          ref="chart" />
-      );
-      /* jshint ignore:end */
-    }
-
     /* jshint ignore:start */
     return (
-      <ChartDaily
+      <Chart
         patientData={this.props.patientData}
+        emitter={this.emitter}
+        chartType={this.state.chartType}
         datetimeLocation={this.state.datetimeLocation}
         onDatetimeLocationChange={this.handleDatetimeLocationChange}
+        onSelectDataPoint={this.handleWeeklySelectDataPoint}
         imagesEndpoint={config.IMAGES_ENDPOINT + '/tideline'}
         ref="chart" />
-    );
+      );
     /* jshint ignore:end */
   },
 
@@ -293,21 +274,15 @@ var PatientData = React.createClass({
     });
   },
 
-  handleGoToMostRecentDaily: function(e) {
+  handleGoToMostRecent: function(e) {
     if (e) {
       e.preventDefault();
     }
 
-    if (this.state.chartType === 'daily') {
-      this.setState({datetimeLocation: null});
-      this.refs.chart.locateToMostRecent();
-      return;
-    }
-
     this.setState({
-      chartType: 'daily',
       datetimeLocation: null
     });
+    this.refs.chart.locateToMostRecent();
   },
 
   handleRefresh: function(e) {

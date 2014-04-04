@@ -19,20 +19,21 @@ var _ = window._;
 var bows = window.bows;
 
 var tidelineBlip = window.tideline.blip;
+var chartDailyFactory = tidelineBlip.oneday;
 var chartWeeklyFactory = tidelineBlip.twoweek;
 
-var EventEmitter = require('events').EventEmitter;
-
-var ChartWeekly = React.createClass({
+var Chart = React.createClass({
   propTypes: {
     patientData: React.PropTypes.array,
+    emitter: React.PropTypes.object,
+    chartType: React.PropTypes.string,
     datetimeLocation: React.PropTypes.string,
     onDatetimeLocationChange: React.PropTypes.func,
     onSelectDataPoint: React.PropTypes.func,
     imagesEndpoint: React.PropTypes.string
   },
 
-  log: bows('Chart Weekly'),
+  log: bows('Chart'),
 
   chart: null,
 
@@ -48,25 +49,50 @@ var ChartWeekly = React.createClass({
     this.unmountChart();
   },
 
+  componentDidUpdate: function() {
+    if (this.chart.type !== this.props.chartType) {
+      this.unmountChart();
+
+      var data = this.props.patientData;
+      var datetimeLocation = this.props.datetimeLocation;
+
+      this.mountChart();
+      this.initializeChart(data, datetimeLocation);
+    }
+  },
+
   render: function() {
     /* jshint ignore:start */
     return (
-      <div id="tidelineContainer" className="chart-weekly" ref="chart"></div>
+      <div id="tidelineContainer" className="patient-data-chart" ref="chart"></div>
     );
     /* jshint ignore:end */
   },
 
   mountChart: function() {
-    this.log('Mounting chart');
-
     if (!this.chart) {
-      this.log('Creating new chart.');
+      this.log('Creating new charts; mounting daily chart.');
       var el = this.refs.chart.getDOMNode();
       var imagesBaseUrl = this.props.imagesEndpoint;
 
-      var chart = chartWeeklyFactory(el, new EventEmitter(), {imagesBaseUrl: imagesBaseUrl});
-      this.chart = chart;
+      var dailyChart = chartDailyFactory(this.refs.chart.getDOMNode(), this.props.emitter, {imagesBaseUrl: imagesBaseUrl}).setupPools();
+      this.chart = dailyChart;
+      this.dailyChart = dailyChart;
+      var weeklyChart = chartWeeklyFactory(this.refs.chart.getDOMNode(), this.props.emitter, {imagesBaseUrl: imagesBaseUrl});
+      this.weeklyChart = weeklyChart;
       this.bindEvents();
+    }
+    else {
+      if (this.props.chartType === 'daily') {
+        this.log('Mounting daily chart.');
+        this.chart = this.dailyChart;
+        this.bindEvents();
+      }
+      else if (this.props.chartType === 'weekly') {
+        this.log('Mounting weekly chart.');
+        this.chart = this.weeklyChart;
+        this.bindEvents();
+      }
     }
   },
 
@@ -78,6 +104,15 @@ var ChartWeekly = React.createClass({
     }
 
     chart.show().load(data, datetimeLocation);
+
+    if (this.chart.type === 'daily') {
+      if (datetimeLocation) {
+        chart.locate(datetimeLocation);
+      }
+      else {
+        chart.locate();
+      }
+    }
   },
 
   unmountChart: function() {
@@ -97,8 +132,46 @@ var ChartWeekly = React.createClass({
     }
   },
 
+  show: function() {
+    return this.chart.show();
+  },
+
+  locate: function(datetime) {
+    if (!datetime) {
+      return this.chart.locate();
+    }
+
+    return this.chart.locate(datetime);
+  },
+
+  locateToMostRecent: function() {
+    this.log('Navigated to most recent data.');
+    var data = this.props.patientData;
+
+    switch (this.chart.type) {
+      case 'daily':
+        this.chart.clear().locate();
+        break;
+      case 'weekly':
+        this.chart.mostRecent();
+        break;
+    }
+  },
+
+  panForward: function() {
+    return this.chart.panForward();
+  },
+
+  panBack: function() {
+    return this.chart.panBack();
+  },
+
+  getCurrentDay: function() {
+    return this.chart.getCurrentDay();
+  },
+
   showValues: function() {
-    this.chart.emitter.emit('numbers', 'show');
+    return this.chart.emitter.emit('numbers', 'show');
   },
 
   hideValues: function() {
@@ -106,4 +179,4 @@ var ChartWeekly = React.createClass({
   }
 });
 
-module.exports = ChartWeekly;
+module.exports = Chart;

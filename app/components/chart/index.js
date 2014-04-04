@@ -13,7 +13,4 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-.chart-daily {
-  width: 100%;
-  height: 590px;
-}
+module.exports = require('./chart');
