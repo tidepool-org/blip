@@ -194,6 +194,20 @@ module.exports = function(emitter) {
       });
   };
 
+  container.mostRecent = function() {
+    if (sortReverse) {
+      nav.currentTranslation = yScale(dataEndNoon) + height - nav.axisHeight - statsHeight;
+  
+    }
+    else {
+      nav.currentTranslation = yScale(dataStartNoon) - height - nav.axisHeight - statsHeight;
+    }
+    nav.scroll.translate([0, nav.currentTranslation]);
+    nav.scroll.event(mainGroup);
+
+    return container;
+  };
+
   container.clear = function() {
     emitter.removeAllListeners('numbers');
     container.currentTranslation(0).latestTranslation(0);
@@ -232,6 +246,7 @@ module.exports = function(emitter) {
       a[0].setUTCDate(a[0].getUTCDate() + 1);
     }
     if (!d3.select('#' + id).classed('hidden')) {
+      emitter.emit('navigated', [a[0].toISOString(), a[1].toISOString()]);
       // domain should go from midnight to midnight, not noon to noon
       a[0].setUTCHours(a[0].getUTCHours() - 12);
       var topDate = a[0].toISOString().slice(0,10);
@@ -245,7 +260,6 @@ module.exports = function(emitter) {
           'startIndex': data[0].index
         });
       }
-      emitter.emit('navigated', [a[0].toISOString(), a[1].toISOString()]);
     }
   };
 
@@ -699,7 +713,7 @@ module.exports = function(emitter) {
     dataEndNoon = new Date(dataEndNoon.toISOString().slice(0,11) + noon);
 
     if (!viewEndDate) {
-      viewEndDate = new Date(days[0]);
+      viewEndDate = new Date(days[days.length - 1]);
     } else {
       viewEndDate = new Date(viewEndDate);
     }
