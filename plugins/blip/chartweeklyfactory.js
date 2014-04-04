@@ -151,6 +151,8 @@ function chartWeeklyFactory(el, emitter, options) {
     return chart;
   };
 
+  chart.type = 'weekly';
+
   return create(el, options);
 }
 
