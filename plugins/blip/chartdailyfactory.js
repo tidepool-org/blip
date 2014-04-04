@@ -216,7 +216,7 @@ function chartDailyFactory(el, emitter, options) {
   // if called without an argument, locates the chart at the most recent 24 hours of data
   chart.locate = function(datetime) {
 
-    var start, end, localData;
+    var start, end, localData, scrollHandleTrigger = false;
 
     var mostRecent = function() {
       start = chart.initialEndpoints[0];
@@ -225,6 +225,7 @@ function chartDailyFactory(el, emitter, options) {
     };
 
     if (!arguments.length) {
+      scrollHandleTrigger = true;
       mostRecent();
     }
     else {
@@ -261,7 +262,7 @@ function chartDailyFactory(el, emitter, options) {
     chart.beginningOfData(start).endOfData(end);
     chart.allData(localData, [start, end]);
 
-    chart.setAtDate(start).navString([start, end]);
+    chart.setAtDate(start, scrollHandleTrigger).navString([start, end]);
 
     // render pools
     chart.pools().forEach(function(pool) {
@@ -274,6 +275,8 @@ function chartDailyFactory(el, emitter, options) {
   chart.getCurrentDay = function() {
     return chart.getCurrentDomain().center;
   };
+
+  chart.type = 'daily';
 
   return create(el, options);
 }

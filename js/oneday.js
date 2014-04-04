@@ -355,6 +355,11 @@ module.exports = function(emitter) {
       })
       .on('zoomend', function() {
         container.currentTranslation(nav.latestTranslation);
+        if (!scrollHandleTrigger) {
+          mainGroup.select('#scrollThumb').attr('x', function(d) {
+            return nav.scrollScale(xScale.domain()[0]) - nav.scrollThumbRadius;
+          });
+        }
         scrollHandleTrigger = true;
       });
 
@@ -428,7 +433,8 @@ module.exports = function(emitter) {
     return container;
   };
 
-  container.setAtDate = function (date) {
+  container.setAtDate = function (date, trigger) {
+    scrollHandleTrigger = trigger;
     nav.currentTranslation = -xScale(date) + axisGutter;
     nav.pan.translate([nav.currentTranslation, 0]);
     nav.pan.event(mainGroup);
