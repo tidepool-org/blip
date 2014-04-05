@@ -34,8 +34,9 @@ module.exports = function(emitter) {
     imagesBaseUrl = 'img',
     nav = {
       axisHeight: 30,
-      navGutter: 20,
-      scrollThumbRadius: 8,
+      navGutter: 30,
+      scrollThumbRadius: 24,
+      scrollGutterWidth: 20,
       currentTranslation: 0
     },
     axisGutter = 52, dataGutter, dayTickSize = 0,
@@ -478,7 +479,7 @@ module.exports = function(emitter) {
         }
         container.navString(yScale.domain());
         if (scrollHandleTrigger) {
-          mainGroup.select('#scrollThumb').transition().ease('linear').attr('y', function(d) {
+          mainGroup.select('.scrollThumb').transition().ease('linear').attr('y', function(d) {
             if (sortReverse) {
               d.y = nav.scrollScale(yScale.domain()[1]);
             }
@@ -516,7 +517,7 @@ module.exports = function(emitter) {
           'id': 'scrollNavInvisibleRect'
         });
 
-        xPos = nav.navGutter / 2;
+        xPos = 2 * nav.navGutter / 3;
 
 
         var start = new Date(dataStartNoon);
@@ -527,8 +528,10 @@ module.exports = function(emitter) {
           .attr({
             'x1': xPos,
             'x2': xPos,
-            'y1': nav.scrollScale(dataEndNoon) - nav.scrollThumbRadius,
-            'y2': nav.scrollScale(start) + nav.scrollThumbRadius
+            'y1': nav.axisHeight + nav.scrollGutterWidth/2,
+            'y2': height - statsHeight - nav.scrollGutterWidth/2,
+            'stroke-width': nav.scrollGutterWidth,
+            'class': 'scroll'
           });
       }
       else {
@@ -552,8 +555,10 @@ module.exports = function(emitter) {
           .attr({
             'x1': xPos,
             'x2': xPos,
-            'y1': nav.scrollScale(dataStartNoon) - nav.scrollThumbRadius,
-            'y2': nav.scrollScale(dataEndNoon) + nav.scrollThumbRadius
+            'y1': nav.axisHeight + nav.scrollGutterWidth/2,
+            'y2': height - statsHeight - nav.scrollGutterWidth/2,
+            'stroke-width': nav.scrollGutterWidth,
+            'class': 'scroll'
           });
       }
 
@@ -583,19 +588,19 @@ module.exports = function(emitter) {
           nav.scroll.event(mainGroup);
         });
 
-      scrollNav.selectAll('image')
+      scrollNav.selectAll('rect.scrollThumb')
         .data([{'x': 0, 'y': yStart}])
         .enter()
-        .append('image')
+        .append('rect')
         .attr({
-          'xlink:href': imagesBaseUrl + '/ux/scroll_thumb.svg',
-          'x': xPos - nav.scrollThumbRadius,
+          'x': xPos - nav.scrollThumbRadius/3,
           'y': function(d) {
             return d.y - nav.scrollThumbRadius;
           },
-          'width': 2 * nav.scrollThumbRadius,
+          'width': 2 * nav.scrollThumbRadius/3,
           'height': 2 * nav.scrollThumbRadius,
-          'id': 'scrollThumb'
+          'rx': nav.scrollThumbRadius/3,
+          'class': 'scrollThumb'
         })
         .call(drag);
     }

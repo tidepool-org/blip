@@ -36,8 +36,9 @@ module.exports = function(emitter) {
     nav = {
       axisHeight: 30,
       scrollNav: true,
-      scrollNavHeight: 40,
-      scrollThumbRadius: 8,
+      scrollNavHeight: 50,
+      scrollGutterHeight: 20,
+      scrollThumbRadius: 24,
       currentTranslation: 0
     },
     axisGutter = 40, gutter = 40,
@@ -346,7 +347,7 @@ module.exports = function(emitter) {
         mainGroup.select('.d3-x.d3-axis').call(xAxis);
         mainGroup.selectAll('#tidelineXAxis g.tick text').style('text-anchor', 'start').attr('transform', 'translate(5,15)');
         if (scrollHandleTrigger) {
-          mainGroup.select('#scrollThumb').transition().ease('linear').attr('x', function(d) {
+          mainGroup.select('.scrollThumb').transition().ease('linear').attr('x', function(d) {
             d.x = nav.scrollScale(xScale.domain()[0]);
             return d.x - nav.scrollThumbRadius;
           });
@@ -356,7 +357,7 @@ module.exports = function(emitter) {
       .on('zoomend', function() {
         container.currentTranslation(nav.latestTranslation);
         if (!scrollHandleTrigger) {
-          mainGroup.select('#scrollThumb').attr('x', function(d) {
+          mainGroup.select('.scrollThumb').attr('x', function(d) {
             return nav.scrollScale(xScale.domain()[0]) - nav.scrollThumbRadius;
           });
         }
@@ -371,11 +372,13 @@ module.exports = function(emitter) {
   container.setScrollNav = function() {
     var translationAdjustment = axisGutter;
     scrollNav.selectAll('line').remove();
-    scrollNav.attr('transform', 'translate(0,'  + (height - (nav.scrollNavHeight / 2)) + ')')
-      .insert('line', '#scrollThumb')
+    scrollNav.attr('transform', 'translate(0,'  + (height - (nav.scrollNavHeight * 2/5)) + ')')
+      .insert('line', '.scrollThumb')
       .attr({
-        'x1': nav.scrollScale(endpoints[0]) - nav.scrollThumbRadius,
-        'x2': nav.scrollScale(container.initialEndpoints[0]) + nav.scrollThumbRadius,
+        'stroke-width': nav.scrollGutterHeight,
+        // add and subtract 1/2 of scrollGutterHeight because radius of linecap is 1/2 of stroke-width
+        'x1': axisGutter + nav.scrollGutterHeight/2,
+        'x2': width - nav.scrollGutterHeight/2,
         'y1': 0,
         'y2': 0
       });
@@ -406,17 +409,19 @@ module.exports = function(emitter) {
         nav.pan.event(mainGroup);
       });
 
-    scrollNav.selectAll('image')
+    scrollNav.selectAll('rect')
       .data([{'x': nav.scrollScale(container.currentEndpoints[0]), 'y': 0}])
       .enter()
-      .append('image')
+      .append('rect')
       .attr({
-        'xlink:href': imagesBaseUrl + '/ux/scroll_thumb.svg',
-        'x': function(d) { return d.x - nav.scrollThumbRadius; },
-        'y': -nav.scrollThumbRadius,
+        'x': function(d) {
+          return d.x - nav.scrollThumbRadius;
+        },
+        'y': -nav.scrollThumbRadius/3,
         'width': nav.scrollThumbRadius * 2,
-        'height': nav.scrollThumbRadius * 2,
-        'id': 'scrollThumb'
+        'height': nav.scrollThumbRadius/3 * 2,
+        'rx': nav.scrollThumbRadius/3,
+        'class': 'scrollThumb'
       })
       .call(drag);
 
