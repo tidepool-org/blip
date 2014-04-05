@@ -22,9 +22,6 @@
 @font-size-base:         16px;
 @line-height-base:       20px;
 
-// e.g., navbar
-@labels: #989897;
-
 @import url(http://fonts.googleapis.com/css?family=Open+Sans);
 
 @import '../css/tideline.less';
@@ -54,6 +51,24 @@
   src: local('Open Sans Bold Italic'), local('OpenSans-BoldItalic'), url('../fonts/opensans-bolditalic.woff') format('woff');
 }
 
+.vSpace {
+  width: 100vw;
+  height: 10px;
+}
+
+@media (max-width: 1024px) {
+  #tidelineMain {
+    width: 100%;
+    margin: 0 0;
+    padding: 0 10px;
+  }
+  .vSpace {
+    height: 44px;
+  }
+}
+
+@navHeight: 40px;
+
 #tidelineMain {
   background-color: white;
   font-family: @font-family-base;
@@ -66,9 +81,23 @@
     visibility: hidden;
   }
 
-  .tidelineNav {
-    background-color: @labels;
+  .row {
+    margin: 0 auto;
     width: 980px;
+  }
+
+  a {
+    color: white;
+    text-decoration: none;
+    line-height: @navHeight;
+    display: inline-block;
+    min-width: 100px;
+  }
+
+  .tidelineNav {
+    background-color: @light-labels;
+    width: 980px;
+    height: @navHeight;
 
     .tidelineNavLabelWrapper {
       min-width: 220px;
@@ -84,23 +113,15 @@
       &.active {
         font-weight: bold;
       }
-      a {
-        color: white;
-        text-decoration: none;
-      }
     }
 
     .tidelineNavRightLabel {
       text-align: right !important;
     }
 
-    .tidelineSpacer {
-      display: inline-block;
-      width: 8px;
-    }
-
     #tidelineLabel {
       text-align: center;
+      line-height: @navHeight;
 
       img {
         display: inline-block;
