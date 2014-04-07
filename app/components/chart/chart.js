@@ -25,7 +25,6 @@ var chartWeeklyFactory = tidelineBlip.twoweek;
 var Chart = React.createClass({
   propTypes: {
     patientData: React.PropTypes.array,
-    emitter: React.PropTypes.object,
     chartType: React.PropTypes.string,
     datetimeLocation: React.PropTypes.string,
     onDatetimeLocationChange: React.PropTypes.func,
@@ -75,10 +74,10 @@ var Chart = React.createClass({
       var el = this.refs.chart.getDOMNode();
       var imagesBaseUrl = this.props.imagesEndpoint;
 
-      var dailyChart = chartDailyFactory(this.refs.chart.getDOMNode(), this.props.emitter, {imagesBaseUrl: imagesBaseUrl}).setupPools();
+      var dailyChart = chartDailyFactory(this.refs.chart.getDOMNode(), {imagesBaseUrl: imagesBaseUrl}).setupPools();
       this.chart = dailyChart;
       this.dailyChart = dailyChart;
-      var weeklyChart = chartWeeklyFactory(this.refs.chart.getDOMNode(), this.props.emitter, {imagesBaseUrl: imagesBaseUrl});
+      var weeklyChart = chartWeeklyFactory(this.refs.chart.getDOMNode(), {imagesBaseUrl: imagesBaseUrl});
       this.weeklyChart = weeklyChart;
       this.bindEvents();
     }
@@ -155,6 +154,8 @@ var Chart = React.createClass({
       case 'weekly':
         this.chart.mostRecent();
         break;
+      default:
+        throw new Error('Unknown chart type: ' + this.chart.type);
     }
   },
 

@@ -19,8 +19,6 @@ var _ = window._;
 var moment = window.moment;
 var config = window.config;
 
-var EventEmitter = require('events').EventEmitter;
-
 var Chart = require('../../components/chart');
 
 var PatientData = React.createClass({
@@ -35,7 +33,6 @@ var PatientData = React.createClass({
   DEFAULT_TITLE: 'Your data',
   CHARTDAILY_TITLE_DATE_FORMAT: 'dddd, MMMM Do',
   CHARTWEEKLY_TITLE_DATE_FORMAT: 'MMMM Do',
-  emitter: new EventEmitter(),
 
   getInitialState: function() {
     return {
@@ -194,7 +191,6 @@ var PatientData = React.createClass({
     return (
       <Chart
         patientData={this.props.patientData}
-        emitter={this.emitter}
         chartType={this.state.chartType}
         datetimeLocation={this.state.datetimeLocation}
         onDatetimeLocationChange={this.handleDatetimeLocationChange}
@@ -320,7 +316,7 @@ var PatientData = React.createClass({
 
     if (d && d.length >= 1 && this.state.chartType === 'daily') {
       title = this.getTitleDaily(d);
-      datetimeLocation = d[0];
+      datetimeLocation = d[1];
     }
     else if (d && d.length >= 2 && this.state.chartType === 'weekly') {
       title = this.getTitleWeekly(d);
@@ -338,7 +334,7 @@ var PatientData = React.createClass({
 
   getTitleDaily: function(datetimeLocationEndpoints) {
     var d = datetimeLocationEndpoints;
-    return moment.utc(d[0]).format(this.CHARTDAILY_TITLE_DATE_FORMAT);
+    return moment.utc(d[1]).format(this.CHARTDAILY_TITLE_DATE_FORMAT);
   },
 
   getTitleWeekly: function(datetimeLocationEndpoints) {
