@@ -17,14 +17,17 @@ var _ = window._;
 var bows = window.bows;
 var d3 = window.d3;
 
+var EventEmitter = require('events').EventEmitter;
+
 var tideline = window.tideline;
 var fill = tideline.plot.util.fill;
 
 // Create a 'Two Weeks' chart object that is a wrapper around Tideline components
-function chartWeeklyFactory(el, emitter, options) {
+function chartWeeklyFactory(el, options) {
   var log = bows('Weekly Factory');
   options = options || {};
 
+  var emitter = new EventEmitter();
   var chart = tideline.twoWeek(emitter);
   chart.emitter = emitter;
 

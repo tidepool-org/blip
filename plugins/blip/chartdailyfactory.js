@@ -17,15 +17,18 @@ var _ = window._;
 var bows = window.bows;
 var d3 = window.d3;
 
+var EventEmitter = require('events').EventEmitter;
+
 var tideline = window.tideline;
 var fill = tideline.plot.util.fill;
 var scales = tideline.plot.util.scales;
 
 // Create a 'One Day' chart object that is a wrapper around Tideline components
-function chartDailyFactory(el, emitter, options) {
+function chartDailyFactory(el, options) {
   var log = bows('Daily Factory');
   options = options || {};
 
+  var emitter = new EventEmitter();
   var chart = tideline.oneDay(emitter);
   chart.emitter = emitter;
 
