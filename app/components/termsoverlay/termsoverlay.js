@@ -33,7 +33,7 @@ var TermsOverlay = React.createClass({
 
     return (
       /* jshint ignore:start */
-      <div className="terms-overlay">
+      <div className="terms-overlay js-terms">
         <div className="terms-overlay-content terms-overlay-box">
           <div className="terms-overlay-title">TERMS OF USE</div>
           <div className="terms-overlay-text">
@@ -58,7 +58,7 @@ var TermsOverlay = React.createClass({
     /* jshint ignore:start */
     return (
       <button
-        className="btn btn-primary"
+        className="btn btn-primary js-terms-submit"
         onClick={this.handleSubmit}
         disabled={disabled}>Continue</button>
     );
@@ -73,6 +73,7 @@ var TermsOverlay = React.createClass({
           <input
             id="agreed"
             type="checkbox"
+            className="js-terms-checkbox"
             checked={this.state.agreed}
             onChange={this.handleChange} />
           <span> I have read and agree to the Terms of Use</span>
