@@ -211,6 +211,7 @@ module.exports = function(emitter) {
   };
 
   container.navString = function(a) {
+    var currentDomain = container.getCurrentDomain();
     var beginning = a[0];
     var end = a[1];
     var navString;
@@ -224,7 +225,7 @@ module.exports = function(emitter) {
       emitter.emit('currentDomain', {
         'domain': a
       });
-      emitter.emit('navigated', [navString]);
+      emitter.emit('navigated', [navString, currentDomain.center.toISOString()]);
       if (a[1].valueOf() === endpoints[1].valueOf()) {
         emitter.emit('mostRecent', true);
       }
