@@ -208,12 +208,16 @@ var PatientData = React.createClass({
       console.log('render the thread')
       return (
         <NoteThread
-          messages={this.state.thread} />
+          messages={this.state.thread}
+          onClose={this.closeThread} />
       );
     }
     /* jshint ignore:end */
   },
 
+  closeThread: function(){
+    this.setState({ thread: null });
+  },
   renderChart: function() {
     if (this.state.chartType === 'weekly') {
       /* jshint ignore:start */
@@ -386,11 +390,9 @@ var PatientData = React.createClass({
     var fetchMessageThread = this.props.onFetchMessageThread;
     if (fetchMessageThread) {
       fetchMessageThread(messageThread,function(thread){
-        console.log('got thread ',thread);
 
         self.setState({ thread: thread });
 
-        //self.renderThread(thread);
       });
     }
   },

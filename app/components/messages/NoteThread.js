@@ -22,13 +22,26 @@ not, you can obtain one from Tidepool Project at tidepool.org.
 
 var React = window.React;
 
+var SimpleForm = require('../simpleform');
+
 var Note = require('./note');
 
 var NoteThread = React.createClass({
 
   propTypes: {
-    messages: React.PropTypes.array
+    messages: React.PropTypes.array,
+    onClose: React.PropTypes.func
   },
+
+  getInitialState: function() {
+    return {
+      formValues: {}
+    };
+  },
+
+  formInputs: [
+    {name: 'comment', label: 'Comment', type: 'text'}
+  ],
 
   renderNote: function(message){
     return (
@@ -54,6 +67,18 @@ var NoteThread = React.createClass({
       /* jshint ignore:end */
       );
   },
+  renderCommentForm: function() {
+
+    /* jshint ignore:start */
+    return (
+      <SimpleForm
+        inputs={this.formInputs}
+        formValues={this.state.formValues}
+        submitButtonText='Comment'
+        onSubmit={this.handleAddComment}/>
+    );
+    /* jshint ignore:end */
+  },
   render: function() {
     var items = this.props.messages.map(function(message, i) {
       if(!message.parentmessage) {
@@ -63,15 +88,29 @@ var NoteThread = React.createClass({
       }
     }.bind(this));
 
+    var commentForm = this.renderCommentForm();
+
     return (
      /* jshint ignore:start */
      <div ref='messageThread' className='notethread'>
+     <a className='notethread-close' onClick={this.handleClose}>Close</a>
       <div className='notethread-inner'>
         {items}
+        {commentForm}
       </div>
      </div>
      /* jshint ignore:end */
      );
+  },
+  handleAddComment : function (formValues){
+    console.log('comment: ',formValues);
+  },
+  handleClose: function(e) {
+    e.preventDefault();
+    var close = this.props.onClose;
+    if (close) {
+      close();
+    }
   }
 });
 
