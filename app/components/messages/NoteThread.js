@@ -22,7 +22,7 @@ not, you can obtain one from Tidepool Project at tidepool.org.
 
 var React = window.React;
 
-var Note = require('./Note');
+var Note = require('./note');
 
 var NoteThread = React.createClass({
 
@@ -35,7 +35,6 @@ var NoteThread = React.createClass({
       /* jshint ignore:start */
       <Note
       ref='rootNote'
-      image='note-image-large'
       key={message.id}
       author={message.username}
       note={message.messagetext}
@@ -48,7 +47,6 @@ var NoteThread = React.createClass({
       /* jshint ignore:start */
       <Note
       ref='commentNote'
-      image='note-image'
       key={message.id}
       author={message.username}
       note={message.messagetext}
@@ -68,7 +66,9 @@ var NoteThread = React.createClass({
     return (
      /* jshint ignore:start */
      <div ref='messageThread' className='notethread'>
-     {items}
+      <div className='notethread-inner'>
+        {items}
+      </div>
      </div>
      /* jshint ignore:end */
      );

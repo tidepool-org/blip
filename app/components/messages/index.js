@@ -1,1 +1,1 @@
-module.exports = require('./NoteThread');
+module.exports = require('./notethread');
