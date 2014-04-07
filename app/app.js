@@ -521,7 +521,7 @@ var AppComponent = React.createClass({
       authenticated: true,
       user: user,
       fetchingUser: false,
-      showingAcceptTerms: true
+      showingAcceptTerms: config.SHOW_ACCEPT_TERMS ? true : false
     });
     this.redirectToDefaultRoute();
   },
