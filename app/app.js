@@ -466,8 +466,9 @@ var AppComponent = React.createClass({
       patientData: null,
       fetchingPatientData: true
     });
-    this.fetchPatient(patientId);
-    this.fetchPatientData(patientId);
+
+    this.fetchPatientAndData(patientId);
+    //this.fetchPatientData(this.state.patient.id,this.state.patient.team.id);
   },
 
   renderPatientData: function() {
@@ -591,7 +592,30 @@ var AppComponent = React.createClass({
     });
   },
 
-  fetchPatientData: function(patientId) {
+  fetchPatientAndData : function(patientId){
+    var self = this;
+
+    self.setState({fetchingPatient: true});
+
+    app.api.patient.get(patientId, function(err, patient) {
+      if (err) {
+        // Unauthorized, or not found
+        app.log('Error fetching patient with id ' + patientId);
+        self.setState({fetchingPatient: false});
+        return;
+      }
+
+      self.setState({
+        patient: patient,
+        fetchingPatient: false
+      });
+
+      self.fetchPatientData(patient.id,patient.team.id);
+
+    });
+  },
+
+  fetchPatientData: function(patientId,teamId) {
     var self = this;
 
     self.setState({fetchingPatientData: true});
@@ -603,14 +627,37 @@ var AppComponent = React.createClass({
         return;
       }
 
-      patientData = self.processPatientData(patientData);
+      teamNotes = self.fetchTeamNotes(teamId,function(teamNotes){
 
-      self.logPatientDataInfo(patientData);
+        if(teamNotes){
+          console.log('notes: ',teamNotes.length);
+          patientData = _.union(patientData,teamNotes);
+        }
 
-      self.setState({
-        patientData: patientData,
-        fetchingPatientData: false
+        patientData = self.processPatientData(patientData);
+
+        self.logPatientDataInfo(patientData);
+
+        self.setState({
+          patientData: patientData,
+          fetchingPatientData: false
+        });
       });
+
+    });
+  },
+
+  fetchTeamNotes: function(teamId,callback) {
+    app.log('fetching notes for ' + teamId);
+
+    var self = this;
+
+    app.api.team.getNotes(teamId,function(error,notes){
+      if (error) {
+        app.log('Error fetching data for notes for team id ' + teamId);
+        return callback(null);
+      }
+      return callback(notes);
     });
   },
 
@@ -620,7 +667,7 @@ var AppComponent = React.createClass({
     var self = this;
     self.setState({fetchingMessageData: true});
 
-    api.team.getMessageThread(messageId,function(error,thread){
+    app.api.team.getMessageThread(messageId,function(error,thread){
       self.setState({fetchingMessageData: false});
       if (error) {
         app.log('Error fetching data for message thread with id ' + messageId);
@@ -647,7 +694,7 @@ var AppComponent = React.createClass({
       return;
     }
 
-    this.fetchPatientData(patient.id);
+    this.fetchPatientData(patient.id, patient.team.id);
   },
 
   clearUserData: function() {

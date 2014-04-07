@@ -247,6 +247,8 @@ api.patient.get = function(patientId, cb) {
         return cb(null, patient);
       }
 
+      patient.team.id = group.id;
+
       async.map(peopleIds, getUserProfile, function(err, people) {
         // Filter any people ids that returned nothing
         people = _.filter(people);
@@ -330,13 +332,36 @@ api.patient.getAll = function(cb) {
 
 //Get all messages for the given thread
 api.team.getMessageThread = function(messageId,cb){
-  api.log('GET /thread');
+  api.log('GET /message/thread');
 
   var token = tidepoolPlatformApi.getToken();
   tidepool.getMessageThread(messageId,token,function(error,messages){
     if(error){
       return cb(error);
     }
+    return cb(null,messages);
+  });
+};
+
+//Get all notes (parent messages) for the given team
+api.team.getNotes = function(teamId,cb){
+  api.log('GET /message/notes');
+  var token = tidepoolPlatformApi.getToken();
+
+  tidepool.getNotesForTeam(teamId,token,function(error,messages){
+    if(error){
+      return cb(error);
+    }
+    //transform so that they are how Tideline renders them
+    var messages = _.map(messages, function(message) {
+      return {
+        utcTime : message.timestamp,
+        messageText : message.messagetext,
+        parentMessage : message.parentmessage,
+        type: 'message',
+        _id: message.id
+      };
+    });
     return cb(null,messages);
   });
 };

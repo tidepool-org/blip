@@ -257,12 +257,32 @@ var createPatch = function(options) {
 
     // ----- Team Data -----
     api.team.getMessageThread = function(messageId,callback){
-      api.log('[mock] GET /thread/' + messageId);
+      api.log('[mock] GET /message/thread/' + messageId);
 
-      var thread = data.messagedata[101];
+      var thread = data.messagethread[101];
       setTimeout(function() {
         callback(null, thread);
-      }, getDelayFor('api.team.messageThread.get'));
+      }, getDelayFor('api.team.getMessageThread'));
+    };
+
+    api.team.getNotes = function(groupId,callback){
+      api.log('[mock] GET /message/notes/' + groupId);
+
+      var messages = data.messagenotes[99];
+
+      var messages = _.map(messages, function(message) {
+        return {
+          utcTime : message.timestamp,
+          messageText : message.messagetext,
+          parentMessage : message.parentmessage,
+          type: 'message',
+          _id: message.id
+        };
+      });
+
+      setTimeout(function() {
+        callback(null, messages);
+      }, getDelayFor('api.team.getNotes'));
     };
 
     // ----- Upload -----
