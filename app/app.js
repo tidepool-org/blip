@@ -17,6 +17,7 @@
 var React = window.React;
 var bows = window.bows;
 var _ = window._;
+var async = window.async;
 var config = window.config;
 
 // These requires will be deprecated when Tidepool Platform Client and Tideline
@@ -326,7 +327,9 @@ var AppComponent = React.createClass({
       // (important to have this on next render)
       fetchingPatient: true
     });
-    this.fetchPatient(patientId);
+    this.fetchPatient(patientId,function(err,patient){
+      return;
+    });
   },
 
   renderPatient: function() {
@@ -467,11 +470,11 @@ var AppComponent = React.createClass({
       fetchingPatientData: true
     });
 
-    /*
-      TODO: how should we best handle this?
-    */
-    this.fetchPatientAndData(patientId);
-    //this.fetchPatientData(this.state.patient.id,this.state.patient.team.id);
+    var self = this;
+    this.fetchPatient(patientId, function(err, patient) {
+      self.fetchPatientData(patient);
+    });
+
   },
 
   renderPatientData: function() {
@@ -577,30 +580,7 @@ var AppComponent = React.createClass({
     });
   },
 
-  fetchPatient: function(patientId) {
-    var self = this;
-
-    self.setState({fetchingPatient: true});
-
-    app.api.patient.get(patientId, function(err, patient) {
-      if (err) {
-        // Unauthorized, or not found
-        app.log('Error fetching patient with id ' + patientId);
-        self.setState({fetchingPatient: false});
-        return;
-      }
-
-      self.setState({
-        patient: patient,
-        fetchingPatient: false
-      });
-    });
-  },
-
-  /*
-    TODO: how should we best handle this?
-  */
-  fetchPatientAndData : function(patientId){
+  fetchPatient: function(patientId, callback) {
     var self = this;
 
     self.setState({fetchingPatient: true});
@@ -618,58 +598,56 @@ var AppComponent = React.createClass({
         fetchingPatient: false
       });
 
-      self.fetchPatientData(patient.id,patient.team.id);
-
+      //so that if the cb is defined we can use the
+      //patient to load other information
+      if(callback){
+        return callback(null,patient);
+      }
     });
   },
 
-  fetchPatientData: function(patientId,teamId) {
+  fetchPatientData: function(patient) {
     var self = this;
+
+    var patientId = patient.id;
+    var teamId = patient.team && patient.team.id;
 
     self.setState({fetchingPatientData: true});
 
-    app.api.patientData.get(patientId, function(err, patientData) {
+    var loadPatientData = function(cb) {
+      app.api.patientData.get(patientId,cb);
+    };
+
+    var loadTeamNotes = function(cb) {
+      app.api.team.getNotes(teamId,cb);
+    };
+
+    async.parallel({
+      patientData: loadPatientData,
+      teamNotes: loadTeamNotes
+    },
+    function(err, results) {
       if (err) {
         app.log('Error fetching data for patient with id ' + patientId, err);
         self.setState({fetchingPatientData: false});
         return;
       }
 
-      /*
-        TODO: how should we best handle this?
-      */
+      var notes = results.teamNotes;
+      var patientData = results.patientData;
 
-      teamNotes = self.fetchTeamNotes(teamId,function(teamNotes){
-
-        if(teamNotes){
-          app.log('found notes: ',teamNotes.length);
-          patientData = _.union(patientData,teamNotes);
-        }
-
-        patientData = self.processPatientData(patientData);
-
-        self.logPatientDataInfo(patientData);
-
-        self.setState({
-          patientData: patientData,
-          fetchingPatientData: false
-        });
-      });
-
-    });
-  },
-
-  fetchTeamNotes: function(teamId,callback) {
-    app.log('fetching notes for ' + teamId);
-
-    var self = this;
-
-    app.api.team.getNotes(teamId,function(error,notes){
-      if (error) {
-        app.log('Error fetching data for notes for team id ' + teamId);
-        return callback(null);
+      if(notes){
+        app.log('found notes: ',notes.length);
+        patientData = _.union(patientData,notes);
       }
-      return callback(notes);
+
+      patientData = self.processPatientData(patientData);
+      self.logPatientDataInfo(patientData);
+
+      self.setState({
+        patientData: patientData,
+        fetchingPatientData: false
+      });
     });
   },
 
@@ -707,7 +685,7 @@ var AppComponent = React.createClass({
       return;
     }
 
-    this.fetchPatientData(patient.id, patient.team.id);
+    this.fetchPatientData(patient);
   },
 
   clearUserData: function() {

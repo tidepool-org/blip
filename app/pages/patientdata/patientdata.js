@@ -393,7 +393,7 @@ var PatientData = React.createClass({
     var fetchMessageThread = this.props.onFetchMessageThread;
     if (fetchMessageThread) {
       fetchMessageThread(messageThread,function(thread){
-        self.setState({ thread: thread });
+        self.setState({ messages: thread });
       });
     }
   },
