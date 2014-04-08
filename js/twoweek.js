@@ -34,8 +34,9 @@ module.exports = function(emitter) {
     imagesBaseUrl = 'img',
     nav = {
       axisHeight: 30,
-      navGutter: 20,
-      scrollThumbRadius: 8,
+      navGutter: 30,
+      scrollThumbRadius: 24,
+      scrollGutterWidth: 20,
       currentTranslation: 0
     },
     axisGutter = 52, dataGutter, dayTickSize = 0,
@@ -75,48 +76,82 @@ module.exports = function(emitter) {
   // non-chainable methods
   container.panForward = function() {
     log('Jumped forward two weeks.');
+    var n = 0;
     if (sortReverse) {
       nav.currentTranslation += height - nav.axisHeight - statsHeight;
+      emitter.emit('inTransition', true);
       mainGroup.transition().duration(500).tween('zoom', function() {
         var iy = d3.interpolate(nav.currentTranslation - height + nav.axisHeight + statsHeight, nav.currentTranslation);
         return function(t) {
           nav.scroll.translate([0, iy(t)]);
           nav.scroll.event(mainGroup);
         };
+      })
+      .each(function() { ++n; })
+      .each('end', function() {
+        // this ugly solution courtesy of the man himself: https://groups.google.com/forum/#!msg/d3-js/WC_7Xi6VV50/j1HK0vIWI-EJ
+        if (!--n) {
+          emitter.emit('inTransition', false);
+        }
       });
     }
     else {
       nav.currentTranslation -= height - nav.axisHeight - statsHeight;
+      emitter.emit('inTransition', true);
       mainGroup.transition().duration(500).tween('zoom', function() {
         var iy = d3.interpolate(nav.currentTranslation + height - nav.axisHeight - statsHeight, nav.currentTranslation);
         return function(t) {
           nav.scroll.translate([0, iy(t)]);
           nav.scroll.event(mainGroup);
         };
+      })
+      .each(function() { ++n; })
+      .each('end', function() {
+        // this ugly solution courtesy of the man himself: https://groups.google.com/forum/#!msg/d3-js/WC_7Xi6VV50/j1HK0vIWI-EJ
+        if (!--n) {
+          emitter.emit('inTransition', false);
+        }
       });
     }
   };
 
   container.panBack = function() {
     log('Jumped back two weeks.');
+    var n = 0;
     if (sortReverse) {
       nav.currentTranslation -= height - nav.axisHeight - statsHeight;
+      emitter.emit('inTransition', true);
       mainGroup.transition().duration(500).tween('zoom', function() {
         var iy = d3.interpolate(nav.currentTranslation + height - nav.axisHeight - statsHeight, nav.currentTranslation);
         return function(t) {
           nav.scroll.translate([0, iy(t)]);
           nav.scroll.event(mainGroup);
         };
+      })
+      .each(function() { ++n; })
+      .each('end', function() {
+        // this ugly solution courtesy of the man himself: https://groups.google.com/forum/#!msg/d3-js/WC_7Xi6VV50/j1HK0vIWI-EJ
+        if (!--n) {
+          emitter.emit('inTransition', false);
+        }
       });
     }
     else {
       nav.currentTranslation += height - nav.axisHeight - statsHeight;
+      emitter.emit('inTransition', true);
       mainGroup.transition().duration(500).tween('zoom', function() {
         var iy = d3.interpolate(nav.currentTranslation - height + nav.axisHeight + statsHeight, nav.currentTranslation);
         return function(t) {
           nav.scroll.translate([0, iy(t)]);
           nav.scroll.event(mainGroup);
         };
+      })
+      .each(function() { ++n; })
+      .each('end', function() {
+        // this ugly solution courtesy of the man himself: https://groups.google.com/forum/#!msg/d3-js/WC_7Xi6VV50/j1HK0vIWI-EJ
+        if (!--n) {
+          emitter.emit('inTransition', false);
+        }
       });
     }
   };
@@ -194,6 +229,20 @@ module.exports = function(emitter) {
       });
   };
 
+  container.mostRecent = function() {
+    if (sortReverse) {
+      nav.currentTranslation = yScale(dataEndNoon) + height - nav.axisHeight - statsHeight;
+  
+    }
+    else {
+      nav.currentTranslation = yScale(dataStartNoon) - height - nav.axisHeight - statsHeight;
+    }
+    nav.scroll.translate([0, nav.currentTranslation]);
+    nav.scroll.event(mainGroup);
+
+    return container;
+  };
+
   container.clear = function() {
     emitter.removeAllListeners('numbers');
     container.currentTranslation(0).latestTranslation(0);
@@ -225,6 +274,22 @@ module.exports = function(emitter) {
       cachedDomain = a;
     }
     if (sortReverse) {
+      if (a[0].toISOString().slice(0,10) === days[days.length - 1]) {
+        emitter.emit('mostRecent', true);
+      }
+      else {
+        emitter.emit('mostRecent', false);
+      }
+    }
+    else {
+      if (a[1].toISOString().slice(0,10) === days[0]) {
+        emitter.emit('mostRecent', true);
+      }
+      else {
+        emitter.emit('mostRecent', false);
+      }
+    }
+    if (sortReverse) {
       a.reverse();
       a[0].setUTCDate(a[0].getUTCDate() + 1);
     }
@@ -232,6 +297,7 @@ module.exports = function(emitter) {
       a[0].setUTCDate(a[0].getUTCDate() + 1);
     }
     if (!d3.select('#' + id).classed('hidden')) {
+      emitter.emit('navigated', [a[0].toISOString(), a[1].toISOString()]);
       // domain should go from midnight to midnight, not noon to noon
       a[0].setUTCHours(a[0].getUTCHours() - 12);
       var topDate = a[0].toISOString().slice(0,10);
@@ -241,11 +307,9 @@ module.exports = function(emitter) {
       if ((topDate !== cachedDomain[0]) || (bottomDate !== cachedDomain[1])) {
         cachedDomain = [new Date(topDate + midnight), new Date(bottomDate + midnight)];
         emitter.emit('currentDomain', {
-          'domain': cachedDomain,
-          'startIndex': data[0].index
+          'domain': cachedDomain
         });
       }
-      emitter.emit('navigated', [a[0].toISOString(), a[1].toISOString()]);
     }
   };
 
@@ -464,7 +528,7 @@ module.exports = function(emitter) {
         }
         container.navString(yScale.domain());
         if (scrollHandleTrigger) {
-          mainGroup.select('#scrollThumb').transition().ease('linear').attr('y', function(d) {
+          mainGroup.select('.scrollThumb').transition().ease('linear').attr('y', function(d) {
             if (sortReverse) {
               d.y = nav.scrollScale(yScale.domain()[1]);
             }
@@ -502,7 +566,7 @@ module.exports = function(emitter) {
           'id': 'scrollNavInvisibleRect'
         });
 
-        xPos = nav.navGutter / 2;
+        xPos = 2 * nav.navGutter / 3;
 
 
         var start = new Date(dataStartNoon);
@@ -513,8 +577,10 @@ module.exports = function(emitter) {
           .attr({
             'x1': xPos,
             'x2': xPos,
-            'y1': nav.scrollScale(dataEndNoon) - nav.scrollThumbRadius,
-            'y2': nav.scrollScale(start) + nav.scrollThumbRadius
+            'y1': nav.axisHeight + nav.scrollGutterWidth/2,
+            'y2': height - statsHeight - nav.scrollGutterWidth/2,
+            'stroke-width': nav.scrollGutterWidth,
+            'class': 'scroll'
           });
       }
       else {
@@ -538,8 +604,10 @@ module.exports = function(emitter) {
           .attr({
             'x1': xPos,
             'x2': xPos,
-            'y1': nav.scrollScale(dataStartNoon) - nav.scrollThumbRadius,
-            'y2': nav.scrollScale(dataEndNoon) + nav.scrollThumbRadius
+            'y1': nav.axisHeight + nav.scrollGutterWidth/2,
+            'y2': height - statsHeight - nav.scrollGutterWidth/2,
+            'stroke-width': nav.scrollGutterWidth,
+            'class': 'scroll'
           });
       }
 
@@ -569,19 +637,19 @@ module.exports = function(emitter) {
           nav.scroll.event(mainGroup);
         });
 
-      scrollNav.selectAll('image')
+      scrollNav.selectAll('rect.scrollThumb')
         .data([{'x': 0, 'y': yStart}])
         .enter()
-        .append('image')
+        .append('rect')
         .attr({
-          'xlink:href': imagesBaseUrl + '/ux/scroll_thumb.svg',
-          'x': xPos - nav.scrollThumbRadius,
+          'x': xPos - nav.scrollThumbRadius/3,
           'y': function(d) {
             return d.y - nav.scrollThumbRadius;
           },
-          'width': 2 * nav.scrollThumbRadius,
+          'width': 2 * nav.scrollThumbRadius/3,
           'height': 2 * nav.scrollThumbRadius,
-          'id': 'scrollThumb'
+          'rx': nav.scrollThumbRadius/3,
+          'class': 'scrollThumb'
         })
         .call(drag);
     }
@@ -699,7 +767,7 @@ module.exports = function(emitter) {
     dataEndNoon = new Date(dataEndNoon.toISOString().slice(0,11) + noon);
 
     if (!viewEndDate) {
-      viewEndDate = new Date(days[0]);
+      viewEndDate = new Date(days[days.length - 1]);
     } else {
       viewEndDate = new Date(viewEndDate);
     }

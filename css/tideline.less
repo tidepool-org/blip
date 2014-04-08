@@ -77,10 +77,15 @@ svg {
 // scrollbars
 .scroll {
   line {
-    stroke: @light-labels;
-    stroke-width: 1;
-    shape-rendering: crispEdges;
+    stroke: @scroll-gutter;
+    stroke-linecap: round;
   }
+}
+.scrollThumb {
+  fill: @light-labels;
+}
+#scrollNavInvisibleRect {
+  pointer-events: none;
 }
 
 // pool labels
@@ -178,8 +183,7 @@ svg {
   &.d3-text-smbg {
     pointer-events: none;
     fill: @text;
-    font-size: @font-size-large-tooltips;
-    font-weight: bold;
+    font-size: @font-size-small-tooltips;
     text-anchor: middle;
     dominant-baseline: central;
   }

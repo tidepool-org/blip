@@ -25,8 +25,8 @@ var expect = chai.expect;
 var _ = require('lodash');
 var Duration = require('duration-js');
 
-var watson = require('../example/watson');
-var data = watson.normalize(require('../example/data/device-data.json'));
+var watson = require('../plugins/data/watson');
+var data = watson.normalizeAll(require('../example/data/device-data.json'));
 
 var tideline = require('../js/index');
 var datetime = tideline.data.util.datetime;

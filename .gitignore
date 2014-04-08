@@ -1,9 +1,11 @@
 .DS_Store
-bower_components/
-example/bundle.js
 *.css
-node_modules/
-.idea
+*.idea
 *.iml
+bower_components/
+dist/
+example/bundle.js
 example/data/blip-output.json
+example/dist/
+node_modules/
 test/test.js

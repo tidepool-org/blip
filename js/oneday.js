@@ -36,8 +36,9 @@ module.exports = function(emitter) {
     nav = {
       axisHeight: 30,
       scrollNav: true,
-      scrollNavHeight: 40,
-      scrollThumbRadius: 8,
+      scrollNavHeight: 50,
+      scrollGutterHeight: 20,
+      scrollThumbRadius: 24,
       currentTranslation: 0
     },
     axisGutter = 40, gutter = 40,
@@ -148,25 +149,44 @@ module.exports = function(emitter) {
   container.panForward = function() {
     log('Jumped forward a day.');
     nav.currentTranslation -= width - axisGutter;
-    mainGroup.transition().duration(500).tween('zoom', function() {
+    var n = 0;
+    emitter.emit('inTransition', true);
+    mainGroup.transition()
+      .duration(500).tween('zoom', function() {
       var ix = d3.interpolate(nav.currentTranslation + width - axisGutter, nav.currentTranslation);
       return function(t) {
         nav.pan.translate([ix(t), 0]);
         nav.pan.event(mainGroup);
       };
-    });
+    })
+      .each(function() { ++n; })
+      .each('end', function() {
+        // this ugly solution courtesy of the man himself: https://groups.google.com/forum/#!msg/d3-js/WC_7Xi6VV50/j1HK0vIWI-EJ
+        if (!--n) {
+          emitter.emit('inTransition', false);
+        }
+      });
   };
 
   container.panBack = function() {
     log('Jumped back a day.');
     nav.currentTranslation += width - axisGutter;
+    var n = 0;
+    emitter.emit('inTransition', true);
     mainGroup.transition().duration(500).tween('zoom', function() {
       var ix = d3.interpolate(nav.currentTranslation - width + axisGutter, nav.currentTranslation);
       return function(t) {
         nav.pan.translate([ix(t), 0]);
         nav.pan.event(mainGroup);
       };
-    });
+    })
+      .each(function() { ++n; })
+      .each('end', function() {
+        // this ugly solution courtesy of the man himself: https://groups.google.com/forum/#!msg/d3-js/WC_7Xi6VV50/j1HK0vIWI-EJ
+        if (!--n) {
+          emitter.emit('inTransition', false);
+        }
+      });
   };
 
   container.newPool = function() {
@@ -210,6 +230,7 @@ module.exports = function(emitter) {
   };
 
   container.navString = function(a) {
+    var currentDomain = container.getCurrentDomain();
     var beginning = a[0];
     var end = a[1];
     var navString;
@@ -221,10 +242,9 @@ module.exports = function(emitter) {
     }
     if (!d3.select('#' + id).classed('hidden')) {
       emitter.emit('currentDomain', {
-        'domain': a,
-        'startIndex': allData[0].index
+        'domain': a
       });
-      emitter.emit('navigated', [navString]);
+      emitter.emit('navigated', [navString, currentDomain.center.toISOString()]);
       if (a[1].valueOf() === endpoints[1].valueOf()) {
         emitter.emit('mostRecent', true);
       }
@@ -347,7 +367,7 @@ module.exports = function(emitter) {
         mainGroup.select('.d3-x.d3-axis').call(xAxis);
         mainGroup.selectAll('#tidelineXAxis g.tick text').style('text-anchor', 'start').attr('transform', 'translate(5,15)');
         if (scrollHandleTrigger) {
-          mainGroup.select('#scrollThumb').transition().ease('linear').attr('x', function(d) {
+          mainGroup.select('.scrollThumb').transition().ease('linear').attr('x', function(d) {
             d.x = nav.scrollScale(xScale.domain()[0]);
             return d.x - nav.scrollThumbRadius;
           });
@@ -356,6 +376,11 @@ module.exports = function(emitter) {
       })
       .on('zoomend', function() {
         container.currentTranslation(nav.latestTranslation);
+        if (!scrollHandleTrigger) {
+          mainGroup.select('.scrollThumb').attr('x', function(d) {
+            return nav.scrollScale(xScale.domain()[0]) - nav.scrollThumbRadius;
+          });
+        }
         scrollHandleTrigger = true;
       });
 
@@ -367,11 +392,13 @@ module.exports = function(emitter) {
   container.setScrollNav = function() {
     var translationAdjustment = axisGutter;
     scrollNav.selectAll('line').remove();
-    scrollNav.attr('transform', 'translate(0,'  + (height - (nav.scrollNavHeight / 2)) + ')')
-      .insert('line', '#scrollThumb')
+    scrollNav.attr('transform', 'translate(0,'  + (height - (nav.scrollNavHeight * 2/5)) + ')')
+      .insert('line', '.scrollThumb')
       .attr({
-        'x1': nav.scrollScale(endpoints[0]) - nav.scrollThumbRadius,
-        'x2': nav.scrollScale(container.initialEndpoints[0]) + nav.scrollThumbRadius,
+        'stroke-width': nav.scrollGutterHeight,
+        // add and subtract 1/2 of scrollGutterHeight because radius of linecap is 1/2 of stroke-width
+        'x1': axisGutter + nav.scrollGutterHeight/2,
+        'x2': width - nav.scrollGutterHeight/2,
         'y1': 0,
         'y2': 0
       });
@@ -402,17 +429,19 @@ module.exports = function(emitter) {
         nav.pan.event(mainGroup);
       });
 
-    scrollNav.selectAll('image')
+    scrollNav.selectAll('rect')
       .data([{'x': nav.scrollScale(container.currentEndpoints[0]), 'y': 0}])
       .enter()
-      .append('image')
+      .append('rect')
       .attr({
-        'xlink:href': imagesBaseUrl + '/ux/scroll_thumb.svg',
-        'x': function(d) { return d.x - nav.scrollThumbRadius; },
-        'y': -nav.scrollThumbRadius,
+        'x': function(d) {
+          return d.x - nav.scrollThumbRadius;
+        },
+        'y': -nav.scrollThumbRadius/3,
         'width': nav.scrollThumbRadius * 2,
-        'height': nav.scrollThumbRadius * 2,
-        'id': 'scrollThumb'
+        'height': nav.scrollThumbRadius/3 * 2,
+        'rx': nav.scrollThumbRadius/3,
+        'class': 'scrollThumb'
       })
       .call(drag);
 
@@ -429,7 +458,8 @@ module.exports = function(emitter) {
     return container;
   };
 
-  container.setAtDate = function (date) {
+  container.setAtDate = function (date, trigger) {
+    scrollHandleTrigger = trigger;
     nav.currentTranslation = -xScale(date) + axisGutter;
     nav.pan.translate([nav.currentTranslation, 0]);
     nav.pan.event(mainGroup);

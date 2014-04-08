@@ -23,27 +23,31 @@
 // quotation listed above as well as the fact that Watson is one of literature's ur-examples of the loyal
 // assistant.
 //
-// Try as hard as you can to keep Watson out of library code - i.e., in this repository, Watson should only be a
-// requirement in files in the example/ folder (as these are blip-specific), not in the main tideline files:
-// one-day.js, two-week.js, and pool.js.
+// Watson is a tideline *plugin*. Try as hard as you can to keep Watson out of main library code - i.e., in
+// this repository, Watson should only be a requirement within other files in the plugins/ directory, not in
+// the main js/ directory.
 //
 
-var _ = require('lodash');
+try {
+  var _ = window._;
+}
+catch (ReferenceError) {
+  var _ = require('lodash');
+}
+
 
 try {
   var log = window.bows('Watson');
 }
 catch (ReferenceError) {
-  var log = require('../js/lib/').bows('Watson');
+  var log = require('../../../js/lib/').bows('Watson');
 }
 
-var APPEND = '.000Z';
+module.exports = {
+  APPEND: '.000Z',
 
-var watson = {
-  normalize: function(a) {
-    log('Watson normalized the data.');
-    return _.map(a, function(i) {
-      i.normalTime = i.deviceTime + APPEND;
+  normalize: function(i) {
+    try {
       if (i.utcTime) {
         var d = new Date(i.utcTime);
         var offsetMinutes = d.getTimezoneOffset();
@@ -51,25 +55,29 @@ var watson = {
         i.normalTime = d.toISOString();
       }
       else if (i.type === 'basal-rate-segment') {
-        i.normalTime = i.start + APPEND;
+        i.normalTime = i.start + this.APPEND;
         if (i.end) {
-          i.normalEnd = i.end + APPEND;
+          i.normalEnd = i.end + this.APPEND;
         }
         else {
           i.normalEnd = null;
         }
-        
+      }
+      else {
+        i.normalTime = i.deviceTime + this.APPEND;
       }
       return i;
-    });
+    }
+    catch(e) {
+      throw new TypeError('Watson choked on an undefined.');
+    }
+
   },
-  print: function(arg, d) {
-    console.log(arg, d.toUTCString().replace(' GMT', ''));
-    return;
-  },
-  strip: function(d) {
-    return d.toUTCString().replace(' GMT', '');
+
+  normalizeAll: function(a) {
+    log('Watson normalized the data.');
+    return _.map(a, function(d) {
+      return this.normalize(d);
+    }, this);
   }
 };
-
-module.exports = watson;

@@ -17,51 +17,55 @@
 <html>
   <head>
     <meta charset="utf-8">
+    <meta name='viewport' content='width=device-width' />
     <title>Tideline: Current Progress</title>
     <link href="../bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css">
     <link href="example.css" rel="stylesheet" type="text/css">
   </head>
   <body>
-    <div class="container">
-      <div class="jumbotron" id="tideline">
-        <div class="row tidelineNav">
-          <div class="col-md-3">
-            <span class="tidelineNavLabel active"><a href="#" id="oneDayView">One Day</a></span>
-            <span class="tidelineSpacer"></span>
-            <span class="tidelineNavLabel"><a href="#" id="twoWeekView">Two Weeks</a></span>
-          </div>
-          <div class="col-md-6" id="tidelineLabel">
-            <img src="blip_icons_back.svg" id="tidelineNavBack" class="tideline-nav"/>
-            <span class="tidelineSpacer"></span>
-            <div class="tidelineNavLabelWrapper">
-              <span class="tidelineNavLabel" id="tidelineNavString"></span>
-            </div>
-            <span class="tidelineSpacer"></span>
-            <img src="blip_icons_next.svg" id="tidelineNavForward" class="tideline-nav"/>
-          </div>
-          <div class="col-md-3 tidelineNavRightLabel">
-            <span class="tidelineNavLabel one-day"><a href="#" id="oneDayMostRecent">Most Recent</a></span>
-          </div>
+    <div class="vSpace"></div>
+    <div class="container" id="tidelineMain">
+      <div class="row tidelineNav">
+        <div class="col-md-3">
+          <span class="tidelineNavLabel active"><a href="#" id="oneDayView">One Day</a></span>
+          <span class="tidelineNavLabel"><a href="#" id="twoWeekView">Two Weeks</a></span>
         </div>
-        <div class="row" id="tidelineMain">
+        <div class="col-md-6" id="tidelineLabel">
+          <img src="blip_icons_back.svg" id="tidelineNavBack" class="tideline-nav"/>
+          <div class="tidelineNavLabelWrapper">
+            <span class="tidelineNavLabel" id="tidelineNavString"></span>
+          </div>
+          <img src="blip_icons_next.svg" id="tidelineNavForward" class="tideline-nav"/>
+        </div>
+        <div class="col-md-3 tidelineNavRightLabel">
+          <span class="tidelineNavLabel"><a href="#" id="mostRecent">Most Recent</a></span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12" id="tidelineOuterContainer">
           <div class="col-md-12" id="tidelineContainer"></div>
         </div>
-        <div class="row tidelineNav">
-          <div class="col-md-3 one-day">
-            <span class="tidelineNavLabel"><a href="#" id="deviceSettings">Device Settings</a></span>
-          </div>
-          <div class="col-md-3 col-md-offset-6 two-week tidelineNavRightLabel">
-            <span class="tidelineNavLabel"><a href="#" id="showHideNumbers">Show Values</a></span>
-          </div>
+      </div>
+      <div class="row tidelineNav">
+        <div class="col-md-3">
+          <span class="tidelineNavLabel"><a href="#" id="deviceSettings">Device Settings</a></span>
+        </div>
+        <div class="col-md-3 col-md-offset-6 two-week tidelineNavRightLabel">
+          <span class="tidelineNavLabel"><a href="#" id="showHideNumbers">Show Values</a></span>
         </div>
       </div>
     </div>
+    <div class="vSpace"></div>
     <script type="text/javascript" src="../bower_components/bows/dist/bows.min.js"></script>
     <script type="text/javascript" src="../bower_components/crossfilter/crossfilter.min.js"></script>
     <script type="text/javascript" src="../bower_components/d3/d3.min.js"></script>
     <script type="text/javascript" src="../bower_components/Duration.js/duration.js"></script>
     <script type="text/javascript" src="../bower_components/jquery/dist/jquery.min.js"></script>
     <script type="text/javascript" src="../bower_components/lodash/dist/lodash.min.js"></script>
+    <script type="text/javascript" src="../example/dist/tideline.js"></script>
+    <script type="text/javascript" src="../example/dist/tideline-blip.js"></script>
+    <script type="text/javascript" src="../example/dist/tideline-watson.js"></script>
+    <script type="text/javascript" src="../example/dist/tideline-preprocess.js"></script>
     <script type="text/javascript" src="bundle.js"></script>
   </body>
 </html>

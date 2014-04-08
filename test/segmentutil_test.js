@@ -111,18 +111,7 @@ function testData (data) {
           if ((i < (segments.length - 1)) && segment.deliveryType === 'scheduled') {
             var e = new Date(segment.end).valueOf();
             var s = new Date(segments[i + 1].start).valueOf();
-            try {
-              expect(s >= e).to.be.true;
-            }
-            catch(e) {
-              if (name === 'overlapping') {
-                console.log("Expected 'can have gaps, but should not have overlaps' to fail on overlapping fixture, and it did.");
-              }
-              else {
-                throw(e);
-              }
-            }
-
+            expect(s >= e).to.be.true;
           }
         });
       });
@@ -169,7 +158,7 @@ function testData (data) {
               expect(undeliveredDuration).to.equal(tempDuration);
             }
             catch (e) {
-              console.log('Expected error with fixture ending in temp basal.');
+              //console.log('Expected error with fixture ending in temp basal.');
             }
           });
 
@@ -192,7 +181,7 @@ function testData (data) {
           });
 
           it('can have gaps, but should not have overlaps', function() {
-            undelivereds = _.sortBy(theStream, function(d) {
+            var undelivereds = _.sortBy(theStream, function(d) {
               return new Date(d.start).valueOf();
             });
             undelivereds.forEach(function(segment, i, segments) {
