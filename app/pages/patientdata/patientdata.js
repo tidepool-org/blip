@@ -199,7 +199,7 @@ var PatientData = React.createClass({
         datetimeLocation={this.state.datetimeLocation}
         onDatetimeLocationChange={this.handleDatetimeLocationChange}
         onSelectDataPoint={this.handleWeeklySelectDataPoint}
-        onMostRecentBoolean={this.handleMostRecentBoolean}
+        onReachedMostRecent={this.handleReachedMostRecent}
         imagesEndpoint={config.IMAGES_ENDPOINT + '/tideline'}
         ref="chart" />
       );
@@ -337,8 +337,8 @@ var PatientData = React.createClass({
     });
   },
 
-  handleMostRecentBoolean: function(bool) {
-    if (bool) {
+  handleReachedMostRecent: function(mostRecent) {
+    if (mostRecent) {
       this.setState({
         atMostRecent: true
       });
