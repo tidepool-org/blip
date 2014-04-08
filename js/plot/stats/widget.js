@@ -460,11 +460,11 @@ module.exports = function(pool, opts) {
     data.range = [
       {
         'type': 'bg-low',
-        'value': range.low,
+        'value': range.low
       },
       {
         'type': 'bg-target',
-        'value': range.target,
+        'value': range.target
       },
       {
         'type': 'bg-high',
