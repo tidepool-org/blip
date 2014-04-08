@@ -28,38 +28,43 @@ var chartWeeklyFactory = blip.twoweek;
 
 var log = window.bows('Example');
 
-// things common to one-day and two-week views
-// common event emitter
-var EventEmitter = require('events').EventEmitter;
-var emitter = new EventEmitter();
-emitter.on('navigated', function(navString) {
-  if (navString.length === 1) {
-    var d = new Date(navString);
-    var formatDate = d3.time.format.utc('%A, %B %-d');
-    $('#tidelineNavString').html(formatDate(d));
-  }
-  else {
-    var beg = new Date(navString[0]);
-    var end = new Date(navString[1]);
-    var monthDay = d3.time.format.utc('%B %-d');
-    $('#tidelineNavString').html(monthDay(beg) + ' - ' + monthDay(end));
-  }
-});
-
-emitter.on('mostRecent', function(mostRecent) {
-  if (mostRecent) {
-    $('#oneDayMostRecent').parent().addClass('active');
-  }
-  else {
-    $('#oneDayMostRecent').parent().removeClass('active');
-  }
-});
-
 var el = document.getElementById('tidelineContainer');
 var imagesBaseUrl = '../img';
 
-var oneDay = chartDailyFactory(el, emitter, {imagesBaseUrl: imagesBaseUrl}).setupPools();
-var twoWeek = chartWeeklyFactory(el, emitter, {imagesBaseUrl: imagesBaseUrl});
+var oneDay = chartDailyFactory(el, {imagesBaseUrl: imagesBaseUrl}).setupPools();
+var twoWeek = chartWeeklyFactory(el, {imagesBaseUrl: imagesBaseUrl});
+
+// things common to one-day and two-week views
+oneDay.emitter.on('navigated', function(navString) {
+  var d = new Date(navString[0]);
+  var formatDate = d3.time.format.utc('%A, %B %-d');
+  $('#tidelineNavString').html(formatDate(d));
+});
+
+twoWeek.emitter.on('navigated', function(navString) {
+  var beg = new Date(navString[0]);
+  var end = new Date(navString[1]);
+  var monthDay = d3.time.format.utc('%B %-d');
+  $('#tidelineNavString').html(monthDay(beg) + ' - ' + monthDay(end));
+});
+
+oneDay.emitter.on('mostRecent', function(mostRecent) {
+  if (mostRecent) {
+    $('#mostRecent').parent().addClass('active');
+  }
+  else {
+    $('#mostRecent').parent().removeClass('active');
+  }
+});
+
+twoWeek.emitter.on('mostRecent', function(mostRecent) {
+  if (mostRecent) {
+    $('#mostRecent').parent().addClass('active');
+  }
+  else {
+    $('#mostRecent').parent().removeClass('active');
+  }
+});
 
 // load data and draw charts
 d3.json('data/device-data.json', function(data) {
@@ -111,19 +116,18 @@ d3.json('data/device-data.json', function(data) {
     oneDay.show().locate();
   });
 
-  $('#oneDayMostRecent').on('click', function() {
-    log('Navigated to most recent one-day view.');
-    oneDay.clear().locate();
-
-    $(this).parent().addClass('active');
-
-    $('#twoWeekView').parent().removeClass('active');
-    $('#oneDayMostRecent').parent().addClass('active');
-    $('.one-day').css('visibility', 'visible');
-    $('.two-week').css('visibility', 'hidden');
+  $('#mostRecent').on('click', function() {
+    log('Navigated to most recent data.');
+    if ($('#twoWeekView').parent().hasClass('active')) {
+      twoWeek.clear().load(data, date);
+    }
+    else {
+      oneDay.clear().locate();
+    }
+    $('#mostRecent').parent().addClass('active');
   });
 
-  emitter.on('selectSMBG', function(date) {
+  twoWeek.emitter.on('selectSMBG', function(date) {
     log('Navigated to one-day view from double clicking a two-week view SMBG.');
     twoWeek.clear().hide();
     
@@ -144,12 +148,12 @@ d3.json('data/device-data.json', function(data) {
 
   $('#showHideNumbers').on('click', function() {
     if ($(this).parent().hasClass('active')) {
-      emitter.emit('numbers', 'hide');
+      twoWeek.emitter.emit('numbers', 'hide');
       $(this).parent().removeClass('active');
       $(this).html('Show Values');
     }
     else {
-      emitter.emit('numbers', 'show');
+      twoWeek.emitter.emit('numbers', 'show');
       $(this).parent().addClass('active');
       $(this).html('Hide Values');
     }
