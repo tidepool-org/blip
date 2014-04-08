@@ -29,6 +29,7 @@ var Chart = React.createClass({
     datetimeLocation: React.PropTypes.string,
     onDatetimeLocationChange: React.PropTypes.func,
     onSelectDataPoint: React.PropTypes.func,
+    onTransition: React.PropTypes.func,
     onReachedMostRecent: React.PropTypes.func,
     imagesEndpoint: React.PropTypes.string
   },
@@ -129,6 +130,10 @@ var Chart = React.createClass({
 
     if (this.props.onSelectDataPoint) {
       this.chart.emitter.on('selectSMBG', this.props.onSelectDataPoint);
+    }
+
+    if (this.props.onTransition) {
+      this.chart.emitter.on('inTransition', this.props.onTransition);
     }
 
     if (this.props.onReachedMostRecent) {

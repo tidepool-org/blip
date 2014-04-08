@@ -100,11 +100,15 @@ var PatientData = React.createClass({
       /* jshint ignore:start */
       center = (
         <div>
-          <a href="" onClick={this.handlePanBack}><i className="icon-back"></i></a>
+          <a href="" onClick={this.handlePanBack} className={this.state.inTransition ? "patient-data-subnav-disabled" : ""}>
+            <i className="icon-back"></i>
+          </a>
           <div className="patient-data-subnav-text patient-data-subnav-text-dates">
             {this.state.title}
           </div>
-          <a href="" onClick={this.handlePanForward} className={this.state.atMostRecent ? "patient-data-subnav-disabled" : ""}><i className="icon-next"></i></a>
+          <a href="" onClick={this.handlePanForward} className={(this.state.atMostRecent || this.state.inTransition) ? "patient-data-subnav-disabled" : ""}>
+            <i className="icon-next"></i>
+          </a>
         </div>
       );
       /* jshint ignore:end */
@@ -199,6 +203,7 @@ var PatientData = React.createClass({
         datetimeLocation={this.state.datetimeLocation}
         onDatetimeLocationChange={this.handleDatetimeLocationChange}
         onSelectDataPoint={this.handleWeeklySelectDataPoint}
+        onTransition={this.handleInTransition}
         onReachedMostRecent={this.handleReachedMostRecent}
         imagesEndpoint={config.IMAGES_ENDPOINT + '/tideline'}
         ref="chart" />
@@ -302,8 +307,9 @@ var PatientData = React.createClass({
     if (e) {
       e.preventDefault();
     }
-
-    this.refs.chart.panBack();
+    if (!this.state.inTransition) {
+      this.refs.chart.panBack();
+    }
   },
 
   handlePanForward: function(e) {
@@ -311,7 +317,9 @@ var PatientData = React.createClass({
       e.preventDefault();
     }
 
-    this.refs.chart.panForward();
+    if (!this.state.inTransition) {
+      this.refs.chart.panForward();
+    }
   },
 
   handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
@@ -335,6 +343,20 @@ var PatientData = React.createClass({
       title: title,
       datetimeLocation: datetimeLocation
     });
+  },
+
+  handleInTransition: function(inTransition) {
+    if (inTransition) {
+      console.log('In transition!');
+      this.setState({
+        inTransition: true
+      });
+    }
+    else {
+      this.setState({
+        inTransition: false
+      });
+    }
   },
 
   handleReachedMostRecent: function(mostRecent) {
