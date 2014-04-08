@@ -86,7 +86,7 @@ var PatientData = React.createClass({
 
       /* jshint ignore:start */
       left = (
-        <div className="grid-item one-whole large-one-quarter">
+        <div>
           <div className="grid-item large-three-eighths">
             <a href="" className={dailyLinkClass} onClick={this.handleSwitchToDaily}>One day</a>
           </div>
@@ -115,7 +115,7 @@ var PatientData = React.createClass({
 
       /* jshint ignore:start */
       right = (
-        <div className="grid-item one-whole large-one-quarter">
+        <div>
           <div className="grid-item one-whole large-one-half patient-data-subnav-right">
             <a href="" onClick={this.handleRefresh}>Refresh</a>
           </div>
@@ -132,11 +132,15 @@ var PatientData = React.createClass({
       <div className="container-box-outer patient-data-subnav-outer">
         <div className="container-box-inner patient-data-subnav-inner">
           <div className="grid patient-data-subnav">
+            <div className="grid-item one-whole large-one-quarter">
               {left}
-            <div className={left ? "grid-item one-whole large-one-half patient-data-subnav-center" : "grid-item one-whole patient-data-subnav-center"}>
+            </div>
+            <div className="grid-item one-whole large-one-half patient-data-subnav-center">
               {center}
             </div>
+            <div className="grid-item one-whole large-one-quarter">
               {right}
+            </div>
           </div>
         </div>
       </div>
