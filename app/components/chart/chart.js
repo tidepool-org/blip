@@ -29,6 +29,7 @@ var Chart = React.createClass({
     datetimeLocation: React.PropTypes.string,
     onDatetimeLocationChange: React.PropTypes.func,
     onSelectDataPoint: React.PropTypes.func,
+    onMostRecentBoolean: React.PropTypes.func,
     imagesEndpoint: React.PropTypes.string
   },
 
@@ -128,6 +129,10 @@ var Chart = React.createClass({
 
     if (this.props.onSelectDataPoint) {
       this.chart.emitter.on('selectSMBG', this.props.onSelectDataPoint);
+    }
+
+    if (this.props.onMostRecentBoolean) {
+      this.chart.emitter.on('mostRecent', this.props.onMostRecentBoolean);
     }
   },
 

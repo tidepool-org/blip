@@ -58,26 +58,19 @@
     text-decoration: none;
   }
 
-  &:active {
+  &:active,
+  &.disabled {
     color: @gray;
   }
 }
 
 .patient-data-subnav a.patient-data-subnav-active {
-  color: @gray;
-  background: @gray-darkest;
-}
-
-.patient-data-subnav-left {
-  text-align: left;
+  font-weight: bold;
+  text-align: center;
 }
 
 .patient-data-subnav-center {
   text-align: center;
-}
-
-.patient-data-subnav-right {
-  text-align: right;
 }
 
 // Content

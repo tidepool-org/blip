@@ -86,9 +86,13 @@ var PatientData = React.createClass({
 
       /* jshint ignore:start */
       left = (
-        <div>
-          <a href="" className={dailyLinkClass} onClick={this.handleSwitchToDaily}>One day</a>
-          <a href="" className={weeklyLinkClass} onClick={this.handleSwitchToWeekly}>Two weeks</a>
+        <div className="grid-item one-whole large-one-quarter">
+          <div className="grid-item one-whole large-one-half">
+            <a href="" className={dailyLinkClass} onClick={this.handleSwitchToDaily}>One day</a>
+          </div>
+          <div className="grid-item one-whole large-one-half">
+            <a href="" className={weeklyLinkClass} onClick={this.handleSwitchToWeekly}>Two weeks</a>
+          </div>
         </div>
       );
       /* jshint ignore:end */
@@ -100,16 +104,20 @@ var PatientData = React.createClass({
           <div className="patient-data-subnav-text patient-data-subnav-text-dates">
             {this.state.title}
           </div>
-          <a href="" onClick={this.handlePanForward}><i className="icon-next"></i></a>
+          <a href="" onClick={this.handlePanForward} className={this.state.atMostRecent ? "disabled" : ""}><i className="icon-next"></i></a>
         </div>
       );
       /* jshint ignore:end */
 
       /* jshint ignore:start */
       right = (
-        <div>
-          <a href="" onClick={this.handleRefresh}>Refresh</a>
-          <a href="" onClick={this.handleGoToMostRecent}>Most recent</a>
+        <div className="grid-item one-whole large-one-quarter">
+          <div className="grid-item one-whole large-one-half">
+            <a href="" onClick={this.handleRefresh}>Refresh</a>
+          </div>
+          <div className="grid-item one-whole large-one-half">
+            <a href="" onClick={this.handleGoToMostRecent} className={this.state.atMostRecent ? "patient-data-subnav-active" : ""}>Most recent</a>
+          </div>
         </div>
       );
       /* jshint ignore:end */
@@ -120,15 +128,11 @@ var PatientData = React.createClass({
       <div className="container-box-outer patient-data-subnav-outer">
         <div className="container-box-inner patient-data-subnav-inner">
           <div className="grid patient-data-subnav">
-            <div className="grid-item one-whole large-one-quarter patient-data-subnav-left">
               {left}
-            </div>
-            <div className="grid-item one-whole large-two-quarters patient-data-subnav-center">
+            <div className="grid-item one-whole large-one-half patient-data-subnav-center">
               {center}
             </div>
-            <div className="grid-item one-whole large-one-quarter patient-data-subnav-right">
               {right}
-            </div>
           </div>
         </div>
       </div>
@@ -195,6 +199,7 @@ var PatientData = React.createClass({
         datetimeLocation={this.state.datetimeLocation}
         onDatetimeLocationChange={this.handleDatetimeLocationChange}
         onSelectDataPoint={this.handleWeeklySelectDataPoint}
+        onMostRecentBoolean={this.handleMostRecentBoolean}
         imagesEndpoint={config.IMAGES_ENDPOINT + '/tideline'}
         ref="chart" />
       );
@@ -332,9 +337,22 @@ var PatientData = React.createClass({
     });
   },
 
+  handleMostRecentBoolean: function(bool) {
+    if (bool) {
+      this.setState({
+        atMostRecent: true
+      });
+    }
+    else {
+      this.setState({
+        atMostRecent: false
+      });
+    }
+  },
+
   getTitleDaily: function(datetimeLocationEndpoints) {
     var d = datetimeLocationEndpoints;
-    return moment.utc(d[1]).format(this.CHARTDAILY_TITLE_DATE_FORMAT);
+    return moment.utc(d[0]).format(this.CHARTDAILY_TITLE_DATE_FORMAT);
   },
 
   getTitleWeekly: function(datetimeLocationEndpoints) {
