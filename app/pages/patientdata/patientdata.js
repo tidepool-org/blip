@@ -21,6 +21,7 @@ var config = window.config;
 
 var ChartDaily = require('../../components/chartdaily');
 var ChartWeekly = require('../../components/chartweekly');
+var MessageThread = require('../../components/messages');
 
 var PatientData = React.createClass({
   propTypes: {
@@ -28,7 +29,10 @@ var PatientData = React.createClass({
     fetchingPatientData: React.PropTypes.bool,
     isUserPatient: React.PropTypes.bool,
     uploadUrl: React.PropTypes.string,
-    onRefresh: React.PropTypes.func
+    onRefresh: React.PropTypes.func,
+    onFetchMessageThread: React.PropTypes.func,
+    onSaveComment: React.PropTypes.func,
+    user: React.PropTypes.object
   },
 
   DEFAULT_TITLE: 'Patient data',
@@ -40,7 +44,8 @@ var PatientData = React.createClass({
       chartType: 'daily',
       title: this.DEFAULT_TITLE,
       datetimeLocation: null,
-      showingValuesWeekly: false
+      showingValuesWeekly: false,
+      messages: null
     };
   },
 
@@ -48,11 +53,13 @@ var PatientData = React.createClass({
     var subnav = this.renderSubnav();
     var patientData = this.renderPatientData();
     var footer = this.renderFooter();
+    var messageThread = this.renderMessageThread();
 
     /* jshint ignore:start */
     return (
       <div className="patient-data js-patient-data-page">
         {subnav}
+        {messageThread}
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
@@ -197,6 +204,23 @@ var PatientData = React.createClass({
     /* jshint ignore:end */
   },
 
+  renderMessageThread: function() {
+    /* jshint ignore:start */
+    if(this.state.messages){
+      return (
+        <MessageThread
+          messages={this.state.messages}
+          user={this.props.user}
+          onClose={this.closeThread}
+          onAddComment={this.props.onSaveComment} />
+      );
+    }
+    /* jshint ignore:end */
+  },
+
+  closeThread: function(){
+    this.setState({ messages: null });
+  },
   renderChart: function() {
     if (this.state.chartType === 'weekly') {
       /* jshint ignore:start */
@@ -218,6 +242,7 @@ var PatientData = React.createClass({
         patientData={this.props.patientData}
         datetimeLocation={this.state.datetimeLocation}
         onDatetimeLocationChange={this.handleDatetimeLocationChange}
+        onShowMessageThread={this.handleShowMessageThread}
         imagesEndpoint={config.IMAGES_ENDPOINT + '/tideline'}
         ref="chart" />
     );
@@ -359,6 +384,18 @@ var PatientData = React.createClass({
       title: title,
       datetimeLocation: datetimeLocation
     });
+  },
+
+  handleShowMessageThread: function(messageThread) {
+
+    var self = this;
+
+    var fetchMessageThread = this.props.onFetchMessageThread;
+    if (fetchMessageThread) {
+      fetchMessageThread(messageThread,function(thread){
+        self.setState({ messages: thread });
+      });
+    }
   },
 
   getTitleDaily: function(datetimeLocationEndpoints) {

@@ -25,6 +25,7 @@ var ChartDaily = React.createClass({
     patientData: React.PropTypes.array,
     datetimeLocation: React.PropTypes.string,
     onDatetimeLocationChange: React.PropTypes.func,
+    onShowMessageThread: React.PropTypes.func,
     imagesEndpoint: React.PropTypes.string
   },
 
@@ -93,6 +94,9 @@ var ChartDaily = React.createClass({
   bindEvents: function() {
     if (this.props.onDatetimeLocationChange) {
       this.chart.emitter.on('navigated', this.props.onDatetimeLocationChange);
+    }
+    if (this.props.onShowMessageThread) {
+      this.chart.emitter.on('messageThread',this.props.onShowMessageThread);
     }
   },
 
