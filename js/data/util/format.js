@@ -9,7 +9,7 @@ var format = {
       return '-- %';
     }
     else {
-      return parseInt(f.toFixed(2) * 100, 10) + '%';
+      return parseInt(Math.round(f * 100), 10) + '%';
     }
   }
 
