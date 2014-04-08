@@ -366,6 +366,19 @@ api.team.getNotes = function(teamId,cb){
   });
 };
 
+//Add a comment
+api.team.replyToMessageThread = function(message,cb){
+  api.log('GET /message/notes');
+  var token = tidepoolPlatformApi.getToken();
+
+  tidepool.replyToMessageThread(message.parentmessage, message ,token ,function(error,replyId){
+    if (err) {
+      return cb(err);
+    }
+    cb(null, replyId);
+  });
+};
+
 // ----- Patient data -----
 
 api.patientData = {};

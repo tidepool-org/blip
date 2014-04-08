@@ -285,6 +285,17 @@ var createPatch = function(options) {
       }, getDelayFor('api.team.getNotes'));
     };
 
+    api.team.replyToMessageThread = function(message,cb){
+      api.log('[mock] POST /message/reply ',message);
+
+      var fakeId = '99-99-ok'
+
+      setTimeout(function() {
+        cb(null, fakeId);
+      }, getDelayFor('api.team.replyToMessageThread'));
+
+    };
+
     // ----- Upload -----
     api.getUploadUrl = function() {
       return 'about:blank';

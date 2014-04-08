@@ -13,17 +13,17 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-.notethread {
+.messagethread {
   position: fixed;
-  z-index: @zindex-notification;
+  width: 30%;
+  z-index: @zindex-overlay;
   top: @spacing-small;
   left: 0;
   right: 0;
-  text-align: center;
 
   // Since this "transparent" div can cover links, buttons, etc.
   // give it 0 height to allow clicking "through" it
-  // (`.notification-inner` will still show)
+  // (`.messagethread-inner` will still show)
   height: 0;
 
   a,
@@ -34,9 +34,8 @@
   }
 }
 
-.notethread-inner {
+.messagethread-inner {
   display: inline-block;
-  text-align: center;
   margin-left: @spacing-small;
   margin-right: @spacing-small;
   padding: @spacing-small @spacing-base;
@@ -45,7 +44,22 @@
   border-radius: 4px;
 }
 
-.notethread-close {
+.messagethread-close {
   display: inline-block;
-  margin-left: @spacing-small;
+  float: right;
+}
+
+.message-when {
+  text-align: center;
+}
+
+.message-username {
+  font-size:small;
+}
+
+.comment {
+  margin-left: @spacing-large;
+}
+.comment-header {
+  font-size:small;
 }

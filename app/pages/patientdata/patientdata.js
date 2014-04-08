@@ -21,7 +21,7 @@ var config = window.config;
 
 var ChartDaily = require('../../components/chartdaily');
 var ChartWeekly = require('../../components/chartweekly');
-var NoteThread = require('../../components/messages');
+var MessageThread = require('../../components/messages');
 
 var PatientData = React.createClass({
   propTypes: {
@@ -30,7 +30,9 @@ var PatientData = React.createClass({
     isUserPatient: React.PropTypes.bool,
     uploadUrl: React.PropTypes.string,
     onRefresh: React.PropTypes.func,
-    onFetchMessageThread: React.PropTypes.func
+    onFetchMessageThread: React.PropTypes.func,
+    onSaveComment: React.PropTypes.func,
+    user: React.PropTypes.object
   },
 
   DEFAULT_TITLE: 'Patient data',
@@ -205,11 +207,12 @@ var PatientData = React.createClass({
   renderThread: function(thread) {
     /* jshint ignore:start */
     if(this.state.thread){
-      console.log('render the thread')
       return (
-        <NoteThread
+        <MessageThread
           messages={this.state.thread}
-          onClose={this.closeThread} />
+          user={this.props.user}
+          onClose={this.closeThread}
+          onAddComment={this.props.onSaveComment} />
       );
     }
     /* jshint ignore:end */
@@ -390,9 +393,7 @@ var PatientData = React.createClass({
     var fetchMessageThread = this.props.onFetchMessageThread;
     if (fetchMessageThread) {
       fetchMessageThread(messageThread,function(thread){
-
         self.setState({ thread: thread });
-
       });
     }
   },

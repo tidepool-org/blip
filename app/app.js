@@ -467,6 +467,9 @@ var AppComponent = React.createClass({
       fetchingPatientData: true
     });
 
+    /*
+      TODO: how should we best handle this?
+    */
     this.fetchPatientAndData(patientId);
     //this.fetchPatientData(this.state.patient.id,this.state.patient.team.id);
   },
@@ -482,12 +485,14 @@ var AppComponent = React.createClass({
     /* jshint ignore:start */
     return (
       <PatientData
+          user={this.state.user}
           patientData={this.state.patientData}
           fetchingPatientData={this.state.fetchingPatientData}
           isUserPatient={this.isUserPatient()}
           uploadUrl={api.getUploadUrl()}
           onRefresh={this.fetchCurrentPatientData}
-          onFetchMessageThread={this.fetchMessageThread}/>
+          onFetchMessageThread={this.fetchMessageThread}
+          onSaveComment={app.api.team.replyToMessageThread.bind(this.fetchMessageThread)}/>
     );
     /* jshint ignore:end */
   },
@@ -592,6 +597,9 @@ var AppComponent = React.createClass({
     });
   },
 
+  /*
+    TODO: how should we best handle this?
+  */
   fetchPatientAndData : function(patientId){
     var self = this;
 
@@ -619,6 +627,10 @@ var AppComponent = React.createClass({
     var self = this;
 
     self.setState({fetchingPatientData: true});
+
+    /*
+    TODO: how should we best handle this?
+    */
 
     app.api.patientData.get(patientId, function(err, patientData) {
       if (err) {
