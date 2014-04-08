@@ -240,6 +240,22 @@ module.exports = function(emitter) {
       cachedDomain = a;
     }
     if (sortReverse) {
+      if (a[0].toISOString().slice(0,10) === days[days.length - 1]) {
+        emitter.emit('mostRecent', true);
+      }
+      else {
+        emitter.emit('mostRecent', false);
+      }
+    }
+    else {
+      if (a[1].toISOString().slice(0,10) === days[0]) {
+        emitter.emit('mostRecent', true);
+      }
+      else {
+        emitter.emit('mostRecent', false);
+      }
+    }
+    if (sortReverse) {
       a.reverse();
       a[0].setUTCDate(a[0].getUTCDate() + 1);
     }
@@ -257,8 +273,7 @@ module.exports = function(emitter) {
       if ((topDate !== cachedDomain[0]) || (bottomDate !== cachedDomain[1])) {
         cachedDomain = [new Date(topDate + midnight), new Date(bottomDate + midnight)];
         emitter.emit('currentDomain', {
-          'domain': cachedDomain,
-          'startIndex': data[0].index
+          'domain': cachedDomain
         });
       }
     }
