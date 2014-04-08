@@ -242,12 +242,13 @@ api.patient.get = function(patientId, cb) {
         return cb(err);
       }
 
+      // set the team id that is used for group realated tasks
+      patient.team.id = group.id;
+
       var peopleIds = (group && group.members) || [];
       if (!peopleIds.length) {
         return cb(null, patient);
       }
-
-      patient.team.id = group.id;
 
       async.map(peopleIds, getUserProfile, function(err, people) {
         // Filter any people ids that returned nothing

@@ -628,10 +628,6 @@ var AppComponent = React.createClass({
 
     self.setState({fetchingPatientData: true});
 
-    /*
-    TODO: how should we best handle this?
-    */
-
     app.api.patientData.get(patientId, function(err, patientData) {
       if (err) {
         app.log('Error fetching data for patient with id ' + patientId, err);
@@ -639,10 +635,14 @@ var AppComponent = React.createClass({
         return;
       }
 
+      /*
+        TODO: how should we best handle this?
+      */
+
       teamNotes = self.fetchTeamNotes(teamId,function(teamNotes){
 
         if(teamNotes){
-          console.log('notes: ',teamNotes.length);
+          app.log('found notes: ',teamNotes.length);
           patientData = _.union(patientData,teamNotes);
         }
 
@@ -685,6 +685,7 @@ var AppComponent = React.createClass({
         app.log('Error fetching data for message thread with id ' + messageId);
         return callback(null);
       }
+      app.log('thread pulled back '+thread.length);
       return callback(thread);
     });
   },
