@@ -129,7 +129,7 @@ var PatientData = React.createClass({
         <div className="container-box-inner patient-data-subnav-inner">
           <div className="grid patient-data-subnav">
               {left}
-            <div className="grid-item one-whole large-one-half patient-data-subnav-center">
+            <div className={left ? "grid-item one-whole large-one-half patient-data-subnav-center" : "grid-item one-whole patient-data-subnav-center"}>
               {center}
             </div>
               {right}
