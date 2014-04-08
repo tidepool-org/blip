@@ -173,7 +173,6 @@ api.user.logout = function(cb) {
 // ----- Patient -----
 
 api.patient = {};
-api.team = {};
 
 function patientFromUserProfile(profile) {
   // Merge user profile attributes with patient
@@ -330,6 +329,7 @@ api.patient.getAll = function(cb) {
 };
 
 // ----- Team data -----
+api.team = {};
 
 //Get all messages for the given thread
 api.team.getMessageThread = function(messageId,cb){

@@ -45,7 +45,7 @@ var PatientData = React.createClass({
       title: this.DEFAULT_TITLE,
       datetimeLocation: null,
       showingValuesWeekly: false,
-      thread: null
+      messages: null
     };
   },
 
@@ -53,13 +53,13 @@ var PatientData = React.createClass({
     var subnav = this.renderSubnav();
     var patientData = this.renderPatientData();
     var footer = this.renderFooter();
-    var messages = this.renderThread();
+    var messageThread = this.renderMessageThread();
 
     /* jshint ignore:start */
     return (
       <div className="patient-data js-patient-data-page">
         {subnav}
-        {messages}
+        {messageThread}
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
@@ -204,12 +204,12 @@ var PatientData = React.createClass({
     /* jshint ignore:end */
   },
 
-  renderThread: function(thread) {
+  renderMessageThread: function() {
     /* jshint ignore:start */
-    if(this.state.thread){
+    if(this.state.messages){
       return (
         <MessageThread
-          messages={this.state.thread}
+          messages={this.state.messages}
           user={this.props.user}
           onClose={this.closeThread}
           onAddComment={this.props.onSaveComment} />
@@ -219,7 +219,7 @@ var PatientData = React.createClass({
   },
 
   closeThread: function(){
-    this.setState({ thread: null });
+    this.setState({ messages: null });
   },
   renderChart: function() {
     if (this.state.chartType === 'weekly') {
