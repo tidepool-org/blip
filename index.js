@@ -269,15 +269,11 @@ module.exports = function(host, superagent) {
         return cb({ message: 'Must specify a password' });
       }
 
-      var userApiUser = _.assign(
-        {},
-        _.pick(user, 'username', 'password'),
-        {emails: [user.username]}
-      );
+      var newUser = _.pick(user, 'username', 'password', 'emails');
 
       superagent
       .post(makeUrl('/auth/user'))
-      .send(userApiUser)
+      .send(newUser)
       .end(
       function(err, res){
         if (err != null) {
@@ -288,7 +284,11 @@ module.exports = function(host, superagent) {
           return handleHttpError(res, cb);
         }
 
-        cb(null,{userid:res.body.userid,token:res.headers[sessionTokenHeader]});
+        var data = _.assign({}, res.body, {
+          token: res.headers[sessionTokenHeader]
+        });
+
+        cb(null,data);
       });
     },
     /**
@@ -315,6 +315,58 @@ module.exports = function(host, superagent) {
       });
     },
     /**
+     * Get current user account info
+     *
+     * @param token a user token
+     * @returns {cb}  cb(err, response)
+     */
+    getCurrentUser : function(token, cb){
+      superagent
+      .get(makeUrl('/auth/user'))
+      .set(sessionTokenHeader, token)
+      .end(
+      function(err, res){
+        if (err != null) {
+          cb(err);
+        }
+
+        if (res.status !== 200) {
+          return handleHttpError(res, cb);
+        }
+
+        cb(null,res.body);
+      });
+    },
+    /**
+     * Update current user account info
+     *
+     * @param user object with account info
+     * @param token a user token
+     * @returns {cb}  cb(err, response)
+     */
+    updateCurrentUser : function(user, token, cb){
+      var updateData = {
+        updates: _.pick(user, 'username', 'password', 'emails')
+      };
+
+      superagent
+      .put(makeUrl('/auth/user'))
+      .set(sessionTokenHeader, token)
+      .send(updateData)
+      .end(
+      function(err, res){
+        if (err != null) {
+          cb(err);
+        }
+
+        if (res.status !== 200) {
+          return handleHttpError(res, cb);
+        }
+
+        cb(null,res.body);
+      });
+    },
+    /**
      * Add a new or update an existing profile for a user
      *
      * @param user object with profile info and `id` attribute
@@ -326,7 +378,7 @@ module.exports = function(host, superagent) {
         return cb({ message: 'Must specify an id' });
       }
 
-      var userProfile = _.omit(user, 'id', 'username', 'password');
+      var userProfile = _.omit(user, 'id', 'username', 'password', 'emails');
 
       superagent
       .put(makeUrl('/metadata/' + user.id + '/profile'))
