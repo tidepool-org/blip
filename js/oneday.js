@@ -149,25 +149,44 @@ module.exports = function(emitter) {
   container.panForward = function() {
     log('Jumped forward a day.');
     nav.currentTranslation -= width - axisGutter;
-    mainGroup.transition().duration(500).tween('zoom', function() {
+    var n = 0;
+    emitter.emit('inTransition', true);
+    mainGroup.transition()
+      .duration(500).tween('zoom', function() {
       var ix = d3.interpolate(nav.currentTranslation + width - axisGutter, nav.currentTranslation);
       return function(t) {
         nav.pan.translate([ix(t), 0]);
         nav.pan.event(mainGroup);
       };
-    });
+    })
+      .each(function() { ++n; })
+      .each('end', function() {
+        // this ugly solution courtesy of the man himself: https://groups.google.com/forum/#!msg/d3-js/WC_7Xi6VV50/j1HK0vIWI-EJ
+        if (!--n) {
+          emitter.emit('inTransition', false);
+        }
+      });
   };
 
   container.panBack = function() {
     log('Jumped back a day.');
     nav.currentTranslation += width - axisGutter;
+    var n = 0;
+    emitter.emit('inTransition', true);
     mainGroup.transition().duration(500).tween('zoom', function() {
       var ix = d3.interpolate(nav.currentTranslation - width + axisGutter, nav.currentTranslation);
       return function(t) {
         nav.pan.translate([ix(t), 0]);
         nav.pan.event(mainGroup);
       };
-    });
+    })
+      .each(function() { ++n; })
+      .each('end', function() {
+        // this ugly solution courtesy of the man himself: https://groups.google.com/forum/#!msg/d3-js/WC_7Xi6VV50/j1HK0vIWI-EJ
+        if (!--n) {
+          emitter.emit('inTransition', false);
+        }
+      });
   };
 
   container.newPool = function() {

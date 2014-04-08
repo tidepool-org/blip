@@ -76,48 +76,82 @@ module.exports = function(emitter) {
   // non-chainable methods
   container.panForward = function() {
     log('Jumped forward two weeks.');
+    var n = 0;
     if (sortReverse) {
       nav.currentTranslation += height - nav.axisHeight - statsHeight;
+      emitter.emit('inTransition', true);
       mainGroup.transition().duration(500).tween('zoom', function() {
         var iy = d3.interpolate(nav.currentTranslation - height + nav.axisHeight + statsHeight, nav.currentTranslation);
         return function(t) {
           nav.scroll.translate([0, iy(t)]);
           nav.scroll.event(mainGroup);
         };
+      })
+      .each(function() { ++n; })
+      .each('end', function() {
+        // this ugly solution courtesy of the man himself: https://groups.google.com/forum/#!msg/d3-js/WC_7Xi6VV50/j1HK0vIWI-EJ
+        if (!--n) {
+          emitter.emit('inTransition', false);
+        }
       });
     }
     else {
       nav.currentTranslation -= height - nav.axisHeight - statsHeight;
+      emitter.emit('inTransition', true);
       mainGroup.transition().duration(500).tween('zoom', function() {
         var iy = d3.interpolate(nav.currentTranslation + height - nav.axisHeight - statsHeight, nav.currentTranslation);
         return function(t) {
           nav.scroll.translate([0, iy(t)]);
           nav.scroll.event(mainGroup);
         };
+      })
+      .each(function() { ++n; })
+      .each('end', function() {
+        // this ugly solution courtesy of the man himself: https://groups.google.com/forum/#!msg/d3-js/WC_7Xi6VV50/j1HK0vIWI-EJ
+        if (!--n) {
+          emitter.emit('inTransition', false);
+        }
       });
     }
   };
 
   container.panBack = function() {
     log('Jumped back two weeks.');
+    var n = 0;
     if (sortReverse) {
       nav.currentTranslation -= height - nav.axisHeight - statsHeight;
+      emitter.emit('inTransition', true);
       mainGroup.transition().duration(500).tween('zoom', function() {
         var iy = d3.interpolate(nav.currentTranslation + height - nav.axisHeight - statsHeight, nav.currentTranslation);
         return function(t) {
           nav.scroll.translate([0, iy(t)]);
           nav.scroll.event(mainGroup);
         };
+      })
+      .each(function() { ++n; })
+      .each('end', function() {
+        // this ugly solution courtesy of the man himself: https://groups.google.com/forum/#!msg/d3-js/WC_7Xi6VV50/j1HK0vIWI-EJ
+        if (!--n) {
+          emitter.emit('inTransition', false);
+        }
       });
     }
     else {
       nav.currentTranslation += height - nav.axisHeight - statsHeight;
+      emitter.emit('inTransition', true);
       mainGroup.transition().duration(500).tween('zoom', function() {
         var iy = d3.interpolate(nav.currentTranslation - height + nav.axisHeight + statsHeight, nav.currentTranslation);
         return function(t) {
           nav.scroll.translate([0, iy(t)]);
           nav.scroll.event(mainGroup);
         };
+      })
+      .each(function() { ++n; })
+      .each('end', function() {
+        // this ugly solution courtesy of the man himself: https://groups.google.com/forum/#!msg/d3-js/WC_7Xi6VV50/j1HK0vIWI-EJ
+        if (!--n) {
+          emitter.emit('inTransition', false);
+        }
       });
     }
   };
