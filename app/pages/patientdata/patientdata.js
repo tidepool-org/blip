@@ -104,7 +104,7 @@ var PatientData = React.createClass({
           <div className="patient-data-subnav-text patient-data-subnav-text-dates">
             {this.state.title}
           </div>
-          <a href="" onClick={this.handlePanForward} className={this.state.atMostRecent ? "disabled" : ""}><i className="icon-next"></i></a>
+          <a href="" onClick={this.handlePanForward} className={this.state.atMostRecent ? "patient-data-subnav-disabled" : ""}><i className="icon-next"></i></a>
         </div>
       );
       /* jshint ignore:end */
