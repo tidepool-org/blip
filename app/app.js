@@ -708,12 +708,22 @@ var AppComponent = React.createClass({
     user = _.assign(_.cloneDeep(this.state.user), user);
 
     // Optimistic update
-    self.setState({user: user});
+    self.setState({user: _.omit(user, 'password')});
+
+    // If username hasn't changed, don't try to update
+    // or else backend will respond with "already taken" error
+    if (user.username === previousUser.username) {
+      user = _.omit(user, 'username');
+    }
 
     app.api.user.put(user, function(err, user) {
       if (err) {
+        var message = (err.body && err.body.msg) || '';
         self.setState({
-          notification: 'An error occured while saving user.'
+          notification: [
+            'An error occured while updating user account.',
+            message
+          ].join(' ')
         });
         // Rollback
         self.setState({user: previousUser});
