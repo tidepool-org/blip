@@ -29,6 +29,7 @@ var Chart = React.createClass({
     datetimeLocation: React.PropTypes.string,
     onDatetimeLocationChange: React.PropTypes.func,
     onSelectDataPoint: React.PropTypes.func,
+    onShowMessageThread: React.PropTypes.func,
     onTransition: React.PropTypes.func,
     onReachedMostRecent: React.PropTypes.func,
     imagesEndpoint: React.PropTypes.string
@@ -138,6 +139,10 @@ var Chart = React.createClass({
 
     if (this.props.onReachedMostRecent) {
       this.chart.emitter.on('mostRecent', this.props.onReachedMostRecent);
+    }
+
+    if (this.props.onShowMessageThread) {
+      this.chart.emitter.on('messageThread', this.props.onShowMessageThread);
     }
   },
 
