@@ -19,6 +19,7 @@ var d3 = require('../lib/').d3;
 var _ = require('../lib/')._;
 
 var Duration = require('../lib/').Duration;
+var format = require('../data/util/format');
 var log = require('../lib/').bows('Bolus');
 
 module.exports = function(pool, opts) {
@@ -217,28 +218,48 @@ module.exports = function(pool, opts) {
     });
   }
 
+  function formatValue(x) {
+    var formatted = d3.format('.3f')(x);
+    // remove zero-padding on the right
+    while (formatted[formatted.length - 1] === '0') {
+      formatted = formatted.slice(0, formatted.length - 1);
+    }
+    if (formatted[formatted.length - 1] === '.') {
+      formatted = formatted + '0';
+    }
+    return formatted;
+  }
+
+  function recommendedBolusTooltipTextFn(d) {
+    return function() {
+      return formatValue(d.recommended) + "U recom'd";
+    };
+  }
+
+  function extendedBolusTooltipTextFn(d) {
+    return function() {
+      return format.percentage(d.extendedDelivery / d.value) + ' ' + bolus.timespan(d);
+    };
+  }
+
   bolus.getTooltipCategory = function(d) {
     var category;
     // when there's no 'recommended' field
     if (d.recommended == null) {
       if (d.extended == null) {
         category = 'unspecial';
-      }
-      else {
+      } else {
         category = 'two-line';
       }
     }
     else {
       if ((d.extended == null) && (d.recommended === d.value)) {
         category = 'unspecial';
-      }
-      else if ((d.extended == null) && (d.recommended !== d.value)) {
+      } else if ((d.extended == null) && (d.recommended !== d.value)) {
         category = 'two-line';
-      }
-      else if ((d.recommended === d.value) && (d.extended != null)) {
+      } else if ((d.recommended === d.value) && (d.extended != null)) {
         category = 'two-line';
-      }
-      else if ((d.recommended !== d.value) && (d.extended != null)) {
+      } else if ((d.recommended !== d.value) && (d.extended != null)) {
         category = 'three-line';
       }
     }
@@ -249,19 +270,6 @@ module.exports = function(pool, opts) {
     var tooltipWidth = opts.classes[category].width;
     var tooltipHeight = opts.classes[category].height;
     
-    // TODO: if we decide to keep same formatValue for basal and bolus, factor this out into a util/ module
-    var formatValue = function(x) {
-      var formatted = d3.format('.3f')(x);
-      // remove zero-padding on the right
-      while (formatted[formatted.length - 1] === '0') {
-        formatted = formatted.slice(0, formatted.length - 1);
-      }
-      if (formatted[formatted.length - 1] === '.') {
-        formatted = formatted + '0';
-      }
-      return formatted;
-    };
-
     d3.select('#' + 'tidelineTooltips_bolus')
       .call(pool.tooltips(),
         d,
@@ -285,14 +293,11 @@ module.exports = function(pool, opts) {
         function() {
           if (category === 'unspecial') {
             return pool.height() - tooltipHeight * (9/16);
-          }
-          else if (category === 'two-line') {
+          } else if (category === 'two-line') {
             return pool.height() - tooltipHeight * (3/4);
-          }
-          else if (category === 'three-line') {
+          } else if (category === 'three-line') {
             return pool.height() - tooltipHeight * (13/16);
-          }
-          else {
+          } else {
             return pool.height() - tooltipHeight;
           }
           
@@ -310,24 +315,23 @@ module.exports = function(pool, opts) {
       );
 
     if (category === 'two-line') {
-      d3.select('#tooltip_' + d._id).select('.d3-tooltip-text-group').append('text')
+      var twoLineSelection = d3.select('#tooltip_' + d._id).select('.d3-tooltip-text-group').append('text')
         .attr({
           'class': 'd3-tooltip-text d3-bolus',
           'x': opts.xScale(Date.parse(d.normalTime)) + tooltipWidth / 2,
           'y': pool.height() - tooltipHeight / 3
         })
-        .append('tspan')
-        .text(function() {
-          if ((d.recommended != null) && (d.recommended !== d.value)) {
-            return formatValue(d.recommended) + "U recom'd";
-          }
-          else if (d.extended != null) {
-            return formatValue(d.extendedDelivery) + 'U ' + bolus.timespan(d);
-          }
-        })
-        .attr('class', 'd3-bolus');
-    }
-    else if (category === 'three-line') {
+        .append('tspan');
+
+      if ((d.recommended != null) && (d.recommended !== d.value)) {
+        twoLineSelection.text(recommendedBolusTooltipTextFn(d));
+      }
+      else if (d.extended != null) {
+        twoLineSelection.text(extendedBolusTooltipTextFn(d));
+      }
+
+      twoLineSelection.attr('class', 'd3-bolus');
+    } else if (category === 'three-line') {
       d3.select('#tooltip_' + d._id).select('.d3-tooltip-text-group').append('text')
         .attr({
           'class': 'd3-tooltip-text d3-bolus',
@@ -335,9 +339,7 @@ module.exports = function(pool, opts) {
           'y': pool.height() - tooltipHeight / 2
         })
         .append('tspan')
-        .text(function() {
-          return formatValue(d.recommended) + "U recom'd";
-        })
+        .text(recommendedBolusTooltipTextFn(d))
         .attr('class', 'd3-bolus');
 
       d3.select('#tooltip_' + d._id).select('.d3-tooltip-text-group').append('text')
@@ -347,9 +349,7 @@ module.exports = function(pool, opts) {
           'y': pool.height() - tooltipHeight / 4
         })
         .append('tspan')
-        .text(function() {
-          return formatValue(d.extendedDelivery) + 'U ' + bolus.timespan(d);
-        })
+        .text(extendedBolusTooltipTextFn(d))
         .attr('class', 'd3-bolus');
     }
   };
@@ -376,8 +376,7 @@ module.exports = function(pool, opts) {
         default:
           return 'over ' + hours + ' hr ' + minutes + ' min';
         }
-      }
-      else {
+      } else {
         switch(minutes) {
         case 0:
           return 'over ' + hours + ' hrs';
@@ -395,8 +394,7 @@ module.exports = function(pool, opts) {
           return 'over ' + hours + ' hrs ' + minutes + ' min';
         }
       }
-    }
-    else {
+    } else {
       return 'over ' + minutes + ' min';
     }
   };
