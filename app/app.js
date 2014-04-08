@@ -17,6 +17,7 @@
 var React = window.React;
 var bows = window.bows;
 var _ = window._;
+var async = window.async;
 var config = window.config;
 
 // These requires will be deprecated when Tidepool Platform Client and Tideline
@@ -110,7 +111,8 @@ var AppComponent = React.createClass({
       patient: null,
       fetchingPatient: true,
       patientData: null,
-      fetchingPatientData: true
+      fetchingPatientData: true,
+      fetchingMessageData: true
     };
   },
 
@@ -325,7 +327,9 @@ var AppComponent = React.createClass({
       // (important to have this on next render)
       fetchingPatient: true
     });
-    this.fetchPatient(patientId);
+    this.fetchPatient(patientId,function(err,patient){
+      return;
+    });
   },
 
   renderPatient: function() {
@@ -465,8 +469,12 @@ var AppComponent = React.createClass({
       patientData: null,
       fetchingPatientData: true
     });
-    this.fetchPatient(patientId);
-    this.fetchPatientData(patientId);
+
+    var self = this;
+    this.fetchPatient(patientId, function(err, patient) {
+      self.fetchPatientData(patient);
+    });
+
   },
 
   renderPatientData: function() {
@@ -480,11 +488,14 @@ var AppComponent = React.createClass({
     /* jshint ignore:start */
     return (
       <PatientData
+          user={this.state.user}
           patientData={this.state.patientData}
           fetchingPatientData={this.state.fetchingPatientData}
           isUserPatient={this.isUserPatient()}
           uploadUrl={api.getUploadUrl()}
-          onRefresh={this.fetchCurrentPatientData}/>
+          onRefresh={this.fetchCurrentPatientData}
+          onFetchMessageThread={this.fetchMessageThread}
+          onSaveComment={app.api.team.replyToMessageThread.bind(this.fetchMessageThread)}/>
     );
     /* jshint ignore:end */
   },
@@ -569,7 +580,7 @@ var AppComponent = React.createClass({
     });
   },
 
-  fetchPatient: function(patientId) {
+  fetchPatient: function(patientId, callback) {
     var self = this;
 
     self.setState({fetchingPatient: true});
@@ -586,29 +597,74 @@ var AppComponent = React.createClass({
         patient: patient,
         fetchingPatient: false
       });
+
+      //so that if the cb is defined we can use the
+      //patient to load other information
+      if(callback){
+        return callback(null,patient);
+      }
     });
   },
 
-  fetchPatientData: function(patientId) {
+  fetchPatientData: function(patient) {
     var self = this;
+
+    var patientId = patient.id;
+    var teamId = patient.team && patient.team.id;
 
     self.setState({fetchingPatientData: true});
 
-    app.api.patientData.get(patientId, function(err, patientData) {
+    var loadPatientData = function(cb) {
+      app.api.patientData.get(patientId,cb);
+    };
+
+    var loadTeamNotes = function(cb) {
+      app.api.team.getNotes(teamId,cb);
+    };
+
+    async.parallel({
+      patientData: loadPatientData,
+      teamNotes: loadTeamNotes
+    },
+    function(err, results) {
       if (err) {
         app.log('Error fetching data for patient with id ' + patientId, err);
         self.setState({fetchingPatientData: false});
         return;
       }
 
-      patientData = self.processPatientData(patientData);
+      var notes = results.teamNotes;
+      var patientData = results.patientData;
 
+      if(notes){
+        app.log('found notes: ',notes.length);
+        patientData = _.union(patientData,notes);
+      }
+
+      patientData = self.processPatientData(patientData);
       self.logPatientDataInfo(patientData);
 
       self.setState({
         patientData: patientData,
         fetchingPatientData: false
       });
+    });
+  },
+
+  fetchMessageThread: function(messageId,callback) {
+    app.log('fetching messages for ' + messageId);
+
+    var self = this;
+    self.setState({fetchingMessageData: true});
+
+    app.api.team.getMessageThread(messageId,function(error,thread){
+      self.setState({fetchingMessageData: false});
+      if (error) {
+        app.log('Error fetching data for message thread with id ' + messageId);
+        return callback(null);
+      }
+      app.log('thread pulled back '+thread.length);
+      return callback(thread);
     });
   },
 
@@ -629,7 +685,7 @@ var AppComponent = React.createClass({
       return;
     }
 
-    this.fetchPatientData(patient.id);
+    this.fetchPatientData(patient);
   },
 
   clearUserData: function() {
