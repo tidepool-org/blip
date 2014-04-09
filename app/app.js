@@ -36,6 +36,7 @@ var detectTouchScreen = require('./core/notouch');
 var Navbar = require('./components/navbar');
 var LogoutOverlay = require('./components/logoutoverlay');
 var Notification = require('./components/notification');
+var TermsOverlay = require('./components/termsoverlay');
 
 var Login = require('./pages/login');
 var Signup = require('./pages/signup');
@@ -112,7 +113,8 @@ var AppComponent = React.createClass({
       fetchingPatient: true,
       patientData: null,
       fetchingPatientData: true,
-      fetchingMessageData: true
+      fetchingMessageData: true,
+      showingAcceptTerms: false
     };
   },
 
@@ -182,6 +184,14 @@ var AppComponent = React.createClass({
       /* jshint ignore:start */
       return (
         <LogoutOverlay ref="logoutOverlay" />
+      );
+      /* jshint ignore:end */
+    }
+
+    if (this.state.showingAcceptTerms) {
+      /* jshint ignore:start */
+      return (
+        <TermsOverlay onSubmit={this.handleAcceptedTerms} />
       );
       /* jshint ignore:end */
     }
@@ -510,9 +520,16 @@ var AppComponent = React.createClass({
     this.setState({
       authenticated: true,
       user: user,
-      fetchingUser: false
+      fetchingUser: false,
+      showingAcceptTerms: config.SHOW_ACCEPT_TERMS ? true : false
     });
     this.redirectToDefaultRoute();
+  },
+
+  handleAcceptedTerms: function() {
+    this.setState({
+      showingAcceptTerms: false
+    });
   },
 
   logout: function() {

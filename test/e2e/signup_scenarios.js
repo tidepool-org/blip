@@ -40,6 +40,17 @@ describe('Signup', function() {
       });
   });
 
+  it('should show terms overlay that is dismissed once accepted', function(done) {
+    openAppToSignup()
+      .then(fillOutForm)
+      .then(submitForm)
+      .then(acceptTerms)
+      .then(function() {
+        expect('.js-terms').dom.not.to.be.visible();
+        done();
+      });
+  });
+
   function openAppToSignup(qs) {
     return openAppTo('/signup', qs);
   }
@@ -60,5 +71,12 @@ describe('Signup', function() {
       .then(function(q) {
         return q.click();
       });
+  }
+
+  function acceptTerms() {
+    helpers.findElement(By.css('.js-terms-checkbox'))
+      .then(function(q) { return q.click(); });
+    return helpers.findElement(By.css('.js-terms-submit'))
+      .then(function(q) { return q.click(); });
   }
 });
