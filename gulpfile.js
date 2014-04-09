@@ -24,7 +24,7 @@ process.env.IMAGES_ENDPOINT = 'build/' + pkg.version + '/images';
 var jshintrc = JSON.parse(fs.readFileSync('.jshintrc'));
 var testem = require('./testem.json');
 
-gulp.task('jshint-app', function() {
+gulp.task('jshint-app', function(cb) {
   var stream = gulp.src(['app/**/*.js', 'mock/**/*.js'])
     .pipe(jshint(jshintrc))
     .pipe(jshint.reporter('jshint-stylish'));
@@ -33,10 +33,10 @@ gulp.task('jshint-app', function() {
     stream = stream.pipe(jshint.reporter('fail'));
   }
 
-  return stream;
+  stream.on('end', cb);
 });
 
-gulp.task('jshint-test', function() {
+gulp.task('jshint-test', function(cb) {
   var stream = gulp.src('test/**/*.js')
     .pipe(jshint(_.extend({}, jshintrc, {
       newcap: false,
@@ -49,7 +49,7 @@ gulp.task('jshint-test', function() {
     stream = stream.pipe(jshint.reporter('fail'));
   }
 
-  return stream;
+  stream.on('end', cb);
 });
 
 gulp.task('jshint', ['jshint-app', 'jshint-test']);
