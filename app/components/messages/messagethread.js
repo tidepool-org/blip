@@ -22,6 +22,7 @@ not, you can obtain one from Tidepool Project at tidepool.org.
 
 var React = window.React;
 var moment = window.moment;
+var _ = window._;
 
 var SimpleForm = require('../simpleform');
 
@@ -36,8 +37,7 @@ var MessageThread = React.createClass({
 
   getInitialState: function() {
     return {
-      formValues: {},
-      parentId: null
+      formValues: {}
     };
   },
 
@@ -86,7 +86,6 @@ var MessageThread = React.createClass({
   renderThread:function(){
     var thread = this.props.messages.map(function(message, i) {
       if(!message.parentmessage) {
-        this.setState({ parentId : message.id });
         return this.renderMessage(message);
       } else if (message.parentmessage) {
         return this.renderComment(message);
@@ -103,7 +102,7 @@ var MessageThread = React.createClass({
   render: function() {
     var thread = this.renderThread();
     var close = this.renderClose();
-    var commentForm = null;//this.renderCommentForm();
+    var commentForm = this.renderCommentForm();
 
     return (
      /* jshint ignore:start */
@@ -117,6 +116,9 @@ var MessageThread = React.createClass({
      /* jshint ignore:end */
      );
   },
+  getParentId : function(){
+    return _.pluck(_.first(this.props.messages, { 'parentmessage' : '' }), 'id').toString();
+  },
   handleAddComment : function (formValues){
 
     if(formValues.comment){
@@ -124,7 +126,7 @@ var MessageThread = React.createClass({
       var addComment = this.props.onAddComment;
 
       var comment = {
-        parentmessage : this.state.parentId,
+        parentmessage : this.getParentId(),
         userid : this.props.user.id,
         messagetext : formValues.comment,
         timestamp : new Date().toISOString()
