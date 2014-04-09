@@ -167,7 +167,7 @@ var Chart = React.createClass({
         this.chart.clear().locate();
         break;
       case 'weekly':
-        this.chart.mostRecent();
+        this.chart.clear().load(this.props.patientData);
         break;
       default:
         throw new Error('Unknown chart type: ' + this.chart.type);
