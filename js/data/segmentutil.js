@@ -164,7 +164,7 @@ module.exports = function(data){
 
   log(overlaps.length, 'instances of scheduled overlapping a scheduled.');
   if (overlaps.length > 0) {
-    log('First example', overlaps[0][0], overlaps[0][1]);
+    log('First example', overlaps[0], overlaps[1]);
   }
 
   var actual = actuals.getArray();
