@@ -39,7 +39,7 @@
 }
 
 .patient-data-subnav-text-dates {
-  width: 230px;
+  width: 250px;
   
   padding-left: 0;
   padding-right: 0;
@@ -58,22 +58,23 @@
     text-decoration: none;
   }
 
-  &:active {
+  &:active,
+  &.patient-data-subnav-disabled {
     color: @gray;
+    cursor: default;
   }
 }
 
 .patient-data-subnav a.patient-data-subnav-active {
-  color: @gray;
-  background: @gray-darkest;
-}
-
-.patient-data-subnav-left {
-  text-align: left;
+  font-weight: bold;
 }
 
 .patient-data-subnav-center {
   text-align: center;
+}
+
+.patient-data-subnav-left {
+  text-align: left;
 }
 
 .patient-data-subnav-right {
@@ -135,8 +136,7 @@
 @patient-data-footer-horizontal-padding:  @spacing-small;
 
 .patient-data-footer-inner {
-  color: @gray-darker;
-  background-color: @gray;
+  background-color: @gray-dark;
 
   padding-left: 0;
   padding-right: 0;
@@ -145,10 +145,10 @@
 }
 
 .patient-data-footer a {
+  color: #fff;
   display: inline-block;
   padding: @patient-data-footer-vertical-padding @patient-data-footer-horizontal-padding;
 
-  color: @gray-darker;
   text-decoration: none;
 
   &:hover,

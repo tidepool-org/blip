@@ -20,39 +20,15 @@ var _ = window._;
 var bows = window.bows;
 
 var tideline = require('../../bower_components/tideline/js');
-
 window.tideline = tideline;
 
-// Roll our own watson, until included in Tideline or deprecated
-tideline.watson = {
-  log: bows('Watson'),
+tideline.watson = require('../../bower_components/tideline/plugins/data/watson');
+window.tideline.watson = tideline.watson;
 
-  normalize: function(a) {
-    this.log('Watson normalized the data.');
-    return _.map(a, function(i) {
-      i.normalTime = i.deviceTime + 'Z';
-      if (i.utcTime) {
-        var d = new Date(i.utcTime);
-        var offsetMinutes = d.getTimezoneOffset();
-        d.setMinutes(d.getMinutes() - offsetMinutes);
-        i.normalTime = d.toISOString();
-      }
-      else if (i.type === 'basal-rate-segment') {
-        i.normalTime = i.start + 'Z';
-        i.normalEnd = i.end + 'Z';
-      }
-      return i;
-    });
-  },
+tideline.preprocess = require('../../bower_components/tideline/plugins/data/preprocess');
+window.tideline.preprocess = tideline.preprocess;
 
-  print: function(arg, d) {
-    console.log(arg, d.toUTCString().replace(' GMT', ''));
-    return;
-  },
-
-  strip: function(d) {
-    return d.toUTCString().replace(' GMT', '');
-  }
-};
+tideline.blip = require('../../bower_components/tideline/plugins/blip');
+window.tideline.blip = tideline.blip;
 
 module.exports = tideline;
