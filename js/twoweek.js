@@ -229,20 +229,6 @@ module.exports = function(emitter) {
       });
   };
 
-  container.mostRecent = function() {
-    var translation;
-    if (sortReverse) {
-      translation = yScale(dataStartNoon) + height - nav.axisHeight - statsHeight - container.currentTranslation();
-    }
-    else {
-      translation = yScale(dataStartNoon) - height - nav.axisHeight - statsHeight + container.currentTranslation();
-    }
-    nav.scroll.translate([0, translation]);
-    nav.scroll.event(mainGroup);
-
-    return container;
-  };
-
   container.clear = function() {
     emitter.removeAllListeners('numbers');
     container.currentTranslation(0).latestTranslation(0);

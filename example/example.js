@@ -119,7 +119,7 @@ d3.json('data/device-data.json', function(data) {
   $('#mostRecent').on('click', function() {
     log('Navigated to most recent data.');
     if ($('#twoWeekView').parent().hasClass('active')) {
-      twoWeek.clear().load(data, date);
+      twoWeek.clear().load(data);
     }
     else {
       oneDay.clear().locate();
