@@ -16,6 +16,7 @@
  */
 
 var crossfilter = require('../../lib/').crossfilter;
+var _ = require('../../lib/')._;
 
 var log = require('../../lib/').bows('TidelineCrossFilter');
 
@@ -27,6 +28,7 @@ function TidelineCrossFilter(data) {
     switch(key) {
     case 'date':
       accessor = function(d) { return new Date(d.normalTime).valueOf(); };
+      break;
     }
 
     return this.cf.dimension(accessor);

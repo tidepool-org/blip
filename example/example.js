@@ -67,12 +67,12 @@ twoWeek.emitter.on('mostRecent', function(mostRecent) {
 });
 
 // load data and draw charts
-d3.json('data/device-data.json', function(data) {
+d3.json('data/blip-output.json', function(data) {
   log('Data loaded.');
   data = preprocess.processData(data);
 
   log('Initial one-day view.');
-  oneDay.load(data).locate('2014-03-06T09:00:00');
+  oneDay.load(data).locate('2014-03-06T09:00:00.000Z');
   // attach click handlers to set up programmatic pan
   $('#tidelineNavForward').on('click', oneDay.panForward);
   $('#tidelineNavBack').on('click', oneDay.panBack);

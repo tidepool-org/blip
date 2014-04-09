@@ -110,17 +110,16 @@ function chartDailyFactory(el, options) {
     return chart;
   };
 
-  chart.load = function(data, datetime) {
-    // data munging utilities for stats
-    // TODO: this stuff probably belongs in chartutil.js
-    // and a common basalUtil, bolusUtil, and cbgUtil can be shared between one-day and two-week
-    var basalUtil = new tideline.data.BasalUtil(_.where(data, {'type': 'basal-rate-segment'}));
-    var bolusUtil = new tideline.data.BolusUtil(_.where(data, {'type': 'bolus'}));
-    var cbgUtil = new tideline.data.CBGUtil(_.where(data, {'type': 'cbg'}));
+  chart.load = function(tidelineData, datetime) {
+    var data = tidelineData.data;
+
+    var basalUtil = tidelineData.basalUtil;
+    var bolusUtil = tidelineData.bolusUtil;
+    var cbgUtil = tidelineData.cbgUtil;
 
     chart.stopListening();
     // initialize chart with data
-    chart.data(data).setAxes().setNav().setScrollNav();
+    chart.data(tidelineData).setAxes().setNav().setScrollNav();
 
     // BG pool
     var allBG = _.filter(data, function(d) {
@@ -219,12 +218,11 @@ function chartDailyFactory(el, options) {
   // if called without an argument, locates the chart at the most recent 24 hours of data
   chart.locate = function(datetime) {
 
-    var start, end, localData, scrollHandleTrigger = false;
+    var start, end, scrollHandleTrigger = false;
 
     var mostRecent = function() {
       start = chart.initialEndpoints[0];
       end = chart.initialEndpoints[1];
-      localData = chart.getData(chart.initialEndpoints, 'both');
     };
 
     if (!arguments.length) {
@@ -234,6 +232,7 @@ function chartDailyFactory(el, options) {
     else {
       // translate the desired center-of-view datetime into an edgepoint for tideline
       start = new Date(datetime);
+      chart.currentCenter(start);
       var plusHalf = new Date(start);
       plusHalf.setUTCHours(plusHalf.getUTCHours() + 12);
       var minusHalf = new Date(start);
@@ -251,26 +250,27 @@ function chartDailyFactory(el, options) {
         var firstEnd = new Date(start);
         firstEnd.setUTCDate(firstEnd.getUTCDate() + 1);
         end = firstEnd;
-        localData = chart.getData([start, firstEnd], 'both');
       }
       else {
         end = new Date(start);
         start.setUTCHours(start.getUTCHours() - 12);
         end.setUTCHours(end.getUTCHours() + 12);
-
-        localData = chart.getData([start, end], 'both');
       }
     }
 
-    chart.beginningOfData(start).endOfData(end);
-    chart.allData(localData, [start, end]);
+    chart.renderedData([start, end]);
 
-    chart.setAtDate(start, scrollHandleTrigger).navString([start, end]);
+    chart.setAtDate(start, scrollHandleTrigger);
+
+    var translation = chart.currentTranslation();
 
     // render pools
-    chart.pools().forEach(function(pool) {
-      pool.render(chart.poolGroup(), localData);
+    _.each(chart.pools(), function(pool) {
+      pool.render(chart.poolGroup(), chart.renderedData());
+      pool.pan({'translate': [translation, 0]});
     });
+
+    chart.navString([start, end]);
 
     return chart;
   };

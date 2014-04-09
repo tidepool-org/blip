@@ -58,19 +58,16 @@ function chartWeeklyFactory(el, options) {
     return chart;
   };
 
-  chart.load = function(data, datetime) {
-    // data munging utilities for stats
-    // TODO: this stuff probably belongs in chartutil.js
-    // and a common basalUtil, bolusUtil, and cbgUtil can be shared between one-day and two-week
-    var basalUtil = new tideline.data.BasalUtil(_.where(data, {'type': 'basal-rate-segment'}));
-    var bolusUtil = new tideline.data.BolusUtil(_.where(data, {'type': 'bolus'}));
-    var cbgUtil = new tideline.data.CBGUtil(_.where(data, {'type': 'cbg'}));
+  chart.load = function(tidelineData, datetime) {
+    var basalUtil = tidelineData.basalUtil;
+    var bolusUtil = tidelineData.bolusUtil;
+    var cbgUtil = tidelineData.cbgUtil;
 
     if (!datetime) {
-      chart.data(_.where(data, {'type': 'smbg'}));
+      chart.data(tidelineData.grouped.smbg);
     }
     else {
-      var smbgData = _.where(data, {'type': 'smbg'});
+      var smbgData = tidelineData.grouped.smbg;
       if (datetime.valueOf() > Date.parse(smbgData[smbgData.length - 1].normalTime)) {
         datetime = smbgData[smbgData.length - 1].normalTime;
       }

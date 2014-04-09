@@ -30,7 +30,7 @@ module.exports = {
     util: {
       datetime: require('./data/util/datetime'),
       format: require('./data/util/format'),
-      TidelineCrossFilter: ('./data/util/tidelinecrossfilter')
+      TidelineCrossFilter: require('./data/util/tidelinecrossfilter')
     }
   },
 

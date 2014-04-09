@@ -98,6 +98,11 @@ var datetime = {
     else { return false; }
   },
 
+  toISODateString: function(d) {
+    var d = new Date(d);
+    return d.toISOString().slice(0,10);
+  },
+
   verifyEndpoints: function(s, e, endpoints) {
     if (!endpoints) {
       return null;
@@ -117,7 +122,6 @@ var datetime = {
       return false;
     }
   }
-
 
 };
 

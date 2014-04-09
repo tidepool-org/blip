@@ -43,7 +43,7 @@ module.exports = function(emitter) {
     statsHeight = 100,
     pools = [], poolGroup, days, daysGroup,
     xScale = d3.scale.linear(), xAxis, yScale = d3.time.scale.utc(), yAxis,
-    data, endpoints, viewEndpoints, dataStartNoon, dataEndNoon, poolScaleHeight,
+    tidelineData, data, endpoints, viewEndpoints, dataStartNoon, dataEndNoon, poolScaleHeight,
     lessThanTwoWeeks = false,
     sortReverse = true, viewIndex,
     mainGroup, scrollNav, scrollHandleTrigger = true,
@@ -705,8 +705,8 @@ module.exports = function(emitter) {
 
     data = a;
 
-    var first = new Date(a[0].normalTime);
-    var last = new Date(a[a.length - 1].normalTime);
+    var first = new Date(data[0].normalTime);
+    var last = new Date(data[data.length - 1].normalTime);
     
     endpoints = [first, last];
     container.endpoints = endpoints;

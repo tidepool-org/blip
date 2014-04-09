@@ -17,6 +17,9 @@
 
 var _ = require('./lib/')._;
 var TidelineCrossFilter = require('./data/util/tidelinecrossfilter');
+var BasalUtil = require('./data/basalutil');
+var BolusUtil = require('./data/bolusutil');
+var CBGUtil = require('./data/cbgutil');
 
 var log = require('./lib/').bows('TidelineData');
 
@@ -24,11 +27,15 @@ function TidelineData(data) {
 
   this.data = data;
 
-  // this.filterData = new TidelineCrossFilter(data);
+  this.filterData = new TidelineCrossFilter(data);
 
-  // this.dataByDate = this.filterData.addDimension('date');
+  this.dataByDate = this.filterData.addDimension('date');
 
-  
+  this.grouped = _.groupBy(data, function(d) { return d.type; });
+
+  this.basalUtil = new BasalUtil(this.grouped['basal-rate-segment']);
+  this.bolusUtil = new BolusUtil(this.grouped.bolus);
+  this.cbgUtil = new CBGUtil(this.grouped.cbg);
 
   return this;
 }

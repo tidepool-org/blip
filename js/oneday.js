@@ -18,6 +18,8 @@
 var d3 = require('./lib/').d3;
 var _ = require('./lib/')._;
 
+var dt = require('./data/util/datetime');
+
 var log = require('./lib/').bows('One Day');
 
 module.exports = function(emitter) {
@@ -42,10 +44,10 @@ module.exports = function(emitter) {
       currentTranslation: 0
     },
     axisGutter = 40, gutter = 40,
-    buffer = 5,
+    buffer = 2,
     pools = [], poolGroup,
     xScale = d3.time.scale.utc(), xAxis,
-    beginningOfData, endOfData, tidelineData, data, allData = [], endpoints,
+    currentCenter, data, tidelineData, renderedData = [], endpoints,
     mainGroup,
     scrollNav, scrollHandleTrigger = true, tooltips;
 
@@ -113,39 +115,6 @@ module.exports = function(emitter) {
   }
 
   // non-chainable methods
-  container.getData = function(endpoints, direction) {
-    if (!arguments.length) {
-      endpoints = container.initialEndpoints;
-      direction = 'both';
-    }
-
-    var start = new Date(endpoints[0]);
-    var end = new Date(endpoints[1]);
-
-    container.currentEndpoints = [start, end];
-
-    var readings = _.filter(data, function(datapoint) {
-      var t = Date.parse(datapoint.normalTime);
-      if (direction === 'both') {
-        if ((t >= start) && (t <= end)) {
-          return datapoint;
-        }
-      }
-      else if (direction === 'left') {
-        if ((t >= start) && (t < end)) {
-          return datapoint;
-        }
-      }
-      else if (direction === 'right') {
-        if ((t > start) && (t <= end)) {
-          return datapoint;
-        }
-      }
-    });
-
-    return readings;
-  };
-
   container.panForward = function() {
     log('Jumped forward a day.');
     nav.currentTranslation -= width - axisGutter;
@@ -275,11 +244,17 @@ module.exports = function(emitter) {
     return axisGutter;
   };
 
+  container.dateAtCenter = function() {
+    return dt.toISODateString(new Date(container.currentCenter().toISOString()));
+  };
+
   // chainable methods
   container.setAxes = function() {
     // set the domain and range for the main tideline x-scale
     xScale.domain([container.initialEndpoints[0], container.initialEndpoints[1]])
       .range([axisGutter, width]);
+
+    container.currentCenter(container.getCurrentDomain().center);
 
     var tickFormat = d3.time.format.utc.multi([
       ['%b %-d', function(d) { return d.getUTCHours() === 0; }],
@@ -300,7 +275,7 @@ module.exports = function(emitter) {
 
     if (nav.scrollNav) {
       nav.scrollScale = d3.time.scale.utc()
-        .domain([endpoints[0], container.currentEndpoints[0]])
+        .domain([endpoints[0], container.initialEndpoints[0]])
         .range([axisGutter + nav.scrollThumbRadius, width - nav.scrollThumbRadius]);
     }
 
@@ -318,39 +293,13 @@ module.exports = function(emitter) {
       .scaleExtent([1, 1])
       .x(xScale)
       .on('zoom', function() {
-        if ((endOfData - xScale.domain()[1] < MS_IN_24) && !(endOfData.valueOf() === endpoints[1].valueOf())) {
-          log('Rendering new data! (right)');
-          var plusOne = new Date(container.endOfData());
-          plusOne.setDate(plusOne.getDate() + 1);
-          var newData = container.getData([endOfData, plusOne], 'right');
-          // update endOfData
-          if (plusOne <= endpoints[1]) {
-            container.endOfData(plusOne);
-          }
-          else {
-            container.endOfData(endpoints[1]);
-          }
-          container.allData(newData);
+        log(dt.toISODateString(container.getCurrentDomain().center), container.dateAtCenter());
+        if (dt.toISODateString(container.getCurrentDomain().center) !== container.dateAtCenter()) {
+          container.renderedData(xScale.domain());
           for (var j = 0; j < pools.length; j++) {
-            pools[j].render(poolGroup, container.allData());
+            pools[j].render(poolGroup, container.renderedData());
           }
-        }
-        if ((xScale.domain()[0] - beginningOfData < MS_IN_24) && !(beginningOfData.valueOf() === endpoints[0].valueOf())) {
-          log('Rendering new data! (left)');
-          var plusOne = new Date(container.beginningOfData());
-          plusOne.setDate(plusOne.getDate() - 1);
-          var newData = container.getData([plusOne, beginningOfData], 'left');
-          // update beginningOfData
-          if (plusOne >= endpoints[0]) {
-            container.beginningOfData(plusOne);
-          }
-          else {
-            container.beginningOfData(endpoints[0]);
-          }
-          container.allData(newData);
-          for (var j = 0; j < pools.length; j++) {
-            pools[j].render(poolGroup, container.allData());
-          }
+          container.currentCenter(container.getCurrentDomain().center);
         }
         var e = d3.event;
         if (e.translate[0] < minTranslation) {
@@ -368,6 +317,12 @@ module.exports = function(emitter) {
         mainGroup.selectAll('#tidelineXAxis g.tick text').style('text-anchor', 'start').attr('transform', 'translate(5,15)');
         if (scrollHandleTrigger) {
           mainGroup.select('.scrollThumb').transition().ease('linear').attr('x', function(d) {
+            d.x = nav.scrollScale(xScale.domain()[0]);
+            return d.x - nav.scrollThumbRadius;
+          });
+        }
+        else {
+          mainGroup.select('.scrollThumb').attr('x', function(d) {
             d.x = nav.scrollScale(xScale.domain()[0]);
             return d.x - nav.scrollThumbRadius;
           });
@@ -430,7 +385,7 @@ module.exports = function(emitter) {
       });
 
     scrollNav.selectAll('rect')
-      .data([{'x': nav.scrollScale(container.currentEndpoints[0]), 'y': 0}])
+      .data([{'x': nav.scrollScale(container.initialEndpoints[0]), 'y': 0}])
       .enter()
       .append('rect')
       .attr({
@@ -460,9 +415,15 @@ module.exports = function(emitter) {
 
   container.setAtDate = function (date, trigger) {
     scrollHandleTrigger = trigger;
-    nav.currentTranslation = -xScale(date) + axisGutter;
-    nav.pan.translate([nav.currentTranslation, 0]);
-    nav.pan.event(mainGroup);
+    if (!trigger) {
+      container.currentTranslation(-xScale(date) + axisGutter);
+      nav.pan.translate([nav.currentTranslation, 0]);
+      nav.pan.event(mainGroup);      
+    }
+    else {
+      nav.pan.translate([0,0]);
+      nav.pan.event(mainGroup);
+    }
 
     return container;
   };
@@ -482,7 +443,7 @@ module.exports = function(emitter) {
       pool.clear();
     });
     container.currentTranslation(0).latestTranslation(0);
-    allData = [];
+    renderedData = [];
 
     return container;
   };
@@ -544,15 +505,9 @@ module.exports = function(emitter) {
     return container;
   };
 
-  container.beginningOfData = function(d) {
-    if (!arguments.length) return beginningOfData;
-    beginningOfData = new Date(d);
-    return container;
-  };
-
-  container.endOfData = function(d) {
-    if (!arguments.length) return endOfData;
-    endOfData = new Date(d);
+  container.currentCenter = function(x) {
+    if (!arguments.length) return currentCenter;
+    currentCenter = new Date(x.toISOString());
     return container;
   };
 
@@ -565,17 +520,16 @@ module.exports = function(emitter) {
   container.data = function(a) {
     if (!arguments.length) return data;
 
-    data = a;
+    tidelineData = a;
 
-    var first = new Date(a[0].normalTime);
-    var last = new Date(a[a.length - 1].normalTime);
+    data = a.data;
+
+    var first = new Date(data[0].normalTime);
+    var last = new Date(data[data.length - 1].normalTime);
 
     var minusOne = new Date(last);
     minusOne.setDate(minusOne.getDate() - 1);
     container.initialEndpoints = [minusOne, last];
-    container.currentEndpoints = container.initialEndpoints;
-
-    container.beginningOfData(minusOne).endOfData(last);
 
     endpoints = [first, last];
     container.endpoints = endpoints;
@@ -583,39 +537,13 @@ module.exports = function(emitter) {
     return container;
   };
 
-  container.allData = function(x, a) {
-    if (!arguments.length) return allData;
-    if (!a) {
-      a = xScale.domain();
-    }
-    allData = allData.concat(x);
-    log('Length of allData array is', allData.length);
-    var plus = new Date(a[1]);
-    plus.setDate(plus.getDate() + container.buffer());
-    var minus = new Date(a[0]);
-    minus.setDate(minus.getDate() - container.buffer());
-    if (beginningOfData < minus) {
-      container.beginningOfData(minus);
-      allData = _.filter(allData, function(datapoint) {
-        var t = Date.parse(datapoint.normalTime);
-        if (t >= minus) {
-          return t;
-        }
-      });
-    }
-    if (endOfData > plus) {
-      container.endOfData(plus);
-      allData = _.filter(allData, function(datapoint) {
-        var t = Date.parse(datapoint.normalTime);
-        if (t <= plus) {
-          return t;
-        }
-      });
-    }
-    allData = _.sortBy(allData, function(d) {
-      return new Date(d.normalTime).valueOf();
-    });
-    allData = _.uniq(allData, true);
+  container.renderedData = function(a) {
+    if (!arguments.length) return renderedData;
+    var start = new Date(dt.addDays(a[0], -buffer));
+    var end = new Date(dt.addDays(a[1], buffer));
+    var filtered = tidelineData.dataByDate.filter([start, end]);
+    renderedData = filtered.top(Infinity).reverse();
+
     return container;
   };
 
