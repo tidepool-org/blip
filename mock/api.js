@@ -205,7 +205,7 @@ var createPatch = function(options) {
       if (!patient) {
         err = {status: 404, response: 'Not found'};
       }
-      
+
       if (getParam('api.patient.get.emptyteam')) {
         patient.team = [];
       }
@@ -270,7 +270,7 @@ var createPatch = function(options) {
 
       var messages = data.messagenotes[99];
 
-      var messages = _.map(messages, function(message) {
+      messages = _.map(messages, function(message) {
         return {
           utcTime : message.timestamp,
           messageText : message.messagetext,
@@ -288,7 +288,7 @@ var createPatch = function(options) {
     api.team.replyToMessageThread = function(message,cb){
       api.log('[mock] POST /message/reply ',message);
 
-      var fakeId = '99-99-ok'
+      var fakeId = '99-99-ok';
 
       setTimeout(function() {
         cb(null, fakeId);

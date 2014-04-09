@@ -17,7 +17,7 @@ var _ = window._;
 
 var tideline = window.tideline;
 
-var SegmentUtil = tideline.data.SegmentUtil;
+var segmentUtil = tideline.data.SegmentUtil;
 var watson = tideline.watson;
 var BasalUtil = tideline.data.BasalUtil;
 
@@ -30,7 +30,7 @@ util.processData = function(data) {
   }
 
   // Munge basal segments
-  var segments = SegmentUtil(_.where(data, {'type': 'basal-rate-segment'}));
+  var segments = segmentUtil(_.where(data, {'type': 'basal-rate-segment'}));
   data = _.reject(data, function(d) {
     return d.type === 'basal-rate-segment';
   });
