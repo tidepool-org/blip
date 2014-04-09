@@ -230,14 +230,14 @@ module.exports = function(emitter) {
   };
 
   container.mostRecent = function() {
+    var translation;
     if (sortReverse) {
-      nav.currentTranslation = yScale(dataEndNoon) + height - nav.axisHeight - statsHeight;
-  
+      translation = yScale(dataStartNoon) + height - nav.axisHeight - statsHeight - container.currentTranslation();
     }
     else {
-      nav.currentTranslation = yScale(dataStartNoon) - height - nav.axisHeight - statsHeight;
+      translation = yScale(dataStartNoon) - height - nav.axisHeight - statsHeight + container.currentTranslation();
     }
-    nav.scroll.translate([0, nav.currentTranslation]);
+    nav.scroll.translate([0, translation]);
     nav.scroll.event(mainGroup);
 
     return container;
