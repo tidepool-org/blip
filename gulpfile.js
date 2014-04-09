@@ -25,19 +25,31 @@ var jshintrc = JSON.parse(fs.readFileSync('.jshintrc'));
 var testem = require('./testem.json');
 
 gulp.task('jshint-app', function() {
-  return gulp.src(['app/**/*.js', 'mock/**/*.js'])
+  var stream = gulp.src(['app/**/*.js', 'mock/**/*.js'])
     .pipe(jshint(jshintrc))
     .pipe(jshint.reporter('jshint-stylish'));
+
+  if (process.env.CI) {
+    stream = stream.pipe(jshint.reporter('fail'));
+  }
+
+  return stream;
 });
 
 gulp.task('jshint-test', function() {
-  return gulp.src('test/**/*.js')
+  var stream = gulp.src('test/**/*.js')
     .pipe(jshint(_.extend({}, jshintrc, {
       newcap: false,
       undef: false,
       expr: true
     })))
     .pipe(jshint.reporter('jshint-stylish'));
+
+  if (process.env.CI) {
+    stream = stream.pipe(jshint.reporter('fail'));
+  }
+
+  return stream;
 });
 
 gulp.task('jshint', ['jshint-app', 'jshint-test']);
