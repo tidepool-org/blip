@@ -1,7 +1,5 @@
 #!/bin/bash
 
-./node_modules/.bin/gulp jshint
-
 if [ "$SAUCE_USERNAME" ]; then
   if [ "$TEST_SUITE" == "unit" ]; then
     ./node_modules/.bin/grunt test-saucelabs-travis

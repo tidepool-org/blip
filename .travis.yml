@@ -19,6 +19,7 @@ install:
   - "./node_modules/.bin/bower install"
 
 before_script:
+  - "./node_modules/.bin/gulp jshint"
   - "./test/ci/build.sh"
 
 addons:
