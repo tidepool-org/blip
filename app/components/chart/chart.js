@@ -24,7 +24,7 @@ var chartWeeklyFactory = tidelineBlip.twoweek;
 
 var Chart = React.createClass({
   propTypes: {
-    patientData: React.PropTypes.array,
+    patientData: React.PropTypes.object,
     chartType: React.PropTypes.string,
     datetimeLocation: React.PropTypes.string,
     onDatetimeLocationChange: React.PropTypes.func,
