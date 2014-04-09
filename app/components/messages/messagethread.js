@@ -38,12 +38,13 @@ var MessageThread = React.createClass({
   getInitialState: function() {
     return {
       formValues: {},
+      text : '',
       messages : this.props.messages
     };
   },
 
   formInputs: [
-    {name: 'comment', label: null, type: 'text'}
+    {name: 'comment', label: null, placeholder: 'Type a comment here ...', type: 'text'}
   ],
 
   formatDisplayDate : function(timestamp){
@@ -110,9 +111,13 @@ var MessageThread = React.createClass({
      /* jshint ignore:start */
      <div className='messagethread'>
       <div className='messagethread-inner'>
-        {close}
-        {thread}
-        {commentForm}
+        <div className='messagethread-header'>
+          {close}
+        </div>
+        <div className='messagethread-messages'>
+          {thread}
+          {commentForm}
+        </div>
       </div>
      </div>
      /* jshint ignore:end */
@@ -136,8 +141,12 @@ var MessageThread = React.createClass({
 
       addComment(comment, function(error,commentId){
         if(commentId){
+          //set so we can display right away
           comment.id = commentId;
-          this.setState({ messages: this.state.messages.push(comment) });
+          comment.username = this.props.user.firstName;
+          var withReply = this.state.messages;
+          withReply.push(comment);
+          this.setState({ messages: withReply, formValues : {} });
         }
       }.bind(this));
     }
