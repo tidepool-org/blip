@@ -354,7 +354,7 @@ api.team.getNotes = function(teamId,cb){
       return cb(error);
     }
     //transform so that they are how Tideline renders them
-    var messages = _.map(messages, function(message) {
+    messages = _.map(messages, function(message) {
       return {
         utcTime : message.timestamp,
         messageText : message.messagetext,
@@ -372,7 +372,7 @@ api.team.replyToMessageThread = function(message,cb){
   api.log('GET /message/notes');
   var token = tidepoolPlatformApi.getToken();
 
-  tidepool.replyToMessageThread(message.parentmessage, message ,token ,function(error,replyId){
+  tidepool.replyToMessageThread(message.parentmessage, message ,token ,function(err,replyId){
     if (err) {
       return cb(err);
     }
