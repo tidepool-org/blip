@@ -10,8 +10,6 @@ module.exports = function(options){
   var uploadApi = options.uploadApi;
 
   var api = {
-    user: {},
-    patient: {},
     patientData: {}
   };
 
@@ -21,93 +19,8 @@ module.exports = function(options){
   var token = null;
   var userid = null;
 
-  var PATIENT_GETALL_NOT_IMPLEMENTED = true;
-
   function makeUrl(path) {
     return apiHost + path;
-  }
-
-  function setupUser(api) {
-    api.get = function(cb) {
-      if (token == null || userid == null) {
-        return cb({ message: 'Not logged in' });
-      }
-
-      // First fetch user account data (username)
-      var uri = '/auth/user';
-      log('GET ' + uri);
-      superagent.get(makeUrl(uri))
-        .set(sessionTokenHeader, token)
-        .end(function(err, res) {
-          if (err != null) {
-            return cb(err);
-          }
-
-          if (res.status !== 200) {
-            return cb({status: res.status, response: res.body});
-          }
-
-          var user = res.body;
-          // Then fetch user profile information (first name, last name, etc.)
-          uri = '/metadata/' + userid + '/profile';
-          log('GET ' + uri);
-          superagent.get(makeUrl(uri))
-            .set(sessionTokenHeader, token)
-            .end(function(err, res) {
-              if (err != null) {
-                return cb(err);
-              }
-
-              if (res.status !== 200) {
-                return cb({status: res.status, response: res.body});
-              }
-
-              var data = res.body;
-              data.id = userid;
-              data.username = user.username;
-              // If user profile has patient data, just give the "patient id"
-              // (which is the same as the userid for this backend)
-              if (data.patient != null) {
-                data.patient = {id: userid};
-              }
-              cb(null, data);
-            });
-        });
-    };
-
-    api.put = function(user, cb) {
-      if (token == null || userid == null) {
-        return cb({ message: 'Not logged in' });
-      }
-
-      // NOTE: Current backend does not yet support changing
-      // username or password, only profile info
-      var profile = _.omit(user, 'username', 'password');
-      var uri = '/metadata/' + userid + '/profile';
-      log('POST ' + uri);
-      superagent.post(makeUrl(uri))
-        .set(sessionTokenHeader, token)
-        .send(profile)
-        .end(function(err, res) {
-          if (err != null) {
-            return cb(err);
-          }
-
-          if (res.status !== 200) {
-            return cb({status: res.status, response: res.body});
-          }
-
-          var data = res.body;
-          data.id = userid;
-          data.username = user.username;
-          // If user profile has patient data, just give the "patient id"
-          // (which is the same as the userid for this backend)
-          if (data.patient != null) {
-            data.patient = {id: userid};
-          }
-          cb(null, data);
-        });
-    };
   }
 
   function setupPatientData(api) {
@@ -175,7 +88,6 @@ module.exports = function(options){
     };
   }
 
-  setupUser(api.user);
   setupPatientData(api.patientData);
   setupUpload(api);
 
