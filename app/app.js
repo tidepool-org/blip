@@ -488,14 +488,14 @@ var AppComponent = React.createClass({
     /* jshint ignore:start */
     return (
       <PatientData
-          user={this.state.user}
-          patientData={this.state.patientData}
-          fetchingPatientData={this.state.fetchingPatientData}
-          isUserPatient={this.isUserPatient()}
-          uploadUrl={api.getUploadUrl()}
-          onRefresh={this.fetchCurrentPatientData}
-          onFetchMessageThread={this.fetchMessageThread}
-          onSaveComment={app.api.team.replyToMessageThread.bind(this.fetchMessageThread)}/>
+        user={this.state.user}
+        patientData={this.state.patientData}
+        fetchingPatientData={this.state.fetchingPatientData}
+        isUserPatient={this.isUserPatient()}
+        uploadUrl={api.getUploadUrl()}
+        onRefresh={this.fetchCurrentPatientData}
+        onFetchMessageThread={this.fetchMessageThread}
+        onSaveComment={app.api.team.replyToMessageThread.bind(app.api.team)} />
     );
     /* jshint ignore:end */
   },

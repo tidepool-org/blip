@@ -37,7 +37,8 @@ var MessageThread = React.createClass({
 
   getInitialState: function() {
     return {
-      formValues: {}
+      formValues: {},
+      messages : this.props.messages
     };
   },
 
@@ -84,7 +85,8 @@ var MessageThread = React.createClass({
     /* jshint ignore:end */
   },
   renderThread:function(){
-    var thread = this.props.messages.map(function(message, i) {
+
+    var thread = _.map(this.state.messages, function(message) {
       if(!message.parentmessage) {
         return this.renderMessage(message);
       } else if (message.parentmessage) {
@@ -117,7 +119,7 @@ var MessageThread = React.createClass({
      );
   },
   getParentId : function(){
-    return _.pluck(_.first(this.props.messages, { 'parentmessage' : '' }), 'id').toString();
+    return _.pluck(_.first(this.state.messages, { 'parentmessage' : '' }), 'id').toString();
   },
   handleAddComment : function (formValues){
 
@@ -132,9 +134,13 @@ var MessageThread = React.createClass({
         timestamp : new Date().toISOString()
       };
 
-      addComment(comment);
+      addComment(comment, function(error,commentId){
+        if(commentId){
+          comment.id = commentId;
+          this.setState({ messages: this.state.messages.push(comment) });
+        }
+      }.bind(this));
     }
-
   },
   handleClose: function(e) {
     e.preventDefault();
