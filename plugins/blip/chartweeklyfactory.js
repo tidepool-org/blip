@@ -63,12 +63,14 @@ function chartWeeklyFactory(el, options) {
     var bolusUtil = tidelineData.bolusUtil;
     var cbgUtil = tidelineData.cbgUtil;
 
+    var smbgData = tidelineData.grouped.smbg || [];
+
     if (!datetime) {
-      chart.data(tidelineData.grouped.smbg);
+      chart.data(smbgData);
     }
     else {
-      var smbgData = tidelineData.grouped.smbg;
-      if (datetime.valueOf() > Date.parse(smbgData[smbgData.length - 1].normalTime)) {
+      if (smbgData.length &&
+          datetime.valueOf() > Date.parse(smbgData[smbgData.length - 1].normalTime)) {
         datetime = smbgData[smbgData.length - 1].normalTime;
       }
       chart.data(smbgData, datetime);
