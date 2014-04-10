@@ -12,9 +12,9 @@ var expect = chai.expect;
 var _ = require('lodash');
 
 global.window = {
-  tideline: require('../js/'),
-  watson: require('../plugins/data/watson/')
+  tideline: require('../js/')
 };
+global.window.tideline.watson = require('../plugins/data/watson/');
 
 var data = require('../example/data/device-data.json');
 
