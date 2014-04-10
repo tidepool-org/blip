@@ -17,9 +17,5 @@
     "superagent": "0.17.0",
     "tideline": "0.0.11",
     "tidepool-platform-client": "0.0.10"
-  },
-  "resolutions": {
-    "async": "0.6.2",
-    "superagent": "0.17.0"
   }
 }
