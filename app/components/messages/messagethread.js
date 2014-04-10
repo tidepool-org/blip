@@ -82,7 +82,7 @@ var MessageThread = React.createClass({
         formValues={this.state.formValues}
         submitButtonText='Comment'
         onSubmit={this.handleAddComment} />
-      /* jshint ignore:end */  
+      /* jshint ignore:end */
     );
   },
   renderThread:function(){
@@ -124,7 +124,7 @@ var MessageThread = React.createClass({
      );
   },
   getParentId : function(){
-    return _.pluck(_.first(this.state.messages, function(message){ return !(message.parentmessage) }), 'id').toString();
+    return _.pluck(_.first(this.state.messages, function(message){ return !(message.parentmessage); }), 'id').toString();
   },
   handleAddComment : function (formValues){
 
