@@ -123,18 +123,20 @@ var MessageThread = React.createClass({
      /* jshint ignore:end */
      );
   },
-  getParentId : function(){
-    return _.pluck(_.first(this.state.messages, function(message){ return !(message.parentmessage); }), 'id').toString();
+  getParent : function(){
+    return _.first(this.state.messages, function(message){ return !(message.parentmessage); })[0];
   },
   handleAddComment : function (formValues){
 
     if(formValues.comment){
 
       var addComment = this.props.onAddComment;
+      var parent = this.getParent();
 
       var comment = {
-        parentmessage : this.getParentId(),
+        parentmessage : parent.id,
         userid : this.props.user.id,
+        groupid : parent.groupid,
         messagetext : formValues.comment,
         timestamp : new Date().toISOString()
       };
