@@ -615,10 +615,8 @@ var AppComponent = React.createClass({
         fetchingPatient: false
       });
 
-      //so that if the cb is defined we can use the
-      //patient to load other information
-      if(callback){
-        return callback(null,patient);
+      if (typeof callback === 'function') {
+        callback(null, patient);
       }
     });
   },
@@ -627,16 +625,19 @@ var AppComponent = React.createClass({
     var self = this;
 
     var patientId = patient.id;
-    var teamId = patient.team && patient.team.id;
+    var teamId = patient.teamId;
 
     self.setState({fetchingPatientData: true});
 
     var loadPatientData = function(cb) {
-      app.api.patientData.get(patientId,cb);
+      app.api.patientData.get(patientId, cb);
     };
 
     var loadTeamNotes = function(cb) {
-      app.api.team.getNotes(teamId,cb);
+      if (!teamId) {
+        return cb(null, []);
+      }
+      app.api.team.getNotes(teamId, cb);
     };
 
     async.parallel({
@@ -656,7 +657,7 @@ var AppComponent = React.createClass({
       app.log('Patient device data count', patientData.length);
       app.log('Team notes count', notes.length);
 
-      patientData = _.union(patientData,notes);
+      patientData = _.union(patientData, notes);
 
       patientData = self.processPatientData(patientData);
 
@@ -763,8 +764,6 @@ var AppComponent = React.createClass({
     var previousPatient = this.state.patient;
 
     patient = _.assign(_.cloneDeep(this.state.patient), patient);
-    // Don't save info already in user's profile
-    patient = _.omit(patient, 'firstName', 'lastName');
 
     // Optimistic update
     self.setState({patient: patient});

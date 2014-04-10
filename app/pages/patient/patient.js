@@ -221,7 +221,8 @@ var Patient = React.createClass({
   },
 
   renderTeamMembers: function() {
-    var members = this.props.patient && this.props.patient.team;
+    var members = this.props.patient &&
+                  this.props.patient.team;
 
     if (_.isEmpty(members)) {
       /* jshint ignore:start */

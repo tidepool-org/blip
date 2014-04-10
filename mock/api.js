@@ -277,7 +277,7 @@ var createPatch = function(options) {
     api.team.getNotes = function(groupId,callback){
       api.log('[mock] GET /message/notes/' + groupId);
 
-      var messages = data.messagenotes[99];
+      var messages = data.messagenotes[groupId] || [];
 
       messages = _.map(messages, function(message) {
         return {
