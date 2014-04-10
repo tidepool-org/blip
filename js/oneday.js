@@ -293,7 +293,6 @@ module.exports = function(emitter) {
       .scaleExtent([1, 1])
       .x(xScale)
       .on('zoom', function() {
-        log(dt.toISODateString(container.getCurrentDomain().center), container.dateAtCenter());
         if (dt.toISODateString(container.getCurrentDomain().center) !== container.dateAtCenter()) {
           container.renderedData(xScale.domain());
           for (var j = 0; j < pools.length; j++) {
@@ -418,7 +417,7 @@ module.exports = function(emitter) {
     if (!trigger) {
       container.currentTranslation(-xScale(date) + axisGutter);
       nav.pan.translate([nav.currentTranslation, 0]);
-      nav.pan.event(mainGroup);      
+      nav.pan.event(mainGroup);
     }
     else {
       nav.pan.translate([0,0]);
