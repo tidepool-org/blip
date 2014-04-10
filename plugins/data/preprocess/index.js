@@ -31,6 +31,12 @@ var Preprocess = {
 
   OPTIONAL_TYPES: [],
 
+  MMOL_STRING: 'mmol/L',
+
+  MGDL_STRING: 'mg/dL',
+
+  MMOL_TO_MGDL: 18,
+
   mungeBasals: function(data) {
     var segments = new SegmentUtil(_.where(data, {'type': 'basal-rate-segment'}));
     data = _.reject(data, function(d) {
@@ -98,6 +104,28 @@ var Preprocess = {
     return tidelineData;
   },
 
+  translateMmol: function(data) {
+    var groupByBGUnits = _.groupBy(data, function(d) {
+      if (d.units === this.MMOL_STRING) {
+        return true;
+      }
+      else {
+        return false;
+      }
+    }, this);
+    if (!groupByBGUnits[false]) {
+      groupByBGUnits[false] = [];
+    }
+    if (!groupByBGUnits[true]) {
+      groupByBGUnits[true] = [];
+    }
+    return groupByBGUnits[false].concat(_.map(groupByBGUnits[true], function(d) {
+      d.units = this.MGDL_STRING;
+      d.value = d.value * this.MMOL_TO_MGDL;
+      return d;
+    }, this));
+  },
+
   processData: function(data) {
     if (!(data && data.length)) {
       return data;
@@ -106,6 +134,7 @@ var Preprocess = {
     data = this.filterData(data);
     data = this.mungeBasals(data);
     data = this.runWatson(data);
+    data = this.translateMmol(data);
 
     var tidelineData = this.checkRequired(new TidelineData(data));
 

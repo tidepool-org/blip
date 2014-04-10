@@ -11,10 +11,13 @@ var expect = chai.expect;
 
 var _ = require('lodash');
 
-global.window = {
-  tideline: require('../js/')
-};
-global.window.tideline.watson = require('../plugins/data/watson/');
+try {
+  global.window = {
+    tideline: require('../js/')
+  };
+  global.window.tideline.watson = require('../plugins/data/watson/');
+}
+catch (TypeError) {}
 
 var data = require('../example/data/device-data.json');
 
@@ -36,6 +39,24 @@ describe('Preprocess', function() {
   describe('TYPES_TO_INCLUDE', function() {
     it('should be an array', function() {
       assert.isArray(Preprocess.TYPES_TO_INCLUDE);
+    });
+  });
+
+  describe('MMOL_STRING', function() {
+    it('should be a string', function() {
+      assert.isString(Preprocess.MMOL_STRING);
+    });
+  });
+
+  describe('MGDL_STRING', function() {
+    it('should be a string', function() {
+      assert.isString(Preprocess.MGDL_STRING);
+    });
+  });
+
+  describe('MMOL_TO_MGDL', function() {
+    it('should be 18', function() {
+      expect(Preprocess.MMOL_TO_MGDL).to.equal(18);
     });
   });
 
@@ -96,7 +117,6 @@ describe('Preprocess', function() {
   });
 
   describe('checkRequired', function() {
-
     it('should be a function', function() {
       assert.isFunction(Preprocess.checkRequired);
     });
@@ -113,6 +133,23 @@ describe('Preprocess', function() {
       });
       
       expect(Preprocess.checkRequired(grouped)).to.eql(allEmpties);
+    });
+  });
+
+  describe('translateMmol', function() {
+    it('should be a function', function() {
+      assert.isFunction(Preprocess.translateMmol);
+    });
+
+    it('should return an array', function() {
+      assert.isArray(Preprocess.translateMmol(data));
+    });
+
+    it('should translate a value of 5.5 mmol/L to 99 mg/dL', function() {
+      expect(Preprocess.translateMmol([{'units': 'mmol/L', 'value': 5.5}])).to.eql([{
+        'units': 'mg/dL',
+        'value': 99
+      }]);
     });
   });
 
