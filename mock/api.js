@@ -250,6 +250,15 @@ var createPatch = function(options) {
       }
       var patientData = data.patientdata && data.patientdata[patientId];
       patientData = patientData || [];
+
+      var filterTypes = getParam('api.patientdata.get.filter');
+      if (filterTypes) {
+        filterTypes = filterTypes.split(',');
+        patientData = _.filter(patientData, function(d) {
+          return _.contains(filterTypes, d.type);
+        });
+      }
+
       setTimeout(function() {
         callback(null, patientData);
       }, getDelayFor('api.patientdata.get'));
@@ -279,6 +288,10 @@ var createPatch = function(options) {
           _id: message.id
         };
       });
+
+      if (getParam('api.team.getNotes.empty')) {
+        messages = [];
+      }
 
       setTimeout(function() {
         callback(null, messages);
