@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "0.0.15",
+  "version": "0.0.17",
   "private": true,
   "dependencies": {
     "bower": "^1.3.1",

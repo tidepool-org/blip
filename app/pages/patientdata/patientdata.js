@@ -19,13 +19,12 @@ var _ = window._;
 var moment = window.moment;
 var config = window.config;
 
-var ChartDaily = require('../../components/chartdaily');
-var ChartWeekly = require('../../components/chartweekly');
+var Chart = require('../../components/chart');
 var MessageThread = require('../../components/messages');
 
 var PatientData = React.createClass({
   propTypes: {
-    patientData: React.PropTypes.array,
+    patientData: React.PropTypes.object,
     fetchingPatientData: React.PropTypes.bool,
     isUserPatient: React.PropTypes.bool,
     uploadUrl: React.PropTypes.string,
@@ -35,7 +34,7 @@ var PatientData = React.createClass({
     user: React.PropTypes.object
   },
 
-  DEFAULT_TITLE: 'Patient data',
+  DEFAULT_TITLE: 'Your data',
   CHARTDAILY_TITLE_DATE_FORMAT: 'dddd, MMMM Do',
   CHARTWEEKLY_TITLE_DATE_FORMAT: 'MMMM Do',
 
@@ -95,8 +94,28 @@ var PatientData = React.createClass({
       /* jshint ignore:start */
       left = (
         <div>
-          <a href="" className={dailyLinkClass} onClick={this.handleSwitchToDaily}>One day</a>
-          <a href="" className={weeklyLinkClass} onClick={this.handleSwitchToWeekly}>Two weeks</a>
+          <div className="grid-item large-three-eighths">
+            <a href="" className={dailyLinkClass} onClick={this.handleSwitchToDaily}>One day</a>
+          </div>
+          <div className="grid-item large-one-half patient-data-subnav-left">
+            <a href="" className={weeklyLinkClass} onClick={this.handleSwitchToWeekly}>Two weeks</a>
+          </div>
+        </div>
+      );
+      /* jshint ignore:end */
+
+      /* jshint ignore:start */
+      center = (
+        <div>
+          <a href="" onClick={this.handlePanBack} className={this.state.inTransition ? "patient-data-subnav-disabled" : ""}>
+            <i className="icon-back"></i>
+          </a>
+          <div className="patient-data-subnav-text patient-data-subnav-text-dates">
+            {this.state.title}
+          </div>
+          <a href="" onClick={this.handlePanForward} className={(this.state.atMostRecent || this.state.inTransition) ? "patient-data-subnav-disabled" : ""}>
+            <i className="icon-next"></i>
+          </a>
         </div>
       );
       /* jshint ignore:end */
@@ -104,33 +123,15 @@ var PatientData = React.createClass({
       /* jshint ignore:start */
       right = (
         <div>
-          <a href="" onClick={this.handleRefresh}>Refresh</a>
+          <div className="grid-item one-whole large-one-half patient-data-subnav-right">
+            <a href="" onClick={this.handleRefresh}>Refresh</a>
+          </div>
+          <div className="grid-item one-whole large-one-half">
+            <a href="" onClick={this.handleGoToMostRecent} className={this.state.atMostRecent ? "patient-data-subnav-active" : ""}>Most recent</a>
+          </div>
         </div>
       );
       /* jshint ignore:end */
-
-      if (this.state.chartType === 'daily') {
-        /* jshint ignore:start */
-        center = (
-          <div>
-            <a href="" onClick={this.handlePanBack}><i className="icon-back"></i></a>
-            <div className="patient-data-subnav-text patient-data-subnav-text-dates">
-              {this.state.title}
-            </div>
-            <a href="" onClick={this.handlePanForward}><i className="icon-next"></i></a>
-          </div>
-        );
-        /* jshint ignore:end */
-
-        /* jshint ignore:start */
-        right = (
-          <div>
-            <a href="" onClick={this.handleRefresh}>Refresh</a>
-            <a href="" onClick={this.handleGoToMostRecentDaily}>Most recent</a>
-          </div>
-        );
-        /* jshint ignore:end */
-      }
     }
 
     /* jshint ignore:start */
@@ -138,13 +139,13 @@ var PatientData = React.createClass({
       <div className="container-box-outer patient-data-subnav-outer">
         <div className="container-box-inner patient-data-subnav-inner">
           <div className="grid patient-data-subnav">
-            <div className="grid-item one-whole large-one-quarter patient-data-subnav-left">
+            <div className="grid-item one-whole large-one-quarter">
               {left}
             </div>
-            <div className="grid-item one-whole large-two-quarters patient-data-subnav-center">
+            <div className="grid-item one-whole large-one-half patient-data-subnav-center">
               {center}
             </div>
-            <div className="grid-item one-whole large-one-quarter patient-data-subnav-right">
+            <div className="grid-item one-whole large-one-quarter">
               {right}
             </div>
           </div>
@@ -222,30 +223,20 @@ var PatientData = React.createClass({
     this.setState({ messages: null });
   },
   renderChart: function() {
-    if (this.state.chartType === 'weekly') {
-      /* jshint ignore:start */
-      return (
-        <ChartWeekly
-          patientData={this.props.patientData}
-          datetimeLocation={this.state.datetimeLocation}
-          onDatetimeLocationChange={this.handleDatetimeLocationChange}
-          onSelectDataPoint={this.handleWeeklySelectDataPoint}
-          imagesEndpoint={config.IMAGES_ENDPOINT + '/tideline'}
-          ref="chart" />
-      );
-      /* jshint ignore:end */
-    }
-
     /* jshint ignore:start */
     return (
-      <ChartDaily
+      <Chart
         patientData={this.props.patientData}
+        chartType={this.state.chartType}
         datetimeLocation={this.state.datetimeLocation}
         onDatetimeLocationChange={this.handleDatetimeLocationChange}
+        onSelectDataPoint={this.handleWeeklySelectDataPoint}
         onShowMessageThread={this.handleShowMessageThread}
+        onTransition={this.handleInTransition}
+        onReachedMostRecent={this.handleReachedMostRecent}
         imagesEndpoint={config.IMAGES_ENDPOINT + '/tideline'}
         ref="chart" />
-    );
+      );
     /* jshint ignore:end */
   },
 
@@ -318,21 +309,15 @@ var PatientData = React.createClass({
     });
   },
 
-  handleGoToMostRecentDaily: function(e) {
+  handleGoToMostRecent: function(e) {
     if (e) {
       e.preventDefault();
     }
 
-    if (this.state.chartType === 'daily') {
-      this.setState({datetimeLocation: null});
-      this.refs.chart.locateToMostRecent();
-      return;
-    }
-
     this.setState({
-      chartType: 'daily',
       datetimeLocation: null
     });
+    this.refs.chart.locateToMostRecent();
   },
 
   handleRefresh: function(e) {
@@ -351,8 +336,9 @@ var PatientData = React.createClass({
     if (e) {
       e.preventDefault();
     }
-
-    this.refs.chart.panBack();
+    if (!this.state.inTransition) {
+      this.refs.chart.panBack();
+    }
   },
 
   handlePanForward: function(e) {
@@ -360,7 +346,9 @@ var PatientData = React.createClass({
       e.preventDefault();
     }
 
-    this.refs.chart.panForward();
+    if (!this.state.inTransition) {
+      this.refs.chart.panForward();
+    }
   },
 
   handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
@@ -370,7 +358,7 @@ var PatientData = React.createClass({
 
     if (d && d.length >= 1 && this.state.chartType === 'daily') {
       title = this.getTitleDaily(d);
-      datetimeLocation = d[0];
+      datetimeLocation = d[1];
     }
     else if (d && d.length >= 2 && this.state.chartType === 'weekly') {
       title = this.getTitleWeekly(d);
@@ -387,13 +375,39 @@ var PatientData = React.createClass({
   },
 
   handleShowMessageThread: function(messageThread) {
-
     var self = this;
 
     var fetchMessageThread = this.props.onFetchMessageThread;
     if (fetchMessageThread) {
       fetchMessageThread(messageThread,function(thread){
         self.setState({ messages: thread });
+      });
+    }
+  },
+
+  handleInTransition: function(inTransition) {
+    if (inTransition) {
+      console.log('In transition!');
+      this.setState({
+        inTransition: true
+      });
+    }
+    else {
+      this.setState({
+        inTransition: false
+      });
+    }
+  },
+
+  handleReachedMostRecent: function(mostRecent) {
+    if (mostRecent) {
+      this.setState({
+        atMostRecent: true
+      });
+    }
+    else {
+      this.setState({
+        atMostRecent: false
       });
     }
   },

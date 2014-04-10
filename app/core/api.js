@@ -38,7 +38,6 @@ api.init = function(cb) {
     uploadApi: config.UPLOAD_API
   });
 
-  _.extend(api.user, tidepoolPlatformApi.user);
   _.extend(api.patientData,  tidepoolPlatformApi.patientData);
   api.getUploadUrl = tidepoolPlatformApi.getUploadUrl;
 
@@ -107,21 +106,23 @@ api.user.login = function(user, cb) {
 api.user.signup = function(user, cb) {
   api.log('POST /user');
 
+  var newAccount = accountFromUser(user);
+  var newProfile = profileFromUser(user);
+
   // First, create user account
-  tidepool.signup(user, function(err, data) {
+  tidepool.signup(newAccount, function(err, account) {
     if (err) {
       return cb(err);
     }
 
-    var token = data.token;
-    var userId = data.userid;
+    var token = account.token;
+    var userId = account.userid;
     saveSession(userId, token);
 
     // Then, add additional user info (first name, etc.) to profile
-    var profile = _.omit(user, 'username', 'password');
-    profile.id = userId;
+    newProfile.id = userId;
     var createUserProfile = function(cb) {
-      tidepool.addOrUpdateProfile(profile, token, cb);
+      tidepool.addOrUpdateProfile(newProfile, token, cb);
     };
 
     // Finally, create necessary groups for a new user account
@@ -141,10 +142,11 @@ api.user.signup = function(user, cb) {
         return cb(err);
       }
 
-      var data = results.profile;
-      // Add back some account info to profile for response
-      data.id = userId;
-      data.username = user.username;
+      var data = userFromAccountAndProfile({
+        account: account,
+        profile: results.profile
+      });
+
       cb(null, data);
     });
   });
@@ -169,6 +171,95 @@ api.user.logout = function(cb) {
     cb();
   });
 };
+
+api.user.get = function(cb) {
+  api.log('GET /user');
+
+  var token = api.token;
+  var userId = api.userId;
+
+  // Fetch user account data (username, etc.)...
+  var getAccount = tidepool.getCurrentUser.bind(tidepool, token);
+
+  // ...and user profile information (first name, last name, etc.)
+  var getProfile = tidepool.findProfile.bind(tidepool, userId, token);
+
+  async.parallel({
+    account: getAccount,
+    profile: getProfile
+  },
+  function(err, results) {
+    if (err) {
+      return cb(err);
+    }
+
+    var user = userFromAccountAndProfile(results);
+
+    cb(null, user);
+  });
+};
+
+api.user.put = function(user, cb) {
+  api.log('PUT /user');
+
+  var token = api.token;
+  var userId = api.userId;
+
+  var account = accountFromUser(user);
+  var updateAccount =
+    tidepool.updateCurrentUser.bind(tidepool, account, token);
+
+  var profile = profileFromUser(user);
+  var updateProfile =
+    tidepool.addOrUpdateProfile.bind(tidepool, profile, token);
+
+  async.parallel({
+    account: updateAccount,
+    profile: updateProfile
+  },
+  function(err, results) {
+    if (err) {
+      return cb(err);
+    }
+
+    var user = userFromAccountAndProfile(results);
+
+    cb(null, user);
+  });
+};
+
+function accountFromUser(user) {
+  var account = _.pick(user, 'username', 'password');
+
+  if (account.username) {
+    account.emails = [user.username];
+  }
+
+  return account;
+}
+
+function profileFromUser(user) {
+  var profile = _.omit(user, 'username', 'password', 'emails');
+  return profile;
+}
+
+function userFromAccountAndProfile(results) {
+  var account = results.account;
+  var profile = results.profile;
+
+  var user = _.assign({}, profile, {
+    id: account.userid,
+    username: account.username
+  });
+
+  // If user profile has patient data, just give the "patient id"
+  // (which is the same as the userid for this backend)
+  if (user.patient != null) {
+    user.patient = {id: user.id};
+  }
+
+  return user;
+}
 
 // ----- Patient -----
 
@@ -354,7 +445,7 @@ api.team.getNotes = function(teamId,cb){
       return cb(error);
     }
     //transform so that they are how Tideline renders them
-    var messages = _.map(messages, function(message) {
+    messages = _.map(messages, function(message) {
       return {
         utcTime : message.timestamp,
         messageText : message.messagetext,

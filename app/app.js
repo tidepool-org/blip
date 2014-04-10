@@ -30,12 +30,13 @@ var api = require('./core/api');
 var user = require('./core/user');
 var patient = require('./core/patient');
 var queryString = require('./core/querystring');
-var chartUtil = require('./core/chartutil');
+var chartUtil = window.tideline.preprocess;
 var detectTouchScreen = require('./core/notouch');
 
 var Navbar = require('./components/navbar');
 var LogoutOverlay = require('./components/logoutoverlay');
 var Notification = require('./components/notification');
+var TermsOverlay = require('./components/termsoverlay');
 
 var Login = require('./pages/login');
 var Signup = require('./pages/signup');
@@ -112,7 +113,8 @@ var AppComponent = React.createClass({
       fetchingPatient: true,
       patientData: null,
       fetchingPatientData: true,
-      fetchingMessageData: true
+      fetchingMessageData: true,
+      showingAcceptTerms: false
     };
   },
 
@@ -182,6 +184,14 @@ var AppComponent = React.createClass({
       /* jshint ignore:start */
       return (
         <LogoutOverlay ref="logoutOverlay" />
+      );
+      /* jshint ignore:end */
+    }
+
+    if (this.state.showingAcceptTerms) {
+      /* jshint ignore:start */
+      return (
+        <TermsOverlay onSubmit={this.handleAcceptedTerms} />
       );
       /* jshint ignore:end */
     }
@@ -510,9 +520,16 @@ var AppComponent = React.createClass({
     this.setState({
       authenticated: true,
       user: user,
-      fetchingUser: false
+      fetchingUser: false,
+      showingAcceptTerms: config.SHOW_ACCEPT_TERMS ? true : false
     });
     this.redirectToDefaultRoute();
+  },
+
+  handleAcceptedTerms: function() {
+    this.setState({
+      showingAcceptTerms: false
+    });
   },
 
   logout: function() {
@@ -708,12 +725,22 @@ var AppComponent = React.createClass({
     user = _.assign(_.cloneDeep(this.state.user), user);
 
     // Optimistic update
-    self.setState({user: user});
+    self.setState({user: _.omit(user, 'password')});
+
+    // If username hasn't changed, don't try to update
+    // or else backend will respond with "already taken" error
+    if (user.username === previousUser.username) {
+      user = _.omit(user, 'username');
+    }
 
     app.api.user.put(user, function(err, user) {
       if (err) {
+        var message = (err.body && err.body.msg) || '';
         self.setState({
-          notification: 'An error occured while saving user.'
+          notification: [
+            'An error occured while updating user account.',
+            message
+          ].join(' ')
         });
         // Rollback
         self.setState({user: previousUser});
