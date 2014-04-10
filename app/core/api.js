@@ -369,12 +369,12 @@ api.team.getNotes = function(teamId,cb){
 
 //Add a comment
 api.team.replyToMessageThread = function(message,cb){
-  api.log('GET /message/notes');
+  api.log('POST /message/reply');
   var token = tidepoolPlatformApi.getToken();
 
   tidepool.replyToMessageThread(message.parentmessage, message ,token ,function(error,replyId){
-    if (err) {
-      return cb(err);
+    if (error) {
+      return cb(error);
     }
     cb(null, replyId);
   });

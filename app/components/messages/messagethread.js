@@ -37,14 +37,13 @@ var MessageThread = React.createClass({
 
   getInitialState: function() {
     return {
-      formValues: {},
-      text : '',
+      formValues: {comment: ''},
       messages : this.props.messages
     };
   },
 
   formInputs: [
-    {name: 'comment', label: null, placeholder: 'Type a comment here ...', type: 'text'}
+    {name: 'comment', label: null, placeholder: 'Type a comment here ...', type: 'textarea'}
   ],
 
   formatDisplayDate : function(timestamp){
@@ -75,15 +74,15 @@ var MessageThread = React.createClass({
       );
   },
   renderCommentForm: function() {
-    /* jshint ignore:start */
     return (
+      /* jshint ignore:start */
       <SimpleForm
         inputs={this.formInputs}
         formValues={this.state.formValues}
         submitButtonText='Comment'
-        onSubmit={this.handleAddComment}/>
+        onSubmit={this.handleAddComment} />
+      /* jshint ignore:end */  
     );
-    /* jshint ignore:end */
   },
   renderThread:function(){
 
@@ -124,7 +123,7 @@ var MessageThread = React.createClass({
      );
   },
   getParentId : function(){
-    return _.pluck(_.first(this.state.messages, { 'parentmessage' : '' }), 'id').toString();
+    return _.pluck(_.first(this.state.messages, function(message){ return !(message.parentmessage) }), 'id').toString();
   },
   handleAddComment : function (formValues){
 
@@ -146,7 +145,7 @@ var MessageThread = React.createClass({
           comment.username = this.props.user.firstName;
           var withReply = this.state.messages;
           withReply.push(comment);
-          this.setState({ messages: withReply, formValues : {} });
+          this.setState({ messages: withReply, formValues : {comment: ''} });
         }
       }.bind(this));
     }
@@ -155,6 +154,7 @@ var MessageThread = React.createClass({
     e.preventDefault();
     var close = this.props.onClose;
     if (close) {
+      this.setState({ messages: null });
       close();
     }
   }
