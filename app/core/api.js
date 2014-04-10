@@ -308,6 +308,9 @@ function getPatientProfile(patientId, cb) {
 api.patient.get = function(patientId, cb) {
   api.log('GET /patients/' + patientId);
 
+  var userId = api.userId;
+  var token = api.token;
+
   getPatientProfile(patientId, function(err, patient) {
     if (err) {
       return cb(err);
@@ -318,32 +321,34 @@ api.patient.get = function(patientId, cb) {
       return cb({status: 404, response: 'Not found'});
     }
 
-    // If this is not the current user's patient, we're done
-    var userId = api.userId;
-    if (patientId !== userId) {
-      return cb(null, patient);
-    }
-
-    // If it is, fetch the patient's team members
-    var token = api.token;
-    patient.team = [];
+    // Fetch the patient's team
     tidepool.getUsersTeam(userId, token, function(err, group) {
       if (err) {
         return cb(err);
       }
 
-      // set the team id that is used for group realated tasks
-      patient.team.id = group.id;
+      if (!(group && group.id)) {
+        return cb(null, patient);
+      }
 
-      var peopleIds = (group && group.members) || [];
+      patient.team = {id: group.id};
+
+      // If this is not the current user's patient, we're done
+      if (patientId !== userId) {
+        return cb(null, patient);
+      }
+
+      // If it is, fetch the patient's team members
+      var peopleIds = group.members || [];
       if (!peopleIds.length) {
+        patient.team.members = [];
         return cb(null, patient);
       }
 
       async.map(peopleIds, getUserProfile, function(err, people) {
         // Filter any people ids that returned nothing
         people = _.filter(people);
-        patient.team = people;
+        patient.team.members = people;
         return cb(null, patient);
       });
     });
