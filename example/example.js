@@ -67,7 +67,7 @@ twoWeek.emitter.on('mostRecent', function(mostRecent) {
 });
 
 // load data and draw charts
-d3.json('data/blip-output.json', function(data) {
+d3.json('data/device-data.json', function(data) {
   log('Data loaded.');
   data = preprocess.processData(data);
 
