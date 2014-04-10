@@ -680,7 +680,7 @@ var AppComponent = React.createClass({
         app.log('Error fetching data for message thread with id ' + messageId);
         return callback(null);
       }
-      app.log('thread pulled back '+thread.length);
+      app.log('Fetched message thread with '+thread.length+' messages');
       return callback(thread);
     });
   },

@@ -47,7 +47,7 @@ var MessageThread = React.createClass({
   ],
 
   formatDisplayDate : function(timestamp){
-    return moment(timestamp).calendar();
+    return moment(timestamp).format('MMMM D [at] H:MMa');
   },
 
   renderMessage: function(message){
