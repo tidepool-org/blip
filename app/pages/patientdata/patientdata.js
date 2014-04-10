@@ -212,14 +212,14 @@ var PatientData = React.createClass({
         <MessageThread
           messages={this.state.messages}
           user={this.props.user}
-          onClose={this.closeThread}
+          onClose={this.closeMessageThread}
           onAddComment={this.props.onSaveComment} />
       );
     }
     /* jshint ignore:end */
   },
 
-  closeThread: function(){
+  closeMessageThread: function(){
     this.setState({ messages: null });
   },
   renderChart: function() {

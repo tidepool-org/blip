@@ -22,6 +22,7 @@ not, you can obtain one from Tidepool Project at tidepool.org.
 
 var React = window.React;
 var moment = window.moment;
+var _ = window._;
 
 var SimpleForm = require('../simpleform');
 
@@ -36,17 +37,17 @@ var MessageThread = React.createClass({
 
   getInitialState: function() {
     return {
-      formValues: {},
-      parentId: null
+      formValues: {comment: ''},
+      messages : this.props.messages
     };
   },
 
   formInputs: [
-    {name: 'comment', label: null, type: 'text'}
+    {name: 'comment', label: null, placeholder: 'Type a comment here ...', type: 'textarea'}
   ],
 
   formatDisplayDate : function(timestamp){
-    return moment(timestamp).calendar();
+    return moment(timestamp).format('MMMM D [at] H:MMa');
   },
 
   renderMessage: function(message){
@@ -74,20 +75,20 @@ var MessageThread = React.createClass({
     /* jshint ignore:end */
   },
   renderCommentForm: function() {
-    /* jshint ignore:start */
     return (
+      /* jshint ignore:start */
       <SimpleForm
         inputs={this.formInputs}
         formValues={this.state.formValues}
         submitButtonText='Comment'
-        onSubmit={this.handleAddComment}/>
+        onSubmit={this.handleAddComment} />
+      /* jshint ignore:end */
     );
-    /* jshint ignore:end */
   },
   renderThread:function(){
-    var thread = this.props.messages.map(function(message, i) {
+
+    var thread = _.map(this.state.messages, function(message) {
       if(!message.parentmessage) {
-        this.setState({ parentId : message.id });
         return this.renderMessage(message);
       } else if (message.parentmessage) {
         return this.renderComment(message);
@@ -104,41 +105,59 @@ var MessageThread = React.createClass({
   render: function() {
     var thread = this.renderThread();
     var close = this.renderClose();
-    var commentForm = null;//this.renderCommentForm();
+    var commentForm = this.renderCommentForm();
 
     return (
      /* jshint ignore:start */
      <div className='messagethread'>
       <div className='messagethread-inner'>
-        {close}
-        {thread}
-        {commentForm}
+        <div className='messagethread-header'>
+          {close}
+        </div>
+        <div className='messagethread-messages'>
+          {thread}
+          {commentForm}
+        </div>
       </div>
      </div>
      /* jshint ignore:end */
      );
+  },
+  getParent : function(){
+    return _.first(this.state.messages, function(message){ return !(message.parentmessage); })[0];
   },
   handleAddComment : function (formValues){
 
     if(formValues.comment){
 
       var addComment = this.props.onAddComment;
+      var parent = this.getParent();
 
       var comment = {
-        parentmessage : this.state.parentId,
+        parentmessage : parent.id,
         userid : this.props.user.id,
+        groupid : parent.groupid,
         messagetext : formValues.comment,
         timestamp : new Date().toISOString()
       };
 
-      addComment(comment);
+      addComment(comment, function(error,commentId){
+        if(commentId){
+          //set so we can display right away
+          comment.id = commentId;
+          comment.username = this.props.user.firstName;
+          var withReply = this.state.messages;
+          withReply.push(comment);
+          this.setState({ messages: withReply, formValues : {comment: ''} });
+        }
+      }.bind(this));
     }
-
   },
   handleClose: function(e) {
     e.preventDefault();
     var close = this.props.onClose;
     if (close) {
+      this.setState({ messages: null });
       close();
     }
   }

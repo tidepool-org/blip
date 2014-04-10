@@ -13,38 +13,41 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+@messagethread-inner-width: 420px;
+
 .messagethread {
   position: fixed;
-  width: 320px;
-  margin-left: auto;
-  margin-right: auto;
-  z-index: @zindex-overlay;
-  top: @spacing-small;
+  top: 0;
   left: 0;
-  right: 0;
-
-  // Since this "transparent" div can cover links, buttons, etc.
-  // give it 0 height to allow clicking "through" it
-  // (`.messagethread-inner` will still show)
-  height: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: @zindex-overlay;
+  overflow-y: scroll;
 
   a,
   a:hover,
   a:focus {
     color: @text-color;
     text-decoration: underline;
+    // Hack: don't know why, but cursor not showing up as pointer
+    cursor: pointer;
   }
 }
 
 .messagethread-inner {
-  width: 300px;
-  display: inline-block;
-  margin-left: @spacing-small;
-  margin-right: @spacing-small;
+  margin: 80px auto;
   padding: @spacing-small @spacing-base;
   border: 2px solid @gray-light;
   background-color: #fff;
   border-radius: 4px;
+
+  @media(min-width: @messagethread-inner-width) {
+    width: @messagethread-inner-width;
+  }
+}
+
+.messagethread-messages {
 }
 
 .messagethread-close {
