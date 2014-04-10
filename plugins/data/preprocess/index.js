@@ -15,27 +15,42 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = window._;
-
 var tideline = window.tideline;
-var watson = window.tideline.watson;
+var watson = window.watson;
+var _ = tideline.lib._;
 var TidelineData = tideline.TidelineData;
 var SegmentUtil = tideline.data.SegmentUtil;
 
-var log = window.bows('Preprocess');
+var log = tideline.lib.bows('Preprocess');
 
-module.exports = {
-  processData: function(data) {
-    if (!(data && data.length)) {
-      return {};
-    }
+var Preprocess = {
 
-    var TYPES_TO_INCLUDE = ['basal-rate-segment', 'bolus', 'carbs', 'cbg', 'message', 'smbg', 'settings'];
+  TYPES_TO_INCLUDE: ['basal-rate-segment', 'bolus', 'carbs', 'cbg', 'message', 'smbg', 'settings'],
 
-    var excluded = [];
+  REQUIRED_TYPES: ['basal-rate-segment', 'bolus', 'carbs', 'cbg', 'message', 'smbg', 'settings'],
 
-    var groupedData = _.groupBy(data, function(d) {
-      if (_.contains(TYPES_TO_INCLUDE, d.type)) {
+  OPTIONAL_TYPES: [],
+
+  mungeBasals: function(data) {
+    var segments = new SegmentUtil(_.where(data, {'type': 'basal-rate-segment'}));
+    data = _.reject(data, function(d) {
+      return d.type === 'basal-rate-segment';
+    });
+    data = data.concat(segments.actual.concat(segments.getUndelivered('scheduled')));
+    return data;
+  },
+
+  filterData: function(data) {
+    // filter out types we aren't using for visualization
+    //  ~and~
+    // because of how the Tidepool back end parses some data sources
+    // we're creating things like carb events with values of 0, which
+    // we don't want to visualize
+    //
+    // this function also removes all data with value 0 except for basals, since
+    // we do want to visualize basals (e.g., temps) with value 0.0
+    var nonZeroData = _.groupBy(data, function(d, i) {
+      if (_.contains(this.TYPES_TO_INCLUDE, d.type)) {
         // exclude value = 0.0 if not basal-rate-segment
         if (d.value === 0) {
           if (d.type === 'basal-rate-segment') {
@@ -52,27 +67,50 @@ module.exports = {
       else {
         return false;
       }
-    });
+    }, this);
+    if (!nonZeroData[true]) {
+      nonZeroData[true] = [];
+    }
+    var includedByType = _.countBy(nonZeroData[true], function(d) { return d.type; });
+    log('Excluded:', _.countBy(nonZeroData[false], function(d) { return d.type; }));
+    log('# of data points', nonZeroData[true].length);
+    log('Data types:', includedByType);
 
-    log('Excluded:', _.countBy(groupedData[false], function(d) { return d.type; }));
-    log('# of data points', groupedData[true].length);
-    log('Data types:', _.countBy(groupedData[true], function(d) { return d.type; }));
+    return nonZeroData[true];
+  },
 
-    // Munge basal segments
-    var segments = new SegmentUtil(_.where(data, {'type': 'basal-rate-segment'}));
-    data = _.reject(data, function(d) {
-      return d.type === 'basal-rate-segment';
-    });
-    data = data.concat(segments.actual.concat(segments.getUndelivered('scheduled')));
-    // Watson the data
+  runWatson: function(data) {
     data = watson.normalizeAll(data);
     // Ensure the data is properly sorted
     data = _.sortBy(data, function(d) {
       return new Date(d.normalTime).valueOf();
     });
+    return data;
+  },
 
-    var tidelineData = new TidelineData(data);
+  checkRequired: function(tidelineData) {
+    _.forEach(this.REQUIRED_TYPES, function(type) {
+      if (!tidelineData.grouped[type]) {
+        tidelineData.grouped[type] = [];
+      }
+    });
+
+    return tidelineData;
+  },
+
+  processData: function(data) {
+    if (!(data && data.length)) {
+      return data;
+    }
+
+    data = this.filterData(data);
+    data = this.mungeBasals(data);
+    data = this.runWatson(data);
+
+    var tidelineData = this.checkRequired(new TidelineData(data));
 
     return tidelineData;
   }
 };
+
+module.exports = Preprocess;
