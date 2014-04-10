@@ -27,7 +27,7 @@ var scales = {
       return d3.scale.linear()
         .domain([0, this.MAX_CBG])
         .range([pool.height() - pad, pad])
-        .clamp();
+        .clamp(true);
     }
     else {
       return d3.scale.linear()
@@ -39,9 +39,9 @@ var scales = {
     var ext = d3.extent(data, function(d) { return d.value; });
     if (ext[1] > this.MAX_CBG) {
       return d3.scale.log()
-        .domain(ext[0], this.MAX_CBG)
+        .domain([ext[0], this.MAX_CBG])
         .range([pool.height() - pad, pad])
-        .clamp();
+        .clamp(true);
     }
     else {
       return d3.scale.log()
@@ -51,7 +51,6 @@ var scales = {
   },
   bgTicks: function(data) {
     var defaultTicks = [40, 80, 120, 180, 300];
-    // check for data that looks like mmol and generation of different defaultTicks should go here
     var ext = d3.extent(data, function(d) { return d.value; });
     // if the min of our data is greater than any of the defaultTicks, remove that tick
     defaultTicks.forEach(function(tick) {
@@ -60,6 +59,7 @@ var scales = {
       }
     });
     defaultTicks.reverse();
+    // same thing for max
     defaultTicks.forEach(function(tick) {
       if (ext[1] < tick) {
         defaultTicks.shift();
