@@ -519,7 +519,7 @@ module.exports = function(emitter) {
   container.data = function(a) {
     if (!arguments.length) return data;
 
-    if ((!data) || (data.length === 0)) {
+    if ((!a) || (a.length === 0)) {
       throw new Error("Sorry, I can't render anything without /some/ data.");
     }
 
