@@ -73,10 +73,10 @@ module.exports = function(pool, opts) {
   });
 
   function unknownDeliverySplit(d) {
-    return d.extendedDelivery === 0 && d.initialDelivery === 0;
+    return !d.extendedDelivery;
   }
 
-  function computeSquareHeight(d) {
+  function computePathHeight(d) {
     if (unknownDeliverySplit(d)) {
       return opts.yScale(d.value) + opts.bolusStroke / 2;
     } else {
@@ -190,7 +190,7 @@ module.exports = function(pool, opts) {
         .attr({
           'd': function(d) {
             var rightEdge = bolus.x(d) + opts.width;
-            var doseHeight = computeSquareHeight(d);
+            var doseHeight = computePathHeight(d);
             var doseEnd = opts.xScale(Date.parse(d.normalTime) + d.duration) - opts.triangleSize / 2;
             return 'M' + rightEdge + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
           },
@@ -209,7 +209,7 @@ module.exports = function(pool, opts) {
       extendedBoluses.append('path')
         .attr({
           'd': function(d) {
-            var doseHeight = computeSquareHeight(d);
+            var doseHeight = computePathHeight(d);
             var doseEnd = opts.xScale(Date.parse(d.normalTime) + d.duration) - opts.triangleSize;
             return bolus.triangle(doseEnd, doseHeight);
           },
@@ -245,16 +245,16 @@ module.exports = function(pool, opts) {
     return formatted;
   }
 
-  function recommendedBolusTooltipTextFn(d) {
+  function getRecommendedBolusTooltipText(d) {
     return function(){
       return formatValue(d.recommended) + "U recom'd";
-    }
+    };
   }
 
-  function extendedBolusTooltipTextFn(d) {
+  function getExtendedBolusTooltipText(d) {
     return function() {
       if (unknownDeliverySplit(d)) {
-        return 'Split Unknown';
+        return 'Split unknown';
       }
       return format.percentage(d.extendedDelivery / d.value) + ' ' + bolus.timespan(d);
     };
@@ -341,10 +341,10 @@ module.exports = function(pool, opts) {
         .append('tspan');
 
       if ((d.recommended != null) && (d.recommended !== d.value)) {
-        twoLineSelection.text(recommendedBolusTooltipTextFn(d));
+        twoLineSelection.text(getRecommendedBolusTooltipText(d));
       }
       else if (d.extended != null) {
-        twoLineSelection.text(extendedBolusTooltipTextFn(d));
+        twoLineSelection.text(getExtendedBolusTooltipText(d));
       }
 
       twoLineSelection.attr('class', 'd3-bolus');
@@ -356,7 +356,7 @@ module.exports = function(pool, opts) {
           'y': pool.height() - tooltipHeight / 2
         })
         .append('tspan')
-        .text(recommendedBolusTooltipTextFn(d))
+        .text(getRecommendedBolusTooltipText(d))
         .attr('class', 'd3-bolus');
 
       d3.select('#tooltip_' + d._id).select('.d3-tooltip-text-group').append('text')
@@ -366,7 +366,7 @@ module.exports = function(pool, opts) {
           'y': pool.height() - tooltipHeight / 4
         })
         .append('tspan')
-        .text(extendedBolusTooltipTextFn(d))
+        .text(getExtendedBolusTooltipText(d))
         .attr('class', 'd3-bolus');
     }
   };
