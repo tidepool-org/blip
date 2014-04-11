@@ -36,12 +36,6 @@ describe('Preprocess', function() {
     });
   });
 
-  describe('TYPES_TO_INCLUDE', function() {
-    it('should be an array', function() {
-      assert.isArray(Preprocess.TYPES_TO_INCLUDE);
-    });
-  });
-
   describe('MMOL_STRING', function() {
     it('should be a string', function() {
       assert.isString(Preprocess.MMOL_STRING);
