@@ -72,6 +72,18 @@ module.exports = function(pool, opts) {
     }
   });
 
+  function unknownDeliverySplit(d) {
+    return d.extendedDelivery === 0 && d.initialDelivery === 0;
+  }
+
+  function computeSquareHeight(d) {
+    if (unknownDeliverySplit(d)) {
+      return opts.yScale(d.value) + opts.bolusStroke / 2;
+    } else {
+      return opts.yScale(d.extendedDelivery) + opts.bolusStroke / 2;
+    }
+  }
+
   function bolus(selection) {
     opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
@@ -167,6 +179,7 @@ module.exports = function(pool, opts) {
             return 'bolus_' + d._id;
           }
         });
+
       // square- and dual-wave boluses
       var extendedBoluses = bolusGroups.filter(function(d) {
         if (d.extended) {
@@ -177,12 +190,18 @@ module.exports = function(pool, opts) {
         .attr({
           'd': function(d) {
             var rightEdge = bolus.x(d) + opts.width;
-            var doseHeight = opts.yScale(d.extendedDelivery) + opts.bolusStroke / 2;
+            var doseHeight = computeSquareHeight(d);
             var doseEnd = opts.xScale(Date.parse(d.normalTime) + d.duration) - opts.triangleSize / 2;
             return 'M' + rightEdge + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
           },
           'stroke-width': opts.bolusStroke,
-          'class': 'd3-path-extended d3-bolus',
+          'class': function(d){
+            if (unknownDeliverySplit(d)) {
+              return 'd3-path-extended d3-bolus d3-unknown-delivery-split';
+            } else {
+              return 'd3-path-extended d3-bolus';
+            }
+          },
           'id': function(d) {
             return 'bolus_' + d._id;
           }
@@ -190,7 +209,7 @@ module.exports = function(pool, opts) {
       extendedBoluses.append('path')
         .attr({
           'd': function(d) {
-            var doseHeight = opts.yScale(d.extendedDelivery) + opts.bolusStroke / 2;
+            var doseHeight = computeSquareHeight(d);
             var doseEnd = opts.xScale(Date.parse(d.normalTime) + d.duration) - opts.triangleSize;
             return bolus.triangle(doseEnd, doseHeight);
           },
@@ -227,13 +246,16 @@ module.exports = function(pool, opts) {
   }
 
   function recommendedBolusTooltipTextFn(d) {
-    return function() {
+    return function(){
       return formatValue(d.recommended) + "U recom'd";
-    };
+    }
   }
 
   function extendedBolusTooltipTextFn(d) {
     return function() {
+      if (unknownDeliverySplit(d)) {
+        return 'Split Unknown';
+      }
       return format.percentage(d.extendedDelivery / d.value) + ' ' + bolus.timespan(d);
     };
   }
