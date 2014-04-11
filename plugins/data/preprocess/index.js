@@ -23,9 +23,26 @@ var SegmentUtil = tideline.data.SegmentUtil;
 
 var log = tideline.lib.bows('Preprocess');
 
+function alwaysTrue() {
+  return true;
+}
+
+function notZero(e) {
+  return e.value !== 0;
+}
+
+var TYPES_TO_INCLUDE = {
+  'basal-rate-segment': alwaysTrue,
+  bolus: notZero,
+  carbs: notZero,
+  cbg: notZero,
+  message: notZero,
+  smbg: notZero,
+  settings: notZero
+};
+
 var Preprocess = {
 
-  TYPES_TO_INCLUDE: ['basal-rate-segment', 'bolus', 'carbs', 'cbg', 'message', 'smbg', 'settings'],
 
   REQUIRED_TYPES: ['basal-rate-segment', 'bolus', 'carbs', 'cbg', 'message', 'smbg', 'settings'],
 
@@ -54,47 +71,52 @@ var Preprocess = {
     // we don't want to visualize, so...
     // this function also removes all data with value 0 except for basals, since
     // we do want to visualize basals (e.g., temps) with value 0.0
-    var nonZeroData = _.groupBy(data, function(d, i) {
-      if (_.contains(this.TYPES_TO_INCLUDE, d.type)) {
-        // exclude value = 0.0 if not basal-rate-segment
-        if (d.value === 0) {
-          if (d.type === 'basal-rate-segment') {
-            return true;
-          }
-          else {
-            return false;
-          }
-        }
-        else {
-          return true;
-        }
+
+    var counts = {};
+
+    function incrementCount(count, type) {
+      if (counts[count] == null) {
+        counts[count] = {};
       }
-      else {
+
+      if (counts[count][type] == null) {
+        counts[count][type] = 0;
+      }
+
+      ++counts[count][type];
+    }
+
+    var nonZeroData = data.filter(function(d) {
+      var includeFn = TYPES_TO_INCLUDE[d.type];
+      if (includeFn == null) {
+        incrementCount('excluded', d.type);
         return false;
       }
-    }, this);
-    if (!nonZeroData[true]) {
-      nonZeroData[true] = [];
-    }
-    var includedByType = _.countBy(nonZeroData[true], function(d) { return d.type; });
-    log('Excluded:', _.countBy(nonZeroData[false], function(d) { return d.type; }));
-    log('# of data points', nonZeroData[true].length);
-    log('Data types:', includedByType);
 
-    return nonZeroData[true];
+      var retVal = includeFn(d);
+      incrementCount(retVal ? 'included' : 'excluded', d.type);
+      return retVal;
+    });
+
+    log('Excluded:', counts['excluded']);
+    log('# of data points', nonZeroData.length);
+    log('Data types:', counts['included']);
+
+    return nonZeroData;
   },
 
   runWatson: function(data) {
     data = watson.normalizeAll(data);
     // Ensure the data is properly sorted
     data = _.sortBy(data, function(d) {
-      return new Date(d.normalTime).valueOf();
+      // ISO8601 format lexicographically sorts according to timestamp
+      return d.normalTime;
     });
     return data;
   },
 
   checkRequired: function(tidelineData) {
-    _.forEach(this.REQUIRED_TYPES, function(type) {
+    this.REQUIRED_TYPES.forEach(function(type) {
       if (!tidelineData.grouped[type]) {
         log('No', type, 'data! Replaced with empty array.');
         tidelineData.grouped[type] = [];
@@ -116,7 +138,8 @@ var Preprocess = {
 
   processData: function(data) {
     if (!(data && data.length)) {
-      return data;
+      log('Unexpected data input, defaulting to empty array.');
+      data = [];
     }
 
     data = this.filterData(data);
