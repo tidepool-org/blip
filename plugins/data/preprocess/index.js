@@ -51,8 +51,7 @@ var Preprocess = {
     //  ~and~
     // because of how the Tidepool back end parses some data sources
     // we're creating things like carb events with values of 0, which
-    // we don't want to visualize
-    //
+    // we don't want to visualize, so...
     // this function also removes all data with value 0 except for basals, since
     // we do want to visualize basals (e.g., temps) with value 0.0
     var nonZeroData = _.groupBy(data, function(d, i) {
@@ -97,6 +96,7 @@ var Preprocess = {
   checkRequired: function(tidelineData) {
     _.forEach(this.REQUIRED_TYPES, function(type) {
       if (!tidelineData.grouped[type]) {
+        log('No', type, 'data! Replaced with empty array.');
         tidelineData.grouped[type] = [];
       }
     });
