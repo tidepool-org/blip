@@ -105,25 +105,13 @@ var Preprocess = {
   },
 
   translateMmol: function(data) {
-    var groupByBGUnits = _.groupBy(data, function(d) {
+    return data.map(function(d) {
       if (d.units === this.MMOL_STRING) {
-        return true;
+        d.units = this.MGDL_STRING;
+        d.value = parseInt(Math.round(d.value * this.MMOL_TO_MGDL, 10));
       }
-      else {
-        return false;
-      }
-    }, this);
-    if (!groupByBGUnits[false]) {
-      groupByBGUnits[false] = [];
-    }
-    if (!groupByBGUnits[true]) {
-      groupByBGUnits[true] = [];
-    }
-    return groupByBGUnits[false].concat(_.map(groupByBGUnits[true], function(d) {
-      d.units = this.MGDL_STRING;
-      d.value = parseInt(Math.round(d.value * this.MMOL_TO_MGDL, 10));
       return d;
-    }, this));
+    });
   },
 
   processData: function(data) {
