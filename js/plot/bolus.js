@@ -203,17 +203,13 @@ module.exports = function(pool, opts) {
       boluses.exit().remove();
 
       // tooltips
-      d3.selectAll('.d3-rect-bolus, .d3-rect-recommended').on('mouseover', function() {
-        var d = d3.select(this).datum();
-        var t = Date.parse(d.normalTime);
+      d3.selectAll('.d3-rect-bolus, .d3-rect-recommended').on('mouseover', function(d) {
         bolus.addTooltip(d, bolus.getTooltipCategory(d));
-        opts.emitter.emit('bolusTooltipOn', t);
+        opts.emitter.emit('bolusTooltipOn', Date.parse(d.normalTime));
       });
-      d3.selectAll('.d3-rect-bolus, .d3-rect-recommended').on('mouseout', function() {
-        var d = _.clone(d3.select(this).datum());
-        var t = Date.parse(d.normalTime);
+      d3.selectAll('.d3-rect-bolus, .d3-rect-recommended').on('mouseout', function(d) {
         d3.select('#tooltip_' + d._id).remove();
-        opts.emitter.emit('bolusTooltipOff', t);
+        opts.emitter.emit('bolusTooltipOff', Date.parse(d.normalTime));
       });
     });
   }
@@ -251,8 +247,7 @@ module.exports = function(pool, opts) {
       } else {
         category = 'two-line';
       }
-    }
-    else {
+    } else {
       if ((d.extended == null) && (d.recommended === d.value)) {
         category = 'unspecial';
       } else if ((d.extended == null) && (d.recommended !== d.value)) {

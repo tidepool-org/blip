@@ -20,7 +20,7 @@ var log = require('../lib/').bows('SegmentUtil');
 
 var Timeline = require('./util/timeline.js');
 
-var keysForEquality = ['type', 'deliveryType', 'value', 'percent', 'deviceId', 'scheduleName', 'source'];
+var keysForEquality = ['type', 'deliveryType', 'value', 'percent', 'deviceId', 'scheduleName', 'source', 'link'];
 
 function eventsSmooshable(lhs, rhs) {
   return _.isEqual(_.pick(lhs, keysForEquality), _.pick(rhs, keysForEquality));
@@ -53,6 +53,13 @@ module.exports = function(data){
     undelivereds[e.deliveryType].add(_.extend({}, e, {vizType: 'undelivered'}));
   }
 
+  function addLinkFn(e) {
+    return function(event) {
+      event.link = e.id;
+      return event;
+    }
+  }
+
   function processElement(e) {
     if (e.deliveryType === 'temp' || e.deliveryType === 'scheduled') {
       if (maxTimestamp > e.start) {
@@ -81,7 +88,7 @@ module.exports = function(data){
             case 'scheduled':
               if (lastActual.end <= e.start) {
                 // No overlap!
-                addToActuals(e).forEach(addToUndelivered);
+                addToActuals(e).map(addLinkFn(e)).forEach(addToUndelivered);
               } else {
                 // scheduled overlapping a scheduled, this is known to happen when a patient used multiple
                 // pumps at the exact same time.  Which is rare, to say the least.  We want to just eliminate
@@ -95,7 +102,7 @@ module.exports = function(data){
               // A scheduled is potentially overlapping a temp, figure out what's going on.
               if (lastActual.end <= e.start) {
                 // No overlap, yay!
-                addToActuals(e).forEach(addToUndelivered);
+                addToActuals(e).map(addLinkFn(e)).forEach(addToUndelivered);
               } else /*if (e.end <= lastActual.end)*/ {
                 // The scheduled is completely obliterated by the temp.  In this case, what we actually want
                 // to do is chunk up the temp into invididual chunks to line up with the scheduled.
@@ -140,7 +147,9 @@ module.exports = function(data){
                   throw new Error('Should\'ve gotten just the original scheduled, didn\'t.', arrayWithOriginalScheduled);
                 }
 
-                addToUndelivered(_.clone(arrayWithOriginalScheduled[0]));
+                var theUndelivered = _.clone(arrayWithOriginalScheduled[0]);
+                theUndelivered.link = tempMatchingScheduled.id;
+                addToUndelivered(theUndelivered);
               }
               break;
             default:
@@ -152,7 +161,7 @@ module.exports = function(data){
           if (eventToAdd.percent != null) {
             eventToAdd = _.assign({}, e, {value: e.percent * actuals.peek().value});
           }
-          addToActuals(eventToAdd).forEach(addToUndelivered);
+          addToActuals(eventToAdd).map(addLinkFn(eventToAdd)).forEach(addToUndelivered);
           break;
         default:
           log('Unknown deliveryType, ignoring', e);
