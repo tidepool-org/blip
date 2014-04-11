@@ -99,27 +99,26 @@ var Messages = React.createClass({
     return;
   },
   renderForm:function(){
+    /* jshint ignore:start */
     if(this.state.messages){
       return (
-        /* jshint ignore:start */
+
         <SimpleForm
           inputs={this.commentFormInputs}
           formValues={this.state.formValues}
           submitButtonText='Comment'
           onSubmit={this.handleAddComment} />
-        /* jshint ignore:end */
       );
     }else{
       return (
-        /* jshint ignore:start */
         <SimpleForm
           inputs={this.messageFormInputs}
           formValues={this.state.formValues}
           submitButtonText='Post'
           onSubmit={this.handleCreateMessage} />
-        /* jshint ignore:end */
       );
     }
+     /* jshint ignore:end */
   },
   renderClose:function(){
     /* jshint ignore:start */
