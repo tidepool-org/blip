@@ -111,7 +111,7 @@ var Preprocess = {
         d.value = parseInt(Math.round(d.value * this.MMOL_TO_MGDL, 10));
       }
       return d;
-    });
+    }, this);
   },
 
   processData: function(data) {
