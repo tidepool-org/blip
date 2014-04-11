@@ -30,20 +30,27 @@ var MessageThread = React.createClass({
 
   propTypes: {
     messages : React.PropTypes.array,
+    createDatetime : React.PropTypes.string,
     user : React.PropTypes.object,
+    patient: React.PropTypes.object,
     onClose : React.PropTypes.func,
-    onAddComment : React.PropTypes.func
+    onSave : React.PropTypes.func
   },
 
   getInitialState: function() {
     return {
-      formValues: {comment: ''},
+      formValues: {messageText: '', messageDateTime : this.formatDisplayDate(this.props.createDatetime)},
       messages : this.props.messages
     };
   },
 
-  formInputs: [
-    {name: 'comment', label: null, placeholder: 'Type a comment here ...', type: 'textarea'}
+  commentFormInputs: [
+    {name: 'messageText', label: null, placeholder: 'Type a comment here ...', type: 'textarea'}
+  ],
+
+  messageFormInputs: [
+    {name: 'messageDateTime', label: null, type: 'text', disabled:true },
+    {name: 'messageText', label: null, placeholder: 'Type a new note here ...', type: 'textarea'}
   ],
 
   formatDisplayDate : function(timestamp){
@@ -74,28 +81,45 @@ var MessageThread = React.createClass({
       );
     /* jshint ignore:end */
   },
-  renderCommentForm: function() {
-    return (
-      /* jshint ignore:start */
-      <SimpleForm
-        inputs={this.formInputs}
-        formValues={this.state.formValues}
-        submitButtonText='Comment'
-        onSubmit={this.handleAddComment} />
-      /* jshint ignore:end */
-    );
-  },
   renderThread:function(){
 
-    var thread = _.map(this.state.messages, function(message) {
-      if(!message.parentmessage) {
-        return this.renderMessage(message);
-      } else if (message.parentmessage) {
-        return this.renderComment(message);
-      }
-    }.bind(this));
+    if(this.state.messages){
 
-    return thread;
+      var thread = _.map(this.state.messages, function(message) {
+        if(!message.parentmessage) {
+          return this.renderMessage(message);
+        } else if (message.parentmessage) {
+          return this.renderComment(message);
+        }
+      }.bind(this));
+
+      return thread;
+    }
+
+    return;
+  },
+  renderForm:function(){
+    if(this.state.messages){
+      return (
+        /* jshint ignore:start */
+        <SimpleForm
+          inputs={this.commentFormInputs}
+          formValues={this.state.formValues}
+          submitButtonText='Comment'
+          onSubmit={this.handleAddComment} />
+        /* jshint ignore:end */
+      );
+    }else{
+      return (
+        /* jshint ignore:start */
+        <SimpleForm
+          inputs={this.messageFormInputs}
+          formValues={this.state.formValues}
+          submitButtonText='Post'
+          onSubmit={this.handleCreateMessage} />
+        /* jshint ignore:end */
+      );
+    }
   },
   renderClose:function(){
     /* jshint ignore:start */
@@ -105,7 +129,7 @@ var MessageThread = React.createClass({
   render: function() {
     var thread = this.renderThread();
     var close = this.renderClose();
-    var commentForm = this.renderCommentForm();
+    var form = this.renderForm();
 
     return (
      /* jshint ignore:start */
@@ -116,7 +140,7 @@ var MessageThread = React.createClass({
         </div>
         <div className='messagethread-messages'>
           {thread}
-          {commentForm}
+          {form}
         </div>
       </div>
      </div>
@@ -124,20 +148,23 @@ var MessageThread = React.createClass({
      );
   },
   getParent : function(){
-    return _.first(this.state.messages, function(message){ return !(message.parentmessage); })[0];
+    if(this.state.messages){
+      return _.first(this.state.messages, function(message){ return !(message.parentmessage); })[0];
+    }
+    return;
   },
   handleAddComment : function (formValues){
 
-    if(formValues.comment){
+    if(formValues.messageText){
 
-      var addComment = this.props.onAddComment;
+      var addComment = this.props.onSave;
       var parent = this.getParent();
 
       var comment = {
         parentmessage : parent.id,
         userid : this.props.user.id,
         groupid : parent.groupid,
-        messagetext : formValues.comment,
+        messagetext : formValues.messageText,
         timestamp : new Date().toISOString()
       };
 
@@ -148,7 +175,30 @@ var MessageThread = React.createClass({
           comment.username = this.props.user.firstName;
           var withReply = this.state.messages;
           withReply.push(comment);
-          this.setState({ messages: withReply, formValues : {comment: ''} });
+          this.setState({ messages: withReply, formValues : {messageText: ''} });
+        }
+      }.bind(this));
+    }
+  },
+  handleCreateMessage : function (formValues){
+
+    if(formValues.messageText){
+
+      var createMessage = this.props.onSave;
+
+      var message = {
+        userid : this.props.user.id,
+        groupid : this.props.patient.team.id,
+        messagetext : formValues.messageText,
+        timestamp : this.props.createDatetime
+      };
+
+      createMessage(message, function(error,messageId){
+        if(messageId){
+          //set so we can display right away
+          message.id = messageId;
+          message.username = this.props.user.firstName;
+          this.setState({ messages: [message], formValues : {messageText: '', messageDateTime:''} });
         }
       }.bind(this));
     }
@@ -157,7 +207,6 @@ var MessageThread = React.createClass({
     e.preventDefault();
     var close = this.props.onClose;
     if (close) {
-      this.setState({ messages: null });
       close();
     }
   }

@@ -25,12 +25,14 @@ var MessageThread = require('../../components/messages');
 var PatientData = React.createClass({
   propTypes: {
     patientData: React.PropTypes.object,
+    patient: React.PropTypes.object,
     fetchingPatientData: React.PropTypes.bool,
     isUserPatient: React.PropTypes.bool,
     uploadUrl: React.PropTypes.string,
     onRefresh: React.PropTypes.func,
     onFetchMessageThread: React.PropTypes.func,
     onSaveComment: React.PropTypes.func,
+    onCreateMessage: React.PropTypes.func,
     user: React.PropTypes.object
   },
 
@@ -44,7 +46,8 @@ var PatientData = React.createClass({
       title: this.DEFAULT_TITLE,
       datetimeLocation: null,
       showingValuesWeekly: false,
-      messages: null
+      messages: null,
+      createMessage: null
     };
   },
 
@@ -53,12 +56,14 @@ var PatientData = React.createClass({
     var patientData = this.renderPatientData();
     var footer = this.renderFooter();
     var messageThread = this.renderMessageThread();
+    var message = this.renderMessageCreation();
 
     /* jshint ignore:start */
     return (
       <div className="patient-data js-patient-data-page">
         {subnav}
         {messageThread}
+        {message}
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
@@ -212,15 +217,32 @@ var PatientData = React.createClass({
         <MessageThread
           messages={this.state.messages}
           user={this.props.user}
+          patient={this.props.patient}
           onClose={this.closeMessageThread}
-          onAddComment={this.props.onSaveComment} />
+          onSave={this.props.onSaveComment} />
       );
     }
     /* jshint ignore:end */
   },
-
   closeMessageThread: function(){
     this.setState({ messages: null });
+  },
+  renderMessageCreation: function() {
+    /* jshint ignore:start */
+    if(this.state.createMessageDatetime){
+      return (
+        <MessageThread
+          createDatetime={this.state.createMessageDatetime}
+          user={this.props.user}
+          patient={this.props.patient}
+          onClose={this.closeMessageCreation}
+          onSave={this.props.onCreateMessage} />
+      );
+    }
+    /* jshint ignore:end */
+  },
+  closeMessageCreation: function(){
+    this.setState({ createMessageDatetime: null });
   },
   renderChart: function() {
     /* jshint ignore:start */
@@ -232,6 +254,7 @@ var PatientData = React.createClass({
         onDatetimeLocationChange={this.handleDatetimeLocationChange}
         onSelectDataPoint={this.handleWeeklySelectDataPoint}
         onShowMessageThread={this.handleShowMessageThread}
+        onCreateMessage={this.handleShowMessageCreation}
         onTransition={this.handleInTransition}
         onReachedMostRecent={this.handleReachedMostRecent}
         imagesEndpoint={config.IMAGES_ENDPOINT + '/tideline'}
@@ -383,6 +406,10 @@ var PatientData = React.createClass({
         self.setState({ messages: thread });
       });
     }
+  },
+
+  handleShowMessageCreation : function(datetime){
+    this.setState({ createMessageDatetime : datetime });
   },
 
   handleInTransition: function(inTransition) {

@@ -499,6 +499,7 @@ var AppComponent = React.createClass({
     return (
       <PatientData
         user={this.state.user}
+        patient={this.state.patient}
         patientData={this.state.patientData}
         fetchingPatientData={this.state.fetchingPatientData}
         isUserPatient={this.isUserPatient()}
