@@ -13,9 +13,9 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-@messagethread-inner-width: 420px;
+@messages-inner-width: 420px;
 
-.messagethread {
+.messages {
   position: fixed;
   top: 0;
   left: 0;
@@ -35,37 +35,34 @@
   }
 }
 
-.messagethread-inner {
+.messages-inner {
   margin: 80px auto;
   padding: @spacing-small @spacing-base;
   border: 2px solid @gray-light;
   background-color: #fff;
   border-radius: 4px;
 
-  @media(min-width: @messagethread-inner-width) {
-    width: @messagethread-inner-width;
+  @media(min-width: @messages-inner-width) {
+    width: @messages-inner-width;
   }
 }
 
-.messagethread-messages {
-}
-
-.messagethread-close {
+.messages-close {
   display: inline-block;
   float: right;
 }
 
-.messagethread-message-when {
+.messages-message-when {
   text-align: center;
 }
 
-.messagethread-message-username {
+.messages-message-username {
   font-size:small;
 }
 
-.messagethread-comment {
+.messages-comment {
   margin-left: @spacing-large;
 }
-.messagethread-comment-header {
+.messages-comment-header {
   font-size:small;
 }

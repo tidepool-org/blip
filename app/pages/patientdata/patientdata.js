@@ -20,7 +20,7 @@ var moment = window.moment;
 var config = window.config;
 
 var Chart = require('../../components/chart');
-var MessageThread = require('../../components/messages');
+var Messages = require('../../components/messages');
 
 var PatientData = React.createClass({
   propTypes: {
@@ -55,15 +55,13 @@ var PatientData = React.createClass({
     var subnav = this.renderSubnav();
     var patientData = this.renderPatientData();
     var footer = this.renderFooter();
-    var messageThread = this.renderMessageThread();
-    var message = this.renderMessageCreation();
+    var messages = this.renderMessagesContainer();
 
     /* jshint ignore:start */
     return (
       <div className="patient-data js-patient-data-page">
         {subnav}
-        {messageThread}
-        {message}
+        {messages}
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
@@ -209,12 +207,20 @@ var PatientData = React.createClass({
     );
     /* jshint ignore:end */
   },
-
-  renderMessageThread: function() {
+  renderMessagesContainer: function() {
     /* jshint ignore:start */
-    if(this.state.messages){
+    if(this.state.createMessageDatetime){
       return (
-        <MessageThread
+        <Messages
+          createDatetime={this.state.createMessageDatetime}
+          user={this.props.user}
+          patient={this.props.patient}
+          onClose={this.closeMessageCreation}
+          onSave={this.props.onCreateMessage} />
+      );
+    }else if(this.state.messages){
+      return (
+        <Messages
           messages={this.state.messages}
           user={this.props.user}
           patient={this.props.patient}
@@ -226,20 +232,6 @@ var PatientData = React.createClass({
   },
   closeMessageThread: function(){
     this.setState({ messages: null });
-  },
-  renderMessageCreation: function() {
-    /* jshint ignore:start */
-    if(this.state.createMessageDatetime){
-      return (
-        <MessageThread
-          createDatetime={this.state.createMessageDatetime}
-          user={this.props.user}
-          patient={this.props.patient}
-          onClose={this.closeMessageCreation}
-          onSave={this.props.onCreateMessage} />
-      );
-    }
-    /* jshint ignore:end */
   },
   closeMessageCreation: function(){
     this.setState({ createMessageDatetime: null });

@@ -26,7 +26,7 @@ var _ = window._;
 
 var SimpleForm = require('../simpleform');
 
-var MessageThread = React.createClass({
+var Messages = React.createClass({
 
   propTypes: {
     messages : React.PropTypes.array,
@@ -60,12 +60,12 @@ var MessageThread = React.createClass({
   renderMessage: function(message){
     /* jshint ignore:start */
     return (
-      <div className='messagethread-message'>
-        <div className='messagethread-message-when'>
+      <div className='messages-message'>
+        <div className='messages-message-when'>
           <span>{this.formatDisplayDate(message.timestamp)}</span>
         </div>
-        <span className='messagethread-message-username'> {message.username}</span>
-        <p className='messagethread-message-text'>{message.messagetext}</p>
+        <span className='messages-message-username'> {message.username}</span>
+        <p className='messages-message-text'>{message.messagetext}</p>
       </div>
       );
     /* jshint ignore:end */
@@ -73,9 +73,9 @@ var MessageThread = React.createClass({
   renderComment:function(comment){
     /* jshint ignore:start */
     return (
-      <div className='messagethread-comment'>
-        <span className='messagethread-comment-header'> {comment.username} - {this.formatDisplayDate(comment.timestamp)}</span>
-        <p className='messagethread-comment-text'>{comment.messagetext}</p>
+      <div className='messages-comment'>
+        <span className='messages-comment-header'> {comment.username} - {this.formatDisplayDate(comment.timestamp)}</span>
+        <p className='messages-comment-text'>{comment.messagetext}</p>
       </div>
 
       );
@@ -123,7 +123,7 @@ var MessageThread = React.createClass({
   },
   renderClose:function(){
     /* jshint ignore:start */
-    return (<a className='messagethread-close' onClick={this.handleClose}>Close</a>);
+    return (<a className='messages-close' onClick={this.handleClose}>Close</a>);
     /* jshint ignore:end */
   },
   render: function() {
@@ -133,12 +133,12 @@ var MessageThread = React.createClass({
 
     return (
      /* jshint ignore:start */
-     <div className='messagethread'>
-      <div className='messagethread-inner'>
-        <div className='messagethread-header'>
+     <div className='messages'>
+      <div className='messages-inner'>
+        <div className='messages-header'>
           {close}
         </div>
-        <div className='messagethread-messages'>
+        <div>
           {thread}
           {form}
         </div>
@@ -212,4 +212,4 @@ var MessageThread = React.createClass({
   }
 });
 
-module.exports = MessageThread;
+module.exports = Messages;
