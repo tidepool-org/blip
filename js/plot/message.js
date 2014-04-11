@@ -90,12 +90,19 @@ module.exports = function(pool, opts) {
 
   message.setUpMessageCreation = _.once(function() {
     log('Set up message creation listeners.');
-    mainGroup.selectAll('.d3-rect-fill').on('click', function(d) {
-      var date = opts.xScale.invert(d.x).toISOString();
-      log('Creating new message at ' + date.slice(0, -4));
-      opts.emitter.emit('createMessage', date);
+    mainGroup.selectAll('.d3-rect-fill').on('click', function() {
+      opts.emitter.emit('clickInPool', d3.event.offsetX);
     });
 
+    opts.emitter.on('clickTranslatesToDate', function(date) {
+      var messageGroup = mainGroup.select('#poolMessages_message')
+        .append('g')
+        .attr('class', 'd3-message-group d3-new')
+        .datum({'normalTime': date, '_id': ''});
+      message.addMessageToPool(messageGroup);
+      log('Creating message at', date.toISOString().slice(0,-5));
+      opts.emitter.emit('createMessage', date.toISOString());
+    });
   });
 
   return message;
