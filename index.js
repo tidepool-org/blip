@@ -21,20 +21,21 @@
 var _ = (typeof window !== 'undefined' && typeof window._ !== 'undefined') ? window._ : require('lodash');
 var async = (typeof window !== 'undefined' && typeof window.async !== 'undefined') ? window.async : require('async');
 
-module.exports = function(host, superagent) {
+module.exports = function (host, superagent) {
   var sessionTokenHeader = 'x-tidepool-session-token';
 
   /*
-    Make the URL
-  */
+   Make the URL
+   */
   function makeUrl(path) {
     return host + path;
   }
+
   /*
-    Return the id of the group type for the given user
-    (e.g. team, invited, invitedby, patients)
-  */
-  function getUserGroupId (userId,groupType,token,cb){
+   Return the id of the group type for the given user
+   (e.g. team, invited, invitedby, patients)
+   */
+  function getUserGroupId(userId, groupType, token, cb) {
     if (userId == null) {
       return cb({ message: 'Must specify a userId' });
     }
@@ -43,154 +44,159 @@ module.exports = function(host, superagent) {
     }
 
     superagent
-    .get(makeUrl('/metadata/' + userId + '/groups'))
-    .set(sessionTokenHeader, token)
-    .end(function(error, res){
-      if (error) {
-        return cb(error);
-      }
+      .get(makeUrl('/metadata/' + userId + '/groups'))
+      .set(sessionTokenHeader, token)
+      .end(function (error, res) {
+             if (error) {
+               return cb(error);
+             }
 
-      if (res.status === 404) {
-        return cb(null,null);
-      }
+             if (res.status === 404) {
+               return cb(null, null);
+             }
 
-      if (res.status !== 200) {
-        return handleHttpError(res, cb);
-      }
+             if (res.status !== 200) {
+               return handleHttpError(res, cb);
+             }
 
-      cb(null,res.body[groupType]);
-    });
+             cb(null, res.body[groupType]);
+           });
   }
+
   /*
-    Return the user group (e.g. team, invited, patients) asked for.
-    If the group does not exist an empty one is created.
-  */
-  function findOrAddUserGroup(userId,groupType,token,cb){
+   Return the user group (e.g. team, invited, patients) asked for.
+   If the group does not exist an empty one is created.
+   */
+  function findOrAddUserGroup(userId, groupType, token, cb) {
     if (userId == null) {
       return cb({ message: 'Must specify a userId' });
     }
     if (groupType == null) {
       return cb({ message: 'Must specify a groupType' });
     }
-    async.waterfall([
-      function(callback){
-        //find users groups
-        getUserGroupId(userId,groupType,token,function(error,groupId){
-          callback(error,groupId);
-        });
-      },
-      function(groupId,callback){
-        //find users groups
-        if(groupId == null){
-          createUserGroup(userId,groupType,token,function(error,groupId){
-            callback(error,groupId);
+    async.waterfall(
+      [
+        function (callback) {
+          //find users groups
+          getUserGroupId(userId, groupType, token, function (error, groupId) {
+            callback(error, groupId);
           });
-        }else{
-          callback(null,groupId);
-        }
-      },
-      function(groupId, callback){
-        if (!groupId) {
-          return callback(null,null);
-        }
-
-        //find the requested group
-        superagent
-          .get(makeUrl('/group/' + groupId + '/members'))
-          .set(sessionTokenHeader, token)
-          .end(function(error, res){
-            if(error) {
-              return callback(error);
-            }
-
-            if (res.status !== 200) {
-              return handleHttpError(res, callback);
-            }
-
-            var group = {
-              id: groupId,
-              members: res.body.members
-            };
-            callback(null,group);
-          });
-      }
-    ],
-    function (err, result) {
-      return cb(err,result);
-    });
-  }
-  /*
-    Create the user group (e.g. team, invited, patients ...) asked for and link to the user.
-  */
-  function createUserGroup(userId,groupType,token,cb){
-    if (userId == null) {
-      return cb({ message: 'Must specify a userId' });
-    }
-    if (groupType == null) {
-      return cb({ message: 'Must specify a groupType' });
-    }
-    async.waterfall([
-      function(callback){
-        //add the empty group
-        superagent
-          .post(makeUrl('/group'))
-          .set(sessionTokenHeader, token)
-          .send({ group : { members : [] }})
-          .end(function(err, res){
-            if (err != null) {
-              return callback(err,null);
-            }
-
-            if (res.status !== 201) {
-              return handleHttpError(res, callback);
-            }
-
-            callback(null,res.body.id);
-          });
-      },
-      function(groupId, callback){
-        //get all groups associated with the user
-        superagent
-          .get(makeUrl('/metadata/' + userId + '/groups'))
-          .set(sessionTokenHeader, token)
-          .end(function(err, res){
-            callback(err, groupId, res.body);
-          });
-      },
-      function(groupId, existingGroups, callback){
-        //add new group type to the users groups
-
-        if(existingGroups == null) {
-          existingGroups = {};
-        }
-
-        existingGroups[groupType] = groupId;
-
-        superagent
-          .post(makeUrl('/metadata/' + userId + '/groups'))
-          .set(sessionTokenHeader, token)
-          .send(existingGroups)
-          .end(function(err, res){
-              if (err != null) {
-                return callback(err);
-              }
-
-              if (res.status !== 200) {
-                return handleHttpError(res, callback);
-              }
-
-              callback(null,groupId);
+        },
+        function (groupId, callback) {
+          //find users groups
+          if (groupId == null) {
+            createUserGroup(userId, groupType, token, function (error, groupId) {
+              callback(error, groupId);
             });
-      }
-    ],
-    function (err, result) {
-      return cb(err,result);
-    });
+          } else {
+            callback(null, groupId);
+          }
+        },
+        function (groupId, callback) {
+          if (!groupId) {
+            return callback(null, null);
+          }
+
+          //find the requested group
+          superagent
+            .get(makeUrl('/group/' + groupId + '/members'))
+            .set(sessionTokenHeader, token)
+            .end(function (error, res) {
+                   if (error) {
+                     return callback(error);
+                   }
+
+                   if (res.status !== 200) {
+                     return handleHttpError(res, callback);
+                   }
+
+                   var group = {
+                     id: groupId,
+                     members: res.body.members
+                   };
+                   callback(null, group);
+                 });
+        }
+      ],
+      function (err, result) {
+        return cb(err, result);
+      });
   }
+
   /*
-    Add a member to the user group (e.g. team, invited, patients ...)
-  */
-  function addMemberToUserGroup(groupId,memberId,token,cb){
+   Create the user group (e.g. team, invited, patients ...) asked for and link to the user.
+   */
+  function createUserGroup(userId, groupType, token, cb) {
+    if (userId == null) {
+      return cb({ message: 'Must specify a userId' });
+    }
+    if (groupType == null) {
+      return cb({ message: 'Must specify a groupType' });
+    }
+    async.waterfall(
+      [
+        function (callback) {
+          //add the empty group
+          superagent
+            .post(makeUrl('/group'))
+            .set(sessionTokenHeader, token)
+            .send({ group: { members: [] }})
+            .end(function (err, res) {
+                   if (err != null) {
+                     return callback(err, null);
+                   }
+
+                   if (res.status !== 201) {
+                     return handleHttpError(res, callback);
+                   }
+
+                   callback(null, res.body.id);
+                 });
+        },
+        function (groupId, callback) {
+          //get all groups associated with the user
+          superagent
+            .get(makeUrl('/metadata/' + userId + '/groups'))
+            .set(sessionTokenHeader, token)
+            .end(function (err, res) {
+                   callback(err, groupId, res.body);
+                 });
+        },
+        function (groupId, existingGroups, callback) {
+          //add new group type to the users groups
+
+          if (existingGroups == null) {
+            existingGroups = {};
+          }
+
+          existingGroups[groupType] = groupId;
+
+          superagent
+            .post(makeUrl('/metadata/' + userId + '/groups'))
+            .set(sessionTokenHeader, token)
+            .send(existingGroups)
+            .end(function (err, res) {
+                   if (err != null) {
+                     return callback(err);
+                   }
+
+                   if (res.status !== 200) {
+                     return handleHttpError(res, callback);
+                   }
+
+                   callback(null, groupId);
+                 });
+        }
+      ],
+      function (err, result) {
+        return cb(err, result);
+      });
+  }
+
+  /*
+   Add a member to the user group (e.g. team, invited, patients ...)
+   */
+  function addMemberToUserGroup(groupId, memberId, token, cb) {
     if (groupId == null) {
       return cb({ message: 'Must specify a groupId' });
     }
@@ -201,24 +207,24 @@ module.exports = function(host, superagent) {
     superagent
       .put(makeUrl('/group/' + groupId + '/user'))
       .set(sessionTokenHeader, token)
-      .send({userid : memberId})
-      .end(function(err, res){
-        if (err != null) {
-          return cb(err,null);
-        }
+      .send({userid: memberId})
+      .end(function (err, res) {
+             if (err != null) {
+               return cb(err, null);
+             }
 
-        if (res.status !== 200) {
-          return handleHttpError(res, cb);
-        }
+             if (res.status !== 200) {
+               return handleHttpError(res, cb);
+             }
 
-        cb(null,res.body);
-      });
+             cb(null, res.body);
+           });
   }
 
   /*
-    Handle an HTTP error (status code !== 2xx)
-    Create an error object and pass it to callback
-  */
+   Handle an HTTP error (status code !== 2xx)
+   Create an error object and pass it to callback
+   */
   function handleHttpError(res, cb) {
     var err = {status: res.status, body: res.body};
     cb(err);
@@ -231,7 +237,7 @@ module.exports = function(host, superagent) {
      * @param user object with a username and password to login
      * @returns {cb}  cb(err, response)
      */
-    login: function(user, cb){
+    login: function (user, cb) {
       if (user.username == null) {
         return cb({ message: 'Must specify an username' });
       }
@@ -243,16 +249,16 @@ module.exports = function(host, superagent) {
         .post(makeUrl('/auth/login'))
         .auth(user.username, user.password)
         .end(
-        function(err, res) {
+        function (err, res) {
           if (err != null) {
-            return cb(err,null);
+            return cb(err, null);
           }
 
           if (res.status !== 200) {
             return handleHttpError(res, cb);
           }
 
-          cb(null,{userid:res.body.userid,token:res.headers[sessionTokenHeader],user:res.body});
+          cb(null, {userid: res.body.userid, token: res.headers[sessionTokenHeader], user: res.body});
         });
     },
     /**
@@ -261,7 +267,7 @@ module.exports = function(host, superagent) {
      * @param user object with a username and password
      * @returns {cb}  cb(err, response)
      */
-    signup: function(user, cb){
+    signup: function (user, cb) {
       if (user.username == null) {
         return cb({ message: 'Must specify an username' });
       }
@@ -272,24 +278,24 @@ module.exports = function(host, superagent) {
       var newUser = _.pick(user, 'username', 'password', 'emails');
 
       superagent
-      .post(makeUrl('/auth/user'))
-      .send(newUser)
-      .end(
-      function(err, res){
-        if (err != null) {
-          return cb(err);
-        }
+        .post(makeUrl('/auth/user'))
+        .send(newUser)
+        .end(
+        function (err, res) {
+          if (err != null) {
+            return cb(err);
+          }
 
-        if (res.status !== 201) {
-          return handleHttpError(res, cb);
-        }
+          if (res.status !== 201) {
+            return handleHttpError(res, cb);
+          }
 
-        var data = _.assign({}, res.body, {
-          token: res.headers[sessionTokenHeader]
+          var data = _.assign({}, res.body, {
+            token: res.headers[sessionTokenHeader]
+          });
+
+          cb(null, data);
         });
-
-        cb(null,data);
-      });
     },
     /**
      * Logout user with token
@@ -297,22 +303,22 @@ module.exports = function(host, superagent) {
      * @param token a user token
      * @returns {cb}  cb(err, response)
      */
-    logout : function(token, cb){
+    logout: function (token, cb) {
       superagent
-      .post(makeUrl('/auth/logout'))
-      .set(sessionTokenHeader, token)
-      .end(
-      function(err, res){
-        if (err != null) {
-          return cb(err);
-        }
+        .post(makeUrl('/auth/logout'))
+        .set(sessionTokenHeader, token)
+        .end(
+        function (err, res) {
+          if (err != null) {
+            return cb(err);
+          }
 
-        if (res.status !== 200) {
-          return handleHttpError(res, cb);
-        }
+          if (res.status !== 200) {
+            return handleHttpError(res, cb);
+          }
 
-        cb(null,res.body);
-      });
+          cb(null, res.body);
+        });
     },
     /**
      * Get current user account info
@@ -320,22 +326,22 @@ module.exports = function(host, superagent) {
      * @param token a user token
      * @returns {cb}  cb(err, response)
      */
-    getCurrentUser : function(token, cb){
+    getCurrentUser: function (token, cb) {
       superagent
-      .get(makeUrl('/auth/user'))
-      .set(sessionTokenHeader, token)
-      .end(
-      function(err, res){
-        if (err != null) {
-          cb(err);
-        }
+        .get(makeUrl('/auth/user'))
+        .set(sessionTokenHeader, token)
+        .end(
+        function (err, res) {
+          if (err != null) {
+            cb(err);
+          }
 
-        if (res.status !== 200) {
-          return handleHttpError(res, cb);
-        }
+          if (res.status !== 200) {
+            return handleHttpError(res, cb);
+          }
 
-        cb(null,res.body);
-      });
+          cb(null, res.body);
+        });
     },
     /**
      * Update current user account info
@@ -344,27 +350,27 @@ module.exports = function(host, superagent) {
      * @param token a user token
      * @returns {cb}  cb(err, response)
      */
-    updateCurrentUser : function(user, token, cb){
+    updateCurrentUser: function (user, token, cb) {
       var updateData = {
         updates: _.pick(user, 'username', 'password', 'emails')
       };
 
       superagent
-      .put(makeUrl('/auth/user'))
-      .set(sessionTokenHeader, token)
-      .send(updateData)
-      .end(
-      function(err, res){
-        if (err != null) {
-          cb(err);
-        }
+        .put(makeUrl('/auth/user'))
+        .set(sessionTokenHeader, token)
+        .send(updateData)
+        .end(
+        function (err, res) {
+          if (err != null) {
+            cb(err);
+          }
 
-        if (res.status !== 200) {
-          return handleHttpError(res, cb);
-        }
+          if (res.status !== 200) {
+            return handleHttpError(res, cb);
+          }
 
-        cb(null,res.body);
-      });
+          cb(null, res.body);
+        });
     },
     /**
      * Add a new or update an existing profile for a user
@@ -373,7 +379,7 @@ module.exports = function(host, superagent) {
      * @param token a user token
      * @returns {cb}  cb(err, response)
      */
-    addOrUpdateProfile : function(user, token, cb){
+    addOrUpdateProfile: function (user, token, cb) {
       if (user.id == null) {
         return cb({ message: 'Must specify an id' });
       }
@@ -381,21 +387,21 @@ module.exports = function(host, superagent) {
       var userProfile = _.omit(user, 'id', 'username', 'password', 'emails');
 
       superagent
-      .put(makeUrl('/metadata/' + user.id + '/profile'))
-      .set(sessionTokenHeader, token)
-      .send(userProfile)
-      .end(
-      function(err, res){
-        if (err != null) {
-          return cb(err);
-        }
+        .put(makeUrl('/metadata/' + user.id + '/profile'))
+        .set(sessionTokenHeader, token)
+        .send(userProfile)
+        .end(
+        function (err, res) {
+          if (err != null) {
+            return cb(err);
+          }
 
-        if (res.status !== 200) {
-          return handleHttpError(res, cb);
-        }
+          if (res.status !== 200) {
+            return handleHttpError(res, cb);
+          }
 
-        cb(null,res.body);
-      });
+          cb(null, res.body);
+        });
     },
     /**
      * Find a users profile
@@ -404,26 +410,26 @@ module.exports = function(host, superagent) {
      * @param token a user token
      * @returns {cb}  cb(err, response)
      */
-    findProfile : function(userId, token, cb){
+    findProfile: function (userId, token, cb) {
       if (userId == null) {
         return cb({ message: 'Must specify a userId' });
       }
 
       superagent
-      .get(makeUrl('/metadata/' + userId + '/profile'))
-      .set(sessionTokenHeader, token)
-      .end(
-      function(err, res){
-        if (err != null) {
-          cb(err);
-        }
+        .get(makeUrl('/metadata/' + userId + '/profile'))
+        .set(sessionTokenHeader, token)
+        .end(
+        function (err, res) {
+          if (err != null) {
+            cb(err);
+          }
 
-        if (res.status !== 200) {
-          return handleHttpError(res, cb);
-        }
+          if (res.status !== 200) {
+            return handleHttpError(res, cb);
+          }
 
-        cb(null,res.body);
-      });
+          cb(null, res.body);
+        });
     },
     /**
      * Refresh a users token
@@ -432,20 +438,20 @@ module.exports = function(host, superagent) {
      * @param userId id of the user we are doing the token refresh for
      * @returns {cb}  cb(err, response)
      */
-    refreshUserToken : function(token,userId,cb){
+    refreshUserToken: function (token, userId, cb) {
       superagent.get(makeUrl('/auth/login'))
         .set(sessionTokenHeader, token)
         .end(
-        function(err, res){
+        function (err, res) {
           if (err) {
-            return cb(err,null);
+            return cb(err, null);
           }
 
           if (res.status !== 200) {
             return handleHttpError(res, cb);
           }
 
-          cb(null,{userid:userId,token:res.headers[sessionTokenHeader]});
+          cb(null, {userid: userId, token: res.headers[sessionTokenHeader]});
         });
     },
     /**
@@ -464,11 +470,11 @@ module.exports = function(host, superagent) {
      * @param token of the user
      * @returns {cb}  cb(err, response)
      */
-    getUsersTeam : function(userId, token, cb){
+    getUsersTeam: function (userId, token, cb) {
       if (userId == null) {
         return cb({ message: 'Must specify a userId' });
       }
-      findOrAddUserGroup(userId,'team',token, cb);
+      findOrAddUserGroup(userId, 'team', token, cb);
     },
     /**
      * Get the users 'patients'
@@ -477,11 +483,11 @@ module.exports = function(host, superagent) {
      * @param token of the user
      * @returns {cb}  cb(err, response)
      */
-    getUsersPatients : function(userId, token, cb){
+    getUsersPatients: function (userId, token, cb) {
       if (userId == null) {
         return cb({ message: 'Must specify a userId' });
       }
-      findOrAddUserGroup(userId,'patients',token, cb);
+      findOrAddUserGroup(userId, 'patients', token, cb);
     },
     /**
      * Get the listed users public info
@@ -490,7 +496,7 @@ module.exports = function(host, superagent) {
      * @param token of the user
      * @returns {cb}  cb(err, response)
      */
-    getPatientsInfo : function(patientIds, token, cb){
+    getPatientsInfo: function (patientIds, token, cb) {
       if (patientIds == null) {
         return cb({ message: 'Must specify a patientIds' });
       }
@@ -498,13 +504,13 @@ module.exports = function(host, superagent) {
       var idList = _(patientIds).uniq().join(',');
 
       superagent
-        .get(makeUrl('/metadata/publicinfo?users='+idList))
+        .get(makeUrl('/metadata/publicinfo?users=' + idList))
         .set(sessionTokenHeader, token)
         .end(
-        function(error, res) {
+        function (error, res) {
 
           if (error != null) {
-            return cb(error,null);
+            return cb(error, null);
           }
 
           if (res.status === 404) {
@@ -526,11 +532,11 @@ module.exports = function(host, superagent) {
      * @param token of the user
      * @returns {cb}  cb(err, response)
      */
-    getInvitesToTeam : function(userId, token,cb){
+    getInvitesToTeam: function (userId, token, cb) {
       if (userId == null) {
         return cb({ message: 'Must specify a userId' });
       }
-      findOrAddUserGroup(userId,'invited',token, cb);
+      findOrAddUserGroup(userId, 'invited', token, cb);
     },
     /**
      * Invite a user to join the 'team'
@@ -540,7 +546,7 @@ module.exports = function(host, superagent) {
      * @param token of the user
      * @returns {cb}  cb(err, response)
      */
-    inviteToJoinTeam : function(inviterId, inviteeId, token,cb){
+    inviteToJoinTeam: function (inviterId, inviteeId, token, cb) {
       if (inviterId == null) {
         return cb({ message: 'Must specify a inviterId' });
       }
@@ -548,14 +554,14 @@ module.exports = function(host, superagent) {
         return cb({ message: 'Must specify a inviteeId' });
       }
 
-      this.getInvitesToTeam(inviterId,token,function(error,invited){
-        if(_.contains(invited.members, inviteeId)){
+      this.getInvitesToTeam(inviterId, token, function (error, invited) {
+        if (_.contains(invited.members, inviteeId)) {
           //console.log('invite already exists');
-          return cb(error,invited);
-        }else{
+          return cb(error, invited);
+        } else {
           //console.log('add the invite');
-          addMemberToUserGroup(invited.id,inviteeId,token, function(error, updatedInvited){
-            return cb(error,updatedInvited);
+          addMemberToUserGroup(invited.id, inviteeId, token, function (error, updatedInvited) {
+            return cb(error, updatedInvited);
           });
         }
       });
@@ -568,7 +574,7 @@ module.exports = function(host, superagent) {
      * @param token of the user
      * @returns {cb}  cb(err, response)
      */
-    acceptInviteToJoinTeam : function(inviterId, inviteeId, token, cb){
+    acceptInviteToJoinTeam: function (inviterId, inviteeId, token, cb) {
       if (inviterId == null) {
         return cb({ message: 'Must specify a inviterId' });
       }
@@ -576,14 +582,14 @@ module.exports = function(host, superagent) {
         return cb({ message: 'Must specify a inviteeId' });
       }
 
-      this.getUsersTeam(inviterId,token,function(error,team){
-        if(_.contains(team.members, inviteeId)){
+      this.getUsersTeam(inviterId, token, function (error, team) {
+        if (_.contains(team.members, inviteeId)) {
           //console.log('already a team member');
-          return cb(error,team);
-        }else{
+          return cb(error, team);
+        } else {
           //console.log('add to team');
-          addMemberToUserGroup(team.id,inviteeId,token, function(error, updatedTeam){
-            return cb(error,updatedTeam);
+          addMemberToUserGroup(team.id, inviteeId, token, function (error, updatedTeam) {
+            return cb(error, updatedTeam);
           });
         }
       });
@@ -596,7 +602,7 @@ module.exports = function(host, superagent) {
      * @param token of the user
      * @returns {cb}  cb(err, response)
      */
-    addToPatients : function(inviterId, inviteeId, token, cb){
+    addToPatients: function (inviterId, inviteeId, token, cb) {
       if (inviterId == null) {
         return cb({ message: 'Must specify a inviterId' });
       }
@@ -604,14 +610,14 @@ module.exports = function(host, superagent) {
         return cb({ message: 'Must specify a inviteeId' });
       }
 
-      this.getUsersPatients(inviteeId,token,function(error,patients){
-        if(_.contains(patients.members, inviterId)){
+      this.getUsersPatients(inviteeId, token, function (error, patients) {
+        if (_.contains(patients.members, inviterId)) {
           //console.log('already a patient');
-          return cb(error,patients);
-        }else{
+          return cb(error, patients);
+        } else {
           //console.log('add as a patient');
-          addMemberToUserGroup(patients.id,inviterId,token, function(error, updatedPatients){
-            return cb(error,updatedPatients);
+          addMemberToUserGroup(patients.id, inviterId, token, function (error, updatedPatients) {
+            return cb(error, updatedPatients);
           });
         }
       });
@@ -625,14 +631,14 @@ module.exports = function(host, superagent) {
      * @param token of the user
      * @returns {cb}  cb(err, response)
      */
-    getAllMessagesForTeam : function(groupId, start, end, token, cb){
+    getAllMessagesForTeam: function (groupId, start, end, token, cb) {
       superagent
-        .get(makeUrl('/message/all/'+groupId+'?starttime='+start+'&endtime='+end))
+        .get(makeUrl('/message/all/' + groupId + '?starttime=' + start + '&endtime=' + end))
         .set(sessionTokenHeader, token)
         .end(
-        function(err, res) {
+        function (err, res) {
           if (err != null) {
-            return cb(err,null);
+            return cb(err, null);
           }
 
           if (res.status === 404) {
@@ -654,14 +660,14 @@ module.exports = function(host, superagent) {
      * @param token of the user
      * @returns {cb}  cb(err, response)
      */
-    getNotesForTeam : function(groupId, token, cb){
+    getNotesForTeam: function (groupId, token, cb) {
       superagent
-        .get(makeUrl('/message/notes/'+groupId))
+        .get(makeUrl('/message/notes/' + groupId))
         .set(sessionTokenHeader, token)
         .end(
-        function(err, res) {
+        function (err, res) {
           if (err != null) {
-            return cb(err,null);
+            return cb(err, null);
           }
 
           if (res.status === 404) {
@@ -684,15 +690,15 @@ module.exports = function(host, superagent) {
      * @param token of the user
      * @returns {cb}  cb(err, response)
      */
-    replyToMessageThread : function(messageId,comment,token,cb){
+    replyToMessageThread: function (messageId, comment, token, cb) {
       superagent
-        .post(makeUrl('/message/reply/'+messageId))
+        .post(makeUrl('/message/reply/' + messageId))
         .set(sessionTokenHeader, token)
-        .send({message:comment})
+        .send({message: comment})
         .end(
-        function(err, res) {
+        function (err, res) {
           if (err != null) {
-            return cb(err,null);
+            return cb(err, null);
           }
 
           if (res.status !== 201) {
@@ -710,16 +716,16 @@ module.exports = function(host, superagent) {
      * @param token of the user
      * @returns {cb}  cb(err, response)
      */
-    startMessageThread : function(groupId,message,token,cb){
+    startMessageThread: function (groupId, message, token, cb) {
 
       superagent
-        .post(makeUrl('/message/send/'+groupId))
+        .post(makeUrl('/message/send/' + groupId))
         .set(sessionTokenHeader, token)
-        .send({message:message})
+        .send({message: message})
         .end(
-        function(err, res) {
+        function (err, res) {
           if (err != null) {
-            return cb(err,null);
+            return cb(err, null);
           }
 
           if (res.status !== 201) {
@@ -736,14 +742,14 @@ module.exports = function(host, superagent) {
      * @param token of the user
      * @returns {cb}  cb(err, response)
      */
-    getMessageThread : function(messageId,token,cb){
+    getMessageThread: function (messageId, token, cb) {
       superagent
-        .get(makeUrl('/message/thread/'+messageId))
+        .get(makeUrl('/message/thread/' + messageId))
         .set(sessionTokenHeader, token)
         .end(
-        function(err, res) {
+        function (err, res) {
           if (err != null) {
-            return cb(err,null);
+            return cb(err, null);
           }
 
           if (res.status !== 200) {
