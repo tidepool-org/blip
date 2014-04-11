@@ -121,7 +121,7 @@ var Preprocess = {
     }
     return groupByBGUnits[false].concat(_.map(groupByBGUnits[true], function(d) {
       d.units = this.MGDL_STRING;
-      d.value = d.value * this.MMOL_TO_MGDL;
+      d.value = parseInt(Math.round(d.value * this.MMOL_TO_MGDL, 10));
       return d;
     }, this));
   },
