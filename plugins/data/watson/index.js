@@ -28,13 +28,12 @@
 // the main js/ directory.
 //
 
-try {
+if ((typeof window !== 'undefined') && (typeof window._ !== 'undefined')) {
   var _ = window._;
 }
-catch (ReferenceError) {
+else {
   var _ = require('lodash');
 }
-
 
 try {
   var log = window.bows('Watson');

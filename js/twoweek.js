@@ -1,15 +1,15 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -705,9 +705,21 @@ module.exports = function(emitter) {
 
     data = a;
 
-    var first = new Date(data[0].normalTime);
-    var last = new Date(data[data.length - 1].normalTime);
-    
+    var first;
+    var last;
+    if (!(data && data.length)) {
+      last = new Date();
+      if (viewEndDate) {
+        last = new Date(viewEndDate);
+      }
+      first = new Date(last);
+      first.setUTCDate(first.getUTCDate() - 28);
+    }
+    else {
+      first = new Date(data[0].normalTime);
+      last = new Date(data[data.length - 1].normalTime);
+    }
+
     endpoints = [first, last];
     container.endpoints = endpoints;
 
@@ -802,7 +814,7 @@ module.exports = function(emitter) {
         }
       }));
     });
-    
+
     return container;
   };
 

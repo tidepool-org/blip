@@ -145,8 +145,8 @@ function chartDailyFactory(el, options) {
     poolBG.addPlotType('smbg', tideline.plot.smbg(poolBG, {yScale: scaleBG}), true, true);
 
     // bolus & carbs pool
-    var scaleBolus = scales.bolus(_.where(data, {'type': 'bolus'}), poolBolus);
-    var scaleCarbs = scales.carbs(_.where(data, {'type': 'carbs'}), poolBolus);
+    var scaleBolus = scales.bolus(tidelineData.grouped.bolus, poolBolus);
+    var scaleCarbs = scales.carbs(tidelineData.grouped.carbs, poolBolus);
     // set up y-axis for bolus
     poolBolus.yAxis(d3.svg.axis()
       .scale(scaleBolus)
@@ -166,18 +166,18 @@ function chartDailyFactory(el, options) {
     poolBolus.addPlotType('carbs', tideline.plot.carbs(poolBolus, {
       yScale: scaleCarbs,
       emitter: emitter,
-      data: _.where(data, {'type': 'carbs'})
+      data: tidelineData.grouped.carbs
     }), true, true);
 
     // add bolus data to bolus pool
     poolBolus.addPlotType('bolus', tideline.plot.bolus(poolBolus, {
       yScale: scaleBolus,
       emitter: emitter,
-      data: _.where(data, {'type': 'bolus'})
+      data: tidelineData.grouped.bolus
     }), true, true);
 
     // basal pool
-    var scaleBasal = scales.basal(_.where(data, {'type': 'basal-rate-segment'}), poolBasal);
+    var scaleBasal = scales.basal(tidelineData.grouped['basal-rate-segment'], poolBasal);
     // set up y-axis
     poolBasal.yAxis(d3.svg.axis()
       .scale(scaleBasal)
@@ -188,7 +188,10 @@ function chartDailyFactory(el, options) {
     poolBasal.addPlotType('fill', fill(poolBasal, {endpoints: chart.endpoints}), false, true);
 
     // add basal data to basal pool
-    poolBasal.addPlotType('basal-rate-segment', tideline.plot.basal(poolBasal, {yScale: scaleBasal, data: _.where(data, {'type': 'basal-rate-segment'}) }), true, true);
+    poolBasal.addPlotType('basal-rate-segment', tideline.plot.basal(poolBasal, {
+      yScale: scaleBasal,
+      data: tidelineData.grouped['basal-rate-segment']
+    }), true, true);
 
     // messages pool
     // add background fill rectangles to messages pool

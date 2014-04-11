@@ -50,6 +50,9 @@ var scales = {
     }
   },
   bgTicks: function(data) {
+    if ((!data) || (data.length === 0)) {
+      return [];
+    }
     var defaultTicks = [40, 80, 120, 180, 300];
     var ext = d3.extent(data, function(d) { return d.value; });
     // if the min of our data is greater than any of the defaultTicks, remove that tick
