@@ -288,11 +288,22 @@ var createPatch = function(options) {
     api.team.replyToMessageThread = function(message,cb){
       api.log('[mock] POST /message/reply ',message);
 
-      var fakeId = '99-99-ok';
+      var fakeId = 'message-reply-ok';
 
       setTimeout(function() {
         cb(null, fakeId);
       }, getDelayFor('api.team.replyToMessageThread'));
+
+    };
+
+    api.team.startMessageThread = function(message,cb){
+      api.log('[mock] POST /message/send');
+
+      var fakeId = 'create-message-ok';
+
+      setTimeout(function() {
+        cb(null, fakeId);
+      }, getDelayFor('api.team.startMessageThread'));
 
     };
 

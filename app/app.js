@@ -505,7 +505,8 @@ var AppComponent = React.createClass({
         uploadUrl={api.getUploadUrl()}
         onRefresh={this.fetchCurrentPatientData}
         onFetchMessageThread={this.fetchMessageThread}
-        onSaveComment={app.api.team.replyToMessageThread.bind(app.api.team)} />
+        onSaveComment={app.api.team.replyToMessageThread.bind(app.api.team)}
+        onCreateMessage={app.api.team.startMessageThread.bind(app.api.team)} />
     );
     /* jshint ignore:end */
   },

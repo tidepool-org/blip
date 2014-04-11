@@ -471,6 +471,19 @@ api.team.replyToMessageThread = function(message,cb){
   });
 };
 
+//New message
+api.team.startMessageThread = function(message,cb){
+  api.log('POST /message/send');
+  var token = tidepoolPlatformApi.getToken();
+
+  tidepool.startMessageThread(message.groupid, message ,token ,function(error,messageId){
+    if (error) {
+      return cb(error);
+    }
+    cb(null, messageId);
+  });
+};
+
 // ----- Patient data -----
 
 api.patientData = {};
