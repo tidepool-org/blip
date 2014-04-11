@@ -32,6 +32,7 @@ function notZero(e) {
 }
 
 var TYPES_TO_INCLUDE = {
+  // basals with value 0 don't get excluded because they are legitimate targets for visualization
   'basal-rate-segment': alwaysTrue,
   bolus: notZero,
   carbs: notZero,
@@ -86,7 +87,7 @@ var Preprocess = {
       ++counts[count][type];
     }
 
-    var nonZeroData = data.filter(function(d) {
+    var nonZeroData = _.filter(data, function(d) {
       var includeFn = TYPES_TO_INCLUDE[d.type];
       if (includeFn == null) {
         incrementCount('excluded', d.type);
@@ -98,9 +99,9 @@ var Preprocess = {
       return retVal;
     });
 
-    log('Excluded:', counts['excluded']);
+    log('Excluded:', counts.excluded);
     log('# of data points', nonZeroData.length);
-    log('Data types:', counts['included']);
+    log('Data types:', counts.included);
 
     return nonZeroData;
   },
@@ -116,7 +117,7 @@ var Preprocess = {
   },
 
   checkRequired: function(tidelineData) {
-    this.REQUIRED_TYPES.forEach(function(type) {
+    _.forEach(this.REQUIRED_TYPES, function(type) {
       if (!tidelineData.grouped[type]) {
         log('No', type, 'data! Replaced with empty array.');
         tidelineData.grouped[type] = [];
@@ -127,7 +128,7 @@ var Preprocess = {
   },
 
   translateMmol: function(data) {
-    return data.map(function(d) {
+    return _.map(data, function(d) {
       if (d.units === this.MMOL_STRING) {
         d.units = this.MGDL_STRING;
         d.value = parseInt(Math.round(d.value * this.MMOL_TO_MGDL, 10));
