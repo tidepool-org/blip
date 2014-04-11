@@ -632,11 +632,14 @@ var AppComponent = React.createClass({
     self.setState({fetchingPatientData: true});
 
     var loadPatientData = function(cb) {
-      app.api.patientData.get(patientId,cb);
+      app.api.patientData.get(patientId, cb);
     };
 
     var loadTeamNotes = function(cb) {
-      app.api.team.getNotes(teamId,cb);
+      if (!teamId) {
+        return cb(null, []);
+      }
+      app.api.team.getNotes(teamId, cb);
     };
 
     async.parallel({
@@ -656,7 +659,7 @@ var AppComponent = React.createClass({
       app.log('Patient device data count', patientData.length);
       app.log('Team notes count', notes.length);
 
-      patientData = _.union(patientData,notes);
+      patientData = _.union(patientData, notes);
 
       patientData = self.processPatientData(patientData);
 
