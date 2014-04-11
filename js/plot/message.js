@@ -30,43 +30,27 @@ module.exports = function(pool, opts) {
 
   _.defaults(opts, defaults);
 
-  function cbg(selection) {
+  var mainGroup = pool.group();
+
+  function message(selection) {
     opts.xScale = pool.xScale().copy();
+    
+    message.setUpMessageCreation();
+
     selection.each(function(currentData) {
       var messages = d3.select(this)
-        .selectAll('image')
+        .selectAll('g')
         .data(currentData, function(d) {
           if (d.parentMessage === '') {
             return d._id;
           }
         });
+
       var messageGroups = messages.enter()
         .append('g')
         .attr('class', 'd3-message-group');
-      messageGroups.append('rect')
-        .attr({
-          'x': function(d) {
-            return opts.xScale(Date.parse(d.normalTime)) - opts.size / 2 - 4;
-          },
-          'y': pool.height() / 2 - opts.size / 2 - 4,
-          'width': opts.size + 8,
-          'height': opts.size + 8,
-          'class': 'd3-rect-message hidden'
-        });
-      messageGroups.append('image')
-        .attr({
-          'xlink:href': opts.imagesBaseUrl + '/message/post_it.svg',
-          'x': function(d) {
-            return opts.xScale(Date.parse(d.normalTime)) - opts.size / 2;
-          },
-          'y': pool.height() / 2 - opts.size / 2,
-          'width': opts.size,
-          'height': opts.size,
-          'id': function(d) {
-            return 'message_' + d._id;
-          }
-        })
-        .classed({'d3-image': true, 'd3-message': true});
+      message.addMessageToPool(messageGroups);
+
       messageGroups.on('click', function(d) {
         d3.event.stopPropagation(); // silence the click-and-drag listener
         opts.emitter.emit('messageThread', d._id);
@@ -77,5 +61,42 @@ module.exports = function(pool, opts) {
     });
   }
 
-  return cbg;
+  message.addMessageToPool = function(selection) {
+    selection.append('rect')
+      .attr({
+        'x': function(d) {
+          return opts.xScale(Date.parse(d.normalTime)) - opts.size / 2 - 4;
+        },
+        'y': pool.height() / 2 - opts.size / 2 - 4,
+        'width': opts.size + 8,
+        'height': opts.size + 8,
+        'class': 'd3-rect-message hidden'
+      });
+    selection.append('image')
+      .attr({
+        'xlink:href': opts.imagesBaseUrl + '/message/post_it.svg',
+        'x': function(d) {
+          return opts.xScale(Date.parse(d.normalTime)) - opts.size / 2;
+        },
+        'y': pool.height() / 2 - opts.size / 2,
+        'width': opts.size,
+        'height': opts.size,
+        'id': function(d) {
+          return 'message_' + d._id;
+        }
+      })
+      .classed({'d3-image': true, 'd3-message': true});
+  };
+
+  message.setUpMessageCreation = _.once(function() {
+    log('Set up message creation listeners.');
+    mainGroup.selectAll('.d3-rect-fill').on('click', function(d) {
+      var date = opts.xScale.invert(d.x).toISOString();
+      log('Creating new message at ' + date.slice(0, -4));
+      opts.emitter.emit('createMessage', date);
+    });
+
+  });
+
+  return message;
 };
