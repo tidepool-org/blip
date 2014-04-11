@@ -73,7 +73,7 @@ module.exports = function(pool, opts) {
   });
 
   function unknownDeliverySplit(d) {
-    return !d.extendedDelivery;
+    return d.initialDelivery == null && d.extendedDelivery == null;
   }
 
   function computePathHeight(d) {
