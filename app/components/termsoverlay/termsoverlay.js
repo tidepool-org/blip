@@ -69,7 +69,7 @@ var TermsOverlay = React.createClass({
     /* jshint ignore:start */
     return (
       <div className="terms-overlay-form-checkbox">
-        <label for="agreed">
+        <label htmlFor="agreed">
           <input
             id="agreed"
             type="checkbox"

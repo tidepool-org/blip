@@ -53,7 +53,7 @@ var MessageThread = React.createClass({
   renderMessage: function(message){
     /* jshint ignore:start */
     return (
-      <div className='messagethread-message'>
+      <div className='messagethread-message' key={message.id}>
         <div className='messagethread-message-when'>
           <span>{this.formatDisplayDate(message.timestamp)}</span>
         </div>
@@ -66,7 +66,7 @@ var MessageThread = React.createClass({
   renderComment:function(comment){
     /* jshint ignore:start */
     return (
-      <div className='messagethread-comment'>
+      <div className='messagethread-comment' key={comment.id}>
         <span className='messagethread-comment-header'> {comment.username} - {this.formatDisplayDate(comment.timestamp)}</span>
         <p className='messagethread-comment-text'>{comment.messagetext}</p>
       </div>
