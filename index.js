@@ -146,7 +146,7 @@ module.exports = function (config, superagent, log) {
   /*
    Create the user group (e.g. team, invited, patients ...) asked for and link to the user.
    */
-  function createUserGroup(userId, groupType, cb) {
+  function createUserGroup(userId, groupType, token, cb) {
     if (userId == null) {
       return cb({ message: 'Must specify a userId' });
     }
@@ -406,26 +406,32 @@ module.exports = function (config, superagent, log) {
      */
     logout: function (cb) {
       assertArgumentsSize(arguments, 1);
+
       if (! this.isLoggedIn()) {
         setTimeout(function(){ cb(null, {}); }, 0);
       }
 
-      superagent
-        .post(makeUrl('/auth/logout'))
-        .set(sessionTokenHeader, token)
-        .end(
-        function (err, res) {
-          if (err != null) {
-            return cb(err);
-          }
+      withToken(
+        cb,
+        function(token) {
+          superagent
+            .post(makeUrl('/auth/logout'))
+            .set(sessionTokenHeader, token)
+            .end(
+            function (err, res) {
+              if (err != null) {
+                return cb(err);
+              }
 
-          if (res.status !== 200) {
-            return handleHttpError(res, cb);
-          }
+              if (res.status !== 200) {
+                return handleHttpError(res, cb);
+              }
 
-          saveSession(null, null);
-          cb(null, res.body);
-        });
+              saveSession(null, null);
+              cb(null, res.body);
+            });
+        }
+      );
     },
     /**
      * Tells if the current client is logged in
