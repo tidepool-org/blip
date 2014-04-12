@@ -38,7 +38,7 @@ function requireConfig(obj, property) {
 
 module.exports = function (config, superagent, log) {
   var myToken = null;
-  var userId = null;
+  var myUserId = null;
 
   config = _.clone(config);
   defaultProperty(config, 'tokenRefreshInterval', 10 * 60 * 1000); // 10 minutes
@@ -277,7 +277,7 @@ module.exports = function (config, superagent, log) {
 
   function saveSession(newUserId, newToken) {
     myToken = newToken;
-    userId = newUserId;
+    myUserId = newUserId;
 
     if (newToken == null) {
       return;
@@ -286,7 +286,7 @@ module.exports = function (config, superagent, log) {
     log.info('Session saved');
 
     var refreshSession = function() {
-      if (myToken == null || newUserId !== userId) {
+      if (myToken == null || newUserId !== myUserId) {
         log.info('Stopping session token refresh');
         return;
       }
