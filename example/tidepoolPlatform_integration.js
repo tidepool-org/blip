@@ -18,7 +18,7 @@ var expect = require('salinity').expect;
 var superagent = require('superagent');
 var _ = require('lodash');
 
-describe('platform client', function() {
+describe('platform client', function () {
 
   /**
    * Timeout is used when running against the deployed services
@@ -28,56 +28,56 @@ describe('platform client', function() {
   var platform;
 
   var mrT1 = {
-    id : null,
+    id: null,
     token: null,
-    username : 'fake',
-    password : 'fak3U53r',
-    emails :['fake@user.com'],
-    fullname : 'Jamie T1d',
-    shortname : 'Jamie'
+    username: 'fake',
+    password: 'fak3U53r',
+    emails: ['fake@user.com'],
+    fullname: 'Jamie T1d',
+    shortname: 'Jamie'
   };
 
   var careTeamMember = {
-    id : null,
-    token : null ,
-    username : 'dr fake',
-    password : 'fak3U53r',
-    emails :['dr.fake@user.com'],
-    fullname : 'Dr Doogie Howser ',
-    shortname : 'Doogie'
+    id: null,
+    token: null,
+    username: 'dr fake',
+    password: 'fak3U53r',
+    emails: ['dr.fake@user.com'],
+    fullname: 'Dr Doogie Howser ',
+    shortname: 'Doogie'
   };
 
-  var createUser=function(userToAdd,cb){
+  var createUser = function (userToAdd, cb) {
     //try login first then create user if error
-    platform.login(userToAdd,function(error,data){
-      if(data && data.userid){
+    platform.login(userToAdd, function (error, data) {
+      if (data && data.userid) {
         userToAdd.id = data.userid;
         userToAdd.token = data.token;
       }
-      if(error){
-        platform.signup(userToAdd,function(error,data){
-          if(error){
-            return cb(error,null);
+      if (error) {
+        platform.signup(userToAdd, function (error, data) {
+          if (error) {
+            return cb(error, null);
           }
           userToAdd.id = data.userid;
           userToAdd.token = data.token;
-          return cb(null,userToAdd);
+          return cb(null, userToAdd);
         });
       }
-      return cb(null,userToAdd);
+      return cb(null, userToAdd);
     });
   };
 
-  before(function(done){
-    platform = require('../index')('http://localhost:8009',superagent);
+  before(function (done) {
+    platform = require('../index')('http://localhost:8009', superagent);
 
-    createUser(mrT1,function(error,data){
-      if(error){
+    createUser(mrT1, function (error, data) {
+      if (error) {
         throw error;
       }
       mrT1 = data;
-      createUser(careTeamMember,function(error,data){
-        if(error){
+      createUser(careTeamMember, function (error, data) {
+        if (error) {
           throw error;
         }
         careTeamMember = data;
@@ -87,26 +87,26 @@ describe('platform client', function() {
 
   });
 
-  it('logs in mrT1', function(done) {
-    platform.login(mrT1,function(error,data){
+  it('logs in mrT1', function (done) {
+    platform.login(mrT1, function (error, data) {
       expect(error).to.not.exist;
       expect(data).to.exist;
       done();
     });
   });
 
-  describe('sets up the profiles',function(){
+  describe('sets up the profiles', function () {
 
-    it('for mrT1', function(done) {
-      platform.addOrUpdateProfile(mrT1, mrT1.token, function(error,added){
+    it('for mrT1', function (done) {
+      platform.addOrUpdateProfile(mrT1, mrT1.token, function (error, added) {
         expect(error).to.not.exist;
         expect(added).to.exist;
         done();
       });
     });
 
-    it('for mrT1 we can get the profile', function(done) {
-      platform.findProfile(mrT1.id, mrT1.token, function(error,profile){
+    it('for mrT1 we can get the profile', function (done) {
+      platform.findProfile(mrT1.id, mrT1.token, function (error, profile) {
         expect(error).to.not.exist;
         expect(profile).to.be.exist;
 
@@ -119,16 +119,16 @@ describe('platform client', function() {
       });
     });
 
-    it('for careTeamMember', function(done) {
-      platform.addOrUpdateProfile(careTeamMember, careTeamMember.token, function(error,added){
+    it('for careTeamMember', function (done) {
+      platform.addOrUpdateProfile(careTeamMember, careTeamMember.token, function (error, added) {
         expect(error).to.not.exist;
         expect(added).to.exist;
         done();
       });
     });
 
-    it('for careTeamMember we can get the profile', function(done) {
-      platform.findProfile(careTeamMember.id, careTeamMember.token, function(error,profile){
+    it('for careTeamMember we can get the profile', function (done) {
+      platform.findProfile(careTeamMember.id, careTeamMember.token, function (error, profile) {
         expect(error).to.not.exist;
         expect(profile).to.be.exist;
 
@@ -142,11 +142,11 @@ describe('platform client', function() {
 
   });
 
-  describe('get the team for mrT1',function(){
+  describe('get the team for mrT1', function () {
 
-    it('returns the team group for mrT1', function(done) {
+    it('returns the team group for mrT1', function (done) {
 
-      platform.getUsersTeam(mrT1.id, mrT1.token, function(error,team){
+      platform.getUsersTeam(mrT1.id, mrT1.token, function (error, team) {
         expect(error).to.not.exist;
         expect(team).to.exist;
         expect(team.members).to.exist;
@@ -158,18 +158,18 @@ describe('platform client', function() {
 
   });
 
-  describe('messaging for mrT1',function(){
+  describe('messaging for mrT1', function () {
 
     var mrT1TeamId;
     var noteToAddId;
     var noteToAdd;
     var commentOnNote;
 
-    before(function(done){
+    before(function (done) {
 
       this.timeout(5000);
-      platform.getUsersTeam(mrT1.id, mrT1.token, function(error,team){
-        if(error){
+      platform.getUsersTeam(mrT1.id, mrT1.token, function (error, team) {
+        if (error) {
           throw error;
         }
         mrT1TeamId = team.id;
@@ -177,19 +177,19 @@ describe('platform client', function() {
       });
     });
 
-    it('allows mrT1 to add a note', function(done) {
+    it('allows mrT1 to add a note', function (done) {
 
       this.timeout(5000);
 
       noteToAdd = {
-        userid : mrT1.id,
-        groupid : mrT1TeamId,
-        timestamp : new Date().toISOString(),
-        messagetext : 'In three words I can sum up everything I have learned about life: it goes on.'
+        userid: mrT1.id,
+        groupid: mrT1TeamId,
+        timestamp: new Date().toISOString(),
+        messagetext: 'In three words I can sum up everything I have learned about life: it goes on.'
       };
 
       //add note
-      platform.startMessageThread(mrT1TeamId, noteToAdd, mrT1.token, function(error,data){
+      platform.startMessageThread(mrT1TeamId, noteToAdd, mrT1.token, function (error, data) {
 
         expect(error).to.not.exist;
         expect(data).to.exist;
@@ -198,18 +198,18 @@ describe('platform client', function() {
       });
     });
 
-    it('and add a comment on the note', function(done) {
+    it('and add a comment on the note', function (done) {
 
       this.timeout(5000);
       //comment on the note
       commentOnNote = {
-        userid : mrT1.id,
-        groupid : mrT1TeamId,
-        timestamp : new Date().toISOString(),
-        messagetext : 'Good point bro!'
+        userid: mrT1.id,
+        groupid: mrT1TeamId,
+        timestamp: new Date().toISOString(),
+        messagetext: 'Good point bro!'
       };
 
-      platform.replyToMessageThread(noteToAddId,commentOnNote, mrT1.token, function(error,data){
+      platform.replyToMessageThread(noteToAddId, commentOnNote, mrT1.token, function (error, data) {
 
         expect(error).to.not.exist;
         expect(data).to.exist;
@@ -217,11 +217,11 @@ describe('platform client', function() {
       });
     });
 
-    it('and then get the whole thread', function(done) {
+    it('and then get the whole thread', function (done) {
 
       this.timeout(5000);
 
-      platform.getMessageThread(noteToAddId, mrT1.token, function(error,data){
+      platform.getMessageThread(noteToAddId, mrT1.token, function (error, data) {
         expect(error).to.not.exist;
         expect(data).to.exist;
         expect(data.length).to.equal(2);
@@ -238,15 +238,15 @@ describe('platform client', function() {
       });
     });
 
-    it('allows mrT1 to get all messages for his team for the last two weeks', function(done) {
-      
+    it('allows mrT1 to get all messages for his team for the last two weeks', function (done) {
+
       this.timeout(5000);
 
       var twoWeeksAgo = new Date();
-      twoWeeksAgo.setDate(twoWeeksAgo.getDate()-14);
+      twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
       var today = new Date();
 
-      platform.getAllMessagesForTeam(mrT1TeamId, twoWeeksAgo, today, mrT1.token, function(error,data){
+      platform.getAllMessagesForTeam(mrT1TeamId, twoWeeksAgo, today, mrT1.token, function (error, data) {
 
         expect(error).to.not.exist;
         expect(data).to.exist;
@@ -255,11 +255,11 @@ describe('platform client', function() {
       });
     });
 
-    it('allows mrT1 to get just the parent messages for his team ', function(done) {
+    it('allows mrT1 to get just the parent messages for his team ', function (done) {
 
       this.timeout(5000);
 
-      platform.getNotesForTeam(mrT1TeamId, mrT1.token, function(error,data){
+      platform.getNotesForTeam(mrT1TeamId, mrT1.token, function (error, data) {
 
         expect(error).to.not.exist;
         expect(data).to.exist;
@@ -274,12 +274,12 @@ describe('platform client', function() {
 
   });
 
-  describe('mrT1 groups',function(){
+  describe('mrT1 groups', function () {
 
-    it('has a team', function(done) {
+    it('has a team', function (done) {
 
-      platform.getUsersTeam(mrT1.id, mrT1.token, function(error,team){
-        if(error){
+      platform.getUsersTeam(mrT1.id, mrT1.token, function (error, team) {
+        if (error) {
           throw error;
         }
         expect(error).to.not.exist;
@@ -291,10 +291,10 @@ describe('platform client', function() {
       });
     });
 
-    it('has patients', function(done) {
+    it('has patients', function (done) {
 
-      platform.getUsersPatients(mrT1.id, mrT1.token, function(error,patients){
-        if(error){
+      platform.getUsersPatients(mrT1.id, mrT1.token, function (error, patients) {
+        if (error) {
           throw error;
         }
         expect(error).to.not.exist;
@@ -306,10 +306,10 @@ describe('platform client', function() {
       });
     });
 
-    it('has invited', function(done) {
+    it('has invited', function (done) {
 
-      platform.getInvitesToTeam(mrT1.id, mrT1.token, function(error,invites){
-        if(error){
+      platform.getInvitesToTeam(mrT1.id, mrT1.token, function (error, invites) {
+        if (error) {
           throw error;
         }
         expect(error).to.not.exist;
@@ -322,12 +322,12 @@ describe('platform client', function() {
     });
   });
 
-  describe('careTeamMember groups',function(){
+  describe('careTeamMember groups', function () {
 
-    it('has a team', function(done) {
+    it('has a team', function (done) {
 
-      platform.getUsersTeam(careTeamMember.id, careTeamMember.token, function(error,team){
-        if(error){
+      platform.getUsersTeam(careTeamMember.id, careTeamMember.token, function (error, team) {
+        if (error) {
           throw error;
         }
         expect(error).to.not.exist;
@@ -339,10 +339,10 @@ describe('platform client', function() {
       });
     });
 
-    it('has patients', function(done) {
+    it('has patients', function (done) {
 
-      platform.getUsersPatients(careTeamMember.id, careTeamMember.token, function(error,patients){
-        if(error){
+      platform.getUsersPatients(careTeamMember.id, careTeamMember.token, function (error, patients) {
+        if (error) {
           throw error;
         }
         expect(error).to.not.exist;
@@ -354,10 +354,10 @@ describe('platform client', function() {
       });
     });
 
-    it('has invited', function(done) {
+    it('has invited', function (done) {
 
-      platform.getInvitesToTeam(careTeamMember.id, careTeamMember.token, function(error,invites){
-        if(error){
+      platform.getInvitesToTeam(careTeamMember.id, careTeamMember.token, function (error, invites) {
+        if (error) {
           throw error;
         }
         expect(error).to.not.exist;
@@ -370,17 +370,17 @@ describe('platform client', function() {
     });
   });
 
-  describe('groups managment for mrT1 ',function(){
+  describe('groups managment for mrT1 ', function () {
 
-    it('allows him to invite another user to join the team', function(done) {
+    it('allows him to invite another user to join the team', function (done) {
       this.timeout(5000);
 
-      platform.inviteToJoinTeam(mrT1.id, careTeamMember.id, mrT1.token, function(error,team){
-        if(error){
+      platform.inviteToJoinTeam(mrT1.id, careTeamMember.id, mrT1.token, function (error, team) {
+        if (error) {
           throw error;
         }
-        platform.getInvitesToTeam(mrT1.id, mrT1.token, function(error,invites){
-          if(error){
+        platform.getInvitesToTeam(mrT1.id, mrT1.token, function (error, invites) {
+          if (error) {
             throw error;
           }
           expect(invites.members).to.include(careTeamMember.id);
@@ -389,15 +389,15 @@ describe('platform client', function() {
       });
     });
 
-    it('which means the invited user is added to his team when they accept an invite', function(done) {
+    it('which means the invited user is added to his team when they accept an invite', function (done) {
       this.timeout(5000);
 
-      platform.acceptInviteToJoinTeam(mrT1.id, careTeamMember.id, mrT1.token, function(error,team){
-        if(error){
+      platform.acceptInviteToJoinTeam(mrT1.id, careTeamMember.id, mrT1.token, function (error, team) {
+        if (error) {
           throw error;
         }
-        platform.getUsersTeam(mrT1.id, mrT1.token, function(error,team){
-          if(error){
+        platform.getUsersTeam(mrT1.id, mrT1.token, function (error, team) {
+          if (error) {
             throw error;
           }
           expect(team.members).to.include(careTeamMember.id);
@@ -406,15 +406,15 @@ describe('platform client', function() {
       });
     });
 
-    it('is added to careTeamMember patients list', function(done) {
+    it('is added to careTeamMember patients list', function (done) {
       this.timeout(5000);
 
-      platform.addToPatients(mrT1.id, careTeamMember.id, careTeamMember.token, function(error,team){
-        if(error){
+      platform.addToPatients(mrT1.id, careTeamMember.id, careTeamMember.token, function (error, team) {
+        if (error) {
           throw error;
         }
-        platform.getUsersPatients(careTeamMember.id, careTeamMember.token, function(error,patients){
-          if(error){
+        platform.getUsersPatients(careTeamMember.id, careTeamMember.token, function (error, patients) {
+          if (error) {
             throw error;
           }
           expect(patients.members).to.include(mrT1.id);
@@ -425,14 +425,14 @@ describe('platform client', function() {
 
   });
 
-  describe('careTeamMember',function(){
+  describe('careTeamMember', function () {
 
     var careTeamMembersPatients;
     var mrT1sTeam;
     var notesForThePatientMrT1;
 
-    it('can get the patients and mrT1 is included', function(done) {
-      platform.getUsersPatients(careTeamMember.id, careTeamMember.token, function(error,patients){
+    it('can get the patients and mrT1 is included', function (done) {
+      platform.getUsersPatients(careTeamMember.id, careTeamMember.token, function (error, patients) {
         expect(patients.members).to.exist;
         expect(patients.members).to.include(mrT1.id);
         careTeamMembersPatients = patients;
@@ -440,8 +440,8 @@ describe('platform client', function() {
       });
     });
 
-    it('mrT1 gets his team and careTeamMember is included', function(done) {
-      platform.getUsersTeam(mrT1.id, mrT1.token, function(error,team){
+    it('mrT1 gets his team and careTeamMember is included', function (done) {
+      platform.getUsersTeam(mrT1.id, mrT1.token, function (error, team) {
         expect(team.members).to.exist;
         expect(team.members).to.include(careTeamMember.id);
         mrT1sTeam = team;
@@ -449,15 +449,15 @@ describe('platform client', function() {
       });
     });
 
-    it('can get the team for mrT1 and is included in the members', function(done) {
-      platform.getUsersTeam(mrT1.id,careTeamMember.token,function(error,patientsTeam){
+    it('can get the team for mrT1 and is included in the members', function (done) {
+      platform.getUsersTeam(mrT1.id, careTeamMember.token, function (error, patientsTeam) {
         expect(patientsTeam.members).to.include(careTeamMember.id);
         done();
       });
     });
 
-    it('can get the notes for the team of mrT1', function(done) {
-      platform.getNotesForTeam(mrT1sTeam.id,careTeamMember.token,function(error,patientsNotes){
+    it('can get the notes for the team of mrT1', function (done) {
+      platform.getNotesForTeam(mrT1sTeam.id, careTeamMember.token, function (error, patientsNotes) {
         expect(patientsNotes).to.exist;
         expect(patientsNotes).to.have.length.above(0);
         notesForThePatientMrT1 = patientsNotes;
@@ -465,8 +465,8 @@ describe('platform client', function() {
       });
     });
 
-    it('can see the notes for patient mrT1 are the same as he sees', function(done) {
-      platform.getNotesForTeam(mrT1sTeam.id,mrT1.token,function(error,mrT1TeamNotes){
+    it('can see the notes for patient mrT1 are the same as he sees', function (done) {
+      platform.getNotesForTeam(mrT1sTeam.id, mrT1.token, function (error, mrT1TeamNotes) {
         expect(mrT1TeamNotes).to.exist;
         expect(mrT1TeamNotes).to.have.length.above(0);
         expect(mrT1TeamNotes).that.deep.equals(notesForThePatientMrT1);
