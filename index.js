@@ -37,7 +37,7 @@ function requireConfig(obj, property) {
 }
 
 module.exports = function (config, superagent, log) {
-  var token = null;
+  var myToken = null;
   var userId = null;
 
   config = _.clone(config);
@@ -276,7 +276,7 @@ module.exports = function (config, superagent, log) {
   }
 
   function saveSession(newUserId, newToken) {
-    token = newToken;
+    myToken = newToken;
     userId = newUserId;
 
     if (newToken == null) {
@@ -286,13 +286,13 @@ module.exports = function (config, superagent, log) {
     log.info('Session saved');
 
     var refreshSession = function() {
-      if (token == null || newUserId !== userId) {
+      if (myToken == null || newUserId !== userId) {
         log.info('Stopping session token refresh');
         return;
       }
 
       log.info('Refreshing session token');
-      refreshUserToken(token, newUserId, function(err, data) {
+      refreshUserToken(myToken, newUserId, function(err, data) {
         var hasNewSession = data && data.userid && data.token;
         if (err || !hasNewSession) {
           log.warn('Failed refreshing session token', err);
@@ -307,14 +307,14 @@ module.exports = function (config, superagent, log) {
   }
 
   function isLoggedIn() {
-    return token != null;
+    return myToken != null;
   }
 
   function withToken(sadCb, happyCb) {
     if (! isLoggedIn()) {
       return sadCb(new Error('User is not logged in, you must log in to do this operation'));
     } else {
-      return happyCb(token);
+      return happyCb(myToken);
     }
   }
 
