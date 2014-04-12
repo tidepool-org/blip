@@ -5,6 +5,7 @@
   "birthday": "1987-03-08",
   "diagnosisDate": "1994-02-01",
   "aboutMe": "Loves swimming and fishing. Owns a bakery in San Francisco. Favorite color is orange.",
+  "teamId": "99",
   "team": [
     {"id": "5", "firstName": "June", "lastName": "Alaniz"},
     {"id": "6", "firstName": "Donald", "lastName": "Carter"}
