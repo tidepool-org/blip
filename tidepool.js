@@ -22,7 +22,19 @@ var makeClient = require('./index');
 // Public-facing API, used by app developers
 module.exports = function(options) {
   options = options || {};
-  var host = options.host;
+  if (options.host == null) {
+    options.host = 'https://api.tidepool.io';
+  }
 
-  return makeClient(host, superagent);
+
+  var log = options.log;
+  if (log == null) {
+    log = {
+      warn: function(){},
+      info: function(){},
+      debug: function(){}
+    };
+  }
+
+  return makeClient(_.omit(options, 'log'), superagent, log);
 };
