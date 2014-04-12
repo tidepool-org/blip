@@ -704,22 +704,20 @@ module.exports = function (config, superagent, log) {
       }
       assertArgumentsSize(arguments, 3);
 
-      withToken(
-        cb,
-        function(token) {
-          this.getInvitesToTeam(inviterId, token, function (error, invited) {
-            if (_.contains(invited.members, inviteeId)) {
-              //console.log('invite already exists');
-              return cb(error, invited);
-            } else {
-              //console.log('add the invite');
-              addMemberToUserGroup(invited.id, inviteeId, token, function (error, updatedInvited) {
-                return cb(error, updatedInvited);
-              });
+      this.getInvitesToTeam(inviterId, function (error, invited) {
+        if (_.contains(invited.members, inviteeId)) {
+          //console.log('invite already exists');
+          return cb(error, invited);
+        } else {
+          //console.log('add the invite');
+          withToken(
+            cb,
+            function(token) {
+              addMemberToUserGroup(invited.id, inviteeId, token, cb);
             }
-          });
+          );
         }
-      );
+      });
     },
     /**
      * Accept an invite to join a users 'team'
@@ -738,22 +736,20 @@ module.exports = function (config, superagent, log) {
       }
       assertArgumentsSize(arguments, 3);
 
-      withToken(
-        cb,
-        function(token) {
-          this.getUsersTeam(inviterId, token, function (error, team) {
-            if (_.contains(team.members, inviteeId)) {
-              //console.log('already a team member');
-              return cb(error, team);
-            } else {
-              //console.log('add to team');
-              addMemberToUserGroup(team.id, inviteeId, token, function (error, updatedTeam) {
-                return cb(error, updatedTeam);
-              });
+      this.getUsersTeam(inviterId, function (error, team) {
+        if (_.contains(team.members, inviteeId)) {
+          //console.log('already a team member');
+          return cb(error, team);
+        } else {
+          withToken(
+            cb,
+            function(token) {
+              addMemberToUserGroup(team.id, inviteeId, token, cb);
             }
-          });
+          );
+          //console.log('add to team');
         }
-      );
+      });
     },
     /**
      * Add the user to the patients list
@@ -772,22 +768,20 @@ module.exports = function (config, superagent, log) {
       }
       assertArgumentsSize(arguments, 3);
 
-      withToken(
-        cb,
-        function(token) {
-          this.getUsersPatients(inviteeId, token, function (error, patients) {
-            if (_.contains(patients.members, inviterId)) {
-              //console.log('already a patient');
-              return cb(error, patients);
-            } else {
-              //console.log('add as a patient');
-              addMemberToUserGroup(patients.id, inviterId, token, function (error, updatedPatients) {
-                return cb(error, updatedPatients);
-              });
+      this.getUsersPatients(inviteeId, function (error, patients) {
+        if (_.contains(patients.members, inviterId)) {
+          //console.log('already a patient');
+          return cb(error, patients);
+        } else {
+          //console.log('add as a patient');
+          withToken(
+            cb,
+            function(token) {
+              addMemberToUserGroup(patients.id, inviterId, token, cb);
             }
-          });
+          );
         }
-      );
+      });
     },
     /**
      * Get messages for a team between the given dates
