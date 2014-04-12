@@ -72,6 +72,18 @@ module.exports = function(pool, opts) {
     }
   });
 
+  function unknownDeliverySplit(d) {
+    return d.initialDelivery == null && d.extendedDelivery == null;
+  }
+
+  function computePathHeight(d) {
+    if (unknownDeliverySplit(d)) {
+      return opts.yScale(d.value) + opts.bolusStroke / 2;
+    } else {
+      return opts.yScale(d.extendedDelivery) + opts.bolusStroke / 2;
+    }
+  }
+
   function bolus(selection) {
     opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
@@ -167,6 +179,7 @@ module.exports = function(pool, opts) {
             return 'bolus_' + d._id;
           }
         });
+
       // square- and dual-wave boluses
       var extendedBoluses = bolusGroups.filter(function(d) {
         if (d.extended) {
@@ -177,12 +190,18 @@ module.exports = function(pool, opts) {
         .attr({
           'd': function(d) {
             var rightEdge = bolus.x(d) + opts.width;
-            var doseHeight = opts.yScale(d.extendedDelivery) + opts.bolusStroke / 2;
+            var doseHeight = computePathHeight(d);
             var doseEnd = opts.xScale(Date.parse(d.normalTime) + d.duration) - opts.triangleSize / 2;
             return 'M' + rightEdge + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
           },
           'stroke-width': opts.bolusStroke,
-          'class': 'd3-path-extended d3-bolus',
+          'class': function(d){
+            if (unknownDeliverySplit(d)) {
+              return 'd3-path-extended d3-bolus d3-unknown-delivery-split';
+            } else {
+              return 'd3-path-extended d3-bolus';
+            }
+          },
           'id': function(d) {
             return 'bolus_' + d._id;
           }
@@ -190,7 +209,7 @@ module.exports = function(pool, opts) {
       extendedBoluses.append('path')
         .attr({
           'd': function(d) {
-            var doseHeight = opts.yScale(d.extendedDelivery) + opts.bolusStroke / 2;
+            var doseHeight = computePathHeight(d);
             var doseEnd = opts.xScale(Date.parse(d.normalTime) + d.duration) - opts.triangleSize;
             return bolus.triangle(doseEnd, doseHeight);
           },
@@ -226,50 +245,49 @@ module.exports = function(pool, opts) {
     return formatted;
   }
 
-  function recommendedBolusTooltipTextFn(d) {
-    return function() {
-      return formatValue(d.recommended) + "U recom'd";
-    };
-  }
+  bolus.getRecommendedBolusTooltipText = function(datum) {
+    return formatValue(datum.recommended) + "U recom'd";
+  };
 
-  function extendedBolusTooltipTextFn(d) {
-    return function() {
-      return format.percentage(d.extendedDelivery / d.value) + ' ' + bolus.timespan(d);
-    };
-  }
+  bolus.getExtendedBolusTooltipText = function(datum) {
+    if (unknownDeliverySplit(datum)) {
+      return 'Split unknown';
+    }
+    return format.percentage(datum.extendedDelivery / datum.value) + ' ' + bolus.timespan(datum);
+  };
 
-  bolus.getTooltipCategory = function(d) {
+  bolus.getTooltipCategory = function(datum) {
     var category;
     // when there's no 'recommended' field
-    if (d.recommended == null) {
-      if (d.extended == null) {
+    if (datum.recommended == null) {
+      if (datum.extended == null) {
         category = 'unspecial';
       } else {
         category = 'two-line';
       }
     } else {
-      if ((d.extended == null) && (d.recommended === d.value)) {
+      if ((datum.extended == null) && (datum.recommended === datum.value)) {
         category = 'unspecial';
-      } else if ((d.extended == null) && (d.recommended !== d.value)) {
+      } else if ((datum.extended == null) && (datum.recommended !== datum.value)) {
         category = 'two-line';
-      } else if ((d.recommended === d.value) && (d.extended != null)) {
+      } else if ((datum.recommended === datum.value) && (datum.extended != null)) {
         category = 'two-line';
-      } else if ((d.recommended !== d.value) && (d.extended != null)) {
+      } else if ((datum.recommended !== datum.value) && (datum.extended != null)) {
         category = 'three-line';
       }
     }
     return category;
   };
 
-  bolus.addTooltip = function(d, category) {
+  bolus.addTooltip = function(datum, category) {
     var tooltipWidth = opts.classes[category].width;
     var tooltipHeight = opts.classes[category].height;
     
     d3.select('#' + 'tidelineTooltips_bolus')
       .call(pool.tooltips(),
-        d,
+        datum,
         // tooltipXPos
-        opts.xScale(Date.parse(d.normalTime)),
+        opts.xScale(Date.parse(datum.normalTime)),
         'bolus',
         // timestamp
         true,
@@ -277,13 +295,13 @@ module.exports = function(pool, opts) {
         tooltipWidth,
         tooltipHeight,
         // imageX
-        opts.xScale(Date.parse(d.normalTime)),
+        opts.xScale(Date.parse(datum.normalTime)),
         // imageY
         function() {
           return pool.height() - tooltipHeight;
         },
         // textX
-        opts.xScale(Date.parse(d.normalTime)) + tooltipWidth / 2,
+        opts.xScale(Date.parse(datum.normalTime)) + tooltipWidth / 2,
         // textY
         function() {
           if (category === 'unspecial') {
@@ -299,58 +317,58 @@ module.exports = function(pool, opts) {
         },
         // customText
         (function() {
-          return formatValue(d.value) + 'U';
+          return formatValue(datum.value) + 'U';
         }()),
         // tspan
         (function() {
-          if (d.extended) {
+          if (datum.extended) {
             return ' total';
           }
         }())
       );
 
     if (category === 'two-line') {
-      var twoLineSelection = d3.select('#tooltip_' + d._id).select('.d3-tooltip-text-group').append('text')
+      var twoLineSelection = d3.select('#tooltip_' + datum._id).select('.d3-tooltip-text-group').append('text')
         .attr({
           'class': 'd3-tooltip-text d3-bolus',
-          'x': opts.xScale(Date.parse(d.normalTime)) + tooltipWidth / 2,
+          'x': opts.xScale(Date.parse(datum.normalTime)) + tooltipWidth / 2,
           'y': pool.height() - tooltipHeight / 3
         })
         .append('tspan');
 
-      if ((d.recommended != null) && (d.recommended !== d.value)) {
-        twoLineSelection.text(recommendedBolusTooltipTextFn(d));
+      if ((datum.recommended != null) && (datum.recommended !== datum.value)) {
+        twoLineSelection.text(bolus.getRecommendedBolusTooltipText(datum));
       }
-      else if (d.extended != null) {
-        twoLineSelection.text(extendedBolusTooltipTextFn(d));
+      else if (datum.extended != null) {
+        twoLineSelection.text(bolus.getExtendedBolusTooltipText(datum));
       }
 
       twoLineSelection.attr('class', 'd3-bolus');
     } else if (category === 'three-line') {
-      d3.select('#tooltip_' + d._id).select('.d3-tooltip-text-group').append('text')
+      d3.select('#tooltip_' + datum._id).select('.d3-tooltip-text-group').append('text')
         .attr({
           'class': 'd3-tooltip-text d3-bolus',
-          'x': opts.xScale(Date.parse(d.normalTime)) + tooltipWidth / 2,
+          'x': opts.xScale(Date.parse(datum.normalTime)) + tooltipWidth / 2,
           'y': pool.height() - tooltipHeight / 2
         })
         .append('tspan')
-        .text(recommendedBolusTooltipTextFn(d))
+        .text(bolus.getRecommendedBolusTooltipText(datum))
         .attr('class', 'd3-bolus');
 
-      d3.select('#tooltip_' + d._id).select('.d3-tooltip-text-group').append('text')
+      d3.select('#tooltip_' + datum._id).select('.d3-tooltip-text-group').append('text')
         .attr({
           'class': 'd3-tooltip-text d3-bolus',
-          'x': opts.xScale(Date.parse(d.normalTime)) + tooltipWidth / 2,
+          'x': opts.xScale(Date.parse(datum.normalTime)) + tooltipWidth / 2,
           'y': pool.height() - tooltipHeight / 4
         })
         .append('tspan')
-        .text(extendedBolusTooltipTextFn(d))
+        .text(bolus.getExtendedBolusTooltipText(datum))
         .attr('class', 'd3-bolus');
     }
   };
 
-  bolus.timespan = function(d) {
-    var dur = Duration.parse(d.duration + 'ms');
+  bolus.timespan = function(datum) {
+    var dur = Duration.parse(datum.duration + 'ms');
     var hours = dur.hours();
     var minutes = dur.minutes() - (hours * 60);
     if (hours !== 0) {
@@ -394,8 +412,8 @@ module.exports = function(pool, opts) {
     }
   };
   
-  bolus.x = function(d) {
-    return opts.xScale(Date.parse(d.normalTime)) - opts.width/2;
+  bolus.x = function(datum) {
+    return opts.xScale(Date.parse(datum.normalTime)) - opts.width/2;
   };
 
   bolus.triangle = function(x, y) {
