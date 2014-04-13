@@ -39,7 +39,7 @@ var Messages = React.createClass({
 
   getInitialState: function() {
     return {
-      formValues: {messageText: '', messageDateTime : this.formatDisplayDate(this.props.createDatetime)},
+      formValues: { messageText: '', messageDateTime : this.formatDisplayDate(this.props.createDatetime) },
       messages : this.props.messages
     };
   },
@@ -83,7 +83,7 @@ var Messages = React.createClass({
   },
   renderThread:function(){
 
-    if(this.state.messages){
+    if(this.isMessageThread()){
 
       var thread = _.map(this.state.messages, function(message) {
         if(!message.parentmessage) {
@@ -98,26 +98,27 @@ var Messages = React.createClass({
 
     return;
   },
+  isMessageThread:function(){
+    return this.state.messages;
+  },
   renderForm:function(){
     /* jshint ignore:start */
-    if(this.state.messages){
+    if(this.isMessageThread()){
       return (
-
         <SimpleForm
           inputs={this.commentFormInputs}
           formValues={this.state.formValues}
           submitButtonText='Comment'
           onSubmit={this.handleAddComment} />
       );
-    }else{
-      return (
-        <SimpleForm
-          inputs={this.messageFormInputs}
-          formValues={this.state.formValues}
-          submitButtonText='Post'
-          onSubmit={this.handleCreateMessage} />
-      );
     }
+    return (
+      <SimpleForm
+        inputs={this.messageFormInputs}
+        formValues={this.state.formValues}
+        submitButtonText='Post'
+        onSubmit={this.handleCreateMessage} />
+    );
      /* jshint ignore:end */
   },
   renderClose:function(){
@@ -147,7 +148,7 @@ var Messages = React.createClass({
      );
   },
   getParent : function(){
-    if(this.state.messages){
+    if(this.isMessageThread()){
       return _.first(this.state.messages, function(message){ return !(message.parentmessage); })[0];
     }
     return;
@@ -187,7 +188,7 @@ var Messages = React.createClass({
 
       var message = {
         userid : this.props.user.id,
-        groupid : this.props.patient.team.id,
+        groupid : this.props.patient.teamId,
         messagetext : formValues.messageText,
         timestamp : this.props.createDatetime
       };
