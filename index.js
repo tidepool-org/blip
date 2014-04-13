@@ -400,7 +400,7 @@ module.exports = function (config, superagent, log) {
         });
     },
     /**
-     * Logout user with token
+     * Logout user
      *
      * @returns {cb}  cb(err, response)
      */
