@@ -67,20 +67,20 @@ module.exports = function (config, superagent, log) {
       .get(makeUrl('/metadata/' + userId + '/groups'))
       .set(sessionTokenHeader, token)
       .end(function (error, res) {
-             if (error) {
-               return cb(error);
-             }
+        if (error) {
+          return cb(error);
+        }
 
-             if (res.status === 404) {
-               return cb(null, null);
-             }
+        if (res.status === 404) {
+          return cb(null, null);
+        }
 
-             if (res.status !== 200) {
-               return handleHttpError(res, cb);
-             }
+        if (res.status !== 200) {
+          return handleHttpError(res, cb);
+        }
 
-             cb(null, res.body[groupType]);
-           });
+        cb(null, res.body[groupType]);
+      });
   }
 
   /*
@@ -122,20 +122,20 @@ module.exports = function (config, superagent, log) {
             .get(makeUrl('/group/' + groupId + '/members'))
             .set(sessionTokenHeader, token)
             .end(function (error, res) {
-                   if (error) {
-                     return callback(error);
-                   }
+              if (error) {
+                return callback(error);
+              }
 
-                   if (res.status !== 200) {
-                     return handleHttpError(res, callback);
-                   }
+              if (res.status !== 200) {
+                return handleHttpError(res, callback);
+              }
 
-                   var group = {
-                     id: groupId,
-                     members: res.body.members
-                   };
-                   callback(null, group);
-                 });
+              var group = {
+                id: groupId,
+                members: res.body.members
+              };
+              callback(null, group);
+            });
         }
       ],
       function (err, result) {
@@ -162,16 +162,16 @@ module.exports = function (config, superagent, log) {
             .set(sessionTokenHeader, token)
             .send({ group: { members: [] }})
             .end(function (err, res) {
-                   if (err != null) {
-                     return callback(err, null);
-                   }
+              if (err != null) {
+                return callback(err, null);
+              }
 
-                   if (res.status !== 201) {
-                     return handleHttpError(res, callback);
-                   }
+              if (res.status !== 201) {
+                return handleHttpError(res, callback);
+              }
 
-                   callback(null, res.body.id);
-                 });
+              callback(null, res.body.id);
+            });
         },
         function (groupId, callback) {
           //get all groups associated with the user
@@ -179,8 +179,8 @@ module.exports = function (config, superagent, log) {
             .get(makeUrl('/metadata/' + userId + '/groups'))
             .set(sessionTokenHeader, token)
             .end(function (err, res) {
-                   callback(err, groupId, res.body);
-                 });
+              callback(err, groupId, res.body);
+            });
         },
         function (groupId, existingGroups, callback) {
           //add new group type to the users groups
@@ -196,16 +196,16 @@ module.exports = function (config, superagent, log) {
             .set(sessionTokenHeader, token)
             .send(existingGroups)
             .end(function (err, res) {
-                   if (err != null) {
-                     return callback(err);
-                   }
+              if (err != null) {
+                return callback(err);
+              }
 
-                   if (res.status !== 200) {
-                     return handleHttpError(res, callback);
-                   }
+              if (res.status !== 200) {
+                return handleHttpError(res, callback);
+              }
 
-                   callback(null, groupId);
-                 });
+              callback(null, groupId);
+            });
         }
       ],
       function (err, result) {
@@ -229,16 +229,16 @@ module.exports = function (config, superagent, log) {
       .set(sessionTokenHeader, token)
       .send({userid: memberId})
       .end(function (err, res) {
-             if (err != null) {
-               return cb(err, null);
-             }
+        if (err != null) {
+          return cb(err, null);
+        }
 
-             if (res.status !== 200) {
-               return handleHttpError(res, cb);
-             }
+        if (res.status !== 200) {
+          return handleHttpError(res, cb);
+        }
 
-             cb(null, res.body);
-           });
+        cb(null, res.body);
+      });
   }
 
   /*
@@ -589,7 +589,7 @@ module.exports = function (config, superagent, log) {
         function(token) {
           createUserGroup(userId, groupType, token, cb);
         }
-      )
+      );
     },
     /**
      * Get the users 'team'

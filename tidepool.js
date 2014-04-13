@@ -16,6 +16,7 @@
 'use strict';
 
 var superagent = window.superagent;
+var _ = window._;
 
 var makeClient = require('./index');
 
