@@ -413,6 +413,8 @@ module.exports = function(emitter) {
   };
 
   container.setAtDate = function (date, trigger) {
+    // TODO: this is fairly fragile and relies on trigger = true
+    // correlating 100% with wanting to navigate to mostRecent data
     scrollHandleTrigger = trigger;
     if (!trigger) {
       container.currentTranslation(-xScale(date) + axisGutter);

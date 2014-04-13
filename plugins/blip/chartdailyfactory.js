@@ -265,12 +265,10 @@ function chartDailyFactory(el, options) {
 
     chart.setAtDate(start, scrollHandleTrigger);
 
-    var translation = chart.currentTranslation();
-
     // render pools
     _.each(chart.pools(), function(pool) {
       pool.render(chart.poolGroup(), chart.renderedData());
-      pool.pan({'translate': [translation, 0]});
+      pool.pan({'translate': [chart.currentTranslation(), 0]});
     });
 
     chart.navString([start, end]);
