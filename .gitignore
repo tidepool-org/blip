@@ -9,3 +9,5 @@ example/data/blip-output.json
 example/dist/
 node_modules/
 test/test.js
+web/
+wiki/
