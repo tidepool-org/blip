@@ -192,11 +192,19 @@ var Chart = React.createClass({
   },
 
   showValues: function() {
-    return this.chart.emitter.emit('numbers', 'show');
+    return this.chart.showValues();
   },
 
   hideValues: function() {
-    return this.chart.emitter.emit('numbers', 'hide');
+    return this.chart.hideValues();
+  },
+
+  createMessageThread: function(id) {
+    return this.chart.createMessage(id);
+  },
+
+  closeMessageThread: function() {
+    return this.chart.closeMessage();
   }
 });
 

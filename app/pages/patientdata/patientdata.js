@@ -232,6 +232,7 @@ var PatientData = React.createClass({
   },
   closeMessageThread: function(){
     this.setState({ messages: null });
+    this.refs.chart.closeMessageThread();
   },
   closeMessageCreation: function(){
     this.setState({ createMessageDatetime: null });
