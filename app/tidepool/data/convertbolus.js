@@ -123,7 +123,24 @@ if (Rx.Observable.prototype.tidepoolConvertBolus == null) {
           return dualNormalBuilder();
         }
       ]
-    );
+    ).map(function(e) {
+            // Doing source-specific processing here is pretty broken, but it's the "simplest" way to
+            // get it working given a lack of standard for the data type.  When we go back and
+            // standardize the tidepool data format, this will probably need adjustment.
+            if (e.type === 'bolus' && e.subType === 'square' && e.source === 'diasend') {
+              return {
+                _id: e._id,
+                initialDelivery: e.immediate,
+                extendedDelivery: e.extended,
+                value: e.value,
+                deviceTime: e.deviceTime,
+                duration: e.duration,
+                extended: true,
+                type: 'bolus'
+              };
+            }
+            return e;
+          });
   };
 }
 
