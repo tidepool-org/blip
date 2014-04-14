@@ -35,6 +35,8 @@ function chartWeeklyFactory(el, options) {
 
   var pools = [];
 
+  var smbgTime;
+
   var create = function(el, options) {
     if (!el) {
       throw new Error('Sorry, you must provide a DOM element! :(');
@@ -100,7 +102,7 @@ function chartWeeklyFactory(el, options) {
       .domain(fillEndpoints)
       .range([chart.axisGutter() + chart.dataGutter(), chart.width() - chart.navGutter() - chart.dataGutter()]);
 
-    var smbgTime = new tideline.plot.SMBGTime({emitter: emitter});
+    smbgTime = new tideline.plot.SMBGTime({emitter: emitter});
 
     chart.pools().forEach(function(pool, i) {
       var gutter;
@@ -144,16 +146,15 @@ function chartWeeklyFactory(el, options) {
 
     chart.navString();
 
-    emitter.on('numbers', function(toggle) {
-      if (toggle === 'show') {
-        smbgTime.showValues();
-      }
-      else if (toggle === 'hide') {
-        smbgTime.hideValues();
-      }
-    });
-
     return chart;
+  };
+
+  chart.showValues = function() {
+    smbgTime.showValues();
+  };
+
+  chart.hideValues = function() {
+    smbgTime.hideValues();
   };
 
   chart.type = 'weekly';

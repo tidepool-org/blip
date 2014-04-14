@@ -290,7 +290,7 @@ function chartDailyFactory(el, options) {
     log('New message created with ID', id);
   };
 
-  chart.closeMessage = function(id) {
+  chart.closeMessage = function() {
     d3.selectAll('.d3-rect-message').classed('hidden', true);
   };
 
