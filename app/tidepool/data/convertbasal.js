@@ -71,20 +71,6 @@ function makeNewBasalHandler() {
   };
 }
 
-function tempBasalMappingFn(event) {
-  if (event.deliveryType !== 'temp') {
-    return event;
-  }
-
-  var end = moment(event.deviceTime).add('ms', event.duration).format('YYYY-MM-DDThh:mm:ss');
-  return _.assign({}, event, {
-    type: 'basal-rate-segment',
-    start: event.deviceTime,
-    end: end,
-    interval: event.deviceTime + '/' + end
-  });
-}
-
 if (Rx.Observable.prototype.tidepoolConvertBasal == null) {
   /**
    * A function that does a self-join on the provided eventStream (an Observable) in order to join together
@@ -96,6 +82,13 @@ if (Rx.Observable.prototype.tidepoolConvertBasal == null) {
     return this.tidepoolSelfJoin(
       [
         function(e){
+          // Only join together carelink basals.  This is a hack to work around the question of
+          // having a "duration" on basals.  Once we have the tidepool data format defined, this
+          // should be revisited.
+          if (e.source !== 'carelink') {
+            return null;
+          }
+
           return isScheduledBasal(e) ? makeNewBasalHandler() : null;
         }
       ]
@@ -138,7 +131,22 @@ if (Rx.Observable.prototype.tidepoolConvertBasal == null) {
             }
           };
         }
-      ]);
+      ])
+      .map(function(e) {
+             if (! (e.type === 'basal' && e.source === 'diasend')) {
+               return e;
+             }
+
+             return _.assign(
+               {},
+               e,
+               {
+                 type: 'basal-rate-segment',
+                 start: e.deviceTime,
+                 end: moment(e.deviceTime).clone().add('ms', e.duration).format('YYYY-MM-DDTHH:mm:ss')
+               }
+             );
+           });
   };
 }
 
