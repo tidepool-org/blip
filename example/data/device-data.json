@@ -1647,8 +1647,6 @@
         "type": "carbs"
     },
     {
-        "initialDelivery": 0.5,
-        "extendedDelivery": 2.1,
         "value": 2.6,
         "recommended": 2.6,
         "deviceTime": "2014-03-08T12:23:33",

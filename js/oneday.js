@@ -419,6 +419,8 @@ module.exports = function(emitter) {
   };
 
   container.setAtDate = function (date, trigger) {
+    // TODO: this is fairly fragile and relies on trigger = true
+    // correlating 100% with wanting to navigate to mostRecent data
     scrollHandleTrigger = trigger;
     if (!trigger) {
       container.currentTranslation(-xScale(date) + axisGutter);
@@ -525,7 +527,7 @@ module.exports = function(emitter) {
   container.data = function(a) {
     if (!arguments.length) return data;
 
-    if ((!a) || (a.length === 0)) {
+    if (! (a && Array.isArray(a.data) && a.data.length > 0)) {
       throw new Error("Sorry, I can't render anything without /some/ data.");
     }
 

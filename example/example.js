@@ -25,6 +25,7 @@ var preprocess = window.tideline.preprocess;
 var blip = window.tideline.blip;
 var chartDailyFactory = blip.oneday;
 var chartWeeklyFactory = blip.twoweek;
+var settingsFactory = blip.settings;
 
 var log = window.bows('Example');
 
@@ -33,6 +34,7 @@ var imagesBaseUrl = '../img';
 
 var oneDay = chartDailyFactory(el, {imagesBaseUrl: imagesBaseUrl}).setupPools();
 var twoWeek = chartWeeklyFactory(el, {imagesBaseUrl: imagesBaseUrl});
+var settings = settingsFactory(el);
 
 // things common to one-day and two-week views
 oneDay.emitter.on('navigated', function(navString) {
@@ -67,7 +69,7 @@ twoWeek.emitter.on('mostRecent', function(mostRecent) {
 });
 
 // load data and draw charts
-d3.json('data/device-data.json', function(data) {
+d3.json('data/blip-output.json', function(data) {
   log('Data loaded.');
   data = preprocess.processData(data);
 
@@ -81,10 +83,13 @@ d3.json('data/device-data.json', function(data) {
     log('Navigated to two-week view from nav bar.');
     var date = oneDay.getCurrentDay();
     oneDay.clear().hide();
+    settings.clear();
     twoWeek.clear();
 
     $(this).parent().addClass('active');
     $('#oneDayView').parent().removeClass('active');
+    $('#deviceSettings').parent().removeClass('active');
+    $('#tidelineLabel').css('visibility', 'visible');
     $('.one-day').css('visibility', 'hidden');
     $('.two-week').css('visibility', 'visible');
 
@@ -97,9 +102,25 @@ d3.json('data/device-data.json', function(data) {
     twoWeek.show().load(data, date);
   });
 
+  $('#deviceSettings').on('click', function() {
+    log('Navigated to device settings from lower nav bar.');
+    oneDay.clear().hide();
+    twoWeek.clear().hide();
+
+    $(this).parent().addClass('active');
+
+    $('#oneDayView').parent().removeClass('active');
+    $('#twoWeekView').parent().removeClass('active');
+    $('.two-week').css('visibility', 'hidden');
+    $('#tidelineLabel').css('visibility', 'hidden');
+
+    settings.draw(data);
+  });
+
   $('#oneDayView').on('click', function() {
     log('Navigated to one-day view from nav bar.');
     twoWeek.clear().hide();
+    settings.clear();
     
     $('.tideline-nav').off('click');
     // attach click handlers to set up programmatic pan
@@ -109,7 +130,8 @@ d3.json('data/device-data.json', function(data) {
     $(this).parent().addClass('active');
     
     $('#twoWeekView').parent().removeClass('active');
-    $('.one-day').css('visibility', 'visible');
+    $('#deviceSettings').parent().removeClass('active');
+    $('#tidelineLabel').css('visibility', 'visible');
     $('.two-week').css('visibility', 'hidden');
     
     // takes user to one-day view of most recent data
@@ -118,6 +140,8 @@ d3.json('data/device-data.json', function(data) {
 
   $('#mostRecent').on('click', function() {
     log('Navigated to most recent data.');
+    settings.clear();
+    $('#tidelineLabel').css('visibility', 'visible');
     if ($('#twoWeekView').parent().hasClass('active')) {
       twoWeek.clear().load(data);
     }
@@ -125,6 +149,7 @@ d3.json('data/device-data.json', function(data) {
       oneDay.clear().locate();
     }
     $('#mostRecent').parent().addClass('active');
+    $('#deviceSettings').parent().removeClass('active');
   });
 
   twoWeek.emitter.on('selectSMBG', function(date) {
@@ -139,7 +164,6 @@ d3.json('data/device-data.json', function(data) {
     $('#oneDayView').parent().addClass('active');
     $('#twoWeekView').parent().removeClass('active');
     $('#oneDayMostRecent').parent().removeClass('active');
-    $('.one-day').css('visibility', 'visible');
     $('.two-week').css('visibility', 'hidden');
 
     // takes user to one-day view of date given by the .d3-smbg-time emitter

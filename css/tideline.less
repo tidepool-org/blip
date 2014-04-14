@@ -147,6 +147,9 @@ svg {
   }
   &.d3-path-extended {
     stroke: @bolus;
+    &.d3-unknown-delivery-split {
+      stroke-dasharray: 3,5;
+    }
   }
   &.d3-path-extended-triangle {
     stroke: @bolus;
@@ -338,4 +341,20 @@ svg {
       fill: @stats-insufficient-data !important;
     }
   }
+}
+
+// settings 
+.d3-settings-section {
+  display: inline-block;
+  .d3-settings-col {
+    display: inline-block;
+  }
+}
+
+.d3-settings-basal-schedule-label {
+  text-transform: capitalize;
+}
+
+.d3-settings-start-time {
+  text-transform: lowercase;
 }
