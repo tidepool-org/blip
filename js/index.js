@@ -20,6 +20,7 @@ module.exports = {
   pool: require('./pool'),
   oneDay: require('./oneday'),
   twoWeek: require('./twoweek'),
+  settings: require('./settings'),
 
   data: {
     BasalUtil: require('./data/basalutil'),

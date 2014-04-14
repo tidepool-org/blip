@@ -15,8 +15,39 @@
  * == BSD2 LICENSE ==
  */
 
-module.exports = {
-  oneday: require('./chartdailyfactory'),
-  twoweek: require('./chartweeklyfactory'),
-  settings: require('./settingsfactory')
-};
+var _ = window._;
+var bows = window.bows;
+var d3 = window.d3;
+
+var EventEmitter = require('events').EventEmitter;
+
+var tideline = window.tideline;
+
+function settingsFactory(el, options) {
+  var log = bows('Settings Factory');
+  options = options || {};
+
+  var emitter = new EventEmitter();
+  var page = tideline.settings(emitter);
+  page.emitter = emitter;
+
+  var create = function(el, options) {
+    if (!el) {
+      throw new Error('Sorry, you must provide a DOM element! :(');
+    }
+
+    d3.select(el).call(page);
+
+    return page;
+  };
+
+  page.draw = function(data) {
+    page.data(data).render();
+  };
+
+  page.type = 'weekly';
+
+  return create(el, options);
+}
+
+module.exports = settingsFactory;
