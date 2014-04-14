@@ -55,7 +55,7 @@ module.exports = function(pool, opts) {
         d3.event.stopPropagation(); // silence the click-and-drag listener
         opts.emitter.emit('messageThread', d._id);
         log('Message clicked!');
-        mainGroup.select(this).selectAll('.d3-rect-message').classed('hidden', false);
+        d3.select(this).selectAll('.d3-rect-message').classed('hidden', false);
       });
       messages.exit().remove();
     });
