@@ -12,14 +12,5 @@
     "lodash": "~2.4.1",
     "mocha": "~1.16.2",
     "testem": "~0.6.14"
-  },
-  "testling": {
-    "harness": "mocha-bdd",
-    "browsers": [
-      "chrome/latest",
-      "safari/latest",
-      "firefox/latest"
-    ],
-    "html": "test/html/testling.html"
   }
 }
