@@ -15,20 +15,39 @@
  * == BSD2 LICENSE ==
  */
 
-// Usage:
-// node munge-bolus.js <path-to-file> | json > output.json
+var _ = window._;
+var bows = window.bows;
+var d3 = window.d3;
 
-var _ = require('../js/lib/underscore');
-var watson = require('../example/watson');
-var CBGUtil = require('../js/data/cbgutil');
+var EventEmitter = require('events').EventEmitter;
 
-var filename = process.argv[2];
+var tideline = window.tideline;
 
-var data = watson.normalize(require(filename));
+function settingsFactory(el, options) {
+  var log = bows('Settings Factory');
+  options = options || {};
 
-var c = new CBGUtil(_.where(data, {'type': 'cbg'}));
+  var emitter = new EventEmitter();
+  var page = tideline.settings(emitter);
+  page.emitter = emitter;
 
-var start = new Date('2014-02-14T00:00:00').valueOf();
-var end = new Date('2014-02-15T00:00:00').valueOf();
+  var create = function(el, options) {
+    if (!el) {
+      throw new Error('Sorry, you must provide a DOM element! :(');
+    }
 
-console.log(c.rangeBreakdown(start, end));
+    d3.select(el).call(page);
+
+    return page;
+  };
+
+  page.draw = function(data) {
+    page.data(data).render();
+  };
+
+  page.type = 'weekly';
+
+  return create(el, options);
+}
+
+module.exports = settingsFactory;
