@@ -169,7 +169,7 @@ describe('platform client', function () {
 
       noteToAdd = {
         userid: mrT1.id,
-        groupid: mrT1TeamId,
+        parentid: mrT1.id,
         timestamp: new Date().toISOString(),
         messagetext: 'In three words I can sum up everything I have learned about life: it goes on.'
       };
@@ -189,7 +189,7 @@ describe('platform client', function () {
       //comment on the note
       commentOnNote = {
         userid: mrT1.id,
-        groupid: mrT1TeamId,
+        patientid: mrT1.id,
         timestamp: new Date().toISOString(),
         messagetext: 'Good point bro!'
       };
@@ -208,8 +208,8 @@ describe('platform client', function () {
         var firstMessage = data[0];
         var secondMessage = data[1];
 
-        expect(firstMessage.groupid).to.equal(mrT1TeamId);
-        expect(secondMessage.groupid).to.equal(mrT1TeamId);
+        expect(firstMessage.parentid).to.equal(mrT1.id);
+        expect(secondMessage.parentid).to.equal(mrT1.id);
         expect(firstMessage.parentmessage).to.not.exist;
         expect(firstMessage.messagetext).to.equal(noteToAdd.messagetext);
         expect(secondMessage.parentmessage).to.equal(firstMessage.id);
@@ -226,7 +226,7 @@ describe('platform client', function () {
       twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
       var today = new Date();
 
-      mrT1Client.getAllMessagesForTeam(mrT1TeamId, twoWeeksAgo, today, function (error, data) {
+      mrT1Client.getAllMessagesForTeam(mrT1.id, twoWeeksAgo, today, function (error, data) {
 
         expect(error).to.not.exist;
         expect(data).to.exist;
@@ -239,7 +239,7 @@ describe('platform client', function () {
 
       this.timeout(5000);
 
-      mrT1Client.getNotesForTeam(mrT1TeamId, function (error, data) {
+      mrT1Client.getNotesForTeam(mrT1.id, null, null ,function (error, data) {
 
         expect(error).to.not.exist;
         expect(data).to.exist;

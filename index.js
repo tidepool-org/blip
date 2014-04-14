@@ -792,20 +792,20 @@ module.exports = function (config, superagent, log) {
     /**
      * Get messages for a team between the given dates
      *
-     * @param groupId of the team to get the messages for
+     * @param patientId of the user to get the messages for
      * @param start date
      * @param end date
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    getAllMessagesForTeam: function (groupId, start, end, cb) {
+    getAllMessagesForTeam: function (patientId, start, end, cb) {
       assertArgumentsSize(arguments, 4);
 
       withToken(
         cb,
         function(token) {
           superagent
-            .get(makeUrl('/message/all/' + groupId + '?starttime=' + start + '&endtime=' + end))
+            .get(makeUrl('/message/all/' + patientId + '?starttime=' + start + '&endtime=' + end))
             .set(sessionTokenHeader, token)
             .end(
             function (err, res) {
@@ -830,18 +830,20 @@ module.exports = function (config, superagent, log) {
     /**
      * Get all notes for a team
      *
-     * @param groupId of the team to get the messages for
+     * @param patientId of the user to get the notes for
+     * @param start date
+     * @param end date
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    getNotesForTeam: function (groupId, cb) {
+    getNotesForTeam: function (patientId, start, end, cb) {
       assertArgumentsSize(arguments, 2);
 
       withToken(
         cb,
         function(token) {
           superagent
-            .get(makeUrl('/message/notes/' + groupId))
+            .get(makeUrl('/message/notes/' + patientId))
             .set(sessionTokenHeader, token)
             .end(
             function (err, res) {
@@ -866,19 +868,18 @@ module.exports = function (config, superagent, log) {
     /**
      * Reply to a specfic message thread
      *
-     * @param messageId of the root message
      * @param comment on the message thread
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    replyToMessageThread: function (messageId, comment, cb) {
-      assertArgumentsSize(arguments, 3);
+    replyToMessageThread: function (comment, cb) {
+      assertArgumentsSize(arguments, 2);
 
       withToken(
         cb,
         function(token) {
           superagent
-            .post(makeUrl('/message/reply/' + messageId))
+            .post(makeUrl('/message/reply/' + comment.parentmessage))
             .set(sessionTokenHeader, token)
             .send({message: comment})
             .end(
@@ -899,19 +900,18 @@ module.exports = function (config, superagent, log) {
     /**
      * Start a new message thread
      *
-     * @param groupId of the team the message is for
      * @param message that is the start of a new thread
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    startMessageThread: function (groupId, message, cb) {
+    startMessageThread: function (message, cb) {
       assertArgumentsSize(arguments, 3);
 
       withToken(
         cb,
         function(token) {
           superagent
-            .post(makeUrl('/message/send/' + groupId))
+            .post(makeUrl('/message/send/' + message.patientid))
             .set(sessionTokenHeader, token)
             .send({message: message})
             .end(
