@@ -1,15 +1,15 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -139,7 +139,7 @@ svg {
 // boluses
 .d3-bolus {
   &.d3-rect-bolus {
-    fill: @bolus;  
+    fill: @bolus;
   }
   &.d3-path-bolus {
     stroke: @bolus;
@@ -323,7 +323,7 @@ svg {
   .d3-stats-rect-line {
     stroke: white;
     stroke-width: 2px;
-    stroke-dasharray: 3,5; 
+    stroke-dasharray: 3,5;
   }
   .d3-stats-image {
     &.hidden {
@@ -343,18 +343,119 @@ svg {
   }
 }
 
-// settings 
-.d3-settings-section {
-  display: inline-block;
-  .d3-settings-col {
-    display: inline-block;
+// settings
+.d3-settings {
+  *,
+  *:before,
+  *:after {
+    -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
   }
+
+  table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    max-width: 100%;
+    background-color: transparent;
+  }
+
+  th {
+    text-align: left;
+    font-weight: normal;
+  }
+
+  font-size: 14px;
+  color: @text;
 }
 
-.d3-settings-basal-schedule-label {
+
+.d3-settings-section,
+.d3-settings-col {
+  display: inline-block;
+  width: 100%;
+  vertical-align: top;
+}
+
+.d3-settings-section-basal {
+  width: 2/9 * 100%;
+}
+
+.d3-settings-section-bolus {
+  width: 7/9 * 100%;
+}
+
+.d3-settings-carb-ratio,
+.d3-settings-insulin-sensitivity {
+  width: 2/7 * 100%;
+}
+
+.d3-settings-bg-target {
+  width: 3/7 * 100%;
+}
+
+.d3-settings-section-label {
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 10px;
+}
+
+.d3-settings-col {
+  padding: 5px 5px;
+}
+
+.d3-settings-section-label {
+  color: @text;
+}
+
+.d3-settings-col table {
+  background: @settings-table-fill;
+  width: 100%;
+  padding-bottom: 10px;
+}
+
+.d3-settings-col-label {
+  padding: 5px 5px;
+  font-weight: bold;
+  color: #fff;
+  background: #ccc;
+}
+
+.d3-settings-basal-schedule .d3-settings-col-label {
   text-transform: capitalize;
+  background: @settings-label-fill-basal-schedule;
+}
+
+.d3-settings-carb-ratio .d3-settings-col-label {
+  background: @settings-label-fill-carb-ratio;
+}
+
+.d3-settings-insulin-sensitivity .d3-settings-col-label {
+  background: @settings-label-fill-insulin-sensitivity;
+}
+
+.d3-settings-bg-target .d3-settings-col-label {
+  background: @settings-label-fill-bg-target;
+}
+
+.d3-settings-table-head {
+  padding: 5px 5px;
+  padding-top: 10px;
 }
 
 .d3-settings-start-time {
   text-transform: lowercase;
+}
+
+.d3-settings-table-row-data td {
+  padding-right: 10px;
+  padding-left: 0;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  text-align: right;
+  color: @settings-table-value;
+}
+
+.d3-settings-table-footer {
+  height: 15px;
 }
