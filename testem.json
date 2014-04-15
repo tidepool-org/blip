@@ -8,7 +8,7 @@
     ],
     "launchers": {
         "Node": {
-            "command": "mocha test/*_test.js --reporter spec"
+            "command": "./node_modules/.bin/mocha test/*_test.js --reporter spec"
         }
     },
     "before_tests": "node_modules/.bin/browserify test/*_test.js -o test/test.js",
