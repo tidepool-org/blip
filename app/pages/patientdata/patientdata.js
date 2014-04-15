@@ -216,7 +216,8 @@ var PatientData = React.createClass({
           user={this.props.user}
           patient={this.props.patient}
           onClose={this.closeMessageCreation}
-          onSave={this.props.onCreateMessage} />
+          onSave={this.props.onCreateMessage}
+          onNewMessage={this.handleMessageCreation} />
       );
     }else if(this.state.messages){
       return (
@@ -367,6 +368,10 @@ var PatientData = React.createClass({
     }
   },
 
+  handleMessageCreation: function(messageId){
+    this.refs.chart.createMessageThread(messageId);
+  },
+
   handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
     var d = datetimeLocationEndpoints;
     var title = this.state.title;
@@ -407,7 +412,6 @@ var PatientData = React.createClass({
 
   handleInTransition: function(inTransition) {
     if (inTransition) {
-      console.log('In transition!');
       this.setState({
         inTransition: true
       });

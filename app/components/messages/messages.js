@@ -34,7 +34,8 @@ var Messages = React.createClass({
     user : React.PropTypes.object,
     patient: React.PropTypes.object,
     onClose : React.PropTypes.func,
-    onSave : React.PropTypes.func
+    onSave : React.PropTypes.func,
+    onNewMessage : React.PropTypes.func
   },
 
   getInitialState: function() {
@@ -188,7 +189,7 @@ var Messages = React.createClass({
 
       var message = {
         userid : this.props.user.id,
-        groupid : this.props.patient.teamId,
+        groupid : this.props.patient.team.id,
         messagetext : formValues.messageText,
         timestamp : this.props.createDatetime
       };
@@ -198,6 +199,8 @@ var Messages = React.createClass({
           //set so we can display right away
           message.id = messageId;
           message.username = this.props.user.firstName;
+          //notify anyone that wants the id
+          this.props.onNewMessage(messageId);
           this.setState({ messages: [message], formValues : {messageText: '', messageDateTime:''} });
         }
       }.bind(this));
