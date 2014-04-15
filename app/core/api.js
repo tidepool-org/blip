@@ -308,6 +308,9 @@ function getPatientProfile(patientId, cb) {
 api.patient.get = function(patientId, cb) {
   api.log('GET /patients/' + patientId);
 
+  var userId = api.userId;
+  var token = api.token;
+
   getPatientProfile(patientId, function(err, patient) {
     if (err) {
       return cb(err);
@@ -318,25 +321,27 @@ api.patient.get = function(patientId, cb) {
       return cb({status: 404, response: 'Not found'});
     }
 
-    // If this is not the current user's patient, we're done
-    var userId = api.userId;
-    if (patientId !== userId) {
-      return cb(null, patient);
-    }
-
-    // If it is, fetch the patient's team members
-    var token = api.token;
-    patient.team = [];
+    // Fetch the patient's team
     tidepool.getUsersTeam(userId, token, function(err, group) {
       if (err) {
         return cb(err);
       }
 
-      // set the team id that is used for group realated tasks
-      patient.team.id = group.id;
+      if (!(group && group.id)) {
+        return cb(null, patient);
+      }
 
-      var peopleIds = (group && group.members) || [];
+      patient.teamId = group.id;
+
+      // If this is not the current user's patient, we're done
+      if (patientId !== userId) {
+        return cb(null, patient);
+      }
+
+      // If it is, fetch the patient's team members
+      var peopleIds = group.members || [];
       if (!peopleIds.length) {
+        patient.team = [];
         return cb(null, patient);
       }
 
@@ -353,21 +358,30 @@ api.patient.get = function(patientId, cb) {
 api.patient.post = function(patient, cb) {
   api.log('POST /patients');
   var patientId = api.userId;
+  var token = api.token;
 
   // First, create patient profile for user
-  api.patient.put(patientId, patient, function(err, patient) {
+  // For this backend, patient data is contained in the `patient`
+  // attribute of the user's profile
+  patient = _.omit(patient, 'firstName', 'lastName');
+  var profile = {id: patientId, patient: patient};
+  tidepool.addOrUpdateProfile(profile, token, function(err, profile) {
     if (err) {
       return cb(err);
     }
 
+    var patient = patientFromUserProfile(profile);
+    patient.id = patientId;
+
     // Then, create necessary groups for new patient
-    var userId = api.userId;
-    var token = api.token;
-    tidepool.createUserGroup(userId, 'team', token,
+    tidepool.createUserGroup(patientId, 'team', token,
     function(err, teamGroupId) {
       if (err) {
         return cb(err);
       }
+
+      patient.teamId = teamGroupId;
+      patient.team = [];
 
       cb(null, patient);
     });
@@ -377,9 +391,15 @@ api.patient.post = function(patient, cb) {
 api.patient.put = function(patientId, patient, cb) {
   api.log('PUT /patients/' + patientId);
 
-  // For this backend, patient data is contained in the `patient`
-  // attribute of the user's profile
   var token = api.token;
+
+  // Hang on to team, add back after update
+  var teamId = patient.teamId;
+  var team = patient.team;
+
+  // Don't save info already in user's profile, or team
+  patient = _.omit(patient, 'id', 'firstName', 'lastName', 'teamId', 'team');
+
   var profile = {id: patientId, patient: patient};
   tidepool.addOrUpdateProfile(profile, token, function(err, profile) {
     if (err) {
@@ -388,6 +408,13 @@ api.patient.put = function(patientId, patient, cb) {
 
     var patient = patientFromUserProfile(profile);
     patient.id = patientId;
+    if (teamId) {
+      patient.teamId = teamId;
+    }
+    if (team) {
+      patient.team = team;
+    }
+
     return cb(null, patient);
   });
 };

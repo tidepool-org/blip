@@ -21,6 +21,7 @@ var bows = window.bows;
 var tidelineBlip = window.tideline.blip;
 var chartDailyFactory = tidelineBlip.oneday;
 var chartWeeklyFactory = tidelineBlip.twoweek;
+var settingsFactory = tidelineBlip.settings;
 
 var Chart = React.createClass({
   propTypes: {
@@ -83,6 +84,8 @@ var Chart = React.createClass({
       this.dailyChart = dailyChart;
       var weeklyChart = chartWeeklyFactory(this.refs.chart.getDOMNode(), {imagesBaseUrl: imagesBaseUrl});
       this.weeklyChart = weeklyChart;
+      var settings = settingsFactory(this.refs.chart.getDOMNode());
+      this.settings = settings;
       this.bindEvents();
     }
     else {
@@ -94,6 +97,11 @@ var Chart = React.createClass({
       else if (this.props.chartType === 'weekly') {
         this.log('Mounting weekly chart.');
         this.chart = this.weeklyChart;
+        this.bindEvents();
+      }
+      else if (this.props.chartType === 'settings') {
+        this.log('Mounting settings.');
+        this.chart = this.settings;
         this.bindEvents();
       }
     }
@@ -173,6 +181,9 @@ var Chart = React.createClass({
         break;
       case 'weekly':
         this.chart.clear().load(this.props.patientData);
+        break;
+      case 'settings':
+        return;
         break;
       default:
         throw new Error('Unknown chart type: ' + this.chart.type);
