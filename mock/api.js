@@ -288,7 +288,7 @@ var createPatch = function(options) {
     api.team.replyToMessageThread = function(message,cb){
       api.log('[mock] POST /message/reply ',message);
 
-      var fakeId = 'message-reply-ok';
+      var fakeId = _.random(0,999);
 
       setTimeout(function() {
         cb(null, fakeId);
@@ -299,7 +299,7 @@ var createPatch = function(options) {
     api.team.startMessageThread = function(message,cb){
       api.log('[mock] POST /message/send');
 
-      var fakeId = 'create-message-ok';
+      var fakeId = _.random(1000,1999);
 
       setTimeout(function() {
         cb(null, fakeId);
