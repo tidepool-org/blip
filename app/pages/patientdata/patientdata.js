@@ -90,6 +90,10 @@ var PatientData = React.createClass({
         dailyLinkClass = null;
         weeklyLinkClass = 'patient-data-subnav-active';
       }
+      else if (this.state.chartType === 'settings') {
+        dailyLinkClass = null;
+        weeklyLinkClass = null;
+      }
 
       /* jshint ignore:start */
       left = (
@@ -107,13 +111,13 @@ var PatientData = React.createClass({
       /* jshint ignore:start */
       center = (
         <div>
-          <a href="" onClick={this.handlePanBack} className={this.state.inTransition ? "patient-data-subnav-disabled" : ""}>
+          <a href="" onClick={this.handlePanBack} className={(this.state.inTransition || (this.state.chartType === 'settings')) ? "patient-data-subnav-disabled" : ""}>
             <i className="icon-back"></i>
           </a>
           <div className="patient-data-subnav-text patient-data-subnav-text-dates">
             {this.state.title}
           </div>
-          <a href="" onClick={this.handlePanForward} className={(this.state.atMostRecent || this.state.inTransition) ? "patient-data-subnav-disabled" : ""}>
+          <a href="" onClick={this.handlePanForward} className={(this.state.atMostRecent || this.state.inTransition || (this.state.chartType === 'settings')) ? "patient-data-subnav-disabled" : ""}>
             <i className="icon-next"></i>
           </a>
         </div>
@@ -245,7 +249,23 @@ var PatientData = React.createClass({
       return null;
     }
 
-    var right;
+    var settingsLinkClass;
+    if (this.state.chartType === 'settings') {
+      settingsLinkClass = 'patient-data-subnav-active';
+    }
+    else {
+      settingsLinkClass = null;
+    }
+
+    var left, right;
+
+    /* jshint ignore:start */
+    left = (
+      <a href="" onClick={this.handleSwitchToSettings} className={settingsLinkClass}>
+      Device settings
+      </a>
+    );
+    /* jshint ignore:end */
 
     if (this.state.chartType === 'weekly') {
       var toggleText = 'Show values';
@@ -268,6 +288,7 @@ var PatientData = React.createClass({
         <div className="container-box-inner patient-data-footer-inner">
           <div className="grid patient-data-footer">
             <div className="grid-item one-whole medium-one-half patient-data-footer-left">
+              {left}
             </div>
             <div className="grid-item one-whole medium-one-half patient-data-footer-right">
               {right}
@@ -296,16 +317,35 @@ var PatientData = React.createClass({
       e.preventDefault();
     }
 
+    var datetimeLocation;
+
     if (this.state.chartType === 'weekly') {
       return;
     }
+    else if (this.state.chartType === 'daily') {
+      datetimeLocation = this.refs.chart.getCurrentDay().toISOString();
+    }
 
-    var datetimeLocation = this.refs.chart.getCurrentDay();
-    datetimeLocation = datetimeLocation.toISOString();
     this.setState({
       chartType: 'weekly',
       datetimeLocation: datetimeLocation,
       showingValuesWeekly: false
+    });
+  },
+
+  handleSwitchToSettings: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+
+    if (this.state.chartType === 'settings') {
+      return;
+    }
+
+    this.setState({
+      chartType: 'settings',
+      datetimeLocation: null,
+      title: 'Current settings'
     });
   },
 
@@ -363,6 +403,10 @@ var PatientData = React.createClass({
     else if (d && d.length >= 2 && this.state.chartType === 'weekly') {
       title = this.getTitleWeekly(d);
       datetimeLocation = d[1];
+    }
+    else if (this.state.chartType === 'settings') {
+      title = this.getTitleSettings();
+      datetimeLocation = null;
     }
     else {
       throw new Error('Expected an array of datetime locations');
@@ -422,6 +466,10 @@ var PatientData = React.createClass({
     var start = moment.utc(d[0]).format(this.CHARTWEEKLY_TITLE_DATE_FORMAT);
     var end = moment.utc(d[1]).format(this.CHARTWEEKLY_TITLE_DATE_FORMAT);
     return start + ' - ' + end;
+  },
+
+  getTitleSettings: function() {
+    return 'Current settings';
   },
 
   handleWeeklySelectDataPoint: function(datetimeLocation) {
