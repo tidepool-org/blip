@@ -404,6 +404,10 @@ var PatientData = React.createClass({
       title = this.getTitleWeekly(d);
       datetimeLocation = d[1];
     }
+    else if (this.state.chartType === 'settings') {
+      title = this.getTitleSettings();
+      datetimeLocation = null;
+    }
     else {
       throw new Error('Expected an array of datetime locations');
     }
@@ -462,6 +466,10 @@ var PatientData = React.createClass({
     var start = moment.utc(d[0]).format(this.CHARTWEEKLY_TITLE_DATE_FORMAT);
     var end = moment.utc(d[1]).format(this.CHARTWEEKLY_TITLE_DATE_FORMAT);
     return start + ' - ' + end;
+  },
+
+  getTitleSettings: function() {
+    return 'Current settings';
   },
 
   handleWeeklySelectDataPoint: function(datetimeLocation) {
