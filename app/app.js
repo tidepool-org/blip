@@ -686,7 +686,9 @@ var AppComponent = React.createClass({
   },
 
   processPatientData: function(data) {
-    return chartUtil.processData(data);
+    var processData = chartUtil.processData(data);
+    window.tidelineData = processData;
+    return  processData;
   },
 
   fetchCurrentPatientData: function() {
