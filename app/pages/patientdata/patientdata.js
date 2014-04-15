@@ -90,6 +90,10 @@ var PatientData = React.createClass({
         dailyLinkClass = null;
         weeklyLinkClass = 'patient-data-subnav-active';
       }
+      else if (this.state.chartType === 'settings') {
+        dailyLinkClass = null;
+        weeklyLinkClass = null;
+      }
 
       /* jshint ignore:start */
       left = (
@@ -107,13 +111,13 @@ var PatientData = React.createClass({
       /* jshint ignore:start */
       center = (
         <div>
-          <a href="" onClick={this.handlePanBack} className={this.state.inTransition ? "patient-data-subnav-disabled" : ""}>
+          <a href="" onClick={this.handlePanBack} className={(this.state.inTransition || (this.state.chartType === 'settings')) ? "patient-data-subnav-disabled" : ""}>
             <i className="icon-back"></i>
           </a>
           <div className="patient-data-subnav-text patient-data-subnav-text-dates">
             {this.state.title}
           </div>
-          <a href="" onClick={this.handlePanForward} className={(this.state.atMostRecent || this.state.inTransition) ? "patient-data-subnav-disabled" : ""}>
+          <a href="" onClick={this.handlePanForward} className={(this.state.atMostRecent || this.state.inTransition || (this.state.chartType === 'settings')) ? "patient-data-subnav-disabled" : ""}>
             <i className="icon-next"></i>
           </a>
         </div>
@@ -245,11 +249,19 @@ var PatientData = React.createClass({
       return null;
     }
 
+    var settingsLinkClass;
+    if (this.state.chartType === 'settings') {
+      settingsLinkClass = 'patient-data-subnav-active';
+    }
+    else {
+      settingsLinkClass = null;
+    }
+
     var left, right;
 
     /* jshint ignore:start */
     left = (
-      <a href="" onClick={this.handleSwitchToSettings}>
+      <a href="" onClick={this.handleSwitchToSettings} className={settingsLinkClass}>
       Device settings
       </a>
     );
@@ -305,12 +317,13 @@ var PatientData = React.createClass({
       e.preventDefault();
     }
 
+    var datetimeLocation;
+
     if (this.state.chartType === 'weekly') {
       return;
     }
     else if (this.state.chartType === 'daily') {
-      var datetimeLocation = this.refs.chart.getCurrentDay();
-      datetimeLocation = datetimeLocation.toISOString();
+      datetimeLocation = this.refs.chart.getCurrentDay().toISOString();
     }
 
     this.setState({
@@ -331,7 +344,8 @@ var PatientData = React.createClass({
 
     this.setState({
       chartType: 'settings',
-      datetimeLocation: null
+      datetimeLocation: null,
+      title: 'Current settings'
     });
   },
 
