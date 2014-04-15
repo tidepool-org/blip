@@ -137,6 +137,42 @@ var Preprocess = {
     }, this);
   },
 
+  basalSchedulesToArray: function(basalSchedules) {
+    var schedules = [];
+    for(var key in basalSchedules) {
+      schedules.push({
+        'name': key,
+        'value': basalSchedules[key]
+      });
+    }
+    return schedules;
+  },
+
+  sortBasalSchedules: function(data) {
+    return _.map(data, function(d) {
+      var schedules;
+      if (d.type === 'settings') {
+        schedules = this.basalSchedulesToArray(d.basalSchedules);
+        if (d.source === 'carelink') {
+          for (var i = 0; i < schedules.length; i++) {
+            if (schedules[i].name === 'standard') {
+              var standard = schedules[i];
+              var index = schedules.indexOf(standard);
+              schedules.splice(index, 1);
+              schedules.unshift(standard);
+              break;
+            }
+          }
+        }
+        d.basalSchedules = schedules;
+        return d;
+      }
+      else {
+        return d;
+      }
+    }, this);
+  },
+
   processData: function(data) {
     if (!(data && data.length)) {
       log('Unexpected data input, defaulting to empty array.');
@@ -147,6 +183,7 @@ var Preprocess = {
     data = this.mungeBasals(data);
     data = this.runWatson(data);
     data = this.translateMmol(data);
+    data = this.sortBasalSchedules(data);
 
     var tidelineData = this.checkRequired(new TidelineData(data));
 

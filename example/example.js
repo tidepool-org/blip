@@ -114,7 +114,7 @@ d3.json('data/blip-output.json', function(data) {
     $('.two-week').css('visibility', 'hidden');
     $('#tidelineLabel').css('visibility', 'hidden');
 
-    settings.draw(data);
+    settings.load(data);
   });
 
   $('#oneDayView').on('click', function() {
@@ -146,7 +146,7 @@ d3.json('data/blip-output.json', function(data) {
       twoWeek.clear().load(data);
     }
     else {
-      oneDay.clear().locate();
+      oneDay.clear().show().locate();
     }
     $('#mostRecent').parent().addClass('active');
     $('#deviceSettings').parent().removeClass('active');
