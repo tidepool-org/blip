@@ -27,7 +27,7 @@ var _ = require('lodash');
 var fx = require('./fixtures');
 
 var tideline = require('../js/index');
-var BasalUtil = tideline.data.SegmentUtil;
+var segmentUtil = tideline.data.SegmentUtil;
 
 describe('segmentutil.js under different data scenarios', function () {
   fx.forEach(testData);
@@ -35,7 +35,7 @@ describe('segmentutil.js under different data scenarios', function () {
 
 function testData (data) {
   var name = data.name;
-  var basal = new BasalUtil(data.json);
+  var basal = segmentUtil(data.json);
   describe(name, function() {
     it('should be an array', function() {
       assert.isArray(data.json);
@@ -197,3 +197,33 @@ function testData (data) {
     });
   });
 }
+
+describe('segmentUtil.js', function(){
+  it('Doesn\'t choke on starting temp basa', function(){
+    var segs = segmentUtil(
+      [
+        {
+          type: 'basal',
+          deliveryType: 'temp',
+          deviceTime: '2014-01-01',
+          start: '2014-01-01',
+          end: '2014-01-02',
+          percent: 0.6
+        }
+      ]);
+
+    expect(segs.undelivered).is.empty;
+
+    expect(segs.actual).length(1);
+    expect(segs.actual[0]).is.deep.equal(
+      {
+        type: 'basal',
+        deliveryType: 'temp',
+        deviceTime: '2014-01-01',
+        start: '2014-01-01',
+        end: '2014-01-02',
+        percent: 0.6,
+        vizType: 'actual'
+      });
+  })
+});
