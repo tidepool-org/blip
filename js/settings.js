@@ -44,30 +44,30 @@ module.exports = function(emitter, opts) {
       'bgTarget': 'BG Target'
     },
     'rowHeadersByType': {
-      'basalSchedules': ['Start time', 'Value U/hr'],
+      'basalSchedules': ['Start time', 'Value (U/hr)'],
       // TODO: 
       'basalScheduleSum': ['Total', (function() { return 0.0; }())],
-      'carbRatio': ['Start time', 'Value g/U'],
-      'insulinSensitivity': ['Start time', 'Value mg/dL/U'],
-      'bgTarget': ['Start time', 'Low', 'High']
+      'carbRatio': ['Start time', 'Value (g/U)'],
+      'insulinSensitivity': ['Start time', 'Value (' + opts.bgUnits + '/U)'],
+      'bgTarget': ['Start time', 'Low (' + opts.bgUnits + ')', 'High (' + opts.bgUnits + ')']
     },
     'mapsByType': {
       'basalSchedules': {
         'start': msStartString,
-        'rate': function(x) { return x + ' U/hr'; }
+        'rate': function(x) { return x.toFixed(3); }
       },
       'carbRatio': {
         'start': msStartString,
-        'amount': function(x) { return x + ' g/U'; }
+        'amount': function(x) { return x; }
       },
       'insulinSensitivity': {
         'start': msStartString,
-        'amount': function(x) { return x + ' ' + opts.bgUnits + '/U'; }
+        'amount': function(x) { return x; }
       },
       'bgTarget': {
         'start': msStartString,
-        'low': function(x) { return x + ' ' + opts.bgUnits; },
-        'high': function(x) { return x + ' ' + opts.bgUnits; }
+        'low': function(x) { return x; },
+        'high': function(x) { return x; }
       }
     }
   };
@@ -171,7 +171,7 @@ module.exports = function(emitter, opts) {
         'class': 'd3-settings-table-row-data'
       });
     if (datatype === 'basal') {
-      var sum = ['Total', basalUtil.scheduleTotal(data)];
+      var sum = ['Total', basalUtil.scheduleTotal(data).toFixed(3)];
       log(data);
       table.append('tr')
         .selectAll('th')
