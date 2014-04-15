@@ -210,8 +210,8 @@ var Chart = React.createClass({
     return this.chart.hideValues();
   },
 
-  createMessageThread: function(id) {
-    return this.chart.createMessage(id);
+  createMessageThread: function(message) {
+    return this.chart.createMessage(message);
   },
 
   closeMessageThread: function() {
