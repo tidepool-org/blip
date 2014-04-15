@@ -200,10 +200,6 @@ describe('basal utilities', function() {
       };
       expect(basal.subtotal(endpoints)).to.equal(5.4);
     });
-
-    it('should return a number on a 14-day span of data', function() {
-
-    });
   });
 
   describe('isContinuous', function() {
@@ -245,6 +241,54 @@ describe('basal utilities', function() {
 
     it('should return 1.2 on a rate of 0.8U for 1.5 hours', function() {
       expect(basal.segmentDose(MS_IN_HOUR * 1.5, 0.8)).to.equal(1.2);
+    });
+  });
+
+  describe('scheduleTotal', function() {
+    var basal = new BasalUtil(_.findWhere(fx, {'name': 'current-demo'}).json);
+
+    it('should be a function', function() {
+      assert.isFunction(basal.scheduleTotal);
+    });
+
+    it('should return NaN on an empty array', function() {
+      expect(isNaN(basal.scheduleTotal([]))).to.be.true;
+    });
+
+    it('should return 24 on a schedule of 1.0 U/hr for 24 hours', function() {
+      var schedule = [{
+        'start': 0,
+        'rate': 1.0
+      }];
+      expect(basal.scheduleTotal(schedule)).to.equal(24.0);
+    });
+
+    it('should return 11.1 on given schedule', function() {
+      var schedule = [{
+        'start': 0,
+        'rate': 0.450,
+      },
+      {
+        'start': 2 * MS_IN_HOUR,
+        'rate': 0.350
+      },
+      {
+        'start': 4 * MS_IN_HOUR,
+        'rate': 0.450
+      },
+      {
+        'start': 5 * MS_IN_HOUR,
+        'rate': 0.5
+      },
+      {
+        'start': 6 * MS_IN_HOUR,
+        'rate': 0.6
+      },
+      {
+        'start': 9 * MS_IN_HOUR,
+        'rate': 0.450
+      }];
+      expect(basal.scheduleTotal(schedule)).to.equal(11.1);
     });
   });
 });

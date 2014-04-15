@@ -41,11 +41,13 @@ function settingsFactory(el, options) {
     return page;
   };
 
-  page.draw = function(data) {
+  page.load = function(data) {
     page.data(data).render();
+
+    return page;
   };
 
-  page.type = 'weekly';
+  page.type = 'settings';
 
   return create(el, options);
 }

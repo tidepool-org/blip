@@ -27,6 +27,24 @@ var MS_IN_DAY = 86400000;
 
 function BasalUtil(data) {
 
+  this.scheduleTotal = function(schedule) {
+    if ((! (schedule && Array.isArray(schedule) && schedule.length > 0))) {
+      return NaN;
+    }
+    var total = 0, duration;
+    schedule.push({
+      'start': MS_IN_DAY
+    });
+    for (var i = 1; i <= schedule.length - 1; i++) {
+      duration = schedule[i].start - schedule[i - 1].start;
+      total += this.segmentDose(duration, schedule[i - 1].rate);
+    }
+
+    schedule.pop();
+
+    return format.fixFloatingPoint(total);
+  };
+
   this.segmentDose = function(duration, rate) {
     var hours = duration / MS_IN_HOUR;
     return format.fixFloatingPoint(hours * rate);
