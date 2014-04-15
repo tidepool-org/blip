@@ -44,6 +44,7 @@ module.exports = function(options){
           }
 
           if (res.status === 200) {
+            window.inData = res.body;
             Rx.Observable.fromArray(res.body)
               .tidepoolConvertBasal()
               .tidepoolConvertBolus()
@@ -68,6 +69,7 @@ module.exports = function(options){
               .toArray()
               .subscribe(
               function(data) {
+                window.theData = data;
                 cb(null, data);
               },
               cb
