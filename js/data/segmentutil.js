@@ -76,14 +76,14 @@ module.exports = function(data){
         e.end = e.start;
       }
 
+      var lastActual = actuals.peek();
+      if (lastActual == null) {
+        addToActuals(e);
+        return;
+      }
+
       switch(e.deliveryType) {
         case 'scheduled':
-          var lastActual = actuals.peek();
-          if (lastActual == null) {
-            addToActuals(e);
-            return;
-          }
-
           switch(lastActual.deliveryType) {
             case 'scheduled':
               if (lastActual.end <= e.start) {
@@ -159,7 +159,7 @@ module.exports = function(data){
         case 'temp':
           var eventToAdd = e;
           if (eventToAdd.percent != null) {
-            eventToAdd = _.assign({}, e, {value: e.percent * actuals.peek().value});
+            eventToAdd = _.assign({}, e, {value: e.percent * lastActual.value});
           }
           addToActuals(eventToAdd).map(addLinkFn(eventToAdd)).forEach(addToUndelivered);
           break;
