@@ -110,10 +110,10 @@ module.exports = function(emitter, opts) {
 
     if (type === 'basal'){
       var basalSchedules = container.currentSettings().basalSchedules;
-      var scheduleLabels = Object.keys(basalSchedules);
+      var scheduleLabels = _.pluck(basalSchedules, 'name');
       // remove any basal schedules that are just an empty array
       for (var k = 0; k < scheduleLabels.length; k++) {
-        if (basalSchedules[scheduleLabels[k]].length === 0) {
+        if (_.findWhere(basalSchedules, {'name': scheduleLabels[k]}).value.length === 0) {
           scheduleLabels.splice(k, 1);
         }
       }
@@ -251,8 +251,11 @@ module.exports = function(emitter, opts) {
     }
     // basal rates
     else {
+
       container.tableHeaders(columnTable, opts.rowHeadersByType.basalSchedules)
-        .tableRows(columnTable, container.currentSettings().basalSchedules[datatype], 'basal')
+        .tableRows(columnTable,
+          _.findWhere(container.currentSettings().basalSchedules, {'name': datatype}).value,
+          'basal')
         .renderRows(columnTable, opts.mapsByType.basalSchedules);
     }
 
@@ -260,7 +263,6 @@ module.exports = function(emitter, opts) {
   };
 
   container.render = function() {
-    console.log(container.currentSettings());
     _.each(Object.keys(opts.sections), function(key) {
       container.section(key, opts.sections[key].label, opts.sections[key].columnTypes.length);
     }, container);

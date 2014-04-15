@@ -36,6 +36,8 @@ var data = require('../example/data/device-data.json');
 
 var Preprocess = require('../plugins/data/preprocess/');
 
+var settings = require('./fixtures/settings');
+
 describe('Preprocess', function() {
   describe('REQUIRED_TYPES', function() {
     it('should be an array', function() {
@@ -158,6 +160,130 @@ describe('Preprocess', function() {
         'value': 99
       }]);
     });
+  });
+
+  describe('basalSchedulesToArray', function() {
+    var basalSchedules = {
+        'pattern b': [],
+        'pattern a': [
+            {
+                'start': 0,
+                'rate': 0.95
+              },
+              {
+                'start': 3600000,
+                'rate': 0.9
+              },
+              {
+                'start': 10800000,
+                'rate': 1
+              },
+              {
+                'start': 14400000,
+                'rate': 1
+              },
+              {
+                'start': 18000000,
+                'rate': 1.1
+              },
+              {
+                'start': 21600000,
+                'rate': 1.15
+              },
+              {
+                'start': 32400000,
+                'rate': 1.05
+              },
+              {
+                'start': 54000000,
+                'rate': 1.1
+              },
+              {
+                'start': 61200000,
+                'rate': 1.05
+              }
+            ],
+            'standard': [
+              {
+                'start': 0,
+                'rate': 0.8
+              },
+              {
+                'start': 3600000,
+                'rate': 0.75
+              },
+              {
+                'start': 10800000,
+                'rate': 0.85
+              },
+              {
+                'start': 14400000,
+                'rate': 0.9
+              },
+              {
+                'start': 18000000,
+                'rate': 0.9
+              },
+              {
+                'start': 21600000,
+                'rate': 0.95
+              },
+              {
+                'start': 32400000,
+                'rate': 0.9
+              },
+              {
+                'start': 54000000,
+                'rate': 0.95
+              },
+              {
+                'start': 61200000,
+                'rate': 0.9
+              }
+            ]
+          };
+    it('should be a function', function() {
+      assert.isFunction(Preprocess.basalSchedulesToArray);
+    });
+    
+    it('should return an array', function() {
+      assert.isArray(Preprocess.basalSchedulesToArray(basalSchedules));
+    });
+
+    it('should return an array composed of objects with name and value keys', function() {
+      var keys = ['name', 'value'];
+      expect(Object.keys(Preprocess.basalSchedulesToArray(basalSchedules)[0])).to.eql(keys);
+    });
+
+    it('should return an array of objects where the value of each is identical to the values of the object passed in', function() {
+      var keys = Object.keys(basalSchedules);
+      var processed = Preprocess.basalSchedulesToArray(basalSchedules);
+      for (var i = 0; i < keys.length; i++) {
+        expect(processed[i].value).to.eql(basalSchedules[keys[i]]);
+      }
+    });
+  });
+
+  describe('sortBasalSchedules', function() {
+    it('should be a function', function() {
+      assert.isFunction(Preprocess.sortBasalSchedules);
+    });
+
+    it('should return an array', function() {
+      assert.isArray(Preprocess.sortBasalSchedules(settings));
+    });
+
+    it('should have `standard` first if `standard` exists', function() {
+      for (var j = 0; j < settings.length; j++) {
+        // console.log(res[j].basalSchedules);
+        var standard = _.findWhere(settings[j].basalSchedules, {'name': 'standard'});
+        if (standard) {
+          expect(settings[j].basalSchedules.indexOf(standard)).to.equal(0);
+        }
+      }
+    });
+
+    // TODO: add test for alpha sort order otherwise
   });
 
   describe('processData', function() {
