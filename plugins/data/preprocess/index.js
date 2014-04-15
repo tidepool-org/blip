@@ -99,7 +99,7 @@ var Preprocess = {
       return retVal;
     });
 
-    log('Excluded:', counts.excluded);
+    log('Excluded:', counts.excluded || 0);
     log('# of data points', nonZeroData.length);
     log('Data types:', counts.included);
 
