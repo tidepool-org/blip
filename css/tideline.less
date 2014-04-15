@@ -29,6 +29,7 @@
 @font-size-puddle-head: 16px;
 @font-size-puddle-lead: 14px;
 @font-size-puddle-number: 24px;
+@font-size-settings: 14px;
 
 svg {
   display: block;
@@ -381,31 +382,28 @@ svg {
   width: 2/9 * 100%;
 }
 
-.d3-settings-section-bolus {
+.d3-settings-section-wizard {
   width: 7/9 * 100%;
 }
 
-.d3-settings-carb-ratio,
-.d3-settings-insulin-sensitivity {
+#carbRatioSettings, #insulinSensitivitySettings {
   width: 2/7 * 100%;
 }
 
-.d3-settings-bg-target {
+#bgTargetSettings {
   width: 3/7 * 100%;
 }
 
 .d3-settings-section-label {
-    padding-left: 5px;
-    padding-right: 5px;
-    padding-top: 10px;
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-top: 10px;
+  text-transform: uppercase;
+  color: @text;
 }
 
 .d3-settings-col {
   padding: 5px 5px;
-}
-
-.d3-settings-section-label {
-  color: @text;
 }
 
 .d3-settings-col table {
@@ -419,28 +417,36 @@ svg {
   font-weight: bold;
   color: #fff;
   background: #ccc;
+  cursor: pointer;
 }
 
 .d3-settings-basal-schedule .d3-settings-col-label {
   text-transform: capitalize;
   background: @settings-label-fill-basal-schedule;
+  &.d3-settings-col-active + table {
+    display: table;
+  }
+  &.d3-settings-col-collapsed + table {
+    display: none;
+  }
 }
 
-.d3-settings-carb-ratio .d3-settings-col-label {
+#carbRatioSettings .d3-settings-col-label {
   background: @settings-label-fill-carb-ratio;
 }
 
-.d3-settings-insulin-sensitivity .d3-settings-col-label {
+#insulinSensitivitySettings .d3-settings-col-label {
   background: @settings-label-fill-insulin-sensitivity;
 }
 
-.d3-settings-bg-target .d3-settings-col-label {
+#bgTargetSettings .d3-settings-col-label {
   background: @settings-label-fill-bg-target;
 }
 
 .d3-settings-table-head {
   padding: 5px 5px;
   padding-top: 10px;
+  text-align: center;
 }
 
 .d3-settings-start-time {
@@ -457,5 +463,11 @@ svg {
 }
 
 .d3-settings-table-footer {
-  height: 15px;
+  height: 10px;
+}
+
+.d3-settings-col-label,
+.d3-settings-table-head,
+.d3-settings-table-row-data td {
+  font-size: @font-size-settings;
 }

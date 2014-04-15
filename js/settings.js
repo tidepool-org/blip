@@ -45,6 +45,8 @@ module.exports = function(emitter, opts) {
     },
     'rowHeadersByType': {
       'basalSchedules': ['Start time', 'Value U/hr'],
+      // TODO: 
+      'basalScheduleSum': ['Total', (function() { return 0.0; }())],
       'carbRatio': ['Start time', 'Value g/U'],
       'insulinSensitivity': ['Start time', 'Value mg/dL/U'],
       'bgTarget': ['Start time', 'Low', 'High']
@@ -52,7 +54,7 @@ module.exports = function(emitter, opts) {
     'mapsByType': {
       'basalSchedules': {
         'start': msStartString,
-        'rate': function(x) { return x; }
+        'rate': function(x) { return x + ' U/hr'; }
       },
       'carbRatio': {
         'start': msStartString,
@@ -72,7 +74,7 @@ module.exports = function(emitter, opts) {
 
   _.defaults(opts, defaults);
 
-  var settings, mainDiv;
+  var settings, basalUtil, mainDiv;
 
   function container(selection) {
     mainDiv = selection.append('div')
@@ -89,6 +91,7 @@ module.exports = function(emitter, opts) {
     if (!arguments.length) return settings;
 
     settings = data.grouped.settings;
+    basalUtil = data.basalUtil;
     return container;
   };
 
@@ -108,17 +111,37 @@ module.exports = function(emitter, opts) {
     if (type === 'basal'){
       var basalSchedules = container.currentSettings().basalSchedules;
       var scheduleLabels = Object.keys(basalSchedules);
-      for (var i = 0; i < scheduleLabels.length; i++) {
-        if (basalSchedules[scheduleLabels[i]].length > 0) {
-          container.column(sectionDiv, scheduleLabels[i]);
+      // remove any basal schedules that are just an empty array
+      for (var k = 0; k < scheduleLabels.length; k++) {
+        if (basalSchedules[scheduleLabels[k]].length === 0) {
+          scheduleLabels.splice(k, 1);
         }
       }
+      sectionDiv.classed('d3-settings-section-basal', true);
+      container.column(sectionDiv, scheduleLabels[0], 'd3-settings-col-active');
+      for (var i = 1; i < scheduleLabels.length; i++) {
+        container.column(sectionDiv, scheduleLabels[i]);
+      }
     }
-    else {
+    else if (type === 'wizard') {
+      sectionDiv.classed('d3-settings-section-wizard', true);
       for (var j = 0; j < numColumns; j++) {
         container.column(sectionDiv, opts.sections[type].columnTypes[j]);
       }
     }
+
+    mainDiv.selectAll('.d3-settings-basal-schedule').selectAll('.d3-settings-col-label')
+      .on('click', function() {
+        mainDiv.selectAll('table.d3-settings-col-active')
+          .classed({
+            'd3-settings-col-active': false,
+            'd3-settings-col-collapsed': true
+          });
+        d3.select(this).classed({
+          'd3-settings-col-active': true,
+          'd3-settings-col-collapsed': false
+        });
+      });
 
     return container;
   };
@@ -139,7 +162,7 @@ module.exports = function(emitter, opts) {
     return container;
   };
 
-  container.tableRows = function(table, data) {
+  container.tableRows = function(table, data, datatype) {
     table.selectAll('tr.d3-settings-table-row-data')
       .data(data)
       .enter()
@@ -147,6 +170,23 @@ module.exports = function(emitter, opts) {
       .attr({
         'class': 'd3-settings-table-row-data'
       });
+    if (datatype === 'basal') {
+      var sum = ['Total', basalUtil.scheduleTotal(data)];
+      log(data);
+      table.append('tr')
+        .selectAll('th')
+        .data(sum)
+        .enter()
+        .append('th')
+        .attr({
+          'class': 'd3-settings-table-head'
+        })
+        .text(function(d) {
+          return d;
+        });
+    }
+    table.append('tr')
+      .attr('class', 'd3-settings-table-footer');
 
     return container;
   };
@@ -158,14 +198,11 @@ module.exports = function(emitter, opts) {
         .append('td')
         .attr('class', function(d) {
           if (keys[i] === 'start') {
-            return 'd3-settings-start-time'
+            return 'd3-settings-start-time';
           }
         })
         .text(function(d) {
           var key = keys[i];
-          if (d[key] === 0) {
-            console.log(map[key](d[key]));
-          }
           return map[key](d[key]);
         });
     }
@@ -173,7 +210,7 @@ module.exports = function(emitter, opts) {
     return container;
   };
 
-  container.column = function(selection, datatype) {
+  container.column = function(selection, datatype, scheduleClass) {
     var columnDiv = selection.append('div')
       .attr({
         'id': datatype.replace(' ', '_') + 'Settings',
@@ -190,15 +227,20 @@ module.exports = function(emitter, opts) {
     // basal rates
     else {
       columnDiv.classed({
-        'd3-settings-col': false,
-        'd3-settings-basal-col': true
+        'd3-settings-basal-schedule': true
       });
       columnDiv.append('div')
-        .attr({
-          'class': 'd3-settings-basal-schedule-label'
+        .attr('class', function() {
+          if (scheduleClass) {
+            return 'd3-settings-col-label ' + scheduleClass;
+          }
+          else {
+            return 'd3-settings-col-label d3-settings-col-collapsed';
+          }
         })
         .text(datatype);
     }
+
     var columnTable = columnDiv.append('table');
 
     // all but basal rates
@@ -210,7 +252,7 @@ module.exports = function(emitter, opts) {
     // basal rates
     else {
       container.tableHeaders(columnTable, opts.rowHeadersByType.basalSchedules)
-        .tableRows(columnTable, container.currentSettings().basalSchedules[datatype])
+        .tableRows(columnTable, container.currentSettings().basalSchedules[datatype], 'basal')
         .renderRows(columnTable, opts.mapsByType.basalSchedules);
     }
 
@@ -222,10 +264,37 @@ module.exports = function(emitter, opts) {
     _.each(Object.keys(opts.sections), function(key) {
       container.section(key, opts.sections[key].label, opts.sections[key].columnTypes.length);
     }, container);
+
+    mainDiv.selectAll('.d3-settings-col-label')
+      .on('click', function() {
+        mainDiv.selectAll('.d3-settings-col-label')
+          .classed({
+            'd3-settings-col-active': false,
+            'd3-settings-col-collapsed': true
+          });
+        d3.select(this).classed({
+          'd3-settings-col-active': true,
+          'd3-settings-col-collapsed': false
+        });
+      });
+
+    return container;
   };
 
   container.clear = function() {
     mainDiv.selectAll('div').remove();
+
+    return container;
+  };
+
+  container.hide = function() {
+    // for API identity with oneday
+    return container;
+  };
+
+  container.show = function() {
+    // for API identity with oneday
+    return container;
   };
 
   return container;
