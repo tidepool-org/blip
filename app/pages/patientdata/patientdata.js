@@ -245,7 +245,15 @@ var PatientData = React.createClass({
       return null;
     }
 
-    var right;
+    var left, right;
+
+    /* jshint ignore:start */
+    left = (
+      <a href="" onClick={this.handleSwitchToSettings}>
+      Device settings
+      </a>
+    );
+    /* jshint ignore:end */
 
     if (this.state.chartType === 'weekly') {
       var toggleText = 'Show values';
@@ -268,6 +276,7 @@ var PatientData = React.createClass({
         <div className="container-box-inner patient-data-footer-inner">
           <div className="grid patient-data-footer">
             <div className="grid-item one-whole medium-one-half patient-data-footer-left">
+              {left}
             </div>
             <div className="grid-item one-whole medium-one-half patient-data-footer-right">
               {right}
@@ -299,13 +308,30 @@ var PatientData = React.createClass({
     if (this.state.chartType === 'weekly') {
       return;
     }
+    else if (this.state.chartType === 'daily') {
+      var datetimeLocation = this.refs.chart.getCurrentDay();
+      datetimeLocation = datetimeLocation.toISOString();
+    }
 
-    var datetimeLocation = this.refs.chart.getCurrentDay();
-    datetimeLocation = datetimeLocation.toISOString();
     this.setState({
       chartType: 'weekly',
       datetimeLocation: datetimeLocation,
       showingValuesWeekly: false
+    });
+  },
+
+  handleSwitchToSettings: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+
+    if (this.state.chartType === 'settings') {
+      return;
+    }
+
+    this.setState({
+      chartType: 'settings',
+      datetimeLocation: null
     });
   },
 
