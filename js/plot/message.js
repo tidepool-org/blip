@@ -30,52 +30,84 @@ module.exports = function(pool, opts) {
 
   _.defaults(opts, defaults);
 
-  function cbg(selection) {
+  var mainGroup = pool.group();
+
+  function message(selection) {
     opts.xScale = pool.xScale().copy();
+    
+    message.setUpMessageCreation();
+
     selection.each(function(currentData) {
       var messages = d3.select(this)
-        .selectAll('image')
+        .selectAll('g')
         .data(currentData, function(d) {
-          if (d.parentMessage === '') {
+          if (d.parentMessage === '' || d.parentMessage == null) {
             return d._id;
           }
         });
+
       var messageGroups = messages.enter()
         .append('g')
         .attr('class', 'd3-message-group');
-      messageGroups.append('rect')
-        .attr({
-          'x': function(d) {
-            return opts.xScale(Date.parse(d.normalTime)) - opts.size / 2 - 4;
-          },
-          'y': pool.height() / 2 - opts.size / 2 - 4,
-          'width': opts.size + 8,
-          'height': opts.size + 8,
-          'class': 'd3-rect-message hidden'
-        });
-      messageGroups.append('image')
-        .attr({
-          'xlink:href': opts.imagesBaseUrl + '/message/post_it.svg',
-          'x': function(d) {
-            return opts.xScale(Date.parse(d.normalTime)) - opts.size / 2;
-          },
-          'y': pool.height() / 2 - opts.size / 2,
-          'width': opts.size,
-          'height': opts.size,
-          'id': function(d) {
-            return 'message_' + d._id;
-          }
-        })
-        .classed({'d3-image': true, 'd3-message': true});
-      messageGroups.on('click', function(d) {
-        d3.event.stopPropagation(); // silence the click-and-drag listener
-        opts.emitter.emit('messageThread', d._id);
-        log('Message clicked!');
-        d3.select(this).selectAll('.d3-rect-message').classed('hidden', false);
-      });
+      message.addMessageToPool(messageGroups);
+
       messages.exit().remove();
     });
   }
 
-  return cbg;
+  message.addMessageToPool = function(selection) {
+    selection.append('rect')
+      .attr({
+        'x': function(d) {
+          return opts.xScale(Date.parse(d.normalTime)) - opts.size / 2 - 4;
+        },
+        'y': pool.height() / 2 - opts.size / 2 - 4,
+        'width': opts.size + 8,
+        'height': opts.size + 8,
+        'class': 'd3-rect-message hidden'
+      });
+    selection.append('image')
+      .attr({
+        'xlink:href': opts.imagesBaseUrl + '/message/post_it.svg',
+        'x': function(d) {
+          return opts.xScale(Date.parse(d.normalTime)) - opts.size / 2;
+        },
+        'y': pool.height() / 2 - opts.size / 2,
+        'width': opts.size,
+        'height': opts.size,
+        'id': function(d) {
+          return 'message_' + d._id;
+        }
+      })
+      .classed({'d3-image': true, 'd3-message': true});
+    selection.on('click', function(d) {
+      d3.event.stopPropagation(); // silence the click-and-drag listener
+      opts.emitter.emit('messageThread', d._id);
+      log('Message clicked!');
+      d3.select(this).selectAll('.d3-rect-message').classed('hidden', false);
+    });
+  };
+
+  message.setUpMessageCreation = _.once(function() {
+    log('Set up message creation listeners.');
+    mainGroup.selectAll('.d3-rect-fill').on('click', function() {
+      opts.emitter.emit('clickInPool', d3.event.offsetX);
+    });
+
+    opts.emitter.on('clickTranslatesToDate', function(date) {
+      log('Creating message at', date.toISOString().slice(0,-5));
+      opts.emitter.emit('createMessage', date.toISOString());
+    });
+
+    opts.emitter.on('messageCreated', function(obj) {
+      console.log(obj);
+      var messageGroup = mainGroup.select('#poolMessages_message')
+        .append('g')
+        .attr('class', 'd3-message-group d3-new')
+        .datum(obj);
+      message.addMessageToPool(messageGroup);
+    });
+  });
+
+  return message;
 };

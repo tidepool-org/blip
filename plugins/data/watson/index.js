@@ -48,6 +48,8 @@ module.exports = {
   normalize: function(i) {
     try {
       if (i.utcTime) {
+        // TODO: remove after removed from demo data, deprecated
+        // messages now come to blip with a normalTime
         var d = new Date(i.utcTime);
         var offsetMinutes = d.getTimezoneOffset();
         d.setMinutes(d.getMinutes() - offsetMinutes);
@@ -62,7 +64,7 @@ module.exports = {
           i.normalEnd = null;
         }
       }
-      else {
+      else if (i.normalTime == null) {
         i.normalTime = i.deviceTime + this.APPEND;
       }
       return i;

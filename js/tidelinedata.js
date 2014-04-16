@@ -25,11 +25,28 @@ var log = require('./lib/').bows('TidelineData');
 
 function TidelineData(data) {
 
+  function addAndResort(datum, a) {
+    return _.sortBy((function() {
+      a.push(datum);
+      return a;
+    }()), function(d) { return d.normalTime; });
+  }
+
+  this.createCrossFilter = function(data) {
+    this.filterData = new TidelineCrossFilter(data);
+    this.dataByDate = this.filterData.addDimension('date');
+  };
+
+  this.addDatum = function(datum) {
+    this.grouped[datum.type] = addAndResort(datum, this.grouped[datum.type]);
+    this.data = addAndResort(datum, this.data);
+    this.createCrossFilter(this.data);
+    return this;
+  };
+
   this.data = data;
 
-  this.filterData = new TidelineCrossFilter(data);
-
-  this.dataByDate = this.filterData.addDimension('date');
+  this.createCrossFilter(data);
 
   this.grouped = _.groupBy(data, function(d) { return d.type; });
 

@@ -53,6 +53,12 @@ module.exports = function(emitter) {
 
   container.dataFill = {};
 
+  emitter.on('clickInPool', function(offset) {
+    var leftEdge = xScale(xScale.domain()[0]);
+    var date = xScale.invert(leftEdge + offset - container.axisGutter());
+    emitter.emit('clickTranslatesToDate', date);
+  });
+
   function container(selection) {
     var mainSVG = selection.append('svg');
 

@@ -114,6 +114,7 @@ function chartDailyFactory(el, options) {
 
   chart.load = function(tidelineData, datetime) {
     var data = tidelineData.data;
+    chart.tidelineData = tidelineData;
 
     var basalUtil = tidelineData.basalUtil;
     var bolusUtil = tidelineData.bolusUtil;
@@ -280,6 +281,17 @@ function chartDailyFactory(el, options) {
 
   chart.getCurrentDay = function() {
     return chart.getCurrentDomain().center;
+  };
+
+  chart.createMessage = function(message) {
+    log('New message created:', message);
+    chart.tidelineData = chart.tidelineData.addDatum(message);
+    chart.data(chart.tidelineData);
+    chart.emitter.emit('messageCreated', message);
+  };
+
+  chart.closeMessage = function() {
+    d3.selectAll('.d3-rect-message').classed('hidden', true);
   };
 
   chart.type = 'daily';
