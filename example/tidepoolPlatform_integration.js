@@ -152,7 +152,6 @@ describe('platform client', function () {
     var commentOnNote;
 
     before(function (done) {
-      this.timeout(5000);
       mrT1Client.getUsersTeam(mrT1.id, function (error, team) {
         if (error) {
           done(error);
@@ -164,8 +163,6 @@ describe('platform client', function () {
     });
 
     it('allows mrT1 to add a note', function (done) {
-
-      this.timeout(5000);
 
       noteToAdd = {
         userid: mrT1.id,
@@ -185,7 +182,6 @@ describe('platform client', function () {
 
     it('and add a comment on the note', function (done) {
 
-      this.timeout(5000);
       //comment on the note
       commentOnNote = {
         userid: mrT1.id,
@@ -198,8 +194,6 @@ describe('platform client', function () {
     });
 
     it('and then get the whole thread', function (done) {
-
-      this.timeout(5000);
 
       mrT1Client.getMessageThread(noteToAddId, function (error, data) {
         expect(error).to.not.exist;
@@ -220,13 +214,16 @@ describe('platform client', function () {
 
     it('allows mrT1 to get all messages for his team for the last two weeks', function (done) {
 
-      this.timeout(5000);
 
       var twoWeeksAgo = new Date();
       twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
-      var today = new Date();
 
-      mrT1Client.getAllMessagesForTeam(mrT1.id, twoWeeksAgo, today, function (error, data) {
+      var dates = {
+        start: twoWeeksAgo ,
+        end : new Date()
+      };
+
+      mrT1Client.getAllMessagesForUser(mrT1.id, dates, function (error, data) {
 
         expect(error).to.not.exist;
         expect(data).to.exist;
@@ -237,9 +234,7 @@ describe('platform client', function () {
 
     it('allows mrT1 to get just the parent messages for his team ', function (done) {
 
-      this.timeout(5000);
-
-      mrT1Client.getNotesForTeam(mrT1.id, null, null ,function (error, data) {
+      mrT1Client.getNotesForUser(mrT1.id, null, function (error, data) {
 
         expect(error).to.not.exist;
         expect(data).to.exist;
@@ -353,7 +348,6 @@ describe('platform client', function () {
   describe('groups managment for mrT1 ', function () {
 
     it('allows him to invite another user to join the team', function (done) {
-      this.timeout(5000);
 
       mrT1Client.inviteToJoinTeam(mrT1.id, careTeamMember.id, function (error, team) {
         if (error) {
@@ -370,7 +364,6 @@ describe('platform client', function () {
     });
 
     it('which means the invited user is added to his team when they accept an invite', function (done) {
-      this.timeout(5000);
 
       mrT1Client.acceptInviteToJoinTeam(mrT1.id, careTeamMember.id, function (error, team) {
         if (error) {
@@ -387,7 +380,6 @@ describe('platform client', function () {
     });
 
     it('is added to careTeamMember patients list', function (done) {
-      this.timeout(5000);
 
       careTeamClient.addToPatients(mrT1.id, careTeamMember.id, function (error, team) {
         if (error) {
