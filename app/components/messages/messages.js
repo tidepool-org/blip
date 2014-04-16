@@ -199,8 +199,8 @@ var Messages = React.createClass({
           //set so we can display right away
           message.id = messageId;
           message.username = this.props.user.firstName;
-          //notify anyone that wants the id
-          this.props.onNewMessage(messageId);
+          //give this message to anyone that needs it
+          this.props.onNewMessage(message);
           this.setState({ messages: [message], formValues : {messageText: '', messageDateTime:''} });
         }
       }.bind(this));

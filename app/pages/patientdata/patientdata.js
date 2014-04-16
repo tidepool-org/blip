@@ -409,8 +409,8 @@ var PatientData = React.createClass({
     }
   },
 
-  handleMessageCreation: function(messageId){
-    this.refs.chart.createMessageThread(messageId);
+  handleMessageCreation: function(message){
+    this.refs.chart.createMessageThread(message);
   },
 
   handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
