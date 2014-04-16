@@ -118,6 +118,7 @@ function chartDailyFactory(el, options) {
 
   chart.load = function(tidelineData, datetime) {
     var data = tidelineData.data;
+    chart.tidelineData = tidelineData;
 
     var basalUtil = tidelineData.basalUtil;
     var bolusUtil = tidelineData.bolusUtil;
@@ -286,8 +287,11 @@ function chartDailyFactory(el, options) {
     return chart.getCurrentDomain().center;
   };
 
-  chart.createMessage = function(id) {
-    log('New message created with ID', id);
+  chart.createMessage = function(message) {
+    log('New message created:', message);
+    chart.tidelineData = chart.tidelineData.addDatum(message);
+    chart.data(chart.tidelineData);
+    chart.emitter.emit('messageCreated', message);
   };
 
   chart.closeMessage = function() {
