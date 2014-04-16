@@ -241,6 +241,7 @@ var PatientData = React.createClass({
   },
   closeMessageCreation: function(){
     this.setState({ createMessageDatetime: null });
+    this.refs.chart.closeMessageThread();
   },
   renderChart: function() {
     /* jshint ignore:start */
