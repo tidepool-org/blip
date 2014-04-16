@@ -57,7 +57,7 @@ module.exports = function(data){
     return function(event) {
       event.link = e.id;
       return event;
-    }
+    };
   }
 
   function processElement(e) {
