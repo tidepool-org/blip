@@ -47,7 +47,7 @@
         "value": 1,
         "start": "2014-02-12T06:00:00",
         "type": "basal-rate-segment",
-        "id": "ca1694c6-79e9-481f-b5c5-a296853d0e29"
+        "id": "ca1694c6-79e9-481f-b5c5-a296853d0e31"
     },
     {
         "delivered": 0.5,
@@ -57,7 +57,7 @@
         "value": 0.5,
         "start": "2014-02-12T07:30:00",
         "type": "basal-rate-segment",
-        "id": "ca1694c6-79e9-481f-b5c5-a296853d0e29"
+        "id": "ca1694c6-79e9-481f-b5c5-a296853d0e30"
     },
     {
         "delivered": 0.8,

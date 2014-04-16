@@ -39,7 +39,7 @@ SegmentUtil.prototype.getUndelivered = function(type) {
 module.exports = function(data){
   var maxTimestamp = '0000-01-01T00:00:00';
   var actuals = new Timeline(eventsSmooshable);
-  var undelivereds = {};
+  var undelivereds = { };
   var overlaps = [];
 
   function addToActuals(e) {
@@ -50,6 +50,26 @@ module.exports = function(data){
     if (undelivereds[e.deliveryType] == null) {
       undelivereds[e.deliveryType] = new Timeline(eventsSmooshable);
     }
+
+    if (e.deliveryType === 'temp' && undelivereds.scheduled != null) {
+      // If we have an undelivered temp, then that temp most likely kicked out a scheduled before.  That scheduled
+      // is going to still be associated with the temp that has now been kicked out, so we need to pull it out
+      // of the scheduled undelivereds and re-process it.
+      var scheduledArray = undelivereds.scheduled.add(e);
+      if (scheduledArray.length > 1) {
+        log('Should only get one scheduled out of the undelivereds.', scheduledArray);
+        scheduledArray.forEach(function(putBack){ undelivereds.scheduled.add(putBack); });
+      } else if (scheduledArray.length === 1) {
+        var scheduledItem = scheduledArray[0];
+        scheduledItem.link = e.link;
+        undelivereds.scheduled.add(scheduledItem);
+      }
+
+      while (undelivereds.scheduled.peek().deliveryType !== 'scheduled') {
+        undelivereds.scheduled.pop();
+      }
+    }
+
     undelivereds[e.deliveryType].add(_.extend({}, e, {vizType: 'undelivered'}));
   }
 
@@ -103,7 +123,7 @@ module.exports = function(data){
               if (lastActual.end <= e.start) {
                 // No overlap, yay!
                 addToActuals(e).map(addLinkFn(e)).forEach(addToUndelivered);
-              } else /*if (e.end <= lastActual.end)*/ {
+              } else  {
                 // The scheduled is completely obliterated by the temp.  In this case, what we actually want
                 // to do is chunk up the temp into invididual chunks to line up with the scheduled.
                 // We accomplish this by
@@ -161,7 +181,21 @@ module.exports = function(data){
           if (eventToAdd.percent != null) {
             eventToAdd = _.assign({}, e, {value: e.percent * lastActual.value});
           }
-          addToActuals(eventToAdd).map(addLinkFn(eventToAdd)).forEach(addToUndelivered);
+          var overflow = addToActuals(eventToAdd);
+          var addLink = addLinkFn(eventToAdd);
+          while (overflow.length > 0) {
+            log('overflow length:', overflow.length);
+            var event = overflow.pop();
+            if (eventToAdd.id != null && eventToAdd.id === event.id) {
+              // If the timeline kicks back out an event with an equivalent id as we just put in, then there
+              // is another event in there that is overriding us.  Given that this is a temp, we want it to
+              // win, so put it back in.
+              overflow = addToActuals(event).concat(overflow);
+            } else {
+              addToUndelivered(addLink(event));
+            }
+          }
+          log('overflow done');
           break;
         default:
           log('Unknown deliveryType, ignoring', e);
