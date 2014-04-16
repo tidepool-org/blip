@@ -43,7 +43,9 @@ module.exports = function(data){
   var overlaps = [];
 
   function addToActuals(e) {
-    return actuals.add(_.extend({}, e, {vizType: 'actual'}));
+    var theActual = _.extend({}, e, {vizType: 'actual'});
+    delete theActual.link;
+    return actuals.add(theActual);
   }
 
   function addToUndelivered(e) {
@@ -80,6 +82,21 @@ module.exports = function(data){
     };
   }
 
+  function addToActualsAndLink(e) {
+    var overflow = addToActuals(e);
+
+    var lastActual = actuals.peek();
+    var addLink;
+    if (lastActual.start <= e.start && lastActual.end >= e.end) {
+      // The event was smooshed into the last actual, so use the last actual's id for linking
+      addLink = addLinkFn(lastActual);
+    } else {
+      addLink = addLinkFn(e);
+    }
+
+    return overflow.map(addLink);
+  }
+
   function processElement(e) {
     if (e.deliveryType === 'temp' || e.deliveryType === 'scheduled') {
       if (maxTimestamp > e.start) {
@@ -108,7 +125,7 @@ module.exports = function(data){
             case 'scheduled':
               if (lastActual.end <= e.start) {
                 // No overlap!
-                addToActuals(e).map(addLinkFn(e)).forEach(addToUndelivered);
+                addToActualsAndLink(e).forEach(addToUndelivered);
               } else {
                 // scheduled overlapping a scheduled, this is known to happen when a patient used multiple
                 // pumps at the exact same time.  Which is rare, to say the least.  We want to just eliminate
@@ -122,7 +139,7 @@ module.exports = function(data){
               // A scheduled is potentially overlapping a temp, figure out what's going on.
               if (lastActual.end <= e.start) {
                 // No overlap, yay!
-                addToActuals(e).map(addLinkFn(e)).forEach(addToUndelivered);
+                addToActualsAndLink(e).forEach(addToUndelivered);
               } else  {
                 // The scheduled is completely obliterated by the temp.  In this case, what we actually want
                 // to do is chunk up the temp into invididual chunks to line up with the scheduled.
@@ -181,8 +198,8 @@ module.exports = function(data){
           if (eventToAdd.percent != null) {
             eventToAdd = _.assign({}, e, {value: e.percent * lastActual.value});
           }
-          var overflow = addToActuals(eventToAdd);
-          var addLink = addLinkFn(eventToAdd);
+          var overflow = addToActualsAndLink(eventToAdd);
+
           while (overflow.length > 0) {
             log('overflow length:', overflow.length);
             var event = overflow.pop();
@@ -190,9 +207,9 @@ module.exports = function(data){
               // If the timeline kicks back out an event with an equivalent id as we just put in, then there
               // is another event in there that is overriding us.  Given that this is a temp, we want it to
               // win, so put it back in.
-              overflow = addToActuals(event).concat(overflow);
+              overflow = addToActualsAndLink(event).concat(overflow);
             } else {
-              addToUndelivered(addLink(event));
+              addToUndelivered(event);
             }
           }
           log('overflow done');
