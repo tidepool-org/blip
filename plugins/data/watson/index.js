@@ -64,7 +64,7 @@ module.exports = {
           i.normalEnd = null;
         }
       }
-      else {
+      else if (i.normalTime == null) {
         i.normalTime = i.deviceTime + this.APPEND;
       }
       return i;
