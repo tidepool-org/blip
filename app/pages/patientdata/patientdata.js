@@ -410,7 +410,15 @@ var PatientData = React.createClass({
   },
 
   handleMessageCreation: function(message){
-    this.refs.chart.createMessageThread(message);
+    //Transform to Tideline's own format
+    var tidelineMessage = {
+        normalTime : message.timestamp,
+        messageText : message.messagetext,
+        parentMessage : message.parentmessage,
+        type: 'message',
+        _id: message.id
+    };
+    this.refs.chart.createMessageThread(tidelineMessage);
   },
 
   handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
