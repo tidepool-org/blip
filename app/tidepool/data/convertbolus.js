@@ -39,6 +39,7 @@ function dualNormalBuilder() {
   var eventBuffer = [];
   var normal = null;
   var square = null;
+  var myDeviceId = null;
   return {
     completed: function () {
       var retVal = [];
@@ -59,12 +60,19 @@ function dualNormalBuilder() {
         return null;
       }
 
+      if (myDeviceId != null && event.deviceId !== myDeviceId) {
+        eventBuffer.push(event);
+        return null;
+      }
+
       switch (event.subType) {
         case 'dual/normal':
           normal = event;
+          myDeviceId = event.deviceId;
           break;
         case 'dual/square':
           square = event;
+          myDeviceId = event.deviceId;
           break;
         default:
           eventBuffer.push(event);
@@ -75,9 +83,9 @@ function dualNormalBuilder() {
         return null;
       }
 
-      if (normal.groupId !== square.groupId) {
+      if (normal.joinKey !== square.joinKey) {
         throw new Error(
-          util.format('Mismatched joinKeys[%s][%s] at ts[%s]', normal.groupId, square.groupId, normal.deviceTime)
+          util.format('Mismatched joinKeys[%s][%s] at ts[%s]', normal.joinKey, square.joinKey, normal.deviceTime)
         );
       }
 

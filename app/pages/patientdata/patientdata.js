@@ -345,7 +345,9 @@ var PatientData = React.createClass({
     this.setState({
       chartType: 'settings',
       datetimeLocation: null,
-      title: 'Current settings'
+      title: 'Current settings',
+      // for now, settings are always at most recent
+      atMostRecent: true
     });
   },
 
