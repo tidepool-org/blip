@@ -51,12 +51,6 @@ module.exports = function(pool, opts) {
         .attr('class', 'd3-message-group');
       message.addMessageToPool(messageGroups);
 
-      messageGroups.on('click', function(d) {
-        d3.event.stopPropagation(); // silence the click-and-drag listener
-        opts.emitter.emit('messageThread', d._id);
-        log('Message clicked!');
-        d3.select(this).selectAll('.d3-rect-message').classed('hidden', false);
-      });
       messages.exit().remove();
     });
   }
@@ -86,6 +80,12 @@ module.exports = function(pool, opts) {
         }
       })
       .classed({'d3-image': true, 'd3-message': true});
+    selection.on('click', function(d) {
+      d3.event.stopPropagation(); // silence the click-and-drag listener
+      opts.emitter.emit('messageThread', d._id);
+      log('Message clicked!');
+      d3.select(this).selectAll('.d3-rect-message').classed('hidden', false);
+    });
   };
 
   message.setUpMessageCreation = _.once(function() {
