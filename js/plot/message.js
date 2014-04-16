@@ -100,7 +100,6 @@ module.exports = function(pool, opts) {
     });
 
     opts.emitter.on('messageCreated', function(obj) {
-      console.log(obj);
       var messageGroup = mainGroup.select('#poolMessages_message')
         .append('g')
         .attr('class', 'd3-message-group d3-new')
