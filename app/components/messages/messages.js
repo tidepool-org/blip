@@ -55,7 +55,7 @@ var Messages = React.createClass({
   ],
 
   formatDisplayDate : function(timestamp){
-    return moment(timestamp).format('MMMM D [at] H:MMa');
+    return moment(timestamp).format('MMMM D [at] h:mm a');
   },
 
   renderMessage: function(message){
