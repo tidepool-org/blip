@@ -172,12 +172,12 @@ d3.json('data/blip-output.json', function(data) {
 
   $('#showHideNumbers').on('click', function() {
     if ($(this).parent().hasClass('active')) {
-      twoWeek.emitter.emit('numbers', 'hide');
+      twoWeek.hideValues();
       $(this).parent().removeClass('active');
       $(this).html('Show Values');
     }
     else {
-      twoWeek.emitter.emit('numbers', 'show');
+      twoWeek.showValues();
       $(this).parent().addClass('active');
       $(this).html('Hide Values');
     }
