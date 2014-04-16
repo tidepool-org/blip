@@ -41,7 +41,7 @@ module.exports = function(pool, opts) {
       var messages = d3.select(this)
         .selectAll('g')
         .data(currentData, function(d) {
-          if (d.parentMessage === '') {
+          if (d.parentMessage === '' || d.parentMessage == null) {
             return d._id;
           }
         });
@@ -95,13 +95,17 @@ module.exports = function(pool, opts) {
     });
 
     opts.emitter.on('clickTranslatesToDate', function(date) {
+      log('Creating message at', date.toISOString().slice(0,-5));
+      opts.emitter.emit('createMessage', date.toISOString());
+    });
+
+    opts.emitter.on('messageCreated', function(obj) {
+      console.log(obj);
       var messageGroup = mainGroup.select('#poolMessages_message')
         .append('g')
         .attr('class', 'd3-message-group d3-new')
-        .datum({'normalTime': date, '_id': ''});
+        .datum(obj);
       message.addMessageToPool(messageGroup);
-      log('Creating message at', date.toISOString().slice(0,-5));
-      opts.emitter.emit('createMessage', date.toISOString());
     });
   });
 
