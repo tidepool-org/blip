@@ -31,6 +31,7 @@ var Chart = React.createClass({
     onDatetimeLocationChange: React.PropTypes.func,
     onSelectDataPoint: React.PropTypes.func,
     onShowMessageThread: React.PropTypes.func,
+    onCreateMessage: React.PropTypes.func,
     onTransition: React.PropTypes.func,
     onReachedMostRecent: React.PropTypes.func,
     imagesEndpoint: React.PropTypes.string
@@ -152,6 +153,10 @@ var Chart = React.createClass({
     if (this.props.onShowMessageThread) {
       this.chart.emitter.on('messageThread', this.props.onShowMessageThread);
     }
+
+    if (this.props.onCreateMessage) {
+      this.chart.emitter.on('createMessage', this.props.onCreateMessage);
+    }
   },
 
   show: function() {
@@ -178,7 +183,6 @@ var Chart = React.createClass({
         this.chart.clear().load(this.props.patientData);
         break;
       case 'settings':
-        return;
         break;
       default:
         throw new Error('Unknown chart type: ' + this.chart.type);
@@ -198,11 +202,19 @@ var Chart = React.createClass({
   },
 
   showValues: function() {
-    return this.chart.emitter.emit('numbers', 'show');
+    return this.chart.showValues();
   },
 
   hideValues: function() {
-    return this.chart.emitter.emit('numbers', 'hide');
+    return this.chart.hideValues();
+  },
+
+  createMessageThread: function(message) {
+    return this.chart.createMessage(message);
+  },
+
+  closeMessageThread: function() {
+    return this.chart.closeMessage();
   }
 });
 

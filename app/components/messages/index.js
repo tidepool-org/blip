@@ -1,1 +1,1 @@
-module.exports = require('./messagethread');
+module.exports = require('./messages');

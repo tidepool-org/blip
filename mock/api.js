@@ -301,11 +301,22 @@ var createPatch = function(options) {
     api.team.replyToMessageThread = function(message,cb){
       api.log('[mock] POST /message/reply ',message);
 
-      var fakeId = '99-99-ok';
+      var fakeId = _.random(0,999);
 
       setTimeout(function() {
         cb(null, fakeId);
       }, getDelayFor('api.team.replyToMessageThread'));
+
+    };
+
+    api.team.startMessageThread = function(message,cb){
+      api.log('[mock] POST /message/send');
+
+      var fakeId = _.random(1000,1999);
+
+      setTimeout(function() {
+        cb(null, fakeId);
+      }, getDelayFor('api.team.startMessageThread'));
 
     };
 

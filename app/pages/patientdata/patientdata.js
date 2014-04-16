@@ -20,17 +20,19 @@ var moment = window.moment;
 var config = window.config;
 
 var Chart = require('../../components/chart');
-var MessageThread = require('../../components/messages');
+var Messages = require('../../components/messages');
 
 var PatientData = React.createClass({
   propTypes: {
     patientData: React.PropTypes.object,
+    patient: React.PropTypes.object,
     fetchingPatientData: React.PropTypes.bool,
     isUserPatient: React.PropTypes.bool,
     uploadUrl: React.PropTypes.string,
     onRefresh: React.PropTypes.func,
     onFetchMessageThread: React.PropTypes.func,
     onSaveComment: React.PropTypes.func,
+    onCreateMessage: React.PropTypes.func,
     user: React.PropTypes.object
   },
 
@@ -44,7 +46,8 @@ var PatientData = React.createClass({
       title: this.DEFAULT_TITLE,
       datetimeLocation: null,
       showingValuesWeekly: false,
-      messages: null
+      messages: null,
+      createMessage: null
     };
   },
 
@@ -52,13 +55,13 @@ var PatientData = React.createClass({
     var subnav = this.renderSubnav();
     var patientData = this.renderPatientData();
     var footer = this.renderFooter();
-    var messageThread = this.renderMessageThread();
+    var messages = this.renderMessagesContainer();
 
     /* jshint ignore:start */
     return (
       <div className="patient-data js-patient-data-page">
         {subnav}
-        {messageThread}
+        {messages}
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
@@ -208,23 +211,37 @@ var PatientData = React.createClass({
     );
     /* jshint ignore:end */
   },
-
-  renderMessageThread: function() {
+  renderMessagesContainer: function() {
     /* jshint ignore:start */
-    if(this.state.messages){
+    if(this.state.createMessageDatetime){
       return (
-        <MessageThread
+        <Messages
+          createDatetime={this.state.createMessageDatetime}
+          user={this.props.user}
+          patient={this.props.patient}
+          onClose={this.closeMessageCreation}
+          onSave={this.props.onCreateMessage}
+          onNewMessage={this.handleMessageCreation} />
+      );
+    }else if(this.state.messages){
+      return (
+        <Messages
           messages={this.state.messages}
           user={this.props.user}
+          patient={this.props.patient}
           onClose={this.closeMessageThread}
-          onAddComment={this.props.onSaveComment} />
+          onSave={this.props.onSaveComment} />
       );
     }
     /* jshint ignore:end */
   },
-
   closeMessageThread: function(){
     this.setState({ messages: null });
+    this.refs.chart.closeMessageThread();
+  },
+  closeMessageCreation: function(){
+    this.setState({ createMessageDatetime: null });
+    this.refs.chart.closeMessageThread();
   },
   renderChart: function() {
     /* jshint ignore:start */
@@ -236,6 +253,7 @@ var PatientData = React.createClass({
         onDatetimeLocationChange={this.handleDatetimeLocationChange}
         onSelectDataPoint={this.handleWeeklySelectDataPoint}
         onShowMessageThread={this.handleShowMessageThread}
+        onCreateMessage={this.handleShowMessageCreation}
         onTransition={this.handleInTransition}
         onReachedMostRecent={this.handleReachedMostRecent}
         imagesEndpoint={config.IMAGES_ENDPOINT + '/tideline'}
@@ -393,6 +411,18 @@ var PatientData = React.createClass({
     }
   },
 
+  handleMessageCreation: function(message){
+    //Transform to Tideline's own format
+    var tidelineMessage = {
+        normalTime : message.timestamp,
+        messageText : message.messagetext,
+        parentMessage : message.parentmessage,
+        type: 'message',
+        _id: message.id
+    };
+    this.refs.chart.createMessageThread(tidelineMessage);
+  },
+
   handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
     var d = datetimeLocationEndpoints;
     var title = this.state.title;
@@ -431,9 +461,12 @@ var PatientData = React.createClass({
     }
   },
 
+  handleShowMessageCreation : function(datetime){
+    this.setState({ createMessageDatetime : datetime });
+  },
+
   handleInTransition: function(inTransition) {
     if (inTransition) {
-      console.log('In transition!');
       this.setState({
         inTransition: true
       });

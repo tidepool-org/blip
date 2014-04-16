@@ -453,7 +453,7 @@ api.team = {};
 api.team.getMessageThread = function(messageId,cb){
   api.log('GET /message/thread');
 
-  var token = tidepoolPlatformApi.getToken();
+  var token = api.token;
   tidepool.getMessageThread(messageId,token,function(error,messages){
     if(error){
       return cb(error);
@@ -465,7 +465,7 @@ api.team.getMessageThread = function(messageId,cb){
 //Get all notes (parent messages) for the given team
 api.team.getNotes = function(teamId,cb){
   api.log('GET /message/notes');
-  var token = tidepoolPlatformApi.getToken();
+  var token = api.token;
 
   tidepool.getNotesForTeam(teamId,token,function(error,messages){
     if(error){
@@ -474,7 +474,7 @@ api.team.getNotes = function(teamId,cb){
     //transform so that they are how Tideline renders them
     messages = _.map(messages, function(message) {
       return {
-        utcTime : message.timestamp,
+        normalTime : message.timestamp,
         messageText : message.messagetext,
         parentMessage : message.parentmessage,
         type: 'message',
@@ -488,13 +488,26 @@ api.team.getNotes = function(teamId,cb){
 //Add a comment
 api.team.replyToMessageThread = function(message,cb){
   api.log('POST /message/reply');
-  var token = tidepoolPlatformApi.getToken();
+  var token = api.token;
 
   tidepool.replyToMessageThread(message.parentmessage, message ,token ,function(error,replyId){
     if (error) {
       return cb(error);
     }
     cb(null, replyId);
+  });
+};
+
+//New message
+api.team.startMessageThread = function(message,cb){
+  api.log('POST /message/send');
+  var token = api.token;
+
+  tidepool.startMessageThread(message.groupid, message ,token ,function(error,messageId){
+    if (error) {
+      return cb(error);
+    }
+    cb(null, messageId);
   });
 };
 
