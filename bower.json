@@ -15,7 +15,7 @@
     "react": "0.10.0",
     "rxjs": "2.2.18",
     "superagent": "0.17.0",
-    "tideline": "0.0.14",
+    "tideline": "0.0.15",
     "tidepool-platform-client": "0.0.10"
   }
 }
