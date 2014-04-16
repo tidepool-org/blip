@@ -100,7 +100,11 @@ function chartDailyFactory(el, options) {
 
     chart.arrangePools();
 
-    chart.setTooltip();
+    chart.setAnnotation().setTooltip();
+
+    // add annotations
+    chart.annotations().addGroup(d3.select('#' + poolBolus.id()), 'bolus');
+    chart.annotations().addGroup(d3.select('#' + poolBasal.id()), 'basal');
 
     // add tooltips
     chart.tooltips().addGroup(d3.select('#' + poolBG.id()), 'cbg');

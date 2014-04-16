@@ -89,6 +89,8 @@ module.exports = function(pool, opts) {
         }
       });
 
+      basal.addAnnotations(_.filter(currentData, function(d) { return d.annotations; }), this);
+
       var rects = d3.select(this)
         .selectAll('g')
         .data(currentData, function(d) {
@@ -100,6 +102,7 @@ module.exports = function(pool, opts) {
         .attr('id', function(d) {
           return 'basal_group_' + d._id;
         });
+      // add actual basal fill rects
       rectGroups.filter(function(d){
         if (d.vizType === 'actual') {
           return d;
@@ -143,6 +146,9 @@ module.exports = function(pool, opts) {
             return 'basal_' + d._id;
           }
         });
+
+      // add invisible rect for tooltips based on all scheduleds
+      // (otherwise can't hover on a temp of 0 to get info)
       rectGroups.filter(function(d) {
         if (d.deliveryType !== 'temp') {
           return d;
@@ -172,6 +178,7 @@ module.exports = function(pool, opts) {
             return 'basal_invisible_' + d._id;
           }
         });
+
       rectGroups.filter(function(d) {
           if (d.delivered !== 0) {
             return d;
@@ -179,6 +186,8 @@ module.exports = function(pool, opts) {
         })
         .selectAll('.d3-basal-invisible')
         .classed('d3-basal-nonzero', true);
+
+      // remove stale rects
       rects.exit().remove();
 
       var basalGroup = d3.select(this);
@@ -425,7 +434,7 @@ module.exports = function(pool, opts) {
       return formatted;
     };
 
-    d3.select('#' + 'tidelineTooltips_basal')
+    d3.select('#tidelineTooltips_basal')
       .call(pool.tooltips(),
         d,
         // tooltipXPos
@@ -502,6 +511,18 @@ module.exports = function(pool, opts) {
         .append('tspan')
         .text('(' + formatValue(unD.value) + 'U scheduled)');
     }
+  };
+
+  basal.addAnnotations = function(data, selection) {
+    _.each(data, function(d) {
+      var annotationOpts = {
+        'x': opts.xScale(Date.parse(d.normalTime)),
+        'y': opts.yScale(0),
+        'xMultiplier': 2,
+        'yMultiplier': 2.5
+      };
+      d3.select('#tidelineAnnotations_basal').call(pool.annotations(), annotationOpts);
+    });
   };
 
   return basal;

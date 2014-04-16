@@ -18,12 +18,13 @@
 var d3 = require('./lib/').d3;
 var _ = require('./lib/')._;
 
+var Pool = require('./pool');
+var annotation = require('./plot/util/annotation');
+var tooltip = require('./plot/util/tooltip');
+
 var log = require('./lib/').bows('Two Week');
 
 module.exports = function(emitter) {
-  // required externals
-  var Pool = require('./pool');
-
   // constants
   var MS_IN_24 = 86400000;
 
@@ -47,6 +48,7 @@ module.exports = function(emitter) {
     lessThanTwoWeeks = false,
     sortReverse = true, viewIndex,
     mainGroup, scrollNav, scrollHandleTrigger = true,
+    annotations, tooltips,
     cachedDomain;
 
   container.dataFill = {};
@@ -320,6 +322,10 @@ module.exports = function(emitter) {
     return id;
   };
 
+  container.annotations = function() {
+    return annotations;
+  };
+
   container.axisGutter = function() {
     return axisGutter;
   };
@@ -507,6 +513,8 @@ module.exports = function(emitter) {
           e.translate[1] = maxTranslation;
         }
         nav.scroll.translate([0, e.translate[1]]);
+        mainGroup.select('#tidelineTooltips').attr('transform', 'translate(0,' + e.translate[1] + ')');
+        mainGroup.select('#tidelineAnnotations').attr('transform', 'translate(0,' + e.translate[1] + ')');
         mainGroup.select('.d3-y.d3-axis').call(yAxis);
         container.dayAxisHacks();
         for (var i = 0; i < pools.length; i++) {
@@ -640,6 +648,26 @@ module.exports = function(emitter) {
         .call(drag);
     }
 
+    return container;
+  };
+
+  container.setAnnotation = function() {
+    var annotationGroup = mainGroup.append('g')
+      .attr('id', 'tidelineAnnotations');
+    annotations = annotation(container, annotationGroup).id(annotationGroup.attr('id'));
+    pools.forEach(function(pool) {
+      pool.annotations(annotations);
+    });
+    return container;
+  };
+
+  container.setTooltip = function() {
+    var tooltipGroup = mainGroup.append('g')
+      .attr('id', 'tidelineTooltips');
+    tooltips = tooltip(container, tooltipGroup).id(tooltipGroup.attr('id'));
+    pools.forEach(function(pool) {
+      pool.tooltips(tooltips);
+    });
     return container;
   };
 

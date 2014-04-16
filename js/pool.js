@@ -32,6 +32,7 @@ function Pool (container) {
     imagesBaseUrl = container.imagesBaseUrl(),
     yAxis = [],
     plotTypes = [],
+    annotations,
     tooltips;
 
   this.render = function(selection, poolData) {
@@ -171,6 +172,12 @@ function Pool (container) {
   this.yPosition = function(x) {
     if (!arguments.length) return yPosition;
     yPosition = x;
+    return this;
+  };
+
+  this.annotations = function(f) {
+    if (!arguments.length) return annotations;
+    annotations = f;
     return this;
   };
 

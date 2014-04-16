@@ -91,6 +91,7 @@ function chartWeeklyFactory(el, options) {
     });
 
     chart.arrangePools();
+    chart.setAnnotation();
 
     chart.setAxes().setNav().setScrollNav();
 
