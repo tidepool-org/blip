@@ -71,7 +71,7 @@ var Patients = React.createClass({
         <div className="patients-empty-list">
           <a className="js-create-patient-profile" href="#/patients/new">
             <i className="icon-add"></i>
-            {' ' + 'Create your patient profile'}
+            {' ' + 'Create your profile'}
           </a>
         </div>
       );
