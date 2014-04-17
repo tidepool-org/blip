@@ -201,7 +201,6 @@ module.exports = function(data){
           var overflow = addToActualsAndLink(eventToAdd);
 
           while (overflow.length > 0) {
-            log('overflow length:', overflow.length);
             var event = overflow.pop();
             if (eventToAdd.id != null && eventToAdd.id === event.id) {
               // If the timeline kicks back out an event with an equivalent id as we just put in, then there
@@ -212,7 +211,6 @@ module.exports = function(data){
               addToUndelivered(event);
             }
           }
-          log('overflow done');
           break;
         default:
           log('Unknown deliveryType, ignoring', e);
