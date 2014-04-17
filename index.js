@@ -470,7 +470,7 @@ module.exports = function (config, superagent, log) {
     /**
      * Update current user account info
      *
-     * @param user object with account info
+     * @param {Object} user object with account info
      * @param cb
      * @returns {cb}  cb(err, response)
      */
@@ -505,7 +505,7 @@ module.exports = function (config, superagent, log) {
     /**
      * Add a new or update an existing profile for a user
      *
-     * @param user object with profile info and `id` attribute
+     * @param {Object} user object with profile info and `id` attribute
      * @param cb
      * @returns {cb}  cb(err, response)
      */
@@ -542,7 +542,7 @@ module.exports = function (config, superagent, log) {
     /**
      * Find a users profile
      *
-     * @param userId of the user you are finding the profile of
+     * @param {String} userId id of the user you are finding the profile of
      * @param cb
      * @returns {cb}  cb(err, response)
      */
@@ -576,8 +576,8 @@ module.exports = function (config, superagent, log) {
     /**
      * Create the required group type for a user
      *
-     * @param userId id of the user
-     * @param groupType name of the type of group we are creating e.g. team
+     * @param {String} userId id of the user
+     * @param {String} groupType name of the type of group we are creating e.g. team
      * @param cb
      * @returns {cb}  cb(err, response)
      */
@@ -594,7 +594,7 @@ module.exports = function (config, superagent, log) {
     /**
      * Get the users 'team'
      *
-     * @param userId id of the user
+     * @param {String} userId id of the user
      * @param cb
      * @returns {cb}  cb(err, response)
      */
@@ -614,7 +614,7 @@ module.exports = function (config, superagent, log) {
     /**
      * Get the users 'patients'
      *
-     * @param userId id of the user
+     * @param {String} userId id of the user
      * @param cb
      * @returns {cb}  cb(err, response)
      */
@@ -634,7 +634,7 @@ module.exports = function (config, superagent, log) {
     /**
      * Get the listed users public info
      *
-     * @param patientIds array of id's that we want the public info for
+     * @param {Array} patientIds array of id's that we want the public info for
      * @param cb
      * @returns {cb}  cb(err, response)
      */
@@ -676,7 +676,7 @@ module.exports = function (config, superagent, log) {
     /**
      * Get the users who have been invited to join the team
      *
-     * @param userId id of the user
+     * @param {String} userId id of the user
      * @param cb
      * @returns {cb}  cb(err, response)
      */
@@ -696,8 +696,8 @@ module.exports = function (config, superagent, log) {
     /**
      * Invite a user to join the 'team'
      *
-     * @param inviterId id of the user who is inviting
-     * @param inviteeId id of the user who is being invited
+     * @param {String} inviterId id of the user who is inviting
+     * @param {String} inviteeId id of the user who is being invited
      * @param cb
      * @returns {cb}  cb(err, response)
      */
@@ -728,8 +728,8 @@ module.exports = function (config, superagent, log) {
     /**
      * Accept an invite to join a users 'team'
      *
-     * @param inviterId id of the user who is inviting
-     * @param inviteeId id of the user who is being invited
+     * @param {String} inviterId id of the user who is inviting
+     * @param {String} inviteeId id of the user who is being invited
      * @param cb
      * @returns {cb}  cb(err, response)
      */
@@ -760,8 +760,8 @@ module.exports = function (config, superagent, log) {
     /**
      * Add the user to the patients list
      *
-     * @param inviterId id of the user who is inviting
-     * @param inviteeId id of the user who is being invited
+     * @param {String} inviterId id of the user who is inviting
+     * @param {String} inviteeId id of the user who is being invited
      * @param cb
      * @returns {cb}  cb(err, response)
      */
@@ -792,20 +792,25 @@ module.exports = function (config, superagent, log) {
     /**
      * Get messages for a team between the given dates
      *
-     * @param groupId of the team to get the messages for
-     * @param start date
-     * @param end date
+     * @param {String} userId of the user to get the messages for
+     * @param {Object} dates
+     * @param {String} dates.start [start=''] the start date is optional
+     * @param {String} dates.end [end=''] the end date is optional
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    getAllMessagesForTeam: function (groupId, start, end, cb) {
-      assertArgumentsSize(arguments, 4);
+    getAllMessagesForUser: function (userId, dates, cb) {
+      assertArgumentsSize(arguments, 3);
+
+      dates = dates || {};
+      var start = dates.start || '';
+      var end = dates.end || '';
 
       withToken(
         cb,
         function(token) {
           superagent
-            .get(makeUrl('/message/all/' + groupId + '?starttime=' + start + '&endtime=' + end))
+            .get(makeUrl('/message/all/' + userId + '?starttime=' + start + '&endtime=' + end))
             .set(sessionTokenHeader, token)
             .end(
             function (err, res) {
@@ -828,20 +833,27 @@ module.exports = function (config, superagent, log) {
       );
     },
     /**
-     * Get all notes for a team
+     * Get all notes within a specified date range
      *
-     * @param groupId of the team to get the messages for
+     * @param {String} userId of the user to get the notes for
+     * @param {Object} dates
+     * @param {String} dates.start [start=''] the start date is optional
+     * @param {String} dates.end [end=''] the end date is optional
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    getNotesForTeam: function (groupId, cb) {
-      assertArgumentsSize(arguments, 2);
+    getNotesForUser: function (userId, dates, cb) {
+      assertArgumentsSize(arguments, 3);
+
+      dates = dates || {};
+      var start = dates.start || '';
+      var end = dates.end || '';
 
       withToken(
         cb,
         function(token) {
           superagent
-            .get(makeUrl('/message/notes/' + groupId))
+            .get(makeUrl('/message/notes/' + userId + '?starttime=' + start + '&endtime=' + end))
             .set(sessionTokenHeader, token)
             .end(
             function (err, res) {
@@ -866,19 +878,23 @@ module.exports = function (config, superagent, log) {
     /**
      * Reply to a specfic message thread
      *
-     * @param messageId of the root message
-     * @param comment on the message thread
+     * @param {Object} comment on the message thread
+     * @param {String} comment.timestamp
+     * @param {String} comment.messagetext
+     * @param {String} comment.groupid
+     * @param {String} comment.userid
+     * @param {String} comment.parentmessage
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    replyToMessageThread: function (messageId, comment, cb) {
-      assertArgumentsSize(arguments, 3);
+    replyToMessageThread: function (comment, cb) {
+      assertArgumentsSize(arguments, 2);
 
       withToken(
         cb,
         function(token) {
           superagent
-            .post(makeUrl('/message/reply/' + messageId))
+            .post(makeUrl('/message/reply/' + comment.parentmessage))
             .set(sessionTokenHeader, token)
             .send({message: comment})
             .end(
@@ -899,19 +915,22 @@ module.exports = function (config, superagent, log) {
     /**
      * Start a new message thread
      *
-     * @param groupId of the team the message is for
-     * @param message that is the start of a new thread
+     * @param {Object} message that is the start of a new thread
+     * @param {String} message.messagetext
+     * @param {String} message.timestamp
+     * @param {String} message.groupid
+     * @param {String} message.userid
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    startMessageThread: function (groupId, message, cb) {
-      assertArgumentsSize(arguments, 3);
+    startMessageThread: function (message, cb) {
+      assertArgumentsSize(arguments, 2);
 
       withToken(
         cb,
         function(token) {
           superagent
-            .post(makeUrl('/message/send/' + groupId))
+            .post(makeUrl('/message/send/' + message.groupid))
             .set(sessionTokenHeader, token)
             .send({message: message})
             .end(
@@ -932,7 +951,7 @@ module.exports = function (config, superagent, log) {
     /**
      * Get a specific message thread
      *
-     * @param messageId of the root message
+     * @param {String} messageId of the root message
      * @param cb
      * @returns {cb}  cb(err, response)
      */
