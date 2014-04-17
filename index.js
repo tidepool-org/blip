@@ -802,7 +802,7 @@ module.exports = function (config, superagent, log) {
     getAllMessagesForUser: function (userId, dates, cb) {
       assertArgumentsSize(arguments, 3);
 
-      var dates = dates || {};
+      dates = dates || {};
       var start = dates.start || '';
       var end = dates.end || '';
 
@@ -845,7 +845,7 @@ module.exports = function (config, superagent, log) {
     getNotesForUser: function (userId, dates, cb) {
       assertArgumentsSize(arguments, 3);
 
-      var dates = dates || {};
+      dates = dates || {};
       var start = dates.start || '';
       var end = dates.end || '';
 

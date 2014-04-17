@@ -34,21 +34,21 @@ describe('platform client', function () {
   var mrT1 = {
     id: null,
     token: null,
-    username: 'fake',
-    password: 'fak3U53r',
-    emails: ['fake@user.com'],
-    fullname: 'Jamie T1d',
-    shortname: 'Jamie'
+    username: 'mrT1@user.com',
+    password: 'mrT1',
+    emails: ['mrT1@user.com'],
+    firstName: 'Jamie',
+    lastName: 'T1'
   };
 
   var careTeamMember = {
     id: null,
     token: null,
-    username: 'dr fake',
-    password: 'fak3U53r',
-    emails: ['dr.fake@user.com'],
-    fullname: 'Dr Doogie Howser ',
-    shortname: 'Doogie'
+    username: 'team@member.com',
+    password: 'teammember',
+    emails: ['team@member.com'],
+    firstName: 'Dr Doogie',
+    lastName: 'Howser'
   };
 
   function createClient(user, cb) {
@@ -101,8 +101,8 @@ describe('platform client', function () {
         expect(error).to.not.exist;
 
         expect(profile).to.exist;
-        expect(profile.fullname).to.equal(mrT1.fullname);
-        expect(profile.shortname).to.equal(mrT1.shortname);
+        expect(profile.firstName).to.equal(mrT1.firstName);
+        expect(profile.lastName).to.equal(mrT1.lastName);
         expect(profile).to.not.have.property('password');
         expect(profile).to.not.have.property('username');
 
@@ -119,8 +119,8 @@ describe('platform client', function () {
         expect(error).to.not.exist;
 
         expect(profile).to.be.exist;
-        expect(profile.fullname).to.equal(careTeamMember.fullname);
-        expect(profile.shortname).to.equal(careTeamMember.shortname);
+        expect(profile.firstName).to.equal(careTeamMember.firstName);
+        expect(profile.lastName).to.equal(careTeamMember.lastName);
         expect(profile).to.not.have.property('password');
         expect(profile).to.not.have.property('username');
         done();
@@ -166,13 +166,13 @@ describe('platform client', function () {
 
       noteToAdd = {
         userid: mrT1.id,
-        parentid: mrT1.id,
+        groupid: mrT1.id,
         timestamp: new Date().toISOString(),
         messagetext: 'In three words I can sum up everything I have learned about life: it goes on.'
       };
 
       //add note
-      mrT1Client.startMessageThread(mrT1TeamId, noteToAdd, function (error, data) {
+      mrT1Client.startMessageThread(noteToAdd, function (error, data) {
         expect(error).to.not.exist;
         expect(data).to.exist;
         noteToAddId = data;
@@ -185,12 +185,13 @@ describe('platform client', function () {
       //comment on the note
       commentOnNote = {
         userid: mrT1.id,
-        patientid: mrT1.id,
+        groupid: mrT1.id,
+        parentmessage : noteToAddId,
         timestamp: new Date().toISOString(),
         messagetext: 'Good point bro!'
       };
 
-      mrT1Client.replyToMessageThread(noteToAddId, commentOnNote, done);
+      mrT1Client.replyToMessageThread(commentOnNote, done);
     });
 
     it('and then get the whole thread', function (done) {
@@ -199,15 +200,14 @@ describe('platform client', function () {
         expect(error).to.not.exist;
         expect(data).to.exist;
         expect(data.length).to.equal(2);
-        var firstMessage = data[0];
-        var secondMessage = data[1];
 
-        expect(firstMessage.parentid).to.equal(mrT1.id);
-        expect(secondMessage.parentid).to.equal(mrT1.id);
-        expect(firstMessage.parentmessage).to.not.exist;
-        expect(firstMessage.messagetext).to.equal(noteToAdd.messagetext);
-        expect(secondMessage.parentmessage).to.equal(firstMessage.id);
-        expect(secondMessage.messagetext).to.equal(commentOnNote.messagetext);
+        var note = _.filter(data, function(message) {
+          return (!message.parentmessage);
+        });
+        var comment = _.filter(data, function(message) {
+          return (message.parentmessage);
+        });
+        expect(comment.parentmessage).to.equal(note.id);
         done();
       });
     });
@@ -429,7 +429,7 @@ describe('platform client', function () {
     });
 
     it('can get the notes for the team of mrT1', function (done) {
-      careTeamClient.getNotesForTeam(mrT1sTeam.id, function (error, patientsNotes) {
+      mrT1Client.getNotesForUser(mrT1.id, null, function (error, patientsNotes) {
         expect(patientsNotes).to.exist;
         expect(patientsNotes).to.have.length.above(0);
         notesForThePatientMrT1 = patientsNotes;
@@ -438,7 +438,7 @@ describe('platform client', function () {
     });
 
     it('can see the notes for patient mrT1 are the same as he sees', function (done) {
-      mrT1Client.getNotesForTeam(mrT1sTeam.id, function (error, mrT1TeamNotes) {
+      careTeamClient.getNotesForUser(mrT1.id, null, function (error, mrT1TeamNotes) {
         expect(mrT1TeamNotes).to.exist;
         expect(mrT1TeamNotes).to.have.length.above(0);
         expect(mrT1TeamNotes).that.deep.equals(notesForThePatientMrT1);
