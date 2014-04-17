@@ -468,6 +468,42 @@ module.exports = function (config, superagent, log) {
         });
     },
     /**
+     * Post something to metrics.
+     * This call never errors, so the callback is optional; it will be called if supplied.
+     * This call also doesn't wait for the metrics call to return but returns immediately,
+     * so if the metrics site is down you won't know it.
+     * This call automatically adds a property client: true to the property list.
+     *
+     * @param eventname  String name of event to post to kissmetrics
+     * @param properties Object list of key/value pairs to post as properties.
+     * @param cb If provided, is called without arguments after posting; this call never errors, so callback is optional.
+     * @returns {cb}  cb()
+     */
+    doMetrics: function (eventname, properties, cb) {
+      var props = { client: true };
+      var doNothingCB = function() {
+        if (cb) {
+          cb();
+        }
+      };
+
+      _.merge(props, properties);
+      if (!eventname) {
+        eventname = 'generic';
+      }
+
+      withToken(
+        doNothingCB,
+        function(token){
+          superagent
+            .get(makeUrl('/metrics/thisuser/' + eventname))
+            .set(sessionTokenHeader, token)
+            .send(props);
+          doNothingCB();
+        }
+      );
+    },
+    /**
      * Update current user account info
      *
      * @param {Object} user object with account info
