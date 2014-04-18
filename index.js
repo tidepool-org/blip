@@ -310,6 +310,10 @@ module.exports = function (config, superagent, log) {
     return myToken != null;
   }
 
+  function getUserId() {
+    return myUserId;
+  }
+
   function getUploadUrl() {
     if (config.uploadApi == null || myToken == null) {
       return null;
@@ -447,11 +451,17 @@ module.exports = function (config, superagent, log) {
      */
     isLoggedIn: isLoggedIn,
     /**
+     * Returns the logged in user's id
+     *
+     * @returns {String} userid or null if not logged in
+     */
+    getUserId: getUserId,
+    /**
     * Url used for uploads to the platform
     *
     * @returns {String} url for uploads
     */
-    getUploadUrl :getUploadUrl,
+    getUploadUrl: getUploadUrl,
     /**
      * Get current user account info
      *
