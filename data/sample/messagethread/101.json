@@ -3,27 +3,36 @@
         "messagetext": "I love cheese, especially fromage frais emmental. Pecorino dolcelatte fromage cheese and wine swiss cheesy grin stilton lancashire.",
         "parentmessage": "",
         "timestamp": "2014-02-14T07:07:00Z",
-        "username" : "Mary",
-        "userid" : "11",
-        "groupid" : "99",
+        "user": {
+					"firstName": "Mary",
+					"lastName": "Smith"
+				},
+        "userid": "11",
+        "groupid": "11",
         "id": "101"
     },
     {
         "messagetext": "Cheesy grin cream cheese dolcelatte. Cheese and biscuits manchego halloumi who moved my cheese cheese slices st. agur blue cheese fromage frais fondue.",
         "parentmessage": "101",
         "timestamp": "2014-02-14T07:15:00Z",
-        "username" : "Charles",
-        "userid" : "21",
-        "groupid" : "99",
+        "user": {
+					"firstName": "Charles",
+					"lastName": "West"
+				},
+        "userid": "21",
+        "groupid": "11",
         "id": "104"
     },
     {
         "messagetext": "Mozzarella monterey jack mozzarella bocconcini gouda when the cheese comes out everybody's happy stinking bishop who moved my cheese.",
         "parentmessage": "101",
         "timestamp": "2014-02-14T10:07:00Z",
-        "username" : "Sarah",
-        "userid" : "31",
-        "groupid" : "99",
+        "user": {
+					"firstName": "Sarah",
+					"lastName": "Carter"
+				},
+        "userid": "31",
+        "groupid": "11",
         "id": "105"
     }
 ]
