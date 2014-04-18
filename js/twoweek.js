@@ -326,6 +326,10 @@ module.exports = function(emitter) {
     return annotations;
   };
 
+  container.tooltips = function() {
+    return tooltips;
+  };
+  
   container.axisGutter = function() {
     return axisGutter;
   };
