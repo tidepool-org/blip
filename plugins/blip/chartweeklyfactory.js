@@ -144,6 +144,8 @@ function chartWeeklyFactory(el, options) {
 
     chart.poolStats.render(chart.poolGroup());
 
+    chart.annotations().addGroup(d3.select('#' + chart.id()).select('#' + chart.poolStats.id()), 'stats');
+
     chart.navString();
 
     return chart;

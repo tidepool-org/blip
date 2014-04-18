@@ -103,15 +103,17 @@ function chartDailyFactory(el, options) {
     chart.setAnnotation().setTooltip();
 
     // add annotations
-    chart.annotations().addGroup(d3.select('#' + poolBolus.id()), 'bolus');
-    chart.annotations().addGroup(d3.select('#' + poolBasal.id()), 'basal');
+    chart.annotations().addGroup(d3.select('#' + chart.id()).select('#' + poolBolus.id()), 'carbs');
+    chart.annotations().addGroup(d3.select('#' + chart.id()).select('#' + poolBolus.id()), 'bolus');
+    chart.annotations().addGroup(d3.select('#' + chart.id()).select('#' + poolBasal.id()), 'basal');
+    chart.annotations().addGroup(d3.select('#' + chart.id()).select('#' + poolStats.id()), 'stats');
 
     // add tooltips
-    chart.tooltips().addGroup(d3.select('#' + poolBG.id()), 'cbg');
-    chart.tooltips().addGroup(d3.select('#' + poolBG.id()), 'smbg');
-    chart.tooltips().addGroup(d3.select('#' + poolBolus.id()), 'carbs');
-    chart.tooltips().addGroup(d3.select('#' + poolBolus.id()), 'bolus');
-    chart.tooltips().addGroup(d3.select('#' + poolBasal.id()), 'basal');
+    chart.tooltips().addGroup(d3.select('#' + chart.id()).select('#' + poolBG.id()), 'cbg');
+    chart.tooltips().addGroup(d3.select('#' + chart.id()).select('#' + poolBG.id()), 'smbg');
+    chart.tooltips().addGroup(d3.select('#' + chart.id()).select('#' + poolBolus.id()), 'carbs');
+    chart.tooltips().addGroup(d3.select('#' + chart.id()).select('#' + poolBolus.id()), 'bolus');
+    chart.tooltips().addGroup(d3.select('#' + chart.id()).select('#' + poolBasal.id()), 'basal');
 
     return chart;
   };
