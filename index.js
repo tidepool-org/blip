@@ -504,7 +504,7 @@ module.exports = function (config, superagent, log) {
      * @param cb If provided, is called without arguments after posting; this call never errors, so callback is optional.
      * @returns {cb}  cb()
      */
-    doMetrics: function (eventname, properties, cb) {
+    trackMetric: function (eventname, properties, cb) {
       var props = { client: true };
       var doNothingCB = function() {
         if (cb) {
