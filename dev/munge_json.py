@@ -28,10 +28,10 @@ def main():
 
     with open(sys.argv[1], 'rU') as input_file:
 
-        data_regex = re.compile('^\"(\[\{.*\}\])\"')
+        data_regex = re.compile('^(\[\{.*\}\])')
 
         for line in input_file:
-            if line.find('\"[{') != -1:
+            if line.find('[{') != -1:
                 data = data_regex.search(line).group(1)
                 json_data = json.loads(data)
         try:
