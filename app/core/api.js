@@ -474,10 +474,26 @@ api.patientData.get = function(patientId, cb) {
     });
   });
 };
+
 // ----- Upload -----
 
 api.getUploadUrl = function() {
   return tidepool.getUploadUrl();
+};
+
+// ----- Metrics -----
+
+api.metrics = {};
+
+api.metrics.track = function(eventName, properties, cb) {
+  api.log('GET /metrics/' + window.encodeURIComponent(eventName));
+
+  properties = _.assign({
+    source: 'blip',
+    version: config.VERSION
+  }, properties);
+
+  return tidepool.trackMetric(eventName, properties, cb);
 };
 
 module.exports = api;

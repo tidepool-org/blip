@@ -516,6 +516,7 @@ var AppComponent = React.createClass({
     this.fetchUser();
     this.setState({authenticated: true});
     this.redirectToDefaultRoute();
+    app.api.metrics.track('Logged In');
   },
 
   handleSignupSuccess: function(user) {
