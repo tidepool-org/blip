@@ -341,10 +341,12 @@ module.exports = function(emitter) {
             return d.x - nav.scrollThumbRadius;
           });
         }
-        container.navString(xScale.domain());
       })
       .on('zoomend', function() {
         container.currentTranslation(nav.latestTranslation);
+        // must only call navString *after* updating currentTranslation
+        // because of translation adjustment on stats widget no data annotations
+        container.navString(xScale.domain());
         if (!scrollHandleTrigger) {
           mainGroup.select('.scrollThumb').attr('x', function(d) {
             return nav.scrollScale(xScale.domain()[0]) - nav.scrollThumbRadius;
@@ -448,17 +450,14 @@ module.exports = function(emitter) {
     return container;
   };
 
-  container.setAtDate = function (date, trigger) {
-    // TODO: this is fairly fragile and relies on trigger = true
-    // correlating 100% with wanting to navigate to mostRecent data
-    scrollHandleTrigger = trigger;
-    if (!trigger) {
+  container.setAtDate = function (date, mostRecent) {
+    if (!mostRecent) {
       container.currentTranslation(-xScale(date) + axisGutter);
       nav.pan.translate([nav.currentTranslation, 0]);
       nav.pan.event(mainGroup);
     }
     else {
-      mostRecent = true;
+      scrollHandleTrigger = true;
       nav.pan.translate([0,0]);
       nav.pan.event(mainGroup);
       mostRecent = false;
