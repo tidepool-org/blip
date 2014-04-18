@@ -395,6 +395,9 @@ api.team.getMessageThread = function(messageId,cb){
     if(error){
       return cb(error);
     }
+
+    messages = _.sortBy(messages, 'timestamp');
+
     return cb(null,messages);
   });
 };
