@@ -368,7 +368,7 @@ describe('platform client', function () {
       mrT1Client.acceptInviteToJoinTeam(mrT1.id, careTeamMember.id, function (error, team) {
         if (error) {
           return done(error);
-        }[]
+        }
         mrT1Client.getUsersTeam(mrT1.id, function (error, team) {
           if (error) {
             return done(error);

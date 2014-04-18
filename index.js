@@ -21,6 +21,8 @@
 var _ = (typeof window !== 'undefined' && typeof window._ !== 'undefined') ? window._ : require('lodash');
 var async = (typeof window !== 'undefined' && typeof window.async !== 'undefined') ? window.async : require('async');
 
+var deviceData = require('./lib/devicedata');
+
 var sessionTokenHeader = 'x-tidepool-session-token';
 
 function defaultProperty(obj, property, defaultValue) {
@@ -856,11 +858,8 @@ module.exports = function (config, superagent, log) {
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    getDeviceDataForUser: function (userId, options, cb) {
-      assertArgumentsSize(arguments, 3);
-      if (typeof options === 'function') {
-        cb = options;
-      }
+    getDeviceDataForUser: function (userId, cb) {
+      assertArgumentsSize(arguments, 2);
 
       withToken(
         cb,
@@ -873,11 +872,17 @@ module.exports = function (config, superagent, log) {
               if (err != null) {
                 return cb(err);
               }
-              if (res.status === 200) {
-                return cb(null,res.body);
-              } else {
-                cb(null, null);
+
+              if (res.status === 404) {
+                // there is no device data for that user
+                return cb(null, []);
               }
+
+              if (res.status !== 200) {
+                return handleHttpError(res, cb);
+              }
+
+              cb(null, res.body);
             });
         }
       );
@@ -885,13 +890,13 @@ module.exports = function (config, superagent, log) {
     /**
      * Process the raw device data for use in apps
      *
-     * @param {Object} theData data to process
+     * @param {Object} data device data to process
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    processDeviceData: function (theData, cb) {
+    processDeviceData: function (data, cb) {
       assertArgumentsSize(arguments, 2);
-      return cb(null,null);
+      return deviceData.processAll(data, cb);
     },
     /**
      * Get messages for a team between the given dates
@@ -966,7 +971,7 @@ module.exports = function (config, superagent, log) {
               }
 
               if (res.status === 404) {
-                // there are no messages for that group
+                // there are no messages for that user
                 return cb(null, []);
               }
 
