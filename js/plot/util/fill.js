@@ -14,27 +14,28 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-
+var d3 = require('../../lib/').d3;
 var _ = require('../../lib/')._;
+
 var log = require('../../lib/').bows('Fill');
 
 module.exports = function(pool, opts) {
 
   var fills = [],
-      defaults = {
-        classes: {
-          0: 'darkest',
-          3: 'dark',
-          6: 'lighter',
-          9: 'light',
-          12: 'lightest',
-          15: 'lighter',
-          18: 'dark',
-          21: 'darkest'
-        },
-        duration: 3,
-        gutter: 0
-      };
+  defaults = {
+    classes: {
+        0: 'darkest',
+        3: 'dark',
+        6: 'lighter',
+        9: 'light',
+        12: 'lightest',
+        15: 'lighter',
+        18: 'dark',
+        21: 'darkest'
+      },
+      duration: 3,
+      gutter: 0
+    };
 
   _.defaults(opts || {}, defaults);
 
@@ -121,6 +122,21 @@ module.exports = function(pool, opts) {
           return 'd3-rect-fill d3-fill-' + d.fill;
         }
       });
+
+    if (opts.guidelines) {
+      var linesGroup = pool.group().append('g')
+        .attr('id', pool.id() + '_guidelines');
+      _.each(opts.guidelines, function(guide){
+        linesGroup.append('line')
+          .attr({
+            'class': 'd3-line-guide ' + guide['class'],
+            'x1': opts.xScale.range()[0],
+            'x2': opts.xScale.range()[1],
+            'y1': opts.yScale(guide.height),
+            'y2': opts.yScale(guide.height)
+          });
+      });
+    }
   }
 
   return fill;

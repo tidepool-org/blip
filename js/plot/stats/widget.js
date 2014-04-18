@@ -209,7 +209,7 @@ module.exports = function(pool, opts) {
         'x2': puddle.width() * (5/16),
         'y1': rectScale(80) + (pool.height() / 10),
         'y2': rectScale(80) + (pool.height() / 10),
-        'class': 'd3-stats-rect-line'
+        'class': 'd3-line-guide d3-line-bg-threshold'
       });
 
     rectGroup.append('line')
@@ -218,7 +218,7 @@ module.exports = function(pool, opts) {
         'x2': puddle.width() * (5/16),
         'y1': rectScale(180) + (pool.height() / 10),
         'y2': rectScale(180) + (pool.height() / 10),
-        'class': 'd3-stats-rect-line'
+        'class': 'd3-line-guide d3-line-bg-threshold'
       });
     var imageY = rectScale(data.value) - (opts.size / 2) + (puddle.height() / 10);
     // don't append an image if imageY is NaN or Infinity

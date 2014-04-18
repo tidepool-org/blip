@@ -145,7 +145,20 @@ function chartDailyFactory(el, options) {
       .tickValues(scales.bgTicks(allBG))
       .tickFormat(d3.format('g')));
     // add background fill rectangles to BG pool
-    poolBG.addPlotType('fill', fill(poolBG, {endpoints: chart.endpoints}), false, true);
+    poolBG.addPlotType('fill', fill(poolBG, {
+      endpoints: chart.endpoints,
+      guidelines: [
+        {
+          'class': 'd3-line-bg-threshold',
+          'height': 80
+        },
+        {
+          'class': 'd3-line-bg-threshold',
+          'height': 180
+        }
+      ],
+      yScale: scaleBG
+    }), false, true);
 
     // add CBG data to BG pool
     poolBG.addPlotType('cbg', tideline.plot.cbg(poolBG, {yScale: scaleBG}), true, true);
@@ -169,7 +182,19 @@ function chartDailyFactory(el, options) {
       .outerTickSize(0)
       .ticks(3));
     // add background fill rectangles to bolus pool
-    poolBolus.addPlotType('fill', fill(poolBolus, {endpoints: chart.endpoints}), false, true);
+    var scaleDivider = d3.scale.linear()
+      .domain([0, poolBolus.height()])
+      .range([0, poolBolus.height()]);
+    poolBolus.addPlotType('fill', fill(poolBolus, {
+      endpoints: chart.endpoints,
+      guidelines: [
+        {
+          'class': 'd3-line-divider',
+          'height': poolBolus.height()/2
+        }
+      ],
+      yScale: scaleDivider
+    }), false, true);
 
     // add carbs data to bolus pool
     poolBolus.addPlotType('carbs', tideline.plot.carbs(poolBolus, {

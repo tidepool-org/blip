@@ -124,6 +124,15 @@ svg {
   }
 }
 
+// guidelines
+.d3-line-guide {
+  stroke: white;
+  stroke-width: 2px;
+  &.d3-line-bg-threshold {
+    stroke-dasharray: 3,5;
+  }
+}
+
 // messages
 .d3-rect-message {
   fill: white;
@@ -361,11 +370,6 @@ svg {
     &.rect-right {
       fill: @fill-darkest;
     }
-  }
-  .d3-stats-rect-line {
-    stroke: white;
-    stroke-width: 2px;
-    stroke-dasharray: 3,5;
   }
   .d3-stats-image {
     &.hidden {
