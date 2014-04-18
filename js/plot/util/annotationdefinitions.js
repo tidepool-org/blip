@@ -47,10 +47,10 @@ var definitions = {
     var b = " reports the data.";
     return  this.stitch(a, b, source);
   },
-  main: function(code, source) {
+  main: function(annotation, source) {
     var a, b;
-    if (this.MAIN_TEXT[code] != null) {
-      return this.MAIN_TEXT[code](source);
+    if (this.MAIN_TEXT[annotation.code] != null) {
+      return this.MAIN_TEXT[annotation.code](source);
     }
     else {
       return this.default(source);

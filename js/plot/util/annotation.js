@@ -31,20 +31,21 @@ module.exports = function(container, annotationsGroup) {
     var hoverTarget;
 
     if (opts.d.annotations[0].code !== 'stats') {
-      selection = selection.append('g')
-        .attr('class', 'd3-data-annotation-group');
+      var iconGroup = selection.append('g')
+        .attr('class', 'd3-data-annotation-group')
+        .attr('clip-path', 'url(#annotationsClipPath)');
 
       opts.x = annotation.xOffset(opts);
       opts.y = annotation.yOffset(opts);
 
-      hoverTarget = selection.append('circle')
+      hoverTarget = iconGroup.append('circle')
         .attr({
           'cx': opts.x,
           'cy': opts.y,
           'r': r,
           'class': 'd3-circle-data-annotation',
         });
-      selection.append('text')
+      iconGroup.append('text')
         .attr({
           'x': opts.x,
           'y': opts.y,
@@ -110,7 +111,7 @@ module.exports = function(container, annotationsGroup) {
       var codes = opts.d.annotations;
       _.each(codes, function(code) {
         div.append('p')
-          .html(defs.main(code.code, opts.d.source));
+          .html(defs.main(code, opts.d.source));
       });
 
       // get height of HTML

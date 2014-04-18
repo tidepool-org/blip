@@ -429,8 +429,7 @@ module.exports = function(emitter) {
       });
 
     var annotationGroup = mainGroup.append('g')
-      .attr('id', 'tidelineAnnotations')
-      .attr('clip-path', 'url(#annotationsClipPath)');
+      .attr('id', 'tidelineAnnotations');
 
     annotations = annotation(container, annotationGroup).id(annotationGroup.attr('id'));
     pools.forEach(function(pool) {
