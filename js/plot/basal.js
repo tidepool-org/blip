@@ -89,7 +89,7 @@ module.exports = function(pool, opts) {
         }
       });
 
-      basal.addAnnotations(_.filter(currentData, function(d) { return d.annotations; }), this);
+      basal.addAnnotations(_.filter(currentData, function(d) { return d.annotations; }));
 
       var rects = d3.select(this)
         .selectAll('g')
@@ -519,7 +519,11 @@ module.exports = function(pool, opts) {
         'x': opts.xScale(Date.parse(d.normalTime)),
         'y': opts.yScale(0),
         'xMultiplier': 2,
-        'yMultiplier': 2.5
+        'yMultiplier': 2.5,
+        'orientation': {
+          'up': true
+        },
+        'd': d
       };
       d3.select('#tidelineAnnotations_basal').call(pool.annotations(), annotationOpts);
     });
