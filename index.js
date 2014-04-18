@@ -21,6 +21,8 @@
 var _ = (typeof window !== 'undefined' && typeof window._ !== 'undefined') ? window._ : require('lodash');
 var async = (typeof window !== 'undefined' && typeof window.async !== 'undefined') ? window.async : require('async');
 
+var deviceData = require('./lib/devicedata');
+
 var sessionTokenHeader = 'x-tidepool-session-token';
 
 function defaultProperty(obj, property, defaultValue) {
@@ -310,6 +312,17 @@ module.exports = function (config, superagent, log) {
     return myToken != null;
   }
 
+  function getUserId() {
+    return myUserId;
+  }
+
+  function getUploadUrl() {
+    if (config.uploadApi == null || myToken == null) {
+      return null;
+    }
+    return config.uploadApi + '?token=' + myToken;
+  }
+
   function withToken(sadCb, happyCb) {
     if (! isLoggedIn()) {
       return sadCb(new Error('User is not logged in, you must log in to do this operation'));
@@ -440,6 +453,18 @@ module.exports = function (config, superagent, log) {
      */
     isLoggedIn: isLoggedIn,
     /**
+     * Returns the logged in user's id
+     *
+     * @returns {String} userid or null if not logged in
+     */
+    getUserId: getUserId,
+    /**
+    * Url used for uploads to the platform
+    *
+    * @returns {String} url for uploads
+    */
+    getUploadUrl: getUploadUrl,
+    /**
      * Get current user account info
      *
      * @returns {cb}  cb(err, response)
@@ -479,7 +504,7 @@ module.exports = function (config, superagent, log) {
      * @param cb If provided, is called without arguments after posting; this call never errors, so callback is optional.
      * @returns {cb}  cb()
      */
-    doMetrics: function (eventname, properties, cb) {
+    trackMetric: function (eventname, properties, cb) {
       var props = { client: true };
       var doNothingCB = function() {
         if (cb) {
@@ -487,7 +512,7 @@ module.exports = function (config, superagent, log) {
         }
       };
 
-      _.merge(props, properties);
+      _.assign(props, properties);
       if (!eventname) {
         eventname = 'generic';
       }
@@ -498,8 +523,8 @@ module.exports = function (config, superagent, log) {
           superagent
             .get(makeUrl('/metrics/thisuser/' + eventname))
             .set(sessionTokenHeader, token)
-            .send(props);
-          doNothingCB();
+            .query(props)
+            .end(doNothingCB);
         }
       );
     },
@@ -826,6 +851,54 @@ module.exports = function (config, superagent, log) {
       });
     },
     /**
+     * Get raw device data for the user
+     *
+     * @param {String} userId of the user to get the device data for
+     * @param {Object} options
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    getDeviceDataForUser: function (userId, cb) {
+      assertArgumentsSize(arguments, 2);
+
+      withToken(
+        cb,
+        function(token) {
+          superagent
+            .get(makeUrl('/data/' + userId))
+            .set(sessionTokenHeader, token)
+            .end(
+            function(err, res){
+              if (err != null) {
+                return cb(err);
+              }
+
+              if (res.status === 404) {
+                // there is no device data for that user
+                return cb(null, []);
+              }
+
+              if (res.status !== 200) {
+                return handleHttpError(res, cb);
+              }
+
+              cb(null, res.body);
+            });
+        }
+      );
+    },
+    /**
+     * Process the raw device data for use in apps
+     *
+     * @param {Object} data device data to process
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    processDeviceData: function (data, cb) {
+      assertArgumentsSize(arguments, 2);
+      return deviceData.processAll(data, cb);
+    },
+    /**
      * Get messages for a team between the given dates
      *
      * @param {String} userId of the user to get the messages for
@@ -898,7 +971,7 @@ module.exports = function (config, superagent, log) {
               }
 
               if (res.status === 404) {
-                // there are no messages for that group
+                // there are no messages for that user
                 return cb(null, []);
               }
 
