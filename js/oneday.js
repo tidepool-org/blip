@@ -324,6 +324,7 @@ module.exports = function(emitter) {
         }
         mainGroup.select('#tidelineTooltips').attr('transform', 'translate(' + e.translate[0] + ',0)');
         mainGroup.select('#tidelineAnnotations').attr('transform', 'translate(' + e.translate[0] + ',0)');
+        d3.select('#annotationsClipPath rect').attr('transform', 'translate(' + -e.translate[0] + ',0)');
         mainGroup.select('.d3-x.d3-axis').call(xAxis);
         mainGroup.selectAll('#tidelineXAxis g.tick text').style('text-anchor', 'start').attr('transform', 'translate(5,15)');
         if (scrollHandleTrigger) {
@@ -415,8 +416,20 @@ module.exports = function(emitter) {
   };
 
   container.setAnnotation = function() {
+    d3.select('#' + id).insert('clipPath', '#tidelineMain')
+      .attr('id', 'annotationsClipPath')
+      .append('rect')
+      .attr({
+        'x': container.axisGutter(),
+        'y': 0,
+        'width': container.width() - container.axisGutter(),
+        'height': container.height()
+      });
+
     var annotationGroup = mainGroup.append('g')
-      .attr('id', 'tidelineAnnotations');
+      .attr('id', 'tidelineAnnotations')
+      .attr('clip-path', 'url(#annotationsClipPath)');
+
     annotations = annotation(container, annotationGroup).id(annotationGroup.attr('id'));
     pools.forEach(function(pool) {
       pool.annotations(annotations);
