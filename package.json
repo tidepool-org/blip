@@ -18,8 +18,10 @@
     "jshint-stylish": "0.1.5",
     "lodash": "2.4.1",
     "mkdirp": "0.3.5",
+    "moment": "2.5.1",
     "reactify": "^0.10.0",
     "run-sequence": "0.3.6",
+    "rx": "2.2.18",
     "simple-glob": "0.1.0"
   },
   "devDependencies": {
