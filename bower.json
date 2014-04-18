@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "0.0.20",
+  "version": "0.0.21",
   "dependencies": {
     "async": "0.6.2",
     "bows": "https://github.com/latentflip/bows.git#beb35328d5c224fc5635928a1b45b32e0d839caa",
@@ -16,6 +16,6 @@
     "rxjs": "2.2.18",
     "superagent": "0.17.0",
     "tideline": "0.0.15",
-    "tidepool-platform-client": "0.1.1"
+    "tidepool-platform-client": "0.1.2"
   }
 }
