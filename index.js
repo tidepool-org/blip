@@ -512,7 +512,7 @@ module.exports = function (config, superagent, log) {
         }
       };
 
-      _.merge(props, properties);
+      _.assign(props, properties);
       if (!eventname) {
         eventname = 'generic';
       }
@@ -523,8 +523,8 @@ module.exports = function (config, superagent, log) {
           superagent
             .get(makeUrl('/metrics/thisuser/' + eventname))
             .set(sessionTokenHeader, token)
-            .send(props);
-          doNothingCB();
+            .query(props)
+            .end(doNothingCB);
         }
       );
     },
