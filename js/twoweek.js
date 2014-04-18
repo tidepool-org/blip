@@ -517,6 +517,7 @@ module.exports = function(emitter) {
         mainGroup.select('#tidelineAnnotations').attr('transform', 'translate(0,' + e.translate[1] + ')');
         mainGroup.select('.d3-y.d3-axis').call(yAxis);
         container.dayAxisHacks();
+        d3.selectAll('.d3-data-annotation-group').remove();
         for (var i = 0; i < pools.length; i++) {
           pools[i].scroll(e);
         }
@@ -658,6 +659,7 @@ module.exports = function(emitter) {
     pools.forEach(function(pool) {
       pool.annotations(annotations);
     });
+    container.poolStats.annotations(annotations);
     return container;
   };
 

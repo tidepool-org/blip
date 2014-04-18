@@ -305,6 +305,7 @@ module.exports = function(emitter) {
       .on('zoom', function() {
         if (dt.toISODateString(container.getCurrentDomain().center) !== container.dateAtCenter()) {
           container.renderedData(xScale.domain());
+          d3.selectAll('.d3-data-annotation-group').remove();
           for (var j = 0; j < pools.length; j++) {
             pools[j].render(poolGroup, container.renderedData());
           }

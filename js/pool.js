@@ -27,7 +27,7 @@ function Pool (container) {
     index, weight, yPosition,
     height, minHeight = 20, maxHeight = 300,
     group,
-    mainSVG = d3.select(container.id()),
+    mainSVG = d3.select('#' + container.id()),
     xScale,
     imagesBaseUrl = container.imagesBaseUrl(),
     yAxis = [],
@@ -86,6 +86,10 @@ function Pool (container) {
   // getters only
   this.group = function() {
     return group;
+  };
+
+  this.parent = function() {
+    return mainSVG;
   };
 
   this.width = function() {
