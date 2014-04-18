@@ -310,6 +310,13 @@ module.exports = function (config, superagent, log) {
     return myToken != null;
   }
 
+  function getUploadUrl() {
+    if (config.uploadApi == null || myToken == null) {
+      return null;
+    }
+    return config.uploadApi + '?token=' + myToken;
+  }
+
   function withToken(sadCb, happyCb) {
     if (! isLoggedIn()) {
       return sadCb(new Error('User is not logged in, you must log in to do this operation'));
@@ -439,6 +446,12 @@ module.exports = function (config, superagent, log) {
      * @returns {boolean} true if logged in
      */
     isLoggedIn: isLoggedIn,
+    /**
+    * Url used for uploads to the platform
+    *
+    * @returns {String} url for uploads
+    */
+    getUploadUrl :getUploadUrl,
     /**
      * Get current user account info
      *
@@ -824,6 +837,51 @@ module.exports = function (config, superagent, log) {
           );
         }
       });
+    },
+    /**
+     * Get raw device data for the user
+     *
+     * @param {String} userId of the user to get the device data for
+     * @param {Object} options
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    getDeviceDataForUser: function (userId, options, cb) {
+      assertArgumentsSize(arguments, 3);
+      if (typeof options === 'function') {
+        cb = options;
+      }
+
+      withToken(
+        cb,
+        function(token) {
+          superagent
+            .get(makeUrl('/data/' + userId))
+            .set(sessionTokenHeader, token)
+            .end(
+            function(err, res){
+              if (err != null) {
+                return cb(err);
+              }
+              if (res.status === 200) {
+                return cb(null,res.body);
+              } else {
+                cb(null, null);
+              }
+            });
+        }
+      );
+    },
+    /**
+     * Process the raw device data for use in apps
+     *
+     * @param {Object} theData data to process
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    processDeviceData: function (theData, cb) {
+      assertArgumentsSize(arguments, 2);
+      return cb(null,null);
     },
     /**
      * Get messages for a team between the given dates

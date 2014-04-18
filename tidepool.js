@@ -26,6 +26,9 @@ module.exports = function(options) {
   if (options.host == null) {
     options.host = 'https://api.tidepool.io';
   }
+  if (options.uploadApi == null) {
+    options.uploadApi = 'https://api.tidepool.io';
+  }
 
 
   var log = options.log;
