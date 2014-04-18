@@ -90,7 +90,7 @@ var Patient = React.createClass({
               {backButton}
             </div>
             <div className="grid-item one-whole medium-one-third">
-              <div className="patient-subnav-title">Patient profile</div>
+              <div className="patient-subnav-title">Profile</div>
             </div>
           </div>
         </div>
@@ -101,7 +101,7 @@ var Patient = React.createClass({
 
   renderBackButton: function() {
     var url = '#/';
-    var text = 'Patient data';
+    var text = 'Data';
     var patient = this.props.patient;
 
     if (patient && patient.id) {
@@ -134,7 +134,7 @@ var Patient = React.createClass({
       <div className="patient-content-link">
         <a href={editUrl} className="js-edit-patient">
           <i className="icon-profile"></i>
-          {' ' + 'Edit patient profile'}
+          {' ' + 'Edit profile'}
         </a>
       </div>
     );
