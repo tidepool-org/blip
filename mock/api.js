@@ -274,10 +274,10 @@ var createPatch = function(options) {
       }, getDelayFor('api.team.getMessageThread'));
     };
 
-    api.team.getNotes = function(groupId,callback){
-      api.log('[mock] GET /message/notes/' + groupId);
+    api.team.getNotes = function(userId,callback){
+      api.log('[mock] GET /message/notes/' + userId);
 
-      var messages = data.messagenotes[groupId] || [];
+      var messages = data.messagenotes[userId] || [];
 
       messages = _.map(messages, function(message) {
         return {

@@ -24,11 +24,10 @@ var config = window.config;
 var tidepoolPlatform = require('../tidepool/tidepoolplatform');
 var tidepoolPlatformApi;
 // New
-var tidepool = window.tidepool({host: config.API_HOST});
+var tidepool = window.tidepool({host: config.API_HOST, uploadApi: config.UPLOAD_API});
 
 var api = {
   log: bows('Api'),
-  token: null,
   userId: null
 };
 
@@ -49,45 +48,8 @@ api.init = function(cb) {
 
 api.user = {};
 
-function saveSession(newUserId, newToken) {
-  api.token = newToken;
-  api.userId = newUserId;
-
-  // NOTE: `tidepoolPlatformApi` to be deprecated
-  tidepoolPlatformApi.setToken(newToken);
-  tidepoolPlatformApi.setUserId(newUserId);
-
-  if (!newToken) {
-    api.log('Session cleared');
-    return;
-  }
-
-  api.log('Session saved');
-
-  var refreshSessionInterval = 10 * 60 * 1000;
-  var refreshSession = function() {
-    if (api.token == null || newUserId !== api.userId) {
-      api.log('Stopping session token refresh');
-      return;
-    }
-
-    api.log('Refreshing session token');
-    tidepool.refreshUserToken(api.token, newUserId, function(err, data) {
-      var hasNewSession = data && data.userid && data.token;
-      if (err || !hasNewSession) {
-        api.log('Failed refreshing session token', err);
-        return;
-      }
-
-      saveSession(data.userid, data.token);
-    });
-  };
-
-  setTimeout(refreshSession, refreshSessionInterval);
-}
-
 api.user.isAuthenticated = function() {
-  return Boolean(api.token);
+  return tidepool.isLoggedIn();
 };
 
 api.user.login = function(user, cb) {
@@ -97,8 +59,8 @@ api.user.login = function(user, cb) {
     if (err) {
       return cb(err);
     }
-
-    saveSession(data.userid, data.token);
+    api.userId = data.userid;
+    saveSessionForTidepoolPlatformApi(data.userid, data.token);
     cb();
   });
 };
@@ -115,19 +77,18 @@ api.user.signup = function(user, cb) {
       return cb(err);
     }
 
-    var token = account.token;
-    var userId = account.userid;
-    saveSession(userId, token);
+    api.userId = account.userid;
+    saveSessionForTidepoolPlatformApi(account.userid, account.token);
 
     // Then, add additional user info (first name, etc.) to profile
     newProfile.id = userId;
     var createUserProfile = function(cb) {
-      tidepool.addOrUpdateProfile(newProfile, token, cb);
+      tidepool.addOrUpdateProfile(newProfile, cb);
     };
 
     // Finally, create necessary groups for a new user account
     var createUserPatientsGroup = function(cb) {
-      tidepool.createUserGroup(userId, 'patients', token, cb);
+      tidepool.createUserGroup(userId, 'patients', cb);
     };
 
     // NOTE: Can't run this in parallel, apparently the "seagull" api,
@@ -159,14 +120,14 @@ api.user.logout = function(cb) {
     return;
   }
 
-  var token = api.token;
-  tidepool.logout(token, function(err) {
+  tidepool.logout(function(err) {
     if (err) {
       return cb(err);
     }
 
     // Clear session
-    saveSession(null, null);
+    api.userId = null;
+    saveSessionForTidepoolPlatformApi(null, null);
 
     cb();
   });
@@ -175,14 +136,13 @@ api.user.logout = function(cb) {
 api.user.get = function(cb) {
   api.log('GET /user');
 
-  var token = api.token;
   var userId = api.userId;
 
   // Fetch user account data (username, etc.)...
-  var getAccount = tidepool.getCurrentUser.bind(tidepool, token);
+  var getAccount = tidepool.getCurrentUser.bind(tidepool);
 
   // ...and user profile information (first name, last name, etc.)
-  var getProfile = tidepool.findProfile.bind(tidepool, userId, token);
+  var getProfile = tidepool.findProfile.bind(tidepool, userId);
 
   async.parallel({
     account: getAccount,
@@ -202,16 +162,15 @@ api.user.get = function(cb) {
 api.user.put = function(user, cb) {
   api.log('PUT /user');
 
-  var token = api.token;
   var userId = api.userId;
 
   var account = accountFromUser(user);
   var updateAccount =
-    tidepool.updateCurrentUser.bind(tidepool, account, token);
+    tidepool.updateCurrentUser.bind(tidepool, account);
 
   var profile = profileFromUser(user);
   var updateProfile =
-    tidepool.addOrUpdateProfile.bind(tidepool, profile, token);
+    tidepool.addOrUpdateProfile.bind(tidepool, profile);
 
   async.parallel({
     account: updateAccount,
@@ -278,8 +237,8 @@ function patientFromUserProfile(profile) {
 }
 
 function getUserProfile(userId, cb) {
-  var token = api.token;
-  tidepool.findProfile(userId, token, function(err, profile) {
+
+  tidepool.findProfile(userId, function(err, profile) {
     if (err) {
       return cb(err);
     }
@@ -309,7 +268,6 @@ api.patient.get = function(patientId, cb) {
   api.log('GET /patients/' + patientId);
 
   var userId = api.userId;
-  var token = api.token;
 
   getPatientProfile(patientId, function(err, patient) {
     if (err) {
@@ -322,7 +280,7 @@ api.patient.get = function(patientId, cb) {
     }
 
     // Fetch the patient's team
-    tidepool.getUsersTeam(userId, token, function(err, group) {
+    tidepool.getUsersTeam(userId, function(err, group) {
       if (err) {
         return cb(err);
       }
@@ -358,14 +316,13 @@ api.patient.get = function(patientId, cb) {
 api.patient.post = function(patient, cb) {
   api.log('POST /patients');
   var patientId = api.userId;
-  var token = api.token;
 
   // First, create patient profile for user
   // For this backend, patient data is contained in the `patient`
   // attribute of the user's profile
   patient = _.omit(patient, 'firstName', 'lastName');
   var profile = {id: patientId, patient: patient};
-  tidepool.addOrUpdateProfile(profile, token, function(err, profile) {
+  tidepool.addOrUpdateProfile(profile, function(err, profile) {
     if (err) {
       return cb(err);
     }
@@ -374,7 +331,7 @@ api.patient.post = function(patient, cb) {
     patient.id = patientId;
 
     // Then, create necessary groups for new patient
-    tidepool.createUserGroup(patientId, 'team', token,
+    tidepool.createUserGroup(patientId, 'team',
     function(err, teamGroupId) {
       if (err) {
         return cb(err);
@@ -391,8 +348,6 @@ api.patient.post = function(patient, cb) {
 api.patient.put = function(patientId, patient, cb) {
   api.log('PUT /patients/' + patientId);
 
-  var token = api.token;
-
   // Hang on to team, add back after update
   var teamId = patient.teamId;
   var team = patient.team;
@@ -401,7 +356,7 @@ api.patient.put = function(patientId, patient, cb) {
   patient = _.omit(patient, 'id', 'firstName', 'lastName', 'teamId', 'team');
 
   var profile = {id: patientId, patient: patient};
-  tidepool.addOrUpdateProfile(profile, token, function(err, profile) {
+  tidepool.addOrUpdateProfile(profile, function(err, profile) {
     if (err) {
       return cb(err);
     }
@@ -423,11 +378,10 @@ api.patient.put = function(patientId, patient, cb) {
 api.patient.getAll = function(cb) {
   api.log('GET /patients');
 
-  var token = api.token;
   var userId = api.userId;
 
   // First, get a list of of patient ids in user's "patients" group
-  tidepool.getUsersPatients(userId, token, function(err, group) {
+  tidepool.getUsersPatients(userId, function(err, group) {
     if (err) {
       return cb(err);
     }
@@ -453,8 +407,7 @@ api.team = {};
 api.team.getMessageThread = function(messageId,cb){
   api.log('GET /message/thread');
 
-  var token = api.token;
-  tidepool.getMessageThread(messageId,token,function(error,messages){
+  tidepool.getMessageThread(messageId, function(error,messages){
     if(error){
       return cb(error);
     }
@@ -463,11 +416,13 @@ api.team.getMessageThread = function(messageId,cb){
 };
 
 //Get all notes (parent messages) for the given team
-api.team.getNotes = function(teamId,cb){
+api.team.getNotes = function(userId,cb){
   api.log('GET /message/notes');
-  var token = api.token;
 
-  tidepool.getNotesForTeam(teamId,token,function(error,messages){
+  //at present we are not using the date range
+  var dateRange = null;
+
+  tidepool.getNotesForUser(userId, dateRange, function(error,messages){
     if(error){
       return cb(error);
     }
@@ -488,9 +443,8 @@ api.team.getNotes = function(teamId,cb){
 //Add a comment
 api.team.replyToMessageThread = function(message,cb){
   api.log('POST /message/reply');
-  var token = api.token;
 
-  tidepool.replyToMessageThread(message.parentmessage, message ,token ,function(error,replyId){
+  tidepool.replyToMessageThread(message, function(error,replyId){
     if (error) {
       return cb(error);
     }
@@ -501,9 +455,8 @@ api.team.replyToMessageThread = function(message,cb){
 //New message
 api.team.startMessageThread = function(message,cb){
   api.log('POST /message/send');
-  var token = api.token;
 
-  tidepool.startMessageThread(message.groupid, message ,token ,function(error,messageId){
+  tidepool.startMessageThread(message, function(error,messageId){
     if (error) {
       return cb(error);
     }
@@ -515,8 +468,14 @@ api.team.startMessageThread = function(message,cb){
 
 api.patientData = {};
 
+api.patientData.get = function(userId,cb){
+
+};
+
 // ----- Upload -----
 
-api.getUploadUrl = function() {};
+api.getUploadUrl = function() {
+  return tidepool.uploadUrl();
+};
 
 module.exports = api;

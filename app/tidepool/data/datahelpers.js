@@ -17,5 +17,39 @@
 
 'use strict';
 
-exports.convertBasal = require('./convertbasal.js');
-exports.convertBolus = require('./convertbolus.js');
+var Rx = window.Rx;
+
+var convertBasal = require('./convertbasal.js');
+var convertBolus = require('./convertbolus.js');
+
+module.exports = function (theData,cb) {
+  Rx.Observable.fromArray(theData)
+    .tidepoolConvertBasal()
+    .tidepoolConvertBolus()
+    .flatMap(function(datum) {
+    if (datum.type === 'wizard') {
+      return Rx.Observable.fromArray(
+      [ datum,
+        { _id: datum._id + 'carbs',
+        type: 'carbs',
+        deviceTime: datum.deviceTime,
+        value: datum.payload.carbInput,
+        units: datum.payload.carbUnits,
+        deviceId: datum.deviceId,
+        annotations: [{ code: 'generated-from-wizard' }].concat(datum.annotations || [])
+        }
+      ]
+      );
+    } else {
+      return Rx.Observable.return(datum);
+    }
+  })
+  .toArray()
+  .subscribe(
+    function(data) {
+      window.theData = data;
+      cb(null, data);
+    },
+    cb
+  );
+};
