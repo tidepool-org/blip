@@ -49,7 +49,7 @@ module.exports = function(emitter) {
     xScale = d3.time.scale.utc(), xAxis,
     currentCenter, data, tidelineData, renderedData = [], endpoints,
     mainGroup,
-    scrollNav, scrollHandleTrigger = true, annotations, tooltips;
+    scrollNav, scrollHandleTrigger = true, mostRecent = false, annotations, tooltips;
 
   container.dataFill = {};
 
@@ -306,8 +306,10 @@ module.exports = function(emitter) {
         if (dt.toISODateString(container.getCurrentDomain().center) !== container.dateAtCenter()) {
           container.renderedData(xScale.domain());
           d3.selectAll('.d3-data-annotation-group').remove();
-          for (var j = 0; j < pools.length; j++) {
-            pools[j].render(poolGroup, container.renderedData());
+          if (!mostRecent) {
+            for (var j = 0; j < pools.length; j++) {
+              pools[j].render(poolGroup, container.renderedData());
+            }
           }
           container.currentCenter(container.getCurrentDomain().center);
         }
@@ -457,8 +459,10 @@ module.exports = function(emitter) {
       nav.pan.event(mainGroup);
     }
     else {
+      mostRecent = true;
       nav.pan.translate([0,0]);
       nav.pan.event(mainGroup);
+      mostRecent = false;
     }
 
     return container;
