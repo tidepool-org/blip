@@ -19,7 +19,7 @@ var async = require('async');
 var expect = require('salinity').expect;
 var superagent = require('superagent');
 
-var platform = require('../index.js');
+var platform = require('../../index.js');
 
 describe('platform client', function () {
 

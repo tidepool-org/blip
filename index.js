@@ -854,7 +854,6 @@ module.exports = function (config, superagent, log) {
      * Get raw device data for the user
      *
      * @param {String} userId of the user to get the device data for
-     * @param {Object} options
      * @param cb
      * @returns {cb}  cb(err, response)
      */
@@ -902,18 +901,18 @@ module.exports = function (config, superagent, log) {
      * Get messages for a team between the given dates
      *
      * @param {String} userId of the user to get the messages for
-     * @param {Object} dates
-     * @param {String} dates.start [start=''] the start date is optional
-     * @param {String} dates.end [end=''] the end date is optional
+     * @param {Object} options
+     * @param {String} options.start [start=''] the start date is optional
+     * @param {String} options.end [end=''] the end date is optional
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    getAllMessagesForUser: function (userId, dates, cb) {
+    getAllMessagesForUser: function (userId, options, cb) {
       assertArgumentsSize(arguments, 3);
 
-      dates = dates || {};
-      var start = dates.start || '';
-      var end = dates.end || '';
+      options = options || {};
+      var start = options.start || '';
+      var end = options.end || '';
 
       withToken(
         cb,
@@ -945,18 +944,18 @@ module.exports = function (config, superagent, log) {
      * Get all notes within a specified date range
      *
      * @param {String} userId of the user to get the notes for
-     * @param {Object} dates
-     * @param {String} dates.start [start=''] the start date is optional
-     * @param {String} dates.end [end=''] the end date is optional
+     * @param {Object} options
+     * @param {String} options.start [start=''] the start date is optional
+     * @param {String} options.end [end=''] the end date is optional
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    getNotesForUser: function (userId, dates, cb) {
+    getNotesForUser: function (userId, options, cb) {
       assertArgumentsSize(arguments, 3);
 
-      dates = dates || {};
-      var start = dates.start || '';
-      var end = dates.end || '';
+      options = options || {};
+      var start = options.start || '';
+      var end = options.end || '';
 
       withToken(
         cb,
