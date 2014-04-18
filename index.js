@@ -21,6 +21,7 @@
 var _ = (typeof window !== 'undefined' && typeof window._ !== 'undefined') ? window._ : require('lodash');
 var async = (typeof window !== 'undefined' && typeof window.async !== 'undefined') ? window.async : require('async');
 
+var pkg = require('./package.json');
 var deviceData = require('./lib/devicedata');
 
 var sessionTokenHeader = 'x-tidepool-session-token';
@@ -505,14 +506,18 @@ module.exports = function (config, superagent, log) {
      * @returns {cb}  cb()
      */
     trackMetric: function (eventname, properties, cb) {
-      var props = { client: true };
+      properties = properties || {};
+      if (!properties.source) {
+        properties.source = 'tidepool-platform-client';
+        properties.version = pkg.version;
+      }
+
       var doNothingCB = function() {
         if (cb) {
           cb();
         }
       };
 
-      _.assign(props, properties);
       if (!eventname) {
         eventname = 'generic';
       }
@@ -523,7 +528,7 @@ module.exports = function (config, superagent, log) {
           superagent
             .get(makeUrl('/metrics/thisuser/' + eventname))
             .set(sessionTokenHeader, token)
-            .query(props)
+            .query(properties)
             .end(doNothingCB);
         }
       );
