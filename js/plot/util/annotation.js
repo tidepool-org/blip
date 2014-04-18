@@ -79,7 +79,7 @@ module.exports = function(container, annotationsGroup) {
 
     _.defaults(opts, defaults);
 
-    hoverTarget.on('click', function() {
+    hoverTarget.on('mouseover', function() {
 
       try {
         var edge = container.getCurrentDomain().end;

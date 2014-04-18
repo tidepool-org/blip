@@ -40,6 +40,9 @@ var definitions = {
     }
   },
   default: function(source) {
+    if (source == null) {
+      return "We can't be 100% certain of the data displayed here."
+    }
     var a = "We can't be 100% certain of the data displayed here because of how ";
     var b = " reports the data.";
     return  this.stitch(a, b, source);
