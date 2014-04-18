@@ -19,6 +19,7 @@ var _ = window._;
 var moment = window.moment;
 var config = window.config;
 
+var utils = require('../../core/utils');
 var Chart = require('../../components/chart');
 var Messages = require('../../components/messages');
 
@@ -86,7 +87,7 @@ var PatientData = React.createClass({
     );
     /* jshint ignore:end */
 
-    if (!(this.props.fetchingPatientData || _.isEmpty(this.props.patientData))) {
+    if (!(this.props.fetchingPatientData || this.isEmptyPatientData())) {
       var dailyLinkClass = 'patient-data-subnav-active';
       var weeklyLinkClass = null;
       if (this.state.chartType === 'weekly') {
@@ -167,7 +168,7 @@ var PatientData = React.createClass({
       return this.renderLoading();
     }
 
-    if (_.isEmpty(this.props.patientData)) {
+    if (this.isEmptyPatientData()) {
       return this.renderNoData();
     }
 
@@ -211,6 +212,13 @@ var PatientData = React.createClass({
     );
     /* jshint ignore:end */
   },
+
+  isEmptyPatientData: function() {
+    var patientDataLength =
+      utils.getIn(this.props.patientData, ['data', 'length'], 0);
+    return !Boolean(patientDataLength);
+  },
+
   renderMessagesContainer: function() {
     /* jshint ignore:start */
     if(this.state.createMessageDatetime){
@@ -235,14 +243,17 @@ var PatientData = React.createClass({
     }
     /* jshint ignore:end */
   },
+
   closeMessageThread: function(){
     this.setState({ messages: null });
     this.refs.chart.closeMessageThread();
   },
+
   closeMessageCreation: function(){
     this.setState({ createMessageDatetime: null });
     this.refs.chart.closeMessageThread();
   },
+
   renderChart: function() {
     /* jshint ignore:start */
     return (
@@ -263,7 +274,7 @@ var PatientData = React.createClass({
   },
 
   renderFooter: function() {
-    if (this.props.fetchingPatientData || _.isEmpty(this.props.patientData)) {
+    if (this.props.fetchingPatientData || this.isEmptyPatientData()) {
       return null;
     }
 
