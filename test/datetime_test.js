@@ -180,6 +180,24 @@ describe('datetime utility', function() {
     });
   });
 
+  describe('isNearRightEdge', function() {
+    it('should be a function', function() {
+      assert.isFunction(dt.isNearRightEdge);
+    });
+
+    it('should return true when t1 is less than six hours before t2', function() {
+      var t1 = {'normalTime': '2014-01-01T21:00:01.000Z'};
+      var t2 = new Date('2014-01-02T00:00:00.000Z');
+      expect(dt.isNearRightEdge(t1, t2)).to.be.true;
+    });
+
+    it('should return false when t1 is greater than six hours before t2', function() {
+      var t1 = {'normalTime': '2014-01-01T05:59:59.999Z'};
+      var t2 = new Date('2014-01-02T00:00:00.000Z');
+      expect(dt.isNearRightEdge(t1, t2)).to.be.false;
+    });
+  });
+
   describe('isTwentyFourHours', function() {
     it('should be a function', function() {
       assert.isFunction(dt.isTwentyFourHours);

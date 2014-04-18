@@ -197,6 +197,7 @@ As noted above, tideline *loves* SVG group `<g>` elements. The basic structure o
 | | | |-<text id='pool_pool[Datatype]_label'>
 | | |-<g id='tidelineYAxes'>
 | | |-<g id='tidelineScrollNav'>
+| | |-<g id='tidelineAnnotations'>
 | | |-<g id='tidelineTooltips'>
 ```
 

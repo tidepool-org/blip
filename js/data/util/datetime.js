@@ -90,6 +90,15 @@ var datetime = {
     else { return false; }
   },
 
+  isNearRightEdge: function(d, edge) {
+    // check if d.normalTime is within six hours before edge
+    var t = new Date(d.normalTime);
+    if (edge.valueOf() - t.valueOf() < this.MS_IN_24/4) {
+      return true;
+    }
+    return false;
+  },
+
   isTwentyFourHours: function(s, e) {
     var start = new Date(s).valueOf(), end = new Date(e).valueOf();
     if (end - start === this.MS_IN_24) {

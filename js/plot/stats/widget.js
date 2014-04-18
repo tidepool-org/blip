@@ -22,10 +22,11 @@ var log = require('../../lib/').bows('Stats');
 var scales = require('../util/scales');
 var dt = require('../../data/util/datetime');
 var format = require('../../data/util/format');
+var Puddle = require('./puddle');
 
 module.exports = function(pool, opts) {
 
-  var Puddle = require('./puddle');
+  var annotation = pool.annotations();
 
   opts = opts || {};
 
@@ -42,7 +43,12 @@ module.exports = function(pool, opts) {
     },
     imagesBaseUrl: pool.imagesBaseUrl(),
     size: 16,
-    'pieRadius': pool.height() * 0.45
+    'pieRadius': pool.height() * 0.45,
+    defaultAnnotationOpts: {
+      'lead': 'stats',
+      'd': {'annotations': [{'code': 'stats'}]},
+      'orientation': {'up': true}
+    }
   };
 
   var data = {
@@ -109,6 +115,7 @@ module.exports = function(pool, opts) {
           'class': 'd3-stats',
           'id': 'puddle_' + puddle.id
         });
+      puddle.xPosition(currX);
       currX = (currentWeight / cumWeight) * pool.width();
       puddleGroup.call(puddle);
     });
@@ -122,7 +129,7 @@ module.exports = function(pool, opts) {
           return p.id === puddle.id;
         });
         var createAPie = function(puddleGroup, data) {
-          var slices = stats.createPie(puddleGroup, data[puddle.id.toLowerCase()]);
+          var slices = stats.createPie(puddle, puddleGroup, data[puddle.id.toLowerCase()]);
           pies.push({
             'id': puddle.id,
             'slices': slices
@@ -278,6 +285,7 @@ module.exports = function(pool, opts) {
     if (isNaN(data.value)) {
       puddleGroup.classed('d3-insufficient-data', true);
       stats.rectGroup.selectAll('.d3-stats-image').classed('hidden', true);
+      stats.rectAnnotation(puddle, puddleGroup);
     }
     else {
       puddleGroup.classed('d3-insufficient-data', false);
@@ -289,6 +297,7 @@ module.exports = function(pool, opts) {
     if (isNaN(data.value)) {
       puddleGroup.classed('d3-insufficient-data', true);
       stats.rectGroup.selectAll('.d3-stats-image').classed('hidden', true);
+      stats.rectAnnotation(puddle, puddleGroup);
     }
     else {
       puddleGroup.classed('d3-insufficient-data', false);
@@ -320,7 +329,17 @@ module.exports = function(pool, opts) {
     }
   };
 
-  stats.createPie = function(puddleGroup, data) {
+  stats.rectAnnotation = function(puddle, puddleGroup) {
+    var annotationOpts = {
+      'x': puddle.width() * (3/16) + puddle.xPosition(),
+      'y': puddle.height() / 2,
+      'hoverTarget': puddleGroup
+    };
+    _.defaults(annotationOpts, opts.defaultAnnotationOpts);
+    pool.parent().select('#tidelineAnnotations_stats').call(annotation, annotationOpts);
+  };
+
+  stats.createPie = function(puddle, puddleGroup, data) {
     var xOffset = (pool.width()/3) * (1/6);
     var yOffset = pool.height() / 2;
     puddleGroup.selectAll('.d3-stats-pie').remove();
@@ -337,6 +356,14 @@ module.exports = function(pool, opts) {
           'cy': 0,
           'r': opts.pieRadius
         });
+
+      var annotationOpts = {
+        'x': xOffset + puddle.xPosition(),
+        'y': yOffset,
+        'hoverTarget': puddleGroup
+      };
+      _.defaults(annotationOpts, opts.defaultAnnotationOpts);
+      pool.parent().select('#tidelineAnnotations_stats').call(annotation, annotationOpts);
 
       return null;
     }

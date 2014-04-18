@@ -100,14 +100,20 @@ function chartDailyFactory(el, options) {
 
     chart.arrangePools();
 
-    chart.setTooltip();
+    chart.setAnnotation().setTooltip();
+
+    // add annotations
+    chart.annotations().addGroup(d3.select('#' + chart.id()).select('#' + poolBolus.id()), 'carbs');
+    chart.annotations().addGroup(d3.select('#' + chart.id()).select('#' + poolBolus.id()), 'bolus');
+    chart.annotations().addGroup(d3.select('#' + chart.id()).select('#' + poolBasal.id()), 'basal-rate-segment');
+    chart.annotations().addGroup(d3.select('#' + chart.id()).select('#' + poolStats.id()), 'stats');
 
     // add tooltips
-    chart.tooltips().addGroup(d3.select('#' + poolBG.id()), 'cbg');
-    chart.tooltips().addGroup(d3.select('#' + poolBG.id()), 'smbg');
-    chart.tooltips().addGroup(d3.select('#' + poolBolus.id()), 'carbs');
-    chart.tooltips().addGroup(d3.select('#' + poolBolus.id()), 'bolus');
-    chart.tooltips().addGroup(d3.select('#' + poolBasal.id()), 'basal');
+    chart.tooltips().addGroup(d3.select('#' + chart.id()).select('#' + poolBG.id()), 'cbg');
+    chart.tooltips().addGroup(d3.select('#' + chart.id()).select('#' + poolBG.id()), 'smbg');
+    chart.tooltips().addGroup(d3.select('#' + chart.id()).select('#' + poolBolus.id()), 'carbs');
+    chart.tooltips().addGroup(d3.select('#' + chart.id()).select('#' + poolBolus.id()), 'bolus');
+    chart.tooltips().addGroup(d3.select('#' + chart.id()).select('#' + poolBasal.id()), 'basal');
 
     return chart;
   };
@@ -224,7 +230,7 @@ function chartDailyFactory(el, options) {
   // if called without an argument, locates the chart at the most recent 24 hours of data
   chart.locate = function(datetime) {
 
-    var start, end, scrollHandleTrigger = false;
+    var start, end, atMostRecent = false;
 
     var mostRecent = function() {
       start = chart.initialEndpoints[0];
@@ -232,7 +238,7 @@ function chartDailyFactory(el, options) {
     };
 
     if (!arguments.length) {
-      scrollHandleTrigger = true;
+      atMostRecent = true;
       mostRecent();
     }
     else {
@@ -266,7 +272,7 @@ function chartDailyFactory(el, options) {
 
     chart.renderedData([start, end]);
 
-    chart.setAtDate(start, scrollHandleTrigger);
+    chart.setAtDate(start, atMostRecent);
 
     // render pools
     _.each(chart.pools(), function(pool) {

@@ -74,6 +74,8 @@ module.exports = function(pool, opts) {
   function carbs(selection) {
     opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
+      carbs.addAnnotations(_.filter(currentData, function(d) { return d.annotations; }));
+
       var rects = d3.select(this)
         .selectAll('rect')
         .data(currentData, function(d) {
@@ -149,6 +151,19 @@ module.exports = function(pool, opts) {
         },
         // customText
         d.value + 'g');
+  };
+
+  carbs.addAnnotations = function(data, selection) {
+    _.each(data, function(d) {
+      var annotationOpts = {
+        'x': opts.xScale(Date.parse(d.normalTime)),
+        'y': opts.yScale(d.value),
+        'xMultiplier': -2,
+        'yMultiplier': -1,
+        'd': d
+      };
+      d3.select('#tidelineAnnotations_bolus').call(pool.annotations(), annotationOpts);
+    });
   };
 
   return carbs;

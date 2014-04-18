@@ -18,12 +18,13 @@
 var d3 = require('./lib/').d3;
 var _ = require('./lib/')._;
 
+var Pool = require('./pool');
+var annotation = require('./plot/util/annotation');
+var tooltip = require('./plot/util/tooltip');
+
 var log = require('./lib/').bows('Two Week');
 
 module.exports = function(emitter) {
-  // required externals
-  var Pool = require('./pool');
-
   // constants
   var MS_IN_24 = 86400000;
 
@@ -47,6 +48,7 @@ module.exports = function(emitter) {
     lessThanTwoWeeks = false,
     sortReverse = true, viewIndex,
     mainGroup, scrollNav, scrollHandleTrigger = true,
+    annotations, tooltips,
     cachedDomain;
 
   container.dataFill = {};
@@ -232,7 +234,7 @@ module.exports = function(emitter) {
   container.clear = function() {
     emitter.removeAllListeners('numbers');
     container.currentTranslation(0).latestTranslation(0);
-    var ids = ['#tidelinePools', '#tidelineXAxisGroup', '#tidelineYAxisGroup', '#tidelineScrollNav'];
+    var ids = ['#tidelinePools', '#tidelineXAxisGroup', '#tidelineYAxisGroup', '#tidelineScrollNav', '#tidelineTooltips', '#tidelineAnnotations'];
     ids.forEach(function(id) {
       mainGroup.select(id).remove();
     });
@@ -320,6 +322,14 @@ module.exports = function(emitter) {
     return id;
   };
 
+  container.annotations = function() {
+    return annotations;
+  };
+
+  container.tooltips = function() {
+    return tooltips;
+  };
+  
   container.axisGutter = function() {
     return axisGutter;
   };
@@ -507,12 +517,14 @@ module.exports = function(emitter) {
           e.translate[1] = maxTranslation;
         }
         nav.scroll.translate([0, e.translate[1]]);
+        mainGroup.select('#tidelineTooltips').attr('transform', 'translate(0,' + e.translate[1] + ')');
+        mainGroup.select('#tidelineAnnotations').attr('transform', 'translate(0,' + e.translate[1] + ')');
         mainGroup.select('.d3-y.d3-axis').call(yAxis);
         container.dayAxisHacks();
+        d3.selectAll('.d3-data-annotation-group').remove();
         for (var i = 0; i < pools.length; i++) {
           pools[i].scroll(e);
         }
-        container.navString(yScale.domain());
         if (scrollHandleTrigger) {
           mainGroup.select('.scrollThumb').transition().ease('linear').attr('y', function(d) {
             if (sortReverse) {
@@ -527,6 +539,7 @@ module.exports = function(emitter) {
       })
       .on('zoomend', function() {
         container.currentTranslation(nav.latestTranslation);
+        container.navString(yScale.domain());
         scrollHandleTrigger = true;
       });
 
@@ -640,6 +653,27 @@ module.exports = function(emitter) {
         .call(drag);
     }
 
+    return container;
+  };
+
+  container.setAnnotation = function() {
+    var annotationGroup = mainGroup.append('g')
+      .attr('id', 'tidelineAnnotations');
+    annotations = annotation(container, annotationGroup).id(annotationGroup.attr('id'));
+    pools.forEach(function(pool) {
+      pool.annotations(annotations);
+    });
+    container.poolStats.annotations(annotations);
+    return container;
+  };
+
+  container.setTooltip = function() {
+    var tooltipGroup = mainGroup.append('g')
+      .attr('id', 'tidelineTooltips');
+    tooltips = tooltip(container, tooltipGroup).id(tooltipGroup.attr('id'));
+    pools.forEach(function(pool) {
+      pool.tooltips(tooltips);
+    });
     return container;
   };
 

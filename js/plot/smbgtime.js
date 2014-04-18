@@ -36,17 +36,21 @@ function SMBGTime (opts) {
       'very-high': {'boundary': 300}
     },
     size: 16,
-    rectWidth: 32
+    rectWidth: 32,
+    tooltipWidth: 70,
+    tooltipHeight: 24
   };
 
   opts = _.defaults(opts, defaults);
 
   this.draw = function(pool) {
     opts.pool = pool;
+    var smbg = this;
     return function(selection) {
       selection.each(function(currentData) {
         // pool-dependent variables
         var xScale = opts.pool.xScale().copy();
+        opts.xScale = xScale;
 
         var circles = d3.select(this)
           .selectAll('g')
@@ -78,13 +82,7 @@ function SMBGTime (opts) {
               }
             },
             'x': function(d) {
-              var localTime = new Date(d.normalTime);
-              var hour = localTime.getUTCHours();
-              var min = localTime.getUTCMinutes();
-              var sec = localTime.getUTCSeconds();
-              var msec = localTime.getUTCMilliseconds();
-              var t = hour * MS_IN_HOUR + min * MS_IN_MIN + sec * 1000 + msec;
-              return xScale(t) - opts.size / 2;
+              return smbg.xPosition(d);
             },
             'y': function(d) {
               return pool.height() / 2 - opts.size / 2;
@@ -151,6 +149,24 @@ function SMBGTime (opts) {
           });
 
         circles.exit().remove();
+
+        // tooltips
+        selection.selectAll('.d3-image-smbg').on('mouseover', function() {
+          console.log('Hi there :D');
+          if (d3.select(this).classed('d3-bg-low')) {
+            smbg.addTooltip(d3.select(this).datum(), 'low', pool);
+          }
+          else if (d3.select(this).classed('d3-bg-target')) {
+            smbg.addTooltip(d3.select(this).datum(), 'target', pool);
+          }
+          else {
+            smbg.addTooltip(d3.select(this).datum(), 'high', pool);
+          }
+        });
+        d3.selectAll('.d3-image-smbg').on('mouseout', function() {
+          var id = d3.select(this).attr('id').replace('smbg_time_', 'tooltip_');
+          d3.select('#' + id).remove();
+        });
       });
     };
   };
@@ -187,6 +203,55 @@ function SMBGTime (opts) {
         'width': opts.size,
         'y': opts.pool.height() / 2 - opts.size / 2
       });
+  };
+
+  this.xPosition = function(d) {
+    var localTime = new Date(d.normalTime);
+    var hour = localTime.getUTCHours();
+    var min = localTime.getUTCMinutes();
+    var sec = localTime.getUTCSeconds();
+    var msec = localTime.getUTCMilliseconds();
+    var t = hour * MS_IN_HOUR + min * MS_IN_MIN + sec * 1000 + msec;
+    return opts.xScale(t) - opts.size / 2;
+  };
+
+  this.addTooltip = function(d, category, p) {
+    var yPosition = p.height() / 2;
+    var xPosition = this.xPosition(d) + opts.size/2;
+    console.log(p.id());
+    d3.select('#' + 'tidelineTooltips_' + p.id())
+      .call(p.tooltips(),
+        d,
+        // tooltipXPos
+        xPosition,
+        'smbg',
+        // timestamp
+        true,
+        opts.classes[category].tooltip,
+        opts.tooltipWidth,
+        opts.tooltipHeight,
+        // imageX
+        xPosition,
+        // imageY
+        function() {
+          if ((category === 'low') || (category === 'target')) {
+            return yPosition - opts.tooltipHeight;
+          }
+          else {
+            return yPosition;
+          }
+        },
+        // textX
+        xPosition + opts.tooltipWidth / 2,
+        // textY
+        function() {
+          if ((category === 'low') || (category === 'target')) {
+            return yPosition - opts.tooltipHeight / 2;
+          }
+          else {
+            return yPosition + opts.tooltipHeight / 2;
+          }
+        });
   };
 }
 

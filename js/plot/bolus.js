@@ -87,6 +87,8 @@ module.exports = function(pool, opts) {
   function bolus(selection) {
     opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
+      bolus.addAnnotations(_.filter(currentData, function(d) { return d.annotations; }));
+      
       var boluses = d3.select(this)
         .selectAll('g')
         .data(currentData, function(d) {
@@ -421,6 +423,19 @@ module.exports = function(pool, opts) {
     var bottom = (x + opts.triangleSize) + ' ' + (y - opts.triangleSize/2);
     var point = x + ' ' + y;
     return 'M' + top + 'L' + bottom + 'L' + point + 'Z';
+  };
+
+  bolus.addAnnotations = function(data, selection) {
+    _.each(data, function(d) {
+      var annotationOpts = {
+        'x': opts.xScale(Date.parse(d.normalTime)),
+        'y': opts.yScale(d.value),
+        'xMultiplier': -2,
+        'yMultiplier': 1,
+        'd': d
+      };
+      d3.select('#tidelineAnnotations_bolus').call(pool.annotations(), annotationOpts);
+    });
   };
 
   return bolus;

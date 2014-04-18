@@ -21,6 +21,11 @@ var format = {
 
   MS_IN_24: 86400000,
 
+  capitalize: function(s) {
+    // transform the first letter of string s to uppercase
+    return s[0].toUpperCase() + s.slice(1);
+  },
+
   fixFloatingPoint: function(n) {
     return parseFloat(n.toFixed(3));
   },
