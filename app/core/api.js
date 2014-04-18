@@ -24,11 +24,19 @@ var config = window.config;
 var tidepoolPlatform = require('../tidepool/tidepoolplatform');
 var tidepoolPlatformApi;
 // New
-var tidepool = window.tidepool({host: config.API_HOST, uploadApi: config.UPLOAD_API});
+var tidepoolLog = bows('Tidepool');
+var tidepool = window.tidepool({
+  host: config.API_HOST,
+  uploadApi: config.UPLOAD_API,
+  log: {
+    warn: tidepoolLog,
+    info: tidepoolLog,
+    debug: tidepoolLog
+  }
+});
 
 var api = {
-  log: bows('Api'),
-  userId: null
+  log: bows('Api')
 };
 
 api.init = function(cb) {
@@ -59,8 +67,7 @@ api.user.login = function(user, cb) {
     if (err) {
       return cb(err);
     }
-    api.userId = data.userid;
-    saveSessionForTidepoolPlatformApi(data.userid, data.token);
+
     cb();
   });
 };
@@ -77,8 +84,7 @@ api.user.signup = function(user, cb) {
       return cb(err);
     }
 
-    api.userId = account.userid;
-    saveSessionForTidepoolPlatformApi(account.userid, account.token);
+    var userId = account.userid;
 
     // Then, add additional user info (first name, etc.) to profile
     newProfile.id = userId;
@@ -125,10 +131,6 @@ api.user.logout = function(cb) {
       return cb(err);
     }
 
-    // Clear session
-    api.userId = null;
-    saveSessionForTidepoolPlatformApi(null, null);
-
     cb();
   });
 };
@@ -136,7 +138,7 @@ api.user.logout = function(cb) {
 api.user.get = function(cb) {
   api.log('GET /user');
 
-  var userId = api.userId;
+  var userId = tidepool.getUserId();
 
   // Fetch user account data (username, etc.)...
   var getAccount = tidepool.getCurrentUser.bind(tidepool);
@@ -162,7 +164,7 @@ api.user.get = function(cb) {
 api.user.put = function(user, cb) {
   api.log('PUT /user');
 
-  var userId = api.userId;
+  var userId = tidepool.getUserId();
 
   var account = accountFromUser(user);
   var updateAccount =
@@ -267,7 +269,7 @@ function getPatientProfile(patientId, cb) {
 api.patient.get = function(patientId, cb) {
   api.log('GET /patients/' + patientId);
 
-  var userId = api.userId;
+  var userId = tidepool.getUserId();
 
   getPatientProfile(patientId, function(err, patient) {
     if (err) {
@@ -315,7 +317,7 @@ api.patient.get = function(patientId, cb) {
 
 api.patient.post = function(patient, cb) {
   api.log('POST /patients');
-  var patientId = api.userId;
+  var patientId = tidepool.getUserId();
 
   // First, create patient profile for user
   // For this backend, patient data is contained in the `patient`
@@ -378,7 +380,7 @@ api.patient.put = function(patientId, patient, cb) {
 api.patient.getAll = function(cb) {
   api.log('GET /patients');
 
-  var userId = api.userId;
+  var userId = tidepool.getUserId();
 
   // First, get a list of of patient ids in user's "patients" group
   tidepool.getUsersPatients(userId, function(err, group) {
