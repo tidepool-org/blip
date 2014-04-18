@@ -2,6 +2,8 @@ var d3 = require('../../lib/').d3;
 var _ = require('../../lib/')._;
 
 var shapes = require('./shapes');
+var defs = require('./annotationdefinitions');
+var dt = require('../../data/util/datetime');
 
 var log = require('../../lib/').bows('AnnotationIcon');
 
@@ -13,7 +15,7 @@ module.exports = function(container, annotationsGroup) {
     'foWidth': 200,
     'triangleWidth': 18,
     'triangleHeight': 12,
-    'mainText': "We can't be 100% certain of the data displayed here because of how the device maker reports the data."
+    'orientation': {}
   };
 
   function annotation(selection, opts) {
@@ -21,68 +23,123 @@ module.exports = function(container, annotationsGroup) {
 
     _.defaults(opts, defaults);
 
-    if (!(opts.x && opts.y)) {
+    if (!((opts.x != null) && (opts.y != null))) {
       log('Sorry, I need x and y coordinates to plot an annotation icon.');
       return;
     }
 
-    selection = selection.append('g')
-      .attr('class', 'd3-data-annotation-group');
+    var hoverTarget;
 
-    var x = annotation.xOffset(opts), y = annotation.yOffset(opts);
+    if (opts.d.annotations[0].code !== 'stats') {
+      selection = selection.append('g')
+        .attr('class', 'd3-data-annotation-group');
 
-    var hoverTarget = selection.append('circle')
-      .attr({
-        'cx': x,
-        'cy': y,
-        'r': r,
-        'class': 'd3-circle-data-annotation',
-      });
-    selection.append('text')
-      .attr({
-        'x': x,
-        'y': y,
-        'class': 'd3-text-data-annotation'
-      })
-      .text('?');
+      opts.x = annotation.xOffset(opts);
+      opts.y = annotation.yOffset(opts);
 
-    if (opts.hoverTarget != null) {
-      hoverTarget = opts.hoverTarget;
+      hoverTarget = selection.append('circle')
+        .attr({
+          'cx': opts.x,
+          'cy': opts.y,
+          'r': r,
+          'class': 'd3-circle-data-annotation',
+        });
+      selection.append('text')
+        .attr({
+          'x': opts.x,
+          'y': opts.y,
+          'class': 'd3-text-data-annotation'
+        })
+        .text('?');
+
+      if (opts.hoverTarget != null) {
+        hoverTarget = opts.hoverTarget;
+      }
+      annotation.tooltip(opts, selection, hoverTarget);
     }
-    annotation.tooltip(x, y, opts, selection, hoverTarget);
+    else {
+      if (opts.hoverTarget != null) {
+        hoverTarget = opts.hoverTarget;
+      }
+      annotation.tooltip(opts, selection, hoverTarget);
+    }
   }
 
-  annotation.tooltip = function(x, y, opts, selection, hoverTarget) {
-    hoverTarget.on('mouseover', function() {
-      console.log('Hi there :D');
+  annotation.tooltip = function(opts, selection, hoverTarget) {
+    opts = opts || {};
+
+    if (opts.d.annotations[0].code === 'stats') {
+      if (container.type === 'daily') {
+        opts.x = opts.x - (container.currentTranslation() - container.axisGutter());
+      }
+      else if (container.type === 'weekly') {
+        opts.y = opts.y - container.currentTranslation();
+      }
+    }
+
+    _.defaults(opts, defaults);
+
+    hoverTarget.on('click', function() {
+
+      try {
+        var edge = container.getCurrentDomain().end;
+        opts.orientation.left = dt.isNearRightEdge(opts.d, edge);
+      }
+      catch (TypeError) {}
+
       var fo = selection.append('foreignObject')
         .attr({
-          'x': x,
-          'y': y,
+          'x': opts.x,
+          'y': opts.y,
           'width': opts.foWidth,
-          'transform': 'translate(' + (0-(3/2*opts.triangleWidth)) +
-            ',' + opts.triangleHeight + ')',
           'class': 'd3-tooltip-data-annotation'
         });
       var div = fo.append('xhtml:body')
         .append('div')
         .attr('class', 'd3-div-data-annotation');
-      div.append('p')
-        .attr('class', 'd3-data-annotation-lead')
-        .html('Why is there a question mark here?');
-      div.append('p')
-        .html(opts.mainText);
+
+      // append lead text, if any
+      var lead = defs.lead(opts.lead);
+      if (lead) {
+        div.append('p')
+          .attr('class', 'd3-data-annotation-lead')
+          .html(lead);
+      }
+
+      // append all annotation texts
+      var codes = opts.d.annotations;
+      _.each(codes, function(code) {
+        div.append('p')
+          .html(defs.main(code.code, opts.d.source));
+      });
+
+      // get height of HTML
       var foHeight = div[0][0].getBoundingClientRect().height;
-      fo.attr('height', foHeight);
+      var anchorX = opts.orientation.left ? (3/2*opts.triangleWidth) - opts.foWidth : (0-(3/2*opts.triangleWidth));
+      var anchorY = opts.orientation.up ? -(foHeight + opts.triangleHeight) : opts.triangleHeight;
+
+      fo.attr({
+        'height': foHeight,
+        'transform': 'translate(' + anchorX + ',' + anchorY + ')'
+      });
+      var polygon = shapes.tooltipPolygon({
+          'w': opts.foWidth,
+          'h': foHeight,
+          't': opts.triangleWidth,
+          'k': opts.triangleHeight
+        });
+      if (opts.orientation.up) {
+        polygon = shapes.mirrorImageX(polygon);
+      }
+      // not an else if because orientation can be both up & left
+      if (opts.orientation.left) {
+        polygon = shapes.mirrorImageY(polygon);
+      }
+
       selection.insert('polygon', '.d3-tooltip-data-annotation')
         .attr({
-          'points': shapes.tooltipPolygon({
-            'w': opts.foWidth,
-            'h': foHeight,
-            't': opts.triangleWidth,
-            'k': opts.triangleHeight
-          }),
-          'transform': 'translate(' + x + ',' + y + ')',
+          'points': polygon,
+          'transform': 'translate(' + opts.x + ',' + opts.y + ')',
           'width': opts.foWidth,
           'height': opts.triangleHeight + foHeight,
           'class': 'd3-polygon-data-annotation'
