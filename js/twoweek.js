@@ -234,7 +234,7 @@ module.exports = function(emitter) {
   container.clear = function() {
     emitter.removeAllListeners('numbers');
     container.currentTranslation(0).latestTranslation(0);
-    var ids = ['#tidelinePools', '#tidelineXAxisGroup', '#tidelineYAxisGroup', '#tidelineScrollNav'];
+    var ids = ['#tidelinePools', '#tidelineXAxisGroup', '#tidelineYAxisGroup', '#tidelineScrollNav', '#tidelineAnnotations'];
     ids.forEach(function(id) {
       mainGroup.select(id).remove();
     });
@@ -521,7 +521,6 @@ module.exports = function(emitter) {
         for (var i = 0; i < pools.length; i++) {
           pools[i].scroll(e);
         }
-        container.navString(yScale.domain());
         if (scrollHandleTrigger) {
           mainGroup.select('.scrollThumb').transition().ease('linear').attr('y', function(d) {
             if (sortReverse) {
@@ -536,6 +535,7 @@ module.exports = function(emitter) {
       })
       .on('zoomend', function() {
         container.currentTranslation(nav.latestTranslation);
+        container.navString(yScale.domain());
         scrollHandleTrigger = true;
       });
 
