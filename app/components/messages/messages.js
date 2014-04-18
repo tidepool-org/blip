@@ -61,11 +61,13 @@ var Messages = React.createClass({
   renderMessage: function(message){
     /* jshint ignore:start */
     return (
-      <div className='messages-message'>
+      <div className='messages-message' key={message.id}>
         <div className='messages-message-when'>
           <span>{this.formatDisplayDate(message.timestamp)}</span>
         </div>
-        <span className='messages-message-username'> {message.username}</span>
+        <span className='messages-message-username'>
+          {' ' + this.getUserFullName(message.user)}
+        </span>
         <p className='messages-message-text'>{message.messagetext}</p>
       </div>
       );
@@ -74,8 +76,12 @@ var Messages = React.createClass({
   renderComment:function(comment){
     /* jshint ignore:start */
     return (
-      <div className='messages-comment'>
-        <span className='messages-comment-header'> {comment.username} - {this.formatDisplayDate(comment.timestamp)}</span>
+      <div className='messages-comment' key={comment.id}>
+        <span className='messages-comment-header'>
+          {' ' + this.getUserFullName(comment.user)}
+          {' - '}
+          {this.formatDisplayDate(comment.timestamp)}
+        </span>
         <p className='messages-comment-text'>{comment.messagetext}</p>
       </div>
 
@@ -153,6 +159,13 @@ var Messages = React.createClass({
       return _.first(this.state.messages, function(message){ return !(message.parentmessage); })[0];
     }
     return;
+  },
+  getUserFullName: function(user) {
+    var result = 'Anonymous user';
+    if (user && user.firstName && user.lastName) {
+      result = user.firstName + ' ' + user.lastName;
+    }
+    return result;
   },
   handleAddComment : function (formValues){
 
