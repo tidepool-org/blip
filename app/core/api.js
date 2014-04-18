@@ -19,34 +19,23 @@ var _ = window._;
 var async = window.async;
 var bows = window.bows;
 var config = window.config;
-
-// Legacy
-var tidepoolPlatform = require('../tidepool/tidepoolplatform');
-var tidepoolPlatformApi;
-// New
-var tidepoolLog = bows('Tidepool');
-var tidepool = window.tidepool({
-  host: config.API_HOST,
-  uploadApi: config.UPLOAD_API,
-  log: {
-    warn: tidepoolLog,
-    info: tidepoolLog,
-    debug: tidepoolLog
-  }
-});
+var tidepool = window.tidepool;
 
 var api = {
   log: bows('Api')
 };
 
 api.init = function(cb) {
-  tidepoolPlatformApi = tidepoolPlatform({
-    apiHost: config.API_HOST,
-    uploadApi: config.UPLOAD_API
+  var tidepoolLog = bows('Tidepool');
+  tidepool = tidepool({
+    host: config.API_HOST,
+    uploadApi: config.UPLOAD_API,
+    log: {
+      warn: tidepoolLog,
+      info: tidepoolLog,
+      debug: tidepoolLog
+    }
   });
-
-  _.extend(api.patientData,  tidepoolPlatformApi.patientData);
-  api.getUploadUrl = tidepoolPlatformApi.getUploadUrl;
 
   api.log('Initialized');
   cb();
@@ -291,8 +280,6 @@ api.patient.get = function(patientId, cb) {
         return cb(null, patient);
       }
 
-      patient.teamId = group.id;
-
       // If this is not the current user's patient, we're done
       if (patientId !== userId) {
         return cb(null, patient);
@@ -339,7 +326,6 @@ api.patient.post = function(patient, cb) {
         return cb(err);
       }
 
-      patient.teamId = teamGroupId;
       patient.team = [];
 
       cb(null, patient);
@@ -351,11 +337,10 @@ api.patient.put = function(patientId, patient, cb) {
   api.log('PUT /patients/' + patientId);
 
   // Hang on to team, add back after update
-  var teamId = patient.teamId;
   var team = patient.team;
 
   // Don't save info already in user's profile, or team
-  patient = _.omit(patient, 'id', 'firstName', 'lastName', 'teamId', 'team');
+  patient = _.omit(patient, 'id', 'firstName', 'lastName', 'team');
 
   var profile = {id: patientId, patient: patient};
   tidepool.addOrUpdateProfile(profile, function(err, profile) {
@@ -365,9 +350,6 @@ api.patient.put = function(patientId, patient, cb) {
 
     var patient = patientFromUserProfile(profile);
     patient.id = patientId;
-    if (teamId) {
-      patient.teamId = teamId;
-    }
     if (team) {
       patient.team = team;
     }
@@ -470,14 +452,29 @@ api.team.startMessageThread = function(message,cb){
 
 api.patientData = {};
 
-api.patientData.get = function(userId,cb){
+api.patientData.get = function(patientId, cb) {
+  api.log('GET /data/' + patientId);
 
+  tidepool.getDeviceDataForUser(patientId, function(err, data) {
+    if (err) {
+      return cb(err);
+    }
+
+    window.inData = data;
+    tidepool.processDeviceData(data, function(err, data) {
+      if (err) {
+        return cb(err);
+      }
+
+      window.theData = data;
+      cb(null, data);
+    });
+  });
 };
-
 // ----- Upload -----
 
 api.getUploadUrl = function() {
-  return tidepool.uploadUrl();
+  return tidepool.getUploadUrl();
 };
 
 module.exports = api;
