@@ -234,7 +234,7 @@ module.exports = function(emitter) {
   container.clear = function() {
     emitter.removeAllListeners('numbers');
     container.currentTranslation(0).latestTranslation(0);
-    var ids = ['#tidelinePools', '#tidelineXAxisGroup', '#tidelineYAxisGroup', '#tidelineScrollNav', '#tidelineAnnotations'];
+    var ids = ['#tidelinePools', '#tidelineXAxisGroup', '#tidelineYAxisGroup', '#tidelineScrollNav', '#tidelineTooltips', '#tidelineAnnotations'];
     ids.forEach(function(id) {
       mainGroup.select(id).remove();
     });
