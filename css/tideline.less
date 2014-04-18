@@ -30,6 +30,7 @@
 @font-size-puddle-lead: 14px;
 @font-size-puddle-number: 24px;
 @font-size-settings: 14px;
+@font-size-annotations: 12px;
 
 svg {
   display: block;
@@ -213,6 +214,46 @@ svg {
   }
 }
 
+// annotations
+.d3-circle-data-annotation {
+  fill: @light-labels;
+  opacity: 0.5;
+}
+
+.d3-text-data-annotation {
+  font-size: @font-size-small-tooltips;
+  font-weight: bold;
+  fill: white;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+.d3-tooltip-data-annotation {
+  pointer-events: none;
+  body {
+    background-color: rgba(255, 255, 255, 0)
+  }
+}
+
+.d3-div-data-annotation {
+  padding: 10px;
+  color: @text;
+  p {
+    margin: 5px 0px;
+    font-size: @font-size-annotations;
+    &.d3-data-annotation-lead {
+      font-style: italic;
+    }
+  }
+}
+
+.d3-polygon-data-annotation {
+  fill: @fill-lighter;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
 // tooltips
 .d3-tooltip {
   pointer-events: none;
@@ -333,7 +374,7 @@ svg {
   }
   &.d3-insufficient-data {
     circle {
-      fill: none;
+      fill: white;
       stroke-width: 3;
       stroke-dasharray: 8,5;
       stroke: @stats-insufficient-data;

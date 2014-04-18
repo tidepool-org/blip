@@ -31,7 +31,7 @@ module.exports = function(opts) {
 
   _.defaults(opts, defaults);
 
-  var height;
+  var height, xPosition;
 
   function puddle(selection, txt) {
     selection.call(puddle.addHead);
@@ -73,6 +73,12 @@ module.exports = function(opts) {
       })
       .text(opts.lead);
   });
+
+  puddle.xPosition = function(x) {
+    if (!arguments.length) return xPosition;
+    xPosition = x;
+    return puddle;
+  };
 
   puddle.width = function(x) {
     if (!arguments.length) return opts.width;

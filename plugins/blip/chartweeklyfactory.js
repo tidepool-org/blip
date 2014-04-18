@@ -93,6 +93,7 @@ function chartWeeklyFactory(el, options) {
     });
 
     chart.arrangePools();
+    chart.setTooltip().setAnnotation();
 
     chart.setAxes().setNav().setScrollNav();
 
@@ -128,6 +129,7 @@ function chartWeeklyFactory(el, options) {
         dataGutter: chart.dataGutter()
       }), false);
       pool.addPlotType('smbg', smbgTime.draw(pool), true, true);
+      chart.tooltips().addGroup(d3.select('#' + chart.id()).select('#' + pool.id()), pool.id());
       pool.render(chart.daysGroup(), chart.dataPerDay[i]);
     });
 
@@ -142,6 +144,8 @@ function chartWeeklyFactory(el, options) {
     }), false, false);
 
     chart.poolStats.render(chart.poolGroup());
+
+    chart.annotations().addGroup(d3.select('#' + chart.id()).select('#' + chart.poolStats.id()), 'stats');
 
     chart.navString();
 

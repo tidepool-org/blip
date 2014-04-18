@@ -27,11 +27,12 @@ function Pool (container) {
     index, weight, yPosition,
     height, minHeight = 20, maxHeight = 300,
     group,
-    mainSVG = d3.select(container.id()),
+    mainSVG = d3.select('#' + container.id()),
     xScale,
     imagesBaseUrl = container.imagesBaseUrl(),
     yAxis = [],
     plotTypes = [],
+    annotations,
     tooltips;
 
   this.render = function(selection, poolData) {
@@ -85,6 +86,10 @@ function Pool (container) {
   // getters only
   this.group = function() {
     return group;
+  };
+
+  this.parent = function() {
+    return mainSVG;
   };
 
   this.width = function() {
@@ -171,6 +176,12 @@ function Pool (container) {
   this.yPosition = function(x) {
     if (!arguments.length) return yPosition;
     yPosition = x;
+    return this;
+  };
+
+  this.annotations = function(f) {
+    if (!arguments.length) return annotations;
+    annotations = f;
     return this;
   };
 

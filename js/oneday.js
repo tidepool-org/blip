@@ -18,14 +18,14 @@
 var d3 = require('./lib/').d3;
 var _ = require('./lib/')._;
 
+var Pool = require('./pool');
+var annotation = require('./plot/util/annotation');
+var tooltip = require('./plot/util/tooltip');
 var dt = require('./data/util/datetime');
 
 var log = require('./lib/').bows('One Day');
 
 module.exports = function(emitter) {
-  // required externals
-  var Pool = require('./pool');
-  var tooltip = require('./plot/util/tooltip');
 
   // constants
   var MS_IN_24 = 86400000;
@@ -49,7 +49,7 @@ module.exports = function(emitter) {
     xScale = d3.time.scale.utc(), xAxis,
     currentCenter, data, tidelineData, renderedData = [], endpoints,
     mainGroup,
-    scrollNav, scrollHandleTrigger = true, tooltips;
+    scrollNav, scrollHandleTrigger = true, mostRecent = false, annotations, tooltips;
 
   container.dataFill = {};
 
@@ -242,6 +242,10 @@ module.exports = function(emitter) {
     return id;
   };
 
+  container.annotations = function() {
+    return annotations;
+  };
+
   container.tooltips = function() {
     return tooltips;
   };
@@ -301,8 +305,11 @@ module.exports = function(emitter) {
       .on('zoom', function() {
         if (dt.toISODateString(container.getCurrentDomain().center) !== container.dateAtCenter()) {
           container.renderedData(xScale.domain());
-          for (var j = 0; j < pools.length; j++) {
-            pools[j].render(poolGroup, container.renderedData());
+          d3.selectAll('.d3-data-annotation-group').remove();
+          if (!mostRecent) {
+            for (var j = 0; j < pools.length; j++) {
+              pools[j].render(poolGroup, container.renderedData());
+            }
           }
           container.currentCenter(container.getCurrentDomain().center);
         }
@@ -318,6 +325,8 @@ module.exports = function(emitter) {
           pools[i].pan(e);
         }
         mainGroup.select('#tidelineTooltips').attr('transform', 'translate(' + e.translate[0] + ',0)');
+        mainGroup.select('#tidelineAnnotations').attr('transform', 'translate(' + e.translate[0] + ',0)');
+        d3.select('#annotationsClipPath rect').attr('transform', 'translate(' + -e.translate[0] + ',0)');
         mainGroup.select('.d3-x.d3-axis').call(xAxis);
         mainGroup.selectAll('#tidelineXAxis g.tick text').style('text-anchor', 'start').attr('transform', 'translate(5,15)');
         if (scrollHandleTrigger) {
@@ -332,10 +341,12 @@ module.exports = function(emitter) {
             return d.x - nav.scrollThumbRadius;
           });
         }
-        container.navString(xScale.domain());
       })
       .on('zoomend', function() {
         container.currentTranslation(nav.latestTranslation);
+        // must only call navString *after* updating currentTranslation
+        // because of translation adjustment on stats widget no data annotations
+        container.navString(xScale.domain());
         if (!scrollHandleTrigger) {
           mainGroup.select('.scrollThumb').attr('x', function(d) {
             return nav.scrollScale(xScale.domain()[0]) - nav.scrollThumbRadius;
@@ -408,6 +419,27 @@ module.exports = function(emitter) {
     return container;
   };
 
+  container.setAnnotation = function() {
+    d3.select('#' + id).insert('clipPath', '#tidelineMain')
+      .attr('id', 'annotationsClipPath')
+      .append('rect')
+      .attr({
+        'x': container.axisGutter(),
+        'y': 0,
+        'width': container.width() - container.axisGutter(),
+        'height': container.height()
+      });
+
+    var annotationGroup = mainGroup.append('g')
+      .attr('id', 'tidelineAnnotations');
+
+    annotations = annotation(container, annotationGroup).id(annotationGroup.attr('id'));
+    pools.forEach(function(pool) {
+      pool.annotations(annotations);
+    });
+    return container;
+  };
+
   container.setTooltip = function() {
     var tooltipGroup = mainGroup.append('g')
       .attr('id', 'tidelineTooltips');
@@ -418,18 +450,17 @@ module.exports = function(emitter) {
     return container;
   };
 
-  container.setAtDate = function (date, trigger) {
-    // TODO: this is fairly fragile and relies on trigger = true
-    // correlating 100% with wanting to navigate to mostRecent data
-    scrollHandleTrigger = trigger;
-    if (!trigger) {
+  container.setAtDate = function (date, mostRecent) {
+    if (!mostRecent) {
       container.currentTranslation(-xScale(date) + axisGutter);
       nav.pan.translate([nav.currentTranslation, 0]);
       nav.pan.event(mainGroup);
     }
     else {
+      scrollHandleTrigger = true;
       nav.pan.translate([0,0]);
       nav.pan.event(mainGroup);
+      mostRecent = false;
     }
 
     return container;

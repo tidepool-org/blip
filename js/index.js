@@ -52,6 +52,7 @@ module.exports = {
     util: {
       fill: require('./plot/util/fill'),
       scales: require('./plot/util/scales'),
+      shapes: require('./plot/util/shapes'),
       tooltip: require('./plot/util/tooltip')
     }
   }
