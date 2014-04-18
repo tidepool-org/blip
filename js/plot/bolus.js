@@ -426,14 +426,12 @@ module.exports = function(pool, opts) {
   };
 
   bolus.addAnnotations = function(data, selection) {
-    // TODO: additional step needed here to decide whether the particular annotation
-    // attached to each d in data needs to be user-facing or not
     _.each(data, function(d) {
       var annotationOpts = {
         'x': opts.xScale(Date.parse(d.normalTime)),
-        'y': opts.yScale(0),
-        'xMultiplier': 2,
-        'yMultiplier': 2.5,
+        'y': opts.yScale(d.value),
+        'xMultiplier': -2,
+        'yMultiplier': 1,
         'd': d
       };
       d3.select('#tidelineAnnotations_bolus').call(pool.annotations(), annotationOpts);
