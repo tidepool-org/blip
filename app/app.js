@@ -627,7 +627,6 @@ var AppComponent = React.createClass({
     var self = this;
 
     var patientId = patient.id;
-    var teamId = patient.teamId;
 
     self.setState({fetchingPatientData: true});
 
@@ -636,10 +635,7 @@ var AppComponent = React.createClass({
     };
 
     var loadTeamNotes = function(cb) {
-      if (!teamId) {
-        return cb(null, []);
-      }
-      app.api.team.getNotes(teamId, cb);
+      app.api.team.getNotes(patientId, cb);
     };
 
     async.parallel({
