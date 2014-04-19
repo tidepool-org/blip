@@ -29,10 +29,15 @@ var scales = tideline.plot.util.scales;
 function chartDailyFactory(el, options) {
   var log = bows('Daily Factory');
   options = options || {};
+  var defaults = {
+    'bgUnits': 'mg/dL'
+  };
+  _.defaults(options, defaults);
 
   var emitter = new EventEmitter();
   var chart = tideline.oneDay(emitter);
   chart.emitter = emitter;
+  chart.options = options;
 
   var poolMessages, poolBG, poolBolus, poolBasal, poolStats;
 
@@ -74,21 +79,34 @@ function chartDailyFactory(el, options) {
     // blood glucose data pool
     poolBG = chart.newPool()
       .id('poolBG', chart.poolGroup())
-      .label('Blood Glucose')
+      .label([{
+        'main': 'Blood Glucose',
+        'light': ' (' + chart.options.bgUnits + ')'
+      }])
       .index(chart.pools().indexOf(poolBG))
       .weight(1.5);
 
     // carbs and boluses data pool
     poolBolus = chart.newPool()
       .id('poolBolus', chart.poolGroup())
-      .label('Bolus & Carbohydrates')
+      .label([{
+        'main': 'Bolus',
+        'light': ' (U)'
+      },
+      {
+        'main': ' & Carbohydrates',
+        'light': ' (g)'
+      }])
       .index(chart.pools().indexOf(poolBolus))
       .weight(1.5);
 
     // basal data pool
     poolBasal = chart.newPool()
       .id('poolBasal', chart.poolGroup())
-      .label('Basal Rates')
+      .label([{
+        'main': 'Basal Rates',
+        'light': ' (U/hr)'
+      }])
       .index(chart.pools().indexOf(poolBasal))
       .weight(1.0);
 

@@ -102,14 +102,44 @@ function Pool (container) {
 
   // only once methods
   this.drawLabel = _.once(function() {
-    var labelGroup = d3.select('#tidelineLabels');
-    labelGroup.append('text')
-      .attr({
-        'id': 'pool_' + id + '_label',
-        'class': 'd3-pool-label',
-        'transform': 'translate(' + container.axisGutter() + ',' + yPosition + ')'
-      })
-      .text(label);
+    label = label || [];
+    var labels = [], widths = [];
+    if (label.length > 0) {
+      _.each(label, function(l, i) {
+        labels.push(
+          mainSVG.select('#tidelineLabels')
+          .append('text')
+          .attr({
+            'id': 'pool_' + id + '_label_' + i,
+            'class': 'd3-pool-label'
+          })
+          .text(l.main));
+      });
+      var currentX = container.axisGutter();
+      _.each(labels, function(l, i) {
+        l.append('tspan')
+          .text(label[i].light)
+          .each(function() {
+            widths.push(this.getBBox().width);
+          });
+        if (widths[i - 1]) {
+          currentX = currentX + widths[i - 1];
+        }
+        l.attr({
+          'xml:space': 'preserve',
+          'transform': 'translate(' + currentX  + ',' + yPosition + ')'
+        });
+      });
+    }
+
+    // var labelGroup = d3.select('#tidelineLabels')
+    //   .append('text')
+    //   .attr({
+    //     'id': 'pool_' + id + '_label',
+    //     'class': 'd3-pool-label',
+    //     'transform': 'translate(' + container.axisGutter() + ',' + yPosition + ')'
+    //   });
+
     return this;
   });
 
@@ -138,9 +168,9 @@ function Pool (container) {
     return this;
   };
 
-  this.label = function(x) {
+  this.label = function(o) {
     if (!arguments.length) return label;
-    label = x;
+    label = o;
     return this;
   };
 
