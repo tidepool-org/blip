@@ -280,11 +280,7 @@
         "value": 4.8,
         "recommended": 4.8,
         "_id": "88615e99-80ed-4bc8-a130-8122847b6e65",
-        "type": "bolus",
-        "source": "diasend",
-        "annotations": [
-            {"code": "diasend/extended-boluses"}
-        ]
+        "type": "bolus"
     },
     {
         "deviceTime": "2014-03-07T19:30:08",
@@ -535,11 +531,7 @@
         "value": 25,
         "units": "grams",
         "_id": "318a9b8f-23f7-48b3-adaa-b9a61a543bbb",
-        "type": "carbs",
-        "source": "diasend",
-        "annotations": [
-            {"code": "diasend/extended-boluses"}
-        ]
+        "type": "carbs"
     },
     {
         "deviceTime": "2014-03-07T22:40:02",
@@ -54230,7 +54222,13 @@
         "value": 0.85,
         "start": "2014-04-06T05:00:00",
         "_id": "e4b42630-1a15-4f3a-a9b7-28a532eec1e1",
-        "type": "basal-rate-segment"
+        "type": "basal-rate-segment",
+        "source": "demo",
+        "annotations": [
+            {
+                "code": "settings-mismatch/basal"
+            }
+        ]
     },
     {
         "deviceTime": "2014-04-06T05:00:08",
@@ -54964,17 +54962,27 @@
         "value": 58,
         "units": "grams",
         "_id": "e965873d-c1fd-4846-874a-3607911daf20",
-        "type": "carbs"
+        "type": "carbs",
+        "annotations": [
+            {
+                "code": "generated-from-wizard"
+            }
+        ]
     },
     {
         "deviceTime": "2014-04-06T13:39:27",
         "value": 3.9,
         "recommended": 3.9,
-        "extendedDelivery": 3.9,
         "duration": 5400000,
         "extended": true,
         "_id": "a3d2fd80-6446-4ec0-8c16-84b6bb3f8ed5",
-        "type": "bolus"
+        "type": "bolus",
+        "source": "demo",
+        "annotations": [
+            {
+                "code": "diasend/extended-boluses"
+            }
+        ]
     },
     {
         "deviceTime": "2014-04-06T13:40:08",
