@@ -89,7 +89,7 @@ module.exports = function(pool, opts) {
       // create time-in-range puddle
       stats.newPuddle('Range', 'Time in Target Range', 'Target range: 80 - 180 mg/dL', 1.2, true);
       // create average BG puddle
-      stats.newPuddle('Average', 'Average BG', 'This day', 0.9, false);
+      stats.newPuddle('Average', 'Average BG', 'These 24 hours', 0.9, false);
     }
     else {
       // create basal-to-bolus ratio puddle
