@@ -329,7 +329,8 @@ var AppComponent = React.createClass({
           user={this.state.user}
           fetchingUser={this.state.fetchingUser}
           patients={this.state.patients}
-          fetchingPatients={this.state.fetchingPatients}/>
+          fetchingPatients={this.state.fetchingPatients}
+          trackMetric={trackMetric}/>
     );
     /* jshint ignore:end */
   },
