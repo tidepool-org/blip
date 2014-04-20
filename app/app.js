@@ -311,7 +311,8 @@ var AppComponent = React.createClass({
           user={this.state.user}
           fetchingUser={this.state.fetchingUser}
           onValidate={this.validateUser}
-          onSubmit={this.updateUser}/>
+          onSubmit={this.updateUser}
+          trackMetric={trackMetric}/>
       /* jshint ignore:end */
     );
   },
@@ -366,7 +367,8 @@ var AppComponent = React.createClass({
           user={this.state.user}
           fetchingUser={this.state.fetchingUser}
           patient={this.state.patient}
-          fetchingPatient={this.state.fetchingPatient}/>
+          fetchingPatient={this.state.fetchingPatient}
+          trackMetric={trackMetric}/>
     );
     /* jshint ignore:end */
   },
@@ -417,7 +419,8 @@ var AppComponent = React.createClass({
           isNewPatient={true}
           onValidate={this.validatePatient}
           onSubmit={app.api.patient.post.bind(app.api.patient)}
-          onSubmitSuccess={this.handlePatientCreationSuccess}/>
+          onSubmitSuccess={this.handlePatientCreationSuccess}
+          trackMetric={trackMetric}/>
     );
     /* jshint ignore:end */
   },
@@ -464,7 +467,8 @@ var AppComponent = React.createClass({
           patient={this.state.patient}
           fetchingPatient={this.state.fetchingPatient}
           onValidate={this.validatePatient}
-          onSubmit={this.updatePatient}/>
+          onSubmit={this.updatePatient}
+          trackMetric={trackMetric}/>
     );
     /* jshint ignore:end */
   },
