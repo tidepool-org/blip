@@ -18,12 +18,14 @@
 var d3 = require('./lib/').d3;
 var _ = require('./lib/')._;
 
+var legend = require('./plot/util/legend');
+
 var log = require('./lib/').bows('Pool');
  
 function Pool (container) {
 
   var data,
-    id, label,
+    id, label, legends = [],
     index, weight, yPosition,
     height, minHeight = 20, maxHeight = 300,
     group,
@@ -56,6 +58,7 @@ function Pool (container) {
     });
     this.drawAxis();
     this.drawLabel();
+    this.drawLegend();
   };
 
   this.clear = function() {
@@ -110,7 +113,7 @@ function Pool (container) {
           mainSVG.select('#tidelineLabels')
           .append('text')
           .attr({
-            'id': 'pool_' + id + '_label_' + i,
+            'id': id + '_label_' + i,
             'class': 'd3-pool-label'
           })
           .text(l.main));
@@ -132,15 +135,24 @@ function Pool (container) {
       });
     }
 
-    // var labelGroup = d3.select('#tidelineLabels')
-    //   .append('text')
-    //   .attr({
-    //     'id': 'pool_' + id + '_label',
-    //     'class': 'd3-pool-label',
-    //     'transform': 'translate(' + container.axisGutter() + ',' + yPosition + ')'
-    //   });
-
     return this;
+  });
+
+  this.drawLegend = _.once(function() {
+    if (legends.length === 0) {
+      return;
+    }
+    var w = this.width() + container.axisGutter();
+    _.each(legends, function(l) {
+      var legendGroup = mainSVG.select('#tidelineLabels')
+        .append('g')
+        .attr({
+          'id': id + '_legend_' + l,
+          'transform': 'translate(' + w + ',' + yPosition + ')'
+        });
+      w -= legend.draw(legendGroup, l).width + legend.SHAPE_MARGIN*2;
+    });
+
   });
 
   this.drawAxis = _.once(function() {
@@ -171,6 +183,12 @@ function Pool (container) {
   this.label = function(o) {
     if (!arguments.length) return label;
     label = o;
+    return this;
+  };
+
+  this.legend = function(a) {
+    if (!arguments.length) return legends;
+    legends = a;
     return this;
   };
 

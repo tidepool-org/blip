@@ -83,6 +83,7 @@ function chartDailyFactory(el, options) {
         'main': 'Blood Glucose',
         'light': ' (' + chart.options.bgUnits + ')'
       }])
+      .legend(['bg'])
       .index(chart.pools().indexOf(poolBG))
       .weight(1.5);
 
@@ -97,6 +98,7 @@ function chartDailyFactory(el, options) {
         'main': ' & Carbohydrates',
         'light': ' (g)'
       }])
+      .legend(['bolus', 'carbs'])
       .index(chart.pools().indexOf(poolBolus))
       .weight(1.5);
 
@@ -107,6 +109,7 @@ function chartDailyFactory(el, options) {
         'main': 'Basal Rates',
         'light': ' (U/hr)'
       }])
+      .legend(['basal'])
       .index(chart.pools().indexOf(poolBasal))
       .weight(1.0);
 
@@ -315,13 +318,12 @@ function chartDailyFactory(el, options) {
 
     chart.renderedData([start, end]);
 
-    chart.setAtDate(start, atMostRecent);
-
     // render pools
     _.each(chart.pools(), function(pool) {
       pool.render(chart.poolGroup(), chart.renderedData());
-      pool.pan({'translate': [chart.currentTranslation(), 0]});
     });
+
+    chart.setAtDate(start, atMostRecent);
 
     chart.navString([start, end]);
 

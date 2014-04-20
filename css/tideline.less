@@ -31,6 +31,7 @@
 @font-size-puddle-number: 24px;
 @font-size-settings: 14px;
 @font-size-annotations: 12px;
+@pool-label-baseline: 30%;
 
 svg {
   display: block;
@@ -96,19 +97,21 @@ svg {
   font-weight: bold;
   font-size: @font-size-labels;
   fill: @text;
-  baseline-shift: 30%;
+  baseline-shift: @pool-label-baseline;
   xml:space: preserve;
   tspan {
     font-weight: normal;
     text-transform: none;
-    baseline-shift: 30%;
+    baseline-shift: @pool-label-baseline;
   }
 }
 
 // pool legends
 .d3-pool-legend {
   font-size: @font-size-axes;
+  text-anchor: end;
   fill: @pool-legend;
+  baseline-shift: @pool-label-baseline;
 }
 
 // pool background rectangles
@@ -179,7 +182,7 @@ svg {
 
 // blood glucose
 // cbg
-.d3-cbg {
+.d3-cbg, .d3-smbg {
   &.d3-circle-cbg {
     &.d3-bg-low {
       fill: @bg-low;
@@ -190,6 +193,25 @@ svg {
     &.d3-bg-high {
       fill: @bg-high;
     }
+  }
+}
+
+.d3-circle-smbg {
+  stroke-width: 2;
+  &.d3-bg-low {
+    fill: @bg-low;
+    stroke: @bg-low;
+  }
+  &.d3-bg-target {
+    fill: @bg-target;
+    stroke: @bg-target;
+  }
+  &.d3-bg-high {
+    fill: @bg-high;
+    stroke: @bg-high;
+  }
+  &.d3-circle-open {
+    fill: none !important;
   }
 }
 
@@ -213,6 +235,11 @@ svg {
 .d3-basal {
   &.d3-rect-basal {
     fill: @basal;
+    &.d3-legend {
+      fill-opacity: 0.3;
+      stroke: @basal;
+      stroke-width: 1.5;
+    }
   }
   &.d3-basal-invisible {
     fill: @basal;
@@ -227,7 +254,16 @@ svg {
       stroke-linecap: round;
     }
   }
+  // only in legends
+  &.d3-rect-basal-undelivered {
+    fill: none;
+    stroke: @basal;
+    stroke-dasharray: 1.5, 3;
+    stroke-width: 1.5;
+  }
 }
+
+
 
 // annotations
 .d3-circle-data-annotation {
