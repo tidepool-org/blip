@@ -227,7 +227,8 @@ var AppComponent = React.createClass({
           isUserPatient={isUserPatient}
           uploadUrl={uploadUrl}
           onLogout={this.logout}
-          imagesEndpoint={config.IMAGES_ENDPOINT + '/navbar'} />
+          imagesEndpoint={config.IMAGES_ENDPOINT + '/navbar'}
+          trackMetric={trackMetric}/>
         /* jshint ignore:end */
       );
     }
