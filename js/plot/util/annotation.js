@@ -33,7 +33,8 @@ module.exports = function(container, annotationsGroup) {
     if (opts.d.annotations[0].code !== 'stats') {
       var iconGroup = selection.append('g')
         .attr('class', 'd3-data-annotation-group')
-        .attr('clip-path', 'url(#annotationsClipPath)');
+        .attr('clip-path', 'url(#annotationsClipPath)')
+        .attr('id', 'annotation_for_' + opts.d._id);
 
       opts.x = annotation.xOffset(opts);
       opts.y = annotation.yOffset(opts);

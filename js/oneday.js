@@ -305,7 +305,6 @@ module.exports = function(emitter) {
       .on('zoom', function() {
         if (dt.toISODateString(container.getCurrentDomain().center) !== container.dateAtCenter()) {
           container.renderedData(xScale.domain());
-          d3.selectAll('.d3-data-annotation-group').remove();
           if (!mostRecent) {
             for (var j = 0; j < pools.length; j++) {
               pools[j].render(poolGroup, container.renderedData());
@@ -452,6 +451,7 @@ module.exports = function(emitter) {
 
   container.setAtDate = function (date, mostRecent) {
     if (!mostRecent) {
+      scrollHandleTrigger = false;
       container.currentTranslation(-xScale(date) + axisGutter);
       nav.pan.translate([nav.currentTranslation, 0]);
       nav.pan.event(mainGroup);

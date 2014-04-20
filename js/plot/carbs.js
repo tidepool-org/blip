@@ -162,7 +162,9 @@ module.exports = function(pool, opts) {
         'yMultiplier': -1,
         'd': d
       };
-      d3.select('#tidelineAnnotations_bolus').call(pool.annotations(), annotationOpts);
+      if (d3.select('#annotation_for_' + d._id)[0][0] == null) {
+        d3.select('#tidelineAnnotations_carbs').call(pool.annotations(), annotationOpts);
+      }
     });
   };
 

@@ -525,7 +525,9 @@ module.exports = function(pool, opts) {
         },
         'd': d
       };
-      d3.select('#tidelineAnnotations_basal').call(pool.annotations(), annotationOpts);
+      if (d3.select('#annotation_for_' + d._id)[0][0] == null) {
+        d3.select('#tidelineAnnotations_basal-rate-segment').call(pool.annotations(), annotationOpts);
+      }
     });
   };
 
