@@ -30,7 +30,7 @@ module.exports = function(container, annotationsGroup) {
 
     var hoverTarget;
 
-    if (opts.d.annotations[0].code !== 'stats') {
+    if (opts.d.annotations[0].code !== 'stats-insufficient-data') {
       var iconGroup = selection.append('g')
         .attr('class', 'd3-data-annotation-group')
         .attr('clip-path', 'url(#annotationsClipPath)')
@@ -70,7 +70,7 @@ module.exports = function(container, annotationsGroup) {
   annotation.tooltip = function(opts, selection, hoverTarget) {
     opts = opts || {};
 
-    if (opts.d.annotations[0].code === 'stats') {
+    if (opts.d.annotations[0].code === 'stats-insufficient-data') {
       if (container.type === 'daily') {
         opts.x = opts.x - (container.currentTranslation() - container.axisGutter());
       }
