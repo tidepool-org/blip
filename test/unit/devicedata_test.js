@@ -17,7 +17,7 @@
 'use strict';
 
 // Require to attach things to Rx prototype
-require('../../lib/devicedata');
+require('../../app/core/lib/devicedata');
 
 var Rx = (typeof window !== 'undefined' && typeof window.Rx !== 'undefined') ? window.Rx : require('rx');
 
