@@ -524,7 +524,8 @@ var AppComponent = React.createClass({
         onRefresh={this.fetchCurrentPatientData}
         onFetchMessageThread={this.fetchMessageThread}
         onSaveComment={app.api.team.replyToMessageThread.bind(app.api.team)}
-        onCreateMessage={app.api.team.startMessageThread.bind(app.api.team)} />
+        onCreateMessage={app.api.team.startMessageThread.bind(app.api.team)}
+        trackMetric={trackMetric}/>
     );
     /* jshint ignore:end */
   },
