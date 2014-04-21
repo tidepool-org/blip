@@ -187,6 +187,8 @@ function chartDailyFactory(el, options) {
     // add SMBG data to BG pool
     poolBG.addPlotType('smbg', tideline.plot.smbg(poolBG, {yScale: scaleBG}), true, true);
 
+    // TODO: when we bring responsiveness in
+    // decide number of ticks for these scales based on container height?
     // bolus & carbs pool
     var scaleBolus = scales.bolus(tidelineData.grouped.bolus, poolBolus);
     var scaleCarbs = scales.carbs(tidelineData.grouped.carbs, poolBolus);
@@ -195,13 +197,13 @@ function chartDailyFactory(el, options) {
       .scale(scaleBolus)
       .orient('left')
       .outerTickSize(0)
-      .ticks(3));
+      .ticks(2));
     // set up y-axis for carbs
     poolBolus.yAxis(d3.svg.axis()
       .scale(scaleCarbs)
       .orient('left')
       .outerTickSize(0)
-      .ticks(3));
+      .ticks(2));
     // add background fill rectangles to bolus pool
     var scaleDivider = d3.scale.linear()
       .domain([0, poolBolus.height()])
