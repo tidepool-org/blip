@@ -186,7 +186,7 @@ var Messages = React.createClass({
         if(commentId){
           //set so we can display right away
           comment.id = commentId;
-          comment.username = this.props.user.firstName;
+          comment.user = this.props.user;
           var withReply = this.state.messages;
           withReply.push(comment);
           this.setState({ messages: withReply, formValues : {messageText: ''} });
@@ -202,7 +202,7 @@ var Messages = React.createClass({
 
       var message = {
         userid : this.props.user.id,
-        groupid : this.props.patient.teamId,
+        groupid : this.props.patient.id,
         messagetext : formValues.messageText,
         timestamp : this.props.createDatetime
       };
@@ -211,7 +211,7 @@ var Messages = React.createClass({
         if(messageId){
           //set so we can display right away
           message.id = messageId;
-          message.username = this.props.user.firstName;
+          message.user = this.props.user;
           //give this message to anyone that needs it
           this.props.onNewMessage(message);
           this.setState({ messages: [message], formValues : {messageText: '', messageDateTime:''} });
