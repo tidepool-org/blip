@@ -22,7 +22,6 @@ var _ = (typeof window !== 'undefined' && typeof window._ !== 'undefined') ? win
 var async = (typeof window !== 'undefined' && typeof window.async !== 'undefined') ? window.async : require('async');
 
 var pkg = require('./package.json');
-var deviceData = require('./lib/devicedata');
 
 var sessionTokenHeader = 'x-tidepool-session-token';
 
@@ -890,17 +889,6 @@ module.exports = function (config, superagent, log) {
             });
         }
       );
-    },
-    /**
-     * Process the raw device data for use in apps
-     *
-     * @param {Object} data device data to process
-     * @param cb
-     * @returns {cb}  cb(err, response)
-     */
-    processDeviceData: function (data, cb) {
-      assertArgumentsSize(arguments, 2);
-      return deviceData.processAll(data, cb);
     },
     /**
      * Get messages for a team between the given dates
