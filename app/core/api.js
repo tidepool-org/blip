@@ -19,7 +19,11 @@ var _ = window._;
 var async = window.async;
 var bows = window.bows;
 var config = window.config;
+var Rx = window.Rx;
 var tidepool = window.tidepool;
+
+// devicedata just registers stuff on the Rx prototype, so we are doing this for the side-effects
+var deviceData = require('./lib/devicedata');
 
 var api = {
   log: bows('Api')
@@ -464,14 +468,16 @@ api.patientData.get = function(patientId, cb) {
     }
 
     window.inData = data;
-    tidepool.processDeviceData(data, function(err, data) {
-      if (err) {
-        return cb(err);
-      }
-
-      window.theData = data;
-      cb(null, data);
-    });
+    Rx.Observable.fromArray(data)
+      .tidepoolConvertBasal()
+      .tidepoolConvertBolus()
+      .tidepoolConvertWizard()
+      .toArray()
+      .subscribe(function(data) {
+                   window.theData = data;
+                   cb(null, data);
+                 },
+                 cb);
   });
 };
 // ----- Upload -----
