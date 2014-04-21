@@ -124,7 +124,6 @@ function chartDailyFactory(el, options) {
     chart.setAnnotation().setTooltip();
 
     // add annotations
-    chart.annotations().addGroup(d3.select('#' + chart.id()).select('#' + poolBolus.id()), 'carbs');
     chart.annotations().addGroup(d3.select('#' + chart.id()).select('#' + poolBolus.id()), 'bolus');
     chart.annotations().addGroup(d3.select('#' + chart.id()).select('#' + poolBasal.id()), 'basal-rate-segment');
     chart.annotations().addGroup(d3.select('#' + chart.id()).select('#' + poolStats.id()), 'stats');

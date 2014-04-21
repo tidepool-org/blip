@@ -163,7 +163,8 @@ module.exports = function(pool, opts) {
         'd': d
       };
       if (d3.select('#annotation_for_' + d._id)[0][0] == null) {
-        d3.select('#tidelineAnnotations_carbs').call(pool.annotations(), annotationOpts);
+        // _bolus because only one annotation group per pool
+        d3.select('#tidelineAnnotations_bolus').call(pool.annotations(), annotationOpts);
       }
     });
   };
