@@ -74,7 +74,8 @@ module.exports = function(pool, opts) {
   function carbs(selection) {
     opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
-      carbs.addAnnotations(_.filter(currentData, function(d) { return d.annotations; }));
+      // TODO: temporarily disabled until we have an non alarm-fatigue way of applying these
+      // carbs.addAnnotations(_.filter(currentData, function(d) { return d.annotations; }));
 
       var rects = d3.select(this)
         .selectAll('rect')
