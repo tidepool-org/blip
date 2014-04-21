@@ -11,37 +11,34 @@ var definitions = {
     }
   },
   MAIN_TEXT: {
-    'basal/off-schedule-rate': function(source) {
-      return definitions.default(source);
+    'basal/off-schedule-rate': function(code) {
+      return code;
     },
-    'generated-from-wizard': function(source) {
-      return definitions.default(source);
+    'settings-mismatch/basal': function(code) {
+      return code;
     },
-    'settings-mismatch/basal': function(source) {
-      return definitions.default(source);
+    'settings-mismatch/wizard': function(code) {
+      return code;
     },
-    'settings-mismatch/activeSchedule': function(source) {
-      return definitions.default(source);
+    'settings-mismatch/activeSchedule': function(code) {
+      return code;
     },
-    'settings-mismatch/wizard': function(source) {
-      return definitions.default(source);
+    'diasend/temp-basal-fabrication': function(code) {
+      return code;
     },
-    'diasend/extended-boluses': function(source) {
-      return definitions.default(source);
+    'diasend/temp-limit-24hrs': function(code) {
+      return code;
     },
-    'diasend/temp-basal-fabrication': function(source) {
-      return definitions.default(source);
+    'diasend/extended-boluses': function(code) {
+      return code;
     },
-    'diasend/temp-limit-24hrs': function(source) {
-      return definitions.default(source);
-    },
-    'stats': function() {
+    'stats-insufficient-data': function() {
       return 'There is not enough data to show this statistic.';
     }
   },
   default: function(source) {
     if (source == null) {
-      return "We can't be 100% certain of the data displayed here."
+      return "We can't be 100% certain of the data displayed here.";
     }
     var a = "We can't be 100% certain of the data displayed here because of how ";
     var b = " reports the data.";
@@ -50,9 +47,10 @@ var definitions = {
   main: function(annotation, source) {
     var a, b;
     if (this.MAIN_TEXT[annotation.code] != null) {
-      return this.MAIN_TEXT[annotation.code](source);
+      return this.MAIN_TEXT[annotation.code](annotation.code);
     }
     else {
+      console.log(annotation.code);
       return this.default(source);
     }
   },
