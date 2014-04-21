@@ -24,7 +24,14 @@ var Profile = React.createClass({
     user: React.PropTypes.object,
     fetchingUser: React.PropTypes.bool,
     onValidate: React.PropTypes.func.isRequired,
-    onSubmit: React.PropTypes.func.isRequired
+    onSubmit: React.PropTypes.func.isRequired,
+    trackMetric: React.PropTypes.func
+  },
+
+  getDefaultProps: function() {
+    return {
+      trackMetric: function() {}
+    };
   },
 
   formInputs: [
@@ -52,6 +59,10 @@ var Profile = React.createClass({
 
   render: function() {
     var form = this.renderForm();
+    var self = this;
+    var handleClickBack = function() {
+      self.props.trackMetric('Clicked Back To Care Team List');
+    };
 
     /* jshint ignore:start */
     return (
@@ -60,7 +71,7 @@ var Profile = React.createClass({
           <div className="container-box-inner profile-subnav-box">
             <div className="grid">
               <div className="grid-item one-whole medium-one-third">
-                <a className="js-back" href="#/">
+                <a className="js-back" href="#/" onClick={handleClickBack}>
                   <i className="icon-back"></i>
                   {' ' + 'Back'}
                 </a>

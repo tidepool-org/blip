@@ -26,7 +26,14 @@ var Patients = React.createClass({
     user: React.PropTypes.object,
     fetchingUser: React.PropTypes.bool,
     patients: React.PropTypes.array,
-    fetchingPatients: React.PropTypes.bool
+    fetchingPatients: React.PropTypes.bool,
+    trackMetric: React.PropTypes.func
+  },
+
+  getDefaultProps: function() {
+    return {
+      trackMetric: function() {}
+    };
   },
 
   render: function() {
@@ -69,9 +76,11 @@ var Patients = React.createClass({
       /* jshint ignore:start */
       return (
         <div className="patients-empty-list">
-          <a className="js-create-patient-profile" href="#/patients/new">
-            <i className="icon-add"></i>
-            {' ' + 'Create your profile'}
+          <a
+            className="js-create-patient-profile"
+            href="#/patients/new"
+            onClick={this.handleClickCreateProfile}>
+            <i className="icon-add"></i>{' ' + 'Create your profile'}
           </a>
         </div>
       );
@@ -83,6 +92,10 @@ var Patients = React.createClass({
 
   isResettingUserData: function() {
     return (this.props.fetchingUser && !this.props.user);
+  },
+
+  handleClickCreateProfile: function() {
+    this.props.trackMetric('Clicked Create Profile');
   },
 
   renderSharedPatients: function() {
@@ -116,7 +129,9 @@ var Patients = React.createClass({
 
     /* jshint ignore:start */
     return (
-      <PeopleList people={patients} />
+      <PeopleList
+        people={patients}
+        onClickPerson={this.handleClickPatient}/>
     );
     /* jshint ignore:end */
   },
@@ -132,6 +147,15 @@ var Patients = React.createClass({
       }
       return patient;
     });
+  },
+
+  handleClickPatient: function(patient) {
+    if (user.isUserPatient(this.props.user, patient)) {
+      this.props.trackMetric('Clicked Own Care Team');
+    }
+    else {
+      this.props.trackMetric('Clicked Other Care Team');
+    }
   }
 });
 

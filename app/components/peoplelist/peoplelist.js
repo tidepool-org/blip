@@ -19,7 +19,14 @@ var _ = window._;
 
 var PeopleList = React.createClass({
   propTypes: {
-    people: React.PropTypes.array
+    people: React.PropTypes.array,
+    onClickPerson: React.PropTypes.func
+  },
+
+  getDefaultProps: function() {
+    return {
+      onClickPerson: function() {}
+    };
   },
 
   render: function() {
@@ -51,11 +58,16 @@ var PeopleList = React.createClass({
 
     if (person.link) {
       className = className + ' people-list-item-with-link';
+      var self = this;
+      var handleClick = function() {
+        self.props.onClickPerson(person);
+      };
       /* jshint ignore:start */
       peopleListItemContent = (
         <a
           className="people-list-item-link list-group-item-link"
-          href={person.link}>{peopleListItemContent}</a>
+          href={person.link}
+          onClick={handleClick}>{peopleListItemContent}</a>
       );
       /* jshint ignore:end */
     }

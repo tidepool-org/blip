@@ -30,7 +30,14 @@ var PatientEdit = React.createClass({
     isNewPatient: React.PropTypes.bool,
     onValidate: React.PropTypes.func.isRequired,
     onSubmit: React.PropTypes.func.isRequired,
-    onSubmitSuccess: React.PropTypes.func
+    onSubmitSuccess: React.PropTypes.func,
+    trackMetric: React.PropTypes.func
+  },
+
+  getDefaultProps: function() {
+    return {
+      trackMetric: function() {}
+    };
   },
 
   formInputs: [
@@ -128,9 +135,14 @@ var PatientEdit = React.createClass({
       url = '#/patients/' + patient.id;
     }
 
+    var self = this;
+    var handleClick = function() {
+      self.props.trackMetric('Clicked Back To Profile');
+    };
+
     /* jshint ignore:start */
     return (
-      <a className="js-back" href={url}>
+      <a className="js-back" href={url} onClick={handleClick}>
         <i className="icon-back"></i>
         {' ' + text}
       </a>

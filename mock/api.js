@@ -265,6 +265,7 @@ var createPatch = function(options) {
     };
 
     // ----- Team Data -----
+
     api.team.getMessageThread = function(messageId,callback){
       api.log('[mock] GET /message/thread/' + messageId);
 
@@ -321,8 +322,19 @@ var createPatch = function(options) {
     };
 
     // ----- Upload -----
+
     api.getUploadUrl = function() {
       return 'about:blank';
+    };
+
+    // ----- Metrics -----
+
+    api.metrics.track = function(eventName, properties, cb) {
+      api.log('[mock] GET /metrics/' + window.encodeURIComponent(eventName));
+
+      if (typeof cb === 'function') {
+        cb();
+      }
     };
 
     return api;

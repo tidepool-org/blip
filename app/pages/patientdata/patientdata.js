@@ -34,12 +34,19 @@ var PatientData = React.createClass({
     onFetchMessageThread: React.PropTypes.func,
     onSaveComment: React.PropTypes.func,
     onCreateMessage: React.PropTypes.func,
-    user: React.PropTypes.object
+    user: React.PropTypes.object,
+    trackMetric: React.PropTypes.func
   },
 
   DEFAULT_TITLE: 'Data',
   CHARTDAILY_TITLE_DATE_FORMAT: 'dddd, MMMM Do',
   CHARTWEEKLY_TITLE_DATE_FORMAT: 'MMMM Do',
+
+  getDefaultProps: function() {
+    return {
+      trackMetric: function() {}
+    };
+  },
 
   getInitialState: function() {
     return {
@@ -128,11 +135,19 @@ var PatientData = React.createClass({
       );
       /* jshint ignore:end */
 
+      var self = this;
+      var handleClickRefresh = function(e) {
+        self.handleRefresh(e);
+        self.props.trackMetric('Clicked Chart Refresh', {
+          fromChart: self.state.chartType
+        });
+      };
+
       /* jshint ignore:start */
       right = (
         <div>
           <div className="grid-item one-whole large-one-half patient-data-subnav-right">
-            <a href="" onClick={this.handleRefresh}>Refresh</a>
+            <a href="" onClick={handleClickRefresh}>Refresh</a>
           </div>
           <div className="grid-item one-whole large-one-half">
             <a href="" onClick={this.handleGoToMostRecent} className={this.state.atMostRecent ? "patient-data-subnav-active" : ""}>Most recent</a>
@@ -188,15 +203,27 @@ var PatientData = React.createClass({
   renderNoData: function() {
     var content = 'This patient doesn\'t have any data yet.';
 
+    var self = this;
+    var handleClickUpload = function() {
+      self.props.trackMetric('Clicked No Data Upload');
+    };
+    var handleClickRefresh = function(e) {
+      self.handleRefresh(e);
+      self.props.trackMetric('Clicked No Data Refresh');
+    };
+
     if (this.props.isUserPatient) {
       /* jshint ignore:start */
       content = (
         <div>
           <p>{'It looks like you don\'t have any data yet!'}</p>
           <p>
-            <a href={this.props.uploadUrl} target="_blank">Upload your data</a>
+            <a
+              href={this.props.uploadUrl}
+              target="_blank"
+              onClick={handleClickUpload}>Upload your data</a>
             {' or if you already have, try '}
-            <a href="" onClick={this.handleRefresh}>refreshing</a>
+            <a href="" onClick={handleClickRefresh}>refreshing</a>
             {'.'}
           </p>
         </div>
@@ -238,7 +265,7 @@ var PatientData = React.createClass({
           user={this.props.user}
           patient={this.props.patient}
           onClose={this.closeMessageThread}
-          onSave={this.props.onSaveComment} />
+          onSave={this.handleReplyToMessage} />
       );
     }
     /* jshint ignore:end */
@@ -247,11 +274,13 @@ var PatientData = React.createClass({
   closeMessageThread: function(){
     this.setState({ messages: null });
     this.refs.chart.closeMessageThread();
+    this.props.trackMetric('Closed Message Thread Modal');
   },
 
   closeMessageCreation: function(){
     this.setState({ createMessageDatetime: null });
     this.refs.chart.closeMessageThread();
+    this.props.trackMetric('Closed New Message Modal');
   },
 
   renderChart: function() {
@@ -339,6 +368,7 @@ var PatientData = React.createClass({
     }
 
     this.setState({chartType: 'daily'});
+    this.props.trackMetric('Clicked Switch To One Day');
   },
 
   handleSwitchToWeekly: function(e) {
@@ -360,12 +390,17 @@ var PatientData = React.createClass({
       datetimeLocation: datetimeLocation,
       showingValuesWeekly: false
     });
+    this.props.trackMetric('Clicked Switch To Two Week');
   },
 
   handleSwitchToSettings: function(e) {
     if (e) {
       e.preventDefault();
     }
+
+    this.props.trackMetric('Clicked Switch To Settings', {
+      fromChart: this.state.chartType
+    });
 
     if (this.state.chartType === 'settings') {
       return;
@@ -389,6 +424,10 @@ var PatientData = React.createClass({
       datetimeLocation: null
     });
     this.refs.chart.locateToMostRecent();
+
+    this.props.trackMetric('Clicked Go To Most Recent ', {
+      fromChart: this.state.chartType
+    });
   },
 
   handleRefresh: function(e) {
@@ -407,8 +446,13 @@ var PatientData = React.createClass({
     if (e) {
       e.preventDefault();
     }
+
     if (!this.state.inTransition) {
       this.refs.chart.panBack();
+      this.props.trackMetric('Panned Chart', {
+        fromChart: this.state.chartType,
+        direction: 'back'
+      });
     }
   },
 
@@ -419,6 +463,10 @@ var PatientData = React.createClass({
 
     if (!this.state.inTransition) {
       this.refs.chart.panForward();
+      this.props.trackMetric('Panned Chart', {
+        fromChart: this.state.chartType,
+        direction: 'forward'
+      });
     }
   },
 
@@ -432,6 +480,15 @@ var PatientData = React.createClass({
         _id: message.id
     };
     this.refs.chart.createMessageThread(tidelineMessage);
+    this.props.trackMetric('Created New Message');
+  },
+
+  handleReplyToMessage: function(comment, cb) {
+    var reply = this.props.onSaveComment;
+    if (reply) {
+      reply(comment, cb);
+    }
+    this.props.trackMetric('Replied To Message');
   },
 
   handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
@@ -470,10 +527,13 @@ var PatientData = React.createClass({
         self.setState({ messages: thread });
       });
     }
+
+    this.props.trackMetric('Clicked Message Icon');
   },
 
   handleShowMessageCreation : function(datetime){
     this.setState({ createMessageDatetime : datetime });
+    this.props.trackMetric('Clicked Message Pool Background');
   },
 
   handleInTransition: function(inTransition) {
@@ -523,6 +583,7 @@ var PatientData = React.createClass({
       chartType: 'daily',
       datetimeLocation: datetimeLocation
     });
+    this.props.trackMetric('Double Clicked Two Week Value');
   },
 
   handleToggleValuesWeekly: function(e) {
@@ -532,9 +593,11 @@ var PatientData = React.createClass({
 
     if (this.state.showingValuesWeekly) {
       this.refs.chart.hideValues();
+      this.props.trackMetric('Clicked Hide Two Week Values');
     }
     else {
       this.refs.chart.showValues();
+      this.props.trackMetric('Clicked Show Two Week Values');
     }
 
     this.setState({showingValuesWeekly: !this.state.showingValuesWeekly});

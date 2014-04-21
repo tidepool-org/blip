@@ -1,15 +1,15 @@
 /** @jsx React.DOM */
 /**
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
@@ -27,7 +27,14 @@ var Navbar = React.createClass({
     isUserPatient: React.PropTypes.bool,
     uploadUrl: React.PropTypes.string,
     onLogout: React.PropTypes.func,
-    imagesEndpoint: React.PropTypes.string
+    imagesEndpoint: React.PropTypes.string,
+    trackMetric: React.PropTypes.func
+  },
+
+  getDefaultProps: function() {
+    return {
+      trackMetric: function() {}
+    };
   },
 
   render: function() {
@@ -63,13 +70,18 @@ var Navbar = React.createClass({
 
   renderLogo: function() {
     var imageSource = this.props.imagesEndpoint + '/blip-logo.png';
+    var self = this;
+    var handleClick = function() {
+      self.props.trackMetric('Clicked Navbar Logo');
+    };
 
     /* jshint ignore:start */
     return (
       <li>
         <a
           href="#/"
-          className="navbar-logo">
+          className="navbar-logo"
+          onClick={handleClick}>
           <img src={imageSource} alt="Blip" ref="logo" />
         </a>
       </li>
@@ -102,7 +114,11 @@ var Navbar = React.createClass({
     var fullName = this.getPatientFullName(patient);
     var patientUrl = '#/patients/' + patient.id;
     var uploadLink = this.renderUploadLink();
-    
+    var self = this;
+    var handleClick = function() {
+      self.props.trackMetric('Clicked Navbar View Profile');
+    };
+
     return (
       /* jshint ignore:start */
       <div className="navbar-patient js-navbar-patient" ref="patient">
@@ -110,7 +126,7 @@ var Navbar = React.createClass({
           {fullName}
         </div>
         <div className="navbar-patient-links">
-          <a href={patientUrl}>
+          <a href={patientUrl} onClick={handleClick}>
             <i className="icon-profile"></i>
             {'View profile'}
           </a>
@@ -131,10 +147,15 @@ var Navbar = React.createClass({
       return null;
     }
 
+    var self = this;
+    var handleClick = function() {
+      self.props.trackMetric('Clicked Navbar Upload Data');
+    };
+
     // Upload icon is a bit to the right, need an extra space in the text
     /* jshint ignore:start */
     return (
-      <a href={uploadUrl} target="_blank">
+      <a href={uploadUrl} target="_blank" onClick={handleClick}>
         <i className="icon-upload"></i>
         {' ' + 'Upload data'}
       </a>
@@ -150,12 +171,20 @@ var Navbar = React.createClass({
     }
 
     var fullName = this.getUserFullName(user);
-    
+    var self = this;
+    var handleClickUser = function() {
+      self.props.trackMetric('Clicked Navbar Logged In User');
+    };
+
     return (
       /* jshint ignore:start */
       <ul className="nav nav-right navbar-user js-navbar-user" ref="user">
         <li>
-          <a href="#/profile" className="navbar-label-link js-navbar-profile-link" title="Account">
+          <a
+            href="#/profile"
+            className="navbar-label-link js-navbar-profile-link"
+            title="Account"
+            onClick={handleClickUser}>
             <div className="navbar-label navbar-label-right">
               {'Logged in as '}
               <span className="navbar-user-name" ref="userFullName">{fullName}</span>
@@ -188,7 +217,7 @@ var Navbar = React.createClass({
     if (e) {
       e.preventDefault();
     }
-    
+
     var logout = this.props.onLogout;
     if (logout) {
       logout();

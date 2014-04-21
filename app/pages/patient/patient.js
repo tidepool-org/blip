@@ -30,7 +30,14 @@ var Patient = React.createClass({
     user: React.PropTypes.object,
     fetchingUser: React.PropTypes.bool,
     patient: React.PropTypes.object,
-    fetchingPatient: React.PropTypes.bool
+    fetchingPatient: React.PropTypes.bool,
+    trackMetric: React.PropTypes.func
+  },
+
+  getDefaultProps: function() {
+    return {
+      trackMetric: function() {}
+    };
   },
 
   patientDisplayAttributes: [
@@ -108,9 +115,14 @@ var Patient = React.createClass({
       url = '#/patients/' + patient.id + '/data';
     }
 
+    var self = this;
+    var handleClick = function() {
+      self.props.trackMetric('Clicked Back To Data');
+    };
+
     /* jshint ignore:start */
     return (
-      <a className="js-back" href={url}>
+      <a className="js-back" href={url} onClick={handleClick}>
         <i className="icon-back"></i>
         {' ' + text}
       </a>
@@ -129,10 +141,15 @@ var Patient = React.createClass({
       'edit'
     ].join('/');
 
+    var self = this;
+    var handleClick = function() {
+      self.props.trackMetric('Clicked Edit Profile');
+    };
+
     /* jshint ignore:start */
     return (
       <div className="patient-content-link">
-        <a href={editUrl} className="js-edit-patient">
+        <a href={editUrl} className="js-edit-patient" onClick={handleClick}>
           <i className="icon-profile"></i>
           {' ' + 'Edit profile'}
         </a>

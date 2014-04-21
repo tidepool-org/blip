@@ -98,6 +98,11 @@ function objectDifference(destination, source) {
   return result;
 }
 
+var trackMetric = function() {
+  var args = [].slice.call(arguments);
+  return app.api.metrics.track.apply(app.api.metrics, args);
+};
+
 var AppComponent = React.createClass({
   getInitialState: function() {
     return {
@@ -222,7 +227,8 @@ var AppComponent = React.createClass({
           isUserPatient={isUserPatient}
           uploadUrl={uploadUrl}
           onLogout={this.logout}
-          imagesEndpoint={config.IMAGES_ENDPOINT + '/navbar'} />
+          imagesEndpoint={config.IMAGES_ENDPOINT + '/navbar'}
+          trackMetric={trackMetric}/>
         /* jshint ignore:end */
       );
     }
@@ -295,6 +301,7 @@ var AppComponent = React.createClass({
   showProfile: function() {
     this.renderPage = this.renderProfile;
     this.setState({page: 'profile'});
+    trackMetric('Viewed Account Edit');
   },
 
   renderProfile: function() {
@@ -304,7 +311,8 @@ var AppComponent = React.createClass({
           user={this.state.user}
           fetchingUser={this.state.fetchingUser}
           onValidate={this.validateUser}
-          onSubmit={this.updateUser}/>
+          onSubmit={this.updateUser}
+          trackMetric={trackMetric}/>
       /* jshint ignore:end */
     );
   },
@@ -313,6 +321,7 @@ var AppComponent = React.createClass({
     this.renderPage = this.renderPatients;
     this.setState({page: 'patients'});
     this.fetchPatients();
+    trackMetric('Viewed Care Team List');
   },
 
   renderPatients: function() {
@@ -322,7 +331,8 @@ var AppComponent = React.createClass({
           user={this.state.user}
           fetchingUser={this.state.fetchingUser}
           patients={this.state.patients}
-          fetchingPatients={this.state.fetchingPatients}/>
+          fetchingPatients={this.state.fetchingPatients}
+          trackMetric={trackMetric}/>
     );
     /* jshint ignore:end */
   },
@@ -340,6 +350,7 @@ var AppComponent = React.createClass({
     this.fetchPatient(patientId,function(err,patient){
       return;
     });
+    trackMetric('Viewed Profile');
   },
 
   renderPatient: function() {
@@ -356,7 +367,8 @@ var AppComponent = React.createClass({
           user={this.state.user}
           fetchingUser={this.state.fetchingUser}
           patient={this.state.patient}
-          fetchingPatient={this.state.fetchingPatient}/>
+          fetchingPatient={this.state.fetchingPatient}
+          trackMetric={trackMetric}/>
     );
     /* jshint ignore:end */
   },
@@ -377,6 +389,7 @@ var AppComponent = React.createClass({
       patient: null,
       fetchingPatient: false
     });
+    trackMetric('Viewed Profile Create');
   },
 
   renderPatientNew: function() {
@@ -406,7 +419,8 @@ var AppComponent = React.createClass({
           isNewPatient={true}
           onValidate={this.validatePatient}
           onSubmit={app.api.patient.post.bind(app.api.patient)}
-          onSubmitSuccess={this.handlePatientCreationSuccess}/>
+          onSubmitSuccess={this.handlePatientCreationSuccess}
+          trackMetric={trackMetric}/>
     );
     /* jshint ignore:end */
   },
@@ -431,6 +445,7 @@ var AppComponent = React.createClass({
       fetchingPatient: true
     });
     this.fetchPatient(patientId);
+    trackMetric('Viewed Profile Edit');
   },
 
   renderPatientEdit: function() {
@@ -452,7 +467,8 @@ var AppComponent = React.createClass({
           patient={this.state.patient}
           fetchingPatient={this.state.fetchingPatient}
           onValidate={this.validatePatient}
-          onSubmit={this.updatePatient}/>
+          onSubmit={this.updatePatient}
+          trackMetric={trackMetric}/>
     );
     /* jshint ignore:end */
   },
@@ -485,6 +501,7 @@ var AppComponent = React.createClass({
       self.fetchPatientData(patient);
     });
 
+    trackMetric('Viewed Data');
   },
 
   renderPatientData: function() {
@@ -507,7 +524,8 @@ var AppComponent = React.createClass({
         onRefresh={this.fetchCurrentPatientData}
         onFetchMessageThread={this.fetchMessageThread}
         onSaveComment={app.api.team.replyToMessageThread.bind(app.api.team)}
-        onCreateMessage={app.api.team.startMessageThread.bind(app.api.team)} />
+        onCreateMessage={app.api.team.startMessageThread.bind(app.api.team)}
+        trackMetric={trackMetric}/>
     );
     /* jshint ignore:end */
   },
@@ -516,6 +534,7 @@ var AppComponent = React.createClass({
     this.fetchUser();
     this.setState({authenticated: true});
     this.redirectToDefaultRoute();
+    trackMetric('Logged In');
   },
 
   handleSignupSuccess: function(user) {
@@ -526,6 +545,7 @@ var AppComponent = React.createClass({
       showingAcceptTerms: config.SHOW_ACCEPT_TERMS ? true : false
     });
     this.redirectToDefaultRoute();
+    trackMetric('Signed Up');
   },
 
   handleAcceptedTerms: function() {
@@ -542,6 +562,9 @@ var AppComponent = React.createClass({
     }
 
     this.setState({loggingOut: true});
+
+    // Need to track this before expiring auth token
+    trackMetric('Logged Out');
 
     app.api.user.logout(function(err) {
       if (err) {
@@ -741,6 +764,7 @@ var AppComponent = React.createClass({
         return;
       }
       self.setState({user: user});
+      trackMetric('Updated Account');
     });
   },
 
@@ -778,6 +802,7 @@ var AppComponent = React.createClass({
         return;
       }
       self.setState({patient: patient});
+      trackMetric('Updated Profile');
     });
   }
 });
