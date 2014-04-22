@@ -7,8 +7,6 @@ Dependencies:
 - [Lo-Dash](http://lodash.com/)
 - [Async](https://github.com/caolan/async)
 - [Superagent](http://visionmedia.github.io/superagent/)
-- [moment](http://momentjs.com/)
-- [RxJS](http://reactive-extensions.github.io/RxJS/)
 
 ## Test
 
