@@ -17,6 +17,7 @@
 var React = window.React;
 var _ = window._;
 var moment = window.moment;
+var bows = window.bows;
 var config = window.config;
 
 var utils = require('../../core/utils');
@@ -52,6 +53,8 @@ var PatientData = React.createClass({
       createMessage: null
     };
   },
+
+  log: bows('PatientData'),
 
   render: function() {
     var subnav = this.renderSubnav();
@@ -274,8 +277,26 @@ var PatientData = React.createClass({
   isInsufficientPatientData: function() {
     // add additional checks against data and return false iff:
     // only one datapoint
+    var data = this.props.patientData.data;
+    if (data.length === 1) {
+      this.log('Sorry, you need more than one datapoint.');
+      return true;
+    }
+
     // only two datapoints, less than 24 hours apart
+    var start = moment(data[0].normalTime);
+    var end = moment(data[data.length - 1].normalTime);
+    if (end.diff(start, 'days') < 1) {
+      this.log('Sorry, your data needs to span at least a day.');
+      return true;
+    }
+
     // only messages data
+    if (_.reject(data, function(d) { return d.type === 'message'; }).length === 0) {
+      this.log('Sorry, tideline is kind of pointless with only messages.');
+      return true;
+    }
+    return true;
   },
 
   renderMessagesContainer: function() {
