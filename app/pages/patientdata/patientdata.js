@@ -88,7 +88,7 @@ var PatientData = React.createClass({
     );
     /* jshint ignore:end */
 
-    if (!(this.props.fetchingPatientData || this.isEmptyPatientData())) {
+    if (!(this.props.fetchingPatientData || this.isEmptyPatientData() || this.isInsufficientPatientData())) {
       var dailyLinkClass = 'patient-data-subnav-active';
       var weeklyLinkClass = '';
       if (this.props.patientData.grouped.smbg.length === 0) {
@@ -208,7 +208,7 @@ var PatientData = React.createClass({
       return this.renderLoading();
     }
 
-    if (this.isEmptyPatientData()) {
+    if (this.isEmptyPatientData() || this.isInsufficientPatientData()) {
       return this.renderNoData();
     }
 
@@ -271,6 +271,13 @@ var PatientData = React.createClass({
     return !Boolean(patientDataLength);
   },
 
+  isInsufficientPatientData: function() {
+    // add additional checks against data and return false iff:
+    // only one datapoint
+    // only two datapoints, less than 24 hours apart
+    // only messages data
+  },
+
   renderMessagesContainer: function() {
     /* jshint ignore:start */
     if(this.state.createMessageDatetime){
@@ -328,7 +335,7 @@ var PatientData = React.createClass({
   },
 
   renderFooter: function() {
-    if (this.props.fetchingPatientData || this.isEmptyPatientData()) {
+    if (this.props.fetchingPatientData || this.isEmptyPatientData() || this.isInsufficientPatientData()) {
       return null;
     }
 
