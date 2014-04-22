@@ -111,16 +111,21 @@ module.exports = function(emitter, opts) {
     if (type === 'basal'){
       var basalSchedules = container.currentSettings().basalSchedules;
       var scheduleLabels = _.pluck(basalSchedules, 'name');
+      var scheduleLabelsToKeep = [];
+      log(scheduleLabels);
       // remove any basal schedules that are just an empty array
       for (var k = 0; k < scheduleLabels.length; k++) {
-        if (_.findWhere(basalSchedules, {'name': scheduleLabels[k]}).value.length === 0) {
-          scheduleLabels.splice(k, 1);
+        if (_.findWhere(basalSchedules, {'name': scheduleLabels[k]}).value.length !== 0) {
+          scheduleLabelsToKeep.push(scheduleLabels[k]);
         }
       }
+      scheduleLabels = scheduleLabelsToKeep;
       sectionDiv.classed('d3-settings-section-basal', true);
       container.column(sectionDiv, scheduleLabels[0], 'd3-settings-col-active');
-      for (var i = 1; i < scheduleLabels.length; i++) {
-        container.column(sectionDiv, scheduleLabels[i]);
+      if (scheduleLabels.length > 1) {
+        for (var i = 1; i < scheduleLabels.length; i++) {
+          container.column(sectionDiv, scheduleLabels[i]);
+        }
       }
     }
     else if (type === 'wizard') {
