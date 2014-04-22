@@ -96,7 +96,10 @@ var PatientData = React.createClass({
 
     if (!(this.props.fetchingPatientData || this.isEmptyPatientData())) {
       var dailyLinkClass = 'patient-data-subnav-active';
-      var weeklyLinkClass = (this.props.patientData.grouped.smbg.length === 0) ? "patient-data-subnav-disabled" : '';
+      var weeklyLinkClass = '';
+      if (this.props.patientData.grouped.smbg.length === 0) {
+        weeklyLinkClass = 'patient-data-subnav-disabled';
+      }
       if (this.state.chartType === 'weekly') {
         dailyLinkClass = null;
         weeklyLinkClass = 'patient-data-subnav-active';
@@ -110,26 +113,46 @@ var PatientData = React.createClass({
       left = (
         <div>
           <div className="grid-item large-three-eighths">
-            <a href="" className={dailyLinkClass} onClick={this.handleSwitchToDaily}>One day</a>
+            <a
+              href=""
+              className={dailyLinkClass}
+              onClick={this.handleSwitchToDaily}>One day</a>
           </div>
           <div className="grid-item large-one-half patient-data-subnav-left">
-            <a href="" className={weeklyLinkClass} onClick={this.handleSwitchToWeekly}>Two weeks</a>
+            <a
+              href=""
+              className={weeklyLinkClass}
+              onClick={this.handleSwitchToWeekly}>Two weeks</a>
           </div>
         </div>
       );
       /* jshint ignore:end */
 
+      var panBackClass = '';
+      if (this.state.inTransition || (this.state.chartType === 'settings')) {
+        panBackClass = 'patient-data-subnav-disabled';
+      }
+      var panForwardClass = '';
+      if ((this.state.atMostRecent ||
+           this.state.inTransition || (this.state.chartType === 'settings'))) {
+        panForwardClass = 'patient-data-subnav-disabled';
+      }
+
       /* jshint ignore:start */
       center = (
         <div>
-          <a href="" onClick={this.handlePanBack} className={(this.state.inTransition || (this.state.chartType === 'settings')) ? "patient-data-subnav-disabled" : ""}>
-            <i className="icon-back"></i>
+          <a
+            href=""
+            onClick={this.handlePanBack}
+            className={panBackClass}><i className="icon-back"></i>
           </a>
           <div className="patient-data-subnav-text patient-data-subnav-text-dates">
             {this.state.title}
           </div>
-          <a href="" onClick={this.handlePanForward} className={(this.state.atMostRecent || this.state.inTransition || (this.state.chartType === 'settings')) ? "patient-data-subnav-disabled" : ""}>
-            <i className="icon-next"></i>
+          <a
+            href=""
+            onClick={this.handlePanForward}
+            className={panForwardClass}><i className="icon-next"></i>
           </a>
         </div>
       );
@@ -143,6 +166,11 @@ var PatientData = React.createClass({
         });
       };
 
+      var mostRecentClass = '';
+      if (this.state.atMostRecent) {
+        mostRecentClass = 'patient-data-subnav-active';
+      }
+
       /* jshint ignore:start */
       right = (
         <div>
@@ -150,7 +178,10 @@ var PatientData = React.createClass({
             <a href="" onClick={handleClickRefresh}>Refresh</a>
           </div>
           <div className="grid-item one-whole large-one-half">
-            <a href="" onClick={this.handleGoToMostRecent} className={this.state.atMostRecent ? "patient-data-subnav-active" : ""}>Most recent</a>
+            <a
+              href=""
+              onClick={this.handleGoToMostRecent}
+              className={mostRecentClass}>Most recent</a>
           </div>
         </div>
       );
@@ -307,20 +338,23 @@ var PatientData = React.createClass({
       return null;
     }
 
-    var settingsLinkClass;
+    var settingsLinkClass = '';
     if (this.state.chartType === 'settings') {
       settingsLinkClass = 'patient-data-subnav-active';
     }
-    else {
-      settingsLinkClass = (this.props.patientData.grouped.settings.length === 0) ? "patient-data-footer-disabled" : '';
+    else if (this.props.patientData.grouped.settings.length === 0) {
+      settingsLinkClass = 'patient-data-footer-disabled';
     }
 
     var left, right;
 
     /* jshint ignore:start */
     left = (
-      <a href="" onClick={this.handleSwitchToSettings} className={settingsLinkClass}>
-      Device settings
+      <a
+        href=""
+        onClick={this.handleSwitchToSettings}
+        className={settingsLinkClass}>
+        Device settings
       </a>
     );
     /* jshint ignore:end */
