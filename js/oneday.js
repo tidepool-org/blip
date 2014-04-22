@@ -561,6 +561,9 @@ module.exports = function(emitter) {
     if (! (a && Array.isArray(a.data) && a.data.length > 0)) {
       throw new Error("Sorry, I can't render anything without /some/ data.");
     }
+    else if (a.data.length === 1) {
+      throw new Error("Sorry, I can't render anything with only *one* datapoint.");
+    }
 
     tidelineData = a;
 
@@ -574,6 +577,9 @@ module.exports = function(emitter) {
     container.initialEndpoints = [minusOne, last];
 
     endpoints = [first, last];
+    if (last.valueOf() - first.valueOf() < dt.MS_IN_24) {
+      throw new Error("Sorry, I can't render anything when the endpoints of your data are less than 24 hours apart.");
+    }
     container.endpoints = endpoints;
 
     return container;
