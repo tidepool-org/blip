@@ -98,10 +98,7 @@ function objectDifference(destination, source) {
   return result;
 }
 
-var trackMetric = function() {
-  var args = [].slice.call(arguments);
-  return app.api.metrics.track.apply(app.api.metrics, args);
-};
+var trackMetric = app.api.metrics.track.bind(app.api.metrics);
 
 var AppComponent = React.createClass({
   getInitialState: function() {
