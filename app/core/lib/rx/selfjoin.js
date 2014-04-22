@@ -15,7 +15,7 @@
 
 'use strict';
 
-var Rx = (typeof window !== 'undefined' && typeof window.Rx !== 'undefined') ? window.Rx : require('rx');
+var Rx = window.Rx;
 
 /**
  * A self-join is a join operation done on a single stream of objects.

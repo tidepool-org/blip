@@ -15,9 +15,9 @@
 
 'use strict';
 
-var moment = (typeof window !== 'undefined' && typeof window.moment !== 'undefined') ? window.moment : require('moment');
-var _ = (typeof window !== 'undefined' && typeof window._ !== 'undefined') ? window._ : require('lodash');
-var Rx = (typeof window !== 'undefined' && typeof window.Rx !== 'undefined') ? window.Rx : require('rx');
+var moment = window.moment;
+var _ = window._;
+var Rx = window.Rx;
 
 // Require it so that it gets registered
 require('../rx/selfjoin.js');

@@ -26,9 +26,15 @@ app.use('/app.js', function(req, res, next) {
   gulp.src(path.join(ROOT, 'app/app.js'))
     .pipe(browserify({
       transform: ['reactify'],
-      // Don't bundle Tidepool platform dependencies
+      // Don't bundle Tidepool platform or Tideline dependencies
       // (will be grabbed from global `window` object instead)
-      ignore: ['lodash', 'async', 'duration-js', 'crossfilter'],
+      ignore: [
+        'lodash',
+        'async',
+        'superagent',
+        'duration-js',
+        'crossfilter'
+      ],
       debug: true
     }))
     // Error handling: can't just pass `next`,

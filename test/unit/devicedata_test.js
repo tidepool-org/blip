@@ -19,7 +19,7 @@
 // Require to attach things to Rx prototype
 require('../../app/core/lib/devicedata');
 
-var Rx = (typeof window !== 'undefined' && typeof window.Rx !== 'undefined') ? window.Rx : require('rx');
+var Rx = window.Rx;
 
 var expect = require('salinity').expect;
 
