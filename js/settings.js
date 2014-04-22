@@ -263,6 +263,9 @@ module.exports = function(emitter, opts) {
   };
 
   container.render = function() {
+    if (container.data().length === 0) {
+      return;
+    }
     _.each(Object.keys(opts.sections), function(key) {
       container.section(key, opts.sections[key].label, opts.sections[key].columnTypes.length);
     }, container);
