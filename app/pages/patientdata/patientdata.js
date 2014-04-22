@@ -96,7 +96,7 @@ var PatientData = React.createClass({
 
     if (!(this.props.fetchingPatientData || this.isEmptyPatientData())) {
       var dailyLinkClass = 'patient-data-subnav-active';
-      var weeklyLinkClass = null;
+      var weeklyLinkClass = (this.props.patientData.grouped.smbg.length === 0) ? "patient-data-subnav-disabled" : '';
       if (this.state.chartType === 'weekly') {
         dailyLinkClass = null;
         weeklyLinkClass = 'patient-data-subnav-active';
@@ -312,7 +312,7 @@ var PatientData = React.createClass({
       settingsLinkClass = 'patient-data-subnav-active';
     }
     else {
-      settingsLinkClass = null;
+      settingsLinkClass = (this.props.patientData.grouped.settings.length === 0) ? "patient-data-footer-disabled" : '';
     }
 
     var left, right;
@@ -478,7 +478,7 @@ var PatientData = React.createClass({
         parentMessage : message.parentmessage,
         type: 'message',
         _id: message.id
-    };
+      };
     this.refs.chart.createMessageThread(tidelineMessage);
     this.props.trackMetric('Created New Message');
   },
