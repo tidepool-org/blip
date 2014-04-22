@@ -161,8 +161,10 @@
     text-decoration: none;
   }
 
-  &:active {
-    color: @gray-dark;
+  &:active,
+  &.patient-data-footer-disabled {
+    color: @gray;
+    cursor: default;
   }
 }
 
