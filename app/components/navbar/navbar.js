@@ -28,13 +28,7 @@ var Navbar = React.createClass({
     uploadUrl: React.PropTypes.string,
     onLogout: React.PropTypes.func,
     imagesEndpoint: React.PropTypes.string,
-    trackMetric: React.PropTypes.func
-  },
-
-  getDefaultProps: function() {
-    return {
-      trackMetric: function() {}
-    };
+    trackMetric: React.PropTypes.func.isRequired
   },
 
   render: function() {

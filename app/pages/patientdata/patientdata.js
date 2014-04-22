@@ -35,18 +35,12 @@ var PatientData = React.createClass({
     onSaveComment: React.PropTypes.func,
     onCreateMessage: React.PropTypes.func,
     user: React.PropTypes.object,
-    trackMetric: React.PropTypes.func
+    trackMetric: React.PropTypes.func.isRequired
   },
 
   DEFAULT_TITLE: 'Data',
   CHARTDAILY_TITLE_DATE_FORMAT: 'dddd, MMMM Do',
   CHARTWEEKLY_TITLE_DATE_FORMAT: 'MMMM Do',
-
-  getDefaultProps: function() {
-    return {
-      trackMetric: function() {}
-    };
-  },
 
   getInitialState: function() {
     return {

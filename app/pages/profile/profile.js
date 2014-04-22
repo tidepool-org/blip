@@ -25,15 +25,9 @@ var Profile = React.createClass({
     fetchingUser: React.PropTypes.bool,
     onValidate: React.PropTypes.func.isRequired,
     onSubmit: React.PropTypes.func.isRequired,
-    trackMetric: React.PropTypes.func
+    trackMetric: React.PropTypes.func.isRequired
   },
-
-  getDefaultProps: function() {
-    return {
-      trackMetric: function() {}
-    };
-  },
-
+  
   formInputs: [
     {name: 'firstName', label: 'First name'},
     {name: 'lastName', label: 'Last name'},

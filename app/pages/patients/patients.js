@@ -27,13 +27,7 @@ var Patients = React.createClass({
     fetchingUser: React.PropTypes.bool,
     patients: React.PropTypes.array,
     fetchingPatients: React.PropTypes.bool,
-    trackMetric: React.PropTypes.func
-  },
-
-  getDefaultProps: function() {
-    return {
-      trackMetric: function() {}
-    };
+    trackMetric: React.PropTypes.func.isRequired
   },
 
   render: function() {

@@ -31,15 +31,9 @@ var PatientEdit = React.createClass({
     onValidate: React.PropTypes.func.isRequired,
     onSubmit: React.PropTypes.func.isRequired,
     onSubmitSuccess: React.PropTypes.func,
-    trackMetric: React.PropTypes.func
+    trackMetric: React.PropTypes.func.isRequired
   },
-
-  getDefaultProps: function() {
-    return {
-      trackMetric: function() {}
-    };
-  },
-
+  
   formInputs: [
     {
       name: 'birthday',
