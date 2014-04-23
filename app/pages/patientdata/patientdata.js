@@ -17,6 +17,7 @@
 var React = window.React;
 var _ = window._;
 var moment = window.moment;
+var bows = window.bows;
 var config = window.config;
 
 var utils = require('../../core/utils');
@@ -53,6 +54,8 @@ var PatientData = React.createClass({
     };
   },
 
+  log: bows('PatientData'),
+
   render: function() {
     var subnav = this.renderSubnav();
     var patientData = this.renderPatientData();
@@ -88,7 +91,7 @@ var PatientData = React.createClass({
     );
     /* jshint ignore:end */
 
-    if (!(this.props.fetchingPatientData || this.isEmptyPatientData())) {
+    if (!(this.props.fetchingPatientData || this.isEmptyPatientData() || this.isInsufficientPatientData())) {
       var dailyLinkClass = 'patient-data-subnav-active';
       var weeklyLinkClass = '';
       if (this.props.patientData.grouped.smbg.length === 0) {
@@ -208,7 +211,7 @@ var PatientData = React.createClass({
       return this.renderLoading();
     }
 
-    if (this.isEmptyPatientData()) {
+    if (this.isEmptyPatientData() || this.isInsufficientPatientData()) {
       return this.renderNoData();
     }
 
@@ -271,6 +274,31 @@ var PatientData = React.createClass({
     return !Boolean(patientDataLength);
   },
 
+  isInsufficientPatientData: function() {
+    // add additional checks against data and return false iff:
+    // only one datapoint
+    var data = this.props.patientData.data;
+    if (data.length === 1) {
+      this.log('Sorry, you need more than one datapoint.');
+      return true;
+    }
+
+    // only two datapoints, less than 24 hours apart
+    var start = moment(data[0].normalTime);
+    var end = moment(data[data.length - 1].normalTime);
+    if (end.diff(start, 'days') < 1) {
+      this.log('Sorry, your data needs to span at least a day.');
+      return true;
+    }
+
+    // only messages data
+    if (_.reject(data, function(d) { return d.type === 'message'; }).length === 0) {
+      this.log('Sorry, tideline is kind of pointless with only messages.');
+      return true;
+    }
+    return true;
+  },
+
   renderMessagesContainer: function() {
     /* jshint ignore:start */
     if(this.state.createMessageDatetime){
@@ -328,7 +356,7 @@ var PatientData = React.createClass({
   },
 
   renderFooter: function() {
-    if (this.props.fetchingPatientData || this.isEmptyPatientData()) {
+    if (this.props.fetchingPatientData || this.isEmptyPatientData() || this.isInsufficientPatientData()) {
       return null;
     }
 
