@@ -126,10 +126,10 @@ module.exports = function(container, annotationsGroup) {
       }
 
       // append all annotation texts
-      var codes = opts.d.annotations;
-      _.each(codes, function(code) {
+      var annotations = opts.d.annotations;
+      _.each(annotations, function(annotation) {
         div.append('p')
-          .html(defs.main(code, opts.d.source));
+          .html(defs.main(annotation, opts.d.source));
       });
 
       // get height of HTML

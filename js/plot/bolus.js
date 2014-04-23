@@ -432,7 +432,10 @@ module.exports = function(pool, opts) {
         'y': opts.yScale(d.value),
         'xMultiplier': -2,
         'yMultiplier': 1,
-        'd': d
+        'd': d,
+        'orientation': {
+          'up': true
+        }
       };
       if (d3.select('#annotation_for_' + d._id)[0][0] == null) {
         d3.select('#tidelineAnnotations_bolus').call(pool.annotations(), annotationOpts);
