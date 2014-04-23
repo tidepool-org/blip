@@ -44,7 +44,6 @@ module.exports = function(pool, opts) {
   function basal(selection) {
     opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
-
       // to prevent blank rectangle at beginning of domain
       var index = opts.data.indexOf(currentData[0]);
       // when near left edge currentData[0] will have index 0, so we don't want to decrement it
@@ -173,6 +172,35 @@ module.exports = function(pool, opts) {
             else {
               return 'd3-basal d3-basal-invisible';
             }
+          },
+          'id': function(d) {
+            return 'basal_invisible_' + d._id;
+          }
+        });
+
+      // it turns out for Animas the assumption that the actuals stream is complete
+      // is wrong because there can be missing undelivereds
+      // so we need another target (i.e., more invisible rects)
+      rectGroups.filter(function(d) {
+        // select all basal groups that only have a regular rect in them, missing an invisi-rect
+        if (d3.select('#basal_group_' + d._id + '_' + d.start.replace(/:/g, '') + '_' + d.vizType).length === 1) {
+          return d;
+        }
+      })
+        .append('rect')
+        .attr({
+          'width': function(d) {
+            return basal.width(d);
+          },
+          'height': pool.height(),
+          'x': function(d) {
+            return opts.xScale(new Date(d.normalTime));
+          },
+          'y': function(d) {
+            return opts.yScale.range()[1];
+          },
+          'class': function(d) {
+            return 'd3-basal d3-basal-invisible d3-basal-without-undelivered';
           },
           'id': function(d) {
             return 'basal_invisible_' + d._id;
@@ -345,7 +373,6 @@ module.exports = function(pool, opts) {
     toLink.forEach(function(segment, i, segments) {
       var start = _.findWhere(referenceArray, {'normalTime': segment.normalTime});
       if (start === undefined) {
-        log('Unable to find a matching undelivered for the given temp', segment, referenceArray);
         return;
       }
       var startIndex = referenceArray.indexOf(start);
