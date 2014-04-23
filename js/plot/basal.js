@@ -312,11 +312,15 @@ module.exports = function(pool, opts) {
             return JSON.stringify(point);
           });
 
-          basalGroup.append('path')
-            .attr({
-              'd': line(pathPoints),
-              'class': 'd3-basal d3-path-basal d3-path-basal-undelivered'
-            });
+          // TODO: remove this when we have a saner treatment of Diasend temp basals/undelivereds
+          if (undelivered[0].source !== 'diasend') {
+            basalGroup.append('path')
+              .attr({
+                'd': line(pathPoints),
+                'class': 'd3-basal d3-path-basal d3-path-basal-undelivered'
+              });
+          }
+
         });
 
         basal.linkTemp(_.where(actual, {'deliveryType': 'temp'}), undelivered);
