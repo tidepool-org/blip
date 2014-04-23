@@ -35,7 +35,7 @@ var definitions = {
     'carelink/basal/off-schedule-rate': function(source, defs) {
       // You may have changed pumps recently - perhaps because you
       // had to have your pump replaced due to malfuction. As a result of how
-      // [SOURCE] report the data, we can't be 100% certain of your basal rate here.
+      // Carelink report the data, we can't be 100% certain of your basal rate here.
       var a = "You may have changed pumps recently - perhaps because you had to have your pump replaced due to malfuction. As a result of how ";
       var b = " reports the data, we can't be 100% certain of your basal rate here.";
       return defs.stitch(a, b, source);
@@ -43,14 +43,14 @@ var definitions = {
     'carelink/settings/basal-mismatch': function(source, defs) {
       // You may have changed pumps recently - perhaps because you
       // had to have your pump replaced due to malfuction. As a result of how 
-      // [SOURCE] reports the data, we can't be 100% certain of your basal settings here.
+      // Carelink reports the data, we can't be 100% certain of your basal settings here.
       var a = "You may have changed pumps recently - perhaps because you had to have your pump replaced due to malfuction. As a result of how ";
       var b = " reports the data, we can't be 100% certain of your basal settings here.";
       return defs.stitch(a, b, source);
     },
     'carelink/settings/wizard-mismatch': function(source, defs) {
       // You may have changed pumps recently - perhaps because you had to have
-      // your pump replaced due to malfuction. As a result of how [SOURCE]
+      // your pump replaced due to malfuction. As a result of how Carelink
       // reports the data, we can't be 100% certain of your bolus wizard settings here.
       var a = "You may have changed pumps recently - perhaps because you had to have your pump replaced due to malfuction. As a result of how ";
       var b = " reports the data, we can't be 100% certain of your bolus wizard settings here.";
@@ -58,7 +58,7 @@ var definitions = {
     },
     'carelink/settings/activeSchedule-mismatch': function(source, defs) {
       // You may have changed pumps recently - perhaps because you had to have
-      // your pump replaced due to malfuction. As a result of how [SOURCE]
+      // your pump replaced due to malfuction. As a result of how Carelink
       // reports the data, we can't be 100% certain of your active basal pattern here.
       var a = "You may have changed pumps recently - perhaps because you had to have your pump replaced due to malfuction. As a result of how ";
       var b = " reports the data, we can't be 100% certain of your active basal pattern here.";
