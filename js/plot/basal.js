@@ -183,7 +183,7 @@ module.exports = function(pool, opts) {
       // so we need another target (i.e., more invisible rects)
       rectGroups.filter(function(d) {
         // select all basal groups that only have a regular rect in them, missing an invisi-rect
-        if (d3.select('#basal_group_' + d._id + '_' + d.start.replace(/:/g, '') + '_' + d.vizType).length === 1) {
+        if (d3.select('#basal_group_' + d._id).selectAll('.d3-basal-invisible')[0][0] == null) {
           return d;
         }
       })
@@ -414,7 +414,11 @@ module.exports = function(pool, opts) {
         case 45:
           return 'over ' + hours + THREE_QUARTER + ' hr';
         default:
-          return 'over ' + hours + ' hr ' + minutes + ' min';
+          // zero-pad minutes when displaying as clock
+          if (minutes < 10) {
+            minutes = '0' + minutes;
+          }
+          return 'over ' + hours + ':' + minutes;
         }
       }
       else {
@@ -432,7 +436,11 @@ module.exports = function(pool, opts) {
         case 45:
           return 'over ' + hours + THREE_QUARTER + ' hrs';
         default:
-          return 'over ' + hours + ' hrs ' + minutes + ' min';
+          // zero-pad minutes when displaying as clock
+          if (minutes < 10) {
+            minutes = '0' + minutes;
+          }
+          return 'over ' + hours + ':' + minutes;
         }
       }
     }
@@ -509,13 +517,13 @@ module.exports = function(pool, opts) {
         // customText
         (function() {
           if (d.value === 0) {
-            return '0.0U';
+            return '0.0U/hr';
           }
           else {
             if (d.percent) {
               return format.percentage(d.percent);
             }
-            return formatValue(d.value) + 'U';
+            return formatValue(d.value) + 'U/hr';
           }
         }()),
         // tspan
@@ -536,7 +544,7 @@ module.exports = function(pool, opts) {
           }
         })
         .append('tspan')
-        .text('(' + formatValue(unD.value) + 'U scheduled)');
+        .text('(' + formatValue(unD.value) + 'U/hr sched.)');
     }
   };
 
