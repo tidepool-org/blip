@@ -81,15 +81,7 @@ function dualNormalBuilder() {
       }
 
       if (normal.joinKey !== square.joinKey) {
-        throw new Error([
-          'Mismatched joinKeys[',
-          normal.joinKey,
-          '][',
-          square.joinKey,
-          '] at ts[',
-          normal.deviceTime,
-          ']'
-          ].join(''));
+        throw new Error('Mismatched joinKeys['+normal.joinKey+']['+square.joinKey+'] at ts['+normal.deviceTime+']');
       }
 
       return [
