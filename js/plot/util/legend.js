@@ -140,7 +140,7 @@ var legend = {
         opts.widths.push(opts.SHAPE_WIDTH);
         return opts.selection.append('rect')
           .attr({
-            'class': 'd3-bolus d3-rect-bolus'
+            'class': 'd3-bolus d3-rect-bolus-legend'
           });
       },
       type: 'rect'
@@ -164,7 +164,7 @@ var legend = {
         opts.widths.push(opts.SHAPE_WIDTH);
         return opts.selection.append('rect')
           .attr({
-            'class': 'd3-bolus d3-rect-recommended'
+            'class': 'd3-bolus d3-rect-recommended-legend'
           });
       },
       type: 'rect'
@@ -190,7 +190,7 @@ var legend = {
         opts.widths.push(opts.SHAPE_WIDTH);
         return opts.selection.append('rect')
           .attr({
-            'class': 'd3-rect-carbs'
+            'class': 'd3-rect-carbs-legend'
           });
       },
       type: 'rect'

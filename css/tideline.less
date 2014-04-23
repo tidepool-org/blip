@@ -152,13 +152,14 @@ svg {
 }
 
 // carbs
-.d3-rect-carbs {
+.d3-rect-carbs, .d3-rect-carbs-legend {
   fill: @carbs;
 }
 
 // boluses
 .d3-bolus {
-  &.d3-rect-bolus {
+  &.d3-rect-bolus,
+  &.d3-rect-bolus-legend {
     fill: @bolus;
   }
   &.d3-path-bolus {
@@ -175,7 +176,8 @@ svg {
     stroke: @bolus;
     fill: @bolus;
   }
-  &.d3-rect-recommended {
+  &.d3-rect-recommended,
+  &.d3-rect-recommended-legend {
     fill: @recommended;
   }
 }
