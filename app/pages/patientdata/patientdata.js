@@ -296,7 +296,7 @@ var PatientData = React.createClass({
       this.log('Sorry, tideline is kind of pointless with only messages.');
       return true;
     }
-    return true;
+    return false;
   },
 
   renderMessagesContainer: function() {
