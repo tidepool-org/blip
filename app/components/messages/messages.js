@@ -175,12 +175,15 @@ var Messages = React.createClass({
       var addComment = this.props.onSave;
       var parent = this.getParent();
 
+      var d = new Date();
+
       var comment = {
         parentmessage : parent.id,
         userid : this.props.user.id,
         groupid : parent.groupid,
         messagetext : formValues.messageText,
-        timestamp : new Date().toISOString()
+        timestamp : d.toISOString(),
+        offsetminutes : d.getTimezoneOffset()
       };
 
       addComment(comment, function(error,commentId){
