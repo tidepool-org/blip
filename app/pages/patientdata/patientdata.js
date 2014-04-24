@@ -305,6 +305,7 @@ var PatientData = React.createClass({
       return (
         <Messages
           createDatetime={this.state.createMessageDatetime}
+          createOffset={this.state.createOffset}
           user={this.props.user}
           patient={this.props.patient}
           onClose={this.closeMessageCreation}
@@ -332,6 +333,7 @@ var PatientData = React.createClass({
 
   closeMessageCreation: function(){
     this.setState({ createMessageDatetime: null });
+    this.setState({ createOffset: null });
     this.refs.chart.closeMessageThread();
     this.props.trackMetric('Closed New Message Modal');
   },
@@ -529,7 +531,13 @@ var PatientData = React.createClass({
   handleMessageCreation: function(message){
     //Transform to Tideline's own format
     var tidelineMessage = {
-        normalTime : message.timestamp,
+        utcTime : message.timestamp,
+        // for now, assuming browser local timezone offset is the offset we want to store with message
+        // this will NOT always be true
+        // e.g., Howard on a trip in Boston creating a new message in blip for Katie's data
+        // or Howard creating a message on April pertaining to data in February
+        // (i.e., on different sides of Daylight Savings Time)
+        offsetMinutes : new Date().getTimezoneOffset(),
         messageText : message.messagetext,
         parentMessage : message.parentmessage,
         type: 'message',
@@ -599,10 +607,11 @@ var PatientData = React.createClass({
     var d = new Date();
     var offsetMinutes = d.getTimezoneOffset();
     var givenDate = new Date(datetime);
-    givenDate.setMinutes(givenDate.getMinutes() + offsetMinutes);
+    givenDate.setUTCMinutes(givenDate.getUTCMinutes() + offsetMinutes);
     datetime = givenDate.toISOString();
 
     this.setState({ createMessageDatetime : datetime });
+    this.setState({ createOffset : offsetMinutes });
     this.props.trackMetric('Clicked Message Pool Background');
   },
 
