@@ -55,7 +55,10 @@ var Messages = React.createClass({
   ],
 
   formatDisplayDate : function(timestamp){
-    return moment.utc(timestamp).format('MMMM D [at] h:mm a');
+    if (this.props.createDatetime != null) {
+      return moment.utc(timestamp).format('MMMM D [at] h:mm a');
+    }
+    return moment(timestamp).format('MMMM D [at] h:mm a');
   },
 
   renderMessage: function(message){
