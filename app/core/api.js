@@ -417,10 +417,13 @@ api.team.getNotes = function(userId,cb){
     if(error){
       return cb(error);
     }
-    //transform so that they are how Tideline renders them
+    /*
+     * We transform the message for rendering in Timeline
+     *
+     */
     messages = _.map(messages, function(message) {
       return {
-        normalTime : message.timestamp,
+        utcTime : message.timestamp,
         messageText : message.messagetext,
         parentMessage : message.parentmessage,
         type: 'message',

@@ -588,6 +588,20 @@ var PatientData = React.createClass({
   },
 
   handleShowMessageCreation : function(datetime){
+
+    /*
+     * NOTE: this is a workaround that reflects the fact the tideline is giving us a
+     * datetime that has been stripped of timezone.
+     *
+     * Transform the datetime so that is correct with redards to timezone
+     */
+
+    var d = new Date();
+    var offsetMinutes = d.getTimezoneOffset();
+    var givenDate = new Date(datetime);
+    givenDate.setMinutes(givenDate.getMinutes() + offsetMinutes);
+    datetime = givenDate.toISOString();
+
     this.setState({ createMessageDatetime : datetime });
     this.props.trackMetric('Clicked Message Pool Background');
   },
