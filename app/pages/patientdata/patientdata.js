@@ -20,6 +20,8 @@ var moment = window.moment;
 var bows = window.bows;
 var config = window.config;
 
+var watson = window.tideline.watson;
+
 var utils = require('../../core/utils');
 var Chart = require('../../components/chart');
 var Messages = require('../../components/messages');
@@ -528,13 +530,18 @@ var PatientData = React.createClass({
 
   handleMessageCreation: function(message){
     //Transform to Tideline's own format
-    var tidelineMessage = {
-        normalTime : message.timestamp,
+    var message = {
+        utcTime : message.timestamp,
+        // for now, assuming browser local timezone offset is the offset we want to
+        // pass back to tideline, but this will NOT always be true
+        // e.g., Howard creating a message ing April pertaining to data in February
+        // (i.e., on different sides of Daylight Savings Time)
         messageText : message.messagetext,
         parentMessage : message.parentmessage,
         type: 'message',
         _id: message.id
       };
+    var tidelineMessage = watson.normalize(message);
     this.refs.chart.createMessageThread(tidelineMessage);
     this.props.trackMetric('Created New Message');
   },
