@@ -56,6 +56,8 @@ module.exports = function(emitter) {
   emitter.on('clickInPool', function(offset) {
     var leftEdge = xScale(xScale.domain()[0]);
     var date = xScale.invert(leftEdge + offset - container.axisGutter());
+    var offsetMinutes = new Date().getTimezoneOffset();
+    date.setUTCMinutes(date.getUTCMinutes() + offsetMinutes);
     emitter.emit('clickTranslatesToDate', date);
   });
 
