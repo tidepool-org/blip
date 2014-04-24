@@ -31,6 +31,7 @@ var Messages = React.createClass({
   propTypes: {
     messages : React.PropTypes.array,
     createDatetime : React.PropTypes.string,
+    createOffset: React.PropTypes.number,
     user : React.PropTypes.object,
     patient: React.PropTypes.object,
     onClose : React.PropTypes.func,
@@ -55,7 +56,7 @@ var Messages = React.createClass({
   ],
 
   formatDisplayDate : function(timestamp){
-    return moment.utc(timestamp).format('MMMM D [at] h:mm a');
+    return moment(timestamp).format('MMMM D [at] h:mm a');
   },
 
   renderMessage: function(message){
@@ -174,12 +175,15 @@ var Messages = React.createClass({
       var addComment = this.props.onSave;
       var parent = this.getParent();
 
+      var d = new Date();
+
       var comment = {
         parentmessage : parent.id,
         userid : this.props.user.id,
         groupid : parent.groupid,
         messagetext : formValues.messageText,
-        timestamp : new Date().toISOString()
+        timestamp : d.toISOString(),
+        offsetminutes : d.getTimezoneOffset()
       };
 
       addComment(comment, function(error,commentId){
@@ -204,7 +208,8 @@ var Messages = React.createClass({
         userid : this.props.user.id,
         groupid : this.props.patient.id,
         messagetext : formValues.messageText,
-        timestamp : this.props.createDatetime
+        timestamp : this.props.createDatetime,
+        offsetminutes : this.props.createOffset
       };
 
       createMessage(message, function(error,messageId){

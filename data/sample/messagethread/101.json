@@ -1,38 +1,41 @@
 [
-	{
-        "messagetext": "I love cheese, especially fromage frais emmental. Pecorino dolcelatte fromage cheese and wine swiss cheesy grin stilton lancashire.",
-        "parentmessage": "",
-        "timestamp": "2014-02-14T07:07:00Z",
-        "user": {
-					"firstName": "Mary",
-					"lastName": "Smith"
-				},
-        "userid": "11",
-        "groupid": "11",
-        "id": "101"
+  {
+    "groupid": "11",
+    "user": {
+      "firstName": "Mary",
+      "lastName": "Smith"
     },
-    {
-        "messagetext": "Cheesy grin cream cheese dolcelatte. Cheese and biscuits manchego halloumi who moved my cheese cheese slices st. agur blue cheese fromage frais fondue.",
-        "parentmessage": "101",
-        "timestamp": "2014-02-14T07:15:00Z",
-        "user": {
-					"firstName": "Charles",
-					"lastName": "West"
-				},
-        "userid": "21",
-        "groupid": "11",
-        "id": "104"
+    "parentmessage": "",
+    "id": "101",
+    "userid": "11",
+    "messagetext": "I love cheese, especially fromage frais emmental. Pecorino dolcelatte fromage cheese and wine swiss cheesy grin stilton lancashire.",
+    "timestamp": "2014-02-14T07:07:00Z",
+    "offsetminutes": 420
+  },
+  {
+    "groupid": "11",
+    "user": {
+      "firstName": "Charles",
+      "lastName": "West"
     },
-    {
-        "messagetext": "Mozzarella monterey jack mozzarella bocconcini gouda when the cheese comes out everybody's happy stinking bishop who moved my cheese.",
-        "parentmessage": "101",
-        "timestamp": "2014-02-14T10:07:00Z",
-        "user": {
-					"firstName": "Sarah",
-					"lastName": "Carter"
-				},
-        "userid": "31",
-        "groupid": "11",
-        "id": "105"
-    }
+    "parentmessage": "101",
+    "id": "104",
+    "userid": "21",
+    "messagetext": "Cheesy grin cream cheese dolcelatte. Cheese and biscuits manchego halloumi who moved my cheese cheese slices st. agur blue cheese fromage frais fondue.",
+    "timestamp": "2014-02-14T07:15:00Z",
+    "offsetminutes": 420
+  },
+  {
+    "groupid": "11",
+    "user": {
+      "firstName": "Sarah",
+      "lastName": "Carter"
+    },
+    "parentmessage": "101",
+    "id": "105",
+    "userid": "31",
+    "messagetext": "Mozzarella monterey jack mozzarella bocconcini gouda when the cheese comes out everybody's happy stinking bishop who moved my cheese.",
+    "timestamp": "2014-02-14T10:07:00Z",
+    "offsetminutes": 420
+  }
 ]

@@ -20,6 +20,8 @@ var moment = window.moment;
 var bows = window.bows;
 var config = window.config;
 
+var watson = window.tideline.watson;
+
 var utils = require('../../core/utils');
 var Chart = require('../../components/chart');
 var Messages = require('../../components/messages');
@@ -305,6 +307,7 @@ var PatientData = React.createClass({
       return (
         <Messages
           createDatetime={this.state.createMessageDatetime}
+          createOffset={this.state.createOffset}
           user={this.props.user}
           patient={this.props.patient}
           onClose={this.closeMessageCreation}
@@ -332,6 +335,7 @@ var PatientData = React.createClass({
 
   closeMessageCreation: function(){
     this.setState({ createMessageDatetime: null });
+    this.setState({ createOffset: null });
     this.refs.chart.closeMessageThread();
     this.props.trackMetric('Closed New Message Modal');
   },
@@ -528,13 +532,20 @@ var PatientData = React.createClass({
 
   handleMessageCreation: function(message){
     //Transform to Tideline's own format
-    var tidelineMessage = {
-        normalTime : message.timestamp,
+    var message = {
+        utcTime : message.timestamp,
+        // for now, assuming browser local timezone offset is the offset we want to store with message
+        // this will NOT always be true
+        // e.g., Howard on a trip in Boston creating a new message in blip for Katie's data
+        // or Howard creating a message on April pertaining to data in February
+        // (i.e., on different sides of Daylight Savings Time)
+        offsetMinutes : new Date().getTimezoneOffset(),
         messageText : message.messagetext,
         parentMessage : message.parentmessage,
         type: 'message',
         _id: message.id
       };
+    var tidelineMessage = watson.normalize(message);
     this.refs.chart.createMessageThread(tidelineMessage);
     this.props.trackMetric('Created New Message');
   },
@@ -588,7 +599,22 @@ var PatientData = React.createClass({
   },
 
   handleShowMessageCreation : function(datetime){
+
+    /*
+     * NOTE: this is a workaround that reflects the fact the tideline is giving us a
+     * datetime that has been stripped of timezone.
+     *
+     * Transform the datetime so that is correct with redards to timezone
+     */
+
+    var d = new Date();
+    var offsetMinutes = d.getTimezoneOffset();
+    var givenDate = new Date(datetime);
+    givenDate.setUTCMinutes(givenDate.getUTCMinutes() + offsetMinutes);
+    datetime = givenDate.toISOString();
+
     this.setState({ createMessageDatetime : datetime });
+    this.setState({ createOffset : offsetMinutes });
     this.props.trackMetric('Clicked Message Pool Background');
   },
 
