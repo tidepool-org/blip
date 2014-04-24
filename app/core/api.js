@@ -418,7 +418,7 @@ api.team.getNotes = function(userId,cb){
       return cb(error);
     }
     /*
-     * We transform the message for rendering in Timeline
+     * We transform the message for rendering in Tideline
      *
      */
     messages = _.map(messages, function(message) {
