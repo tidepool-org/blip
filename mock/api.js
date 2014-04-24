@@ -283,6 +283,7 @@ var createPatch = function(options) {
       messages = _.map(messages, function(message) {
         return {
           utcTime : message.timestamp,
+          offsetMinutes: message.offsetminutes,
           messageText : message.messagetext,
           parentMessage : message.parentmessage,
           type: 'message',
