@@ -93,7 +93,8 @@ function dualNormalBuilder() {
           deviceTime: normal.deviceTime,
           duration: square.duration,
           extended: true,
-          type: 'bolus'
+          type: 'bolus',
+          source: normal.source
         }
       ].concat(eventBuffer);
     }

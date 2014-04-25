@@ -28,7 +28,7 @@ function carbsFromWizard(datum) {
         value: datum.payload.carbInput,
         units: datum.payload.carbUnits,
         deviceId: datum.deviceId,
-        annotations: [{ code: 'generated-from-wizard' }].concat(datum.annotations || [])
+        source: datum.source
       }
     ];
   }
