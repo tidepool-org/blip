@@ -420,7 +420,7 @@ api.team.getNotes = function(userId,cb){
     //transform so that they are how Tideline renders them
     messages = _.map(messages, function(message) {
       return {
-        normalTime : message.timestamp,
+        utcTime : message.timestamp,
         messageText : message.messagetext,
         parentMessage : message.parentmessage,
         type: 'message',
