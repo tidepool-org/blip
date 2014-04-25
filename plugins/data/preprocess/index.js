@@ -74,7 +74,7 @@ var Preprocess = {
     return _.map(data, function(d) {
       if (d.type === 'bolus' && d.joinKey != null) {
         var joined = _.findWhere(wizards, {'joinKey': d.joinKey});
-        if (joined) {
+        if (joined && joined.payload.estimate != null) {
           d.recommended = joined.payload.estimate;
         }
         return d;
