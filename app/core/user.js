@@ -54,8 +54,8 @@ _.assign(user, {
     }
 
     var patient = _.extend(attributes.patient, {
-      firstName: attributes.firstName,
-      lastName: attributes.lastName
+      fullName: attributes.fullName,
+      shortName: attributes.shortName
     });
 
     return patient;
