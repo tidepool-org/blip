@@ -50,6 +50,8 @@ module.exports = {
       widget: require('./plot/stats/widget')
     },
     util: {
+      annotation: require('./plot/util/annotation'),
+      defs: require('./plot/util/annotationdefinitions'),
       fill: require('./plot/util/fill'),
       legend: require('./plot/util/legend'),
       scales: require('./plot/util/scales'),
