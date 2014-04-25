@@ -9,7 +9,7 @@ var testPatient = require('../../data/sample/patients/' + patientId +'.json');
 testPatient.birthday = '03-08-1987';
 testPatient.diagnosisDate = '02-01-1994';
 
-describe('Profile', function() {
+describe('Patient Edit', function() {
   var openAppTo = helpers.openAppTo;
   var By = webdriver.By;
 

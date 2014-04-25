@@ -49,8 +49,8 @@ describe('User service', function() {
         'username': '',
         'password': '',
         'passwordConfirm': '',
-        'firstName': '',
-        'lastName': ''
+        'fullName': '',
+        'shortName': ''
       };
       var errors = user.validate(userAttr);
 

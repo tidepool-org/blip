@@ -27,10 +27,10 @@ var Profile = React.createClass({
     onSubmit: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired
   },
-  
+
   formInputs: [
-    {name: 'firstName', label: 'First name'},
-    {name: 'lastName', label: 'Last name'},
+    {name: 'fullName', label: 'Full name'},
+    {name: 'shortName', label: 'Short name'},
     {name: 'username', label: 'Email', type: 'email'},
     {name: 'password', label: 'Password', type: 'password'},
     {name: 'passwordConfirm', label: 'Confirm password', type: 'password'}

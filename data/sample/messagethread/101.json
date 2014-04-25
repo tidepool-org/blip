@@ -4,8 +4,8 @@
         "parentmessage": "",
         "timestamp": "2014-02-14T07:07:00Z",
         "user": {
-					"firstName": "Mary",
-					"lastName": "Smith"
+					"fullName": "Mary Smith",
+					"shortName": "Mary"
 				},
         "userid": "11",
         "groupid": "11",
@@ -16,8 +16,8 @@
         "parentmessage": "101",
         "timestamp": "2014-02-14T07:15:00Z",
         "user": {
-					"firstName": "Charles",
-					"lastName": "West"
+					"fullName": "Charles West",
+					"shortName": "Charles"
 				},
         "userid": "21",
         "groupid": "11",
@@ -28,8 +28,8 @@
         "parentmessage": "101",
         "timestamp": "2014-02-14T10:07:00Z",
         "user": {
-					"firstName": "Sarah",
-					"lastName": "Carter"
+					"fullName": "Sarah Carter",
+					"shortName": "Sarah"
 				},
         "userid": "31",
         "groupid": "11",

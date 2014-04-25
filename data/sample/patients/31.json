@@ -1,7 +1,7 @@
 {
   "id": "31",
-  "firstName": "Sarah",
-  "lastName": "Carter",
+  "fullName": "Sarah Carter",
+  "shortName": "Sarah",
   "birthday": "1999-07-03",
   "diagnosisDate": "2009-08-01"
 }

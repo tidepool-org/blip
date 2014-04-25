@@ -17,8 +17,7 @@ describe('Patient', function() {
 
     openAppToPatient(patientId)
       .then(function() {
-        expect('[name="firstName"]').dom.to.have.text(patient.firstName);
-        expect('[name="lastName"]').dom.to.have.text(patient.lastName);
+        expect('[name="fullName"]').dom.to.have.text(patient.fullName);
         expect('[name="aboutMe"]').dom.to.have.text(patient.aboutMe);
         expect('[name="age"]').dom.to.contain.text(birthdayYear);
         expect('[name="diagnosis"]').dom.to.contain.text(diagnosisYear);
@@ -77,7 +76,7 @@ describe('Patient', function() {
       'api.patient.get.delay': 10000
     })
       .then(function() {
-        expect('.js-patient-attribute-empty').dom.to.have.count(5);
+        expect('.js-patient-attribute-empty').dom.to.have.count(4);
         done();
       });
   });

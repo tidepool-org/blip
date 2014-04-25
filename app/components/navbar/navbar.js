@@ -105,7 +105,7 @@ var Navbar = React.createClass({
       return null;
     }
 
-    var fullName = this.getPatientFullName(patient);
+    var displayName = this.getPatientDisplayName(patient);
     var patientUrl = '#/patients/' + patient.id;
     var uploadLink = this.renderUploadLink();
     var self = this;
@@ -117,7 +117,7 @@ var Navbar = React.createClass({
       /* jshint ignore:start */
       <div className="navbar-patient js-navbar-patient" ref="patient">
         <div className="navbar-patient-name">
-          {fullName}
+          {displayName}
         </div>
         <div className="navbar-patient-links">
           <a href={patientUrl} onClick={handleClick}>
@@ -164,7 +164,7 @@ var Navbar = React.createClass({
       return null;
     }
 
-    var fullName = this.getUserFullName(user);
+    var displayName = this.getUserDisplayName(user);
     var self = this;
     var handleClickUser = function() {
       self.props.trackMetric('Clicked Navbar Logged In User');
@@ -181,7 +181,7 @@ var Navbar = React.createClass({
             onClick={handleClickUser}>
             <div className="navbar-label navbar-label-right">
               {'Logged in as '}
-              <span className="navbar-user-name" ref="userFullName">{fullName}</span>
+              <span className="navbar-user-name" ref="userFullName">{displayName}</span>
             </div>
             <div className="navbar-label-arrow-right"></div>
           </a>
@@ -199,12 +199,12 @@ var Navbar = React.createClass({
     );
   },
 
-  getUserFullName: function(user) {
-    return user.firstName + ' ' + user.lastName;
+  getUserDisplayName: function(user) {
+    return user.fullName;
   },
 
-  getPatientFullName: function(patient) {
-    return patient.firstName + ' ' + patient.lastName;
+  getPatientDisplayName: function(patient) {
+    return patient.fullName;
   },
 
   handleLogout: function(e) {
