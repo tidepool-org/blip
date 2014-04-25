@@ -20,6 +20,8 @@ var moment = window.moment;
 var bows = window.bows;
 var config = window.config;
 
+var watson = window.tideline.watson;
+
 var utils = require('../../core/utils');
 var Chart = require('../../components/chart');
 var Messages = require('../../components/messages');
@@ -529,13 +531,14 @@ var PatientData = React.createClass({
   handleMessageCreation: function(message){
     //Transform to Tideline's own format
     var tidelineMessage = {
-        normalTime : message.timestamp,
+        utcTime : message.timestamp,
         messageText : message.messagetext,
         parentMessage : message.parentmessage,
         type: 'message',
         _id: message.id
       };
-    this.refs.chart.createMessageThread(tidelineMessage);
+    var transformedMessage = watson.normalize(tidelineMessage);
+    this.refs.chart.createMessageThread(transformedMessage);
     this.props.trackMetric('Created New Message');
   },
 
