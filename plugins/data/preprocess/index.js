@@ -44,7 +44,6 @@ var TYPES_TO_INCLUDE = {
 
 var Preprocess = {
 
-
   REQUIRED_TYPES: ['basal-rate-segment', 'bolus', 'carbs', 'cbg', 'message', 'smbg', 'settings'],
 
   OPTIONAL_TYPES: [],
@@ -62,6 +61,32 @@ var Preprocess = {
     });
     data = data.concat(segments.actual.concat(segments.getUndelivered('scheduled')));
     return data;
+  },
+
+  editBoluses: function(data) {
+    // two adjustments to boluses here:
+    // changed `extended` to false when extendedDelivery = 0
+    // (these are instances where someone changed their mind about a combo bolus, basically)
+    // ~and~
+    // when there is a joinKey to a wizard event from which we can obtain
+    // the recommendation for a bolus, extract it to populate the `recommended` field
+    var wizards = _.where(data, {'type': 'wizard'});
+    return _.map(data, function(d) {
+      if (d.type === 'bolus' && d.joinKey != null) {
+        var joined = _.findWhere(wizards, {'joinKey': d.joinKey});
+        if (joined) {
+          d.recommended = joined.payload.estimate;
+        }
+        return d;
+      }
+      if (d.extended && d.extendedDelivery === 0) {
+        d.extended = false;
+        return d;
+      }
+      else {
+        return d;
+      }
+    });
   },
 
   filterData: function(data) {
@@ -179,6 +204,7 @@ var Preprocess = {
       data = [];
     }
 
+    data = this.editBoluses(data);
     data = this.filterData(data);
     data = this.mungeBasals(data);
     data = this.runWatson(data);
