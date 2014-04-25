@@ -29,21 +29,23 @@ describe('dataHelpers', function(){
       Rx.Observable.fromArray(
         [{
            _id: 'abcd', deviceTime: '2014-01-01T01:00:00', value: 3.6,
-           type: 'bolus', subType: 'dual/normal', joinKey: 'myJoinKey'
+           type: 'bolus', subType: 'dual/normal', joinKey: 'myJoinKey',
+           source: 'demo'
          },
          {
            _id: 'abcde', deviceTime: '2014-01-01T01:00:00Z', value: 1.7,
            type: 'bolus', subType: 'dual/square', joinKey: 'myJoinKey',
-           duration: 14400000
+           duration: 14400000, source: 'demo'
          },
          {
            _id: '1234', deviceTime: '2014-01-01T01:00:00', value: 0.1,
-           type: 'bolus', subType: 'dual/normal', joinKey: 'yourJoinKey'
+           type: 'bolus', subType: 'dual/normal', joinKey: 'yourJoinKey',
+           source: 'demo'
          },
          {
            _id: '12345', deviceTime: '2014-01-01T01:00:00Z', value: 1.7,
            type: 'bolus', subType: 'dual/square', joinKey: 'yourJoinKey',
-           duration: 14400000
+           duration: 14400000, source: 'demo'
          }])
         .tidepoolConvertBolus()
         .toArray()
@@ -54,13 +56,15 @@ describe('dataHelpers', function(){
                _id: 'abcd', deviceTime: '2014-01-01T01:00:00', value: 5.3,
                type: 'bolus',
                duration: 14400000,
-               extended: true, initialDelivery: 3.6, extendedDelivery: 1.7
+               extended: true, initialDelivery: 3.6, extendedDelivery: 1.7,
+               source: 'demo'
              },
              {
                _id: '1234', deviceTime: '2014-01-01T01:00:00', value: 1.8,
                type: 'bolus',
                duration: 14400000,
-               extended: true, initialDelivery: 0.1, extendedDelivery: 1.7
+               extended: true, initialDelivery: 0.1, extendedDelivery: 1.7,
+               source: 'demo'
              }]
           );
           done();
@@ -142,16 +146,18 @@ describe('dataHelpers', function(){
       Rx.Observable.fromArray(
         [{
            _id: 'abcd', deviceTime: '2014-01-01T01:00:00', value: 3.6,
-           type: 'bolus', subType: 'dual/normal', joinKey: 'myJoinKey'
+           type: 'bolus', subType: 'dual/normal', joinKey: 'myJoinKey',
+           source: 'demo'
          },
          {
            _id: 'abcde', deviceTime: '2014-01-01T01:00:00Z', value: 1.7,
            type: 'bolus', subType: 'dual/square', joinKey: 'myJoinKey',
-           duration: 14400000
+           duration: 14400000, source: 'demo'
          },
          {
            _id: '1234', deviceTime: '2014-01-01T01:00:00', value: 0.1,
-           type: 'bolus', subType: 'dual/normal', joinKey: 'yourJoinKey'
+           type: 'bolus', subType: 'dual/normal', joinKey: 'yourJoinKey',
+           source: 'demo'
          }])
         .tidepoolConvertBolus()
         .toArray()
@@ -162,12 +168,13 @@ describe('dataHelpers', function(){
                _id: 'abcd', deviceTime: '2014-01-01T01:00:00', value: 5.3,
                type: 'bolus',
                duration: 14400000,
-               extended: true, initialDelivery: 3.6, extendedDelivery: 1.7
+               extended: true, initialDelivery: 3.6, extendedDelivery: 1.7,
+               source: 'demo'
              },
              {
                _id: '1234', deviceTime: '2014-01-01T01:00:00', value: 0.1,
                type: 'bolus', subType: 'dual/normal', joinKey: 'yourJoinKey',
-               _unmatched: true
+               _unmatched: true, source: 'demo'
              }]
           );
           done();
@@ -179,25 +186,27 @@ describe('dataHelpers', function(){
       Rx.Observable.fromArray(
         [{
            _id: 'abcd', deviceTime: '2014-01-01T01:00:00', value: 3.6,
-           type: 'bolus', subType: 'dual/normal', joinKey: 'myJoinKey'
+           type: 'bolus', subType: 'dual/normal', joinKey: 'myJoinKey',
+           source: 'demo'
          },
          { _id: 'billy', type: 'howdy-ho'},
          {
            _id: 'abcde', deviceTime: '2014-01-01T01:00:00Z', value: 1.7,
            type: 'bolus', subType: 'dual/square', joinKey: 'myJoinKey',
-           duration: 14400000
+           source: 'demo', duration: 14400000
          },
          { _id: 'sally', type: 'you\'re cute'},
          {
            _id: '1234', deviceTime: '2014-01-01T01:00:00', value: 0.1,
-           type: 'bolus', subType: 'dual/normal', joinKey: 'yourJoinKey'
+           type: 'bolus', subType: 'dual/normal', joinKey: 'yourJoinKey',
+           source: 'demo'
          },
          { _id: 'billy2', type: 'well, thank you.  Here\'s my number, call me maybe?'},
          { _id: 'sally2', type: 'Ok Maybe.  I\'m Sally'},
          {
            _id: '12345', deviceTime: '2014-01-01T01:00:00Z', value: 1.7,
            type: 'bolus', subType: 'dual/square', joinKey: 'yourJoinKey',
-           duration: 14400000
+           duration: 14400000, source: 'demo'
          },
          { _id: 'billy3', type: 'Do you consider yourself a comedian?' }])
         .tidepoolConvertBolus()
@@ -209,7 +218,8 @@ describe('dataHelpers', function(){
                _id: 'abcd', deviceTime: '2014-01-01T01:00:00', value: 5.3,
                type: 'bolus',
                duration: 14400000,
-               extended: true, initialDelivery: 3.6, extendedDelivery: 1.7
+               extended: true, initialDelivery: 3.6, extendedDelivery: 1.7,
+               source: 'demo'
              },
              { _id: 'billy', type: 'howdy-ho'},
              { _id: 'sally', type: 'you\'re cute'},
@@ -217,7 +227,8 @@ describe('dataHelpers', function(){
                _id: '1234', deviceTime: '2014-01-01T01:00:00', value: 1.8,
                type: 'bolus',
                duration: 14400000,
-               extended: true, initialDelivery: 0.1, extendedDelivery: 1.7
+               extended: true, initialDelivery: 0.1, extendedDelivery: 1.7,
+               source: 'demo'
              },
              { _id: 'billy2', type: 'well, thank you.  Here\'s my number, call me maybe?'},
              { _id: 'sally2', type: 'Ok Maybe.  I\'m Sally'},
