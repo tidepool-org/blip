@@ -19,7 +19,7 @@ var format = require('../../data/util/format');
 
 var definitions = {
   LEAD_TEXT: {
-    'stats': function() {
+    'stats-insufficient-data': function() {
       return 'Why is this grey?';
     }
   },
@@ -69,8 +69,8 @@ var definitions = {
       // other evidence where you might have been using a temp basal rate. We
       // think this segment could be a temp basal, but it may not be.
       var a = "The ";
-      var b = ".xls file doesn't report temp basals directly, so we have to infer from other evidence where you might have been using a temp basal rate. We think this segment could be a temp basal, but it may not be.";
-      return defs.stitch;
+      var b = " .xls file doesn't report temp basals directly, so we have to infer from other evidence where you might have been using a temp basal rate. We think this segment could be a temp basal, but it may not be.";
+      return defs.stitch(a, b, source);
     },
     'diasend/basal/temp-duration-truncated': function(source, defs) {
       // Because of how the Diasend .xls file reports the data, we've truncated what
@@ -79,7 +79,7 @@ var definitions = {
       var b = " .xls file reports the data, we've truncated what may have been a temp basal here to a maximum duration of 120 hours.";
       return defs.stitch(a, b, source);
     },
-    'diasend/bolus/extended-boluses': function(source, defs) {
+    'diasend/bolus/extended': function(source, defs) {
       // The Diasend .xls file doesn't report the split between the intitial
       // and the extended delivery during a combo bolus. All we can display is the
       // duration of the combo bolus and the total dose delivered.
@@ -105,7 +105,6 @@ var definitions = {
       return this.MAIN_TEXT[annotation.code](source, this);
     }
     else {
-      console.log(annotation.code);
       return this.default(source);
     }
   },

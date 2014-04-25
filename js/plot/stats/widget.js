@@ -45,7 +45,7 @@ module.exports = function(pool, opts) {
     size: 16,
     'pieRadius': pool.height() * 0.45,
     defaultAnnotationOpts: {
-      'lead': 'stats',
+      'lead': 'stats-insufficient-data',
       'd': {'annotations': [{'code': 'stats-insufficient-data'}]},
       'orientation': {'up': true}
     }
