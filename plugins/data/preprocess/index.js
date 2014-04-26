@@ -70,10 +70,14 @@ var Preprocess = {
     // ~and~
     // when there is a joinKey to a wizard event from which we can obtain
     // the recommendation for a bolus, extract it to populate the `recommended` field
-    var wizards = _.where(data, {'type': 'wizard'});
+    var wizards = _.indexBy(data, function(d) {
+      if (d.type === 'wizard') {
+        return d.joinKey;
+      }
+    });
     return _.map(data, function(d) {
       if (d.type === 'bolus' && d.joinKey != null) {
-        var joined = _.findWhere(wizards, {'joinKey': d.joinKey});
+        var joined = wizards[d.joinKey];
         if (joined && joined.payload.estimate != null) {
           d.recommended = joined.payload.estimate;
         }
