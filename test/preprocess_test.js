@@ -85,6 +85,96 @@ describe('Preprocess', function() {
     });
   });
 
+  describe('editBoluses', function() {
+    it('should be a function', function() {
+      assert.isFunction(Preprocess.editBoluses);
+    });
+
+    it('should add a recommended field to a bolus when a matching wizard event exists', function() {
+      var data =
+        [{
+          'deviceTime': '2013-10-24T11:54:14',
+          'source': 'carelink',
+          'programmed': 5.4,
+          'value': 4,
+          'subType': 'normal',
+          'joinKey': '7e6psp14lnur1s4k12ofeqap3e47kf8b',
+          'type': 'bolus'
+        },
+        {
+          'deviceTime': '2013-10-24T11:54:14',
+          'payload': {
+              'carbUnits': 'grams',
+              'correctionEstimate': 0,
+              'bgInput': 0,
+              'targetHigh': 100,
+              'foodEstimate': 5.4,
+              'carbRatio': 12,
+              'insulinSensitivity': 50,
+              'bgUnits': 'mg dl',
+              'carbInput': 65,
+              'activeInsulin': 0,
+              'estimate': 5.4,
+              'targetLow': 80
+            },
+            'source': 'carelink',
+            'joinKey': '7e6psp14lnur1s4k12ofeqap3e47kf8b',
+            'type': 'wizard'
+          }];
+
+      var res = Preprocess.editBoluses(data);
+      var bolus = _.findWhere(res, {'type': 'bolus'});
+
+      expect(bolus.recommended).to.equal(5.4);
+    });
+
+    it('should change extended to false when extendedDelivery is zero', function() {
+      var datum = [{
+        'deviceTime': '2013-11-05T17:21:28',
+        'value': 7.5,
+        'extendedDelivery': 0.0,
+        'initialDelivery': 7,
+        'duration': 1800000,
+        'extended': true,
+        'type': 'bolus'
+      }];
+
+      var res = Preprocess.editBoluses(datum);
+      expect(res[0].extended).to.be.false;
+    });
+
+    it('should pass through all other data types unchanged', function() {
+      var data = [{
+        'messageText': 'Chicken magna ham sausage, t-bone cupidatat labore ex in drumstick andouille boudin chuck. Sed salami mollit shoulder velit flank ad in ut capicola pastrami ham hock. Salami pork belly tail laboris deserunt, ground round ham sunt dolore flank nostrud.',
+        'parentMessage': '',
+        'utcTime': '2014-03-07T12:09:40Z',
+        '_id': '318ea715-7f82-416e-8d73-1881b8245e1e',
+        'type': 'message'
+      },
+    {
+        'deviceTime': '2014-03-07T15:15:08',
+        'type': 'cbg',
+        'value': 176,
+        '_id': 'dc7edcb2-458d-4bc7-aebe-8b77594fd336'
+      },
+    {
+        'deviceTime': '2014-03-07T15:20:08',
+        'type': 'cbg',
+        'value': 180,
+        '_id': 'e484c167-06a2-4bda-8906-016adf649f70'
+      },
+    {
+        'deviceTime': '2014-03-07T15:25:08',
+        'type': 'cbg',
+        'value': 182,
+        '_id': '308673cf-12e3-44cf-800d-dccc22859812'
+      }];
+
+      var res = Preprocess.editBoluses(data);
+      expect(res).to.eql(data);
+    });
+  });
+
   describe('filterData', function() {
     it('should be a function', function() {
       assert.isFunction(Preprocess.filterData);
