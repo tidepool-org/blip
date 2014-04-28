@@ -48,6 +48,11 @@ module.exports = function(pool, opts) {
       'lead': 'stats-insufficient-data',
       'd': {'annotations': [{'code': 'stats-insufficient-data'}]},
       'orientation': {'up': true}
+    },
+    bgUnits: 'mg/dL',
+    PTiRLabels: {
+      'cbg': 'Time in Target Range',
+      'smbg': 'Readings in Range'
     }
   };
 
@@ -55,12 +60,12 @@ module.exports = function(pool, opts) {
     'ratio': [],
     'range': [],
     'average': [],
-    'cbgReadings': 0
+    'bgReadings': 0
   };
 
   var pies = [], pie, arc;
 
-  var currentIndices = {};
+  var currentIndices = {}, smbgStats = false;
 
   opts.emitter.on('currentDomain', function(domain) {
     stats.getStats(domain);
@@ -87,7 +92,7 @@ module.exports = function(pool, opts) {
       // create basal-to-bolus ratio puddle
       stats.newPuddle('Ratio', 'Basal : Bolus', 'Basal to bolus insulin ratio', 1.0, true);
       // create time-in-range puddle
-      stats.newPuddle('Range', 'Time in Target Range', 'Target range: 80 - 180 mg/dL', 1.2, true);
+      stats.newPuddle('Range', opts.PTiRLabels.cbg, 'Target range: 80 - 180 ' + opts.bgUnits, 1.2, true);
       // create average BG puddle
       stats.newPuddle('Average', 'Average BG', 'These 24 hours', 0.9, false);
     }
@@ -95,7 +100,7 @@ module.exports = function(pool, opts) {
       // create basal-to-bolus ratio puddle
       stats.newPuddle('Ratio', 'Basal : Bolus', 'Basal to bolus insulin ratio', 1.1, true);
       // create time-in-range puddle
-      stats.newPuddle('Range', 'Time in Target Range', 'Target range: 80 - 180 mg/dL', 1.2, true);
+      stats.newPuddle('Range', opts.PTiRLabels.cbg, 'Target range: 80 - 180 ' + opts.bgUnits, 1.2, true);
       // create average BG puddle
       stats.newPuddle('Average', 'Average BG', 'These two weeks', 1.0, false);
     }
@@ -128,6 +133,13 @@ module.exports = function(pool, opts) {
         var thisPie = _.find(pies, function(p) {
           return p.id === puddle.id;
         });
+        // change the label in this PTiR puddle when fell back to SMBG stats
+        if (puddle.id === 'Range' && smbgStats) {
+          puddleGroup.select('.d3-stats-head').text(opts.PTiRLabels.smbg);
+        }
+        else if (puddle.id === 'Range') {
+          puddleGroup.select('.d3-stats-head').text(opts.PTiRLabels.cbg);
+        }
         var createAPie = function(puddleGroup, data) {
           var slices = stats.createPie(puddle, puddleGroup, data[puddle.id.toLowerCase()]);
           pies.push({
@@ -458,7 +470,7 @@ module.exports = function(pool, opts) {
 
   stats.rangeDisplay = function() {
     var target = _.findWhere(data.range, {'type': 'bg-target'}).value;
-    var total = parseFloat(data.cbgReadings);
+    var total = parseFloat(data.bgReadings);
     return [{'text': format.percentage(target/total), 'class': 'd3-stats-percentage'}];
   };
 
@@ -476,7 +488,6 @@ module.exports = function(pool, opts) {
     opts.twoWeekOptions.startIndex = domainObj.startIndex;
     var basalData = opts.basal.totalBasal(start, end, opts.twoWeekOptions);
     var excluded = basalData.excluded;
-    var cbgStats = opts.cbg.getStats(start, end, opts.twoWeekOptions);
     data.ratio = [
       {
         'type': 'bolus',
@@ -487,7 +498,16 @@ module.exports = function(pool, opts) {
         'value': basalData.total
       }
     ];
-    var range = cbgStats.breakdown;
+    var bgStats = opts.cbg.getStats(start, end, opts.twoWeekOptions);
+    if (isNaN(bgStats.breakdown.total)) {
+      log('Unable to calculate CBG stats; fell back to SMBG stats.');
+      smbgStats = true;
+      bgStats = opts.smbg.getStats(start, end, opts.twoWeekOptions);
+    }
+    else {
+      smbgStats = false;
+    }
+    var range = bgStats.breakdown;
     data.range = [
       {
         'type': 'bg-low',
@@ -502,8 +522,8 @@ module.exports = function(pool, opts) {
         'value': range.high
       }
     ];
-    data.cbgReadings = range.total;
-    data.average = cbgStats.average;
+    data.bgReadings = range.total;
+    data.average = bgStats.average;
   };
 
   return stats;
