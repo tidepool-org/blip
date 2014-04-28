@@ -42,3 +42,5 @@ module.exports = function(options) {
 
   return makeClient(_.omit(options, 'log'), superagent, log);
 };
+
+module.exports.client = makeClient;
