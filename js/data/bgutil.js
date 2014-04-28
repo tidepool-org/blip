@@ -26,7 +26,7 @@ function BGUtil(data, opts) {
 
   opts = opts || {};
   if (opts.DAILY_MIN == null) {
-    throw new Error('BGUtil needs a daily minimum readings in order to calculate a statistic.');
+    throw new Error('BGUtil needs a daily minimum readings (`opts.DAILY_MIN`) in order to calculate a statistic.');
   }
 
   var MS_IN_24 = 86400000;
@@ -121,17 +121,19 @@ function BGUtil(data, opts) {
   };
 
   this.rangeBreakdown = function(filtered) {
+    var breakdown;
     if (filtered.length > 0) {
       var groups = _.countBy(filtered, function(d) {
         return getCategory(d.value);
       });
-      var breakdown = _.defaults(groups, defaults);
+      breakdown = _.defaults(groups, defaults);
       breakdown.total = breakdown.low + breakdown.target + breakdown.high;
-      return breakdown;
     }
     else {
-      return breakdownNaN;
+      breakdown = breakdownNaN;
     }
+    breakdown.type = this.data[0].type;
+    return breakdown;
   };
 
   this.average = function(filtered) {

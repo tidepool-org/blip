@@ -65,7 +65,7 @@ module.exports = function(pool, opts) {
 
   var pies = [], pie, arc;
 
-  var currentIndices = {}, smbgStats = false;
+  var currentIndices = {};
 
   opts.emitter.on('currentDomain', function(domain) {
     stats.getStats(domain);
@@ -134,10 +134,10 @@ module.exports = function(pool, opts) {
           return p.id === puddle.id;
         });
         // change the label in this PTiR puddle when fell back to SMBG stats
-        if (puddle.id === 'Range' && smbgStats) {
+        if (puddle.id === 'Range' && data.bgType === 'smbg') {
           puddleGroup.select('.d3-stats-head').text(opts.PTiRLabels.smbg);
         }
-        else if (puddle.id === 'Range') {
+        else if (puddle.id === 'Range' && data.bgType === 'cbg') {
           puddleGroup.select('.d3-stats-head').text(opts.PTiRLabels.cbg);
         }
         var createAPie = function(puddleGroup, data) {
@@ -501,13 +501,10 @@ module.exports = function(pool, opts) {
     var bgStats = opts.cbg.getStats(start, end, opts.twoWeekOptions);
     if (isNaN(bgStats.breakdown.total)) {
       log('Unable to calculate CBG stats; fell back to SMBG stats.');
-      smbgStats = true;
       bgStats = opts.smbg.getStats(start, end, opts.twoWeekOptions);
     }
-    else {
-      smbgStats = false;
-    }
     var range = bgStats.breakdown;
+    data.bgType = range.type;
     data.range = [
       {
         'type': 'bg-low',

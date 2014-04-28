@@ -133,7 +133,7 @@ describe('cbg utilities', function() {
     });
 
     it('should return NaN for each component if less than threshold for complete day of data', function() {
-      expect(cbgInadequate.rangeBreakdown(cbgInadequate.filter(startTime.valueOf(), endTime.valueOf()).data)).to.eql(NaNObject);
+      expect(_.omit(cbgInadequate.rangeBreakdown(cbgInadequate.filter(startTime.valueOf(), endTime.valueOf()).data), 'type')).to.eql(_.omit(NaNObject, 'type'));
     });
 
     it('should return same breakdown for date range including and excluding a day of incomplete data', function() {
