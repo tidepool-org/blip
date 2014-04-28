@@ -19,11 +19,21 @@ var _ = require('./lib/')._;
 var TidelineCrossFilter = require('./data/util/tidelinecrossfilter');
 var BasalUtil = require('./data/basalutil');
 var BolusUtil = require('./data/bolusutil');
-var CBGUtil = require('./data/cbgutil');
+var BGUtil = require('./data/bgutil');
 
 var log = require('./lib/').bows('TidelineData');
 
-function TidelineData(data) {
+function TidelineData(data, opts) {
+
+  opts = opts || {};
+
+  var defaults = {
+    'CBG_PERCENT_FOR_ENOUGH': 0.75,
+    'CBG_MAX_DAILY': 288,
+    'SMBG_DAILY_MIN': 4
+  };
+
+  _.defaults(opts, defaults);
 
   function addAndResort(datum, a) {
     return _.sortBy((function() {
@@ -52,7 +62,8 @@ function TidelineData(data) {
 
   this.basalUtil = new BasalUtil(this.grouped['basal-rate-segment']);
   this.bolusUtil = new BolusUtil(this.grouped.bolus);
-  this.cbgUtil = new CBGUtil(this.grouped.cbg);
+  this.cbgUtil = new BGUtil(this.grouped.cbg, {'DAILY_MIN': (opts.CBG_PERCENT_FOR_ENOUGH * opts.CBG_MAX_DAILY)});
+  this.smbgUtil = new BGUtil(this.grouped.smbg, {'DAILY_MIN': opts.SMBG_DAILY_MIN});
 
   return this;
 }

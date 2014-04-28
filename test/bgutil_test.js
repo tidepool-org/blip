@@ -30,11 +30,11 @@ var data = watson.normalizeAll(require('../example/data/device-data.json'));
 
 var tideline = require('../js/index');
 var dt = tideline.data.util.datetime;
-var CBGUtil = tideline.data.CBGUtil;
+var BGUtil = tideline.data.BGUtil;
 
 describe('cbg utilities', function() {
-  var cbg = new CBGUtil(_.where(data, {'type': 'cbg'}));
   var cbgData = _.where(data, {'type': 'cbg'});
+  var cbg = new BGUtil(cbgData, {'DAILY_MIN': (0.75 * 288)});
   var NaNObject = {
     'low': NaN,
     'target': NaN,
@@ -66,16 +66,16 @@ describe('cbg utilities', function() {
   var endTime = new Date(startTime.valueOf() + Duration.parse('24h'));
 
   var inadequateData = generateDayOfCBG(startTime, 50);
-  var cbgInadequate = new CBGUtil(inadequateData);
+  var cbgInadequate = new BGUtil(inadequateData, {'DAILY_MIN': (0.75 * 288)});
 
   var dayData = generateDayOfCBG(endTime, 287);
-  var cbgDay = new CBGUtil(dayData);
+  var cbgDay = new BGUtil(dayData, {'DAILY_MIN': (0.75 * 288)});
 
   var mixData = inadequateData.concat(dayData);
   mixData = _.sortBy(mixData, function(d) {
     return new Date(d.normalTime).valueOf();
   });
-  var cbgMix = new CBGUtil(mixData);
+  var cbgMix = new BGUtil(mixData, {'DAILY_MIN': (0.75 * 288)});
 
   describe('filtered', function() {
     it('should be a function', function() {

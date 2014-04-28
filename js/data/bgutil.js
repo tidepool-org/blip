@@ -20,12 +20,15 @@ var _ = require('../lib/')._;
 var datetime = require('./util/datetime');
 var TidelineCrossFilter = require('./util/tidelinecrossfilter');
 
-var log = require('../lib/').bows('CBGUtil');
+var log = require('../lib/').bows('BGUtil');
 
-function CBGUtil(data) {
+function BGUtil(data, opts) {
 
-  var PERCENT_FOR_COMPLETE = 0.75;
-  var MAX_CBG_READINGS_PER_24 = 288;
+  opts = opts || {};
+  if (opts.DAILY_MIN == null) {
+    throw new Error('BGUtil needs a daily minimum readings in order to calculate a statistic.');
+  }
+
   var MS_IN_24 = 86400000;
   var currentIndex = 0, currentData;
 
@@ -146,7 +149,7 @@ function CBGUtil(data) {
 
   this.threshold = function(s, e) {
     var difference = new Date(e) - new Date(s);
-    return Math.floor(PERCENT_FOR_COMPLETE * (MAX_CBG_READINGS_PER_24 * (difference/MS_IN_24)));
+    return Math.floor(opts.DAILY_MIN * (difference/MS_IN_24));
   };
 
   this.getStats = function(s, e, opts) {
@@ -173,4 +176,4 @@ function CBGUtil(data) {
   }
 }
 
-module.exports = CBGUtil;
+module.exports = BGUtil;
