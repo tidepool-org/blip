@@ -132,13 +132,12 @@ describe('platform client', function () {
   describe('get the team for mrT1', function () {
 
     it('returns the team group for mrT1', function (done) {
-      mrT1Client.getUsersTeam(mrT1.id, function (error, team) {
+      mrT1Client.getTeamMembers(mrT1.id, function (error, team) {
         expect(error).to.not.exist;
 
-        expect(team).to.exist;
-        expect(team.members).to.exist;
-        expect(team.members).to.be.a('array');
-        expect(team.id).to.exist;
+        var expectation = {};
+        expectation[mrT1.id] = {root: {}};
+        expect(team).to.deep.equal(expectation);
         done();
       });
     });
@@ -146,21 +145,9 @@ describe('platform client', function () {
   });
 
   describe('messaging for mrT1', function () {
-    var mrT1TeamId;
     var noteToAddId;
     var noteToAdd;
     var commentOnNote;
-
-    before(function (done) {
-      mrT1Client.getUsersTeam(mrT1.id, function (error, team) {
-        if (error) {
-          done(error);
-          return;
-        }
-        mrT1TeamId = team.id;
-        done();
-      });
-    });
 
     it('allows mrT1 to add a note', function (done) {
 
@@ -195,7 +182,6 @@ describe('platform client', function () {
     });
 
     it('and then get the whole thread', function (done) {
-
       mrT1Client.getMessageThread(noteToAddId, function (error, data) {
         expect(error).to.not.exist;
         expect(data).to.exist;
@@ -252,47 +238,22 @@ describe('platform client', function () {
   describe('mrT1 groups', function () {
 
     it('has a team', function (done) {
+      mrT1Client.getTeamMembers(mrT1.id, function (error, team) {
+        var expectation = {};
+        expectation[mrT1.id] = {root: {}};
+        expect(team).to.deep.equal(expectation);
 
-      mrT1Client.getUsersTeam(mrT1.id, function (error, team) {
-        if (error) {
-          return done(error);
-        }
-        expect(error).to.not.exist;
-        expect(team).to.exist;
-        expect(team.members).to.exist;
-        expect(team.members).to.be.a('array');
-        expect(team.id).to.exist;
-        done();
+        done(error);
       });
     });
 
     it('has patients', function (done) {
+      mrT1Client.getViewableUsers(mrT1.id, function (error, viewableUsers) {
+        var expectation = {};
+        expectation[mrT1.id] = {root: {}};
+        expect(viewableUsers).to.deep.equal(expectation);
 
-      mrT1Client.getUsersPatients(mrT1.id, function (error, patients) {
-        if (error) {
-          return done(error);
-        }
-        expect(error).to.not.exist;
-        expect(patients).to.exist;
-        expect(patients.members).to.exist;
-        expect(patients.members).to.be.a('array');
-        expect(patients.id).to.exist;
-        done();
-      });
-    });
-
-    it('has invited', function (done) {
-
-      mrT1Client.getInvitesToTeam(mrT1.id, function (error, invites) {
-        if (error) {
-          return done(error);
-        }
-        expect(error).to.not.exist;
-        expect(invites).to.exist;
-        expect(invites.members).to.exist;
-        expect(invites.members).to.be.a('array');
-        expect(invites.id).to.exist;
-        done();
+        done(error);
       });
     });
   });
@@ -300,130 +261,66 @@ describe('platform client', function () {
   describe('careTeamMember groups', function () {
 
     it('has a team', function (done) {
+      careTeamClient.getTeamMembers(careTeamMember.id, function (error, team) {
+        var expectation = {};
+        expectation[careTeamMember.id] = {root: {}};
+        expect(team).to.deep.equal(expectation);
 
-      careTeamClient.getUsersTeam(careTeamMember.id, function (error, team) {
-        if (error) {
-          return done(error);
-        }
-        expect(error).to.not.exist;
-        expect(team).to.exist;
-        expect(team.members).to.exist;
-        expect(team.members).to.be.a('array');
-        expect(team.id).to.exist;
-        done();
+        done(error);
       });
     });
 
     it('has patients', function (done) {
+      careTeamClient.getViewableUsers(careTeamMember.id, function (error, viewableUsers) {
+        var expectation = {};
+        expectation[careTeamMember.id] = {root: {}};
+        expect(viewableUsers).to.deep.equal(expectation);
 
-      careTeamClient.getUsersPatients(careTeamMember.id, function (error, patients) {
-        if (error) {
-          return done(error);
-        }
-        expect(error).to.not.exist;
-        expect(patients).to.exist;
-        expect(patients.members).to.exist;
-        expect(patients.members).to.be.a('array');
-        expect(patients.id).to.exist;
-        done();
+        done(error);
       });
     });
-
-    it('has invited', function (done) {
-
-      careTeamClient.getInvitesToTeam(careTeamMember.id, function (error, invites) {
-        if (error) {
-          return done(error);
-        }
-        expect(error).to.not.exist;
-        expect(invites).to.exist;
-        expect(invites.members).to.exist;
-        expect(invites.members).to.be.a('array');
-        expect(invites.id).to.exist;
-        done();
-      });
-    });
-  });
-
-  describe('groups managment for mrT1 ', function () {
-
-    it('allows him to invite another user to join the team', function (done) {
-
-      mrT1Client.inviteToJoinTeam(mrT1.id, careTeamMember.id, function (error, team) {
-        if (error) {
-          return done(error);
-        }
-        mrT1Client.getInvitesToTeam(mrT1.id, function (error, invites) {
-          if (error) {
-            return done(error);
-          }
-          expect(invites.members).to.include(careTeamMember.id);
-          done();
-        });
-      });
-    });
-
-    it('which means the invited user is added to his team when they accept an invite', function (done) {
-
-      mrT1Client.acceptInviteToJoinTeam(mrT1.id, careTeamMember.id, function (error, team) {
-        if (error) {
-          return done(error);
-        }
-        mrT1Client.getUsersTeam(mrT1.id, function (error, team) {
-          if (error) {
-            return done(error);
-          }
-          expect(team.members).to.include(careTeamMember.id);
-          done();
-        });
-      });
-    });
-
-    it('is added to careTeamMember patients list', function (done) {
-
-      careTeamClient.addToPatients(mrT1.id, careTeamMember.id, function (error, team) {
-        if (error) {
-          return done(error);
-        }
-        careTeamClient.getUsersPatients(careTeamMember.id, function (error, patients) {
-          if (error) {
-            return done(error);
-          }
-          expect(patients.members).to.include(mrT1.id);
-          done();
-        });
-      });
-    });
-
   });
 
   describe('careTeamMember', function () {
 
-    var careTeamMembersPatients;
+    var careTeamViewable;
     var mrT1sTeam;
     var notesForThePatientMrT1;
 
+    it('can set permissions for careTeam on mrT1', function(done){
+      mrT1Client.setAccessPermissions(careTeamMember.id, {view: {}}, function(err, permissions) {
+        expect(permissions).to.deep.equal({view: {}});
+        done(err);
+      });
+    });
+
     it('can get the patients and mrT1 is included', function (done) {
-      careTeamClient.getUsersPatients(careTeamMember.id, function (error, patients) {
-        expect(patients.members).to.exist;
-        expect(patients.members).to.include(mrT1.id);
-        careTeamMembersPatients = patients;
-        done();
+      careTeamClient.getViewableUsers(careTeamMember.id, function (error, viewableUsers) {
+        var expectation = {};
+        expectation[careTeamMember.id] = {root: {}};
+        expectation[mrT1.id] = {view: {}};
+        expect(viewableUsers).to.deep.equal(expectation);
+
+        careTeamViewable = viewableUsers;
+        done(error);
       });
     });
 
     it('mrT1 gets his team and careTeamMember is included', function (done) {
-      mrT1Client.getUsersTeam(mrT1.id, function (error, team) {
-        expect(team.members).to.exist;
-        expect(team.members).to.include(careTeamMember.id);
+      mrT1Client.getTeamMembers(mrT1.id, function (error, team) {
+        var expectation = {};
+        expectation[mrT1.id] = {root: {}};
+        expectation[careTeamMember.id] = {view: {}};
+
+        expect(team).to.deep.equal(expectation);
         mrT1sTeam = team;
-        done();
+        done(error);
       });
     });
 
-    it('can get the team for mrT1 and is included in the members', function (done) {
-      careTeamClient.getUsersTeam(mrT1.id, function (error, patientsTeam) {
-        expect(patientsTeam.members).to.include(careTeamMember.id);
+    it('cannot get the team for mrT1', function (done) {
+      careTeamClient.getTeamMembers(mrT1.id, function (error, patientsTeam) {
+        expect(error).to.deep.equal({ status: 401, body: 'These are not the droids you are looking for.' });
         done();
       });
     });
@@ -444,6 +341,13 @@ describe('platform client', function () {
         expect(mrT1TeamNotes).that.deep.equals(notesForThePatientMrT1);
         done();
       });
+    });
+
+    it('can remove careTeam\'s permissions from mrT1', function(done) {
+      mrT1Client.setAccessPermissions(careTeamMember.id, null, function(err, perms){
+        expect(perms).to.be.empty;
+        done(err);
+      })
     });
   });
 });

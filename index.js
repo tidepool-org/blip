@@ -54,196 +54,6 @@ module.exports = function (config, superagent, log) {
   }
 
   /*
-   Return the id of the group type for the given user
-   (e.g. team, invited, invitedby, patients)
-   */
-  function getUserGroupId(userId, groupType, token, cb) {
-    if (userId == null) {
-      return cb({ message: 'Must specify a userId' });
-    }
-    if (groupType == null) {
-      return cb({ message: 'Must specify a groupType' });
-    }
-
-    superagent
-      .get(makeUrl('/metadata/' + userId + '/groups'))
-      .set(sessionTokenHeader, token)
-      .end(function (error, res) {
-        if (error) {
-          return cb(error);
-        }
-
-        if (res.status === 404) {
-          return cb(null, null);
-        }
-
-        if (res.status !== 200) {
-          return handleHttpError(res, cb);
-        }
-
-        cb(null, res.body[groupType]);
-      });
-  }
-
-  /*
-   Return the user group (e.g. team, invited, patients) asked for.
-   If the group does not exist an empty one is created.
-   */
-  function findOrAddUserGroup(userId, groupType, token, cb) {
-    if (userId == null) {
-      return cb({ message: 'Must specify a userId' });
-    }
-    if (groupType == null) {
-      return cb({ message: 'Must specify a groupType' });
-    }
-    async.waterfall(
-      [
-        function (callback) {
-          //find users groups
-          getUserGroupId(userId, groupType, token, function (error, groupId) {
-            callback(error, groupId);
-          });
-        },
-        function (groupId, callback) {
-          //find users groups
-          if (groupId == null) {
-            createUserGroup(userId, groupType, token, function (error, groupId) {
-              callback(error, groupId);
-            });
-          } else {
-            callback(null, groupId);
-          }
-        },
-        function (groupId, callback) {
-          if (!groupId) {
-            return callback(null, null);
-          }
-
-          //find the requested group
-          superagent
-            .get(makeUrl('/group/' + groupId + '/members'))
-            .set(sessionTokenHeader, token)
-            .end(function (error, res) {
-              if (error) {
-                return callback(error);
-              }
-
-              if (res.status !== 200) {
-                return handleHttpError(res, callback);
-              }
-
-              var group = {
-                id: groupId,
-                members: res.body.members
-              };
-              callback(null, group);
-            });
-        }
-      ],
-      function (err, result) {
-        return cb(err, result);
-      });
-  }
-
-  /*
-   Create the user group (e.g. team, invited, patients ...) asked for and link to the user.
-   */
-  function createUserGroup(userId, groupType, token, cb) {
-    if (userId == null) {
-      return cb({ message: 'Must specify a userId' });
-    }
-    if (groupType == null) {
-      return cb({ message: 'Must specify a groupType' });
-    }
-    async.waterfall(
-      [
-        function (callback) {
-          //add the empty group
-          superagent
-            .post(makeUrl('/group'))
-            .set(sessionTokenHeader, token)
-            .send({ group: { members: [] }})
-            .end(function (err, res) {
-              if (err != null) {
-                return callback(err, null);
-              }
-
-              if (res.status !== 201) {
-                return handleHttpError(res, callback);
-              }
-
-              callback(null, res.body.id);
-            });
-        },
-        function (groupId, callback) {
-          //get all groups associated with the user
-          superagent
-            .get(makeUrl('/metadata/' + userId + '/groups'))
-            .set(sessionTokenHeader, token)
-            .end(function (err, res) {
-              callback(err, groupId, res.body);
-            });
-        },
-        function (groupId, existingGroups, callback) {
-          //add new group type to the users groups
-
-          if (existingGroups == null) {
-            existingGroups = {};
-          }
-
-          existingGroups[groupType] = groupId;
-
-          superagent
-            .post(makeUrl('/metadata/' + userId + '/groups'))
-            .set(sessionTokenHeader, token)
-            .send(existingGroups)
-            .end(function (err, res) {
-              if (err != null) {
-                return callback(err);
-              }
-
-              if (res.status !== 200) {
-                return handleHttpError(res, callback);
-              }
-
-              callback(null, groupId);
-            });
-        }
-      ],
-      function (err, result) {
-        return cb(err, result);
-      });
-  }
-
-  /*
-   Add a member to the user group (e.g. team, invited, patients ...)
-   */
-  function addMemberToUserGroup(groupId, memberId, token, cb) {
-    if (groupId == null) {
-      return cb({ message: 'Must specify a groupId' });
-    }
-    if (memberId == null) {
-      return cb({ message: 'Must specify a memberId to add' });
-    }
-
-    superagent
-      .put(makeUrl('/group/' + groupId + '/user'))
-      .set(sessionTokenHeader, token)
-      .send({userid: memberId})
-      .end(function (err, res) {
-        if (err != null) {
-          return cb(err, null);
-        }
-
-        if (res.status !== 200) {
-          return handleHttpError(res, cb);
-        }
-
-        cb(null, res.body);
-      });
-  }
-
-  /*
    Handle an HTTP error (status code !== 2xx)
    Create an error object and pass it to callback
    */
@@ -329,6 +139,38 @@ module.exports = function (config, superagent, log) {
     } else {
       return happyCb(myToken);
     }
+  }
+
+  function doGetWithToken(path, codes, cb) {
+    if (cb == null && typeof(codes) === 'function') {
+      cb = codes;
+      codes = {
+        200: function(res) { return res.body; }
+      };
+    }
+
+    return withToken(cb, function(token) {
+      superagent
+        .get(makeUrl(path))
+        .set(sessionTokenHeader, token)
+        .end(
+        function (err, res) {
+          if (err != null) {
+            return cb(err);
+          }
+
+          if (_.has(codes, res.status)) {
+            var handler = codes[res.status];
+            if (typeof(handler) === 'function') {
+              return cb(null, handler(res));
+            } else {
+              return cb(null, handler);
+            }
+          }
+
+          return handleHttpError(res, cb);
+        });
+    });
   }
 
   function assertArgumentsSize(argumentsObj, length) {
@@ -472,25 +314,7 @@ module.exports = function (config, superagent, log) {
     getCurrentUser: function (cb) {
       assertArgumentsSize(arguments, 1);
 
-      withToken(
-        cb,
-        function(token) {
-          superagent
-            .get(makeUrl('/auth/user'))
-            .set(sessionTokenHeader, token)
-            .end(
-            function (err, res) {
-              if (err != null) {
-                cb(err);
-              }
-
-              if (res.status !== 200) {
-                return handleHttpError(res, cb);
-              }
-
-              cb(null, res.body);
-            });
-        });
+      doGetWithToken('/auth/user', cb);
     },
     /**
      * Post something to metrics.
@@ -617,44 +441,7 @@ module.exports = function (config, superagent, log) {
       }
       assertArgumentsSize(arguments, 2);
 
-      withToken(
-        cb,
-        function(token) {
-          superagent
-            .get(makeUrl('/metadata/' + userId + '/profile'))
-            .set(sessionTokenHeader, token)
-            .end(
-            function (err, res) {
-              if (err != null) {
-                cb(err);
-              }
-
-              if (res.status !== 200) {
-                return handleHttpError(res, cb);
-              }
-
-              cb(null, res.body);
-            });
-        }
-      );
-    },
-    /**
-     * Create the required group type for a user
-     *
-     * @param {String} userId id of the user
-     * @param {String} groupType name of the type of group we are creating e.g. team
-     * @param cb
-     * @returns {cb}  cb(err, response)
-     */
-    createUserGroup: function(userId, groupType, cb) {
-      assertArgumentsSize(arguments, 3);
-
-      withToken(
-        cb,
-        function(token) {
-          createUserGroup(userId, groupType, token, cb);
-        }
-      );
+      doGetWithToken('/metadata/' + userId + '/profile', cb);
     },
     /**
      * Get the users 'team'
@@ -663,18 +450,13 @@ module.exports = function (config, superagent, log) {
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    getUsersTeam: function (userId, cb) {
+    getTeamMembers: function (userId, cb) {
       if (userId == null) {
         return cb({ message: 'Must specify a userId' });
       }
       assertArgumentsSize(arguments, 2);
 
-      withToken(
-        cb,
-        function(token) {
-          findOrAddUserGroup(userId, 'team', token, cb);
-        }
-      );
+      doGetWithToken('/access/' + userId, {200: function(res){ return res.body; }, 404: null}, cb);
     },
     /**
      * Get the users 'patients'
@@ -683,16 +465,45 @@ module.exports = function (config, superagent, log) {
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    getUsersPatients: function (userId, cb) {
+    getViewableUsers: function (userId, cb) {
       if (userId == null) {
         return cb({ message: 'Must specify a userId' });
       }
       assertArgumentsSize(arguments, 2);
 
+      doGetWithToken('/access/groups/' + userId, { 200: function(res){ return res.body; }, 404: null }, cb);
+    },
+    /**
+     * Sets the access permissions for a specific user on the group for the currently logged in user
+     *
+     * @param userId - userId to have access permissions set for
+     * @param permissions - permissions to set
+     * @param cb - function(err, perms), called with error if exists and permissions as updated
+     */
+    setAccessPermissions: function(userId, permissions, cb) {
+      if (userId == null) {
+        return cb({ message: 'Must specify a userId'});
+      }
+
       withToken(
         cb,
         function(token) {
-          findOrAddUserGroup(userId, 'patients', token, cb);
+          superagent
+            .post(makeUrl('/access/' + getUserId() + '/' + userId))
+            .set(sessionTokenHeader, token)
+            .send(permissions)
+            .end(
+            function (err, res) {
+              if (err != null) {
+                return cb(err);
+              }
+
+              if (res.status !== 200) {
+                return handleHttpError(res, cb);
+              }
+
+              cb(null, res.body);
+            });
         }
       );
     },
@@ -711,148 +522,7 @@ module.exports = function (config, superagent, log) {
 
       var idList = _(patientIds).uniq().join(',');
 
-      withToken(
-        cb,
-        function(token) {
-          superagent
-            .get(makeUrl('/metadata/publicinfo?users=' + idList))
-            .set(sessionTokenHeader, token)
-            .end(
-            function (error, res) {
-
-              if (error != null) {
-                return cb(error, null);
-              }
-
-              if (res.status === 404) {
-                // there are no patients for those ids
-                return cb(null, null);
-              }
-
-              if (res.status !== 200) {
-                return handleHttpError(res, cb);
-              }
-
-              cb(null, res.body);
-            });
-        }
-      );
-    },
-    /**
-     * Get the users who have been invited to join the team
-     *
-     * @param {String} userId id of the user
-     * @param cb
-     * @returns {cb}  cb(err, response)
-     */
-    getInvitesToTeam: function (userId, cb) {
-      if (userId == null) {
-        return cb({ message: 'Must specify a userId' });
-      }
-      assertArgumentsSize(arguments, 2);
-
-      withToken(
-        cb,
-        function(token) {
-          findOrAddUserGroup(userId, 'invited', token, cb);
-        }
-      );
-    },
-    /**
-     * Invite a user to join the 'team'
-     *
-     * @param {String} inviterId id of the user who is inviting
-     * @param {String} inviteeId id of the user who is being invited
-     * @param cb
-     * @returns {cb}  cb(err, response)
-     */
-    inviteToJoinTeam: function (inviterId, inviteeId, cb) {
-      if (inviterId == null) {
-        return cb({ message: 'Must specify a inviterId' });
-      }
-      if (inviteeId == null) {
-        return cb({ message: 'Must specify a inviteeId' });
-      }
-      assertArgumentsSize(arguments, 3);
-
-      this.getInvitesToTeam(inviterId, function (error, invited) {
-        if (_.contains(invited.members, inviteeId)) {
-          //console.log('invite already exists');
-          return cb(error, invited);
-        } else {
-          //console.log('add the invite');
-          withToken(
-            cb,
-            function(token) {
-              addMemberToUserGroup(invited.id, inviteeId, token, cb);
-            }
-          );
-        }
-      });
-    },
-    /**
-     * Accept an invite to join a users 'team'
-     *
-     * @param {String} inviterId id of the user who is inviting
-     * @param {String} inviteeId id of the user who is being invited
-     * @param cb
-     * @returns {cb}  cb(err, response)
-     */
-    acceptInviteToJoinTeam: function (inviterId, inviteeId, cb) {
-      if (inviterId == null) {
-        return cb({ message: 'Must specify a inviterId' });
-      }
-      if (inviteeId == null) {
-        return cb({ message: 'Must specify a inviteeId' });
-      }
-      assertArgumentsSize(arguments, 3);
-
-      this.getUsersTeam(inviterId, function (error, team) {
-        if (_.contains(team.members, inviteeId)) {
-          //console.log('already a team member');
-          return cb(error, team);
-        } else {
-          withToken(
-            cb,
-            function(token) {
-              addMemberToUserGroup(team.id, inviteeId, token, cb);
-            }
-          );
-          //console.log('add to team');
-        }
-      });
-    },
-    /**
-     * Add the user to the patients list
-     *
-     * @param {String} inviterId id of the user who is inviting
-     * @param {String} inviteeId id of the user who is being invited
-     * @param cb
-     * @returns {cb}  cb(err, response)
-     */
-    addToPatients: function (inviterId, inviteeId, cb) {
-      if (inviterId == null) {
-        return cb({ message: 'Must specify a inviterId' });
-      }
-      if (inviteeId == null) {
-        return cb({ message: 'Must specify a inviteeId' });
-      }
-      assertArgumentsSize(arguments, 3);
-
-      this.getUsersPatients(inviteeId, function (error, patients) {
-        if (_.contains(patients.members, inviterId)) {
-          //console.log('already a patient');
-          return cb(error, patients);
-        } else {
-          //console.log('add as a patient');
-          withToken(
-            cb,
-            function(token) {
-              addMemberToUserGroup(patients.id, inviterId, token, cb);
-            }
-          );
-        }
-      });
+      doGetWithToken('/metadata/publicinfo?users=' + idList, { 200: function(res){ return res.body; }, 404: null }, cb);
     },
     /**
      * Get raw device data for the user
@@ -864,31 +534,7 @@ module.exports = function (config, superagent, log) {
     getDeviceDataForUser: function (userId, cb) {
       assertArgumentsSize(arguments, 2);
 
-      withToken(
-        cb,
-        function(token) {
-          superagent
-            .get(makeUrl('/data/' + userId))
-            .set(sessionTokenHeader, token)
-            .end(
-            function(err, res){
-              if (err != null) {
-                return cb(err);
-              }
-
-              if (res.status === 404) {
-                // there is no device data for that user
-                return cb(null, []);
-              }
-
-              if (res.status !== 200) {
-                return handleHttpError(res, cb);
-              }
-
-              cb(null, res.body);
-            });
-        }
-      );
+      doGetWithToken('/data/' + userId, { 200: function(res){ return res.body; }, 404: [] }, cb);
     },
     /**
      * Get messages for a team between the given dates
@@ -907,30 +553,10 @@ module.exports = function (config, superagent, log) {
       var start = options.start || '';
       var end = options.end || '';
 
-      withToken(
-        cb,
-        function(token) {
-          superagent
-            .get(makeUrl('/message/all/' + userId + '?starttime=' + start + '&endtime=' + end))
-            .set(sessionTokenHeader, token)
-            .end(
-            function (err, res) {
-              if (err != null) {
-                return cb(err, null);
-              }
-
-              if (res.status === 404) {
-                // there are no messages for that group
-                return cb(null, []);
-              }
-
-              if (res.status !== 200) {
-                return handleHttpError(res, cb);
-              }
-
-              cb(null, res.body.messages);
-            });
-        }
+      doGetWithToken(
+          '/message/all/' + userId + '?starttime=' + start + '&endtime=' + end,
+          { 200: function(res){ return res.body.messages; }, 404: [] },
+          cb
       );
     },
     /**
@@ -950,30 +576,10 @@ module.exports = function (config, superagent, log) {
       var start = options.start || '';
       var end = options.end || '';
 
-      withToken(
-        cb,
-        function(token) {
-          superagent
-            .get(makeUrl('/message/notes/' + userId + '?starttime=' + start + '&endtime=' + end))
-            .set(sessionTokenHeader, token)
-            .end(
-            function (err, res) {
-              if (err != null) {
-                return cb(err, null);
-              }
-
-              if (res.status === 404) {
-                // there are no messages for that user
-                return cb(null, []);
-              }
-
-              if (res.status !== 200) {
-                return handleHttpError(res, cb);
-              }
-
-              cb(null, res.body.messages);
-            });
-        }
+      doGetWithToken(
+          '/message/notes/' + userId + '?starttime=' + start + '&endtime=' + end,
+          { 200: function(res){ return res.body.messages; }, 404: [] },
+          cb
       );
     },
     /**
@@ -1059,25 +665,10 @@ module.exports = function (config, superagent, log) {
     getMessageThread: function (messageId, cb) {
       assertArgumentsSize(arguments, 2);
 
-      withToken(
-        cb,
-        function(token) {
-          superagent
-            .get(makeUrl('/message/thread/' + messageId))
-            .set(sessionTokenHeader, token)
-            .end(
-            function (err, res) {
-              if (err != null) {
-                return cb(err, null);
-              }
-
-              if (res.status !== 200) {
-                return handleHttpError(res, cb);
-              }
-
-              cb(null, res.body.messages);
-            });
-        }
+      doGetWithToken(
+          '/message/thread/' + messageId,
+          { 200: function(res){ return res.body.messages; }, 404: [] },
+          cb
       );
     }
   };
