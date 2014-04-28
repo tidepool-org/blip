@@ -81,33 +81,17 @@ api.user.signup = function(user, cb) {
 
     // Then, add additional user info (first name, etc.) to profile
     newProfile.id = userId;
-    var createUserProfile = function(cb) {
-      tidepool.addOrUpdateProfile(newProfile, cb);
-    };
-
-    // Finally, create necessary groups for a new user account
-    var createUserPatientsGroup = function(cb) {
-      tidepool.createUserGroup(userId, 'patients', cb);
-    };
-
-    // NOTE: Can't run this in parallel, apparently the "seagull" api,
-    // which both of these calls are using, doesn't allow it
-    // (an error occurs when trying to read /metadata/:userId/profile later)
-    async.series({
-      profile: createUserProfile,
-      patientsGroupId: createUserPatientsGroup
-    },
-    function(err, results) {
+    tidepool.addOrUpdateProfile(newProfile, function(err, results) {
       if (err) {
         return cb(err);
       }
 
-      var data = userFromAccountAndProfile({
-        account: account,
-        profile: results.profile
-      });
-
-      cb(null, data);
+      cb(null, userFromAccountAndProfile(
+        {
+          account: account,
+          profile: results
+        }
+      ));
     });
   });
 };
@@ -133,52 +117,35 @@ api.user.get = function(cb) {
 
   var userId = tidepool.getUserId();
 
-  // Fetch user account data (username, etc.)...
-  var getAccount = tidepool.getCurrentUser.bind(tidepool);
-
-  // ...and user profile information (first name, last name, etc.)
-  var getProfile = tidepool.findProfile.bind(tidepool, userId);
-
   async.parallel({
-    account: getAccount,
-    profile: getProfile
+    // Fetch user account data (username, etc.)...
+    account: tidepool.getCurrentUser.bind(tidepool),
+
+    // ...and user profile information (first name, last name, etc.)
+    profile: tidepool.findProfile.bind(tidepool, userId)
   },
   function(err, results) {
     if (err) {
       return cb(err);
     }
 
-    var user = userFromAccountAndProfile(results);
-
-    cb(null, user);
+    cb(null, userFromAccountAndProfile(results));
   });
 };
 
 api.user.put = function(user, cb) {
   api.log('PUT /user');
 
-  var userId = tidepool.getUserId();
-
-  var account = accountFromUser(user);
-  var updateAccount =
-    tidepool.updateCurrentUser.bind(tidepool, account);
-
-  var profile = profileFromUser(user);
-  var updateProfile =
-    tidepool.addOrUpdateProfile.bind(tidepool, profile);
-
   async.parallel({
-    account: updateAccount,
-    profile: updateProfile
+    account: tidepool.updateCurrentUser.bind(tidepool, accountFromUser(user)),
+    profile: tidepool.addOrUpdateProfile.bind(tidepool, profileFromUser(user))
   },
   function(err, results) {
     if (err) {
       return cb(err);
     }
 
-    var user = userFromAccountAndProfile(results);
-
-    cb(null, user);
+    cb(null, userFromAccountAndProfile(results));
   });
 };
 
@@ -274,29 +241,22 @@ api.patient.get = function(patientId, cb) {
       return cb({status: 404, response: 'Not found'});
     }
 
+    // If this is not the current user's patient, we're done
+    if (patientId !== userId) {
+      return cb(null, patient);
+    }
+
     // Fetch the patient's team
-    tidepool.getUsersTeam(userId, function(err, group) {
-      if (err) {
+    tidepool.getTeamMembers(userId, function(err, teamMembers) {
+      if (err != null) {
         return cb(err);
       }
 
-      if (!(group && group.id)) {
+      if (teamMembers == null) {
         return cb(null, patient);
       }
 
-      // If this is not the current user's patient, we're done
-      if (patientId !== userId) {
-        return cb(null, patient);
-      }
-
-      // If it is, fetch the patient's team members
-      var peopleIds = group.members || [];
-      if (!peopleIds.length) {
-        patient.team = [];
-        return cb(null, patient);
-      }
-
-      async.map(peopleIds, getUserProfile, function(err, people) {
+      async.map(Object.keys(_.omit(teamMembers, userId)), getUserProfile, function(err, people) {
         // Filter any people ids that returned nothing
         people = _.filter(people);
         patient.team = people;
@@ -322,18 +282,8 @@ api.patient.post = function(patient, cb) {
 
     var patient = patientFromUserProfile(profile);
     patient.id = patientId;
-
-    // Then, create necessary groups for new patient
-    tidepool.createUserGroup(patientId, 'team',
-    function(err, teamGroupId) {
-      if (err) {
-        return cb(err);
-      }
-
-      patient.team = [];
-
-      cb(null, patient);
-    });
+    patient.team = [];
+    cb(null, patient);
   });
 };
 
@@ -369,21 +319,22 @@ api.patient.getAll = function(cb) {
   var userId = tidepool.getUserId();
 
   // First, get a list of of patient ids in user's "patients" group
-  tidepool.getUsersPatients(userId, function(err, group) {
-    if (err) {
+  tidepool.getViewableUsers(userId, function(err, users) {
+    if (err!= null) {
       return cb(err);
     }
 
-    var patientIds = (group && group.members) || [];
-    if (!patientIds.length) {
+    if (users == null) {
       return cb(null, []);
     }
 
     // Second, get the patient profile info for each patient id
-    async.map(patientIds, getPatientProfile, function(err, patients) {
+    async.map(Object.keys(_.omit(users, userId)), getPatientProfile, function(err, patients) {
+      if (err != null) {
+        api.log('Error when fetching profiles for viewable users', userId, err);
+      }
       // Filter any patient ids that returned nothing
-      patients = _.filter(patients);
-      return cb(null, patients);
+      return cb(null, _.filter(patients));
     });
   });
 };
