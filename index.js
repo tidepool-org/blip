@@ -21,8 +21,6 @@
 var _ = (typeof window !== 'undefined' && typeof window._ !== 'undefined') ? window._ : require('lodash');
 var async = (typeof window !== 'undefined' && typeof window.async !== 'undefined') ? window.async : require('async');
 
-var pkg = require('./package.json');
-
 var sessionTokenHeader = 'x-tidepool-session-token';
 
 function defaultProperty(obj, property, defaultValue) {
@@ -331,8 +329,9 @@ module.exports = function (config, superagent, log) {
     trackMetric: function (eventname, properties, cb) {
       properties = properties || {};
       if (!properties.source) {
+         /* TODO: fix hard coded version. require package.json wasn't working. */
         properties.source = 'tidepool-platform-client';
-        properties.version = pkg.version;
+        properties.version = '0.3.1';
       }
 
       var doNothingCB = function() {
