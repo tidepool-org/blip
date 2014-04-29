@@ -10,12 +10,6 @@ Dependencies:
 
 ## Test
 
-### Unit tests
-
-```bash
-$ grunt test
-```
-
 ### Integration tests
 
 ```bash
