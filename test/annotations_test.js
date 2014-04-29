@@ -12,15 +12,20 @@ var expect = chai.expect;
 var tideline = require('../js/index');
 var annotations = tideline.plot.util.defs;
 
+// change to true when you want to view all produced annotations
+var logging = false;
+
 describe('annotation definitions', function() {
   describe('main text', function() {
     Object.keys(annotations.MAIN_TEXT).forEach(function(key) {
       describe(key, function() {
         it('should return a string', function() {
-          console.log('Main text annotation for', key + ':');
-          console.log();
-          console.log(annotations.MAIN_TEXT[key]('demo', annotations));
-          console.log();
+          if (logging) {
+            console.log('Main text annotation for', key + ':');
+            console.log();
+            console.log(annotations.MAIN_TEXT[key]('demo', annotations));
+            console.log();
+          }
           assert.isString(annotations.MAIN_TEXT[key]('demo', annotations));
         });
       });
@@ -41,10 +46,12 @@ describe('annotation definitions', function() {
     Object.keys(annotations.LEAD_TEXT).forEach(function(key) {
       describe(key, function() {
         it('should return a string', function() {
-          console.log('Lead text annotation for', key + ':');
-          console.log();
-          console.log(annotations.LEAD_TEXT[key]());
-          console.log();
+          if (logging) {
+            console.log('Lead text annotation for', key + ':');
+            console.log();
+            console.log(annotations.LEAD_TEXT[key]());
+            console.log();
+          }
           assert.isString(annotations.LEAD_TEXT[key]());
         });
       });
