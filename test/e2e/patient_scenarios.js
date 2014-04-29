@@ -30,9 +30,6 @@ describe('Patient', function() {
     var noAboutMePatientId = '31';
 
     openAppToPatient(noAboutMePatientId)
-      // For some reason here, need to give time for app to render patient
-      // (and get rid of "loading" placeholders, which includes "aboutMe")
-      .then(helpers.sleep(200))
       .then(function() {
         return helpers.elementExists(By.name('aboutMe'));
       })
@@ -44,7 +41,6 @@ describe('Patient', function() {
 
   it('should show edit button if user patient', function(done) {
     openAppToPatient(userPatientId)
-      .then(helpers.sleep(200))
       .then(function() {
         expect('.js-edit-patient').dom.to.be.visible();
         done();
@@ -53,7 +49,6 @@ describe('Patient', function() {
 
   it('should not show edit button if not user patient', function(done) {
     openAppToPatient(patientId)
-      .then(helpers.sleep(200))
       .then(function() {
         return helpers.elementExists(By.css('.js-edit-patient'));
       })
