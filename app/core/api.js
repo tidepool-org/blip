@@ -41,6 +41,8 @@ api.init = function(cb) {
     }
   });
 
+  api.tidepool = tidepool;
+
   api.log('Initialized');
   cb();
 };
