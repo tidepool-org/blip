@@ -32,31 +32,27 @@ module.exports = function(pool, opts) {
 
   var defaults = {
     classes: {
-      'very-low': {'boundary': 60},
-      'low': {'boundary': 80},
-      'target': {'boundary': 180},
-      'high': {'boundary': 200},
-      'very-high': {'boundary': 300}
+      'very-low': {boundary: 60},
+      low: {boundary: 80},
+      target: {boundary: 180},
+      high: {boundary: 200},
+      'very-high': {boundary: 300}
     },
     twoWeekOptions: {
-      'exclusionThreshold': 7
+      exclusionThreshold: 7
     },
     imagesBaseUrl: pool.imagesBaseUrl(),
     size: 16,
-    'pieRadius': pool.height() * 0.45,
+    pieRadius: pool.height() * 0.45,
     defaultAnnotationOpts: {
-      'lead': 'stats-insufficient-data',
-      'd': {'annotations': [{'code': 'stats-insufficient-data'}]},
-      'orientation': {'up': true}
+      lead: 'stats-insufficient-data',
+      d: {annotations: [{code: 'stats-insufficient-data'}]},
+      orientation: {up: true}
     },
     bgUnits: 'mg/dL',
-    targetRange: {
-      lowerLimit: 80,
-      upperLimit: 180
-    },
     PTiRLabels: {
-      'cbg': 'Time in Target Range',
-      'smbg': 'Readings in Range'
+      cbg: 'Time in Target Range',
+      smbg: 'Readings in Range'
     },
     puddleWeights: {
       ratio: 1.0,
@@ -66,10 +62,11 @@ module.exports = function(pool, opts) {
   };
 
   var data = {
-    'ratio': [],
-    'range': [],
-    'average': [],
-    'bgReadings': 0
+    ratio: [],
+    range: [],
+    average: [],
+    bgReadings: 0,
+    bgType: 'smbg'
   };
 
   var pies = [], pie, arc;
@@ -95,12 +92,12 @@ module.exports = function(pool, opts) {
   stats.initialize = _.once(function() {
     // move this group inside the container's axisGutter
     widgetGroup.attr({
-      'transform': 'translate(' + opts.xPosition + ',' + opts.yPosition + ')'
+      transform: 'translate(' + opts.xPosition + ',' + opts.yPosition + ')'
     });
 
     var pw = opts.puddleWeights;
 
-    var targetRangeString = 'Target range: ' + opts.targetRange.lowerLimit + ' - ' + opts.targetRange.upperLimit + ' ';
+    var targetRangeString = 'Target range: ' + opts.classes.low.boundary + ' - ' + opts.classes.target.boundary + ' ';
 
     // create basal-to-bolus ratio puddle
     stats.newPuddle('Ratio', 'Basal : Bolus', 'Basal to bolus insulin ratio', pw.ratio, true);
@@ -120,9 +117,9 @@ module.exports = function(pool, opts) {
       puddle.width((puddle.weight/cumWeight) * pool.width());
       var puddleGroup = widgetGroup.append('g')
         .attr({
-          'transform': 'translate(' + currX + ',0)',
-          'class': 'd3-stats',
-          'id': 'puddle_' + puddle.id
+          transform: 'translate(' + currX + ',0)',
+          class: 'd3-stats',
+          id: 'puddle_' + puddle.id
         });
       puddle.xPosition(currX);
       currX = (currentWeight / cumWeight) * pool.width();
@@ -147,8 +144,8 @@ module.exports = function(pool, opts) {
         var createAPie = function(puddleGroup, data) {
           var slices = stats.createPie(puddle, puddleGroup, data[puddle.id.toLowerCase()]);
           pies.push({
-            'id': puddle.id,
-            'slices': slices
+            id: puddle.id,
+            slices: slices
           });
         };
         // when NaN(s) present, create a no data view
@@ -197,20 +194,20 @@ module.exports = function(pool, opts) {
 
     rectGroup.append('rect')
       .attr({
-        'x': puddle.width() / 16,
-        'y': pool.height() / 10,
-        'width': puddle.width() / 8,
-        'height': pool.height() * (4/5),
-        'class': 'd3-stats-rect rect-left'
+        x: puddle.width() / 16,
+        y: pool.height() / 10,
+        width: puddle.width() / 8,
+        height: pool.height() * (4/5),
+        class: 'd3-stats-rect rect-left'
       });
 
     rectGroup.append('rect')
       .attr({
-        'x': puddle.width() * (3/16),
-        'y': pool.height() / 10,
-        'width': puddle.width() / 8,
-        'height': pool.height() * (4/5),
-        'class': 'd3-stats-rect rect-right'
+        x: puddle.width() * (3/16),
+        y: pool.height() / 10,
+        width: puddle.width() / 8,
+        height: pool.height() * (4/5),
+        class: 'd3-stats-rect rect-right'
       });
 
     var cbgData = opts.cbg.data;
@@ -221,20 +218,20 @@ module.exports = function(pool, opts) {
 
     rectGroup.append('line')
       .attr({
-        'x1': puddle.width() / 16,
-        'x2': puddle.width() * (5/16),
-        'y1': rectScale(80) + (pool.height() / 10),
-        'y2': rectScale(80) + (pool.height() / 10),
-        'class': 'd3-line-guide d3-line-bg-threshold'
+        x1: puddle.width() / 16,
+        x2: puddle.width() * (5/16),
+        y1: rectScale(80) + (pool.height() / 10),
+        y2: rectScale(80) + (pool.height() / 10),
+        class: 'd3-line-guide d3-line-bg-threshold'
       });
 
     rectGroup.append('line')
       .attr({
-        'x1': puddle.width() / 16,
-        'x2': puddle.width() * (5/16),
-        'y1': rectScale(180) + (pool.height() / 10),
-        'y2': rectScale(180) + (pool.height() / 10),
-        'class': 'd3-line-guide d3-line-bg-threshold'
+        x1: puddle.width() / 16,
+        x2: puddle.width() * (5/16),
+        y1: rectScale(180) + (pool.height() / 10),
+        y2: rectScale(180) + (pool.height() / 10),
+        class: 'd3-line-guide d3-line-bg-threshold'
       });
     var imageY = rectScale(data.value) - (opts.size / 2) + (puddle.height() / 10);
     // don't append an image if imageY is NaN or Infinity
@@ -258,11 +255,11 @@ module.exports = function(pool, opts) {
               return opts.imagesBaseUrl + '/smbg/very_high.svg';
             }
           },
-          'x': (puddle.width() * (3/16)) - (opts.size / 2),
-          'y': imageY,
-          'width': opts.size,
-          'height': opts.size,
-          'class': 'd3-image d3-stats-image'
+          x: (puddle.width() * (3/16)) - (opts.size / 2),
+          y: imageY,
+          width: opts.size,
+          height: opts.size,
+          class: 'd3-image d3-stats-image'
         });
     }
     else {
@@ -288,11 +285,11 @@ module.exports = function(pool, opts) {
               return opts.imagesBaseUrl + '/ux/scroll_thumb.svg';
             }
           },
-          'x': (puddle.width() * (3/16)) - (opts.size / 2),
-          'y': rectScale(100) - (opts.size / 2) + (puddle.height() / 10),
-          'width': opts.size,
-          'height': opts.size,
-          'class': 'd3-image d3-stats-image hidden'
+          x: (puddle.width() * (3/16)) - (opts.size / 2),
+          y: rectScale(100) - (opts.size / 2) + (puddle.height() / 10),
+          width: opts.size,
+          height: opts.size,
+          class: 'd3-image d3-stats-image hidden'
         });
     }
 
@@ -339,7 +336,7 @@ module.exports = function(pool, opts) {
               return opts.imagesBaseUrl + '/smbg/very_high.svg';
             }
           },
-          'y': imageY
+          y: imageY
         })
         .classed('hidden', false);
     }
@@ -347,9 +344,9 @@ module.exports = function(pool, opts) {
 
   stats.rectAnnotation = function(puddle, puddleGroup) {
     var annotationOpts = {
-      'x': puddle.width() * (3/16) + puddle.xPosition(),
-      'y': puddle.height() / 2,
-      'hoverTarget': puddleGroup
+      x: puddle.width() * (3/16) + puddle.xPosition(),
+      y: puddle.height() / 2,
+      hoverTarget: puddleGroup
     };
     _.defaults(annotationOpts, opts.defaultAnnotationOpts);
     pool.parent().select('#tidelineAnnotations_stats').call(annotation, annotationOpts);
@@ -361,22 +358,22 @@ module.exports = function(pool, opts) {
     puddleGroup.selectAll('.d3-stats-pie').remove();
     var pieGroup = puddleGroup.append('g')
       .attr({
-        'transform': 'translate(' + xOffset + ',' + yOffset + ')',
-        'class': 'd3-stats-pie'
+        transform: 'translate(' + xOffset + ',' + yOffset + ')',
+        class: 'd3-stats-pie'
       });
     if (stats.hasNaN(data)) {
       puddleGroup.classed('d3-insufficient-data', true);
       pieGroup.append('circle')
         .attr({
-          'cx': 0,
-          'cy': 0,
-          'r': opts.pieRadius
+          cx: 0,
+          cy: 0,
+          r: opts.pieRadius
         });
 
       var annotationOpts = {
-        'x': xOffset + puddle.xPosition(),
-        'y': yOffset,
-        'hoverTarget': puddleGroup
+        x: xOffset + puddle.xPosition(),
+        y: yOffset,
+        hoverTarget: puddleGroup
       };
       _.defaults(annotationOpts, opts.defaultAnnotationOpts);
       pool.parent().select('#tidelineAnnotations_stats').call(annotation, annotationOpts);
@@ -399,8 +396,8 @@ module.exports = function(pool, opts) {
         .enter()
         .append('path')
         .attr({
-          'd': arc,
-          'class': function(d) {
+          d: arc,
+          class: function(d) {
             return 'd3-stats-slice d3-' + d.data.type;
           }
         });
@@ -412,7 +409,7 @@ module.exports = function(pool, opts) {
   stats.updatePie = function(thisPie, data) {
     thisPie.slices.data(pie(data))
       .attr({
-        'd': arc
+        d: arc
       });
   };
 
@@ -428,13 +425,13 @@ module.exports = function(pool, opts) {
 
   stats.newPuddle = function(id, head, lead, weight, pieBoolean) {
     var p = new Puddle({
-      'id': id,
-      'head': head,
-      'lead': lead,
-      'width': pool.width()/3,
-      'height': pool.height(),
-      'weight': weight,
-      'xOffset': function() {
+      id: id,
+      head: head,
+      lead: lead,
+      width: pool.width()/3,
+      height: pool.height(),
+      weight: weight,
+      xOffset: function() {
         if (pieBoolean) {
           return (pool.width()/3) / 3;
         }
@@ -442,7 +439,7 @@ module.exports = function(pool, opts) {
           return (pool.width()/3) * (2 / 5);
         }
       },
-      'pie': pieBoolean
+      pie: pieBoolean
     });
     puddles.push(p);
   };
@@ -459,31 +456,31 @@ module.exports = function(pool, opts) {
   };
 
   stats.ratioDisplay = function() {
-    var bolus = _.findWhere(data.ratio, {'type': 'bolus'}).value;
-    var basal = _.findWhere(data.ratio, {'type': 'basal'}).value;
+    var bolus = _.findWhere(data.ratio, {type: 'bolus'}).value;
+    var basal = _.findWhere(data.ratio, {type: 'basal'}).value;
     var total = bolus + basal;
     return [{
-        'text': format.percentage(basal/total) + ' : ',
-        'class': 'd3-stats-basal'
+        text: format.percentage(basal/total) + ' : ',
+        class: 'd3-stats-basal'
       },
       {
-        'text': format.percentage(bolus/total),
-        'class': 'd3-stats-bolus'
+        text: format.percentage(bolus/total),
+        class: 'd3-stats-bolus'
       }];
   };
 
   stats.rangeDisplay = function() {
-    var target = _.findWhere(data.range, {'type': 'bg-target'}).value;
+    var target = _.findWhere(data.range, {type: 'bg-target'}).value;
     var total = parseFloat(data.bgReadings);
-    return [{'text': format.percentage(target/total), 'class': 'd3-stats-percentage'}];
+    return [{text: format.percentage(target/total), class: 'd3-stats-percentage'}];
   };
 
   stats.averageDisplay = function() {
     if (isNaN(data.average.value)) {
-      return [{'text': '--- mg/dL', 'class': 'd3-stats-' + data.average.category}];
+      return [{text: '--- mg/dL', class: 'd3-stats-' + data.average.category}];
     }
     else {
-      return [{'text': data.average.value + ' mg/dL', 'class': 'd3-stats-' + data.average.category}];
+      return [{text: data.average.value + ' mg/dL', class: 'd3-stats-' + data.average.category}];
     }
   };
 
@@ -494,12 +491,12 @@ module.exports = function(pool, opts) {
     var excluded = basalData.excluded;
     data.ratio = [
       {
-        'type': 'bolus',
-        'value': opts.bolus.totalBolus(start, end, {'excluded': excluded})
+        type: 'bolus',
+        value: opts.bolus.totalBolus(start, end, {excluded: excluded})
       },
       {
-        'type': 'basal',
-        'value': basalData.total
+        type: 'basal',
+        value: basalData.total
       }
     ];
     var bgStats = opts.cbg.getStats(start, end, opts.twoWeekOptions);
@@ -511,16 +508,16 @@ module.exports = function(pool, opts) {
     data.bgType = range.type;
     data.range = [
       {
-        'type': 'bg-low',
-        'value': range.low
+        type: 'bg-low',
+        value: range.low
       },
       {
-        'type': 'bg-target',
-        'value': range.target
+        type: 'bg-target',
+        value: range.target
       },
       {
-        'type': 'bg-high',
-        'value': range.high
+        type: 'bg-high',
+        value: range.high
       }
     ];
     data.bgReadings = range.total;

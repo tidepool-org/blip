@@ -33,22 +33,22 @@ function BGUtil(data, opts) {
   var currentIndex = 0, currentData;
 
   var categories = {
-    'low': 80,
-    'target': 180
+    low: 80,
+    target: 180
   };
 
   var defaults = {
-    'low': 0,
-    'target': 0,
-    'high': 0,
-    'total': 0
+    low: 0,
+    target: 0,
+    high: 0,
+    total: 0
   };
 
   var breakdownNaN = {
-    'low': NaN,
-    'target': NaN,
-    'high': NaN,
-    'total': NaN
+    low: NaN,
+    target: NaN,
+    high: NaN,
+    total: NaN
   };
 
   function getCategory (n) {
@@ -70,8 +70,8 @@ function BGUtil(data, opts) {
     var start = new Date(s).valueOf(), end = new Date(e).valueOf();
     dataByDate.filter([start, end]);
     var filteredObj = {
-      'data': dataByDate.top(Infinity).reverse(),
-      'excluded': []
+      data: dataByDate.top(Infinity).reverse(),
+      excluded: []
     };
     var filtered = filteredObj.data;
     if (filtered.length < this.threshold(s, e)) {
@@ -91,7 +91,7 @@ function BGUtil(data, opts) {
       }
       else if (datetime.isLessThanTwentyFourHours(s, e)) {
         log('Data domain less than twenty-four hours; cannot calculate bolus total.');
-        return {'data': [], 'excluded': []};
+        return {data: [], excluded: []};
       }
       else {
         var time = new Date(s).valueOf(), end = new Date(e).valueOf();
@@ -107,16 +107,16 @@ function BGUtil(data, opts) {
         }
         if (excluded.length > exclusionThreshold) {
           log(excluded.length, 'days excluded. Not enough CGM data in some days to calculate stats.');
-          return {'data': [], 'excluded': excluded};
+          return {data: [], excluded: excluded};
         }
         else {
-          return {'data': result, 'excluded': excluded};
+          return {data: result, excluded: excluded};
         }
       }
     }
     else {
       log('Endpoint verification failed!');
-      return {'data': [], 'excluded': []};
+      return {data: [], excluded: []};
     }
   };
 
@@ -138,10 +138,10 @@ function BGUtil(data, opts) {
         return memo + d.value;
       }, 0);
       var average = parseInt((sum/filtered.length).toFixed(0), 10);
-      return {'value': average, 'category': getCategory(average)};
+      return {value: average, category: getCategory(average)};
     }
     else {
-      return {'value': NaN, 'category': '', 'excluded': filtered.excluded};
+      return {value: NaN, category: '', excluded: filtered.excluded};
     }
   };
 
@@ -161,8 +161,8 @@ function BGUtil(data, opts) {
     var breakdown = this.rangeBreakdown(filtered.data);
     breakdown.excluded = filtered.excluded;
     return {
-      'average': average,
-      'breakdown': breakdown
+      average: average,
+      breakdown: breakdown
     };
   };
 
