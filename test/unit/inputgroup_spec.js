@@ -1,6 +1,6 @@
 var InputGroup = require('../../app/components/inputgroup');
 
-describe('InputGroup', function() {
+describe.only('InputGroup', function() {
   var component;
 
   var props = {
@@ -51,6 +51,25 @@ describe('InputGroup', function() {
     var type = component.refs.control.props.type;
 
     expect(type).to.equal(expectedType);
+  });
+
+  it('should allow textarea type', function() {
+    var expectedType = 'textarea';
+
+    component.setProps({type: expectedType});
+    var type = component.refs.control.getDOMNode().nodeName.toLowerCase();
+
+    expect(type).to.equal(expectedType);
+  });
+
+  it('should handle checkbox with boolean value', function() {
+    component.setProps({
+      type: 'checkbox',
+      value: true
+    });
+    var checked = component.refs.control.getDOMNode().checked;
+
+    expect(checked).to.be.ok;
   });
 
   it('should disable input', function() {
