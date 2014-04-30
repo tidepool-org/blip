@@ -376,6 +376,36 @@ describe('Preprocess', function() {
     // TODO: add test for alpha sort order otherwise
   });
 
+  describe('processDeviceMeta', function(){
+    it('should convert marryable status changes to basal-rate-segment and ignore others', function(){
+      var data = [
+        { id: '0', type: 'something', deviceTime: '0' },
+        { id: '1', type: 'deviceMeta', subType: 'status', status: 'resume', deviceTime: '1' },
+        { id: '2', type: 'deviceMeta', subType: 'something', deviceTime: '2' },
+        { id: '3', type: 'deviceMeta', subType: 'status', status: 'suspended', deviceTime: '3' },
+        { id: '3.5', type: 'deviceMeta', subType: 'status', status: 'suspended', deviceTime: '3.5' },
+        { id: '4', type: 'something', deviceTime: '4' },
+        { id: '5', type: 'deviceMeta', subType: 'status', status: 'resume', deviceTime: '5'},
+        { id: '6', type: 'deviceMeta', subType: 'status', status: 'resume', deviceTime: '6', joinKey: '3' },
+        { id: '7', type: 'billyBob' }
+      ];
+
+      expect(Preprocess.processDeviceMeta(data)).deep.equals(
+        [
+          { id: '0', type: 'something', deviceTime: '0' },
+          { id: '4', type: 'something', deviceTime: '4' },
+          { id: '7', type: 'billyBob' },
+          { id: '1', type: 'deviceMeta', subType: 'status', status: 'resume', deviceTime: '1' },
+          { id: '2', type: 'deviceMeta', subType: 'something', deviceTime: '2' },
+          { id: '5', type: 'deviceMeta', subType: 'status', status: 'resume', deviceTime: '5'},
+          { id: '3_6', type: 'basal-rate-segment', subType: 'status', status: 'suspended', deviceTime: '3',
+            start: '3', end: '6', deliveryType: 'manualSuspend', value: 0 },
+          { id: '3.5', type: 'deviceMeta', subType: 'status', status: 'suspended', deviceTime: '3.5' }
+        ]
+      );
+    });
+  });
+
   describe('processData', function() {
     it('should be a function', function() {
       assert.isFunction(Preprocess.processData);

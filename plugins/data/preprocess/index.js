@@ -31,12 +31,67 @@ function notZero(e) {
   return e.value !== 0;
 }
 
+/**
+ * This converts suspend start and end events into basal-rate-segments for the visualization
+ *
+ * @param data Array of data, assumed to be only deviceMeta events.
+ * @returns {Array} modified array of data to have basal-rate-segments for suspend start and end events.
+ */
+function processSuspends(data) {
+  data = _.sortBy(data, 'deviceTime');
+
+  var retVal = [];
+  var suspends = {};
+
+  for (var i = 0; i < data.length; ++i) {
+    if (data[i].subType === 'status') {
+      switch (data[i].status) {
+        case 'suspended':
+          suspends[data[i].id] = data[i];
+          break;
+        case 'resume':
+          if (data[i].joinKey == null) {
+            retVal.push(data[i]);
+          } else {
+            var suspended = suspends[data[i].joinKey];
+
+            if (suspended == null) {
+              retVal.push(data[i]);
+            } else {
+              retVal.push(
+                _.assign({}, suspended,
+                  {
+                    id: suspended.id + '_' + data[i].id,
+                    type: 'basal-rate-segment',
+                    start: suspended.deviceTime,
+                    end: data[i].deviceTime,
+                    deliveryType: 'manualSuspend',
+                    value: 0
+                  }
+                )
+              );
+              delete suspends[data[i].joinKey];
+            }
+          }
+          break;
+        default:
+          retVal.push(data[i]);
+      }
+    } else {
+      retVal.push(data[i]);
+    }
+  }
+
+  return retVal.concat(Object.keys(suspends).map(function(key){ return suspends[key]; }));
+}
+
 var TYPES_TO_INCLUDE = {
   // basals with value 0 don't get excluded because they are legitimate targets for visualization
-  'basal-rate-segment': alwaysTrue,
+  'basal-rate-segment': function(e){ return e.start !== e.end; },
   bolus: notZero,
   carbs: notZero,
   cbg: notZero,
+  deviceMeta: alwaysTrue,
   message: notZero,
   smbg: notZero,
   settings: notZero
@@ -55,7 +110,7 @@ var Preprocess = {
   MMOL_TO_MGDL: 18,
 
   mungeBasals: function(data) {
-    var segments = new SegmentUtil(_.where(data, {'type': 'basal-rate-segment'}));
+    var segments = new SegmentUtil(_.sortBy(_.where(data, {'type': 'basal-rate-segment'}), 'deviceTime'));
     data = _.reject(data, function(d) {
       return d.type === 'basal-rate-segment';
     });
@@ -135,6 +190,21 @@ var Preprocess = {
     return nonZeroData;
   },
 
+  processDeviceMeta: function(data) {
+    var other = [];
+    var deviceMeta = [];
+
+    for (var i = 0; i < data.length; ++i) {
+      if (data[i].type === 'deviceMeta') {
+        deviceMeta.push(data[i]);
+      } else {
+        other.push(data[i]);
+      }
+    }
+
+    return other.concat(processSuspends(deviceMeta));
+  },
+
   runWatson: function(data) {
     data = watson.normalizeAll(data);
     // Ensure the data is properly sorted
@@ -210,6 +280,7 @@ var Preprocess = {
 
     data = this.editBoluses(data);
     data = this.filterData(data);
+    data = this.processDeviceMeta(data);
     data = this.mungeBasals(data);
     data = this.runWatson(data);
     data = this.translateMmol(data);

@@ -186,7 +186,7 @@ describe('segmentUtil.js', function(){
     var segs = segmentUtil(
       [
         {
-          type: 'basal',
+          type: 'basal-rate-segment',
           deliveryType: 'temp',
           start: '2014-01-01',
           end: '2014-01-02',
@@ -199,7 +199,7 @@ describe('segmentUtil.js', function(){
     expect(segs.actual).length(1);
     expect(segs.actual[0]).is.deep.equal(
       {
-        type: 'basal',
+        type: 'basal-rate-segment',
         deliveryType: 'temp',
         start: '2014-01-01',
         end: '2014-01-02',
@@ -211,23 +211,23 @@ describe('segmentUtil.js', function(){
   it('Smooshes delivered and undelivered', function(){
     var events = [
       {
-        'type': 'basal', 'id': '1', 'start': '2014-03-14', 'end': '2014-03-15',
+        type: 'basal-rate-segment', 'id': '1', 'start': '2014-03-14', 'end': '2014-03-15',
         'deliveryType': 'scheduled', 'value': 0.85, 'duration': 86400000
       },
       {
-        'type': 'basal', 'id': '2', 'start': '2014-03-14T12', 'end': '2014-03-15T12',
+        type: 'basal-rate-segment', 'id': '2', 'start': '2014-03-14T12', 'end': '2014-03-15T12',
         'deliveryType': 'temp', 'value': 0.55, 'duration': 86400000
       },
       {
-        'type': 'basal', 'id': '3', 'start': '2014-03-15', 'end': '2014-03-16',
+        type: 'basal-rate-segment', 'id': '3', 'start': '2014-03-15', 'end': '2014-03-16',
         'deliveryType': 'scheduled', 'value': 0.85, 'duration': 86400000
       },
       {
-        'type': 'basal', 'id': '4', 'start': '2014-03-15T12', 'end': '2014-03-16T12',
+        type: 'basal-rate-segment', 'id': '4', 'start': '2014-03-15T12', 'end': '2014-03-16T12',
         'deliveryType': 'temp', 'value': 0.55, 'duration': 86400000
       },
       {
-        'type': 'basal', 'id': '5', 'start': '2014-03-16', 'end': '2014-03-17',
+        type: 'basal-rate-segment', 'id': '5', 'start': '2014-03-16', 'end': '2014-03-17',
         'deliveryType': 'scheduled', 'value': 0.85, 'duration': 86400000
       }
     ];
@@ -236,15 +236,15 @@ describe('segmentUtil.js', function(){
     expect(segs.actual).deep.equals(
       [
         {
-          'type': 'basal', 'id': '1', 'start': '2014-03-14', 'end': '2014-03-14T12',
+          type: 'basal-rate-segment', 'id': '1', 'start': '2014-03-14', 'end': '2014-03-14T12',
           'deliveryType': 'scheduled', 'value': 0.85, 'duration': 86400000, vizType: 'actual'
         },
         {
-          'type': 'basal', 'id': '2', 'start': '2014-03-14T12', 'end': '2014-03-16T12',
+          type: 'basal-rate-segment', 'id': '2', 'start': '2014-03-14T12', 'end': '2014-03-16T12',
           'deliveryType': 'temp', 'value': 0.55, 'duration': 86400000, vizType: 'actual'
         },
         {
-          'type': 'basal', 'id': '5', 'start': '2014-03-16T12', 'end': '2014-03-17',
+          type: 'basal-rate-segment', 'id': '5', 'start': '2014-03-16T12', 'end': '2014-03-17',
           'deliveryType': 'scheduled', 'value': 0.85, 'duration': 86400000, vizType: 'actual'
         }
       ]
@@ -252,7 +252,7 @@ describe('segmentUtil.js', function(){
     expect(segs.getUndelivered('scheduled')).deep.equals(
       [
         {
-          'type': 'basal', 'id': '1', 'start': '2014-03-14T12', 'end': '2014-03-16T12',
+          type: 'basal-rate-segment', 'id': '1', 'start': '2014-03-14T12', 'end': '2014-03-16T12',
           'deliveryType': 'scheduled', 'value': 0.85, 'duration': 86400000, link: '2', vizType: 'undelivered'
         }
       ]
@@ -262,31 +262,31 @@ describe('segmentUtil.js', function(){
   it('Handles temps overiding temps overiding temps', function () {
     var events = [
       {
-        'type': 'basal', 'id': '1', 'start': '2014-03-14T03:00:00', 'end': '2014-03-14T04:00:00',
+        type: 'basal-rate-segment', 'id': '1', 'start': '2014-03-14T03:00:00', 'end': '2014-03-14T04:00:00',
         'deliveryType': 'scheduled', 'value': 0.85, 'duration': 3600000
       },
       {
-        'type': 'basal', 'id': '2', 'start': '2014-03-14T03:27:14', 'end': '2014-03-14T05:27:14',
+        type: 'basal-rate-segment', 'id': '2', 'start': '2014-03-14T03:27:14', 'end': '2014-03-14T05:27:14',
         'deliveryType': 'temp', 'value': 0.55, 'duration': 7200000
       },
       {
-        'type': 'basal', 'id': '3', 'start': '2014-03-14T04:00:00', 'end': '2014-03-14T06:00:00',
+        type: 'basal-rate-segment', 'id': '3', 'start': '2014-03-14T04:00:00', 'end': '2014-03-14T06:00:00',
         'deliveryType': 'scheduled', 'value': 0.9, 'duration': 3600000
       },
       {
-        'type': 'basal', 'id': '4', 'start': '2014-03-14T04:02:09', 'end': '2014-03-14T06:02:09',
+        type: 'basal-rate-segment', 'id': '4', 'start': '2014-03-14T04:02:09', 'end': '2014-03-14T06:02:09',
         'deliveryType': 'temp', 'value': 0.45, 'duration': 7200000
       },
       {
-        'type': 'basal', 'id': '5', 'start': '2014-03-14T04:47:36', 'end': '2014-03-14T06:47:36',
+        type: 'basal-rate-segment', 'id': '5', 'start': '2014-03-14T04:47:36', 'end': '2014-03-14T06:47:36',
         'deliveryType': 'temp', 'value': 0.3, 'duration': 7200000
       },
       {
-        'type': 'basal', 'id': '6', 'start': '2014-03-14T06:00:00', 'end': '2014-03-14T09:00:00',
+        type: 'basal-rate-segment', 'id': '6', 'start': '2014-03-14T06:00:00', 'end': '2014-03-14T09:00:00',
         'deliveryType': 'scheduled', 'value': 0.95, 'duration': 10800000
       },
       {
-        'type': 'basal', 'id': '7', 'start': '2014-03-14T06:11:46', 'end': '2014-03-14T07:41:46',
+        type: 'basal-rate-segment', 'id': '7', 'start': '2014-03-14T06:11:46', 'end': '2014-03-14T07:41:46',
         'deliveryType': 'temp', 'value': 0, 'duration': 5400000
       }
     ];
@@ -296,27 +296,27 @@ describe('segmentUtil.js', function(){
     expect(segs.actual).deep.equals(
       [
         {
-          'type': 'basal', 'id': '1', 'start': '2014-03-14T03:00:00', 'end': '2014-03-14T03:27:14',
+          type: 'basal-rate-segment', 'id': '1', 'start': '2014-03-14T03:00:00', 'end': '2014-03-14T03:27:14',
           'deliveryType': 'scheduled', 'value': 0.85, 'duration': 3600000, vizType: 'actual'
         },
         {
-          'type': 'basal', 'id': '2', 'start': '2014-03-14T03:27:14', 'end': '2014-03-14T04:02:09',
+          type: 'basal-rate-segment', 'id': '2', 'start': '2014-03-14T03:27:14', 'end': '2014-03-14T04:02:09',
           'deliveryType': 'temp', 'value': 0.55, 'duration': 7200000, vizType: 'actual'
         },
         {
-          'type': 'basal', 'id': '4', 'start': '2014-03-14T04:02:09', 'end': '2014-03-14T04:47:36',
+          type: 'basal-rate-segment', 'id': '4', 'start': '2014-03-14T04:02:09', 'end': '2014-03-14T04:47:36',
           'deliveryType': 'temp', 'value': 0.45, 'duration': 7200000, vizType: 'actual'
         },
         {
-          'type': 'basal', 'id': '5', 'start': '2014-03-14T04:47:36', 'end': '2014-03-14T06:11:46',
+          type: 'basal-rate-segment', 'id': '5', 'start': '2014-03-14T04:47:36', 'end': '2014-03-14T06:11:46',
           'deliveryType': 'temp', 'value': 0.3, 'duration': 7200000, vizType: 'actual'
         },
         {
-          'type': 'basal', 'id': '7', 'start': '2014-03-14T06:11:46', 'end': '2014-03-14T07:41:46',
+          type: 'basal-rate-segment', 'id': '7', 'start': '2014-03-14T06:11:46', 'end': '2014-03-14T07:41:46',
           'deliveryType': 'temp', 'value': 0, 'duration': 5400000, vizType: 'actual'
         },
         {
-          'type': 'basal', 'id': '6', 'start': '2014-03-14T07:41:46', 'end': '2014-03-14T09:00:00',
+          type: 'basal-rate-segment', 'id': '6', 'start': '2014-03-14T07:41:46', 'end': '2014-03-14T09:00:00',
           'deliveryType': 'scheduled', 'value': 0.95, 'duration': 10800000, vizType: 'actual'
         }
       ]
@@ -324,15 +324,15 @@ describe('segmentUtil.js', function(){
     expect(segs.getUndelivered('temp')).deep.equals(
       [
         {
-          'type': 'basal', 'id': '2', 'start': '2014-03-14T04:02:09', 'end': '2014-03-14T04:47:36',
+          type: 'basal-rate-segment', 'id': '2', 'start': '2014-03-14T04:02:09', 'end': '2014-03-14T04:47:36',
           'deliveryType': 'temp', 'value': 0.55, 'duration': 7200000, vizType: 'undelivered', link: '4'
         },
         {
-          'type': 'basal', 'id': '4', 'start': '2014-03-14T04:47:36', 'end': '2014-03-14T06:02:09',
+          type: 'basal-rate-segment', 'id': '4', 'start': '2014-03-14T04:47:36', 'end': '2014-03-14T06:02:09',
           'deliveryType': 'temp', 'value': 0.45, 'duration': 7200000, vizType: 'undelivered', link: '5'
         },
         {
-          'type': 'basal', 'id': '5', 'start': '2014-03-14T06:11:46', 'end': '2014-03-14T06:47:36',
+          type: 'basal-rate-segment', 'id': '5', 'start': '2014-03-14T06:11:46', 'end': '2014-03-14T06:47:36',
           'deliveryType': 'temp', 'value': 0.3, 'duration': 7200000, vizType: 'undelivered', link: '7'
         }
       ]
@@ -340,28 +340,96 @@ describe('segmentUtil.js', function(){
     expect(segs.getUndelivered('scheduled')).deep.equals(
       [
         {
-          'type': 'basal', 'id': '1', 'start': '2014-03-14T03:27:14', 'end': '2014-03-14T04:00:00',
+          type: 'basal-rate-segment', 'id': '1', 'start': '2014-03-14T03:27:14', 'end': '2014-03-14T04:00:00',
           'deliveryType': 'scheduled', 'value': 0.85, 'duration': 3600000, vizType: 'undelivered', link: '2'
         },
         {
-          'type': 'basal', 'id': '3', 'start': '2014-03-14T04:00:00', 'end': '2014-03-14T04:02:09',
+          type: 'basal-rate-segment', 'id': '3', 'start': '2014-03-14T04:00:00', 'end': '2014-03-14T04:02:09',
           'deliveryType': 'scheduled', 'value': 0.9, 'duration': 3600000, vizType: 'undelivered', link: '2'
         },
         {
-          'type': 'basal', 'id': '3', 'start': '2014-03-14T04:02:09', 'end': '2014-03-14T04:47:36',
+          type: 'basal-rate-segment', 'id': '3', 'start': '2014-03-14T04:02:09', 'end': '2014-03-14T04:47:36',
           'deliveryType': 'scheduled', 'value': 0.9, 'duration': 3600000, vizType: 'undelivered', link: '4'
         },
         {
-          'type': 'basal', 'id': '3', 'start': '2014-03-14T04:47:36', 'end': '2014-03-14T06:00:00',
+          type: 'basal-rate-segment', 'id': '3', 'start': '2014-03-14T04:47:36', 'end': '2014-03-14T06:00:00',
           'deliveryType': 'scheduled', 'value': 0.9, 'duration': 3600000, vizType: 'undelivered', link: '5'
         },
         {
-          'type': 'basal', 'id': '6', 'start': '2014-03-14T06:00:00', 'end': '2014-03-14T06:11:46',
+          type: 'basal-rate-segment', 'id': '6', 'start': '2014-03-14T06:00:00', 'end': '2014-03-14T06:11:46',
           'deliveryType': 'scheduled', 'value': 0.95, 'duration': 10800000, vizType: 'undelivered', link: '5'
         },
         {
-          'type': 'basal', 'id': '6', 'start': '2014-03-14T06:11:46', 'end': '2014-03-14T07:41:46',
+          type: 'basal-rate-segment', 'id': '6', 'start': '2014-03-14T06:11:46', 'end': '2014-03-14T07:41:46',
           'deliveryType': 'scheduled', 'value': 0.95, 'duration': 10800000, vizType: 'undelivered', link: '7'
+        }
+      ]
+    );
+  });
+
+  it('Treats manual suspends as most important', function () {
+    var events = [
+      {
+        type: 'basal-rate-segment', 'id': '1', 'start': '2014-03-14T03:00:00', 'end': '2014-03-14T06:00:00',
+        'deliveryType': 'scheduled', 'value': 0.85, 'duration': 3600000
+      },
+      {
+        type: 'basal-rate-segment', 'id': '2', 'start': '2014-03-14T03:27:14', 'end': '2014-03-14T05:27:14',
+        'deliveryType': 'temp', 'value': 0.55, 'duration': 7200000
+      },
+      {
+        type: 'basal-rate-segment', 'id': '3', 'start': '2014-03-14T04:00:00', 'end': '2014-03-14T04:30:00',
+        'deliveryType': 'manualSuspend', value: 0
+      }
+    ];
+
+    var segs = segmentUtil(events);
+
+    expect(segs.actual).deep.equals(
+      [
+        {
+          type: 'basal-rate-segment', 'id': '1', 'start': '2014-03-14T03:00:00', 'end': '2014-03-14T03:27:14',
+          'deliveryType': 'scheduled', 'value': 0.85, 'duration': 3600000, vizType: 'actual'
+        },
+        {
+          type: 'basal-rate-segment', 'id': '2', 'start': '2014-03-14T03:27:14', 'end': '2014-03-14T04:00:00',
+          'deliveryType': 'temp', 'value': 0.55, 'duration': 7200000, vizType: 'actual'
+        },
+        {
+          type: 'basal-rate-segment', 'id': '3', 'start': '2014-03-14T04:00:00', 'end': '2014-03-14T04:30:00',
+          'deliveryType': 'manualSuspend', 'value': 0, vizType: 'actual'
+        },
+        {
+          type: 'basal-rate-segment', 'id': '2', 'start': '2014-03-14T04:30:00', 'end': '2014-03-14T05:27:14',
+          'deliveryType': 'temp', 'value': 0.55, 'duration': 7200000, vizType: 'actual'
+        },
+        {
+          type: 'basal-rate-segment', 'id': '1', 'start': '2014-03-14T05:27:14', 'end': '2014-03-14T06:00:00',
+          'deliveryType': 'scheduled', 'value': 0.85, 'duration': 3600000, vizType: 'actual'
+        }
+      ]
+    );
+    expect(segs.getUndelivered('temp')).deep.equals(
+      [
+        {
+          type: 'basal-rate-segment', 'id': '2', 'start': '2014-03-14T04:00:00', 'end': '2014-03-14T04:30:00',
+          'deliveryType': 'temp', 'value': 0.55, 'duration': 7200000, vizType: 'undelivered', link: '3'
+        }
+      ]
+    );
+    expect(segs.getUndelivered('scheduled')).deep.equals(
+      [
+        {
+          type: 'basal-rate-segment', 'id': '1', 'start': '2014-03-14T03:27:14', 'end': '2014-03-14T04:00:00',
+          'deliveryType': 'scheduled', 'value': 0.85, 'duration': 3600000, vizType: 'undelivered', link: '2'
+        },
+        {
+          type: 'basal-rate-segment', 'id': '1', 'start': '2014-03-14T04:00:00', 'end': '2014-03-14T04:30:00',
+          'deliveryType': 'scheduled', 'value': 0.85, 'duration': 3600000, vizType: 'undelivered', link: '3'
+        },
+        {
+          type: 'basal-rate-segment', 'id': '1', 'start': '2014-03-14T04:30:00', 'end': '2014-03-14T05:27:14',
+          'deliveryType': 'scheduled', 'value': 0.85, 'duration': 3600000, vizType: 'undelivered', link: '2'
         }
       ]
     );
