@@ -50,9 +50,18 @@ module.exports = function(pool, opts) {
       'orientation': {'up': true}
     },
     bgUnits: 'mg/dL',
+    targetRange: {
+      lowerLimit: 80,
+      upperLimit: 180
+    },
     PTiRLabels: {
       'cbg': 'Time in Target Range',
       'smbg': 'Readings in Range'
+    },
+    puddleWeights: {
+      ratio: 1.0,
+      range: 1.0,
+      average: 1.0
     }
   };
 
@@ -72,7 +81,7 @@ module.exports = function(pool, opts) {
     stats.draw();
   });
 
-  _.defaults(opts, defaults);
+  opts = _.defaults(opts, defaults);
 
   var widgetGroup, rectScale;
 
@@ -88,22 +97,17 @@ module.exports = function(pool, opts) {
     widgetGroup.attr({
       'transform': 'translate(' + opts.xPosition + ',' + opts.yPosition + ')'
     });
-    if (opts.oneDay) {
-      // create basal-to-bolus ratio puddle
-      stats.newPuddle('Ratio', 'Basal : Bolus', 'Basal to bolus insulin ratio', 1.0, true);
-      // create time-in-range puddle
-      stats.newPuddle('Range', opts.PTiRLabels.cbg, 'Target range: 80 - 180 ' + opts.bgUnits, 1.2, true);
-      // create average BG puddle
-      stats.newPuddle('Average', 'Average BG', 'These 24 hours', 0.9, false);
-    }
-    else {
-      // create basal-to-bolus ratio puddle
-      stats.newPuddle('Ratio', 'Basal : Bolus', 'Basal to bolus insulin ratio', 1.1, true);
-      // create time-in-range puddle
-      stats.newPuddle('Range', opts.PTiRLabels.cbg, 'Target range: 80 - 180 ' + opts.bgUnits, 1.2, true);
-      // create average BG puddle
-      stats.newPuddle('Average', 'Average BG', 'These two weeks', 1.0, false);
-    }
+
+    var pw = opts.puddleWeights;
+
+    var targetRangeString = 'Target range: ' + opts.targetRange.lowerLimit + ' - ' + opts.targetRange.upperLimit + ' ';
+
+    // create basal-to-bolus ratio puddle
+    stats.newPuddle('Ratio', 'Basal : Bolus', 'Basal to bolus insulin ratio', pw.ratio, true);
+    // create time-in-range puddle
+    stats.newPuddle('Range', opts.PTiRLabels.cbg, targetRangeString + opts.bgUnits, pw.range, true);
+    // create average BG puddle
+    stats.newPuddle('Average', 'Average BG', 'These 24 hours', pw.average, false);
     stats.arrangePuddles();
   });
 

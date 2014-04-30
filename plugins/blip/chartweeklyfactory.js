@@ -140,7 +140,11 @@ function chartWeeklyFactory(el, options) {
       xPosition: 0,
       yPosition: chart.poolStats.height() / 10,
       emitter: emitter,
-      oneDay: false
+      puddleWeights : {
+        ratio: 1.1,
+        range: 1.2,
+        average: 1.0
+      }
     }), false, false);
 
     chart.poolStats.render(chart.poolGroup());

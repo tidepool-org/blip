@@ -269,7 +269,11 @@ function chartDailyFactory(el, options) {
       xPosition: chart.axisGutter(),
       yPosition: 0,
       emitter: emitter,
-      oneDay: true
+      puddleWeights: {
+        ratio: 1.0,
+        range: 1.2,
+        average: 0.9
+      }
     }), false, false);
 
     return chart;

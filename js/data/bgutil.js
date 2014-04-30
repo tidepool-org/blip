@@ -121,19 +121,15 @@ function BGUtil(data, opts) {
   };
 
   this.rangeBreakdown = function(filtered) {
-    var breakdown;
+    var breakdown = {type: this.data[0].type};
     if (filtered.length > 0) {
       var groups = _.countBy(filtered, function(d) {
         return getCategory(d.value);
       });
-      breakdown = _.defaults(groups, defaults);
+      breakdown = _.defaults(breakdown, groups, defaults);
       breakdown.total = breakdown.low + breakdown.target + breakdown.high;
     }
-    else {
-      breakdown = breakdownNaN;
-    }
-    breakdown.type = this.data[0].type;
-    return breakdown;
+    return _.defaults(breakdown, breakdownNaN);
   };
 
   this.average = function(filtered) {
