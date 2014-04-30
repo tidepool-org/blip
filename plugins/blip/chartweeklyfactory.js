@@ -66,6 +66,7 @@ function chartWeeklyFactory(el, options) {
     var basalUtil = tidelineData.basalUtil;
     var bolusUtil = tidelineData.bolusUtil;
     var cbgUtil = tidelineData.cbgUtil;
+    var smbgUtil = tidelineData.smbgUtil;
 
     var smbgData = tidelineData.grouped.smbg || [];
 
@@ -135,6 +136,7 @@ function chartWeeklyFactory(el, options) {
 
     chart.poolStats.addPlotType('stats', tideline.plot.stats.widget(chart.poolStats, {
       cbg: cbgUtil,
+      smbg: smbgUtil,
       bolus: bolusUtil,
       basal: basalUtil,
       xPosition: 0,
