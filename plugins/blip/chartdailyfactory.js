@@ -145,6 +145,7 @@ function chartDailyFactory(el, options) {
     var basalUtil = tidelineData.basalUtil;
     var bolusUtil = tidelineData.bolusUtil;
     var cbgUtil = tidelineData.cbgUtil;
+    var smbgUtil = tidelineData.smbgUtil;
 
     chart.stopListening();
     // initialize chart with data
@@ -262,12 +263,17 @@ function chartDailyFactory(el, options) {
     // stats pool
     poolStats.addPlotType('stats', tideline.plot.stats.widget(poolStats, {
       cbg: cbgUtil,
+      smbg: smbgUtil,
       bolus: bolusUtil,
       basal: basalUtil,
       xPosition: chart.axisGutter(),
       yPosition: 0,
       emitter: emitter,
-      oneDay: true
+      puddleWeights: {
+        ratio: 1.0,
+        range: 1.2,
+        average: 0.9
+      }
     }), false, false);
 
     return chart;

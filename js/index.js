@@ -25,7 +25,7 @@ module.exports = {
   data: {
     BasalUtil: require('./data/basalutil'),
     BolusUtil: require('./data/bolusutil'),
-    CBGUtil: require('./data/cbgutil'),
+    BGUtil: require('./data/bgutil'),
     DeviceUtil: require('./data/deviceutil'),
     SegmentUtil: require('./data/segmentutil'),
     util: {

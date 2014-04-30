@@ -20,32 +20,35 @@ var _ = require('../lib/')._;
 var datetime = require('./util/datetime');
 var TidelineCrossFilter = require('./util/tidelinecrossfilter');
 
-var log = require('../lib/').bows('CBGUtil');
+var log = require('../lib/').bows('BGUtil');
 
-function CBGUtil(data) {
+function BGUtil(data, opts) {
 
-  var PERCENT_FOR_COMPLETE = 0.75;
-  var MAX_CBG_READINGS_PER_24 = 288;
+  opts = opts || {};
+  if (opts.DAILY_MIN == null) {
+    throw new Error('BGUtil needs a daily minimum readings (`opts.DAILY_MIN`) in order to calculate a statistic.');
+  }
+
   var MS_IN_24 = 86400000;
   var currentIndex = 0, currentData;
 
   var categories = {
-    'low': 80,
-    'target': 180
+    low: 80,
+    target: 180
   };
 
   var defaults = {
-    'low': 0,
-    'target': 0,
-    'high': 0,
-    'total': 0
+    low: 0,
+    target: 0,
+    high: 0,
+    total: 0
   };
 
   var breakdownNaN = {
-    'low': NaN,
-    'target': NaN,
-    'high': NaN,
-    'total': NaN
+    low: NaN,
+    target: NaN,
+    high: NaN,
+    total: NaN
   };
 
   function getCategory (n) {
@@ -67,8 +70,8 @@ function CBGUtil(data) {
     var start = new Date(s).valueOf(), end = new Date(e).valueOf();
     dataByDate.filter([start, end]);
     var filteredObj = {
-      'data': dataByDate.top(Infinity).reverse(),
-      'excluded': []
+      data: dataByDate.top(Infinity).reverse(),
+      excluded: []
     };
     var filtered = filteredObj.data;
     if (filtered.length < this.threshold(s, e)) {
@@ -88,7 +91,7 @@ function CBGUtil(data) {
       }
       else if (datetime.isLessThanTwentyFourHours(s, e)) {
         log('Data domain less than twenty-four hours; cannot calculate bolus total.');
-        return {'data': [], 'excluded': []};
+        return {data: [], excluded: []};
       }
       else {
         var time = new Date(s).valueOf(), end = new Date(e).valueOf();
@@ -104,31 +107,29 @@ function CBGUtil(data) {
         }
         if (excluded.length > exclusionThreshold) {
           log(excluded.length, 'days excluded. Not enough CGM data in some days to calculate stats.');
-          return {'data': [], 'excluded': excluded};
+          return {data: [], excluded: excluded};
         }
         else {
-          return {'data': result, 'excluded': excluded};
+          return {data: result, excluded: excluded};
         }
       }
     }
     else {
       log('Endpoint verification failed!');
-      return {'data': [], 'excluded': []};
+      return {data: [], excluded: []};
     }
   };
 
   this.rangeBreakdown = function(filtered) {
+    var breakdown = {type: this.data[0].type};
     if (filtered.length > 0) {
       var groups = _.countBy(filtered, function(d) {
         return getCategory(d.value);
       });
-      var breakdown = _.defaults(groups, defaults);
+      breakdown = _.defaults(breakdown, groups, defaults);
       breakdown.total = breakdown.low + breakdown.target + breakdown.high;
-      return breakdown;
     }
-    else {
-      return breakdownNaN;
-    }
+    return _.defaults(breakdown, breakdownNaN);
   };
 
   this.average = function(filtered) {
@@ -137,16 +138,16 @@ function CBGUtil(data) {
         return memo + d.value;
       }, 0);
       var average = parseInt((sum/filtered.length).toFixed(0), 10);
-      return {'value': average, 'category': getCategory(average)};
+      return {value: average, category: getCategory(average)};
     }
     else {
-      return {'value': NaN, 'category': '', 'excluded': filtered.excluded};
+      return {value: NaN, category: '', excluded: filtered.excluded};
     }
   };
 
   this.threshold = function(s, e) {
     var difference = new Date(e) - new Date(s);
-    return Math.floor(PERCENT_FOR_COMPLETE * (MAX_CBG_READINGS_PER_24 * (difference/MS_IN_24)));
+    return Math.floor(opts.DAILY_MIN * (difference/MS_IN_24));
   };
 
   this.getStats = function(s, e, opts) {
@@ -160,8 +161,8 @@ function CBGUtil(data) {
     var breakdown = this.rangeBreakdown(filtered.data);
     breakdown.excluded = filtered.excluded;
     return {
-      'average': average,
-      'breakdown': breakdown
+      average: average,
+      breakdown: breakdown
     };
   };
 
@@ -173,4 +174,4 @@ function CBGUtil(data) {
   }
 }
 
-module.exports = CBGUtil;
+module.exports = BGUtil;
