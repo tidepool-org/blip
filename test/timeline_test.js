@@ -171,6 +171,21 @@ describe('Timeline', function(){
         ]
       )
     });
+
+    it('does not generate 0 length segments', function(){
+      expect(line.add({start:0, end:1, p:'a'})).deep.equals([]);
+      expect(line.add({start:1, end:2, p:'b'})).deep.equals([]);
+      expect(line.add({start:2, end:3, p:'c'})).deep.equals([]);
+      expect(line.add({start:1, end:3, p:'d'})).deep.equals([{start:1, end:2, p:'b'}, {start:2, end:3, p:'d'}]);
+
+      expect(line.getArray()).deep.equals(
+        [
+          {start: 0, end: 1, p: 'a'},
+          {start: 1, end: 2, p: 'd'},
+          {start: 2, end: 3, p: 'c'}
+        ]
+      )
+    });
   });
 
   describe('smooshing!', function(){

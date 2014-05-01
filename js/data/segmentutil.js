@@ -26,6 +26,19 @@ function eventsSmooshable(lhs, rhs) {
   return _.isEqual(_.pick(lhs, keysForEquality), _.pick(rhs, keysForEquality));
 }
 
+function determinePriority(e) {
+  switch(e.deliveryType) {
+    case 'scheduled':
+      return 1;
+    case 'temp':
+      return 10;
+    case 'suspend':
+      return 100;
+    default:
+      return 0;
+  }
+}
+
 function SegmentUtil(actual, undelivered) {
   this.actual = actual;
   this.undelivered = undelivered;
@@ -43,6 +56,10 @@ module.exports = function(data){
   var overlaps = [];
 
   function addToActuals(e) {
+    if (e.start === e.end) {
+      return [];
+    }
+
     var theActual = _.extend({}, e, {vizType: 'actual'});
     delete theActual.link;
     return actuals.add(theActual);
@@ -98,9 +115,10 @@ module.exports = function(data){
   }
 
   function processElement(e) {
-    if (e.deliveryType === 'temp' || e.deliveryType === 'scheduled') {
+    if (e.type === 'basal-rate-segment') {
       if (maxTimestamp > e.start) {
-        throw new Error('Unordered data, maxTimestamp[%s]', maxTimestamp, e);
+        log('Unordered data', maxTimestamp, e);
+        throw new Error('Unordered data');
       } else {
         maxTimestamp = e.start;
       }
@@ -119,101 +137,97 @@ module.exports = function(data){
         return;
       }
 
-      switch(e.deliveryType) {
-        case 'scheduled':
-          switch(lastActual.deliveryType) {
-            case 'scheduled':
-              if (lastActual.end <= e.start) {
-                // No overlap!
-                addToActualsAndLink(e).forEach(addToUndelivered);
+      var eventPriority = determinePriority(e);
+      var previousPriority = determinePriority(lastActual);
+
+      if (eventPriority === previousPriority) {
+        if (lastActual.end <= e.start) {
+          // No overlap!
+          addToActualsAndLink(e).forEach(addToUndelivered);
+          return;
+        }
+
+        if (e.deliveryType === 'scheduled' && lastActual.deliveryType === 'scheduled') {
+          // scheduled overlapping a scheduled, this is known to happen when a patient used multiple
+          // pumps at the exact same time.  Which is rare, to say the least.  We want to just eliminate
+          // both data points and act like we know nothing when this happens
+          overlaps.push(e);
+          overlaps.push(actuals.pop());
+          return;
+        }
+      } else if (eventPriority < previousPriority) {
+        // For example, a scheduled is potentially overlapping a temp, figure out what's going on.
+        if (lastActual.end <= e.start) {
+          // No overlap, yay!
+          addToActualsAndLink(e).forEach(addToUndelivered);
+          return;
+        }
+
+        // The scheduled is overlapped by the temp.  In this case, what we actually want
+        // to do is chunk up the temp into invididual chunks to line up with the scheduled.
+        // We accomplish this by
+        // 1. Add the scheduled to the actuals timeline, this will return the temp matching our scheduled.
+        // 2. Adjust the returned temp's value if it is a percent temp.
+        // 3. Push it back in, this will return the scheduled that we originally put in.
+        // 4. Push the scheduled into the undelivereds
+        var arrayWithTemp = addToActuals(e);
+        if (arrayWithTemp.length !== 1) {
+          if (arrayWithTemp.length > 1) {
+            // This is a very special case indeed.  If a patient uses 2 pumps at the same time, and
+            // they have a temp basal that overrides a long chunk of schedules, it is possible that
+            // one of those scheduleds overlaps another scheduled that was already overlapped by the
+            // temp.  So, we make sure that all of the excess events are scheduleds, and if they are
+            // we assume that is why we are here.  If they aren't, we got other problems.  The proper
+            // thing to do in this case is to throw away these events, which is what the code will
+            // naturally do
+            while (arrayWithTemp.length > 1) {
+              var element = arrayWithTemp.pop();
+              if (element.deliveryType !== 'scheduled') {
+                log('Expected these events to be scheduled, one wasn\'t', element, e);
+                throw new Error('Expected these events to be scheduled, one wasn\'t');
               } else {
-                // scheduled overlapping a scheduled, this is known to happen when a patient used multiple
-                // pumps at the exact same time.  Which is rare, to say the least.  We want to just eliminate
-                // both data points and act like we know nothing when this happens
-                overlaps.push(e);
-                overlaps.push(actuals.pop());
-                return;
+                overlaps.push(element);
               }
-              break;
-            case 'temp':
-              // A scheduled is potentially overlapping a temp, figure out what's going on.
-              if (lastActual.end <= e.start) {
-                // No overlap, yay!
-                addToActualsAndLink(e).forEach(addToUndelivered);
-              } else  {
-                // The scheduled is completely obliterated by the temp.  In this case, what we actually want
-                // to do is chunk up the temp into invididual chunks to line up with the scheduled.
-                // We accomplish this by
-                // 1. Add the scheduled to the actuals timeline, this will return the temp matching our scheduled.
-                // 2. Adjust the returned temp's value if it is a percent temp.
-                // 3. Push it back in, this will return the scheduled that we originally put in.
-                // 4. Push the scheduled into the undelivereds
-                var arrayWithTemp = addToActuals(e);
-                if (arrayWithTemp.length !== 1) {
-                  if (arrayWithTemp.length > 1) {
-                    // This is a very special case indeed.  If a patient uses 2 pumps at the same time, and
-                    // they have a temp basal that overrides a long chunk of schedules, it is possible that
-                    // one of those scheduleds overlaps another scheduled that was already overlapped by the
-                    // temp.  So, we make sure that all of the excess events are scheduleds, and if they are
-                    // we assume that is why we are here.  If they aren't, we got other problems.  The proper
-                    // thing to do in this case is to throw away these events, which is what the code will
-                    // naturally do
-                    while (arrayWithTemp.length > 1) {
-                      var element = arrayWithTemp.pop();
-                      if (element.deliveryType !== 'scheduled') {
-                        log('Expected these events to be scheduled, one wasn\'t', element, e);
-                        throw new Error('Expected these events to be scheduled, one wasn\'t');
-                      } else {
-                        overlaps.push(element);
-                      }
-                    }
-                  } else {
-                    log('Should\'ve gotten just the chunked temp, didn\'t.', arrayWithTemp, e);
-                    throw new Error('Should\'ve gotten just the chunked temp, didn\'t.');
-                  }
-                }
-
-                var tempMatchingScheduled = arrayWithTemp[0];
-                var tempPercent = tempMatchingScheduled.percent;
-                if (tempPercent != null) {
-                  tempMatchingScheduled = _.assign({}, tempMatchingScheduled, {value: e.value * tempPercent});
-                }
-
-                var arrayWithOriginalScheduled = addToActuals(tempMatchingScheduled);
-                if (arrayWithOriginalScheduled.length !== 1) {
-                  throw new Error('Should\'ve gotten just the original scheduled, didn\'t.', arrayWithOriginalScheduled);
-                }
-
-                var theUndelivered = _.clone(arrayWithOriginalScheduled[0]);
-                theUndelivered.link = tempMatchingScheduled.id;
-                addToUndelivered(theUndelivered);
-              }
-              break;
-            default:
-              log('W-T-F, this should never happen, moving on.', e, lastActual);
-          }
-          break;
-        case 'temp':
-          var eventToAdd = e;
-          if (eventToAdd.percent != null) {
-            eventToAdd = _.assign({}, e, {value: e.percent * lastActual.value});
-          }
-          var overflow = addToActualsAndLink(eventToAdd);
-
-          while (overflow.length > 0) {
-            var event = overflow.pop();
-            if (eventToAdd.id != null && eventToAdd.id === event.id) {
-              // If the timeline kicks back out an event with an equivalent id as we just put in, then there
-              // is another event in there that is overriding us.  Given that this is a temp, we want it to
-              // win, so put it back in.
-              overflow = addToActualsAndLink(event).concat(overflow);
-            } else {
-              addToUndelivered(event);
             }
+          } else {
+            log('Should\'ve gotten just the chunked temp, didn\'t.', arrayWithTemp, e);
+            throw new Error('Should\'ve gotten just the chunked temp, didn\'t.');
           }
-          break;
-        default:
-          log('Unknown deliveryType, ignoring', e);
+        }
+
+        var tempMatchingScheduled = arrayWithTemp[0];
+        var tempPercent = tempMatchingScheduled.percent;
+        if (tempPercent != null) {
+          tempMatchingScheduled = _.assign({}, tempMatchingScheduled, {value: e.value * tempPercent});
+        }
+
+        var arrayWithOriginalScheduled = addToActuals(tempMatchingScheduled);
+        if (arrayWithOriginalScheduled.length !== 1) {
+          throw new Error('Should\'ve gotten just the original scheduled, didn\'t.', arrayWithOriginalScheduled);
+        }
+
+        var theUndelivered = _.clone(arrayWithOriginalScheduled[0]);
+        theUndelivered.link = tempMatchingScheduled.id;
+        addToUndelivered(theUndelivered);
+        return;
+      }
+
+      var eventToAdd = e;
+      if (eventToAdd.percent != null) {
+        eventToAdd = _.assign({}, e, {value: e.percent * lastActual.value});
+      }
+      var overflow = addToActualsAndLink(eventToAdd);
+
+      while (overflow.length > 0) {
+        var event = overflow.pop();
+        if (eventToAdd.id != null && eventToAdd.id === event.id) {
+          // If the timeline kicks back out an event with an equivalent id as we just put in, then there
+          // is another event in there that is overriding us.  Given that this is a temp, we want it to
+          // win, so put it back in.
+          overflow = addToActualsAndLink(event).concat(overflow);
+        } else {
+          addToUndelivered(event);
+        }
       }
     }
   }

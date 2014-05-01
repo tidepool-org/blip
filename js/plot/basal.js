@@ -30,8 +30,8 @@ module.exports = function(pool, opts) {
 
   var defaults = {
     classes: {
-      'reg': {'tooltip': 'basal_tooltip_reg.svg', 'height': 20},
-      'temp': {'tooltip': 'basal_tooltip_temp_large.svg', 'height': 40}
+      reg: {tooltip: 'basal_tooltip_reg.svg', height: 20},
+      temp: {tooltip: 'basal_tooltip_temp_large.svg', height: 40}
     },
     tooltipWidth: 180,
     pathStroke: 1.5,
@@ -78,15 +78,34 @@ module.exports = function(pool, opts) {
         .y(function(d) { return d.y; })
         .interpolate('step-after');
 
-      var actual = _.where(currentData, {'vizType': 'actual'});
-      var undelivered = _.where(opts.data, {'vizType': 'undelivered', 'deliveryType': 'scheduled'});
+      var actual = _.where(currentData, {vizType: 'actual'});
+      var undelivered = _.where(opts.data, {vizType: 'undelivered', deliveryType: 'scheduled'});
 
-      // TODO: remove this when we have guaranteed unique IDs for each basal rate segment again
-      currentData.forEach(function(d) {
+      var links = {};
+
+      for(var i = 0; i < currentData.length; ++i) {
+        var d = currentData[i];
         if ((d._id.search('_actual') === -1) && (d._id.search('_undelivered') === -1)) {
           d._id = d._id + '_' + d.start.replace(/:/g, '') + '_' + d.vizType;
         }
-      });
+        // only undelivereds have a link
+        if (d.link) {
+          if (links[d.link]) {
+            links[d.link].undelivered = d;
+          }
+          else {
+            links[d.link] = {undelivered: d};
+          }
+        }
+        else {
+          if (links[d.id]) {
+            links[d.id].actual = d;
+          }
+          else {
+            links[d.id] = {actual: d};
+          }
+        }
+      }
 
       basal.addAnnotations(_.filter(currentData, function(d) { return d.annotations; }));
 
@@ -109,10 +128,10 @@ module.exports = function(pool, opts) {
       })
         .append('rect')
         .attr({
-          'width': function(d) {
+          width: function(d) {
             return basal.width(d);
           },
-          'height': function(d) {
+          height: function(d) {
             var height = pool.height() - opts.yScale(d.value);
             if (height < 0) {
               return 0;
@@ -121,16 +140,16 @@ module.exports = function(pool, opts) {
               return height;
             }
           },
-          'x': function(d) {
+          x: function(d) {
             return opts.xScale(new Date(d.normalTime));
           },
-          'y': function(d) {
+          y: function(d) {
             return opts.yScale(d.value);
           },
-          'opacity': '0.3',
-          'class': function(d) {
+          opacity: '0.3',
+          class: function(d) {
             var classes;
-            if (d.deliveryType === 'temp') {
+            if (basal.isTempLike(d)) {
               classes = 'd3-basal d3-rect-basal d3-basal-temp';
             }
             else {
@@ -141,7 +160,7 @@ module.exports = function(pool, opts) {
             }
             return classes;
           },
-          'id': function(d) {
+          id: function(d) {
             return 'basal_' + d._id;
           }
         });
@@ -149,23 +168,23 @@ module.exports = function(pool, opts) {
       // add invisible rect for tooltips based on all scheduleds
       // (otherwise can't hover on a temp of 0 to get info)
       rectGroups.filter(function(d) {
-        if (d.deliveryType !== 'temp') {
+        if (!basal.isTempLike(d)) {
           return d;
         }
       })
         .append('rect')
         .attr({
-          'width': function(d) {
+          width: function(d) {
             return basal.width(d);
           },
-          'height': pool.height(),
-          'x': function(d) {
+          height: pool.height(),
+          x: function(d) {
             return opts.xScale(new Date(d.normalTime));
           },
-          'y': function(d) {
+          y: function(d) {
             return opts.yScale.range()[1];
           },
-          'class': function(d) {
+          class: function(d) {
             if (d.vizType === 'undelivered') {
               return 'd3-basal d3-basal-invisible d3-basal-temp';
             }
@@ -173,7 +192,7 @@ module.exports = function(pool, opts) {
               return 'd3-basal d3-basal-invisible';
             }
           },
-          'id': function(d) {
+          id: function(d) {
             return 'basal_invisible_' + d._id;
           }
         });
@@ -189,20 +208,20 @@ module.exports = function(pool, opts) {
       })
         .append('rect')
         .attr({
-          'width': function(d) {
+          width: function(d) {
             return basal.width(d);
           },
-          'height': pool.height(),
-          'x': function(d) {
+          height: pool.height(),
+          x: function(d) {
             return opts.xScale(new Date(d.normalTime));
           },
-          'y': function(d) {
+          y: function(d) {
             return opts.yScale.range()[1];
           },
-          'class': function(d) {
+          class: function(d) {
             return 'd3-basal d3-basal-invisible d3-basal-without-undelivered';
           },
-          'id': function(d) {
+          id: function(d) {
             return 'basal_invisible_' + d._id;
           }
         });
@@ -224,12 +243,12 @@ module.exports = function(pool, opts) {
 
       var pushPoints = function(d, actualPathsIndex) {
         actualPaths[actualPathsIndex].push({
-          'x': opts.xScale(new Date(d.normalTime)),
-          'y': opts.yScale(d.value) - opts.pathStroke / 2
+          x: opts.xScale(new Date(d.normalTime)),
+          y: opts.yScale(d.value) - opts.pathStroke / 2
         },
         {
-          'x': opts.xScale(new Date(d.normalEnd)),
-          'y': opts.yScale(d.value) - opts.pathStroke / 2
+          x: opts.xScale(new Date(d.normalEnd)),
+          y: opts.yScale(d.value) - opts.pathStroke / 2
         });
       };
 
@@ -252,8 +271,8 @@ module.exports = function(pool, opts) {
         actualPaths.forEach(function(path) {
           d3.select(this).append('path')
             .attr({
-            'd': line(path),
-            'class': 'd3-basal d3-path-basal'
+            d: line(path),
+            class: 'd3-basal d3-path-basal'
           });
         }, this);
       }
@@ -299,12 +318,12 @@ module.exports = function(pool, opts) {
           seq = seq.reverse();
           var pathPoints = _.map(seq, function(segment) {
             return [{
-              'x': opts.xScale(new Date(segment.normalTime)),
-              'y': opts.yScale(segment.value)
+              x: opts.xScale(new Date(segment.normalTime)),
+              y: opts.yScale(segment.value)
             },
             {
-              'x': opts.xScale(new Date(segment.normalEnd)),
-              'y': opts.yScale(segment.value)
+              x: opts.xScale(new Date(segment.normalEnd)),
+              y: opts.yScale(segment.value)
             }];
           });
           pathPoints = _.flatten(pathPoints);
@@ -314,12 +333,11 @@ module.exports = function(pool, opts) {
 
           basalGroup.append('path')
             .attr({
-              'd': line(pathPoints),
-              'class': 'd3-basal d3-path-basal d3-path-basal-undelivered'
+              d: line(pathPoints),
+              class: 'd3-basal d3-path-basal d3-path-basal-undelivered'
             });
         });
 
-        basal.linkTemp(_.where(actual, {'deliveryType': 'temp'}), undelivered);
       }
 
       // tooltips
@@ -330,7 +348,7 @@ module.exports = function(pool, opts) {
           var id = invisiRect.attr('id').replace('basal_invisible_', '');
           var d = d3.select('#basal_group_' + id).datum();
           if (invisiRect.classed('d3-basal-temp')) {
-            var tempD = _.clone(_.findWhere(actual, {'deliveryType': 'temp', '_id': d.link.replace('link_', '')}));
+            var tempD = _.clone(links[d.link].actual);
             tempD._id = d._id;
             basal.addTooltip(tempD, 'temp', d);
           }
@@ -339,7 +357,7 @@ module.exports = function(pool, opts) {
           }
           if (invisiRect.classed('d3-basal-nonzero')) {
             if (invisiRect.classed('d3-basal-temp')) {
-              d3.select('#basal_' + d.link.replace('link_', '')).attr('opacity', opts.opacity + opts.opacityDelta);
+              d3.select('#basal_' + d.link).attr('opacity', opts.opacity + opts.opacityDelta);
             }
             else {
               d3.select('#basal_' + id).attr('opacity', opts.opacity + opts.opacityDelta);
@@ -352,7 +370,7 @@ module.exports = function(pool, opts) {
           var d = d3.select('#basal_group_' + id).datum();
           d3.select('#tooltip_' + id).remove();
           if (invisiRect.classed('d3-basal-temp')) {
-            d3.select('#basal_' + d.link.replace('link_', '')).attr('opacity', opts.opacity);
+            d3.select('#basal_' + d.link).attr('opacity', opts.opacity);
           }
           else {
             d3.select('#basal_' + id).attr('opacity', opts.opacity);
@@ -364,32 +382,6 @@ module.exports = function(pool, opts) {
       }
     });
   }
-
-  basal.linkTemp = function(toLink, referenceArray) {
-    referenceArray = referenceArray.slice(0);
-    referenceArray = _.sortBy(referenceArray, function(segment) {
-      return Date.parse(segment.normalTime);
-    });
-    toLink.forEach(function(segment, i, segments) {
-      var start = _.findWhere(referenceArray, {'normalTime': segment.normalTime});
-      if (start === undefined) {
-        return;
-      }
-      var startIndex = referenceArray.indexOf(start);
-      if ((startIndex < (referenceArray.length - 1)) && (start.end === referenceArray[startIndex + 1].start)) {
-        var end = _.findWhere(referenceArray, {'normalEnd': segment.normalEnd});
-        var endIndex = referenceArray.indexOf(end);
-        var index = startIndex;
-        while (index <= endIndex) {
-          referenceArray[index].link = 'link_' + segment._id;
-          index++;
-        }
-      }
-      else {
-        referenceArray[startIndex].link = 'link_' + segment._id;
-      }
-    });
-  };
 
   basal.timespan = function(d) {
     var start = Date.parse(d.normalTime);
@@ -446,6 +438,16 @@ module.exports = function(pool, opts) {
     }
     else {
       return 'over ' + minutes + ' min';
+    }
+  };
+
+  basal.isTempLike = function(d) {
+    switch (d.deliveryType) {
+      case 'suspend':
+      case 'temp':
+        return true;
+      default:
+        return false;
     }
   };
 
@@ -531,9 +533,9 @@ module.exports = function(pool, opts) {
     if (category === 'temp') {
       d3.select('#tooltip_' + d._id).select('.d3-tooltip-text-group').append('text')
         .attr({
-          'class': 'd3-tooltip-text d3-basal',
-          'x': opts.xScale(Date.parse(d.normalTime)) + basal.width(d) / 2,
-          'y': function() {
+          class: 'd3-tooltip-text d3-basal',
+          x: opts.xScale(Date.parse(d.normalTime)) + basal.width(d) / 2,
+          y: function() {
             var y = opts.yScale(d.value) - tooltipHeight * 2;
             if (y < 0) {
               return tooltipHeight * (7 / 10);
@@ -551,14 +553,14 @@ module.exports = function(pool, opts) {
   basal.addAnnotations = function(data, selection) {
     _.each(data, function(d) {
       var annotationOpts = {
-        'x': opts.xScale(Date.parse(d.normalTime)),
-        'y': opts.yScale(0),
-        'xMultiplier': 2,
-        'yMultiplier': 2.5,
-        'orientation': {
-          'up': true
+        x: opts.xScale(Date.parse(d.normalTime)),
+        y: opts.yScale(0),
+        xMultiplier: 2,
+        yMultiplier: 2.5,
+        orientation: {
+          up: true
         },
-        'd': d
+        d: d
       };
       if (d3.select('#annotation_for_' + d._id)[0][0] == null) {
         d3.select('#tidelineAnnotations_basal-rate-segment').call(pool.annotations(), annotationOpts);
