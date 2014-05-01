@@ -10,6 +10,7 @@ var sauce = require('./saucelabs');
 
 var APP_URL = 'http://localhost:3000';
 var noAuthRoutes = ['/login', '/signup'];
+var WARMUP_TIME = 200; // in milliseconds
 
 var By = webdriver.By;
 
@@ -35,6 +36,7 @@ var helpers = {
   openApp: function() {
     var deferred = webdriver.promise.defer();
     driver.get(APP_URL)
+      .then(helpers.sleep(WARMUP_TIME))
       .then(deferred.fulfill);
     return deferred.promise;
   },
@@ -48,6 +50,7 @@ var helpers = {
     // Go to requested url
     var url = helpers._makeUrl(path, qs);
     driver.get(url)
+      .then(helpers.sleep(WARMUP_TIME))
       .then(deferred.fulfill);
 
     return deferred.promise;
@@ -114,12 +117,12 @@ var helpers = {
 
   clearInput: function(el) {
     var deferred = webdriver.promise.defer();
-    
+
     driver.executeScript('arguments[0].value = \'\';', el)
       .then(function() {
         return deferred.fulfill(el);
       });
-    
+
     return deferred.promise;
   },
 
