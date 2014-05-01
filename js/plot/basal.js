@@ -444,7 +444,6 @@ module.exports = function(pool, opts) {
   basal.isTempLike = function(d) {
     switch (d.deliveryType) {
       case 'suspend':
-        return true;
       case 'temp':
         return true;
       default:
