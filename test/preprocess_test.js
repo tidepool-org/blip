@@ -399,7 +399,7 @@ describe('Preprocess', function() {
           { id: '2', type: 'deviceMeta', subType: 'something', deviceTime: '2' },
           { id: '5', type: 'deviceMeta', subType: 'status', status: 'resume', deviceTime: '5'},
           { id: '3_6', type: 'basal-rate-segment', subType: 'status', status: 'suspended', deviceTime: '3',
-            start: '3', end: '6', deliveryType: 'manualSuspend', value: 0 },
+            start: '3', end: '6', deliveryType: 'suspend', value: 0 },
           { id: '3.5', type: 'deviceMeta', subType: 'status', status: 'suspended', deviceTime: '3.5' }
         ]
       );

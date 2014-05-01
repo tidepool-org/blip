@@ -32,7 +32,7 @@ function determinePriority(e) {
       return 1;
     case 'temp':
       return 10;
-    case 'manualSuspend':
+    case 'suspend':
       return 100;
     default:
       return 0;
@@ -57,7 +57,7 @@ module.exports = function(data){
 
   function addToActuals(e) {
     if (e.start === e.end) {
-      return []
+      return [];
     }
 
     var theActual = _.extend({}, e, {vizType: 'actual'});

@@ -60,14 +60,14 @@ function processSuspends(data) {
             } else {
               retVal.push(
                 _.assign({}, suspended,
-                  {
-                    id: suspended.id + '_' + data[i].id,
-                    type: 'basal-rate-segment',
-                    start: suspended.deviceTime,
-                    end: data[i].deviceTime,
-                    deliveryType: 'manualSuspend',
-                    value: 0
-                  }
+                {
+                  id: suspended.id + '_' + data[i].id,
+                  type: 'basal-rate-segment',
+                  start: suspended.deviceTime,
+                  end: data[i].deviceTime,
+                  deliveryType: 'suspend',
+                  value: 0
+                }
                 )
               );
               delete suspends[data[i].joinKey];

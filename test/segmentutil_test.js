@@ -367,7 +367,7 @@ describe('segmentUtil.js', function(){
     );
   });
 
-  it('Treats manual suspends as most important', function () {
+  it('Treats suspends as most important', function () {
     var events = [
       {
         type: 'basal-rate-segment', 'id': '1', 'start': '2014-03-14T03:00:00', 'end': '2014-03-14T06:00:00',
@@ -379,7 +379,7 @@ describe('segmentUtil.js', function(){
       },
       {
         type: 'basal-rate-segment', 'id': '3', 'start': '2014-03-14T04:00:00', 'end': '2014-03-14T04:30:00',
-        'deliveryType': 'manualSuspend', value: 0
+        'deliveryType': 'suspend', value: 0
       }
     ];
 
@@ -397,7 +397,7 @@ describe('segmentUtil.js', function(){
         },
         {
           type: 'basal-rate-segment', 'id': '3', 'start': '2014-03-14T04:00:00', 'end': '2014-03-14T04:30:00',
-          'deliveryType': 'manualSuspend', 'value': 0, vizType: 'actual'
+          'deliveryType': 'suspend', 'value': 0, vizType: 'actual'
         },
         {
           type: 'basal-rate-segment', 'id': '2', 'start': '2014-03-14T04:30:00', 'end': '2014-03-14T05:27:14',
