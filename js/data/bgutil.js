@@ -121,6 +121,9 @@ function BGUtil(data, opts) {
   };
 
   this.rangeBreakdown = function(filtered) {
+    if (!this.data[0]) {
+      return breakdownNaN;
+    }
     var breakdown = {type: this.data[0].type};
     if (filtered.length > 0) {
       var groups = _.countBy(filtered, function(d) {
