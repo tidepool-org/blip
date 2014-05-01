@@ -275,16 +275,17 @@ module.exports = function(emitter, opts) {
       container.section(key, opts.sections[key].label, opts.sections[key].columnTypes.length);
     }, container);
 
-    mainDiv.selectAll('.d3-settings-col-label')
+    mainDiv.selectAll('.d3-settings-basal-schedule').selectAll('.d3-settings-col-label')
       .on('click', function() {
+        var current = d3.select(this).classed('d3-settings-col-active');
         mainDiv.selectAll('.d3-settings-col-label')
           .classed({
             'd3-settings-col-active': false,
             'd3-settings-col-collapsed': true
           });
         d3.select(this).classed({
-          'd3-settings-col-active': true,
-          'd3-settings-col-collapsed': false
+          'd3-settings-col-active': !current,
+          'd3-settings-col-collapsed': current
         });
       });
 
