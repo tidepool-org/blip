@@ -47,11 +47,11 @@ module.exports = function (config, superagent, log) {
    Make the URL
    */
   function makeUrl(path, extra) {
-    var r = config.host + path;
+    var result = config.host + path;
     if (extra) {
-      r += '/' + extra;
+      result += '/' + extra;
     }
-    return r;
+    return result;
   }
 
   /*
