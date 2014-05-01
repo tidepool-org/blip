@@ -347,7 +347,7 @@ describe('platform client', function () {
       mrT1Client.setAccessPermissions(careTeamMember.id, null, function(err, perms){
         expect(perms).to.be.empty;
         done(err);
-      })
+      });
     });
   });
 });
