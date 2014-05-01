@@ -19,7 +19,6 @@
 // Workaround to grab dependency from global `window` object if available
 // and not call `require`
 var _ = (typeof window !== 'undefined' && typeof window._ !== 'undefined') ? window._ : require('lodash');
-var async = (typeof window !== 'undefined' && typeof window.async !== 'undefined') ? window.async : require('async');
 
 var sessionTokenHeader = 'x-tidepool-session-token';
 
@@ -47,8 +46,12 @@ module.exports = function (config, superagent, log) {
   /*
    Make the URL
    */
-  function makeUrl(path) {
-    return config.host + path;
+  function makeUrl(path, extra) {
+    var r = config.host + path;
+    if (extra) {
+      r += '/' + extra;
+    }
+    return r;
   }
 
   /*
@@ -187,14 +190,14 @@ module.exports = function (config, superagent, log) {
      */
     login: function (user, cb) {
       if (user.username == null) {
-        return cb({ message: 'Must specify an username' });
+        return cb({ message: 'Must specify a username' });
       }
       if (user.password == null) {
         return cb({ message: 'Must specify a password' });
       }
 
       superagent
-        .post(makeUrl('/auth/login'))
+        .post(makeUrl('/auth/login', user.longtermkey))
         .auth(user.username, user.password)
         .end(
         function (err, res) {
@@ -223,7 +226,7 @@ module.exports = function (config, superagent, log) {
      */
     signup: function (user, cb) {
       if (user.username == null) {
-        return cb({ message: 'Must specify an username' });
+        return cb({ message: 'Must specify a username' });
       }
       if (user.password == null) {
         return cb({ message: 'Must specify a password' });
