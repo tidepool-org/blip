@@ -81,10 +81,21 @@ module.exports = function(pool, opts) {
       var actual = _.where(currentData, {vizType: 'actual'});
       var undelivered = _.where(opts.data, {vizType: 'undelivered', deliveryType: 'scheduled'});
 
-      var links = {};
+      var links = {}, scheduleds = {};
 
       for(var i = 0; i < currentData.length; ++i) {
         var d = currentData[i];
+        // hack for non-unique IDs
+        if (scheduleds[d.id]) {
+          // this assumes we won't have any sharing of IDs between two temp segments
+          if (d.deliveryType === 'scheduled') {
+            scheduleds[d.id] += 1;
+            d.id = d.id + '_' + scheduleds[d.id];
+          }
+        }
+        else {
+          scheduleds[d.id] = 1;
+        }
         if (d.link && d.vizType === 'undelivered') {
           if (links[d.link]) {
             links[d.link].undelivered = d;
