@@ -67,7 +67,7 @@ module.exports = function(pool, opts) {
       }
     });
     if (b) {
-      d3.select('#tooltip_' + b._id).remove();
+      d3.select('#tooltip_' + b.id).remove();
       opts.emitter.emit('noCarbTimestamp', false);
     }
   });
@@ -92,7 +92,7 @@ module.exports = function(pool, opts) {
       var boluses = d3.select(this)
         .selectAll('g')
         .data(currentData, function(d) {
-          return d._id;
+          return d.id;
         });
       var bolusGroups = boluses.enter()
         .append('g')
@@ -115,7 +115,7 @@ module.exports = function(pool, opts) {
           },
           'class': 'd3-rect-bolus d3-bolus',
           'id': function(d) {
-            return 'bolus_' + d._id;
+            return 'bolus_' + d.id;
           }
         });
       // boluses where recommendation and delivery differ
@@ -140,7 +140,7 @@ module.exports = function(pool, opts) {
           },
           'class': 'd3-rect-recommended d3-bolus',
           'id': function(d) {
-            return 'bolus_' + d._id;
+            return 'bolus_' + d.id;
           }
         });
       // boluses where delivered > recommended
@@ -164,7 +164,7 @@ module.exports = function(pool, opts) {
           'stroke-width': opts.bolusStroke,
           'class': 'd3-rect-recommended d3-bolus',
           'id': function(d) {
-            return 'bolus_' + d._id;
+            return 'bolus_' + d.id;
           }
         });
       override.append('path')
@@ -178,7 +178,7 @@ module.exports = function(pool, opts) {
           'stroke-width': opts.bolusStroke,
           'class': 'd3-path-bolus d3-bolus',
           'id': function(d) {
-            return 'bolus_' + d._id;
+            return 'bolus_' + d.id;
           }
         });
 
@@ -205,7 +205,7 @@ module.exports = function(pool, opts) {
             }
           },
           'id': function(d) {
-            return 'bolus_' + d._id;
+            return 'bolus_' + d.id;
           }
         });
       extendedBoluses.append('path')
@@ -218,7 +218,7 @@ module.exports = function(pool, opts) {
           'stroke-width': opts.bolusStroke,
           'class': 'd3-path-extended-triangle d3-bolus',
           'id': function(d) {
-            return 'bolus_' + d._id;
+            return 'bolus_' + d.id;
           }
         });
       boluses.exit().remove();
@@ -229,7 +229,7 @@ module.exports = function(pool, opts) {
         opts.emitter.emit('bolusTooltipOn', Date.parse(d.normalTime));
       });
       d3.selectAll('.d3-rect-bolus, .d3-rect-recommended').on('mouseout', function(d) {
-        d3.select('#tooltip_' + d._id).remove();
+        d3.select('#tooltip_' + d.id).remove();
         opts.emitter.emit('bolusTooltipOff', Date.parse(d.normalTime));
       });
     });
@@ -330,7 +330,7 @@ module.exports = function(pool, opts) {
       );
 
     if (category === 'two-line') {
-      var twoLineSelection = d3.select('#tooltip_' + datum._id).select('.d3-tooltip-text-group').append('text')
+      var twoLineSelection = d3.select('#tooltip_' + datum.id).select('.d3-tooltip-text-group').append('text')
         .attr({
           'class': 'd3-tooltip-text d3-bolus',
           'x': opts.xScale(Date.parse(datum.normalTime)) + tooltipWidth / 2,
@@ -347,7 +347,7 @@ module.exports = function(pool, opts) {
 
       twoLineSelection.attr('class', 'd3-bolus');
     } else if (category === 'three-line') {
-      d3.select('#tooltip_' + datum._id).select('.d3-tooltip-text-group').append('text')
+      d3.select('#tooltip_' + datum.id).select('.d3-tooltip-text-group').append('text')
         .attr({
           'class': 'd3-tooltip-text d3-bolus',
           'x': opts.xScale(Date.parse(datum.normalTime)) + tooltipWidth / 2,
@@ -357,7 +357,7 @@ module.exports = function(pool, opts) {
         .text(bolus.getRecommendedBolusTooltipText(datum))
         .attr('class', 'd3-bolus');
 
-      d3.select('#tooltip_' + datum._id).select('.d3-tooltip-text-group').append('text')
+      d3.select('#tooltip_' + datum.id).select('.d3-tooltip-text-group').append('text')
         .attr({
           'class': 'd3-tooltip-text d3-bolus',
           'x': opts.xScale(Date.parse(datum.normalTime)) + tooltipWidth / 2,
@@ -437,7 +437,7 @@ module.exports = function(pool, opts) {
           'up': true
         }
       };
-      if (d3.select('#annotation_for_' + d._id)[0][0] == null) {
+      if (d3.select('#annotation_for_' + d.id)[0][0] == null) {
         d3.select('#tidelineAnnotations_bolus').call(pool.annotations(), annotationOpts);
       }
     });
