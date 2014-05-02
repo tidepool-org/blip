@@ -42,7 +42,7 @@ module.exports = function(pool, opts) {
         .selectAll('g')
         .data(currentData, function(d) {
           if (d.parentMessage === '' || d.parentMessage == null) {
-            return d._id;
+            return d.id;
           }
         });
 
@@ -76,13 +76,13 @@ module.exports = function(pool, opts) {
         'width': opts.size,
         'height': opts.size,
         'id': function(d) {
-          return 'message_' + d._id;
+          return 'message_' + d.id;
         }
       })
       .classed({'d3-image': true, 'd3-message': true});
     selection.on('click', function(d) {
       d3.event.stopPropagation(); // silence the click-and-drag listener
-      opts.emitter.emit('messageThread', d._id);
+      opts.emitter.emit('messageThread', d.id);
       log('Message clicked!');
       d3.select(this).selectAll('.d3-rect-message').classed('hidden', false);
     });

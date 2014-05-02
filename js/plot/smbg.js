@@ -47,7 +47,7 @@ module.exports = function(pool, opts) {
       var circles = d3.select(this)
         .selectAll('image')
         .data(currentData, function(d) {
-          return d._id;
+          return d.id;
         });
       circles.enter()
         .append('image')
@@ -78,7 +78,7 @@ module.exports = function(pool, opts) {
           'width': opts.size,
           'height': opts.size,
           'id': function(d) {
-            return 'smbg_' + d._id;
+            return 'smbg_' + d.id;
           },
           'class': function(d) {
             if (d.value <= opts.classes.low.boundary) {

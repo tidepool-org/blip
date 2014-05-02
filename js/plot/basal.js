@@ -81,15 +81,22 @@ module.exports = function(pool, opts) {
       var actual = _.where(currentData, {vizType: 'actual'});
       var undelivered = _.where(opts.data, {vizType: 'undelivered', deliveryType: 'scheduled'});
 
-      var links = {};
+      var links = {}, scheduleds = {};
 
       for(var i = 0; i < currentData.length; ++i) {
         var d = currentData[i];
-        if ((d._id.search('_actual') === -1) && (d._id.search('_undelivered') === -1)) {
-          d._id = d._id + '_' + d.start.replace(/:/g, '') + '_' + d.vizType;
+        // hack for non-unique IDs
+        if (scheduleds[d.id]) {
+          // this assumes we won't have any sharing of IDs between two temp segments
+          if (d.deliveryType === 'scheduled') {
+            scheduleds[d.id] += 1;
+            d.id = d.id + '_' + scheduleds[d.id];
+          }
         }
-        // only undelivereds have a link
-        if (d.link) {
+        else {
+          scheduleds[d.id] = 1;
+        }
+        if (d.link && d.vizType === 'undelivered') {
           if (links[d.link]) {
             links[d.link].undelivered = d;
           }
@@ -112,13 +119,13 @@ module.exports = function(pool, opts) {
       var rects = d3.select(this)
         .selectAll('g')
         .data(currentData, function(d) {
-          return d._id;
+          return d.id;
         });
       var rectGroups = rects.enter()
         .append('g')
         .attr('class', 'd3-basal-group')
         .attr('id', function(d) {
-          return 'basal_group_' + d._id;
+          return 'basal_group_' + d.id;
         });
       // add actual basal fill rects
       rectGroups.filter(function(d){
@@ -155,20 +162,19 @@ module.exports = function(pool, opts) {
             else {
               classes = 'd3-basal d3-rect-basal';
             }
-            if (d.delivered !== 0) {
+            if (d.value !== 0) {
               classes += ' d3-rect-basal-nonzero';
             }
             return classes;
           },
           id: function(d) {
-            return 'basal_' + d._id;
+            return 'basal_' + d.id;
           }
         });
 
-      // add invisible rect for tooltips based on all scheduleds
-      // (otherwise can't hover on a temp of 0 to get info)
+      // add invisible rect for tooltips based on all actuals
       rectGroups.filter(function(d) {
-        if (!basal.isTempLike(d)) {
+        if (d.vizType === 'actual') {
           return d;
         }
       })
@@ -185,7 +191,7 @@ module.exports = function(pool, opts) {
             return opts.yScale.range()[1];
           },
           class: function(d) {
-            if (d.vizType === 'undelivered') {
+            if (basal.isTempLike(d)) {
               return 'd3-basal d3-basal-invisible d3-basal-temp';
             }
             else {
@@ -193,41 +199,12 @@ module.exports = function(pool, opts) {
             }
           },
           id: function(d) {
-            return 'basal_invisible_' + d._id;
-          }
-        });
-
-      // it turns out for Animas the assumption that the actuals stream is complete
-      // is wrong because there can be missing undelivereds
-      // so we need another target (i.e., more invisible rects)
-      rectGroups.filter(function(d) {
-        // select all basal groups that only have a regular rect in them, missing an invisi-rect
-        if (d3.select('#basal_group_' + d._id).selectAll('.d3-basal-invisible')[0][0] == null) {
-          return d;
-        }
-      })
-        .append('rect')
-        .attr({
-          width: function(d) {
-            return basal.width(d);
-          },
-          height: pool.height(),
-          x: function(d) {
-            return opts.xScale(new Date(d.normalTime));
-          },
-          y: function(d) {
-            return opts.yScale.range()[1];
-          },
-          class: function(d) {
-            return 'd3-basal d3-basal-invisible d3-basal-without-undelivered';
-          },
-          id: function(d) {
-            return 'basal_invisible_' + d._id;
+            return 'basal_invisible_' + d.id;
           }
         });
 
       rectGroups.filter(function(d) {
-          if (d.delivered !== 0) {
+          if (d.value !== 0) {
             return d;
           }
         })
@@ -348,9 +325,14 @@ module.exports = function(pool, opts) {
           var id = invisiRect.attr('id').replace('basal_invisible_', '');
           var d = d3.select('#basal_group_' + id).datum();
           if (invisiRect.classed('d3-basal-temp')) {
-            var tempD = _.clone(links[d.link].actual);
-            tempD._id = d._id;
-            basal.addTooltip(tempD, 'temp', d);
+            var unD = links[d.id].undelivered;
+            if (unD) {
+              basal.addTooltip(d, 'temp', unD);
+            }
+            // no unD sometimes for Animas/Diasend data
+            else {
+              basal.addTooltip(d, 'reg');
+            }
           }
           else {
             basal.addTooltip(d, 'reg');
@@ -531,7 +513,7 @@ module.exports = function(pool, opts) {
         // tspan
         basal.timespan(d));
     if (category === 'temp') {
-      d3.select('#tooltip_' + d._id).select('.d3-tooltip-text-group').append('text')
+      d3.select('#tooltip_' + d.id).select('.d3-tooltip-text-group').append('text')
         .attr({
           class: 'd3-tooltip-text d3-basal',
           x: opts.xScale(Date.parse(d.normalTime)) + basal.width(d) / 2,
@@ -546,7 +528,20 @@ module.exports = function(pool, opts) {
           }
         })
         .append('tspan')
-        .text('(' + formatValue(unD.value) + 'U/hr sched.)');
+        .text(function() {
+          var value;
+          // need to reconstruct scheduled for temps-by-percent
+          // can't used undelivered because undelivered for temps-by-percent is one segment
+          // across multiple schedule segments
+          if (d.percent) {
+            value = formatValue(d.value/d.percent);
+          }
+          // but for manual temps we should be able to trust the undelivered value
+          else {
+            value = formatValue(unD.value);
+          }
+          return '(' + value + 'U/hr sched.)';
+        });
     }
   };
 
@@ -562,7 +557,7 @@ module.exports = function(pool, opts) {
         },
         d: d
       };
-      if (d3.select('#annotation_for_' + d._id)[0][0] == null) {
+      if (d3.select('#annotation_for_' + d.id)[0][0] == null) {
         d3.select('#tidelineAnnotations_basal-rate-segment').call(pool.annotations(), annotationOpts);
       }
     });

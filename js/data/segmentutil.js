@@ -61,7 +61,6 @@ module.exports = function(data){
     }
 
     var theActual = _.extend({}, e, {vizType: 'actual'});
-    delete theActual.link;
     return actuals.add(theActual);
   }
 
@@ -138,9 +137,9 @@ module.exports = function(data){
       }
 
       var eventPriority = determinePriority(e);
-      var previousPriority = determinePriority(lastActual);
+      var incumbentPriority = determinePriority(lastActual);
 
-      if (eventPriority === previousPriority) {
+      if (eventPriority === incumbentPriority) {
         if (lastActual.end <= e.start) {
           // No overlap!
           addToActualsAndLink(e).forEach(addToUndelivered);
@@ -155,7 +154,7 @@ module.exports = function(data){
           overlaps.push(actuals.pop());
           return;
         }
-      } else if (eventPriority < previousPriority) {
+      } else if (eventPriority < incumbentPriority) {
         // For example, a scheduled is potentially overlapping a temp, figure out what's going on.
         if (lastActual.end <= e.start) {
           // No overlap, yay!
@@ -167,7 +166,7 @@ module.exports = function(data){
         // to do is chunk up the temp into invididual chunks to line up with the scheduled.
         // We accomplish this by
         // 1. Add the scheduled to the actuals timeline, this will return the temp matching our scheduled.
-        // 2. Adjust the returned temp's value if it is a percent temp.
+        // 2. Adjust the returned temp's value if it specifies a percent.
         // 3. Push it back in, this will return the scheduled that we originally put in.
         // 4. Push the scheduled into the undelivereds
         var arrayWithTemp = addToActuals(e);
@@ -197,9 +196,12 @@ module.exports = function(data){
 
         var tempMatchingScheduled = arrayWithTemp[0];
         var tempPercent = tempMatchingScheduled.percent;
+
+        var adjustments = { id : tempMatchingScheduled.id + '_' + e.id, link: e.id };
         if (tempPercent != null) {
-          tempMatchingScheduled = _.assign({}, tempMatchingScheduled, {value: e.value * tempPercent});
+          adjustments.value = e.value * tempPercent;
         }
+        tempMatchingScheduled = _.assign({}, tempMatchingScheduled, adjustments);
 
         var arrayWithOriginalScheduled = addToActuals(tempMatchingScheduled);
         if (arrayWithOriginalScheduled.length !== 1) {
@@ -222,8 +224,9 @@ module.exports = function(data){
         var event = overflow.pop();
         if (eventToAdd.id != null && eventToAdd.id === event.id) {
           // If the timeline kicks back out an event with an equivalent id as we just put in, then there
-          // is another event in there that is overriding us.  Given that this is a temp, we want it to
-          // win, so put it back in.
+          // is another event in there that is overriding us.  We want what we just put in to win,
+          // so put it back in.
+          delete event.link;
           overflow = addToActualsAndLink(event).concat(overflow);
         } else {
           addToUndelivered(event);
