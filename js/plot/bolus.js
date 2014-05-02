@@ -97,7 +97,8 @@ module.exports = function(pool, opts) {
       var bolusGroups = boluses.enter()
         .append('g')
         .attr({
-          'class': 'd3-bolus-group'
+          'class': 'd3-bolus-group',
+          'id': function(d) { return 'bolus_group_' + d.id; }
         });
       var top = opts.yScale.range()[0];
       // boluses where delivered = recommended
@@ -224,11 +225,11 @@ module.exports = function(pool, opts) {
       boluses.exit().remove();
 
       // tooltips
-      d3.selectAll('.d3-rect-bolus, .d3-rect-recommended').on('mouseover', function(d) {
+      d3.selectAll('.d3-bolus-group').on('mouseover', function(d) {
         bolus.addTooltip(d, bolus.getTooltipCategory(d));
         opts.emitter.emit('bolusTooltipOn', Date.parse(d.normalTime));
       });
-      d3.selectAll('.d3-rect-bolus, .d3-rect-recommended').on('mouseout', function(d) {
+      d3.selectAll('.d3-bolus-group').on('mouseout', function(d) {
         d3.select('#tooltip_' + d.id).remove();
         opts.emitter.emit('bolusTooltipOff', Date.parse(d.normalTime));
       });
