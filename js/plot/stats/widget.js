@@ -210,11 +210,13 @@ module.exports = function(pool, opts) {
         class: 'd3-stats-rect rect-right'
       });
 
-    var cbgData = opts.cbg.data;
-    if (!(cbgData && cbgData.length)) {
-      cbgData = [{value: 30}, {value: 300}];
-    }
-    rectScale = scales.bgLog(cbgData, puddle, 0);
+    var allBG = opts.smbg.data.concat(opts.cbg.data);
+    // scales expects 2nd arg to have a .height() function
+    var rect = {
+      height: function() { return pool.height() * 4/5; }
+    };
+
+    rectScale = scales.bgLog(allBG, rect, opts.size/2);
 
     rectGroup.append('line')
       .attr({
@@ -233,7 +235,7 @@ module.exports = function(pool, opts) {
         y2: rectScale(180) + (pool.height() / 10),
         class: 'd3-line-guide d3-line-bg-threshold'
       });
-    var imageY = rectScale(data.value) - (opts.size / 2) + (puddle.height() / 10);
+    var imageY = rectScale(data.value) - (opts.size / 2) + (pool.height() / 10);
     // don't append an image if imageY is NaN or Infinity
     if (isFinite(imageY)) {
       rectGroup.append('image')
