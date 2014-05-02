@@ -301,6 +301,8 @@ module.exports = function(pool, opts) {
       stats.rectAnnotation(puddle, puddleGroup);
     }
     else {
+      puddleGroup.on('mouseover', null);
+      puddleGroup.on('mouseout', null);
       puddleGroup.classed('d3-insufficient-data', false);
       stats.rectGroup.selectAll('.d3-stats-image').classed('hidden', false);
     }
@@ -313,6 +315,8 @@ module.exports = function(pool, opts) {
       stats.rectAnnotation(puddle, puddleGroup);
     }
     else {
+      puddleGroup.on('mouseover', null);
+      puddleGroup.on('mouseout', null);
       puddleGroup.classed('d3-insufficient-data', false);
     }
     var imageY = rectScale(data.value) - (opts.size / 2) + (puddle.height() / 10);
@@ -381,6 +385,8 @@ module.exports = function(pool, opts) {
       return null;
     }
     else {
+      puddleGroup.on('mouseover', null);
+      puddleGroup.on('mouseout', null);
       puddleGroup.classed('d3-insufficient-data', false);
       pie = d3.layout.pie().value(function(d) {
           return d.value;
