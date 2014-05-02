@@ -377,7 +377,7 @@ api.team.getNotes = function(userId,cb){
         messageText : message.messagetext,
         parentMessage : message.parentmessage,
         type: 'message',
-        _id: message.id
+        id: message.id
       };
     });
     return cb(null,messages);
