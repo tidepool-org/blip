@@ -152,7 +152,6 @@ function SMBGTime (opts) {
 
         // tooltips
         selection.selectAll('.d3-image-smbg').on('mouseover', function() {
-          console.log('Hi there :D');
           if (d3.select(this).classed('d3-bg-low')) {
             smbg.addTooltip(d3.select(this).datum(), 'low', pool);
           }
@@ -218,7 +217,6 @@ function SMBGTime (opts) {
   this.addTooltip = function(d, category, p) {
     var yPosition = p.height() / 2;
     var xPosition = this.xPosition(d) + opts.size/2;
-    console.log(p.id());
     d3.select('#' + 'tidelineTooltips_' + p.id())
       .call(p.tooltips(),
         d,
