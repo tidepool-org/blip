@@ -405,7 +405,7 @@ var AppComponent = React.createClass({
       return;
     }
 
-    patient = _.pick(this.state.user, 'firstName', 'lastName');
+    patient = _.pick(this.state.user, 'fullName', 'shortName');
     var fetchingPatient = this.state.fetchingUser;
 
     /* jshint ignore:start */

@@ -1,15 +1,15 @@
 /** @jsx React.DOM */
 /**
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
@@ -21,6 +21,7 @@ var config = window.config;
 var LoginNav = require('../../components/loginnav');
 var LoginLogo = require('../../components/loginlogo');
 var SimpleForm = require('../../components/simpleform');
+var user = require('../../core/user');
 
 var Signup = React.createClass({
   propTypes: {
@@ -30,10 +31,19 @@ var Signup = React.createClass({
   },
 
   formInputs: [
-    {name: 'firstName', label: 'First name'},
-    {name: 'lastName', label: 'Last name'},
-    {name: 'username', label: 'Email', type: 'email'},
-    {name: 'password', label: 'Password', type: 'password'}
+    {name: 'fullName', label: 'Full name', placeholder: 'ex: Mary Smith'},
+    {
+      name: 'username',
+      label: 'Email',
+      type: 'email',
+      placeholder: 'ex: mary.smith@example.com'
+    },
+    {
+      name: 'password',
+      label: 'Password',
+      type: 'password',
+      placeholder: '******'
+    }
   ],
 
   getInitialState: function() {
@@ -94,6 +104,9 @@ var Signup = React.createClass({
 
     this.resetFormStateBeforeSubmit(formValues);
 
+    formValues = _.clone(formValues);
+    formValues = this.formatUserInput(formValues);
+
     var validationErrors = this.validateFormValues(formValues);
     if (!_.isEmpty(validationErrors)) {
       return;
@@ -109,6 +122,12 @@ var Signup = React.createClass({
       validationErrors: {},
       notification: null
     });
+  },
+
+  formatUserInput: function(formValues) {
+    formValues.shortName = user.shortNameFromFullName(formValues.fullName);
+
+    return formValues;
   },
 
   validateFormValues: function(formValues) {

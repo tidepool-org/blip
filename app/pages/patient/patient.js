@@ -35,8 +35,7 @@ var Patient = React.createClass({
   },
 
   patientDisplayAttributes: [
-    {name: 'firstName', label: 'First name'},
-    {name: 'lastName', label: 'Last name'},
+    {name: 'fullName', label: 'Full name'},
     {name: 'aboutMe', label: 'About me'},
     {
       name: 'age',

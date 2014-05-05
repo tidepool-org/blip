@@ -5,7 +5,9 @@ describe('Navbar', function() {
   var component;
 
   beforeEach(function() {
-    component = helpers.mountComponent(Navbar());
+    component = helpers.mountComponent(Navbar({
+      trackMetric: function() {}
+    }));
   });
 
   afterEach(function() {
@@ -47,7 +49,7 @@ describe('Navbar', function() {
 
   it('should correctly display user full name', function() {
     var user = testUser;
-    var expectedFullName = user.firstName + ' ' + user.lastName;
+    var expectedFullName = user.fullName;
 
     component.setProps({user: user});
     var fullName = component.refs.userFullName.props.children;

@@ -49,10 +49,10 @@ var PeopleList = React.createClass({
       className = className + ' people-list-item-empty js-person-empty';
     }
 
-    var fullName = this.getPersonFullName(person);
+    var displayName = this.getPersonDisplayName(person);
     /* jshint ignore:start */
     peopleListItemContent = (
-      <div className="people-list-item-name">{fullName}</div>
+      <div className="people-list-item-name">{displayName}</div>
     );
     /* jshint ignore:end */
 
@@ -81,11 +81,11 @@ var PeopleList = React.createClass({
     /* jshint ignore:end */
   },
 
-  getPersonFullName: function(person) {
+  getPersonDisplayName: function(person) {
     if (_.isEmpty(person)) {
       return '';
     }
-    return person.firstName + ' ' + person.lastName;
+    return person.fullName;
   }
 });
 

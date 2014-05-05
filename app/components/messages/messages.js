@@ -66,7 +66,7 @@ var Messages = React.createClass({
           <span>{this.formatDisplayDate(message.timestamp)}</span>
         </div>
         <span className='messages-message-username'>
-          {' ' + this.getUserFullName(message.user)}
+          {' ' + this.getUserDisplayName(message.user)}
         </span>
         <p className='messages-message-text'>{message.messagetext}</p>
       </div>
@@ -78,7 +78,7 @@ var Messages = React.createClass({
     return (
       <div className='messages-comment' key={comment.id}>
         <span className='messages-comment-header'>
-          {' ' + this.getUserFullName(comment.user)}
+          {' ' + this.getUserDisplayName(comment.user)}
           {' - '}
           {this.formatDisplayDate(comment.timestamp)}
         </span>
@@ -160,10 +160,10 @@ var Messages = React.createClass({
     }
     return;
   },
-  getUserFullName: function(user) {
+  getUserDisplayName: function(user) {
     var result = 'Anonymous user';
-    if (user && user.firstName && user.lastName) {
-      result = user.firstName + ' ' + user.lastName;
+    if (user && user.fullName) {
+      result = user.fullName;
     }
     return result;
   },

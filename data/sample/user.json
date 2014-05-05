@@ -1,7 +1,7 @@
 {
   "id": "1",
   "username": "mary.smith@example.com",
-  "firstName": "Mary",
-  "lastName": "Smith",
+  "fullName": "Mary Smith",
+  "shortName": "Mary",
   "patient": {"id": "11"}
 }

@@ -22,8 +22,10 @@ var config = window.config;
 var Rx = window.Rx;
 var tidepool = window.tidepool;
 
-// devicedata just registers stuff on the Rx prototype, so we are doing this for the side-effects
+// devicedata just registers stuff on the Rx prototype,
+// so we are doing this for the side-effects
 var deviceData = require('./lib/devicedata');
+var migrations = require('./lib/apimigrations');
 
 var api = {
   log: bows('Api')
@@ -81,7 +83,7 @@ api.user.signup = function(user, cb) {
 
     var userId = account.userid;
 
-    // Then, add additional user info (first name, etc.) to profile
+    // Then, add additional user info (full name, etc.) to profile
     newProfile.id = userId;
     tidepool.addOrUpdateProfile(newProfile, function(err, results) {
       if (err) {
@@ -119,12 +121,31 @@ api.user.get = function(cb) {
 
   var userId = tidepool.getUserId();
 
-  async.parallel({
-    // Fetch user account data (username, etc.)...
-    account: tidepool.getCurrentUser.bind(tidepool),
+  // Fetch user account data (username, etc.)...
+  var getAccount = tidepool.getCurrentUser.bind(tidepool);
 
-    // ...and user profile information (first name, last name, etc.)
-    profile: tidepool.findProfile.bind(tidepool, userId)
+  // ...and user profile information (full name, short name, etc.)
+  var getProfile = function(cb) {
+    tidepool.findProfile(userId, function(err, profile) {
+      if (err) {
+        return cb(err);
+      }
+
+      var migration = migrations.profileFullName;
+      if (migration.isRequired(profile)) {
+        api.log('Migrating and saving user [' + userId + '] profile to "fullName"');
+        profile = migration.migrate(profile);
+        profile.id = userId;
+        return tidepool.addOrUpdateProfile(profile, cb);
+      }
+
+      return cb(null, profile);
+    });
+  };
+
+  async.parallel({
+    account: getAccount,
+    profile: getProfile
   },
   function(err, results) {
     if (err) {
@@ -195,8 +216,8 @@ function patientFromUserProfile(profile) {
     return;
   }
 
-  patient.firstName = profile.firstName;
-  patient.lastName = profile.lastName;
+  patient.fullName = profile.fullName;
+  patient.shortName = profile.shortName;
   return patient;
 }
 
@@ -205,6 +226,12 @@ function getUserProfile(userId, cb) {
   tidepool.findProfile(userId, function(err, profile) {
     if (err) {
       return cb(err);
+    }
+
+    var migration = migrations.profileFullName;
+    if (migration.isRequired(profile)) {
+      api.log('Migrating user [' + userId + '] profile to "fullName"');
+      profile = migration.migrate(profile);
     }
 
     profile.id = userId;
@@ -275,7 +302,7 @@ api.patient.post = function(patient, cb) {
   // First, create patient profile for user
   // For this backend, patient data is contained in the `patient`
   // attribute of the user's profile
-  patient = _.omit(patient, 'firstName', 'lastName');
+  patient = _.omit(patient, 'fullName', 'shortName');
   var profile = {id: patientId, patient: patient};
   tidepool.addOrUpdateProfile(profile, function(err, profile) {
     if (err) {
@@ -296,7 +323,7 @@ api.patient.put = function(patientId, patient, cb) {
   var team = patient.team;
 
   // Don't save info already in user's profile, or team
-  patient = _.omit(patient, 'id', 'firstName', 'lastName', 'team');
+  patient = _.omit(patient, 'id', 'fullName', 'shortName', 'team');
 
   var profile = {id: patientId, patient: patient};
   tidepool.addOrUpdateProfile(profile, function(err, profile) {

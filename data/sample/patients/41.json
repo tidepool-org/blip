@@ -1,7 +1,7 @@
 {
   "id": "41",
-  "firstName": "Gregory",
-  "lastName": "Jones",
+  "fullName": "Gregory Jones",
+  "shortName": "Gregory",
   "birthday": "1997-02-01",
   "diagnosisDate": "2008-01-01",
   "aboutMe": "Loves to play the guitar. Biggest challenge is managing diabetes while in school or with friends."

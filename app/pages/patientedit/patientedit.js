@@ -154,7 +154,7 @@ var PatientEdit = React.createClass({
 
   renderName: function() {
     var className = 'patient-edit-name';
-    var fullName = this.getPatientFullName(this.props.patient);
+    var displayName = this.getPatientDisplayName(this.props.patient);
 
     if (!this.props.patient) {
       className = className + ' patient-edit-name-empty';
@@ -162,17 +162,17 @@ var PatientEdit = React.createClass({
 
     /* jshint ignore:start */
     return (
-      <div className={className}>{fullName}</div>
+      <div className={className}>{displayName}</div>
     );
     /* jshint ignore:end */
   },
 
-  getPatientFullName: function(patient) {
+  getPatientDisplayName: function(patient) {
     if (_.isEmpty(patient)) {
       return '';
     }
 
-    return patient.firstName + ' ' + patient.lastName;
+    return patient.fullName;
   },
 
   renderForm: function() {

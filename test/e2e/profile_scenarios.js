@@ -18,8 +18,8 @@ describe('Profile', function() {
   it('should show user attribute values', function(done) {
     openAppToProfile()
       .then(function() {
-        expect('[name="firstName"]').dom.to.have.value(user.firstName);
-        expect('[name="lastName"]').dom.to.have.value(user.lastName);
+        expect('[name="fullName"]').dom.to.have.value(user.fullName);
+        expect('[name="shortName"]').dom.to.have.value(user.shortName);
         expect('[name="username"]').dom.to.have.value(user.username);
         done();
       });
@@ -27,8 +27,8 @@ describe('Profile', function() {
 
   it('should allow to change user attribute values', function(done) {
     user = {
-      firstName: 'Johnny',
-      lastName: 'Smith',
+      fullName: 'Johnny Smith',
+      shortName: 'Johnny',
       username: 'johnny.smith@example.com',
       password: 'pw',
       passwordConfirm: 'pw'
@@ -69,12 +69,12 @@ describe('Profile', function() {
   }
 
   function fillOutForm() {
-    helpers.findElement(By.name('firstName'))
+    helpers.findElement(By.name('fullName'))
       .then(helpers.clearInput)
-      .then(function(q) { return q.sendKeys(user.firstName); });
-    helpers.findElement(By.name('lastName'))
+      .then(function(q) { return q.sendKeys(user.fullName); });
+    helpers.findElement(By.name('shortName'))
       .then(helpers.clearInput)
-      .then(function(q) { return q.sendKeys(user.lastName); });
+      .then(function(q) { return q.sendKeys(user.shortName); });
     helpers.findElement(By.name('username'))
       .then(helpers.clearInput)
       .then(function(q) { return q.sendKeys(user.username); });
