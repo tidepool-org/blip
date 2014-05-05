@@ -20,7 +20,11 @@
 // and not call `require`
 var _ = (typeof window !== 'undefined' && typeof window._ !== 'undefined') ? window._ : require('lodash');
 
+var localStore = require('./lib/localstore');
+
 var sessionTokenHeader = 'x-tidepool-session-token';
+var userIdLocalKey = 'userId';
+var tokenLocalKey = 'authToken';
 
 function defaultProperty(obj, property, defaultValue) {
   if (obj[property] == null) {
@@ -88,15 +92,21 @@ module.exports = function (config, superagent, log) {
       });
   }
 
-  function saveSession(newUserId, newToken) {
+  function saveSession(newUserId, newToken, options) {
+    options = options || {};
     myToken = newToken;
     myUserId = newUserId;
 
     if (newToken == null) {
+      destroyLocalSession();
       return;
     }
 
     log.info('Session saved');
+
+    if (options.remember) {
+      saveLocalSession(newUserId, newToken);
+    }
 
     var refreshSession = function() {
       if (myToken == null || newUserId !== myUserId) {
@@ -111,12 +121,48 @@ module.exports = function (config, superagent, log) {
           log.warn('Failed refreshing session token', err);
           saveSession(null, null);
         } else {
-          saveSession(data.userid, data.token);
+          saveSession(data.userid, data.token, options);
         }
       });
     };
 
     setTimeout(refreshSession, config.tokenRefreshInterval);
+  }
+
+  function loadLocalSession(cb) {
+    myToken = localStore.getItem(tokenLocalKey);
+    myUserId = localStore.getItem(userIdLocalKey);
+
+    if (myUserId == null || myToken == null) {
+      log.info('No local session found');
+      return cb();
+    }
+
+    refreshUserToken(myToken, myUserId, function(err, data) {
+      var hasNewSession = data && data.userid && data.token;
+
+      if (err || !hasNewSession) {
+        log.info('Local session invalid');
+        saveSession(null, null);
+        return cb();
+      }
+
+      log.info('Loaded local session');
+      saveSession(data.userid, data.token);
+      cb(null, {userid: data.userid, token: data.token});
+    });
+  }
+
+  function saveLocalSession(newUserId, newToken) {
+    localStore.setItem(tokenLocalKey, newToken);
+    localStore.setItem(userIdLocalKey, newUserId);
+    log.info('Saved session locally');
+  }
+
+  function destroyLocalSession() {
+    localStore.removeItem(tokenLocalKey);
+    localStore.removeItem(userIdLocalKey);
+    log.info('Destroyed local session');
   }
 
   function isLoggedIn() {
@@ -182,18 +228,31 @@ module.exports = function (config, superagent, log) {
 
   return {
     /**
+     * Load session stored in localStorage
+     *
+     * @param cb
+     */
+    loadLocalSession: loadLocalSession,
+    /**
      * Login user to the Tidepool platform
      *
      * @param user object with a username and password to login
+     * @param options (optional) object with `remember` boolean attribute
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    login: function (user, cb) {
+    login: function (user, options, cb) {
       if (user.username == null) {
         return cb({ message: 'Must specify a username' });
       }
       if (user.password == null) {
         return cb({ message: 'Must specify a password' });
+      }
+
+      options = options || {};
+      if (typeof options === 'function') {
+        cb = options;
+        options = {};
       }
 
       superagent
@@ -212,7 +271,7 @@ module.exports = function (config, superagent, log) {
           var theUserId = res.body.userid;
           var theToken = res.headers[sessionTokenHeader];
 
-          saveSession(theUserId, theToken);
+          saveSession(theUserId, theToken, options);
 
           cb(null, {userid: theUserId, user: res.body});
         });
@@ -221,15 +280,22 @@ module.exports = function (config, superagent, log) {
      * Signup user to the Tidepool platform
      *
      * @param user object with a username and password
+     * @param options (optional) object with `remember` boolean attribute
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    signup: function (user, cb) {
+    signup: function (user, options, cb) {
       if (user.username == null) {
         return cb({ message: 'Must specify a username' });
       }
       if (user.password == null) {
         return cb({ message: 'Must specify a password' });
+      }
+
+      options = options || {};
+      if (typeof options === 'function') {
+        cb = options;
+        options = {};
       }
 
       var newUser = _.pick(user, 'username', 'password', 'emails');
@@ -250,7 +316,7 @@ module.exports = function (config, superagent, log) {
           var theUserId = res.body.userid;
           var theToken = res.headers[sessionTokenHeader];
 
-          saveSession(theUserId, theToken);
+          saveSession(theUserId, theToken, options);
 
           cb(null, res.body);
         });
