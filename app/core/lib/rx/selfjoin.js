@@ -33,6 +33,10 @@ Rx.Observable.prototype.tidepoolSelfJoin = function(builderFns) {
   var eventStream = this;
   var handler = null;
 
+  if (!Array.isArray(builderFns)) {
+    builderFns = [builderFns];
+  }
+
   return Rx.Observable.create(
     function (obs) {
       function processEvent(e) {
@@ -65,7 +69,7 @@ Rx.Observable.prototype.tidepoolSelfJoin = function(builderFns) {
           obs.onError(err);
         },
         function () {
-          if (handler != null) {
+          while (handler != null) {
             var handlerRef = handler;
             handler = null;
             handlerRef.completed().forEach(processEvent);
