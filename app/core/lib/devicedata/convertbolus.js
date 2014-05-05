@@ -86,7 +86,7 @@ function dualNormalBuilder() {
 
       return [
         {
-          _id: normal._id,
+          id: normal.id,
           initialDelivery: normal.value,
           extendedDelivery: square.value,
           value: normal.value + square.value,
