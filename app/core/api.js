@@ -40,12 +40,13 @@ api.init = function(cb) {
       warn: tidepoolLog,
       info: tidepoolLog,
       debug: tidepoolLog
-    }
+    },
+    localStore: window.localStorage
   });
 
   api.tidepool = tidepool;
 
-  tidepool.loadLocalSession(function() {
+  tidepool.initialize(function() {
     api.log('Initialized');
     cb();
   });
