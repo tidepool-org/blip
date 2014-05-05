@@ -197,9 +197,9 @@ var PatientEdit = React.createClass({
   getSubmitButtonText: function() {
     var text = 'Save';
     if (this.props.isNewPatient) {
-      text = 'Create patient profile';
+      text = 'Create your profile';
       if (this.state.working) {
-        text = 'Creating patient profile...';
+        text = 'Creating your profile...';
       }
     }
     return text;
