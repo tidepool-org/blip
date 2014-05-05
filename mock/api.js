@@ -92,8 +92,10 @@ var createPatch = function(options) {
       var password = user.password;
 
       // Allow to not pass options object
+      options = options || {};
       if (typeof options === 'function') {
         callback = options;
+        options = {};
       }
 
       setTimeout(function() {

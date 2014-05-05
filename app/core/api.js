@@ -45,8 +45,10 @@ api.init = function(cb) {
 
   api.tidepool = tidepool;
 
-  api.log('Initialized');
-  cb();
+  tidepool.loadLocalSession(function() {
+    api.log('Initialized');
+    cb();
+  });
 };
 
 // ----- User -----
@@ -57,10 +59,16 @@ api.user.isAuthenticated = function() {
   return tidepool.isLoggedIn();
 };
 
-api.user.login = function(user, cb) {
+api.user.login = function(user, options, cb) {
   api.log('POST /user/login');
 
-  tidepool.login(user, function(err, data) {
+  options = options || {};
+  if (typeof options === 'function') {
+    cb = options;
+    options = {};
+  }
+
+  tidepool.login(user, options, function(err, data) {
     if (err) {
       return cb(err);
     }

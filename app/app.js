@@ -273,7 +273,7 @@ var AppComponent = React.createClass({
       /* jshint ignore:start */
       <Login
         onValidate={this.validateUser}
-        onSubmit={app.api.user.login.bind(app.api.user)}
+        onSubmit={this.login}
         onSubmitSuccess={this.handleLoginSuccess} />
       /* jshint ignore:end */
     );
@@ -525,6 +525,13 @@ var AppComponent = React.createClass({
         trackMetric={trackMetric}/>
     );
     /* jshint ignore:end */
+  },
+
+  login: function(formValues, cb) {
+    var user = _.omit(formValues, 'remember');
+    var options = _.pick(formValues, 'remember');
+
+    app.api.user.login(user, options, cb);
   },
 
   handleLoginSuccess: function() {
