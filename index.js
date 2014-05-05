@@ -20,8 +20,6 @@
 // and not call `require`
 var _ = (typeof window !== 'undefined' && typeof window._ !== 'undefined') ? window._ : require('lodash');
 
-var localStore = require('./lib/localstore');
-
 var sessionTokenHeader = 'x-tidepool-session-token';
 var userIdLocalKey = 'userId';
 var tokenLocalKey = 'authToken';
@@ -33,15 +31,24 @@ function defaultProperty(obj, property, defaultValue) {
   return obj;
 }
 
-function requireConfig(obj, property) {
-  if (obj[property] == null) {
-    throw new Error('Property[' + property + '] required on config');
+function requireProperty(objectName, obj, property) {
+  var value = obj[property];
+  if (value == null) {
+    throw new Error('Property [' + property + '] required on ' + objectName);
   }
+  return value;
 }
 
-module.exports = function (config, superagent, log) {
+var requireConfig = requireProperty.bind(null, 'config');
+var requireDep = requireProperty.bind(null, 'deps');
+
+module.exports = function (config, deps) {
   var myToken = null;
   var myUserId = null;
+
+  var superagent = requireDep(deps, 'superagent');
+  var log = requireDep(deps, 'log');
+  var localStore = requireDep(deps, 'localStore');
 
   config = _.clone(config);
   defaultProperty(config, 'tokenRefreshInterval', 10 * 60 * 1000); // 10 minutes
@@ -228,11 +235,13 @@ module.exports = function (config, superagent, log) {
 
   return {
     /**
-     * Load session stored in localStorage
+     * Initialize client
      *
      * @param cb
      */
-    loadLocalSession: loadLocalSession,
+    initialize: function(cb) {
+      loadLocalSession(cb);
+    },
     /**
      * Login user to the Tidepool platform
      *

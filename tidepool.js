@@ -40,7 +40,20 @@ module.exports = function(options) {
     };
   }
 
-  return makeClient(_.omit(options, 'log'), superagent, log);
+  var localStore = options.localStore;
+  if (localStore == null) {
+    localStore = {
+      getItem: function() {},
+      setItem: function() {},
+      removeItem: function() {}
+    };
+  }
+
+  return makeClient(_.omit(options, 'log', 'superagent', 'localStore'), {
+    log: log,
+    superagent: superagent,
+    localStore: localStore
+  });
 };
 
 module.exports.client = makeClient;
