@@ -21,6 +21,7 @@ var config = window.config;
 var LoginNav = require('../../components/loginnav');
 var LoginLogo = require('../../components/loginlogo');
 var SimpleForm = require('../../components/simpleform');
+var user = require('../../core/user');
 
 var Signup = React.createClass({
   propTypes: {
@@ -31,7 +32,6 @@ var Signup = React.createClass({
 
   formInputs: [
     {name: 'fullName', label: 'Full name', placeholder: 'ex: Mary Smith'},
-    {name: 'shortName', label: 'Short name', placeholder: 'ex: Mary'},
     {
       name: 'username',
       label: 'Email',
@@ -104,6 +104,9 @@ var Signup = React.createClass({
 
     this.resetFormStateBeforeSubmit(formValues);
 
+    formValues = _.clone(formValues);
+    formValues = this.formatUserInput(formValues);
+
     var validationErrors = this.validateFormValues(formValues);
     if (!_.isEmpty(validationErrors)) {
       return;
@@ -119,6 +122,12 @@ var Signup = React.createClass({
       validationErrors: {},
       notification: null
     });
+  },
+
+  formatUserInput: function(formValues) {
+    formValues.shortName = user.shortNameFromFullName(formValues.fullName);
+
+    return formValues;
   },
 
   validateFormValues: function(formValues) {

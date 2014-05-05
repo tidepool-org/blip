@@ -12,8 +12,7 @@ describe('Signup', function() {
     user = {
       username: 'demo2',
       password: 'demo',
-      fullName: 'John Doe',
-      shortName: 'John'
+      fullName: 'John Doe'
     };
   });
 
@@ -58,8 +57,6 @@ describe('Signup', function() {
   function fillOutForm() {
     helpers.findElement(By.name('fullName'))
       .then(function(q) { return q.sendKeys(user.fullName); });
-    helpers.findElement(By.name('shortName'))
-      .then(function(q) { return q.sendKeys(user.shortName); });
     helpers.findElement(By.name('username'))
       .then(function(q) { return q.sendKeys(user.username); });
     return helpers.findElement(By.name('password'))

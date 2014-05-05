@@ -71,6 +71,11 @@ _.assign(user, {
     }
 
     return (patientAttr.id === userPatientAttr.id);
+  },
+
+  shortNameFromFullName: function(fullName) {
+    fullName = fullName || '';
+    return _.first(fullName.split(' '));
   }
 });
 

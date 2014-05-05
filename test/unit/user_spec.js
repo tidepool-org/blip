@@ -88,6 +88,19 @@ describe('User service', function() {
 
   });
 
+  describe('shortNameFromFullName', function() {
+
+    it('should return first word of full name', function() {
+      var fullName = 'John Doe';
+      var expectedShortName = 'John';
+
+      var shortName = user.shortNameFromFullName(fullName);
+
+      expect(shortName).to.equal(expectedShortName);
+    });
+
+  });
+
   function resetUserAttr() {
     userAttr = _.clone(userInitialAttr);
   }
