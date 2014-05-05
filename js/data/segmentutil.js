@@ -175,19 +175,13 @@ module.exports = function(data){
             // This is a very special case indeed.  If a patient uses 2 pumps at the same time, and
             // they have a temp basal that overrides a long chunk of schedules, it is possible that
             // one of those scheduleds overlaps another scheduled that was already overlapped by the
-            // temp.  So, we make sure that all of the excess events are scheduleds, and if they are
-            // we assume that is why we are here.  If they aren't, we got other problems.  The proper
-            // thing to do in this case is to throw away these events, which is what the code will
-            // naturally do
-            while (arrayWithTemp.length > 1) {
-              var element = arrayWithTemp.pop();
-              if (element.deliveryType !== 'scheduled') {
-                log('Expected these events to be scheduled, one wasn\'t', element, e);
-                throw new Error('Expected these events to be scheduled, one wasn\'t');
-              } else {
-                overlaps.push(element);
-              }
+            // temp.  The proper thing to do in this case is to throw away these events, because we
+            // cannot actually know what is correct.
+            while (arrayWithTemp.length > 0) {
+              overlaps.push(arrayWithTemp.pop());
+              overlaps.push(actuals.pop());
             }
+            return;
           } else {
             log('Should\'ve gotten just the chunked temp, didn\'t.', arrayWithTemp, e);
             throw new Error('Should\'ve gotten just the chunked temp, didn\'t.');
