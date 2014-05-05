@@ -78,58 +78,54 @@ if (Rx.Observable.prototype.tidepoolConvertBasal == null) {
    */
   Rx.Observable.prototype.tidepoolConvertBasal = function () {
     return this.tidepoolSelfJoin(
-      [
-        function(e){
-          // Only join together carelink basals.  This is a hack to work around the question of
-          // having a "duration" on basals.  Once we have the tidepool data format defined, this
-          // should be revisited.
-          if (e.source !== 'carelink') {
-            return null;
-          }
-
-          return isScheduledBasal(e) ? makeNewBasalHandler() : null;
+      function(e){
+        // Only join together carelink basals.  This is a hack to work around the question of
+        // having a "duration" on basals.  Once we have the tidepool data format defined, this
+        // should be revisited.
+        if (e.source !== 'carelink') {
+          return null;
         }
-      ]
+
+        return isScheduledBasal(e) ? makeNewBasalHandler() : null;
+      }
     ).tidepoolSelfJoin(
-      [
-        function(event) {
-          if (! (event.type === 'basal' && event.deliveryType === 'temp')) {
-            return null;
-          }
-
-          var temp = null;
-          var eventBuffer = [];
-          return {
-            handle: function(e) {
-              if (temp == null) {
-                temp = _.assign({}, e, {
-                  type: 'basal-rate-segment',
-                  start: e.deviceTime,
-                  end: moment(e.deviceTime).add('ms', e.duration).format('YYYY-MM-DDTHH:mm:ss')
-                });
-                return null;
-              }
-
-              if (e.type === 'basal') {
-                if (temp.end < e.deviceTime) {
-                  // Exceeded the length of the temp, so just return
-                  return [temp].concat(eventBuffer).concat([e]);
-                } else if (e.deliveryType === 'temp-stop' && e.tempId === temp.id) {
-                  // We have a canceled temp basal
-                  temp.end = e.deviceTime;
-                  return [temp].concat(eventBuffer);
-                }
-              }
-
-              eventBuffer.push(e);
-              return null;
-            },
-            completed: function() {
-              return [temp].concat(eventBuffer);
-            }
-          };
+      function(event) {
+        if (! (event.type === 'basal' && event.deliveryType === 'temp')) {
+          return null;
         }
-      ])
+
+        var temp = null;
+        var eventBuffer = [];
+        return {
+          handle: function(e) {
+            if (temp == null) {
+              temp = _.assign({}, e, {
+                type: 'basal-rate-segment',
+                start: e.deviceTime,
+                end: moment(e.deviceTime).add('ms', e.duration).format('YYYY-MM-DDTHH:mm:ss')
+              });
+              return null;
+            }
+
+            if (e.type === 'basal') {
+              if (temp.end < e.deviceTime) {
+                // Exceeded the length of the temp, so just return
+                return [temp].concat(eventBuffer).concat([e]);
+              } else if (e.deliveryType === 'temp-stop' && e.tempId === temp.id) {
+                // We have a canceled temp basal
+                temp.end = e.deviceTime;
+                return [temp].concat(eventBuffer);
+              }
+            }
+
+            eventBuffer.push(e);
+            return null;
+          },
+          completed: function() {
+            return [temp].concat(eventBuffer);
+          }
+        };
+      })
       .map(function(e) {
         if (! (e.type === 'basal' && e.source === 'diasend')) {
           return e;
