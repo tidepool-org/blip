@@ -25,7 +25,7 @@ var Navbar = React.createClass({
     patient: React.PropTypes.object,
     fetchingPatient: React.PropTypes.bool,
     isUserPatient: React.PropTypes.bool,
-    uploadUrl: React.PropTypes.string,
+    getUploadUrl: React.PropTypes.func,
     onLogout: React.PropTypes.func,
     imagesEndpoint: React.PropTypes.string,
     trackMetric: React.PropTypes.func.isRequired
@@ -136,20 +136,24 @@ var Navbar = React.createClass({
       return null;
     }
 
-    var uploadUrl = this.props.uploadUrl;
+    var uploadUrl = this.props.getUploadUrl();
     if (!uploadUrl) {
       return null;
     }
 
     var self = this;
-    var handleClick = function() {
+    var handleClick = function(e) {
+      if (e) {
+        e.preventDefault();
+      }
+      window.open(uploadUrl, '_blank');
       self.props.trackMetric('Clicked Navbar Upload Data');
     };
 
     // Upload icon is a bit to the right, need an extra space in the text
     /* jshint ignore:start */
     return (
-      <a href={uploadUrl} target="_blank" onClick={handleClick}>
+      <a href="" onClick={handleClick}>
         <i className="icon-upload"></i>
         {' ' + 'Upload data'}
       </a>

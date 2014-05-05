@@ -205,12 +205,12 @@ var AppComponent = React.createClass({
     if (this.state.authenticated) {
       var patient;
       var isUserPatient;
-      var uploadUrl;
+      var getUploadUrl;
 
       if (this.isPatientVisibleInNavbar()) {
         patient = this.state.patient;
         isUserPatient = this.isUserPatient();
-        uploadUrl = api.getUploadUrl();
+        getUploadUrl = api.getUploadUrl.bind(api);
       }
 
       return (
@@ -222,7 +222,7 @@ var AppComponent = React.createClass({
           patient={patient}
           fetchingPatient={this.state.fetchingPatient}
           isUserPatient={isUserPatient}
-          uploadUrl={uploadUrl}
+          getUploadUrl={getUploadUrl}
           onLogout={this.logout}
           imagesEndpoint={config.IMAGES_ENDPOINT + '/navbar'}
           trackMetric={trackMetric}/>
