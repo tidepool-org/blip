@@ -87,6 +87,7 @@ function dualNormalBuilder() {
       return [
         {
           id: normal.id,
+          deviceId: normal.deviceId,
           initialDelivery: normal.value,
           extendedDelivery: square.value,
           value: normal.value + square.value,
