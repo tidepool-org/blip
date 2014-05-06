@@ -1,15 +1,15 @@
 /** @jsx React.DOM */
 /**
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
@@ -21,7 +21,10 @@ var InputGroup = React.createClass({
   propTypes: {
     name: React.PropTypes.string,
     label: React.PropTypes.string,
-    value: React.PropTypes.string,
+    value: React.PropTypes.oneOfType([
+      React.PropTypes.string,
+      React.PropTypes.bool
+    ]),
     error: React.PropTypes.string,
     type: React.PropTypes.string,
     placeholder: React.PropTypes.string,
@@ -55,6 +58,11 @@ var InputGroup = React.createClass({
     var text = this.props.label;
     var htmlFor = this.props.name;
 
+    if (this.props.type === 'checkbox') {
+      // Label part of input
+      return null;
+    }
+
     if (text) {
       return (
         /* jshint ignore:start */
@@ -75,7 +83,11 @@ var InputGroup = React.createClass({
     if (type === 'textarea') {
       return this.renderTextArea();
     }
-    
+
+    if (type === 'checkbox') {
+      return this.renderCheckbox();
+    }
+
     return (
       /* jshint ignore:start */
       <input
@@ -85,7 +97,7 @@ var InputGroup = React.createClass({
         name={this.props.name}
         value={this.props.value}
         placeholder={this.props.placeholder}
-        onChange={this.props.onChange}
+        onChange={this.handleChange}
         disabled={this.props.disabled}
         ref="control"/>
       /* jshint ignore:end */
@@ -95,8 +107,8 @@ var InputGroup = React.createClass({
   renderTextArea: function() {
     var rows = this.props.rows || this.DEFAULT_TEXTAREA_ROWS;
 
+    /* jshint ignore:start */
     return (
-      /* jshint ignore:start */
       <textarea
         className="input-group-control form-control"
         id={this.props.name}
@@ -104,9 +116,33 @@ var InputGroup = React.createClass({
         value={this.props.value}
         placeholder={this.props.placeholder}
         rows={rows}
-        onChange={this.props.onChange}
+        onChange={this.handleChange}
         disabled={this.props.disabled}
         ref="control"></textarea>
+    );
+    /* jshint ignore:end */
+  },
+
+  renderCheckbox: function() {
+
+    return (
+      /* jshint ignore:start */
+      <label
+        className="input-group-checkbox-label"
+        htmlFor={this.props.name}
+        ref="label">
+        <input
+          type="checkbox"
+          className="input-group-checkbox-control"
+          id={this.props.name}
+          name={this.props.name}
+          checked={this.props.value}
+          onChange={this.handleChange}
+          disabled={this.props.disabled}
+          ref="control"/>
+        {' '}
+        {this.props.label}
+      </label>
       /* jshint ignore:end */
     );
   },
@@ -131,6 +167,24 @@ var InputGroup = React.createClass({
       className += ' input-group-error';
     }
     return className;
+  },
+
+  handleChange: function(e) {
+    var target = e.target;
+    var attributes = {
+      name: target.name,
+      value: target.value
+    };
+
+    if (this.props.type === 'checkbox') {
+      // "Normalize" checkbox change events to use `value` like other inputs
+      attributes.value = target.checked;
+    }
+
+    var changeCallback = this.props.onChange;
+    if (changeCallback) {
+      changeCallback(attributes);
+    }
   }
 });
 
