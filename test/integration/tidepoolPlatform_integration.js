@@ -52,8 +52,14 @@ describe('platform client', function () {
   };
 
   function createClient(user, cb) {
-    var log = { info: console.log, warn: console.log };
-    var client = platform({ host: 'http://localhost:8009' }, superagent, log);
+    var myLog = { info: console.log, warn: console.log };
+    var myLocalStore = require('./mockedLocalStorage');
+
+    var client = platform(
+      { host: 'http://localhost:8009' },
+      { superagent : superagent, log : myLog, localStore : myLocalStore }
+    );
+
     return client.login(user, function (error, data) {
       if (data && data.userid) {
         user.id = data.userid;
