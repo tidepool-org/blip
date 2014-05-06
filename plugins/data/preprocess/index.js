@@ -49,7 +49,8 @@ function processSuspends(data) {
         case 'suspended':
           suspends[data[i].id] = data[i];
           break;
-        case 'resume':
+        case 'resumed':
+        case 'resume': // 2014-05-06: Non past-tense should be removed.  If this still exists in June, please remove
           if (data[i].joinKey == null) {
             retVal.push(data[i]);
           } else {
