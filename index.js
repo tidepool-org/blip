@@ -20,6 +20,8 @@
 // and not call `require`
 var _ = (typeof window !== 'undefined' && typeof window._ !== 'undefined') ? window._ : require('lodash');
 
+var pkg = require('./package.json');
+
 var sessionTokenHeader = 'x-tidepool-session-token';
 var userIdLocalKey = 'userId';
 var tokenLocalKey = 'authToken';
@@ -407,9 +409,8 @@ module.exports = function (config, deps) {
     trackMetric: function (eventname, properties, cb) {
       properties = properties || {};
       if (!properties.source) {
-         /* TODO: fix hard coded version. require package.json wasn't working. */
         properties.source = 'tidepool-platform-client';
-        properties.version = '0.3.1';
+        properties.version = pkg.version;
       }
 
       var doNothingCB = function() {
