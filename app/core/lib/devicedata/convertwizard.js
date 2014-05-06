@@ -22,7 +22,6 @@ function carbsFromWizard(datum) {
     return [
       datum,
       {
-        _id: datum._id + 'carbs',
         id: datum.id + 'carbs',
         type: 'carbs',
         deviceTime: datum.deviceTime,
