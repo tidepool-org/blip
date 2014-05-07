@@ -12,7 +12,8 @@ env:
     - secure: "ic4dHVqUT87hhYxmEfClsjoygIqS+Or616kbpKPp7UlbxUZTbSi/WlhHv7KxpQUk5fYBkEnXxedL/4HVlhoyeW6LuDxkKx/c/JqRA0B4aPW/tI0dNNTkQbrr7kLkLufyYTejq8fZedRYxgFyuzRK6PyDvbH8DKSpal2QfBrbRgk="
   matrix:
     - "TEST_SUITE=unit"
-    - "TEST_SUITE=e2e BROWSER='chrome:32:Windows 8.1'"
+    # Disable e2e tests for now, as unreliable with Sauce Labs 
+    #- "TEST_SUITE=e2e BROWSER='chrome:32:Windows 8.1'"
 
 install:
   - "npm install"
