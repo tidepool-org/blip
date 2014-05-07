@@ -157,7 +157,7 @@ module.exports = function (config, deps) {
       }
 
       log.info('Loaded local session');
-      saveSession(data.userid, data.token);
+      saveSession(data.userid, data.token,{remember:true});
       cb(null, {userid: data.userid, token: data.token});
     });
   }

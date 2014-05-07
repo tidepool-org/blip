@@ -20,6 +20,7 @@ var expect = require('salinity').expect;
 var superagent = require('superagent');
 
 var platform = require('../../index.js');
+var myLocalStore = require('./mockedLocalStorage')();
 
 describe('platform client', function () {
 
@@ -51,16 +52,19 @@ describe('platform client', function () {
     lastName: 'Howser'
   };
 
-  function createClient(user, cb) {
+  function createClient(user, loginOpts, mockedLocalStore ,cb) {
     var myLog = { info: console.log, warn: console.log };
-    var myLocalStore = require('./mockedLocalStorage');
+
+    mockedLocalStore = mockedLocalStore || myLocalStore;
 
     var client = platform(
-      { host: 'http://localhost:8009' },
-      { superagent : superagent, log : myLog, localStore : myLocalStore }
+      { host: 'https://devel-api.tidepool.io' },
+      { superagent : superagent, log : myLog, localStore : mockedLocalStore }
     );
 
-    return client.login(user, function (error, data) {
+    loginOpts = loginOpts || {};
+
+    return client.login(user,loginOpts,function (error, data) {
       if (data && data.userid) {
         user.id = data.userid;
       }
@@ -80,10 +84,13 @@ describe('platform client', function () {
   }
 
   before(function (done) {
+
+    var noLoginOpts = {};
+
     async.parallel(
       [
-        createClient.bind(null, mrT1),
-        createClient.bind(null, careTeamMember)
+        createClient.bind(null, mrT1,noLoginOpts,myLocalStore),
+        createClient.bind(null, careTeamMember,noLoginOpts,myLocalStore)
       ],
       function(err, clients) {
         if (err != null) {
@@ -94,6 +101,64 @@ describe('platform client', function () {
         done();
       }
     );
+  });
+
+  describe('allows platform user to stay logged in', function () {
+
+    it('but will NOT stay logged in if the remember option is false', function (done) {
+
+      createClient(mrT1, {remember:false}, require('./mockedLocalStorage')(),function(error,loggedIn){
+
+        expect(error).to.not.exist;
+
+        loggedIn.initialize(function(){
+          expect(loggedIn.isLoggedIn()).to.be.false;
+          done();
+        });
+
+      });
+    });
+
+    it('and will NOT stay logged in if the remember option not set', function (done) {
+
+      createClient(mrT1, {} , require('./mockedLocalStorage')(), function(error,loggedIn){
+
+        expect(error).to.not.exist;
+
+        loggedIn.initialize(function(){
+          expect(loggedIn.isLoggedIn()).to.be.false;
+          done();
+        });
+
+      });
+    });
+
+    it('so refesh means you stay logged in if the remember is set', function (done) {
+
+      var store = require('./mockedLocalStorage')();
+
+      var refreshOnlyUser = {
+        username: 'dummy@user.com',
+        password: 'tesT1n3',
+        emails: ['dummy@user.com']
+      };
+
+      createClient(refreshOnlyUser, {remember:true}, store, function(error,loggedIn){
+
+        expect(error).to.not.exist;
+
+        loggedIn.initialize(function(){
+          expect(loggedIn.isLoggedIn()).to.be.true;
+          //'refresh' again for good measure
+          loggedIn.initialize(function(){
+            expect(loggedIn.isLoggedIn()).to.be.true;
+            done();
+          });
+        });
+
+      });
+    });
+
   });
 
   describe('sets up the profiles', function () {
