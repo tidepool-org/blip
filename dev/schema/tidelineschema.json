@@ -1,0 +1,320 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "tideline",
+    "description": "the data format that tideline visualizes from, post-preprocessing (including SegmentUtil)",
+    "type": "array",
+    "items": {
+        "type": "object",
+        "properties": {
+            "annotations": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "code": {
+                            "type": "string",
+                            "enum": ["carelink/basal/off-schedule-rate", "carelink/settings/basal-mismatch", "carelink/settings/wizard-mismatch", "carelink/settings/activeSchedule-mismatch", "diasend/basal/temp-duration-truncated", "diasend/basal/temp-basal-fabrication", "diasend/bolus/extended", "carelink/basal/temp-percent-create-scheduled"]
+                        }
+                    }
+                }
+            },
+            "id": {
+                "type": "string"
+            },
+            "normalTime": {
+                "type": "string"
+            }
+        },
+        "required": ["id", "normalTime"],
+        "oneOf": [{
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "enum": ["basal-rate-segment"]
+                },
+                "deliveryType": {
+                    "type": "string",
+                    "enum": ["scheduled", "temp", "suspend"]
+                },
+                "deviceId": {
+                    "type": "string"
+                },
+                "duration": {
+                    "type": "number",
+                    "minimum": 0
+                },
+                "end": {
+                    "type": "string"
+                },
+                "normalEnd": {
+                    "type": "string"
+                },
+                "percent": {
+                    "type": "number",
+                    "minimum": 0.0,
+                    "maximum": 5.0
+                },
+                "source": {
+                    "type": "string",
+                    "enum": ["carelink", "diasend", "demo"]
+                },
+                "start": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string",
+                    "enum": ["suspended"]
+                },
+                "value": {
+                    "type": ["number", "null"],
+                    "minimum": 0
+                },
+                "vizType": {
+                    "type": "string",
+                    "enum": ["actual", "undelivered"]
+                }
+            },
+            "required": ["type", "deliveryType", "deviceId", "end", "normalEnd", "source", "start", "value", "vizType"]
+            }, {
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "enum": ["bolus"]
+                },
+                "deviceId": {
+                    "type": "string"
+                },
+                "duration": {
+                    "type": "number",
+                    "minimum": 0
+                },
+                "extended": {
+                    "type": "boolean"
+                },
+                "extendedDelivery": {
+                    "type": "number",
+                    "minimum": 0
+                },
+                "initialDelivery": {
+                    "type": "number",
+                    "minimum": 0
+                },
+                "programmed": {
+                    "type": "number",
+                    "minimum": 0
+                },
+                "source": {
+                    "type": "string",
+                    "enum": ["carelink", "diasend", "demo"]
+                },
+                "value": {
+                    "type": "number",
+                    "minimum": 0
+                }
+            },
+            "dependencies": {
+                "extended": ["duration"]
+            },
+            "required": ["type", "deviceId", "source", "value"]
+            }, {
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "enum": ["carbs"]
+                },
+                "deviceId": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string",
+                    "enum": ["carelink", "diasend", "demo"]
+                },
+                "units": {
+                    "type": "string",
+                    "enum": ["grams"]
+                },
+                "value": {
+                    "type": "integer",
+                    "minimum": 0
+                }
+            },
+            "required": ["type", "deviceId", "source", "units", "value"]
+            }, {
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "enum": ["cbg"]
+                },
+                "deviceId": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string",
+                    "enum": ["carelink", "diasend", "demo"]
+                },
+                "units": {
+                    "type": "string",
+                    "enum": ["mg/dL", "mmol/L"]
+                },
+                "value": {
+                    "type": "integer",
+                    "minimum": 39,
+                    "maximum": 401
+                }
+            },
+            "required": ["type", "value"]
+            }, {
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "enum": ["smbg"]
+                },
+                "deviceId": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string",
+                    "enum": ["carelink", "diasend", "demo"]
+                },
+                "units": {
+                    "type": "string",
+                    "enum": ["mg/dL", "mg/dl", "mmol/L"]
+                },
+                "value": {
+                    "type": "integer",
+                    "minimum": 0
+                }
+            },
+            "required": ["type", "deviceId", "source", "value"]
+            }, {
+            "properties" : {
+                "type": {
+                    "type": "string",
+                    "enum": ["message"]
+                },
+                "messageText": {
+                    "type": "string"
+                },
+                "parentMessage": {
+                    "type": ["string", "null"]
+                },
+                "utcTime": {
+                    "type": "string"
+                }
+            },
+            "required": ["type", "messageText", "parentMessage", "utcTime"]
+            }, {
+            "properties" : {
+                "type": {
+                    "type": "string",
+                    "enum": ["settings"]
+                },
+                "activeBasalSchedule": {
+                    "type": "string"
+                },
+                "basalSchedules": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "value": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "rate": {
+                                            "type": "number",
+                                            "minimum": 0
+                                        },
+                                        "start": {
+                                            "type": "number",
+                                            "minimum": 0,
+                                            "maximum": 86399999
+                                        }
+                                    }
+                                }
+                            },
+                            "name": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "minItems": 1
+                },
+                "bgTarget": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "high": {
+                                "type": "integer",
+                                "minimum": 0
+                            },
+                            "low": {
+                                "type": "integer",
+                                "minimum": 0
+                            },
+                            "start": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 86399999
+                            }
+                        }
+                    }
+                },
+                "carbRatio": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "amount": {
+                                "type": "number",
+                                "minimum": 0
+                            },
+                            "start": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 86399999
+                            }
+                        }
+                    }
+                },
+                "deviceId": {
+                    "type": "string"
+                },
+                "insulinSensitivity": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "amount": {
+                                "type": "number",
+                                "minimum": 0
+                            },
+                            "start": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 86399999
+                            }
+                        }
+                    }
+                },
+                "source": {
+                    "type": "string",
+                    "enum": ["carelink", "diasend", "demo"]
+                }
+            },
+            "required": ["type", "activeBasalSchedule", "basalSchedules", "bgTarget", "carbRatio", "deviceId", "insulinSensitivity", "source"]
+            }, {
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "enum": ["deviceMeta"]
+                }
+            },
+            "required": ["type"]
+            }
+        ]
+    },
+    "minItems": 1
+}
