@@ -309,7 +309,7 @@
             "properties": {
                 "type": {
                     "type": "string",
-                    "enum": ["basal", "deviceMeta", "wizard"]
+                    "enum": ["deviceMeta"]
                 }
             },
             "required": ["type"]
