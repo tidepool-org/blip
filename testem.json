@@ -6,11 +6,6 @@
         "js/**/*.js",
         "test/**/*.js"
     ],
-    "launchers": {
-        "Node": {
-            "command": "./node_modules/.bin/mocha test/*_test.js --reporter spec"
-        }
-    },
-    "before_tests": "node_modules/.bin/browserify test/*_test.js -o test/test.js",
-    "launch_in_dev": [ "chrome", "node" ]
+    "before_tests": "node_modules/.bin/browserify test/index.js -o test/test.js",
+    "launch_in_dev": [ "chrome" ]
 }
