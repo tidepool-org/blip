@@ -5,6 +5,8 @@ This repository is a self-contained module library for [Tidepool](http://tidepoo
 
 This module is currently under construction; check back often for updates!
 
+More information is also available in [the wiki](https://github.com/tidepool-org/tideline/wiki).
+
 ## Install
 
 ### Front-end dependencies
@@ -45,6 +47,8 @@ var tideline = require('<path-to-tideline>/js');
 To build a standalone version to include with `<script>` and `<link>` tags, see [Build](#build).
 
 You will also need to copy the `img/` directory to a path served by your server.
+
+For information on building charts using tideline components, see [Using Tideline](https://github.com/tidepool-org/tideline/wiki#using-tideline).
 
 ## Development
 
@@ -180,6 +184,8 @@ The only coding conventions unique to tideline are conventions of HTML and CSS I
 - The data are sorted by `normalTime`, in ascending order.
 
 Both one-day and two-week charts also expect a [Node.js EventEmitter](http://nodejs.org/api/events.html 'Node.js API: Events') passed as an argument.
+
+Much, much more about the data that tideline requires can be found in the JSON Schema in `dev/schema/tidelineschema.json` and discussed in [the corresponding wiki page](https://github.com/tidepool-org/tideline/wiki/Schema).
 
 #### SVG Structure
 
