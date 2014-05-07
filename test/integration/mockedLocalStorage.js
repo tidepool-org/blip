@@ -15,9 +15,18 @@
 
 'use strict';
 module.exports = function () {
+
+  var store = {};
+
   return {
-    getItem:function(key){},
-    setItem:function(key,data){},
-    removeItem:function(key){}
+    getItem:function(key){
+      return store[key];
+    },
+    setItem:function(key,data){
+      store[key] = data;
+    },
+    removeItem:function(key){
+      store = {};
+    }
   };
 };
