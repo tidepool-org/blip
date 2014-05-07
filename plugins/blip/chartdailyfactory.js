@@ -269,6 +269,7 @@ function chartDailyFactory(el, options) {
       xPosition: chart.axisGutter(),
       yPosition: 0,
       emitter: emitter,
+      averageLabel: 'These 24 hours',
       puddleWeights: {
         ratio: 1.0,
         range: 1.2,

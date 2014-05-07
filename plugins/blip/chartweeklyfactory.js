@@ -142,6 +142,7 @@ function chartWeeklyFactory(el, options) {
       xPosition: 0,
       yPosition: chart.poolStats.height() / 10,
       emitter: emitter,
+      averageLabel: 'These two weeks',
       puddleWeights : {
         ratio: 1.1,
         range: 1.2,

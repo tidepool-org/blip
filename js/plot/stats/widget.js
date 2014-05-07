@@ -104,7 +104,7 @@ module.exports = function(pool, opts) {
     // create time-in-range puddle
     stats.newPuddle('Range', opts.PTiRLabels.cbg, targetRangeString + opts.bgUnits, pw.range, true);
     // create average BG puddle
-    stats.newPuddle('Average', 'Average BG', 'These 24 hours', pw.average, false);
+    stats.newPuddle('Average', 'Average BG', opts.averageLabel, pw.average, false);
     stats.arrangePuddles();
   });
 
