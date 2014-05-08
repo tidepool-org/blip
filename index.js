@@ -20,8 +20,6 @@
 // and not call `require`
 var _ = (typeof window !== 'undefined' && typeof window._ !== 'undefined') ? window._ : require('lodash');
 
-var pkg = require('./package.json');
-
 var sessionTokenHeader = 'x-tidepool-session-token';
 var userIdLocalKey = 'userId';
 var tokenLocalKey = 'authToken';
@@ -419,7 +417,7 @@ module.exports = function (config, deps) {
       } else {
         properties = {};
       }
-      properties._version = config.metricsVersion;
+      properties.sourceVersion = config.metricsVersion;
 
       var doNothingCB = function() {
         if (cb) {
