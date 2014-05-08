@@ -20,8 +20,6 @@
 // and not call `require`
 var _ = (typeof window !== 'undefined' && typeof window._ !== 'undefined') ? window._ : require('lodash');
 
-var pkg = require('./package.json');
-
 var sessionTokenHeader = 'x-tidepool-session-token';
 var userIdLocalKey = 'userId';
 var tokenLocalKey = 'authToken';
@@ -54,11 +52,13 @@ module.exports = function (config, deps) {
 
   config = _.clone(config);
   defaultProperty(config, 'tokenRefreshInterval', 10 * 60 * 1000); // 10 minutes
-  if (config.metricsSource == null) {
-    config.metricsSource = 'tidepool-platform-client';
-    config.metricsVersion = pkg.version;
-  }
   requireConfig(config, 'host');
+  requireConfig(config, 'metricsSource');
+  requireConfig(config, 'metricsVersion');
+  // now clean up source so that it doesn't have any dashes
+  // this way, the first dash in the eventname will be the separator for the source
+  config.metricsSource = config.metricsSource.replace(/-/g, ' ');
+
 
   /*
    Make the URL
@@ -411,19 +411,8 @@ module.exports = function (config, deps) {
      * @returns {cb}  cb()
      */
     trackMetric: function (eventname, properties, cb) {
-      var source;
-      properties = properties || {};
-      if (properties.source) {
-        source = properties.source;
-        delete properties.source;
-        // if version is specified we'll use it, otherwise none
-      } else {
-        source = config.metricsSource;
-        properties.version = config.metricsVersion;
-      }
-
-      // now clean up source so that it doesn't have any dashes
-      source = source.replace(/-/g, ' ');
+      properties = _.assign({}, properties);
+      properties.sourceVersion = config.metricsVersion;
 
       var doNothingCB = function() {
         if (cb) {
@@ -439,7 +428,7 @@ module.exports = function (config, deps) {
         doNothingCB,
         function(token){
           superagent
-            .get(makeUrl('/metrics/thisuser/' + source + ' - ' + eventname))
+            .get(makeUrl('/metrics/thisuser/' + config.metricsSource + ' - ' + eventname))
             .set(sessionTokenHeader, token)
             .query(properties)
             .end(doNothingCB);
