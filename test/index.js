@@ -25,8 +25,8 @@ module.exports = {
   segmentutil_test: require('./segmentutil_test'),
   tidelinedata_test: require('./tidelinedata_test'),
   timeline_test: require('./timeline_test'),
+  watson_test: require('./watson_test'),
   viz: {
     oneday_test: require('./viz/oneday_test')
-  },
-  watson_test: require('./watson_test')
+  }
 };
