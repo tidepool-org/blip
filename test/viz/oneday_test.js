@@ -32,21 +32,28 @@ var blip = window.tideline.blip;
 var chartDailyFactory = blip.oneday;
 
 var el = document.getElementById('tidelineContainer');
-var imagesBaseUrl = '../img';
+var imagesBaseUrl = '../../img';
 
 var oneDay = chartDailyFactory(el, {imagesBaseUrl: imagesBaseUrl}).setupPools();
+var data = require('./testpage');
+data = preprocess.processData(data);
 
 var tideline = require('../../js/index');
 var containerId = '#tidelineContainer';
 
-$(document).ready(function() {
-  describe('the tideline container', function() {
-    it('should have a width of 1200px', function() {
-      expect($(containerId).width()).to.equal(1200);
-    });
+describe('the tideline container', function() {
+  it('should have a width of 1200px', function() {
+    expect($(containerId).width()).to.equal(1200);
+  });
 
-    it('should have a height of 600px', function() {
-      expect($(containerId).height()).to.equal(600);
-    });
+  it('should have a height of 800px', function() {
+    expect($(containerId).height()).to.equal(800);
+  });
+});
+
+describe('one-day view', function() {
+
+  it('should exist', function() {
+    oneDay.load(data).locate();
   });
 });

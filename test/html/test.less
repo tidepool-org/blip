@@ -1,0 +1,45 @@
+@font-family-base: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+@font-size-base: 16px;
+@line-height-base: 20px;
+
+@import url(http://fonts.googleapis.com/css?family=Open+Sans);
+
+@import '../../css/tideline.less';
+
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Open Sans'), local('OpenSans'), url('../../fonts/opensans.woff') format('woff');
+}
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Open Sans Bold'), local('OpenSans-Bold'), url('../../fonts/opensans-bold.woff') format('woff');
+}
+@font-face {
+  font-family: 'Open Sans';
+  font-style: italic;
+  font-weight: 400;
+  src: local('Open Sans Italic'), local('OpenSans-Italic'), url('../../fonts/opensans-italic.woff') format('woff');
+}
+@font-face {
+  font-family: 'Open Sans';
+  font-style: italic;
+  font-weight: 700;
+  src: local('Open Sans Bold Italic'), local('OpenSans-BoldItalic'), url('../../fonts/opensans-bolditalic.woff') format('woff');
+}
+
+body {
+    font-family: @font-family-base;
+    font-size: @font-size-base;
+    line-height: @line-height-base;
+}
+
+#tidelineContainer {
+    margin: 0 auto;
+    width: 960px;
+    height: 590px;
+    padding: 0;
+}
