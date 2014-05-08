@@ -41,7 +41,9 @@ api.init = function(cb) {
       info: tidepoolLog,
       debug: tidepoolLog
     },
-    localStore: window.localStorage
+    localStore: window.localStorage,
+    metricsSource: 'blip',
+    metricsVersion: config.version
   });
 
   api.tidepool = tidepool;
@@ -484,11 +486,6 @@ api.metrics = {};
 
 api.metrics.track = function(eventName, properties, cb) {
   api.log('GET /metrics/' + window.encodeURIComponent(eventName));
-
-  properties = _.assign({
-    source: 'blip',
-    version: config.VERSION
-  }, properties);
 
   return tidepool.trackMetric(eventName, properties, cb);
 };
