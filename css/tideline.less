@@ -561,3 +561,19 @@ svg {
 .d3-settings-table-row-data td {
   font-size: @font-size-settings;
 }
+
+@media print {
+  .d3-settings-basal-schedule .d3-settings-col-label {
+    &.d3-settings-col-collapsed + table {
+      display: inline !important;
+    }
+  }
+
+  .d3-settings-section, .d3-settings-col {
+    display: inline;
+  }
+
+  .d3-settings-section-basal {
+    width: 100%;
+  }
+}
