@@ -411,12 +411,7 @@ module.exports = function (config, deps) {
      * @returns {cb}  cb()
      */
     trackMetric: function (eventname, properties, cb) {
-      if (properties != null)
-      {
-        properties = _.clone(properties);
-      } else {
-        properties = {};
-      }
+      properties = _.assign({}, properties);
       properties.sourceVersion = config.metricsVersion;
 
       var doNothingCB = function() {
