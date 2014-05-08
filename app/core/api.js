@@ -456,6 +456,7 @@ api.patientData.get = function(patientId, cb) {
       return cb(err);
     }
 
+    var now = Date.now();
     window.inData = data;
     Rx.Observable.fromArray(data)
       .tidepoolConvertBasal()
@@ -463,6 +464,7 @@ api.patientData.get = function(patientId, cb) {
       .tidepoolConvertWizard()
       .toArray()
       .subscribe(function(data) {
+                   api.log('Processing completed in ' + (Date.now() - now) + ' millis.');
                    window.theData = data;
                    cb(null, data);
                  },
