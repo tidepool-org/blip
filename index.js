@@ -54,8 +54,10 @@ module.exports = function (config, deps) {
 
   config = _.clone(config);
   defaultProperty(config, 'tokenRefreshInterval', 10 * 60 * 1000); // 10 minutes
-  defaultProperty(config, 'metrics_src', 'tidepool-platform-client');
-  defaultProperty(config, 'metrics_ver', pkg.version);
+  if (config.metricsSource == null) {
+    config.metricsSource = 'tidepool-platform-client';
+    config.metricsVersion = pkg.version;
+  }
   requireConfig(config, 'host');
 
   /*
@@ -409,13 +411,19 @@ module.exports = function (config, deps) {
      * @returns {cb}  cb()
      */
     trackMetric: function (eventname, properties, cb) {
-      var source = config.metrics_src;
+      var source;
       properties = properties || {};
-      defaultProperty(properties, 'version', config.metrics_ver);
       if (properties.source) {
         source = properties.source;
         delete properties.source;
+        // if version is specified we'll use it, otherwise none
+      } else {
+        source = config.metricsSource;
+        properties.version = config.metricsVersion;
       }
+
+      // now clean up source so that it doesn't have any dashes
+      source = source.replace(/-/g, ' ');
 
       var doNothingCB = function() {
         if (cb) {
@@ -431,7 +439,7 @@ module.exports = function (config, deps) {
         doNothingCB,
         function(token){
           superagent
-            .get(makeUrl('/metrics/thisuser/' + source + '-' + eventname))
+            .get(makeUrl('/metrics/thisuser/' + source + ' - ' + eventname))
             .set(sessionTokenHeader, token)
             .query(properties)
             .end(doNothingCB);
