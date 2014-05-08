@@ -21,23 +21,11 @@ var log = require('../lib/').bows('SegmentUtil');
 var Timeline = require('./util/timeline.js');
 
 var keysForEquality = ['type', 'deliveryType', 'value', 'percent', 'deviceId', 'scheduleName', 'source', 'link'];
-
 function eventsSmooshable(lhs, rhs) {
   return _.isEqual(_.pick(lhs, keysForEquality), _.pick(rhs, keysForEquality));
 }
 
-function determinePriority(e) {
-  switch(e.deliveryType) {
-    case 'scheduled':
-      return 1;
-    case 'temp':
-      return 10;
-    case 'suspend':
-      return 100;
-    default:
-      return 0;
-  }
-}
+var eventPriority = ['temp', 'suspend'];
 
 function SegmentUtil(actual, undelivered) {
   this.actual = actual;
@@ -49,197 +37,191 @@ SegmentUtil.prototype.getUndelivered = function(type) {
   return retVal == null ? [] : retVal;
 };
 
-module.exports = function(data){
-  var maxTimestamp = '0000-01-01T00:00:00';
-  var actuals = new Timeline(eventsSmooshable);
-  var undelivereds = { };
-  var overlaps = [];
+function insertSorted(array, startIndex, e, field) {
+  if (array.length === 0) {
+    array.push(e);
+  } else {
+    var index = startIndex;
 
-  function addToActuals(e) {
-    if (e.start === e.end) {
-      return [];
-    }
-
-    var theActual = _.extend({}, e, {vizType: 'actual'});
-    return actuals.add(theActual);
-  }
-
-  function addToUndelivered(e) {
-    if (undelivereds[e.deliveryType] == null) {
-      undelivereds[e.deliveryType] = new Timeline(eventsSmooshable);
-    }
-
-    if (e.deliveryType === 'temp' && undelivereds.scheduled != null) {
-      // If we have an undelivered temp, then that temp most likely kicked out a scheduled before.  That scheduled
-      // is going to still be associated with the temp that has now been kicked out, so we need to pull it out
-      // of the scheduled undelivereds and re-process it.
-      var scheduledArray = undelivereds.scheduled.add(e);
-      if (scheduledArray.length > 1) {
-        log('Should only get one scheduled out of the undelivereds.', scheduledArray);
-        scheduledArray.forEach(function(putBack){ undelivereds.scheduled.add(putBack); });
-      } else if (scheduledArray.length === 1) {
-        var scheduledItem = scheduledArray[0];
-        scheduledItem.link = e.link;
-        undelivereds.scheduled.add(scheduledItem);
-      }
-
-      while (undelivereds.scheduled.peek().deliveryType !== 'scheduled') {
-        undelivereds.scheduled.pop();
+    for (; index < array.length; ++index) {
+      if (array[index][field] > e[field]) {
+        array.splice(index, 0, e);
+        return;
       }
     }
 
-    undelivereds[e.deliveryType].add(_.extend({}, e, {vizType: 'undelivered'}));
-  }
-
-  function addLinkFn(e) {
-    return function(event) {
-      event.link = e.id;
-      return event;
-    };
-  }
-
-  function addToActualsAndLink(e) {
-    var overflow = addToActuals(e);
-
-    var lastActual = actuals.peek();
-    var addLink;
-    if (lastActual.start <= e.start && lastActual.end >= e.end) {
-      // The event was smooshed into the last actual, so use the last actual's id for linking
-      addLink = addLinkFn(lastActual);
+    if (array[array.length - 1][field] <= e[field]) {
+      array.push(e);
     } else {
-      addLink = addLinkFn(e);
+      insertSorted(array, 0, e, field);
     }
-
-    return overflow.map(addLink);
   }
+}
 
-  function processElement(e) {
+module.exports = function(data){
+  var scheduledTimeline = new Timeline(eventsSmooshable);
+  var otherEvents = {};
+
+  for (var i = 0; i < data.length; ++i) {
+    var e = _.clone(data[i]);
     if (e.type === 'basal-rate-segment') {
-      if (maxTimestamp > e.start) {
-        log('Unordered data', maxTimestamp, e);
-        throw new Error('Unordered data');
+      var deliveryType = e.deliveryType;
+
+      if (deliveryType === 'scheduled') {
+        if (e.end == null) {
+          // TODO: Jana, this is the point that sets the end equal to the start when end is null.
+          // TODO: Please adjust the code to add the actual end timestamp of the stream instead of e.start.
+          // TODO: If you are not named Jana and you are viewing this after April 30, 2014.
+          // TODO: Please just delete this TODO comment
+          e.end = e.start;
+        }
+
+        if (scheduledTimeline.add(e).length > 0) {
+          // A scheduled overlapped a scheduled, throw things away when this happens.  It generally
+          // indicates multiple pumps in concurrent operation.
+          scheduledTimeline.pop();
+        }
       } else {
-        maxTimestamp = e.start;
-      }
-
-      if (e.start != null && e.end == null) {
-        // TODO: Jana, this is the point that sets the end equal to the start when end is null.
-        // TODO: Please adjust the code to add the actual end timestamp of the stream instead of e.start.
-        // TODO: If you are not named Jana and you are viewing this after April 30, 2014.
-        // TODO: Please just delete this TODO comment
-        e.end = e.start;
-      }
-
-      var lastActual = actuals.peek();
-      if (lastActual == null) {
-        addToActuals(e);
-        return;
-      }
-
-      var eventPriority = determinePriority(e);
-      var incumbentPriority = determinePriority(lastActual);
-
-      if (eventPriority === incumbentPriority) {
-        if (lastActual.end <= e.start) {
-          // No overlap!
-          addToActualsAndLink(e).forEach(addToUndelivered);
-          return;
+        if (otherEvents[deliveryType] == null) {
+          otherEvents[deliveryType] = [];
         }
-
-        if (e.deliveryType === 'scheduled' && lastActual.deliveryType === 'scheduled') {
-          // scheduled overlapping a scheduled, this is known to happen when a patient used multiple
-          // pumps at the exact same time.  Which is rare, to say the least.  We want to just eliminate
-          // both data points and act like we know nothing when this happens
-          overlaps.push(e);
-          overlaps.push(actuals.pop());
-          return;
-        }
-      } else if (eventPriority < incumbentPriority) {
-        // For example, a scheduled is potentially overlapping a temp, figure out what's going on.
-        if (lastActual.end <= e.start) {
-          // No overlap, yay!
-          addToActualsAndLink(e).forEach(addToUndelivered);
-          return;
-        }
-
-        // The scheduled is overlapped by the temp.  In this case, what we actually want
-        // to do is chunk up the temp into invididual chunks to line up with the scheduled.
-        // We accomplish this by
-        // 1. Add the scheduled to the actuals timeline, this will return the temp matching our scheduled.
-        // 2. Adjust the returned temp's value if it specifies a percent.
-        // 3. Push it back in, this will return the scheduled that we originally put in.
-        // 4. Push the scheduled into the undelivereds
-        var arrayWithTemp = addToActuals(e);
-        if (arrayWithTemp.length !== 1) {
-          if (arrayWithTemp.length > 1) {
-            // This is a very special case indeed.  If a patient uses 2 pumps at the same time, and
-            // they have a temp basal that overrides a long chunk of schedules, it is possible that
-            // one of those scheduleds overlaps another scheduled that was already overlapped by the
-            // temp.  The proper thing to do in this case is to throw away these events, because we
-            // cannot actually know what is correct.
-            while (arrayWithTemp.length > 0) {
-              overlaps.push(arrayWithTemp.pop());
-              overlaps.push(actuals.pop());
-            }
-            return;
-          } else {
-            log('Should\'ve gotten just the chunked temp, didn\'t.', arrayWithTemp, e);
-            throw new Error('Should\'ve gotten just the chunked temp, didn\'t.');
-          }
-        }
-
-        var tempMatchingScheduled = arrayWithTemp[0];
-        var tempPercent = tempMatchingScheduled.percent;
-
-        var adjustments = { id : tempMatchingScheduled.id + '_' + e.id, link: e.id };
-        if (tempPercent != null) {
-          adjustments.value = e.value * tempPercent;
-        }
-        tempMatchingScheduled = _.assign({}, tempMatchingScheduled, adjustments);
-
-        var arrayWithOriginalScheduled = addToActuals(tempMatchingScheduled);
-        if (arrayWithOriginalScheduled.length !== 1) {
-          throw new Error('Should\'ve gotten just the original scheduled, didn\'t.', arrayWithOriginalScheduled);
-        }
-
-        var theUndelivered = _.clone(arrayWithOriginalScheduled[0]);
-        theUndelivered.link = tempMatchingScheduled.id;
-        addToUndelivered(theUndelivered);
-        return;
-      }
-
-      var eventToAdd = e;
-      if (eventToAdd.percent != null) {
-        eventToAdd = _.assign({}, e, {value: e.percent * lastActual.value});
-      }
-      var overflow = addToActualsAndLink(eventToAdd);
-
-      while (overflow.length > 0) {
-        var event = overflow.pop();
-        if (eventToAdd.id != null && eventToAdd.id === event.id) {
-          // If the timeline kicks back out an event with an equivalent id as we just put in, then there
-          // is another event in there that is overriding us.  We want what we just put in to win,
-          // so put it back in.
-          delete event.link;
-          overflow = addToActualsAndLink(event).concat(overflow);
-        } else {
-          addToUndelivered(event);
-        }
+        insertSorted(otherEvents[deliveryType], otherEvents[deliveryType].length, e, 'start');
       }
     }
   }
 
-  data.forEach(processElement);
+  var baseTimeline = scheduledTimeline.getArray();
+  scheduledTimeline = null; // let go of the memory
 
-  log(overlaps.length, 'instances of scheduled overlapping a scheduled.');
-  if (overlaps.length > 0) {
-    log('First example', overlaps[0], overlaps[1]);
+  eventPriority.forEach(function(eventType){
+    var otherArray = otherEvents[eventType];
+    delete otherEvents[eventType];
+
+    if (otherArray == null) {
+      return;
+    }
+
+    var timelineIndex = 0;
+    for (var i = 0; i < otherArray.length; ++i) {
+      var e = otherArray[i];
+      while (timelineIndex > 0 && baseTimeline[timelineIndex].start > e.start) {
+        --timelineIndex;
+      }
+
+      while (timelineIndex < baseTimeline.length && baseTimeline[timelineIndex].end <= e.start) {
+        ++timelineIndex;
+      }
+
+      if (timelineIndex >= baseTimeline.length) {
+        // We're at the end of the baseTimeline, but we have more events to insert, so attach them.
+        baseTimeline.push(otherArray[i]);
+      } else if (baseTimeline[timelineIndex].start > e.end) {
+        // The item is completely before this one.  This means that there is a gap in the data, so just insert the item
+        baseTimeline.splice(timelineIndex, 0, e);
+      } else {
+        // Split based on start if needed
+        var baseItem = baseTimeline[timelineIndex];
+        var clone = null;
+        if (e.start > baseItem.start) {
+          // Current event starts after the item in the base timeline,
+          // so keep the first bit of the baseTimeline in tact
+          clone = _.cloneDeep(baseItem);
+          baseItem.end = e.start;
+          clone.start = e.start;
+
+          ++timelineIndex;
+          baseTimeline.splice(timelineIndex, 0, clone);
+          baseItem = clone;
+        } else if (e.start < baseItem.start) {
+          // Current event starts even before the item in the base timeline, this means there was a gap
+          // and we want to inject the portion from before the item in the base timeline
+          clone = _.cloneDeep(e);
+
+          e.start = baseItem.start;
+          clone.end = baseItem.start;
+
+          baseTimeline.splice(timelineIndex, 0, clone);
+          ++timelineIndex;
+        }
+
+        // Split based on end if needed
+        if (e.end > baseItem.end) {
+          // The current event ends after the item in the base timeline,
+          // so keep the first bit of the current event and set aside the rest to be processed later
+          clone = _.cloneDeep(e);
+
+          e.end = baseItem.end;
+          clone.start = baseItem.end;
+
+          otherArray.splice(i+1, 0, clone); // Put clone back into the array
+        } else if (e.end < baseItem.end) {
+          // The current event ends before the item in the base timeline,
+          // so keep the last bit of the item in the base timeline in tact
+          clone = _.cloneDeep(baseItem);
+          baseItem.end = e.end;
+          clone.start = e.end;
+
+          baseTimeline.splice(timelineIndex + 1, 0, clone);
+        }
+
+        // Push now-supressed base item onto its stack of "supressed"
+        var overlappingItem = _.clone(e);
+        overlappingItem.suppressed = baseItem.suppressed == null ? [] : baseItem.suppressed;
+        delete baseItem.suppressed;
+        overlappingItem.suppressed.unshift(baseItem);
+
+        if (overlappingItem.percent != null) {
+          overlappingItem.value = overlappingItem.percent * baseItem.value;
+        }
+
+        // Replace split base item with current item
+        baseTimeline[timelineIndex] = overlappingItem;
+      }
+    }
+  });
+
+  if (Object.keys(otherEvents).length > 1) {
+    log('Unhandled basal-rate-segment objects of deliveryType:', Object.keys(otherEvents));
   }
 
-  var actual = actuals.getArray();
+  var actuals = new Array(baseTimeline.length);
   var undelivered = {};
-  Object.keys(undelivereds).forEach(function(key){
-    undelivered[key] = undelivereds[key].getArray();
-  });
-  return new SegmentUtil(actual, undelivered);
+
+  var newIdCounter = 0;
+
+  function attachId(e) {
+    if (e.id != null) {
+      e.datumId = e.id;
+    }
+    e.id = 'segment_' + newIdCounter++;
+    return e;
+  }
+
+  for (i = 0; i < baseTimeline.length; ++i) {
+    attachId(baseTimeline[i]);
+    baseTimeline[i].vizType = 'actual';
+  }
+
+  for (i = 0; i < baseTimeline.length; ++i) {
+    if (baseTimeline[i].suppressed != null) {
+      for (var j = 0; j < baseTimeline[i].suppressed.length; ++j) {
+        var theUn = baseTimeline[i].suppressed[j];
+        attachId(theUn);
+        theUn.link = baseTimeline[i].id;
+        theUn.start = baseTimeline[i].start;
+        theUn.end = baseTimeline[i].end;
+        theUn.vizType = 'undelivered';
+
+        if (undelivered[theUn.deliveryType] == null) {
+          undelivered[theUn.deliveryType] = [];
+        }
+        undelivered[theUn.deliveryType].push(theUn);
+      }
+    }
+
+    delete baseTimeline[i].suppressed;
+    actuals[i] = baseTimeline[i];
+  }
+
+  return new SegmentUtil(actuals, undelivered);
 };
