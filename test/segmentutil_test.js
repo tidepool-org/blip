@@ -197,7 +197,7 @@ describe('segmentUtil.js', function(){
           deliveryType: 'temp',
           start: '2014-01-01',
           end: '2014-01-02',
-          percent: 0.6
+          value: 0.6
         }
       ]);
 
@@ -211,7 +211,7 @@ describe('segmentUtil.js', function(){
         deliveryType: 'temp',
         start: '2014-01-01',
         end: '2014-01-02',
-        percent: 0.6,
+        value: 0.6,
         vizType: 'actual'
       });
   });

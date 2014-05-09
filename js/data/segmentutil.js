@@ -113,11 +113,17 @@ module.exports = function(data){
       }
 
       if (timelineIndex >= baseTimeline.length) {
-        // We're at the end of the baseTimeline, but we have more events to insert, so attach them.
-        baseTimeline.push(otherArray[i]);
+        // We're at the end of the baseTimeline, but we have more events to insert, so attach them
+        // as long as the delivery value isn't determined by a percentage
+        if (e.percent == null) {
+          baseTimeline.push(e);
+        }
       } else if (baseTimeline[timelineIndex].start > e.end) {
-        // The item is completely before this one.  This means that there is a gap in the data, so just insert the item
-        baseTimeline.splice(timelineIndex, 0, e);
+        // The item is completely before this one.  This means that there is a gap in the data,
+        // so just insert the item as long as the delivery value isn't determined by a percentage
+        if (e.percent == null) {
+          baseTimeline.splice(timelineIndex, 0, e);
+        }
       } else {
         // Split based on start if needed
         var baseItem = baseTimeline[timelineIndex];
