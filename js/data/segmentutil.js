@@ -59,7 +59,7 @@ function insertSorted(array, startIndex, e, field) {
 }
 
 module.exports = function(data){
-  var scheduledTimeline = new Timeline(eventsSmooshable);
+  var scheduledTimeline = new Timeline();
   var otherEvents = {};
 
   for (var i = 0; i < data.length; ++i) {
@@ -76,10 +76,33 @@ module.exports = function(data){
           e.end = e.start;
         }
 
-        if (scheduledTimeline.add(e).length > 0) {
-          // A scheduled overlapped a scheduled, throw things away when this happens.  It generally
+        var overlap = scheduledTimeline.add(e);
+        if (overlap.length > 0) {
+          // A scheduled overlapped a scheduled, throw away the overlap and the initial event that git inserted. It generally
           // indicates multiple pumps in concurrent operation.
-          scheduledTimeline.pop();
+
+          overlap.forEach(function(overlapped){
+            // Allow scheduled overlaps for the same device (schedule changes)
+            if (overlapped.deviceId != null && overlapped.deviceId === e.deviceId) {
+              return;
+            }
+
+            // Put the overlapped back in to chunk up the thing that did the overlapping
+            var inserted = scheduledTimeline.add(overlapped)[0];
+            if (inserted.value === overlapped.value) {
+              return;
+            }
+
+            // Next, pop the stack until we find what we just inserted, throw that way and push stuff back on
+            var collateralDamage = [];
+            var popped = scheduledTimeline.pop();
+            while (popped != null && popped.start !== overlapped.start && popped.end !== overlapped.end) {
+              collateralDamage.push(popped);
+              popped = scheduledTimeline.pop();
+            }
+
+            collateralDamage.forEach(scheduledTimeline.add.bind(scheduledTimeline));
+          });
         }
       } else {
         if (otherEvents[deliveryType] == null) {
@@ -90,8 +113,30 @@ module.exports = function(data){
     }
   }
 
-  var baseTimeline = scheduledTimeline.getArray();
+  var unsmooshed = scheduledTimeline.getArray();
   scheduledTimeline = null; // let go of the memory
+
+  var baseTimeline = [];
+  for (i = 0; i < unsmooshed.length; ++i) {
+    var next = unsmooshed[i];
+    if (baseTimeline.length === 0) {
+      baseTimeline.push(next);
+    } else {
+      var last = baseTimeline[baseTimeline.length - 1];
+
+      if (last.end === next.start && eventsSmooshable(last, next)) {
+        last.end = next.end;
+      } else {
+        baseTimeline.push(next);
+      }
+    }
+  }
+
+  function addToBaseTimeline(index, e) {
+    if (e.value != null) {
+      baseTimeline.splice(index, 0, e);
+    }
+  }
 
   eventPriority.forEach(function(eventType){
     var otherArray = otherEvents[eventType];
@@ -115,15 +160,11 @@ module.exports = function(data){
       if (timelineIndex >= baseTimeline.length) {
         // We're at the end of the baseTimeline, but we have more events to insert, so attach them
         // as long as the delivery value isn't determined by a percentage
-        if (e.percent == null) {
-          baseTimeline.push(e);
-        }
+        addToBaseTimeline(baseTimeline.length, e);
       } else if (baseTimeline[timelineIndex].start > e.end) {
         // The item is completely before this one.  This means that there is a gap in the data,
         // so just insert the item as long as the delivery value isn't determined by a percentage
-        if (e.percent == null) {
-          baseTimeline.splice(timelineIndex, 0, e);
-        }
+        addToBaseTimeline(timelineIndex, e);
       } else {
         // Split based on start if needed
         var baseItem = baseTimeline[timelineIndex];
@@ -136,7 +177,7 @@ module.exports = function(data){
           clone.start = e.start;
 
           ++timelineIndex;
-          baseTimeline.splice(timelineIndex, 0, clone);
+          addToBaseTimeline(timelineIndex, clone);
           baseItem = clone;
         } else if (e.start < baseItem.start) {
           // Current event starts even before the item in the base timeline, this means there was a gap
@@ -146,7 +187,7 @@ module.exports = function(data){
           e.start = baseItem.start;
           clone.end = baseItem.start;
 
-          baseTimeline.splice(timelineIndex, 0, clone);
+          addToBaseTimeline(timelineIndex, clone);
           ++timelineIndex;
         }
 
@@ -167,7 +208,7 @@ module.exports = function(data){
           baseItem.end = e.end;
           clone.start = e.end;
 
-          baseTimeline.splice(timelineIndex + 1, 0, clone);
+          addToBaseTimeline(timelineIndex + 1, clone);
         }
 
         // Push now-supressed base item onto its stack of "supressed"

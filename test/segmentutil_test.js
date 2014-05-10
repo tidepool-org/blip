@@ -167,6 +167,7 @@ describe('segmentUtil.js', function(){
     var segs = segmentUtil(
       [
         {
+          id: '1',
           type: 'basal-rate-segment',
           deliveryType: 'scheduled',
           start: '2014-01-01',
@@ -180,6 +181,7 @@ describe('segmentUtil.js', function(){
     expect(segs.actual[0]).is.deep.equal(
       {
         id: 'segment_0',
+        datumId: '1',
         type: 'basal-rate-segment',
         deliveryType: 'scheduled',
         start: '2014-01-01',
@@ -214,6 +216,406 @@ describe('segmentUtil.js', function(){
         value: 0.6,
         vizType: 'actual'
       });
+  });
+
+  it('Throws away only overlapping portion of scheduled basals', function(){
+    var segs = segmentUtil(
+      [
+        {
+          id: '1',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-01',
+          end: '2014-01-02',
+          value: 0.6
+        },
+        {
+          id: '2',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-01',
+          end: '2014-01-04',
+          value: 0.7
+        },
+        {
+          id: '3',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-02',
+          end: '2014-01-03',
+          value: 0.8
+        }
+      ]
+    );
+
+    expect(segs.undelivered).is.empty;
+
+    expect(segs.actual).to.deep.equal(
+      [
+        {
+          id: 'segment_0',
+          datumId: '2',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-03',
+          end: '2014-01-04',
+          value: 0.7,
+          vizType: 'actual'
+        }
+      ]);
+  });
+
+  it('Throws away only overlapping portion of scheduled basals2', function(){
+    var segs = segmentUtil(
+      [
+        {
+          id: '1',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-01',
+          end: '2014-01-04',
+          value: 0.7
+        },
+        {
+          id: '2',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-01',
+          end: '2014-01-02',
+          value: 0.6
+        },
+        {
+          id: '3',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-02',
+          end: '2014-01-03',
+          value: 0.8
+        }
+      ]
+    );
+
+    expect(segs.undelivered).is.empty;
+
+    expect(segs.actual).to.deep.equal(
+      [
+        {
+          id: 'segment_0',
+          datumId: '1',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-03',
+          end: '2014-01-04',
+          value: 0.7,
+          vizType: 'actual'
+        }
+    ]);
+  });
+
+  it('Throws away only overlapping portion of scheduled basals3', function(){
+    var segs = segmentUtil(
+      [
+        {
+          id: '1',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-01',
+          end: '2014-01-02',
+          value: 0.6
+        },
+        {
+          id: '2',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-02',
+          end: '2014-01-03',
+          value: 0.8
+        },
+        {
+          id: '3',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-01',
+          end: '2014-01-04',
+          value: 0.7
+        }
+      ]
+    );
+
+    expect(segs.undelivered).is.empty;
+
+    expect(segs.actual).to.deep.equal(
+      [
+        {
+          id: 'segment_0',
+          datumId: '3',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-03',
+          end: '2014-01-04',
+          value: 0.7,
+          vizType: 'actual'
+        }
+      ]);
+  });
+
+  it('Throws away only overlapping portion of scheduled basals4', function(){
+    var segs = segmentUtil(
+      [
+        {
+          id: '1',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-01',
+          end: '2014-01-02',
+          value: 0.6
+        },
+        {
+          id: '2',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-03',
+          end: '2014-01-04',
+          value: 0.8
+        },
+        {
+          id: '3',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-01',
+          end: '2014-01-04',
+          value: 0.7
+        }
+      ]
+    );
+
+    expect(segs.undelivered).is.empty;
+
+    expect(segs.actual).to.deep.equal(
+      [
+        {
+          id: 'segment_0',
+          datumId: '3',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-02',
+          end: '2014-01-03',
+          value: 0.7,
+          vizType: 'actual'
+        }
+      ]);
+  });
+
+  it('Allows overlapping schedules of the same rate', function(){
+    var segs = segmentUtil(
+      [
+        {
+          id: '1',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-01',
+          end: '2014-01-02',
+          value: 0.7
+        },
+        {
+          id: '2',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-03',
+          end: '2014-01-04',
+          value: 0.8
+        },
+        {
+          id: '3',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-01',
+          end: '2014-01-04',
+          value: 0.7
+        }
+      ]
+    );
+
+    expect(segs.undelivered).is.empty;
+
+    expect(segs.actual).to.deep.equal(
+      [
+        {
+          id: 'segment_0',
+          datumId: '1',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-01',
+          end: '2014-01-03',
+          value: 0.7,
+          vizType: 'actual'
+        }
+      ]);
+  });
+
+  it('Allows overlapping schedules of the same rate2', function(){
+    var segs = segmentUtil(
+      [
+        {
+          id: '1',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-01',
+          end: '2014-01-02',
+          value: 0.7
+        },
+        {
+          id: '2',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-02',
+          end: '2014-01-04',
+          value: 0.8
+        },
+        {
+          id: '3',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-01',
+          end: '2014-01-04',
+          value: 0.7
+        }
+      ]
+    );
+
+    expect(segs.undelivered).is.empty;
+
+    expect(segs.actual).to.deep.equal(
+      [
+        {
+          id: 'segment_0',
+          datumId: '1',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-01',
+          end: '2014-01-02',
+          value: 0.7,
+          vizType: 'actual'
+        }
+      ]);
+  });
+
+  it('Allows overlapping schedules of the same rate3', function(){
+    var segs = segmentUtil(
+      [
+        {
+          id: '1',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-01',
+          end: '2014-01-02',
+          value: 0.7
+        },
+        {
+          id: '2',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-02',
+          end: '2014-01-03',
+          value: 0.8
+        },
+        {
+          id: '3',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-01',
+          end: '2014-01-04',
+          value: 0.7
+        }
+      ]
+    );
+
+    expect(segs.undelivered).is.empty;
+
+    expect(segs.actual).to.deep.equal(
+      [
+        {
+          id: 'segment_0',
+          datumId: '1',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-01',
+          end: '2014-01-02',
+          value: 0.7,
+          vizType: 'actual'
+        },
+        {
+          id: 'segment_1',
+          datumId: '3',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-03',
+          end: '2014-01-04',
+          value: 0.7,
+          vizType: 'actual'
+        }
+      ]);
+  });
+
+  it('Allows overlapping schedules of the same deviceId', function(){
+    var segs = segmentUtil(
+      [
+        {
+          id: '1',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-01',
+          end: '2014-01-04',
+          value: 1.7,
+          deviceId: 'billy'
+        },
+        {
+          id: '2',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-02',
+          end: '2014-01-03',
+          value: 0.8
+        },
+        {
+          id: '3',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-03',
+          end: '2014-01-04',
+          value: 0.7,
+          deviceId: 'billy'
+        }
+      ]
+    );
+
+    expect(segs.undelivered).is.empty;
+
+    expect(segs.actual).to.deep.equal(
+      [
+        {
+          id: 'segment_0',
+          datumId: '1',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-01',
+          end: '2014-01-02',
+          value: 1.7,
+          deviceId: 'billy',
+          vizType: 'actual'
+        },
+        {
+          id: 'segment_1',
+          datumId: '3',
+          type: 'basal-rate-segment',
+          deliveryType: 'scheduled',
+          start: '2014-01-03',
+          end: '2014-01-04',
+          value: 0.7,
+          deviceId: 'billy',
+          vizType: 'actual'
+        }
+      ]);
   });
 
   it('Smooshes delivered', function(){
