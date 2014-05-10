@@ -26,8 +26,6 @@ function isScheduledBasal(e) {
   return e.type === 'basal' && e.deliveryType === 'scheduled';
 }
 
-var keysForEquality = ['start', 'end', 'value', 'percent', 'duration', 'deliveryType'];
-
 function makeNewBasalHandler() {
   var segmentStart = null;
   var eventBuffer = [];
@@ -61,9 +59,6 @@ function makeNewBasalHandler() {
         segmentStart = event;
       } else if (segmentStart.deviceId !== event.deviceId) {
         eventBuffer.push(event);
-        return null;
-      } else if (_.isEqual(_.pick(segmentStart, keysForEquality), _.pick(event, keysForEquality))) {
-        // Ignore the basal if it's the same
         return null;
       } else {
         return [makeSegment(event)].concat(eventBuffer, [event]);
