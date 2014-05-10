@@ -33,15 +33,18 @@ function makeNewBasalHandler() {
   var eventBuffer = [];
 
   function makeSegment(event) {
-    return _.assign(
-      {},
-      segmentStart,
-      {
-        type: 'basal-rate-segment',
-        start: segmentStart.deviceTime,
-        end: event == null ? null : event.deviceTime
-      }
-    );
+    var overrides = {
+      type: 'basal-rate-segment',
+      start: segmentStart.deviceTime
+    };
+
+    if (segmentStart.duration == null) {
+      overrides.end = (event == null) ? null : event.deviceTime;
+    } else {
+      overrides.end = moment(segmentStart.deviceTime).add('ms', segmentStart.duration).format('YYYY-MM-DDTHH:mm:ss');
+    }
+
+    return _.assign({}, segmentStart, overrides);
   }
 
   return {
