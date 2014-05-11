@@ -16,10 +16,13 @@ example:
 	lessc example/example.less example/example.css
 
 test:
-	mocha test/*_test.js --reporter spec
+	browserify --debug test/index.js > test/test.js
+	testem
 
 minimal-test:
 	mocha test/*_test.js --reporter nyan
+
+run-test: example test
 
 server:
 	python dev/simple_server.py
