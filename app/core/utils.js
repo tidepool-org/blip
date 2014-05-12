@@ -51,4 +51,9 @@ utils.getIn = function(obj, props, notFound) {
   return result.child;
 };
 
+utils.isChrome = function() {
+  return false;
+  return navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
+}
+
 module.exports = utils;
