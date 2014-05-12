@@ -71,19 +71,31 @@ img {
   vertical-align: middle;
 }
 
+// Print section
+// ====================================
 @media print {
-  background: transparent;
+  body {
+    background: transparent;
+  }
 
   .large-one-third {
-    width: 33.333%;
+    width: 33.333% !important;
   }
   .large-three-eighths {
-    width: 37.5%;
+    width: 37.5% !important;
   }
   .large-one-quarter {
-    width: 25%;
+    width: 25% !important;
   }
   .large-one-half {
-    width: 50%;
+    width: 50% !important;
+  }
+
+  .patient-data-subnav > div:first-child > div {
+    display: none;
+  }
+
+  .patient-data-subnav > div:last-child > div {
+    display: none;
   }
 }
