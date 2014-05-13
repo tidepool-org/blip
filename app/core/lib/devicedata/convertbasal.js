@@ -26,22 +26,23 @@ function isScheduledBasal(e) {
   return e.type === 'basal' && e.deliveryType === 'scheduled';
 }
 
-var keysForEquality = ['start', 'end', 'value', 'percent', 'duration', 'deliveryType'];
-
 function makeNewBasalHandler() {
   var segmentStart = null;
   var eventBuffer = [];
 
   function makeSegment(event) {
-    return _.assign(
-      {},
-      segmentStart,
-      {
-        type: 'basal-rate-segment',
-        start: segmentStart.deviceTime,
-        end: event == null ? null : event.deviceTime
-      }
-    );
+    var overrides = {
+      type: 'basal-rate-segment',
+      start: segmentStart.deviceTime
+    };
+
+    if (segmentStart.duration == null) {
+      overrides.end = (event == null) ? null : event.deviceTime;
+    } else {
+      overrides.end = moment(segmentStart.deviceTime).add('ms', segmentStart.duration).format('YYYY-MM-DDTHH:mm:ss');
+    }
+
+    return _.assign({}, segmentStart, overrides);
   }
 
   return {
@@ -58,9 +59,6 @@ function makeNewBasalHandler() {
         segmentStart = event;
       } else if (segmentStart.deviceId !== event.deviceId) {
         eventBuffer.push(event);
-        return null;
-      } else if (_.isEqual(_.pick(segmentStart, keysForEquality), _.pick(event, keysForEquality))) {
-        // Ignore the basal if it's the same
         return null;
       } else {
         return [makeSegment(event)].concat(eventBuffer, [event]);

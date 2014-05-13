@@ -535,7 +535,7 @@ var PatientData = React.createClass({
         messageText : message.messagetext,
         parentMessage : message.parentmessage,
         type: 'message',
-        _id: message.id
+        id: message.id
       };
     var transformedMessage = watson.normalize(tidelineMessage);
     this.refs.chart.createMessageThread(transformedMessage);
