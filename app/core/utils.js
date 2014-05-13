@@ -52,7 +52,6 @@ utils.getIn = function(obj, props, notFound) {
 };
 
 utils.isChrome = function() {
-  return false;
   return navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
 }
 

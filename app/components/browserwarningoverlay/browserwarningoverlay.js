@@ -36,9 +36,8 @@ var BrowserWarningOverlay = React.createClass({
         <div className="browser-warning-overlay-content browser-warning-overlay-box">
           <div className="browser-warning-overlay-title">WARNING</div>
           <div className="browser-warning-overlay-text">
-            <p>Only tested on Chrome.</p>
-            <p>Works on Safari and Firefox, but there are drawing issues - dont make therapy changes.</p>
-            <p>Known not to work in IE.</p>
+          <p>PLEASE NOTE: This version of <strong>Blip</strong> should only be used with the Chrome browser.</p>
+          <p><strong>THERAPY CHANGES SHOULD ONLY BE MADE AFTER CONSULTING WITH YOUR DOCTOR, AND ONLY BASED ON DATA SHOWN IN THE CHROME BROWSER.</strong></p>
           </div>
           <form className="browser-warning-overlay-form">
             {submitButton}

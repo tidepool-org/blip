@@ -118,7 +118,8 @@ var AppComponent = React.createClass({
       patientData: null,
       fetchingPatientData: true,
       fetchingMessageData: true,
-      showingAcceptTerms: false
+      showingAcceptTerms: false,
+      dismissedBrowserWarning: false,
     };
   },
 
@@ -192,9 +193,8 @@ var AppComponent = React.createClass({
       /* jshint ignore:end */
     }
 
-    if (!utils.isChrome() && window.localStorage && window.localStorage.getItem('hideBrowserWarning') && window.localStorage.getItem('hideBrowserWarning') !== 'true') {
+    if (!utils.isChrome() && !this.state.dismissedBrowserWarning) {
       /* jshint ignore:start */
-      console.log('loggingOut',this.state.loggingOut);
       return (
         <BrowserWarningOverlay onSubmit={this.handleAcceptedBrowserWarning} />
       );
@@ -570,10 +570,9 @@ var AppComponent = React.createClass({
   },
 
   handleAcceptedBrowserWarning: function() {
-    if (window.localStorage) {
-      window.localStorage.setItem('hideBrowserWarning', true);
-    }
-    this.setState();
+    this.setState({
+      dismissedBrowserWarning: true
+    });
   },
 
   logout: function() {
@@ -583,8 +582,11 @@ var AppComponent = React.createClass({
       return;
     }
 
-    this.setState({loggingOut: true});
-    
+    this.setState({
+      loggingOut: true,
+      dismissedBrowserWarning: false
+    });
+
     // Need to track this before expiring auth token
     trackMetric('Logged Out');
 
@@ -612,8 +614,6 @@ var AppComponent = React.createClass({
     this.setState({authenticated: false});
     this.clearUserData();
     router.setRoute('/login');
-
-    window.localStorage.getItem('hideBrowserWarning');
   },
 
   closeNotification: function() {
