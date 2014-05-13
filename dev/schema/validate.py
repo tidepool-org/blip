@@ -37,13 +37,6 @@ def main():
         exit()
 
     data = json.load(open(args.data, 'rU'))
-    # remove basal rate segments with no value (seems to happen during overlapping pump data)
-    for d in data:
-        if d['type'] == 'basal-rate-segment':
-            try:
-                d['value']
-            except KeyError:
-                data.remove(d)
     
     schema = json.load(open(args.schema, 'rU'))
 

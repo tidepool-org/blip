@@ -31,6 +31,13 @@ function notZero(e) {
   return e.value !== 0;
 }
 
+function withTiming(name, fn) {
+  var now = Date.now();
+  var retVal = fn.apply(null, Array.prototype.slice.call(arguments, 2));
+  log(name + ' completed in ' + (Date.now() - now) + ' millis. ');
+  return retVal;
+}
+
 /**
  * This converts suspend start and end events into basal-rate-segments for the visualization
  *
@@ -111,12 +118,11 @@ var Preprocess = {
   MMOL_TO_MGDL: 18,
 
   mungeBasals: function(data) {
-    var segments = new SegmentUtil(_.sortBy(_.where(data, {'type': 'basal-rate-segment'}), 'deviceTime'));
+    var segments = new SegmentUtil(data);
     data = _.reject(data, function(d) {
       return d.type === 'basal-rate-segment';
     });
-    data = data.concat(segments.actual.concat(segments.getUndelivered('scheduled')));
-    return data;
+    return data.concat(segments.actual.concat(segments.getUndelivered('scheduled')));
   },
 
   editBoluses: function(data) {
@@ -279,13 +285,13 @@ var Preprocess = {
       data = [];
     }
 
-    data = this.editBoluses(data);
-    data = this.filterData(data);
-    data = this.processDeviceMeta(data);
-    data = this.mungeBasals(data);
-    data = this.runWatson(data);
-    data = this.translateMmol(data);
-    data = this.sortBasalSchedules(data);
+    data = withTiming('editBoluses', this.editBoluses.bind(this), data);
+    data = withTiming('filterData', this.filterData.bind(this), data);
+    data = withTiming('processDeviceMeta', this.processDeviceMeta.bind(this), data);
+    data = withTiming('mungeBasals', this.mungeBasals.bind(this), data);
+    data = withTiming('runWatson', this.runWatson.bind(this), data);
+    data = withTiming('translateMmol', this.translateMmol.bind(this), data);
+    data = withTiming('sortBasalSchedules', this.sortBasalSchedules.bind(this), data);
 
     var tidelineData = this.checkRequired(new TidelineData(data));
 
