@@ -50,7 +50,7 @@ function chartWeeklyFactory(el, options) {
     }
 
     // basic chart set up
-    chart.width(width).height(height);
+    chart.id(el.id).width(width).height(height);
 
     if (options.imagesBaseUrl) {
       chart.imagesBaseUrl(options.imagesBaseUrl);
