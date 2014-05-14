@@ -25,6 +25,7 @@
   "devDependencies": {
     "bootstrap": "~3.0.3",
     "bows": "https://github.com/latentflip/bows.git#beb35328d5c224fc5635928a1b45b32e0d839caa",
-    "jquery": "~2.1.0"
+    "jquery": "~2.1.0",
+    "jquery-simulate": "*"
   }
 }
