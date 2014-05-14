@@ -32,9 +32,11 @@ var patient = require('./core/patient');
 var queryString = require('./core/querystring');
 var chartUtil = window.tideline.preprocess;
 var detectTouchScreen = require('./core/notouch');
+var utils = require('./core/utils');
 
 var Navbar = require('./components/navbar');
 var LogoutOverlay = require('./components/logoutoverlay');
+var BrowserWarningOverlay = require('./components/browserwarningoverlay');
 var Notification = require('./components/notification');
 var TermsOverlay = require('./components/termsoverlay');
 
@@ -116,7 +118,8 @@ var AppComponent = React.createClass({
       patientData: null,
       fetchingPatientData: true,
       fetchingMessageData: true,
-      showingAcceptTerms: false
+      showingAcceptTerms: false,
+      dismissedBrowserWarning: false,
     };
   },
 
@@ -186,6 +189,14 @@ var AppComponent = React.createClass({
       /* jshint ignore:start */
       return (
         <LogoutOverlay ref="logoutOverlay" />
+      );
+      /* jshint ignore:end */
+    }
+
+    if (!utils.isChrome() && !this.state.dismissedBrowserWarning) {
+      /* jshint ignore:start */
+      return (
+        <BrowserWarningOverlay onSubmit={this.handleAcceptedBrowserWarning} />
       );
       /* jshint ignore:end */
     }
@@ -558,6 +569,12 @@ var AppComponent = React.createClass({
     });
   },
 
+  handleAcceptedBrowserWarning: function() {
+    this.setState({
+      dismissedBrowserWarning: true
+    });
+  },
+
   logout: function() {
     var self = this;
 
@@ -565,7 +582,10 @@ var AppComponent = React.createClass({
       return;
     }
 
-    this.setState({loggingOut: true});
+    this.setState({
+      loggingOut: true,
+      dismissedBrowserWarning: false
+    });
 
     // Need to track this before expiring auth token
     trackMetric('Logged Out');
