@@ -56,7 +56,9 @@ function Pool (container) {
         pool.noDataFill(plotType);
       }
     });
-    this.drawAxis();
+
+    this.drawAxes();
+    this.updateAxes();
     this.drawLabel();
     this.drawLegend();
   };
@@ -155,20 +157,28 @@ function Pool (container) {
 
   });
 
-  this.drawAxis = _.once(function() {
-    var axisGroup = d3.select('#tidelineYAxes');
+  this.drawAxes = _.once(function() {
+    var axisGroup = mainSVG.select('#tidelineYAxes');
     yAxis.forEach(function(axis, i) {
       axisGroup.append('g')
         .attr('class', 'd3-y d3-axis')
         .attr('id', 'pool_' + id + '_yAxis_' + i)
-        .attr('transform', 'translate(' + (container.axisGutter() - 1) + ',' + yPosition + ')')
-        .call(axis);
+        .attr('transform', 'translate(' + (container.axisGutter() - 1) + ',' + yPosition + ')');
     });
     return this;
   });
 
+  this.updateAxes = function() {
+    var axisGroup = mainSVG.select('#tidelineYAxes');
+    yAxis.forEach(function(axis, i) {
+      axisGroup.select('#pool_' + id + '_yAxis_' + i)
+        .call(axis);
+    });
+    return this;
+  };
+
   this.noDataFill = _.once(function(plotType) {
-    d3.select('#' + id).append('g').attr('id', id + '_' + plotType.type).call(plotType.plot);
+    mainSVG.select('#' + id).append('g').attr('id', id + '_' + plotType.type).call(plotType.plot);
     return this;
   });
 
