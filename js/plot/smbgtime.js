@@ -45,6 +45,8 @@ function SMBGTime (opts) {
 
   this.draw = function(pool) {
     opts.pool = pool;
+    var mainGroup = pool.parent();
+    
     var smbg = this;
     return function(selection) {
       selection.each(function(currentData) {
@@ -162,9 +164,9 @@ function SMBGTime (opts) {
             smbg.addTooltip(d3.select(this).datum(), 'high', pool);
           }
         });
-        d3.selectAll('.d3-image-smbg').on('mouseout', function() {
+        selection.selectAll('.d3-image-smbg').on('mouseout', function() {
           var id = d3.select(this).attr('id').replace('smbg_time_', 'tooltip_');
-          d3.select('#' + id).remove();
+          mainGroup.select('#' + id).remove();
         });
       });
     };

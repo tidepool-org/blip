@@ -41,6 +41,8 @@ module.exports = function(pool, opts) {
 
   _.defaults(opts, defaults);
 
+  var mainGroup = pool.parent();
+
   function smbg(selection) {
     opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
@@ -53,13 +55,13 @@ module.exports = function(pool, opts) {
         .append('image')
         .attr({
           'xlink:href': function(d) {
-            if (d.value <= opts.classes['very-low'].boundary) {
+            if (d.value < opts.classes['very-low'].boundary) {
               return opts.imagesBaseUrl + '/smbg/very_low.svg';
             }
-            else if ((d.value > opts.classes['very-low'].boundary) && (d.value <= opts.classes.low.boundary)) {
+            else if ((d.value >= opts.classes['very-low'].boundary) && (d.value < opts.classes.low.boundary)) {
               return opts.imagesBaseUrl + '/smbg/low.svg';
             }
-            else if ((d.value > opts.classes.low.boundary) && (d.value <= opts.classes.target.boundary)) {
+            else if ((d.value >= opts.classes.low.boundary) && (d.value <= opts.classes.target.boundary)) {
               return opts.imagesBaseUrl + '/smbg/target.svg';
             }
             else if ((d.value > opts.classes.target.boundary) && (d.value <= opts.classes.high.boundary)) {
@@ -81,10 +83,10 @@ module.exports = function(pool, opts) {
             return 'smbg_' + d.id;
           },
           'class': function(d) {
-            if (d.value <= opts.classes.low.boundary) {
+            if (d.value < opts.classes.low.boundary) {
               return 'd3-bg-low';
             }
-            else if ((d.value > opts.classes.low.boundary) && (d.value <= opts.classes.target.boundary)) {
+            else if ((d.value >= opts.classes.low.boundary) && (d.value <= opts.classes.target.boundary)) {
               return 'd3-bg-target';
             }
             else if (d.value > opts.classes.target.boundary) {
@@ -96,7 +98,7 @@ module.exports = function(pool, opts) {
       circles.exit().remove();
 
       // tooltips
-      d3.selectAll('.d3-image-smbg').on('mouseover', function() {
+      selection.selectAll('.d3-image-smbg').on('mouseover', function() {
         if (d3.select(this).classed('d3-bg-low')) {
           smbg.addTooltip(d3.select(this).datum(), 'low');
         }
@@ -107,15 +109,15 @@ module.exports = function(pool, opts) {
           smbg.addTooltip(d3.select(this).datum(), 'high');
         }
       });
-      d3.selectAll('.d3-image-smbg').on('mouseout', function() {
+      selection.selectAll('.d3-image-smbg').on('mouseout', function() {
         var id = d3.select(this).attr('id').replace('smbg_', 'tooltip_');
-        d3.select('#' + id).remove();
+        mainGroup.select('#' + id).remove();
       });
     });
   }
 
   smbg.addTooltip = function(d, category) {
-    d3.select('#' + 'tidelineTooltips_smbg')
+    mainGroup.select('#' + 'tidelineTooltips_smbg')
       .call(pool.tooltips(),
         d,
         // tooltipXPos
