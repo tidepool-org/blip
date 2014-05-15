@@ -43,7 +43,7 @@ api.init = function(cb) {
     },
     localStore: window.localStorage,
     metricsSource: 'blip',
-    metricsVersion: config.version
+    metricsVersion: config.VERSION
   });
 
   api.tidepool = tidepool;
