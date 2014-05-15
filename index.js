@@ -436,6 +436,48 @@ module.exports = function (config, deps) {
       );
     },
     /**
+     * Post an application error so that it can be logged
+     *
+     * This call never errors, so the callback is optional; it will be called if supplied.
+     * This call also doesn't wait for the call to return but returns immediately.
+     *
+     * This call automatically adds a property client: true to the property list.
+     *
+     * @param error Object the error that will be logged
+     * @param message String an optional message
+     * @param properties Object list of key/value pairs to post as properties.
+     * @param cb If provided, is called without arguments after posting; this call never errors, so callback is optional.
+     * @returns {cb}  cb()
+     */
+    logAppError: function (error, message, properties, cb) {
+      properties = _.assign({}, properties);
+      properties.sourceVersion = config.metricsVersion;
+      properties.error = error;
+
+      if(message){
+        properties.message = message;
+      }
+
+      var eventname = 'application error';
+
+      var doNothingCB = function() {
+        if (cb) {
+          cb();
+        }
+      };
+
+      withToken(
+        doNothingCB,
+        function(token){
+          superagent
+            .get(makeUrl('/metrics/thisuser/' + config.metricsSource + ' - ' + eventname))
+            .set(sessionTokenHeader, token)
+            .query(properties)
+            .end(doNothingCB);
+        }
+      );
+    },
+    /**
      * Update current user account info
      *
      * @param {Object} user object with account info

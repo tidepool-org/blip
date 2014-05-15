@@ -21,6 +21,7 @@ var superagent = require('superagent');
 
 var platform = require('../../index.js');
 var myLocalStore = require('./mockedLocalStorage')();
+var pjson = require('../../package.json');
 
 describe('platform client', function () {
 
@@ -58,8 +59,13 @@ describe('platform client', function () {
     mockedLocalStore = mockedLocalStore || myLocalStore;
 
     var client = platform(
-      { host: 'https://devel-api.tidepool.io' },
-      { superagent : superagent, log : myLog, localStore : mockedLocalStore }
+      { host: 'https://devel-api.tidepool.io',
+        metricsSource : pjson.name,
+        metricsVersion : pjson.version
+      },
+      { superagent : superagent,
+        log : myLog,
+        localStore : mockedLocalStore }
     );
 
     loginOpts = loginOpts || {};
@@ -155,6 +161,33 @@ describe('platform client', function () {
             done();
           });
         });
+
+      });
+    });
+
+  });
+
+  describe('allows applictaions', function () {
+
+    var defaulted = null;
+
+    it('to track metrics', function (done) {
+
+      createClient(mrT1, defaulted, defaulted,function(error,loggedInApp){
+
+        expect(error).to.not.exist;
+        loggedInApp.trackMetric('Platform Client Metrics Test',defaulted,done);
+
+      });
+    });
+
+    it('to log errors', function (done) {
+
+      createClient(mrT1, defaulted , defaulted, function(error,loggedInApp){
+
+        expect(error).to.not.exist;
+        var appErrorToLog = new Error('Error From Platform Client Tests');
+        loggedInApp.logAppError(appErrorToLog,'an error? what!',defaulted,done);
 
       });
     });
