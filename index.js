@@ -444,14 +444,19 @@ module.exports = function (config, deps) {
      * This call automatically adds a property client: true to the property list.
      *
      * @param error Object the error that will be logged
+     * @param message String an optional message
      * @param properties Object list of key/value pairs to post as properties.
      * @param cb If provided, is called without arguments after posting; this call never errors, so callback is optional.
      * @returns {cb}  cb()
      */
-    logAppError: function (error, properties, cb) {
+    logAppError: function (error, message, properties, cb) {
       properties = _.assign({}, properties);
       properties.sourceVersion = config.metricsVersion;
       properties.error = error;
+
+      if(message){
+        properties.message = message;
+      }
 
       var eventname = 'application error';
 

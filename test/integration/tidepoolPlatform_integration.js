@@ -187,7 +187,7 @@ describe('platform client', function () {
 
         expect(error).to.not.exist;
         var appErrorToLog = new Error('Error From Platform Client Tests');
-        loggedInApp.logAppError(appErrorToLog,defaulted,done);
+        loggedInApp.logAppError(appErrorToLog,'an error? what!',defaulted,done);
 
       });
     });
