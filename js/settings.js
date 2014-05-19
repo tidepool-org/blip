@@ -1,15 +1,15 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -45,7 +45,7 @@ module.exports = function(emitter, opts) {
     },
     'rowHeadersByType': {
       'basalSchedules': ['Start time', 'Value (U/hr)'],
-      // TODO: 
+      // TODO:
       'basalScheduleSum': ['Total', (function() { return 0.0; }())],
       'carbRatio': ['Start time', 'Value (g/U)'],
       'insulinSensitivity': ['Start time', 'Value (' + opts.bgUnits + '/U)'],
@@ -243,7 +243,7 @@ module.exports = function(emitter, opts) {
             return 'd3-settings-col-label d3-settings-col-collapsed';
           }
         })
-        .text(datatype);
+        .html((scheduleClass ? '<i class="icon-up"></i>' : '<i class="icon-down"></i>') + datatype);
     }
 
     var columnTable = columnDiv.append('table');
@@ -278,11 +278,18 @@ module.exports = function(emitter, opts) {
     mainDiv.selectAll('.d3-settings-basal-schedule').selectAll('.d3-settings-col-label')
       .on('click', function() {
         var current = d3.select(this).classed('d3-settings-col-active');
+        
         mainDiv.selectAll('.d3-settings-col-label')
           .classed({
             'd3-settings-col-active': false,
             'd3-settings-col-collapsed': true
           });
+
+        d3.select(this).selectAll('i').classed({
+          'icon-up': !current,
+          'icon-down': current
+        });
+
         d3.select(this).classed({
           'd3-settings-col-active': !current,
           'd3-settings-col-collapsed': current
