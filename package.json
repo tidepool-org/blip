@@ -3,10 +3,12 @@
   "version": "0.0.1",
   "description": "Tidepool's datetime library thingie.",
   "keywords": [
-    "datetime", "date", "time"
+    "datetime",
+    "date",
+    "time"
   ],
-  "homepage": "https://github.com/tidepool-org/hakken",
-  "bugs": "https://github.com/tidepool-org/hakken/issues",
+  "homepage": "https://github.com/tidepool-org/sundial",
+  "bugs": "https://github.com/tidepool-org/sundial/issues",
   "license": "BSD-2-clause",
   "author": {
     "name": "Eric Tschetter",
@@ -25,10 +27,13 @@
   "main": "lib/index.js",
   "repository": "https://github.com/tidepool-org/sundial.git",
   "dependencies": {
-    "moment": "2.5.1"
+    "moment": "2.6.0"
   },
   "devDependencies": {
-    "mocha": "1.17.1",
-    "should": "3.1.0"
+    "grunt": "0.4.1",
+    "grunt-cli": "0.1.11",
+    "grunt-contrib-jshint": "0.6.4",
+    "grunt-mocha-test": "0.7.0",
+    "salinity": "0.0.3"
   }
 }
