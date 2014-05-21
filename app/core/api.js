@@ -127,6 +127,10 @@ api.user.logout = function(cb) {
   });
 };
 
+api.user.destroySession = function() {
+  tidepool.destroySession();
+};
+
 api.user.get = function(cb) {
   api.log('GET /user');
 
@@ -488,6 +492,16 @@ api.metrics.track = function(eventName, properties, cb) {
   api.log('GET /metrics/' + window.encodeURIComponent(eventName));
 
   return tidepool.trackMetric(eventName, properties, cb);
+};
+
+// ----- Errors -----
+
+api.errors = {};
+
+api.errors.log = function(error, message, properties) {
+  api.log('POST /errors');
+
+  return tidepool.logAppError(error, message, properties);
 };
 
 module.exports = api;

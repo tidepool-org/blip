@@ -253,13 +253,18 @@ var AppComponent = React.createClass({
 
   renderNotification: function() {
     var notification = this.state.notification;
+    var handleClose;
 
     if (notification) {
+      if (notification.isDismissable) {
+        handleClose = this.closeNotification;
+      }
+
       return (
         /* jshint ignore:start */
         <Notification
           type={notification.type}
-          onClose={this.closeNotification}>
+          onClose={handleClose}>
           {notification.body}
         </Notification>
         /* jshint ignore:end */
@@ -596,14 +601,9 @@ var AppComponent = React.createClass({
 
     app.api.user.logout(function(err) {
       if (err) {
-        self.setState({
-          loggingOut: false,
-          notification: {
-            type: 'error',
-            body: 'An error occured while logging out.'
-          }
-        });
-        return;
+        self.setState({loggingOut: false});
+        var message = 'An error occured while logging out';
+        return self.handleApiError(err, message);
       }
       self.refs.logoutOverlay.fadeOut(function() {
         self.setState({loggingOut: false});
@@ -633,6 +633,12 @@ var AppComponent = React.createClass({
     self.setState({fetchingUser: true});
 
     app.api.user.get(function(err, user) {
+      if (err) {
+        self.setState({fetchingUser: false});
+        var message = 'An error occured while fetching user';
+        return self.handleApiError(err, message);
+      }
+
       self.setState({
         user: user,
         fetchingUser: false
@@ -646,6 +652,12 @@ var AppComponent = React.createClass({
     self.setState({fetchingPatients: true});
 
     app.api.patient.getAll(function(err, patients) {
+      if (err) {
+        var message = 'Something went wrong while fetching care teams';
+        self.setState({fetchingPatients: false});
+        return self.handleApiError(err, message);
+      }
+
       self.setState({
         patients: patients,
         fetchingPatients: false
@@ -660,10 +672,16 @@ var AppComponent = React.createClass({
 
     app.api.patient.get(patientId, function(err, patient) {
       if (err) {
-        // Unauthorized, or not found
-        app.log('Error fetching patient with id ' + patientId);
+        var message = 'Error fetching patient with id ' + patientId;
         self.setState({fetchingPatient: false});
-        return;
+
+        // Patient with id not found, cary on
+        if (err.status === 404) {
+          app.log(message);
+          return;
+        }
+
+        return self.handleApiError(err, message);
       }
 
       self.setState({
@@ -698,9 +716,16 @@ var AppComponent = React.createClass({
     },
     function(err, results) {
       if (err) {
-        app.log('Error fetching data for patient with id ' + patientId, err);
+        var message = 'Error fetching data for patient with id ' + patientId;
         self.setState({fetchingPatientData: false});
-        return;
+
+        // Patient with id not found, cary on
+        if (err.status === 404) {
+          app.log(message);
+          return;
+        }
+
+        return self.handleApiError(err, message);
       }
 
       var patientData = results.patientData || [];
@@ -726,12 +751,16 @@ var AppComponent = React.createClass({
     var self = this;
     self.setState({fetchingMessageData: true});
 
-    app.api.team.getMessageThread(messageId,function(error,thread){
+    app.api.team.getMessageThread(messageId,function(err, thread){
       self.setState({fetchingMessageData: false});
-      if (error) {
-        app.log('Error fetching data for message thread with id ' + messageId);
+
+      if (err) {
+        var message =
+          'Error fetching data for message thread with id ' + messageId;
+        self.handleApiError(err, message);
         return callback(null);
       }
+
       app.log('Fetched message thread with '+thread.length+' messages');
       return callback(thread);
     });
@@ -783,16 +812,10 @@ var AppComponent = React.createClass({
 
     app.api.user.put(user, function(err, user) {
       if (err) {
-        var message = (err.body && err.body.msg) || '';
-        message = [
-        'An error occured while updating user account.', message
-        ].join(' ');
-        self.setState({
-          notification: {type: 'error', body: message}
-        });
+        var message = 'An error occured while updating user account';
         // Rollback
         self.setState({user: previousUser});
-        return;
+        return self.handleApiError(err, message);
       }
       self.setState({user: user});
       trackMetric('Updated Account');
@@ -825,19 +848,100 @@ var AppComponent = React.createClass({
 
     app.api.patient.put(patient.id, patient, function(err, patient) {
       if (err) {
-        self.setState({
-          notification: {
-            type: 'error',
-            body: 'An error occured while saving patient.'
-          }
-        });
+        var message = 'An error occured while saving patient';
         // Rollback
         self.setState({patient: previousPatient});
-        return;
+        return self.handleApiError(err, message);
       }
       self.setState({patient: patient});
       trackMetric('Updated Profile');
     });
+  },
+
+  handleApiError: function(error, message) {
+    if (message) {
+      app.log(message);
+    }
+
+    var self = this;
+    var status = error.status;
+    var originalErrorMessage = [
+      message, this.stringifyApiError(error)
+    ].join(' ');
+
+    var type = 'error';
+    var body;
+    /* jshint ignore:start */
+    body = (
+      <p>
+        {'Sorry! Something went wrong. '}
+        {'It\'s our fault, not yours. We\'re going to go investigate. '}
+        {'For the time being, go ahead and '}
+        <a href="/">refresh your browser</a>
+        {'.'}
+      </p>
+    );
+    /* jshint ignore:end */
+    var isDismissable = true;
+
+    if (status === 401) {
+      var handleLogBackIn = function(e) {
+        e.preventDefault();
+        self.setState({notification: null});
+        // We don't actually go through logout process,
+        // so safer to manually destroy local session
+        app.api.user.destroySession();
+        self.handleLogoutSuccess();
+      };
+
+      type = 'alert';
+      originalErrorMessage = null;
+      /* jshint ignore:start */
+      body = (
+        <p>
+          {'To keep your data safe we logged you out. '}
+          <a
+            href=""
+            onClick={handleLogBackIn}>Click here to log back in</a>
+          {'.'}
+        </p>
+      );
+      /* jshint ignore:end */
+      isDismissable = false;
+    }
+
+    if (originalErrorMessage && originalErrorMessage.length) {
+      /* jshint ignore:start */
+      body = (
+        <div>
+          {body}
+          <p className="notification-body-small">
+            <code>{'Original error message: ' + originalErrorMessage}</code>
+          </p>
+        </div>
+      );
+      /* jshint ignore:end */
+    }
+
+    // Send error to backend tracking
+    app.api.errors.log(this.stringifyApiError(error), message);
+
+    this.setState({
+      notification: {
+        type: type,
+        body: body,
+        isDismissable: isDismissable
+      }
+    });
+  },
+
+  stringifyApiError: function(error) {
+    if (_.isPlainObject(error)) {
+      return JSON.stringify(error);
+    }
+    else {
+      return error.toString();
+    }
   }
 });
 

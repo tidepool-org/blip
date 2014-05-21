@@ -13,6 +13,7 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+@notification-max-width:         800px;
 @notification-close-link-height: 30px;
 @notification-close-link-width:  41px;
 
@@ -35,7 +36,7 @@
   text-align: center;
   margin-left: @spacing-small;
   margin-right: @spacing-small;
-  max-width: (@screen-lg-min - 2*@spacing-small);
+  max-width: @notification-max-width;
   padding: 0 @spacing-small;
   border: 2px solid @gray-light;
   background-color: #fff;
@@ -108,4 +109,9 @@
     margin: 0;
     margin-bottom: @spacing-small;
   }
+}
+
+.notification-body-small {
+  font-size: 12px;
+  line-height: 16px;
 }
