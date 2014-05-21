@@ -1,17 +1,19 @@
 // == BSD2 LICENSE ==
 // Copyright (c) 2014, Tidepool Project
-// 
+//
 // This program is free software; you can redistribute it and/or modify it under
 // the terms of the associated License, which is identical to the BSD 2-Clause
 // License as published by the Open Source Initiative at opensource.org.
-// 
+//
 // This program is distributed in the hope that it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 // FOR A PARTICULAR PURPOSE. See the License for more details.
-// 
+//
 // You should have received a copy of the License along with this program; if
 // not, you can obtain one from Tidepool Project at tidepool.org.
 // == BSD2 LICENSE ==
+
+'use strict';
 
 var should
   , moment
@@ -37,16 +39,6 @@ FIRST_OCT_2013_230AM_NO_ZONE = '10/1/13 02:30:00';
 
 
 /*
-Raw time as per many devices that give no zone info
-*/
-TWENTYFORTH_SEPT_2013_230AM_NO_ZONE = '9/24/13 02:30:00';
-
-/*
-Diasend Raw Time
-*/
-DIASEND_TWELVE_OCT_2013_14_NO_ZONE = '12/10/2013 14:00';
-
-/*
 Time with zone information
 */
 TWENTYSECOND_OCT_2013_257PM_WITH_NZDT_ZONE = '2013-10-22T14:57:09+13:00';
@@ -58,14 +50,14 @@ describe('Tidepool Dates', function() {
       should.exist(TidepoolDateTime);
       done();
     });
-    
+
     it('should have convertToAdjustedUTC method',function(done){
       var TidepoolDateTime, tpDateTime;
 
       TidepoolDateTime = require('../lib/');
 
       tpDateTime = new TidepoolDateTime();
-      
+
       should.exist(tpDateTime.convertToAdjustedUTC);
       done();
     });
@@ -75,7 +67,7 @@ describe('Tidepool Dates', function() {
       TidepoolDateTime = require('../lib/');
 
       tpDateTime = new TidepoolDateTime();
-      
+
       should.exist(tpDateTime.getDisplayTime);
       done();
     });
@@ -85,7 +77,7 @@ describe('Tidepool Dates', function() {
       TidepoolDateTime = require('../lib/');
 
       tpDateTime = new TidepoolDateTime();
-      
+
       should.exist(tpDateTime.getMoment);
       done();
     });
@@ -93,7 +85,7 @@ describe('Tidepool Dates', function() {
       var TidepoolDateTime;
 
       TidepoolDateTime = require('../lib/');
-      
+
       should.exist(TidepoolDateTime.FORMAT_LOCAL);
       done();
     });
@@ -101,13 +93,13 @@ describe('Tidepool Dates', function() {
       var TidepoolDateTime;
 
       TidepoolDateTime = require('../lib/');
-      
+
       should.exist(TidepoolDateTime.FORMAT_YYYY_MM_DD_HH_MM_SS);
       done();
     });
-    describe("getMoment", function() {
+    describe('getMoment', function() {
       it('should return instance of moment',function(done){
-        var TidepoolDateTime, tpDateTime, convertedUTC, isUTC;
+        var TidepoolDateTime, tpDateTime;
 
         TidepoolDateTime = require('../lib/');
         tpDateTime = new TidepoolDateTime();
@@ -118,7 +110,7 @@ describe('Tidepool Dates', function() {
         done();
       });
     });
-    describe("convertToAdjustedUTC", function() {
+    describe('convertToAdjustedUTC', function() {
       it('should convert TidepoolDateTime to utc string',function(done){
         var TidepoolDateTime, tpDateTime, convertedUTC, isUTC;
 
@@ -133,8 +125,8 @@ describe('Tidepool Dates', function() {
 
         done();
       });
-      it('should "convert" to UTC time with a timezoneOffset of 0', function(){
-        var TidepoolDateTime, tpDateTime, convertedUTC, isUTC;
+      it('should convert to UTC time with a timezoneOffset of 0', function(){
+        var TidepoolDateTime, tpDateTime, convertedUTC;
 
         TidepoolDateTime = require('../lib/');
 
@@ -143,7 +135,7 @@ describe('Tidepool Dates', function() {
         convertedUTC.should.equal('2014-02-05T01:01:01+00:00');
       });
       it('should use the given offset when the date does no include it and be utc',function(done){
-        var TidepoolDateTime, tpDateTime, convertedUTC, isUTC;
+        var TidepoolDateTime, tpDateTime, convertedUTC;
 
         TidepoolDateTime = require('../lib/');
 
@@ -154,21 +146,21 @@ describe('Tidepool Dates', function() {
         done();
       });
       it('should throw expection when offset parameter is not included',function(done){
-        var TidepoolDateTime, tpDateTime, convertedUTC, isUTC;
+        var TidepoolDateTime, tpDateTime;
 
         TidepoolDateTime = require('../lib/');
 
         tpDateTime = new TidepoolDateTime();
-        
+
         (function(){
           tpDateTime.convertToAdjustedUTC(FIRST_OCT_2013_230AM_NO_ZONE, 'MM/DD/YYTHH:mm:ss');
         }).should.throwError('Sorry but userOffsetFromUTC is required');
-        
+
         done();
       });
 
       it('should not throw an expection when offset is the TidepoolDateTime and not passed ',function(done){
-        var TidepoolDateTime, tpDateTime, convertedUTC, isUTC;
+        var TidepoolDateTime, tpDateTime, convertedUTC;
 
         TidepoolDateTime = require('../lib/');
 
@@ -176,7 +168,7 @@ describe('Tidepool Dates', function() {
         (function(){
           convertedUTC = tpDateTime.convertToAdjustedUTC(TWENTYSECOND_OCT_2013_257PM_WITH_NZDT_ZONE);
         }).should.not.throw();
-        
+
         done();
       });
       it('should return utc TidepoolDateTime string when given TidepoolDateTime that contains offset',function(done){
@@ -185,16 +177,16 @@ describe('Tidepool Dates', function() {
         TidepoolDateTime = require('../lib/');
 
         tpDateTime = new TidepoolDateTime();
-        
+
         convertedUTC = tpDateTime.convertToAdjustedUTC(TWENTYSECOND_OCT_2013_257PM_WITH_NZDT_ZONE);
         isUTC = convertedUTC.indexOf('+00:00') !=-1 ? true : false;
 
         isUTC.should.be.true;
-        
+
         done();
       });
       it('should return converted dates year as 2013 for raw format of 9/24/13',function(done){
-        var TidepoolDateTime, tpDateTime, convertedUTC, isUTC;
+        var TidepoolDateTime, tpDateTime, convertedUTC;
 
         TidepoolDateTime = require('../lib/');
 
@@ -205,26 +197,26 @@ describe('Tidepool Dates', function() {
         done();
       });
       it('should return converted dates year as 2013 for raw format of 12/10/2013',function(done){
-        var TidepoolDateTime, tpDateTime, convertedUTC, isUTC;
+        var TidepoolDateTime, tpDateTime, convertedUTC;
 
         TidepoolDateTime = require('../lib/');
 
         tpDateTime = new TidepoolDateTime();
         convertedUTC = tpDateTime.convertToAdjustedUTC(DIASEND_TWELVE_OCT_2013_14_NO_ZONE, 'DD/MM/YYYYTHH:mm:ss', CEST_OFFSET_DAYLIGHTSAVINGS);
-        
+
         convertedUTC.should.equal('2013-10-12T12:00:00+00:00');
-        
+
         done();
       });
     });
-    describe("getDisplayTime", function() {
+    describe('getDisplayTime', function() {
       it('should return string in format of local time which is default',function(done){
-        var TidepoolDateTime, tpDateTime, convertedUTC, isUTC, displayDate;
+        var TidepoolDateTime, tpDateTime;
 
         TidepoolDateTime = require('../lib/');
 
         tpDateTime = new TidepoolDateTime();
-        
+
         var val = moment.utc('2013-11-11T14:00:00-00:00');
         var expected = moment('2013-11-11T14:00:00Z');
         val.zone().should.not.equal(expected.zone());
@@ -233,7 +225,7 @@ describe('Tidepool Dates', function() {
         done();
       });
       it('should return string in format YYYY-MM-DDTHH:mm:ss that I have specified',function(done){
-        var TidepoolDateTime, tpDateTime, convertedUTC, isUTC, displayDate;
+        var TidepoolDateTime, tpDateTime;
 
         TidepoolDateTime = require('../lib/');
 
@@ -250,49 +242,49 @@ describe('Tidepool Dates', function() {
         done();
       });
     });
-    describe("isValidDateTime", function() {
+    describe('isValidDateTime', function() {
       it('should return true for Oct 1 2013 2:30 AM',function(done){
-        var TidepoolDateTime, tpDateTime, convertedUTC, isUTC, displayDate;
+        var TidepoolDateTime, tpDateTime;
 
         TidepoolDateTime = require('../lib/');
 
         tpDateTime = new TidepoolDateTime();
-        
+
         tpDateTime.isValidDateTime('Oct 1 2013 2:30 AM').should.be.true;
-        
+
         done();
       });
       it('should return true for 22/09/2013 11:11',function(done){
-        var TidepoolDateTime, tpDateTime, convertedUTC, isUTC, displayDate;
+        var TidepoolDateTime, tpDateTime;
 
         TidepoolDateTime = require('../lib/');
 
         tpDateTime = new TidepoolDateTime();
-    
+
         tpDateTime.isValidDateTime('22/09/2013 11:11').should.be.true;
-        
+
         done();
       });
       it('should return false for junk',function(done){
-        var TidepoolDateTime, tpDateTime, convertedUTC, isUTC, displayDate;
+        var TidepoolDateTime, tpDateTime;
 
         TidepoolDateTime = require('../lib/');
 
         tpDateTime = new TidepoolDateTime();
-        
+
         tpDateTime.isValidDateTime('junk').should.be.false;
-        
+
         done();
       });
       it('should return false for empty',function(done){
-        var TidepoolDateTime, tpDateTime, convertedUTC, isUTC, displayDate;
+        var TidepoolDateTime, tpDateTime;
 
         TidepoolDateTime = require('../lib/');
 
         tpDateTime = new TidepoolDateTime();
-        
+
         tpDateTime.isValidDateTime('').should.be.false;
-        
+
         done();
       });
     });
