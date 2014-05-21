@@ -1,6 +1,6 @@
 {
   "name": "tidepool-platform-client",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Client-side library to interact with the Tidepool platform",
   "dependencies": {
     "async": "0.6.2",
