@@ -142,6 +142,10 @@ module.exports = function (config, deps) {
     setTimeout(refreshSession, config.tokenRefreshInterval);
   }
 
+  function destroySession() {
+    return saveSession(null, null);
+  }
+
   function loadLocalSession(cb) {
     myToken = localStore.getItem(tokenLocalKey);
     myUserId = localStore.getItem(userIdLocalKey);
@@ -364,7 +368,7 @@ module.exports = function (config, deps) {
                 return handleHttpError(res, cb);
               }
 
-              saveSession(null, null);
+              destroySession();
               cb(null, res.body);
             });
         }
@@ -382,6 +386,10 @@ module.exports = function (config, deps) {
      * @returns {String} userid or null if not logged in
      */
     getUserId: getUserId,
+    /**
+     * Destroy user session (in-memory and stored in browser)
+     */
+    destroySession: destroySession,
     /**
     * Url used for uploads to the platform
     *
