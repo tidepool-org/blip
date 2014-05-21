@@ -252,12 +252,16 @@ var AppComponent = React.createClass({
   },
 
   renderNotification: function() {
-    if (this.state.notification) {
+    var notification = this.state.notification;
+
+    if (notification) {
       return (
         /* jshint ignore:start */
         <Notification
-          message={this.state.notification}
-          onClose={this.closeNotification} />
+          type={notification.type}
+          onClose={this.closeNotification}>
+          {notification.body}
+        </Notification>
         /* jshint ignore:end */
       );
     }
@@ -594,7 +598,10 @@ var AppComponent = React.createClass({
       if (err) {
         self.setState({
           loggingOut: false,
-          notification: 'An error occured while logging out.'
+          notification: {
+            type: 'error',
+            body: 'An error occured while logging out.'
+          }
         });
         return;
       }
@@ -777,11 +784,11 @@ var AppComponent = React.createClass({
     app.api.user.put(user, function(err, user) {
       if (err) {
         var message = (err.body && err.body.msg) || '';
+        message = [
+        'An error occured while updating user account.', message
+        ].join(' ');
         self.setState({
-          notification: [
-            'An error occured while updating user account.',
-            message
-          ].join(' ')
+          notification: {type: 'error', body: message}
         });
         // Rollback
         self.setState({user: previousUser});
@@ -819,7 +826,10 @@ var AppComponent = React.createClass({
     app.api.patient.put(patient.id, patient, function(err, patient) {
       if (err) {
         self.setState({
-          notification: 'An error occured while saving patient.'
+          notification: {
+            type: 'error',
+            body: 'An error occured while saving patient.'
+          }
         });
         // Rollback
         self.setState({patient: previousPatient});

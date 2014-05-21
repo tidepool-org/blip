@@ -1,17 +1,20 @@
 /**
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
+
+@notification-close-link-height: 30px;
+@notification-close-link-width:  41px;
 
 .notification {
   position: fixed;
@@ -32,10 +35,15 @@
   text-align: center;
   margin-left: @spacing-small;
   margin-right: @spacing-small;
-  padding: @spacing-small @spacing-base;
+  max-width: (@screen-lg-min - 2*@spacing-small);
+  padding: 0 @spacing-small;
   border: 2px solid @gray-light;
   background-color: #fff;
   border-radius: 4px;
+
+  // For absolute-positioned close link
+  position: relative;
+  padding-right: (@notification-close-link-width + 4px);
 
   a,
   a:hover,
@@ -82,6 +90,22 @@
 }
 
 .notification-close {
-  display: inline-block;
-  margin-left: @spacing-small;
+  display: block;
+  position: absolute;
+  top: 5px;
+  right: 0;
+
+  font-size: 12px;
+  line-height: @notification-close-link-height;
+  padding: 0 5px;
+}
+
+.notification-body {
+  margin: @spacing-small 0;
+
+  // Default paragraph styles for notification body
+  p {
+    margin: 0;
+    margin-bottom: @spacing-small;
+  }
 }
