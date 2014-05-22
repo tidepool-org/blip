@@ -214,7 +214,18 @@ var Messages = React.createClass({
           message.user = this.props.user;
           //give this message to anyone that needs it
           this.props.onNewMessage(message);
-          this.setState({ messages: [message], formValues : {messageText: '', messageDateTime:''} });
+
+          // Close the modal if we can, else clear form and display new message
+          var close = this.props.onClose;
+          if (close) {
+            close();
+          }
+          else {
+            this.setState({
+              messages: [message],
+              formValues: {messageText: '', messageDateTime:''}
+            });
+          }
         }
       }.bind(this));
     }
