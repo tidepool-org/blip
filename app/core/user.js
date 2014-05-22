@@ -44,8 +44,14 @@ _.assign(user, {
         return _.has(attributes, 'password');
       }
     },
-    fullName: {validate: validation.required()},
-    shortName: {validate: validation.required()}
+    fullName: {validate: validation.required()}
+  },
+
+  getAttributeNames: function() {
+    var names = _.omit(this._attributes, 'passwordConfirm');
+    names = _.keys(names);
+    names = ['id'].concat(names);
+    return names;
   },
 
   getPatientData: function(attributes) {
@@ -54,8 +60,7 @@ _.assign(user, {
     }
 
     var patient = _.extend(attributes.patient, {
-      fullName: attributes.fullName,
-      shortName: attributes.shortName
+      fullName: attributes.fullName
     });
 
     return patient;
@@ -71,11 +76,6 @@ _.assign(user, {
     }
 
     return (patientAttr.id === userPatientAttr.id);
-  },
-
-  shortNameFromFullName: function(fullName) {
-    fullName = fullName || '';
-    return _.first(fullName.split(' '));
   }
 });
 

@@ -19,7 +19,6 @@ describe('Profile', function() {
     openAppToProfile()
       .then(function() {
         expect('[name="fullName"]').dom.to.have.value(user.fullName);
-        expect('[name="shortName"]').dom.to.have.value(user.shortName);
         expect('[name="username"]').dom.to.have.value(user.username);
         done();
       });
@@ -28,7 +27,6 @@ describe('Profile', function() {
   it('should allow to change user attribute values', function(done) {
     user = {
       fullName: 'Johnny Smith',
-      shortName: 'Johnny',
       username: 'johnny.smith@example.com',
       password: 'pw',
       passwordConfirm: 'pw'
@@ -72,9 +70,6 @@ describe('Profile', function() {
     helpers.findElement(By.name('fullName'))
       .then(helpers.clearInput)
       .then(function(q) { return q.sendKeys(user.fullName); });
-    helpers.findElement(By.name('shortName'))
-      .then(helpers.clearInput)
-      .then(function(q) { return q.sendKeys(user.shortName); });
     helpers.findElement(By.name('username'))
       .then(helpers.clearInput)
       .then(function(q) { return q.sendKeys(user.username); });
