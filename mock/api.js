@@ -82,6 +82,7 @@ var createPatch = function(options) {
         localStorage.removeItem('mockAuthToken');
       }
     }
+    api.user.destroySession = destroySession;
 
     api.user.isAuthenticated = function() {
       return Boolean(api.token);
@@ -337,6 +338,12 @@ var createPatch = function(options) {
       if (typeof cb === 'function') {
         cb();
       }
+    };
+
+    // ----- Errors -----
+
+    api.errors.log = function(error, message, properties) {
+      api.log('[mock] POST /errors');
     };
 
     return api;
