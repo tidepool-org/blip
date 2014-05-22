@@ -42,10 +42,11 @@ var TWENTYSECOND_OCT_2013_257PM_WITH_NZDT_ZONE = '2013-10-22T14:57:09+13:00';
 
 describe('Tidepool Dates', function() {
 
+  var TidepoolDateTime;
   var tidepoolDateTime;
 
   beforeEach(function () {
-    var TidepoolDateTime = require('../lib/');
+    TidepoolDateTime = require('../lib/');
     tidepoolDateTime = new TidepoolDateTime();
   });
 
@@ -175,7 +176,7 @@ describe('Tidepool Dates', function() {
       it('should return string in format of local time which is default',function(done){
         var val = moment.utc('2013-11-11T14:00:00-00:00');
         var expected = moment('2013-11-11T14:00:00Z');
-        expect(tidepoolDateTime.getDisplayTime(val)).to.equal(expected.format(tidepoolDateTime.FORMAT_LOCAL));
+        expect(tidepoolDateTime.getDisplayTime(val)).to.equal(expected.format(TidepoolDateTime.FORMAT_LOCAL));
 
         done();
       });
@@ -183,8 +184,8 @@ describe('Tidepool Dates', function() {
         var val = moment.utc('2013-11-11T14:00:00-00:00');
         var expected = moment('2013-11-11T14:00:00Z');
 
-        var valDisplay = tidepoolDateTime.getDisplayTime(val, tidepoolDateTime.FORMAT_YYYY_MM_DD_HH_MM_SS);
-        var expectedDisplay = expected.format(tidepoolDateTime.FORMAT_YYYY_MM_DD_HH_MM_SS);
+        var valDisplay = tidepoolDateTime.getDisplayTime(val, TidepoolDateTime.FORMAT_YYYY_MM_DD_HH_MM_SS);
+        var expectedDisplay = expected.format(TidepoolDateTime.FORMAT_YYYY_MM_DD_HH_MM_SS);
         expect(valDisplay).to.equal(expectedDisplay);
 
         done();
