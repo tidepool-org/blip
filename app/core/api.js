@@ -139,7 +139,7 @@ api.user.get = function(cb) {
   // Fetch user account data (username, etc.)...
   var getAccount = tidepool.getCurrentUser.bind(tidepool);
 
-  // ...and user profile information (full name, short name, etc.)
+  // ...and user profile information (full name, etc.)
   var getProfile = function(cb) {
     tidepool.findProfile(userId, function(err, profile) {
       if (err) {
@@ -232,7 +232,6 @@ function patientFromUserProfile(profile) {
   }
 
   patient.fullName = profile.fullName;
-  patient.shortName = profile.shortName;
   return patient;
 }
 
@@ -317,7 +316,7 @@ api.patient.post = function(patient, cb) {
   // First, create patient profile for user
   // For this backend, patient data is contained in the `patient`
   // attribute of the user's profile
-  patient = _.omit(patient, 'fullName', 'shortName');
+  patient = _.omit(patient, 'fullName');
   var profile = {id: patientId, patient: patient};
   tidepool.addOrUpdateProfile(profile, function(err, profile) {
     if (err) {
@@ -338,7 +337,7 @@ api.patient.put = function(patientId, patient, cb) {
   var team = patient.team;
 
   // Don't save info already in user's profile, or team
-  patient = _.omit(patient, 'id', 'fullName', 'shortName', 'team');
+  patient = _.omit(patient, 'id', 'fullName', 'team');
 
   var profile = {id: patientId, patient: patient};
   tidepool.addOrUpdateProfile(profile, function(err, profile) {

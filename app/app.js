@@ -425,7 +425,7 @@ var AppComponent = React.createClass({
       return;
     }
 
-    patient = _.pick(this.state.user, 'fullName', 'shortName');
+    patient = _.pick(this.state.user, 'fullName');
     var fetchingPatient = this.state.fetchingUser;
 
     /* jshint ignore:start */
@@ -804,6 +804,9 @@ var AppComponent = React.createClass({
     // Optimistic update
     self.setState({user: _.omit(user, 'password')});
 
+    // Make sure we only save user attributes to backend
+    user = _.pick(user, app.user.getAttributeNames());
+
     // If username hasn't changed, don't try to update
     // or else backend will respond with "already taken" error
     if (user.username === previousUser.username) {
@@ -842,6 +845,9 @@ var AppComponent = React.createClass({
     var previousPatient = this.state.patient;
 
     patient = _.assign(_.cloneDeep(this.state.patient), patient);
+
+    // Make sure we only save patient attributes to backend
+    patient = _.pick(patient, app.patient.getAttributeNames());
 
     // Optimistic update
     self.setState({patient: patient});

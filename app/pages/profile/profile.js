@@ -30,7 +30,6 @@ var Profile = React.createClass({
 
   formInputs: [
     {name: 'fullName', label: 'Full name'},
-    {name: 'shortName', label: 'Short name'},
     {name: 'username', label: 'Email', type: 'email'},
     {name: 'password', label: 'Password', type: 'password'},
     {name: 'passwordConfirm', label: 'Confirm password', type: 'password'}
@@ -112,6 +111,9 @@ var Profile = React.createClass({
 
     this.resetFormStateBeforeSubmit(formValues);
 
+    formValues = _.clone(formValues);
+    formValues = this.omitPasswordAttributesIfNoChange(formValues);
+
     var validationErrors = this.validateFormValues(formValues);
     if (!_.isEmpty(validationErrors)) {
       return;
@@ -132,9 +134,6 @@ var Profile = React.createClass({
   validateFormValues: function(formValues) {
     var validationErrors = {};
     var validate = this.props.onValidate;
-
-    formValues = _.clone(formValues);
-    formValues = this.omitPasswordAttributesIfNoChange(formValues);
 
     validationErrors = validate(formValues);
     if (!_.isEmpty(validationErrors)) {

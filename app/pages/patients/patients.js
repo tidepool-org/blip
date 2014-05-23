@@ -136,6 +136,7 @@ var Patients = React.createClass({
 
   addLinkToPatients: function(patients) {
     return _.map(patients, function(patient) {
+      patient = _.clone(patient);
       if (patient.id) {
         patient.link = '#/patients/' + patient.id + '/data';
       }

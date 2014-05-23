@@ -105,7 +105,6 @@ var Signup = React.createClass({
     this.resetFormStateBeforeSubmit(formValues);
 
     formValues = _.clone(formValues);
-    formValues = this.formatUserInput(formValues);
 
     var validationErrors = this.validateFormValues(formValues);
     if (!_.isEmpty(validationErrors)) {
@@ -122,12 +121,6 @@ var Signup = React.createClass({
       validationErrors: {},
       notification: null
     });
-  },
-
-  formatUserInput: function(formValues) {
-    formValues.shortName = user.shortNameFromFullName(formValues.fullName);
-
-    return formValues;
   },
 
   validateFormValues: function(formValues) {

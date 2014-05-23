@@ -49,8 +49,7 @@ describe('User service', function() {
         'username': '',
         'password': '',
         'passwordConfirm': '',
-        'fullName': '',
-        'shortName': ''
+        'fullName': ''
       };
       var errors = user.validate(userAttr);
 
@@ -84,19 +83,6 @@ describe('User service', function() {
       var errors = user.validate(userAttr);
 
       expect(errors).to.be.empty;
-    });
-
-  });
-
-  describe('shortNameFromFullName', function() {
-
-    it('should return first word of full name', function() {
-      var fullName = 'John Doe';
-      var expectedShortName = 'John';
-
-      var shortName = user.shortNameFromFullName(fullName);
-
-      expect(shortName).to.equal(expectedShortName);
     });
 
   });

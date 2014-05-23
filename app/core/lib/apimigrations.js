@@ -19,8 +19,7 @@ var _ = window._;
 
 var migrations = {};
 
-// Migrate from user profile `firstName`, `lastName` attributes
-// to `fullName` and `shortName`
+// Migrate from user profile `firstName`, `lastName` attributes to `fullName`
 migrations.profileFullName = {
   isRequired: function(profile) {
     if (!profile.fullName) {
@@ -31,7 +30,6 @@ migrations.profileFullName = {
 
   migrate: function(profile) {
     profile.fullName = profile.firstName + ' ' + profile.lastName;
-    profile.shortName = profile.firstName;
     profile = _.omit(profile, 'firstName', 'lastName');
     return profile;
   }
