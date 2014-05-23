@@ -16,13 +16,20 @@
 /* global app */
 
 window.onerror = function myErrorHandler(errorMessage, fileUrl, lineNumber) {
-  var text = [
+  var html = [
+    '<p>',
     'Sorry! Something went wrong. It\'s our fault, not yours.',
-    'We\'re going to go investigate.',
-    'For the time being, try refreshing your browser?',
+    'Could you please send us a note at',
+    '<a style="color: #fff; text-decoration: underline;"',
+    'href="mailto:support@tidepool.org">support@tidepool.org</a>',
+    'and we\'ll try to see what broke?',
+    'In the meantime, could you try refreshing your browser to reload the app?',
+    '</p>',
+    '<p>',
     'Original error message:',
     '"' + errorMessage + '"',
-    '(' + fileUrl + ' at line ' + lineNumber + ')'
+    '(' + fileUrl + ' at line ' + lineNumber + ')',
+    '</p>'
   ].join(' ');
 
   var style = [
@@ -30,14 +37,14 @@ window.onerror = function myErrorHandler(errorMessage, fileUrl, lineNumber) {
     'top: 0;',
     'left: 0;',
     'right: 0;',
-    'padding: 20px;',
+    'padding: 0 20px;',
     'text-align: center;',
     'background: #ff8b7c;',
     'color: #fff;'
   ].join(' ');
 
   var el = document.createElement('div');
-  el.textContent = text;
+  el.innerHTML = html;
   el.setAttribute('style', style);
   document.body.appendChild(el);
 
