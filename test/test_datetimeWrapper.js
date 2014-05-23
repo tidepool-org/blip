@@ -91,6 +91,15 @@ describe('Tidepool Dates', function() {
         done();
       });
 
+      it('returns a string formated as MMMM D [at] h:mm a',function(done){
+
+        var isoDateString = '2013-05-09T00:00:00Z';
+
+        var formatedString = datetimeWrapper.formatForDisplay(isoDateString);
+        expect(formatedString).to.equal('May 9 at 12:00 pm');
+        done();
+      });
+
     });
 
   });
