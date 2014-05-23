@@ -24,6 +24,7 @@ var React = window.React;
 var moment = window.moment;
 var _ = window._;
 
+var Message = require('./message');
 var SimpleForm = require('../simpleform');
 
 var Messages = React.createClass({
@@ -35,60 +36,57 @@ var Messages = React.createClass({
     patient: React.PropTypes.object,
     onClose : React.PropTypes.func,
     onSave : React.PropTypes.func,
-    onNewMessage : React.PropTypes.func
+    onNewMessage : React.PropTypes.func,
+    imagesEndpoint: React.PropTypes.string
+  },
+
+  componentWillReceiveProps: function(nextProps) {
+    this.setState({messages: nextProps.messages});
   },
 
   getInitialState: function() {
     return {
       isWorking: false,
       formValues: {
-        messageText: '',
-        messageDateTime: this.formatDisplayDate(this.props.createDatetime)
+        messageDateTime: this.formatDisplayDate(this.props.createDatetime),
+        messageText: ''
       },
       messages : this.props.messages
     };
   },
 
-  commentFormInputs: [
-    {name: 'messageText', label: null, placeholder: 'Type a comment here ...', type: 'textarea'}
+  noteFormInputs: [
+    {name: 'messageDateTime', label: null, type: 'hidden'},
+    {name: 'messageText', label: null, placeholder: 'Type a new note here ...', type: 'textarea'}
   ],
 
-  messageFormInputs: [
-    {name: 'messageDateTime', label: null, type: 'text', disabled:true },
-    {name: 'messageText', label: null, placeholder: 'Type a new note here ...', type: 'textarea'}
+  commentFormInputs: [
+    {name: 'messageText', label: null, placeholder: 'Type a comment here ...', type: 'textarea'}
   ],
 
   formatDisplayDate : function(timestamp){
     return moment(timestamp).format('MMMM D [at] h:mm a');
   },
 
-  renderMessage: function(message){
+  renderNote: function(message){
     /* jshint ignore:start */
     return (
-      <div className='messages-message' key={message.id}>
-        <div className='messages-message-when'>
-          <span>{this.formatDisplayDate(message.timestamp)}</span>
-        </div>
-        <span className='messages-message-username'>
-          {' ' + this.getUserDisplayName(message.user)}
-        </span>
-        <p className='messages-message-text'>{message.messagetext}</p>
-      </div>
+      <Message
+        key={message.id}
+        message={message}
+        imageSize="large"
+        imagesEndpoint={this.props.imagesEndpoint}/>
       );
     /* jshint ignore:end */
   },
-  renderComment:function(comment){
+  renderComment:function(message){
     /* jshint ignore:start */
     return (
-      <div className='messages-comment' key={comment.id}>
-        <span className='messages-comment-header'>
-          {' ' + this.getUserDisplayName(comment.user)}
-          {' - '}
-          {this.formatDisplayDate(comment.timestamp)}
-        </span>
-        <p className='messages-comment-text'>{comment.messagetext}</p>
-      </div>
-
+      <Message
+        key={message.id}
+        message={message}
+        imageSize="small"
+        imagesEndpoint={this.props.imagesEndpoint}/>
       );
     /* jshint ignore:end */
   },
@@ -98,13 +96,17 @@ var Messages = React.createClass({
 
       var thread = _.map(this.state.messages, function(message) {
         if(!message.parentmessage) {
-          return this.renderMessage(message);
+          return this.renderNote(message);
         } else if (message.parentmessage) {
           return this.renderComment(message);
         }
       }.bind(this));
 
-      return thread;
+      /* jshint ignore:start */
+      return (
+        <div className="messages-thread">{thread}</div>
+      );
+      /* jshint ignore:end */
     }
 
     return;
@@ -116,21 +118,25 @@ var Messages = React.createClass({
     var isWorking = this.state.isWorking;
     var submitButtonText;
 
-    /* jshint ignore:start */
+
     if(this.isMessageThread()){
       submitButtonText = 'Comment';
       if (isWorking) {
         submitButtonText = 'Sending...';
       }
 
+      /* jshint ignore:start */
       return (
-        <SimpleForm
-          inputs={this.commentFormInputs}
-          formValues={this.state.formValues}
-          submitButtonText={submitButtonText}
-          submitDisabled={isWorking}
-          onSubmit={this.handleAddComment} />
+        <div className="messages-form">
+          <SimpleForm
+            inputs={this.commentFormInputs}
+            formValues={this.state.formValues}
+            submitButtonText={submitButtonText}
+            submitDisabled={isWorking}
+            onSubmit={this.handleAddComment} />
+        </div>
       );
+      /* jshint ignore:end */
     }
 
     submitButtonText = 'Post';
@@ -138,15 +144,24 @@ var Messages = React.createClass({
       submitButtonText = 'Sending...';
     }
 
+    /* jshint ignore:start */
     return (
-      <SimpleForm
-        inputs={this.messageFormInputs}
-        formValues={this.state.formValues}
-        submitButtonText={submitButtonText}
-        submitDisabled={isWorking}
-        onSubmit={this.handleCreateMessage} />
+      <div className="messages-form">
+        <div className="messages-create-datetime">
+          {'New note for '}
+          <span className="messages-create-datetime-value">
+            {this.formatDisplayDate(this.props.createDatetime)}
+          </span>
+        </div>
+        <SimpleForm
+          inputs={this.noteFormInputs}
+          formValues={this.state.formValues}
+          submitButtonText={submitButtonText}
+          submitDisabled={isWorking}
+          onSubmit={this.handleCreateNote} />
+      </div>
     );
-     /* jshint ignore:end */
+    /* jshint ignore:end */
   },
   renderClose:function(){
     /* jshint ignore:start */
@@ -179,13 +194,6 @@ var Messages = React.createClass({
       return _.first(this.state.messages, function(message){ return !(message.parentmessage); })[0];
     }
     return;
-  },
-  getUserDisplayName: function(user) {
-    var result = 'Anonymous user';
-    if (user && user.fullName) {
-      result = user.fullName;
-    }
-    return result;
   },
   handleAddComment : function (formValues){
 
@@ -220,12 +228,12 @@ var Messages = React.createClass({
       }.bind(this));
     }
   },
-  handleCreateMessage : function (formValues){
+  handleCreateNote: function (formValues){
 
     if(formValues.messageText){
       this.resetFormStateBeforeSubmit(formValues);
 
-      var createMessage = this.props.onSave;
+      var createNote = this.props.onSave;
 
       var message = {
         userid : this.props.user.id,
@@ -234,7 +242,7 @@ var Messages = React.createClass({
         timestamp : this.props.createDatetime
       };
 
-      createMessage(message, function(error,messageId){
+      createNote(message, function(error,messageId){
         this.setState({isWorking: false});
 
         if (messageId) {
