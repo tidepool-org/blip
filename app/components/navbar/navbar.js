@@ -63,7 +63,7 @@ var Navbar = React.createClass({
   },
 
   renderLogo: function() {
-    var imageSource = this.props.imagesEndpoint + '/blip-logo.png';
+    var imageSource = this.props.imagesEndpoint + '/blip-logo-80x80.png';
     var self = this;
     var handleClick = function() {
       self.props.trackMetric('Clicked Navbar Logo');
