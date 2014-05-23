@@ -40,7 +40,11 @@ var Messages = React.createClass({
 
   getInitialState: function() {
     return {
-      formValues: { messageText: '', messageDateTime : this.formatDisplayDate(this.props.createDatetime) },
+      isWorking: false,
+      formValues: {
+        messageText: '',
+        messageDateTime: this.formatDisplayDate(this.props.createDatetime)
+      },
       messages : this.props.messages
     };
   },
@@ -109,21 +113,37 @@ var Messages = React.createClass({
     return this.state.messages;
   },
   renderForm:function(){
+    var isWorking = this.state.isWorking;
+    var submitButtonText;
+
     /* jshint ignore:start */
     if(this.isMessageThread()){
+      submitButtonText = 'Comment';
+      if (isWorking) {
+        submitButtonText = 'Sending...';
+      }
+
       return (
         <SimpleForm
           inputs={this.commentFormInputs}
           formValues={this.state.formValues}
-          submitButtonText='Comment'
+          submitButtonText={submitButtonText}
+          submitDisabled={isWorking}
           onSubmit={this.handleAddComment} />
       );
     }
+
+    submitButtonText = 'Post';
+    if (isWorking) {
+      submitButtonText = 'Sending...';
+    }
+
     return (
       <SimpleForm
         inputs={this.messageFormInputs}
         formValues={this.state.formValues}
-        submitButtonText='Post'
+        submitButtonText={submitButtonText}
+        submitDisabled={isWorking}
         onSubmit={this.handleCreateMessage} />
     );
      /* jshint ignore:end */
@@ -170,6 +190,7 @@ var Messages = React.createClass({
   handleAddComment : function (formValues){
 
     if(formValues.messageText){
+      this.resetFormStateBeforeSubmit(formValues);
 
       var addComment = this.props.onSave;
       var parent = this.getParent();
@@ -183,13 +204,18 @@ var Messages = React.createClass({
       };
 
       addComment(comment, function(error,commentId){
-        if(commentId){
+        this.setState({isWorking: false});
+
+        if (commentId) {
           //set so we can display right away
           comment.id = commentId;
           comment.user = this.props.user;
           var withReply = this.state.messages;
           withReply.push(comment);
-          this.setState({ messages: withReply, formValues : {messageText: ''} });
+          this.setState({
+            messages: withReply,
+            formValues: {messageText: ''}
+          });
         }
       }.bind(this));
     }
@@ -197,6 +223,7 @@ var Messages = React.createClass({
   handleCreateMessage : function (formValues){
 
     if(formValues.messageText){
+      this.resetFormStateBeforeSubmit(formValues);
 
       var createMessage = this.props.onSave;
 
@@ -208,13 +235,26 @@ var Messages = React.createClass({
       };
 
       createMessage(message, function(error,messageId){
-        if(messageId){
+        this.setState({isWorking: false});
+
+        if (messageId) {
           //set so we can display right away
           message.id = messageId;
           message.user = this.props.user;
           //give this message to anyone that needs it
           this.props.onNewMessage(message);
-          this.setState({ messages: [message], formValues : {messageText: '', messageDateTime:''} });
+
+          // Close the modal if we can, else clear form and display new message
+          var close = this.props.onClose;
+          if (close) {
+            close();
+          }
+          else {
+            this.setState({
+              messages: [message],
+              formValues: {messageText: '', messageDateTime:''}
+            });
+          }
         }
       }.bind(this));
     }
@@ -225,7 +265,13 @@ var Messages = React.createClass({
     if (close) {
       close();
     }
-  }
+  },
+  resetFormStateBeforeSubmit: function(formValues) {
+    this.setState({
+      isWorking: true,
+      formValues: formValues
+    });
+  },
 });
 
 module.exports = Messages;

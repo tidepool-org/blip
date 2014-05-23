@@ -1,6 +1,6 @@
 var InputGroup = require('../../app/components/inputgroup');
 
-describe.only('InputGroup', function() {
+describe('InputGroup', function() {
   var component;
 
   var props = {
