@@ -25,7 +25,7 @@ describe('Tidepool Dates', function() {
     var datetimeWrapper;
 
     beforeEach(function () {
-      datetimeWrapper = require('../lib/datetimeWrapper')();
+      datetimeWrapper = require('../sundial');
     });
 
     it('should not break require',function(done){
@@ -39,6 +39,11 @@ describe('Tidepool Dates', function() {
 
     it('should have momentInstance method',function(done){
       expect(datetimeWrapper.momentInstance()).exists;
+      done();
+    });
+
+    it('should have formatForDisplay method',function(done){
+      expect(datetimeWrapper.formatForDisplay()).exists;
       done();
     });
 
@@ -72,6 +77,7 @@ describe('Tidepool Dates', function() {
       it('is an ISO string',function(done){
 
         var utcString = datetimeWrapper.utcDateString();
+        //assume that Date toISOString method is correct
         var expectedString = new Date(utcString).toISOString();
 
         expect(utcString).to.equal(expectedString);
