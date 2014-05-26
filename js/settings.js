@@ -137,11 +137,11 @@ module.exports = function(emitter, opts) {
 
     mainDiv.selectAll('.d3-settings-basal-schedule').selectAll('.d3-settings-col-label')
       .on('click', function() {
-        mainDiv.selectAll('table.d3-settings-col-active')
+        /*mainDiv.selectAll('table.d3-settings-col-active')
           .classed({
             'd3-settings-col-active': false,
             'd3-settings-col-collapsed': true
-          });
+          });*/
         d3.select(this).classed({
           'd3-settings-col-active': true,
           'd3-settings-col-collapsed': false
@@ -278,12 +278,12 @@ module.exports = function(emitter, opts) {
     mainDiv.selectAll('.d3-settings-basal-schedule').selectAll('.d3-settings-col-label')
       .on('click', function() {
         var current = d3.select(this).classed('d3-settings-col-active');
-        
-        mainDiv.selectAll('.d3-settings-col-label')
+
+        /*mainDiv.selectAll('.d3-settings-col-label')
           .classed({
             'd3-settings-col-active': false,
             'd3-settings-col-collapsed': true
-          });
+          });*/
 
         d3.select(this).selectAll('i').classed({
           'icon-up': !current,
