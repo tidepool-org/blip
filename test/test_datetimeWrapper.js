@@ -93,7 +93,7 @@ describe('Tidepool Dates', function() {
         var isoDateString = '2013-05-09T00:00:00Z';
 
         var formatedString = datetimeWrapper.formatForDisplay(isoDateString,'YYYY/MM/DD HH:mm');
-        expect(formatedString).to.equal('2013/05/09 12:00');
+        expect(formatedString).to.equal('2013/05/09 00:00');
         done();
       });
 
@@ -102,7 +102,7 @@ describe('Tidepool Dates', function() {
         var isoDateString = '2013-05-09T00:00:00Z';
 
         var formatedString = datetimeWrapper.formatForDisplay(isoDateString);
-        expect(formatedString).to.equal('May 9 at 12:00 pm');
+        expect(formatedString).to.equal('May 9 at 12:00 am');
         done();
       });
 
