@@ -1,15 +1,15 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -50,53 +50,41 @@ module.exports = function(pool, opts) {
           return d.id;
         });
       circles.enter()
-        .append('image')
+        .append('circle')
         .attr({
-          'xlink:href': function(d) {
-            if (d.value <= opts.classes['very-low'].boundary) {
-              return opts.imagesBaseUrl + '/smbg/very_low.svg';
-            }
-            else if ((d.value > opts.classes['very-low'].boundary) && (d.value <= opts.classes.low.boundary)) {
-              return opts.imagesBaseUrl + '/smbg/low.svg';
-            }
-            else if ((d.value > opts.classes.low.boundary) && (d.value <= opts.classes.target.boundary)) {
-              return opts.imagesBaseUrl + '/smbg/target.svg';
-            }
-            else if ((d.value > opts.classes.target.boundary) && (d.value <= opts.classes.high.boundary)) {
-              return opts.imagesBaseUrl + '/smbg/high.svg';
-            }
-            else if (d.value > opts.classes.high.boundary) {
-              return opts.imagesBaseUrl + '/smbg/very_high.svg';
-            }
+          cx: function(d) {
+            return opts.xScale(Date.parse(d.normalTime));
           },
-          'x': function(d) {
-            return opts.xScale(Date.parse(d.normalTime)) - opts.size / 2;
+          cy: function(d) {
+            return opts.yScale(d.value);
           },
-          'y': function(d) {
-            return opts.yScale(d.value) - opts.size / 2;
-          },
-          'width': opts.size,
-          'height': opts.size,
-          'id': function(d) {
+          r: 7,
+          id: function(d) {
             return 'smbg_' + d.id;
           },
-          'class': function(d) {
-            if (d.value <= opts.classes.low.boundary) {
+          class: function(d) {
+            if (d.value <= opts.classes['very-low'].boundary) {
               return 'd3-bg-low';
+            }
+            else if ((d.value > opts.classes['very-low'].boundary) && (d.value <= opts.classes.low.boundary)) {
+              return 'd3-bg-low d3-circle-open';
             }
             else if ((d.value > opts.classes.low.boundary) && (d.value <= opts.classes.target.boundary)) {
               return 'd3-bg-target';
             }
-            else if (d.value > opts.classes.target.boundary) {
+            else if ((d.value > opts.classes.target.boundary) && (d.value <= opts.classes.high.boundary)) {
+              return 'd3-bg-high d3-circle-open';
+            }
+            else if (d.value > opts.classes.high.boundary) {
               return 'd3-bg-high';
             }
           }
         })
-        .classed({'d3-image': true, 'd3-smbg': true, 'd3-image-smbg': true});
+        .classed({'d3-smbg': true, 'd3-circle-smbg': true});
       circles.exit().remove();
 
       // tooltips
-      d3.selectAll('.d3-image-smbg').on('mouseover', function() {
+      d3.selectAll('.d3-circle-smbg').on('mouseover', function() {
         if (d3.select(this).classed('d3-bg-low')) {
           smbg.addTooltip(d3.select(this).datum(), 'low');
         }
@@ -107,7 +95,7 @@ module.exports = function(pool, opts) {
           smbg.addTooltip(d3.select(this).datum(), 'high');
         }
       });
-      d3.selectAll('.d3-image-smbg').on('mouseout', function() {
+      d3.selectAll('.d3-circle-smbg').on('mouseout', function() {
         var id = d3.select(this).attr('id').replace('smbg_', 'tooltip_');
         d3.select('#' + id).remove();
       });
