@@ -1,15 +1,15 @@
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -186,6 +186,24 @@ module.exports = function(pool, opts) {
     });
   };
 
+  stats.bgBoudaryClass = function(data) {
+    if (data.value <= opts.classes['very-low'].boundary) {
+      return 'd3-bg-low';
+    }
+    else if ((data.value > opts.classes['very-low'].boundary) && (data.value <= opts.classes.low.boundary)) {
+      return 'd3-bg-low d3-circle-open';
+    }
+    else if ((data.value > opts.classes.low.boundary) && (data.value <= opts.classes.target.boundary)) {
+      return 'd3-bg-target';
+    }
+    else if ((data.value > opts.classes.target.boundary) && (data.value <= opts.classes.high.boundary)) {
+      return 'd3-bg-high d3-circle-open';
+    }
+    else if (data.value > opts.classes.high.boundary) {
+      return 'd3-bg-high';
+    }
+  };
+
   stats.createRect = function(puddle, puddleGroup, data) {
     var rectGroup = puddleGroup.append('g')
       .attr('id', 'd3-stats-rect-group');
@@ -235,85 +253,38 @@ module.exports = function(pool, opts) {
         y2: rectScale(180) + (pool.height() / 10),
         class: 'd3-line-guide d3-line-bg-threshold'
       });
-    var imageY = rectScale(data.value) - (opts.size / 2) + (pool.height() / 10);
-    // don't append an image if imageY is NaN or Infinity
-    if (isFinite(imageY)) {
-      rectGroup.append('image')
-        .attr({
-          'xlink:href': function() {
-            if (data.value <= opts.classes['very-low'].boundary) {
-              return opts.imagesBaseUrl + '/smbg/very_low.svg';
-            }
-            else if ((data.value > opts.classes['very-low'].boundary) && (data.value <= opts.classes.low.boundary)) {
-              return opts.imagesBaseUrl + '/smbg/low.svg';
-            }
-            else if ((data.value > opts.classes.low.boundary) && (data.value <= opts.classes.target.boundary)) {
-              return opts.imagesBaseUrl + '/smbg/target.svg';
-            }
-            else if ((data.value > opts.classes.target.boundary) && (data.value <= opts.classes.high.boundary)) {
-              return opts.imagesBaseUrl + '/smbg/high.svg';
-            }
-            else if (data.value > opts.classes.high.boundary) {
-              return opts.imagesBaseUrl + '/smbg/very_high.svg';
-            }
-          },
-          x: (puddle.width() * (3/16)) - (opts.size / 2),
-          y: imageY,
-          width: opts.size,
-          height: opts.size,
-          class: 'd3-image d3-stats-image'
-        });
-    }
-    else {
-      rectGroup.append('image')
-        .attr({
-          'xlink:href': function() {
-            if (data.value <= opts.classes['very-low'].boundary) {
-              return opts.imagesBaseUrl + '/smbg/very_low.svg';
-            }
-            else if ((data.value > opts.classes['very-low'].boundary) && (data.value <= opts.classes.low.boundary)) {
-              return opts.imagesBaseUrl + '/smbg/low.svg';
-            }
-            else if ((data.value > opts.classes.low.boundary) && (data.value <= opts.classes.target.boundary)) {
-              return opts.imagesBaseUrl + '/smbg/target.svg';
-            }
-            else if ((data.value > opts.classes.target.boundary) && (data.value <= opts.classes.high.boundary)) {
-              return opts.imagesBaseUrl + '/smbg/high.svg';
-            }
-            else if (data.value > opts.classes.high.boundary) {
-              return opts.imagesBaseUrl + '/smbg/very_high.svg';
-            }
-            else {
-              return opts.imagesBaseUrl + '/ux/scroll_thumb.svg';
-            }
-          },
-          x: (puddle.width() * (3/16)) - (opts.size / 2),
-          y: rectScale(100) - (opts.size / 2) + (puddle.height() / 10),
-          width: opts.size,
-          height: opts.size,
-          class: 'd3-image d3-stats-image hidden'
-        });
-    }
+
+    var imageY = rectScale(data.value) + (pool.height() / 10);
+
+    rectGroup.append('circle')
+      .attr({
+        cx: (puddle.width() * (3/16)),
+        cy: isFinite(imageY) ? imageY : 0,
+        r: 7,
+        class: stats.bgBoudaryClass(data)
+      })
+      .classed({'d3-image':true, 'd3-stats-circle': true, 'd3-smbg': true, 'd3-circle-smbg': true, 'hidded': !isFinite(imageY)});
 
     stats.rectGroup = rectGroup;
 
     if (isNaN(data.value)) {
       puddleGroup.classed('d3-insufficient-data', true);
-      stats.rectGroup.selectAll('.d3-stats-image').classed('hidden', true);
+      stats.rectGroup.selectAll('.d3-stats-circle').classed('hidden', true);
       stats.rectAnnotation(puddle, puddleGroup);
     }
     else {
       puddleGroup.on('mouseover', null);
       puddleGroup.on('mouseout', null);
       puddleGroup.classed('d3-insufficient-data', false);
-      stats.rectGroup.selectAll('.d3-stats-image').classed('hidden', false);
+      stats.rectGroup.selectAll('.d3-stats-circle').classed('hidden', false);
     }
   };
 
   stats.updateAverage = function(puddle, puddleGroup, data) {
     if (isNaN(data.value)) {
       puddleGroup.classed('d3-insufficient-data', true);
-      stats.rectGroup.selectAll('.d3-stats-image').classed('hidden', true);
+      stats.rectGroup.selectAll('.d3-stats-circle').classed('hidden', true);
+      //.d3-stats.d3-insufficient-data circle
       stats.rectAnnotation(puddle, puddleGroup);
     }
     else {
@@ -321,30 +292,17 @@ module.exports = function(pool, opts) {
       puddleGroup.on('mouseout', null);
       puddleGroup.classed('d3-insufficient-data', false);
     }
-    var imageY = rectScale(data.value) - (opts.size / 2) + (puddle.height() / 10);
+    var imageY = rectScale(data.value) + (puddle.height() / 10);
+
+    //console.log('imageY',imageY);
+
     if (isFinite(imageY)) {
-      stats.rectGroup.selectAll('.d3-stats-image')
+      stats.rectGroup.selectAll('.d3-stats-circle')
         .attr({
-          'xlink:href': function() {
-            if (data.value <= opts.classes['very-low'].boundary) {
-              return opts.imagesBaseUrl + '/smbg/very_low.svg';
-            }
-            else if ((data.value > opts.classes['very-low'].boundary) && (data.value <= opts.classes.low.boundary)) {
-              return opts.imagesBaseUrl + '/smbg/low.svg';
-            }
-            else if ((data.value > opts.classes.low.boundary) && (data.value <= opts.classes.target.boundary)) {
-              return opts.imagesBaseUrl + '/smbg/target.svg';
-            }
-            else if ((data.value > opts.classes.target.boundary) && (data.value <= opts.classes.high.boundary)) {
-              return opts.imagesBaseUrl + '/smbg/high.svg';
-            }
-            else if (data.value > opts.classes.high.boundary) {
-              return opts.imagesBaseUrl + '/smbg/very_high.svg';
-            }
-          },
-          y: imageY
+          class: stats.bgBoudaryClass(data),
+          cy: imageY
         })
-        .classed('hidden', false);
+        .classed({'d3-stats-circle': true, 'd3-smbg': true, 'd3-circle-smbg': true, 'hidded': false});
     }
   };
 
