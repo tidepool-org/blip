@@ -1,7 +1,7 @@
 {
   "name": "sundial",
   "version": "0.0.1",
-  "description": "Tidepool's datetime library thingie.",
+  "description": "Tidepool's datetime wrapper",
   "keywords": [
     "datetime",
     "date",
