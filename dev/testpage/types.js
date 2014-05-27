@@ -18,8 +18,24 @@
 var _ = require('lodash');
 
 var guid = require('./guid');
+var dt = require('./datetime');
 
+// common elements
 var MS_IN_24 = 86400000;
+var APPEND = '.000Z';
+
+var getAllFeatureSetNames = function(featureSets) {
+  featureSets = featureSets || {};
+  return function() {
+    var names = [];
+    for (var key in featureSets) {
+      if (featureSets.hasOwnProperty(key)) {
+        names.push(key);
+      }
+    }
+    return names;
+  };
+};
 
 var common = {
   deviceId: 'Demo Data - 123',
@@ -94,15 +110,7 @@ var Bolus = function(deviceTime, features) {
       'recommended': features.value + 1.5
     }
   };
-  this.getAllFeatureSetNames = function() {
-    var names = [];
-    for (var key in featureSets) {
-      if (featureSets.hasOwnProperty(key)) {
-        names.push(key);
-      }
-    }
-    return names;
-  };
+  this.getAllFeatureSetNames = getAllFeatureSetNames(featureSets);
   // only fill out attributes if arguments
   if (arguments.length) {
     this.deviceTime = deviceTime;
@@ -115,11 +123,38 @@ var Bolus = function(deviceTime, features) {
 
 Bolus.prototype = common;
 
+var Basal = function(deviceTime, features) {
+  var baseDuration = MS_IN_24/48;
+
+  features = features || {'value': null};
+  var featureSets = {
+    'scheduled': {
+      'deliveryType': 'scheduled',
+      'duration': baseDuration,
+      'start': deviceTime,
+      'end': this.addInterval(deviceTime + APPEND, {'milliseconds': baseDuration}).utc().format().slice(0, -6)
+    }
+  };
+  this.getAllFeatureSetNames = getAllFeatureSetNames(featureSets);
+  // only fill out attributes if arguments
+  if (arguments.length) {
+    this.deviceTime = deviceTime;
+    this.id = this.makeId();
+    this.type = 'basal-rate-segment';
+    this.value = features.value;
+    _.defaults(this, featureSets[features.featureSet]);
+  }
+};
+
+Basal.prototype = common;
+Basal.prototype.addInterval = dt.addInterval;
+
 module.exports = (function() {
   return {
     CBG: CBG,
     SMBG: SMBG,
     Carbs: Carbs,
-    Bolus: Bolus
+    Bolus: Bolus,
+    Basal: Basal
   };
 }());
