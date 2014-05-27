@@ -18,15 +18,14 @@
 var _ = require('lodash');
 var moment = require('moment');
 
+var dt = require('./datetime');
 var types = require('./types');
 
 var day = {
   HOURS_PER_DAY: 24,
   MINUTES_PER_HOUR: 60,
-  addInterval: function(datetime, duration) {
-    duration = moment.duration(duration);
-    return moment(datetime).add(duration);
-  },
+  MS_IN_24: 86400000,
+  addInterval: dt.addInterval,
   START: moment('2008-01-01T00:00:00.000Z')
 };
 
@@ -212,11 +211,58 @@ var BolusDay = function(opts) {
 
 BolusDay.prototype = day;
 
+var BasalDay = function(opts) {
+  var interval = 30;
+  var defaults = {
+    interval: interval,
+    patterns: {
+      allFeatureSets: function() {
+        var increment = 0.1, i = 0;
+        var featureSets = new types.Basal().getAllFeatureSetNames();
+        return function() {
+          // reset i
+          if (i === featureSets.length) {
+            i = 0;
+          }
+          return {
+            value: (i + 1) * increment,
+            featureSet: featureSets[i++]
+          };
+        };
+      }
+    }
+  };
+
+  this.opts = opts || {};
+
+  this.opts = _.defaults(this.opts, defaults);
+
+  this.generateFull = function(pattern, opts) {
+    opts = opts || {};
+    var datetime = opts.start || this.START, totalDuration = 0, events = [];
+
+    while (totalDuration < this.MS_IN_24) {
+      var newBasal = new types.Basal(datetime.utc().format().slice(0, -6), pattern());
+      events.push(newBasal);
+      datetime = this.addInterval(datetime, {'milliseconds': newBasal.duration});
+      totalDuration += newBasal.duration;
+    }
+
+    for (var i = 0; i < events.length; ++i) {
+      events[i] = events[i].asObject();
+    }
+    return events;
+  };
+};
+
+BasalDay.prototype = day;
+
 module.exports = (function() {
   return {
     CBGDay: CBGDay,
     SMBGDay: SMBGDay,
     CarbsDay: CarbsDay,
-    BolusDay: BolusDay
+    BolusDay: BolusDay,
+    BasalDay: BasalDay
   };
 }());

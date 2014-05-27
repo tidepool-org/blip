@@ -25,14 +25,18 @@ module.exports = (function() {
   var smbgDay = new days.SMBGDay({interval: 30});
   var carbsDay = new days.CarbsDay();
   var bolusDay = new days.BolusDay();
+  var basalDay = new days.BasalDay();
 
   function full() {
+    // cbg data
     var values = [60,110,300], data = [];
     values.forEach(function(val) {
       data.push(cbgDay.generateFull(cbgDay.opts.patterns.steady, {
         seedValue: val
       }));
     });
+
+    // smbg data
     data.push(smbgDay.generateFull(smbgDay.opts.patterns.ident, {
       start: moment('2008-01-01T00:30:00.000Z')
     }));
@@ -47,12 +51,22 @@ module.exports = (function() {
       start: moment('2008-01-01T15:00:00.000Z'),
       reverse: true
     }));
+
+    // carbs data
     var alternating = carbsDay.opts.patterns.alternating(100);
     data.push(carbsDay.generateFull(alternating, {
       start: moment('2008-01-01T01:00:00.000Z')
     }));
-    var allFeatureSets = bolusDay.opts.patterns.allFeatureSets();
-    data.push(bolusDay.generateFull(allFeatureSets, {
+
+    // bolus data
+    var allBolusFeatureSets = bolusDay.opts.patterns.allFeatureSets();
+    data.push(bolusDay.generateFull(allBolusFeatureSets, {
+      start: moment('2008-01-01T00:00:00.000Z')
+    }));
+
+    // basal data
+    var allBasalFeatureSets = basalDay.opts.patterns.allFeatureSets();
+    data.push(basalDay.generateFull(allBasalFeatureSets, {
       start: moment('2008-01-01T00:00:00.000Z')
     }));
     return _.flatten(data);
