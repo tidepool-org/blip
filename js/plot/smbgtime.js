@@ -199,12 +199,12 @@ function SMBGTime (opts) {
     var sec = localTime.getUTCSeconds();
     var msec = localTime.getUTCMilliseconds();
     var t = hour * MS_IN_HOUR + min * MS_IN_MIN + sec * 1000 + msec;
-    return opts.xScale(t) - opts.size / 2;
+    return opts.xScale(t);
   };
 
   this.addTooltip = function(d, category, p) {
     var yPosition = p.height() / 2;
-    var xPosition = this.xPosition(d) + opts.size/2;
+    var xPosition = this.xPosition(d) + opts.size;
     d3.select('#' + 'tidelineTooltips_' + p.id())
       .call(p.tooltips(),
         d,
