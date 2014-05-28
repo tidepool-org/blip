@@ -284,7 +284,6 @@ module.exports = function(pool, opts) {
     if (isNaN(data.value)) {
       puddleGroup.classed('d3-insufficient-data', true);
       stats.rectGroup.selectAll('.d3-stats-circle').classed('hidden', true);
-      //.d3-stats.d3-insufficient-data circle
       stats.rectAnnotation(puddle, puddleGroup);
     }
     else {
