@@ -23,6 +23,7 @@ var scales = require('../util/scales');
 var dt = require('../../data/util/datetime');
 var format = require('../../data/util/format');
 var Puddle = require('./puddle');
+var bgBoundaryClass = require('../util/bgBoundaryClass');
 
 module.exports = function(pool, opts) {
 
@@ -80,6 +81,7 @@ module.exports = function(pool, opts) {
 
   opts = _.defaults(opts, defaults);
 
+  var getBgBoundaryClass = bgBoundaryClass(opts);
   var widgetGroup, rectScale;
 
   var puddles = [];
@@ -186,24 +188,6 @@ module.exports = function(pool, opts) {
     });
   };
 
-  stats.bgBoudaryClass = function(data) {
-    if (data.value <= opts.classes['very-low'].boundary) {
-      return 'd3-bg-low';
-    }
-    else if ((data.value > opts.classes['very-low'].boundary) && (data.value <= opts.classes.low.boundary)) {
-      return 'd3-bg-low d3-circle-open';
-    }
-    else if ((data.value > opts.classes.low.boundary) && (data.value <= opts.classes.target.boundary)) {
-      return 'd3-bg-target';
-    }
-    else if ((data.value > opts.classes.target.boundary) && (data.value <= opts.classes.high.boundary)) {
-      return 'd3-bg-high d3-circle-open';
-    }
-    else if (data.value > opts.classes.high.boundary) {
-      return 'd3-bg-high';
-    }
-  };
-
   stats.createRect = function(puddle, puddleGroup, data) {
     var rectGroup = puddleGroup.append('g')
       .attr('id', 'd3-stats-rect-group');
@@ -261,7 +245,7 @@ module.exports = function(pool, opts) {
         cx: (puddle.width() * (3/16)),
         cy: isFinite(imageY) ? imageY : 0,
         r: 7,
-        class: stats.bgBoudaryClass(data)
+        class: getBgBoundaryClass(data)
       })
       .classed({'d3-image':true, 'd3-stats-circle': true, 'd3-smbg': true, 'd3-circle-smbg': true, 'hidded': !isFinite(imageY)});
 
@@ -297,7 +281,7 @@ module.exports = function(pool, opts) {
     if (isFinite(imageY)) {
       stats.rectGroup.selectAll('.d3-stats-circle')
         .attr({
-          class: stats.bgBoudaryClass(data),
+          class: getBgBoundaryClass(data),
           cy: imageY
         })
         .classed({'d3-stats-circle': true, 'd3-smbg': true, 'd3-circle-smbg': true, 'hidden': false});

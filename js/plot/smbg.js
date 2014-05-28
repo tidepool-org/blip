@@ -20,6 +20,7 @@ var _ = require('../lib/')._;
 
 var log = require('../lib/').bows('SMBG');
 var scales = require('./util/scales');
+var bgBoundaryClass = require('./util/bgBoundaryClass');
 
 module.exports = function(pool, opts) {
 
@@ -40,6 +41,8 @@ module.exports = function(pool, opts) {
   };
 
   _.defaults(opts, defaults);
+
+  var getBgBoundaryClass = bgBoundaryClass(opts);
 
   function smbg(selection) {
     opts.xScale = pool.xScale().copy();
@@ -62,23 +65,7 @@ module.exports = function(pool, opts) {
           id: function(d) {
             return 'smbg_' + d.id;
           },
-          class: function(d) {
-            if (d.value <= opts.classes['very-low'].boundary) {
-              return 'd3-bg-low';
-            }
-            else if ((d.value > opts.classes['very-low'].boundary) && (d.value <= opts.classes.low.boundary)) {
-              return 'd3-bg-low d3-circle-open';
-            }
-            else if ((d.value > opts.classes.low.boundary) && (d.value <= opts.classes.target.boundary)) {
-              return 'd3-bg-target';
-            }
-            else if ((d.value > opts.classes.target.boundary) && (d.value <= opts.classes.high.boundary)) {
-              return 'd3-bg-high d3-circle-open';
-            }
-            else if (d.value > opts.classes.high.boundary) {
-              return 'd3-bg-high';
-            }
-          }
+          class: getBgBoundaryClass
         })
         .classed({'d3-smbg': true, 'd3-circle-smbg': true});
       circles.exit().remove();

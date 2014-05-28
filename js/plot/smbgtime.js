@@ -19,6 +19,7 @@ var d3 = require('../lib/').d3;
 var _ = require('../lib/')._;
 
 var log = require('../lib/').bows('Two-Week SMBG');
+var bgBoundaryClass = require('./util/bgBoundaryClass');
 
 function SMBGTime (opts) {
   var MS_IN_HOUR = 3600000;
@@ -42,6 +43,8 @@ function SMBGTime (opts) {
   };
 
   opts = _.defaults(opts, defaults);
+
+  var getBgBoundaryClass = bgBoundaryClass(opts);
 
   this.draw = function(pool) {
     opts.pool = pool;
@@ -74,23 +77,7 @@ function SMBGTime (opts) {
             id: function(d) {
               return 'smbg_time_' + d.id;
             },
-            class: function(d) {
-              if (d.value <= opts.classes['very-low'].boundary) {
-                return 'd3-bg-low';
-              }
-              else if ((d.value > opts.classes['very-low'].boundary) && (d.value <= opts.classes.low.boundary)) {
-                return 'd3-bg-low d3-circle-open';
-              }
-              else if ((d.value > opts.classes.low.boundary) && (d.value <= opts.classes.target.boundary)) {
-                return 'd3-bg-target';
-              }
-              else if ((d.value > opts.classes.target.boundary) && (d.value <= opts.classes.high.boundary)) {
-                return 'd3-bg-high d3-circle-open';
-              }
-              else if (d.value > opts.classes.high.boundary) {
-                return 'd3-bg-high';
-              }
-            }
+            class: getBgBoundaryClass
           })
           .classed({'d3-smbg-time': true, 'd3-circle-smbg': true})
           .on('dblclick', function(d) {
