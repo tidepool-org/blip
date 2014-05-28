@@ -291,9 +291,8 @@ module.exports = function(pool, opts) {
       puddleGroup.on('mouseout', null);
       puddleGroup.classed('d3-insufficient-data', false);
     }
-    var imageY = rectScale(data.value) + (puddle.height() / 10);
 
-    //console.log('imageY',imageY);
+    var imageY = rectScale(data.value) + (puddle.height() / 10);
 
     if (isFinite(imageY)) {
       stats.rectGroup.selectAll('.d3-stats-circle')
@@ -301,7 +300,7 @@ module.exports = function(pool, opts) {
           class: stats.bgBoudaryClass(data),
           cy: imageY
         })
-        .classed({'d3-stats-circle': true, 'd3-smbg': true, 'd3-circle-smbg': true, 'hidded': false});
+        .classed({'d3-stats-circle': true, 'd3-smbg': true, 'd3-circle-smbg': true, 'hidden': false});
     }
   };
 
