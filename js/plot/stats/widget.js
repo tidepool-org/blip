@@ -247,7 +247,13 @@ module.exports = function(pool, opts) {
         r: 7,
         class: getBgBoundaryClass(data)
       })
-      .classed({'d3-image':true, 'd3-stats-circle': true, 'd3-smbg': true, 'd3-circle-smbg': true, 'hidded': !isFinite(imageY)});
+      .classed({
+        'd3-image': true,
+        'd3-stats-circle': true,
+        'd3-smbg': true,
+        'd3-circle-smbg': true,
+        'hidden': !isFinite(imageY)
+      });
 
     stats.rectGroup = rectGroup;
 

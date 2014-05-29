@@ -16,21 +16,21 @@
  */
 
 module.exports = function(opts) {
-  return function(data) {
-    if (data.value < opts.classes['very-low'].boundary) {
+  return function(datum) {
+    if (datum.value < opts.classes['very-low'].boundary) {
       return 'd3-bg-low';
     }
-    else if ((data.value >= opts.classes['very-low'].boundary) && (data.value < opts.classes.low.boundary)) {
+    else if ((datum.value >= opts.classes['very-low'].boundary) && (datum.value < opts.classes.low.boundary)) {
       return 'd3-bg-low d3-circle-open';
     }
-    else if ((data.value >= opts.classes.low.boundary) && (data.value <= opts.classes.target.boundary)) {
+    else if ((datum.value >= opts.classes.low.boundary) && (datum.value <= opts.classes.target.boundary)) {
       return 'd3-bg-target';
     }
-    else if ((data.value > opts.classes.target.boundary) && (data.value <= opts.classes.high.boundary)) {
+    else if ((datum.value > opts.classes.target.boundary) && (datum.value <= opts.classes.high.boundary)) {
       return 'd3-bg-high d3-circle-open';
     }
-    else if (data.value > opts.classes.high.boundary) {
+    else if (datum.value > opts.classes.high.boundary) {
       return 'd3-bg-high';
     }
-  }
+  };
 };
