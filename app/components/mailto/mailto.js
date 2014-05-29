@@ -35,7 +35,7 @@ var MailTo = React.createClass({
     return (
       /* jshint ignore:start */
       <div className='mailto'>
-        <a className='mailto-link' href={mailtoInfo} onClick={this.onLinkSelected} target='_top'>{this.props.linkTitle}</a>
+        <a href={mailtoInfo} onClick={this.onLinkSelected} target='_top'>{this.props.linkTitle}</a>
       </div>
       /* jshint ignore:end */
     );
