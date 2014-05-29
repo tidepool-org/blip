@@ -85,6 +85,10 @@ var Login = React.createClass({
     /* jshint ignore:end */
   },
 
+  logPasswordReset : function() {
+    this.props.trackMetric('Clicked Forgot Password');
+  },
+
   renderPasswordMailTo: function() {
 
     var title = 'I forgot my password';
@@ -95,7 +99,7 @@ var Login = React.createClass({
         linkTitle={title}
         emailAddress={'support@tidepool.org'}
         emailSubject={title}
-        trackMetric={this.props.trackMetric}/>
+        onLinkClicked={this.logPasswordReset}/>
     );
     /* jshint ignore:end */
   },

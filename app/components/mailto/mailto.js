@@ -21,11 +21,7 @@ var MailTo = React.createClass({
     linkTitle : React.PropTypes.string.isRequired,
     emailAddress : React.PropTypes.string.isRequired,
     emailSubject : React.PropTypes.string.isRequired,
-    trackMetric: React.PropTypes.func.isRequired
-  },
-
-  onLinkSelected: function(){
-    this.props.trackMetric('Clicked '+this.props.linkTitle);
+    onLinkClicked: React.PropTypes.func.isRequired
   },
 
   render: function() {
@@ -35,7 +31,7 @@ var MailTo = React.createClass({
     return (
       /* jshint ignore:start */
       <div className='mailto'>
-        <a href={mailtoInfo} onClick={this.onLinkSelected} target='_top'>{this.props.linkTitle}</a>
+        <a href={mailtoInfo} onClick={this.props.onLinkClicked} target='_top'>{this.props.linkTitle}</a>
       </div>
       /* jshint ignore:end */
     );

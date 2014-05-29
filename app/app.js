@@ -277,6 +277,10 @@ var AppComponent = React.createClass({
     return null;
   },
 
+  logSupportContact: function(){
+    trackMetric('Clicked Give Feedback');
+  },
+
   renderFooter: function() {
     // just the feedbak link at this stage
     return (
@@ -287,7 +291,7 @@ var AppComponent = React.createClass({
             linkTitle={'Send Us Feedback'}
             emailAddress={'support@tidepool.org'}
             emailSubject={'Feedback On Blip'}
-            trackMetric={trackMetric} />
+            onLinkClicked={this.logSupportContact} />
         </div>
       </div>
       /* jshint ignore:end */
