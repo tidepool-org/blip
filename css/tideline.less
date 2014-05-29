@@ -418,7 +418,7 @@ svg {
       fill: @fill-darkest;
     }
   }
-  .d3-stats-image {
+  .d3-stats-circle {
     &.hidden {
       display: none;
     }
@@ -563,6 +563,12 @@ svg {
 .d3-settings-table-head,
 .d3-settings-table-row-data td {
   font-size: @font-size-settings;
+}
+
+.d3-settings-col-label > i {
+  float: left;
+  padding-right: 4px;
+  padding-left: 2px;
 }
 
 @media print {

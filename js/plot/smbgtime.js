@@ -19,7 +19,8 @@ var d3 = require('../lib/').d3;
 var _ = require('../lib/')._;
 
 var log = require('../lib/').bows('Two-Week SMBG');
- 
+var bgBoundaryClass = require('./util/bgBoundaryClass');
+
 function SMBGTime (opts) {
   var MS_IN_HOUR = 3600000;
 
@@ -43,6 +44,8 @@ function SMBGTime (opts) {
 
   opts = _.defaults(opts, defaults);
 
+  var getBgBoundaryClass = bgBoundaryClass(opts);
+
   this.draw = function(pool) {
     opts.pool = pool;
     var mainGroup = pool.parent();
@@ -64,49 +67,21 @@ function SMBGTime (opts) {
           .append('g')
           .attr('class', 'd3-smbg-time-group');
 
-        circleGroups.append('image')
+        circleGroups.append('circle')
           .attr({
-            'xlink:href': function(d) {
-              if (d.value <= opts.classes['very-low'].boundary) {
-                return opts.pool.imagesBaseUrl() + '/smbg/very_low.svg';
-              }
-              else if ((d.value > opts.classes['very-low'].boundary) && (d.value <= opts.classes.low.boundary)) {
-                return opts.pool.imagesBaseUrl() + '/smbg/low.svg';
-              }
-              else if ((d.value > opts.classes.low.boundary) && (d.value <= opts.classes.target.boundary)) {
-                return opts.pool.imagesBaseUrl() + '/smbg/target.svg';
-              }
-              else if ((d.value > opts.classes.target.boundary) && (d.value <= opts.classes.high.boundary)) {
-                return opts.pool.imagesBaseUrl() + '/smbg/high.svg';
-              }
-              else if (d.value > opts.classes.high.boundary) {
-                return opts.pool.imagesBaseUrl() + '/smbg/very_high.svg';
-              }
-            },
-            'x': function(d) {
+            cx: function(d) {
               return smbg.xPosition(d);
             },
-            'y': function(d) {
-              return pool.height() / 2 - opts.size / 2;
+            cy: function(d) {
+              return pool.height() / 2;
             },
-            'width': opts.size,
-            'height': opts.size,
-            'id': function(d) {
+            r: 7,
+            id: function(d) {
               return 'smbg_time_' + d.id;
             },
-            'class': function(d) {
-              if (d.value <= opts.classes.low.boundary) {
-                return 'd3-bg-low';
-              }
-              else if ((d.value > opts.classes.low.boundary) && (d.value <= opts.classes.target.boundary)) {
-                return 'd3-bg-target';
-              }
-              else if (d.value > opts.classes.target.boundary) {
-                return 'd3-bg-high';
-              }
-            }
+            class: getBgBoundaryClass
           })
-          .classed({'d3-image': true, 'd3-smbg-time': true, 'd3-image-smbg': true})
+          .classed({'d3-smbg-time': true, 'd3-circle-smbg': true})
           .on('dblclick', function(d) {
             d3.event.stopPropagation(); // silence the click-and-drag listener
             opts.emitter.emit('selectSMBG', d.normalTime);
@@ -153,7 +128,7 @@ function SMBGTime (opts) {
         circles.exit().remove();
 
         // tooltips
-        selection.selectAll('.d3-image-smbg').on('mouseover', function() {
+        selection.selectAll('.d3-circle-smbg').on('mouseover', function() {
           if (d3.select(this).classed('d3-bg-low')) {
             smbg.addTooltip(d3.select(this).datum(), 'low', pool);
           }
@@ -164,7 +139,7 @@ function SMBGTime (opts) {
             smbg.addTooltip(d3.select(this).datum(), 'high', pool);
           }
         });
-        selection.selectAll('.d3-image-smbg').on('mouseout', function() {
+        selection.selectAll('.d3-circle-smbg').on('mouseout', function() {
           var id = d3.select(this).attr('id').replace('smbg_time_', 'tooltip_');
           mainGroup.select('#' + id).remove();
         });
@@ -213,12 +188,12 @@ function SMBGTime (opts) {
     var sec = localTime.getUTCSeconds();
     var msec = localTime.getUTCMilliseconds();
     var t = hour * MS_IN_HOUR + min * MS_IN_MIN + sec * 1000 + msec;
-    return opts.xScale(t) - opts.size / 2;
+    return opts.xScale(t);
   };
 
   this.addTooltip = function(d, category, p) {
     var yPosition = p.height() / 2;
-    var xPosition = this.xPosition(d) + opts.size/2;
+    var xPosition = this.xPosition(d) + opts.size;
     d3.select('#' + 'tidelineTooltips_' + p.id())
       .call(p.tooltips(),
         d,

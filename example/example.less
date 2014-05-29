@@ -25,6 +25,18 @@
 @import url(http://fonts.googleapis.com/css?family=Open+Sans);
 
 @import '../css/tideline.less';
+@import 'icons.less';
+
+@font-face {
+  font-family: 'Blip Icons';
+  src: url('../fonts/blip-icons.eot?89887989');
+  src: url('../fonts/blip-icons.eot?89887989#iefix') format('embedded-opentype'),
+       url('../fonts/blip-icons.woff?89887989') format('woff'),
+       url('../fonts/blip-icons.ttf?89887989') format('truetype'),
+       url('../fonts/blip-icons.svg?89887989#fontello') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
 
 @font-face {
   font-family: 'Open Sans';
@@ -143,5 +155,6 @@
     width: 960px;
     height: 590px;
     padding: 0;
+    overflow-y: auto;
   }
 }
