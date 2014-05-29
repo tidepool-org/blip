@@ -21,12 +21,14 @@ var config = window.config;
 var LoginNav = require('../../components/loginnav');
 var LoginLogo = require('../../components/loginlogo');
 var SimpleForm = require('../../components/simpleform');
+var MailTo = require('../../components/mailto');
 
 var Login = React.createClass({
   propTypes: {
     onValidate: React.PropTypes.func.isRequired,
     onSubmit: React.PropTypes.func.isRequired,
-    onSubmitSuccess: React.PropTypes.func.isRequired
+    onSubmitSuccess: React.PropTypes.func.isRequired,
+    trackMetric: React.PropTypes.func.isRequired
   },
 
   formInputs: [
@@ -46,6 +48,7 @@ var Login = React.createClass({
 
   render: function() {
     var form = this.renderForm();
+    var forgotPassword = this.renderPasswordMailTo();
 
     /* jshint ignore:start */
     return (
@@ -57,6 +60,7 @@ var Login = React.createClass({
         <div className="container-small-outer login-form">
           <div className="container-small-inner login-form-box">
             {form}
+            {forgotPassword}
           </div>
         </div>
       </div>
@@ -77,6 +81,21 @@ var Login = React.createClass({
         submitDisabled={this.state.working}
         onSubmit={this.handleSubmit}
         notification={this.state.notification}/>
+    );
+    /* jshint ignore:end */
+  },
+
+  renderPasswordMailTo: function() {
+
+    var title = 'I forgot my password';
+
+    /* jshint ignore:start */
+    return (
+      <MailTo
+        linkTitle={title}
+        emailAddress={'support@tidepool.org'}
+        emailSubject={title}
+        trackMetric={this.props.trackMetric}/>
     );
     /* jshint ignore:end */
   },
