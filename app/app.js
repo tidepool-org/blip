@@ -917,7 +917,7 @@ var AppComponent = React.createClass({
     }
 
     //Check that this isn't a 401 where error message adds no context
-    if (!_.isEmpty(originalErrorMessage) && !status === 401) {
+    if (!_.isEmpty(originalErrorMessage) && status !== 401) {
       /* jshint ignore:start */
       body = (
         <div>
