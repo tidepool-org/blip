@@ -285,12 +285,12 @@ var AppComponent = React.createClass({
     // just the feedbak link at this stage
     return (
       /* jshint ignore:start */
-      <div className='container-small-outer'>
+      <div className='container-small-outer footer'>
         <div className='container-small-inner'>
           <MailTo
-            linkTitle={'Send Us Feedback'}
+            linkTitle={'Send us feedback'}
             emailAddress={'support@tidepool.org'}
-            emailSubject={'Feedback On Blip'}
+            emailSubject={'Feedback on Blip'}
             onLinkClicked={this.logSupportContact} />
         </div>
       </div>

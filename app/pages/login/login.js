@@ -59,8 +59,8 @@ var Login = React.createClass({
         <LoginLogo imagesEndpoint={config.IMAGES_ENDPOINT + '/loginlogo'} />
         <div className="container-small-outer login-form">
           <div className="container-small-inner login-form-box">
-            {form}
-            {forgotPassword}
+            <div className="login-simpleform">{form}</div>
+            <div className="login-mailto">{forgotPassword}</div>
           </div>
         </div>
       </div>
