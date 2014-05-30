@@ -13,24 +13,20 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-.login-form {
-  margin-bottom: @spacing-large;
+.mailto {
+  font-size: 14px;
 }
 
-.login-form-box {
-  padding-top: @spacing-base;
-  padding-bottom: @spacing-base;
+.mailto a {
+  color: @gray-dark;
+  text-decoration: underline;
 
-  @media(min-width: @screen-md-min) {
-    padding-top: @spacing-large;
-    padding-bottom: @spacing-large;
+  &:hover,
+  &:focus {
+    color: @gray-darkest;
   }
-}
 
-.login-simpleform {
-  margin-bottom: @spacing-small;
-}
-
-.login-mailto {
-  text-align: right;
+  &:active {
+    color: @gray;
+  }
 }

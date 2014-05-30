@@ -39,6 +39,7 @@ var LogoutOverlay = require('./components/logoutoverlay');
 var BrowserWarningOverlay = require('./components/browserwarningoverlay');
 var Notification = require('./components/notification');
 var TermsOverlay = require('./components/termsoverlay');
+var MailTo = require('./components/mailto');
 
 var Login = require('./pages/login');
 var Signup = require('./pages/signup');
@@ -171,6 +172,7 @@ var AppComponent = React.createClass({
     var navbar = this.renderNavbar();
     var notification = this.renderNotification();
     var page = this.renderPage();
+    var footer = this.renderFooter();
 
     /* jshint ignore:start */
     return (
@@ -179,6 +181,7 @@ var AppComponent = React.createClass({
         {navbar}
         {notification}
         {page}
+        {footer}
       </div>
     );
     /* jshint ignore:end */
@@ -274,6 +277,27 @@ var AppComponent = React.createClass({
     return null;
   },
 
+  logSupportContact: function(){
+    trackMetric('Clicked Give Feedback');
+  },
+
+  renderFooter: function() {
+    // just the feedbak link at this stage
+    return (
+      /* jshint ignore:start */
+      <div className='container-small-outer footer'>
+        <div className='container-small-inner'>
+          <MailTo
+            linkTitle={'Send us feedback'}
+            emailAddress={'support@tidepool.org'}
+            emailSubject={'Feedback on Blip'}
+            onLinkClicked={this.logSupportContact} />
+        </div>
+      </div>
+      /* jshint ignore:end */
+    );
+  },
+
   // Override on route change
   renderPage: function() {
     return null;
@@ -294,7 +318,8 @@ var AppComponent = React.createClass({
       <Login
         onValidate={this.validateUser}
         onSubmit={this.login}
-        onSubmitSuccess={this.handleLoginSuccess} />
+        onSubmitSuccess={this.handleLoginSuccess}
+        trackMetric={trackMetric} />
       /* jshint ignore:end */
     );
   },
