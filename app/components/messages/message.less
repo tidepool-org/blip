@@ -1,0 +1,64 @@
+/**
+ * Copyright (c) 2014, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ */
+
+// For padding, margins, inside the message "box"
+@message-spacing-unit: 8px;
+
+.message {
+  &:extend(.clearfix all);
+}
+
+.message-header {
+  margin-bottom: 5px;
+}
+
+@message-picture-large-size: 50px;
+.message-picture-large {
+  float: left;
+  margin-right: @message-spacing-unit;
+
+  width: @message-picture-large-size;
+  height: @message-picture-large-size;
+  border-radius: @message-picture-large-size;
+}
+
+@message-picture-small-size: 32px;
+.message-picture-small {
+  float: left;
+  margin-right: @message-spacing-unit;
+
+  width: @message-picture-small-size;
+  height: @message-picture-small-size;
+  border-radius: @message-picture-small-size;
+}
+
+.message-author {
+  font-size: 18px;
+  font-weight: bold;
+  color: @gray-darkest;
+}
+
+.message-timestamp {
+  font-size: 14px;
+  color: #bbb;
+}
+
+.message-body {
+  // Makes text stay aligned on the right
+  // and doesn't wrap under floating picture
+  display: table-cell;
+  // Force element to stretch to width of outer box
+  width: 10000px;
+}

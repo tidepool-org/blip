@@ -1,19 +1,25 @@
 /**
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-@messages-inner-width: 420px;
+@import "message.less";
+
+@messages-inner-width:  420px;
+@messages-close-height: 30px;
+
+// Modal
+// ====================================
 
 .messages {
   position: fixed;
@@ -24,23 +30,17 @@
   background: rgba(0, 0, 0, 0.4);
   z-index: @zindex-overlay;
   overflow-y: scroll;
-
-  a,
-  a:hover,
-  a:focus {
-    color: @text-color;
-    text-decoration: underline;
-    // Hack: don't know why, but cursor not showing up as pointer
-    cursor: pointer;
-  }
 }
 
 .messages-inner {
   margin: 80px auto;
-  padding: @spacing-small @spacing-base;
+  padding: @messages-close-height @spacing-base;
   border: 2px solid @gray-light;
   background-color: #fff;
   border-radius: 4px;
+
+  // For absolute-positioned close link
+  position: relative;
 
   @media(min-width: @messages-inner-width) {
     width: @messages-inner-width;
@@ -48,21 +48,52 @@
 }
 
 .messages-close {
-  display: inline-block;
-  float: right;
+  display: block;
+  position: absolute;
+  top: 0;
+  right: 0;
+
+  font-size: 12px;
+  line-height: @messages-close-height;
+  padding: 0 @spacing-small;
 }
 
-.messages-message-when {
-  text-align: center;
+a.messages-close {
+  color: @gray-dark;
+  text-decoration: underline;
+  // Hack: don't know why, but cursor not showing up as pointer
+  cursor: pointer;
+
+  &:hover {
+    color: @gray-darkest;
+  }
 }
 
-.messages-message-username {
-  font-size:small;
+// Message thread
+// ====================================
+
+.messages-thread .message {
+  margin-bottom: @spacing-base;
 }
 
-.messages-comment {
-  margin-left: @spacing-large;
+// Comments
+.messages-thread .message:not(:first-of-type) {
+  // Picture size + note padding
+  margin-left: (50px + 8px);
 }
-.messages-comment-header {
-  font-size:small;
+
+// Message form
+// ====================================
+
+.messages-create-datetime {
+  margin-bottom: @spacing-base;
+}
+
+.messages-create-datetime-value {
+  font-weight: bold;
+  color: @gray-darkest;
+}
+
+.messages textarea {
+  resize: none;
 }

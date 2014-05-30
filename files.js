@@ -29,7 +29,8 @@ var files = {
   images: [
     {dir: 'app/components/navbar/images', endpoint: 'navbar'},
     {dir: 'app/components/loginnav/images', endpoint: 'loginnav'},
-    {dir: 'app/components/loginlogo/images', endpoint: 'loginlogo'}
+    {dir: 'app/components/loginlogo/images', endpoint: 'loginlogo'},
+    {dir: 'app/components/messages/images', endpoint: 'messages'}
   ],
 
   svg: [
