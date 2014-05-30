@@ -42,10 +42,6 @@
   background-color: #fff;
   border-radius: 4px;
 
-  // For absolute-positioned close link
-  position: relative;
-  padding-right: (@notification-close-link-width + 4px);
-
   a,
   a:hover,
   a:focus {
@@ -90,6 +86,12 @@
   }
 }
 
+.notification-closable .notification-inner {
+  // For absolute-positioned close link
+  position: relative;
+  padding-right: (@notification-close-link-width + 4px);
+}
+
 .notification-close {
   display: block;
   position: absolute;
@@ -114,4 +116,5 @@
 .notification-body-small {
   font-size: 12px;
   line-height: 16px;
+  color: @gray-dark;
 }

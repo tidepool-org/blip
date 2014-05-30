@@ -27,6 +27,9 @@ var Notification = React.createClass({
     var className = 'notification notification-' + type;
 
     var closeLink = this.renderCloseLink();
+    if (closeLink) {
+      className = className + ' notification-closable';
+    }
 
     return (
       /* jshint ignore:start */

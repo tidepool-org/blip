@@ -1,14 +1,14 @@
 /**
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
@@ -17,15 +17,15 @@
 // ====================================
 
 @gray-darkest:           #636363; // Hover state for links, buttons
-@gray-darker:            #808184; // Text on white background
+@gray-darker:            #727375; // Text on white background
 @gray-dark:              #989897; // Nav links, buttons, tabs
 @gray:                   #cccccc; // Container on gray background
 @gray-light:             #e6e6e5; // Container on white background
 @gray-lighter:           #f7f7f8; // Background
 
-@green-success:          #5cb85c;
-@orange-alert:           #f0ad4e;
-@red-error:              #ff8b7c;
+@purple-success:         #7950ea;
+@orange-alert:           #ffa70b;
+@red-error:              #ff3631;
 
 @blue-green-dark:        #155e63;
 @blue-green:             #0b9eb3;
@@ -59,17 +59,17 @@
 // Notification states
 // ====================================
 
-@state-success-text:             #3c763d;
-@state-success-bg:               #dff0d8;
-@state-success-border:           darken(spin(@state-success-bg, -10), 5%);
+@state-success-text:             @gray-darker;
+@state-success-bg:               #fff;
+@state-success-border:           @purple-success;
 
-@state-alert-text:               #8a6d3b;
-@state-alert-bg:                 #fcf8e3;
-@state-alert-border:             darken(spin(@state-alert-bg, -10), 5%);
+@state-alert-text:               @gray-darker;
+@state-alert-bg:                 #fff;
+@state-alert-border:             @orange-alert;
 
-@state-error-text:               #a94442;
-@state-error-bg:                 #f2dede;
-@state-error-border:             darken(spin(@state-error-bg, -10), 5%);
+@state-error-text:               @gray-darker;
+@state-error-bg:                 #fff;
+@state-error-border:             @red-error;
 
 // Media queries breakpoints
 // ====================================
