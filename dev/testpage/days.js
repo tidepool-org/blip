@@ -166,7 +166,6 @@ var BolusDay = function(opts) {
       allFeatureSets: function() {
         var values = [2,4.5,6,7.5,9.25,10], i = 0;
         var featureSets = new types.Bolus().getAllFeatureSetNames();
-        console.log(featureSets);
         return function() {
           // reset i
           if (i === values.length) {
@@ -217,15 +216,15 @@ var BasalDay = function(opts) {
     interval: interval,
     patterns: {
       allFeatureSets: function() {
-        var increment = 0.1, i = 0;
+        var i = 0;
         var featureSets = new types.Basal().getAllFeatureSetNames();
-        return function() {
+        return function(incrementer) {
           // reset i
           if (i === featureSets.length) {
             i = 0;
           }
           return {
-            value: (i + 1) * increment,
+            incrementer: incrementer,
             featureSet: featureSets[i++]
           };
         };
@@ -242,7 +241,7 @@ var BasalDay = function(opts) {
     var datetime = opts.start || this.START, totalDuration = 0, events = [];
 
     while (totalDuration < this.MS_IN_24) {
-      var newBasal = new types.Basal(datetime.utc().format().slice(0, -6), pattern());
+      var newBasal = new types.Basal(datetime.utc().format().slice(0, -6), pattern(opts.incrementer));
       events.push(newBasal);
       datetime = this.addInterval(datetime, {'milliseconds': newBasal.duration});
       totalDuration += newBasal.duration;

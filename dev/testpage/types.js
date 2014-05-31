@@ -126,11 +126,12 @@ Bolus.prototype = common;
 var Basal = function(deviceTime, features) {
   var baseDuration = MS_IN_24/48;
 
-  features = features || {'value': null};
+  features = features || {'incrementer': null};
   var featureSets = {
     'scheduled': {
       'deliveryType': 'scheduled',
       'duration': baseDuration,
+      'incrementer': features.incrementer,
       'start': deviceTime,
       'end': this.addInterval(deviceTime + APPEND, {'milliseconds': baseDuration}).utc().format().slice(0, -6)
     }
@@ -141,7 +142,8 @@ var Basal = function(deviceTime, features) {
     this.deviceTime = deviceTime;
     this.id = this.makeId();
     this.type = 'basal-rate-segment';
-    this.value = features.value;
+    var incrementer = featureSets[features.featureSet].incrementer;
+    this.value = incrementer();
     _.defaults(this, featureSets[features.featureSet]);
   }
 };

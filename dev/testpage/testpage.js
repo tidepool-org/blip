@@ -19,6 +19,7 @@ var _ = require('lodash');
 var moment = require('moment');
 
 var days = require('./days');
+var Incrementer = require('./incrementer');
 
 module.exports = (function() {
   var cbgDay = new days.CBGDay();
@@ -66,8 +67,10 @@ module.exports = (function() {
 
     // basal data
     var allBasalFeatureSets = basalDay.opts.patterns.allFeatureSets();
+    var incrementer = new Incrementer(0.1, 6);
     data.push(basalDay.generateFull(allBasalFeatureSets, {
-      start: moment('2008-01-01T00:00:00.000Z')
+      start: moment('2008-01-01T00:00:00.000Z'),
+      incrementer: incrementer
     }));
     return _.flatten(data);
   }
