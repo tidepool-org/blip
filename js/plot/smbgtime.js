@@ -193,7 +193,7 @@ function SMBGTime (opts) {
 
   this.addTooltip = function(d, category, p) {
     var yPosition = p.height() / 2;
-    var xPosition = this.xPosition(d) + opts.size;
+    var xPosition = this.xPosition(d);
     d3.select('#' + 'tidelineTooltips_' + p.id())
       .call(p.tooltips(),
         d,
