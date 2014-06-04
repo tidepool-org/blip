@@ -1,15 +1,15 @@
-/*
+/* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- *
+ * 
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- *
+ * 
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- *
+ * 
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -42,7 +42,9 @@ module.exports = function(pool, opts) {
 
   _.defaults(opts, defaults);
 
+  var mainGroup = pool.parent();
   var getBgBoundaryClass = bgBoundaryClass(opts);
+
 
   function smbg(selection) {
     opts.xScale = pool.xScale().copy();
@@ -84,13 +86,13 @@ module.exports = function(pool, opts) {
       });
       d3.selectAll('.d3-circle-smbg').on('mouseout', function() {
         var id = d3.select(this).attr('id').replace('smbg_', 'tooltip_');
-        d3.select('#' + id).remove();
+        mainGroup.select('#' + id).remove();
       });
     });
   }
 
   smbg.addTooltip = function(d, category) {
-    d3.select('#' + 'tidelineTooltips_smbg')
+    mainGroup.select('#' + 'tidelineTooltips_smbg')
       .call(pool.tooltips(),
         d,
         // tooltipXPos

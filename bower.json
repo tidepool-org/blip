@@ -19,11 +19,13 @@
     "d3": "~3.4.3",
     "Duration.js": "https://github.com/icholy/Duration.js.git#3.3.3",
     "lodash": "~2.4.1",
-    "crossfilter": "~1.3.7"
+    "crossfilter": "~1.3.7",
+    "less": "~1.7.0"
   },
   "devDependencies": {
     "bootstrap": "~3.0.3",
     "bows": "https://github.com/latentflip/bows.git#beb35328d5c224fc5635928a1b45b32e0d839caa",
-    "jquery": "~2.1.0"
+    "jquery": "~2.1.0",
+    "jquery-simulate": "*"
   }
 }

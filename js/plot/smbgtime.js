@@ -1,15 +1,15 @@
-/*
+/* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- *
+ * 
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- *
+ * 
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- *
+ * 
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -48,6 +48,8 @@ function SMBGTime (opts) {
 
   this.draw = function(pool) {
     opts.pool = pool;
+    var mainGroup = pool.parent();
+    
     var smbg = this;
     return function(selection) {
       selection.each(function(currentData) {
@@ -137,9 +139,9 @@ function SMBGTime (opts) {
             smbg.addTooltip(d3.select(this).datum(), 'high', pool);
           }
         });
-        d3.selectAll('.d3-circle-smbg').on('mouseout', function() {
+        selection.selectAll('.d3-circle-smbg').on('mouseout', function() {
           var id = d3.select(this).attr('id').replace('smbg_time_', 'tooltip_');
-          d3.select('#' + id).remove();
+          mainGroup.select('#' + id).remove();
         });
       });
     };
@@ -191,7 +193,7 @@ function SMBGTime (opts) {
 
   this.addTooltip = function(d, category, p) {
     var yPosition = p.height() / 2;
-    var xPosition = this.xPosition(d) + opts.size;
+    var xPosition = this.xPosition(d);
     d3.select('#' + 'tidelineTooltips_' + p.id())
       .call(p.tooltips(),
         d,

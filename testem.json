@@ -3,14 +3,11 @@
     "serve_files": [ "test/test.js" ],
     "test_page": "test/html/test.html",
     "src_files": [
+        "css/**/*.less",
+        "fonts/**/*.woff",
+        "img/**/*.svg",
         "js/**/*.js",
         "test/**/*.js"
     ],
-    "launchers": {
-        "Node": {
-            "command": "./node_modules/.bin/mocha test/*_test.js --reporter spec"
-        }
-    },
-    "before_tests": "node_modules/.bin/browserify test/*_test.js -o test/test.js",
-    "launch_in_dev": [ "chrome", "node" ]
+    "launch_in_dev": [ "chrome" ]
 }

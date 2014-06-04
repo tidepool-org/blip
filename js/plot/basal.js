@@ -41,6 +41,8 @@ module.exports = function(pool, opts) {
 
   _.defaults(opts, defaults);
 
+  var mainGroup = pool.parent();
+
   function basal(selection) {
     opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
@@ -242,7 +244,7 @@ module.exports = function(pool, opts) {
         }
       });
 
-      d3.selectAll('.d3-path-basal').remove();
+      basalGroup.selectAll('.d3-path-basal').remove();
       // don't draw an actual path if you've removed any segments for having an invalid value attribute
       if (originalLength === currentData.length) {
         actualPaths.forEach(function(path) {
@@ -320,10 +322,10 @@ module.exports = function(pool, opts) {
       // tooltips
       // only try to make tooltips if we're not excluding any segments due to invalid value attribute
       if (originalLength === currentData.length) {
-        d3.selectAll('.d3-basal-invisible').on('mouseover', function() {
+        basalGroup.selectAll('.d3-basal-invisible').on('mouseover', function() {
           var invisiRect = d3.select(this);
           var id = invisiRect.attr('id').replace('basal_invisible_', '');
-          var d = d3.select('#basal_group_' + id).datum();
+          var d = mainGroup.select('#basal_group_' + id).datum();
           if (invisiRect.classed('d3-basal-temp')) {
             var unD = links[d.id].undelivered;
             if (unD) {
@@ -339,23 +341,23 @@ module.exports = function(pool, opts) {
           }
           if (invisiRect.classed('d3-basal-nonzero')) {
             if (invisiRect.classed('d3-basal-temp')) {
-              d3.select('#basal_' + d.link).attr('opacity', opts.opacity + opts.opacityDelta);
+              basalGroup.select('#basal_' + d.link).attr('opacity', opts.opacity + opts.opacityDelta);
             }
             else {
-              d3.select('#basal_' + id).attr('opacity', opts.opacity + opts.opacityDelta);
+              basalGroup.select('#basal_' + id).attr('opacity', opts.opacity + opts.opacityDelta);
             }
           }
         });
-        d3.selectAll('.d3-basal-invisible').on('mouseout', function() {
+        basalGroup.selectAll('.d3-basal-invisible').on('mouseout', function() {
           var invisiRect = d3.select(this);
           var id = invisiRect.attr('id').replace('basal_invisible_', '');
-          var d = d3.select('#basal_group_' + id).datum();
-          d3.select('#tooltip_' + id).remove();
+          var d = mainGroup.select('#basal_group_' + id).datum();
+          mainGroup.select('#tooltip_' + id).remove();
           if (invisiRect.classed('d3-basal-temp')) {
-            d3.select('#basal_' + d.link).attr('opacity', opts.opacity);
+            basalGroup.select('#basal_' + d.link).attr('opacity', opts.opacity);
           }
           else {
-            d3.select('#basal_' + id).attr('opacity', opts.opacity);
+            basalGroup.select('#basal_' + id).attr('opacity', opts.opacity);
           }
         });
       }
@@ -453,7 +455,7 @@ module.exports = function(pool, opts) {
       return formatted;
     };
 
-    d3.select('#tidelineTooltips_basal')
+    mainGroup.select('#tidelineTooltips_basal')
       .call(pool.tooltips(),
         d,
         // tooltipXPos
@@ -513,7 +515,7 @@ module.exports = function(pool, opts) {
         // tspan
         basal.timespan(d));
     if (category === 'temp') {
-      d3.select('#tooltip_' + d.id).select('.d3-tooltip-text-group').append('text')
+      mainGroup.select('#tooltip_' + d.id).select('.d3-tooltip-text-group').append('text')
         .attr({
           class: 'd3-tooltip-text d3-basal',
           x: opts.xScale(Date.parse(d.normalTime)) + basal.width(d) / 2,
@@ -557,8 +559,8 @@ module.exports = function(pool, opts) {
         },
         d: d
       };
-      if (d3.select('#annotation_for_' + d.id)[0][0] == null) {
-        d3.select('#tidelineAnnotations_basal-rate-segment').call(pool.annotations(), annotationOpts);
+      if (mainGroup.select('#annotation_for_' + d.id)[0][0] == null) {
+        mainGroup.select('#tidelineAnnotations_basal-rate-segment').call(pool.annotations(), annotationOpts);
       }
     });
   };

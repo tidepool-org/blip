@@ -35,6 +35,8 @@ module.exports = function(pool, opts) {
 
   _.defaults(opts, defaults);
 
+  var mainGroup = pool.parent();
+
   function cbg(selection) {
     opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
@@ -46,12 +48,12 @@ module.exports = function(pool, opts) {
         .append('circle')
         .attr('class', 'd3-cbg');
       var cbgLow = cbgGroups.filter(function(d) {
-        if (d.value <= opts.classes.low.boundary) {
+        if (d.value < opts.classes.low.boundary) {
           return d;
         }
       });
       var cbgTarget = cbgGroups.filter(function(d) {
-        if ((d.value > opts.classes.low.boundary) && (d.value <= opts.classes.target.boundary)) {
+        if ((d.value >= opts.classes.low.boundary) && (d.value <= opts.classes.target.boundary)) {
           return d;
         }
       });
@@ -105,7 +107,7 @@ module.exports = function(pool, opts) {
       allCBG.exit().remove();
 
       // tooltips
-      d3.selectAll('.d3-circle-cbg').on('mouseover', function() {
+      selection.selectAll('.d3-circle-cbg').on('mouseover', function() {
         if (d3.select(this).classed('d3-bg-low')) {
           cbg.addTooltip(d3.select(this).datum(), 'low');
         }
@@ -116,15 +118,15 @@ module.exports = function(pool, opts) {
           cbg.addTooltip(d3.select(this).datum(), 'high');
         }
       });
-      d3.selectAll('.d3-circle-cbg').on('mouseout', function() {
+      selection.selectAll('.d3-circle-cbg').on('mouseout', function() {
         var id = d3.select(this).attr('id').replace('cbg_', 'tooltip_');
-        d3.select('#' + id).remove();
+        mainGroup.select('#' + id).remove();
       });
     });
   }
 
   cbg.addTooltip = function(d, category) {
-    d3.select('#' + 'tidelineTooltips_cbg')
+    mainGroup.select('#' + 'tidelineTooltips_cbg')
       .call(pool.tooltips(),
         d,
         // tooltipXPos

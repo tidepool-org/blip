@@ -36,6 +36,8 @@ module.exports = function(pool, opts) {
 
   _.defaults(opts, defaults);
 
+  var mainGroup = pool.parent();
+
   var bolusTooltipBuffer = opts.bolusTooltipCatcher * MS_IN_ONE;
 
   // catch bolus tooltips events
@@ -101,23 +103,23 @@ module.exports = function(pool, opts) {
       rects.exit().remove();
 
       // tooltips
-      d3.selectAll('.d3-rect-carbs').on('mouseover', function() {
+      selection.selectAll('.d3-rect-carbs').on('mouseover', function() {
         var d = d3.select(this).datum();
         var t = Date.parse(d.normalTime);
         opts.emitter.emit('carbTooltipOn', t);
         carbs.addTooltip(d, opts.tooltipTimestamp);
       });
-      d3.selectAll('.d3-rect-carbs').on('mouseout', function() {
+      selection.selectAll('.d3-rect-carbs').on('mouseout', function() {
         var d = d3.select(this).datum();
         var t = Date.parse(d.normalTime);
-        d3.select('#tooltip_' + d.id).remove();
+        mainGroup.select('#tooltip_' + d.id).remove();
         opts.emitter.emit('carbTooltipOff', t);
       });
     });
   }
 
   carbs.addTooltip = function(d, category) {
-    d3.select('#' + 'tidelineTooltips_carbs')
+    mainGroup.select('#' + 'tidelineTooltips_carbs')
       .call(pool.tooltips(),
         d,
         // tooltipXPos
@@ -163,9 +165,9 @@ module.exports = function(pool, opts) {
         'yMultiplier': -1,
         'd': d
       };
-      if (d3.select('#annotation_for_' + d.id)[0][0] == null) {
+      if (mainGroup.select('#annotation_for_' + d.id)[0][0] == null) {
         // _bolus because only one annotation group per pool
-        d3.select('#tidelineAnnotations_bolus').call(pool.annotations(), annotationOpts);
+        mainGroup.select('#tidelineAnnotations_bolus').call(pool.annotations(), annotationOpts);
       }
     });
   };
