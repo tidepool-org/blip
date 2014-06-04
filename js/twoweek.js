@@ -30,7 +30,7 @@ module.exports = function(emitter) {
   var MS_IN_24 = 86400000;
 
   // basic attributes
-  var id = 'tidelineSVGTwoWeek',
+  var id,
     minWidth = 400, minHeight = 400,
     width = minWidth, height = minHeight,
     imagesBaseUrl = 'img',
@@ -338,10 +338,6 @@ module.exports = function(emitter) {
 
   container.daysGroup = function() {
     return daysGroup;
-  };
-
-  container.id = function() {
-    return id;
   };
 
   container.annotations = function() {
@@ -702,6 +698,17 @@ module.exports = function(emitter) {
   };
 
   // getters and setters
+  container.id = function(x) {
+    if (!arguments.length) return id;
+    if (x.search('tideline') !== -1) {
+      id = x.replace('tideline', 'tidelineSVGTwoWeek');
+    }
+    else {
+      id = 'tidelineSVGTwoWeek';
+    }
+    return container;
+  };
+
   container.width = function(x) {
     if (!arguments.length) return width;
     if (x >= minWidth) {

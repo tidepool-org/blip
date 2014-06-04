@@ -192,7 +192,7 @@ Much, much more about the data that tideline requires can be found in the JSON S
 As noted above, tideline *loves* SVG group `<g>` elements. The basic structure of the one-day tideline chart is as follows:
 
 ```XML
-|--<svg id='tidelineSVGOneDay'>
+|--<svg id='tidelineSVGOneDayContainer'>
 | |-<g id='tidelineMain'>
 | | |-<g id='tidelineXAxis'>
 | | |-<g id='tidelinePools'>
@@ -210,7 +210,7 @@ As noted above, tideline *loves* SVG group `<g>` elements. The basic structure o
 And the two-week chart differs only minimally:
 
 ```XML
-|--<svg id='tidelineSVGTwoWeek'>
+|--<svg id='tidelineSVGTwoWeekContainer'>
 | |-<g id='tidelineMain'>
 | | |-<g id='tidelinePools'>
 | | | |-<g id='daysGroup'>

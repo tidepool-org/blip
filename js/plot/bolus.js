@@ -44,6 +44,8 @@ module.exports = function(pool, opts) {
 
   _.defaults(opts, defaults);
 
+  var mainGroup = pool.parent();
+
   var carbTooltipBuffer = opts.carbTooltipCatcher * MS_IN_ONE;
 
   // catch bolus tooltips events
@@ -225,12 +227,12 @@ module.exports = function(pool, opts) {
       boluses.exit().remove();
 
       // tooltips
-      d3.selectAll('.d3-bolus-group').on('mouseover', function(d) {
+      selection.selectAll('.d3-bolus-group').on('mouseover', function(d) {
         bolus.addTooltip(d, bolus.getTooltipCategory(d));
         opts.emitter.emit('bolusTooltipOn', Date.parse(d.normalTime));
       });
-      d3.selectAll('.d3-bolus-group').on('mouseout', function(d) {
-        d3.select('#tooltip_' + d.id).remove();
+      selection.selectAll('.d3-bolus-group').on('mouseout', function(d) {
+        mainGroup.select('#tooltip_' + d.id).remove();
         opts.emitter.emit('bolusTooltipOff', Date.parse(d.normalTime));
       });
     });
@@ -286,7 +288,7 @@ module.exports = function(pool, opts) {
     var tooltipWidth = opts.classes[category].width;
     var tooltipHeight = opts.classes[category].height;
     
-    d3.select('#' + 'tidelineTooltips_bolus')
+    mainGroup.select('#' + 'tidelineTooltips_bolus')
       .call(pool.tooltips(),
         datum,
         // tooltipXPos
@@ -438,8 +440,8 @@ module.exports = function(pool, opts) {
           'up': true
         }
       };
-      if (d3.select('#annotation_for_' + d.id)[0][0] == null) {
-        d3.select('#tidelineAnnotations_bolus').call(pool.annotations(), annotationOpts);
+      if (mainGroup.select('#annotation_for_' + d.id)[0][0] == null) {
+        mainGroup.select('#tidelineAnnotations_bolus').call(pool.annotations(), annotationOpts);
       }
     });
   };

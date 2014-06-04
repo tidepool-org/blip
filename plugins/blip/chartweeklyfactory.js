@@ -54,7 +54,7 @@ function chartWeeklyFactory(el, options) {
     }
 
     // basic chart set up
-    chart.width(width).height(height);
+    chart.id(el.id).width(width).height(height);
 
     if (options.imagesBaseUrl) {
       chart.imagesBaseUrl(options.imagesBaseUrl);
@@ -79,7 +79,7 @@ function chartWeeklyFactory(el, options) {
     }
     else {
       if (smbgData.length &&
-          datetime.valueOf() > Date.parse(smbgData[smbgData.length - 1].normalTime)) {
+          Date.parse(datetime) > Date.parse(smbgData[smbgData.length - 1].normalTime)) {
         datetime = smbgData[smbgData.length - 1].normalTime;
       }
       chart.data(smbgData, datetime);
@@ -114,28 +114,16 @@ function chartWeeklyFactory(el, options) {
     smbgTime = new tideline.plot.SMBGTime({emitter: emitter});
 
     chart.pools().forEach(function(pool, i) {
-      var gutter;
       var d = new Date(pool.id().replace('poolBG_', ''));
       var dayOfTheWeek = d.getUTCDay();
-      if ((dayOfTheWeek === 0) || (dayOfTheWeek === 6)) {
-        gutter = {'top': 1.5, 'bottom': 1.5};
-      }
-      // on Mondays the bottom gutter should be a weekend gutter
-      else if (dayOfTheWeek === 1) {
-        gutter = {'top': 0.5, 'bottom': 1.5};
-      }
-      // on Fridays the top gutter should be a weekend gutter
-      else if (dayOfTheWeek === 5) {
-        gutter = {'top': 1.5, 'bottom': 0.5};
-      }
-      else {
-        gutter = {'top': 0.5, 'bottom': 0.5};
-      }
+      var weekend = ((dayOfTheWeek === 0) || (dayOfTheWeek === 6));
+
       pool.addPlotType('fill', fill(pool, {
         endpoints: fillEndpoints,
         xScale: fillScale,
-        gutter: gutter,
-        dataGutter: chart.dataGutter()
+        gutter: {'top': 0.5, 'bottom': 0.5},
+        dataGutter: chart.dataGutter(),
+        fillClass: weekend ? 'd3-pool-weekend' : ''
       }), false);
       pool.addPlotType('smbg', smbgTime.draw(pool), true, true);
       chart.tooltips().addGroup(d3.select('#' + chart.id()).select('#' + pool.id()), pool.id());

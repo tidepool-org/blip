@@ -78,7 +78,8 @@ var scales = {
   },
   bolus: function(data, pool) {
     var scale = d3.scale.linear()
-      .domain([0, d3.max(data, function(d) { return d.value; })])
+      // for boluses the recommended can exceed the value
+      .domain([0, d3.max(data, function(d) { return d3.max([d.value, d.recommended]); })])
       .range([pool.height(), 0.525 * pool.height()]);
     return scale;
   },
