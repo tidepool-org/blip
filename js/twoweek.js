@@ -303,22 +303,21 @@ module.exports = function(emitter) {
   };
 
   container.legend = function(l) {
-    var y = 30;
     var labelHolder = d3.select('#tidelineWeeklyLabels');
 
     var labelGroup = labelHolder.append('text')
       .attr({
         'class': 'd3-pool-label',
-        'transform': 'translate('+ axisGutter +','+ nav.navGutter +')'
+        'transform': 'translate(' + axisGutter + ',' + nav.navGutter + ')'
       })
       .text(l.main);
 
     labelGroup.append('tspan')
-      .text(' (' + l.light + ')')
+      .text(' (' + l.light + ')');
 
     var legendGroup = labelHolder.append('g')
       .attr({
-        'transform': 'translate(930'+ nav.navGutter +')'
+        'transform': 'translate(' + (container.width() - nav.navGutter) + ',' + nav.navGutter + ')'
       });
 
     legend.draw(legendGroup, 'bg');
