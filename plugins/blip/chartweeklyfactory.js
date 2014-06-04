@@ -28,6 +28,10 @@ var fill = tideline.plot.util.fill;
 function chartWeeklyFactory(el, options) {
   var log = bows('Weekly Factory');
   options = options || {};
+  var defaults = {
+    'bgUnits': 'mg/dL'
+  };
+  _.defaults(options, defaults);
 
   var emitter = new EventEmitter();
   var chart = tideline.twoWeek(emitter);
@@ -82,6 +86,10 @@ function chartWeeklyFactory(el, options) {
     }
 
     chart.setup();
+    chart.legend({
+      main: 'Blood Glucose',
+      light: options.bgUnits
+    });
 
     var days = chart.days;
 
