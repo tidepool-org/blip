@@ -309,7 +309,7 @@ module.exports = function(emitter) {
     var labelGroup = labelHolder.append('text')
       .attr({
         'class': 'd3-pool-label',
-        'transform': 'translate(51,'+y+')'
+        'transform': 'translate('+ axisGutter +','+ nav.navGutter +')'
       })
       .text(l.main);
 
@@ -318,7 +318,7 @@ module.exports = function(emitter) {
 
     var legendGroup = labelHolder.append('g')
       .attr({
-        'transform': 'translate(930,'+y+')'
+        'transform': 'translate(930'+ nav.navGutter +')'
       });
 
     legend.draw(legendGroup, 'bg');
