@@ -45,7 +45,6 @@ module.exports = function(pool, opts) {
   var mainGroup = pool.parent();
   var getBgBoundaryClass = bgBoundaryClass(opts);
 
-
   function smbg(selection) {
     opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
@@ -73,7 +72,7 @@ module.exports = function(pool, opts) {
       circles.exit().remove();
 
       // tooltips
-      d3.selectAll('.d3-circle-smbg').on('mouseover', function() {
+      selection.selectAll('.d3-circle-smbg').on('mouseover', function() {
         if (d3.select(this).classed('d3-bg-low')) {
           smbg.addTooltip(d3.select(this).datum(), 'low');
         }
@@ -84,7 +83,7 @@ module.exports = function(pool, opts) {
           smbg.addTooltip(d3.select(this).datum(), 'high');
         }
       });
-      d3.selectAll('.d3-circle-smbg').on('mouseout', function() {
+      selection.selectAll('.d3-circle-smbg').on('mouseout', function() {
         var id = d3.select(this).attr('id').replace('smbg_', 'tooltip_');
         mainGroup.select('#' + id).remove();
       });
