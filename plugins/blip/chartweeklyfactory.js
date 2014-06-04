@@ -115,7 +115,7 @@ function chartWeeklyFactory(el, options) {
         xScale: fillScale,
         gutter: {'top': 0.5, 'bottom': 0.5},
         dataGutter: chart.dataGutter(),
-        fillClass: weekend ? 'd3_pool_weekend' : ''
+        fillClass: weekend ? 'd3-pool-weekend' : ''
       }), false);
       pool.addPlotType('smbg', smbgTime.draw(pool), true, true);
       chart.tooltips().addGroup(d3.select('#' + chart.id()).select('#' + pool.id()), pool.id());
