@@ -75,7 +75,7 @@ function chartWeeklyFactory(el, options) {
     }
     else {
       if (smbgData.length &&
-          datetime.valueOf() > Date.parse(smbgData[smbgData.length - 1].normalTime)) {
+          Date.parse(datetime) > Date.parse(smbgData[smbgData.length - 1].normalTime)) {
         datetime = smbgData[smbgData.length - 1].normalTime;
       }
       chart.data(smbgData, datetime);
