@@ -128,12 +128,19 @@ var PatientData = React.createClass({
       /* jshint ignore:end */
 
       var panBackClass = '';
-      if (this.state.inTransition || (this.state.chartType === 'settings')) {
+      // TODO: this should be removed when we support navigation across the settings history
+      if (this.state.chartType === 'settings') {
+        panBackClass = 'patient-data-subnav-hidden';
+      }
+      else if (this.state.inTransition) {
         panBackClass = 'patient-data-subnav-disabled';
       }
       var panForwardClass = '';
-      if ((this.state.atMostRecent ||
-           this.state.inTransition || (this.state.chartType === 'settings'))) {
+      // TODO: this should be removed when we support navigation across the settings history
+      if (this.state.chartType === 'settings') {
+        panForwardClass = 'patient-data-subnav-hidden';
+      }
+      else if ((this.state.atMostRecent || this.state.inTransition )) {
         panForwardClass = 'patient-data-subnav-disabled';
       }
 
