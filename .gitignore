@@ -3,6 +3,7 @@
 *.idea
 *.iml
 bower_components/
+dev/demodata/indexed_segments.json
 dist/
 example/bundle.js
 example/data/blip-output.json
