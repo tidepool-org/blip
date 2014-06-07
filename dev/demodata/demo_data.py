@@ -428,61 +428,6 @@ class Dexcom:
 
         self.json = [{'id': str(uuid.uuid4()), 'type': 'cbg', 'value': reading['value'], 'deviceTime': reading['deviceTime'].isoformat()[:-7], 'source': 'demo', 'deviceId': 'Demo - 123', 'units': 'mg/dL'} for reading in self.readings if reading['deviceTime'] < self.final]
 
-class SMBG:
-    """Generate demo self-monitored blood glucose data."""
-
-    def __init__(self, dex, readings_per_day = 7):
-
-        self.dexcom = dex.readings
-
-        self.dates = get_dates(self.dexcom)
-
-        self.readings_per_day = readings_per_day
-
-        self.readings = []
-
-        for date in self.dates:
-            self.readings += self._generate_smbg(date)
-
-        self.readings = sorted(self.readings, key=lambda reading: reading['deviceTime'])
-
-        self.json = [{'id': str(uuid.uuid4()), 'type': 'smbg', 'value': r['value'], 'deviceTime': r['deviceTime'].isoformat()[:-7], 'units': 'mg/dL'} for r in self.readings]
-
-    def _generate_smbg(self, d):
-        """Generate timestamps and smbg values from a non-uniform pool of potential timestamps."""
-
-        readings = []
-
-        i = 0
-
-        while i < self.readings_per_day:
-
-            hour = random.choice(HOURS)
-
-            timestamp = dt(d.year, d.month, d.day, hour, random.choice(SIXTY), random.choice(SIXTY), random.choice(MICRO))
-
-            near = []
-
-            for reading in self.dexcom:
-                t = reading['deviceTime']
-                if t.date() == d:
-                    if t.hour == hour:
-                        near.append(reading)
-
-            jump = random.randint(-26, 26)
-
-            try:
-                value = random.choice(near)['value'] + jump
-                readings.append({'value': value, 'deviceTime': timestamp})
-            # exception occurs when can't find a near enough timestamp because data starts with datetime.now()
-            # which could be middle of the afternoon, but this method will always try to generate some morning timestamps
-            except IndexError:
-                pass
-
-            i += 1
-
-        return readings
-
 class Meals:
     """Generate demo carb intake data."""
 
@@ -585,43 +530,202 @@ def get_dates(data):
 
     return dates
 
+
+class SMBG:
+    """Generate demo self-monitored blood glucose data."""
+
+    def __init__(self, dex, readings_per_day = 7):
+
+        self.dexcom = dex.readings
+
+        self.dates = get_dates(self.dexcom)
+
+        self.readings_per_day = readings_per_day
+
+        self.readings = []
+
+        for date in self.dates:
+            self.readings += self._generate_smbg(date)
+
+        self.readings = sorted(self.readings, key=lambda reading: reading['deviceTime'])
+
+        self.json = [{'id': str(uuid.uuid4()), 'type': 'smbg', 'value': r['value'], 'deviceTime': r['deviceTime'].isoformat()[:-7], 'units': 'mg/dL'} for r in self.readings]
+
+    def _generate_smbg(self, d):
+        """Generate timestamps and smbg values from a non-uniform pool of potential timestamps."""
+
+        readings = []
+
+        i = 0
+
+        while i < self.readings_per_day:
+
+            hour = random.choice(HOURS)
+
+            timestamp = dt(d.year, d.month, d.day, hour, random.choice(SIXTY), random.choice(SIXTY), random.choice(MICRO))
+
+            near = []
+
+            for reading in self.dexcom:
+                t = reading['deviceTime']
+                if t.date() == d:
+                    if t.hour == hour:
+                        near.append(reading)
+
+            jump = random.randint(-26, 26)
+
+            try:
+                value = random.choice(near)['value'] + jump
+                readings.append({'value': value, 'deviceTime': timestamp})
+            # exception occurs when can't find a near enough timestamp because data starts with datetime.now()
+            # which could be middle of the afternoon, but this method will always try to generate some morning timestamps
+            except IndexError:
+                pass
+
+            i += 1
+
+        return readings
+
+class Settings:
+    """Generate demo settings data."""
+
+    def __init__(self, basal_schedule, carb_ratio, final, num_days):
+
+        self.schedule = basal_schedule
+
+        self.schedules = {
+            'Standard': self._schedule_to_array(self.schedule),
+            'Pattern A': self._schedule_to_array(self._mutate_schedule()),
+            'Pattern B': self._schedule_to_array(self._mutate_schedule())
+            }
+
+        self.ratio = carb_ratio
+
+        self.isf = 75
+
+        self.penultimate = final + td(days=random.choice(range(-(num_days - 1),0)))
+
+        self.most_recent = final
+
+        self.json = self._get_settings()
+
+    def _get_settings(self):
+        """Put together two complete settings objects."""
+
+        most_recent = {
+            'deviceTime': self.most_recent.isoformat()[:-7],
+            'id': str(uuid.uuid4()),
+            'type': 'settings',
+            'activeBasalSchedule': random.choice(self.schedules.keys()),
+            'basalSchedules': self.schedules,
+            'carbRatio': [{'start': 0, 'amount': int(self.ratio)}],
+            'insulinSensitivity': [{'start': 0, 'amount': self.isf}],
+            'bgTarget': [{'start': 0, 'high': 100, 'low': 80}]
+        }
+
+        penultimate = {
+            'deviceTime': self.penultimate.isoformat()[:-7],
+            'id': str(uuid.uuid4()),
+            'type': 'settings',
+            'activeBasalSchedule': random.choice(self.schedules.keys()),
+            'basalSchedules': {k:(v if k != 'Standard' else self._schedule_to_array(self._mutate_schedule())) for k,v in self.schedules.items()},
+            'carbRatio': [{'start': 0, 'amount': self.ratio * 1.2}],
+            'insulinSensitivity': [{'start': 0, 'amount': self.isf + 10}],
+            'bgTarget': [{'start': 0, 'high': 100, 'low': 80}]
+        }
+
+        return [penultimate, most_recent]
+
+    def _mutate_schedule(self):
+        """Add some random variation to the base basal schedule, return the mutated schedule."""
+
+        basal_increments = [x / 100.0 for x in range(-25, 25, 5)]
+
+        likelihood = [0,1]
+
+        die = range(0,6)
+
+        schedule = {}
+
+        for key, val in self.schedule.items():
+            coin_flip = random.choice(likelihood)
+            if coin_flip:
+                new_val = val + random.choice(basal_increments)
+            else:
+                new_val = val
+            dice_roll = random.choice(die)
+            if key.hour != 0 and dice_roll in [2,3]:
+                new_key = (dt.combine(dt.now(), key) + td(minutes=30)).time()
+                schedule[new_key] = new_val
+            else:
+                schedule[key] = new_val
+
+        return schedule
+
+    def _ms_from_time(self, time):
+        """Translate a time object into a milliseconds in twenty-four hours start time."""
+
+        MS_IN_SEC = 1000
+
+        SEC_IN_MIN = 60
+
+        MIN_IN_HOUR = 60
+
+        MS_IN_HOUR = MIN_IN_HOUR * SEC_IN_MIN * MS_IN_SEC
+
+        MS_IN_MIN = SEC_IN_MIN * MS_IN_SEC
+
+        return time.hour * MS_IN_HOUR + time.minute * MS_IN_MIN + time.second * MS_IN_SEC
+
+    def _schedule_to_array(self, schedule):
+        """Create an array to represent a basal schedule and return it."""
+
+        new_schedule = []
+
+        for key, val in schedule.items():
+            new_schedule.append({
+                'start': self._ms_from_time(key),
+                'rate': val
+                })
+
+        return _fix_floating_point(sorted(new_schedule, key=lambda x: x['start']))
+
+def _fix_floating_point(a):
+    """Iterate through an array of dicts, checking for floats and rounding them."""
+
+    return map(lambda i: {key: (round(val, 3) if isinstance(val, float) else val) for key, val in i.items() }, a)
+
 def print_JSON(all_json, out_file):
 
     # add deviceId field to smbg, boluses, carbs, and basal-rate-segments
-    pump_fields = ['smbg', 'carbs', 'bolus', 'basal-rate-segment']
+    pump_fields = ['smbg', 'carbs', 'bolus', 'basal-rate-segment', 'settings']
     for a in all_json:
         if a['type'] in pump_fields:
             a['deviceId'] = 'Demo - 123'
             a['source'] = 'demo'
-
-    # temporarily add a device time to messages to enable sorting
-    for a in all_json:
+        # temporarily add a device time to messages to enable sorting
         try:
             t = a['utcTime']
             a['deviceTime'] = t
         except KeyError:
             pass
-
-    # temporarily add a device time to basals to enable sorting
-    for a in all_json:
+        # temporarily add a device time to basals to enable sorting
         try:
             t = a['start']
             a['deviceTime'] = t
         except KeyError:
             pass
 
-    all_json = sorted(all_json, key=lambda x: x['deviceTime'])
+    all_json = _fix_floating_point(sorted(all_json, key=lambda x: x['deviceTime']))
 
-    # remove device time from messages
     for a in all_json:
+        # remove device time from messages
         try:
             utc = a['utcTime']
             del a['deviceTime']
         except KeyError:
             pass
-
-    # remove device time from basals
-    for a in all_json:
+        # remove device time from basals
         try:
             start = a['start']
             del a['deviceTime']
@@ -651,11 +755,13 @@ def main():
 
     basal = Basal({}, boluses.json, meals.carbs)
 
+    settings = Settings(basal.schedule, boluses.ratio, dex.final, args.num_days)
+
     if args.quiet_messages:
-        all_json = dex.json + smbg.json + basal.json + meals.json + boluses.json
+        all_json = dex.json + smbg.json + basal.json + meals.json + boluses.json + settings.json
     else:
         messages = Messages(smbg)
-        all_json = dex.json + smbg.json + basal.json + meals.json + boluses.json + messages.json
+        all_json = dex.json + smbg.json + basal.json + meals.json + boluses.json + messages.json + settings.json
 
     print_JSON(all_json, args.output_file)
     print()
