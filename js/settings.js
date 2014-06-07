@@ -303,5 +303,15 @@ module.exports = function(emitter, opts) {
     return container;
   };
 
+  container.panForward = function() {
+    // TODO: fill in when we support navigation of settings
+    // defined for now to prevent TypeError
+  };
+
+  container.panBack = function() {
+    // TODO: fill in when we support navigation of settings
+    // defined for now to prevent TypeError
+  };
+
   return container;
 };

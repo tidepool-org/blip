@@ -1,15 +1,15 @@
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -21,6 +21,7 @@ var _ = require('./lib/')._;
 var Pool = require('./pool');
 var annotation = require('./plot/util/annotation');
 var tooltip = require('./plot/util/tooltip');
+var legend = require('./plot/util/legend');
 
 var log = require('./lib/').bows('Two Week');
 
@@ -34,7 +35,7 @@ module.exports = function(emitter) {
     width = minWidth, height = minHeight,
     imagesBaseUrl = 'img',
     nav = {
-      axisHeight: 30,
+      axisHeight: 60,
       navGutter: 30,
       scrollThumbRadius: 24,
       scrollGutterWidth: 20,
@@ -301,6 +302,27 @@ module.exports = function(emitter) {
     }
   };
 
+  container.legend = function(l) {
+    var labelHolder = d3.select('#tidelineWeeklyLabels');
+
+    var labelGroup = labelHolder.append('text')
+      .attr({
+        'class': 'd3-pool-label',
+        'transform': 'translate(' + axisGutter + ',' + nav.navGutter + ')'
+      })
+      .text(l.main);
+
+    labelGroup.append('tspan')
+      .text(' (' + l.light + ')');
+
+    var legendGroup = labelHolder.append('g')
+      .attr({
+        'transform': 'translate(' + (container.width() - nav.navGutter) + ',' + nav.navGutter + ')'
+      });
+
+    legend.draw(legendGroup, 'bg');
+  };
+
   // getters only
   container.pools = function() {
     return pools;
@@ -325,7 +347,7 @@ module.exports = function(emitter) {
   container.tooltips = function() {
     return tooltips;
   };
-  
+
   container.axisGutter = function() {
     return axisGutter;
   };
@@ -365,6 +387,8 @@ module.exports = function(emitter) {
     scrollNav = mainGroup.append('g')
       .attr('class', 'y scroll')
       .attr('id', 'tidelineScrollNav');
+
+    mainGroup.append('g').attr('id', 'tidelineWeeklyLabels');
 
     return container;
   };

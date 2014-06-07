@@ -56,7 +56,7 @@ module.exports = function(pool, opts) {
         index--;
       }
       // when index === 0 might catch a non-basal
-      if (opts.data[index].type === 'basal-rate-segment') {
+      if (opts.data[index] && opts.data[index].type === 'basal-rate-segment') {
         currentData.unshift(opts.data[index]);
       }
 

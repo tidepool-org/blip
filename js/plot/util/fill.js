@@ -34,7 +34,8 @@ module.exports = function(pool, opts) {
         21: 'darker'
       },
       duration: 3,
-      gutter: 0
+      gutter: 0,
+      fillClass: ''
     };
 
   _.defaults(opts || {}, defaults);
@@ -69,6 +70,10 @@ module.exports = function(pool, opts) {
 
     if (opts.dataGutter) {
       fills.shift();
+    }
+
+    if(opts.fillClass) {
+      selection.attr('class', opts.fillClass);
     }
 
     selection.selectAll('rect')
