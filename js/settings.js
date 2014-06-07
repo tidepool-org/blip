@@ -45,7 +45,6 @@ module.exports = function(emitter, opts) {
     },
     'rowHeadersByType': {
       'basalSchedules': ['Start time', 'Value (U/hr)'],
-      // TODO:
       'basalScheduleSum': ['Total', (function() { return 0.0; }())],
       'carbRatio': ['Start time', 'Value (g/U)'],
       'insulinSensitivity': ['Start time', 'Value (' + opts.bgUnits + '/U)'],
