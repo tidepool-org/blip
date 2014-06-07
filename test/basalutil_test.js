@@ -137,7 +137,7 @@ describe('basal utilities', function() {
       end.setUTCDate(end.getUTCDate() + 14);
       var st = basal.subtotal(basal.isContinuous(first.normalTime, end.toISOString()));
       var t = basal.totalBasal(first.normalTime, end.toISOString(), {'exclusionThreshold': 7});
-      expect(format.fixFloatingPoint(st)).to.equal(format.fixFloatingPoint(t.total));
+      expect(format.fixFloatingPoint(st)).to.be.closeTo(format.fixFloatingPoint(t.total), 0.001);
     });
 
     it('should have an excluded of length 8 when span of 7 days of data removed', function() {
