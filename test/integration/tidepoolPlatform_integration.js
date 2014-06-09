@@ -367,6 +367,62 @@ describe('platform client', function () {
         done();
       });
     });
+    it('a user can edit the content of thier note', function (done) {
+
+      var noteToAdd = {
+        userid: a_PWD.id,
+        groupid: a_PWD.id,
+        timestamp: new Date().toISOString(),
+        messagetext: 'we will update this'
+      };
+
+      //add note
+      pwdClient.startMessageThread(noteToAdd, function (error, added) {
+        expect(error).to.not.exist;
+        expect(added).to.exist;
+
+        var edits = {
+          messagetext : 'we have updated'
+        };
+
+        pwdClient.editMessage(added, edits, function (error, update) {
+
+          expect(error).to.not.exist;
+          expect(update).to.exist;
+          expect(update._id).to.equal(added);
+          expect(update.messagetext).to.equal(edits.messagetext);
+          done();
+        });
+      });
+    });
+    it('a user can edit the time of thier note', function (done) {
+
+      var noteToAdd = {
+        userid: a_PWD.id,
+        groupid: a_PWD.id,
+        timestamp: new Date().toISOString(),
+        messagetext: 'a random note - we will update the time'
+      };
+
+      //add note
+      pwdClient.startMessageThread(noteToAdd, function (error, added) {
+        expect(error).to.not.exist;
+        expect(added).to.exist;
+
+        var edits = {
+          timestamp : new Date().toISOString()
+        };
+
+        pwdClient.editMessage(added, edits, function (error, update) {
+
+          expect(error).to.not.exist;
+          expect(update).to.exist;
+          expect(update._id).to.equal(added);
+          expect(update.timestamp).to.equal(edits.timestamp);
+          done();
+        });
+      });
+    });
   });
 
   describe('handles team persmissons', function () {

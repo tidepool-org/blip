@@ -791,6 +791,45 @@ module.exports = function (config, deps) {
           { 200: function(res){ return res.body.messages; }, 404: [] },
           cb
       );
-    }
+    },
+    /**
+     * Start a new message thread
+     *
+     * @param {String} messageId of the message
+     * @param {Object} edits for an existing message
+     * @param {String} edits.messagetext [messagetext=''] updated text
+     * @param {String} edits.timestamp [timestamp=''] updated timestamp
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    editMessage: function (messageId, edits, cb) {
+      assertArgumentsSize(arguments, 3);
+
+      if( _.isEmpty(edits.timestamp) && _.isEmpty(edits.messagetext) ){
+        return cb({ message: 'You must specify one or both of edits.messagetext, edits.timestamp'});
+      }
+
+      withToken(
+        cb,
+        function(token) {
+          superagent
+            .put(makeUrl('/message/edit/' + messageId))
+            .set(sessionTokenHeader, token)
+            .send({message: edits})
+            .end(
+            function (err, res) {
+              if (err != null) {
+                return cb(err, null);
+              }
+
+              if (res.status !== 200) {
+                return handleHttpError(res, cb);
+              }
+
+              cb(null, res.body.message);
+            });
+        }
+      );
+    },
   };
 };
