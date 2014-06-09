@@ -367,7 +367,7 @@ describe('platform client', function () {
         done();
       });
     });
-    it('a user can edit the content of thier note', function (done) {
+    it('a user can edit the content of their note', function (done) {
 
       var noteToAdd = {
         userid: a_PWD.id,
@@ -395,7 +395,7 @@ describe('platform client', function () {
         });
       });
     });
-    it('a user can edit the time of thier note', function (done) {
+    it('a user can edit the time of their note', function (done) {
 
       var noteToAdd = {
         userid: a_PWD.id,
@@ -421,6 +421,14 @@ describe('platform client', function () {
           expect(update.timestamp).to.equal(edits.timestamp);
           done();
         });
+      });
+    });
+    it('an edit with nothing to update is rejected', function (done) {
+      pwdClient.editMessage(noteToAddId, {}, function (error, update) {
+        expect(error).to.exist;
+        expect(error.message).to.exist;
+        expect(update).to.not.exist;
+        done();
       });
     });
   });
