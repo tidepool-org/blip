@@ -139,6 +139,16 @@ describe('datetime utility', function() {
     });
   });
 
+  describe('composeMsAndDateString', function() {
+    it('should be a function', function() {
+      assert.isFunction(dt.composeMsAndDateString);
+    });
+
+    it('should return 2014-03-06T00:00:00.001Z when given 1ms and 2014-03-06T00:00:00.000Z', function() {
+      expect(dt.composeMsAndDateString(1, '2014-03-06T00:00:00.000Z')).to.equal('2014-03-06T00:00:00.001Z');
+    });
+  });
+
   describe('getNumDays', function() {
     it('should be a function', function() {
       assert.isFunction(dt.getNumDays);
@@ -159,6 +169,16 @@ describe('datetime utility', function() {
 
     it('should return 14 when passed two timestamps exactly 14 days apart', function() {
       expect(dt.getNumDays('2014-03-06T00:00:00.000Z', '2014-03-20T00:00:00.000Z')).to.equal(14);
+    });
+  });
+
+  describe('getMsFromMidnight', function() {
+    it('should be a function', function() {
+      assert.isFunction(dt.getMsFromMidnight);
+    });
+
+    it('should return 1 when passed a timestamp 1ms after midnight', function() {
+      expect(dt.getMsFromMidnight('2014-03-06T00:00:00.001Z')).to.equal(1);
     });
   });
 

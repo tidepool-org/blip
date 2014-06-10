@@ -77,6 +77,15 @@ var datetime = {
     }
   },
 
+  composeMsAndDateString: function(ms, d) {
+    return new Date(ms + new Date(this.toISODateString(d) + 'T00:00:00.000Z').valueOf()).toISOString();
+  },
+
+  getMsFromMidnight: function(d) {
+    var midnight = new Date(this.toISODateString(d) + 'T00:00:00.000Z').valueOf();
+    return new Date(d).valueOf() - midnight;
+  },
+
   getNumDays: function(s, e) {
     var start = new Date(s).valueOf(), end = new Date(e).valueOf();
     return Math.ceil((end - start)/this.MS_IN_24);
@@ -108,8 +117,8 @@ var datetime = {
   },
 
   toISODateString: function(d) {
-    var d = new Date(d);
-    return d.toISOString().slice(0,10);
+    var date = new Date(d);
+    return date.toISOString().slice(0,10);
   },
 
   verifyEndpoints: function(s, e, endpoints) {
