@@ -16,6 +16,8 @@
  */
 
 var _ = require('./lib/')._;
+var d3 = require('./lib/').d3;
+
 var TidelineCrossFilter = require('./data/util/tidelinecrossfilter');
 var BasalUtil = require('./data/basalutil');
 var BolusUtil = require('./data/bolusutil');
@@ -32,6 +34,19 @@ function TidelineData(data, opts) {
     CBG_PERCENT_FOR_ENOUGH: 0.75,
     CBG_MAX_DAILY: 288,
     SMBG_DAILY_MIN: 4,
+    fillOpts: {
+      classes: {
+        0: 'darkest',
+        3: 'dark',
+        6: 'lighter',
+        9: 'light',
+        12: 'lightest',
+        15: 'lighter',
+        18: 'dark',
+        21: 'darker'
+      },
+      duration: 3
+    },
     diabetesDataTypes: [
       'smbg',
       'carbs',
@@ -69,9 +84,24 @@ function TidelineData(data, opts) {
     return this;
   };
 
-  this.data = data;
-
-  updateCrossFilters(data);
+  this.generateFillData = function() {
+    this.grouped.fill = [];
+    var first = new Date(data[0].normalTime), last = new Date(data[data.length -1].normalTime);
+    // make sure we encapsulate the domain completely by padding the start and end with the duration
+    first.setUTCHours(first.getUTCHours() - first.getUTCHours() % opts.fillOpts.duration - opts.fillOpts.duration);
+    last.setUTCHours(last.getUTCHours() + last.getUTCHours() % opts.fillOpts.duration + opts.fillOpts.duration);
+    var points = d3.time.hour.utc.range(first, last, opts.fillOpts.duration);
+    for (var i = 0; i < points.length; ++i) {
+      if (i !== points.length - 1) {
+        this.grouped.fill.push({
+          normalTime: points[i].toISOString(),
+          normalEnd: points[i + 1].toISOString(),
+          fillColor: opts.fillOpts.classes[points[i].getUTCHours()],
+          type: 'fill'
+        });
+      }
+    }
+  };
 
   this.grouped = _.groupBy(data, function(d) { return d.type; });
 
@@ -86,6 +116,18 @@ function TidelineData(data, opts) {
   this.cbgUtil = new BGUtil(this.grouped.cbg, {DAILY_MIN: (opts.CBG_PERCENT_FOR_ENOUGH * opts.CBG_MAX_DAILY)});
   this.settingsUtil = new SettingsUtil(this.grouped.settings, [this.diabetesData[0].normalTime, this.diabetesData[this.diabetesData.length - 1].normalTime]);
   this.smbgUtil = new BGUtil(this.grouped.smbg, {DAILY_MIN: opts.SMBG_DAILY_MIN});
+  var segmentsBySchedule = this.settingsUtil.getAllSchedules(this.settingsUtil.endpoints[0], this.settingsUtil.endpoints[1]);
+  this.grouped['basal-settings-segment'] = [];
+  for (var key in segmentsBySchedule) {
+    this.grouped['basal-settings-segment'] = this.grouped['basal-settings-segment'].concat(segmentsBySchedule[key]);
+  }
+
+  this.generateFillData();
+  this.data = _.sortBy(data.concat(this.grouped['basal-settings-segment'].concat(this.grouped.fill)), function(d) {
+    return d.normalTime;
+  });
+
+  updateCrossFilters(this.data);
 
   return this;
 }
