@@ -579,7 +579,10 @@ module.exports = function(emitter) {
     data = a.data;
 
     var first = new Date(data[0].normalTime);
-    var last = new Date(data[data.length - 1].normalTime);
+    var lastObj = _.sortBy(data, function(d) {
+      return d.normalEnd ? d.normalEnd : d.normalTime;
+    }).reverse()[0];
+    var last = lastObj.normalEnd ? new Date(lastObj.normalEnd) : new Date(lastObj.normalTime);
 
     var minusOne = new Date(last);
     minusOne.setDate(minusOne.getDate() - 1);
