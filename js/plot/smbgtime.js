@@ -75,7 +75,7 @@ function SMBGTime (opts) {
             cy: function(d) {
               return pool.height() / 2;
             },
-            r: 7,
+            r: opts.size/2 - 1,
             id: function(d) {
               return 'smbg_time_' + d.id;
             },
@@ -154,13 +154,12 @@ function SMBGTime (opts) {
       .transition()
       .duration(500)
       .attr('opacity', 1);
-    d3.selectAll('.d3-image-smbg')
+    d3.selectAll('.d3-circle-smbg')
       .transition()
       .duration(500)
       .attr({
-        'height': opts.size * 0.75,
-        'width': opts.size * 0.75,
-        'y': opts.pool.height() / 2
+        r: opts.size/3,
+        cy: opts.pool.height() * 2 / 3
       });
   };
 
@@ -171,13 +170,12 @@ function SMBGTime (opts) {
       .transition()
       .duration(500)
       .attr('opacity', 0);
-    d3.selectAll('.d3-image-smbg')
+    d3.selectAll('.d3-circle-smbg')
       .transition()
       .duration(500)
       .attr({
-        'height': opts.size,
-        'width': opts.size,
-        'y': opts.pool.height() / 2 - opts.size / 2
+        r: opts.size/2 - 1,
+        cy: opts.pool.height() / 2
       });
   };
 
