@@ -40,7 +40,7 @@ module.exports = function(pool, opts) {
   function cbg(selection) {
     opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
-      var allCBG = d3.select(this).selectAll('circle')
+      var allCBG = d3.select(this).selectAll('circle.d3-cbg')
         .data(currentData, function(d) {
           return d.id;
         });

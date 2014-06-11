@@ -35,7 +35,6 @@ module.exports = function(pool, opts) {
       'very-high': {'boundary': 300}
     },
     size: 16,
-    imagesBaseUrl: pool.imagesBaseUrl(),
     tooltipWidth: 70,
     tooltipHeight: 24
   };
@@ -49,26 +48,21 @@ module.exports = function(pool, opts) {
     opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
       var circles = d3.select(this)
-        .selectAll('image')
+        .selectAll('circle.d3-smbg')
         .data(currentData, function(d) {
           return d.id;
         });
       circles.enter()
         .append('circle')
         .attr({
-          cx: function(d) {
-            return opts.xScale(Date.parse(d.normalTime));
-          },
-          cy: function(d) {
-            return opts.yScale(d.value);
-          },
-          r: 7,
-          id: function(d) {
-            return 'smbg_' + d.id;
-          },
-          class: getBgBoundaryClass
+          cx: smbg.xPosition,
+          cy: smbg.yPosition,
+          r: smbg.radius,
+          id: smbg.id,
+          'class': getBgBoundaryClass
         })
         .classed({'d3-smbg': true, 'd3-circle-smbg': true});
+
       circles.exit().remove();
 
       // tooltips
@@ -89,6 +83,24 @@ module.exports = function(pool, opts) {
       });
     });
   }
+
+  smbg.radius = function() {
+    // size is the total diameter of an smbg
+    // radius is half that, minus one because of the 1px stroke for open circles
+    return opts.size/2 - 1;
+  };
+
+  smbg.xPosition = function(d) {
+    return opts.xScale(Date.parse(d.normalTime));
+  };
+
+  smbg.yPosition = function(d) {
+    return opts.yScale(d.value);
+  };
+
+  smbg.id = function(d) {
+    return 'smbg_' + d.id;
+  };
 
   smbg.addTooltip = function(d, category) {
     mainGroup.select('#' + 'tidelineTooltips_smbg')
