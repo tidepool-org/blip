@@ -88,11 +88,11 @@ function SMBGTime (opts) {
           .style('display', 'none')
           .attr({
             'x': function(d) {
-              smbg.xPosition(d, opts.rectWidth / 2);
+              return smbg.xPosition(d) - opts.rectWidth/2;
             },
             'y': 0,
             // text background rect is twice an smbg wide
-            'width': opts.size * 2,
+            'width': opts.rectWidth,
             // text background rect is half a pool high
             'height': pool.height() / 2,
             'class': 'd3-smbg-numbers d3-rect-smbg d3-smbg-time'
@@ -168,15 +168,14 @@ function SMBGTime (opts) {
       });
   };
 
-  this.xPosition = function(d, modifier) {
-    modifier = modifier || 0;
+  this.xPosition = function(d) {
     var localTime = new Date(d.normalTime);
     var hour = localTime.getUTCHours();
     var min = localTime.getUTCMinutes();
     var sec = localTime.getUTCSeconds();
     var msec = localTime.getUTCMilliseconds();
     var t = hour * MS_IN_HOUR + min * MS_IN_MIN + sec * 1000 + msec;
-    return opts.xScale(t) - modifier;
+    return opts.xScale(t);
   };
 
   this.yPosition = function(valuesShown) {
