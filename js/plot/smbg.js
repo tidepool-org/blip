@@ -35,7 +35,6 @@ module.exports = function(pool, opts) {
       'very-high': {'boundary': 300}
     },
     size: 16,
-    imagesBaseUrl: pool.imagesBaseUrl(),
     tooltipWidth: 70,
     tooltipHeight: 24
   };
@@ -49,7 +48,7 @@ module.exports = function(pool, opts) {
     opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
       var circles = d3.select(this)
-        .selectAll('image')
+        .selectAll('circle')
         .data(currentData, function(d) {
           return d.id;
         });
