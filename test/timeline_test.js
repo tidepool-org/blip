@@ -20,7 +20,7 @@ var expect = chai.expect;
 
 var Timeline = require('../js/data/util/timeline.js');
 
-describe('Timeline', function(){
+describe('timeline', function(){
   it('is newable', function(){
     var line = new Timeline();
     expect(line).to.exist;
