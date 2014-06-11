@@ -44,11 +44,14 @@ function SMBGTime (opts) {
 
   opts = _.defaults(opts, defaults);
 
-  var getBgBoundaryClass = bgBoundaryClass(opts);
+  var getBgBoundaryClass = bgBoundaryClass(opts), mainGroup, poolDaysGroup;
 
   this.draw = function(pool) {
     opts.pool = pool;
-    var mainGroup = pool.parent();
+    mainGroup = pool.parent();
+    // if you don't use poolDaysGroup to subset selection of smbg circles
+    // can end up selecting circles in the legend D:
+    poolDaysGroup = mainGroup.select('#daysGroup');
     
     var smbg = this;
     return function(selection) {
@@ -69,16 +72,10 @@ function SMBGTime (opts) {
 
         circleGroups.append('circle')
           .attr({
-            cx: function(d) {
-              return smbg.xPosition(d);
-            },
-            cy: function(d) {
-              return pool.height() / 2;
-            },
-            r: opts.size/2 - 1,
-            id: function(d) {
-              return 'smbg_time_' + d.id;
-            },
+            cx: smbg.xPosition,
+            cy: smbg.yPosition,
+            r: smbg.radius,
+            id: smbg.id,
             class: getBgBoundaryClass
           })
           .classed({'d3-smbg-time': true, 'd3-circle-smbg': true})
@@ -91,16 +88,12 @@ function SMBGTime (opts) {
           .style('display', 'none')
           .attr({
             'x': function(d) {
-              var localTime = new Date(d.normalTime);
-              var hour = localTime.getUTCHours();
-              var min = localTime.getUTCMinutes();
-              var sec = localTime.getUTCSeconds();
-              var msec = localTime.getUTCMilliseconds();
-              var t = hour * MS_IN_HOUR + min * MS_IN_MIN + sec * 1000 + msec;
-              return xScale(t) - opts.rectWidth / 2;
+              smbg.xPosition(d, opts.rectWidth / 2);
             },
             'y': 0,
+            // text background rect is twice an smbg wide
             'width': opts.size * 2,
+            // text background rect is half a pool high
             'height': pool.height() / 2,
             'class': 'd3-smbg-numbers d3-rect-smbg d3-smbg-time'
           });
@@ -108,15 +101,8 @@ function SMBGTime (opts) {
         // NB: cannot do same display: none strategy because dominant-baseline attribute cannot be applied
         circleGroups.append('text')
           .attr({
-            'x': function(d) {
-              var localTime = new Date(d.normalTime);
-              var hour = localTime.getUTCHours();
-              var min = localTime.getUTCMinutes();
-              var sec = localTime.getUTCSeconds();
-              var msec = localTime.getUTCMilliseconds();
-              var t = hour * MS_IN_HOUR + min * MS_IN_MIN + sec * 1000 + msec;
-              return xScale(t);
-            },
+            'x': smbg.xPosition,
+            // text is centered vertically in the top half of each day pool (i.e., 1/4 way down)
             'y': pool.height() / 4,
             'opacity': '0',
             'class': 'd3-smbg-numbers d3-text-smbg d3-smbg-time'
@@ -147,46 +133,73 @@ function SMBGTime (opts) {
     };
   };
 
+
   this.showValues = function() {
-    d3.selectAll('.d3-rect-smbg')
+    var that = this;
+    poolDaysGroup.selectAll('.d3-rect-smbg')
       .style('display', 'inline');
-    d3.selectAll('.d3-text-smbg')
+    poolDaysGroup.selectAll('.d3-text-smbg')
       .transition()
       .duration(500)
       .attr('opacity', 1);
-    d3.selectAll('.d3-circle-smbg')
+    poolDaysGroup.selectAll('.d3-circle-smbg')
       .transition()
       .duration(500)
       .attr({
-        r: opts.size/3,
-        cy: opts.pool.height() * 2 / 3
+        r: that.radius(true),
+        cy: that.yPosition(true)
       });
   };
 
   this.hideValues = function() {
-    d3.selectAll('.d3-rect-smbg')
+    var that = this;
+    poolDaysGroup.selectAll('.d3-rect-smbg')
       .style('display', 'none');
-    d3.selectAll('.d3-text-smbg')
+    poolDaysGroup.selectAll('.d3-text-smbg')
       .transition()
       .duration(500)
       .attr('opacity', 0);
-    d3.selectAll('.d3-circle-smbg')
+    poolDaysGroup.selectAll('.d3-circle-smbg')
       .transition()
       .duration(500)
       .attr({
-        r: opts.size/2 - 1,
-        cy: opts.pool.height() / 2
+        r: that.radius,
+        cy: that.yPosition
       });
   };
 
-  this.xPosition = function(d) {
+  this.xPosition = function(d, modifier) {
+    modifier = modifier || 0;
     var localTime = new Date(d.normalTime);
     var hour = localTime.getUTCHours();
     var min = localTime.getUTCMinutes();
     var sec = localTime.getUTCSeconds();
     var msec = localTime.getUTCMilliseconds();
     var t = hour * MS_IN_HOUR + min * MS_IN_MIN + sec * 1000 + msec;
-    return opts.xScale(t);
+    return opts.xScale(t) - modifier;
+  };
+
+  this.yPosition = function(valuesShown) {
+    if (valuesShown === true) {
+      // shift circles down (1/3 from bottom of pool) when displaying all smbg values
+      return opts.pool.height() * 2 / 3;
+    }
+    // default is smbgs vertically center within each day's pool
+    return opts.pool.height() / 2;
+  };
+
+  this.radius = function(valuesShown) {
+    if (valuesShown === true) {
+      // smaller radius when displaying all smbg values
+      return opts.size/3;
+    }
+    // size is the total diameter of an smbg
+    // radius is half that, minus one because of the 1px stroke for open circles
+    return opts.size/2 - 1;
+  };
+
+  this.id = function(d) {
+    return 'smbg_time_' + d.id;
   };
 
   this.addTooltip = function(d, category, p) {
