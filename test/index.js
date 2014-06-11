@@ -23,6 +23,7 @@ module.exports = {
   datetime_test: require('./datetime_test'),
   preprocess_test: require('./preprocess_test'),
   segmentutil_test: require('./segmentutil_test'),
+  settingsutil_test: require('./settingsutil_test'),
   tidelinedata_test: require('./tidelinedata_test'),
   timeline_test: require('./timeline_test'),
   watson_test: require('./watson_test'),

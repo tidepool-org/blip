@@ -39,7 +39,7 @@ function chartDailyFactory(el, options) {
   chart.emitter = emitter;
   chart.options = options;
 
-  var poolMessages, poolBG, poolBolus, poolBasal, poolStats;
+  var poolMessages, poolBG, poolBolus, poolBasal, poolBasalSettings, poolStats;
 
   var SMBG_SIZE = 16;
 
@@ -113,6 +113,13 @@ function chartDailyFactory(el, options) {
       .index(chart.pools().indexOf(poolBasal))
       .weight(1.0);
 
+    // basal settings pool
+    poolBasalSettings = chart.newPool()
+      .id('poolBasalSettings', chart.poolGroup())
+      .label('')
+      .index(chart.pools().indexOf(poolBasal))
+      .weight(0.75);
+
     // stats data pool
     poolStats = chart.newPool()
       .id('poolStats', chart.poolGroup())
@@ -145,6 +152,7 @@ function chartDailyFactory(el, options) {
     var basalUtil = tidelineData.basalUtil;
     var bolusUtil = tidelineData.bolusUtil;
     var cbgUtil = tidelineData.cbgUtil;
+    var settingsUtil = tidelineData.settingsUtil;
     var smbgUtil = tidelineData.smbgUtil;
 
     chart.stopListening();
@@ -248,6 +256,10 @@ function chartDailyFactory(el, options) {
     poolBasal.addPlotType('basal-rate-segment', tideline.plot.basal(poolBasal, {
       yScale: scaleBasal,
       data: tidelineData.grouped['basal-rate-segment']
+    }), true, true);
+
+    poolBasalSettings.addPlotType('basal-settings-segment', tideline.plot.basaltab(poolBasalSettings, {
+      data: tidelineData.grouped['basal-settings-segment']
     }), true, true);
 
     // messages pool
