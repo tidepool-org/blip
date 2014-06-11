@@ -20,6 +20,7 @@ var TidelineCrossFilter = require('./data/util/tidelinecrossfilter');
 var BasalUtil = require('./data/basalutil');
 var BolusUtil = require('./data/bolusutil');
 var BGUtil = require('./data/bgutil');
+var SettingsUtil = require('./data/settingsutil');
 
 var log = require('./lib/').bows('TidelineData');
 
@@ -28,12 +29,21 @@ function TidelineData(data, opts) {
   opts = opts || {};
 
   var defaults = {
-    'CBG_PERCENT_FOR_ENOUGH': 0.75,
-    'CBG_MAX_DAILY': 288,
-    'SMBG_DAILY_MIN': 4
+    CBG_PERCENT_FOR_ENOUGH: 0.75,
+    CBG_MAX_DAILY: 288,
+    SMBG_DAILY_MIN: 4,
+    diabetesDataTypes: [
+      'smbg',
+      'carbs',
+      'bolus',
+      'cbg',
+      'settings',
+      'basal-rate-segment'
+    ]
   };
 
   _.defaults(opts, defaults);
+  var that = this;
 
   function addAndResort(datum, a) {
     return _.sortBy((function() {
@@ -42,28 +52,40 @@ function TidelineData(data, opts) {
     }()), function(d) { return d.normalTime; });
   }
 
-  this.createCrossFilter = function(data) {
-    this.filterData = new TidelineCrossFilter(data);
-    this.dataByDate = this.filterData.addDimension('date');
+  function updateCrossFilters(data, types) {
+    that.filterData = new TidelineCrossFilter(data);
+    that.dataByDate = that.createCrossFilter('date');
+    that.dataByType = that.createCrossFilter('datatype');
+  }
+
+  this.createCrossFilter = function(dim) {
+    return this.filterData.addDimension(dim);
   };
 
   this.addDatum = function(datum) {
     this.grouped[datum.type] = addAndResort(datum, this.grouped[datum.type]);
     this.data = addAndResort(datum, this.data);
-    this.createCrossFilter(this.data);
+    updateCrossFilters(this.data);
     return this;
   };
 
   this.data = data;
 
-  this.createCrossFilter(data);
+  updateCrossFilters(data);
 
   this.grouped = _.groupBy(data, function(d) { return d.type; });
 
+  this.diabetesData = _.sortBy(_.flatten([].concat(_.map(opts.diabetesDataTypes, function(type) {
+    return this.grouped[type] || [];
+  }, this))), function(d) {
+    return d.normalTime;
+  });
+
   this.basalUtil = new BasalUtil(this.grouped['basal-rate-segment']);
   this.bolusUtil = new BolusUtil(this.grouped.bolus);
-  this.cbgUtil = new BGUtil(this.grouped.cbg, {'DAILY_MIN': (opts.CBG_PERCENT_FOR_ENOUGH * opts.CBG_MAX_DAILY)});
-  this.smbgUtil = new BGUtil(this.grouped.smbg, {'DAILY_MIN': opts.SMBG_DAILY_MIN});
+  this.cbgUtil = new BGUtil(this.grouped.cbg, {DAILY_MIN: (opts.CBG_PERCENT_FOR_ENOUGH * opts.CBG_MAX_DAILY)});
+  this.settingsUtil = new SettingsUtil(this.grouped.settings, [this.diabetesData[0].normalTime, this.diabetesData[this.diabetesData.length - 1].normalTime]);
+  this.smbgUtil = new BGUtil(this.grouped.smbg, {DAILY_MIN: opts.SMBG_DAILY_MIN});
 
   return this;
 }
