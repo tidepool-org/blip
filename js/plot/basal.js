@@ -119,7 +119,7 @@ module.exports = function(pool, opts) {
       basal.addAnnotations(_.filter(currentData, function(d) { return d.annotations; }));
 
       var rects = d3.select(this)
-        .selectAll('g')
+        .selectAll('g.d3-basal-group')
         .data(currentData, function(d) {
           return d.id;
         });

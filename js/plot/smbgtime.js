@@ -58,7 +58,7 @@ function SMBGTime (opts) {
         opts.xScale = xScale;
 
         var circles = d3.select(this)
-          .selectAll('g')
+          .selectAll('g.d3-smbg-time')
           .data(currentData, function(d) {
             return d.id;
           });

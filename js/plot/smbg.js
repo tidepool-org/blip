@@ -48,7 +48,7 @@ module.exports = function(pool, opts) {
     opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
       var circles = d3.select(this)
-        .selectAll('circle')
+        .selectAll('circle.d3-smbg')
         .data(currentData, function(d) {
           return d.id;
         });

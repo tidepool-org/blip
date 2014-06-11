@@ -80,7 +80,7 @@ module.exports = function(pool, opts) {
       // carbs.addAnnotations(_.filter(currentData, function(d) { return d.annotations; }));
 
       var rects = d3.select(this)
-        .selectAll('rect')
+        .selectAll('rect.d3-carbs')
         .data(currentData, function(d) {
           return d.id;
         });
