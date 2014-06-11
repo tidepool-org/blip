@@ -76,7 +76,7 @@ module.exports = function(pool, opts) {
       selection.attr('class', opts.fillClass);
     }
 
-    selection.selectAll('rect')
+    selection.selectAll('rect.d3-fill')
       .data(fills)
       .enter()
       .append('rect')
@@ -124,7 +124,7 @@ module.exports = function(pool, opts) {
           }
         },
         'class': function(d) {
-          return 'd3-rect-fill d3-fill-' + d.fill;
+          return 'd3-fill d3-rect-fill d3-fill-' + d.fill;
         }
       });
 

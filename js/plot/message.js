@@ -39,7 +39,7 @@ module.exports = function(pool, opts) {
 
     selection.each(function(currentData) {
       var messages = d3.select(this)
-        .selectAll('g')
+        .selectAll('g.d3-message-group')
         .data(currentData, function(d) {
           if (d.parentMessage === '' || d.parentMessage == null) {
             return d.id;

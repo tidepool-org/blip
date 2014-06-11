@@ -92,7 +92,7 @@ module.exports = function(pool, opts) {
       bolus.addAnnotations(_.filter(currentData, function(d) { return d.annotations; }));
       
       var boluses = d3.select(this)
-        .selectAll('g')
+        .selectAll('g.d3-bolus-group')
         .data(currentData, function(d) {
           return d.id;
         });
