@@ -115,7 +115,7 @@ var Preprocess = {
 
   MGDL_STRING: 'mg/dL',
 
-  MMOL_TO_MGDL: 18,
+  MMOL_TO_MGDL: 18.01559,
 
   mungeBasals: function(data) {
     var segments = new SegmentUtil(data);

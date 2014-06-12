@@ -64,8 +64,8 @@ describe('Preprocess', function() {
   });
 
   describe('MMOL_TO_MGDL', function() {
-    it('should be 18', function() {
-      expect(Preprocess.MMOL_TO_MGDL).to.equal(18);
+    it('should be 18.01559', function() {
+      expect(Preprocess.MMOL_TO_MGDL).to.equal(18.01559);
     });
   });
 
