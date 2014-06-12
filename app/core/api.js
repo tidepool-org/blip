@@ -478,8 +478,10 @@ api.patientData.get = function(patientId, cb) {
              return e;
            })
       .map(function(e){
-                 if (e.type === 'cbg' || e.type === 'smbg') {
-                   return _.assign({}, e, {value: e.value * 18.01559});
+                 if (e.time != null) {
+                   if (e.type === 'cbg' || e.type === 'smbg') {
+                     return _.assign({}, e, {value: e.value * 18.01559});
+                   }
                  }
                  return e;
                })
