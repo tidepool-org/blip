@@ -187,7 +187,7 @@ function chartDailyFactory(el, options) {
         }
       ],
       yScale: scaleBG
-    }), false, true);
+    }), true, true);
 
     // add CBG data to BG pool
     poolBG.addPlotType('cbg', tideline.plot.cbg(poolBG, {yScale: scaleBG}), true, true);
@@ -225,7 +225,7 @@ function chartDailyFactory(el, options) {
         }
       ],
       yScale: scaleDivider
-    }), false, true);
+    }), true, true);
 
     // add carbs data to bolus pool
     poolBolus.addPlotType('carbs', tideline.plot.carbs(poolBolus, {
@@ -250,7 +250,7 @@ function chartDailyFactory(el, options) {
       .outerTickSize(0)
       .ticks(4));
     // add background fill rectangles to basal pool
-    poolBasal.addPlotType('fill', fill(poolBasal, {endpoints: chart.endpoints}), false, true);
+    poolBasal.addPlotType('fill', fill(poolBasal, {endpoints: chart.endpoints}), true, true);
 
     // add basal data to basal pool
     poolBasal.addPlotType('basal-rate-segment', tideline.plot.basal(poolBasal, {
@@ -264,7 +264,7 @@ function chartDailyFactory(el, options) {
 
     // messages pool
     // add background fill rectangles to messages pool
-    poolMessages.addPlotType('fill', fill(poolMessages, {endpoints: chart.endpoints}), false, true);
+    poolMessages.addPlotType('fill', fill(poolMessages, {endpoints: chart.endpoints}), true, true);
 
     // add message images to messages pool
     poolMessages.addPlotType('message', tideline.plot.message(poolMessages, {
