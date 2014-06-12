@@ -154,7 +154,7 @@ if (Rx.Observable.prototype.tidepoolConvertBolus == null) {
                           }
                         }
                         return e;
-                      })
+                      });
   };
 }
 
