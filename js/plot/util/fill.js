@@ -50,7 +50,7 @@ module.exports = function(pool, opts) {
     }
 
     if (opts.guidelines) {
-      fill.drawGuidelines();
+      fill.drawGuidelines(selection);
     }
 
     selection.each(function(currentData) {
@@ -125,20 +125,22 @@ module.exports = function(pool, opts) {
     return opts.xScale(e) - opts.xScale(s);
   };
 
-  fill.drawGuidelines = _.once(function() {
-    var linesGroup = pool.group().append('g')
-      .attr('id', pool.id() + '_guidelines');
-    _.each(opts.guidelines, function(guide){
-      linesGroup.append('line')
-        .attr({
-          'class': 'd3-line-guide ' + guide['class'],
-          x1: opts.xScale.range()[0],
-          x2: opts.xScale.range()[1],
-          y1: opts.yScale(guide.height),
-          y2: opts.yScale(guide.height)
-        });
-    });
-  });
+  fill.drawGuidelines = function(selection) {
+    var linesGroup = pool.group().selectAll('#' + pool.id() + '_guidelines').data([opts.guidelines]);
+    linesGroup.enter().append('g').attr('id', pool.id() + '_guidelines');
+    linesGroup.selectAll('line')
+      .data(opts.guidelines)
+      .enter()
+      .append('line')
+      .attr({
+        'class': function(d) { return 'd3-line-guide ' + d['class']; },
+        x1: opts.xScale.range()[0],
+        x2: opts.xScale.range()[1],
+        y1: function(d) { return opts.yScale(d.height); },
+        y2: function(d) { return opts.yScale(d.height); }
+      });
+
+  };
 
   return fill;
 };

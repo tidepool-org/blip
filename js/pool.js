@@ -68,6 +68,7 @@ function Pool (container) {
         group.select('#' + id + '_' + plotType.type).remove();
       }
     });
+    group.select('#' + id + '_guidelines').remove();
   };
 
   // non-chainable methods
