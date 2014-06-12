@@ -88,6 +88,10 @@ if (Rx.Observable.prototype.tidepoolConvertBasal == null) {
       }
     ).tidepoolSelfJoin(
       function(event) {
+        if (event.time != null) {
+          return null;
+        }
+
         if (! (event.type === 'basal' && event.deliveryType === 'temp')) {
           return null;
         }
