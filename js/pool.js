@@ -24,8 +24,7 @@ var log = require('./lib/').bows('Pool');
  
 function Pool (container) {
 
-  var data,
-    id, label, legends = [],
+  var id, label, legends = [],
     index, weight, yPosition,
     height, minHeight = 20, maxHeight = 300,
     group,
@@ -44,7 +43,7 @@ function Pool (container) {
         plotType.data = _.where(poolData, {'type': plotType.type});
         var dataGroup = group.selectAll('#' + id + '_' + plotType.type).data([plotType.data]);
         dataGroup.enter().append('g').attr('id', id + '_' + plotType.type);
-        if (plotType.data.length !== 0 || plotType.type === 'message') {
+        if (plotType.data.length !== 0) {
           dataGroup.call(plotType.plot);
         }
       }
@@ -53,7 +52,7 @@ function Pool (container) {
         statsGroup.enter().append('g').attr('id', id + '_stats').call(plotType.plot);
       }
       else {
-        pool.noDataFill(plotType);
+        log('WARNING: I am confused: the only plot type not classified as dataFill should be stats.');
       }
     });
 
@@ -176,11 +175,6 @@ function Pool (container) {
     });
     return this;
   };
-
-  this.noDataFill = _.once(function(plotType) {
-    mainSVG.select('#' + id).append('g').attr('id', id + '_' + plotType.type).call(plotType.plot);
-    return this;
-  });
 
   // getters & setters
   this.id = function(x, selection) {
