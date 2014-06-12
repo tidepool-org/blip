@@ -172,6 +172,20 @@ describe('datetime utility', function() {
     });
   });
 
+  describe('getMidnight', function() {
+    it('should be a function', function() {
+      assert.isFunction(dt.getMidnight);
+    });
+
+    it('should return 2014-03-06T00:00:00.000Z when given 2014-03-06T12:00:00.000Z', function() {
+      expect(dt.getMidnight('2014-03-06T12:00:00.000Z')).to.equal('2014-03-06T00:00:00.000Z');
+    });
+
+    it('should return 2014-03-07T00:00:00.000Z when given 2014-03-06T12:00:00.000Z and `next` is true', function() {
+      expect(dt.getMidnight('2014-03-06T12:00:00.000Z', true)).to.equal('2014-03-07T00:00:00.000Z');
+    });
+  });
+
   describe('getMsFromMidnight', function() {
     it('should be a function', function() {
       assert.isFunction(dt.getMsFromMidnight);

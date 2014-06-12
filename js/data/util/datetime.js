@@ -17,6 +17,8 @@
 
 var datetime = {
 
+  APPEND: 'T00:00:00.000Z',
+
   MS_IN_24: 86400000,
 
   addDays: function(s, n) {
@@ -78,11 +80,20 @@ var datetime = {
   },
 
   composeMsAndDateString: function(ms, d) {
-    return new Date(ms + new Date(this.toISODateString(d) + 'T00:00:00.000Z').valueOf()).toISOString();
+    return new Date(ms + new Date(this.toISODateString(d) + this.APPEND).valueOf()).toISOString();
+  },
+
+  getMidnight: function(d, next) {
+    if (next) {
+      return this.getMidnight(this.addDays(d, 1));
+    }
+    else {
+      return this.toISODateString(d) + this.APPEND;
+    }
   },
 
   getMsFromMidnight: function(d) {
-    var midnight = new Date(this.toISODateString(d) + 'T00:00:00.000Z').valueOf();
+    var midnight = new Date(this.getMidnight(d)).valueOf();
     return new Date(d).valueOf() - midnight;
   },
 
