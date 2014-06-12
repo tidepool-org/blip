@@ -77,7 +77,7 @@ module.exports = function (config, deps) {
    */
   function handleHttpError(res, cb) {
     var err = {status: res.status, body: res.body};
-    cb(err);
+    return cb(err);
   }
 
   /**
@@ -101,7 +101,7 @@ module.exports = function (config, deps) {
           return handleHttpError(res, cb);
         }
 
-        cb(null, {userid: userId, token: res.headers[sessionTokenHeader]});
+        return cb(null, {userid: userId, token: res.headers[sessionTokenHeader]});
       });
   }
 
