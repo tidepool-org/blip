@@ -19,6 +19,7 @@ var _ = window._;
 var async = window.async;
 var bows = window.bows;
 var config = window.config;
+var moment = window.moment;
 var Rx = window.Rx;
 var tidepool = window.tidepool;
 
