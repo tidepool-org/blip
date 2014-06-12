@@ -288,7 +288,7 @@ module.exports = function (config, deps) {
 
           saveSession(theUserId, theToken, options);
 
-          cb(null, {userid: theUserId, user: res.body});
+          return cb(null, {userid: theUserId, user: res.body});
         });
     },
     /**
@@ -333,7 +333,7 @@ module.exports = function (config, deps) {
 
           saveSession(theUserId, theToken, options);
 
-          cb(null, res.body);
+          return cb(null, res.body);
         });
     },
     /**
@@ -365,7 +365,7 @@ module.exports = function (config, deps) {
               }
 
               saveSession(null, null);
-              cb(null, res.body);
+              return cb(null, res.body);
             });
         }
       );
@@ -500,14 +500,14 @@ module.exports = function (config, deps) {
             .end(
             function (err, res) {
               if (err != null) {
-                cb(err);
+                return cb(err);
               }
 
               if (res.status !== 200) {
                 return handleHttpError(res, cb);
               }
 
-              cb(null, res.body);
+              return cb(null, res.body);
             });
         }
       );
@@ -544,7 +544,7 @@ module.exports = function (config, deps) {
                 return handleHttpError(res, cb);
               }
 
-              cb(null, res.body);
+              return cb(null, res.body);
             });
         }
       );
@@ -735,7 +735,7 @@ module.exports = function (config, deps) {
                 return handleHttpError(res, cb);
               }
 
-              cb(null, res.body.id);
+              return cb(null, res.body.id);
             });
         }
       );
@@ -771,7 +771,7 @@ module.exports = function (config, deps) {
                 return handleHttpError(res, cb);
               }
 
-              cb(null, res.body.id);
+              return cb(null, res.body.id);
             });
         }
       );
@@ -826,7 +826,7 @@ module.exports = function (config, deps) {
                 return handleHttpError(res, cb);
               }
 
-              cb(null, res.body.message);
+              return cb(null, res.body.message);
             });
         }
       );
