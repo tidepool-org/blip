@@ -23,6 +23,7 @@ var BasalUtil = require('./data/basalutil');
 var BolusUtil = require('./data/bolusutil');
 var BGUtil = require('./data/bgutil');
 var SettingsUtil = require('./data/settingsutil');
+var dt = require('./data/util/datetime');
 
 var log = require('./lib/').bows('TidelineData');
 
@@ -84,23 +85,57 @@ function TidelineData(data, opts) {
     return this;
   };
 
-  this.generateFillData = function() {
-    this.grouped.fill = [];
-    var first = new Date(data[0].normalTime), last = new Date(data[data.length -1].normalTime);
-    // make sure we encapsulate the domain completely by padding the start and end with the duration
-    first.setUTCHours(first.getUTCHours() - first.getUTCHours() % opts.fillOpts.duration - opts.fillOpts.duration);
-    last.setUTCHours(last.getUTCHours() + last.getUTCHours() % opts.fillOpts.duration + opts.fillOpts.duration);
+  function fillDataFromInterval(first, last) {
+    var data = [];
     var points = d3.time.hour.utc.range(first, last, opts.fillOpts.duration);
     for (var i = 0; i < points.length; ++i) {
       if (i !== points.length - 1) {
-        this.grouped.fill.push({
-          normalTime: points[i].toISOString(),
-          normalEnd: points[i + 1].toISOString(),
+        data.push({
           fillColor: opts.fillOpts.classes[points[i].getUTCHours()],
+          id: 'fill_' + points[i].toISOString().replace(/[^\w\s]|_/g, ''),
+          normalEnd: points[i + 1].toISOString(),
+          normalTime: points[i].toISOString(),
           type: 'fill'
         });
       }
     }
+    return data;
+  }
+
+  this.generateFillData = function() {
+    var first = new Date(data[0].normalTime), last = new Date(data[data.length -1].normalTime);
+    // make sure we encapsulate the domain completely by padding the start and end with twice the duration
+    first.setUTCHours(first.getUTCHours() - first.getUTCHours() % opts.fillOpts.duration - (opts.fillOpts.duration * 2));
+    last.setUTCHours(last.getUTCHours() + last.getUTCHours() % opts.fillOpts.duration + (opts.fillOpts.duration * 2));
+    this.grouped.fill = fillDataFromInterval(first, last);
+    return this;
+  };
+
+  this.adjustFillsForTwoWeekView = function() {
+    var smbgData = this.grouped.smbg;
+    var firstSmbg = smbgData[0].normalTime, lastSmbg = smbgData[smbgData.length - 1].normalTime;
+    var startOfFill = dt.getMidnight(smbgData[0].normalTime);
+    var endOfFill = dt.getMidnight(smbgData[smbgData.length - 1].normalTime, true);
+    this.twoWeekData = this.grouped.smbg;
+    var twoWeekFills = [];
+    for (var i = 0; i < this.grouped.fill.length; ++i) {
+      var d = this.grouped.fill[i];
+      if (d.normalTime >= startOfFill || d.normalTime <= endOfFill) {
+        twoWeekFills.push(d);
+      }
+    }
+    if (endOfFill > lastSmbg) {
+      var end = new Date(endOfFill);
+      end.setUTCHours(end.getUTCHours() + 3);
+      twoWeekFills = twoWeekFills.concat(
+        fillDataFromInterval(new Date(twoWeekFills[twoWeekFills.length - 1].normalTime),end)
+      );
+    }
+    if (startOfFill < firstSmbg) {
+      twoWeekFills = fillDataFromInterval(new Date(startOfFill),
+          new Date(twoWeekFills[0].normalTime)).concat(twoWeekFills);
+    }
+    this.twoWeekData = this.twoWeekData.concat(twoWeekFills);
   };
 
   this.grouped = _.groupBy(data, function(d) { return d.type; });
@@ -122,7 +157,7 @@ function TidelineData(data, opts) {
     this.grouped['basal-settings-segment'] = this.grouped['basal-settings-segment'].concat(segmentsBySchedule[key]);
   }
 
-  this.generateFillData();
+  this.generateFillData().adjustFillsForTwoWeekView();
   this.data = _.sortBy(data.concat(this.grouped['basal-settings-segment'].concat(this.grouped.fill)), function(d) {
     return d.normalTime;
   });
