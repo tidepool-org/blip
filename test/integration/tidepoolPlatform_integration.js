@@ -123,8 +123,26 @@ describe('platform client', function () {
     );
   });
 
+  /*
+   * Lets be good and logout
+   */
+  after(function (done) {
+    async.parallel(
+      [
+        function(callback){ pwdClient.logout(callback); },
+        function(callback){ memberClient.logout(callback); }
+      ],
+      function(err, clients) {
+        if (err != null) {
+          return done(err);
+        }
+        done();
+      }
+    );
+  });
+
   describe('on initialization', function () {
-    it('when the remeber flag is true the user stays logged in', function (done) {
+    it('when the remember flag is true the user stays logged in', function (done) {
 
       var store = require('./mockedLocalStorage')();
 
@@ -433,7 +451,7 @@ describe('platform client', function () {
     });
   });
 
-  describe('handles team persmissons', function () {
+  describe('handles team permissions', function () {
 
     var careTeamViewable;
     var pwdsTeam;
