@@ -31,6 +31,7 @@
 @font-size-puddle-number: 24px;
 @font-size-settings: 14px;
 @font-size-annotations: 12px;
+@font-size-tabular-basal-settings: 12px;
 @pool-label-baseline: 30%;
 
 svg {
@@ -272,6 +273,35 @@ svg {
   }
 }
 
+// basal tabular settings
+.d3-cell-rect {
+  stroke-width: 0.5px;
+  stroke: @matched;
+  &.d3-unmatched {
+    fill: @unmatched;
+  }
+  &.d3-matched {
+    fill: @matched;
+    stroke: white;
+  }
+  &:hover {
+    fill: darken(white, 2%) !important;
+  }
+}
+
+.d3-cell-label {
+  dominant-baseline: central;
+  font-size: @font-size-tabular-basal-settings;
+  pointer-events: none;
+  text-anchor: middle;
+  &.d3-unmatched {
+    fill: @text;
+  }
+  &.d3-matched {
+    fill: @basal;
+    font-weight: bold;
+  }
+}
 
 
 // annotations
