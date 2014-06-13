@@ -116,9 +116,11 @@ function chartDailyFactory(el, options) {
     // basal settings pool
     poolBasalSettings = chart.newPool()
       .id('poolBasalSettings', chart.poolGroup())
-      .label('')
+      .label([{
+        'main': 'Basal Schedules'
+      }])
       .index(chart.pools().indexOf(poolBasal))
-      .weight(0.75);
+      .weight(1.0);
 
     // stats data pool
     poolStats = chart.newPool()
