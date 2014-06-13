@@ -127,8 +127,8 @@ if (Rx.Observable.prototype.tidepoolConvertBolus == null) {
 
           return dualNormalBuilder();
         }
-      ]
-    ).map(function(e) {
+      ])
+      .map(function(e) {
             // Doing source-specific processing here is pretty broken, but it's the "simplest" way to
             // get it working given a lack of standard for the data type.  When we go back and
             // standardize the tidepool data format, this will probably need adjustment.
@@ -144,7 +144,17 @@ if (Rx.Observable.prototype.tidepoolConvertBolus == null) {
               );
             }
             return e;
-          });
+          })
+      .map(function(e){
+                        if (e.time != null && e.type === 'bolus') {
+                          if (e.subType === 'normal') {
+                            return _.assign({}, e, {value: e.normal, recommended: e.normal});
+                          } else {
+                            return _.assign({}, e, {value: e.normal + e.extended, initialDelivery: e.normal, extendedDelivery: e.extended, extended: true});
+                          }
+                        }
+                        return e;
+                      });
   };
 }
 
