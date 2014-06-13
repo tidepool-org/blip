@@ -24,15 +24,6 @@ function SettingsUtil(data, endpoints) {
     }
   }
 
-  function nextDatetime(start, dt) {
-    if (start === 0) {
-      return datetime.composeMsAndDateString(start, datetime.addDays(dt, 1));
-    }
-    else {
-      return datetime.composeMsAndDateString(start, dt);
-    }
-  }
-
   function getSegmentsForSchedule(opts) {
     var sched = opts.schedule;
     var s = opts.start, e = opts.end;
@@ -46,7 +37,8 @@ function SettingsUtil(data, endpoints) {
     var startsObj = findStarts(datetime.getMsFromMidnight(s), starts);
     var startPair = startsObj.starts;
     var firstSegmentEnd = (startPair.length === 2) ?
-      nextDatetime(startPair[1], s) : nextDatetime(starts[0], s);
+      datetime.composeMsAndDateString(startPair[1], s) :
+      datetime.composeMsAndDateString(starts[0], datetime.addDays(s, 1));
     segments = [{
       type: 'basal-settings-segment',
       schedule: sched.name,
@@ -54,11 +46,18 @@ function SettingsUtil(data, endpoints) {
       normalEnd: firstSegmentEnd,
       value: ratesByStart[startPair[0]],
       active: opts.active,
-      confidence: opts.confidence
+      confidence: opts.confidence,
+      id: sched.name.replace(' ', '_') + '_' + s.replace(/[^\w\s]|_/g, '')
     }];
     var currentDatetime = firstSegmentEnd, currentIndex = startsObj.startIndex;
     while (currentDatetime < e) {
-      var end = nextDatetime(starts[currentIndex], currentDatetime);
+      var end;
+      if (currentIndex !== starts.length - 1) {
+        end =  datetime.composeMsAndDateString(starts[currentIndex + 1], currentDatetime);
+      }
+      else {
+        end = datetime.composeMsAndDateString(0, datetime.addDays(currentDatetime, 1));
+      }
       if (end > e) {
         end = e;
       }
@@ -69,7 +68,8 @@ function SettingsUtil(data, endpoints) {
         normalEnd: end,
         value: ratesByStart[starts[currentIndex]],
         active: opts.active,
-        confidence: opts.confidence
+        confidence: opts.confidence,
+        id: sched.name.replace(' ', '_') + '_' + currentDatetime.replace(/[^\w\s]|_/g, '')
       });
       if (currentIndex !== starts.length - 1) {
         currentIndex++;

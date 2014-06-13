@@ -75,20 +75,6 @@ describe('settings utilities', function() {
     });
   });
 
-  // describe('findStarts', function() {
-  //   it('should be a function', function() {
-  //     assert.isFunction(settings.findStarts);
-  //   });
-
-  //   it('should return [0,1] on 0 with [0,1,2]', function() {
-  //     expect(settings.findStarts(0,[0,1,2]).starts).to.eql([0,1]);
-  //   });
-
-  //   it('should return [0,5] on 1 with [0,5,10]', function() {
-  //     expect(settings.findStarts(1, [0,5,10]).starts).to.eql([0,5]);
-  //   });
-  // });
-
   describe('getAllSchedules', function() {
     it('should be a function', function() {
       assert.isFunction(settings.getAllSchedules);
@@ -120,6 +106,18 @@ describe('settings utilities', function() {
           if (j !== data.length - 1) {
             expect(data[j].normalEnd).to.equal(data[j + 1].normalTime);
           }
+        }
+      }
+    });
+
+    it('should return arrays for each schedule where all items have distinct normalTime and normalEnd', function() {
+      var res = settings.getAllSchedules(diabetesEndpoints[0], diabetesEndpoints[1]);
+      for (var key in res) {
+        var data = res[key];
+        expect(data[0].normalTime).to.equal(diabetesEndpoints[0]);
+        expect(data[data.length - 1].normalEnd).to.equal(diabetesEndpoints[1]);
+        for (var j = 0; j < data.length; ++j) {
+          expect(data[j].normalTime).to.not.equal(data[j].normalEnd);
         }
       }
     });
@@ -160,6 +158,14 @@ describe('settings utilities', function() {
         if (i !== currentSettings.length - 1) {
           expect(currentSettings[i].end).to.equal(currentSettings[i + 1].start);
         }
+      }
+    });
+
+    it('should return an array of settings objects, each with distinct start and end', function() {
+      var currentSettings = settings.getIntervals(diabetesEndpoints[0], diabetesEndpoints[1]);
+      expect(currentSettings.length).to.equal(3);
+      for (var i = 0; i < currentSettings.length; ++i) {
+        expect(currentSettings[i].start).to.not.equal(currentSettings[i].end);
       }
     });
   });
