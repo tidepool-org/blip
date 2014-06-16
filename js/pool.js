@@ -25,7 +25,7 @@ var log = require('./lib/').bows('Pool');
 function Pool (container) {
 
   var id, label, legends = [],
-    index, weight, yPosition,
+    index, weight, gutterWeight, yPosition,
     height, minHeight = 20, maxHeight = 300,
     group,
     mainSVG = d3.select('#' + container.id()),
@@ -223,6 +223,12 @@ function Pool (container) {
     else {
       height = maxHeight;
     }
+    return this;
+  };
+
+  this.gutterWeight = function(x) {
+    if (!arguments.length) return gutterWeight;
+    gutterWeight = x;
     return this;
   };
 
