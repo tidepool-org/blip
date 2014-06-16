@@ -19,10 +19,13 @@ var $ = window.$;
 var d3 = window.d3;
 var _ = window._;
 
+require('./example.less');
+
 // tideline dependencies & plugins
-var tideline = window.tideline;
-var preprocess = window.tideline.preprocess;
-var blip = window.tideline.blip;
+var tideline = window.tideline = require('../js/index');
+var preprocess = tideline.preprocess = require('../plugins/data/preprocess/');
+var blip = tideline.blip = require('../plugins/blip/');
+
 var chartDailyFactory = blip.oneday;
 var chartWeeklyFactory = blip.twoweek;
 var settingsFactory = blip.settings;

@@ -16,7 +16,7 @@
  */
 
 var tideline = window.tideline;
-var watson = tideline.watson;
+var watson = tideline.watson = require('../watson');
 var _ = tideline.lib._;
 var TidelineData = tideline.TidelineData;
 var SegmentUtil = tideline.data.SegmentUtil;
