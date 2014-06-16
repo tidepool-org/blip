@@ -74,7 +74,8 @@ function chartDailyFactory(el, options) {
       .id('poolMessages', chart.poolGroup())
       .label('')
       .index(chart.pools().indexOf(poolMessages))
-      .weight(0.5);
+      .weight(0.5)
+      .gutterWeight(0.0);
 
     // blood glucose data pool
     poolBG = chart.newPool()
@@ -85,7 +86,8 @@ function chartDailyFactory(el, options) {
       }])
       .legend(['bg'])
       .index(chart.pools().indexOf(poolBG))
-      .weight(1.5);
+      .weight(1.5)
+      .gutterWeight(1.0);
 
     // carbs and boluses data pool
     poolBolus = chart.newPool()
@@ -100,7 +102,8 @@ function chartDailyFactory(el, options) {
       }])
       .legend(['bolus', 'carbs'])
       .index(chart.pools().indexOf(poolBolus))
-      .weight(1.5);
+      .weight(1.5)
+      .gutterWeight(1.0);
 
     // basal data pool
     poolBasal = chart.newPool()
@@ -111,22 +114,22 @@ function chartDailyFactory(el, options) {
       }])
       .legend(['basal'])
       .index(chart.pools().indexOf(poolBasal))
-      .weight(1.0);
+      .weight(1.0)
+      .gutterWeight(1.0);
 
     // basal settings pool
     poolBasalSettings = chart.newPool()
       .id('poolBasalSettings', chart.poolGroup())
-      .label([{
-        'main': 'Basal Schedules'
-      }])
       .index(chart.pools().indexOf(poolBasal))
-      .weight(1.0);
+      .weight(1.0)
+      .gutterWeight(0.0);
 
     // stats data pool
     poolStats = chart.newPool()
       .id('poolStats', chart.poolGroup())
       .index(chart.pools().indexOf(poolStats))
-      .weight(1.0);
+      .weight(1.0)
+      .gutterWeight(1.0);
 
     chart.arrangePools();
 
