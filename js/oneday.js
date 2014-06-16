@@ -174,24 +174,26 @@ module.exports = function(emitter) {
 
   container.arrangePools = function() {
     var numPools = pools.length;
-    var cumWeight = 0;
+    var cumWeight = 0, cumGutterWeight = 0;
     pools.forEach(function(pool) {
       cumWeight += pool.weight();
+      cumGutterWeight += pool.gutterWeight();
     });
     gutter = 0.25 * (container.height() / cumWeight);
     var totalPoolsHeight =
-      container.height() - nav.axisHeight - nav.scrollNavHeight - (numPools - 1) * gutter;
+      container.height() - nav.axisHeight - nav.scrollNavHeight - (cumGutterWeight * gutter);
     var poolScaleHeight = totalPoolsHeight/cumWeight;
     var actualPoolsHeight = 0;
     pools.forEach(function(pool) {
       pool.height(poolScaleHeight);
       actualPoolsHeight += pool.height();
     });
-    actualPoolsHeight += (numPools - 1) * gutter;
+    actualPoolsHeight += cumGutterWeight * gutter;
     var currentYPosition = nav.axisHeight;
     pools.forEach(function(pool) {
+      currentYPosition += gutter * pool.gutterWeight();
       pool.yPosition(currentYPosition);
-      currentYPosition += pool.height() + gutter;
+      currentYPosition += pool.height();
       pool.group().attr('transform', 'translate(0,' + pool.yPosition() + ')');
     });
   };
