@@ -136,7 +136,8 @@ function SettingsUtil(data, endpoints) {
               confidence: interval.settings.confidence ? interval.settings.confidence : 'normal'
             }));
           }
-          else {
+          // there can be schedules in the settings with an empty array as their value
+          else if (schedule.value.length > 0) {
             segmentsBySchedule[schedule.name] = getSegmentsForSchedule({
               schedule: schedule,
               start: interval.start,

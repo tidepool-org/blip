@@ -33,58 +33,68 @@ module.exports = function(pool, opts) {
       var index = 0;
       var schedules = Object.keys(data);
       // remove 'Standard' from array if present and put it at the beginning instead
-      schedules.splice(_.findIndex(schedules, basaltab.isStandard), 1);
-      schedules.sort();
-      schedules.unshift('Standard');
+      var standardIndex = _.findIndex(schedules, basaltab.isStandard);
+      if (standardIndex !== -1) {
+        schedules.splice(standardIndex, 1);
+        schedules.sort();
+        schedules.unshift('Standard');
+      }
+      else {
+        schedules.sort();
+      }
       for (var i = 0; i < schedules.length; ++i) {
         var key = schedules[i];
-        var tabsGroup = selection.selectAll('#' + pool.id() + '_' + key.replace(' ', '_')).data([data[key]]);
-        tabsGroup.enter().append('g').attr('id', pool.id() + '_' + key.replace(' ', '_'))
-          .attr('transform', selection.attr('transform'));
-        var tabs = tabsGroup.selectAll('g.d3-cell-group.d3-' + key.replace(' ','-').toLowerCase())
-          .data(data[key], basaltab.id);
+        // must check that schedule actually exists
+        // schedule names come through for empty schedules
+        if (data[key] != null) {
+          var tabsGroup = selection.selectAll('#' + pool.id() + '_' + key.replace(' ', '_')).data([data[key]]);
+          tabsGroup.enter().append('g').attr('id', pool.id() + '_' + key.replace(' ', '_'))
+            .attr('transform', selection.attr('transform'));
+          var tabs = tabsGroup.selectAll('g.d3-cell-group.d3-' + key.replace(' ','-').toLowerCase())
+            .data(data[key], basaltab.id);
 
-        var cellGroups = tabs.enter().append('g')
-          .attr({
-            'class': 'd3-cell-group ' + key.replace(' ','-').toLowerCase(),
-            id: function(d) { return 'd3-cell-group_' + d.id; }
-          });
+          var cellGroups = tabs.enter().append('g')
+            .attr({
+              'class': 'd3-cell-group ' + key.replace(' ','-').toLowerCase(),
+              id: function(d) { return 'd3-cell-group_' + d.id; }
+            });
 
-        cellGroups.append('rect')
-          .attr({
-            x: basaltab.xPosition,
-            y: index * opts.rowHeight,
-            width: basaltab.width,
-            height: opts.rowHeight,
-            'class': basaltab.matchClass,
-            id: function(d) { return 'd3-cell-rect_' + d.id; }
-          })
-          .classed('d3-cell-rect', true);
+          cellGroups.append('rect')
+            .attr({
+              x: basaltab.xPosition,
+              y: index * opts.rowHeight,
+              width: basaltab.width,
+              height: opts.rowHeight,
+              'class': basaltab.matchClass,
+              id: function(d) { return 'd3-cell-rect_' + d.id; }
+            })
+            .classed('d3-cell-rect', true);
 
-        cellGroups.append('text')
-          .attr({
-            x: function(d) {
-              return basaltab.xPosition(d) + (basaltab.width(d) / 2);
-            },
-            y: (index * opts.rowHeight) + (opts.rowHeight/2),
-            'class': basaltab.matchClass,
-            id: function(d) { return 'd3-cell-label_' + d.id; }
-          })
-          .classed('d3-cell-label', true)
-          .text(function(d) {
-            if (String(d.value).indexOf('.') === -1) {
-              return d.value.toFixed(1);
-            }
-            else return d.value;
-          })
-          .each(function(d) {
-            if (this.getBBox().width > basaltab.width(d)) {
-              d3.select(this).attr('display', 'none');
-            }
-          });
+          cellGroups.append('text')
+            .attr({
+              x: function(d) {
+                return basaltab.xPosition(d) + (basaltab.width(d) / 2);
+              },
+              y: (index * opts.rowHeight) + (opts.rowHeight/2),
+              'class': basaltab.matchClass,
+              id: function(d) { return 'd3-cell-label_' + d.id; }
+            })
+            .classed('d3-cell-label', true)
+            .text(function(d) {
+              if (String(d.value).indexOf('.') === -1) {
+                return d.value.toFixed(1);
+              }
+              else return d.value;
+            })
+            .each(function(d) {
+              if (this.getBBox().width > basaltab.width(d)) {
+                d3.select(this).attr('display', 'none');
+              }
+            });
 
-        tabs.exit().remove();
-        index++;
+          tabs.exit().remove();
+          index++;
+        }
       }
     });
   }
