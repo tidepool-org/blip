@@ -20,6 +20,7 @@ var watson = tideline.watson;
 var _ = tideline.lib._;
 var TidelineData = tideline.TidelineData;
 var SegmentUtil = tideline.data.SegmentUtil;
+var datetime = tideline.data.util.datetime;
 
 var log = tideline.lib.bows('Preprocess');
 
@@ -135,7 +136,7 @@ var Preprocess = {
                              type: 'basal-rate-segment',
                              value: d.rate,
                              start: d.deviceTime,
-                             end: moment.utc(d.deviceTime + '.000Z').add('ms', d.duration).format('YYYY-MM-DDTHH:mm:ss'),
+                             end: datetime.addDuration(new Date(d.deviceTime + '.000Z'), d.duration),
                              vizType: 'actual'
                            }
                          );

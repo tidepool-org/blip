@@ -130,8 +130,15 @@ var datetime = {
     else {
       return false;
     }
-  }
+  },
 
+  addDuration: function(datetime, duration) {
+    if (typeof(datetime) === 'string') {
+      datetime = new Date(datetime);
+    }
+
+    return new Date(datetime.valueOf() + duration).toISOString().slice(0, 19);
+  }
 };
 
 module.exports = datetime;

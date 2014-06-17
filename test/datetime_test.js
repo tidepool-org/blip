@@ -226,4 +226,10 @@ describe('datetime utility', function() {
       expect(dt.verifyEndpoints(endpoints[0], endpoints[1], endpoints)).to.be.true;
     });
   });
+
+  describe('addDuration', function(){
+    it('should add a duration', function(){
+      expect(dt.addDuration('2014-01-01T01:00:00.000Z', 60 * 60 * 1000)).equals('2014-01-01T02:00:00');
+    });
+  })
 });
