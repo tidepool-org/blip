@@ -75,6 +75,23 @@ describe('settings utilities', function() {
     });
   });
 
+  describe('annotateBasalSettings', function() {
+    // TODO: create a data generator for settings and test against that
+    // including adding more tests for what the actual result should be
+    var segmentsBySchedule = settings.getAllSchedules(settings.endpoints[0], settings.endpoints[1]);
+    var keys = Object.keys(segmentsBySchedule);
+    var basalUtil = td.basalUtil;
+
+    it('should be a function', function() {
+      assert.isFunction(settings.annotateBasalSettings);
+    });
+
+    it('should return an object with same keys as original segmentsBySchedule', function() {
+      var obj = settings.annotateBasalSettings(basalUtil.actual);
+      expect(Object.keys(obj)).to.eql(keys);
+    });
+  });
+
   describe('getAllSchedules', function() {
     it('should be a function', function() {
       assert.isFunction(settings.getAllSchedules);

@@ -82,6 +82,43 @@ function SettingsUtil(data, endpoints) {
     return segments;
   }
 
+  this.annotateBasalSettings = function(a) {
+    // don't necessarily want unsquashing of midnights to propogate beyond this method
+    // hence using _.cloneDeep() to copy the array
+    var actuals = _.cloneDeep(a) || [];
+
+    var actualsByInterval = {};
+
+    for (var i = 0; i < actuals.length; ++i) {
+      var actual = actuals[i];
+      if (datetime.isSegmentAcrossMidnight(actual.normalTime, actual.normalEnd)) {
+        var midnight = datetime.getMidnight(actual.normalTime, true);
+        var end = actual.normalEnd;
+        actual.normalEnd = midnight;
+        var newActual = _.clone(actual);
+        newActual.normalTime = midnight;
+        newActual.normalEnd = end;
+        actuals.splice(i + 1, 0, newActual);
+        actual = actuals[i];
+      }
+      actualsByInterval[actual.normalTime + '/' + actual.normalEnd] = actual;
+    }
+    for (var key in this.segmentsBySchedule) {
+      var currentSchedule = this.segmentsBySchedule[key];
+      for (var j = 0; j < currentSchedule.length; ++j) {
+        var segment = currentSchedule[j];
+        var interval = segment.normalTime + '/' + segment.normalEnd;
+        if (actualsByInterval[interval]) {
+          var matchedActual = actualsByInterval[interval];
+          if (segment.value === matchedActual.value) {
+            segment.actualized = true;
+          }
+        }
+      }
+    }
+    return this.segmentsBySchedule;
+  };
+
   this.getAllSchedules = function(s, e) {
     if (datetime.verifyEndpoints(s, e, this.endpoints)) {
       var settingsIntervals = this.getIntervals(s, e);
@@ -110,6 +147,7 @@ function SettingsUtil(data, endpoints) {
           }
         }
       }
+      this.segmentsBySchedule = segmentsBySchedule;
       return segmentsBySchedule;
     }
     else {

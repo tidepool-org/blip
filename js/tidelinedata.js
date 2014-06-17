@@ -111,6 +111,8 @@ function TidelineData(data, opts) {
     return this;
   };
 
+  // two-week view requires background fill rectangles from midnight to midnight
+  // for each day from the first through last days where smbg exists at all
   this.adjustFillsForTwoWeekView = function() {
     var smbgData = this.grouped.smbg;
     var firstSmbg = smbgData[0].normalTime, lastSmbg = smbgData[smbgData.length - 1].normalTime;
@@ -126,6 +128,8 @@ function TidelineData(data, opts) {
     }
     if (endOfFill > lastSmbg) {
       var end = new Date(endOfFill);
+      // intervals are exclusive of endpoint
+      // to get last segment, need to extend endpoint out +1
       end.setUTCHours(end.getUTCHours() + 3);
       twoWeekFills = twoWeekFills.concat(
         fillDataFromInterval(new Date(twoWeekFills[twoWeekFills.length - 1].normalTime),end)
@@ -150,8 +154,10 @@ function TidelineData(data, opts) {
   this.bolusUtil = new BolusUtil(this.grouped.bolus);
   this.cbgUtil = new BGUtil(this.grouped.cbg, {DAILY_MIN: (opts.CBG_PERCENT_FOR_ENOUGH * opts.CBG_MAX_DAILY)});
   this.settingsUtil = new SettingsUtil(this.grouped.settings, [this.diabetesData[0].normalTime, this.diabetesData[this.diabetesData.length - 1].normalTime]);
+
   this.smbgUtil = new BGUtil(this.grouped.smbg, {DAILY_MIN: opts.SMBG_DAILY_MIN});
-  var segmentsBySchedule = this.settingsUtil.getAllSchedules(this.settingsUtil.endpoints[0], this.settingsUtil.endpoints[1]);
+  this.settingsUtil.getAllSchedules(this.settingsUtil.endpoints[0], this.settingsUtil.endpoints[1]);
+  var segmentsBySchedule = this.settingsUtil.annotateBasalSettings(this.basalUtil.actual);
   this.grouped['basal-settings-segment'] = [];
   for (var key in segmentsBySchedule) {
     this.grouped['basal-settings-segment'] = this.grouped['basal-settings-segment'].concat(segmentsBySchedule[key]);

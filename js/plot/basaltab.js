@@ -90,9 +90,7 @@ module.exports = function(pool, opts) {
   }
 
   basaltab.matchClass = function(d) {
-    // TODO: change this when matching against actual basals
-    // just using `active` property for now to test viz
-    if (d.active) {
+    if (d.actualized) {
       return 'd3-matched';
     }
     else {
