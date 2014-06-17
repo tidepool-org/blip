@@ -51,6 +51,12 @@ describe('datetime utility', function() {
     });
   });
 
+  describe('addDuration', function(){
+    it('should add a duration', function(){
+      expect(dt.addDuration('2014-01-01T01:00:00.000Z', 60 * 60 * 1000)).equals('2014-01-01T02:00:00');
+    });
+  });
+
   describe('adjustToInnerEndpoints', function() {
     var endLonger = ['2014-03-06T00:00:00.000Z', '2014-03-08T00:00:00.000Z'];
     var startEarlier = ['2014-03-05T00:00:00.000Z', '2014-03-07T00:00:00.000Z'];
@@ -226,10 +232,4 @@ describe('datetime utility', function() {
       expect(dt.verifyEndpoints(endpoints[0], endpoints[1], endpoints)).to.be.true;
     });
   });
-
-  describe('addDuration', function(){
-    it('should add a duration', function(){
-      expect(dt.addDuration('2014-01-01T01:00:00.000Z', 60 * 60 * 1000)).equals('2014-01-01T02:00:00');
-    });
-  })
 });

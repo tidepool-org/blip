@@ -25,6 +25,14 @@ var datetime = {
     return d.toISOString();
   },
 
+  addDuration: function(datetime, duration) {
+    if (typeof(datetime) === 'string') {
+      datetime = new Date(datetime);
+    }
+
+    return new Date(datetime.valueOf() + duration).toISOString().slice(0, 19);
+  },
+
   adjustToInnerEndpoints: function(s, e, endpoints) {
     if (!endpoints) {
       return null;
@@ -130,14 +138,6 @@ var datetime = {
     else {
       return false;
     }
-  },
-
-  addDuration: function(datetime, duration) {
-    if (typeof(datetime) === 'string') {
-      datetime = new Date(datetime);
-    }
-
-    return new Date(datetime.valueOf() + duration).toISOString().slice(0, 19);
   }
 };
 
