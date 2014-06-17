@@ -101,7 +101,10 @@ function SettingsUtil(data, endpoints) {
         actuals.splice(i + 1, 0, newActual);
         actual = actuals[i];
       }
-      actualsByInterval[actual.normalTime + '/' + actual.normalEnd] = actual;
+      // Animas basal schedules have a resolution of thirty minutes
+      var s = datetime.roundToNearestMinutes(actual.normalTime, 30);
+      var e = datetime.roundToNearestMinutes(actual.normalEnd, 30);
+      actualsByInterval[s + '/' + e] = actual;
     }
     for (var key in this.segmentsBySchedule) {
       var currentSchedule = this.segmentsBySchedule[key];

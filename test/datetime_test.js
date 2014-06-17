@@ -272,6 +272,32 @@ describe('datetime utility', function() {
     });
   });
 
+  describe('roundToNearestMinutes', function() {
+    it('should be a function', function() {
+      assert.isFunction(dt.roundToNearestMinutes);
+    });
+
+    it('should return 2014-03-06T00:00:00.000Z when given 2014-03-06T00:29:00.000Z, resolution of sixty minutes', function() {
+      expect(dt.roundToNearestMinutes('2014-03-06T00:29:00.000Z', 60)).to.equal('2014-03-06T00:00:00.000Z');
+    });
+
+    it('should return 2014-03-06T00:30:00.000Z when given 2014-03-06T00:29:00.000Z, resolution of thirty minutes', function() {
+      expect(dt.roundToNearestMinutes('2014-03-06T00:29:00.000Z', 30)).to.equal('2014-03-06T00:30:00.000Z');
+    });
+
+    it('should return 2014-03-06T00:30:00.000Z when given 2014-03-06T00:15:00.000Z, resolution of thirty minutes', function() {
+      expect(dt.roundToNearestMinutes('2014-03-06T00:15:00.000Z', 30)).to.equal('2014-03-06T00:30:00.000Z');
+    });
+
+    it('should return 2014-03-06T00:00:00.000Z when given 2014-03-06T00:14:00.000Z, resolution of thirty minutes', function() {
+      expect(dt.roundToNearestMinutes('2014-03-06T00:14:00.000Z', 30)).to.equal('2014-03-06T00:00:00.000Z');
+    });
+
+    it('should return 2014-03-06T01:00:00.000Z when given 2014-03-06T00:45:00.000Z, resolution of thirty minutes', function() {
+      expect(dt.roundToNearestMinutes('2014-03-06T00:45:00.000Z', 30)).to.equal('2014-03-06T01:00:00.000Z');
+    });
+  });
+
   describe('verifyEndpoints', function() {
     it('should be a function', function() {
       assert.isFunction(dt.verifyEndpoints);

@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+var _ = require('../../lib/')._;
+
 var datetime = {
 
   APPEND: 'T00:00:00.000Z',
@@ -144,6 +146,23 @@ var datetime = {
       return true;
     }
     else { return false; }
+  },
+
+  roundToNearestMinutes: function(d, resolution) {
+    var date = new Date(d);
+    var min = date.getUTCMinutes();
+    var values = _.range(0, 60, resolution);
+    for (var i = 0; i < values.length; ++i) {
+      if (min - values[i] < resolution/2) {
+        date.setUTCMinutes(values[i]);
+        return date.toISOString();
+      }
+      else if (i === values.length - 1) {
+        date.setUTCMinutes(0);
+        date.setUTCHours(date.getUTCHours() + 1);
+        return date.toISOString();
+      }
+    }
   },
 
   toISODateString: function(d) {
