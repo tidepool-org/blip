@@ -232,6 +232,28 @@ describe('datetime utility', function() {
     });
   });
 
+  describe('isSegmentAcrossMidnight', function() {
+    it('should be a function', function() {
+      assert.isFunction(dt.isSegmentAcrossMidnight);
+    });
+
+    it('should return false on a segment starting and ending on same day', function() {
+      expect(dt.isSegmentAcrossMidnight('2014-01-02T00:00:00.000Z', '2014-01-02T01:00:00.000Z')).to.be.false;
+    });
+
+    it('should return false on a segment ending two days after start date', function() {
+      expect(dt.isSegmentAcrossMidnight('2014-01-02T00:00:00.000Z', '2014-01-04T01:00:00.000Z')).to.be.false;
+    });
+
+    it('should return false on a segment ending the day after it starts, if end is midnight', function() {
+      expect(dt.isSegmentAcrossMidnight('2014-01-02T21:00:00.000Z', '2014-01-03T00:00:00.000Z')).to.be.false;
+    });
+
+    it('should return true on a segment ending the day after it started', function() {
+      expect(dt.isSegmentAcrossMidnight('2014-01-02T12:00:00.000Z', '2014-01-03T01:00:00.000Z')).to.be.true;
+    });
+  });
+
   describe('isTwentyFourHours', function() {
     it('should be a function', function() {
       assert.isFunction(dt.isTwentyFourHours);

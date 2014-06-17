@@ -119,6 +119,25 @@ var datetime = {
     return false;
   },
 
+  isSegmentAcrossMidnight: function(s, e) {
+    var start = new Date(s), end = new Date(e);
+    var startDate = this.toISODateString(s), endDate = this.toISODateString(e);
+    if (startDate === endDate) {
+      return false;
+    }
+    else {
+      if (end.getUTCDate() === start.getUTCDate() + 1) {
+        if (this.getMidnight(e) === e) {
+          return false;
+        }
+        return true;
+      }
+      else {
+        return false;
+      }
+    }
+  },
+
   isTwentyFourHours: function(s, e) {
     var start = new Date(s).valueOf(), end = new Date(e).valueOf();
     if (end - start === this.MS_IN_24) {
