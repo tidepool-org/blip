@@ -33,6 +33,7 @@ var el = document.getElementById('tidelineContainer');
 var imagesBaseUrl = '../img';
 
 var oneDay = chartDailyFactory(el, {imagesBaseUrl: imagesBaseUrl}).setupPools();
+window.chart = oneDay;
 var twoWeek = chartWeeklyFactory(el, {imagesBaseUrl: imagesBaseUrl});
 var settings = settingsFactory(el);
 
@@ -72,12 +73,20 @@ twoWeek.emitter.on('mostRecent', function(mostRecent) {
 d3.json('data/device-data.json', function(data) {
   log('Data loaded.');
   data = preprocess.processData(data);
+  window.data = data;
 
   log('Initial one-day view.');
-  oneDay.load(data).locate('2014-03-06T09:00:00.000Z');
+  oneDay.load(data).locate();
   // attach click handlers to set up programmatic pan
   $('#tidelineNavForward').on('click', oneDay.panForward);
   $('#tidelineNavBack').on('click', oneDay.panBack);
+
+  oneDay.emitter.on('showBasalSettings', function() {
+    $('#tidelineContainer').empty();
+    oneDay = chartDailyFactory(el, {imagesBaseUrl: imagesBaseUrl});
+    oneDay.options.hiddenPools.basalSettings = false;
+    oneDay.setupPools().load(data).locate();
+  });
 
   $('#twoWeekView').on('click', function() {
     log('Navigated to two-week view from nav bar.');

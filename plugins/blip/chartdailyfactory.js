@@ -30,7 +30,10 @@ function chartDailyFactory(el, options) {
   var log = bows('Daily Factory');
   options = options || {};
   var defaults = {
-    'bgUnits': 'mg/dL'
+    'bgUnits': 'mg/dL',
+    'hiddenPools': {
+      basalSettings: true
+    }
   };
   _.defaults(options, defaults);
 
@@ -122,7 +125,8 @@ function chartDailyFactory(el, options) {
       .id('poolBasalSettings', chart.poolGroup())
       .index(chart.pools().indexOf(poolBasal))
       .weight(1.0)
-      .gutterWeight(0.0);
+      .gutterWeight(0.0)
+      .hidden(chart.options.hiddenPools.basalSettings);
 
     // stats data pool
     poolStats = chart.newPool()
