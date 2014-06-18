@@ -20,6 +20,7 @@ var watson = tideline.watson;
 var _ = tideline.lib._;
 var TidelineData = tideline.TidelineData;
 var SegmentUtil = tideline.data.SegmentUtil;
+var datetime = tideline.data.util.datetime;
 
 var log = tideline.lib.bows('Preprocess');
 
@@ -96,6 +97,7 @@ function processSuspends(data) {
 var TYPES_TO_INCLUDE = {
   // basals with value 0 don't get excluded because they are legitimate targets for visualization
   'basal-rate-segment': function(e){ return e.start !== e.end; },
+  basal: alwaysTrue,
   bolus: notZero,
   carbs: notZero,
   cbg: notZero,
@@ -122,7 +124,45 @@ var Preprocess = {
     data = _.reject(data, function(d) {
       return d.type === 'basal-rate-segment';
     });
-    return data.concat(segments.actual.concat(segments.getUndelivered('scheduled')));
+    if (segments.actual.length === 0) {
+      var theBasals = [];
+      data
+        .filter(function(d){ return d.type === 'basal'; })
+        .forEach(function(d){
+                         var datum = _.assign(
+                           {},
+                           d,
+                           {
+                             type: 'basal-rate-segment',
+                             value: d.rate,
+                             start: d.deviceTime,
+                             end: datetime.addDuration(new Date(d.deviceTime + '.000Z'), d.duration),
+                             vizType: 'actual'
+                           }
+                         );
+
+                         if (datum.suppressed != null) {
+                           if (datum.suppressed.deliveryType === 'scheduled') {
+                             theBasals.push(_.assign(
+                               {},
+                               datum.suppressed,
+                               {
+                                 type: 'basal-rate-segment',
+                                 id: datum.id + '_suppressed',
+                                 value: datum.suppressed.rate,
+                                 start: datum.start,
+                                 end: datum.end,
+                                 vizType: 'undelivered'
+                               }
+                             ));
+                           }
+                         }
+                         theBasals.push(datum);
+                       });
+      return data.filter(function(d){ return d.type !== 'basal'; }).concat(theBasals);
+    } else {
+      return data.concat(segments.actual.concat(segments.getUndelivered('scheduled')));
+    }
   },
 
   editBoluses: function(data) {

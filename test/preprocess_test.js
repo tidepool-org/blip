@@ -83,6 +83,38 @@ describe('Preprocess', function() {
 
       expect(Preprocess.mungeBasals([basal])[0].vizType).to.exist;
     });
+
+    it('should process the new data format', function(){
+      var input = [
+        { type: 'basal', rate: 0.5, deviceTime: '2014-01-01T01:00:00', duration: 60 * 60 * 1000 },
+        { id: 'abcd', type: 'basal', deliveryType: 'temp', rate: 0.5,
+          deviceTime: '2014-01-01T02:00:00', duration: 60 * 60 * 1000,
+          suppressed: { type: 'basal', deliveryType: 'scheduled', rate: 1.0,
+            deviceTime: '2014-01-01T02:00:00', duration: 4 * 60 * 60 * 1000 }
+        },
+        { type: 'basal', deliveryType: 'scheduled', rate: 1.0,
+          deviceTime: '2014-01-01T03:00:00', duration: 3 * 60 * 60 * 1000 }
+      ];
+
+      expect(Preprocess.mungeBasals(input)).deep.equals(
+        [
+          { type: 'basal-rate-segment', rate: 0.5, deviceTime: '2014-01-01T01:00:00', duration: 60 * 60 * 1000,
+            value: 0.5, start: '2014-01-01T01:00:00', end: '2014-01-01T02:00:00', vizType: 'actual'  },
+          { type: 'basal-rate-segment', deliveryType: 'scheduled', value: 1.0,
+            deviceTime: '2014-01-01T02:00:00', duration: 4 * 60 * 60 * 1000,
+            id: 'abcd_suppressed', start: '2014-01-01T02:00:00', end: '2014-01-01T03:00:00', rate: 1.0, vizType: 'undelivered' },
+          { id: 'abcd', type: 'basal-rate-segment', deliveryType: 'temp', rate: 0.5,
+            deviceTime: '2014-01-01T02:00:00', duration: 60 * 60 * 1000,
+            suppressed: { type: 'basal', deliveryType: 'scheduled', rate: 1.0,
+              deviceTime: '2014-01-01T02:00:00', duration: 4 * 60 * 60 * 1000 },
+            start: '2014-01-01T02:00:00', end: '2014-01-01T03:00:00', value: 0.5, vizType: 'actual'
+          },
+          { type: 'basal-rate-segment', deliveryType: 'scheduled', rate: 1.0,
+            deviceTime: '2014-01-01T03:00:00', duration: 3 * 60 * 60 * 1000,
+            start: '2014-01-01T03:00:00', end: '2014-01-01T06:00:00', value: 1.0, vizType: 'actual'}
+        ]
+      )
+    });
   });
 
   describe('editBoluses', function() {
