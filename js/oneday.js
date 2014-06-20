@@ -121,6 +121,16 @@ module.exports = function(emitter) {
         .attr('class', 'x scroll')
         .attr('id', 'tidelineScrollNav');
     }
+
+    d3.select('#' + id).insert('clipPath', '#tidelineMain')
+      .attr('id', 'mainClipPath')
+      .append('rect')
+      .attr({
+        'x': container.axisGutter(),
+        'y': 0,
+        'width': container.width() - container.axisGutter(),
+        'height': container.height()
+      });
   }
 
   // non-chainable methods
@@ -334,7 +344,7 @@ module.exports = function(emitter) {
         }
         mainGroup.select('#tidelineTooltips').attr('transform', 'translate(' + e.translate[0] + ',0)');
         mainGroup.select('#tidelineAnnotations').attr('transform', 'translate(' + e.translate[0] + ',0)');
-        d3.select('#annotationsClipPath rect').attr('transform', 'translate(' + -e.translate[0] + ',0)');
+        d3.select('#mainClipPath rect').attr('transform', 'translate(' + -e.translate[0] + ',0)');
         mainGroup.select('.d3-x.d3-axis').call(xAxis);
         mainGroup.selectAll('#tidelineXAxis g.tick text').style('text-anchor', 'start').attr('transform', 'translate(5,15)');
         if (scrollHandleTrigger) {
@@ -428,16 +438,6 @@ module.exports = function(emitter) {
   };
 
   container.setAnnotation = function() {
-    d3.select('#' + id).insert('clipPath', '#tidelineMain')
-      .attr('id', 'annotationsClipPath')
-      .append('rect')
-      .attr({
-        'x': container.axisGutter(),
-        'y': 0,
-        'width': container.width() - container.axisGutter(),
-        'height': container.height()
-      });
-
     var annotationGroup = mainGroup.append('g')
       .attr('id', 'tidelineAnnotations');
 
@@ -475,17 +475,13 @@ module.exports = function(emitter) {
     return container;
   };
 
-  container.stopListening = function() {
-    emitter.removeAllListeners('carbTooltipOn')
-      .removeAllListeners('carbTooltipOff')
-      .removeAllListeners('bolusTooltipOn')
-      .removeAllListeners('bolusTooltipOff')
-      .removeAllListeners('noCarbTimestamp');
-
+  container.emptyPools = function() {
+    pools = [];
     return container;
   };
 
   container.clear = function() {
+    emitter.removeAllListeners();
     pools.forEach(function(pool) {
       pool.clear();
     });
@@ -494,6 +490,12 @@ module.exports = function(emitter) {
 
     return container;
   };
+
+  container.destroy = function() {
+    d3.select('#' + id).remove();
+
+    return container;
+  }
 
   container.hide = function() {
     d3.select('#' + id).classed('hidden', true);
