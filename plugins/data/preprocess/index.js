@@ -105,7 +105,7 @@ var TYPES_TO_INCLUDE = {
   settings: notZero
 };
 
-var Preprocess = {
+var preprocess = {
 
   REQUIRED_TYPES: ['basal-rate-segment', 'bolus', 'carbs', 'cbg', 'message', 'smbg', 'settings'],
 
@@ -299,4 +299,4 @@ var Preprocess = {
   }
 };
 
-module.exports = Preprocess;
+module.exports = preprocess;
