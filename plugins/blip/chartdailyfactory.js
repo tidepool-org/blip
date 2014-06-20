@@ -133,7 +133,7 @@ function chartDailyFactory(el, options) {
       .id('poolStats', chart.poolGroup())
       .index(chart.pools().indexOf(poolStats))
       .weight(1.0)
-      .gutterWeight(1.0);
+      .gutterWeight(1.2);
 
     chart.arrangePools();
 
@@ -154,7 +154,7 @@ function chartDailyFactory(el, options) {
     return chart;
   };
 
-  chart.load = function(tidelineData, datetime) {
+  chart.load = function(tidelineData) {
     var data = tidelineData.data;
     chart.tidelineData = tidelineData;
 
@@ -163,8 +163,7 @@ function chartDailyFactory(el, options) {
     var cbgUtil = tidelineData.cbgUtil;
     var settingsUtil = tidelineData.settingsUtil;
     var smbgUtil = tidelineData.smbgUtil;
-
-    chart.stopListening();
+    
     // initialize chart with data
     chart.data(tidelineData).setAxes().setNav().setScrollNav();
 
@@ -264,6 +263,7 @@ function chartDailyFactory(el, options) {
     // add basal data to basal pool
     poolBasal.addPlotType('basal-rate-segment', tideline.plot.basal(poolBasal, {
       yScale: scaleBasal,
+      emitter: emitter,
       data: tidelineData.grouped['basal-rate-segment']
     }), true, true);
 
@@ -352,9 +352,9 @@ function chartDailyFactory(el, options) {
       pool.render(chart.poolGroup(), chart.renderedData());
     });
 
-    chart.setAtDate(start, atMostRecent);
+    chart.drawBasalSettingsButton();
 
-    chart.navString([start, end]);
+    chart.setAtDate(start, atMostRecent);
 
     return chart;
   };
@@ -372,6 +372,45 @@ function chartDailyFactory(el, options) {
 
   chart.closeMessage = function() {
     d3.selectAll('.d3-rect-message').classed('hidden', true);
+  };
+
+  chart.drawBasalSettingsButton = function() {
+    var verticalTranslation = chart.options.hiddenPools.basalSettings ?
+      (poolBasal.yPosition() + poolBasal.height()) : (poolBasal.yPosition() + 2 * poolBasal.height());
+    var fo = d3.select(el).select('#tidelineLabels')
+      .append('foreignObject')
+      .attr({
+        transform: 'translate(' + chart.axisGutter() + ',' + verticalTranslation + ')'
+      });
+
+    var div = fo.append('xhtml:div')
+      .attr('class', 'd3-tabular-ui');
+
+    var icon = div.append('p')
+      .attr({
+        id: 'showHideBasalSettings',
+        title: chart.options.hiddenPools.basalSettings ? 'Click to expand basal settings' : 'Click to hide basal settings'
+      })
+      .html(chart.options.hiddenPools.basalSettings ? '<i class="icon-up"></i>' : '<i class="icon-down"></i>');
+
+    fo.attr({
+      width: icon.select('i')[0][0].getBoundingClientRect().width,
+      height: div[0][0].getBoundingClientRect().height
+    });
+
+    if (chart.options.hiddenPools.basalSettings) {
+      fo.select('#showHideBasalSettings')
+        .on('click', function() {
+          console.log('Clicked to show basal settings.');
+          chart.emitter.emit('showBasalSettings');
+        });
+    }
+    else {
+      fo.select('#showHideBasalSettings')
+        .on('click', function() {
+          chart.emitter.emit('hideBasalSettings');
+        });
+    }
   };
 
   chart.type = 'daily';
