@@ -26,6 +26,10 @@ module.exports = function(pool, opts) {
   function basaltab(selection) {
     opts.xScale = pool.xScale().copy();
 
+    if (pool.hidden()) {
+      return;
+    }
+
     selection.each(function(currentData) {
       var data = _.groupBy(currentData, 'schedule');
       var numSchedules = Object.keys(data).length;
