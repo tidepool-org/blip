@@ -116,8 +116,8 @@ function TidelineData(data, opts) {
   this.adjustFillsForTwoWeekView = function() {
     var smbgData = this.grouped.smbg;
     var firstSmbg = smbgData[0].normalTime, lastSmbg = smbgData[smbgData.length - 1].normalTime;
-    var startOfFill = dt.getMidnight(smbgData[0].normalTime);
-    var endOfFill = dt.getMidnight(smbgData[smbgData.length - 1].normalTime, true);
+    var startOfFill = dt.getMidnight(firstSmbg);
+    var endOfFill = dt.getMidnight(lastSmbg, true);
     this.twoWeekData = this.grouped.smbg;
     var twoWeekFills = [];
     for (var i = 0; i < this.grouped.fill.length; ++i) {
@@ -136,10 +136,13 @@ function TidelineData(data, opts) {
       );
     }
     if (startOfFill < firstSmbg) {
-      twoWeekFills = fillDataFromInterval(new Date(startOfFill),
-          new Date(twoWeekFills[0].normalTime)).concat(twoWeekFills);
+      twoWeekFills = _.reject(twoWeekFills, function(d) {
+        return d.normalTime < startOfFill;
+      });
     }
-    this.twoWeekData = this.twoWeekData.concat(twoWeekFills);
+    this.twoWeekData = _.sortBy(this.twoWeekData.concat(twoWeekFills), function(d) {
+      return d.normalTime;
+    });
   };
 
   this.grouped = _.groupBy(data, function(d) { return d.type; });
@@ -153,20 +156,22 @@ function TidelineData(data, opts) {
   this.basalUtil = new BasalUtil(this.grouped['basal-rate-segment']);
   this.bolusUtil = new BolusUtil(this.grouped.bolus);
   this.cbgUtil = new BGUtil(this.grouped.cbg, {DAILY_MIN: (opts.CBG_PERCENT_FOR_ENOUGH * opts.CBG_MAX_DAILY)});
-  this.settingsUtil = new SettingsUtil(this.grouped.settings, [this.diabetesData[0].normalTime, this.diabetesData[this.diabetesData.length - 1].normalTime]);
-
-  this.smbgUtil = new BGUtil(this.grouped.smbg, {DAILY_MIN: opts.SMBG_DAILY_MIN});
+  
+  this.settingsUtil = new SettingsUtil(this.grouped.settings || [], [this.diabetesData[0].normalTime, this.diabetesData[this.diabetesData.length - 1].normalTime]);
   this.settingsUtil.getAllSchedules(this.settingsUtil.endpoints[0], this.settingsUtil.endpoints[1]);
   var segmentsBySchedule = this.settingsUtil.annotateBasalSettings(this.basalUtil.actual);
   this.grouped['basal-settings-segment'] = [];
   for (var key in segmentsBySchedule) {
     this.grouped['basal-settings-segment'] = this.grouped['basal-settings-segment'].concat(segmentsBySchedule[key]);
   }
-
-  this.generateFillData().adjustFillsForTwoWeekView();
-  this.data = _.sortBy(data.concat(this.grouped['basal-settings-segment'].concat(this.grouped.fill)), function(d) {
+  this.data = _.sortBy(data.concat(this.grouped['basal-settings-segment']), function(d) {
     return d.normalTime;
   });
+  
+  this.smbgUtil = new BGUtil(this.grouped.smbg, {DAILY_MIN: opts.SMBG_DAILY_MIN});
+
+  this.generateFillData().adjustFillsForTwoWeekView();
+  this.data = _.sortBy(data.concat(this.grouped.fill), function(d) { return d.normalTime; });
 
   updateCrossFilters(this.data);
 
