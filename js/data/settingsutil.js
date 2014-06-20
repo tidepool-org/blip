@@ -123,7 +123,7 @@ function SettingsUtil(data, endpoints) {
   };
 
   this.getAllSchedules = function(s, e) {
-    if (datetime.verifyEndpoints(s, e, this.endpoints)) {
+    if (datetime.verifyEndpoints(s, e, this.endpoints) && this.data.length !== 0) {
       var settingsIntervals = this.getIntervals(s, e);
       var segmentsBySchedule = {};
       for (var i = 0; i < settingsIntervals.length; ++i) {

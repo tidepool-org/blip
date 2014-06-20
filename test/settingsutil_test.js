@@ -33,6 +33,7 @@ function all(segmentUtil) {
 }
 
 describe('settings utilities', function() {
+
   var basalSegments = all(new SegmentUtil(_.where(data, {'type': 'basal-rate-segment'})));
   data = _.reject(data, function(d) {
     return d.type === 'basal-rate-segment';
@@ -42,6 +43,13 @@ describe('settings utilities', function() {
   var td = new TidelineData(data);
   var diabetesEndpoints = [td.diabetesData[0].normalTime, td.diabetesData[td.diabetesData.length - 1].normalTime];
   var settings = new SettingsUtil(settingsData, diabetesEndpoints);
+
+  describe('settingsUtil', function() {
+    it('should return an object if empty array for settings data', function() {
+      var blank = new SettingsUtil([], diabetesEndpoints);
+      assert.isObject(blank);
+    });
+  });
 
   describe('settingsUtil.intervals', function() {
     it('should have length two when one settings event in middle of data', function() {
