@@ -62,7 +62,7 @@ module.exports = (function() {
     // bolus data
     var allBolusFeatureSets = bolusDay.opts.patterns.allFeatureSets();
     data.push(bolusDay.generateFull(allBolusFeatureSets, {
-      start: moment('2008-01-01T00:00:00.000Z')
+      start: moment('2008-01-01T00:15:00.000Z')
     }));
 
     // basal data

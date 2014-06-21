@@ -73,7 +73,7 @@ describe('one-day view', function() {
       var el = document.getElementById('tideline_' + i);
       oneDay = chartDailyFactory(el, {imagesBaseUrl: imagesBaseUrl}).setupPools();
       var data = preprocess.processData(testPatterns.full());
-      oneDay.load(data).locate();
+      oneDay.load(data).locate('2008-01-01T12:00:00.000Z');
       container = $('#tideline_' + i);
       i++;
     });
@@ -113,16 +113,17 @@ describe('one-day view', function() {
       });
 
       describe('left edge cbg elements', function() {
-        var leftLow, leftTarget, leftHigh;
+        var leftLow, leftTarget, leftHigh, midnightFill;
 
-        it('should have an x value at the axis gutter', function() {
+        it('should have an x value at the left edge of midnight fill', function() {
           leftLow = container.find('.d3-circle-cbg.d3-bg-low').filter(':first');
           leftTarget = container.find('.d3-circle-cbg.d3-bg-target').filter(':first');
           leftHigh = container.find('.d3-circle-cbg.d3-bg-high').filter(':first');
+          midnightFill = parseInt(container.find('.d3-fill-darkest').attr('x'), 10);
 
-          expect(parseInt(leftLow.attr('cx'), 10)).to.equal(oneDay.axisGutter());
-          expect(parseInt(leftTarget.attr('cx'), 10)).to.equal(oneDay.axisGutter());
-          expect(parseInt(leftHigh.attr('cx'), 10)).to.equal(oneDay.axisGutter());
+          expect(parseInt(leftLow.attr('cx'), 10)).to.equal(midnightFill);
+          expect(parseInt(leftTarget.attr('cx'), 10)).to.equal(midnightFill);
+          expect(parseInt(leftHigh.attr('cx'), 10)).to.equal(midnightFill);
         });
 
         it('(low and target) should yield a right and up tooltip (text = 60, 110) on hover', function() {
@@ -156,16 +157,18 @@ describe('one-day view', function() {
       });
 
       describe('right edge cbg elements', function() {
-        var rightLow, rightTarget, rightHigh;
+        var rightLow, rightTarget, rightHigh, premidnightFill;
 
-        it('should have an x value at the right edge', function() {
+        it('should have an x value equal to the x of the pre-midnight fill plus width of fill rect', function() {
           rightLow = container.find('.d3-circle-cbg.d3-bg-low').filter(':last');
           rightTarget = container.find('.d3-circle-cbg.d3-bg-target').filter(':last');
           rightHigh = container.find('.d3-circle-cbg.d3-bg-high').filter(':last');
+          premidnightFill = container.find('#fill_20080101T210000000Z');
+          var x = parseInt(premidnightFill.attr('x'), 10) + parseInt(premidnightFill.attr('width'), 10);
 
-          expect(parseInt(rightLow.attr('cx'), 10)).to.equal(width);
-          expect(parseInt(rightTarget.attr('cx'), 10)).to.equal(width);
-          expect(parseInt(rightHigh.attr('cx'), 10)).to.equal(width);
+          expect(parseInt(rightLow.attr('cx'), 10)).to.equal(x);
+          expect(parseInt(rightTarget.attr('cx'), 10)).to.equal(x);
+          expect(parseInt(rightHigh.attr('cx'), 10)).to.equal(x);
         });
 
         it('(low and target) should yield a left and up tooltip (text = 60, 110) on hover', function() {
@@ -203,59 +206,54 @@ describe('one-day view', function() {
     describe('smbg data', function() {
       var circleSize = 16, highestLow, lowestHigh;
 
-      it('should display smbgs with width and height of 16', function() {
-        expect(parseFloat(container.find('.d3-image-smbg').attr('width'),10)).to.equal(circleSize);
-        expect(parseFloat(container.find('.d3-image-smbg').attr('height'),10)).to.equal(circleSize);
+      it('should display smbgs with a radius of 7 (= size/2 - 1)', function() {
+        // smbg circles have radius size/2 - 1 because of 1px stroke for open circles
+        expect(parseInt(container.find('.d3-circle-smbg').attr('r'),10)).to.equal(circleSize/2 - 1);
       });
 
       it('should display 8 low smbgs, 2 of which are very low at bottom of pool', function() {
-        var lows = container.find('.d3-image-smbg.d3-bg-low');
+        var lows = container.find('#poolBG').find('.d3-circle-smbg.d3-bg-low');
         // parent group itself doesn't have a pixel height, so compare to first fill rectangle instead
         var fillRectHeight = container.find('#poolBG_fill').find('rect').filter(':first').attr('height');
 
         lows.each(function() {
-          var isVeryLow = $(this).attr('href') === '../../img/smbg/very_low.svg';
-          var isLow = $(this).attr('href') === '../../img/smbg/low.svg';
-          if (isVeryLow) {
-            expect(parseFloat($(this).attr('y'))).to.equal(fillRectHeight - circleSize);
+          var isLow = $(this).attr('class').search('d3-bg-low') !== -1;
+          var isOpen = $(this).attr('class').search('d3-circle-open') !== -1;
+          console.log($(this).attr('cy'), $(this).attr('class'));
+          if (isLow && !isOpen) {
+            expect(parseFloat($(this).attr('cy'))).to.equal(fillRectHeight - circleSize/2);
           }
-          else if (isLow) {
-            highestLow = parseFloat($(this).attr('y'));
-            expect(highestLow).to.be.below(fillRectHeight - circleSize);
-          }
-          else {
-            expect(!(isVeryLow || isLow)).to.be.false;
+          else if (isLow && isOpen) {
+            highestLow = parseFloat($(this).attr('cy'));
+            expect(highestLow).to.be.below(fillRectHeight - circleSize/2);
           }
         });
         expect(lows.size()).to.equal(8);
       });
 
       it('should display 8 high smbgs, 2 of which are very high at top of pool', function() {
-        var highs = container.find('.d3-image-smbg.d3-bg-high');
+        var highs = container.find('#poolBG').find('.d3-circle-smbg.d3-bg-high');
 
         highs.each(function() {
-          var isVeryHigh = $(this).attr('href') === '../../img/smbg/very_high.svg';
-          var isHigh = $(this).attr('href') === '../../img/smbg/high.svg';
-          if (isVeryHigh) {
-            expect(parseFloat($(this).attr('y'))).to.equal(0);
+          var isHigh = $(this).attr('class').search('d3-bg-high') !== -1;
+          var isOpen = $(this).attr('class').search('d3-circle-open') !== -1;
+          if (isHigh && !isOpen) {
+            expect(parseFloat($(this).attr('cy'))).to.equal(circleSize/2);
           }
-          else if (isHigh) {
-            lowestHigh = parseFloat($(this).attr('y'));
+          else if (isHigh && isOpen) {
+            lowestHigh = parseFloat($(this).attr('cy'));
             expect(lowestHigh).to.be.above(0);
-          }
-          else {
-            expect(!(isVeryHigh || isHigh)).to.be.false;
           }
         });
         expect(highs.size()).to.equal(8);
       });
 
       it('should display 8 target smbgs with y attributes between highestLow and lowestHigh', function() {
-        var targets = container.find('.d3-image-smbg.d3-bg-target');
+        var targets = container.find('#poolBG').find('.d3-circle-smbg.d3-bg-target');
         expect(targets.size()).to.equal(8);
         targets.each(function() {
-          expect(parseFloat($(this).attr('y'))).to.be.below(highestLow);
-          expect(parseFloat($(this).attr('y'))).to.be.above(lowestHigh);
+          expect(parseFloat($(this).attr('cy'))).to.be.below(highestLow);
+          expect(parseFloat($(this).attr('cy'))).to.be.above(lowestHigh);
         });
       });
 
@@ -263,9 +261,9 @@ describe('one-day view', function() {
         var leftLow, leftTarget, leftHigh;
 
         it('(low and target) should yield a right and up tooltip (text = 20, 80) on hover', function() {
-          leftLow = container.find('.d3-image-smbg.d3-bg-low').filter(':first');
-          leftTarget = container.find('.d3-image-smbg.d3-bg-target').filter(':first');
-          leftHigh = container.find('.d3-image-smbg.d3-bg-high').filter(':first');
+          leftLow = container.find('#poolBG').find('.d3-circle-smbg.d3-bg-low').filter(':first');
+          leftTarget = container.find('#poolBG').find('.d3-circle-smbg.d3-bg-target').filter(':first');
+          leftHigh = container.find('#poolBG').find('.d3-circle-smbg.d3-bg-high').filter(':first');
 
           leftLow.simulate('mouseover');
           var lowTooltipGroup = container.find('#tooltip_' + leftLow.attr('id').replace('smbg_', ''));
@@ -307,9 +305,9 @@ describe('one-day view', function() {
         var rightLow, rightTarget, rightHigh;
 
         it('(low and target) should yield a left and up tooltip (text = 20, 80) on hover', function() {
-          rightLow = container.find('.d3-image-smbg.d3-bg-low').filter(':last');
-          rightTarget = container.find('.d3-image-smbg.d3-bg-target').filter(':last');
-          rightHigh = container.find('.d3-image-smbg.d3-bg-high').filter(':last');
+          rightLow = container.find('#poolBG').find('.d3-circle-smbg.d3-bg-low').filter(':last');
+          rightTarget = container.find('#poolBG').find('.d3-circle-smbg.d3-bg-target').filter(':last');
+          rightHigh = container.find('#poolBG').find('.d3-circle-smbg.d3-bg-high').filter(':last');
 
           rightLow.simulate('mouseover');
           var lowTooltipGroup = container.find('#tooltip_' + rightLow.attr('id').replace('smbg_', ''));
