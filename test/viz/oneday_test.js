@@ -219,7 +219,6 @@ describe('one-day view', function() {
         lows.each(function() {
           var isLow = $(this).attr('class').search('d3-bg-low') !== -1;
           var isOpen = $(this).attr('class').search('d3-circle-open') !== -1;
-          console.log($(this).attr('cy'), $(this).attr('class'));
           if (isLow && !isOpen) {
             expect(parseFloat($(this).attr('cy'))).to.equal(fillRectHeight - circleSize/2);
           }
