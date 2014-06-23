@@ -233,9 +233,9 @@ module.exports = function(emitter) {
   };
 
   container.clear = function() {
-    emitter.removeAllListeners('numbers');
+    emitter.removeAllListeners();
     container.currentTranslation(0).latestTranslation(0);
-    var ids = ['#tidelinePools', '#tidelineXAxisGroup', '#tidelineYAxisGroup', '#tidelineScrollNav', '#tidelineTooltips', '#tidelineAnnotations'];
+    var ids = ['#tidelineWeeklyLabels', '#tidelinePools', '#tidelineXAxisGroup', '#tidelineYAxisGroup', '#tidelineScrollNav', '#tidelineTooltips', '#tidelineAnnotations'];
     ids.forEach(function(id) {
       mainGroup.select(id).remove();
     });
@@ -245,12 +245,20 @@ module.exports = function(emitter) {
     return container;
   };
 
+  container.destroy = function() {
+    d3.select('#' + id).remove();
+
+    return container;
+  };
+  
+  // TODO: delete when update blip (legacy method)
   container.hide = function() {
     d3.select('#' + id).classed('hidden', true);
 
     return container;
   };
 
+  // TODO: delete when update blip (legacy method)
   container.show = function() {
     d3.select('#' + id).classed('hidden', false);
 
@@ -354,6 +362,10 @@ module.exports = function(emitter) {
 
   container.navGutter = function() {
     return nav.navGutter;
+  };
+
+  container.getCurrentDay = function() {
+    return new Date(yScale.domain()[0].toISOString().slice(0,10) + 'T12:00:00.000Z');
   };
 
   // chainable methods
