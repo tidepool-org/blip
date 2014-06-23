@@ -1,5 +1,6 @@
 /* global rm, mkdir, cp, exec, cat */
 require('shelljs/global');
+var _ = require('lodash');
 
 var gulp = require('gulp');
 var browserify = require('gulp-browserify');
@@ -14,9 +15,23 @@ var webpackConfig = require('./webpack.config');
 gulp.task('example', function(callback) {
   webpack(webpackConfig, function(err, stats) {
       if(err) throw new gutil.PluginError('webpack', err);
-      gutil.log('[webpack]', stats.toString({
-          // output options
-      }));
+      gutil.log('[webpack]', stats.toString({}));
+      callback();
+    });
+});
+
+gulp.task('pack-for-tests', function(callback) {
+  var config = _.clone(webpackConfig);
+  _.assign(config, {
+    entry: './test/entry.js',
+    output: {
+      path: __dirname + '/test',
+      filename: 'bundle.js'
+    }
+  });
+  webpack(config, function(err, stats) {
+      if(err) throw new gutil.PluginError('webpack', err);
+      gutil.log('[webpack]', stats.toString({}));
       callback();
     });
 });
@@ -61,7 +76,7 @@ gulp.task('blip', function() {
     .pipe(gulp.dest('dist'));
 });
 
-gulp.task('browserify-test', function() {
+gulp.task('browserify-tests', function() {
   return gulp.src('test/index.js')
     .pipe(browserify())
     .pipe(rename('test.js'))
@@ -93,7 +108,7 @@ gulp.task('default', function(cb) {
 
 gulp.task('test', function(cb) {
   runSequence(
-    ['example', 'browserify-test'],
+    ['pack-for-tests', 'browserify-tests'],
     'testem',
   cb);
 });

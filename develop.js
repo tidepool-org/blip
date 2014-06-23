@@ -33,3 +33,4 @@ app.use(connect.errorHandler());
 var port = process.env.PORT || 8081;
 http.createServer(app).listen(port);
 console.log('Development server started on port', port);
+console.log('Packing application. Please wait...');

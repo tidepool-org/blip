@@ -6,7 +6,9 @@ module.exports = {
       {test: /\.svg/, loader: 'url-loader?mimetype=image/svg+xml'},
       {test: /\.eot/, loader: 'url-loader?mimetype=application/vnd.ms-fontobject'},
       {test: /\.woff/, loader: 'url-loader?mimetype=application/font-woff'},
-      {test: /\.ttf/, loader: 'url-loader?mimetype=application/x-font-ttf'}
+      {test: /\.ttf/, loader: 'url-loader?mimetype=application/x-font-ttf'},
+      {test: /\.js$/, loader: 'jsx-loader'},
+      {test: /\.json/, loader: 'json-loader'}
     ]
   },
   output: {

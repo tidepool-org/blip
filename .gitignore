@@ -9,6 +9,7 @@ example/bundle.js
 example/data/blip-output.json
 example/dist/
 node_modules/
+test/bundle.js
 test/test.js
 web/
 wiki/
