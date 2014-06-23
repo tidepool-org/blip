@@ -475,11 +475,13 @@ module.exports = function(emitter) {
     return container;
   };
 
+  // TODO: delete when update blip (legacy method)
   container.emptyPools = function() {
     pools = [];
     return container;
   };
 
+  // TODO: delete when update blip (legacy method)
   container.clear = function() {
     emitter.removeAllListeners();
     pools.forEach(function(pool) {
@@ -495,14 +497,16 @@ module.exports = function(emitter) {
     d3.select('#' + id).remove();
 
     return container;
-  }
+  };
 
+  // TODO: delete when update blip (legacy method)
   container.hide = function() {
     d3.select('#' + id).classed('hidden', true);
 
     return container;
   };
 
+  // TODO: delete when update blip (legacy method)
   container.show = function() {
     d3.select('#' + id).classed('hidden', false);
 
