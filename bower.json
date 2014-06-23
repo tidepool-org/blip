@@ -26,6 +26,8 @@
     "bows": "https://github.com/latentflip/bows.git#beb35328d5c224fc5635928a1b45b32e0d839caa",
     "jquery": "~2.1.0",
     "jquery-simulate": "*",
-    "less": "~1.7.0"
+    "less": "~1.7.0",
+    "react": "~0.10.0",
+    "moment": "~2.7.0"
   }
 }
