@@ -300,11 +300,12 @@ var preprocess = {
       if (d.type === 'settings') {
         schedules = this.basalSchedulesToArray(d.basalSchedules);
         if (d.source === 'carelink') {
-          for (var i = 0; i < schedules.length; i++) {
-            if (schedules[i].name === 'standard') {
+          for (var i = 0; i < schedules.length; ++i) {
+            if (schedules[i].name.toLowerCase() === 'standard') {
               var standard = schedules[i];
               var index = schedules.indexOf(standard);
               schedules.splice(index, 1);
+              schedules = _.sortBy(schedules, function(d) { return d.name; });
               schedules.unshift(standard);
               break;
             }
