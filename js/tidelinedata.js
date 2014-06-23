@@ -171,7 +171,7 @@ function TidelineData(data, opts) {
   this.smbgUtil = new BGUtil(this.grouped.smbg, {DAILY_MIN: opts.SMBG_DAILY_MIN});
 
   this.generateFillData().adjustFillsForTwoWeekView();
-  this.data = _.sortBy(data.concat(this.grouped.fill), function(d) { return d.normalTime; });
+  this.data = _.sortBy(this.data.concat(this.grouped.fill), function(d) { return d.normalTime; });
 
   updateCrossFilters(this.data);
 
