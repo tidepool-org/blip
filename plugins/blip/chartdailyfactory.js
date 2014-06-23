@@ -401,7 +401,6 @@ function chartDailyFactory(el, options) {
     if (chart.options.hiddenPools.basalSettings) {
       fo.select('#showHideBasalSettings')
         .on('click', function() {
-          console.log('Clicked to show basal settings.');
           chart.emitter.emit('showBasalSettings');
         });
     }
