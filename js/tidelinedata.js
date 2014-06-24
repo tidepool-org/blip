@@ -114,10 +114,10 @@ function TidelineData(data, opts) {
   // two-week view requires background fill rectangles from midnight to midnight
   // for each day from the first through last days where smbg exists at all
   this.adjustFillsForTwoWeekView = function() {
-    var smbgData = this.grouped.smbg;
+    var smbgData = this.grouped.smbg, fillData = this.grouped.fill;
     var firstSmbg = smbgData[0].normalTime, lastSmbg = smbgData[smbgData.length - 1].normalTime;
-    var startOfFill = dt.getMidnight(firstSmbg);
-    var endOfFill = dt.getMidnight(lastSmbg, true);
+    var startOfTwoWeekFill = dt.getMidnight(firstSmbg), endOfTwoWeekFill = dt.getMidnight(lastSmbg, true);
+    var startOfFill = fillData[0].normalEnd, endOfFill = fillData[fillData.length - 1].normalEnd;
     this.twoWeekData = this.grouped.smbg;
     var twoWeekFills = [];
     for (var i = 0; i < this.grouped.fill.length; ++i) {
@@ -126,20 +126,37 @@ function TidelineData(data, opts) {
         twoWeekFills.push(d);
       }
     }
-    if (endOfFill > lastSmbg) {
-      var end = new Date(endOfFill);
-      // intervals are exclusive of endpoint
+
+    // first, fill in two week fills where potentially missing at the end of data domain
+    if (endOfTwoWeekFill > endOfFill) {
+      var end = new Date(endOfTwoWeekFill);
+      // intervals are exclusive of endpoint, so
       // to get last segment, need to extend endpoint out +1
       end.setUTCHours(end.getUTCHours() + 3);
       twoWeekFills = twoWeekFills.concat(
-        fillDataFromInterval(new Date(twoWeekFills[twoWeekFills.length - 1].normalTime),end)
+        fillDataFromInterval(new Date(endOfFill),end)
       );
     }
-    if (startOfFill < firstSmbg) {
+    else {
+      // filter out any fills from two week fills that go beyond extent of smbg data
       twoWeekFills = _.reject(twoWeekFills, function(d) {
-        return d.normalTime < startOfFill;
+        return d.normalTime >= endOfTwoWeekFill;
       });
     }
+
+    // similarly, fill in two week fills where potentially missing at the beginning of data domain
+    if (startOfTwoWeekFill < startOfFill) {
+      twoWeekFills = twoWeekFills.concat(
+        fillDataFromInterval(new Date(startOfTwoWeekFill), new Date(startOfFill))
+      );
+    }
+    else {
+      // filter out any fills from two week fills that go beyond extent of smbg data
+      twoWeekFills = _.reject(twoWeekFills, function(d) {
+        return d.normalTime < startOfTwoWeekFill;
+      });
+    }
+
     this.twoWeekData = _.sortBy(this.twoWeekData.concat(twoWeekFills), function(d) {
       return d.normalTime;
     });

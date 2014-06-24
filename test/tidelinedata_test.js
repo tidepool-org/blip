@@ -73,12 +73,33 @@ describe('TidelineData', function() {
     });
   });
 
+  describe('generateFillData', function() {
+    var fills = td.grouped.fill;
+    it('should be a function', function() {
+      assert.isFunction(td.generateFillData);
+    });
+
+    it('should extend beyond extent of data on either side', function() {
+      var dData = td.diabetesData;
+      expect(fills[0].normalTime).to.be.below(dData[0].normalTime);
+      expect(fills[fills.length - 1].normalTime).to.be.above(dData[dData.length - 1].normalTime);
+    });
+
+    it('should be contiguous', function() {
+      for (var i = 0; i < fills.length; ++i) {
+        if (i !== fills.length - 1) {
+          expect(fills[i].normalEnd).to.equal(fills[i + 1].normalTime);
+        }
+      }
+    });
+  });
+
   describe('adjustFillsForTwoWeekView', function() {
     it('should be a function', function() {
       assert.isFunction(td.adjustFillsForTwoWeekView);
     });
 
-    it('should cover all and only the days where smbg data exists', function() {
+    it('should cover all and only the days where smbg data exists (messagse outside)', function() {
       var newData = [
         {
           'messageText': 'Ball tip corned beef ut, dolore prosciutto jerky fugiat capicola doner velit. Do beef ribs adipisicing, pork belly et enim tail filet mignon tri-tip non dolore ham ut.',
@@ -115,7 +136,45 @@ describe('TidelineData', function() {
       ];
       var newTd = preprocess.processData(newData);
       expect(newTd.twoWeekData[0].normalTime).to.equal('2014-06-06T00:00:00.000Z');
-      // expect(td.twoWeekData[td.twoWeekData.length - 1].normalTime).to.equal('2014-06-22T21:00:00.000Z');
+      expect(newTd.twoWeekData[newTd.twoWeekData.length - 1].normalTime).to.equal('2014-06-22T21:00:00.000Z');
+      var fills = _.where(newTd.twoWeekData, {'type': 'fill'});
+      for (var i = 0; i < fills.length; ++i) {
+        if (i !== fills.length - 1) {
+          expect(fills[i].normalEnd).to.equal(fills[i + 1].normalTime);
+        }
+      }
+    });
+
+    it('should cover all and only the days where smbg data exists (just smbg)', function() {
+      var newData = [
+        {
+          'deviceTime': '2014-06-06T19:51:29',
+          'value': 145,
+          'source': 'demo',
+          'deviceId': 'Demo - 123',
+          'units': 'mg/dL',
+          'type': 'smbg',
+          'id': 'e89938f8-de92-429a-bfff-1e7627cac9d4'
+        },
+        {
+          'deviceTime': '2014-06-22T02:12:55',
+          'value': 66,
+          'source': 'demo',
+          'deviceId': 'Demo - 123',
+          'units': 'mg/dL',
+          'type': 'smbg',
+          'id': 'fc032543-0b5e-40e6-b863-48963d4d486c'
+        }
+      ];
+      var newTd = preprocess.processData(newData);
+      expect(newTd.twoWeekData[0].normalTime).to.equal('2014-06-06T00:00:00.000Z');
+      expect(newTd.twoWeekData[newTd.twoWeekData.length - 1].normalTime).to.equal('2014-06-22T21:00:00.000Z');
+      var fills = _.where(newTd.twoWeekData, {'type': 'fill'});
+      for (var i = 0; i < fills.length; ++i) {
+        if (i !== fills.length - 1) {
+          expect(fills[i].normalEnd).to.equal(fills[i + 1].normalTime);
+        }
+      }
     });
   });
 });
