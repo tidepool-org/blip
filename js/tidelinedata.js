@@ -103,7 +103,11 @@ function TidelineData(data, opts) {
   }
 
   this.generateFillData = function() {
-    var first = new Date(data[0].normalTime), last = new Date(data[data.length -1].normalTime);
+    var lastDatum = data[data.length - 1];
+    // the fill should extend past the *end* of a segment (i.e. of basal data)
+    // if that's the last datum in the data
+    var lastTimestamp = lastDatum.normalEnd || lastDatum.normalTime;
+    var first = new Date(data[0].normalTime), last = new Date(lastTimestamp);
     // make sure we encapsulate the domain completely by padding the start and end with twice the duration
     first.setUTCHours(first.getUTCHours() - first.getUTCHours() % opts.fillOpts.duration - (opts.fillOpts.duration * 2));
     last.setUTCHours(last.getUTCHours() + last.getUTCHours() % opts.fillOpts.duration + (opts.fillOpts.duration * 2));
