@@ -131,6 +131,9 @@ var WeeklyChart = React.createClass({
     this.mountChart(this.getDOMNode());
     this.initializeChart(this.props.patientData, this.props.initialDatetimeLocation);
   },
+  componentWillUnmount: function() {
+    this.unmountChart();
+  },
   mountChart: function(node, chartOpts) {
     this.log('Mounting...');
     chartOpts = chartOpts || {imagesBaseUrl: '../../img'};

@@ -77,7 +77,6 @@ var Daily = React.createClass({
     this.props.switchToWeekly(datetime);
   },
   handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
-    console.log('Datetime location changed!');
     var title = moment(datetimeLocationEndpoints[1]).utc().format('dddd, MMMM Do');
     this.refs.header.updateTitle(title);
   },
@@ -139,6 +138,9 @@ var DailyChart = React.createClass({
   componentDidMount: function() {
     this.mountChart(this.getDOMNode());
     this.initializeChart(this.props.patientData, this.props.initialDatetimeLocation);
+  },
+  componentWillUnmount: function() {
+    this.unmountChart();
   },
   mountChart: function(node, chartOpts) {
     this.log('Mounting...');

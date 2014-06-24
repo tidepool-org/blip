@@ -26,48 +26,7 @@ var Example = React.createClass({
     };
   },
   render: function() {
-    var that = this;
-    function getChart(state) {
-      window.data = state.chartData;
-      switch (state.chartType) {
-        case 'daily':
-          /* jshint ignore:start */
-          return (
-            <Daily 
-              patientData={state.chartData}
-              chartPrefs={state.chartPrefs}
-              initialDatetimeLocation={state.initialDatetimeLocation}
-              switchToDaily={that.handleSwitchToDaily}
-              switchToSettings={that.handleSwitchToSettings}
-              switchToWeekly={that.handleSwitchToWeekly} />
-            );
-          /* jshint ignore:end */
-        case 'weekly':
-          /* jshint ignore:start */
-          return (
-            <Weekly 
-              patientData={state.chartData}
-              chartPrefs={state.chartPrefs}
-              initialDatetimeLocation={state.initialDatetimeLocation}
-              switchToDaily={that.handleSwitchToDaily}
-              switchToSettings={that.handleSwitchToSettings}
-              switchToWeekly={that.handleSwitchToWeekly} />
-            );
-          /* jshint ignore:end */
-        case 'settings':
-          /* jshint ignore:start */
-          return (
-            <Settings 
-              patientData={state.chartData}
-              chartPrefs={state.chartPrefs}
-              switchToDaily={that.handleSwitchToDaily}
-              switchToSettings={that.handleSwitchToSettings}
-              switchToWeekly={that.handleSwitchToWeekly} />
-            );
-          /* jshint ignore:end */
-      }
-    }
-    var chart = getChart(this.state);
+    var chart = this.renderChart();
     /* jshint ignore:start */
     return (
       <div>
@@ -77,6 +36,46 @@ var Example = React.createClass({
       </div>
     );
     /* jshint ignore:end */
+  },
+  renderChart: function() {
+    window.data = this.state.chartData;
+    switch (this.state.chartType) {
+      case 'daily':
+        /* jshint ignore:start */
+        return (
+          <Daily 
+            patientData={this.state.chartData}
+            chartPrefs={this.state.chartPrefs}
+            initialDatetimeLocation={this.state.initialDatetimeLocation}
+            switchToDaily={this.handleSwitchToDaily}
+            switchToSettings={this.handleSwitchToSettings}
+            switchToWeekly={this.handleSwitchToWeekly} />
+          );
+        /* jshint ignore:end */
+      case 'weekly':
+        /* jshint ignore:start */
+        return (
+          <Weekly 
+            patientData={this.state.chartData}
+            chartPrefs={this.state.chartPrefs}
+            initialDatetimeLocation={this.state.initialDatetimeLocation}
+            switchToDaily={this.handleSwitchToDaily}
+            switchToSettings={this.handleSwitchToSettings}
+            switchToWeekly={this.handleSwitchToWeekly} />
+          );
+        /* jshint ignore:end */
+      case 'settings':
+        /* jshint ignore:start */
+        return (
+          <Settings 
+            patientData={this.state.chartData}
+            chartPrefs={this.state.chartPrefs}
+            switchToDaily={this.handleSwitchToDaily}
+            switchToSettings={this.handleSwitchToSettings}
+            switchToWeekly={this.handleSwitchToWeekly} />
+          );
+        /* jshint ignore:end */
+    }
   },
   // handlers
   handleSwitchToDaily: function(datetime) {

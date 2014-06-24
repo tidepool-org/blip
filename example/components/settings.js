@@ -74,6 +74,9 @@ var SettingsChart = React.createClass({
     this.mountChart(this.getDOMNode());
     this.initializeChart(this.props.patientData);
   },
+  componentWillUnmount: function() {
+    this.unmountChart();
+  },
   mountChart: function(node, chartOpts) {
     this.log('Mounting...');
     this.chart = chartSettingsFactory(node, _.pick(this.props, this.chartOpts));
