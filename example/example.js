@@ -2,8 +2,6 @@
 var bows = window.bows;
 var React = window.React;
 
-require('./less/example.less');
-
 var data = require('./data/device-data.json');
 
 var Daily = require('./components/daily');

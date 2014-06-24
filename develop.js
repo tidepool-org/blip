@@ -17,16 +17,18 @@ var webpackCompiler = webpack(webpackConfig);
 
 var app = connect();
 
-app.use(webpackDevMiddleware(webpackCompiler, {
-  stats: {colors: true}
-}
-));
-
 app.use('/bower_components', serveStatic(path.join(__dirname, 'bower_components')));
+app.use('/css', serveStatic(path.join(__dirname, 'css')));
+app.use('/fonts', serveStatic(path.join(__dirname, 'fonts')));
 app.use('/img', serveStatic(path.join(__dirname, 'img')));
 
 var staticDir = path.join(__dirname, 'example');
 app.use(serveStatic(staticDir));
+
+app.use(webpackDevMiddleware(webpackCompiler, {
+  stats: {colors: true}
+}
+));
 
 app.use(connect.errorHandler());
 
