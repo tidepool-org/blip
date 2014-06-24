@@ -36,9 +36,16 @@ describe('Tidepool Dates', function() {
       expect(datetimeWrapper.utcDateString()).exists;
       done();
     });
-
-    it('should have momentInstance method',function(done){
-      expect(datetimeWrapper.momentInstance()).exists;
+    it('should have getOffsetFromTime method',function(done){
+      expect(datetimeWrapper.getOffsetFromTime()).exists;
+      done();
+    });
+    it('should have getOffsetFromTime method',function(done){
+      expect(datetimeWrapper.getOffsetFromTime()).exists;
+      done();
+    });
+    it('should have getOffset method',function(done){
+      expect(datetimeWrapper.getOffset()).exists;
       done();
     });
 
@@ -57,7 +64,6 @@ describe('Tidepool Dates', function() {
         done();
       });
     });
-
     describe('getUtcString', function() {
       it('returns a string',function(done){
 
@@ -73,7 +79,6 @@ describe('Tidepool Dates', function() {
 
         done();
       });
-
       it('is an ISO string',function(done){
 
         var utcString = datetimeWrapper.utcDateString();
@@ -84,8 +89,25 @@ describe('Tidepool Dates', function() {
 
         done();
       });
+    });
+    describe('getOffset', function() {
+      it('retuns an offset from utc in minutes',function(done){
 
+        var offset = datetimeWrapper.getOffset();
+        var usersZone = testMoment().zone();
+        expect(offset).to.equal(usersZone);
+        done();
+      });
+    });
+    describe('getOffsetFromTime', function() {
+      it('retuns an offset from utc in minutes',function(done){
 
+        var timestamp = '2013-01-01T00:00:00-13:00';
+
+        var offset = datetimeWrapper.getOffsetFromTime(timestamp);
+        expect(offset).to.equal(780);
+        done();
+      });
     });
     describe('formatForDisplay', function() {
       it('returns a string formated as specified',function(done){
@@ -93,7 +115,7 @@ describe('Tidepool Dates', function() {
         var isoDateString = '2013-05-09T00:00:00Z';
 
         var formatedString = datetimeWrapper.formatForDisplay(isoDateString,'YYYY/MM/DD HH:mm');
-        expect(formatedString).to.equal('2013/05/09 00:00');
+        expect(formatedString).to.equal('2013/05/09 12:00');
         done();
       });
 
@@ -102,7 +124,7 @@ describe('Tidepool Dates', function() {
         var isoDateString = '2013-05-09T00:00:00Z';
 
         var formatedString = datetimeWrapper.formatForDisplay(isoDateString);
-        expect(formatedString).to.equal('May 9 at 12:00 am');
+        expect(formatedString).to.equal('May 9 at 12:00 pm');
         done();
       });
 
