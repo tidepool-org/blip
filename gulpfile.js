@@ -18,7 +18,8 @@ var mkdirp = require('mkdirp');
 
 var pkg = require('./package.json');
 var files = require('./files');
-process.env.MOCK_DATA_DIR = process.env.MOCK_DATA_DIR || 'data/sample';
+process.env.MOCK_DATA_DIR =
+  process.env.MOCK_DATA_DIR || 'node_modules/blip-mock-data/default';
 process.env.FONTS_ENDPOINT = 'build/' + pkg.version + '/fonts';
 process.env.IMAGES_ENDPOINT = 'build/' + pkg.version + '/images';
 var jshintrc = JSON.parse(fs.readFileSync('.jshintrc'));

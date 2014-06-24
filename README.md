@@ -226,7 +226,7 @@ For local development, demoing, or testing, you can run the app in "mock" mode b
 
 All app objects (mostly app services) that make any external call should have their methods making these external calls patched by a mock. These are located in the `mock/` directory. To create one, return a `patchService(service)` function (see existing mocks for examples).
 
-Mock data is generated from `.json` files, which are combined into a JavaScript object that mirrors the directory structure of the data files (for example `patients/11.json` will be available at `data.patients['11']`). Set the data file directory to use with the `MOCK_DATA_DIR` environment variable (defaults to `data/sample`).
+Mock data is generated from `.json` files, which are combined into a JavaScript object that mirrors the directory structure of the data files (for example `patients/11.json` will be available at `data.patients['11']`). Set the data file directory to use with the `MOCK_DATA_DIR` environment variable (defaults to `node_modules/blip-mock-data/default`).
 
 You can configure the behavior of mock services using **mock parameters**. These are passed through the URL query string (before the hash), for example:
 

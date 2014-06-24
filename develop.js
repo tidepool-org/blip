@@ -14,7 +14,8 @@ var jsonToObject = require('./lib/gulp-json2obj');
 
 var pkg = require('./package.json');
 var files = require('./files');
-process.env.MOCK_DATA_DIR = process.env.MOCK_DATA_DIR || 'data/sample';
+process.env.MOCK_DATA_DIR =
+  process.env.MOCK_DATA_DIR || 'node_modules/blip-mock-data/default';
 process.env.IMAGES_ENDPOINT = 'images';
 var ROOT = __dirname;
 

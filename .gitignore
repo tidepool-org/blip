@@ -22,7 +22,5 @@ tmp
 dist
 config/*
 !config/sample.sh
-data/*
-!data/sample
 test/bin
 sauce_connect.log
