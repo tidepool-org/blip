@@ -116,7 +116,6 @@ function SettingsUtil(data, endpoints) {
       }
       for (var j = 0; j < currentSchedule.length; ++j) {
         var segment = currentSchedule[j];
-        console.log(segment);
         var interval = segment.normalTime + '/' + segment.normalEnd;
         if (actualsByInterval[interval]) {
           var matchedActual = actualsByInterval[interval];

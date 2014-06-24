@@ -483,7 +483,11 @@ module.exports = function(emitter) {
 
   // TODO: delete when update blip (legacy method)
   container.clear = function() {
-    emitter.removeAllListeners();
+    emitter.removeAllListeners('carbTooltipOn')
+      .removeAllListeners('carbTooltipOff')
+      .removeAllListeners('bolusTooltipOn')
+      .removeAllListeners('bolusTooltipOff')
+      .removeAllListeners('noCarbTimestamp');
     pools.forEach(function(pool) {
       pool.clear();
     });

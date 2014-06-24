@@ -233,7 +233,7 @@ module.exports = function(emitter) {
   };
 
   container.clear = function() {
-    emitter.removeAllListeners();
+    emitter.removeAllListeners('numbers');
     container.currentTranslation(0).latestTranslation(0);
     var ids = ['#tidelineWeeklyLabels', '#tidelinePools', '#tidelineXAxisGroup', '#tidelineYAxisGroup', '#tidelineScrollNav', '#tidelineTooltips', '#tidelineAnnotations'];
     ids.forEach(function(id) {
