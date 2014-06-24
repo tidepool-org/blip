@@ -12,6 +12,22 @@
 # You should have received a copy of the License along with this program; if
 # not, you can obtain one from Tidepool Project at tidepool.org.
 # == BSD2 LICENSE ==
+# usage: demo_data.py [-h] [-d DEXCOM_SEGMENTS] [-n NUM_DAYS] [-o OUTPUT_FILE]
+#                     [-q]
+
+# Generate demo diabetes data for Tidepool applications and visualizations.
+
+# optional arguments:
+#   -h, --help            show this help message and exit
+#   -d DEXCOM_SEGMENTS, --dexcom DEXCOM_SEGMENTS
+#                         name of file containing indexed continuous segments of
+#                         Dexcom data; default is indexed_segments.json
+#   -n NUM_DAYS, --num_days NUM_DAYS
+#                         number of days of demo data to generate; default is 30
+#   -o OUTPUT_FILE, --output_file OUTPUT_FILE
+#                         name of output JSON file; default is device-data.json
+#   -q, --quiet_messages  use this flag to turn off messages when bacon ipsum is
+#                         being slow
 
 # for Python 3 compatibility
 from __future__ import print_function
