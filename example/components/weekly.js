@@ -70,6 +70,7 @@ var TwoWeeks = React.createClass({
   },
   // handlers
   handleClickMostRecent: function() {
+    this.setState({showingValues: false});
     this.refs.chart.goToMostRecent();
   },
   handleClickOneDay: function() {

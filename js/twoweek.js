@@ -232,7 +232,7 @@ module.exports = function(emitter) {
   };
 
   container.clear = function() {
-    emitter.removeAllListeners('numbers');
+    emitter.removeAllListeners();
     container.currentTranslation(0).latestTranslation(0);
     var ids = ['#tidelineWeeklyLabels', '#tidelinePools', '#tidelineXAxisGroup', '#tidelineYAxisGroup', '#tidelineScrollNav', '#tidelineTooltips', '#tidelineAnnotations'];
     ids.forEach(function(id) {
