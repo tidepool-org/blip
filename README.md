@@ -19,6 +19,10 @@ More information is also available in [the wiki](https://github.com/tidepool-org
 Development-only dependencies:
 
 - [jQuery](http://jquery.com/ 'jQuery')
+- [jquery-simulate](https://github.com/jquery/jquery-simulate 'jquery-simulate')
+- [Less.js](http://lesscss.org/ 'Less')
+- [React](http://facebook.github.io/react/ 'React')
+- [Moment](http://momentjs.com/ 'Moment')
 
 Optional dependencies:
 
@@ -32,7 +36,7 @@ $ bower install --save https://github.com/tidepool-org/tideline
 
 ## Usage
 
-You can use the library directly with [browserify](http://browserify.org/ 'browserify') and [LESS](http://lesscss.org/ 'LESS'):
+You can use the library directly with [browserify](http://browserify.org/ 'browserify') and [Less](http://lesscss.org/ 'Less'):
 
 ```javascript
 // app.js
@@ -46,51 +50,35 @@ var tideline = require('<path-to-tideline>/js');
 
 To build a standalone version to include with `<script>` and `<link>` tags, see [Build](#build).
 
-You will also need to copy the `img/` directory to a path served by your server.
+You will also need to copy the `img/` and `fonts/` directories to paths served by your server.
 
 For information on building charts using tideline components, see [Using Tideline](https://github.com/tidepool-org/tideline/wiki#using-tideline).
 
 ## Development
 
-To run the example, build the standalone bundle, and run the tests you will need to have a couple of tools installed.
-
-Make sure you have [Bower](http://bower.io/), [browserify](http://browserify.org/), and [LESS](http://lesscss.org/) installed:
+To run the example, build the standalone bundle, and run the tests you will need to have a couple of tools installed. Everything you need can be installed via `npm` and `bower`:
 
 ```bash
-$ npm install -g bower
-$ npm install -g browserify
-$ npm install -g less
-```
-
-Install the repository's dependencies:
-
-```bash
-$ bower install
 $ npm install
+$ bower install
 ```
 
 ### Running the example
 
-To build the assets in the `example/` directory, run:
+To build and serve up the assets in the `example/` directory, run:
 
 ```bash
-$ make example
+$ npm start
 ```
 
-If you have Python installed, you can run a server with:
-
-```bash
-$ make server
-```
-
-And point your browser to `http://localhost:8081/example/`.
+You can then view the example at `http://localhost:8081/`.
 
 ### Build
 
 To build standalone `tideline.js` and `tideline.css` files, as well as the standalone 'plugins' bundles for Tidepool's first application [blip](https://github.com/tidepool-org/blip 'Tidepool GitHub: blip'), run:
 
 ```bash
-$ make dist
+$ gulp
 ```
 
 The files will be created in the `dist/` directory.
@@ -99,37 +87,23 @@ The script file will expose a global `window.tideline` object.
 
 ### Test
 
-To run the Node tests using [Mocha](http://visionmedia.github.io/mocha/ 'Mocha'):
+To run the tests in Chrome using [Mocha](http://visionmedia.github.io/mocha/ 'Mocha') and the [testem](https://github.com/airportyh/testem 'Test'em') test runner:
 
 ```bash
-$ make test
-```
-
-To run the Node tests and browser tests in Chrome with the [Test'em](https://github.com/airportyh/testem 'Testem') JavaScript test script runner:
-
-```bash
-$ testem
-```
-
-### Running everything for development
-
-To run a minimal reporter version of the test suite, build the example, and serve it to yourself (again at `http://localhost:8081/example/`) for testing during development, run:
-
-```bash
-$ make develop
+$ npm test
 ```
 
 ## Code Philosophy and Organization
 
 Tideline is designed to be highly modular and framework-independent. It is currently being used in conjunction with [React](http://facebook.github.io/react/ 'React') in Tidepool's first application [blip](https://github.com/tidepool-org/blip 'blip').
 
-The main functionality tideline provides is modules for building out various visualizations of multi-typed data sets aligned on various timescales. At present, there is a module (`oneday.js`) for creating a horizontal scrolling timeline that shows twenty-four hours of data at a time and a module (`twoweek.js`) for creating a vertical scrolling timeline that shows two weeks of data at a time.
+The main functionality tideline provides is modules for building out various visualizations of multi-typed data sets aligned on various timescales. At present, there is a module (`oneday.js`) for creating a horizontal scrolling timeline that shows twenty-four hours of data at a time, a module (`twoweek.js`) for creating a vertical scrolling timeline that shows two weeks of data at a time, and a modeul (`settings.js`) for creating an HTML table view of insulin pump settings.
 
 **Jargon:** The horizontal sections comprising sub-units of visualization plotted against the same x-axis are referred to in this repository as *pools*.
 
 ### Philosophy
 
-Almost all of the main tideline components (found in `js/`) hew to at least some (but rarely all) of the suggestions in Mike Bostock's [Towards Reusable Charts](http://bost.ocks.org/mike/chart/ 'Mike Bostock: Towards Reusable Charts'). The data-type specific plotting functions (found in `js/plot/`) hew most closely to the suggested pattern, while the higher-level components (i.e., `oneday.js`, `twoweek.js`) do not, as their tasks are not quite the same.
+Almost all of the main tideline components (found in `js/`) hew to at least some (but rarely all) of the suggestions in Mike Bostock's [Towards Reusable Charts](http://bost.ocks.org/mike/chart/ 'Mike Bostock: Towards Reusable Charts'). The data-type specific plotting functions (found in `js/plot/`) hew most closely to the suggested pattern, while the higher-level components (i.e., `oneday.js`, `twoweek.js`, `settings.js`) do not, as their tasks are not quite the same.
 
 The plotting functions in `js/plot/` critically depend on D3's [enter](https://github.com/mbostock/d3/wiki/Selections#wiki-enter) and [exit](https://github.com/mbostock/d3/wiki/Selections#wiki-exit) selections. If you need it, [this tutorial by Mike Bostock](http://mbostock.github.io/d3/tutorial/circle.html) includes a good introduction to these.
 
@@ -150,11 +124,15 @@ The only coding conventions unique to tideline are conventions of HTML and CSS I
 
 ### Repository Organization
 
-- `css/` contains the LESS files that compile to tideline's CSS. `tideline.less` provides the styles and depends on `tideline-colors.less` for color variables. This makes it possible to customize tideline's color scheme by defining a different `tideline-colors.less` file.
-- `dev/` contains a few scripts that are useful for development. Namely: a simple Python server which is called by various targets in `Makefile` and a script for filtering a JSON file by the value of a `'type'` key in each object.
-- `example/` contains files that define a minimal implementation of tideline, useful for development. The `make example` target bundles the components necessary for running the example and puts them in `example/dist/`.
-   + **NB:** The JSON data files provided in the `data/` sub-directory constitute fake diabetes data generated with [a Python script](https://github.com/tidepool-org/data-model/tree/master/demo-data) provided in Tidepool's [data-model](https://github.com/tidepool-org/data-model) repository. This Python tool does not yet have a README doc, but it is a fairly simple command-line tool with a `--help` command to get you started should have a need to generate a new demo data file.
-- `img/` contains the images used to plot certain types of diabetes data and is only necessary if you're using tideline for this purpose.
+- `css/` contains the Less files that compile to tideline's CSS. `tideline.less` provides the styles and depends on `tideline-colors.less` for color variables. This makes it possible to customize tideline's color scheme by defining a different `tideline-colors.less` file.
+- `dev/` contains a few tools that are (occasionally) useful for development.
+    + `demodata/` contains a Python script for generating fake data for testing tideline during development. For usage information, run `python demo_data.py --help`.
+    + `schema/` contains tideline's data requirements documented in a [JSON Schema](http://json-schema.org/ 'JSON Schema') along with a Python shell script to validate a given JSON file against the schema. (Run `./validate.py --help` for usage instructions; more information also available on [the schema wiki page](https://github.com/tidepool-org/tideline/wiki/Schema 'Tideline Wiki: Schema').
+    + `templates/` contains two module templates: `plottemplate.js` for a [plot module](https://github.com/tidepool-org/tideline/wiki/CreatingOneDay#plot-modules 'Tideline Wiki: Plot Modules') and `datautil.js` for a data utility analogous to those found in `js/data/`.
+    + `testpage/` is a miniature JavaScript library for generating test data used in the tideline visualization integration tests. In contrast to the demo data generator, the test page data is extremely regular, with no randomization.
+- `example/` contains files that define a minimal implementation of tideline, useful for development.
+    + **NB:** The JSON data file provided in the `data/` sub-directory constitutes fake diabetes data generated with the Python script `demo_data.py` found in `dev/demodata/`.
+- `img/` contains the images used to plot certain types of data (i.e., notes) or form tooltips.
 - `js/` contains the tideline library. At the top level, `oneday.js`, `twoweek.js`, `settings.js`, and `pool.js` are the main components. `tidelinedata.js` defines the data object that the other core components expect to be passed; however, it is usually called from a preprocessing plugin (see `plugins/data/preprocess/`), not from the other core modules. `index.js` exports the entire library, useful for creating a standalone tideline bundle with [browserify](http://browserify.org/).
    + `data/` contains a set of mini-modules for munging and calculating statistics around various types of diabetes data.
      - `util/` contains some common utilities that are used mainly in the `data/` modules, but `datetime.js`, `format.js` (for formatting the output of numerical calculations - that is, rounding and displaying numbers to the proper number of significant digits), and `tidelinecrossfilter.js`, which wraps the most common uses of [Crossfilter](http://square.github.io/crossfilter/ 'Crossfilter') in tideline, are also used outside of `data/`.
@@ -162,12 +140,16 @@ The only coding conventions unique to tideline are conventions of HTML and CSS I
    + `plot/` contains mini-modules for plotting various types of data, mostly diabetes-specific. These mini-modules are called by `pool.js` when rendering data. Most of the data types are self-explanatory (at least to those who have some knowledge of type 1 diabetes), but 'cbg' and 'smbg' may require explanation. 'cbg' stands for **C**ontinuous **B**lood **G**lucose and refers to the readings generated by a [Dexcom](http://www.dexcom.com/ 'Dexcom') or [Medtronic](http://www.medtronicdiabetes.com/treatment-and-products/enlite-sensor 'Medtronic Enlite Continuous Glucose Monitoring') continuous glucose sensor. 'smbg' stands for **S**elf-**M**onitored **B**lood **G**lucose and refers to the readings generated by a traditional home fingerstick blood glucose meter.
       - `stats/` contains a special mini-module for creating a "stats widget" that updates on the fly as the user navigates along the tideline. This is essentially a special type of pool that is hierarchical itself, containing component "puddles," where the relationship between `puddle.js` and `stats.js` is roughly equivalent to the relationship between `pool.js` and the `one-week.js` and `twoweek.js` main components.
      - `util/` contains a couple of small utility modules:
+     	- `annotation.js` and `annotationdefinitions.js` generate data annotations.
+     	- `bgBoundaryClass.js` provides a utility for determining the class (very-low, low, target, high, very-high) of a blood glucose value given the user's (or the default) target range.
         - `fill.js` generates the background fill for each data pool.
+        - `legend.js` defines legend generators for all the pools that require a legend.
         - `scales.js` generates D3 scales for various diabetes data types. The functions in this utility module are at the moment specific to the plotting functions in `plot/`, not generally useful.
+        - `shapes.js` generates SVG shapes for use in other modules such as `annotation.js`.
         - `tooltip.js` is required by many of the plotting functions to generate tooltips upon hover over the plotted datapoint.
-- `plugins/` contains modules that do not belong properly as part of the tideline core. These fall into two categories: application-specific modules and data(-specific) preprocessing modules.
-     - `blip/` contains 'factories' for generating tideline data visualizations in Tidepool's first application [blip](https://github.com/tidepool-org/blip 'blip'). See this repository's [wiki](https://github.com/tidepool-org/tideline/wiki 'tideline wiki') for information on writing tideline chart factories.
-     - `data/` contains two independent utilities for data preprocessing that are specific to the data generated by Tidepool's backend.
+- `plugins/` contains modules that do not properly belong in tideline's core functionality. These fall into two categories: application-specific modules and data(-specific) preprocessing modules.
+     - `blip/` contains 'factories' for generating tideline data visualizations in Tidepool's first application [blip](https://github.com/tidepool-org/blip 'blip'). See this repository's [wiki](https://github.com/tidepool-org/tideline/wiki#using-tideline 'Tideline Wiki') for information on writing tideline chart factories.
+     - `data/` contains two independent utilities for data preprocessing that are specific to the data generated by the Tidepool platform.
 - `test/` contains the tideline test suite. See [Test](#test) for instructions on running the test suite.
 - `web/` contains the [GitHub Pages](http://pages.github.com/ 'GitHub Pages') branch for this repository, which sometimes hosts a gallery for proposed additions or enhancements to the tideline example being developed in `example/`. If you would like to add something to this gallery, feel free to submit your modifications to the files in `example/` (and elsewhere in tideline, if relevant) and open a pull request against `master` (although this is not where your changes will be merged). Please comment in the pull request that your changes are intended as an addition to the gallery. If you are also proposing changes to the tideline library (i.e., outside of `example/`), a separate pull request containing those changes alone is appreciated.
 
@@ -201,6 +183,7 @@ As noted above, tideline *loves* SVG group `<g>` elements. The basic structure o
 | | | | |-<g id='pool[Datatype]_[datatype]'>
 | | |-<g id='tidelineLabels'>
 | | | |-<text id='pool_pool[Datatype]_label'>
+| | | |-<g id='pool_pool[Datatype]_legend_[datatype]'>
 | | |-<g id='tidelineYAxes'>
 | | |-<g id='tidelineScrollNav'>
 | | |-<g id='tidelineAnnotations'>
@@ -222,6 +205,9 @@ And the two-week chart differs only minimally:
 | | |-<g id='tidelineXAxisGroup'>
 | | |-<g id='tidelineYAxisGroup'>
 | | |-<g id='tidelineScrollNav'>
+| | |-<g id='tidelineWeeklyLabels'>
+| | |-<g id='tidelineTooltips'>
+| | |-<g id='tidelineAnnotations'>
 ```
 
 Because SVG has no concept of a [z-index](https://developer.mozilla.org/en-US/docs/Web/CSS/z-index 'CSS z-index'), elements are layered according to the order in which they appear in the SVG XML. One of the reasons tideline makes such liberal use of group elements is to control the layering through the order of the group elements. Thus, the ordering of the groups in the two outlines above is often significant.
