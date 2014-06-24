@@ -133,7 +133,7 @@ function chartDailyFactory(el, options) {
       .id('poolStats', chart.poolGroup())
       .index(chart.pools().indexOf(poolStats))
       .weight(1.0)
-      .gutterWeight(1.0);
+      .gutterWeight(1.2);
 
     chart.arrangePools();
 
