@@ -42,7 +42,7 @@ function chartDailyFactory(el, options) {
   chart.emitter = emitter;
   chart.options = options;
 
-  var poolMessages, poolBG, poolBolus, poolBasal, poolBasalSettings, poolStats;
+  var poolMessages, poolBG, poolBolus, poolBasal, poolStats;
 
   var SMBG_SIZE = 16;
 
@@ -119,14 +119,6 @@ function chartDailyFactory(el, options) {
       .index(chart.pools().indexOf(poolBasal))
       .weight(1.0)
       .gutterWeight(1.0);
-
-    // basal settings pool
-    poolBasalSettings = chart.newPool()
-      .id('poolBasalSettings', chart.poolGroup())
-      .index(chart.pools().indexOf(poolBasal))
-      .weight(1.0)
-      .gutterWeight(0.0)
-      .hidden(chart.options.hiddenPools.basalSettings);
 
     // stats data pool
     poolStats = chart.newPool()
@@ -267,10 +259,6 @@ function chartDailyFactory(el, options) {
       data: tidelineData.grouped['basal-rate-segment']
     }), true, true);
 
-    poolBasalSettings.addPlotType('basal-settings-segment', tideline.plot.basaltab(poolBasalSettings, {
-      data: tidelineData.grouped['basal-settings-segment']
-    }), true, true);
-
     // messages pool
     // add background fill rectangles to messages pool
     poolMessages.addPlotType('fill', fill(poolMessages, {endpoints: chart.endpoints}), true, true);
@@ -352,8 +340,6 @@ function chartDailyFactory(el, options) {
       pool.render(chart.poolGroup(), chart.renderedData());
     });
 
-    chart.drawBasalSettingsButton();
-
     chart.setAtDate(start, atMostRecent);
 
     return chart;
@@ -372,44 +358,6 @@ function chartDailyFactory(el, options) {
 
   chart.closeMessage = function() {
     d3.selectAll('.d3-rect-message').classed('hidden', true);
-  };
-
-  chart.drawBasalSettingsButton = function() {
-    var verticalTranslation = chart.options.hiddenPools.basalSettings ?
-      (poolBasal.yPosition() + poolBasal.height()) : (poolBasal.yPosition() + 2 * poolBasal.height());
-    var fo = d3.select(el).select('#tidelineLabels')
-      .append('foreignObject')
-      .attr({
-        transform: 'translate(' + chart.axisGutter() + ',' + verticalTranslation + ')'
-      });
-
-    var div = fo.append('xhtml:div')
-      .attr('class', 'd3-tabular-ui');
-
-    var icon = div.append('p')
-      .attr({
-        id: 'showHideBasalSettings',
-        title: chart.options.hiddenPools.basalSettings ? 'Click to expand basal settings' : 'Click to hide basal settings'
-      })
-      .html(chart.options.hiddenPools.basalSettings ? '<i class="icon-up"></i>' : '<i class="icon-down"></i>');
-
-    fo.attr({
-      width: icon.select('i')[0][0].getBoundingClientRect().width,
-      height: div[0][0].getBoundingClientRect().height
-    });
-
-    if (chart.options.hiddenPools.basalSettings) {
-      fo.select('#showHideBasalSettings')
-        .on('click', function() {
-          chart.emitter.emit('showBasalSettings');
-        });
-    }
-    else {
-      fo.select('#showHideBasalSettings')
-        .on('click', function() {
-          chart.emitter.emit('hideBasalSettings');
-        });
-    }
   };
 
   chart.type = 'daily';
