@@ -137,13 +137,8 @@ var DailyChart = React.createClass({
     onTransition: React.PropTypes.func.isRequired
   },
   componentDidMount: function() {
-    var that = this;
-    // this is a hack because webpack doesn't apply CSS fast enough
-    // to yield an offsetHeight on the node
-    setTimeout(function() {
-      that.mountChart(that.getDOMNode());
-      that.initializeChart(that.props.patientData, that.props.initialDatetimeLocation);
-    }, 250);
+    this.mountChart(this.getDOMNode());
+    this.initializeChart(this.props.patientData, this.props.initialDatetimeLocation);
   },
   mountChart: function(node, chartOpts) {
     this.log('Mounting...');
