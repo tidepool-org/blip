@@ -266,7 +266,7 @@ gulp.task('before-tests-vendor', function() {
 gulp.task('before-tests-data', function(cb) {
   var data = {};
 
-  gulp.src('data/sample/**/*.json')
+  gulp.src(process.env.MOCK_DATA_DIR + '/**/*.json')
     .pipe(jsonToObject(data))
     .on('end', function() {
       var contents = 'window.data = ';
