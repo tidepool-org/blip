@@ -26,6 +26,9 @@ function SettingsUtil(data, endpoints) {
 
   function getSegmentsForSchedule(opts) {
     var sched = opts.schedule;
+    if (sched.value.length === 0) {
+      return [];
+    }
     var s = opts.start, e = opts.end;
     var starts = [];
     var ratesByStart = {};
@@ -108,8 +111,12 @@ function SettingsUtil(data, endpoints) {
     }
     for (var key in this.segmentsBySchedule) {
       var currentSchedule = this.segmentsBySchedule[key];
+      if (currentSchedule.length === 0) {
+        return;
+      }
       for (var j = 0; j < currentSchedule.length; ++j) {
         var segment = currentSchedule[j];
+        console.log(segment);
         var interval = segment.normalTime + '/' + segment.normalEnd;
         if (actualsByInterval[interval]) {
           var matchedActual = actualsByInterval[interval];
