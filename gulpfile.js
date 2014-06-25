@@ -44,6 +44,15 @@ gulp.task('pack-for-ghpages', function(callback) {
   });
 });
 
+gulp.task('style-for-ghpages', function() {
+  return gulp.src('example/less/example.less')
+    .pipe(less({
+      paths: ['./example/less/', '.']
+    }))
+    .pipe(rename('example.css'))
+    .pipe(gulp.dest('example'));
+});
+
 gulp.task('tideline', function() {
   return gulp.src('js/index.js')
     .pipe(browserify({
@@ -118,5 +127,11 @@ gulp.task('test', function(cb) {
   runSequence(
     ['pack-for-tests', 'browserify-tests'],
     'testem',
+  cb);
+});
+
+gulp.task('ghpages', function(cb) {
+  runSequence(
+    ['pack-for-ghpages', 'style-for-ghpages'],
   cb);
 });
