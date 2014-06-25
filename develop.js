@@ -1,3 +1,6 @@
+/* global rm */
+require('shelljs/global');
+
 var http = require('http');
 var fs = require('fs');
 var path = require('path');
@@ -14,6 +17,8 @@ webpackConfig = _.assign(webpackConfig, {
   devtool: 'inline-source-map'
 });
 var webpackCompiler = webpack(webpackConfig);
+
+rm('-f', 'example/bundle.js');
 
 var app = connect();
 

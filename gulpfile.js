@@ -37,7 +37,11 @@ gulp.task('pack-for-tests', function(callback) {
 });
 
 gulp.task('pack-for-ghpages', function(callback) {
-  webpack(webpackConfig, function(err, stats) {
+  var config = _.clone(webpackConfig);
+  _.assign(config, {
+    entry: './example/ghpages.js'
+  });
+  webpack(config, function(err, stats) {
     if(err) throw new gutil.PluginError('webpack', err);
     gutil.log('[webpack]', stats.toString({}));
     callback();
@@ -45,7 +49,7 @@ gulp.task('pack-for-ghpages', function(callback) {
 });
 
 gulp.task('style-for-ghpages', function() {
-  return gulp.src('example/less/example.less')
+  return gulp.src('example/less/ghpages.less')
     .pipe(less({
       paths: ['./example/less/', '.']
     }))
