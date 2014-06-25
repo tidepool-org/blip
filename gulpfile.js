@@ -36,6 +36,14 @@ gulp.task('pack-for-tests', function(callback) {
     });
 });
 
+gulp.task('pack-for-ghpages', function(callback) {
+  webpack(webpackConfig, function(err, stats) {
+    if(err) throw new gutil.PluginError('webpack', err);
+    gutil.log('[webpack]', stats.toString({}));
+    callback();
+  });
+});
+
 gulp.task('tideline', function() {
   return gulp.src('js/index.js')
     .pipe(browserify({
