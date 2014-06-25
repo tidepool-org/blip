@@ -39,6 +39,18 @@ function requireProperty(objectName, obj, property) {
   return value;
 }
 
+function checkProperties(objectName, obj, properties) {
+  var messages = [];
+
+  properties.forEach(function(prop){
+    var value = obj[prop];
+    if (value == null) {
+      messages.push('Property [' + prop + '] required on ' + objectName);
+    }
+  });
+  return _.isEmpty(messages) : null ? messages;
+}
+
 var requireConfig = requireProperty.bind(null, 'config');
 var requireDep = requireProperty.bind(null, 'deps');
 
@@ -788,24 +800,27 @@ module.exports = function (config, deps) {
     /**
      * Start a new message thread
      *
-     * @param {String} messageId of the message
      * @param {Object} edits for an existing message
+     * @param {String} edits.id of the message to edit
      * @param {String} edits.messagetext [messagetext=''] updated text
      * @param {String} edits.timestamp [timestamp=''] updated timestamp
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    editMessage: function (messageId, edits, cb) {
-      assertArgumentsSize(arguments, 3);
+    editMessage: function (edits, cb) {
+      assertArgumentsSize(arguments, 2);
 
+      if( _.isEmpty(edits.id) ){
+        return({ message:'You must specify the edits.id'});
+      }
       if( _.isEmpty(edits.timestamp) && _.isEmpty(edits.messagetext) ){
-        return cb({ message: 'You must specify one or both of edits.messagetext, edits.timestamp'});
+          return cb({ message: 'You must specify one or both of edits.messagetext, edits.timestamp'});
       }
 
       doPutWithToken(
-        '/message/edit/' + messageId,
+        '/message/edit/' + edits.id,
         {message: edits},
-        { 200: function(res){ return res.body.message; }},
+        { 200: function(res){ return; }},
         cb
       );
     }
