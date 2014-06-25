@@ -39,18 +39,6 @@ function requireProperty(objectName, obj, property) {
   return value;
 }
 
-function checkProperties(objectName, obj, properties) {
-  var messages = [];
-
-  properties.forEach(function(prop){
-    var value = obj[prop];
-    if (value == null) {
-      messages.push('Property [' + prop + '] required on ' + objectName);
-    }
-  });
-  return _.isEmpty(messages) : null ? messages;
-}
-
 var requireConfig = requireProperty.bind(null, 'config');
 var requireDep = requireProperty.bind(null, 'deps');
 
@@ -820,7 +808,6 @@ module.exports = function (config, deps) {
       doPutWithToken(
         '/message/edit/' + edits.id,
         {message: edits},
-        { 200: function(res){ return; }},
         cb
       );
     }
