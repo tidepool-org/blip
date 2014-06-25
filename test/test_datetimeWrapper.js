@@ -65,6 +65,9 @@ describe('Tidepool Dates', function() {
       });
     });
     describe('getUtcString', function() {
+      /*
+       * http://en.wikipedia.org/wiki/Iso8601#Time_offsets_from_UTC
+       */
       it('returns a string',function(done){
 
         var utcString = datetimeWrapper.utcDateString();
