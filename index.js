@@ -77,7 +77,7 @@ module.exports = function (config, deps) {
    */
   function handleHttpError(res, cb) {
     var err = {status: res.status, body: res.body};
-    cb(err);
+    return cb(err);
   }
 
   /**
@@ -101,7 +101,7 @@ module.exports = function (config, deps) {
           return handleHttpError(res, cb);
         }
 
-        cb(null, {userid: userId, token: res.headers[sessionTokenHeader]});
+        return cb(null, {userid: userId, token: res.headers[sessionTokenHeader]});
       });
   }
 
@@ -205,7 +205,18 @@ module.exports = function (config, deps) {
     }
   }
 
+  /*
+   * do a GET with the stored token
+   *
+   * @param path path to resource
+   * @param codes (optional) defaults to { 200: function(res){ return res.body; }}
+   *  e.g. { 200: function(res){ return res.body.messages; } }
+   * @param cb
+   * @returns {cb}  cb(err, response)
+   */
   function doGetWithToken(path, codes, cb) {
+    //if the cb is not defined and the codes param is a function then set that 
+    //to be the cb
     if (cb == null && typeof(codes) === 'function') {
       cb = codes;
       codes = {
@@ -216,6 +227,91 @@ module.exports = function (config, deps) {
     return withToken(cb, function(token) {
       superagent
         .get(makeUrl(path))
+        .set(sessionTokenHeader, token)
+        .end(
+        function (err, res) {
+          if (err != null) {
+            return cb(err);
+          }
+
+          if (_.has(codes, res.status)) {
+            var handler = codes[res.status];
+            if (typeof(handler) === 'function') {
+              return cb(null, handler(res));
+            } else {
+              return cb(null, handler);
+            }
+          }
+
+          return handleHttpError(res, cb);
+        });
+    });
+  }
+
+  /*
+   * do a POST with the stored token
+   *
+   * @param path path to resource
+   * @param data to send
+   * @param codes (optional) defaults to { 200: function(res){ return res.body; }}
+   *  e.g. { 201: function(res){ return res.body.id; } }
+   * @param cb
+   * @returns {cb}  cb(err, response)
+   */
+  function doPostWithToken(path, data, codes, cb) {
+    if (cb == null && typeof(codes) === 'function') {
+      cb = codes;
+      codes = {
+        200: function(res) { return res.body; }
+      };
+    }
+
+    return withToken(cb, function(token) {
+      superagent
+        .post(makeUrl(path))
+        .send(data)
+        .set(sessionTokenHeader, token)
+        .end(
+        function (err, res) {
+          if (err != null) {
+            return cb(err);
+          }
+
+          if (_.has(codes, res.status)) {
+            var handler = codes[res.status];
+            if (typeof(handler) === 'function') {
+              return cb(null, handler(res));
+            } else {
+              return cb(null, handler);
+            }
+          }
+
+          return handleHttpError(res, cb);
+        });
+    });
+  }
+
+  /*
+   * do a PUT with the stored token
+   *
+   * @param path path to resource
+   * @param data to send
+   * @param codes (optional) defaults to { 200: function(res){ return res.body; }}
+   * @param cb
+   * @returns {cb}  cb(err, response)
+   */
+  function doPutWithToken(path, data, codes, cb) {
+    if (cb == null && typeof(codes) === 'function') {
+      cb = codes;
+      codes = {
+        200: function(res) { return res.body; }
+      };
+    }
+
+    return withToken(cb, function(token) {
+      superagent
+        .put(makeUrl(path))
+        .send(data)
         .set(sessionTokenHeader, token)
         .end(
         function (err, res) {
@@ -291,8 +387,7 @@ module.exports = function (config, deps) {
           var theToken = res.headers[sessionTokenHeader];
 
           saveSession(theUserId, theToken, options);
-
-          cb(null, {userid: theUserId, user: res.body});
+          return cb(null,{userid: theUserId, user: res.body});
         });
     },
     /**
@@ -327,18 +422,13 @@ module.exports = function (config, deps) {
           if (err != null) {
             return cb(err);
           }
-
-          if (res.status !== 201) {
-            return handleHttpError(res, cb);
-          }
-
           var theUserId = res.body.userid;
           var theToken = res.headers[sessionTokenHeader];
 
           saveSession(theUserId, theToken, options);
-
-          cb(null, res.body);
+          return cb(null,res.body);
         });
+
     },
     /**
      * Logout user
@@ -352,26 +442,16 @@ module.exports = function (config, deps) {
         setTimeout(function(){ cb(null, {}); }, 0);
       }
 
-      withToken(
-        cb,
-        function(token) {
-          superagent
-            .post(makeUrl('/auth/logout'))
-            .set(sessionTokenHeader, token)
-            .end(
-            function (err, res) {
-              if (err != null) {
-                return cb(err);
-              }
+      var onSuccess=function(res){
+        saveSession(null, null);
+        return res.body;
+      };
 
-              if (res.status !== 200) {
-                return handleHttpError(res, cb);
-              }
-
-              destroySession();
-              cb(null, res.body);
-            });
-        }
+      doPostWithToken(
+        '/auth/logout',
+        {},
+        {200: onSuccess},
+        cb
       );
     },
     /**
@@ -498,27 +578,7 @@ module.exports = function (config, deps) {
         updates: _.pick(user, 'username', 'password', 'emails')
       };
 
-      withToken(
-        cb,
-        function(token){
-          superagent
-            .put(makeUrl('/auth/user'))
-            .set(sessionTokenHeader, token)
-            .send(updateData)
-            .end(
-            function (err, res) {
-              if (err != null) {
-                cb(err);
-              }
-
-              if (res.status !== 200) {
-                return handleHttpError(res, cb);
-              }
-
-              cb(null, res.body);
-            });
-        }
-      );
+      doPutWithToken('/auth/user', updateData, cb);
     },
     /**
      * Add a new or update an existing profile for a user
@@ -535,26 +595,10 @@ module.exports = function (config, deps) {
 
       var userProfile = _.omit(user, 'id', 'username', 'password', 'emails');
 
-      withToken(
-        cb,
-        function(token) {
-          superagent
-            .put(makeUrl('/metadata/' + user.id + '/profile'))
-            .set(sessionTokenHeader, token)
-            .send(userProfile)
-            .end(
-            function (err, res) {
-              if (err != null) {
-                return cb(err);
-              }
-
-              if (res.status !== 200) {
-                return handleHttpError(res, cb);
-              }
-
-              cb(null, res.body);
-            });
-        }
+      doPutWithToken(
+        '/metadata/' + user.id + '/profile',
+        userProfile,
+        cb
       );
     },
     /**
@@ -585,7 +629,11 @@ module.exports = function (config, deps) {
       }
       assertArgumentsSize(arguments, 2);
 
-      doGetWithToken('/access/' + userId, {200: function(res){ return res.body; }, 404: null}, cb);
+      doGetWithToken(
+        '/access/' + userId,
+        {200: function(res){ return res.body; }, 404: null},
+        cb
+      );
     },
     /**
      * Get the users 'patients'
@@ -600,7 +648,11 @@ module.exports = function (config, deps) {
       }
       assertArgumentsSize(arguments, 2);
 
-      doGetWithToken('/access/groups/' + userId, { 200: function(res){ return res.body; }, 404: null }, cb);
+      doGetWithToken(
+        '/access/groups/' + userId,
+        { 200: function(res){ return res.body; }, 404: null },
+        cb
+      );
     },
     /**
      * Sets the access permissions for a specific user on the group for the currently logged in user
@@ -614,26 +666,10 @@ module.exports = function (config, deps) {
         return cb({ message: 'Must specify a userId'});
       }
 
-      withToken(
-        cb,
-        function(token) {
-          superagent
-            .post(makeUrl('/access/' + getUserId() + '/' + userId))
-            .set(sessionTokenHeader, token)
-            .send(permissions)
-            .end(
-            function (err, res) {
-              if (err != null) {
-                return cb(err);
-              }
-
-              if (res.status !== 200) {
-                return handleHttpError(res, cb);
-              }
-
-              cb(null, res.body);
-            });
-        }
+      doPostWithToken(
+        '/access/' + getUserId() + '/' + userId,
+        permissions,
+        cb
       );
     },
     /**
@@ -651,7 +687,11 @@ module.exports = function (config, deps) {
 
       var idList = _(patientIds).uniq().join(',');
 
-      doGetWithToken('/metadata/publicinfo?users=' + idList, { 200: function(res){ return res.body; }, 404: null }, cb);
+      doGetWithToken(
+        '/metadata/publicinfo?users=' + idList,
+        { 200: function(res){ return res.body; }, 404: null },
+        cb
+      );
     },
     /**
      * Get raw device data for the user
@@ -663,7 +703,11 @@ module.exports = function (config, deps) {
     getDeviceDataForUser: function (userId, cb) {
       assertArgumentsSize(arguments, 2);
 
-      doGetWithToken('/data/' + userId, { 200: function(res){ return res.body; }, 404: [] }, cb);
+      doGetWithToken(
+        '/data/' + userId,
+        { 200: function(res){ return res.body; }, 404: [] },
+        cb
+      );
     },
     /**
      * Get messages for a team between the given dates
@@ -683,9 +727,9 @@ module.exports = function (config, deps) {
       var end = options.end || '';
 
       doGetWithToken(
-          '/message/all/' + userId + '?starttime=' + start + '&endtime=' + end,
-          { 200: function(res){ return res.body.messages; }, 404: [] },
-          cb
+        '/message/all/' + userId + '?starttime=' + start + '&endtime=' + end,
+        { 200: function(res){ return res.body.messages; }, 404: [] },
+        cb
       );
     },
     /**
@@ -706,9 +750,9 @@ module.exports = function (config, deps) {
       var end = options.end || '';
 
       doGetWithToken(
-          '/message/notes/' + userId + '?starttime=' + start + '&endtime=' + end,
-          { 200: function(res){ return res.body.messages; }, 404: [] },
-          cb
+        '/message/notes/' + userId + '?starttime=' + start + '&endtime=' + end,
+        { 200: function(res){ return res.body.messages; }, 404: [] },
+        cb
       );
     },
     /**
@@ -726,26 +770,11 @@ module.exports = function (config, deps) {
     replyToMessageThread: function (comment, cb) {
       assertArgumentsSize(arguments, 2);
 
-      withToken(
-        cb,
-        function(token) {
-          superagent
-            .post(makeUrl('/message/reply/' + comment.parentmessage))
-            .set(sessionTokenHeader, token)
-            .send({message: comment})
-            .end(
-            function (err, res) {
-              if (err != null) {
-                return cb(err, null);
-              }
-
-              if (res.status !== 201) {
-                return handleHttpError(res, cb);
-              }
-
-              cb(null, res.body.id);
-            });
-        }
+      doPostWithToken(
+        '/message/reply/' + comment.parentmessage,
+        {message: comment},
+        { 201: function(res){ return res.body.id; }},
+        cb
       );
     },
     /**
@@ -762,27 +791,13 @@ module.exports = function (config, deps) {
     startMessageThread: function (message, cb) {
       assertArgumentsSize(arguments, 2);
 
-      withToken(
-        cb,
-        function(token) {
-          superagent
-            .post(makeUrl('/message/send/' + message.groupid))
-            .set(sessionTokenHeader, token)
-            .send({message: message})
-            .end(
-            function (err, res) {
-              if (err != null) {
-                return cb(err, null);
-              }
-
-              if (res.status !== 201) {
-                return handleHttpError(res, cb);
-              }
-
-              cb(null, res.body.id);
-            });
-        }
+      doPostWithToken(
+        '/message/send/' + message.groupid,
+        { message: message },
+        { 201: function(res){ return res.body.id; }},
+        cb
       );
+
     },
     /**
      * Get a specific message thread
@@ -795,9 +810,35 @@ module.exports = function (config, deps) {
       assertArgumentsSize(arguments, 2);
 
       doGetWithToken(
-          '/message/thread/' + messageId,
-          { 200: function(res){ return res.body.messages; }, 404: [] },
-          cb
+        '/message/thread/' + messageId,
+        { 200: function(res){ return res.body.messages; }, 404: [] },
+        cb
+      );
+    },
+    /**
+     * Edit an existing message
+     *
+     * @param {Object} edits for an existing message
+     * @param {String} edits.id of the message to edit
+     * @param {String} edits.messagetext [messagetext=''] updated text
+     * @param {String} edits.timestamp [timestamp=''] updated timestamp
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    editMessage: function (edits, cb) {
+      assertArgumentsSize(arguments, 2);
+
+      if( _.isEmpty(edits.id) ){
+        return cb({ message:'You must specify the edits.id'});
+      }
+      if( _.isEmpty(edits.timestamp) && _.isEmpty(edits.messagetext) ){
+        return cb({ message: 'You must specify one or both of edits.messagetext, edits.timestamp'});
+      }
+
+      doPutWithToken(
+        '/message/edit/' + edits.id,
+        {message: edits},
+        cb
       );
     }
   };
