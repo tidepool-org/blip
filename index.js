@@ -205,7 +205,18 @@ module.exports = function (config, deps) {
     }
   }
 
+  /*
+   * do a GET with the stored token
+   *
+   * @param path path to resource
+   * @param codes (optional) defaults to { 200: function(res){ return res.body; }}
+   *  e.g. { 200: function(res){ return res.body.messages; } }
+   * @param cb
+   * @returns {cb}  cb(err, response)
+   */
   function doGetWithToken(path, codes, cb) {
+    //if the cb is not defined and the codes param is a function then set that 
+    //to be the cb
     if (cb == null && typeof(codes) === 'function') {
       cb = codes;
       codes = {
@@ -237,6 +248,16 @@ module.exports = function (config, deps) {
     });
   }
 
+  /*
+   * do a POST with the stored token
+   *
+   * @param path path to resource
+   * @param data to send
+   * @param codes (optional) defaults to { 200: function(res){ return res.body; }}
+   *  e.g. { 201: function(res){ return res.body.id; } }
+   * @param cb
+   * @returns {cb}  cb(err, response)
+   */
   function doPostWithToken(path, data, codes, cb) {
     if (cb == null && typeof(codes) === 'function') {
       cb = codes;
@@ -270,6 +291,15 @@ module.exports = function (config, deps) {
     });
   }
 
+  /*
+   * do a PUT with the stored token
+   *
+   * @param path path to resource
+   * @param data to send
+   * @param codes (optional) defaults to { 200: function(res){ return res.body; }}
+   * @param cb
+   * @returns {cb}  cb(err, response)
+   */
   function doPutWithToken(path, data, codes, cb) {
     if (cb == null && typeof(codes) === 'function') {
       cb = codes;
