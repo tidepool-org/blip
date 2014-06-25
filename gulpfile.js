@@ -81,11 +81,12 @@ gulp.task('scripts-browserify', function() {
       // Don't bundle Tidepool platform or Tideline dependencies
       // (will be grabbed from global `window` object instead)
       ignore: [
-        'lodash',
         'async',
-        'superagent',
+        'crossfilter',
+        'd3',
         'duration-js',
-        'crossfilter'
+        'lodash',
+        'superagent'
       ]
     }))
     .pipe(concat('app.js'))
