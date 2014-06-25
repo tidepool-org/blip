@@ -144,6 +144,42 @@ describe('Tidepool Dates', function() {
       });
 
     });
+    describe('formatForStorage', function() {
+      var basicTimestamp = '2014-10-03T13:23';
+      var offsetMins = 780;
+
+      it('returns a string',function(done){
+
+        var utcString = datetimeWrapper.formatForStorage(basicTimestamp,offsetMins);
+        expect(utcString).is.a.String;
+        done();
+      });
+
+      it('returns a valid date',function(done){
+
+        var utcString = datetimeWrapper.formatForStorage(basicTimestamp,offsetMins);
+        expect(testMoment(utcString).isValid()).is.true;
+
+        done();
+      });
+      it('has the offset from UTC',function(done){
+
+        var utcString = datetimeWrapper.formatForStorage(basicTimestamp,offsetMins);
+        var offsetFromTimestap = testMoment.parseZone(utcString).zone();
+        expect(offsetFromTimestap).to.equal(offsetMins);
+
+        done();
+      });
+      it('does not contain the `Z` designator for the zero UTC offset',function(done){
+
+        var utcString = datetimeWrapper.utcDateString();
+
+        expect(utcString).to.not.contain('Z');
+        expect(utcString).to.not.contain('z');
+
+        done();
+      });
+    });
 
   });
 });
