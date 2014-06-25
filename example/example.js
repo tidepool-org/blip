@@ -22,6 +22,7 @@ var Example = React.createClass({
       chartPrefs: {
         bgUnits: 'mg/dL'
       },
+      imagesBaseUrl: 'img',
       chartType: 'daily'
     };
   },
@@ -46,6 +47,7 @@ var Example = React.createClass({
           <Daily 
             patientData={this.state.chartData}
             chartPrefs={this.state.chartPrefs}
+            imagesBaseUrl={this.state.imagesBaseUrl}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
             switchToDaily={this.handleSwitchToDaily}
             switchToSettings={this.handleSwitchToSettings}
@@ -58,6 +60,7 @@ var Example = React.createClass({
           <Weekly 
             patientData={this.state.chartData}
             chartPrefs={this.state.chartPrefs}
+            imagesBaseUrl={this.state.imagesBaseUrl}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
             switchToDaily={this.handleSwitchToDaily}
             switchToSettings={this.handleSwitchToSettings}

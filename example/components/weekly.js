@@ -22,6 +22,7 @@ var TwoWeeks = React.createClass({
   propTypes: {
     patientData: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
+    imagesBaseUrl: React.PropTypes.string.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     switchToDaily: React.PropTypes.func.isRequired,
     switchToSettings: React.PropTypes.func.isRequired,
@@ -48,6 +49,7 @@ var TwoWeeks = React.createClass({
         <div id="tidelineOuterContainer">
           <WeeklyChart
             bgUnits={this.props.chartPrefs.bgUnits}
+            imagesBaseUrl={this.props.imagesBaseUrl}
             initialDatetimeLocation={this.props.initialDatetimeLocation}
             patientData={this.props.patientData}
             // handlers
@@ -118,6 +120,7 @@ var WeeklyChart = React.createClass({
   log: bows('Weekly Chart'),
   propTypes: {
     bgUnits: React.PropTypes.string.isRequired,
+    imagesBaseUrl: React.PropTypes.string.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
     // handlers
@@ -136,7 +139,7 @@ var WeeklyChart = React.createClass({
   },
   mountChart: function(node, chartOpts) {
     this.log('Mounting...');
-    chartOpts = chartOpts || {imagesBaseUrl: '../../img'};
+    chartOpts = chartOpts || {imagesBaseUrl: this.props.imagesBaseUrl};
     this.chart = chartWeeklyFactory(node, _.assign(chartOpts, _.pick(this.props, this.chartOpts)));
     this.bindEvents();
   },
