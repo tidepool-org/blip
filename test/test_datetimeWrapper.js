@@ -88,8 +88,7 @@ describe('Tidepool Dates', function() {
 
         var zoneOfTestRun = testMoment().zone();
         var offsetFromTimestap = testMoment.parseZone(utcString).zone();
-
-        expect(offsetFromTimestap).to.not.equal(0);
+        //may be zero as some of the test run services are configured as if they are in UTC
         expect(offsetFromTimestap).to.equal(zoneOfTestRun);
 
         done();
@@ -126,19 +125,20 @@ describe('Tidepool Dates', function() {
     describe('formatForDisplay', function() {
       it('returns a string formated as specified',function(done){
 
-        var isoDateString = '2013-05-09T00:00:00-13:00';
+        var isoDateString = '2013-05-09T00:00:00-00:00';
 
         var formatedString = datetimeWrapper.formatForDisplay(isoDateString,'YYYY/MM/DD HH:mm');
-        expect(formatedString).to.equal('2013/05/10 01:00');
+        expect(formatedString).to.equal('2013/05/09 12:00');
         done();
       });
 
       it('returns a string formated as MMMM D [at] h:mm a',function(done){
 
-        var isoDateString = '2013-05-09T00:00:00-13:00';
+        var isoDateString = '2013-05-09T00:00:00-00:00';
 
         var formatedString = datetimeWrapper.formatForDisplay(isoDateString);
-        expect(formatedString).to.equal('May 10 at 1:00 am');
+
+        expect(formatedString).to.equal('May 9 at 12:00 pm');
         done();
       });
 
