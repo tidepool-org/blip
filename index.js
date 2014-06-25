@@ -786,7 +786,7 @@ module.exports = function (config, deps) {
       );
     },
     /**
-     * Start a new message thread
+     * Edit an existing message
      *
      * @param {Object} edits for an existing message
      * @param {String} edits.id of the message to edit
