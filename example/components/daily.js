@@ -18,6 +18,7 @@ var Daily = React.createClass({
   propTypes: {
     patientData: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
+    imagesBaseUrl: React.PropTypes.string.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     switchToDaily: React.PropTypes.func.isRequired,
     switchToSettings: React.PropTypes.func.isRequired,
@@ -47,6 +48,7 @@ var Daily = React.createClass({
           <DailyChart
             bgUnits={this.props.chartPrefs.bgUnits}
             hiddenPools={this.state.hiddenPools}
+            imagesBaseUrl={this.props.imagesBaseUrl}
             initialDatetimeLocation={this.props.initialDatetimeLocation}
             patientData={this.props.patientData}
             // handlers
@@ -87,7 +89,7 @@ var Daily = React.createClass({
         basalSettings: true
       }
     });
-    var chartOpts = {imagesBaseUrl: '../../img'};
+    var chartOpts = {imagesBaseUrl: this.props.imagesBaseUrl};
     _.assign(chartOpts, this.state, this.props.chartPrefs);
     var chart = this.refs.chart;
     chart.unmountChart();
@@ -112,7 +114,7 @@ var Daily = React.createClass({
         basalSettings: false
       }
     });
-    var chartOpts = {imagesBaseUrl: '../../img'};
+    var chartOpts = {imagesBaseUrl: this.props.imagesBaseUrl};
     _.assign(chartOpts, this.state, this.props.chartPrefs);
     var chart = this.refs.chart;
     chart.unmountChart();
@@ -127,6 +129,7 @@ var DailyChart = React.createClass({
   propTypes: {
     bgUnits: React.PropTypes.string.isRequired,
     hiddenPools: React.PropTypes.object.isRequired,
+    imagesBaseUrl: React.PropTypes.string.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
     // handlers
@@ -142,7 +145,7 @@ var DailyChart = React.createClass({
   },
   mountChart: function(node, chartOpts) {
     this.log('Mounting...');
-    chartOpts = chartOpts || {imagesBaseUrl: '../../img'};
+    chartOpts = chartOpts || {imagesBaseUrl: this.props.imagesBaseUrl};
     this.chart = chartDailyFactory(node, _.assign(chartOpts, _.pick(this.props, this.chartOpts)))
       .setupPools();
     this.bindEvents();
