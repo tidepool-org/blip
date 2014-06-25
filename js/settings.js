@@ -45,7 +45,6 @@ module.exports = function(emitter, opts) {
     },
     'rowHeadersByType': {
       'basalSchedules': ['Start time', 'Value (U/hr)'],
-      // TODO:
       'basalScheduleSum': ['Total', (function() { return 0.0; }())],
       'carbRatio': ['Start time', 'Value (g/U)'],
       'insulinSensitivity': ['Start time', 'Value (' + opts.bgUnits + '/U)'],
@@ -112,7 +111,6 @@ module.exports = function(emitter, opts) {
       var basalSchedules = container.currentSettings().basalSchedules;
       var scheduleLabels = _.pluck(basalSchedules, 'name');
       var scheduleLabelsToKeep = [];
-      log(scheduleLabels);
       // remove any basal schedules that are just an empty array
       for (var k = 0; k < scheduleLabels.length; k++) {
         if (_.findWhere(basalSchedules, {'name': scheduleLabels[k]}).value.length !== 0) {
@@ -172,7 +170,6 @@ module.exports = function(emitter, opts) {
       });
     if (datatype === 'basal') {
       var sum = ['Total', basalUtil.scheduleTotal(data).toFixed(3)];
-      log(data);
       table.append('tr')
         .selectAll('th')
         .data(sum)
@@ -290,6 +287,12 @@ module.exports = function(emitter, opts) {
 
   container.clear = function() {
     mainDiv.selectAll('div').remove();
+
+    return container;
+  };
+
+  container.destroy = function() {
+    mainDiv.remove();
 
     return container;
   };

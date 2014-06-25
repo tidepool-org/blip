@@ -16,7 +16,7 @@
  */
 
 var tideline = window.tideline;
-var watson = tideline.watson;
+var watson = tideline.watson = require('../watson');
 var _ = tideline.lib._;
 var TidelineData = tideline.TidelineData;
 var SegmentUtil = tideline.data.SegmentUtil;
@@ -107,7 +107,7 @@ var TYPES_TO_INCLUDE = {
   settings: notZero
 };
 
-var Preprocess = {
+var preprocess = {
 
   REQUIRED_TYPES: ['basal-rate-segment', 'bolus', 'carbs', 'cbg', 'message', 'smbg', 'settings'],
 
@@ -300,11 +300,12 @@ var Preprocess = {
       if (d.type === 'settings') {
         schedules = this.basalSchedulesToArray(d.basalSchedules);
         if (d.source === 'carelink') {
-          for (var i = 0; i < schedules.length; i++) {
-            if (schedules[i].name === 'standard') {
+          for (var i = 0; i < schedules.length; ++i) {
+            if (schedules[i].name.toLowerCase() === 'standard') {
               var standard = schedules[i];
               var index = schedules.indexOf(standard);
               schedules.splice(index, 1);
+              schedules = _.sortBy(schedules, function(d) { return d.name; });
               schedules.unshift(standard);
               break;
             }
@@ -339,4 +340,4 @@ var Preprocess = {
   }
 };
 
-module.exports = Preprocess;
+module.exports = preprocess;

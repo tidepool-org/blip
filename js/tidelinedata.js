@@ -16,10 +16,14 @@
  */
 
 var _ = require('./lib/')._;
+var d3 = require('./lib/').d3;
+
 var TidelineCrossFilter = require('./data/util/tidelinecrossfilter');
 var BasalUtil = require('./data/basalutil');
 var BolusUtil = require('./data/bolusutil');
 var BGUtil = require('./data/bgutil');
+var SettingsUtil = require('./data/settingsutil');
+var dt = require('./data/util/datetime');
 
 var log = require('./lib/').bows('TidelineData');
 
@@ -28,12 +32,34 @@ function TidelineData(data, opts) {
   opts = opts || {};
 
   var defaults = {
-    'CBG_PERCENT_FOR_ENOUGH': 0.75,
-    'CBG_MAX_DAILY': 288,
-    'SMBG_DAILY_MIN': 4
+    CBG_PERCENT_FOR_ENOUGH: 0.75,
+    CBG_MAX_DAILY: 288,
+    SMBG_DAILY_MIN: 4,
+    fillOpts: {
+      classes: {
+        0: 'darkest',
+        3: 'dark',
+        6: 'lighter',
+        9: 'light',
+        12: 'lightest',
+        15: 'lighter',
+        18: 'dark',
+        21: 'darker'
+      },
+      duration: 3
+    },
+    diabetesDataTypes: [
+      'smbg',
+      'carbs',
+      'bolus',
+      'cbg',
+      'settings',
+      'basal-rate-segment'
+    ]
   };
 
   _.defaults(opts, defaults);
+  var that = this;
 
   function addAndResort(datum, a) {
     return _.sortBy((function() {
@@ -42,28 +68,133 @@ function TidelineData(data, opts) {
     }()), function(d) { return d.normalTime; });
   }
 
-  this.createCrossFilter = function(data) {
-    this.filterData = new TidelineCrossFilter(data);
-    this.dataByDate = this.filterData.addDimension('date');
+  function updateCrossFilters(data, types) {
+    that.filterData = new TidelineCrossFilter(data);
+    that.dataByDate = that.createCrossFilter('date');
+    that.dataByType = that.createCrossFilter('datatype');
+  }
+
+  this.createCrossFilter = function(dim) {
+    return this.filterData.addDimension(dim);
   };
 
   this.addDatum = function(datum) {
     this.grouped[datum.type] = addAndResort(datum, this.grouped[datum.type]);
     this.data = addAndResort(datum, this.data);
-    this.createCrossFilter(this.data);
+    updateCrossFilters(this.data);
     return this;
   };
 
-  this.data = data;
+  function fillDataFromInterval(first, last) {
+    var data = [];
+    var points = d3.time.hour.utc.range(first, last, opts.fillOpts.duration);
+    for (var i = 0; i < points.length; ++i) {
+      if (i !== points.length - 1) {
+        data.push({
+          fillColor: opts.fillOpts.classes[points[i].getUTCHours()],
+          id: 'fill_' + points[i].toISOString().replace(/[^\w\s]|_/g, ''),
+          normalEnd: points[i + 1].toISOString(),
+          normalTime: points[i].toISOString(),
+          type: 'fill'
+        });
+      }
+    }
+    return data;
+  }
 
-  this.createCrossFilter(data);
+  this.generateFillData = function() {
+    var lastDatum = data[data.length - 1];
+    // the fill should extend past the *end* of a segment (i.e. of basal data)
+    // if that's the last datum in the data
+    var lastTimestamp = lastDatum.normalEnd || lastDatum.normalTime;
+    var first = new Date(data[0].normalTime), last = new Date(lastTimestamp);
+    // make sure we encapsulate the domain completely by padding the start and end with twice the duration
+    first.setUTCHours(first.getUTCHours() - first.getUTCHours() % opts.fillOpts.duration - (opts.fillOpts.duration * 2));
+    last.setUTCHours(last.getUTCHours() + last.getUTCHours() % opts.fillOpts.duration + (opts.fillOpts.duration * 2));
+    this.grouped.fill = fillDataFromInterval(first, last);
+    return this;
+  };
+
+  // two-week view requires background fill rectangles from midnight to midnight
+  // for each day from the first through last days where smbg exists at all
+  this.adjustFillsForTwoWeekView = function() {
+    var smbgData = this.grouped.smbg, fillData = this.grouped.fill;
+    var firstSmbg = smbgData[0].normalTime, lastSmbg = smbgData[smbgData.length - 1].normalTime;
+    var startOfTwoWeekFill = dt.getMidnight(firstSmbg), endOfTwoWeekFill = dt.getMidnight(lastSmbg, true);
+    var startOfFill = fillData[0].normalEnd, endOfFill = fillData[fillData.length - 1].normalEnd;
+    this.twoWeekData = this.grouped.smbg;
+    var twoWeekFills = [];
+    for (var i = 0; i < this.grouped.fill.length; ++i) {
+      var d = this.grouped.fill[i];
+      if (d.normalTime >= startOfFill || d.normalTime <= endOfFill) {
+        twoWeekFills.push(d);
+      }
+    }
+
+    // first, fill in two week fills where potentially missing at the end of data domain
+    if (endOfTwoWeekFill > endOfFill) {
+      var end = new Date(endOfTwoWeekFill);
+      // intervals are exclusive of endpoint, so
+      // to get last segment, need to extend endpoint out +1
+      end.setUTCHours(end.getUTCHours() + 3);
+      twoWeekFills = twoWeekFills.concat(
+        fillDataFromInterval(new Date(endOfFill),end)
+      );
+    }
+    else {
+      // filter out any fills from two week fills that go beyond extent of smbg data
+      twoWeekFills = _.reject(twoWeekFills, function(d) {
+        return d.normalTime >= endOfTwoWeekFill;
+      });
+    }
+
+    // similarly, fill in two week fills where potentially missing at the beginning of data domain
+    if (startOfTwoWeekFill < startOfFill) {
+      twoWeekFills = twoWeekFills.concat(
+        fillDataFromInterval(new Date(startOfTwoWeekFill), new Date(startOfFill))
+      );
+    }
+    else {
+      // filter out any fills from two week fills that go beyond extent of smbg data
+      twoWeekFills = _.reject(twoWeekFills, function(d) {
+        return d.normalTime < startOfTwoWeekFill;
+      });
+    }
+
+    this.twoWeekData = _.sortBy(this.twoWeekData.concat(twoWeekFills), function(d) {
+      return d.normalTime;
+    });
+  };
 
   this.grouped = _.groupBy(data, function(d) { return d.type; });
 
+  this.diabetesData = _.sortBy(_.flatten([].concat(_.map(opts.diabetesDataTypes, function(type) {
+    return this.grouped[type] || [];
+  }, this))), function(d) {
+    return d.normalTime;
+  });
+
   this.basalUtil = new BasalUtil(this.grouped['basal-rate-segment']);
   this.bolusUtil = new BolusUtil(this.grouped.bolus);
-  this.cbgUtil = new BGUtil(this.grouped.cbg, {'DAILY_MIN': (opts.CBG_PERCENT_FOR_ENOUGH * opts.CBG_MAX_DAILY)});
-  this.smbgUtil = new BGUtil(this.grouped.smbg, {'DAILY_MIN': opts.SMBG_DAILY_MIN});
+  this.cbgUtil = new BGUtil(this.grouped.cbg, {DAILY_MIN: (opts.CBG_PERCENT_FOR_ENOUGH * opts.CBG_MAX_DAILY)});
+  
+  this.settingsUtil = new SettingsUtil(this.grouped.settings || [], [this.diabetesData[0].normalTime, this.diabetesData[this.diabetesData.length - 1].normalTime]);
+  this.settingsUtil.getAllSchedules(this.settingsUtil.endpoints[0], this.settingsUtil.endpoints[1]);
+  var segmentsBySchedule = this.settingsUtil.annotateBasalSettings(this.basalUtil.actual);
+  this.grouped['basal-settings-segment'] = [];
+  for (var key in segmentsBySchedule) {
+    this.grouped['basal-settings-segment'] = this.grouped['basal-settings-segment'].concat(segmentsBySchedule[key]);
+  }
+  this.data = _.sortBy(data.concat(this.grouped['basal-settings-segment']), function(d) {
+    return d.normalTime;
+  });
+  
+  this.smbgUtil = new BGUtil(this.grouped.smbg, {DAILY_MIN: opts.SMBG_DAILY_MIN});
+
+  this.generateFillData().adjustFillsForTwoWeekView();
+  this.data = _.sortBy(this.data.concat(this.grouped.fill), function(d) { return d.normalTime; });
+
+  updateCrossFilters(this.data);
 
   return this;
 }

@@ -7,15 +7,36 @@
   "version": "0.0.32",
   "devDependencies": {
     "bower": "1.3.2",
-    "browserify": "3.41.0",
     "chai": "1.8.1",
+    "connect": "~2.19.6",
     "crossfilter": "1.3.7",
+    "css-loader": "~0.6.12",
+    "d3": "~3.4.8",
     "duration-js": "3.3.3",
-    "less": "1.7.0",
+    "file-loader": "~0.5.1",
+    "gulp": "~3.8.1",
+    "gulp-browserify": "~0.5.0",
+    "gulp-less": "~1.2.3",
+    "gulp-rename": "~1.2.0",
+    "gulp-testem": "0.0.1",
+    "gulp-util": "~2.2.17",
+    "json-loader": "~0.5.1",
+    "jsx-loader": "~0.10.2",
+    "less-loader": "~0.7.5",
     "lodash": "2.4.1",
-    "mocha": "1.16.2",
+    "mocha": "~1.20.1",
     "moment": "~2.6.0",
     "mversion": "0.4.3",
-    "testem": "0.6.14"
+    "run-sequence": "~0.3.6",
+    "serve-static": "~1.2.3",
+    "shelljs": "~0.3.0",
+    "style-loader": "~0.6.4",
+    "url-loader": "~0.5.5",
+    "webpack": "~1.3.0-beta8",
+    "webpack-dev-middleware": "~1.0.8"
+  },
+  "scripts": {
+    "start": "node develop",
+    "test": "gulp test"
   }
 }

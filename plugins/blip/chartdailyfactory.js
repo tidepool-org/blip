@@ -30,7 +30,10 @@ function chartDailyFactory(el, options) {
   var log = bows('Daily Factory');
   options = options || {};
   var defaults = {
-    'bgUnits': 'mg/dL'
+    'bgUnits': 'mg/dL',
+    'hiddenPools': {
+      basalSettings: true
+    }
   };
   _.defaults(options, defaults);
 
@@ -74,7 +77,8 @@ function chartDailyFactory(el, options) {
       .id('poolMessages', chart.poolGroup())
       .label('')
       .index(chart.pools().indexOf(poolMessages))
-      .weight(0.5);
+      .weight(0.5)
+      .gutterWeight(0.0);
 
     // blood glucose data pool
     poolBG = chart.newPool()
@@ -85,7 +89,8 @@ function chartDailyFactory(el, options) {
       }])
       .legend(['bg'])
       .index(chart.pools().indexOf(poolBG))
-      .weight(1.5);
+      .weight(1.5)
+      .gutterWeight(1.0);
 
     // carbs and boluses data pool
     poolBolus = chart.newPool()
@@ -100,7 +105,8 @@ function chartDailyFactory(el, options) {
       }])
       .legend(['bolus', 'carbs'])
       .index(chart.pools().indexOf(poolBolus))
-      .weight(1.5);
+      .weight(1.5)
+      .gutterWeight(1.0);
 
     // basal data pool
     poolBasal = chart.newPool()
@@ -111,13 +117,15 @@ function chartDailyFactory(el, options) {
       }])
       .legend(['basal'])
       .index(chart.pools().indexOf(poolBasal))
-      .weight(1.0);
+      .weight(1.0)
+      .gutterWeight(1.0);
 
     // stats data pool
     poolStats = chart.newPool()
       .id('poolStats', chart.poolGroup())
       .index(chart.pools().indexOf(poolStats))
-      .weight(1.0);
+      .weight(1.0)
+      .gutterWeight(1.0);
 
     chart.arrangePools();
 
@@ -138,16 +146,16 @@ function chartDailyFactory(el, options) {
     return chart;
   };
 
-  chart.load = function(tidelineData, datetime) {
+  chart.load = function(tidelineData) {
     var data = tidelineData.data;
     chart.tidelineData = tidelineData;
 
     var basalUtil = tidelineData.basalUtil;
     var bolusUtil = tidelineData.bolusUtil;
     var cbgUtil = tidelineData.cbgUtil;
+    var settingsUtil = tidelineData.settingsUtil;
     var smbgUtil = tidelineData.smbgUtil;
-
-    chart.stopListening();
+    
     // initialize chart with data
     chart.data(tidelineData).setAxes().setNav().setScrollNav();
 
@@ -179,7 +187,7 @@ function chartDailyFactory(el, options) {
         }
       ],
       yScale: scaleBG
-    }), false, true);
+    }), true, true);
 
     // add CBG data to BG pool
     poolBG.addPlotType('cbg', tideline.plot.cbg(poolBG, {yScale: scaleBG}), true, true);
@@ -217,7 +225,7 @@ function chartDailyFactory(el, options) {
         }
       ],
       yScale: scaleDivider
-    }), false, true);
+    }), true, true);
 
     // add carbs data to bolus pool
     poolBolus.addPlotType('carbs', tideline.plot.carbs(poolBolus, {
@@ -242,17 +250,18 @@ function chartDailyFactory(el, options) {
       .outerTickSize(0)
       .ticks(4));
     // add background fill rectangles to basal pool
-    poolBasal.addPlotType('fill', fill(poolBasal, {endpoints: chart.endpoints}), false, true);
+    poolBasal.addPlotType('fill', fill(poolBasal, {endpoints: chart.endpoints}), true, true);
 
     // add basal data to basal pool
     poolBasal.addPlotType('basal-rate-segment', tideline.plot.basal(poolBasal, {
       yScale: scaleBasal,
+      emitter: emitter,
       data: tidelineData.grouped['basal-rate-segment']
     }), true, true);
 
     // messages pool
     // add background fill rectangles to messages pool
-    poolMessages.addPlotType('fill', fill(poolMessages, {endpoints: chart.endpoints}), false, true);
+    poolMessages.addPlotType('fill', fill(poolMessages, {endpoints: chart.endpoints}), true, true);
 
     // add message images to messages pool
     poolMessages.addPlotType('message', tideline.plot.message(poolMessages, {
@@ -332,8 +341,6 @@ function chartDailyFactory(el, options) {
     });
 
     chart.setAtDate(start, atMostRecent);
-
-    chart.navString([start, end]);
 
     return chart;
   };

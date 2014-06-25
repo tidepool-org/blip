@@ -15,7 +15,11 @@
  * == BSD2 LICENSE ==
  */
 
+var _ = require('../../lib/')._;
+
 var datetime = {
+
+  APPEND: 'T00:00:00.000Z',
 
   MS_IN_24: 86400000,
 
@@ -85,6 +89,24 @@ var datetime = {
     }
   },
 
+  composeMsAndDateString: function(ms, d) {
+    return new Date(ms + new Date(this.toISODateString(d) + this.APPEND).valueOf()).toISOString();
+  },
+
+  getMidnight: function(d, next) {
+    if (next) {
+      return this.getMidnight(this.addDays(d, 1));
+    }
+    else {
+      return this.toISODateString(d) + this.APPEND;
+    }
+  },
+
+  getMsFromMidnight: function(d) {
+    var midnight = new Date(this.getMidnight(d)).valueOf();
+    return new Date(d).valueOf() - midnight;
+  },
+
   getNumDays: function(s, e) {
     var start = new Date(s).valueOf(), end = new Date(e).valueOf();
     return Math.ceil((end - start)/this.MS_IN_24);
@@ -107,6 +129,25 @@ var datetime = {
     return false;
   },
 
+  isSegmentAcrossMidnight: function(s, e) {
+    var start = new Date(s), end = new Date(e);
+    var startDate = this.toISODateString(s), endDate = this.toISODateString(e);
+    if (startDate === endDate) {
+      return false;
+    }
+    else {
+      if (end.getUTCDate() === start.getUTCDate() + 1) {
+        if (this.getMidnight(e) === e) {
+          return false;
+        }
+        return true;
+      }
+      else {
+        return false;
+      }
+    }
+  },
+
   isTwentyFourHours: function(s, e) {
     var start = new Date(s).valueOf(), end = new Date(e).valueOf();
     if (end - start === this.MS_IN_24) {
@@ -115,9 +156,26 @@ var datetime = {
     else { return false; }
   },
 
+  roundToNearestMinutes: function(d, resolution) {
+    var date = new Date(d);
+    var min = date.getUTCMinutes();
+    var values = _.range(0, 60, resolution);
+    for (var i = 0; i < values.length; ++i) {
+      if (min - values[i] < resolution/2) {
+        date.setUTCMinutes(values[i]);
+        return date.toISOString();
+      }
+      else if (i === values.length - 1) {
+        date.setUTCMinutes(0);
+        date.setUTCHours(date.getUTCHours() + 1);
+        return date.toISOString();
+      }
+    }
+  },
+
   toISODateString: function(d) {
-    var d = new Date(d);
-    return d.toISOString().slice(0,10);
+    var date = new Date(d);
+    return date.toISOString().slice(0,10);
   },
 
   verifyEndpoints: function(s, e, endpoints) {

@@ -23,6 +23,7 @@ var EventEmitter = require('events').EventEmitter;
 
 var tideline = window.tideline;
 var fill = tideline.plot.util.fill;
+var dt = tideline.data.util.datetime;
 
 // Create a 'Two Weeks' chart object that is a wrapper around Tideline components
 function chartWeeklyFactory(el, options) {
@@ -72,17 +73,17 @@ function chartWeeklyFactory(el, options) {
     var cbgUtil = tidelineData.cbgUtil;
     var smbgUtil = tidelineData.smbgUtil;
 
-    var smbgData = tidelineData.grouped.smbg || [];
+    var twoWeekData = tidelineData.twoWeekData || [];
 
     if (!datetime) {
-      chart.data(smbgData);
+      chart.data(twoWeekData);
     }
     else {
-      if (smbgData.length &&
-          Date.parse(datetime) > Date.parse(smbgData[smbgData.length - 1].normalTime)) {
-        datetime = smbgData[smbgData.length - 1].normalTime;
+      if (twoWeekData.length &&
+          Date.parse(datetime) > Date.parse(twoWeekData[twoWeekData.length - 1].normalTime)) {
+        datetime = twoWeekData[twoWeekData.length - 1].normalTime;
       }
-      chart.data(smbgData, datetime);
+      chart.data(twoWeekData, datetime);
     }
 
     chart.setup();
@@ -98,7 +99,8 @@ function chartWeeklyFactory(el, options) {
       var newPool = chart.newPool()
         .id('poolBG_' + day, chart.daysGroup())
         .index(chart.pools().indexOf(newPool))
-        .weight(1.0);
+        .weight(1.0)
+        .gutterWeight(0.0);
     });
 
     chart.arrangePools();
@@ -119,12 +121,11 @@ function chartWeeklyFactory(el, options) {
       var weekend = ((dayOfTheWeek === 0) || (dayOfTheWeek === 6));
 
       pool.addPlotType('fill', fill(pool, {
-        endpoints: fillEndpoints,
-        xScale: fillScale,
         gutter: {'top': 0.5, 'bottom': 0.5},
         dataGutter: chart.dataGutter(),
-        fillClass: weekend ? 'd3-pool-weekend' : ''
-      }), false);
+        fillClass: weekend ? 'd3-pool-weekend' : '',
+        x: function(t) { return dt.getMsFromMidnight(t); }
+      }), true, true);
       pool.addPlotType('smbg', smbgTime.draw(pool), true, true);
       chart.tooltips().addGroup(d3.select('#' + chart.id()).select('#' + pool.id()), pool.id());
       pool.render(chart.daysGroup(), chart.dataPerDay[i]);

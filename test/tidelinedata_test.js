@@ -24,24 +24,32 @@ var expect = chai.expect;
 
 var _ = require('lodash');
 
-var watson = require('../plugins/data/watson');
-var data = watson.normalizeAll(require('../example/data/device-data.json'));
+var data = require('../example/data/device-data.json');
 
-var tideline = require('../js/index');
-var TidelineData = tideline.TidelineData;
+try {
+  global.window = {
+    tideline: require('../js/')
+  };
+  global.window.tideline.watson = require('../plugins/data/watson/');
+}
+catch (TypeError) {}
+
+var TidelineData = window.tideline.TidelineData;
+var preprocess = require('../plugins/data/preprocess');
 
 describe('TidelineData', function() {
+  var td = preprocess.processData(data);
   describe('an instance', function() {
     it('should be an object', function() {
-      assert.isObject(new TidelineData(data));
+      assert.isObject(td);
     });
 
     it('should have a `data` attribute that is an array', function() {
-      assert.isArray(new TidelineData(data).data);
+      assert.isArray(td.data);
     });
 
     it('should have a `filterData` attribute that is an object', function() {
-      assert.isObject(new TidelineData(data).filterData);
+      assert.isObject(td.filterData);
     });
   });
 
@@ -52,7 +60,6 @@ describe('TidelineData', function() {
         'value': 5.0,
         'type': 'bolus'
       };
-      var td = new TidelineData(data);
       var previousLengths = {
         'data': td.data.length,
         'bolus': td.grouped.bolus.length
@@ -63,6 +70,111 @@ describe('TidelineData', function() {
         'bolus': newTd.grouped.bolus.length - 1
       };
       expect(previousLengths).to.eql(newLengthsMinusOne);
+    });
+  });
+
+  describe('generateFillData', function() {
+    var fills = td.grouped.fill;
+    it('should be a function', function() {
+      assert.isFunction(td.generateFillData);
+    });
+
+    it('should extend beyond extent of data on either side', function() {
+      var dData = td.diabetesData;
+      expect(fills[0].normalTime).to.be.below(dData[0].normalTime);
+      expect(fills[fills.length - 1].normalTime).to.be.above(dData[dData.length - 1].normalTime);
+    });
+
+    it('should be contiguous', function() {
+      for (var i = 0; i < fills.length; ++i) {
+        if (i !== fills.length - 1) {
+          expect(fills[i].normalEnd).to.equal(fills[i + 1].normalTime);
+        }
+      }
+    });
+  });
+
+  describe('adjustFillsForTwoWeekView', function() {
+    it('should be a function', function() {
+      assert.isFunction(td.adjustFillsForTwoWeekView);
+    });
+
+    it('should cover all and only the days where smbg data exists (messagse outside)', function() {
+      var newData = [
+        {
+          'messageText': 'Ball tip corned beef ut, dolore prosciutto jerky fugiat capicola doner velit. Do beef ribs adipisicing, pork belly et enim tail filet mignon tri-tip non dolore ham ut.',
+          'parentMessage': '',
+          'utcTime': '2014-06-05T11:09:53Z',
+          'type': 'message',
+          'id': '675945be-e2d2-4875-826e-bc47a15db98f'
+        },
+        {
+          'deviceTime': '2014-06-06T19:51:29',
+          'value': 145,
+          'source': 'demo',
+          'deviceId': 'Demo - 123',
+          'units': 'mg/dL',
+          'type': 'smbg',
+          'id': 'e89938f8-de92-429a-bfff-1e7627cac9d4'
+        },
+        {
+          'deviceTime': '2014-06-22T02:12:55',
+          'value': 66,
+          'source': 'demo',
+          'deviceId': 'Demo - 123',
+          'units': 'mg/dL',
+          'type': 'smbg',
+          'id': 'fc032543-0b5e-40e6-b863-48963d4d486c'
+        },
+        {
+          'messageText': 'Sirloin ea pancetta, sed eiusmod beef frankfurter duis pork. Meatball capicola ullamco, eu in laborum ball tip tail voluptate ex sunt ut in sed.',
+          'parentMessage': '',
+          'utcTime': '2014-06-23T11:03:17Z',
+          'type': 'message',
+          'id': '9b1317c1-e04b-4813-8955-dfe16f14b92b'
+        }
+      ];
+      var newTd = preprocess.processData(newData);
+      expect(newTd.twoWeekData[0].normalTime).to.equal('2014-06-06T00:00:00.000Z');
+      expect(newTd.twoWeekData[newTd.twoWeekData.length - 1].normalTime).to.equal('2014-06-22T21:00:00.000Z');
+      var fills = _.where(newTd.twoWeekData, {'type': 'fill'});
+      for (var i = 0; i < fills.length; ++i) {
+        if (i !== fills.length - 1) {
+          expect(fills[i].normalEnd).to.equal(fills[i + 1].normalTime);
+        }
+      }
+    });
+
+    it('should cover all and only the days where smbg data exists (just smbg)', function() {
+      var newData = [
+        {
+          'deviceTime': '2014-06-06T19:51:29',
+          'value': 145,
+          'source': 'demo',
+          'deviceId': 'Demo - 123',
+          'units': 'mg/dL',
+          'type': 'smbg',
+          'id': 'e89938f8-de92-429a-bfff-1e7627cac9d4'
+        },
+        {
+          'deviceTime': '2014-06-22T02:12:55',
+          'value': 66,
+          'source': 'demo',
+          'deviceId': 'Demo - 123',
+          'units': 'mg/dL',
+          'type': 'smbg',
+          'id': 'fc032543-0b5e-40e6-b863-48963d4d486c'
+        }
+      ];
+      var newTd = preprocess.processData(newData);
+      expect(newTd.twoWeekData[0].normalTime).to.equal('2014-06-06T00:00:00.000Z');
+      expect(newTd.twoWeekData[newTd.twoWeekData.length - 1].normalTime).to.equal('2014-06-22T21:00:00.000Z');
+      var fills = _.where(newTd.twoWeekData, {'type': 'fill'});
+      for (var i = 0; i < fills.length; ++i) {
+        if (i !== fills.length - 1) {
+          expect(fills[i].normalEnd).to.equal(fills[i + 1].normalTime);
+        }
+      }
     });
   });
 });

@@ -31,6 +31,7 @@
 @font-size-puddle-number: 24px;
 @font-size-settings: 14px;
 @font-size-annotations: 12px;
+@font-size-tabular-basal-settings: 12px;
 @pool-label-baseline: 30%;
 
 svg {
@@ -272,6 +273,46 @@ svg {
   }
 }
 
+// basal tabular settings
+.d3-tabular-ui {
+  background-color: @unmatched;
+  i {
+    color: @light-labels;
+  }
+  p {
+    margin: 0px;
+    cursor: pointer;
+  }
+}
+
+.d3-cell-rect {
+  stroke-width: 0.5px;
+  stroke: @matched;
+  &.d3-unmatched {
+    fill: @unmatched;
+  }
+  &.d3-matched {
+    fill: @matched;
+    stroke: white;
+  }
+  &:hover {
+    fill: darken(white, 2%) !important;
+  }
+}
+
+.d3-cell-label {
+  dominant-baseline: central;
+  font-size: @font-size-tabular-basal-settings;
+  pointer-events: none;
+  text-anchor: middle;
+  &.d3-unmatched {
+    fill: @text;
+  }
+  &.d3-matched {
+    fill: @basal;
+    font-weight: bold;
+  }
+}
 
 
 // annotations
@@ -472,6 +513,9 @@ svg {
   display: inline-block;
   width: 100%;
   vertical-align: top;
+  // worked properly as inherited in blip
+  // but not in tideline example
+  box-sizing: border-box;
 }
 
 .d3-settings-section-basal {
@@ -506,6 +550,9 @@ svg {
   background: @settings-table-fill;
   width: 100%;
   padding-bottom: 10px;
+  // worked properly as inherited in blip
+  // but not in tideline example
+  border-collapse: collapse;
 }
 
 .d3-settings-col-label {
@@ -544,6 +591,9 @@ svg {
   text-align: center;
   font-weight: normal;
   text-align: right;
+  // worked properly as inherited text color in blip
+  // but not in tideline example
+  color: @settings-table-head-text;
 }
 
 .d3-settings-start-time {

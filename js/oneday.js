@@ -34,6 +34,7 @@ module.exports = function(emitter) {
   var id,
     minWidth = 400, minHeight = 400,
     width = minWidth, height = minHeight,
+    poolScaleHeight,
     imagesBaseUrl = 'img',
     nav = {
       axisHeight: 30,
@@ -120,6 +121,16 @@ module.exports = function(emitter) {
         .attr('class', 'x scroll')
         .attr('id', 'tidelineScrollNav');
     }
+
+    d3.select('#' + id).insert('clipPath', '#tidelineMain')
+      .attr('id', 'mainClipPath')
+      .append('rect')
+      .attr({
+        'x': container.axisGutter(),
+        'y': 0,
+        'width': container.width() - container.axisGutter(),
+        'height': container.height()
+      });
   }
 
   // non-chainable methods
@@ -172,27 +183,37 @@ module.exports = function(emitter) {
     return p;
   };
 
-  container.arrangePools = function() {
-    var numPools = pools.length;
-    var cumWeight = 0;
+  container.poolScaleHeight = function(pools) {
+    if (!arguments.length) return poolScaleHeight;
+    var cumWeight = 0, cumGutterWeight = 0;
     pools.forEach(function(pool) {
       cumWeight += pool.weight();
+      cumGutterWeight += pool.gutterWeight();
     });
     gutter = 0.25 * (container.height() / cumWeight);
     var totalPoolsHeight =
-      container.height() - nav.axisHeight - nav.scrollNavHeight - (numPools - 1) * gutter;
-    var poolScaleHeight = totalPoolsHeight/cumWeight;
-    var actualPoolsHeight = 0;
-    pools.forEach(function(pool) {
-      pool.height(poolScaleHeight);
-      actualPoolsHeight += pool.height();
+      container.height() - nav.axisHeight - nav.scrollNavHeight - (cumGutterWeight * gutter);
+    poolScaleHeight = totalPoolsHeight/cumWeight;
+    return container;
+  };
+
+  container.arrangePools = function() {
+    var visiblePools = _.reject(pools, function(pool) {
+      return pool.hidden();
     });
-    actualPoolsHeight += (numPools - 1) * gutter;
+    container.poolScaleHeight(visiblePools);
+    visiblePools.forEach(function(pool) {
+      pool.height(poolScaleHeight);
+    });
     var currentYPosition = nav.axisHeight;
-    pools.forEach(function(pool) {
+    visiblePools.forEach(function(pool) {
+      currentYPosition += gutter * pool.gutterWeight();
       pool.yPosition(currentYPosition);
-      currentYPosition += pool.height() + gutter;
+      currentYPosition += pool.height();
       pool.group().attr('transform', 'translate(0,' + pool.yPosition() + ')');
+      if (pool.hidden()) {
+        pool.group().attr('display', 'none');
+      }
     });
   };
 
@@ -323,7 +344,7 @@ module.exports = function(emitter) {
         }
         mainGroup.select('#tidelineTooltips').attr('transform', 'translate(' + e.translate[0] + ',0)');
         mainGroup.select('#tidelineAnnotations').attr('transform', 'translate(' + e.translate[0] + ',0)');
-        d3.select('#annotationsClipPath rect').attr('transform', 'translate(' + -e.translate[0] + ',0)');
+        d3.select('#mainClipPath rect').attr('transform', 'translate(' + -e.translate[0] + ',0)');
         mainGroup.select('.d3-x.d3-axis').call(xAxis);
         mainGroup.selectAll('#tidelineXAxis g.tick text').style('text-anchor', 'start').attr('transform', 'translate(5,15)');
         if (scrollHandleTrigger) {
@@ -417,16 +438,6 @@ module.exports = function(emitter) {
   };
 
   container.setAnnotation = function() {
-    d3.select('#' + id).insert('clipPath', '#tidelineMain')
-      .attr('id', 'annotationsClipPath')
-      .append('rect')
-      .attr({
-        'x': container.axisGutter(),
-        'y': 0,
-        'width': container.width() - container.axisGutter(),
-        'height': container.height()
-      });
-
     var annotationGroup = mainGroup.append('g')
       .attr('id', 'tidelineAnnotations');
 
@@ -464,17 +475,19 @@ module.exports = function(emitter) {
     return container;
   };
 
-  container.stopListening = function() {
+  // TODO: delete when update blip (legacy method)
+  container.emptyPools = function() {
+    pools = [];
+    return container;
+  };
+
+  // TODO: delete when update blip (legacy method)
+  container.clear = function() {
     emitter.removeAllListeners('carbTooltipOn')
       .removeAllListeners('carbTooltipOff')
       .removeAllListeners('bolusTooltipOn')
       .removeAllListeners('bolusTooltipOff')
       .removeAllListeners('noCarbTimestamp');
-
-    return container;
-  };
-
-  container.clear = function() {
     pools.forEach(function(pool) {
       pool.clear();
     });
@@ -484,12 +497,20 @@ module.exports = function(emitter) {
     return container;
   };
 
+  container.destroy = function() {
+    d3.select('#' + id).remove();
+
+    return container;
+  };
+
+  // TODO: delete when update blip (legacy method)
   container.hide = function() {
     d3.select('#' + id).classed('hidden', true);
 
     return container;
   };
 
+  // TODO: delete when update blip (legacy method)
   container.show = function() {
     d3.select('#' + id).classed('hidden', false);
 
@@ -579,7 +600,10 @@ module.exports = function(emitter) {
     data = a.data;
 
     var first = new Date(data[0].normalTime);
-    var last = new Date(data[data.length - 1].normalTime);
+    var lastObj = _.sortBy(data, function(d) {
+      return d.normalEnd ? d.normalEnd : d.normalTime;
+    }).reverse()[0];
+    var last = lastObj.normalEnd ? new Date(lastObj.normalEnd) : new Date(lastObj.normalTime);
 
     var minusOne = new Date(last);
     minusOne.setDate(minusOne.getDate() - 1);

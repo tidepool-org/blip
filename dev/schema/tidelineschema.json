@@ -231,13 +231,15 @@
                                             "minimum": 0,
                                             "maximum": 86399999
                                         }
-                                    }
+                                    },
+                                    "required": ["start", "rate"]
                                 }
                             },
                             "name": {
                                 "type": "string"
                             }
-                        }
+                        },
+                        "required": ["name", "value"]
                     },
                     "minItems": 1
                 },

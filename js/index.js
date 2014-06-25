@@ -28,6 +28,7 @@ module.exports = {
     BGUtil: require('./data/bgutil'),
     DeviceUtil: require('./data/deviceutil'),
     SegmentUtil: require('./data/segmentutil'),
+    SettingsUtil: require('./data/settingsutil'),
     util: {
       datetime: require('./data/util/datetime'),
       format: require('./data/util/format'),
@@ -39,6 +40,7 @@ module.exports = {
 
   plot: {
     basal: require('./plot/basal'),
+    basaltab: require('./plot/basaltab'),
     bolus: require('./plot/bolus'),
     carbs: require('./plot/carbs'),
     cbg: require('./plot/cbg'),

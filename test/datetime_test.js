@@ -145,6 +145,16 @@ describe('datetime utility', function() {
     });
   });
 
+  describe('composeMsAndDateString', function() {
+    it('should be a function', function() {
+      assert.isFunction(dt.composeMsAndDateString);
+    });
+
+    it('should return 2014-03-06T00:00:00.001Z when given 1ms and 2014-03-06T00:00:00.000Z', function() {
+      expect(dt.composeMsAndDateString(1, '2014-03-06T00:00:00.000Z')).to.equal('2014-03-06T00:00:00.001Z');
+    });
+  });
+
   describe('getNumDays', function() {
     it('should be a function', function() {
       assert.isFunction(dt.getNumDays);
@@ -165,6 +175,30 @@ describe('datetime utility', function() {
 
     it('should return 14 when passed two timestamps exactly 14 days apart', function() {
       expect(dt.getNumDays('2014-03-06T00:00:00.000Z', '2014-03-20T00:00:00.000Z')).to.equal(14);
+    });
+  });
+
+  describe('getMidnight', function() {
+    it('should be a function', function() {
+      assert.isFunction(dt.getMidnight);
+    });
+
+    it('should return 2014-03-06T00:00:00.000Z when given 2014-03-06T12:00:00.000Z', function() {
+      expect(dt.getMidnight('2014-03-06T12:00:00.000Z')).to.equal('2014-03-06T00:00:00.000Z');
+    });
+
+    it('should return 2014-03-07T00:00:00.000Z when given 2014-03-06T12:00:00.000Z and `next` is true', function() {
+      expect(dt.getMidnight('2014-03-06T12:00:00.000Z', true)).to.equal('2014-03-07T00:00:00.000Z');
+    });
+  });
+
+  describe('getMsFromMidnight', function() {
+    it('should be a function', function() {
+      assert.isFunction(dt.getMsFromMidnight);
+    });
+
+    it('should return 1 when passed a timestamp 1ms after midnight', function() {
+      expect(dt.getMsFromMidnight('2014-03-06T00:00:00.001Z')).to.equal(1);
     });
   });
 
@@ -204,6 +238,28 @@ describe('datetime utility', function() {
     });
   });
 
+  describe('isSegmentAcrossMidnight', function() {
+    it('should be a function', function() {
+      assert.isFunction(dt.isSegmentAcrossMidnight);
+    });
+
+    it('should return false on a segment starting and ending on same day', function() {
+      expect(dt.isSegmentAcrossMidnight('2014-01-02T00:00:00.000Z', '2014-01-02T01:00:00.000Z')).to.be.false;
+    });
+
+    it('should return false on a segment ending two days after start date', function() {
+      expect(dt.isSegmentAcrossMidnight('2014-01-02T00:00:00.000Z', '2014-01-04T01:00:00.000Z')).to.be.false;
+    });
+
+    it('should return false on a segment ending the day after it starts, if end is midnight', function() {
+      expect(dt.isSegmentAcrossMidnight('2014-01-02T21:00:00.000Z', '2014-01-03T00:00:00.000Z')).to.be.false;
+    });
+
+    it('should return true on a segment ending the day after it started', function() {
+      expect(dt.isSegmentAcrossMidnight('2014-01-02T12:00:00.000Z', '2014-01-03T01:00:00.000Z')).to.be.true;
+    });
+  });
+
   describe('isTwentyFourHours', function() {
     it('should be a function', function() {
       assert.isFunction(dt.isTwentyFourHours);
@@ -219,6 +275,32 @@ describe('datetime utility', function() {
 
     it('should return true on two timestamps exactly 24 hours apart', function() {
       expect(dt.isTwentyFourHours('2014-03-06T00:00:00.000Z', '2014-03-07T00:00:00.000Z')).to.be.true;
+    });
+  });
+
+  describe('roundToNearestMinutes', function() {
+    it('should be a function', function() {
+      assert.isFunction(dt.roundToNearestMinutes);
+    });
+
+    it('should return 2014-03-06T00:00:00.000Z when given 2014-03-06T00:29:00.000Z, resolution of sixty minutes', function() {
+      expect(dt.roundToNearestMinutes('2014-03-06T00:29:00.000Z', 60)).to.equal('2014-03-06T00:00:00.000Z');
+    });
+
+    it('should return 2014-03-06T00:30:00.000Z when given 2014-03-06T00:29:00.000Z, resolution of thirty minutes', function() {
+      expect(dt.roundToNearestMinutes('2014-03-06T00:29:00.000Z', 30)).to.equal('2014-03-06T00:30:00.000Z');
+    });
+
+    it('should return 2014-03-06T00:30:00.000Z when given 2014-03-06T00:15:00.000Z, resolution of thirty minutes', function() {
+      expect(dt.roundToNearestMinutes('2014-03-06T00:15:00.000Z', 30)).to.equal('2014-03-06T00:30:00.000Z');
+    });
+
+    it('should return 2014-03-06T00:00:00.000Z when given 2014-03-06T00:14:00.000Z, resolution of thirty minutes', function() {
+      expect(dt.roundToNearestMinutes('2014-03-06T00:14:00.000Z', 30)).to.equal('2014-03-06T00:00:00.000Z');
+    });
+
+    it('should return 2014-03-06T01:00:00.000Z when given 2014-03-06T00:45:00.000Z, resolution of thirty minutes', function() {
+      expect(dt.roundToNearestMinutes('2014-03-06T00:45:00.000Z', 30)).to.equal('2014-03-06T01:00:00.000Z');
     });
   });
 

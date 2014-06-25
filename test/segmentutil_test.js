@@ -29,7 +29,7 @@ var fx = require('./fixtures');
 var tideline = require('../js/index');
 var segmentUtil = tideline.data.SegmentUtil;
 
-describe('segmentutil.js under different data scenarios', function () {
+describe('segment utility under different data scenarios', function () {
   fx.forEach(testData);
 });
 
@@ -162,7 +162,7 @@ function testData (data) {
   });
 }
 
-describe('segmentUtil.js', function(){
+describe('segment utility', function(){
   it('Sets scheduled end == null to end = start', function(){
     var segs = segmentUtil(
       [
