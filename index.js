@@ -811,10 +811,10 @@ module.exports = function (config, deps) {
       assertArgumentsSize(arguments, 2);
 
       if( _.isEmpty(edits.id) ){
-        return({ message:'You must specify the edits.id'});
+        return cb({ message:'You must specify the edits.id'});
       }
       if( _.isEmpty(edits.timestamp) && _.isEmpty(edits.messagetext) ){
-          return cb({ message: 'You must specify one or both of edits.messagetext, edits.timestamp'});
+        return cb({ message: 'You must specify one or both of edits.messagetext, edits.timestamp'});
       }
 
       doPutWithToken(
