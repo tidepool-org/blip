@@ -19,8 +19,8 @@ var _ = window._;
 var moment = window.moment;
 var config = window.config;
 
-var user = require('../../core/user');
-var patient = require('../../core/patient');
+var Person = require('../../core/person');
+var Datetime = require('../../core/datetime');
 var PeopleList = require('../../components/peoplelist');
 
 var DATE_DISPLAY_FORMAT = 'MMM D, YYYY';
@@ -35,21 +35,32 @@ var Patient = React.createClass({
   },
 
   patientDisplayAttributes: [
-    {name: 'fullName', label: 'Full name'},
-    {name: 'aboutMe', label: 'About me'},
+    {
+      name: 'fullName',
+      label: 'Name',
+      getValue: function(patient) {
+        return this.getDisplayName(patient);
+      }
+    },
+    {
+      name: 'about',
+      label: 'About',
+      getValue: function(patient) {
+        return this.getAboutText(patient);
+      }
+    },
     {
       name: 'age',
       label: 'Age',
       getValue: function(patient) {
-        // `this` is bound to the component
-        return this.getAgeDisplayText(patient);
+        return this.getAgeText(patient);
       }
     },
     {
       name: 'diagnosis',
       label: 'Diagnosed',
       getValue: function(patient) {
-        return this.getDiagnosisDisplayText(patient);
+        return this.getDiagnosisText(patient);
       }
     }
   ],
@@ -104,8 +115,8 @@ var Patient = React.createClass({
     var text = 'Data';
     var patient = this.props.patient;
 
-    if (patient && patient.id) {
-      url = '#/patients/' + patient.id + '/data';
+    if (patient && patient.userid) {
+      url = '#/patients/' + patient.userid + '/data';
     }
 
     var self = this;
@@ -124,13 +135,13 @@ var Patient = React.createClass({
   },
 
   renderEditLink: function() {
-    if (!this.isUserPatient()) {
+    if (!this.isSamePersonUserAndPatient()) {
       return null;
     }
 
     var editUrl = [
       '#/patients',
-      this.props.patient.id,
+      this.props.patient.userid,
       'edit'
     ].join('/');
 
@@ -151,8 +162,8 @@ var Patient = React.createClass({
     /* jshint ignore:end */
   },
 
-  isUserPatient: function() {
-    return user.isUserPatient(this.props.user, this.props.patient);
+  isSamePersonUserAndPatient: function() {
+    return Person.isSame(this.props.user, this.props.patient);
   },
 
   renderPatient: function() {
@@ -168,11 +179,7 @@ var Patient = React.createClass({
     var fetching = this.props.fetchingPatient;
 
     return _.map(this.patientDisplayAttributes, function(attribute) {
-      if (attribute.getValue) {
-        attribute.value = attribute.getValue.call(self, patient);
-      } else {
-        attribute.value = patient[attribute.name];
-      }
+      attribute.value = attribute.getValue.call(self, patient);
       attribute.fetching = fetching;
       return attribute;
     });
@@ -214,7 +221,7 @@ var Patient = React.createClass({
   },
 
   renderTeam: function() {
-    if (!this.isUserPatient()) {
+    if (!this.isSamePersonUserAndPatient()) {
       return null;
     }
 
@@ -223,7 +230,7 @@ var Patient = React.createClass({
     /* jshint ignore:start */
     return (
       <div className="patient-team">
-        <div className="patient-team-title">CARE TEAM</div>
+        <div className="patient-team-title">CARE TEAM MEMBERS</div>
         {teamMembers}
       </div>
     );
@@ -251,27 +258,38 @@ var Patient = React.createClass({
     /* jshint ignore:end */
   },
 
-  getAgeDisplayText: function(patientAttr) {
-    var birthday = patientAttr.birthday;
+  getDisplayName: function(patient) {
+    return Person.patientFullName(patient);
+  },
+
+  getAboutText: function(patient) {
+    var patientInfo = Person.patientInfo(patient) || {};
+    return patientInfo.about;
+  },
+
+  getAgeText: function(patient) {
+    var patientInfo = Person.patientInfo(patient) || {};
+    var birthday = patientInfo.birthday;
 
     if (!birthday) {
       return;
     }
 
-    var yearsOld = patient.getYearsOldText(birthday);
+    var yearsOld = Datetime.yearsOldText(birthday);
     var birthdayDisplay = moment(birthday).format(DATE_DISPLAY_FORMAT);
 
     return [yearsOld, ' (', birthdayDisplay, ')'].join('');
   },
 
-  getDiagnosisDisplayText: function(patientAttr) {
-    var diagnosisDate = patientAttr.diagnosisDate;
+  getDiagnosisText: function(patient) {
+    var patientInfo = Person.patientInfo(patient) || {};
+    var diagnosisDate = patientInfo.diagnosisDate;
 
     if (!diagnosisDate) {
       return;
     }
 
-    var yearsAgo = patient.getYearsAgoText(diagnosisDate);
+    var yearsAgo = Datetime.yearsAgoText(diagnosisDate);
     var diagnosisDateDisplay =
       moment(diagnosisDate).format(DATE_DISPLAY_FORMAT);
 

@@ -18,7 +18,7 @@ var React = window.React;
 var _ = window._;
 var config = window.config;
 
-var user = require('../../core/user');
+var Person = require('../../core/person');
 var PeopleList = require('../../components/peoplelist');
 
 var Patients = React.createClass({
@@ -64,9 +64,9 @@ var Patients = React.createClass({
       return this.renderPatientList([{}]);
     }
 
-    patient = user.getPatientData(this.props.user);
+    var user = this.props.user;
 
-    if (_.isEmpty(patient)) {
+    if (!Person.isPatient(user)) {
       /* jshint ignore:start */
       return (
         <div className="patients-empty-list">
@@ -81,7 +81,7 @@ var Patients = React.createClass({
       /* jshint ignore:end */
     }
 
-    return this.renderPatientList([patient]);
+    return this.renderPatientList([user]);
   },
 
   isResettingUserData: function() {
@@ -136,16 +136,16 @@ var Patients = React.createClass({
 
   addLinkToPatients: function(patients) {
     return _.map(patients, function(patient) {
-      patient = _.clone(patient);
-      if (patient.id) {
-        patient.link = '#/patients/' + patient.id + '/data';
+      patient = _.cloneDeep(patient);
+      if (patient.userid) {
+        patient.link = '#/patients/' + patient.userid + '/data';
       }
       return patient;
     });
   },
 
   handleClickPatient: function(patient) {
-    if (user.isUserPatient(this.props.user, patient)) {
+    if (Person.isSame(this.props.user, patient)) {
       this.props.trackMetric('Clicked Own Care Team');
     }
     else {

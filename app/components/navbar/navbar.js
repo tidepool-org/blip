@@ -17,6 +17,8 @@
 var React = window.React;
 var _ = window._;
 
+var Person = require('../../core/person');
+
 var Navbar = React.createClass({
   propTypes: {
     version: React.PropTypes.string,
@@ -24,7 +26,6 @@ var Navbar = React.createClass({
     fetchingUser: React.PropTypes.bool,
     patient: React.PropTypes.object,
     fetchingPatient: React.PropTypes.bool,
-    isUserPatient: React.PropTypes.bool,
     getUploadUrl: React.PropTypes.func,
     onLogout: React.PropTypes.func,
     imagesEndpoint: React.PropTypes.string,
@@ -32,7 +33,6 @@ var Navbar = React.createClass({
   },
 
   render: function() {
-    window.navbar = this;
     var logo = this.renderLogo();
     var version = this.renderVersion();
     var patient = this.renderPatient();
@@ -105,8 +105,8 @@ var Navbar = React.createClass({
       return null;
     }
 
-    var displayName = this.getPatientDisplayName(patient);
-    var patientUrl = '#/patients/' + patient.id;
+    var displayName = this.getPatientDisplayName();
+    var patientUrl = this.getPatientUrl();
     var uploadLink = this.renderUploadLink();
     var self = this;
     var handleClick = function() {
@@ -132,7 +132,7 @@ var Navbar = React.createClass({
   },
 
   renderUploadLink: function() {
-    if (!this.props.isUserPatient) {
+    if (!this.isSamePersonUserAndPatient()) {
       return null;
     }
 
@@ -168,7 +168,7 @@ var Navbar = React.createClass({
       return null;
     }
 
-    var displayName = this.getUserDisplayName(user);
+    var displayName = this.getUserDisplayName();
     var self = this;
     var handleClickUser = function() {
       self.props.trackMetric('Clicked Navbar Logged In User');
@@ -203,12 +203,24 @@ var Navbar = React.createClass({
     );
   },
 
-  getUserDisplayName: function(user) {
-    return user.fullName;
+  getUserDisplayName: function() {
+    return Person.fullName(this.props.user);
   },
 
-  getPatientDisplayName: function(patient) {
-    return patient.fullName;
+  getPatientDisplayName: function() {
+    return Person.patientFullName(this.props.patient);
+  },
+
+  getPatientUrl: function() {
+    var patient = this.props.patient;
+    if (!patient) {
+      return;
+    }
+    return '#/patients/' + patient.userid;
+  },
+
+  isSamePersonUserAndPatient: function() {
+    return Person.isSame(this.props.user, this.props.patient);
   },
 
   handleLogout: function(e) {

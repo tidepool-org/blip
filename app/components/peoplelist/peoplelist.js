@@ -17,6 +17,8 @@
 var React = window.React;
 var _ = window._;
 
+var Person = require('../../core/person');
+
 var PeopleList = React.createClass({
   propTypes: {
     people: React.PropTypes.array,
@@ -74,7 +76,7 @@ var PeopleList = React.createClass({
 
     /* jshint ignore:start */
     return (
-      <li key={person.id || index} className={className}>
+      <li key={person.userid || index} className={className}>
         {peopleListItemContent}
       </li>
     );
@@ -82,10 +84,13 @@ var PeopleList = React.createClass({
   },
 
   getPersonDisplayName: function(person) {
-    if (_.isEmpty(person)) {
-      return '';
+    var fullName = Person.fullName(person);
+
+    if (!fullName) {
+      return 'Anonymous user';
     }
-    return person.fullName;
+
+    return fullName;
   }
 });
 

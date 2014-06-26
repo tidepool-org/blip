@@ -25,7 +25,7 @@
     "simple-glob": "0.1.0"
   },
   "devDependencies": {
-    "blip-mock-data": "tidepool-org/blip-mock-data#v0.0.1",
+    "blip-mock-data": "tidepool-org/blip-mock-data#d31e58428e2bcd4152277292e5bc6fb21c44197b",
     "chai-webdriver": "0.7.0",
     "grunt": "0.4.4",
     "grunt-cli": "0.1.13",

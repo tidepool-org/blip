@@ -23,7 +23,6 @@ var Profile = React.createClass({
   propTypes: {
     user: React.PropTypes.object,
     fetchingUser: React.PropTypes.bool,
-    onValidate: React.PropTypes.func.isRequired,
     onSubmit: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired
   },
@@ -39,15 +38,26 @@ var Profile = React.createClass({
 
   getInitialState: function() {
     return {
-      formValues: this.props.user || {},
+      formValues: this.formValuesFromUser(this.props.user),
       validationErrors: {},
       notification: null
     };
   },
 
+  formValuesFromUser: function(user) {
+    if (!user) {
+      return {};
+    }
+
+    return {
+      fullName: user.profile && user.profile.fullName,
+      username: user.username
+    };
+  },
+
   componentWillReceiveProps: function(nextProps) {
     // Keep form values in sync with upstream changes
-    this.setState({formValues: nextProps.user || {}});
+    this.setState({formValues: this.formValuesFromUser(nextProps.user)});
   },
 
   render: function() {
@@ -111,13 +121,14 @@ var Profile = React.createClass({
 
     this.resetFormStateBeforeSubmit(formValues);
 
-    formValues = _.clone(formValues);
-    formValues = this.omitPasswordAttributesIfNoChange(formValues);
+    formValues = this.prepareFormValuesForValidation(formValues);
 
     var validationErrors = this.validateFormValues(formValues);
     if (!_.isEmpty(validationErrors)) {
       return;
     }
+
+    formValues = this.prepareFormValuesForSubmit(formValues);
 
     this.submitFormValues(formValues);
   },
@@ -131,11 +142,41 @@ var Profile = React.createClass({
     clearTimeout(this.messageTimeoutId);
   },
 
+  prepareFormValuesForValidation: function(formValues) {
+    formValues = _.clone(formValues);
+
+    // If not changing password, omit password attributes
+    if (!formValues.password && !formValues.passwordConfirm) {
+      return _.omit(formValues, ['password', 'passwordConfirm']);
+    }
+
+    return formValues;
+  },
+
   validateFormValues: function(formValues) {
     var validationErrors = {};
-    var validate = this.props.onValidate;
+    var IS_REQUIRED = 'This field is required.';
 
-    validationErrors = validate(formValues);
+    if (!formValues.fullName) {
+      validationErrors.fullName = IS_REQUIRED;
+    }
+
+    if (!formValues.username) {
+      validationErrors.username = IS_REQUIRED;
+    }
+
+    if (formValues.password || formValues.passwordConfirm) {
+      if (!formValues.password) {
+        validationErrors.password = IS_REQUIRED;
+      }
+      else if (!formValues.passwordConfirm) {
+        validationErrors.passwordConfirm = IS_REQUIRED;
+      }
+      else if (formValues.passwordConfirm !== formValues.password) {
+        validationErrors.passwordConfirm = 'Passwords don\'t match.';
+      }
+    }
+
     if (!_.isEmpty(validationErrors)) {
       this.setState({
         validationErrors: validationErrors,
@@ -149,17 +190,25 @@ var Profile = React.createClass({
     return validationErrors;
   },
 
-  omitPasswordAttributesIfNoChange: function(formValues) {
-    if (!formValues.password && !formValues.passwordConfirm) {
-      return _.omit(formValues, ['password', 'passwordConfirm']);
+  prepareFormValuesForSubmit: function(formValues) {
+    var result = {
+      username: formValues.username,
+      emails: [formValues.username],
+      profile: {
+        fullName: formValues.fullName
+      }
+    };
+
+    if (formValues.password) {
+      result.password = formValues.password;
     }
-    return formValues;
+
+    return result;
   },
 
   submitFormValues: function(formValues) {
     var self = this;
     var submit = this.props.onSubmit;
-    formValues = _.omit(formValues, 'passwordConfirm');
 
     // Save optimistically
     submit(formValues);

@@ -21,11 +21,9 @@ var config = window.config;
 var LoginNav = require('../../components/loginnav');
 var LoginLogo = require('../../components/loginlogo');
 var SimpleForm = require('../../components/simpleform');
-var user = require('../../core/user');
 
 var Signup = React.createClass({
   propTypes: {
-    onValidate: React.PropTypes.func.isRequired,
     onSubmit: React.PropTypes.func.isRequired,
     onSubmitSuccess: React.PropTypes.func.isRequired
   },
@@ -41,6 +39,12 @@ var Signup = React.createClass({
     {
       name: 'password',
       label: 'Password',
+      type: 'password',
+      placeholder: '******'
+    },
+    {
+      name: 'passwordConfirm',
+      label: 'Confirm password',
       type: 'password',
       placeholder: '******'
     }
@@ -111,6 +115,8 @@ var Signup = React.createClass({
       return;
     }
 
+    formValues = this.prepareFormValuesForSubmit(formValues);
+
     this.submitFormValues(formValues);
   },
 
@@ -125,9 +131,29 @@ var Signup = React.createClass({
 
   validateFormValues: function(formValues) {
     var validationErrors = {};
-    var validate = this.props.onValidate;
+    var IS_REQUIRED = 'This field is required.';
 
-    validationErrors = validate(formValues);
+    if (!formValues.fullName) {
+      validationErrors.fullName = IS_REQUIRED;
+    }
+
+    if (!formValues.username) {
+      validationErrors.username = IS_REQUIRED;
+    }
+
+    if (!formValues.password) {
+      validationErrors.password = IS_REQUIRED;
+    }
+
+    if (formValues.password) {
+      if (!formValues.passwordConfirm) {
+        validationErrors.passwordConfirm = IS_REQUIRED;
+      }
+      else if (formValues.passwordConfirm !== formValues.password) {
+        validationErrors.passwordConfirm = 'Passwords don\'t match.';
+      }
+    }
+
     if (!_.isEmpty(validationErrors)) {
       this.setState({
         working: false,
@@ -140,6 +166,17 @@ var Signup = React.createClass({
     }
 
     return validationErrors;
+  },
+
+  prepareFormValuesForSubmit: function(formValues) {
+    return {
+      username: formValues.username,
+      emails: [formValues.username],
+      password: formValues.password,
+      profile: {
+        fullName: formValues.fullName
+      }
+    };
   },
 
   submitFormValues: function(formValues) {

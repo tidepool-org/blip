@@ -16,6 +16,6 @@
     "rxjs": "2.2.18",
     "superagent": "0.17.0",
     "tideline": "0.0.33",
-    "tidepool-platform-client": "0.5.2"
+    "tidepool-platform-client": "https://github.com/tidepool-org/platform-client.git#1c15e70c7891d357bb061a95e2bdf33a77063a72"
   }
 }

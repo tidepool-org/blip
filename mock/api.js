@@ -134,7 +134,7 @@ var createPatch = function(options) {
 
     api.user.signup = function(user, callback) {
       user = _.clone(user);
-      user.id = '1';
+      user.userid = '1';
       delete user.password;
 
       setTimeout(function() {
@@ -159,9 +159,9 @@ var createPatch = function(options) {
     api.user.get = function(callback) {
       api.log('[mock] GET /user');
 
-      var user = _.clone(data.user);
+      var user = _.cloneDeep(data.user);
       if (getParam('api.user.get.nopatient')) {
-        user = _.omit(user, 'patient');
+        user.profile = _.omit(user.profile, 'patient');
       }
 
       setTimeout(function() {
@@ -190,9 +190,9 @@ var createPatch = function(options) {
 
       if (!getParam('api.patient.getall.empty')) {
         patients = _.toArray(data.patients);
-        var userPatientId = data.user.patient && data.user.patient.id;
+        var userId = data.user.userid;
         patients = _.filter(patients, function(patient) {
-          return patient.id !== userPatientId;
+          return patient.userid !== userId;
         });
       }
 
@@ -220,15 +220,15 @@ var createPatch = function(options) {
 
     api.patient.post = function(patient, callback) {
       api.log('[mock] POST /patients');
-      patient = _.clone(patient);
-      // Default mock id of patient assigned to user of id '1'
-      patient.id = '11';
+      patient = _.cloneDeep(patient);
+      patient.userid = data.user.userid;
       setTimeout(function() {
         callback(null, patient);
       }, getDelayFor('api.patient.post'));
     };
 
-    api.patient.put = function(patientId, patient, callback) {
+    api.patient.put = function(patient, callback) {
+      var patientId = patient.userid;
       api.log('[mock] PUT /patients/' + patientId);
       var updatedPatient;
       var err;

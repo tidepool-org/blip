@@ -27,8 +27,7 @@ var tideline = require('./core/tideline');
 
 var router = require('./router');
 var api = require('./core/api');
-var user = require('./core/user');
-var patient = require('./core/patient');
+var Person = require('./core/person');
 var queryString = require('./core/querystring');
 var chartUtil = window.tideline.preprocess;
 var detectTouchScreen = require('./core/notouch');
@@ -61,8 +60,7 @@ if (config.MOCK) {
 var app = {
   log: bows('App'),
   api: api,
-  user: user,
-  patient: patient,
+  Person: Person,
   router: router
 };
 
@@ -218,12 +216,10 @@ var AppComponent = React.createClass({
   renderNavbar: function() {
     if (this.state.authenticated) {
       var patient;
-      var isUserPatient;
       var getUploadUrl;
 
       if (this.isPatientVisibleInNavbar()) {
         patient = this.state.patient;
-        isUserPatient = this.isUserPatient();
         getUploadUrl = api.getUploadUrl.bind(api);
       }
 
@@ -235,7 +231,6 @@ var AppComponent = React.createClass({
           fetchingUser={this.state.fetchingUser}
           patient={patient}
           fetchingPatient={this.state.fetchingPatient}
-          isUserPatient={isUserPatient}
           getUploadUrl={getUploadUrl}
           onLogout={this.logout}
           imagesEndpoint={config.IMAGES_ENDPOINT + '/navbar'}
@@ -316,7 +311,6 @@ var AppComponent = React.createClass({
     return (
       /* jshint ignore:start */
       <Login
-        onValidate={this.validateUser}
         onSubmit={this.login}
         onSubmitSuccess={this.handleLoginSuccess}
         trackMetric={trackMetric} />
@@ -333,8 +327,7 @@ var AppComponent = React.createClass({
     return (
       /* jshint ignore:start */
       <Signup
-        onValidate={this.validateUser}
-        onSubmit={app.api.user.signup.bind(app.api.user)}
+        onSubmit={this.signup}
         onSubmitSuccess={this.handleSignupSuccess} />
       /* jshint ignore:end */
     );
@@ -352,7 +345,6 @@ var AppComponent = React.createClass({
       <Profile
           user={this.state.user}
           fetchingUser={this.state.fetchingUser}
-          onValidate={this.validateUser}
           onSubmit={this.updateUser}
           trackMetric={trackMetric}/>
       /* jshint ignore:end */
@@ -435,22 +427,22 @@ var AppComponent = React.createClass({
   },
 
   renderPatientNew: function() {
+    var user = this.state.user;
     var patient;
 
     // Make sure user doesn't already have a patient
     if (this.isDoneFetchingAndUserHasPatient()) {
-      patient = user.getPatientData(this.state.user);
-      var patientId = patient.id;
-      var route = '/patients';
-      if (patientId) {
-        route = route + '/' + patientId;
-      }
+      var patientId = user.userid;
+      var route = '/patients/' + patientId;
       app.log('User already has patient');
       app.router.setRoute(route);
       return;
     }
 
-    patient = _.pick(this.state.user, 'fullName');
+    patient = {
+      userid: user.userid,
+      profile: _.assign({}, user.profile, {patient: {}})
+    };
     var fetchingPatient = this.state.fetchingUser;
 
     /* jshint ignore:start */
@@ -459,8 +451,7 @@ var AppComponent = React.createClass({
           patient={patient}
           fetchingPatient={fetchingPatient}
           isNewPatient={true}
-          onValidate={this.validatePatient}
-          onSubmit={app.api.patient.post.bind(app.api.patient)}
+          onSubmit={this.createPatient}
           onSubmitSuccess={this.handlePatientCreationSuccess}
           trackMetric={trackMetric}/>
     );
@@ -473,7 +464,7 @@ var AppComponent = React.createClass({
       return false;
     }
 
-    return !_.isEmpty(user.getPatientData(this.state.user));
+    return Person.isPatient(this.state.user);
   },
 
   showPatientEdit: function(patientId) {
@@ -493,7 +484,7 @@ var AppComponent = React.createClass({
   renderPatientEdit: function() {
     // On each state change check if user can edit this patient
     if (this.isDoneFetchingAndNotUserPatient()) {
-      var patientId = this.state.patient && this.state.patient.id;
+      var patientId = this.state.patient && this.state.patient.userid;
       var route = '/patients';
       if (patientId) {
         route = route + '/' + patientId;
@@ -508,7 +499,6 @@ var AppComponent = React.createClass({
       <PatientEdit
           patient={this.state.patient}
           fetchingPatient={this.state.fetchingPatient}
-          onValidate={this.validatePatient}
           onSubmit={this.updatePatient}
           trackMetric={trackMetric}/>
     );
@@ -521,11 +511,11 @@ var AppComponent = React.createClass({
       return false;
     }
 
-    return !this.isUserPatient();
+    return !this.isSamePersonUserAndPatient();
   },
 
-  isUserPatient: function() {
-    return user.isUserPatient(this.state.user, this.state.patient);
+  isSamePersonUserAndPatient: function() {
+    return Person.isSame(this.state.user, this.state.patient);
   },
 
   showPatientData: function(patientId) {
@@ -561,7 +551,7 @@ var AppComponent = React.createClass({
         patient={this.state.patient}
         patientData={this.state.patientData}
         fetchingPatientData={this.state.fetchingPatientData}
-        isUserPatient={this.isUserPatient()}
+        isUserPatient={this.isSamePersonUserAndPatient()}
         uploadUrl={api.getUploadUrl()}
         onRefresh={this.fetchCurrentPatientData}
         onFetchMessageThread={this.fetchMessageThread}
@@ -573,8 +563,8 @@ var AppComponent = React.createClass({
   },
 
   login: function(formValues, cb) {
-    var user = _.omit(formValues, 'remember');
-    var options = _.pick(formValues, 'remember');
+    var user = formValues.user;
+    var options = formValues.options;
 
     app.api.user.login(user, options, cb);
   },
@@ -584,6 +574,12 @@ var AppComponent = React.createClass({
     this.setState({authenticated: true});
     this.redirectToDefaultRoute();
     trackMetric('Logged In');
+  },
+
+  signup: function(formValues, cb) {
+    var user = formValues;
+
+    app.api.user.signup(user, cb);
   },
 
   handleSignupSuccess: function(user) {
@@ -723,7 +719,7 @@ var AppComponent = React.createClass({
   fetchPatientData: function(patient) {
     var self = this;
 
-    var patientId = patient.id;
+    var patientId = patient.userid;
 
     self.setState({fetchingPatientData: true});
 
@@ -792,6 +788,10 @@ var AppComponent = React.createClass({
   },
 
   processPatientData: function(data) {
+    if (!(data && data.length)) {
+      return null;
+    }
+
     var processData = chartUtil.processData(data);
     window.tidelineData = processData;
     return  processData;
@@ -816,26 +816,24 @@ var AppComponent = React.createClass({
     });
   },
 
-  validateUser: function(user) {
-    return app.user.validate(user);
-  },
-
-  updateUser: function(user) {
+  updateUser: function(formValues) {
     var self = this;
     var previousUser = this.state.user;
 
-    user = _.assign(_.cloneDeep(this.state.user), user);
+    var user = _.assign(
+      {},
+      _.omit(previousUser, 'profile'),
+      _.omit(formValues, 'profile'),
+      {profile: _.assign({}, previousUser.profile, formValues.profile)}
+    );
 
     // Optimistic update
     self.setState({user: _.omit(user, 'password')});
 
-    // Make sure we only save user attributes to backend
-    user = _.pick(user, app.user.getAttributeNames());
-
     // If username hasn't changed, don't try to update
     // or else backend will respond with "already taken" error
     if (user.username === previousUser.username) {
-      user = _.omit(user, 'username');
+      user = _.omit(user, 'username', 'emails');
     }
 
     app.api.user.put(user, function(err, user) {
@@ -850,18 +848,18 @@ var AppComponent = React.createClass({
     });
   },
 
-  validatePatient: function(patient) {
-    return app.patient.validate(patient);
+  createPatient: function(patient, cb) {
+    app.api.patient.post(patient, cb);
   },
 
   handlePatientCreationSuccess: function(patient) {
     this.setState({
       user: _.extend({}, this.state.user, {
-        patient: {id: patient.id}
+        patient: _.cloneDeep(Person.patientInfo(patient))
       }),
       patient: patient
     });
-    var route = '/patients/' + patient.id + '/data';
+    var route = '/patients/' + patient.userid + '/data';
     app.router.setRoute(route);
   },
 
@@ -869,15 +867,10 @@ var AppComponent = React.createClass({
     var self = this;
     var previousPatient = this.state.patient;
 
-    patient = _.assign(_.cloneDeep(this.state.patient), patient);
-
-    // Make sure we only save patient attributes to backend
-    patient = _.pick(patient, app.patient.getAttributeNames());
-
     // Optimistic update
     self.setState({patient: patient});
 
-    app.api.patient.put(patient.id, patient, function(err, patient) {
+    app.api.patient.put(patient, function(err, patient) {
       if (err) {
         var message = 'An error occured while saving patient';
         // Rollback
