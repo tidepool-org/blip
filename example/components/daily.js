@@ -14,7 +14,7 @@ var Footer = require('./footer');
 
 var Daily = React.createClass({
   chartType: 'daily',
-  log: bows('One-Day View'),
+  log: bows('Daily View'),
   propTypes: {
     chartPrefs: React.PropTypes.object.isRequired,
     imagesBaseUrl: React.PropTypes.string.isRequired,

@@ -16,9 +16,9 @@ var tideline = {
   log: bows('Two Weeks')
 };
 
-var TwoWeeks = React.createClass({
+var Weekly = React.createClass({
   chartType: 'weekly',
-  log: bows('Two-Week View'),
+  log: bows('Weekly View'),
   propTypes: {
     chartPrefs: React.PropTypes.object.isRequired,
     imagesBaseUrl: React.PropTypes.string.isRequired,
@@ -202,4 +202,4 @@ var WeeklyChart = React.createClass({
   }
 });
 
-module.exports = TwoWeeks;
+module.exports = Weekly;
