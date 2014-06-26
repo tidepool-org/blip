@@ -13,7 +13,7 @@ Dependencies:
 ### Integration tests
 
 ```bash
-$ grunt test-integration
+$ grunt test
 ```
 
 To run the integration tests you need to be running platform components locally, see the [Runservers Script](https://github.com/tidepool-org/tools).

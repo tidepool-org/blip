@@ -215,7 +215,7 @@ module.exports = function (config, deps) {
    * @returns {cb}  cb(err, response)
    */
   function doGetWithToken(path, codes, cb) {
-    //if the cb is not defined and the codes param is a function then set that 
+    //if the cb is not defined and the codes param is a function then set that
     //to be the cb
     if (cb == null && typeof(codes) === 'function') {
       cb = codes;
@@ -583,21 +583,17 @@ module.exports = function (config, deps) {
     /**
      * Add a new or update an existing profile for a user
      *
-     * @param {Object} user object with profile info and `id` attribute
+     * @param {String} userId id of the user you are updating the profile of
+     * @param {Object} profile object
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    addOrUpdateProfile: function (user, cb) {
-      if (user.id == null) {
-        return cb({ message: 'Must specify an id' });
-      }
-      assertArgumentsSize(arguments, 2);
-
-      var userProfile = _.omit(user, 'id', 'username', 'password', 'emails');
+    addOrUpdateProfile: function (userId, profile, cb) {
+      assertArgumentsSize(arguments, 3);
 
       doPutWithToken(
-        '/metadata/' + user.id + '/profile',
-        userProfile,
+        '/metadata/' + userId + '/profile',
+        profile,
         cb
       );
     },
