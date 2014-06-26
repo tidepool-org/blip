@@ -19,8 +19,8 @@ var Settings = React.createClass({
   chartType: 'settings',
   log: bows('Settings View'),
   propTypes: {
-    patientData: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
+    patientData: React.PropTypes.object.isRequired,
     switchToDaily: React.PropTypes.func.isRequired,
     switchToSettings: React.PropTypes.func.isRequired,
     switchToWeekly: React.PropTypes.func.isRequired

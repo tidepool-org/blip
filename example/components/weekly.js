@@ -20,10 +20,10 @@ var TwoWeeks = React.createClass({
   chartType: 'weekly',
   log: bows('Two-Week View'),
   propTypes: {
-    patientData: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
     imagesBaseUrl: React.PropTypes.string.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
+    patientData: React.PropTypes.object.isRequired,
     switchToDaily: React.PropTypes.func.isRequired,
     switchToSettings: React.PropTypes.func.isRequired,
     switchToWeekly: React.PropTypes.func.isRequired
