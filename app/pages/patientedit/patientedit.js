@@ -76,6 +76,10 @@ var PatientEdit = React.createClass({
     this.setState({formValues: formValues});
   },
 
+  componentWillUnmount: function() {
+    clearTimeout(this.messageTimeoutId);
+  },
+
   render: function() {
     var subnav = this.renderSubnav();
     var name = this.renderName();

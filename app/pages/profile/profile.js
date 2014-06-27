@@ -50,6 +50,10 @@ var Profile = React.createClass({
     this.setState({formValues: nextProps.user || {}});
   },
 
+  componentWillUnmount: function() {
+    clearTimeout(this.messageTimeoutId);
+  },
+
   render: function() {
     var form = this.renderForm();
     var self = this;
