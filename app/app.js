@@ -366,6 +366,7 @@ var AppComponent = React.createClass({
           fetchingUser={this.state.fetchingUser}
           patients={this.state.patients}
           fetchingPatients={this.state.fetchingPatients}
+          onSetAsCareGiver={this.setUserAsCareGiver}
           trackMetric={trackMetric}/>
     );
     /* jshint ignore:end */
@@ -846,6 +847,12 @@ var AppComponent = React.createClass({
       }
       self.setState({user: user});
       trackMetric('Updated Account');
+    });
+  },
+
+  setUserAsCareGiver: function() {
+    this.updateUser({
+      profile: {isOnlyCareGiver: true}
     });
   },
 

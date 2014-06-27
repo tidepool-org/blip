@@ -43,8 +43,11 @@ Person.patientFullName = function(person) {
 };
 
 Person.patientIsOtherPerson = function(person) {
-  return Boolean(utils.getIn(person,
-    ['profile', 'patient', 'isOtherPerson'], false));
+  return Boolean(utils.getIn(person, ['profile', 'patient', 'isOtherPerson']));
+};
+
+Person.isOnlyCareGiver = function(person) {
+  return Boolean(utils.getIn(person, ['profile', 'isOnlyCareGiver']));
 };
 
 Person.isSame = function(first, second) {

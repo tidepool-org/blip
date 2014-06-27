@@ -244,8 +244,16 @@ var Patient = React.createClass({
     if (_.isEmpty(members)) {
       /* jshint ignore:start */
       return (
-        <div className="patient-team-empty">
-          People added to this care team will appear here.
+        <div>
+          <div className="patient-team-message">
+            {'No Care Team members yet.'}
+          </div>
+          <div className="patient-team-message patient-team-message-small">
+            {'Want to add someone to this team? Please email us at '}
+            <strong>{'support@tidepool.org'}</strong>
+            {' with the email address of the person you want to add,'}
+            {' and we\'ll take it from there!'}
+          </div>
         </div>
       );
       /* jshint ignore:end */

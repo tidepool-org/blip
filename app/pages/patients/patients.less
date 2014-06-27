@@ -1,62 +1,75 @@
 /**
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-@patients-content-width:            800px;
-@patients-content-breakpoint:       @screen-lg-min;
+@patients-box-max-width: 680px;
 
-.patients-box-outer {
+.patients {
+  margin-right: auto;
+  margin-left: auto;
+  max-width: @patients-box-max-width;
   margin-bottom: @spacing-large;
-}
-
-.patients-box-inner {
-  background-color: #fff;
-
-  padding-top: @spacing-base;
-  padding-bottom: @spacing-large;
-
-  // On small screens let patient list items take full screen width
-  padding-left: 0;
-  padding-right: 0;
-}
-
-.patients-content {
-  @media(min-width: @patients-content-breakpoint) {
-    margin-left: auto;
-    margin-right: auto;
-    width: @patients-content-width;
-  }
 }
 
 .patients-section {
+  background-color: #fff;
   margin-bottom: @spacing-large;
 }
 
+.patients-section-title-wrapper {
+  text-align: center;
+  margin-bottom: @spacing-base;
+}
+
 .patients-section-title {
+  display: inline-block;
+  color: #fff;
+  background-color: @gray-dark;
+  padding: @spacing-small;
+}
+
+.patients-section-content {
   padding: 0 @spacing-small;
-  margin-bottom: @spacing-small;
-  text-align: center;
+  padding-bottom: @spacing-base;
 }
 
-// Used to display message/link when list is empty
-.patients-empty-list {
+// Used to display message/buttons when list is empty
+.patients-message {
+  color: @gray-dark;
+  font-style: italic;
+  text-align: center;
+
   margin-top: @spacing-base;
-  text-align: center;
+  margin-bottom: @spacing-base;
 }
 
-.patients-empty-list a {
+.patients-message-small {
+  font-size: 14px;
+}
+
+.patients-message-separator {
+  margin: 5px 0;
+}
+
+.patients-message-loading {
+  padding-top: @spacing-base;
+  padding-bottom: @spacing-base;
+}
+
+.patients-message-button {
   font-weight: bold;
+  font-style: normal;
   color: @gray-dark;
   text-decoration: none;
 
@@ -69,9 +82,4 @@
   &:active {
     color: @gray;
   }
-}
-
-.patients-empty-list-message {
-  color: @gray-dark;
-  font-style: italic;
 }
