@@ -177,23 +177,27 @@ function TidelineData(data, opts) {
   this.basalUtil = new BasalUtil(this.grouped['basal-rate-segment']);
   this.bolusUtil = new BolusUtil(this.grouped.bolus);
   this.cbgUtil = new BGUtil(this.grouped.cbg, {DAILY_MIN: (opts.CBG_PERCENT_FOR_ENOUGH * opts.CBG_MAX_DAILY)});
-  
-  this.settingsUtil = new SettingsUtil(this.grouped.settings || [], [this.diabetesData[0].normalTime, this.diabetesData[this.diabetesData.length - 1].normalTime]);
-  this.settingsUtil.getAllSchedules(this.settingsUtil.endpoints[0], this.settingsUtil.endpoints[1]);
-  var segmentsBySchedule = this.settingsUtil.annotateBasalSettings(this.basalUtil.actual);
-  this.grouped['basal-settings-segment'] = [];
-  for (var key in segmentsBySchedule) {
-    this.grouped['basal-settings-segment'] = this.grouped['basal-settings-segment'].concat(segmentsBySchedule[key]);
-  }
-  this.data = _.sortBy(data.concat(this.grouped['basal-settings-segment']), function(d) {
-    return d.normalTime;
-  });
-  
   this.smbgUtil = new BGUtil(this.grouped.smbg, {DAILY_MIN: opts.SMBG_DAILY_MIN});
+  
+  if (data.length > 0) {
+    this.settingsUtil = new SettingsUtil(this.grouped.settings || [], [this.diabetesData[0].normalTime, this.diabetesData[this.diabetesData.length - 1].normalTime]);
+    this.settingsUtil.getAllSchedules(this.settingsUtil.endpoints[0], this.settingsUtil.endpoints[1]);
+    var segmentsBySchedule = this.settingsUtil.annotateBasalSettings(this.basalUtil.actual);
+    this.grouped['basal-settings-segment'] = [];
+    for (var key in segmentsBySchedule) {
+      this.grouped['basal-settings-segment'] = this.grouped['basal-settings-segment'].concat(segmentsBySchedule[key]);
+    }
+    this.data = _.sortBy(data.concat(this.grouped['basal-settings-segment']), function(d) {
+      return d.normalTime;
+    });
 
-  this.generateFillData().adjustFillsForTwoWeekView();
-  this.data = _.sortBy(this.data.concat(this.grouped.fill), function(d) { return d.normalTime; });
-
+    this.generateFillData().adjustFillsForTwoWeekView();
+    this.data = _.sortBy(this.data.concat(this.grouped.fill), function(d) { return d.normalTime; });
+  }
+  else {
+    this.data = [];
+  }
+  
   updateCrossFilters(this.data);
 
   return this;
