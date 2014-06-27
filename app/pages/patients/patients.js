@@ -125,6 +125,7 @@ var Patients = React.createClass({
     return (
       <PeopleList
         people={patients}
+        isPatientList={true}
         onClickPerson={this.handleClickPatient}/>
     );
     /* jshint ignore:end */

@@ -176,6 +176,7 @@ var createPatch = function(options) {
         if (getParam('api.user.put.error')) {
           err = {status: 500};
         }
+        user = _.assign({}, data.user, user);
         delete user.password;
         delete user.passwordConfirm;
         callback(err, user);

@@ -22,6 +22,7 @@ var Person = require('../../core/person');
 var PeopleList = React.createClass({
   propTypes: {
     people: React.PropTypes.array,
+    isPatientList: React.PropTypes.bool,
     onClickPerson: React.PropTypes.func
   },
 
@@ -84,7 +85,14 @@ var PeopleList = React.createClass({
   },
 
   getPersonDisplayName: function(person) {
-    var fullName = Person.fullName(person);
+    var fullName;
+
+    if (this.props.isPatientList) {
+      fullName = Person.patientFullName(person);
+    }
+    else {
+      fullName = Person.fullName(person);
+    }
 
     if (!fullName) {
       return 'Anonymous user';
