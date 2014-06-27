@@ -108,32 +108,57 @@ function chartDailyFactory(el, options) {
       .weight(1.5)
       .gutterWeight(1.0);
 
-    // basal data pool
-    poolBasal = chart.newPool()
-      .id('poolBasal', chart.poolGroup())
-      .label([{
-        'main': 'Basal Rates',
-        'light': ' (U/hr)'
-      }])
-      .legend(['basal'])
-      .index(chart.pools().indexOf(poolBasal))
-      .weight(1.0)
-      .gutterWeight(1.0);
+    if (chart.options.hiddenPools.basalSettings) {
+      // basal settings pool, bare
+      poolBasalSettings = chart.newPool()
+        .id('poolBasalSettings', chart.poolGroup())
+        .label('')
+        .index(chart.pools().indexOf(poolBasal))
+        .weight(1.0)
+        .gutterWeight(1.0)
+        .hidden(chart.options.hiddenPools.basalSettings);
 
-    // basal settings pool
-    poolBasalSettings = chart.newPool()
-      .id('poolBasalSettings', chart.poolGroup())
-      .index(chart.pools().indexOf(poolBasal))
-      .weight(1.0)
-      .gutterWeight(0.0)
-      .hidden(chart.options.hiddenPools.basalSettings);
+      // basal data pool with label, legend, and gutter
+      poolBasal = chart.newPool()
+        .id('poolBasal', chart.poolGroup())
+        .label([{
+          'main': 'Basal Rates',
+          'light': ' (U/hr)'
+        }])
+        .legend(['basal'])
+        .index(chart.pools().indexOf(poolBasal))
+        .weight(1.0)
+        .gutterWeight(1.0);
+    }
+    else {
+      // basal settings pool with label, legend, and gutter
+      poolBasalSettings = chart.newPool()
+        .id('poolBasalSettings', chart.poolGroup())
+        .label([{
+          'main': 'Basal Rates',
+          'light': ' (U/hr)'
+        }])
+        .legend(['basal'])
+        .index(chart.pools().indexOf(poolBasal))
+        .weight(1.0)
+        .gutterWeight(1.0)
+        .hidden(chart.options.hiddenPools.basalSettings);
+
+      // basal data pool, bare
+      poolBasal = chart.newPool()
+        .id('poolBasal', chart.poolGroup())
+        .label('')
+        .index(chart.pools().indexOf(poolBasal))
+        .weight(1.0)
+        .gutterWeight(0.0);
+    }
 
     // stats data pool
     poolStats = chart.newPool()
       .id('poolStats', chart.poolGroup())
       .index(chart.pools().indexOf(poolStats))
       .weight(1.0)
-      .gutterWeight(1.2);
+      .gutterWeight(1.0);
 
     chart.arrangePools();
 
@@ -375,12 +400,16 @@ function chartDailyFactory(el, options) {
   };
 
   chart.drawBasalSettingsButton = function() {
+    var labelGroup = d3.select(el).select('#tidelineLabels');
+    var labelTextBox = chart.options.hiddenPools.basalSettings ?
+      labelGroup.select('text#poolBasal_label_0')[0][0].getBBox() :
+      labelGroup.select('text#poolBasalSettings_label_0')[0][0].getBBox();
     var verticalTranslation = chart.options.hiddenPools.basalSettings ?
-      (poolBasal.yPosition() + poolBasal.height()) : (poolBasal.yPosition() + 2 * poolBasal.height());
-    var fo = d3.select(el).select('#tidelineLabels')
-      .append('foreignObject')
+      poolBasal.yPosition() - labelTextBox.height :
+      poolBasalSettings.yPosition() - labelTextBox.height;
+    var fo = labelGroup.append('foreignObject')
       .attr({
-        transform: 'translate(' + chart.axisGutter() + ',' + verticalTranslation + ')'
+        transform: 'translate(' + (chart.axisGutter() + labelTextBox.width) + ',' + verticalTranslation + ')'
       });
 
     var div = fo.append('xhtml:div')
