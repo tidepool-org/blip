@@ -20,24 +20,28 @@ var Daily = React.createClass({
     imagesBaseUrl: React.PropTypes.string.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
-    switchToDaily: React.PropTypes.func.isRequired,
-    switchToSettings: React.PropTypes.func.isRequired,
-    switchToWeekly: React.PropTypes.func.isRequired
+    onSwitchToDaily: React.PropTypes.func.isRequired,
+    onSwitchToSettings: React.PropTypes.func.isRequired,
+    onSwitchToWeekly: React.PropTypes.func.isRequired,
+    updateChartPrefs: React.PropTypes.func.isRequired,
+    updateDatetimeLocation: React.PropTypes.func.isRequired
   },
   getInitialState: function() {
     return {
-      hiddenPools: {
-        basalSettings: true
-      }
+      atMostRecent: false,
+      inTransition: false,
+      title: ''
     };
   },
   render: function() {
-    this.log('Rendering...');
     /* jshint ignore:start */
     return (
       <div id="tidelineMain" className="grid">
         <Header 
           chartType={this.chartType}
+          inTransition={this.state.inTransition}
+          atMostRecent={this.state.atMostRecent}
+          title={this.state.title}
           onClickBack={this.handlePanBack}
           onClickMostRecent={this.handleClickMostRecent}
           onClickNext={this.handlePanForward}
@@ -47,7 +51,7 @@ var Daily = React.createClass({
         <div id="tidelineOuterContainer">
           <DailyChart
             bgUnits={this.props.chartPrefs.bgUnits}
-            hiddenPools={this.state.hiddenPools}
+            hiddenPools={this.props.chartPrefs.hiddenPools}
             imagesBaseUrl={this.props.imagesBaseUrl}
             initialDatetimeLocation={this.props.initialDatetimeLocation}
             patientData={this.props.patientData}
@@ -61,11 +65,14 @@ var Daily = React.createClass({
         </div>
         <Footer
          chartType={this.chartType}
-         onClickSettings={this.props.switchToSettings}
+         onClickSettings={this.props.onSwitchToSettings}
         ref="footer" />
       </div>
       );
     /* jshint ignore:end */
+  },
+  getTitle: function(datetime) {
+    return moment(datetime).utc().format('dddd, MMMM Do');
   },
   // handlers
   handleClickMostRecent: function() {
@@ -76,30 +83,37 @@ var Daily = React.createClass({
   },
   handleClickTwoWeeks: function() {
     var datetime = this.refs.chart.getCurrentDay();
-    this.props.switchToWeekly(datetime);
+    this.props.onSwitchToWeekly(datetime);
   },
   handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
-    var title = moment(datetimeLocationEndpoints[1]).utc().format('dddd, MMMM Do');
-    this.refs.header.updateTitle(title);
+    this.setState({
+      datetimeLocation: datetimeLocationEndpoints[1],
+      title: this.getTitle(datetimeLocationEndpoints[1])
+    });
+    this.props.updateDatetimeLocation(datetimeLocationEndpoints[1]);
   },
   handleHideBasalSettings: function() {
-    this.setState({
+    this.props.updateChartPrefs({
       hiddenPools: {
         basalSettings: true
       }
     });
-    var chartOpts = {imagesBaseUrl: this.props.imagesBaseUrl};
-    _.assign(chartOpts, this.state, this.props.chartPrefs);
-    var chart = this.refs.chart;
-    chart.unmountChart();
-    chart.mountChart(chart.getDOMNode(), chartOpts);
-    chart.initializeChart(this.props.patientData, chart.state.datetimeLocation);
+    this.setState({
+      hiddenPools: {
+        basalSettings: true
+      }
+    }, this.refs.chart.rerenderChart);
   },
   handleInTransition: function(inTransition) {
-    this.refs.header.arrowsInTransition(inTransition);
+    this.setState({
+      inTransition: inTransition
+    });
+    
   },
-  handleMostRecent: function(mostRecent) {
-    this.refs.header.updateMostRecent(mostRecent);
+  handleMostRecent: function(atMostRecent) {
+    this.setState({
+      atMostRecent: atMostRecent
+    });
   },
   handlePanBack: function() {
     this.refs.chart.panBack();
@@ -108,22 +122,21 @@ var Daily = React.createClass({
     this.refs.chart.panForward();
   },
   handleShowBasalSettings: function() {
-    this.setState({
+    this.props.updateChartPrefs({
       hiddenPools: {
         basalSettings: false
       }
     });
-    var chartOpts = {imagesBaseUrl: this.props.imagesBaseUrl};
-    _.assign(chartOpts, this.state, this.props.chartPrefs);
-    var chart = this.refs.chart;
-    chart.unmountChart();
-    chart.mountChart(chart.getDOMNode(), chartOpts);
-    chart.initializeChart(this.props.patientData, chart.state.datetimeLocation);
+    this.setState({
+      hiddenPools: {
+        basalSettings: false
+      }
+    }, this.refs.chart.rerenderChart);
   }
 });
 
 var DailyChart = React.createClass({
-  chartOpts: ['bgUnits', 'hiddenPools'],
+  chartOpts: ['bgUnits', 'hiddenPools', 'imagesBaseUrl'],
   log: bows('Daily Chart'),
   propTypes: {
     bgUnits: React.PropTypes.string.isRequired,
@@ -138,17 +151,21 @@ var DailyChart = React.createClass({
     onShowBasalSettings: React.PropTypes.func.isRequired,
     onTransition: React.PropTypes.func.isRequired
   },
+  getInitialState: function() {
+    return {
+      datetimeLocation: null
+    };
+  },
   componentDidMount: function() {
-    this.mountChart(this.getDOMNode());
-    this.initializeChart(this.props.patientData, this.props.initialDatetimeLocation);
+    this.mountChart();
+    this.initializeChart(this.props.initialDatetimeLocation);
   },
   componentWillUnmount: function() {
     this.unmountChart();
   },
-  mountChart: function(node, chartOpts) {
+  mountChart: function() {
     this.log('Mounting...');
-    chartOpts = chartOpts || {imagesBaseUrl: this.props.imagesBaseUrl};
-    this.chart = chartDailyFactory(node, _.assign(chartOpts, _.pick(this.props, this.chartOpts)))
+    this.chart = chartDailyFactory(this.getDOMNode(), _.pick(this.props, this.chartOpts))
       .setupPools();
     this.bindEvents();
   },
@@ -163,15 +180,18 @@ var DailyChart = React.createClass({
     this.chart.emitter.on('mostRecent', this.props.onMostRecent);
     this.chart.emitter.on('showBasalSettings', this.props.onShowBasalSettings);
   },
-  initializeChart: function(data, datetimeLocation) {
+  initializeChart: function(datetime) {
     this.log('Initializing...');
-    if (_.isEmpty(data)) {
+    if (_.isEmpty(this.props.patientData)) {
       throw new Error('Cannot create new chart with no data');
     }
 
-    this.chart.load(data);
-    if (datetimeLocation) {
-      this.chart.locate(datetimeLocation);
+    this.chart.load(this.props.patientData);
+    if (datetime) {
+      this.chart.locate(datetime);
+    }
+    else if (this.state.datetimeLocation != null) {
+      this.chart.locate(this.state.datetimeLocation);
     }
     else {
       this.chart.locate();
@@ -191,11 +211,16 @@ var DailyChart = React.createClass({
     });
     this.props.onDatetimeLocationChange(datetimeLocationEndpoints);
   },
+  rerenderChart: function() {
+    this.unmountChart();
+    this.mountChart();
+    this.initializeChart();
+  },
   getCurrentDay: function() {
     return this.chart.getCurrentDay().toISOString();
   },
   goToMostRecent: function() {
-    this.chart.locate();
+    this.chart.setAtDate(null, true);
   },
   panBack: function() {
     this.chart.panBack();

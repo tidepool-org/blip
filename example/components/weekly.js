@@ -24,22 +24,29 @@ var Weekly = React.createClass({
     imagesBaseUrl: React.PropTypes.string.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
-    switchToDaily: React.PropTypes.func.isRequired,
-    switchToSettings: React.PropTypes.func.isRequired,
-    switchToWeekly: React.PropTypes.func.isRequired
+    onSwitchToDaily: React.PropTypes.func.isRequired,
+    onSwitchToSettings: React.PropTypes.func.isRequired,
+    onSwitchToWeekly: React.PropTypes.func.isRequired,
+    updateChartPrefs: React.PropTypes.func.isRequired,
+    updateDatetimeLocation: React.PropTypes.func.isRequired
   },
   getInitialState: function() {
     return {
-      showingValues: false
+      atMostRecent: false,
+      inTransition: false,
+      showingValues: false,
+      title: ''
     };
   },
   render: function() {
-    this.log('Rendering...');
     /* jshint ignore:start */
     return (
       <div id="tidelineMain" className="grid">
         <Header 
           chartType={this.chartType}
+          atMostRecent={this.state.atMostRecent}
+          inTransition={this.state.inTransition}
+          title={this.state.title}
           onClickBack={this.handlePanBack}
           onClickMostRecent={this.handleClickMostRecent}
           onClickNext={this.handlePanForward}
@@ -62,13 +69,19 @@ var Weekly = React.createClass({
         </div>
         <Footer
          chartType={this.chartType}
-         onClickSettings={this.props.switchToSettings}
+         onClickSettings={this.props.onSwitchToSettings}
          onClickValues={this.toggleValues}
          showingValues={this.state.showingValues}
         ref="footer" />
       </div>
       );
     /* jshint ignore:end */
+  },
+  formatDate: function(datetime) {
+    return moment(datetime).utc().format('MMMM Do');
+  },
+  getTitle: function(datetimeLocationEndpoints) {
+    return this.formatDate(datetimeLocationEndpoints[0]) + ' - ' + this.formatDate(datetimeLocationEndpoints[1]);
   },
   // handlers
   handleClickMostRecent: function() {
@@ -77,23 +90,27 @@ var Weekly = React.createClass({
   },
   handleClickOneDay: function() {
     var datetime = this.refs.chart.getCurrentDay();
-    this.props.switchToDaily(datetime);
+    this.props.onSwitchToDaily(datetime);
   },
   handleClickTwoWeeks: function() {
     return;
   },
   handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
-    function formatDate(datetime) {
-      return moment(datetime).utc().format('MMMM Do');
-    }
-    var title = formatDate(datetimeLocationEndpoints[0]) + ' - ' + formatDate(datetimeLocationEndpoints[1]);
-    this.refs.header.updateTitle(title);
+    this.setState({
+      datetimeLocation: datetimeLocationEndpoints[1],
+      title: this.getTitle(datetimeLocationEndpoints)
+    });
+    this.props.updateDatetimeLocation(this.refs.chart.getCurrentDay());
   },
   handleInTransition: function(inTransition) {
-    this.refs.header.arrowsInTransition(inTransition);
+    this.setState({
+      inTransition: inTransition
+    });
   },
-  handleMostRecent: function(mostRecent) {
-    this.refs.header.updateMostRecent(mostRecent);
+  handleMostRecent: function(atMostRecent) {
+    this.setState({
+      atMostRecent: atMostRecent
+    });
   },
   handlePanBack: function() {
     this.refs.chart.panBack();
@@ -102,7 +119,7 @@ var Weekly = React.createClass({
     this.refs.chart.panForward();
   },
   handleSelectSMBG: function(datetime) {
-    this.props.switchToDaily(datetime);
+    this.props.onSwitchToDaily(datetime);
   },
   toggleValues: function() {
     if (this.state.showingValues) {
