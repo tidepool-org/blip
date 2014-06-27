@@ -400,10 +400,11 @@ describe('platform client', function () {
         expect(added).to.exist;
 
         var edits = {
+          id: added.id,
           messagetext : 'we have updated'
         };
 
-        pwdClient.editMessage(added, edits, function (error, update) {
+        pwdClient.editMessage(edits, function (error, update) {
 
           expect(error).to.not.exist;
           expect(update).to.exist;
@@ -428,10 +429,11 @@ describe('platform client', function () {
         expect(added).to.exist;
 
         var edits = {
+          id: added.id,
           timestamp : new Date().toISOString()
         };
 
-        pwdClient.editMessage(added, edits, function (error, update) {
+        pwdClient.editMessage(edits, function (error, update) {
 
           expect(error).to.not.exist;
           expect(update).to.exist;
@@ -442,7 +444,7 @@ describe('platform client', function () {
       });
     });
     it('an edit with nothing to update is rejected', function (done) {
-      pwdClient.editMessage(noteToAddId, {}, function (error, update) {
+      pwdClient.editMessage({}, function (error, update) {
         expect(error).to.exist;
         expect(error.message).to.exist;
         expect(update).to.not.exist;
