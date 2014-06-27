@@ -20,8 +20,7 @@ var utils = require('./utils');
 var Person = {};
 
 Person.fullName = function(person) {
-  var profile = person.profile || {};
-  return profile.fullName;
+  return utils.getIn(person, ['profile', 'fullName']);
 };
 
 Person.patientInfo = function(person) {
@@ -33,7 +32,7 @@ Person.isPatient = function(person) {
 };
 
 Person.patientFullName = function(person) {
-  var profile = person.profile || {};
+  var profile = utils.getIn(person, ['profile'], {});
   var patientInfo = profile.patient || {};
 
   if (patientInfo.isOtherPerson) {
@@ -41,6 +40,11 @@ Person.patientFullName = function(person) {
   }
 
   return profile.fullName;
+};
+
+Person.patientIsOtherPerson = function(person) {
+  return Boolean(utils.getIn(person,
+    ['profile', 'patient', 'isOtherPerson'], false));
 };
 
 Person.isSame = function(first, second) {

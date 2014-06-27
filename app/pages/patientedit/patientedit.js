@@ -19,6 +19,7 @@ var _ = window._;
 var moment = window.moment;
 
 var SimpleForm = require('../../components/simpleform');
+var InputGroup = require('../../components/inputgroup');
 var Person = require('../../core/person');
 var Datetime = require('../../core/datetime');
 
@@ -36,6 +37,11 @@ var PatientEdit = React.createClass({
   },
 
   formInputs: [
+    {
+      name: 'fullName',
+      label: 'New Care Team for: *',
+      placeholder: 'ex: Jessica Carter'
+    },
     {
       name: 'birthday',
       label: 'Date of birth *',
@@ -55,10 +61,13 @@ var PatientEdit = React.createClass({
   ],
 
   MESSAGE_TIMEOUT: 2000,
+  IS_SAME_PERSON: 'This is for me, I have type 1 diabetes',
+  IS_OTHER_PERSON: 'This is for someone I care for who has type 1 diabetes',
 
   getInitialState: function() {
     return {
       working: false,
+      isOtherPerson: Person.patientIsOtherPerson(this.props.patient),
       formValues: this.formValuesFromPatient(this.props.patient),
       validationErrors: {},
       notification: null
@@ -73,6 +82,10 @@ var PatientEdit = React.createClass({
     var formValues = {};
     var patientInfo = Person.patientInfo(patient);
 
+    if (patientInfo.isOtherPerson) {
+      formValues.fullName = patientInfo.fullName;
+    }
+
     if (patientInfo.birthday) {
       formValues.birthday = moment(patientInfo.birthday)
         .format(DISPLAY_DATE_FORMAT);
@@ -83,7 +96,9 @@ var PatientEdit = React.createClass({
         .format(DISPLAY_DATE_FORMAT);
     }
 
-    formValues.about = patientInfo.about;
+    if (patientInfo.about) {
+      formValues.about = patientInfo.about;
+    }
 
     return formValues;
   },
@@ -99,6 +114,8 @@ var PatientEdit = React.createClass({
 
   render: function() {
     var subnav = this.renderSubnav();
+    var options = this.renderOptions();
+    var name = this.renderName();
     var form = this.renderForm();
 
     /* jshint ignore:start */
@@ -108,6 +125,8 @@ var PatientEdit = React.createClass({
         <div className="container-box-outer patient-edit-content-outer">
           <div className="container-box-inner patient-edit-content-inner">
             <div className="patient-edit-content">
+              {options}
+              {name}
               {form}
             </div>
           </div>
@@ -170,46 +189,80 @@ var PatientEdit = React.createClass({
     return 'Edit profile';
   },
 
-  // renderName: function() {
-  //   var className = 'patient-edit-name';
-  //   var displayName = this.getPatientDisplayName(this.props.patient);
-  //
-  //   if (!this.props.patient) {
-  //     className = className + ' patient-edit-name-empty';
-  //   }
-  //
-  //   /* jshint ignore:start */
-  //   return (
-  //     <div className={className}>{displayName}</div>
-  //   );
-  //   /* jshint ignore:end */
-  // },
+  renderOptions: function() {
+    var items = [
+      {value: 'no', label: this.IS_SAME_PERSON},
+      {value: 'yes', label: this.IS_OTHER_PERSON}
+    ];
+    var value = this.state.isOtherPerson ? 'yes' : 'no';
+    var disabled = this.isResettingPatientData();
 
-  // getPatientDisplayName: function(patient) {
-  //   if (_.isEmpty(patient)) {
-  //     return '';
-  //   }
-  //
-  //   return patient.fullName;
-  // },
+    /* jshint ignore:start */
+    return (
+      <InputGroup
+        name="isOtherPerson"
+        items={items}
+        value={value}
+        type={'radios'}
+        disabled={disabled}
+        onChange={this.handleOptionsChange}/>
+    );
+    /* jshint ignore:end */
+  },
+
+  renderName: function() {
+    if (this.state.isOtherPerson) {
+      return null;
+    }
+
+    var label = 'Care Team for:';
+    if (this.props.isNewPatient) {
+      label = 'New ' + label;
+    }
+
+    /* jshint ignore:start */
+    return (
+      <div className="patient-edit-name">
+        {label}
+        <div className="patient-edit-name-value">
+          {Person.fullName(this.props.patient)}
+        </div>
+      </div>
+    );
+    /* jshint ignore:end */
+  },
 
   renderForm: function() {
+    var formInputs = this.getFormInputs();
     var submitButtonText = this.getSubmitButtonText();
     var disabled = this.isResettingPatientData();
 
     /* jshint ignore:start */
     return (
       <SimpleForm
-        inputs={this.formInputs}
+        inputs={formInputs}
         formValues={this.state.formValues}
         validationErrors={this.state.validationErrors}
         submitButtonText={submitButtonText}
         submitDisabled={this.state.working}
         onSubmit={this.handleSubmit}
         notification={this.state.notification}
-        disabled={disabled}/>
+        disabled={disabled}
+        ref="form"/>
     );
     /* jshint ignore:end */
+  },
+
+  getFormInputs: function() {
+    var formInputs = this.formInputs;
+
+    if (!this.state.isOtherPerson) {
+      formInputs = _.filter(formInputs, function(input) {
+        return (input.name !== 'fullName');
+      });
+    }
+
+    return formInputs;
   },
 
   getSubmitButtonText: function() {
@@ -225,6 +278,18 @@ var PatientEdit = React.createClass({
 
   isResettingPatientData: function() {
     return (this.props.fetchingPatient && !this.props.patient);
+  },
+
+  handleOptionsChange: function(attributes) {
+    var isOtherPerson = (attributes.value === 'yes') ? true : false;
+    // Keep any progress filling out the form
+    var formValues = this.refs.form.getFormValues();
+
+    this.setState({
+      isOtherPerson: isOtherPerson,
+      formValues: _.assign({}, this.state.formValues, formValues),
+      validationErrors: {}
+    });
   },
 
   handleSubmit: function(formValues) {
@@ -262,6 +327,13 @@ var PatientEdit = React.createClass({
   prepareFormValuesForValidation: function(formValues) {
     formValues = _.clone(formValues);
 
+    if (this.state.isOtherPerson) {
+      formValues.isOtherPerson = true;
+    }
+    else {
+      formValues = _.omit(formValues, 'fullName');
+    }
+
     if (formValues.birthday) {
       formValues.birthday = moment(formValues.birthday, DISPLAY_DATE_FORMAT)
         .format(MODEL_DATE_FORMAT);
@@ -283,6 +355,10 @@ var PatientEdit = React.createClass({
     var validationErrors = {};
     var IS_REQUIRED = 'This field is required.';
     var IS_NOT_VALID_DATE = 'Not a valid date.';
+
+    if (formValues.isOtherPerson && !formValues.fullName) {
+      validationErrors.fullName = IS_REQUIRED;
+    }
 
     if (!formValues.birthday) {
       validationErrors.birthday = IS_REQUIRED;

@@ -221,8 +221,10 @@ var createPatch = function(options) {
 
     api.patient.post = function(patient, callback) {
       api.log('[mock] POST /patients');
+      var userId = data.user.userid;
       patient = _.cloneDeep(patient);
-      patient.userid = data.user.userid;
+      patient.userid = userId;
+      data.patients[userId] = patient;
       setTimeout(function() {
         callback(null, patient);
       }, getDelayFor('api.patient.post'));
@@ -237,8 +239,8 @@ var createPatch = function(options) {
         err = {status: 404, response: 'Not found'};
       }
       else {
-        updatedPatient = _.assign(data.patients[patientId], patient);
-        updatedPatient = _.cloneDeep(updatedPatient);
+        updatedPatient = _.assign({}, data.patients[patientId], patient);
+        data.patients[patientId] = updatedPatient;
       }
       setTimeout(function() {
         callback(err, updatedPatient);

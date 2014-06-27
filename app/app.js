@@ -439,17 +439,18 @@ var AppComponent = React.createClass({
       return;
     }
 
-    patient = {
-      userid: user.userid,
-      profile: _.assign({}, user.profile, {patient: {}})
-    };
-    var fetchingPatient = this.state.fetchingUser;
+    if (user) {
+      patient = {
+        userid: user.userid,
+        profile: _.assign({}, user.profile, {patient: {}})
+      };
+    }
 
     /* jshint ignore:start */
     return (
       <PatientEdit
           patient={patient}
-          fetchingPatient={fetchingPatient}
+          fetchingPatient={this.state.fetchingUser}
           isNewPatient={true}
           onSubmit={this.createPatient}
           onSubmitSuccess={this.handlePatientCreationSuccess}
@@ -855,7 +856,7 @@ var AppComponent = React.createClass({
   handlePatientCreationSuccess: function(patient) {
     this.setState({
       user: _.extend({}, this.state.user, {
-        patient: _.cloneDeep(Person.patientInfo(patient))
+        profile: _.cloneDeep(patient.profile)
       }),
       patient: patient
     });
