@@ -103,7 +103,7 @@ var Example = React.createClass({
   handleSwitchToDaily: function(datetime) {
     this.setState({
       chartType: 'daily',
-      initialDatetimeLocation: datetime
+      initialDatetimeLocation: datetime || this.state.datetimeLocation
     });
   },
   handleSwitchToSettings: function() {
@@ -114,7 +114,7 @@ var Example = React.createClass({
   handleSwitchToWeekly: function(datetime) {
     this.setState({
       chartType: 'weekly',
-      initialDatetimeLocation: datetime
+      initialDatetimeLocation: datetime || this.state.datetimeLocation
     });
   },
   updateChartPrefs: function(newChartPrefs) {
