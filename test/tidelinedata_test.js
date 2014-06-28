@@ -51,6 +51,13 @@ describe('TidelineData', function() {
     it('should have a `filterData` attribute that is an object', function() {
       assert.isObject(td.filterData);
     });
+
+    it('should be able to handle an empty data array without error', function() {
+      var empty = preprocess.processData([]);
+      assert.isObject(empty);
+      assert.isArray(empty.data);
+      expect(empty.data.length).to.equal(0);
+    });
   });
 
   describe('addDatum', function() {
