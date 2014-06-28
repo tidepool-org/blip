@@ -12,7 +12,7 @@ var TidelineFooter = React.createClass({
     chartType: React.PropTypes.string.isRequired,
     onClickSettings: React.PropTypes.func.isRequired,
     onClickValues: React.PropTypes.func,
-    showingValues: React.PropTypes.bool,
+    showingValues: React.PropTypes.bool
   },
   render: function() {
     var settingsLinkClass = cx({
