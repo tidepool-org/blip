@@ -18,7 +18,7 @@ var TidelineHeader = React.createClass({
     title: React.PropTypes.string.isRequired,
     onClickBack: React.PropTypes.func,
     onClickMostRecent: React.PropTypes.func.isRequired,
-    onClickNext: React.PropTypes.func.isRequired,
+    onClickNext: React.PropTypes.func,
     onClickOneDay: React.PropTypes.func.isRequired,
     onClickTwoWeeks: React.PropTypes.func.isRequired
   },
