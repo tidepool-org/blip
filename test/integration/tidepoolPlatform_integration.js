@@ -44,8 +44,7 @@ describe('platform client', function () {
     username: 'a_PWD@user.com',
     password: 'a_PWD',
     emails: ['a_PWD@user.com'],
-    firstName: 'Jamie',
-    lastName: 'T1'
+    profile: {fullName: 'Jamie'}
   };
 
   /*
@@ -63,8 +62,7 @@ describe('platform client', function () {
     username: 'team@member.com',
     password: 'teammember',
     emails: ['team@member.com'],
-    firstName: 'Dr Doogie',
-    lastName: 'Howser'
+    profile: {fullName: 'Dr Doogie'}
   };
 
   function createClient(user, loginOpts, mockedLocalStore ,cb) {
@@ -222,8 +220,8 @@ describe('platform client', function () {
     it('so we can add or update the logged in users profile', function (done) {
       //add or update for both our users
       async.parallel([
-        pwdClient.addOrUpdateProfile.bind(null,a_PWD),
-        memberClient.addOrUpdateProfile.bind(null,a_Member)
+        pwdClient.addOrUpdateProfile.bind(null, a_PWD.id, a_PWD.profile),
+        memberClient.addOrUpdateProfile.bind(null, a_Member.id, a_Member.profile)
       ],
         function(err, profiles) {
           if (err != null) {
@@ -239,8 +237,7 @@ describe('platform client', function () {
         expect(error).to.not.exist;
 
         expect(profile).to.exist;
-        expect(profile.firstName).to.equal(a_Member.firstName);
-        expect(profile.lastName).to.equal(a_Member.lastName);
+        expect(profile.fullName).to.equal(a_Member.profile.fullName);
         expect(profile).to.not.have.property('password');
         expect(profile).to.not.have.property('username');
 
@@ -253,8 +250,7 @@ describe('platform client', function () {
         expect(error).to.not.exist;
 
         expect(profile).to.be.exist;
-        expect(profile.firstName).to.equal(a_Member.firstName);
-        expect(profile.lastName).to.equal(a_Member.lastName);
+        expect(profile.fullName).to.equal(a_Member.profile.fullName);
         expect(profile).to.not.have.property('password');
         expect(profile).to.not.have.property('username');
         done();
