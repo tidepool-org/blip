@@ -60,7 +60,7 @@ var PeopleList = React.createClass({
     /* jshint ignore:end */
 
     if (person.link) {
-      className = className + ' people-list-item-with-link';
+      className = className + ' people-list-item-with-link js-person-link';
       var self = this;
       var handleClick = function() {
         self.props.onClickPerson(person);

@@ -18,6 +18,10 @@ var moment = window.moment;
 
 var Datetime = {};
 
+Datetime._momentToday = function() {
+  return moment();
+};
+
 Datetime.isValidDate = function(date) {
   var m = moment(date);
   // Be careful, if `value` is empty, `m` can be null
@@ -25,7 +29,7 @@ Datetime.isValidDate = function(date) {
 };
 
 Datetime.yearsAgo = function(date) {
-  return moment().diff(date, 'years');
+  return Datetime._momentToday().diff(date, 'years');
 };
 
 Datetime.yearsAgoText = function(date) {
