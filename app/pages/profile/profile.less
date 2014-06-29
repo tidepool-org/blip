@@ -1,14 +1,14 @@
 /**
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
@@ -26,7 +26,7 @@
 .profile-subnav-title {
   padding-top: @profile-subnav-vertical-padding;
   padding-bottom: @profile-subnav-vertical-padding;
-  
+
   text-align: center;
 }
 
@@ -61,9 +61,55 @@
 }
 
 .profile-form {
+  margin-bottom: @spacing-large;
+
   @media(min-width: @profile-form-breakpoint) {
     margin-left: auto;
     margin-right: auto;
     width: @profile-form-width;
+  }
+}
+
+// Care Team
+// ========================
+
+.profile-careteam {
+  max-width: 480px;
+  margin: auto;
+  margin-bottom: @spacing-base;
+}
+
+.profile-careteam-title {
+  margin-bottom: @spacing-small;
+  text-align: center;
+}
+
+.profile-careteam-message {
+  color: @gray-dark;
+  font-style: italic;
+  text-align: center;
+
+  margin-top: @spacing-base;
+  margin-bottom: @spacing-base;
+}
+
+.profile-careteam-message-small {
+  font-size: 14px;
+}
+
+.profile-careteam-message-button {
+  font-weight: bold;
+  font-style: normal;
+  color: @gray-dark;
+  text-decoration: none;
+
+  &:hover,
+  &:focus {
+    color: @gray-darkest;
+    text-decoration: none;
+  }
+
+  &:active {
+    color: @gray;
   }
 }

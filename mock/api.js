@@ -163,6 +163,10 @@ var createPatch = function(options) {
       if (getParam('api.user.get.nopatient')) {
         user.profile = _.omit(user.profile, 'patient');
       }
+      if (getParam('api.user.get.onlycaregiver')) {
+        user.profile = _.omit(user.profile, 'patient');
+        user.profile.isOnlyCareGiver = true;
+      }
 
       setTimeout(function() {
         callback(null, user);

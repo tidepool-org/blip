@@ -17,7 +17,9 @@
 var React = window.React;
 var _ = window._;
 
+var Person = require('../../core/person');
 var SimpleForm = require('../../components/simpleform');
+var PeopleList = require('../../components/peoplelist');
 
 var Profile = React.createClass({
   propTypes: {
@@ -66,6 +68,7 @@ var Profile = React.createClass({
 
   render: function() {
     var form = this.renderForm();
+    var careTeam = this.renderCareTeam();
     var self = this;
     var handleClickBack = function() {
       self.props.trackMetric('Clicked Back To Care Team List');
@@ -92,6 +95,7 @@ var Profile = React.createClass({
         <div className="container-box-outer profile-content">
           <div className="container-box-inner profile-content-box">
             <div className="profile-form">{form}</div>
+            {careTeam}
           </div>
         </div>
       </div>
@@ -112,6 +116,65 @@ var Profile = React.createClass({
         onSubmit={this.handleSubmit}
         notification={this.state.notification}
         disabled={disabled}/>
+    );
+    /* jshint ignore:end */
+  },
+
+  renderCareTeam: function() {
+    if (this.isResettingUserData()) {
+      return null;
+    }
+
+    var user = this.props.user;
+    var content;
+    if (!Person.isPatient(user)) {
+      content = this.renderCreateCareTeam();
+    }
+    else {
+      content = this.renderUserCareTeam();
+    }
+
+    /* jshint ignore:start */
+    return (
+      <div className="profile-careteam">
+        <div className="profile-careteam-title">YOUR CARE TEAM</div>
+        {content}
+      </div>
+    );
+    /* jshint ignore:end */
+  },
+
+  renderCreateCareTeam: function() {
+    /* jshint ignore:start */
+    return (
+      <div>
+        <div className="profile-careteam-message">
+          {'Creating a Care Team allows you to get data into Blip,'}
+          {' for yourself or for someone you care for with type 1 diabetes.'}
+        </div>
+        <div className="profile-careteam-message">
+          <a
+            className="profile-careteam-message-button"
+            href="#/patients/new">
+            <i className="icon-add"></i>{' ' + 'Create a Care Team'}
+          </a>
+        </div>
+      </div>
+    );
+    /* jshint ignore:end */
+  },
+
+  renderUserCareTeam: function() {
+    var patient = _.cloneDeep(this.props.user);
+    if (patient.userid) {
+      patient.link = '#/patients/' + patient.userid + '/edit';
+    }
+
+    /* jshint ignore:start */
+    return (
+      <PeopleList
+        people={[patient]}
+        isPatientList={true}/>
     );
     /* jshint ignore:end */
   },
