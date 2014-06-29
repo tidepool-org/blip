@@ -7,7 +7,7 @@ var files = {
     // then relative path to unminified vendor bundle ("dist")
     // and if it exists minified version ("distMin")
     vendor: [
-      {dir: 'bower_components/react', dist: 'react.js', distMin: 'react.min.js'},
+      {dir: 'bower_components/react', dist: 'react-with-addons.js', distMin: 'react-with-addons.min.js'},
       {dir: 'bower_components/director', dist: 'build/director.js', distMin: 'build/director.min.js'},
       {dir: 'bower_components/lodash', dist: 'dist/lodash.js', distMin: 'dist/lodash.min.js'},
       {dir: 'bower_components/bows', dist: 'dist/bows.js', distMin: 'dist/bows.min.js'},
