@@ -40,11 +40,13 @@
 }
 
 .patients-section-content {
-  padding: 0 @spacing-small;
+  padding: 0 @spacing-base;
   padding-bottom: @spacing-base;
 }
 
-// Used to display message/buttons when list is empty
+// Empty lists
+// ====================================
+
 .patients-message {
   color: @gray-dark;
   font-style: italic;
@@ -70,16 +72,49 @@
 .patients-message-button {
   font-weight: bold;
   font-style: normal;
-  color: @gray-dark;
+  color: @blue-green;
   text-decoration: none;
 
   &:hover,
   &:focus {
-    color: @gray-darkest;
+    color: @blue-green-dark;
     text-decoration: none;
+  }
+
+  &:active {
+    color: @blue-green-dark;
+  }
+}
+
+.patients-message-button-secondary {
+  color: @gray-dark;
+
+  &:hover,
+  &:focus {
+    color: @gray-darkest;
   }
 
   &:active {
     color: @gray;
   }
+}
+
+// Welcome messages
+// ====================================
+
+.patients-welcome-title {
+  font-size: 22px;
+  line-height: 1;
+  text-align: center;
+  margin-bottom: @spacing-large;
+  color: @blue-green;
+}
+
+.patients-welcome-message {
+  color: @gray-dark;
+  font-style: italic;
+  margin-top: @spacing-base;
+  margin-bottom: @spacing-base;
+  padding-bottom: @spacing-small;
+  border-bottom: 1px solid @gray-dark;
 }

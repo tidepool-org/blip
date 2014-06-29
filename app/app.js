@@ -118,6 +118,7 @@ var AppComponent = React.createClass({
       fetchingPatientData: true,
       fetchingMessageData: true,
       showingAcceptTerms: false,
+      showingWelcomeMessage: false,
       dismissedBrowserWarning: false,
     };
   },
@@ -366,6 +367,7 @@ var AppComponent = React.createClass({
           fetchingUser={this.state.fetchingUser}
           patients={this.state.patients}
           fetchingPatients={this.state.fetchingPatients}
+          showingWelcomeMessage={this.state.showingWelcomeMessage}
           onSetAsCareGiver={this.setUserAsCareGiver}
           trackMetric={trackMetric}/>
     );
@@ -589,7 +591,8 @@ var AppComponent = React.createClass({
       authenticated: true,
       user: user,
       fetchingUser: false,
-      showingAcceptTerms: config.SHOW_ACCEPT_TERMS ? true : false
+      showingAcceptTerms: config.SHOW_ACCEPT_TERMS ? true : false,
+      showingWelcomeMessage: true
     });
     this.redirectToDefaultRoute();
     trackMetric('Signed Up');
