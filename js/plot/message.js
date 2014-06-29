@@ -34,8 +34,6 @@ module.exports = function(pool, opts) {
 
   function message(selection) {
     opts.xScale = pool.xScale().copy();
-    
-    message.setUpMessageCreation();
 
     selection.each(function(currentData) {
       var messages = d3.select(this)
@@ -56,6 +54,8 @@ module.exports = function(pool, opts) {
   }
 
   message.addMessageToPool = function(selection) {
+    opts.xScale = pool.xScale().copy();
+    
     selection.append('rect')
       .attr({
         'x': function(d) {
@@ -88,12 +88,8 @@ module.exports = function(pool, opts) {
     });
   };
 
-  message.setUpMessageCreation = _.once(function() {
+  message.setUpMessageCreation = function() {
     log('Set up message creation listeners.');
-    mainGroup.selectAll('.d3-rect-fill').on('click', function() {
-      opts.emitter.emit('clickInPool', d3.event.offsetX);
-    });
-
     opts.emitter.on('clickTranslatesToDate', function(date) {
       log('Creating message at', date.toISOString().slice(0,-5));
       opts.emitter.emit('createMessage', date.toISOString());
@@ -106,7 +102,9 @@ module.exports = function(pool, opts) {
         .datum(obj);
       message.addMessageToPool(messageGroup);
     });
-  });
+  };
+
+  message.setUpMessageCreation();
 
   return message;
 };

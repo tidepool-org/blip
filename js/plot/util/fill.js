@@ -110,6 +110,11 @@ module.exports = function(pool, opts) {
           'class': function(d) {
             return 'd3-fill d3-rect-fill d3-fill-' + d.fillColor;
           }
+        })
+        .on('click', function() {
+          if (opts.emitter) {
+            opts.emitter.emit('clickInPool', d3.event.offsetX);
+          }
         });
 
       fills.exit().remove();
