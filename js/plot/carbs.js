@@ -87,6 +87,7 @@ module.exports = function(pool, opts) {
       rects.enter()
         .append('rect')
         .attr({
+          'clip-path': 'url(#mainClipPath)',
           'x': function(d) {
             return opts.xScale(Date.parse(d.normalTime)) - opts.width/2;
           },

@@ -46,7 +46,8 @@ module.exports = function(pool, opts) {
 
       var messageGroups = messages.enter()
         .append('g')
-        .attr('class', 'd3-message-group');
+        .attr('class', 'd3-message-group')
+        .attr('clip-path', 'url(#mainClipPath)');
       message.addMessageToPool(messageGroups);
 
       messages.exit().remove();

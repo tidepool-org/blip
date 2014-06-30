@@ -100,21 +100,7 @@ module.exports = function(emitter) {
       .attr('id', 'tidelineLabels');
 
     mainGroup.append('g')
-      .attr('id', 'tidelineYAxes')
-      .append('rect')
-      .attr({
-        'id': 'yAxesInvisibleRect',
-        'height': function() {
-          if (nav.scrollNav) {
-            return (height - nav.scrollNavHeight);
-          }
-          else {
-            return height;
-          }
-        },
-        'width': axisGutter,
-        'fill': 'white'
-      });
+      .attr('id', 'tidelineYAxes');
 
     if (nav.scrollNav) {
       scrollNav = mainGroup.append('g')
