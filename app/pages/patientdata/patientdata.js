@@ -91,16 +91,25 @@ var PatientData = React.createClass({
     return this.renderChart();
   },
 
+  renderEmptyHeader: function() {
+    /* jshint ignore:start */
+    return (
+      <Header
+        chartType={'no-data'}
+        inTransition={false}
+        atMostRecent={false}
+        title={'Data'}
+        ref="header" />
+      );
+    /* jshint ignore:end */
+  },
+
   renderLoading: function() {
+    var header = this.renderEmptyHeader();
     /* jshint ignore:start */
     return (
       <div>
-        <Header 
-          chartType={'no-data'}
-          inTransition={false}
-          atMostRecent={false}
-          title={'Data'}
-          ref="header" />
+        {header}
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
@@ -117,6 +126,7 @@ var PatientData = React.createClass({
 
   renderNoData: function() {
     var content = 'This patient doesn\'t have any data yet.';
+    var header = this.renderEmptyHeader();
 
     var self = this;
     var handleClickUpload = function() {
@@ -145,12 +155,7 @@ var PatientData = React.createClass({
     /* jshint ignore:start */
     return (      
       <div>
-        <Header 
-          chartType={'no-data'}
-          inTransition={false}
-          atMostRecent={false}
-          title={'Data'}
-          ref="header" />
+        {header}
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
