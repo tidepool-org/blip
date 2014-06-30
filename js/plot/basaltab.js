@@ -54,17 +54,16 @@ module.exports = function(pool, opts) {
         if (data[key] != null) {
           actualSchedules.push(key);
           var type = data[key][0].type;
-          var tabsGroup = selection.selectAll('#' + pool.id() + '_' + type + '_' + key.replace(' ', '_')).data([data[key]]);
-          tabsGroup.enter().append('g').attr('id', pool.id() + '_' + type + '_' + key.replace(' ', '_'))
+          var tabsGroup = selection.selectAll('#' + pool.id() + '_' + type + '_' + basaltab.scheduleName(key)).data([key]);
+          tabsGroup.enter().append('g').attr('id', pool.id() + '_' + type + '_' + basaltab.scheduleName(key))
             .attr('transform', selection.attr('transform'));
-          var tabs = tabsGroup.selectAll('g.d3-cell-group.d3-' + key.replace(' ','-').toLowerCase())
+          var tabs = tabsGroup.selectAll('g.d3-cell-group.d3-' + basaltab.scheduleName(key))
             .data(data[key], basaltab.id);
-
           var cellGroups = tabs.enter().append('g')
             .attr({
-              'class': 'd3-cell-group ' + key.replace(' ','-').toLowerCase(),
+              'class': 'd3-cell-group d3-' + basaltab.scheduleName(key),
               'clip-path': 'url(#mainClipPath)',
-              id: function(d) { return 'd3-cell-group_' + d.id; }
+              id: function(d) { return 'cell_group_' + d.id; }
             });
 
           cellGroups.append('rect')
@@ -74,7 +73,7 @@ module.exports = function(pool, opts) {
               width: basaltab.width,
               height: opts.rowHeight,
               'class': basaltab.matchClass,
-              id: function(d) { return 'd3-cell-rect_' + d.id; }
+              id: function(d) { return 'cell_rect_' + d.id; }
             })
             .classed('d3-cell-rect', true);
 
@@ -85,7 +84,7 @@ module.exports = function(pool, opts) {
               },
               y: (index * opts.rowHeight) + (opts.rowHeight/2),
               'class': basaltab.matchClass,
-              id: function(d) { return 'd3-cell-label_' + d.id; }
+              id: function(d) { return 'cell_label_' + d.id; }
             })
             .classed('d3-cell-label', true)
             .text(function(d) {
@@ -107,6 +106,14 @@ module.exports = function(pool, opts) {
       basaltab.addLabels(actualSchedules);
     });
   }
+
+  basaltab.id = function(d) {
+    return d.id;
+  };
+
+  basaltab.scheduleName = function(key) {
+    return key.replace(' ', '_').toLowerCase();
+  };
 
   basaltab.matchClass = function(d) {
     if (d.actualized) {
