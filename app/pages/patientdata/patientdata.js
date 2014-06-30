@@ -50,6 +50,7 @@ var PatientData = React.createClass({
       chartPrefs: {
         bgUnits: 'mg/dL',
         hiddenPools: {
+          // pass null here to *completely* disable the tabular display of basal settings
           basalSettings: true
         }
       },
