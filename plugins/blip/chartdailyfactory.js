@@ -32,7 +32,7 @@ function chartDailyFactory(el, options) {
   var defaults = {
     'bgUnits': 'mg/dL',
     'hiddenPools': {
-      basalSettings: true
+      basalSettings: null
     }
   };
   _.defaults(options, defaults);
@@ -108,7 +108,22 @@ function chartDailyFactory(el, options) {
       .weight(1.5)
       .gutterWeight(1.0);
 
-    if (chart.options.hiddenPools.basalSettings) {
+    var basalSettingsBool = chart.options.hiddenPools.basalSettings;
+
+    if (basalSettingsBool === null) {
+      // basal data pool
+      poolBasal = chart.newPool()
+        .id('poolBasal', chart.poolGroup())
+        .label([{
+          'main': 'Basal Rates',
+          'light': ' (U/hr)'
+        }])
+        .legend(['basal'])
+        .index(chart.pools().indexOf(poolBasal))
+        .weight(1.0)
+        .gutterWeight(1.0);
+    }
+    else if (basalSettingsBool) {
       // basal settings pool, bare
       poolBasalSettings = chart.newPool()
         .id('poolBasalSettings', chart.poolGroup())
@@ -130,7 +145,7 @@ function chartDailyFactory(el, options) {
         .weight(1.0)
         .gutterWeight(1.0);
     }
-    else {
+    else if (basalSettingsBool === false) {
       // basal settings pool with label, legend, and gutter
       poolBasalSettings = chart.newPool()
         .id('poolBasalSettings', chart.poolGroup())
@@ -292,9 +307,11 @@ function chartDailyFactory(el, options) {
       data: tidelineData.grouped['basal-rate-segment']
     }), true, true);
 
-    poolBasalSettings.addPlotType('basal-settings-segment', tideline.plot.basaltab(poolBasalSettings, {
-      data: tidelineData.grouped['basal-settings-segment']
-    }), true, true);
+    if (poolBasalSettings !== undefined) {
+      poolBasalSettings.addPlotType('basal-settings-segment', tideline.plot.basaltab(poolBasalSettings, {
+        data: tidelineData.grouped['basal-settings-segment']
+      }), true, true);
+    }
 
     // messages pool
     // add background fill rectangles to messages pool
@@ -377,7 +394,9 @@ function chartDailyFactory(el, options) {
       pool.render(chart.poolGroup(), chart.renderedData());
     });
 
-    chart.drawBasalSettingsButton();
+    if (poolBasalSettings !== undefined) {
+      chart.drawBasalSettingsButton();
+    }
 
     chart.setAtDate(start, atMostRecent);
 
