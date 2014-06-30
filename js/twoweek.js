@@ -249,20 +249,6 @@ module.exports = function(emitter) {
 
     return container;
   };
-  
-  // TODO: delete when update blip (legacy method)
-  container.hide = function() {
-    d3.select('#' + id).classed('hidden', true);
-
-    return container;
-  };
-
-  // TODO: delete when update blip (legacy method)
-  container.show = function() {
-    d3.select('#' + id).classed('hidden', false);
-
-    return container;
-  };
 
   container.navString = function(a) {
     if (!arguments.length) {

@@ -461,44 +461,8 @@ module.exports = function(emitter) {
     return container;
   };
 
-  // TODO: delete when update blip (legacy method)
-  container.emptyPools = function() {
-    pools = [];
-    return container;
-  };
-
-  // TODO: delete when update blip (legacy method)
-  container.clear = function() {
-    emitter.removeAllListeners('carbTooltipOn')
-      .removeAllListeners('carbTooltipOff')
-      .removeAllListeners('bolusTooltipOn')
-      .removeAllListeners('bolusTooltipOff')
-      .removeAllListeners('noCarbTimestamp');
-    pools.forEach(function(pool) {
-      pool.clear();
-    });
-    container.currentTranslation(0).latestTranslation(0);
-    renderedData = [];
-
-    return container;
-  };
-
   container.destroy = function() {
     d3.select('#' + id).remove();
-
-    return container;
-  };
-
-  // TODO: delete when update blip (legacy method)
-  container.hide = function() {
-    d3.select('#' + id).classed('hidden', true);
-
-    return container;
-  };
-
-  // TODO: delete when update blip (legacy method)
-  container.show = function() {
-    d3.select('#' + id).classed('hidden', false);
 
     return container;
   };
