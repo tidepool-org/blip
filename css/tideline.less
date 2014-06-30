@@ -282,21 +282,20 @@ svg {
   p {
     margin: 0px;
     cursor: pointer;
+    font-size: @font-size-tabular-basal-settings;
+    color: @light-labels;
   }
 }
 
 .d3-cell-rect {
   stroke-width: 0.5px;
-  stroke: @matched;
+  stroke: @cell-dividers;
   &.d3-unmatched {
     fill: @unmatched;
   }
   &.d3-matched {
     fill: @matched;
-    stroke: white;
-  }
-  &:hover {
-    fill: darken(white, 2%) !important;
+    opacity: 0.3;
   }
 }
 
@@ -309,9 +308,16 @@ svg {
     fill: @text;
   }
   &.d3-matched {
-    fill: @basal;
+    fill: @matched-text;
     font-weight: bold;
   }
+}
+
+.d3-row-label {
+  dominant-baseline: central;
+  fill: @text;
+  font-size: @font-size-tabular-basal-settings;
+  text-anchor: end;
 }
 
 

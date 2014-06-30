@@ -46,13 +46,16 @@ module.exports = function(pool, opts) {
       else {
         schedules.sort();
       }
+      var actualSchedules = [];
       for (var i = 0; i < schedules.length; ++i) {
         var key = schedules[i];
         // must check that schedule actually exists
         // schedule names come through for empty schedules
         if (data[key] != null) {
-          var tabsGroup = selection.selectAll('#' + pool.id() + '_' + key.replace(' ', '_')).data([data[key]]);
-          tabsGroup.enter().append('g').attr('id', pool.id() + '_' + key.replace(' ', '_'))
+          actualSchedules.push(key);
+          var type = data[key][0].type;
+          var tabsGroup = selection.selectAll('#' + pool.id() + '_' + type + '_' + key.replace(' ', '_')).data([data[key]]);
+          tabsGroup.enter().append('g').attr('id', pool.id() + '_' + type + '_' + key.replace(' ', '_'))
             .attr('transform', selection.attr('transform'));
           var tabs = tabsGroup.selectAll('g.d3-cell-group.d3-' + key.replace(' ','-').toLowerCase())
             .data(data[key], basaltab.id);
@@ -60,6 +63,7 @@ module.exports = function(pool, opts) {
           var cellGroups = tabs.enter().append('g')
             .attr({
               'class': 'd3-cell-group ' + key.replace(' ','-').toLowerCase(),
+              'clip-path': 'url(#mainClipPath)',
               id: function(d) { return 'd3-cell-group_' + d.id; }
             });
 
@@ -100,6 +104,7 @@ module.exports = function(pool, opts) {
           index++;
         }
       }
+      basaltab.addLabels(actualSchedules);
     });
   }
 
@@ -126,6 +131,34 @@ module.exports = function(pool, opts) {
       return true;
     }
     return false;
+  };
+
+  basaltab.addLabels = function(names) {
+    var printNames = [];
+    for (var i = 0; i < names.length; ++i) {
+      if (names[i] === 'Standard') {
+        printNames.push('Std-');
+      }
+      else if (names[i].search('Program') !== -1) {
+        printNames.push(names[i].replace('Program', '').trim() + '-');
+      }
+      else if (names[i].search('Pattern') !== -1) {
+        printNames.push(names[i].replace('Pattern', '').trim() + '-');
+      }
+    }
+    var labelsGroup = mainGroup.select('#' + pool.id()).selectAll('#' + pool.id() + '_labels').data([names]);
+    labelsGroup.enter().append('g').attr('id', pool.id() + '_labels');
+    var labels = labelsGroup.selectAll('text').data(printNames);
+    labels.enter()
+      .append('text')
+      .attr({
+        // this retrieves the container axisGutter...something of a hack
+        x: mainGroup.select('#mainClipPath').select('rect').attr('x'),
+        y: function(d, i) { return i * opts.rowHeight + (opts.rowHeight/2); },
+        'class': 'd3-row-label',
+        'xml:space': 'preserve'
+      })
+      .text(function(d) { return d; });
   };
 
   return basaltab;
