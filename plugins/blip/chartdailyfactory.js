@@ -150,7 +150,7 @@ function chartDailyFactory(el, options) {
         .label('')
         .index(chart.pools().indexOf(poolBasal))
         .weight(1.0)
-        .gutterWeight(0.0);
+        .gutterWeight(0.1);
     }
 
     // stats data pool
@@ -417,13 +417,16 @@ function chartDailyFactory(el, options) {
 
     var icon = div.append('p')
       .attr({
-        id: 'showHideBasalSettings',
-        title: chart.options.hiddenPools.basalSettings ? 'Click to expand basal settings' : 'Click to hide basal settings'
+        id: 'showHideBasalSettings'
       })
-      .html(chart.options.hiddenPools.basalSettings ? '<i class="icon-up"></i>' : '<i class="icon-down"></i>');
+      .html(chart.options.hiddenPools.basalSettings ?
+        '<span><i class="icon-up"></i>show rates</span>' : '<span><i class="icon-down"></i>hide rates</span>');
 
     fo.attr({
-      width: icon.select('i')[0][0].getBoundingClientRect().width,
+      // making an assumption here that the button + show/hide rates is never
+      // going to be wider than the pool label
+      // doesn't work to ask for bounding rect of <p>, unfortunately
+      width: labelTextBox.width,
       height: div[0][0].getBoundingClientRect().height
     });
 
