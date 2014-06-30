@@ -99,7 +99,6 @@ svg {
   font-size: @font-size-labels;
   fill: @text;
   baseline-shift: @pool-label-baseline;
-  xml:space: preserve;
   tspan {
     font-weight: normal;
     text-transform: none;
@@ -274,17 +273,23 @@ svg {
 }
 
 // basal tabular settings
-.d3-tabular-ui {
+div.d3-tabular-ui {
   background-color: none;
-  i {
-    color: @light-labels;
-  }
   p {
-    margin: 0px;
+    color: @pool-legend;
     cursor: pointer;
-    font-size: @font-size-tabular-basal-settings;
-    color: @light-labels;
+    font-size: @font-size-axes;
+    [class^="icon-"]:before {
+      vertical-align: text-bottom;
+    }
   }
+}
+
+text.d3-tabular-ui {
+  fill: @pool-legend;
+  cursor: pointer;
+  font-size: @font-size-axes;
+  baseline-shift: @pool-label-baseline;
 }
 
 .d3-cell-rect {

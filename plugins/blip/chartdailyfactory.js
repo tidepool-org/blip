@@ -435,28 +435,32 @@ function chartDailyFactory(el, options) {
       .attr('class', 'd3-tabular-ui');
 
     var icon = div.append('p')
-      .attr({
-        id: 'showHideBasalSettings'
-      })
       .html(chart.options.hiddenPools.basalSettings ?
-        '<span><i class="icon-up"></i>show rates</span>' : '<span><i class="icon-down"></i>hide rates</span>');
+        '<i class="icon-up"></i>' : '<i class="icon-down"></i>');
+
+    var iconWidth = icon.select('i')[0][0].getBoundingClientRect().width;
 
     fo.attr({
-      // making an assumption here that the button + show/hide rates is never
-      // going to be wider than the pool label
-      // doesn't work to ask for bounding rect of <p>, unfortunately
-      width: labelTextBox.width,
+      width: icon.select('i')[0][0].getBoundingClientRect().width,
       height: div[0][0].getBoundingClientRect().height
     });
 
+    labelGroup.append('text')
+      .attr({
+        x: chart.axisGutter() + labelTextBox.width + iconWidth,
+        y: verticalTranslation + labelTextBox.height,
+        'class': 'd3-tabular-ui'
+      })
+      .text(chart.options.hiddenPools.basalSettings ? 'show rates' : 'hide rates');
+
     if (chart.options.hiddenPools.basalSettings) {
-      fo.select('#showHideBasalSettings')
+      labelGroup.selectAll('.d3-tabular-ui')
         .on('click', function() {
           chart.emitter.emit('showBasalSettings');
         });
     }
     else {
-      fo.select('#showHideBasalSettings')
+      labelGroup.selectAll('.d3-tabular-ui')
         .on('click', function() {
           chart.emitter.emit('hideBasalSettings');
         });
