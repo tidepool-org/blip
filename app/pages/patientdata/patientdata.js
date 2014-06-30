@@ -349,7 +349,10 @@ var PatientData = React.createClass({
     });
   },
 
-  handleSwitchToSettings: function() {
+  handleSwitchToSettings: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
     this.setState({
       chartType: 'settings'
     });

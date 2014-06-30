@@ -53,9 +53,9 @@ var TidelineFooter = React.createClass({
         <div className="container-box-inner patient-data-footer-inner">
           <div className="grid patient-data-footer">
             <div className="grid-item one-whole medium-one-half patient-data-footer-left">
-              <a className={settingsLinkClass} onClick={this.props.onClickSettings}>Device Settings</a>
+              <a href="" className={settingsLinkClass} onClick={this.props.onClickSettings}>Device Settings</a>
             </div>
-            <div className="grid-item one-whole medium-one-half patient-data-footer-right">{showValues}</div>
+            <div href="" className="grid-item one-whole medium-one-half patient-data-footer-right">{showValues}</div>
           </div>
         </div>
       </div>
