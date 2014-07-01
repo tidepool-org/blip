@@ -24,6 +24,7 @@ var config = window.config;
 // have distribution bundles and export on the `window` object
 var tidepool = require('./core/tidepool');
 var tideline = require('./core/tideline');
+var sundial = require('./core/sundial');
 
 var router = require('./router');
 var api = require('./core/api');
