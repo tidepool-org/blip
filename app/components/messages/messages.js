@@ -25,7 +25,7 @@ var moment = window.moment;
 var _ = window._;
 
 var Message = require('./message');
-var SimpleForm = require('../simpleform');
+var MessageForm = require('./messageform');
 
 var Messages = React.createClass({
 
@@ -38,6 +38,13 @@ var Messages = React.createClass({
     onSave : React.PropTypes.func,
     onNewMessage : React.PropTypes.func,
     imagesEndpoint: React.PropTypes.string
+  },
+
+  getDefaultProps: function () {
+    return {
+      NOTE_PROMPT : 'Type a new note here ...',
+      COMMENT_PROMPT : 'Type a comment here ...'
+    };
   },
 
   componentWillReceiveProps: function(nextProps) {
@@ -54,15 +61,6 @@ var Messages = React.createClass({
       messages : this.props.messages
     };
   },
-
-  noteFormInputs: [
-    {name: 'messageDateTime', label: null, type: 'hidden'},
-    {name: 'messageText', label: null, placeholder: 'Type a new note here ...', type: 'textarea'}
-  ],
-
-  commentFormInputs: [
-    {name: 'messageText', label: null, placeholder: 'Type a comment here ...', type: 'textarea'}
-  ],
 
   formatDisplayDate : function(timestamp){
     return moment(timestamp).format('MMMM D [at] h:mm a');
@@ -128,12 +126,11 @@ var Messages = React.createClass({
       /* jshint ignore:start */
       return (
         <div className="messages-form">
-          <SimpleForm
-            inputs={this.commentFormInputs}
-            formValues={this.state.formValues}
-            submitButtonText={submitButtonText}
-            submitDisabled={isWorking}
-            onSubmit={this.handleAddComment} />
+
+          <MessageForm
+            messagePrompt={this.props.COMMENT_PROMPT}
+            saveBtnText={submitButtonText}
+            onSubmit={this.handleAddComment}/>
         </div>
       );
       /* jshint ignore:end */
@@ -153,12 +150,10 @@ var Messages = React.createClass({
             {this.formatDisplayDate(this.props.createDatetime)}
           </span>
         </div>
-        <SimpleForm
-          inputs={this.noteFormInputs}
-          formValues={this.state.formValues}
-          submitButtonText={submitButtonText}
-          submitDisabled={isWorking}
-          onSubmit={this.handleCreateNote} />
+        <MessageForm
+            messagePrompt={this.props.NOTE_PROMPT}
+            saveBtnText={submitButtonText}
+            onSubmit={this.handleCreateNote}/>
       </div>
     );
     /* jshint ignore:end */
@@ -197,7 +192,7 @@ var Messages = React.createClass({
   },
   handleAddComment : function (formValues){
 
-    if(formValues.messageText){
+    if(formValues.text){
       this.resetFormStateBeforeSubmit(formValues);
 
       var addComment = this.props.onSave;
@@ -207,8 +202,8 @@ var Messages = React.createClass({
         parentmessage : parent.id,
         userid : this.props.user.id,
         groupid : parent.groupid,
-        messagetext : formValues.messageText,
-        timestamp : new Date().toISOString()
+        messagetext : formValues.text,
+        timestamp : formValues.timestamp
       };
 
       addComment(comment, function(error,commentId){
@@ -230,7 +225,7 @@ var Messages = React.createClass({
   },
   handleCreateNote: function (formValues){
 
-    if(formValues.messageText){
+    if(formValues.text){
       this.resetFormStateBeforeSubmit(formValues);
 
       var createNote = this.props.onSave;
@@ -238,7 +233,7 @@ var Messages = React.createClass({
       var message = {
         userid : this.props.user.id,
         groupid : this.props.patient.id,
-        messagetext : formValues.messageText,
+        messagetext : formValues.text,
         timestamp : this.props.createDatetime
       };
 
