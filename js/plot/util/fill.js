@@ -62,6 +62,7 @@ module.exports = function(pool, opts) {
       fills.enter()
         .append('rect')
         .attr({
+          'clip-path': 'url(#mainClipPath)',
           x: function(d, i) {
             if (opts.dataGutter) {
               if (i === 0) {
@@ -109,6 +110,11 @@ module.exports = function(pool, opts) {
           },
           'class': function(d) {
             return 'd3-fill d3-rect-fill d3-fill-' + d.fillColor;
+          }
+        })
+        .on('click', function() {
+          if (opts.emitter) {
+            opts.emitter.emit('clickInPool', d3.event.offsetX);
           }
         });
 

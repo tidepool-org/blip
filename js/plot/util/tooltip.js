@@ -48,6 +48,8 @@ module.exports = function(container, tooltipsGroup) {
 
     var newBasalPosition;
 
+    var left;
+
     // moving basal tooltips at edges of display
     if (path === 'basal') {
       if (locationInWindow > container.width() - (((container.width() - container.axisGutter()) / 24) * 3)) {
@@ -67,7 +69,16 @@ module.exports = function(container, tooltipsGroup) {
     }
     // and bolus, carbs, cbg, smbg
     if ((path === 'bolus') || (path === 'carbs') || (path === 'cbg') || (path === 'smbg')) {
-      if (locationInWindow > container.width() - (((container.width() - container.axisGutter()) / 24) * 3)) {
+      // mirror two week tooltips at right edge of display
+      if (container.id().search('Week') !== -1) {
+        var dt = new Date(d.normalTime);
+        if (dt.getUTCHours() >= 21) {
+          left = true;
+          translation = -tooltipWidth;
+        }
+      }
+      else if (locationInWindow > container.width() - (((container.width() - container.axisGutter()) / 24) * 3)) {
+        left = true;
         translation = -tooltipWidth;
       }
     }
@@ -121,8 +132,7 @@ module.exports = function(container, tooltipsGroup) {
       }
     }
     // if the data point is three hours from the end of the data in view or less, use a left tooltip
-    else if ((locationInWindow > container.width() - (((container.width() - container.axisGutter()) / 24) * 3)) &&
-      (path !== 'basal')) {
+    else if (left && (path !== 'basal')) {
       tooltipGroup.append('image')
         .attr({
           'xlink:href': function() {

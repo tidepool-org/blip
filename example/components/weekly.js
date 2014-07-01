@@ -16,30 +16,37 @@ var tideline = {
   log: bows('Two Weeks')
 };
 
-var TwoWeeks = React.createClass({
+var Weekly = React.createClass({
   chartType: 'weekly',
-  log: bows('Two-Week View'),
+  log: bows('Weekly View'),
   propTypes: {
-    patientData: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
     imagesBaseUrl: React.PropTypes.string.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
-    switchToDaily: React.PropTypes.func.isRequired,
-    switchToSettings: React.PropTypes.func.isRequired,
-    switchToWeekly: React.PropTypes.func.isRequired
+    patientData: React.PropTypes.object.isRequired,
+    onSwitchToDaily: React.PropTypes.func.isRequired,
+    onSwitchToSettings: React.PropTypes.func.isRequired,
+    onSwitchToWeekly: React.PropTypes.func.isRequired,
+    updateChartPrefs: React.PropTypes.func.isRequired,
+    updateDatetimeLocation: React.PropTypes.func.isRequired
   },
   getInitialState: function() {
     return {
-      showingValues: false
+      atMostRecent: false,
+      inTransition: false,
+      showingValues: false,
+      title: ''
     };
   },
   render: function() {
-    this.log('Rendering...');
     /* jshint ignore:start */
     return (
       <div id="tidelineMain" className="grid">
         <Header 
           chartType={this.chartType}
+          atMostRecent={this.state.atMostRecent}
+          inTransition={this.state.inTransition}
+          title={this.state.title}
           onClickBack={this.handlePanBack}
           onClickMostRecent={this.handleClickMostRecent}
           onClickNext={this.handlePanForward}
@@ -62,7 +69,7 @@ var TwoWeeks = React.createClass({
         </div>
         <Footer
          chartType={this.chartType}
-         onClickSettings={this.props.switchToSettings}
+         onClickSettings={this.props.onSwitchToSettings}
          onClickValues={this.toggleValues}
          showingValues={this.state.showingValues}
         ref="footer" />
@@ -70,29 +77,40 @@ var TwoWeeks = React.createClass({
       );
     /* jshint ignore:end */
   },
+  formatDate: function(datetime) {
+    return moment(datetime).utc().format('MMMM Do');
+  },
+  getTitle: function(datetimeLocationEndpoints) {
+    return this.formatDate(datetimeLocationEndpoints[0]) + ' - ' + this.formatDate(datetimeLocationEndpoints[1]);
+  },
   // handlers
   handleClickMostRecent: function() {
+    this.setState({showingValues: false});
     this.refs.chart.goToMostRecent();
   },
   handleClickOneDay: function() {
     var datetime = this.refs.chart.getCurrentDay();
-    this.props.switchToDaily(datetime);
+    this.props.onSwitchToDaily(datetime);
   },
   handleClickTwoWeeks: function() {
     return;
   },
   handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
-    function formatDate(datetime) {
-      return moment(datetime).utc().format('MMMM Do');
-    }
-    var title = formatDate(datetimeLocationEndpoints[0]) + ' - ' + formatDate(datetimeLocationEndpoints[1]);
-    this.refs.header.updateTitle(title);
+    this.setState({
+      datetimeLocation: datetimeLocationEndpoints[1],
+      title: this.getTitle(datetimeLocationEndpoints)
+    });
+    this.props.updateDatetimeLocation(this.refs.chart.getCurrentDay());
   },
   handleInTransition: function(inTransition) {
-    this.refs.header.arrowsInTransition(inTransition);
+    this.setState({
+      inTransition: inTransition
+    });
   },
-  handleMostRecent: function(mostRecent) {
-    this.refs.header.updateMostRecent(mostRecent);
+  handleMostRecent: function(atMostRecent) {
+    this.setState({
+      atMostRecent: atMostRecent
+    });
   },
   handlePanBack: function() {
     this.refs.chart.panBack();
@@ -101,7 +119,7 @@ var TwoWeeks = React.createClass({
     this.refs.chart.panForward();
   },
   handleSelectSMBG: function(datetime) {
-    this.props.switchToDaily(datetime);
+    this.props.onSwitchToDaily(datetime);
   },
   toggleValues: function() {
     if (this.state.showingValues) {
@@ -132,6 +150,9 @@ var WeeklyChart = React.createClass({
   componentDidMount: function() {
     this.mountChart(this.getDOMNode());
     this.initializeChart(this.props.patientData, this.props.initialDatetimeLocation);
+  },
+  componentWillUnmount: function() {
+    this.unmountChart();
   },
   mountChart: function(node, chartOpts) {
     this.log('Mounting...');
@@ -198,4 +219,4 @@ var WeeklyChart = React.createClass({
   }
 });
 
-module.exports = TwoWeeks;
+module.exports = Weekly;

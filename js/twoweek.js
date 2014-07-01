@@ -61,18 +61,17 @@ module.exports = function(emitter) {
 
     // update SVG dimenions and ID
     mainSVG.attr({
-      'id': id,
-      'width': width,
-      'height': height,
-      'class': 'hidden'
+      id: id,
+      width: width,
+      height: height
     });
 
     mainGroup.append('rect')
       .attr({
-        'id': 'poolsInvisibleRect',
-        'width': width - nav.navGutter,
-        'height': height,
-        'opacity': 0.0
+        id: 'poolsInvisibleRect',
+        width: width - nav.navGutter,
+        height: height,
+        opacity: 0.0
       });
   }
 
@@ -220,20 +219,20 @@ module.exports = function(emitter) {
     container.poolStats = new Pool(container);
     container.poolStats.id('poolStats', poolGroup).weight(1.0).height(statsHeight * (4/5));
     container.poolStats.group().attr({
-      'transform': 'translate(' + axisGutter + ',' + (height - statsHeight) + ')'
+      transform: 'translate(' + axisGutter + ',' + (height - statsHeight) + ')'
     });
     container.poolStats.group().append('rect')
       .attr({
-        'x': 0,
-        'y': 0,
-        'width': width - axisGutter - nav.navGutter,
-        'height': statsHeight,
-        'fill': 'white'
+        x: 0,
+        y: 0,
+        width: width - axisGutter - nav.navGutter,
+        height: statsHeight,
+        fill: 'white'
       });
   };
 
   container.clear = function() {
-    emitter.removeAllListeners('numbers');
+    emitter.removeAllListeners();
     container.currentTranslation(0).latestTranslation(0);
     var ids = ['#tidelineWeeklyLabels', '#tidelinePools', '#tidelineXAxisGroup', '#tidelineYAxisGroup', '#tidelineScrollNav', '#tidelineTooltips', '#tidelineAnnotations'];
     ids.forEach(function(id) {
@@ -247,20 +246,6 @@ module.exports = function(emitter) {
 
   container.destroy = function() {
     d3.select('#' + id).remove();
-
-    return container;
-  };
-  
-  // TODO: delete when update blip (legacy method)
-  container.hide = function() {
-    d3.select('#' + id).classed('hidden', true);
-
-    return container;
-  };
-
-  // TODO: delete when update blip (legacy method)
-  container.show = function() {
-    d3.select('#' + id).classed('hidden', false);
 
     return container;
   };
@@ -304,7 +289,7 @@ module.exports = function(emitter) {
       if ((topDate !== cachedDomain[0]) || (bottomDate !== cachedDomain[1])) {
         cachedDomain = [new Date(topDate + midnight), new Date(bottomDate + midnight)];
         emitter.emit('currentDomain', {
-          'domain': cachedDomain
+          domain: cachedDomain
         });
       }
     }
@@ -316,7 +301,7 @@ module.exports = function(emitter) {
     var labelGroup = labelHolder.append('text')
       .attr({
         'class': 'd3-pool-label',
-        'transform': 'translate(' + axisGutter + ',' + nav.navGutter + ')'
+        transform: 'translate(' + axisGutter + ',' + nav.navGutter + ')'
       })
       .text(l.main);
 
@@ -325,7 +310,7 @@ module.exports = function(emitter) {
 
     var legendGroup = labelHolder.append('g')
       .attr({
-        'transform': 'translate(' + (container.width() - nav.navGutter) + ',' + nav.navGutter + ')'
+        transform: 'translate(' + (container.width() - nav.navGutter) + ',' + nav.navGutter + ')'
       });
 
     legend.draw(legendGroup, 'bg');
@@ -376,22 +361,22 @@ module.exports = function(emitter) {
       .attr('id', 'tidelineXAxisGroup')
       .append('rect')
       .attr({
-        'id': 'xAxisInvisibleRect',
-        'x': axisGutter,
-        'height': nav.axisHeight,
-        'width': width - axisGutter,
-        'fill': 'white'
+        id: 'xAxisInvisibleRect',
+        x: axisGutter,
+        height: nav.axisHeight,
+        width: width - axisGutter,
+        fill: 'white'
       });
 
     mainGroup.append('g')
       .attr('id', 'tidelineYAxisGroup')
       .append('rect')
       .attr({
-        'id': 'yAxisInvisibleRect',
-        'x': 0,
-        'height': height,
-        'width': axisGutter,
-        'fill': 'white'
+        id: 'yAxisInvisibleRect',
+        x: 0,
+        height: height,
+        width: axisGutter,
+        fill: 'white'
       });
 
     daysGroup = poolGroup.append('g').attr('id', 'daysGroup');
@@ -495,16 +480,16 @@ module.exports = function(emitter) {
         return d3.time.format.utc('%b %-d')(d);
       })
       .attr({
-        'x': xPos,
-        'y': 0,
-        'dy': dy,
+        x: xPos,
+        y: 0,
+        dy: dy,
         'class': 'd3-date',
         'text-anchor': 'end'
       });
 
     tickLabels.selectAll('text')
       .attr({
-        'transform': function() {
+        transform: function() {
           if (d3.select(this).classed('d3-date')) {
             return 'translate(' + (dayTickSize - 6) + ',8)';
           }
@@ -589,12 +574,12 @@ module.exports = function(emitter) {
 
         scrollNav.append('rect')
         .attr({
-          'x': 0,
-          'y': nav.scrollScale(dataEndNoon) - nav.scrollThumbRadius,
-          'width': nav.navGutter,
-          'height': height - nav.axisHeight,
-          'fill': 'white',
-          'id': 'scrollNavInvisibleRect'
+          x: 0,
+          y: nav.scrollScale(dataEndNoon) - nav.scrollThumbRadius,
+          width: nav.navGutter,
+          height: height - nav.axisHeight,
+          fill: 'white',
+          id: 'scrollNavInvisibleRect'
         });
 
         xPos = 2 * nav.navGutter / 3;
@@ -606,10 +591,10 @@ module.exports = function(emitter) {
         scrollNav.attr('transform', 'translate(' + (width - nav.navGutter) + ',0)')
           .append('line')
           .attr({
-            'x1': xPos,
-            'x2': xPos,
-            'y1': nav.axisHeight + nav.scrollGutterWidth/2,
-            'y2': height - statsHeight - nav.scrollGutterWidth/2,
+            x1: xPos,
+            x2: xPos,
+            y1: nav.axisHeight + nav.scrollGutterWidth/2,
+            y2: height - statsHeight - nav.scrollGutterWidth/2,
             'stroke-width': nav.scrollGutterWidth,
             'class': 'scroll'
           });
@@ -620,12 +605,12 @@ module.exports = function(emitter) {
 
         scrollNav.append('rect')
         .attr({
-          'x': 0,
-          'y': nav.scrollScale(dataStartNoon) - nav.scrollThumbRadius,
-          'width': nav.navGutter,
-          'height': height - nav.axisHeight,
-          'fill': 'white',
-          'id': 'scrollNavInvisibleRect'
+          x: 0,
+          y: nav.scrollScale(dataStartNoon) - nav.scrollThumbRadius,
+          width: nav.navGutter,
+          height: height - nav.axisHeight,
+          fill: 'white',
+          id: 'scrollNavInvisibleRect'
         });
 
         xPos = nav.navGutter / 2;
@@ -633,10 +618,10 @@ module.exports = function(emitter) {
         scrollNav.attr('transform', 'translate(' + (width - nav.navGutter) + ',0)')
           .append('line')
           .attr({
-            'x1': xPos,
-            'x2': xPos,
-            'y1': nav.axisHeight + nav.scrollGutterWidth/2,
-            'y2': height - statsHeight - nav.scrollGutterWidth/2,
+            x1: xPos,
+            x2: xPos,
+            y1: nav.axisHeight + nav.scrollGutterWidth/2,
+            y2: height - statsHeight - nav.scrollGutterWidth/2,
             'stroke-width': nav.scrollGutterWidth,
             'class': 'scroll'
           });
@@ -669,17 +654,17 @@ module.exports = function(emitter) {
         });
 
       scrollNav.selectAll('rect.scrollThumb')
-        .data([{'x': 0, 'y': yStart}])
+        .data([{x: 0, y: yStart}])
         .enter()
         .append('rect')
         .attr({
-          'x': xPos - nav.scrollThumbRadius/3,
-          'y': function(d) {
+          x: xPos - nav.scrollThumbRadius/3,
+          y: function(d) {
             return d.y - nav.scrollThumbRadius;
           },
-          'width': 2 * nav.scrollThumbRadius/3,
-          'height': 2 * nav.scrollThumbRadius,
-          'rx': nav.scrollThumbRadius/3,
+          width: 2 * nav.scrollThumbRadius/3,
+          height: 2 * nav.scrollThumbRadius,
+          rx: nav.scrollThumbRadius/3,
           'class': 'scrollThumb'
         })
         .call(drag);
@@ -878,9 +863,9 @@ module.exports = function(emitter) {
 
     this.days.forEach(function(day) {
       var thisDay = {
-        'year': day.slice(0,4),
-        'month': day.slice(5,7),
-        'day': day.slice(8,10)
+        year: day.slice(0,4),
+        month: day.slice(5,7),
+        day: day.slice(8,10)
       };
       container.dataPerDay.push(_.filter(data, function(d) {
         var date = new Date(d.normalTime);

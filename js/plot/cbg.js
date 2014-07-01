@@ -46,7 +46,8 @@ module.exports = function(pool, opts) {
         });
       var cbgGroups = allCBG.enter()
         .append('circle')
-        .attr('class', 'd3-cbg');
+        .attr('class', 'd3-cbg')
+        .attr('clip-path', 'url(#mainClipPath)');
       var cbgLow = cbgGroups.filter(function(d) {
         if (d.value < opts.classes.low.boundary) {
           return d;

@@ -1,4 +1,5 @@
 /** @jsx React.DOM */
+var _ = window._;
 var bows = window.bows;
 var React = window.React;
 
@@ -16,13 +17,27 @@ var example = {
 };
 
 var Example = React.createClass({
-  getInitialState: function() {
+  log: bows('Example'),
+  propTypes: {
+    chartData: React.PropTypes.object.isRequired,
+    imagesBaseUrl: React.PropTypes.string.isRequired
+  },
+  getDefaultProps: function() {
     return {
       chartData: preprocess.processData(data),
+      imagesBaseUrl: 'img'
+    };
+  },
+  getInitialState: function() {
+    return {
       chartPrefs: {
-        bgUnits: 'mg/dL'
+        bgUnits: 'mg/dL',
+        hiddenPools: {
+          basalSettings: true
+        }
       },
-      imagesBaseUrl: 'img',
+      datetimeLocation: null,
+      initialDatetimeLocation: null,
       chartType: 'daily'
     };
   },
@@ -45,37 +60,41 @@ var Example = React.createClass({
         /* jshint ignore:start */
         return (
           <Daily 
-            patientData={this.state.chartData}
             chartPrefs={this.state.chartPrefs}
-            imagesBaseUrl={this.state.imagesBaseUrl}
+            imagesBaseUrl={this.props.imagesBaseUrl}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
-            switchToDaily={this.handleSwitchToDaily}
-            switchToSettings={this.handleSwitchToSettings}
-            switchToWeekly={this.handleSwitchToWeekly} />
+            patientData={this.props.chartData}
+            onSwitchToDaily={this.handleSwitchToDaily}
+            onSwitchToSettings={this.handleSwitchToSettings}
+            onSwitchToWeekly={this.handleSwitchToWeekly}
+            updateChartPrefs={this.updateChartPrefs}
+            updateDatetimeLocation={this.updateDatetimeLocation} />
           );
         /* jshint ignore:end */
       case 'weekly':
         /* jshint ignore:start */
         return (
           <Weekly 
-            patientData={this.state.chartData}
             chartPrefs={this.state.chartPrefs}
-            imagesBaseUrl={this.state.imagesBaseUrl}
+            imagesBaseUrl={this.props.imagesBaseUrl}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
-            switchToDaily={this.handleSwitchToDaily}
-            switchToSettings={this.handleSwitchToSettings}
-            switchToWeekly={this.handleSwitchToWeekly} />
+            patientData={this.props.chartData}
+            onSwitchToDaily={this.handleSwitchToDaily}
+            onSwitchToSettings={this.handleSwitchToSettings}
+            onSwitchToWeekly={this.handleSwitchToWeekly}
+            updateChartPrefs={this.updateChartPrefs}
+            updateDatetimeLocation={this.updateDatetimeLocation} />
           );
         /* jshint ignore:end */
       case 'settings':
         /* jshint ignore:start */
         return (
           <Settings 
-            patientData={this.state.chartData}
             chartPrefs={this.state.chartPrefs}
-            switchToDaily={this.handleSwitchToDaily}
-            switchToSettings={this.handleSwitchToSettings}
-            switchToWeekly={this.handleSwitchToWeekly} />
+            patientData={this.props.chartData}
+            onSwitchToDaily={this.handleSwitchToDaily}
+            onSwitchToSettings={this.handleSwitchToSettings}
+            onSwitchToWeekly={this.handleSwitchToWeekly} />
           );
         /* jshint ignore:end */
     }
@@ -84,7 +103,7 @@ var Example = React.createClass({
   handleSwitchToDaily: function(datetime) {
     this.setState({
       chartType: 'daily',
-      initialDatetimeLocation: datetime
+      initialDatetimeLocation: datetime || this.state.datetimeLocation
     });
   },
   handleSwitchToSettings: function() {
@@ -95,7 +114,23 @@ var Example = React.createClass({
   handleSwitchToWeekly: function(datetime) {
     this.setState({
       chartType: 'weekly',
-      initialDatetimeLocation: datetime
+      initialDatetimeLocation: datetime || this.state.datetimeLocation
+    });
+  },
+  updateChartPrefs: function(newChartPrefs) {
+    var currentPrefs = _.clone(this.state.chartPrefs);
+    _.assign(currentPrefs, newChartPrefs);
+    this.setState({
+      chartPrefs: currentPrefs
+    }, function() {
+      // this.log('Global example state changed:', JSON.stringify(this.state));
+    });
+  },
+  updateDatetimeLocation: function(datetime) {
+    this.setState({
+      datetimeLocation: datetime
+    }, function() {
+      // this.log('Global example state changed:', JSON.stringify(this.state));
     });
   }
 });

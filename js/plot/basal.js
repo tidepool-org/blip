@@ -128,7 +128,8 @@ module.exports = function(pool, opts) {
         .attr('class', 'd3-basal-group')
         .attr('id', function(d) {
           return 'basal_group_' + d.id;
-        });
+        })
+        .attr('clip-path', 'url(#mainClipPath)');
       // add actual basal fill rects
       rectGroups.filter(function(d){
         if (d.vizType === 'actual') {
@@ -250,9 +251,10 @@ module.exports = function(pool, opts) {
         actualPaths.forEach(function(path) {
           d3.select(this).append('path')
             .attr({
-            d: line(path),
-            class: 'd3-basal d3-path-basal'
-          });
+              'clip-path': 'url(#mainClipPath)',
+              d: line(path),
+              'class': 'd3-basal d3-path-basal'
+            });
         }, this);
       }
       else {
@@ -312,6 +314,7 @@ module.exports = function(pool, opts) {
 
           basalGroup.append('path')
             .attr({
+              'clip-path': 'url(#mainClipPath)',
               d: line(pathPoints),
               class: 'd3-basal d3-path-basal d3-path-basal-undelivered'
             });

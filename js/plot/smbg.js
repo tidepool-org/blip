@@ -59,6 +59,7 @@ module.exports = function(pool, opts) {
           cy: smbg.yPosition,
           r: smbg.radius,
           id: smbg.id,
+          'clip-path': 'url(#mainClipPath)',
           'class': getBgBoundaryClass
         })
         .classed({'d3-smbg': true, 'd3-circle-smbg': true});

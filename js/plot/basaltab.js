@@ -46,21 +46,24 @@ module.exports = function(pool, opts) {
       else {
         schedules.sort();
       }
+      var actualSchedules = [];
       for (var i = 0; i < schedules.length; ++i) {
         var key = schedules[i];
         // must check that schedule actually exists
         // schedule names come through for empty schedules
         if (data[key] != null) {
-          var tabsGroup = selection.selectAll('#' + pool.id() + '_' + key.replace(' ', '_')).data([data[key]]);
-          tabsGroup.enter().append('g').attr('id', pool.id() + '_' + key.replace(' ', '_'))
+          actualSchedules.push(key);
+          var type = data[key][0].type;
+          var tabsGroup = selection.selectAll('#' + pool.id() + '_' + type + '_' + basaltab.scheduleName(key)).data([key]);
+          tabsGroup.enter().append('g').attr('id', pool.id() + '_' + type + '_' + basaltab.scheduleName(key))
             .attr('transform', selection.attr('transform'));
-          var tabs = tabsGroup.selectAll('g.d3-cell-group.d3-' + key.replace(' ','-').toLowerCase())
+          var tabs = tabsGroup.selectAll('g.d3-cell-group.d3-' + basaltab.scheduleName(key))
             .data(data[key], basaltab.id);
-
           var cellGroups = tabs.enter().append('g')
             .attr({
-              'class': 'd3-cell-group ' + key.replace(' ','-').toLowerCase(),
-              id: function(d) { return 'd3-cell-group_' + d.id; }
+              'class': 'd3-cell-group d3-' + basaltab.scheduleName(key),
+              'clip-path': 'url(#mainClipPath)',
+              id: function(d) { return 'cell_group_' + d.id; }
             });
 
           cellGroups.append('rect')
@@ -70,7 +73,7 @@ module.exports = function(pool, opts) {
               width: basaltab.width,
               height: opts.rowHeight,
               'class': basaltab.matchClass,
-              id: function(d) { return 'd3-cell-rect_' + d.id; }
+              id: function(d) { return 'cell_rect_' + d.id; }
             })
             .classed('d3-cell-rect', true);
 
@@ -81,7 +84,7 @@ module.exports = function(pool, opts) {
               },
               y: (index * opts.rowHeight) + (opts.rowHeight/2),
               'class': basaltab.matchClass,
-              id: function(d) { return 'd3-cell-label_' + d.id; }
+              id: function(d) { return 'cell_label_' + d.id; }
             })
             .classed('d3-cell-label', true)
             .text(function(d) {
@@ -100,8 +103,17 @@ module.exports = function(pool, opts) {
           index++;
         }
       }
+      basaltab.addLabels(actualSchedules);
     });
   }
+
+  basaltab.id = function(d) {
+    return d.id;
+  };
+
+  basaltab.scheduleName = function(key) {
+    return key.replace(' ', '_').toLowerCase();
+  };
 
   basaltab.matchClass = function(d) {
     if (d.actualized) {
@@ -126,6 +138,34 @@ module.exports = function(pool, opts) {
       return true;
     }
     return false;
+  };
+
+  basaltab.addLabels = function(names) {
+    var printNames = [];
+    for (var i = 0; i < names.length; ++i) {
+      if (names[i] === 'Standard') {
+        printNames.push('Std-');
+      }
+      else if (names[i].search('Program') !== -1) {
+        printNames.push(names[i].replace('Program', '').trim() + '-');
+      }
+      else if (names[i].search('Pattern') !== -1) {
+        printNames.push(names[i].replace('Pattern', '').trim() + '-');
+      }
+    }
+    var labelsGroup = mainGroup.select('#' + pool.id()).selectAll('#' + pool.id() + '_labels').data([names]);
+    labelsGroup.enter().append('g').attr('id', pool.id() + '_labels');
+    var labels = labelsGroup.selectAll('text').data(printNames);
+    labels.enter()
+      .append('text')
+      .attr({
+        // this retrieves the container axisGutter...something of a hack
+        x: mainGroup.select('#mainClipPath').select('rect').attr('x'),
+        y: function(d, i) { return i * opts.rowHeight + (opts.rowHeight/2); },
+        'class': 'd3-row-label',
+        'xml:space': 'preserve'
+      })
+      .text(function(d) { return d; });
   };
 
   return basaltab;

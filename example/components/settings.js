@@ -19,19 +19,28 @@ var Settings = React.createClass({
   chartType: 'settings',
   log: bows('Settings View'),
   propTypes: {
-    patientData: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
-    switchToDaily: React.PropTypes.func.isRequired,
-    switchToSettings: React.PropTypes.func.isRequired,
-    switchToWeekly: React.PropTypes.func.isRequired
+    patientData: React.PropTypes.object.isRequired,
+    onSwitchToDaily: React.PropTypes.func.isRequired,
+    onSwitchToSettings: React.PropTypes.func.isRequired,
+    onSwitchToWeekly: React.PropTypes.func.isRequired
+  },
+  getInitialState: function() {
+    return {
+      atMostRecent: true,
+      inTransition: false,
+      title: 'Current Insulin Pump Settings'
+    };
   },
   render: function() {
-    this.log('Rendering...');
     /* jshint ignore:start */
     return (
       <div id="tidelineMain">
         <Header 
           chartType={this.chartType}
+          atMostRecent={true}
+          inTransition={this.state.inTransition}
+          title={this.state.title}
           onClickMostRecent={this.handleClickMostRecent}
           onClickOneDay={this.handleClickOneDay}
           onClickTwoWeeks={this.handleClickTwoWeeks}
@@ -44,7 +53,7 @@ var Settings = React.createClass({
         </div>
         <Footer
          chartType={this.chartType}
-         onClickSettings={this.props.switchToSettings}
+         onClickSettings={this.props.onSwitchToSettings}
         ref="footer" />
       </div>
       );
@@ -55,10 +64,10 @@ var Settings = React.createClass({
     return;
   },
   handleClickOneDay: function() {
-    this.props.switchToDaily();
+    this.props.onSwitchToDaily();
   },
   handleClickTwoWeeks: function() {
-    this.props.switchToWeekly();
+    this.props.onSwitchToWeekly();
   }
 });
 
@@ -73,6 +82,9 @@ var SettingsChart = React.createClass({
   componentDidMount: function() {
     this.mountChart(this.getDOMNode());
     this.initializeChart(this.props.patientData);
+  },
+  componentWillUnmount: function() {
+    this.unmountChart();
   },
   mountChart: function(node, chartOpts) {
     this.log('Mounting...');

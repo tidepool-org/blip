@@ -22,7 +22,7 @@ var log = require('../../lib/').bows('Shapes');
 
 var legend = {
   SHAPE_MARGIN: 3,
-  SHAPE_WIDTH: 16,
+  SHAPE_WIDTH: 15.5,
   basal: [
     {
       create: function(opts) {
@@ -40,7 +40,7 @@ var legend = {
           .attr({
             'class': 'd3-pool-legend'
           })
-          .text('Delivered')
+          .text('delivered')
           .each(function() {
             opts.widths.push(this.getBBox().width);
             opts.textHeight = this.getBBox().height;
@@ -64,7 +64,7 @@ var legend = {
           .attr({
             'class': 'd3-pool-legend'
           })
-          .text('Scheduled')
+          .text('scheduled')
           .each(function() {
             opts.widths.push(this.getBBox().width);
           });
@@ -79,7 +79,7 @@ var legend = {
           .attr({
             'class': 'd3-pool-legend'
           })
-          .text('High')
+          .text('high')
           .each(function() {
             opts.widths.push(this.getBBox().width);
             opts.textHeight = this.getBBox().height;
@@ -143,7 +143,7 @@ var legend = {
           .attr({
             'class': 'd3-pool-legend'
           })
-          .text('Low')
+          .text('low')
           .each(function() {
             opts.widths.push(this.getBBox().width);
           });
@@ -168,7 +168,7 @@ var legend = {
           .attr({
             'class': 'd3-pool-legend'
           })
-          .text('Delivered')
+          .text('delivered')
           .each(function() {
             opts.widths.push(this.getBBox().width);
             opts.textHeight = this.getBBox().height;
@@ -192,7 +192,7 @@ var legend = {
           .attr({
             'class': 'd3-pool-legend'
           })
-          .text('Recommended')
+          .text('recommended')
           .each(function() {
             opts.widths.push(this.getBBox().width);
             opts.textHeight = this.getBBox().height;
@@ -218,7 +218,7 @@ var legend = {
           .attr({
             'class': 'd3-pool-legend'
           })
-          .text('Carbs')
+          .text('carbs')
           .each(function() {
             opts.widths.push(this.getBBox().width);
             opts.textHeight = this.getBBox().height;
