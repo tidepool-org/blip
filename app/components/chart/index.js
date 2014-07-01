@@ -13,4 +13,10 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-module.exports = require('./chart');
+module.exports = {
+  daily: require('./daily'),
+  weekly: require('./weekly'),
+  settings: require('./settings'),
+  header: require('./header'),
+  footer: require('./footer')
+};
