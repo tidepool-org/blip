@@ -61,10 +61,10 @@ var TidelineHeader = React.createClass({
           <div className="grid patient-data-subnav">
             <div className="grid-item one-whole large-one-quarter">
               <div className="grid-item large-three-eighths">
-                <a href="" className={dayLinkClass} onClick={this.props.onClickOneDay}>One Day</a>
+                <a href="" className={dayLinkClass} onClick={this.props.onClickOneDay}>One day</a>
               </div>
               <div className="grid-item large-one-half patient-data-subnav-left">
-                <a href="" className={weekLinkClass} onClick={this.props.onClickTwoWeeks}>Two Weeks</a>
+                <a href="" className={weekLinkClass} onClick={this.props.onClickTwoWeeks}>Two weeks</a>
               </div>
             </div>
             <div className="grid-item one-whole large-one-half patient-data-subnav-center" id="tidelineLabel">
@@ -79,7 +79,7 @@ var TidelineHeader = React.createClass({
                 <a href="" className={refreshLinkClass} onClick={this.props.onClickRefresh}>Refresh</a>
               </div>
               <div className="grid-item one-whole large-one-half">
-                <a href="" className={mostRecentLinkClass} onClick={this.props.onClickMostRecent}>Most Recent</a>
+                <a href="" className={mostRecentLinkClass} onClick={this.props.onClickMostRecent}>Most recent</a>
               </div>
             </div>
           </div>

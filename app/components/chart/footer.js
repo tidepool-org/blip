@@ -28,10 +28,10 @@ var TidelineFooter = React.createClass({
     function getValuesLinkText(props) {
       if (props.chartType === 'weekly') {
         if (props.showingValues) {
-          return 'Hide Values';
+          return 'Hide numbers';
         }
         else {
-          return 'Show Values';
+          return 'Show numbers';
         }
       }
       else {
@@ -53,7 +53,7 @@ var TidelineFooter = React.createClass({
         <div className="container-box-inner patient-data-footer-inner">
           <div className="grid patient-data-footer">
             <div className="grid-item one-whole medium-one-half patient-data-footer-left">
-              <a href="" className={settingsLinkClass} onClick={this.props.onClickSettings}>Device Settings</a>
+              <a href="" className={settingsLinkClass} onClick={this.props.onClickSettings}>Device settings</a>
             </div>
             <div href="" className="grid-item one-whole medium-one-half patient-data-footer-right">{showValues}</div>
           </div>
