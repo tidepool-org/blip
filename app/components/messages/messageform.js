@@ -57,7 +57,7 @@ var MessageForm = React.createClass({
     return this.isExistingNoteEdit() && _.isEmpty(this.props.existingNoteFields.editableTimestamp) === false;
   },
   allowDateEdit:function() {
-    return this.hasTimestampToEdit() || this.isExistingNoteEdit() === false && this.state.changeDateTime;
+    return this.hasTimestampToEdit() || this.isExistingNoteEdit() === false;
   },
   initEdit:function() {
     if( this.hasTextToEdit() && this.hasTimestampToEdit() ){

@@ -18,13 +18,6 @@
 @message-form-button-width: 50px;
 @message-form-spacing-unit: 8px;
 
-.messageform {
-  // For button absolute positioning
-  position: relative;
-  padding: @message-form-spacing-unit;
-  background: @gray-bg-dark;
-}
-
 .messageform-textarea {
   &:extend(.form-control all);
 }
@@ -40,7 +33,6 @@
 
 a.messageform-change-datetime {
   display: block;
-  font-size: @font-size-small;
   text-align: right;
   float: right;
   padding-left: @message-form-spacing-unit*2;
@@ -48,7 +40,7 @@ a.messageform-change-datetime {
 
   &:hover,
   &:focus {
-    color: @gray-text-dark;
+    color: @gray-dark;
   }
 }
 

@@ -21,8 +21,8 @@ not, you can obtain one from Tidepool Project at tidepool.org.
 'use strict';
 
 var React = window.React;
-var moment = window.moment;
 var _ = window._;
+var sundial = window.sundial;
 
 var Message = require('./message');
 var MessageForm = require('./messageform');
@@ -55,23 +55,18 @@ var Messages = React.createClass({
     return {
       isWorking: false,
       formValues: {
-        messageDateTime: this.formatDisplayDate(this.props.createDatetime),
+        messageDateTime: sundial.formatForDisplay(this.props.createDatetime),
         messageText: ''
       },
       messages : this.props.messages
     };
   },
-
-  formatDisplayDate : function(timestamp){
-    return moment(timestamp).format('MMMM D [at] h:mm a');
-  },
-
   renderNote: function(message){
     /* jshint ignore:start */
     return (
       <Message
         key={message.id}
-        message={message}
+        theNote={message}
         imageSize="large"
         imagesEndpoint={this.props.imagesEndpoint}/>
       );
@@ -82,7 +77,7 @@ var Messages = React.createClass({
     return (
       <Message
         key={message.id}
-        message={message}
+        theNote={message}
         imageSize="small"
         imagesEndpoint={this.props.imagesEndpoint}/>
       );
@@ -113,13 +108,11 @@ var Messages = React.createClass({
     return this.state.messages;
   },
   renderForm:function(){
-    var isWorking = this.state.isWorking;
     var submitButtonText;
-
 
     if(this.isMessageThread()){
       submitButtonText = 'Comment';
-      if (isWorking) {
+      if (this.state.isWorking) {
         submitButtonText = 'Sending...';
       }
 
@@ -137,7 +130,7 @@ var Messages = React.createClass({
     }
 
     submitButtonText = 'Post';
-    if (isWorking) {
+    if (this.state.isWorking) {
       submitButtonText = 'Sending...';
     }
 
@@ -147,7 +140,7 @@ var Messages = React.createClass({
         <div className="messages-create-datetime">
           {'New note for '}
           <span className="messages-create-datetime-value">
-            {this.formatDisplayDate(this.props.createDatetime)}
+            {sundial.formatForDisplay(this.props.createDatetime)}
           </span>
         </div>
         <MessageForm
