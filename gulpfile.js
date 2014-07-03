@@ -79,7 +79,7 @@ gulp.task('scripts-browserify', function() {
   return gulp.src('app/app.js')
     .pipe(browserify({
       transform: ['reactify'],
-      // Don't bundle Tidepool platform or Tideline dependencies
+      // Don't bundle Tidepool platform, Tideline or Sundial dependencies
       // (will be grabbed from global `window` object instead)
       ignore: [
         'async',
@@ -88,6 +88,7 @@ gulp.task('scripts-browserify', function() {
         'duration-js',
         'lodash',
         'superagent'
+        'moment'
       ]
     }))
     .pipe(concat('app.js'))

@@ -29,9 +29,10 @@ var sundial = window.sundial;
 // Form for creating new Notes or adding Comments
 var MessageForm = React.createClass({
   propTypes: {
-    existingNoteFields : React.PropTypes.object,
+    formFields : React.PropTypes.object,
     messagePrompt : React.PropTypes.string,
     saveBtnText : React.PropTypes.string,
+    cancelBtnText : React.PropTypes.string,
     onCancel : React.PropTypes.func,
     onSubmit : React.PropTypes.func
   },
@@ -48,33 +49,36 @@ var MessageForm = React.createClass({
     };
   },
   isExistingNoteEdit:function() {
-    return _.isEmpty(this.props.existingNoteFields) === false;
+    return _.isEmpty(this.props.formFields) === false;
   },
   hasTextToEdit:function(){
-    return this.isExistingNoteEdit() && _.isEmpty(this.props.existingNoteFields.editableText) === false;
+    return this.isExistingNoteEdit() && _.isEmpty(this.props.formFields.editableText) === false;
   },
   hasTimestampToEdit:function(){
-    return this.isExistingNoteEdit() && _.isEmpty(this.props.existingNoteFields.editableTimestamp) === false;
-  },
-  allowDateEdit:function() {
-    return this.hasTimestampToEdit() || this.isExistingNoteEdit() === false;
+    return this.isExistingNoteEdit() && _.isEmpty(this.props.formFields.editableTimestamp) === false;
   },
   initEdit:function() {
     if( this.hasTextToEdit() && this.hasTimestampToEdit() ){
       //allow editing of both the note text and timestamp
       this.setState({
-        msg : this.props.existingNoteFields.editableText,
-        whenUtc : this.props.existingNoteFields.editableTimestamp ,
+        msg : this.props.formFields.editableText,
+        whenUtc : this.props.formFields.editableTimestamp ,
         editing : true,
         changeDateTime : true,
-        time : sundial.formatForDisplay(this.props.existingNoteFields.editableTimestamp,this.props.TIME_MASK),
-        date : sundial.formatForDisplay(this.props.existingNoteFields.editableTimestamp,this.props.DATE_MASK)
+        time : sundial.formatForDisplay(this.props.formFields.editableTimestamp,this.props.TIME_MASK),
+        date : sundial.formatForDisplay(this.props.formFields.editableTimestamp,this.props.DATE_MASK)
       });
     } else if(this.hasTextToEdit()) {
       //allow editing of the note text only
       this.setState({
-        msg : this.props.existingNoteFields.editableText,
-        whenUtc : this.props.existingNoteFields.displayOnlyTimestamp,
+        msg : this.props.formFields.editableText,
+        whenUtc : this.props.formFields.displayTimestamp,
+        editing : true
+      });
+    } else if(this.hasTimestampToEdit()) {
+      //allow editing of the note text only
+      this.setState({
+        whenUtc : this.props.formFields.editableTimestamp,
         editing : true
       });
     }
@@ -136,13 +140,10 @@ var MessageForm = React.createClass({
   getUtcTimestamp: function() {
     var utcTimestamp = this.state.whenUtc;
 
-    if( this.allowDateEdit() ){
-
-      if(this.state.date && this.state.time){
-        var offset = sundial.getOffsetFromTime(this.state.whenUtc);
-        var editedTimestamp = this.state.date+'T'+this.state.time;
-        utcTimestamp =  sundial.formatForStorage(editedTimestamp,offset);
-      }
+    if(this.state.date && this.state.time){
+      var offset = sundial.getOffsetFromTime(this.state.whenUtc);
+      var editedTimestamp = this.state.date+'T'+this.state.time;
+      utcTimestamp =  sundial.formatForStorage(editedTimestamp,offset);
     }
 
     return utcTimestamp;
@@ -191,12 +192,12 @@ var MessageForm = React.createClass({
   /*
    * Just displays the notes date if it is set
    */
-  renderDisplayDate: function(isExistingNoteEditable){
+  renderDisplayDate: function(canEditTimestamp){
     var displayDate;
     if(this.state.whenUtc){
       var editLink;
 
-      if(isExistingNoteEditable){
+      if(canEditTimestamp){
         editLink = (
           /* jshint ignore:start */
           <a className='messageform-change-datetime' href='' ref='showDateTime' onClick={this.showEditDate}>Change</a>
@@ -282,7 +283,7 @@ var MessageForm = React.createClass({
   },
   render: function() {
 
-    var date = this.renderDisplayDate(this.allowDateEdit());
+    var date = this.renderDisplayDate(this.hasTimestampToEdit());
     var textArea = this.renderTextArea();
     var buttons;
 

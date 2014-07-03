@@ -33,7 +33,7 @@ var Messages = React.createClass({
     messages : React.PropTypes.array,
     createDatetime : React.PropTypes.string,
     user : React.PropTypes.object,
-    patient: React.PropTypes.object,
+    patient : React.PropTypes.object,
     onClose : React.PropTypes.func,
     onSave : React.PropTypes.func,
     onNewMessage : React.PropTypes.func,
@@ -43,21 +43,16 @@ var Messages = React.createClass({
   getDefaultProps: function () {
     return {
       NOTE_PROMPT : 'Type a new note here ...',
-      COMMENT_PROMPT : 'Type a comment here ...'
+      COMMENT_PROMPT : 'Type a comment here ...',
+      SENDING_TEXT : 'Sending...'
     };
   },
-
   componentWillReceiveProps: function(nextProps) {
     this.setState({messages: nextProps.messages});
   },
-
   getInitialState: function() {
     return {
       isWorking: false,
-      formValues: {
-        messageDateTime: sundial.formatForDisplay(this.props.createDatetime),
-        messageText: ''
-      },
       messages : this.props.messages
     };
   },
@@ -67,7 +62,7 @@ var Messages = React.createClass({
       <Message
         key={message.id}
         theNote={message}
-        imageSize="large"
+        imageSize='large'
         imagesEndpoint={this.props.imagesEndpoint}/>
       );
     /* jshint ignore:end */
@@ -78,7 +73,7 @@ var Messages = React.createClass({
       <Message
         key={message.id}
         theNote={message}
-        imageSize="small"
+        imageSize='small'
         imagesEndpoint={this.props.imagesEndpoint}/>
       );
     /* jshint ignore:end */
@@ -97,7 +92,7 @@ var Messages = React.createClass({
 
       /* jshint ignore:start */
       return (
-        <div className="messages-thread">{thread}</div>
+        <div className='messages-thread'>{thread}</div>
       );
       /* jshint ignore:end */
     }
@@ -107,49 +102,45 @@ var Messages = React.createClass({
   isMessageThread:function(){
     return this.state.messages;
   },
-  renderForm:function(){
-    var submitButtonText;
+  renderCommentOnThreadForm:function(){
 
-    if(this.isMessageThread()){
-      submitButtonText = 'Comment';
-      if (this.state.isWorking) {
-        submitButtonText = 'Sending...';
-      }
-
-      /* jshint ignore:start */
-      return (
-        <div className="messages-form">
-
-          <MessageForm
-            messagePrompt={this.props.COMMENT_PROMPT}
-            saveBtnText={submitButtonText}
-            onSubmit={this.handleAddComment}/>
-        </div>
-      );
-      /* jshint ignore:end */
-    }
-
-    submitButtonText = 'Post';
+    var submitButtonText = 'Comment';
     if (this.state.isWorking) {
-      submitButtonText = 'Sending...';
+      submitButtonText = this.props.SENDING_TEXT;
     }
 
     /* jshint ignore:start */
     return (
-      <div className="messages-form">
-        <div className="messages-create-datetime">
-          {'New note for '}
-          <span className="messages-create-datetime-value">
-            {sundial.formatForDisplay(this.props.createDatetime)}
-          </span>
-        </div>
+      <div className='messages-form'>
         <MessageForm
-            messagePrompt={this.props.NOTE_PROMPT}
-            saveBtnText={submitButtonText}
-            onSubmit={this.handleCreateNote}/>
+          messagePrompt={this.props.COMMENT_PROMPT}
+          saveBtnText={submitButtonText}
+          onSubmit={this.handleAddComment}/>
       </div>
     );
     /* jshint ignore:end */
+
+  },
+  renderNewThreadForm:function(){
+
+    var submitButtonText = 'Post';
+    if (this.state.isWorking) {
+      submitButtonText = this.props.SENDING_TEXT;
+    }
+
+    /* jshint ignore:start */
+    return (
+      <div className='messages-form'>
+        <MessageForm
+            formFields={{ editableTimestamp : this.props.createDatetime }}
+            messagePrompt={this.props.NOTE_PROMPT}
+            saveBtnText={submitButtonText}
+            onSubmit={this.handleCreateNote}
+            onCancel={this.handleClose}/>
+      </div>
+    );
+      /* jshint ignore:end */
+
   },
   renderClose:function(){
     /* jshint ignore:start */
@@ -157,9 +148,16 @@ var Messages = React.createClass({
     /* jshint ignore:end */
   },
   render: function() {
+
     var thread = this.renderThread();
-    var close = this.renderClose();
-    var form = this.renderForm();
+    var form = this.renderNewThreadForm() ;
+    var close;
+
+    //If we are closing an existing thread then have close and render the comment form
+    if(thread){
+      close = this.renderClose();
+      form = this.renderCommentOnThreadForm();
+    }
 
     return (
      /* jshint ignore:start */
@@ -185,8 +183,8 @@ var Messages = React.createClass({
   },
   handleAddComment : function (formValues){
 
-    if(formValues.text){
-      this.resetFormStateBeforeSubmit(formValues);
+    if(_.isEmpty(formValues) === false){
+      this.setState({ isWorking: true });
 
       var addComment = this.props.onSave;
       var parent = this.getParent();
@@ -209,8 +207,7 @@ var Messages = React.createClass({
           var withReply = this.state.messages;
           withReply.push(comment);
           this.setState({
-            messages: withReply,
-            formValues: {messageText: ''}
+            messages: withReply
           });
         }
       }.bind(this));
@@ -218,8 +215,9 @@ var Messages = React.createClass({
   },
   handleCreateNote: function (formValues){
 
-    if(formValues.text){
-      this.resetFormStateBeforeSubmit(formValues);
+    if(_.isEmpty(formValues) === false){
+
+      this.setState({ isWorking: true });
 
       var createNote = this.props.onSave;
 
@@ -247,27 +245,31 @@ var Messages = React.createClass({
           }
           else {
             this.setState({
-              messages: [message],
-              formValues: {messageText: '', messageDateTime:''}
+              messages: [message]
             });
           }
         }
       }.bind(this));
     }
   },
+  handleEditNote: function (formValues){
+
+    if(_.isEmpty(formValues) === false){
+
+      this.setState({ isWorking: true });
+
+      console.log('edit ',edit);
+    }
+  },
   handleClose: function(e) {
-    e.preventDefault();
+    if(e){
+      e.preventDefault();
+    }
     var close = this.props.onClose;
     if (close) {
       close();
     }
-  },
-  resetFormStateBeforeSubmit: function(formValues) {
-    this.setState({
-      isWorking: true,
-      formValues: formValues
-    });
-  },
+  }
 });
 
 module.exports = Messages;

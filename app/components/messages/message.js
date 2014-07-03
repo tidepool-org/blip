@@ -148,7 +148,7 @@ var Message = React.createClass({
         editForm = (
           /* jshint ignore:start */
           <MessageForm
-            existingNoteFields={{editableText: this.props.theNote.messagetext, displayOnlyTimestamp : this.props.theNote.timestamp }}
+            formFields={{editableText: this.props.theNote.messagetext, displayOnlyTimestamp : this.props.theNote.timestamp }}
             onSubmit={this.handleEditSave}
             onCancel={this.handleCancelEdit}
             saveBtnText='Save' />
@@ -158,7 +158,7 @@ var Message = React.createClass({
         editForm = (
           /* jshint ignore:start */
           <MessageForm
-            existingNoteFields={{editableText: this.props.theNote.messagetext, editableTimestamp: this.props.theNote.timestamp}}
+            formFields={{editableText: this.props.theNote.messagetext, editableTimestamp: this.props.theNote.timestamp}}
             onSubmit={this.handleEditSave}
             onCancel={this.handleCancelEdit}
             saveBtnText='Save' />
@@ -168,8 +168,8 @@ var Message = React.createClass({
       var title = this.renderTitle();
       return (
         <div>
-          <div className="message-body">
-            <div className="message-header">
+          <div className='message-body'>
+            <div className='message-header'>
               {title}
             </div>
             {editForm}
@@ -189,8 +189,8 @@ var Message = React.createClass({
         /* jshint ignore:start */
         <div>
           {image}
-          <div className="message-body">
-            <div className="message-header">
+          <div className='message-body'>
+            <div className='message-header'>
               {title}
               <div ref='messageWhen' className='message-timestamp'>{this.state.when}</div>
             </div>
