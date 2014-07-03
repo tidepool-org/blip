@@ -20,7 +20,6 @@ not, you can obtain one from Tidepool Project at tidepool.org.
 */
 
 'use strict';
-/* jshint unused: false */
 
 var React = window.React;
 var _ = window._;
@@ -189,6 +188,7 @@ var MessageForm = React.createClass({
     var msg = this.state.msg;
     return !(msg && msg.length);
   },
+  /* jshint ignore:start */
   /*
    * Just displays the notes date if it is set
    */
@@ -199,21 +199,17 @@ var MessageForm = React.createClass({
 
       if(canEditTimestamp){
         editLink = (
-          /* jshint ignore:start */
           <a className='messageform-change-datetime' href='' ref='showDateTime' onClick={this.showEditDate}>Change</a>
-          /* jshint ignore:end */
         );
       }
 
       displayDate = (
-        /* jshint ignore:start */
         <div>
           {editLink}
           <label className='messageform-datetime-label'>
             {sundial.formatForDisplay(this.state.whenUtc)}
           </label>
         </div>
-        /* jshint ignore:end */
       );
     }
     return displayDate;
@@ -223,7 +219,6 @@ var MessageForm = React.createClass({
    */
   renderEditableDate: function(){
     return (
-      /* jshint ignore:start */
       <div ref='editDateTime'>
         <input
           type='time'
@@ -238,35 +233,26 @@ var MessageForm = React.createClass({
           className='messageform-date'
           onChange={this.handleDateChange}/>
       </div>
-      /* jshint ignore:end */
     );
   },
   renderButtons: function(){
     return (
-      /* jshint ignore:start */
       <div className='messageform-buttons'>
         <button
           type='reset'
-          ref='cancelBtn'
           className='messageform-button messageform-button-cancel'
-          onClick={this.handleCancel}>
-          {this.props.cancelBtnText}
-        </button>
-        <button
+          onClick={this.handleCancel}
+          ref='cancelBtn'>{this.props.cancelBtnText}</button>
           type='submit'
-          ref='sendBtn'
           className='messageform-button messageform-button-save'
           disabled={this.isButtonDisabled()}
-          onClick={this.handleSave}>
-          {this.props.saveBtnText}
-        </button>
+          onClick={this.handleSave}
+          ref='sendBtn'>{this.props.saveBtnText}</button>
       </div>
-      /* jshint ignore:end */
     );
   },
   renderTextArea: function(){
     return (
-      /* jshint ignore:start */
       <div className='messageform-textarea-wrapper'>
         <textarea
           type='textarea'
@@ -278,7 +264,6 @@ var MessageForm = React.createClass({
           onFocus={this.handleGrow}
           onChange={this.handleMsgChange}/>
       </div>
-      /* jshint ignore:end */
     );
   },
   render: function() {
@@ -296,15 +281,14 @@ var MessageForm = React.createClass({
     }
 
     return (
-      /* jshint ignore:start */
       <form ref='messageForm' className='messageform'>
         {date}
         {textArea}
         {buttons}
       </form>
-      /* jshint ignore:end */
     );
   }
+  /* jshint ignore:end */
 });
 
 module.exports = MessageForm;

@@ -143,27 +143,29 @@ var Message = React.createClass({
   renderNoteEdit:function(){
     if(this.state.editing){
       var editForm;
+       /* jshint ignore:start */
       if ( this.isComment() ){
+
         //we only allow the editing of the text on a comment
         editForm = (
-          /* jshint ignore:start */
+
           <MessageForm
             formFields={{editableText: this.props.theNote.messagetext, displayOnlyTimestamp : this.props.theNote.timestamp }}
             onSubmit={this.handleEditSave}
             onCancel={this.handleCancelEdit}
             saveBtnText='Save' />
-          /* jshint ignore:end */
+
         );
       } else {
+
         editForm = (
-          /* jshint ignore:start */
           <MessageForm
             formFields={{editableText: this.props.theNote.messagetext, editableTimestamp: this.props.theNote.timestamp}}
             onSubmit={this.handleEditSave}
             onCancel={this.handleCancelEdit}
             saveBtnText='Save' />
-          /* jshint ignore:end */
         );
+
       }
       var title = this.renderTitle();
       return (
@@ -176,6 +178,7 @@ var Message = React.createClass({
           </div>
         </div>
       );
+      /* jshint ignore:end */
     }
   },
   renderNoteContent: function() {
