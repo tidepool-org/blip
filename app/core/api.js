@@ -457,12 +457,14 @@ api.patientData = {};
 api.patientData.get = function(patientId, cb) {
   api.log('GET /data/' + patientId);
 
+  var now = Date.now();
   tidepool.getDeviceDataForUser(patientId, function(err, data) {
     if (err) {
       return cb(err);
     }
+    api.log('Data received in ' + (Date.now() - now) + ' millis.');
 
-    var now = Date.now();
+    now = Date.now();
     window.inData = data;
     Rx.Observable.fromArray(data)
       .map(function(e){
