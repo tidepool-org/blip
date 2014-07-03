@@ -17,7 +17,7 @@
 var React = window.React;
 var _ = window._;
 
-var Person = require('../../core/person');
+var personUtils = require('../../core/personutils');
 
 var PeopleList = React.createClass({
   propTypes: {
@@ -88,10 +88,10 @@ var PeopleList = React.createClass({
     var fullName;
 
     if (this.props.isPatientList) {
-      fullName = Person.patientFullName(person);
+      fullName = personUtils.patientFullName(person);
     }
     else {
-      fullName = Person.fullName(person);
+      fullName = personUtils.fullName(person);
     }
 
     if (!fullName) {

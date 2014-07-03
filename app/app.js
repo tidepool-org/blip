@@ -27,7 +27,7 @@ var tideline = require('./core/tideline');
 
 var router = require('./router');
 var api = require('./core/api');
-var Person = require('./core/person');
+var personUtils = require('./core/personutils');
 var queryString = require('./core/querystring');
 var chartUtil = window.tideline.preprocess;
 var detectTouchScreen = require('./core/notouch');
@@ -60,7 +60,7 @@ if (config.MOCK) {
 var app = {
   log: bows('App'),
   api: api,
-  Person: Person,
+  personUtils: personUtils,
   router: router
 };
 
@@ -468,7 +468,7 @@ var AppComponent = React.createClass({
       return false;
     }
 
-    return Person.isPatient(this.state.user);
+    return personUtils.isPatient(this.state.user);
   },
 
   showPatientEdit: function(patientId) {
@@ -519,7 +519,7 @@ var AppComponent = React.createClass({
   },
 
   isSamePersonUserAndPatient: function() {
-    return Person.isSame(this.state.user, this.state.patient);
+    return personUtils.isSame(this.state.user, this.state.patient);
   },
 
   showPatientData: function(patientId) {

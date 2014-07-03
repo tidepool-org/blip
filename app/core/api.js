@@ -23,7 +23,7 @@ var moment = window.moment;
 var Rx = window.Rx;
 var tidepool = window.tidepool;
 
-var Person = require('./person');
+var personUtils = require('./personutils');
 // devicedata just registers stuff on the Rx prototype,
 // so we are doing this for the side-effects
 var deviceData = require('./lib/devicedata');
@@ -247,7 +247,7 @@ function getPatient(patientId, cb) {
       return cb(err);
     }
 
-    if (!Person.isPatient(person)) {
+    if (!personUtils.isPatient(person)) {
       return cb();
     }
 
@@ -260,7 +260,7 @@ function updatePatient(patient, cb) {
   // Hang on to team, we'll add back later
   var team = patient.team || [];
   // Patient info is contained in the `patient` attribute of the user's profile
-  var patientInfo = Person.patientInfo(patient);
+  var patientInfo = personUtils.patientInfo(patient);
   var profile = {patient: patientInfo};
   tidepool.addOrUpdateProfile(patientId, profile, function(err, profile) {
     if (err) {

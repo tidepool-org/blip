@@ -18,7 +18,7 @@ var React = window.React;
 var _ = window._;
 var config = window.config;
 
-var Person = require('../../core/person');
+var personUtils = require('../../core/personutils');
 var PeopleList = require('../../components/peoplelist');
 
 var Patients = React.createClass({
@@ -83,12 +83,12 @@ var Patients = React.createClass({
   renderUserPatient: function() {
     var user = this.props.user;
 
-    if (this.isResettingUserData() || Person.isOnlyCareGiver(user)) {
+    if (this.isResettingUserData() || personUtils.isOnlyCareGiver(user)) {
       return null;
     }
 
     var content;
-    if (!Person.isPatient(user)) {
+    if (!personUtils.isPatient(user)) {
       /* jshint ignore:start */
       content = (
         <div className="patients-message">
@@ -259,7 +259,7 @@ var Patients = React.createClass({
   },
 
   handleClickPatient: function(patient) {
-    if (Person.isSame(this.props.user, patient)) {
+    if (personUtils.isSame(this.props.user, patient)) {
       this.props.trackMetric('Clicked Own Care Team');
     }
     else {

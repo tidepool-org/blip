@@ -19,8 +19,8 @@ var _ = window._;
 var moment = window.moment;
 var config = window.config;
 
-var Person = require('../../core/person');
-var Datetime = require('../../core/datetime');
+var personUtils = require('../../core/personutils');
+var datetimeUtils = require('../../core/datetimeutils');
 var PeopleList = require('../../components/peoplelist');
 
 var DATE_DISPLAY_FORMAT = 'MMM D, YYYY';
@@ -163,7 +163,7 @@ var Patient = React.createClass({
   },
 
   isSamePersonUserAndPatient: function() {
-    return Person.isSame(this.props.user, this.props.patient);
+    return personUtils.isSame(this.props.user, this.props.patient);
   },
 
   renderPatient: function() {
@@ -267,37 +267,37 @@ var Patient = React.createClass({
   },
 
   getDisplayName: function(patient) {
-    return Person.patientFullName(patient);
+    return personUtils.patientFullName(patient);
   },
 
   getAboutText: function(patient) {
-    var patientInfo = Person.patientInfo(patient) || {};
+    var patientInfo = personUtils.patientInfo(patient) || {};
     return patientInfo.about;
   },
 
   getAgeText: function(patient) {
-    var patientInfo = Person.patientInfo(patient) || {};
+    var patientInfo = personUtils.patientInfo(patient) || {};
     var birthday = patientInfo.birthday;
 
     if (!birthday) {
       return;
     }
 
-    var yearsOld = Datetime.yearsOldText(birthday);
+    var yearsOld = datetimeUtils.yearsOldText(birthday);
     var birthdayDisplay = moment(birthday).format(DATE_DISPLAY_FORMAT);
 
     return [yearsOld, ' (', birthdayDisplay, ')'].join('');
   },
 
   getDiagnosisText: function(patient) {
-    var patientInfo = Person.patientInfo(patient) || {};
+    var patientInfo = personUtils.patientInfo(patient) || {};
     var diagnosisDate = patientInfo.diagnosisDate;
 
     if (!diagnosisDate) {
       return;
     }
 
-    var yearsAgo = Datetime.yearsAgoText(diagnosisDate);
+    var yearsAgo = datetimeUtils.yearsAgoText(diagnosisDate);
     var diagnosisDateDisplay =
       moment(diagnosisDate).format(DATE_DISPLAY_FORMAT);
 

@@ -1,6 +1,6 @@
-var Person = require('../../app/core/person');
+var personUtils = require('../../app/core/personutils');
 
-describe('Person functions', function() {
+describe('Person utils', function() {
 
   describe('fullName', function() {
     it('should return full name if exists', function() {
@@ -8,7 +8,7 @@ describe('Person functions', function() {
         profile: {fullName: 'Mary Smith'}
       };
 
-      var result = Person.fullName(person);
+      var result = personUtils.fullName(person);
 
       expect(result).to.equal('Mary Smith');
     });
@@ -20,7 +20,7 @@ describe('Person functions', function() {
         profile: {patient: {diagnosisDate: '1990-01-31'}}
       };
 
-      var result = Person.patientInfo(person);
+      var result = personUtils.patientInfo(person);
 
       expect(result.diagnosisDate).to.equal('1990-01-31');
     });
@@ -32,7 +32,7 @@ describe('Person functions', function() {
         profile: {patient: {diagnosisDate: '1990-01-31'}}
       };
 
-      var result = Person.isPatient(person);
+      var result = personUtils.isPatient(person);
 
       expect(result).to.be.ok;
     });
@@ -42,7 +42,7 @@ describe('Person functions', function() {
         profile: {}
       };
 
-      var result = Person.isPatient(person);
+      var result = personUtils.isPatient(person);
 
       expect(result).to.not.be.ok;
     });
@@ -57,7 +57,7 @@ describe('Person functions', function() {
         }
       };
 
-      var result = Person.patientFullName(person);
+      var result = personUtils.patientFullName(person);
 
       expect(result).to.equal('Mary Smith');
     });
@@ -70,7 +70,7 @@ describe('Person functions', function() {
         }
       };
 
-      var result = Person.patientFullName(person);
+      var result = personUtils.patientFullName(person);
 
       expect(result).to.equal('Jessica Carter');
     });
@@ -85,7 +85,7 @@ describe('Person functions', function() {
         }
       };
 
-      var result = Person.patientIsOtherPerson(person);
+      var result = personUtils.patientIsOtherPerson(person);
 
       expect(result).to.not.be.ok;
     });
@@ -98,7 +98,7 @@ describe('Person functions', function() {
         }
       };
 
-      var result = Person.patientIsOtherPerson(person);
+      var result = personUtils.patientIsOtherPerson(person);
 
       expect(result).to.be.ok;
     });
@@ -110,7 +110,7 @@ describe('Person functions', function() {
         profile: {fullName: 'Mary Smith'}
       };
 
-      var result = Person.isOnlyCareGiver(person);
+      var result = personUtils.isOnlyCareGiver(person);
 
       expect(result).to.not.be.ok;
     });
@@ -120,7 +120,7 @@ describe('Person functions', function() {
         profile: {isOnlyCareGiver: true, fullName: 'Mary Smith'}
       };
 
-      var result = Person.isOnlyCareGiver(person);
+      var result = personUtils.isOnlyCareGiver(person);
 
       expect(result).to.be.ok;
     });
@@ -131,7 +131,7 @@ describe('Person functions', function() {
       var person1 = {userid: '1'};
       var person2 = {userid: '1'};
 
-      var result = Person.isSame(person1, person2);
+      var result = personUtils.isSame(person1, person2);
 
       expect(result).to.be.ok;
     });
@@ -140,7 +140,7 @@ describe('Person functions', function() {
       var person1 = {userid: '1'};
       var person2 = {userid: '2'};
 
-      var result = Person.isSame(person1, person2);
+      var result = personUtils.isSame(person1, person2);
 
       expect(result).to.not.be.ok;
     });
@@ -149,7 +149,7 @@ describe('Person functions', function() {
       var person1 = {userid: '1'};
       var person2 = null;
 
-      var result = Person.isSame(person1, person2);
+      var result = personUtils.isSame(person1, person2);
 
       expect(result).to.not.be.ok;
     });

@@ -17,7 +17,7 @@
 var React = window.React;
 var _ = window._;
 
-var Person = require('../../core/person');
+var personUtils = require('../../core/personutils');
 
 var Navbar = React.createClass({
   propTypes: {
@@ -204,11 +204,11 @@ var Navbar = React.createClass({
   },
 
   getUserDisplayName: function() {
-    return Person.fullName(this.props.user);
+    return personUtils.fullName(this.props.user);
   },
 
   getPatientDisplayName: function() {
-    return Person.patientFullName(this.props.patient);
+    return personUtils.patientFullName(this.props.patient);
   },
 
   getPatientUrl: function() {
@@ -220,7 +220,7 @@ var Navbar = React.createClass({
   },
 
   isSamePersonUserAndPatient: function() {
-    return Person.isSame(this.props.user, this.props.patient);
+    return personUtils.isSame(this.props.user, this.props.patient);
   },
 
   handleLogout: function(e) {

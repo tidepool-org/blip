@@ -20,8 +20,8 @@ var moment = window.moment;
 
 var SimpleForm = require('../../components/simpleform');
 var InputGroup = require('../../components/inputgroup');
-var Person = require('../../core/person');
-var Datetime = require('../../core/datetime');
+var personUtils = require('../../core/personutils');
+var datetimeUtils = require('../../core/datetimeutils');
 
 var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 var DISPLAY_DATE_FORMAT = 'MM-DD-YYYY';
@@ -67,7 +67,7 @@ var PatientEdit = React.createClass({
   getInitialState: function() {
     return {
       working: false,
-      isOtherPerson: Person.patientIsOtherPerson(this.props.patient),
+      isOtherPerson: personUtils.patientIsOtherPerson(this.props.patient),
       formValues: this.formValuesFromPatient(this.props.patient),
       validationErrors: {},
       notification: null
@@ -80,7 +80,7 @@ var PatientEdit = React.createClass({
     }
 
     var formValues = {};
-    var patientInfo = Person.patientInfo(patient);
+    var patientInfo = personUtils.patientInfo(patient);
 
     if (patientInfo.isOtherPerson) {
       formValues.fullName = patientInfo.fullName;
@@ -225,7 +225,7 @@ var PatientEdit = React.createClass({
       <div className="patient-edit-name">
         {label}
         <div className="patient-edit-name-value">
-          {Person.fullName(this.props.patient)}
+          {personUtils.fullName(this.props.patient)}
         </div>
       </div>
     );
@@ -363,14 +363,14 @@ var PatientEdit = React.createClass({
     if (!formValues.birthday) {
       validationErrors.birthday = IS_REQUIRED;
     }
-    else if (!Datetime.isValidDate(formValues.birthday)) {
+    else if (!datetimeUtils.isValidDate(formValues.birthday)) {
       validationErrors.birthday = IS_NOT_VALID_DATE;
     }
 
     if (!formValues.diagnosisDate) {
       validationErrors.diagnosisDate = IS_REQUIRED;
     }
-    else if (!Datetime.isValidDate(formValues.diagnosisDate)) {
+    else if (!datetimeUtils.isValidDate(formValues.diagnosisDate)) {
       validationErrors.diagnosisDate = IS_NOT_VALID_DATE;
     }
 

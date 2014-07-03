@@ -16,24 +16,24 @@
 var _ = window._;
 var moment = window.moment;
 
-var Datetime = {};
+var datetimeUtils = {};
 
-Datetime._momentToday = function() {
+datetimeUtils._momentToday = function() {
   return moment();
 };
 
-Datetime.isValidDate = function(date) {
+datetimeUtils.isValidDate = function(date) {
   var m = moment(date);
   // Be careful, if `value` is empty, `m` can be null
   return m && m.isValid();
 };
 
-Datetime.yearsAgo = function(date) {
-  return Datetime._momentToday().diff(date, 'years');
+datetimeUtils.yearsAgo = function(date) {
+  return datetimeUtils._momentToday().diff(date, 'years');
 };
 
-Datetime.yearsAgoText = function(date) {
-  var result = Datetime.yearsAgo(date);
+datetimeUtils.yearsAgoText = function(date) {
+  var result = datetimeUtils.yearsAgo(date);
 
   if (result === 0) {
     return 'This year';
@@ -48,8 +48,8 @@ Datetime.yearsAgoText = function(date) {
   }
 };
 
-Datetime.yearsOldText = function(date) {
-  var result = Datetime.yearsAgo(date);
+datetimeUtils.yearsOldText = function(date) {
+  var result = datetimeUtils.yearsAgo(date);
 
   if (result === 1) {
     return result + ' year old';
@@ -60,4 +60,4 @@ Datetime.yearsOldText = function(date) {
   }
 };
 
-module.exports = Datetime;
+module.exports = datetimeUtils;

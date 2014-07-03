@@ -17,21 +17,21 @@ var _ = window._;
 
 var utils = require('./utils');
 
-var Person = {};
+var personUtils = {};
 
-Person.fullName = function(person) {
+personUtils.fullName = function(person) {
   return utils.getIn(person, ['profile', 'fullName']);
 };
 
-Person.patientInfo = function(person) {
+personUtils.patientInfo = function(person) {
   return utils.getIn(person, ['profile', 'patient']);
 };
 
-Person.isPatient = function(person) {
-  return Boolean(Person.patientInfo(person));
+personUtils.isPatient = function(person) {
+  return Boolean(personUtils.patientInfo(person));
 };
 
-Person.patientFullName = function(person) {
+personUtils.patientFullName = function(person) {
   var profile = utils.getIn(person, ['profile'], {});
   var patientInfo = profile.patient || {};
 
@@ -42,15 +42,15 @@ Person.patientFullName = function(person) {
   return profile.fullName;
 };
 
-Person.patientIsOtherPerson = function(person) {
+personUtils.patientIsOtherPerson = function(person) {
   return Boolean(utils.getIn(person, ['profile', 'patient', 'isOtherPerson']));
 };
 
-Person.isOnlyCareGiver = function(person) {
+personUtils.isOnlyCareGiver = function(person) {
   return Boolean(utils.getIn(person, ['profile', 'isOnlyCareGiver']));
 };
 
-Person.isSame = function(first, second) {
+personUtils.isSame = function(first, second) {
   first = first || {};
   second = second || {};
 
@@ -61,4 +61,4 @@ Person.isSame = function(first, second) {
   return (first.userid === second.userid);
 };
 
-module.exports = Person;
+module.exports = personUtils;

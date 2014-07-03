@@ -17,7 +17,7 @@
 var React = window.React;
 var _ = window._;
 
-var Person = require('../../core/person');
+var personUtils = require('../../core/personutils');
 var SimpleForm = require('../../components/simpleform');
 var PeopleList = require('../../components/peoplelist');
 
@@ -127,7 +127,7 @@ var Profile = React.createClass({
 
     var user = this.props.user;
     var content;
-    if (!Person.isPatient(user)) {
+    if (!personUtils.isPatient(user)) {
       content = this.renderCreateCareTeam();
     }
     else {
