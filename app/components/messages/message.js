@@ -107,7 +107,7 @@ var Message = React.createClass({
   },
 
   renderEditLink : function(){
-    if( this.state.editing === false ){
+    if( this.state.editing === false && this.props.onSaveEdit){
       return (
         /* jshint ignore:start */
         <a

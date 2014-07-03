@@ -40,6 +40,7 @@ var PatientData = React.createClass({
     onRefresh: React.PropTypes.func,
     onFetchMessageThread: React.PropTypes.func,
     onSaveComment: React.PropTypes.func,
+    onEditMessage: React.PropTypes.func,
     onCreateMessage: React.PropTypes.func,
     user: React.PropTypes.object,
     trackMetric: React.PropTypes.func.isRequired
@@ -266,6 +267,7 @@ var PatientData = React.createClass({
           onClose={this.closeMessageCreation}
           onSave={this.props.onCreateMessage}
           onNewMessage={this.handleMessageCreation}
+          onEdit={this.handleEditMessage}
           imagesEndpoint={config.IMAGES_ENDPOINT + '/messages'} />
       );
     } else if(this.state.messages) {
@@ -276,6 +278,7 @@ var PatientData = React.createClass({
           patient={this.props.patient}
           onClose={this.closeMessageThread}
           onSave={this.handleReplyToMessage}
+          onEdit={this.handleEditMessage}
           imagesEndpoint={config.IMAGES_ENDPOINT + '/messages'} />
       );
     }
@@ -290,7 +293,6 @@ var PatientData = React.createClass({
 
   closeMessageCreation: function(){
     this.setState({ createMessageDatetime: null });
-    // 
     this.refs.tideline.closeMessageThread();
     this.props.trackMetric('Closed New Message Modal');
   },
@@ -315,6 +317,14 @@ var PatientData = React.createClass({
       reply(comment, cb);
     }
     this.props.trackMetric('Replied To Message');
+  },
+
+  handleEditMessage: function(message, cb) {
+    var edit = this.props.onEditMessage;
+    if (edit) {
+      edit(message, cb);
+    }
+    this.props.trackMetric('Edit To Message');
   },
 
   handleShowMessageThread: function(messageThread) {

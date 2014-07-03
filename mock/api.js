@@ -324,6 +324,14 @@ var createPatch = function(options) {
 
     };
 
+    api.team.editMessage = function(message,cb){
+      api.log('[mock]  /message/edit');
+
+      setTimeout(function() {
+        cb(null, null);
+      }, getDelayFor('api.team.editMessage'));
+    };
+
     // ----- Upload -----
 
     api.getUploadUrl = function() {

@@ -450,6 +450,17 @@ api.team.startMessageThread = function(message,cb){
   });
 };
 
+api.team.editMessage = function(message,cb){
+  api.log('POST /message/edit');
+
+  tidepool.editMessage(message, function(error, details){
+    if (error) {
+      return cb(error);
+    }
+    cb(null, null);
+  });
+};
+
 // ----- Patient data -----
 
 api.patientData = {};

@@ -56,6 +56,16 @@ var Messages = React.createClass({
       messages : this.props.messages
     };
   },
+  /*
+   * Should the use be able to edit this message?
+   */
+  getSaveEdit:function(messageUserId){
+    var saveEdit;
+    if(messageUserId === this.props.user.patient.id){
+      saveEdit = this.handleEditNote;
+    }
+    return saveEdit;
+  },
   renderNote: function(message){
     /* jshint ignore:start */
     return (
@@ -63,7 +73,8 @@ var Messages = React.createClass({
         key={message.id}
         theNote={message}
         imageSize='large'
-        imagesEndpoint={this.props.imagesEndpoint}/>
+        imagesEndpoint={this.props.imagesEndpoint}
+        onSaveEdit={this.getSaveEdit(message.userid)}/>
       );
     /* jshint ignore:end */
   },
@@ -74,7 +85,8 @@ var Messages = React.createClass({
         key={message.id}
         theNote={message}
         imageSize='small'
-        imagesEndpoint={this.props.imagesEndpoint}/>
+        imagesEndpoint={this.props.imagesEndpoint}
+        onSaveEdit={this.getSaveEdit(message.userid)}/>
       );
     /* jshint ignore:end */
   },
@@ -258,7 +270,9 @@ var Messages = React.createClass({
 
       this.setState({ isWorking: true });
 
-      console.log('edit ',edit);
+      console.log('edit ',formValues);
+
+      this.setState({ isWorking: false });
     }
   },
   handleClose: function(e) {
