@@ -20,4 +20,4 @@ var sundial = require('../../bower_components/sundial/sundial');
 
 window.sundial = sundial;
 
-module.sundial = sundial;
+module.exports = sundial;
