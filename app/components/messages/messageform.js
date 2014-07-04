@@ -243,6 +243,7 @@ var MessageForm = React.createClass({
           className='messageform-button messageform-button-cancel'
           onClick={this.handleCancel}
           ref='cancelBtn'>{this.props.cancelBtnText}</button>
+        <button
           type='submit'
           className='messageform-button messageform-button-save'
           disabled={this.isButtonDisabled()}
