@@ -180,6 +180,41 @@ describe('Tidepool Dates', function() {
         done();
       });
     });
+    describe('isValidDate', function() {
+
+      it('returns false for null',function(done){
+        expect(datetimeWrapper.isValidDate(null)).is.false;
+        done();
+      });
+      it('returns false for empty string',function(done){
+        expect(datetimeWrapper.isValidDate('')).is.false;
+        done();
+      });
+      it('returns false for invalid date',function(done){
+        expect(datetimeWrapper.isValidDate('Junk')).is.false;
+        done();
+      });
+      it('returns true for a valid date',function(done){
+        expect(datetimeWrapper.isValidDate(new Date().toISOString())).is.true;
+        done();
+      });
+    });
+
+    describe('timeAgo', function() {
+
+      it('returns the time ago for the given period',function(done){
+        var now =  testMoment();
+        var twoMonthsAgo = now.subtract(2, 'months');
+        expect(datetimeWrapper.timeAgo(twoMonthsAgo.format(),'months')).equals(2);
+        done();
+      });
+      it('returns nothing if the period is not given',function(done){
+        var now =  testMoment();
+        var twoMonthsAgo = now.subtract(2, 'months');
+        expect(datetimeWrapper.timeAgo(twoMonthsAgo.format())).to.be.null;
+        done();
+      });
+    });
 
   });
 });
