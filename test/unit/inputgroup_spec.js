@@ -72,6 +72,25 @@ describe('InputGroup', function() {
     expect(checked).to.be.ok;
   });
 
+  it('should handle radios with multiple items', function() {
+    component.setProps({
+      type: 'radios',
+      items: [
+        {value: 'yes', label: 'Yes'},
+        {value: 'no', label: 'No'}
+      ],
+      value: 'yes'
+    });
+
+    var radio1 = component.refs.control0.getDOMNode();
+    var radio2 = component.refs.control1.getDOMNode();
+
+    expect(radio1.value).to.equal('yes');
+    expect(radio2.value).to.equal('no');
+    expect(radio1.checked).to.be.ok;
+  });
+
+
   it('should disable input', function() {
     component.setProps({disabled: true});
     var disabled = component.refs.control.props.disabled;

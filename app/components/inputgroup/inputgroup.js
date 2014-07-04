@@ -15,12 +15,14 @@
  */
 
 var React = window.React;
+var _ = window._;
 
 // Input with label and validation error message
 var InputGroup = React.createClass({
   propTypes: {
     name: React.PropTypes.string,
     label: React.PropTypes.string,
+    items: React.PropTypes.array,
     value: React.PropTypes.oneOfType([
       React.PropTypes.string,
       React.PropTypes.bool
@@ -58,7 +60,8 @@ var InputGroup = React.createClass({
     var text = this.props.label;
     var htmlFor = this.props.name;
 
-    if (this.props.type === 'checkbox') {
+    if (this.props.type === 'checkbox' ||
+        this.props.type === 'radios') {
       // Label part of input
       return null;
     }
@@ -86,6 +89,10 @@ var InputGroup = React.createClass({
 
     if (type === 'checkbox') {
       return this.renderCheckbox();
+    }
+
+    if (type === 'radios') {
+      return this.renderRadios();
     }
 
     return (
@@ -147,6 +154,44 @@ var InputGroup = React.createClass({
     );
   },
 
+  renderRadios: function() {
+    var self = this;
+    var radios = _.map(this.props.items, function(radio, index) {
+      var id = self.props.name + index;
+      var checked = (self.props.value === radio.value);
+      /* jshint ignore:start */
+      return (
+        <label
+          className="input-group-radio-label"
+          htmlFor={id}
+          key={id}
+          ref={'label' + index}>
+          <input
+            type="radio"
+            className="input-group-radio-control"
+            id={id}
+            name={self.props.name}
+            value={radio.value}
+            checked={checked}
+            onChange={self.handleChange}
+            disabled={self.props.disabled}
+            ref={'control' + index}/>
+          {' '}
+          {radio.label}
+        </label>
+      );
+      /* jshint ignore:end */
+    });
+
+    return (
+      /* jshint ignore:start */
+      <div className="input-group-radios">
+        {radios}
+      </div>
+      /* jshint ignore:end */
+    );
+  },
+
   renderMessage: function() {
     var error = this.props.error;
     if (error) {
@@ -162,7 +207,7 @@ var InputGroup = React.createClass({
   },
 
   getClassName: function() {
-    var className = 'input-group form-group';
+    var className = 'input-group form-group clearfix';
     if (this.props.error) {
       className += ' input-group-error';
     }

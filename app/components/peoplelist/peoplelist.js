@@ -17,9 +17,12 @@
 var React = window.React;
 var _ = window._;
 
+var personUtils = require('../../core/personutils');
+
 var PeopleList = React.createClass({
   propTypes: {
     people: React.PropTypes.array,
+    isPatientList: React.PropTypes.bool,
     onClickPerson: React.PropTypes.func
   },
 
@@ -57,7 +60,7 @@ var PeopleList = React.createClass({
     /* jshint ignore:end */
 
     if (person.link) {
-      className = className + ' people-list-item-with-link';
+      className = className + ' people-list-item-with-link js-person-link';
       var self = this;
       var handleClick = function() {
         self.props.onClickPerson(person);
@@ -74,7 +77,7 @@ var PeopleList = React.createClass({
 
     /* jshint ignore:start */
     return (
-      <li key={person.id || index} className={className}>
+      <li key={person.userid || index} className={className}>
         {peopleListItemContent}
       </li>
     );
@@ -82,10 +85,20 @@ var PeopleList = React.createClass({
   },
 
   getPersonDisplayName: function(person) {
-    if (_.isEmpty(person)) {
-      return '';
+    var fullName;
+
+    if (this.props.isPatientList) {
+      fullName = personUtils.patientFullName(person);
     }
-    return person.fullName;
+    else {
+      fullName = personUtils.fullName(person);
+    }
+
+    if (!fullName) {
+      return 'Anonymous user';
+    }
+
+    return fullName;
   }
 });
 

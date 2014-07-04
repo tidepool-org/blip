@@ -101,6 +101,7 @@ var SimpleForm = React.createClass({
     var name = input.name;
     var type = input.type;
     var label = input.label;
+    var items = input.items;
     var value = this.state.formValues[name];
     var error = this.props.validationErrors[name];
     var placeholder = input.placeholder;
@@ -112,6 +113,7 @@ var SimpleForm = React.createClass({
         key={name}
         name={name}
         label={label}
+        items={items}
         value={value}
         error={error}
         type={type}
@@ -178,6 +180,10 @@ var SimpleForm = React.createClass({
       var formValues = _.clone(this.state.formValues);
       submit(formValues);
     }
+  },
+
+  getFormValues: function() {
+    return _.cloneDeep(this.state.formValues);
   }
 });
 

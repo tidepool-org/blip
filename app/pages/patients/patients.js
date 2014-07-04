@@ -18,7 +18,7 @@ var React = window.React;
 var _ = window._;
 var config = window.config;
 
-var user = require('../../core/user');
+var personUtils = require('../../core/personutils');
 var PeopleList = require('../../components/peoplelist');
 
 var Patients = React.createClass({
@@ -27,61 +27,127 @@ var Patients = React.createClass({
     fetchingUser: React.PropTypes.bool,
     patients: React.PropTypes.array,
     fetchingPatients: React.PropTypes.bool,
+    showingWelcomeMessage: React.PropTypes.bool,
+    onSetAsCareGiver: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired
   },
 
   render: function() {
+    var welcomeTitle = this.renderWelcomeTitle();
+    var loadingIndicator = this.renderLoadingIndicator();
     var userPatient = this.renderUserPatient();
     var sharedPatients = this.renderSharedPatients();
 
     /* jshint ignore:start */
     return (
       <div className="patients js-patients-page">
-        <div className="container-box-outer patients-box-outer">
-          <div className="container-box-inner patients-box-inner">
-            <div className="patients-content">
-              <div className="patients-section js-patients-user">
-                <div className="patients-section-title">YOUR CARE TEAM</div>
-                {userPatient}
-              </div>
-              <div className="patients-section js-patients-shared">
-                <div className="patients-section-title">CARE TEAMS YOU BELONG TO</div>
-                {sharedPatients}
-              </div>
-            </div>
+        {welcomeTitle}
+        {loadingIndicator}
+        {userPatient}
+        {sharedPatients}
+      </div>
+    );
+    /* jshint ignore:end */
+  },
+
+  renderWelcomeTitle: function() {
+    if (!this.props.showingWelcomeMessage) {
+      return null;
+    }
+
+    /* jshint ignore:start */
+    return (
+      <div className="patients-welcome-title">
+        {'Welcome to Blip!'}
+      </div>
+    );
+    /* jshint ignore:end */
+  },
+
+  renderLoadingIndicator: function() {
+    if (this.isResettingUserData() && this.isResettingPatientsData()) {
+      /* jshint ignore:start */
+      return (
+        <div className="patients-section">
+          <div className="patients-message patients-message-center patients-message-loading">
+            Loading...
           </div>
+        </div>
+      );
+      /* jshint ignore:end */
+    }
+
+    return null;
+  },
+
+  renderUserPatient: function() {
+    var user = this.props.user;
+
+    if (this.isResettingUserData() || personUtils.isOnlyCareGiver(user)) {
+      return null;
+    }
+
+    var content;
+    if (!personUtils.isPatient(user)) {
+      /* jshint ignore:start */
+      content = (
+        <div className="patients-message">
+          <div>
+            <a
+              className="patients-message-button js-create-patient-profile"
+              href="#/patients/new"
+              onClick={this.handleClickCreateProfile}>
+              <i className="icon-add"></i>{' ' + 'Create a Care Team'}
+            </a>
+          </div>
+          <div className="patients-message-separator">{'or'}</div>
+          <div>
+            <a
+              className="patients-message-button patients-message-button-secondary js-only-caregiver"
+              href=""
+              onClick={this.handleClickSetAsCareGiver}>
+              {'I won\'t be uploading data'}
+            </a>
+          </div>
+          <div className="patients-message-small">(hides this prompt)</div>
+        </div>
+      );
+      /* jshint ignore:end */
+    }
+    else {
+      content = this.renderPatientList([user]);
+    }
+
+    var welcome = this.renderUserPatientWelcome();
+
+    /* jshint ignore:start */
+    return (
+      <div className="patients-section js-patients-user">
+        <div className="patients-section-title-wrapper">
+          <div className="patients-section-title">YOUR CARE TEAM</div>
+        </div>
+        <div className="patients-section-content">
+          {welcome}
+          {content}
         </div>
       </div>
     );
     /* jshint ignore:end */
   },
 
-  renderUserPatient: function() {
-    var patient;
-
-    if (this.isResettingUserData()) {
-      // Render a placeholder list while we wait for data
-      return this.renderPatientList([{}]);
+  renderUserPatientWelcome: function() {
+    if (!this.props.showingWelcomeMessage) {
+      return null;
     }
 
-    patient = user.getPatientData(this.props.user);
-
-    if (_.isEmpty(patient)) {
-      /* jshint ignore:start */
-      return (
-        <div className="patients-empty-list">
-          <a
-            className="js-create-patient-profile"
-            href="#/patients/new"
-            onClick={this.handleClickCreateProfile}>
-            <i className="icon-add"></i>{' ' + 'Create your profile'}
-          </a>
-        </div>
-      );
-      /* jshint ignore:end */
-    }
-
-    return this.renderPatientList([patient]);
+    /* jshint ignore:start */
+    return (
+      <div className="patients-welcome-message">
+        {'If you have type 1 diabetes or are the person responsible for'}
+        {' getting data into Blip, you\'ll first need to...'}
+      </div>
+    );
+    /* jshint ignore:end */
   },
 
   isResettingUserData: function() {
@@ -92,28 +158,60 @@ var Patients = React.createClass({
     this.props.trackMetric('Clicked Create Profile');
   },
 
-  renderSharedPatients: function() {
-    var patients;
+  handleClickSetAsCareGiver: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+    var action = this.props.onSetAsCareGiver;
+    if (action) {
+      action();
+    }
+    this.props.trackMetric('Clicked Care Giver Only');
+  },
 
+  renderSharedPatients: function() {
     if (this.isResettingPatientsData()) {
-      // Render a placeholder list while we wait for data
-      patients = [{}, {}];
-      return this.renderPatientList(patients);
+      return null;
     }
 
-    patients = this.props.patients;
+    var patients = this.props.patients;
+    var content;
 
     if (_.isEmpty(patients)) {
       /* jshint ignore:start */
-      return (
-        <div className="patients-empty-list patients-empty-list-message js-patients-shared-empty">
-          When someone adds you to their care team, it will appear here.
+      content = (
+        <div>
+          <div className="patients-message">
+            {'Looks like you\'re not part of anyone\'s Care Team yet.'}
+          </div>
+          <div className="patients-message patients-message-small">
+            {'Want to join a team? The owner of the Care Team should email us at '}
+            <strong>{'support@tidepool.org'}</strong>
+            {' with your email address and we\'ll take it from there!'}
+          </div>
         </div>
       );
       /* jshint ignore:end */
     }
+    else {
+      content = this.renderPatientList(patients);
+    }
 
-    return this.renderPatientList(patients);
+    var welcome = this.renderSharedPatientsWelcome();
+
+    /* jshint ignore:start */
+    return (
+      <div className="patients-section js-patients-shared">
+        <div className="patients-section-title-wrapper">
+          <div className="patients-section-title">CARE TEAMS YOU BELONG TO</div>
+        </div>
+        <div className="patients-section-content">
+          {welcome}
+          {content}
+        </div>
+      </div>
+    );
+    /* jshint ignore:end */
   },
 
   renderPatientList: function(patients) {
@@ -125,7 +223,23 @@ var Patients = React.createClass({
     return (
       <PeopleList
         people={patients}
+        isPatientList={true}
         onClickPerson={this.handleClickPatient}/>
+    );
+    /* jshint ignore:end */
+  },
+
+  renderSharedPatientsWelcome: function() {
+    if (!this.props.showingWelcomeMessage) {
+      return null;
+    }
+
+    /* jshint ignore:start */
+    return (
+      <div className="patients-welcome-message">
+        {'If you are a health care provider, friend or relative of someone'}
+        {' with type 1 diabetes, their Care Team will show up here.'}
+      </div>
     );
     /* jshint ignore:end */
   },
@@ -136,16 +250,16 @@ var Patients = React.createClass({
 
   addLinkToPatients: function(patients) {
     return _.map(patients, function(patient) {
-      patient = _.clone(patient);
-      if (patient.id) {
-        patient.link = '#/patients/' + patient.id + '/data';
+      patient = _.cloneDeep(patient);
+      if (patient.userid) {
+        patient.link = '#/patients/' + patient.userid + '/data';
       }
       return patient;
     });
   },
 
   handleClickPatient: function(patient) {
-    if (user.isUserPatient(this.props.user, patient)) {
+    if (personUtils.isSame(this.props.user, patient)) {
       this.props.trackMetric('Clicked Own Care Team');
     }
     else {
