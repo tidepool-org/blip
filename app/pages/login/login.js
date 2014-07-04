@@ -25,7 +25,6 @@ var MailTo = require('../../components/mailto');
 
 var Login = React.createClass({
   propTypes: {
-    onValidate: React.PropTypes.func.isRequired,
     onSubmit: React.PropTypes.func.isRequired,
     onSubmitSuccess: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired
@@ -118,6 +117,8 @@ var Login = React.createClass({
       return;
     }
 
+    formValues = this.prepareFormValuesForSubmit(formValues);
+
     this.submitFormValues(formValues);
   },
 
@@ -132,9 +133,16 @@ var Login = React.createClass({
 
   validateFormValues: function(formValues) {
     var validationErrors = {};
-    var validate = this.props.onValidate;
+    var IS_REQUIRED = 'This field is required.';
 
-    validationErrors = validate(formValues);
+    if (!formValues.username) {
+      validationErrors.username = IS_REQUIRED;
+    }
+
+    if (!formValues.password) {
+      validationErrors.password = IS_REQUIRED;
+    }
+
     if (!_.isEmpty(validationErrors)) {
       this.setState({
         working: false,
@@ -147,6 +155,18 @@ var Login = React.createClass({
     }
 
     return validationErrors;
+  },
+
+  prepareFormValuesForSubmit: function(formValues) {
+    return {
+      user: {
+        username: formValues.username,
+        password: formValues.password
+      },
+      options: {
+        remember: formValues.remember
+      }
+    };
   },
 
   submitFormValues: function(formValues) {

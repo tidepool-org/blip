@@ -23,6 +23,7 @@ var moment = window.moment;
 var Rx = window.Rx;
 var tidepool = window.tidepool;
 
+var personUtils = require('./personutils');
 // devicedata just registers stuff on the Rx prototype,
 // so we are doing this for the side-effects
 var deviceData = require('./lib/devicedata');
@@ -96,18 +97,15 @@ api.user.signup = function(user, cb) {
     var userId = account.userid;
 
     // Then, add additional user info (full name, etc.) to profile
-    newProfile.id = userId;
-    tidepool.addOrUpdateProfile(newProfile, function(err, results) {
+    tidepool.addOrUpdateProfile(userId, newProfile, function(err, results) {
       if (err) {
         return cb(err);
       }
 
-      cb(null, userFromAccountAndProfile(
-        {
-          account: account,
-          profile: results
-        }
-      ));
+      cb(null, userFromAccountAndProfile({
+        account: account,
+        profile: results
+      }));
     });
   });
 };
@@ -147,12 +145,18 @@ api.user.get = function(cb) {
         return cb(err);
       }
 
-      var migration = migrations.profileFullName;
+      var updateProfileAfterMigration = false;
+      var migration;
+
+      migration = migrations.profileFullName;
       if (migration.isRequired(profile)) {
         api.log('Migrating and saving user [' + userId + '] profile to "fullName"');
         profile = migration.migrate(profile);
-        profile.id = userId;
-        return tidepool.addOrUpdateProfile(profile, cb);
+        updateProfileAfterMigration = true;
+      }
+
+      if (updateProfileAfterMigration) {
+        return tidepool.addOrUpdateProfile(userId, profile, cb);
       }
 
       return cb(null, profile);
@@ -175,9 +179,12 @@ api.user.get = function(cb) {
 api.user.put = function(user, cb) {
   api.log('PUT /user');
 
+  var account = accountFromUser(user);
+  var profile = profileFromUser(user);
+
   async.parallel({
-    account: tidepool.updateCurrentUser.bind(tidepool, accountFromUser(user)),
-    profile: tidepool.addOrUpdateProfile.bind(tidepool, profileFromUser(user))
+    account: tidepool.updateCurrentUser.bind(tidepool, account),
+    profile: tidepool.addOrUpdateProfile.bind(tidepool, user.userid, profile)
   },
   function(err, results) {
     if (err) {
@@ -189,34 +196,20 @@ api.user.put = function(user, cb) {
 };
 
 function accountFromUser(user) {
-  var account = _.pick(user, 'username', 'password');
-
-  if (account.username) {
-    account.emails = [user.username];
-  }
-
+  var account = _.pick(user, 'username', 'password', 'emails');
   return account;
 }
 
 function profileFromUser(user) {
-  var profile = _.omit(user, 'username', 'password', 'emails');
-  return profile;
+  return _.cloneDeep(user.profile);
 }
 
 function userFromAccountAndProfile(results) {
   var account = results.account;
   var profile = results.profile;
 
-  var user = _.assign({}, profile, {
-    id: account.userid,
-    username: account.username
-  });
-
-  // If user profile has patient data, just give the "patient id"
-  // (which is the same as the userid for this backend)
-  if (user.patient != null) {
-    user.patient = {id: user.id};
-  }
+  var user = _.pick(account, 'userid', 'username', 'emails');
+  user.profile = profile;
 
   return user;
 }
@@ -225,47 +218,59 @@ function userFromAccountAndProfile(results) {
 
 api.patient = {};
 
-function patientFromUserProfile(profile) {
-  // Merge user profile attributes with patient
-  var patient = profile && profile.patient;
-  if (!patient) {
-    return;
-  }
-
-  patient.fullName = profile.fullName;
-  return patient;
-}
-
-function getUserProfile(userId, cb) {
+// Get a user's public info
+function getPerson(userId, cb) {
+  var person = {userid: userId};
 
   tidepool.findProfile(userId, function(err, profile) {
     if (err) {
       return cb(err);
     }
 
-    var migration = migrations.profileFullName;
+    var migration;
+
+    migration = migrations.profileFullName;
     if (migration.isRequired(profile)) {
       api.log('Migrating user [' + userId + '] profile to "fullName"');
       profile = migration.migrate(profile);
     }
 
-    profile.id = userId;
-    return cb(null, profile);
+    person.profile = profile;
+    return cb(null, person);
   });
 }
 
-function getPatientProfile(patientId, cb) {
-  return getUserProfile(patientId, function(err, profile) {
+// Not every user is a "patient"
+function getPatient(patientId, cb) {
+  return getPerson(patientId, function(err, person) {
     if (err) {
       return cb(err);
     }
 
-    var patient = patientFromUserProfile(profile);
-    if (!patient) {
+    if (!personUtils.isPatient(person)) {
       return cb();
     }
 
-    patient.id = patientId;
+    return cb(null, person);
+  });
+}
+
+function updatePatient(patient, cb) {
+  var patientId = patient.userid;
+  // Hang on to team, we'll add back later
+  var team = patient.team || [];
+  // Patient info is contained in the `patient` attribute of the user's profile
+  var patientInfo = personUtils.patientInfo(patient);
+  var profile = {patient: patientInfo};
+  tidepool.addOrUpdateProfile(patientId, profile, function(err, profile) {
+    if (err) {
+      return cb(err);
+    }
+
+    patient = _.assign({}, patient, {
+      profile: profile,
+      team: team
+    });
     return cb(null, patient);
   });
 }
@@ -275,7 +280,7 @@ api.patient.get = function(patientId, cb) {
 
   var userId = tidepool.getUserId();
 
-  getPatientProfile(patientId, function(err, patient) {
+  getPatient(patientId, function(err, patient) {
     if (err) {
       return cb(err);
     }
@@ -285,22 +290,31 @@ api.patient.get = function(patientId, cb) {
       return cb({status: 404, response: 'Not found'});
     }
 
-    // If this is not the current user's patient, we're done
+    // If patient doesn't belong to current user, we're done
     if (patientId !== userId) {
       return cb(null, patient);
     }
 
     // Fetch the patient's team
-    tidepool.getTeamMembers(userId, function(err, teamMembers) {
-      if (err != null) {
+    tidepool.getTeamMembers(userId, function(err, permissions) {
+      if (err) {
         return cb(err);
       }
 
-      if (teamMembers == null) {
+      if (_.isEmpty(permissions)) {
         return cb(null, patient);
       }
 
-      async.map(Object.keys(_.omit(teamMembers, userId)), getUserProfile, function(err, people) {
+      // A user is always part of her own team:
+      // filter her id from set of permissions
+      permissions = _.omit(permissions, userId);
+      // Convert to array of user ids
+      var memberIds = Object.keys(permissions);
+
+      async.map(memberIds, getPerson, function(err, people) {
+        if (err) {
+          return cb(err);
+        }
         // Filter any people ids that returned nothing
         people = _.filter(people);
         patient.team = people;
@@ -312,73 +326,48 @@ api.patient.get = function(patientId, cb) {
 
 api.patient.post = function(patient, cb) {
   api.log('POST /patients');
-  var patientId = tidepool.getUserId();
+  var userId = tidepool.getUserId();
+  patient = _.assign({}, patient, {userid: userId});
 
-  // First, create patient profile for user
-  // For this backend, patient data is contained in the `patient`
-  // attribute of the user's profile
-  patient = _.omit(patient, 'fullName');
-  var profile = {id: patientId, patient: patient};
-  tidepool.addOrUpdateProfile(profile, function(err, profile) {
-    if (err) {
-      return cb(err);
-    }
-
-    var patient = patientFromUserProfile(profile);
-    patient.id = patientId;
-    patient.team = [];
-    cb(null, patient);
-  });
+  return updatePatient(patient, cb);
 };
 
-api.patient.put = function(patientId, patient, cb) {
-  api.log('PUT /patients/' + patientId);
+api.patient.put = function(patient, cb) {
+  api.log('PUT /patients/' + patient.userid);
 
-  // Hang on to team, add back after update
-  var team = patient.team;
-
-  // Don't save info already in user's profile, or team
-  patient = _.omit(patient, 'id', 'fullName', 'team');
-
-  var profile = {id: patientId, patient: patient};
-  tidepool.addOrUpdateProfile(profile, function(err, profile) {
-    if (err) {
-      return cb(err);
-    }
-
-    var patient = patientFromUserProfile(profile);
-    patient.id = patientId;
-    if (team) {
-      patient.team = team;
-    }
-
-    return cb(null, patient);
-  });
+  return updatePatient(patient, cb);
 };
 
-// Get all patient profiles in current user's "patients" group
+// Get all patients in current user's "patients" group
 api.patient.getAll = function(cb) {
   api.log('GET /patients');
 
   var userId = tidepool.getUserId();
 
   // First, get a list of of patient ids in user's "patients" group
-  tidepool.getViewableUsers(userId, function(err, users) {
-    if (err!= null) {
+  tidepool.getViewableUsers(userId, function(err, permissions) {
+    if (err) {
       return cb(err);
     }
 
-    if (users == null) {
+    if (_.isEmpty(permissions)) {
       return cb(null, []);
     }
 
-    // Second, get the patient profile info for each patient id
-    async.map(Object.keys(_.omit(users, userId)), getPatientProfile, function(err, patients) {
-      if (err != null) {
-        api.log('Error when fetching profiles for viewable users', userId, err);
+    // A user is always able to view her own data:
+    // filter her id from set of permissions
+    permissions = _.omit(permissions, userId);
+    // Convert to array of user ids
+    var patientIds = Object.keys(permissions);
+
+    // Second, get the patient object for each patient id
+    async.map(patientIds, getPatient, function(err, patients) {
+      if (err) {
+        return cb(err);
       }
       // Filter any patient ids that returned nothing
-      return cb(null, _.filter(patients));
+      patients = _.filter(patients);
+      return cb(null, patients);
     });
   });
 };
@@ -468,12 +457,14 @@ api.patientData = {};
 api.patientData.get = function(patientId, cb) {
   api.log('GET /data/' + patientId);
 
+  var now = Date.now();
   tidepool.getDeviceDataForUser(patientId, function(err, data) {
     if (err) {
       return cb(err);
     }
+    api.log('Data received in ' + (Date.now() - now) + ' millis.');
 
-    var now = Date.now();
+    now = Date.now();
     window.inData = data;
     Rx.Observable.fromArray(data)
       .map(function(e){

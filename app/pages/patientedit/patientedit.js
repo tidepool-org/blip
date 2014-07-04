@@ -19,8 +19,11 @@ var _ = window._;
 var moment = window.moment;
 
 var SimpleForm = require('../../components/simpleform');
-var patient = require('../../core/patient');
+var InputGroup = require('../../components/inputgroup');
+var personUtils = require('../../core/personutils');
+var datetimeUtils = require('../../core/datetimeutils');
 
+var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 var DISPLAY_DATE_FORMAT = 'MM-DD-YYYY';
 
 var PatientEdit = React.createClass({
@@ -28,13 +31,17 @@ var PatientEdit = React.createClass({
     patient: React.PropTypes.object,
     fetchingPatient: React.PropTypes.bool,
     isNewPatient: React.PropTypes.bool,
-    onValidate: React.PropTypes.func.isRequired,
     onSubmit: React.PropTypes.func.isRequired,
     onSubmitSuccess: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired
   },
 
   formInputs: [
+    {
+      name: 'fullName',
+      label: 'New Care Team for: *',
+      placeholder: 'ex: Jessica Carter'
+    },
     {
       name: 'birthday',
       label: 'Date of birth *',
@@ -46,34 +53,59 @@ var PatientEdit = React.createClass({
       placeholder: DISPLAY_DATE_FORMAT
     },
     {
-      name: 'aboutMe',
-      label: 'About me',
+      name: 'about',
+      label: 'About',
       type: 'textarea',
-      placeholder: 'Anything you would like to share about yourself ' +
-                   'in your profile?'
+      placeholder: 'Anything you would like to share?'
     }
   ],
 
   MESSAGE_TIMEOUT: 2000,
+  IS_SAME_PERSON: 'This is for me, I have type 1 diabetes',
+  IS_OTHER_PERSON: 'This is for someone I care for who has type 1 diabetes',
 
   getInitialState: function() {
-    var patient = this.props.patient;
-    var formValues = patient ? this.formatPatientForDisplay(patient) : {};
-
     return {
       working: false,
-      formValues: formValues,
+      isOtherPerson: personUtils.patientIsOtherPerson(this.props.patient),
+      formValues: this.formValuesFromPatient(this.props.patient),
       validationErrors: {},
       notification: null
     };
   },
 
+  formValuesFromPatient: function(patient) {
+    if (!patient) {
+      return {};
+    }
+
+    var formValues = {};
+    var patientInfo = personUtils.patientInfo(patient);
+
+    if (patientInfo.isOtherPerson) {
+      formValues.fullName = patientInfo.fullName;
+    }
+
+    if (patientInfo.birthday) {
+      formValues.birthday = moment(patientInfo.birthday)
+        .format(DISPLAY_DATE_FORMAT);
+    }
+
+    if (patientInfo.diagnosisDate) {
+      formValues.diagnosisDate = moment(patientInfo.diagnosisDate)
+        .format(DISPLAY_DATE_FORMAT);
+    }
+
+    if (patientInfo.about) {
+      formValues.about = patientInfo.about;
+    }
+
+    return formValues;
+  },
+
   componentWillReceiveProps: function(nextProps) {
     // Keep form values in sync with upstream changes
-    var patient = nextProps.patient;
-    var formValues = patient ? this.formatPatientForDisplay(patient) : {};
-
-    this.setState({formValues: formValues});
+    this.setState({formValues: this.formValuesFromPatient(nextProps.patient)});
   },
 
   componentWillUnmount: function() {
@@ -82,6 +114,7 @@ var PatientEdit = React.createClass({
 
   render: function() {
     var subnav = this.renderSubnav();
+    var options = this.renderOptions();
     var name = this.renderName();
     var form = this.renderForm();
 
@@ -92,6 +125,7 @@ var PatientEdit = React.createClass({
         <div className="container-box-outer patient-edit-content-outer">
           <div className="container-box-inner patient-edit-content-inner">
             <div className="patient-edit-content">
+              {options}
               {name}
               {form}
             </div>
@@ -126,11 +160,11 @@ var PatientEdit = React.createClass({
 
   renderBackButton: function() {
     var url = '#/';
-    var text = 'Profile';
+    var text = 'Back';
     var patient = this.props.patient;
 
-    if (patient && patient.id) {
-      url = '#/patients/' + patient.id;
+    if (!this.props.isNewPatient && patient && patient.userid) {
+      url = '#/patients/' + patient.userid;
     }
 
     var self = this;
@@ -149,61 +183,94 @@ var PatientEdit = React.createClass({
   },
 
   getTitle: function() {
-    var title = ' profile';
     if (this.props.isNewPatient) {
-      return 'Create ' + title;
+      return 'Create Care Team';
     }
-    return 'Edit ' + title;
+    return 'Edit profile';
   },
 
-  renderName: function() {
-    var className = 'patient-edit-name';
-    var displayName = this.getPatientDisplayName(this.props.patient);
-
-    if (!this.props.patient) {
-      className = className + ' patient-edit-name-empty';
-    }
+  renderOptions: function() {
+    var items = [
+      {value: 'no', label: this.IS_SAME_PERSON},
+      {value: 'yes', label: this.IS_OTHER_PERSON}
+    ];
+    var value = this.state.isOtherPerson ? 'yes' : 'no';
+    var disabled = this.isResettingPatientData();
 
     /* jshint ignore:start */
     return (
-      <div className={className}>{displayName}</div>
+      <InputGroup
+        name="isOtherPerson"
+        items={items}
+        value={value}
+        type={'radios'}
+        disabled={disabled}
+        onChange={this.handleOptionsChange}/>
     );
     /* jshint ignore:end */
   },
 
-  getPatientDisplayName: function(patient) {
-    if (_.isEmpty(patient)) {
-      return '';
+  renderName: function() {
+    if (this.state.isOtherPerson) {
+      return null;
     }
 
-    return patient.fullName;
+    var label = 'Care Team for:';
+    if (this.props.isNewPatient) {
+      label = 'New ' + label;
+    }
+
+    /* jshint ignore:start */
+    return (
+      <div className="patient-edit-name">
+        {label}
+        <div className="patient-edit-name-value">
+          {personUtils.fullName(this.props.patient)}
+        </div>
+      </div>
+    );
+    /* jshint ignore:end */
   },
 
   renderForm: function() {
+    var formInputs = this.getFormInputs();
     var submitButtonText = this.getSubmitButtonText();
     var disabled = this.isResettingPatientData();
 
     /* jshint ignore:start */
     return (
       <SimpleForm
-        inputs={this.formInputs}
+        inputs={formInputs}
         formValues={this.state.formValues}
         validationErrors={this.state.validationErrors}
         submitButtonText={submitButtonText}
         submitDisabled={this.state.working}
         onSubmit={this.handleSubmit}
         notification={this.state.notification}
-        disabled={disabled}/>
+        disabled={disabled}
+        ref="form"/>
     );
     /* jshint ignore:end */
+  },
+
+  getFormInputs: function() {
+    var formInputs = this.formInputs;
+
+    if (!this.state.isOtherPerson) {
+      formInputs = _.filter(formInputs, function(input) {
+        return (input.name !== 'fullName');
+      });
+    }
+
+    return formInputs;
   },
 
   getSubmitButtonText: function() {
     var text = 'Save';
     if (this.props.isNewPatient) {
-      text = 'Create your profile';
+      text = 'Create Care Team';
       if (this.state.working) {
-        text = 'Creating your profile...';
+        text = 'Creating Care Team...';
       }
     }
     return text;
@@ -213,18 +280,31 @@ var PatientEdit = React.createClass({
     return (this.props.fetchingPatient && !this.props.patient);
   },
 
+  handleOptionsChange: function(attributes) {
+    var isOtherPerson = (attributes.value === 'yes') ? true : false;
+    // Keep any progress filling out the form
+    var formValues = this.refs.form.getFormValues();
+
+    this.setState({
+      isOtherPerson: isOtherPerson,
+      formValues: _.assign({}, this.state.formValues, formValues),
+      validationErrors: {}
+    });
+  },
+
   handleSubmit: function(formValues) {
     var self = this;
 
     this.resetFormStateBeforeSubmit(formValues);
 
-    formValues = _.clone(formValues);
-    formValues = this.formatUserInput(formValues);
+    formValues = this.prepareFormValuesForValidation(formValues);
 
     var validationErrors = this.validateFormValues(formValues);
     if (!_.isEmpty(validationErrors)) {
       return;
     }
+
+    formValues = this.prepareFormValuesForSubmit(formValues);
 
     this.submitFormValues(formValues);
   },
@@ -244,11 +324,62 @@ var PatientEdit = React.createClass({
     clearTimeout(this.messageTimeoutId);
   },
 
+  prepareFormValuesForValidation: function(formValues) {
+    formValues = _.clone(formValues);
+
+    if (this.state.isOtherPerson) {
+      formValues.isOtherPerson = true;
+    }
+    else {
+      formValues = _.omit(formValues, 'fullName');
+    }
+
+    if (formValues.birthday) {
+      formValues.birthday = moment(formValues.birthday, DISPLAY_DATE_FORMAT)
+        .format(MODEL_DATE_FORMAT);
+    }
+
+    if (formValues.diagnosisDate) {
+      formValues.diagnosisDate = moment(formValues.diagnosisDate, DISPLAY_DATE_FORMAT)
+        .format(MODEL_DATE_FORMAT);
+    }
+
+    if (!formValues.about) {
+      delete formValues.about;
+    }
+
+    return formValues;
+  },
+
   validateFormValues: function(formValues) {
     var validationErrors = {};
-    var validate = this.props.onValidate;
+    var IS_REQUIRED = 'This field is required.';
+    var IS_NOT_VALID_DATE = 'Not a valid date.';
 
-    validationErrors = validate(formValues);
+    if (formValues.isOtherPerson && !formValues.fullName) {
+      validationErrors.fullName = IS_REQUIRED;
+    }
+
+    if (!formValues.birthday) {
+      validationErrors.birthday = IS_REQUIRED;
+    }
+    else if (!datetimeUtils.isValidDate(formValues.birthday)) {
+      validationErrors.birthday = IS_NOT_VALID_DATE;
+    }
+
+    if (!formValues.diagnosisDate) {
+      validationErrors.diagnosisDate = IS_REQUIRED;
+    }
+    else if (!datetimeUtils.isValidDate(formValues.diagnosisDate)) {
+      validationErrors.diagnosisDate = IS_NOT_VALID_DATE;
+    }
+
+    var maxLength = 256;
+    if (formValues.about && formValues.about.length > maxLength) {
+      validationErrors.about =
+        'Please keep text under ' + maxLength + ' characters.';
+    }
+
     if (!_.isEmpty(validationErrors)) {
       this.setState({
         working: false,
@@ -263,32 +394,16 @@ var PatientEdit = React.createClass({
     return validationErrors;
   },
 
-  formatUserInput: function(formValues) {
-    if (formValues.birthday) {
-      formValues.birthday = patient.formatDate(formValues.birthday, DISPLAY_DATE_FORMAT);
-    }
+  prepareFormValuesForSubmit: function(formValues) {
+    var profile = _.assign({}, this.props.patient.profile, {
+      patient: formValues
+    });
 
-    if (formValues.diagnosisDate) {
-      formValues.diagnosisDate = patient.formatDate(formValues.diagnosisDate, DISPLAY_DATE_FORMAT);
-    }
+    var result = _.assign({}, this.props.patient, {
+      profile: profile
+    });
 
-    if (!formValues.aboutMe) {
-      delete formValues.aboutMe;
-    }
-
-    return formValues;
-  },
-
-  formatPatientForDisplay: function(patientToDisplay) {
-    if (patientToDisplay.birthday) {
-      patientToDisplay.birthday = moment(patientToDisplay.birthday).format(DISPLAY_DATE_FORMAT);
-    }
-
-    if (patientToDisplay.diagnosisDate) {
-      patientToDisplay.diagnosisDate = moment(patientToDisplay.diagnosisDate).format(DISPLAY_DATE_FORMAT);
-    }
-
-    return patientToDisplay;
+    return result;
   },
 
   submitFormValues: function(formValues) {

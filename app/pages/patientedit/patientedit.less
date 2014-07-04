@@ -1,14 +1,14 @@
 /**
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
@@ -26,7 +26,7 @@
 .patient-edit-subnav-title {
   padding-top: @patient-edit-subnav-vertical-padding;
   padding-bottom: @patient-edit-subnav-vertical-padding;
-  
+
   text-align: center;
 }
 
@@ -79,11 +79,13 @@
 // ====================================
 
 .patient-edit-name {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: @spacing-base;
+  min-height: 60px; // Height of input group for name
+  margin-bottom: @spacing-small;
 }
 
-.patient-edit-name-empty {
-  min-height: @line-height-base;
+.patient-edit-name-value {
+  font-weight: bold;
+  // Mimic text input line height and padding
+  line-height: 20px;
+  padding: 10px 7px;
 }

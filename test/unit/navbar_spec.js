@@ -1,5 +1,17 @@
 var Navbar = require('../../app/components/navbar');
-var testUser = window.data.user;
+var testUser = {
+  'userid': '11',
+  'username': 'mary.smith@example.com',
+  'emails': ['mary.smith@example.com'],
+  'profile': {
+    'fullName': 'Mary Smith',
+    'patient': {
+      'birthday': '1987-03-08',
+      'diagnosisDate': '1994-02-01',
+      'about': 'Loves swimming and fishing. Owns a bakery in San Francisco. Favorite color is orange.'
+    }
+  }
+};
 
 describe('Navbar', function() {
   var component;
@@ -49,7 +61,7 @@ describe('Navbar', function() {
 
   it('should correctly display user full name', function() {
     var user = testUser;
-    var expectedFullName = user.fullName;
+    var expectedFullName = user.profile.fullName;
 
     component.setProps({user: user});
     var fullName = component.refs.userFullName.props.children;
