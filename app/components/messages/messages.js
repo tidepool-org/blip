@@ -36,6 +36,7 @@ var Messages = React.createClass({
     patient : React.PropTypes.object,
     onClose : React.PropTypes.func,
     onSave : React.PropTypes.func,
+    onEdit : React.PropTypes.func,
     onNewMessage : React.PropTypes.func,
     imagesEndpoint: React.PropTypes.string
   },
@@ -61,8 +62,6 @@ var Messages = React.createClass({
    */
   getSaveEdit:function(messageUserId){
     var saveEdit;
-    console.log('can edit - user ', this.props.user.userid);
-    console.log('can edit - message ', messageUserId);
     if(messageUserId === this.props.user.userid){
       saveEdit = this.handleEditNote;
     }
@@ -266,15 +265,15 @@ var Messages = React.createClass({
       }.bind(this));
     }
   },
-  handleEditNote: function (formValues){
+  handleEditNote: function (updated){
 
-    if(_.isEmpty(formValues) === false){
+    if(_.isEmpty(updated) === false){
 
       this.setState({ isWorking: true });
 
-      console.log('edit ',formValues);
-
-      this.setState({ isWorking: false });
+      this.props.onEdit(updated, function(error,details){
+        this.setState({isWorking: false});
+      }.bind(this));
     }
   },
   handleClose: function(e) {
