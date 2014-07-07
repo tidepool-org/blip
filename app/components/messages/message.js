@@ -148,16 +148,13 @@ var Message = React.createClass({
 
         //we only allow the editing of the text on a comment
         editForm = (
-
           <MessageForm
             formFields={{editableText: this.props.theNote.messagetext, displayOnlyTimestamp : this.props.theNote.timestamp }}
             onSubmit={this.handleEditSave}
             onCancel={this.handleCancelEdit}
             saveBtnText='Save' />
-
         );
       } else {
-
         editForm = (
           <MessageForm
             formFields={{editableText: this.props.theNote.messagetext, editableTimestamp: this.props.theNote.timestamp}}
@@ -165,7 +162,6 @@ var Message = React.createClass({
             onCancel={this.handleCancelEdit}
             saveBtnText='Save' />
         );
-
       }
       var title = this.renderTitle();
       return (

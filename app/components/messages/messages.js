@@ -61,7 +61,9 @@ var Messages = React.createClass({
    */
   getSaveEdit:function(messageUserId){
     var saveEdit;
-    if(messageUserId === this.props.user.patient.id){
+    console.log('can edit - user ', this.props.user.userid);
+    console.log('can edit - message ', messageUserId);
+    if(messageUserId === this.props.user.userid){
       saveEdit = this.handleEditNote;
     }
     return saveEdit;
@@ -203,7 +205,7 @@ var Messages = React.createClass({
 
       var comment = {
         parentmessage : parent.id,
-        userid : this.props.user.id,
+        userid : this.props.user.userid,
         groupid : parent.groupid,
         messagetext : formValues.text,
         timestamp : formValues.timestamp
@@ -234,7 +236,7 @@ var Messages = React.createClass({
       var createNote = this.props.onSave;
 
       var message = {
-        userid : this.props.user.id,
+        userid : this.props.user.userid,
         groupid : this.props.patient.id,
         messagetext : formValues.text,
         timestamp : this.props.createDatetime
