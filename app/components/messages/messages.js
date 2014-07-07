@@ -236,7 +236,7 @@ var Messages = React.createClass({
 
       var message = {
         userid : this.props.user.userid,
-        groupid : this.props.patient.id,
+        groupid : this.props.patient.userid,
         messagetext : formValues.text,
         timestamp : this.props.createDatetime
       };
