@@ -238,7 +238,7 @@ var Messages = React.createClass({
         userid : this.props.user.userid,
         groupid : this.props.patient.userid,
         messagetext : formValues.text,
-        timestamp : this.props.createDatetime
+        timestamp : sundial.formatForStorage(this.props.createDatetime,sundial.getOffset())
       };
 
       createNote(message, function(error,messageId){
