@@ -206,7 +206,7 @@ var Messages = React.createClass({
         if (commentId) {
           if(cb){
             //let the form know all is good
-            cb()
+            cb();
           }
           //set so we can display right away
           comment.id = commentId;
@@ -238,7 +238,7 @@ var Messages = React.createClass({
         if (messageId) {
           if(cb){
             //let the form know all is good
-            cb()
+            cb();
           }
           //set so we can display right away
           message.id = messageId;
