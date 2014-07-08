@@ -24,6 +24,7 @@ var config = window.config;
 // have distribution bundles and export on the `window` object
 var tidepool = require('./core/tidepool');
 var tideline = require('./core/tideline');
+var sundial = require('./core/sundial');
 
 var router = require('./router');
 var api = require('./core/api');
@@ -561,6 +562,7 @@ var AppComponent = React.createClass({
         onFetchMessageThread={this.fetchMessageThread}
         onSaveComment={app.api.team.replyToMessageThread.bind(app.api.team)}
         onCreateMessage={app.api.team.startMessageThread.bind(app.api.team)}
+        onEditMessage={app.api.team.editMessage.bind(app.api.team)}
         trackMetric={trackMetric}/>
     );
     /* jshint ignore:end */

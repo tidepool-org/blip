@@ -1,0 +1,76 @@
+/**
+ * Copyright (c) 2014, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ */
+
+// Easiest way to fit button nicely right of text box
+// is to fix its width, careful if button text changes though
+@message-form-button-width: 50px;
+@message-form-spacing-unit: 8px;
+
+.messageform-textarea {
+  &:extend(.form-control all);
+}
+
+.messageform-when {
+  &:extend(.form-control all);
+}
+
+.messageform-datetime-label {
+  &:extend(.form-control all);
+  border: none;
+}
+
+a.messageform-change-datetime {
+  display: block;
+  text-align: right;
+  float: right;
+  padding-left: @message-form-spacing-unit*2;
+  padding-bottom: @message-form-spacing-unit*2;
+  font-size: 12px;
+
+  &:hover,
+  &:focus {
+    color: @gray-dark;
+  }
+}
+
+.messageform-date {
+  &:extend(.form-control all);
+  margin-bottom: @message-form-spacing-unit;
+}
+
+.messageform-time {
+  &:extend(.form-control all);
+  margin-top: @message-form-spacing-unit;
+  margin-bottom: @message-form-spacing-unit;
+}
+
+.messageform-button {
+  &:extend(.btn all);
+  &:extend(.btn-primary all);
+
+  margin-top: 5px;
+}
+
+.messageform-button-save {
+  padding-left: 5px;
+  padding-right: 5px;
+  float: right;
+}
+
+.messageform-button-cancel {
+  margin-right: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+}

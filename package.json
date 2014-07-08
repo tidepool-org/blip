@@ -18,14 +18,14 @@
     "jshint-stylish": "0.1.5",
     "lodash": "2.4.1",
     "mkdirp": "0.3.5",
-    "moment": "2.5.1",
+    "moment": "2.7.0",
     "reactify": "0.10.0",
     "run-sequence": "0.3.6",
     "rx": "2.2.18",
     "simple-glob": "0.1.0"
   },
   "devDependencies": {
-    "blip-mock-data": "tidepool-org/blip-mock-data#v0.1.0",
+    "blip-mock-data": "tidepool-org/blip-mock-data#v0.2.2",
     "chai-webdriver": "0.7.0",
     "grunt": "0.4.4",
     "grunt-cli": "0.1.13",

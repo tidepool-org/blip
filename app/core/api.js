@@ -384,7 +384,10 @@ api.team.getMessageThread = function(messageId,cb){
       return cb(error);
     }
 
-    messages = _.sortBy(messages, 'timestamp');
+    //the `note` is always first and then just order the comments on that note
+    messages = _.sortBy(messages, function(message) {
+      return _.isEmpty(message.parentmessage) || new Date(message.timestamp);
+    });
 
     return cb(null,messages);
   });
@@ -436,6 +439,17 @@ api.team.startMessageThread = function(message,cb){
       return cb(error);
     }
     cb(null, messageId);
+  });
+};
+
+api.team.editMessage = function(message,cb){
+  api.log('POST /message/edit');
+
+  tidepool.editMessage(message, function(error, details){
+    if (error) {
+      return cb(error);
+    }
+    cb(null, null);
   });
 };
 

@@ -279,7 +279,26 @@ var createPatch = function(options) {
     api.team.getMessageThread = function(messageId,callback){
       api.log('[mock] GET /message/thread/' + messageId);
 
-      var thread = data.messagethread[101];
+      var thread = data.messagethread.tbd;
+
+      var theNote = _.find(data.messagenotes[11], function(note) {
+        return note.id === messageId;
+      });
+
+      thread = _.map(thread, function(message) {
+        return {
+          timestamp: message.timestamp,
+          messagetext: message.messagetext,
+          userid: message.userid,
+          user: message.user,
+          parentmessage : messageId,
+          groupid : message.groupid,
+          id : message.id
+        };
+      });
+
+      thread.unshift(theNote);
+
       setTimeout(function() {
         callback(null, thread);
       }, getDelayFor('api.team.getMessageThread'));
@@ -296,7 +315,7 @@ var createPatch = function(options) {
           messageText : message.messagetext,
           parentMessage : message.parentmessage,
           type: 'message',
-          _id: message.id
+          id: message.id
         };
       });
 
@@ -321,7 +340,7 @@ var createPatch = function(options) {
     };
 
     api.team.startMessageThread = function(message,cb){
-      api.log('[mock] POST /message/send');
+      api.log('[mock] POST /message/send ',message);
 
       var fakeId = _.random(1000,1999);
 
@@ -329,6 +348,14 @@ var createPatch = function(options) {
         cb(null, fakeId);
       }, getDelayFor('api.team.startMessageThread'));
 
+    };
+
+    api.team.editMessage = function(message,cb){
+      api.log('[mock]  /message/edit');
+
+      setTimeout(function() {
+        cb(null, null);
+      }, getDelayFor('api.team.editMessage'));
     };
 
     // ----- Upload -----
