@@ -43,8 +43,9 @@ var MessageForm = React.createClass({
       DATE_MASK : 'YYYY-MM-DD',
       TIME_MASK : 'HH:mm',
       EDITED_DATE_MASK : 'YYYY-MM-DD HH:mm',
+      SENDING_TEXT : 'Sending...',
       cancelBtnText : 'Cancel',
-      saveBtnText : 'Post'
+      saveBtnText : 'Post',
     };
   },
   isExistingNoteEdit:function() {
@@ -99,6 +100,7 @@ var MessageForm = React.createClass({
       time: null,
       offset : null,
       editing : false,
+      saving : false,
       changeDateTime : false
     };
   },
@@ -147,19 +149,25 @@ var MessageForm = React.createClass({
 
     return utcTimestamp;
   },
-  handleSave: function(e) {
+  handleSaving: function(e) {
     if (e) {
       e.preventDefault();
     }
+    this.setState({ saving : true});
+
     if (this.props.onSubmit) {
 
       this.props.onSubmit({
         text: this.state.msg,
         timestamp: this.getUtcTimestamp()
-      });
-      this.refs.messageText.getDOMNode().rows = 1;
-      this.setState(this.initialState());
+      },function(){
+        this.handleSaved();
+      }.bind(this));
     }
+  },
+  handleSaved : function(){
+    this.refs.messageText.getDOMNode().rows = 1;
+    this.setState(this.initialState());
   },
   handleGrow:function(e) {
     if (e) {
@@ -236,6 +244,13 @@ var MessageForm = React.createClass({
     );
   },
   renderButtons: function(){
+
+    var saveBtnText = this.props.saveBtnText;
+
+    if(this.state.saving){
+      saveBtnText = this.props.SENDING_TEXT;
+    }
+
     return (
       <div className='messageform-buttons'>
         <button
@@ -247,8 +262,8 @@ var MessageForm = React.createClass({
           type='submit'
           className='messageform-button messageform-button-save'
           disabled={this.isButtonDisabled()}
-          onClick={this.handleSave}
-          ref='sendBtn'>{this.props.saveBtnText}</button>
+          onClick={this.handleSaving}
+          ref='sendBtn'>{saveBtnText}</button>
       </div>
     );
   },

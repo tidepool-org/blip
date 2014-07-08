@@ -44,8 +44,7 @@ var Messages = React.createClass({
   getDefaultProps: function () {
     return {
       NOTE_PROMPT : 'Type a new note here ...',
-      COMMENT_PROMPT : 'Type a comment here ...',
-      SENDING_TEXT : 'Sending...'
+      COMMENT_PROMPT : 'Type a comment here ...'
     };
   },
   componentWillReceiveProps: function(nextProps) {
@@ -53,7 +52,6 @@ var Messages = React.createClass({
   },
   getInitialState: function() {
     return {
-      isWorking: false,
       messages : this.props.messages
     };
   },
@@ -118,9 +116,6 @@ var Messages = React.createClass({
   renderCommentOnThreadForm:function(){
 
     var submitButtonText = 'Comment';
-    if (this.state.isWorking) {
-      submitButtonText = this.props.SENDING_TEXT;
-    }
 
     /* jshint ignore:start */
     return (
@@ -137,9 +132,6 @@ var Messages = React.createClass({
   renderNewThreadForm:function(){
 
     var submitButtonText = 'Post';
-    if (this.state.isWorking) {
-      submitButtonText = this.props.SENDING_TEXT;
-    }
 
     /* jshint ignore:start */
     return (
@@ -194,10 +186,9 @@ var Messages = React.createClass({
     }
     return;
   },
-  handleAddComment : function (formValues){
+  handleAddComment : function (formValues,cb){
 
     if(_.isEmpty(formValues) === false){
-      this.setState({ isWorking: true });
 
       var addComment = this.props.onSave;
       var parent = this.getParent();
@@ -211,9 +202,12 @@ var Messages = React.createClass({
       };
 
       addComment(comment, function(error,commentId){
-        this.setState({isWorking: false});
 
         if (commentId) {
+          if(cb){
+            //let the form know all is good
+            cb()
+          }
           //set so we can display right away
           comment.id = commentId;
           comment.user = this.props.user;
@@ -226,11 +220,9 @@ var Messages = React.createClass({
       }.bind(this));
     }
   },
-  handleCreateNote: function (formValues){
+  handleCreateNote: function (formValues,cb){
 
     if(_.isEmpty(formValues) === false){
-
-      this.setState({ isWorking: true });
 
       var createNote = this.props.onSave;
 
@@ -242,9 +234,12 @@ var Messages = React.createClass({
       };
 
       createNote(message, function(error,messageId){
-        this.setState({isWorking: false});
 
         if (messageId) {
+          if(cb){
+            //let the form know all is good
+            cb()
+          }
           //set so we can display right away
           message.id = messageId;
           message.user = this.props.user;
@@ -262,18 +257,14 @@ var Messages = React.createClass({
             });
           }
         }
+
       }.bind(this));
     }
   },
   handleEditNote: function (updated){
-
     if(_.isEmpty(updated) === false){
-
-      this.setState({ isWorking: true });
-
       this.props.onEdit(updated, function(error,details){
-        this.setState({isWorking: false});
-      }.bind(this));
+      });
     }
   },
   handleClose: function(e) {
