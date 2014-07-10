@@ -800,6 +800,7 @@ var AppComponent = React.createClass({
     if (!(data && data.length)) {
       return null;
     }
+    window.stringifiedData = JSON.stringify(data);
 
     var processData = chartUtil.processData(data);
     window.tidelineData = processData;
