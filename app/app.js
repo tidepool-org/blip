@@ -800,10 +800,18 @@ var AppComponent = React.createClass({
     if (!(data && data.length)) {
       return null;
     }
+    // TODO: move the deep cloning of the objects inside data into preprocess instead
+    // will come up v. soon when @jebeck does client-side data validation (next up)
+    var preTidelineData = _.map(data, function(d) {
+      return _.cloneDeep(d);
+    });
+    window.downloadJSON = function() {
+      console.save(preTidelineData);
+    };
 
     var processData = chartUtil.processData(data);
     window.tidelineData = processData;
-    return  processData;
+    return processData;
   },
 
   fetchCurrentPatientData: function() {
