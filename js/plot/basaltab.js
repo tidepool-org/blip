@@ -39,9 +39,10 @@ module.exports = function(pool, opts) {
       // remove 'Standard' from array if present and put it at the beginning instead
       var standardIndex = _.findIndex(schedules, basaltab.isStandard);
       if (standardIndex !== -1) {
+        var standard = schedules[standardIndex];
         schedules.splice(standardIndex, 1);
         schedules.sort();
-        schedules.unshift('Standard');
+        schedules.unshift(standard);
       }
       else {
         schedules.sort();
@@ -133,8 +134,9 @@ module.exports = function(pool, opts) {
     return opts.xScale(e) - opts.xScale(s);
   };
 
-  basaltab.isStandard = function(el) {
-    if (el === 'Standard') {
+  basaltab.isStandard = function(str) {
+    var str = str.toLowerCase();
+    if (str === 'standard') {
       return true;
     }
     return false;
@@ -143,14 +145,14 @@ module.exports = function(pool, opts) {
   basaltab.addLabels = function(names) {
     var printNames = [];
     for (var i = 0; i < names.length; ++i) {
-      if (names[i] === 'Standard') {
+      if (basaltab.isStandard(names[i])) {
         printNames.push('Std-');
       }
-      else if (names[i].search('Program') !== -1) {
-        printNames.push(names[i].replace('Program', '').trim() + '-');
+      else if (names[i].toLowerCase().search('program') !== -1) {
+        printNames.push(names[i].toLowerCase().replace('program', '').trim().toUpperCase() + '-');
       }
-      else if (names[i].search('Pattern') !== -1) {
-        printNames.push(names[i].replace('Pattern', '').trim() + '-');
+      else if (names[i].toLowerCase().search('pattern') !== -1) {
+        printNames.push(names[i].toLowerCase().replace('pattern', '').trim().toUpperCase() + '-');
       }
     }
     var labelsGroup = mainGroup.select('#' + pool.id()).selectAll('#' + pool.id() + '_labels').data([names]);
