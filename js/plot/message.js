@@ -25,7 +25,8 @@ module.exports = function(pool, opts) {
   opts = opts || {};
 
   var defaults = {
-    imagesBaseUrl: pool.imagesBaseUrl()
+    imagesBaseUrl: pool.imagesBaseUrl(),
+    highlightWidth: 4
   };
 
   _.defaults(opts, defaults);
@@ -46,8 +47,14 @@ module.exports = function(pool, opts) {
 
       var messageGroups = messages.enter()
         .append('g')
-        .attr('class', 'd3-message-group')
-        .attr('clip-path', 'url(#mainClipPath)');
+        .attr({
+          'class': 'd3-message-group',
+          id: function(d) {
+            return 'message_' + d.id;
+          },
+          'clip-path': 'url(#mainClipPath)'
+        });
+
       message.addMessageToPool(messageGroups);
 
       messages.exit().remove();
@@ -59,34 +66,43 @@ module.exports = function(pool, opts) {
     
     selection.append('rect')
       .attr({
-        'x': function(d) {
-          return opts.xScale(Date.parse(d.normalTime)) - opts.size / 2 - 4;
-        },
-        'y': pool.height() / 2 - opts.size / 2 - 4,
-        'width': opts.size + 8,
-        'height': opts.size + 8,
+        x: message.highlightXPosition,
+        y: message.highlightYPosition,
+        width: opts.size + opts.highlightWidth * 2,
+        height: opts.size + opts.highlightWidth * 2,
         'class': 'd3-rect-message hidden'
       });
+
     selection.append('image')
       .attr({
         'xlink:href': opts.imagesBaseUrl + '/message/post_it.svg',
-        'x': function(d) {
-          return opts.xScale(Date.parse(d.normalTime)) - opts.size / 2;
-        },
-        'y': pool.height() / 2 - opts.size / 2,
-        'width': opts.size,
-        'height': opts.size,
-        'id': function(d) {
-          return 'message_' + d.id;
-        }
+        x: message.xPosition,
+        y: message.yPosition,
+        width: opts.size,
+        height: opts.size
       })
       .classed({'d3-image': true, 'd3-message': true});
+
     selection.on('click', function(d) {
       d3.event.stopPropagation(); // silence the click-and-drag listener
       opts.emitter.emit('messageThread', d.id);
       log('Message clicked!');
       d3.select(this).selectAll('.d3-rect-message').classed('hidden', false);
     });
+  };
+
+  message.updateMessageInPool = function(selection) {
+    opts.xScale = pool.xScale().copy();
+
+    selection.select('rect.d3-rect-message')
+      .attr({
+        x: message.highlightXPosition
+      });
+
+    selection.select('image')
+      .attr({
+        x: message.xPosition
+      });
   };
 
   message.setUpMessageCreation = function() {
@@ -100,9 +116,32 @@ module.exports = function(pool, opts) {
       var messageGroup = mainGroup.select('#poolMessages_message')
         .append('g')
         .attr('class', 'd3-message-group d3-new')
+        .attr('id', 'message_' + obj.id)
         .datum(obj);
       message.addMessageToPool(messageGroup);
     });
+
+    opts.emitter.on('messageTimestampEdited', function(obj) {
+      var messageGroup = mainGroup.select('g#message_' + obj.id)
+        .datum(obj);
+      message.updateMessageInPool(messageGroup);
+    });
+  };
+
+  message.highlightXPosition = function(d) {
+    return opts.xScale(Date.parse(d.normalTime)) - opts.size / 2 - opts.highlightWidth;
+  };
+
+  message.highlightYPosition = function(d) {
+    return pool.height() / 2 - opts.size / 2 - opts.highlightWidth;
+  };
+
+  message.xPosition = function(d) {
+    return opts.xScale(Date.parse(d.normalTime)) - opts.size / 2;
+  };
+
+  message.yPosition = function(d) {
+    return pool.height() / 2 - opts.size / 2;
   };
 
   message.setUpMessageCreation();

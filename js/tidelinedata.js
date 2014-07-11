@@ -68,9 +68,10 @@ function TidelineData(data, opts) {
     }()), function(d) { return d.normalTime; });
   }
 
-  function updateCrossFilters(data, types) {
+  function updateCrossFilters(data) {
     that.filterData = new TidelineCrossFilter(data);
     that.dataByDate = that.createCrossFilter('date');
+    that.dataById = that.createCrossFilter('id');
     that.dataByType = that.createCrossFilter('datatype');
   }
 
@@ -82,6 +83,22 @@ function TidelineData(data, opts) {
     this.grouped[datum.type] = addAndResort(datum, this.grouped[datum.type]);
     this.data = addAndResort(datum, this.data);
     updateCrossFilters(this.data);
+    return this;
+  };
+
+  this.editDatum = function(datum, timeKey) {
+    this.dataById.filter(datum.id);
+    var newDatum = this.filterData.getOne(this.dataById);
+    // because some timestamps are deviceTime, some are utcTime
+    newDatum[timeKey] = datum[timeKey];
+    // everything has normalTime
+    newDatum.normalTime = datum.normalTime;
+    // remove pre-updated datum and add updated
+    this.filterData.remove();
+    this.filterData.add(newDatum);
+    // clear filters
+    this.dataById.filter(null);
+    this.dataByDate.filter(null);
     return this;
   };
 

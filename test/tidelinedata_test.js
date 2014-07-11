@@ -80,6 +80,32 @@ describe('TidelineData', function() {
     });
   });
 
+  describe('editDatum', function() {
+    var datum = _.clone(_.findWhere(td.data, {'type': 'message'}));
+    var oldDatum = _.clone(datum);
+    var d = new Date(datum.utcTime);
+    d.setUTCHours(d.getUTCHours() + 1);
+    d = d.toISOString();
+    datum.utcTime = d;
+    var newTd = td.editDatum(datum, 'utcTime');
+    it('should maintain the length of the group data and data', function() {
+      var previousLengths = {
+        'data': td.data.length,
+        'message': td.grouped.message.length
+      };
+      var newLengths = {
+        'data': newTd.data.length,
+        'message': newTd.grouped.message.length
+      };
+      expect(previousLengths).to.eql(newLengths);
+    });
+
+    it('should mutate the original datum', function() {
+      var newDatum = _.findWhere(newTd.data, {'id': datum.id});
+      expect(oldDatum).not.to.eql(newDatum);
+    });
+  });
+
   describe('generateFillData', function() {
     var fills = td.grouped.fill;
     it('should be a function', function() {

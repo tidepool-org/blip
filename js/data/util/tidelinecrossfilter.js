@@ -22,6 +22,10 @@ var log = require('../../lib/').bows('TidelineCrossFilter');
 
 function TidelineCrossFilter(data) {
 
+  this.add = function(datum) {
+    return cf.add([datum]);
+  };
+
   this.addDimension = function(key) {
     // define some common dimension accessors for tideline
     // so we don't have to keep writing the same ones
@@ -33,9 +37,12 @@ function TidelineCrossFilter(data) {
     case 'datatype':
       accessor = function(d) { return d.type; };
       break;
+    case 'id':
+      accessor = function(d) { return d.id; };
+      break;
     }
 
-    return this.cf.dimension(accessor);
+    return cf.dimension(accessor);
   };
 
   this.getAll = function(dimension, ascending) {
@@ -64,7 +71,11 @@ function TidelineCrossFilter(data) {
     return dimension.filter(type).top(Infinity).reverse();
   };
 
-  this.cf = crossfilter(data);
+  this.remove = function() {
+    return cf.remove();
+  };
+
+  var cf = crossfilter(data);
 
   return this;
 }
