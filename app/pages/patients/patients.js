@@ -88,9 +88,17 @@ var Patients = React.createClass({
       return null;
     }
 
+    var dismiss;
     var content;
     if (!personUtils.isPatient(user)) {
       /* jshint ignore:start */
+      dismiss = (
+        <div className="patients-section-dismiss">
+          <a href="" onClick={this.handleClickSetAsCareGiver}>
+            <i className="patients-icon-close"></i>
+          </a>
+        </div>
+      );
       content = (
         <PersonCard
           href="#/patients/new"
@@ -111,6 +119,7 @@ var Patients = React.createClass({
     /* jshint ignore:start */
     return (
       <div className="patients-section js-patients-user">
+        {dismiss}
         {title}
         <div className="patients-section-content">
           {welcome}
