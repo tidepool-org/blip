@@ -168,6 +168,9 @@ var Daily = React.createClass({
   },
   createMessageThread: function(message) {
     return this.refs.chart.createMessage(message);
+  },
+  editMessageThread: function(message) {
+    return this.refs.chart.editMessage(message);
   }
 });
 
@@ -275,6 +278,9 @@ var DailyChart = React.createClass({
   },
   createMessage: function(message) {
     return this.chart.createMessage(message);
+  },
+  editMessage: function(message) {
+    return this.chart.editMessage(message);
   }
 });
 
