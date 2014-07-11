@@ -134,8 +134,9 @@ module.exports = function(pool, opts) {
     return opts.xScale(e) - opts.xScale(s);
   };
 
-  basaltab.isStandard = function(el) {
-    if (el === 'Standard' || el === 'standard') {
+  basaltab.isStandard = function(str) {
+    var str = str.toLowerCase();
+    if (str === 'standard') {
       return true;
     }
     return false;
@@ -144,7 +145,7 @@ module.exports = function(pool, opts) {
   basaltab.addLabels = function(names) {
     var printNames = [];
     for (var i = 0; i < names.length; ++i) {
-      if (names[i].toLowerCase() === 'standard') {
+      if (basaltab.isStandard(names[i])) {
         printNames.push('Std-');
       }
       else if (names[i].toLowerCase().search('program') !== -1) {
