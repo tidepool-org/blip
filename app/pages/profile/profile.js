@@ -20,6 +20,7 @@ var _ = window._;
 var personUtils = require('../../core/personutils');
 var SimpleForm = require('../../components/simpleform');
 var PeopleList = require('../../components/peoplelist');
+var PersonCard = require('../../components/personcard');
 
 var Profile = React.createClass({
   propTypes: {
@@ -152,13 +153,11 @@ var Profile = React.createClass({
           {'Creating a Care Team allows you to get data into Blip,'}
           {' for yourself or for someone you care for with type 1 diabetes.'}
         </div>
-        <div className="profile-careteam-message">
-          <a
-            className="profile-careteam-message-button"
-            href="#/patients/new">
-            <i className="icon-add"></i>{' ' + 'Create a Care Team'}
-          </a>
-        </div>
+        <PersonCard
+          href="#/patients/new">
+          <i className="icon-add profile-careteam-icon-link"></i>
+          {' ' + 'Create a Care Team'}
+        </PersonCard>
       </div>
     );
     /* jshint ignore:end */
