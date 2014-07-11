@@ -13,6 +13,27 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-.people-list-item {
-  margin-bottom: @spacing-small;
+.personcard {
+  display: block;
+  text-align: center;
+  padding: 30px @spacing-small;
+  background: @gray-lighter;
+}
+
+// Empty "placeholder" list item:
+// give it about the same height as if it had one line of text
+.personcard-empty {
+  height: 80px;
+}
+
+.personcard-clickable,
+a.personcard-clickable {
+  color: @text-color;
+  text-decoration: none;
+
+  .no-touch &:hover,
+  &:focus,
+  &:active {
+    background-color: @gray-light;
+  }
 }
