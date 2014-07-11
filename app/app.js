@@ -563,9 +563,16 @@ var AppComponent = React.createClass({
         onSaveComment={app.api.team.replyToMessageThread.bind(app.api.team)}
         onCreateMessage={app.api.team.startMessageThread.bind(app.api.team)}
         onEditMessage={app.api.team.editMessage.bind(app.api.team)}
+        onUpdatePatientData={this.handleUpdatePatientData}
         trackMetric={trackMetric}/>
     );
     /* jshint ignore:end */
+  },
+
+  handleUpdatePatientData: function(data) {
+    this.setState({
+      patientData: data
+    });
   },
 
   login: function(formValues, cb) {

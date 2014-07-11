@@ -42,6 +42,7 @@ var PatientData = React.createClass({
     onSaveComment: React.PropTypes.func,
     onEditMessage: React.PropTypes.func,
     onCreateMessage: React.PropTypes.func,
+    onUpdatePatientData: React.PropTypes.func,
     user: React.PropTypes.object,
     trackMetric: React.PropTypes.func.isRequired
   },
@@ -307,7 +308,8 @@ var PatientData = React.createClass({
         id: message.id
       };
     var transformedMessage = watson.normalize(tidelineMessage);
-    this.refs.tideline.createMessageThread(transformedMessage);
+    var data = this.refs.tideline.createMessageThread(transformedMessage);
+    this.props.onUpdatePatientData(data);
     this.props.trackMetric('Created New Message');
   },
 
@@ -324,6 +326,17 @@ var PatientData = React.createClass({
     if (edit) {
       edit(message, cb);
     }
+    // transform to Tideline's own format
+    var tidelineMessage = {
+        utcTime : message.timestamp,
+        messageText : message.messagetext,
+        parentMessage : message.parentmessage,
+        type: 'message',
+        id: message.id
+      };
+    var transformedMessage = watson.normalize(tidelineMessage);
+    var data = this.refs.tideline.editMessageThread(transformedMessage);
+    this.props.onUpdatePatientData(data);
     this.props.trackMetric('Edit To Message');
   },
 
