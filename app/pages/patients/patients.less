@@ -49,7 +49,7 @@
 
 .patients-message {
   color: @gray-dark;
-  font-style: italic;
+  font-weight: 300;
   text-align: center;
 
   margin-top: @spacing-base;
@@ -60,43 +60,14 @@
   font-size: 14px;
 }
 
-.patients-message-separator {
-  margin: 5px 0;
+.patients-icon-link {
+  color: @blue-green;
 }
 
 .patients-message-loading {
+  font-weight: normal;
   padding-top: @spacing-base;
   padding-bottom: @spacing-base;
-}
-
-.patients-message-button {
-  font-weight: bold;
-  font-style: normal;
-  color: @blue-green;
-  text-decoration: none;
-
-  &:hover,
-  &:focus {
-    color: @blue-green-dark;
-    text-decoration: none;
-  }
-
-  &:active {
-    color: @blue-green-dark;
-  }
-}
-
-.patients-message-button-secondary {
-  color: @gray-dark;
-
-  &:hover,
-  &:focus {
-    color: @gray-darkest;
-  }
-
-  &:active {
-    color: @gray;
-  }
 }
 
 // Welcome messages

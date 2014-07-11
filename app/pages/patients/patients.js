@@ -20,6 +20,7 @@ var config = window.config;
 
 var personUtils = require('../../core/personutils');
 var PeopleList = require('../../components/peoplelist');
+var PersonCard = require('../../components/personcard');
 
 var Patients = React.createClass({
   propTypes: {
@@ -91,26 +92,12 @@ var Patients = React.createClass({
     if (!personUtils.isPatient(user)) {
       /* jshint ignore:start */
       content = (
-        <div className="patients-message">
-          <div>
-            <a
-              className="patients-message-button js-create-patient-profile"
-              href="#/patients/new"
-              onClick={this.handleClickCreateProfile}>
-              <i className="icon-add"></i>{' ' + 'Create a Care Team'}
-            </a>
-          </div>
-          <div className="patients-message-separator">{'or'}</div>
-          <div>
-            <a
-              className="patients-message-button patients-message-button-secondary js-only-caregiver"
-              href=""
-              onClick={this.handleClickSetAsCareGiver}>
-              {'I won\'t be uploading data'}
-            </a>
-          </div>
-          <div className="patients-message-small">(hides this prompt)</div>
-        </div>
+        <PersonCard
+          href="#/patients/new"
+          onClick={this.handleClickCreateProfile}>
+          <i className="icon-add patients-icon-link"></i>
+          {' ' + 'Create a Care Team'}
+        </PersonCard>
       );
       /* jshint ignore:end */
     }
@@ -194,12 +181,14 @@ var Patients = React.createClass({
       /* jshint ignore:start */
       content = (
         <div>
-          <div className="patients-message">
+          <PersonCard>
             {'Looks like you\'re not part of anyone\'s Care Team yet.'}
-          </div>
+          </PersonCard>
           <div className="patients-message patients-message-small">
             {'Want to join a team? The owner of the Care Team should email us at '}
-            <strong>{'support@tidepool.org'}</strong>
+            <a href="mailto:support@tidepool.org?Subject=Blip - Add to Care Team">
+              {'support@tidepool.org'}
+            </a>
             {' with your email address and we\'ll take it from there!'}
           </div>
         </div>
