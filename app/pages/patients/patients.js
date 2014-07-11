@@ -118,18 +118,31 @@ var Patients = React.createClass({
       content = this.renderPatientList([user]);
     }
 
+    var title = this.renderSectionTitle('YOUR CARE TEAM');
     var welcome = this.renderUserPatientWelcome();
 
     /* jshint ignore:start */
     return (
       <div className="patients-section js-patients-user">
-        <div className="patients-section-title-wrapper">
-          <div className="patients-section-title">YOUR CARE TEAM</div>
-        </div>
+        {title}
         <div className="patients-section-content">
           {welcome}
           {content}
         </div>
+      </div>
+    );
+    /* jshint ignore:end */
+  },
+
+  renderSectionTitle: function(text) {
+    if (this.props.showingWelcomeMessage) {
+      return null;
+    }
+
+    /* jshint ignore:start */
+    return (
+      <div className="patients-section-title-wrapper">
+        <div className="patients-section-title">{text}</div>
       </div>
     );
     /* jshint ignore:end */
@@ -144,7 +157,7 @@ var Patients = React.createClass({
     return (
       <div className="patients-welcome-message">
         {'If you have type 1 diabetes or are the person responsible for'}
-        {' getting data into Blip, you\'ll first need to...'}
+        {' getting data into Blip, you need to...'}
       </div>
     );
     /* jshint ignore:end */
@@ -197,14 +210,13 @@ var Patients = React.createClass({
       content = this.renderPatientList(patients);
     }
 
+    var title = this.renderSectionTitle('CARE TEAMS YOU BELONG TO');
     var welcome = this.renderSharedPatientsWelcome();
 
     /* jshint ignore:start */
     return (
       <div className="patients-section js-patients-shared">
-        <div className="patients-section-title-wrapper">
-          <div className="patients-section-title">CARE TEAMS YOU BELONG TO</div>
-        </div>
+        {title}
         <div className="patients-section-content">
           {welcome}
           {content}
