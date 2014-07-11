@@ -61,24 +61,7 @@ describe('PeopleList', function() {
 
     component.setProps({people: patients});
     var count = component.getDOMNode().children.length;
-    var listItem = component.getDOMNode().children[0];
 
     expect(count).to.equal(patients.length);
-    expect(listItem.className).to.contain('js-person-empty');
-  });
-
-  it('should render people links', function() {
-    var patients = _.map(testPatients, function(patient) {
-      patient = _.cloneDeep(patient);
-      patient.link = '#/foo';
-      return patient;
-    });
-
-    component.setProps({people: patients});
-    var count = component.getDOMNode().children.length;
-    var listItem = component.getDOMNode().children[0];
-
-    expect(count).to.equal(patients.length);
-    expect(listItem.className).to.contain('js-person-link');
   });
 });

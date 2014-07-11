@@ -20,6 +20,7 @@ var config = window.config;
 
 var personUtils = require('../../core/personutils');
 var PeopleList = require('../../components/peoplelist');
+var PersonCard = require('../../components/personcard');
 
 var Patients = React.createClass({
   propTypes: {
@@ -87,30 +88,24 @@ var Patients = React.createClass({
       return null;
     }
 
+    var dismiss;
     var content;
     if (!personUtils.isPatient(user)) {
       /* jshint ignore:start */
-      content = (
-        <div className="patients-message">
-          <div>
-            <a
-              className="patients-message-button js-create-patient-profile"
-              href="#/patients/new"
-              onClick={this.handleClickCreateProfile}>
-              <i className="icon-add"></i>{' ' + 'Create a Care Team'}
-            </a>
-          </div>
-          <div className="patients-message-separator">{'or'}</div>
-          <div>
-            <a
-              className="patients-message-button patients-message-button-secondary js-only-caregiver"
-              href=""
-              onClick={this.handleClickSetAsCareGiver}>
-              {'I won\'t be uploading data'}
-            </a>
-          </div>
-          <div className="patients-message-small">(hides this prompt)</div>
+      dismiss = (
+        <div className="patients-section-dismiss">
+          <a href="" onClick={this.handleClickSetAsCareGiver}>
+            <i className="patients-icon-close"></i>
+          </a>
         </div>
+      );
+      content = (
+        <PersonCard
+          href="#/patients/new"
+          onClick={this.handleClickCreateProfile}>
+          <i className="icon-add patients-icon-link"></i>
+          {' ' + 'Create a Care Team'}
+        </PersonCard>
       );
       /* jshint ignore:end */
     }
@@ -118,18 +113,32 @@ var Patients = React.createClass({
       content = this.renderPatientList([user]);
     }
 
+    var title = this.renderSectionTitle('YOUR CARE TEAM');
     var welcome = this.renderUserPatientWelcome();
 
     /* jshint ignore:start */
     return (
       <div className="patients-section js-patients-user">
-        <div className="patients-section-title-wrapper">
-          <div className="patients-section-title">YOUR CARE TEAM</div>
-        </div>
+        {dismiss}
+        {title}
         <div className="patients-section-content">
           {welcome}
           {content}
         </div>
+      </div>
+    );
+    /* jshint ignore:end */
+  },
+
+  renderSectionTitle: function(text) {
+    if (this.props.showingWelcomeMessage) {
+      return null;
+    }
+
+    /* jshint ignore:start */
+    return (
+      <div className="patients-section-title-wrapper">
+        <div className="patients-section-title">{text}</div>
       </div>
     );
     /* jshint ignore:end */
@@ -144,7 +153,7 @@ var Patients = React.createClass({
     return (
       <div className="patients-welcome-message">
         {'If you have type 1 diabetes or are the person responsible for'}
-        {' getting data into Blip, you\'ll first need to...'}
+        {' getting data into Blip, you need to...'}
       </div>
     );
     /* jshint ignore:end */
@@ -181,12 +190,14 @@ var Patients = React.createClass({
       /* jshint ignore:start */
       content = (
         <div>
-          <div className="patients-message">
+          <PersonCard>
             {'Looks like you\'re not part of anyone\'s Care Team yet.'}
-          </div>
+          </PersonCard>
           <div className="patients-message patients-message-small">
             {'Want to join a team? The owner of the Care Team should email us at '}
-            <strong>{'support@tidepool.org'}</strong>
+            <a href="mailto:support@tidepool.org?Subject=Blip - Add to Care Team">
+              {'support@tidepool.org'}
+            </a>
             {' with your email address and we\'ll take it from there!'}
           </div>
         </div>
@@ -197,14 +208,13 @@ var Patients = React.createClass({
       content = this.renderPatientList(patients);
     }
 
+    var title = this.renderSectionTitle('CARE TEAMS YOU BELONG TO');
     var welcome = this.renderSharedPatientsWelcome();
 
     /* jshint ignore:start */
     return (
       <div className="patients-section js-patients-shared">
-        <div className="patients-section-title-wrapper">
-          <div className="patients-section-title">CARE TEAMS YOU BELONG TO</div>
-        </div>
+        {title}
         <div className="patients-section-content">
           {welcome}
           {content}

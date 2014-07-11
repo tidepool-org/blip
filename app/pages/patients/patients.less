@@ -23,6 +23,7 @@
 }
 
 .patients-section {
+  position: relative;
   background-color: #fff;
   margin-bottom: @spacing-large;
 }
@@ -34,8 +35,8 @@
 
 .patients-section-title {
   display: inline-block;
-  color: #fff;
-  background-color: @gray-dark;
+  min-width: 260px;
+  background-color: @gray;
   padding: @spacing-small;
 }
 
@@ -44,12 +45,48 @@
   padding-bottom: @spacing-base;
 }
 
+.patients-section-dismiss {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+
+// To be replaced by icon font
+.patients-section-dismiss .patients-icon-close:before {
+  font-style: normal;
+  font-weight: normal;
+  speak: none;
+
+  display: inline-block;
+  text-decoration: inherit;
+  text-align: center;
+
+  content: '✕';
+  font-size: 13px;
+  line-height: 20px;
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+}
+
+.patients-section-dismiss a .patients-icon-close:before {
+  color: #fff;
+  background-color: @gray-dark;
+}
+
+.patients-section-dismiss a:hover .patients-icon-close:before,
+.patients-section-dismiss a:focus .patients-icon-close:before {
+  color: #fff;
+  background-color: @gray-darker;
+  text-decoration: none;
+}
+
 // Empty lists
 // ====================================
 
 .patients-message {
   color: @gray-dark;
-  font-style: italic;
+  font-weight: 300;
   text-align: center;
 
   margin-top: @spacing-base;
@@ -60,43 +97,14 @@
   font-size: 14px;
 }
 
-.patients-message-separator {
-  margin: 5px 0;
+.patients-icon-link {
+  color: @blue-green;
 }
 
 .patients-message-loading {
+  font-weight: normal;
   padding-top: @spacing-base;
   padding-bottom: @spacing-base;
-}
-
-.patients-message-button {
-  font-weight: bold;
-  font-style: normal;
-  color: @blue-green;
-  text-decoration: none;
-
-  &:hover,
-  &:focus {
-    color: @blue-green-dark;
-    text-decoration: none;
-  }
-
-  &:active {
-    color: @blue-green-dark;
-  }
-}
-
-.patients-message-button-secondary {
-  color: @gray-dark;
-
-  &:hover,
-  &:focus {
-    color: @gray-darkest;
-  }
-
-  &:active {
-    color: @gray;
-  }
 }
 
 // Welcome messages
@@ -112,9 +120,9 @@
 
 .patients-welcome-message {
   color: @gray-dark;
-  font-style: italic;
-  margin-top: @spacing-base;
+  font-weight: 300;
+  padding-top: @spacing-base;
   margin-bottom: @spacing-base;
   padding-bottom: @spacing-small;
-  border-bottom: 1px solid @gray-dark;
+  border-bottom: 1px solid @gray;
 }

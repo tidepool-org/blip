@@ -13,6 +13,4 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-.people-list-item {
-  margin-bottom: @spacing-small;
-}
+module.exports = require('./personcard');

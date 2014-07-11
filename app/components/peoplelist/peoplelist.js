@@ -18,6 +18,7 @@ var React = window.React;
 var _ = window._;
 
 var personUtils = require('../../core/personutils');
+var PersonCard = require('../../components/personcard');
 
 var PeopleList = React.createClass({
   propTypes: {
@@ -46,38 +47,32 @@ var PeopleList = React.createClass({
 
   renderPeopleListItem: function(person, index) {
     var peopleListItemContent;
-    var className = 'people-list-item list-group-item js-person';
-
-    if (_.isEmpty(person)) {
-      className = className + ' people-list-item-empty js-person-empty';
-    }
-
     var displayName = this.getPersonDisplayName(person);
-    /* jshint ignore:start */
-    peopleListItemContent = (
-      <div className="people-list-item-name">{displayName}</div>
-    );
-    /* jshint ignore:end */
 
     if (person.link) {
-      className = className + ' people-list-item-with-link js-person-link';
       var self = this;
       var handleClick = function() {
         self.props.onClickPerson(person);
       };
       /* jshint ignore:start */
       peopleListItemContent = (
-        <a
-          className="people-list-item-link list-group-item-link"
+        <PersonCard
           href={person.link}
-          onClick={handleClick}>{peopleListItemContent}</a>
+          onClick={handleClick}>{displayName}</PersonCard>
+      );
+      /* jshint ignore:end */
+    }
+    else {
+      /* jshint ignore:start */
+      peopleListItemContent = (
+        <PersonCard>{displayName}</PersonCard>
       );
       /* jshint ignore:end */
     }
 
     /* jshint ignore:start */
     return (
-      <li key={person.userid || index} className={className}>
+      <li key={person.userid || index} className="people-list-item">
         {peopleListItemContent}
       </li>
     );
