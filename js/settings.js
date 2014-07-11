@@ -235,7 +235,7 @@ module.exports = function(emitter, opts) {
             return 'd3-settings-col-label d3-settings-col-collapsed';
           }
         })
-        .html((scheduleClass ? '<i class="icon-up"></i>' : '<i class="icon-down"></i>') + datatype);
+        .html((scheduleClass ? '<i class="icon-down"></i>' : '<i class="icon-up"></i>') + datatype);
     }
 
     var columnTable = columnDiv.append('table');
@@ -272,8 +272,8 @@ module.exports = function(emitter, opts) {
         var current = d3.select(this).classed('d3-settings-col-active');
         
         d3.select(this).selectAll('i').classed({
-          'icon-up': !current,
-          'icon-down': current
+          'icon-down': !current,
+          'icon-up': current
         });
 
         d3.select(this).classed({
@@ -295,26 +295,6 @@ module.exports = function(emitter, opts) {
     mainDiv.remove();
 
     return container;
-  };
-
-  container.hide = function() {
-    // for API identity with oneday
-    return container;
-  };
-
-  container.show = function() {
-    // for API identity with oneday
-    return container;
-  };
-
-  container.panForward = function() {
-    // TODO: fill in when we support navigation of settings
-    // defined for now to prevent TypeError
-  };
-
-  container.panBack = function() {
-    // TODO: fill in when we support navigation of settings
-    // defined for now to prevent TypeError
   };
 
   return container;
