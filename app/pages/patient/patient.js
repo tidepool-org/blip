@@ -22,6 +22,7 @@ var config = window.config;
 var personUtils = require('../../core/personutils');
 var datetimeUtils = require('../../core/datetimeutils');
 var PeopleList = require('../../components/peoplelist');
+var PersonCard = require('../../components/personcard');
 
 var DATE_DISPLAY_FORMAT = 'MMM D, YYYY';
 
@@ -245,12 +246,14 @@ var Patient = React.createClass({
       /* jshint ignore:start */
       return (
         <div>
-          <div className="patient-team-message">
+          <PersonCard>
             {'No Care Team members yet.'}
-          </div>
+          </PersonCard>
           <div className="patient-team-message patient-team-message-small">
             {'Want to add someone to this team? Please email us at '}
-            <strong>{'support@tidepool.org'}</strong>
+            <a href="mailto:support@tidepool.org?Subject=Blip - Add to Care Team">
+              {'support@tidepool.org'}
+            </a>
             {' with the email address of the person you want to add,'}
             {' and we\'ll take it from there!'}
           </div>
