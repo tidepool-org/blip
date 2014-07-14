@@ -419,9 +419,13 @@ function chartDailyFactory(el, options) {
 
   chart.editMessage = function(message) {
     log('Message timestamp edited:', message);
-    chart.tidelineData.editDatum(message, 'utcTime');
-    chart.data(chart.tidelineData);
-    chart.emitter.emit('messageTimestampEdited', message);
+    // tideline only cares if the edited message was a top-level note
+    // not a comment
+    if (_.isEmpty(message.parentMessage)) {
+      chart.tidelineData.editDatum(message, 'utcTime');
+      chart.data(chart.tidelineData);
+      chart.emitter.emit('messageTimestampEdited', message);
+    }
     return chart.tidelineData;
   };
 
