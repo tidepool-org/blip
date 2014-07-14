@@ -10,19 +10,18 @@ var tideline = {
 var TidelineFooter = React.createClass({
   propTypes: {
     chartType: React.PropTypes.string.isRequired,
-    onClickSettings: React.PropTypes.func.isRequired,
     onClickValues: React.PropTypes.func,
-    showingValues: React.PropTypes.bool
+    showingValues: React.PropTypes.bool,
+    onClickRefresh: React.PropTypes.func
   },
   render: function() {
-    var settingsLinkClass = cx({
-      'tidelineNavLabel': true,
-      'active': this.props.chartType === 'settings'
-    });
-
     var valuesLinkClass = cx({
       'tidelineNavLabel': true,
       'tidelineNavRightLabel': true
+    });
+
+    var refreshLinkClass = cx({
+      'patient-data-subnav-hidden': this.props.chartType === 'no-data'
     });
 
     function getValuesLinkText(props) {
@@ -53,7 +52,7 @@ var TidelineFooter = React.createClass({
         <div className="container-box-inner patient-data-footer-inner">
           <div className="grid patient-data-footer">
             <div className="grid-item one-whole medium-one-half patient-data-footer-left">
-              <a href="" className={settingsLinkClass} onClick={this.props.onClickSettings}>Device settings</a>
+              <a href="" className={refreshLinkClass} onClick={this.props.onClickRefresh}><i className="icon-refresh"/> Refresh</a>
             </div>
             <div href="" className="grid-item one-whole medium-one-half patient-data-footer-right">{showValues}</div>
           </div>
