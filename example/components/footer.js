@@ -10,16 +10,10 @@ var tideline = {
 var TidelineFooter = React.createClass({
   propTypes: {
     chartType: React.PropTypes.string.isRequired,
-    onClickSettings: React.PropTypes.func.isRequired,
     onClickValues: React.PropTypes.func,
     showingValues: React.PropTypes.bool
   },
   render: function() {
-    var settingsLinkClass = cx({
-      'tidelineNavLabel': true,
-      'active': this.props.chartType === 'settings'
-    });
-
     var valuesLinkClass = cx({
       'tidelineNavLabel': true,
       'tidelineNavRightLabel': true
@@ -51,7 +45,6 @@ var TidelineFooter = React.createClass({
     return (
       <div className="tidelineNav grid">
         <div className="grid-item one-half">
-          <a className={settingsLinkClass} onClick={this.props.onClickSettings}>Device Settings</a>
         </div>
         <div className="grid-item one-half">{showValues}</div>
       </div>
