@@ -1,4 +1,4 @@
-/* global rm */
+/* global rm, sed */
 require('shelljs/global');
 
 var http = require('http');
@@ -17,6 +17,11 @@ webpackConfig = _.assign(webpackConfig, {
   devtool: 'inline-source-map'
 });
 var webpackCompiler = webpack(webpackConfig);
+
+if (!process.env.DATA) {
+  process.env.DATA = 'device-data.json';
+}
+sed('-i', /\/data\/.*\.json/, '/data/' + process.env.DATA, 'example/example.js');
 
 rm('-f', 'example/bundle.js');
 
