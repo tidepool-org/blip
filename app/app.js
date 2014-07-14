@@ -769,10 +769,7 @@ var AppComponent = React.createClass({
       app.log('Patient device data count', patientData.length);
       app.log('Team notes count', notes.length);
 
-      var now = Date.now();
-      patientData = _.union(patientData, notes);
-      app.log('Done unioning patient data in ' + (Date.now() - now) + ' millis.');
-
+      patientData = patientData.concat(notes);
       patientData = self.processPatientData(patientData);
 
       self.setState({
