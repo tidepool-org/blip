@@ -28,6 +28,13 @@ Optional dependencies:
 
 - [Bows](https://github.com/latentflip/bows 'Bows') (for console logs used in debugging)
 
+Optional Python dependencies:
+
+- [BeautifulSoup](http://www.crummy.com/software/BeautifulSoup/) (for adding an item to the tideline gallery)
+- [jsonschema](https://pypi.python.org/pypi/jsonschema) (for running the validation script in `dev/schema/`)
+
+These dependencies can be installed using `pip install -r requirements.txt`. It is best to install them in a Python 3.*-based `virtualenv` (e.g., using [virtualenvwrapper](http://virtualenvwrapper.readthedocs.org/en/latest/): `mkvirtualenv --python=/usr/local/bin/python3 tideline`, substituting equivalent path resulting from running `which python3` if necessary) if you're planning to use the JSON Schema validation tool; its output is easier to read in Python 3.
+
 Install using [Bower](http://bower.io/ 'Bower'):
 
 ```bash
@@ -72,6 +79,14 @@ $ npm start
 ```
 
 You can then view the example at `http://localhost:8081/`.
+
+#### Running the example with real data
+
+If you want to run the example with real data to view instead of the demo data generated from the Python script in `dev/demodata/`, you'll need the following:
+
+ 1. A file of real data exported from blip by entering `window.downloadJSON()` in the console after data successfully loads and saving the resulting file named `blip-output.json` in `example/data/`.
+ 1. Set your `$DATA` environment variable to the filename with `export DATA='blip-output.json'`.
+ 1. Start the tideline example with `npm start` as usual.
 
 ### Build
 
