@@ -36,8 +36,9 @@ var TidelineHeader = React.createClass({
     });
 
     var mostRecentLinkClass = cx({
-      'tidelineNavLabel': true,
-      'active': this.props.atMostRecent
+      'active': !this.props.atMostRecent && !this.props.inTransition,
+      'inactive': this.props.atMostRecent || this.props.inTransition,
+      'hidden': this.props.chartType === 'settings'
     });
 
     var backClass = cx({
