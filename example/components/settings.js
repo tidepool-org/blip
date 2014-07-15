@@ -29,14 +29,14 @@ var Settings = React.createClass({
     return {
       atMostRecent: true,
       inTransition: false,
-      title: 'Current Insulin Pump Settings'
+      title: ''
     };
   },
   render: function() {
     /* jshint ignore:start */
     return (
       <div id="tidelineMain">
-        <Header 
+        <Header
           chartType={this.chartType}
           atMostRecent={true}
           inTransition={this.state.inTransition}

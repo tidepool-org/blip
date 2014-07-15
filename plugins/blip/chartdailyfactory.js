@@ -451,7 +451,7 @@ function chartDailyFactory(el, options) {
 
     var icon = div.append('p')
       .html(chart.options.hiddenPools.basalSettings ?
-        '<i class="icon-up"></i>' : '<i class="icon-down"></i>');
+        '<i class="icon-right"></i>' : '<i class="icon-down"></i>');
 
     var iconWidth = icon.select('i')[0][0].getBoundingClientRect().width;
 

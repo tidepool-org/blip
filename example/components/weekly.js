@@ -42,16 +42,20 @@ var Weekly = React.createClass({
     /* jshint ignore:start */
     return (
       <div id="tidelineMain" className="grid">
-        <Header 
+        <Header
           chartType={this.chartType}
           atMostRecent={this.state.atMostRecent}
           inTransition={this.state.inTransition}
           title={this.state.title}
+          iconBack={'icon-back-down'}
+          iconNext={'icon-next-up'}
+          iconMostRecent={'icon-most-recent-up'}
           onClickBack={this.handlePanBack}
           onClickMostRecent={this.handleClickMostRecent}
           onClickNext={this.handlePanForward}
           onClickOneDay={this.handleClickOneDay}
           onClickTwoWeeks={this.handleClickTwoWeeks}
+          onClickSettings={this.props.onSwitchToSettings}
         ref="header" />
         <div id="tidelineOuterContainer">
           <WeeklyChart
@@ -69,7 +73,6 @@ var Weekly = React.createClass({
         </div>
         <Footer
          chartType={this.chartType}
-         onClickSettings={this.props.onSwitchToSettings}
          onClickValues={this.toggleValues}
          showingValues={this.state.showingValues}
         ref="footer" />
