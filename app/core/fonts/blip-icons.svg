@@ -23,6 +23,7 @@
 <glyph glyph-name="back" unicode="&#xe80e;" d="m405 284l154-155-76-76-283 284 282 282 76-76-151-151h355l0-108h-357z" horiz-adv-x="1000" />
 <glyph glyph-name="back-down" unicode="&#xe80f;" d="m533 260l155 154 76-76-284-283-282 282 76 76 151-151v355l108 0v-357z" horiz-adv-x="1000" />
 <glyph glyph-name="add" unicode="&#xe810;" d="m854 704c-196 195-512 195-707 0-196-196-196-512 0-708 195-195 511-195 707 0 195 196 195 512 0 708z m-309-399v-243h-90v243h-243l0 90 243 0v243l90 0v-243l243 0 0-90h-243z" horiz-adv-x="1000" />
+<glyph glyph-name="right" unicode="&#xe811;" d="m385 175l65-64 241 240-242 242-65-65 177-177-176-176z" horiz-adv-x="1000" />
 </font>
 </defs>
 </svg>
