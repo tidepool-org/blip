@@ -174,6 +174,10 @@ var Navbar = React.createClass({
       self.props.trackMetric('Clicked Navbar Logged In User');
     };
 
+    var handleCareteam = function() {
+      self.props.trackMetric('Clicked Navbar CareTeam');
+    };
+
     return (
       /* jshint ignore:start */
       <ul className="nav nav-right navbar-user js-navbar-user" ref="user">
@@ -188,6 +192,15 @@ var Navbar = React.createClass({
               <span className="navbar-user-name" ref="userFullName">{displayName}</span>
             </div>
             <div className="navbar-label-arrow-right"></div>
+            <i className="navbar-label-arrow-right-profile icon-profile"></i>
+          </a>
+        </li>
+        <li>
+          <a
+            href="#/"
+            className="navbar-user-icon"
+            onClick={this.handleCareteam}
+            title="Logout" ref="logout"><i className="icon-careteam"></i>
           </a>
         </li>
         <li>
