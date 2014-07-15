@@ -3,9 +3,6 @@ var bows = window.bows;
 var React = window.React;
 var cx = React.addons.classSet;
 
-var back = require('../blip_icons_back.svg');
-var next = require('../blip_icons_next.svg');
-
 var tideline = {
   log: bows('Header')
 };
@@ -20,9 +17,14 @@ var TidelineHeader = React.createClass({
     onClickMostRecent: React.PropTypes.func.isRequired,
     onClickNext: React.PropTypes.func,
     onClickOneDay: React.PropTypes.func.isRequired,
-    onClickTwoWeeks: React.PropTypes.func.isRequired
+    onClickTwoWeeks: React.PropTypes.func.isRequired,
+    onClickSettings: React.PropTypes.func.isRequired
   },
   render: function() {
+    var next = this.props.next;
+    var back = this.props.back;
+    var mostRecent = this.props.mostRecent;
+
     var dayLinkClass = cx({
       'tidelineNavLabel': true,
       'active': this.props.chartType === 'daily'
@@ -34,9 +36,9 @@ var TidelineHeader = React.createClass({
     });
 
     var mostRecentLinkClass = cx({
-      'tidelineNavLabel': true,
-      'tidelineNavRightLabel': true,
-      'active': this.props.atMostRecent
+      'active': !this.props.atMostRecent && !this.props.inTransition,
+      'inactive': this.props.atMostRecent || this.props.inTransition,
+      'hidden': this.props.chartType === 'settings'
     });
 
     var backClass = cx({
@@ -51,6 +53,12 @@ var TidelineHeader = React.createClass({
       'hidden': this.props.chartType === 'settings'
     });
 
+    var settingsLinkClass = cx({
+      'tidelineNavLabel': true,
+      'tidelineNavRightLabel': true,
+      'active': this.props.chartType === 'settings'
+    });
+
     /* jshint ignore:start */
     return (
       <div className="tidelineNav grid">
@@ -63,14 +71,15 @@ var TidelineHeader = React.createClass({
           </div>
         </div>
         <div className="grid-item one-half" id="tidelineLabel">
-          <img src={back} className={backClass} onClick={this.props.onClickBack} />
+          <a href="#" className={backClass} onClick={this.props.onClickBack}><i className={this.props.iconBack}/></a>
           <div className="tidelineNavLabelWrapper">
             <span className="tidelineNavLabel">{this.props.title}</span>
           </div>
-          <img src={next} className={nextClass} onClick={this.props.onClickNext} />
+          <a href="#" className={nextClass} onClick={this.props.onClickNext}><i className={this.props.iconNext}/></a>
+          <a href="#" className={mostRecentLinkClass} onClick={this.props.onClickMostRecent}><i className={this.props.iconMostRecent}/></a>
         </div>
         <div className="grid-item one-quarter">
-          <a className={mostRecentLinkClass} onClick={this.props.onClickMostRecent}>Most Recent</a>
+          <a className={settingsLinkClass} onClick={this.props.onClickSettings}>Device Settings</a>
         </div>
       </div>
       );

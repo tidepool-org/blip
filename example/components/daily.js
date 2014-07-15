@@ -37,16 +37,20 @@ var Daily = React.createClass({
     /* jshint ignore:start */
     return (
       <div id="tidelineMain" className="grid">
-        <Header 
+        <Header
           chartType={this.chartType}
           inTransition={this.state.inTransition}
           atMostRecent={this.state.atMostRecent}
           title={this.state.title}
+          iconBack={'icon-back'}
+          iconNext={'icon-next'}
+          iconMostRecent={'icon-most-recent'}
           onClickBack={this.handlePanBack}
           onClickMostRecent={this.handleClickMostRecent}
           onClickNext={this.handlePanForward}
           onClickOneDay={this.handleClickOneDay}
           onClickTwoWeeks={this.handleClickTwoWeeks}
+          onClickSettings={this.props.onSwitchToSettings}
         ref="header" />
         <div id="tidelineOuterContainer">
           <DailyChart
@@ -65,7 +69,6 @@ var Daily = React.createClass({
         </div>
         <Footer
          chartType={this.chartType}
-         onClickSettings={this.props.onSwitchToSettings}
         ref="footer" />
       </div>
       );
@@ -108,7 +111,7 @@ var Daily = React.createClass({
     this.setState({
       inTransition: inTransition
     });
-    
+
   },
   handleMostRecent: function(atMostRecent) {
     this.setState({
