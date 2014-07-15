@@ -1,4 +1,4 @@
-/* global rm, sed */
+/* global cp, rm, sed */
 require('shelljs/global');
 
 var http = require('http');
@@ -21,7 +21,8 @@ var webpackCompiler = webpack(webpackConfig);
 if (!process.env.DATA) {
   process.env.DATA = 'device-data.json';
 }
-sed('-i', /\/data\/.*\.json/, '/data/' + process.env.DATA, 'example/example.js');
+cp('-f', 'example/example.js', 'example/running.js');
+sed('-i', /\/data\/.*\.json/, '/data/' + process.env.DATA, 'example/running.js');
 
 rm('-f', 'example/bundle.js');
 

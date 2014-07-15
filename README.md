@@ -80,6 +80,14 @@ $ npm start
 
 You can then view the example at `http://localhost:8081/`.
 
+#### Running the example with real data
+
+If you want to run the example with real data to view instead of the demo data generated from the Python script in `dev/demodata/`, you'll need the following:
+
+ 1. A file of real data exported from blip by entering `window.downloadJSON()` in the console after data successfully loads and saving the resulting file named `blip-output.json` in `example/data/`.
+ 1. Set your `$DATA` environment variable to the filename with `export DATA='blip-output.json'`.
+ 1. Start the tideline example with `npm start` as usual.
+
 ### Build
 
 To build standalone `tideline.js` and `tideline.css` files, as well as the standalone 'plugins' bundles for Tidepool's first application [blip](https://github.com/tidepool-org/blip 'Tidepool GitHub: blip'), run:

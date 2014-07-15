@@ -1,5 +1,5 @@
 module.exports = {
-  entry: './example/example.js',
+  entry: './example/running.js',
   module: {
     loaders: [
       {test: /\.svg/, loader: 'url-loader?mimetype=image/svg+xml'},

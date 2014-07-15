@@ -8,6 +8,7 @@ dist/
 example/bundle.js
 example/data/blip-output.json
 example/dist/
+example/running.js
 node_modules/
 test/bundle.js
 test/test.js
