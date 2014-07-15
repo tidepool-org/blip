@@ -63,6 +63,7 @@ module.exports = function(pool, opts) {
         .append('rect')
         .attr({
           'clip-path': 'url(#mainClipPath)',
+          cursor: opts.cursor ? opts.cursor : 'auto',
           x: function(d, i) {
             if (opts.dataGutter) {
               if (i === 0) {
@@ -84,7 +85,7 @@ module.exports = function(pool, opts) {
               return opts.gutter;
             }
           },
-          'width': function(d, i) {
+          width: function(d, i) {
             if (opts.dataGutter) {
               if ((i === 0) || (i === currentData.length  - 1)) {
                 return fill.width(d) + opts.dataGutter;
