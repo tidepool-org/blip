@@ -28,7 +28,7 @@ module.exports = function(pool, opts) {
     .append('text')
     .attr({
       'class': 'd3-day-label',
-      x: opts.leftEdge + opts.textShiftX,
+      x: opts.leftEdge,
       // this is the same as dailyx.dayYPosition
       // we just don't have a datum to pass here
       y: pool.height() - opts.tickLength * 2.5 + opts.dayShiftY
