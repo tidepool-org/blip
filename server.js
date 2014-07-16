@@ -45,6 +45,6 @@ if (config.discovery && config.publishHost) {
     serviceDescriptor.protocol = 'http';
   }
 
-  console.log('Publishing to service discovery');
+  console.log('Publishing to service discovery: ',serviceDescriptor);
   hakken.publish(serviceDescriptor);
 }
