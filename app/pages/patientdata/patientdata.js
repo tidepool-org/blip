@@ -36,6 +36,7 @@ var PatientData = React.createClass({
     patient: React.PropTypes.object,
     fetchingPatientData: React.PropTypes.bool,
     isUserPatient: React.PropTypes.bool,
+    queryParams: React.PropTypes.object.isRequired,
     uploadUrl: React.PropTypes.string,
     onRefresh: React.PropTypes.func,
     onFetchMessageThread: React.PropTypes.func,
@@ -53,7 +54,7 @@ var PatientData = React.createClass({
         bgUnits: 'mg/dL',
         hiddenPools: {
           // pass null here to *completely* disable the tabular display of basal settings
-          basalSettings: true
+          basalSettings: null
         }
       },
       chartType: 'daily',
@@ -63,6 +64,19 @@ var PatientData = React.createClass({
       initialDatetimeLocation: null,
       messages: null
     };
+  },
+
+  componentWillMount: function() {
+    var params = this.props.queryParams;
+    if (!_.isEmpty(params) && params.showbasalsettings !== undefined) {
+      this.setState({
+        chartPrefs: {
+          hiddenPools: {
+            basalSettings: params.showbasalsettings ? true : null
+          }
+        }
+      });
+    }
   },
 
   log: bows('PatientData'),

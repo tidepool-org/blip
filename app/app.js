@@ -121,6 +121,7 @@ var AppComponent = React.createClass({
       showingAcceptTerms: false,
       showingWelcomeMessage: false,
       dismissedBrowserWarning: false,
+      queryParams: queryString.parseTypes(window.location.search)
     };
   },
 
@@ -557,6 +558,7 @@ var AppComponent = React.createClass({
         patientData={this.state.patientData}
         fetchingPatientData={this.state.fetchingPatientData}
         isUserPatient={this.isSamePersonUserAndPatient()}
+        queryParams={this.state.queryParams}
         uploadUrl={api.getUploadUrl()}
         onRefresh={this.fetchCurrentPatientData}
         onFetchMessageThread={this.fetchMessageThread}

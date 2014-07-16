@@ -18,7 +18,7 @@ var TidelineHeader = React.createClass({
     onClickNext: React.PropTypes.func,
     onClickOneDay: React.PropTypes.func,
     onClickTwoWeeks: React.PropTypes.func,
-    onClickSettings: React.PropTypes.func.isRequired
+    onClickSettings: React.PropTypes.func
   },
   render: function() {
     var dayLinkClass = cx({
