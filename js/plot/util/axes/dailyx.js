@@ -38,7 +38,7 @@ module.exports = function(pool, opts) {
     var d = a[0].start;
     // when we're close to midnight, remove the sticky label
     // so it doesn't overlap with the midnight-anchored day label
-    if (d.getUTCHours() >= 21) {
+    if ((d.getUTCHours() >= 21) || (d.getUTCHours() <= 1)) {
       stickyLabel.text('');
       return;
     }
