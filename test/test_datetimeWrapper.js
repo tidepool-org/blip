@@ -216,5 +216,30 @@ describe('Tidepool Dates', function() {
       });
     });
 
+    describe('getTimezones', function() {
+
+      it('returns all timezone objects',function(done){
+        expect(datetimeWrapper.getTimezones()).to.have.length(143);
+        done();
+      });
+
+      it('returns timezone objects with correct properties',function(done){
+        var timezone = datetimeWrapper.getTimezones()[0];
+        expect(timezone.name).to.have.length.above(0);
+        expect(timezone.label).to.have.length.above(0);
+        done();
+      });
+    });
+
+    describe('getDeviceTimezone', function() {
+
+      it('returns a valid timezone object',function(done){
+        var timezone = datetimeWrapper.getDeviceTimezone();
+        expect(timezone.name).to.have.length.above(0);
+        expect(timezone.label).to.have.length.above(0);
+        done();
+      });
+    });
+
   });
 });
