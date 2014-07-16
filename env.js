@@ -43,12 +43,16 @@ if (env.httpsPort && !env.httpsConfig) {
   throw new Error('No https config provided, please set HTTPS_CONFIG with at least the certificate to use.');
 }
 
-env.discoveryHost = process.env.DISCOVERY_HOST;
+// The host to contact for discovery
+if (process.env.DISCOVERY_HOST != null) {
+	env.discovery = {};
+	env.discovery.host = process.env.DISCOVERY_HOST;
 
-// The service name to expose to discovery
-env.serviceName = process.env.SERVICE_NAME || 'blip';
+	// The service name to expose to discovery
+	env.serviceName = process.env.SERVICE_NAME;
 
-// The local host to expose to discovery
-env.publishHost = process.env.PUBLISH_HOST;
+	// The local host to expose to discovery
+	env.publishHost = process.env.PUBLISH_HOST;
+}
 
 module.exports = env;
