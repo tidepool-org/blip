@@ -46,7 +46,7 @@ var format = {
 
   xAxisDayText: function(i) {
     var d = new Date(i);
-    return d3.time.format.utc('%A')(d);
+    return d3.time.format.utc('%A, %B %-d')(d);
   },
 
   xAxisTickText: function(i) {
