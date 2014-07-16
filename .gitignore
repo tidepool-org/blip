@@ -2,6 +2,7 @@
 *.css
 *.idea
 *.iml
+*.log
 bower_components/
 dev/demodata/indexed_segments.json
 dist/

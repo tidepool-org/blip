@@ -48,7 +48,7 @@
 // Lead text annotation for stats-insufficient-data:
 // Why is this grey? 
 
-var format = require('../../data/util/format');
+var format = require('../../../data/util/format');
 
 var definitions = {
   LEAD_TEXT: {

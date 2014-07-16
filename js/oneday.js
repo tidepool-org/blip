@@ -19,7 +19,7 @@ var d3 = require('./lib/').d3;
 var _ = require('./lib/')._;
 
 var Pool = require('./pool');
-var annotation = require('./plot/util/annotation');
+var annotation = require('./plot/util/annotations/annotation');
 var tooltip = require('./plot/util/tooltip');
 var dt = require('./data/util/datetime');
 

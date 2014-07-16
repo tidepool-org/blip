@@ -52,13 +52,14 @@ module.exports = {
       widget: require('./plot/stats/widget')
     },
     util: {
-      annotation: require('./plot/util/annotation'),
-      defs: require('./plot/util/annotationdefinitions'),
+      annotation: require('./plot/util/annotations/annotation'),
+      defs: require('./plot/util/annotations/annotationdefinitions'),
       fill: require('./plot/util/fill'),
       legend: require('./plot/util/legend'),
       scales: require('./plot/util/scales'),
       shapes: require('./plot/util/shapes'),
-      tooltip: require('./plot/util/tooltip')
+      tooltip: require('./plot/util/tooltip'),
+      Tooltip: require('./plot/util/tooltips/tooltip')
     }
   }
 };
