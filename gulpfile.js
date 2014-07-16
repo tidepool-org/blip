@@ -88,6 +88,7 @@ gulp.task('scripts-browserify', function() {
         'duration-js',
         'lodash',
         'superagent',
+        'moment'
       ]
     }))
     .pipe(concat('app.js'))

@@ -35,7 +35,8 @@ app.use('/app.js', function(req, res, next) {
         'd3',
         'duration-js',
         'lodash',
-        'superagent'
+        'superagent',
+        'moment'
       ],
       debug: true
     }))
