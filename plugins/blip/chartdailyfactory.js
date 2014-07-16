@@ -77,7 +77,7 @@ function chartDailyFactory(el, options) {
       .id('poolXAxis', chart.poolGroup())
       .label('')
       .index(chart.pools().indexOf(poolXAxis))
-      .weight(0.5)
+      .weight(0.55)
       .gutterWeight(0.0);
 
     // messages pool
