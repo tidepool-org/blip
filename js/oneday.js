@@ -37,7 +37,6 @@ module.exports = function(emitter) {
     poolScaleHeight,
     imagesBaseUrl = 'img',
     nav = {
-      axisHeight: 30,
       scrollNav: true,
       scrollNavHeight: 50,
       scrollGutterHeight: 20,
@@ -47,7 +46,7 @@ module.exports = function(emitter) {
     axisGutter = 40, gutter = 40,
     buffer = 2,
     pools = [], poolGroup,
-    xScale = d3.time.scale.utc(), xAxis,
+    xScale = d3.time.scale.utc(),
     currentCenter, data, tidelineData, renderedData = [], endpoints,
     mainGroup,
     scrollNav, scrollHandleTrigger = true, mostRecent = false, annotations, tooltips;
@@ -88,11 +87,6 @@ module.exports = function(emitter) {
         },
         'opacity': 0.0
       });
-
-    mainGroup.append('g')
-      .attr('class', 'd3-x d3-axis')
-      .attr('id', 'tidelineXAxis')
-      .attr('transform', 'translate(0,' + (nav.axisHeight - 1) + ')');
 
     poolGroup = mainGroup.append('g').attr('id', 'tidelinePools');
 
@@ -178,7 +172,7 @@ module.exports = function(emitter) {
     });
     gutter = 0.25 * (container.height() / cumWeight);
     var totalPoolsHeight =
-      container.height() - nav.axisHeight - nav.scrollNavHeight - (cumGutterWeight * gutter);
+      container.height() - nav.scrollNavHeight - (cumGutterWeight * gutter);
     poolScaleHeight = totalPoolsHeight/cumWeight;
     return container;
   };
@@ -191,7 +185,7 @@ module.exports = function(emitter) {
     visiblePools.forEach(function(pool) {
       pool.height(poolScaleHeight);
     });
-    var currentYPosition = nav.axisHeight;
+    var currentYPosition = 0;
     visiblePools.forEach(function(pool) {
       currentYPosition += gutter * pool.gutterWeight();
       pool.yPosition(currentYPosition);
@@ -217,18 +211,11 @@ module.exports = function(emitter) {
     var currentDomain = container.getCurrentDomain();
     var beginning = a[0];
     var end = a[1];
-    var navString;
-    if (beginning.getUTCHours() <= 11) {
-      navString = beginning.toISOString();
-    }
-    else {
-      navString = end.toISOString();
-    }
     if (!d3.select('#' + id).classed('hidden')) {
       emitter.emit('currentDomain', {
         'domain': a
       });
-      emitter.emit('navigated', [navString, currentDomain.center.toISOString()]);
+      emitter.emit('navigated', [currentDomain, currentDomain.center.toISOString()]);
       if (a[1].valueOf() === endpoints[1].valueOf()) {
         emitter.emit('mostRecent', true);
       }
@@ -270,23 +257,6 @@ module.exports = function(emitter) {
       .range([axisGutter, width]);
 
     container.currentCenter(container.getCurrentDomain().center);
-
-    var tickFormat = d3.time.format.utc.multi([
-      ['%b %-d', function(d) { return d.getUTCHours() === 0; }],
-      ['%-I am', function(d) { return d.getUTCHours() < 11; }],
-      ['%-I pm', function(d) { return true; }],
-    ]);
-
-    xAxis = d3.svg.axis()
-      .scale(xScale)
-      .orient('top')
-      .outerTickSize(0)
-      .innerTickSize(15)
-      .tickFormat(tickFormat);
-
-    mainGroup.select('#tidelineXAxis').call(xAxis);
-
-    mainGroup.selectAll('#tidelineXAxis g.tick text').style('text-anchor', 'start').attr('transform', 'translate(5,15)');
 
     if (nav.scrollNav) {
       nav.scrollScale = d3.time.scale.utc()
@@ -331,8 +301,6 @@ module.exports = function(emitter) {
         mainGroup.select('#tidelineTooltips').attr('transform', 'translate(' + e.translate[0] + ',0)');
         mainGroup.select('#tidelineAnnotations').attr('transform', 'translate(' + e.translate[0] + ',0)');
         d3.select('#mainClipPath rect').attr('transform', 'translate(' + -e.translate[0] + ',0)');
-        mainGroup.select('.d3-x.d3-axis').call(xAxis);
-        mainGroup.selectAll('#tidelineXAxis g.tick text').style('text-anchor', 'start').attr('transform', 'translate(5,15)');
         if (scrollHandleTrigger) {
           mainGroup.select('.scrollThumb').transition().ease('linear').attr('x', function(d) {
             d.x = nav.scrollScale(xScale.domain()[0]);
@@ -492,7 +460,7 @@ module.exports = function(emitter) {
 
   container.height = function(x) {
     if (!arguments.length) return height;
-    var totalHeight = x + nav.axisHeight;
+    var totalHeight = x;
     if (nav.scrollNav) {
       totalHeight += nav.scrollNavHeight;
     }

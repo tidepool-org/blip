@@ -42,6 +42,16 @@ var format = {
   millisecondsAsTimeOfDay: function(i) {
     var d = new Date(i);
     return d3.time.format.utc('%-I:%M %p')(d);
+  },
+
+  xAxisDayText: function(i) {
+    var d = new Date(i);
+    return d3.time.format.utc('%A')(d);
+  },
+
+  xAxisTickText: function(i) {
+    var d = new Date(i);
+    return d3.time.format.utc('%-I %p')(d).toLowerCase();
   }
 
 };
