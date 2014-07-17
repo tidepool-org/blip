@@ -19,15 +19,17 @@
 @scroll-gutter: @fill-light;
 
 // e.g., pool labels
-@text: #808080;
-@pool-legend: #CCCCCC;
-@light-labels: #989897;
+@text: #727375;
+@text-light: #CCCCCC;
+
+// header and footer, etc.
+@background: #989897;
 
 // stats
 @stats-head: #4E4E4F;
 @stats-lead: #676767;
 @stats-percentage: #808184;
-@stats-insufficient-data: #CCCCCC;
+@stats-insufficient-data: @text-light;
 
 // axes
 @ticks: #B9C8D0;
@@ -71,4 +73,4 @@
 @settings-label-fill-bg-target: #5CB947;
 // this is inherited from some other text color setting in blip
 // but incorrect in tideline example
-@settings-table-head-text: #727375;
+@settings-table-head-text: @text;
