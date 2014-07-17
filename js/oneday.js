@@ -277,6 +277,9 @@ module.exports = function(emitter) {
     nav.pan = d3.behavior.zoom()
       .scaleExtent([1, 1])
       .x(xScale)
+      .on('zoomstart', function() {
+        emitter.emit('zoomstart');
+      })
       .on('zoom', function() {
         if (dt.toISODateString(container.getCurrentDomain().center) !== container.dateAtCenter()) {
           container.renderedData(xScale.domain());
@@ -315,6 +318,7 @@ module.exports = function(emitter) {
         }
       })
       .on('zoomend', function() {
+        emitter.emit('zoomend');
         container.currentTranslation(nav.latestTranslation);
         // must only call navString *after* updating currentTranslation
         // because of translation adjustment on stats widget no data annotations

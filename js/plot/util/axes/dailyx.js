@@ -2,8 +2,8 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = require('../../../lib/').d3;
 var _ = require('../../../lib/')._;
+var d3 = require('../../../lib/').d3;
 
 var format = require('../../../data/util/format');
 
@@ -33,6 +33,14 @@ module.exports = function(pool, opts) {
       // we just don't have a datum to pass here
       y: pool.height() - opts.tickLength * 2.5 + opts.dayShiftY
     });
+
+  opts.emitter.on('zoomstart', function() {
+    stickyLabel.attr('opacity', '0.2');
+  });
+
+  opts.emitter.on('zoomend', function() {
+    stickyLabel.attr('opacity', '1.0');
+  });
 
   opts.emitter.on('navigated', function(a) {
     var d = a[0].start;
