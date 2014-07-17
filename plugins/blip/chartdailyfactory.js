@@ -333,7 +333,10 @@ function chartDailyFactory(el, options) {
 
     // messages pool
     // add background fill rectangles to messages pool
-    poolMessages.addPlotType('fill', fill(poolMessages, {emitter: emitter}), true, true);
+    poolMessages.addPlotType('fill', fill(poolMessages, {
+      emitter: emitter,
+      cursor: 'cell'
+    }), true, true);
 
     // add message images to messages pool
     poolMessages.addPlotType('message', tideline.plot.message(poolMessages, {

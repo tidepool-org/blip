@@ -76,6 +76,7 @@ module.exports = function(pool, opts) {
     selection.append('image')
       .attr({
         'xlink:href': opts.imagesBaseUrl + '/message/post_it.svg',
+        cursor: 'pointer',
         x: message.xPosition,
         y: message.yPosition,
         width: opts.size,
