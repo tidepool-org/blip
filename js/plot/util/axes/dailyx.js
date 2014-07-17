@@ -44,9 +44,9 @@ module.exports = function(pool, opts) {
 
   opts.emitter.on('navigated', function(a) {
     var d = a[0].start;
-    // when we're close to midnight, remove the sticky label
-    // so it doesn't overlap with the midnight-anchored day label
-    if ((d.getUTCHours() >= 21) || (d.getUTCHours() <= 2)) {
+    // when we're close to midnight (where close = five hours on either side)
+    // remove the sticky label so it doesn't overlap with the midnight-anchored day label
+    if ((d.getUTCHours() >= 19) || (d.getUTCHours() <= 4)) {
       stickyLabel.text('');
       return;
     }
