@@ -189,7 +189,7 @@ var Navbar = React.createClass({
             onClick={handleClickUser}>
             <div className="navbar-label navbar-label-right">
               {'Logged in as '}
-              <span className="navbar-user-name" ref="userFullName">{displayName}</span>
+              <span title={displayName} className="navbar-user-name" ref="userFullName">{displayName}</span>
             </div>
             <div className="navbar-label-arrow-right"></div>
             <i className="navbar-label-arrow-right-profile icon-profile"></i>
