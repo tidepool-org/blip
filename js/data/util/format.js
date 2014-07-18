@@ -16,6 +16,7 @@
  */
 
 var d3 = require('../../lib/').d3;
+var moment = require('../../lib/').moment;
 
 var format = {
 
@@ -42,6 +43,15 @@ var format = {
   millisecondsAsTimeOfDay: function(i) {
     var d = new Date(i);
     return d3.time.format.utc('%-I:%M %p')(d);
+  },
+
+  xAxisDayText: function(i) {
+    return moment(i).utc().format('dddd, MMMM Do');
+  },
+
+  xAxisTickText: function(i) {
+    var d = new Date(i);
+    return d3.time.format.utc('%-I %p')(d).toLowerCase();
   }
 
 };
