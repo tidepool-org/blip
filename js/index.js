@@ -53,6 +53,9 @@ module.exports = {
     },
     util: {
       annotation: require('./plot/util/annotations/annotation'),
+      axes: {
+        dailyx: require('./plot/util/axes/dailyx')
+      },
       defs: require('./plot/util/annotations/annotationdefinitions'),
       fill: require('./plot/util/fill'),
       legend: require('./plot/util/legend'),

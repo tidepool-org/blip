@@ -22,6 +22,7 @@ if (typeof window !== 'undefined') {
   lib.crossfilter = window.crossfilter;
   lib.d3 = window.d3;
   lib.Duration = window.Duration;
+  lib.moment = window.moment;
   lib.bows = window.bows;
 }
 else {
@@ -29,6 +30,7 @@ else {
   lib.crossfilter = require('crossfilter');
   lib.d3 = require('d3');
   lib.Duration = require('duration-js');
+  lib.moment = require('moment');
 }
 
 if (!lib._) {

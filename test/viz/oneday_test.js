@@ -100,10 +100,10 @@ describe('one-day view', function() {
         expect(d3.rgb(these.css('fill')).toString()).to.equal('#FF8B7C'.toLowerCase());
       });
 
-      it('should display 289 cbgs with color #9AD859, when seed is 100 mg/dL', function() {
+      it('should display 289 cbgs with color #76D3A6, when seed is 100 mg/dL', function() {
         var these = container.find('.d3-circle-cbg.d3-bg-target');
         expect(these.length).to.equal(289);
-        expect(d3.rgb(these.css('fill')).toString()).to.equal('#9AD859'.toLowerCase());
+        expect(d3.rgb(these.css('fill')).toString()).to.equal('#76D3A6'.toLowerCase());
       });
 
       it('should display 289 cbgs with color #BB9AE7, when seed is 181 mg/dL', function() {

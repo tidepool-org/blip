@@ -42,7 +42,7 @@ function chartDailyFactory(el, options) {
   chart.emitter = emitter;
   chart.options = options;
 
-  var poolMessages, poolBG, poolBolus, poolBasal, poolBasalSettings, poolStats;
+  var poolXAxis, poolMessages, poolBG, poolBolus, poolBasal, poolBasalSettings, poolStats;
 
   var SMBG_SIZE = 16;
 
@@ -72,6 +72,14 @@ function chartDailyFactory(el, options) {
   };
 
   chart.setupPools = function() {
+    // top x-axis pool
+    poolXAxis = chart.newPool()
+      .id('poolXAxis', chart.poolGroup())
+      .label('')
+      .index(chart.pools().indexOf(poolXAxis))
+      .weight(0.55)
+      .gutterWeight(0.0);
+
     // messages pool
     poolMessages = chart.newPool()
       .id('poolMessages', chart.poolGroup())
@@ -206,6 +214,14 @@ function chartDailyFactory(el, options) {
 
     // initialize chart with data
     chart.data(tidelineData).setAxes().setNav().setScrollNav();
+
+    // x-axis pools
+    // add ticks to top x-axis pool
+    poolXAxis.addPlotType('fill', tideline.plot.util.axes.dailyx(poolXAxis, {
+      'class': 'd3-top',
+      emitter: emitter,
+      leftEdge: chart.axisGutter()
+    }), true, true);
 
     // BG pool
     var allBG = _.filter(data, function(d) {
