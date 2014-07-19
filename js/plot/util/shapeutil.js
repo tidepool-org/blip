@@ -50,22 +50,34 @@ var shapeutil = {
     return group.attr('transform', transform + ' scale(1,-1)');
   },
   getViewBoxCoords: function(str) {
-    str.split(' ');
-    return {x: str[2], y: str[3]};
+    var a = str.split(' ');
+    return {x: a[2], y: a[3]};
   },
-  translateRight: function(group) {
-    // this time not getting transform first
-    // because translation needs to apply first, so this method
-    // will always reset transform
-    var coords = this.getViewBoxCoords(group.attr('viewBox'));
-    return group.attr('transform', 'translate(' + coords.x + ',0)');
-  },
-  translateDown: function(group) {
-    // again not getting transform first
-    // because translation needs to apply first, so this method
-    // will always reset transform
-    var coords = this.getViewBoxCoords(group.attr('viewBox'));
-    return group.attr('transform', 'translate(0,' + coords.y + ')');
+  translationFromViewBox: function(group, opts) {
+    var def = group.attr('xlink:href');
+    var coords = this.getViewBoxCoords(d3.select(def).attr('viewBox'));
+    var x, y;
+    switch(opts.horizontal) {
+      case 'left':
+        x = -coords.x;
+        break;
+      case 'right':
+        x = coords.x;
+        break;
+      default:
+        x = 0;
+    }
+    switch(opts.vertical) {
+      case 'up':
+        y = -coords.y;
+        break;
+      case 'down':
+        y = coords.y;
+        break;
+      default:
+        y = 0;
+    }
+    return group.attr('transform', 'translate(' + x + ',' + y + ')');
   }
 };
 

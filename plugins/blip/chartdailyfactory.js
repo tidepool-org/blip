@@ -193,7 +193,10 @@ function chartDailyFactory(el, options) {
     chart.annotations().addGroup(d3.select('#' + chart.id()).select('#' + poolStats.id()), 'stats');
 
     // add tooltips
-    chart.tooltips().addGroup(d3.select('#' + chart.id()).select('#' + poolBG.id()), 'cbg');
+    chart.nativeTooltips().addGroup(poolBG, {
+      type: 'cbg',
+      classes: ['d3-bg-low', 'd3-bg-target', 'd3-bg-high']
+    });
     chart.tooltips().addGroup(d3.select('#' + chart.id()).select('#' + poolBG.id()), 'smbg');
     chart.tooltips().addGroup(d3.select('#' + chart.id()).select('#' + poolBolus.id()), 'carbs');
     chart.tooltips().addGroup(d3.select('#' + chart.id()).select('#' + poolBolus.id()), 'bolus');

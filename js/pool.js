@@ -34,7 +34,7 @@ function Pool (container) {
     yAxis = [],
     plotTypes = [],
     annotations,
-    tooltips;
+    tooltips, nativeTooltips;
 
   this.render = function(selection, poolData) {
     var pool = this;
@@ -255,6 +255,12 @@ function Pool (container) {
   this.tooltips = function(f) {
     if (!arguments.length) return tooltips;
     tooltips = f;
+    return this;
+  };
+
+  this.nativeTooltips = function(f) {
+    if (!arguments.length) return nativeTooltips;
+    nativeTooltips = f;
     return this;
   };
 

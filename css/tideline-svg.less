@@ -1,0 +1,21 @@
+/*
+ * == BSD2 LICENSE ==
+ */
+
+@import 'tideline-colors.less';
+
+// tooltips
+
+//cbg
+g.svg-tooltip-cbg {
+  opacity: 0.7;
+  &.d3-bg-low path.tooltip-outline {
+    fill: @bg-low;
+  }
+  &.d3-bg-target path.tooltip-outline {
+    fill: @bg-target;
+  }
+  &.d3-bg-high path.tooltip-outline {
+    fill: @bg-high;
+  }
+}
