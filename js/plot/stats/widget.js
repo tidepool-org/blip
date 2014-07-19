@@ -81,7 +81,7 @@ module.exports = function(pool, opts) {
 
   opts = _.defaults(opts, defaults);
 
-  var getBgBoundaryClass = bgBoundaryClass(opts);
+  var getBgBoundaryClass = bgBoundaryClass(opts.classes);
   var widgetGroup, rectScale;
 
   var puddles = [];

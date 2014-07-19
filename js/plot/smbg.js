@@ -28,11 +28,11 @@ module.exports = function(pool, opts) {
 
   var defaults = {
     classes: {
-      'very-low': {'boundary': 60},
-      'low': {'boundary': 80, 'tooltip': 'smbg_tooltip_low.svg'},
-      'target': {'boundary': 180, 'tooltip': 'smbg_tooltip_target.svg'},
-      'high': {'boundary': 200, 'tooltip': 'smbg_tooltip_high.svg'},
-      'very-high': {'boundary': 300}
+      'very-low': {boundary: 60},
+      low: {boundary: 80, tooltip: 'smbg_tooltip_low.svg'},
+      target: {boundary: 180, tooltip: 'smbg_tooltip_target.svg'},
+      high: {boundary: 200, tooltip: 'smbg_tooltip_high.svg'},
+      'very-high': {boundary: 300}
     },
     size: 16,
     tooltipWidth: 70,
@@ -42,7 +42,7 @@ module.exports = function(pool, opts) {
   _.defaults(opts, defaults);
 
   var mainGroup = pool.parent();
-  var getBgBoundaryClass = bgBoundaryClass(opts);
+  var getBgBoundaryClass = bgBoundaryClass(opts.classes);
 
   function smbg(selection) {
     opts.xScale = pool.xScale().copy();
