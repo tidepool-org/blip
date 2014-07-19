@@ -20,7 +20,7 @@ var _ = require('../lib/')._;
 
 var log = require('../lib/').bows('SMBG');
 var scales = require('./util/scales');
-var bgBoundaryClass = require('./util/bgBoundaryClass');
+var bgBoundaryClass = require('./util/bgboundaryclass');
 
 module.exports = function(pool, opts) {
 

@@ -156,7 +156,7 @@ The only coding conventions unique to tideline are conventions of HTML and CSS I
       - `stats/` contains a special mini-module for creating a "stats widget" that updates on the fly as the user navigates along the tideline. This is essentially a special type of pool that is hierarchical itself, containing component "puddles," where the relationship between `puddle.js` and `stats.js` is roughly equivalent to the relationship between `pool.js` and the `one-week.js` and `twoweek.js` main components.
      - `util/` contains a couple of small utility modules:
      	- `annotation.js` and `annotationdefinitions.js` generate data annotations.
-     	- `bgBoundaryClass.js` provides a utility for determining the class (very-low, low, target, high, very-high) of a blood glucose value given the user's (or the default) target range.
+     	- `bgboundaryclass.js` provides a utility for determining the class (very-low, low, target, high, very-high) of a blood glucose value given the user's (or the default) target range.
         - `fill.js` generates the background fill for each data pool.
         - `legend.js` defines legend generators for all the pools that require a legend.
         - `scales.js` generates D3 scales for various diabetes data types. The functions in this utility module are at the moment specific to the plotting functions in `plot/`, not generally useful.

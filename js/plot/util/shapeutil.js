@@ -18,9 +18,10 @@
 var d3 = require('../../lib/').d3;
 var _ = require('../../lib/')._;
 
-var log = require('../../lib/').bows('Shapes');
+var log = require('../../lib/').bows('ShapeUtil');
 
-var shapes = {
+var shapeutil = {
+  // for polygons
   mirrorImageY: function(pointsString) {
     var points = pointsString.split(' ');
     points = _.map(points, function(point) {
@@ -30,7 +31,6 @@ var shapes = {
     });
     return _.reduce(points, function(x,y) { return x + y; }).trim();
   },
-
   mirrorImageX: function(pointsString) {
     var points = pointsString.split(' ');
     points = _.map(points, function(point) {
@@ -40,27 +40,33 @@ var shapes = {
     });
     return _.reduce(points, function(x,y) { return x + y; }).trim();
   },
-
-  tooltipPolygon: function(opts) {
-    opts = opts || {};
-    if (!((opts.w != null) && (opts.h != null) && (opts.t != null) && (opts.k != null))) {
-      log('Sorry, I need w, h, t, and k variables to generate a tooltip polygon.');
-    }
-
-    var w = opts.w, h = opts.h, t = opts.t, k = opts.k;
-
-    function pointString(x,y) {
-      return x + ',' + y + ' ';
-    }
-
-    return pointString(0,0) +
-      pointString((t/2), k) +
-      pointString((w-(3/2*t)), k) +
-      pointString((w-(3/2*t)), (k+h)) +
-      pointString((0-(3/2*t)), (k+h)) +
-      pointString((0-(3/2*t)), k) +
-      pointString((0-(t/2)), k) + '0,0';
+  // for paths
+  pathMirrorY: function(group) {
+    var transform = group.attr('transform');
+    return group.attr('transform', transform + ' scale(-1,1)');
+  },
+  pathMirrorX: function(group) {
+    var transform = group.attr('transform');
+    return group.attr('transform', transform + ' scale(1,-1)');
+  },
+  getViewBoxCoords: function(str) {
+    str.split(' ');
+    return {x: str[2], y: str[3]};
+  },
+  translateRight: function(group) {
+    // this time not getting transform first
+    // because translation needs to apply first, so this method
+    // will always reset transform
+    var coords = this.getViewBoxCoords(group.attr('viewBox'));
+    return group.attr('transform', 'translate(' + coords.x + ',0)');
+  },
+  translateDown: function(group) {
+    // again not getting transform first
+    // because translation needs to apply first, so this method
+    // will always reset transform
+    var coords = this.getViewBoxCoords(group.attr('viewBox'));
+    return group.attr('transform', 'translate(0,' + coords.y + ')');
   }
 };
 
-module.exports = shapes;
+module.exports = shapeutil;

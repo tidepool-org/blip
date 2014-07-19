@@ -23,7 +23,7 @@ var assert = chai.assert;
 var expect = chai.expect;
 
 var tideline = require('../js/index');
-var annotations = tideline.plot.util.defs;
+var annotations = tideline.plot.util.annotations.defs;
 
 // change to true when you want to view all produced annotations
 var logging = false;
