@@ -58,6 +58,14 @@ describe('TidelineData', function() {
       assert.isArray(empty.data);
       expect(empty.data.length).to.equal(0);
     });
+
+    it('should be able to handle cbg data only without error', function() {
+      var cbgOnly = _.where(data, {'type': 'cbg'});
+      var cbgOnlyProcessed = preprocess.processData(cbgOnly);
+      assert.isObject(cbgOnlyProcessed);
+      assert.isArray(cbgOnlyProcessed.data);
+      expect(cbgOnlyProcessed.data.length).to.equal(cbgOnly.length);
+    });
   });
 
   describe('addDatum', function() {
