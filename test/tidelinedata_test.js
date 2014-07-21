@@ -59,12 +59,23 @@ describe('TidelineData', function() {
       expect(empty.data.length).to.equal(0);
     });
 
-    it('should be able to handle cbg data only without error', function() {
-      var cbgOnly = _.where(data, {'type': 'cbg'});
-      var cbgOnlyProcessed = preprocess.processData(cbgOnly);
-      assert.isObject(cbgOnlyProcessed);
-      assert.isArray(cbgOnlyProcessed.data);
-      expect(cbgOnlyProcessed.data.length).to.equal(cbgOnly.length);
+    var diabetesDataTypes = [
+      'smbg',
+      'carbs',
+      'bolus',
+      'cbg',
+      'settings',
+      'basal-rate-segment'
+    ];
+
+    _.each(diabetesDataTypes, function(dType) {
+      it('should be able to handle only ' + dType + ' without error', function() {
+        var thisOnly = _.where(data, {type: dType});
+        var typeOnlyProcessed = preprocess.processData(thisOnly);
+        assert.isObject(typeOnlyProcessed);
+        assert.isArray(typeOnlyProcessed.data);
+        expect(typeOnlyProcessed.data.length).to.be.above(thisOnly.length);
+      });
     });
   });
 
