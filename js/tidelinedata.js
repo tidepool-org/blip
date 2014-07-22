@@ -208,7 +208,7 @@ function TidelineData(data, opts) {
   this.cbgUtil = new BGUtil(this.grouped.cbg, {DAILY_MIN: (opts.CBG_PERCENT_FOR_ENOUGH * opts.CBG_MAX_DAILY)});
   this.smbgUtil = new BGUtil(this.grouped.smbg, {DAILY_MIN: opts.SMBG_DAILY_MIN});
   
-  if (data.length > 0) {
+  if (data.length > 0 && !_.isEmpty(this.diabetesData)) {
     this.settingsUtil = new SettingsUtil(this.grouped.settings || [], [this.diabetesData[0].normalTime, this.diabetesData[this.diabetesData.length - 1].normalTime]);
     this.settingsUtil.getAllSchedules(this.settingsUtil.endpoints[0], this.settingsUtil.endpoints[1]);
     var segmentsBySchedule = this.settingsUtil.annotateBasalSettings(this.basalUtil.actual);
