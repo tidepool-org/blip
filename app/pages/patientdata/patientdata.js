@@ -252,6 +252,7 @@ var PatientData = React.createClass({
             onSwitchToWeekly={this.handleSwitchToWeekly}
             updateChartPrefs={this.updateChartPrefs}
             updateDatetimeLocation={this.updateDatetimeLocation}
+            uploadUrl={this.props.uploadUrl}
             ref="tideline" />
           );
         /* jshint ignore:end */
@@ -265,6 +266,7 @@ var PatientData = React.createClass({
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
+            uploadUrl={this.props.uploadUrl}
             ref="tideline" />
           );
         /* jshint ignore:end */
