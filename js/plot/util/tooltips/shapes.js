@@ -17,8 +17,6 @@
 
 // when adding a shape from an image supplied by designer
 // viewBox attribute should be copied exactly from svg image
-// use scale(-1,1) to mirror image across the y-axis
-// after translating the appropriate viewBox width
 
 var shapeutil = require('../shapeutil');
 
@@ -50,6 +48,14 @@ var shapes = {
       leftAndDown: function(group) {
         shapeutil.translationFromViewBox(group, {vertical: 'down'})
           .call(shapeutil.pathMirrorY)
+          .call(shapeutil.pathMirrorX);
+      },
+      leftAndUp: function(group) {
+        shapeutil.translationFromViewBox(group, {vertical: 'up'})
+          .call(shapeutil.pathMirrorY);
+      },
+      rightAndDown: function(group) {
+        shapeutil.translationFromViewBox(group, {vertical: 'down'})
           .call(shapeutil.pathMirrorX);
       }
     }

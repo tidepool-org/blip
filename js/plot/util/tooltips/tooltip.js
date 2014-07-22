@@ -25,7 +25,10 @@ function Tooltips(container, tooltipsGroup) {
 
   var id, tooltipGroups = {}, defs = {};
 
+  var HOURS_IN_DAY = 24, EDGE_THRESHOLD = 3;
+
   var tooltipDefs = tooltipsGroup.append('defs');
+  var currentTranslation, width = container.width(), vizWidth = width - container.axisGutter();
 
   function defineShape(shape, cssClass) {
     // add an SVG <defs> at the root of the tooltipsGroup for later <use>
@@ -41,8 +44,44 @@ function Tooltips(container, tooltipsGroup) {
     });
   }
 
+  function defineLeftEdge() {
+    // have to add axisGutter back *after* finding the pixel width of the three-hour span
+    // there's probably a better way to do this...
+    return vizWidth / HOURS_IN_DAY * EDGE_THRESHOLD + container.axisGutter();
+  }
+
+  function defineRightEdge() {
+    return width - (vizWidth / HOURS_IN_DAY * EDGE_THRESHOLD);
+  }
+
+  function isAtLeftEdge(position) {
+    if (position < defineLeftEdge()) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
+  function isAtRightEdge(position) {
+    if (position > defineRightEdge()) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
+  function locationInWindow(xPosition) {
+    return currentTranslation + xPosition;
+  }
+
   this.addTooltip = function(opts) {
     opts = opts || {};
+    currentTranslation = container.currentTranslation();
+    var atLeftEdge = isAtLeftEdge(locationInWindow(opts.xPosition(opts.datum)));
+    var atRightEdge = isAtRightEdge(locationInWindow(opts.xPosition(opts.datum)));
+
     var shape = opts.shape;
     if (shape) {
       var group = tooltipGroups[shape].append('g')
@@ -57,7 +96,15 @@ function Tooltips(container, tooltipsGroup) {
           'xlink:href': '#' + shapes[shape].id + '_' + opts.cssClass
         });
       if (opts.orientation) {
-        shapes[shape].orientations[opts.orientation](group);
+        if (atLeftEdge) {
+          shapes[shape].orientations[opts.orientation.leftEdge](group);
+        }
+        else if (atRightEdge) {
+          shapes[shape].orientations[opts.orientation.rightEdge](group);
+        }
+        else {
+          shapes[shape].orientations[opts.orientation['default']](group);
+        }
       }
       else {
         shapes[shape].orientations.normal(group);

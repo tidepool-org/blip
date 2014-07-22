@@ -112,7 +112,11 @@ module.exports = function(pool, opts) {
     tooltips.addTooltip({
       cssClass: cssClass,
       datum: d,
-      orientation: cbg.orientation(cssClass),
+      orientation: {
+        'default': cbg.orientation(cssClass),
+        leftEdge: cbg.orientation(cssClass) === 'leftAndDown' ? 'rightAndDown': 'normal',
+        rightEdge: cbg.orientation(cssClass) === 'normal' ? 'leftAndUp': 'leftAndDown'
+      },
       shape: 'cbg',
       xPosition: cbg.xPosition,
       yPosition: cbg.yPosition
