@@ -119,6 +119,18 @@ function TidelineData(data, opts) {
     return data;
   }
 
+  function getTwoWeekFillEndpoints() {
+    var data;
+    if (that.grouped.smbg && that.grouped.smbg.length !== 0) {
+      data = that.grouped.smbg;
+    }
+    else {
+      data = that.diabetesData;
+    }
+    var first = data[0].normalTime, last = data[data.length - 1].normalTime;
+    return [dt.getMidnight(first), dt.getMidnight(last, true)];
+  }
+
   this.generateFillData = function() {
     var lastDatum = data[data.length - 1];
     // the fill should extend past the *end* of a segment (i.e. of basal data)
@@ -135,11 +147,11 @@ function TidelineData(data, opts) {
   // two-week view requires background fill rectangles from midnight to midnight
   // for each day from the first through last days where smbg exists at all
   this.adjustFillsForTwoWeekView = function() {
-    var smbgData = this.grouped.smbg, fillData = this.grouped.fill;
-    var firstSmbg = smbgData[0].normalTime, lastSmbg = smbgData[smbgData.length - 1].normalTime;
-    var startOfTwoWeekFill = dt.getMidnight(firstSmbg), endOfTwoWeekFill = dt.getMidnight(lastSmbg, true);
+    var fillData = this.grouped.fill;
+    var endpoints = getTwoWeekFillEndpoints();
+    var startOfTwoWeekFill = endpoints[0], endOfTwoWeekFill = endpoints[1];
     var startOfFill = fillData[0].normalEnd, endOfFill = fillData[fillData.length - 1].normalEnd;
-    this.twoWeekData = this.grouped.smbg;
+    this.twoWeekData = this.grouped.smbg || [];
     var twoWeekFills = [];
     for (var i = 0; i < this.grouped.fill.length; ++i) {
       var d = this.grouped.fill[i];
