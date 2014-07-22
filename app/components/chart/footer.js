@@ -52,7 +52,7 @@ var TidelineFooter = React.createClass({
         <div className="container-box-inner patient-data-footer-inner">
           <div className="grid patient-data-footer">
             <div className="grid-item one-whole medium-one-half patient-data-footer-left">
-              <a href="" className={refreshLinkClass} onClick={this.props.onClickRefresh}><i className="icon-refresh"/> Refresh</a>
+              <a href="" className={refreshLinkClass} onClick={this.props.onClickRefresh}>Refresh</a>
             </div>
             <div href="" className="grid-item one-whole medium-one-half patient-data-footer-right">{showValues}</div>
           </div>
