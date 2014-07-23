@@ -19,7 +19,7 @@ var d3 = require('../lib/').d3;
 var _ = require('../lib/')._;
 
 var log = require('../lib/').bows('SMBG');
-var scales = require('./util/scales');
+var scales = require('./util/scales')();
 var bgBoundaryClass = require('./util/bgBoundaryClass');
 
 module.exports = function(pool, opts) {
@@ -84,7 +84,7 @@ module.exports = function(pool, opts) {
       });
       selection.selectAll('.d3-circle-smbg').on('mouseout', function() {
         highlight.off();
-        
+
         var id = d3.select(this).attr('id').replace('smbg_', 'tooltip_');
         mainGroup.select('#' + id).remove();
       });

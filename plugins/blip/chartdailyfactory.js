@@ -23,26 +23,29 @@ var EventEmitter = require('events').EventEmitter;
 
 var tideline = window.tideline;
 var fill = tideline.plot.util.fill;
-var scales = tideline.plot.util.scales;
+var Scales = tideline.plot.util.scales;
 
 // Create a 'One Day' chart object that is a wrapper around Tideline components
 function chartDailyFactory(el, options) {
   var log = bows('Daily Factory');
   options = options || {};
   var defaults = {
-    'bgUnits': 'mg/dL',
-    'hiddenPools': {
+    bgUnits: 'mg/dL',
+    bolusRatio: 0.35,
+    dynamicCarbs: false,
+    hiddenPools: {
       basalSettings: null
     }
   };
   _.defaults(options, defaults);
 
+  var scales = Scales(options);
   var emitter = new EventEmitter();
   var chart = tideline.oneDay(emitter);
   chart.emitter = emitter;
   chart.options = options;
 
-  var poolXAxis, poolMessages, poolBG, poolBolus, poolBasal, poolBasalSettings, poolStats;
+  var poolXAxis, poolMessages, poolBG, poolWizard, poolBasal, poolBasalSettings, poolStats;
 
   var SMBG_SIZE = 16;
 
@@ -101,8 +104,8 @@ function chartDailyFactory(el, options) {
       .gutterWeight(1.0);
 
     // carbs and boluses data pool
-    poolBolus = chart.newPool()
-      .id('poolBolus', chart.poolGroup())
+    poolWizard = chart.newPool()
+      .id('poolWizard', chart.poolGroup())
       .label([{
         'main': 'Bolus',
         'light': ' (U)'
@@ -112,7 +115,7 @@ function chartDailyFactory(el, options) {
         'light': ' (g)'
       }])
       .legend(['bolus', 'carbs'])
-      .index(chart.pools().indexOf(poolBolus))
+      .index(chart.pools().indexOf(poolWizard))
       .weight(1.5)
       .gutterWeight(1.0);
 
@@ -188,15 +191,15 @@ function chartDailyFactory(el, options) {
     chart.setAnnotation().setTooltip();
 
     // add annotations
-    chart.annotations().addGroup(d3.select('#' + chart.id()).select('#' + poolBolus.id()), 'bolus');
+    chart.annotations().addGroup(d3.select('#' + chart.id()).select('#' + poolWizard.id()), 'bolus');
     chart.annotations().addGroup(d3.select('#' + chart.id()).select('#' + poolBasal.id()), 'basal-rate-segment');
     chart.annotations().addGroup(d3.select('#' + chart.id()).select('#' + poolStats.id()), 'stats');
 
     // add tooltips
     chart.tooltips().addGroup(d3.select('#' + chart.id()).select('#' + poolBG.id()), 'cbg');
     chart.tooltips().addGroup(d3.select('#' + chart.id()).select('#' + poolBG.id()), 'smbg');
-    chart.tooltips().addGroup(d3.select('#' + chart.id()).select('#' + poolBolus.id()), 'carbs');
-    chart.tooltips().addGroup(d3.select('#' + chart.id()).select('#' + poolBolus.id()), 'bolus');
+    chart.tooltips().addGroup(d3.select('#' + chart.id()).select('#' + poolWizard.id()), 'carbs');
+    chart.tooltips().addGroup(d3.select('#' + chart.id()).select('#' + poolWizard.id()), 'bolus');
     chart.tooltips().addGroup(d3.select('#' + chart.id()).select('#' + poolBasal.id()), 'basal');
 
     return chart;
@@ -209,6 +212,7 @@ function chartDailyFactory(el, options) {
     var basalUtil = tidelineData.basalUtil;
     var bolusUtil = tidelineData.bolusUtil;
     var cbgUtil = tidelineData.cbgUtil;
+    var wizardUtil = tidelineData.wizardUtil;
     var settingsUtil = tidelineData.settingsUtil;
     var smbgUtil = tidelineData.smbgUtil;
 
@@ -262,48 +266,51 @@ function chartDailyFactory(el, options) {
     // TODO: when we bring responsiveness in
     // decide number of ticks for these scales based on container height?
     // bolus & carbs pool
-    var scaleBolus = scales.bolus(tidelineData.grouped.bolus, poolBolus);
-    var scaleCarbs = scales.carbs(tidelineData.grouped.carbs, poolBolus);
+    var scaleBolus = scales.bolus(tidelineData.grouped.bolus, poolWizard);
+    var scaleCarbs = options.dynamicCarbs ? scales.carbs(tidelineData.grouped.wizard, poolWizard) : null;
     // set up y-axis for bolus
-    poolBolus.yAxis(d3.svg.axis()
+    poolWizard.yAxis(d3.svg.axis()
       .scale(scaleBolus)
-      .orient('left')
-      .outerTickSize(0)
-      .ticks(2));
-    // set up y-axis for carbs
-    poolBolus.yAxis(d3.svg.axis()
-      .scale(scaleCarbs)
       .orient('left')
       .outerTickSize(0)
       .ticks(2));
     // add background fill rectangles to bolus pool
     var scaleDivider = d3.scale.linear()
-      .domain([0, poolBolus.height()])
-      .range([0, poolBolus.height()]);
-    poolBolus.addPlotType('fill', fill(poolBolus, {
+      .domain([0, poolWizard.height()])
+      .range([0, poolWizard.height()]);
+    poolWizard.addPlotType('fill', fill(poolWizard, {
       endpoints: chart.endpoints,
-      guidelines: [
-        {
-          'class': 'd3-line-divider',
-          'height': poolBolus.height()/2
-        }
-      ],
+      guidelines: [{}],
       yScale: scaleDivider
     }), true, true);
 
-    // add carbs data to bolus pool
-    poolBolus.addPlotType('carbs', tideline.plot.carbs(poolBolus, {
-      yScale: scaleCarbs,
+    // add wizard data to wizard pool
+    poolWizard.addPlotType('wizard', tideline.plot.wizard(poolWizard, {
+      yScale: scaleBolus,
+      yScaleCarbs: scaleCarbs,
       emitter: emitter,
-      data: tidelineData.grouped.carbs,
+      data: tidelineData.grouped.wizard,
       subdueOpacity: 0.4
     }), true, true);
 
     // add bolus data to bolus pool
-    poolBolus.addPlotType('bolus', tideline.plot.bolus(poolBolus, {
+    poolWizard.addPlotType('bolus', tideline.plot.wizard(poolWizard, {
       yScale: scaleBolus,
       emitter: emitter,
       data: tidelineData.grouped.bolus,
+      subdueOpacity: 0.4
+    }), true, true);
+
+    // quick bolus data to wizard pool
+    poolWizard.addPlotType('bolus', tideline.plot.wizard(poolWizard, {
+      yScale: scaleBolus,
+      emitter: emitter,
+      data: tidelineData.grouped.bolus,
+      data: _.filter(tidelineData.grouped.bolus, function(d) {
+        if (d.type === 'bolus' && !d.joinKey) {
+          return d;
+        }
+      }),
       subdueOpacity: 0.4
     }), true, true);
 
