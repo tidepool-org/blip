@@ -13,10 +13,11 @@ var _ = require('lodash');
 
 var tideline = require('../js/index');
 var watson = require('../plugins/data/watson');
+var preprocess = require('../plugins/data/preprocess');
 var datetime = require('../js/data/util/datetime');
 var data = require('../example/data/device-data.json');
-// need settings data that has already been reshaped by preprocess (basalSchedules from obj to array)
-var settingsData = [{'deviceTime':'2014-06-11T19:51:40','activeBasalSchedule':'Pattern B','bgTarget':[{'high':100,'start':0,'low':80}],'carbRatio':[{'start':0,'amount':18}],'insulinSensitivity':[{'start':0,'amount':85}],'source':'demo','basalSchedules':[{'name':'Pattern B','value':[{'start':0,'rate':0.8},{'start':7200000,'rate':0.85},{'start':14400000,'rate':0.6},{'start':19800000,'rate':0.95},{'start':21600000,'rate':0.75},{'start':34200000,'rate':1},{'start':55800000,'rate':0.75},{'start':72000000,'rate':0.8}]},{'name':'Pattern A','value':[{'start':0,'rate':0.8},{'start':9000000,'rate':0.55},{'start':14400000,'rate':0.75},{'start':18000000,'rate':0.85},{'start':21600000,'rate':0.85},{'start':32400000,'rate':0.8},{'start':55800000,'rate':0.9},{'start':72000000,'rate':0.8}]},{'name':'Standard','value':[{'start':0,'rate':0.55},{'start':7200000,'rate':0.65},{'start':14400000,'rate':0.85},{'start':18000000,'rate':0.75},{'start':21600000,'rate':1},{'start':32400000,'rate':0.8},{'start':54000000,'rate':0.9},{'start':73800000,'rate':0.65}]}],'deviceId':'Demo - 123','type':'settings','id':'576f86d8-958f-4193-be32-27d232ec5a4c','normalTime':'2014-06-11T19:51:40.000Z'},{'deviceTime':'2014-07-06T19:51:40','activeBasalSchedule':'Pattern B','bgTarget':[{'high':100,'start':0,'low':80}],'carbRatio':[{'start':0,'amount':15}],'insulinSensitivity':[{'start':0,'amount':75}],'source':'demo','basalSchedules':[{'name':'Pattern B','value':[{'start':0,'rate':0.8},{'start':7200000,'rate':0.85},{'start':14400000,'rate':0.6},{'start':19800000,'rate':0.95},{'start':21600000,'rate':0.75},{'start':34200000,'rate':1},{'start':55800000,'rate':0.75},{'start':72000000,'rate':0.8}]},{'name':'Pattern A','value':[{'start':0,'rate':0.8},{'start':9000000,'rate':0.55},{'start':14400000,'rate':0.75},{'start':18000000,'rate':0.85},{'start':21600000,'rate':0.85},{'start':32400000,'rate':0.8},{'start':55800000,'rate':0.9},{'start':72000000,'rate':0.8}]},{'name':'Standard','value':[{'start':0,'rate':0.8},{'start':7200000,'rate':0.65},{'start':14400000,'rate':0.75},{'start':18000000,'rate':0.85},{'start':21600000,'rate':1},{'start':32400000,'rate':0.8},{'start':54000000,'rate':0.9},{'start':72000000,'rate':0.8}]}],'deviceId':'Demo - 123','type':'settings','id':'f4af5861-b8fd-488e-a775-a040f1df313e','normalTime':'2014-07-06T19:51:40.000Z'}];
+var unshapedSettings = preprocess.runWatson(_.where(data, {type: 'settings'}));
+var settingsData = preprocess.sortBasalSchedules(unshapedSettings);
 var SegmentUtil = tideline.data.SegmentUtil;
 var SettingsUtil = tideline.data.SettingsUtil;
 var TidelineData = tideline.TidelineData;
@@ -170,8 +171,8 @@ describe('settings utilities', function() {
     });
 
     it('should return an array of settings objects when given a date range that crosses a settings deviceTime', function() {
-      var before = datetime.addDays(settingsData[0].normalTime, -1);
-      var after = datetime.addDays(settingsData[0].normalTime, 1);
+      var before = datetime.getMidnight(settingsData[0].normalTime);
+      var after = datetime.getMidnight(settingsData[0].normalTime, true);
       var currentSettings = settings.getIntervals(before, after);
       expect(currentSettings.length).to.equal(2);
     });
