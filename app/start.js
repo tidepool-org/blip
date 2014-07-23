@@ -29,7 +29,12 @@ window.onerror = function myErrorHandler(errorMessage, fileUrl, lineNumber) {
     'Original error message:',
     '"' + errorMessage + '"',
     '(' + fileUrl + ' at line ' + lineNumber + ')',
-    '</p>'
+    '</p>',
+    '<p>',
+    '<a id="error-close" style="color: #fff; text-decoration: underline; ',
+    'position: absolute; top: 5px; right: 5px; font-size: 13px;"',
+    'href="#">Close</a>',
+    '</p>',
   ].join(' ');
 
   var style = [
@@ -47,6 +52,12 @@ window.onerror = function myErrorHandler(errorMessage, fileUrl, lineNumber) {
   el.innerHTML = html;
   el.setAttribute('style', style);
   document.body.appendChild(el);
+
+  var closeEl = document.getElementById('error-close');
+  closeEl.addEventListener('click', function(e) {
+    e.preventDefault();
+    el.parentNode.removeChild(el);
+  });
 
   // Let default handler run
   return false;
