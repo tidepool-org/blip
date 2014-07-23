@@ -58,6 +58,33 @@ describe('TidelineData', function() {
       assert.isArray(empty.data);
       expect(empty.data.length).to.equal(0);
     });
+
+    it('should be able to handle message data only by returning empty tidelineData', function() {
+      var messageOnly = _.where(data, {type: 'message'});
+      var messageOnlyProcessed = preprocess.processData(messageOnly);
+      assert.isObject(messageOnlyProcessed);
+      assert.isArray(messageOnlyProcessed.data);
+      expect(messageOnlyProcessed.data.length).to.equal(0);
+    });
+
+    var dataTypes = [
+      'smbg',
+      'carbs',
+      'bolus',
+      'cbg',
+      'settings',
+      'basal-rate-segment'
+    ];
+
+    _.each(dataTypes, function(dType) {
+      it('should be able to handle only ' + dType + ' without error', function() {
+        var thisOnly = _.where(data, {type: dType});
+        var typeOnlyProcessed = preprocess.processData(thisOnly);
+        assert.isObject(typeOnlyProcessed);
+        assert.isArray(typeOnlyProcessed.data);
+        expect(typeOnlyProcessed.data.length).to.be.above(thisOnly.length);
+      });
+    });
   });
 
   describe('addDatum', function() {

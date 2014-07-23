@@ -243,7 +243,7 @@ function SettingsUtil(data, endpoints) {
         },{
           start: d.normalTime,
           end: data[1] ? data[1].normalTime : this.endpoints[1],
-          settings: d
+          settings: _.clone(d)
         }];
       }
     }
@@ -252,14 +252,14 @@ function SettingsUtil(data, endpoints) {
         return {
           start: d.normalTime,
           end: data[i + 1].normalTime,
-          settings: d
+          settings: _.clone(d)
         };
       }
       else {
         return {
           start: d.normalTime,
           end: this.endpoints[1],
-          settings: d
+          settings: _.clone(d)
         };
       }
     }
