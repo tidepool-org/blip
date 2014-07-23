@@ -152,8 +152,8 @@ var Patients = React.createClass({
     /* jshint ignore:start */
     return (
       <div className="patients-welcome-message">
-        {'If you have type 1 diabetes or are the person responsible for'}
-        {' getting data into Blip, you need to...'}
+        {'Will you be uploading data from devices at home? If you are an adult with T1D or the'}
+        {'mom or dad of a child with T1D, then this is for you. Go ahead and…'}
       </div>
     );
     /* jshint ignore:end */
@@ -247,8 +247,8 @@ var Patients = React.createClass({
     /* jshint ignore:start */
     return (
       <div className="patients-welcome-message">
-        {'If you are a health care provider, friend or relative of someone'}
-        {' with type 1 diabetes, their Care Team will show up here.'}
+        {'If you’re a healthcare provider, kid with T1D, friend or relative, then you don’t have to'}
+        {'create a care team. The team(s) you belong to will show up here…'}
       </div>
     );
     /* jshint ignore:end */
