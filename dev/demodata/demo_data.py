@@ -263,9 +263,9 @@ class Basal:
 class Boluses:
     """Generate demo bolus data."""
 
-    def __init__(self, meals):
+    def __init__(self, wizards):
 
-        self.meals = meals.carbs
+        self.wizards = wizards
 
         self.ratio = 15.0
 
@@ -280,9 +280,6 @@ class Boluses:
         self._generate_correction_boluses()
 
         self.json = [b for b in self.boluses if (b['value'] > 0)]
-
-        for bolus in self.json:
-            bolus['deviceTime'] = bolus['deviceTime'].isoformat()[:-7]
 
     def _time_shift(self):
 
@@ -307,7 +304,7 @@ class Boluses:
 
         likelihood = [0,0,0,0,1]
 
-        boluses = [{'id': str(uuid.uuid4()), 'type': 'bolus', 'deviceTime': meal['deviceTime'] + random.choice(likelihood) * bolus._time_shift(), 'value': round(float(meal['value'] / (bolus.ratio + random.choice(likelihood) * bolus._ratio_shift())), 1), 'recommended': round(meal['value'] / bolus.ratio, 1)} for meal in bolus.meals]
+        boluses = [{'id': str(uuid.uuid4()), 'type': 'bolus', 'deviceTime': wiz['deviceTime'], 'joinKey': wiz['joinKey'], 'value': round(float(wiz['payload']['carbInput'] / (bolus.ratio + random.choice(likelihood) * bolus._ratio_shift())), 1), 'recommended': round(wiz['payload']['carbInput'] / bolus.ratio, 1)} for wiz in bolus.wizards.json]
 
         return boluses
 
@@ -316,11 +313,11 @@ class Boluses:
 
         likelihood = [0,0,1]
 
-        self.meals = sorted(self.meals, key=lambda x: x['deviceTime'])
+        self.meals = sorted(self.wizards.json, key=lambda x: x['deviceTime'])
 
-        t = self.meals[0]['deviceTime']
+        t = dt.strptime(self.meals[0]['deviceTime'], '%Y-%m-%dT%H:%M:%S')
 
-        end = self.meals[len(self.meals) - 1]['deviceTime']
+        end = dt.strptime(self.meals[len(self.meals) - 1]['deviceTime'], '%Y-%m-%dT%H:%M:%S')
 
         delta = td(hours=12)
 
@@ -332,7 +329,7 @@ class Boluses:
             current_recommendation = round(current_value + random.choice(likelihood) * self._dose_shift(), 1)
 
             if (current_recommendation > 0) and (current_value > 0):
-                self.boluses.append({'id': str(uuid.uuid4()), 'type': 'bolus', 'deviceTime': next, 'value': current_value, 'recommended': current_recommendation})
+                self.boluses.append({'id': str(uuid.uuid4()), 'type': 'bolus', 'deviceTime': next.isoformat(), 'value': current_value, 'recommended': current_recommendation})
 
             t = next
 
@@ -462,13 +459,32 @@ class Meals:
         self.json = [{'id': str(uuid.uuid4()), 'type': 'carbs', 'units': 'grams', 'value': c['value'], 'deviceTime': c['deviceTime'].isoformat()[:-7]} for c in self.carbs if c['value'] > 5]
 
     def _generate_meals(self, mu, sigma):
-        """ Generate carb counts for meals based on ."""
+        """Generate carb counts for meals based on generated smbgs."""
 
         mealtimes = random.sample(self.readings, int(.8 * len(self.readings)))
 
         carbs = [{'deviceTime': meal['deviceTime'], 'value': int(random.gauss(mu, sigma))} for meal in mealtimes]
 
         return carbs
+
+class Wizards:
+    """Generate demo bolus wizard data."""
+
+    def __init__(self, meals):
+
+        self.meals = meals
+
+        self.json = self._meal_to_wizard()
+
+    def _meal_to_wizard(self):
+        """Transform a carbs json into a wizard record."""
+
+        return [{
+                'id': record['id'],
+                'deviceTime': record['deviceTime'],
+                'payload': {'carbInput': record['value'], 'carbUnits': record['units']},
+                'type': 'wizard',
+                'joinKey': str(uuid.uuid4())} for record in self.meals.json]
 
 class Messages:
     """Generate demo messages with bacon ipsum."""
@@ -714,7 +730,8 @@ def _fix_floating_point(a):
 def print_JSON(all_json, out_file):
 
     # add deviceId field to smbg, boluses, carbs, and basal-rate-segments
-    pump_fields = ['smbg', 'carbs', 'bolus', 'basal-rate-segment', 'settings']
+    pump_fields = ['smbg', 'carbs', 'wizard', 'bolus', 'basal-rate-segment', 'settings']
+    annotation_fields = ['bolus', 'basal-rate-segment']
     for a in all_json:
         if a['type'] in pump_fields:
             a['deviceId'] = 'Demo - 123'
@@ -731,6 +748,10 @@ def print_JSON(all_json, out_file):
             a['deviceTime'] = t
         except KeyError:
             pass
+        if a['type'] in annotation_fields:
+            num = random.choice(range(0,15))
+            if not num:
+                a['annotations'] = [{'code': 'demo annotation'}]
 
     all_json = _fix_floating_point(sorted(all_json, key=lambda x: x['deviceTime']))
 
@@ -767,17 +788,19 @@ def main():
 
     meals = Meals(smbg)
 
-    boluses = Boluses(meals)
+    wizards = Wizards(meals)
+
+    boluses = Boluses(wizards)
 
     basal = Basal({}, boluses.json, meals.carbs)
 
     settings = Settings(basal.schedule, boluses.ratio, dex.final, args.num_days)
 
     if args.quiet_messages:
-        all_json = dex.json + smbg.json + basal.json + meals.json + boluses.json + settings.json
+        all_json = dex.json + smbg.json + basal.json + meals.json + wizards.json + boluses.json + settings.json
     else:
         messages = Messages(smbg)
-        all_json = dex.json + smbg.json + basal.json + meals.json + boluses.json + messages.json + settings.json
+        all_json = dex.json + smbg.json + basal.json + meals.json + wizards.json + boluses.json + messages.json + settings.json
 
     print_JSON(all_json, args.output_file)
     print()
