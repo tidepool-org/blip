@@ -250,8 +250,10 @@ var PatientData = React.createClass({
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
+            trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
             updateDatetimeLocation={this.updateDatetimeLocation}
+            uploadUrl={this.props.uploadUrl}
             ref="tideline" />
           );
         /* jshint ignore:end */
@@ -265,6 +267,8 @@ var PatientData = React.createClass({
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
+            trackMetric={this.props.trackMetric}
+            uploadUrl={this.props.uploadUrl}
             ref="tideline" />
           );
         /* jshint ignore:end */

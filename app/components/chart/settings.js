@@ -24,7 +24,9 @@ var Settings = React.createClass({
     onClickRefresh: React.PropTypes.func.isRequired,
     onSwitchToDaily: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
-    onSwitchToWeekly: React.PropTypes.func.isRequired
+    onSwitchToWeekly: React.PropTypes.func.isRequired,
+    trackMetric: React.PropTypes.func.isRequired,
+    uploadUrl: React.PropTypes.string.isRequired
   },
   getInitialState: function() {
     return {
@@ -50,10 +52,7 @@ var Settings = React.createClass({
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
-              <SettingsChart
-                bgUnits={this.props.chartPrefs.bgUnits}
-                patientData={this.props.patientData}
-                ref="chart" />
+              {this.isMissingSettings() ? this.renderMissingSettingsMessage() : this.renderChart()}
             </div>
           </div>
         </div>
@@ -64,6 +63,46 @@ var Settings = React.createClass({
       </div>
       );
     /* jshint ignore:end */
+  },
+  renderChart: function() {
+    /* jshint ignore:start */
+    return (
+      <SettingsChart
+        bgUnits={this.props.chartPrefs.bgUnits}
+        patientData={this.props.patientData}
+        ref="chart" />      
+    );
+    /* jshint ignore:end */
+  },
+  renderMissingSettingsMessage: function() {
+    var self = this;
+    var handleClickUpload = function() {
+      self.props.trackMetric('Clicked Partial Data Upload, No Settings');
+    };
+    /* jshint ignore:start */
+    return (
+      <div className="patient-data-message patient-data-message-loading">
+        <p>{'It looks like you don\'t have any insulin pump data yet!'}</p>
+        <p>{'To see all your data together, please '}
+          <a
+            href={this.props.uploadUrl}
+            target="_blank"
+            onClick={handleClickUpload}>upload</a>
+          {' your insulin pump data and CGM data at the same time.'}</p>
+        <p>{'Or if you already have, try '}
+          <a href="" onClick={this.props.onClickRefresh}>refreshing</a>
+          {'.'}
+        </p>
+      </div>
+    );
+    /* jshint ignore:end */
+  },
+  isMissingSettings: function() {
+    var data = this.props.patientData;
+    if (_.isEmpty(data.grouped.settings)) {
+      return true;
+    }
+    return false;
   },
   // handlers
   handleClickMostRecent: function(e) {

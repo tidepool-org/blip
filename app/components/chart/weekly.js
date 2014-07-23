@@ -27,8 +27,10 @@ var Weekly = React.createClass({
     onSwitchToDaily: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToWeekly: React.PropTypes.func.isRequired,
+    trackMetric: React.PropTypes.func.isRequired,
     updateChartPrefs: React.PropTypes.func.isRequired,
-    updateDatetimeLocation: React.PropTypes.func.isRequired
+    updateDatetimeLocation: React.PropTypes.func.isRequired,
+    uploadUrl: React.PropTypes.string.isRequired
   },
   getInitialState: function() {
     return {
@@ -42,41 +44,16 @@ var Weekly = React.createClass({
     /* jshint ignore:start */
     return (
       <div id="tidelineMain" className="grid">
-        <Header
-          chartType={this.chartType}
-          atMostRecent={this.state.atMostRecent}
-          inTransition={this.state.inTransition}
-          title={this.state.title}
-          iconBack={'icon-back-down'}
-          iconNext={'icon-next-up'}
-          iconMostRecent={'icon-most-recent-up'}
-          onClickBack={this.handlePanBack}
-          onClickMostRecent={this.handleClickMostRecent}
-          onClickNext={this.handlePanForward}
-          onClickOneDay={this.handleClickOneDay}
-          onClickSettings={this.props.onSwitchToSettings}
-          onClickTwoWeeks={this.handleClickTwoWeeks}
-        ref="header" />
+        {this.isMissingSMBG() ? this.renderMissingSMBGHeader() : this.renderHeader()}
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
-              <WeeklyChart
-                bgUnits={this.props.chartPrefs.bgUnits}
-                imagesBaseUrl={this.props.imagesBaseUrl}
-                initialDatetimeLocation={this.props.initialDatetimeLocation}
-                patientData={this.props.patientData}
-                // handlers
-                onDatetimeLocationChange={this.handleDatetimeLocationChange}
-                onMostRecent={this.handleMostRecent}
-                onClickValues={this.toggleValues}
-                onSelectSMBG={this.handleSelectSMBG}
-                onTransition={this.handleInTransition}
-                ref="chart" />
+              {this.isMissingSMBG() ? this.renderMissingSMBGMessage() : this.renderChart()}
             </div>
           </div>
         </div>
         <Footer
-         chartType={this.chartType}
+         chartType={this.isMissingSMBG() ? 'no-data' : this.chartType}
          onClickValues={this.toggleValues}
          onClickRefresh={this.props.onClickRefresh}
          showingValues={this.state.showingValues}
@@ -85,11 +62,95 @@ var Weekly = React.createClass({
       );
     /* jshint ignore:end */
   },
+  renderChart: function() {
+    /* jshint ignore:start */
+    return (
+      <WeeklyChart
+        bgUnits={this.props.chartPrefs.bgUnits}
+        imagesBaseUrl={this.props.imagesBaseUrl}
+        initialDatetimeLocation={this.props.initialDatetimeLocation}
+        patientData={this.props.patientData}
+        // handlers
+        onDatetimeLocationChange={this.handleDatetimeLocationChange}
+        onMostRecent={this.handleMostRecent}
+        onClickValues={this.toggleValues}
+        onSelectSMBG={this.handleSelectSMBG}
+        onTransition={this.handleInTransition}
+        ref="chart" />
+    );
+    /* jshint ignore:end */
+  },
+  renderHeader: function() {
+    /* jshint ignore:start */
+    return (
+      <Header
+        chartType={this.chartType}
+        atMostRecent={this.state.atMostRecent}
+        inTransition={this.state.inTransition}
+        title={this.state.title}
+        iconBack={'icon-back-down'}
+        iconNext={'icon-next-up'}
+        iconMostRecent={'icon-most-recent-up'}
+        onClickBack={this.handlePanBack}
+        onClickMostRecent={this.handleClickMostRecent}
+        onClickNext={this.handlePanForward}
+        onClickOneDay={this.handleClickOneDay}
+        onClickSettings={this.props.onSwitchToSettings}
+        onClickTwoWeeks={this.handleClickTwoWeeks}
+      ref="header" />
+    );
+    /* jshint ignore:end */
+  },
+  renderMissingSMBGHeader: function() {
+    /* jshint ignore:start */
+    return (
+      <Header
+        chartType={this.chartType}
+        atMostRecent={this.state.atMostRecent}
+        inTransition={this.state.inTransition}
+        title={''}
+        onClickOneDay={this.handleClickOneDay}
+        onClickSettings={this.props.onSwitchToSettings}
+        onClickTwoWeeks={this.handleClickTwoWeeks}
+      ref="header" />
+    );
+    /* jshint ignore:end */
+  },
+  renderMissingSMBGMessage: function() {
+    var self = this;
+    var handleClickUpload = function() {
+      self.props.trackMetric('Clicked Partial Data Upload, No SMBG');
+    };
+    /* jshint ignore:start */
+    return (
+      <div className="patient-data-message patient-data-message-loading">
+        <p>{'It looks like you don\'t have any BG meter data yet!'}</p>
+        <p>{'To see all your data together, please '}
+          <a
+            href={this.props.uploadUrl}
+            target="_blank"
+            onClick={handleClickUpload}>upload</a>
+          {' your insulin pump data and CGM data at the same time.'}</p>
+        <p>{'Or if you already have, try '}
+          <a href="" onClick={this.props.onClickRefresh}>refreshing</a>
+          {'.'}
+        </p>
+      </div>
+    );
+    /* jshint ignore:end */
+  },
   formatDate: function(datetime) {
     return moment(datetime).utc().format('MMMM Do');
   },
   getTitle: function(datetimeLocationEndpoints) {
     return this.formatDate(datetimeLocationEndpoints[0]) + ' - ' + this.formatDate(datetimeLocationEndpoints[1]);
+  },
+  isMissingSMBG: function() {
+    var data = this.props.patientData;
+    if (_.isEmpty(data.grouped.smbg)) {
+      return true;
+    }
+    return false;
   },
   // handlers
   handleClickMostRecent: function(e) {
@@ -103,7 +164,10 @@ var Weekly = React.createClass({
     if (e) {
       e.preventDefault();
     }
-    var datetime = this.refs.chart.getCurrentDay();
+    var datetime;
+    if (this.refs.chart) {
+      datetime = this.refs.chart.getCurrentDay();
+    }
     this.props.onSwitchToDaily(datetime);
   },
   handleClickTwoWeeks: function(e) {
