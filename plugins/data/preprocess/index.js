@@ -1,15 +1,15 @@
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -99,17 +99,17 @@ var TYPES_TO_INCLUDE = {
   'basal-rate-segment': function(e){ return e.start !== e.end; },
   basal: alwaysTrue,
   bolus: notZero,
-  carbs: notZero,
   cbg: notZero,
   deviceMeta: alwaysTrue,
   message: notZero,
   smbg: notZero,
+  wizard: notZero,
   settings: notZero
 };
 
 var preprocess = {
 
-  REQUIRED_TYPES: ['basal-rate-segment', 'bolus', 'carbs', 'cbg', 'message', 'smbg', 'settings'],
+  REQUIRED_TYPES: ['basal-rate-segment', 'bolus', 'wizard', 'cbg', 'message', 'smbg', 'settings'],
 
   OPTIONAL_TYPES: [],
 
@@ -320,6 +320,27 @@ var preprocess = {
     }, this);
   },
 
+  appendBolusToWizard: function(data) {
+    if (!(data && data.length)) {
+      log('Unexpected data input, defaulting to empty array.');
+      data = [];
+    }
+    return _.map(data, function(d) {
+      if (d.type === 'wizard' && d.joinKey) {
+        if (d.payload.carbInput) {
+          d.carbs = {
+            value: d.payload.carbInput,
+            units: d.payload.carbUnits
+          }
+        }
+        d.bolus = _.find(data, function(_d) {
+          return _d.type === 'bolus' && _d.joinKey === d.joinKey;
+        });
+      }
+      return d;
+    });
+  },
+
   processData: function(data) {
     if (!(data && data.length)) {
       log('Unexpected data input, defaulting to empty array.');
@@ -333,6 +354,7 @@ var preprocess = {
     data = withTiming('runWatson', this.runWatson.bind(this), data);
     data = withTiming('translateMmol', this.translateMmol.bind(this), data);
     data = withTiming('sortBasalSchedules', this.sortBasalSchedules.bind(this), data);
+    data = withTiming('appendBolusToWizard', this.sortBasalSchedules.bind(this), data);
 
     var tidelineData = this.checkRequired(new TidelineData(data));
 
