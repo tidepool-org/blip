@@ -153,7 +153,7 @@ var Patients = React.createClass({
     return (
       <div className="patients-welcome-message">
         {'Will you be uploading data from devices at home? If you are an adult with T1D or the'}
-        {'mom or dad of a child with T1D, then this is for you. Go ahead and…'}
+        {' mom or dad of a child with T1D, then this is for you. Go ahead and…'}
       </div>
     );
     /* jshint ignore:end */
@@ -248,7 +248,7 @@ var Patients = React.createClass({
     return (
       <div className="patients-welcome-message">
         {'If you’re a healthcare provider, kid with T1D, friend or relative, then you don’t have to'}
-        {'create a care team. The team(s) you belong to will show up here…'}
+        {' create a care team. The team(s) you belong to will show up here…'}
       </div>
     );
     /* jshint ignore:end */
