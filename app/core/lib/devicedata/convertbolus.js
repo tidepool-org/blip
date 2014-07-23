@@ -87,6 +87,7 @@ function dualNormalBuilder() {
       return [
         {
           id: normal.id,
+          joinKey: normal.joinKey,
           deviceId: normal.deviceId,
           initialDelivery: normal.value,
           extendedDelivery: square.value,
