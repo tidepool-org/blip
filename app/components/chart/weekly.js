@@ -27,6 +27,7 @@ var Weekly = React.createClass({
     onSwitchToDaily: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToWeekly: React.PropTypes.func.isRequired,
+    trackMetric: React.PropTypes.func.isRequired,
     updateChartPrefs: React.PropTypes.func.isRequired,
     updateDatetimeLocation: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired
@@ -116,6 +117,10 @@ var Weekly = React.createClass({
     /* jshint ignore:end */
   },
   renderMissingSMBGMessage: function() {
+    var self = this;
+    var handleClickUpload = function() {
+      self.props.trackMetric('Clicked Partial Data Upload, No SMBG');
+    };
     /* jshint ignore:start */
     return (
       <div className="patient-data-message patient-data-message-loading">
@@ -123,7 +128,8 @@ var Weekly = React.createClass({
         <p>{'To see all your data together, please '}
           <a
             href={this.props.uploadUrl}
-            target="_blank">upload</a>
+            target="_blank"
+            onClick={handleClickUpload}>upload</a>
           {' your insulin pump data and CGM data at the same time.'}</p>
         <p>{'Or if you already have, try '}
           <a href="" onClick={this.props.onClickRefresh}>refreshing</a>
