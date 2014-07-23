@@ -4458,7 +4458,6 @@
     },
     {
         "deviceTime": "2014-07-24T09:53:32",
-        "joinKey": "aaad1415-fbf3-4737-a1c8-ce2dd5054a38",
         "value": 3.9,
         "source": "demo",
         "recommended": 3.9,
@@ -5084,7 +5083,6 @@
     },
     {
         "deviceTime": "2014-07-24T15:11:09",
-        "joinKey": "0cac5beb-23d9-4a9e-b818-56577b60d4e1",
         "value": 3.5,
         "source": "demo",
         "recommended": 3.5,
@@ -6917,7 +6915,6 @@
     },
     {
         "deviceTime": "2014-07-25T06:20:21",
-        "joinKey": "8f454e18-09dc-4754-8760-b52c99a91f50",
         "value": 4.3,
         "source": "demo",
         "recommended": 4.5,
@@ -12099,7 +12096,6 @@
     },
     {
         "deviceTime": "2014-07-27T01:49:10",
-        "joinKey": "7393c918-bcca-4efc-965e-1d16ae5178ab",
         "value": 3.9,
         "source": "demo",
         "recommended": 3.9,
@@ -24079,7 +24075,6 @@
     },
     {
         "deviceTime": "2014-07-31T07:19:36",
-        "joinKey": "bb4bb323-6756-44b9-91d3-9809ae844500",
         "value": 7.2,
         "source": "demo",
         "recommended": 7.2,
@@ -35124,7 +35119,6 @@
     },
     {
         "deviceTime": "2014-08-04T05:15:52",
-        "joinKey": "0a5c5c64-8cc8-48cf-bd06-f622cf5737f4",
         "value": 4.2,
         "id": "c46fc7fa-840c-496f-b19e-e57d28783eee",
         "source": "demo",
@@ -41060,7 +41054,6 @@
     },
     {
         "deviceTime": "2014-08-06T09:12:35",
-        "joinKey": "abfb48fd-5dec-48c9-9fa2-5de8b1eaba19",
         "value": 3.7,
         "source": "demo",
         "recommended": 3.7,
@@ -51916,7 +51909,6 @@
     },
     {
         "deviceTime": "2014-08-10T04:40:40",
-        "joinKey": "d48af9ca-be0b-4ecf-85a1-820b0e4d8930",
         "value": 3.5,
         "source": "demo",
         "recommended": 3.7,
@@ -58117,7 +58109,6 @@
     },
     {
         "deviceTime": "2014-08-12T11:39:17",
-        "joinKey": "60d2ea6b-814c-472b-91e4-070328cb1002",
         "value": 4.3,
         "source": "demo",
         "recommended": 4.9,
@@ -70857,7 +70848,6 @@
     },
     {
         "deviceTime": "2014-08-17T04:10:48",
-        "joinKey": "482cbe67-30da-494a-9111-9e4f24d31b44",
         "value": 3.9,
         "source": "demo",
         "recommended": 3.9,
@@ -79758,7 +79748,6 @@
     },
     {
         "deviceTime": "2014-08-20T06:09:53",
-        "joinKey": "dce2aaf1-80c2-4c4a-bdbc-67aa24147fb3",
         "value": 2.6,
         "source": "demo",
         "recommended": 2.4,
@@ -82600,7 +82589,6 @@
     },
     {
         "deviceTime": "2014-08-21T05:22:33",
-        "joinKey": "cf9763d5-fa13-4c50-afb4-1d062090620a",
         "value": 3.0,
         "source": "demo",
         "recommended": 3.0,
