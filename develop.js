@@ -14,7 +14,7 @@ var serveStatic = require('serve-static');
 var pkg = require('./package.json');
 var webpackConfig = require('./webpack.config.js');
 webpackConfig = _.assign(webpackConfig, {
-  devtool: 'inline-source-map'
+  devtool: 'eval'
 });
 var webpackCompiler = webpack(webpackConfig);
 
