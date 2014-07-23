@@ -22,7 +22,7 @@ var Duration = require('../lib/').Duration;
 var format = require('../data/util/format');
 var log = require('../lib/').bows('Bolus');
 
-var DrawBolus = require('./util/drawBolus');
+var DrawBolus = require('./util/drawbolus');
 
 module.exports = function(pool, opts) {
 

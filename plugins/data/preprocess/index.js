@@ -354,7 +354,7 @@ var preprocess = {
     data = withTiming('runWatson', this.runWatson.bind(this), data);
     data = withTiming('translateMmol', this.translateMmol.bind(this), data);
     data = withTiming('sortBasalSchedules', this.sortBasalSchedules.bind(this), data);
-    data = withTiming('appendBolusToWizard', this.sortBasalSchedules.bind(this), data);
+    data = withTiming('appendBolusToWizard', this.appendBolusToWizard.bind(this), data);
 
     var tidelineData = this.checkRequired(new TidelineData(data));
 

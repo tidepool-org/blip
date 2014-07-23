@@ -22,7 +22,7 @@ var Duration = require('../lib/').Duration;
 var format = require('../data/util/format');
 var log = require('../lib/').bows('Wizard');
 
-var DrawBolus = require('./util/drawBolus');
+var DrawBolus = require('./util/drawbolus');
 
 module.exports = function(pool, opts) {
   opts = opts || {};
@@ -252,7 +252,7 @@ module.exports = function(pool, opts) {
           return d;
         }
       });
-
+      
       drawBolus.carb(carbs);
 
       var boluses = wizardGroups.filter(function(d) {
