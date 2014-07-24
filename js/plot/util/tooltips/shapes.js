@@ -44,18 +44,22 @@ var shapes = {
     viewBox: '0 0 24.169 24.172',
     orientations: {
       normal: function(group) {
+        group.classed('svg-tooltip-right-and-up', true);
         return shapeutil.translationFromViewBox(group, {vertical: 'up'});
       },
       leftAndDown: function(group) {
+        group.classed('svg-tooltip-left-and-down', true);
         shapeutil.translationFromViewBox(group, {vertical: 'down'})
           .call(shapeutil.pathMirrorY)
           .call(shapeutil.pathMirrorX);
       },
       leftAndUp: function(group) {
+        group.classed('svg-tooltip-left-and-up', true);
         shapeutil.translationFromViewBox(group, {vertical: 'up'})
           .call(shapeutil.pathMirrorY);
       },
       rightAndDown: function(group) {
+        group.classed('svg-tooltip-right-and-down', true);
         shapeutil.translationFromViewBox(group, {vertical: 'down'})
           .call(shapeutil.pathMirrorX);
       }

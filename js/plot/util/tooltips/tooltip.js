@@ -87,7 +87,7 @@ function Tooltips(container, tooltipsGroup) {
       var group = tooltipGroups[shape].append('g')
         .attr({
           id: 'tooltip_' + opts.datum.id,
-          'class': 'd3-tooltip',
+          'class': 'd3-tooltip d3-' + opts.shape,
           transform: 'translate(' + opts.xPosition(opts.datum) + ',' + opts.yPosition(opts.datum) + ')',
         });
       var tooltipShape = group.append('use')

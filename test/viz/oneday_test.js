@@ -129,19 +129,19 @@ describe('one-day view', function() {
         it('(low and target) should yield a right and up tooltip (text = 60, 110) on hover', function() {
           leftLow.simulate('mouseover');
           var lowTooltipGroup = container.find('#tooltip_' + leftLow.attr('id').replace('cbg_', ''));
-          expect(lowTooltipGroup.find('image').attr('href')).to.equal('../../img/cbg/cbg_tooltip_low.svg');
+          expect(lowTooltipGroup.find('use').attr('class')).to.equal('svg-tooltip-right-and-up');
           expect(lowTooltipGroup.find('text').html()).to.equal('60');
 
           leftTarget.simulate('mouseover');
           var targetTooltipGroup = container.find('#tooltip_' + leftTarget.attr('id').replace('cbg_', ''));
-          expect(targetTooltipGroup.find('image').attr('href')).to.equal('../../img/cbg/cbg_tooltip_target.svg');
+          expect(targetTooltipGroup.find('use').attr('class')).to.equal('svg-tooltip-right-and-up');
           expect(targetTooltipGroup.find('text').html()).to.equal('110');
         });
 
         it('(high) should yield a right and down tooltip (text = 300) on hover', function() {
           leftHigh.simulate('mouseover');
           var highTooltipGroup = container.find('#tooltip_' + leftHigh.attr('id').replace('cbg_', ''));
-          expect(highTooltipGroup.find('image').attr('href')).to.equal('../../img/cbg/cbg_tooltip_high.svg');
+          expect(highTooltipGroup.find('use').attr('class')).to.equal('svg-tooltip-right-and-down');
           expect(highTooltipGroup.find('text').html()).to.equal('300');
         });
 
@@ -174,19 +174,19 @@ describe('one-day view', function() {
         it('(low and target) should yield a left and up tooltip (text = 60, 110) on hover', function() {
           rightLow.simulate('mouseover');
           var lowTooltipGroup = container.find('#tooltip_' + rightLow.attr('id').replace('cbg_', ''));
-          expect(lowTooltipGroup.find('image').attr('href')).to.equal('../../img/cbg/cbg_tooltip_low_left.svg');
+          expect(lowTooltipGroup.find('use').attr('class')).to.equal('svg-tooltip-left-and-up');
           expect(lowTooltipGroup.find('text').html()).to.equal('60');
 
           rightTarget.simulate('mouseover');
           var targetTooltipGroup = container.find('#tooltip_' + rightTarget.attr('id').replace('cbg_', ''));
-          expect(targetTooltipGroup.find('image').attr('href')).to.equal('../../img/cbg/cbg_tooltip_target_left.svg');
+          expect(targetTooltipGroup.find('use').attr('class')).to.equal('svg-tooltip-left-and-up');
           expect(targetTooltipGroup.find('text').html()).to.equal('110');
         });
 
         it('(high) should yield a left and down tooltip (text = 300) on hover', function() {
           rightHigh.simulate('mouseover');
           var highTooltipGroup = container.find('#tooltip_' + rightHigh.attr('id').replace('cbg_', ''));
-          expect(highTooltipGroup.find('image').attr('href')).to.equal('../../img/cbg/cbg_tooltip_high_left.svg');
+          expect(highTooltipGroup.find('use').attr('class')).to.equal('svg-tooltip-left-and-down');
           expect(highTooltipGroup.find('text').html()).to.equal('300');
         });
 
