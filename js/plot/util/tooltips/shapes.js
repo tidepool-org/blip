@@ -15,9 +15,10 @@
  * == BSD2 LICENSE ==
  */
 
+var _ = require('../../../lib/')._;
+
 // when adding a shape from an image supplied by designer
 // viewBox attribute should be copied exactly from svg image
-
 var shapeutil = require('../shapeutil');
 
 var shapes = {
@@ -58,6 +59,18 @@ var shapes = {
         shapeutil.translationFromViewBox(group, {vertical: 'down'})
           .call(shapeutil.pathMirrorX);
       }
+    },
+    addText: function(selection, opts) {
+      var used = selection.select('use');
+      var boundingBox = used[0][0].getBBox();
+      var usedTransform = used.attr('transform').split(' ');
+      selection.append('text')
+        .attr({
+          x: boundingBox.width/2 - (_.contains(usedTransform, 'scale(-1,1)') ? boundingBox.width : 0),
+          y: -boundingBox.height/2 + (_.contains(usedTransform, 'scale(1,-1)') ? boundingBox.height : 0),
+          'class': 'd3-tooltip-text'
+        })
+        .text(opts.datum.value);
     }
   }
 };

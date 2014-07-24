@@ -87,9 +87,10 @@ function Tooltips(container, tooltipsGroup) {
       var group = tooltipGroups[shape].append('g')
         .attr({
           id: 'tooltip_' + opts.datum.id,
+          'class': 'd3-tooltip',
           transform: 'translate(' + opts.xPosition(opts.datum) + ',' + opts.yPosition(opts.datum) + ')',
-        })
-        .append('use')
+        });
+      var tooltipShape = group.append('use')
         .attr({
           x: 0,
           y: 0,
@@ -97,19 +98,19 @@ function Tooltips(container, tooltipsGroup) {
         });
       if (opts.orientation) {
         if (atLeftEdge) {
-          shapes[shape].orientations[opts.orientation.leftEdge](group);
+          shapes[shape].orientations[opts.orientation.leftEdge](tooltipShape);
         }
         else if (atRightEdge) {
-          shapes[shape].orientations[opts.orientation.rightEdge](group);
+          shapes[shape].orientations[opts.orientation.rightEdge](tooltipShape);
         }
         else {
-          shapes[shape].orientations[opts.orientation['default']](group);
+          shapes[shape].orientations[opts.orientation['default']](tooltipShape);
         }
       }
       else {
-        shapes[shape].orientations.normal(group);
+        shapes[shape].orientations.normal(tooltipShape);
       }
-      
+      shapes[shape].addText(group, opts);
     }
   };
 
