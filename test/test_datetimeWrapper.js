@@ -219,14 +219,15 @@ describe('Tidepool Dates', function() {
     describe('getTimezones', function() {
 
       it('returns all timezone objects',function(done){
-        expect(datetimeWrapper.getTimezones()).to.have.length(143);
+        expect(datetimeWrapper.getTimezones()).to.have.length(131);
         done();
       });
 
       it('returns timezone objects with correct properties',function(done){
-        var timezone = datetimeWrapper.getTimezones()[0];
-        expect(timezone.name).to.have.length.above(0);
-        expect(timezone.label).to.have.length.above(0);
+        datetimeWrapper.getTimezones().forEach(function(timezone){
+          expect(timezone.name).to.have.length.above(0);
+          expect(timezone.label).to.have.length.above(0);
+        });
         done();
       });
     });
