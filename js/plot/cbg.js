@@ -31,6 +31,7 @@ module.exports = function(pool, opts) {
       target: {boundary: 180, tooltip: 'cbg_tooltip_target.svg'},
       high: {boundary: 200, tooltip: 'cbg_tooltip_high.svg'}
     },
+    radius: 2.5,
     tooltipSize: 24
   };
 
@@ -52,7 +53,7 @@ module.exports = function(pool, opts) {
         .attr({
           cx: cbg.xPosition,
           cy: cbg.yPosition,
-          r: 2.5,
+          r: opts.radius,
           id: function(d) {
             return 'cbg_' + d.id;
           }
