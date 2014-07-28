@@ -23,7 +23,8 @@ var scales = function(opts) {
 
   var defaults = {
     bolusRatio: 0.35,
-    MAX_CBG: 401
+    MAX_CBG: 401,
+    carbRadius: 14
   };
 
   _.defaults(opts, defaults);
@@ -82,7 +83,7 @@ var scales = function(opts) {
     carbs: function(data, pool) {
       var scale = d3.scale.linear()
         .domain([0, d3.max(data, function(d) { return d.carbs ? d.carbs.value : 0; })])
-        .range([14, 14 + ((1 - opts.bolusRatio) * pool.height())/4]);
+        .range([carbRadius, carbRadius + ((1 - opts.bolusRatio) * pool.height())/4]);
       return scale;
     },
     bolus: function(data, pool) {

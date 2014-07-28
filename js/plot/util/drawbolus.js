@@ -97,8 +97,6 @@ module.exports = function(opts) {
         .attr({
           x: xPos,
           y: yPos,
-          'dominant-baseline': 'central',
-          'text-anchor':'middle',
           class: 'd3-carbs-text'
         });
     },

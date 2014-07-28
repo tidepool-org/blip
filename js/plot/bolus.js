@@ -44,7 +44,6 @@ module.exports = function(pool, opts) {
 
   var drawBolus = DrawBolus(opts);
   var mainGroup = pool.parent();
-  var top = opts.yScale.range()[0];
 
   function bolus(selection) {
     opts.xScale = pool.xScale().copy();

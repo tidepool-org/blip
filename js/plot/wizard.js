@@ -42,6 +42,51 @@ module.exports = function(pool, opts) {
   var tideline = window.tideline;
   var mainGroup = pool.parent();
 
+  var timespan = function(datum) {
+    var dur = Duration.parse(datum.duration + 'ms');
+    var hours = dur.hours();
+    var minutes = dur.minutes() - (hours * 60);
+    if (hours !== 0) {
+      if (hours === 1) {
+        switch(minutes) {
+        case 0:
+          return 'over ' + hours + ' hr';
+        case 15:
+          return 'over ' + hours + QUARTER + ' hr';
+        case 20:
+          return 'over ' + hours + THIRD + ' hr';
+        case 30:
+          return 'over ' + hours + HALF + ' hr';
+        case 40:
+          return 'over ' + hours + TWO_THIRDS + ' hr';
+        case 45:
+          return 'over ' + hours + THREE_QUARTER + ' hr';
+        default:
+          return 'over ' + hours + ' hr ' + minutes + ' min';
+        }
+      } else {
+        switch(minutes) {
+        case 0:
+          return 'over ' + hours + ' hrs';
+        case 15:
+          return 'over ' + hours + QUARTER + ' hrs';
+        case 20:
+          return 'over ' + hours + THIRD + ' hrs';
+        case 30:
+          return 'over ' + hours + HALF + ' hrs';
+        case 40:
+          return 'over ' + hours + TWO_THIRDS + ' hrs';
+        case 45:
+          return 'over ' + hours + THREE_QUARTER + ' hrs';
+        default:
+          return 'over ' + hours + ' hrs ' + minutes + ' min';
+        }
+      }
+    } else {
+      return 'over ' + minutes + ' min';
+    }
+  };
+
   // tooltip
   var formatValue = function(x) {
     var formatted = d3.format('.3f')(x);
@@ -55,15 +100,19 @@ module.exports = function(pool, opts) {
     return formatted;
   }
 
-  var getRecommendedBolusTooltipText = function(datum) {
-    return formatValue(datum.recommended) + "U recom'd";
+  var getRecommendedBolusTooltipText = function(d) {
+    return formatValue(d.recommended) + "U recom'd";
   };
 
-  var getExtendedBolusTooltipText = function(datum) {
-    if (unknownDeliverySplit(datum)) {
+  var unknownDeliverySplit = function(d) {
+    return d.initialDelivery == null && d.extendedDelivery == null;
+  };
+
+  var getExtendedBolusTooltipText = function(d) {
+    if (unknownDeliverySplit(d)) {
       return 'Split unknown';
     }
-    return format.percentage(datum.extendedDelivery / datum.value) + ' ' + bolus.timespan(datum);
+    return format.percentage(d.extendedDelivery / d.value) + ' ' + timespan(d);
   };
 
   var getTooltipCategory = function(datum) {
@@ -162,7 +211,7 @@ module.exports = function(pool, opts) {
           'y': pool.height() - tooltipHeight / 2
         })
         .append('tspan')
-        .text(bolus.getRecommendedBolusTooltipText(datum))
+        .text(getRecommendedBolusTooltipText(datum))
         .attr('class', 'd3-bolus');
 
       d3.select('#tooltip_' + datum.id).select('.d3-tooltip-text-group').append('text')
@@ -172,53 +221,8 @@ module.exports = function(pool, opts) {
           'y': pool.height() - tooltipHeight / 4
         })
         .append('tspan')
-        .text(bolus.getExtendedBolusTooltipText(datum))
+        .text(getExtendedBolusTooltipText(datum))
         .attr('class', 'd3-bolus');
-    }
-  };
-
-  var timespan = function(datum) {
-    var dur = Duration.parse(datum.duration + 'ms');
-    var hours = dur.hours();
-    var minutes = dur.minutes() - (hours * 60);
-    if (hours !== 0) {
-      if (hours === 1) {
-        switch(minutes) {
-        case 0:
-          return 'over ' + hours + ' hr';
-        case 15:
-          return 'over ' + hours + QUARTER + ' hr';
-        case 20:
-          return 'over ' + hours + THIRD + ' hr';
-        case 30:
-          return 'over ' + hours + HALF + ' hr';
-        case 40:
-          return 'over ' + hours + TWO_THIRDS + ' hr';
-        case 45:
-          return 'over ' + hours + THREE_QUARTER + ' hr';
-        default:
-          return 'over ' + hours + ' hr ' + minutes + ' min';
-        }
-      } else {
-        switch(minutes) {
-        case 0:
-          return 'over ' + hours + ' hrs';
-        case 15:
-          return 'over ' + hours + QUARTER + ' hrs';
-        case 20:
-          return 'over ' + hours + THIRD + ' hrs';
-        case 30:
-          return 'over ' + hours + HALF + ' hrs';
-        case 40:
-          return 'over ' + hours + TWO_THIRDS + ' hrs';
-        case 45:
-          return 'over ' + hours + THREE_QUARTER + ' hrs';
-        default:
-          return 'over ' + hours + ' hrs ' + minutes + ' min';
-        }
-      }
-    } else {
-      return 'over ' + minutes + ' min';
     }
   };
 
@@ -252,7 +256,7 @@ module.exports = function(pool, opts) {
           return d;
         }
       });
-      
+
       drawBolus.carb(carbs);
 
       var boluses = wizardGroups.filter(function(d) {
