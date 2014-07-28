@@ -286,11 +286,11 @@ module.exports = function(pool, opts) {
       drawBolus.override(override);
 
       var extended = boluses.filter(function(d) {
-        if (d.bolus.extended) {
-          return d.bouls;
+        if (d.bolus.extended == true) {
+          return d.bolus;
         }
       });
-
+      
       drawBolus.extended(extended)
 
       wizards.exit().remove();
