@@ -71,7 +71,9 @@ module.exports = function(opts) {
       var yPos = function(d) {
         var r = opts.yScaleCarbs ? opts.yScaleCarbs(d.carbs.value) : opts.r;
 
-        return opts.yScale(d.bolus ? d.bolus.value : 0) - r - (d.bolus && d.bolus.value ? opts.carbPadding : 0);
+        var bolusValue = d.bolus ? ((d.bolus.recommended && d.bolus.recommended > d.bolus.value) ? d.bolus.recommended : d.bolus.value) : 0;
+
+        return opts.yScale(bolusValue) - r - (bolusValue ? opts.carbPadding : 0);
       };
 
       carbs.append('circle')
