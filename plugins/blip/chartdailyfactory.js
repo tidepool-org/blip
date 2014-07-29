@@ -280,7 +280,6 @@ function chartDailyFactory(el, options) {
 
     poolBolus.addPlotType('fill', fill(poolBolus, {
       endpoints: chart.endpoints,
-      guidelines: [{}],
       yScale: scaleHeight
     }), true, true);
 
