@@ -69,7 +69,6 @@ describe('TidelineData', function() {
 
     var dataTypes = [
       'smbg',
-      'carbs',
       'bolus',
       'cbg',
       'settings',

@@ -69,10 +69,11 @@ describe('one-day view', function() {
     var container, oneDay;
 
     before(function() {
+      $(containerId).append('<h3>Full day of data</h3>');
       $(containerId).append('<div class="tideline-container" id="tideline_' + i + '"></div>');
       var el = document.getElementById('tideline_' + i);
       oneDay = chartDailyFactory(el, {imagesBaseUrl: imagesBaseUrl}).setupPools();
-      var data = preprocess.processData(testPatterns.full());
+      var data = preprocess.processData(testPatterns.full);
       oneDay.load(data).locate('2008-01-01T12:00:00.000Z');
       container = $('#tideline_' + i);
       i++;
@@ -86,6 +87,31 @@ describe('one-day view', function() {
 
       it('should have a legend', function() {
         expect(container.find('#poolBG_legend_bg').size()).to.be.above(0);
+      });
+    });
+
+    describe('carbs and bolus pool', function() {
+      it('should have a label', function() {
+        expect(container.find('#poolBolus_label_0').size()).to.be.above(0);
+        expect(container.find('#poolBolus_label_0').html()).to.equal('Bolus<tspan> (U)</tspan>');
+        expect(container.find('#poolBolus_label_1').size()).to.be.above(0);
+        expect(container.find('#poolBolus_label_1').html()).to.equal(' &amp; Carbohydrates<tspan> (g)</tspan>');
+      });
+
+      it('should have legends', function() {
+        expect(container.find('#poolBolus_legend_bolus').size()).to.be.above(0);
+        expect(container.find('#poolBolus_legend_carbs').size()).to.be.above(0);
+      });
+    });
+
+    describe('basal pool', function() {
+      it('should have a label', function() {
+        expect(container.find('#poolBasal_label_0').size()).to.be.above(0);
+        expect(container.find('#poolBasal_label_0').html()).to.equal('Basal Rates<tspan> (U/hr)</tspan>');
+      });
+
+      it('should have a legend', function() {
+        expect(container.find('#poolBasal_legend_basal').size()).to.be.above(0);
       });
     });
 
@@ -346,42 +372,72 @@ describe('one-day view', function() {
     });
 
     describe('carbs data', function() {
-      var carbs, leftCarb, rightCarb;
+      var carbs, wizards, leftCarb, rightCarb;
 
-      it('should display carbs events with a width of 12 and color #FFD382', function() {
-        carbs = container.find('.d3-rect-carbs');
-        expect(carbs.size()).to.equal(16);
-        expect(carbs.attr('width')).to.equal('12');
+      it('should display carbs events with a radius of 14 #FFD382', function() {
+        carbs = container.find('.d3-circle-carbs');
+        expect(carbs.size()).to.equal(24);
+        expect(carbs.attr('r')).to.equal('14');
         expect(d3.rgb(carbs.css('fill')).toString()).to.equal('#FFD382'.toLowerCase());
       });
 
-      it('should yield a right and down tooltip if on the left edge', function() {
+      it('should display a numerical value in the center of the circle', function() {
+        wizards = container.find('.d3-wizard-group');
+        expect($.isNumeric(wizards.find('text').html())).to.be.true;
+      });
+
+      it('should yield a left and up tooltip if at the right edge', function() {
         leftCarb = carbs.filter(':first');
         leftCarb.simulate('mouseover');
-        var leftTooltipGroup = container.find('#tooltip_' + leftCarb.attr('id').replace('carbs_', ''));
-        expect(leftTooltipGroup.find('image').attr('href')).to.equal('../../img/carbs/tooltip_carbs.svg');
-        expect(leftTooltipGroup.find('text').html()).to.equal('100g');
-        expect(leftTooltipGroup.find('text').filter('.d3-tooltip-timestamp').html()).to.equal('at 1:00 AM');
+        var leftTooltipGroup = container.find('#tidelineTooltips_bolus').find('.d3-tooltip').filter(':first');
+        expect(leftTooltipGroup.find('image').attr('href')).to.equal('../../img/bolus/tooltip_bolus_large_left.svg');
+        expect(leftTooltipGroup.find('text').filter('.d3-tooltip-timestamp').html()).to.equal('at 11:25 PM');
         expect(leftTooltipGroup.find('rect').size()).to.be.above(0);
       });
 
-      it('should yield a left and down tooltip if on the right edge', function() {
+      it('should yield a right and up tooltip if not at the right edge', function() {
         rightCarb = carbs.filter(':last');
         rightCarb.simulate('mouseover');
-        var rightTooltipGroup = container.find('#tooltip_' + rightCarb.attr('id').replace('carbs_', ''));
-        expect(rightTooltipGroup.find('image').attr('href')).to.equal('../../img/carbs/tooltip_carbs_left.svg');
-        expect(rightTooltipGroup.find('text').html()).to.equal('10g');
-        expect(rightTooltipGroup.find('text').filter('.d3-tooltip-timestamp').html()).to.equal('at 11:30 PM');
+        var rightTooltipGroup = container.find('#tidelineTooltips_bolus').find('.d3-tooltip').filter(':last');
+        expect(rightTooltipGroup.find('image').attr('href')).to.equal('../../img/bolus/tooltip_bolus_small.svg');
+        expect(rightTooltipGroup.find('text').filter('.d3-tooltip-timestamp').html()).to.equal('at 12:25 PM');
         expect(rightTooltipGroup.find('rect').size()).to.be.above(0);
       });
 
       it('should have tooltips that disappear on mouseout', function() {
         leftCarb.simulate('mouseout');
         rightCarb.simulate('mouseout');
-        expect(container.find('#tidelineTooltips_carbs .d3-tooltip').size()).to.equal(0);
+        expect(container.find('#tidelineTooltips_bolus .d3-tooltip').size()).to.equal(0);
         leftCarb.simulate('mouseover');
         rightCarb.simulate('mouseover');
       });
+    });
+
+    describe('bolus data', function() {
+      it('should display twenty-four boluses', function() {
+        var boluses = container.find('#poolBolus_wizard').find('.d3-wizard-group').find('rect.d3-rect-bolus');
+        expect(boluses.size()).to.equal(24);
+      });
+    });
+  });
+  
+  describe('full day of data, quick boluses only', function() {
+    var container, oneDay;
+
+    before(function() {
+      $(containerId).append('<h3>Full day of data, quick boluses only</h3>');
+      $(containerId).append('<div class="tideline-container" id="tideline_' + i + '"></div>');
+      var el = document.getElementById('tideline_' + i);
+      oneDay = chartDailyFactory(el, {imagesBaseUrl: imagesBaseUrl}).setupPools();
+      var data = preprocess.processData(testPatterns.quickbolusonly);
+      oneDay.load(data).locate('2008-01-01T12:00:00.000Z');
+      container = $('#tideline_' + i);
+      i++;
+    });
+
+    it('should display twenty-four boluses', function() {
+      var boluses = container.find('#poolBolus_bolus').find('.d3-wizard-group').find('rect.d3-rect-bolus');
+      expect(boluses.size()).to.equal(24);
     });
   });
 });
