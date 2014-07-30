@@ -210,6 +210,63 @@ var BolusDay = function(opts) {
 
 BolusDay.prototype = day;
 
+var WizardDay = function(opts) {
+  var defaults = {
+    interval: 60,
+    patterns: {
+      alternating: function() {
+        var big = true;
+        return function(value) {
+          var toReturn = big ? value : 10;
+          if (big) {
+            big = false;
+          }
+          else {
+            big = true;
+          }
+          return toReturn;
+        };
+      },
+      carbRatio: function() {
+        var ratio = 10;
+        return function(value) {
+          return (value * ratio).toFixed(0);
+        };
+      }
+    },
+    spread: {
+      min: 5,
+      max: 150,
+      jump: 25
+    }
+  };
+
+  this.opts = opts || {};
+
+  this.opts = _.defaults(this.opts, defaults);
+
+  this.generateFull = function(pattern, opts) {
+    opts = opts || {};
+    var count = 0, events = [];
+
+    while (count < opts.boluses.length) {
+      events.push(new types.Wizard(opts.boluses[count].deviceTime, {
+        featureSet: 'default',
+        joinKey: opts.boluses[count].joinKey,
+        value: pattern(opts.boluses[count].value)
+      }));
+      count += 1;
+    }
+
+    for (var i = 0; i < events.length; ++i) {
+      events[i] = events[i].asObject();
+    }
+    return events;
+  };
+};
+
+WizardDay.prototype = day;
+
 var BasalDay = function(opts) {
   var interval = 30;
   var defaults = {
@@ -262,6 +319,7 @@ module.exports = (function() {
     SMBGDay: SMBGDay,
     CarbsDay: CarbsDay,
     BolusDay: BolusDay,
+    WizardDay: WizardDay,
     BasalDay: BasalDay
   };
 }());

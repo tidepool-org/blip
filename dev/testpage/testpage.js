@@ -26,6 +26,7 @@ module.exports = (function() {
   var smbgDay = new days.SMBGDay({interval: 30});
   var carbsDay = new days.CarbsDay();
   var bolusDay = new days.BolusDay();
+  var wizardDay = new days.WizardDay();
   var basalDay = new days.BasalDay();
 
   function full() {
@@ -54,15 +55,22 @@ module.exports = (function() {
     }));
 
     // carbs data
-    var alternating = carbsDay.opts.patterns.alternating(100);
-    data.push(carbsDay.generateFull(alternating, {
+    var alternatingCarbs = carbsDay.opts.patterns.alternating(100);
+    data.push(carbsDay.generateFull(alternatingCarbs, {
       start: moment('2008-01-01T01:00:00.000Z')
     }));
 
     // bolus data
     var allBolusFeatureSets = bolusDay.opts.patterns.allFeatureSets();
-    data.push(bolusDay.generateFull(allBolusFeatureSets, {
-      start: moment('2008-01-01T00:15:00.000Z')
+    var bolusData = bolusDay.generateFull(allBolusFeatureSets, {
+      start: moment('2008-01-01T00:25:00.000Z')
+    });
+    data.push(bolusData);
+
+    // wizard data
+    var carbRatio = wizardDay.opts.patterns.carbRatio();
+    data.push(wizardDay.generateFull(carbRatio, {
+      boluses: bolusData
     }));
 
     // basal data
@@ -76,6 +84,7 @@ module.exports = (function() {
   }
 
   return {
-    full: full
+    full: full(),
+    quickbolusonly: _.reject(full(), {type: 'wizard'})
   };
 })();
