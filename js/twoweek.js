@@ -48,14 +48,14 @@ module.exports = function(emitter) {
     tidelineData, data, endpoints, viewEndpoints, dataStartNoon, dataEndNoon, poolScaleHeight,
     lessThanTwoWeeks = false,
     sortReverse = true, viewIndex,
-    mainGroup, scrollNav, scrollHandleTrigger = true,
+    mainSVG, mainGroup, scrollNav, scrollHandleTrigger = true,
     annotations, tooltips,
     cachedDomain;
 
   container.dataFill = {};
 
   function container(selection) {
-    var mainSVG = selection.append('svg');
+    mainSVG = selection.append('svg');
 
     mainGroup = mainSVG.append('g').attr('id', 'tidelineMain');
 
@@ -245,7 +245,7 @@ module.exports = function(emitter) {
   };
 
   container.destroy = function() {
-    d3.select('#' + id).remove();
+    mainSVG.remove();
 
     return container;
   };
@@ -278,25 +278,23 @@ module.exports = function(emitter) {
     else {
       a[0].setUTCDate(a[0].getUTCDate() + 1);
     }
-    if (!d3.select('#' + id).classed('hidden')) {
-      emitter.emit('navigated', [a[0].toISOString(), a[1].toISOString()]);
-      // domain should go from midnight to midnight, not noon to noon
-      a[0].setUTCHours(a[0].getUTCHours() - 12);
-      var topDate = a[0].toISOString().slice(0,10);
-      a[1].setUTCHours(a[1].getUTCHours() + 12);
-      var bottomDate = a[1].toISOString().slice(0,10);
-      var midnight = 'T00:00:00.000Z';
-      if ((topDate !== cachedDomain[0]) || (bottomDate !== cachedDomain[1])) {
-        cachedDomain = [new Date(topDate + midnight), new Date(bottomDate + midnight)];
-        emitter.emit('currentDomain', {
-          domain: cachedDomain
-        });
-      }
+    emitter.emit('navigated', [a[0].toISOString(), a[1].toISOString()]);
+    // domain should go from midnight to midnight, not noon to noon
+    a[0].setUTCHours(a[0].getUTCHours() - 12);
+    var topDate = a[0].toISOString().slice(0,10);
+    a[1].setUTCHours(a[1].getUTCHours() + 12);
+    var bottomDate = a[1].toISOString().slice(0,10);
+    var midnight = 'T00:00:00.000Z';
+    if ((topDate !== cachedDomain[0]) || (bottomDate !== cachedDomain[1])) {
+      cachedDomain = [new Date(topDate + midnight), new Date(bottomDate + midnight)];
+      emitter.emit('currentDomain', {
+        domain: cachedDomain
+      });
     }
   };
 
   container.legend = function(l) {
-    var labelHolder = d3.select('#tidelineWeeklyLabels');
+    var labelHolder = mainSVG.select('#tidelineWeeklyLabels');
 
     var labelGroup = labelHolder.append('text')
       .attr({
@@ -317,6 +315,10 @@ module.exports = function(emitter) {
   };
 
   // getters only
+  container.svg = function() {
+    return mainSVG;
+  };
+
   container.pools = function() {
     return pools;
   };
@@ -538,7 +540,7 @@ module.exports = function(emitter) {
         mainGroup.select('#tidelineAnnotations').attr('transform', 'translate(0,' + e.translate[1] + ')');
         mainGroup.select('.d3-y.d3-axis').call(yAxis);
         container.dayAxisHacks();
-        d3.selectAll('.d3-data-annotation-group').remove();
+        mainGroup.selectAll('.d3-data-annotation-group').remove();
         for (var i = 0; i < pools.length; i++) {
           pools[i].scroll(e);
         }

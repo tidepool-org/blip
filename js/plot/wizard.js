@@ -187,7 +187,7 @@ module.exports = function(pool, opts) {
       );
 
     if (category === 'two-line') {
-      var twoLineSelection = d3.select('#tooltip_' + datum.id).select('.d3-tooltip-text-group').append('text')
+      var twoLineSelection = mainGroup.select('#tooltip_' + datum.id).select('.d3-tooltip-text-group').append('text')
         .attr({
           'class': 'd3-tooltip-text d3-bolus',
           'x': opts.xScale(Date.parse(datum.normalTime)) + tooltipWidth / 2  + opts.width/2,
@@ -204,7 +204,7 @@ module.exports = function(pool, opts) {
 
       twoLineSelection.attr('class', 'd3-bolus');
     } else if (category === 'three-line') {
-      d3.select('#tooltip_' + datum.id).select('.d3-tooltip-text-group').append('text')
+      mainGroup.select('#tooltip_' + datum.id).select('.d3-tooltip-text-group').append('text')
         .attr({
           'class': 'd3-tooltip-text d3-bolus',
           'x': opts.xScale(Date.parse(datum.normalTime)) + tooltipWidth / 2  + opts.width/2,
@@ -214,7 +214,7 @@ module.exports = function(pool, opts) {
         .text(getRecommendedBolusTooltipText(datum))
         .attr('class', 'd3-bolus');
 
-      d3.select('#tooltip_' + datum.id).select('.d3-tooltip-text-group').append('text')
+      mainGroup.select('#tooltip_' + datum.id).select('.d3-tooltip-text-group').append('text')
         .attr({
           'class': 'd3-tooltip-text d3-bolus',
           'x': opts.xScale(Date.parse(datum.normalTime)) + tooltipWidth / 2,

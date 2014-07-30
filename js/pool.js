@@ -76,7 +76,7 @@ function Pool (container) {
     container.latestTranslation(e.translate[0]);
     plotTypes.forEach(function(plotType) {
       if (plotType.panBoolean) {
-        d3.select('#' + id + '_' + plotType.type).attr('transform', 'translate(' + e.translate[0] + ',0)');
+        mainSVG.select('#' + id + '_' + plotType.type).attr('transform', 'translate(' + e.translate[0] + ',0)');
       }
     });
   };
@@ -84,7 +84,7 @@ function Pool (container) {
   this.scroll = function(e) {
     container.latestTranslation(e.translate[1]);
     plotTypes.forEach(function(plotType) {
-      d3.select('#' + id + '_' + plotType.type).attr('transform', 'translate(0,' + e.translate[1] + ')');
+      mainSVG.select('#' + id + '_' + plotType.type).attr('transform', 'translate(0,' + e.translate[1] + ')');
     });
   };
 
@@ -295,7 +295,7 @@ function Pool (container) {
       off: function() {
         background.attr('opacity', 1);
       }
-    }
+    };
   };
 
   return this;

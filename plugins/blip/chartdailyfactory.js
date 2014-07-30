@@ -23,7 +23,7 @@ var EventEmitter = require('events').EventEmitter;
 
 var tideline = window.tideline;
 var fill = tideline.plot.util.fill;
-var Scales = tideline.plot.util.scales;
+var scalesutil = tideline.plot.util.scales;
 
 // Create a 'One Day' chart object that is a wrapper around Tideline components
 function chartDailyFactory(el, options) {
@@ -39,7 +39,7 @@ function chartDailyFactory(el, options) {
   };
   _.defaults(options, defaults);
 
-  var scales = Scales(options);
+  var scales = scalesutil(options);
   var emitter = new EventEmitter();
   var chart = tideline.oneDay(emitter);
   chart.emitter = emitter;
@@ -191,15 +191,15 @@ function chartDailyFactory(el, options) {
     chart.setAnnotation().setTooltip();
 
     // add annotations
-    chart.annotations().addGroup(d3.select('#' + chart.id()).select('#' + poolBolus.id()), 'bolus');
-    chart.annotations().addGroup(d3.select('#' + chart.id()).select('#' + poolBasal.id()), 'basal-rate-segment');
-    chart.annotations().addGroup(d3.select('#' + chart.id()).select('#' + poolStats.id()), 'stats');
+    chart.annotations().addGroup(chart.svg().select('#' + poolBolus.id()), 'bolus');
+    chart.annotations().addGroup(chart.svg().select('#' + poolBasal.id()), 'basal-rate-segment');
+    chart.annotations().addGroup(chart.svg().select('#' + poolStats.id()), 'stats');
 
     // add tooltips
-    chart.tooltips().addGroup(d3.select('#' + chart.id()).select('#' + poolBG.id()), 'cbg');
-    chart.tooltips().addGroup(d3.select('#' + chart.id()).select('#' + poolBG.id()), 'smbg');
-    chart.tooltips().addGroup(d3.select('#' + chart.id()).select('#' + poolBolus.id()), 'bolus');
-    chart.tooltips().addGroup(d3.select('#' + chart.id()).select('#' + poolBasal.id()), 'basal');
+    chart.tooltips().addGroup(chart.svg().select('#' + poolBG.id()), 'cbg');
+    chart.tooltips().addGroup(chart.svg().select('#' + poolBG.id()), 'smbg');
+    chart.tooltips().addGroup(chart.svg().select('#' + poolBolus.id()), 'bolus');
+    chart.tooltips().addGroup(chart.svg().select('#' + poolBasal.id()), 'basal');
 
     return chart;
   };
@@ -304,7 +304,6 @@ function chartDailyFactory(el, options) {
     poolBolus.addPlotType('bolus', tideline.plot.wizard(poolBolus, {
       yScale: scaleBolus,
       emitter: emitter,
-      data: tidelineData.grouped.bolus,
       data: _.filter(tidelineData.grouped.bolus, function(d) {
         if (d.type === 'bolus' && !d.joinKey) {
           return d;
@@ -455,11 +454,11 @@ function chartDailyFactory(el, options) {
   };
 
   chart.closeMessage = function() {
-    d3.selectAll('.d3-rect-message').classed('hidden', true);
+    chart.poolGroup().selectAll('.d3-rect-message').classed('hidden', true);
   };
 
   chart.drawBasalSettingsButton = function() {
-    var labelGroup = d3.select(el).select('#tidelineLabels');
+    var labelGroup = chart.svg().select('#tidelineLabels');
     var labelTextBox = chart.options.hiddenPools.basalSettings ?
       labelGroup.select('text#poolBasal_label_0')[0][0].getBBox() :
       labelGroup.select('text#poolBasalSettings_label_0')[0][0].getBBox();

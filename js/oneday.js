@@ -48,7 +48,7 @@ module.exports = function(emitter) {
     pools = [], poolGroup,
     xScale = d3.time.scale.utc(),
     currentCenter, data, tidelineData, renderedData = [], endpoints,
-    mainGroup,
+    mainSVG, mainGroup,
     scrollNav, scrollHandleTrigger = true, mostRecent = false, annotations, tooltips;
 
   container.dataFill = {};
@@ -62,7 +62,7 @@ module.exports = function(emitter) {
   });
 
   function container(selection) {
-    var mainSVG = selection.append('svg');
+    mainSVG = selection.append('svg');
 
     mainGroup = mainSVG.append('g').attr('id', 'tidelineMain');
 
@@ -102,7 +102,7 @@ module.exports = function(emitter) {
         .attr('id', 'tidelineScrollNav');
     }
 
-    d3.select('#' + id).insert('clipPath', '#tidelineMain')
+    mainSVG.insert('clipPath', '#tidelineMain')
       .attr('id', 'mainClipPath')
       .append('rect')
       .attr({
@@ -211,21 +211,23 @@ module.exports = function(emitter) {
     var currentDomain = container.getCurrentDomain();
     var beginning = a[0];
     var end = a[1];
-    if (!d3.select('#' + id).classed('hidden')) {
-      emitter.emit('currentDomain', {
-        'domain': a
-      });
-      emitter.emit('navigated', [currentDomain, currentDomain.center.toISOString()]);
-      if (a[1].valueOf() === endpoints[1].valueOf()) {
-        emitter.emit('mostRecent', true);
-      }
-      else {
-        emitter.emit('mostRecent', false);
-      }
+    emitter.emit('currentDomain', {
+      'domain': a
+    });
+    emitter.emit('navigated', [currentDomain, currentDomain.center.toISOString()]);
+    if (a[1].valueOf() === endpoints[1].valueOf()) {
+      emitter.emit('mostRecent', true);
+    }
+    else {
+      emitter.emit('mostRecent', false);
     }
   };
 
   // getters only
+  container.svg = function() {
+    return mainSVG;
+  };
+  
   container.pools = function() {
     return pools;
   };
@@ -303,7 +305,7 @@ module.exports = function(emitter) {
         }
         mainGroup.select('#tidelineTooltips').attr('transform', 'translate(' + e.translate[0] + ',0)');
         mainGroup.select('#tidelineAnnotations').attr('transform', 'translate(' + e.translate[0] + ',0)');
-        d3.select('#mainClipPath rect').attr('transform', 'translate(' + -e.translate[0] + ',0)');
+        mainSVG.select('#mainClipPath rect').attr('transform', 'translate(' + -e.translate[0] + ',0)');
         if (scrollHandleTrigger) {
           mainGroup.select('.scrollThumb').transition().ease('linear').attr('x', function(d) {
             d.x = nav.scrollScale(xScale.domain()[0]);
@@ -434,7 +436,7 @@ module.exports = function(emitter) {
   };
 
   container.destroy = function() {
-    d3.select('#' + id).remove();
+    mainSVG.remove();
 
     return container;
   };
