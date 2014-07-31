@@ -372,7 +372,7 @@ describe('one-day view', function() {
     });
 
     describe('carbs data', function() {
-      var carbs, wizards, leftCarb, rightCarb;
+      var carbs, wizards, leftCarb, rightCarb, extendedCarb;
 
       it('should display carbs events with a radius of 14 #FFD382', function() {
         carbs = container.find('.d3-circle-carbs');
@@ -398,18 +398,29 @@ describe('one-day view', function() {
       it('should yield a right and up tooltip if not at the right edge', function() {
         rightCarb = carbs.filter(':last');
         rightCarb.simulate('mouseover');
-        var rightTooltipGroup = container.find('#tidelineTooltips_bolus').find('.d3-tooltip').filter(':last');
+        var rightTooltipGroup = $(container.find('#tidelineTooltips_bolus').find('.d3-tooltip')[1]);
         expect(rightTooltipGroup.find('image').attr('href')).to.equal('../../img/bolus/tooltip_bolus_small.svg');
         expect(rightTooltipGroup.find('text').filter('.d3-tooltip-timestamp').html()).to.equal('at 12:25 PM');
         expect(rightTooltipGroup.find('rect').size()).to.be.above(0);
       });
 
+      it('should yield an extra-large tooltip when recommended differs from delivered and extended', function() {
+        extendedCarb = $(carbs[12]);
+        extendedCarb.simulate('mouseover');
+        var extendedTooltipGroup = container.find('#tidelineTooltips_bolus').find('.d3-tooltip').filter(':last');
+        expect(extendedTooltipGroup.find('image').attr('href')).to.equal('../../img/bolus/tooltip_bolus_extralarge.svg');
+        expect(extendedTooltipGroup.find('text').filter('.d3-tooltip-timestamp').html()).to.equal('at 2:25 AM');
+        expect(extendedTooltipGroup.find('rect').size()).to.be.above(0);
+      });
+
       it('should have tooltips that disappear on mouseout', function() {
         leftCarb.simulate('mouseout');
         rightCarb.simulate('mouseout');
+        extendedCarb.simulate('mouseout');
         expect(container.find('#tidelineTooltips_bolus .d3-tooltip').size()).to.equal(0);
         leftCarb.simulate('mouseover');
         rightCarb.simulate('mouseover');
+        extendedCarb.simulate('mouseover');
       });
     });
 
@@ -422,7 +433,7 @@ describe('one-day view', function() {
   });
   
   describe('full day of data, quick boluses only', function() {
-    var container, oneDay;
+    var container, oneDay, boluses, thisBolus;
 
     before(function() {
       $(containerId).append('<h3>Full day of data, quick boluses only</h3>');
@@ -436,13 +447,19 @@ describe('one-day view', function() {
     });
 
     it('should display twenty-four boluses', function() {
-      var boluses = container.find('#poolBolus_bolus').find('.d3-bolus-group').find('rect.d3-rect-bolus');
+      boluses = container.find('#poolBolus_bolus').find('.d3-bolus-group').find('rect.d3-rect-bolus');
       expect(boluses.size()).to.equal(24);
     });
 
     it('should display twelve extended boluses', function() {
       var extended = container.find('#poolBolus_bolus').find('.d3-bolus-group').find('path.d3-path-extended');
       expect(extended.size()).to.equal(12);
+    });
+
+    it('should yield a tooltip on hover', function() {
+      thisBolus = boluses.filter(':first');
+      thisBolus.simulate('mouseover');
+      var thisTooltipGroup = container.find('#tidelineTooltips_bolus').find('.d3-tooltip');
     });
   });
 });
