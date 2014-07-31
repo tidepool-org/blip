@@ -65,8 +65,8 @@ module.exports = function(pool, opts) {
 
       drawBolus.bolus(bolusGroups);
       boluses.exit().remove();
-
-      var highlight = pool.highlight(boluses, opts);
+      
+      var highlight = pool.highlight('.d3-wizard-group, .d3-bolus-group', opts);
 
       // tooltips
       selection.selectAll('.d3-bolus-group').on('mouseover', function(d) {

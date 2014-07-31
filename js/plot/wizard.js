@@ -26,7 +26,7 @@ var DrawBolus = require('./util/drawbolus');
 
 module.exports = function(pool, opts) {
   var QUARTER = ' ¼', HALF = ' ½', THREE_QUARTER = ' ¾', THIRD = ' ⅓', TWO_THIRDS = ' ⅔';
-  
+
   opts = opts || {};
 
   var defaults = {
@@ -297,7 +297,7 @@ module.exports = function(pool, opts) {
 
       wizards.exit().remove();
 
-      var highlight = pool.highlight(wizards, opts);
+      var highlight = pool.highlight('.d3-wizard-group, .d3-bolus-group', opts);
 
       // tooltips
       selection.selectAll('.d3-wizard-group').on('mouseover', function(d) {

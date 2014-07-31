@@ -289,10 +289,18 @@ function Pool (container) {
 
     return {
       on: function(el) {
+        if(_.isString(background)) {
+          background = mainSVG.selectAll(background);
+        }
+
         background.attr('opacity', opts.subdueOpacity);
         el.attr('opacity', 1);
       },
       off: function() {
+        if(_.isString(background)) {
+          background = mainSVG.selectAll(background);
+        }
+
         background.attr('opacity', 1);
       }
     };
