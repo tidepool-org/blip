@@ -25,6 +25,8 @@ var log = require('../lib/').bows('Wizard');
 var DrawBolus = require('./util/drawbolus');
 
 module.exports = function(pool, opts) {
+  var QUARTER = ' ¼', HALF = ' ½', THREE_QUARTER = ' ¾', THIRD = ' ⅓', TWO_THIRDS = ' ⅔';
+  
   opts = opts || {};
 
   var defaults = {
@@ -290,7 +292,7 @@ module.exports = function(pool, opts) {
           return d.bolus;
         }
       });
-      
+
       drawBolus.extended(extended)
 
       wizards.exit().remove();

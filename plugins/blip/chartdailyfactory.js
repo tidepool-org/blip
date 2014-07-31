@@ -288,15 +288,13 @@ function chartDailyFactory(el, options) {
       yScale: scaleBolus,
       yScaleCarbs: scaleCarbs,
       emitter: emitter,
-      data: tidelineData.grouped.wizard,
       subdueOpacity: 0.4
     }), true, true);
 
     // quick bolus data to wizard pool
-    poolBolus.addPlotType('bolus', tideline.plot.bolus(poolBolus, {
+    poolBolus.addPlotType('bolus', tideline.plot.quickbolus(poolBolus, {
       yScale: scaleBolus,
       emitter: emitter,
-      data: _.filter(tidelineData.grouped.bolus, function(d) { if(!d.joinKey) { return d}}),
       subdueOpacity: 0.4
     }), true, true);
 

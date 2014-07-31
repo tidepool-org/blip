@@ -25,10 +25,6 @@ var log = require('../lib/').bows('Bolus');
 var DrawBolus = require('./util/drawbolus');
 
 module.exports = function(pool, opts) {
-
-  var QUARTER = ' ¼', HALF = ' ½', THREE_QUARTER = ' ¾', THIRD = ' ⅓', TWO_THIRDS = ' ⅔';
-  var MS_IN_ONE = 60000;
-
   opts = opts || {};
 
   var defaults = {
@@ -49,6 +45,9 @@ module.exports = function(pool, opts) {
 
     opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
+      // filter out boluses with wizard (assumption that boluses with joinKey are wizard)
+      currentData = _.filter(currentData, function(d) { if(!d.joinKey) { return d}});
+
       bolus.addAnnotations(_.filter(currentData, function(d) { return d.annotations; }));
 
       var boluses = d3.select(this)
