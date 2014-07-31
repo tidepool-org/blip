@@ -292,14 +292,6 @@ function chartDailyFactory(el, options) {
       subdueOpacity: 0.4
     }), true, true);
 
-    // add bolus data to bolus pool
-    poolBolus.addPlotType('bolus', tideline.plot.wizard(poolBolus, {
-      yScale: scaleBolus,
-      emitter: emitter,
-      data: tidelineData.grouped.bolus,
-      subdueOpacity: 0.4
-    }), true, true);
-
     // quick bolus data to wizard pool
     poolBolus.addPlotType('bolus', tideline.plot.wizard(poolBolus, {
       yScale: scaleBolus,
