@@ -46,6 +46,7 @@ module.exports = function(pool, opts) {
   var mainGroup = pool.parent();
 
   function bolus(selection) {
+
     opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
       bolus.addAnnotations(_.filter(currentData, function(d) { return d.annotations; }));
@@ -55,7 +56,6 @@ module.exports = function(pool, opts) {
         .data(currentData, function(d) {
           return d.id;
         });
-
       var bolusGroups = boluses.enter()
         .append('g')
         .attr({
@@ -64,17 +64,8 @@ module.exports = function(pool, opts) {
           id: function(d) { return 'bolus_group_' + d.id; }
         });
 
-      var boluses = wizardGroups.filter(function(d) {
-        if (d.bolus) {
-          return d.bolus;
-        }
-      });
-
       drawBolus.bolus(bolusGroups);
-
       boluses.exit().remove();
-
-      //figure out what to do with highlihgts for quick bolus
 
       var highlight = pool.highlight(boluses, opts);
 
