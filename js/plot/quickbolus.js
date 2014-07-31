@@ -55,6 +55,7 @@ module.exports = function(pool, opts) {
         .data(currentData, function(d) {
           return d.id;
         });
+
       var bolusGroups = boluses.enter()
         .append('g')
         .attr({
@@ -64,8 +65,17 @@ module.exports = function(pool, opts) {
         });
 
       drawBolus.bolus(bolusGroups);
+
+      var extended = boluses.filter(function(d) {
+        if (d.extended == true) {
+          return d;
+        }
+      });
+
+      drawBolus.extended(extended);
+
       boluses.exit().remove();
-      
+
       var highlight = pool.highlight('.d3-wizard-group, .d3-bolus-group', opts);
 
       // tooltips
@@ -101,7 +111,7 @@ module.exports = function(pool, opts) {
       .call(pool.tooltips(),
         datum,
         // tooltipXPos
-        opts.xScale(Date.parse(datum.normalTime) + (opts.width/2)),
+        opts.xScale(Date.parse(datum.normalTime)) + (opts.width/2),
         'bolus',
         // timestamp
         true,
