@@ -23,7 +23,7 @@ var scales = require('../util/scales')();
 var dt = require('../../data/util/datetime');
 var format = require('../../data/util/format');
 var Puddle = require('./puddle');
-var bgBoundaryClass = require('../util/bgBoundaryClass');
+var bgBoundaryClass = require('../util/bgboundaryclass');
 
 module.exports = function(pool, opts) {
 
@@ -81,7 +81,7 @@ module.exports = function(pool, opts) {
 
   opts = _.defaults(opts, defaults);
 
-  var getBgBoundaryClass = bgBoundaryClass(opts);
+  var getBgBoundaryClass = bgBoundaryClass(opts.classes);
   var widgetGroup, rectScale;
 
   var puddles = [];

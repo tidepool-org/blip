@@ -15,19 +15,27 @@
  * == BSD2 LICENSE ==
  */
 
-module.exports = {
-  viz: {
-    oneday_test: require('./viz/oneday_test')
-  },
-  annotations_test: require('./annotations_test'),
-  basalutil_test: require('./basalutil_test'),
-  bgutil_test: require('./bgutil_test'),
-  bolusutil_test: require('./bolusutil_test'),
-  datetime_test: require('./datetime_test'),
-  preprocess_test: require('./preprocess_test'),
-  segmentutil_test: require('./segmentutil_test'),
-  settingsutil_test: require('./settingsutil_test'),
-  tidelinedata_test: require('./tidelinedata_test'),
-  timeline_test: require('./timeline_test'),
-  watson_test: require('./watson_test')
+var shapes = {
+  tooltipPolygon: function(opts) {
+      opts = opts || {};
+      if (!((opts.w != null) && (opts.h != null) && (opts.t != null) && (opts.k != null))) {
+        log('Sorry, I need w, h, t, and k variables to generate a tooltip polygon.');
+      }
+
+      var w = opts.w, h = opts.h, t = opts.t, k = opts.k;
+
+      function pointString(x,y) {
+        return x + ',' + y + ' ';
+      }
+
+      return pointString(0,0) +
+        pointString((t/2), k) +
+        pointString((w-(3/2*t)), k) +
+        pointString((w-(3/2*t)), (k+h)) +
+        pointString((0-(3/2*t)), (k+h)) +
+        pointString((0-(3/2*t)), k) +
+        pointString((0-(t/2)), k) + '0,0';
+    }
 };
+
+module.exports = shapes;

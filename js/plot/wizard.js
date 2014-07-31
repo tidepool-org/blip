@@ -22,7 +22,7 @@ var Duration = require('../lib/').Duration;
 var format = require('../data/util/format');
 var log = require('../lib/').bows('Wizard');
 
-var DrawBolus = require('./util/drawbolus');
+var drawbolus = require('./util/drawbolus');
 
 module.exports = function(pool, opts) {
   var QUARTER = ' ¼', HALF = ' ½', THREE_QUARTER = ' ¾', THIRD = ' ⅓', TWO_THIRDS = ' ⅔';
@@ -40,7 +40,7 @@ module.exports = function(pool, opts) {
 
   _.defaults(opts, defaults);
 
-  var drawBolus = DrawBolus(opts);
+  var drawBolus = drawbolus(opts);
   var tideline = window.tideline;
   var mainGroup = pool.parent();
 
@@ -100,7 +100,7 @@ module.exports = function(pool, opts) {
       formatted = formatted + '0';
     }
     return formatted;
-  }
+  };
 
   var getRecommendedBolusTooltipText = function(d) {
     return formatValue(d.recommended) + "U recom'd";
