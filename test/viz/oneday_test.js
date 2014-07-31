@@ -436,8 +436,13 @@ describe('one-day view', function() {
     });
 
     it('should display twenty-four boluses', function() {
-      var boluses = container.find('#poolBolus_bolus').find('.d3-wizard-group').find('rect.d3-rect-bolus');
+      var boluses = container.find('#poolBolus_bolus').find('.d3-bolus-group').find('rect.d3-rect-bolus');
       expect(boluses.size()).to.equal(24);
+    });
+
+    it('should display twelve extended boluses', function() {
+      var extended = container.find('#poolBolus_bolus').find('.d3-bolus-group').find('path.d3-path-extended');
+      expect(extended.size()).to.equal(12);
     });
   });
 });

@@ -85,6 +85,6 @@ module.exports = (function() {
 
   return {
     full: full(),
-    quickbolusonly: _.reject(full(), {type: 'wizard'})
+    quickbolusonly: _.map(_.reject(full(), {type: 'wizard'}), function(d) { delete d.joinKey; return d; })
   };
 })();
