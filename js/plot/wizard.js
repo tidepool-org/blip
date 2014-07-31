@@ -118,7 +118,8 @@ module.exports = function(pool, opts) {
   };
 
   var getTooltipCategory = function(datum) {
-    var category;
+    var category = '';
+
     // when there's no 'recommended' field
     if (datum.recommended == null) {
       if (datum.extended == null) {
@@ -219,7 +220,7 @@ module.exports = function(pool, opts) {
       mainGroup.select('#tooltip_' + datum.id).select('.d3-tooltip-text-group').append('text')
         .attr({
           'class': 'd3-tooltip-text d3-bolus',
-          'x': opts.xScale(Date.parse(datum.normalTime)) + tooltipWidth / 2,
+          'x': opts.xScale(Date.parse(datum.normalTime)) + tooltipWidth / 2 + opts.width/2,
           'y': pool.height() - tooltipHeight / 4
         })
         .append('tspan')
