@@ -340,7 +340,11 @@ class Boluses:
 
         likelihood = [0,1]
 
+        quarter = [0,1,2,3]
+
         durations = [30,45,60,90,120,180,240]
+
+        tenths = range(0,10)
 
         for bolus in self.boluses:
             coin_flip = random.choice(likelihood)
@@ -359,6 +363,13 @@ class Boluses:
                         bolus['duration'] = random.choice(durations) * 60 * 1000
                         bolus['type'] = 'bolus'
                         bolus['extended'] = True
+
+            # make it so that some boluses have a difference between programmed and delivered
+            if random.choice(quarter):
+                if bolus['value'] >= 1:
+                    bolus['programmed'] = bolus['value']
+                    bolus['type'] = 'bolus'
+                    bolus['value'] = float(random.choice(tenths)/10.0)
 
 class Dexcom:
     """Generate demo Dexcom data."""
@@ -736,6 +747,7 @@ def print_JSON(all_json, out_file):
     # add deviceId field to smbg, boluses, carbs, and basal-rate-segments
     pump_fields = ['smbg', 'carbs', 'wizard', 'bolus', 'basal-rate-segment', 'settings']
     annotation_fields = ['bolus', 'basal-rate-segment']
+    suspends = []
     for a in all_json:
         if a['type'] in pump_fields:
             a['deviceId'] = 'Demo - 123'
@@ -752,12 +764,51 @@ def print_JSON(all_json, out_file):
             a['deviceTime'] = t
         except KeyError:
             pass
+
+        # add some annotations
         if a['type'] in annotation_fields:
             num = random.choice(range(0,15))
             if not num:
                 a['annotations'] = [{'code': 'demo annotation'}]
 
-    all_json = _fix_floating_point(sorted(all_json, key=lambda x: x['deviceTime']))
+        # find extended boluses where programmed differs from delivered
+        # and add a 'suspendedAt' field
+        try:
+            if (a['type'] == 'bolus') and a['extended'] and a['programmed']:
+                fraction = random.choice([4,3,2])
+                coin_flip = random.choice([0,1])
+                reason = random.choice(['manual', 'low_glucose', 'alarm'])
+                if coin_flip:
+                    time = dt.strptime(a['deviceTime'], '%Y-%m-%dT%H:%M:%S')
+                    dur = td(milliseconds=(a['duration']/fraction))
+                    a['suspendedAt'] = dt.strftime(time + dur, '%Y-%m-%dT%H:%M:%S')
+                    suspend = {
+                        'id': str(uuid.uuid4()),
+                        'reason': reason,
+                        'type': 'deviceMeta',
+                        'subType': 'status',
+                        'status': 'suspended',
+                        'deviceTime': a['suspendedAt'],
+                        'deviceId': 'Demo - 123',
+                        'source': 'demo'
+                    }
+                    resume = {
+                        'id': str(uuid.uuid4()),
+                        'reason': random.choice(['manual', 'automatic']),
+                        'type': 'deviceMeta',
+                        'subType': 'status',
+                        'status': 'resumed',
+                        'deviceTime': dt.strftime(time + dur * 2 + td(minutes=random.choice(range(-5,6))), '%Y-%m-%dT%H:%M:%S'),
+                        'deviceId': 'Demo - 123',
+                        'source': 'demo',
+                        'previous': suspend
+                    }
+                    suspends.append(suspend)
+                    suspends.append(resume)
+        except KeyError:
+            pass
+
+    all_json = _fix_floating_point(sorted(all_json + suspends, key=lambda x: x['deviceTime']))
 
     for a in all_json:
         # remove device time from messages
