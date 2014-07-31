@@ -263,7 +263,7 @@ module.exports = function(pool, opts) {
 
       var boluses = wizardGroups.filter(function(d) {
         if (d.bolus) {
-          return d.bolus;
+          return d;
         }
       });
 
@@ -272,7 +272,7 @@ module.exports = function(pool, opts) {
       // boluses where recommended > delivered
       var underride = boluses.filter(function(d) {
         if (d.bolus.recommended > d.bolus.value) {
-          return d.bolus;
+          return d;
         }
       });
 
@@ -281,7 +281,7 @@ module.exports = function(pool, opts) {
       // boluses where delivered > recommended
       var override = boluses.filter(function(d) {
         if (d.bolus.value > d.bolus.recommended) {
-          return d.bolus;
+          return d;
         }
       });
 
@@ -289,11 +289,11 @@ module.exports = function(pool, opts) {
 
       var extended = boluses.filter(function(d) {
         if (d.bolus.extended == true) {
-          return d.bolus;
+          return d;
         }
       });
 
-      drawBolus.extended(extended)
+      drawBolus.extended(extended);
 
       wizards.exit().remove();
 
