@@ -293,14 +293,10 @@ function chartDailyFactory(el, options) {
     }), true, true);
 
     // quick bolus data to wizard pool
-    poolBolus.addPlotType('bolus', tideline.plot.wizard(poolBolus, {
+    poolBolus.addPlotType('bolus', tideline.plot.bolus(poolBolus, {
       yScale: scaleBolus,
       emitter: emitter,
-      data: _.filter(tidelineData.grouped.bolus, function(d) {
-        if (d.type === 'bolus' && !d.joinKey) {
-          return d;
-        }
-      }),
+      data: _.filter(tidelineData.grouped.bolus, function(d) { if(!d.joinKey) { return d}}),
       subdueOpacity: 0.4
     }), true, true);
 
