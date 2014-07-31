@@ -7,6 +7,7 @@ dev/demodata/indexed_segments.json
 dist/
 example/bundle.js
 example/data/blip-output.json
+example/data/universal-uploader-output.json
 example/dist/
 example/running.js
 node_modules/
