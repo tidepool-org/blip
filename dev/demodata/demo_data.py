@@ -12,16 +12,18 @@
 # You should have received a copy of the License along with this program; if
 # not, you can obtain one from Tidepool Project at tidepool.org.
 # == BSD2 LICENSE ==
-# usage: demo_data.py [-h] [-d DEXCOM_SEGMENTS] [-n NUM_DAYS] [-o OUTPUT_FILE]
-#                     [-q]
-
+#
+# usage: demo_data.py [-h] [-d DEXCOM_SEGMENTS] [-m] [-n NUM_DAYS]
+#                     [-o OUTPUT_FILE] [-q]
+#
 # Generate demo diabetes data for Tidepool applications and visualizations.
-
+#
 # optional arguments:
 #   -h, --help            show this help message and exit
 #   -d DEXCOM_SEGMENTS, --dexcom DEXCOM_SEGMENTS
 #                         name of file containing indexed continuous segments of
 #                         Dexcom data; default is indexed_segments.json
+#   -m, --mock            shortcut for producing new mock data for blip
 #   -n NUM_DAYS, --num_days NUM_DAYS
 #                         number of days of demo data to generate; default is 30
 #   -o OUTPUT_FILE, --output_file OUTPUT_FILE
@@ -338,7 +340,11 @@ class Boluses:
 
         likelihood = [0,1]
 
+        quarter = [0,1,2,3]
+
         durations = [30,45,60,90,120,180,240]
+
+        tenths = range(0,10)
 
         for bolus in self.boluses:
             coin_flip = random.choice(likelihood)
@@ -358,10 +364,17 @@ class Boluses:
                         bolus['type'] = 'bolus'
                         bolus['extended'] = True
 
+            # make it so that some boluses have a difference between programmed and delivered
+            if random.choice(quarter):
+                if bolus['value'] >= 1:
+                    bolus['programmed'] = bolus['value']
+                    bolus['type'] = 'bolus'
+                    bolus['value'] = float(random.choice(tenths)/10.0)
+
 class Dexcom:
     """Generate demo Dexcom data."""
 
-    def __init__(self, filename, days):
+    def __init__(self, filename, days, start=dt.now()):
         """Load the indexed segments to use for generating demo Dexcom data."""
 
         filename = filename if (filename != None) else 'indexed_segments.json'
@@ -371,6 +384,8 @@ class Dexcom:
         self.days = days
 
         self.delta = td(minutes=5)
+
+        self.start = start
 
     def _increment_timestamp(self, t):
         """Increment a timestamp with a timedelta and return the updated value."""
@@ -383,7 +398,7 @@ class Dexcom:
         
         initial = random.choice(self.segments[random.choice(self.segments.keys())])
 
-        start = dt.now() + td(hours=random.choice(range(-5,6)))
+        start = self.start + td(hours=random.choice(range(-5,6)))
 
         self.current = start
 
@@ -732,6 +747,7 @@ def print_JSON(all_json, out_file):
     # add deviceId field to smbg, boluses, carbs, and basal-rate-segments
     pump_fields = ['smbg', 'carbs', 'wizard', 'bolus', 'basal-rate-segment', 'settings']
     annotation_fields = ['bolus', 'basal-rate-segment']
+    suspends = []
     for a in all_json:
         if a['type'] in pump_fields:
             a['deviceId'] = 'Demo - 123'
@@ -748,12 +764,51 @@ def print_JSON(all_json, out_file):
             a['deviceTime'] = t
         except KeyError:
             pass
+
+        # add some annotations
         if a['type'] in annotation_fields:
             num = random.choice(range(0,15))
             if not num:
                 a['annotations'] = [{'code': 'demo annotation'}]
 
-    all_json = _fix_floating_point(sorted(all_json, key=lambda x: x['deviceTime']))
+        # find extended boluses where programmed differs from delivered
+        # and add a 'suspendedAt' field
+        try:
+            if (a['type'] == 'bolus') and a['extended'] and a['programmed']:
+                fraction = random.choice([4,3,2])
+                coin_flip = random.choice([0,1])
+                reason = random.choice(['manual', 'low_glucose', 'alarm'])
+                if coin_flip:
+                    time = dt.strptime(a['deviceTime'], '%Y-%m-%dT%H:%M:%S')
+                    dur = td(milliseconds=(a['duration']/fraction))
+                    a['suspendedAt'] = dt.strftime(time + dur, '%Y-%m-%dT%H:%M:%S')
+                    suspend = {
+                        'id': str(uuid.uuid4()),
+                        'reason': reason,
+                        'type': 'deviceMeta',
+                        'subType': 'status',
+                        'status': 'suspended',
+                        'deviceTime': a['suspendedAt'],
+                        'deviceId': 'Demo - 123',
+                        'source': 'demo'
+                    }
+                    resume = {
+                        'id': str(uuid.uuid4()),
+                        'reason': random.choice(['manual', 'automatic']),
+                        'type': 'deviceMeta',
+                        'subType': 'status',
+                        'status': 'resumed',
+                        'deviceTime': dt.strftime(time + dur * 2 + td(minutes=random.choice(range(-5,6))), '%Y-%m-%dT%H:%M:%S'),
+                        'deviceId': 'Demo - 123',
+                        'source': 'demo',
+                        'previous': suspend
+                    }
+                    suspends.append(suspend)
+                    suspends.append(resume)
+        except KeyError:
+            pass
+
+    all_json = _fix_floating_point(sorted(all_json + suspends, key=lambda x: x['deviceTime']))
 
     for a in all_json:
         # remove device time from messages
@@ -776,12 +831,16 @@ def main():
 
     parser = argparse.ArgumentParser(description='Generate demo diabetes data for Tidepool applications and visualizations.')
     parser.add_argument('-d', '--dexcom', action='store', dest='dexcom_segments', help='name of file containing indexed continuous segments of Dexcom data;\ndefault is indexed_segments.json')
+    parser.add_argument('-m', '--mock', action='store_true', help='shortcut for producing new mock data for blip')
     parser.add_argument('-n', '--num_days', action='store', dest='num_days', default=30, type=int, help='number of days of demo data to generate;\ndefault is 30')
     parser.add_argument('-o', '--output_file', action='store', dest='output_file', default='device-data.json', help='name of output JSON file;\ndefault is device-data.json')
     parser.add_argument('-q', '--quiet_messages', action='store_true', dest='quiet_messages', help='use this flag to turn off messages when bacon ipsum is being slow')
     args = parser.parse_args()
 
-    dex = Dexcom(args.dexcom_segments, args.num_days)
+    if args.mock:
+        dex = Dexcom(args.dexcom_segments, args.num_days, dt(2014, 2, 11, 23, 50, 23, random.choice(MICRO)))
+    else:
+        dex = Dexcom(args.dexcom_segments, args.num_days)
     dex.generate_JSON()
 
     smbg = SMBG(dex)
@@ -796,7 +855,7 @@ def main():
 
     settings = Settings(basal.schedule, boluses.ratio, dex.final, args.num_days)
 
-    if args.quiet_messages:
+    if args.mock or args.quiet_messages:
         all_json = dex.json + smbg.json + basal.json + meals.json + wizards.json + boluses.json + settings.json
     else:
         messages = Messages(smbg)
