@@ -19,7 +19,8 @@ var React = window.React;
 var LoginNav = React.createClass({
   propTypes: {
     page: React.PropTypes.string,
-    imagesEndpoint: React.PropTypes.string
+    imagesEndpoint: React.PropTypes.string,
+    trackMetric: React.PropTypes.func.isRequired
   },
 
   render: function() {
@@ -47,17 +48,24 @@ var LoginNav = React.createClass({
   },
 
   renderLink: function() {
+    var self = this;
     var page = this.props.page;
     var href = '#/signup';
     var className = 'js-signup-link';
     var icon = 'icon-add';
     var text = 'Sign up';
+    var handleClick = function() {
+      self.props.trackMetric('Clicked Sign Up Link');
+    };
 
     if (page === 'signup') {
       href = '#/login';
       className = 'js-login-link';
       icon = 'icon-login';
       text = 'Log in';
+      handleClick = function() {
+        self.props.trackMetric('Clicked Log In Link');
+      };
     }
 
     return (

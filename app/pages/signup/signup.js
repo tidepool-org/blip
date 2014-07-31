@@ -25,7 +25,8 @@ var SimpleForm = require('../../components/simpleform');
 var Signup = React.createClass({
   propTypes: {
     onSubmit: React.PropTypes.func.isRequired,
-    onSubmitSuccess: React.PropTypes.func.isRequired
+    onSubmitSuccess: React.PropTypes.func.isRequired,
+    trackMetric: React.PropTypes.func.isRequired
   },
 
   formInputs: [
@@ -67,7 +68,8 @@ var Signup = React.createClass({
       <div className="signup">
         <LoginNav
           page="signup"
-          imagesEndpoint={config.IMAGES_ENDPOINT + '/loginnav'} />
+          imagesEndpoint={config.IMAGES_ENDPOINT + '/loginnav'}
+          trackMetric={this.props.trackMetric} />
         <LoginLogo imagesEndpoint={config.IMAGES_ENDPOINT + '/loginlogo'} />
         <div className="container-small-outer signup-form">
           <div className="container-small-inner signup-form-box">
