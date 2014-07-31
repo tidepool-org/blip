@@ -19,8 +19,9 @@ var d3 = require('./lib/').d3;
 var _ = require('./lib/')._;
 
 var Pool = require('./pool');
-var annotation = require('./plot/util/annotation');
+var annotation = require('./plot/util/annotations/annotation');
 var tooltip = require('./plot/util/tooltip');
+var Tooltips = require('./plot/util/tooltips/tooltip');
 var dt = require('./data/util/datetime');
 
 var log = require('./lib/').bows('One Day');
@@ -240,6 +241,10 @@ module.exports = function(emitter) {
     return annotations;
   };
 
+  container.nativeTooltips = function() {
+    return nativeTooltips;
+  };
+
   container.tooltips = function() {
     return tooltips;
   };
@@ -412,6 +417,7 @@ module.exports = function(emitter) {
     var tooltipGroup = mainGroup.append('g')
       .attr('id', 'tidelineTooltips');
     tooltips = tooltip(container, tooltipGroup).id(tooltipGroup.attr('id'));
+    nativeTooltips = new Tooltips(container, tooltipGroup).id(tooltipGroup.attr('id'));
     pools.forEach(function(pool) {
       pool.tooltips(tooltips);
     });

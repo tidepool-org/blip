@@ -22,7 +22,7 @@ var Duration = require('../lib/').Duration;
 var format = require('../data/util/format');
 var log = require('../lib/').bows('Bolus');
 
-var DrawBolus = require('./util/drawbolus');
+var drawbolus = require('./util/drawbolus');
 
 module.exports = function(pool, opts) {
   opts = opts || {};
@@ -38,7 +38,7 @@ module.exports = function(pool, opts) {
 
   _.defaults(opts, defaults);
 
-  var drawBolus = DrawBolus(opts);
+  var drawBolus = drawbolus(opts);
   var mainGroup = pool.parent();
 
   function bolus(selection) {
@@ -46,7 +46,7 @@ module.exports = function(pool, opts) {
     opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
       // filter out boluses with wizard (assumption that boluses with joinKey are wizard)
-      currentData = _.filter(currentData, function(d) { if(!d.joinKey) { return d}});
+      currentData = _.filter(currentData, function(d) { if(!d.joinKey) { return d; }});
 
       bolus.addAnnotations(_.filter(currentData, function(d) { return d.annotations; }));
 
@@ -91,7 +91,7 @@ module.exports = function(pool, opts) {
       formatted = formatted + '0';
     }
     return formatted;
-  };
+  }
 
   bolus.addTooltip = function(datum, category) {
     var tooltipWidth = opts.classes[category].width;

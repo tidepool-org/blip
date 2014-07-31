@@ -15,14 +15,15 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = require('../../lib/').d3;
-var _ = require('../../lib/')._;
+var d3 = require('../../../lib/').d3;
+var _ = require('../../../lib/')._;
 
+var shapeutil = require('../shapeutil');
 var shapes = require('./shapes');
 var defs = require('./annotationdefinitions');
-var dt = require('../../data/util/datetime');
+var dt = require('../../../data/util/datetime');
 
-var log = require('../../lib/').bows('AnnotationIcon');
+var log = require('../../../lib/').bows('AnnotationIcon');
 
 module.exports = function(container, annotationsGroup) {
 
@@ -148,11 +149,11 @@ module.exports = function(container, annotationsGroup) {
           'k': opts.triangleHeight
         });
       if (opts.orientation.up) {
-        polygon = shapes.mirrorImageX(polygon);
+        polygon = shapeutil.mirrorImageX(polygon);
       }
       // not an else if because orientation can be both up & left
       if (opts.orientation.left) {
-        polygon = shapes.mirrorImageY(polygon);
+        polygon = shapeutil.mirrorImageY(polygon);
       }
 
       selection.insert('polygon', '.d3-tooltip-data-annotation')
