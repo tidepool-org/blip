@@ -16,6 +16,9 @@
  */
 
 module.exports = {
+  viz: {
+    oneday_test: require('./viz/oneday_test')
+  },
   annotations_test: require('./annotations_test'),
   basalutil_test: require('./basalutil_test'),
   bgutil_test: require('./bgutil_test'),
@@ -26,8 +29,5 @@ module.exports = {
   settingsutil_test: require('./settingsutil_test'),
   tidelinedata_test: require('./tidelinedata_test'),
   timeline_test: require('./timeline_test'),
-  watson_test: require('./watson_test'),
-  viz: {
-    oneday_test: require('./viz/oneday_test')
-  }
+  watson_test: require('./watson_test')
 };
