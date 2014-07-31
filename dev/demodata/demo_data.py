@@ -12,16 +12,18 @@
 # You should have received a copy of the License along with this program; if
 # not, you can obtain one from Tidepool Project at tidepool.org.
 # == BSD2 LICENSE ==
-# usage: demo_data.py [-h] [-d DEXCOM_SEGMENTS] [-n NUM_DAYS] [-o OUTPUT_FILE]
-#                     [-q]
-
+#
+# usage: demo_data.py [-h] [-d DEXCOM_SEGMENTS] [-m] [-n NUM_DAYS]
+#                     [-o OUTPUT_FILE] [-q]
+#
 # Generate demo diabetes data for Tidepool applications and visualizations.
-
+#
 # optional arguments:
 #   -h, --help            show this help message and exit
 #   -d DEXCOM_SEGMENTS, --dexcom DEXCOM_SEGMENTS
 #                         name of file containing indexed continuous segments of
 #                         Dexcom data; default is indexed_segments.json
+#   -m, --mock            shortcut for producing new mock data for blip
 #   -n NUM_DAYS, --num_days NUM_DAYS
 #                         number of days of demo data to generate; default is 30
 #   -o OUTPUT_FILE, --output_file OUTPUT_FILE
@@ -361,7 +363,7 @@ class Boluses:
 class Dexcom:
     """Generate demo Dexcom data."""
 
-    def __init__(self, filename, days):
+    def __init__(self, filename, days, start=dt.now()):
         """Load the indexed segments to use for generating demo Dexcom data."""
 
         filename = filename if (filename != None) else 'indexed_segments.json'
@@ -371,6 +373,8 @@ class Dexcom:
         self.days = days
 
         self.delta = td(minutes=5)
+
+        self.start = start
 
     def _increment_timestamp(self, t):
         """Increment a timestamp with a timedelta and return the updated value."""
@@ -383,7 +387,7 @@ class Dexcom:
         
         initial = random.choice(self.segments[random.choice(self.segments.keys())])
 
-        start = dt.now() + td(hours=random.choice(range(-5,6)))
+        start = self.start + td(hours=random.choice(range(-5,6)))
 
         self.current = start
 
@@ -776,12 +780,16 @@ def main():
 
     parser = argparse.ArgumentParser(description='Generate demo diabetes data for Tidepool applications and visualizations.')
     parser.add_argument('-d', '--dexcom', action='store', dest='dexcom_segments', help='name of file containing indexed continuous segments of Dexcom data;\ndefault is indexed_segments.json')
+    parser.add_argument('-m', '--mock', action='store_true', help='shortcut for producing new mock data for blip')
     parser.add_argument('-n', '--num_days', action='store', dest='num_days', default=30, type=int, help='number of days of demo data to generate;\ndefault is 30')
     parser.add_argument('-o', '--output_file', action='store', dest='output_file', default='device-data.json', help='name of output JSON file;\ndefault is device-data.json')
     parser.add_argument('-q', '--quiet_messages', action='store_true', dest='quiet_messages', help='use this flag to turn off messages when bacon ipsum is being slow')
     args = parser.parse_args()
 
-    dex = Dexcom(args.dexcom_segments, args.num_days)
+    if args.mock:
+        dex = Dexcom(args.dexcom_segments, args.num_days, dt(2014, 2, 11, 23, 50, 23, random.choice(MICRO)))
+    else:
+        dex = Dexcom(args.dexcom_segments, args.num_days)
     dex.generate_JSON()
 
     smbg = SMBG(dex)
@@ -796,7 +804,7 @@ def main():
 
     settings = Settings(basal.schedule, boluses.ratio, dex.final, args.num_days)
 
-    if args.quiet_messages:
+    if args.mock or args.quiet_messages:
         all_json = dex.json + smbg.json + basal.json + meals.json + wizards.json + boluses.json + settings.json
     else:
         messages = Messages(smbg)
