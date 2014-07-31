@@ -32,7 +32,8 @@ module.exports = {
     util: {
       datetime: require('./data/util/datetime'),
       format: require('./data/util/format'),
-      TidelineCrossFilter: require('./data/util/tidelinecrossfilter')
+      TidelineCrossFilter: require('./data/util/tidelinecrossfilter'),
+      Timeline: require('./data/util/timeline')
     }
   },
 
@@ -52,15 +53,22 @@ module.exports = {
       widget: require('./plot/stats/widget')
     },
     util: {
-      annotation: require('./plot/util/annotation'),
+      annotations: {
+        annotation: require('./plot/util/annotations/annotation'),
+        defs: require('./plot/util/annotations/annotationdefinitions')
+      },
       axes: {
         dailyx: require('./plot/util/axes/dailyx')
       },
-      defs: require('./plot/util/annotationdefinitions'),
+      tooltips: {
+        shapes: require('./plot/util/tooltips/shapes'),
+        Tooltips: require('./plot/util/tooltips/tooltip')
+      },
+      bgboundaryclass: require('./plot/util/bgboundaryclass'),
       fill: require('./plot/util/fill'),
       legend: require('./plot/util/legend'),
       scales: require('./plot/util/scales'),
-      shapes: require('./plot/util/shapes'),
+      shapeutil: require('./plot/util/shapeutil'),
       tooltip: require('./plot/util/tooltip')
     }
   }

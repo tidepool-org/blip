@@ -16,6 +16,7 @@
  */
 
 @import 'tideline-colors.less';
+@import 'tideline-svg.less';
 
 // typography
 // @font-family-base shared with blip, but sizes are specific to tideline
@@ -195,7 +196,7 @@ svg {
 
 // blood glucose
 // cbg
-.d3-cbg, .d3-smbg {
+.d3-cbg {
   &.d3-circle-cbg {
     &.d3-bg-low {
       fill: @bg-low;
@@ -209,6 +210,7 @@ svg {
   }
 }
 
+// smbg
 .d3-circle-smbg {
   stroke-width: 2;
   &.d3-bg-low {

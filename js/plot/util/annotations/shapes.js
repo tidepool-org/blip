@@ -1,4 +1,4 @@
-/*
+/* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
  * 
@@ -15,22 +15,27 @@
  * == BSD2 LICENSE ==
  */
 
-module.exports = function(opts) {
-  return function(datum) {
-    if (datum.value < opts.classes['very-low'].boundary) {
-      return 'd3-bg-low';
+var shapes = {
+  tooltipPolygon: function(opts) {
+      opts = opts || {};
+      if (!((opts.w != null) && (opts.h != null) && (opts.t != null) && (opts.k != null))) {
+        log('Sorry, I need w, h, t, and k variables to generate a tooltip polygon.');
+      }
+
+      var w = opts.w, h = opts.h, t = opts.t, k = opts.k;
+
+      function pointString(x,y) {
+        return x + ',' + y + ' ';
+      }
+
+      return pointString(0,0) +
+        pointString((t/2), k) +
+        pointString((w-(3/2*t)), k) +
+        pointString((w-(3/2*t)), (k+h)) +
+        pointString((0-(3/2*t)), (k+h)) +
+        pointString((0-(3/2*t)), k) +
+        pointString((0-(t/2)), k) + '0,0';
     }
-    else if ((datum.value >= opts.classes['very-low'].boundary) && (datum.value < opts.classes.low.boundary)) {
-      return 'd3-bg-low d3-circle-open';
-    }
-    else if ((datum.value >= opts.classes.low.boundary) && (datum.value <= opts.classes.target.boundary)) {
-      return 'd3-bg-target';
-    }
-    else if ((datum.value > opts.classes.target.boundary) && (datum.value <= opts.classes.high.boundary)) {
-      return 'd3-bg-high d3-circle-open';
-    }
-    else if (datum.value > opts.classes.high.boundary) {
-      return 'd3-bg-high';
-    }
-  };
 };
+
+module.exports = shapes;

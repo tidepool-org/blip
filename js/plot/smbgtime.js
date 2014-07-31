@@ -1,15 +1,15 @@
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- *
+ * 
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- *
+ * 
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- *
+ * 
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -19,7 +19,7 @@ var d3 = require('../lib/').d3;
 var _ = require('../lib/')._;
 
 var log = require('../lib/').bows('Two-Week SMBG');
-var bgBoundaryClass = require('./util/bgBoundaryClass');
+var bgBoundaryClass = require('./util/bgboundaryclass');
 
 function SMBGTime (opts) {
   var MS_IN_HOUR = 3600000;
@@ -30,11 +30,11 @@ function SMBGTime (opts) {
 
   var defaults = {
     classes: {
-      'very-low': {'boundary': 60},
-      'low': {'boundary': 80, 'tooltip': 'smbg_tooltip_low.svg'},
-      'target': {'boundary': 180, 'tooltip': 'smbg_tooltip_target.svg'},
-      'high': {'boundary': 200, 'tooltip': 'smbg_tooltip_high.svg'},
-      'very-high': {'boundary': 300}
+      'very-low': {boundary: 60},
+      low: {boundary: 80, tooltip: 'smbg_tooltip_low.svg'},
+      target: {boundary: 180, tooltip: 'smbg_tooltip_target.svg'},
+      high: {boundary: 200, tooltip: 'smbg_tooltip_high.svg'},
+      'very-high': {boundary: 300}
     },
     size: 16,
     rectWidth: 32,
@@ -44,7 +44,7 @@ function SMBGTime (opts) {
 
   opts = _.defaults(opts, defaults);
 
-  var getBgBoundaryClass = bgBoundaryClass(opts), mainGroup, poolDaysGroup;
+  var getBgBoundaryClass = bgBoundaryClass(opts.classes), mainGroup, poolDaysGroup;
 
   this.draw = function(pool) {
     opts.pool = pool;
@@ -87,24 +87,24 @@ function SMBGTime (opts) {
         circleGroups.append('rect')
           .style('display', 'none')
           .attr({
-            'x': function(d) {
+            x: function(d) {
               return smbg.xPosition(d) - opts.rectWidth/2;
             },
-            'y': 0,
+            y: 0,
             // text background rect is twice an smbg wide
-            'width': opts.rectWidth,
+            width: opts.rectWidth,
             // text background rect is half a pool high
-            'height': pool.height() / 2,
+            height: pool.height() / 2,
             'class': 'd3-smbg-numbers d3-rect-smbg d3-smbg-time'
           });
 
         // NB: cannot do same display: none strategy because dominant-baseline attribute cannot be applied
         circleGroups.append('text')
           .attr({
-            'x': smbg.xPosition,
+            x: smbg.xPosition,
             // text is centered vertically in the top half of each day pool (i.e., 1/4 way down)
-            'y': pool.height() / 4,
-            'opacity': '0',
+            y: pool.height() / 4,
+            opacity: '0',
             'class': 'd3-smbg-numbers d3-text-smbg d3-smbg-time'
           })
           .text(function(d) {
