@@ -325,7 +325,7 @@ var preprocess = {
       log('Unexpected data input, defaulting to empty array.');
       data = [];
     }
-    return _.map(data, function(d) {
+    return _.filter(data, function(d) {
       if (d.type === 'wizard' && d.joinKey) {
         if (d.payload.carbInput) {
           d.carbs = {
@@ -340,9 +340,13 @@ var preprocess = {
         //clean undefined
         if (!d.bolus) {
             delete d.bolus;
+            return false;
         }
+        return true;
       }
-      return d;
+      else {
+        return true;
+      }
     });
   },
 

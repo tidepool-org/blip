@@ -443,7 +443,7 @@ describe('Preprocess', function() {
       assert.isFunction(Preprocess.appendBolusToWizard);
     });
 
-    it('should not append a bolus to a wizard whose joinKey has no corresponding bolus', function() {
+    it('should filter out a wizard whose joinKey has no corresponding bolus', function() {
       var loneWizard = [
         {
           'deviceTime': '2014-07-31T22:57:11',
@@ -458,19 +458,7 @@ describe('Preprocess', function() {
             }
           }
         ];
-      var editedWizard = [
-        {
-          'deviceTime': '2014-07-31T22:57:11',
-          'id': '6d957e51-41d4-4efe-a20c-1c557f428952',
-          'source': 'demo',
-          'joinKey': 'e4752643-d817-4a5c-ad52-1bc280a8651f',
-          'deviceId': 'Demo - 123',
-          'type': 'wizard',
-          'payload': { 'carbUnits': 'grams', 'carbInput': 14 },
-          'carbs': { value: 14, units: 'grams' }
-        }
-      ];
-      expect(Preprocess.appendBolusToWizard(loneWizard)).to.eql(editedWizard);
+      expect(Preprocess.appendBolusToWizard(loneWizard)).to.eql([]);
     });
 
     it('should append a bolus to a wizard whose joinKey has a corresponding bolus', function() {
