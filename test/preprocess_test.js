@@ -113,7 +113,7 @@ describe('Preprocess', function() {
             deviceTime: '2014-01-01T03:00:00', duration: 3 * 60 * 60 * 1000,
             start: '2014-01-01T03:00:00', end: '2014-01-01T06:00:00', value: 1.0, vizType: 'actual'}
         ]
-      )
+      );
     });
   });
 
@@ -435,6 +435,83 @@ describe('Preprocess', function() {
           { id: '3.5', type: 'deviceMeta', subType: 'status', status: 'suspended', deviceTime: '3.5' }
         ]
       );
+    });
+  });
+
+  describe('appendBolusToWizard', function() {
+    it('should be a function', function() {
+      assert.isFunction(Preprocess.appendBolusToWizard);
+    });
+
+    it('should not append a bolus to a wizard whose joinKey has no corresponding bolus', function() {
+      var loneWizard = [
+        {
+          'deviceTime': '2014-07-31T22:57:11',
+          'id': '6d957e51-41d4-4efe-a20c-1c557f428952',
+          'source': 'demo',
+          'joinKey': 'e4752643-d817-4a5c-ad52-1bc280a8651f',
+          'deviceId': 'Demo - 123',
+          'type': 'wizard',
+          'payload': {
+              'carbUnits': 'grams',
+              'carbInput': 14
+            }
+          }
+        ];
+      var editedWizard = [
+        {
+          'deviceTime': '2014-07-31T22:57:11',
+          'id': '6d957e51-41d4-4efe-a20c-1c557f428952',
+          'source': 'demo',
+          'joinKey': 'e4752643-d817-4a5c-ad52-1bc280a8651f',
+          'deviceId': 'Demo - 123',
+          'type': 'wizard',
+          'payload': { 'carbUnits': 'grams', 'carbInput': 14 },
+          'carbs': { value: 14, units: 'grams' }
+        }
+      ];
+      expect(Preprocess.appendBolusToWizard(loneWizard)).to.eql(editedWizard);
+    });
+
+    it('should append a bolus to a wizard whose joinKey has a corresponding bolus', function() {
+      var bolus = {
+        'deviceTime': '2014-07-31T22:57:11',
+        'joinKey': 'e4752643-d817-4a5c-ad52-1bc280a8651f',
+        'value': 0.9,
+        'source': 'demo',
+        'recommended': 0.9,
+        'deviceId': 'Demo - 123',
+        'type': 'bolus',
+        'id': '13328f78-df5c-489e-9751-d2e4504dfe89'
+      };
+      var loneWizard = [
+        {
+          'deviceTime': '2014-07-31T22:57:11',
+          'id': '6d957e51-41d4-4efe-a20c-1c557f428952',
+          'source': 'demo',
+          'joinKey': 'e4752643-d817-4a5c-ad52-1bc280a8651f',
+          'deviceId': 'Demo - 123',
+          'type': 'wizard',
+          'payload': {
+              'carbUnits': 'grams',
+              'carbInput': 14
+            }
+          }, bolus
+        ];
+      var editedWizard = [
+        {
+          'deviceTime': '2014-07-31T22:57:11',
+          'id': '6d957e51-41d4-4efe-a20c-1c557f428952',
+          'source': 'demo',
+          'joinKey': 'e4752643-d817-4a5c-ad52-1bc280a8651f',
+          'deviceId': 'Demo - 123',
+          'type': 'wizard',
+          'payload': { 'carbUnits': 'grams', 'carbInput': 14 },
+          'carbs': { value: 14, units: 'grams' },
+          'bolus': bolus
+        }, bolus
+      ];
+      expect(Preprocess.appendBolusToWizard(loneWizard)).to.eql(editedWizard);
     });
   });
 

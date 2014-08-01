@@ -331,7 +331,7 @@ var preprocess = {
           d.carbs = {
             value: d.payload.carbInput,
             units: d.payload.carbUnits
-          }
+          };
         }
         d.bolus = _.find(data, function(_d) {
           return _d.type === 'bolus' && _d.joinKey === d.joinKey;
