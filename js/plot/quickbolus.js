@@ -63,6 +63,11 @@ module.exports = function(pool, opts) {
           id: function(d) { return 'bolus_group_' + d.id; }
         });
 
+      //Sort by size so smaller boluses are drawn last.
+      bolusGroups = bolusGroups.sort(function(a,b){
+        return d3.descending(a.value, b.value);
+      });
+
       drawBolus.bolus(bolusGroups);
 
       var extended = boluses.filter(function(d) {
