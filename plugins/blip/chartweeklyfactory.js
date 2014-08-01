@@ -127,7 +127,7 @@ function chartWeeklyFactory(el, options) {
         x: function(t) { return dt.getMsFromMidnight(t); }
       }), true, true);
       pool.addPlotType('smbg', smbgTime.draw(pool), true, true);
-      chart.tooltips().addGroup(d3.select('#' + chart.id()).select('#' + pool.id()), pool.id());
+      chart.tooltips().addGroup(chart.svg().select('#' + pool.id()), pool.id());
       pool.render(chart.daysGroup(), chart.dataPerDay[i]);
     });
 
@@ -149,7 +149,7 @@ function chartWeeklyFactory(el, options) {
 
     chart.poolStats.render(chart.poolGroup());
 
-    chart.annotations().addGroup(d3.select('#' + chart.id()).select('#' + chart.poolStats.id()), 'stats');
+    chart.annotations().addGroup(chart.svg().select('#' + chart.poolStats.id()), 'stats');
 
     chart.navString();
 

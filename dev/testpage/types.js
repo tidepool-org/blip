@@ -115,6 +115,7 @@ var Bolus = function(deviceTime, features) {
   if (arguments.length) {
     this.deviceTime = deviceTime;
     this.id = this.makeId();
+    this.joinKey = this.makeId();
     this.type = 'bolus';
     this.value = features.value;
     _.defaults(this, featureSets[features.featureSet]);
@@ -122,6 +123,31 @@ var Bolus = function(deviceTime, features) {
 };
 
 Bolus.prototype = common;
+
+var Wizard = function(deviceTime, features) {
+  features = features || {'value': null, 'joinKey': null};
+  var featureSets = {
+    'default': {
+      'payload': {
+        'carbUnits': 'grams',
+        'carbInput': features.value
+      }
+    }
+  };
+  this.getAllFeatureSetNames = getAllFeatureSetNames(featureSets);
+  // only fill out attributes if arguments
+  if (arguments.length) {
+    this.deviceTime = deviceTime;
+    this.id = this.makeId();
+    if (features.joinKey) {
+      this.joinKey = features.joinKey;
+    }
+    this.type = 'wizard';
+    _.defaults(this, featureSets[features.featureSet]);
+  }
+};
+
+Wizard.prototype = common;
 
 var Basal = function(deviceTime, features) {
   var baseDuration = MS_IN_24/48;
@@ -157,6 +183,7 @@ module.exports = (function() {
     SMBG: SMBG,
     Carbs: Carbs,
     Bolus: Bolus,
+    Wizard: Wizard,
     Basal: Basal
   };
 }());

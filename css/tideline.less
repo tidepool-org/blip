@@ -25,6 +25,7 @@
 @font-size-axes-linear: 12px;
 @font-size-axes: 14px;
 @font-size-axes-days: 13px;
+@font-size-small: 12px;
 @font-size-small-tooltips: 11px;
 @font-size-large-tooltips: 14px;
 @font-size-puddle-head: 16px;
@@ -166,6 +167,15 @@ svg {
 // carbs
 .d3-rect-carbs, .d3-rect-carbs-legend {
   fill: @carbs;
+}
+.d3-circle-carbs {
+  fill: @carbs;
+}
+.d3-carbs-text {
+  fill: @text;
+  font-size: @font-size-small;
+  dominant-baseline: central;
+  text-anchor: middle;
 }
 
 // boluses
@@ -640,6 +650,10 @@ text.d3-tabular-ui {
   float: left;
   padding-right: 4px;
   padding-left: 2px;
+}
+
+.d3-wizard-group, .d3-bolus-group {
+  cursor: default;
 }
 
 @media print {
