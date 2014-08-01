@@ -114,11 +114,17 @@ module.exports = function(pool, opts) {
 
       // tooltips
       selection.selectAll('.d3-wizard-group').on('mouseover', function(d) {
-        drawBolus.tooltip.add(d.bolus);
+        if (d.bolus) {
+          drawBolus.tooltip.add(d.bolus);
+        }
+
         highlight.on(d3.select(this));
       });
       selection.selectAll('.d3-wizard-group').on('mouseout', function(d) {
-        drawBolus.tooltip.remove(d.bolus);
+        if (d.bolus) {
+          drawBolus.tooltip.remove(d.bolus);
+        }
+
         highlight.off();
       });
     });
