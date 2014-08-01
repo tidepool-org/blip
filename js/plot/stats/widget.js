@@ -23,7 +23,7 @@ var scales = require('../util/scales')();
 var dt = require('../../data/util/datetime');
 var format = require('../../data/util/format');
 var Puddle = require('./puddle');
-var bgBoundaryClass = require('../util/bgboundaryclass');
+var bgBoundaryClass = require('../util/bgboundary');
 
 module.exports = function(pool, opts) {
 

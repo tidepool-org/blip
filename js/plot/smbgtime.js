@@ -19,7 +19,7 @@ var d3 = require('../lib/').d3;
 var _ = require('../lib/')._;
 
 var log = require('../lib/').bows('Two-Week SMBG');
-var bgBoundaryClass = require('./util/bgboundaryclass');
+var bgBoundaryClass = require('./util/bgboundary');
 
 function SMBGTime (opts) {
   var MS_IN_HOUR = 3600000;

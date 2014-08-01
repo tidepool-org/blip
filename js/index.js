@@ -64,7 +64,7 @@ module.exports = {
         shapes: require('./plot/util/tooltips/shapes'),
         Tooltips: require('./plot/util/tooltips/tooltip')
       },
-      bgboundaryclass: require('./plot/util/bgboundaryclass'),
+      bgboundary: require('./plot/util/bgboundary'),
       fill: require('./plot/util/fill'),
       legend: require('./plot/util/legend'),
       scales: require('./plot/util/scales'),

@@ -158,7 +158,7 @@ The only coding conventions unique to tideline are conventions of HTML and CSS I
      	- within `annotations/`, `annotation.js` and `annotationdefinitions.js` generate data annotations.
         - within `axes/`, `dailyx.js` is a custom axis generator for the x-axis of the tideline one-day view; more custom axis generators will be added here in the future.
         - within `tooltips/`, `shapes.js` encodes the shapes for tideline's custom tooltips and `tooltip.js` provides methods for adding a tooltip on hover over a plotted datapoint.
-     	- `bgboundaryclass.js` provides a utility for determining the class (very-low, low, target, high, very-high) of a blood glucose value given the user's (or the default) target range.
+     	- `bgboundary.js` provides a utility for determining the class (very-low, low, target, high, very-high) of a blood glucose value given the user's (or the default) target range.
         - `fill.js` generates the background fill for each data pool.
         - `legend.js` defines legend generators for all the pools that require a legend.
         - `scales.js` generates D3 scales for various diabetes data types. The functions in this utility module are at the moment specific to the plotting functions in `plot/`, not generally useful.

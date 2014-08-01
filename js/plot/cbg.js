@@ -19,7 +19,7 @@ var d3 = require('../lib/').d3;
 var _ = require('../lib/')._;
 
 var log = require('../lib/').bows('CBG');
-var bgBoundaryClass = require('./util/bgboundaryclass');
+var bgBoundaryClass = require('./util/bgboundary');
 
 module.exports = function(pool, opts) {
 
