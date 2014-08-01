@@ -459,18 +459,18 @@ describe('one-day view', function() {
     it('should yield a tooltip on hover', function() {
       thisBolus = boluses.filter(':first');
       thisBolus.simulate('mouseover');
-      var thisTooltipGroup = container.find('#tidelineTooltips_bolus').find('.d3-tooltip');
-      expect(thisTooltipGroup.find('image').attr('href')).to.equal('../../img/bolus/tooltip_bolus_small.svg');
-      expect(thisTooltipGroup.find('text').filter('.d3-tooltip-timestamp').html()).to.equal('at 12:25 AM');
+      var thisTooltipGroup = container.find('#tidelineTooltips_bolus').find('.d3-tooltip').filter(':first');
+      expect(thisTooltipGroup.find('image').attr('href')).to.equal('../../img/bolus/tooltip_bolus_small_left.svg');
+      expect(thisTooltipGroup.find('text').filter('.d3-tooltip-timestamp').html()).to.equal('at 11:25 PM');
       expect(thisTooltipGroup.find('rect').size()).to.be.above(0);
     });
 
     it('should yield a two-line tooltip on hover if it is an extended bolus', function() {
-      var extended = $(boluses[3]);
+      var extended = $(boluses[12]);
       extended.simulate('mouseover');
-      var extendedTooltipGroup = container.find('#tidelineTooltips_bolus').find('.d3-tooltip');
+      var extendedTooltipGroup = container.find('#tidelineTooltips_bolus').find('.d3-tooltip').filter(':last');
       expect(extendedTooltipGroup.find('image').attr('href')).to.equal('../../img/bolus/tooltip_bolus_large.svg');
-      expect(extendedTooltipGroup.find('text').filter('.d3-tooltip-timestamp').html()).to.equal('at 3:25 AM');
+      expect(extendedTooltipGroup.find('text').filter('.d3-tooltip-timestamp').html()).to.equal('at 2:25 AM');
       expect(extendedTooltipGroup.find('rect').size()).to.be.above(0);
     });
   });
