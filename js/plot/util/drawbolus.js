@@ -17,8 +17,9 @@
 
 var d3 = require('../../lib/').d3;
 var _ = require('../../lib/')._;
+var format = require('../../data/util/format');
 
-module.exports = function(opts) {
+module.exports = function(pool, opts) {
   opts = opts || {};
 
   var defaults = {
@@ -32,8 +33,11 @@ module.exports = function(opts) {
 
   _.defaults(opts, defaults);
 
+  var QUARTER = ' ¼', HALF = ' ½', THREE_QUARTER = ' ¾', THIRD = ' ⅓', TWO_THIRDS = ' ⅔';
   var top = opts.yScale.range()[0];
   var bottom = top - opts.bolusStroke / 2;
+  var mainGroup = pool.parent();
+
 
   var pluckBolus = function(d) {
     return d.bolus ? d.bolus : d;
@@ -61,6 +65,105 @@ module.exports = function(opts) {
     var bottom = (x + opts.triangleSize) + ' ' + (y - opts.triangleSize/2);
     var point = x + ' ' + y;
     return 'M' + top + 'L' + bottom + 'L' + point + 'Z';
+  };
+
+  var timespan = function(d) {
+    var dur = Duration.parse(d.duration + 'ms');
+    var hours = dur.hours();
+    var minutes = dur.minutes() - (hours * 60);
+
+    if (hours !== 0) {
+      if (hours === 1) {
+        switch(minutes) {
+        case 0:
+          return 'over ' + hours + ' hr';
+        case 15:
+          return 'over ' + hours + QUARTER + ' hr';
+        case 20:
+          return 'over ' + hours + THIRD + ' hr';
+        case 30:
+          return 'over ' + hours + HALF + ' hr';
+        case 40:
+          return 'over ' + hours + TWO_THIRDS + ' hr';
+        case 45:
+          return 'over ' + hours + THREE_QUARTER + ' hr';
+        default:
+          return 'over ' + hours + ' hr ' + minutes + ' min';
+        }
+      } else {
+        switch(minutes) {
+        case 0:
+          return 'over ' + hours + ' hrs';
+        case 15:
+          return 'over ' + hours + QUARTER + ' hrs';
+        case 20:
+          return 'over ' + hours + THIRD + ' hrs';
+        case 30:
+          return 'over ' + hours + HALF + ' hrs';
+        case 40:
+          return 'over ' + hours + TWO_THIRDS + ' hrs';
+        case 45:
+          return 'over ' + hours + THREE_QUARTER + ' hrs';
+        default:
+          return 'over ' + hours + ' hrs ' + minutes + ' min';
+        }
+      }
+    } else {
+      return 'over ' + minutes + ' min';
+    }
+  };
+
+  var formatValue = function(x) {
+    var formatted = d3.format('.3f')(x);
+
+    // remove zero-padding on the right
+    while (formatted[formatted.length - 1] === '0') {
+      formatted = formatted.slice(0, formatted.length - 1);
+    }
+
+    if (formatted[formatted.length - 1] === '.') {
+      formatted = formatted + '0';
+    }
+
+    return formatted;
+  };
+
+  var getRecommendedBolusTooltipText = function(d) {
+    return formatValue(d.recommended) + "U recom'd";
+  };
+
+  var unknownDeliverySplit = function(d) {
+    return d.initialDelivery == null && d.extendedDelivery == null;
+  };
+
+  var getExtendedBolusTooltipText = function(d) {
+    if (unknownDeliverySplit(d)) {
+      return 'Split unknown';
+    }
+    return format.percentage(d.extendedDelivery / d.value) + ' ' + timespan(d);
+  };
+
+  var getTooltipCategory = function(d) {
+    var category = '';
+    // when there's no 'recommended' field
+    if (d.recommended == null) {
+      if (d.extended == null) {
+        category = 'unspecial';
+      } else {
+        category = 'two-line';
+      }
+    } else {
+      if ((d.extended == null) && (d.recommended === d.value)) {
+        category = 'unspecial';
+      } else if ((d.extended == null) && (d.recommended !== d.value)) {
+        category = 'two-line';
+      } else if ((d.recommended === d.value) && (d.extended != null)) {
+        category = 'two-line';
+      } else if ((d.recommended !== d.value) && (d.extended != null)) {
+        category = 'three-line';
+      }
+    }
+    return category;
   };
 
   return {
@@ -229,6 +332,116 @@ module.exports = function(opts) {
             return 'bolus_' + d.id;
           }
         });
+    },
+    tooltip: {
+      add: function(d) {
+        var category = getTooltipCategory(d);
+        var tooltipWidth = opts.classes[category].width;
+        var tooltipHeight = opts.classes[category].height;
+
+        mainGroup.select('#' + 'tidelineTooltips_bolus')
+          .call(pool.tooltips(),
+            d,
+            // tooltipXPos
+            opts.xScale(Date.parse(d.normalTime)),
+            'bolus',
+            // timestamp
+            true,
+            opts.classes[category].tooltip,
+            tooltipWidth,
+            tooltipHeight,
+            // imageX
+            opts.xScale(Date.parse(d.normalTime)) + opts.width/2,
+            // imageY
+            function() {
+              return pool.height() - tooltipHeight;
+            },
+            // textX
+            opts.xScale(Date.parse(d.normalTime)) + tooltipWidth / 2 + opts.width/2,
+            // textY
+            function() {
+              if (category === 'unspecial') {
+                return pool.height() - tooltipHeight * (9/16);
+              } else if (category === 'two-line') {
+                return pool.height() - tooltipHeight * (3/4);
+              } else if (category === 'three-line') {
+                return pool.height() - tooltipHeight * (13/16);
+              } else {
+                return pool.height() - tooltipHeight;
+              }
+
+            },
+            // customText
+            (function() {
+              return formatValue(d.value) + 'U';
+            }()),
+            // tspan
+            (function() {
+              if (d.extended) {
+                return ' total';
+              }
+            }())
+          );
+
+        if (category === 'two-line') {
+          var twoLineSelection = mainGroup.select('#tooltip_' + d.id).select('.d3-tooltip-text-group').append('text')
+            .attr({
+              'class': 'd3-tooltip-text d3-bolus',
+              'x': opts.xScale(Date.parse(d.normalTime)) + tooltipWidth / 2  + opts.width/2,
+              'y': pool.height() - tooltipHeight / 3
+            })
+            .append('tspan');
+
+          if ((d.recommended != null) && (d.recommended !== d.value)) {
+            twoLineSelection.text(getRecommendedBolusTooltipText(d));
+          }
+          else if (d.extended != null) {
+            twoLineSelection.text(getExtendedBolusTooltipText(d));
+          }
+
+          twoLineSelection.attr('class', 'd3-bolus');
+        } else if (category === 'three-line') {
+          mainGroup.select('#tooltip_' + d.id).select('.d3-tooltip-text-group').append('text')
+            .attr({
+              'class': 'd3-tooltip-text d3-bolus',
+              'x': opts.xScale(Date.parse(d.normalTime)) + tooltipWidth / 2  + opts.width/2,
+              'y': pool.height() - tooltipHeight / 2
+            })
+            .append('tspan')
+            .text(getRecommendedBolusTooltipText(d))
+            .attr('class', 'd3-bolus');
+
+          mainGroup.select('#tooltip_' + d.id).select('.d3-tooltip-text-group').append('text')
+            .attr({
+              'class': 'd3-tooltip-text d3-bolus',
+              'x': opts.xScale(Date.parse(d.normalTime)) + tooltipWidth / 2 + opts.width/2,
+              'y': pool.height() - tooltipHeight / 4
+            })
+            .append('tspan')
+            .text(getExtendedBolusTooltipText(d))
+            .attr('class', 'd3-bolus');
+        }
+      },
+      remove: function(d) {
+        mainGroup.select('#tooltip_' + d.id).remove();
+      }
+    },
+    annotations: function(data, selection) {
+      _.each(data, function(d) {
+        var annotationOpts = {
+          'x': opts.xScale(Date.parse(d.normalTime)),
+          'y': opts.yScale(d.value),
+          'xMultiplier': -2,
+          'yMultiplier': 1,
+          'd': d,
+          'orientation': {
+            'up': true
+          }
+        };
+        if (mainGroup.select('#annotation_for_' + d.id)[0][0] == null) {
+          mainGroup.select('#tidelineAnnotations_bolus').call(pool.annotations(), annotationOpts);
+        }
+      });
     }
   }
 };

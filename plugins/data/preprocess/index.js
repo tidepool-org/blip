@@ -336,6 +336,11 @@ var preprocess = {
         d.bolus = _.find(data, function(_d) {
           return _d.type === 'bolus' && _d.joinKey === d.joinKey;
         });
+
+        //clean undefined
+        if (!d.bolus) {
+            delete d.bolus;
+        }
       }
       return d;
     });

@@ -38,17 +38,16 @@ module.exports = function(pool, opts) {
 
   _.defaults(opts, defaults);
 
-  var drawBolus = drawbolus(opts);
+  var drawBolus = drawbolus(pool, opts);
   var mainGroup = pool.parent();
 
   function bolus(selection) {
-
     opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
       // filter out boluses with wizard (assumption that boluses with joinKey are wizard)
       currentData = _.filter(currentData, function(d) { if(!d.joinKey) { return d; }});
 
-      bolus.addAnnotations(_.filter(currentData, function(d) { return d.annotations; }));
+      drawBolus.annotations(_.filter(currentData, function(d) { return d.annotations; }));
 
       var boluses = d3.select(this)
         .selectAll('g.d3-bolus-group')
@@ -63,6 +62,11 @@ module.exports = function(pool, opts) {
           'class': 'd3-bolus-group',
           id: function(d) { return 'bolus_group_' + d.id; }
         });
+
+      //Sort by size so smaller boluses are drawn last.
+      bolusGroups = bolusGroups.sort(function(a,b){
+        return d3.descending(a.value, b.value);
+      });
 
       drawBolus.bolus(bolusGroups);
 
@@ -81,85 +85,15 @@ module.exports = function(pool, opts) {
       // tooltips
       selection.selectAll('.d3-bolus-group').on('mouseover', function(d) {
         highlight.on(d3.select(this));
-        bolus.addTooltip(d, 'unspecial');
+        drawBolus.tooltip.add(d);
       });
       selection.selectAll('.d3-bolus-group').on('mouseout', function(d) {
         highlight.off();
-        mainGroup.select('#tooltip_' + d.id).remove();
+        drawBolus.tooltip.remove(d);
       });
     });
   }
 
-  //tooltip
-  function formatValue(x) {
-    var formatted = d3.format('.3f')(x);
-    // remove zero-padding on the right
-    while (formatted[formatted.length - 1] === '0') {
-      formatted = formatted.slice(0, formatted.length - 1);
-    }
-    if (formatted[formatted.length - 1] === '.') {
-      formatted = formatted + '0';
-    }
-    return formatted;
-  }
-
-  bolus.addTooltip = function(datum, category) {
-    var tooltipWidth = opts.classes[category].width;
-    var tooltipHeight = opts.classes[category].height;
-
-    mainGroup.select('#' + 'tidelineTooltips_bolus')
-      .call(pool.tooltips(),
-        datum,
-        // tooltipXPos
-        opts.xScale(Date.parse(datum.normalTime)) + (opts.width/2),
-        'bolus',
-        // timestamp
-        true,
-        opts.classes[category].tooltip,
-        tooltipWidth,
-        tooltipHeight,
-        // imageX
-        opts.xScale(Date.parse(datum.normalTime)),
-        // imageY
-        function() {
-          return pool.height() - tooltipHeight;
-        },
-        // textX
-        opts.xScale(Date.parse(datum.normalTime)) + tooltipWidth / 2 + opts.width/2,
-        // textY
-        function() {
-          return pool.height() - tooltipHeight * (9/16);
-        },
-        // customText
-        (function() {
-          return formatValue(datum.value) + 'U';
-        }()),
-        // tspan
-        (function() {
-          if (datum.extended) {
-            return ' total';
-          }
-        }())
-      );
-  };
-
-  bolus.addAnnotations = function(data, selection) {
-    _.each(data, function(d) {
-      var annotationOpts = {
-        'x': opts.xScale(Date.parse(d.normalTime)),
-        'y': opts.yScale(d.value),
-        'xMultiplier': -2,
-        'yMultiplier': 1,
-        'd': d,
-        'orientation': {
-          'up': true
-        }
-      };
-      if (mainGroup.select('#annotation_for_' + d.id)[0][0] == null) {
-        mainGroup.select('#tidelineAnnotations_bolus').call(pool.annotations(), annotationOpts);
-      }
-    });
-  };
 
   return bolus;
 };
