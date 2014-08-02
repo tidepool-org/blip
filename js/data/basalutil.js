@@ -161,8 +161,7 @@ function BasalUtil(data) {
     }
   };
 
-  this.actual = _.where(data, {'vizType': 'actual'});
-  this.undelivered = _.where(data, {'vizType': 'undelivered'});
+  this.actual = data;
 
   this.data = data || [];
   if (this.data.length > 0) {

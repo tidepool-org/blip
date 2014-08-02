@@ -124,44 +124,15 @@ var preprocess = {
     data = _.reject(data, function(d) {
       return d.type === 'basal-rate-segment';
     });
-    if (segments.actual.length === 0) {
-      var theBasals = [];
-      data
-        .filter(function(d){ return d.type === 'basal'; })
-        .forEach(function(d){
-                         var datum = _.assign(
-                           {},
-                           d,
-                           {
-                             type: 'basal-rate-segment',
-                             value: d.rate,
-                             start: d.deviceTime,
-                             end: datetime.addDuration(new Date(d.deviceTime + '.000Z'), d.duration),
-                             vizType: 'actual'
-                           }
-                         );
-
-                         if (datum.suppressed != null) {
-                           if (datum.suppressed.deliveryType === 'scheduled') {
-                             theBasals.push(_.assign(
-                               {},
-                               datum.suppressed,
-                               {
-                                 type: 'basal-rate-segment',
-                                 id: datum.id + '_suppressed',
-                                 value: datum.suppressed.rate,
-                                 start: datum.start,
-                                 end: datum.end,
-                                 vizType: 'undelivered'
-                               }
-                             ));
-                           }
-                         }
-                         theBasals.push(datum);
-                       });
-      return data.filter(function(d){ return d.type !== 'basal'; }).concat(theBasals);
+    if (segments.timeline.length === 0) {
+      return _.map(data, function(d) {
+        if (d.type === 'basal') {
+          d.type = 'basal-rate-segment';
+        }
+        return d;
+      });
     } else {
-      return data.concat(segments.actual.concat(segments.getUndelivered('scheduled')));
+      return data.concat(segments.timeline);
     }
   },
 
@@ -339,8 +310,8 @@ var preprocess = {
 
         //clean undefined
         if (!d.bolus) {
-            delete d.bolus;
-            return false;
+          delete d.bolus;
+          return false;
         }
         return true;
       }
