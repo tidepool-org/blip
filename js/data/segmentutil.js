@@ -229,6 +229,19 @@ module.exports = function(data){
   if (Object.keys(otherEvents).length > 1) {
     log('Unhandled basal-rate-segment objects of deliveryType:', Object.keys(otherEvents));
   }
+  var newIdCounter = 0;
+
+  function attachId(e) {
+    if (e.id != null) {
+      e.datumId = e.id;
+    }
+    e.id = 'segment_' + newIdCounter++;
+    return e;
+  }
+
+  for (i = 0; i < baseTimeline.length; ++i) {
+    attachId(baseTimeline[i]);
+  }
 
   return new SegmentUtil(baseTimeline);
 };
