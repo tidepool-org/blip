@@ -61,6 +61,13 @@ module.exports = {
         else {
           i.normalEnd = null;
         }
+        if (i.suppressed) {
+          for (var j = 0; j < i.suppressed.length; ++j) {
+            var s = i.suppressed[j];
+            s.normalTime = s.start + this.APPEND;
+            s.normalEnd = s.end + this.APPEND;
+          }
+        }
       }
       else if (i.normalTime == null) {
         i.normalTime = i.deviceTime + this.APPEND;
