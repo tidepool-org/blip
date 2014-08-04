@@ -18,7 +18,8 @@ var React = window.React;
 
 var TermsOverlay = React.createClass({
   propTypes: {
-    onSubmit: React.PropTypes.func
+    onSubmit: React.PropTypes.func,
+    trackMetric: React.PropTypes.func.isRequired
   },
 
   getInitialState: function() {
@@ -91,6 +92,8 @@ var TermsOverlay = React.createClass({
     if (e) {
       e.preventDefault();
     }
+
+    this.props.trackMetric('Agreed To Terms Of Use');
 
     var submit = this.props.onSubmit;
     if (submit) {

@@ -28,10 +28,15 @@ var MailTo = React.createClass({
 
     var mailtoInfo = 'mailto:'+this.props.emailAddress+'?Subject='+this.props.emailSubject;
 
+    // Hack: don't let "mailto:" link cancel other XHR requests by pointing it
+    // to a hidden iframe
+    // https://github.com/angular/angular.js/issues/7461#issuecomment-43073994
+
     return (
       /* jshint ignore:start */
       <div className='mailto'>
-        <a href={mailtoInfo} onClick={this.props.onLinkClicked} target='_top'>{this.props.linkTitle}</a>
+        <a href={mailtoInfo} onClick={this.props.onLinkClicked} target="mailto">{this.props.linkTitle}</a>
+        <iframe name="mailto" src="about:blank" style={{display: 'none'}}></iframe>
       </div>
       /* jshint ignore:end */
     );

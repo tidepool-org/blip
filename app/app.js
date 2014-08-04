@@ -208,7 +208,9 @@ var AppComponent = React.createClass({
     if (this.state.showingAcceptTerms) {
       /* jshint ignore:start */
       return (
-        <TermsOverlay onSubmit={this.handleAcceptedTerms} />
+        <TermsOverlay
+          onSubmit={this.handleAcceptedTerms}
+          trackMetric={trackMetric} />
       );
       /* jshint ignore:end */
     }
@@ -331,7 +333,8 @@ var AppComponent = React.createClass({
       /* jshint ignore:start */
       <Signup
         onSubmit={this.signup}
-        onSubmitSuccess={this.handleSignupSuccess} />
+        onSubmitSuccess={this.handleSignupSuccess}
+        trackMetric={trackMetric} />
       /* jshint ignore:end */
     );
   },
@@ -882,6 +885,7 @@ var AppComponent = React.createClass({
   },
 
   handlePatientCreationSuccess: function(patient) {
+    trackMetric('Created Profile');
     this.setState({
       user: _.extend({}, this.state.user, {
         profile: _.cloneDeep(patient.profile)
