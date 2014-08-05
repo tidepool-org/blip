@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+var shapeutil = require('../shapeutil');
+
 var shapes = {
   tooltipPolygon: function(opts) {
       opts = opts || {};
@@ -24,17 +26,13 @@ var shapes = {
 
       var w = opts.w, h = opts.h, t = opts.t, k = opts.k;
 
-      function pointString(x,y) {
-        return x + ',' + y + ' ';
-      }
-
-      return pointString(0,0) +
-        pointString((t/2), k) +
-        pointString((w-(3/2*t)), k) +
-        pointString((w-(3/2*t)), (k+h)) +
-        pointString((0-(3/2*t)), (k+h)) +
-        pointString((0-(3/2*t)), k) +
-        pointString((0-(t/2)), k) + '0,0';
+      return shapeutil.pointString(0,0) +
+        shapeutil.pointString((t/2), k) +
+        shapeutil.pointString((w-(3/2*t)), k) +
+        shapeutil.pointString((w-(3/2*t)), (k+h)) +
+        shapeutil.pointString((0-(3/2*t)), (k+h)) +
+        shapeutil.pointString((0-(3/2*t)), k) +
+        shapeutil.pointString((0-(t/2)), k) + '0,0';
     }
 };
 
