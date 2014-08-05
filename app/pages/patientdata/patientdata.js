@@ -67,10 +67,10 @@ var PatientData = React.createClass({
     };
 
     if (!_.isEmpty(params) && params.dynamicCarbs !== undefined) {
-      state.chartPrefs.bolusRatio: params.dynamicCarbs ? 0.5 : 0.35,
-      state.chartPrefs.dynamicCarbs: params.dynamicCarbs
+      state.chartPrefs.bolusRatio =  params.dynamicCarbs ? 0.5 : 0.35;
+      state.chartPrefs.dynamicCarbs = params.dynamicCarbs;
     }
-
+    
     return state;
   },
 
