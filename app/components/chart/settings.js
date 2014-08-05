@@ -47,6 +47,7 @@ var Settings = React.createClass({
           onClickMostRecent={this.handleClickMostRecent}
           onClickOneDay={this.handleClickOneDay}
           onClickRefresh={this.props.onClickRefresh}
+          onClickSettings={this.handleClickSettings}
           onClickTwoWeeks={this.handleClickTwoWeeks}
         ref="header" />
         <div className="container-box-outer patient-data-content-outer">
@@ -116,6 +117,12 @@ var Settings = React.createClass({
       e.preventDefault();
     }
     this.props.onSwitchToDaily();
+  },
+  handleClickSettings: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+    return;
   },
   handleClickTwoWeeks: function(e) {
     if (e) {

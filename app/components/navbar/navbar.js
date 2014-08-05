@@ -200,7 +200,7 @@ var Navbar = React.createClass({
             href="#/"
             className="navbar-user-icon"
             onClick={this.handleCareteam}
-            title="Logout" ref="logout"><i className="icon-careteam"></i>
+            title="Care Team" ref="careteam"><i className="icon-careteam"></i>
           </a>
         </li>
         <li>
