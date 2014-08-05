@@ -76,6 +76,80 @@ function Tooltips(container, tooltipsGroup) {
     return currentTranslation + xPosition;
   }
 
+  this.addFOTooltip = function(opts) {
+    opts = opts || {};
+    currentTranslation = container.currentTranslation();
+    var atLeftEdge = isAtLeftEdge(locationInWindow(opts.xPosition(opts.datum)));
+    var atRightEdge = isAtRightEdge(locationInWindow(opts.xPosition(opts.datum)));
+    var shape = opts.shape;
+    var translation;
+
+    if (shape) {
+      if (atLeftEdge) {
+        translation = 'translate(' + (-currentTranslation + container.axisGutter() + shapes[shape].extensions.left) + ',0)';
+      }
+      else if (atRightEdge) {
+        translation = 'translate(' + (-currentTranslation + width - shapes[shape].extensions.right) + ',0)';
+      }
+      else {
+        translation = 'translate(' + opts.xPosition(opts.datum) + ',' + opts.yPosition(opts.datum) + ')';
+      }
+      var group = tooltipGroups[shape].append('g')
+        .attr({
+          id: 'tooltip_' + opts.datum.id,
+          'class': 'd3-tooltip d3-' + opts.shape + ' ' + shapes[shape].mainClass + ' ' + opts.cssClass,
+          transform: translation
+        });
+      if (shapes[shape].addForeignObject) {
+        var foGroup = shapes[shape].addForeignObject(group, {
+          x: opts.xPosition(opts.datum),
+          y: opts.yPosition(opts.datum)
+        });
+        return {
+          foGroup: foGroup,
+          edge: atLeftEdge ? 'left': atRightEdge ? 'right': null
+        };
+      }
+    }
+  };
+
+  this.anchorFO = function(selection, opts) {
+    var widthTranslation = 'translate(' + (-opts.w/2) + ',0)';
+    var rightEdgeTranslation = 'translate(' + (-opts.w) + ',0)';
+    selection.attr({
+      width: opts.w,
+      height: opts.h,
+      visibility: 'visible'
+    });
+    if (opts.edge === null) {
+      selection.attr('transform', widthTranslation);
+    }
+    else if (opts.edge === 'right') {
+      selection.attr('transform', rightEdgeTranslation);
+    }
+    var shape = opts.shape;
+    if (shape) {
+      var tooltipGroup = d3.select(selection.node().parentNode);
+      _.each(shapes[shape].els, function(el) {
+        var attrs = _.clone(el.attrs);
+        for (var prop in attrs) {
+          if (typeof attrs[prop] === 'function') {
+            var res = attrs[prop](opts);
+            attrs[prop] = res;
+          }
+        }
+        if (opts.edge === null) {
+          attrs.transform = widthTranslation;
+        }
+        else if (opts.edge === 'right') {
+          attrs.transform = rightEdgeTranslation;
+        }
+        tooltipGroup.insert(el.el, '.svg-tooltip-fo')
+          .attr(attrs);
+      });
+    }
+  };
+
   this.addTooltip = function(opts) {
     opts = opts || {};
     currentTranslation = container.currentTranslation();
@@ -110,7 +184,9 @@ function Tooltips(container, tooltipsGroup) {
       else {
         shapes[shape].orientations.normal(tooltipShape);
       }
-      shapes[shape].addText(group, opts);
+      if (shapes[shape].addText) {
+        shapes[shape].addText(group, opts);
+      }
     }
   };
 
@@ -121,12 +197,14 @@ function Tooltips(container, tooltipsGroup) {
       .attr('id', this.id() + '_' + type)
       .attr('transform', poolGroup.attr('transform'));
     pool.nativeTooltips(this);
-    _.each(opts.classes, function(cl) {
-      if (shapes[type]) {
-        defineShape(shapes[type], cl);
-        defs[type + '_' + cl] = true;
-      }
-    });
+    if (shapes[type].fixed) {
+      _.each(opts.classes, function(cl) {
+        if (shapes[type]) {
+          defineShape(shapes[type], cl);
+          defs[type + '_' + cl] = true;
+        }
+      });
+    }
   };
 
   // getters & setters

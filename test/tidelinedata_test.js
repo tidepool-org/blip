@@ -158,7 +158,7 @@ describe('TidelineData', function() {
       assert.isFunction(td.adjustFillsForTwoWeekView);
     });
 
-    it('should cover all and only the days where smbg data exists (messagse outside)', function() {
+    it('should cover all and only the days where smbg data exists (messages outside)', function() {
       var newData = [
         {
           'messageText': 'Ball tip corned beef ut, dolore prosciutto jerky fugiat capicola doner velit. Do beef ribs adipisicing, pork belly et enim tail filet mignon tri-tip non dolore ham ut.',

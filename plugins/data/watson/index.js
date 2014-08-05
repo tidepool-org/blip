@@ -42,6 +42,8 @@ catch (ReferenceError) {
   var log = require('../../../js/lib/').bows('Watson');
 }
 
+var dt = require('../../../js/data/util/datetime');
+
 module.exports = {
   APPEND: '.000Z',
 
@@ -54,23 +56,50 @@ module.exports = {
         i.normalTime = d.toISOString();
       }
       else if (i.type === 'basal-rate-segment') {
-        i.normalTime = i.start + this.APPEND;
-        if (i.end) {
-          i.normalEnd = i.end + this.APPEND;
+        // old data model
+        if (i.start) {
+          i.normalTime = i.start + this.APPEND;
+          if (i.end) {
+            i.normalEnd = i.end + this.APPEND;
+          }
+          else {
+            i.normalEnd = null;
+          }
+          if (i.suppressed) {
+            for (var j = 0; j < i.suppressed.length; ++j) {
+              var s = i.suppressed[j];
+              s.normalTime = s.start + this.APPEND;
+              s.normalEnd = s.end + this.APPEND;
+            }
+          }
         }
+        // new data model
         else {
-          i.normalEnd = null;
+          i.normalTime = i.deviceTime + this.APPEND;
+          i.normalEnd = dt.addDuration(i.normalTime, i.duration);
+          i.value = i.rate;
+          if (i.suppressed) {
+            for (var k = 0; k < i.suppressed.length; ++k) {
+              this.normalize(i.suppressed[k]);
+            }
+          }
+        }
+        if (i.suppressed) {
+          for (var j = 0; j < i.suppressed.length; ++j) {
+            var s = i.suppressed[j];
+            s.normalTime = s.start + this.APPEND;
+            s.normalEnd = s.end + this.APPEND;
+          }
         }
       }
       else if (i.normalTime == null) {
         i.normalTime = i.deviceTime + this.APPEND;
       }
-      return i;
     }
     catch(e) {
       throw new TypeError('Watson choked on an undefined.');
     }
-
+    return i;
   },
 
   normalizeAll: function(a) {
