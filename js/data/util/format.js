@@ -22,6 +22,23 @@ var format = {
 
   MS_IN_24: 86400000,
 
+  basalTooltipValue: function(x) {
+    if (x === 0) {
+      return '0.0';
+    }
+    else {
+      var formatted = d3.format('.3f')(x);
+      // remove zero-padding on the right
+      while (formatted[formatted.length - 1] === '0') {
+        formatted = formatted.slice(0, formatted.length - 1);
+      }
+      if (formatted[formatted.length - 1] === '.') {
+        formatted = formatted + '0';
+      }
+      return formatted;
+    }
+  },
+
   capitalize: function(s) {
     // transform the first letter of string s to uppercase
     return s[0].toUpperCase() + s.slice(1);
@@ -43,6 +60,11 @@ var format = {
   millisecondsAsTimeOfDay: function(i) {
     var d = new Date(i);
     return d3.time.format.utc('%-I:%M %p')(d);
+  },
+
+  timestamp: function(i) {
+    var d = new Date(i);
+    return d3.time.format.utc('%-I:%M %p')(d).toLowerCase();
   },
 
   xAxisDayText: function(i) {
