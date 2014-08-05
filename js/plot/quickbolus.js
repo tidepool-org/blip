@@ -79,7 +79,7 @@ module.exports = function(pool, opts) {
       drawBolus.extended(extended);
 
       var suspended = bolusGroups.filter(function(d) {
-        if (d.delivered || d.extendedDelivered || d.initialDelivered) {
+        if (d.value != d.programmed) {
           return d;
         }
       });
@@ -87,7 +87,7 @@ module.exports = function(pool, opts) {
       drawBolus.suspended(suspended);
 
       var extendedSuspended = bolusGroups.filter(function(d) {
-        if (d.extendedDelivered && d.extendedDelivered != d.extendedDelivery) {
+        if (d.suspendedAt) {
           return d;
         }
       });

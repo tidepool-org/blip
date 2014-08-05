@@ -78526,7 +78526,6 @@
         "source": "demo",
         "recommended": 3.3,
         "extendedDelivery": 3.3,
-        "extendedDelivered": 2.2,
         "deviceId": "Demo - 123",
         "duration": 10800000,
         "extended": true,
@@ -81717,7 +81716,6 @@
         "source": "demo",
         "recommended": 2.1,
         "extendedDelivery": 2.1,
-        "extendedDelivered": 1.1,
         "deviceId": "Demo - 123",
         "duration": 5400000,
         "extended": true,
@@ -84876,7 +84874,6 @@
     {
         "deviceTime": "2014-08-30T23:30:11",
         "value": 10.5,
-        "delivered": 5.5,
         "source": "demo",
         "recommended": 10.5,
         "deviceId": "Demo - 123",

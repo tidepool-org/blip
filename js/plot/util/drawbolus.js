@@ -239,11 +239,7 @@ module.exports = function(pool, opts) {
           y: function(d) {
             d = pluckBolus(d);
 
-            if (d.extended && (d.extendedDelivered + (d.initialDelivered || 0) != d.programmed)) {
-              return opts.yScale(d.extendedDelivered + (d.initialDelivered || 0));
-            }
-
-            return opts.yScale(d.delivered);
+            return opts.yScale(d.programmed);
           },
           width: opts.width,
           height: 2,
@@ -360,8 +356,7 @@ module.exports = function(pool, opts) {
         .attr({
           d: function(d) {
             d = pluckBolus(d);
-            var suspendedDuration = (d.extendedDelivered * d.duration)/d.extendedDelivery;
-            var rightEdge = opts.xScale(Date.parse(d.normalTime) + suspendedDuration) + opts.width;
+            var rightEdge = opts.xScale(Date.parse(d.suspendedAt)) + opts.width;
             var doseHeight = computePathHeight(d);
             var doseEnd = rightEdge + 5;
             return 'M' + rightEdge + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
