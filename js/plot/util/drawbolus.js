@@ -17,6 +17,7 @@
 
 var d3 = require('../../lib/').d3;
 var _ = require('../../lib/')._;
+var Duration = require('../../lib/').Duration;
 var format = require('../../data/util/format');
 
 module.exports = function(pool, opts) {

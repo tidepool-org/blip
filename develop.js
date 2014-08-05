@@ -14,7 +14,7 @@ var serveStatic = require('serve-static');
 var pkg = require('./package.json');
 var webpackConfig = require('./webpack.config.js');
 webpackConfig = _.assign(webpackConfig, {
-  devtool: 'eval'
+  devtool: 'source-map'
 });
 var webpackCompiler = webpack(webpackConfig);
 
@@ -28,7 +28,7 @@ rm('-f', 'example/bundle.js');
 
 var app = connect();
 
-app.use('/bower_components', serveStatic(path.join(__dirname, 'bower_components')));
+app.use('/node_modules', serveStatic(path.join(__dirname, 'node_modules')));
 app.use('/css', serveStatic(path.join(__dirname, 'css')));
 app.use('/fonts', serveStatic(path.join(__dirname, 'fonts')));
 app.use('/img', serveStatic(path.join(__dirname, 'img')));

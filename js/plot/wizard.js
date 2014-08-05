@@ -38,7 +38,6 @@ module.exports = function(pool, opts) {
   _.defaults(opts, defaults);
 
   var drawBolus = drawbolus(pool, opts);
-  var tideline = window.tideline;
   var mainGroup = pool.parent();
 
   return function(selection) {

@@ -14,19 +14,14 @@ More information is also available in [the wiki](https://github.com/tidepool-org
 - [Crossfilter](http://square.github.io/crossfilter/ 'Crossfilter')
 - [D3.js](http://d3js.org/ 'D3')
 - [Duration.js](https://github.com/icholy/Duration.js 'Duration.js')
-- [Lo-Dash](http://lodash.com/ 'Lo-Dash') or [Underscore](http://underscorejs.org/ 'Underscore')
+- [Lo-Dash](http://lodash.com/ 'Lo-Dash')
+- [Moment](http://momentjs.com/ 'Moment')
+- [Bows](https://github.com/latentflip/bows 'Bows')
 
 Development-only dependencies:
 
-- [jQuery](http://jquery.com/ 'jQuery')
-- [jquery-simulate](https://github.com/jquery/jquery-simulate 'jquery-simulate')
 - [Less.js](http://lesscss.org/ 'Less')
 - [React](http://facebook.github.io/react/ 'React')
-- [Moment](http://momentjs.com/ 'Moment')
-
-Optional dependencies:
-
-- [Bows](https://github.com/latentflip/bows 'Bows') (for console logs used in debugging)
 
 Optional Python dependencies:
 
@@ -35,10 +30,10 @@ Optional Python dependencies:
 
 These dependencies can be installed using `pip install -r requirements.txt`. It is best to install them in a Python 3.*-based `virtualenv` (e.g., using [virtualenvwrapper](http://virtualenvwrapper.readthedocs.org/en/latest/): `mkvirtualenv --python=/usr/local/bin/python3 tideline`, substituting equivalent path resulting from running `which python3` if necessary) if you're planning to use the JSON Schema validation tool; its output is easier to read in Python 3.
 
-Install using [Bower](http://bower.io/ 'Bower'):
+Install using:
 
 ```bash
-$ bower install --save https://github.com/tidepool-org/tideline
+$ npm install --save git://github.com/tidepool-org/tideline.git
 ```
 
 ## Usage
@@ -67,7 +62,6 @@ To run the example, build the standalone bundle, and run the tests you will need
 
 ```bash
 $ npm install
-$ bower install
 ```
 
 ### Running the example
@@ -98,7 +92,7 @@ $ gulp
 
 The files will be created in the `dist/` directory.
 
-The script file will expose a global `window.tideline` object. 
+The script file will expose a global `window.tideline` object.
 
 ### Test
 

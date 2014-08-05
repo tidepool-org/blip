@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-var tideline = window.tideline;
+var tideline = require('../../../js/index');
 var watson = tideline.watson = require('../watson');
 var _ = tideline.lib._;
 var TidelineData = tideline.TidelineData;

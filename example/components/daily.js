@@ -1,13 +1,11 @@
 /** @jsx React.DOM */
-var _ = window._;
-var bows = window.bows;
-var moment = window.moment;
-var React = window.React;
+var _ = require('lodash');
+var bows = require('bows');
+var moment = require('moment');
+var React = require('react');
 
 // tideline dependencies & plugins
-var tideline = window.tideline = require('../../js/index');
-var blip = tideline.blip = require('../../plugins/blip/');
-var chartDailyFactory = blip.oneday;
+var chartDailyFactory = require('../../plugins/blip').oneday;
 
 var Header = require('./header');
 var Footer = require('./footer');

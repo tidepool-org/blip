@@ -1,7 +1,7 @@
 /** @jsx React.DOM */
-var _ = window._;
-var bows = window.bows;
-var React = window.React;
+var _ = require('lodash');
+var bows = require('bows');
+var React = require('react');
 
 var data = require('./data/device-data.json');
 
@@ -9,8 +9,7 @@ var Daily = require('./components/daily');
 var Weekly = require('./components/weekly');
 var Settings = require('./components/settings');
 // tideline dependencies & plugins
-var tideline = window.tideline = require('../js/index');
-var preprocess = tideline.preprocess = require('../plugins/data/preprocess/');
+var preprocess = require('../plugins/data/preprocess/');
 
 var example = {
   log: bows('Example')
@@ -59,7 +58,7 @@ var Example = React.createClass({
       case 'daily':
         /* jshint ignore:start */
         return (
-          <Daily 
+          <Daily
             chartPrefs={this.state.chartPrefs}
             imagesBaseUrl={this.props.imagesBaseUrl}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
@@ -74,7 +73,7 @@ var Example = React.createClass({
       case 'weekly':
         /* jshint ignore:start */
         return (
-          <Weekly 
+          <Weekly
             chartPrefs={this.state.chartPrefs}
             imagesBaseUrl={this.props.imagesBaseUrl}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
@@ -89,7 +88,7 @@ var Example = React.createClass({
       case 'settings':
         /* jshint ignore:start */
         return (
-          <Settings 
+          <Settings
             chartPrefs={this.state.chartPrefs}
             patientData={this.props.chartData}
             onSwitchToDaily={this.handleSwitchToDaily}
