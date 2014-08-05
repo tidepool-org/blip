@@ -1,15 +1,15 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -24,19 +24,11 @@ var expect = chai.expect;
 
 var _ = require('lodash');
 
-try {
-  global.window = {
-    tideline: require('../js/')
-  };
-  global.window.tideline.watson = require('../plugins/data/watson/');
-}
-catch (TypeError) {}
-
 var data = require('../example/data/device-data.json');
 
 var Preprocess = require('../plugins/data/preprocess/');
 
-var settings = require('./fixtures/settings');
+var settings = require('./fixtures/settings.json');
 
 describe('Preprocess', function() {
   describe('REQUIRED_TYPES', function() {
@@ -262,7 +254,7 @@ describe('Preprocess', function() {
       _.forEach(Preprocess.REQUIRED_TYPES, function(type) {
         allEmpties.grouped[type] = [];
       });
-      
+
       expect(Preprocess.checkRequired(grouped)).to.eql(allEmpties);
     });
   });
@@ -367,7 +359,7 @@ describe('Preprocess', function() {
     it('should be a function', function() {
       assert.isFunction(Preprocess.basalSchedulesToArray);
     });
-    
+
     it('should return an array', function() {
       assert.isArray(Preprocess.basalSchedulesToArray(basalSchedules));
     });

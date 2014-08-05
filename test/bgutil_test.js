@@ -1,15 +1,15 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -28,9 +28,8 @@ var Duration = require('duration-js');
 var watson = require('../plugins/data/watson');
 var data = watson.normalizeAll(require('../example/data/device-data.json'));
 
-var tideline = require('../js/index');
-var dt = tideline.data.util.datetime;
-var BGUtil = tideline.data.BGUtil;
+var dt = require('../js/data/util/datetime');
+var BGUtil = require('../js/data/bgutil');
 
 describe('bg utilities', function() {
   var cbgData = _.where(data, {'type': 'cbg'});
@@ -54,7 +53,7 @@ describe('bg utilities', function() {
     'type': 'smbg'
   };
 
-  
+
   var generateDayOfData = function(startTime, n, datatype) {
     var random = function() { return Math.floor((Math.random() * 400) + 1); };
     var data = [{

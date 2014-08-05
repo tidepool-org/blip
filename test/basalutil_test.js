@@ -1,15 +1,15 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -28,10 +28,9 @@ var Duration = require('duration-js');
 var watson = require('../plugins/data/watson');
 var fx = require('./fixtures');
 
-var tideline = require('../js/index');
-var BasalUtil = tideline.data.BasalUtil;
-var SegmentUtil = tideline.data.SegmentUtil;
-var format = tideline.data.util.format;
+var BasalUtil = require('../js/data/basalutil');
+var SegmentUtil = require('../js/data/segmentutil');
+var format = require('../js/data/util/format');
 
 var MS_IN_HOUR = 3600000.0;
 
@@ -292,4 +291,3 @@ describe('basal utilities', function() {
     });
   });
 });
-

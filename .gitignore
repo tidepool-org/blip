@@ -14,5 +14,7 @@ example/running.js
 node_modules/
 test/bundle.js
 test/test.js
+_test.js
+_test.js.map
 web/
 wiki/
