@@ -340,7 +340,7 @@ class Boluses:
 
         likelihood = [0,1]
 
-        quarter = [0,1,2,3]
+        quarter = [0,0,0,1]
 
         durations = [30,45,60,90,120,180,240]
 
@@ -370,6 +370,9 @@ class Boluses:
                     bolus['programmed'] = bolus['value']
                     bolus['type'] = 'bolus'
                     bolus['value'] = float(random.choice(tenths)/10.0)
+            else:
+                bolus['type'] = 'bolus'
+                bolus['programmed'] = bolus['value']
 
 class Dexcom:
     """Generate demo Dexcom data."""
