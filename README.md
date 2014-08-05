@@ -18,6 +18,8 @@ More information is also available in [the wiki](https://github.com/tidepool-org
 - [Moment](http://momentjs.com/ 'Moment')
 - [Bows](https://github.com/latentflip/bows 'Bows')
 
+**Fonts**: Tideline should be used with the [Open Sans](https://www.google.com/fonts#UsePlace:use/Collection:Open+Sans) font (see `example/` for one way to make it available in a web app).
+
 Development-only dependencies:
 
 - [Less.js](http://lesscss.org/ 'Less')
@@ -38,21 +40,14 @@ $ npm install --save git://github.com/tidepool-org/tideline.git
 
 ## Usage
 
-You can use the library directly with [browserify](http://browserify.org/ 'browserify') and [Less](http://lesscss.org/ 'Less'):
+You can use the library directly with [Webpack](http://webpack.github.io/ 'Webpack'):
 
 ```javascript
-// app.js
-var tideline = require('<path-to-tideline>/js');
+var tideline = require('tideline');
+
+// load styles
+require('tideline/css/tideline.less');
 ```
-
-```less
-// app.less
-@import "<path-to-tideline>/css/tideline.less";
-```
-
-To build a standalone version to include with `<script>` and `<link>` tags, see [Build](#build).
-
-You will also need to copy the `img/` and `fonts/` directories to paths served by your server.
 
 For information on building charts using tideline components, see [Using Tideline](https://github.com/tidepool-org/tideline/wiki#using-tideline).
 
@@ -81,18 +76,6 @@ If you want to run the example with real data to view instead of the demo data g
  1. A file of real data exported from blip by entering `window.downloadJSON()` in the console after data successfully loads and saving the resulting file named `blip-output.json` in `example/data/`.
  1. Set your `$DATA` environment variable to the filename with `export DATA='blip-output.json'`.
  1. Start the tideline example with `npm start` as usual.
-
-### Build
-
-To build standalone `tideline.js` and `tideline.css` files, as well as the standalone 'plugins' bundles for Tidepool's first application [blip](https://github.com/tidepool-org/blip 'Tidepool GitHub: blip'), run:
-
-```bash
-$ gulp
-```
-
-The files will be created in the `dist/` directory.
-
-The script file will expose a global `window.tideline` object.
 
 ### Test
 

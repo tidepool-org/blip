@@ -11,6 +11,9 @@ var Settings = require('./components/settings');
 // tideline dependencies & plugins
 var preprocess = require('../plugins/data/preprocess/');
 
+require('../css/tideline.less');
+require('./less/example.less');
+
 var example = {
   log: bows('Example')
 };
