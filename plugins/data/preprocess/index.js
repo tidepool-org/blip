@@ -297,16 +297,26 @@ var preprocess = {
       data = [];
     }
     return _.filter(data, function(d) {
-      if (d.type === 'wizard' && d.joinKey) {
+      // TODO: remove copying from payload when new data model
+      // shim for Carelink and universal uploader data
+      if ((d.type === 'wizard' && d.joinKey) || (d.type === 'wizard' && d.bolus)) {
         if (d.payload.carbInput) {
           d.carbs = {
-            value: d.payload.carbInput,
-            units: d.payload.carbUnits
+            value: d.payload.carbInput
           };
         }
-        d.bolus = _.find(data, function(_d) {
-          return _d.type === 'bolus' && _d.joinKey === d.joinKey;
-        });
+        if (d.bolus) {
+          // shim for universal uploader
+          d.joinKey = d.bolus;
+          d.bolus = _.find(data, function(_d) {
+            return _d.type === 'bolus' && _d.id === d.joinKey;
+          });
+        }
+        else {
+          d.bolus = _.find(data, function(_d) {
+            return _d.type === 'bolus' && _d.joinKey === d.joinKey;
+          });
+        }
 
         //clean undefined
         if (!d.bolus) {
