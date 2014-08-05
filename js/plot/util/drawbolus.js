@@ -269,7 +269,7 @@ module.exports = function(pool, opts) {
           height: function(d) {
             d = pluckBolus(d);
             var height = opts.yScale(getValue(d)) - opts.yScale(d.recommended);
-            
+
             return height;
           },
           class: 'd3-rect-recommended d3-bolus',
@@ -372,11 +372,9 @@ module.exports = function(pool, opts) {
             var expectedEnd = opts.xScale(Date.parse(d.normalTime) + d.duration) - opts.triangleSize;
             var doseEnd = rightEdge + 5;
 
-            if(doseEnd > expectedEnd) {
-              doseEnd = expectedEnd;
+            if(doseEnd <= expectedEnd) {
+              return 'M' + rightEdge + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
             }
-
-            return 'M' + rightEdge + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
           },
           'stroke-width': opts.bolusStroke,
           class: 'd3-path-suspended d3-bolus'
@@ -397,27 +395,7 @@ module.exports = function(pool, opts) {
             }
           },
           'stroke-width': opts.bolusStroke,
-          class: 'd3-path-suspended d3-bolus'
-        });
-
-      suspended.append('path')
-        .attr({
-          d: function(d) {
-            d = pluckBolus(d);
-            var rightEdge = opts.xScale(Date.parse(d.suspendedAt)) + opts.width;
-            var doseHeight = computePathHeight(d);
-            // don't make red marker show beyond initial expected delivery
-            var expectedEnd = opts.xScale(Date.parse(d.normalTime) + d.duration) - opts.triangleSize;
-            var doseEnd = rightEdge + 5;
-
-            if(doseEnd > expectedEnd) {
-              doseEnd = expectedEnd;
-            }
-
-            return 'M' + rightEdge + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
-          },
-          'stroke-width': opts.bolusStroke,
-          class: 'd3-path-suspended d3-bolus'
+          class: 'd3-path-suspended-triangle d3-bolus'
         });
     },
     tooltip: {
