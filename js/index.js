@@ -66,6 +66,7 @@ module.exports = {
       },
       bgboundary: require('./plot/util/bgboundary'),
       fill: require('./plot/util/fill'),
+      shadow: require('./plot/util/shadow'),
       legend: require('./plot/util/legend'),
       scales: require('./plot/util/scales'),
       shapeutil: require('./plot/util/shapeutil'),
