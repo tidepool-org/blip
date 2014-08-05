@@ -15,8 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-@import 'tideline-colors.less';
-
 // tooltips
 
 //cbg
@@ -30,5 +28,19 @@ g.svg-tooltip-cbg {
   }
   &.d3-bg-high path.tooltip-outline {
     fill: @bg-high;
+  }
+}
+
+// basal
+g.svg-tooltip-basal {
+  polygon {
+    fill: white;
+    opacity: 0.8;
+    stroke: @basal;
+    stroke-width: 1.5;
+  }
+  &.d3-basal-undelivered polygon {
+    stroke-dasharray: 1.5,3;
+    stroke-linecap: round;
   }
 }

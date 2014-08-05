@@ -1,0 +1,30 @@
+/*
+ * == BSD2 LICENSE ==
+ */
+
+@import 'tideline-colors.less';
+
+.tooltip-div {
+  margin: 0;
+  p {
+    span {
+      color: @text;
+      font-size: @font-size-large-tooltips;
+      font-weight: bold;
+      &.secondary {
+        font-size: @font-size-small;
+        font-weight: normal;
+        .fromto {
+          color: darken(@text-light, 15%);
+        }
+      }
+      .plain {
+        font-weight: normal;
+      }
+    }
+    margin-top: -3px;
+    margin-bottom: -6px;
+    padding: 0px 7.5px 2px 7.5px;
+    text-align: center;
+  }
+}

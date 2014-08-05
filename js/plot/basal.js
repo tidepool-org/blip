@@ -27,7 +27,8 @@ module.exports = function(pool, opts) {
   var defaults = {
     opacity: 0.3,
     opacityDelta: 0.1,
-    pathStroke: 1.5
+    pathStroke: 1.5,
+    tooltipPadding: 20
   };
 
   opts = _.defaults(opts, defaults);
@@ -182,6 +183,10 @@ module.exports = function(pool, opts) {
     return opts.xScale(Date.parse(d.normalEnd));
   };
 
+  basal.tooltipXPosition = function(d) {
+    return basal.xPosition(d) + (basal.segmentEndXPosition(d) - basal.xPosition(d))/2;
+  };
+
   basal.yPosition = function(d) {
     return opts.yScale(d.value);
   };
@@ -206,7 +211,70 @@ module.exports = function(pool, opts) {
     return pool.height();
   };
 
-  basal.addTooltip = function() {
+  basal.rateString = function(d) {
+    return format.basalTooltipValue(d.value) + ' <span class="plain">U/hr</span>';
+  };
+
+  basal.tempPercentage = function(d) {
+    return format.percentage(d.percent);
+  };
+
+  basal.tooltipHtml = function(group, datum) {
+    switch (datum.deliveryType) {
+      case 'temp':
+        group.append('p')
+          .append('span')
+          .html('<span class="plain">Temp basal of</span> ' + basal.tempPercentage(datum));
+        group.append('p')
+          .append('span')
+          .attr('class', 'secondary')
+          .html('(' + basal.rateString(_.find(datum.suppressed, function(seg) {
+            return seg.deliveryType === 'scheduled';
+          })) + ' scheduled)');
+        break;
+      case 'suspend':
+        group.append('p')
+          .append('span')
+          .html('<span class="plain">Pump suspended</span>');
+        break;
+      default:
+        group.append('p')
+          .append('span')
+          .html(basal.rateString(datum));
+    }
+    group.append('p')
+      .append('span')
+      .attr('class', 'secondary')
+      .html('<span class="secondary fromto">from</span> ' +
+        format.timestamp(datum.normalTime) +
+        ' <span class="secondary fromto">to</span> ' +
+        format.timestamp(datum.normalEnd));
+  };
+
+  basal.addTooltip = function(d) {
+    var tooltips = pool.nativeTooltips();
+    var cssClass = (d.deliveryType === 'temp' || d.deliveryType === 'suspend') ? 'd3-basal-undelivered' : '';
+    var res = tooltips.addFOTooltip({
+      cssClass: cssClass,
+      datum: d,
+      shape: 'basal',
+      xPosition: basal.tooltipXPosition,
+      yPosition: function() { return 0; }
+    });
+    var foGroup = res.foGroup;
+    basal.tooltipHtml(foGroup, d);
+    var widths = [];
+    var spans = foGroup.selectAll('span')
+      .each(function() {
+        widths.push(d3.select(this)[0][0].getBoundingClientRect().width);
+      });
+    var bbox = foGroup[0][0].getBoundingClientRect();
+    tooltips.anchorFO(d3.select(foGroup.node().parentNode), {
+      w: d3.max(widths) + opts.tooltipPadding,
+      h: bbox.height,
+      shape: 'basal',
+      edge: res.edge
+    });
   };
 
   basal.addAnnotations = function(data, selection) {
