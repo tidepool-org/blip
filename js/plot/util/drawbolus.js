@@ -239,7 +239,7 @@ module.exports = function(pool, opts) {
           y: function(d) {
             d = pluckBolus(d);
 
-            return opts.yScale(d.programmed);
+            return opts.yScale(d.value);
           },
           width: opts.width,
           height: 2,

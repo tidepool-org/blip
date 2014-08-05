@@ -114,6 +114,7 @@ module.exports = function(pool, opts) {
         }
       });
 
+      console.log(suspended,boluses)
       drawBolus.suspended(suspended);
 
       var extendedSuspended = boluses.filter(function(d) {
