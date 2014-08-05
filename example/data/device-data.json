@@ -78664,9 +78664,9 @@
     {
         "deviceTime": "2014-08-28T12:25:46",
         "joinKey": "d90d27bb-ea24-44af-9220-21fbd6384fcd",
-        "value": 0.8,
+        "value": 5.8,
         "source": "demo",
-        "recommended": 0.8,
+        "recommended": 7.8,
         "deviceId": "Demo - 123",
         "type": "bolus",
         "id": "d36f9112-3f5c-43c0-b70f-154be2da3952"
@@ -80701,7 +80701,8 @@
     {
         "deviceTime": "2014-08-29T08:43:25",
         "joinKey": "5cdcd190-c05c-4d79-9099-9803eab746a2",
-        "value": 4.3,
+        "value": 2.3,
+        "programmed": 4.3,
         "source": "demo",
         "recommended": 4.3,
         "deviceId": "Demo - 123",
@@ -84873,7 +84874,8 @@
     },
     {
         "deviceTime": "2014-08-30T23:30:11",
-        "value": 10.5,
+        "programmed": 10.5,
+        "value": 5.5,
         "source": "demo",
         "recommended": 10.5,
         "deviceId": "Demo - 123",

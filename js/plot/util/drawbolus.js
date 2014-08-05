@@ -166,6 +166,14 @@ module.exports = function(pool, opts) {
     return category;
   };
 
+  var getValue = function(d) {
+    if (d.programmed && d.value != d.programmed) {
+      return d.programmed;
+    }
+
+    return d.value;
+  };
+
   return {
     carb: function(carbs) {
       var xPos = function(d) {
@@ -215,12 +223,12 @@ module.exports = function(pool, opts) {
           },
           y: function(d) {
             d = pluckBolus(d);
-            return opts.yScale(d.value);
+            return opts.yScale(getValue(d));
           },
           width: opts.width,
           height: function(d) {
             d = pluckBolus(d);
-            return top - opts.yScale(d.value);
+            return top - opts.yScale(getValue(d));
           },
           class: 'd3-rect-bolus d3-bolus',
           id: function(d) {
@@ -260,7 +268,9 @@ module.exports = function(pool, opts) {
           width: opts.width,
           height: function(d) {
             d = pluckBolus(d);
-            return opts.yScale(d.value) - opts.yScale(d.recommended);
+            var height = opts.yScale(getValue(d)) - opts.yScale(d.recommended);
+            
+            return height;
           },
           class: 'd3-rect-recommended d3-bolus',
           id: function(d) {
@@ -358,7 +368,52 @@ module.exports = function(pool, opts) {
             d = pluckBolus(d);
             var rightEdge = opts.xScale(Date.parse(d.suspendedAt)) + opts.width;
             var doseHeight = computePathHeight(d);
+            // don't make red marker show beyond initial expected delivery
+            var expectedEnd = opts.xScale(Date.parse(d.normalTime) + d.duration) - opts.triangleSize;
             var doseEnd = rightEdge + 5;
+
+            if(doseEnd > expectedEnd) {
+              doseEnd = expectedEnd;
+            }
+
+            return 'M' + rightEdge + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
+          },
+          'stroke-width': opts.bolusStroke,
+          class: 'd3-path-suspended d3-bolus'
+        });
+      // draw triangle red if stop happens at the end or within the triangle
+      suspended.append('path')
+        .attr({
+          d: function(d) {
+            d = pluckBolus(d);
+            var doseHeight = computePathHeight(d);
+            var rightEdge = opts.xScale(Date.parse(d.suspendedAt)) + opts.width;
+            // don't make red marker show beyond initial expected delivery
+            var expectedEnd = opts.xScale(Date.parse(d.normalTime) + d.duration) - opts.triangleSize;
+            var doseEnd = rightEdge + 5;
+
+            if(doseEnd > expectedEnd) {
+              return triangle(expectedEnd, doseHeight);
+            }
+          },
+          'stroke-width': opts.bolusStroke,
+          class: 'd3-path-suspended d3-bolus'
+        });
+
+      suspended.append('path')
+        .attr({
+          d: function(d) {
+            d = pluckBolus(d);
+            var rightEdge = opts.xScale(Date.parse(d.suspendedAt)) + opts.width;
+            var doseHeight = computePathHeight(d);
+            // don't make red marker show beyond initial expected delivery
+            var expectedEnd = opts.xScale(Date.parse(d.normalTime) + d.duration) - opts.triangleSize;
+            var doseEnd = rightEdge + 5;
+
+            if(doseEnd > expectedEnd) {
+              doseEnd = expectedEnd;
+            }
+
             return 'M' + rightEdge + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
           },
           'stroke-width': opts.bolusStroke,

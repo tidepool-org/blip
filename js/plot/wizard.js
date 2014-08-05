@@ -41,6 +41,14 @@ module.exports = function(pool, opts) {
   var tideline = window.tideline;
   var mainGroup = pool.parent();
 
+  var getValue = function(d) {
+    if (d.programmed && d.value != d.programmed) {
+      return d.programmed;
+    }
+
+    return d.value;
+  };
+  
   return function(selection) {
     opts.xScale = pool.xScale().copy();
 
@@ -84,7 +92,7 @@ module.exports = function(pool, opts) {
 
       // boluses where recommended > delivered
       var underride = boluses.filter(function(d) {
-        if (d.bolus.recommended > d.bolus.value) {
+        if (d.bolus.recommended > getValue(d.bolus)) {
           return d;
         }
       });
@@ -109,12 +117,11 @@ module.exports = function(pool, opts) {
       drawBolus.extended(extended);
 
       var suspended = boluses.filter(function(d) {
-        if (d.bolus.value != d.bolus.programmed) {
+        if (d.bolus.programmed && d.bolus.value != d.bolus.programmed) {
           return d;
         }
       });
 
-      console.log(suspended,boluses)
       drawBolus.suspended(suspended);
 
       var extendedSuspended = boluses.filter(function(d) {
