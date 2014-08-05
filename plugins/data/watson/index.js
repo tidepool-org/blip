@@ -76,7 +76,7 @@ module.exports = {
         // new data model
         else {
           i.normalTime = i.deviceTime + this.APPEND;
-          i.normalEnd = dt.addDuration(i.normalTime, i.duration);
+          i.normalEnd = dt.addDuration(i.normalTime, i.duration) + this.APPEND;
           i.value = i.rate;
           if (i.suppressed) {
             for (var k = 0; k < i.suppressed.length; ++k) {
