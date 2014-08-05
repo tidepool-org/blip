@@ -8,8 +8,9 @@ module.exports = {
   },
   module: {
     loaders: [
-      {test: /\.svg/, loader: 'url-loader?mimetype=image/svg+xml'},
       {test: /\.js$/, loader: 'jsx-loader'},
+      {test: /\.svg/, loader: 'url-loader?mimetype=image/svg+xml'},
+      {test: /\.png/, loader: 'url-loader?mimetype=image/png'},
       {test: /\.json/, loader: 'json-loader'}
     ]
   }

@@ -1,21 +1,23 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
 
 var d3 = require('d3');
+
+var images = require('../../../img');
 
 var log = require('bows')('Tooltip');
 
@@ -88,7 +90,7 @@ module.exports = function(container, tooltipsGroup) {
       if (locationInWindow < (((container.width() - container.axisGutter()) / 24) * 3)) {
         tooltipGroup.append('image')
           .attr({
-            'xlink:href': imagesBaseUrl + '/' + path + '/' + image,
+            'xlink:href': images[path][image],
             'x': imageX,
             'y': imageY,
             'width': tooltipWidth,
@@ -110,8 +112,8 @@ module.exports = function(container, tooltipsGroup) {
         tooltipGroup.append('image')
           .attr({
             'xlink:href': function() {
-              var str =  imagesBaseUrl + '/' + path + '/' + image;
-              return str.replace('.svg', '_left.svg');
+              var imageName = image.replace('.svg', '_left.svg');
+              return images[path][imageName];
             },
             'x': imageX - tooltipWidth,
             'y': imageY,
@@ -136,8 +138,8 @@ module.exports = function(container, tooltipsGroup) {
       tooltipGroup.append('image')
         .attr({
           'xlink:href': function() {
-            var str =  imagesBaseUrl + '/' + path + '/' + image;
-            return str.replace('.svg', '_left.svg');
+            var imageName = image.replace('.svg', '_left.svg');
+            return images[path][imageName];
           },
           'x': imageX - tooltipWidth,
           'y': imageY,
@@ -199,7 +201,7 @@ module.exports = function(container, tooltipsGroup) {
     else {
       tooltipGroup.append('image')
         .attr({
-          'xlink:href': imagesBaseUrl + '/' + path + '/' + image,
+          'xlink:href': images[path][image],
           'x': imageX,
           'y': imageY,
           'width': tooltipWidth,
