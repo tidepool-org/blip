@@ -16,7 +16,7 @@
     "rxjs": "2.2.18",
     "sundial": "0.1.3",
     "superagent": "0.17.0",
-    "tideline": "0.0.47",
+    "tideline": "0.0.48",
     "tidepool-platform-client": "0.6.0"
   },
   "resolutions": {
