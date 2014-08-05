@@ -15,12 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = require('../lib/')._;
+var _ = require('lodash');
 
 var format = require('./util/format');
 var datetime = require('./util/datetime');
 
-var log = require('../lib/').bows('BasalUtil');
+var log = require('bows')('BasalUtil');
 
 var MS_IN_HOUR = 3600000.0;
 var MS_IN_DAY = 86400000;

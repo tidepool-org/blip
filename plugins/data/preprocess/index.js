@@ -15,14 +15,14 @@
  * == BSD2 LICENSE ==
  */
 
+var _ = require('lodash');
 var tideline = require('../../../js/index');
-var watson = tideline.watson = require('../watson');
-var _ = tideline.lib._;
+var watson = require('../watson');
 var TidelineData = tideline.TidelineData;
 var SegmentUtil = tideline.data.SegmentUtil;
 var datetime = tideline.data.util.datetime;
 
-var log = tideline.lib.bows('Preprocess');
+var log = require('bows')('Preprocess');
 
 function alwaysTrue() {
   return true;

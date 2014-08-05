@@ -37,8 +37,6 @@ module.exports = {
     }
   },
 
-  lib: require('./lib/index'),
-
   plot: {
     basal: require('./plot/basal'),
     basaltab: require('./plot/basaltab'),

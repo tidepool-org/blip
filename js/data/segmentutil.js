@@ -15,8 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = require('../lib/')._;
-var log = require('../lib/').bows('SegmentUtil');
+var _ = require('lodash');
+var log = require('bows')('SegmentUtil');
 
 var Timeline = require('./util/timeline.js');
 

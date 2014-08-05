@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = require('../../../lib/')._;
+var _ = require('lodash');
 
 // when adding a shape from an image supplied by designer
 // viewBox attribute should be copied exactly from svg image

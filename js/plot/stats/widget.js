@@ -15,10 +15,10 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = require('../../lib/').d3;
-var _ = require('../../lib/')._;
+var d3 = require('d3');
+var _ = require('lodash');
 
-var log = require('../../lib/').bows('Stats');
+var log = require('bows')('Stats');
 var scales = require('../util/scales')();
 var dt = require('../../data/util/datetime');
 var format = require('../../data/util/format');

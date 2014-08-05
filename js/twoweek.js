@@ -15,15 +15,15 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = require('./lib/').d3;
-var _ = require('./lib/')._;
+var d3 = require('d3');
+var _ = require('lodash');
 
 var Pool = require('./pool');
 var annotation = require('./plot/util/annotations/annotation');
 var tooltip = require('./plot/util/tooltip');
 var legend = require('./plot/util/legend');
 
-var log = require('./lib/').bows('Two Week');
+var log = require('bows')('Two Week');
 
 module.exports = function(emitter) {
   // constants

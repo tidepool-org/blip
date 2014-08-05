@@ -15,12 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = require('./lib/').d3;
-var _ = require('./lib/')._;
+var d3 = require('d3');
+var _ = require('lodash');
 
 var legend = require('./plot/util/legend');
 
-var log = require('./lib/').bows('Pool');
+var log = require('bows')('Pool');
 
 function Pool (container) {
 

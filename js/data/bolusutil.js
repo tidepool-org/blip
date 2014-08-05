@@ -15,13 +15,13 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = require('../lib/')._;
+var _ = require('lodash');
 
 var format = require('./util/format');
 var datetime = require('./util/datetime');
 var TidelineCrossFilter = require('./util/tidelinecrossfilter');
 
-var log = require('../lib/').bows('BolusUtil');
+var log = require('bows')('BolusUtil');
 
 function BolusUtil(data) {
 

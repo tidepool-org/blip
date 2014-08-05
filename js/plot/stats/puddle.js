@@ -15,9 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = require('../../lib/')._;
+var _ = require('lodash');
 
-var log = require('../../lib/').bows('Puddle');
+var log = require('bows')('Puddle');
 
 module.exports = function(opts) {
 

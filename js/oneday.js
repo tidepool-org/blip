@@ -15,8 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = require('./lib/').d3;
-var _ = require('./lib/')._;
+var d3 = require('d3');
+var _ = require('lodash');
 
 var Pool = require('./pool');
 var annotation = require('./plot/util/annotations/annotation');
@@ -24,7 +24,7 @@ var tooltip = require('./plot/util/tooltip');
 var Tooltips = require('./plot/util/tooltips/tooltip');
 var dt = require('./data/util/datetime');
 
-var log = require('./lib/').bows('One Day');
+var log = require('bows')('One Day');
 
 module.exports = function(emitter) {
 

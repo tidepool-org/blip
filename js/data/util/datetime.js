@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = require('../../lib/')._;
+var _ = require('lodash');
 
 var datetime = {
 

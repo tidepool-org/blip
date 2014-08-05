@@ -15,12 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = require('../lib/').d3;
-var _ = require('../lib/')._;
+var d3 = require('d3');
+var _ = require('lodash');
 
-var Duration = require('../lib/').Duration;
+var Duration = require('duration-js');
 var format = require('../data/util/format');
-var log = require('../lib/').bows('Bolus');
+var log = require('bows')('Bolus');
 
 var drawbolus = require('./util/drawbolus');
 

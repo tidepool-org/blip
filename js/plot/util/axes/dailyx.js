@@ -15,12 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = require('../../../lib/')._;
-var d3 = require('../../../lib/').d3;
+var _ = require('lodash');
+var d3 = require('d3');
 
 var format = require('../../../data/util/format');
 
-var log = require('../../../lib/').bows('DailyX');
+var log = require('bows')('DailyX');
 
 module.exports = function(pool, opts) {
 

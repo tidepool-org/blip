@@ -15,11 +15,11 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = require('../lib/')._;
+var _ = require('lodash');
 
 var datetime = require('./util/datetime');
 
-var log = require('../lib/').bows('SettingsUtil');
+var log = require('bows')('SettingsUtil');
 
 function SettingsUtil(data, endpoints) {
 

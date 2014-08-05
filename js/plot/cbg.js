@@ -15,10 +15,10 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = require('../lib/').d3;
-var _ = require('../lib/')._;
+var d3 = require('d3');
+var _ = require('lodash');
 
-var log = require('../lib/').bows('CBG');
+var log = require('bows')('CBG');
 var bgBoundaryClass = require('./util/bgboundary');
 
 module.exports = function(pool, opts) {

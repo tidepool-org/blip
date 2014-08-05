@@ -15,15 +15,15 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = require('../../../lib/').d3;
-var _ = require('../../../lib/')._;
+var d3 = require('d3');
+var _ = require('lodash');
 
 var shapeutil = require('../shapeutil');
 var shapes = require('./shapes');
 var defs = require('./annotationdefinitions');
 var dt = require('../../../data/util/datetime');
 
-var log = require('../../../lib/').bows('AnnotationIcon');
+var log = require('bows')('AnnotationIcon');
 
 module.exports = function(container, annotationsGroup) {
 
