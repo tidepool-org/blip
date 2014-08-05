@@ -40,8 +40,6 @@ module.exports = function(container, tooltipsGroup) {
       .attr('class', 'd3-tooltip')
       .attr('id', 'tooltip_' + d.id);
 
-    var imagesBaseUrl = container.imagesBaseUrl();
-
     var currentTranslation = container.currentTranslation();
 
     var locationInWindow = currentTranslation + tooltipXPos;

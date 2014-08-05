@@ -27,7 +27,6 @@ module.exports = function(pool, opts) {
   opts = opts || {};
 
   var defaults = {
-    imagesBaseUrl: pool.imagesBaseUrl(),
     highlightWidth: 4
   };
 

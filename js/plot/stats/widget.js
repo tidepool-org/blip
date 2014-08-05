@@ -42,7 +42,6 @@ module.exports = function(pool, opts) {
     twoWeekOptions: {
       exclusionThreshold: 7
     },
-    imagesBaseUrl: pool.imagesBaseUrl(),
     size: 16,
     pieRadius: pool.height() * 0.45,
     defaultAnnotationOpts: {

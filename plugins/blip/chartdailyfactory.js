@@ -65,10 +65,6 @@ function chartDailyFactory(el, options) {
     // basic chart set up
     chart.id(el.id).width(width).height(height);
 
-    if (options.imagesBaseUrl) {
-      chart.imagesBaseUrl(options.imagesBaseUrl);
-    }
-
     d3.select(el).call(chart);
 
     return chart;

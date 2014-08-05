@@ -18,13 +18,11 @@ var example = {
 var Example = React.createClass({
   log: bows('Example'),
   propTypes: {
-    chartData: React.PropTypes.object.isRequired,
-    imagesBaseUrl: React.PropTypes.string.isRequired
+    chartData: React.PropTypes.object.isRequired
   },
   getDefaultProps: function() {
     return {
-      chartData: preprocess.processData(data),
-      imagesBaseUrl: 'img'
+      chartData: preprocess.processData(data)
     };
   },
   getInitialState: function() {
@@ -60,7 +58,6 @@ var Example = React.createClass({
         return (
           <Daily
             chartPrefs={this.state.chartPrefs}
-            imagesBaseUrl={this.props.imagesBaseUrl}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
             patientData={this.props.chartData}
             onSwitchToDaily={this.handleSwitchToDaily}
@@ -75,7 +72,6 @@ var Example = React.createClass({
         return (
           <Weekly
             chartPrefs={this.state.chartPrefs}
-            imagesBaseUrl={this.props.imagesBaseUrl}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
             patientData={this.props.chartData}
             onSwitchToDaily={this.handleSwitchToDaily}
