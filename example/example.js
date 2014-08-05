@@ -2,8 +2,7 @@
 var _ = require('lodash');
 var bows = require('bows');
 var React = require('react');
-
-var data = require('./data/device-data.json');
+var d3 = require('d3');
 
 var Daily = require('./components/daily');
 var Weekly = require('./components/weekly');
@@ -22,11 +21,6 @@ var Example = React.createClass({
   log: bows('Example'),
   propTypes: {
     chartData: React.PropTypes.object.isRequired
-  },
-  getDefaultProps: function() {
-    return {
-      chartData: preprocess.processData(data)
-    };
   },
   getInitialState: function() {
     return {
@@ -133,9 +127,23 @@ var Example = React.createClass({
   }
 });
 
-React.renderComponent(
-  /* jshint ignore:start */
-  <Example />,
-  /* jshint ignore:end */
-  document.body
-);
+
+var dataUrl = process.env.DATA;
+if (_.isEmpty(dataUrl)) {
+  dataUrl = 'device-data.json';
+}
+dataUrl = 'data/' + dataUrl;
+
+d3.json(dataUrl, function(err, data) {
+  if (err) {
+    throw new Error('Could not fetch data file at ' + dataUrl);
+  }
+  var chartData = preprocess.processData(data);
+
+  React.renderComponent(
+    /* jshint ignore:start */
+    <Example chartData={chartData}/>,
+    /* jshint ignore:end */
+    document.body
+  );
+});
