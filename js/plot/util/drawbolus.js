@@ -229,6 +229,27 @@ module.exports = function(pool, opts) {
           }
         });
     },
+    suspended: function(suspended) {
+      suspended.append('rect')
+        .attr({
+          x: function(d) {
+            d = pluckBolus(d);
+            return xPosition(d);
+          },
+          y: function(d) {
+            d = pluckBolus(d);
+
+            if (d.extended && (d.extendedDelivered + (d.initialDelivered || 0) != d.programmed)) {
+              return opts.yScale(d.extendedDelivered + (d.initialDelivered || 0));
+            }
+
+            return opts.yScale(d.delivered);
+          },
+          width: opts.width,
+          height: 2,
+          class: 'd3-rect-suspended d3-bolus'
+        });
+    },
     underride: function(underride) {
       underride.append('rect')
         .attr({
@@ -331,6 +352,22 @@ module.exports = function(pool, opts) {
             d = pluckBolus(d);
             return 'bolus_' + d.id;
           }
+        });
+    },
+    extendedSuspended: function(suspended) {
+      // square- and dual-wave boluses
+      suspended.append('path')
+        .attr({
+          d: function(d) {
+            d = pluckBolus(d);
+            var suspendedDuration = (d.extendedDelivered * d.duration)/d.extendedDelivery;
+            var rightEdge = opts.xScale(Date.parse(d.normalTime) + suspendedDuration) + opts.width;
+            var doseHeight = computePathHeight(d);
+            var doseEnd = rightEdge + 5;
+            return 'M' + rightEdge + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
+          },
+          'stroke-width': opts.bolusStroke,
+          class: 'd3-path-suspended d3-bolus'
         });
     },
     tooltip: {

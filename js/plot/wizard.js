@@ -108,6 +108,22 @@ module.exports = function(pool, opts) {
 
       drawBolus.extended(extended);
 
+      var suspended = boluses.filter(function(d) {
+        if (d.bolus.delivered || d.bolus.extendedDelivered || d.bolus.initialDelivered) {
+          return d;
+        }
+      });
+
+      drawBolus.suspended(suspended);
+
+      var extendedSuspended = boluses.filter(function(d) {
+        if (d.bolus.extendedDelivered && d.bolus.extendedDelivered != d.bolus.extendedDelivery) {
+          return d;
+        }
+      });
+
+      drawBolus.extendedSuspended(extendedSuspended);
+
       wizards.exit().remove();
 
       var highlight = pool.highlight('.d3-wizard-group, .d3-bolus-group', opts);
