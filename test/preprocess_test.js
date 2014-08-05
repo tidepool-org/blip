@@ -457,7 +457,7 @@ describe('Preprocess', function() {
           'deviceId': 'Demo - 123',
           'type': 'wizard',
           'payload': { 'carbUnits': 'grams', 'carbInput': 14 },
-          'carbs': { value: 14, units: 'grams' },
+          'carbs': { value: 14 },
           'bolus': bolus
         }, bolus
       ];
