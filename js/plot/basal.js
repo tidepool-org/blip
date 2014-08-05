@@ -138,9 +138,13 @@ module.exports = function(pool, opts) {
   basal.updatePath = function(selection, data) {
     opts.xScale = pool.xScale().copy();
 
-    selection.attr({
-      d: basal.pathData(data)
-    });
+    var pathDef = basal.pathData(data);
+
+    if (pathDef !== '') {
+      selection.attr({
+        d: basal.pathData(data)
+      });
+    }
   };
 
   basal.pathData = function(data) {
