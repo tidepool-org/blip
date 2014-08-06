@@ -19,6 +19,8 @@ var d3 = require('../lib/').d3;
 var _ = require('../lib/')._;
 
 var log = require('../lib/').bows('Two-Week SMBG');
+var dt = require('../data/util/datetime');
+var format = require('../data/util/format');
 var bgBoundaryClass = require('./util/bgboundary');
 
 function SMBGTime (opts) {
@@ -31,20 +33,21 @@ function SMBGTime (opts) {
   var defaults = {
     classes: {
       'very-low': {boundary: 60},
-      low: {boundary: 80, tooltip: 'smbg_tooltip_low.svg'},
-      target: {boundary: 180, tooltip: 'smbg_tooltip_target.svg'},
-      high: {boundary: 200, tooltip: 'smbg_tooltip_high.svg'},
+      low: {boundary: 80},
+      target: {boundary: 180},
+      high: {boundary: 200},
       'very-high': {boundary: 300}
     },
     size: 16,
     rectWidth: 32,
-    tooltipWidth: 70,
-    tooltipHeight: 24
+    tooltipPadding: 20
   };
 
   opts = _.defaults(opts, defaults);
 
   var getBgBoundaryClass = bgBoundaryClass(opts.classes), mainGroup, poolDaysGroup;
+
+  var pools = [];
 
   this.draw = function(pool) {
     opts.pool = pool;
@@ -52,6 +55,8 @@ function SMBGTime (opts) {
     // if you don't use poolDaysGroup to subset selection of smbg circles
     // can end up selecting circles in the legend D:
     poolDaysGroup = mainGroup.select('#daysGroup');
+
+    pools.push(pool);
 
     var smbg = this;
     return function(selection) {
@@ -113,32 +118,25 @@ function SMBGTime (opts) {
 
         circles.exit().remove();
 
-        var highlight = pool.highlight(circles);
-
         // tooltips
-        selection.selectAll('.d3-circle-smbg').on('mouseover', function() {
-          highlight.on(d3.select(d3.select(this).node().parentNode));
-
-          if (d3.select(this).classed('d3-bg-low')) {
-            smbg.addTooltip(d3.select(this).datum(), 'low', pool);
-          }
-          else if (d3.select(this).classed('d3-bg-target')) {
-            smbg.addTooltip(d3.select(this).datum(), 'target', pool);
-          }
-          else {
-            smbg.addTooltip(d3.select(this).datum(), 'high', pool);
-          }
-        });
-        selection.selectAll('.d3-circle-smbg').on('mouseout', function() {
-          highlight.off();
-          
-          var id = d3.select(this).attr('id').replace('smbg_time_', 'tooltip_');
-          mainGroup.select('#' + id).remove();
-        });
+        smbg.bindMouseEvents(selection, circles, pool, mainGroup);
       });
     };
   };
 
+  this.bindMouseEvents = function(selection, circles, pool) {
+    var highlight = pool.highlight(circles);
+    var smbg = this;
+    selection.selectAll('.d3-circle-smbg').on('mouseover', function() {
+      highlight.on(d3.select(d3.select(this).node().parentNode));
+      smbg.addTooltip(d3.select(this).datum(), pool);
+    });
+    selection.selectAll('.d3-circle-smbg').on('mouseout', function() {
+      highlight.off();
+      var id = d3.select(this).attr('id').replace('smbg_time_', 'tooltip_');
+      mainGroup.select('#' + id).remove();
+    });
+  };
 
   this.showValues = function() {
     var that = this;
@@ -149,6 +147,8 @@ function SMBGTime (opts) {
       .duration(500)
       .attr('opacity', 1);
     poolDaysGroup.selectAll('.d3-circle-smbg')
+      .on('mouseover', null)
+      .on('mouseout', null)
       .transition()
       .duration(500)
       .attr({
@@ -172,6 +172,12 @@ function SMBGTime (opts) {
         r: that.radius,
         cy: that.yPosition
       });
+    for (var i = 0; i < pools.length; ++i) {
+      var pool = pools[i];
+      var selection = poolDaysGroup.select('#' + pool.id() + '_smbg');
+      var circles = selection.selectAll('g.d3-smbg-time');
+      that.bindMouseEvents(selection, circles, pool);
+    }
   };
 
   this.xPosition = function(d) {
@@ -207,42 +213,58 @@ function SMBGTime (opts) {
     return 'smbg_time_' + d.id;
   };
 
-  this.addTooltip = function(d, category, p) {
-    var yPosition = p.height() / 2;
-    var xPosition = this.xPosition(d);
-    mainGroup.select('#' + 'tidelineTooltips_' + p.id())
-      .call(p.tooltips(),
-        d,
-        // tooltipXPos
-        xPosition,
-        'smbg',
-        // timestamp
-        true,
-        opts.classes[category].tooltip,
-        opts.tooltipWidth,
-        opts.tooltipHeight,
-        // imageX
-        xPosition,
-        // imageY
-        function() {
-          if ((category === 'low') || (category === 'target')) {
-            return yPosition - opts.tooltipHeight;
-          }
-          else {
-            return yPosition;
-          }
-        },
-        // textX
-        xPosition + opts.tooltipWidth / 2,
-        // textY
-        function() {
-          if ((category === 'low') || (category === 'target')) {
-            return yPosition - opts.tooltipHeight / 2;
-          }
-          else {
-            return yPosition + opts.tooltipHeight / 2;
-          }
-        });
+  this.orientation = function(cssClass) {
+    if (cssClass.search('d3-bg-high') !== -1) {
+      return 'leftAndDown';
+    }
+    else {
+      return 'normal';
+    }
+  };
+
+  this.tooltipHtml = function(group, datum) {
+    group.append('p')
+      .append('span')
+      .attr('class', 'secondary')
+      .html('<span class="fromto">at</span> ' + format.timestamp(datum.normalTime));
+    group.append('p')
+      .attr('class', 'big')
+      .append('span')
+      .html(datum.value);
+  };
+
+  this.addTooltip = function(d, pool) {
+    var tooltips = opts.pool.nativeTooltips();
+    var getBgBoundaryClass = bgBoundaryClass(opts.classes);
+    var cssClass = getBgBoundaryClass(d);
+    var smbg = this;
+    var days = mainGroup.select('#daysGroup').node().children;
+    var lastDay = d3.select(days[days.length - 1]);
+    var translation = parseInt(lastDay.attr('transform').replace('translate(0,', '').replace(')',''),10);
+    var res = tooltips.addFOTooltip({
+      cssClass: cssClass,
+      datum: d,
+      shape: 'generic',
+      xPosition: smbg.xPosition,
+      yPosition: function() {
+        return smbg.yPosition() + pool.yPosition() - translation;
+      }
+    });
+    var foGroup = res.foGroup;
+    this.tooltipHtml(foGroup, d);
+    var dims = tooltips.foDimensions(foGroup);
+    tooltips.anchorFO(d3.select(foGroup.node().parentNode), {
+      w: dims.width + opts.tooltipPadding,
+      h: dims.height,
+      y: -dims.height,
+      orientation: {
+        'default': this.orientation(cssClass),
+        leftEdge: this.orientation(cssClass) === 'leftAndDown' ? 'rightAndDown': 'normal',
+        rightEdge: this.orientation(cssClass) === 'normal' ? 'leftAndUp': 'leftAndDown'
+      },
+      shape: 'generic',
+      edge: dt.smbgEdge(d.normalTime)
+    });
   };
 }
 
