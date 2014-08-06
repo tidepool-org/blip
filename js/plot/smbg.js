@@ -116,7 +116,7 @@ module.exports = function(pool, opts) {
     group.append('p')
       .attr('class', 'big')
       .append('span')
-      .html(datum.value);
+      .html(Math.round(datum.value));
   };
 
   smbg.addTooltip = function(d) {

@@ -230,7 +230,7 @@ function SMBGTime (opts) {
     group.append('p')
       .attr('class', 'big')
       .append('span')
-      .html(datum.value);
+      .html(Math.round(datum.value));
   };
 
   this.addTooltip = function(d, pool) {
