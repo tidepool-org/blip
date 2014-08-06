@@ -245,33 +245,30 @@ module.exports = function(pool, opts) {
     group.append('p')
       .append('span')
       .attr('class', 'secondary')
-      .html('<span class="secondary fromto">from</span> ' +
+      .html('<span class="fromto">from</span> ' +
         format.timestamp(datum.normalTime) +
-        ' <span class="secondary fromto">to</span> ' +
+        ' <span class="fromto">to</span> ' +
         format.timestamp(datum.normalEnd));
   };
 
   basal.addTooltip = function(d) {
+    var datum = _.clone(d);
+    datum.type = 'basal';
     var tooltips = pool.nativeTooltips();
     var cssClass = (d.deliveryType === 'temp' || d.deliveryType === 'suspend') ? 'd3-basal-undelivered' : '';
     var res = tooltips.addFOTooltip({
       cssClass: cssClass,
-      datum: d,
+      datum: datum,
       shape: 'basal',
       xPosition: basal.tooltipXPosition,
       yPosition: function() { return 0; }
     });
     var foGroup = res.foGroup;
     basal.tooltipHtml(foGroup, d);
-    var widths = [];
-    var spans = foGroup.selectAll('span')
-      .each(function() {
-        widths.push(d3.select(this)[0][0].getBoundingClientRect().width);
-      });
-    var bbox = foGroup[0][0].getBoundingClientRect();
+    var dims = tooltips.foDimensions(foGroup);
     tooltips.anchorFO(d3.select(foGroup.node().parentNode), {
-      w: d3.max(widths) + opts.tooltipPadding,
-      h: bbox.height,
+      w: dims.width + opts.tooltipPadding,
+      h: dims.height,
       shape: 'basal',
       edge: res.edge
     });
