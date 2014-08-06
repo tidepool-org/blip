@@ -1,30 +1,67 @@
 /*
  * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
  */
 
 @import 'tideline-colors.less';
 
+// mixins
+.bigText {
+  margin-top: 1px;
+  margin-bottom: -2px;
+  span {
+    .mainText;
+    font-size: @font-size-xlarge-tooltips;
+  }
+}
+.mainText {
+  color: @text;
+  font-size: @font-size-large-tooltips;
+  font-weight: bold;
+}
+.plainText {
+  font-weight: normal;
+}
+.secondaryText {
+  font-size: @font-size-small;
+  font-weight: normal;
+}
+
 .tooltip-div {
-  margin: 3px 0 0 0;
+  margin: 0;
+  padding: 3px 0 0 0;
   p {
     span {
-      color: @text;
-      font-size: @font-size-large-tooltips;
-      font-weight: bold;
+      .mainText;
       &.secondary {
-        font-size: @font-size-small;
-        font-weight: normal;
+        .secondaryText;
         .fromto {
+          .secondaryText;
           color: darken(@text-light, 15%);
         }
       }
       .plain {
-        font-weight: normal;
+        .plainText;
       }
     }
     margin-top: -3px;
     margin-bottom: -6px;
     padding: 0px 7.5px 2px 7.5px;
     text-align: center;
+    &.big {
+      .bigText;
+    }
   }
 }

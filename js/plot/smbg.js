@@ -19,6 +19,7 @@ var d3 = require('../lib/').d3;
 var _ = require('../lib/')._;
 
 var log = require('../lib/').bows('SMBG');
+var format = require('../data/util/format');
 var scales = require('./util/scales')();
 var bgBoundaryClass = require('./util/bgboundary');
 
@@ -29,14 +30,13 @@ module.exports = function(pool, opts) {
   var defaults = {
     classes: {
       'very-low': {boundary: 60},
-      low: {boundary: 80, tooltip: 'smbg_tooltip_low.svg'},
-      target: {boundary: 180, tooltip: 'smbg_tooltip_target.svg'},
-      high: {boundary: 200, tooltip: 'smbg_tooltip_high.svg'},
+      low: {boundary: 80},
+      target: {boundary: 180},
+      high: {boundary: 200},
       'very-high': {boundary: 300}
     },
     size: 16,
-    tooltipWidth: 70,
-    tooltipHeight: 24
+    tooltipPadding: 20
   };
 
   _.defaults(opts, defaults);
@@ -71,20 +71,10 @@ module.exports = function(pool, opts) {
       // tooltips
       selection.selectAll('.d3-circle-smbg').on('mouseover', function() {
         highlight.on(d3.select(this));
-
-        if (d3.select(this).classed('d3-bg-low')) {
-          smbg.addTooltip(d3.select(this).datum(), 'low');
-        }
-        else if (d3.select(this).classed('d3-bg-target')) {
-          smbg.addTooltip(d3.select(this).datum(), 'target');
-        }
-        else {
-          smbg.addTooltip(d3.select(this).datum(), 'high');
-        }
+        smbg.addTooltip(d3.select(this).datum());
       });
       selection.selectAll('.d3-circle-smbg').on('mouseout', function() {
         highlight.off();
-
         var id = d3.select(this).attr('id').replace('smbg_', 'tooltip_');
         mainGroup.select('#' + id).remove();
       });
@@ -109,40 +99,52 @@ module.exports = function(pool, opts) {
     return 'smbg_' + d.id;
   };
 
-  smbg.addTooltip = function(d, category) {
-    mainGroup.select('#' + 'tidelineTooltips_smbg')
-      .call(pool.tooltips(),
-        d,
-        // tooltipXPos
-        opts.xScale(Date.parse(d.normalTime)),
-        'smbg',
-        // timestamp
-        true,
-        opts.classes[category].tooltip,
-        opts.tooltipWidth,
-        opts.tooltipHeight,
-        // imageX
-        opts.xScale(Date.parse(d.normalTime)),
-        // imageY
-        function() {
-          if ((category === 'low') || (category === 'target')) {
-            return opts.yScale(d.value) - opts.tooltipHeight;
-          }
-          else {
-            return opts.yScale(d.value);
-          }
-        },
-        // textX
-        opts.xScale(Date.parse(d.normalTime)) + opts.tooltipWidth / 2,
-        // textY
-        function() {
-          if ((category === 'low') || (category === 'target')) {
-            return opts.yScale(d.value) - opts.tooltipHeight / 2;
-          }
-          else {
-            return opts.yScale(d.value) + opts.tooltipHeight / 2;
-          }
-        });
+  smbg.orientation = function(cssClass) {
+    if (cssClass.search('d3-bg-high') !== -1) {
+      return 'leftAndDown';
+    }
+    else {
+      return 'normal';
+    }
+  };
+
+  smbg.tooltipHtml = function(group, datum) {
+    group.append('p')
+      .append('span')
+      .attr('class', 'secondary')
+      .html('<span class="fromto">at</span> ' + format.timestamp(datum.normalTime));
+    group.append('p')
+      .attr('class', 'big')
+      .append('span')
+      .html(datum.value);
+  };
+
+  smbg.addTooltip = function(d) {
+    var tooltips = pool.nativeTooltips();
+    var getBgBoundaryClass = bgBoundaryClass(opts.classes);
+    var cssClass = getBgBoundaryClass(d);
+    var res = tooltips.addFOTooltip({
+      cssClass: cssClass,
+      datum: d,
+      shape: 'generic',
+      xPosition: smbg.xPosition,
+      yPosition: smbg.yPosition
+    });
+    var foGroup = res.foGroup;
+    smbg.tooltipHtml(foGroup, d);
+    var dims = tooltips.foDimensions(foGroup);
+    tooltips.anchorFO(d3.select(foGroup.node().parentNode), {
+      w: dims.width + opts.tooltipPadding,
+      h: dims.height,
+      y: -dims.height,
+      orientation: {
+        'default': smbg.orientation(cssClass),
+        leftEdge: smbg.orientation(cssClass) === 'leftAndDown' ? 'rightAndDown': 'normal',
+        rightEdge: smbg.orientation(cssClass) === 'normal' ? 'leftAndUp': 'leftAndDown'
+      },
+      shape: 'generic',
+      edge: res.edge
+    });
   };
 
   return smbg;

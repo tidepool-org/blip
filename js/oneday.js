@@ -50,7 +50,7 @@ module.exports = function(emitter) {
     xScale = d3.time.scale.utc(),
     currentCenter, data, tidelineData, renderedData = [], endpoints,
     mainSVG, mainGroup,
-    scrollNav, scrollHandleTrigger = true, mostRecent = false, annotations, tooltips;
+    scrollNav, scrollHandleTrigger = true, mostRecent = false, annotations, tooltips, nativeTooltips;
 
   container.dataFill = {};
 

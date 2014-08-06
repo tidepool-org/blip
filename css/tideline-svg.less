@@ -44,3 +44,21 @@ g.svg-tooltip-basal {
     stroke-linecap: round;
   }
 }
+
+// smbg, bolus(/wizard) = generic
+g.svg-tooltip-generic {
+  polygon {
+    fill: white;
+    opacity: 0.7;
+    stroke-width: 1.5;
+  }
+  &.d3-bg-low {
+    stroke: @bg-low;
+  }
+  &.d3-bg-target {
+    stroke: @bg-target;
+  }
+  &.d3-bg-high {
+    stroke: @bg-high;
+  }
+}
