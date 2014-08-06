@@ -12,8 +12,8 @@ Dependencies:
 
 Install with:
 
-```javascript
-npm install --save tidepool-platform-client
+```bash
+$ npm install --save tidepool-platform-client
 ```
 
 Use with [Webpack](webpack.github.io/) or [Browserify](browserify.org):
