@@ -212,7 +212,7 @@ module.exports = function(pool, opts) {
   };
 
   basal.rateString = function(d) {
-    return format.basalTooltipValue(d.value) + ' <span class="plain">U/hr</span>';
+    return format.tooltipValue(d.value) + ' <span class="plain">U/hr</span>';
   };
 
   basal.tempPercentage = function(d) {

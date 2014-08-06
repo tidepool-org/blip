@@ -125,20 +125,22 @@ function Tooltips(container, tooltipsGroup) {
 
   this.anchorFO = function(selection, opts) {
     var shape = opts.shape;
-    var isDefaultNormal = opts.orientation && opts.orientation['default'] === 'normal';
     var atRightEdge = opts.edge === 'right';
     var atLeftEdge = opts.edge === 'left';
+    var isDefaultNormal = opts.orientation && opts.orientation['default'] === 'normal';
+    var isDefaultLeftNormal = opts.orientation && opts.orientation['default'] === 'leftAndUp';
 
     if (opts.y) {
       var offsetVal = shapes[shape].offset();
-      if (isDefaultNormal) {
+      if (isDefaultNormal || (isDefaultLeftNormal && atLeftEdge)) {
         shapes[shape].offset(selection, {x: offsetVal, y: opts.y - offsetVal});
       }
       else if (atLeftEdge) {
         shapes[shape].offset(selection, {x: offsetVal, y: offsetVal});
       }
       else if (!opts.edge || atRightEdge) {
-        shapes[shape].offset(selection, {x: -opts.w - offsetVal, y: offsetVal});
+        var y = isDefaultLeftNormal ? opts.y - offsetVal : offsetVal;
+        shapes[shape].offset(selection, {x: -opts.w - offsetVal, y: y});
       }
     }
     if (!shapes[shape].orientations) {

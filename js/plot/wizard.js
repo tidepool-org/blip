@@ -115,14 +115,14 @@ module.exports = function(pool, opts) {
       // tooltips
       selection.selectAll('.d3-wizard-group').on('mouseover', function(d) {
         if (d.bolus) {
-          drawBolus.tooltip.add(d.bolus);
+          drawBolus.tooltip.add(d);
         }
 
         highlight.on(d3.select(this));
       });
       selection.selectAll('.d3-wizard-group').on('mouseout', function(d) {
         if (d.bolus) {
-          drawBolus.tooltip.remove(d.bolus);
+          drawBolus.tooltip.remove(d);
         }
 
         highlight.off();

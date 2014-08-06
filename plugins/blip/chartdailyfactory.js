@@ -204,10 +204,17 @@ function chartDailyFactory(el, options) {
       type: 'smbg',
       shape: 'generic'
     });
+    chart.nativeTooltips().addGroup(poolBolus, {
+      type: 'wizard',
+      shape: 'generic'
+    });
+    chart.nativeTooltips().addGroup(poolBolus, {
+      type: 'bolus',
+      shape: 'generic'
+    });
     chart.nativeTooltips().addGroup(poolBasal, {
       type: 'basal'
     });
-    chart.tooltips().addGroup(chart.svg().select('#' + poolBolus.id()), 'bolus');
 
     return chart;
   };

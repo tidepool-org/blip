@@ -24,6 +24,9 @@
   span {
     .mainText;
     font-size: @font-size-xlarge-tooltips;
+    &.secondary {
+      .secondaryText;
+    }
   }
 }
 .mainText {
@@ -38,6 +41,9 @@
   font-size: @font-size-small;
   font-weight: normal;
 }
+.interruptedText {
+  color: darken(@interrupted, 10%);
+}
 
 .tooltip-div {
   margin: 0;
@@ -51,6 +57,9 @@
           .secondaryText;
           color: darken(@text-light, 15%);
         }
+      }
+      &.interrupted {
+        .interruptedText;
       }
       .plain {
         .plainText;
