@@ -27,12 +27,11 @@ module.exports = function(pool, opts) {
 
   var defaults = {
     classes: {
-      low: {boundary: 80, tooltip: 'cbg_tooltip_low.svg'},
-      target: {boundary: 180, tooltip: 'cbg_tooltip_target.svg'},
-      high: {boundary: 200, tooltip: 'cbg_tooltip_high.svg'}
+      low: {boundary: 80},
+      target: {boundary: 180},
+      high: {boundary: 200}
     },
     radius: 2.5,
-    tooltipSize: 24
   };
 
   _.defaults(opts, defaults);
