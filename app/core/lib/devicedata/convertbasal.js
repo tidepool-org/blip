@@ -15,9 +15,9 @@
 
 'use strict';
 
-var moment = window.moment;
-var _ = window._;
-var Rx = window.Rx;
+var moment = require('moment');
+var _ = require('lodash');
+var Rx = require('rx');
 
 // Require it so that it gets registered
 require('../rx/selfjoin.js');

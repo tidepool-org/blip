@@ -15,7 +15,7 @@
 
 // Various helper functions
 
-var _ = window._;
+var _ = require('lodash');
 
 var utils = {};
 

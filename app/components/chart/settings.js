@@ -1,11 +1,10 @@
 /** @jsx React.DOM */
-var _ = window._;
-var bows = window.bows;
-var React = window.React;
+var _ = require('lodash');
+var bows = require('bows');
+var React = require('react');
 
 // tideline dependencies & plugins
-// tideline dependencies & plugins
-var tidelineBlip = window.tideline.blip;
+var tidelineBlip = require('tideline/plugins/blip');
 var chartSettingsFactory = tidelineBlip.settings;
 
 var Header = require('./header');
@@ -71,7 +70,7 @@ var Settings = React.createClass({
       <SettingsChart
         bgUnits={this.props.chartPrefs.bgUnits}
         patientData={this.props.patientData}
-        ref="chart" />      
+        ref="chart" />
     );
     /* jshint ignore:end */
   },

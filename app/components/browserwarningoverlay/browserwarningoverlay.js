@@ -14,7 +14,7 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = window.React;
+var React = require('react');
 
 var BrowserWarningOverlay = React.createClass({
   propTypes: {
@@ -51,8 +51,8 @@ var BrowserWarningOverlay = React.createClass({
   renderSubmitButton: function() {
     /* jshint ignore:start */
     return (
-      <button 
-        className="btn btn-primary js-terms-submit" 
+      <button
+        className="btn btn-primary js-terms-submit"
         onClick={this.handleSubmit}
         >I understand, Continue.
       </button>

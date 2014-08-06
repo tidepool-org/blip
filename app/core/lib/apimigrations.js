@@ -15,7 +15,7 @@
 
 // Tools to migrate to new API data models or endpoints
 
-var _ = window._;
+var _ = require('lodash');
 
 var migrations = {};
 

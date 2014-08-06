@@ -14,7 +14,9 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = window.React;
+var React = require('react');
+
+var logoSrc = require('./images/tidepool-logo-370x40.png');
 
 var LoginNav = React.createClass({
   propTypes: {
@@ -78,15 +80,13 @@ var LoginNav = React.createClass({
   },
 
   renderLogo: function() {
-    var imageSource = this.props.imagesEndpoint + '/tidepool-logo-370x40.png';
-
     /* jshint ignore:start */
     return (
       <a
         href="http://tidepool.org/"
         target="_blank"
         className="login-nav-tidepool-logo">
-        <img src={imageSource} alt="Tidepool"/>
+        <img src={logoSrc} alt="Tidepool"/>
       </a>
     );
     /* jshint ignore:end */

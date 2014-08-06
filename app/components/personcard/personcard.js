@@ -14,8 +14,9 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = window.React;
-var _ = window._;
+var React = require('react');
+var _ = require('lodash');
+var cx = require('react/lib/cx');
 
 var PersonCard = React.createClass({
   propTypes: {
@@ -24,7 +25,7 @@ var PersonCard = React.createClass({
   },
 
   render: function() {
-    var classes = React.addons.classSet({
+    var classes = cx({
       'personcard': true,
       'personcard-clickable': this.isClickable(),
       'personcard-empty': this.isEmpty()

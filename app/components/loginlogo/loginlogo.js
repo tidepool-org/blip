@@ -14,7 +14,9 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = window.React;
+var React = require('react');
+
+var logoSrc = require('./images/blip-logo-290x290.png');
 
 var LoginLogo = React.createClass({
   propTypes: {
@@ -22,12 +24,10 @@ var LoginLogo = React.createClass({
   },
 
   render: function() {
-    var imageSource = this.props.imagesEndpoint + '/blip-logo-290x290.png';
-
     /* jshint ignore:start */
     return (
       <div className="login-logo">
-        <img src={imageSource} alt="Blip"/>
+        <img src={logoSrc} alt="Blip"/>
       </div>
     );
     /* jshint ignore:end */

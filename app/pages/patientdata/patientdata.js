@@ -14,13 +14,14 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = window.React;
-var _ = window._;
-var moment = window.moment;
-var bows = window.bows;
-var config = window.config;
+var React = require('react');
+var _ = require('lodash');
+var moment = require('moment');
+var bows = require('bows');
 
-var watson = window.tideline.watson;
+var watson = require('tideline/plugins/data/watson');
+
+var config = require('../../config');
 
 var utils = require('../../core/utils');
 var Header = require('../../components/chart').header;
@@ -169,7 +170,7 @@ var PatientData = React.createClass({
     }
 
     /* jshint ignore:start */
-    return (      
+    return (
       <div>
         {header}
         <div className="container-box-outer patient-data-content-outer">
@@ -222,7 +223,7 @@ var PatientData = React.createClass({
       case 'daily':
         /* jshint ignore:start */
         return (
-          <Daily 
+          <Daily
             chartPrefs={this.state.chartPrefs}
             imagesBaseUrl={config.IMAGES_ENDPOINT + '/tideline'}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
@@ -241,7 +242,7 @@ var PatientData = React.createClass({
       case 'weekly':
         /* jshint ignore:start */
         return (
-          <Weekly 
+          <Weekly
             chartPrefs={this.state.chartPrefs}
             imagesBaseUrl={config.IMAGES_ENDPOINT + '/tideline'}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
@@ -260,7 +261,7 @@ var PatientData = React.createClass({
       case 'settings':
         /* jshint ignore:start */
         return (
-          <Settings 
+          <Settings
             chartPrefs={this.state.chartPrefs}
             patientData={this.props.patientData}
             onClickRefresh={this.handleClickRefresh}

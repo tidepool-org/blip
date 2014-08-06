@@ -14,10 +14,11 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = window.React;
-var _ = window._;
-var moment = window.moment;
-var config = window.config;
+var React = require('react');
+var _ = require('lodash');
+var moment = require('moment');
+
+var config = require('../../config');
 
 var personUtils = require('../../core/personutils');
 var datetimeUtils = require('../../core/datetimeutils');

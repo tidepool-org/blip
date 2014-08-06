@@ -20,9 +20,9 @@ not, you can obtain one from Tidepool Project at tidepool.org.
 */
 'use strict';
 
-var React = window.React;
-var _ = window._;
-var sundial = window.sundial;
+var React = require('react');
+var _ = require('lodash');
+var sundial = require('sundial');
 
 var Message = require('./message');
 var MessageForm = require('./messageform');

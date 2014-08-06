@@ -14,23 +14,18 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = window.React;
-var bows = window.bows;
-var _ = window._;
-var async = window.async;
-var config = window.config;
+var React = require('react');
+var bows = require('bows');
+var _ = require('lodash');
+var async = require('async');
 
-// These requires will be deprecated when Tidepool Platform Client and Tideline
-// have distribution bundles and export on the `window` object
-var tidepool = require('./core/tidepool');
-var tideline = require('./core/tideline');
-var sundial = require('./core/sundial');
+var chartUtil = require('tideline/plugins/data/preprocess');
 
+var config = require('./config');
 var router = require('./router');
 var api = require('./core/api');
 var personUtils = require('./core/personutils');
 var queryString = require('./core/querystring');
-var chartUtil = window.tideline.preprocess;
 var detectTouchScreen = require('./core/notouch');
 var utils = require('./core/utils');
 
@@ -54,7 +49,7 @@ var DEBUG = window.localStorage && window.localStorage.debug;
 // Initialize services talking to external APIs
 // Override with mock services if necessary
 if (config.MOCK) {
-  var mock = window.mock;
+  var mock = require('../mock');
   api = mock.patchApi(api);
 }
 
@@ -64,8 +59,6 @@ var app = {
   personUtils: personUtils,
   router: router
 };
-
-window.app = app;
 
 var routes = {
   '/': 'redirectToDefaultRoute',

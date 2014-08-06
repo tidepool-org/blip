@@ -13,7 +13,11 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-/* global app */
+var app = require('./app');
+
+require('tideline/css/tideline.less');
+require('./core/less/fonts.less');
+require('./style.less');
 
 window.onerror = function myErrorHandler(errorMessage, fileUrl, lineNumber) {
   var html = [
@@ -62,5 +66,8 @@ window.onerror = function myErrorHandler(errorMessage, fileUrl, lineNumber) {
   // Let default handler run
   return false;
 };
+
+// For easier debugging
+window.app = app;
 
 app.start();

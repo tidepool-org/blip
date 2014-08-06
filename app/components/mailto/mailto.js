@@ -14,7 +14,7 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = window.React;
+var React = require('react');
 
 var MailTo = React.createClass({
   propTypes: {

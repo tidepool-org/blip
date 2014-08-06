@@ -17,7 +17,7 @@
 // Packaged separately and included only if needed
 // Exposes all mocks on the global `window.mock` object
 
-var _ = window._;
+var _ = require('lodash');
 
 var mock = {};
 window.mock = mock;

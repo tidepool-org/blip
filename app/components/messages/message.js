@@ -21,11 +21,14 @@ not, you can obtain one from Tidepool Project at tidepool.org.
 'use strict';
 /* jshint unused: false */
 
-var React = window.React;
-var _ = window._;
-var sundial = window.sundial;
+var React = require('react');
+var _ = require('lodash');
+var sundial = require('sundial');
 
 var MessageForm = require('./messageform');
+
+var profileLargeSrc = require('./images/profile-100x100.png');
+var profileSmallSrc = require('./images/profile-64x64.png');
 
 var Message = React.createClass({
 
@@ -121,14 +124,14 @@ var Message = React.createClass({
   },
   renderImage: function() {
     var imageSize = this.props.imageSize;
-    var imageSource = this.props.imagesEndpoint;
+    var imageSource;
 
     if (imageSize === 'large') {
-      imageSource = imageSource + '/profile-100x100.png';
+      imageSource = profileLargeSrc;
     }
     else {
       imageSize = 'small';
-      imageSource = imageSource + '/profile-64x64.png';
+      imageSource = profileSmallSrc;
     }
 
     /* jshint ignore:start */

@@ -1,4 +1,4 @@
-var _ = window._;
+var _ = require('lodash');
 
 var PeopleList = require('../../app/components/peoplelist');
 var testPatients = [
