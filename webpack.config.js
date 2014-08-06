@@ -17,5 +17,8 @@ module.exports = {
       {test: /\.ttf/, loader: 'url-loader?mimetype=application/x-font-ttf'},
       {test: /\.json$/, loader: 'json-loader'}
     ]
+  },
+  externals: {
+    'jquery': 'jQuery'
   }
 };

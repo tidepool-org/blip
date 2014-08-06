@@ -1,15 +1,15 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -26,53 +26,57 @@ var chai = require('chai');
 var assert = chai.assert;
 var expect = chai.expect;
 
-var $ = window.$;
-var d3 = window.d3;
-var preprocess = window.tideline.preprocess;
-var blip = window.tideline.blip;
-var chartDailyFactory = blip.oneday;
-
-var imagesBaseUrl = '../../img';
+var $ = require('jquery');
+var d3 = require('d3');
+var preprocess = require('../../plugins/data/preprocess');
+var chartDailyFactory = require('../../plugins/blip/chartdailyfactory');
+var images = require('../../img');
 
 var testpage = require('../../dev/testpage/index');
 
-var tideline = require('../../js/index');
-var containerId = '#testContainer';
-
 var width = 960, height = 590;
-
-describe('the tideline container', function(done) {
-  // this set of tests isn't really testing anything...EXCEPT
-  // we're using the dimensions of the container to test some other things below
-  // so these tests are basically canaries to help us debug potentially breaking tests
-  before(function() {
-    $(containerId).append('<div class="tideline-container"></div>');
-  });
-
-  it('should have a width of 960px', function() {
-    expect($('.tideline-container').width()).to.equal(width);
-  });
-
-  it('should have a height of 590px', function() {
-    expect($('.tideline-container').height()).to.equal(height);
-  });
-
-  after(function() {
-    $(containerId).empty();
-  });
-});
 
 describe('one-day view', function() {
   var i = 0, testPatterns = testpage.main;
+  var $testContainer;
+
+  before(function() {
+    $testContainer = $('<div class="tideline-container"></div>').appendTo('body');
+  });
+
+  after(function() {
+    $testContainer.remove();
+  });
+
+  describe('the tideline container', function(done) {
+    // this set of tests isn't really testing anything...EXCEPT
+    // we're using the dimensions of the container to test some other things below
+    // so these tests are basically canaries to help us debug potentially breaking tests
+    before(function() {
+      $testContainer.append('<div class="tideline-container"></div>');
+    });
+
+    it('should have a width of 960px', function() {
+      expect($('.tideline-container').width()).to.equal(width);
+    });
+
+    it('should have a height of 590px', function() {
+      expect($('.tideline-container').height()).to.equal(height);
+    });
+
+    after(function() {
+      $testContainer.empty();
+    });
+  });
 
   describe('full day of data', function() {
     var container, oneDay;
 
     before(function() {
-      $(containerId).append('<h3>Full day of data</h3>');
-      $(containerId).append('<div class="tideline-container" id="tideline_' + i + '"></div>');
+      $testContainer.append('<h3>Full day of data</h3>');
+      $testContainer.append('<div class="tideline-container" id="tideline_' + i + '"></div>');
       var el = document.getElementById('tideline_' + i);
-      oneDay = chartDailyFactory(el, {imagesBaseUrl: imagesBaseUrl}).setupPools();
+      oneDay = chartDailyFactory(el).setupPools();
       var data = preprocess.processData(testPatterns.full);
       oneDay.load(data).locate('2008-01-01T12:00:00.000Z');
       container = $('#tideline_' + i);
@@ -292,7 +296,7 @@ describe('one-day view', function() {
 
           leftLow.simulate('mouseover');
           var lowTooltipGroup = container.find('#tooltip_' + leftLow.attr('id').replace('smbg_', ''));
-          expect(lowTooltipGroup.find('image').attr('href')).to.equal('../../img/smbg/smbg_tooltip_low.svg');
+          expect(lowTooltipGroup.find('image').attr('href')).to.equal(images.smbg['smbg_tooltip_low.svg']);
           expect(lowTooltipGroup.find('text').html()).to.equal('20');
           // check for AM not am because CSS handles the transform to lowercase
           expect(lowTooltipGroup.find('text').filter('.d3-tooltip-timestamp').html()).to.equal('at 12:30 AM');
@@ -300,7 +304,7 @@ describe('one-day view', function() {
 
           leftTarget.simulate('mouseover');
           var targetTooltipGroup = container.find('#tooltip_' + leftTarget.attr('id').replace('smbg_', ''));
-          expect(targetTooltipGroup.find('image').attr('href')).to.equal('../../img/smbg/smbg_tooltip_target.svg');
+          expect(targetTooltipGroup.find('image').attr('href')).to.equal(images.smbg['smbg_tooltip_target.svg']);
           expect(targetTooltipGroup.find('text').html()).to.equal('80');
           expect(targetTooltipGroup.find('text').filter('.d3-tooltip-timestamp').html()).to.equal('at 1:30 AM');
           expect(targetTooltipGroup.find('rect').size()).to.be.above(0);
@@ -309,7 +313,7 @@ describe('one-day view', function() {
         it('(high) should yield a right and down tooltip (text = 181) on hover', function() {
           leftHigh.simulate('mouseover');
           var highTooltipGroup = container.find('#tooltip_' + leftHigh.attr('id').replace('smbg_', ''));
-          expect(highTooltipGroup.find('image').attr('href')).to.equal('../../img/smbg/smbg_tooltip_high.svg');
+          expect(highTooltipGroup.find('image').attr('href')).to.equal(images.smbg['smbg_tooltip_high.svg']);
           expect(highTooltipGroup.find('text').html()).to.equal('181');
           expect(highTooltipGroup.find('text').filter('.d3-tooltip-timestamp').html()).to.equal('at 2:30 AM');
           expect(highTooltipGroup.find('rect').size()).to.be.above(0);
@@ -336,14 +340,14 @@ describe('one-day view', function() {
 
           rightLow.simulate('mouseover');
           var lowTooltipGroup = container.find('#tooltip_' + rightLow.attr('id').replace('smbg_', ''));
-          expect(lowTooltipGroup.find('image').attr('href')).to.equal('../../img/smbg/smbg_tooltip_low_left.svg');
+          expect(lowTooltipGroup.find('image').attr('href')).to.equal(images.smbg['smbg_tooltip_low_left.svg']);
           expect(lowTooltipGroup.find('text').html()).to.equal('20');
           expect(lowTooltipGroup.find('text').filter('.d3-tooltip-timestamp').html()).to.equal('at 11:30 PM');
           expect(lowTooltipGroup.find('rect').size()).to.be.above(0);
 
           rightTarget.simulate('mouseover');
           var targetTooltipGroup = container.find('#tooltip_' + rightTarget.attr('id').replace('smbg_', ''));
-          expect(targetTooltipGroup.find('image').attr('href')).to.equal('../../img/smbg/smbg_tooltip_target_left.svg');
+          expect(targetTooltipGroup.find('image').attr('href')).to.equal(images.smbg['smbg_tooltip_target_left.svg']);
           expect(targetTooltipGroup.find('text').html()).to.equal('80');
           expect(targetTooltipGroup.find('text').filter('.d3-tooltip-timestamp').html()).to.equal('at 10:30 PM');
           expect(targetTooltipGroup.find('rect').size()).to.be.above(0);
@@ -352,7 +356,7 @@ describe('one-day view', function() {
         it('(high) should yield a left and down tooltip (text = 181) on hover', function() {
           rightHigh.simulate('mouseover');
           var highTooltipGroup = container.find('#tooltip_' + rightHigh.attr('id').replace('smbg_', ''));
-          expect(highTooltipGroup.find('image').attr('href')).to.equal('../../img/smbg/smbg_tooltip_high_left.svg');
+          expect(highTooltipGroup.find('image').attr('href')).to.equal(images.smbg['smbg_tooltip_high_left.svg']);
           expect(highTooltipGroup.find('text').html()).to.equal('181');
           expect(highTooltipGroup.find('text').filter('.d3-tooltip-timestamp').html()).to.equal('at 9:30 PM');
           expect(highTooltipGroup.find('rect').size()).to.be.above(0);
@@ -390,7 +394,7 @@ describe('one-day view', function() {
         leftCarb = carbs.filter(':first');
         leftCarb.simulate('mouseover');
         var leftTooltipGroup = container.find('#tidelineTooltips_bolus').find('.d3-tooltip').filter(':first');
-        expect(leftTooltipGroup.find('image').attr('href')).to.equal('../../img/bolus/tooltip_bolus_large_left.svg');
+        expect(leftTooltipGroup.find('image').attr('href')).to.equal(images.bolus['tooltip_bolus_large_left.svg']);
         expect(leftTooltipGroup.find('text').filter('.d3-tooltip-timestamp').html()).to.equal('at 11:25 PM');
         expect(leftTooltipGroup.find('rect').size()).to.be.above(0);
       });
@@ -399,7 +403,7 @@ describe('one-day view', function() {
         rightCarb = carbs.filter(':last');
         rightCarb.simulate('mouseover');
         var rightTooltipGroup = $(container.find('#tidelineTooltips_bolus').find('.d3-tooltip')[1]);
-        expect(rightTooltipGroup.find('image').attr('href')).to.equal('../../img/bolus/tooltip_bolus_small.svg');
+        expect(rightTooltipGroup.find('image').attr('href')).to.equal(images.bolus['tooltip_bolus_small.svg']);
         expect(rightTooltipGroup.find('text').filter('.d3-tooltip-timestamp').html()).to.equal('at 12:25 PM');
         expect(rightTooltipGroup.find('rect').size()).to.be.above(0);
       });
@@ -408,7 +412,7 @@ describe('one-day view', function() {
         extendedCarb = $(carbs[12]);
         extendedCarb.simulate('mouseover');
         var extendedTooltipGroup = container.find('#tidelineTooltips_bolus').find('.d3-tooltip').filter(':last');
-        expect(extendedTooltipGroup.find('image').attr('href')).to.equal('../../img/bolus/tooltip_bolus_extralarge.svg');
+        expect(extendedTooltipGroup.find('image').attr('href')).to.equal(images.bolus['tooltip_bolus_extralarge.svg']);
         expect(extendedTooltipGroup.find('text').filter('.d3-tooltip-timestamp').html()).to.equal('at 2:25 AM');
         expect(extendedTooltipGroup.find('rect').size()).to.be.above(0);
       });
@@ -431,15 +435,15 @@ describe('one-day view', function() {
       });
     });
   });
-  
+
   describe('full day of data, quick boluses only', function() {
     var container, oneDay, boluses, thisBolus;
 
     before(function() {
-      $(containerId).append('<h3>Full day of data, quick boluses only</h3>');
-      $(containerId).append('<div class="tideline-container" id="tideline_' + i + '"></div>');
+      $testContainer.append('<h3>Full day of data, quick boluses only</h3>');
+      $testContainer.append('<div class="tideline-container" id="tideline_' + i + '"></div>');
       var el = document.getElementById('tideline_' + i);
-      oneDay = chartDailyFactory(el, {imagesBaseUrl: imagesBaseUrl}).setupPools();
+      oneDay = chartDailyFactory(el).setupPools();
       var data = preprocess.processData(testPatterns.quickbolusonly);
       oneDay.load(data).locate('2008-01-01T12:00:00.000Z');
       container = $('#tideline_' + i);
@@ -460,7 +464,7 @@ describe('one-day view', function() {
       thisBolus = boluses.filter(':first');
       thisBolus.simulate('mouseover');
       var thisTooltipGroup = container.find('#tidelineTooltips_bolus').find('.d3-tooltip').filter(':first');
-      expect(thisTooltipGroup.find('image').attr('href')).to.equal('../../img/bolus/tooltip_bolus_small_left.svg');
+      expect(thisTooltipGroup.find('image').attr('href')).to.equal(images.bolus['tooltip_bolus_small_left.svg']);
       expect(thisTooltipGroup.find('text').filter('.d3-tooltip-timestamp').html()).to.equal('at 11:25 PM');
       expect(thisTooltipGroup.find('rect').size()).to.be.above(0);
     });
@@ -469,7 +473,7 @@ describe('one-day view', function() {
       var extended = $(boluses[12]);
       extended.simulate('mouseover');
       var extendedTooltipGroup = container.find('#tidelineTooltips_bolus').find('.d3-tooltip').filter(':last');
-      expect(extendedTooltipGroup.find('image').attr('href')).to.equal('../../img/bolus/tooltip_bolus_large.svg');
+      expect(extendedTooltipGroup.find('image').attr('href')).to.equal(images.bolus['tooltip_bolus_large.svg']);
       expect(extendedTooltipGroup.find('text').filter('.d3-tooltip-timestamp').html()).to.equal('at 2:25 AM');
       expect(extendedTooltipGroup.find('rect').size()).to.be.above(0);
     });
