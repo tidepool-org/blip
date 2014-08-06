@@ -70,7 +70,6 @@ module.exports = {
       legend: require('./plot/util/legend'),
       scales: require('./plot/util/scales'),
       shapeutil: require('./plot/util/shapeutil'),
-      tooltip: require('./plot/util/tooltip'),
       drawbolus: require('./plot/util/drawbolus')
     }
   }
