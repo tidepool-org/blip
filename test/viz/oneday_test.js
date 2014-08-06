@@ -41,11 +41,7 @@ describe('one-day view', function() {
   var $testContainer;
 
   before(function() {
-    $testContainer = $('<div class="tideline-container"></div>').appendTo('body');
-  });
-
-  after(function() {
-    $testContainer.remove();
+    $testContainer = $('<div class="test-container"></div>').appendTo('body');
   });
 
   describe('the tideline container', function(done) {
