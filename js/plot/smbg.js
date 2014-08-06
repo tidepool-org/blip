@@ -126,7 +126,7 @@ module.exports = function(pool, opts) {
     var res = tooltips.addFOTooltip({
       cssClass: cssClass,
       datum: d,
-      shape: 'generic',
+      shape: 'smbg',
       xPosition: smbg.xPosition,
       yPosition: smbg.yPosition
     });
@@ -142,7 +142,7 @@ module.exports = function(pool, opts) {
         leftEdge: smbg.orientation(cssClass) === 'leftAndDown' ? 'rightAndDown': 'normal',
         rightEdge: smbg.orientation(cssClass) === 'normal' ? 'leftAndUp': 'leftAndDown'
       },
-      shape: 'generic',
+      shape: 'smbg',
       edge: res.edge
     });
   };

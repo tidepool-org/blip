@@ -201,8 +201,7 @@ function chartDailyFactory(el, options) {
       classes: ['d3-bg-low', 'd3-bg-target', 'd3-bg-high']
     });
     chart.nativeTooltips().addGroup(poolBG, {
-      type: 'smbg',
-      shape: 'generic'
+      type: 'smbg'
     });
     chart.nativeTooltips().addGroup(poolBolus, {
       type: 'wizard',

@@ -128,8 +128,7 @@ function chartWeeklyFactory(el, options) {
       }), true, true);
       pool.addPlotType('smbg', smbgTime.draw(pool), true, true);
       chart.nativeTooltips().addGroup(pool, {
-        type: 'smbg',
-        shape: 'generic'
+        type: 'smbg'
       });
       pool.render(chart.daysGroup(), chart.dataPerDay[i]);
     });

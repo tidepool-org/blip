@@ -244,7 +244,7 @@ function SMBGTime (opts) {
     var res = tooltips.addFOTooltip({
       cssClass: cssClass,
       datum: d,
-      shape: 'generic',
+      shape: 'smbg',
       xPosition: smbg.xPosition,
       yPosition: function() {
         return smbg.yPosition() + pool.yPosition() - translation;
@@ -262,7 +262,7 @@ function SMBGTime (opts) {
         leftEdge: this.orientation(cssClass) === 'leftAndDown' ? 'rightAndDown': 'normal',
         rightEdge: this.orientation(cssClass) === 'normal' ? 'leftAndUp': 'leftAndDown'
       },
-      shape: 'generic',
+      shape: 'smbg',
       edge: dt.smbgEdge(d.normalTime)
     });
   };
