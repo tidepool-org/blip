@@ -27,8 +27,11 @@
   ],
   "main": "sundial.js",
   "repository": "https://github.com/tidepool-org/sundial.git",
+  "scripts": {
+    "test": "grunt test"
+  },
   "dependencies": {
-    "moment": "2.7.0"
+    "moment": "~2.8.1"
   },
   "devDependencies": {
     "grunt": "0.4.1",
