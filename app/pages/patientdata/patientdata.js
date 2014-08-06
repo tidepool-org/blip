@@ -66,22 +66,20 @@ var PatientData = React.createClass({
       messages: null
     };
 
-    if (!_.isEmpty(params) && params.dynamicCarbs !== undefined) {
-      state.chartPrefs.bolusRatio =  params.dynamicCarbs ? 0.5 : 0.35;
-      state.chartPrefs.dynamicCarbs = params.dynamicCarbs;
-    }
-
     return state;
   },
 
   componentWillMount: function() {
     var params = this.props.queryParams;
-    if (!_.isEmpty(params) && params.showbasalsettings !== undefined) {
+
+    if (!_.isEmpty(params)) {
       this.setState({
         chartPrefs: {
           hiddenPools: {
-            basalSettings: params.showbasalsettings ? true : null
-          }
+            basalSettings: params.showbasalsettings ?  true : null
+          },
+          bolusRatio: params.dynamicCarbs ? 0.5 : 0.35,
+          dynamicCarbs: !!params.dynamicCarbs
         }
       });
     }
