@@ -49,7 +49,8 @@ var PatientData = React.createClass({
   },
 
   getInitialState: function() {
-    return {
+    var params = this.props.queryParams;
+    var state = {
       chartPrefs: {
         bgUnits: 'mg/dL',
         hiddenPools: {
@@ -64,10 +65,18 @@ var PatientData = React.createClass({
       initialDatetimeLocation: null,
       messages: null
     };
+
+    if (!_.isEmpty(params) && params.dynamicCarbs !== undefined) {
+      state.chartPrefs.bolusRatio =  params.dynamicCarbs ? 0.5 : 0.35;
+      state.chartPrefs.dynamicCarbs = params.dynamicCarbs;
+    }
+    
+    return state;
   },
 
   componentWillMount: function() {
     var params = this.props.queryParams;
+
     if (!_.isEmpty(params) && params.showbasalsettings !== undefined) {
       this.setState({
         chartPrefs: {
@@ -169,7 +178,7 @@ var PatientData = React.createClass({
     }
 
     /* jshint ignore:start */
-    return (      
+    return (
       <div>
         {header}
         <div className="container-box-outer patient-data-content-outer">
@@ -222,7 +231,7 @@ var PatientData = React.createClass({
       case 'daily':
         /* jshint ignore:start */
         return (
-          <Daily 
+          <Daily
             chartPrefs={this.state.chartPrefs}
             imagesBaseUrl={config.IMAGES_ENDPOINT + '/tideline'}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
@@ -241,7 +250,7 @@ var PatientData = React.createClass({
       case 'weekly':
         /* jshint ignore:start */
         return (
-          <Weekly 
+          <Weekly
             chartPrefs={this.state.chartPrefs}
             imagesBaseUrl={config.IMAGES_ENDPOINT + '/tideline'}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
@@ -260,7 +269,7 @@ var PatientData = React.createClass({
       case 'settings':
         /* jshint ignore:start */
         return (
-          <Settings 
+          <Settings
             chartPrefs={this.state.chartPrefs}
             patientData={this.props.patientData}
             onClickRefresh={this.handleClickRefresh}
