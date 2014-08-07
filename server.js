@@ -4,7 +4,7 @@ var path = require('path');
 var connect = require('connect');
 var serveStatic = require('serve-static');
 
-var config = require('./env.js');
+var config = require('./config.server.js');
 
 var buildDir = 'dist';
 

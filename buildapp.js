@@ -6,8 +6,8 @@ console.log('Cleaning output directory "dist/"...');
 rm('-rf', 'dist');
 mkdir('-p', 'dist');
 
-console.log('Bundling all the things...');
-exec('webpack --config webpack.config.prod.js --devtool source-map --colors --progress');
+console.log('Building app...');
+exec('webpack --entry \'./app/main.prod.js\' --output-file \'bundle.[hash].js\' --devtool source-map --colors --progress');
 
 function getBundleFilename() {
   var matches = ls('dist/bundle.*.js');

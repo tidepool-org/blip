@@ -5,7 +5,9 @@
   "scripts": {
     "test": "webpack-dev-server 'mocha!./test/entry.js' --output-file test.js",
     "start": "webpack-dev-server --devtool source-map --cache --colors --progress --port 3000",
-    "build": "node buildprod",
+    "build": "npm run build-app && npm run build-config",
+    "build-app": "node buildapp",
+    "build-config": "node buildconfig",
     "server": "node server",
     "jshint": "gulp jshint",
     "jshint-watch": "gulp jshint-watch"

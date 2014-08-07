@@ -13,10 +13,9 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var config = window.config;
+// NOTE: `window.config` is bundled separately
 
-if (!config) {
-  throw new Error('Expected `config` on the global `window` object');
-}
+var app = window.app = require('./app');
+window.onerror = require('./onerror');
 
-module.exports = config;
+app.start();

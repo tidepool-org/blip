@@ -13,10 +13,25 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var app = window.app = require('./app');
-window.onerror = require('./onerror');
+var pkg = require('./package.json');
 
-var mock = require('../mock');
-app.useMock(mock);
+function booleanFromText(value, defaultValue) {
+  if (value === 'true') {
+    return true;
+  }
 
-app.start();
+  if (value === 'false') {
+    return false;
+  }
+
+  return defaultValue || false;
+}
+
+module.exports = {
+  VERSION: pkg.version,
+  MOCK: booleanFromText(process.env.MOCK, false),
+  MOCK_PARAMS: process.env.MOCK_PARAMS || '',
+  UPLOAD_API: process.env.UPLOAD_API || 'https://devel-uploads.tidepool.io',
+  API_HOST: process.env.API_HOST || 'https://devel-api.tidepool.io',
+  SHOW_ACCEPT_TERMS: booleanFromText(process.env.SHOW_ACCEPT_TERMS, true)
+};

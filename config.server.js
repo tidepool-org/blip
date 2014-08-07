@@ -22,37 +22,37 @@ function maybeReplaceWithContentsOfFile(obj, field) {
   }
 }
 
-var env = {};
+var config = {};
 
-env.httpPort = process.env.PORT;
+config.httpPort = process.env.PORT;
 
-env.httpsPort = process.env.HTTPS_PORT;
+config.httpsPort = process.env.HTTPS_PORT;
 
 // The https config to pass along to https.createServer.
 var theConfig = process.env.HTTPS_CONFIG;
-env.httpsConfig = null;
+config.httpsConfig = null;
 if (theConfig) {
-  env.httpsConfig = JSON.parse(theConfig);
-  maybeReplaceWithContentsOfFile(env.httpsConfig, 'key');
-  maybeReplaceWithContentsOfFile(env.httpsConfig, 'cert');
-  maybeReplaceWithContentsOfFile(env.httpsConfig, 'pfx');
+  config.httpsConfig = JSON.parse(theConfig);
+  maybeReplaceWithContentsOfFile(config.httpsConfig, 'key');
+  maybeReplaceWithContentsOfFile(config.httpsConfig, 'cert');
+  maybeReplaceWithContentsOfFile(config.httpsConfig, 'pfx');
 }
 
 // Make sure we have an HTTPS config if a port is set
-if (env.httpsPort && !env.httpsConfig) {
+if (config.httpsPort && !config.httpsConfig) {
   throw new Error('No https config provided, please set HTTPS_CONFIG with at least the certificate to use.');
 }
 
 // The host to contact for discovery
 if (process.env.DISCOVERY_HOST != null) {
-	env.discovery = {};
-	env.discovery.host = process.env.DISCOVERY_HOST;
+	config.discovery = {};
+	config.discovery.host = process.env.DISCOVERY_HOST;
 
 	// The service name to expose to discovery
-	env.serviceName = process.env.SERVICE_NAME;
+	config.serviceName = process.env.SERVICE_NAME;
 
 	// The local host to expose to discovery
-	env.publishHost = process.env.PUBLISH_HOST;
+	config.publishHost = process.env.PUBLISH_HOST;
 }
 
-module.exports = env;
+module.exports = config;

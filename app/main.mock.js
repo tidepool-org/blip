@@ -13,10 +13,12 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var config = window.config;
+window.config = require('../config.app.js');
 
-if (!config) {
-  throw new Error('Expected `config` on the global `window` object');
-}
+var app = window.app = require('./app');
+window.onerror = require('./onerror');
 
-module.exports = config;
+var mock = require('../mock');
+app.useMock(mock);
+
+app.start();

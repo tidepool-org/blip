@@ -13,6 +13,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+window.config = require('../config.app.js');
+
 var app = window.app = require('./app');
 window.onerror = require('./onerror');
 
