@@ -25,6 +25,7 @@ module.exports = function(pool, opts) {
   var defaults = {
     width: 12,
     r: 14,
+    suspendMarkerWidth: 5,
     bolusStroke: 2,
     triangleSize: 6,
     carbPadding: 4,
@@ -344,13 +345,19 @@ module.exports = function(pool, opts) {
             return 'bolus_' + d.id;
           }
         });
+
+      //triangle
       extended.append('path')
         .attr({
           d: function(d) {
             d = pluckBolus(d);
             var doseHeight = computePathHeight(d);
             var doseEnd = opts.xScale(Date.parse(d.normalTime) + d.duration) - opts.triangleSize;
-            return triangle(doseEnd, doseHeight);
+            var suspendedEnd = opts.xScale(Date.parse(d.suspendedAt || 0)) + opts.width + opts.suspendMarkerWidth;
+
+            if(suspendedEnd < doseEnd) {
+              return triangle(doseEnd, doseHeight);
+            }
           },
           'stroke-width': opts.bolusStroke,
           class: 'd3-path-extended-triangle d3-bolus',
@@ -372,30 +379,10 @@ module.exports = function(pool, opts) {
             var expectedEnd = opts.xScale(Date.parse(d.normalTime) + d.duration) - opts.triangleSize;
             var doseEnd = rightEdge + 5;
 
-            if(doseEnd <= expectedEnd) {
-              return 'M' + rightEdge + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
-            }
+            return 'M' + rightEdge + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
           },
           'stroke-width': opts.bolusStroke,
           class: 'd3-path-suspended d3-bolus'
-        });
-      // draw triangle red if stop happens at the end or within the triangle
-      suspended.append('path')
-        .attr({
-          d: function(d) {
-            d = pluckBolus(d);
-            var doseHeight = computePathHeight(d);
-            var rightEdge = opts.xScale(Date.parse(d.suspendedAt)) + opts.width;
-            // don't make red marker show beyond initial expected delivery
-            var expectedEnd = opts.xScale(Date.parse(d.normalTime) + d.duration) - opts.triangleSize;
-            var doseEnd = rightEdge + 5;
-
-            if(doseEnd > expectedEnd) {
-              return triangle(expectedEnd, doseHeight);
-            }
-          },
-          'stroke-width': opts.bolusStroke,
-          class: 'd3-path-suspended-triangle d3-bolus'
         });
     },
     tooltip: {
