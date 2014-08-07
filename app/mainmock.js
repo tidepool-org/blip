@@ -13,34 +13,10 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-// Bundle that provides mock services
-// Packaged separately and included only if needed
-// Exposes all mocks on the global `window.mock` object
+var app = window.app = require('./app');
+window.onerror = require('./onerror');
 
-var _ = require('lodash');
-var mockData = require('blip-mock-data');
+var mock = require('../mock');
+app.useMock(mock);
 
-var mock = {};
-
-mock.params = {};
-mock.data = mockData;
-
-mock.setParams = function(newParams) {
-  this.params = _.assign(this.params, newParams);
-  return this.params;
-};
-
-mock.getParam = function(name) {
-  return mock.params[name];
-};
-
-mock.init = function(params) {
-  this.setParams(params);
-};
-
-mock.patchApi = require('./api')({
-  getParam: mock.getParam,
-  data: mock.data
-});
-
-module.exports = mock;
+app.start();

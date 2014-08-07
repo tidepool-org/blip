@@ -44,14 +44,12 @@ var Patient = require('./pages/patient');
 var PatientEdit = require('./pages/patientedit');
 var PatientData = require('./pages/patientdata');
 
-var DEBUG = window.localStorage && window.localStorage.debug;
+// Styles
+require('tideline/css/tideline.less');
+require('./core/less/fonts.less');
+require('./style.less');
 
-// Initialize services talking to external APIs
-// Override with mock services if necessary
-if (config.MOCK) {
-  var mock = require('../mock');
-  api = mock.patchApi(api);
-}
+var DEBUG = window.localStorage && window.localStorage.debug;
 
 var app = {
   log: bows('App'),
@@ -93,7 +91,10 @@ function objectDifference(destination, source) {
   return result;
 }
 
-var trackMetric = app.api.metrics.track.bind(app.api.metrics);
+function trackMetric() {
+  var args = Array.prototype.slice.call(arguments);
+  return app.api.metrics.track.apply(app.api.metrics, args);
+}
 
 var AppComponent = React.createClass({
   getInitialState: function() {
@@ -218,7 +219,7 @@ var AppComponent = React.createClass({
 
       if (this.isPatientVisibleInNavbar()) {
         patient = this.state.patient;
-        getUploadUrl = api.getUploadUrl.bind(api);
+        getUploadUrl = app.api.getUploadUrl.bind(app.api);
       }
 
       return (
@@ -554,7 +555,7 @@ var AppComponent = React.createClass({
         fetchingPatientData={this.state.fetchingPatientData}
         isUserPatient={this.isSamePersonUserAndPatient()}
         queryParams={this.state.queryParams}
-        uploadUrl={api.getUploadUrl()}
+        uploadUrl={app.api.getUploadUrl()}
         onRefresh={this.fetchCurrentPatientData}
         onFetchMessageThread={this.fetchMessageThread}
         onSaveComment={app.api.team.replyToMessageThread.bind(app.api.team)}
@@ -1008,10 +1009,15 @@ app.start = function() {
 
     self.log('App started');
 
-    if (config.MOCK) {
+    if (self.mock) {
       self.log('App running with mock services');
     }
   });
+};
+
+app.useMock = function(mock) {
+  this.mock = mock;
+  this.api = mock.patchApi(this.api);
 };
 
 app.init = function(callback) {
@@ -1027,14 +1033,14 @@ app.init = function(callback) {
   }
 
   function initMock() {
-    if (config.MOCK) {
+    if (self.mock) {
       // Load mock params from config variables
       // and URL query string (before hash)
       var paramsConfig = queryString.parseTypes(config.MOCK_PARAMS);
       var paramsUrl = queryString.parseTypes(window.location.search);
       var params = _.assign(paramsConfig, paramsUrl);
 
-      mock.init(params);
+      self.mock.init(params);
       self.log('Mock services initialized with params', params);
     }
     initApi();

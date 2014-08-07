@@ -1,7 +1,9 @@
 var path = require('path');
 
+var entry = process.env.MOCK ? './app/mainmock.js' : './app/main.js';
+
 module.exports = {
-  entry: './app/main.js',
+  entry: entry,
   output: {
     path: path.join(__dirname, '/dist'),
     filename: 'bundle.js'
