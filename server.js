@@ -1,6 +1,8 @@
 var http = require('http');
 var https = require('https');
+var path = require('path');
 var connect = require('connect');
+var serveStatic = require('serve-static');
 
 var config = require('./env.js');
 
@@ -8,8 +10,8 @@ var buildDir = 'dist';
 
 var app = connect();
 
-var staticDir = __dirname + '/' + buildDir;
-app.use(connect.static(staticDir));
+var staticDir = path.join(__dirname, buildDir);
+app.use(serveStatic(staticDir));
 
 // If no ports specified, just start on default HTTP port
 if (!(config.httpPort || config.httpsPort)) {
