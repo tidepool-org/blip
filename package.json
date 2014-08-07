@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack-dev-server --devtool source-map --cache --colors --progress --port 3000"
+    "start": "webpack-dev-server --devtool source-map --cache --colors --progress --port 3000",
+    "build": "node buildprod",
+    "server": "http-server ./dist -p 3000"
   },
   "dependencies": {
     "async": "0.9.0",
@@ -27,6 +29,7 @@
     "gulp-template": "0.1.1",
     "gulp-uglify": "0.2.1",
     "hakken": "0.1.4",
+    "http-server": "0.6.1",
     "jshint-stylish": "0.1.5",
     "json-loader": "0.5.1",
     "jsx-loader": "0.11.0",
@@ -40,6 +43,7 @@
     "reactify": "0.10.0",
     "run-sequence": "0.3.6",
     "rx": "2.2.18",
+    "shelljs": "0.3.0",
     "simple-glob": "0.1.0",
     "style-loader": "0.6.4",
     "sundial": "0.1.3",
