@@ -239,6 +239,7 @@ module.exports = function(pool, opts) {
         var res = tooltips.addFOTooltip({
           cssClass: 'd3-bolus',
           datum: d,
+          div: 'bolus-wizard',
           shape: 'generic',
           xPosition: function() { return xPosition(d) + opts.width/2; },
           yPosition: function() { return pool.height() - 1; }
@@ -261,53 +262,111 @@ module.exports = function(pool, opts) {
       },
       html: function(group, d) {
         var bolus = pluckBolus(d);
-        var mainP = group.append('p')
-          .attr('class', 'big')
-          .append('span')
-          .html(format.tooltipValue(bolus.value) + '  ');
-        mainP.append('span')
-          .attr('class', 'secondary')
-          .html(' <span class="fromto">at</span> ' + format.timestamp(d.normalTime));
-        if (d.type === 'wizard' && d.carbs && d.carbs.value > 0) {
+        var justBolus = !(bolus.programmed && bolus.programmed !== bolus.value) &&
+          !(bolus.recommended && bolus.recommended !== bolus.value) &&
+          !(bolus.extended && bolus.extendedDelivery) &&
+          !(d.carbs);
+        // interrupted boluses get priority on special headline
+        if (bolus.programmed != null && bolus.programmed !== bolus.value) {
           group.append('p')
+            .attr('class', 'title')
             .append('span')
-            .attr('class', 'main')
-            .html('<span class="plain">Carbs</span> ' + d.carbs.value);
+            .attr('class', 'interrupted')
+            .text('Bolus');
+          group.append('p')
+            .attr('class', 'title')
+            .append('span')
+            .attr('class', 'interrupted')
+            .text('interrupted');
         }
+        // if not interrupted, then extended boluses get a headline
+        else if (bolus.extended === true) {
+          group.append('p')
+            .attr('class', 'title')
+            .append('span')
+            .text('Extended');
+        }
+
+        group.append('p')
+          .classed('background', !justBolus)
+          .append('span')
+          .attr('class', 'secondary')
+          .html('<span class="fromto">at</span> ' + format.timestamp(bolus.normalTime) + '<br/>');
+
+        var tbl = group.append('table');
+        // carbs
+        if (d.type === 'wizard' && d.carbs != null) {
+          var carbRow = tbl.append('tr');
+          carbRow.append('td')
+            .attr('class', 'label')
+            .text('Carbs');
+          carbRow.append('td')
+            .attr('class', 'right')
+            .text(d.carbs.value + 'g');
+        }
+        // actual delivered bolus
+        var delRow = tbl.append('tr');
+        delRow.append('td')
+            .attr('class', function() {
+              return justBolus ? '' : 'del';
+            })
+          .text('Delivered');
+        delRow.append('td')
+          .attr('class', 'big')
+          .text(format.tooltipValue(bolus.value));
+
+        // extended bolus
         if (bolus.extended) {
-          if (bolus.initialDelivery) {
-            group.append('p')
-              .append('span')
-              .attr('class', 'secondary')
-              .html(format.tooltipValue(bolus.initialDelivery) + 'U up front');
-            group.append('p')
-              .append('span')
-              .attr('class', 'secondary')
-              .html(format.tooltipValue(bolus.extendedDelivery) + 'U ' + format.timespan(bolus));
+          var extRow = tbl.append('tr');
+          // square bolus
+          if (!bolus.initialDelivery) {
+            extRow.append('td')
+              .attr('class', 'dual')
+              .text(format.timespan(bolus));
+
           }
           else {
-            group.append('p')
-              .append('span')
+            extRow.append('td')
+              .attr('class', 'dual')
+              .text('Up front: ');
+            extRow.append('td')
               .attr('class', 'secondary')
-              .html('Square ' + format.timespan(bolus));
+              .text(format.percentage(bolus.initialDelivery/bolus.value) +
+                ' (' + format.tooltipValue(bolus.initialDelivery) + ')');
+            var extRow2 = tbl.append('tr');
+            extRow2.append('td')
+              .attr('class', 'dual')
+              .text(format.timespan(bolus) + ':');
+            extRow2.append('td')
+              .attr('class', 'secondary')
+              .text(format.percentage(bolus.extendedDelivery/bolus.value) +
+                ' (' + format.tooltipValue(bolus.extendedDelivery) + ')');
           }
         }
-        if (bolus.programmed && bolus.programmed !== bolus.value) {
-          group.append('p')
-            .append('span')
-            .attr('class', 'secondary interrupted')
-            .html(format.tooltipValue(bolus.programmed) + 'U programmed');
-          group.append('p')
-            .append('span')
-            .attr('class', 'secondary interrupted')
-            .html('Bolus interrupted!');
+        // only show recommendation when different from delivery
+        if (bolus.recommended != null && bolus.recommended !== bolus.value) {
+          // but only show recommendation if bolus not interrupted
+          if (bolus.programmed != null &&
+            bolus.programmed === bolus.value) {
+            // wizard-suggested bolus
+            var sugRow = tbl.append('tr');
+            sugRow.append('td')
+              .attr('class', 'label')
+              .text('Suggested');
+            sugRow.append('td')
+              .attr('class', 'right')
+              .text(format.tooltipValue(bolus.recommended));
+          }
         }
-        else if (bolus.recommended !== bolus.value) {
-          var rideType = bolus.recommended > bolus.value ? 'Under: ' : 'Over: ';
-          group.append('p')
-            .append('span')
-            .attr('class', 'secondary')
-            .html(rideType + format.tooltipValue(bolus.recommended) + 'U suggested');
+        // only show programmed when different from delivery
+        if (bolus.programmed != null && bolus.programmed !== bolus.value) {
+          var intRow = tbl.append('tr');
+          intRow.append('td')
+            .attr('class', 'label interrupted')
+            .text('Programmed');
+          intRow.append('td')
+            .attr('class', 'right interrupted')
+            .text(format.tooltipValue(bolus.programmed));
         }
       },
       remove: function(d) {

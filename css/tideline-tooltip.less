@@ -15,8 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-@import 'tideline-colors.less';
-
 // mixins
 .bigText {
   margin-top: 1px;
@@ -24,9 +22,6 @@
   span {
     .mainText;
     font-size: @font-size-xlarge-tooltips;
-    &.secondary {
-      .secondaryText;
-    }
   }
 }
 .mainText {
@@ -58,9 +53,6 @@
           color: darken(@text-light, 15%);
         }
       }
-      &.interrupted {
-        .interruptedText;
-      }
       .plain {
         .plainText;
       }
@@ -73,4 +65,77 @@
       .bigText;
     }
   }
+}
+
+.bwiz {
+  padding: 1px;
+  margin: 0px;
+}
+// bolus & wizard tooltips
+.bolus-wizard {
+  color: @text;
+  font-size: @font-size-large-tooltips;
+  p {
+    .bwiz;
+    &.background {
+      background-color: white;
+    }
+    text-align: center;
+    .secondary {
+      .secondaryText;
+      .fromto {
+        color: darken(@text-light, 15%);
+      }
+    }
+  }
+  .title {
+    .bwiz;
+    background-color: @title-background;
+    text-align: center;
+  }
+  table {
+    margin: 0 auto;
+    td {
+      &.right {
+        text-align: right;
+      }
+      &.label {
+        .bwiz;
+        padding-right: 10px;
+      }
+      &.del {
+        .bwiz;
+        font-weight: bold;
+      }
+      &.big {
+        .bwiz;
+        font-weight: bold;
+        font-size: @font-size-xlarge-tooltips;
+        text-align: right;
+      }
+      &.main {
+        padding: 0;
+        margin: 0;
+        font-weight: bold;
+        text-align: right;
+      }
+      &.secondary {
+        font-size: @font-size-small;
+      }
+      &.dual {
+        &:first-letter {
+          text-transform: capitalize;
+        }
+        text-align: right;
+        font-size: @font-size-small;
+      }
+      &.interrupted {
+        .interruptedText;
+      }
+    }
+  }
+}
+span.interrupted {
+  text-transform: uppercase;
+  .interruptedText;
 }

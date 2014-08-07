@@ -114,7 +114,7 @@ function Tooltips(container, tooltipsGroup) {
         })
         .append('xhtml:div')
         .attr({
-          'class': 'tooltip-div'
+          'class': opts.div ? opts.div : 'tooltip-div'
         });
       return {
         foGroup: foGroup,
@@ -200,6 +200,10 @@ function Tooltips(container, tooltipsGroup) {
   this.foDimensions = function(foGroup) {
     var widths = [];
     var spans = foGroup.selectAll('span')
+      .each(function() {
+        widths.push(d3.select(this)[0][0].getBoundingClientRect().width);
+      });
+    var tables = foGroup.selectAll('table')
       .each(function() {
         widths.push(d3.select(this)[0][0].getBoundingClientRect().width);
       });
