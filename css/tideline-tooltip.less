@@ -15,10 +15,10 @@
  * == BSD2 LICENSE ==
  */
 
+@margin-shift: 3px;
+
 // mixins
 .bigText {
-  margin-top: 1px;
-  margin-bottom: -2px;
   span {
     .mainText;
     font-size: @font-size-xlarge-tooltips;
@@ -37,12 +37,12 @@
   font-weight: normal;
 }
 .interruptedText {
-  color: darken(@interrupted, 10%);
+  color: darken(@suspended, 10%);
 }
 
 .tooltip-div {
   margin: 0;
-  padding: 3px 0 0 0;
+  padding: @margin-shift 0 0 0;
   p {
     span {
       .mainText;
@@ -57,8 +57,8 @@
         .plainText;
       }
     }
-    margin-top: -3px;
-    margin-bottom: -6px;
+    margin-top: -@margin-shift;
+    margin-bottom: 0px;
     padding: 0px 7.5px 2px 7.5px;
     text-align: center;
     &.big {
@@ -69,16 +69,17 @@
 
 .bwiz {
   padding: 1px;
-  margin: 0px;
+  margin: 0px auto;
 }
 // bolus & wizard tooltips
 .bolus-wizard {
+  padding-bottom: @margin-shift;
   color: @text;
   font-size: @font-size-large-tooltips;
   p {
     .bwiz;
     &.background {
-      background-color: white;
+      background-color: lighten(@fill-lightest, 1%);
     }
     text-align: center;
     .secondary {

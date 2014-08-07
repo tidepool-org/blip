@@ -304,45 +304,7 @@ module.exports = function(pool, opts) {
             .attr('class', 'right')
             .text(d.carbs.value + 'g');
         }
-        // actual delivered bolus
-        var delRow = tbl.append('tr');
-        delRow.append('td')
-            .attr('class', function() {
-              return justBolus ? '' : 'del';
-            })
-          .text('Delivered');
-        delRow.append('td')
-          .attr('class', 'big')
-          .text(format.tooltipValue(bolus.value));
 
-        // extended bolus
-        if (bolus.extended) {
-          var extRow = tbl.append('tr');
-          // square bolus
-          if (!bolus.initialDelivery) {
-            extRow.append('td')
-              .attr('class', 'dual')
-              .text(format.timespan(bolus));
-
-          }
-          else {
-            extRow.append('td')
-              .attr('class', 'dual')
-              .text('Up front: ');
-            extRow.append('td')
-              .attr('class', 'secondary')
-              .text(format.percentage(bolus.initialDelivery/bolus.value) +
-                ' (' + format.tooltipValue(bolus.initialDelivery) + ')');
-            var extRow2 = tbl.append('tr');
-            extRow2.append('td')
-              .attr('class', 'dual')
-              .text(format.timespan(bolus) + ':');
-            extRow2.append('td')
-              .attr('class', 'secondary')
-              .text(format.percentage(bolus.extendedDelivery/bolus.value) +
-                ' (' + format.tooltipValue(bolus.extendedDelivery) + ')');
-          }
-        }
         // only show recommendation when different from delivery
         if (bolus.recommended != null && bolus.recommended !== bolus.value) {
           // but only show recommendation if bolus not interrupted
@@ -367,6 +329,48 @@ module.exports = function(pool, opts) {
           intRow.append('td')
             .attr('class', 'right interrupted')
             .text(format.tooltipValue(bolus.programmed));
+        }
+        // actual delivered bolus
+        var delRow = tbl.append('tr');
+        delRow.append('td')
+            .attr('class', function() {
+              return justBolus ? '' : 'del';
+            })
+          .text('Delivered');
+        delRow.append('td')
+          .attr('class', 'big')
+          .text(format.tooltipValue(bolus.value));
+
+        // extended bolus
+        if (bolus.extended) {
+          var extRow = tbl.append('tr');
+          // square bolus
+          if (!bolus.initialDelivery) {
+            extRow.append('td')
+              .attr('class', 'dual')
+              .text(format.timespan(bolus) + ':');
+            extRow.append('td')
+              .attr('class', 'secondary')
+              .text(format.percentage(bolus.extendedDelivery/bolus.value) +
+                ' (' + format.tooltipValue(bolus.extendedDelivery) + ')');
+          }
+          else {
+            extRow.append('td')
+              .attr('class', 'dual')
+              .text('Up front: ');
+            extRow.append('td')
+              .attr('class', 'secondary')
+              .text(format.percentage(bolus.initialDelivery/bolus.value) +
+                ' (' + format.tooltipValue(bolus.initialDelivery) + ')');
+            var extRow2 = tbl.append('tr');
+            extRow2.append('td')
+              .attr('class', 'dual')
+              .text(format.timespan(bolus) + ':');
+            extRow2.append('td')
+              .attr('class', 'secondary')
+              .text(format.percentage(bolus.extendedDelivery/bolus.value) +
+                ' (' + format.tooltipValue(bolus.extendedDelivery) + ')');
+          }
         }
       },
       remove: function(d) {

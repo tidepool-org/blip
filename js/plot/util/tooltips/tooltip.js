@@ -207,10 +207,9 @@ function Tooltips(container, tooltipsGroup) {
       .each(function() {
         widths.push(d3.select(this)[0][0].getBoundingClientRect().width);
       });
-    var bbox = foGroup[0][0].getBoundingClientRect();
     return {
       width: d3.max(widths),
-      height: bbox.height
+      height: foGroup[0][0].offsetHeight
     };
   };
 
