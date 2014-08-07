@@ -9,7 +9,16 @@
     "process": false,
     "require": false,
     "define": false,
-    "console": false
+    "console": false,
+    "describe": false,
+    "it": false,
+    "before": false,
+    "beforeEach": false,
+    "after": false,
+    "afterEach": false,
+    "expect": true,
+    "sinon": false,
+    "helpers": true
   },
   "immed": true,
   "indent": 2,
@@ -18,5 +27,6 @@
   "quotmark": "single",
   "undef": true,
   "unused": false,
-  "trailing": true
+  "trailing": true,
+  "expr": true
 }

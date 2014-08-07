@@ -48,6 +48,19 @@ var LoginNav = React.createClass({
     /* jshint ignore:end */
   },
 
+  renderLogo: function() {
+    /* jshint ignore:start */
+    return (
+      <a
+        href="http://tidepool.org/"
+        target="_blank"
+        className="login-nav-tidepool-logo" >
+        <img src={logoSrc} alt="Tidepool"/>
+      </a>
+    );
+    /* jshint ignore:end */
+  },
+
   renderLink: function() {
     var self = this;
     var page = this.props.page;
@@ -76,19 +89,6 @@ var LoginNav = React.createClass({
         className={className}><i className={icon}></i>{' ' + text}</a>
       /* jshint ignore:end */
     );
-  },
-
-  renderLogo: function() {
-    /* jshint ignore:start */
-    return (
-      <a
-        href="http://tidepool.org/"
-        target="_blank"
-        className="login-nav-tidepool-logo">
-        <img src={logoSrc} alt="Tidepool"/>
-      </a>
-    );
-    /* jshint ignore:end */
   }
 });
 
