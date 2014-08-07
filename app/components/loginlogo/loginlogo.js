@@ -19,10 +19,6 @@ var React = require('react');
 var logoSrc = require('./images/blip-logo-290x290.png');
 
 var LoginLogo = React.createClass({
-  propTypes: {
-    imagesEndpoint: React.PropTypes.string
-  },
-
   render: function() {
     /* jshint ignore:start */
     return (

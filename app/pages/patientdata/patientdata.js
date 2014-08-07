@@ -287,8 +287,7 @@ var PatientData = React.createClass({
           onClose={this.closeMessageCreation}
           onSave={this.props.onCreateMessage}
           onNewMessage={this.handleMessageCreation}
-          onEdit={this.handleEditMessage}
-          imagesEndpoint={config.IMAGES_ENDPOINT + '/messages'} />
+          onEdit={this.handleEditMessage} />
       );
     } else if(this.state.messages) {
       return (
@@ -298,8 +297,7 @@ var PatientData = React.createClass({
           patient={this.props.patient}
           onClose={this.closeMessageThread}
           onSave={this.handleReplyToMessage}
-          onEdit={this.handleEditMessage}
-          imagesEndpoint={config.IMAGES_ENDPOINT + '/messages'} />
+          onEdit={this.handleEditMessage} />
       );
     }
     /* jshint ignore:end */

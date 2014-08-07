@@ -55,9 +55,8 @@ var Login = React.createClass({
       <div className="login">
         <LoginNav
           page="login"
-          imagesEndpoint={config.IMAGES_ENDPOINT + '/loginnav'}
           trackMetric={this.props.trackMetric} />
-        <LoginLogo imagesEndpoint={config.IMAGES_ENDPOINT + '/loginlogo'} />
+        <LoginLogo />
         <div className="container-small-outer login-form">
           <div className="container-small-inner login-form-box">
             <div className="login-simpleform">{form}</div>

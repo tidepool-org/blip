@@ -35,7 +35,6 @@ var Message = React.createClass({
   propTypes: {
     theNote : React.PropTypes.object,
     imageSize: React.PropTypes.string,
-    imagesEndpoint: React.PropTypes.string,
     onSaveEdit : React.PropTypes.func
   },
 

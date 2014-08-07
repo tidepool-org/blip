@@ -37,8 +37,7 @@ var Messages = React.createClass({
     onClose : React.PropTypes.func,
     onSave : React.PropTypes.func,
     onEdit : React.PropTypes.func,
-    onNewMessage : React.PropTypes.func,
-    imagesEndpoint: React.PropTypes.string
+    onNewMessage : React.PropTypes.func
   },
 
   getDefaultProps: function () {
@@ -72,7 +71,6 @@ var Messages = React.createClass({
         key={message.id}
         theNote={message}
         imageSize='large'
-        imagesEndpoint={this.props.imagesEndpoint}
         onSaveEdit={this.getSaveEdit(message.userid)}/>
       );
     /* jshint ignore:end */
@@ -84,7 +82,6 @@ var Messages = React.createClass({
         key={message.id}
         theNote={message}
         imageSize='small'
-        imagesEndpoint={this.props.imagesEndpoint}
         onSaveEdit={this.getSaveEdit(message.userid)}/>
       );
     /* jshint ignore:end */

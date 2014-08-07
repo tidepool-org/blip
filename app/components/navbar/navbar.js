@@ -30,7 +30,6 @@ var Navbar = React.createClass({
     fetchingPatient: React.PropTypes.bool,
     getUploadUrl: React.PropTypes.func,
     onLogout: React.PropTypes.func,
-    imagesEndpoint: React.PropTypes.string,
     trackMetric: React.PropTypes.func.isRequired
   },
 

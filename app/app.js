@@ -231,7 +231,6 @@ var AppComponent = React.createClass({
           fetchingPatient={this.state.fetchingPatient}
           getUploadUrl={getUploadUrl}
           onLogout={this.logout}
-          imagesEndpoint={config.IMAGES_ENDPOINT + '/navbar'}
           trackMetric={trackMetric}/>
         /* jshint ignore:end */
       );

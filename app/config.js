@@ -29,7 +29,6 @@ function booleanFromText(value, defaultValue) {
 
 module.exports = {
   VERSION: pkg.version,
-  IMAGES_ENDPOINT: process.env.IMAGES_ENDPOINT || 'images',
   MOCK: booleanFromText(process.env.MOCK, false),
   MOCK_PARAMS: process.env.MOCK_PARAMS || '',
   UPLOAD_API: process.env.UPLOAD_API || 'https://devel-uploads.tidepool.io',

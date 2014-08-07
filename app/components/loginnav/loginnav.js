@@ -21,7 +21,6 @@ var logoSrc = require('./images/tidepool-logo-370x40.png');
 var LoginNav = React.createClass({
   propTypes: {
     page: React.PropTypes.string,
-    imagesEndpoint: React.PropTypes.string,
     trackMetric: React.PropTypes.func.isRequired
   },
 
