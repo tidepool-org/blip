@@ -200,9 +200,11 @@ function chartDailyFactory(el, options) {
       type: 'cbg',
       classes: ['d3-bg-low', 'd3-bg-target', 'd3-bg-high']
     });
+    chart.nativeTooltips().addGroup(poolBasal, {
+      type: 'basal'
+    });
     chart.tooltips().addGroup(chart.svg().select('#' + poolBG.id()), 'smbg');
     chart.tooltips().addGroup(chart.svg().select('#' + poolBolus.id()), 'bolus');
-    chart.tooltips().addGroup(chart.svg().select('#' + poolBasal.id()), 'basal');
 
     return chart;
   };

@@ -23,6 +23,7 @@ var shapeutil = require('../shapeutil');
 
 var shapes = {
   cbg: {
+    fixed: true,
     els: [
       {
         el: 'path',
@@ -75,6 +76,56 @@ var shapes = {
           'class': 'd3-tooltip-text'
         })
         .text(opts.datum.value);
+    }
+  },
+  basal: {
+    fixed: false,
+    els: [
+      {
+        el: 'polygon',
+        attrs: {
+          points: function(opts) {
+            var pointHalfHeight = 10;
+            var pointWidth = 15;
+            return shapeutil.pointString(0,0) +
+              shapeutil.pointString(opts.w, 0) +
+              shapeutil.pointString(opts.w, opts.h/2 - pointHalfHeight) +
+              shapeutil.pointString(opts.w + pointWidth, opts.h/2) +
+              shapeutil.pointString(opts.w, opts.h/2 + pointHalfHeight) +
+              shapeutil.pointString(opts.w, opts.h) +
+              shapeutil.pointString(0, opts.h) +
+              shapeutil.pointString(0, opts.h/2 + pointHalfHeight) +
+              shapeutil.pointString(-pointWidth, opts.h/2) +
+              shapeutil.pointString(0, opts.h/2 - pointHalfHeight) +
+              shapeutil.pointString(0,0);
+          }
+        }
+      }
+    ],
+    mainClass: 'svg-tooltip-basal',
+    orientations: {
+      normal: function(group) {
+        return group;
+      }
+    },
+    addForeignObject: function(selection, opts) {
+      return selection.append('foreignObject')
+        .attr({
+          x: 0,
+          y: 0,
+          width: 200,
+          height: 200,
+          visibility: 'hidden',
+          'class': 'svg-tooltip-fo'
+        })
+        .append('xhtml:div')
+        .attr({
+          'class': 'tooltip-div'
+        });
+    },
+    extensions: {
+      left: 15,
+      right: 15
     }
   }
 };
