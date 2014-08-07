@@ -6,7 +6,7 @@
     "test": "webpack-dev-server 'mocha!./test/entry.js' --output-file test.js",
     "start": "webpack-dev-server --devtool source-map --cache --colors --progress --port 3000",
     "build": "node buildprod",
-    "server": "http-server ./dist -p 3000",
+    "server": "node server",
     "jshint": "gulp jshint",
     "jshint-watch": "gulp jshint-watch"
   },
@@ -29,7 +29,6 @@
     "gulp-template": "0.1.1",
     "gulp-uglify": "0.2.1",
     "hakken": "0.1.4",
-    "http-server": "0.6.1",
     "json-loader": "0.5.1",
     "jsx-loader": "0.11.0",
     "less": "1.7.4",
