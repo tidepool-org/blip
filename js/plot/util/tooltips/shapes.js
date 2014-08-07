@@ -171,6 +171,24 @@ var shapes = {
               shapeutil.pointString(offset, -opts.h - offset).trim();
           }
         }
+      },
+      {
+        el: 'polygon',
+        attrs: {
+          pointsFn: function(opts) {
+            var offset = 8;
+            var y = 16;
+            var x = 12;
+            return shapeutil.pointString(offset, -opts.h - offset) +
+              shapeutil.pointString(opts.w + offset, -opts.h - offset) +
+              shapeutil.pointString(opts.w + offset, -offset) +
+              shapeutil.pointString(offset+x, -offset) +
+              shapeutil.pointString(0, 0) +
+              shapeutil.pointString(offset, -y - offset) +
+              shapeutil.pointString(offset, -opts.h - offset).trim();
+          },
+          'class': 'no-stroke'
+        }
       }
     ],
     mainClass: 'svg-tooltip-generic',
