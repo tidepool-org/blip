@@ -3,7 +3,7 @@
   "version": "0.1.18",
   "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "webpack-dev-server 'mocha!./test/entry.js' --output-file test.js",
     "start": "webpack-dev-server --devtool source-map --cache --colors --progress --port 3000",
     "build": "node buildprod",
     "server": "http-server ./dist -p 3000"
@@ -60,6 +60,7 @@
     "grunt-contrib-connect": "0.7.1",
     "grunt-saucelabs": "8.1.1",
     "mocha": "1.18.2",
+    "mocha-loader": "0.6.5",
     "query-string": "0.3.0",
     "require-guard": "1.0.1",
     "salinity": "0.0.5",

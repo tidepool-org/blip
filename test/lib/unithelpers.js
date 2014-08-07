@@ -1,4 +1,4 @@
-var React = window.React;
+var React = require('react');
 
 var container;
 

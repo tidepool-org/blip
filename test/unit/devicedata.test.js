@@ -16,12 +16,10 @@
 /* jshint expr: true, -W015 */
 'use strict';
 
+var Rx = require('rx');
+
 // Require to attach things to Rx prototype
 require('../../app/core/lib/devicedata');
-
-var Rx = window.Rx;
-
-var expect = require('salinity').expect;
 
 describe('dataHelpers', function(){
   describe('tidepoolConvertBolus', function(){
