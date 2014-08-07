@@ -20,12 +20,10 @@ module.exports = {
     oneday_test: require('./viz/oneday_test')
   },
   annotations_test: require('./annotations_test'),
-  basalutil_test: require('./basalutil_test'),
   bgutil_test: require('./bgutil_test'),
   bolusutil_test: require('./bolusutil_test'),
   datetime_test: require('./datetime_test'),
   preprocess_test: require('./preprocess_test'),
-  segmentutil_test: require('./segmentutil_test'),
   settingsutil_test: require('./settingsutil_test'),
   tidelinedata_test: require('./tidelinedata_test'),
   timeline_test: require('./timeline_test'),
