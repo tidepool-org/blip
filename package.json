@@ -10,7 +10,7 @@
   "scripts": {
     "test": "testem",
     "start": "webpack-dev-server --devtool source-map --cache --colors --progress --content-base example --port 8081",
-    "build-test": "webpack './test/index.js' --output-path './tmp' --output-file '_test.js' --devtool source-map",
+    "build-test": "webpack './test/index.js' --output-path './tmp' --output-file '_test.js' --devtool eval",
     "jshint": "gulp jshint",
     "jshint-watch": "gulp jshint-watch"
   },
