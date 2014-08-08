@@ -61,6 +61,10 @@ module.exports = function(pool, opts) {
         schedules.sort();
       }
       var actualSchedules = [];
+      var getIdStrFn = function(str) {
+        return function(d) { return str + d.id; };
+      };
+
       for (var i = 0; i < schedules.length; ++i) {
         var key = schedules[i];
         // must check that schedule actually exists
@@ -77,7 +81,7 @@ module.exports = function(pool, opts) {
             .attr({
               'class': 'd3-cell-group d3-' + basaltab.scheduleName(key),
               'clip-path': 'url(#mainClipPath)',
-              id: function(d) { return 'cell_group_' + d.id; }
+              id: getIdStrFn('cell_group_')
             });
 
           cellGroups.append('rect')
@@ -87,31 +91,20 @@ module.exports = function(pool, opts) {
               width: basaltab.width,
               height: opts.rowHeight,
               'class': basaltab.matchClass,
-              id: function(d) { return 'cell_rect_' + d.id; }
+              id: getIdStrFn('cell_rect_')
             })
             .classed('d3-cell-rect', true);
 
           cellGroups.append('text')
             .attr({
-              x: function(d) {
-                return basaltab.xPosition(d) + (basaltab.width(d) / 2);
-              },
+              x: basaltab.textXPosition,
               y: (index * opts.rowHeight) + (opts.rowHeight/2),
               'class': basaltab.matchClass,
-              id: function(d) { return 'cell_label_' + d.id; }
+              id: getIdStrFn('cell_label_')
             })
             .classed('d3-cell-label', true)
-            .text(function(d) {
-              if (String(d.value).indexOf('.') === -1) {
-                return d.value.toFixed(1);
-              }
-              else return d.value;
-            })
-            .each(function(d) {
-              if (this.getBBox().width > basaltab.width(d)) {
-                d3.select(this).attr('display', 'none');
-              }
-            });
+            .text(basaltab.cellText)
+            .each(basaltab.hideText);
 
           tabs.exit().remove();
           index++;
@@ -142,13 +135,30 @@ module.exports = function(pool, opts) {
     return opts.xScale(Date.parse(d.normalTime));
   };
 
+  basaltab.textXPosition = function(d) {
+    return basaltab.xPosition(d) + (basaltab.width(d) / 2);
+  };
+
+  basaltab.cellText = function(d) {
+    if (String(d.value).indexOf('.') === -1) {
+      return d.value.toFixed(1);
+    }
+    else return d.value;
+  };
+
+  basaltab.hideText = function(d) {
+    if (this.getBBox().width > basaltab.width(d)) {
+      d3.select(this).attr('display', 'none');
+    }
+  };
+
   basaltab.width = function(d) {
     var s = Date.parse(d.normalTime), e = Date.parse(d.normalEnd);
     return opts.xScale(e) - opts.xScale(s);
   };
 
   basaltab.isStandard = function(str) {
-    var str = str.toLowerCase();
+    str = str.toLowerCase();
     if (str === 'standard') {
       return true;
     }

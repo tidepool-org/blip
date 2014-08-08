@@ -66,7 +66,7 @@ module.exports = function(pool, opts) {
       drawBolus.bolus(bolusGroups);
 
       var extended = boluses.filter(function(d) {
-        if (d.extended == true) {
+        if (d.extended && d.extended === true) {
           return d;
         }
       });

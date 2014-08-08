@@ -190,18 +190,16 @@ module.exports = function(emitter, opts) {
 
   container.renderRows = function(table, map) {
     var keys = Object.keys(map);
+    var cellClass = function(d) { if (keys[i] === 'start') { return 'd3-settings-start-time'; }};
+    var cellText = function(d) {
+      var key = keys[i];
+      return map[key](d[key]);
+    };
     for (var i = 0; i < keys.length; i++) {
       table.selectAll('.d3-settings-table-row-data')
         .append('td')
-        .attr('class', function(d) {
-          if (keys[i] === 'start') {
-            return 'd3-settings-start-time';
-          }
-        })
-        .text(function(d) {
-          var key = keys[i];
-          return map[key](d[key]);
-        });
+        .attr('class', cellClass)
+        .text(cellText);
     }
 
     return container;

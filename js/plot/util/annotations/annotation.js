@@ -23,7 +23,7 @@ var shapes = require('./shapes');
 var defs = require('./annotationdefinitions');
 var dt = require('../../../data/util/datetime');
 
-var log = require('bows')('AnnotationIcon');
+var log = require('bows')('Annotations');
 
 module.exports = function(container, annotationsGroup) {
 

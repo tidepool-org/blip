@@ -99,7 +99,7 @@ var scales = function(opts) {
         .rangeRound([pool.height(), 0]);
       return scale;
     }
-  }
+  };
 };
 
 module.exports = scales;

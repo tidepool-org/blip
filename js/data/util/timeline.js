@@ -38,7 +38,7 @@ function buildError(message) {
  * @param smooshingPred The predicate for if two messages should be smooshed
  * @constructor
  */
-Timeline = function (smooshingPred) {
+var Timeline = function (smooshingPred) {
   this.theLine = [];
 
   if (smooshingPred == null) {
@@ -49,7 +49,7 @@ Timeline = function (smooshingPred) {
 };
 
 Timeline.prototype.peek = function(){
-  if (this.theLine.length == 0) {
+  if (this.theLine.length === 0) {
     return null;
   }
   return this.theLine[this.theLine.length - 1];
@@ -119,7 +119,7 @@ Timeline.prototype.add = function(e) {
       retVal.push(_.assign({}, firstDisplaced, { end: endPoint }));
       firstDisplaced.start = endPoint;
 
-      if (firstDisplaced.start == firstDisplaced.end) {
+      if (firstDisplaced.start === firstDisplaced.end) {
         displacedEvents.shift(); // Remove the element
       }
     }

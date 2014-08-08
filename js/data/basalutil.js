@@ -104,8 +104,9 @@ function BasalUtil(data) {
   this.totalBasal = function(s, e, opts) {
     opts = opts || {};
     if (datetime.verifyEndpoints(s, e, this.endpoints)) {
+      var endpoints;
       if (datetime.isTwentyFourHours(s, e)) {
-        var endpoints = this.isContinuous(s, e);
+        endpoints = this.isContinuous(s, e);
         if (endpoints) {
           return {'total': this.subtotal(endpoints)};
         }
@@ -127,7 +128,7 @@ function BasalUtil(data) {
           var dayStart = new Date(start);
           var dayEnd = new Date(dayStart);
           dayEnd.setUTCDate(dayEnd.getUTCDate() + 1);
-          var endpoints = this.isContinuous(dayStart.toISOString(), dayEnd.toISOString());
+          endpoints = this.isContinuous(dayStart.toISOString(), dayEnd.toISOString());
           if (endpoints && datetime.isTwentyFourHours(dayStart.toISOString(), dayEnd.toISOString())) {
             if (isNaN(this.subtotal(endpoints))) {
               excluded.push(dayStart.toISOString());

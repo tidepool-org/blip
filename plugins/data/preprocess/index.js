@@ -268,6 +268,7 @@ var preprocess = {
   sortBasalSchedules: function(data) {
     return _.map(data, function(d) {
       var schedules;
+      var getName = function(d) { return d.name; };
       if (d.type === 'settings') {
         schedules = this.basalSchedulesToArray(d.basalSchedules);
         if (d.source === 'carelink') {
@@ -276,7 +277,7 @@ var preprocess = {
               var standard = schedules[i];
               var index = schedules.indexOf(standard);
               schedules.splice(index, 1);
-              schedules = _.sortBy(schedules, function(d) { return d.name; });
+              schedules = _.sortBy(schedules, getName);
               schedules.unshift(standard);
               break;
             }

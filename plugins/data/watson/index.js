@@ -74,10 +74,10 @@ module.exports = {
           }
         }
         if (i.suppressed) {
-          for (var j = 0; j < i.suppressed.length; ++j) {
-            var s = i.suppressed[j];
-            s.normalTime = s.start + this.APPEND;
-            s.normalEnd = s.end + this.APPEND;
+          for (var m = 0; m < i.suppressed.length; ++m) {
+            var sup = i.suppressed[m];
+            sup.normalTime = sup.start + this.APPEND;
+            sup.normalEnd = sup.end + this.APPEND;
           }
         }
       }

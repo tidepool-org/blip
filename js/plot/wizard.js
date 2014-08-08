@@ -95,7 +95,7 @@ module.exports = function(pool, opts) {
       drawBolus.override(override);
 
       var extended = boluses.filter(function(d) {
-        if (d.bolus.extended == true) {
+        if (d.bolus.extended && d.bolus.extended === true) {
           return d;
         }
       });
