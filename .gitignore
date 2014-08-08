@@ -16,7 +16,6 @@ Thumbs.db
 
 # Application specific files
 node_modules
-bower_components
 npm-debug.log
 tmp
 dist
