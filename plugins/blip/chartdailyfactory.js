@@ -196,22 +196,22 @@ function chartDailyFactory(el, options) {
     chart.annotations().addGroup(chart.svg().select('#' + poolStats.id()), 'stats');
 
     // add tooltips
-    chart.nativeTooltips().addGroup(poolBG, {
+    chart.tooltips().addGroup(poolBG, {
       type: 'cbg',
       classes: ['d3-bg-low', 'd3-bg-target', 'd3-bg-high']
     });
-    chart.nativeTooltips().addGroup(poolBG, {
+    chart.tooltips().addGroup(poolBG, {
       type: 'smbg'
     });
-    chart.nativeTooltips().addGroup(poolBolus, {
+    chart.tooltips().addGroup(poolBolus, {
       type: 'wizard',
       shape: 'generic'
     });
-    chart.nativeTooltips().addGroup(poolBolus, {
+    chart.tooltips().addGroup(poolBolus, {
       type: 'bolus',
       shape: 'generic'
     });
-    chart.nativeTooltips().addGroup(poolBasal, {
+    chart.tooltips().addGroup(poolBasal, {
       type: 'basal'
     });
 

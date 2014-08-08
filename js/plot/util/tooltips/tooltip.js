@@ -76,7 +76,7 @@ function Tooltips(container, tooltipsGroup) {
     return currentTranslation + xPosition;
   }
 
-  this.addFOTooltip = function(opts) {
+  this.addForeignObjTooltip = function(opts) {
     opts = opts || {};
     currentTranslation = container.currentTranslation();
     var atLeftEdge = isAtLeftEdge(locationInWindow(opts.xPosition(opts.datum)));
@@ -130,7 +130,7 @@ function Tooltips(container, tooltipsGroup) {
     }
   };
 
-  this.anchorFONoOrienation = function(selection, opts) {
+  this.anchorForeignObjNoOrienation = function(selection, opts) {
     // applies to shapes without orientation (e.g., basal)
     var atRightEdge = opts.edge === 'right';
     opts.widthTranslation = 'translate(' + (-opts.w/2) + ',0)';
@@ -141,7 +141,7 @@ function Tooltips(container, tooltipsGroup) {
     else if (atRightEdge) {
       selection.attr('transform', opts.rightEdgeTranslation);
     }
-    this.setFODimensions(selection, opts);
+    this.setForeignObjDimensions(selection, opts);
     this.makeShape(selection, opts);
   };
 
@@ -184,7 +184,7 @@ function Tooltips(container, tooltipsGroup) {
     });
   };
 
-  this.setFODimensions = function(selection, opts) {
+  this.setForeignObjDimensions = function(selection, opts) {
     selection.attr({
       width: opts.w,
       height: opts.h,
@@ -192,12 +192,12 @@ function Tooltips(container, tooltipsGroup) {
     });
   };
 
-  this.anchorFO = function(selection, opts) {
+  this.anchorForeignObj = function(selection, opts) {
     var shape = opts.shape;
     // if the tooltip doesn't come in multiple orientations (e.g., basal tooltip)
     // then use a different anchor method
     if (!shapes[shape].orientations) {
-      this.anchorFONoOrienation(selection, opts);
+      this.anchorForeignObjNoOrienation(selection, opts);
       return;
     }
     var atRightEdge = opts.edge === 'right';
@@ -236,13 +236,13 @@ function Tooltips(container, tooltipsGroup) {
     if (atRightEdge) {
       selection.attr('x', -opts.w - shapes[shape].offset());
     }
-    this.setFODimensions(selection, opts);
+    this.setForeignObjDimensions(selection, opts);
     if (shape) {
       this.makeShape(selection, opts);
     }
   };
 
-  this.foDimensions = function(foGroup) {
+  this.foreignObjDimensions = function(foGroup) {
     // when content is centered, can't use getBoundingClientRect to get width on div
     // need to get it on components instead, and use widest one
     var widths = [];
@@ -262,7 +262,7 @@ function Tooltips(container, tooltipsGroup) {
     };
   };
 
-  this.addTooltip = function(opts) {
+  this.addFixedTooltip = function(opts) {
     opts = opts || {};
     currentTranslation = container.currentTranslation();
     var atLeftEdge = isAtLeftEdge(locationInWindow(opts.xPosition(opts.datum)));
@@ -314,7 +314,7 @@ function Tooltips(container, tooltipsGroup) {
     tooltipGroups[type] = tooltipsGroup.append('g')
       .attr('id', this.id() + '_' + type)
       .attr('transform', poolGroup.attr('transform'));
-    pool.nativeTooltips(this);
+    pool.tooltips(this);
     if (shapes[shape].fixed) {
       _.each(opts.classes, function(cl) {
         if (shapes[shape]) {

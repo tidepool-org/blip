@@ -120,10 +120,10 @@ module.exports = function(pool, opts) {
   };
 
   smbg.addTooltip = function(d) {
-    var tooltips = pool.nativeTooltips();
+    var tooltips = pool.tooltips();
     var getBgBoundaryClass = bgBoundaryClass(opts.classes);
     var cssClass = getBgBoundaryClass(d);
-    var res = tooltips.addFOTooltip({
+    var res = tooltips.addForeignObjTooltip({
       cssClass: cssClass,
       datum: d,
       shape: 'smbg',
@@ -132,8 +132,8 @@ module.exports = function(pool, opts) {
     });
     var foGroup = res.foGroup;
     smbg.tooltipHtml(foGroup, d);
-    var dims = tooltips.foDimensions(foGroup);
-    tooltips.anchorFO(d3.select(foGroup.node().parentNode), {
+    var dims = tooltips.foreignObjDimensions(foGroup);
+    tooltips.anchorForeignObj(d3.select(foGroup.node().parentNode), {
       w: dims.width + opts.tooltipPadding,
       h: dims.height,
       y: -dims.height,

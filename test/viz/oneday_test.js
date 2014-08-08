@@ -390,7 +390,7 @@ describe('one-day view', function() {
         leftCarb.simulate('mouseover');
         var leftTooltipGroup = container.find('#tidelineTooltips_wizard').find('.d3-tooltip');
         expect(leftTooltipGroup.find('.svg-tooltip-left-and-up').size()).to.equal(1);
-        expect(leftTooltipGroup.find('span.secondary').html()).to.equal('<span class="fromto">at</span> 11:25 pm<br>');
+        expect(leftTooltipGroup.find('.timestamp').html()).to.equal('11:25 pm');
         expect(leftTooltipGroup.find('polygon').size()).to.equal(2);
       });
 
@@ -399,7 +399,7 @@ describe('one-day view', function() {
         rightCarb.simulate('mouseover');
         var rightTooltipGroup = $(container.find('#tidelineTooltips_wizard').find('.d3-tooltip')[1]);
         expect(rightTooltipGroup.find('.svg-tooltip-left-and-up').size()).to.equal(1);
-        expect(rightTooltipGroup.find('span.secondary').html()).to.equal('<span class="fromto">at</span> 12:25 pm<br>');
+        expect(rightTooltipGroup.find('.timestamp').html()).to.equal('12:25 pm');
         expect(rightTooltipGroup.find('polygon').size()).to.equal(2);
       });
 
@@ -408,9 +408,9 @@ describe('one-day view', function() {
         extendedCarb.simulate('mouseover');
         var extendedTooltipGroup = container.find('#tidelineTooltips_wizard').find('.d3-tooltip').filter(':last');
         expect(extendedTooltipGroup.find('.svg-tooltip-right-and-up').size()).to.equal(1);
-        expect(extendedTooltipGroup.find('.title span').html()).to.equal('Extended');
+        expect(extendedTooltipGroup.find('.plain').html()).to.equal('Extended');
         expect(extendedTooltipGroup.find('.dual').size()).to.equal(2);
-        expect(extendedTooltipGroup.find('span.secondary').html()).to.equal('<span class="fromto">at</span> 2:25 am<br>');
+        expect(extendedTooltipGroup.find('.timestamp').html()).to.equal('2:25 am');
         expect(extendedTooltipGroup.find('polygon').size()).to.equal(2);
       });
 
@@ -462,7 +462,7 @@ describe('one-day view', function() {
       thisBolus.simulate('mouseover');
       var thisTooltipGroup = container.find('#tidelineTooltips_bolus').find('.d3-tooltip');
       expect(thisTooltipGroup.find('.svg-tooltip-left-and-up').size()).to.equal(1);
-      expect(thisTooltipGroup.find('span.secondary').html()).to.equal('<span class="fromto">at</span> 11:25 pm<br>');
+      expect(thisTooltipGroup.find('.timestamp').html()).to.equal('11:25 pm');
       expect(thisTooltipGroup.find('polygon').size()).to.equal(2);
     });
 
@@ -471,7 +471,7 @@ describe('one-day view', function() {
       extended.simulate('mouseover');
       var extendedTooltipGroup = container.find('#tidelineTooltips_bolus').find('.d3-tooltip').filter(':last');
       expect(extendedTooltipGroup.find('.svg-tooltip-right-and-up').size()).to.equal(1);
-      expect(extendedTooltipGroup.find('span.secondary').html()).to.equal('<span class="fromto">at</span> 2:25 am<br>');
+      expect(extendedTooltipGroup.find('.timestamp').html()).to.equal('2:25 am');
       expect(extendedTooltipGroup.find('polygon').size()).to.equal(2);
     });
   });

@@ -254,9 +254,9 @@ module.exports = function(pool, opts) {
   basal.addTooltip = function(d) {
     var datum = _.clone(d);
     datum.type = 'basal';
-    var tooltips = pool.nativeTooltips();
+    var tooltips = pool.tooltips();
     var cssClass = (d.deliveryType === 'temp' || d.deliveryType === 'suspend') ? 'd3-basal-undelivered' : '';
-    var res = tooltips.addFOTooltip({
+    var res = tooltips.addForeignObjTooltip({
       cssClass: cssClass,
       datum: datum,
       shape: 'basal',
@@ -265,8 +265,8 @@ module.exports = function(pool, opts) {
     });
     var foGroup = res.foGroup;
     basal.tooltipHtml(foGroup, d);
-    var dims = tooltips.foDimensions(foGroup);
-    tooltips.anchorFO(d3.select(foGroup.node().parentNode), {
+    var dims = tooltips.foreignObjDimensions(foGroup);
+    tooltips.anchorForeignObj(d3.select(foGroup.node().parentNode), {
       w: dims.width + opts.tooltipPadding,
       h: dims.height,
       shape: 'basal',

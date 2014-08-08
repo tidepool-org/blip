@@ -49,7 +49,7 @@ module.exports = function(emitter) {
     lessThanTwoWeeks = false,
     sortReverse = true, viewIndex,
     mainSVG, mainGroup, scrollNav, scrollHandleTrigger = true,
-    annotations, tooltips, nativeTooltips,
+    annotations, tooltips,
     cachedDomain;
 
   container.dataFill = {};
@@ -337,10 +337,6 @@ module.exports = function(emitter) {
 
   container.annotations = function() {
     return annotations;
-  };
-
-  container.nativeTooltips = function() {
-    return nativeTooltips;
   };
 
   container.tooltips = function() {
@@ -693,7 +689,7 @@ module.exports = function(emitter) {
   container.setTooltip = function() {
     var tooltipGroup = mainGroup.append('g')
       .attr('id', 'tidelineTooltips');
-    nativeTooltips = new Tooltips(container, tooltipGroup).id(tooltipGroup.attr('id'));
+    tooltips = new Tooltips(container, tooltipGroup).id(tooltipGroup.attr('id'));
     return container;
   };
 

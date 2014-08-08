@@ -127,7 +127,7 @@ function chartWeeklyFactory(el, options) {
         x: function(t) { return dt.getMsFromMidnight(t); }
       }), true, true);
       pool.addPlotType('smbg', smbgTime.draw(pool), true, true);
-      chart.nativeTooltips().addGroup(pool, {
+      chart.tooltips().addGroup(pool, {
         type: 'smbg'
       });
       pool.render(chart.daysGroup(), chart.dataPerDay[i]);

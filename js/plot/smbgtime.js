@@ -234,14 +234,14 @@ function SMBGTime (opts) {
   };
 
   this.addTooltip = function(d, pool) {
-    var tooltips = opts.pool.nativeTooltips();
+    var tooltips = opts.pool.tooltips();
     var getBgBoundaryClass = bgBoundaryClass(opts.classes);
     var cssClass = getBgBoundaryClass(d);
     var smbg = this;
     var days = mainGroup.select('#daysGroup').node().children;
     var lastDay = d3.select(days[days.length - 1]);
     var translation = parseInt(lastDay.attr('transform').replace('translate(0,', '').replace(')',''),10);
-    var res = tooltips.addFOTooltip({
+    var res = tooltips.addForeignObjTooltip({
       cssClass: cssClass,
       datum: d,
       shape: 'smbg',
@@ -252,8 +252,8 @@ function SMBGTime (opts) {
     });
     var foGroup = res.foGroup;
     this.tooltipHtml(foGroup, d);
-    var dims = tooltips.foDimensions(foGroup);
-    tooltips.anchorFO(d3.select(foGroup.node().parentNode), {
+    var dims = tooltips.foreignObjDimensions(foGroup);
+    tooltips.anchorForeignObj(d3.select(foGroup.node().parentNode), {
       w: dims.width + opts.tooltipPadding,
       h: dims.height,
       y: -dims.height,

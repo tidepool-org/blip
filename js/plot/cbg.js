@@ -106,10 +106,10 @@ module.exports = function(pool, opts) {
   };
 
   cbg.addTooltip = function(d) {
-    var tooltips = pool.nativeTooltips();
+    var tooltips = pool.tooltips();
     var getBgBoundaryClass = bgBoundaryClass(opts.classes);
     var cssClass = getBgBoundaryClass(d);
-    tooltips.addTooltip({
+    tooltips.addFixedTooltip({
       cssClass: cssClass,
       datum: d,
       orientation: {

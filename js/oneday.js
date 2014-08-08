@@ -49,7 +49,7 @@ module.exports = function(emitter) {
     xScale = d3.time.scale.utc(),
     currentCenter, data, tidelineData, renderedData = [], endpoints,
     mainSVG, mainGroup,
-    scrollNav, scrollHandleTrigger = true, mostRecent = false, annotations, tooltips, nativeTooltips;
+    scrollNav, scrollHandleTrigger = true, mostRecent = false, annotations, tooltips;
 
   container.dataFill = {};
 
@@ -240,8 +240,8 @@ module.exports = function(emitter) {
     return annotations;
   };
 
-  container.nativeTooltips = function() {
-    return nativeTooltips;
+  container.tooltips = function() {
+    return tooltips;
   };
 
   container.axisGutter = function() {
@@ -411,7 +411,7 @@ module.exports = function(emitter) {
   container.setTooltip = function() {
     var tooltipGroup = mainGroup.append('g')
       .attr('id', 'tidelineTooltips');
-    nativeTooltips = new Tooltips(container, tooltipGroup).id(tooltipGroup.attr('id'));
+    tooltips = new Tooltips(container, tooltipGroup).id(tooltipGroup.attr('id'));
     return container;
   };
 

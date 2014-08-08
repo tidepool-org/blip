@@ -38,6 +38,7 @@
 }
 .interruptedText {
   color: darken(@suspended, 30%);
+  text-transform: uppercase;
 }
 
 .tooltip-div {
@@ -73,26 +74,34 @@
 }
 // bolus & wizard tooltips
 .bolus-wizard {
-  padding-bottom: @margin-shift;
   color: @text;
   font-size: @font-size-large-tooltips;
-  p {
-    .bwiz;
-    &.background {
-      background-color: lighten(@fill-lightest, 1%);
-    }
-    text-align: center;
-    .secondary {
-      .secondaryText;
-      .fromto {
-        color: darken(@text-light, 15%);
-      }
-    }
-  }
   .title {
     .bwiz;
+    align-items: baseline;
     background-color: @title-background;
-    text-align: center;
+    display: flex;
+    p {
+      flex-grow: 1;
+      margin: 0;
+      &.left {
+        padding-left: 4px;
+      }
+      &.right {
+        text-align: right;
+        padding-right: 4px;
+      }
+      &.interrupted {
+        .interruptedText;
+      }
+      &.plain {
+        .plainText;
+      }
+      &.timestamp {
+        .secondaryText;
+        color: darken(@text, 20%);
+      }
+    }
   }
   table {
     margin: 0 auto;
@@ -129,9 +138,6 @@
         }
         text-align: right;
         font-size: @font-size-small;
-      }
-      &.interrupted {
-        .interruptedText;
       }
     }
   }

@@ -242,8 +242,8 @@ module.exports = function(pool, opts) {
     },
     tooltip: {
       add: function(d) {
-        var tooltips = pool.nativeTooltips();
-        var res = tooltips.addFOTooltip({
+        var tooltips = pool.tooltips();
+        var res = tooltips.addForeignObjTooltip({
           cssClass: 'd3-bolus',
           datum: d,
           div: 'bolus-wizard',
@@ -253,8 +253,8 @@ module.exports = function(pool, opts) {
         });
         var foGroup = res.foGroup;
         this.html(foGroup, d);
-        var dims = tooltips.foDimensions(foGroup);
-        tooltips.anchorFO(d3.select(foGroup.node().parentNode), {
+        var dims = tooltips.foreignObjDimensions(foGroup);
+        tooltips.anchorForeignObj(d3.select(foGroup.node().parentNode), {
           w: dims.width + opts.tooltipPadding,
           h: dims.height,
           y: -dims.height,
@@ -273,27 +273,25 @@ module.exports = function(pool, opts) {
           !(bolus.recommended && bolus.recommended !== bolus.value) &&
           !(bolus.extended && bolus.extendedDelivery) &&
           !(d.carbs);
+
+        var title = group.append('div')
+          .attr('class', 'title');
+        // timestamp goes in title
+        title.append('p')
+          .attr('class', 'timestamp left')
+          .html(format.timestamp(bolus.normalTime));
         // interrupted boluses get priority on special headline
         if (bolus.programmed != null && bolus.programmed !== bolus.value) {
-          group.append('p')
-            .attr('class', 'title')
-            .append('span')
-            .attr('class', 'interrupted')
+          title.append('p')
+            .attr('class', 'interrupted plain right')
             .text('interrupted');
         }
         // if not interrupted, then extended boluses get a headline
         else if (bolus.extended === true) {
-          group.append('p')
-            .attr('class', 'title')
-            .append('span')
+          title.append('p')
+            .attr('class', 'plain right')
             .text('Extended');
         }
-
-        group.append('p')
-          .classed('background', !justBolus)
-          .append('span')
-          .attr('class', 'secondary')
-          .html('<span class="fromto">at</span> ' + format.timestamp(bolus.normalTime) + '<br/>');
 
         var tbl = group.append('table');
         // carbs
