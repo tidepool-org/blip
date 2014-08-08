@@ -1,15 +1,15 @@
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -75,6 +75,116 @@ module.exports = function(pool, opts) {
     return 'M' + top + 'L' + bottom + 'L' + point + 'Z';
   };
 
+<<<<<<< HEAD
+  var timespan = function(d) {
+    var dur = Duration.parse(d.duration + 'ms');
+    var hours = dur.hours();
+    var minutes = dur.minutes() - (hours * 60);
+
+    if (hours !== 0) {
+      if (hours === 1) {
+        switch(minutes) {
+        case 0:
+          return 'over ' + hours + ' hr';
+        case 15:
+          return 'over ' + hours + QUARTER + ' hr';
+        case 20:
+          return 'over ' + hours + THIRD + ' hr';
+        case 30:
+          return 'over ' + hours + HALF + ' hr';
+        case 40:
+          return 'over ' + hours + TWO_THIRDS + ' hr';
+        case 45:
+          return 'over ' + hours + THREE_QUARTER + ' hr';
+        default:
+          return 'over ' + hours + ' hr ' + minutes + ' min';
+        }
+      } else {
+        switch(minutes) {
+        case 0:
+          return 'over ' + hours + ' hrs';
+        case 15:
+          return 'over ' + hours + QUARTER + ' hrs';
+        case 20:
+          return 'over ' + hours + THIRD + ' hrs';
+        case 30:
+          return 'over ' + hours + HALF + ' hrs';
+        case 40:
+          return 'over ' + hours + TWO_THIRDS + ' hrs';
+        case 45:
+          return 'over ' + hours + THREE_QUARTER + ' hrs';
+        default:
+          return 'over ' + hours + ' hrs ' + minutes + ' min';
+        }
+      }
+    } else {
+      return 'over ' + minutes + ' min';
+    }
+  };
+
+  var formatValue = function(x) {
+    var formatted = d3.format('.3f')(x);
+
+    // remove zero-padding on the right
+    while (formatted[formatted.length - 1] === '0') {
+      formatted = formatted.slice(0, formatted.length - 1);
+    }
+
+    if (formatted[formatted.length - 1] === '.') {
+      formatted = formatted + '0';
+    }
+
+    return formatted;
+  };
+
+  var getRecommendedBolusTooltipText = function(d) {
+    return formatValue(d.recommended) + "U recom'd";
+  };
+
+  var unknownDeliverySplit = function(d) {
+    return d.initialDelivery == null && d.extendedDelivery == null;
+  };
+
+  var getExtendedBolusTooltipText = function(d) {
+    if (unknownDeliverySplit(d)) {
+      return 'Split unknown';
+    }
+    return format.percentage(d.extendedDelivery / d.value) + ' ' + timespan(d);
+  };
+
+  var getTooltipCategory = function(d) {
+    var category = '';
+    // when there's no 'recommended' field
+    if (d.recommended == null) {
+      if (d.extended == null) {
+        category = 'unspecial';
+      } else {
+        category = 'two-line';
+      }
+    } else {
+      if ((d.extended == null) && (d.recommended === d.value)) {
+        category = 'unspecial';
+      } else if ((d.extended == null) && (d.recommended !== d.value)) {
+        category = 'two-line';
+      } else if ((d.recommended === d.value) && (d.extended != null)) {
+        category = 'two-line';
+      } else if ((d.recommended !== d.value) && (d.extended != null)) {
+        category = 'three-line';
+      }
+    }
+    return category;
+  };
+
+  var getValue = function(d) {
+    if (d.programmed && d.value != d.programmed) {
+      return d.programmed;
+    }
+
+    return d.value;
+  };
+
+=======
+>>>>>>> master
   return {
     carb: function(carbs) {
       var xPos = function(d) {
@@ -96,7 +206,7 @@ module.exports = function(pool, opts) {
             return opts.yScaleCarbs ? opts.yScaleCarbs(d.carbs.value) : opts.r;
           },
           'stroke-width': 0,
-          'class': 'd3-circle-carbs d3-carbs',
+          class: 'd3-circle-carbs d3-carbs',
           id: function(d) {
             return 'carbs_' + d.id;
           }
@@ -111,7 +221,7 @@ module.exports = function(pool, opts) {
         .attr({
           x: xPos,
           y: yPos,
-          'class': 'd3-carbs-text'
+          class: 'd3-carbs-text'
         });
     },
     bolus: function(boluses) {
@@ -131,7 +241,7 @@ module.exports = function(pool, opts) {
             d = pluckBolus(d);
             return top - opts.yScale(getValue(d));
           },
-          'class': 'd3-rect-bolus d3-bolus',
+          class: 'd3-rect-bolus d3-bolus',
           id: function(d) {
             d = pluckBolus(d);
             return 'bolus_' + d.id;
@@ -153,7 +263,7 @@ module.exports = function(pool, opts) {
           },
           width: opts.width,
           height: opts.suspendMarkerHeight,
-          'class': 'd3-rect-suspended d3-bolus'
+          class: 'd3-rect-suspended d3-bolus'
         });
 
       //draw color in the suspended portion
@@ -172,7 +282,7 @@ module.exports = function(pool, opts) {
             d = pluckBolus(d);
             return opts.yScale(d.value) - opts.yScale(getValue(d)) - 1;
           },
-          'class': 'd3-rect-suspended-bolus d3-bolus'
+          class: 'd3-rect-suspended-bolus d3-bolus'
         });
     },
     underride: function(underride) {
@@ -193,7 +303,7 @@ module.exports = function(pool, opts) {
 
             return height;
           },
-          'class': 'd3-rect-recommended d3-bolus',
+          class: 'd3-rect-recommended d3-bolus',
           id: function(d) {
             d = pluckBolus(d);
             return 'bolus_' + d.id;
@@ -217,7 +327,7 @@ module.exports = function(pool, opts) {
             return top - opts.yScale(d.recommended);
           },
           'stroke-width': opts.bolusStroke,
-          'class': 'd3-rect-recommended d3-bolus',
+          class: 'd3-rect-recommended d3-bolus',
           id: function(d) {
             d = pluckBolus(d);
             return 'bolus_' + d.id;
@@ -233,7 +343,7 @@ module.exports = function(pool, opts) {
             return 'M' + leftEdge + ' ' + bottom + 'L' + rightEdge + ' ' + bottom + 'L' + rightEdge + ' ' + bolusHeight + 'L' + leftEdge + ' ' + bolusHeight + 'Z';
           },
           'stroke-width': opts.bolusStroke,
-          'class': 'd3-path-bolus d3-bolus',
+          class: 'd3-path-bolus d3-bolus',
           id: function(d) {
             d = pluckBolus(d);
             return 'bolus_' + d.id;
@@ -252,7 +362,7 @@ module.exports = function(pool, opts) {
             return 'M' + rightEdge + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
           },
           'stroke-width': opts.bolusStroke,
-          'class': function(d){
+          class: function(d){
             d = pluckBolus(d);
             if (unknownDeliverySplit(d)) {
               return 'd3-path-extended d3-bolus d3-unknown-delivery-split';
@@ -280,7 +390,7 @@ module.exports = function(pool, opts) {
             }
           },
           'stroke-width': opts.bolusStroke,
-          'class': function(d) {
+          class: function(d) {
             d = pluckBolus(d);
 
             if (d.suspendedAt) {
@@ -309,7 +419,7 @@ module.exports = function(pool, opts) {
             return 'M' + rightEdge + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
           },
           'stroke-width': opts.bolusStroke,
-          'class': 'd3-path-suspended d3-bolus'
+          class: 'd3-path-suspended d3-bolus'
         });
 
       suspended.append('path')
@@ -326,7 +436,7 @@ module.exports = function(pool, opts) {
             }
           },
           'stroke-width': opts.bolusStroke,
-          'class': function(d){
+          class: function(d){
             d = pluckBolus(d);
             if (unknownDeliverySplit(d)) {
               return 'd3-path-extended-suspended d3-bolus d3-unknown-delivery-split';

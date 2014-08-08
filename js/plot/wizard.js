@@ -27,11 +27,6 @@ module.exports = function(pool, opts) {
   opts = opts || {};
 
   var defaults = {
-    classes: {
-      'unspecial': {'tooltip': 'tooltip_bolus_small.svg', 'width': 70, 'height': 24},
-      'two-line': {'tooltip': 'tooltip_bolus_large.svg', 'width': 98, 'height': 39},
-      'three-line': {'tooltip': 'tooltip_bolus_extralarge.svg', 'width': 98, 'height': 58}
-    },
     width: 12
   };
 
@@ -139,14 +134,14 @@ module.exports = function(pool, opts) {
       // tooltips
       selection.selectAll('.d3-wizard-group').on('mouseover', function(d) {
         if (d.bolus) {
-          drawBolus.tooltip.add(d.bolus);
+          drawBolus.tooltip.add(d);
         }
 
         highlight.on(d3.select(this));
       });
       selection.selectAll('.d3-wizard-group').on('mouseout', function(d) {
         if (d.bolus) {
-          drawBolus.tooltip.remove(d.bolus);
+          drawBolus.tooltip.remove(d);
         }
 
         highlight.off();

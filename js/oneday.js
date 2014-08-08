@@ -20,7 +20,6 @@ var _ = require('./lib/')._;
 
 var Pool = require('./pool');
 var annotation = require('./plot/util/annotations/annotation');
-var tooltip = require('./plot/util/tooltip');
 var Tooltips = require('./plot/util/tooltips/tooltip');
 var dt = require('./data/util/datetime');
 
@@ -241,10 +240,6 @@ module.exports = function(emitter) {
     return annotations;
   };
 
-  container.nativeTooltips = function() {
-    return nativeTooltips;
-  };
-
   container.tooltips = function() {
     return tooltips;
   };
@@ -416,11 +411,7 @@ module.exports = function(emitter) {
   container.setTooltip = function() {
     var tooltipGroup = mainGroup.append('g')
       .attr('id', 'tidelineTooltips');
-    tooltips = tooltip(container, tooltipGroup).id(tooltipGroup.attr('id'));
-    nativeTooltips = new Tooltips(container, tooltipGroup).id(tooltipGroup.attr('id'));
-    pools.forEach(function(pool) {
-      pool.tooltips(tooltips);
-    });
+    tooltips = new Tooltips(container, tooltipGroup).id(tooltipGroup.attr('id'));
     return container;
   };
 
