@@ -114,7 +114,7 @@ module.exports = function(pool, opts) {
       .attr('class', 'secondary')
       .html('<span class="fromto">at</span> ' + format.timestamp(datum.normalTime));
     group.append('p')
-      .attr('class', 'big')
+      .attr('class', 'value')
       .append('span')
       .html(Math.round(datum.value));
   };

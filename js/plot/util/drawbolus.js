@@ -28,6 +28,7 @@ module.exports = function(pool, opts) {
     bolusStroke: 2,
     triangleSize: 6,
     carbPadding: 4,
+    tooltipHeightAddition: 3,
     tooltipPadding: 20
   };
 
@@ -242,7 +243,7 @@ module.exports = function(pool, opts) {
           div: 'bolus-wizard',
           shape: 'generic',
           xPosition: function() { return xPosition(d) + opts.width/2; },
-          yPosition: function() { return pool.height() - 1; }
+          yPosition: function() { return pool.height() - opts.tooltipHeightAddition; }
         });
         var foGroup = res.foGroup;
         this.html(foGroup, d);
