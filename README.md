@@ -53,7 +53,7 @@ For information on building charts using tideline components, see [Using Tidelin
 
 ## Development
 
-To run the example, build the standalone bundle, and run the tests you will need to have a couple of tools installed. Everything you need can be installed via `npm` and `bower`:
+To run the example and run the tests you will need to have a couple of tools installed. Everything you need can be installed via `npm`:
 
 ```bash
 $ npm install
