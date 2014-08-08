@@ -38,6 +38,12 @@ module.exports = function(pool, opts) {
   var bottom = top - opts.bolusStroke / 2;
   var mainGroup = pool.parent();
 
+  var getValue = function(bolus) {
+    if (bolus.programmed && bolus.programmed !== bolus.value) {
+      return bolus.programmed;
+    }
+    return bolus.value;
+  };
 
   var pluckBolus = function(d) {
     return d.bolus ? d.bolus : d;
@@ -352,7 +358,7 @@ module.exports = function(pool, opts) {
               .text(format.timespan(bolus) + ':');
             extRow.append('td')
               .attr('class', 'secondary')
-              .text(format.percentage(bolus.extendedDelivery/bolus.value) +
+              .text(format.percentage(bolus.extendedDelivery/getValue(bolus)) +
                 ' (' + format.tooltipValue(bolus.extendedDelivery) + ')');
           }
           else {
@@ -361,7 +367,7 @@ module.exports = function(pool, opts) {
               .text('Up front: ');
             extRow.append('td')
               .attr('class', 'secondary')
-              .text(format.percentage(bolus.initialDelivery/bolus.value) +
+              .text(format.percentage(bolus.initialDelivery/getValue(bolus)) +
                 ' (' + format.tooltipValue(bolus.initialDelivery) + ')');
             var extRow2 = tbl.append('tr');
             extRow2.append('td')
@@ -369,7 +375,7 @@ module.exports = function(pool, opts) {
               .text(format.timespan(bolus) + ':');
             extRow2.append('td')
               .attr('class', 'secondary')
-              .text(format.percentage(bolus.extendedDelivery/bolus.value) +
+              .text(format.percentage(bolus.extendedDelivery/getValue(bolus)) +
                 ' (' + format.tooltipValue(bolus.extendedDelivery) + ')');
           }
         }
