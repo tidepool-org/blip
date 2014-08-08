@@ -1,6 +1,9 @@
 /* global rm, mkdir, exec, ls*/
 require('shelljs/global');
 var fs = require('fs');
+var ms = require('ms');
+
+var start = new Date();
 
 console.log('Building config...');
 exec('webpack --entry \'./config.app.js\' --output-library \'config\' --output-file \'config.[hash].js\' --colors --progress');
@@ -20,4 +23,5 @@ indexHtml = indexHtml.replace('<!-- config -->',
 );
 indexHtml.to('dist/index.html');
 
-console.log('Build successfull');
+var end = new Date();
+console.log('Config built in ' + ms(end - start));

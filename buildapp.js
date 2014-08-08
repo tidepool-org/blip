@@ -1,6 +1,9 @@
 /* global rm, mkdir, exec, ls*/
 require('shelljs/global');
 var fs = require('fs');
+var ms = require('ms');
+
+var start = new Date();
 
 console.log('Cleaning output directory "dist/"...');
 rm('-rf', 'dist');
@@ -22,4 +25,5 @@ var indexHtml = fs.readFileSync('index.html', 'utf8');
 indexHtml = indexHtml.replace('bundle.js', getBundleFilename());
 indexHtml.to('dist/index.html');
 
-console.log('Build successfull');
+var end = new Date();
+console.log('App built in ' + ms(end - start));
