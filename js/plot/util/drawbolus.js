@@ -279,11 +279,6 @@ module.exports = function(pool, opts) {
             .attr('class', 'title')
             .append('span')
             .attr('class', 'interrupted')
-            .text('Bolus');
-          group.append('p')
-            .attr('class', 'title')
-            .append('span')
-            .attr('class', 'interrupted')
             .text('interrupted');
         }
         // if not interrupted, then extended boluses get a headline
@@ -309,7 +304,7 @@ module.exports = function(pool, opts) {
             .text('Carbs');
           carbRow.append('td')
             .attr('class', 'right')
-            .text(d.carbs.value + 'g');
+            .text(d.carbs.value + ' g');
         }
 
         // only show recommendation when different from delivery
@@ -331,10 +326,10 @@ module.exports = function(pool, opts) {
         if (bolus.programmed != null && bolus.programmed !== bolus.value) {
           var intRow = tbl.append('tr');
           intRow.append('td')
-            .attr('class', 'label interrupted')
+            .attr('class', 'label')
             .text('Programmed');
           intRow.append('td')
-            .attr('class', 'right interrupted')
+            .attr('class', 'right')
             .text(format.tooltipValue(bolus.programmed));
         }
         // actual delivered bolus
