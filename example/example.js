@@ -48,7 +48,7 @@ var Example = React.createClass({
     /* jshint ignore:end */
   },
   renderChart: function() {
-    window.data = this.state.chartData;
+    window.tidelineData = this.props.chartData;
     switch (this.state.chartType) {
       case 'daily':
         /* jshint ignore:start */

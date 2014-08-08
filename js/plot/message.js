@@ -18,7 +18,7 @@
 var d3 = require('d3');
 var _ = require('lodash');
 
-var images = require('../../img');
+var postItImage = require('../../img/message/post_it.svg');
 
 var log = require('bows')('Message');
 
@@ -76,7 +76,7 @@ module.exports = function(pool, opts) {
 
     selection.append('image')
       .attr({
-        'xlink:href': images.message['post_it.svg'],
+        'xlink:href': postItImage,
         cursor: 'pointer',
         x: message.xPosition,
         y: message.yPosition,

@@ -18,13 +18,10 @@
 // DOM not required
 // ====================================
 require('./annotations_test');
-require('./basalutil_test');
 require('./bgutil_test');
 require('./bolusutil_test');
 require('./datetime_test');
 require('./preprocess_test');
-// Currently broken
-// require('./segmentutil_test');
 require('./settingsutil_test');
 require('./tidelinedata_test');
 require('./timeline_test');

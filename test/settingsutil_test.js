@@ -34,20 +34,9 @@ var SegmentUtil = require('../js/data/segmentutil');
 var SettingsUtil = require('../js/data/settingsutil');
 var TidelineData = require('../js/tidelinedata');
 
-function all(segmentUtil) {
-  var arraysToConcat = [];
-
-  arraysToConcat.push(segmentUtil.actual);
-  Object.keys(segmentUtil.undelivered).forEach(function(key){
-    arraysToConcat.push(segmentUtil.undelivered[key]);
-  });
-
-  return Array.prototype.concat.apply([], arraysToConcat);
-}
-
 describe('settings utilities', function() {
 
-  var basalSegments = all(new SegmentUtil(_.where(data, {'type': 'basal-rate-segment'})));
+  var basalSegments = new SegmentUtil(_.where(data, {'type': 'basal-rate-segment'})).timeline;
   data = _.reject(data, function(d) {
     return d.type === 'basal-rate-segment';
   });

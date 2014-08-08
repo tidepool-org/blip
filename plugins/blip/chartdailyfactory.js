@@ -192,13 +192,24 @@ function chartDailyFactory(el, options) {
     chart.annotations().addGroup(chart.svg().select('#' + poolStats.id()), 'stats');
 
     // add tooltips
-    chart.nativeTooltips().addGroup(poolBG, {
+    chart.tooltips().addGroup(poolBG, {
       type: 'cbg',
       classes: ['d3-bg-low', 'd3-bg-target', 'd3-bg-high']
     });
-    chart.tooltips().addGroup(chart.svg().select('#' + poolBG.id()), 'smbg');
-    chart.tooltips().addGroup(chart.svg().select('#' + poolBolus.id()), 'bolus');
-    chart.tooltips().addGroup(chart.svg().select('#' + poolBasal.id()), 'basal');
+    chart.tooltips().addGroup(poolBG, {
+      type: 'smbg'
+    });
+    chart.tooltips().addGroup(poolBolus, {
+      type: 'wizard',
+      shape: 'generic'
+    });
+    chart.tooltips().addGroup(poolBolus, {
+      type: 'bolus',
+      shape: 'generic'
+    });
+    chart.tooltips().addGroup(poolBasal, {
+      type: 'basal'
+    });
 
     return chart;
   };
@@ -258,7 +269,10 @@ function chartDailyFactory(el, options) {
     poolBG.addPlotType('cbg', tideline.plot.cbg(poolBG, {yScale: scaleBG}), true, true);
 
     // add SMBG data to BG pool
-    poolBG.addPlotType('smbg', tideline.plot.smbg(poolBG, {yScale: scaleBG}), true, true);
+    poolBG.addPlotType('smbg', tideline.plot.smbg(poolBG, {
+      yScale: scaleBG,
+      bgUnits: options.bgUnits
+    }), true, true);
 
     // TODO: when we bring responsiveness in
     // decide number of ticks for these scales based on container height?

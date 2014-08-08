@@ -53,6 +53,9 @@ var shapeutil = {
     var a = str.split(' ');
     return {x: a[2], y: a[3]};
   },
+  pointString: function(x,y) {
+    return x + ',' + y + ' ';
+  },
   translationFromViewBox: function(group, opts) {
     var def = group.attr('xlink:href');
     var coords = this.getViewBoxCoords(d3.select(def).attr('viewBox'));

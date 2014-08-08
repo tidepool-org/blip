@@ -27,9 +27,8 @@ function eventsSmooshable(lhs, rhs) {
 
 var eventPriority = ['temp', 'suspend'];
 
-function SegmentUtil(actual, undelivered) {
-  this.actual = actual;
-  this.undelivered = undelivered;
+function SegmentUtil(timeline) {
+  this.timeline = timeline;
 }
 
 SegmentUtil.prototype.getUndelivered = function(type) {
@@ -230,10 +229,6 @@ module.exports = function(data){
   if (Object.keys(otherEvents).length > 1) {
     log('Unhandled basal-rate-segment objects of deliveryType:', Object.keys(otherEvents));
   }
-
-  var actuals = new Array(baseTimeline.length);
-  var undelivered = {};
-
   var newIdCounter = 0;
 
   function attachId(e) {
@@ -246,29 +241,7 @@ module.exports = function(data){
 
   for (i = 0; i < baseTimeline.length; ++i) {
     attachId(baseTimeline[i]);
-    baseTimeline[i].vizType = 'actual';
   }
 
-  for (i = 0; i < baseTimeline.length; ++i) {
-    if (baseTimeline[i].suppressed != null) {
-      for (var j = 0; j < baseTimeline[i].suppressed.length; ++j) {
-        var theUn = baseTimeline[i].suppressed[j];
-        attachId(theUn);
-        theUn.link = baseTimeline[i].id;
-        theUn.start = baseTimeline[i].start;
-        theUn.end = baseTimeline[i].end;
-        theUn.vizType = 'undelivered';
-
-        if (undelivered[theUn.deliveryType] == null) {
-          undelivered[theUn.deliveryType] = [];
-        }
-        undelivered[theUn.deliveryType].push(theUn);
-      }
-    }
-
-    delete baseTimeline[i].suppressed;
-    actuals[i] = baseTimeline[i];
-  }
-
-  return new SegmentUtil(actuals, undelivered);
+  return new SegmentUtil(baseTimeline);
 };

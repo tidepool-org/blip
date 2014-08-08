@@ -17,6 +17,7 @@
 
 @import 'tideline-colors.less';
 @import 'tideline-svg.less';
+@import 'tideline-tooltip.less';
 
 // typography
 // @font-family-base shared with blip, but sizes are specific to tideline
@@ -28,6 +29,7 @@
 @font-size-small: 12px;
 @font-size-small-tooltips: 11px;
 @font-size-large-tooltips: 14px;
+@font-size-xlarge-tooltips: 16px;
 @font-size-puddle-head: 16px;
 @font-size-puddle-lead: 14px;
 @font-size-puddle-number: 24px;
@@ -390,19 +392,7 @@ text.d3-tabular-ui {
     font-size: @font-size-small-tooltips;
     text-anchor: middle;
     dominant-baseline: central;
-    &.d3-smbg {
-      font-size: @font-size-large-tooltips;
-      font-weight: bold;
-    }
-    &.d3-carbs {
-      font-size: @font-size-large-tooltips;
-      font-weight: bold;
-    }
     &.d3-bolus {
-      font-size: @font-size-large-tooltips;
-      font-weight: bold;
-    }
-    &.d3-basal {
       font-size: @font-size-large-tooltips;
       font-weight: bold;
     }

@@ -23,6 +23,7 @@ var shapeutil = require('../shapeutil');
 
 var shapes = {
   cbg: {
+    fixed: true,
     els: [
       {
         el: 'path',
@@ -75,6 +76,142 @@ var shapes = {
           'class': 'd3-tooltip-text'
         })
         .text(opts.datum.value);
+    }
+  },
+  basal: {
+    fixed: false,
+    els: [
+      {
+        el: 'polygon',
+        attrs: {
+          points: function(opts) {
+            var pointHalfHeight = 10;
+            var pointWidth = 15;
+            return shapeutil.pointString(0,0) +
+              shapeutil.pointString(opts.w, 0) +
+              shapeutil.pointString(opts.w, opts.h/2 - pointHalfHeight) +
+              shapeutil.pointString(opts.w + pointWidth, opts.h/2) +
+              shapeutil.pointString(opts.w, opts.h/2 + pointHalfHeight) +
+              shapeutil.pointString(opts.w, opts.h) +
+              shapeutil.pointString(0, opts.h) +
+              shapeutil.pointString(0, opts.h/2 + pointHalfHeight) +
+              shapeutil.pointString(-pointWidth, opts.h/2) +
+              shapeutil.pointString(0, opts.h/2 - pointHalfHeight) +
+              shapeutil.pointString(0,0);
+          }
+        }
+      }
+    ],
+    mainClass: 'svg-tooltip-basal',
+    extensions: {
+      left: 15,
+      right: 15
+    }
+  },
+  smbg: {
+    fixed: false,
+    els: [
+      {
+        el: 'polygon',
+        attrs: {
+          pointsFn: function(opts) {
+            var offset = 4;
+            var y = 12;
+            var x = 8;
+            return shapeutil.pointString(offset, -opts.h - offset) +
+              shapeutil.pointString(opts.w + offset, -opts.h - offset) +
+              shapeutil.pointString(opts.w + offset, -offset) +
+              shapeutil.pointString(offset+x, -offset) +
+              shapeutil.pointString(0, 0) +
+              shapeutil.pointString(offset, -y - offset) +
+              shapeutil.pointString(offset, -opts.h - offset).trim();
+          }
+        }
+      }
+    ],
+    mainClass: 'svg-tooltip-smbg',
+    orientations: {
+      normal: function(pointStr) {
+        return pointStr;
+      },
+      leftAndDown: function(str) {
+        return shapeutil.mirrorImageX(shapeutil.mirrorImageY(str));
+      },
+      leftAndUp: function(str) {
+        return shapeutil.mirrorImageY(str);
+      },
+      rightAndDown: function(str) {
+        return shapeutil.mirrorImageX(str);
+      }
+    },
+    offset: function(selection, opts) {
+      if (!arguments.length) return 4;
+      selection.attr({
+        x: opts.x,
+        y: opts.y
+      });
+    }
+  },
+  generic: {
+    fixed: false,
+    els: [
+      {
+        el: 'polygon',
+        attrs: {
+          pointsFn: function(opts) {
+            var offset = 8;
+            var y = 16;
+            var x = 12;
+            return shapeutil.pointString(offset, -opts.h - offset) +
+              shapeutil.pointString(opts.w + offset, -opts.h - offset) +
+              shapeutil.pointString(opts.w + offset, -offset) +
+              shapeutil.pointString(offset+x, -offset) +
+              shapeutil.pointString(0, 0) +
+              shapeutil.pointString(offset, -y - offset) +
+              shapeutil.pointString(offset, -opts.h - offset).trim();
+          }
+        }
+      },
+      {
+        el: 'polygon',
+        attrs: {
+          pointsFn: function(opts) {
+            var offset = 8;
+            var y = 16;
+            var x = 12;
+            return shapeutil.pointString(offset, -opts.h - offset) +
+              shapeutil.pointString(opts.w + offset, -opts.h - offset) +
+              shapeutil.pointString(opts.w + offset, -offset) +
+              shapeutil.pointString(offset+x, -offset) +
+              shapeutil.pointString(0, 0) +
+              shapeutil.pointString(offset, -y - offset) +
+              shapeutil.pointString(offset, -opts.h - offset).trim();
+          },
+          'class': 'no-stroke'
+        }
+      }
+    ],
+    mainClass: 'svg-tooltip-generic',
+    orientations: {
+      normal: function(pointStr) {
+        return pointStr;
+      },
+      leftAndDown: function(str) {
+        return shapeutil.mirrorImageX(shapeutil.mirrorImageY(str));
+      },
+      leftAndUp: function(str) {
+        return shapeutil.mirrorImageY(str);
+      },
+      rightAndDown: function(str) {
+        return shapeutil.mirrorImageX(str);
+      }
+    },
+    offset: function(selection, opts) {
+      if (!arguments.length) return 8;
+      selection.attr({
+        x: opts.x,
+        y: opts.y
+      });
     }
   }
 };

@@ -4,7 +4,7 @@
     "type": "git",
     "url": "https://github.com/tidepool-org/tideline.git"
   },
-  "version": "0.0.45",
+  "version": "0.0.48",
   "main": "js/index.js",
   "dependencies": {
     "bows": "0.5.0",

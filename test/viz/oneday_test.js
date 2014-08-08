@@ -30,7 +30,6 @@ var $ = require('jquery');
 var d3 = require('d3');
 var preprocess = require('../../plugins/data/preprocess');
 var chartDailyFactory = require('../../plugins/blip/chartdailyfactory');
-var images = require('../../img');
 
 var testpage = require('../../dev/testpage/index');
 
@@ -292,27 +291,26 @@ describe('one-day view', function() {
 
           leftLow.simulate('mouseover');
           var lowTooltipGroup = container.find('#tooltip_' + leftLow.attr('id').replace('smbg_', ''));
-          expect(lowTooltipGroup.find('image').attr('href')).to.equal(images.smbg['smbg_tooltip_low.svg']);
-          expect(lowTooltipGroup.find('text').html()).to.equal('20');
-          // check for AM not am because CSS handles the transform to lowercase
-          expect(lowTooltipGroup.find('text').filter('.d3-tooltip-timestamp').html()).to.equal('at 12:30 AM');
-          expect(lowTooltipGroup.find('rect').size()).to.be.above(0);
+          expect(lowTooltipGroup.find('.svg-tooltip-right-and-up').size()).to.equal(1);
+          expect(lowTooltipGroup.find('.value span').html()).to.equal('20');
+          expect(lowTooltipGroup.find('span.secondary').html()).to.equal('<span class="fromto">at</span> 12:30 am');
+          expect(lowTooltipGroup.find('polygon').size()).to.equal(1);
 
           leftTarget.simulate('mouseover');
           var targetTooltipGroup = container.find('#tooltip_' + leftTarget.attr('id').replace('smbg_', ''));
-          expect(targetTooltipGroup.find('image').attr('href')).to.equal(images.smbg['smbg_tooltip_target.svg']);
-          expect(targetTooltipGroup.find('text').html()).to.equal('80');
-          expect(targetTooltipGroup.find('text').filter('.d3-tooltip-timestamp').html()).to.equal('at 1:30 AM');
-          expect(targetTooltipGroup.find('rect').size()).to.be.above(0);
+          expect(targetTooltipGroup.find('.svg-tooltip-right-and-up').size()).to.equal(1);
+          expect(targetTooltipGroup.find('.value span').html()).to.equal('80');
+          expect(targetTooltipGroup.find('span.secondary').html()).to.equal('<span class="fromto">at</span> 1:30 am');
+          expect(targetTooltipGroup.find('polygon').size()).to.equal(1);
         });
 
         it('(high) should yield a right and down tooltip (text = 181) on hover', function() {
           leftHigh.simulate('mouseover');
           var highTooltipGroup = container.find('#tooltip_' + leftHigh.attr('id').replace('smbg_', ''));
-          expect(highTooltipGroup.find('image').attr('href')).to.equal(images.smbg['smbg_tooltip_high.svg']);
-          expect(highTooltipGroup.find('text').html()).to.equal('181');
-          expect(highTooltipGroup.find('text').filter('.d3-tooltip-timestamp').html()).to.equal('at 2:30 AM');
-          expect(highTooltipGroup.find('rect').size()).to.be.above(0);
+          expect(highTooltipGroup.find('.svg-tooltip-right-and-down').size()).to.equal(1);
+          expect(highTooltipGroup.find('.value span').html()).to.equal('181');
+          expect(highTooltipGroup.find('span.secondary').html()).to.equal('<span class="fromto">at</span> 2:30 am');
+          expect(highTooltipGroup.find('polygon').size()).to.equal(1);
         });
 
         it('should have tooltips that disappear on mouseout', function() {
@@ -336,26 +334,26 @@ describe('one-day view', function() {
 
           rightLow.simulate('mouseover');
           var lowTooltipGroup = container.find('#tooltip_' + rightLow.attr('id').replace('smbg_', ''));
-          expect(lowTooltipGroup.find('image').attr('href')).to.equal(images.smbg['smbg_tooltip_low_left.svg']);
-          expect(lowTooltipGroup.find('text').html()).to.equal('20');
-          expect(lowTooltipGroup.find('text').filter('.d3-tooltip-timestamp').html()).to.equal('at 11:30 PM');
-          expect(lowTooltipGroup.find('rect').size()).to.be.above(0);
+          expect(lowTooltipGroup.find('.svg-tooltip-left-and-up').size()).to.equal(1);
+          expect(lowTooltipGroup.find('.value span').html()).to.equal('20');
+          expect(lowTooltipGroup.find('span.secondary').html()).to.equal('<span class="fromto">at</span> 11:30 pm');
+          expect(lowTooltipGroup.find('polygon').size()).to.equal(1);
 
           rightTarget.simulate('mouseover');
           var targetTooltipGroup = container.find('#tooltip_' + rightTarget.attr('id').replace('smbg_', ''));
-          expect(targetTooltipGroup.find('image').attr('href')).to.equal(images.smbg['smbg_tooltip_target_left.svg']);
-          expect(targetTooltipGroup.find('text').html()).to.equal('80');
-          expect(targetTooltipGroup.find('text').filter('.d3-tooltip-timestamp').html()).to.equal('at 10:30 PM');
-          expect(targetTooltipGroup.find('rect').size()).to.be.above(0);
+          expect(targetTooltipGroup.find('.svg-tooltip-left-and-up').size()).to.equal(1);
+          expect(targetTooltipGroup.find('.value span').html()).to.equal('80');
+          expect(targetTooltipGroup.find('span.secondary').html()).to.equal('<span class="fromto">at</span> 10:30 pm');
+          expect(targetTooltipGroup.find('polygon').size()).to.equal(1);
         });
 
         it('(high) should yield a left and down tooltip (text = 181) on hover', function() {
           rightHigh.simulate('mouseover');
           var highTooltipGroup = container.find('#tooltip_' + rightHigh.attr('id').replace('smbg_', ''));
-          expect(highTooltipGroup.find('image').attr('href')).to.equal(images.smbg['smbg_tooltip_high_left.svg']);
-          expect(highTooltipGroup.find('text').html()).to.equal('181');
-          expect(highTooltipGroup.find('text').filter('.d3-tooltip-timestamp').html()).to.equal('at 9:30 PM');
-          expect(highTooltipGroup.find('rect').size()).to.be.above(0);
+          expect(highTooltipGroup.find('.svg-tooltip-left-and-down').size()).to.equal(1);
+          expect(highTooltipGroup.find('.value span').html()).to.equal('181');
+          expect(highTooltipGroup.find('span.secondary').html()).to.equal('<span class="fromto">at</span> 9:30 pm');
+          expect(highTooltipGroup.find('polygon').size()).to.equal(1);
         });
 
         it('should have tooltips that disappear on mouseout', function() {
@@ -389,28 +387,30 @@ describe('one-day view', function() {
       it('should yield a left and up tooltip if at the right edge', function() {
         leftCarb = carbs.filter(':first');
         leftCarb.simulate('mouseover');
-        var leftTooltipGroup = container.find('#tidelineTooltips_bolus').find('.d3-tooltip').filter(':first');
-        expect(leftTooltipGroup.find('image').attr('href')).to.equal(images.bolus['tooltip_bolus_large_left.svg']);
-        expect(leftTooltipGroup.find('text').filter('.d3-tooltip-timestamp').html()).to.equal('at 11:25 PM');
-        expect(leftTooltipGroup.find('rect').size()).to.be.above(0);
+        var leftTooltipGroup = container.find('#tidelineTooltips_wizard').find('.d3-tooltip');
+        expect(leftTooltipGroup.find('.svg-tooltip-left-and-up').size()).to.equal(1);
+        expect(leftTooltipGroup.find('.timestamp').html()).to.equal('11:25 pm');
+        expect(leftTooltipGroup.find('polygon').size()).to.equal(2);
       });
 
-      it('should yield a right and up tooltip if not at the right edge', function() {
+      it('should yield a left and up tooltip if not at the right edge', function() {
         rightCarb = carbs.filter(':last');
         rightCarb.simulate('mouseover');
-        var rightTooltipGroup = $(container.find('#tidelineTooltips_bolus').find('.d3-tooltip')[1]);
-        expect(rightTooltipGroup.find('image').attr('href')).to.equal(images.bolus['tooltip_bolus_small.svg']);
-        expect(rightTooltipGroup.find('text').filter('.d3-tooltip-timestamp').html()).to.equal('at 12:25 PM');
-        expect(rightTooltipGroup.find('rect').size()).to.be.above(0);
+        var rightTooltipGroup = $(container.find('#tidelineTooltips_wizard').find('.d3-tooltip')[1]);
+        expect(rightTooltipGroup.find('.svg-tooltip-left-and-up').size()).to.equal(1);
+        expect(rightTooltipGroup.find('.timestamp').html()).to.equal('12:25 pm');
+        expect(rightTooltipGroup.find('polygon').size()).to.equal(2);
       });
 
-      it('should yield an extra-large tooltip when recommended differs from delivered and extended', function() {
+      it('should yield an extra-large, right and up tooltip when recommended differs from delivered and extended and at left edge', function() {
         extendedCarb = $(carbs[12]);
         extendedCarb.simulate('mouseover');
-        var extendedTooltipGroup = container.find('#tidelineTooltips_bolus').find('.d3-tooltip').filter(':last');
-        expect(extendedTooltipGroup.find('image').attr('href')).to.equal(images.bolus['tooltip_bolus_extralarge.svg']);
-        expect(extendedTooltipGroup.find('text').filter('.d3-tooltip-timestamp').html()).to.equal('at 2:25 AM');
-        expect(extendedTooltipGroup.find('rect').size()).to.be.above(0);
+        var extendedTooltipGroup = container.find('#tidelineTooltips_wizard').find('.d3-tooltip').filter(':last');
+        expect(extendedTooltipGroup.find('.svg-tooltip-right-and-up').size()).to.equal(1);
+        expect(extendedTooltipGroup.find('.plain').html()).to.equal('Extended');
+        expect(extendedTooltipGroup.find('.dual').size()).to.equal(2);
+        expect(extendedTooltipGroup.find('.timestamp').html()).to.equal('2:25 am');
+        expect(extendedTooltipGroup.find('polygon').size()).to.equal(2);
       });
 
       it('should have tooltips that disappear on mouseout', function() {
@@ -459,19 +459,19 @@ describe('one-day view', function() {
     it('should yield a tooltip on hover', function() {
       thisBolus = boluses.filter(':first');
       thisBolus.simulate('mouseover');
-      var thisTooltipGroup = container.find('#tidelineTooltips_bolus').find('.d3-tooltip').filter(':first');
-      expect(thisTooltipGroup.find('image').attr('href')).to.equal(images.bolus['tooltip_bolus_small_left.svg']);
-      expect(thisTooltipGroup.find('text').filter('.d3-tooltip-timestamp').html()).to.equal('at 11:25 PM');
-      expect(thisTooltipGroup.find('rect').size()).to.be.above(0);
+      var thisTooltipGroup = container.find('#tidelineTooltips_bolus').find('.d3-tooltip');
+      expect(thisTooltipGroup.find('.svg-tooltip-left-and-up').size()).to.equal(1);
+      expect(thisTooltipGroup.find('.timestamp').html()).to.equal('11:25 pm');
+      expect(thisTooltipGroup.find('polygon').size()).to.equal(2);
     });
 
-    it('should yield a two-line tooltip on hover if it is an extended bolus', function() {
+    it('should yield an expanded, right and up tooltip on hover if it is an extended bolus near the left edge', function() {
       var extended = $(boluses[12]);
       extended.simulate('mouseover');
       var extendedTooltipGroup = container.find('#tidelineTooltips_bolus').find('.d3-tooltip').filter(':last');
-      expect(extendedTooltipGroup.find('image').attr('href')).to.equal(images.bolus['tooltip_bolus_large.svg']);
-      expect(extendedTooltipGroup.find('text').filter('.d3-tooltip-timestamp').html()).to.equal('at 2:25 AM');
-      expect(extendedTooltipGroup.find('rect').size()).to.be.above(0);
+      expect(extendedTooltipGroup.find('.svg-tooltip-right-and-up').size()).to.equal(1);
+      expect(extendedTooltipGroup.find('.timestamp').html()).to.equal('2:25 am');
+      expect(extendedTooltipGroup.find('polygon').size()).to.equal(2);
     });
   });
 });

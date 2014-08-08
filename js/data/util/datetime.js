@@ -178,6 +178,19 @@ var datetime = {
     return date.toISOString().slice(0,10);
   },
 
+  smbgEdge: function(d) {
+    var date = new Date(d);
+    if (date.getUTCHours() <= 2) {
+      return 'left';
+    }
+    else if (date.getUTCHours() >= 21) {
+      return 'right';
+    }
+    else {
+      return null;
+    }
+  },
+
   verifyEndpoints: function(s, e, endpoints) {
     if (!endpoints) {
       return null;
