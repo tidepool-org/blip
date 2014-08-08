@@ -1,15 +1,18 @@
 {
   "name": "tideline",
+  "version": "0.0.48",
+  "description": "Tidepool's timeline data visualization",
   "repository": {
     "type": "git",
     "url": "https://github.com/tidepool-org/tideline.git"
   },
-  "version": "0.0.48",
   "main": "js/index.js",
   "scripts": {
     "test": "testem",
     "start": "webpack-dev-server --devtool source-map --cache --colors --progress --content-base example --port 8081",
-    "build-test": "webpack './test/index.js' --output-path './' --output-file '_test.js' --devtool source-map"
+    "build-test": "webpack './test/index.js' --output-path './tmp' --output-file '_test.js' --devtool source-map",
+    "jshint": "gulp jshint",
+    "jshint-watch": "gulp jshint-watch"
   },
   "dependencies": {
     "bows": "0.5.0",
@@ -28,14 +31,16 @@
     "envify": "~1.2.1",
     "envify-loader": "~0.1.0",
     "file-loader": "~0.5.1",
-    "gulp": "~3.8.1",
+    "gulp": "^3.8.7",
     "gulp-browserify": "~0.5.0",
+    "gulp-jshint": "^1.8.4",
     "gulp-less": "~1.2.3",
     "gulp-rename": "~1.2.0",
     "gulp-testem": "0.0.1",
     "gulp-util": "~2.2.17",
     "jquery": "~2.1.1",
     "jquery-simulate": "git://github.com/jquery/jquery-simulate.git#b91832e9f1f65ee6c6f2dc93a5e917735c33db8e",
+    "jshint-stylish": "^0.4.0",
     "json-loader": "^0.5.1",
     "jsx-loader": "~0.10.2",
     "less": "~1.7.4",

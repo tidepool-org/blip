@@ -8,8 +8,8 @@
   "serve_files": [
     "node_modules/jquery/dist/jquery.js",
     "node_modules/jquery-simulate/jquery.simulate.js",
-    "_test.js",
-    "_test.js.map"
+    "tmp/_test.js",
+    "tmp/_test.js.map"
   ],
   "before_tests": "npm run build-test",
   "launch_in_dev": [ "chrome" ]

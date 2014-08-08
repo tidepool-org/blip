@@ -85,6 +85,20 @@ To run the tests in Chrome using [Mocha](http://visionmedia.github.io/mocha/ 'Mo
 $ npm test
 ```
 
+#### JSHint
+
+Run JSHint with:
+
+```bash
+$ npm run jshint
+```
+
+You can also watch files for changes and re-run automatically by starting:
+
+```bash
+$ npm run jshint-watch
+```
+
 ## Code Philosophy and Organization
 
 Tideline is designed to be highly modular and framework-independent. It is currently being used in conjunction with [React](http://facebook.github.io/react/ 'React') in Tidepool's first application [blip](https://github.com/tidepool-org/blip 'blip').
