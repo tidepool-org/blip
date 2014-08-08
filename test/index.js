@@ -14,6 +14,13 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+ 
+// DOM required
+// ====================================
+require('../css/tideline.less');
+require('./less/test.less');
+
+require('./viz/oneday_test');
 
 // DOM not required
 // ====================================
@@ -27,9 +34,3 @@ require('./tidelinedata_test');
 require('./timeline_test');
 require('./watson_test');
 
-// DOM required
-// ====================================
-require('../css/tideline.less');
-require('./less/test.less');
-
-require('./viz/oneday_test');
