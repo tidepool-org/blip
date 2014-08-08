@@ -1,15 +1,15 @@
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -26,6 +26,7 @@ module.exports = function(pool, opts) {
     width: 12,
     r: 14,
     suspendMarkerWidth: 5,
+    suspendMarkerHeight: 2,
     bolusStroke: 2,
     triangleSize: 6,
     carbPadding: 4,
@@ -239,6 +240,7 @@ module.exports = function(pool, opts) {
         });
     },
     suspended: function(suspended) {
+      //draw the line
       suspended.append('rect')
         .attr({
           x: function(d) {
@@ -251,8 +253,27 @@ module.exports = function(pool, opts) {
             return opts.yScale(d.value);
           },
           width: opts.width,
-          height: 2,
+          height: opts.suspendMarkerHeight,
           class: 'd3-rect-suspended d3-bolus'
+        });
+
+      //draw color in the suspended portion
+      suspended.append('rect')
+        .attr({
+          x: function(d) {
+            d = pluckBolus(d);
+            return xPosition(d);
+          },
+          y: function(d) {
+            d = pluckBolus(d);
+            return opts.yScale(getValue(d));
+          },
+          width: opts.width,
+          height: function(d) {
+            d = pluckBolus(d);
+            return opts.yScale(d.value) - opts.yScale(getValue(d)) - 1;
+          },
+          class: 'd3-rect-suspended-bolus d3-bolus'
         });
     },
     underride: function(underride) {
@@ -328,7 +349,7 @@ module.exports = function(pool, opts) {
             d = pluckBolus(d);
             var rightEdge = xPosition(d) + opts.width;
             var doseHeight = computePathHeight(d);
-            var doseEnd = opts.xScale(Date.parse(d.normalTime) + d.duration) - opts.triangleSize / 2;
+            var doseEnd = opts.xScale(Date.parse(d.normalTime) + d.duration);
             return 'M' + rightEdge + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
           },
           'stroke-width': opts.bolusStroke,
@@ -360,7 +381,15 @@ module.exports = function(pool, opts) {
             }
           },
           'stroke-width': opts.bolusStroke,
-          class: 'd3-path-extended-triangle d3-bolus',
+          class: function(d) {
+            d = pluckBolus(d);
+
+            if (d.suspendedAt) {
+              return 'd3-path-extended-triangle-suspended d3-bolus';
+            }
+
+            return 'd3-path-extended-triangle d3-bolus';
+          },
           id: function(d) {
             d = pluckBolus(d);
             return 'bolus_' + d.id;
@@ -375,14 +404,41 @@ module.exports = function(pool, opts) {
             d = pluckBolus(d);
             var rightEdge = opts.xScale(Date.parse(d.suspendedAt)) + opts.width;
             var doseHeight = computePathHeight(d);
-            // don't make red marker show beyond initial expected delivery
-            var expectedEnd = opts.xScale(Date.parse(d.normalTime) + d.duration) - opts.triangleSize;
+            var expectedEnd = opts.xScale(Date.parse(d.normalTime) + d.duration);
             var doseEnd = rightEdge + 5;
 
             return 'M' + rightEdge + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
           },
           'stroke-width': opts.bolusStroke,
           class: 'd3-path-suspended d3-bolus'
+        });
+
+      suspended.append('path')
+        .attr({
+          d: function(d) {
+            d = pluckBolus(d);
+            var rightEdge = opts.xScale(Date.parse(d.suspendedAt)) + opts.width + opts.suspendMarkerWidth;
+            var doseHeight = computePathHeight(d);
+            var doseEnd = opts.xScale(Date.parse(d.normalTime) + d.duration);
+            var suspendedEnd = opts.xScale(Date.parse(d.suspendedAt || 0)) + opts.width + opts.suspendMarkerWidth;
+
+            if(suspendedEnd < (doseEnd - opts.triangleSize)) {
+              return 'M' + rightEdge + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
+            }
+          },
+          'stroke-width': opts.bolusStroke,
+          class: function(d){
+            d = pluckBolus(d);
+            if (unknownDeliverySplit(d)) {
+              return 'd3-path-extended-suspended d3-bolus d3-unknown-delivery-split';
+            } else {
+              return 'd3-path-extended-suspended d3-bolus';
+            }
+          },
+          id: function(d) {
+            d = pluckBolus(d);
+            return 'bolus_' + d.id;
+          }
         });
     },
     tooltip: {
