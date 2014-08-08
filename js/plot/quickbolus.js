@@ -28,11 +28,6 @@ module.exports = function(pool, opts) {
   opts = opts || {};
 
   var defaults = {
-    classes: {
-      'unspecial': {'tooltip': 'tooltip_bolus_small.svg', 'width': 70, 'height': 24},
-      'two-line': {'tooltip': 'tooltip_bolus_large.svg', 'width': 98, 'height': 39},
-      'three-line': {'tooltip': 'tooltip_bolus_extralarge.svg', 'width': 98, 'height': 58}
-    },
     width: 12
   };
 

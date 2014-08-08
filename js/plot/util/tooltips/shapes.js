@@ -103,29 +103,115 @@ var shapes = {
       }
     ],
     mainClass: 'svg-tooltip-basal',
-    orientations: {
-      normal: function(group) {
-        return group;
-      }
-    },
-    addForeignObject: function(selection, opts) {
-      return selection.append('foreignObject')
-        .attr({
-          x: 0,
-          y: 0,
-          width: 200,
-          height: 200,
-          visibility: 'hidden',
-          'class': 'svg-tooltip-fo'
-        })
-        .append('xhtml:div')
-        .attr({
-          'class': 'tooltip-div'
-        });
-    },
     extensions: {
       left: 15,
       right: 15
+    }
+  },
+  smbg: {
+    fixed: false,
+    els: [
+      {
+        el: 'polygon',
+        attrs: {
+          pointsFn: function(opts) {
+            var offset = 4;
+            var y = 12;
+            var x = 8;
+            return shapeutil.pointString(offset, -opts.h - offset) +
+              shapeutil.pointString(opts.w + offset, -opts.h - offset) +
+              shapeutil.pointString(opts.w + offset, -offset) +
+              shapeutil.pointString(offset+x, -offset) +
+              shapeutil.pointString(0, 0) +
+              shapeutil.pointString(offset, -y - offset) +
+              shapeutil.pointString(offset, -opts.h - offset).trim();
+          }
+        }
+      }
+    ],
+    mainClass: 'svg-tooltip-smbg',
+    orientations: {
+      normal: function(pointStr) {
+        return pointStr;
+      },
+      leftAndDown: function(str) {
+        return shapeutil.mirrorImageX(shapeutil.mirrorImageY(str));
+      },
+      leftAndUp: function(str) {
+        return shapeutil.mirrorImageY(str);
+      },
+      rightAndDown: function(str) {
+        return shapeutil.mirrorImageX(str);
+      }
+    },
+    offset: function(selection, opts) {
+      if (!arguments.length) return 4;
+      selection.attr({
+        x: opts.x,
+        y: opts.y
+      });
+    }
+  },
+  generic: {
+    fixed: false,
+    els: [
+      {
+        el: 'polygon',
+        attrs: {
+          pointsFn: function(opts) {
+            var offset = 8;
+            var y = 16;
+            var x = 12;
+            return shapeutil.pointString(offset, -opts.h - offset) +
+              shapeutil.pointString(opts.w + offset, -opts.h - offset) +
+              shapeutil.pointString(opts.w + offset, -offset) +
+              shapeutil.pointString(offset+x, -offset) +
+              shapeutil.pointString(0, 0) +
+              shapeutil.pointString(offset, -y - offset) +
+              shapeutil.pointString(offset, -opts.h - offset).trim();
+          }
+        }
+      },
+      {
+        el: 'polygon',
+        attrs: {
+          pointsFn: function(opts) {
+            var offset = 8;
+            var y = 16;
+            var x = 12;
+            return shapeutil.pointString(offset, -opts.h - offset) +
+              shapeutil.pointString(opts.w + offset, -opts.h - offset) +
+              shapeutil.pointString(opts.w + offset, -offset) +
+              shapeutil.pointString(offset+x, -offset) +
+              shapeutil.pointString(0, 0) +
+              shapeutil.pointString(offset, -y - offset) +
+              shapeutil.pointString(offset, -opts.h - offset).trim();
+          },
+          'class': 'no-stroke'
+        }
+      }
+    ],
+    mainClass: 'svg-tooltip-generic',
+    orientations: {
+      normal: function(pointStr) {
+        return pointStr;
+      },
+      leftAndDown: function(str) {
+        return shapeutil.mirrorImageX(shapeutil.mirrorImageY(str));
+      },
+      leftAndUp: function(str) {
+        return shapeutil.mirrorImageY(str);
+      },
+      rightAndDown: function(str) {
+        return shapeutil.mirrorImageX(str);
+      }
+    },
+    offset: function(selection, opts) {
+      if (!arguments.length) return 8;
+      selection.attr({
+        x: opts.x,
+        y: opts.y
+      });
     }
   }
 };
