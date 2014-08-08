@@ -49,14 +49,14 @@
     "shelljs": "0.3.0",
     "simple-glob": "0.1.0",
     "style-loader": "0.6.4",
-    "sundial": "0.1.3",
-    "tideline": "tidepool-org/tideline#v0.0.45",
-    "tidepool-platform-client": "0.6.0",
+    "sundial": "tidepool-org/sundial#a62e8272dae823f936bc2ba16d5fdd5a7ac63e6c",
+    "tideline": "tidepool-org/tideline#7fa6e073f2f97d2c2ae1b57c33b31f2cc6f70118",
+    "tidepool-platform-client": "tidepool-org/platform-client#4628bb9971e5dec0aeaa37883fb1c1495b848948",
     "url-loader": "0.5.5",
     "webpack": "1.3.3-beta1"
   },
   "devDependencies": {
-    "blip-mock-data": "tidepool-org/blip-mock-data#v0.2.5",
+    "blip-mock-data": "tidepool-org/blip-mock-data#8df3b113d0adda0b15e570bf5f65f30534833872",
     "chai-webdriver": "0.7.0",
     "grunt": "0.4.4",
     "grunt-cli": "0.1.13",
