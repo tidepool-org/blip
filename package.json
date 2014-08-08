@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "async": "0.9.0",
+    "autoprefixer-loader": "0.1.1",
     "bower": "1.3.8",
     "bows": "0.5.0",
     "connect": "3.1.0",
