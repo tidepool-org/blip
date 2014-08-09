@@ -15,9 +15,6 @@
 
 'use strict';
 
-// Until we bundle into distribution file properly with UMD
-// Workaround to grab dependency from global `window` object if available
-// and not call `require`
-var moment = (typeof window !== 'undefined' && typeof window.moment !== 'undefined') ? window.moment : require('moment');
+var moment = require('moment');
 
 module.exports = require('./lib/datetimeWrapper.js')(moment);

@@ -1,8 +1,0 @@
-{
-  "name": "sundial",
-  "version": "0.1.4",
-  "description": "Tidepool's datetime wrapper",
-  "dependencies": {
-    "moment": "2.7.0"
-  }
-}
