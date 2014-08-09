@@ -13,8 +13,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var _ = window._;
-var moment = window.moment;
+var _ = require('lodash');
+var moment = require('moment');
 
 var datetimeUtils = {};
 

@@ -54,8 +54,8 @@ You can define your own validator factories:
 
 */
 
-var _ = window._;
-var moment = window.moment;
+var _ = require('lodash');
+var moment = require('moment');
 
 var validation = {
   required: function() {

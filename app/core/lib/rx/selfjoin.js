@@ -15,7 +15,7 @@
 
 'use strict';
 
-var Rx = window.Rx;
+var Rx = require('rx');
 
 /**
  * A self-join is a join operation done on a single stream of objects.

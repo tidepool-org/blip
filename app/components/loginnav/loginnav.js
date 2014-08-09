@@ -14,12 +14,13 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = window.React;
+var React = require('react');
+
+var logoSrc = require('./images/tidepool-logo-370x40.png');
 
 var LoginNav = React.createClass({
   propTypes: {
     page: React.PropTypes.string,
-    imagesEndpoint: React.PropTypes.string,
     trackMetric: React.PropTypes.func.isRequired
   },
 
@@ -43,6 +44,19 @@ var LoginNav = React.createClass({
           </ul>
         </div>
       </div>
+    );
+    /* jshint ignore:end */
+  },
+
+  renderLogo: function() {
+    /* jshint ignore:start */
+    return (
+      <a
+        href="http://tidepool.org/"
+        target="_blank"
+        className="login-nav-tidepool-logo" >
+        <img src={logoSrc} alt="Tidepool"/>
+      </a>
     );
     /* jshint ignore:end */
   },
@@ -75,21 +89,6 @@ var LoginNav = React.createClass({
         className={className}><i className={icon}></i>{' ' + text}</a>
       /* jshint ignore:end */
     );
-  },
-
-  renderLogo: function() {
-    var imageSource = this.props.imagesEndpoint + '/tidepool-logo-370x40.png';
-
-    /* jshint ignore:start */
-    return (
-      <a
-        href="http://tidepool.org/"
-        target="_blank"
-        className="login-nav-tidepool-logo">
-        <img src={imageSource} alt="Tidepool"/>
-      </a>
-    );
-    /* jshint ignore:end */
   }
 });
 

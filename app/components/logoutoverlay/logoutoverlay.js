@@ -14,7 +14,7 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = window.React;
+var React = require('react');
 
 var LogoutOverlay = React.createClass({
   FADE_OUT_DELAY: 200,

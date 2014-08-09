@@ -15,7 +15,7 @@
 
 'use strict';
 
-var Rx = window.Rx;
+var Rx = require('rx');
 
 function carbsFromWizard(datum) {
   if (datum.type === 'wizard') {

@@ -1,3 +1,5 @@
+var _ = require('lodash');
+
 var SimpleForm = require('../../app/components/simpleform');
 
 describe('SimpleForm', function() {

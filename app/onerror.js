@@ -13,9 +13,7 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-/* global app */
-
-window.onerror = function myErrorHandler(errorMessage, fileUrl, lineNumber) {
+module.exports = function myErrorHandler(errorMessage, fileUrl, lineNumber) {
   var html = [
     '<p>',
     'Sorry! Something went wrong. It\'s our fault, not yours.',
@@ -62,5 +60,3 @@ window.onerror = function myErrorHandler(errorMessage, fileUrl, lineNumber) {
   // Let default handler run
   return false;
 };
-
-app.start();

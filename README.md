@@ -18,40 +18,28 @@ Table of contents:
 - [Development](#development)
     - [Code organization](#code-organization)
     - [React components](#react-components)
-    - [Development server](#development-server)
-    - [Browserify](#browserify)
-    - [Entry point](#entry-point)
+    - [Webpack](#webpack)
     - [Config object](#config-object)
-    - [Vendor packages](#vendor-packages)
+    - [Dependencies](#dependencies)
     - [Debugging](#debugging)
-    - [CSS](#css)
-    - [Images](#images)
-    - [Fonts](#fonts)
+    - [Less](#less)
     - [Icons](#icons)
     - [JSHint](#jshint)
     - [Mock mode](#mock-mode)
     - [Perceived speed](#perceived-speed)
 - [Testing](#testing)
-    - [Unit tests](#unit-tests)
-    - [End-to-end tests](#end-to-end-tests)
-    - [Travis CI and Sauce Labs](#travis-ci-and-sauce-labs)
-- [Deployment](#deployment)
-    - [Build](#build)
-    - [Deploy](#deploy)
+- [Build and deployment](#build-and-deployment)
 
 ## Install
 
 Requirements:
 
 - [Node.js](http://nodejs.org/)
-- [Bower](http://bower.io/) (`npm install -g bower`)
-- [Gulp](https://github.com/wearefractal/gulp) (`npm install -g gulp`)
 
 Clone this repo then install dependencies:
 
 ```bash
 $ npm install
-$ bower install
 ```
 
 ## Quick start
@@ -59,20 +47,20 @@ $ bower install
 Start the development server (in "mock mode") with:
 
 ```bash
-$ export MOCK=true
-$ node develop
+$ source config/mock.sh
+$ npm start
 ```
 
 Open your web browser and navigate to `http://localhost:3000/`.
 
 ## Config
 
-Configuration values (such as API keys) are set with environment variables (see `config/sample.sh`).
+Configuration values are set with environment variables (see `config/sample.sh`).
 
 You can set environment variables manually, or use a bash script. For example:
 
 ```bash
-source config/dev.sh
+source config/devel.sh
 ```
 
 Ask the project owners to provide you with config scripts for different environments, or you can create one of your own. It is recommended to put them in the `config/` directory, where they will be ignored by Git.
@@ -105,35 +93,55 @@ More on state:
 - Each page (`app/pages`) can hold some state specific to that page
 - Reusable components (`app/components`) typically hold no state (with rare exceptions, like forms)
 
-### Development server
+### Webpack
 
-For development, we use [Connect](http://www.senchalabs.org/connect/) and custom middlewares to compile and serve the app's files (see `develop.js`). You can start the development server by running `$ node develop`.
+We use [Webpack](http://webpack.github.io/) to package all source files into a bundle that can be distributed to the user's browser. We also use CommonJS to import any module or asset.
 
-### Browserify
+Require a JavaScript file, npm package, or JSON file like you would normally in Node:
 
-The web app uses [Browserify](http://browserify.org/) to manage its code base. The main file used to create the Browserify bundle is `app/app.js`.
+```javascript
+// app.js
+var foo = require('./foo');
+var React = require('react');
+var pkg = require('../package.json');
+```
 
-### Entry point
+You can also require a Less file, which will be added to the page as a `<style>` tag:
 
-A single "entry point" fires up the app: `app.start()`. It is the only method that gets called when the code runs. This method also calls `app.init(callback)` and waits for it to finish (authentication, fetching initial data, etc.) before starting the router.
+```javascript
+// app.js
+require('./style.less');
+```
 
-This entry point is called from `app/start.js`, which is not included in the Browserify app bundle.
+To use an image, the require statement will either return the URL to the image, or encode it directly as a string (depending on its size). Both are suitable for `src` or `href` attributes.
+
+```javascript
+// avatar.js
+var imgSrc = require('./default-avatar.png');
+
+var html = '<img src="' + imgSrc + '" />';
+```
+
+Assets, like fonts, can also be required in Less files (Webpack will apply the same logic described above for images in JS files):
+
+```less
+@font-face {
+  font-family: 'Blip Icons';
+  src: url('../fonts/blip-icons.eot');
+}
+```
 
 ### Config object
 
-A global `window.config` object is created to hold all the config values set by the environment variables.
+The `config.app.js` file will have its `process.env.FOO` statements replaced by the value of the corresponding environment variable when the build or development server is run. This is done thanks to [envify](https://github.com/hughsk/envify).
 
-This is done in the `app/config.js` file, which is actually a Lodash template (and is not included in the Browserify app bundle).
+### Dependencies
 
-### Vendor packages
+All third-party dependencies are installed through npm, and need to be `require`able through the CommonJS format.
 
-Third-party dependencies are managed with [Bower](http://bower.io/). If a particular repository is not in the Bower registry, you can still install it by providing the URL to a tag or commit hash, for example:
+If a dependency is needed directly in the app, by the build step, or by the production server, it should go in `dependencies` in the `package.json`. This is because we use `npm install --production` when deploying.
 
-```bash
-bower install --save https://github.com/user/repo.git#1.1.0
-```
-
-Be sure to update `files.js` when installing a new package. After doing so, you will also need to restart `$ node develop`.
+All other dependencies used in development (testing, development server, etc.), can go in the `devDependencies`.
 
 ### Debugging
 
@@ -148,7 +156,7 @@ app.foo = {
 };
 ```
 
-### CSS
+### Less
 
 Prefix all CSS classes with the component name. For example, if I'm working on the `PatientList` component, I'll prefix CSS classes with `patient-list-`.
 
@@ -183,33 +191,6 @@ Keep all elements and styles **responsive**, i.e. make sure they look good on an
 
 If using class names to select elements from JavaScript (for tests, or using jQuery), prefix them with `js-`. That way style changes and script changes can be done more independently.
 
-### JSHint
-
-In a separate terminal, you can watch and lint JS files with:
-
-```bash
-$ gulp jshint-watch
-```
-
-### Images
-
-Images should be placed directly inside each component's directory, under an `images/` subfolder. For example, the component located in the `navbar/` folder, might have an image `logo.png` that would be saved in `navbar/images/logo.png`.
-
-The app is then passed an `IMAGES_ENDPOINT` value in the `config` object, that you can use to generate the image `src` attribute by just appending the component's name and the name of the image file. In our example:
-
-```javascript
-var componentImageEndpoint = config.IMAGES_ENDPOINT + '/navbar';
-var imageSource = componentImageEndpoint + '/logo.png';
-```
-
-Reusable components (`app/components/`) shouldn't access the `config` object directly, so you should generate the `componentImageEndpoint` value above from a "page" component (`app/pages`), and pass it to the reusable component through a `props` value.
-
-At build-time, images all get bundled into `build/<version>/images/<component>/` directories. When adding images, don't forget to update `files.js` with the correct paths.
-
-### Fonts
-
-Font files are added to the `app/core/fonts` folder. The CSS rules to import the fonts are put in the Lodash template `app/index.html`, because we use a configuration variable to change the URL to the font files, according to whether we are working in development or building for production.
-
 ### Icons
 
 We use an icon font for app icons (in `app/core/fonts/`). To use an icon, simply add the correct class to an element (convention is to use the `<i>` element), for example:
@@ -220,13 +201,27 @@ We use an icon font for app icons (in `app/core/fonts/`). To use an icon, simply
 
 Take a look at the `app/core/less/icons.less` file for available icons.
 
+### JSHint
+
+In a separate terminal, you can lint JS files with:
+
+```bash
+$ npm run jshint
+```
+
+You can also watch files and re-run JSHint on changes with:
+
+```bash
+$ npm run jshint-watch
+```
+
 ### Mock mode
 
 For local development, demoing, or testing, you can run the app in "mock" mode by setting the environment variable `MOCK=true` (to turn it off use `MOCK=''`). In this mode, the app will not make any calls to external services, and use dummy data contained in `.json` files.
 
 All app objects (mostly app services) that make any external call should have their methods making these external calls patched by a mock. These are located in the `mock/` directory. To create one, return a `patchService(service)` function (see existing mocks for examples).
 
-Mock data is generated from `.json` files, which are combined into a JavaScript object that mirrors the directory structure of the data files (for example `patients/11.json` will be available at `data.patients['11']`). Set the data file directory to use with the `MOCK_DATA_DIR` environment variable (defaults to `node_modules/blip-mock-data/default`).
+Mock data is generated from `.json` files, which are combined into a JavaScript object that mirrors the directory structure of the data files (for example `patients/11.json` will be available at `data.patients['11']`). See the [blip-mock-data](https://github.com/tidepool-org/blip-mock-data) repository for more details.
 
 You can configure the behavior of mock services using **mock parameters**. These are passed through the URL query string (before the hash), for example:
 
@@ -266,145 +261,47 @@ For forms, we try as much as possible to "save optimistically", meaning when the
 
 ## Testing
 
-Rules for what to cover with unit or end-to-end tests are more or less:
+We use [Mocha](http://visionmedia.github.io/mocha/) with [Chai](http://chaijs.com/) for the test framework, [Sinon.JS](http://sinonjs.org/) and [Sinon-Chai](https://github.com/domenic/sinon-chai) for spy, stubs.
 
-- **Unit** tests: All the small pieces, i.e. reusable UI **Components** and core **Services**
-- **End-to-end** tests: Higher-level app behavior, which will test the main **App** object, the **Router**, and **Pages**
-
-### Unit tests
-
-We use [Mocha](http://visionmedia.github.io/mocha/) with [Chai](http://chaijs.com/) for the test framework, [Sinon.JS](http://sinonjs.org/) and [Sinon-Chai](https://github.com/domenic/sinon-chai) for spy, stubs, and mocks, and [Testem](https://github.com/airportyh/testem) as the test runner.
-
-To run the tests locally, first install Testem:
+To run the unit tests, use:
 
 ```bash
-$ npm install -g testem
+$ npm test
 ```
 
-Then run:
+Then open `http://localhost:8080/webpack/test` in your browser.
 
-```
-$ testem
-```
+This also watches files and re-runs the tests when you make changes.
 
-This will open and run the tests in Chrome by default. You can also open other browsers and point them to the specified URL.
+## Build and deployment
 
-### End-to-end tests
+The app is built as a static site in the `dist/` directory.
 
-End-to-end (E2E) tests use [Selenium](https://code.google.com/p/selenium/) for browser automation with the [WebDriverJS](https://code.google.com/p/selenium/wiki/WebDriverJs) Node.js bindings. They also use the Mocha with Chai framework.
+We use [Shio](https://github.com/tidepool-org/shio) to deploy, so we separate the build in two.
 
-To run E2E tests locally on Chrome, first insall the Selenium [ChromeDriver](https://code.google.com/p/selenium/wiki/ChromeDriver):
+Shio's `build.sh` script will take care of building the app itself with:
 
 ```bash
-$ make install-selenium
+$ npm run build-app
 ```
 
-This will download and unzip the `chromedriver` executable in the `test/bin` directory.
-
-**Note**: If not on Mac OSX, change the `CHROMEDRIVER_ZIP` environment variable to the correct one for your OS (see the [ChromeDriver downloads](http://chromedriver.storage.googleapis.com/index.html)), and `test/scripts/install_selenium.sh`).
-
-Before running the tests, build the app (in mock mode) and start a local server in a separate terminal:
+Shio's `start.sh` script then builds the config from environment variables as a separate file with:
 
 ```bash
-$ export MOCK=true; gulp
-$ node server
+$ source config/env.sh
+$ npm run build-config
 ```
 
-(You can also run the tests in development with `export MOCK=true; node develop`.)
-
-Finally, run the tests with:
+After that, the app is ready to be served using the static web included in this repo:
 
 ```bash
-$ make test-e2e
+$ npm run server
 ```
 
-Since E2E tests can be a little slow, you can run only a particular test by setting the `E2E_TESTS` variable, for example:
+You can also build everything at once locally by simply running:
 
 ```bash
-$ make test-e2e E2E_TESTS=test/e2e/login_scenarios.js
+$ source config/mock.sh
+$ npm run build
+$ npm run server
 ```
-
-### Travis CI and Sauce Labs
-
-We automate our builds and testing using [Travis CI](https://travis-ci.org/), and run both unit and end-to-end tests in different browsers and platforms thanks to [Sauce Labs](https://saucelabs.com).
-
-If you have the username and access key to our Sauce Labs account, you can also run the tests in different browsers from your local machine. Follow the instructions below, for each type of tests.
-
-In both cases, you will need to export the Sauce Labs credentials as environment variables:
-
-- `$ export SAUCE_USERNAME='...'`
-- `$ export SAUCE_ACCESS_KEY='...'`
-
-**Running Sauce Labs unit tests from local machine:**
-
-- Build the unit tests with `$ gulp before-tests`.
-
-- (Optional) You can verify the unit tests pass in your local browser first by running `$ grunt test-server` and pointing your browser to `http://localhost:9999/`. Hit `Ctrl/Cmd + C` when done.
-
-- Run the unit tests in Sauce Labs with `$ grunt test-saucelabs-local` (will spin up the test server on `localhost:9999` and send commands to Sauce Labs).
-
-**Running Sauce Labs end-to-end tests from local machine:**
-
-- Download [Sauce Connect](https://saucelabs.com/docs/connect) for your system. Unzip the archive, and copy `bin/sc` from the Sauce Connect directory to this project's `test/bin` folder.
-
-- In a separate terminal, start Sauce Connect with `$ make sc`.
-
-- Tell the end-to-end tests to use Sauce Labs by setting the environment variable `$ export SAUCE=true`.
-
-- (Optional) You can specify a browser and platform to use in Sauce Labs by setting an environment variable with the pattern: `$ export BROWSER='<browserName>:<version>:<platform>'` (ex: `$ export BROWSER='chrome:32:Windows 8.1`).
-
-- Build the app and run the end-to-end tests just like you would locally ([instructions above](#end-to-end-tests)).
-
-## Deployment
-
-### Build
-
-First load the config for the environment you wish to deploy to:
-
-```bash
-$ source config/dev.sh
-```
-
-Then build the static site to the `dist/` directory with [Gulp](https://github.com/wearefractal/gulp):
-
-```bash
-$ gulp
-```
-
-**Note**: The `version` number in `package.json` is used as a browser cache buster by building assets to `dist/build/<version>/`.
-
-If you want, you can test your build by running:
-
-```
-$ node server
-```
-
-### Deploy
-
-After building, the `dist/` directory contains files ready to be deployed to any static file server.
-
-To deploy to [Amazon S3](http://aws.amazon.com/s3/), we recommend the Ruby gem [s3_website](https://github.com/laurilehmijoki/s3_website). Install it with:
-
-```bash
-$ gem install s3_website --no-document
-```
-
-The tool reads configuration from environment variables through `s3_website.yml`. Load the config for the environment you wish to deploy to:
-
-```bash
-$ source config/dev.sh
-```
-
-If the target Amazon S3 bucket is not created and configured yet, you can run:
-
-```bash
-$ s3_website cfg apply
-```
-
-Finally, deploy using:
-
-```bash
-$ s3_website push --site dist
-```
-
-**Note**: If asked to delete files that exist in the Amazon S3 bucket but not locally, you might want to say no. Indeed, since all app assets are self-contained in a `build/<version>/` folder, only `index.html` gets overwritten, and you should keep older builds around for visitors that haven't gotten the new `index.html` yet.

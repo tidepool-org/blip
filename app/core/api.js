@@ -15,13 +15,16 @@
 
 // Wrapper around the Tidepool client library
 
-var _ = window._;
-var async = window.async;
-var bows = window.bows;
-var config = window.config;
-var moment = window.moment;
-var Rx = window.Rx;
-var tidepool = window.tidepool;
+var _ = require('lodash');
+var async = require('async');
+var bows = require('bows');
+var moment = require('moment');
+var Rx = require('rx');
+
+var createTidepoolClient = require('tidepool-platform-client');
+var tidepool;
+
+var config = require('../config');
 
 var personUtils = require('./personutils');
 // devicedata just registers stuff on the Rx prototype,
@@ -35,7 +38,7 @@ var api = {
 
 api.init = function(cb) {
   var tidepoolLog = bows('Tidepool');
-  tidepool = tidepool({
+  tidepool = createTidepoolClient({
     host: config.API_HOST,
     uploadApi: config.UPLOAD_API,
     log: {

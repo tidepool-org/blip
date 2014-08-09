@@ -13,28 +13,10 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-// NOTE: This is a Lodash template
+var config = window.config;
 
-(function() {
-  window.config = {
-    VERSION: '<%= pkg.version %>' || '',
-    IMAGES_ENDPOINT: '<%= process.env.IMAGES_ENDPOINT %>' || 'images',
-    MOCK: booleanFromText('<%= process.env.MOCK %>', false),
-    MOCK_PARAMS: '<%= process.env.MOCK_PARAMS %>' || '',
-    UPLOAD_API: '<%= process.env.UPLOAD_API %>' || 'https://devel-uploads.tidepool.io',
-    API_HOST: '<%= process.env.API_HOST %>' || 'https://devel-api.tidepool.io',
-    SHOW_ACCEPT_TERMS: booleanFromText('<%= process.env.SHOW_ACCEPT_TERMS %>', true)
-  };
+if (!config) {
+  throw new Error('Expected `config` on the global `window` object');
+}
 
-  function booleanFromText(value, defaultValue) {
-    if (value === 'true') {
-      return true;
-    }
-
-    if (value === 'false') {
-      return false;
-    }
-
-    return defaultValue || false;
-  }
-}());
+module.exports = config;

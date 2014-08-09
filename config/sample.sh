@@ -3,7 +3,6 @@ export UPLOAD_API=''
 export SHOW_ACCEPT_TERMS=''
 
 export MOCK=''
-export MOCK_DATA_DIR=''
 export MOCK_PARAMS=''
 
 export SAUCE=''

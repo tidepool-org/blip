@@ -13,11 +13,9 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-// Expose Tidepool sundial datetime functions
-// Deprecate when sundial introduces a distribution bundle
+// NOTE: `window.config` is bundled separately
 
-var sundial = require('../../bower_components/sundial/sundial');
+var app = window.app = require('./app');
+window.onerror = require('./onerror');
 
-window.sundial = sundial;
-
-module.exports = sundial;
+app.start();

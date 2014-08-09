@@ -1,4 +1,4 @@
-var moment = window.moment;
+var moment = require('moment');
 var datetimeUtils = require('../../app/core/datetimeutils');
 
 // Mock today

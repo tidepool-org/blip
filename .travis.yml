@@ -14,15 +14,7 @@ env:
     # Disable e2e tests for now, as unreliable with Sauce Labs
     #- "TEST_SUITE=e2e BROWSER='chrome:32:Windows 8.1'"
 
-install:
-  - "npm install"
-  - "./node_modules/.bin/bower install"
-
-before_script:
-  - "./node_modules/.bin/gulp jshint"
-  - "./test/ci/build.sh"
-
 addons:
   sauce_connect: true
 
-script: "./test/ci/test.sh"
+script: "npm run jshint"

@@ -16,8 +16,8 @@
 'use strict';
 /* jshint -W015 */
 
-var _ = window._;
-var Rx = window.Rx;
+var _ = require('lodash');
+var Rx = require('rx');
 
 // Require it so that it gets registered
 require('../rx/selfjoin.js');

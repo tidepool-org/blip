@@ -14,13 +14,14 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = window.React;
-var _ = window._;
-var moment = window.moment;
-var bows = window.bows;
-var config = window.config;
+var React = require('react');
+var _ = require('lodash');
+var moment = require('moment');
+var bows = require('bows');
 
-var watson = window.tideline.watson;
+var watson = require('tideline/plugins/data/watson');
+
+var config = require('../../config');
 
 var utils = require('../../core/utils');
 var Header = require('../../components/chart').header;
@@ -293,8 +294,7 @@ var PatientData = React.createClass({
           onClose={this.closeMessageCreation}
           onSave={this.props.onCreateMessage}
           onNewMessage={this.handleMessageCreation}
-          onEdit={this.handleEditMessage}
-          imagesEndpoint={config.IMAGES_ENDPOINT + '/messages'} />
+          onEdit={this.handleEditMessage} />
       );
     } else if(this.state.messages) {
       return (
@@ -304,8 +304,7 @@ var PatientData = React.createClass({
           patient={this.props.patient}
           onClose={this.closeMessageThread}
           onSave={this.handleReplyToMessage}
-          onEdit={this.handleEditMessage}
-          imagesEndpoint={config.IMAGES_ENDPOINT + '/messages'} />
+          onEdit={this.handleEditMessage} />
       );
     }
     /* jshint ignore:end */

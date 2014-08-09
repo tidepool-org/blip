@@ -14,8 +14,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = window.React;
-var _ = window._;
+var React = require('react');
+var _ = require('lodash');
 
 var personUtils = require('../../core/personutils');
 var SimpleForm = require('../../components/simpleform');

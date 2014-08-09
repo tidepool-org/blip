@@ -14,10 +14,12 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = window.React;
-var _ = window._;
+var React = require('react');
+var _ = require('lodash');
 
 var personUtils = require('../../core/personutils');
+
+var logoSrc = require('./images/blip-logo-80x80.png');
 
 var Navbar = React.createClass({
   propTypes: {
@@ -28,7 +30,6 @@ var Navbar = React.createClass({
     fetchingPatient: React.PropTypes.bool,
     getUploadUrl: React.PropTypes.func,
     onLogout: React.PropTypes.func,
-    imagesEndpoint: React.PropTypes.string,
     trackMetric: React.PropTypes.func.isRequired
   },
 
@@ -63,7 +64,6 @@ var Navbar = React.createClass({
   },
 
   renderLogo: function() {
-    var imageSource = this.props.imagesEndpoint + '/blip-logo-80x80.png';
     var self = this;
     var handleClick = function() {
       self.props.trackMetric('Clicked Navbar Logo');
@@ -76,7 +76,7 @@ var Navbar = React.createClass({
           href="#/"
           className="navbar-logo"
           onClick={handleClick}>
-          <img src={imageSource} alt="Blip" ref="logo" />
+          <img src={logoSrc} alt="Blip" ref="logo" />
         </a>
       </li>
     );

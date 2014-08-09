@@ -14,9 +14,10 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = window.React;
-var _ = window._;
-var config = window.config;
+var React = require('react');
+var _ = require('lodash');
+
+var config = require('../../config');
 
 var LoginNav = require('../../components/loginnav');
 var LoginLogo = require('../../components/loginlogo');
@@ -54,9 +55,8 @@ var Login = React.createClass({
       <div className="login">
         <LoginNav
           page="login"
-          imagesEndpoint={config.IMAGES_ENDPOINT + '/loginnav'}
           trackMetric={this.props.trackMetric} />
-        <LoginLogo imagesEndpoint={config.IMAGES_ENDPOINT + '/loginlogo'} />
+        <LoginLogo />
         <div className="container-small-outer login-form">
           <div className="container-small-inner login-form-box">
             <div className="login-simpleform">{form}</div>

@@ -17,13 +17,13 @@
 // Packaged separately and included only if needed
 // Exposes all mocks on the global `window.mock` object
 
-var _ = window._;
+var _ = require('lodash');
+var mockData = require('blip-mock-data');
 
 var mock = {};
-window.mock = mock;
 
 mock.params = {};
-mock.data = window.data || {};
+mock.data = mockData;
 
 mock.setParams = function(newParams) {
   this.params = _.assign(this.params, newParams);

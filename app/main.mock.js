@@ -13,11 +13,12 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-// Expose Tidepool platform client library on global `window` object
-// Deprecate when client introduces a distribution bundle
+window.config = require('../config.app.js');
 
-var tidepool = require('../../bower_components/tidepool-platform-client/tidepool');
+var app = window.app = require('./app');
+window.onerror = require('./onerror');
 
-window.tidepool = tidepool;
+var mock = require('../mock');
+app.useMock(mock);
 
-module.tidepool = tidepool;
+app.start();

@@ -1,7 +1,7 @@
 /** @jsx React.DOM */
-var bows = window.bows;
-var React = window.React;
-var cx = React.addons.classSet;
+var bows = require('bows');
+var React = require('react');
+var cx = require('react/lib/cx');
 
 var tideline = {
   log: bows('Header')

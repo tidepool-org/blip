@@ -13,22 +13,25 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-// Expose Tideline library on global `window` object
-// Deprecate when Tideline introduces a distribution bundle
+var pkg = require('./package.json');
 
-var _ = window._;
-var bows = window.bows;
+function booleanFromText(value, defaultValue) {
+  if (value === 'true') {
+    return true;
+  }
 
-var tideline = require('../../bower_components/tideline/js');
-window.tideline = tideline;
+  if (value === 'false') {
+    return false;
+  }
 
-tideline.watson = require('../../bower_components/tideline/plugins/data/watson');
-window.tideline.watson = tideline.watson;
+  return defaultValue || false;
+}
 
-tideline.preprocess = require('../../bower_components/tideline/plugins/data/preprocess');
-window.tideline.preprocess = tideline.preprocess;
-
-tideline.blip = require('../../bower_components/tideline/plugins/blip');
-window.tideline.blip = tideline.blip;
-
-module.exports = tideline;
+module.exports = {
+  VERSION: pkg.version,
+  MOCK: booleanFromText(process.env.MOCK, false),
+  MOCK_PARAMS: process.env.MOCK_PARAMS || '',
+  UPLOAD_API: process.env.UPLOAD_API || 'https://devel-uploads.tidepool.io',
+  API_HOST: process.env.API_HOST || 'https://devel-api.tidepool.io',
+  SHOW_ACCEPT_TERMS: booleanFromText(process.env.SHOW_ACCEPT_TERMS, true)
+};

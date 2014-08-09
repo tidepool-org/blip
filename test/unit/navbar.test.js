@@ -26,15 +26,6 @@ describe('Navbar', function() {
     helpers.unmountComponent();
   });
 
-  it('should display logo image from correct endpoint', function() {
-    var imagesEndpoint = 'images/navbar/';
-
-    component.setProps({imagesEndpoint: imagesEndpoint});
-    var src = component.refs.logo.props.src;
-
-    expect(src).to.contain(imagesEndpoint);
-  });
-
   it('should correctly display app version number', function() {
     var versionNumber = '0.0.0';
     var expectedVersion = 'v' + versionNumber;
