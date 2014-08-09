@@ -1,4 +1,4 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
  * 
@@ -15,25 +15,21 @@
  * == BSD2 LICENSE ==
  */
 
-/*jshint expr: true */
-/*global describe, it */
-
 var chai = require('chai');
 var assert = chai.assert;
 var expect = chai.expect;
 
 var _ = require('lodash');
 
-var tideline = require('../js/index');
 var watson = require('../plugins/data/watson');
 var preprocess = require('../plugins/data/preprocess');
 var datetime = require('../js/data/util/datetime');
 var data = require('../example/data/device-data.json');
 var unshapedSettings = preprocess.runWatson(_.where(data, {type: 'settings'}));
 var settingsData = preprocess.sortBasalSchedules(unshapedSettings);
-var SegmentUtil = tideline.data.SegmentUtil;
-var SettingsUtil = tideline.data.SettingsUtil;
-var TidelineData = tideline.TidelineData;
+var SegmentUtil = require('../js/data/segmentutil');
+var SettingsUtil = require('../js/data/settingsutil');
+var TidelineData = require('../js/tidelinedata');
 
 describe('settings utilities', function() {
 

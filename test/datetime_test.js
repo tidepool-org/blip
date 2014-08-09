@@ -1,4 +1,4 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
  * 
@@ -15,17 +15,13 @@
  * == BSD2 LICENSE ==
  */
 
-/*jshint expr: true */
-/*global describe, it */
-
 var chai = require('chai');
 var assert = chai.assert;
 var expect = chai.expect;
 
 var _ = require('lodash');
 
-var tideline = require('../js/index');
-var dt = tideline.data.util.datetime;
+var dt = require('../js/data/util/datetime');
 
 describe('datetime utility', function() {
   describe('MS_IN_24', function() {

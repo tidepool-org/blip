@@ -1,4 +1,4 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
  * 
@@ -28,19 +28,8 @@
 // the main js/ directory.
 //
 
-if ((typeof window !== 'undefined') && (typeof window._ !== 'undefined')) {
-  var _ = window._;
-}
-else {
-  var _ = require('lodash');
-}
-
-try {
-  var log = window.bows('Watson');
-}
-catch (ReferenceError) {
-  var log = require('../../../js/lib/').bows('Watson');
-}
+var _ = require('lodash');
+var log = require('bows')('Watson');
 
 var dt = require('../../../js/data/util/datetime');
 
@@ -85,10 +74,10 @@ module.exports = {
           }
         }
         if (i.suppressed) {
-          for (var j = 0; j < i.suppressed.length; ++j) {
-            var s = i.suppressed[j];
-            s.normalTime = s.start + this.APPEND;
-            s.normalEnd = s.end + this.APPEND;
+          for (var m = 0; m < i.suppressed.length; ++m) {
+            var sup = i.suppressed[m];
+            sup.normalTime = sup.start + this.APPEND;
+            sup.normalEnd = sup.end + this.APPEND;
           }
         }
       }

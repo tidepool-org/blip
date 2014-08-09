@@ -15,12 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = require('../lib/')._;
+var _ = require('lodash');
 
 var datetime = require('./util/datetime');
 var TidelineCrossFilter = require('./util/tidelinecrossfilter');
 
-var log = require('../lib/').bows('BGUtil');
+var log = require('bows')('BGUtil');
 
 function BGUtil(data, opts) {
 

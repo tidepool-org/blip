@@ -15,14 +15,14 @@
  * == BSD2 LICENSE ==
  */
 
-var tideline = window.tideline;
-var watson = tideline.watson = require('../watson');
-var _ = tideline.lib._;
+var _ = require('lodash');
+var tideline = require('../../../js/index');
+var watson = require('../watson');
 var TidelineData = tideline.TidelineData;
 var SegmentUtil = tideline.data.SegmentUtil;
 var datetime = tideline.data.util.datetime;
 
-var log = tideline.lib.bows('Preprocess');
+var log = require('bows')('Preprocess');
 
 function alwaysTrue() {
   return true;
@@ -268,6 +268,7 @@ var preprocess = {
   sortBasalSchedules: function(data) {
     return _.map(data, function(d) {
       var schedules;
+      var getName = function(d) { return d.name; };
       if (d.type === 'settings') {
         schedules = this.basalSchedulesToArray(d.basalSchedules);
         if (d.source === 'carelink') {
@@ -276,7 +277,7 @@ var preprocess = {
               var standard = schedules[i];
               var index = schedules.indexOf(standard);
               schedules.splice(index, 1);
-              schedules = _.sortBy(schedules, function(d) { return d.name; });
+              schedules = _.sortBy(schedules, getName);
               schedules.unshift(standard);
               break;
             }

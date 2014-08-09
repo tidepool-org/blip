@@ -1,13 +1,16 @@
 {
-    "framework": "mocha",
-    "serve_files": [ "test/test.js" ],
-    "test_page": "test/html/test.html",
-    "src_files": [
-        "css/**/*.less",
-        "fonts/**/*.woff",
-        "img/**/*.svg",
-        "js/**/*.js",
-        "test/**/*.js"
-    ],
-    "launch_in_dev": [ "chrome" ]
+  "framework": "mocha",
+  "src_files": [
+    "js/**/*.js",
+    "plugins/**/*.js",
+    "test/**/*.js"
+  ],
+  "serve_files": [
+    "node_modules/jquery/dist/jquery.js",
+    "node_modules/jquery-simulate/jquery.simulate.js",
+    "tmp/_test.js",
+    "tmp/_test.js.map"
+  ],
+  "before_tests": "npm run build-test",
+  "launch_in_dev": [ "chrome" ]
 }

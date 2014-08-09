@@ -15,12 +15,12 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = require('./lib/').d3;
-var _ = require('./lib/')._;
+var d3 = require('d3');
+var _ = require('lodash');
 
 var legend = require('./plot/util/legend');
 
-var log = require('./lib/').bows('Pool');
+var log = require('bows')('Pool');
 
 function Pool (container) {
 
@@ -30,7 +30,6 @@ function Pool (container) {
     group,
     mainSVG = d3.select('#' + container.id()),
     xScale,
-    imagesBaseUrl = container.imagesBaseUrl(),
     yAxis = [],
     plotTypes = [],
     annotations,
@@ -99,10 +98,6 @@ function Pool (container) {
 
   this.width = function() {
     return container.width() - container.axisGutter();
-  };
-
-  this.imagesBaseUrl = function() {
-    return imagesBaseUrl;
   };
 
   // only once methods

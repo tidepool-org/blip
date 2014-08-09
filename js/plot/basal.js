@@ -1,4 +1,4 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
  * 
@@ -15,11 +15,11 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = require('../lib/').d3;
-var _ = require('../lib/')._;
+var d3 = require('d3');
+var _ = require('lodash');
 
 var format = require('../data/util/format');
-var log = require('../lib/').bows('Basal');
+var log = require('bows')('Basal');
 
 module.exports = function(pool, opts) {
   opts = opts || {};
@@ -37,13 +37,16 @@ module.exports = function(pool, opts) {
 
   function getUndelivereds(data) {
     var undelivereds = [];
+    function isScheduled(s) {
+      return s.deliveryType === 'scheduled';
+    }
     for (var i = 0; i < data.length; ++i) {
       var d = data[i];
       if (d.suppressed) {
         undelivereds = undelivereds
           // TODO: eventually we'll want a path for each category of suppresseds
           // where 'scheduled' is just one such category
-          .concat(_.filter(d.suppressed, function(s) { return s.deliveryType === 'scheduled'; }));
+          .concat(_.filter(d.suppressed, isScheduled));
       }
     }
     // there can be duplicate suppressed segments, not quite sure why this happens

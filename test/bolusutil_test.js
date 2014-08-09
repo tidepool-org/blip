@@ -1,4 +1,4 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
  * 
@@ -15,9 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-/*jshint expr: true */
-/*global describe, it */
-
 var chai = require('chai');
 var assert = chai.assert;
 var expect = chai.expect;
@@ -28,10 +25,9 @@ var Duration = require('duration-js');
 var watson = require('../plugins/data/watson');
 var data = watson.normalizeAll(require('../example/data/device-data.json'));
 
-var tideline = require('../js/index');
-var datetime = tideline.data.util.datetime;
-var format = tideline.data.util.format;
-var BolusUtil = tideline.data.BolusUtil;
+var datetime = require('../js/data/util/datetime');
+var format = require('../js/data/util/format');
+var BolusUtil = require('../js/data/bolusutil');
 
 describe('bolus utilities', function() {
   var bolus = new BolusUtil(_.where(data, {'type': 'bolus'}));

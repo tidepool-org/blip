@@ -1,4 +1,4 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
  * 
@@ -15,28 +15,17 @@
  * == BSD2 LICENSE ==
  */
 
-/*jshint expr: true */
-/*global describe, it */
-
 var chai = require('chai');
 var assert = chai.assert;
 var expect = chai.expect;
 
 var _ = require('lodash');
 
-try {
-  global.window = {
-    tideline: require('../js/')
-  };
-  global.window.tideline.watson = require('../plugins/data/watson/');
-}
-catch (TypeError) {}
-
 var data = require('../example/data/device-data.json');
 
 var Preprocess = require('../plugins/data/preprocess/');
 
-var settings = require('./fixtures/settings');
+var settings = require('./fixtures/settings.json');
 
 describe('Preprocess', function() {
   describe('REQUIRED_TYPES', function() {
@@ -224,7 +213,7 @@ describe('Preprocess', function() {
       _.forEach(Preprocess.REQUIRED_TYPES, function(type) {
         allEmpties.grouped[type] = [];
       });
-      
+
       expect(Preprocess.checkRequired(grouped)).to.eql(allEmpties);
     });
   });
@@ -329,7 +318,7 @@ describe('Preprocess', function() {
     it('should be a function', function() {
       assert.isFunction(Preprocess.basalSchedulesToArray);
     });
-    
+
     it('should return an array', function() {
       assert.isArray(Preprocess.basalSchedulesToArray(basalSchedules));
     });

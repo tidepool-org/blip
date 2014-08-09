@@ -1,4 +1,4 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
  * 
@@ -15,9 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-/*jshint expr: true */
-/*global describe, it */
-
 var chai = require('chai');
 var assert = chai.assert;
 var expect = chai.expect;
@@ -26,15 +23,7 @@ var _ = require('lodash');
 
 var data = require('../example/data/device-data.json');
 
-try {
-  global.window = {
-    tideline: require('../js/')
-  };
-  global.window.tideline.watson = require('../plugins/data/watson/');
-}
-catch (TypeError) {}
-
-var TidelineData = window.tideline.TidelineData;
+var TidelineData = require('../js/tidelinedata');
 var preprocess = require('../plugins/data/preprocess');
 
 describe('TidelineData', function() {

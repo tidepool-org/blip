@@ -15,11 +15,11 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = require('../lib/').d3;
-var _ = require('../lib/')._;
+var d3 = require('d3');
+var _ = require('lodash');
 
-var Duration = require('../lib/').Duration;
-var log = require('../lib/').bows('Wizard');
+var Duration = require('duration-js');
+var log = require('bows')('Wizard');
 
 var drawbolus = require('./util/drawbolus');
 
@@ -33,7 +33,6 @@ module.exports = function(pool, opts) {
   _.defaults(opts, defaults);
 
   var drawBolus = drawbolus(pool, opts);
-  var tideline = window.tideline;
   var mainGroup = pool.parent();
 
   var getValue = function(d) {
@@ -104,7 +103,7 @@ module.exports = function(pool, opts) {
       drawBolus.override(override);
 
       var extended = boluses.filter(function(d) {
-        if (d.bolus.extended == true) {
+        if (d.bolus.extended && d.bolus.extended === true) {
           return d;
         }
       });
