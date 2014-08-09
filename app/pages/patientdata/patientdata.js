@@ -49,7 +49,8 @@ var PatientData = React.createClass({
   },
 
   getInitialState: function() {
-    return {
+    var params = this.props.queryParams;
+    var state = {
       chartPrefs: {
         bgUnits: 'mg/dL',
         hiddenPools: {
@@ -64,16 +65,22 @@ var PatientData = React.createClass({
       initialDatetimeLocation: null,
       messages: null
     };
+
+    return state;
   },
 
   componentWillMount: function() {
     var params = this.props.queryParams;
-    if (!_.isEmpty(params) && params.showbasalsettings !== undefined) {
+
+    if (!_.isEmpty(params)) {
       this.setState({
         chartPrefs: {
+          bgUnits: this.state.chartPrefs.bgUnits,
           hiddenPools: {
-            basalSettings: params.showbasalsettings ? true : null
-          }
+            basalSettings: params.showbasalsettings ?  true : null
+          },
+          bolusRatio: params.dynamicCarbs ? 0.5 : 0.35,
+          dynamicCarbs: params.dynamicCarbs
         }
       });
     }
@@ -169,7 +176,7 @@ var PatientData = React.createClass({
     }
 
     /* jshint ignore:start */
-    return (      
+    return (
       <div>
         {header}
         <div className="container-box-outer patient-data-content-outer">
@@ -222,7 +229,7 @@ var PatientData = React.createClass({
       case 'daily':
         /* jshint ignore:start */
         return (
-          <Daily 
+          <Daily
             chartPrefs={this.state.chartPrefs}
             imagesBaseUrl={config.IMAGES_ENDPOINT + '/tideline'}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
@@ -241,7 +248,7 @@ var PatientData = React.createClass({
       case 'weekly':
         /* jshint ignore:start */
         return (
-          <Weekly 
+          <Weekly
             chartPrefs={this.state.chartPrefs}
             imagesBaseUrl={config.IMAGES_ENDPOINT + '/tideline'}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
@@ -260,7 +267,7 @@ var PatientData = React.createClass({
       case 'settings':
         /* jshint ignore:start */
         return (
-          <Settings 
+          <Settings
             chartPrefs={this.state.chartPrefs}
             patientData={this.props.patientData}
             onClickRefresh={this.handleClickRefresh}
