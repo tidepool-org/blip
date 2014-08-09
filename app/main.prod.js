@@ -13,9 +13,9 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+window.onerror = require('./onerror');
 // NOTE: `window.config` is bundled separately
 
 var app = window.app = require('./app');
-window.onerror = require('./onerror');
 
 app.start();
