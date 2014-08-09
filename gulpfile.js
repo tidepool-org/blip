@@ -9,7 +9,7 @@ var jsFiles = [
   '*.js'
 ];
 
-gulp.task('jshint', function(cb) {
+gulp.task('jshint', function() {
   var stream = gulp.src(jsFiles)
     .pipe(jshint())
     .pipe(jshint.reporter('jshint-stylish'));
@@ -18,14 +18,12 @@ gulp.task('jshint', function(cb) {
     stream = stream.pipe(jshint.reporter('fail'));
   }
 
-  stream.on('end', cb);
+  return stream;
 });
 
 gulp.task('jshint-watch', ['jshint'], function(cb){
-  gulp.watch(jsFiles, ['jshint']);
-
-  cb();
   console.log('Watching files for changes...');
+  gulp.watch(jsFiles, ['jshint']);
 });
 
 gulp.task('default', ['jshint']);
