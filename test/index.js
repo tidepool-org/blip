@@ -1,4 +1,4 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
  * 
@@ -14,18 +14,23 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+ 
+// DOM required
+// ====================================
+require('../css/tideline.less');
+require('./less/test.less');
 
-module.exports = {
-  viz: {
-    oneday_test: require('./viz/oneday_test')
-  },
-  annotations_test: require('./annotations_test'),
-  bgutil_test: require('./bgutil_test'),
-  bolusutil_test: require('./bolusutil_test'),
-  datetime_test: require('./datetime_test'),
-  preprocess_test: require('./preprocess_test'),
-  settingsutil_test: require('./settingsutil_test'),
-  tidelinedata_test: require('./tidelinedata_test'),
-  timeline_test: require('./timeline_test'),
-  watson_test: require('./watson_test')
-};
+require('./viz/oneday_test');
+
+// DOM not required
+// ====================================
+require('./annotations_test');
+require('./bgutil_test');
+require('./bolusutil_test');
+require('./datetime_test');
+require('./preprocess_test');
+require('./settingsutil_test');
+require('./tidelinedata_test');
+require('./timeline_test');
+require('./watson_test');
+

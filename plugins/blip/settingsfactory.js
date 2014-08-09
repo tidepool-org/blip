@@ -1,4 +1,4 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
  * 
@@ -15,13 +15,13 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = window._;
-var bows = window.bows;
-var d3 = window.d3;
+var _ = require('lodash');
+var bows = require('bows');
+var d3 = require('d3');
 
 var EventEmitter = require('events').EventEmitter;
 
-var tideline = window.tideline;
+var tideline = require('../../js/index');
 
 function settingsFactory(el, options) {
   var log = bows('Settings Factory');

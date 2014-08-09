@@ -15,9 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = require('../lib/')._;
+var _ = require('lodash');
 
-var log = require('../lib/').bows('DataUtil');
+var log = require('bows').bows('DataUtil');
 
 function DataUtil(data) {
   this.data = data || [];

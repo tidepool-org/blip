@@ -1,4 +1,4 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
  * 
@@ -15,15 +15,15 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = require('./lib/').d3;
-var _ = require('./lib/')._;
+var d3 = require('d3');
+var _ = require('lodash');
 
 var Pool = require('./pool');
 var annotation = require('./plot/util/annotations/annotation');
 var Tooltips = require('./plot/util/tooltips/tooltip');
 var dt = require('./data/util/datetime');
 
-var log = require('./lib/').bows('One Day');
+var log = require('bows')('One Day');
 
 module.exports = function(emitter) {
 
@@ -35,7 +35,6 @@ module.exports = function(emitter) {
     minWidth = 400, minHeight = 400,
     width = minWidth, height = minHeight,
     poolScaleHeight,
-    imagesBaseUrl = 'img',
     nav = {
       scrollNav: true,
       scrollNavHeight: 50,
@@ -227,7 +226,7 @@ module.exports = function(emitter) {
   container.svg = function() {
     return mainSVG;
   };
-  
+
   container.pools = function() {
     return pools;
   };
@@ -476,12 +475,6 @@ module.exports = function(emitter) {
     return container;
   };
 
-  container.imagesBaseUrl = function(x) {
-    if (!arguments.length) return imagesBaseUrl;
-    imagesBaseUrl = x;
-    return container;
-  };
-
   container.latestTranslation = function(x) {
     if (!arguments.length) return nav.latestTranslation;
     nav.latestTranslation = x;
@@ -510,10 +503,14 @@ module.exports = function(emitter) {
     if (!arguments.length) return data;
 
     if (! (a && Array.isArray(a.data) && a.data.length > 0)) {
+      /* jshint ignore:start */
       throw new Error("Sorry, I can't render anything without /some/ data.");
+      /* jshint ignore:end */
     }
     else if (a.data.length === 1) {
+      /* jshint ignore:start */
       throw new Error("Sorry, I can't render anything with only *one* datapoint.");
+      /* jshint ignore:end */
     }
 
     tidelineData = a;
@@ -532,7 +529,9 @@ module.exports = function(emitter) {
 
     endpoints = [first, last];
     if (last.valueOf() - first.valueOf() < dt.MS_IN_24) {
+      /* jshint ignore:start */
       throw new Error("Sorry, I can't render anything when the endpoints of your data are less than 24 hours apart.");
+      /* jshint ignore:end */
     }
     container.endpoints = endpoints;
 

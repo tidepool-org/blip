@@ -15,10 +15,10 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = require('../lib/').d3;
-var _ = require('../lib/')._;
+var d3 = require('d3');
+var _ = require('lodash');
 
-var log = require('../lib/').bows('SMBG');
+var log = require('bows')('SMBG');
 var format = require('../data/util/format');
 var scales = require('./util/scales')();
 var bgBoundaryClass = require('./util/bgboundary');

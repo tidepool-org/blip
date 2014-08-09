@@ -1,4 +1,4 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
  * 
@@ -15,17 +15,18 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = require('../lib/').d3;
-var _ = require('../lib/')._;
+var d3 = require('d3');
+var _ = require('lodash');
 
-var log = require('../lib/').bows('Message');
+var postItImage = require('../../img/message/post_it.svg');
+
+var log = require('bows')('Message');
 
 module.exports = function(pool, opts) {
 
   opts = opts || {};
 
   var defaults = {
-    imagesBaseUrl: pool.imagesBaseUrl(),
     highlightWidth: 4
   };
 
@@ -63,7 +64,7 @@ module.exports = function(pool, opts) {
 
   message.addMessageToPool = function(selection) {
     opts.xScale = pool.xScale().copy();
-    
+
     selection.append('rect')
       .attr({
         x: message.highlightXPosition,
@@ -75,7 +76,7 @@ module.exports = function(pool, opts) {
 
     selection.append('image')
       .attr({
-        'xlink:href': opts.imagesBaseUrl + '/message/post_it.svg',
+        'xlink:href': postItImage,
         cursor: 'pointer',
         x: message.xPosition,
         y: message.yPosition,

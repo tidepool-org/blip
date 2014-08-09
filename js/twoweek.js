@@ -15,15 +15,15 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = require('./lib/').d3;
-var _ = require('./lib/')._;
+var d3 = require('d3');
+var _ = require('lodash');
 
 var Pool = require('./pool');
 var annotation = require('./plot/util/annotations/annotation');
 var Tooltips = require('./plot/util/tooltips/tooltip');
 var legend = require('./plot/util/legend');
 
-var log = require('./lib/').bows('Two Week');
+var log = require('bows')('Two Week');
 
 module.exports = function(emitter) {
   // constants
@@ -33,7 +33,6 @@ module.exports = function(emitter) {
   var id,
     minWidth = 400, minHeight = 400,
     width = minWidth, height = minHeight,
-    imagesBaseUrl = 'img',
     nav = {
       axisHeight: 60,
       navGutter: 30,
@@ -725,12 +724,6 @@ module.exports = function(emitter) {
     else {
       height = minHeight;
     }
-    return container;
-  };
-
-  container.imagesBaseUrl = function(x) {
-    if (!arguments.length) return imagesBaseUrl;
-    imagesBaseUrl = x;
     return container;
   };
 

@@ -14,19 +14,16 @@ More information is also available in [the wiki](https://github.com/tidepool-org
 - [Crossfilter](http://square.github.io/crossfilter/ 'Crossfilter')
 - [D3.js](http://d3js.org/ 'D3')
 - [Duration.js](https://github.com/icholy/Duration.js 'Duration.js')
-- [Lo-Dash](http://lodash.com/ 'Lo-Dash') or [Underscore](http://underscorejs.org/ 'Underscore')
+- [Lo-Dash](http://lodash.com/ 'Lo-Dash')
+- [Moment](http://momentjs.com/ 'Moment')
+- [Bows](https://github.com/latentflip/bows 'Bows')
+
+**Fonts**: Tideline should be used with the [Open Sans](https://www.google.com/fonts#UsePlace:use/Collection:Open+Sans) font (see `example/` for one way to make it available in a web app).
 
 Development-only dependencies:
 
-- [jQuery](http://jquery.com/ 'jQuery')
-- [jquery-simulate](https://github.com/jquery/jquery-simulate 'jquery-simulate')
 - [Less.js](http://lesscss.org/ 'Less')
 - [React](http://facebook.github.io/react/ 'React')
-- [Moment](http://momentjs.com/ 'Moment')
-
-Optional dependencies:
-
-- [Bows](https://github.com/latentflip/bows 'Bows') (for console logs used in debugging)
 
 Optional Python dependencies:
 
@@ -35,39 +32,31 @@ Optional Python dependencies:
 
 These dependencies can be installed using `pip install -r requirements.txt`. It is best to install them in a Python 3.*-based `virtualenv` (e.g., using [virtualenvwrapper](http://virtualenvwrapper.readthedocs.org/en/latest/): `mkvirtualenv --python=/usr/local/bin/python3 tideline`, substituting equivalent path resulting from running `which python3` if necessary) if you're planning to use the JSON Schema validation tool; its output is easier to read in Python 3.
 
-Install using [Bower](http://bower.io/ 'Bower'):
+Install using:
 
 ```bash
-$ bower install --save https://github.com/tidepool-org/tideline
+$ npm install --save git://github.com/tidepool-org/tideline.git
 ```
 
 ## Usage
 
-You can use the library directly with [browserify](http://browserify.org/ 'browserify') and [Less](http://lesscss.org/ 'Less'):
+You can use the library directly with [Webpack](http://webpack.github.io/ 'Webpack'):
 
 ```javascript
-// app.js
-var tideline = require('<path-to-tideline>/js');
+var tideline = require('tideline');
+
+// load styles
+require('tideline/css/tideline.less');
 ```
-
-```less
-// app.less
-@import "<path-to-tideline>/css/tideline.less";
-```
-
-To build a standalone version to include with `<script>` and `<link>` tags, see [Build](#build).
-
-You will also need to copy the `img/` and `fonts/` directories to paths served by your server.
 
 For information on building charts using tideline components, see [Using Tideline](https://github.com/tidepool-org/tideline/wiki#using-tideline).
 
 ## Development
 
-To run the example, build the standalone bundle, and run the tests you will need to have a couple of tools installed. Everything you need can be installed via `npm` and `bower`:
+To run the example and run the tests you will need to have a couple of tools installed. Everything you need can be installed via `npm`:
 
 ```bash
 $ npm install
-$ bower install
 ```
 
 ### Running the example
@@ -88,24 +77,26 @@ If you want to run the example with real data to view instead of the demo data g
  1. Set your `$DATA` environment variable to the filename with `export DATA='blip-output.json'`.
  1. Start the tideline example with `npm start` as usual.
 
-### Build
-
-To build standalone `tideline.js` and `tideline.css` files, as well as the standalone 'plugins' bundles for Tidepool's first application [blip](https://github.com/tidepool-org/blip 'Tidepool GitHub: blip'), run:
-
-```bash
-$ gulp
-```
-
-The files will be created in the `dist/` directory.
-
-The script file will expose a global `window.tideline` object. 
-
 ### Test
 
 To run the tests in Chrome using [Mocha](http://visionmedia.github.io/mocha/ 'Mocha') and the [testem](https://github.com/airportyh/testem 'Test'em') test runner:
 
 ```bash
 $ npm test
+```
+
+#### JSHint
+
+Run JSHint with:
+
+```bash
+$ npm run jshint
+```
+
+You can also watch files for changes and re-run automatically by starting:
+
+```bash
+$ npm run jshint-watch
 ```
 
 ## Code Philosophy and Organization

@@ -1,4 +1,4 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
  * 
@@ -15,10 +15,10 @@
  * == BSD2 LICENSE ==
  */
 
-var crossfilter = require('../../lib/').crossfilter;
-var _ = require('../../lib/')._;
+var crossfilter = require('crossfilter');
+var _ = require('lodash');
 
-var log = require('../../lib/').bows('TidelineCrossFilter');
+var log = require('bows')('TidelineCrossFilter');
 
 function TidelineCrossFilter(data) {
 

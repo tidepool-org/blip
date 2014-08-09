@@ -15,8 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = require('../../lib/').d3;
-var _ = require('../../lib/')._;
+var d3 = require('d3');
+var _ = require('lodash');
 
 var scales = function(opts) {
   opts = opts || {};
@@ -99,7 +99,7 @@ var scales = function(opts) {
         .rangeRound([pool.height(), 0]);
       return scale;
     }
-  }
+  };
 };
 
 module.exports = scales;

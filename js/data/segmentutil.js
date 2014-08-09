@@ -15,8 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = require('../lib/')._;
-var log = require('../lib/').bows('SegmentUtil');
+var _ = require('lodash');
+var log = require('bows')('SegmentUtil');
 
 var Timeline = require('./util/timeline.js');
 
@@ -61,6 +61,29 @@ module.exports = function(data){
   var scheduledTimeline = new Timeline();
   var otherEvents = {};
 
+  function processOverlap(overlapped){
+    // Allow scheduled overlaps for the same device (schedule changes)
+    if (overlapped.deviceId != null && overlapped.deviceId === e.deviceId) {
+      return;
+    }
+
+    // Put the overlapped back in to chunk up the thing that did the overlapping
+    var inserted = scheduledTimeline.add(overlapped)[0];
+    if (inserted.value === overlapped.value) {
+      return;
+    }
+
+    // Next, pop the stack until we find what we just inserted, throw that way and push stuff back on
+    var collateralDamage = [];
+    var popped = scheduledTimeline.pop();
+    while (popped != null && popped.start !== overlapped.start && popped.end !== overlapped.end) {
+      collateralDamage.push(popped);
+      popped = scheduledTimeline.pop();
+    }
+
+    collateralDamage.forEach(scheduledTimeline.add.bind(scheduledTimeline));
+  }
+
   for (var i = 0; i < data.length; ++i) {
     var e = _.clone(data[i]);
     if (e.type === 'basal-rate-segment') {
@@ -80,28 +103,7 @@ module.exports = function(data){
           // A scheduled overlapped a scheduled, throw away the overlap and the initial event that git inserted. It generally
           // indicates multiple pumps in concurrent operation.
 
-          overlap.forEach(function(overlapped){
-            // Allow scheduled overlaps for the same device (schedule changes)
-            if (overlapped.deviceId != null && overlapped.deviceId === e.deviceId) {
-              return;
-            }
-
-            // Put the overlapped back in to chunk up the thing that did the overlapping
-            var inserted = scheduledTimeline.add(overlapped)[0];
-            if (inserted.value === overlapped.value) {
-              return;
-            }
-
-            // Next, pop the stack until we find what we just inserted, throw that way and push stuff back on
-            var collateralDamage = [];
-            var popped = scheduledTimeline.pop();
-            while (popped != null && popped.start !== overlapped.start && popped.end !== overlapped.end) {
-              collateralDamage.push(popped);
-              popped = scheduledTimeline.pop();
-            }
-
-            collateralDamage.forEach(scheduledTimeline.add.bind(scheduledTimeline));
-          });
+          overlap.forEach(processOverlap);
         }
       } else {
         if (otherEvents[deliveryType] == null) {

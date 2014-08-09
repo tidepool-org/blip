@@ -15,8 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = require('./lib/')._;
-var d3 = require('./lib/').d3;
+var _ = require('lodash');
+var d3 = require('d3');
 
 var TidelineCrossFilter = require('./data/util/tidelinecrossfilter');
 var BasalUtil = require('./data/basalutil');
@@ -25,7 +25,7 @@ var BGUtil = require('./data/bgutil');
 var SettingsUtil = require('./data/settingsutil');
 var dt = require('./data/util/datetime');
 
-var log = require('./lib/').bows('TidelineData');
+var log = require('bows')('TidelineData');
 
 function TidelineData(data, opts) {
 

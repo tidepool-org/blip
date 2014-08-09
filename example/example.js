@@ -1,16 +1,17 @@
 /** @jsx React.DOM */
-var _ = window._;
-var bows = window.bows;
-var React = window.React;
-
-var data = require('./data/device-data.json');
+var _ = require('lodash');
+var bows = require('bows');
+var React = require('react');
+var d3 = require('d3');
 
 var Daily = require('./components/daily');
 var Weekly = require('./components/weekly');
 var Settings = require('./components/settings');
 // tideline dependencies & plugins
-var tideline = window.tideline = require('../js/index');
-var preprocess = tideline.preprocess = require('../plugins/data/preprocess/');
+var preprocess = require('../plugins/data/preprocess/');
+
+require('../css/tideline.less');
+require('./less/example.less');
 
 var example = {
   log: bows('Example')
@@ -19,14 +20,7 @@ var example = {
 var Example = React.createClass({
   log: bows('Example'),
   propTypes: {
-    chartData: React.PropTypes.object.isRequired,
-    imagesBaseUrl: React.PropTypes.string.isRequired
-  },
-  getDefaultProps: function() {
-    return {
-      chartData: preprocess.processData(data),
-      imagesBaseUrl: 'img'
-    };
+    chartData: React.PropTypes.object.isRequired
   },
   getInitialState: function() {
     return {
@@ -59,9 +53,8 @@ var Example = React.createClass({
       case 'daily':
         /* jshint ignore:start */
         return (
-          <Daily 
+          <Daily
             chartPrefs={this.state.chartPrefs}
-            imagesBaseUrl={this.props.imagesBaseUrl}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
             patientData={this.props.chartData}
             onSwitchToDaily={this.handleSwitchToDaily}
@@ -74,9 +67,8 @@ var Example = React.createClass({
       case 'weekly':
         /* jshint ignore:start */
         return (
-          <Weekly 
+          <Weekly
             chartPrefs={this.state.chartPrefs}
-            imagesBaseUrl={this.props.imagesBaseUrl}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
             patientData={this.props.chartData}
             onSwitchToDaily={this.handleSwitchToDaily}
@@ -89,7 +81,7 @@ var Example = React.createClass({
       case 'settings':
         /* jshint ignore:start */
         return (
-          <Settings 
+          <Settings
             chartPrefs={this.state.chartPrefs}
             patientData={this.props.chartData}
             onSwitchToDaily={this.handleSwitchToDaily}
@@ -135,9 +127,23 @@ var Example = React.createClass({
   }
 });
 
-React.renderComponent(
-  /* jshint ignore:start */
-  <Example />,
-  /* jshint ignore:end */
-  document.body
-);
+
+var dataUrl = process.env.DATA;
+if (_.isEmpty(dataUrl)) {
+  dataUrl = 'device-data.json';
+}
+dataUrl = 'data/' + dataUrl;
+
+d3.json(dataUrl, function(err, data) {
+  if (err) {
+    throw new Error('Could not fetch data file at ' + dataUrl);
+  }
+  var chartData = preprocess.processData(data);
+
+  React.renderComponent(
+    /* jshint ignore:start */
+    <Example chartData={chartData}/>,
+    /* jshint ignore:end */
+    document.body
+  );
+});

@@ -15,13 +15,13 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = window._;
-var bows = window.bows;
-var d3 = window.d3;
+var _ = require('lodash');
+var bows = require('bows');
+var d3 = require('d3');
 
 var EventEmitter = require('events').EventEmitter;
 
-var tideline = window.tideline;
+var tideline = require('../../js/index');
 var fill = tideline.plot.util.fill;
 var dt = tideline.data.util.datetime;
 
@@ -57,10 +57,7 @@ function chartWeeklyFactory(el, options) {
     // basic chart set up
     chart.id(el.id).width(width).height(height);
 
-    if (options.imagesBaseUrl) {
-      chart.imagesBaseUrl(options.imagesBaseUrl);
-      chart.dataGutter(8);
-    }
+    chart.dataGutter(8);
 
     d3.select(el).call(chart);
 

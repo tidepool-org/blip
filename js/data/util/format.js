@@ -1,4 +1,4 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
  * 
@@ -15,9 +15,9 @@
  * == BSD2 LICENSE ==
  */
 
-var d3 = require('../../lib/').d3;
-var Duration = require('../../lib/').Duration;
-var moment = require('../../lib/').moment;
+var d3 = require('d3');
+var Duration = require('duration-js');
+var moment = require('moment');
 
 var format = {
 

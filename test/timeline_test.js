@@ -18,7 +18,7 @@
 var chai = require('chai');
 var expect = chai.expect;
 
-var Timeline = require('../js/data/util/timeline.js');
+var Timeline = require('../js/data/util/timeline');
 
 describe('timeline', function(){
   it('is newable', function(){
@@ -169,7 +169,7 @@ describe('timeline', function(){
           {start: 1, end: 1, p: 'b'},
           {start: 1, end: 2, p: 'c'}
         ]
-      )
+      );
     });
 
     it('does not generate 0 length segments', function(){
@@ -184,7 +184,7 @@ describe('timeline', function(){
           {start: 1, end: 2, p: 'd'},
           {start: 2, end: 3, p: 'c'}
         ]
-      )
+      );
     });
   });
 
@@ -219,7 +219,7 @@ describe('timeline', function(){
         [
           {start: 0, end: 5, p: 'a'}
         ]
-      )
+      );
     });
 
     it('handles swapping by replacing with larger things that start at the same time', function(){
@@ -234,7 +234,7 @@ describe('timeline', function(){
           {start: 1, end: 4, p: 'b'},
           {start: 4, end: 10, p: 'a'}
         ]
-      )
+      );
     });
   });
 });

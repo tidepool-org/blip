@@ -16,6 +16,7 @@
  */
 
 var shapeutil = require('../shapeutil');
+var log = require('bows')('AnnotationShapes');
 
 var shapes = {
   tooltipPolygon: function(opts) {

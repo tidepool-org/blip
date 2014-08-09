@@ -1,4 +1,4 @@
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
  * 
@@ -26,53 +26,52 @@ var chai = require('chai');
 var assert = chai.assert;
 var expect = chai.expect;
 
-var $ = window.$;
-var d3 = window.d3;
-var preprocess = window.tideline.preprocess;
-var blip = window.tideline.blip;
-var chartDailyFactory = blip.oneday;
-
-var imagesBaseUrl = '../../img';
+var $ = require('jquery');
+var d3 = require('d3');
+var preprocess = require('../../plugins/data/preprocess');
+var chartDailyFactory = require('../../plugins/blip/chartdailyfactory');
 
 var testpage = require('../../dev/testpage/index');
 
-var tideline = require('../../js/index');
-var containerId = '#testContainer';
-
 var width = 960, height = 590;
-
-describe('the tideline container', function(done) {
-  // this set of tests isn't really testing anything...EXCEPT
-  // we're using the dimensions of the container to test some other things below
-  // so these tests are basically canaries to help us debug potentially breaking tests
-  before(function() {
-    $(containerId).append('<div class="tideline-container"></div>');
-  });
-
-  it('should have a width of 960px', function() {
-    expect($('.tideline-container').width()).to.equal(width);
-  });
-
-  it('should have a height of 590px', function() {
-    expect($('.tideline-container').height()).to.equal(height);
-  });
-
-  after(function() {
-    $(containerId).empty();
-  });
-});
 
 describe('one-day view', function() {
   var i = 0, testPatterns = testpage.main;
+  var $testContainer;
+
+  before(function() {
+    $testContainer = $('<div class="test-container"></div>').prependTo('body');
+  });
+
+  describe('the tideline container', function(done) {
+    // this set of tests isn't really testing anything...EXCEPT
+    // we're using the dimensions of the container to test some other things below
+    // so these tests are basically canaries to help us debug potentially breaking tests
+    before(function() {
+      $testContainer.append('<div class="tideline-container"></div>');
+    });
+
+    it('should have a width of 960px', function() {
+      expect($('.tideline-container').width()).to.equal(width);
+    });
+
+    it('should have a height of 590px', function() {
+      expect($('.tideline-container').height()).to.equal(height);
+    });
+
+    after(function() {
+      $testContainer.empty();
+    });
+  });
 
   describe('full day of data', function() {
     var container, oneDay;
 
     before(function() {
-      $(containerId).append('<h3>Full day of data</h3>');
-      $(containerId).append('<div class="tideline-container" id="tideline_' + i + '"></div>');
+      $testContainer.append('<h3>Full day of data</h3>');
+      $testContainer.append('<div class="tideline-container" id="tideline_' + i + '"></div>');
       var el = document.getElementById('tideline_' + i);
-      oneDay = chartDailyFactory(el, {imagesBaseUrl: imagesBaseUrl}).setupPools();
+      oneDay = chartDailyFactory(el).setupPools();
       var data = preprocess.processData(testPatterns.full);
       oneDay.load(data).locate('2008-01-01T12:00:00.000Z');
       container = $('#tideline_' + i);
@@ -432,15 +431,15 @@ describe('one-day view', function() {
       });
     });
   });
-  
+
   describe('full day of data, quick boluses only', function() {
     var container, oneDay, boluses, thisBolus;
 
     before(function() {
-      $(containerId).append('<h3>Full day of data, quick boluses only</h3>');
-      $(containerId).append('<div class="tideline-container" id="tideline_' + i + '"></div>');
+      $testContainer.append('<h3>Full day of data, quick boluses only</h3>');
+      $testContainer.append('<div class="tideline-container" id="tideline_' + i + '"></div>');
       var el = document.getElementById('tideline_' + i);
-      oneDay = chartDailyFactory(el, {imagesBaseUrl: imagesBaseUrl}).setupPools();
+      oneDay = chartDailyFactory(el).setupPools();
       var data = preprocess.processData(testPatterns.quickbolusonly);
       oneDay.load(data).locate('2008-01-01T12:00:00.000Z');
       container = $('#tideline_' + i);

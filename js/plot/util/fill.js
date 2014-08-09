@@ -14,10 +14,10 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-var d3 = require('../../lib/').d3;
-var _ = require('../../lib/')._;
+var d3 = require('d3');
+var _ = require('lodash');
 
-var log = require('../../lib/').bows('Fill');
+var log = require('bows')('Fill');
 
 module.exports = function(pool, opts) {
 
