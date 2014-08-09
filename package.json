@@ -3,7 +3,7 @@
   "version": "0.1.21",
   "private": true,
   "scripts": {
-    "test": "webpack-dev-server 'mocha!./test/entry.js' --output-file test.js",
+    "test": "webpack-dev-server 'mocha!./test/entry.js' --output-file test.js --cache --colors --progress",
     "start": "webpack-dev-server --devtool source-map --cache --colors --progress --port 3000",
     "build": "npm run build-app && npm run build-config",
     "build-app": "node buildapp",
