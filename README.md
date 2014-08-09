@@ -25,12 +25,11 @@ Development-only dependencies:
 - [Less.js](http://lesscss.org/ 'Less')
 - [React](http://facebook.github.io/react/ 'React')
 
-Optional Python dependencies:
+Optional Python dependency:
 
-- [BeautifulSoup](http://www.crummy.com/software/BeautifulSoup/) (for adding an item to the tideline gallery)
 - [jsonschema](https://pypi.python.org/pypi/jsonschema) (for running the validation script in `dev/schema/`)
 
-These dependencies can be installed using `pip install -r requirements.txt`. It is best to install them in a Python 3.*-based `virtualenv` (e.g., using [virtualenvwrapper](http://virtualenvwrapper.readthedocs.org/en/latest/): `mkvirtualenv --python=/usr/local/bin/python3 tideline`, substituting equivalent path resulting from running `which python3` if necessary) if you're planning to use the JSON Schema validation tool; its output is easier to read in Python 3.
+This dependency can be installed using `pip install -r requirements.txt`. It is best to install it in a Python 3.*-based `virtualenv` (e.g., using [virtualenvwrapper](http://virtualenvwrapper.readthedocs.org/en/latest/): `mkvirtualenv --python=/usr/local/bin/python3 tideline`, substituting equivalent path resulting from running `which python3` if necessary) if you're planning to use the JSON Schema validation tool; its output is easier to read in Python 3.
 
 Install using:
 
