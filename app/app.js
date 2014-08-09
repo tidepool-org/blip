@@ -49,6 +49,9 @@ require('tideline/css/tideline.less');
 require('./core/less/fonts.less');
 require('./style.less');
 
+// For React developer tools
+window.React = React;
+
 var DEBUG = window.localStorage && window.localStorage.debug;
 
 var app = {
