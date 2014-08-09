@@ -63,6 +63,8 @@ var Daily = React.createClass({
             <div className="patient-data-content">
               <DailyChart
                 bgUnits={this.props.chartPrefs.bgUnits}
+                bolusRatio={this.props.chartPrefs.bolusRatio}
+                dynamicCarbs={this.props.chartPrefs.dynamicCarbs}
                 hiddenPools={this.props.chartPrefs.hiddenPools}
                 imagesBaseUrl={this.props.imagesBaseUrl}
                 initialDatetimeLocation={this.props.initialDatetimeLocation}
@@ -178,7 +180,7 @@ var Daily = React.createClass({
 });
 
 var DailyChart = React.createClass({
-  chartOpts: ['bgUnits', 'hiddenPools', 'imagesBaseUrl'],
+  chartOpts: ['bgUnits', 'dynamicCarbs', 'bolusRatio', 'hiddenPools', 'imagesBaseUrl'],
   log: bows('Daily Chart'),
   propTypes: {
     bgUnits: React.PropTypes.string.isRequired,
