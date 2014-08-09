@@ -75,11 +75,12 @@ var PatientData = React.createClass({
     if (!_.isEmpty(params)) {
       this.setState({
         chartPrefs: {
+          bgUnits: this.state.chartPrefs.bgUnits,
           hiddenPools: {
             basalSettings: params.showbasalsettings ?  true : null
           },
           bolusRatio: params.dynamicCarbs ? 0.5 : 0.35,
-          dynamicCarbs: !!params.dynamicCarbs
+          dynamicCarbs: params.dynamicCarbs
         }
       });
     }
