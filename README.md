@@ -35,7 +35,7 @@ These dependencies can be installed using `pip install -r requirements.txt`. It 
 Install using:
 
 ```bash
-$ npm install --save git://github.com/tidepool-org/tideline.git
+$ npm install --save tideline
 ```
 
 ## Usage
