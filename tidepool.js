@@ -15,8 +15,8 @@
 
 'use strict';
 
-var superagent = window.superagent;
-var _ = window._;
+var superagent = require('superagent');
+var _ = require('lodash');
 
 var makeClient = require('./index');
 
