@@ -246,13 +246,17 @@ function Tooltips(container, tooltipsGroup) {
     // when content is centered, can't use getBoundingClientRect to get width on div
     // need to get it on components instead, and use widest one
     var widths = [];
-    var spans = foGroup.selectAll('span')
+    foGroup.selectAll('span')
       .each(function() {
         widths.push(d3.select(this)[0][0].getBoundingClientRect().width);
       });
-    var tables = foGroup.selectAll('table')
+    foGroup.selectAll('table')
       .each(function() {
         widths.push(d3.select(this)[0][0].getBoundingClientRect().width);
+      });
+    foGroup.selectAll('div.title.wider')
+      .each(function() {
+        widths.push(d3.select(this)[0][0].getBoundingClientRect().width - 20);
       });
     return {
       width: d3.max(widths),

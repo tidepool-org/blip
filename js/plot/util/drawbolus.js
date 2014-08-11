@@ -286,6 +286,7 @@ module.exports = function(pool, opts) {
           title.append('p')
             .attr('class', 'interrupted plain right')
             .text('interrupted');
+          title.classed('wider', true);
         }
         // if not interrupted, then extended boluses get a headline
         else if (bolus.extended === true) {
