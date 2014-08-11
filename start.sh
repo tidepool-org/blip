@@ -2,4 +2,4 @@
 
 . config/env.sh
 npm run build-config
-exec npm run server
+exec node server
