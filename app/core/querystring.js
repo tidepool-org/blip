@@ -19,8 +19,12 @@ var Qs = require('qs');
 // Thin wrapper around query string library
 var queryString = {};
 
-// Expose existing methods
-queryString.parse = Qs.parse;
+queryString.parse = function(qs) {
+  // Allow '?foo=bar' as well as 'foo=bar'
+  qs = qs.replace(/^\?/, '');
+  return Qs.parse(qs);
+};
+
 queryString.stringify = Qs.stringify;
 
 // More advanced parsing: convert some types
