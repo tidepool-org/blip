@@ -1040,7 +1040,9 @@ app.init = function(callback) {
       // Load mock params from config variables
       // and URL query string (before hash)
       var paramsConfig = queryString.parseTypes(config.MOCK_PARAMS);
-      var paramsUrl = queryString.parseTypes(window.location.search);
+      var search = window.location.search || '';
+      search = search.replace('?', '');
+      var paramsUrl = queryString.parseTypes(search);
       var params = _.assign(paramsConfig, paramsUrl);
 
       self.mock.init(params);

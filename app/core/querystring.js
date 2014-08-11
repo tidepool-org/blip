@@ -28,7 +28,7 @@ queryString.parseTypes = function(qs) {
   var parsed = this.parse(qs);
   _.forEach(parsed, function(value, key) {
     // Handle '?foo', '?foo=true' as Boolean true
-    if (value === null || value === 'true') {
+    if (value === '' || value === 'true') {
       parsed[key] = true;
       return;
     }
