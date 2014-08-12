@@ -84,7 +84,7 @@ var shapes = {
       {
         el: 'polygon',
         attrs: {
-          points: function(opts) {
+          pointsFn: function(opts) {
             var pointHalfHeight = 10;
             var pointWidth = 15;
             return shapeutil.pointString(0,0) +
