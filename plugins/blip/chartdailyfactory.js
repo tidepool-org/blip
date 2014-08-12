@@ -92,7 +92,7 @@ function chartDailyFactory(el, options) {
       .id('poolBG', chart.poolGroup())
       .label([{
         'main': 'Blood Glucose',
-        'light': ' (' + chart.options.bgUnits + ')'
+        'light': ' ' + chart.options.bgUnits
       }])
       .legend(['bg'])
       .index(chart.pools().indexOf(poolBG))
@@ -104,11 +104,11 @@ function chartDailyFactory(el, options) {
       .id('poolBolus', chart.poolGroup())
       .label([{
         'main': 'Bolus',
-        'light': ' (U)'
+        'light': ' u'
       },
       {
         'main': ' & Carbohydrates',
-        'light': ' (g)'
+        'light': ' g'
       }])
       .legend(['bolus', 'carbs'])
       .index(chart.pools().indexOf(poolBolus))
@@ -117,14 +117,16 @@ function chartDailyFactory(el, options) {
 
     var basalSettingsBool = chart.options.hiddenPools.basalSettings;
 
+    var basalPoolLabel = {
+      main: 'Basal Rates',
+      light: ' u/hr'
+    };
+
     if (basalSettingsBool === null) {
       // basal data pool
       poolBasal = chart.newPool()
         .id('poolBasal', chart.poolGroup())
-        .label([{
-          'main': 'Basal Rates',
-          'light': ' (U/hr)'
-        }])
+        .label([basalPoolLabel])
         .legend(['basal'])
         .index(chart.pools().indexOf(poolBasal))
         .weight(1.0)
@@ -143,10 +145,7 @@ function chartDailyFactory(el, options) {
       // basal data pool with label, legend, and gutter
       poolBasal = chart.newPool()
         .id('poolBasal', chart.poolGroup())
-        .label([{
-          'main': 'Basal Rates',
-          'light': ' (U/hr)'
-        }])
+        .label([basalPoolLabel])
         .legend(['basal'])
         .index(chart.pools().indexOf(poolBasal))
         .weight(1.0)
@@ -156,10 +155,7 @@ function chartDailyFactory(el, options) {
       // basal settings pool with label, legend, and gutter
       poolBasalSettings = chart.newPool()
         .id('poolBasalSettings', chart.poolGroup())
-        .label([{
-          'main': 'Basal Rates',
-          'light': ' (U/hr)'
-        }])
+        .label([basalPoolLabel])
         .legend(['basal'])
         .index(chart.pools().indexOf(poolBasal))
         .weight(1.0)

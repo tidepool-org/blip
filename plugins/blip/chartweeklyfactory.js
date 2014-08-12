@@ -86,7 +86,7 @@ function chartWeeklyFactory(el, options) {
     chart.setup();
     chart.legend({
       main: 'Blood Glucose',
-      light: options.bgUnits
+      light: ' ' + options.bgUnits
     });
 
     var days = chart.days;
