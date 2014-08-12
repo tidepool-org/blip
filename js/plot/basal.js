@@ -269,6 +269,8 @@ module.exports = function(pool, opts) {
     var foGroup = res.foGroup;
     basal.tooltipHtml(foGroup, d);
     var dims = tooltips.foreignObjDimensions(foGroup);
+    // foGroup.node().parentNode is the <foreignObject> itself
+    // because foGroup is actually the top-level <xhtml:div> element
     tooltips.anchorForeignObj(d3.select(foGroup.node().parentNode), {
       w: dims.width + opts.tooltipPadding,
       h: dims.height,
