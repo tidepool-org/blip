@@ -430,6 +430,33 @@ describe('one-day view', function() {
         expect(boluses.size()).to.equal(24);
       });
     });
+
+    describe('basal data', function() {
+      var basalGroups;
+
+      it('should display forty-eight basal groups', function() {
+        basalGroups = container.find('.d3-basal-group');
+        expect(basalGroups.size()).to.equal(48);
+      });
+
+      it('should have a visible and invisible rect inside a basal group', function() {
+        var initialBasalGroup = basalGroups.filter(':first');
+        var innerRects = initialBasalGroup.find('rect');
+        expect(innerRects.size()).to.equal(2);
+        expect(innerRects.filter(':first').attr('class')).to.include('d3-rect-basal');
+        expect(innerRects.filter(':last').attr('class')).to.include('d3-basal-invisible');
+      });
+
+      it('should yield a tooltip and opacity change on mouseover over an invisible basal rect', function() {
+        var middleBasal = $(basalGroups[24]);
+        middleBasal.find('.d3-basal-invisible').simulate('mouseover');
+        var basalTooltip = container.find('#tidelineTooltips_basal .d3-tooltip');
+        expect(basalTooltip.size()).to.equal(1);
+        expect(middleBasal.find('.d3-rect-basal').attr('opacity')).to.be.above(0.3);
+        expect(basalTooltip.find('polygon').size()).to.equal(1);
+        // TODO: query rate and timestamp info?
+      });
+    });
   });
 
   describe('full day of data, quick boluses only', function() {
