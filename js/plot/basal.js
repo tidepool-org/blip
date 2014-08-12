@@ -214,8 +214,8 @@ module.exports = function(pool, opts) {
     return pool.height();
   };
 
-  basal.rateString = function(d) {
-    return format.tooltipValue(d.value) + ' <span class="plain">U/hr</span>';
+  basal.rateString = function(d, cssClass) {
+    return format.tooltipValue(d.value) + ' <span class="' + cssClass + '">u/hr</span>';
   };
 
   basal.tempPercentage = function(d) {
@@ -231,9 +231,9 @@ module.exports = function(pool, opts) {
         group.append('p')
           .append('span')
           .attr('class', 'secondary')
-          .html('(' + basal.rateString(_.find(datum.suppressed, function(seg) {
+          .html(basal.rateString(_.find(datum.suppressed, function(seg) {
             return seg.deliveryType === 'scheduled';
-          })) + ' scheduled)');
+          }), 'secondary') + ' scheduled');
         break;
       case 'suspend':
         group.append('p')
@@ -243,7 +243,7 @@ module.exports = function(pool, opts) {
       default:
         group.append('p')
           .append('span')
-          .html(basal.rateString(datum));
+          .html(basal.rateString(datum, 'plain'));
     }
     group.append('p')
       .append('span')

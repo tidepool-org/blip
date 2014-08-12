@@ -81,6 +81,10 @@
     align-items: baseline;
     background-color: @title-background;
     display: flex;
+    &.wider {
+      min-width: 160px;
+      max-width: 180px;
+    }
     p {
       flex-grow: 1;
       margin: 0;
@@ -105,6 +109,7 @@
   }
   table {
     margin: 0 auto;
+    min-width: 100px;
     td {
       &.right {
         text-align: right;

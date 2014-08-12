@@ -81,7 +81,7 @@ describe('one-day view', function() {
     describe('bg pool', function() {
       it('should have a label', function() {
         expect(container.find('#poolBG_label_0').size()).to.be.above(0);
-        expect(container.find('#poolBG_label_0').html()).to.equal('Blood Glucose<tspan> (mg/dL)</tspan>');
+        expect(container.find('#poolBG_label_0').html()).to.equal('Blood Glucose<tspan> mg/dL</tspan>');
       });
 
       it('should have a legend', function() {
@@ -92,9 +92,9 @@ describe('one-day view', function() {
     describe('carbs and bolus pool', function() {
       it('should have a label', function() {
         expect(container.find('#poolBolus_label_0').size()).to.be.above(0);
-        expect(container.find('#poolBolus_label_0').html()).to.equal('Bolus<tspan> (U)</tspan>');
+        expect(container.find('#poolBolus_label_0').html()).to.equal('Bolus<tspan> u</tspan>');
         expect(container.find('#poolBolus_label_1').size()).to.be.above(0);
-        expect(container.find('#poolBolus_label_1').html()).to.equal(' &amp; Carbohydrates<tspan> (g)</tspan>');
+        expect(container.find('#poolBolus_label_1').html()).to.equal(' &amp; Carbohydrates<tspan> g</tspan>');
       });
 
       it('should have legends', function() {
@@ -106,7 +106,7 @@ describe('one-day view', function() {
     describe('basal pool', function() {
       it('should have a label', function() {
         expect(container.find('#poolBasal_label_0').size()).to.be.above(0);
-        expect(container.find('#poolBasal_label_0').html()).to.equal('Basal Rates<tspan> (U/hr)</tspan>');
+        expect(container.find('#poolBasal_label_0').html()).to.equal('Basal Rates<tspan> u/hr</tspan>');
       });
 
       it('should have a legend', function() {
@@ -466,11 +466,11 @@ describe('one-day view', function() {
     });
 
     it('should yield an expanded, right and up tooltip on hover if it is an extended bolus near the left edge', function() {
-      var extended = $(boluses[12]);
+      var extended = $(boluses[15]);
       extended.simulate('mouseover');
       var extendedTooltipGroup = container.find('#tidelineTooltips_bolus').find('.d3-tooltip').filter(':last');
       expect(extendedTooltipGroup.find('.svg-tooltip-right-and-up').size()).to.equal(1);
-      expect(extendedTooltipGroup.find('.timestamp').html()).to.equal('2:25 am');
+      expect(extendedTooltipGroup.find('.timestamp').html()).to.equal('1:25 am');
       expect(extendedTooltipGroup.find('polygon').size()).to.equal(2);
     });
   });

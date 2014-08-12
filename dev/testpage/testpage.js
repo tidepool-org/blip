@@ -61,8 +61,8 @@ module.exports = (function() {
     }));
 
     // bolus data
-    var allBolusFeatureSets = bolusDay.opts.patterns.allFeatureSets();
-    var bolusData = bolusDay.generateFull(allBolusFeatureSets, {
+    var commonBolusFeatureSets = bolusDay.opts.patterns.commonFeatureSets();
+    var bolusData = bolusDay.generateFull(commonBolusFeatureSets, {
       start: moment('2008-01-01T00:25:00.000Z')
     });
     data.push(bolusData);
@@ -83,8 +83,56 @@ module.exports = (function() {
     return _.flatten(data);
   }
 
+  function quickbolus() {
+    // cbg data
+    var values = [60,110,300], data = [];
+    values.forEach(function(val) {
+      data.push(cbgDay.generateFull(cbgDay.opts.patterns.steady, {
+        seedValue: val
+      }));
+    });
+
+    // smbg data
+    data.push(smbgDay.generateFull(smbgDay.opts.patterns.ident, {
+      start: moment('2008-01-01T00:30:00.000Z')
+    }));
+    data.push(smbgDay.generateFull(smbgDay.opts.patterns.ident, {
+      start: moment('2008-01-01T21:00:00.000Z'),
+      reverse: true
+    }));
+    data.push(smbgDay.generateFull(smbgDay.opts.patterns.ident, {
+      start: moment('2008-01-01T06:30:00.000Z')
+    }));
+    data.push(smbgDay.generateFull(smbgDay.opts.patterns.ident, {
+      start: moment('2008-01-01T15:00:00.000Z'),
+      reverse: true
+    }));
+
+    // carbs data
+    var alternatingCarbs = carbsDay.opts.patterns.alternating(100);
+    data.push(carbsDay.generateFull(alternatingCarbs, {
+      start: moment('2008-01-01T01:00:00.000Z')
+    }));
+
+    // bolus data
+    var quickBolusFeatureSets = bolusDay.opts.patterns.quickBolusFeatureSets();
+    var bolusData = bolusDay.generateFull(quickBolusFeatureSets, {
+      start: moment('2008-01-01T00:25:00.000Z')
+    });
+    data.push(bolusData);
+
+    // basal data
+    var allBasalFeatureSets = basalDay.opts.patterns.allFeatureSets();
+    var incrementer = new Incrementer(0.1, 6);
+    data.push(basalDay.generateFull(allBasalFeatureSets, {
+      start: moment('2008-01-01T00:00:00.000Z'),
+      incrementer: incrementer
+    }));
+    return _.flatten(data);
+  }
+
   return {
     full: full(),
-    quickbolusonly: _.map(_.reject(full(), {type: 'wizard'}), function(d) { delete d.joinKey; delete d.recommended; return d; })
+    quickbolusonly: quickbolus()
   };
 })();
