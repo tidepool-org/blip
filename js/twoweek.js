@@ -303,7 +303,7 @@ module.exports = function(emitter) {
       .text(l.main);
 
     labelGroup.append('tspan')
-      .text(' (' + l.light + ')');
+      .text(l.light);
 
     var legendGroup = labelHolder.append('g')
       .attr({
