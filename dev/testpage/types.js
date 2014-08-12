@@ -21,7 +21,8 @@ var guid = require('./guid');
 var dt = require('./datetime');
 
 // common elements
-var MS_IN_24 = 86400000;
+var MS_IN_24HRS = 86400000;
+var MS_IN_10MIN = 600000;
 var APPEND = '.000Z';
 
 var getAllFeatureSetNames = function(featureSets) {
@@ -80,7 +81,7 @@ var Carbs = function(deviceTime, value) {
 Carbs.prototype = common;
 
 var Bolus = function(deviceTime, features) {
-  features = features || {'value': null};
+  features = features || {'value': null, 'addJoinKey': true};
   var featureSets = {
     'normal': {
     },
@@ -88,26 +89,38 @@ var Bolus = function(deviceTime, features) {
       'extended': true,
       'extendedDelivery': 0.5 * features.value,
       'initialDelivery': 0.5 * features.value,
-      'duration': MS_IN_24/12
+      'duration': MS_IN_24HRS/12
     },
     'extendedQuarterUnderride': {
       'extended': true,
       'extendedDelivery': 0.75 * features.value,
       'initialDelivery': 0.25 * features.value,
-      'duration': MS_IN_24/18,
+      'duration': MS_IN_24HRS/18,
       'recommended': features.value + 2
     },
     'square': {
       'extended': true,
       'extendedDelivery': features.value,
       'initialDelivery': 0.0,
-      'duration': MS_IN_24/24
+      'duration': MS_IN_24HRS/24
     },
     'override': {
       'recommended': features.value - 1,
     },
     'underride': {
       'recommended': features.value + 1.5
+    },
+    'interrupted': {
+      'programmed': features.value,
+      'value': features.value - (features.value * 0.9)
+    },
+    'interruptedExtended': {
+      'extended': true,
+      'extendedDelivery': 0.5 * features.value,
+      'initialDelivery': 0.5 * features.value,
+      'duration': MS_IN_24HRS/12,
+      'programmed': features.value,
+      'suspendedAt': this.addInterval(features.deviceTime + APPEND, {'milliseconds': MS_IN_24HRS/24 + MS_IN_10MIN}).utc().format().slice(0, -6)
     }
   };
   this.getAllFeatureSetNames = getAllFeatureSetNames(featureSets);
@@ -115,10 +128,12 @@ var Bolus = function(deviceTime, features) {
   if (arguments.length) {
     this.deviceTime = deviceTime;
     this.id = this.makeId();
-    this.joinKey = this.makeId();
+    if (features.addJoinKey) {
+      this.joinKey = this.makeId();
+    }
     this.type = 'bolus';
     this.value = features.value;
-    _.defaults(this, featureSets[features.featureSet]);
+    _.assign(this, featureSets[features.featureSet]);
   }
 };
 
@@ -129,7 +144,6 @@ var Wizard = function(deviceTime, features) {
   var featureSets = {
     'default': {
       'payload': {
-        'carbUnits': 'grams',
         'carbInput': features.value
       }
     }
@@ -150,7 +164,7 @@ var Wizard = function(deviceTime, features) {
 Wizard.prototype = common;
 
 var Basal = function(deviceTime, features) {
-  var baseDuration = MS_IN_24/48;
+  var baseDuration = MS_IN_24HRS/48;
 
   features = features || {'incrementer': null};
   var featureSets = {

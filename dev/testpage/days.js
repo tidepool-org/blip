@@ -176,6 +176,49 @@ var BolusDay = function(opts) {
             featureSet: featureSets[i++]
           };
         };
+      },
+      commonFeatureSets: function() {
+        var values = [2,4.5,6,7.5,9.25,10], i = 0;
+        var featureSets = [
+          'normal',
+          'extendedHalf',
+          'extendedQuarterUnderride',
+          'square',
+          'override',
+          'underride'
+        ];
+        return function() {
+          // reset i
+          if (i === values.length) {
+            i = 0;
+          }
+          return {
+            value: values[i],
+            featureSet: featureSets[i++],
+            addJoinKey: true
+          };
+        };
+      },
+      quickBolusFeatureSets: function() {
+        var values = [2,4.5,6,7.5,9.25,10], i = 0;
+        var featureSets = [
+          'normal',
+          'extendedHalf',
+          'square',
+          'interrupted',
+          'interruptedExtended'
+        ];
+        return function() {
+          // reset i
+          if (i === values.length) {
+            i = 0;
+          }
+          return {
+            value: values[i],
+            featureSet: featureSets[i++],
+            addJoinKey: false
+          };
+        };
       }
     },
     spread: {
