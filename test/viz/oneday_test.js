@@ -81,7 +81,7 @@ describe('one-day view', function() {
     describe('bg pool', function() {
       it('should have a label', function() {
         expect(container.find('#poolBG_label_0').size()).to.be.above(0);
-        expect(container.find('#poolBG_label_0').html()).to.equal('Blood Glucose<tspan> (mg/dL)</tspan>');
+        expect(container.find('#poolBG_label_0').html()).to.equal('Blood Glucose<tspan> mg/dL</tspan>');
       });
 
       it('should have a legend', function() {
@@ -92,9 +92,9 @@ describe('one-day view', function() {
     describe('carbs and bolus pool', function() {
       it('should have a label', function() {
         expect(container.find('#poolBolus_label_0').size()).to.be.above(0);
-        expect(container.find('#poolBolus_label_0').html()).to.equal('Bolus<tspan> (U)</tspan>');
+        expect(container.find('#poolBolus_label_0').html()).to.equal('Bolus<tspan> u</tspan>');
         expect(container.find('#poolBolus_label_1').size()).to.be.above(0);
-        expect(container.find('#poolBolus_label_1').html()).to.equal(' &amp; Carbohydrates<tspan> (g)</tspan>');
+        expect(container.find('#poolBolus_label_1').html()).to.equal(' &amp; Carbohydrates<tspan> g</tspan>');
       });
 
       it('should have legends', function() {
@@ -106,7 +106,7 @@ describe('one-day view', function() {
     describe('basal pool', function() {
       it('should have a label', function() {
         expect(container.find('#poolBasal_label_0').size()).to.be.above(0);
-        expect(container.find('#poolBasal_label_0').html()).to.equal('Basal Rates<tspan> (U/hr)</tspan>');
+        expect(container.find('#poolBasal_label_0').html()).to.equal('Basal Rates<tspan> u/hr</tspan>');
       });
 
       it('should have a legend', function() {
@@ -430,6 +430,33 @@ describe('one-day view', function() {
         expect(boluses.size()).to.equal(24);
       });
     });
+
+    describe('basal data', function() {
+      var basalGroups;
+
+      it('should display forty-eight basal groups', function() {
+        basalGroups = container.find('.d3-basal-group');
+        expect(basalGroups.size()).to.equal(48);
+      });
+
+      it('should have a visible and invisible rect inside a basal group', function() {
+        var initialBasalGroup = basalGroups.filter(':first');
+        var innerRects = initialBasalGroup.find('rect');
+        expect(innerRects.size()).to.equal(2);
+        expect(innerRects.filter(':first').attr('class')).to.include('d3-rect-basal');
+        expect(innerRects.filter(':last').attr('class')).to.include('d3-basal-invisible');
+      });
+
+      it('should yield a tooltip and opacity change on mouseover over an invisible basal rect', function() {
+        var middleBasal = $(basalGroups[24]);
+        middleBasal.find('.d3-basal-invisible').simulate('mouseover');
+        var basalTooltip = container.find('#tidelineTooltips_basal .d3-tooltip');
+        expect(basalTooltip.size()).to.equal(1);
+        expect(middleBasal.find('.d3-rect-basal').attr('opacity')).to.be.above(0.3);
+        expect(basalTooltip.find('polygon').size()).to.equal(1);
+        // TODO: query rate and timestamp info?
+      });
+    });
   });
 
   describe('full day of data, quick boluses only', function() {
@@ -466,11 +493,11 @@ describe('one-day view', function() {
     });
 
     it('should yield an expanded, right and up tooltip on hover if it is an extended bolus near the left edge', function() {
-      var extended = $(boluses[12]);
+      var extended = $(boluses[15]);
       extended.simulate('mouseover');
       var extendedTooltipGroup = container.find('#tidelineTooltips_bolus').find('.d3-tooltip').filter(':last');
       expect(extendedTooltipGroup.find('.svg-tooltip-right-and-up').size()).to.equal(1);
-      expect(extendedTooltipGroup.find('.timestamp').html()).to.equal('2:25 am');
+      expect(extendedTooltipGroup.find('.timestamp').html()).to.equal('1:25 am');
       expect(extendedTooltipGroup.find('polygon').size()).to.equal(2);
     });
   });

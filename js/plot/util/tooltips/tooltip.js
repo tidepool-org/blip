@@ -141,6 +141,8 @@ function Tooltips(container, tooltipsGroup) {
     else if (atRightEdge) {
       selection.attr('transform', opts.rightEdgeTranslation);
     }
+    // no need for an else if atLeftEdge because translation at left edge
+    // would just be zero, which has the same effect as no translation
     this.setForeignObjDimensions(selection, opts);
     this.makeShape(selection, opts);
   };
@@ -217,7 +219,7 @@ function Tooltips(container, tooltipsGroup) {
     var isDefaultLeftNormal = opts.orientation && opts.orientation['default'] === 'leftAndUp';
 
     // moving the foreign object into place depending on orientation
-    // see wiki page for definition of offset
+    // see wiki page (https://github.com/tidepool-org/tideline/wiki/SVGTooltips) for definition of offset
     if (opts.y) {
       var offsetVal = shapes[shape].offset();
       if (isDefaultNormal || (isDefaultLeftNormal && atLeftEdge)) {
@@ -246,13 +248,17 @@ function Tooltips(container, tooltipsGroup) {
     // when content is centered, can't use getBoundingClientRect to get width on div
     // need to get it on components instead, and use widest one
     var widths = [];
-    var spans = foGroup.selectAll('span')
+    foGroup.selectAll('span')
       .each(function() {
         widths.push(d3.select(this)[0][0].getBoundingClientRect().width);
       });
-    var tables = foGroup.selectAll('table')
+    foGroup.selectAll('table')
       .each(function() {
         widths.push(d3.select(this)[0][0].getBoundingClientRect().width);
+      });
+    foGroup.selectAll('div.title.wider')
+      .each(function() {
+        widths.push(d3.select(this)[0][0].getBoundingClientRect().width - 20);
       });
     return {
       width: d3.max(widths),
