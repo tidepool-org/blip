@@ -12,6 +12,17 @@
 # You should have received a copy of the License along with this program; if
 # not, you can obtain one from Tidepool Project at tidepool.org.
 # == BSD2 LICENSE ==
+#
+# usage: gallery.py [-h] [-p] [-g] [-r] [-l]
+#
+# Easy tideline gallery management.
+#
+# optional arguments:
+#   -h, --help      show this help message and exit
+#   -p, --progress  update tideline current progress page
+#   -g, --gallery   add an item to the gallery
+#   -r, --remove    remove one or more items from the gallery
+#   -l, --list      list items currently in the gallery
 
 # for Python 3 compatibility
 from __future__ import print_function
@@ -23,6 +34,8 @@ except NameError:
 
 import argparse
 import json
+import os
+import shutil
 import subprocess
 
 REGISTRY='./web/_data/registry.yml'
@@ -34,12 +47,18 @@ def ask(question):
   print()
   return input(question)
 
+def update_data():
+  """Copy the demo data down into the gh-pages branch/directory."""
+
+  shutil.copy('example/data/device-data.json', 'web/example/data/')
+
 def update_progress():
   """Update the current progress page in the tideline gallery."""
 
   print()
   print('Building new current progress bundle...')
   subprocess.call(WEBPACK_COMMON %('bundle'), shell=True)
+  update_data()
   print()
 
 def add_to_gallery():
@@ -61,6 +80,7 @@ def add_to_gallery():
   print()
   print('Building new gallery bundle...')
   subprocess.call(WEBPACK_COMMON %(item['branch']), shell=True)
+  update_data()
   print()
 
   with open(REGISTRY, 'w') as f:
@@ -75,6 +95,8 @@ def add_to_gallery():
 
 def remove_from_gallery():
   """Remove one or all pages from the tideline gallery."""
+
+  PATH_PREFIX = 'web/example/'
 
   list_gallery()
 
@@ -93,13 +115,16 @@ def remove_from_gallery():
       reg = json.load(f)
       for to_remove in to_removes:
         try:
-          del reg[int(to_remove) - 1]
+          idx = int(to_remove) - 1
+          os.remove(PATH_PREFIX + reg[idx]['bundle'])
+          os.remove(PATH_PREFIX + reg[idx]['branch'] + '.md')
+          del reg[idx]
         except IndexError:
           print("There isn't a gallery item numbered %s, teapot!" %(to_remove))
           print()
 
     with open(REGISTRY, 'w') as f:
-      print(json.dumps(reg), file=f)
+      print(json.dumps(reg, indent=2, separators=(',', ': ')), file=f)
 
 def list_gallery(letters=False):
   """List current items in the tideline gallery."""
@@ -109,7 +134,7 @@ def list_gallery(letters=False):
     print()
     print('Items currently in the tideline gallery:')
     print()
-    [print((str(idx + 1) + '. ' if letters else ' - ') + item['title'] + ': ' + item['branch'].replace('-', '/')) for idx, item in enumerate(reg)]
+    [print((str(idx + 1) + '. ' if letters else ' - ') + item['title'] + ': ' + item['branch']) for idx, item in enumerate(reg)]
 
 def main():
   parser = argparse.ArgumentParser(description='Easy tideline gallery management.')
@@ -129,6 +154,16 @@ def main():
     add_to_gallery()
   if args.remove:
     remove_from_gallery()
+
+  if not args.list and not args.progress and not args.gallery and not args.remove:
+    print()
+    print("You didn't give a command-line option.")
+    print()
+    answer = input("Default to updating current progress page? ([y]/n) ")
+    if answer == 'y':
+      update_progress()
+    else:
+      print()
 
 if __name__ == '__main__':
   main()
