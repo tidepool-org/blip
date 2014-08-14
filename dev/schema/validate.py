@@ -14,6 +14,16 @@
 # You should have received a copy of the License along with this program; if
 # not, you can obtain one from Tidepool Project at tidepool.org.
 # == BSD2 LICENSE ==
+#
+# usage: validate.py [-h] [-s SCHEMA] [-d DATA]
+#
+# Validate a JSON data file against a specified JSON Schema.
+#
+# optional arguments:
+#   -h, --help            show this help message and exit
+#   -s SCHEMA, --schema SCHEMA
+#                         name of JSON Schema file
+#   -d DATA, --data DATA  name of JSON data file
 
 import json
 import jsonschema
