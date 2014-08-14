@@ -269,7 +269,7 @@ To run the unit tests, use:
 $ npm test
 ```
 
-Then open `http://localhost:8080/webpack/test` in your browser.
+Then open `http://localhost:8080/webpack-dev-server/test` in your browser.
 
 This also watches files and re-runs the tests when you make changes.
 
