@@ -1,4 +1,4 @@
-require('./lib/unitsetup');
+require('./lib/setup');
 
 require('./unit/datetimeutils.test');
 require('./unit/devicedata.test');

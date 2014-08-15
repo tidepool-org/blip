@@ -44,13 +44,16 @@
   },
   "devDependencies": {
     "blip-mock-data": "tidepool-org/blip-mock-data#v0.2.6",
+    "chai": "~1.9.1",
     "gulp": "~3.8.7",
     "gulp-jshint": "~1.8.4",
     "gulp-react": "~0.5.0",
     "jshint-stylish": "~0.4.0",
     "mocha": "~1.18.2",
     "mocha-loader": "~0.6.5",
-    "salinity": "~0.0.5",
+    "script-loader": "~0.6.0",
+    "sinon": "~1.10.3",
+    "sinon-chai": "~2.5.0",
     "webpack-dev-server": "~1.4.9"
   },
   "engines": {
