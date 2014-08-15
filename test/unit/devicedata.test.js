@@ -52,14 +52,14 @@ describe('dataHelpers', function(){
           expect(converted).deep.equals(
             [{
                id: 'abcd', deviceId: 'Demo - 123', deviceTime: '2014-01-01T01:00:00', value: 5.3,
-               type: 'bolus',
+               type: 'bolus', joinKey: 'myJoinKey',
                duration: 14400000,
                extended: true, initialDelivery: 3.6, extendedDelivery: 1.7,
                source: 'demo'
              },
              {
                id: '1234', deviceId: 'Demo - 123', deviceTime: '2014-01-01T01:00:00', value: 1.8,
-               type: 'bolus',
+               type: 'bolus', joinKey: 'yourJoinKey',
                duration: 14400000,
                extended: true, initialDelivery: 0.1, extendedDelivery: 1.7,
                source: 'demo'
@@ -164,7 +164,7 @@ describe('dataHelpers', function(){
           expect(converted).deep.equals(
             [{
                id: 'abcd', deviceId: 'Demo - 123', deviceTime: '2014-01-01T01:00:00', value: 5.3,
-               type: 'bolus',
+               type: 'bolus', joinKey: 'myJoinKey',
                duration: 14400000,
                extended: true, initialDelivery: 3.6, extendedDelivery: 1.7,
                source: 'demo'
@@ -214,7 +214,7 @@ describe('dataHelpers', function(){
           expect(converted).deep.equals(
             [{
                id: 'abcd', deviceId: 'Demo - 123', deviceTime: '2014-01-01T01:00:00', value: 5.3,
-               type: 'bolus',
+               type: 'bolus', joinKey: 'myJoinKey',
                duration: 14400000,
                extended: true, initialDelivery: 3.6, extendedDelivery: 1.7,
                source: 'demo'
@@ -223,7 +223,7 @@ describe('dataHelpers', function(){
              { id: 'sally', type: 'you\'re cute'},
              {
                id: '1234', deviceId: 'Demo - 123', deviceTime: '2014-01-01T01:00:00', value: 1.8,
-               type: 'bolus',
+               type: 'bolus', joinKey: 'yourJoinKey',
                duration: 14400000,
                extended: true, initialDelivery: 0.1, extendedDelivery: 1.7,
                source: 'demo'
