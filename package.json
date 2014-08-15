@@ -3,8 +3,8 @@
   "version": "0.1.23",
   "private": true,
   "scripts": {
-    "test": "webpack-dev-server 'mocha!./test/entry.js' --output-file test.js --devtool source-map --cache --colors --progress",
-    "start": "webpack-dev-server --devtool source-map --cache --colors --progress --port 3000",
+    "test": "webpack-dev-server 'mocha!./test/entry.js' --output-file test.js --devtool eval-source-map --cache --colors --progress",
+    "start": "webpack-dev-server --devtool eval-source-map --cache --colors --progress --port 3000",
     "build": "npm run build-app && npm run build-config",
     "build-app": "node buildapp",
     "build-config": "node buildconfig",
