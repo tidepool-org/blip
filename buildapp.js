@@ -9,7 +9,7 @@ console.log('Cleaning output directory "dist/"...');
 rm('-rf', 'dist');
 mkdir('-p', 'dist');
 
-var entry = process.env.MOCK ? './app/main.mock.js' : './app/main.prod.js';
+var entry = (process.env.MOCK === 'true') ? './app/main.mock.js' : './app/main.js';
 
 console.log('Building app...');
 exec('webpack --entry \'' + entry + '\' --output-file \'bundle.[hash].js\' --devtool source-map --colors --progress');

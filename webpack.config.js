@@ -1,6 +1,6 @@
 var path = require('path');
 
-var entry = process.env.MOCK ? './app/main.mock.js' : './app/main.js';
+var entry = (process.env.MOCK === 'true') ? './app/main.mock.js' : './app/main.js';
 
 module.exports = {
   entry: entry,
