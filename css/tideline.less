@@ -35,8 +35,8 @@
 @font-size-small-tooltips: @font-size-small;
 @font-size-large-tooltips: @font-size-large;
 @font-size-xlarge-tooltips: @font-size-xlarge;
-@font-size-puddle-head: @font-size-xlarge;
-@font-size-puddle-lead: @font-size-large;
+@font-size-puddle-head: @font-size-large;
+@font-size-puddle-lead: @font-size-medium;
 @font-size-puddle-number: 24px;
 @font-size-settings: @font-size-large;
 @font-size-annotations: @font-size-medium;
@@ -424,7 +424,6 @@ text.d3-tabular-ui {
     &.d3-stats-head {
       dominant-baseline: hanging;
       font-size: @font-size-puddle-head;
-      font-weight: bold;
       letter-spacing: 0.08em;
       text-transform: uppercase;
       fill: @stats-head;
@@ -434,9 +433,10 @@ text.d3-tabular-ui {
       fill: @stats-lead;
     }
     tspan {
-      dominant-baseline: hanging;
-      font-size: @font-size-puddle-number;
+      dominant-baseline: central;
+      baseline-shift: super;
       font-weight: bold;
+      font-size: @font-size-puddle-number;
       &.d3-stats-high {
         fill: @bg-high;
       }
@@ -447,7 +447,7 @@ text.d3-tabular-ui {
         fill: @bg-low;
       }
       &.d3-stats-percentage {
-        fill: @stats-percentage;
+        fill: @bg-target;
       }
       &.d3-stats-basal {
         fill: @basal;
