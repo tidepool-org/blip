@@ -43,7 +43,7 @@ module.exports = function(opts) {
     var displayGroup = selection.append('text')
       .attr({
         'x': opts.xOffset,
-        'y': opts.height / 2 + opts.leadSize,
+        'y': opts.height,
         'class': 'd3-stats-display'
       });
 
@@ -68,7 +68,7 @@ module.exports = function(opts) {
     selection.append('text')
       .attr({
         'x': opts.xOffset,
-        'y': opts.height / 2,
+        'y': opts.height * 0.45,
         'class': 'd3-stats-lead'
       })
       .text(opts.lead);

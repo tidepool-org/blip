@@ -43,7 +43,7 @@ module.exports = function(pool, opts) {
       exclusionThreshold: 7
     },
     size: 16,
-    pieRadius: pool.height() * 0.45,
+    pieRadius: pool.height() * 0.5,
     defaultAnnotationOpts: {
       lead: 'stats-insufficient-data',
       d: {annotations: [{code: 'stats-insufficient-data'}]},
@@ -196,18 +196,18 @@ module.exports = function(pool, opts) {
     rectGroup.append('rect')
       .attr({
         x: puddle.width() / 16,
-        y: pool.height() / 10,
-        width: puddle.width() / 8,
-        height: pool.height() * (4/5),
+        y: 0,
+        width: puddle.width() * (5/32),
+        height: pool.height(),
         class: 'd3-stats-rect rect-left'
       });
 
     rectGroup.append('rect')
       .attr({
-        x: puddle.width() * (3/16),
-        y: pool.height() / 10,
-        width: puddle.width() / 8,
-        height: pool.height() * (4/5),
+        x: puddle.width() * (7/32),
+        y: 0,
+        width: puddle.width() * (5/32),
+        height: pool.height(),
         class: 'd3-stats-rect rect-right'
       });
 
@@ -222,7 +222,7 @@ module.exports = function(pool, opts) {
     rectGroup.append('line')
       .attr({
         x1: puddle.width() / 16,
-        x2: puddle.width() * (5/16),
+        x2: puddle.width() * (7/16),
         y1: rectScale(80) + (pool.height() / 10),
         y2: rectScale(80) + (pool.height() / 10),
         class: 'd3-line-guide d3-line-bg-threshold'
@@ -231,7 +231,7 @@ module.exports = function(pool, opts) {
     rectGroup.append('line')
       .attr({
         x1: puddle.width() / 16,
-        x2: puddle.width() * (5/16),
+        x2: puddle.width() * (7/16),
         y1: rectScale(180) + (pool.height() / 10),
         y2: rectScale(180) + (pool.height() / 10),
         class: 'd3-line-guide d3-line-bg-threshold'
@@ -241,7 +241,7 @@ module.exports = function(pool, opts) {
 
     rectGroup.append('circle')
       .attr({
-        cx: (puddle.width() * (3/16)),
+        cx: (puddle.width() * (7/32)),
         cy: isFinite(imageY) ? imageY : 0,
         r: 7,
         class: getBgBoundaryClass(data)
