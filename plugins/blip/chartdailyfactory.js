@@ -76,7 +76,7 @@ function chartDailyFactory(el, options) {
       .id('poolXAxis', chart.poolGroup())
       .label('')
       .index(chart.pools().indexOf(poolXAxis))
-      .weight(0.55)
+      .weight(0.65)
       .gutterWeight(0.0);
 
     // messages pool
@@ -96,7 +96,7 @@ function chartDailyFactory(el, options) {
       }])
       .legend(['bg'])
       .index(chart.pools().indexOf(poolBG))
-      .weight(1.5)
+      .weight(2)
       .gutterWeight(1.0);
 
     // carbs and boluses data pool
@@ -314,7 +314,7 @@ function chartDailyFactory(el, options) {
       .scale(scaleBasal)
       .orient('left')
       .outerTickSize(0)
-      .ticks(4));
+      .ticks(2));
     // add background fill rectangles to basal pool
     poolBasal.addPlotType('fill', fill(poolBasal, {endpoints: chart.endpoints}), true, true);
 
