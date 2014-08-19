@@ -22,20 +22,25 @@
 // typography
 // @font-family-base shared with blip, but sizes are specific to tideline
 @font-family-base: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-@font-size-labels: 16px;
-@font-size-axes-linear: 12px;
-@font-size-axes: 14px;
+@font-size-xlarge: 16px;
+@font-size-large: 14px;
+@font-size-medium: 12px;
+@font-size-small: 11px;
+
+@font-size-labels: @font-size-large;
+@font-size-axes-linear: @font-size-medium;
+@font-size-axes: @font-size-large;
 @font-size-axes-days: 13px;
-@font-size-small: 12px;
-@font-size-small-tooltips: 11px;
-@font-size-large-tooltips: 14px;
-@font-size-xlarge-tooltips: 16px;
-@font-size-puddle-head: 16px;
-@font-size-puddle-lead: 14px;
+@font-size-small: @font-size-medium;
+@font-size-small-tooltips: @font-size-small;
+@font-size-large-tooltips: @font-size-large;
+@font-size-xlarge-tooltips: @font-size-xlarge;
+@font-size-puddle-head: @font-size-xlarge;
+@font-size-puddle-lead: @font-size-large;
 @font-size-puddle-number: 24px;
-@font-size-settings: 14px;
-@font-size-annotations: 12px;
-@font-size-tabular-basal-settings: 12px;
+@font-size-settings: @font-size-large;
+@font-size-annotations: @font-size-medium;
+@font-size-tabular-basal-settings: @font-size-medium;
 @pool-label-baseline: 30%;
 
 svg {
@@ -298,7 +303,6 @@ div.d3-tabular-ui {
     cursor: pointer;
     font-size: @font-size-axes;
     [class^="icon-"]:before {
-      vertical-align: text-bottom;
     }
   }
 }
