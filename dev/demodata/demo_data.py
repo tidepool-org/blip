@@ -795,8 +795,9 @@ def print_JSON(all_json, out_file, minify=False):
                         time = dt.strptime(a['deviceTime'], '%Y-%m-%dT%H:%M:%S')
                         dur = td(milliseconds=(a['duration']/fraction))
                         a['suspendedAt'] = dt.strftime(time + dur, '%Y-%m-%dT%H:%M:%S')
+                        suspendId = str(uuid.uuid4())
                         suspend = {
-                            'id': str(uuid.uuid4()),
+                            'id': suspendId,
                             'reason': reason,
                             'type': 'deviceMeta',
                             'subType': 'status',
@@ -814,7 +815,7 @@ def print_JSON(all_json, out_file, minify=False):
                             'deviceTime': dt.strftime(time + dur * 2 + td(minutes=random.choice(range(-5,6))), '%Y-%m-%dT%H:%M:%S'),
                             'deviceId': 'Demo - 123',
                             'source': 'demo',
-                            'previous': suspend
+                            'joinKey': suspendId
                         }
                         suspends.append(suspend)
                         suspends.append(resume)
