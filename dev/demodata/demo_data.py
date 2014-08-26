@@ -254,7 +254,7 @@ class Basal:
 
         current_datetime = start
 
-        basal_possibilities = [x / 100.0 for x in range(0, 205,5)]
+        basal_possibilities = [x / 100.0 for x in range(0, 155,5)]
 
         while current_datetime < end:
             days_delta = td(days=random.choice(day_skip))
@@ -785,6 +785,7 @@ def print_JSON(all_json, out_file, minify=False):
 
         # find extended boluses where programmed differs from delivered
         # and add a 'suspendedAt' field
+        # TODO: remove when we have nurse-shark
         if not minify:
             try:
                 if (a['type'] == 'bolus') and a['extended'] and a['programmed']:
@@ -793,8 +794,15 @@ def print_JSON(all_json, out_file, minify=False):
                     reason = random.choice(['manual', 'low_glucose', 'alarm'])
                     if coin_flip:
                         time = dt.strptime(a['deviceTime'], '%Y-%m-%dT%H:%M:%S')
-                        dur = td(milliseconds=(a['duration']/fraction))
-                        a['suspendedAt'] = dt.strftime(time + dur, '%Y-%m-%dT%H:%M:%S')
+                        dur = a['duration']/fraction
+                        a['suspendedAt'] = dt.strftime(time + td(milliseconds=dur), '%Y-%m-%dT%H:%M:%S')
+                        # change delivered bolus value to be calculated from suspendedAt
+                        fraction_delivered = dur/float(a['duration'])
+                        if not 'initialDelivery' in a.keys():
+                            a['value'] = round(fraction_delivered * a['programmed'], 1)
+                        elif 'initialDelivery' in a.keys():
+                            extended_delivered = round(fraction_delivered * a['extendedDelivery'], 1)
+                            a['value'] = round(extended_delivered + a['initialDelivery'], 1)
                         suspendId = str(uuid.uuid4())
                         suspend = {
                             'id': suspendId,
@@ -812,7 +820,7 @@ def print_JSON(all_json, out_file, minify=False):
                             'type': 'deviceMeta',
                             'subType': 'status',
                             'status': 'resumed',
-                            'deviceTime': dt.strftime(time + dur * 2 + td(minutes=random.choice(range(-5,6))), '%Y-%m-%dT%H:%M:%S'),
+                            'deviceTime': dt.strftime(time + td(milliseconds=dur) * 2 + td(minutes=random.choice(range(-5,6))), '%Y-%m-%dT%H:%M:%S'),
                             'deviceId': 'Demo - 123',
                             'source': 'demo',
                             'joinKey': suspendId
