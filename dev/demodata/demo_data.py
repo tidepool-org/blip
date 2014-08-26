@@ -254,7 +254,7 @@ class Basal:
 
         current_datetime = start
 
-        basal_possibilities = [x / 100.0 for x in range(0, 205,5)]
+        basal_possibilities = [x / 100.0 for x in range(0, 155,5)]
 
         while current_datetime < end:
             days_delta = td(days=random.choice(day_skip))
@@ -745,16 +745,24 @@ def _fix_floating_point(a):
 
     return map(lambda i: {key: (round(val, 3) if isinstance(val, float) else val) for key, val in i.items() }, a)
 
-def print_JSON(all_json, out_file):
+def print_JSON(all_json, out_file, minify=False):
 
     # add deviceId field to smbg, boluses, carbs, and basal-rate-segments
     pump_fields = ['smbg', 'carbs', 'wizard', 'bolus', 'basal-rate-segment', 'settings']
+    units_fieds = ['cbg', 'smbg', 'carbs']
     annotation_fields = ['bolus', 'basal-rate-segment']
     suspends = []
     for a in all_json:
-        if a['type'] in pump_fields:
-            a['deviceId'] = 'Demo - 123'
-            a['source'] = 'demo'
+        if not minify:
+            if a['type'] in pump_fields:
+                a['deviceId'] = 'Demo - 123'
+                a['source'] = 'demo'
+        else:
+            if a['type'] == 'cbg':
+                del a['deviceId']
+                del a['source']
+            if a['type'] in units_fieds:
+                del a['units']
         # temporarily add a device time to messages to enable sorting
         try:
             t = a['utcTime']
@@ -769,47 +777,58 @@ def print_JSON(all_json, out_file):
             pass
 
         # add some annotations
-        if a['type'] in annotation_fields:
-            num = random.choice(range(0,15))
-            if not num:
-                a['annotations'] = [{'code': 'demo annotation'}]
+        if not minify:
+            if a['type'] in annotation_fields:
+                num = random.choice(range(0,15))
+                if not num:
+                    a['annotations'] = [{'code': 'demo annotation'}]
 
         # find extended boluses where programmed differs from delivered
         # and add a 'suspendedAt' field
-        try:
-            if (a['type'] == 'bolus') and a['extended'] and a['programmed']:
-                fraction = random.choice([4,3,2])
-                coin_flip = random.choice([0,1])
-                reason = random.choice(['manual', 'low_glucose', 'alarm'])
-                if coin_flip:
-                    time = dt.strptime(a['deviceTime'], '%Y-%m-%dT%H:%M:%S')
-                    dur = td(milliseconds=(a['duration']/fraction))
-                    a['suspendedAt'] = dt.strftime(time + dur, '%Y-%m-%dT%H:%M:%S')
-                    suspend = {
-                        'id': str(uuid.uuid4()),
-                        'reason': reason,
-                        'type': 'deviceMeta',
-                        'subType': 'status',
-                        'status': 'suspended',
-                        'deviceTime': a['suspendedAt'],
-                        'deviceId': 'Demo - 123',
-                        'source': 'demo'
-                    }
-                    resume = {
-                        'id': str(uuid.uuid4()),
-                        'reason': random.choice(['manual', 'automatic']),
-                        'type': 'deviceMeta',
-                        'subType': 'status',
-                        'status': 'resumed',
-                        'deviceTime': dt.strftime(time + dur * 2 + td(minutes=random.choice(range(-5,6))), '%Y-%m-%dT%H:%M:%S'),
-                        'deviceId': 'Demo - 123',
-                        'source': 'demo',
-                        'previous': suspend
-                    }
-                    suspends.append(suspend)
-                    suspends.append(resume)
-        except KeyError:
-            pass
+        # TODO: remove when we have nurse-shark
+        if not minify:
+            try:
+                if (a['type'] == 'bolus') and a['extended'] and a['programmed']:
+                    fraction = random.choice([4,3,2])
+                    coin_flip = random.choice([0,1])
+                    reason = random.choice(['manual', 'low_glucose', 'alarm'])
+                    if coin_flip:
+                        time = dt.strptime(a['deviceTime'], '%Y-%m-%dT%H:%M:%S')
+                        dur = a['duration']/fraction
+                        a['suspendedAt'] = dt.strftime(time + td(milliseconds=dur), '%Y-%m-%dT%H:%M:%S')
+                        # change delivered bolus value to be calculated from suspendedAt
+                        fraction_delivered = dur/float(a['duration'])
+                        if not 'initialDelivery' in a.keys():
+                            a['value'] = round(fraction_delivered * a['programmed'], 1)
+                        elif 'initialDelivery' in a.keys():
+                            extended_delivered = round(fraction_delivered * a['extendedDelivery'], 1)
+                            a['value'] = round(extended_delivered + a['initialDelivery'], 1)
+                        suspendId = str(uuid.uuid4())
+                        suspend = {
+                            'id': suspendId,
+                            'reason': reason,
+                            'type': 'deviceMeta',
+                            'subType': 'status',
+                            'status': 'suspended',
+                            'deviceTime': a['suspendedAt'],
+                            'deviceId': 'Demo - 123',
+                            'source': 'demo'
+                        }
+                        resume = {
+                            'id': str(uuid.uuid4()),
+                            'reason': random.choice(['manual', 'automatic']),
+                            'type': 'deviceMeta',
+                            'subType': 'status',
+                            'status': 'resumed',
+                            'deviceTime': dt.strftime(time + td(milliseconds=dur) * 2 + td(minutes=random.choice(range(-5,6))), '%Y-%m-%dT%H:%M:%S'),
+                            'deviceId': 'Demo - 123',
+                            'source': 'demo',
+                            'joinKey': suspendId
+                        }
+                        suspends.append(suspend)
+                        suspends.append(resume)
+            except KeyError:
+                pass
 
     all_json = _fix_floating_point(sorted(all_json + suspends, key=lambda x: x['deviceTime']))
 
@@ -828,7 +847,10 @@ def print_JSON(all_json, out_file):
             pass
 
     with open(out_file, 'w') as f:
-        f.write(json.dumps(all_json, indent=4, separators=(',', ': ')))
+        if not minify:
+            f.write(json.dumps(all_json, indent=4, separators=(',', ': ')))
+        else:
+            f.write(json.dumps(all_json, separators=(',',':')))
 
 def main():
 
@@ -837,11 +859,15 @@ def main():
     parser.add_argument('-m', '--mock', action='store_true', help='shortcut for producing new mock data for blip')
     parser.add_argument('-n', '--num_days', action='store', dest='num_days', default=30, type=int, help='number of days of demo data to generate;\ndefault is 30')
     parser.add_argument('-o', '--output_file', action='store', dest='output_file', default='device-data.json', help='name of output JSON file;\ndefault is device-data.json')
+    parser.add_argument('-s', '--start_date', action='store', dest="start_date", help='ISO 8601 start date\ndefault is now')
+    parser.add_argument('-t', '--minify', action='store_true', default=False, help='print bare minimum fields and minify JSON')
     parser.add_argument('-q', '--quiet_messages', action='store_true', dest='quiet_messages', help='use this flag to turn off messages when bacon ipsum is being slow')
     args = parser.parse_args()
 
     if args.mock:
         dex = Dexcom(args.dexcom_segments, args.num_days, dt(2014, 2, 11, 23, 50, 23, random.choice(MICRO)))
+    elif args.start_date:
+        dex = Dexcom(args.dexcom_segments, args.num_days, dt.strptime(args.start_date + '.040881', '%Y-%m-%dT%H:%M:%S.%f'))
     else:
         dex = Dexcom(args.dexcom_segments, args.num_days)
     dex.generate_JSON()
@@ -858,13 +884,18 @@ def main():
 
     settings = Settings(basal.schedule, boluses.ratio, dex.final, args.num_days)
 
-    if args.mock or args.quiet_messages:
+    if args.minify:
+        all_json = dex.json + smbg.json + basal.json + meals.json + boluses.json
+    elif args.mock or args.quiet_messages:
         all_json = dex.json + smbg.json + basal.json + meals.json + wizards.json + boluses.json + settings.json
     else:
         messages = Messages(smbg)
         all_json = dex.json + smbg.json + basal.json + meals.json + wizards.json + boluses.json + messages.json + settings.json
 
-    print_JSON(all_json, args.output_file)
+    if not args.minify:
+        print_JSON(all_json, args.output_file)
+    else:
+        print_JSON(all_json, args.output_file, args.minify)
     print()
 
 if __name__ == '__main__':
