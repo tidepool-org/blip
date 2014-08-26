@@ -227,15 +227,17 @@ var AppComponent = React.createClass({
 
       return (
         /* jshint ignore:start */
-        <Navbar
-          version={config.VERSION}
-          user={this.state.user}
-          fetchingUser={this.state.fetchingUser}
-          patient={patient}
-          fetchingPatient={this.state.fetchingPatient}
-          getUploadUrl={getUploadUrl}
-          onLogout={this.logout}
-          trackMetric={trackMetric}/>
+        <div className="App-navbar">
+          <Navbar
+            version={config.VERSION}
+            user={this.state.user}
+            fetchingUser={this.state.fetchingUser}
+            patient={patient}
+            fetchingPatient={this.state.fetchingPatient}
+            getUploadUrl={getUploadUrl}
+            onLogout={this.logout}
+            trackMetric={trackMetric}/>
+        </div>
         /* jshint ignore:end */
       );
     }

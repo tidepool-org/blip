@@ -13,6 +13,24 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+.App-navbar {
+  margin: auto;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding-left: @spacing-small;
+  padding-right: @spacing-small;
+
+  @media(min-width: @screen-md-min) {
+    margin-bottom: 40px;
+  }
+
+  @media(min-width: @screen-lg-min) {
+    width: (@screen-lg-min - 2*20px);
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
 .footer {
   text-align: center;
   margin-bottom: @spacing-large;

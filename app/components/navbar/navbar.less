@@ -13,24 +13,81 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-@import 'shame.less';
+// Layout
+// ====================================
 
-@navbar-logo-width:     40px;
-@navbar-logo-height:    40px;
-@navbar-item-vertical-padding:    @nav-item-vertical-padding;
-@navbar-item-horizontal-padding:  @spacing-tiny;
-@navbar-height:         (@navbar-logo-height + 2*@navbar-item-vertical-padding);
+@Navbar-height: 60px;
 
-.navbar {
-  margin-top: @spacing-base;
-  margin-bottom: @spacing-base;
-
-  @media(min-width: @screen-md-min) {
-    margin-bottom: @spacing-large;
-  }
+.Navbar {
+  display: flex;
 }
 
-.navbar a {
+@Navbar-logoHeight: 40px;
+
+.Navbar-logoSection {
+  width: @Navbar-logoHeight;
+}
+
+.Navbar-menuSection {
+  // Magic number width: should contain whole menu,
+  // and put some space between menu an patient section
+  width: 400px;
+
+  // Align child items to the right (flex-end)
+  // and to the top (default)
+  display: flex;
+  justify-content: flex-end;
+}
+
+.Navbar-patientSection {
+  // Use remaining space
+  flex-grow: 1;
+
+  // Align child items to the right (flex-end)
+  // and center vertically
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+// Logo section
+// ====================================
+
+.Navbar-logo {
+  display: block;
+  background-image: url('images/blip-logo-80x80.png');
+  background-repeat: no-repeat;
+  background-size: @Navbar-logoHeight;
+  height: @Navbar-logoHeight;
+}
+
+@Navbar-versionHeight: (@Navbar-height - @Navbar-logoHeight);
+
+.Navbar-version {
+  font-size: 12px;
+  line-height: @Navbar-versionHeight;
+  height: @Navbar-versionHeight;
+  text-align: center;
+  color: @gray-dark;
+}
+
+// Buttons, icons, labels
+// ====================================
+
+@Navbar-iconSize: 20px;
+
+.Navbar-icon {
+  width: @Navbar-iconSize;
+  font-size: 16px;
+}
+
+@Navbar-buttonHeight: 20px;
+
+.Navbar-button {
+  font-size: 14px;
+  line-height: @Navbar-buttonHeight;
+  height: @Navbar-buttonHeight;
+
   color: @gray-dark;
   text-decoration: none;
 
@@ -45,181 +102,125 @@
   }
 }
 
-.navbar-logo {
-  > img {
-    width: @navbar-logo-width;
-    height: @navbar-logo-height;
-  }
+.Navbar-button--leftLabel {
+  display: flex;
+
+  // Hack to give room to things on the right
+  margin-right: 8px;
 }
 
-// Align vertically with logo
-.navbar-version,
-.navbar-user {
-  margin-top: (@spacing-base/2);
-  margin-bottom: (@spacing-base/2);
-}
-
-// Decrease default .nav items horizontal padding
-.navbar {
-  .nav > li {
-    > a,
-    .nav-text {
-      display: block;
-      padding-left: @navbar-item-horizontal-padding;
-      padding-right: @navbar-item-horizontal-padding;
-    }
-  }
-
-  .nav-left {
-    margin-left: -@navbar-item-horizontal-padding;
-  }
-
-  .nav-right {
-    margin-right: -@navbar-item-horizontal-padding;
-  }
-}
-
-// Navbar labels
-// ====================================
-
-@navbar-label-font-size:          14px;
-@navbar-label-line-height:        22px;
-@navbar-label-horizontal-padding: @spacing-tiny;
-
-// Warning: the spacings below are "hacks" so things align properly
-// with Open Sans 14px as the label font
-// Eventually will have to revisit this UI piece and make it a nicer,
-// reusable component
-
-.navbar-label {
+.Navbar-labelContent {
+  // All label content blocks need to have this so they align vertically
+  // Note: "text-overflow: ellipsis" will only trigger if you set a "max-width"
   display: inline-block;
-
-  padding-left: @navbar-label-horizontal-padding;
-  padding-right: @navbar-label-horizontal-padding;
-
-  font-size: @navbar-label-font-size;
-  // "Hack" to make it look not too squeezed with font face and size
-  line-height: @navbar-label-line-height;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  // Necessary when using text-overflow, according to SO
+  white-space: nowrap;
 
   color: #fff;
   background-color: @gray-dark;
+
+  .Navbar-button:hover &,
+  .Navbar-button:focus & {
+    background-color: @gray-darkest;
+  }
+
+  .Navbar-button:active & {
+    background-color: @gray;
+  }
 }
 
-.navbar-label-link:hover > .navbar-label,
-.navbar-label-link:focus > .navbar-label {
-  background-color: @gray-darkest;
-}
-
-.navbar-label-link:active > .navbar-label {
-  background-color: @gray;
-}
-
-.navbar-label-arrow-right {
-  display: inline-block;
-
+.Navbar-leftLabelArrow {
   width: 0;
   height: 0;
-  border-top: (@navbar-label-line-height/2) solid transparent;
-  border-bottom: (@navbar-label-line-height/2) solid transparent;
+  border-top: (@Navbar-buttonHeight/2) solid transparent;
+  border-bottom: (@Navbar-buttonHeight/2) solid transparent;
 
   border-left: 10px solid @gray-dark;
-
-  // "Hack" to align vertically with label
-  margin-bottom: -6px;
-}
-
-.navbar-label-arrow-right-profile {
-  color: @gray-dark;
-}
-
-.navbar-label-arrow-right-profile {
-  color: @gray-dark;
-}
-
-.navbar-label-link:hover > .navbar-label-arrow-right-profile,
-.navbar-label-link:focus > .navbar-label-arrow-right-profile {
-  color: @gray-darkest;
-}
-
-.navbar-label-right {
-  padding-left: @spacing-base;
-}
-
-.navbar-label-link:hover > .navbar-label-arrow-right,
-.navbar-label-link:focus > .navbar-label-arrow-right {
-  border-left-color: @gray-darkest;
-}
-
-.navbar-label-link:active > .navbar-label-arrow-right {
-  border-left-color: @gray;
-}
-
-.nav > li > a.navbar-label-link {
-  color: #fff;
   background: none;
 
-  // "Hack" for vertical padding
-  padding: 9px @navbar-item-horizontal-padding;
+  .Navbar-button:hover &,
+  .Navbar-button:focus & {
+    border-left-color: @gray-darkest;
+    background: none;
+  }
 
-  &:hover,
-  &:focus {
-    color: #fff;
+  .Navbar-button:active & {
+    border-left-color: @gray;
     background: none;
   }
 }
 
-// Navbar user
+.Navbar-button--blue {
+  color: @blue-green;
+  text-decoration: none;
+
+  &:hover,
+  &:focus,
+  &:active {
+    color: @blue-green-light;
+    text-decoration: none;
+  }
+}
+
+// Menu section
 // ====================================
 
-.navbar-user-name {
-  font-weight: bold;
+.Navbar-menuSection {
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-// Navbar patient
+.Navbar-loggedInAs {
+  padding-left: 20px;
+  padding-right: 5px;
+}
+
+.Navbar-userName {
+  padding-right: 5px;
+
+  // Set width to trigger "text-overflow: ellipsis"
+  // Make sure to take into account padding
+  max-width: (140px + 5px);
+}
+
+.Navbar-menuItem .Navbar-icon {
+  padding-left: 2px;
+}
+
+// Patient section
 // ====================================
 
-.navbar-patient {
-  text-align: center;
+.Navbar-patientName {
+  padding-left: 20px;
+  padding-right: 5px;
+
+  // Set width to trigger "text-overflow: ellipsis"
+  // Make sure to take into account padding
+  max-width: (140px + 20px + 5px);
 }
 
-.navbar-patient-name {
+@Navbar-patientPictureSize: 60px;
+
+.Navbar-patientPicture {
+  background-image: url('images/profile-120x120.png');
+  background-repeat: no-repeat;
+  background-size: @Navbar-patientPictureSize;
+  width: @Navbar-patientPictureSize;
+  height: @Navbar-patientPictureSize;
+}
+
+.Navbar-uploadButton {
+  margin-left: 5px;
+
+  // Magic number: when upload button is hidden, keep layout of items
+  // Set this to whatever the width is of the icon + "Upload data" label
+  min-width: 112px;
+}
+
+.Navbar-uploadLabel {
   display: inline-block;
-  font-weight: bold;
-  font-size: 20px;
-  line-height: 30px;
-
-  padding: 0 @navbar-item-horizontal-padding;
-}
-
-.navbar-patient-links a {
-  display: inline-block;
-  font-weight: bold;
-  font-size: 14px;
-  line-height: 20px;
-
-  padding: @spacing-tiny @navbar-item-horizontal-padding;
-}
-
-@media print {
-  .navbar {
-    margin-bottom: 40px;
-    margin-top: 20px;
-  }
-  .navbar-patient {
-    padding-top: 15px;
-  }
-  .navbar-patient-links {
-    display: none;
-  }
-  .navbar-user-icon {
-    display: none !important;
-  }
-
-  .navbar-label-arrow-right {
-    background: transparent;
-    color: @gray;
-  }
-  .navbar-label-arrow-right {
-    display: none;
-  }
+  margin-left: 5px;
 }
