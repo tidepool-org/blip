@@ -112,32 +112,22 @@ function Pool (container) {
   // only once methods
   this.drawLabel = _.once(function() {
     label = label || [];
-    var labels = [], widths = [];
+
+    var htmlString = '';
     if (label.length > 0) {
-      _.each(label, function(l, i) {
-        labels.push(
-          mainSVG.select('#tidelineLabels')
-          .append('text')
-          .attr({
-            'id': id + '_label_' + i,
-            'class': 'd3-pool-label'
-          })
-          .text(l.main));
-      });
-      var currentX = container.axisGutter();
-      _.each(labels, function(l, i) {
-        l.append('tspan')
-          .text(label[i].light)
-          .each(function() {
-            widths.push(this.getBBox().width);
-          });
-        if (widths[i - 1]) {
-          currentX = currentX + widths[i - 1];
-        }
-        l.attr({
-          'xml:space': 'preserve',
-          'transform': 'translate(' + currentX  + ',' + yPosition + ')'
+      var labelGroup = mainSVG.select('#tidelineLabels').append('text')
+        .attr({
+          id: id + '_label',
+          'class': 'd3-pool-label',
+          'transform': 'translate(' + container.axisGutter() + ',' + yPosition + ')'
         });
+      _.each(label, function(l) {
+        labelGroup.append('tspan')
+          .attr('class', 'main')
+          .text(l.main);
+        labelGroup.append('tspan')
+          .attr('class', 'light')
+          .text(l.light);
       });
     }
 

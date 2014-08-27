@@ -41,7 +41,12 @@
 @font-size-settings: @font-size-large;
 @font-size-annotations: @font-size-medium;
 @font-size-tabular-basal-settings: @font-size-medium;
-@pool-label-baseline: 30%;
+
+// mixins
+.label-baseline {
+  dominant-baseline: central;
+  baseline-shift: super;
+}
 
 svg {
   display: block;
@@ -107,15 +112,17 @@ svg {
 
 // pool labels
 .d3-pool-label {
-  text-transform: uppercase;
-  font-size: @font-size-labels;
-  font-weight: 600;
-  fill: @text;
-  baseline-shift: @pool-label-baseline;
   tspan {
-    font-weight: 300;
-    text-transform: none;
-    baseline-shift: @pool-label-baseline;
+    .label-baseline;
+    font-size: @font-size-labels;
+    fill: @text;
+    &.main {
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    &.light {
+      font-weight: 300;
+    }
   }
 }
 
@@ -124,7 +131,7 @@ svg {
   font-size: @font-size-axes;
   text-anchor: end;
   fill: @text-light;
-  baseline-shift: @pool-label-baseline;
+  .label-baseline;
 }
 
 .d3-pool-weekend {
@@ -311,7 +318,7 @@ text.d3-tabular-ui {
   fill: @text-light;
   cursor: pointer;
   font-size: @font-size-axes;
-  baseline-shift: @pool-label-baseline;
+  .label-baseline;
 }
 
 .d3-cell-rect {

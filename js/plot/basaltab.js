@@ -147,7 +147,7 @@ module.exports = function(pool, opts) {
   };
 
   basaltab.hideText = function(d) {
-    if (this.getBBox().width > basaltab.width(d)) {
+    if (this.getBoundingClientRect().width > basaltab.width(d)) {
       d3.select(this).attr('display', 'none');
     }
   };

@@ -299,10 +299,14 @@ module.exports = function(emitter) {
       .attr({
         'class': 'd3-pool-label',
         transform: 'translate(' + axisGutter + ',' + nav.navGutter + ')'
-      })
+      });
+
+    labelGroup.append('tspan')
+      .attr('class', 'main')
       .text(l.main);
 
     labelGroup.append('tspan')
+      .attr('class', 'light')
       .text(l.light);
 
     var legendGroup = labelHolder.append('g')

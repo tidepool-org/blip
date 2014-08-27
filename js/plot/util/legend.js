@@ -42,8 +42,8 @@ var legend = {
           })
           .text('delivered')
           .each(function() {
-            opts.widths.push(this.getBBox().width);
-            opts.textHeight = this.getBBox().height;
+            opts.widths.push(this.getBoundingClientRect().width);
+            opts.textHeight = this.getBoundingClientRect().height;
           });
       },
       type: 'text'
@@ -66,7 +66,7 @@ var legend = {
           })
           .text('scheduled')
           .each(function() {
-            opts.widths.push(this.getBBox().width);
+            opts.widths.push(this.getBoundingClientRect().width);
           });
       },
       type: 'text'
@@ -81,8 +81,8 @@ var legend = {
           })
           .text('high')
           .each(function() {
-            opts.widths.push(this.getBBox().width);
-            opts.textHeight = this.getBBox().height;
+            opts.widths.push(this.getBoundingClientRect().width);
+            opts.textHeight = this.getBoundingClientRect().height;
           });
       },
       type: 'text'
@@ -145,7 +145,7 @@ var legend = {
           })
           .text('low')
           .each(function() {
-            opts.widths.push(this.getBBox().width);
+            opts.widths.push(this.getBoundingClientRect().width);
           });
       },
       type: 'text'
@@ -170,8 +170,8 @@ var legend = {
           })
           .text('delivered')
           .each(function() {
-            opts.widths.push(this.getBBox().width);
-            opts.textHeight = this.getBBox().height;
+            opts.widths.push(this.getBoundingClientRect().width);
+            opts.textHeight = this.getBoundingClientRect().height;
           });
       },
       type: 'text'
@@ -194,8 +194,8 @@ var legend = {
           })
           .text('recommended')
           .each(function() {
-            opts.widths.push(this.getBBox().width);
-            opts.textHeight = this.getBBox().height;
+            opts.widths.push(this.getBoundingClientRect().width);
+            opts.textHeight = this.getBoundingClientRect().height;
           });
       },
       type: 'text'
@@ -220,8 +220,8 @@ var legend = {
           })
           .text('carbs')
           .each(function() {
-            opts.widths.push(this.getBBox().width);
-            opts.textHeight = this.getBBox().height;
+            opts.widths.push(this.getBoundingClientRect().width);
+            opts.textHeight = this.getBoundingClientRect().height;
           });
       },
       type: 'text'
@@ -288,7 +288,7 @@ var legend = {
         .attr('y', -(opts.textHeight - this.SHAPE_MARGIN*2));
     }
     var w;
-    selection.each(function() { w = this.getBBox(); });
+    selection.each(function() { w = this.getBoundingClientRect(); });
     return w;
   }
 };

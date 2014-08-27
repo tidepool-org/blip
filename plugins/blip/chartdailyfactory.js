@@ -462,8 +462,8 @@ function chartDailyFactory(el, options) {
   chart.drawBasalSettingsButton = function() {
     var labelGroup = chart.svg().select('#tidelineLabels');
     var labelTextBox = chart.options.hiddenPools.basalSettings ?
-      labelGroup.select('text#poolBasal_label_0')[0][0].getBBox() :
-      labelGroup.select('text#poolBasalSettings_label_0')[0][0].getBBox();
+      labelGroup.select('text#poolBasal_label')[0][0].getBoundingClientRect() :
+      labelGroup.select('text#poolBasalSettings_label')[0][0].getBoundingClientRect();
     var verticalTranslation = chart.options.hiddenPools.basalSettings ?
       poolBasal.yPosition() - labelTextBox.height :
       poolBasalSettings.yPosition() - labelTextBox.height;
