@@ -15,12 +15,15 @@
  * == BSD2 LICENSE ==
  */
 
+/* global __DEV__ */
+
 var d3 = require('d3');
 var _ = require('lodash');
 
 var legend = require('./plot/util/legend');
 
 var log = require('bows')('Pool');
+
 
 function Pool (container) {
 
@@ -57,8 +60,14 @@ function Pool (container) {
 
     this.drawAxes();
     this.updateAxes();
-    this.drawLabel();
-    this.drawLegend();
+    if (__DEV__) {
+      var that = this;
+      setTimeout(function() { that.drawLabel(); that.drawLegend(); }, 75);
+    }
+    else {
+      this.drawLabel();
+      this.drawLegend();
+    }
   };
 
   this.clear = function() {
