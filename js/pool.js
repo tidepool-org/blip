@@ -62,7 +62,7 @@ function Pool (container) {
     this.updateAxes();
     if (__DEV__) {
       var that = this;
-      setTimeout(function() { that.drawLabel(); that.drawLegend(); }, 75);
+      setTimeout(function() { that.drawLabel(); that.drawLegend(); }, 450);
     }
     else {
       this.drawLabel();

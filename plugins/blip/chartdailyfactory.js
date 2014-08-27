@@ -419,7 +419,7 @@ function chartDailyFactory(el, options) {
 
     if (poolBasalSettings !== undefined) {
       if (__DEV__) {
-        setTimeout(function() { chart.drawBasalSettingsButton(); }, 150);
+        setTimeout(function() { chart.drawBasalSettingsButton(); }, 500);
       }
       else {
         chart.drawBasalSettingsButton();
