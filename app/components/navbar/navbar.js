@@ -34,33 +34,22 @@ var Navbar = React.createClass({
   },
 
   render: function() {
-    var logo = this.renderLogo();
-    var version = this.renderVersion();
-    var patient = this.renderPatient();
-    var user = this.renderUser();
-
-    /* jshint ignore:start */
     return (
-      <div className="container-nav-outer navbar">
-        <div className="container-nav-inner nav-wrapper">
-          <div className="grid">
-            <div className="grid-item one-whole large-one-third">
-              <ul className="nav nav-left">
-                {logo}
-                {version}
-              </ul>
-            </div>
-            <div className="grid-item one-whole large-one-third">
-              {patient}
-            </div>
-            <div className="grid-item one-whole large-one-third">
-              {user}
-            </div>
-          </div>
-        </div>
+      <div className="Navbar">
+        {this.renderLogoSection()}
+        {this.renderPatientSection()}
+        {this.renderMenuSection()}
       </div>
     );
-    /* jshint ignore:end */
+  },
+
+  renderLogoSection: function() {
+    return (
+      <div className="Navbar-logoSection">
+        {this.renderLogo()}
+        {this.renderVersion()}
+      </div>
+    );
   },
 
   renderLogo: function() {
@@ -69,40 +58,29 @@ var Navbar = React.createClass({
       self.props.trackMetric('Clicked Navbar Logo');
     };
 
-    /* jshint ignore:start */
     return (
-      <li>
-        <a
-          href="#/"
-          className="navbar-logo"
-          onClick={handleClick}>
-          <img src={logoSrc} alt="Blip" ref="logo" />
-        </a>
-      </li>
+      <a
+        href="#/"
+        className="Navbar-logo"
+        onClick={handleClick}>
+      </a>
     );
-    /* jshint ignore:end */
   },
 
   renderVersion: function() {
     var version = this.props.version;
     if (version) {
       version = 'v' + version;
-      return (
-        /* jshint ignore:start */
-        <li className="navbar-version">
-          <div className="nav-text" ref="version">{version}</div>
-        </li>
-        /* jshint ignore:end */
-      );
+      return <div className="Navbar-version" ref="version">{version}</div>;
     }
     return null;
   },
 
-  renderPatient: function() {
+  renderPatientSection: function() {
     var patient = this.props.patient;
 
     if (_.isEmpty(patient)) {
-      return null;
+      return <div className="Navbar-patientSection"></div>;
     }
 
     var displayName = this.getPatientDisplayName();
@@ -114,31 +92,29 @@ var Navbar = React.createClass({
     };
 
     return (
-      /* jshint ignore:start */
-      <div className="navbar-patient js-navbar-patient" ref="patient">
-        <div className="navbar-patient-name">
-          {displayName}
-        </div>
-        <div className="navbar-patient-links">
-          <a href={patientUrl} onClick={handleClick}>
-            <i className="icon-profile"></i>
-            {'View profile'}
-          </a>
-          {uploadLink}
-        </div>
+      <div className="Navbar-patientSection" ref="patient">
+        <a href={patientUrl} onClick={handleClick} className="Navbar-button Navbar-button--leftLabel">
+          <div className="Navbar-label">
+            <span className="Navbar-labelContent Navbar-patientName">{displayName}</span>
+            <span className="Navbar-labelContent Navbar-leftLabelArrow"></span>
+          </div>
+        </a>
+        <div className="Navbar-patientPicture"></div>
+        {uploadLink}
       </div>
-      /* jshint ignore:end */
     );
   },
 
   renderUploadLink: function() {
+    var noLink = <div className="Navbar-uploadButton"></div>;
+
     if (!this.isSamePersonUserAndPatient()) {
-      return null;
+      return noLink;
     }
 
     var uploadUrl = this.props.getUploadUrl();
     if (!uploadUrl) {
-      return null;
+      return noLink;
     }
 
     var self = this;
@@ -150,22 +126,19 @@ var Navbar = React.createClass({
       self.props.trackMetric('Clicked Navbar Upload Data');
     };
 
-    // Upload icon is a bit to the right, need an extra space in the text
-    /* jshint ignore:start */
     return (
-      <a href="" onClick={handleClick}>
-        <i className="icon-upload"></i>
-        {' ' + 'Upload data'}
+      <a href="" onClick={handleClick} className="Navbar-button Navbar-button--blue Navbar-uploadButton">
+        <i className="Navbar-icon icon-upload"></i>
+        <span className="Navbar-uploadLabel">Upload data</span>
       </a>
     );
-    /* jshint ignore:end */
   },
 
-  renderUser: function() {
+  renderMenuSection: function() {
     var user = this.props.user;
 
     if (_.isEmpty(user)) {
-      return null;
+      return <div className="Navbar-menuSection"></div>;
     }
 
     var displayName = this.getUserDisplayName();
@@ -179,40 +152,24 @@ var Navbar = React.createClass({
     };
 
     return (
-      /* jshint ignore:start */
-      <ul className="nav nav-right navbar-user js-navbar-user" ref="user">
-        <li>
-          <a
-            href="#/profile"
-            className="navbar-label-link js-navbar-profile-link"
-            title="Account"
-            onClick={handleClickUser}>
-            <div className="navbar-label navbar-label-right">
-              {'Logged in as '}
-              <span title={displayName} className="navbar-user-name" ref="userFullName">{displayName}</span>
+      <ul className="Navbar-menuSection" ref="user">
+        <li className="Navbar-menuItem">
+          <a href="#/profile" title="Account" onClick={handleClickUser} className="Navbar-button Navbar-button--leftLabel">
+            <div className="Navbar-label">
+              <span className="Navbar-labelContent Navbar-loggedInAs">Logged in as</span>
+              <span className="Navbar-labelContent Navbar-userName" ref="userFullName">{displayName}</span>
+              <span className="Navbar-labelContent Navbar-leftLabelArrow"></span>
             </div>
-            <div className="navbar-label-arrow-right"></div>
-            <i className="navbar-label-arrow-right-profile icon-profile"></i>
+            <i className="Navbar-icon icon-profile"></i>
           </a>
         </li>
-        <li>
-          <a
-            href="#/"
-            className="navbar-user-icon"
-            onClick={this.handleCareteam}
-            title="Care Team" ref="careteam"><i className="icon-careteam"></i>
-          </a>
+        <li className="Navbar-menuItem">
+          <a href="#/" title="Care Team" onClick={this.handleCareteam} className="Navbar-button" ref="careteam"><i className="Navbar-icon icon-careteam"></i></a>
         </li>
-        <li>
-          <a
-            href=""
-            className="navbar-user-icon"
-            onClick={this.handleLogout}
-            title="Logout" ref="logout"><i className="icon-logout"></i>
-          </a>
+        <li className="Navbar-menuItem">
+          <a href="" title="Logout" onClick={this.handleLogout} className="Navbar-button" ref="logout"><i className="Navbar-icon icon-logout"></i></a>
         </li>
       </ul>
-      /* jshint ignore:end */
     );
   },
 

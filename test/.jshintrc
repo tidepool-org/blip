@@ -24,7 +24,6 @@
   "indent": 2,
   "latedef": "nofunc",
   "noarg": true,
-  "quotmark": "single",
   "undef": true,
   "unused": false,
   "trailing": true,
