@@ -36,7 +36,7 @@ module.exports = function(pool, opts) {
   var mainGroup = pool.parent();
 
   var getValue = function(d) {
-    if (d.programmed && d.value != d.programmed) {
+    if (d.programmed && d.value !== d.programmed) {
       return d.programmed;
     }
 
@@ -111,7 +111,7 @@ module.exports = function(pool, opts) {
       drawBolus.extended(extended);
 
       var suspended = boluses.filter(function(d) {
-        if (d.bolus.programmed && d.bolus.value != d.bolus.programmed) {
+        if (d.bolus.programmed && d.bolus.value !== d.bolus.programmed) {
           return d;
         }
       });

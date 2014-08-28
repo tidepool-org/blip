@@ -74,7 +74,7 @@ module.exports = function(pool, opts) {
       drawBolus.extended(extended);
 
       var suspended = bolusGroups.filter(function(d) {
-        if (d.programmed && d.value != d.programmed) {
+        if (d.programmed && d.value !== d.programmed) {
           return d;
         }
       });
