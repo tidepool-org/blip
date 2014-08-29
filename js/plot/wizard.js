@@ -63,9 +63,14 @@ module.exports = function(pool, opts) {
           }
         });
 
-      //Sort by size so smaller boluses are drawn last.
+      // sort by size so smaller boluses are drawn last
+      var getBolusValueForSort = function(bolus) {
+        return d3.max([bolus.value, bolus.programmed, bolus.recommended]);
+      };
       wizardGroups = wizardGroups.sort(function(a,b){
-        return d3.descending(a.bolus ? a.bolus.value : 0, b.bolus ? b.bolus.value : 0);
+        var bolusA = a.bolus ? a.bolus : a;
+        var bolusB = b.bolus ? b.bolus : b;
+        return d3.descending(getBolusValueForSort(bolusA), getBolusValueForSort(bolusB));
       });
 
       var carbs = wizardGroups.filter(function(d) {
@@ -77,54 +82,45 @@ module.exports = function(pool, opts) {
       drawBolus.carb(carbs);
 
       var boluses = wizardGroups.filter(function(d) {
-        if (d.bolus) {
-          return d;
-        }
+        return d.bolus != null;
       });
 
       drawBolus.bolus(boluses);
 
+      var extended = boluses.filter(function(d) {
+        return d.bolus.extended;
+      });
+
+      drawBolus.extended(extended);
+
+      var suspended = boluses.filter(function(d) {
+        if (d.bolus.programmed) {
+          return d.bolus.value !== d.bolus.programmed;
+        }
+        return false;
+      });
+
+      drawBolus.suspended(suspended);
+
+      var extendedSuspended = boluses.filter(function(d) {
+        return d.bolus.suspendedAt != null;
+      });
+
+      drawBolus.extendedSuspended(extendedSuspended);
+
       // boluses where recommended > delivered
       var underride = boluses.filter(function(d) {
-        if (d.bolus.recommended > getValue(d.bolus)) {
-          return d;
-        }
+        return d.bolus.recommended > getValue(d.bolus);
       });
 
       drawBolus.underride(underride);
 
       // boluses where delivered > recommended
       var override = boluses.filter(function(d) {
-        if (d.bolus.value > d.bolus.recommended) {
-          return d;
-        }
+        return getValue(d.bolus) > d.bolus.recommended;
       });
 
       drawBolus.override(override);
-
-      var extended = boluses.filter(function(d) {
-        if (d.bolus.extended && d.bolus.extended === true) {
-          return d;
-        }
-      });
-
-      drawBolus.extended(extended);
-
-      var suspended = boluses.filter(function(d) {
-        if (d.bolus.programmed && d.bolus.value !== d.bolus.programmed) {
-          return d;
-        }
-      });
-
-      drawBolus.suspended(suspended);
-
-      var extendedSuspended = boluses.filter(function(d) {
-        if (d.bolus.suspendedAt) {
-          return d;
-        }
-      });
-
-      drawBolus.extendedSuspended(extendedSuspended);
 
       wizards.exit().remove();
 

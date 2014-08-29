@@ -18,6 +18,7 @@
 var d3 = require('d3');
 var _ = require('lodash');
 var Duration = require('duration-js');
+var dt = require('../../data/util/datetime');
 var format = require('../../data/util/format');
 
 module.exports = function(pool, opts) {
@@ -27,7 +28,9 @@ module.exports = function(pool, opts) {
     width: 12,
     r: 14,
     suspendMarkerWidth: 5,
-    suspendMarkerHeight: 2,
+    markerHeight: 2,
+    triangleHeight: 6,
+    triangleOffset: 4,
     bolusStroke: 2,
     triangleSize: 6,
     carbPadding: 4,
@@ -46,6 +49,18 @@ module.exports = function(pool, opts) {
       return bolus.programmed;
     }
     return bolus.value;
+  };
+
+  var getDuration = function(bolus) {
+    if (bolus.programmed && bolus.programmed !== bolus.value && bolus.suspendedAt) {
+      return dt.getDuration(bolus.normalTime, bolus.suspendedAt);
+    }
+    else if (bolus.extended) {
+      return bolus.duration;
+    }
+    else {
+      return 0;
+    }
   };
 
   var pluckBolus = function(d) {
@@ -69,11 +84,27 @@ module.exports = function(pool, opts) {
     }
   };
 
-  var triangle = function(x, y) {
+  var triangleLeft = function(x) { return x + opts.width/2 - opts.triangleOffset; }
+  var triangleRight = function(x) { return x + opts.width/2 + opts.triangleOffset; }
+  var triangleMiddle = function(x) { return x + opts.width/2; }
+
+  var extendedTriangle = function(x, y) {
     var top = (x + opts.triangleSize) + ' ' + (y + opts.triangleSize/2);
     var bottom = (x + opts.triangleSize) + ' ' + (y - opts.triangleSize/2);
     var point = x + ' ' + y;
     return 'M' + top + 'L' + bottom + 'L' + point + 'Z';
+  };
+
+  var underrideTriangle = function(x, y) {
+    return triangleLeft(x) + ',' + (y + opts.markerHeight/2) + ' ' +
+      triangleMiddle(x) + ',' + (y + opts.markerHeight/2 + opts.triangleHeight) + ' ' +
+      triangleRight(x) + ',' + (y + opts.markerHeight/2);
+  };
+
+  var overrideTriangle = function(x, y) {
+    return triangleLeft(x) + ',' + (y + opts.markerHeight/2) + ' ' +
+      triangleMiddle(x) + ',' + (y + opts.markerHeight/2 - opts.triangleHeight) + ' ' +
+      triangleRight(x) + ',' + (y + opts.markerHeight/2);
   };
 
   return {
@@ -140,7 +171,7 @@ module.exports = function(pool, opts) {
         });
     },
     suspended: function(suspended) {
-      //draw the line
+      // draw the line
       suspended.append('rect')
         .attr({
           x: function(d) {
@@ -153,11 +184,11 @@ module.exports = function(pool, opts) {
             return opts.yScale(d.value);
           },
           width: opts.width,
-          height: opts.suspendMarkerHeight,
+          height: opts.markerHeight,
           'class': 'd3-rect-suspended d3-bolus'
         });
 
-      //draw color in the suspended portion
+      // draw color in the suspended portion
       suspended.append('rect')
         .attr({
           x: function(d) {
@@ -200,9 +231,61 @@ module.exports = function(pool, opts) {
             return 'bolus_' + d.id;
           }
         });
+
+      // draw the line iff the programmed and delivered are the same
+      // to avoid too much confusing clutter
+      // tooltip still exposes fact that suggested and programmed differed
+      var uninterrupted = underride.filter(function(d) {
+        d = pluckBolus(d);
+        if (d.programmed != null) {
+          return d.programmed === d.value;
+        }
+        return true;
+      });
+      uninterrupted.append('rect')
+        .attr({
+          x: function(d) {
+            d = pluckBolus(d);
+            return xPosition(d);
+          },
+          y: function(d) {
+            d = pluckBolus(d);
+            return opts.yScale(d.value);
+          },
+          width: opts.width,
+          height: opts.markerHeight,
+          'class': 'd3-rect-override d3-bolus'
+        });
+
+      uninterrupted.append('polygon')
+        .attr({
+          x: function(d) {
+            d = pluckBolus(d);
+            return xPosition(d);
+          },
+          y: function(d) {
+            d = pluckBolus(d);
+            return opts.yScale(d.value);
+          },
+          points: function(d) {
+            d = pluckBolus(d);
+            return underrideTriangle(xPosition(d), opts.yScale(d.value));
+          },
+          'class': 'd3-polygon-override d3-bolus'
+        });
     },
     override: function(override) {
-      override.append('rect')
+      // draw the line iff the programmed and delivered are the same
+      // to avoid too much confusing clutter
+      // tooltip still exposes fact that suggested and programmed differed
+      var uninterrupted = override.filter(function(d) {
+        d = pluckBolus(d);
+        if (d.programmed != null) {
+          return d.programmed === d.value;
+        }
+        return true;
+      });
+      uninterrupted.append('rect')
         .attr({
           x: function(d) {
             d = pluckBolus(d);
@@ -213,37 +296,36 @@ module.exports = function(pool, opts) {
             return opts.yScale(d.recommended);
           },
           width: opts.width,
-          height: function(d) {
-            d = pluckBolus(d);
-            return top - opts.yScale(d.recommended);
-          },
-          'stroke-width': opts.bolusStroke,
-          'class': 'd3-rect-recommended d3-bolus',
-          id: function(d) {
-            d = pluckBolus(d);
-            return 'bolus_' + d.id;
-          }
+          height: opts.markerHeight,
+          'class': 'd3-rect-override d3-bolus'
         });
-      override.append('path')
+
+      uninterrupted.append('polygon')
         .attr({
-          d: function(d) {
+          x: function(d) {
             d = pluckBolus(d);
-            var leftEdge = xPosition(d) + opts.bolusStroke / 2;
-            var rightEdge = leftEdge + opts.width - opts.bolusStroke;
-            var bolusHeight = opts.yScale(d.value) + opts.bolusStroke / 2;
-            return 'M' + leftEdge + ' ' + bottom + 'L' + rightEdge + ' ' + bottom + 'L' + rightEdge + ' ' + bolusHeight + 'L' + leftEdge + ' ' + bolusHeight + 'Z';
+            return xPosition(d);
           },
-          'stroke-width': opts.bolusStroke,
-          'class': 'd3-path-bolus d3-bolus',
-          id: function(d) {
+          y: function(d) {
             d = pluckBolus(d);
-            return 'bolus_' + d.id;
-          }
+            return opts.yScale(d.recommended);
+          },
+          points: function(d) {
+            d = pluckBolus(d);
+            return overrideTriangle(xPosition(d), opts.yScale(d.recommended));
+          },
+          'class': 'd3-polygon-override d3-bolus'
         });
     },
     extended: function(extended) {
       // square- and dual-wave boluses
-      extended.append('path')
+      var actualExtended = extended.filter(function(d) {
+        if (d.bolus) {
+          return d.bolus.extendedDelivery > 0;
+        }
+        return d.extendedDelivery > 0;
+      });
+      actualExtended.append('path')
         .attr({
           d: function(d) {
             d = pluckBolus(d);
@@ -267,18 +349,14 @@ module.exports = function(pool, opts) {
           }
         });
 
-      //triangle
-      extended.append('path')
+      // triangle
+      actualExtended.append('path')
         .attr({
           d: function(d) {
             d = pluckBolus(d);
             var doseHeight = computePathHeight(d);
             var doseEnd = opts.xScale(Date.parse(d.normalTime) + d.duration) - opts.triangleSize;
-            var suspendedEnd = opts.xScale(Date.parse(d.suspendedAt || 0)) + opts.width + opts.suspendMarkerWidth;
-
-            if(suspendedEnd < doseEnd) {
-              return triangle(doseEnd, doseHeight);
-            }
+            return extendedTriangle(doseEnd, doseHeight);
           },
           'stroke-width': opts.bolusStroke,
           'class': function(d) {
@@ -298,14 +376,21 @@ module.exports = function(pool, opts) {
     },
     extendedSuspended: function(suspended) {
       // square- and dual-wave boluses
-      suspended.append('path')
+      var actualExtended = suspended.filter(function(d) {
+        if (d.bolus) {
+          return d.bolus.extendedDelivery > 0;
+        }
+        return d.extendedDelivery > 0;
+      });
+      // red marker indicating where suspend happened
+      actualExtended.append('path')
         .attr({
           d: function(d) {
             d = pluckBolus(d);
-            var rightEdge = opts.xScale(Date.parse(d.suspendedAt)) + opts.width;
+            var rightEdge = opts.xScale(Date.parse(d.suspendedAt));
             var doseHeight = computePathHeight(d);
             var expectedEnd = opts.xScale(Date.parse(d.normalTime) + d.duration);
-            var doseEnd = rightEdge + 5;
+            var doseEnd = rightEdge + opts.suspendMarkerWidth;
 
             return 'M' + rightEdge + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
           },
@@ -313,14 +398,15 @@ module.exports = function(pool, opts) {
           'class': 'd3-path-suspended d3-bolus'
         });
 
-      suspended.append('path')
+      // now, light-blue path representing undelivered extended bolus
+      actualExtended.append('path')
         .attr({
           d: function(d) {
             d = pluckBolus(d);
-            var rightEdge = opts.xScale(Date.parse(d.suspendedAt)) + opts.width + opts.suspendMarkerWidth;
+            var rightEdge = opts.xScale(Date.parse(d.suspendedAt)) + opts.suspendMarkerWidth;
             var doseHeight = computePathHeight(d);
             var doseEnd = opts.xScale(Date.parse(d.normalTime) + d.duration);
-            var suspendedEnd = opts.xScale(Date.parse(d.suspendedAt || 0)) + opts.width + opts.suspendMarkerWidth;
+            var suspendedEnd = opts.xScale(Date.parse(d.suspendedAt || 0)) + opts.suspendMarkerWidth;
 
             if(suspendedEnd < (doseEnd - opts.triangleSize)) {
               return 'M' + rightEdge + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
@@ -410,19 +496,15 @@ module.exports = function(pool, opts) {
         }
 
         // only show recommendation when different from delivery
-        if (bolus.recommended != null && bolus.recommended !== bolus.value) {
-          // but only show recommendation if bolus not interrupted
-          if (bolus.programmed != null &&
-            bolus.programmed === bolus.value) {
-            // wizard-suggested bolus
-            var sugRow = tbl.append('tr');
-            sugRow.append('td')
-              .attr('class', 'label')
-              .text('Suggested');
-            sugRow.append('td')
-              .attr('class', 'right')
-              .text(format.tooltipValue(bolus.recommended));
-          }
+        if (bolus.recommended != null && bolus.recommended !== getValue(bolus)) {
+          // wizard-suggested bolus
+          var sugRow = tbl.append('tr');
+          sugRow.append('td')
+            .attr('class', 'label')
+            .text('Suggested');
+          sugRow.append('td')
+            .attr('class', 'right')
+            .text(format.tooltipValue(bolus.recommended));
         }
         // only show programmed when different from delivery
         if (bolus.programmed != null && bolus.programmed !== bolus.value) {
@@ -452,7 +534,7 @@ module.exports = function(pool, opts) {
           if (!bolus.initialDelivery) {
             extRow.append('td')
               .attr('class', 'dual')
-              .text(format.timespan(bolus) + ':');
+              .text(format.timespan({duration: getDuration(bolus)}) + ':');
             extRow.append('td')
               .attr('class', 'secondary')
               .text(format.percentage(bolus.extendedDelivery/getValue(bolus)) +
@@ -469,7 +551,7 @@ module.exports = function(pool, opts) {
             var extRow2 = tbl.append('tr');
             extRow2.append('td')
               .attr('class', 'dual')
-              .text(format.timespan(bolus) + ':');
+              .text(format.timespan({duration: getDuration(bolus)}) + ':');
             extRow2.append('td')
               .attr('class', 'secondary')
               .text(format.percentage(bolus.extendedDelivery/getValue(bolus)) +
