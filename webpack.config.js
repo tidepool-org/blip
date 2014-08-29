@@ -1,4 +1,9 @@
 var path = require('path');
+var webpack = require('webpack');
+
+var definePlugin = new webpack.DefinePlugin({
+  __DEV__: JSON.stringify(JSON.parse(process.env.BUILD_DEV || 'false'))
+});
 
 module.exports = {
   entry: './example/example.js',
@@ -20,5 +25,6 @@ module.exports = {
   },
   externals: {
     'jquery': 'jQuery'
-  }
+  },
+  plugins: [definePlugin]
 };
