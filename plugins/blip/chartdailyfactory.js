@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+ /* global __DEV__ */
+
 var _ = require('lodash');
 var bows = require('bows');
 var d3 = require('d3');
@@ -416,7 +418,12 @@ function chartDailyFactory(el, options) {
     });
 
     if (poolBasalSettings !== undefined) {
-      chart.drawBasalSettingsButton();
+      if (__DEV__) {
+        setTimeout(function() { chart.drawBasalSettingsButton(); }, 500);
+      }
+      else {
+        chart.drawBasalSettingsButton();
+      }
     }
 
     chart.setAtDate(start, atMostRecent);

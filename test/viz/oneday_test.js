@@ -79,41 +79,45 @@ describe('one-day view', function() {
       i++;
     });
 
-    describe('bg pool', function() {
-      it('should have a label', function() {
-        expect(container.find('#poolBG_label_0').size()).to.be.above(0);
-        expect(container.find('#poolBG_label_0').html()).to.equal('Blood Glucose<tspan> mg/dL</tspan>');
-      });
+    setTimeout(function() {
+      describe('labels and legends', function() {
+        describe('bg pool', function() {
+          it('should have a label', function() {
+            expect(container.find('#poolBG_label_0').size()).to.be.above(0);
+            expect(container.find('#poolBG_label_0').html()).to.equal('Blood Glucose<tspan> mg/dL</tspan>');
+          });
 
-      it('should have a legend', function() {
-        expect(container.find('#poolBG_legend_bg').size()).to.be.above(0);
-      });
-    });
+          it('should have a legend', function() {
+            expect(container.find('#poolBG_legend_bg').size()).to.be.above(0);
+          });
+        });
 
-    describe('carbs and bolus pool', function() {
-      it('should have a label', function() {
-        expect(container.find('#poolBolus_label_0').size()).to.be.above(0);
-        expect(container.find('#poolBolus_label_0').html()).to.equal('Bolus<tspan> u</tspan>');
-        expect(container.find('#poolBolus_label_1').size()).to.be.above(0);
-        expect(container.find('#poolBolus_label_1').html()).to.equal(' &amp; Carbohydrates<tspan> g</tspan>');
-      });
+        describe('carbs and bolus pool', function() {
+          it('should have a label', function() {
+            expect(container.find('#poolBolus_label_0').size()).to.be.above(0);
+            expect(container.find('#poolBolus_label_0').html()).to.equal('Bolus<tspan> u</tspan>');
+            expect(container.find('#poolBolus_label_1').size()).to.be.above(0);
+            expect(container.find('#poolBolus_label_1').html()).to.equal(' &amp; Carbohydrates<tspan> g</tspan>');
+          });
 
-      it('should have legends', function() {
-        expect(container.find('#poolBolus_legend_bolus').size()).to.be.above(0);
-        expect(container.find('#poolBolus_legend_carbs').size()).to.be.above(0);
-      });
-    });
+          it('should have legends', function() {
+            expect(container.find('#poolBolus_legend_bolus').size()).to.be.above(0);
+            expect(container.find('#poolBolus_legend_carbs').size()).to.be.above(0);
+          });
+        });
 
-    describe('basal pool', function() {
-      it('should have a label', function() {
-        expect(container.find('#poolBasal_label_0').size()).to.be.above(0);
-        expect(container.find('#poolBasal_label_0').html()).to.equal('Basal Rates<tspan> u/hr</tspan>');
-      });
+        describe('basal pool', function() {
+          it('should have a label', function() {
+            expect(container.find('#poolBasal_label_0').size()).to.be.above(0);
+            expect(container.find('#poolBasal_label_0').html()).to.equal('Basal Rates<tspan> u/hr</tspan>');
+          });
 
-      it('should have a legend', function() {
-        expect(container.find('#poolBasal_legend_basal').size()).to.be.above(0);
+          it('should have a legend', function() {
+            expect(container.find('#poolBasal_legend_basal').size()).to.be.above(0);
+          });
+        });
       });
-    });
+    }, 300);
 
     describe('cbg data', function() {
       it('should display cbgs with radius 2.5', function() {
@@ -483,32 +487,34 @@ describe('one-day view', function() {
       i++;
     });
 
-    it('should display twenty-four boluses', function() {
-      boluses = container.find('#poolBolus_bolus').find('.d3-bolus-group').find('rect.d3-rect-bolus');
-      expect(boluses.size()).to.equal(24);
-    });
+    describe('bolus data', function() {
+      it('should display twenty-four boluses', function() {
+        boluses = container.find('#poolBolus_bolus').find('.d3-bolus-group').find('rect.d3-rect-bolus');
+        expect(boluses.size()).to.equal(24);
+      });
 
-    it('should display twelve extended boluses', function() {
-      var extended = container.find('#poolBolus_bolus').find('.d3-bolus-group').find('path.d3-path-extended');
-      expect(extended.size()).to.equal(12);
-    });
+      it('should display twelve extended boluses', function() {
+        var extended = container.find('#poolBolus_bolus').find('.d3-bolus-group').find('path.d3-path-extended');
+        expect(extended.size()).to.equal(12);
+      });
 
-    it('should yield a tooltip on hover', function() {
-      thisBolus = boluses.filter(':first');
-      thisBolus.simulate('mouseover');
-      var thisTooltipGroup = container.find('#tidelineTooltips_bolus').find('.d3-tooltip');
-      expect(thisTooltipGroup.find('.svg-tooltip-left-and-up').size()).to.equal(1);
-      expect(thisTooltipGroup.find('.timestamp').html()).to.equal('11:25 pm');
-      expect(thisTooltipGroup.find('polygon').size()).to.equal(2);
-    });
+      it('should yield a tooltip on hover', function() {
+        thisBolus = boluses.filter(':first');
+        thisBolus.simulate('mouseover');
+        var thisTooltipGroup = container.find('#tidelineTooltips_bolus').find('.d3-tooltip');
+        expect(thisTooltipGroup.find('.svg-tooltip-left-and-up').size()).to.equal(1);
+        expect(thisTooltipGroup.find('.timestamp').html()).to.equal('11:25 pm');
+        expect(thisTooltipGroup.find('polygon').size()).to.equal(2);
+      });
 
-    it('should yield an expanded, right and up tooltip on hover if it is an extended bolus near the left edge', function() {
-      var extended = $(boluses[15]);
-      extended.simulate('mouseover');
-      var extendedTooltipGroup = container.find('#tidelineTooltips_bolus').find('.d3-tooltip').filter(':last');
-      expect(extendedTooltipGroup.find('.svg-tooltip-right-and-up').size()).to.equal(1);
-      expect(extendedTooltipGroup.find('.timestamp').html()).to.equal('1:25 am');
-      expect(extendedTooltipGroup.find('polygon').size()).to.equal(2);
+      it('should yield an expanded, right and up tooltip on hover if it is an extended bolus near the left edge', function() {
+        var extended = $(boluses[15]);
+        extended.simulate('mouseover');
+        var extendedTooltipGroup = container.find('#tidelineTooltips_bolus').find('.d3-tooltip').filter(':last');
+        expect(extendedTooltipGroup.find('.svg-tooltip-right-and-up').size()).to.equal(1);
+        expect(extendedTooltipGroup.find('.timestamp').html()).to.equal('1:25 am');
+        expect(extendedTooltipGroup.find('polygon').size()).to.equal(2);
+      });
     });
 
     it('should yield an expanded, left and up tooltip on hover if it is an interrupted extended bolus in the middle', function() {

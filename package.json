@@ -9,8 +9,8 @@
   "main": "js/index.js",
   "scripts": {
     "test": "testem",
-    "start": "webpack-dev-server --devtool eval-source-map --cache --colors --progress --content-base example --port 8081",
-    "build-test": "webpack './test/index.js' --output-path './tmp' --output-file '_test.js' --devtool eval-source-map",
+    "start": "BUILD_DEV=true webpack-dev-server --devtool eval-source-map --cache --colors --progress --content-base example --port 8081",
+    "build-test": "BUILD_DEV=true webpack './test/index.js' --output-path './tmp' --output-file '_test.js' --devtool eval-source-map",
     "jshint": "gulp jshint",
     "jshint-watch": "gulp jshint-watch"
   },
@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "autoprefixer-loader": "~0.1.1",
-    "bootstrap": "^3.2.0",
+    "bootstrap": "~3.2.0",
     "chai": "~1.8.1",
     "css-loader": "~0.6.12",
     "envify": "~1.2.1",
