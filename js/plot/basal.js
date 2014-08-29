@@ -219,7 +219,12 @@ module.exports = function(pool, opts) {
   };
 
   basal.tempPercentage = function(d) {
-    return format.percentage(d.percent);
+    if (d.percent != null) {
+      return format.percentage(d.percent);
+    }
+    else {
+      return format.tooltipValue(d.value) + ' <span class="plain">u/hr</span>';
+    }
   };
 
   basal.tooltipHtml = function(group, datum) {

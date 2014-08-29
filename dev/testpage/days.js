@@ -356,6 +356,48 @@ var BasalDay = function(opts) {
 
 BasalDay.prototype = day;
 
+var TempBasalDay = function(opts) {
+  var defaults = {
+    patterns: {
+      allFeatureSets: function() {
+        var i = 0;
+        var featureSets = new types.TempBasal().getAllFeatureSetNames();
+        return function() {
+          // reset i
+          if (i === featureSets.length) {
+            i = 0;
+          }
+          return {
+            featureSet: featureSets[i++]
+          };
+        };
+      }
+    }
+  };
+
+  this.opts = opts || {};
+
+  this.opts = _.defaults(this.opts, defaults);
+
+  this.generateFull = function(pattern, opts) {
+    opts = opts || {};
+    var numEvents = opts.starts.length;
+    var events = [];
+
+    for (var i = 0; i < opts.starts.length; ++i) {
+      var newBasal = new types.TempBasal(opts.starts[i].utc().format().slice(0, -6), pattern());
+      events.push(newBasal);
+    }
+
+    for (var j = 0; j < events.length; ++j) {
+      events[j] = events[j].asObject();
+    }
+    return events;
+  };
+};
+
+TempBasalDay.prototype = day;
+
 module.exports = (function() {
   return {
     CBGDay: CBGDay,
@@ -363,6 +405,7 @@ module.exports = (function() {
     CarbsDay: CarbsDay,
     BolusDay: BolusDay,
     WizardDay: WizardDay,
-    BasalDay: BasalDay
+    BasalDay: BasalDay,
+    TempBasalDay: TempBasalDay
   };
 }());

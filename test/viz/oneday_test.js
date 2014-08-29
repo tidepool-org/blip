@@ -27,6 +27,7 @@ var assert = chai.assert;
 var expect = chai.expect;
 
 var $ = require('jquery');
+var _ = require('lodash');
 var d3 = require('d3');
 var preprocess = require('../../plugins/data/preprocess');
 var chartDailyFactory = require('../../plugins/blip/chartdailyfactory');
@@ -403,7 +404,7 @@ describe('one-day view', function() {
       });
 
       it('should yield an extra-large, right and up tooltip when recommended differs from delivered and extended and at left edge', function() {
-        extendedCarb = $(carbs[12]);
+        extendedCarb = $(carbs[8]);
         extendedCarb.simulate('mouseover');
         var extendedTooltipGroup = container.find('#tidelineTooltips_wizard').find('.d3-tooltip').filter(':last');
         expect(extendedTooltipGroup.find('.svg-tooltip-right-and-up').size()).to.equal(1);
@@ -434,9 +435,9 @@ describe('one-day view', function() {
     describe('basal data', function() {
       var basalGroups;
 
-      it('should display forty-eight basal groups', function() {
+      it('should display fifty-two basal groups', function() {
         basalGroups = container.find('.d3-basal-group');
-        expect(basalGroups.size()).to.equal(48);
+        expect(basalGroups.size()).to.equal(52);
       });
 
       it('should have a visible and invisible rect inside a basal group', function() {
@@ -455,6 +456,15 @@ describe('one-day view', function() {
         expect(middleBasal.find('.d3-rect-basal').attr('opacity')).to.be.above(0.3);
         expect(basalTooltip.find('polygon').size()).to.equal(1);
         // TODO: query rate and timestamp info?
+      });
+
+      it('should yield an expanded tooltip on mouseover over a temp invisible basal rect', function() {
+        var tempBasal = $(basalGroups[10]);
+        tempBasal.find('.d3-basal-invisible').simulate('mouseover');
+        var basalTooltip = container.find('#tidelineTooltips_basal .d3-tooltip').filter(':last');
+        expect(basalTooltip.size()).to.equal(1);
+        expect(basalTooltip.find('polygon').size()).to.equal(1);
+        expect(basalTooltip.find('.tooltip-div').html()).to.contain('Temp');
       });
     });
   });
@@ -499,6 +509,27 @@ describe('one-day view', function() {
       expect(extendedTooltipGroup.find('.svg-tooltip-right-and-up').size()).to.equal(1);
       expect(extendedTooltipGroup.find('.timestamp').html()).to.equal('1:25 am');
       expect(extendedTooltipGroup.find('polygon').size()).to.equal(2);
+    });
+
+    it('should yield an expanded, left and up tooltip on hover if it is an interrupted extended bolus in the middle', function() {
+      var interrupted = $(boluses[5]);
+      interrupted.simulate('mouseover');
+      var interruptedTooltipGroup = container.find('#tidelineTooltips_bolus').find('.d3-tooltip').filter(':last');
+      expect(interruptedTooltipGroup.find('.svg-tooltip-left-and-up').size()).to.equal(1);
+      expect(interruptedTooltipGroup.find('.timestamp').html()).to.equal('10:25 am');
+      expect(interruptedTooltipGroup.find('.interrupted').html()).to.equal('interrupted');
+      expect(interruptedTooltipGroup.find('polygon').size()).to.equal(2);
+    });
+
+    it('should yield a small-ish, left and up tooltip on hover if it is a normal bolus that was interrupted', function() {
+      var interrupted = $(boluses[20]);
+      interrupted.simulate('mouseover');
+      var interruptedTooltipGroup = container.find('#tidelineTooltips_bolus').find('.d3-tooltip').filter(':last');
+      expect(interruptedTooltipGroup.find('.svg-tooltip-left-and-up').size()).to.equal(1);
+      expect(interruptedTooltipGroup.find('.timestamp').html()).to.equal('3:25 pm');
+      expect(interruptedTooltipGroup.find('table').html()).to.contain('Suggested');
+      expect(interruptedTooltipGroup.find('.interrupted').html()).to.equal('interrupted');
+      expect(interruptedTooltipGroup.find('polygon').size()).to.equal(2);
     });
   });
 });
