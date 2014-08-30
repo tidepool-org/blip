@@ -60,7 +60,7 @@ function Pool (container) {
 
     this.drawAxes();
     this.updateAxes();
-    if (__DEV__) {
+    if (__DEV__ === true) {
       var that = this;
       setTimeout(function() { that.drawLabel(); that.drawLegend(); }, 450);
     }
