@@ -259,7 +259,7 @@ var legend = {
           var r = (this.SHAPE_WIDTH - this.SHAPE_MARGIN*2)/2;
           created.attr({
             'cx': -(w + 2*r),
-            'cy': -opts.textHeight/2,
+            'cy': -opts.textHeight/4,
             'r': r
           });
         }
@@ -285,7 +285,7 @@ var legend = {
     }, this);
     if (type !== 'bg') {
       selection.selectAll('rect')
-        .attr('y', -(opts.textHeight - this.SHAPE_MARGIN*2));
+        .attr('y', -(opts.textHeight * 3/4 - this.SHAPE_MARGIN*2));
     }
     var w;
     selection.each(function() { w = this.getBoundingClientRect(); });

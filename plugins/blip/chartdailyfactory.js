@@ -37,7 +37,8 @@ function chartDailyFactory(el, options) {
     dynamicCarbs: false,
     hiddenPools: {
       basalSettings: null
-    }
+    },
+    labelBaseline: 4
   };
   _.defaults(options, defaults);
 
@@ -77,6 +78,7 @@ function chartDailyFactory(el, options) {
     poolXAxis = chart.newPool()
       .id('poolXAxis', chart.poolGroup())
       .label('')
+      .labelBaseline(options.labelBaseline)
       .index(chart.pools().indexOf(poolXAxis))
       .weight(0.65)
       .gutterWeight(0.0);
@@ -85,6 +87,7 @@ function chartDailyFactory(el, options) {
     poolMessages = chart.newPool()
       .id('poolMessages', chart.poolGroup())
       .label('')
+      .labelBaseline(options.labelBaseline)
       .index(chart.pools().indexOf(poolMessages))
       .weight(0.5)
       .gutterWeight(0.0);
@@ -96,6 +99,7 @@ function chartDailyFactory(el, options) {
         'main': 'Blood Glucose',
         'light': ' ' + chart.options.bgUnits
       }])
+      .labelBaseline(options.labelBaseline)
       .legend(['bg'])
       .index(chart.pools().indexOf(poolBG))
       .weight(2)
@@ -112,6 +116,7 @@ function chartDailyFactory(el, options) {
         'main': ' & Carbohydrates',
         'light': ' g'
       }])
+      .labelBaseline(options.labelBaseline)
       .legend(['bolus', 'carbs'])
       .index(chart.pools().indexOf(poolBolus))
       .weight(1.5)
@@ -129,6 +134,7 @@ function chartDailyFactory(el, options) {
       poolBasal = chart.newPool()
         .id('poolBasal', chart.poolGroup())
         .label([basalPoolLabel])
+        .labelBaseline(options.labelBaseline)
         .legend(['basal'])
         .index(chart.pools().indexOf(poolBasal))
         .weight(1.0)
@@ -139,6 +145,7 @@ function chartDailyFactory(el, options) {
       poolBasalSettings = chart.newPool()
         .id('poolBasalSettings', chart.poolGroup())
         .label('')
+        .labelBaseline(options.labelBaseline)
         .index(chart.pools().indexOf(poolBasal))
         .weight(1.0)
         .gutterWeight(1.0)
@@ -148,6 +155,7 @@ function chartDailyFactory(el, options) {
       poolBasal = chart.newPool()
         .id('poolBasal', chart.poolGroup())
         .label([basalPoolLabel])
+        .labelBaseline(options.labelBaseline)
         .legend(['basal'])
         .index(chart.pools().indexOf(poolBasal))
         .weight(1.0)
@@ -158,6 +166,7 @@ function chartDailyFactory(el, options) {
       poolBasalSettings = chart.newPool()
         .id('poolBasalSettings', chart.poolGroup())
         .label([basalPoolLabel])
+        .labelBaseline(options.labelBaseline)
         .legend(['basal'])
         .index(chart.pools().indexOf(poolBasal))
         .weight(1.0)
@@ -168,6 +177,7 @@ function chartDailyFactory(el, options) {
       poolBasal = chart.newPool()
         .id('poolBasal', chart.poolGroup())
         .label('')
+        .labelBaseline(options.labelBaseline)
         .index(chart.pools().indexOf(poolBasal))
         .weight(1.0)
         .gutterWeight(0.1);
@@ -462,14 +472,15 @@ function chartDailyFactory(el, options) {
   chart.drawBasalSettingsButton = function() {
     var labelGroup = chart.svg().select('#tidelineLabels');
     var labelTextBox = chart.options.hiddenPools.basalSettings ?
-      labelGroup.select('text#poolBasal_label')[0][0].getBoundingClientRect() :
-      labelGroup.select('text#poolBasalSettings_label')[0][0].getBoundingClientRect();
-    var verticalTranslation = chart.options.hiddenPools.basalSettings ?
-      poolBasal.yPosition() - labelTextBox.height :
-      poolBasalSettings.yPosition() - labelTextBox.height;
+      labelGroup.select('text#poolBasal_label') :
+      labelGroup.select('text#poolBasalSettings_label');
+    var labelDims = labelTextBox[0][0].getBoundingClientRect();
+    var labelHeight = labelDims.height, labelWidth = labelDims.width;
+    var horizontalTranslation = labelWidth + chart.axisGutter();
+    var verticalTranslation = parseFloat(labelTextBox.attr('transform').match(/translate\([0-9.]+,([0-9.]+)\)/)[1]);
     var fo = labelGroup.append('foreignObject')
       .attr({
-        transform: 'translate(' + (chart.axisGutter() + labelTextBox.width) + ',' + verticalTranslation + ')'
+        transform: 'translate(' + horizontalTranslation + ',' + verticalTranslation + ')'
       });
 
     var div = fo.append('xhtml:div')
@@ -480,16 +491,18 @@ function chartDailyFactory(el, options) {
         '<i class="icon-right"></i>' : '<i class="icon-down"></i>');
 
     var iconWidth = icon.select('i')[0][0].getBoundingClientRect().width;
+    var foHeight = div[0][0].getBoundingClientRect().height;
 
     fo.attr({
-      width: icon.select('i')[0][0].getBoundingClientRect().width,
-      height: div[0][0].getBoundingClientRect().height
+      width: iconWidth,
+      height: foHeight,
+      transform: 'translate(' + horizontalTranslation + ',' + (verticalTranslation - foHeight + options.labelBaseline) + ')'
     });
 
     labelGroup.append('text')
       .attr({
-        x: chart.axisGutter() + labelTextBox.width + iconWidth,
-        y: verticalTranslation + labelTextBox.height,
+        x: chart.axisGutter() + labelWidth + iconWidth,
+        y: verticalTranslation,
         'class': 'd3-tabular-ui'
       })
       .text(chart.options.hiddenPools.basalSettings ? 'show rates' : 'hide rates');

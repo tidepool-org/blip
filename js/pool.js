@@ -27,7 +27,7 @@ var log = require('bows')('Pool');
 
 function Pool (container) {
 
-  var id, label, legends = [],
+  var id, label, labelBaseline = 4, legends = [],
     index, weight, gutterWeight, hidden = false, yPosition,
     height, minHeight = 20, maxHeight = 300,
     group,
@@ -119,7 +119,7 @@ function Pool (container) {
         .attr({
           id: id + '_label',
           'class': 'd3-pool-label',
-          'transform': 'translate(' + container.axisGutter() + ',' + yPosition + ')'
+          'transform': 'translate(' + container.axisGutter() + ',' + (yPosition-labelBaseline) + ')'
         });
       _.each(label, function(l) {
         labelGroup.append('tspan')
@@ -144,7 +144,7 @@ function Pool (container) {
         .append('g')
         .attr({
           'id': id + '_legend_' + l,
-          'transform': 'translate(' + w + ',' + yPosition + ')'
+          'transform': 'translate(' + w + ',' + (yPosition-labelBaseline) + ')'
         });
       w -= legend.draw(legendGroup, l).width + legend.SHAPE_MARGIN*2;
     });
@@ -182,6 +182,12 @@ function Pool (container) {
   this.label = function(o) {
     if (!arguments.length) return label;
     label = o;
+    return this;
+  };
+
+  this.labelBaseline = function(x) {
+    if (!arguments.length) return labelBaseline;
+    labelBaseline = x;
     return this;
   };
 
