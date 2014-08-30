@@ -1,4 +1,5 @@
 var path = require('path');
+var webpack = require('webpack');
 
 var entry = (process.env.MOCK === 'true') ? './app/main.mock.js' : './app/main.js';
 
@@ -21,5 +22,7 @@ module.exports = {
       {test: /\.ttf$/, loader: 'url-loader?limit=10000&mimetype=application/x-font-ttf'},
       {test: /\.json$/, loader: 'json-loader'}
     ]
-  }
+  },
+  // tideline DEV env variable only needs to be true in tideline local dev
+  plugins: [new webpack.DefinePlugin({__DEV__: false})]
 };
