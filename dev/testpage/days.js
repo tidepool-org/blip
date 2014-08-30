@@ -398,6 +398,52 @@ var TempBasalDay = function(opts) {
 
 TempBasalDay.prototype = day;
 
+var DeviceMetaDay = function(opts) {
+  var defaults = {
+    patterns: {
+      allFeatureSets: function() {
+        var i = 0;
+        var featureSets = new types.DeviceMeta().getAllFeatureSetNames();
+        return function() {
+          // reset i
+          if (i === featureSets.length) {
+            i = 0;
+          }
+          return {
+            featureSet: featureSets[i++]
+          };
+        };
+      }
+    }
+  };
+
+  this.opts = opts || {};
+
+  this.opts = _.defaults(this.opts, defaults);
+
+  var APPEND = '.000Z';
+
+  this.generateFull = function(pattern, opts) {
+    opts = opts || {};
+    var datetime = opts.start || this.START, events = [];
+    for (var i = 0; i < 2; ++i) {
+      var features = pattern();
+      if (i === 1) {
+        features.joinKey = events[i - 1].id;
+      }
+      var newMeta = new types.DeviceMeta(i === 0 ? datetime.utc().format().slice(0, -6) : dt.addInterval(events[i - 1].deviceTime + APPEND, {'minutes': 20}).utc().format().slice(0, -6), features);
+      events.push(newMeta);
+    }
+ 
+    for (var j = 0; j < events.length; ++j) {
+      events[j] = events[j].asObject();
+    }
+    return events;
+  };
+};
+
+DeviceMetaDay.prototype = day;
+
 module.exports = (function() {
   return {
     CBGDay: CBGDay,
@@ -406,6 +452,7 @@ module.exports = (function() {
     BolusDay: BolusDay,
     WizardDay: WizardDay,
     BasalDay: BasalDay,
-    TempBasalDay: TempBasalDay
+    TempBasalDay: TempBasalDay,
+    DeviceMetaDay: DeviceMetaDay
   };
 }());

@@ -227,6 +227,33 @@ var TempBasal = function(deviceTime, features) {
 TempBasal.prototype = common;
 TempBasal.prototype.addInterval = dt.addInterval;
 
+var DeviceMeta = function(deviceTime, features) {
+  features = features || {joinKey: null};
+  var featureSets = {
+    'suspend': {
+      'deviceTime': deviceTime,
+      'reason': 'manual',
+      'status': 'suspended'
+    },
+    'resume': {
+      'deviceTime': deviceTime,
+      'joinKey': features.joinKey,
+      'reason': 'manual',
+      'status': 'resumed'
+    }
+  };
+  this.getAllFeatureSetNames = getAllFeatureSetNames(featureSets);
+  // only fill out attribute if arguments
+  if (arguments.length) {
+    this.type = 'deviceMeta';
+    this.subType = 'status';
+    this.id = this.makeId();
+    _.defaults(this, featureSets[features.featureSet]);
+  }
+};
+
+DeviceMeta.prototype = common;
+
 module.exports = (function() {
   return {
     CBG: CBG,
@@ -235,6 +262,7 @@ module.exports = (function() {
     Bolus: Bolus,
     Wizard: Wizard,
     Basal: Basal,
-    TempBasal: TempBasal
+    TempBasal: TempBasal,
+    DeviceMeta: DeviceMeta
   };
 }());

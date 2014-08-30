@@ -84,9 +84,9 @@ module.exports = function(pool, opts) {
     }
   };
 
-  var triangleLeft = function(x) { return x + opts.width/2 - opts.triangleOffset; }
-  var triangleRight = function(x) { return x + opts.width/2 + opts.triangleOffset; }
-  var triangleMiddle = function(x) { return x + opts.width/2; }
+  var triangleLeft = function(x) { return x + opts.width/2 - opts.triangleOffset; };
+  var triangleRight = function(x) { return x + opts.width/2 + opts.triangleOffset; };
+  var triangleMiddle = function(x) { return x + opts.width/2; };
 
   var extendedTriangle = function(x, y) {
     var top = (x + opts.triangleSize) + ' ' + (y + opts.triangleSize/2);
