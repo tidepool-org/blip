@@ -43,6 +43,10 @@ module.exports = function (config, deps) {
   var myToken = null;
   var myUserId = null;
 
+  //Status Codes
+  var STATUS_BAD_REQUEST = 400;
+  var STATUS_UNAUTHORIZED = 401;
+
   var superagent = requireDep(deps, 'superagent');
   var log = requireDep(deps, 'log');
   var localStore = requireDep(deps, 'localStore');
@@ -196,7 +200,7 @@ module.exports = function (config, deps) {
 
   function withToken(sadCb, happyCb) {
     if (! isLoggedIn()) {
-      return sadCb(new Error('User is not logged in, you must log in to do this operation'));
+      return sadCb({status: STATUS_UNAUTHORIZED, body: 'User is not logged in, you must log in to do this operation'});
     } else {
       return happyCb(myToken);
     }
@@ -355,10 +359,10 @@ module.exports = function (config, deps) {
      */
     login: function (user, options, cb) {
       if (user.username == null) {
-        return cb({ message: 'Must specify a username' });
+        return cb({ status : STATUS_BAD_REQUEST, message: 'Must specify a username' });
       }
       if (user.password == null) {
-        return cb({ message: 'Must specify a password' });
+        return cb({ status : STATUS_BAD_REQUEST, message: 'Must specify a password' });
       }
 
       options = options || {};
@@ -397,10 +401,10 @@ module.exports = function (config, deps) {
      */
     signup: function (user, options, cb) {
       if (user.username == null) {
-        return cb({ message: 'Must specify a username' });
+        return cb({ status : STATUS_BAD_REQUEST, message: 'Must specify a username' });
       }
       if (user.password == null) {
-        return cb({ message: 'Must specify a password' });
+        return cb({ status : STATUS_BAD_REQUEST, message: 'Must specify a password' });
       }
 
       options = options || {};
@@ -603,7 +607,7 @@ module.exports = function (config, deps) {
      */
     findProfile: function (userId, cb) {
       if (userId == null) {
-        return cb({ message: 'Must specify a userId' });
+        return cb({ status : STATUS_BAD_REQUEST,  message: 'Must specify a userId' });
       }
       assertArgumentsSize(arguments, 2);
 
@@ -618,7 +622,7 @@ module.exports = function (config, deps) {
      */
     getTeamMembers: function (userId, cb) {
       if (userId == null) {
-        return cb({ message: 'Must specify a userId' });
+        return cb({ status : STATUS_BAD_REQUEST, message: 'Must specify a userId' });
       }
       assertArgumentsSize(arguments, 2);
 
@@ -637,7 +641,7 @@ module.exports = function (config, deps) {
      */
     getViewableUsers: function (userId, cb) {
       if (userId == null) {
-        return cb({ message: 'Must specify a userId' });
+        return cb({ status : STATUS_BAD_REQUEST,  message: 'Must specify a userId' });
       }
       assertArgumentsSize(arguments, 2);
 
@@ -656,7 +660,7 @@ module.exports = function (config, deps) {
      */
     setAccessPermissions: function(userId, permissions, cb) {
       if (userId == null) {
-        return cb({ message: 'Must specify a userId'});
+        return cb({ status : STATUS_BAD_REQUEST, message: 'Must specify a userId'});
       }
 
       doPostWithToken(
@@ -674,7 +678,7 @@ module.exports = function (config, deps) {
      */
     getPatientsInfo: function (patientIds, cb) {
       if (patientIds == null) {
-        return cb({ message: 'Must specify a patientIds' });
+        return cb({ status : STATUS_BAD_REQUEST, message: 'Must specify a patientIds' });
       }
       assertArgumentsSize(arguments, 2);
 
@@ -822,10 +826,10 @@ module.exports = function (config, deps) {
       assertArgumentsSize(arguments, 2);
 
       if( _.isEmpty(edits.id) ){
-        return cb({ message:'You must specify the edits.id'});
+        return cb({ status : STATUS_BAD_REQUEST, message:'You must specify the edits.id'});
       }
       if( _.isEmpty(edits.timestamp) && _.isEmpty(edits.messagetext) ){
-        return cb({ message: 'You must specify one or both of edits.messagetext, edits.timestamp'});
+        return cb({ status : STATUS_BAD_REQUEST, message: 'You must specify one or both of edits.messagetext, edits.timestamp'});
       }
 
       doPutWithToken(
