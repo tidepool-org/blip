@@ -112,15 +112,17 @@ var Bolus = function(deviceTime, features) {
     },
     'interrupted': {
       'programmed': features.value,
+      'recommended': features.value - 2,
       'value': features.value - (features.value * 0.9)
     },
     'interruptedExtended': {
       'extended': true,
-      'extendedDelivery': 0.5 * features.value,
+      'extendedDelivery': 0.5 * features.value * 0.6,
       'initialDelivery': 0.5 * features.value,
       'duration': MS_IN_24HRS/12,
       'programmed': features.value,
-      'suspendedAt': this.addInterval(features.deviceTime + APPEND, {'milliseconds': MS_IN_24HRS/24 + MS_IN_10MIN}).utc().format().slice(0, -6)
+      'suspendedAt': this.addInterval(deviceTime + APPEND, {'milliseconds': MS_IN_24HRS/12 - (MS_IN_10MIN * 4)}).utc().format().slice(0, -6) + APPEND,
+      'value': features.value * 0.8
     }
   };
   this.getAllFeatureSetNames = getAllFeatureSetNames(featureSets);
@@ -132,7 +134,9 @@ var Bolus = function(deviceTime, features) {
       this.joinKey = this.makeId();
     }
     this.type = 'bolus';
-    this.value = features.value;
+    if (!this.value) {
+      this.value = features.value;
+    }
     _.assign(this, featureSets[features.featureSet]);
   }
 };
@@ -169,7 +173,6 @@ var Basal = function(deviceTime, features) {
   features = features || {'incrementer': null};
   var featureSets = {
     'scheduled': {
-      'deliveryType': 'scheduled',
       'duration': baseDuration,
       'incrementer': features.incrementer,
       'start': deviceTime,
@@ -179,6 +182,7 @@ var Basal = function(deviceTime, features) {
   this.getAllFeatureSetNames = getAllFeatureSetNames(featureSets);
   // only fill out attributes if arguments
   if (arguments.length) {
+    this.deliveryType = 'scheduled';
     this.deviceTime = deviceTime;
     this.id = this.makeId();
     this.type = 'basal-rate-segment';
@@ -191,6 +195,65 @@ var Basal = function(deviceTime, features) {
 Basal.prototype = common;
 Basal.prototype.addInterval = dt.addInterval;
 
+var TempBasal = function(deviceTime, features) {
+  features = features || {};
+  var featureSets = {
+    'longTemp': {
+      'duration': MS_IN_24HRS/6 - MS_IN_10MIN * 3,
+      'start': deviceTime,
+      'end': this.addInterval(deviceTime + APPEND, {'milliseconds': MS_IN_24HRS/6 - MS_IN_10MIN * 3}).utc().format().slice(0, -6)
+    },
+    'longTempFiftyPercent': {
+      'duration': MS_IN_24HRS/16,
+      'start': deviceTime,
+      'percent': 0.5,
+      'end': this.addInterval(deviceTime + APPEND, {'milliseconds': MS_IN_24HRS/16}).utc().format().slice(0, -6)
+    }
+  };
+  this.getAllFeatureSetNames = getAllFeatureSetNames(featureSets);
+  // only fill out attribute if arguments
+  if (arguments.length) {
+    this.deliveryType = 'temp';
+    this.deviceTime = deviceTime;
+    this.id = this.makeId();
+    this.type = 'basal-rate-segment';
+    if (this.percent == null) {
+      this.value = features.value ? features.value : 0.0;
+    }
+    _.defaults(this, featureSets[features.featureSet]);
+  }
+};
+
+TempBasal.prototype = common;
+TempBasal.prototype.addInterval = dt.addInterval;
+
+var DeviceMeta = function(deviceTime, features) {
+  features = features || {joinKey: null};
+  var featureSets = {
+    'suspend': {
+      'deviceTime': deviceTime,
+      'reason': 'manual',
+      'status': 'suspended'
+    },
+    'resume': {
+      'deviceTime': deviceTime,
+      'joinKey': features.joinKey,
+      'reason': 'manual',
+      'status': 'resumed'
+    }
+  };
+  this.getAllFeatureSetNames = getAllFeatureSetNames(featureSets);
+  // only fill out attribute if arguments
+  if (arguments.length) {
+    this.type = 'deviceMeta';
+    this.subType = 'status';
+    this.id = this.makeId();
+    _.defaults(this, featureSets[features.featureSet]);
+  }
+};
+
+DeviceMeta.prototype = common;
+
 module.exports = (function() {
   return {
     CBG: CBG,
@@ -198,6 +261,8 @@ module.exports = (function() {
     Carbs: Carbs,
     Bolus: Bolus,
     Wizard: Wizard,
-    Basal: Basal
+    Basal: Basal,
+    TempBasal: TempBasal,
+    DeviceMeta: DeviceMeta
   };
 }());

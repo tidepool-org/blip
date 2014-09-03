@@ -72,6 +72,22 @@ module.exports = function(pool, opts) {
 
       drawBolus.extended(extended);
 
+      var suspended = bolusGroups.filter(function(d) {
+        if (d.programmed && d.value !== d.programmed) {
+          return d;
+        }
+      });
+
+      drawBolus.suspended(suspended);
+
+      var extendedSuspended = bolusGroups.filter(function(d) {
+        if (d.suspendedAt) {
+          return d;
+        }
+      });
+      
+      drawBolus.extendedSuspended(extendedSuspended);
+
       boluses.exit().remove();
 
       var highlight = pool.highlight('.d3-wizard-group, .d3-bolus-group', opts);

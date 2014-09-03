@@ -289,7 +289,7 @@ class Boluses:
 
     def _ratio_shift(self):
 
-        return random.randint(-2, 2)
+        return random.randint(-4, 4)
 
     def _dose_shift(self):
 
@@ -753,6 +753,11 @@ def print_JSON(all_json, out_file, minify=False):
     annotation_fields = ['bolus', 'basal-rate-segment']
     suspends = []
     for a in all_json:
+        # non-wizard boluses can't have a recommendation!
+        if a['type'] == 'bolus':
+            if not 'joinKey' in a.keys():
+                if 'recommended' in a.keys():
+                    del a['recommended']
         if not minify:
             if a['type'] in pump_fields:
                 a['deviceId'] = 'Demo - 123'
@@ -800,9 +805,11 @@ def print_JSON(all_json, out_file, minify=False):
                         fraction_delivered = dur/float(a['duration'])
                         if not 'initialDelivery' in a.keys():
                             a['value'] = round(fraction_delivered * a['programmed'], 1)
+                            a['extendedDelivery'] = a['value']
                         elif 'initialDelivery' in a.keys():
                             extended_delivered = round(fraction_delivered * a['extendedDelivery'], 1)
                             a['value'] = round(extended_delivered + a['initialDelivery'], 1)
+                            a['extendedDelivery'] = extended_delivered
                         suspendId = str(uuid.uuid4())
                         suspend = {
                             'id': suspendId,
@@ -827,6 +834,26 @@ def print_JSON(all_json, out_file, minify=False):
                         }
                         suspends.append(suspend)
                         suspends.append(resume)
+                    else:
+                        if a['programmed'] != a['value']:
+                            time = dt.strptime(a['deviceTime'], '%Y-%m-%dT%H:%M:%S')
+                            if not 'initialDelivery' in a.keys():
+                                fraction_delivered = a['value']/a['programmed']
+                                duration_delivered = int(round(fraction_delivered * a['duration'], 0))
+                                a['suspendedAt'] = dt.strftime(time + td(milliseconds=duration_delivered), '%Y-%m-%dT%H:%M:%S')
+                                a['extendedDelivery'] = a['value']
+                            else:
+                                # dual-wave bolus suspended during delivery of initial normal bolus
+                                if a['value'] <= a['initialDelivery']:
+                                    a['suspendedAt'] = a['deviceTime']
+                                    a['extendedDelivery'] = 0.0
+                                    a['initialDelivery'] = a['value']
+                                else:
+                                    fraction_delivered = (a['value'] - a['initialDelivery'])/(a['programmed'] - a['initialDelivery'])
+                                    duration_delivered = int(round(fraction_delivered * a['duration'], 0))
+                                    a['suspendedAt'] = dt.strftime(time + td(milliseconds=duration_delivered), '%Y-%m-%dT%H:%M:%S')
+                                    a['extendedDelivery'] = round(a['value'] - a['initialDelivery'], 1)
+
             except KeyError:
                 pass
 

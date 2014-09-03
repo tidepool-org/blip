@@ -205,9 +205,38 @@ svg {
     stroke: @bolus;
     fill: @bolus;
   }
+  &.d3-path-extended-triangle-suspended {
+    stroke: @recommended;
+    fill: @recommended;
+  }
+  &.d3-path-suspended {
+    stroke: @suspended;
+    fill: @suspended;
+  }
+  &.d3-rect-suspended-bolus {
+    stroke: @recommended;
+    fill: @recommended;
+  }
+  &.d3-path-extended-suspended {
+    stroke: @recommended;
+    fill: @recommended;
+  }
+  &.d3-path-suspended-triangle {
+    stroke: @suspended;
+    fill:none;
+  }
   &.d3-rect-recommended,
   &.d3-rect-recommended-legend {
     fill: @recommended;
+  }
+  &.d3-rect-suspended {
+    fill: @suspended;
+  }
+  &.d3-rect-override {
+    fill: @override;
+  }
+  &.d3-polygon-override {
+    fill: @override;
   }
 }
 
