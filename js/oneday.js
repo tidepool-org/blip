@@ -72,22 +72,7 @@ module.exports = function(emitter) {
       'height': height
     });
 
-    mainGroup.append('rect')
-      .attr({
-        'id': 'poolsInvisibleRect',
-        'width': width,
-        'height': function() {
-          if (nav.scrollNav) {
-            return (height - nav.scrollNavHeight);
-          }
-          else {
-            return height;
-          }
-        },
-        'opacity': 0.0
-      });
-
-    poolGroup = mainGroup.append('g').attr('id', 'tidelinePools');
+    poolGroup = mainGroup.append('g').attr('id', 'tidelinePools').attr('clip-path', 'url(#mainClipPath)');
 
     mainGroup.append('g')
       .attr('id', 'tidelineLabels');
@@ -304,7 +289,6 @@ module.exports = function(emitter) {
         }
         mainGroup.select('#tidelineTooltips').attr('transform', 'translate(' + e.translate[0] + ',0)');
         mainGroup.select('#tidelineAnnotations').attr('transform', 'translate(' + e.translate[0] + ',0)');
-        mainSVG.select('#mainClipPath rect').attr('transform', 'translate(' + -e.translate[0] + ',0)');
         if (scrollHandleTrigger) {
           mainGroup.select('.scrollThumb').transition().ease('linear').attr('x', function(d) {
             d.x = nav.scrollScale(xScale.domain()[0]);

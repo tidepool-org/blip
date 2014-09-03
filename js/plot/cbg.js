@@ -48,7 +48,6 @@ module.exports = function(pool, opts) {
       var cbgGroups = allCBG.enter()
         .append('circle')
         .attr('class', 'd3-cbg')
-        .attr('clip-path', 'url(#mainClipPath)')
         .attr({
           cx: cbg.xPosition,
           cy: cbg.yPosition,

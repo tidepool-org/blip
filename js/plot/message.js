@@ -52,8 +52,7 @@ module.exports = function(pool, opts) {
           'class': 'd3-message-group',
           id: function(d) {
             return 'message_' + d.id;
-          },
-          'clip-path': 'url(#mainClipPath)'
+          }
         });
 
       message.addMessageToPool(messageGroups);

@@ -80,7 +80,6 @@ module.exports = function(pool, opts) {
           var cellGroups = tabs.enter().append('g')
             .attr({
               'class': 'd3-cell-group d3-' + basaltab.scheduleName(key),
-              'clip-path': 'url(#mainClipPath)',
               id: getIdStrFn('cell_group_')
             });
 
@@ -184,7 +183,7 @@ module.exports = function(pool, opts) {
     labels.enter()
       .append('text')
       .attr({
-        // this retrieves the container axisGutter...something of a hack
+        // SHAME: this retrieves the container axisGutter...something of a hack
         x: mainGroup.select('#mainClipPath').select('rect').attr('x'),
         y: function(d, i) { return i * opts.rowHeight + (opts.rowHeight/2); },
         'class': 'd3-row-label',
