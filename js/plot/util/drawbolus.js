@@ -1,15 +1,15 @@
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -29,7 +29,7 @@ module.exports = function(pool, opts) {
     r: 14,
     suspendMarkerWidth: 5,
     markerHeight: 2,
-    triangleHeight: 6,
+    triangleHeight: 4,
     triangleOffset: 4,
     bolusStroke: 2,
     triangleSize: 6,
@@ -128,7 +128,7 @@ module.exports = function(pool, opts) {
             return opts.yScaleCarbs ? opts.yScaleCarbs(d.carbs.value) : opts.r;
           },
           'stroke-width': 0,
-          'class': 'd3-circle-carbs d3-carbs',
+          class: 'd3-circle-carbs d3-carbs',
           id: function(d) {
             return 'carbs_' + d.id;
           }
@@ -143,7 +143,7 @@ module.exports = function(pool, opts) {
         .attr({
           x: xPos,
           y: yPos,
-          'class': 'd3-carbs-text'
+          class: 'd3-carbs-text'
         });
     },
     bolus: function(boluses) {
@@ -163,7 +163,7 @@ module.exports = function(pool, opts) {
             d = pluckBolus(d);
             return top - opts.yScale(getValue(d));
           },
-          'class': 'd3-rect-bolus d3-bolus',
+          class: 'd3-rect-bolus d3-bolus',
           id: function(d) {
             d = pluckBolus(d);
             return 'bolus_' + d.id;
@@ -180,12 +180,11 @@ module.exports = function(pool, opts) {
           },
           y: function(d) {
             d = pluckBolus(d);
-
             return opts.yScale(d.value);
           },
           width: opts.width,
           height: opts.markerHeight,
-          'class': 'd3-rect-suspended d3-bolus'
+          class: 'd3-rect-suspended d3-bolus'
         });
 
       // draw color in the suspended portion
@@ -204,7 +203,7 @@ module.exports = function(pool, opts) {
             d = pluckBolus(d);
             return opts.yScale(d.value) - opts.yScale(getValue(d)) - 1;
           },
-          'class': 'd3-rect-suspended-bolus d3-bolus'
+          class: 'd3-rect-suspended-bolus d3-bolus'
         });
     },
     underride: function(underride) {
@@ -221,11 +220,9 @@ module.exports = function(pool, opts) {
           width: opts.width,
           height: function(d) {
             d = pluckBolus(d);
-            var height = opts.yScale(getValue(d)) - opts.yScale(d.recommended);
-
-            return height;
+            return opts.yScale(getValue(d)) - opts.yScale(d.recommended);
           },
-          'class': 'd3-rect-recommended d3-bolus',
+          class: 'd3-rect-recommended d3-bolus',
           id: function(d) {
             d = pluckBolus(d);
             return 'bolus_' + d.id;
@@ -254,7 +251,7 @@ module.exports = function(pool, opts) {
           },
           width: opts.width,
           height: opts.markerHeight,
-          'class': 'd3-rect-override d3-bolus'
+          class: 'd3-rect-override d3-bolus'
         });
 
       uninterrupted.append('polygon')
@@ -271,7 +268,7 @@ module.exports = function(pool, opts) {
             d = pluckBolus(d);
             return underrideTriangle(xPosition(d), opts.yScale(d.value));
           },
-          'class': 'd3-polygon-override d3-bolus'
+          class: 'd3-polygon-override d3-bolus'
         });
     },
     override: function(override) {
@@ -297,7 +294,7 @@ module.exports = function(pool, opts) {
           },
           width: opts.width,
           height: opts.markerHeight,
-          'class': 'd3-rect-override d3-bolus'
+          class: 'd3-rect-override d3-bolus'
         });
 
       uninterrupted.append('polygon')
@@ -314,17 +311,16 @@ module.exports = function(pool, opts) {
             d = pluckBolus(d);
             return overrideTriangle(xPosition(d), opts.yScale(d.recommended));
           },
-          'class': 'd3-polygon-override d3-bolus'
+          class: 'd3-polygon-override d3-bolus'
         });
     },
     extended: function(extended) {
       // square- and dual-wave boluses
       var actualExtended = extended.filter(function(d) {
-        if (d.bolus) {
-          return d.bolus.extendedDelivery > 0;
-        }
+        d = pluckBolus(d);
         return d.extendedDelivery > 0;
       });
+
       actualExtended.append('path')
         .attr({
           d: function(d) {
@@ -335,7 +331,7 @@ module.exports = function(pool, opts) {
             return 'M' + rightEdge + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
           },
           'stroke-width': opts.bolusStroke,
-          'class': function(d){
+          class: function(d){
             d = pluckBolus(d);
             if (unknownDeliverySplit(d)) {
               return 'd3-path-extended d3-bolus d3-unknown-delivery-split';
@@ -359,7 +355,7 @@ module.exports = function(pool, opts) {
             return extendedTriangle(doseEnd, doseHeight);
           },
           'stroke-width': opts.bolusStroke,
-          'class': function(d) {
+          class: function(d) {
             d = pluckBolus(d);
 
             if (d.suspendedAt) {
@@ -395,7 +391,7 @@ module.exports = function(pool, opts) {
             return 'M' + rightEdge + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
           },
           'stroke-width': opts.bolusStroke,
-          'class': 'd3-path-suspended d3-bolus'
+          class: 'd3-path-suspended d3-bolus'
         });
 
       // now, light-blue path representing undelivered extended bolus
@@ -413,7 +409,7 @@ module.exports = function(pool, opts) {
             }
           },
           'stroke-width': opts.bolusStroke,
-          'class': function(d){
+          class: function(d){
             d = pluckBolus(d);
             if (unknownDeliverySplit(d)) {
               return 'd3-path-extended-suspended d3-bolus d3-unknown-delivery-split';
@@ -566,13 +562,13 @@ module.exports = function(pool, opts) {
     annotations: function(data, selection) {
       _.each(data, function(d) {
         var annotationOpts = {
-          'x': opts.xScale(Date.parse(d.normalTime)),
-          'y': opts.yScale(d.value),
-          'xMultiplier': -2,
-          'yMultiplier': 1,
-          'd': d,
-          'orientation': {
-            'up': true
+          x: opts.xScale(Date.parse(d.normalTime)),
+          y: opts.yScale(d.value),
+          xMultiplier: -2,
+          yMultiplier: 1,
+          d: d,
+          orientation: {
+            up: true
           }
         };
         if (mainGroup.select('#annotation_for_' + d.id)[0][0] == null) {
