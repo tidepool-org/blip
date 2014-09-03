@@ -151,6 +151,24 @@ describe('datetime utility', function() {
     });
   });
 
+  describe('getDuration', function() {
+    it('should be a function', function() {
+      assert.isFunction(dt.getDuration);
+    });
+
+    it('should return 0 when given the same timestamp for d1 and d2', function() {
+      expect(dt.getDuration('2014-03-06T00:00:00.000Z', '2014-03-06T00:00:00.000Z')).to.equal(0);
+    });
+
+    it('should return 1 when given two timestamps a millisecond apart', function() {
+      expect(dt.getDuration('2014-03-06T00:00:00.000Z', '2014-03-06T00:00:00.001Z')).to.equal(1);
+    });
+
+    it('should return 86400000 when given two midnights a day apart', function() {
+      expect(dt.getDuration('2014-03-06T00:00:00.000Z', '2014-03-07T00:00:00.000Z')).to.equal(86400000);
+    });
+  });
+
   describe('getNumDays', function() {
     it('should be a function', function() {
       assert.isFunction(dt.getNumDays);

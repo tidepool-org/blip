@@ -25,7 +25,7 @@ function Tooltips(container, tooltipsGroup) {
 
   var id, tooltipGroups = {}, defs = {};
 
-  var HOURS_IN_DAY = 24, EDGE_THRESHOLD = 3;
+  var HOURS_IN_DAY = 24, EDGE_THRESHOLD = 5;
 
   var tooltipDefs = tooltipsGroup.append('defs');
   var currentTranslation, width = container.width(), vizWidth = width - container.axisGutter();
