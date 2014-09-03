@@ -93,6 +93,10 @@ var datetime = {
     return new Date(ms + new Date(this.toISODateString(d) + this.APPEND).valueOf()).toISOString();
   },
 
+  getDuration: function(d1, d2) {
+    return new Date(d2).valueOf() - new Date(d1).valueOf();
+  },
+
   getMidnight: function(d, next) {
     if (next) {
       return this.getMidnight(this.addDays(d, 1));

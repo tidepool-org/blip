@@ -28,6 +28,8 @@ module.exports = (function() {
   var bolusDay = new days.BolusDay();
   var wizardDay = new days.WizardDay();
   var basalDay = new days.BasalDay();
+  var tempBasalDay = new days.TempBasalDay();
+  var deviceMetaDay = new days.DeviceMetaDay();
 
   function full() {
     // cbg data
@@ -80,6 +82,13 @@ module.exports = (function() {
       start: moment('2008-01-01T00:00:00.000Z'),
       incrementer: incrementer
     }));
+
+    // temp basal data
+    var allTempBasalFeatureSets = tempBasalDay.opts.patterns.allFeatureSets();
+    data.push(tempBasalDay.generateFull(allTempBasalFeatureSets, {
+      starts: [moment('2008-01-01T02:45:00.000Z'), moment('2008-01-01T18:45:00.000Z')]
+    }));
+
     return _.flatten(data);
   }
 
@@ -128,6 +137,13 @@ module.exports = (function() {
       start: moment('2008-01-01T00:00:00.000Z'),
       incrementer: incrementer
     }));
+
+    // device meta data (suspends)
+    var allMetaFeatureSets = deviceMetaDay.opts.patterns.allFeatureSets();
+    data.push(deviceMetaDay.generateFull(allMetaFeatureSets, {
+      start: moment('2008-01-01T17:45:00.000Z')
+    }));
+
     return _.flatten(data);
   }
 
