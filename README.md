@@ -46,7 +46,7 @@ $ npm test
 To run the integration tests you need to be running platform components locally, see the [runservers script](https://github.com/tidepool-org/tools).
 
 - [Gatekeeper](https://github.com/tidepool-org/gatekeeper)
-- [User-api](https://github.com/tidepool-org/user-api)
+- [Shoreline](https://github.com/tidepool-org/shoreline)
 - [Message-api](https://github.com/tidepool-org/message-api)
 - [Seagull](https://github.com/tidepool-org/seagull)
 - [Hakken](https://github.com/tidepool-org/hakken)
