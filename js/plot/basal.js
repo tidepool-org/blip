@@ -73,8 +73,7 @@ module.exports = function(pool, opts) {
           'class': 'd3-basal-group',
           id: function(d) {
             return 'basal_group_' + d.id;
-          },
-          'clip-path': 'url(#mainClipPath)'
+          }
         });
 
       var nonZero = basalSegmentGroups.filter(function(d) {
@@ -91,8 +90,7 @@ module.exports = function(pool, opts) {
       var paths = basalPathsGroup.selectAll('.d3-basal.d3-path-basal')
         .data(['d3-basal d3-path-basal', 'd3-basal d3-path-basal d3-path-basal-undelivered']);
       paths.enter().append('path').attr({
-        'class': function(d) { return d; },
-        'clip-path': 'url(#mainClipPath)'
+        'class': function(d) { return d; }
       });
 
       // d3.selects are OK here because `paths` is a chained selection

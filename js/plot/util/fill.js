@@ -62,7 +62,6 @@ module.exports = function(pool, opts) {
       fills.enter()
         .append('rect')
         .attr({
-          'clip-path': 'url(#mainClipPath)',
           cursor: opts.cursor ? opts.cursor : 'auto',
           x: function(d, i) {
             if (opts.dataGutter) {
