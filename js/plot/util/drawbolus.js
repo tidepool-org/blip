@@ -128,7 +128,7 @@ module.exports = function(pool, opts) {
             return opts.yScaleCarbs ? opts.yScaleCarbs(d.carbs.value) : opts.r;
           },
           'stroke-width': 0,
-          class: 'd3-circle-carbs d3-carbs',
+          'class': 'd3-circle-carbs d3-carbs',
           id: function(d) {
             return 'carbs_' + d.id;
           }
@@ -143,7 +143,7 @@ module.exports = function(pool, opts) {
         .attr({
           x: xPos,
           y: yPos,
-          class: 'd3-carbs-text'
+          'class': 'd3-carbs-text'
         });
     },
     bolus: function(boluses) {
@@ -163,7 +163,7 @@ module.exports = function(pool, opts) {
             d = pluckBolus(d);
             return top - opts.yScale(getValue(d));
           },
-          class: 'd3-rect-bolus d3-bolus',
+          'class': 'd3-rect-bolus d3-bolus',
           id: function(d) {
             d = pluckBolus(d);
             return 'bolus_' + d.id;
@@ -184,7 +184,7 @@ module.exports = function(pool, opts) {
           },
           width: opts.width,
           height: opts.markerHeight,
-          class: 'd3-rect-suspended d3-bolus'
+          'class': 'd3-rect-suspended d3-bolus'
         });
 
       // draw color in the suspended portion
@@ -203,7 +203,7 @@ module.exports = function(pool, opts) {
             d = pluckBolus(d);
             return opts.yScale(d.value) - opts.yScale(getValue(d)) - 1;
           },
-          class: 'd3-rect-suspended-bolus d3-bolus'
+          'class': 'd3-rect-suspended-bolus d3-bolus'
         });
     },
     underride: function(underride) {
@@ -222,7 +222,7 @@ module.exports = function(pool, opts) {
             d = pluckBolus(d);
             return opts.yScale(getValue(d)) - opts.yScale(d.recommended);
           },
-          class: 'd3-rect-recommended d3-bolus',
+          'class': 'd3-rect-recommended d3-bolus',
           id: function(d) {
             d = pluckBolus(d);
             return 'bolus_' + d.id;
@@ -251,7 +251,7 @@ module.exports = function(pool, opts) {
           },
           width: opts.width,
           height: opts.markerHeight,
-          class: 'd3-rect-override d3-bolus'
+          'class': 'd3-rect-override d3-bolus'
         });
 
       uninterrupted.append('polygon')
@@ -268,7 +268,7 @@ module.exports = function(pool, opts) {
             d = pluckBolus(d);
             return underrideTriangle(xPosition(d), opts.yScale(d.value));
           },
-          class: 'd3-polygon-override d3-bolus'
+          'class': 'd3-polygon-override d3-bolus'
         });
     },
     override: function(override) {
@@ -294,7 +294,7 @@ module.exports = function(pool, opts) {
           },
           width: opts.width,
           height: opts.markerHeight,
-          class: 'd3-rect-override d3-bolus'
+          'class': 'd3-rect-override d3-bolus'
         });
 
       uninterrupted.append('polygon')
@@ -311,7 +311,7 @@ module.exports = function(pool, opts) {
             d = pluckBolus(d);
             return overrideTriangle(xPosition(d), opts.yScale(d.recommended));
           },
-          class: 'd3-polygon-override d3-bolus'
+          'class': 'd3-polygon-override d3-bolus'
         });
     },
     extended: function(extended) {
@@ -331,7 +331,7 @@ module.exports = function(pool, opts) {
             return 'M' + rightEdge + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
           },
           'stroke-width': opts.bolusStroke,
-          class: function(d){
+          'class': function(d){
             d = pluckBolus(d);
             if (unknownDeliverySplit(d)) {
               return 'd3-path-extended d3-bolus d3-unknown-delivery-split';
@@ -355,7 +355,7 @@ module.exports = function(pool, opts) {
             return extendedTriangle(doseEnd, doseHeight);
           },
           'stroke-width': opts.bolusStroke,
-          class: function(d) {
+          'class': function(d) {
             d = pluckBolus(d);
 
             if (d.suspendedAt) {
@@ -391,7 +391,7 @@ module.exports = function(pool, opts) {
             return 'M' + rightEdge + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
           },
           'stroke-width': opts.bolusStroke,
-          class: 'd3-path-suspended d3-bolus'
+          'class': 'd3-path-suspended d3-bolus'
         });
 
       // now, light-blue path representing undelivered extended bolus
@@ -409,7 +409,7 @@ module.exports = function(pool, opts) {
             }
           },
           'stroke-width': opts.bolusStroke,
-          class: function(d){
+          'class': function(d){
             d = pluckBolus(d);
             if (unknownDeliverySplit(d)) {
               return 'd3-path-extended-suspended d3-bolus d3-unknown-delivery-split';
