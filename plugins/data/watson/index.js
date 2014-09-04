@@ -81,6 +81,10 @@ module.exports = {
           }
         }
       }
+      else if (i.suspendedAt) {
+        i.suspendedAt = i.suspendedAt + this.APPEND;
+        i.normalTime = i.deviceTime + this.APPEND;
+      }
       else if (i.normalTime == null) {
         i.normalTime = i.deviceTime + this.APPEND;
       }

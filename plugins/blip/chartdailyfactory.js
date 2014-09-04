@@ -486,8 +486,7 @@ function chartDailyFactory(el, options) {
     var div = fo.append('xhtml:div')
       .attr('class', 'd3-tabular-ui');
 
-    var icon = div.append('p')
-      .html(chart.options.hiddenPools.basalSettings ?
+    var icon = div.html(chart.options.hiddenPools.basalSettings ?
         '<i class="icon-right"></i>' : '<i class="icon-down"></i>');
 
     var iconWidth = icon.select('i')[0][0].getBoundingClientRect().width;
