@@ -121,7 +121,7 @@ var Bolus = function(deviceTime, features) {
       'initialDelivery': 0.5 * features.value,
       'duration': MS_IN_24HRS/12,
       'programmed': features.value,
-      'suspendedAt': this.addInterval(deviceTime + APPEND, {'milliseconds': MS_IN_24HRS/12 - (MS_IN_10MIN * 4)}).utc().format().slice(0, -6) + APPEND,
+      'suspendedAt': this.addInterval(deviceTime + APPEND, {'milliseconds': MS_IN_24HRS/12 - (MS_IN_10MIN * 4)}).utc().format().slice(0, -6),
       'value': features.value * 0.8
     }
   };
