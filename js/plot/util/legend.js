@@ -192,7 +192,7 @@ var legend = {
           .attr({
             'class': 'd3-pool-legend'
           })
-          .text('recommended')
+          .text('undelivered')
           .each(function() {
             opts.widths.push(this.getBoundingClientRect().width);
             opts.textHeight = this.getBoundingClientRect().height;
@@ -284,8 +284,11 @@ var legend = {
       }
     }, this);
     if (type !== 'bg') {
+      // a y-attribute of 0 would put the top of the rects *at* the text baseline
+      // so an upward (negative) shift of half the shape width works well
+      var baselineShift = -(this.SHAPE_WIDTH/2 + this.SHAPE_MARGIN);
       selection.selectAll('rect')
-        .attr('y', -(opts.textHeight * 3/4 - this.SHAPE_MARGIN*2));
+        .attr('y', baselineShift);
     }
     var w;
     selection.each(function() { w = this.getBoundingClientRect(); });

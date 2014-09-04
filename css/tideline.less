@@ -171,8 +171,13 @@ svg {
 }
 
 // carbs
-.d3-rect-carbs, .d3-rect-carbs-legend {
+.d3-rect-carbs {
   fill: @carbs;
+}
+.d3-rect-carbs-legend {
+  .d3-rect-carbs;
+  stroke: @carbs;
+  stroke-width: 1.5;
 }
 .d3-circle-carbs {
   fill: @carbs;
@@ -186,9 +191,13 @@ svg {
 
 // boluses
 .d3-bolus {
-  &.d3-rect-bolus,
-  &.d3-rect-bolus-legend {
+  &.d3-rect-bolus {
     fill: @bolus;
+  }
+  &.d3-rect-bolus-legend {
+    .d3-rect-bolus;
+    stroke: @bolus;
+    stroke-width: 1.5;
   }
   &.d3-path-bolus {
     stroke: @bolus;
@@ -205,28 +214,32 @@ svg {
     fill: @bolus;
   }
   &.d3-path-extended-triangle-suspended {
-    stroke: @recommended;
-    fill: @recommended;
+    stroke: @undelivered;
+    fill: @undelivered;
   }
   &.d3-path-suspended {
     stroke: @suspended;
     fill: @suspended;
   }
   &.d3-rect-suspended-bolus {
-    stroke: @recommended;
-    fill: @recommended;
+    stroke: @undelivered;
+    fill: @undelivered;
   }
   &.d3-path-extended-suspended {
-    stroke: @recommended;
-    fill: @recommended;
+    stroke: @undelivered;
+    fill: @undelivered;
   }
   &.d3-path-suspended-triangle {
     stroke: @suspended;
     fill:none;
   }
-  &.d3-rect-recommended,
+  &.d3-rect-recommended {
+    fill: @undelivered;
+  }
   &.d3-rect-recommended-legend {
-    fill: @recommended;
+    .d3-rect-recommended;
+    stroke: @undelivered;
+    stroke-width: 1.5;
   }
   &.d3-rect-suspended {
     fill: @suspended;
@@ -326,7 +339,7 @@ svg {
 // basal tabular settings
 div.d3-tabular-ui {
   background-color: none;
-  p {
+  p, i {
     color: @text-light;
     cursor: pointer;
     font-size: @font-size-axes;
@@ -391,11 +404,13 @@ text.d3-tabular-ui {
 .d3-tooltip-data-annotation {
   pointer-events: none;
   body {
+    margin: 0px;
     background-color: rgba(255, 255, 255, 0)
   }
 }
 
 .d3-div-data-annotation {
+  margin: 0px;
   padding: 10px;
   color: @text;
   p {
