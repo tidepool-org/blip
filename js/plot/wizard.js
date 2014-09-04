@@ -56,8 +56,7 @@ module.exports = function(pool, opts) {
       var wizardGroups = wizards.enter()
         .append('g')
         .attr({
-          'clip-path': 'url(#mainClipPath)',
-          class: 'd3-wizard-group',
+          'class': 'd3-wizard-group',
           id: function(d) {
             return 'wizard_group_' + d.id;
           }

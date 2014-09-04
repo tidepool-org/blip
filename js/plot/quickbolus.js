@@ -53,7 +53,6 @@ module.exports = function(pool, opts) {
       var bolusGroups = boluses.enter()
         .append('g')
         .attr({
-          'clip-path': 'url(#mainClipPath)',
           'class': 'd3-bolus-group',
           id: function(d) { return 'bolus_group_' + d.id; }
         });

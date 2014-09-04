@@ -79,8 +79,7 @@ module.exports = function(pool, opts) {
       var tickGroups = ticks.enter()
         .append('g')
         .attr({
-          'class': 'd3-axis ' + opts['class'],
-          'clip-path': 'url(#mainClipPath)'
+          'class': 'd3-axis ' + opts['class']
         });
 
       tickGroups.append('line')

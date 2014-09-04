@@ -64,14 +64,6 @@ module.exports = function(emitter) {
       width: width,
       height: height
     });
-
-    mainGroup.append('rect')
-      .attr({
-        id: 'poolsInvisibleRect',
-        width: width - nav.navGutter,
-        height: height,
-        opacity: 0.0
-      });
   }
 
   // non-chainable methods
@@ -220,14 +212,6 @@ module.exports = function(emitter) {
     container.poolStats.group().attr({
       transform: 'translate(' + axisGutter + ',' + (height - statsHeight) + ')'
     });
-    container.poolStats.group().append('rect')
-      .attr({
-        x: 0,
-        y: 0,
-        width: width - axisGutter - nav.navGutter,
-        height: statsHeight,
-        fill: 'white'
-      });
   };
 
   container.clear = function() {
@@ -360,31 +344,26 @@ module.exports = function(emitter) {
 
   // chainable methods
   container.setup = function() {
+    mainSVG.insert('clipPath', '#tidelineMain')
+      .attr('id', 'twoWeekClipPath')
+      .append('rect')
+      .attr({
+        x: 0,
+        y: 0,
+        height: height - nav.axisHeight - statsHeight,
+        width: width,
+        transform: 'translate(0,' + nav.axisHeight + ')'
+      });
+
     poolGroup = mainGroup.append('g').attr('id', 'tidelinePools');
 
     mainGroup.append('g')
-      .attr('id', 'tidelineXAxisGroup')
-      .append('rect')
-      .attr({
-        id: 'xAxisInvisibleRect',
-        x: axisGutter,
-        height: nav.axisHeight,
-        width: width - axisGutter,
-        fill: 'white'
-      });
+      .attr('id', 'tidelineXAxisGroup');
 
     mainGroup.append('g')
-      .attr('id', 'tidelineYAxisGroup')
-      .append('rect')
-      .attr({
-        id: 'yAxisInvisibleRect',
-        x: 0,
-        height: height,
-        width: axisGutter,
-        fill: 'white'
-      });
+      .attr('id', 'tidelineYAxisGroup');
 
-    daysGroup = poolGroup.append('g').attr('id', 'daysGroup');
+    daysGroup = poolGroup.append('g').attr('id', 'daysGroup').attr('clip-path', 'url(#twoWeekClipPath)');
 
     scrollNav = mainGroup.append('g')
       .attr('class', 'y scroll')
@@ -577,18 +556,7 @@ module.exports = function(emitter) {
         yStart = nav.scrollScale(viewEndpoints[1]);
         translationAdjustment = height - statsHeight;
 
-        scrollNav.append('rect')
-        .attr({
-          x: 0,
-          y: nav.scrollScale(dataEndNoon) - nav.scrollThumbRadius,
-          width: nav.navGutter,
-          height: height - nav.axisHeight,
-          fill: 'white',
-          id: 'scrollNavInvisibleRect'
-        });
-
         xPos = 2 * nav.navGutter / 3;
-
 
         var start = new Date(dataStartNoon);
         start.setUTCDate(start.getUTCDate() - 1);
@@ -607,16 +575,6 @@ module.exports = function(emitter) {
       else {
         yStart = nav.scrollScale(viewEndpoints[0]);
         translationAdjustment = nav.axisHeight;
-
-        scrollNav.append('rect')
-        .attr({
-          x: 0,
-          y: nav.scrollScale(dataStartNoon) - nav.scrollThumbRadius,
-          width: nav.navGutter,
-          height: height - nav.axisHeight,
-          fill: 'white',
-          id: 'scrollNavInvisibleRect'
-        });
 
         xPos = nav.navGutter / 2;
 
