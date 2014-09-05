@@ -16,15 +16,13 @@
 var _ = require('lodash');
 
 var personUtils = require('../../app/core/personutils');
+var common = require('./common');
+var publicPersonInfo = common.publicPersonInfo;
 
 var patch = function(mock, api) {
   var data = mock.data;
   var getParam = mock.getParam;
   var getDelayFor = mock.getDelayFor;
-
-  function publicPersonInfo(person) {
-    return _.omit(person, 'password', 'username', 'emails');
-  }
 
   function updatePatient(patient) {
     var patientId = patient.userid;

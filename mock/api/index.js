@@ -18,6 +18,7 @@ var patch = function(mock, api) {
   var patchPatient = require('./patient').bind(null, mock);
   var patchPatientData = require('./patientdata').bind(null, mock);
   var patchTeam = require('./team').bind(null, mock);
+  var patchInvitation = require('./invitation').bind(null, mock);
   var patchMetrics = require('./metrics').bind(null, mock);
   var patchErrors = require('./errors').bind(null, mock);
 
@@ -28,6 +29,7 @@ var patch = function(mock, api) {
   api = patchPatient(api);
   api = patchPatientData(api);
   api = patchTeam(api);
+  api = patchInvitation(api);
   api = patchMetrics(api);
   api = patchErrors(api);
 

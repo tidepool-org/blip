@@ -97,6 +97,22 @@ var patch = function(mock, api) {
     }
   }
 
+  function matchInvitationsToUser(user) {
+    var userId = user.userid;
+    var emails = user.emails;
+    _.forEach(data.confirmations, function(confirmation) {
+      var match = (
+        confirmation.type === 'invite' &&
+        _.contains(emails, confirmation.email)
+      );
+
+      if (match) {
+        // Mutate confirmation object in mock data
+        confirmation.userid = userId;
+      }
+    });
+  }
+
   api.user.loadSession = function(callback) {
     var userId;
     var token;
@@ -199,6 +215,9 @@ var patch = function(mock, api) {
         var token = generateTokenId();
         addToken(user.userid, token);
         saveSession(user.userid, token);
+
+        matchInvitationsToUser(user);
+
         api.log('[mock] Signup success');
       }
       else {

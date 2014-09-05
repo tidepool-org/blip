@@ -506,6 +506,25 @@ api.patientData.get = function(patientId, cb) {
   });
 };
 
+// ----- Invitation -----
+
+api.invitation = {};
+
+api.invitation.getReceived = function(callback) {
+  api.log('GET /invitations/received [NOT IMPLEMENTED]');
+  callback(null, []);
+};
+
+api.invitation.accept = function(fromUserId, callback) {
+  api.log('POST /invitations/from/' + fromUserId + '/accept [NOT IMPLEMENTED]');
+  callback(null, {});
+};
+
+api.invitation.dismiss = function(fromUserId, callback) {
+  api.log('POST /invitations/from/' + fromUserId + '/dismiss [NOT IMPLEMENTED]');
+  callback(null, {});
+};
+
 // ----- Upload -----
 
 api.getUploadUrl = function() {
