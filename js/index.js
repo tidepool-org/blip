@@ -22,6 +22,11 @@ module.exports = {
   twoWeek: require('./twoweek'),
   settings: require('./settings'),
 
+  validation: {
+    schema: require('./validation/schema'),
+    validate: require('./validation/validate')
+  },
+
   data: {
     BasalUtil: require('./data/basalutil'),
     BolusUtil: require('./data/bolusutil'),
