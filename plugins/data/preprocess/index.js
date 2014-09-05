@@ -21,6 +21,7 @@ var watson = require('../watson');
 var TidelineData = tideline.TidelineData;
 var SegmentUtil = tideline.data.SegmentUtil;
 var datetime = tideline.data.util.datetime;
+var validate = tideline.validation.validate;
 
 var log = require('bows')('Preprocess');
 
@@ -346,8 +347,14 @@ var preprocess = {
     data = withTiming('translateMmol', this.translateMmol.bind(this), data);
     data = withTiming('sortBasalSchedules', this.sortBasalSchedules.bind(this), data);
     data = withTiming('appendBolusToWizard', this.appendBolusToWizard.bind(this), data);
+    console.time('Validation');
+    var result = validate.validateAll(data);
+    console.timeEnd('Validation');
+    log('Data validated.');
+    log('Items validated:', result.valid.length);
+    log('Items found invalid:', result.invalid.length);
 
-    var tidelineData = this.checkRequired(new TidelineData(data));
+    var tidelineData = this.checkRequired(new TidelineData(result.valid));
 
     return tidelineData;
   }
