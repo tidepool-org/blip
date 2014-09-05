@@ -84,6 +84,11 @@ if (Rx.Observable.prototype.tidepoolConvertBasal == null) {
           return null;
         }
 
+        // Skip over elements with a "time" field because they belong to the new data model
+        if (e.time != null) {
+          return null;
+        }
+
         return isScheduledBasal(e) ? makeNewBasalHandler() : null;
       }
     ).tidepoolSelfJoin(
