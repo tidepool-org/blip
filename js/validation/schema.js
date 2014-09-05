@@ -1,8 +1,6 @@
 var Joi = require('joi');
 
 module.exports = Joi.object().keys({
-  // basaltab.js: actualized is optional, reflecting whether scheduled segment was delivered
-  actualized: Joi.boolean(),
   basalSchedules: Joi.array().includes(Joi.object().keys({
     name: Joi.string().min(1).required(),
     value: Joi.array().includes(Joi.object().keys({
@@ -16,7 +14,7 @@ module.exports = Joi.object().keys({
   }),
   bgTarget: Joi.array().includes(Joi.object().keys({
     // pulling a min out of thin air a little bit, Animas pump allows min of 60
-    amount: Joi.number().integer().min(50),
+    amount: Joi.number().integer(),
     // milliseconds per twenty-four hours
     start: Joi.number().integer().min(0).max(86400000).required()
   })).when('type', {
@@ -57,12 +55,6 @@ module.exports = Joi.object().keys({
   // extended is optional on boluses
   // required co-occurrence with extendedDelivery below in `and` clause
   extended: Joi.boolean(),
-  // generate data for background fill requires a fillColor
-  fillColor: Joi.string().valid(['darkest', 'darker', 'dark',
-    'light', 'lighter', 'lightest']).when('type', {
-      is: 'fill',
-      then: Joi.required()
-    }),
   // all IDs must be alphanumeric plus - or _ but no other special characters
   id: Joi.string().regex(/^[A-Za-z0-9\-\_]+$/).required(),
   initialDelivery: Joi.number().min(0),
@@ -75,11 +67,11 @@ module.exports = Joi.object().keys({
     then: Joi.required()
   }),
   extendedDelivery: Joi.number().min(0),
-  // some types optionally have a joinKey, with the same characters requiredments as IDs
+  // some types optionally have a joinKey, with the same characters requirements as IDs
   // _ not included here because that only occurs in IDs not generated server-side
   joinKey: Joi.string().regex(/^[A-Za-z0-9\-]+$/),
   normalEnd: Joi.string().isoDate().when('type', {
-    is: ['basal-rate-segment', 'basal-settings-segment', 'fill'],
+    is: 'basal-rate-segment',
     then: Joi.required()
   }),
   normalTime: Joi.string().isoDate(),
@@ -89,29 +81,21 @@ module.exports = Joi.object().keys({
   }), Joi.any().valid(null, '')),
   programmed: Joi.number().min(0),
   recommended: Joi.number().min(0),
-  // basaltab.js: schedule is required
-  // identifies which basal schedule in the settings the segment belongs to
-  schedule: Joi.string().min(1).when('type', {
-    is: 'basal-settings-segment',
-    then: Joi.required()
-  }),
   // TODO: change to isoDate() as soon as merge browser compatibility branch
   // which adds Watsoning to suspendedAt field
   suspendedAt: Joi.string().regex(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/),
   type: Joi.string().valid([
     'basal-rate-segment',
-    'basal-settings-segment',
     'bolus',
     'cbg',
     // NB: other than allowing the type, deviceMeta doesn't get validated
     // because it doesn't get visualized
     // only deviceMetas transformed into basal-rate-segments are visualized
     'deviceMeta',
-    'fill',
     'message',
     'settings',
     'smbg',
-    'wizard']).required(),
+    'wizard']).invalid(['basal-settings-segment', 'fill']).required(),
   // only messages are currently visualized using a true timezone-aware UTC datetime string
   utcTime: Joi.string().isoDate().when('type', {
     is: 'message',
@@ -122,7 +106,7 @@ module.exports = Joi.object().keys({
   // not a big deal since carbs types is going away and
   // cbg and smbg will soon be coming in as mmol/L
   value: Joi.number().min(0).when('type', {
-    is: ['basal-rate-segment', 'basal-settings-segment', 'bolus', 'carbs', 'cbg', 'smbg'],
+    is: ['basal-rate-segment', 'bolus', 'carbs', 'cbg', 'smbg'],
     then: Joi.required()
   }),
 }).and(['extended', 'extendedDelivery'])
