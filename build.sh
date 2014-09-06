@@ -6,4 +6,4 @@ npm install --production
 T="$(($(date +%s)-T))"
 echo "npm install completed in ${T} seconds"
 npm dedupe
-NODE_ENV=production npm run build-app
+npm run build-app
