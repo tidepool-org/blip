@@ -21,9 +21,11 @@
 
 // header and footer, etc.
 @background: #989897;
+@text: darken(@background, 25%);
 
 @import 'grid.less';
 @import 'icons.less';
+@import 'spinner.less';
 
 @font-face {
   font-family: 'Blip Icons';
@@ -178,6 +180,19 @@ body {
   padding: 5px 10px;
   height: 590px;
   background-color: white;
+
+  #fetchAndProcess {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    p {
+      color: @text;
+      font-style: italic;
+      text-align: center;
+      width: 100%;
+    }
+  }
 
   #tidelineContainer {
     height: 590px;

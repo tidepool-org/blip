@@ -29,6 +29,8 @@ var log = require('bows')('TidelineData');
 
 function TidelineData(data, opts) {
 
+  var REQUIRED_TYPES = ['basal-rate-segment', 'bolus', 'wizard', 'cbg', 'message', 'smbg', 'settings'];
+
   opts = opts || {};
 
   var defaults = {
@@ -60,6 +62,17 @@ function TidelineData(data, opts) {
 
   _.defaults(opts, defaults);
   var that = this;
+
+  function checkRequired() {
+    _.each(REQUIRED_TYPES, function(type) {
+      if (!that.grouped[type]) {
+        log('No', type, 'data! Replaced with empty array.');
+        that.grouped[type] = [];
+      }
+    });
+
+    return that;
+  }
 
   function addAndResort(datum, a) {
     return _.sortBy((function() {
@@ -229,7 +242,7 @@ function TidelineData(data, opts) {
   
   updateCrossFilters(this.data);
 
-  return this;
+  return checkRequired(this);
 }
 
 module.exports = TidelineData;
