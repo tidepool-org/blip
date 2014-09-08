@@ -51,7 +51,8 @@ $ source config/mock.sh
 $ npm start
 ```
 
-Open your web browser and navigate to `http://localhost:3000/`.
+Open your web browser and navigate to `http://localhost:3000/`. You can see the
+mock data by logging in with email "**demo**" and password "**demo**".
 
 ## Config
 

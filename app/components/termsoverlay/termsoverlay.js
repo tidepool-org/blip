@@ -38,8 +38,9 @@ var TermsOverlay = React.createClass({
         <div className="terms-overlay-content terms-overlay-box">
           <div className="terms-overlay-title">TERMS OF USE</div>
           <div className="terms-overlay-text">
-            <p>This version of <strong>Blip</strong> is intended for use by participants of the UCSF Blip Pilot Study, April - August, 2014.
+            <p>This version of <strong>Blip</strong> is intended for use by participants of the UCSF Blip Pilot Study, Summer - Fall, 2014.
             Please send questions, comments or other feedback on this software to blip@tidepool.org.</p>
+            <p>If you are not a participant in the UCSF Blip Pilot Study, then you must read and agree to the terms of the <a href="http://developer.tidepool.io/files/tidepool-vcla.pdf">Tidepool Volunteer/Contributor License Agreement</a>.</p>
             <p><strong>Do not make therapy changes without first consulting your physician.</strong></p>
           </div>
           <form className="terms-overlay-form">
