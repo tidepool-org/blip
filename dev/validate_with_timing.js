@@ -1,4 +1,4 @@
-var validate = require('../js/validation/validate');
+var validate = require('../js/validation/joi/validate');
 var data = require('../example/data/post-preprocess.json');
 
 var result;
