@@ -1,12 +1,13 @@
 var _ = require('lodash');
 var Joi = require('joi');
 var schemas = require('./schemas');
+var common = require('./common-simple.js');
 
 module.exports = {
   validateOne: function(datum, result) {
     result = result || {valid: [], invalid: []};
     function validate(schema) {
-      Joi.validate(datum, schema.concat(schemas.common),
+      Joi.validate(datum, schemas.common,
         {
           abortEarly: false,
           convert: false,
@@ -24,11 +25,38 @@ module.exports = {
     }
     validate(schemas[datum.type]);
   },
+  validateOneSimple: function(datum, result) {
+    result = result || {valid: [], invalid: []};
+    function validate(schema) {
+      common(datum,
+             function(err, value) {
+               if (err != null) {
+                 console.log('Oh noes! This is wrong:\n', value);
+                 console.log('\nError Message:', err.message, '\n');
+                 value.errorMessage = err.message;
+                 result.invalid.push(value);
+               }
+               result.valid.push(value);
+             });
+    }
+    validate(schemas[datum.type]);
+  },
   validateAll: function(data) {
+    console.time('Joi');
     var result = {valid: [], invalid: []};
     for (var i = 0; i < data.length; ++i) {
       this.validateOne(data[i], result);
     }
+    console.timeEnd('Join');
+
+    console.time('Simple');
+    var resultSimple = {valid: [], invalid: []};
+    for (var j = 0; i < data.length; ++j) {
+      this.validateOneSimple(data[j], resultSimple);
+    }
+    console.timeEnd('Simple');
+
     return result;
+
   }
 };
