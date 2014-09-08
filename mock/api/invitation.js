@@ -42,11 +42,7 @@ var patch = function(mock, api) {
     });
   }
 
-  function setPermissions(userId, groupId, permissions) {
-    var groups = data.groups[userId] || {};
-    groups[groupId] = _.cloneDeep(permissions);
-    data.groups[userId] = groups;
-  }
+  var setPermissions = common.setPermissions.bind(null, data);
 
   api.invitation.getReceived = function(callback) {
     api.log('[mock] GET /invitations/received');
@@ -94,7 +90,7 @@ var patch = function(mock, api) {
         return callback(err);
       }
 
-      setPermissions(userId, fromUserId, invitation.permissions);
+      setPermissions(fromUserId, userId, invitation.permissions);
       // Note: we are mutating the object in the mock data here
       invitation.status = 'confirmed';
 

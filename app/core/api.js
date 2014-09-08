@@ -526,6 +526,16 @@ api.invitation.cancel = function(toEmail, callback) {
   callback();
 };
 
+// ----- Access -----
+
+api.access = {};
+
+api.access.put = function(memberId, permissions, callback) {
+  var groupId = tidepool.getUserId();
+  api.log('PUT /access/' + groupId + '/' + memberId);
+  return tidepool.setAccessPermissions(memberId, permissions, callback);
+};
+
 // ----- Upload -----
 
 api.getUploadUrl = function() {

@@ -32,5 +32,18 @@ module.exports = {
 
   publicPersonInfo: function(person) {
     return _.omit(person, 'password', 'username', 'emails');
+  },
+
+  setPermissions: function(data, groupId, memberId, permissions) {
+    var groups = data.groups[memberId] || {};
+    // Delete permissions
+    if (_.isEmpty(permissions)) {
+      groups = _.omit(groups, groupId);
+    }
+    // Set permissions
+    else {
+      groups[groupId] = _.cloneDeep(permissions);
+    }
+    data.groups[memberId] = groups;
   }
 };
