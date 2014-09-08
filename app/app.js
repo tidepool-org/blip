@@ -19,7 +19,7 @@ var bows = require('bows');
 var _ = require('lodash');
 var async = require('async');
 
-var chartUtil = require('tideline/plugins/data/preprocess');
+var nurseShark = require('tideline/plugins/nurseshark/');
 
 var config = require('./config');
 var router = require('./router');
@@ -807,18 +807,13 @@ var AppComponent = React.createClass({
     if (!(data && data.length)) {
       return null;
     }
-    // TODO: move the deep cloning of the objects inside data into preprocess instead
-    // will come up v. soon when @jebeck does client-side data validation (next up)
-    var preTidelineData = _.map(data, function(d) {
-      return _.cloneDeep(d);
-    });
     window.downloadJSON = function() {
-      console.save(preTidelineData);
+      console.save(data);
     };
 
-    var processData = chartUtil.processData(data);
-    window.tidelineData = processData;
-    return processData;
+    var processedData = nurseShark.processData(data);
+    window.tidelineData = processedData;
+    return processedData;
   },
 
   fetchCurrentPatientData: function() {
