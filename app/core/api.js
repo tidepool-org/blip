@@ -516,6 +516,16 @@ api.invitation.dismiss = function(fromUserId, callback) {
   callback(null, {});
 };
 
+api.invitation.getSent = function(callback) {
+  api.log('GET /invitations/sent [NOT IMPLEMENTED]');
+  callback(null, []);
+};
+
+api.invitation.cancel = function(toEmail, callback) {
+  api.log('POST /invitations/to/' + toEmail + '/cancel [NOT IMPLEMENTED]');
+  callback();
+};
+
 // ----- Upload -----
 
 api.getUploadUrl = function() {
