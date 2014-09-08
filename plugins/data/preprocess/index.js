@@ -347,6 +347,7 @@ var preprocess = {
     data = withTiming('translateMmol', this.translateMmol.bind(this), data);
     data = withTiming('sortBasalSchedules', this.sortBasalSchedules.bind(this), data);
     data = withTiming('appendBolusToWizard', this.appendBolusToWizard.bind(this), data);
+    console.log('Number of items to validate:', data.length);
     console.time('Validation');
     var result = validate.validateAll(data);
     console.timeEnd('Validation');
