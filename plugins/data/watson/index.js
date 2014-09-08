@@ -65,7 +65,7 @@ module.exports = {
         // new data model
         else {
           i.normalTime = i.deviceTime + this.APPEND;
-          i.normalEnd = dt.addDuration(i.normalTime, i.duration) + this.APPEND;
+          i.normalEnd = dt.addDuration(i.normalTime, i.duration || 0) + this.APPEND;
           i.value = i.rate;
           if (i.suppressed) {
             for (var k = 0; k < i.suppressed.length; ++k) {
@@ -86,13 +86,14 @@ module.exports = {
       }
     }
     catch(e) {
-      throw new TypeError('Watson choked on an undefined.');
+      log('Watson choked on object:', i);
+      throw e;
     }
     return i;
   },
 
   normalizeAll: function(a) {
-    log('Watson normalized the data.');
+    log('Watson normalizing the data.');
     return _.map(a, function(d) {
       return this.normalize(d);
     }, this);
