@@ -102,7 +102,7 @@ $ npm run jshint-watch
 
 Tideline is designed to be highly modular and framework-independent. It is currently being used in conjunction with [React](http://facebook.github.io/react/ 'React') in Tidepool's first application [blip](https://github.com/tidepool-org/blip 'blip').
 
-The main functionality tideline provides is modules for building out various visualizations of multi-typed data sets aligned on various timescales. At present, there is a module (`oneday.js`) for creating a horizontal scrolling timeline that shows twenty-four hours of data at a time, a module (`twoweek.js`) for creating a vertical scrolling timeline that shows two weeks of data at a time, and a modeul (`settings.js`) for creating an HTML table view of insulin pump settings.
+The main functionality tideline provides is modules for building out various visualizations of multi-typed data sets aligned on various timescales. At present, there is a module (`oneday.js`) for creating a horizontal scrolling timeline that shows twenty-four hours of data at a time, a module (`twoweek.js`) for creating a vertical scrolling timeline that shows two weeks of data at a time, and a module (`settings.js`) for creating an HTML table view of insulin pump settings.
 
 **Jargon:** The horizontal sections comprising sub-units of visualization plotted against the same x-axis are referred to in this repository as *pools*.
 
