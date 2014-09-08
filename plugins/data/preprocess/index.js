@@ -347,7 +347,7 @@ var preprocess = {
     if (!cb) {
       return new TidelineData(data);
     }
-    console.log('Number of items to validate:', data.length);
+    log('Number of items to validate:', data.length);
     console.time('Validation');
     var result = validate.validateAll(data, onDoneValidation);
     function onDoneValidation(err, data) {

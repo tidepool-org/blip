@@ -32,6 +32,7 @@ var Example = React.createClass({
   },
   getInitialState: function() {
     return {
+      preprocessCallback: this.updateData,
       chartPrefs: {
         bgUnits: 'mg/dL',
         hiddenPools: {
@@ -114,7 +115,13 @@ var Example = React.createClass({
     if (err) {
       throw new Error('Could not fetch data file at ' + dataUrl);
     }
-    preprocess.processData(data, this.updateData);
+    var processed = preprocess.processData(data, this.state.preprocessCallback);
+    if (!this.state.preprocessCallback) {
+      this.setState({
+        chartData: processed,
+        chartType: 'daily'
+      });
+    }
   },
   updateData: function(err, data) {
     if (err) {
