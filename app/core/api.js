@@ -380,7 +380,7 @@ api.team = {};
 
 //Get all messages for the given thread
 api.team.getMessageThread = function(messageId,cb){
-  api.log('GET /message/thread');
+  api.log('GET /message/thread/' + messageId);
 
   tidepool.getMessageThread(messageId, function(error,messages){
     if(error){
@@ -398,7 +398,7 @@ api.team.getMessageThread = function(messageId,cb){
 
 //Get all notes (parent messages) for the given team
 api.team.getNotes = function(userId,cb){
-  api.log('GET /message/notes');
+  api.log('GET /message/notes/' + userId);
 
   //at present we are not using the date range
   var dateRange = null;
@@ -407,23 +407,14 @@ api.team.getNotes = function(userId,cb){
     if(error){
       return cb(error);
     }
-    //transform so that they are how Tideline renders them
-    messages = _.map(messages, function(message) {
-      return {
-        utcTime : message.timestamp,
-        messageText : message.messagetext,
-        parentMessage : message.parentmessage,
-        type: 'message',
-        id: message.id
-      };
-    });
+
     return cb(null,messages);
   });
 };
 
 //Add a comment
 api.team.replyToMessageThread = function(message,cb){
-  api.log('POST /message/reply');
+  api.log('POST /message/reply/' + message.parentmessage);
 
   tidepool.replyToMessageThread(message, function(error,replyId){
     if (error) {
@@ -435,7 +426,7 @@ api.team.replyToMessageThread = function(message,cb){
 
 //New message
 api.team.startMessageThread = function(message,cb){
-  api.log('POST /message/send');
+  api.log('POST /message/send/' + message.groupid);
 
   tidepool.startMessageThread(message, function(error,messageId){
     if (error) {
@@ -446,7 +437,7 @@ api.team.startMessageThread = function(message,cb){
 };
 
 api.team.editMessage = function(message,cb){
-  api.log('POST /message/edit');
+  api.log('PUT /message/edit/' + message.id);
 
   tidepool.editMessage(message, function(error, details){
     if (error) {
