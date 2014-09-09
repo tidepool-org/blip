@@ -353,16 +353,20 @@ var preprocess = {
     var result = validate.validateAll(data, onDoneValidation);
     function onDoneValidation(err, data) {
       console.timeEnd('Validation');
-      cb(err, _.reject(data, function(d) { return d.errorMessage != null; }));
-      var result = _.countBy(data, function(d) {
-        if (d.errorMessage) {
-          return 'invalid';
-        }
-        return 'valid';
-      });
-      log('Data validated.');
-      log('Items validated:', result.valid);
-      log('Items found invalid:', result.invalid || 0);
+      console.time('Pure');
+      pureValidate.validateAll(data, function(err, ignored){
+        console.timeEnd('Pure');
+        cb(err, _.reject(data, function(d) { return d.errorMessage != null; }));
+        var result = _.countBy(data, function(d) {
+          if (d.errorMessage) {
+            return 'invalid';
+          }
+          return 'valid';
+        });
+        log('Data validated.');
+        log('Items validated:', result.valid);
+        log('Items found invalid:', result.invalid || 0);
+      })
     }
   }
 };

@@ -1,6 +1,5 @@
 var _ = require('lodash');
-var Joi = require('joi');
-var schemas = require('./schemas');
+var async = require('async');
 
 var joy = require('./joy/joy.js');
 
@@ -17,13 +16,11 @@ var schemas = {
 };
 
 module.exports = {
-  validateOne: function(datum, result) {
-    result = result || {valid: [], invalid: []};
-
+  validateOne: function(datum, cb) {
     var handler = schemas[datum.type];
     if (handler == null) {
       datum.errorMessage = util.format('Unknown data.type[%s]', datum.type);
-      result.invalid.push(datum);
+      cb(new Error(datum.errorMessage), datum);
     } else {
       try {
         handler(datum);
@@ -32,21 +29,16 @@ module.exports = {
         console.log(util.format('Error Message: %s%s', datum.type, e.message));
         datum.errorMessage = e.message;
         result.invalid.push(datum);
-        return;
+        return cb(e, datum);
       }
-      result.valid.push(datum);
+      cb(null, datum);
     }
   },
-  validateAll: function(data) {
+  validateAll: function(data, cb) {
     console.time('Pure');
-    var result = {valid: [], invalid: []};
-    for (var i = 0; i < data.length; ++i) {
-      this.validateOne(data[i], result);
-      if (result.invalid.length > 0) {
-        break;
-      }
-    }
-    console.timeEnd('Pure');
-    return result;
+    async.map(data, this.validateOne.bind(this), function(err, results) {
+      console.timeEnd('Pure');
+      cb(err, results);
+    });
   }
 };
