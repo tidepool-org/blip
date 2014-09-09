@@ -1,5 +1,6 @@
 var _ = require('lodash');
-var util = require('util');
+var Joi = require('joi');
+var schemas = require('./schemas');
 
 var joy = require('./joy/joy.js');
 

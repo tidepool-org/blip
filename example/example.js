@@ -4,11 +4,13 @@ var bows = require('bows');
 var React = require('react');
 var d3 = require('d3');
 
+var Empty = require('./components/empty');
 var Daily = require('./components/daily');
 var Weekly = require('./components/weekly');
 var Settings = require('./components/settings');
 // tideline dependencies & plugins
 var preprocess = require('../plugins/data/preprocess/');
+var TidelineData = require('../js/tidelinedata');
 
 require('../css/tideline.less');
 require('./less/example.less');
@@ -17,13 +19,20 @@ var example = {
   log: bows('Example')
 };
 
+var dataUrl = process.env.DATA;
+if (_.isEmpty(dataUrl)) {
+  dataUrl = 'device-data.json';
+}
+dataUrl = 'data/' + dataUrl;
+
 var Example = React.createClass({
   log: bows('Example'),
-  propTypes: {
-    chartData: React.PropTypes.object.isRequired
+  componentDidMount: function() {
+    this.fetchData();
   },
   getInitialState: function() {
     return {
+      preprocessCallback: this.updateData,
       chartPrefs: {
         bgUnits: 'mg/dL',
         hiddenPools: {
@@ -32,7 +41,7 @@ var Example = React.createClass({
       },
       datetimeLocation: null,
       initialDatetimeLocation: null,
-      chartType: 'daily'
+      chartType: 'empty'
     };
   },
   render: function() {
@@ -48,15 +57,20 @@ var Example = React.createClass({
     /* jshint ignore:end */
   },
   renderChart: function() {
-    window.tidelineData = this.props.chartData;
     switch (this.state.chartType) {
+      case 'empty':
+        /* jshint ignore:start */
+        return (
+          <Empty />
+          );
+        /* jshint ignore:end */
       case 'daily':
         /* jshint ignore:start */
         return (
           <Daily
             chartPrefs={this.state.chartPrefs}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
-            patientData={this.props.chartData}
+            patientData={this.state.chartData}
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
@@ -70,7 +84,7 @@ var Example = React.createClass({
           <Weekly
             chartPrefs={this.state.chartPrefs}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
-            patientData={this.props.chartData}
+            patientData={this.state.chartData}
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
@@ -83,13 +97,41 @@ var Example = React.createClass({
         return (
           <Settings
             chartPrefs={this.state.chartPrefs}
-            patientData={this.props.chartData}
+            patientData={this.state.chartData}
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly} />
           );
         /* jshint ignore:end */
     }
+  },
+  // fetch & process
+  fetchData: function() {
+    this.log('Fetching data...');
+    d3.json(dataUrl, this.processData);
+  },
+  processData: function(err, data) {
+    this.log('Processing data...');
+    if (err) {
+      throw new Error('Could not fetch data file at ' + dataUrl);
+    }
+    var processed = preprocess.processData(data, this.state.preprocessCallback);
+    if (!this.state.preprocessCallback) {
+      this.setState({
+        chartData: processed,
+        chartType: 'daily'
+      });
+    }
+  },
+  updateData: function(err, data) {
+    if (err) {
+      throw new Error('Something went wrong while preprocessing the data.');
+    }
+    var tidelineData = new TidelineData(data);
+    this.setState({
+      chartData: tidelineData,
+      chartType: 'daily'
+    });
   },
   // handlers
   handleSwitchToDaily: function(datetime) {
@@ -127,23 +169,9 @@ var Example = React.createClass({
   }
 });
 
-
-var dataUrl = process.env.DATA;
-if (_.isEmpty(dataUrl)) {
-  dataUrl = 'device-data.json';
-}
-dataUrl = 'data/' + dataUrl;
-
-d3.json(dataUrl, function(err, data) {
-  if (err) {
-    throw new Error('Could not fetch data file at ' + dataUrl);
-  }
-  var chartData = preprocess.processData(data);
-
-  React.renderComponent(
-    /* jshint ignore:start */
-    <Example chartData={chartData}/>,
-    /* jshint ignore:end */
-    document.body
-  );
-});
+React.renderComponent(
+  /* jshint ignore:start */
+  <Example/>,
+  /* jshint ignore:end */
+  document.body
+);

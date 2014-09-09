@@ -18,8 +18,8 @@
 var _ = require('lodash');
 var tideline = require('../../../js/index');
 var watson = require('../watson');
-var TidelineData = tideline.TidelineData;
 var SegmentUtil = tideline.data.SegmentUtil;
+var TidelineData = tideline.TidelineData;
 var datetime = tideline.data.util.datetime;
 var validate = tideline.validation.validate;
 var pureValidate = tideline.validation.pureValidate;
@@ -110,10 +110,6 @@ var TYPES_TO_INCLUDE = {
 };
 
 var preprocess = {
-
-  REQUIRED_TYPES: ['basal-rate-segment', 'bolus', 'wizard', 'cbg', 'message', 'smbg', 'settings'],
-
-  OPTIONAL_TYPES: [],
 
   MMOL_STRING: 'mmol/L',
 
@@ -334,7 +330,7 @@ var preprocess = {
     });
   },
 
-  processData: function(data) {
+  processData: function(data, cb) {
     if (!(data && data.length)) {
       log('Unexpected data input, defaulting to empty array.');
       data = [];
@@ -348,20 +344,26 @@ var preprocess = {
     data = withTiming('translateMmol', this.translateMmol.bind(this), data);
     data = withTiming('sortBasalSchedules', this.sortBasalSchedules.bind(this), data);
     data = withTiming('appendBolusToWizard', this.appendBolusToWizard.bind(this), data);
-    console.log('Number of items to validate:', data.length);
+    // skip validation when no callback provided
+    if (!cb) {
+      return new TidelineData(data);
+    }
+    log('Number of items to validate:', data.length);
     console.time('Validation');
-    var result = validate.validateAll(data);
-    console.timeEnd('Validation');
-    console.time('Pure Validation');
-    pureValidate.validateAll(data);
-    console.timeEnd('Pure Validation');
-    log('Data validated.');
-    log('Items validated:', result.valid.length);
-    log('Items found invalid:', result.invalid.length);
-
-    var tidelineData = this.checkRequired(new TidelineData(result.valid));
-
-    return tidelineData;
+    var result = validate.validateAll(data, onDoneValidation);
+    function onDoneValidation(err, data) {
+      console.timeEnd('Validation');
+      cb(err, _.reject(data, function(d) { return d.errorMessage != null; }));
+      var result = _.countBy(data, function(d) {
+        if (d.errorMessage) {
+          return 'invalid';
+        }
+        return 'valid';
+      });
+      log('Data validated.');
+      log('Items validated:', result.valid);
+      log('Items found invalid:', result.invalid || 0);
+    }
   }
 };
 

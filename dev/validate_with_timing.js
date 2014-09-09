@@ -1,13 +1,22 @@
-var validate = require('../js/validation/joi/validate');
-var data = require('../example/data/post-preprocess.json');
+var _ = require('lodash');
 
-var result;
+var validate = require('../js/validation/validate');
+var data = require('../example/data/post-preprocess.json');
 
 console.log('');
 console.time('Time');
-result = validate.validateAll(data);
-console.timeEnd('Time');
-console.log('\nItems in data:', data.length);
-console.log('\nFirst datum:\n', data[0]);
-console.log('\nItems validated:', result.valid.length);
-console.log('\nItems found invalid:', result.invalid.length, '\n');
+var newData = validate.validateAll(data, onDone);
+
+function onDone(err, data) {
+  console.timeEnd('Time');
+  console.log('\nItems in data:', data.length);
+  console.log('\nFirst datum:\n', data[0]);
+  var result = _.countBy(data, function(d) {
+    if (d.errorMessage) {
+      return 'invalid';
+    }
+    return 'valid';
+  });
+  console.log('\nItems validated:', result.valid);
+  console.log('\nItems found invalid:', result.invalid || 0, '\n');
+}
