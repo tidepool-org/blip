@@ -237,7 +237,16 @@ class Boluses:
 
         self._generate_correction_boluses()
 
-        self.json = [b for b in self.boluses if (b['value'] > 0)]
+        self.json = [b for b in self.boluses if (self._get_value(b)[0] > 0)]
+
+    def _get_value(self, bolus):
+        """Return the value of a bolus no matter if bolus is normal or extended."""
+
+        try:
+            val = bolus['normal']
+            return (val, 'normal')
+        except KeyError:
+            return (bolus['extended'], 'extended')
 
     def _time_shift(self):
 
@@ -247,14 +256,6 @@ class Boluses:
 
         return random.randint(-4, 4)
 
-    def _dose_shift(self):
-
-        return random.choice([-1.5, -1.0, -0.5, 0.5, 1.0, 1.5])
-
-    def _recommendation(self):
-
-        return random.randint(-3,3)
-
     def _generate_meal_boluses(self):
         """Generate boluses to match generated carb counts."""
 
@@ -262,7 +263,14 @@ class Boluses:
 
         likelihood = [0,0,0,0,1]
 
-        boluses = [{'id': str(uuid.uuid4()), 'type': 'bolus', 'deviceTime': wiz['deviceTime'], 'joinKey': wiz['joinKey'], 'value': round(float(wiz['payload']['carbInput'] / (bolus.ratio + random.choice(likelihood) * bolus._ratio_shift())), 1), 'recommended': round(wiz['payload']['carbInput'] / bolus.ratio, 1)} for wiz in bolus.wizards.json]
+        boluses = [{
+            'id': str(uuid.uuid4()),
+            'type': 'bolus',
+            'subType': 'normal',
+            'deviceTime': wiz['deviceTime'],
+            'joinKey': wiz['joinKey'],
+            'normal': round(float(wiz['payload']['carbInput'] / (bolus.ratio + random.choice(likelihood) * bolus._ratio_shift())), 1)}
+            for wiz in bolus.wizards.json]
 
         return boluses
 
@@ -284,10 +292,8 @@ class Boluses:
 
             current_value = round(random.gauss(self.mu, self.sigma), 1)
 
-            current_recommendation = round(current_value + random.choice(likelihood) * self._dose_shift(), 1)
-
-            if (current_recommendation > 0) and (current_value > 0):
-                self.boluses.append({'id': str(uuid.uuid4()), 'type': 'bolus', 'deviceTime': next.isoformat(), 'value': current_value, 'recommended': current_recommendation})
+            if current_value > 0:
+                self.boluses.append({'id': str(uuid.uuid4()), 'type': 'bolus', 'subType': 'normal', 'deviceTime': next.isoformat(), 'normal': current_value})
 
             t = next
 
@@ -306,29 +312,29 @@ class Boluses:
             coin_flip = random.choice(likelihood)
 
             if coin_flip:
-                if bolus['value'] >= 2:
+                if bolus['normal'] >= 2:
                     dual = random.choice(likelihood)
                     if dual:
-                        bolus['initialDelivery'] = round(float(random.choice(range(1,10)))/10 * bolus['value'], 1)
-                        bolus['extendedDelivery'] = bolus['value'] - bolus['initialDelivery']
+                        total = bolus['normal']
+                        bolus['normal'] = round(float(random.choice(range(1,10)))/10 * total, 1)
+                        bolus['extended'] = total - bolus['normal']
                         bolus['duration'] = random.choice(durations) * 60 * 1000
                         bolus['type'] = 'bolus'
-                        bolus['extended'] = True
+                        bolus['subType'] = 'dual/square'
                     else:
-                        bolus['extendedDelivery'] = bolus['value']
+                        bolus['extended'] = bolus['normal']
+                        del bolus['normal']
                         bolus['duration'] = random.choice(durations) * 60 * 1000
                         bolus['type'] = 'bolus'
-                        bolus['extended'] = True
+                        bolus['subType'] = 'square'
 
             # make it so that some boluses have a difference between programmed and delivered
             if random.choice(quarter):
-                if bolus['value'] >= 1:
-                    bolus['programmed'] = bolus['value']
+                val, btype = self._get_value(bolus)
+                if val >= 1:
+                    bolus['programmed'] = val
                     bolus['type'] = 'bolus'
-                    bolus['value'] = float(random.choice(tenths)/10.0)
-            else:
-                bolus['type'] = 'bolus'
-                bolus['programmed'] = bolus['value']
+                    bolus[btype] = float(random.choice(tenths)/10.0)
 
 class Dexcom:
     """Generate demo Dexcom data."""
@@ -709,11 +715,6 @@ def print_JSON(all_json, out_file, minify=False):
     annotation_fields = ['bolus', 'basal']
     suspends = []
     for a in all_json:
-        # non-wizard boluses can't have a recommendation!
-        if a['type'] == 'bolus':
-            if not 'joinKey' in a.keys():
-                if 'recommended' in a.keys():
-                    del a['recommended']
         if not minify:
             if a['type'] in pump_fields:
                 a['deviceId'] = 'Demo - 123'
@@ -730,12 +731,6 @@ def print_JSON(all_json, out_file, minify=False):
             a['deviceTime'] = t
         except KeyError:
             pass
-        # temporarily add a device time to basals to enable sorting
-        try:
-            t = a['start']
-            a['deviceTime'] = t
-        except KeyError:
-            pass
 
         # add some annotations
         if not minify:
@@ -744,87 +739,12 @@ def print_JSON(all_json, out_file, minify=False):
                 if not num:
                     a['annotations'] = [{'code': 'demo annotation'}]
 
-        # find extended boluses where programmed differs from delivered
-        # and add a 'suspendedAt' field
-        # TODO: remove when we have nurse-shark
-        if not minify:
-            try:
-                if (a['type'] == 'bolus') and a['extended'] and a['programmed']:
-                    fraction = random.choice([4,3,2])
-                    coin_flip = random.choice([0,1])
-                    reason = random.choice(['manual', 'low_glucose', 'alarm'])
-                    if coin_flip:
-                        time = dt.strptime(a['deviceTime'], '%Y-%m-%dT%H:%M:%S')
-                        dur = a['duration']/fraction
-                        a['suspendedAt'] = dt.strftime(time + td(milliseconds=dur), '%Y-%m-%dT%H:%M:%S')
-                        # change delivered bolus value to be calculated from suspendedAt
-                        fraction_delivered = dur/float(a['duration'])
-                        if not 'initialDelivery' in a.keys():
-                            a['value'] = round(fraction_delivered * a['programmed'], 1)
-                            a['extendedDelivery'] = a['value']
-                        elif 'initialDelivery' in a.keys():
-                            extended_delivered = round(fraction_delivered * a['extendedDelivery'], 1)
-                            a['value'] = round(extended_delivered + a['initialDelivery'], 1)
-                            a['extendedDelivery'] = extended_delivered
-                        suspendId = str(uuid.uuid4())
-                        suspend = {
-                            'id': suspendId,
-                            'reason': reason,
-                            'type': 'deviceMeta',
-                            'subType': 'status',
-                            'status': 'suspended',
-                            'deviceTime': a['suspendedAt'],
-                            'deviceId': 'Demo - 123',
-                            'source': 'demo'
-                        }
-                        resume = {
-                            'id': str(uuid.uuid4()),
-                            'reason': random.choice(['manual', 'automatic']),
-                            'type': 'deviceMeta',
-                            'subType': 'status',
-                            'status': 'resumed',
-                            'deviceTime': dt.strftime(time + td(milliseconds=dur) * 2 + td(minutes=random.choice(range(-5,6))), '%Y-%m-%dT%H:%M:%S'),
-                            'deviceId': 'Demo - 123',
-                            'source': 'demo',
-                            'joinKey': suspendId
-                        }
-                        suspends.append(suspend)
-                        suspends.append(resume)
-                    else:
-                        if a['programmed'] != a['value']:
-                            time = dt.strptime(a['deviceTime'], '%Y-%m-%dT%H:%M:%S')
-                            if not 'initialDelivery' in a.keys():
-                                fraction_delivered = a['value']/a['programmed']
-                                duration_delivered = int(round(fraction_delivered * a['duration'], 0))
-                                a['suspendedAt'] = dt.strftime(time + td(milliseconds=duration_delivered), '%Y-%m-%dT%H:%M:%S')
-                                a['extendedDelivery'] = a['value']
-                            else:
-                                # dual-wave bolus suspended during delivery of initial normal bolus
-                                if a['value'] <= a['initialDelivery']:
-                                    a['suspendedAt'] = a['deviceTime']
-                                    a['extendedDelivery'] = 0.0
-                                    a['initialDelivery'] = a['value']
-                                else:
-                                    fraction_delivered = (a['value'] - a['initialDelivery'])/(a['programmed'] - a['initialDelivery'])
-                                    duration_delivered = int(round(fraction_delivered * a['duration'], 0))
-                                    a['suspendedAt'] = dt.strftime(time + td(milliseconds=duration_delivered), '%Y-%m-%dT%H:%M:%S')
-                                    a['extendedDelivery'] = round(a['value'] - a['initialDelivery'], 1)
-
-            except KeyError:
-                pass
-
     all_json = _fix_floating_point(sorted(all_json + suspends, key=lambda x: x['deviceTime']))
 
     for a in all_json:
         # remove device time from messages
         try:
             utc = a['utcTime']
-            del a['deviceTime']
-        except KeyError:
-            pass
-        # remove device time from basals
-        try:
-            start = a['start']
             del a['deviceTime']
         except KeyError:
             pass
