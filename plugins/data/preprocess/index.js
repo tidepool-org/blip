@@ -22,6 +22,7 @@ var TidelineData = tideline.TidelineData;
 var SegmentUtil = tideline.data.SegmentUtil;
 var datetime = tideline.data.util.datetime;
 var validate = tideline.validation.validate;
+var pureValidate = tideline.validation.pureValidate;
 
 var log = require('bows')('Preprocess');
 
@@ -351,6 +352,9 @@ var preprocess = {
     console.time('Validation');
     var result = validate.validateAll(data);
     console.timeEnd('Validation');
+    console.time('Pure Validation');
+    pureValidate.validateAll(data);
+    console.timeEnd('Pure Validation');
     log('Data validated.');
     log('Items validated:', result.valid.length);
     log('Items found invalid:', result.invalid.length);

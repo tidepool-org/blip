@@ -1,7 +1,6 @@
 var _ = require('lodash');
 var Joi = require('joi');
 var schemas = require('./schemas');
-var common = require('./common-simple.js');
 
 module.exports = {
   validateOne: function(datum, result) {
@@ -26,10 +25,14 @@ module.exports = {
     validate(schemas[datum.type]);
   },
   validateAll: function(data) {
+    console.time('Joi');
     var result = {valid: [], invalid: []};
     for (var i = 0; i < data.length; ++i) {
       this.validateOne(data[i], result);
     }
+    console.timeEnd('Joi');
+
     return result;
+
   }
 };

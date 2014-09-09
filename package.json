@@ -9,7 +9,7 @@
   "main": "js/index.js",
   "scripts": {
     "test": "testem",
-    "start": "BUILD_DEV=true webpack-dev-server --devtool eval-source-map --cache --colors --progress --content-base example --port 8081",
+    "start": "BUILD_DEV=true webpack-dev-server -d --cache --colors --progress --content-base example --port 8081",
     "build-test": "BUILD_DEV=true webpack './test/index.js' --output-path './tmp' --output-file '_test.js' --devtool eval-source-map",
     "jshint": "gulp jshint",
     "jshint-watch": "gulp jshint-watch"
