@@ -24,14 +24,34 @@ var patch = function(mock, api) {
 
   var setPermissions = common.setPermissions.bind(null, data);
 
-  api.access.put = function(memberId, permissions, callback) {
+  api.access.setMemberPermissions = function(memberId, permissions, callback) {
     var groupId = api.userId;
     api.log('[mock] PUT /access/' + groupId + '/' + memberId);
 
     setTimeout(function() {
       setPermissions(groupId, memberId, permissions);
       callback();
-    }, getDelayFor('api.access.put'));
+    }, getDelayFor('api.access.setMemberPermissions'));
+  };
+
+  api.access.removeMember = function(memberId, callback) {
+    var groupId = api.userId;
+    api.log('[mock] DELETE /access/' + groupId + '/' + memberId);
+
+    setTimeout(function() {
+      setPermissions(groupId, memberId, null);
+      callback();
+    }, getDelayFor('api.access.removeMember'));
+  };
+
+  api.access.leaveGroup = function(groupId, callback) {
+    var memberId = api.userId;
+    api.log('[mock] DELETE /access/' + groupId + '/' + memberId);
+
+    setTimeout(function() {
+      setPermissions(groupId, memberId, null);
+      callback();
+    }, getDelayFor('api.access.leaveGroup'));
   };
 
   return api;

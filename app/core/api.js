@@ -530,10 +530,22 @@ api.invitation.cancel = function(toEmail, callback) {
 
 api.access = {};
 
-api.access.put = function(memberId, permissions, callback) {
+api.access.setMemberPermissions = function(memberId, permissions, callback) {
   var groupId = tidepool.getUserId();
   api.log('PUT /access/' + groupId + '/' + memberId);
   return tidepool.setAccessPermissions(memberId, permissions, callback);
+};
+
+api.access.removeMember = function(memberId, callback) {
+  var groupId = tidepool.getUserId();
+  api.log('DELETE /access/' + groupId + '/' + memberId);
+  return tidepool.setAccessPermissions(memberId, null, callback);
+};
+
+api.access.leaveGroup = function(groupId, callback) {
+  var memberId = tidepool.getUserId();
+  api.log('DELETE /access/' + groupId + '/' + memberId);
+  return tidepool.setAccessPermissions(memberId, null, callback);
 };
 
 // ----- Upload -----
