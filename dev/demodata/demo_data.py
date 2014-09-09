@@ -103,15 +103,10 @@ class Basal:
 
         self._get_final_segment()
 
-        self.generate_temp_basals()
-        # more hackery because of my bad while loops /o\
-        self.temp_segments.pop()
-
         self.json = [s for s in self.segments] + [s for s in self.temp_segments]
 
         for segment in self.json:
-            segment['start'] = segment['start'].isoformat()
-            segment['end'] = segment['end'].isoformat()
+            segment['deviceTime'] = segment['deviceTime'].isoformat()
             segment['duration'] = abs(int(segment['duration'].total_seconds()*1000))
             segment['id'] = str(uuid.uuid4())
 
@@ -131,34 +126,14 @@ class Basal:
         end = dt(d.year, d.month, d.day, segment_start.hour, segment_start.minute, segment_start.second)
 
         segment = {                
-                    'type': 'basal-rate-segment',
-                    'delivered': self.schedule[current_segment],
-                    'value': self.schedule[current_segment],
+                    'type': 'basal',
+                    'rate': self.schedule[current_segment],
                     'deliveryType': 'scheduled',
-                    'start': start,
-                    'end': end,
+                    'deviceTime': start,
                     'duration': end - start
                 }
 
-        if segment_start == t(0,0,0):
-            segment['end'] = segment['end'] + td(days=1)
-
         self.segments.append(segment);
-
-    def _append_temp_segment(self, d, duration, percent):
-
-        start = dt(d.year, d.month, d.day, d.hour, d.minute, d.second)
-
-        segment = {                
-                    'type': 'basal-rate-segment',
-                    'percent': percent,
-                    'deliveryType': 'temp',
-                    'start': start,
-                    'end': start + duration,
-                    'duration': duration
-                }
-
-        self.temp_segments.append(segment);
 
     def _get_difference(self, t1, t2):
 
@@ -242,25 +217,6 @@ class Basal:
         d = self.endpoints[1]['deviceTime']
 
         self._append_segment(self.end_middle, t(d.hour, d.minute, d.second))
-
-    def generate_temp_basals(self):
-
-        day_skip = range(0,1)
-
-        durations = range(30, 510, 30)
-
-        start = self.endpoints[0]['deviceTime']
-        end = self.endpoints[1]['deviceTime']
-
-        current_datetime = start
-
-        basal_possibilities = [x / 100.0 for x in range(0, 155,5)]
-
-        while current_datetime < end:
-            days_delta = td(days=random.choice(day_skip))
-            time_delta = td(hours=random.choice(HOURS), minutes=random.choice(SIXTY))
-            current_datetime = current_datetime + days_delta + time_delta
-            self._append_temp_segment(current_datetime, td(minutes=random.choice(durations)), random.choice(basal_possibilities))
 
 class Boluses:
     """Generate demo bolus data."""
@@ -747,10 +703,10 @@ def _fix_floating_point(a):
 
 def print_JSON(all_json, out_file, minify=False):
 
-    # add deviceId field to smbg, boluses, carbs, and basal-rate-segments
-    pump_fields = ['smbg', 'carbs', 'wizard', 'bolus', 'basal-rate-segment', 'settings']
+    # add deviceId field to smbg, boluses, carbs, and basals
+    pump_fields = ['smbg', 'carbs', 'wizard', 'bolus', 'basal', 'settings']
     units_fieds = ['cbg', 'smbg', 'carbs']
-    annotation_fields = ['bolus', 'basal-rate-segment']
+    annotation_fields = ['bolus', 'basal']
     suspends = []
     for a in all_json:
         # non-wizard boluses can't have a recommendation!
