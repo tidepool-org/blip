@@ -1,10 +1,9 @@
 function makeValidator() {
-  if (arguments.length == 1) {
+  if (arguments.length === 1) {
     var element = arguments[0];
     switch (typeof(element)) {
       case 'function':
         return element;
-        break;
       case 'object':
         if (Array.isArray(element)) {
           var fns = new Array(element.length);
@@ -28,7 +27,7 @@ function makeValidator() {
                 e.message = '.' + key + e.message;
                 throw e;
               }
-            }
+            };
           }));
         }
         break;

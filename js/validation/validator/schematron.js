@@ -1,10 +1,13 @@
 var util = require('util');
 
+var _ = require('lodash');
+
 var validator = require('./validator.js');
 
 function error() {
-  arguments[0] = ' ' + arguments[0];
-  throw new Error(util.format.apply(util, Array.prototype.slice.call(arguments, 0)));
+  var args = Array.prototype.slice.call(arguments, 0);
+  args[0] = ' ' + args[0];
+  throw new Error(util.format.apply(util, args));
 }
 
 function matchesRegex(regex) {
@@ -170,7 +173,7 @@ module.exports.and = function(fields) {
     var allNotNull = true;
     for (var i = 0; i < fields.length; ++i) {
       if (e[fields[i]] == null) {
-        allNotNull = false
+        allNotNull = false;
       } else {
         allNull = false;
       }
