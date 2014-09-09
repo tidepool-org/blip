@@ -1,20 +1,19 @@
 var common = require('./common.js');
-var joy = require('./joy/joy.js');
+var schema = require('./validator/schematron.js');
 
-module.exports = joy(
+module.exports = schema(
   common,
   {
-    deviceTime: joy().isDeviceTime(),
-    value: joy().number().min(0),
-
-    duration: joy().ifExists().number().min(0),
-    extended: joy().ifExists().boolean(),
-    initialDelivery: joy().ifExists().number().min(0),
-    extendedDelivery: joy().ifExists().number().min(0),
-    programmed: joy().ifExists().number().min(0),
-    recommended: joy().ifExists().number().min(0),
-    suspendedAt: joy().ifExists().string().regex(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)
+    deviceTime: schema().isDeviceTime(),
+    value: schema().number().min(0),
+    duration: schema().ifExists().number().min(0),
+    extended: schema().ifExists().boolean(),
+    initialDelivery: schema().ifExists().number().min(0),
+    extendedDelivery: schema().ifExists().number().min(0),
+    programmed: schema().ifExists().number().min(0),
+    recommended: schema().ifExists().number().min(0),
+    suspendedAt: schema().ifExists().string().regex(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)
   },
-  joy.and(['extended', 'extendedDelivery']),
-  joy.with('extended', 'duration')
+  schema.and(['extended', 'extendedDelivery']),
+  schema.with('extended', 'duration')
 );

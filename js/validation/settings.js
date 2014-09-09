@@ -1,46 +1,46 @@
 var common = require('./common.js');
-var joy = require('./joy/joy.js');
+var schema = require('./validator/schematron.js');
 
-module.exports = joy(
+module.exports = schema(
   common,
   {
-    basalSchedules: joy().array(
-      joy(
+    basalSchedules: schema().array(
+      schema(
         {
-          name: joy().string().minLength(1),
-          value: joy().array(
-            joy(
+          name: schema().string().minLength(1),
+          value: schema().array(
+            schema(
               {
-                rate: joy().number().min(0),
-                start: joy().number().min(0).max(86400000)
+                rate: schema().number().min(0),
+                start: schema().number().min(0).max(86400000)
               }
             )
           )
         }
       )
     ),
-    bgTarget: joy().array(
-      joy(
+    bgTarget: schema().array(
+      schema(
         {
-          amount: joy().number(),
-          start: joy().number().min(0).max(86400000)
+          amount: schema().number(),
+          start: schema().number().min(0).max(86400000)
         }
       )
     ),
-    carbRatio: joy().array(
-      joy(
+    carbRatio: schema().array(
+      schema(
         {
-          amount: joy().number().min(0),
-          start: joy().number().min(0).max(86400000)
+          amount: schema().number().min(0),
+          start: schema().number().min(0).max(86400000)
         }
       )
     ),
-    deviceTime: joy().isDeviceTime(),
-    insulinSensitivity: joy().array(
-      joy(
+    deviceTime: schema().isDeviceTime(),
+    insulinSensitivity: schema().array(
+      schema(
         {
-          amount: joy().number().min(0),
-          start: joy().number().min(0).max(86400000)
+          amount: schema().number().min(0),
+          start: schema().number().min(0).max(86400000)
         }
       )
     )

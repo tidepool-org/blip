@@ -1,13 +1,13 @@
 var common = require('./common.js');
-var joy = require('./joy/joy.js');
+var schema = require('./validator/schematron.js');
 
-module.exports = joy(
+module.exports = schema(
   common,
   {
-    deliveryType: joy().in(['scheduled', 'suspend', 'temp']),
-    deviceTime: joy().isDeviceTime(),
-    duration: joy().ifExists().number().min(0),
-    normalEnd: joy().isISODateTime(),
-    value: joy().number().min(0)
+    deliveryType: schema().in(['scheduled', 'suspend', 'temp']),
+    deviceTime: schema().isDeviceTime(),
+    duration: schema().ifExists().number().min(0),
+    normalEnd: schema().isISODateTime(),
+    value: schema().number().min(0)
   }
 );

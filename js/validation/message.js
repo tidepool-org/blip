@@ -1,10 +1,10 @@
 var common = require('./common.js');
-var joy = require('./joy/joy.js');
+var schema = require('./validator/schematron.js');
 
-module.exports = joy(
+module.exports = schema(
   common,
   {
-    parentMessage: joy().ifExists().string(),
-    utcTime: joy().isISODateTime()
+    parentMessage: schema().ifExists().string(),
+    utcTime: schema().isISODateTime()
   }
 );

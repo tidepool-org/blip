@@ -10,7 +10,7 @@ function error() {
 function matchesRegex(regex) {
   return function(v) {
     if (!regex.test(v)) {
-      error('should match the regex[%s], got[%s]', regex, v);
+      error('Should match the regex [%s], got [%s]', regex, v);
     }
   };
 }
@@ -18,7 +18,7 @@ function matchesRegex(regex) {
 function typeOf(match) {
   return function(e) {
     if (typeof(e) !== match) {
-      error('should be of type[%s], value was [%s]', match, e);
+      error('Should be of type [%s], value was [%s]', match, e);
     }
   };
 }
@@ -51,7 +51,7 @@ module.exports = function() {
       array: function(fn) {
         fns.push(function(e){
           if (!Array.isArray(e)) {
-            error('should be an array, value was [%s]', e);
+            error('Should be an array, value was [%s]', e);
           }
 
           for (var i = 0; i < e.length; ++i) {
@@ -81,7 +81,7 @@ module.exports = function() {
 
         fns.push(function (e) {
           if (obj[e] == null) {
-            error('should be one of%j, got[%s]', vals, e);
+            error('Should be one of %j, got [%s]', vals, e);
           }
         });
         return this;
@@ -102,7 +102,7 @@ module.exports = function() {
       isISODateTime: function () {
         fns.push(function (value) {
           if (!isoPattern.test(value)) {
-            error('is not an ISODate string, got[%s]', value);
+            error('Is not an ISODate string, got [%s]', value);
           }
         });
         return this;
@@ -111,7 +111,7 @@ module.exports = function() {
       minLength: function(length) {
         fns.push(function(e) {
           if (e.length < length) {
-            error('should have a length >= [%s], got[%s]', length, e);
+            error('Should have a length >= [%s], got [%s]', length, e);
           }
         });
         return this;
@@ -120,7 +120,7 @@ module.exports = function() {
       max: function (val) {
         fns.push(function (e) {
           if (e > val) {
-            error('should be <= [%s], got [%s]', val, e);
+            error('Should be <= [%s], got [%s]', val, e);
           }
         });
         return this;
@@ -129,7 +129,7 @@ module.exports = function() {
       min: function (val) {
         fns.push(function (e) {
           if (e < val) {
-            error('should be >= [%s], got [%s]', val, e);
+            error('Should be >= [%s], got [%s]', val, e);
           }
         });
         return this;
@@ -175,7 +175,7 @@ module.exports.and = function(fields) {
     }
 
     if (! (allNull || allNotNull)) {
-      error('Fields%j are all or nothing, values were %j', fields, _.pick(e, fields));
+      error('Fields in %j must all be present or absent, only value(s) were %j', fields, _.pick(e, fields));
     }
   };
 };
@@ -189,7 +189,7 @@ module.exports.with = function(primaryField, fields) {
     if (e[primaryField] != null) {
       for (var i = 0; i < fields.length; ++i) {
         if (e[fields[i]] == null) {
-          error('Fields%j are expected when field[%s] exists.  Values were %j', fields, primaryField, _.pick(e, primaryField, fields));
+          error('Field(s) %j are expected when field [%s] exists.  Value(s) were %j', fields, primaryField, _.pick(e, primaryField, fields));
         }
       }
     }

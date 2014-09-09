@@ -1,10 +1,10 @@
 var common = require('./common.js');
-var joy = require('./joy/joy.js');
+var schema = require('./validator/schematron.js');
 
-module.exports = joy(
+module.exports = schema(
   common,
   {
-    deviceTime: joy().isDeviceTime(),
-    value: joy().number()
+    deviceTime: schema().isDeviceTime(),
+    value: schema().number()
   }
 );

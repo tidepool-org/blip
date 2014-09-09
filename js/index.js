@@ -23,9 +23,7 @@ module.exports = {
   settings: require('./settings'),
 
   validation: {
-    schemas: require('./validation/joi/schemas'),
-    validate: require('./validation/joi/validate'),
-    pureValidate: require('./validation/validate')
+    validate: require('./validation/validate')
   },
 
   data: {

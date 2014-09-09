@@ -1,9 +1,10 @@
-var joy = require('./joy/joy.js');
+var schema = require('./validator/schematron.js');
 
-module.exports = joy(
+module.exports = schema(
   {
-    id: joy().isId(),
-    joinKey: joy().isId(),
-    normalTime: joy().isISODateTime()
+    id: schema().isId(),
+    joinKey: schema().isId(),
+    normalTime: schema().isISODateTime(),
+    type: schema().string()
   }
 );
