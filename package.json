@@ -9,7 +9,7 @@
   "main": "js/index.js",
   "scripts": {
     "test": "testem",
-    "start": "BUILD_DEV=true webpack-dev-server --devtool eval-source-map --cache --colors --progress --content-base example --port 8081",
+    "start": "BUILD_DEV=true webpack-dev-server -d --cache --colors --progress --content-base example --port 8081",
     "build-test": "BUILD_DEV=true webpack './test/index.js' --output-path './tmp' --output-file '_test.js' --devtool eval-source-map",
     "jshint": "gulp jshint",
     "jshint-watch": "gulp jshint-watch"
@@ -19,7 +19,6 @@
     "crossfilter": "1.3.7",
     "d3": "3.4.8",
     "duration-js": "3.3.3",
-    "joi": "4.6.2",
     "lodash": "2.4.1",
     "moment": "2.8.1"
   },
@@ -36,6 +35,7 @@
     "gulp-jshint": "1.8.4",
     "jquery": "2.1.1",
     "jquery-simulate": "git://github.com/jquery/jquery-simulate.git#b91832e9f1f65ee6c6f2dc93a5e917735c33db8e",
+    "jshint": "2.5.5",
     "jshint-stylish": "0.4.0",
     "json-loader": "0.5.1",
     "jsx-loader": "0.10.2",

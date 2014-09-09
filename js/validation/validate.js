@@ -1,31 +1,48 @@
 var _ = require('lodash');
 var async = require('async');
-var Joi = require('joi');
-var schemas = require('./schemas');
+var util = require('util');
+
+var joy = require('./validator/schematron');
+
+var schemas = {
+  'basal-rate-segment': require('./basal'),
+  bolus: require('./bolus'),
+  cbg: require('./bg'),
+  common: require('./common'),
+  deviceMeta: joy(),
+  message: require('./message'),
+  settings: require('./settings'),
+  smbg: require('./bg'),
+  wizard: require('./wizard')
+};
 
 module.exports = {
-  validateOne: function(datum, callback) {
-    function validate(schema) {
-      Joi.validate(datum, schema.concat(schemas.common),
-        {
-          abortEarly: false,
-          convert: false,
-          allowUnknown: true
-        },
-      function(err, value) {
-        if (err != null) {
-          console.log('Oh noes! This is wrong:\n', value);
-          console.log('\nError Message:', err.message, '\n');
-          value.errorMessage = err.message;
-          callback(err, value);
-        }
-        callback(null, value);
-      });
+  validateOne: function(datum, result) {
+    result = result || {valid: [], invalid: []};
+    var handler = schemas[datum.type];
+    if (handler == null) {
+      datum.errorMessage = util.format('No schema defined for data.type[%s]', datum.type);
+      console.log(new Error(datum.errorMessage), datum);
+      result.invalid.push(datum);
     }
-    validate(schemas[datum.type]);
+    else {
+      try {
+        handler(datum);
+        result.valid.push(datum);
+      }
+      catch(e) {
+        console.log('Oh noes! This is wrong:\n', datum);
+        console.log(util.format('Error Message: %s%s', datum.type, e.message));
+        datum.errorMessage = e.message;
+        result.invalid.push(datum);
+      }
+    }
   },
-  validateAll: function(data, cb) {
-    var that = this;
-    async.map(data, that.validateOne, cb);
+  validateAll: function(data) {
+    var result = {valid: [], invalid: []};
+    for (var i = 0; i < data.length; ++i) {
+      this.validateOne(data[i], result);
+    }
+    return result;
   }
 };

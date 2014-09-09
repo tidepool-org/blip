@@ -22,6 +22,7 @@ var SegmentUtil = tideline.data.SegmentUtil;
 var TidelineData = tideline.TidelineData;
 var datetime = tideline.data.util.datetime;
 var validate = tideline.validation.validate;
+var pureValidate = tideline.validation.pureValidate;
 
 var log = require('bows')('Preprocess');
 
@@ -329,7 +330,7 @@ var preprocess = {
     });
   },
 
-  processData: function(data, cb) {
+  processData: function(data) {
     if (!(data && data.length)) {
       log('Unexpected data input, defaulting to empty array.');
       data = [];
@@ -343,26 +344,22 @@ var preprocess = {
     data = withTiming('translateMmol', this.translateMmol.bind(this), data);
     data = withTiming('sortBasalSchedules', this.sortBasalSchedules.bind(this), data);
     data = withTiming('appendBolusToWizard', this.appendBolusToWizard.bind(this), data);
-    // skip validation when no callback provided
-    if (!cb) {
-      return new TidelineData(data);
-    }
+    
     log('Number of items to validate:', data.length);
     console.time('Validation');
-    var result = validate.validateAll(data, onDoneValidation);
-    function onDoneValidation(err, data) {
-      console.timeEnd('Validation');
-      cb(err, _.reject(data, function(d) { return d.errorMessage != null; }));
-      var result = _.countBy(data, function(d) {
-        if (d.errorMessage) {
-          return 'invalid';
-        }
-        return 'valid';
-      });
-      log('Data validated.');
-      log('Items validated:', result.valid);
-      log('Items found invalid:', result.invalid || 0);
-    }
+    var validated = validate.validateAll(data);
+    var result = _.countBy(data, function(d) {
+      if (d.errorMessage) {
+        return 'invalid';
+      }
+      return 'valid';
+    });
+    log('Data validated.');
+    log('Items validated:', result.valid);
+    log('Items found invalid:', result.invalid || 0);
+    console.timeEnd('Validation');
+
+    return validated;
   }
 };
 

@@ -23,7 +23,6 @@ module.exports = {
   settings: require('./settings'),
 
   validation: {
-    schemas: require('./validation/schemas'),
     validate: require('./validation/validate')
   },
 

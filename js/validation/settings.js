@@ -1,31 +1,48 @@
-var Joi = require('joi');
+var common = require('./common.js');
+var schema = require('./validator/schematron.js');
 
-module.exports = Joi.object().keys({
-  basalSchedules: Joi.array().includes(Joi.object().keys({
-    name: Joi.string().min(1).required(),
-    value: Joi.array().includes(Joi.object().keys({
-      rate: Joi.number().min(0).required(),
-      // milliseconds per twenty-four hours
-      start: Joi.number().integer().min(0).max(86400000).required()
-    })).required()
-  })).required(),
-  bgTarget: Joi.array().includes(Joi.object().keys({
-    // pulling a min out of thin air a little bit, Animas pump allows min of 60
-    amount: Joi.number().integer(),
-    // milliseconds per twenty-four hours
-    start: Joi.number().integer().min(0).max(86400000).required()
-  })).required(),
-  carbRatio: Joi.array().includes(Joi.object().keys({
-    // some pumps allow this to be a non-integer
-    amount: Joi.number().min(0).required(),
-    // milliseconds per twenty-four hours
-    start: Joi.number().integer().min(0).max(86400000).required()
-  })).required(),
-  // deviceTime is the raw, non-timezone-aware string, so won't validate as isoDate()
-  deviceTime: Joi.string().regex(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/).required(),
-  insulinSensitivity: Joi.array().includes(Joi.object().keys({
-    amount: Joi.number().integer().min(0).required(),
-    // milliseconds per twenty-four hours
-    start: Joi.number().integer().min(0).max(86400000).required()
-  })).required()
-});
+module.exports = schema(
+  common,
+  {
+    basalSchedules: schema().array(
+      schema(
+        {
+          name: schema().string().minLength(1),
+          value: schema().array(
+            schema(
+              {
+                rate: schema().number().min(0),
+                start: schema().number().min(0).max(86400000)
+              }
+            )
+          )
+        }
+      )
+    ),
+    bgTarget: schema().array(
+      schema(
+        {
+          amount: schema().number(),
+          start: schema().number().min(0).max(86400000)
+        }
+      )
+    ),
+    carbRatio: schema().array(
+      schema(
+        {
+          amount: schema().number().min(0),
+          start: schema().number().min(0).max(86400000)
+        }
+      )
+    ),
+    deviceTime: schema().isDeviceTime(),
+    insulinSensitivity: schema().array(
+      schema(
+        {
+          amount: schema().number().min(0),
+          start: schema().number().min(0).max(86400000)
+        }
+      )
+    )
+  }
+);

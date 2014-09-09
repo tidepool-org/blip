@@ -1,6 +1,10 @@
-var Joi = require('joi');
+var common = require('./common.js');
+var schema = require('./validator/schematron.js');
 
-module.exports = Joi.object().keys({
-  parentMessage: Joi.alternatives().try(Joi.string().required(), Joi.any().valid(null,'').required()),
-  utcTime: Joi.string().isoDate().required()
-});
+module.exports = schema(
+  common,
+  {
+    parentMessage: schema().ifExists().string(),
+    utcTime: schema().isISODateTime()
+  }
+);

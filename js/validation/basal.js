@@ -1,12 +1,13 @@
-var Joi = require('joi');
+var common = require('./common.js');
+var schema = require('./validator/schematron.js');
 
-module.exports = Joi.object().keys({
-  // all basal rate segments require a deliveryType
-  deliveryType: Joi.string().valid(['scheduled', 'suspend', 'temp']).required(),
-  // duration is optional on old data model since we use normalTime and normalEnd to visualize
-  // deviceTime is the raw, non-timezone-aware string, so won't validate as isoDate()
-  deviceTime: Joi.string().regex(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/).required(),
-  duration: Joi.number().integer().min(0),
-  normalEnd: Joi.string().isoDate().required(),
-  value: Joi.number().min(0).required()
-});
+module.exports = schema(
+  common,
+  {
+    deliveryType: schema().in(['scheduled', 'suspend', 'temp']),
+    deviceTime: schema().isDeviceTime(),
+    duration: schema().ifExists().number().min(0),
+    normalEnd: schema().isISODateTime(),
+    value: schema().number().min(0)
+  }
+);
