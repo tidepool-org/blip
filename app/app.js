@@ -807,12 +807,14 @@ var AppComponent = React.createClass({
     if (!(data && data.length)) {
       return null;
     }
-    window.downloadJSON = function() {
-      console.save(data);
-    };
 
     var processedData = nurseShark.processData(data);
+
     window.tidelineData = processedData;
+    window.downloadProcessedData = function() {
+      console.save(processedData);
+    };
+
     return processedData;
   },
 
