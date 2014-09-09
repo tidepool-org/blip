@@ -3,8 +3,8 @@ var schema = require('./validator/schematron.js');
 module.exports = schema(
   {
     id: schema().isId(),
-    joinKey: schema().isId(),
-    normalTime: schema().isISODateTime(),
+    joinKey: schema().ifExists().isId(),
+    normalTime: schema().ifExists().isISODateTime(),
     type: schema().string()
   }
 );

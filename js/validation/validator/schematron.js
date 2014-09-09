@@ -41,6 +41,8 @@ module.exports = function() {
     function(e) {
       if (optional && e == null) {
         return;
+      } else if (!optional && e == null) {
+        error('is required');
       }
 
       for (var i = 0; i < fns.length; ++i) {
@@ -136,7 +138,7 @@ module.exports = function() {
       },
 
       number: function () {
-        fns.push(isFinite);
+        fns.push(typeOf('number'));
         return this;
       },
 
