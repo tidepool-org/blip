@@ -769,6 +769,17 @@ var AppComponent = React.createClass({
       var patientData = results.patientData || [];
       var notes = results.teamNotes || [];
 
+      // Return message objects the visualization can use
+      notes = _.map(notes, function(message) {
+        return {
+          utcTime : message.timestamp,
+          messageText : message.messagetext,
+          parentMessage : message.parentmessage,
+          type: 'message',
+          id: message.id
+        };
+      });
+
       app.log('Patient device data count', patientData.length);
       app.log('Team notes count', notes.length);
 

@@ -4,6 +4,7 @@ var jshint = require('gulp-jshint');
 
 var jsFiles = [
   'app/**/*.js',
+  'mock/**/*.js',
   'test/**/*.js',
   '*.js'
 ];

@@ -15,7 +15,6 @@
 
 // Bundle that provides mock services
 // Packaged separately and included only if needed
-// Exposes all mocks on the global `window.mock` object
 
 var _ = require('lodash');
 var mockData = require('blip-mock-data');
@@ -34,13 +33,18 @@ mock.getParam = function(name) {
   return mock.params[name];
 };
 
+mock.getDelayFor = function(name) {
+  return (mock.getParam('delay') || mock.getParam(name + '.delay') || 0);
+};
+
 mock.init = function(params) {
   this.setParams(params);
 };
 
-mock.patchApi = require('./api')({
+mock.patchApi = require('./api').bind(null, {
+  data: mock.data,
   getParam: mock.getParam,
-  data: mock.data
+  getDelayFor: mock.getDelayFor
 });
 
 module.exports = mock;
