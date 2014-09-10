@@ -48,7 +48,14 @@ module.exports = function(container, annotationsGroup) {
 
     var hoverTarget;
 
-    if (opts.d.annotations[0].code !== 'stats-insufficient-data') {
+    if (opts.d.annotations[0].code === 'stats-insufficient-data' ||
+        opts.d.annotations[0].code === 'stats-how-calculated') {
+      if (opts.hoverTarget != null) {
+        hoverTarget = opts.hoverTarget;
+      }
+      annotation.tooltip(opts, selection, hoverTarget);
+    }
+    else {
       var iconGroup = selection.append('g')
         .attr('class', 'd3-data-annotation-group')
         .attr('id', 'annotation_for_' + opts.d.id);
@@ -76,18 +83,13 @@ module.exports = function(container, annotationsGroup) {
       }
       annotation.tooltip(opts, selection, hoverTarget);
     }
-    else {
-      if (opts.hoverTarget != null) {
-        hoverTarget = opts.hoverTarget;
-      }
-      annotation.tooltip(opts, selection, hoverTarget);
-    }
   }
 
   annotation.tooltip = function(opts, selection, hoverTarget) {
     opts = opts || {};
 
-    if (opts.d.annotations[0].code === 'stats-insufficient-data') {
+    if (opts.d.annotations[0].code === 'stats-insufficient-data' ||
+        opts.d.annotations[0].code === 'stats-how-calculated') {
       if (container.type === 'daily') {
         opts.x = opts.x - (container.currentTranslation() - container.axisGutter());
       }

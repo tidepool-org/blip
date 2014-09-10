@@ -150,6 +150,19 @@ module.exports = function(pool, opts) {
             slices: slices
           });
         };
+        var updateAnnotations = function(puddleGroup) {
+          var xOffset = (pool.width()/3) * (1/6);
+          var yOffset = pool.height() / 2;
+          var annotationOpts = {
+            x: xOffset + puddle.xPosition(),
+            y: yOffset,
+            hoverTarget: puddleGroup,
+            lead: 'stats-how-calculated',
+            d: {annotations: [{code: 'stats-how-calculated'}]}
+          };
+          _.defaults(annotationOpts, opts.defaultAnnotationOpts);
+          pool.parent().select('#tidelineAnnotations_stats').call(annotation, annotationOpts);
+        };
         // when NaN(s) present, create a no data view
         if (stats.hasNaN(data[puddle.id.toLowerCase()])) {
           pies = _.reject(pies, function(pie) {
@@ -172,6 +185,7 @@ module.exports = function(pool, opts) {
           // or just update the current pie
           else {
             stats.updatePie(thisPie, data[puddle.id.toLowerCase()]);
+            updateAnnotations(puddleGroup);
           }
         }
       }
@@ -313,6 +327,14 @@ module.exports = function(pool, opts) {
         transform: 'translate(' + xOffset + ',' + yOffset + ')',
         'class': 'd3-stats-pie'
       });
+
+    var annotationOpts = {
+      x: xOffset + puddle.xPosition(),
+      y: yOffset,
+      hoverTarget: puddleGroup
+    };
+    _.defaults(annotationOpts, opts.defaultAnnotationOpts);
+
     if (stats.hasNaN(data)) {
       puddleGroup.classed('d3-insufficient-data', true);
       pieGroup.append('circle')
@@ -322,19 +344,15 @@ module.exports = function(pool, opts) {
           r: opts.pieRadius
         });
 
-      var annotationOpts = {
-        x: xOffset + puddle.xPosition(),
-        y: yOffset,
-        hoverTarget: puddleGroup
-      };
-      _.defaults(annotationOpts, opts.defaultAnnotationOpts);
       pool.parent().select('#tidelineAnnotations_stats').call(annotation, annotationOpts);
 
       return null;
     }
     else {
-      puddleGroup.on('mouseover', null);
-      puddleGroup.on('mouseout', null);
+      annotationOpts.lead = 'stats-how-calculated';
+      annotationOpts.d.annotations[0].code = 'stats-how-calculated';
+      pool.parent().select('#tidelineAnnotations_stats').call(annotation, annotationOpts);
+
       puddleGroup.classed('d3-insufficient-data', false);
       pie = d3.layout.pie().value(function(d) {
           return d.value;
