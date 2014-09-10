@@ -33,10 +33,10 @@ var PatientCard = React.createClass({
       'patientcard-owner': this.props.patient.permissions.admin || this.props.patient.permissions.root
     });
 
-    var remove = function(patient) {
+    var remove = (function(patient) {
         if (!patient.permissions.admin && !patient.permissions.root) {
 
-          var title = 'Remove yourself from ' + patient.profile.fullName + "'s care team."
+          var title = 'Remove yourself from ' + patient.profile.fullName + "'s care team.";
 
           return (
             /* jshint ignore:start */
@@ -44,9 +44,9 @@ var PatientCard = React.createClass({
             /* jshint ignore:end */
           );
         }
-    }(patient);
+    })(patient);
 
-    var permissions = function(patient) {
+    var permissions = (function(patient) {
       var classes = {
         'Navbar-icon': true,
         'patientcard-permissions-icon': true
@@ -73,7 +73,7 @@ var PatientCard = React.createClass({
         <i className={classes} title={title}></i>
         /* jshint ignore:end */
       );
-    }(patient);
+    })(patient);
 
     /* jshint ignore:start */
     return (

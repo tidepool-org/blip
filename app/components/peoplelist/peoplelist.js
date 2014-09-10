@@ -56,7 +56,7 @@ var PeopleList = React.createClass({
     var classes = cx({
       'people-list': true,
       'list-group': true,
-      'people-list-single': this.props.people.length == 1
+      'people-list-single': this.props.people.length === 1
     });
 
     /* jshint ignore:start */
@@ -72,10 +72,11 @@ var PeopleList = React.createClass({
   renderPeopleListItem: function(person, index) {
     var peopleListItemContent;
     var displayName = this.getPersonDisplayName(person);
+    var self = this;
+    var handleClick;
 
     if (this.props.isPatientList) {
-      var self = this;
-      var handleClick = function() {
+      handleClick = function() {
         self.props.onClickPerson(person);
       };
 
@@ -93,8 +94,7 @@ var PeopleList = React.createClass({
     }
 
     if (person.link) {
-      var self = this;
-      var handleClick = function() {
+      handleClick = function() {
         self.props.onClickPerson(person);
       };
       /* jshint ignore:start */
