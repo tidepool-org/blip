@@ -16,6 +16,7 @@
 
 var React = require('react');
 var _ = require('lodash');
+var cx = require('react/lib/cx');
 
 var personUtils = require('../../core/personutils');
 var PersonCard = require('../../components/personcard');
@@ -37,10 +38,32 @@ var PeopleList = React.createClass({
   render: function() {
     var peopleNodes = _.map(this.props.people, this.renderPeopleListItem);
 
+    this.props.people = _.sortBy(_.sortBy(this.props.people, 'fullname'), function(person) {
+      if (person.permissions.root) {
+        return 1;
+      }
+      if (person.permissions.admin) {
+        return 2;
+      }
+      if (person.permissions.upload) {
+        return 3;
+      }
+      return 4;
+    });
+
+    peopleNodes = _.map(this.props.people, this.renderPeopleListItem);
+
+    var classes = cx({
+      'people-list': true,
+      'list-group': true,
+      'people-list-single': this.props.people.length == 1
+    });
+
     /* jshint ignore:start */
     return (
-      <ul className="people-list list-group">
+      <ul className={classes}>
         {peopleNodes}
+        <div className="clear"></div>
       </ul>
     );
     /* jshint ignore:end */
@@ -55,15 +78,21 @@ var PeopleList = React.createClass({
       var handleClick = function() {
         self.props.onClickPerson(person);
       };
+
       /* jshint ignore:start */
-      peopleListItemContent = (
-        <PatientCard
-          href={person.link}
-          onClick={handleClick}
-          patient={person}></PatientCard>
+      return (
+        <li key={person.userid || index} className="patient-list-item">
+          <PatientCard
+            href={person.link}
+            onClick={handleClick}
+            patient={person}></PatientCard>
+        </li>
       );
+
       /* jshint ignore:end */
-    } else if (person.link) {
+    }
+
+    if (person.link) {
       var self = this;
       var handleClick = function() {
         self.props.onClickPerson(person);

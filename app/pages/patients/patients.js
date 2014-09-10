@@ -89,7 +89,7 @@ var Patients = React.createClass({
     }
     else {
       patients = this.addLinkToPatients(patients);
-      
+
       content = (
         <PeopleList
           people={patients}
@@ -105,6 +105,14 @@ var Patients = React.createClass({
       <div className="container-box-inner patients-section js-patients-shared">
         {title}
         <div className="patients-section-content">
+          <a
+            className="patients-new-account"
+            href="#/patients/new"
+            onClick={this.handleClickCreateProfile}>
+            Add account
+            <i className="icon-add"></i>
+          </a>
+          <div className='clear'></div>
           {content}
         </div>
       </div>

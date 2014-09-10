@@ -48,9 +48,33 @@
 }
 
 .patients-section-content {
+
+
   width: 700px;
   margin: 0 auto;
   padding-bottom: @spacing-base;
+}
+
+.patients-new-account {
+  float:right;
+  color: @gray-dark;
+  margin-top: -45px;
+  margin-right: -20px;
+
+  .icon-add {
+    color: @blue-green;
+  }
+
+  .no-touch &:hover,
+  &:focus,
+  &:active {
+    text-decoration: none;
+    color: @gray-dark;
+
+    .icon-add {
+      color: @blue-green-light;
+    }
+  }
 }
 
 .patients-section-dismiss {
