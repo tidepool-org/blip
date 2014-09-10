@@ -104,5 +104,7 @@ module.exports = function(opts) {
 
   puddle.pie = opts.pie;
 
+  puddle.annotationOpts = opts.annotationOpts;
+
   return puddle;
 };

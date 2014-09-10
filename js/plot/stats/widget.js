@@ -107,7 +107,11 @@ module.exports = function(pool, opts) {
       head: 'Basal : Bolus',
       lead: 'Basal to bolus insulin ratio',
       weight: pw.ratio,
-      pieBoolean: true
+      pieBoolean: true,
+      annotationOpts: {
+        lead: 'stats-how-calculated',
+        d: {annotations: [{code: 'stats-how-calculated-ratio'}]}
+      }
     };
     stats.newPuddle(ratioOpts);
     // create time-in-range puddle
@@ -116,7 +120,11 @@ module.exports = function(pool, opts) {
       head: opts.PTiRLabels.cbg,
       lead: targetRangeString + opts.bgUnits,
       weight: pw.range,
-      pieBoolean: true
+      pieBoolean: true,
+      annotationOpts: {
+        lead: 'stats-how-calculated',
+        d: {annotations: [{code: 'stats-how-calculated-range'}]}
+      }
     };
     stats.newPuddle(rangeOpts);
     // create average BG puddle
@@ -125,7 +133,11 @@ module.exports = function(pool, opts) {
       head: 'Average BG',
       lead: opts.averageLabel,
       weight: pw.average,
-      pieBoolean: false
+      pieBoolean: false,
+      annotationOpts: {
+        lead: 'stats-how-calculated',
+        d: {annotations: [{code: 'stats-how-calculated'}]}
+      }
     };
     stats.newPuddle(averageOpts);
     stats.arrangePuddles();
@@ -172,15 +184,14 @@ module.exports = function(pool, opts) {
           });
         };
         var updateAnnotations = function(puddleGroup) {
-          log("pool.width", pool.width());
           var xOffset = (pool.width()/3) * (1/6);
           var yOffset = pool.height() / 2;
           var annotationOpts = {
             x: xOffset + puddle.xPosition(),
             y: yOffset,
             hoverTarget: puddleGroup,
-            lead: 'stats-how-calculated',
-            d: {annotations: [{code: 'stats-how-calculated'}]}
+            lead: puddle.annotationOpts.lead,
+            d: puddle.annotationOpts.d
           };
           _.defaults(annotationOpts, opts.defaultAnnotationOpts);
           pool.parent().select('#tidelineAnnotations_stats').call(annotation, annotationOpts);
@@ -366,13 +377,15 @@ module.exports = function(pool, opts) {
           r: opts.pieRadius
         });
 
+      annotationOpts.lead = 'stats-insufficient-data';
+      annotationOpts.d.annotations[0].code = 'stats-insufficient-data';
       pool.parent().select('#tidelineAnnotations_stats').call(annotation, annotationOpts);
 
       return null;
     }
     else {
-      annotationOpts.lead = 'stats-how-calculated';
-      annotationOpts.d.annotations[0].code = 'stats-how-calculated';
+      annotationOpts.lead = puddle.annotationOpts.lead;
+      annotationOpts.d = puddle.annotationOpts.d;
       pool.parent().select('#tidelineAnnotations_stats').call(annotation, annotationOpts);
 
       puddleGroup.classed('d3-insufficient-data', false);
@@ -433,7 +446,8 @@ module.exports = function(pool, opts) {
           return (pool.width()/3) * (2 / 5);
         }
       },
-      pie: opts.pieBoolean
+      pie: opts.pieBoolean,
+      annotationOpts: opts.annotationOpts
     });
     puddles.push(p);
   };

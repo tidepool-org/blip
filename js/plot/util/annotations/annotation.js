@@ -48,8 +48,7 @@ module.exports = function(container, annotationsGroup) {
 
     var hoverTarget;
 
-    if (opts.d.annotations[0].code === 'stats-insufficient-data' ||
-        opts.d.annotations[0].code === 'stats-how-calculated') {
+    if (opts.d.annotations[0].code !== 'demo annotation') {
       if (opts.hoverTarget != null) {
         hoverTarget = opts.hoverTarget;
       }
@@ -88,8 +87,7 @@ module.exports = function(container, annotationsGroup) {
   annotation.tooltip = function(opts, selection, hoverTarget) {
     opts = opts || {};
 
-    if (opts.d.annotations[0].code === 'stats-insufficient-data' ||
-        opts.d.annotations[0].code === 'stats-how-calculated') {
+    if (opts.d.annotations[0].code !== 'demo annotation') {
       if (container.type === 'daily') {
         opts.x = opts.x - (container.currentTranslation() - container.axisGutter());
       }
