@@ -136,7 +136,7 @@ module.exports = function(pool, opts) {
       pieBoolean: false,
       annotationOpts: {
         lead: 'stats-how-calculated',
-        d: {annotations: [{code: 'stats-how-calculated'}]}
+        d: {annotations: [{code: 'stats-how-calculated-average'}]}
       }
     };
     stats.newPuddle(averageOpts);
@@ -183,19 +183,6 @@ module.exports = function(pool, opts) {
             slices: slices
           });
         };
-        var updateAnnotations = function(puddleGroup) {
-          var xOffset = (pool.width()/3) * (1/6);
-          var yOffset = pool.height() / 2;
-          var annotationOpts = {
-            x: xOffset + puddle.xPosition(),
-            y: yOffset,
-            hoverTarget: puddleGroup,
-            lead: puddle.annotationOpts.lead,
-            d: puddle.annotationOpts.d
-          };
-          _.defaults(annotationOpts, opts.defaultAnnotationOpts);
-          pool.parent().select('#tidelineAnnotations_stats').call(annotation, annotationOpts);
-        };
         // when NaN(s) present, create a no data view
         if (stats.hasNaN(data[puddle.id.toLowerCase()])) {
           pies = _.reject(pies, function(pie) {
@@ -218,7 +205,7 @@ module.exports = function(pool, opts) {
           // or just update the current pie
           else {
             stats.updatePie(thisPie, data[puddle.id.toLowerCase()]);
-            updateAnnotations(puddleGroup);
+            stats.updatePieAnnotation(puddle, puddleGroup, false);
           }
         }
       }
@@ -307,13 +294,12 @@ module.exports = function(pool, opts) {
     if (isNaN(data.value)) {
       puddleGroup.classed('d3-insufficient-data', true);
       stats.rectGroup.selectAll('.d3-stats-circle').classed('hidden', true);
-      stats.rectAnnotation(puddle, puddleGroup);
+      stats.updateRectAnnotation(puddle, puddleGroup, true);
     }
     else {
-      puddleGroup.on('mouseover', null);
-      puddleGroup.on('mouseout', null);
       puddleGroup.classed('d3-insufficient-data', false);
       stats.rectGroup.selectAll('.d3-stats-circle').classed('hidden', false);
+      stats.updateRectAnnotation(puddle, puddleGroup, false);
     }
   };
 
@@ -321,12 +307,11 @@ module.exports = function(pool, opts) {
     if (isNaN(data.value)) {
       puddleGroup.classed('d3-insufficient-data', true);
       stats.rectGroup.selectAll('.d3-stats-circle').classed('hidden', true);
-      stats.rectAnnotation(puddle, puddleGroup);
+      stats.updateRectAnnotation(puddle, puddleGroup, true);
     }
     else {
-      puddleGroup.on('mouseover', null);
-      puddleGroup.on('mouseout', null);
       puddleGroup.classed('d3-insufficient-data', false);
+      stats.updateRectAnnotation(puddle, puddleGroup, false);
     }
 
     var imageY = rectScale(data.value) + (puddle.height() / 10);
@@ -341,14 +326,41 @@ module.exports = function(pool, opts) {
     }
   };
 
-  stats.rectAnnotation = function(puddle, puddleGroup) {
+  stats.updateAnnotation = function(annotationOpts, puddle, insufficientData) {
+    if (insufficientData) {
+      annotationOpts.lead = 'stats-insufficient-data';
+      annotationOpts.d.annotations[0].code = 'stats-insufficient-data';
+      pool.parent().select('#tidelineAnnotations_stats').call(annotation, annotationOpts);
+    }
+    else {
+      annotationOpts.lead = puddle.annotationOpts.lead;
+      annotationOpts.d = puddle.annotationOpts.d;
+      pool.parent().select('#tidelineAnnotations_stats').call(annotation, annotationOpts);
+    }
+  };
+
+  stats.updateRectAnnotation = function(puddle, puddleGroup, insufficientData) {
     var annotationOpts = {
       x: puddle.width() * (3/16) + puddle.xPosition(),
       y: puddle.height() / 2,
       hoverTarget: puddleGroup
     };
     _.defaults(annotationOpts, opts.defaultAnnotationOpts);
-    pool.parent().select('#tidelineAnnotations_stats').call(annotation, annotationOpts);
+
+    stats.updateAnnotation(annotationOpts, puddle, insufficientData);
+  };
+
+  stats.updatePieAnnotation = function(puddle, puddleGroup, insufficientData) {
+    var xOffset = (pool.width()/3) * (1/6);
+    var yOffset = pool.height() / 2;
+    var annotationOpts = {
+      x: xOffset + puddle.xPosition(),
+      y: yOffset,
+      hoverTarget: puddleGroup
+    };
+    _.defaults(annotationOpts, opts.defaultAnnotationOpts);
+
+    stats.updateAnnotation(annotationOpts, puddle, insufficientData);
   };
 
   stats.createPie = function(puddle, puddleGroup, data) {
@@ -361,13 +373,6 @@ module.exports = function(pool, opts) {
         'class': 'd3-stats-pie'
       });
 
-    var annotationOpts = {
-      x: xOffset + puddle.xPosition(),
-      y: yOffset,
-      hoverTarget: puddleGroup
-    };
-    _.defaults(annotationOpts, opts.defaultAnnotationOpts);
-
     if (stats.hasNaN(data)) {
       puddleGroup.classed('d3-insufficient-data', true);
       pieGroup.append('circle')
@@ -377,16 +382,12 @@ module.exports = function(pool, opts) {
           r: opts.pieRadius
         });
 
-      annotationOpts.lead = 'stats-insufficient-data';
-      annotationOpts.d.annotations[0].code = 'stats-insufficient-data';
-      pool.parent().select('#tidelineAnnotations_stats').call(annotation, annotationOpts);
+      stats.updatePieAnnotation(puddle, puddleGroup, true);
 
       return null;
     }
     else {
-      annotationOpts.lead = puddle.annotationOpts.lead;
-      annotationOpts.d = puddle.annotationOpts.d;
-      pool.parent().select('#tidelineAnnotations_stats').call(annotation, annotationOpts);
+      stats.updatePieAnnotation(puddle, puddleGroup, false);
 
       puddleGroup.classed('d3-insufficient-data', false);
       pie = d3.layout.pie().value(function(d) {
