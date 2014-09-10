@@ -102,11 +102,32 @@ module.exports = function(pool, opts) {
     var targetRangeString = 'Target range: ' + lowBound + ' - ' + highBound + ' ';
 
     // create basal-to-bolus ratio puddle
-    stats.newPuddle('Ratio', 'Basal : Bolus', 'Basal to bolus insulin ratio', pw.ratio, true);
+    var ratioOpts = {
+      id: 'Ratio',
+      head: 'Basal : Bolus',
+      lead: 'Basal to bolus insulin ratio',
+      weight: pw.ratio,
+      pieBoolean: true
+    };
+    stats.newPuddle(ratioOpts);
     // create time-in-range puddle
-    stats.newPuddle('Range', opts.PTiRLabels.cbg, targetRangeString + opts.bgUnits, pw.range, true);
+    var rangeOpts = {
+      id: 'Range',
+      head: opts.PTiRLabels.cbg,
+      lead: targetRangeString + opts.bgUnits,
+      weight: pw.range,
+      pieBoolean: true
+    };
+    stats.newPuddle(rangeOpts);
     // create average BG puddle
-    stats.newPuddle('Average', 'Average BG', opts.averageLabel, pw.average, false);
+    var averageOpts = {
+      id: 'Average',
+      head: 'Average BG',
+      lead: opts.averageLabel,
+      weight: pw.average,
+      pieBoolean: false
+    };
+    stats.newPuddle(averageOpts);
     stats.arrangePuddles();
   });
 
@@ -151,6 +172,7 @@ module.exports = function(pool, opts) {
           });
         };
         var updateAnnotations = function(puddleGroup) {
+          log("pool.width", pool.width());
           var xOffset = (pool.width()/3) * (1/6);
           var yOffset = pool.height() / 2;
           var annotationOpts = {
@@ -395,23 +417,23 @@ module.exports = function(pool, opts) {
     return found;
   };
 
-  stats.newPuddle = function(id, head, lead, weight, pieBoolean) {
+  stats.newPuddle = function(opts) {
     var p = new Puddle({
-      id: id,
-      head: head,
-      lead: lead,
+      id: opts.id,
+      head: opts.head,
+      lead: opts.lead,
       width: pool.width()/3,
       height: pool.height(),
-      weight: weight,
+      weight: opts.weight,
       xOffset: function() {
-        if (pieBoolean) {
+        if (opts.pieBoolean) {
           return (pool.width()/3) / 3;
         }
         else {
           return (pool.width()/3) * (2 / 5);
         }
       },
-      pie: pieBoolean
+      pie: opts.pieBoolean
     });
     puddles.push(p);
   };
