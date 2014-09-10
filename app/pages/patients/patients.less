@@ -1,4 +1,4 @@
-/**
+ /**
  * Copyright (c) 2014, Tidepool Project
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -18,14 +18,20 @@
 .patients {
   margin-right: auto;
   margin-left: auto;
-  max-width: @patients-box-max-width;
   margin-bottom: @spacing-large;
+  background: white;
+  border: 1px solid @gray-darkest;
+}
+
+.patients-heirarchy-inverted {
+  border-top: 10px solid @gray-light;
+  border-right: 10px solid @gray;
 }
 
 .patients-section {
   position: relative;
   background-color: #fff;
-  margin-bottom: @spacing-large;
+  padding-bottom: @spacing-large;
 }
 
 .patients-section-title-wrapper {
@@ -36,12 +42,14 @@
 .patients-section-title {
   display: inline-block;
   min-width: 260px;
-  background-color: @gray;
+  background-color: @gray-light;
+  font-weight: 200;
   padding: @spacing-small;
 }
 
 .patients-section-content {
-  padding: 0 @spacing-base;
+  width: 700px;
+  margin: 0 auto;
   padding-bottom: @spacing-base;
 }
 

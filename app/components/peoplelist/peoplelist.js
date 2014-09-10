@@ -19,6 +19,7 @@ var _ = require('lodash');
 
 var personUtils = require('../../core/personutils');
 var PersonCard = require('../../components/personcard');
+var PatientCard = require('../../components/patientcard');
 
 var PeopleList = React.createClass({
   propTypes: {
@@ -49,7 +50,20 @@ var PeopleList = React.createClass({
     var peopleListItemContent;
     var displayName = this.getPersonDisplayName(person);
 
-    if (person.link) {
+    if (this.props.isPatientList) {
+      var self = this;
+      var handleClick = function() {
+        self.props.onClickPerson(person);
+      };
+      /* jshint ignore:start */
+      peopleListItemContent = (
+        <PatientCard
+          href={person.link}
+          onClick={handleClick}
+          patient={person}></PatientCard>
+      );
+      /* jshint ignore:end */
+    } else if (person.link) {
       var self = this;
       var handleClick = function() {
         self.props.onClickPerson(person);
