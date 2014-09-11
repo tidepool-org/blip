@@ -22,7 +22,8 @@ module.exports = schema(
     bgTarget: schema().array(
       schema(
         {
-          amount: schema().number(),
+          low: schema().number(),
+          high: schema().number(),
           start: schema().number().min(0).max(86400000)
         }
       )
