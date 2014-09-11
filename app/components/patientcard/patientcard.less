@@ -21,10 +21,6 @@
   color: @gray-darker;
   position: relative;
   background: @gray-lighter;
-
-  i {
-    cursor: pointer;
-  }
 }
 
 .patientcard-owner {
@@ -43,30 +39,25 @@
 
   .icon-remove {
     display: block;
-    color: @gray-dark;
+    color: @blue-green;
     position: absolute;
     top: -15px;
     right: 0px;
-
-    .no-touch &:hover,
-    &:focus,
-    &:active {
-      color: @gray;
-    }
-  }
-
-  .patientcard-permissions-icon {
-    display: block;
-    color: @blue-green;
-    position: absolute;
-    top: 25px;
-    right: 0px;
+    cursor: pointer;
 
     .no-touch &:hover,
     &:focus,
     &:active {
       color: @blue-green-light;
     }
+  }
+
+  .patientcard-permissions-icon {
+    display: block;
+    color: @gray-dark;
+    position: absolute;
+    top: 25px;
+    right: 0px;
   }
 }
 
