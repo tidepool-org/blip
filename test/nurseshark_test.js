@@ -71,6 +71,24 @@ describe('nurseshark', function() {
       expect(input[1].d[0] === output[1].d[0]).to.be.false;
     });
 
+    it('should return overlapping basals in the erroredData', function() {
+      var now = new Date();
+      var plusTen = new Date(now.valueOf() + 600000);
+      var overlapping = [{
+        type: 'basal',
+        time: now.toISOString(),
+        duration: 1200000
+      }, {
+        type: 'basal',
+        time: plusTen.toISOString(),
+        duration: 1200000
+      }];
+      var res = nurseshark.processData(overlapping).erroredData;
+      expect(res.length).to.equal(1);
+      expect(res[0].overlapsWith).to.eql(overlapping[0]);
+      expect(res[0].errorMessage).to.equal('Basal overlaps with previous.');
+    });
+
     it('should translate cbg and smbg into mg/dL when such units specified', function() {
       var bgs = [{
         type: 'cbg',
@@ -168,60 +186,13 @@ describe('nurseshark', function() {
     });
   });
 
-  describe('suspendedExtendeds', function() {
-    it('should be a function', function() {
-      assert.isFunction(nurseshark.suspendedExtendeds);
+  describe('transformSuspends', function() {
+    it.skip('should be a function', function() {
+      assert.isFunction(nurseshark.transformSuspends);
     });
 
-    it('should find an extended interrupted by a suspend event', function() {
-      var now = new Date();
-      var earlier = new Date(now.valueOf() - 720000);
-      var input = [{
-        type: 'deviceMeta',
-        subType: 'status',
-        status: 'suspended',
-        duration: 10000,
-        time: now.toISOString()
-      }, {
-        type: 'bolus',
-        subType: 'extended',
-        extended: 0.2,
-        expectedExtended: 1.0,
-        duration: 3600000,
-        time: earlier.toISOString()
-      }];
-      var output = [{
-        type: 'deviceMeta',
-        subType: 'status',
-        status: 'suspended',
-        duration: 10000,
-        time: now.toISOString()
-      }, {
-        type: 'bolus',
-        subType: 'extended',
-        extended: 0.2,
-        expectedExtended: 1.0,
-        duration: 720000,
-        expectedDuration: 3600000,
-        time: earlier.toISOString()
-      }];
-      var res = nurseshark.processData(input).processedData;
-      expect(res[1].duration).to.equal(output[1].duration);
-    });
+    it.skip('should transform a suspend interval into a temp basal of zero', function() {
 
-    it('should add an expectedDuration to user-cancelled extended boluses', function() {
-      var now = new Date().toISOString();
-      var cancelled = [{
-        type: 'bolus',
-        subType: 'square',
-        extended: 0.4,
-        expectedExtended: 2.0,
-        duration: 10000,
-        time: now
-      }];
-      var res = nurseshark.processData(cancelled).processedData[0];
-      expect(res.duration).to.equal(2000);
-      expect(res.expectedDuration).to.equal(10000);
     });
   });
 
@@ -232,6 +203,15 @@ describe('nurseshark', function() {
       console.time('Nurseshark');
       assert.isArray(nurseshark.processData(data).processedData);
       console.timeEnd('Nurseshark');
+    });
+
+    it('how does does deep clone take?', function() {
+      console.time('DeepClone');
+      var cloned = [];
+      for (var i = 0; i < data.length; ++i) {
+        cloned.push(_.cloneDeep(data[i]));
+      }
+      console.timeEnd('DeepClone');
     });
   });
 });

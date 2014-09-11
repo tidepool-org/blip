@@ -21,7 +21,6 @@ var util = require('util');
 
 var dt = require('./datetime');
 
-
 function translateBg(value) {
   var GLUCOSE_MM = 18.01559;
   return Math.round(GLUCOSE_MM * value);
@@ -57,132 +56,99 @@ function cloneDeep(d) {
   return newObj;
 }
 
-var handlers = {
-  basal: function(d) {
-    return cloneDeep(d);
-  },
-  bolus: function(d, collections) {
-    d = cloneDeep(d);
-    if (d.joinKey != null) {
-      collections.bolusesToJoin[d.joinKey] = d;
-    }
-    if (d.duration != null) {
-      collections.extendedIntervals[d.time + '/' + dt.addDuration(d.time, d.duration)] = d;
-    }
-    return d;
-  },
-  cbg: function(d) {
-    d = cloneDeep(d);
-    if (d.units === 'mg/dL') {
-      d.value = translateBg(d.value);
-    }
-    return d;
-  },
-  deviceMeta: function(d) {
-    return cloneDeep(d);
-  },
-  message: function(d) {
-    return cloneDeep(d);
-  },
-  smbg: function(d) {
-    d = cloneDeep(d);
-    if (d.units === 'mg/dL') {
-      d.value = translateBg(d.value);
-    }
-    return d;
-  },
-  settings: function(d) {
-    d = cloneDeep(d);
-    if (d.units.bg === 'mg/dL') {
-      if (d.bgTarget) {
-        for (var key in d.bgTarget) {
-          if (key !== 'range' && key !== 'start') {
-            d.bgTarget[key] = translateBg(d.bgTarget[key]);
+
+
+function getHandlers() {
+  var lastEnd, lastBasal;
+
+  return {
+    basal: function(d) {
+      // TODO: determine which annotations to filter out
+      d = cloneDeep(d);
+      lastEnd = lastEnd || null;
+      lastBasal = lastBasal || {};
+      if (lastEnd > d.time) {
+        var err = new Error('Basal overlaps with previous.');
+        d.errorMessage = err.message;
+        d.overlapsWith = lastBasal;
+      }
+      lastBasal = d;
+      lastEnd = dt.addDuration(d.time, d.duration);
+      return d;
+    },
+    bolus: function(d, collections) {
+      d = cloneDeep(d);
+      if (d.joinKey != null) {
+        collections.bolusesToJoin[d.joinKey] = d;
+      }
+      return d;
+    },
+    cbg: function(d) {
+      d = cloneDeep(d);
+      if (d.units === 'mg/dL') {
+        d.value = translateBg(d.value);
+      }
+      return d;
+    },
+    deviceMeta: function(d) {
+      // TODO: determine which annotations to filter out
+      return cloneDeep(d);
+    },
+    message: function(d) {
+      return cloneDeep(d);
+    },
+    smbg: function(d) {
+      d = cloneDeep(d);
+      if (d.units === 'mg/dL') {
+        d.value = translateBg(d.value);
+      }
+      return d;
+    },
+    settings: function(d) {
+      d = cloneDeep(d);
+      if (d.units.bg === 'mg/dL') {
+        if (d.bgTarget) {
+          for (var key in d.bgTarget) {
+            if (key !== 'range' && key !== 'start') {
+              d.bgTarget[key] = translateBg(d.bgTarget[key]);
+            }
           }
         }
+        if (d.insulinSensitivity) {
+          var isfLen = d.insulinSensitivity.length;
+          for (var i = 0; i < isfLen; ++i) {
+            var item = d.insulinSensitivity[i];
+            item.amount = translateBg(item.amount);
+          }
+        }      
       }
-      if (d.insulinSensitivity) {
-        var isfLen = d.insulinSensitivity.length;
-        for (var i = 0; i < isfLen; ++i) {
-          var item = d.insulinSensitivity[i];
-          item.amount = translateBg(item.amount);
+      return d;
+    },
+    wizard: function(d) {
+      d = cloneDeep(d);
+      if (d.units === 'mg/dL') {
+        // truthiness is *required* here
+        // bgInput of 0 occurs often but means bgInput was skipped in wizard interaction
+        if (d.bgInput) {
+          d.bgInput = translateBg(d.bgInput);
         }
-      }      
-    }
-    return d;
-  },
-  wizard: function(d) {
-    d = cloneDeep(d);
-    if (d.units === 'mg/dL') {
-      // truthiness is *required* here
-      // bgInput of 0 occurs often but means bgInput was skipped in wizard interaction
-      if (d.bgInput) {
-        d.bgInput = translateBg(d.bgInput);
-      }
-      if (d.bgTarget) {
-        for (var key in d.bgTarget) {
-          if (key !== 'range') {
-            d.bgTarget[key] = translateBg(d.bgTarget[key]);
+        if (d.bgTarget) {
+          for (var key in d.bgTarget) {
+            if (key !== 'range') {
+              d.bgTarget[key] = translateBg(d.bgTarget[key]);
+            }
           }
         }
+        if (d.insulinSensitivity) {
+          d.insulinSensitivity = translateBg(d.insulinSensitivity);
+        }
       }
-      if (d.insulinSensitivity) {
-        d.insulinSensitivity = translateBg(d.insulinSensitivity);
-      }
+      return d;
     }
-    return d;
-  }
-};
+  };
+}
 
 module.exports = {
-  erroredData: [],
-  mergeSuspendsIntoBasals: function(basals, suspendIntervals) {
-    basals = crossfilter(basals);
-    var basalsByTime = basals.dimension(function(d) {
-      return d.time + '/' + dt.addDuration(d.time, d.duration || 0); 
-    });
-    var numSuspends = suspendIntervals.length;
-    function intervalFilter(d) {
-      var interval = d.split('/');
-      // TODO: filter for intersection of basals and suspend intervals
-    }
-    for (var i = 0; i < numSuspends; ++i) {
-      var matches = basalsByTime.filterFunction(intervalFilter).top(Infinity);
-      if (matches.length > 0) {
-        console.log('Found at least one basal intersecting with a suspend!');
-      }
-    }
-  },
-  suspendedExtendeds: function(suspends, extendedIntervals) {
-    suspends = crossfilter(suspends);
-    var suspendsByTime = suspends.dimension(function(d) {
-      return d.time;
-    });
-    var intervals = Object.keys(extendedIntervals);
-    var numExtendeds = intervals.length;
-    for (var i = 0; i < numExtendeds; ++i) {
-      var matches = suspendsByTime.filter(intervals[i].split('/')).top(Infinity);
-      var bolus = extendedIntervals[intervals[i]];
-      // suspend interrupts an extended bolus
-      if (matches.length > 0) {
-        var suspend = matches[0];
-        if (!(bolus.extended >= 0 && bolus.expectedExtended > 0)) {
-          var err = new Error('An extended bolus interrupted by a suspend should have ' +
-            '`extended` and `expectedExtended` properties.');
-          bolus.errorMessage = err.message;
-          this.erroredData.push(bolus);
-        }
-        bolus.expectedDuration = bolus.duration;
-        bolus.duration = dt.difference(suspend.time, bolus.time);
-      }
-      // user cancels an extended bolus
-      if (bolus.expectedExtended && bolus.expectedExtended > 0 && !bolus.expectedDuration) {
-        var percentComplete = bolus.extended/bolus.expectedExtended;
-        bolus.expectedDuration = bolus.duration;
-        bolus.duration = percentComplete * bolus.duration;
-      }
-    }
-  },
   joinWizardsAndBoluses: function(wizards, bolusesToJoin) {
     var numWizards = wizards.length;
     for (var i = 0; i < numWizards; ++i) {
@@ -195,16 +161,16 @@ module.exports = {
     }
   },
   processData: function(data) {
-    var self = this;
     if (!(data && data.length >= 0 && Array.isArray(data))) {
       throw new Error('An array is required.');
     }
-    var processedData = [];
+    var processedData = [], erroredData = [];
     var collections = {
-      bolusesToJoin: {},
-      extendedIntervals: {}
+      bolusesToJoin: {}
     };
     var typeGroups = {};
+
+    var handlers = getHandlers();
 
     function process(d) {
       try {
@@ -213,7 +179,6 @@ module.exports = {
       catch (e) {
         var err = new Error(util.format('No nurseshark handler defined for type [%s]', d.type));
         d.errorMessage = err.message;
-        self.erroredData.push(d);
       }
       // group data
       if (typeGroups[d.type] == null) {
@@ -222,7 +187,12 @@ module.exports = {
       else {
         typeGroups[d.type].push(d);
       }
-      processedData.push(d);
+      if (d.errorMessage != null) {
+        erroredData.push(d);
+      }
+      else {
+        processedData.push(d);
+      }
     }
 
     var iterations = Math.floor(data.length / 8);
@@ -250,12 +220,6 @@ module.exports = {
 
     this.joinWizardsAndBoluses(typeGroups.wizard || [], collections.bolusesToJoin);
 
-    if (Object.keys(collections.extendedIntervals).length > 0) {
-      this.suspendedExtendeds(typeGroups.deviceMeta || [], collections.extendedIntervals);
-    }
-    if (typeGroups.deviceMeta && typeGroups.deviceMeta.length > 0) {
-      this.mergeSuspendsIntoBasals(typeGroups.basal || [], typeGroups.deviceMeta);
-    }
-    return {erroredData: this.erroredData, processedData: processedData};
+    return {erroredData: erroredData, processedData: processedData};
   }
 };
