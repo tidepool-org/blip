@@ -375,7 +375,7 @@ api.team = {};
 
 //Get all messages for the given thread
 api.team.getMessageThread = function(messageId,cb){
-  api.log('GET /message/thread');
+  api.log('GET /message/thread/' + messageId);
 
   tidepool.getMessageThread(messageId, function(error,messages){
     if(error){
@@ -393,7 +393,7 @@ api.team.getMessageThread = function(messageId,cb){
 
 //Get all notes (parent messages) for the given team
 api.team.getNotes = function(userId,cb){
-  api.log('GET /message/notes');
+  api.log('GET /message/notes/' + userId);
 
   //at present we are not using the date range
   var dateRange = null;
@@ -402,23 +402,14 @@ api.team.getNotes = function(userId,cb){
     if(error){
       return cb(error);
     }
-    //transform so that they are how Tideline renders them
-    messages = _.map(messages, function(message) {
-      return {
-        utcTime : message.timestamp,
-        messageText : message.messagetext,
-        parentMessage : message.parentmessage,
-        type: 'message',
-        id: message.id
-      };
-    });
+
     return cb(null,messages);
   });
 };
 
 //Add a comment
 api.team.replyToMessageThread = function(message,cb){
-  api.log('POST /message/reply');
+  api.log('POST /message/reply/' + message.parentmessage);
 
   tidepool.replyToMessageThread(message, function(error,replyId){
     if (error) {
@@ -430,7 +421,7 @@ api.team.replyToMessageThread = function(message,cb){
 
 //New message
 api.team.startMessageThread = function(message,cb){
-  api.log('POST /message/send');
+  api.log('POST /message/send/' + message.groupid);
 
   tidepool.startMessageThread(message, function(error,messageId){
     if (error) {
@@ -441,7 +432,7 @@ api.team.startMessageThread = function(message,cb){
 };
 
 api.team.editMessage = function(message,cb){
-  api.log('POST /message/edit');
+  api.log('PUT /message/edit/' + message.id);
 
   tidepool.editMessage(message, function(error, details){
     if (error) {
@@ -472,6 +463,57 @@ api.patientData.get = function(patientId, cb) {
 
     cb(null, data);
   });
+};
+
+// ----- Invitation -----
+
+api.invitation = {};
+
+api.invitation.getReceived = function(callback) {
+  api.log('GET /invitations/received [NOT IMPLEMENTED]');
+  callback(null, []);
+};
+
+api.invitation.accept = function(fromUserId, callback) {
+  api.log('POST /invitations/from/' + fromUserId + '/accept [NOT IMPLEMENTED]');
+  callback(null, {});
+};
+
+api.invitation.dismiss = function(fromUserId, callback) {
+  api.log('POST /invitations/from/' + fromUserId + '/dismiss [NOT IMPLEMENTED]');
+  callback(null, {});
+};
+
+api.invitation.getSent = function(callback) {
+  api.log('GET /invitations/sent [NOT IMPLEMENTED]');
+  callback(null, []);
+};
+
+api.invitation.cancel = function(toEmail, callback) {
+  api.log('POST /invitations/to/' + toEmail + '/cancel [NOT IMPLEMENTED]');
+  callback();
+};
+
+// ----- Access -----
+
+api.access = {};
+
+api.access.setMemberPermissions = function(memberId, permissions, callback) {
+  var groupId = tidepool.getUserId();
+  api.log('PUT /access/' + groupId + '/' + memberId);
+  return tidepool.setAccessPermissions(memberId, permissions, callback);
+};
+
+api.access.removeMember = function(memberId, callback) {
+  var groupId = tidepool.getUserId();
+  api.log('DELETE /access/' + groupId + '/' + memberId);
+  return tidepool.setAccessPermissions(memberId, null, callback);
+};
+
+api.access.leaveGroup = function(groupId, callback) {
+  var memberId = tidepool.getUserId();
+  api.log('DELETE /access/' + groupId + '/' + memberId);
+  return tidepool.setAccessPermissions(memberId, null, callback);
 };
 
 // ----- Upload -----

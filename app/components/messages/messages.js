@@ -207,7 +207,7 @@ var Messages = React.createClass({
           }
           //set so we can display right away
           comment.id = commentId;
-          comment.user = this.props.user;
+          comment.user = this.props.user.profile;
           var withReply = this.state.messages;
           withReply.push(comment);
           this.setState({
@@ -239,7 +239,7 @@ var Messages = React.createClass({
           }
           //set so we can display right away
           message.id = messageId;
-          message.user = this.props.user;
+          message.user = this.props.user.profile;
           //give this message to anyone that needs it
           this.props.onNewMessage(message);
 
