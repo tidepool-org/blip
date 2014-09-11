@@ -33,7 +33,7 @@ var Messages = require('../../components/messages');
 
 var PatientData = React.createClass({
   propTypes: {
-    patientData: React.PropTypes.array,
+    patientData: React.PropTypes.object,
     patient: React.PropTypes.object,
     fetchingPatientData: React.PropTypes.bool,
     isUserPatient: React.PropTypes.bool,
