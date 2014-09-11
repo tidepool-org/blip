@@ -20,6 +20,7 @@ var _ = require('lodash');
 var async = require('async');
 
 var chartUtil = require('tideline/plugins/data/preprocess');
+var TidelineData = require('tideline/js/tidelinedata');
 
 var config = require('./config');
 var router = require('./router');
@@ -828,8 +829,9 @@ var AppComponent = React.createClass({
     };
 
     var processData = chartUtil.processData(data);
-    window.tidelineData = processData;
-    return processData;
+    var tidelineData = new TidelineData(processData.valid);
+    window.tidelineData = tidelineData;
+    return tidelineData;
   },
 
   fetchCurrentPatientData: function() {
