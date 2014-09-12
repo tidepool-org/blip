@@ -95,20 +95,29 @@ class Basal:
 
         self.segments = []
 
-        self.temp_segments = []
-
         self.end_initial = self._get_initial_segment()
 
         self.end_middle = self._get_middle_segments()
 
         self._get_final_segment()
 
-        self.json = [s for s in self.segments] + [s for s in self.temp_segments]
+        self._make_temp_segments()
 
-        for segment in self.json:
+        def serialize(segment):
             segment['deviceTime'] = segment['deviceTime'].isoformat()
             segment['duration'] = abs(int(segment['duration'].total_seconds()*1000))
+            try:
+                segment['suppressed'] = serialize(segment['suppressed'])
+            except KeyError:
+                pass
+            # try:
+            #     del segment['used']
+            # except KeyError:
+            #     pass
             segment['id'] = str(uuid.uuid4())
+            return segment
+
+        self.json = [serialize(s) for s in self.segments]
 
     def _append_segment(self, d, segment_start):
 
@@ -150,21 +159,17 @@ class Basal:
 
     def _get_endpoints(self):
 
-        bolus_times = []
-
-        for b in self.boluses:
-            date_string = b['deviceTime']
-            bolus_times.append({'deviceTime': dt.strptime(date_string, '%Y-%m-%dT%H:%M:%S')})
-
-        all_pump_data = bolus_times + self.carbs
+        all_pump_data = self.boluses + self.carbs
 
         all_pump_data = sorted(all_pump_data, key=lambda x: x['deviceTime'])
 
-        return (all_pump_data[0], all_pump_data[len(all_pump_data) - 1])
+        to_return = (all_pump_data[0], all_pump_data[len(all_pump_data) - 1])
+
+        return [dt.strptime(item['deviceTime'],  '%Y-%m-%dT%H:%M:%S') for item in to_return]
 
     def _get_initial_segment(self):
 
-        d = self.endpoints[0]['deviceTime']
+        d = self.endpoints[0]
 
         beginning = t(d.hour, d.minute, d.second)
 
@@ -184,9 +189,9 @@ class Basal:
 
         segment_start = self.end_initial
 
-        d = self.endpoints[0]['deviceTime']
+        d = self.endpoints[0]
 
-        end = self.endpoints[1]['deviceTime']
+        end = self.endpoints[1]
 
         start_datetime = dt(d.year, d.month, d.day, segment_start.hour, segment_start.minute, segment_start.second)
 
@@ -214,9 +219,95 @@ class Basal:
         # this is hack since I didn't do a great job on the while loop in _get_middle_segments
         self.segments.pop()
 
-        d = self.endpoints[1]['deviceTime']
+        d = self.endpoints[1]
 
         self._append_segment(self.end_middle, t(d.hour, d.minute, d.second))
+
+    def _make_temp_segments(self):
+
+        likelihood = [0,0,0,0,1]
+
+        percents = [item/10.0 for item in range(0,16)]
+
+        for i, segment in enumerate(self.segments):
+            percent = random.choice(percents)
+            if percent == 1.0:
+                percent = 0.5
+
+            # proper subset temps
+            if random.choice(likelihood):
+                try:
+                    segment['used']
+                    continue
+                except KeyError:
+                    left_segment = segment.copy()
+                    left_segment['duration'] = td(seconds=segment['duration'].total_seconds() * 0.25)
+                    left_segment['used'] = 'subset/left_segment'
+
+                    middle_segment = segment.copy()
+                    middle_segment['deviceTime'] = segment['deviceTime'] + left_segment['duration']
+                    middle_segment['duration'] = td(seconds=segment['duration'].total_seconds() * 0.5)
+                    middle_segment['used'] = 'subset/middle_segment'
+
+                    right_segment = segment.copy()
+                    right_segment['deviceTime'] = segment['deviceTime'] + left_segment['duration'] + middle_segment['duration']
+                    right_segment['duration'] = left_segment['duration']
+                    right_segment['used'] = 'subset/right_segment'
+
+                    segment['deviceTime'] = middle_segment['deviceTime']
+                    segment['duration'] = middle_segment['duration']
+                    segment['deliveryType'] = 'temp'
+                    segment['percent'] = percent
+                    segment['rate'] = round(segment['percent'] * middle_segment['rate'], 3)
+                    segment['suppressed'] = middle_segment
+                    segment['used'] = 'subset/segment'
+
+                    self.segments.append(left_segment)
+                    self.segments.append(right_segment)
+
+            # superset temps
+            elif random.choice([0,0,1]):
+                try:
+                    segment['used']
+                    continue
+                except KeyError:
+                    left1 = segment.copy()
+                    left1['duration'] = td(seconds=segment['duration'].total_seconds() * 0.6)
+                    left1['used'] = 'superset/left1'
+
+                    right1 = segment.copy()
+                    right1['deviceTime'] = segment['deviceTime'] + left1['duration']
+                    right1['duration'] = td(seconds=segment['duration'].total_seconds() * 0.4)
+                    right1['used'] = 'superset/right1'
+
+                    segment['deviceTime'] = right1['deviceTime']
+                    segment['duration'] = right1['duration']
+                    segment['deliveryType'] = 'temp'
+                    segment['percent'] = percent
+                    segment['rate'] = round(percent * right1['rate'], 3)
+                    segment['suppressed'] = right1
+                    segment['used'] = 'superset/segment'
+
+                    next_seg = self.segments[i+1]
+
+                    left2 = next_seg.copy()
+                    left2['duration'] = td(seconds=next_seg['duration'].total_seconds() * 0.3)
+                    left2['used'] = 'superset/left2'
+
+                    right2 = next_seg.copy()
+                    right2['deviceTime'] = next_seg['deviceTime'] + left2['duration']
+                    right2['duration'] = td(seconds=next_seg['duration'].total_seconds() * 0.7)
+                    right2['used'] = 'superset/right2'
+
+                    next_seg['duration'] = left2['duration']
+                    next_seg['deliveryType'] = 'temp'
+                    next_seg['percent'] = percent
+                    next_seg['rate'] = round(percent * left2['rate'], 3)
+                    next_seg['suppressed'] = left2
+                    next_seg['used'] = 'superset/next_seg'
+
+                    self.segments.append(left1)
+                    self.segments.append(right2)
 
 class Boluses:
     """Generate demo bolus data."""
@@ -783,7 +874,7 @@ def main():
 
     boluses = Boluses(wizards)
 
-    basal = Basal({}, boluses.json, meals.carbs)
+    basal = Basal({}, boluses.json, meals.json)
 
     settings = Settings(basal.schedule, boluses.ratio, dex.final, args.num_days)
 
