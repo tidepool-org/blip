@@ -39,6 +39,8 @@ from datetime import datetime as dt
 from datetime import time as t
 from datetime import timedelta as td
 import json
+from pytz import timezone
+import pytz
 import random
 import sys
 from urllib2 import urlopen
@@ -101,20 +103,30 @@ class Basal:
 
         self._get_final_segment()
 
+        def fix_duration(segment):
+            dur = int(segment['duration'].total_seconds()*1000)
+            if dur < 0:
+                segment['duration'] = td(milliseconds=(86400000 + dur))
+            else:
+                segment['duration'] = td(milliseconds=dur)
+            return segment
+
+        self.segments = [fix_duration(s) for s in self.segments]
+
         self._make_temp_segments()
 
         def serialize(segment):
             segment['deviceTime'] = segment['deviceTime'].isoformat()
-            segment['duration'] = abs(int(segment['duration'].total_seconds()*1000))
+            segment['duration'] = int(segment['duration'].total_seconds()*1000)
+            segment['id'] = str(uuid.uuid4())
             try:
-                segment['suppressed'] = serialize(segment['suppressed'])
+                serialize(segment['suppressed'])
             except KeyError:
                 pass
-            # try:
-            #     del segment['used']
-            # except KeyError:
-            #     pass
-            segment['id'] = str(uuid.uuid4())
+            try:
+                del segment['used']
+            except KeyError:
+                pass
             return segment
 
         self.json = [serialize(s) for s in self.segments]
@@ -225,89 +237,44 @@ class Basal:
 
     def _make_temp_segments(self):
 
-        likelihood = [0,0,0,0,1]
+        likelihood = [0,0,0,0,0,0,0,1]
 
         percents = [item/10.0 for item in range(0,16)]
 
         for i, segment in enumerate(self.segments):
+            
             percent = random.choice(percents)
             if percent == 1.0:
                 percent = 0.5
 
             # proper subset temps
             if random.choice(likelihood):
-                try:
-                    segment['used']
-                    continue
-                except KeyError:
-                    left_segment = segment.copy()
-                    left_segment['duration'] = td(seconds=segment['duration'].total_seconds() * 0.25)
-                    left_segment['used'] = 'subset/left_segment'
+                left_segment = segment.copy()
+                left_segment['duration'] = td(seconds=int(segment['duration'].total_seconds() * 0.25))
+                left_segment['used'] = 'subset/left_segment'
 
-                    middle_segment = segment.copy()
-                    middle_segment['deviceTime'] = segment['deviceTime'] + left_segment['duration']
-                    middle_segment['duration'] = td(seconds=segment['duration'].total_seconds() * 0.5)
-                    middle_segment['used'] = 'subset/middle_segment'
+                middle_segment = segment.copy()
+                middle_segment['deviceTime'] = segment['deviceTime'] + left_segment['duration']
+                middle_segment['duration'] = left_segment['duration'] * 2
+                middle_segment['used'] = 'subset/middle_segment'
+                middle_segment['source'] = 'demo'
+                middle_segment['deviceId'] = 'Demo - 123'
 
-                    right_segment = segment.copy()
-                    right_segment['deviceTime'] = segment['deviceTime'] + left_segment['duration'] + middle_segment['duration']
-                    right_segment['duration'] = left_segment['duration']
-                    right_segment['used'] = 'subset/right_segment'
+                right_segment = segment.copy()
+                right_segment['deviceTime'] = segment['deviceTime'] + left_segment['duration'] + middle_segment['duration']
+                right_segment['duration'] = segment['duration'] - left_segment['duration'] - middle_segment['duration']
+                right_segment['used'] = 'subset/right_segment'
 
-                    segment['deviceTime'] = middle_segment['deviceTime']
-                    segment['duration'] = middle_segment['duration']
-                    segment['deliveryType'] = 'temp'
-                    segment['percent'] = percent
-                    segment['rate'] = round(segment['percent'] * middle_segment['rate'], 3)
-                    segment['suppressed'] = middle_segment
-                    segment['used'] = 'subset/segment'
+                segment['deviceTime'] = middle_segment['deviceTime']
+                segment['duration'] = middle_segment['duration']
+                segment['deliveryType'] = 'temp'
+                segment['percent'] = percent
+                segment['rate'] = round(segment['percent'] * middle_segment['rate'], 3)
+                segment['suppressed'] = middle_segment
+                segment['used'] = 'subset/segment'
 
-                    self.segments.append(left_segment)
-                    self.segments.append(right_segment)
-
-            # superset temps
-            elif random.choice([0,0,1]):
-                try:
-                    segment['used']
-                    continue
-                except KeyError:
-                    left1 = segment.copy()
-                    left1['duration'] = td(seconds=segment['duration'].total_seconds() * 0.6)
-                    left1['used'] = 'superset/left1'
-
-                    right1 = segment.copy()
-                    right1['deviceTime'] = segment['deviceTime'] + left1['duration']
-                    right1['duration'] = td(seconds=segment['duration'].total_seconds() * 0.4)
-                    right1['used'] = 'superset/right1'
-
-                    segment['deviceTime'] = right1['deviceTime']
-                    segment['duration'] = right1['duration']
-                    segment['deliveryType'] = 'temp'
-                    segment['percent'] = percent
-                    segment['rate'] = round(percent * right1['rate'], 3)
-                    segment['suppressed'] = right1
-                    segment['used'] = 'superset/segment'
-
-                    next_seg = self.segments[i+1]
-
-                    left2 = next_seg.copy()
-                    left2['duration'] = td(seconds=next_seg['duration'].total_seconds() * 0.3)
-                    left2['used'] = 'superset/left2'
-
-                    right2 = next_seg.copy()
-                    right2['deviceTime'] = next_seg['deviceTime'] + left2['duration']
-                    right2['duration'] = td(seconds=next_seg['duration'].total_seconds() * 0.7)
-                    right2['used'] = 'superset/right2'
-
-                    next_seg['duration'] = left2['duration']
-                    next_seg['deliveryType'] = 'temp'
-                    next_seg['percent'] = percent
-                    next_seg['rate'] = round(percent * left2['rate'], 3)
-                    next_seg['suppressed'] = left2
-                    next_seg['used'] = 'superset/next_seg'
-
-                    self.segments.append(left1)
-                    self.segments.append(right2)
+                self.segments.append(left_segment)
+                self.segments.append(right_segment)
 
 class Boluses:
     """Generate demo bolus data."""
@@ -820,6 +787,25 @@ def print_JSON(all_json, out_file, minify=False):
         try:
             t = a['utcTime']
             a['deviceTime'] = t
+        except KeyError:
+            pass
+
+        # TODO: make this configurable later, as CL option
+        this_tz = timezone('US/Pacific')
+        utc = pytz.utc
+
+        def add_time(a):
+            a['timezoneOffset'] = -420
+
+            try:
+                a['time'] = this_tz.localize(dt.strptime(a['deviceTime'], '%Y-%m-%dT%H:%M:%S')).astimezone(utc).isoformat()
+            except ValueError:
+                a['time'] = this_tz.localize(dt.strptime(a['deviceTime'], '%Y-%m-%dT%H:%M:%S.%f')).astimezone(utc).isoformat()
+            a['time'] = a['time'].replace('+00:00', '.000Z')
+
+        add_time(a)
+        try:
+            add_time(a['suppressed'])
         except KeyError:
             pass
 
