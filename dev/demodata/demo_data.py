@@ -14,7 +14,7 @@
 # == BSD2 LICENSE ==
 #
 # usage: demo_data.py [-h] [-d DEXCOM_SEGMENTS] [-m] [-n NUM_DAYS]
-#                     [-o OUTPUT_FILE] [-q]
+#                     [-o OUTPUT_FILE] [-s START_DATE] [-t] [-q]
 #
 # Generate demo diabetes data for Tidepool applications and visualizations.
 #
@@ -28,6 +28,9 @@
 #                         number of days of demo data to generate; default is 30
 #   -o OUTPUT_FILE, --output_file OUTPUT_FILE
 #                         name of output JSON file; default is device-data.json
+#   -s START_DATE, --start_date START_DATE
+#                         ISO 8601 start date default is now
+#   -t, --minify          print bare minimum fields and minify JSON
 #   -q, --quiet_messages  use this flag to turn off messages when bacon ipsum is
 #                         being slow
 
