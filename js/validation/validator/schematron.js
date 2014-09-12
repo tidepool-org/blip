@@ -66,6 +66,18 @@ module.exports = function() {
         return this;
       },
 
+      banned: function() {
+        optional = true;
+
+        fns.push(function(e) {
+          if (e !== undefined) {
+            error('Should not exist, but found [%s]', e);
+          }
+        });
+
+        return this;
+      },
+
       boolean: function() {
         fns.push(typeOf('boolean'));
 
@@ -169,7 +181,9 @@ module.exports = function() {
             }
           }
           if (errors.length > (alts.length - 1)) {
-            error('Failed all schemas %j, got [%s]', _.pluck(errors, 'message'), e);
+            error('Failed all schemas %j, got [%s]',
+              _.pluck(errors, 'message'),
+              typeof e === 'object' ? JSON.stringify(e) : e);
           }
         });
 
