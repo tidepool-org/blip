@@ -28,9 +28,8 @@ function typeOf(match) {
 
 var isAnId = matchesRegex(/^[A-Za-z0-9\-\_]+$/);
 // deviceTime is the raw, non-timezone-aware string
-var isADeviceTime = matchesRegex(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
+var isADeviceTime = matchesRegex(/^(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d)$/);
 var isoPattern = /^(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))$/;
-
 
 module.exports = function() {
   if (arguments.length > 0) {
@@ -42,9 +41,9 @@ module.exports = function() {
 
   return _.assign(
     function(e) {
-      if (optional && e == null) {
+      if (optional && e === undefined) {
         return;
-      } else if (!optional && e == null) {
+      } else if (!optional && e === undefined) {
         error('is required');
       }
 
@@ -150,6 +149,29 @@ module.exports = function() {
         if (arguments.length > 0) {
           fns.push(module.exports(arguments[0]));
         }
+
+        return this;
+      },
+
+      oneOf: function() {
+        var alts = [];
+        for (var i = 0; i < arguments.length; ++i) {
+          alts.push(module.exports(arguments[i]));
+        }
+        fns.push(function(e) {
+          var errors = [];
+          for (var i = 0; i < alts.length; ++i) {
+            try {
+              alts[i](e);
+            }
+            catch(err) {
+              errors.push(err);
+            }
+          }
+          if (errors.length > (alts.length - 1)) {
+            error('Failed all schemas %j, got [%s]', _.pluck(errors, 'message'), e);
+          }
+        });
 
         return this;
       },
