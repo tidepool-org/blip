@@ -772,7 +772,7 @@ var AppComponent = React.createClass({
       // Return message objects the visualization can use
       notes = _.map(notes, function(message) {
         return {
-          utcTime : message.timestamp,
+          time : message.timestamp,
           messageText : message.messagetext,
           parentMessage : message.parentmessage,
           type: 'message',
