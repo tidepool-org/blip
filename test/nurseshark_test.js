@@ -74,19 +74,43 @@ describe('nurseshark', function() {
     it('should return overlapping basals in the erroredData', function() {
       var now = new Date();
       var plusTen = new Date(now.valueOf() + 600000);
+      var dummyDT = '2014-01-01T12:00:00';
       var overlapping = [{
         type: 'basal',
         time: now.toISOString(),
-        duration: 1200000
+        duration: 1200000,
+        deviceTime: dummyDT,
+        normalTime: dummyDT + '.000Z'
       }, {
         type: 'basal',
         time: plusTen.toISOString(),
-        duration: 1200000
+        duration: 1200000,
+        deviceTime: dummyDT,
+        normalTime: dummyDT + '.000Z'
       }];
       var res = nurseshark.processData(overlapping).erroredData;
       expect(res.length).to.equal(1);
       expect(res[0].overlapsWith).to.eql(overlapping[0]);
       expect(res[0].errorMessage).to.equal('Basal overlaps with previous.');
+    });
+
+    it('should filter out bad deviceMeta events', function() {
+      var data = [{
+        type: 'deviceMeta'
+      }, {
+        type: 'deviceMeta',
+        annotations: [{
+          code: 'status/incomplete-tuple'
+        }]
+      }, {
+        type: 'deviceMeta',
+        annotations: [{
+          code: 'status/unknown-previous'
+        }]
+      }];
+      var res = nurseshark.processData(data);
+      expect(res.processedData.length).to.equal(1);
+      expect(res.erroredData.length).to.equal(2);
     });
 
     it('should translate cbg and smbg into mg/dL when such units specified', function() {
@@ -155,6 +179,75 @@ describe('nurseshark', function() {
       expect(res.insulinSensitivity[0].amount).to.equal(80);
       expect(res.insulinSensitivity[1].amount).to.equal(90);
     });
+
+    it('should reshape basalSchedules from an object to an array', function() {
+      var settings = [{
+        type: 'settings',
+        basalSchedules: {
+          foo: [],
+          bar: []
+        },
+        units: {
+          bg: 'mg/dL'
+        }
+      }];
+      var res = nurseshark.processData(settings).processedData;
+      assert.isArray(res[0].basalSchedules);
+    });
+  });
+
+  describe('massaging of timestamps', function() {
+    // TODO: remove after we've got tideline using timezone-aware timestamps
+    it('should Watson all data with a deviceTime', function() {
+      var dummyDT = '2014-01-01T12:00:00';
+      var data = [{
+        type: 'basal',
+        time: new Date().toISOString(),
+        deviceTime: dummyDT
+      }, {
+        type: 'bolus',
+        deviceTime: dummyDT
+      }, {
+        type: 'cbg',
+        units: 'mmol/L',
+        deviceTime: dummyDT
+      }, {
+        type: 'deviceMeta',
+        deviceTime: dummyDT
+      }, {
+        type: 'smbg',
+        units: 'mmol/L',
+        deviceTime: dummyDT
+      }, {
+        type: 'settings',
+        units: {
+          bg: 'mmol/L'
+        },
+        basalSchedules: {
+          foo: [],
+          bar: []
+        },
+        deviceTime: dummyDT,
+      }, {
+        type: 'wizard',
+        units: 'mmol/L',
+        deviceTime: dummyDT
+      }];
+      var res = nurseshark.processData(data);
+      for (var i = 0; i < res.processedData.length; ++i) {
+        var datum = res.processedData[i];
+        expect(datum.normalTime).to.match(/^(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))$/);
+      }
+    });
+
+    it('should apply the timezone offset of the environment (browser) to a message utcTime', function() {
+      var message = [{
+        type: 'message',
+        time: '2014-09-13T02:13:18.805Z'
+      }];
+      var res = nurseshark.processData(message).processedData[0];
+      expect(res.normalTime).to.equal('2014-09-12T19:13:18.805Z');
+    });
   });
 
   describe('joinWizardsAndBoluses', function() {
@@ -186,32 +279,37 @@ describe('nurseshark', function() {
     });
   });
 
-  describe('transformSuspends', function() {
-    it.skip('should be a function', function() {
-      assert.isFunction(nurseshark.transformSuspends);
-    });
-
-    it.skip('should transform a suspend interval into a temp basal of zero', function() {
-
-    });
-  });
-
   // TODO: remove this! just for development
-  describe('nurseshark on real data', function() {
+  describe('on real data', function() {
     var data = require('../example/data/blip-input.json');
-    it('should succeed', function() {
-      console.time('Nurseshark');
-      assert.isArray(nurseshark.processData(data).processedData);
-      console.timeEnd('Nurseshark');
+    it('should succeed without error', function() {
+      var res = nurseshark.processData(data);
+      assert.isArray(res.processedData);
+      expect(res.erroredData.length).to.equal(0);
     });
 
     it('how does does deep clone take?', function() {
-      console.time('DeepClone');
       var cloned = [];
       for (var i = 0; i < data.length; ++i) {
         cloned.push(_.cloneDeep(data[i]));
       }
-      console.timeEnd('DeepClone');
+    });
+  });
+
+  // TODO: remove this! just for development
+  describe('on demo data', function() {
+    var data = require('../example/data/device-data.json');
+    it('should succeed without error', function() {
+      var res = nurseshark.processData(data);
+      assert.isArray(res.processedData);
+      expect(res.erroredData.length).to.equal(0);
+    });
+
+    it('how does does deep clone take?', function() {
+      var cloned = [];
+      for (var i = 0; i < data.length; ++i) {
+        cloned.push(_.cloneDeep(data[i]));
+      }
     });
   });
 });
