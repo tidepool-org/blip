@@ -286,8 +286,6 @@ class Boluses:
 
         self.wizards = wizards
 
-        self.ratio = 15.0
-
         self.mu = 2.0
 
         self.sigma = 2.0
@@ -320,18 +318,37 @@ class Boluses:
     def _generate_meal_boluses(self):
         """Generate boluses to match generated carb counts."""
 
-        bolus = self
-
         likelihood = [0,0,0,0,1]
 
-        boluses = [{
-            'id': str(uuid.uuid4()),
-            'type': 'bolus',
-            'subType': 'normal',
-            'deviceTime': wiz['deviceTime'],
-            'joinKey': wiz['joinKey'],
-            'normal': round(float(wiz['payload']['carbInput'] / (bolus.ratio + random.choice(likelihood) * bolus._ratio_shift())), 1)}
-            for wiz in bolus.wizards.json]
+        additions = [-2.2, -1.3, -0.4, 0.5, 1.2, 1.7]
+
+        def bolus_value(wiz):
+            bolus = 0.0
+            rec = wiz['recommended']
+            if 'carbs' in rec.keys():
+                bolus += rec['carbs'] + random.choice(likelihood) * random.choice(additions)
+            if 'correction' in rec.keys():
+                bolus += rec['correction'] + random.choice(likelihood) * random.choice(additions)
+            return bolus
+
+        boluses = []
+        wizards = []
+
+        for wiz in self.wizards.json:
+            bolus = {
+                'id': str(uuid.uuid4()),
+                'type': 'bolus',
+                'subType': 'normal',
+                'deviceTime': wiz['deviceTime'],
+                'joinKey': wiz['joinKey'],
+                'normal': bolus_value(wiz)
+            }
+            if bolus['normal'] > 0:
+                boluses.append(bolus)
+                wiz['bolus'] = bolus
+                wizards.append(wiz)
+
+        self.wizards.json = wizards
 
         return boluses
 
@@ -393,7 +410,7 @@ class Boluses:
             if random.choice(quarter):
                 val, btype = self._get_value(bolus)
                 if val >= 1:
-                    bolus['programmed'] = val
+                    bolus['expected' + btype.title()] = val
                     bolus['type'] = 'bolus'
                     bolus[btype] = float(random.choice(tenths)/10.0)
 
@@ -513,6 +530,16 @@ class Wizards:
 
     def __init__(self, meals):
 
+        self.ratio = 12.0
+
+        self.isf = 60.0
+
+        self.bgTarget = {
+            "target": 100,
+            "high": 120,
+            "start": 0
+        }
+
         self.meals = meals
 
         self.json = self._meal_to_wizard()
@@ -520,12 +547,51 @@ class Wizards:
     def _meal_to_wizard(self):
         """Transform a carbs json into a wizard record."""
 
-        return [{
+        bgs = range(39, 402)
+
+        iobs = range(1,31)
+
+        biased = [0,1,1]
+
+        coin_flip = [0,1]
+
+        wizards = []
+
+        for record in self.meals.json:
+            wiz = {
+                'type': 'wizard',
                 'id': record['id'],
                 'deviceTime': record['deviceTime'],
-                'payload': {'carbInput': record['value'], 'carbUnits': record['units']},
-                'type': 'wizard',
-                'joinKey': str(uuid.uuid4())} for record in self.meals.json]
+                'joinKey': str(uuid.uuid4()),
+                'bgTarget': self.bgTarget,
+                'insulinCarbRatio': self.ratio,
+                'insulinSensitivity': self.isf,
+                'recommended': {}
+            }
+            if random.choice(biased):
+                wiz['carbInput'] = record['value']
+            if random.choice(biased):
+                wiz['bgInput'] = random.choice(bgs)
+            # wizards events can't lack *both* carbInput and bgInput
+            if 'carbInput' not in wiz.keys() and 'bgInput' not in wiz.keys():
+                wiz['carbInput'] = record['value']
+            if random.choice(coin_flip):
+                wiz['insulinOnBoard'] = round(random.choice(iobs)/10.0, 2)
+
+            if 'bgInput' in wiz.keys() and wiz['bgInput'] > self.bgTarget['high']:
+                if 'insulinOnBoard' not in wiz.keys():
+                    wiz['recommended']['correction'] = round((wiz['bgInput'] - self.bgTarget['target'])/self.isf, 1)
+                else:
+                    val = round((wiz['bgInput'] - self.bgTarget['target'])/self.isf, 1) - wiz['insulinOnBoard']
+                    wiz['recommended']['correction'] = val if val > 0 else 0.0
+
+            if 'carbInput' in wiz.keys():
+                wiz['recommended']['carb'] = round(wiz['carbInput']/self.ratio, 1)
+
+
+            wizards.append(wiz)
+
+        return wizards
 
 class Messages:
     """Generate demo messages with bacon ipsum."""
@@ -553,7 +619,7 @@ class Messages:
 
         bacon_ipsum = json.loads(request.read())[0]
 
-        return {'type': 'message', 'id': message_id, 'parentMessage': parent_message_id, 'utcTime': timestamp.isoformat()[:-7] + 'Z', 'messageText': bacon_ipsum}
+        return {'type': 'message', 'id': message_id, 'parentMessage': parent_message_id if len(parent_message_id) > 0 else None, 'time': dt.strftime(pytz.utc.localize(timestamp), '%Y-%m-%dT%H:%M:%S') + '.000Z', 'messageText': bacon_ipsum}
 
     def _generate_messages(self):
 
@@ -662,19 +728,26 @@ class SMBG:
 class Settings:
     """Generate demo settings data."""
 
-    def __init__(self, basal_schedule, carb_ratio, final, num_days):
+    def __init__(self, basal_schedule, carb_ratio, isf, final, num_days):
 
         self.schedule = basal_schedule
 
-        self.schedules = {
-            'Standard': self._schedule_to_array(self.schedule),
-            'Pattern A': self._schedule_to_array(self._mutate_schedule()),
-            'Pattern B': self._schedule_to_array(self._mutate_schedule())
-            }
+        self.schedules = [{
+            'name': 'standard',
+            'value': self._schedule_to_array(self.schedule),
+        }, {
+            'name': 'pattern a',
+            'value': self._schedule_to_array(self._mutate_schedule())
+        }, {
+            'name': 'pattern b',
+            'value': self._schedule_to_array(self._mutate_schedule())
+        }]
+
+        self.schedule_names = ['standard', 'pattern a', 'pattern b']
 
         self.ratio = carb_ratio
 
-        self.isf = 75
+        self.isf = isf
 
         self.penultimate = final + td(days=random.choice(range(-(num_days - 1),0)))
 
@@ -689,22 +762,32 @@ class Settings:
             'deviceTime': self.most_recent.isoformat()[:-7],
             'id': str(uuid.uuid4()),
             'type': 'settings',
-            'activeBasalSchedule': random.choice(self.schedules.keys()),
+            'activeBasalSchedule': random.choice(self.schedule_names),
             'basalSchedules': self.schedules,
             'carbRatio': [{'start': 0, 'amount': int(self.ratio)}],
             'insulinSensitivity': [{'start': 0, 'amount': self.isf}],
-            'bgTarget': [{'start': 0, 'high': 100, 'low': 80}]
+            'bgTarget': [{'start': 0, 'high': 100, 'low': 80}],
+            'units': {'carb': 'grams', 'bg': 'mg/dL'}
         }
+
+        new_schedules = []
+        for sched in self.schedules:
+            if sched['name'] == 'standard':
+                new_schedules.append(sched)
+            else:
+                sched['value'] = self._schedule_to_array(self._mutate_schedule())
+                new_schedules.append(sched)
 
         penultimate = {
             'deviceTime': self.penultimate.isoformat()[:-7],
             'id': str(uuid.uuid4()),
             'type': 'settings',
-            'activeBasalSchedule': random.choice(self.schedules.keys()),
-            'basalSchedules': {k:(v if k != 'Standard' else self._schedule_to_array(self._mutate_schedule())) for k,v in self.schedules.items()},
+            'activeBasalSchedule': random.choice(self.schedule_names),
+            'basalSchedules': new_schedules,
             'carbRatio': [{'start': 0, 'amount': self.ratio * 1.2}],
             'insulinSensitivity': [{'start': 0, 'amount': self.isf + 10}],
-            'bgTarget': [{'start': 0, 'high': 100, 'low': 80}]
+            'bgTarget': [{'start': 0, 'high': 100, 'low': 80}],
+            'units': {'carb': 'grams', 'bg': 'mg/dL'}
         }
 
         return [penultimate, most_recent]
@@ -774,7 +857,6 @@ def print_JSON(all_json, out_file, minify=False):
     pump_fields = ['smbg', 'carbs', 'wizard', 'bolus', 'basal', 'settings']
     units_fieds = ['cbg', 'smbg', 'carbs']
     annotation_fields = ['bolus', 'basal']
-    suspends = []
     for a in all_json:
         if not minify:
             if a['type'] in pump_fields:
@@ -786,12 +868,6 @@ def print_JSON(all_json, out_file, minify=False):
                 del a['source']
             if a['type'] in units_fieds:
                 del a['units']
-        # temporarily add a device time to messages to enable sorting
-        try:
-            t = a['utcTime']
-            a['deviceTime'] = t
-        except KeyError:
-            pass
 
         # TODO: make this configurable later, as CL option
         this_tz = timezone('US/Pacific')
@@ -806,7 +882,8 @@ def print_JSON(all_json, out_file, minify=False):
                 a['time'] = this_tz.localize(dt.strptime(a['deviceTime'], '%Y-%m-%dT%H:%M:%S.%f')).astimezone(utc).isoformat()
             a['time'] = a['time'].replace('+00:00', '.000Z')
 
-        add_time(a)
+        if a['type'] != 'message':
+            add_time(a)
         try:
             add_time(a['suppressed'])
         except KeyError:
@@ -819,15 +896,7 @@ def print_JSON(all_json, out_file, minify=False):
                 if not num:
                     a['annotations'] = [{'code': 'demo annotation'}]
 
-    all_json = _fix_floating_point(sorted(all_json + suspends, key=lambda x: x['deviceTime']))
-
-    for a in all_json:
-        # remove device time from messages
-        try:
-            utc = a['utcTime']
-            del a['deviceTime']
-        except KeyError:
-            pass
+    all_json = _fix_floating_point(sorted(all_json, key=lambda x: x['time']))
 
     with open(out_file, 'w') as f:
         if not minify:
@@ -865,15 +934,15 @@ def main():
 
     basal = Basal({}, boluses.json, meals.json)
 
-    settings = Settings(basal.schedule, boluses.ratio, dex.final, args.num_days)
+    settings = Settings(basal.schedule, wizards.ratio, wizards.isf, dex.final, args.num_days)
 
     if args.minify:
         all_json = dex.json + smbg.json + basal.json + meals.json + boluses.json
     elif args.mock or args.quiet_messages:
-        all_json = dex.json + smbg.json + basal.json + meals.json + wizards.json + boluses.json + settings.json
+        all_json = dex.json + smbg.json + basal.json + wizards.json + boluses.json + settings.json
     else:
         messages = Messages(smbg)
-        all_json = dex.json + smbg.json + basal.json + meals.json + wizards.json + boluses.json + messages.json + settings.json
+        all_json = dex.json + smbg.json + basal.json + wizards.json + boluses.json + messages.json + settings.json
 
     if not args.minify:
         print_JSON(all_json, args.output_file)
