@@ -19,13 +19,43 @@ module.exports = schema(
         }
       )
     ),
-    bgTarget: schema().array(
+    bgTarget: schema().array(schema().oneOf(
       schema(
-        {
-          low: schema().number(),
-          high: schema().number(),
-          start: schema().number().min(0).max(86400000)
-        }
+          {
+            low: schema().number(),
+            high: schema().number(),
+            range: schema().banned(),
+            start: schema().number().min(0).max(86400000),
+            target: schema().banned()
+          }
+        ),
+      schema(
+          {
+            low: schema().number(),
+            high: schema().number(),
+            range: schema().banned(),
+            start: schema().number().min(0).max(86400000),
+            target: schema().number()
+          }
+        ),
+      schema(
+          {
+            low: schema().banned(),
+            high: schema().banned(),
+            range: schema().number(),
+            start: schema().number().min(0).max(86400000),
+            target: schema().number()
+          }
+        ),
+      schema(
+          {
+            low: schema().banned(),
+            high: schema().number(),
+            range: schema().banned(),
+            start: schema().number().min(0).max(86400000),
+            target: schema().number()
+          }
+        )
       )
     ),
     carbRatio: schema().array(

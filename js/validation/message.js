@@ -4,7 +4,9 @@ var schema = require('./validator/schematron.js');
 module.exports = schema(
   common,
   {
-    parentMessage: schema().ifExists().string(),
-    utcTime: schema().isISODateTime()
+    parentMessage: schema().oneOf(
+        schema(schema().in([100])), 
+        schema(schema().isId())
+    )
   }
 );

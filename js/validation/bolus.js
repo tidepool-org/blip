@@ -1,19 +1,37 @@
 var common = require('./common.js');
 var schema = require('./validator/schematron.js');
 
-module.exports = schema(
-  common,
+var bolusCommon = schema(
   {
     deviceTime: schema().isDeviceTime(),
-    value: schema().number().min(0),
-    duration: schema().ifExists().number().min(0),
-    extended: schema().ifExists().boolean(),
-    initialDelivery: schema().ifExists().number().min(0),
-    extendedDelivery: schema().ifExists().number().min(0),
-    programmed: schema().ifExists().number().min(0),
-    recommended: schema().ifExists().number().min(0),
-    suspendedAt: schema().ifExists().string().regex(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)
-  },
-  schema.and(['extended', 'extendedDelivery']),
-  schema.with('extended', 'duration')
+  }
+);
+
+module.exports = schema(schema().oneOf(
+  schema(
+      common,
+      bolusCommon,
+      {
+        normal: schema().number().min(0),
+        expectedNormal: schema().ifExists().number().min(0),
+        duration: schema().banned(),
+        extended: schema().banned(),
+        expectedExtended: schema().banned(),
+        subType: schema().string().in(['normal'])
+      }
+    ),
+  schema(
+      common,
+      bolusCommon,
+      {
+        duration: schema().number().min(0),
+        extended: schema().number().min(0),
+        expectedExtended: schema().ifExists().number().min(0),
+        normal: schema().ifExists().number().min(0),
+        expectedNormal: schema().ifExists().number().min(0),
+        subType: schema().string().in(['square', 'dual/square'])
+      },
+      schema.with('expectedNormal', 'normal')
+    )
+  )
 );

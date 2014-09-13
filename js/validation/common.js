@@ -4,7 +4,7 @@ module.exports = schema(
   {
     id: schema().isId(),
     joinKey: schema().ifExists().isId(),
-    normalTime: schema().ifExists().isISODateTime(),
-    type: schema().string()
+    time: schema().ifExists().isISODateTime(),
+    type: schema().string().in(['basal', 'bolus', 'cbg', 'message', 'smbg', 'settings', 'wizard'])
   }
 );

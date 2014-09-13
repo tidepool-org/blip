@@ -1,11 +1,10 @@
 var _ = require('lodash');
-var async = require('async');
 var util = require('util');
 
 var joy = require('./validator/schematron');
 
 var schemas = {
-  'basal-rate-segment': require('./basal'),
+  basal: require('./basal'),
   bolus: require('./bolus'),
   cbg: require('./bg'),
   common: require('./common'),
