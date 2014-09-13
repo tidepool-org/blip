@@ -25,8 +25,5 @@ module.exports = {
     }
 
     return new Date(datetime.valueOf() + duration).toISOString();
-  },
-  difference: function(d2, d1) {
-    return new Date(d2) - new Date(d1);
   }
 };

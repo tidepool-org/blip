@@ -41,6 +41,22 @@ function isBadStatus(d) {
   }
 }
 
+function basalSchedulesToArray(basalSchedules) {
+  var schedules = [];
+  for(var key in basalSchedules) {
+    schedules.push({
+      'name': key,
+      'value': basalSchedules[key]
+    });
+  }
+  return schedules;
+}
+
+// TODO: remove after we've got tideline using timezone-aware timestamps
+function watson(d) {
+  d.normalTime = d.deviceTime + '.000Z';
+}
+
 function cloneDeep(d) {
   var newObj = {}, keys = Object.keys(d);
   var numKeys = keys.length;
@@ -56,14 +72,12 @@ function cloneDeep(d) {
   return newObj;
 }
 
-
-
 function getHandlers() {
   var lastEnd, lastBasal;
 
   return {
     basal: function(d) {
-      // TODO: determine which annotations to filter out
+      // TODO: determine which, if any, annotations to filter out
       d = cloneDeep(d);
       lastEnd = lastEnd || null;
       lastBasal = lastBasal || {};
@@ -74,6 +88,7 @@ function getHandlers() {
       }
       lastBasal = d;
       lastEnd = dt.addDuration(d.time, d.duration);
+      watson(d);
       return d;
     },
     bolus: function(d, collections) {
@@ -81,6 +96,7 @@ function getHandlers() {
       if (d.joinKey != null) {
         collections.bolusesToJoin[d.joinKey] = d;
       }
+      watson(d);
       return d;
     },
     cbg: function(d) {
@@ -88,20 +104,33 @@ function getHandlers() {
       if (d.units === 'mg/dL') {
         d.value = translateBg(d.value);
       }
+      watson(d);
       return d;
     },
     deviceMeta: function(d) {
-      // TODO: determine which annotations to filter out
-      return cloneDeep(d);
+      d = cloneDeep(d);
+      if (isBadStatus(d)) {
+        var err = new Error('Bad pump status deviceMeta.');
+        d.errorMessage = err.message;
+      }
+      watson(d);
+      return d;
     },
     message: function(d) {
-      return cloneDeep(d);
+      d = cloneDeep(d);
+      // TODO: remove after we've got tideline using timezone-aware timestamps
+      var dt = new Date(d.time);
+      var offsetMinutes = dt.getTimezoneOffset();
+      dt.setUTCMinutes(dt.getUTCMinutes() - offsetMinutes);
+      d.normalTime = dt.toISOString();
+      return d;
     },
     smbg: function(d) {
       d = cloneDeep(d);
       if (d.units === 'mg/dL') {
         d.value = translateBg(d.value);
       }
+      watson(d);
       return d;
     },
     settings: function(d) {
@@ -122,6 +151,8 @@ function getHandlers() {
           }
         }      
       }
+      d.basalSchedules = basalSchedulesToArray(d.basalSchedules);
+      watson(d);
       return d;
     },
     wizard: function(d) {
@@ -143,6 +174,7 @@ function getHandlers() {
           d.insulinSensitivity = translateBg(d.insulinSensitivity);
         }
       }
+      watson(d);
       return d;
     }
   };
