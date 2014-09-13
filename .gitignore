@@ -3,6 +3,7 @@
 *.idea
 *.iml
 *.log
+forks/
 node_modules/
 dev/demodata/indexed_segments.json
 dist/
