@@ -77,21 +77,17 @@ var PatientCard = React.createClass({
 
     /* jshint ignore:start */
     return (
-      <div className={classes}>
-        <a
-          href={this.props.href}
-          onClick={this.props.onClick}>
-          <i className="Navbar-icon icon-face-standin"></i>
-          <div className="patientcard-fullname">{patient.profile.fullName}</div>
-          <div className="clear"></div>
-        </a>
+      <a className={classes}
+        href={this.props.href}
+        onClick={this.props.onClick}>
+        <i className="Navbar-icon icon-face-standin"></i>
+        <div className="patientcard-fullname">{patient.profile.fullName}</div>
         <div className="patientcard-controls">
           {remove}
           {permissions}
         </div>
         <div className='clear'></div>
-      </div>
-
+      </a>
     );
     /* jshint ignore:end */
   }

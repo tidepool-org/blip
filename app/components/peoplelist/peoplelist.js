@@ -59,7 +59,7 @@ var PeopleList = React.createClass({
       'people-list-single': this.props.people.length === 1
     });
 
-    /* jshint ignore:start */
+      /* jshint ignore:start */
     return (
       <ul className={classes}>
         {peopleNodes}
@@ -89,7 +89,6 @@ var PeopleList = React.createClass({
             patient={person}></PatientCard>
         </li>
       );
-
       /* jshint ignore:end */
     }
 

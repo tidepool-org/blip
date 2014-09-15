@@ -60,13 +60,13 @@ var Patients = React.createClass({
 
     var content;
     var user = _.cloneDeep(this.props.user);
-    var patients = this.props.patients || [];
+    var patients = _.clone(this.props.patients) || [];
 
     if(personUtils.isPatient(user)) {
       user.permissions = {
         root: {}
       };
-      patients.push(this.props.user);
+      patients.push(user);
     }
 
     if (_.isEmpty(patients)) {
