@@ -44,11 +44,6 @@ module.exports = function(pool, opts) {
     },
     size: 16,
     pieRadius: pool.height() * 0.5,
-    defaultAnnotationOpts: {
-      lead: 'stats-insufficient-data',
-      d: {annotations: [{code: 'stats-insufficient-data'}]},
-      orientation: {up: true}
-    },
     bgUnits: 'mg/dL',
     PTiRLabels: {
       cbg: 'Time in Target Range',
@@ -334,7 +329,16 @@ module.exports = function(pool, opts) {
     }
     else {
       annotationOpts.lead = puddle.annotationOpts.lead;
-      annotationOpts.d = puddle.annotationOpts.d;
+      annotationOpts.d.annotations[0].code = puddle.annotationOpts.d.annotations[0].code;
+      // For range and average, display will be different for smbg and cbg.
+      // The possible resulting code options are (placed here for searchability):
+      // stats-how-calculated-range-cbg
+      // stats-how-calculated-range-smbg
+      // stats-how-calculated-average-cbg
+      // stats-how-calculated-average-smbg
+      if (puddle.id === 'Range' || puddle.id === 'Average') {
+        annotationOpts.d.annotations[0].code += ('-'+data.bgType);
+      }
       pool.parent().select('#tidelineAnnotations_stats').call(annotation, annotationOpts);
     }
   };
@@ -343,9 +347,11 @@ module.exports = function(pool, opts) {
     var annotationOpts = {
       x: puddle.width() * (3/16) + puddle.xPosition(),
       y: puddle.height() / 2,
-      hoverTarget: puddleGroup
+      hoverTarget: puddleGroup,
+      lead: 'stats-insufficient-data',
+      d: {annotations: [{code: 'stats-insufficient-data'}]},
+      orientation: {up: true}
     };
-    _.defaults(annotationOpts, opts.defaultAnnotationOpts);
 
     stats.updateAnnotation(annotationOpts, puddle, insufficientData);
   };
@@ -356,9 +362,11 @@ module.exports = function(pool, opts) {
     var annotationOpts = {
       x: xOffset + puddle.xPosition(),
       y: yOffset,
-      hoverTarget: puddleGroup
+      hoverTarget: puddleGroup,
+      lead: 'stats-insufficient-data',
+      d: {annotations: [{code: 'stats-insufficient-data'}]},
+      orientation: {up: true}
     };
-    _.defaults(annotationOpts, opts.defaultAnnotationOpts);
 
     stats.updateAnnotation(annotationOpts, puddle, insufficientData);
   };
