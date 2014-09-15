@@ -70,11 +70,6 @@ describe('watson', function() {
     it('should add a normalEnd + APPEND when type is basal-rate-segment', function() {
       expect(watson.normalize(segment).normalEnd).to.equal(segment.end + APPEND);
     });
-
-    it('should throw an exception if argument is undefined', function() {
-      var fn = function() { watson.normalize(undefined); };
-      expect(fn).to.throw('Watson choked on an undefined.');
-    });
   });
 
   describe('normalizeAll', function() {

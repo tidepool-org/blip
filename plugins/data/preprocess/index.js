@@ -18,9 +18,11 @@
 var _ = require('lodash');
 var tideline = require('../../../js/index');
 var watson = require('../watson');
-var TidelineData = tideline.TidelineData;
 var SegmentUtil = tideline.data.SegmentUtil;
+var TidelineData = tideline.TidelineData;
 var datetime = tideline.data.util.datetime;
+var validate = tideline.validation.validate;
+var pureValidate = tideline.validation.pureValidate;
 
 var log = require('bows')('Preprocess');
 
@@ -108,10 +110,6 @@ var TYPES_TO_INCLUDE = {
 };
 
 var preprocess = {
-
-  REQUIRED_TYPES: ['basal-rate-segment', 'bolus', 'wizard', 'cbg', 'message', 'smbg', 'settings'],
-
-  OPTIONAL_TYPES: [],
 
   MMOL_STRING: 'mmol/L',
 
@@ -346,10 +344,22 @@ var preprocess = {
     data = withTiming('translateMmol', this.translateMmol.bind(this), data);
     data = withTiming('sortBasalSchedules', this.sortBasalSchedules.bind(this), data);
     data = withTiming('appendBolusToWizard', this.appendBolusToWizard.bind(this), data);
+    
+    log('Number of items to validate:', data.length);
+    console.time('Validation');
+    var validated = validate.validateAll(data);
+    var result = _.countBy(data, function(d) {
+      if (d.errorMessage) {
+        return 'invalid';
+      }
+      return 'valid';
+    });
+    log('Data validated.');
+    log('Items validated:', result.valid);
+    log('Items found invalid:', result.invalid || 0);
+    console.timeEnd('Validation');
 
-    var tidelineData = this.checkRequired(new TidelineData(data));
-
-    return tidelineData;
+    return validated;
   }
 };
 

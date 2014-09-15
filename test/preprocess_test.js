@@ -28,17 +28,6 @@ var Preprocess = require('../plugins/data/preprocess/');
 var settings = require('./fixtures/settings.json');
 
 describe('Preprocess', function() {
-  describe('REQUIRED_TYPES', function() {
-    it('should be an array', function() {
-      assert.isArray(Preprocess.REQUIRED_TYPES);
-    });
-  });
-
-  describe('OPTIONAL_TYPES', function() {
-    it('should be an array', function() {
-      assert.isArray(Preprocess.OPTIONAL_TYPES);
-    });
-  });
 
   describe('MMOL_STRING', function() {
     it('should be a string', function() {
