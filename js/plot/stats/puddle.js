@@ -39,11 +39,14 @@ module.exports = function(opts) {
   }
 
   puddle.dataDisplay = function(selection, display) {
+    // the main (large) number of each puddle is the 'data display'
+    // which is anchored with a central baseline 80% down from the top of the pool
+    var dataDisplayHeight = opts.height * 4/5;
     selection.selectAll('text.d3-stats-display').remove();
     var displayGroup = selection.append('text')
       .attr({
         'x': opts.xOffset,
-        'y': opts.height,
+        'y': dataDisplayHeight,
         'class': 'd3-stats-display'
       });
 
@@ -65,10 +68,13 @@ module.exports = function(opts) {
   });
 
   puddle.addLead = _.once(function(selection) {
+    // the lead text is the sub-headline text
+    // which is anchored with a normal baseline 45% down from the top of the pool
+    var leadHeight = opts.height * 0.45;
     selection.append('text')
       .attr({
         'x': opts.xOffset,
-        'y': opts.height * 0.45,
+        'y': leadHeight,
         'class': 'd3-stats-lead'
       })
       .text(opts.lead);

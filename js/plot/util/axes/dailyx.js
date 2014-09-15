@@ -25,10 +25,10 @@ var log = require('bows')('DailyX');
 module.exports = function(pool, opts) {
 
   var defaults = {
-    dayShiftY: 2,
     textShiftX: 5,
     textShiftY: 5,
-    tickLength: 15
+    tickLength: 15,
+    longTickMultiplier: 2.5
   };
 
   opts = _.defaults(opts || {}, defaults);
@@ -44,7 +44,7 @@ module.exports = function(pool, opts) {
       x: opts.leftEdge,
       // this is the same as dailyx.dayYPosition
       // we just don't have a datum to pass here
-      y: pool.height() - opts.tickLength * 2.5 + opts.dayShiftY
+      y: pool.height() - opts.tickLength * opts.longTickMultiplier
     });
 
   opts.emitter.on('zoomstart', function() {
@@ -128,13 +128,13 @@ module.exports = function(pool, opts) {
   };
 
   dailyx.dayYPosition = function(d) {
-    return dailyx.tickLength(d) + opts.dayShiftY;
+    return dailyx.tickLength(d);
   };
 
   dailyx.tickLength = function(d) {
     var dt = new Date(d.normalTime);
     if (dt.getUTCHours() === 0) {
-      return pool.height() - opts.tickLength * 2.5;
+      return pool.height() - opts.tickLength * opts.longTickMultiplier;
     }
     else return pool.height() - opts.tickLength;
   };

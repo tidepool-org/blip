@@ -67,7 +67,7 @@ var shapes = {
     },
     addText: function(selection, opts) {
       var used = selection.select('use');
-      var boundingBox = used[0][0].getBBox();
+      var boundingBox = used[0][0].getBoundingClientRect();
       var usedTransform = used.attr('transform').split(' ');
       selection.append('text')
         .attr({

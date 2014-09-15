@@ -83,8 +83,8 @@ describe('one-day view', function() {
       describe('labels and legends', function() {
         describe('bg pool', function() {
           it('should have a label', function() {
-            expect(container.find('#poolBG_label_0').size()).to.be.above(0);
-            expect(container.find('#poolBG_label_0').html()).to.equal('Blood Glucose<tspan> mg/dL</tspan>');
+            expect(container.find('#poolBG_label').size()).to.be.above(0);
+            expect(container.find('#poolBG_label').html()).to.equal('<tspan class="main">Blood Glucose</tspan><tspan class="light"> mg/dL</tspan>');
           });
 
           it('should have a legend', function() {
@@ -94,10 +94,8 @@ describe('one-day view', function() {
 
         describe('carbs and bolus pool', function() {
           it('should have a label', function() {
-            expect(container.find('#poolBolus_label_0').size()).to.be.above(0);
-            expect(container.find('#poolBolus_label_0').html()).to.equal('Bolus<tspan> u</tspan>');
-            expect(container.find('#poolBolus_label_1').size()).to.be.above(0);
-            expect(container.find('#poolBolus_label_1').html()).to.equal(' &amp; Carbohydrates<tspan> g</tspan>');
+            expect(container.find('#poolBolus_label').size()).to.be.above(0);
+            expect(container.find('#poolBolus_label').html()).to.equal('<tspan class="main">Bolus</tspan><tspan class="light"> u</tspan><tspan class="main"> &amp; Carbohydrates</tspan><tspan class="light"> g</tspan>');
           });
 
           it('should have legends', function() {
@@ -108,8 +106,8 @@ describe('one-day view', function() {
 
         describe('basal pool', function() {
           it('should have a label', function() {
-            expect(container.find('#poolBasal_label_0').size()).to.be.above(0);
-            expect(container.find('#poolBasal_label_0').html()).to.equal('Basal Rates<tspan> u/hr</tspan>');
+            expect(container.find('#poolBasal_label').size()).to.be.above(0);
+            expect(container.find('#poolBasal_label').html()).to.equal('<tspan class="main">Basal Rates</tspan><tspan class="light"> u/hr</tspan>');
           });
 
           it('should have a legend', function() {
@@ -117,7 +115,7 @@ describe('one-day view', function() {
           });
         });
       });
-    }, 300);
+    }, 600);
 
     describe('cbg data', function() {
       it('should display cbgs with radius 2.5', function() {

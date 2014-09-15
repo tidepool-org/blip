@@ -27,7 +27,7 @@ var log = require('bows')('Pool');
 
 function Pool (container) {
 
-  var id, label, legends = [],
+  var id, label, labelBaseline = 4, legends = [],
     index, weight, gutterWeight, hidden = false, yPosition,
     height, minHeight = 20, maxHeight = 300,
     group,
@@ -112,32 +112,22 @@ function Pool (container) {
   // only once methods
   this.drawLabel = _.once(function() {
     label = label || [];
-    var labels = [], widths = [];
+
+    var htmlString = '';
     if (label.length > 0) {
-      _.each(label, function(l, i) {
-        labels.push(
-          mainSVG.select('#tidelineLabels')
-          .append('text')
-          .attr({
-            'id': id + '_label_' + i,
-            'class': 'd3-pool-label'
-          })
-          .text(l.main));
-      });
-      var currentX = container.axisGutter();
-      _.each(labels, function(l, i) {
-        l.append('tspan')
-          .text(label[i].light)
-          .each(function() {
-            widths.push(this.getBBox().width);
-          });
-        if (widths[i - 1]) {
-          currentX = currentX + widths[i - 1];
-        }
-        l.attr({
-          'xml:space': 'preserve',
-          'transform': 'translate(' + currentX  + ',' + yPosition + ')'
+      var labelGroup = mainSVG.select('#tidelineLabels').append('text')
+        .attr({
+          id: id + '_label',
+          'class': 'd3-pool-label',
+          'transform': 'translate(' + container.axisGutter() + ',' + (yPosition-labelBaseline) + ')'
         });
+      _.each(label, function(l) {
+        labelGroup.append('tspan')
+          .attr('class', 'main')
+          .text(l.main);
+        labelGroup.append('tspan')
+          .attr('class', 'light')
+          .text(l.light);
       });
     }
 
@@ -154,7 +144,7 @@ function Pool (container) {
         .append('g')
         .attr({
           'id': id + '_legend_' + l,
-          'transform': 'translate(' + w + ',' + yPosition + ')'
+          'transform': 'translate(' + w + ',' + (yPosition-labelBaseline) + ')'
         });
       w -= legend.draw(legendGroup, l).width + legend.SHAPE_MARGIN*2;
     });
@@ -192,6 +182,12 @@ function Pool (container) {
   this.label = function(o) {
     if (!arguments.length) return label;
     label = o;
+    return this;
+  };
+
+  this.labelBaseline = function(x) {
+    if (!arguments.length) return labelBaseline;
+    labelBaseline = x;
     return this;
   };
 

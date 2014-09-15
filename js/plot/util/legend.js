@@ -42,8 +42,8 @@ var legend = {
           })
           .text('delivered')
           .each(function() {
-            opts.widths.push(this.getBBox().width);
-            opts.textHeight = this.getBBox().height;
+            opts.widths.push(this.getBoundingClientRect().width);
+            opts.textHeight = this.getBoundingClientRect().height;
           });
       },
       type: 'text'
@@ -66,7 +66,7 @@ var legend = {
           })
           .text('scheduled')
           .each(function() {
-            opts.widths.push(this.getBBox().width);
+            opts.widths.push(this.getBoundingClientRect().width);
           });
       },
       type: 'text'
@@ -81,8 +81,8 @@ var legend = {
           })
           .text('high')
           .each(function() {
-            opts.widths.push(this.getBBox().width);
-            opts.textHeight = this.getBBox().height;
+            opts.widths.push(this.getBoundingClientRect().width);
+            opts.textHeight = this.getBoundingClientRect().height;
           });
       },
       type: 'text'
@@ -145,7 +145,7 @@ var legend = {
           })
           .text('low')
           .each(function() {
-            opts.widths.push(this.getBBox().width);
+            opts.widths.push(this.getBoundingClientRect().width);
           });
       },
       type: 'text'
@@ -170,8 +170,8 @@ var legend = {
           })
           .text('delivered')
           .each(function() {
-            opts.widths.push(this.getBBox().width);
-            opts.textHeight = this.getBBox().height;
+            opts.widths.push(this.getBoundingClientRect().width);
+            opts.textHeight = this.getBoundingClientRect().height;
           });
       },
       type: 'text'
@@ -192,10 +192,10 @@ var legend = {
           .attr({
             'class': 'd3-pool-legend'
           })
-          .text('recommended')
+          .text('undelivered')
           .each(function() {
-            opts.widths.push(this.getBBox().width);
-            opts.textHeight = this.getBBox().height;
+            opts.widths.push(this.getBoundingClientRect().width);
+            opts.textHeight = this.getBoundingClientRect().height;
           });
       },
       type: 'text'
@@ -220,8 +220,8 @@ var legend = {
           })
           .text('carbs')
           .each(function() {
-            opts.widths.push(this.getBBox().width);
-            opts.textHeight = this.getBBox().height;
+            opts.widths.push(this.getBoundingClientRect().width);
+            opts.textHeight = this.getBoundingClientRect().height;
           });
       },
       type: 'text'
@@ -259,7 +259,7 @@ var legend = {
           var r = (this.SHAPE_WIDTH - this.SHAPE_MARGIN*2)/2;
           created.attr({
             'cx': -(w + 2*r),
-            'cy': -opts.textHeight/2,
+            'cy': -opts.textHeight/4,
             'r': r
           });
         }
@@ -284,11 +284,14 @@ var legend = {
       }
     }, this);
     if (type !== 'bg') {
+      // a y-attribute of 0 would put the top of the rects *at* the text baseline
+      // so an upward (negative) shift of half the shape width works well
+      var baselineShift = -(this.SHAPE_WIDTH/2 + this.SHAPE_MARGIN);
       selection.selectAll('rect')
-        .attr('y', -(opts.textHeight - this.SHAPE_MARGIN*2));
+        .attr('y', baselineShift);
     }
     var w;
-    selection.each(function() { w = this.getBBox(); });
+    selection.each(function() { w = this.getBoundingClientRect(); });
     return w;
   }
 };
