@@ -119,6 +119,7 @@ var Example = React.createClass({
   },
   updateData: function(data) {
     var tidelineData = new TidelineData(data);
+    window.tidelineData = tidelineData;
     this.setState({
       chartData: tidelineData,
       chartType: 'daily'
