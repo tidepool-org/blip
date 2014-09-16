@@ -359,6 +359,7 @@ var AppComponent = React.createClass({
   showPatients: function() {
     this.renderPage = this.renderPatients;
     this.setState({page: 'patients'});
+    this.fetchInvites();
     this.fetchPatients();
     trackMetric('Viewed Care Team List');
   },
@@ -371,6 +372,8 @@ var AppComponent = React.createClass({
           fetchingUser={this.state.fetchingUser}
           patients={this.state.patients}
           fetchingPatients={this.state.fetchingPatients}
+          invites={this.state.invites}
+          fetchingInvites={this.state.fetchingInvites}
           showingWelcomeMessage={this.state.showingWelcomeMessage}
           onSetAsCareGiver={this.setUserAsCareGiver}
           trackMetric={trackMetric}/>
@@ -681,6 +684,25 @@ var AppComponent = React.createClass({
       self.setState({
         user: user,
         fetchingUser: false
+      });
+    });
+  },
+
+  fetchInvites: function() {
+    var self = this;
+
+    self.setState({fetchingInvites: true});
+
+    api.invitation.getReceived(function(err, invites) {
+      if (err) {
+        var message = 'Something went wrong while fetching invitations';
+
+        return self.handleApiError(err, message);
+      }
+
+      self.setState({
+        invites: invites,
+        fetchingPatients: false
       });
     });
   },
