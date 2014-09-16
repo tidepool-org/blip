@@ -92,63 +92,59 @@
   text-decoration: none;
 
   &:hover,
-  &:focus {
+  &:focus,
+  &:active {
     color: @gray-darkest;
     text-decoration: none;
   }
-
-  &:active {
-    color: @gray;
-  }
 }
 
-.Navbar-button--leftLabel {
+.Navbar-button--withLeftLabelAndArrow {
+  // No idea why, but this makes the button keep correct height
   display: flex;
 
-  // Hack to give room to things on the right
   margin-right: 8px;
 }
 
-.Navbar-labelContent {
-  // All label content blocks need to have this so they align vertically
-  // Note: "text-overflow: ellipsis" will only trigger if you set a "max-width"
-  display: inline-block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  // Necessary when using text-overflow, according to SO
-  white-space: nowrap;
-
+.Navbar-label {
   color: #fff;
   background-color: @gray-dark;
 
   .Navbar-button:hover &,
-  .Navbar-button:focus & {
-    background-color: @gray-darkest;
-  }
-
+  .Navbar-button:focus &,
   .Navbar-button:active & {
-    background-color: @gray;
+    background-color: @gray-darkest;
   }
 }
 
-.Navbar-leftLabelArrow {
-  width: 0;
-  height: 0;
-  border-top: (@Navbar-buttonHeight/2) solid transparent;
-  border-bottom: (@Navbar-buttonHeight/2) solid transparent;
+.Navbar-label--left {
+  padding-left: 20px;
+  padding-right: 5px;
+}
 
-  border-left: 10px solid @gray-dark;
-  background: none;
+// http://cssarrowplease.com/
+.Navbar-label--left.Navbar-label--withArrow {
+  position: relative;
+  margin-right: @Navbar-buttonHeight/2;
 
-  .Navbar-button:hover &,
-  .Navbar-button:focus & {
-    border-left-color: @gray-darkest;
-    background: none;
+  &:after {
+  	left: 100%;
+  	top: 50%;
+  	border: solid transparent;
+  	content: " ";
+  	height: 0;
+  	width: 0;
+  	position: absolute;
+  	pointer-events: none;
+	  border-left-color: @gray-dark;
+  	border-width: @Navbar-buttonHeight/2;
+  	margin-top: -@Navbar-buttonHeight/2;
   }
 
-  .Navbar-button:active & {
-    border-left-color: @gray;
-    background: none;
+  .Navbar-button:hover &:after,
+  .Navbar-button:focus &:after,
+  .Navbar-button:active &:after {
+    border-left-color: @gray-darkest;
   }
 }
 
@@ -173,17 +169,26 @@
   list-style: none;
 }
 
+
 .Navbar-loggedInAs {
-  padding-left: 20px;
-  padding-right: 5px;
+  // Everything inside the label needs to have
+  // so it aligns correctly with the text that has "overflow ellipsis"
+  // Note: setting "max-width" triggers the ellipsis
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  margin-right: 5px;
 }
 
 .Navbar-userName {
-  padding-right: 5px;
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 
-  // Set width to trigger "text-overflow: ellipsis"
-  // Make sure to take into account padding
-  max-width: (180px + 5px);
+  max-width: 180px;
 }
 
 .Navbar-menuItem .Navbar-icon {
@@ -194,12 +199,12 @@
 // ====================================
 
 .Navbar-patientName {
-  padding-left: 20px;
-  padding-right: 5px;
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 
-  // Set width to trigger "text-overflow: ellipsis"
-  // Make sure to take into account padding
-  max-width: (180px + 20px + 5px);
+  max-width: 180px;
 }
 
 @Navbar-patientPictureSize: 60px;

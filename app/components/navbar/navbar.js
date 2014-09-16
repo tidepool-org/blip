@@ -93,10 +93,9 @@ var Navbar = React.createClass({
 
     return (
       <div className="Navbar-patientSection" ref="patient">
-        <a href={patientUrl} onClick={handleClick} className="Navbar-button Navbar-button--leftLabel">
-          <div className="Navbar-label">
-            <span className="Navbar-labelContent Navbar-patientName">{displayName}</span>
-            <span className="Navbar-labelContent Navbar-leftLabelArrow"></span>
+        <a href={patientUrl} onClick={handleClick} className="Navbar-button Navbar-button--withLeftLabelAndArrow">
+          <div className="Navbar-label Navbar-label--left Navbar-label--withArrow">
+            <span className="Navbar-patientName">{displayName}</span>
           </div>
         </a>
         <div className="Navbar-patientPicture"></div>
@@ -154,11 +153,10 @@ var Navbar = React.createClass({
     return (
       <ul className="Navbar-menuSection" ref="user">
         <li className="Navbar-menuItem">
-          <a href="#/profile" title="Account" onClick={handleClickUser} className="Navbar-button Navbar-button--leftLabel">
-            <div className="Navbar-label">
-              <span className="Navbar-labelContent Navbar-loggedInAs">Logged in as</span>
-              <span className="Navbar-labelContent Navbar-userName" ref="userFullName">{displayName}</span>
-              <span className="Navbar-labelContent Navbar-leftLabelArrow"></span>
+          <a href="#/profile" title="Account" onClick={handleClickUser} className="Navbar-button Navbar-button--withLeftLabelAndArrow">
+            <div className="Navbar-label Navbar-label--left Navbar-label--withArrow">
+              <span className="Navbar-loggedInAs">{'Logged in as '}</span>
+              <span className="Navbar-userName" ref="userFullName">{displayName}</span>
             </div>
             <i className="Navbar-icon icon-profile"></i>
           </a>
