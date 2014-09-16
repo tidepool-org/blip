@@ -36,6 +36,7 @@ module.exports = function(opts) {
   function puddle(selection, txt) {
     selection.call(puddle.addHead);
     selection.call(puddle.addLead);
+    selection.call(puddle.addHoverRect);
   }
 
   puddle.dataDisplay = function(selection, display) {
@@ -78,6 +79,21 @@ module.exports = function(opts) {
         'class': 'd3-stats-lead'
       })
       .text(opts.lead);
+  });
+
+  // Creates a hidden rectangle for capturing hover events for the entire
+  // puddle. This is necessary because SVG g elements don't trigger hover
+  // events on their own.
+  puddle.addHoverRect = _.once(function(selection) {
+    selection.append('rect')
+      .attr('class', 'd3-hover-capture')
+      .style('visibility', 'hidden')
+      .attr({
+        'x': 0,
+        'y': 0,
+        'width': puddle.width(),
+        'height': puddle.height()
+      })
   });
 
   puddle.xPosition = function(x) {

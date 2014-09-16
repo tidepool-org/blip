@@ -145,12 +145,16 @@ module.exports = function(pool, opts) {
     puddles.forEach(function(puddle, i) {
       currentWeight += puddle.weight;
       puddle.width((puddle.weight/cumWeight) * pool.width());
+      puddle.height(pool.height());
       var puddleGroup = widgetGroup.append('g')
         .attr({
           transform: 'translate(' + currX + ',0)',
           class: 'd3-stats',
           id: 'puddle_' + puddle.id
-        });
+        })
+        // This is needed to capture hover events from the hidden 
+        // rectangle in the puddle.
+        .style('pointer-events', 'all');
       puddle.xPosition(currX);
       currX = (currentWeight / cumWeight) * pool.width();
       puddleGroup.call(puddle);
