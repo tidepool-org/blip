@@ -13,27 +13,39 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+.PatientPage {
+  margin-right: auto;
+  margin-left: auto;
+  margin-bottom: 40px;
+
+  @media(min-width: @screen-lg-min) {
+    width: @screen-lg-min;
+    padding-left: @spacing-base;
+    padding-right: @spacing-base;
+  }
+}
+
 // Subnav
 // ====================================
 
-@patient-subnav-vertical-padding:  @spacing-small;
+@PatientPage-subnavPadding:  10px;
 
-.patient-subnav-inner {
+.PatientPage-subnav {
   color: #fff;
   background-color: @gray-dark;
 }
 
-.patient-subnav-title {
-  padding-top: @patient-subnav-vertical-padding;
-  padding-bottom: @patient-subnav-vertical-padding;
+.PatientPage-subnavTitle {
+  padding-top: @PatientPage-subnavPadding;
+  padding-bottom: @PatientPage-subnavPadding;
 
   text-align: center;
 }
 
-.patient-subnav a {
+.PatientPage-subnav a {
   display: inline-block;
-  padding-top: @patient-subnav-vertical-padding;
-  padding-bottom: @patient-subnav-vertical-padding;
+  padding-top: @PatientPage-subnavPadding;
+  padding-bottom: @PatientPage-subnavPadding;
 
   color: #fff;
   text-decoration: none;
@@ -52,95 +64,126 @@
 // Content
 // ====================================
 
-@patient-content-width:            480px;
-@patient-content-breakpoint:       @screen-lg-min;
+.PatientPage-content {
+  padding-top: 30px;
+  padding-bottom: 140px;
+  padding-left: 150px;
+  padding-right: 150px;
 
-.patient-content-outer {
-  margin-bottom: @spacing-large;
-}
-
-.patient-content-inner {
   background-color: #fff;
-
-  padding-top: @spacing-base;
-  padding-bottom: @spacing-large;
 }
 
-.patient-content {
-  @media(min-width: @patient-content-breakpoint) {
-    margin-left: auto;
-    margin-right: auto;
-    width: @patient-content-width;
+.PatientPage-sectionTitle {
+  color: #808080;
+  text-transform: uppercase;
+}
+
+// Footer
+// ====================================
+
+.PatientPage-footer {
+  background-color: @gray-light;
+  height: 40px;
+}
+
+// Patient info
+// ====================================
+
+.PatientPage-infoSection {
+  padding-bottom: 5px;
+  border-bottom: 1px solid @gray-dark;
+}
+
+.PatientPage-info {
+  font-size: 14px;
+  line-height: 20px;
+  color: #545454;
+
+  padding-top: 40px;
+  padding-left: 140px;
+  padding-right: 140px;
+}
+
+.PatientPage-infoHead {
+  .clearfix();
+  margin-bottom: 10px;
+}
+
+@PatientPage-infoPictureSize: 90px;
+
+.PatientPage-infoPicture {
+  float: left;
+  margin-right: 30px;
+
+  background-image: url('images/profile-180x180.png');
+  background-repeat: no-repeat;
+  background-size: @PatientPage-infoPictureSize;
+  width: @PatientPage-infoPictureSize;
+  height: @PatientPage-infoPictureSize;
+}
+
+.PatientPage-infoBlocks {
+  // Makes text stay aligned on the right
+  // and doesn't wrap under floating picture
+  display: table-cell;
+  // Force element to stretch to width of outer box
+  width: 10000px;
+
+  padding-top: 10px;
+}
+
+.PatientPage-infoBlocks .PatientPage-infoBlockRow:not(:last-of-type) {
+  margin-bottom: 10px;
+}
+
+@PatientPage-infoBlockHeight: 20px;
+
+.PatientPage-infoBlock {
+  display: inline-block;
+  line-height: @PatientPage-infoBlockHeight;
+  color: #fff;
+  background-color: @gray-dark;
+  padding-left: 8px;
+  padding-right: 24px;
+}
+
+// http://cssarrowplease.com/
+.PatientPage-infoBlock--withArrow {
+  position: relative;
+
+  &:after {
+  	right: 100%;
+  	top: 50%;
+  	border: solid transparent;
+  	content: " ";
+  	height: 0;
+  	width: 0;
+  	position: absolute;
+  	pointer-events: none;
+  	border-color: rgba(152, 152, 151, 0);
+	  border-right-color: @gray-dark;
+  	border-width: @PatientPage-infoBlockHeight/2;
+  	margin-top: -@PatientPage-infoBlockHeight/2;
   }
 }
 
-.patient-content-link {
-  text-align: center;
-  margin-bottom: @spacing-small;
+.PatientPage-infoBlock--placeholder {
+  width: 110px;
 }
 
-.patient-content-link a {
-  font-weight: bold;
-  color: @gray-dark;
-  text-decoration: none;
+.PatientPage-infoBio--placeholder {
+  height: 40px;
+}
 
-  &:hover,
-  &:focus {
-    color: @gray-darkest;
+.PatientPage-infoEdit {
+  height: 20px;
+  font-size: 12px;
+  line-height: 20px;
+  text-align: right;
+  padding: 0 5px;
+
+  & a {
+    color: #545454;
     text-decoration: none;
   }
-
-  &:active {
-    color: @gray;
-  }
-}
-
-.patient-content-link-help {
-  font-size: 12px;
-  line-height: 18px;
-  font-style: italic;
-  color: @gray-dark;
-}
-
-// Patient attributes
-// ====================================
-
-.patient-attribute {
-  margin-bottom: @spacing-base;
-}
-
-.patient-attribute-empty .patient-attribute-value {
-  min-height: @line-height-base;
-}
-
-.patient-attribute-label {
-  color: @gray;
-  font-size: 14px;
-}
-
-// Patient team
-// ====================================
-
-.patient-team {
-  margin-top: @spacing-large;
-  margin-bottom: @spacing-large;
-}
-
-.patient-team-title {
-  padding: 0 @spacing-small;
-  margin-bottom: @spacing-small;
-  text-align: center;
-}
-
-.patient-team-message {
-  color: @gray-dark;
-  font-weight: 300;
-  text-align: center;
-
-  margin-top: @spacing-base;
-  margin-bottom: @spacing-base;
-}
-
-.patient-team-message-small {
-  font-size: 14px;
 }
