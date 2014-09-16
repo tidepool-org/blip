@@ -99,7 +99,7 @@ var Patients = React.createClass({
     }
 
     var title = this.renderSectionTitle('DASHBOARD');
-
+    var welcome = this.renderUserPatientWelcome();
     /* jshint ignore:start */
     return (
       <div className="container-box-inner patients-section js-patients-shared">
@@ -113,6 +113,7 @@ var Patients = React.createClass({
             <i className="icon-add"></i>
           </a>
           <div className='clear'></div>
+          {welcome}
           {content}
         </div>
       </div>
@@ -132,7 +133,20 @@ var Patients = React.createClass({
     );
     /* jshint ignore:end */
   },
+  renderUserPatientWelcome: function() {
+    if (!this.props.showingWelcomeMessage) {
+      return null;
+    }
 
+    /* jshint ignore:start */
+    return (
+      <div className="patients-welcome-message">
+        {'Will you be uploading data from devices at home? If you are an adult with T1D or the'}
+        {' mom or dad of a child with T1D, then this is for you. Go ahead and…'}
+      </div>
+    );
+    /* jshint ignore:end */
+  },
   renderLoadingIndicator: function() {
     if (this.isResettingUserData() && this.isResettingPatientsData()) {
       /* jshint ignore:start */
