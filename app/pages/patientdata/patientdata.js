@@ -19,8 +19,6 @@ var _ = require('lodash');
 var moment = require('moment');
 var bows = require('bows');
 
-var watson = require('tideline/plugins/data/watson');
-
 var config = require('../../config');
 
 var utils = require('../../core/utils');
@@ -322,16 +320,24 @@ var PatientData = React.createClass({
     this.props.trackMetric('Closed New Message Modal');
   },
 
+  // TODO: remove once have tideline speaking UTC properly!
+  watsonMessageTimestamp: function(message) {
+    var offset = new Date().getTimezoneOffset();
+    var messageTime = new Date(message.time);
+    message.normalTime = new Date(messageTime.setUTCMinutes(messageTime.getUTCMinutes() - offset)).toISOString();
+    return message;
+  },
+
   handleMessageCreation: function(message){
     // transform to Tideline's own format
     var tidelineMessage = {
-        utcTime : message.timestamp,
+        time : message.timestamp,
         messageText : message.messagetext,
         parentMessage : message.parentmessage,
         type: 'message',
         id: message.id
       };
-    var transformedMessage = watson.normalize(tidelineMessage);
+    var transformedMessage = this.watsonMessageTimestamp(tidelineMessage);
     var data = this.refs.tideline.createMessageThread(transformedMessage);
     this.props.onUpdatePatientData(data);
     this.props.trackMetric('Created New Message');
@@ -352,13 +358,13 @@ var PatientData = React.createClass({
     }
     // transform to Tideline's own format
     var tidelineMessage = {
-        utcTime : message.timestamp,
+        time : message.timestamp,
         messageText : message.messagetext,
         parentMessage : message.parentmessage,
         type: 'message',
         id: message.id
       };
-    var transformedMessage = watson.normalize(tidelineMessage);
+    var transformedMessage = this.watsonMessageTimestamp(tidelineMessage);
     var data = this.refs.tideline.editMessageThread(transformedMessage);
     this.props.onUpdatePatientData(data);
     this.props.trackMetric('Edit To Message');
