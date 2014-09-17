@@ -20,6 +20,7 @@ var _ = require('lodash');
 var async = require('async');
 
 var nurseShark = require('tideline/plugins/nurseshark/');
+var TidelineData = require('tideline/js/tidelinedata');
 
 var config = require('./config');
 var router = require('./router');
@@ -819,14 +820,18 @@ var AppComponent = React.createClass({
       return null;
     }
 
-    var processedData = nurseShark.processData(data);
+    var res = nurseShark.processData(data);
+    var sorted = _.sortBy(res.processedData, function(d) {
+      return d.normalTime;
+    });
+    var tidelineData = new TidelineData(sorted);
 
-    window.tidelineData = processedData;
+    window.tidelineData = tidelineData;
     window.downloadProcessedData = function() {
-      console.save(processedData);
+      console.save(res.processedData);
     };
 
-    return processedData;
+    return tidelineData;
   },
 
   fetchCurrentPatientData: function() {
