@@ -238,7 +238,9 @@ function SMBGTime (opts) {
     var getBgBoundaryClass = bgBoundaryClass(opts.classes);
     var cssClass = getBgBoundaryClass(d);
     var smbg = this;
-    var days = mainGroup.select('#daysGroup').node().children;
+    // can't use a simple select(#daysGroup) because of a Safari bug
+    // helpful! https://gist.github.com/enjalot/1473597
+    var days = mainGroup.selectAll('#daysGroup')[0][0].childNodes;
     var lastDay = d3.select(days[days.length - 1]);
     var translation = parseInt(lastDay.attr('transform').replace('translate(0,', '').replace(')',''),10);
     var res = tooltips.addForeignObjTooltip({
