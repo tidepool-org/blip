@@ -158,10 +158,10 @@ describe('nurseshark', function() {
           bg: 'mg/dL',
           carb: 'grams'
         },
-        bgTarget: {
+        bgTarget: [{
           target: 6.66089758925464,
           range: 10
-        },
+        }],
         insulinSensitivity: [
           {
             amount: 4.440598392836427,
@@ -174,8 +174,8 @@ describe('nurseshark', function() {
         ]
       }];
       var res = nurseshark.processData(settings).processedData[0];
-      expect(res.bgTarget.target).to.equal(120);
-      expect(res.bgTarget.range).to.equal(10);
+      expect(res.bgTarget[0].target).to.equal(120);
+      expect(res.bgTarget[0].range).to.equal(10);
       expect(res.insulinSensitivity[0].amount).to.equal(80);
       expect(res.insulinSensitivity[1].amount).to.equal(90);
     });
@@ -241,12 +241,14 @@ describe('nurseshark', function() {
     });
 
     it('should apply the timezone offset of the environment (browser) to a message utcTime', function() {
+      var offset = new Date().getTimezoneOffset();
       var message = [{
         type: 'message',
         time: '2014-09-13T02:13:18.805Z'
       }];
+      var messageTime = new Date(message[0].time);
       var res = nurseshark.processData(message).processedData[0];
-      expect(res.normalTime).to.equal('2014-09-12T19:13:18.805Z');
+      expect(res.normalTime).to.equal(new Date(messageTime.setUTCMinutes(messageTime.getUTCMinutes() - offset)).toISOString());
     });
   });
 
@@ -282,7 +284,7 @@ describe('nurseshark', function() {
   // TODO: remove this! just for development
   describe('on real data', function() {
     var data = require('../example/data/blip-input.json');
-    it('should succeed without error', function() {
+    it.skip('should succeed without error', function() {
       var res = nurseshark.processData(data);
       assert.isArray(res.processedData);
       expect(res.erroredData.length).to.equal(0);

@@ -30,14 +30,11 @@ module.exports = {
     BasalUtil: require('./data/basalutil'),
     BolusUtil: require('./data/bolusutil'),
     BGUtil: require('./data/bgutil'),
-    DeviceUtil: require('./data/deviceutil'),
-    SegmentUtil: require('./data/segmentutil'),
     SettingsUtil: require('./data/settingsutil'),
     util: {
       datetime: require('./data/util/datetime'),
       format: require('./data/util/format'),
-      TidelineCrossFilter: require('./data/util/tidelinecrossfilter'),
-      Timeline: require('./data/util/timeline')
+      TidelineCrossFilter: require('./data/util/tidelinecrossfilter')
     }
   },
 
@@ -67,12 +64,13 @@ module.exports = {
         Tooltips: require('./plot/util/tooltips/tooltip')
       },
       bgboundary: require('./plot/util/bgboundary'),
+      commonbolus: require('./plot/util/commonbolus'),
+      drawbolus: require('./plot/util/drawbolus'),
       fill: require('./plot/util/fill'),
-      shadow: require('./plot/util/shadow'),
       legend: require('./plot/util/legend'),
       scales: require('./plot/util/scales'),
-      shapeutil: require('./plot/util/shapeutil'),
-      drawbolus: require('./plot/util/drawbolus')
+      shadow: require('./plot/util/shadow'),
+      shapeutil: require('./plot/util/shapeutil')
     }
   }
 };

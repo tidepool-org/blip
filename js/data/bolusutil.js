@@ -17,6 +17,7 @@
 
 var _ = require('lodash');
 
+var commonbolus = require('../plot/util/commonbolus');
 var format = require('./util/format');
 var datetime = require('./util/datetime');
 var TidelineCrossFilter = require('./util/tidelinecrossfilter');
@@ -36,7 +37,7 @@ function BolusUtil(data) {
     });
     if (firstBolus !== -1) {
       _.forEach(currentData, function(d) {
-        dose += d.value;
+        dose += commonbolus.getDelivered(d);
       });
     }
     return format.fixFloatingPoint(dose);

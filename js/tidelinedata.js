@@ -18,6 +18,8 @@
 var _ = require('lodash');
 var d3 = require('d3');
 
+var validate = require('./validation/validate');
+
 var TidelineCrossFilter = require('./data/util/tidelinecrossfilter');
 var BasalUtil = require('./data/basalutil');
 var BolusUtil = require('./data/bolusutil');
@@ -29,7 +31,7 @@ var log = require('bows')('TidelineData');
 
 function TidelineData(data, opts) {
 
-  var REQUIRED_TYPES = ['basal-rate-segment', 'bolus', 'wizard', 'cbg', 'message', 'smbg', 'settings'];
+  var REQUIRED_TYPES = ['basal', 'bolus', 'wizard', 'cbg', 'message', 'smbg', 'settings'];
 
   opts = opts || {};
 
@@ -208,6 +210,17 @@ function TidelineData(data, opts) {
     });
   };
 
+  log('Items to validate:', data.length);
+
+  console.time('Validation in');
+  var res = validate.validateAll(data);
+  console.timeEnd('Validation in');
+
+  log('Valid items:', res.valid.length);
+  log('Invalid items:', res.invalid.length);
+
+  data = res.valid;
+
   this.grouped = _.groupBy(data, function(d) { return d.type; });
 
   this.diabetesData = _.sortBy(_.flatten([].concat(_.map(opts.diabetesDataTypes, function(type) {
@@ -216,7 +229,7 @@ function TidelineData(data, opts) {
     return d.normalTime;
   });
 
-  this.basalUtil = new BasalUtil(this.grouped['basal-rate-segment']);
+  this.basalUtil = new BasalUtil(this.grouped.basal);
   this.bolusUtil = new BolusUtil(this.grouped.bolus);
   this.cbgUtil = new BGUtil(this.grouped.cbg, {DAILY_MIN: (opts.CBG_PERCENT_FOR_ENOUGH * opts.CBG_MAX_DAILY)});
   this.smbgUtil = new BGUtil(this.grouped.smbg, {DAILY_MIN: opts.SMBG_DAILY_MIN});

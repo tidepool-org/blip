@@ -19,7 +19,10 @@ var _ = require('lodash');
 var crossfilter = require('crossfilter');
 var util = require('util');
 
-var dt = require('./datetime');
+// TODO: eventually this will be a Sundial dependency
+// not a tideline-internal dependency
+// which is inappropriate for a "plugin" like this
+var dt = require('../../js/data/util/datetime');
 
 function translateBg(value) {
   var GLUCOSE_MM = 18.01559;
@@ -42,14 +45,22 @@ function isBadStatus(d) {
 }
 
 function basalSchedulesToArray(basalSchedules) {
-  var schedules = [];
-  for(var key in basalSchedules) {
-    schedules.push({
-      'name': key,
-      'value': basalSchedules[key]
-    });
+  var standard = [], schedules = [];
+  for (var key in basalSchedules) {
+    if (key === 'standard') {
+      standard.push({
+        name: key,
+        value: basalSchedules[key]
+      });
+    }
+    else {
+      schedules.push({
+        name: key,
+        value: basalSchedules[key]
+      });
+    }
   }
-  return schedules;
+  return standard.concat(schedules);
 }
 
 // TODO: remove after we've got tideline using timezone-aware timestamps
@@ -89,6 +100,9 @@ function getHandlers() {
       lastBasal = d;
       lastEnd = dt.addDuration(d.time, d.duration);
       watson(d);
+      if (d.suppressed) {
+        watson(d.suppressed);
+      }
       return d;
     },
     bolus: function(d, collections) {
@@ -137,9 +151,12 @@ function getHandlers() {
       d = cloneDeep(d);
       if (d.units.bg === 'mg/dL') {
         if (d.bgTarget) {
-          for (var key in d.bgTarget) {
-            if (key !== 'range' && key !== 'start') {
-              d.bgTarget[key] = translateBg(d.bgTarget[key]);
+          for (var j = 0; j < d.bgTarget.length; ++j) {
+            var current = d.bgTarget[j];
+            for (var key in current) {
+              if (key !== 'range' && key !== 'start') {
+                current[key] = translateBg(current[key]);
+              }
             }
           }
         }
@@ -158,8 +175,6 @@ function getHandlers() {
     wizard: function(d) {
       d = cloneDeep(d);
       if (d.units === 'mg/dL') {
-        // truthiness is *required* here
-        // bgInput of 0 occurs often but means bgInput was skipped in wizard interaction
         if (d.bgInput) {
           d.bgInput = translateBg(d.bgInput);
         }

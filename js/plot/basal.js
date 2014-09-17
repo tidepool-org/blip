@@ -18,6 +18,7 @@
 var d3 = require('d3');
 var _ = require('lodash');
 
+var dt = require('../data/util/datetime');
 var format = require('../data/util/format');
 var log = require('bows')('Basal');
 
@@ -35,23 +36,31 @@ module.exports = function(pool, opts) {
 
   var mainGroup = pool.parent();
 
+  function getScheduledSuppressed(supp) {
+    if (supp.deliveryType === 'scheduled') {
+      return supp;
+    }
+    else if (supp.suppressed) {
+      return getScheduledSuppressed(supp.suppressed);
+    }
+    else {
+      return;
+    }
+  }
+
   function getUndelivereds(data) {
     var undelivereds = [];
-    function isScheduled(s) {
-      return s.deliveryType === 'scheduled';
-    }
+
     for (var i = 0; i < data.length; ++i) {
       var d = data[i];
       if (d.suppressed) {
-        undelivereds = undelivereds
-          // TODO: eventually we'll want a path for each category of suppresseds
-          // where 'scheduled' is just one such category
-          .concat(_.filter(d.suppressed, isScheduled));
+        var scheduled = getScheduledSuppressed(d.suppressed);
+        if (scheduled) {
+          undelivereds.push(scheduled);
+        }
       }
     }
-    // there can be duplicate suppressed segments, not quite sure why this happens
-    // TODO: possibly move this filtering to segmentutil
-    return _.reject(undelivereds, function(d, i, segments) { return _.isEqual(d, segments[i - 1]); });
+    return undelivereds;
   }
 
   function basal(selection) {
@@ -77,7 +86,7 @@ module.exports = function(pool, opts) {
         });
 
       var nonZero = basalSegmentGroups.filter(function(d) {
-        return d.value !== 0;
+        return d.rate !== 0;
       });
 
       basal.addRectToPool(nonZero);
@@ -161,12 +170,12 @@ module.exports = function(pool, opts) {
         // start with a moveto command
         d += 'M' + stringCoords(data[i]);
       }
-      else if (data[i].normalTime === data[i - 1].normalEnd) {
+      else if (data[i].normalTime === dt.addDuration(data[i - 1].normalTime, data[i - 1].duration)) {
         // if segment is contiguous with previous, draw a vertical line connecting their values
         d += 'V' + basal.pathYPosition(data[i]) + ' ';
       }
       // TODO: maybe a robust check for a gap in time here instead of just !==?
-      else if (data[i].normalTime !== data[i - 1].normalEnd) {
+      else if (data[i].normalTime !== dt.addDuration(data[i - 1].normalTime, data[i - 1].duration)) {
         // if segment is not contiguous with previous, skip to beginning of segment
         d += 'M' + stringCoords(data[i]);
       }
@@ -181,7 +190,7 @@ module.exports = function(pool, opts) {
   };
 
   basal.segmentEndXPosition = function(d) {
-    return opts.xScale(Date.parse(d.normalEnd));
+    return opts.xScale(Date.parse(dt.addDuration(d.normalTime, d.duration)));
   };
 
   basal.tooltipXPosition = function(d) {
@@ -189,11 +198,11 @@ module.exports = function(pool, opts) {
   };
 
   basal.yPosition = function(d) {
-    return opts.yScale(d.value);
+    return opts.yScale(d.rate);
   };
 
   basal.pathYPosition = function(d) {
-    return opts.yScale(d.value) - opts.pathStroke/2;
+    return opts.yScale(d.rate) - opts.pathStroke/2;
   };
 
   basal.invisibleRectYPosition = function(d) {
@@ -201,11 +210,11 @@ module.exports = function(pool, opts) {
   };
 
   basal.width = function(d) {
-    return opts.xScale(Date.parse(d.normalEnd)) - opts.xScale(Date.parse(d.normalTime));
+    return opts.xScale(Date.parse(dt.addDuration(d.normalTime, d.duration))) - opts.xScale(Date.parse(d.normalTime));
   };
 
   basal.height = function(d) {
-    return pool.height() - opts.yScale(d.value);
+    return pool.height() - opts.yScale(d.rate);
   };
 
   basal.invisibleRectHeight = function(d) {
@@ -213,7 +222,7 @@ module.exports = function(pool, opts) {
   };
 
   basal.rateString = function(d, cssClass) {
-    return format.tooltipValue(d.value) + ' <span class="' + cssClass + '">u/hr</span>';
+    return format.tooltipValue(d.rate) + ' <span class="' + cssClass + '">u/hr</span>';
   };
 
   basal.tempPercentage = function(d) {
@@ -221,7 +230,7 @@ module.exports = function(pool, opts) {
       return format.percentage(d.percent);
     }
     else {
-      return format.tooltipValue(d.value) + ' <span class="plain">u/hr</span>';
+      return format.tooltipValue(d.rate) + ' <span class="plain">u/hr</span>';
     }
   };
 
@@ -234,9 +243,7 @@ module.exports = function(pool, opts) {
         group.append('p')
           .append('span')
           .attr('class', 'secondary')
-          .html(basal.rateString(_.find(datum.suppressed, function(seg) {
-            return seg.deliveryType === 'scheduled';
-          }), 'secondary') + ' scheduled');
+          .html(basal.rateString(getScheduledSuppressed(datum.suppressed), 'secondary') + ' scheduled');
         break;
       case 'suspend':
         group.append('p')
@@ -254,7 +261,7 @@ module.exports = function(pool, opts) {
       .html('<span class="fromto">from</span> ' +
         format.timestamp(datum.normalTime) +
         ' <span class="fromto">to</span> ' +
-        format.timestamp(datum.normalEnd));
+        format.timestamp(dt.addDuration(datum.normalTime, datum.duration)));
   };
 
   basal.addTooltip = function(d) {

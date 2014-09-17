@@ -19,7 +19,6 @@ module.exports = schema(
             low: schema().number(),
             high: schema().number(),
             range: schema().banned(),
-            start: schema().number().min(0).max(86400000),
             target: schema().banned()
           }
       ),
@@ -28,7 +27,6 @@ module.exports = schema(
             low: schema().number(),
             high: schema().number(),
             range: schema().banned(),
-            start: schema().number().min(0).max(86400000),
             target: schema().number()
           }
       ),
@@ -37,7 +35,6 @@ module.exports = schema(
             low: schema().banned(),
             high: schema().banned(),
             range: schema().number(),
-            start: schema().number().min(0).max(86400000),
             target: schema().number()
           }
       ),
@@ -46,7 +43,6 @@ module.exports = schema(
             low: schema().banned(),
             high: schema().number(),
             range: schema().banned(),
-            start: schema().number().min(0).max(86400000),
             target: schema().number()
           }
       )

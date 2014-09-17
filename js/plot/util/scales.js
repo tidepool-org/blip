@@ -18,6 +18,8 @@
 var d3 = require('d3');
 var _ = require('lodash');
 
+var commonbolus = require('./commonbolus');
+
 var scales = function(opts) {
   opts = opts || {};
 
@@ -89,13 +91,17 @@ var scales = function(opts) {
     bolus: function(data, pool) {
       var scale = d3.scale.linear()
         // for boluses the recommended can exceed the value
-        .domain([0, d3.max(data, function(d) { return d3.max([d.value, d.recommended]); })])
+        .domain([0, d3.max(data, function(d) {
+          return commonbolus.getMaxValue(d);
+        })])
         .range([pool.height(), opts.bolusRatio * pool.height()]);
       return scale;
     },
     basal: function(data, pool) {
       var scale = d3.scale.linear()
-        .domain([0, d3.max(data, function(d) { return d.value; }) * 1.1])
+        .domain([0, d3.max(data, function(d) {
+          return d.rate;
+        }) * 1.1])
         .rangeRound([pool.height(), 0]);
       return scale;
     }

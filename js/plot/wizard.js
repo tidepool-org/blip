@@ -18,9 +18,9 @@
 var d3 = require('d3');
 var _ = require('lodash');
 
-var Duration = require('duration-js');
 var log = require('bows')('Wizard');
 
+var commonbolus = require('./util/commonbolus');
 var drawbolus = require('./util/drawbolus');
 
 module.exports = function(pool, opts) {
@@ -34,14 +34,6 @@ module.exports = function(pool, opts) {
 
   var drawBolus = drawbolus(pool, opts);
   var mainGroup = pool.parent();
-
-  var getValue = function(d) {
-    if (d.programmed && d.value !== d.programmed) {
-      return d.programmed;
-    }
-
-    return d.value;
-  };
   
   return function(selection) {
     opts.xScale = pool.xScale().copy();
@@ -63,25 +55,22 @@ module.exports = function(pool, opts) {
         });
 
       // sort by size so smaller boluses are drawn last
-      var getBolusValueForSort = function(bolus) {
-        return d3.max([bolus.value, bolus.programmed, bolus.recommended]);
-      };
       wizardGroups = wizardGroups.sort(function(a,b){
         var bolusA = a.bolus ? a.bolus : a;
         var bolusB = b.bolus ? b.bolus : b;
-        return d3.descending(getBolusValueForSort(bolusA), getBolusValueForSort(bolusB));
+        return d3.descending(commonbolus.getMaxValue(bolusA), commonbolus.getMaxValue(bolusB));
       });
 
       var carbs = wizardGroups.filter(function(d) {
-        if (d.carbs) {
-          return d;
-        }
+        // truthiness working for us here
+        // don't want carbInputs of 0 included in filter!
+        return d.carbInput && commonbolus.getDelivered(d);
       });
 
       drawBolus.carb(carbs);
 
       var boluses = wizardGroups.filter(function(d) {
-        return d.bolus != null;
+        return d.bolus != null && commonbolus.getDelivered(d);
       });
 
       drawBolus.bolus(boluses);
@@ -92,34 +81,35 @@ module.exports = function(pool, opts) {
 
       drawBolus.extended(extended);
 
-      var suspended = boluses.filter(function(d) {
-        if (d.bolus.programmed) {
-          return d.bolus.value !== d.bolus.programmed;
-        }
-        return false;
-      });
-
-      drawBolus.suspended(suspended);
-
-      var extendedSuspended = boluses.filter(function(d) {
-        return d.bolus.suspendedAt != null;
-      });
-
-      drawBolus.extendedSuspended(extendedSuspended);
-
       // boluses where recommended > delivered
       var underride = boluses.filter(function(d) {
-        return d.bolus.recommended > getValue(d.bolus);
+        return commonbolus.getRecommended(d) > commonbolus.getDelivered(d);
       });
 
       drawBolus.underride(underride);
 
       // boluses where delivered > recommended
       var override = boluses.filter(function(d) {
-        return getValue(d.bolus) > d.bolus.recommended;
+        return commonbolus.getDelivered(d) > commonbolus.getRecommended(d);
       });
 
       drawBolus.override(override);
+
+      // boluses where programmed differs from delivered
+      var suspended = boluses.filter(function(d) {
+        return commonbolus.getDelivered(d) !== commonbolus.getProgrammed(d);
+      });
+
+      drawBolus.suspended(suspended);
+
+      var extendedSuspended = boluses.filter(function(d) {
+        if (d.bolus.expectedExtended) {
+          return d.bolus.extended > 0 && d.bolus.extended !== d.bolus.expectedExtended;
+        }
+        return false;
+      });
+
+      drawBolus.extendedSuspended(extendedSuspended);
 
       wizards.exit().remove();
 

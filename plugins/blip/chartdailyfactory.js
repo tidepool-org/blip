@@ -186,7 +186,7 @@ function chartDailyFactory(el, options) {
 
     // add annotations
     chart.annotations().addGroup(chart.svg().select('#' + poolBolus.id()), 'bolus');
-    chart.annotations().addGroup(chart.svg().select('#' + poolBasal.id()), 'basal-rate-segment');
+    chart.annotations().addGroup(chart.svg().select('#' + poolBasal.id()), 'basal');
     chart.annotations().addGroup(chart.svg().select('#' + poolStats.id()), 'stats');
 
     // add tooltips
@@ -275,7 +275,7 @@ function chartDailyFactory(el, options) {
     // TODO: when we bring responsiveness in
     // decide number of ticks for these scales based on container height?
     // bolus & carbs pool
-    var scaleBolus = scales.bolus(tidelineData.grouped.bolus, poolBolus);
+    var scaleBolus = scales.bolus(tidelineData.grouped.bolus.concat(tidelineData.grouped.wizard), poolBolus);
     var scaleCarbs = options.dynamicCarbs ? scales.carbs(tidelineData.grouped.wizard, poolBolus) : null;
     // set up y-axis for bolus
     poolBolus.yAxis(d3.svg.axis()
@@ -310,7 +310,7 @@ function chartDailyFactory(el, options) {
     }), true, true);
 
     // basal pool
-    var scaleBasal = scales.basal(tidelineData.grouped['basal-rate-segment'], poolBasal);
+    var scaleBasal = scales.basal(tidelineData.grouped.basal, poolBasal);
     // set up y-axis
     poolBasal.yAxis(d3.svg.axis()
       .scale(scaleBasal)
@@ -321,10 +321,10 @@ function chartDailyFactory(el, options) {
     poolBasal.addPlotType('fill', fill(poolBasal, {endpoints: chart.endpoints}), true, true);
 
     // add basal data to basal pool
-    poolBasal.addPlotType('basal-rate-segment', tideline.plot.basal(poolBasal, {
+    poolBasal.addPlotType('basal', tideline.plot.basal(poolBasal, {
       yScale: scaleBasal,
       emitter: emitter,
-      data: tidelineData.grouped['basal-rate-segment']
+      data: tidelineData.grouped.basal
     }), true, true);
 
     if (poolBasalSettings !== undefined) {

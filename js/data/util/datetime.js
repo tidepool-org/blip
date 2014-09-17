@@ -34,7 +34,7 @@ var datetime = {
       datetime = new Date(datetime);
     }
 
-    return new Date(datetime.valueOf() + duration).toISOString().slice(0, 19);
+    return new Date(datetime.valueOf() + duration).toISOString();
   },
 
   adjustToInnerEndpoints: function(s, e, endpoints) {

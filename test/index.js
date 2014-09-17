@@ -17,23 +17,34 @@
  
 // DOM required
 // ====================================
-require('../css/tideline.less');
-require('./less/test.less');
+// require('../css/tideline.less');
+// require('./less/test.less');
 
-require('./viz/oneday_test');
-
-// TODO: theoretically DOM not required
-// but use of bows and switch to webpack/node modules-only workflow
-// means now DOM is require for the following
-// ====================================
-require('./bgutil_test');
-require('./bolusutil_test');
-require('./settingsutil_test');
-require('./tidelinedata_test');
+// TODO: rewrite
+// require('./viz/oneday_test');
 
 // DOM not required
 // ====================================
-require('./annotations_test');
+
+/* js/data/ */
 require('./datetime_test');
+// TODO: rewrite
+// require('./basalutil_test');
+// TODO: rewrite
+// require('./bgutil_test');
+// TODO: rewrite
+// require('./bolusutil_test');
+// TODO: rewrite
+// require('./settingsutil_test');
+
+/* js/ */
+// TODO: rewrite
+// require('./tidelinedata_test');
+
+/* js/plot/ */
+require('./annotations_test');
+require('./commonbolus_test');
+
+/* plugins/ */
 require('./nurseshark_test');
 

@@ -9,7 +9,7 @@ var Daily = require('./components/daily');
 var Weekly = require('./components/weekly');
 var Settings = require('./components/settings');
 // tideline dependencies & plugins
-var preprocess = require('../plugins/data/preprocess/');
+var nurseshark = require('../plugins/nurseshark/');
 var TidelineData = require('../js/tidelinedata');
 
 require('../css/tideline.less');
@@ -114,11 +114,15 @@ var Example = React.createClass({
     if (err) {
       throw new Error('Could not fetch data file at ' + dataUrl);
     }
-    var processed = preprocess.processData(data);
-    this.updateData(processed.valid);
+    // b/c demo data is not assumed to be post-nurseshark data
+    if (dataUrl !== 'data/device-data.json') {
+      data = nurseshark.processData(data).processedData;
+    }
+    this.updateData(data);
   },
   updateData: function(data) {
     var tidelineData = new TidelineData(data);
+    window.tidelineData = tidelineData;
     this.setState({
       chartData: tidelineData,
       chartType: 'daily'
