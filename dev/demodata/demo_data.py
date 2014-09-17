@@ -318,17 +318,18 @@ class Boluses:
     def _generate_meal_boluses(self):
         """Generate boluses to match generated carb counts."""
 
-        likelihood = [0,0,0,0,1]
+        likelihood = [0,0,0,1]
 
-        additions = [-2.2, -1.3, -0.4, 0.5, 1.2, 1.7]
+        additions = [-2.2, -1.3, -0.4, 0.5, 1.2, 1.7, 3.4]
 
         def bolus_value(wiz):
             bolus = 0.0
             rec = wiz['recommended']
-            if 'carbs' in rec.keys():
-                bolus += rec['carbs'] + random.choice(likelihood) * random.choice(additions)
+            if 'carb' in rec.keys():
+                bolus += rec['carb']
             if 'correction' in rec.keys():
-                bolus += rec['correction'] + random.choice(likelihood) * random.choice(additions)
+                bolus += rec['correction']
+            bolus += (random.choice(likelihood) * random.choice(additions))
             return bolus
 
         boluses = []
@@ -384,10 +385,10 @@ class Boluses:
 
         durations = [30,45,60,90,120,180,240]
 
-        tenths = range(0,10)
-
         for bolus in self.boluses:
             coin_flip = random.choice(likelihood)
+
+            fractions = [2,3,4]
 
             if coin_flip:
                 if bolus['normal'] >= 2:
@@ -412,7 +413,16 @@ class Boluses:
                 if val >= 1:
                     bolus['expected' + btype.title()] = val
                     bolus['type'] = 'bolus'
-                    bolus[btype] = float(random.choice(tenths)/10.0)
+                    bolus[btype] = round(val/random.choice(fractions), 1)
+                    if btype == 'normal':
+                        if 'extended' in bolus.keys():
+                            bolus['expectedExtended'] = bolus['extended']
+                            bolus['extended'] = 0.0
+                            bolus['expectedDuration'] = bolus['duration']
+                            bolus['duration'] = 0
+                    elif btype == 'extended':
+                        bolus['expectedDuration'] = bolus['duration']
+                        bolus['duration'] = round((bolus['extended']/bolus['expectedExtended']) * bolus['duration'],0)
 
 class Dexcom:
     """Generate demo Dexcom data."""
@@ -536,8 +546,7 @@ class Wizards:
 
         self.bgTarget = {
             "target": 100,
-            "high": 120,
-            "start": 0
+            "high": 120
         }
 
         self.meals = meals
@@ -875,6 +884,7 @@ def print_JSON(all_json, out_file, minify=False):
 
         def add_time(a):
             a['timezoneOffset'] = -420
+            a['normalTime'] = a['deviceTime'] + '.000Z'
 
             try:
                 a['time'] = this_tz.localize(dt.strptime(a['deviceTime'], '%Y-%m-%dT%H:%M:%S')).astimezone(utc).isoformat()
@@ -884,6 +894,9 @@ def print_JSON(all_json, out_file, minify=False):
 
         if a['type'] != 'message':
             add_time(a)
+        else:
+            normalized = utc.localize(dt.strptime(a['time'].replace('.000Z',''), '%Y-%m-%dT%H:%M:%S')).astimezone(this_tz)
+            a['normalTime'] = dt.strftime(normalized, '%Y-%m-%dT%H:%M:%S') + '.000Z'
         try:
             add_time(a['suppressed'])
         except KeyError:
