@@ -42,6 +42,7 @@ var Settings = React.createClass({
           onClickMostRecent={this.handleClickMostRecent}
           onClickOneDay={this.handleClickOneDay}
           onClickTwoWeeks={this.handleClickTwoWeeks}
+          onClickSettings={this.handleClickSettings}
         ref="header" />
         <div id="tidelineOuterContainer">
           <SettingsChart
@@ -66,6 +67,9 @@ var Settings = React.createClass({
   },
   handleClickTwoWeeks: function() {
     this.props.onSwitchToWeekly();
+  },
+  handleClickSettings: function() {
+    return;
   }
 });
 
