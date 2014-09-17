@@ -168,7 +168,7 @@ module.exports = function() {
       oneOf: function() {
         var alts = [];
         for (var i = 0; i < arguments.length; ++i) {
-          alts.push(module.exports(arguments[i]));
+          alts.push(arguments[i]);
         }
         fns.push(function(e) {
           var errors = [];
