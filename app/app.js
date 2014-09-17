@@ -697,12 +697,16 @@ var AppComponent = React.createClass({
       if (err) {
         var message = 'Something went wrong while fetching invitations';
 
+        self.setState({
+          fetchingInvites: false
+        });
+
         return self.handleApiError(err, message);
       }
 
       self.setState({
         invites: invites,
-        fetchingPatients: false
+        fetchingInvites: false
       });
     });
   },
