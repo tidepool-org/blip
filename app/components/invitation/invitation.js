@@ -22,35 +22,15 @@ var api = require('../../core/api');
 var PatientCard = React.createClass({
   propTypes: {
     invitation: React.PropTypes.object,
-    patientsComponent: React.PropTypes.component
+    patientsComponent: React.PropTypes.component,
+    onAcceptInvitation: onSubmit: React.PropTypes.func,
+    onDismissInvitation: onSubmit: React.PropTypes.func
   },
   handleAccept: function() {
-    var invitation = this.props.invitation;
-    var self = this;
-
-    self.setState({enable: false});
-    api.invitation.accept(invitation.from.userid, function(err) {
-      if(err) {
-        self.setState({enable: true});
-        return;
-      }
-
-      self.setState({dismiss: true});
-      self.props.patientsComponent.setState();
-    });
+    this.props.onAcceptInvitation(this.props.invitation);
   },
   handleDismiss: function() {
-    var invitation = this.props.invitation;
-    var self = this;
-
-    self.setState({enable: false});
-    api.invitation.dismiss(invitation.from.userid, function(err) {
-      if(err) {
-        self.setState({enable: true});
-        return;
-      }
-      self.setState({dismiss: true});
-    });
+    this.props.onDismissInvitation(this.props.invitation);
   },
   render: function() {
     var invitation = this.props.invitation;
