@@ -105,7 +105,7 @@ module.exports = function (config, deps) {
           return handleHttpError(res, cb);
         }
 
-        return cb(null, {userid: res.userid, token: res.headers[sessionTokenHeader]});
+        return cb(null, {userid: res.body.userid, token: res.headers[sessionTokenHeader]});
       });
   }
 
@@ -114,7 +114,9 @@ module.exports = function (config, deps) {
     myToken = newToken;
     myUserId = newUserId;
 
-    var currVersion = loginVersion;
+    // Store and increment the loginVersion.  This is a mechanism to nullify any refreshSession calls that
+    // are waiting for their timeout to run.
+    var currVersion = ++loginVersion;
 
     if (newToken == null) {
       localStore.removeItem(tokenLocalKey);
@@ -329,7 +331,7 @@ module.exports = function (config, deps) {
         var hasNewSession = data && data.userid && data.token;
 
         if (err || !hasNewSession) {
-          log.info('Local session invalid');
+          log.info('Local session invalid', err, data);
           saveSession(null, null);
           return cb();
         }
