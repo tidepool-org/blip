@@ -378,9 +378,56 @@ var AppComponent = React.createClass({
           fetchingInvites={this.state.fetchingInvites}
           showingWelcomeMessage={this.state.showingWelcomeMessage}
           onSetAsCareGiver={this.setUserAsCareGiver}
-          trackMetric={trackMetric}/>
+          trackMetric={trackMetric}
+          onAcceptInvitation={this.handleAcceptInvitation}
+          onDismissInvitation={this.handleDismissInvitation}/>
     );
     /* jshint ignore:end */
+  },
+
+
+  handleDismissInvitation: function(invitation) {
+    var previousInvites = this.state.invites;
+    var invites = _.remove(_.cloneDeep(previousInvites), function(i) {
+      return i.from.userid === invitation.from.userid;
+    };
+
+    this.setState({
+      invites: invites
+    });
+
+    app.api.invitation.dismiss(invitation.from.userid, function(err) {
+      if(err) {
+        self.setState({
+          invites: previousInvites
+        });
+
+        return self.handleApiError(err, 'Something went wrong while dismissing the invitation.');
+      }
+    });
+  },
+
+  handleAcceptInvitation: function(invitation) {
+    var previousInvites = this.state.invites;
+    var invites = _.remove(_.cloneDeep(previousInvites), function(i) {
+      return i.from.userid === invitation.from.userid;
+    };
+
+    this.setState({
+      invites: invites
+    });
+
+    app.api.invitation.dismiss(invitation.from.userid, function(err) {
+      if(err) {
+        self.setState({
+          invites: previousInvites
+        });
+
+        return self.handleApiError(err, 'Something went wrong while accepting the invitation.');
+      }
+
+      self.fetchPatients({hideLoading: false});
+    });
   },
 
   showPatient: function(patientId) {
@@ -713,10 +760,12 @@ var AppComponent = React.createClass({
     });
   },
 
-  fetchPatients: function() {
+  fetchPatients: function(options) {
     var self = this;
 
-    self.setState({fetchingPatients: true});
+    if(options && !options.hideLoading) {
+        self.setState({fetchingPatients: true});
+    }
 
     app.api.patient.getAll(function(err, patients) {
       if (err) {
