@@ -113,6 +113,8 @@ var AppComponent = React.createClass({
       fetchingPatients: true,
       patient: null,
       fetchingPatient: true,
+      invites: null,
+      fetchingInvites: true,
       patientData: null,
       fetchingPatientData: true,
       fetchingMessageData: true,
