@@ -33,15 +33,7 @@ var PatientCard = React.createClass({
     this.props.onDismissInvitation(this.props.invitation);
   },
   render: function() {
-    var invitation = this.props.invitation;
-
-    if(this.state && this.state.dismiss) {
-      /* jshint ignore:start */
-      return (<span />);
-      /* jshint ignore:end */
-    }
-
-    var message = 'You have been invited to see ' + invitation.from.profile.fullName + '\'s data!';
+    var message = 'You have been invited to see ' + this.props.invitation.from.profile.fullName + '\'s data!';
     /* jshint ignore:start */
     return (
       <li className='invitation'>
