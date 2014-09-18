@@ -19,8 +19,10 @@ var async = require('async');
 var expect = require('salinity').expect;
 var superagent = require('superagent');
 
+var localStorage = require('./../../lib/inMemoryStorage');
+
 var platform = require('../../index.js');
-var myLocalStore = require('./mockedLocalStorage')();
+var myLocalStore = localStorage();
 var pjson = require('../../package.json');
 
 describe('platform client', function () {
@@ -76,8 +78,7 @@ describe('platform client', function () {
         metricsVersion : pjson.version
       },
       { superagent : superagent,
-        log : myLog,
-        localStore : mockedLocalStore }
+        log : myLog }
     );
 
     loginOpts = loginOpts || {};
@@ -142,7 +143,7 @@ describe('platform client', function () {
   describe('on initialization', function () {
     it('when the remember flag is true the user stays logged in', function (done) {
 
-      var store = require('./mockedLocalStorage')();
+      var store = localStorage();
 
       var refreshOnlyUser = {
         username: 'dummy@user.com',
@@ -167,7 +168,7 @@ describe('platform client', function () {
     });
     it('when the remember flag is false the user does NOT stay logged in', function (done) {
 
-      createClient(a_PWD, {remember:false}, require('./mockedLocalStorage')(),function(error,loggedIn){
+      createClient(a_PWD, {remember:false}, localStorage(),function(error,loggedIn){
 
         expect(error).to.not.exist;
 
@@ -180,7 +181,7 @@ describe('platform client', function () {
     });
     it('when the remember flag is not set the user does NOT stay logged in', function (done) {
 
-      createClient(a_PWD, {} , require('./mockedLocalStorage')(), function(error,loggedIn){
+      createClient(a_PWD, {} , localStorage(), function(error,loggedIn){
 
         expect(error).to.not.exist;
 

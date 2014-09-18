@@ -43,6 +43,10 @@ module.exports = function (config, deps) {
   var myToken = null;
   var myUserId = null;
 
+  // This is a "version" counter for the number of times we've logged in.
+  // It is used to invalidate stale attempts at refreshing a token
+  var loginVersion = 0;
+
   //Status Codes
   var STATUS_BAD_REQUEST = 400;
   var STATUS_UNAUTHORIZED = 401;
@@ -85,11 +89,10 @@ module.exports = function (config, deps) {
    * Refresh a users token
    *
    * @param token a user token
-   * @param userId id of the user we are doing the token refresh for
    * @returns {cb}  cb(err, response)
    * @param cb
    */
-  function refreshUserToken(token, userId, cb) {
+  function refreshUserToken(token, cb) {
     superagent.get(makeUrl('/auth/login'))
       .set(sessionTokenHeader, token)
       .end(
@@ -102,7 +105,7 @@ module.exports = function (config, deps) {
           return handleHttpError(res, cb);
         }
 
-        return cb(null, {userid: userId, token: res.headers[sessionTokenHeader]});
+        return cb(null, {userid: res.userid, token: res.headers[sessionTokenHeader]});
       });
   }
 
@@ -111,25 +114,29 @@ module.exports = function (config, deps) {
     myToken = newToken;
     myUserId = newUserId;
 
+    var currVersion = loginVersion;
+
     if (newToken == null) {
-      destroyLocalSession();
+      localStore.removeItem(tokenLocalKey);
+      log.info('Destroyed local session');
       return;
     }
 
     log.info('Session saved');
 
     if (options.remember) {
-      saveLocalSession(newUserId, newToken);
+      localStore.setItem(tokenLocalKey, newToken);
+      log.info('Saved session locally');
     }
 
     var refreshSession = function() {
-      if (myToken == null || newUserId !== myUserId) {
-        log.info('Stopping session token refresh');
+      if (myToken == null || currVersion !== loginVersion) {
+        log.info('Stopping session token refresh for version', currVersion);
         return;
       }
 
       log.info('Refreshing session token');
-      refreshUserToken(myToken, newUserId, function(err, data) {
+      refreshUserToken(myToken, function(err, data) {
         var hasNewSession = data && data.userid && data.token;
         if (err || !hasNewSession) {
           log.warn('Failed refreshing session token', err);
@@ -145,42 +152,6 @@ module.exports = function (config, deps) {
 
   function destroySession() {
     return saveSession(null, null);
-  }
-
-  function loadLocalSession(cb) {
-    myToken = localStore.getItem(tokenLocalKey);
-    myUserId = localStore.getItem(userIdLocalKey);
-
-    if (myUserId == null || myToken == null) {
-      log.info('No local session found');
-      return cb();
-    }
-
-    refreshUserToken(myToken, myUserId, function(err, data) {
-      var hasNewSession = data && data.userid && data.token;
-
-      if (err || !hasNewSession) {
-        log.info('Local session invalid');
-        saveSession(null, null);
-        return cb();
-      }
-
-      log.info('Loaded local session');
-      saveSession(data.userid, data.token,{remember:true});
-      cb(null, {userid: data.userid, token: data.token});
-    });
-  }
-
-  function saveLocalSession(newUserId, newToken) {
-    localStore.setItem(tokenLocalKey, newToken);
-    localStore.setItem(userIdLocalKey, newUserId);
-    log.info('Saved session locally');
-  }
-
-  function destroyLocalSession() {
-    localStore.removeItem(tokenLocalKey);
-    localStore.removeItem(userIdLocalKey);
-    log.info('Destroyed local session');
   }
 
   function isLoggedIn() {
@@ -347,7 +318,26 @@ module.exports = function (config, deps) {
      * @param cb
      */
     initialize: function(cb) {
-      loadLocalSession(cb);
+      myToken = localStore.getItem(tokenLocalKey);
+
+      if (myToken == null) {
+        log.info('No local session found');
+        return cb();
+      }
+
+      refreshUserToken(myToken, function(err, data) {
+        var hasNewSession = data && data.userid && data.token;
+
+        if (err || !hasNewSession) {
+          log.info('Local session invalid');
+          saveSession(null, null);
+          return cb();
+        }
+
+        log.info('Loaded local session');
+        saveSession(data.userid, data.token, {remember:true});
+        cb(null, {userid: data.userid, token: data.token});
+      });
     },
     /**
      * Login user to the Tidepool platform
