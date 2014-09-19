@@ -385,16 +385,21 @@ var AppComponent = React.createClass({
     /* jshint ignore:end */
   },
 
-
-  handleDismissInvitation: function(invitation) {
+  removeInvite: function(invitation) {
     var previousInvites = this.state.invites;
     var invites = _.remove(_.cloneDeep(previousInvites), function(i) {
       return i.from.userid === invitation.from.userid;
-    };
+    });
 
     this.setState({
       invites: invites
     });
+
+    return previousInvites;
+  },
+
+  handleDismissInvitation: function(invitation) {
+    var previousInvites = this.removeInvite(invitation);
 
     app.api.invitation.dismiss(invitation.from.userid, function(err) {
       if(err) {
@@ -408,15 +413,8 @@ var AppComponent = React.createClass({
   },
 
   handleAcceptInvitation: function(invitation) {
-    var previousInvites = this.state.invites;
-    var invites = _.remove(_.cloneDeep(previousInvites), function(i) {
-      return i.from.userid === invitation.from.userid;
-    };
-
-    this.setState({
-      invites: invites
-    });
-
+    var previousInvites = this.removeInvite(invitation);
+    
     app.api.invitation.dismiss(invitation.from.userid, function(err) {
       if(err) {
         self.setState({

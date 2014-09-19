@@ -23,8 +23,8 @@ var PatientCard = React.createClass({
   propTypes: {
     invitation: React.PropTypes.object,
     patientsComponent: React.PropTypes.component,
-    onAcceptInvitation: onSubmit: React.PropTypes.func,
-    onDismissInvitation: onSubmit: React.PropTypes.func
+    onAcceptInvitation: React.PropTypes.func,
+    onDismissInvitation: React.PropTypes.func
   },
   handleAccept: function() {
     this.props.onAcceptInvitation(this.props.invitation);
