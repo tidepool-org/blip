@@ -572,7 +572,7 @@ class Wizards:
                 'id': record['id'],
                 'deviceTime': record['deviceTime'],
                 'joinKey': str(uuid.uuid4()),
-                'bgTarget': self.bgTarget,
+                'bgTarget': self.bgTarget.copy(),
                 'insulinCarbRatio': self.ratio,
                 'insulinSensitivity': self.isf,
                 'recommended': {}
@@ -860,6 +860,36 @@ def _fix_floating_point(a):
 
     return map(lambda i: {key: (round(val, 3) if isinstance(val, float) else val) for key, val in i.items() }, a)
 
+def translate_to_mmol(all_json):
+
+    GLUCOSE_MM = 18.01559
+
+    def translate_bg(val):
+        return round(float(val)/GLUCOSE_MM, 1)
+
+    for a in all_json:
+        if a['type'] == 'cbg' or a['type'] == 'smbg':
+            a['value'] = translate_bg(a['value'])
+            a['units'] = 'mmol/L'
+        elif a['type'] == 'settings':
+            a['units']['bg'] = 'mmol/L'
+            for t in a['bgTarget']:
+                for k in t.keys():
+                    if k != 'range' and k != 'start':
+                        t[k] = translate_bg(t[k])
+            for i in a['insulinSensitivity']:
+                i['amount'] = translate_bg(i['amount'])
+        elif a['type'] == 'wizard':
+            a['units'] = 'mmol/L'
+            if 'bgInput' in a.keys():
+                a['bgInput'] = translate_bg(a['bgInput'])
+            if 'insulinSensitivity' in a.keys():
+                a['insulinSensitivity'] = translate_bg(a['insulinSensitivity'])
+            if 'bgTarget' in a.keys():
+                for k in a['bgTarget'].keys():
+                    if k != 'range':
+                        a['bgTarget'][k] = translate_bg(a['bgTarget'][k])
+
 def print_JSON(all_json, out_file, minify=False):
 
     # add deviceId field to smbg, boluses, carbs, and basals
@@ -927,6 +957,7 @@ def main():
     parser.add_argument('-s', '--start_date', action='store', dest="start_date", help='ISO 8601 start date\ndefault is now')
     parser.add_argument('-t', '--minify', action='store_true', default=False, help='print bare minimum fields and minify JSON')
     parser.add_argument('-q', '--quiet_messages', action='store_true', dest='quiet_messages', help='use this flag to turn off messages when bacon ipsum is being slow')
+    parser.add_argument('--mmol', action='store_true', dest='mmol', help='all BG and BG-related fields in mmol/L')
     args = parser.parse_args()
 
     if args.mock:
@@ -956,6 +987,9 @@ def main():
     else:
         messages = Messages(smbg)
         all_json = dex.json + smbg.json + basal.json + wizards.json + boluses.json + messages.json + settings.json
+
+    if args.mmol:
+        translate_to_mmol(all_json)
 
     if not args.minify:
         print_JSON(all_json, args.output_file)
