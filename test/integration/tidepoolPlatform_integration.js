@@ -72,7 +72,7 @@ describe('platform client', function () {
 
     var client = platform(
       {
-        host: 'https://staging-api.tidepool.io',
+        host: 'https://devel-api.tidepool.io',
         metricsSource : pjson.name,
         metricsVersion : pjson.version
       },
