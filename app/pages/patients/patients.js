@@ -29,8 +29,9 @@ var Patients = React.createClass({
     user: React.PropTypes.object,
     fetchingUser: React.PropTypes.bool,
     patients: React.PropTypes.array,
-    invites: React.PropTypes.array,
     fetchingPatients: React.PropTypes.bool,
+    invites: React.PropTypes.array,
+    fetchingInvites: React.PropTypes.bool,
     showingWelcomeMessage: React.PropTypes.bool,
     onSetAsCareGiver: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired,
@@ -50,8 +51,8 @@ var Patients = React.createClass({
         <div className="patients js-patients-page">
           <div className="patients-heirarchy-inverted">
             {welcomeTitle}
-            {invites}
             {loadingIndicator}
+            {invites}
             {patients}
           </div>
         </div>
@@ -63,6 +64,7 @@ var Patients = React.createClass({
     /* jshint ignore:start */
     return (
       <Invitation
+        key={invitation.from.userid}
         invitation={invitation}
         patientsComponent={this}
         onAcceptInvitation={this.props.onAcceptInvitation}
@@ -182,7 +184,8 @@ var Patients = React.createClass({
     /* jshint ignore:end */
   },
   renderLoadingIndicator: function() {
-    if (this.isResettingUserData() && this.isResettingPatientsData()) {
+    var isResettingPatientList = this.isResettingUserData() ||this.isResettingPatientsData();
+    if (isResettingPatientList && this.isResettingInvitesData()) {
       /* jshint ignore:start */
       return (
         <div className="patients-section">
@@ -251,6 +254,10 @@ var Patients = React.createClass({
     else {
       this.props.trackMetric('Clicked Other Care Team');
     }
+  },
+
+  isResettingInvitesData: function() {
+    return (this.props.fetchingInvites && !this.props.invites);
   }
 });
 
