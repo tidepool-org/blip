@@ -174,9 +174,7 @@ var AppComponent = React.createClass({
     var notification = this.renderNotification();
     var page = this.renderPage();
     var footer = this.renderFooter();
-
-    console.log('render was called', this.state.invites);
-
+    
     /* jshint ignore:start */
     return (
       <div className="app">
@@ -392,11 +390,8 @@ var AppComponent = React.createClass({
     var invites = _.cloneDeep(previousInvites);
 
     _.remove(invites, function(i) {
-      console.log(i.from.userid === invitation.from.userid);
       return i.from.userid === invitation.from.userid;
     });
-
-    console.log('removeInvite', invites.length, previousInvites.length. invites, previousInvites);
 
     this.setState({
       invites: invites
