@@ -33,7 +33,9 @@ var Patients = React.createClass({
     fetchingPatients: React.PropTypes.bool,
     showingWelcomeMessage: React.PropTypes.bool,
     onSetAsCareGiver: React.PropTypes.func,
-    trackMetric: React.PropTypes.func.isRequired
+    trackMetric: React.PropTypes.func.isRequired,
+    onAcceptInvitation: React.PropTypes.func,
+    onDismissInvitation: React.PropTypes.func
   },
 
   render: function() {
@@ -63,6 +65,8 @@ var Patients = React.createClass({
       <Invitation
         invitation={invitation}
         patientsComponent={this}
+        onAcceptInvitation={this.props.onAcceptInvitation}
+        onDismissInvitation={this.props.onDismissInvitation}
       ></Invitation>);
     /* jshint ignore:end */
   },

@@ -175,6 +175,8 @@ var AppComponent = React.createClass({
     var page = this.renderPage();
     var footer = this.renderFooter();
 
+    console.log('render was called', this.state.invites);
+
     /* jshint ignore:start */
     return (
       <div className="app">
@@ -387,18 +389,25 @@ var AppComponent = React.createClass({
 
   removeInvite: function(invitation) {
     var previousInvites = this.state.invites;
-    var invites = _.remove(_.cloneDeep(previousInvites), function(i) {
+    var invites = _.cloneDeep(previousInvites);
+
+    _.remove(invites, function(i) {
+      console.log(i.from.userid === invitation.from.userid);
       return i.from.userid === invitation.from.userid;
     });
+
+    console.log('removeInvite', invites.length, previousInvites.length. invites, previousInvites);
 
     this.setState({
       invites: invites
     });
 
+
     return previousInvites;
   },
 
   handleDismissInvitation: function(invitation) {
+    var self = this;
     var previousInvites = this.removeInvite(invitation);
 
     app.api.invitation.dismiss(invitation.from.userid, function(err) {
@@ -413,8 +422,9 @@ var AppComponent = React.createClass({
   },
 
   handleAcceptInvitation: function(invitation) {
+    var self = this;
     var previousInvites = this.removeInvite(invitation);
-    
+
     app.api.invitation.dismiss(invitation.from.userid, function(err) {
       if(err) {
         self.setState({
