@@ -114,7 +114,8 @@ var Example = React.createClass({
     if (err) {
       throw new Error('Could not fetch data file at ' + dataUrl);
     }
-    // b/c demo data is not assumed to be post-nurseshark data
+    // run nurseshark on data that isn't generated demo data
+    // i.e., real data exported from current blip
     if (dataUrl !== 'data/device-data.json') {
       data = nurseshark.processData(data).processedData;
     }
@@ -123,10 +124,25 @@ var Example = React.createClass({
   updateData: function(data) {
     var tidelineData = new TidelineData(data);
     window.tidelineData = tidelineData;
+    var bgData = tidelineData.grouped.smbg.concat(tidelineData.grouped.cbg);
+    this.setBgUnits(bgData);
     this.setState({
       chartData: tidelineData,
       chartType: 'daily'
     });
+  },
+  setBgUnits: function(bgData) {
+    var chartPrefs = this.state.chartPrefs;
+    var units = _.uniq(_.pluck(bgData, 'units'));
+    if (units.length > 1) {
+      console.log(new Error('Your BG data is of mixed units; I have no idea how to display it :('));
+    }
+    else {
+      chartPrefs.bgUnits = units[0];
+      this.setState({
+        chartPrefs: chartPrefs
+      });
+    }
   },
   // handlers
   handleSwitchToDaily: function(datetime) {
