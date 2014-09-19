@@ -174,7 +174,7 @@ var AppComponent = React.createClass({
     var notification = this.renderNotification();
     var page = this.renderPage();
     var footer = this.renderFooter();
-    
+
     /* jshint ignore:start */
     return (
       <div className="app">
@@ -420,7 +420,7 @@ var AppComponent = React.createClass({
     var self = this;
     var previousInvites = this.removeInvite(invitation);
 
-    app.api.invitation.dismiss(invitation.from.userid, function(err) {
+    app.api.invitation.accept(invitation.from.userid, function(err) {
       if(err) {
         self.setState({
           invites: previousInvites
