@@ -19,8 +19,10 @@ var async = require('async');
 var expect = require('salinity').expect;
 var superagent = require('superagent');
 
+var localStorage = require('./../../lib/inMemoryStorage');
+
 var platform = require('../../index.js');
-var myLocalStore = require('./mockedLocalStorage')();
+var myLocalStore = localStorage();
 var pjson = require('../../package.json');
 
 describe('platform client', function () {
@@ -65,7 +67,28 @@ describe('platform client', function () {
     profile: {fullName: 'Dr Doogie'}
   };
 
-  function createClient(user, loginOpts, mockedLocalStore ,cb) {
+  function createClient(localStore, cb) {
+    var myLog = { info: console.log, warn: console.log };
+
+    var client = platform(
+      {
+        host: 'https://staging-api.tidepool.io',
+        metricsSource : pjson.name,
+        metricsVersion : pjson.version
+      },
+      {
+        superagent : superagent,
+        log : myLog,
+        localStore: localStore == null ? myLocalStore : localStore
+      }
+    );
+
+    client.initialize(function(err){
+      return cb(err, client);
+    });
+  }
+
+  function createClientWithUser(user, loginOpts, mockedLocalStore ,cb) {
     var myLog = { info: console.log, warn: console.log };
 
     mockedLocalStore = mockedLocalStore || myLocalStore;
@@ -77,27 +100,33 @@ describe('platform client', function () {
       },
       { superagent : superagent,
         log : myLog,
-        localStore : mockedLocalStore }
+        localStore: mockedLocalStore }
     );
 
-    loginOpts = loginOpts || {};
-
-    return client.login(user,loginOpts,function (error, data) {
-      if (data && data.userid) {
-        user.id = data.userid;
+    return createClient(mockedLocalStore, function(err, client){
+      if (err != null) {
+        return cb(err);
       }
 
-      if (error) {
-        return client.signup(user, function (error, data) {
-          if (error) {
-            return cb(error, null);
-          }
+      loginOpts = loginOpts || {};
+
+      return client.login(user,loginOpts,function (error, data) {
+        if (data && data.userid) {
           user.id = data.userid;
+        }
+
+        if (error) {
+          return client.signup(user, function (error, data) {
+            if (error) {
+              return cb(error, null);
+            }
+            user.id = data.userid;
+            return cb(null, client);
+          });
+        } else {
           return cb(null, client);
-        });
-      } else {
-        return cb(null, client);
-      }
+        }
+      });
     });
   }
 
@@ -107,8 +136,8 @@ describe('platform client', function () {
 
     async.parallel(
       [
-        createClient.bind(null, a_PWD,noLoginOpts,myLocalStore),
-        createClient.bind(null, a_Member,noLoginOpts,myLocalStore)
+        createClientWithUser.bind(null, a_PWD,noLoginOpts,myLocalStore),
+        createClientWithUser.bind(null, a_Member,noLoginOpts,myLocalStore)
       ],
       function(err, clients) {
         if (err != null) {
@@ -142,7 +171,7 @@ describe('platform client', function () {
   describe('on initialization', function () {
     it('when the remember flag is true the user stays logged in', function (done) {
 
-      var store = require('./mockedLocalStorage')();
+      var store = localStorage();
 
       var refreshOnlyUser = {
         username: 'dummy@user.com',
@@ -150,24 +179,35 @@ describe('platform client', function () {
         emails: ['dummy@user.com']
       };
 
-      createClient(refreshOnlyUser, {remember:true}, store, function(error,loggedIn){
+      createClientWithUser(refreshOnlyUser, {remember:true}, store, function(error, loggedIn){
+        if (error != null) {
+          return done(error);
+        }
+        expect(loggedIn.isLoggedIn()).to.be.true;
+        console.log('first logged in');
 
-        expect(error).to.not.exist;
+        createClient(store, function(err, client) {
+          if (err != null) {
+            return done(err);
+          }
 
-        loggedIn.initialize(function(){
-          expect(loggedIn.isLoggedIn()).to.be.true;
-          //'refresh' again for good measure
-          loggedIn.initialize(function(){
-            expect(loggedIn.isLoggedIn()).to.be.true;
+          expect(client.isLoggedIn()).to.be.true;
+          console.log('second logged in');
+          createClient(store, function(err, anotherClient){
+            if (err != null) {
+              return done(err);
+            }
+
+            expect(anotherClient.isLoggedIn()).to.be.true;
+            console.log('thirdlogged in');
             done();
           });
         });
-
       });
     });
     it('when the remember flag is false the user does NOT stay logged in', function (done) {
 
-      createClient(a_PWD, {remember:false}, require('./mockedLocalStorage')(),function(error,loggedIn){
+      createClientWithUser(a_PWD, {remember:false}, localStorage(),function(error,loggedIn){
 
         expect(error).to.not.exist;
 
@@ -180,7 +220,7 @@ describe('platform client', function () {
     });
     it('when the remember flag is not set the user does NOT stay logged in', function (done) {
 
-      createClient(a_PWD, {} , require('./mockedLocalStorage')(), function(error,loggedIn){
+      createClientWithUser(a_PWD, {} , localStorage(), function(error,loggedIn){
 
         expect(error).to.not.exist;
 
@@ -197,7 +237,7 @@ describe('platform client', function () {
     var defaulted = null;
     it('track metrics to tidepool', function (done) {
 
-      createClient(a_PWD, defaulted, defaulted,function(error,loggedInApp){
+      createClientWithUser(a_PWD, defaulted, defaulted,function(error,loggedInApp){
 
         expect(error).to.not.exist;
         loggedInApp.trackMetric('Platform Client Metrics Test',defaulted,done);
@@ -206,7 +246,7 @@ describe('platform client', function () {
     });
     it('log errors to tidepool', function (done) {
 
-      createClient(a_PWD, defaulted , defaulted, function(error,loggedInApp){
+      createClientWithUser(a_PWD, defaulted , defaulted, function(error,loggedInApp){
 
         expect(error).to.not.exist;
         var appErrorToLog = new Error('Error From Platform Client Tests');
