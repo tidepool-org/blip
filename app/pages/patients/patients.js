@@ -22,22 +22,27 @@ var config = require('../../config');
 var personUtils = require('../../core/personutils');
 var PeopleList = require('../../components/peoplelist');
 var PersonCard = require('../../components/personcard');
+var Invitation = require('../../components/invitation');
 
 var Patients = React.createClass({
   propTypes: {
     user: React.PropTypes.object,
     fetchingUser: React.PropTypes.bool,
     patients: React.PropTypes.array,
+    invites: React.PropTypes.array,
     fetchingPatients: React.PropTypes.bool,
     showingWelcomeMessage: React.PropTypes.bool,
     onSetAsCareGiver: React.PropTypes.func,
-    trackMetric: React.PropTypes.func.isRequired
+    trackMetric: React.PropTypes.func.isRequired,
+    onAcceptInvitation: React.PropTypes.func,
+    onDismissInvitation: React.PropTypes.func
   },
 
   render: function() {
     var welcomeTitle = this.renderWelcomeTitle();
     var loadingIndicator = this.renderLoadingIndicator();
     var patients = this.renderPatients();
+    var invites = this.renderInvitations();
 
     /* jshint ignore:start */
     return (
@@ -45,11 +50,40 @@ var Patients = React.createClass({
         <div className="patients js-patients-page">
           <div className="patients-heirarchy-inverted">
             {welcomeTitle}
+            {invites}
             {loadingIndicator}
             {patients}
           </div>
         </div>
       </div>
+    );
+    /* jshint ignore:end */
+  },
+  renderInvitation: function(invitation, index) {
+    /* jshint ignore:start */
+    return (
+      <Invitation
+        invitation={invitation}
+        patientsComponent={this}
+        onAcceptInvitation={this.props.onAcceptInvitation}
+        onDismissInvitation={this.props.onDismissInvitation}
+      ></Invitation>);
+    /* jshint ignore:end */
+  },
+  renderInvitations: function() {
+    var invites = this.props.invites;
+
+    if (_.isEmpty(invites)) {
+       return null;
+    }
+
+    var invitations = _.map(invites, this.renderInvitation);
+
+    /* jshint ignore:start */
+    return (
+      <ul className='invitations'>
+        {invitations}
+      </ul>
     );
     /* jshint ignore:end */
   },

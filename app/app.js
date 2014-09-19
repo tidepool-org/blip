@@ -113,6 +113,8 @@ var AppComponent = React.createClass({
       fetchingPatients: true,
       patient: null,
       fetchingPatient: true,
+      invites: null,
+      fetchingInvites: true,
       patientData: null,
       fetchingPatientData: true,
       fetchingMessageData: true,
@@ -359,6 +361,7 @@ var AppComponent = React.createClass({
   showPatients: function() {
     this.renderPage = this.renderPatients;
     this.setState({page: 'patients'});
+    this.fetchInvites();
     this.fetchPatients();
     trackMetric('Viewed Care Team List');
   },
@@ -371,11 +374,63 @@ var AppComponent = React.createClass({
           fetchingUser={this.state.fetchingUser}
           patients={this.state.patients}
           fetchingPatients={this.state.fetchingPatients}
+          invites={this.state.invites}
+          fetchingInvites={this.state.fetchingInvites}
           showingWelcomeMessage={this.state.showingWelcomeMessage}
           onSetAsCareGiver={this.setUserAsCareGiver}
-          trackMetric={trackMetric}/>
+          trackMetric={trackMetric}
+          onAcceptInvitation={this.handleAcceptInvitation}
+          onDismissInvitation={this.handleDismissInvitation}/>
     );
     /* jshint ignore:end */
+  },
+
+  removeInvite: function(invitation) {
+    var previousInvites = this.state.invites;
+    var invites = _.cloneDeep(previousInvites);
+
+    _.remove(invites, function(i) {
+      return i.from.userid === invitation.from.userid;
+    });
+
+    this.setState({
+      invites: invites
+    });
+
+
+    return previousInvites;
+  },
+
+  handleDismissInvitation: function(invitation) {
+    var self = this;
+    var previousInvites = this.removeInvite(invitation);
+
+    app.api.invitation.dismiss(invitation.from.userid, function(err) {
+      if(err) {
+        self.setState({
+          invites: previousInvites
+        });
+
+        return self.handleApiError(err, 'Something went wrong while dismissing the invitation.');
+      }
+    });
+  },
+
+  handleAcceptInvitation: function(invitation) {
+    var self = this;
+    var previousInvites = this.removeInvite(invitation);
+
+    app.api.invitation.accept(invitation.from.userid, function(err) {
+      if(err) {
+        self.setState({
+          invites: previousInvites
+        });
+
+        return self.handleApiError(err, 'Something went wrong while accepting the invitation.');
+      }
+
+      self.fetchPatients({hideLoading: false});
+    });
   },
 
   showPatient: function(patientId) {
@@ -685,10 +740,35 @@ var AppComponent = React.createClass({
     });
   },
 
-  fetchPatients: function() {
+  fetchInvites: function() {
     var self = this;
 
-    self.setState({fetchingPatients: true});
+    self.setState({fetchingInvites: true});
+
+    api.invitation.getReceived(function(err, invites) {
+      if (err) {
+        var message = 'Something went wrong while fetching invitations';
+
+        self.setState({
+          fetchingInvites: false
+        });
+
+        return self.handleApiError(err, message);
+      }
+
+      self.setState({
+        invites: invites,
+        fetchingInvites: false
+      });
+    });
+  },
+
+  fetchPatients: function(options) {
+    var self = this;
+
+    if(options && !options.hideLoading) {
+        self.setState({fetchingPatients: true});
+    }
 
     app.api.patient.getAll(function(err, patients) {
       if (err) {
