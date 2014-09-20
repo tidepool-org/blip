@@ -218,7 +218,7 @@ module.exports = function(pool, opts) {
             return xPosition(d);
           },
           y: function(d) {
-            return opts.yScale(commonbolus.getDelivered(d)) - opts.markerHeight;
+            return opts.yScale(commonbolus.getDelivered(d));
           },
           width: opts.width,
           height: opts.markerHeight,
@@ -232,11 +232,11 @@ module.exports = function(pool, opts) {
             return xPosition(d);
           },
           y: function(d) {
-            return opts.yScale(commonbolus.getDelivered(d)) - opts.markerHeight;
+            return opts.yScale(commonbolus.getDelivered(d));
           },
           points: function(d) {
             var bolus = pluckBolus(d);
-            return underrideTriangle(xPosition(bolus), opts.yScale(commonbolus.getDelivered(d)) - opts.markerHeight);
+            return underrideTriangle(xPosition(bolus), opts.yScale(commonbolus.getDelivered(d)));
           },
           'class': 'd3-polygon-override d3-bolus'
         });
