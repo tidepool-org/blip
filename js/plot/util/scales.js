@@ -61,11 +61,11 @@ var scales = function(opts) {
           .range([pool.height() - pad, pad]);
       }
     },
-    bgTicks: function(data) {
+    bgTicks: function(data, units) {
       if ((!data) || (data.length === 0)) {
         return [];
       }
-      var defaultTicks = [40, 80, 120, 180, 300];
+      var defaultTicks = units === 'mg/dL' ? [40, 80, 120, 180, 300] : [2.0, 4.5, 7.0, 10.0, 16.0];
       var ext = d3.extent(data, function(d) { return d.value; });
       // if the min of our data is greater than any of the defaultTicks, remove that tick
       defaultTicks.forEach(function(tick) {

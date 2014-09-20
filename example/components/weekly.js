@@ -56,6 +56,7 @@ var Weekly = React.createClass({
         ref="header" />
         <div id="tidelineOuterContainer">
           <WeeklyChart
+            bgClasses={this.props.chartPrefs.bgClasses}
             bgUnits={this.props.chartPrefs.bgUnits}
             initialDatetimeLocation={this.props.initialDatetimeLocation}
             patientData={this.props.patientData}
@@ -92,6 +93,7 @@ var Weekly = React.createClass({
     this.props.onSwitchToDaily(datetime);
   },
   handleClickTwoWeeks: function() {
+    // when you're on two-week view, clicking one-day does nothing
     return;
   },
   handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
@@ -132,9 +134,10 @@ var Weekly = React.createClass({
 });
 
 var WeeklyChart = React.createClass({
-  chartOpts: ['bgUnits'],
+  chartOpts: ['bgClasses', 'bgUnits'],
   log: bows('Weekly Chart'),
   propTypes: {
+    bgClasses: React.PropTypes.object.isRequired,
     bgUnits: React.PropTypes.string.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
@@ -154,7 +157,7 @@ var WeeklyChart = React.createClass({
   },
   mountChart: function(node, chartOpts) {
     this.log('Mounting...');
-    this.chart = chartWeeklyFactory(node, _.assign(chartOpts, _.pick(this.props, this.chartOpts)));
+    this.chart = chartWeeklyFactory(node,  _.pick(this.props, this.chartOpts));
     this.bindEvents();
   },
   unmountChart: function() {

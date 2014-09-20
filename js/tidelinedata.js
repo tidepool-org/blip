@@ -210,6 +210,38 @@ function TidelineData(data, opts) {
     });
   };
 
+  this.setBGCategories = function() {
+    var units = _.uniq(_.pluck(this.grouped.smbg.concat(this.grouped.cbg), 'units'));
+    if (units.length > 1) {
+      log(new Error('Your BG data is of mixed units; I have no idea how to display it :('));
+      this.bgUnits = null;
+    }
+    else {
+      this.bgUnits = units[0];
+    }
+
+    var classes = {
+      'very-low': {boundary: 60},
+      low: {boundary: 80},
+      target: {boundary: 180},
+      high: {boundary: 200},
+      'very-high': {boundary: 300}
+    };
+
+    if (this.bgUnits === 'mmol/L') { 
+      var GLUCOSE_MM = 18.01559;
+      for (var key in classes) {
+        if (key === 'units') {
+          classes[key] = 'mmol/L';
+        }
+        else {
+          classes[key].boundary = classes[key].boundary/GLUCOSE_MM;
+        }
+      } 
+    }
+    this.bgClasses = classes;
+  };
+
   log('Items to validate:', data.length);
 
   console.time('Validation in');
@@ -229,10 +261,20 @@ function TidelineData(data, opts) {
     return d.normalTime;
   });
 
+  this.setBGCategories();
+
   this.basalUtil = new BasalUtil(this.grouped.basal);
   this.bolusUtil = new BolusUtil(this.grouped.bolus);
-  this.cbgUtil = new BGUtil(this.grouped.cbg, {DAILY_MIN: (opts.CBG_PERCENT_FOR_ENOUGH * opts.CBG_MAX_DAILY)});
-  this.smbgUtil = new BGUtil(this.grouped.smbg, {DAILY_MIN: opts.SMBG_DAILY_MIN});
+  this.cbgUtil = new BGUtil(this.grouped.cbg, {
+    bgUnits: this.bgUnits,
+    categories: this.bgClasses,
+    DAILY_MIN: (opts.CBG_PERCENT_FOR_ENOUGH * opts.CBG_MAX_DAILY)
+  });
+  this.smbgUtil = new BGUtil(this.grouped.smbg, {
+    bgUnits: this.bgUnits,
+    categories: this.bgClasses,
+    DAILY_MIN: opts.SMBG_DAILY_MIN
+  });
   
   if (data.length > 0 && !_.isEmpty(this.diabetesData)) {
     this.settingsUtil = new SettingsUtil(this.grouped.settings || [], [this.diabetesData[0].normalTime, this.diabetesData[this.diabetesData.length - 1].normalTime]);

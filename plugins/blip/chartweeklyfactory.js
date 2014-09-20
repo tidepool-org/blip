@@ -36,13 +36,14 @@ function chartWeeklyFactory(el, options) {
 
   var emitter = new EventEmitter();
   var chart = tideline.twoWeek(emitter);
+  chart.options = options;
   chart.emitter = emitter;
 
   var pools = [];
 
   var smbgTime;
 
-  var create = function(el, options) {
+  var create = function(el) {
     if (!el) {
       throw new Error('Sorry, you must provide a DOM element! :(');
     }
@@ -86,7 +87,7 @@ function chartWeeklyFactory(el, options) {
     chart.setup();
     chart.legend({
       main: 'Blood Glucose',
-      light: ' ' + options.bgUnits
+      light: ' ' + chart.options.bgUnits
     });
 
     var days = chart.days;
@@ -110,7 +111,7 @@ function chartWeeklyFactory(el, options) {
       .domain(fillEndpoints)
       .range([chart.axisGutter() + chart.dataGutter(), chart.width() - chart.navGutter() - chart.dataGutter()]);
 
-    smbgTime = new tideline.plot.SMBGTime({emitter: emitter});
+    smbgTime = new tideline.plot.SMBGTime({emitter: emitter, bgUnits: chart.options.bgUnits, classes: chart.options.bgClasses});
 
     chart.pools().forEach(function(pool, i) {
       var d = new Date(pool.id().replace('poolBG_', ''));
@@ -131,6 +132,8 @@ function chartWeeklyFactory(el, options) {
     });
 
     chart.poolStats.addPlotType('stats', tideline.plot.stats.widget(chart.poolStats, {
+      classes: chart.options.bgClasses,
+      bgUnits: chart.options.bgUnits,
       cbg: cbgUtil,
       smbg: smbgUtil,
       bolus: bolusUtil,

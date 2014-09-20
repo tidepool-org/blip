@@ -28,6 +28,7 @@ module.exports = function(pool, opts) {
   opts = opts || {};
 
   var defaults = {
+    bgUnits: 'mg/dL',
     classes: {
       'very-low': {boundary: 60},
       low: {boundary: 80},
@@ -115,7 +116,7 @@ module.exports = function(pool, opts) {
     group.append('p')
       .attr('class', 'value')
       .append('span')
-      .html(Math.round(datum.value));
+      .html(opts.bgUnits === 'mg/dL' ? Math.round(datum.value) : d3.format('.1f')(datum.value));
   };
 
   smbg.addTooltip = function(d) {

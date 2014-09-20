@@ -51,6 +51,7 @@ var Daily = React.createClass({
         ref="header" />
         <div id="tidelineOuterContainer">
           <DailyChart
+            bgClasses={this.props.chartPrefs.bgClasses}
             bgUnits={this.props.chartPrefs.bgUnits}
             hiddenPools={this.props.chartPrefs.hiddenPools}
             initialDatetimeLocation={this.props.initialDatetimeLocation}
@@ -78,6 +79,7 @@ var Daily = React.createClass({
     this.refs.chart.goToMostRecent();
   },
   handleClickOneDay: function() {
+    // when you're on one-day view, clicking one-day does nothing
     return;
   },
   handleClickTwoWeeks: function() {
@@ -135,9 +137,10 @@ var Daily = React.createClass({
 });
 
 var DailyChart = React.createClass({
-  chartOpts: ['bgUnits', 'hiddenPools'],
+  chartOpts: ['bgClasses', 'bgUnits', 'hiddenPools'],
   log: bows('Daily Chart'),
   propTypes: {
+    bgClasses: React.PropTypes.object.isRequired,
     bgUnits: React.PropTypes.string.isRequired,
     hiddenPools: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,

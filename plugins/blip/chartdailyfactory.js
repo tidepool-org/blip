@@ -52,7 +52,7 @@ function chartDailyFactory(el, options) {
 
   var SMBG_SIZE = 16;
 
-  var create = function(el, options) {
+  var create = function(el) {
 
     if (!el) {
       throw new Error('Sorry, you must provide a DOM element! :(');
@@ -255,7 +255,7 @@ function chartDailyFactory(el, options) {
       .scale(scaleBG)
       .orient('left')
       .outerTickSize(0)
-      .tickValues(scales.bgTicks(allBG))
+      .tickValues(scales.bgTicks(allBG, chart.options.bgUnits))
       .tickFormat(d3.format('g')));
     // add background fill rectangles to BG pool
     poolBG.addPlotType('fill', fill(poolBG, {
@@ -263,23 +263,28 @@ function chartDailyFactory(el, options) {
       guidelines: [
         {
           'class': 'd3-line-bg-threshold',
-          'height': 80
+          'height': chart.options.bgClasses.low.boundary
         },
         {
           'class': 'd3-line-bg-threshold',
-          'height': 180
+          'height': chart.options.bgClasses.target.boundary
         }
       ],
       yScale: scaleBG
     }), true, true);
 
     // add CBG data to BG pool
-    poolBG.addPlotType('cbg', tideline.plot.cbg(poolBG, {yScale: scaleBG}), true, true);
+    poolBG.addPlotType('cbg', tideline.plot.cbg(poolBG, {
+      bgUnits: chart.options.bgUnits,
+      classes: chart.options.bgClasses,
+      yScale: scaleBG
+    }), true, true);
 
     // add SMBG data to BG pool
     poolBG.addPlotType('smbg', tideline.plot.smbg(poolBG, {
-      yScale: scaleBG,
-      bgUnits: options.bgUnits
+      bgUnits: chart.options.bgUnits,
+      classes: chart.options.bgClasses,
+      yScale: scaleBG
     }), true, true);
 
     // TODO: when we bring responsiveness in
@@ -358,6 +363,8 @@ function chartDailyFactory(el, options) {
 
     // stats pool
     poolStats.addPlotType('stats', tideline.plot.stats.widget(poolStats, {
+      classes: chart.options.bgClasses,
+      bgUnits: chart.options.bgUnits,
       cbg: cbgUtil,
       smbg: smbgUtil,
       bolus: bolusUtil,

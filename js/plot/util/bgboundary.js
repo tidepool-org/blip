@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+var _ = require('lodash');
+
 module.exports = function(classes) {
   if (Object.keys(classes).length > 3) {
     return function(datum) {

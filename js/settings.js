@@ -22,12 +22,13 @@ var format = require('./data/util/format');
 
 var log = require('bows')('Settings');
 
-module.exports = function(emitter, opts) {
+module.exports = function(opts) {
 
-  opts = opts || {'bgUnits': 'mg/dL'};
+  opts = opts || {};
 
   var msStartString = function(x) { return format.millisecondsAsTimeOfDay(x); };
   var defaults = {
+    'bgUnits': 'mg/dL',
     'sections': {
       'basal': {
         'label': 'Basal Rates',

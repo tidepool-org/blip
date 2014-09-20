@@ -25,6 +25,15 @@ var log = require('bows')('BGUtil');
 function BGUtil(data, opts) {
 
   opts = opts || {};
+  var defaults = {
+    categories: {
+      low: {boundary: 80},
+      target: {boundary: 180}
+    },
+    bgUnits: 'mg/dL'
+  };
+  _.defaults(opts, defaults);
+
   if (opts.DAILY_MIN == null) {
     throw new Error('BGUtil needs a daily minimum readings (`opts.DAILY_MIN`) in order to calculate a statistic.');
   }
@@ -32,12 +41,7 @@ function BGUtil(data, opts) {
   var MS_IN_24 = 86400000;
   var currentIndex = 0, currentData;
 
-  var categories = {
-    low: 80,
-    target: 180
-  };
-
-  var defaults = {
+  var defaultResult = {
     low: 0,
     target: 0,
     high: 0,
@@ -52,10 +56,10 @@ function BGUtil(data, opts) {
   };
 
   function getCategory (n) {
-    if (n <= categories.low) {
+    if (n <= opts.categories.low.boundary) {
       return 'low';
     }
-    else if ((n > categories.low) && (n <= categories.target)) {
+    else if ((n > opts.categories.low.boundary) && (n <= opts.categories.target.boundary)) {
       return 'target';
     }
     else {
@@ -129,7 +133,7 @@ function BGUtil(data, opts) {
       var groups = _.countBy(filtered, function(d) {
         return getCategory(d.value);
       });
-      breakdown = _.defaults(breakdown, groups, defaults);
+      breakdown = _.defaults(breakdown, groups, defaultResult);
       breakdown.total = breakdown.low + breakdown.target + breakdown.high;
     }
     return _.defaults(breakdown, breakdownNaN);
@@ -140,7 +144,14 @@ function BGUtil(data, opts) {
       var sum = _.reduce(filtered, function(memo, d) {
         return memo + d.value;
       }, 0);
-      var average = parseInt((sum/filtered.length).toFixed(0), 10);
+      var average;
+      if (opts.bgUnits === 'mmol/L') {
+        average = (sum/filtered.length).toFixed(1);
+      }
+      else {
+        average = parseInt((sum/filtered.length).toFixed(0), 10);
+      }
+      
       return {value: average, category: getCategory(average)};
     }
     else {

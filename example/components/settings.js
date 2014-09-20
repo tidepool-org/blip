@@ -69,6 +69,7 @@ var Settings = React.createClass({
     this.props.onSwitchToWeekly();
   },
   handleClickSettings: function() {
+    // when you're on settings view, clicking one-day does nothing
     return;
   }
 });

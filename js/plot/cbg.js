@@ -26,6 +26,7 @@ module.exports = function(pool, opts) {
   opts = opts || {};
 
   var defaults = {
+    bgUnits: 'mg/dL',
     classes: {
       low: {boundary: 80},
       target: {boundary: 180},
@@ -34,6 +35,9 @@ module.exports = function(pool, opts) {
     radius: 2.5,
   };
 
+  var classes = opts.classes;
+  classes = _.omit(classes, ['very-low', 'very-high']);
+  opts.classes = classes;
   _.defaults(opts, defaults);
 
   var mainGroup = pool.parent();

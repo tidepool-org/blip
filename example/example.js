@@ -33,7 +33,6 @@ var Example = React.createClass({
   getInitialState: function() {
     return {
       chartPrefs: {
-        bgUnits: 'mg/dL',
         hiddenPools: {
           basalSettings: true
         }
@@ -124,25 +123,14 @@ var Example = React.createClass({
   updateData: function(data) {
     var tidelineData = new TidelineData(data);
     window.tidelineData = tidelineData;
-    var bgData = tidelineData.grouped.smbg.concat(tidelineData.grouped.cbg);
-    this.setBgUnits(bgData);
+    var prefs = _.clone(this.state.chartPrefs);
+    prefs.bgClasses = tidelineData.bgClasses;
+    prefs.bgUnits = tidelineData.bgUnits;
     this.setState({
       chartData: tidelineData,
+      chartPrefs: prefs,
       chartType: 'daily'
     });
-  },
-  setBgUnits: function(bgData) {
-    var chartPrefs = this.state.chartPrefs;
-    var units = _.uniq(_.pluck(bgData, 'units'));
-    if (units.length > 1) {
-      console.log(new Error('Your BG data is of mixed units; I have no idea how to display it :('));
-    }
-    else {
-      chartPrefs.bgUnits = units[0];
-      this.setState({
-        chartPrefs: chartPrefs
-      });
-    }
   },
   // handlers
   handleSwitchToDaily: function(datetime) {
