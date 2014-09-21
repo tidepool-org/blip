@@ -853,17 +853,21 @@ module.exports = function (config, deps) {
     /**
      * Invite a user
      *
-     * @param userId - userId to invite
-     * @param permissions - permissions to set
+     * @param email - email of the user to invite
+     * @param permissions - permissions to be given
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    inviteUser: function (userId,permissions,cb) {
+    inviteUser: function (email,permissions,cb) {
       assertArgumentsSize(arguments, 3);
 
-      var invitor = getUserId();
+      var details = { "email":email,"permissions":permissions };
 
-      return cb(null,null)
+      doPostWithToken(
+        '/confirm/send/invite/' + getUserId(),
+        details,
+        cb
+      );
     },
     /**
      * Get the loggedin users invites
@@ -874,33 +878,40 @@ module.exports = function (config, deps) {
     usersInvites: function (cb) {
       assertArgumentsSize(arguments, 1);
 
-      var userId = getUserId();
-
-      return cb(null,null)
+      return cb(null,null);
     },
     /**
      * Accept the invite for the loggedin user
      *
      * @param {String} inviteId
+     * @param {String} invitedBy
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    acceptInvite: function (inviteId, cb) {
-      assertArgumentsSize(arguments, 2);
-      var userId = getUserId();
-      return cb(null,null)
+    acceptInvite: function (inviteId,invitedBy, cb) {
+      assertArgumentsSize(arguments, 3);
+
+      doPutWithToken(
+        '/confirm/accept/invite/'+ getUserId() +'/'+ invitedBy,
+        {'key':inviteId},
+        cb
+      );
     },
     /**
      * Dismess the invite for the loggedin user
      *
      * @param {String} inviteId
+     * @param {String} invitedBy
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    dismissInvite: function (inviteId, cb) {
-      assertArgumentsSize(arguments, 2);
-      var userId = getUserId();
-      return cb(null,null)
+    dismissInvite: function (inviteId,invitedBy cb) {
+      assertArgumentsSize(arguments, 3);
+      doPutWithToken(
+        '/confirm/dismiss/invite/'+ getUserId() +'/'+ invitedBy,
+        {'key':inviteId},
+        cb
+      );
     },
   };
 };

@@ -572,7 +572,7 @@ describe('platform client', function () {
     });
 
     it('a_Member can accept the invite from a_PWD', function(done){
-       memberClient.acceptInvite(inviteToViewPwdMember.key,function(err, invite) {
+       memberClient.acceptInvite(inviteToViewPwdMember.key,a_PWD.userid,function(err, invite) {
         expect(invite).to.not.be.empty();
         done(err);
       });
@@ -582,7 +582,7 @@ describe('platform client', function () {
        pwdClient.inviteUser(a_Member.userid,{root: {}}, function(err, invite) {
         expect(invite).to.not.be.empty();
         //dismiss the invite
-        memberClient.dismissInvite(invite.key,function(err, dismiss) {
+        memberClient.dismissInvite(invite.key,a_PWD.userid,function(err, dismiss) {
           expect(invite).to.not.be.empty();
           done(err);
         });
