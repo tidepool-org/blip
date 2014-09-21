@@ -662,6 +662,26 @@ module.exports = function (config, deps) {
       );
     },
     /**
+     * Get the access permissions for the currently logged in user
+     *
+     * @param cb - function(err, perms), called with error if exists and permissions as found
+     */
+    getAccessPermissions: function(cb) {
+      assertArgumentsSize(arguments, 1);
+
+      var userId = getUserId();
+
+      if (userId == null) {
+        return cb({ status : STATUS_BAD_REQUEST, message: 'userId not set'});
+      }
+
+      doGetWithToken(
+        '/access/' + userId,
+        { 200: function(res){ return res.body; }, 404: null },
+        cb
+      );
+    },
+    /**
      * Get the listed users public info
      *
      * @param {Array} patientIds array of id's that we want the public info for
@@ -829,6 +849,43 @@ module.exports = function (config, deps) {
         {message: edits},
         cb
       );
-    }
+    },
+    /**
+     * Get the loggedin users invites
+     *
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    usersInvites: function (cb) {
+      assertArgumentsSize(arguments, 1);
+
+      var userId = getUserId();
+
+      return cb(null,null)
+    },
+    /**
+     * Accept the invite for the loggedin user
+     *
+     * @param {String} inviteId
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    acceptInvite: function (inviteId, cb) {
+      assertArgumentsSize(arguments, 2);
+      var userId = getUserId();
+      return cb(null,null)
+    },
+    /**
+     * Dismess the invite for the loggedin user
+     *
+     * @param {String} inviteId
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    dismissInvite: function (inviteId, cb) {
+      assertArgumentsSize(arguments, 2);
+      var userId = getUserId();
+      return cb(null,null)
+    },
   };
 };
