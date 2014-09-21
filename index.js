@@ -851,6 +851,21 @@ module.exports = function (config, deps) {
       );
     },
     /**
+     * Invite a user
+     *
+     * @param userId - userId to invite
+     * @param permissions - permissions to set
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    inviteUser: function (userId,permissions,cb) {
+      assertArgumentsSize(arguments, 3);
+
+      var invitor = getUserId();
+
+      return cb(null,null)
+    },
+    /**
      * Get the loggedin users invites
      *
      * @param cb

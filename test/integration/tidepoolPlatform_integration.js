@@ -558,4 +558,37 @@ describe('platform client', function () {
       });
     });
   });
+
+  describe('handles invites', function () {
+
+    var inviteToViewPwdMember;
+
+    it('so we can invite a_Member to be on the team of a_PWD', function(done){
+      pwdClient.inviteUser(a_Member.userid,{view: {}}, function(err, invite) {
+        expect(invite).to.not.be.empty();
+        inviteToViewPwdMember = invite;
+        done(err);
+      });
+    });
+
+    it('a_Member can accept the invite from a_PWD', function(done){
+       memberClient.acceptInvite(inviteToViewPwdMember.key,function(err, invite) {
+        expect(invite).to.not.be.empty();
+        done(err);
+      });
+    });
+
+    it('a_Member can dismiss an the invite from a_PWD', function(done){
+       pwdClient.inviteUser(a_Member.userid,{root: {}}, function(err, invite) {
+        expect(invite).to.not.be.empty();
+        //dismiss the invite
+        memberClient.dismissInvite(invite.key,function(err, dismiss) {
+          expect(invite).to.not.be.empty();
+          done(err);
+        });
+        done(err);
+      });
+    });
+
+  });
 });
