@@ -18,7 +18,6 @@
 var _ = require('lodash');
 
 var sessionTokenHeader = 'x-tidepool-session-token';
-//var userIdLocalKey = 'userId';
 var tokenLocalKey = 'authToken';
 
 function defaultProperty(obj, property, defaultValue) {
@@ -864,7 +863,7 @@ module.exports = function (config, deps) {
       var details = { 'email':email,'permissions':permissions };
 
       doPostWithToken(
-        '/confirm/send/invite/' + getUserId(),
+        '/confirm/send/invite/'+getUserId(),
         details,
         cb
       );
@@ -907,11 +906,13 @@ module.exports = function (config, deps) {
      */
     dismissInvite: function (inviteId,invitedBy, cb) {
       assertArgumentsSize(arguments, 3);
+
       doPutWithToken(
         '/confirm/dismiss/invite/'+ getUserId() +'/'+ invitedBy,
         {'key':inviteId},
+        { 204: function(res){ return res.body; }},
         cb
       );
-    },
+    }
   };
 };
