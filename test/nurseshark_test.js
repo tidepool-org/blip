@@ -284,10 +284,17 @@ describe('nurseshark', function() {
   // TODO: remove this! just for development
   describe('on real data', function() {
     var data = require('../example/data/blip-input.json');
-    it.skip('should succeed without error', function() {
+    it('should succeed without error', function() {
       var res = nurseshark.processData(data);
       assert.isArray(res.processedData);
-      expect(res.erroredData.length).to.equal(0);
+      var ok = 0;
+      for (var i = 0; i < res.erroredData.length; ++i) {
+        var error = res.erroredData[i];
+        if (error.errorMessage === 'Bad pump status deviceMeta.') {
+          ok += 1;
+        }
+      }
+      expect(res.erroredData.length - ok).to.equal(0);
     });
 
     it('how does does deep clone take?', function() {
