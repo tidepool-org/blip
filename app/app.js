@@ -371,7 +371,7 @@ var AppComponent = React.createClass({
         fetchingUser={this.state.fetchingUser}
         pendingInvites={this.state.pendingInvites}
         fetchingPendingInvites={this.state.fetchingPendingInvites}
-        onChangeMemberPermissionson={this.handleChangeMemberPermissionson}
+        onChangeMemberPermissions={this.handleChangeMemberPermissionson}
         changingMemberPermissions={this.state.changingMemberPermissions}
         onRemoveMember={this.handleRemoveMember}
         removingMember={this.state.removingMember}
@@ -464,8 +464,11 @@ var AppComponent = React.createClass({
     this.setState({changingMemberPermissions: true});
 
     api.access.setMemberPermissions(memberId, permissions, function(err) {
-      self.setState({changingMemberPermissions: false});
-      self.fetchUser(); //console.log todo: fetch patient or user? // this re renders the members
+      self.setState({
+        changingMemberPermissions: false
+      });
+      //self.fetchUser(); //console.log todo: fetch patient or user? // this re renders the members
+
 
       if(err) {
         return self.handleApiError(err, 'Something went wrong while changing memeber perimissions.');
@@ -479,9 +482,7 @@ var AppComponent = React.createClass({
     this.setState({removingMember: true});
 
     api.access.removeMember(memberId, function(err) {
-      self.setState({removingMember: false});
-      self.fetchUser(); //console.log todo: fetch patient or user? // this re renders the members
-
+      // here i nest a call after both complete set state for patient and removing member self.setState({removingMember: false});
       if(err) {
         return self.handleApiError(err, 'Something went wrong while removing memeber.');
       }
