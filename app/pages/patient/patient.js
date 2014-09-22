@@ -17,10 +17,8 @@
 var React = require('react');
 var _ = require('lodash');
 
-var config = require('../../config');
-
 var personUtils = require('../../core/personutils');
-var datetimeUtils = require('../../core/datetimeutils');
+var PatientInfo = require('./patientinfo');
 var PeopleList = require('../../components/peoplelist');
 var PersonCard = require('../../components/personcard');
 
@@ -102,129 +100,21 @@ var Patient = React.createClass({
   },
 
   renderInfo: function() {
-    if (this.props.fetchingPatient) {
-      return this.renderInfoSkeleton();
-    }
-
-    var patient = this.props.patient;
-
     return (
       <div className="PatientPage-infoSection">
         <div className="PatientPage-sectionTitle">Info</div>
-        <div className="PatientPage-info">
-          <div className="PatientPage-infoHead">
-            <div className="PatientPage-infoPicture"></div>
-            <div className="PatientPage-infoBlocks">
-              <div className="PatientPage-infoBlockRow">
-                <div className="PatientPage-infoBlock PatientPage-infoBlock--withArrow">
-                  {this.getDisplayName(patient)}
-                </div>
-              </div>
-              <div className="PatientPage-infoBlockRow">
-                <div className="PatientPage-infoBlock">
-                  {this.getAgeText(patient)}
-                </div>
-              </div>
-              <div className="PatientPage-infoBlockRow">
-                <div className="PatientPage-infoBlock">
-                  {this.getDiagnosisText(patient)}
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="PatientPage-infoBio">
-            {this.getAboutText(patient)}
-          </div>
-        </div>
-        <div className="PatientPage-infoEdit">
-          {this.renderEditLink()}
-        </div>
+        <PatientInfo
+          user={this.props.user}
+          fetchingUser={this.props.fetchingUser}
+          patient={this.props.patient}
+          fetchingPatient={this.props.fetchingPatient}
+          trackMetric={this.props.trackMetric} />
       </div>
-    );
-  },
-
-  renderInfoSkeleton: function() {
-    return (
-      <div className="PatientPage-infoSection">
-        <div className="PatientPage-sectionTitle">Info</div>
-        <div className="PatientPage-info">
-          <div className="PatientPage-infoHead">
-            <div className="PatientPage-infoPicture"></div>
-            <div className="PatientPage-infoBlocks">
-              <div className="PatientPage-infoBlockRow">
-                <div className="PatientPage-infoBlock PatientPage-infoBlock--withArrow PatientPage-infoBlock--placeholder">&nbsp;</div>
-              </div>
-              <div className="PatientPage-infoBlockRow">
-                <div className="PatientPage-infoBlock PatientPage-infoBlock--placeholder">&nbsp;</div>
-              </div>
-              <div className="PatientPage-infoBlockRow">
-                <div className="PatientPage-infoBlock PatientPage-infoBlock--placeholder">&nbsp;</div>
-              </div>
-            </div>
-          </div>
-          <div className="PatientPage-infoBio PatientPage-infoBio--placeholder">&nbsp;</div>
-        </div>
-        <div className="PatientPage-infoEdit"></div>
-      </div>
-    );
-  },
-
-  renderEditLink: function() {
-    if (!this.isSamePersonUserAndPatient()) {
-      return null;
-    }
-
-    var editUrl = [
-      '#/patients',
-      this.props.patient.userid,
-      'edit'
-    ].join('/');
-
-    var self = this;
-    var handleClick = function() {
-      self.props.trackMetric('Clicked Edit Profile');
-    };
-
-    return (
-      <a href={editUrl} className="js-edit-patient" onClick={handleClick}>
-        Edit
-      </a>
     );
   },
 
   isSamePersonUserAndPatient: function() {
     return personUtils.isSame(this.props.user, this.props.patient);
-  },
-
-  getDisplayName: function(patient) {
-    return personUtils.patientFullName(patient);
-  },
-
-  getAgeText: function(patient) {
-    var patientInfo = personUtils.patientInfo(patient) || {};
-    var birthday = patientInfo.birthday;
-
-    if (!birthday) {
-      return;
-    }
-
-    return datetimeUtils.yearsOldText(birthday);
-  },
-
-  getDiagnosisText: function(patient) {
-    var patientInfo = personUtils.patientInfo(patient) || {};
-    var diagnosisDate = patientInfo.diagnosisDate;
-
-    if (!diagnosisDate) {
-      return;
-    }
-
-    return 'Diagnosed ' + datetimeUtils.yearsAgoText(diagnosisDate);
-  },
-
-  getAboutText: function(patient) {
-    var patientInfo = personUtils.patientInfo(patient) || {};
-    return patientInfo.about;
   },
 
   renderAccess: function() {
