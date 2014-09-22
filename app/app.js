@@ -40,6 +40,7 @@ var MailTo = require('./components/mailto');
 var Login = require('./pages/login');
 var Signup = require('./pages/signup');
 var Profile = require('./pages/profile');
+var ProfileMembers = require('./pages/profilemembers');
 var Patients = require('./pages/patients');
 var Patient = require('./pages/patient');
 var PatientEdit = require('./pages/patientedit');
@@ -342,18 +343,42 @@ var AppComponent = React.createClass({
 
   showProfile: function() {
     this.renderPage = this.renderProfile;
+    this.fetchPendingInvites();
     this.setState({page: 'profile'});
     trackMetric('Viewed Account Edit');
   },
 
   renderProfile: function() {
+    var profileTeam = this.renderProfileTeam();
+
     return (
       /* jshint ignore:start */
       <Profile
           user={this.state.user}
           fetchingUser={this.state.fetchingUser}
+          profileTeam={profileTeam}
           onSubmit={this.updateUser}
           trackMetric={trackMetric}/>
+      /* jshint ignore:end */
+    );
+  },
+
+  renderProfileTeam: function() {
+    return (
+      /* jshint ignore:start */
+      <ProfileTeam
+        user={this.state.user}
+        fetchingUser={this.state.fetchingUser}
+        pendingInvites={this.state.pendingInvites}
+        fetchingPendingInvites={this.state.fetchingPendingInvites}
+        onChangeMemberPermissionson={this.handleChangeMemberPermissionson}
+        changingMemberPermissions={this.state.changingMemberPermissions}
+        onRemoveMember={this.handleRemoveMember}
+        removingMember={this.state.removingMember}
+        onInviteMember={this.handleInviteMember}
+        invitingMember={this.state.invitingMember}
+        onCancelInvite={this.handleCancelInvite}/>
+        cancelingInvite={this.state.cancelingInvite}
       /* jshint ignore:end */
     );
   },
@@ -430,6 +455,66 @@ var AppComponent = React.createClass({
       }
 
       self.fetchPatients({hideLoading: false});
+    });
+  },
+
+  handleChangeMemberPermissions: function(memberId, permissions) {
+    var self = this;
+
+    this.setState({changingMemberPermissions: true});
+
+    api.access.setMemberPermissions(memberId, permissions, function(err) {
+      self.setState({changingMemberPermissions: false});
+      self.fetchUser(); //console.log todo: fetch patient or user? // this re renders the members
+
+      if(err) {
+        return self.handleApiError(err, 'Something went wrong while changing memeber perimissions.');
+      }
+    });
+  },
+
+  handleRemoveMember: function(memberId) {
+    var self = this;
+
+    this.setState({removingMember: true});
+
+    api.access.removeMember(memberId, function(err) {
+      self.setState({removingMember: false});
+      self.fetchUser(); //console.log todo: fetch patient or user? // this re renders the members
+
+      if(err) {
+        return self.handleApiError(err, 'Something went wrong while removing memeber.');
+      }
+    });
+  },
+
+  handleInviteMember: function(email, permissions) {
+    var self = this;
+
+    this.setState({invitingMember: true});
+
+    api.invitation.invite(email, permissions, function(err) {
+      this.setState({invitingMember: false});
+      self.fetchUser(); //console.log todo: fetch patient or user? // this re renders the members
+
+      if (err) {
+        return self.handleApiError(err, 'Something went wrong while inviting member.');
+      }
+    });
+  },
+
+  handleCancelInvite: function(email) {
+    var self = this;
+
+    this.setState({cancelingInvite: true});
+
+    api.invitation.cancel(memberId, function(err) {
+      self.setState({cancelingInvite: false});
+      self.fetchUser(); //console.log todo: fetch patient or user? // this re renders the members
+
+      if(err) {
+        return self.handleApiError(err, 'Something went wrong while canceling invite.');
+      }
     });
   },
 
@@ -736,6 +821,29 @@ var AppComponent = React.createClass({
       self.setState({
         user: user,
         fetchingUser: false
+      });
+    });
+  },
+
+  fetchPendingInvites: function() {
+    var self = this;
+
+    self.setState({fetchingPendingInvites: true});
+
+    api.invitation.getSent(function(err, invites) {
+      if (err) {
+        var message = 'Something went wrong while fetching pending invites';
+
+        self.setState({
+          fetchingPendingInvites: false
+        });
+
+        return self.handleApiError(err, message);
+      }
+
+      self.setState({
+        pendingInvites: invites,
+        fetchingPendingInvites: false
       });
     });
   },
