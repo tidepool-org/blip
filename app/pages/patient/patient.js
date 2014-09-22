@@ -34,9 +34,11 @@ var Patient = React.createClass({
   render: function() {
     return (
       <div className="PatientPage js-patient-page">
-        {this.renderSubnav()}
-        {this.renderContent()}
-        {this.renderFooter()}
+        <div className="PatientPage-layer">
+          {this.renderSubnav()}
+          {this.renderContent()}
+          {this.renderFooter()}
+        </div>
       </div>
     );
   },

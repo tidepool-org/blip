@@ -97,14 +97,82 @@
 }
 
 .PatientInfo-controls {
-  height: 20px;
-  font-size: 12px;
-  line-height: 20px;
+  min-height: 30px;
+  padding: 5px;
   text-align: right;
-  padding: 0 5px;
 }
 
-a.PatientInfo-edit {
+// Editing
+// ====================================
+
+.PatientInfo-label {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+@PatientInfo-inputHeight: 20px;
+@PatientInfo-inputBorderSize: 1px;
+
+.PatientInfo-input {
+  display: inline-block;
+
+  font-size: 14px;
+  height: @PatientInfo-inputHeight;
+  line-height: @PatientInfo-inputHeight - 2*@PatientInfo-inputBorderSize;
+  vertical-align: middle;
+  padding: 0 8px;
+  border: @PatientInfo-inputBorderSize dashed @gray-darker;
+  color: @gray-darker;
+  background-color: @gray-lighter;
+
+  // Remove inset shadow in iOS
+  -webkit-appearance: none;
+
+  &:hover {
+    border-color: darken(@gray-darker, 15%);
+  }
+
+  &:focus {
+    // Disable default WebKit focus style
+    outline: 0;
+
+    border-color: @blue-green;
+  }
+
+  textarea& {
+    height: auto;
+    display: block;
+    width: 100%;
+  }
+}
+
+.PatientInfo-input[id="fullName"] {
+  width: 160px;
+}
+
+.PatientInfo-input[id="birthday"],
+.PatientInfo-input[id="diagnosisDate"] {
+  width: 110px;
+}
+
+.PatientInfo-button {
+  &:extend(.btn all);
+  display: inline-block;
+  margin-left: 10px;
+
+  font-size: 14px;
+  line-height: 20px;
+  height: 20px;
+  padding: 0 8px;
+}
+
+.PatientInfo-button--secondary {
+  font-size: 12px;
+  font-weight: normal;
   color: #545454;
-  text-decoration: none;
+  background: none;
+}
+
+.PatientInfo-button--primary {
+  &:extend(.btn-primary all);
 }
