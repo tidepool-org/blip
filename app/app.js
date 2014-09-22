@@ -391,28 +391,28 @@ var AppComponent = React.createClass({
       options = {};
     }
 
+    options = options || {};
+
     return function(invitation) {
       var self = this;
 
       this.setState({ invites: previousInvites.filter(function(e){ return e.from.userid !== invitation.from.userid }) });
 
-      mofifier(invitation.from.userid, function(err) {
-        if(err) {
-          self.fetchInvites();
-
-          return self.handleApiError(err, 'Something went wrong while modifying the invitation.');
+      modifier(invitation.from.userid, function(err) {
+        if(err || options.fetchPatients) {
+          self.fetchPatients({hideLoading: true});
         }
 
-        if (options && options.fetchPatients) {
-          self.fetchPatients({hideLoading: true});
+        if(err) {
+          return self.handleApiError(err, 'Something went wrong while modifying the invitation.');
         }
       });
     }
   },
 
-  handleDismissInvitation: modifyInvites(app.api.invitation.dismiss),
+  handleDismissInvitation: this.modifyInvites(app.api.invitation.dismiss),
 
-  handleAcceptInvitation: modifyInvites(app.api.invitation.accept, {fetchPatients: true}),
+  handleAcceptInvitation: this.modifyInvites({fetchPatients: true}, app.api.invitation.accept),
 
   showPatient: function(patientId) {
     this.renderPage = this.renderPatient;
