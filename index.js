@@ -18,7 +18,7 @@
 var _ = require('lodash');
 
 var sessionTokenHeader = 'x-tidepool-session-token';
-var userIdLocalKey = 'userId';
+//var userIdLocalKey = 'userId';
 var tokenLocalKey = 'authToken';
 
 function defaultProperty(obj, property, defaultValue) {
@@ -43,7 +43,7 @@ module.exports = function (config, deps) {
   var myToken = null;
   var myUserId = null;
 
-  // This is a "version" counter for the number of times we've logged in.
+  // This is a 'version' counter for the number of times we've logged in.
   // It is used to invalidate stale attempts at refreshing a token
   var loginVersion = 0;
 
@@ -861,7 +861,7 @@ module.exports = function (config, deps) {
     inviteUser: function (email,permissions,cb) {
       assertArgumentsSize(arguments, 3);
 
-      var details = { "email":email,"permissions":permissions };
+      var details = { 'email':email,'permissions':permissions };
 
       doPostWithToken(
         '/confirm/send/invite/' + getUserId(),
@@ -905,7 +905,7 @@ module.exports = function (config, deps) {
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    dismissInvite: function (inviteId,invitedBy cb) {
+    dismissInvite: function (inviteId,invitedBy, cb) {
       assertArgumentsSize(arguments, 3);
       doPutWithToken(
         '/confirm/dismiss/invite/'+ getUserId() +'/'+ invitedBy,
