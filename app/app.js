@@ -385,53 +385,34 @@ var AppComponent = React.createClass({
     /* jshint ignore:end */
   },
 
-  removeInvite: function(invitation) {
-    var previousInvites = this.state.invites;
-    var invites = _.cloneDeep(previousInvites);
+  modifyInvites: function(options, modifier) {
+    if (!modifier) {
+      modifer = options;
+      options = {};
+    }
 
-    _.remove(invites, function(i) {
-      return i.from.userid === invitation.from.userid;
-    });
+    return function(invitation) {
+      var self = this;
 
-    this.setState({
-      invites: invites
-    });
+      this.setState({ invites: previousInvites.filter(function(e){ return e.from.userid !== invitation.from.userid }) });
 
+      mofifier(invitation.from.userid, function(err) {
+        if(err) {
+          self.fetchInvites();
 
-    return previousInvites;
+          return self.handleApiError(err, 'Something went wrong while modifying the invitation.');
+        }
+
+        if (options && options.fetchPatients) {
+          self.fetchPatients({hideLoading: true});
+        }
+      });
+    }
   },
 
-  handleDismissInvitation: function(invitation) {
-    var self = this;
-    var previousInvites = this.removeInvite(invitation);
+  handleDismissInvitation: modifyInvites(app.api.invitation.dismiss),
 
-    app.api.invitation.dismiss(invitation.from.userid, function(err) {
-      if(err) {
-        self.setState({
-          invites: previousInvites
-        });
-
-        return self.handleApiError(err, 'Something went wrong while dismissing the invitation.');
-      }
-    });
-  },
-
-  handleAcceptInvitation: function(invitation) {
-    var self = this;
-    var previousInvites = this.removeInvite(invitation);
-
-    app.api.invitation.accept(invitation.from.userid, function(err) {
-      if(err) {
-        self.setState({
-          invites: previousInvites
-        });
-
-        return self.handleApiError(err, 'Something went wrong while accepting the invitation.');
-      }
-
-      self.fetchPatients({hideLoading: false});
-    });
-  },
+  handleAcceptInvitation: modifyInvites(app.api.invitation.accept, {fetchPatients: true}),
 
   showPatient: function(patientId) {
     this.renderPage = this.renderPatient;
