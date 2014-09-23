@@ -128,13 +128,35 @@ var PatientInfo = React.createClass({
   },
 
   renderEditing: function() {
-    var formValues = this.formValuesFromPatient(this.props.patient);
+    var patient = this.props.patient;
+    var formValues = this.formValuesFromPatient(patient);
 
     var self = this;
     var handleCancel = function(e) {
       e.preventDefault();
       self.setState({editing: false});
     };
+
+    // Legacy: revisit when proper "child accounts" are implemented
+    var fullNameNode;
+    if (personUtils.patientIsOtherPerson(patient)) {
+      fullNameNode = (
+        <div className="">
+          <input className="PatientInfo-input" id="fullName" ref="fullName" placeholder="Full name" defaultValue={formValues.fullName} />
+        </div>
+      );
+    }
+    else {
+      formValues = _.omit(formValues, 'fullName');
+      fullNameNode = (
+        <div className="PatientInfo-block PatientInfo-block--withArrow">
+          {this.getDisplayName(patient)}
+          {' (edit in '}
+          <a href="#/profile">account</a>
+          {')'}
+        </div>
+      );
+    }
 
     return (
       <div className="PatientInfo">
@@ -143,9 +165,7 @@ var PatientInfo = React.createClass({
             <div className="PatientInfo-picture"></div>
             <div className="PatientInfo-blocks">
               <div className="PatientInfo-blockRow">
-                <div className="">
-                  <input className="PatientInfo-input" id="fullName" ref="fullName" placeholder="Full name" defaultValue={formValues.fullName} />
-                </div>
+                {fullNameNode}
               </div>
               <div className="PatientInfo-blockRow">
                 <div className="">
