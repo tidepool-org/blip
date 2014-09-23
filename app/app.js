@@ -463,6 +463,7 @@ var AppComponent = React.createClass({
           fetchingUser={this.state.fetchingUser}
           patient={this.state.patient}
           fetchingPatient={this.state.fetchingPatient}
+          onUpdatePatient={this.updatePatient}
           trackMetric={trackMetric}/>
     );
     /* jshint ignore:end */
@@ -953,7 +954,9 @@ var AppComponent = React.createClass({
         self.setState({patient: previousPatient});
         return self.handleApiError(err, message);
       }
-      self.setState({patient: patient});
+      self.setState({
+        patient: _.assign({}, previousPatient, {profile: patient.profile})
+      });
       trackMetric('Updated Profile');
     });
   },

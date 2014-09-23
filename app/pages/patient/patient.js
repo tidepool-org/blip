@@ -28,6 +28,7 @@ var Patient = React.createClass({
     fetchingUser: React.PropTypes.bool,
     patient: React.PropTypes.object,
     fetchingPatient: React.PropTypes.bool,
+    onUpdatePatient: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired
   },
 
@@ -110,6 +111,7 @@ var Patient = React.createClass({
           fetchingUser={this.props.fetchingUser}
           patient={this.props.patient}
           fetchingPatient={this.props.fetchingPatient}
+          onUpdatePatient={this.props.onUpdatePatient}
           trackMetric={this.props.trackMetric} />
       </div>
     );

@@ -30,13 +30,14 @@ var PatientInfo = React.createClass({
     fetchingUser: React.PropTypes.bool,
     patient: React.PropTypes.object,
     fetchingPatient: React.PropTypes.bool,
+    onUpdatePatient: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired
   },
 
   getInitialState: function() {
     return {
       editing: false,
-      working: false
+      notification: null
     };
   },
 
@@ -119,7 +120,10 @@ var PatientInfo = React.createClass({
     var handleClick = function(e) {
       e.preventDefault();
       self.props.trackMetric('Clicked Edit Profile');
-      self.setState({editing: true});
+      self.setState({
+        editing: true,
+        notification: null
+      });
     };
 
     return (
@@ -192,14 +196,32 @@ var PatientInfo = React.createClass({
         <div className="PatientInfo-controls">
           <button className="PatientInfo-button PatientInfo-button--secondary" type="button" disabled={this.state.working} onClick={handleCancel}>Cancel</button>
           {this.renderSubmit()}
+          {this.renderNotification()}
         </div>
       </div>
     );
   },
 
   renderSubmit: function() {
-    var text = this.state.working ? 'Saving...' : 'Save changes';
-    return <button className="PatientInfo-button PatientInfo-button--primary" type="submit" disabled={this.state.working} onClick={this.handleSubmit}>{text}</button>;
+    return (
+      <button className="PatientInfo-button PatientInfo-button--primary"
+        type="submit" onClick={this.handleSubmit}>
+        {'Save changes'}
+      </button>
+    );
+  },
+
+  renderNotification: function() {
+    var notification = this.state.notification;
+    if (!notification) {
+      return null;
+    }
+
+    return (
+      <div className={'PatientInfo-notification PatientInfo-notification--' + notification.type}>
+        {notification.message}
+      </div>
+    );
   },
 
   isSamePersonUserAndPatient: function() {
@@ -266,12 +288,99 @@ var PatientInfo = React.createClass({
 
   handleSubmit: function(e) {
     e.preventDefault();
-    console.log('TODO saving changes...');
-    this.setState({working: true});
+    var formValues = this.getFormValues();
+
+    this.setState({notification: null});
+    var validationError = this.validateFormValues(formValues);
+    if (validationError) {
+      this.setState({
+        notification: {type: 'error', message: validationError}
+      });
+      return;
+    }
+
+    this.submitFormValues(formValues);
+  },
+
+  getFormValues: function() {
     var self = this;
-    setTimeout(function() {
-      self.setState({working: false});
-    }, 2000);
+    return _.reduce([
+      'fullName',
+      'birthday',
+      'diagnosisDate',
+      'about'
+    ], function(acc, key, value) {
+      if (self.refs[key]) {
+        acc[key] = self.refs[key].getDOMNode().value;
+      }
+      return acc;
+    }, {});
+  },
+
+  validateFormValues: function(formValues) {
+    // Legacy: revisit when proper "child accounts" are implemented
+    if (personUtils.patientIsOtherPerson(this.props.patient) &&
+        !formValues.fullName) {
+      return 'Full name is required';
+    }
+
+    var birthday = formValues.birthday;
+    if (!(birthday && datetimeUtils.isValidDate(birthday))) {
+      return 'Date of birth needs to be a valid date';
+    }
+
+    var diagnosisDate = formValues.diagnosisDate;
+    if (!(diagnosisDate && datetimeUtils.isValidDate(diagnosisDate))) {
+      return 'Diagnosis date needs to be a valid date';
+    }
+
+    var maxLength = 256;
+    var about = formValues.about;
+    if (about && about.length > maxLength) {
+      return 'Please keep "about" text under ' + maxLength + ' characters';
+    }
+  },
+
+  submitFormValues: function(formValues) {
+    formValues = this.prepareFormValuesForSubmit(formValues);
+    var self = this;
+
+    // Save optimistically
+    this.props.onUpdatePatient(formValues);
+    this.setState({
+      notification: {type: 'success', message: 'All changes saved'}
+    });
+  },
+
+  prepareFormValuesForSubmit: function(formValues) {
+    // Legacy: revisit when proper "child accounts" are implemented
+    if (personUtils.patientIsOtherPerson(this.props.patient)) {
+      formValues.isOtherPerson = true;
+    }
+
+    if (formValues.birthday) {
+      formValues.birthday = moment(formValues.birthday, FORM_DATE_FORMAT)
+        .format(SERVER_DATE_FORMAT);
+    }
+
+    if (formValues.diagnosisDate) {
+      formValues.diagnosisDate = moment(formValues.diagnosisDate, FORM_DATE_FORMAT)
+        .format(SERVER_DATE_FORMAT);
+    }
+
+    if (!formValues.about) {
+      delete formValues.about;
+    }
+
+    var profile = _.assign({}, this.props.patient.profile, {
+      patient: formValues
+    });
+
+    var result = _.assign({}, this.props.patient, {
+      profile: profile
+    });
+
+    return result;
   }
 });
 
