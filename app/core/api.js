@@ -243,7 +243,10 @@ function getPerson(userId, cb) {
   });
 }
 
-// Not every user is a "patient"
+/*
+ * Not every user is a "patient".
+ * Get the "patient" and attach the logged in users permissons
+ */
 function getPatient(patientId, cb) {
   return getPerson(patientId, function(err, person) {
     if (err) {
@@ -253,8 +256,13 @@ function getPatient(patientId, cb) {
     if (!personUtils.isPatient(person)) {
       return cb();
     }
+    //attach the logged in users perms
+    loggedInUsersPermissons(function(err, permissons){
 
-    return cb(null, person);
+      person.permissons = permissons;
+      return cb(err, person);
+    });
+
   });
 }
 
@@ -276,6 +284,10 @@ function updatePatient(patient, cb) {
     });
     return cb(null, patient);
   });
+}
+
+function loggedInUsersPermissons(cb) {
+  tidepool.getAccessPermissions(cb);
 }
 
 api.patient.get = function(patientId, cb) {
