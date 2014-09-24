@@ -582,12 +582,15 @@ describe('platform client', function () {
     });
 
     it('a_Member can see the invites they have received', function(done){
-      memberClient.invitesRecieved(function(err, received) {
-        console.log('err? ',err);
-        console.log(received);
-        done();
+      pwdClient.inviteUser('team@member.com',{note: {}}, function(err, invite) {
+        memberClient.invitesRecieved(function(err, received) {
+          if(_.isEmpty(err) === false){
+            done(err);
+          }
+          expect(received).to.not.be.empty;
+          done();
+        });
       });
-
     });
   });
 });

@@ -872,11 +872,21 @@ module.exports = function (config, deps) {
     invitesRecieved: function (cb) {
       assertArgumentsSize(arguments, 1);
 
-      doGetWithToken(
-        '/confirm/invitations/'+getUserId(),
-        { 200: function(res){ return res.body; }, 204: function(res){ return res.body; } },
-        cb
-      );
+      this.getCurrentUser(function(err,details){
+
+        var email = details.emails[0];
+
+        if(_.isEmpty(email)){
+          return cb({ status : STATUS_BAD_REQUEST, message: 'user details not found'});
+        }else{
+          doGetWithToken(
+            encodeURI('/confirm/invitations/'+email),
+            { 200: function(res){ return res.body; }, 204: function(res){ return res.body; } },
+            cb
+          );
+        }
+      });
+
     },
     /**
      * Invite a user
