@@ -850,6 +850,35 @@ module.exports = function (config, deps) {
       );
     },
     /**
+     * Get the invites sent
+     *
+     * @param {String} userid
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    invitesSent: function (userid, cb) {
+      assertArgumentsSize(arguments, 2);
+      doGetWithToken(
+        '/confirm/invite/'+userid,
+        cb
+      );
+    },
+    /**
+     * Get the invites recieved
+     *
+     * @param {String} userid
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    invitesRecieved: function (userid, cb) {
+      assertArgumentsSize(arguments, 2);
+
+      doGetWithToken(
+        '/confirm/invitations/'+userid,
+        cb
+      );
+    },
+    /**
      * Invite a user
      *
      * @param email - email of the user to invite
@@ -869,17 +898,6 @@ module.exports = function (config, deps) {
       );
     },
     /**
-     * Get the loggedin users invites
-     *
-     * @param cb
-     * @returns {cb}  cb(err, response)
-     */
-    usersInvites: function (cb) {
-      assertArgumentsSize(arguments, 1);
-
-      return cb(null,null);
-    },
-    /**
      * Accept the invite for the loggedin user
      *
      * @param {String} inviteId
@@ -897,7 +915,7 @@ module.exports = function (config, deps) {
       );
     },
     /**
-     * Dismess the invite for the loggedin user
+     * Dismiss the invite for the loggedin user
      *
      * @param {String} inviteId
      * @param {String} invitedBy
