@@ -571,5 +571,23 @@ describe('platform client', function () {
         });
       });
     });
+
+    it('a_Member can see the invites they have sent', function(done){
+      memberClient.inviteUser('jamie@tidepool.org',{note: {}}, function(err, invite) {
+        memberClient.invitesSent(function(err, sent) {
+          expect(sent).to.not.be.empty;
+          done();
+        });
+      });
+    });
+
+    it('a_Member can see the invites they have received', function(done){
+      memberClient.invitesRecieved(function(err, received) {
+        console.log('err? ',err);
+        console.log(received);
+        done();
+      });
+
+    });
   });
 });

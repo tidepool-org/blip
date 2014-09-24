@@ -852,29 +852,29 @@ module.exports = function (config, deps) {
     /**
      * Get the invites sent
      *
-     * @param {String} userid
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    invitesSent: function (userid, cb) {
-      assertArgumentsSize(arguments, 2);
+    invitesSent: function (cb) {
+      assertArgumentsSize(arguments, 1);
       doGetWithToken(
-        '/confirm/invite/'+userid,
+        '/confirm/invite/'+getUserId(),
+        { 200: function(res){ return res.body; }, 204: function(res){ return res.body; } },
         cb
       );
     },
     /**
      * Get the invites recieved
      *
-     * @param {String} userid
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    invitesRecieved: function (userid, cb) {
-      assertArgumentsSize(arguments, 2);
+    invitesRecieved: function (cb) {
+      assertArgumentsSize(arguments, 1);
 
       doGetWithToken(
-        '/confirm/invitations/'+userid,
+        '/confirm/invitations/'+getUserId(),
+        { 200: function(res){ return res.body; }, 204: function(res){ return res.body; } },
         cb
       );
     },
