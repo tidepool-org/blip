@@ -93,6 +93,10 @@ var datetime = {
     return new Date(ms + new Date(this.toISODateString(d) + this.APPEND).valueOf()).toISOString();
   },
 
+  difference: function(d2, d1) {
+    return new Date(d2) - new Date(d1);
+  },
+
   getDuration: function(d1, d2) {
     return new Date(d2).valueOf() - new Date(d1).valueOf();
   },

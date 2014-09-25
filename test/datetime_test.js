@@ -151,6 +151,16 @@ describe('datetime utility', function() {
     });
   });
 
+  describe('difference', function() {
+    it('should be a function', function() {
+      assert.isFunction(dt.difference);
+    });
+
+    it('should return the difference (in milliseconds) between two timestamps', function() {
+      expect(dt.difference('2014-03-06T00:00:00.001Z', '2014-03-06T00:00:00.000Z')).to.equal(1);
+    });
+  });
+
   describe('getDuration', function() {
     it('should be a function', function() {
       assert.isFunction(dt.getDuration);
