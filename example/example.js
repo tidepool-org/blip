@@ -116,7 +116,9 @@ var Example = React.createClass({
     // run nurseshark on data that isn't generated demo data
     // i.e., real data exported from current blip
     if (dataUrl !== 'data/device-data.json') {
+      console.time('Nurseshark');
       data = nurseshark.processData(data).processedData;
+      console.timeEnd('Nurseshark');
     }
     this.updateData(data);
   },

@@ -96,7 +96,9 @@ describe('nurseshark', function() {
 
     it('should filter out bad deviceMeta events', function() {
       var data = [{
-        type: 'deviceMeta'
+        type: 'deviceMeta',
+        time: new Date().toISOString(),
+        duration: 300000
       }, {
         type: 'deviceMeta',
         annotations: [{
@@ -194,6 +196,25 @@ describe('nurseshark', function() {
       var res = nurseshark.processData(settings).processedData;
       assert.isArray(res[0].basalSchedules);
     });
+
+    it('should return sorted data', function() {
+      var dummyDT1 = '2014-01-01T12:00:00';
+      var dummyDT2 = '2014-01-01T13:00:00';
+      var APPEND = '.000Z';
+      var data = [{
+        type: 'smbg',
+        units: 'mmol/L',
+        deviceTime: dummyDT2
+      }, {
+        type: 'cbg',
+        units: 'mmol/L',
+        deviceTime: dummyDT1
+      }];
+      var sorted = [data[1], data[0]];
+      sorted[0].normalTime = dummyDT1 + APPEND;
+      sorted[1].normalTime = dummyDT2 + APPEND;
+      expect(nurseshark.processData(data).processedData).to.eql(sorted);
+    });
   });
 
   describe('massaging of timestamps', function() {
@@ -213,6 +234,8 @@ describe('nurseshark', function() {
         deviceTime: dummyDT
       }, {
         type: 'deviceMeta',
+        time: new Date().toISOString(),
+        duration: 300000,
         deviceTime: dummyDT
       }, {
         type: 'smbg',
@@ -252,6 +275,12 @@ describe('nurseshark', function() {
     });
   });
 
+  describe('reshapeNote', function() {
+    it.skip('should be a function', function() {
+      assert.isFunction(nurseshark.reshapeNote);
+    });
+  });
+
   describe('joinWizardsAndBoluses', function() {
     it('should be a function', function() {
       assert.isFunction(nurseshark.joinWizardsAndBoluses);
@@ -281,6 +310,250 @@ describe('nurseshark', function() {
     });
   });
 
+  describe('suspendedExtendeds', function() {
+    it('should be a function', function() {
+      assert.isFunction(nurseshark.suspendedExtendeds);
+    });
+
+    it('should find an extended interrupted by a suspend event', function() {
+      var now = new Date();
+      var earlier = new Date(now.valueOf() - 720000);
+      var input = [{
+        type: 'deviceMeta',
+        subType: 'status',
+        status: 'suspended',
+        duration: 10000,
+        time: now.toISOString()
+      }, {
+        type: 'bolus',
+        extended: 0.2,
+        expectedExtended: 1.0,
+        duration: 3600000,
+        time: earlier.toISOString()
+      }];
+      var output = [{
+        type: 'deviceMeta',
+        subType: 'status',
+        status: 'suspended',
+        duration: 10000,
+        time: now.toISOString()
+      }, {
+        type: 'bolus',
+        extended: 0.2,
+        expectedExtended: 1.0,
+        duration: 720000,
+        expectedDuration: 3600000,
+        time: earlier.toISOString()
+      }];
+      var res = nurseshark.processData(input).processedData;
+      expect(res[0].duration).to.equal(output[1].duration);
+    });
+
+    it('should add an expectedDuration to user-cancelled extended boluses', function() {
+      var now = new Date().toISOString();
+      var cancelled = [{
+        type: 'bolus',
+        subType: 'square',
+        extended: 0.4,
+        expectedExtended: 2.0,
+        duration: 10000,
+        time: now
+      }];
+      var res = nurseshark.processData(cancelled).processedData[0];
+      expect(res.duration).to.equal(2000);
+      expect(res.expectedDuration).to.equal(10000);
+    });
+  });
+
+  describe('mergeSuspendsIntoBasals', function() {
+    var now = new Date();
+    var plusHalf = new Date(now.valueOf() + 3600000/2);
+    var plusHour = new Date(now.valueOf() + 3600000);
+    var plusTwoHours = new Date(now.valueOf() + 3600000*2);
+    var notQuite = new Date(now.valueOf() + 3600000*2 + 5000);
+    var plusThreeHours = new Date(now.valueOf() + 3600000*3);
+
+    it('should be a function', function() {
+      assert.isFunction(nurseshark.mergeSuspendsIntoBasals);
+    });
+
+    it('should transform a suspend interval spanning several basal segments into equal number of basal segments of rate 0.0', function() {
+      var inputData = [{
+        type: 'basal',
+        id: '1',
+        deliveryType: 'scheduled',
+        time: now.toISOString(),
+        duration: 3600000,
+        rate: 1.0
+      }, {
+        type: 'basal',
+        id: '2',
+        deliveryType: 'scheduled',
+        time: plusHour.toISOString(),
+        duration: 3600000,
+        rate: 0.9
+      }, {
+        type: 'basal',
+        id: '3',
+        deliveryType: 'scheduled',
+        time: plusTwoHours.toISOString(),
+        duration: 3600000,
+        rate: 0.75
+      }, {
+        type: 'basal',
+        id: '4',
+        deliveryType: 'scheduled',
+        time: plusThreeHours.toISOString(),
+        duration: 3600000,
+        rate: 0.6
+      }, {
+        type: 'deviceMeta',
+        subType: 'status',
+        status: 'suspended',
+        time: plusHalf.toISOString(),
+        duration: 3600000*1.5 + 5000
+      }];
+      var outputData = [{
+        type: 'basal',
+        id: '1',
+        deliveryType: 'scheduled',
+        time: now.toISOString(),
+        duration: 3600000/2,
+        expectedDuration: 3600000,
+        rate: 1.0
+      }, {
+        type: 'basal',
+        id: '2_suspended',
+        time: plusHour.toISOString(),
+        duration: 3600000,
+        rate: 0.0,
+        deliveryType: 'suspend',
+        suppressed: {
+          type: 'basal',
+          id: '2_scheduled',
+          time: plusHour.toISOString(),
+          duration: 3600000,
+          rate: 0.9,
+          deliveryType: 'scheduled'
+        }
+      }, {
+        type: 'basal',
+        id: '3',
+        deliveryType: 'scheduled',
+        time: notQuite.toISOString(),
+        duration: 3600000 - 5000,
+        expectedDuration: 3600000,
+        rate: 0.75
+      }, {
+        type: 'basal',
+        id: '4',
+        deliveryType: 'scheduled',
+        time: plusThreeHours.toISOString(),
+        duration: 3600000,
+        rate: 0.6
+      }, {
+        type: 'basal',
+        id: '3_suspended',
+        time: plusTwoHours.toISOString(),
+        duration: 5000,
+        rate: 0.0,
+        deliveryType: 'suspend',
+        suppressed: {
+          type: 'basal',
+          id: '3_scheduled',
+          deliveryType: 'scheduled',
+          time: plusTwoHours.toISOString(),
+          duration: 3600000,
+          rate: 0.75
+        }
+      }, {
+        type: 'basal',
+        id: '1_suspended',
+        time: plusHalf.toISOString(),
+        duration: 3600000/2,
+        rate: 0.0,
+        deliveryType: 'suspend',
+        suppressed: {
+          type: 'basal',
+          id: '1_scheduled',
+          time: now.toISOString(),
+          duration: 3600000,
+          rate: 1.0,
+          deliveryType: 'scheduled'
+        }
+      }];
+      expect(nurseshark.mergeSuspendsIntoBasals(inputData.slice(0,4), [inputData[4]], [])).to.eql(outputData);
+    });
+
+    it('should transform a suspend interval entirely within a basal segment into a temp basal segment of rate 0.0', function() {
+      var inputData = [{
+        type: 'basal',
+        id: '1',
+        deliveryType: 'scheduled',
+        time: now.toISOString(),
+        duration: 3600000*2,
+        rate: 1.0
+      }, {
+        type: 'basal',
+        id: '2',
+        deliveryType: 'scheduled',
+        time: plusTwoHours.toISOString(),
+        duration: 3600000,
+        rate: 0.9
+      }, {
+        type: 'deviceMeta',
+        subType: 'status',
+        status: 'suspended',
+        time: plusHalf.toISOString(),
+        duration: 3600000/2
+      }];
+      var outputData = [{
+        type: 'basal',
+        id: '1_suspended',
+        deliveryType: 'suspend',
+        time: plusHalf.toISOString(),
+        duration: 3600000/2,
+        rate: 0.0,
+        suppressed: {
+          type: 'basal',
+          id: '1_scheduled',
+          deliveryType: 'scheduled',
+          time: now.toISOString(),
+          duration: 3600000*2,
+          rate: 1.0
+        }
+      }, {
+        type: 'basal',
+        id: '2',
+        deliveryType: 'scheduled',
+        time: plusTwoHours.toISOString(),
+        duration: 3600000,
+        rate: 0.9
+      }, {
+        type: 'basal',
+        id: '1_first',
+        deliveryType: 'scheduled',
+        time: now.toISOString(),
+        duration: 3600000/2,
+        expectedDuration: 3600000*2,
+        rate: 1.0
+      }, {
+        type: 'basal',
+        id: '1_last',
+        deliveryType: 'scheduled',
+        time: plusHour.toISOString(),
+        duration: 3600000,
+        expectedDuration: 3600000*2,
+        rate: 1.0
+      }];
+      expect(nurseshark.mergeSuspendsIntoBasals(inputData.slice(0,2), [inputData[2]], [])).to.eql(outputData);
+    });
+
+    it.skip('should annotate basals that intersect with suspends annotated with incomplete-tuple', function() {
+
+    });
+  });
+
   // TODO: remove this! just for development
   describe('on real data', function() {
     var data = require('../example/data/blip-input.json');
@@ -297,7 +570,38 @@ describe('nurseshark', function() {
       expect(res.erroredData.length - ok).to.equal(0);
     });
 
-    it('how does does deep clone take?', function() {
+    it('should create some new basals if there are suspends', function() {
+      var suspends = _.where(data, {status: 'suspended'});
+      var validSuspends = _.reject(suspends, function(s) {
+        return s.annotations != null;
+      });
+      var basals = _.where(data, {type: 'basal'});
+      if (validSuspends.length > 0) {
+        var res = nurseshark.processData(data);
+        var resBasals = _.where(res.processedData, {type: 'basal'});
+        expect(basals.length).to.be.below(resBasals.length);
+      }
+    });
+
+    it('how long does lodash sort take?', function() {
+      _.sortBy(data, function(d) {
+        return d.time;
+      });
+    });
+
+    it('how long does array sort take?', function() {
+      data.sort(function(a, b) {
+        if (a.normalTime < b.normalTime) {
+          return -1;
+        }
+        if (a.normalTime > b.normalTime) {
+          return 1;
+        }
+        return 0;
+      });
+    });
+
+    it('how long does deep clone take?', function() {
       var cloned = [];
       for (var i = 0; i < data.length; ++i) {
         cloned.push(_.cloneDeep(data[i]));
@@ -314,7 +618,20 @@ describe('nurseshark', function() {
       expect(res.erroredData.length).to.equal(0);
     });
 
-    it('how does does deep clone take?', function() {
+    it('should create some new basals if there are suspends', function() {
+      var suspends = _.where(data, {status: 'suspended'});
+      var validSuspends = _.reject(suspends, function(s) {
+        return s.annotations != null;
+      });
+      var basals = _.where(data, {type: 'basal'});
+      if (validSuspends.length > 0) {
+        var res = nurseshark.processData(data);
+        var resBasals = _.where(res.processedData, {type: 'basal'});
+        expect(basals.length).to.be.below(resBasals.length);
+      }
+    });
+
+    it('how long does deep clone take?', function() {
       var cloned = [];
       for (var i = 0; i < data.length; ++i) {
         cloned.push(_.cloneDeep(data[i]));

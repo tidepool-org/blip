@@ -110,6 +110,9 @@ function getHandlers() {
       if (d.joinKey != null) {
         collections.bolusesToJoin[d.joinKey] = d;
       }
+      if (d.duration != null) {
+        collections.extendedIntervals[d.time + '/' + dt.addDuration(d.time, d.duration)] = d;
+      }
       watson(d);
       return d;
     },
@@ -196,6 +199,153 @@ function getHandlers() {
 }
 
 module.exports = {
+  mergeSuspendsIntoBasals: function(basals, suspends, allData) {
+    var crossBasals = crossfilter(basals);
+    var basalsByTime = crossBasals.dimension(function(d) {
+      return d.time + '/' + dt.addDuration(d.time, d.duration || 0);
+    });
+    var numSuspends = suspends.length;
+    function getIntervalFilterFn(suspendStart, suspendEnd) {
+      return function(d) {
+        var interval = d.split('/');
+        var basalStart = interval[0], basalEnd = interval[1];
+        // suspend is a (possibly improper) subset of basal segment
+        if (suspendStart >= basalStart && suspendEnd <= basalEnd) {
+          return true;
+        }
+        // suspend start intersects with basal segment
+        else if (suspendStart > basalStart && suspendStart < basalEnd) {
+          return true;
+        }
+        // suspend end intersects with basal segment
+        else if (suspendEnd > basalStart && suspendEnd < basalEnd) {
+          return true;
+        }
+        // suspend is superset of basal segment
+        else if (suspendStart <= basalStart && suspendEnd >= basalEnd) {
+          return true;
+        }
+        else {
+          return false;
+        }
+      };
+    }
+    function handleIntersection(match, suspend) {
+      var suspendEnd = dt.addDuration(suspend.time, suspend.duration);
+      var matchEnd = dt.addDuration(match.time, match.duration);
+      var originalEnd = dt.addDuration(match.time, match.duration);
+      var originalBeg = match.time;
+      var newBasal;
+      // start intersection
+      if (suspend.time > match.time && suspendEnd > matchEnd) {
+        newBasal = cloneDeep(match);
+        newBasal.suppressed = cloneDeep(match);
+        newBasal.suppressed.id += '_scheduled';
+
+        match.expectedDuration = match.duration;
+        match.duration = dt.difference(suspend.time, match.time);
+
+        newBasal.time = suspend.time;
+        newBasal.duration = dt.difference(originalEnd, suspend.time);
+        newBasal.rate = 0.0;
+        newBasal.deliveryType = 'suspend';
+        newBasal.id += '_suspended';
+        basals.push(newBasal);
+        allData.push(newBasal);
+      }
+      // end intersection
+      else if (suspendEnd < matchEnd && suspend.time < match.time) {
+        newBasal = cloneDeep(match);
+        newBasal.suppressed = cloneDeep(match);
+        newBasal.suppressed.id += '_scheduled';
+
+        match.time = suspendEnd;
+        match.expectedDuration = match.duration;
+        match.duration = dt.difference(matchEnd, suspendEnd);
+
+        newBasal.duration = dt.difference(suspendEnd, originalBeg);
+        newBasal.rate = 0.0;
+        newBasal.deliveryType = 'suspend';
+        newBasal.id += '_suspended';
+        basals.push(newBasal);
+        allData.push(newBasal);
+      }
+      // superset or improper subset
+      else if (suspend.time <= match.time && suspendEnd >= matchEnd) {
+        match.suppressed = cloneDeep(match);
+        match.suppressed.id += '_scheduled';
+        match.deliveryType = 'suspend';
+        match.rate = 0.0;
+        match.id += '_suspended';
+      }
+      // proper subset
+      else {
+        var first = cloneDeep(match), last = cloneDeep(match);
+        first.expectedDuration = first.duration;
+        first.duration = dt.difference(suspend.time, first.time);
+        first.id += '_first';
+        basals.push(first);
+        allData.push(first);
+
+        last.time = suspendEnd;
+        last.expectedDuration = last.duration;
+        last.duration = dt.difference(originalEnd, suspendEnd);
+        last.id += '_last';
+        basals.push(last);
+        allData.push(last);
+
+        match.suppressed = cloneDeep(match);
+        match.suppressed.id += '_scheduled';
+        match.id += '_suspended';
+        match.deliveryType = 'suspend';
+        match.time = suspend.time;
+        match.duration = suspend.duration;
+        match.rate = 0.0;
+      }
+    }
+    for (var i = 0; i < numSuspends; ++i) {
+      var suspend = suspends[i];
+      var matches = basalsByTime.filterFunction(
+        getIntervalFilterFn(suspend.time, dt.addDuration(suspend.time, suspend.duration))
+      ).top(Infinity);
+      if (matches.length > 0) {
+        for (var j = 0; j < matches.length; ++j) {
+          handleIntersection(matches[j], suspend);
+        }
+      }
+    }
+    return basals;
+  },
+  suspendedExtendeds: function(suspends, extendedIntervals) {
+    suspends = crossfilter(suspends);
+    var suspendsByTime = suspends.dimension(function(d) {
+      return d.time;
+    });
+    var intervals = Object.keys(extendedIntervals);
+    var numExtendeds = intervals.length;
+    for (var i = 0; i < numExtendeds; ++i) {
+      var matches = suspendsByTime.filter(intervals[i].split('/')).top(Infinity);
+      var bolus = extendedIntervals[intervals[i]];
+      // suspend interrupts an extended bolus
+      if (matches.length > 0) {
+        var suspend = matches[0];
+        if (!(bolus.extended >= 0 && bolus.expectedExtended > 0)) {
+          var err = new Error('An extended bolus interrupted by a suspend should have ' +
+            '`extended` and `expectedExtended` properties.');
+          bolus.errorMessage = err.message;
+          this.erroredData.push(bolus);
+        }
+        bolus.expectedDuration = bolus.duration;
+        bolus.duration = dt.difference(suspend.time, bolus.time);
+      }
+      // user cancels an extended bolus
+      if (bolus.expectedExtended && bolus.expectedExtended > 0 && !bolus.expectedDuration) {
+        var percentComplete = bolus.extended/bolus.expectedExtended;
+        bolus.expectedDuration = bolus.duration;
+        bolus.duration = percentComplete * bolus.duration;
+      }
+    }
+  },
   joinWizardsAndBoluses: function(wizards, bolusesToJoin) {
     var numWizards = wizards.length;
     for (var i = 0; i < numWizards; ++i) {
@@ -211,9 +361,22 @@ module.exports = {
     if (!(data && data.length >= 0 && Array.isArray(data))) {
       throw new Error('An array is required.');
     }
+    function sortFn(key) {
+      return function(a, b) {
+        if (a[key] < b[key]) {
+          return -1;
+        }
+        if (a[key] > b[key]) {
+          return 1;
+        }
+        return 0;
+      };
+    }
+    data.sort(sortFn('time'));
     var processedData = [], erroredData = [];
     var collections = {
-      bolusesToJoin: {}
+      bolusesToJoin: {},
+      extendedIntervals: {}
     };
     var typeGroups = {};
 
@@ -227,18 +390,18 @@ module.exports = {
         var err = new Error(util.format('No nurseshark handler defined for type [%s]', d.type));
         d.errorMessage = err.message;
       }
-      // group data
-      if (typeGroups[d.type] == null) {
-        typeGroups[d.type] = [d];
-      }
-      else {
-        typeGroups[d.type].push(d);
-      }
       if (d.errorMessage != null) {
         erroredData.push(d);
       }
       else {
         processedData.push(d);
+        // group data
+        if (typeGroups[d.type] == null) {
+          typeGroups[d.type] = [d];
+        }
+        else {
+          typeGroups[d.type].push(d);
+        }
       }
     }
 
@@ -267,6 +430,14 @@ module.exports = {
 
     this.joinWizardsAndBoluses(typeGroups.wizard || [], collections.bolusesToJoin);
 
-    return {erroredData: erroredData, processedData: processedData};
+    if (Object.keys(collections.extendedIntervals).length > 0) {
+      this.suspendedExtendeds(typeGroups.deviceMeta || [], collections.extendedIntervals);
+    }
+
+    if (typeGroups.deviceMeta && typeGroups.deviceMeta.length > 0) {
+      typeGroups.basal = this.mergeSuspendsIntoBasals(typeGroups.basal || [], typeGroups.deviceMeta, processedData);
+    }
+
+    return {erroredData: erroredData, processedData: processedData.sort(sortFn('normalTime'))};
   }
 };
