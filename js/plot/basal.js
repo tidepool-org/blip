@@ -303,7 +303,7 @@ module.exports = function(pool, opts) {
         d: d
       };
       if (mainGroup.select('#annotation_for_' + d.id)[0][0] == null) {
-        mainGroup.select('#tidelineAnnotations_basal-rate-segment')
+        mainGroup.select('#tidelineAnnotations_basal')
           .call(pool.annotations(), annotationOpts);
       }
     }

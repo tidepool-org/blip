@@ -51,7 +51,6 @@ module.exports = function(container, annotationsGroup) {
     if (opts.d.annotations[0].code !== 'stats-insufficient-data') {
       var iconGroup = selection.append('g')
         .attr('class', 'd3-data-annotation-group')
-        .attr('clip-path', 'url(#mainClipPath)')
         .attr('id', 'annotation_for_' + opts.d.id);
 
       opts.x = annotation.xOffset(opts);

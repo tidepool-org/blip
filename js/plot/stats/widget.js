@@ -61,6 +61,8 @@ module.exports = function(pool, opts) {
     }
   };
 
+  _.defaults(opts, defaults);
+
   var data = {
     ratio: [],
     range: [],
@@ -77,8 +79,6 @@ module.exports = function(pool, opts) {
     stats.getStats(domain);
     stats.draw();
   });
-
-  _.defaults(opts, defaults);
 
   var getBgBoundaryClass = bgBoundaryClass(opts.classes);
   var widgetGroup, rectScale;

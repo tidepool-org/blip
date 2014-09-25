@@ -412,7 +412,8 @@ module.exports = function(pool, opts) {
 
         var tbl = group.append('table');
         // carbs
-        if (d.type === 'wizard' && d.carbInput != null) {
+        // truthiness desirable here: don't want to display carbInput of 0
+        if (d.type === 'wizard' && d.carbInput) {
           var carbRow = tbl.append('tr');
           carbRow.append('td')
             .attr('class', 'label')
