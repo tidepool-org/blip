@@ -349,24 +349,21 @@ var AppComponent = React.createClass({
   },
 
   renderProfile: function() {
-    var profileTeam = this.renderProfileTeam();
-
     return (
       /* jshint ignore:start */
       <Profile
           user={this.state.user}
           fetchingUser={this.state.fetchingUser}
-          profileTeam={profileTeam}
           onSubmit={this.updateUser}
           trackMetric={trackMetric}/>
       /* jshint ignore:end */
     );
   },
 
-  renderProfileTeam: function() {
+  renderPatientTeam: function() {
     return (
       /* jshint ignore:start */
-      <ProfileTeam
+      <PatientTeam
         user={this.state.user}
         fetchingUser={this.state.fetchingUser}
         pendingInvites={this.state.pendingInvites}
@@ -543,6 +540,8 @@ var AppComponent = React.createClass({
       return;
     }
 
+    var patientTeam = this.renderPatientTeam();
+
     /* jshint ignore:start */
     return (
       <Patient
@@ -550,6 +549,7 @@ var AppComponent = React.createClass({
           fetchingUser={this.state.fetchingUser}
           patient={this.state.patient}
           fetchingPatient={this.state.fetchingPatient}
+          patientTeam={patientTeam}
           trackMetric={trackMetric}/>
     );
     /* jshint ignore:end */
