@@ -31,6 +31,7 @@ var Messages = require('../../components/messages');
 
 var PatientData = React.createClass({
   propTypes: {
+    bgPrefs: React.PropTypes.object,
     patientData: React.PropTypes.object,
     patient: React.PropTypes.object,
     fetchingPatientData: React.PropTypes.bool,
@@ -51,7 +52,6 @@ var PatientData = React.createClass({
     var params = this.props.queryParams;
     var state = {
       chartPrefs: {
-        bgUnits: 'mg/dL',
         hiddenPools: {
           // pass null here to *completely* disable the tabular display of basal settings
           basalSettings: null
@@ -72,9 +72,11 @@ var PatientData = React.createClass({
     var params = this.props.queryParams;
 
     if (!_.isEmpty(params)) {
+      var bgPrefs = this.props.bgPrefs;
       this.setState({
         chartPrefs: {
-          bgUnits: this.state.chartPrefs.bgUnits,
+          bgClasses: bgPrefs.bgClasses,
+          bgUnits: bgPrefs.bgUnits,
           hiddenPools: {
             basalSettings: params.showbasalsettings ?  true : null
           },
@@ -229,6 +231,7 @@ var PatientData = React.createClass({
         /* jshint ignore:start */
         return (
           <Daily
+            bgPrefs={this.props.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             imagesBaseUrl={config.IMAGES_ENDPOINT + '/tideline'}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
@@ -248,6 +251,7 @@ var PatientData = React.createClass({
         /* jshint ignore:start */
         return (
           <Weekly
+            bgPrefs={this.props.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             imagesBaseUrl={config.IMAGES_ENDPOINT + '/tideline'}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
@@ -267,6 +271,7 @@ var PatientData = React.createClass({
         /* jshint ignore:start */
         return (
           <Settings
+            bgPrefs={this.props.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             patientData={this.props.patientData}
             onClickRefresh={this.handleClickRefresh}

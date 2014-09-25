@@ -18,6 +18,7 @@ var Settings = React.createClass({
   chartType: 'settings',
   log: bows('Settings View'),
   propTypes: {
+    bgPrefs: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
     patientData: React.PropTypes.object.isRequired,
     onClickRefresh: React.PropTypes.func.isRequired,
@@ -68,7 +69,7 @@ var Settings = React.createClass({
     /* jshint ignore:start */
     return (
       <SettingsChart
-        bgUnits={this.props.chartPrefs.bgUnits}
+        bgUnits={this.props.bgPrefs.bgUnits}
         patientData={this.props.patientData}
         ref="chart" />
     );

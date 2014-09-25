@@ -113,6 +113,7 @@ var AppComponent = React.createClass({
       fetchingPatients: true,
       patient: null,
       fetchingPatient: true,
+      bgPrefs: null,
       patientData: null,
       fetchingPatientData: true,
       fetchingMessageData: true,
@@ -557,6 +558,7 @@ var AppComponent = React.createClass({
       <PatientData
         user={this.state.user}
         patient={this.state.patient}
+        bgPrefs={this.state.bgPrefs}
         patientData={this.state.patientData}
         fetchingPatientData={this.state.fetchingPatientData}
         isUserPatient={this.isSamePersonUserAndPatient()}
@@ -788,6 +790,10 @@ var AppComponent = React.createClass({
       patientData = self.processPatientData(patientData);
 
       self.setState({
+        bgPrefs: {
+          bgClasses: patientData.bgClasses,
+          bgUnits: patientData.bgUnits
+        },
         patientData: patientData,
         fetchingPatientData: false
       });
@@ -821,10 +827,7 @@ var AppComponent = React.createClass({
     }
 
     var res = nurseShark.processData(data);
-    var sorted = _.sortBy(res.processedData, function(d) {
-      return d.normalTime;
-    });
-    var tidelineData = new TidelineData(sorted);
+    var tidelineData = new TidelineData(res.processedData);
 
     window.tidelineData = tidelineData;
     window.downloadProcessedData = function() {
