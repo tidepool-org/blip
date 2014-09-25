@@ -257,9 +257,10 @@ function getPatient(patientId, cb) {
       return cb();
     }
     //attach the logged in users perms
-    loggedInUsersPermissons(function(err, permissons){
+    loggedInUsersPermissons(function(err, perms){
 
-      person.permissons = permissons;
+      person.permissions = _.values(perms);
+
       return cb(err, person);
     });
 
@@ -514,23 +515,23 @@ api.patientData.get = function(patientId, cb) {
 api.invitation = {};
 
 api.invitation.getReceived = function(callback) {
-  api.log('GET /invitations/received [NOT IMPLEMENTED]');
-  callback(null, []);
+  api.log('GET /confirm/invitations');
+  return tidepool.invitesRecieved(callback);
 };
 
-api.invitation.accept = function(fromUserId, callback) {
-  api.log('POST /invitations/from/' + fromUserId + '/accept [NOT IMPLEMENTED]');
-  callback(null, {});
+api.invitation.accept = function( inviteId, fromUserId, callback) {
+  api.log('POST /confirm/accept/invite/' + tidepool.getUserId() +'/'+fromUserId );
+  return tidepool.acceptInvite(inviteId, fromUserId,callback);
 };
 
-api.invitation.dismiss = function(fromUserId, callback) {
-  api.log('POST /invitations/from/' + fromUserId + '/dismiss [NOT IMPLEMENTED]');
-  callback(null, {});
+api.invitation.dismiss = function(inviteId, fromUserId, callback) {
+  api.log('POST /confirm/dismiss/invite/'+ tidepool.getUserId()+ '/'+fromUserId );
+  return tidepool.dismissInvite(inviteId, fromUserId, callback);
 };
 
 api.invitation.getSent = function(callback) {
-  api.log('GET /invitations/sent [NOT IMPLEMENTED]');
-  callback(null, []);
+  api.log('GET /confirm/invite/'+tidepool.getUserId());
+  return  tidepool.invitesSent(callback);
 };
 
 api.invitation.cancel = function(toEmail, callback) {

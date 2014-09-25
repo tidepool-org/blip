@@ -390,7 +390,7 @@ var AppComponent = React.createClass({
     var invites = _.cloneDeep(previousInvites);
 
     _.remove(invites, function(i) {
-      return i.from.userid === invitation.from.userid;
+      return i.creatorId === invitation.creatorId;
     });
 
     this.setState({
@@ -405,7 +405,7 @@ var AppComponent = React.createClass({
     var self = this;
     var previousInvites = this.removeInvite(invitation);
 
-    app.api.invitation.dismiss(invitation.from.userid, function(err) {
+    app.api.invitation.dismiss(invitation.key, invitation.creatorId, function(err) {
       if(err) {
         self.setState({
           invites: previousInvites
@@ -420,7 +420,7 @@ var AppComponent = React.createClass({
     var self = this;
     var previousInvites = this.removeInvite(invitation);
 
-    app.api.invitation.accept(invitation.from.userid, function(err) {
+    app.api.invitation.accept(invitation.key, invitation.creatorId, function(err) {
       if(err) {
         self.setState({
           invites: previousInvites
