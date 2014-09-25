@@ -247,7 +247,7 @@ describe('platform client', function () {
       });
     });
   });
-  describe.skip('handles user profiles', function () {
+  describe('handles user profiles', function () {
     it('so we can add or update the logged in users profile', function (done) {
     //add or update for both our users
       async.parallel(
@@ -547,7 +547,7 @@ describe('platform client', function () {
   });
   describe('handles invites', function () {
 
-    it('so we can invite a_Member to be on the team of a_PWD', function(done){
+    it.skip('so we can invite a_Member to be on the team of a_PWD', function(done){
       pwdClient.inviteUser('jamie@tidepool.org',{view: {}}, function(err, invite) {
         if(_.isEmpty(err) === false){
           done(err);
@@ -559,8 +559,8 @@ describe('platform client', function () {
       });
     });
 
-    it('a_Member can dismiss an the invite from a_PWD', function(done){
-      pwdClient.inviteUser('jamie@tidepool.org',{root: {}}, function(err, invite) {
+    it.skip('a_Member can dismiss an the invite from a_PWD', function(done){
+      pwdClient.inviteUser('jamie@tidepool.org',{note: {}}, function(err, invite) {
         if(_.isEmpty(err) === false){
           done(err);
         }
@@ -573,7 +573,7 @@ describe('platform client', function () {
     });
 
     it('a_Member can see the invites they have sent', function(done){
-      memberClient.inviteUser('jamie@tidepool.org',{note: {}}, function(err, invite) {
+      memberClient.inviteUser('jamie@tidepool.org',{view: {}}, function(err, invite) {
         memberClient.invitesSent(function(err, sent) {
           expect(sent).to.not.be.empty;
           done();
@@ -581,8 +581,8 @@ describe('platform client', function () {
       });
     });
 
-    it('a_Member can see the invites they have received', function(done){
-      pwdClient.inviteUser('team@member.com',{note: {}}, function(err, invite) {
+    it.skip('a_Member can see the invites they have received', function(done){
+      pwdClient.inviteUser('team@member.com',{view: {}}, function(err, invite) {
         memberClient.invitesRecieved(function(err, received) {
           if(_.isEmpty(err) === false){
             done(err);
