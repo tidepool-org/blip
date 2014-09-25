@@ -25,6 +25,12 @@
   }
 }
 
+.PatientPage-layer {
+  @media(min-width: @screen-lg-min) {
+    box-shadow: -5px 5px 0 0 #b3b3b3;
+  }
+}
+
 // Subnav
 // ====================================
 
@@ -70,7 +76,7 @@
   padding-left: 150px;
   padding-right: 150px;
 
-  background-color: #fff;
+  background-color: #f2f2f2;
 }
 
 .PatientPage-sectionTitle {
@@ -90,100 +96,5 @@
 // ====================================
 
 .PatientPage-infoSection {
-  padding-bottom: 5px;
   border-bottom: 1px solid @gray-dark;
-}
-
-.PatientPage-info {
-  font-size: 14px;
-  line-height: 20px;
-  color: #545454;
-
-  padding-top: 40px;
-  padding-left: 140px;
-  padding-right: 140px;
-}
-
-.PatientPage-infoHead {
-  .clearfix();
-  margin-bottom: 20px;
-}
-
-@PatientPage-infoPictureSize: 90px;
-
-.PatientPage-infoPicture {
-  float: left;
-  margin-right: 30px;
-
-  background-image: url('images/profile-180x180.png');
-  background-repeat: no-repeat;
-  background-size: @PatientPage-infoPictureSize;
-  width: @PatientPage-infoPictureSize;
-  height: @PatientPage-infoPictureSize;
-}
-
-.PatientPage-infoBlocks {
-  // Makes text stay aligned on the right
-  // and doesn't wrap under floating picture
-  display: table-cell;
-  // Force element to stretch to width of outer box
-  width: 10000px;
-
-  padding-top: 10px;
-}
-
-.PatientPage-infoBlocks .PatientPage-infoBlockRow:not(:last-of-type) {
-  margin-bottom: 10px;
-}
-
-@PatientPage-infoBlockHeight: 20px;
-
-.PatientPage-infoBlock {
-  display: inline-block;
-  line-height: @PatientPage-infoBlockHeight;
-  color: #fff;
-  background-color: @gray-dark;
-  padding-left: 8px;
-  padding-right: 24px;
-}
-
-// http://cssarrowplease.com/
-.PatientPage-infoBlock--withArrow {
-  position: relative;
-
-  &:after {
-  	right: 100%;
-  	top: 50%;
-  	border: solid transparent;
-  	content: " ";
-  	height: 0;
-  	width: 0;
-  	position: absolute;
-  	pointer-events: none;
-  	border-color: rgba(152, 152, 151, 0);
-	  border-right-color: @gray-dark;
-  	border-width: @PatientPage-infoBlockHeight/2;
-  	margin-top: -@PatientPage-infoBlockHeight/2;
-  }
-}
-
-.PatientPage-infoBlock--placeholder {
-  width: 110px;
-}
-
-.PatientPage-infoBio--placeholder {
-  height: 40px;
-}
-
-.PatientPage-infoEdit {
-  height: 20px;
-  font-size: 12px;
-  line-height: 20px;
-  text-align: right;
-  padding: 0 5px;
-
-  & a {
-    color: #545454;
-    text-decoration: none;
-  }
 }
