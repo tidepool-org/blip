@@ -18,7 +18,8 @@ module.exports = schema(schema().oneOf(
         extended: schema().banned(),
         expectedExtended: schema().banned(),
         subType: schema().string().in(['normal'])
-      }
+      },
+      schema.with('expectedNormal', 'normal')
     ),
   schema(
       common,
@@ -31,6 +32,7 @@ module.exports = schema(schema().oneOf(
         expectedNormal: schema().ifExists().number().min(0),
         subType: schema().string().in(['square', 'dual/square'])
       },
+      schema.and(['expectedExtended', 'extended', 'duration', 'expectedDuration']),
       schema.with('expectedNormal', 'normal')
     )
   )

@@ -5,6 +5,7 @@ var basalCommon = {
   deliveryType: schema().in(['scheduled', 'suspend', 'temp']),
   deviceTime: schema().isDeviceTime(),
   duration: schema().ifExists().number().min(0),
+  normalEnd: schema().isISODateTime(),
   rate: schema().number().min(0)
 };
 

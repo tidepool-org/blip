@@ -13,7 +13,7 @@ function error() {
 function matchesRegex(regex) {
   return function(v) {
     if (!regex.test(v)) {
-      error('Should match the regex [%s], got [%s]', regex, v);
+      error('should match the regex [%s], got [%s]', regex, v);
     }
   };
 }
@@ -21,7 +21,7 @@ function matchesRegex(regex) {
 function typeOf(match) {
   return function(e) {
     if (typeof(e) !== match) {
-      error('Should be of type [%s], value was [%s]', match, e);
+      error('should be of type [%s], value was [%s]', match, e);
     }
   };
 }
@@ -55,7 +55,7 @@ module.exports = function() {
       array: function(fn) {
         fns.push(function(e){
           if (!Array.isArray(e)) {
-            error('Should be an array, value was [%s]', e);
+            error('should be an array, value was [%s]', e);
           }
 
           for (var i = 0; i < e.length; ++i) {
@@ -71,7 +71,7 @@ module.exports = function() {
 
         fns.push(function(e) {
           if (e !== undefined) {
-            error('Should not exist, but found [%s]', e);
+            error('should not exist, but found [%s]', e);
           }
         });
 
@@ -97,7 +97,7 @@ module.exports = function() {
 
         fns.push(function (e) {
           if (obj[e] == null) {
-            error('Should be one of %j, got [%s]', vals, e);
+            error('should be one of %j, got [%s]', vals, e);
           }
         });
         return this;
@@ -114,11 +114,19 @@ module.exports = function() {
         return this;
       },
 
+      isNull: function() {
+        fns.push(function(value) {
+          if (value !== null) {
+            error('is not null, got [%s]', value);
+          }
+        });
+        return this;
+      },
 
       isISODateTime: function () {
         fns.push(function (value) {
           if (!isoPattern.test(value)) {
-            error('Is not an ISODate string, got [%s]', value);
+            error('is not an ISODate string, got [%s]', value);
           }
         });
         return this;
@@ -127,7 +135,7 @@ module.exports = function() {
       minLength: function(length) {
         fns.push(function(e) {
           if (e.length < length) {
-            error('Should have a length >= [%s], got [%s]', length, e);
+            error('should have a length >= [%s], got [%s]', length, e);
           }
         });
         return this;
@@ -136,7 +144,7 @@ module.exports = function() {
       max: function (val) {
         fns.push(function (e) {
           if (e > val) {
-            error('Should be <= [%s], got [%s]', val, e);
+            error('should be <= [%s], got [%s]', val, e);
           }
         });
         return this;
@@ -145,7 +153,7 @@ module.exports = function() {
       min: function (val) {
         fns.push(function (e) {
           if (e < val) {
-            error('Should be >= [%s], got [%s]', val, e);
+            error('should be >= [%s], got [%s]', val, e);
           }
         });
         return this;
@@ -181,7 +189,7 @@ module.exports = function() {
             }
           }
           if (errors.length > (alts.length - 1)) {
-            error('Failed all schemas %j, got [%s]',
+            error('failed all schemas %j',
               _.pluck(errors, 'message'),
               typeof e === 'object' ? JSON.stringify(e) : e);
           }

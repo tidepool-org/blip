@@ -5,7 +5,7 @@ module.exports = schema(
   common,
   {
     parentMessage: schema().oneOf(
-        schema(schema().in([100])), 
+        schema(schema().isNull()), 
         schema(schema().isId())
     )
   }
