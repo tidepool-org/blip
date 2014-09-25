@@ -119,6 +119,7 @@ class Basal:
         self._make_temp_segments()
 
         def serialize(segment):
+            segment['normalEnd'] = (segment['deviceTime'] + segment['duration']).isoformat() + '.000Z'
             segment['deviceTime'] = segment['deviceTime'].isoformat()
             segment['duration'] = int(segment['duration'].total_seconds()*1000)
             segment['id'] = str(uuid.uuid4())
@@ -244,6 +245,8 @@ class Basal:
 
         percents = [item/10.0 for item in range(0,16)]
 
+        original_length = len(self.segments)
+
         for i, segment in enumerate(self.segments):
             
             percent = random.choice(percents)
@@ -251,7 +254,7 @@ class Basal:
                 percent = 0.5
 
             # proper subset temps
-            if random.choice(likelihood):
+            if random.choice(likelihood) and i < original_length:
                 left_segment = segment.copy()
                 left_segment['duration'] = td(seconds=int(segment['duration'].total_seconds() * 0.25))
                 left_segment['used'] = 'subset/left_segment'
