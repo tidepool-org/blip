@@ -55,7 +55,7 @@ function BasalUtil(data) {
     var start = new Date(endpoints.start.datetime), end = new Date(endpoints.end.datetime);
     // handle first segment, which may have started before the start endpoint
     var segment = this.actual[endpoints.start.index];
-    dose += this.segmentDose(segment.duration - (start - new Date(segment.normalTime)), segment.rate);
+    dose += this.segmentDose((new Date(segment.normalEnd) - start), segment.rate);
     var i = endpoints.start.index + 1;
     while (i < endpoints.end.index) {
       segment = this.actual[i];
@@ -71,16 +71,16 @@ function BasalUtil(data) {
   this.isContinuous = function(s, e) {
     var start = new Date(s), end = new Date(e);
     var startIndex = _.findIndex(this.actual, function(segment) {
-        return (new Date(segment.normalTime).valueOf() <= start) && (start <= new Date(dt.addDuration(segment.normalTime, segment.duration)).valueOf());
+        return (new Date(segment.normalTime).valueOf() <= start) && (start <= new Date(segment.normalEnd).valueOf());
       });
     var endIndex = _.findIndex(this.actual, function(segment) {
-        return (new Date(segment.normalTime).valueOf() <= end) && (end <= new Date(dt.addDuration(segment.normalTime, segment.duration)).valueOf());
+        return (new Date(segment.normalTime).valueOf() <= end) && (end <= new Date(segment.normalEnd).valueOf());
       });
     if ((startIndex >= 0) && (endIndex >= 0)) {
       var i = startIndex;
       while (i < endIndex) {
         var s1 = this.actual[i], s2 = this.actual[i + 1];
-        if (dt.addDuration(s1.normalTime, s1.duration) !== s2.normalTime) {
+        if (s1.normalEnd !== s2.normalTime) {
           return false;
         }
         i++;

@@ -30,9 +30,7 @@ var datetime = {
   },
 
   addDuration: function(datetime, duration) {
-    if (typeof(datetime) === 'string') {
-      datetime = new Date(datetime);
-    }
+    datetime = new Date(datetime);
 
     return new Date(datetime.valueOf() + duration).toISOString();
   },

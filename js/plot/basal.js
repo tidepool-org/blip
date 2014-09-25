@@ -170,12 +170,12 @@ module.exports = function(pool, opts) {
         // start with a moveto command
         d += 'M' + stringCoords(data[i]);
       }
-      else if (data[i].normalTime === dt.addDuration(data[i - 1].normalTime, data[i - 1].duration)) {
+      else if (data[i].normalTime === data[i - 1].normalEnd) {
         // if segment is contiguous with previous, draw a vertical line connecting their values
         d += 'V' + basal.pathYPosition(data[i]) + ' ';
       }
       // TODO: maybe a robust check for a gap in time here instead of just !==?
-      else if (data[i].normalTime !== dt.addDuration(data[i - 1].normalTime, data[i - 1].duration)) {
+      else if (data[i].normalTime !== data[i - 1].normalEnd) {
         // if segment is not contiguous with previous, skip to beginning of segment
         d += 'M' + stringCoords(data[i]);
       }
@@ -190,7 +190,7 @@ module.exports = function(pool, opts) {
   };
 
   basal.segmentEndXPosition = function(d) {
-    return opts.xScale(Date.parse(dt.addDuration(d.normalTime, d.duration)));
+    return opts.xScale(Date.parse(d.normalEnd));
   };
 
   basal.tooltipXPosition = function(d) {
@@ -210,7 +210,7 @@ module.exports = function(pool, opts) {
   };
 
   basal.width = function(d) {
-    return opts.xScale(Date.parse(dt.addDuration(d.normalTime, d.duration))) - opts.xScale(Date.parse(d.normalTime));
+    return opts.xScale(Date.parse(d.normalEnd)) - opts.xScale(Date.parse(d.normalTime));
   };
 
   basal.height = function(d) {
@@ -261,7 +261,7 @@ module.exports = function(pool, opts) {
       .html('<span class="fromto">from</span> ' +
         format.timestamp(datum.normalTime) +
         ' <span class="fromto">to</span> ' +
-        format.timestamp(dt.addDuration(datum.normalTime, datum.duration)));
+        format.timestamp(datum.normalEnd));
   };
 
   basal.addTooltip = function(d) {
