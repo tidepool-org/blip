@@ -34,7 +34,7 @@ describe('nurseshark', function() {
       expect(fn).to.throw('An array is required.');
     });
 
-    it('should return an object, with errors and processedData', function() {
+    it('should return an object, with erroredData and processedData', function() {
       var res = nurseshark.processData([{type:'cbg'},{type:'wizard'}]);
       assert.isObject(res);
       expect(res.erroredData).not.to.be.undefined;
@@ -80,7 +80,8 @@ describe('nurseshark', function() {
         time: now.toISOString(),
         duration: 1200000,
         deviceTime: dummyDT,
-        normalTime: dummyDT + '.000Z'
+        normalTime: dummyDT + '.000Z',
+        normalEnd: new Date(new Date(dummyDT).valueOf() + 1200000).toISOString()
       }, {
         type: 'basal',
         time: plusTen.toISOString(),
@@ -101,6 +102,7 @@ describe('nurseshark', function() {
         duration: 300000
       }, {
         type: 'deviceMeta',
+        time: new Date().toISOString(),
         annotations: [{
           code: 'status/incomplete-tuple'
         }]
@@ -111,8 +113,8 @@ describe('nurseshark', function() {
         }]
       }];
       var res = nurseshark.processData(data);
-      expect(res.processedData.length).to.equal(1);
-      expect(res.erroredData.length).to.equal(2);
+      expect(res.processedData.length).to.equal(2);
+      expect(res.erroredData.length).to.equal(1);
     });
 
     it('should translate cbg and smbg into mg/dL when such units specified', function() {
@@ -224,6 +226,7 @@ describe('nurseshark', function() {
       var data = [{
         type: 'basal',
         time: new Date().toISOString(),
+        duration: 3600000,
         deviceTime: dummyDT
       }, {
         type: 'bolus',
@@ -267,17 +270,38 @@ describe('nurseshark', function() {
       var offset = new Date().getTimezoneOffset();
       var message = [{
         type: 'message',
-        time: '2014-09-13T02:13:18.805Z'
+        timestamp: '2014-09-13T02:13:18.805Z'
       }];
-      var messageTime = new Date(message[0].time);
+      var messageTime = new Date(message[0].timestamp);
       var res = nurseshark.processData(message).processedData[0];
       expect(res.normalTime).to.equal(new Date(messageTime.setUTCMinutes(messageTime.getUTCMinutes() - offset)).toISOString());
     });
   });
 
-  describe('reshapeNote', function() {
-    it.skip('should be a function', function() {
-      assert.isFunction(nurseshark.reshapeNote);
+  describe('reshapeMessage', function() {
+    it('should be a function', function() {
+      assert.isFunction(nurseshark.reshapeMessage);
+    });
+
+    it('should yield the message format tideline expects', function() {
+      var now = new Date().toISOString();
+      var offset = new Date().getTimezoneOffset();
+      var serverMessage = {
+        id: 'a',
+        parentmessage: null,
+        timestamp: now,
+        messagetext: 'Hello there!'
+      };
+      var messageTime = new Date(serverMessage.timestamp);
+      var tidelineMessage = {
+        id: 'a',
+        parentMessage: null,
+        time: now,
+        normalTime: new Date(messageTime.setUTCMinutes(messageTime.getUTCMinutes() - offset)).toISOString(),
+        messageText: 'Hello there!',
+        type: 'message'
+      };
+      expect(nurseshark.reshapeMessage(serverMessage)).to.eql(tidelineMessage);
     });
   });
 
@@ -346,7 +370,7 @@ describe('nurseshark', function() {
         time: earlier.toISOString()
       }];
       var res = nurseshark.processData(input).processedData;
-      expect(res[0].duration).to.equal(output[1].duration);
+      expect(res[1].duration).to.equal(output[1].duration);
     });
 
     it('should add an expectedDuration to user-cancelled extended boluses', function() {
@@ -362,6 +386,32 @@ describe('nurseshark', function() {
       var res = nurseshark.processData(cancelled).processedData[0];
       expect(res.duration).to.equal(2000);
       expect(res.expectedDuration).to.equal(10000);
+    });
+  });
+
+  describe('annotateBasals', function() {
+    it('should be a function', function() {
+      assert.isFunction(nurseshark.annotateBasals);
+    });
+
+    it('should annotate a basal segment containing an incomplete suspend', function() {
+      var now = new Date();
+      var plusTen = new Date(now.valueOf() + 600000);
+      var dummyDT = '2014-01-01T12:00:00';
+      var data = [{
+        type: 'basal',
+        time: now.toISOString(),
+        deviceTime: dummyDT,
+        duration: 1800000
+      }, {
+        type: 'deviceMeta',
+        annotations: [{
+          code: 'status/incomplete-tuple'
+        }],
+        time: plusTen.toISOString()
+      }];
+      var res = nurseshark.processData(data).processedData;
+      expect(res[0].annotations[0].code).to.equal('basal/intersects-incomplete-suspend');
     });
   });
 
@@ -549,8 +599,24 @@ describe('nurseshark', function() {
       expect(nurseshark.mergeSuspendsIntoBasals(inputData.slice(0,2), [inputData[2]], [])).to.eql(outputData);
     });
 
-    it.skip('should annotate basals that intersect with suspends annotated with incomplete-tuple', function() {
-
+    it('should annotate basals that intersect with suspends annotated with incomplete-tuple', function() {
+      var now = new Date();
+      var plusTen = new Date(now.valueOf() + 600000);
+      var dummyDT = '2014-01-01T12:00:00';
+      var data = [{
+        type: 'basal',
+        time: now.toISOString(),
+        deviceTime: dummyDT,
+        duration: 1800000
+      }, {
+        type: 'deviceMeta',
+        annotations: [{
+          code: 'status/incomplete-tuple'
+        }],
+        time: plusTen.toISOString()
+      }];
+      var res = nurseshark.processData(data).processedData;
+      expect(res[0].annotations[0].code).to.equal('basal/intersects-incomplete-suspend');
     });
   });
 
@@ -580,61 +646,6 @@ describe('nurseshark', function() {
         var res = nurseshark.processData(data);
         var resBasals = _.where(res.processedData, {type: 'basal'});
         expect(basals.length).to.be.below(resBasals.length);
-      }
-    });
-
-    it('how long does lodash sort take?', function() {
-      _.sortBy(data, function(d) {
-        return d.time;
-      });
-    });
-
-    it('how long does array sort take?', function() {
-      data.sort(function(a, b) {
-        if (a.normalTime < b.normalTime) {
-          return -1;
-        }
-        if (a.normalTime > b.normalTime) {
-          return 1;
-        }
-        return 0;
-      });
-    });
-
-    it('how long does deep clone take?', function() {
-      var cloned = [];
-      for (var i = 0; i < data.length; ++i) {
-        cloned.push(_.cloneDeep(data[i]));
-      }
-    });
-  });
-
-  // TODO: remove this! just for development
-  describe('on demo data', function() {
-    var data = require('../example/data/device-data.json');
-    it('should succeed without error', function() {
-      var res = nurseshark.processData(data);
-      assert.isArray(res.processedData);
-      expect(res.erroredData.length).to.equal(0);
-    });
-
-    it('should create some new basals if there are suspends', function() {
-      var suspends = _.where(data, {status: 'suspended'});
-      var validSuspends = _.reject(suspends, function(s) {
-        return s.annotations != null;
-      });
-      var basals = _.where(data, {type: 'basal'});
-      if (validSuspends.length > 0) {
-        var res = nurseshark.processData(data);
-        var resBasals = _.where(res.processedData, {type: 'basal'});
-        expect(basals.length).to.be.below(resBasals.length);
-      }
-    });
-
-    it('how long does deep clone take?', function() {
-      var cloned = [];
-      for (var i = 0; i < data.length; ++i) {
-        cloned.push(_.cloneDeep(data[i]));
       }
     });
   });

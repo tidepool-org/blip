@@ -37,7 +37,7 @@ function isBadStatus(d) {
     var numAnnotations = d.annotations.length;
     for (var i = 0; i < numAnnotations; ++i) {
       var code = d.annotations[i].code;
-      if (code === 'status/incomplete-tuple' || code === 'status/unknown-previous') {
+      if (code === 'status/unknown-previous') {
         return true;
       }
     }
@@ -66,6 +66,9 @@ function basalSchedulesToArray(basalSchedules) {
 // TODO: remove after we've got tideline using timezone-aware timestamps
 function watson(d) {
   d.normalTime = d.deviceTime + '.000Z';
+  if (d.type === 'basal') {
+    d.normalEnd = dt.addDuration(d.normalTime, d.duration);
+  }
 }
 
 function cloneDeep(d) {
@@ -82,6 +85,328 @@ function cloneDeep(d) {
   }
   return newObj;
 }
+
+function timeIt(fn, name) {
+  if (typeof window !== 'undefined') {
+    console.time(name);
+    fn();
+    console.timeEnd(name);
+  }
+  else {
+    fn();
+  }
+}
+
+var nurseshark = {
+  annotateBasals: function(basals, incompleteSuspends) {
+    var crossBasals = crossfilter(basals);
+    var basalsByTime = crossBasals.dimension(function(d) {
+      return d.time + '/' + dt.addDuration(d.time, d.duration);
+    });
+    var numSuspends = incompleteSuspends.length;
+    function findIntersecting(suspendStart) {
+      return function(d) {
+        var interval = d.split('/');
+        var basalStart = interval[0], basalEnd = interval[1];
+        if (basalStart <= suspendStart && suspendStart <= basalEnd) {
+          return true;
+        }
+        return false;
+      };
+    }
+    function handleIntersection(match) {
+      match.annotations = [{
+        'code': 'basal/intersects-incomplete-suspend'
+      }];
+    }
+
+    for (var i = 0; i < numSuspends; ++i) {
+      var suspend = incompleteSuspends[i];
+      var matches = basalsByTime.filterFunction(
+        findIntersecting(suspend.time)
+      ).top(Infinity);
+      if (matches.length > 0) {
+        for (var j = 0; j < matches.length; ++j) {
+          handleIntersection(matches[j]);
+        }
+      }
+    }
+  },
+  mergeSuspendsIntoBasals: function(basals, suspends, allData) {
+    var crossBasals = crossfilter(basals);
+    var basalsByTime = crossBasals.dimension(function(d) {
+      return d.time + '/' + dt.addDuration(d.time, d.duration || 0);
+    });
+    var numSuspends = suspends.length;
+    function getIntervalFilterFn(suspendStart, suspendEnd) {
+      return function(d) {
+        var interval = d.split('/');
+        var basalStart = interval[0], basalEnd = interval[1];
+        // suspend is a (possibly improper) subset of basal segment
+        if (suspendStart >= basalStart && suspendEnd <= basalEnd) {
+          return true;
+        }
+        // suspend start intersects with basal segment
+        else if (suspendStart > basalStart && suspendStart < basalEnd) {
+          return true;
+        }
+        // suspend end intersects with basal segment
+        else if (suspendEnd > basalStart && suspendEnd < basalEnd) {
+          return true;
+        }
+        // suspend is superset of basal segment
+        else if (suspendStart <= basalStart && suspendEnd >= basalEnd) {
+          return true;
+        }
+        else {
+          return false;
+        }
+      };
+    }
+    function handleIntersection(match, suspend) {
+      if (suspend.annotations && suspend.annotations.length > 0) {
+        var numAnnotations = suspend.annotations.length;
+        for (var i = 0; i < numAnnotations; ++i) {
+          var annotation = suspend.annotations[i];
+          if (annotation.code === 'status/incomplete-tuple') {
+            match.annotations = [{
+              'code': 'basal/intersects-incomplete-suspend'
+            }];
+          }
+        }
+      }
+      else {
+        var suspendEnd = dt.addDuration(suspend.time, suspend.duration);
+        var matchEnd = dt.addDuration(match.time, match.duration);
+        var originalEnd = dt.addDuration(match.time, match.duration);
+        var originalBeg = match.time;
+        var newBasal;
+        // start intersection
+        if (suspend.time > match.time && suspendEnd > matchEnd) {
+          newBasal = cloneDeep(match);
+          newBasal.suppressed = cloneDeep(match);
+          newBasal.suppressed.id += '_scheduled';
+
+          match.expectedDuration = match.duration;
+          match.duration = dt.difference(suspend.time, match.time);
+
+          newBasal.time = suspend.time;
+          newBasal.duration = dt.difference(originalEnd, suspend.time);
+          newBasal.rate = 0.0;
+          newBasal.deliveryType = 'suspend';
+          newBasal.id += '_suspended';
+          basals.push(newBasal);
+          allData.push(newBasal);
+        }
+        // end intersection
+        else if (suspendEnd < matchEnd && suspend.time < match.time) {
+          newBasal = cloneDeep(match);
+          newBasal.suppressed = cloneDeep(match);
+          newBasal.suppressed.id += '_scheduled';
+
+          match.time = suspendEnd;
+          match.expectedDuration = match.duration;
+          match.duration = dt.difference(matchEnd, suspendEnd);
+
+          newBasal.duration = dt.difference(suspendEnd, originalBeg);
+          newBasal.rate = 0.0;
+          newBasal.deliveryType = 'suspend';
+          newBasal.id += '_suspended';
+          basals.push(newBasal);
+          allData.push(newBasal);
+        }
+        // superset or improper subset
+        else if (suspend.time <= match.time && suspendEnd >= matchEnd) {
+          match.suppressed = cloneDeep(match);
+          match.suppressed.id += '_scheduled';
+          match.deliveryType = 'suspend';
+          match.rate = 0.0;
+          match.id += '_suspended';
+        }
+        // proper subset
+        else {
+          var first = cloneDeep(match), last = cloneDeep(match);
+          first.expectedDuration = first.duration;
+          first.duration = dt.difference(suspend.time, first.time);
+          first.id += '_first';
+          basals.push(first);
+          allData.push(first);
+
+          last.time = suspendEnd;
+          last.expectedDuration = last.duration;
+          last.duration = dt.difference(originalEnd, suspendEnd);
+          last.id += '_last';
+          basals.push(last);
+          allData.push(last);
+
+          match.suppressed = cloneDeep(match);
+          match.suppressed.id += '_scheduled';
+          match.id += '_suspended';
+          match.deliveryType = 'suspend';
+          match.time = suspend.time;
+          match.duration = suspend.duration;
+          match.rate = 0.0;
+        }
+      }
+    }
+    for (var i = 0; i < numSuspends; ++i) {
+      var suspend = suspends[i];
+      var matches = basalsByTime.filterFunction(
+        getIntervalFilterFn(suspend.time, dt.addDuration(suspend.time, suspend.duration || 0))
+      ).top(Infinity);
+      if (matches.length > 0) {
+        for (var j = 0; j < matches.length; ++j) {
+          handleIntersection(matches[j], suspend);
+        }
+      }
+    }
+    return basals;
+  },
+  suspendedExtendeds: function(suspends, extendedIntervals) {
+    suspends = crossfilter(suspends);
+    var suspendsByTime = suspends.dimension(function(d) {
+      return d.time;
+    });
+    var intervals = Object.keys(extendedIntervals);
+    var numExtendeds = intervals.length;
+    for (var i = 0; i < numExtendeds; ++i) {
+      var matches = suspendsByTime.filter(intervals[i].split('/')).top(Infinity);
+      var bolus = extendedIntervals[intervals[i]];
+      // suspend interrupts an extended bolus
+      if (matches.length > 0) {
+        var suspend = matches[0];
+        if (!(bolus.extended >= 0 && bolus.expectedExtended > 0)) {
+          var err = new Error('An extended bolus interrupted by a suspend should have ' +
+            '`extended` and `expectedExtended` properties.');
+          bolus.errorMessage = err.message;
+          this.erroredData.push(bolus);
+        }
+        bolus.expectedDuration = bolus.duration;
+        bolus.duration = dt.difference(suspend.time, bolus.time);
+      }
+      // user cancels an extended bolus
+      if (bolus.expectedExtended && bolus.expectedExtended > 0 && !bolus.expectedDuration) {
+        var percentComplete = bolus.extended/bolus.expectedExtended;
+        bolus.expectedDuration = bolus.duration;
+        bolus.duration = percentComplete * bolus.duration;
+      }
+    }
+  },
+  joinWizardsAndBoluses: function(wizards, bolusesToJoin) {
+    var numWizards = wizards.length;
+    for (var i = 0; i < numWizards; ++i) {
+      var wizard = wizards[i];
+      if (wizard.joinKey != null) {
+        if (typeof bolusesToJoin[wizard.joinKey] === 'object') {
+          wizard.bolus = bolusesToJoin[wizard.joinKey];
+        }
+      }
+    }
+  },
+  reshapeMessage: function(d) {
+    var tidelineMessage = {
+      time: d.timestamp,
+      messageText: d.messagetext,
+      parentMessage: d.parentmessage,
+      type: 'message',
+      id: d.id
+    };
+    // TODO: remove after we've got tideline using timezone-aware timestamps
+    var dt = new Date(tidelineMessage.time);
+    var offsetMinutes = dt.getTimezoneOffset();
+    dt.setUTCMinutes(dt.getUTCMinutes() - offsetMinutes);
+    tidelineMessage.normalTime = dt.toISOString();
+    return tidelineMessage;
+  },
+  processData: function(data) {
+    if (!(data && data.length >= 0 && Array.isArray(data))) {
+      throw new Error('An array is required.');
+    }
+    var processedData = [], erroredData = [];
+    var collections = {
+      bolusesToJoin: {},
+      extendedIntervals: {}
+    };
+    var typeGroups = {};
+
+    var handlers = getHandlers();
+
+    function addNoHandlerMessage(d) {
+      d = cloneDeep(d);
+      var err = new Error(util.format('No nurseshark handler defined for type [%s]', d.type));
+      d.errorMessage = err.message;
+      return d;
+    }
+
+    function process(d) {
+      d = handlers[d.type] ? handlers[d.type](d, collections) : d.messagetext ? handlers.message(d, collections) : addNoHandlerMessage(d);
+      if (d.errorMessage != null) {
+        erroredData.push(d);
+      }
+      else {
+        processedData.push(d);
+        // group data
+        if (typeGroups[d.type] == null) {
+          typeGroups[d.type] = [d];
+        }
+        else {
+          typeGroups[d.type].push(d);
+        }
+      }
+    }
+
+    timeIt(function() {
+      for (var i = 0; i < data.length; ++i) {
+        process(data[i]);
+      }
+    }, 'Process');
+
+    timeIt(function() {
+      nurseshark.joinWizardsAndBoluses(typeGroups.wizard || [], collections.bolusesToJoin);
+    }, 'joinWizardsAndBoluses');
+
+    if (Object.keys(collections.extendedIntervals).length > 0) {
+      timeIt(function() {
+        nurseshark.suspendedExtendeds(typeGroups.deviceMeta || [], collections.extendedIntervals);
+      }, 'suspendedExtendeds');
+    }
+
+    if (typeGroups.deviceMeta && typeGroups.deviceMeta.length > 0) {
+      timeIt(function() {
+        typeGroups.basal = nurseshark.mergeSuspendsIntoBasals(typeGroups.basal || [], typeGroups.deviceMeta, processedData);
+      }, 'mergeSuspendsIntoBasals');
+    }
+
+    if (typeGroups.deviceMeta && typeGroups.deviceMeta.length > 0) {
+      timeIt(function() {
+        nurseshark.annotateBasals(typeGroups.basal || [], _.filter(typeGroups.deviceMeta, function(d) {
+          if (d.annotations && d.annotations.length > 0) {
+            for (var i = 0; i < d.annotations.length; ++i) {
+              var annotation = d.annotations[i];
+              if (annotation.code === 'status/incomplete-tuple') {
+                return true;
+              }
+            }
+          }
+          return false;
+        }));
+      }, 'annotateBasals');
+    }
+
+    timeIt(function() {
+      processedData.sort(function(a, b) {
+        if (a.normalTime < b.normalTime) {
+          return -1;
+        }
+        if (a.normalTime > b.normalTime) {
+          return 1;
+        }
+        return 0;
+      });
+    }, 'Sort');
+    return {erroredData: erroredData, processedData: processedData};
+  }
+};
 
 function getHandlers() {
   var lastEnd, lastBasal;
@@ -134,13 +459,7 @@ function getHandlers() {
       return d;
     },
     message: function(d) {
-      d = cloneDeep(d);
-      // TODO: remove after we've got tideline using timezone-aware timestamps
-      var dt = new Date(d.time);
-      var offsetMinutes = dt.getTimezoneOffset();
-      dt.setUTCMinutes(dt.getUTCMinutes() - offsetMinutes);
-      d.normalTime = dt.toISOString();
-      return d;
+      return nurseshark.reshapeMessage(d);
     },
     smbg: function(d) {
       d = cloneDeep(d);
@@ -169,7 +488,7 @@ function getHandlers() {
             var item = d.insulinSensitivity[i];
             item.amount = translateBg(item.amount);
           }
-        }      
+        }
       }
       d.basalSchedules = basalSchedulesToArray(d.basalSchedules);
       watson(d);
@@ -198,246 +517,4 @@ function getHandlers() {
   };
 }
 
-module.exports = {
-  mergeSuspendsIntoBasals: function(basals, suspends, allData) {
-    var crossBasals = crossfilter(basals);
-    var basalsByTime = crossBasals.dimension(function(d) {
-      return d.time + '/' + dt.addDuration(d.time, d.duration || 0);
-    });
-    var numSuspends = suspends.length;
-    function getIntervalFilterFn(suspendStart, suspendEnd) {
-      return function(d) {
-        var interval = d.split('/');
-        var basalStart = interval[0], basalEnd = interval[1];
-        // suspend is a (possibly improper) subset of basal segment
-        if (suspendStart >= basalStart && suspendEnd <= basalEnd) {
-          return true;
-        }
-        // suspend start intersects with basal segment
-        else if (suspendStart > basalStart && suspendStart < basalEnd) {
-          return true;
-        }
-        // suspend end intersects with basal segment
-        else if (suspendEnd > basalStart && suspendEnd < basalEnd) {
-          return true;
-        }
-        // suspend is superset of basal segment
-        else if (suspendStart <= basalStart && suspendEnd >= basalEnd) {
-          return true;
-        }
-        else {
-          return false;
-        }
-      };
-    }
-    function handleIntersection(match, suspend) {
-      var suspendEnd = dt.addDuration(suspend.time, suspend.duration);
-      var matchEnd = dt.addDuration(match.time, match.duration);
-      var originalEnd = dt.addDuration(match.time, match.duration);
-      var originalBeg = match.time;
-      var newBasal;
-      // start intersection
-      if (suspend.time > match.time && suspendEnd > matchEnd) {
-        newBasal = cloneDeep(match);
-        newBasal.suppressed = cloneDeep(match);
-        newBasal.suppressed.id += '_scheduled';
-
-        match.expectedDuration = match.duration;
-        match.duration = dt.difference(suspend.time, match.time);
-
-        newBasal.time = suspend.time;
-        newBasal.duration = dt.difference(originalEnd, suspend.time);
-        newBasal.rate = 0.0;
-        newBasal.deliveryType = 'suspend';
-        newBasal.id += '_suspended';
-        basals.push(newBasal);
-        allData.push(newBasal);
-      }
-      // end intersection
-      else if (suspendEnd < matchEnd && suspend.time < match.time) {
-        newBasal = cloneDeep(match);
-        newBasal.suppressed = cloneDeep(match);
-        newBasal.suppressed.id += '_scheduled';
-
-        match.time = suspendEnd;
-        match.expectedDuration = match.duration;
-        match.duration = dt.difference(matchEnd, suspendEnd);
-
-        newBasal.duration = dt.difference(suspendEnd, originalBeg);
-        newBasal.rate = 0.0;
-        newBasal.deliveryType = 'suspend';
-        newBasal.id += '_suspended';
-        basals.push(newBasal);
-        allData.push(newBasal);
-      }
-      // superset or improper subset
-      else if (suspend.time <= match.time && suspendEnd >= matchEnd) {
-        match.suppressed = cloneDeep(match);
-        match.suppressed.id += '_scheduled';
-        match.deliveryType = 'suspend';
-        match.rate = 0.0;
-        match.id += '_suspended';
-      }
-      // proper subset
-      else {
-        var first = cloneDeep(match), last = cloneDeep(match);
-        first.expectedDuration = first.duration;
-        first.duration = dt.difference(suspend.time, first.time);
-        first.id += '_first';
-        basals.push(first);
-        allData.push(first);
-
-        last.time = suspendEnd;
-        last.expectedDuration = last.duration;
-        last.duration = dt.difference(originalEnd, suspendEnd);
-        last.id += '_last';
-        basals.push(last);
-        allData.push(last);
-
-        match.suppressed = cloneDeep(match);
-        match.suppressed.id += '_scheduled';
-        match.id += '_suspended';
-        match.deliveryType = 'suspend';
-        match.time = suspend.time;
-        match.duration = suspend.duration;
-        match.rate = 0.0;
-      }
-    }
-    for (var i = 0; i < numSuspends; ++i) {
-      var suspend = suspends[i];
-      var matches = basalsByTime.filterFunction(
-        getIntervalFilterFn(suspend.time, dt.addDuration(suspend.time, suspend.duration))
-      ).top(Infinity);
-      if (matches.length > 0) {
-        for (var j = 0; j < matches.length; ++j) {
-          handleIntersection(matches[j], suspend);
-        }
-      }
-    }
-    return basals;
-  },
-  suspendedExtendeds: function(suspends, extendedIntervals) {
-    suspends = crossfilter(suspends);
-    var suspendsByTime = suspends.dimension(function(d) {
-      return d.time;
-    });
-    var intervals = Object.keys(extendedIntervals);
-    var numExtendeds = intervals.length;
-    for (var i = 0; i < numExtendeds; ++i) {
-      var matches = suspendsByTime.filter(intervals[i].split('/')).top(Infinity);
-      var bolus = extendedIntervals[intervals[i]];
-      // suspend interrupts an extended bolus
-      if (matches.length > 0) {
-        var suspend = matches[0];
-        if (!(bolus.extended >= 0 && bolus.expectedExtended > 0)) {
-          var err = new Error('An extended bolus interrupted by a suspend should have ' +
-            '`extended` and `expectedExtended` properties.');
-          bolus.errorMessage = err.message;
-          this.erroredData.push(bolus);
-        }
-        bolus.expectedDuration = bolus.duration;
-        bolus.duration = dt.difference(suspend.time, bolus.time);
-      }
-      // user cancels an extended bolus
-      if (bolus.expectedExtended && bolus.expectedExtended > 0 && !bolus.expectedDuration) {
-        var percentComplete = bolus.extended/bolus.expectedExtended;
-        bolus.expectedDuration = bolus.duration;
-        bolus.duration = percentComplete * bolus.duration;
-      }
-    }
-  },
-  joinWizardsAndBoluses: function(wizards, bolusesToJoin) {
-    var numWizards = wizards.length;
-    for (var i = 0; i < numWizards; ++i) {
-      var wizard = wizards[i];
-      if (wizard.joinKey != null) {
-        if (typeof bolusesToJoin[wizard.joinKey] === 'object') {
-          wizard.bolus = bolusesToJoin[wizard.joinKey];
-        }
-      }
-    }
-  },
-  processData: function(data) {
-    if (!(data && data.length >= 0 && Array.isArray(data))) {
-      throw new Error('An array is required.');
-    }
-    function sortFn(key) {
-      return function(a, b) {
-        if (a[key] < b[key]) {
-          return -1;
-        }
-        if (a[key] > b[key]) {
-          return 1;
-        }
-        return 0;
-      };
-    }
-    data.sort(sortFn('time'));
-    var processedData = [], erroredData = [];
-    var collections = {
-      bolusesToJoin: {},
-      extendedIntervals: {}
-    };
-    var typeGroups = {};
-
-    var handlers = getHandlers();
-
-    function process(d) {
-      try {
-        d = handlers[d.type](d, collections);
-      }
-      catch (e) {
-        var err = new Error(util.format('No nurseshark handler defined for type [%s]', d.type));
-        d.errorMessage = err.message;
-      }
-      if (d.errorMessage != null) {
-        erroredData.push(d);
-      }
-      else {
-        processedData.push(d);
-        // group data
-        if (typeGroups[d.type] == null) {
-          typeGroups[d.type] = [d];
-        }
-        else {
-          typeGroups[d.type].push(d);
-        }
-      }
-    }
-
-    var iterations = Math.floor(data.length / 8);
-    var leftover = data.length % 8;
-    var i = 0;
-
-    if (leftover > 0){
-        do {
-          process(data[i++]);
-        } while (--leftover > 0);
-    }
-
-    if (iterations > 0) {
-      do {
-        process(data[i++]);
-        process(data[i++]);
-        process(data[i++]);
-        process(data[i++]);
-        process(data[i++]);
-        process(data[i++]);
-        process(data[i++]);
-        process(data[i++]);
-      } while (--iterations > 0);      
-    }
-
-    this.joinWizardsAndBoluses(typeGroups.wizard || [], collections.bolusesToJoin);
-
-    if (Object.keys(collections.extendedIntervals).length > 0) {
-      this.suspendedExtendeds(typeGroups.deviceMeta || [], collections.extendedIntervals);
-    }
-
-    if (typeGroups.deviceMeta && typeGroups.deviceMeta.length > 0) {
-      typeGroups.basal = this.mergeSuspendsIntoBasals(typeGroups.basal || [], typeGroups.deviceMeta, processedData);
-    }
-
-    return {erroredData: erroredData, processedData: processedData.sort(sortFn('normalTime'))};
-  }
-};
+module.exports = nurseshark;
