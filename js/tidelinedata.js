@@ -244,9 +244,16 @@ function TidelineData(data, opts) {
 
   log('Items to validate:', data.length);
 
-  console.time('Validation in');
-  var res = validate.validateAll(data);
-  console.timeEnd('Validation in');
+  var res;
+  if (typeof window !== 'undefined') {
+    console.time('Validation');
+    res = validate.validateAll(data);
+    console.timeEnd('Validation');
+  }
+  else {
+    res = validate.validateAll(data);
+  }
+
 
   log('Valid items:', res.valid.length);
   log('Invalid items:', res.invalid.length);
