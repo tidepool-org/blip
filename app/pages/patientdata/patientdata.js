@@ -27,6 +27,8 @@ var Daily = require('../../components/chart').daily;
 var Weekly = require('../../components/chart').weekly;
 var Settings = require('../../components/chart').settings;
 
+var nurseShark = require('tideline/plugins/nurseshark/');
+
 var Messages = require('../../components/messages');
 
 var PatientData = React.createClass({
@@ -325,25 +327,8 @@ var PatientData = React.createClass({
     this.props.trackMetric('Closed New Message Modal');
   },
 
-  // TODO: remove once have tideline speaking UTC properly!
-  watsonMessageTimestamp: function(message) {
-    var offset = new Date().getTimezoneOffset();
-    var messageTime = new Date(message.time);
-    message.normalTime = new Date(messageTime.setUTCMinutes(messageTime.getUTCMinutes() - offset)).toISOString();
-    return message;
-  },
-
   handleMessageCreation: function(message){
-    // transform to Tideline's own format
-    var tidelineMessage = {
-        time : message.timestamp,
-        messageText : message.messagetext,
-        parentMessage : message.parentmessage,
-        type: 'message',
-        id: message.id
-      };
-    var transformedMessage = this.watsonMessageTimestamp(tidelineMessage);
-    var data = this.refs.tideline.createMessageThread(transformedMessage);
+    var data = this.refs.tideline.createMessageThread(nurseShark.reshapeMessage(message));
     this.props.onUpdatePatientData(data);
     this.props.trackMetric('Created New Message');
   },
@@ -361,16 +346,7 @@ var PatientData = React.createClass({
     if (edit) {
       edit(message, cb);
     }
-    // transform to Tideline's own format
-    var tidelineMessage = {
-        time : message.timestamp,
-        messageText : message.messagetext,
-        parentMessage : message.parentmessage,
-        type: 'message',
-        id: message.id
-      };
-    var transformedMessage = this.watsonMessageTimestamp(tidelineMessage);
-    var data = this.refs.tideline.editMessageThread(transformedMessage);
+    var data = this.refs.tideline.editMessageThread(nurseShark.reshapeMessage(message));
     this.props.onUpdatePatientData(data);
     this.props.trackMetric('Edit To Message');
   },

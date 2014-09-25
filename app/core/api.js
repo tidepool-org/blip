@@ -457,9 +457,6 @@ api.patientData.get = function(patientId, cb) {
     api.log('Data received in ' + (Date.now() - now) + ' millis.');
 
     window.inData = data;
-    window.downloadInputData = function() {
-      console.save(data, 'blip-input.json');
-    };
 
     cb(null, data);
   });

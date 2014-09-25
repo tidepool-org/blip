@@ -772,22 +772,14 @@ var AppComponent = React.createClass({
       var patientData = results.patientData || [];
       var notes = results.teamNotes || [];
 
-      // Return message objects the visualization can use
-      notes = _.map(notes, function(message) {
-        return {
-          time : message.timestamp,
-          messageText : message.messagetext,
-          parentMessage : message.parentmessage,
-          type: 'message',
-          id: message.id
-        };
-      });
-
       app.log('Patient device data count', patientData.length);
       app.log('Team notes count', notes.length);
 
-      patientData = patientData.concat(notes);
-      patientData = self.processPatientData(patientData);
+      var combinedData = patientData.concat(notes);
+      window.downloadInputData = function() {
+        console.save(combinedData, 'blip-input.json');
+      };
+      patientData = self.processPatientData(combinedData);
 
       self.setState({
         bgPrefs: {
