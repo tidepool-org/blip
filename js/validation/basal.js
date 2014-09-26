@@ -5,7 +5,6 @@ module.exports = schema(
   common,
   {
     deliveryType: schema().in(['scheduled', 'suspend', 'temp']),
-    deviceTime: schema().isDeviceTime(),
     duration: schema().ifExists().number().min(0),
     normalEnd: schema().isISODateTime(),
     value: schema().number().min(0)
