@@ -349,8 +349,8 @@ module.exports = function(pool, opts) {
 
   stats.updateRectAnnotation = function(puddle, puddleGroup, insufficientData) {
     var annotationOpts = {
-      x: puddle.width() * (3/16) + puddle.xPosition(),
-      y: puddle.height() / 2,
+      x: puddle.width() * (7/32) + puddle.xPosition(),
+      y: pool.height() / 2,
       hoverTarget: puddleGroup,
       lead: 'stats-insufficient-data',
       d: {annotations: [{code: 'stats-insufficient-data'}]},
