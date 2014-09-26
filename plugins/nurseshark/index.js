@@ -180,6 +180,12 @@ var nurseshark = {
 
     function process(d) {
       d = handlers[d.type] ? handlers[d.type](d, collections) : d.messagetext ? handlers.message(d, collections) : addNoHandlerMessage(d);
+      if (d.normalTime && new Date(d.normalTime).getUTCFullYear() < 2008) {
+        d.errorMessage = 'Invalid datetime (before 2008).';
+      }
+      else if (!d.normalTime) {
+        d.errorMessage = 'No normalTime!';
+      }
       if (d.errorMessage != null) {
         erroredData.push(d);
       }

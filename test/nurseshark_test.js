@@ -52,16 +52,19 @@ describe('nurseshark', function() {
     });
 
     it('should return an array of new (not mutated) objects', function() {
+      var dummyDT = '2014-01-01T12:00:00';
       var input = [{
         type: 'bolus',
         a: 1,
         z: {
           b: 2,
           c: 3
-        }
+        },
+        deviceTime: dummyDT
       }, {
         type: 'wizard',
-        d: [{x: 4},{y: 5}]
+        d: [{x: 4},{y: 5}],
+        deviceTime: dummyDT
       }];
       var output = nurseshark.processData(input).processedData;
       for (var i = 0; i < input.length; ++i) {
@@ -96,21 +99,25 @@ describe('nurseshark', function() {
     });
 
     it('should filter out bad deviceMeta events', function() {
+      var dummyDT = '2014-01-01T12:00:00';
       var data = [{
         type: 'deviceMeta',
         time: new Date().toISOString(),
-        duration: 300000
+        duration: 300000,
+        deviceTime: dummyDT
       }, {
         type: 'deviceMeta',
         time: new Date().toISOString(),
         annotations: [{
           code: 'status/incomplete-tuple'
-        }]
+        }],
+        deviceTime: dummyDT
       }, {
         type: 'deviceMeta',
         annotations: [{
           code: 'status/unknown-previous'
-        }]
+        }],
+        deviceTime: dummyDT
       }];
       var res = nurseshark.processData(data);
       expect(res.processedData.length).to.equal(2);
@@ -118,18 +125,22 @@ describe('nurseshark', function() {
     });
 
     it('should translate cbg and smbg into mg/dL when such units specified', function() {
+      var dummyDT = '2014-01-01T12:00:00';
       var bgs = [{
         type: 'cbg',
         units: 'mg/dL',
-        value: 14.211645580300173
+        value: 14.211645580300173,
+        deviceTime: dummyDT
       }, {
         type: 'smbg',
         units: 'mg/dL',
-        value: 2.487452256628842
+        value: 2.487452256628842,
+        deviceTime: dummyDT
       }, {
         type: 'cbg',
         units: 'mmol/L',
-        value: 7.048584587016023
+        value: 7.048584587016023,
+        deviceTime: dummyDT
       }];
       var res = nurseshark.processData(bgs).processedData;
       expect(res[0].value).to.equal(256);
@@ -138,8 +149,10 @@ describe('nurseshark', function() {
     });
 
     it('should translate wizard bg-related fields to mg/dL when such units specified', function() {
+      var dummyDT = '2014-01-01T12:00:00';
       var datum = [{
         type: 'wizard',
+        deviceTime: dummyDT,
         units: 'mg/dL',
         bgInput: 15.1518112923307,
         bgTarget: {
@@ -156,8 +169,10 @@ describe('nurseshark', function() {
     });
 
     it('should translate settings bg-related fields to mg/dL when such units specified', function() {
+      var dummyDT = '2014-01-01T12:00:00';
       var settings = [{
         type: 'settings',
+        deviceTime: dummyDT,
         units: {
           bg: 'mg/dL',
           carb: 'grams'
@@ -185,6 +200,7 @@ describe('nurseshark', function() {
     });
 
     it('should reshape basalSchedules from an object to an array', function() {
+      var dummyDT = '2014-01-01T12:00:00';
       var settings = [{
         type: 'settings',
         basalSchedules: {
@@ -193,7 +209,8 @@ describe('nurseshark', function() {
         },
         units: {
           bg: 'mg/dL'
-        }
+        },
+        deviceTime: dummyDT
       }];
       var res = nurseshark.processData(settings).processedData;
       assert.isArray(res[0].basalSchedules);
@@ -266,6 +283,19 @@ describe('nurseshark', function() {
       }
     });
 
+    it('should put any datum with year < 2008 into the erroredData', function() {
+      var data = [{
+        type: 'message',
+        timestamp: '0002-01-01T12:00:00.000Z'
+      }, {
+        type: 'smbg',
+        time: '0002-01-01T12:00:00.000Z',
+        deviceTime: '0002-01-01T12:00:00'
+      }];
+      var res = nurseshark.processData(data);
+      expect(res.erroredData.length).to.equal(2);
+    });
+
     it('should apply the timezone offset of the environment (browser) to a message utcTime', function() {
       var offset = new Date().getTimezoneOffset();
       var message = [{
@@ -311,20 +341,25 @@ describe('nurseshark', function() {
     });
 
     it('should join a bolus and wizard with matching joinKey', function() {
+      var dummyDT = '2014-01-01T12:00:00';
       var data = [{
         type: 'bolus',
         joinKey: '12345',
-        id: 'abcde'
+        id: 'abcde',
+        deviceTime: dummyDT
       }, {
         type: 'wizard',
         joinKey: '12345',
-        id: 'bcdef'
+        id: 'bcdef',
+        deviceTime: dummyDT
       }, {
         type: 'bolus',
-        id: 'cdefg'
+        id: 'cdefg',
+        deviceTime: dummyDT
       }, {
         type: 'wizard',
-        id: 'defgh'
+        id: 'defgh',
+        deviceTime: dummyDT
       }];
       var res = nurseshark.processData(data).processedData;
       var embeddedBolus = res[1].bolus;
@@ -353,7 +388,8 @@ describe('nurseshark', function() {
         annotations: [{
           code: 'status/incomplete-tuple'
         }],
-        time: plusTen.toISOString()
+        time: plusTen.toISOString(),
+        deviceTime: dummyDT
       }];
       var res = nurseshark.processData(data).processedData;
       expect(res[0].annotations[0].code).to.equal('basal/intersects-incomplete-suspend');
