@@ -95,6 +95,20 @@
   }
 }
 
+a.PatientInfo-block {
+  color: #fff;
+  text-decoration: none;
+
+  &:hover,
+  &:focus {
+    background-color: @gray-darkest;
+
+    &.PatientInfo-block--withArrow:after {
+      border-right-color: @gray-darkest;
+    }
+  }
+}
+
 .PatientInfo-block--placeholder {
   width: 110px;
 }

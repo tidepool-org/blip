@@ -51,6 +51,11 @@ var PatientInfo = React.createClass({
     }
 
     var patient = this.props.patient;
+    var self = this;
+    var handleClick = function(e) {
+      e.preventDefault();
+      self.toggleEdit();
+    };
 
     return (
       <div className="PatientInfo">
@@ -59,19 +64,19 @@ var PatientInfo = React.createClass({
             <div className="PatientInfo-picture"></div>
             <div className="PatientInfo-blocks">
               <div className="PatientInfo-blockRow">
-                <div className="PatientInfo-block PatientInfo-block--withArrow">
+                <a href="" onClick={handleClick} className="PatientInfo-block PatientInfo-block--withArrow">
                   {this.getDisplayName(patient)}
-                </div>
+                </a>
               </div>
               <div className="PatientInfo-blockRow">
-                <div className="PatientInfo-block">
+                <a href="" onClick={handleClick} className="PatientInfo-block">
                   {this.getAgeText(patient)}
-                </div>
+                </a>
               </div>
               <div className="PatientInfo-blockRow">
-                <div className="PatientInfo-block">
+                <a href="" onClick={handleClick} className="PatientInfo-block">
                   {this.getDiagnosisText(patient)}
-                </div>
+                </a>
               </div>
             </div>
           </div>
