@@ -134,7 +134,7 @@ var Patients = React.createClass({
       );
     }
 
-    var title = this.renderSectionTitle('DASHBOARD');
+    var title = this.renderSectionTitle('View data for:');
     var welcome = this.renderUserPatientWelcome();
     /* jshint ignore:start */
     return (
