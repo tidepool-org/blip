@@ -120,15 +120,19 @@ var PatientInfo = React.createClass({
     var handleClick = function(e) {
       e.preventDefault();
       self.props.trackMetric('Clicked Edit Profile');
-      self.setState({
-        editing: true,
-        notification: null
-      });
+      self.toggleEdit();
     };
 
     return (
       <button className="PatientInfo-button PatientInfo-button--secondary" type="button" onClick={handleClick}>Edit</button>
     );
+  },
+
+  toggleEdit: function() {
+    this.setState({
+      editing: !this.state.editing,
+      notification: null
+    });
   },
 
   renderEditing: function() {
@@ -138,7 +142,7 @@ var PatientInfo = React.createClass({
     var self = this;
     var handleCancel = function(e) {
       e.preventDefault();
-      self.setState({editing: false});
+      self.toggleEdit();
     };
 
     // Legacy: revisit when proper "child accounts" are implemented
@@ -347,9 +351,7 @@ var PatientInfo = React.createClass({
 
     // Save optimistically
     this.props.onUpdatePatient(formValues);
-    this.setState({
-      notification: {type: 'success', message: 'All changes saved'}
-    });
+    this.toggleEdit();
   },
 
   prepareFormValuesForSubmit: function(formValues) {
