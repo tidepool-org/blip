@@ -93,7 +93,7 @@ module.exports = function(opts) {
         'y': 0,
         'width': puddle.width(),
         'height': puddle.height()
-      })
+      });
   });
 
   puddle.xPosition = function(x) {
