@@ -383,53 +383,36 @@ var AppComponent = React.createClass({
     );
     /* jshint ignore:end */
   },
+  modifyInvites: function(modifier, options) {
+    var self = this;
 
-  removeInvite: function(invitation) {
-    var previousInvites = this.state.invites;
-    var invites = _.cloneDeep(previousInvites);
+    options = options || {};
 
-    _.remove(invites, function(i) {
-      return i.from.userid === invitation.from.userid;
-    });
+    return function(invitation, mod) {
+      self.setState({
+        invites: self.state.invites.filter(function(e){
+          return e.from.userid !== invitation.from.userid;
+        })
+      });
 
-    this.setState({
-      invites: invites
-    });
+      modifier(invitation.from.userid, function(err) {
+        if(err || options.fetchPatients) {
+          self.fetchPatients({hideLoading: true});
+        }
 
-
-    return previousInvites;
+        if(err) {
+          return self.handleApiError(err, 'Something went wrong while modifying the invitation.');
+        }
+      });
+    };
   },
 
   handleDismissInvitation: function(invitation) {
-    var self = this;
-    var previousInvites = this.removeInvite(invitation);
-
-    app.api.invitation.dismiss(invitation.from.userid, function(err) {
-      if(err) {
-        self.setState({
-          invites: previousInvites
-        });
-
-        return self.handleApiError(err, 'Something went wrong while dismissing the invitation.');
-      }
-    });
+    return this.modifyInvites(app.api.invitation.dismiss)(invitation);
   },
 
   handleAcceptInvitation: function(invitation) {
-    var self = this;
-    var previousInvites = this.removeInvite(invitation);
-
-    app.api.invitation.accept(invitation.from.userid, function(err) {
-      if(err) {
-        self.setState({
-          invites: previousInvites
-        });
-
-        return self.handleApiError(err, 'Something went wrong while accepting the invitation.');
-      }
-
-      self.fetchPatients({hideLoading: false});
-    });
+    return this.modifyInvites(app.api.invitation.accept, {fetchPatients: true})(invitation);
   },
 
   showPatient: function(patientId) {

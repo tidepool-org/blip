@@ -29,8 +29,7 @@ var PatientCard = React.createClass({
     var patient = this.props.patient;
 
     var classes = cx({
-      'patientcard': true,
-      'patientcard-owner': this.props.patient.permissions.admin || this.props.patient.permissions.root
+      'patientcard': true
     });
 
     var remove = (function(patient) {
@@ -51,17 +50,9 @@ var PatientCard = React.createClass({
         'Navbar-icon': true,
         'patientcard-permissions-icon': true
       };
-      var title = '';
 
-      if(patient.permissions.admin) {
-        classes['icon-permissions-own'] = true;
-        title = "You own this data. You can change who else can see and upload data in " + patient.profile.fullName + "'s profile page.";
-      } else if(patient.permissions.upload) {
+      if(patient.permissions.root || patient.permissions.admin || patient.permissions.upload) {
         classes['icon-permissions-upload'] = true;
-        title = "You are allowed to upload data to " + patient.profile.fullName + "'s account.";
-      } else if(patient.permissions.view) {
-        classes['icon-permissions-view'] = true;
-        title = "You are allowed to see " + patient.profile.fullName + "'s data.";
       } else {
         return null;
       }
@@ -70,7 +61,7 @@ var PatientCard = React.createClass({
 
       return (
         /* jshint ignore:start */
-        <i className={classes} title={title}></i>
+        <i className={classes}></i>
         /* jshint ignore:end */
       );
     })(patient);

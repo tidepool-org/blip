@@ -28,7 +28,6 @@
 }
 
 .patientcard-controls {
-  display: none;
   position: absolute;
   right: 25px;
 
@@ -79,6 +78,10 @@
     color: @blue-green;
     float: left;
   }
+
+  .icon-remove {
+    display: none;
+  }
 }
 .patientcard-fullname {
   padding-top: 5px;
@@ -105,7 +108,7 @@ a.patientcard {
       color: @gray-darker;
     }
 
-    .patientcard-controls {
+    .icon-remove {
       display: block;
     }
   }
