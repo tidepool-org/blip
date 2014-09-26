@@ -29,7 +29,8 @@ var Patient = React.createClass({
     patient: React.PropTypes.object,
     fetchingPatient: React.PropTypes.bool,
     onUpdatePatient: React.PropTypes.func,
-    trackMetric: React.PropTypes.func.isRequired
+    trackMetric: React.PropTypes.func.isRequired,
+    patientTeam: React.PropTypes.component
   },
 
   render: function() {
@@ -62,6 +63,7 @@ var Patient = React.createClass({
       <div className="PatientPage-content">
         {this.renderInfo()}
         {this.renderAccess()}
+        {this.renderDelete()}
       </div>
     );
   },
@@ -121,12 +123,29 @@ var Patient = React.createClass({
     return personUtils.isSame(this.props.user, this.props.patient);
   },
 
+  renderDelete: function() {
+    if (!this.isSamePersonUserAndPatient()) {
+      return null;
+    }
+
+    return (
+      <div className="PatientPage-deleteSection">
+        <div><a href='mailto:'>Delete my account</a></div>
+      </div>
+    );
+  },
+
   renderAccess: function() {
     if (!this.isSamePersonUserAndPatient()) {
       return null;
     }
 
-    // TODO
+    return (
+      <div className="PatientPage-teamSection">
+        <div className="PatientPage-sectionTitle">Care Team</div>
+        {this.props.patientTeam}
+      </div>
+    );
   }
 });
 

@@ -36,13 +36,14 @@ var BrowserWarningOverlay = require('./components/browserwarningoverlay');
 var Notification = require('./components/notification');
 var TermsOverlay = require('./components/termsoverlay');
 var MailTo = require('./components/mailto');
+var PatientTeam = require('./components/patientteam');
 
 var Login = require('./pages/login');
 var Signup = require('./pages/signup');
 var Profile = require('./pages/profile');
-var ProfileMembers = require('./pages/profilemembers');
 var Patients = require('./pages/patients');
 var Patient = require('./pages/patient');
+
 var PatientEdit = require('./pages/patientedit');
 var PatientData = require('./pages/patientdata');
 
@@ -373,8 +374,8 @@ var AppComponent = React.createClass({
         removingMember={this.state.removingMember}
         onInviteMember={this.handleInviteMember}
         invitingMember={this.state.invitingMember}
-        onCancelInvite={this.handleCancelInvite}/>
-        cancelingInvite={this.state.cancelingInvite}
+        onCancelInvite={this.handleCancelInvite}
+        cancelingInvite={this.state.cancelingInvite}/>
       /* jshint ignore:end */
     );
   },
@@ -544,13 +545,13 @@ var AppComponent = React.createClass({
     /* jshint ignore:start */
     return (
       <Patient
-          user={this.state.user}
-          fetchingUser={this.state.fetchingUser}
-          patient={this.state.patient}
-          fetchingPatient={this.state.fetchingPatient}
-          patientTeam={patientTeam}
-          onUpdatePatient={this.updatePatient}
-          trackMetric={trackMetric}/>
+        user={this.state.user}
+        fetchingUser={this.state.fetchingUser}
+        patient={this.state.patient}
+        fetchingPatient={this.state.fetchingPatient}
+        patientTeam={patientTeam}
+        onUpdatePatient={this.updatePatient}
+        trackMetric={trackMetric}/>
     );
     /* jshint ignore:end */
   },

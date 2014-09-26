@@ -1,0 +1,159 @@
+.PatientPage-teamSection {
+  padding-top: 30px;
+  border-bottom: 1px solid gray;
+
+  > ul {
+    list-style-type: none;
+    padding: 0 60px;
+
+    > li {
+      width: 260px;
+      float: left;
+    }
+  }
+}
+
+.PatientTeam-pending {
+  float: left;
+  margin-right: 30px;
+
+  > i {
+    font-size: 55px;
+  }
+
+  > i:before {
+    margin: 0px;
+  }
+}
+
+.PatientTeam-buttonHolder {
+  float: right;
+}
+.PatientTeam-permissionSelection {
+  padding: 10px 5px 10px 0px;
+
+  > div {
+    padding: 5px 0;
+
+    > span {
+      font-size: 15px;
+      padding: 0 2px 0 8px;
+    }
+  }
+}
+.PatientTeam-member--fadeNew {
+  .PatientInfo-block {
+    float: none !important;
+  }
+
+  .PatientInfo-waiting {
+    padding-top: 5px;
+    font-size: 14px;
+    font-style: italic;
+    color: #989897;
+    float: left;
+  }
+  .PatientTeam-icon {
+    padding-top: 5px;
+    > i {
+      color: @gray-dark;
+    }
+  }
+  .PatientTeam-icon:hover {
+    > i {
+      opacity: 0.6;
+    }
+  }
+
+
+  .PatientTeam-picture {
+    opacity: 0.6;
+  }
+  .PatientInfo-blockRow {
+    opacity: 0.6;
+  }
+
+  .PatientInfo-blockRow:hover {
+    opacity: 1;
+  }
+
+  .PatientInfo-block {
+    cursor: pointer;
+    background: white;
+    color: @gray;
+  }
+
+  .PatientInfo-block--withArrow:after {
+    border-right-color: white !important;
+  }
+}
+
+.PatientTeam-member--emptyNew {
+  .PatientInfo-block {
+    background: @blue-green;
+    color: white;
+  }
+  .PatientInfo-blockRow {
+    cursor: pointer;
+  }
+  .PatientInfo-blockRow:hover {
+    .PatientInfo-block {
+      background: @blue-green-light;
+    }
+    .PatientInfo-block--withArrow:after {
+      border-right-color: @blue-green-light !important;
+    }
+  }
+
+  .PatientInfo-block--withArrow:after {
+    border-right-color: @blue-green !important;
+  }
+}
+
+.PatientTeam-member {
+  .PatientInfo-block {
+      float: left !important;
+      margin-right: 5px !important;
+    }
+  .PatientTeam-icon {
+    float: left;
+    cursor: pointer;
+  }
+  .PatientTeam-icon--permission {
+    margin-right: 0px;
+  }
+
+  .icon-remove {
+    color: rgb(223, 64, 64);
+    display: none;
+  }
+  .icon-permissions {
+    color: @gray-dark;
+  }
+}
+.icon-permissions:hover {
+  color: @gray;
+}
+.icon-remove:hover {
+  color: rgba(223, 64, 64, 0.5);
+}
+.PatientInfo-blockRow:hover {
+  .icon-remove {
+    display: inline;
+  }
+}
+
+.PatientTeam-member--first {
+  margin-right: 40px;
+}
+
+.PatientTeam-picture {
+  background-size: 60px !important;
+  width: 60px !important;
+  height: 60px !important;
+  margin-right: 15px !important;
+}
+
+.PatientInfo-blocks {
+  padding-top: 15px !important;
+}
