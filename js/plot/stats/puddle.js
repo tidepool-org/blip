@@ -86,13 +86,12 @@ module.exports = function(opts) {
   // events on their own.
   puddle.addHoverRect = _.once(function(selection) {
     selection.append('rect')
-      .attr('class', 'd3-hover-capture')
-      .style('visibility', 'hidden')
       .attr({
         'x': 0,
         'y': 0,
         'width': puddle.width(),
-        'height': puddle.height()
+        'height': puddle.height(),
+        'class': 'd3-stats-hover-capture'
       });
   });
 
