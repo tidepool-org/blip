@@ -14,9 +14,9 @@
  */
 
 .PatientInfo {
-  font-size: 14px;
+  font-size: @font-size-small;
   line-height: 20px;
-  color: #545454;
+  color: @gray-text;
 }
 
 .PatientInfo-content {
@@ -123,7 +123,7 @@
 .PatientInfo-input {
   display: inline-block;
 
-  font-size: 14px;
+  font-size: @font-size-small;
   height: @PatientInfo-inputHeight;
   line-height: @PatientInfo-inputHeight - 2*@PatientInfo-inputBorderSize;
   vertical-align: middle;
@@ -167,16 +167,16 @@
   display: inline-block;
   margin-left: 10px;
 
-  font-size: 14px;
+  font-size: @font-size-small;
   line-height: 20px;
   height: 20px;
   padding: 0 8px;
 }
 
 .PatientInfo-button--secondary {
-  font-size: 12px;
+  font-size: @font-size-tiny;
   font-weight: normal;
-  color: #545454;
+  color: @gray-text;
   background: none;
 }
 
