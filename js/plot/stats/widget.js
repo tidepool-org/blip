@@ -285,7 +285,7 @@ module.exports = function(pool, opts) {
         'd3-stats-circle': true,
         'd3-smbg': true,
         'd3-circle-smbg': true,
-        'hidden': !isFinite(imageY)
+        hidden: !isFinite(imageY)
       });
 
     stats.rectGroup = rectGroup;
