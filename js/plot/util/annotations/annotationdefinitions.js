@@ -133,7 +133,8 @@ var definitions = {
     }
   },
   stitch: function(a, b, source) {
-    return a + format.capitalize(source) + b;
+    var sourceText = source === 'carelink' ? ' CareLink' : format.capitalize(source);
+    return a + sourceText + b;
   },
   lead: function(code) {
     code = code || '';
