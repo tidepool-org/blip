@@ -115,9 +115,12 @@ var nurseshark = {
       };
     }
     function handleIntersection(match) {
-      match.annotations = [{
+      if (!match.annotations) {
+        match.annotations = [];
+      }
+      match.annotations.push({
         'code': 'basal/intersects-incomplete-suspend'
-      }];
+      });
     }
 
     for (var i = 0; i < numSuspends; ++i) {
@@ -164,10 +167,52 @@ var nurseshark = {
     }
     var processedData = [], erroredData = [];
     var collections = {
-      bolusesToJoin: {},
-      extendedIntervals: {}
+      bolusesToJoin: {}
     };
-    var typeGroups = {};
+    var typeGroups = {}, overlappingUploads = {};
+
+    function removeOverlapping() {
+      // NB: this problem is specific to CareLink data
+      var crossData = crossfilter(_.where(data, {source: 'carelink'}));
+      var dataByUpload = crossData.dimension(function(d) { return d.deviceId; });
+      var dataByUploadGrouping = dataByUpload.group();
+      dataByUploadGrouping.reduce(
+        function reduceAdd(p, v) {
+          if (v.time < p.start || p.start === null) {
+            p.start = v.time;
+          }
+          if (v.time > p.end || p.end === null) {
+            p.end = v.time;
+          }
+          return p;
+        },
+        function reduceRemove(p, v) {
+          if (v.time === p.start) {
+            p.start = null;
+          }
+          if (v.time === p.end) {
+            p.end = null;
+          }
+          return p;
+        },
+        function reduceInitial(p, v) {
+          return {start: null, end: null};
+        }
+      ).order(function(p) {
+        return p.start;
+      });
+      var dataByUploadGroups = dataByUploadGrouping.top(Infinity).reverse();
+      for (var i = 0; i < dataByUploadGroups.length; ++i) {
+        var group = dataByUploadGroups[i], lastGroup = lastGroup || {};
+        if (lastGroup.value && group.value.start < lastGroup.value.end) {
+          overlappingUploads[group.key] = true;
+          overlappingUploads[lastGroup.key] = true;
+        }
+        lastGroup = group;
+      }
+    }
+
+    timeIt(removeOverlapping, 'removeOverlapping');
 
     var handlers = getHandlers();
 
@@ -178,13 +223,47 @@ var nurseshark = {
       return d;
     }
 
+    var lastD, unannotatedRemoval = false;
+
     function process(d) {
-      d = handlers[d.type] ? handlers[d.type](d, collections) : d.messagetext ? handlers.message(d, collections) : addNoHandlerMessage(d);
+      if (overlappingUploads[d.deviceId]) {
+        d.errorMessage = 'Overlapping CareLink upload.';
+        if (lastD && lastD.source === 'carelink') {
+          if (!lastD.annotations) {
+            lastD.annotations = [];
+          }
+          lastD.annotations.push({
+            code: 'carelink/device-overlap-boundary'
+          });
+        }
+      }
+      else {
+        if (lastD && lastD.errorMessage === 'Overlapping CareLink upload.') {
+          unannotatedRemoval = true;
+          if (d.source === 'carelink' && d.type === 'basal') {
+            if (!d.annotations) {
+              d.annotations = [];
+            }
+            d.annotations.push({
+              code: 'carelink/device-overlap-boundary'
+            });
+          }
+        }
+        else if (unannotatedRemoval) {
+          if (d.source === 'carelink' && d.type === 'basal') {
+            if (!d.annotations) {
+              d.annotations = [];
+            }
+            d.annotations.push({
+              code: 'carelink/device-overlap-boundary'
+            });
+            unannotatedRemoval = false;
+          }
+        }
+        d = handlers[d.type] ? handlers[d.type](d, collections) : d.messagetext ? handlers.message(d, collections) : addNoHandlerMessage(d);
+      }
       if (d.normalTime && new Date(d.normalTime).getUTCFullYear() < 2008) {
         d.errorMessage = 'Invalid datetime (before 2008).';
-      }
-      else if (!d.normalTime) {
-        d.errorMessage = 'No normalTime!';
       }
       if (d.errorMessage != null) {
         erroredData.push(d);
@@ -199,6 +278,7 @@ var nurseshark = {
           typeGroups[d.type].push(d);
         }
       }
+      lastD = d;
     }
 
     timeIt(function() {
@@ -264,6 +344,12 @@ function getHandlers() {
       }
       watson(d);
       if (d.suppressed) {
+        // a suppressed should share these attributes with its parent
+        // NB: multiple levels of suppressed are obviously not (yet) being recursively processed
+        // because we do not yet visualize more than one layer of suppressed
+        d.suppressed.deviceTime = d.deviceTime;
+        d.suppressed.duration = d.duration;
+        d.suppressed.time = d.time;
         watson(d.suppressed);
       }
       return d;
@@ -272,9 +358,6 @@ function getHandlers() {
       d = cloneDeep(d);
       if (d.joinKey != null) {
         collections.bolusesToJoin[d.joinKey] = d;
-      }
-      if (d.duration != null) {
-        collections.extendedIntervals[d.time + '/' + dt.addDuration(d.time, d.duration)] = d;
       }
       watson(d);
       return d;

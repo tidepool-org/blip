@@ -34,6 +34,68 @@ describe('nurseshark', function() {
       expect(fn).to.throw('An array is required.');
     });
 
+    it('should remove data from two or more uploads from `carelink` source that overlap in time and annotate the edges', function() {
+      var now = new Date();
+      var plusTen = new Date(now.valueOf() + 600000);
+      var plusHalf = new Date(now.valueOf() + 1800000);
+      var plusHour = new Date(now.valueOf() + 3600000);
+      var plusTwo = new Date(now.valueOf() + 3600000*2);
+      var plusThree = new Date(now.valueOf() + 3600000*3);
+      var minusTen = new Date(now.valueOf() - 600000);
+      var minusTwenty = new Date(now.valueOf() - 1200000);
+      var data = [{
+        type: 'bolus',
+        deviceTime: minusTwenty.toISOString().slice(0,-5),
+        time: minusTwenty.toISOString(),
+        deviceId: 'z',
+        source: 'carelink'
+      }, {
+        type: 'smbg',
+        deviceTime: minusTen.toISOString().slice(0,-5),
+        time: minusTen.toISOString(),
+        deviceId: 'z',
+        source: 'carelink'
+      }, {
+        type: 'smbg',
+        time: now.toISOString(),
+        deviceId: 'a',
+        source: 'carelink'
+      }, {
+        type: 'bolus',
+        time: plusTen.toISOString(),
+        deviceId: 'b',
+        source: 'carelink'
+      }, {
+        type: 'basal',
+        time: plusHalf.toISOString(),
+        deviceId: 'a',
+        source: 'carelink'
+      }, {
+        type: 'bolus',
+        time: plusHour.toISOString(),
+        deviceId: 'b',
+        source: 'carelink'
+      }, {
+        type: 'basal',
+        duration: 1000000,
+        deviceTime: plusTwo.toISOString().slice(0,-5),
+        time: plusTwo.toISOString(),
+        deviceId: 'c',
+        source: 'carelink'
+      }, {
+        type: 'bolus',
+        deviceTime: plusThree.toISOString().slice(0,-5),
+        time: plusThree.toISOString(),
+        deviceId: 'c',
+        source: 'carelink'
+      }];
+      var res = nurseshark.processData(data);
+      expect(res.erroredData.length).to.equal(4);
+      expect(res.processedData.length).to.equal(4);
+      expect(res.processedData[1].annotations[0].code).to.equal('carelink/device-overlap-boundary');
+      expect(res.processedData[2].annotations[0].code).to.equal('carelink/device-overlap-boundary');
+    });
+
     it('should return an object, with erroredData and processedData', function() {
       var res = nurseshark.processData([{type:'cbg'},{type:'wizard'}]);
       assert.isObject(res);
@@ -406,6 +468,9 @@ describe('nurseshark', function() {
       for (var i = 0; i < res.erroredData.length; ++i) {
         var error = res.erroredData[i];
         if (error.errorMessage === 'Bad pump status deviceMeta.') {
+          ok += 1;
+        }
+        else if (error.errorMessage === 'Overlapping CareLink upload.') {
           ok += 1;
         }
       }
