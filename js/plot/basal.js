@@ -289,7 +289,7 @@ module.exports = function(pool, opts) {
     });
   };
 
-  basal.addAnnotations = function(data, selection) {
+  basal.addAnnotations = function(data) {
     for (var i = 0; i < data.length; ++i) {
       var d = data[i];
       var annotationOpts = {

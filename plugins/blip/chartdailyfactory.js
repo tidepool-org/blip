@@ -195,6 +195,8 @@ function chartDailyFactory(el, options) {
     chart.setAnnotation().setTooltip();
 
     // add annotations
+    chart.annotations().addGroup(chart.svg().select('#' + poolBG.id()), 'cbg');
+    chart.annotations().addGroup(chart.svg().select('#' + poolBG.id()), 'smbg');
     chart.annotations().addGroup(chart.svg().select('#' + poolBolus.id()), 'bolus');
     chart.annotations().addGroup(chart.svg().select('#' + poolBasal.id()), 'basal');
     chart.annotations().addGroup(chart.svg().select('#' + poolStats.id()), 'stats');

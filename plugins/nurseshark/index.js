@@ -227,6 +227,7 @@ var nurseshark = {
 
     function process(d) {
       if (overlappingUploads[d.deviceId]) {
+        d = cloneDeep(d);
         d.errorMessage = 'Overlapping CareLink upload.';
         if (lastD && lastD.source === 'carelink') {
           if (!lastD.annotations) {
@@ -247,6 +248,7 @@ var nurseshark = {
             d.annotations.push({
               code: 'carelink/device-overlap-boundary'
             });
+            unannotatedRemoval = false;
           }
         }
         else if (unannotatedRemoval) {
@@ -327,7 +329,6 @@ function getHandlers() {
 
   return {
     basal: function(d) {
-      // TODO: determine which, if any, annotations to filter out
       d = cloneDeep(d);
       lastEnd = lastEnd || null;
       lastBasal = lastBasal || {};

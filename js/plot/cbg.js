@@ -45,6 +45,9 @@ module.exports = function(pool, opts) {
   function cbg(selection) {
     opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
+
+      cbg.addAnnotations(_.filter(currentData, function(d) { return d.annotations; }));
+
       var allCBG = d3.select(this).selectAll('circle.d3-cbg')
         .data(currentData, function(d) {
           return d.id;
@@ -124,6 +127,26 @@ module.exports = function(pool, opts) {
       xPosition: cbg.xPosition,
       yPosition: cbg.yPosition
     });
+  };
+
+  cbg.addAnnotations = function(data) {
+    for (var i = 0; i < data.length; ++i) {
+      var d = data[i];
+      var annotationOpts = {
+        x: cbg.xPosition(d),
+        y: opts.yScale(d.value),
+        xMultiplier: 0,
+        yMultiplier: 2,
+        orientation: {
+          down: true
+        },
+        d: d
+      };
+      if (mainGroup.select('#annotation_for_' + d.id)[0][0] == null) {
+        mainGroup.select('#tidelineAnnotations_cbg')
+          .call(pool.annotations(), annotationOpts);
+      }
+    }
   };
 
   return cbg;
