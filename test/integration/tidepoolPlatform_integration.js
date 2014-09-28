@@ -592,5 +592,22 @@ describe('platform client', function () {
         });
       });
     });
+    it('a_PWD can remove the invite they sent to a_Member', function(done){
+      pwdClient.inviteUser('team@member.com',{view: {}}, function(err, invite) {
+        console.log('err?: ',err);
+        console.log('invited: ',invite);
+        memberClient.acceptInvite(invite.key,a_PWD.id,function(err, accept) {
+          //now we revoke the invite
+          console.log('accepted: ',accept);
+          pwdClient.removeInvite('team@member.com',function(err,resp){
+            if(_.isEmpty(err) === false){
+              done(err);
+            }
+            expect(resp).to.not.be.empty;
+            done();
+          });
+        });
+      });
+    });
   });
 });

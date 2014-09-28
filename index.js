@@ -654,6 +654,8 @@ module.exports = function (config, deps) {
         return cb({ status : STATUS_BAD_REQUEST, message: 'Must specify a userId'});
       }
 
+      console.log('perms: ',permissions);
+
       doPostWithToken(
         '/access/' + getUserId() + '/' + userId,
         permissions,
@@ -903,7 +905,7 @@ module.exports = function (config, deps) {
     inviteUser: function (email,permissions,cb) {
       assertArgumentsSize(arguments, 3);
 
-      var details = { 'email':email,'permissions':permissions };
+      var details = { 'email':email,'permissions': permissions };
 
       doPostWithToken(
         '/confirm/send/invite/'+getUserId(),
@@ -945,6 +947,29 @@ module.exports = function (config, deps) {
         { 204: function(res){ return res.body; }},
         cb
       );
+    },
+    /**
+     * Remove the invite for the loggedin user
+     *
+     * @param email - email of the user to remove
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    removeInvite: function (toEmail, cb) {
+      assertArgumentsSize(arguments, 2);
+
+      superagent
+        .delete(makeUrl('/confirm/'+getUserId()+'/invited/'+toEmail))
+        .end(
+        function (err, res) {
+          if (err != null) {
+            return cb(err);
+          }
+          if (res.status !== 200) {
+            return handleHttpError(res, cb);
+          }
+          return cb(null,{status:res.status,body:res.body});
+        });
     }
   };
 };
