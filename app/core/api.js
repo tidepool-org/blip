@@ -535,8 +535,8 @@ api.invitation.getSent = function(callback) {
 };
 
 api.invitation.cancel = function(toEmail, callback) {
-  api.log('POST /invitations/to/' + toEmail + '/cancel [NOT IMPLEMENTED]');
-  callback();
+  api.log('POST /confirm/' + tidepool.getUserId()+ '/invited/'+ toEmail);
+  return tidepool.removeInvite(toEmail,callback);
 };
 
 // ----- Access -----
