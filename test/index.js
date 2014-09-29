@@ -17,8 +17,8 @@
  
 // DOM required
 // ====================================
-// require('../css/tideline.less');
-// require('./less/test.less');
+require('../css/tideline.less');
+require('./less/test.less');
 
 // TODO: rewrite
 // require('./viz/oneday_test');
