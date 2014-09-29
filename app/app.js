@@ -482,8 +482,8 @@ var AppComponent = React.createClass({
 
   handleInviteMember: function(patientId, email, permissions, cb) {
     var self = this;
-    
-    api.invitation.invite(email, permissions, function(err) {
+
+    api.invitation.send(email, permissions, function(err) {
       if(err) {
         cb(err);
         return self.handleApiError(err, 'Something went wrong while inviting member.');
