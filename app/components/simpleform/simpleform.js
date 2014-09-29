@@ -40,8 +40,8 @@ var SimpleForm = React.createClass({
   },
 
   getInitialState: function() {
-    var formValues =
-      this.getInitialFormValues(this.props.inputs, this.props.formValues);
+    var formValues = this.getInitialFormValues(this.props.inputs, this.props.formValues);
+    
     return {
       formValues: formValues
     };

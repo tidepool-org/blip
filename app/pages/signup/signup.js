@@ -27,35 +27,47 @@ var Signup = React.createClass({
   propTypes: {
     onSubmit: React.PropTypes.func.isRequired,
     onSubmitSuccess: React.PropTypes.func.isRequired,
+    presetEmail: React.PropTypes.string,
     trackMetric: React.PropTypes.func.isRequired
   },
 
-  formInputs: [
-    {name: 'fullName', label: 'Full name', placeholder: 'ex: Mary Smith'},
-    {
-      name: 'username',
-      label: 'Email',
-      type: 'email',
-      placeholder: 'ex: mary.smith@example.com'
-    },
-    {
-      name: 'password',
-      label: 'Password',
-      type: 'password',
-      placeholder: '******'
-    },
-    {
-      name: 'passwordConfirm',
-      label: 'Confirm password',
-      type: 'password',
-      placeholder: '******'
-    }
-  ],
+  formInputs: function() {
+    return [
+      {name: 'fullName', label: 'Full name', placeholder: 'ex: Mary Smith'},
+      {
+        name: 'username',
+        label: 'Email',
+        type: 'email',
+        placeholder: 'ex: mary.smith@example.com',
+        disabled: !!this.props.presetEmail
+      },
+      {
+        name: 'password',
+        label: 'Password',
+        type: 'password',
+        placeholder: '******'
+      },
+      {
+        name: 'passwordConfirm',
+        label: 'Confirm password',
+        type: 'password',
+        placeholder: '******'
+      }
+    ]
+  },
 
   getInitialState: function() {
+    var formValues = {};
+
+    if (this.props.presetEmail) {
+      formValues = {
+        username: this.props.presetEmail
+      }
+    };
+
     return {
       working: false,
-      formValues: {},
+      formValues: formValues,
       validationErrors: {},
       notification: null
     };
@@ -90,7 +102,7 @@ var Signup = React.createClass({
     /* jshint ignore:start */
     return (
       <SimpleForm
-        inputs={this.formInputs}
+        inputs={this.formInputs()}
         formValues={this.state.formValues}
         validationErrors={this.state.validationErrors}
         submitButtonText={submitButtonText}

@@ -312,12 +312,23 @@ var AppComponent = React.createClass({
     this.setState({page: 'login'});
   },
 
+  getPresetEmail: function() {
+    if (!this.state.queryParams || !this.state.queryParams.presetEmail) {
+      return null;
+    }
+
+    var email = this.state.queryParams.presetEmail;
+
+    return utils.validateEmail(email) ? email : null;
+  },
+
   renderLogin: function() {
     return (
       /* jshint ignore:start */
       <Login
         onSubmit={this.login}
         onSubmitSuccess={this.handleLoginSuccess}
+        presetEmail={this.getPresetEmail()}
         trackMetric={trackMetric} />
       /* jshint ignore:end */
     );
@@ -334,6 +345,7 @@ var AppComponent = React.createClass({
       <Signup
         onSubmit={this.signup}
         onSubmitSuccess={this.handleSignupSuccess}
+        presetEmail={this.getPresetEmail()}
         trackMetric={trackMetric} />
       /* jshint ignore:end */
     );
@@ -672,6 +684,27 @@ var AppComponent = React.createClass({
       self.setState({
         user: user,
         fetchingUser: false
+      });
+    });
+  },
+
+  fetchInvite: function() {
+    var self = this;
+
+    api.invitation.getReceived(function(err, invites) {
+      if (err) {
+        var message = 'Something went wrong while fetching invitations';
+
+        self.setState({
+          fetchingInvites: false
+        });
+
+        return self.handleApiError(err, message);
+      }
+
+      self.setState({
+        invites: invites,
+        fetchingInvites: false
       });
     });
   },

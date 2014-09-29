@@ -28,19 +28,30 @@ var Login = React.createClass({
   propTypes: {
     onSubmit: React.PropTypes.func.isRequired,
     onSubmitSuccess: React.PropTypes.func.isRequired,
+    presetEmail: React.PropTypes.string,
     trackMetric: React.PropTypes.func.isRequired
   },
 
-  formInputs: [
-    {name: 'username', label: 'Email', type: 'email'},
-    {name: 'password', label: 'Password', type: 'password'},
-    {name: 'remember', label: 'Remember me', type: 'checkbox'}
-  ],
+  formInputs: function() {
+    return [
+      {name: 'username', label: 'Email', type: 'email', disabled: !!this.props.presetEmail},
+      {name: 'password', label: 'Password', type: 'password'},
+      {name: 'remember', label: 'Remember me', type: 'checkbox'}
+    ]
+  },
 
   getInitialState: function() {
+    var formValues = {};
+
+    if (this.props.presetEmail) {
+      formValues = {
+        username: this.props.presetEmail
+      }
+    };
+
     return {
       working: false,
-      formValues: {},
+      formValues: formValues,
       validationErrors: {},
       notification: null
     };
@@ -70,11 +81,11 @@ var Login = React.createClass({
 
   renderForm: function() {
     var submitButtonText = this.state.working ? 'Logging in...' : 'Log in';
-
+    
     /* jshint ignore:start */
     return (
       <SimpleForm
-        inputs={this.formInputs}
+        inputs={this.formInputs()}
         formValues={this.state.formValues}
         validationErrors={this.state.validationErrors}
         submitButtonText={submitButtonText}
