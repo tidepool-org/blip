@@ -175,19 +175,15 @@ var PatientTeam = React.createClass({
 
     if(member.permissions.admin) {
       classes['icon-permissions-own'] = true;
-      title = "You own this data. You can change who else can see and upload data in " + member.profile.fullName + "'s profile page.";
     } else if(member.permissions.upload) {
       classes['icon-permissions-upload'] = true;
-      title = "You are allowed to upload data to " + member.profile.fullName + "'s account.";
     } else if(member.permissions.view) {
       classes['icon-permissions-view'] = true;
-      title = "You are allowed to see " + member.profile.fullName + "'s data.";
     } else {
       return null;
     }
 
     var iconClasses = cx(classes);
-
 
     return (
       /* jshint ignore:start */
@@ -301,7 +297,7 @@ var PatientTeam = React.createClass({
           var self = this;
 
           var handleSubmit = function(obj) {
-            var email = self.refs['email'].getDOMNode().value;
+            var email = self.refs.email.getDOMNode().value;
 
             var validateEmail = function(email) {
               var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
