@@ -37,7 +37,7 @@ var Login = React.createClass({
       {name: 'username', label: 'Email', type: 'email', disabled: !!this.props.presetEmail},
       {name: 'password', label: 'Password', type: 'password'},
       {name: 'remember', label: 'Remember me', type: 'checkbox'}
-    ]
+    ];
   },
 
   getInitialState: function() {
@@ -46,8 +46,8 @@ var Login = React.createClass({
     if (this.props.presetEmail) {
       formValues = {
         username: this.props.presetEmail
-      }
-    };
+      };
+    }
 
     return {
       working: false,
@@ -81,7 +81,7 @@ var Login = React.createClass({
 
   renderForm: function() {
     var submitButtonText = this.state.working ? 'Logging in...' : 'Log in';
-    
+
     /* jshint ignore:start */
     return (
       <SimpleForm

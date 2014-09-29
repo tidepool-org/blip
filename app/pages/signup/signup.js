@@ -53,7 +53,7 @@ var Signup = React.createClass({
         type: 'password',
         placeholder: '******'
       }
-    ]
+    ];
   },
 
   getInitialState: function() {
@@ -62,8 +62,8 @@ var Signup = React.createClass({
     if (this.props.presetEmail) {
       formValues = {
         username: this.props.presetEmail
-      }
-    };
+      };
+    }
 
     return {
       working: false,
