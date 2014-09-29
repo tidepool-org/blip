@@ -13,15 +13,4 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-.people-list-item {
-  margin-bottom: @spacing-small;
-}
-
-.patient-list-item {
-  width: 330px;
-  margin: 10px;
-  float: left;
-  font-size: @font-size-large;
-  font-weight: lighter;
-  margin-bottom: @spacing-small;
-}
+module.exports = require('./modaloverlay');

@@ -16,16 +16,12 @@
 
 var React = require('react');
 var _ = require('lodash');
-var moment = require('moment');
-
-var config = require('../../config');
 
 var personUtils = require('../../core/personutils');
-var datetimeUtils = require('../../core/datetimeutils');
+var PatientInfo = require('./patientinfo');
 var PeopleList = require('../../components/peoplelist');
 var PersonCard = require('../../components/personcard');
-
-var DATE_DISPLAY_FORMAT = 'MMM D, YYYY';
+var ModalOverlay = require('../../components/modaloverlay');
 
 var Patient = React.createClass({
   propTypes: {
@@ -33,279 +29,161 @@ var Patient = React.createClass({
     fetchingUser: React.PropTypes.bool,
     patient: React.PropTypes.object,
     fetchingPatient: React.PropTypes.bool,
-    trackMetric: React.PropTypes.func.isRequired
+    onUpdatePatient: React.PropTypes.func,
+    trackMetric: React.PropTypes.func.isRequired,
+    patientTeam: React.PropTypes.component
   },
 
-  patientDisplayAttributes: [
-    {
-      name: 'fullName',
-      label: 'Name',
-      getValue: function(patient) {
-        return this.getDisplayName(patient);
-      }
-    },
-    {
-      name: 'about',
-      label: 'About',
-      getValue: function(patient) {
-        return this.getAboutText(patient);
-      }
-    },
-    {
-      name: 'age',
-      label: 'Age',
-      getValue: function(patient) {
-        return this.getAgeText(patient);
-      }
-    },
-    {
-      name: 'diagnosis',
-      label: 'Diagnosed',
-      getValue: function(patient) {
-        return this.getDiagnosisText(patient);
-      }
-    }
-  ],
+  getInitialState: function() {
+    return {
+      showModalOverlay: false
+    };
+  },
 
   render: function() {
-    var subnav = this.renderSubnav();
-    var editLink = this.renderEditLink();
-    var patient = this.renderPatient();
-    var team = this.renderTeam();
-
-    /* jshint ignore:start */
     return (
-      <div className="patient js-patient-page">
-        {subnav}
-        <div className="container-box-outer patient-content-outer">
-          <div className="container-box-inner patient-content-inner">
-            <div className="patient-content">
-              {editLink}
-              {patient}
-              {team}
-            </div>
-          </div>
+      <div className="PatientPage js-patient-page">
+        <div className="PatientPage-layer">
+          {this.renderSubnav()}
+          {this.renderContent()}
+          {this.renderFooter()}
         </div>
       </div>
     );
-    /* jshint ignore:end */
   },
 
   renderSubnav: function() {
-    var backButton = this.renderBackButton();
-
-    /* jshint ignore:start */
     return (
-      <div className="container-box-outer patient-subnav-outer">
-        <div className="container-box-inner patient-subnav-inner">
-          <div className="grid patient-subnav">
-            <div className="grid-item one-whole medium-one-third">
-              {backButton}
-            </div>
-            <div className="grid-item one-whole medium-one-third">
-              <div className="patient-subnav-title">Profile</div>
-            </div>
-          </div>
+      <div className="PatientPage-subnav grid">
+        <div className="grid-item one-whole medium-one-third">
+          {this.renderBackButton()}
+        </div>
+        <div className="grid-item one-whole medium-one-third">
+          <div className="PatientPage-subnavTitle">{this.renderTitle()}</div>
         </div>
       </div>
     );
-    /* jshint ignore:end */
+  },
+
+  renderContent: function() {
+    return (
+      <div className="PatientPage-content">
+        {this.renderInfo()}
+        {this.renderAccess()}
+        {this.renderDelete()}
+        {this.renderModalOverlay()}
+      </div>
+    );
+  },
+
+  renderFooter: function() {
+    return <div className="PatientPage-footer"></div>;
   },
 
   renderBackButton: function() {
-    var url = '#/';
-    var text = 'Data';
     var patient = this.props.patient;
-
-    if (patient && patient.userid) {
-      url = '#/patients/' + patient.userid + '/data';
+    if (this.props.fetchingPatient || !(patient && patient.userid)) {
+      return null;
     }
+
+    var text = 'Data';
+    var url = '#/patients/' + patient.userid + '/data';
 
     var self = this;
     var handleClick = function() {
       self.props.trackMetric('Clicked Back To Data');
     };
 
-    /* jshint ignore:start */
     return (
       <a className="js-back" href={url} onClick={handleClick}>
         <i className="icon-back"></i>
         {' ' + text}
       </a>
     );
-    /* jshint ignore:end */
   },
 
-  renderEditLink: function() {
-    if (!this.isSamePersonUserAndPatient()) {
-      return null;
+  renderTitle: function() {
+    var text = 'Profile';
+
+    if (!this.props.fetchingPatient) {
+      text = personUtils.patientFullName(this.props.patient) + '\'s Profile';
     }
 
-    var editUrl = [
-      '#/patients',
-      this.props.patient.userid,
-      'edit'
-    ].join('/');
+    return text;
+  },
 
-    var self = this;
-    var handleClick = function() {
-      self.props.trackMetric('Clicked Edit Profile');
-    };
-
-    /* jshint ignore:start */
+  renderInfo: function() {
     return (
-      <div className="patient-content-link">
-        <a href={editUrl} className="js-edit-patient" onClick={handleClick}>
-          <i className="icon-profile"></i>
-          {' ' + 'Edit profile'}
-        </a>
+      <div className="PatientPage-infoSection">
+        <div className="PatientPage-sectionTitle">Info</div>
+        <PatientInfo
+          user={this.props.user}
+          fetchingUser={this.props.fetchingUser}
+          patient={this.props.patient}
+          fetchingPatient={this.props.fetchingPatient}
+          onUpdatePatient={this.props.onUpdatePatient}
+          trackMetric={this.props.trackMetric} />
       </div>
     );
-    /* jshint ignore:end */
   },
 
   isSamePersonUserAndPatient: function() {
     return personUtils.isSame(this.props.user, this.props.patient);
   },
 
-  renderPatient: function() {
-    var patient = this.props.patient || {};
-
-    var attributes = this.prepareDisplayAttributes(patient);
-
-    return this.renderPatientAttributes(attributes);
+  renderDeleteDialog: function() {
+    return (
+      <div>If you are sure you want to delete your account, <a href="mailto:support@tidepool.org?Subject=Delete%20my%20account" target="_blank">send an email</a> to support@tidepool.org and we take care of it for you.</div>
+    );
   },
 
-  prepareDisplayAttributes: function(patient) {
+  renderDelete: function() {
     var self = this;
-    var fetching = this.props.fetchingPatient;
 
-    return _.map(this.patientDisplayAttributes, function(attribute) {
-      attribute.value = attribute.getValue.call(self, patient);
-      attribute.fetching = fetching;
-      return attribute;
-    });
-  },
-
-  renderPatientAttributes: function(attributes) {
-    var attributeNodes = _.map(attributes, this.renderPatientAttribute);
-
-    /* jshint ignore:start */
-    return (
-      <div className="patient-attributes">
-        {attributeNodes}
-      </div>
-    );
-    /* jshint ignore:end */
-  },
-
-  renderPatientAttribute: function(attribute) {
-    if (!(attribute.value || attribute.fetching)) {
-      return null;
-    }
-
-    var className = 'patient-attribute';
-    if (attribute.fetching && !attribute.value) {
-      className =
-        className + ' patient-attribute-empty js-patient-attribute-empty';
-    }
-
-    /* jshint ignore:start */
-    return (
-      <div key={attribute.name} className={className}>
-        <div
-          className="patient-attribute-value"
-          name={attribute.name}>{attribute.value}</div>
-        <div className="patient-attribute-label">{attribute.label}</div>
-      </div>
-    );
-    /* jshint ignore:end */
-  },
-
-  renderTeam: function() {
     if (!this.isSamePersonUserAndPatient()) {
       return null;
     }
 
-    var teamMembers = this.renderTeamMembers();
+    var handleClick = function() {
+      self.setState({
+        showModalOverlay: true,
+        dialog: self.renderDeleteDialog()
+      });
+    };
 
-    /* jshint ignore:start */
     return (
-      <div className="patient-team">
-        <div className="patient-team-title">CARE TEAM MEMBERS</div>
-        {teamMembers}
+      <div className="PatientPage-deleteSection">
+        <div onClick={handleClick}>Delete my account</div>
       </div>
     );
-    /* jshint ignore:end */
   },
-
-  renderTeamMembers: function() {
-    var members = this.props.patient &&
-                  this.props.patient.team;
-
-    if (_.isEmpty(members)) {
-      /* jshint ignore:start */
-      return (
-        <div>
-          <PersonCard>
-            {'No Care Team members yet.'}
-          </PersonCard>
-          <div className="patient-team-message patient-team-message-small">
-            {'Want to add someone to this team? Please email us at '}
-            <a href="mailto:support@tidepool.org?Subject=Blip - Add to Care Team">
-              {'support@tidepool.org'}
-            </a>
-            {' with the email address of the person you want to add,'}
-            {' and we\'ll take it from there!'}
-          </div>
-        </div>
-      );
-      /* jshint ignore:end */
-    }
-
+  overlayClickHandler: function() {
+    this.setState({
+      showModalOverlay: false
+    });
+  },
+  renderModalOverlay: function() {
     /* jshint ignore:start */
     return (
-      <PeopleList people={members} />
+      <ModalOverlay
+        show={this.state.showModalOverlay}
+        dialog={this.state.dialog}
+        overlayClickHandler={this.overlayClickHandler}/>
     );
     /* jshint ignore:end */
   },
 
-  getDisplayName: function(patient) {
-    return personUtils.patientFullName(patient);
-  },
-
-  getAboutText: function(patient) {
-    var patientInfo = personUtils.patientInfo(patient) || {};
-    return patientInfo.about;
-  },
-
-  getAgeText: function(patient) {
-    var patientInfo = personUtils.patientInfo(patient) || {};
-    var birthday = patientInfo.birthday;
-
-    if (!birthday) {
-      return;
+  renderAccess: function() {
+    if (!this.isSamePersonUserAndPatient()) {
+      return null;
     }
 
-    var yearsOld = datetimeUtils.yearsOldText(birthday);
-    var birthdayDisplay = moment(birthday).format(DATE_DISPLAY_FORMAT);
-
-    return [yearsOld, ' (', birthdayDisplay, ')'].join('');
-  },
-
-  getDiagnosisText: function(patient) {
-    var patientInfo = personUtils.patientInfo(patient) || {};
-    var diagnosisDate = patientInfo.diagnosisDate;
-
-    if (!diagnosisDate) {
-      return;
-    }
-
-    var yearsAgo = datetimeUtils.yearsAgoText(diagnosisDate);
-    var diagnosisDateDisplay =
-      moment(diagnosisDate).format(DATE_DISPLAY_FORMAT);
-
-    return [yearsAgo, ' (', diagnosisDateDisplay, ')'].join('');
+    return (
+      <div className="PatientPage-teamSection">
+        <div className="PatientPage-sectionTitle">My Care Team <span className="PatientPage-sectionTitleMessage">These people can see and upload data to your account.</span></div>
+        {this.props.patientTeam}
+      </div>
+    );
   }
 });
 
