@@ -39,14 +39,17 @@ var PeopleList = React.createClass({
     var peopleNodes = _.map(this.props.people, this.renderPeopleListItem);
 
     this.props.people = _.sortBy(_.sortBy(this.props.people, 'fullname'), function(person) {
-      if (person.permissions.root) {
-        return 1;
-      }
-      if (person.permissions.admin) {
-        return 2;
-      }
-      if (person.permissions.upload) {
-        return 3;
+
+      if (_.isEmpty(person.permissions) === false){
+        if (person.permissions.root) {
+          return 1;
+        }
+        if (person.permissions.admin) {
+          return 2;
+        }
+        if (person.permissions.upload) {
+          return 3;
+        }
       }
       return 4;
     });

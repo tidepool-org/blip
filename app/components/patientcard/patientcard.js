@@ -33,7 +33,7 @@ var PatientCard = React.createClass({
     });
 
     var remove = (function(patient) {
-        if (!patient.permissions.admin && !patient.permissions.root) {
+        if (_.isEmpty(patient.permissions) === false && !patient.permissions.admin && !patient.permissions.root) {
 
           var title = 'Remove yourself from ' + patient.profile.fullName + "'s care team.";
 
@@ -51,7 +51,7 @@ var PatientCard = React.createClass({
         'patientcard-permissions-icon': true
       };
 
-      if(patient.permissions.root || patient.permissions.admin || patient.permissions.upload) {
+      if(_.isEmpty(patient.permissions) === false && (patient.permissions.root || patient.permissions.admin || patient.permissions.upload)) {
         classes['icon-permissions-upload'] = true;
       } else {
         return null;
