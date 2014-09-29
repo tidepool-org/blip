@@ -46,20 +46,21 @@ var PatientTeam = React.createClass({
         getInitialState: function() {
           return {
             value: value
-          }
+          };
         },
         handleChange: function(obj) {
           this.setState({value: obj.value});
         },
-        /* jshint ignore:start */
         render: function() {
           return (
+            /* jshint ignore:start */
             <InputGroup
               name={name}
               items={items}
               type={'radios'}
               value={this.state.value}
               onChange={this.handleChange}/>
+              /* jshint ignore:end */
           );
         }
     });
@@ -69,13 +70,14 @@ var PatientTeam = React.createClass({
       {value: 'upload', label: 'View and upload'}
     ];
 
-    /* jshint ignore:start */
     return (
+      /* jshint ignore:start */
       <PermissionInputGroup
         items={items}
         value={value}/>
+      /* jshint ignore:end */
     );
-    /* jshint ignore:end */
+
   },
 
   renderChangeTeamMemberPermissionsDialog: function(member) {
@@ -102,6 +104,7 @@ var PatientTeam = React.createClass({
     };
 
     return (
+      /* jshint ignore:start */
       <div>
         <div className="ModalOverlay-content">
           <div>{member.profile.fullName} is allowed to view and upload your data. If you would like to change that, here is the place.</div>
@@ -112,6 +115,7 @@ var PatientTeam = React.createClass({
           <button className="PatientInfo-button PatientInfo-button--primary" type="submit" onClick={handleChangeMemberPermissions}>Save</button>
         </div>
       </div>
+      /* jshint ignore:end */
     );
   },
 
@@ -123,7 +127,7 @@ var PatientTeam = React.createClass({
         showModalOverlay: true,
         dialog: self.renderChangeTeamMemberPermissionsDialog(member)
       });
-    }
+    };
   },
 
   handleRemoveMember: function(member) {
@@ -136,11 +140,12 @@ var PatientTeam = React.createClass({
           });
         }
       );
-    }
+    };
   },
 
   renderRemoveTeamMemberDialog: function(member) {
     return (
+      /* jshint ignore:start */
       <div>
         <div className="ModalOverlay-content">{"Are you sure you want to remove this person? They will no longer be able to see or comment on your data."}</div>
         <div className="ModalOverlay-controls">
@@ -148,6 +153,7 @@ var PatientTeam = React.createClass({
           <button className="PatientInfo-button PatientInfo-button--primary" type="submit" onClick={this.handleRemoveMember(member)}>{"I'm sure, remove them."}</button>
         </div>
       </div>
+      /* jshint ignore:end */
     );
   },
 
@@ -182,8 +188,9 @@ var PatientTeam = React.createClass({
 
     var iconClasses = cx(classes);
 
-    /* jshint ignore:start */
+
     return (
+      /* jshint ignore:start */
       <li className="PatientTeam-member">
         <div className="PatientInfo-head">
           <div className="PatientTeam-picture PatientInfo-picture"></div>
@@ -197,8 +204,9 @@ var PatientTeam = React.createClass({
           </div>
         </div>
       </li>
+      /* jshint ignore:end */
     );
-    /* jshint ignore:end */
+
   },
 
   handleCancelInviteDialog: function(invite) {
@@ -211,11 +219,12 @@ var PatientTeam = React.createClass({
           });
         }
       );
-    }
+    };
   },
 
   renderCancelInviteDialog: function(invite) {
     return (
+      /* jshint ignore:start */
       <div>
         <div className="ModalOverlay-content">Are you sure you want to cancel your invitation to {invite.email}?</div>
         <div className="ModalOverlay-controls">
@@ -223,6 +232,7 @@ var PatientTeam = React.createClass({
           <button className="PatientInfo-button PatientInfo-button--primary" type="submit" onClick={this.handleCancelInviteDialog(invite)}>{"I'm sure, cancel it."}</button>
         </div>
       </div>
+      /* jshint ignore:end */
     );
   },
 
@@ -234,12 +244,13 @@ var PatientTeam = React.createClass({
         showModalOverlay: true,
         dialog: self.renderCancelInviteDialog(invite)
       });
-    }
+    };
   },
 
   renderPendingInvite: function(invite) {
-    /* jshint ignore:start */
+
     return (
+      /* jshint ignore:start */
       <li className="PatientTeam-member--fadeNew  PatientTeam-member">
         <div className="PatientInfo-head">
           <div className="PatientTeam-picture PatientInfo-picture"></div>
@@ -253,8 +264,9 @@ var PatientTeam = React.createClass({
           </div>
         </div>
       </li>
+      /* jshint ignore:end */
     );
-    /* jshint ignore:end */
+
   },
 
   renderInviteForm: function() {
@@ -269,7 +281,6 @@ var PatientTeam = React.createClass({
     };
 
     var handleCancel = function() {
-      console.log('cancel');
       self.setState({
         invite: false
       });
@@ -284,7 +295,7 @@ var PatientTeam = React.createClass({
         getInitialState: function() {
           return {
             validationError: false
-          }
+          };
         },
         render: function() {
           var self = this;
@@ -326,8 +337,9 @@ var PatientTeam = React.createClass({
             error = 'Invalid email address';
           }
 
-          /* jshint ignore:start */
+
           return (
+            /* jshint ignore:start */
             <li className="PatientTeam-member--fadeNew  PatientTeam-member PatientTeam-member--first">
               <div className="PatientInfo-head">
                 <div className="PatientTeam-pending">
@@ -350,20 +362,23 @@ var PatientTeam = React.createClass({
                 <div className="clear"></div>
               </div>
             </li>
+            /* jshint ignore:end */
           );
-          /* jshint ignore:end */
+
         }
     });
 
-    /* jshint ignore:start */
+
     return(
+      /* jshint ignore:start */
       <MemberInviteForm
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         inputs={self.renderPermissionOptions('view', 'invitePermissionOptions')}
       />
+      /* jshint ignore:end */
     );
-    /* jshint ignore:end */
+
   },
 
   renderInvite: function() {
@@ -383,8 +398,8 @@ var PatientTeam = React.createClass({
       });
     };
 
-    /* jshint ignore:start */
     return (
+      /* jshint ignore:start */
       <li className={classes}>
         <div className="PatientInfo-head">
           <div className="PatientTeam-picture PatientInfo-picture"></div>
@@ -396,8 +411,9 @@ var PatientTeam = React.createClass({
           </div>
         </div>
       </li>
+      /* jshint ignore:end */
     );
-    /* jshint ignore:end */
+
   },
 
   overlayClickHandler: function() {
@@ -407,14 +423,16 @@ var PatientTeam = React.createClass({
   },
 
   renderModalOverlay: function() {
-    /* jshint ignore:start */
+
     return (
+      /* jshint ignore:start */
       <ModalOverlay
         show={this.state.showModalOverlay}
         dialog={this.state.dialog}
         overlayClickHandler={this.overlayClickHandler}/>
+      /* jshint ignore:end */
     );
-    /* jshint ignore:end */
+
   },
 
   render: function() {
@@ -423,6 +441,7 @@ var PatientTeam = React.createClass({
     var invite = this.state && this.state.invite ? this.renderInviteForm() : this.renderInvite();
 
     return (
+      /* jshint ignore:start */
       <ul>
         {members}
         {pendingInvites}
@@ -430,8 +449,9 @@ var PatientTeam = React.createClass({
         {this.renderModalOverlay()}
         <div className="clear"></div>
       </ul>
+      /* jshint ignore:end */
     );
-    /* jshint ignore:end */
+
   }
 });
 
