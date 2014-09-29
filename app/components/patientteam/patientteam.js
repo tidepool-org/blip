@@ -107,7 +107,7 @@ var PatientTeam = React.createClass({
       /* jshint ignore:start */
       <div>
         <div className="ModalOverlay-content">
-          <div>{member.profile.fullName} is allowed to view and upload your data. If you would like to change that, here is the place.</div>
+          <div>This is what {member.profile.fullName} is allowed to do with your data.</div>
           {inputs}
         </div>
         <div className="ModalOverlay-controls">
