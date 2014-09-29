@@ -45,5 +45,25 @@ module.exports = {
       groups[groupId] = _.cloneDeep(permissions);
     }
     data.groups[memberId] = groups;
+  },
+
+  getMembersForGroup: function(data, groupId) {
+    var self = this;
+    return _.reduce(data.groups, function(result, memberGroups, memberId) {
+      if (memberId === groupId) {
+        return result;
+      }
+
+      var permissions = memberGroups[groupId];
+      if (!permissions) {
+        return result;
+      }
+
+      var member = data.users[memberId];
+      member = self.publicPersonInfo(member);
+      member.permissions = permissions;
+      result.push(member);
+      return result;
+    }, []);
   }
 };

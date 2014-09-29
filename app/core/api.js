@@ -521,6 +521,11 @@ api.invitation.getSent = function(callback) {
   callback(null, []);
 };
 
+api.invitation.send = function(toEmail, permissions, callback) {
+  api.log('POST /invitations [NOT IMPLEMENTED]');
+  callback(null, {});
+};
+
 api.invitation.cancel = function(toEmail, callback) {
   api.log('POST /invitations/to/' + toEmail + '/cancel [NOT IMPLEMENTED]');
   callback();

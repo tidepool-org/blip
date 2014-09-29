@@ -141,6 +141,55 @@ var patch = function(mock, api) {
     }, getDelayFor('api.invitation.getSent'));
   };
 
+  api.invitation.send = function(toEmail, permissions, callback) {
+    api.log('[mock] POST /invitations');
+
+    setTimeout(function() {
+      var err;
+      var userId = api.userId;
+      var existingInvitation = _.find(data.confirmations, function(confirmation) {
+        return (
+          confirmation.type === 'invite' &&
+          confirmation.email === toEmail &&
+          confirmation.invitedBy === userId
+        );
+      });
+
+      if (existingInvitation) {
+        err = {status: 409, response: 'Invitation already sent to that email'};
+        return callback(err);
+      }
+
+      var invitation = {
+        'type': 'invite',
+        'status': 'pending',
+        'email': toEmail,
+        'invitedBy': userId,
+        'permissions': permissions
+      };
+
+      var existingUser = _.find(data.users, function(user, id) {
+        return _.contains(user.emails, toEmail);
+      });
+      if (existingUser) {
+        // Does user matched with email already belong to the group?
+        var members = common.getMembersForGroup(data, userId);
+        var existingMember = _.find(members, {userid: existingUser.userid});
+        if (existingMember) {
+          err = {status: 409, response: 'User with that email already part of the group'};
+          return callback(err);
+        }
+
+        invitation.userid = existingUser.userid;
+      }
+
+      data.confirmations.push(invitation);
+
+      invitation = _.pick(invitation, 'email', 'permissions');
+      callback(null, invitation);
+    }, getDelayFor('api.invitation.send'));
+  };
+
   api.invitation.cancel = function(toEmail, callback) {
     api.log('[mock] POST /invitations/to/' + toEmail + '/cancel');
 
