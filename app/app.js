@@ -343,7 +343,6 @@ var AppComponent = React.createClass({
 
   showProfile: function() {
     this.renderPage = this.renderProfile;
-    this.fetchPendingInvites();
     this.setState({page: 'profile'});
     trackMetric('Viewed Account Edit');
   },
@@ -365,17 +364,12 @@ var AppComponent = React.createClass({
       /* jshint ignore:start */
       <PatientTeam
         user={this.state.user}
-        fetchingUser={this.state.fetchingUser}
+        patient={this.state.patient}
         pendingInvites={this.state.pendingInvites}
-        fetchingPendingInvites={this.state.fetchingPendingInvites}
-        onChangeMemberPermissions={this.handleChangeMemberPermissionson}
-        changingMemberPermissions={this.state.changingMemberPermissions}
+        onChangeMemberPermissions={this.handleChangeMemberPermissions}
         onRemoveMember={this.handleRemoveMember}
-        removingMember={this.state.removingMember}
         onInviteMember={this.handleInviteMember}
-        invitingMember={this.state.invitingMember}
-        onCancelInvite={this.handleCancelInvite}
-        cancelingInvite={this.state.cancelingInvite}/>
+        onCancelInvite={this.handleCancelInvite}/>
       /* jshint ignore:end */
     );
   },
@@ -454,65 +448,67 @@ var AppComponent = React.createClass({
       self.fetchPatients({hideLoading: false});
     });
   },
-
-  handleChangeMemberPermissions: function(memberId, permissions) {
+  handleChangeMemberPermissions: function(patientId, memberId, permissions, cb) {
     var self = this;
-
-    this.setState({changingMemberPermissions: true});
 
     api.access.setMemberPermissions(memberId, permissions, function(err) {
-      self.setState({
-        changingMemberPermissions: false
-      });
-      //self.fetchUser(); //console.log todo: fetch patient or user? // this re renders the members
-
-
       if(err) {
-        return self.handleApiError(err, 'Something went wrong while changing memeber perimissions.');
+        cb(err);
+        return self.handleApiError(err, 'Something went wrong while changing member perimissions.');
       }
+
+      self.fetchPatient(patientId, function(err){
+        cb();
+        return;
+      });
     });
   },
 
-  handleRemoveMember: function(memberId) {
+  handleRemoveMember: function(patientId, memberId, cb) {
     var self = this;
-
-    this.setState({removingMember: true});
 
     api.access.removeMember(memberId, function(err) {
-      // here i nest a call after both complete set state for patient and removing member self.setState({removingMember: false});
       if(err) {
+        cb(err);
         return self.handleApiError(err, 'Something went wrong while removing memeber.');
       }
+
+      self.fetchPatient(patientId, function(err){
+        cb();
+        return;
+      });
     });
   },
 
-  handleInviteMember: function(email, permissions) {
+  handleInviteMember: function(patientId, email, permissions, cb) {
     var self = this;
-
-    this.setState({invitingMember: true});
-
+    
     api.invitation.invite(email, permissions, function(err) {
-      this.setState({invitingMember: false});
-      self.fetchUser(); //console.log todo: fetch patient or user? // this re renders the members
-
-      if (err) {
+      if(err) {
+        cb(err);
         return self.handleApiError(err, 'Something went wrong while inviting member.');
       }
+
+      self.fetchPatient(patientId, function(err){
+        cb();
+        return;
+      });
     });
   },
 
-  handleCancelInvite: function(email) {
+  handleCancelInvite: function(email, cb) {
     var self = this;
 
-    this.setState({cancelingInvite: true});
-
-    api.invitation.cancel(memberId, function(err) {
-      self.setState({cancelingInvite: false});
-      self.fetchUser(); //console.log todo: fetch patient or user? // this re renders the members
-
+    api.invitation.cancel(email, function(err) {
       if(err) {
-        return self.handleApiError(err, 'Something went wrong while canceling invite.');
+        cb(err);
+        return self.handleApiError(err, 'Something went wrong while canceling the invitation.');
       }
+
+      self.fetchPendingInvites(function(err){
+        cb();
+        return;
+      });
     });
   },
 
@@ -526,6 +522,7 @@ var AppComponent = React.createClass({
       // (important to have this on next render)
       fetchingPatient: true
     });
+    this.fetchPendingInvites();
     this.fetchPatient(patientId,function(err,patient){
       return;
     });
@@ -780,7 +777,7 @@ var AppComponent = React.createClass({
     });
   },
 
-  fetchPendingInvites: function() {
+  fetchPendingInvites: function(cb) {
     var self = this;
 
     self.setState({fetchingPendingInvites: true});
@@ -793,6 +790,10 @@ var AppComponent = React.createClass({
           fetchingPendingInvites: false
         });
 
+        if (cb) {
+          cb(err);
+        }
+
         return self.handleApiError(err, message);
       }
 
@@ -800,6 +801,10 @@ var AppComponent = React.createClass({
         pendingInvites: invites,
         fetchingPendingInvites: false
       });
+
+      if (cb) {
+        cb();
+      }
     });
   },
 

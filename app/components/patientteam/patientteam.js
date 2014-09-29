@@ -17,101 +17,416 @@
 var React = require('react');
 var _ = require('lodash');
 var cx = require('react/lib/cx');
+var ModalOverlay = require('../ModalOverlay');
+var InputGroup = require('../inputgroup');
 
 var PatientTeam = React.createClass({
   propTypes: {
     user: React.PropTypes.object,
-    fetchingUser: React.PropTypes.bool,
+    patient: React.PropTypes.object,
     pendingInvites: React.PropTypes.array,
-    fetchingPendingInvites: React.PropTypes.bool,
     onChangeMemberPermissions: React.PropTypes.func,
-    changingMemberPermissions: React.PropTypes.bool,
     onRemoveMember: React.PropTypes.func,
-    removingMember: React.PropTypes.bool,
     onInviteMember: React.PropTypes.func,
-    invitingMember: React.PropTypes.bool,
     onCancelInvite: React.PropTypes.func,
-    cancelingInvite: React.PropTypes.bool
+  },
+
+  getInitialState: function() {
+    return {
+      showModalOverlay: false,
+      checked: 'view'
+    };
+  },
+
+  renderPermissionOptions: function(value, name) {
+    var PermissionInputGroup = React.createClass({
+        propTypes: {
+          items: React.PropTypes.array
+        },
+        getInitialState: function() {
+          return {
+            value: value
+          }
+        },
+        handleChange: function(obj) {
+          this.setState({value: obj.value});
+        },
+        /* jshint ignore:start */
+        render: function() {
+          return (
+            <InputGroup
+              name={name}
+              items={items}
+              type={'radios'}
+              value={this.state.value}
+              onChange={this.handleChange}/>
+          );
+        }
+    });
+
+    var items = [
+      {value: 'view', label: 'View only'},
+      {value: 'upload', label: 'View and upload'}
+    ];
+
+    /* jshint ignore:start */
+    return (
+      <PermissionInputGroup
+        items={items}
+        value={value}/>
+    );
+    /* jshint ignore:end */
+  },
+
+  renderChangeTeamMemberPermissionsDialog: function(member) {
+    var self = this;
+    var value = member.permissions.admin || member.permissions.upload ? 'upload' : 'view';
+    var name = 'permissionOptions'+ member.userid;
+    var inputs = this.renderPermissionOptions(value, name);
+
+    var handleChangeMemberPermissions = function() {
+      var permissions = {
+        view: {},
+        note: {}
+      };
+
+      if (inputs.state.value === 'upload') {
+        permissions.upload = {};
+      }
+
+      self.props.onChangeMemberPermissions(self.props.user.userid, member.userid, permissions, function(err) {
+        self.setState({
+          showModalOverlay: false,
+        });
+      });
+    };
+
+    return (
+      <div>
+        <div className="ModalOverlay-content">
+          <div>{member.profile.fullName} is allowed to view and upload your data. If you would like to change that, here is the place.</div>
+          {inputs}
+        </div>
+        <div className="ModalOverlay-controls">
+          <button className="PatientInfo-button PatientInfo-button--secondary" type="button" onClick={this.overlayClickHandler}>Cancel</button>
+          <button className="PatientInfo-button PatientInfo-button--primary" type="submit" onClick={handleChangeMemberPermissions}>Save</button>
+        </div>
+      </div>
+    );
+  },
+
+  handleChangeTeamMemberPermissions: function(member) {
+    var self = this;
+
+    return function() {
+      self.setState({
+        showModalOverlay: true,
+        dialog: self.renderChangeTeamMemberPermissionsDialog(member)
+      });
+    }
+  },
+
+  handleRemoveMember: function(member) {
+    var self = this;
+
+    return function() {
+      self.props.onRemoveMember(self.props.user.userid, member.userid, function(err) {
+          self.setState({
+            showModalOverlay: false,
+          });
+        }
+      );
+    }
+  },
+
+  renderRemoveTeamMemberDialog: function(member) {
+    return (
+      <div>
+        <div className="ModalOverlay-content">{"Are you sure you want to remove this person? They will no longer be able to see or comment on your data."}</div>
+        <div className="ModalOverlay-controls">
+          <button className="PatientInfo-button PatientInfo-button--secondary" type="button" onClick={this.overlayClickHandler}>Cancel</button>
+          <button className="PatientInfo-button PatientInfo-button--primary" type="submit" onClick={this.handleRemoveMember(member)}>{"I'm sure, remove them."}</button>
+        </div>
+      </div>
+    );
+  },
+
+  handleRemoveTeamMember: function(member) {
+    var self = this;
+
+    return function() {
+      self.setState({
+        showModalOverlay: true,
+        dialog: self.renderRemoveTeamMemberDialog(member)
+      });
+    };
+  },
+
+  renderTeamMember: function(member) {
+    var classes = {
+      'icon-permissions': true
+    };
+
+    if(member.permissions.admin) {
+      classes['icon-permissions-own'] = true;
+      title = "You own this data. You can change who else can see and upload data in " + member.profile.fullName + "'s profile page.";
+    } else if(member.permissions.upload) {
+      classes['icon-permissions-upload'] = true;
+      title = "You are allowed to upload data to " + member.profile.fullName + "'s account.";
+    } else if(member.permissions.view) {
+      classes['icon-permissions-view'] = true;
+      title = "You are allowed to see " + member.profile.fullName + "'s data.";
+    } else {
+      return null;
+    }
+
+    var iconClasses = cx(classes);
+
+    /* jshint ignore:start */
+    return (
+      <li className="PatientTeam-member">
+        <div className="PatientInfo-head">
+          <div className="PatientTeam-picture PatientInfo-picture"></div>
+          <div className="PatientTeam-blocks PatientInfo-blocks">
+            <div className="PatientInfo-blockRow">
+              <div className="PatientInfo-block PatientInfo-block--withArrow"><div>{member.profile.fullName}</div></div>
+              <div className="PatientTeam-icon PatientTeam-icon--permission" title='upload' onClick={this.handleChangeTeamMemberPermissions(member)}><i className={iconClasses}></i></div>
+              <div className="PatientTeam-icon" title='remove' onClick={this.handleRemoveTeamMember(member)}><i className="icon-remove"></i></div>
+              <div className="clear"></div>
+            </div>
+          </div>
+        </div>
+      </li>
+    );
+    /* jshint ignore:end */
+  },
+
+  handleCancelInviteDialog: function(invite) {
+    var self = this;
+
+    return function() {
+      self.props.onCancelInvite(invite.email, function(err) {
+          self.setState({
+            showModalOverlay: false,
+          });
+        }
+      );
+    }
+  },
+
+  renderCancelInviteDialog: function(invite) {
+    return (
+      <div>
+        <div className="ModalOverlay-content">Are you sure you want to cancel your invitation to {invite.email}?</div>
+        <div className="ModalOverlay-controls">
+          <button className="PatientInfo-button PatientInfo-button--secondary" type="button" onClick={this.overlayClickHandler}>Cancel</button>
+          <button className="PatientInfo-button PatientInfo-button--primary" type="submit" onClick={this.handleCancelInviteDialog(invite)}>{"I'm sure, cancel it."}</button>
+        </div>
+      </div>
+    );
+  },
+
+  handleCancelInvite: function(invite) {
+    var self = this;
+
+    return function() {
+      self.setState({
+        showModalOverlay: true,
+        dialog: self.renderCancelInviteDialog(invite)
+      });
+    }
+  },
+
+  renderPendingInvite: function(invite) {
+    /* jshint ignore:start */
+    return (
+      <li className="PatientTeam-member--fadeNew  PatientTeam-member">
+        <div className="PatientInfo-head">
+          <div className="PatientTeam-picture PatientInfo-picture"></div>
+          <div className="PatientTeam-blocks PatientInfo-blocks">
+            <div className="PatientInfo-blockRow">
+              <div className="PatientInfo-block PatientInfo-block--withArrow" title={invite.email}><div>{invite.email}</div></div>
+              <div className="PatientInfo-waiting">Waiting for confirmation</div>
+              <div className="PatientTeam-icon" title='remove' onClick={this.handleCancelInvite(invite)}><i className="icon-remove"></i></div>
+              <div className="clear"></div>
+            </div>
+          </div>
+        </div>
+      </li>
+    );
+    /* jshint ignore:end */
+  },
+
+  renderInviteForm: function() {
+    var self = this;
+
+    var handleSubmit = function(email, permissions) {
+      self.props.onInviteMember(self.props.user.userid, email, permissions, function(err) {
+        self.setState({
+          showModalOverlay: false,
+        });
+      });
+    };
+
+    var handleCancel = function() {
+      console.log('cancel');
+      self.setState({
+        invite: false
+      });
+    };
+
+    var MemberInviteForm = React.createClass({
+        propTypes: {
+          onSubmit: React.PropTypes.func,
+          onCancel: React.PropTypes.func,
+          inputs: React.PropTypes.renderable
+        },
+        getInitialState: function() {
+          return {
+            validationError: false
+          }
+        },
+        render: function() {
+          var self = this;
+
+          var handleSubmit = function(obj) {
+            var email = self.refs['email'].getDOMNode().value;
+
+            var validateEmail = function(email) {
+              var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+              return re.test(email);
+            };
+
+            if (!validateEmail(email)) {
+              self.setState({
+                validationError: true
+              });
+              return;
+            } else {
+              self.setState({
+                validationError: false
+              });
+            }
+
+            var permissions = {
+              view: {},
+              note: {}
+            };
+
+            if (self.props.inputs.state.value === 'upload') {
+              permissions.upload = {};
+            }
+
+            self.props.onSubmit(email, permissions);
+          };
+
+          var error = null;
+
+          if (this.state.validationError) {
+            error = 'Invalid email address';
+          }
+
+          /* jshint ignore:start */
+          return (
+            <li className="PatientTeam-member--fadeNew  PatientTeam-member PatientTeam-member--first">
+              <div className="PatientInfo-head">
+                <div className="PatientTeam-pending">
+                  <i className="icon-pending-invite"></i>
+                </div>
+                <div className="PatientTeam-memberContent PatientTeam-blocks">
+                  <div className="">
+                    <input className="PatientInfo-input" id="email" ref="email" placeholder="email" />
+                    <div className="PatientTeam-permissionSelection">
+                      {this.props.inputs}
+                    </div>
+                    <div className="PatientTeam-buttonHolder">
+                      <button className="PatientInfo-button PatientInfo-button--secondary" type="button" onClick={this.props.onCancel}>Cancel</button>
+                      <button className="PatientInfo-button PatientInfo-button--primary" type="submit" onClick={handleSubmit}>Invite</button>
+                    </div>
+                    <div className="PatientTeam-validationError">{error}</div>
+                    <div className="clear"></div>
+                  </div>
+                </div>
+                <div className="clear"></div>
+              </div>
+            </li>
+          );
+          /* jshint ignore:end */
+        }
+    });
+
+    /* jshint ignore:start */
+    return(
+      <MemberInviteForm
+        onSubmit={handleSubmit}
+        onCancel={handleCancel}
+        inputs={self.renderPermissionOptions('view', 'invitePermissionOptions')}
+      />
+    );
+    /* jshint ignore:end */
+  },
+
+  renderInvite: function() {
+    var isTeamEmpty = this.props.patient.team.length === 0;
+    var self = this;
+    var classes = {
+      'PatientTeam-member': true,
+      'PatientTeam-member--emptyNew': isTeamEmpty,
+      'PatientTeam-member--fadeNew': !isTeamEmpty
+    };
+
+    classes = cx(classes);
+
+    var handleClick = function() {
+      self.setState({
+        invite: true
+      });
+    };
+
+    /* jshint ignore:start */
+    return (
+      <li className={classes}>
+        <div className="PatientInfo-head">
+          <div className="PatientTeam-picture PatientInfo-picture"></div>
+          <div className="PatientTeam-blocks PatientInfo-blocks">
+            <div className="PatientInfo-blockRow" onClick={handleClick}>
+              <div className="PatientInfo-block PatientInfo-block--withArrow"><div>Invite new member</div></div>
+              <div className="clear"></div>
+            </div>
+          </div>
+        </div>
+      </li>
+    );
+    /* jshint ignore:end */
+  },
+  overlayClickHandler: function() {
+    this.setState({
+      showModalOverlay: false
+    });
+  },
+
+  renderModalOverlay: function() {
+    /* jshint ignore:start */
+    return (
+      <ModalOverlay
+        show={this.state.showModalOverlay}
+        dialog={this.state.dialog}
+        overlayClickHandler={this.overlayClickHandler}/>
+    );
+    /* jshint ignore:end */
   },
 
   render: function() {
-    /* jshint ignore:start */
+    var members = _.map(this.props.patient.team, this.renderTeamMember);
+    var pendingInvites = _.map(this.props.pendingInvites, this.renderPendingInvite);
+    var invite = this.state && this.state.invite ? this.renderInviteForm() : this.renderInvite();
+
     return (
       <ul>
-        <li className="PatientTeam-member PatientTeam-member--emptyNew  PatientTeam-member--first">
-          <div className="PatientInfo-head">
-            <div className="PatientTeam-picture PatientInfo-picture"></div>
-            <div className="PatientTeam-blocks PatientInfo-blocks">
-              <div className="PatientInfo-blockRow">
-                <div className="PatientInfo-block PatientInfo-block--withArrow">Invite new member</div>
-                <div className="clear"></div>
-              </div>
-            </div>
-          </div>
-        </li>
-        <li className="PatientTeam-member">
-          <div className="PatientInfo-head">
-            <div className="PatientTeam-picture PatientInfo-picture"></div>
-            <div className="PatientTeam-blocks PatientInfo-blocks">
-              <div className="PatientInfo-blockRow">
-                <div className="PatientInfo-block PatientInfo-block--withArrow">Peter Jensen</div>
-                <div className="PatientTeam-icon PatientTeam-icon--permission" title='upload'><i className="icon-permissions icon-permissions-upload"></i></div>
-                <div className="PatientTeam-icon" title='remove'><i className="icon-remove"></i></div>
-                <div className="clear"></div>
-              </div>
-            </div>
-          </div>
-        </li>
-        <li className="PatientTeam-member PatientTeam-member--fadeNew  PatientTeam-member--first">
-          <div className="PatientInfo-head">
-            <div className="PatientTeam-picture PatientInfo-picture"></div>
-            <div className="PatientTeam-blocks PatientInfo-blocks">
-              <div className="PatientInfo-blockRow">
-                <div className="PatientInfo-block PatientInfo-block--withArrow">Invite new member</div>
-                <div className="clear"></div>
-              </div>
-            </div>
-          </div>
-        </li>
-        <li className="PatientTeam-member--fadeNew  PatientTeam-member">
-          <div className="PatientInfo-head">
-            <div className="PatientTeam-picture PatientInfo-picture"></div>
-            <div className="PatientTeam-blocks PatientInfo-blocks">
-              <div className="PatientInfo-blockRow">
-                <div className="PatientInfo-block PatientInfo-block--withArrow">Invite new member</div>
-                <div className="PatientInfo-waiting">test@mail.com</div>
-                <div className="PatientTeam-icon" title='remove'><i className="icon-remove"></i></div>
-                <div className="clear"></div>
-              </div>
-            </div>
-          </div>
-        </li>
-        <li className="PatientTeam-member--fadeNew  PatientTeam-member PatientTeam-member--first">
-          <div className="PatientInfo-head">
-            <div className="PatientTeam-pending">
-              <i className="icon-pending-invite"></i>
-            </div>
-            <div className="PatientTeam-blocks PatientInfo-blocks">
-              <div className="">
-                <input className="PatientInfo-input" id="fullName" ref="fullName" placeholder="email" />
-                <div className="PatientTeam-permissionSelection">
-                  <div>
-                    <input type="radio" name="sex" value="view" checked="checked"/>View Only<i className="icon-permissions-view"></i>
-                  </div>
-                  <div>
-                    <input type="radio" name="sex" value="upload"/>View and upload<i className="icon-permissions-upload"></i>
-                  </div>
-                </div>
-                <div className="PatientTeam-buttonHolder">
-                  <button className="PatientInfo-button PatientInfo-button--secondary" type="button">Cancel</button>
-                  <button className="PatientInfo-button PatientInfo-button--primary" type="submit">Invite</button>
-                </div>
-                <div className="clear"></div>
-              </div>
-            </div>
-          </div>
-        </li>
-
+        {members}
+        {pendingInvites}
+        {invite}
+        {this.renderModalOverlay()}
         <div className="clear"></div>
       </ul>
     );
