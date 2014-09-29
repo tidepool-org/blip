@@ -531,6 +531,11 @@ api.invitation.cancel = function(toEmail, callback) {
   callback();
 };
 
+api.invitation.getForToken = function(token, callback) {
+  api.log('GET /invitations/token/' + token);
+  callback(null, {});
+};
+
 // ----- Access -----
 
 api.access = {};
