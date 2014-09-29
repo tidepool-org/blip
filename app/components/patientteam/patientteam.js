@@ -399,6 +399,7 @@ var PatientTeam = React.createClass({
     );
     /* jshint ignore:end */
   },
+
   overlayClickHandler: function() {
     this.setState({
       showModalOverlay: false
