@@ -391,7 +391,7 @@ var AppComponent = React.createClass({
     return function(invitation, mod) {
       self.setState({
         invites: self.state.invites.filter(function(e){
-          return e.from.userid !== invitation.from.userid;
+          return e.creatorId !== invitation.creatorId;
         })
       });
 

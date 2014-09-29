@@ -519,7 +519,7 @@ api.invitation.getReceived = function(callback) {
   return tidepool.invitesRecieved(callback);
 };
 
-api.invitation.accept = function( inviteId, fromUserId, callback) {
+api.invitation.accept = function(inviteId, fromUserId, callback) {
   api.log('POST /confirm/accept/invite/' + tidepool.getUserId() +'/'+fromUserId );
   return tidepool.acceptInvite(inviteId, fromUserId,callback);
 };
