@@ -70,7 +70,6 @@ var routes = {
   '/patients': 'showPatients',
   '/patients/new': 'showPatientNew',
   '/patients/:id': 'showPatient',
-  '/patients/:id/edit': 'showPatientEdit',
   '/patients/:id/data': 'showPatientData'
 };
 
@@ -384,55 +383,35 @@ var AppComponent = React.createClass({
     );
     /* jshint ignore:end */
   },
+  modifyInvites: function(modifier, options) {
+    var self = this;
 
-  removeInvite: function(invitation) {
-    var previousInvites = this.state.invites;
-    var invites = _.cloneDeep(previousInvites);
+    options = options || {};
 
-    _.remove(invites, function(i) {
-      return i.creatorId === invitation.creatorId;
-    });
+    return function(invitation, mod) {
+      self.setState({
+        invites: self.state.invites.filter(function(e){
+          return e.from.userid !== invitation.from.userid;
+        })
+      });
 
-    this.setState({
-      invites: invites
-    });
+      modifier(invitation.key,invitation.creatorId, function(err) {
+        if(err || options.fetchPatients) {
+          self.fetchPatients({hideLoading: true});
+        }
 
-
-    return previousInvites;
+        if(err) {
+          return self.handleApiError(err, 'Something went wrong while modifying the invitation.');
+        }
+      });
+    };
   },
-
   handleDismissInvitation: function(invitation) {
-    var self = this;
-    var previousInvites = this.removeInvite(invitation);
-
-    app.api.invitation.dismiss(invitation.key, invitation.creatorId, function(err) {
-      if(err) {
-        self.setState({
-          invites: previousInvites
-        });
-
-        return self.handleApiError(err, 'Something went wrong while dismissing the invitation.');
-      }
-    });
+    return this.modifyInvites(app.api.invitation.dismiss)(invitation);
   },
-
   handleAcceptInvitation: function(invitation) {
-    var self = this;
-    var previousInvites = this.removeInvite(invitation);
-
-    app.api.invitation.accept(invitation.key, invitation.creatorId, function(err) {
-      if(err) {
-        self.setState({
-          invites: previousInvites
-        });
-
-        return self.handleApiError(err, 'Something went wrong while accepting the invitation.');
-      }
-
-      self.fetchPatients({hideLoading: false});
-    });
+    return this.modifyInvites(app.api.invitation.accept, {fetchPatients: true})(invitation);
   },
-
   showPatient: function(patientId) {
     this.renderPage = this.renderPatient;
     this.setState({
@@ -464,6 +443,7 @@ var AppComponent = React.createClass({
           fetchingUser={this.state.fetchingUser}
           patient={this.state.patient}
           fetchingPatient={this.state.fetchingPatient}
+          onUpdatePatient={this.updatePatient}
           trackMetric={trackMetric}/>
     );
     /* jshint ignore:end */
@@ -528,53 +508,6 @@ var AppComponent = React.createClass({
     }
 
     return personUtils.isPatient(this.state.user);
-  },
-
-  showPatientEdit: function(patientId) {
-    this.renderPage = this.renderPatientEdit;
-    this.setState({
-      page: 'patients/' + patientId + '/edit',
-      // Reset patient object to avoid showing previous one
-      patient: null,
-      // Indicate renderPatientEdit() that we are fetching the patient
-      // (important to have this on next render)
-      fetchingPatient: true
-    });
-    this.fetchPatient(patientId);
-    trackMetric('Viewed Profile Edit');
-  },
-
-  renderPatientEdit: function() {
-    // On each state change check if user can edit this patient
-    if (this.isDoneFetchingAndNotUserPatient()) {
-      var patientId = this.state.patient && this.state.patient.userid;
-      var route = '/patients';
-      if (patientId) {
-        route = route + '/' + patientId;
-      }
-      app.log('Not allowed to edit patient with id ' + patientId);
-      app.router.setRoute(route);
-      return;
-    }
-
-    /* jshint ignore:start */
-    return (
-      <PatientEdit
-          patient={this.state.patient}
-          fetchingPatient={this.state.fetchingPatient}
-          onSubmit={this.updatePatient}
-          trackMetric={trackMetric}/>
-    );
-    /* jshint ignore:end */
-  },
-
-  isDoneFetchingAndNotUserPatient: function() {
-    // Wait to have both user and patient objects back from server
-    if (this.state.fetchingUser || this.state.fetchingPatient) {
-      return false;
-    }
-
-    return !this.isSamePersonUserAndPatient();
   },
 
   isSamePersonUserAndPatient: function() {
@@ -1001,7 +934,9 @@ var AppComponent = React.createClass({
         self.setState({patient: previousPatient});
         return self.handleApiError(err, message);
       }
-      self.setState({patient: patient});
+      self.setState({
+        patient: _.assign({}, previousPatient, {profile: patient.profile})
+      });
       trackMetric('Updated Profile');
     });
   },
