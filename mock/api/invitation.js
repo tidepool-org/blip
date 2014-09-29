@@ -18,6 +18,12 @@ var _ = require('lodash');
 var common = require('./common');
 var publicPersonInfo = common.publicPersonInfo;
 
+var invitationTokenSize = 12;
+
+function generateInvitationToken() {
+  return common.generateRandomId(invitationTokenSize);
+}
+
 var patch = function(mock, api) {
   var data = mock.data;
   var getParam = mock.getParam;
@@ -42,6 +48,16 @@ var patch = function(mock, api) {
     });
   }
 
+  function replaceInvitedByWithUser(invitation) {
+    var fromUserId = invitation.invitedBy;
+    var from = data.users[fromUserId];
+    from = _.cloneDeep(from);
+    from = publicPersonInfo(from);
+    return _.assign({}, _.omit(invitation, 'invitedBy'), {
+      from: from
+    });
+  }
+
   var setPermissions = common.setPermissions.bind(null, data);
 
   api.invitation.getReceived = function(callback) {
@@ -57,18 +73,10 @@ var patch = function(mock, api) {
       });
 
       invitations = _.map(invitations, function(invitation) {
-        return _.omit(invitation, 'type', 'status', 'userid', 'email');
+        return _.pick(invitation, 'invitedBy', 'permissions');
       });
 
-      invitations = _.map(invitations, function(invitation) {
-        var fromUserId = invitation.invitedBy;
-        var from = data.users[fromUserId];
-        from = _.cloneDeep(from);
-        from = publicPersonInfo(from);
-        return _.assign({}, _.omit(invitation, 'invitedBy'), {
-          from: from
-        });
-      });
+      invitations = _.map(invitations, replaceInvitedByWithUser);
 
       callback(null, invitations);
     }, getDelayFor('api.invitation.getReceived'));
@@ -134,7 +142,7 @@ var patch = function(mock, api) {
       });
 
       invitations = _.map(invitations, function(invitation) {
-        return _.omit(invitation, 'type', 'status', 'userid', 'invitedBy');
+        return _.pick(invitation, 'email', 'permissions');
       });
 
       callback(null, invitations);
@@ -161,11 +169,12 @@ var patch = function(mock, api) {
       }
 
       var invitation = {
-        'type': 'invite',
-        'status': 'pending',
-        'email': toEmail,
-        'invitedBy': userId,
-        'permissions': permissions
+        type: 'invite',
+        status: 'pending',
+        email: toEmail,
+        invitedBy: userId,
+        permissions: permissions,
+        token: generateInvitationToken()
       };
 
       var existingUser = _.find(data.users, function(user, id) {
@@ -211,6 +220,39 @@ var patch = function(mock, api) {
 
       callback();
     }, getDelayFor('api.invitation.cancel'));
+  };
+
+  api.invitation.getForToken = function(token, callback) {
+    api.log('[mock] GET /invitations/token/' + token);
+
+    setTimeout(function() {
+      var invitation = _.find(data.confirmations, function(confirmation) {
+        return (
+          confirmation.type === 'invite' &&
+          confirmation.token === token &&
+          confirmation.status === 'pending'
+        );
+      });
+
+      if (!invitation) {
+        var err = {status: 404, response: 'Not found'};
+        return callback(err);
+      }
+
+      invitation = replaceInvitedByWithUser(invitation);
+      // If invitation was sent to existing user account, add user object
+      if (invitation.userid) {
+        var user = data.users[invitation.userid];
+        user = _.cloneDeep(user);
+        user = publicPersonInfo(user);
+        invitation = _.assign({}, _.omit(invitation, 'userid'), {
+          user: user
+        });
+      }
+
+      invitation = _.pick(invitation, 'user', 'email', 'from', 'permissions');
+      callback(null, invitation);
+    }, getDelayFor('api.invitation.getForToken'));
   };
 
   return api;
