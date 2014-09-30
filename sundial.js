@@ -15,6 +15,6 @@
 
 'use strict';
 
-var moment = require('moment');
+var moment = require('moment-timezone');
 
 module.exports = require('./lib/datetimeWrapper.js')(moment);
