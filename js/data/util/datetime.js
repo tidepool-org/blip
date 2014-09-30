@@ -16,6 +16,7 @@
  */
 
 var _ = require('lodash');
+var moment = require('moment');
 
 var datetime = {
 
@@ -24,8 +25,8 @@ var datetime = {
   MS_IN_24: 86400000,
 
   addDays: function(s, n) {
-    var d = new Date(s);
-    d.setUTCDate(d.getUTCDate() + n);
+    var d = moment(s);
+    d.add(n, 'days');
     return d.toISOString();
   },
 

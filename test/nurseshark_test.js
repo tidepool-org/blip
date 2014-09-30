@@ -146,7 +146,7 @@ describe('nurseshark', function() {
         duration: 1200000,
         deviceTime: dummyDT,
         normalTime: dummyDT + '.000Z',
-        normalEnd: new Date(new Date(dummyDT).valueOf() + 1200000).toISOString()
+        normalEnd: new Date(new Date(dummyDT + '.000Z').valueOf() + 1200000).toISOString()
       }, {
         type: 'basal',
         time: plusTen.toISOString(),
