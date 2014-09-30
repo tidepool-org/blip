@@ -955,11 +955,11 @@ module.exports = function (config, deps) {
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    removeInvite: function (toEmail, cb) {
+    removeInvite: function (email, cb) {
       assertArgumentsSize(arguments, 2);
 
       superagent
-        .delete(makeUrl('/confirm/'+getUserId()+'/invited/'+toEmail))
+        .del(makeUrl('/confirm/'+getUserId()+'/invited/'+email))
         .end(
         function (err, res) {
           if (err != null) {
