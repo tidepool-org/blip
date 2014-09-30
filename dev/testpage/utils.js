@@ -15,7 +15,34 @@
  * == BSD2 LICENSE ==
  */
 
-module.exports = {
-  patterns: require('./patterns'),
-  types: require('./types')
-};
+var dt = require('../../js/data/util/datetime');
+var APPEND = '.000Z';
+
+function Cycler(increment, cycles) {
+    var i = 0;
+
+    return function() {
+      if (i < cycles) {
+        ++i;
+      }
+      else {
+        i = 1;
+      }
+      return i * increment;
+    };
+  }
+
+function Intervaler(datetime, millis) {
+  datetime = dt.addDuration(datetime + APPEND, -millis).slice(0, -5);
+  return function() {
+    datetime = dt.addDuration(datetime + APPEND, millis).slice(0, -5);
+    return datetime;
+  };
+}
+
+module.exports = (function() {
+  return {
+    Cycler: Cycler,
+    Intervaler: Intervaler
+  };
+}());
