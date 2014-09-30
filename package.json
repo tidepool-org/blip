@@ -31,7 +31,8 @@
     "test": "grunt test"
   },
   "dependencies": {
-    "moment": "2.8.1"
+    "moment": "2.8.3",
+    "moment-timezone": "0.2.2"
   },
   "devDependencies": {
     "grunt": "0.4.1",
