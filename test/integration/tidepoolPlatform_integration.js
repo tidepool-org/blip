@@ -70,16 +70,16 @@ describe('platform client', function () {
     var myLog = { info: console.log, warn: console.log };
 
     var client = platform(
-    {
-      host: 'http://localhost:8009',
-      metricsSource : pjson.name,
-      metricsVersion : pjson.version
-    },
-    {
-      superagent : superagent,
-      log : myLog,
-      localStore: localStore == null ? localStore() : localStore
-    }
+      {
+        host: 'https://devel-api.tidepool.io',
+        metricsSource : pjson.name,
+        metricsVersion : pjson.version
+      },
+      {
+        superagent : superagent,
+        log : myLog,
+        localStore: localStore == null ? myLocalStore : localStore
+      }
     );
 
     client.initialize(function(err){
