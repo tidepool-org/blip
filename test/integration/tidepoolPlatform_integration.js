@@ -545,10 +545,10 @@ describe('platform client', function () {
     });
 
     it('a_Member can dismiss an the invite from a_PWD', function(done){
-      pwdClient.inviteUser(a_Member.emails[0],{note: {}}, function(err, invite) {
+      pwdClient.inviteUser(a_Member.emails[0],{note: {}}, a_PWD.id, function(err, invite) {
         expect(err).to.be.empty;
         expect(invite).to.not.be.empty;
-        memberClient.dismissInvite(invite.key,a_PWD.id,function(err, dismiss) {
+        memberClient.dismissInvite(invite.key, a_Member.id, a_PWD.id,function(err, dismiss) {
           expect(err).to.be.empty;
           done();
         });
@@ -556,9 +556,9 @@ describe('platform client', function () {
     });
 
     it('a_Member can see the invites they have sent', function(done){
-      memberClient.inviteUser(a_PWD.emails[0],{view: {}}, function(err, invite) {
+      memberClient.inviteUser(a_PWD.emails[0],{view: {}}, a_Member.id, function(err, invite) {
         expect(err).to.be.empty;
-        memberClient.invitesSent(function(err, sent) {
+        memberClient.invitesSent(a_Member.id,function(err, sent) {
           expect(err).to.be.empty;
           expect(sent).to.not.be.empty;
           done();
@@ -567,9 +567,9 @@ describe('platform client', function () {
     });
 
     it('a_Member can see the invites they have received', function(done){
-      pwdClient.inviteUser(a_Member.emails[0],{view: {}}, function(err, invite) {
+      pwdClient.inviteUser(a_Member.emails[0],{view: {}}, a_PWD.id,function(err, invite) {
         expect(err).to.be.empty;
-        memberClient.invitesRecieved(function(err, received) {
+        memberClient.invitesRecieved(a_Member.id,function(err, received) {
           expect(err).to.be.empty;
           expect(received).to.not.be.empty;
           done();
@@ -577,9 +577,9 @@ describe('platform client', function () {
       });
     });
     it('a_PWD can cancel an invite they sent to a_Member', function(done){
-      pwdClient.inviteUser(a_Member.emails[0],{view: {}}, function(err, invite) {
+      pwdClient.inviteUser(a_Member.emails[0],{view: {}}, a_PWD.id, function(err, invite) {
         expect(err).to.be.empty;
-        pwdClient.removeInvite(a_Member.emails[0],function(err,resp){
+        pwdClient.removeInvite(a_Member.emails[0], a_PWD.id, function(err,resp){
           expect(err).to.be.empty;
           expect(resp).to.not.be.empty;
           done();
