@@ -958,18 +958,11 @@ module.exports = function (config, deps) {
     removeInvite: function (email, cb) {
       assertArgumentsSize(arguments, 2);
 
-      superagent
-        .del(makeUrl('/confirm/'+getUserId()+'/invited/'+email))
-        .end(
-        function (err, res) {
-          if (err != null) {
-            return cb(err);
-          }
-          if (res.status !== 200) {
-            return handleHttpError(res, cb);
-          }
-          return cb(null,{status:res.status,body:res.body});
-        });
+      doPutWithToken(
+        '/confirm/'+getUserId()+'/invited/'+email,
+        null,
+        cb
+      );
     }
   };
 };
