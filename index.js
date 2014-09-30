@@ -654,8 +654,6 @@ module.exports = function (config, deps) {
         return cb({ status : STATUS_BAD_REQUEST, message: 'Must specify a userId'});
       }
 
-      console.log('perms: ',permissions);
-
       doPostWithToken(
         '/access/' + getUserId() + '/' + userId,
         permissions,
