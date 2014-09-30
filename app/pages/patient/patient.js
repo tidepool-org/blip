@@ -21,6 +21,7 @@ var personUtils = require('../../core/personutils');
 var PatientInfo = require('./patientinfo');
 var PeopleList = require('../../components/peoplelist');
 var PersonCard = require('../../components/personcard');
+var ModalOverlay = require('../../components/modaloverlay');
 
 var Patient = React.createClass({
   propTypes: {
@@ -29,7 +30,14 @@ var Patient = React.createClass({
     patient: React.PropTypes.object,
     fetchingPatient: React.PropTypes.bool,
     onUpdatePatient: React.PropTypes.func,
-    trackMetric: React.PropTypes.func.isRequired
+    trackMetric: React.PropTypes.func.isRequired,
+    patientTeam: React.PropTypes.component
+  },
+
+  getInitialState: function() {
+    return {
+      showModalOverlay: false
+    };
   },
 
   render: function() {
@@ -62,6 +70,8 @@ var Patient = React.createClass({
       <div className="PatientPage-content">
         {this.renderInfo()}
         {this.renderAccess()}
+        {this.renderDelete()}
+        {this.renderModalOverlay()}
       </div>
     );
   },
@@ -121,12 +131,59 @@ var Patient = React.createClass({
     return personUtils.isSame(this.props.user, this.props.patient);
   },
 
+  renderDeleteDialog: function() {
+    return (
+      <div>If you are sure you want to delete your account, <a href="mailto:support@tidepool.org?Subject=Delete%20my%20account" target="_blank">send an email</a> to support@tidepool.org and we take care of it for you.</div>
+    );
+  },
+
+  renderDelete: function() {
+    var self = this;
+
+    if (!this.isSamePersonUserAndPatient()) {
+      return null;
+    }
+
+    var handleClick = function() {
+      self.setState({
+        showModalOverlay: true,
+        dialog: self.renderDeleteDialog()
+      });
+    };
+
+    return (
+      <div className="PatientPage-deleteSection">
+        <div onClick={handleClick}>Delete my account</div>
+      </div>
+    );
+  },
+  overlayClickHandler: function() {
+    this.setState({
+      showModalOverlay: false
+    });
+  },
+  renderModalOverlay: function() {
+    /* jshint ignore:start */
+    return (
+      <ModalOverlay
+        show={this.state.showModalOverlay}
+        dialog={this.state.dialog}
+        overlayClickHandler={this.overlayClickHandler}/>
+    );
+    /* jshint ignore:end */
+  },
+
   renderAccess: function() {
     if (!this.isSamePersonUserAndPatient()) {
       return null;
     }
 
-    // TODO
+    return (
+      <div className="PatientPage-teamSection">
+        <div className="PatientPage-sectionTitle">My Care Team <span className="PatientPage-sectionTitleMessage">These are the people who have access to your data.</span></div>
+        {this.props.patientTeam}
+      </div>
+    );
   }
 });
 

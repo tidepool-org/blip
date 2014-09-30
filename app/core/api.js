@@ -514,6 +514,11 @@ api.patientData.get = function(patientId, cb) {
 
 api.invitation = {};
 
+api.invitation.send = function(emailAddress, permissions, callback) {
+  api.log('POST /confirm/send/invite/' + tidepool.getUserId());
+  return tidepool.inviteUser(emailAddress, permissions, callback);
+};
+
 api.invitation.getReceived = function(callback) {
   api.log('GET /confirm/invitations');
   return tidepool.invitesRecieved(callback);
@@ -534,9 +539,9 @@ api.invitation.getSent = function(callback) {
   return  tidepool.invitesSent(callback);
 };
 
-api.invitation.cancel = function(toEmail, callback) {
-  api.log('POST /confirm/' + tidepool.getUserId()+ '/invited/'+ toEmail);
-  return tidepool.removeInvite(toEmail,callback);
+api.invitation.cancel = function(emailAddress, callback) {
+  api.log('DELETE /confirm/' + tidepool.getUserId()+ '/invited/'+ emailAddress);
+  return tidepool.removeInvite(emailAddress,callback);
 };
 
 // ----- Access -----

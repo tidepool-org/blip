@@ -123,7 +123,7 @@ var patch = function(mock, api) {
 
   api.invitation.getSent = function(callback) {
     api.log('[mock] GET /invitations/sent');
-
+    
     setTimeout(function() {
       var invitations = _.filter(data.confirmations, function(confirmation) {
         return (
