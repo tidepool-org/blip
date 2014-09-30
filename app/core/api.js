@@ -515,8 +515,9 @@ api.patientData.get = function(patientId, cb) {
 api.invitation = {};
 
 api.invitation.send = function(emailAddress, permissions, callback) {
-  api.log('POST /confirm/send/invite/' + tidepool.getUserId());
-  return tidepool.inviteUser(emailAddress, permissions, callback);
+  var loggedInUser = tidepool.getUserId();
+  api.log('POST /confirm/send/invite/' + loggedInUser);
+  return tidepool.inviteUser(emailAddress, permissions, loggedInUser, callback);
 };
 
 api.invitation.getReceived = function(callback) {
@@ -525,23 +526,27 @@ api.invitation.getReceived = function(callback) {
 };
 
 api.invitation.accept = function(inviteId, fromUserId, callback) {
-  api.log('POST /confirm/accept/invite/' + tidepool.getUserId() +'/'+fromUserId );
-  return tidepool.acceptInvite(inviteId, fromUserId,callback);
+  var loggedInUser = tidepool.getUserId();
+  api.log('POST /confirm/accept/invite/' + loggedInUser +'/'+fromUserId );
+  return tidepool.acceptInvite(inviteId, loggedInUser, fromUserId, callback);
 };
 
 api.invitation.dismiss = function(inviteId, fromUserId, callback) {
-  api.log('POST /confirm/dismiss/invite/'+ tidepool.getUserId()+ '/'+fromUserId );
-  return tidepool.dismissInvite(inviteId, fromUserId, callback);
+  var loggedInUser = tidepool.getUserId();
+  api.log('POST /confirm/dismiss/invite/'+ loggedInUser+ '/'+fromUserId );
+  return tidepool.dismissInvite(inviteId, loggedInUser, fromUserId, callback);
 };
 
 api.invitation.getSent = function(callback) {
-  api.log('GET /confirm/invite/'+tidepool.getUserId());
-  return  tidepool.invitesSent(callback);
+  var loggedInUser = tidepool.getUserId();
+  api.log('GET /confirm/invite/'+loggedInUser);
+  return  tidepool.invitesSent(loggedInUser, callback);
 };
 
 api.invitation.cancel = function(emailAddress, callback) {
-  api.log('DELETE /confirm/' + tidepool.getUserId()+ '/invited/'+ emailAddress);
-  return tidepool.removeInvite(emailAddress,callback);
+   var loggedInUser = tidepool.getUserId();
+  api.log('DELETE /confirm/' + loggedInUser+ '/invited/'+ emailAddress);
+  return tidepool.removeInvite(emailAddress, loggedInUser, callback);
 };
 
 // ----- Access -----
