@@ -20,9 +20,7 @@ var _ = require('lodash');
 var format = require('./util/format');
 var dt = require('./util/datetime');
 
-var log = require('bows')('BasalUtil');
-
-var MS_IN_HOUR = 3600000.0;
+var MS_IN_HOUR = 3600000;
 var MS_IN_DAY = 86400000;
 
 function BasalUtil(data) {
@@ -111,12 +109,10 @@ function BasalUtil(data) {
           return {total: this.subtotal(endpoints)};
         }
         else {
-          log('Basal data within 24 hours starting', new Date(s).toISOString().slice(0,16), 'is not continuous; cannot calculate basal total.');
           return {total: NaN};
         }
       }
       else if (dt.isLessThanTwentyFourHours(s, e)) {
-        log('Data domain less than twenty-four hours; cannot calculate basal total.');
         return {total: NaN};
       }
       else {
@@ -149,7 +145,6 @@ function BasalUtil(data) {
           };
         }
         else {
-          log(excluded.length, 'days excluded. Not enough days with basal data to calculate basal total.');
           return {
             total: NaN,
             excluded: excluded
