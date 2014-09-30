@@ -240,15 +240,23 @@ module.exports = function(pool, opts) {
         group.append('p')
           .append('span')
           .html('<span class="plain">Temp basal of</span> ' + basal.tempPercentage(datum));
-        group.append('p')
-          .append('span')
-          .attr('class', 'secondary')
-          .html(basal.rateString(getScheduledSuppressed(datum.suppressed), 'secondary') + ' scheduled');
+        if (datum.suppressed) {
+          group.append('p')
+            .append('span')
+            .attr('class', 'secondary')
+            .html(basal.rateString(getScheduledSuppressed(datum.suppressed), 'secondary') + ' scheduled'); 
+        }
         break;
       case 'suspend':
         group.append('p')
           .append('span')
           .html('<span class="plain">Pump suspended</span>');
+        if (datum.suppressed) {
+          group.append('p')
+            .append('span')
+            .attr('class', 'secondary')
+            .html(basal.rateString(getScheduledSuppressed(datum.suppressed), 'secondary') + ' scheduled'); 
+        }
         break;
       default:
         group.append('p')
