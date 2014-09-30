@@ -20,8 +20,17 @@ var _ = require('lodash');
 var types = require('./types');
 var utils = require('./utils');
 
+var dt = require('../../js/data/util/datetime');
+
 // constants
 var MS_IN_24HRS = 86400000;
+var APPEND = '.000Z';
+
+var CBGMIN = 0.75*288, SMBGMIN = 4;
+
+var naiveTimestamp = function() {
+  return new Date().toISOString().slice(0, -5);
+};
 
 module.exports = (function() {
   return {
@@ -31,7 +40,7 @@ module.exports = (function() {
         var defaults = {
           days: 1,
           rate: 1.0,
-          start: new Date().toISOString().slice(0, -5)
+          start: naiveTimestamp()
         };
         _.defaults(opts, defaults);
 
@@ -46,6 +55,154 @@ module.exports = (function() {
           }));
         }
         return basals;
+      }
+    },
+    cbg: {
+      constantFull: function(opts) {
+        opts = opts || {};
+        var defaults = {
+          days: 1,
+          value: 100,
+          start: naiveTimestamp()
+        };
+        _.defaults(opts, defaults);
+
+        var cbgs = [];
+        var next = new utils.Intervaler(opts.start, 1000*60*5);
+        var end = dt.addDuration(dt.addDuration(opts.start + APPEND, MS_IN_24HRS*opts.days), -1000*60*5);
+        var current = opts.start;
+        while (current !== end.slice(0, -5)) {
+          current = next();
+          cbgs.push(new types.CBG({
+            value: opts.value,
+            deviceTime: current
+          }));
+        }
+        return cbgs;
+      },
+      constantJustEnough: function(opts) {
+        opts = opts || {};
+        var defaults = {
+          days: 1,
+          value: 100,
+          start: naiveTimestamp()
+        };
+        _.defaults(opts, defaults);
+
+        var cbgs = [];
+        var start = opts.start;
+        for (var i = 0; i < opts.days; ++i) {
+          var j = 0;
+          var next = new utils.Intervaler(start, 1000*60*5);
+          while (j < CBGMIN) {
+            cbgs.push(new types.CBG({
+              value: opts.value,
+              deviceTime: next()
+            }));
+            j++;
+          }
+          start = dt.addDuration(start + APPEND, MS_IN_24HRS);
+        }
+        return cbgs;
+      },
+      constantInadequate: function(opts) {
+        opts = opts || {};
+        var defaults = {
+          days: 1,
+          value: 100,
+          start: naiveTimestamp()
+        };
+        _.defaults(opts, defaults);
+
+        var cbgs = [];
+        var start = opts.start;
+        for (var i = 0; i < opts.days; ++i) {
+          var j = 0;
+          var next = new utils.Intervaler(start, 1000*60*5);
+          while (j < CBGMIN - 1) {
+            cbgs.push(new types.CBG({
+              value: opts.value,
+              deviceTime: next()
+            }));
+            j++;
+          }
+          start = dt.addDuration(start + APPEND, MS_IN_24HRS);
+        }
+        return cbgs;
+      }
+    },
+    smbg: {
+      constantFull: function(opts) {
+        opts = opts || {};
+        var defaults = {
+          days: 1,
+          value: 100,
+          start: naiveTimestamp()
+        };
+        _.defaults(opts, defaults);
+
+        var smbgs = [];
+        var next = new utils.Intervaler(opts.start, MS_IN_24HRS/4);
+        var end = dt.addDuration(opts.start + '.000Z', MS_IN_24HRS*opts.days);
+        var current = opts.start;
+        while (current !== end.slice(0, -5)) {
+          current = next();
+          smbgs.push(new types.SMBG({
+            value: opts.value,
+            deviceTime: current
+          }));
+        }
+        return smbgs;
+      },
+      constantJustEnough: function(opts) {
+        opts = opts || {};
+        var defaults = {
+          days: 1,
+          value: 100,
+          start: naiveTimestamp()
+        };
+        _.defaults(opts, defaults);
+
+        var smbgs = [];
+        var start = opts.start;
+        for (var i = 0; i < opts.days; ++i) {
+          var j = 0;
+          var next = new utils.Intervaler(start, MS_IN_24HRS/24);
+          while (j < SMBGMIN) {
+            smbgs.push(new types.SMBG({
+              value: opts.value,
+              deviceTime: next()
+            }));
+            j++;
+          }
+          start = dt.addDuration(start + APPEND, MS_IN_24HRS);
+        }
+        return smbgs;
+      },
+      constantInadequate: function(opts) {
+        opts = opts || {};
+        var defaults = {
+          days: 1,
+          value: 100,
+          start: naiveTimestamp()
+        };
+        _.defaults(opts, defaults);
+
+        var smbgs = [];
+        var start = opts.start;
+        for (var i = 0; i < opts.days; ++i) {
+          var j = 0;
+          var next = new utils.Intervaler(start, MS_IN_24HRS/24);
+          while (j < SMBGMIN - 1) {
+            smbgs.push(new types.SMBG({
+              value: opts.value,
+              deviceTime: next()
+            }));
+            j++;
+          }
+          start = dt.addDuration(start + APPEND, MS_IN_24HRS);
+        }
+        return smbgs;
       }
     }
   };

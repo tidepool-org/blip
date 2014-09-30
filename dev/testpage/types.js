@@ -36,6 +36,12 @@ var common = {
     }
     return clone;
   },
+  makeDeviceTime: function() {
+    return new Date().toISOString().slice(0, -5);
+  },
+  makeNormalTime: function() {
+    return this.deviceTime + APPEND;
+  },
   makeTime: function() {
     var d = new Date(this.deviceTime + APPEND);
     var offsetMinutes = d.getTimezoneOffset();
@@ -49,7 +55,7 @@ var Basal = function(opts) {
   opts = opts || {};
   var defaults = {
     deliveryType: 'scheduled',
-    deviceTime: new Date().toISOString().slice(0, -5),
+    deviceTime: this.makeDeviceTime(),
     duration: MS_IN_24HRS/12,
     rate: 0.5
   };
@@ -63,7 +69,7 @@ var Basal = function(opts) {
   this.rate = opts.rate;
 
   this.time = this.makeTime();
-  this.normalTime = this.deviceTime + APPEND;
+  this.normalTime = this.makeNormalTime();
   this.normalEnd = dt.addDuration(this.normalTime, this.duration);
   
   this.id = this.makeId();
@@ -71,8 +77,56 @@ var Basal = function(opts) {
 
 Basal.prototype = common;
 
+var CBG = function(opts) {
+  opts = opts || {};
+  var defaults = {
+    deviceTime: this.makeDeviceTime(),
+    units: 'mg/dL',
+    value: 100
+  };
+  _.defaults(opts, defaults);
+
+  this.type = 'cbg';
+
+  this.deviceTime = opts.deviceTime;
+  this.units = opts.units;
+  this.value = opts.value;
+
+  this.time = this.makeTime();
+  this.normalTime = this.makeNormalTime();
+
+  this.id = this.makeId();
+};
+
+CBG.prototype = common;
+
+var SMBG = function(opts) {
+  opts = opts || {};
+  var defaults = {
+    deviceTime: this.makeDeviceTime(),
+    units: 'mg/dL',
+    value: 100
+  };
+  _.defaults(opts, defaults);
+
+  this.type = 'smbg';
+
+  this.deviceTime = opts.deviceTime;
+  this.units = opts.units;
+  this.value = opts.value;
+
+  this.time = this.makeTime();
+  this.normalTime = this.makeNormalTime();
+
+  this.id = this.makeId();
+};
+
+SMBG.prototype = common;
+
 module.exports = (function() {
   return {
-    Basal: Basal
+    Basal: Basal,
+    CBG: CBG,
+    SMBG: SMBG
   };
 }());

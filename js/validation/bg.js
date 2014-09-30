@@ -22,6 +22,7 @@ module.exports = schema(
   common,
   {
     deviceTime: schema().isDeviceTime(),
+    units: schema().in(['mg/dL', 'mmol/L']),
     value: schema().number()
   }
 );

@@ -18,8 +18,6 @@
 var crossfilter = require('crossfilter');
 var _ = require('lodash');
 
-var log = require('bows')('TidelineCrossFilter');
-
 function TidelineCrossFilter(data) {
 
   this.add = function(datum) {

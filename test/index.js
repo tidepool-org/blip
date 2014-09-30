@@ -29,8 +29,7 @@ require('./less/test.less');
 /* js/data/ */
 require('./datetime_test');
 require('./basalutil_test');
-// TODO: rewrite
-// require('./bgutil_test');
+require('./bgutil_test');
 // TODO: rewrite
 // require('./bolusutil_test');
 // TODO: rewrite

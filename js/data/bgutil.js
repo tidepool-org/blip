@@ -20,8 +20,6 @@ var _ = require('lodash');
 var datetime = require('./util/datetime');
 var TidelineCrossFilter = require('./util/tidelinecrossfilter');
 
-var log = require('bows')('BGUtil');
-
 function BGUtil(data, opts) {
 
   opts = opts || {};
@@ -94,7 +92,6 @@ function BGUtil(data, opts) {
         return this.filtered(s, e);
       }
       else if (datetime.isLessThanTwentyFourHours(s, e)) {
-        log('Data domain less than twenty-four hours; cannot calculate bolus total.');
         return {data: [], excluded: []};
       }
       else {
@@ -110,7 +107,6 @@ function BGUtil(data, opts) {
           time = new Date(next).valueOf();
         }
         if (excluded.length > exclusionThreshold) {
-          log(excluded.length, 'days excluded. Not enough CGM data in some days to calculate stats.');
           return {data: [], excluded: excluded};
         }
         else {
@@ -119,7 +115,6 @@ function BGUtil(data, opts) {
       }
     }
     else {
-      log('Endpoint verification failed!');
       return {data: [], excluded: []};
     }
   };
