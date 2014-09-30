@@ -78,7 +78,7 @@ describe('platform client', function () {
       {
         superagent : superagent,
         log : myLog,
-        localStore: localStore == null ? myLocalStore : localStore
+        localStore: localStore == null ? storage() : localStore
       }
     );
 
@@ -88,20 +88,6 @@ describe('platform client', function () {
   }
 
   function createClientWithUser(user, loginOpts, mockedLocalStore ,cb) {
-    var myLog = { info: console.log, warn: console.log };
-    var client;
-
-    mockedLocalStore = mockedLocalStore || storage();
-
-    client = platform(
-      { host: 'http://localhost:8009',
-        metricsSource : pjson.name,
-        metricsVersion : pjson.version },
-      { superagent : superagent,
-        log : myLog,
-        localStore: mockedLocalStore }
-      );
-
     return createClient(mockedLocalStore, function(err, client){
       if (err != null) {
         return cb(err);
@@ -225,7 +211,7 @@ describe('platform client', function () {
       });
     });
   });
-  describe.skip('allows applications too', function () {
+  describe('allows applications too', function () {
     var defaulted = null;
     it('track metrics to tidepool', function (done) {
 
@@ -286,7 +272,7 @@ describe('platform client', function () {
       });
     });
   });
-  describe.skip('handles messages', function () {
+  describe('handles messages', function () {
     var noteToAddId;
     var noteToAdd;
     var commentOnNote;
@@ -476,7 +462,7 @@ describe('platform client', function () {
       });
     });
   });
-  describe.skip('handles team permissions', function () {
+  describe('handles team permissions', function () {
 
     var careTeamViewable;
     var pwdsTeam;
@@ -513,14 +499,14 @@ describe('platform client', function () {
       });
     });
 
-    it.skip('but a_Member cannot see the other team members for a_PWD', function (done) {
+    it('but a_Member cannot see the other team members for a_PWD', function (done) {
       memberClient.getTeamMembers(a_PWD.id, function (error, patientsTeam) {
         expect(error).to.deep.equal({ status: 401, body: 'These are not the droids you are looking for.' });
         done();
       });
     });
 
-    it.skip('a_Member can see the messages for a_PWD', function (done) {
+    it('a_Member can see the messages for a_PWD', function (done) {
       pwdClient.getNotesForUser(a_PWD.id, null, function (error, patientsNotes) {
         expect(patientsNotes).to.exist;
         expect(patientsNotes).to.have.length.above(0);
@@ -529,7 +515,7 @@ describe('platform client', function () {
       });
     });
 
-    it.skip('a_Member sees the messages as a_PWD sees them', function (done) {
+    it('a_Member sees the messages as a_PWD sees them', function (done) {
       memberClient.getNotesForUser(a_PWD.id, null, function (error, pwdTeamNotes) {
         expect(pwdTeamNotes).to.exist;
         expect(pwdTeamNotes).to.have.length.above(0);
@@ -538,74 +524,65 @@ describe('platform client', function () {
       });
     });
 
-    it.skip('a_PWD can remove the permissions for a_Member', function(done) {
+    it('a_PWD can remove the permissions for a_Member', function(done) {
       pwdClient.setAccessPermissions(a_Member.id, null, function(err, perms){
         expect(perms).to.be.empty;
         done(err);
       });
     });
   });
-  describe('handles invites', function () {
-
-    it.skip('so we can invite a_Member to be on the team of a_PWD', function(done){
-      pwdClient.inviteUser('jamie@tidepool.org',{view: {}}, function(err, invite) {
-        if(_.isEmpty(err) === false){
-          done(err);
-        }
+  describe.skip('handles invites', function () {
+    //skipped as we require an email for sending of the invites for these integration tests.
+    it('so we can invite a_Member to be on the team of a_PWD', function(done){
+      pwdClient.inviteUser(a_Member.emails[0],{view: {}}, function(err, invite) {
+        expect(err).to.be.empty;
         expect(invite).to.not.be.empty;
         memberClient.acceptInvite(invite.key,a_PWD.id,function(err, accept) {
-          done(err);
+          expect(err).to.be.empty;
+          done();
         });
       });
     });
 
-    it.skip('a_Member can dismiss an the invite from a_PWD', function(done){
-      pwdClient.inviteUser('jamie@tidepool.org',{note: {}}, function(err, invite) {
-        if(_.isEmpty(err) === false){
-          done(err);
-        }
+    it('a_Member can dismiss an the invite from a_PWD', function(done){
+      pwdClient.inviteUser(a_Member.emails[0],{note: {}}, function(err, invite) {
+        expect(err).to.be.empty;
         expect(invite).to.not.be.empty;
-        //dismiss the invite
         memberClient.dismissInvite(invite.key,a_PWD.id,function(err, dismiss) {
-          done(err);
+          expect(err).to.be.empty;
+          done();
         });
       });
     });
 
     it('a_Member can see the invites they have sent', function(done){
-      memberClient.inviteUser('jamie@tidepool.org',{view: {}}, function(err, invite) {
+      memberClient.inviteUser(a_PWD.emails[0],{view: {}}, function(err, invite) {
+        expect(err).to.be.empty;
         memberClient.invitesSent(function(err, sent) {
+          expect(err).to.be.empty;
           expect(sent).to.not.be.empty;
           done();
         });
       });
     });
 
-    it.skip('a_Member can see the invites they have received', function(done){
-      pwdClient.inviteUser('team@member.com',{view: {}}, function(err, invite) {
+    it('a_Member can see the invites they have received', function(done){
+      pwdClient.inviteUser(a_Member.emails[0],{view: {}}, function(err, invite) {
+        expect(err).to.be.empty;
         memberClient.invitesRecieved(function(err, received) {
-          if(_.isEmpty(err) === false){
-            done(err);
-          }
+          expect(err).to.be.empty;
           expect(received).to.not.be.empty;
           done();
         });
       });
     });
-    it('a_PWD can remove the invite they sent to a_Member', function(done){
-      pwdClient.inviteUser('team@member.com',{view: {}}, function(err, invite) {
-        console.log('err?: ',err);
-        console.log('invited: ',invite);
-        memberClient.acceptInvite(invite.key,a_PWD.id,function(err, accept) {
-          //now we revoke the invite
-          console.log('accepted: ',accept);
-          pwdClient.removeInvite('team@member.com',function(err,resp){
-            if(_.isEmpty(err) === false){
-              done(err);
-            }
-            expect(resp).to.not.be.empty;
-            done();
-          });
+    it('a_PWD can cancel an invite they sent to a_Member', function(done){
+      pwdClient.inviteUser(a_Member.emails[0],{view: {}}, function(err, invite) {
+        expect(err).to.be.empty;
+        pwdClient.removeInvite(a_Member.emails[0],function(err,resp){
+          expect(err).to.be.empty;
+          expect(resp).to.not.be.empty;
+          done();
         });
       });
     });
