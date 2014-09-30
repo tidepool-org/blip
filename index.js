@@ -18,7 +18,6 @@
 var _ = require('lodash');
 
 var sessionTokenHeader = 'x-tidepool-session-token';
-var userIdLocalKey = 'userId';
 var tokenLocalKey = 'authToken';
 
 function defaultProperty(obj, property, defaultValue) {
@@ -43,7 +42,7 @@ module.exports = function (config, deps) {
   var myToken = null;
   var myUserId = null;
 
-  // This is a "version" counter for the number of times we've logged in.
+  // This is a 'version' counter for the number of times we've logged in.
   // It is used to invalidate stale attempts at refreshing a token
   var loginVersion = 0;
 
@@ -662,6 +661,26 @@ module.exports = function (config, deps) {
       );
     },
     /**
+     * Get the access permissions for the currently logged in user
+     *
+     * @param cb - function(err, perms), called with error if exists and permissions as found
+     */
+    getAccessPermissions: function(cb) {
+      assertArgumentsSize(arguments, 1);
+
+      var userId = getUserId();
+
+      if (userId == null) {
+        return cb({ status : STATUS_BAD_REQUEST, message: 'userId not set'});
+      }
+
+      doGetWithToken(
+        '/access/' + userId,
+        { 200: function(res){ return res.body; }, 404: null },
+        cb
+      );
+    },
+    /**
      * Get the listed users public info
      *
      * @param {Array} patientIds array of id's that we want the public info for
@@ -827,6 +846,124 @@ module.exports = function (config, deps) {
       doPutWithToken(
         '/message/edit/' + edits.id,
         {message: edits},
+        cb
+      );
+    },
+    /**
+     * Get the invites sent
+     *
+     * @param {String} inviterId - id of the user that send the invite
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    invitesSent: function (inviterId, cb) {
+      assertArgumentsSize(arguments, 1);
+      doGetWithToken(
+        '/confirm/invite/'+inviterId,
+        { 200: function(res){ return res.body; }, 204: function(res){ return res.body; } },
+        cb
+      );
+    },
+    /**
+     * Get the invites recieved
+     *
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    invitesRecieved: function (cb) {
+      assertArgumentsSize(arguments, 1);
+
+      this.getCurrentUser(function(err,details){
+
+        if(_.isEmpty(err)){
+
+          var email = details.emails[0];
+
+          if(_.isEmpty(email)){
+            return cb({ status : STATUS_BAD_REQUEST, message: 'user details not found'});
+          }else{
+            doGetWithToken(
+              encodeURI('/confirm/invitations/'+email),
+              { 200: function(res){ return res.body; }, 204: function(res){ return res.body; } },
+              cb
+            );
+          }
+        }
+        return cb(err,[]);
+      });
+
+    },
+    /**
+     * Invite a user
+     *
+     * @param {String} email - email of the user to invite
+     * @param {Object} permissions - permissions to be given
+     * @param {String} inviterId - id of the user that send the invite
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    inviteUser: function (email,permissions, inviterId, cb) {
+      assertArgumentsSize(arguments, 3);
+
+      var details = { 'email':email,'permissions': permissions };
+
+      doPostWithToken(
+        '/confirm/send/invite/'+inviterId,
+        details,
+        cb
+      );
+    },
+    /**
+     * Accept the invite
+     *
+     * @param {String} inviteId
+     * @param {String} inviteeId - id of the user who was invited
+     * @param {String} inviterId - id of the user that send the invite
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    acceptInvite: function (inviteId, inviteeId ,inviterId, cb) {
+      assertArgumentsSize(arguments, 4);
+
+      doPutWithToken(
+        '/confirm/accept/invite/'+ inviteeId +'/'+ inviterId,
+        {'key':inviteId},
+        cb
+      );
+    },
+    /**
+     * Dismiss the invite
+     *
+     * @param {String} inviteId
+     * @param {String} inviteeId - id of the user who was invited
+     * @param {String} inviterId - id of the user that send the invite
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    dismissInvite: function (inviteId, inviteeId ,inviterId, cb) {
+      assertArgumentsSize(arguments, 4);
+
+      doPutWithToken(
+        '/confirm/dismiss/invite/'+ inviteeId +'/'+ inviterId,
+        {'key':inviteId},
+        { 204: function(res){ return res.body; }},
+        cb
+      );
+    },
+    /**
+     * Remove the invite
+     *
+     * @param {String} email - email of the user to remove
+     * @param {String} inviterId - id of the user that send the invite
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    removeInvite: function (email, inviterId, cb) {
+      assertArgumentsSize(arguments, 2);
+
+      doPutWithToken(
+        '/confirm/'+inviterId+'/invited/'+email,
+        null,
         cb
       );
     }

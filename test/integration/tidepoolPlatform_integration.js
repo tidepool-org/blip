@@ -19,27 +19,26 @@ var async = require('async');
 var expect = require('salinity').expect;
 var superagent = require('superagent');
 
-var localStorage = require('./../../lib/inMemoryStorage');
+var storage = require('./../../lib/inMemoryStorage');
 
 var platform = require('../../index.js');
-var myLocalStore = localStorage();
 var pjson = require('../../package.json');
 
 describe('platform client', function () {
 
   /**
-   * Timeout is used when running against the deployed services
-   */
+  * Timeout is used when running against the deployed services
+  */
   this.timeout(10000);
 
   var pwdClient = null;
   var memberClient = null;
 
   /*
-   * Represents a 'Person With Data' as used in the tests
-   *
-   * This will typically be a diabetic :)
-   */
+  * Represents a 'Person With Data' as used in the tests
+  *
+  * This will typically be a diabetic :)
+  */
   var a_PWD = {
     id: null,
     token: null,
@@ -50,14 +49,14 @@ describe('platform client', function () {
   };
 
   /*
-   * Represents a member of a team that has no data themselves as such but has explicitly
-   * been given access to the team of someone that has diabetes and is a `pwd`
-   *
-   * Use cases include:
-   *
-   * - parent of someone with diabeties
-   * - dr or another health professional
-   */
+  * Represents a member of a team that has no data themselves as such but has explicitly
+  * been given access to the team of someone that has diabetes and is a `pwd`
+  *
+  * Use cases include:
+  *
+  * - parent of someone with diabeties
+  * - dr or another health professional
+  */
   var a_Member = {
     id: null,
     token: null,
@@ -79,7 +78,7 @@ describe('platform client', function () {
       {
         superagent : superagent,
         log : myLog,
-        localStore: localStore == null ? myLocalStore : localStore
+        localStore: localStore == null ? storage() : localStore
       }
     );
 
@@ -89,20 +88,6 @@ describe('platform client', function () {
   }
 
   function createClientWithUser(user, loginOpts, mockedLocalStore ,cb) {
-    var myLog = { info: console.log, warn: console.log };
-
-    mockedLocalStore = mockedLocalStore || myLocalStore;
-
-    var client = platform(
-      { host: 'https://devel-api.tidepool.io',
-        metricsSource : pjson.name,
-        metricsVersion : pjson.version
-      },
-      { superagent : superagent,
-        log : myLog,
-        localStore: mockedLocalStore }
-    );
-
     return createClient(mockedLocalStore, function(err, client){
       if (err != null) {
         return cb(err);
@@ -135,10 +120,7 @@ describe('platform client', function () {
     var noLoginOpts = {};
 
     async.parallel(
-      [
-        createClientWithUser.bind(null, a_PWD,noLoginOpts,myLocalStore),
-        createClientWithUser.bind(null, a_Member,noLoginOpts,myLocalStore)
-      ],
+      [createClientWithUser.bind(null, a_PWD,noLoginOpts,storage()), createClientWithUser.bind(null, a_Member,noLoginOpts,storage())],
       function(err, clients) {
         if (err != null) {
           return done(err);
@@ -147,31 +129,28 @@ describe('platform client', function () {
         memberClient = clients[1];
         done();
       }
-    );
+      );
   });
 
   /*
-   * Lets be good and logout
-   */
+  * Lets be good and logout
+  */
   after(function (done) {
     async.parallel(
-      [
-        function(callback){ pwdClient.logout(callback); },
-        function(callback){ memberClient.logout(callback); }
-      ],
+      [function(callback){ pwdClient.logout(callback); }, function(callback){ memberClient.logout(callback); }],
       function(err, clients) {
         if (err != null) {
           return done(err);
         }
         done();
       }
-    );
+      );
   });
 
   describe('on initialization', function () {
     it('when the remember flag is true the user stays logged in', function (done) {
 
-      var store = localStorage();
+      var store = storage();
 
       var refreshOnlyUser = {
         username: 'dummy@user.com',
@@ -207,7 +186,7 @@ describe('platform client', function () {
     });
     it('when the remember flag is false the user does NOT stay logged in', function (done) {
 
-      createClientWithUser(a_PWD, {remember:false}, localStorage(),function(error,loggedIn){
+      createClientWithUser(a_PWD, {remember:false}, storage(),function(error,loggedIn){
 
         expect(error).to.not.exist;
 
@@ -220,7 +199,7 @@ describe('platform client', function () {
     });
     it('when the remember flag is not set the user does NOT stay logged in', function (done) {
 
-      createClientWithUser(a_PWD, {} , localStorage(), function(error,loggedIn){
+      createClientWithUser(a_PWD, {} , storage(), function(error,loggedIn){
 
         expect(error).to.not.exist;
 
@@ -232,7 +211,6 @@ describe('platform client', function () {
       });
     });
   });
-
   describe('allows applications too', function () {
     var defaulted = null;
     it('track metrics to tidepool', function (done) {
@@ -255,14 +233,11 @@ describe('platform client', function () {
       });
     });
   });
-
   describe('handles user profiles', function () {
     it('so we can add or update the logged in users profile', function (done) {
-      //add or update for both our users
-      async.parallel([
-        pwdClient.addOrUpdateProfile.bind(null, a_PWD.id, a_PWD.profile),
-        memberClient.addOrUpdateProfile.bind(null, a_Member.id, a_Member.profile)
-      ],
+    //add or update for both our users
+      async.parallel(
+        [pwdClient.addOrUpdateProfile.bind(null, a_PWD.id, a_PWD.profile), memberClient.addOrUpdateProfile.bind(null, a_Member.id, a_Member.profile)],
         function(err, profiles) {
           if (err != null) {
             return done(err);
@@ -297,15 +272,14 @@ describe('platform client', function () {
       });
     });
   });
-
   describe('handles messages', function () {
     var noteToAddId;
     var noteToAdd;
     var commentOnNote;
 
     /*
-     * Give a_Memeber to a_PWD for these tests
-     */
+    * Give a_Memeber to a_PWD for these tests
+    */
     before(function (done) {
       pwdClient.setAccessPermissions(a_Member.id, {view: {}}, function(err, permissions) {
         expect(permissions).to.deep.equal({view: {}});
@@ -314,8 +288,8 @@ describe('platform client', function () {
     });
 
     /*
-     * Revoke a_Memeber permissons to a_PWD after these tests
-     */
+    * Revoke a_Memeber permissons to a_PWD after these tests
+    */
     after(function (done) {
       pwdClient.setAccessPermissions(a_Member.id, null, function(err, permissions) {
         expect(permissions).to.be.empty;
@@ -488,7 +462,6 @@ describe('platform client', function () {
       });
     });
   });
-
   describe('handles team permissions', function () {
 
     var careTeamViewable;
@@ -555,6 +528,62 @@ describe('platform client', function () {
       pwdClient.setAccessPermissions(a_Member.id, null, function(err, perms){
         expect(perms).to.be.empty;
         done(err);
+      });
+    });
+  });
+  describe.skip('handles invites', function () {
+    //skipped as we require an email for sending of the invites for these integration tests.
+    it('so we can invite a_Member to be on the team of a_PWD', function(done){
+      pwdClient.inviteUser(a_Member.emails[0],{view: {}}, function(err, invite) {
+        expect(err).to.be.empty;
+        expect(invite).to.not.be.empty;
+        memberClient.acceptInvite(invite.key,a_PWD.id,function(err, accept) {
+          expect(err).to.be.empty;
+          done();
+        });
+      });
+    });
+
+    it('a_Member can dismiss an the invite from a_PWD', function(done){
+      pwdClient.inviteUser(a_Member.emails[0],{note: {}}, a_PWD.id, function(err, invite) {
+        expect(err).to.be.empty;
+        expect(invite).to.not.be.empty;
+        memberClient.dismissInvite(invite.key, a_Member.id, a_PWD.id,function(err, dismiss) {
+          expect(err).to.be.empty;
+          done();
+        });
+      });
+    });
+
+    it('a_Member can see the invites they have sent', function(done){
+      memberClient.inviteUser(a_PWD.emails[0],{view: {}}, a_Member.id, function(err, invite) {
+        expect(err).to.be.empty;
+        memberClient.invitesSent(a_Member.id,function(err, sent) {
+          expect(err).to.be.empty;
+          expect(sent).to.not.be.empty;
+          done();
+        });
+      });
+    });
+
+    it('a_Member can see the invites they have received', function(done){
+      pwdClient.inviteUser(a_Member.emails[0],{view: {}}, a_PWD.id,function(err, invite) {
+        expect(err).to.be.empty;
+        memberClient.invitesRecieved(a_Member.id,function(err, received) {
+          expect(err).to.be.empty;
+          expect(received).to.not.be.empty;
+          done();
+        });
+      });
+    });
+    it('a_PWD can cancel an invite they sent to a_Member', function(done){
+      pwdClient.inviteUser(a_Member.emails[0],{view: {}}, a_PWD.id, function(err, invite) {
+        expect(err).to.be.empty;
+        pwdClient.removeInvite(a_Member.emails[0], a_PWD.id, function(err,resp){
+          expect(err).to.be.empty;
+          expect(resp).to.not.be.empty;
+          done();
+        });
       });
     });
   });
