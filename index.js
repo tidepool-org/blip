@@ -887,7 +887,7 @@ module.exports = function (config, deps) {
             if (_.isEmpty(profile)===false){
               invite.creator = profile;
             }
-            resolved.push(invite);
+            return invite;
           });
         });
       };
