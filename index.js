@@ -877,14 +877,19 @@ module.exports = function (config, deps) {
       //get the invites and then attach the inviters profile to the invite
       var self = this;
       //findProfile
+
       var onSuccess=function(res){
-        return _.map(res.body, function(invite) {
+
+        var resolved = _.forEach(res.body, function(invite) {
           self.findProfile(invite.creatorId,function(err,profile){
             if (_.isEmpty(profile)===false){
               invite.creator = profile;
             }
+            return invite;
           });
-        });
+        }).push();
+
+        return resolved;
       };
 
       this.getCurrentUser(function(err,details){
