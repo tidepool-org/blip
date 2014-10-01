@@ -16,6 +16,7 @@
 'use strict';
 
 var _ = require('lodash');
+var async = require('async');
 
 var sessionTokenHeader = 'x-tidepool-session-token';
 var tokenLocalKey = 'authToken';
@@ -879,15 +880,18 @@ module.exports = function (config, deps) {
       //findProfile
 
       var onSuccess=function(res){
-
-        return _.forEach(res.body, function(invite) {
+        async.map(res.body, function (invite, cb) {
           self.findProfile(invite.creatorId,function(err,profile){
             if (_.isEmpty(profile)===false){
               invite.creator = profile;
             }
-            return invite;
-          });
-        }).push();
+            cb(err,invite);
+          })
+        }, function(err, invites){
+          console.log('err? ',err);
+          console.log('invites? ',invites);
+          return invites;
+        });
       };
 
       this.getCurrentUser(function(err,details){
