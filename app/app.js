@@ -470,13 +470,10 @@ var AppComponent = React.createClass({
     api.access.removeMember(memberId, function(err) {
       if(err) {
         cb(err);
-        return self.handleApiError(err, 'Something went wrong while removing memeber.');
+        return self.handleApiError(err, 'Something went wrong while removing member.');
       }
 
-      self.fetchPatient(patientId, function(err){
-        cb();
-        return;
-      });
+      self.fetchPatient(patientId, cb);
     });
   },
 
