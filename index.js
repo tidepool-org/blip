@@ -880,19 +880,18 @@ module.exports = function (config, deps) {
       var onSuccess=function(res){
         var invites = res.body;
         var resolved = [];
-        var self = this;
 
         _(invites).forEach(function(invite) {
           console.log(invite.creatorId);
-          self.findProfile(invite.creatorId,function(err,profile){
+          this.findProfile(invite.creatorId,function(err,profile){
             if (_.isEmpty(profile)===false){
               invite.creator = profile;
             }
             resolved.push(invite);
           });
-        });
+        }.bind(this));
 
-        return res.body;
+        return resolved;
 
       };
 
