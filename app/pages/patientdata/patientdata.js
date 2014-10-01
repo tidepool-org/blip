@@ -74,11 +74,8 @@ var PatientData = React.createClass({
     var params = this.props.queryParams;
 
     if (!_.isEmpty(params)) {
-      var bgPrefs = this.props.bgPrefs;
       this.setState({
         chartPrefs: {
-          bgClasses: bgPrefs.bgClasses,
-          bgUnits: bgPrefs.bgUnits,
           hiddenPools: {
             basalSettings: params.showbasalsettings ?  true : null
           },
