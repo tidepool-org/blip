@@ -1,0 +1,60 @@
+.ModalOverlay{
+  display: none;
+
+  .ModalOverlay-target {
+    content: "";
+    display: none;
+    background: rgba(0,0,0,.6);
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 10;
+  }
+}
+
+.ModalOverlay--show {
+  display: block;
+
+
+  .ModalOverlay-target {
+    cursor: pointer;
+    display: block;
+  }
+}
+
+.ModalOverlay-dialog{
+  background: #fefefe;
+  border: @gray solid 1px;
+  margin-left: -200px;
+  position: fixed;
+  left: 50%;
+  top: 20%;
+  z-index: 11;
+  width: 390px;
+  padding: 20px 25px;
+}
+
+.ModalOverlay-content {
+  padding-bottom: 10px;
+
+  > .input-group {
+    padding-left: 0px;
+    margin-bottom: 0px;
+
+
+    .input-group-radios {
+      margin-bottom: 0px;
+      margin-top: 15px;
+      font-size: @font-size-base;
+    }
+
+    label {
+      padding: 5px 20px;
+    }
+  }
+}
+
+.ModalOverlay-controls {
+  min-height: 30px;
+  padding: 5px;
+  text-align: right;
+}
