@@ -857,7 +857,7 @@ module.exports = function (config, deps) {
      * @returns {cb}  cb(err, response)
      */
     invitesSent: function (inviterId, cb) {
-      assertArgumentsSize(arguments, 1);
+      assertArgumentsSize(arguments, 2);
       doGetWithToken(
         '/confirm/invite/'+inviterId,
         { 200: function(res){ return res.body; }, 204: function(res){ return res.body; } },
@@ -903,7 +903,7 @@ module.exports = function (config, deps) {
      * @returns {cb}  cb(err, response)
      */
     inviteUser: function (email,permissions, inviterId, cb) {
-      assertArgumentsSize(arguments, 3);
+      assertArgumentsSize(arguments, 4);
 
       var details = { 'email':email,'permissions': permissions };
 
@@ -959,7 +959,7 @@ module.exports = function (config, deps) {
      * @returns {cb}  cb(err, response)
      */
     removeInvite: function (email, inviterId, cb) {
-      assertArgumentsSize(arguments, 2);
+      assertArgumentsSize(arguments, 3);
 
       doPutWithToken(
         '/confirm/'+inviterId+'/invited/'+email,
