@@ -879,7 +879,7 @@ module.exports = function (config, deps) {
       //findProfile
       var onSuccess=function(res){
         var invites = res.body;
-        var resolved[];
+        var resolved = [];
         var self = this;
 
         _(invites).forEach(function(invite) {
