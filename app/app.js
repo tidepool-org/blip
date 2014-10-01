@@ -451,7 +451,6 @@ var AppComponent = React.createClass({
 
     api.access.leaveGroup(patientId, function(err) {
       if(err) {
-        cb(err);
         return self.handleApiError(err, 'Something went wrong while removing member from group.');
       }
 
