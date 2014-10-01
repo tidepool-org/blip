@@ -878,9 +878,7 @@ module.exports = function (config, deps) {
       var self = this;
       //findProfile
       var onSuccess=function(res){
-        var invites = res.body;
-
-        var resolved =  _(invites).forEach(function(invite) {
+        return  _(res.body).forEach(function(invite) {
           return self.findProfile(invite.creatorId,function(err,profile){
             if (_.isEmpty(profile)===false){
               invite.creator = profile;
