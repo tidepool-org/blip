@@ -878,16 +878,13 @@ module.exports = function (config, deps) {
       var self = this;
       //findProfile
       var onSuccess=function(res){
-
-        var resolved = _.map(res.body, function(invite) {
+        return _.map(res.body, function(invite) {
           self.findProfile(invite.creatorId,function(err,profile){
             if (_.isEmpty(profile)===false){
               invite.creator = profile;
             }
-            return invite
           });
         });
-        return resolved;
       };
 
       this.getCurrentUser(function(err,details){
