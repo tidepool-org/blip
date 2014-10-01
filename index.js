@@ -881,7 +881,7 @@ module.exports = function (config, deps) {
         var invites = res.body;
         var resolved = [];
 
-        _(invites).forEach(function(invite) {
+        return _(invites).forEach(function(invite) {
           console.log(invite.creatorId);
           self.findProfile(invite.creatorId,function(err,profile){
             if (_.isEmpty(profile)===false){
@@ -890,7 +890,6 @@ module.exports = function (config, deps) {
             resolved.push(invite);
           });
         });
-        return resolved;
       };
 
 
