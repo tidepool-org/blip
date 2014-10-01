@@ -880,7 +880,7 @@ module.exports = function (config, deps) {
 
       var onSuccess=function(res){
 
-        var resolved = _.forEach(res.body, function(invite) {
+        return _.forEach(res.body, function(invite) {
           self.findProfile(invite.creatorId,function(err,profile){
             if (_.isEmpty(profile)===false){
               invite.creator = profile;
@@ -888,8 +888,6 @@ module.exports = function (config, deps) {
             return invite;
           });
         }).push();
-
-        return resolved;
       };
 
       this.getCurrentUser(function(err,details){
