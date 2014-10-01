@@ -16,15 +16,18 @@
 
 var React = require('react');
 var _ = require('lodash');
+var cx = require('react/lib/cx');
 
 var personUtils = require('../../core/personutils');
 var PersonCard = require('../../components/personcard');
+var PatientCard = require('../../components/patientcard');
 
 var PeopleList = React.createClass({
   propTypes: {
     people: React.PropTypes.array,
     isPatientList: React.PropTypes.bool,
-    onClickPerson: React.PropTypes.func
+    onClickPerson: React.PropTypes.func,
+    onRemovePatient: React.PropTypes.func
   },
 
   getDefaultProps: function() {
@@ -36,10 +39,32 @@ var PeopleList = React.createClass({
   render: function() {
     var peopleNodes = _.map(this.props.people, this.renderPeopleListItem);
 
-    /* jshint ignore:start */
+    this.props.people = _.sortBy(_.sortBy(this.props.people, 'fullname'), function(person) {
+      if (person.permissions.root) {
+        return 1;
+      }
+      if (person.permissions.admin) {
+        return 2;
+      }
+      if (person.permissions.upload) {
+        return 3;
+      }
+      return 4;
+    });
+
+    peopleNodes = _.map(this.props.people, this.renderPeopleListItem);
+
+    var classes = cx({
+      'people-list': true,
+      'list-group': true,
+      'people-list-single': this.props.people.length === 1
+    });
+
+      /* jshint ignore:start */
     return (
-      <ul className="people-list list-group">
+      <ul className={classes}>
         {peopleNodes}
+        <div className="clear"></div>
       </ul>
     );
     /* jshint ignore:end */
@@ -48,10 +73,29 @@ var PeopleList = React.createClass({
   renderPeopleListItem: function(person, index) {
     var peopleListItemContent;
     var displayName = this.getPersonDisplayName(person);
+    var self = this;
+    var handleClick;
+
+    if (this.props.isPatientList) {
+      handleClick = function() {
+        self.props.onClickPerson(person);
+      };
+
+      /* jshint ignore:start */
+      return (
+        <li key={person.userid || index} className="patient-list-item">
+          <PatientCard
+            href={person.link}
+            onClick={handleClick}
+            onRemovePatient={this.props.onRemovePatient}
+            patient={person}></PatientCard>
+        </li>
+      );
+      /* jshint ignore:end */
+    }
 
     if (person.link) {
-      var self = this;
-      var handleClick = function() {
+      handleClick = function() {
         self.props.onClickPerson(person);
       };
       /* jshint ignore:start */

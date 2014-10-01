@@ -1,0 +1,140 @@
+/**
+ * Copyright (c) 2014, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ */
+
+.patientcard {
+  display: block;
+  text-align: center;
+  padding: 30px @spacing-small;
+  font-weight: lighter;
+  color: @gray-darker;
+  position: relative;
+  background: @gray-lighter;
+}
+
+.patientcard-owner {
+  background: @owned-account;
+}
+
+.patientcard-controls {
+  position: relative;
+  top: -65px;
+  right: 20px;
+
+  > i {
+    font-size: 20px;
+    width: 20px;
+  }
+
+  .icon-remove {
+    display: none;
+    color: @blue-green;
+    position: absolute;
+    top: -15px;
+    right: 0px;
+    cursor: pointer;
+
+    .no-touch &:hover,
+    &:focus,
+    &:active {
+      color: @blue-green-light;
+    }
+  }
+
+  .patientcard-permissions-icon {
+    display: block;
+    color: @gray-dark;
+    position: absolute;
+    top: 25px;
+    right: 0px;
+  }
+}
+
+.patientcard {
+  > a {
+    margin-left: 10px;
+    float: left;
+    width: 260px;
+    color: @gray-darker;
+    text-decoration: none;
+    text-align: left;
+    display: block;
+    height: 33px;
+  }
+
+  .icon-face-standin {
+    font-size: 30px;
+    width: 280px;
+    color: @blue-green;
+  }
+
+  .icon-remove {
+    display: none;
+  }
+}
+.patientcard-fullname {
+  padding-top: 5px;
+  padding-left: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 33px;
+  width: 220px;
+  color: @gray-dark;
+  font-style: normal;
+}
+
+.patient-list-item {
+  .no-touch &:hover,
+  &:focus,
+  &:active {
+      .icon-remove {
+        display: block;
+      }
+  }
+
+}
+
+.patientcard,
+a.patientcard {
+  color: @gray-darker;
+  text-decoration: none;
+
+  .no-touch &:hover,
+  &:focus,
+  &:active {
+    background-color: @gray-light;
+
+    .icon-face-standin {
+      color: @gray-darker;
+    }
+  }
+}
+
+.patientcard-owner.patientcard,
+.patientcard-owner.a.patientcard {
+  .no-touch &:hover,
+  &:focus,
+  &:active {
+    background-color: @owned-account-hover;
+
+    .icon-face-standin {
+      color: @gray-darker;
+    }
+
+    .patientcard-controls {
+      display: block;
+    }
+  }
+}

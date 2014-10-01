@@ -13,27 +13,45 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+.PatientPage {
+  margin-right: auto;
+  margin-left: auto;
+  margin-bottom: 40px;
+
+  @media(min-width: @screen-lg-min) {
+    width: @screen-lg-min;
+    padding-left: @spacing-base;
+    padding-right: @spacing-base;
+  }
+}
+
+.PatientPage-layer {
+  @media(min-width: @screen-lg-min) {
+    box-shadow: -5px 5px 0 0 #b3b3b3;
+  }
+}
+
 // Subnav
 // ====================================
 
-@patient-subnav-vertical-padding:  @spacing-small;
+@PatientPage-subnavPadding:  10px;
 
-.patient-subnav-inner {
+.PatientPage-subnav {
   color: #fff;
   background-color: @gray-dark;
 }
 
-.patient-subnav-title {
-  padding-top: @patient-subnav-vertical-padding;
-  padding-bottom: @patient-subnav-vertical-padding;
+.PatientPage-subnavTitle {
+  padding-top: @PatientPage-subnavPadding;
+  padding-bottom: @PatientPage-subnavPadding;
 
   text-align: center;
 }
 
-.patient-subnav a {
+.PatientPage-subnav a {
   display: inline-block;
-  padding-top: @patient-subnav-vertical-padding;
-  padding-bottom: @patient-subnav-vertical-padding;
+  padding-top: @PatientPage-subnavPadding;
+  padding-bottom: @PatientPage-subnavPadding;
 
   color: #fff;
   text-decoration: none;
@@ -52,95 +70,43 @@
 // Content
 // ====================================
 
-@patient-content-width:            480px;
-@patient-content-breakpoint:       @screen-lg-min;
+.PatientPage-content {
+  padding-top: 30px;
+  padding-bottom: 140px;
+  padding-left: 150px;
+  padding-right: 150px;
 
-.patient-content-outer {
-  margin-bottom: @spacing-large;
+  background-color: @gray-background;
 }
 
-.patient-content-inner {
-  background-color: #fff;
-
-  padding-top: @spacing-base;
-  padding-bottom: @spacing-large;
+.PatientPage-sectionTitle {
+  color: @gray-title;
+  text-transform: uppercase;
 }
 
-.patient-content {
-  @media(min-width: @patient-content-breakpoint) {
-    margin-left: auto;
-    margin-right: auto;
-    width: @patient-content-width;
-  }
-}
-
-.patient-content-link {
-  text-align: center;
-  margin-bottom: @spacing-small;
-}
-
-.patient-content-link a {
-  font-weight: bold;
-  color: @gray-dark;
-  text-decoration: none;
-
-  &:hover,
-  &:focus {
-    color: @gray-darkest;
-    text-decoration: none;
-  }
-
-  &:active {
-    color: @gray;
-  }
-}
-
-.patient-content-link-help {
-  font-size: 12px;
-  line-height: 18px;
-  font-style: italic;
-  color: @gray-dark;
-}
-
-// Patient attributes
+// Footer
 // ====================================
 
-.patient-attribute {
-  margin-bottom: @spacing-base;
+.PatientPage-footer {
+  background-color: @gray-light;
+  height: 40px;
 }
 
-.patient-attribute-empty .patient-attribute-value {
-  min-height: @line-height-base;
-}
-
-.patient-attribute-label {
-  color: @gray;
-  font-size: 14px;
-}
-
-// Patient team
+// Patient info
 // ====================================
 
-.patient-team {
-  margin-top: @spacing-large;
-  margin-bottom: @spacing-large;
+.PatientPage-infoSection {
+  border-bottom: 1px solid @gray-dark;
 }
 
-.patient-team-title {
-  padding: 0 @spacing-small;
-  margin-bottom: @spacing-small;
-  text-align: center;
-}
-
-.patient-team-message {
-  color: @gray-dark;
-  font-weight: 300;
-  text-align: center;
-
-  margin-top: @spacing-base;
-  margin-bottom: @spacing-base;
-}
-
-.patient-team-message-small {
-  font-size: 14px;
+// Patient delete
+// ====================================
+.PatientPage-deleteSection {
+  > div {
+    font-size: @font-size-base;
+    text-align: center;
+    padding-top: 30px;
+    color: @gray-dark;
+    cursor: pointer;
+  }
 }
