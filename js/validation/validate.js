@@ -18,14 +18,14 @@
 var _ = require('lodash');
 var util = require('util');
 
-var joy = require('./validator/schematron');
+var schema = require('./validator/schematron');
 
 var schemas = {
   basal: require('./basal'),
   bolus: require('./bolus'),
   cbg: require('./bg'),
   common: require('./common'),
-  deviceMeta: joy(),
+  deviceMeta: schema(),
   message: require('./message'),
   settings: require('./settings'),
   smbg: require('./bg'),
