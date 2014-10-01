@@ -84,7 +84,7 @@ describe('BGUtil', function() {
 
     it('(on cbg data) should return an object with a data array with length 0 or >= cbgMin (216)', function() {
       var now = new Date();
-      // b/c we strip of milliseconds when creating deviceTimes in testpage data
+      // b/c we strip off milliseconds when creating deviceTimes in testpage data
       now = new Date(now.setUTCMilliseconds(0)).toISOString();
       var nextDay = dt.addDuration(now, MS_IN_DAY);
       var cbgData = patterns.cbg.constantFull({start: now.slice(0, -5)});

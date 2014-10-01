@@ -22,8 +22,6 @@ var format = require('./util/format');
 var datetime = require('./util/datetime');
 var TidelineCrossFilter = require('./util/tidelinecrossfilter');
 
-var log = require('bows')('BolusUtil');
-
 function BolusUtil(data) {
 
   this.subtotal = function(s, e) {
@@ -52,7 +50,6 @@ function BolusUtil(data) {
         total += this.subtotal(s, e);
       }
       else if (datetime.isLessThanTwentyFourHours(s, e)) {
-        log('Data domain less than twenty-four hours; cannot calculate bolus total.');
         return NaN;
       }
       else {

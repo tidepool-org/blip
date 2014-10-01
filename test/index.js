@@ -30,8 +30,7 @@ require('./less/test.less');
 require('./datetime_test');
 require('./basalutil_test');
 require('./bgutil_test');
-// TODO: rewrite
-// require('./bolusutil_test');
+require('./bolusutil_test');
 // TODO: rewrite
 // require('./settingsutil_test');
 

@@ -77,6 +77,31 @@ var Basal = function(opts) {
 
 Basal.prototype = common;
 
+var Bolus = function(opts) {
+  opts = opts || {};
+  var defaults = {
+    deviceTime: this.makeDeviceTime(),
+    subType: 'normal',
+    value: 5.0
+  };
+  _.defaults(opts, defaults);
+
+  this.type = 'bolus';
+  this.deviceTime = opts.deviceTime;
+  this.subType = opts.subType;
+
+  if (this.subType === 'normal') {
+    this.normal = opts.value;
+  }
+
+  this.time = this.makeTime();
+  this.normalTime = this.makeNormalTime();
+
+  this.id = this.makeId();
+};
+
+Bolus.prototype = common;
+
 var CBG = function(opts) {
   opts = opts || {};
   var defaults = {
@@ -126,6 +151,7 @@ SMBG.prototype = common;
 module.exports = (function() {
   return {
     Basal: Basal,
+    Bolus: Bolus,
     CBG: CBG,
     SMBG: SMBG
   };

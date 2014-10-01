@@ -57,6 +57,28 @@ module.exports = (function() {
         return basals;
       }
     },
+    bolus: {
+      constantFour: function(opts) {
+        opts = opts || {};
+        var defaults = {
+          days: 1,
+          value: 2.5,
+          start: naiveTimestamp()
+        };
+        _.defaults(opts, defaults);
+
+        var dur = MS_IN_24HRS/4;
+        var boluses = [];
+        var next = new utils.Intervaler(opts.start, dur);
+        for (var i = 0; i < opts.days * 4; ++i) {
+          boluses.push(new types.Bolus({
+            value: opts.value,
+            deviceTime: next()
+          }));
+        }
+        return boluses;
+      }
+    },
     cbg: {
       constantFull: function(opts) {
         opts = opts || {};
