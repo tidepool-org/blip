@@ -44,7 +44,7 @@ var Patients = require('./pages/patients');
 var Patient = require('./pages/patient');
 var PatientEdit = require('./pages/patientedit');
 var PatientData = require('./pages/patientdata');
-var Error = require('./pages/error');
+var ErrorPage = require('./pages/error');
 
 // Styles
 require('tideline/css/tideline.less');
@@ -344,7 +344,7 @@ var AppComponent = React.createClass({
   renderError: function() {
     return (
       /* jshint ignore:start */
-      <Error
+      <ErrorPage
         errorMessage={this.state.errorMessage} />
       /* jshint ignore:end */
     );
@@ -704,7 +704,7 @@ var AppComponent = React.createClass({
 
   fetchInviteByToken: function(token) {
     var self = this;
-    
+
     app.api.invitation.getForToken(token, function(err, invite) {
       if (err.status && err.satus === 404) {
         self.setState({

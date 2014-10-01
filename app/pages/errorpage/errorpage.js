@@ -20,16 +20,16 @@ var _ = require('lodash');
 var LoginNav = require('../../components/loginnav');
 var LoginLogo = require('../../components/loginlogo');
 
-var Error = React.createClass({
+var ErrorPage = React.createClass({
   propTypes: {
     errorMessage: React.PropTypes.string
   },
   render: function() {
     /* jshint ignore:start */
     return (
-      <div className="error">
+      <div className="errorpage">
         <LoginNav
-          page="error"
+          page="errorpage"
           invite={true}/>
         <LoginLogo />
         <div className="error-message">{this.props.errorMessage}</div>
@@ -39,4 +39,4 @@ var Error = React.createClass({
   }
 });
 
-module.exports = Error;
+module.exports = ErrorPage;
