@@ -30,6 +30,7 @@ var Daily = React.createClass({
   chartType: 'daily',
   log: bows('Daily View'),
   propTypes: {
+    bgPrefs: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
@@ -67,8 +68,8 @@ var Daily = React.createClass({
         ref="header" />
         <div id="tidelineOuterContainer">
           <DailyChart
-            bgClasses={this.props.chartPrefs.bgClasses}
-            bgUnits={this.props.chartPrefs.bgUnits}
+            bgClasses={this.props.bgPrefs.bgClasses}
+            bgUnits={this.props.bgPrefs.bgUnits}
             hiddenPools={this.props.chartPrefs.hiddenPools}
             initialDatetimeLocation={this.props.initialDatetimeLocation}
             patientData={this.props.patientData}

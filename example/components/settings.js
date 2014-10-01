@@ -33,6 +33,7 @@ var Settings = React.createClass({
   chartType: 'settings',
   log: bows('Settings View'),
   propTypes: {
+    bgPrefs: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
     patientData: React.PropTypes.object.isRequired,
     onSwitchToDaily: React.PropTypes.func.isRequired,
@@ -62,7 +63,7 @@ var Settings = React.createClass({
         ref="header" />
         <div id="tidelineOuterContainer">
           <SettingsChart
-            bgUnits={this.props.chartPrefs.bgUnits}
+            bgUnits={this.props.bgPrefs.bgUnits}
             patientData={this.props.patientData}
             ref="chart" />
         </div>

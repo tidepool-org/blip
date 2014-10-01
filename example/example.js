@@ -82,6 +82,7 @@ var Example = React.createClass({
         /* jshint ignore:start */
         return (
           <Daily
+            bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
             patientData={this.state.chartData}
@@ -96,6 +97,7 @@ var Example = React.createClass({
         /* jshint ignore:start */
         return (
           <Weekly
+            bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
             patientData={this.state.chartData}
@@ -110,6 +112,7 @@ var Example = React.createClass({
         /* jshint ignore:start */
         return (
           <Settings
+            bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             patientData={this.state.chartData}
             onSwitchToDaily={this.handleSwitchToDaily}
@@ -141,12 +144,12 @@ var Example = React.createClass({
   updateData: function(data) {
     var tidelineData = new TidelineData(data);
     window.tidelineData = tidelineData;
-    var prefs = _.clone(this.state.chartPrefs);
-    prefs.bgClasses = tidelineData.bgClasses;
-    prefs.bgUnits = tidelineData.bgUnits;
     this.setState({
       chartData: tidelineData,
-      chartPrefs: prefs,
+      bgPrefs: {
+        bgClasses: tidelineData.bgClasses,
+        bgUnits: tidelineData.bgUnits
+      },
       chartType: 'daily'
     });
   },

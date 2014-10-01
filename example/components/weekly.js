@@ -34,6 +34,7 @@ var Weekly = React.createClass({
   chartType: 'weekly',
   log: bows('Weekly View'),
   propTypes: {
+    bgPrefs: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
@@ -72,8 +73,8 @@ var Weekly = React.createClass({
         ref="header" />
         <div id="tidelineOuterContainer">
           <WeeklyChart
-            bgClasses={this.props.chartPrefs.bgClasses}
-            bgUnits={this.props.chartPrefs.bgUnits}
+            bgClasses={this.props.bgPrefs.bgClasses}
+            bgUnits={this.props.bgPrefs.bgUnits}
             initialDatetimeLocation={this.props.initialDatetimeLocation}
             patientData={this.props.patientData}
             // handlers
