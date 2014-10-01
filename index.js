@@ -873,6 +873,22 @@ module.exports = function (config, deps) {
     invitesRecieved: function (cb) {
       assertArgumentsSize(arguments, 1);
 
+
+      //get the invites and then attach the inviters profile to the invite
+
+      //findProfile
+      var onSuccess=function(res){
+        var invites = res.body;
+
+        _(invites).forEach(function(invite) {
+          console.log(invite);
+        });
+
+        return res.body;
+
+      };
+
+
       this.getCurrentUser(function(err,details){
 
         if(_.isEmpty(err)){
@@ -884,7 +900,7 @@ module.exports = function (config, deps) {
           }else{
             doGetWithToken(
               encodeURI('/confirm/invitations/'+email),
-              { 200: function(res){ return res.body; }, 204: function(res){ return res.body; } },
+              { 200: onSuccess, 204: function(res){ return res.body; } },
               cb
             );
           }
