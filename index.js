@@ -875,7 +875,7 @@ module.exports = function (config, deps) {
 
 
       //get the invites and then attach the inviters profile to the invite
-
+      var self = this;
       //findProfile
       var onSuccess=function(res){
         var invites = res.body;
@@ -883,16 +883,14 @@ module.exports = function (config, deps) {
 
         _(invites).forEach(function(invite) {
           console.log(invite.creatorId);
-          this.findProfile(invite.creatorId,function(err,profile){
+          self.findProfile(invite.creatorId,function(err,profile){
             if (_.isEmpty(profile)===false){
               invite.creator = profile;
             }
             resolved.push(invite);
           });
-        }.bind(this));
-
+        });
         return resolved;
-
       };
 
 
