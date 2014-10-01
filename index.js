@@ -874,45 +874,51 @@ module.exports = function (config, deps) {
     invitesRecieved: function (cb) {
       assertArgumentsSize(arguments, 1);
 
-
-      //get the invites and then attach the inviters profile to the invite
       var self = this;
-      //findProfile
 
-      var onSuccess=function(res){
-        async.map(res.body, function (invite, cb) {
-          self.findProfile(invite.creatorId,function(err,profile){
-            if (_.isEmpty(profile)===false){
-              invite.creator = profile;
+      async.series([
+        function(callback){
+          // do some stuff ...
+          this.getCurrentUser(function(err,details){
+
+            if(_.isEmpty(err)){
+
+              var email = details.emails[0];
+
+              if(_.isEmpty(email)){
+                return cb({ status : STATUS_BAD_REQUEST, message: 'user details not found'});
+              }else{
+                doGetWithToken(
+                  encodeURI('/confirm/invitations/'+email),
+                  { 200: onSuccess, 204: function(res){ return res.body; } },
+                  callback
+                );
+              }
             }
-            cb(err,invite);
-          })
-        }, function(err, invites){
-          console.log('err? ',err);
-          console.log('invites? ',invites);
-          return invites;
-        });
-      };
-
-      this.getCurrentUser(function(err,details){
-
-        if(_.isEmpty(err)){
-
-          var email = details.emails[0];
-
-          if(_.isEmpty(email)){
-            return cb({ status : STATUS_BAD_REQUEST, message: 'user details not found'});
-          }else{
-            doGetWithToken(
-              encodeURI('/confirm/invitations/'+email),
-              { 200: onSuccess, 204: function(res){ return res.body; } },
-              cb
-            );
+            return callback(err,[]);
+          }
+        },
+        function(callback){
+            // attach the profiles
+            if(_.isEmpty(err) && _.isEmpty(results)===false){
+              async.map(res.body, function (invite, cb) {
+                self.findProfile(invite.creatorId,function(err,profile){
+                  if (_.isEmpty(profile)===false){
+                    invite.creator = profile;
+                  }
+                  cb(err,invite);
+                })
+              }, function(err, invites){
+                return callback(null,invites);
+              });
+            }
+            return callback(err,[]);
           }
         }
-        return cb(err,[]);
+      ],
+      function(err, invites){
+       return cb(err,invites);
       });
-
     },
     /**
      * Invite a user
