@@ -44,6 +44,7 @@ var Patients = require('./pages/patients');
 var Patient = require('./pages/patient');
 var PatientEdit = require('./pages/patientedit');
 var PatientData = require('./pages/patientdata');
+var Error = require('./pages/error');
 
 // Styles
 require('tideline/css/tideline.less');
@@ -69,11 +70,12 @@ var routes = {
   '/profile': 'showProfile',
   '/patients': 'showPatients',
   '/patients/new': 'showPatientNew',
+  '/invite/:token': 'showInvite',
   '/patients/:id': 'showPatient',
   '/patients/:id/data': 'showPatientData'
 };
 
-var noAuthRoutes = ['/login', '/signup'];
+var noAuthRoutes = ['/login', '/signup', '/invite'];
 
 var defaultNotAuthenticatedRoute = '/login';
 var defaultAuthenticatedRoute = '/patients';
@@ -307,19 +309,50 @@ var AppComponent = React.createClass({
     app.router.setRoute(defaultAuthenticatedRoute);
   },
 
+  showInvite: function(token) {
+    var self = this;
+
+    this.fetchInviteByToken(token);
+
+    if (this.state.inviteNotFound) {
+      this.setState({
+        errorMessage: 'Invitation is invalid or has expired'
+      });
+
+      this.showError();
+      return;
+    }
+
+    if (this.state.authenticated) {
+      router.setRoute('/');
+      return;
+    }
+
+    if (this.state.invite && this.state.invite.user) {
+      this.showLogin();
+      return;
+    }
+
+    this.showSignup();
+  },
+
+  showError: function() {
+    this.renderPage = this.renderError;
+    this.setState({page: 'error'});
+  },
+
+  renderError: function() {
+    return (
+      /* jshint ignore:start */
+      <Error
+        errorMessage={this.state.errorMessage} />
+      /* jshint ignore:end */
+    );
+  },
+
   showLogin: function() {
     this.renderPage = this.renderLogin;
     this.setState({page: 'login'});
-  },
-
-  getPresetEmail: function() {
-    if (!this.state.queryParams || !this.state.queryParams.presetEmail) {
-      return null;
-    }
-
-    var email = this.state.queryParams.presetEmail;
-
-    return utils.validateEmail(email) ? email : null;
   },
 
   renderLogin: function() {
@@ -327,8 +360,8 @@ var AppComponent = React.createClass({
       /* jshint ignore:start */
       <Login
         onSubmit={this.login}
+        invite={this.state.invite}
         onSubmitSuccess={this.handleLoginSuccess}
-        presetEmail={this.getPresetEmail()}
         trackMetric={trackMetric} />
       /* jshint ignore:end */
     );
@@ -345,7 +378,7 @@ var AppComponent = React.createClass({
       <Signup
         onSubmit={this.signup}
         onSubmitSuccess={this.handleSignupSuccess}
-        presetEmail={this.getPresetEmail()}
+        invite={this.state.invite}
         trackMetric={trackMetric} />
       /* jshint ignore:end */
     );
@@ -667,6 +700,30 @@ var AppComponent = React.createClass({
 
   closeNotification: function() {
     this.setState({notification: null});
+  },
+
+  fetchInviteByToken: function(token) {
+    var self = this;
+    
+    app.api.invitation.getForToken(token, function(err, invite) {
+      if (err.status && err.satus === 404) {
+        self.setState({
+          inviteNotFound: true,
+          fetchingInviteByToken: false
+        });
+      }
+
+      if (err) {
+        self.setState({fetchingInviteByToken: false});
+        var message = 'An error occured while fetching invitation';
+        return self.handleApiError(err, message);
+      }
+
+      self.setState({
+        invite: invite,
+        fetchingInviteByToken: false
+      });
+    });
   },
 
   fetchUser: function() {

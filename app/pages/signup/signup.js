@@ -27,7 +27,7 @@ var Signup = React.createClass({
   propTypes: {
     onSubmit: React.PropTypes.func.isRequired,
     onSubmitSuccess: React.PropTypes.func.isRequired,
-    presetEmail: React.PropTypes.string,
+    invite: React.PropTypes.object,
     trackMetric: React.PropTypes.func.isRequired
   },
 
@@ -39,7 +39,7 @@ var Signup = React.createClass({
         label: 'Email',
         type: 'email',
         placeholder: 'ex: mary.smith@example.com',
-        disabled: !!this.props.presetEmail
+        disabled: !!this.props.invite
       },
       {
         name: 'password',
@@ -61,7 +61,7 @@ var Signup = React.createClass({
 
     if (this.props.presetEmail) {
       formValues = {
-        username: this.props.presetEmail
+        username: this.props.invite.email
       };
     }
 
@@ -75,14 +75,17 @@ var Signup = React.createClass({
 
   render: function() {
     var form = this.renderForm();
+    var inviteIntro = this.renderInviteIntroduction();
 
     /* jshint ignore:start */
     return (
       <div className="signup">
         <LoginNav
           page="signup"
+          invite={this.props.invite}
           trackMetric={this.props.trackMetric} />
         <LoginLogo />
+        {inviteIntro}
         <div className="container-small-outer signup-form">
           <div className="container-small-inner signup-form-box">
             {form}
@@ -91,6 +94,18 @@ var Signup = React.createClass({
       </div>
     );
     /* jshint ignore:end */
+  },
+
+  renderInviteIntroduction: function() {
+    if (!this.props.invite) {
+      return null;
+    }
+
+    return (
+      <div className='signup-inviteIntro'>
+        <p>{this.props.invite.from.profile.fullName + ' has invited you to thier care team.'}</p><p>{' Signup to view the invitation.'}</p>
+      </div>
+    );
   },
 
   renderForm: function() {

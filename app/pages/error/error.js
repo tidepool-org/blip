@@ -1,3 +1,4 @@
+/** @jsx React.DOM */
 /**
  * Copyright (c) 2014, Tidepool Project
  *
@@ -13,34 +14,29 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-.login-form {
-  margin-bottom: @spacing-large;
-}
+var React = require('react');
+var _ = require('lodash');
 
-.login-form-box {
-  padding-top: @spacing-base;
-  padding-bottom: @spacing-base;
+var LoginNav = require('../../components/loginnav');
+var LoginLogo = require('../../components/loginlogo');
 
-  @media(min-width: @screen-md-min) {
-    padding-top: @spacing-large;
-    padding-bottom: @spacing-large;
+var Error = React.createClass({
+  propTypes: {
+    errorMessage: React.PropTypes.string
+  },
+  render: function() {
+    /* jshint ignore:start */
+    return (
+      <div className="error">
+        <LoginNav
+          page="error"
+          invite={true}/>
+        <LoginLogo />
+        <div className="error-message">{this.props.errorMessage}</div>
+      </div>
+    );
+    /* jshint ignore:end */
   }
-}
+});
 
-.login-simpleform {
-  margin-bottom: @spacing-small;
-}
-
-.login-mailto {
-  text-align: right;
-}
-
-.login-inviteIntro {
-  width: 450px;
-  margin: 0 auto;
-  text-align: center;
-
-  > p {
-    margin: 5px 0;
-  }
-}
+module.exports = Error;

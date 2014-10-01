@@ -28,13 +28,13 @@ var Login = React.createClass({
   propTypes: {
     onSubmit: React.PropTypes.func.isRequired,
     onSubmitSuccess: React.PropTypes.func.isRequired,
-    presetEmail: React.PropTypes.string,
+    invite: React.PropTypes.object,
     trackMetric: React.PropTypes.func.isRequired
   },
 
   formInputs: function() {
     return [
-      {name: 'username', label: 'Email', type: 'email', disabled: !!this.props.presetEmail},
+      {name: 'username', label: 'Email', type: 'email', disabled: !!this.props.invite},
       {name: 'password', label: 'Password', type: 'password'},
       {name: 'remember', label: 'Remember me', type: 'checkbox'}
     ];
@@ -43,9 +43,9 @@ var Login = React.createClass({
   getInitialState: function() {
     var formValues = {};
 
-    if (this.props.presetEmail) {
+    if (this.props.invite) {
       formValues = {
-        username: this.props.presetEmail
+        username: this.props.invite.email
       };
     }
 
@@ -56,18 +56,19 @@ var Login = React.createClass({
       notification: null
     };
   },
-
   render: function() {
     var form = this.renderForm();
     var forgotPassword = this.renderPasswordMailTo();
-
+    var inviteIntro = this.renderInviteIntroduction();
     /* jshint ignore:start */
     return (
       <div className="login">
         <LoginNav
           page="login"
+          invite={this.props.invite}
           trackMetric={this.props.trackMetric} />
         <LoginLogo />
+        {inviteIntro}
         <div className="container-small-outer login-form">
           <div className="container-small-inner login-form-box">
             <div className="login-simpleform">{form}</div>
@@ -77,6 +78,18 @@ var Login = React.createClass({
       </div>
     );
     /* jshint ignore:end */
+  },
+
+  renderInviteIntroduction: function() {
+    if (!this.props.invite) {
+      return null;
+    }
+
+    return (
+      <div className='login-inviteIntro'>
+        <p>{this.props.invite.from.profile.fullName + ' has invited you to thier care team.'}</p><p>{' Login to view the invitation.'}</p>
+      </div>
+    );
   },
 
   renderForm: function() {
