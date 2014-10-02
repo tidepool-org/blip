@@ -15,6 +15,7 @@ var Daily = React.createClass({
   chartType: 'daily',
   log: bows('Daily View'),
   propTypes: {
+    bgPrefs: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
     imagesBaseUrl: React.PropTypes.string.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
@@ -62,7 +63,8 @@ var Daily = React.createClass({
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
               <DailyChart
-                bgUnits={this.props.chartPrefs.bgUnits}
+                bgClasses={this.props.bgPrefs.bgClasses}
+                bgUnits={this.props.bgPrefs.bgUnits}
                 bolusRatio={this.props.chartPrefs.bolusRatio}
                 dynamicCarbs={this.props.chartPrefs.dynamicCarbs}
                 hiddenPools={this.props.chartPrefs.hiddenPools}
@@ -180,9 +182,10 @@ var Daily = React.createClass({
 });
 
 var DailyChart = React.createClass({
-  chartOpts: ['bgUnits', 'dynamicCarbs', 'bolusRatio', 'hiddenPools', 'imagesBaseUrl'],
+  chartOpts: ['bgClasses', 'bgUnits', 'dynamicCarbs', 'bolusRatio', 'hiddenPools', 'imagesBaseUrl'],
   log: bows('Daily Chart'),
   propTypes: {
+    bgClasses: React.PropTypes.object.isRequired,
     bgUnits: React.PropTypes.string.isRequired,
     hiddenPools: React.PropTypes.object.isRequired,
     imagesBaseUrl: React.PropTypes.string.isRequired,
