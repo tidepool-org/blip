@@ -10,8 +10,6 @@ dist/
 example/bundle.js
 example/data/blip-input.json
 example/data/blip-output.json
-example/data/post-preprocess.json
-example/data/universal-uploader-output.json
 tmp/
 web/
 wiki/
