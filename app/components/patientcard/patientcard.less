@@ -28,8 +28,9 @@
 }
 
 .patientcard-controls {
-  position: absolute;
-  right: 25px;
+  position: relative;
+  top: -65px;
+  right: 20px;
 
   > i {
     font-size: 20px;
@@ -37,7 +38,7 @@
   }
 
   .icon-remove {
-    display: block;
+    display: none;
     color: @blue-green;
     position: absolute;
     top: -15px;
@@ -74,9 +75,8 @@
 
   .icon-face-standin {
     font-size: 30px;
-    width: 50px;
+    width: 280px;
     color: @blue-green;
-    float: left;
   }
 
   .icon-remove {
@@ -94,6 +94,17 @@
   float: left;
 }
 
+.patient-list-item {
+  .no-touch &:hover,
+  &:focus,
+  &:active {
+      .icon-remove {
+        display: block;
+      }
+  }
+
+}
+
 .patientcard,
 a.patientcard {
   color: @gray-darker;
@@ -106,10 +117,6 @@ a.patientcard {
 
     .icon-face-standin {
       color: @gray-darker;
-    }
-
-    .icon-remove {
-      display: block;
     }
   }
 }

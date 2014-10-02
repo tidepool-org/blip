@@ -396,7 +396,8 @@ var AppComponent = React.createClass({
           onSetAsCareGiver={this.setUserAsCareGiver}
           trackMetric={trackMetric}
           onAcceptInvitation={this.handleAcceptInvitation}
-          onDismissInvitation={this.handleDismissInvitation}/>
+          onDismissInvitation={this.handleDismissInvitation}
+          onRemovePatient={this.handleRemovePatient}/>
     );
     /* jshint ignore:end */
   },
@@ -429,6 +430,7 @@ var AppComponent = React.createClass({
   handleAcceptInvitation: function(invitation) {
     return this.modifyInvites(app.api.invitation.accept, {fetchPatients: true})(invitation);
   },
+
   handleChangeMemberPermissions: function(patientId, memberId, permissions, cb) {
     var self = this;
 
@@ -438,10 +440,20 @@ var AppComponent = React.createClass({
         return self.handleApiError(err, 'Something went wrong while changing member perimissions.');
       }
 
-      self.fetchPatient(patientId, function(err){
-        cb();
-        return;
-      });
+      self.fetchPatient(patientId, cb);
+    });
+  },
+
+  handleRemovePatient: function(patientId) {
+    var self = this;
+
+    api.access.leaveGroup(patientId, function(err) {
+      if(err) {
+        cb(err);
+        return self.handleApiError(err, 'Something went wrong while removing member from group.');
+      }
+
+      self.fetchPatients();
     });
   },
 
@@ -451,13 +463,10 @@ var AppComponent = React.createClass({
     api.access.removeMember(memberId, function(err) {
       if(err) {
         cb(err);
-        return self.handleApiError(err, 'Something went wrong while removing memeber.');
+        return self.handleApiError(err, 'Something went wrong while removing member.');
       }
 
-      self.fetchPatient(patientId, function(err){
-        cb();
-        return;
-      });
+      self.fetchPatient(patientId, cb);
     });
   },
 
@@ -470,10 +479,7 @@ var AppComponent = React.createClass({
         return self.handleApiError(err, 'Something went wrong while inviting member.');
       }
 
-      self.fetchPatient(patientId, function(err){
-        cb();
-        return;
-      });
+      self.fetchPatient(patientId, cb);
     });
   },
 
@@ -486,10 +492,7 @@ var AppComponent = React.createClass({
         return self.handleApiError(err, 'Something went wrong while canceling the invitation.');
       }
 
-      self.fetchPendingInvites(function(err){
-        cb();
-        return;
-      });
+      self.fetchPendingInvites(cb);
     });
   },
   showPatient: function(patientId) {

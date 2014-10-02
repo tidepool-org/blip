@@ -36,7 +36,8 @@ var Patients = React.createClass({
     onSetAsCareGiver: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired,
     onAcceptInvitation: React.PropTypes.func,
-    onDismissInvitation: React.PropTypes.func
+    onDismissInvitation: React.PropTypes.func,
+    onRemovePatient: React.PropTypes.func,
   },
 
   render: function() {
@@ -108,17 +109,10 @@ var Patients = React.createClass({
     if (_.isEmpty(patients)) {
       /* jshint ignore:start */
       content = (
-        <div>
-          <PersonCard>
-            {'Looks like you\'re not part of anyone\'s Care Team yet.'}
-          </PersonCard>
-          <div className="patients-message patients-message-small">
-            {'Want to join a team? The owner of the Care Team should email us at '}
-            <a href="mailto:support@tidepool.org?Subject=Blip - Add to Care Team">
-              {'support@tidepool.org'}
-            </a>
-            {' with your email address and we\'ll take it from there!'}
-          </div>
+        <div className="patients-message">
+          <p>{"You do not have access to see anyone's data yet."}</p>
+          <p>{"You need to ask the people you care for to add you to their team."}</p>
+          <p>{"Or "} <a href="#/patients/new">create a new account</a> {" for them."}</p>
         </div>
       );
       /* jshint ignore:end */
@@ -130,7 +124,9 @@ var Patients = React.createClass({
         <PeopleList
           people={patients}
           isPatientList={true}
-          onClickPerson={this.handleClickPatient}/>
+          onClickPerson={this.handleClickPatient}
+          onRemovePatient= {this.props.onRemovePatient}
+          />
       );
     }
 
