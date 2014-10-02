@@ -20,8 +20,10 @@
 require('../css/tideline.less');
 require('./less/test.less');
 
+/* js/ */
+require('./browser/tidelinedata_test');
 // TODO: rewrite
-// require('./viz/oneday_test');
+// require('./browser/oneday_test');
 
 // DOM not required
 // ====================================
@@ -33,10 +35,6 @@ require('./bgutil_test');
 require('./bolusutil_test');
 // TODO: rewrite
 // require('./settingsutil_test');
-
-/* js/ */
-// TODO: rewrite
-// require('./tidelinedata_test');
 
 /* js/plot/ */
 require('./annotations_test');

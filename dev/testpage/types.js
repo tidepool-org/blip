@@ -125,6 +125,79 @@ var CBG = function(opts) {
 
 CBG.prototype = common;
 
+var Message = function(opts) {
+  opts = opts || {};
+  var defaults = {
+    messageText: 'This is a note.',
+    parentMessage: null,
+    time: new Date().toISOString()
+  };
+  _.defaults(opts, defaults);
+
+  this.type = 'message';
+
+  this.time = opts.time;
+  var dt = new Date(this.time);
+  var offsetMinutes = dt.getTimezoneOffset();
+  dt.setUTCMinutes(dt.getUTCMinutes() - offsetMinutes);
+  this.normalTime = dt.toISOString();
+
+  this.messageText = opts.messageText;
+  this.parentMessage = opts.parentMessage;
+
+  this.id = guid();
+};
+
+var Settings = function(opts) {
+  opts = opts || {};
+  var defaults = {
+    activeBasalSchedule: 'standard',
+    basalSchedules: [{
+      name: 'standard',
+      value: [{
+        start: 0,
+        rate: 1.0
+      }]
+    }],
+    bgTarget: [{
+      high: 100,
+      low: 80,
+      start: 0
+    }],
+    carbRatio: [{
+      amount: 15,
+      start: 0
+    }],
+    deviceTime: this.makeDeviceTime(),
+    insulinSensitivity: [{
+      amount: 50,
+      start: 0
+    }],
+    units: {
+      carb: 'grams',
+      bg: 'mg/dL'
+    }
+  };
+  _.defaults(opts, defaults);
+
+  this.type = 'settings';
+
+  this.activeBasalSchedule = opts.activeBasalSchedule;
+  this.basalSchedules = opts.basalSchedules;
+  this.bgTarget = opts.bgTarget;
+  this.carbRatio = opts.carbRatio;
+  this.deviceTime = opts.deviceTime;
+  this.insulinSensitivity = opts.insulinSensitivity;
+  this.units = opts.units;
+
+  this.time = this.makeTime();
+  this.normalTime = this.makeNormalTime();
+
+  this.id = this.makeId();
+};
+
+Settings.prototype = common;
+
 var SMBG = function(opts) {
   opts = opts || {};
   var defaults = {
@@ -148,11 +221,49 @@ var SMBG = function(opts) {
 
 SMBG.prototype = common;
 
+var Wizard = function(opts) {
+  opts = opts || {};
+  if (opts.bolus) {
+    opts.deviceTime = opts.bolus.deviceTime;
+  }
+  var defaults= {
+    bgTarget: {
+      high: 120,
+      target: 100
+    },
+    deviceTime: this.makeDeviceTime(),
+    insulinCarbRatio: 15,
+    insulinSensitivity: 50,
+    recommended: {},
+    value: 5.0
+  };
+  _.defaults(opts, defaults);
+
+  this.type = 'wizard';
+
+  this.bgTarget = opts.bgTarget;
+  this.bolus = opts.bolus ? opts.bolus : new Bolus({value: opts.value, deviceTime: this.deviceTime});
+  this.deviceTime = opts.deviceTime;
+  this.insulinCarbRatio = opts.insulinCarbRatio;
+  this.insulinSensitivity = opts.insulinSensitivity;
+  this.recommended = opts.recommended;
+
+  this.time = this.makeTime();
+  this.normalTime = this.makeNormalTime();
+
+  this.id = this.makeId();
+};
+
+Wizard.prototype = common;
+
 module.exports = (function() {
   return {
     Basal: Basal,
     Bolus: Bolus,
     CBG: CBG,
-    SMBG: SMBG
+    Message: Message,
+    Settings: Settings,
+    SMBG: SMBG,
+    Wizard: Wizard
   };
 }());

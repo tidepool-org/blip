@@ -19,8 +19,6 @@ var _ = require('lodash');
 
 var dt = require('./util/datetime');
 
-var log = require('bows')('SettingsUtil');
-
 function SettingsUtil(data, endpoints) {
 
   function findStarts(ms, starts) {
@@ -146,33 +144,38 @@ function SettingsUtil(data, endpoints) {
     if (dt.verifyEndpoints(s, e, this.endpoints) && this.data.length !== 0) {
       var settingsIntervals = this.getIntervals(s, e);
       var segmentsBySchedule = {};
-      for (var i = 0; i < settingsIntervals.length; ++i) {
-        var interval = settingsIntervals[i];
-        for (var j = 0; j < interval.settings.basalSchedules.length; ++j) {
-          var schedule = interval.settings.basalSchedules[j];
-          if (segmentsBySchedule[schedule.name]) {
-            segmentsBySchedule[schedule.name] = segmentsBySchedule[schedule.name].concat(getSegmentsForSchedule({
-              schedule: schedule,
-              start: interval.start,
-              end: interval.end,
-              active: schedule.name === interval.settings.activeBasalSchedule,
-              confidence: interval.settings.confidence ? interval.settings.confidence : 'normal'
-            }));
-          }
-          // there can be schedules in the settings with an empty array as their value
-          else if (schedule.value.length > 0) {
-            segmentsBySchedule[schedule.name] = getSegmentsForSchedule({
-              schedule: schedule,
-              start: interval.start,
-              end: interval.end,
-              active: schedule.name === interval.settings.activeBasalSchedule,
-              confidence: interval.settings.confidence ? interval.settings.confidence : 'normal'
-            });
+      if (settingsIntervals) {
+        for (var i = 0; i < settingsIntervals.length; ++i) {
+          var interval = settingsIntervals[i];
+          for (var j = 0; j < interval.settings.basalSchedules.length; ++j) {
+            var schedule = interval.settings.basalSchedules[j];
+            if (segmentsBySchedule[schedule.name]) {
+              segmentsBySchedule[schedule.name] = segmentsBySchedule[schedule.name].concat(getSegmentsForSchedule({
+                schedule: schedule,
+                start: interval.start,
+                end: interval.end,
+                active: schedule.name === interval.settings.activeBasalSchedule,
+                confidence: interval.settings.confidence ? interval.settings.confidence : 'normal'
+              }));
+            }
+            // there can be schedules in the settings with an empty array as their value
+            else if (schedule.value.length > 0) {
+              segmentsBySchedule[schedule.name] = getSegmentsForSchedule({
+                schedule: schedule,
+                start: interval.start,
+                end: interval.end,
+                active: schedule.name === interval.settings.activeBasalSchedule,
+                confidence: interval.settings.confidence ? interval.settings.confidence : 'normal'
+              });
+            }
           }
         }
+        this.segmentsBySchedule = segmentsBySchedule;
+        return segmentsBySchedule;
       }
-      this.segmentsBySchedule = segmentsBySchedule;
-      return segmentsBySchedule;
+      else {
+        return [];
+      }
     }
     else {
       return [];
@@ -217,7 +220,6 @@ function SettingsUtil(data, endpoints) {
       }
     }
     if (actualIntervals.length === 0) {
-      log('Could not find a settings object for the given interval.');
       return undefined;
     }
     return actualIntervals;

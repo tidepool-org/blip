@@ -29,6 +29,7 @@ module.exports = schema(
     bgInput: schema().ifExists().number(),
     carbInput: schema().ifExists().number(),
     insulinOnBoard: schema().ifExists().number(),
+    insulinCarbRatio: schema().number(),
     insulinSensitivity: schema().number(),
     bgTarget: schema().oneOf(
       schema(

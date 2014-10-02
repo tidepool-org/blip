@@ -39,6 +39,13 @@ function TidelineData(data, opts) {
     CBG_PERCENT_FOR_ENOUGH: 0.75,
     CBG_MAX_DAILY: 288,
     SMBG_DAILY_MIN: 4,
+    bgClasses: {
+      'very-low': {boundary: 60},
+      low: {boundary: 80},
+      target: {boundary: 180},
+      high: {boundary: 200},
+      'very-high': {boundary: 300}
+    },
     fillOpts: {
       classes: {
         0: 'darkest',
@@ -53,12 +60,12 @@ function TidelineData(data, opts) {
       duration: 3
     },
     diabetesDataTypes: [
-      'smbg',
-      'carbs',
+      'basal',
       'bolus',
       'cbg',
       'settings',
-      'basal-rate-segment'
+      'smbg',
+      'wizard'
     ]
   };
 
@@ -143,6 +150,9 @@ function TidelineData(data, opts) {
       data = that.diabetesData;
     }
     var first = data[0].normalTime, last = data[data.length - 1].normalTime;
+    if (dt.getNumDays(first, last) < 14) {
+      first = dt.addDays(last, -13);
+    }
     return [dt.getMidnight(first), dt.getMidnight(last, true)];
   }
 
@@ -161,6 +171,7 @@ function TidelineData(data, opts) {
 
   // two-week view requires background fill rectangles from midnight to midnight
   // for each day from the first through last days where smbg exists at all
+  // and for at least 14 days
   this.adjustFillsForTwoWeekView = function() {
     var fillData = this.grouped.fill;
     var endpoints = getTwoWeekFillEndpoints();
@@ -211,7 +222,24 @@ function TidelineData(data, opts) {
   };
 
   this.setBGCategories = function() {
-    var units = _.uniq(_.pluck(this.grouped.smbg.concat(this.grouped.cbg), 'units'));
+    this.bgClasses = opts.bgClasses;
+    var bgData;
+    if (!(this.grouped.smbg || this.grouped.cbg)) {
+      this.bgUnits = null;
+      return;
+    }
+    else {
+      if (!this.grouped.smbg) {
+        bgData = this.grouped.cbg;
+      }
+      else if (!this.grouped.cbg) {
+        bgData = this.grouped.smbg;
+      }
+      else {
+        bgData = this.grouped.smbg.concat(this.grouped.cbg);
+      }
+    }
+    var units = _.uniq(_.pluck(bgData, 'units'));
     if (units.length > 1) {
       log(new Error('Your BG data is of mixed units; I have no idea how to display it :('));
       this.bgUnits = null;
@@ -220,26 +248,17 @@ function TidelineData(data, opts) {
       this.bgUnits = units[0];
     }
 
-    var classes = {
-      'very-low': {boundary: 60},
-      low: {boundary: 80},
-      target: {boundary: 180},
-      high: {boundary: 200},
-      'very-high': {boundary: 300}
-    };
-
     if (this.bgUnits === 'mmol/L') { 
       var GLUCOSE_MM = 18.01559;
-      for (var key in classes) {
+      for (var key in opts.bgClasses) {
         if (key === 'units') {
-          classes[key] = 'mmol/L';
+          opts.bgClasses[key] = 'mmol/L';
         }
         else {
-          classes[key].boundary = classes[key].boundary/GLUCOSE_MM;
+          opts.bgClasses[key].boundary = opts.bgClasses[key].boundary/GLUCOSE_MM;
         }
       } 
     }
-    this.bgClasses = classes;
   };
 
   log('Items to validate:', data.length);
