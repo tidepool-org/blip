@@ -60,6 +60,9 @@ var definitions = {
   LEAD_TEXT: {
     'stats-insufficient-data': function() {
       return 'Why is this grey?';
+    },
+    'stats-how-calculated': function() {
+      return 'What is this?';
     }
   },
   MAIN_TEXT: {
@@ -113,6 +116,21 @@ var definitions = {
     },
     'stats-insufficient-data': function() {
       return 'There is not enough data to show this statistic.';
+    },
+    'stats-how-calculated-ratio': function() {
+      return 'This is the balance between basal insulin and bolus insulin. Depending on your age, activity, weight, and doctor, the goal for this ratio will vary. We will only show numbers if there is enough basal data - 24 hours in the one day view and 7 days in the two week view.';
+    },
+    'stats-how-calculated-range-cbg': function() {
+      return 'This shows the percentage of time your CGM was in range. Time in range helps to see how you are doing overall. We will only show a number if there is enough data - readings for at least 75% of the day in the one day view, and 75% of the day for at least half of the days shown in the two week view.';
+    },
+    'stats-how-calculated-range-smbg': function() {
+      return "When there isn't enough CGM data, this shows how many of your fingerstick readings were in range. Readings in range can help to see how you are doing overall. We will only show a number if there is enough data - at least 4 readings in the one day view, and at least 4 readings for at least half of the days shown in the two week view.";
+    },
+    'stats-how-calculated-average-cbg': function() {
+      return 'This shows the average blood glucose from your CGM. We will only show a number if there is enough data - readings for at least 75% of the day in the one day view, and readings for at least 75% of the day for at least half of the days shown in the two week view.';
+    },
+    'stats-how-calculated-average-smbg': function() {
+      return "When there isn't enough CGM data to calculate an average from, this shows the average blood glucose from your fingerstick readings. We will only show a number if there is enough data - at least 4 readings in the one day view, and at least 4 readings for at least half of the days shown in the two week view.";
     }
   },
   default: function(source) {
