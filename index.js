@@ -911,7 +911,6 @@ module.exports = function (config, deps) {
               return handleHttpError(res, cb);
             });
         });
-      }
 
       //attach the profile on success
       /*var self = this;
