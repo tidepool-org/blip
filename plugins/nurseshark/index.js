@@ -226,44 +226,51 @@ var nurseshark = {
     var lastD, unannotatedRemoval = false;
 
     function process(d) {
-      if (overlappingUploads[d.deviceId]) {
-        d = cloneDeep(d);
-        d.errorMessage = 'Overlapping CareLink upload.';
-        if (lastD && lastD.source === 'carelink') {
-          if (!lastD.annotations) {
-            lastD.annotations = [];
-          }
-          lastD.annotations.push({
-            code: 'carelink/device-overlap-boundary'
-          });
-        }
+      // NB: to avoid tideline crashing on legacy old data model data
+      if (!(d.time || d.timestamp)) {
+        d.errorMessage = 'No time or timestamp field; suspected legacy old data model data.';
       }
       else {
-        if (lastD && lastD.errorMessage === 'Overlapping CareLink upload.') {
-          unannotatedRemoval = true;
-          if (d.source === 'carelink' && d.type === 'basal') {
-            if (!d.annotations) {
-              d.annotations = [];
+        if (overlappingUploads[d.deviceId]) {
+          d = cloneDeep(d);
+          d.errorMessage = 'Overlapping CareLink upload.';
+          if (lastD && lastD.source === 'carelink') {
+            if (!lastD.annotations) {
+              lastD.annotations = [];
             }
-            d.annotations.push({
+            lastD.annotations.push({
               code: 'carelink/device-overlap-boundary'
             });
-            unannotatedRemoval = false;
           }
         }
-        else if (unannotatedRemoval) {
-          if (d.source === 'carelink' && d.type === 'basal') {
-            if (!d.annotations) {
-              d.annotations = [];
+        else {
+          if (lastD && lastD.errorMessage === 'Overlapping CareLink upload.') {
+            unannotatedRemoval = true;
+            if (d.source === 'carelink' && d.type === 'basal') {
+              if (!d.annotations) {
+                d.annotations = [];
+              }
+              d.annotations.push({
+                code: 'carelink/device-overlap-boundary'
+              });
+              unannotatedRemoval = false;
             }
-            d.annotations.push({
-              code: 'carelink/device-overlap-boundary'
-            });
-            unannotatedRemoval = false;
           }
+          else if (unannotatedRemoval) {
+            if (d.source === 'carelink' && d.type === 'basal') {
+              if (!d.annotations) {
+                d.annotations = [];
+              }
+              d.annotations.push({
+                code: 'carelink/device-overlap-boundary'
+              });
+              unannotatedRemoval = false;
+            }
+          }
+          d = handlers[d.type] ? handlers[d.type](d, collections) : d.messagetext ? handlers.message(d, collections) : addNoHandlerMessage(d);
         }
-        d = handlers[d.type] ? handlers[d.type](d, collections) : d.messagetext ? handlers.message(d, collections) : addNoHandlerMessage(d);
       }
+
       // because we don't yet have validation on editing timestamps in clamshell and blip notes
       // and someone had made a note with year 2 that caused problems for tideline
       // chose year 2008 because tidline's datetime has a validation step that rejects POSIX timestamps

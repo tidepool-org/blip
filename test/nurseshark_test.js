@@ -34,6 +34,15 @@ describe('nurseshark', function() {
       expect(fn).to.throw('An array is required.');
     });
 
+    it('should include suspected legacy old data model data in the erroredData', function() {
+      var data = [{
+        deviceTime: ''
+      }];
+      var res = nurseshark.processData(data);
+      expect(res.erroredData.length).to.equal(1);
+      expect(res.erroredData[0].errorMessage).to.equal('No time or timestamp field; suspected legacy old data model data.');
+    });
+
     it('should remove data from two or more uploads from `carelink` source that overlap in time and annotate the edges', function() {
       var now = new Date();
       var plusTen = new Date(now.valueOf() + 600000);
@@ -115,6 +124,7 @@ describe('nurseshark', function() {
 
     it('should return an array of new (not mutated) objects', function() {
       var dummyDT = '2014-01-01T12:00:00';
+      var now = new Date().toISOString();
       var input = [{
         type: 'bolus',
         a: 1,
@@ -122,11 +132,13 @@ describe('nurseshark', function() {
           b: 2,
           c: 3
         },
-        deviceTime: dummyDT
+        deviceTime: dummyDT,
+        time: now
       }, {
         type: 'wizard',
         d: [{x: 4},{y: 5}],
-        deviceTime: dummyDT
+        deviceTime: dummyDT,
+        time: now
       }];
       var output = nurseshark.processData(input).processedData;
       for (var i = 0; i < input.length; ++i) {
@@ -240,21 +252,25 @@ describe('nurseshark', function() {
 
     it('should translate cbg and smbg into mg/dL when such units specified', function() {
       var dummyDT = '2014-01-01T12:00:00';
+      var now = new Date().toISOString();
       var bgs = [{
         type: 'cbg',
         units: 'mg/dL',
         value: 14.211645580300173,
-        deviceTime: dummyDT
+        deviceTime: dummyDT,
+        time: now
       }, {
         type: 'smbg',
         units: 'mg/dL',
         value: 2.487452256628842,
-        deviceTime: dummyDT
+        deviceTime: dummyDT,
+        time: now
       }, {
         type: 'cbg',
         units: 'mmol/L',
         value: 7.048584587016023,
-        deviceTime: dummyDT
+        deviceTime: dummyDT,
+        time: now
       }];
       var res = nurseshark.processData(bgs).processedData;
       expect(res[0].value).to.equal(256);
@@ -264,9 +280,11 @@ describe('nurseshark', function() {
 
     it('should translate wizard bg-related fields to mg/dL when such units specified', function() {
       var dummyDT = '2014-01-01T12:00:00';
+      var now = new Date().toISOString();
       var datum = [{
         type: 'wizard',
         deviceTime: dummyDT,
+        time: now,
         units: 'mg/dL',
         bgInput: 15.1518112923307,
         bgTarget: {
@@ -284,9 +302,11 @@ describe('nurseshark', function() {
 
     it('should translate settings bg-related fields to mg/dL when such units specified', function() {
       var dummyDT = '2014-01-01T12:00:00';
+      var now = new Date().toISOString();
       var settings = [{
         type: 'settings',
         deviceTime: dummyDT,
+        time: now,
         units: {
           bg: 'mg/dL',
           carb: 'grams'
@@ -315,6 +335,7 @@ describe('nurseshark', function() {
 
     it('should reshape basalSchedules from an object to an array', function() {
       var dummyDT = '2014-01-01T12:00:00';
+      var now = new Date().toISOString();
       var settings = [{
         type: 'settings',
         basalSchedules: {
@@ -324,7 +345,8 @@ describe('nurseshark', function() {
         units: {
           bg: 'mg/dL'
         },
-        deviceTime: dummyDT
+        deviceTime: dummyDT,
+        time: now
       }];
       var res = nurseshark.processData(settings).processedData;
       assert.isArray(res[0].basalSchedules);
@@ -333,15 +355,18 @@ describe('nurseshark', function() {
     it('should return sorted data', function() {
       var dummyDT1 = '2014-01-01T12:00:00';
       var dummyDT2 = '2014-01-01T13:00:00';
+      var now = new Date().toISOString();
       var APPEND = '.000Z';
       var data = [{
         type: 'smbg',
         units: 'mmol/L',
-        deviceTime: dummyDT2
+        deviceTime: dummyDT2,
+        time: now
       }, {
         type: 'cbg',
         units: 'mmol/L',
-        deviceTime: dummyDT1
+        deviceTime: dummyDT1,
+        time: now
       }];
       var sorted = [data[1], data[0]];
       sorted[0].normalTime = dummyDT1 + APPEND;
@@ -456,24 +481,29 @@ describe('nurseshark', function() {
 
     it('should join a bolus and wizard with matching joinKey', function() {
       var dummyDT = '2014-01-01T12:00:00';
+      var now = new Date().toISOString();
       var data = [{
         type: 'bolus',
         joinKey: '12345',
         id: 'abcde',
-        deviceTime: dummyDT
+        deviceTime: dummyDT,
+        time: now
       }, {
         type: 'wizard',
         joinKey: '12345',
         id: 'bcdef',
-        deviceTime: dummyDT
+        deviceTime: dummyDT,
+        time: now
       }, {
         type: 'bolus',
         id: 'cdefg',
-        deviceTime: dummyDT
+        deviceTime: dummyDT,
+        time: now
       }, {
         type: 'wizard',
         id: 'defgh',
-        deviceTime: dummyDT
+        deviceTime: dummyDT,
+        time: now
       }];
       var res = nurseshark.processData(data).processedData;
       var embeddedBolus = res[1].bolus;
