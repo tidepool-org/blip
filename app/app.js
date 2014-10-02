@@ -20,7 +20,7 @@ var bows = require('bows');
 var _ = require('lodash');
 var async = require('async');
 
-var chartUtil = require('tideline/plugins/data/preprocess');
+var nurseShark = require('tideline/plugins/nurseshark/');
 var TidelineData = require('tideline/js/tidelinedata');
 
 var config = require('./config');
@@ -117,6 +117,7 @@ var AppComponent = React.createClass({
       fetchingPatient: true,
       invites: null,
       fetchingInvites: true,
+      bgPrefs: null,
       patientData: null,
       fetchingPatientData: true,
       fetchingMessageData: true,
@@ -632,6 +633,7 @@ var AppComponent = React.createClass({
       <PatientData
         user={this.state.user}
         patient={this.state.patient}
+        bgPrefs={this.state.bgPrefs}
         patientData={this.state.patientData}
         fetchingPatientData={this.state.fetchingPatientData}
         isUserPatient={this.isSamePersonUserAndPatient()}
@@ -901,24 +903,20 @@ var AppComponent = React.createClass({
       var patientData = results.patientData || [];
       var notes = results.teamNotes || [];
 
-      // Return message objects the visualization can use
-      notes = _.map(notes, function(message) {
-        return {
-          utcTime : message.timestamp,
-          messageText : message.messagetext,
-          parentMessage : message.parentmessage,
-          type: 'message',
-          id: message.id
-        };
-      });
-
       app.log('Patient device data count', patientData.length);
       app.log('Team notes count', notes.length);
 
-      patientData = patientData.concat(notes);
-      patientData = self.processPatientData(patientData);
+      var combinedData = patientData.concat(notes);
+      window.downloadInputData = function() {
+        console.save(combinedData, 'blip-input.json');
+      };
+      patientData = self.processPatientData(combinedData);
 
       self.setState({
+        bgPrefs: {
+          bgClasses: patientData.bgClasses,
+          bgUnits: patientData.bgUnits
+        },
         patientData: patientData,
         fetchingPatientData: false
       });
@@ -947,21 +945,18 @@ var AppComponent = React.createClass({
   },
 
   processPatientData: function(data) {
-    if (!(data && data.length)) {
+    if (!(data && data.length >= 0)) {
       return null;
     }
-    // TODO: move the deep cloning of the objects inside data into preprocess instead
-    // will come up v. soon when @jebeck does client-side data validation (next up)
-    var preTidelineData = _.map(data, function(d) {
-      return _.cloneDeep(d);
-    });
-    window.downloadJSON = function() {
-      console.save(preTidelineData);
+
+    var res = nurseShark.processData(data);
+    var tidelineData = new TidelineData(res.processedData);
+
+    window.tidelineData = tidelineData;
+    window.downloadProcessedData = function() {
+      console.save(res.processedData);
     };
 
-    var processData = chartUtil.processData(data);
-    var tidelineData = new TidelineData(processData.valid);
-    window.tidelineData = tidelineData;
     return tidelineData;
   },
 

@@ -18,8 +18,6 @@
 var _ = require('lodash');
 var async = require('async');
 var bows = require('bows');
-var moment = require('moment');
-var Rx = require('rx');
 
 var createTidepoolClient = require('tidepool-platform-client');
 var tidepool;
@@ -27,9 +25,6 @@ var tidepool;
 var config = require('../config');
 
 var personUtils = require('./personutils');
-// devicedata just registers stuff on the Rx prototype,
-// so we are doing this for the side-effects
-var deviceData = require('./lib/devicedata');
 var migrations = require('./lib/apimigrations');
 
 var api = {
@@ -474,39 +469,9 @@ api.patientData.get = function(patientId, cb) {
     }
     api.log('Data received in ' + (Date.now() - now) + ' millis.');
 
-    now = Date.now();
     window.inData = data;
-    Rx.Observable.fromArray(data)
-      .map(function(e){
-             if (e.time != null) {
-               if (e.timezoneOffset == null) {
-                 e.deviceTime = moment.utc(e.time).format('YYYY-MM-DDTHH:mm:ss');
-               } else {
-                 // Moment timezone offsets are the number of minutes to add to the *local* time to make UTC,
-                 // which is backwards from what we do (and the sign on the UTC timezone offset)
-                 e.deviceTime = moment(e.time).zone(-e.timezoneOffset).format('YYYY-MM-DDTHH:mm:ss');
-               }
-             }
-             return e;
-           })
-      .map(function(e){
-                 if (e.time != null) {
-                   if (e.type === 'cbg' || e.type === 'smbg') {
-                     return _.assign({}, e, {value: e.value * 18.01559});
-                   }
-                 }
-                 return e;
-               })
-      .tidepoolConvertBasal()
-      .tidepoolConvertBolus()
-      .tidepoolConvertWizard()
-      .toArray()
-      .subscribe(function(data) {
-                   api.log('Processing completed in ' + (Date.now() - now) + ' millis.');
-                   window.theData = data;
-                   cb(null, data);
-                 },
-                 cb);
+
+    cb(null, data);
   });
 };
 

@@ -19,8 +19,6 @@ var _ = require('lodash');
 var moment = require('moment');
 var bows = require('bows');
 
-var watson = require('tideline/plugins/data/watson');
-
 var config = require('../../config');
 
 var utils = require('../../core/utils');
@@ -29,10 +27,13 @@ var Daily = require('../../components/chart').daily;
 var Weekly = require('../../components/chart').weekly;
 var Settings = require('../../components/chart').settings;
 
+var nurseShark = require('tideline/plugins/nurseshark/');
+
 var Messages = require('../../components/messages');
 
 var PatientData = React.createClass({
   propTypes: {
+    bgPrefs: React.PropTypes.object,
     patientData: React.PropTypes.object,
     patient: React.PropTypes.object,
     fetchingPatientData: React.PropTypes.bool,
@@ -53,7 +54,6 @@ var PatientData = React.createClass({
     var params = this.props.queryParams;
     var state = {
       chartPrefs: {
-        bgUnits: 'mg/dL',
         hiddenPools: {
           // pass null here to *completely* disable the tabular display of basal settings
           basalSettings: null
@@ -76,7 +76,6 @@ var PatientData = React.createClass({
     if (!_.isEmpty(params)) {
       this.setState({
         chartPrefs: {
-          bgUnits: this.state.chartPrefs.bgUnits,
           hiddenPools: {
             basalSettings: params.showbasalsettings ?  true : null
           },
@@ -231,6 +230,7 @@ var PatientData = React.createClass({
         /* jshint ignore:start */
         return (
           <Daily
+            bgPrefs={this.props.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             imagesBaseUrl={config.IMAGES_ENDPOINT + '/tideline'}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
@@ -250,6 +250,7 @@ var PatientData = React.createClass({
         /* jshint ignore:start */
         return (
           <Weekly
+            bgPrefs={this.props.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             imagesBaseUrl={config.IMAGES_ENDPOINT + '/tideline'}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
@@ -269,6 +270,7 @@ var PatientData = React.createClass({
         /* jshint ignore:start */
         return (
           <Settings
+            bgPrefs={this.props.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             patientData={this.props.patientData}
             onClickRefresh={this.handleClickRefresh}
@@ -323,16 +325,7 @@ var PatientData = React.createClass({
   },
 
   handleMessageCreation: function(message){
-    // transform to Tideline's own format
-    var tidelineMessage = {
-        utcTime : message.timestamp,
-        messageText : message.messagetext,
-        parentMessage : message.parentmessage,
-        type: 'message',
-        id: message.id
-      };
-    var transformedMessage = watson.normalize(tidelineMessage);
-    var data = this.refs.tideline.createMessageThread(transformedMessage);
+    var data = this.refs.tideline.createMessageThread(nurseShark.reshapeMessage(message));
     this.props.onUpdatePatientData(data);
     this.props.trackMetric('Created New Message');
   },
@@ -350,16 +343,7 @@ var PatientData = React.createClass({
     if (edit) {
       edit(message, cb);
     }
-    // transform to Tideline's own format
-    var tidelineMessage = {
-        utcTime : message.timestamp,
-        messageText : message.messagetext,
-        parentMessage : message.parentmessage,
-        type: 'message',
-        id: message.id
-      };
-    var transformedMessage = watson.normalize(tidelineMessage);
-    var data = this.refs.tideline.editMessageThread(transformedMessage);
+    var data = this.refs.tideline.editMessageThread(nurseShark.reshapeMessage(message));
     this.props.onUpdatePatientData(data);
     this.props.trackMetric('Edit To Message');
   },
