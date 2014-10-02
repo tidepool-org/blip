@@ -160,7 +160,7 @@ describe('nurseshark', function() {
       expect(res[0].errorMessage).to.equal('Basal overlaps with previous.');
     });
 
-    it('should recursively edit the timespan properties of suppresseds within basals', function() {
+    describe('suppressed handler', function() {
       var dummyDT1 = '2014-01-01T12:00:00';
       var dummyDT2 = '2014-01-01T11:30:00';
       var dummyDT3 = '2014-01-01T11:00:00';
@@ -174,30 +174,42 @@ describe('nurseshark', function() {
         deviceTime: dummyDT1,
         suppressed: {
           type: 'basal',
+          deliveryType: 'temp',
           duration: 3600000,
           time: minusTen.toISOString(),
           deviceTime: dummyDT2,
+          percent: 0.5,
           suppressed: {
             type: 'basal',
+            deliveryType: 'scheduled',
             duration: 3600000*2,
             time: minusHour.toISOString(),
-            deviceTime: dummyDT3
+            deviceTime: dummyDT3,
+            rate: 0.5
           }
         }
       }];
-      var res = nurseshark.processData(basalWithSuppressed).processedData;
-      expect(res.length).to.equal(1);
-      var parent = res[0];
-      var sup1 = res[0].suppressed;
-      var sup2 = res[0].suppressed.suppressed;
-      expect(parent.time).to.equal(sup1.time);
-      expect(parent.time).to.equal(sup2.time);
-      expect(parent.normalTime).to.equal(sup1.normalTime);
-      expect(parent.normalTime).to.equal(sup2.normalTime);
-      expect(parent.deviceTime).to.equal(sup1.deviceTime);
-      expect(parent.deviceTime).to.equal(sup2.deviceTime);
-      expect(parent.duration).to.equal(sup1.duration);
-      expect(parent.duration).to.equal(sup2.duration);
+
+      it('should recursively edit the timespan properties of suppresseds within basals', function() {
+        var res = nurseshark.processData(basalWithSuppressed).processedData;
+        expect(res.length).to.equal(1);
+        var parent = res[0];
+        var sup1 = res[0].suppressed;
+        var sup2 = res[0].suppressed.suppressed;
+        expect(parent.time).to.equal(sup1.time);
+        expect(parent.time).to.equal(sup2.time);
+        expect(parent.normalTime).to.equal(sup1.normalTime);
+        expect(parent.normalTime).to.equal(sup2.normalTime);
+        expect(parent.deviceTime).to.equal(sup1.deviceTime);
+        expect(parent.deviceTime).to.equal(sup2.deviceTime);
+        expect(parent.duration).to.equal(sup1.duration);
+        expect(parent.duration).to.equal(sup2.duration);
+      });
+
+      it('should calculate the rate of a suppressed temp', function() {
+        var res = nurseshark.processData(basalWithSuppressed).processedData;
+        expect(res[0].suppressed.rate).to.equal(0.25);
+      });
     });
 
     it('should filter out bad deviceMeta events', function() {

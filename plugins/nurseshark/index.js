@@ -348,18 +348,8 @@ function getHandlers() {
         d.rate = 0.0;
       }
       watson(d);
-      function equalizeSuppressed(d) {
-        // a suppressed should share these attributes with its parent
-        d.suppressed.deviceTime = d.deviceTime;
-        d.suppressed.duration = d.duration;
-        d.suppressed.time = d.time;
-        watson(d.suppressed);
-        if (d.suppressed.suppressed) {
-          equalizeSuppressed(d.suppressed);
-        }
-      }
       if (d.suppressed) {
-        equalizeSuppressed(d);
+        this.suppressed(d);
       }
       return d;
     },
@@ -423,6 +413,22 @@ function getHandlers() {
       d.basalSchedules = basalSchedulesToArray(d.basalSchedules);
       watson(d);
       return d;
+    },
+    suppressed: function(d) {
+      if (d.suppressed.deliveryType === 'temp' && !d.suppressed.rate) {
+        if (d.suppressed.percent && d.suppressed.suppressed &&
+          d.suppressed.suppressed.deliveryType === 'scheduled' && d.suppressed.suppressed.rate >= 0) {
+            d.suppressed.rate = d.suppressed.percent * d.suppressed.suppressed.rate;
+        }
+      }
+      // a suppressed should share these attributes with its parent
+      d.suppressed.deviceTime = d.deviceTime;
+      d.suppressed.duration = d.duration;
+      d.suppressed.time = d.time;
+      watson(d.suppressed);
+      if (d.suppressed.suppressed) {
+        this.suppressed(d.suppressed);
+      }
     },
     wizard: function(d) {
       d = cloneDeep(d);
