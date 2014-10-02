@@ -97,23 +97,7 @@ var patch = function(mock, api) {
 
       patient.team = [];
       if (!getParam('api.patient.get.emptyteam')) {
-        patient.team = _.reduce(data.groups,
-        function(result, memberGroups, memberId) {
-          if (memberId === patientId) {
-            return result;
-          }
-
-          var permissions = memberGroups[patientId];
-          if (!permissions) {
-            return result;
-          }
-
-          var member = data.users[memberId];
-          member = publicPersonInfo(member);
-          member.permissions = permissions;
-          result.push(member);
-          return result;
-        }, []);
+        patient.team = common.getMembersForGroup(data, patientId);
       }
 
       callback(null, patient);
