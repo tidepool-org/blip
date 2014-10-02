@@ -23,6 +23,10 @@ var format = {
 
   MS_IN_24: 86400000,
 
+  tooltipBG: function(d, units) {
+    return units === 'mg/dL' ? Math.round(d.value) : d3.format('.1f')(d.value);
+  },
+
   tooltipValue: function(x) {
     if (x === 0) {
       return '0.0';

@@ -20,6 +20,7 @@ var _ = require('lodash');
 
 var log = require('bows')('CBG');
 var bgBoundaryClass = require('./util/bgboundary');
+var format = require('../data/util/format');
 
 module.exports = function(pool, opts) {
 
@@ -85,7 +86,9 @@ module.exports = function(pool, opts) {
 
       // tooltips
       selection.selectAll('.d3-circle-cbg').on('mouseover', function() {
-        cbg.addTooltip(d3.select(this).datum());
+        var thisCbg = _.clone(d3.select(this).datum());
+        thisCbg.value = format.tooltipBG(thisCbg, opts.bgUnits);
+        cbg.addTooltip(thisCbg);
       });
       selection.selectAll('.d3-circle-cbg').on('mouseout', function() {
         var id = d3.select(this).attr('id').replace('cbg_', 'tooltip_');

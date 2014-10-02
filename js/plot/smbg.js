@@ -119,7 +119,7 @@ module.exports = function(pool, opts) {
     group.append('p')
       .attr('class', 'value')
       .append('span')
-      .html(opts.bgUnits === 'mg/dL' ? Math.round(datum.value) : d3.format('.1f')(datum.value));
+      .html(format.tooltipBG(datum, opts.bgUnits));
   };
 
   smbg.addTooltip = function(d) {
