@@ -18,7 +18,7 @@ var React = require('react');
 var _ = require('lodash');
 var cx = require('react/lib/cx');
 
-var ModalOverlay = require('../ModalOverlay');
+var ModalOverlay = require('../modaloverlay');
 
 var PatientCard = React.createClass({
   propTypes: {
