@@ -24,7 +24,7 @@ function BGUtil(data, opts) {
 
   opts = opts || {};
   var defaults = {
-    categories: {
+    bgClasses: {
       low: {boundary: 80},
       target: {boundary: 180}
     },
@@ -54,10 +54,10 @@ function BGUtil(data, opts) {
   };
 
   function getCategory (n) {
-    if (n <= opts.categories.low.boundary) {
+    if (n <= opts.bgClasses.low.boundary) {
       return 'low';
     }
-    else if ((n > opts.categories.low.boundary) && (n <= opts.categories.target.boundary)) {
+    else if ((n > opts.bgClasses.low.boundary) && (n <= opts.bgClasses.target.boundary)) {
       return 'target';
     }
     else {

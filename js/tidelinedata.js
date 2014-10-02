@@ -293,12 +293,12 @@ function TidelineData(data, opts) {
   this.bolusUtil = new BolusUtil(this.grouped.bolus);
   this.cbgUtil = new BGUtil(this.grouped.cbg, {
     bgUnits: this.bgUnits,
-    categories: this.bgClasses,
+    bgClasses: this.bgClasses,
     DAILY_MIN: (opts.CBG_PERCENT_FOR_ENOUGH * opts.CBG_MAX_DAILY)
   });
   this.smbgUtil = new BGUtil(this.grouped.smbg, {
     bgUnits: this.bgUnits,
-    categories: this.bgClasses,
+    bgClasses: this.bgClasses,
     DAILY_MIN: opts.SMBG_DAILY_MIN
   });
   
