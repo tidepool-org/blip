@@ -882,34 +882,32 @@ module.exports = function (config, deps) {
         var self = this;
         var email = details.emails[0];
 
-        return withToken(cb, function(token) {
-          superagent
-            .get(makeUrl('/confirm/invitations/'+email))
-            .set(sessionTokenHeader, token)
-            .end(
-            function (err, res) {
-              if (err != null) {
-                return cb(err);
-              }
+        superagent
+          .get(makeUrl('/confirm/invitations/'+email))
+          .set(sessionTokenHeader, myToken)
+          .end(
+          function (err, res) {
+            if (err != null) {
+              return cb(err);
+            }
 
-              if (res.status === 200) {
-                async.map(res.body, function (invite, callback) {
-                  self.findProfile(invite.creatorId,function(err,profile){
-                    if (_.isEmpty(profile)===false){
-                      invite.creator = profile;
-                    }
-                    callback(err,invite);
-                  })
-                }, function(err, invites){
-                return cb(null,invites);
-              });
-
-              } else if (res.status === 204){
-                return cb(null,[]);
-              }
-
-              return handleHttpError(res, cb);
+            if (res.status === 200) {
+              async.map(res.body, function (invite, callback) {
+                self.findProfile(invite.creatorId,function(err,profile){
+                  if (_.isEmpty(profile)===false){
+                    invite.creator = profile;
+                  }
+                  callback(err,invite);
+                });
+              }, function(err, invites){
+              return cb(null,invites);
             });
+
+            } else if (res.status === 204){
+              return cb(null,[]);
+            }
+            return cb(err,[]);
+          });
         });
 
       //attach the profile on success
@@ -947,7 +945,6 @@ module.exports = function (config, deps) {
           return cb(err,[]);
         }
       });*/
-
     },
     /**
      * Invite a user
