@@ -17,7 +17,7 @@
 var React = require('react');
 var _ = require('lodash');
 var cx = require('react/lib/cx');
-var ModalOverlay = require('../ModalOverlay');
+var ModalOverlay = require('../modaloverlay');
 var InputGroup = require('../inputgroup');
 
 var PatientTeam = React.createClass({
