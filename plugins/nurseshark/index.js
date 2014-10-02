@@ -264,6 +264,10 @@ var nurseshark = {
         }
         d = handlers[d.type] ? handlers[d.type](d, collections) : d.messagetext ? handlers.message(d, collections) : addNoHandlerMessage(d);
       }
+      // because we don't yet have validation on editing timestamps in clamshell and blip notes
+      // and someone had made a note with year 2 that caused problems for tideline
+      // chose year 2008 because tidline's datetime has a validation step that rejects POSIX timestamps
+      // that evaluate to year < 2008
       if (d.normalTime && new Date(d.normalTime).getUTCFullYear() < 2008) {
         d.errorMessage = 'Invalid datetime (before 2008).';
       }

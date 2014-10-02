@@ -24,6 +24,7 @@ var scales = function(opts) {
   opts = opts || {};
 
   var defaults = {
+    bgUnits: 'mg/dL',
     bolusRatio: 0.35,
     MAX_CBG: 401,
     carbRadius: 14
@@ -61,11 +62,11 @@ var scales = function(opts) {
           .range([pool.height() - pad, pad]);
       }
     },
-    bgTicks: function(data, units) {
+    bgTicks: function(data) {
       if ((!data) || (data.length === 0)) {
         return [];
       }
-      var defaultTicks = units === 'mg/dL' ? [40, 80, 120, 180, 300] : [2.0, 4.5, 7.0, 10.0, 16.0];
+      var defaultTicks = opts.bgUnits === 'mg/dL' ? [40, 80, 120, 180, 300] : [2.0, 4.5, 7.0, 10.0, 16.0];
       var ext = d3.extent(data, function(d) { return d.value; });
       // if the min of our data is greater than any of the defaultTicks, remove that tick
       defaultTicks.forEach(function(tick) {

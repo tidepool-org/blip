@@ -29,7 +29,7 @@ module.exports = {
     if (d.recommended.correction) {
       rec += d.recommended.correction;
     }
-    return rec != null ? rec : NaN;
+    return rec;
   },
   getMaxValue: function(d) {
     var wiz;
@@ -43,7 +43,7 @@ module.exports = {
       }
     }
     var programmedTotal = this.getProgrammed(d);
-    var rec;
+    var rec = 0;
     if (wiz) {
       rec = this.getRecommended(wiz); 
     }
@@ -106,7 +106,7 @@ module.exports = {
       }
     }
     else {
-      return d.expectedNormal ? d.expectedNormal : d.normal;
+      return d.expectedNormal || d.normal;
     }
   },
   getMaxDuration: function(d) {
@@ -121,6 +121,6 @@ module.exports = {
     if (!d.duration) {
       return NaN;
     }
-    return d.expectedDuration ? d.expectedDuration : d.duration;
+    return d.expectedDuration || d.duration;
   }
 };

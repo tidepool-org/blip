@@ -257,7 +257,7 @@ function chartDailyFactory(el, options) {
       .scale(scaleBG)
       .orient('left')
       .outerTickSize(0)
-      .tickValues(scales.bgTicks(allBG, chart.options.bgUnits))
+      .tickValues(scales.bgTicks(allBG))
       .tickFormat(d3.format('g')));
     // add background fill rectangles to BG pool
     poolBG.addPlotType('fill', fill(poolBG, {
