@@ -874,12 +874,13 @@ module.exports = function (config, deps) {
     invitesRecieved: function (cb) {
       assertArgumentsSize(arguments, 1);
 
+      var self = this;
+
       this.getCurrentUser(function(err,details){
 
         if(_.isEmpty(err)===false){
           return cb(err,[]);
         }
-        var self = this;
         var email = details.emails[0];
 
         superagent
