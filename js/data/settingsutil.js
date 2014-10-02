@@ -17,9 +17,7 @@
 
 var _ = require('lodash');
 
-var datetime = require('./util/datetime');
-
-var log = require('bows')('SettingsUtil');
+var dt = require('./util/datetime');
 
 function SettingsUtil(data, endpoints) {
 
@@ -50,11 +48,11 @@ function SettingsUtil(data, endpoints) {
       starts.push(sched.value[i].start);
       ratesByStart[sched.value[i].start] = sched.value[i].rate;
     }
-    var startsObj = findStarts(datetime.getMsFromMidnight(s), starts);
+    var startsObj = findStarts(dt.getMsFromMidnight(s), starts);
     var startPair = startsObj.starts;
     var firstSegmentEnd = (startPair.length === 2) ?
-      datetime.composeMsAndDateString(startPair[1], s) :
-      datetime.composeMsAndDateString(starts[0], datetime.addDays(s, 1));
+      dt.composeMsAndDateString(startPair[1], s) :
+      dt.composeMsAndDateString(starts[0], dt.addDays(s, 1));
     segments = [{
       type: 'basal-settings-segment',
       schedule: sched.name,
@@ -69,10 +67,10 @@ function SettingsUtil(data, endpoints) {
     while (currentDatetime < e) {
       var end;
       if (currentIndex !== starts.length - 1) {
-        end =  datetime.composeMsAndDateString(starts[currentIndex + 1], currentDatetime);
+        end =  dt.composeMsAndDateString(starts[currentIndex + 1], currentDatetime);
       }
       else {
-        end = datetime.composeMsAndDateString(0, datetime.addDays(currentDatetime, 1));
+        end = dt.composeMsAndDateString(0, dt.addDays(currentDatetime, 1));
       }
       if (end > e) {
         end = e;
@@ -107,19 +105,20 @@ function SettingsUtil(data, endpoints) {
 
     for (var i = 0; i < actuals.length; ++i) {
       var actual = actuals[i];
-      if (datetime.isSegmentAcrossMidnight(actual.normalTime, actual.normalEnd)) {
-        var midnight = datetime.getMidnight(actual.normalTime, true);
-        var end = actual.normalEnd;
-        actual.normalEnd = midnight;
+      if (dt.isSegmentAcrossMidnight(actual.normalTime, dt.addDuration(actual.normalTime, actual.duration))) {
+        var midnight = dt.getMidnight(actual.normalTime, true);
+        var end = dt.addDuration(actual.normalTime, actual.duration);
+        var firstDuration = Date.parse(midnight) - Date.parse(actual.normalTime);
         var newActual = _.clone(actual);
         newActual.normalTime = midnight;
-        newActual.normalEnd = end;
+        newActual.duration = actual.duration - firstDuration;
+        actual.duration = firstDuration;
         actuals.splice(i + 1, 0, newActual);
         actual = actuals[i];
       }
       // Animas basal schedules have a resolution of thirty minutes
-      var s = datetime.roundToNearestMinutes(actual.normalTime, 30);
-      var e = datetime.roundToNearestMinutes(actual.normalEnd, 30);
+      var s = dt.roundToNearestMinutes(actual.normalTime, 30);
+      var e = dt.roundToNearestMinutes(dt.addDuration(actual.normalTime, actual.duration), 30);
       actualsByInterval[s + '/' + e] = actual;
     }
     for (var key in this.segmentsBySchedule) {
@@ -132,7 +131,7 @@ function SettingsUtil(data, endpoints) {
         var interval = segment.normalTime + '/' + segment.normalEnd;
         if (actualsByInterval[interval]) {
           var matchedActual = actualsByInterval[interval];
-          if (segment.value === matchedActual.value) {
+          if (segment.value === matchedActual.rate) {
             segment.actualized = true;
           }
         }
@@ -142,36 +141,41 @@ function SettingsUtil(data, endpoints) {
   };
 
   this.getAllSchedules = function(s, e) {
-    if (datetime.verifyEndpoints(s, e, this.endpoints) && this.data.length !== 0) {
+    if (dt.verifyEndpoints(s, e, this.endpoints) && this.data.length !== 0) {
       var settingsIntervals = this.getIntervals(s, e);
       var segmentsBySchedule = {};
-      for (var i = 0; i < settingsIntervals.length; ++i) {
-        var interval = settingsIntervals[i];
-        for (var j = 0; j < interval.settings.basalSchedules.length; ++j) {
-          var schedule = interval.settings.basalSchedules[j];
-          if (segmentsBySchedule[schedule.name]) {
-            segmentsBySchedule[schedule.name] = segmentsBySchedule[schedule.name].concat(getSegmentsForSchedule({
-              schedule: schedule,
-              start: interval.start,
-              end: interval.end,
-              active: schedule.name === interval.settings.activeBasalSchedule,
-              confidence: interval.settings.confidence ? interval.settings.confidence : 'normal'
-            }));
-          }
-          // there can be schedules in the settings with an empty array as their value
-          else if (schedule.value.length > 0) {
-            segmentsBySchedule[schedule.name] = getSegmentsForSchedule({
-              schedule: schedule,
-              start: interval.start,
-              end: interval.end,
-              active: schedule.name === interval.settings.activeBasalSchedule,
-              confidence: interval.settings.confidence ? interval.settings.confidence : 'normal'
-            });
+      if (settingsIntervals) {
+        for (var i = 0; i < settingsIntervals.length; ++i) {
+          var interval = settingsIntervals[i];
+          for (var j = 0; j < interval.settings.basalSchedules.length; ++j) {
+            var schedule = interval.settings.basalSchedules[j];
+            if (segmentsBySchedule[schedule.name]) {
+              segmentsBySchedule[schedule.name] = segmentsBySchedule[schedule.name].concat(getSegmentsForSchedule({
+                schedule: schedule,
+                start: interval.start,
+                end: interval.end,
+                active: schedule.name === interval.settings.activeBasalSchedule,
+                confidence: interval.settings.confidence ? interval.settings.confidence : 'normal'
+              }));
+            }
+            // there can be schedules in the settings with an empty array as their value
+            else if (schedule.value.length > 0) {
+              segmentsBySchedule[schedule.name] = getSegmentsForSchedule({
+                schedule: schedule,
+                start: interval.start,
+                end: interval.end,
+                active: schedule.name === interval.settings.activeBasalSchedule,
+                confidence: interval.settings.confidence ? interval.settings.confidence : 'normal'
+              });
+            }
           }
         }
+        this.segmentsBySchedule = segmentsBySchedule;
+        return segmentsBySchedule;
       }
-      this.segmentsBySchedule = segmentsBySchedule;
-      return segmentsBySchedule;
+      else {
+        return [];
+      }
     }
     else {
       return [];
@@ -183,8 +187,8 @@ function SettingsUtil(data, endpoints) {
     for (var i = 0; i < this.intervals.length; ++i) {
       var interval = this.intervals[i];
       var intervalEndpoints = [interval.start, interval.end];
-      if (datetime.checkIfDateInRange(s, intervalEndpoints) &&
-        datetime.checkIfDateInRange(e, intervalEndpoints)) {
+      if (dt.checkIfDateInRange(s, intervalEndpoints) &&
+        dt.checkIfDateInRange(e, intervalEndpoints)) {
         actualIntervals.push({
           start: s,
           end: e,
@@ -192,14 +196,14 @@ function SettingsUtil(data, endpoints) {
         });
       }
       else {
-        if (datetime.checkIfDateInRange(s, intervalEndpoints)) {
+        if (dt.checkIfDateInRange(s, intervalEndpoints)) {
           actualIntervals.push({
             start: s,
             end: interval.end,
             settings: interval.settings
           });
         }
-        if (datetime.checkIfDateInRange(e, intervalEndpoints)) {
+        if (dt.checkIfDateInRange(e, intervalEndpoints)) {
           actualIntervals.push({
             start: interval.start,
             end: e,
@@ -216,7 +220,6 @@ function SettingsUtil(data, endpoints) {
       }
     }
     if (actualIntervals.length === 0) {
-      log('Could not find a settings object for the given interval.');
       return undefined;
     }
     return actualIntervals;

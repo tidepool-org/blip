@@ -18,10 +18,13 @@
 var d3 = require('d3');
 var _ = require('lodash');
 
+var commonbolus = require('./commonbolus');
+
 var scales = function(opts) {
   opts = opts || {};
 
   var defaults = {
+    bgUnits: 'mg/dL',
     bolusRatio: 0.35,
     MAX_CBG: 401,
     carbRadius: 14
@@ -63,7 +66,7 @@ var scales = function(opts) {
       if ((!data) || (data.length === 0)) {
         return [];
       }
-      var defaultTicks = [40, 80, 120, 180, 300];
+      var defaultTicks = opts.bgUnits === 'mg/dL' ? [40, 80, 120, 180, 300] : [2.0, 4.5, 7.0, 10.0, 16.0];
       var ext = d3.extent(data, function(d) { return d.value; });
       // if the min of our data is greater than any of the defaultTicks, remove that tick
       defaultTicks.forEach(function(tick) {
@@ -89,13 +92,17 @@ var scales = function(opts) {
     bolus: function(data, pool) {
       var scale = d3.scale.linear()
         // for boluses the recommended can exceed the value
-        .domain([0, d3.max(data, function(d) { return d3.max([d.value, d.recommended]); })])
+        .domain([0, d3.max(data, function(d) {
+          return commonbolus.getMaxValue(d);
+        })])
         .range([pool.height(), opts.bolusRatio * pool.height()]);
       return scale;
     },
     basal: function(data, pool) {
       var scale = d3.scale.linear()
-        .domain([0, d3.max(data, function(d) { return d.value; }) * 1.1])
+        .domain([0, d3.max(data, function(d) {
+          return d.rate;
+        }) * 1.1])
         .rangeRound([pool.height(), 0]);
       return scale;
     }

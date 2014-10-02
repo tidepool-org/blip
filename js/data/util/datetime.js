@@ -16,6 +16,7 @@
  */
 
 var _ = require('lodash');
+var moment = require('moment');
 
 var datetime = {
 
@@ -24,17 +25,15 @@ var datetime = {
   MS_IN_24: 86400000,
 
   addDays: function(s, n) {
-    var d = new Date(s);
-    d.setUTCDate(d.getUTCDate() + n);
+    var d = moment(s);
+    d.add(n, 'days');
     return d.toISOString();
   },
 
   addDuration: function(datetime, duration) {
-    if (typeof(datetime) === 'string') {
-      datetime = new Date(datetime);
-    }
+    datetime = new Date(datetime);
 
-    return new Date(datetime.valueOf() + duration).toISOString().slice(0, 19);
+    return new Date(datetime.valueOf() + duration).toISOString();
   },
 
   adjustToInnerEndpoints: function(s, e, endpoints) {
@@ -91,6 +90,10 @@ var datetime = {
 
   composeMsAndDateString: function(ms, d) {
     return new Date(ms + new Date(this.toISODateString(d) + this.APPEND).valueOf()).toISOString();
+  },
+
+  difference: function(d2, d1) {
+    return new Date(d2) - new Date(d1);
   },
 
   getDuration: function(d1, d2) {

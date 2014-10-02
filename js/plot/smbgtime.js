@@ -31,6 +31,7 @@ function SMBGTime (opts) {
   opts = opts || {};
 
   var defaults = {
+    bgUnits: 'mg/dL',
     classes: {
       'very-low': {boundary: 60},
       low: {boundary: 80},
@@ -230,7 +231,7 @@ function SMBGTime (opts) {
     group.append('p')
       .attr('class', 'value')
       .append('span')
-      .html(Math.round(datum.value));
+      .html(format.tooltipBG(datum, opts.bgUnits));
   };
 
   this.addTooltip = function(d, pool) {

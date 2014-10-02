@@ -17,7 +17,8 @@
 
 var d3 = require('d3');
 var _ = require('lodash');
-var Duration = require('duration-js');
+
+var commonbolus = require('./commonbolus');
 var dt = require('../../data/util/datetime');
 var format = require('../../data/util/format');
 
@@ -44,25 +45,6 @@ module.exports = function(pool, opts) {
   var bottom = top - opts.bolusStroke / 2;
   var mainGroup = pool.parent();
 
-  var getValue = function(bolus) {
-    if (bolus.programmed && bolus.programmed !== bolus.value) {
-      return bolus.programmed;
-    }
-    return bolus.value;
-  };
-
-  var getDuration = function(bolus) {
-    if (bolus.programmed && bolus.programmed !== bolus.value && bolus.suspendedAt) {
-      return dt.getDuration(bolus.normalTime, bolus.suspendedAt);
-    }
-    else if (bolus.extended) {
-      return bolus.duration;
-    }
-    else {
-      return 0;
-    }
-  };
-
   var pluckBolus = function(d) {
     return d.bolus ? d.bolus : d;
   };
@@ -71,17 +53,8 @@ module.exports = function(pool, opts) {
     var x = opts.xScale(Date.parse(d.normalTime)) - opts.width/2;
     return x;
   };
-
-  var unknownDeliverySplit = function(d) {
-    return d.initialDelivery == null && d.extendedDelivery == null;
-  };
-
   var computePathHeight = function(d) {
-    if (unknownDeliverySplit(d)) {
-      return opts.yScale(d.value) + opts.bolusStroke / 2;
-    } else {
-      return opts.yScale(d.extendedDelivery) + opts.bolusStroke / 2;
-    }
+    return opts.yScale(d.extended) + opts.bolusStroke / 2;
   };
 
   var triangleLeft = function(x) { return x + opts.width/2 - opts.triangleOffset; };
@@ -112,10 +85,11 @@ module.exports = function(pool, opts) {
       var xPos = function(d) {
         return xPosition(d) + opts.width/2;
       };
-      var yPos = function(d) {
-        var r = opts.yScaleCarbs ? opts.yScaleCarbs(d.carbs.value) : opts.r;
 
-        var bolusValue = d.bolus ? ((d.bolus.recommended && d.bolus.recommended > d.bolus.value) ? d.bolus.recommended : d.bolus.value) : 0;
+      var yPos = function(d) {
+        var r = opts.yScaleCarbs ? opts.yScaleCarbs(d.carbInput) : opts.r;
+
+        var bolusValue = d.bolus ? commonbolus.getMaxValue(d) : 0;
 
         return opts.yScale(bolusValue) - r - (bolusValue ? opts.carbPadding : 0);
       };
@@ -125,7 +99,7 @@ module.exports = function(pool, opts) {
           cx: xPos,
           cy: yPos,
           r: function(d) {
-            return opts.yScaleCarbs ? opts.yScaleCarbs(d.carbs.value) : opts.r;
+            return opts.yScaleCarbs ? opts.yScaleCarbs(d.carbInput) : opts.r;
           },
           'stroke-width': 0,
           'class': 'd3-circle-carbs d3-carbs',
@@ -136,9 +110,7 @@ module.exports = function(pool, opts) {
 
       carbs.append('text')
         .text(function(d) {
-          if(d.carbs) {
-            return d.carbs.value;
-          }
+          return d.carbInput;
         })
         .attr({
           x: xPos,
@@ -147,7 +119,7 @@ module.exports = function(pool, opts) {
         });
     },
     bolus: function(boluses) {
-      // boluses where delivered = recommended
+      // delivered amount of bolus
       boluses.append('rect')
         .attr({
           x: function(d) {
@@ -155,13 +127,11 @@ module.exports = function(pool, opts) {
             return xPosition(d);
           },
           y: function(d) {
-            d = pluckBolus(d);
-            return opts.yScale(getValue(d));
+            return opts.yScale(commonbolus.getDelivered(d));
           },
           width: opts.width,
           height: function(d) {
-            d = pluckBolus(d);
-            return top - opts.yScale(getValue(d));
+            return top - opts.yScale(commonbolus.getDelivered(d));
           },
           'class': 'd3-rect-bolus d3-bolus',
           id: function(d) {
@@ -171,21 +141,12 @@ module.exports = function(pool, opts) {
         });
     },
     suspended: function(suspended) {
-      // draw the line
-      suspended.append('rect')
-        .attr({
-          x: function(d) {
-            d = pluckBolus(d);
-            return xPosition(d);
-          },
-          y: function(d) {
-            d = pluckBolus(d);
-            return opts.yScale(d.value);
-          },
-          width: opts.width,
-          height: opts.markerHeight,
-          'class': 'd3-rect-suspended d3-bolus'
-        });
+      // don't draw a bolus that doesn't exist at all
+      // e.g., square bolus cancelled immediately can slip through
+      // unless you filter like this
+      suspended = suspended.filter(function(d) {
+        return commonbolus.getDelivered(d) > 0;
+      });
 
       // draw color in the suspended portion
       suspended.append('rect')
@@ -195,18 +156,35 @@ module.exports = function(pool, opts) {
             return xPosition(d);
           },
           y: function(d) {
-            d = pluckBolus(d);
-            return opts.yScale(getValue(d));
+            return opts.yScale(commonbolus.getMaxValue(d));
           },
           width: opts.width,
           height: function(d) {
             d = pluckBolus(d);
-            return opts.yScale(d.value) - opts.yScale(getValue(d)) - 1;
+            return opts.yScale(commonbolus.getDelivered(d)) - opts.yScale(commonbolus.getMaxValue(d)) - 1;
           },
           'class': 'd3-rect-suspended-bolus d3-bolus'
         });
+
+      // draw the line
+      suspended.append('rect')
+        .attr({
+          x: function(d) {
+            d = pluckBolus(d);
+            return xPosition(d);
+          },
+          y: function(d) {
+            return opts.yScale(commonbolus.getDelivered(d));
+          },
+          width: opts.width,
+          height: opts.markerHeight,
+          'class': 'd3-rect-suspended d3-bolus'
+        });
     },
     underride: function(underride) {
+      underride = underride.filter(function(d) {
+        return commonbolus.getDelivered(d) > 0;
+      });
       underride.append('rect')
         .attr({
           x: function(d) {
@@ -214,13 +192,11 @@ module.exports = function(pool, opts) {
             return xPosition(d);
           },
           y: function(d) {
-            d = pluckBolus(d);
-            return opts.yScale(d.recommended);
+            return opts.yScale(commonbolus.getRecommended(d));
           },
           width: opts.width,
           height: function(d) {
-            d = pluckBolus(d);
-            return opts.yScale(getValue(d)) - opts.yScale(d.recommended);
+            return opts.yScale(commonbolus.getDelivered(d)) - opts.yScale(commonbolus.getRecommended(d));
           },
           'class': 'd3-rect-recommended d3-bolus',
           id: function(d) {
@@ -233,11 +209,7 @@ module.exports = function(pool, opts) {
       // to avoid too much confusing clutter
       // tooltip still exposes fact that suggested and programmed differed
       var uninterrupted = underride.filter(function(d) {
-        d = pluckBolus(d);
-        if (d.programmed != null) {
-          return d.programmed === d.value;
-        }
-        return true;
+        return commonbolus.getProgrammed(d) === commonbolus.getDelivered(d);
       });
       uninterrupted.append('rect')
         .attr({
@@ -246,8 +218,7 @@ module.exports = function(pool, opts) {
             return xPosition(d);
           },
           y: function(d) {
-            d = pluckBolus(d);
-            return opts.yScale(d.value);
+            return opts.yScale(commonbolus.getDelivered(d));
           },
           width: opts.width,
           height: opts.markerHeight,
@@ -261,12 +232,11 @@ module.exports = function(pool, opts) {
             return xPosition(d);
           },
           y: function(d) {
-            d = pluckBolus(d);
-            return opts.yScale(d.value);
+            return opts.yScale(commonbolus.getDelivered(d));
           },
           points: function(d) {
-            d = pluckBolus(d);
-            return underrideTriangle(xPosition(d), opts.yScale(d.value));
+            var bolus = pluckBolus(d);
+            return underrideTriangle(xPosition(bolus), opts.yScale(commonbolus.getDelivered(d)));
           },
           'class': 'd3-polygon-override d3-bolus'
         });
@@ -276,11 +246,7 @@ module.exports = function(pool, opts) {
       // to avoid too much confusing clutter
       // tooltip still exposes fact that suggested and programmed differed
       var uninterrupted = override.filter(function(d) {
-        d = pluckBolus(d);
-        if (d.programmed != null) {
-          return d.programmed === d.value;
-        }
-        return true;
+        return commonbolus.getProgrammed(d) === commonbolus.getDelivered(d);
       });
       uninterrupted.append('rect')
         .attr({
@@ -289,8 +255,7 @@ module.exports = function(pool, opts) {
             return xPosition(d);
           },
           y: function(d) {
-            d = pluckBolus(d);
-            return opts.yScale(d.recommended);
+            return opts.yScale(commonbolus.getRecommended(d)) - opts.markerHeight;
           },
           width: opts.width,
           height: opts.markerHeight,
@@ -304,41 +269,28 @@ module.exports = function(pool, opts) {
             return xPosition(d);
           },
           y: function(d) {
-            d = pluckBolus(d);
-            return opts.yScale(d.recommended);
+            return opts.yScale(commonbolus.getRecommended(d)) - opts.markerHeight;
           },
           points: function(d) {
-            d = pluckBolus(d);
-            return overrideTriangle(xPosition(d), opts.yScale(d.recommended));
+            var bolus = pluckBolus(d);
+            return overrideTriangle(xPosition(bolus), opts.yScale(commonbolus.getRecommended(d)) - opts.markerHeight);
           },
           'class': 'd3-polygon-override d3-bolus'
         });
     },
     extended: function(extended) {
-      // square- and dual-wave boluses
-      var actualExtended = extended.filter(function(d) {
-        d = pluckBolus(d);
-        return d.extendedDelivery > 0;
-      });
-
-      actualExtended.append('path')
+      // extended "arm" of square- and dual-wave boluses
+      extended.append('path')
         .attr({
           d: function(d) {
             d = pluckBolus(d);
             var rightEdge = xPosition(d) + opts.width;
             var doseHeight = computePathHeight(d);
-            var doseEnd = opts.xScale(Date.parse(d.normalTime) + d.duration);
+            var doseEnd = opts.xScale(Date.parse(d.normalTime) + commonbolus.getMaxDuration(d));
             return 'M' + rightEdge + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
           },
           'stroke-width': opts.bolusStroke,
-          'class': function(d){
-            d = pluckBolus(d);
-            if (unknownDeliverySplit(d)) {
-              return 'd3-path-extended d3-bolus d3-unknown-delivery-split';
-            } else {
-              return 'd3-path-extended d3-bolus';
-            }
-          },
+          'class': 'd3-path-extended d3-bolus',
           id: function(d) {
             d = pluckBolus(d);
             return 'bolus_' + d.id;
@@ -346,19 +298,19 @@ module.exports = function(pool, opts) {
         });
 
       // triangle
-      actualExtended.append('path')
+      extended.append('path')
         .attr({
           d: function(d) {
             d = pluckBolus(d);
             var doseHeight = computePathHeight(d);
-            var doseEnd = opts.xScale(Date.parse(d.normalTime) + d.duration) - opts.triangleSize;
+            var doseEnd = opts.xScale(Date.parse(d.normalTime) + commonbolus.getMaxDuration(d)) - opts.triangleSize;
             return extendedTriangle(doseEnd, doseHeight);
           },
           'stroke-width': opts.bolusStroke,
           'class': function(d) {
             d = pluckBolus(d);
 
-            if (d.suspendedAt) {
+            if (d.expectedExtended) {
               return 'd3-path-extended-triangle-suspended d3-bolus';
             }
 
@@ -371,52 +323,34 @@ module.exports = function(pool, opts) {
         });
     },
     extendedSuspended: function(suspended) {
-      // square- and dual-wave boluses
-      var actualExtended = suspended.filter(function(d) {
-        if (d.bolus) {
-          return d.bolus.extendedDelivery > 0;
-        }
-        return d.extendedDelivery > 0;
-      });
       // red marker indicating where suspend happened
-      actualExtended.append('path')
+      suspended.append('path')
         .attr({
           d: function(d) {
             d = pluckBolus(d);
-            var rightEdge = opts.xScale(Date.parse(d.suspendedAt));
             var doseHeight = computePathHeight(d);
-            var expectedEnd = opts.xScale(Date.parse(d.normalTime) + d.duration);
-            var doseEnd = rightEdge + opts.suspendMarkerWidth;
+            var rightEdge = opts.xScale(Date.parse(d.normalTime) + d.duration);
+            var pathEnd = rightEdge + opts.suspendMarkerWidth;
 
-            return 'M' + rightEdge + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
+            return 'M' + rightEdge + ' ' + doseHeight + 'L' + pathEnd + ' ' + doseHeight;
           },
           'stroke-width': opts.bolusStroke,
           'class': 'd3-path-suspended d3-bolus'
         });
 
       // now, light-blue path representing undelivered extended bolus
-      actualExtended.append('path')
+      suspended.append('path')
         .attr({
           d: function(d) {
             d = pluckBolus(d);
-            var rightEdge = opts.xScale(Date.parse(d.suspendedAt)) + opts.suspendMarkerWidth;
             var doseHeight = computePathHeight(d);
-            var doseEnd = opts.xScale(Date.parse(d.normalTime) + d.duration);
-            var suspendedEnd = opts.xScale(Date.parse(d.suspendedAt || 0)) + opts.suspendMarkerWidth;
+            var pathEnd = opts.xScale(Date.parse(d.normalTime) + d.duration) + opts.suspendMarkerWidth;
+            var doseEnd = opts.xScale(Date.parse(d.normalTime) + d.expectedDuration);
 
-            if(suspendedEnd < (doseEnd - opts.triangleSize)) {
-              return 'M' + rightEdge + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
-            }
+            return 'M' + pathEnd + ' ' + doseHeight + 'L' + doseEnd + ' ' + doseHeight;
           },
           'stroke-width': opts.bolusStroke,
-          'class': function(d){
-            d = pluckBolus(d);
-            if (unknownDeliverySplit(d)) {
-              return 'd3-path-extended-suspended d3-bolus d3-unknown-delivery-split';
-            } else {
-              return 'd3-path-extended-suspended d3-bolus';
-            }
-          },
+          'class': 'd3-path-extended-suspended d3-bolus',
           id: function(d) {
             d = pluckBolus(d);
             return 'bolus_' + d.id;
@@ -454,10 +388,7 @@ module.exports = function(pool, opts) {
       },
       html: function(group, d) {
         var bolus = pluckBolus(d);
-        var justBolus = !(bolus.programmed && bolus.programmed !== bolus.value) &&
-          !(bolus.recommended && bolus.recommended !== bolus.value) &&
-          !(bolus.extended && bolus.extendedDelivery) &&
-          !(d.carbs);
+        var justBolus = (bolus.normal === commonbolus.getMaxValue(d)) && !d.carbInput;
 
         var title = group.append('div')
           .attr('class', 'title');
@@ -466,14 +397,14 @@ module.exports = function(pool, opts) {
           .attr('class', 'timestamp left')
           .html(format.timestamp(bolus.normalTime));
         // interrupted boluses get priority on special headline
-        if (bolus.programmed != null && bolus.programmed !== bolus.value) {
+        if (commonbolus.getProgrammed(d) !== commonbolus.getDelivered(d)) {
           title.append('p')
             .attr('class', 'interrupted plain right')
             .text('interrupted');
           title.classed('wider', true);
         }
         // if not interrupted, then extended boluses get a headline
-        else if (bolus.extended === true) {
+        else if (bolus.extended) {
           title.append('p')
             .attr('class', 'plain right')
             .text('Extended');
@@ -481,18 +412,18 @@ module.exports = function(pool, opts) {
 
         var tbl = group.append('table');
         // carbs
-        if (d.type === 'wizard' && d.carbs != null) {
+        // truthiness desirable here: don't want to display carbInput of 0
+        if (d.type === 'wizard' && d.carbInput) {
           var carbRow = tbl.append('tr');
           carbRow.append('td')
             .attr('class', 'label')
             .text('Carbs');
           carbRow.append('td')
             .attr('class', 'right')
-            .text(d.carbs.value + ' g');
+            .text(d.carbInput + ' g');
         }
 
-        // only show recommendation when different from delivery
-        if (bolus.recommended != null && bolus.recommended !== getValue(bolus)) {
+        if (commonbolus.getRecommended(d) >= 0 && commonbolus.getRecommended(d) !== commonbolus.getProgrammed(d)) {
           // wizard-suggested bolus
           var sugRow = tbl.append('tr');
           sugRow.append('td')
@@ -500,17 +431,17 @@ module.exports = function(pool, opts) {
             .text('Suggested');
           sugRow.append('td')
             .attr('class', 'right')
-            .text(format.tooltipValue(bolus.recommended));
+            .text(format.tooltipValue(commonbolus.getRecommended(d)));
         }
         // only show programmed when different from delivery
-        if (bolus.programmed != null && bolus.programmed !== bolus.value) {
+        if (commonbolus.getProgrammed(d) !== commonbolus.getDelivered(d)) {
           var intRow = tbl.append('tr');
           intRow.append('td')
             .attr('class', 'label')
             .text('Programmed');
           intRow.append('td')
             .attr('class', 'right')
-            .text(format.tooltipValue(bolus.programmed));
+            .text(format.tooltipValue(commonbolus.getProgrammed(d)));
         }
         // actual delivered bolus
         var delRow = tbl.append('tr');
@@ -521,20 +452,20 @@ module.exports = function(pool, opts) {
           .text('Delivered');
         delRow.append('td')
           .attr('class', 'big')
-          .text(format.tooltipValue(bolus.value));
+          .text(format.tooltipValue(commonbolus.getDelivered(d)));
 
         // extended bolus
         if (bolus.extended) {
           var extRow = tbl.append('tr');
           // square bolus
-          if (!bolus.initialDelivery) {
+          if (!bolus.normal) {
             extRow.append('td')
               .attr('class', 'dual')
-              .text(format.timespan({duration: getDuration(bolus)}) + ':');
+              .text(format.timespan({duration: bolus.duration}) + ':');
             extRow.append('td')
               .attr('class', 'secondary')
-              .text(format.percentage(bolus.extendedDelivery/getValue(bolus)) +
-                ' (' + format.tooltipValue(bolus.extendedDelivery) + ')');
+              .text(format.percentage(bolus.extended/commonbolus.getProgrammed(bolus)) +
+                ' (' + format.tooltipValue(bolus.extended) + ')');
           }
           else {
             extRow.append('td')
@@ -542,16 +473,16 @@ module.exports = function(pool, opts) {
               .text('Up front: ');
             extRow.append('td')
               .attr('class', 'secondary')
-              .text(format.percentage(bolus.initialDelivery/getValue(bolus)) +
-                ' (' + format.tooltipValue(bolus.initialDelivery) + ')');
+              .text(format.percentage(bolus.normal/commonbolus.getProgrammed(d)) +
+                ' (' + format.tooltipValue(bolus.normal) + ')');
             var extRow2 = tbl.append('tr');
             extRow2.append('td')
               .attr('class', 'dual')
-              .text(format.timespan({duration: getDuration(bolus)}) + ':');
+              .text(format.timespan({duration: bolus.duration}) + ':');
             extRow2.append('td')
               .attr('class', 'secondary')
-              .text(format.percentage(bolus.extendedDelivery/getValue(bolus)) +
-                ' (' + format.tooltipValue(bolus.extendedDelivery) + ')');
+              .text(format.percentage(bolus.extended/commonbolus.getProgrammed(bolus)) +
+                ' (' + format.tooltipValue(bolus.extended) + ')');
           }
         }
       },
@@ -563,7 +494,7 @@ module.exports = function(pool, opts) {
       _.each(data, function(d) {
         var annotationOpts = {
           x: opts.xScale(Date.parse(d.normalTime)),
-          y: opts.yScale(d.value),
+          y: opts.yScale(commonbolus.getMaxValue(d)),
           xMultiplier: -2,
           yMultiplier: 1,
           d: d,

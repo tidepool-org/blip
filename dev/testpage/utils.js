@@ -15,19 +15,34 @@
  * == BSD2 LICENSE ==
  */
 
-var _ = require('lodash');
+var dt = require('../../js/data/util/datetime');
+var APPEND = '.000Z';
 
-function DeviceUtil(data) {
-  this.findLastDatum = function() {
-    var included = ['bolus', 'carbs', 'smbg'];
-    for (var j = data.length - 1; j > 0; j--) {
-      if (included.indexOf(data[j].type) !== -1) {
-        return data[j].normalTime;
+function Cycler(increment, cycles) {
+    var i = 0;
+
+    return function() {
+      if (i < cycles) {
+        ++i;
       }
-    }
-  };
+      else {
+        i = 1;
+      }
+      return i * increment;
+    };
+  }
 
-  this.data = data;
+function Intervaler(datetime, millis) {
+  datetime = dt.addDuration(datetime + APPEND, -millis).slice(0, -5);
+  return function() {
+    datetime = dt.addDuration(datetime + APPEND, millis).slice(0, -5);
+    return datetime;
+  };
 }
 
-module.exports = DeviceUtil;
+module.exports = (function() {
+  return {
+    Cycler: Cycler,
+    Intervaler: Intervaler
+  };
+}());

@@ -15,14 +15,17 @@
  * == BSD2 LICENSE ==
  */
 
-var common = require('./common.js');
-var schema = require('./validator/schematron.js');
+var _ = require('lodash');
 
-module.exports = schema(
-  common,
-  {
-    deviceTime: schema().isDeviceTime(),
-    units: schema().in(['mg/dL', 'mmol/L']),
-    value: schema().number()
-  }
-);
+var validate = require('../js/validation/validate');
+
+var data = require('../example/data/device-data.json');
+
+console.log('\nItems to validate:', data.length, '\n');
+
+console.time('Validation in');
+var res = validate.validateAll(data);
+console.timeEnd('Validation in');
+
+console.log('\nValid items:', res.valid.length);
+console.log('Invalid items:', res.invalid.length, '\n');

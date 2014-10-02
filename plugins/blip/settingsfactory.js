@@ -27,16 +27,14 @@ function settingsFactory(el, options) {
   var log = bows('Settings Factory');
   options = options || {};
 
-  var emitter = new EventEmitter();
-  var page = tideline.settings(emitter);
-  page.emitter = emitter;
+  var page = tideline.settings(options);
 
   var create = function(el, options) {
     if (!el) {
       throw new Error('Sorry, you must provide a DOM element! :(');
     }
 
-    d3.select(el).call(page);
+    d3.select(el).call(page, options);
 
     return page;
   };

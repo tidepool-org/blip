@@ -14,7 +14,7 @@
 # == BSD2 LICENSE ==
 #
 # usage: demo_data.py [-h] [-d DEXCOM_SEGMENTS] [-m] [-n NUM_DAYS]
-#                     [-o OUTPUT_FILE] [-q]
+#                     [-o OUTPUT_FILE] [-s START_DATE] [-t] [-q]
 #
 # Generate demo diabetes data for Tidepool applications and visualizations.
 #
@@ -28,6 +28,9 @@
 #                         number of days of demo data to generate; default is 30
 #   -o OUTPUT_FILE, --output_file OUTPUT_FILE
 #                         name of output JSON file; default is device-data.json
+#   -s START_DATE, --start_date START_DATE
+#                         ISO 8601 start date default is now
+#   -t, --minify          print bare minimum fields and minify JSON
 #   -q, --quiet_messages  use this flag to turn off messages when bacon ipsum is
 #                         being slow
 
@@ -39,6 +42,8 @@ from datetime import datetime as dt
 from datetime import time as t
 from datetime import timedelta as td
 import json
+from pytz import timezone
+import pytz
 import random
 import sys
 from urllib2 import urlopen
@@ -95,25 +100,40 @@ class Basal:
 
         self.segments = []
 
-        self.temp_segments = []
-
         self.end_initial = self._get_initial_segment()
 
         self.end_middle = self._get_middle_segments()
 
         self._get_final_segment()
 
-        self.generate_temp_basals()
-        # more hackery because of my bad while loops /o\
-        self.temp_segments.pop()
+        def fix_duration(segment):
+            dur = int(segment['duration'].total_seconds()*1000)
+            if dur < 0:
+                segment['duration'] = td(milliseconds=(86400000 + dur))
+            else:
+                segment['duration'] = td(milliseconds=dur)
+            return segment
 
-        self.json = [s for s in self.segments] + [s for s in self.temp_segments]
+        self.segments = [fix_duration(s) for s in self.segments]
 
-        for segment in self.json:
-            segment['start'] = segment['start'].isoformat()
-            segment['end'] = segment['end'].isoformat()
-            segment['duration'] = abs(int(segment['duration'].total_seconds()*1000))
+        self._make_temp_segments()
+
+        def serialize(segment):
+            segment['normalEnd'] = (segment['deviceTime'] + segment['duration']).isoformat() + '.000Z'
+            segment['deviceTime'] = segment['deviceTime'].isoformat()
+            segment['duration'] = int(segment['duration'].total_seconds()*1000)
             segment['id'] = str(uuid.uuid4())
+            try:
+                serialize(segment['suppressed'])
+            except KeyError:
+                pass
+            try:
+                del segment['used']
+            except KeyError:
+                pass
+            return segment
+
+        self.json = [serialize(s) for s in self.segments]
 
     def _append_segment(self, d, segment_start):
 
@@ -131,34 +151,14 @@ class Basal:
         end = dt(d.year, d.month, d.day, segment_start.hour, segment_start.minute, segment_start.second)
 
         segment = {                
-                    'type': 'basal-rate-segment',
-                    'delivered': self.schedule[current_segment],
-                    'value': self.schedule[current_segment],
+                    'type': 'basal',
+                    'rate': self.schedule[current_segment],
                     'deliveryType': 'scheduled',
-                    'start': start,
-                    'end': end,
+                    'deviceTime': start,
                     'duration': end - start
                 }
 
-        if segment_start == t(0,0,0):
-            segment['end'] = segment['end'] + td(days=1)
-
         self.segments.append(segment);
-
-    def _append_temp_segment(self, d, duration, percent):
-
-        start = dt(d.year, d.month, d.day, d.hour, d.minute, d.second)
-
-        segment = {                
-                    'type': 'basal-rate-segment',
-                    'percent': percent,
-                    'deliveryType': 'temp',
-                    'start': start,
-                    'end': start + duration,
-                    'duration': duration
-                }
-
-        self.temp_segments.append(segment);
 
     def _get_difference(self, t1, t2):
 
@@ -175,21 +175,17 @@ class Basal:
 
     def _get_endpoints(self):
 
-        bolus_times = []
-
-        for b in self.boluses:
-            date_string = b['deviceTime']
-            bolus_times.append({'deviceTime': dt.strptime(date_string, '%Y-%m-%dT%H:%M:%S')})
-
-        all_pump_data = bolus_times + self.carbs
+        all_pump_data = self.boluses + self.carbs
 
         all_pump_data = sorted(all_pump_data, key=lambda x: x['deviceTime'])
 
-        return (all_pump_data[0], all_pump_data[len(all_pump_data) - 1])
+        to_return = (all_pump_data[0], all_pump_data[len(all_pump_data) - 1])
+
+        return [dt.strptime(item['deviceTime'],  '%Y-%m-%dT%H:%M:%S') for item in to_return]
 
     def _get_initial_segment(self):
 
-        d = self.endpoints[0]['deviceTime']
+        d = self.endpoints[0]
 
         beginning = t(d.hour, d.minute, d.second)
 
@@ -209,9 +205,9 @@ class Basal:
 
         segment_start = self.end_initial
 
-        d = self.endpoints[0]['deviceTime']
+        d = self.endpoints[0]
 
-        end = self.endpoints[1]['deviceTime']
+        end = self.endpoints[1]
 
         start_datetime = dt(d.year, d.month, d.day, segment_start.hour, segment_start.minute, segment_start.second)
 
@@ -239,28 +235,52 @@ class Basal:
         # this is hack since I didn't do a great job on the while loop in _get_middle_segments
         self.segments.pop()
 
-        d = self.endpoints[1]['deviceTime']
+        d = self.endpoints[1]
 
         self._append_segment(self.end_middle, t(d.hour, d.minute, d.second))
 
-    def generate_temp_basals(self):
+    def _make_temp_segments(self):
 
-        day_skip = range(0,1)
+        likelihood = [0,0,0,0,0,0,0,1]
 
-        durations = range(30, 510, 30)
+        percents = [item/10.0 for item in range(0,16)]
 
-        start = self.endpoints[0]['deviceTime']
-        end = self.endpoints[1]['deviceTime']
+        original_length = len(self.segments)
 
-        current_datetime = start
+        for i, segment in enumerate(self.segments):
+            
+            percent = random.choice(percents)
+            if percent == 1.0:
+                percent = 0.5
 
-        basal_possibilities = [x / 100.0 for x in range(0, 155,5)]
+            # proper subset temps
+            if random.choice(likelihood) and i < original_length:
+                left_segment = segment.copy()
+                left_segment['duration'] = td(seconds=int(segment['duration'].total_seconds() * 0.25))
+                left_segment['used'] = 'subset/left_segment'
 
-        while current_datetime < end:
-            days_delta = td(days=random.choice(day_skip))
-            time_delta = td(hours=random.choice(HOURS), minutes=random.choice(SIXTY))
-            current_datetime = current_datetime + days_delta + time_delta
-            self._append_temp_segment(current_datetime, td(minutes=random.choice(durations)), random.choice(basal_possibilities))
+                middle_segment = segment.copy()
+                middle_segment['deviceTime'] = segment['deviceTime'] + left_segment['duration']
+                middle_segment['duration'] = left_segment['duration'] * 2
+                middle_segment['used'] = 'subset/middle_segment'
+                middle_segment['source'] = 'demo'
+                middle_segment['deviceId'] = 'Demo - 123'
+
+                right_segment = segment.copy()
+                right_segment['deviceTime'] = segment['deviceTime'] + left_segment['duration'] + middle_segment['duration']
+                right_segment['duration'] = segment['duration'] - left_segment['duration'] - middle_segment['duration']
+                right_segment['used'] = 'subset/right_segment'
+
+                segment['deviceTime'] = middle_segment['deviceTime']
+                segment['duration'] = middle_segment['duration']
+                segment['deliveryType'] = 'temp'
+                segment['percent'] = percent
+                segment['rate'] = round(segment['percent'] * middle_segment['rate'], 3)
+                segment['suppressed'] = middle_segment
+                segment['used'] = 'subset/segment'
+
+                self.segments.append(left_segment)
+                self.segments.append(right_segment)
 
 class Boluses:
     """Generate demo bolus data."""
@@ -268,8 +288,6 @@ class Boluses:
     def __init__(self, wizards):
 
         self.wizards = wizards
-
-        self.ratio = 15.0
 
         self.mu = 2.0
 
@@ -281,7 +299,16 @@ class Boluses:
 
         self._generate_correction_boluses()
 
-        self.json = [b for b in self.boluses if (b['value'] > 0)]
+        self.json = [b for b in self.boluses if (self._get_value(b)[0] > 0)]
+
+    def _get_value(self, bolus):
+        """Return the value of a bolus no matter if bolus is normal or extended."""
+
+        try:
+            val = bolus['normal']
+            return (val, 'normal')
+        except KeyError:
+            return (bolus['extended'], 'extended')
 
     def _time_shift(self):
 
@@ -291,22 +318,41 @@ class Boluses:
 
         return random.randint(-4, 4)
 
-    def _dose_shift(self):
-
-        return random.choice([-1.5, -1.0, -0.5, 0.5, 1.0, 1.5])
-
-    def _recommendation(self):
-
-        return random.randint(-3,3)
-
     def _generate_meal_boluses(self):
         """Generate boluses to match generated carb counts."""
 
-        bolus = self
+        likelihood = [0,0,0,1]
 
-        likelihood = [0,0,0,0,1]
+        additions = [-2.2, -1.3, -0.4, 0.5, 1.2, 1.7, 3.4]
 
-        boluses = [{'id': str(uuid.uuid4()), 'type': 'bolus', 'deviceTime': wiz['deviceTime'], 'joinKey': wiz['joinKey'], 'value': round(float(wiz['payload']['carbInput'] / (bolus.ratio + random.choice(likelihood) * bolus._ratio_shift())), 1), 'recommended': round(wiz['payload']['carbInput'] / bolus.ratio, 1)} for wiz in bolus.wizards.json]
+        def bolus_value(wiz):
+            bolus = 0.0
+            rec = wiz['recommended']
+            if 'carb' in rec.keys():
+                bolus += rec['carb']
+            if 'correction' in rec.keys():
+                bolus += rec['correction']
+            bolus += (random.choice(likelihood) * random.choice(additions))
+            return bolus
+
+        boluses = []
+        wizards = []
+
+        for wiz in self.wizards.json:
+            bolus = {
+                'id': str(uuid.uuid4()),
+                'type': 'bolus',
+                'subType': 'normal',
+                'deviceTime': wiz['deviceTime'],
+                'joinKey': wiz['joinKey'],
+                'normal': bolus_value(wiz)
+            }
+            if bolus['normal'] > 0:
+                boluses.append(bolus)
+                wiz['bolus'] = bolus
+                wizards.append(wiz)
+
+        self.wizards.json = wizards
 
         return boluses
 
@@ -328,10 +374,8 @@ class Boluses:
 
             current_value = round(random.gauss(self.mu, self.sigma), 1)
 
-            current_recommendation = round(current_value + random.choice(likelihood) * self._dose_shift(), 1)
-
-            if (current_recommendation > 0) and (current_value > 0):
-                self.boluses.append({'id': str(uuid.uuid4()), 'type': 'bolus', 'deviceTime': next.isoformat(), 'value': current_value, 'recommended': current_recommendation})
+            if current_value > 0:
+                self.boluses.append({'id': str(uuid.uuid4()), 'type': 'bolus', 'subType': 'normal', 'deviceTime': next.isoformat(), 'normal': current_value})
 
             t = next
 
@@ -344,35 +388,44 @@ class Boluses:
 
         durations = [30,45,60,90,120,180,240]
 
-        tenths = range(0,10)
-
         for bolus in self.boluses:
             coin_flip = random.choice(likelihood)
 
+            fractions = [2,3,4]
+
             if coin_flip:
-                if bolus['value'] >= 2:
+                if bolus['normal'] >= 2:
                     dual = random.choice(likelihood)
                     if dual:
-                        bolus['initialDelivery'] = round(float(random.choice(range(1,10)))/10 * bolus['value'], 1)
-                        bolus['extendedDelivery'] = bolus['value'] - bolus['initialDelivery']
+                        total = bolus['normal']
+                        bolus['normal'] = round(float(random.choice(range(1,10)))/10 * total, 1)
+                        bolus['extended'] = total - bolus['normal']
                         bolus['duration'] = random.choice(durations) * 60 * 1000
                         bolus['type'] = 'bolus'
-                        bolus['extended'] = True
+                        bolus['subType'] = 'dual/square'
                     else:
-                        bolus['extendedDelivery'] = bolus['value']
+                        bolus['extended'] = bolus['normal']
+                        del bolus['normal']
                         bolus['duration'] = random.choice(durations) * 60 * 1000
                         bolus['type'] = 'bolus'
-                        bolus['extended'] = True
+                        bolus['subType'] = 'square'
 
             # make it so that some boluses have a difference between programmed and delivered
             if random.choice(quarter):
-                if bolus['value'] >= 1:
-                    bolus['programmed'] = bolus['value']
+                val, btype = self._get_value(bolus)
+                if val >= 1:
+                    bolus['expected' + btype.title()] = val
                     bolus['type'] = 'bolus'
-                    bolus['value'] = float(random.choice(tenths)/10.0)
-            else:
-                bolus['type'] = 'bolus'
-                bolus['programmed'] = bolus['value']
+                    bolus[btype] = round(val/random.choice(fractions), 1)
+                    if btype == 'normal':
+                        if 'extended' in bolus.keys():
+                            bolus['expectedExtended'] = bolus['extended']
+                            bolus['extended'] = 0.0
+                            bolus['expectedDuration'] = bolus['duration']
+                            bolus['duration'] = 0
+                    elif btype == 'extended':
+                        bolus['expectedDuration'] = bolus['duration']
+                        bolus['duration'] = round((bolus['extended']/bolus['expectedExtended']) * bolus['duration'],0)
 
 class Dexcom:
     """Generate demo Dexcom data."""
@@ -490,6 +543,15 @@ class Wizards:
 
     def __init__(self, meals):
 
+        self.ratio = 12.0
+
+        self.isf = 60.0
+
+        self.bgTarget = {
+            "target": 100,
+            "high": 120
+        }
+
         self.meals = meals
 
         self.json = self._meal_to_wizard()
@@ -497,12 +559,51 @@ class Wizards:
     def _meal_to_wizard(self):
         """Transform a carbs json into a wizard record."""
 
-        return [{
+        bgs = range(39, 402)
+
+        iobs = range(1,31)
+
+        biased = [0,1,1]
+
+        coin_flip = [0,1]
+
+        wizards = []
+
+        for record in self.meals.json:
+            wiz = {
+                'type': 'wizard',
                 'id': record['id'],
                 'deviceTime': record['deviceTime'],
-                'payload': {'carbInput': record['value'], 'carbUnits': record['units']},
-                'type': 'wizard',
-                'joinKey': str(uuid.uuid4())} for record in self.meals.json]
+                'joinKey': str(uuid.uuid4()),
+                'bgTarget': self.bgTarget.copy(),
+                'insulinCarbRatio': self.ratio,
+                'insulinSensitivity': self.isf,
+                'recommended': {}
+            }
+            if random.choice(biased):
+                wiz['carbInput'] = record['value']
+            if random.choice(biased):
+                wiz['bgInput'] = random.choice(bgs)
+            # wizards events can't lack *both* carbInput and bgInput
+            if 'carbInput' not in wiz.keys() and 'bgInput' not in wiz.keys():
+                wiz['carbInput'] = record['value']
+            if random.choice(coin_flip):
+                wiz['insulinOnBoard'] = round(random.choice(iobs)/10.0, 2)
+
+            if 'bgInput' in wiz.keys() and wiz['bgInput'] > self.bgTarget['high']:
+                if 'insulinOnBoard' not in wiz.keys():
+                    wiz['recommended']['correction'] = round((wiz['bgInput'] - self.bgTarget['target'])/self.isf, 1)
+                else:
+                    val = round((wiz['bgInput'] - self.bgTarget['target'])/self.isf, 1) - wiz['insulinOnBoard']
+                    wiz['recommended']['correction'] = val if val > 0 else 0.0
+
+            if 'carbInput' in wiz.keys():
+                wiz['recommended']['carb'] = round(wiz['carbInput']/self.ratio, 1)
+
+
+            wizards.append(wiz)
+
+        return wizards
 
 class Messages:
     """Generate demo messages with bacon ipsum."""
@@ -530,7 +631,7 @@ class Messages:
 
         bacon_ipsum = json.loads(request.read())[0]
 
-        return {'type': 'message', 'id': message_id, 'parentMessage': parent_message_id, 'utcTime': timestamp.isoformat()[:-7] + 'Z', 'messageText': bacon_ipsum}
+        return {'type': 'message', 'id': message_id, 'parentMessage': parent_message_id if len(parent_message_id) > 0 else None, 'time': dt.strftime(pytz.utc.localize(timestamp), '%Y-%m-%dT%H:%M:%S') + '.000Z', 'messageText': bacon_ipsum}
 
     def _generate_messages(self):
 
@@ -639,19 +740,26 @@ class SMBG:
 class Settings:
     """Generate demo settings data."""
 
-    def __init__(self, basal_schedule, carb_ratio, final, num_days):
+    def __init__(self, basal_schedule, carb_ratio, isf, final, num_days):
 
         self.schedule = basal_schedule
 
-        self.schedules = {
-            'Standard': self._schedule_to_array(self.schedule),
-            'Pattern A': self._schedule_to_array(self._mutate_schedule()),
-            'Pattern B': self._schedule_to_array(self._mutate_schedule())
-            }
+        self.schedules = [{
+            'name': 'standard',
+            'value': self._schedule_to_array(self.schedule),
+        }, {
+            'name': 'pattern a',
+            'value': self._schedule_to_array(self._mutate_schedule())
+        }, {
+            'name': 'pattern b',
+            'value': self._schedule_to_array(self._mutate_schedule())
+        }]
+
+        self.schedule_names = ['standard', 'pattern a', 'pattern b']
 
         self.ratio = carb_ratio
 
-        self.isf = 75
+        self.isf = isf
 
         self.penultimate = final + td(days=random.choice(range(-(num_days - 1),0)))
 
@@ -666,22 +774,32 @@ class Settings:
             'deviceTime': self.most_recent.isoformat()[:-7],
             'id': str(uuid.uuid4()),
             'type': 'settings',
-            'activeBasalSchedule': random.choice(self.schedules.keys()),
+            'activeBasalSchedule': random.choice(self.schedule_names),
             'basalSchedules': self.schedules,
             'carbRatio': [{'start': 0, 'amount': int(self.ratio)}],
             'insulinSensitivity': [{'start': 0, 'amount': self.isf}],
-            'bgTarget': [{'start': 0, 'high': 100, 'low': 80}]
+            'bgTarget': [{'start': 0, 'high': 100, 'low': 80}],
+            'units': {'carb': 'grams', 'bg': 'mg/dL'}
         }
+
+        new_schedules = []
+        for sched in self.schedules:
+            if sched['name'] == 'standard':
+                new_schedules.append(sched)
+            else:
+                sched['value'] = self._schedule_to_array(self._mutate_schedule())
+                new_schedules.append(sched)
 
         penultimate = {
             'deviceTime': self.penultimate.isoformat()[:-7],
             'id': str(uuid.uuid4()),
             'type': 'settings',
-            'activeBasalSchedule': random.choice(self.schedules.keys()),
-            'basalSchedules': {k:(v if k != 'Standard' else self._schedule_to_array(self._mutate_schedule())) for k,v in self.schedules.items()},
+            'activeBasalSchedule': random.choice(self.schedule_names),
+            'basalSchedules': new_schedules,
             'carbRatio': [{'start': 0, 'amount': self.ratio * 1.2}],
             'insulinSensitivity': [{'start': 0, 'amount': self.isf + 10}],
-            'bgTarget': [{'start': 0, 'high': 100, 'low': 80}]
+            'bgTarget': [{'start': 0, 'high': 100, 'low': 80}],
+            'units': {'carb': 'grams', 'bg': 'mg/dL'}
         }
 
         return [penultimate, most_recent]
@@ -745,19 +863,43 @@ def _fix_floating_point(a):
 
     return map(lambda i: {key: (round(val, 3) if isinstance(val, float) else val) for key, val in i.items() }, a)
 
+def translate_to_mmol(all_json):
+
+    GLUCOSE_MM = 18.01559
+
+    def translate_bg(val):
+        return round(float(val)/GLUCOSE_MM, 1)
+
+    for a in all_json:
+        if a['type'] == 'cbg' or a['type'] == 'smbg':
+            a['value'] = translate_bg(a['value'])
+            a['units'] = 'mmol/L'
+        elif a['type'] == 'settings':
+            a['units']['bg'] = 'mmol/L'
+            for t in a['bgTarget']:
+                for k in t.keys():
+                    if k != 'range' and k != 'start':
+                        t[k] = translate_bg(t[k])
+            for i in a['insulinSensitivity']:
+                i['amount'] = translate_bg(i['amount'])
+        elif a['type'] == 'wizard':
+            a['units'] = 'mmol/L'
+            if 'bgInput' in a.keys():
+                a['bgInput'] = translate_bg(a['bgInput'])
+            if 'insulinSensitivity' in a.keys():
+                a['insulinSensitivity'] = translate_bg(a['insulinSensitivity'])
+            if 'bgTarget' in a.keys():
+                for k in a['bgTarget'].keys():
+                    if k != 'range':
+                        a['bgTarget'][k] = translate_bg(a['bgTarget'][k])
+
 def print_JSON(all_json, out_file, minify=False):
 
-    # add deviceId field to smbg, boluses, carbs, and basal-rate-segments
-    pump_fields = ['smbg', 'carbs', 'wizard', 'bolus', 'basal-rate-segment', 'settings']
+    # add deviceId field to smbg, boluses, carbs, and basals
+    pump_fields = ['smbg', 'carbs', 'wizard', 'bolus', 'basal', 'settings']
     units_fieds = ['cbg', 'smbg', 'carbs']
-    annotation_fields = ['bolus', 'basal-rate-segment']
-    suspends = []
+    annotation_fields = ['bolus', 'basal']
     for a in all_json:
-        # non-wizard boluses can't have a recommendation!
-        if a['type'] == 'bolus':
-            if not 'joinKey' in a.keys():
-                if 'recommended' in a.keys():
-                    del a['recommended']
         if not minify:
             if a['type'] in pump_fields:
                 a['deviceId'] = 'Demo - 123'
@@ -768,16 +910,28 @@ def print_JSON(all_json, out_file, minify=False):
                 del a['source']
             if a['type'] in units_fieds:
                 del a['units']
-        # temporarily add a device time to messages to enable sorting
+
+        # TODO: make this configurable later, as CL option
+        this_tz = timezone('US/Pacific')
+        utc = pytz.utc
+
+        def add_time(a):
+            a['timezoneOffset'] = -420
+            a['normalTime'] = a['deviceTime'] + '.000Z'
+
+            try:
+                a['time'] = this_tz.localize(dt.strptime(a['deviceTime'], '%Y-%m-%dT%H:%M:%S')).astimezone(utc).isoformat()
+            except ValueError:
+                a['time'] = this_tz.localize(dt.strptime(a['deviceTime'], '%Y-%m-%dT%H:%M:%S.%f')).astimezone(utc).isoformat()
+            a['time'] = a['time'].replace('+00:00', '.000Z')
+
+        if a['type'] != 'message':
+            add_time(a)
+        else:
+            normalized = utc.localize(dt.strptime(a['time'].replace('.000Z',''), '%Y-%m-%dT%H:%M:%S')).astimezone(this_tz)
+            a['normalTime'] = dt.strftime(normalized, '%Y-%m-%dT%H:%M:%S') + '.000Z'
         try:
-            t = a['utcTime']
-            a['deviceTime'] = t
-        except KeyError:
-            pass
-        # temporarily add a device time to basals to enable sorting
-        try:
-            t = a['start']
-            a['deviceTime'] = t
+            add_time(a['suppressed'])
         except KeyError:
             pass
 
@@ -788,90 +942,7 @@ def print_JSON(all_json, out_file, minify=False):
                 if not num:
                     a['annotations'] = [{'code': 'demo annotation'}]
 
-        # find extended boluses where programmed differs from delivered
-        # and add a 'suspendedAt' field
-        # TODO: remove when we have nurse-shark
-        if not minify:
-            try:
-                if (a['type'] == 'bolus') and a['extended'] and a['programmed']:
-                    fraction = random.choice([4,3,2])
-                    coin_flip = random.choice([0,1])
-                    reason = random.choice(['manual', 'low_glucose', 'alarm'])
-                    if coin_flip:
-                        time = dt.strptime(a['deviceTime'], '%Y-%m-%dT%H:%M:%S')
-                        dur = a['duration']/fraction
-                        a['suspendedAt'] = dt.strftime(time + td(milliseconds=dur), '%Y-%m-%dT%H:%M:%S')
-                        # change delivered bolus value to be calculated from suspendedAt
-                        fraction_delivered = dur/float(a['duration'])
-                        if not 'initialDelivery' in a.keys():
-                            a['value'] = round(fraction_delivered * a['programmed'], 1)
-                            a['extendedDelivery'] = a['value']
-                        elif 'initialDelivery' in a.keys():
-                            extended_delivered = round(fraction_delivered * a['extendedDelivery'], 1)
-                            a['value'] = round(extended_delivered + a['initialDelivery'], 1)
-                            a['extendedDelivery'] = extended_delivered
-                        suspendId = str(uuid.uuid4())
-                        suspend = {
-                            'id': suspendId,
-                            'reason': reason,
-                            'type': 'deviceMeta',
-                            'subType': 'status',
-                            'status': 'suspended',
-                            'deviceTime': a['suspendedAt'],
-                            'deviceId': 'Demo - 123',
-                            'source': 'demo'
-                        }
-                        resume = {
-                            'id': str(uuid.uuid4()),
-                            'reason': random.choice(['manual', 'automatic']),
-                            'type': 'deviceMeta',
-                            'subType': 'status',
-                            'status': 'resumed',
-                            'deviceTime': dt.strftime(time + td(milliseconds=dur) * 2 + td(minutes=random.choice(range(-5,6))), '%Y-%m-%dT%H:%M:%S'),
-                            'deviceId': 'Demo - 123',
-                            'source': 'demo',
-                            'joinKey': suspendId
-                        }
-                        suspends.append(suspend)
-                        suspends.append(resume)
-                    else:
-                        if a['programmed'] != a['value']:
-                            time = dt.strptime(a['deviceTime'], '%Y-%m-%dT%H:%M:%S')
-                            if not 'initialDelivery' in a.keys():
-                                fraction_delivered = a['value']/a['programmed']
-                                duration_delivered = int(round(fraction_delivered * a['duration'], 0))
-                                a['suspendedAt'] = dt.strftime(time + td(milliseconds=duration_delivered), '%Y-%m-%dT%H:%M:%S')
-                                a['extendedDelivery'] = a['value']
-                            else:
-                                # dual-wave bolus suspended during delivery of initial normal bolus
-                                if a['value'] <= a['initialDelivery']:
-                                    a['suspendedAt'] = a['deviceTime']
-                                    a['extendedDelivery'] = 0.0
-                                    a['initialDelivery'] = a['value']
-                                else:
-                                    fraction_delivered = (a['value'] - a['initialDelivery'])/(a['programmed'] - a['initialDelivery'])
-                                    duration_delivered = int(round(fraction_delivered * a['duration'], 0))
-                                    a['suspendedAt'] = dt.strftime(time + td(milliseconds=duration_delivered), '%Y-%m-%dT%H:%M:%S')
-                                    a['extendedDelivery'] = round(a['value'] - a['initialDelivery'], 1)
-
-            except KeyError:
-                pass
-
-    all_json = _fix_floating_point(sorted(all_json + suspends, key=lambda x: x['deviceTime']))
-
-    for a in all_json:
-        # remove device time from messages
-        try:
-            utc = a['utcTime']
-            del a['deviceTime']
-        except KeyError:
-            pass
-        # remove device time from basals
-        try:
-            start = a['start']
-            del a['deviceTime']
-        except KeyError:
-            pass
+    all_json = _fix_floating_point(sorted(all_json, key=lambda x: x['time']))
 
     with open(out_file, 'w') as f:
         if not minify:
@@ -889,6 +960,7 @@ def main():
     parser.add_argument('-s', '--start_date', action='store', dest="start_date", help='ISO 8601 start date\ndefault is now')
     parser.add_argument('-t', '--minify', action='store_true', default=False, help='print bare minimum fields and minify JSON')
     parser.add_argument('-q', '--quiet_messages', action='store_true', dest='quiet_messages', help='use this flag to turn off messages when bacon ipsum is being slow')
+    parser.add_argument('--mmol', action='store_true', dest='mmol', help='all BG and BG-related fields in mmol/L')
     args = parser.parse_args()
 
     if args.mock:
@@ -907,17 +979,20 @@ def main():
 
     boluses = Boluses(wizards)
 
-    basal = Basal({}, boluses.json, meals.carbs)
+    basal = Basal({}, boluses.json, meals.json)
 
-    settings = Settings(basal.schedule, boluses.ratio, dex.final, args.num_days)
+    settings = Settings(basal.schedule, wizards.ratio, wizards.isf, dex.final, args.num_days)
 
     if args.minify:
         all_json = dex.json + smbg.json + basal.json + meals.json + boluses.json
     elif args.mock or args.quiet_messages:
-        all_json = dex.json + smbg.json + basal.json + meals.json + wizards.json + boluses.json + settings.json
+        all_json = dex.json + smbg.json + basal.json + wizards.json + boluses.json + settings.json
     else:
         messages = Messages(smbg)
-        all_json = dex.json + smbg.json + basal.json + meals.json + wizards.json + boluses.json + messages.json + settings.json
+        all_json = dex.json + smbg.json + basal.json + wizards.json + boluses.json + messages.json + settings.json
+
+    if args.mmol:
+        translate_to_mmol(all_json)
 
     if not args.minify:
         print_JSON(all_json, args.output_file)

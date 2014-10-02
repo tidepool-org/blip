@@ -16,7 +16,6 @@
  */
 
 module.exports = {
-  days: require('./days'),
-  main: require('./testpage'),
+  patterns: require('./patterns'),
   types: require('./types')
 };

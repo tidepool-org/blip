@@ -41,7 +41,7 @@ describe('datetime utility', function() {
     });
 
     it('should return a datestring that parses as MS_IN_24 from the date arg', function() {
-      var d = new Date(1);
+      var d = new Date();
       var passed = new Date(dt.addDays(d, 1));
       expect(passed - d).to.equal(dt.MS_IN_24);
     });
@@ -49,7 +49,7 @@ describe('datetime utility', function() {
 
   describe('addDuration', function(){
     it('should add a duration', function(){
-      expect(dt.addDuration('2014-01-01T01:00:00.000Z', 60 * 60 * 1000)).equals('2014-01-01T02:00:00');
+      expect(dt.addDuration('2014-01-01T01:00:00.003Z', 60 * 60 * 1000)).equals('2014-01-01T02:00:00.003Z');
     });
   });
 
@@ -77,7 +77,7 @@ describe('datetime utility', function() {
   });
 
   describe('checkIfDateInRange', function() {
-    var s = '2014-03-06T12:00:00.000Z';
+    var s = '2014-03-06T00:00:00.005Z';
     var endpoints = ['2014-03-06T00:00:00.000Z', '2014-03-07T00:00:00.000Z'];
 
     it('should be a function', function() {
@@ -151,6 +151,16 @@ describe('datetime utility', function() {
     });
   });
 
+  describe('difference', function() {
+    it('should be a function', function() {
+      assert.isFunction(dt.difference);
+    });
+
+    it('should return the difference (in milliseconds) between two timestamps', function() {
+      expect(dt.difference('2014-03-06T00:00:00.001Z', '2014-03-06T00:00:00.000Z')).to.equal(1);
+    });
+  });
+
   describe('getDuration', function() {
     it('should be a function', function() {
       assert.isFunction(dt.getDuration);
@@ -164,8 +174,8 @@ describe('datetime utility', function() {
       expect(dt.getDuration('2014-03-06T00:00:00.000Z', '2014-03-06T00:00:00.001Z')).to.equal(1);
     });
 
-    it('should return 86400000 when given two midnights a day apart', function() {
-      expect(dt.getDuration('2014-03-06T00:00:00.000Z', '2014-03-07T00:00:00.000Z')).to.equal(86400000);
+    it('should return 86400000 when given two timestamps a day apart', function() {
+      expect(dt.getDuration('2014-03-06T00:00:00.012Z', '2014-03-07T00:00:00.012Z')).to.equal(86400000);
     });
   });
 
@@ -230,7 +240,7 @@ describe('datetime utility', function() {
     });
 
     it('should return false on two timestamps exactly 24 hours apart', function() {
-      expect(dt.isLessThanTwentyFourHours('2014-03-06T00:00:00.000Z', '2014-03-07T00:00:00.000Z')).to.be.false;
+      expect(dt.isLessThanTwentyFourHours('2014-03-06T00:00:00.013Z', '2014-03-07T00:00:00.013Z')).to.be.false;
     });
   });
 

@@ -20,12 +20,14 @@ var _ = require('lodash');
 
 var log = require('bows')('CBG');
 var bgBoundaryClass = require('./util/bgboundary');
+var format = require('../data/util/format');
 
 module.exports = function(pool, opts) {
 
   opts = opts || {};
 
   var defaults = {
+    bgUnits: 'mg/dL',
     classes: {
       low: {boundary: 80},
       target: {boundary: 180},
@@ -34,6 +36,9 @@ module.exports = function(pool, opts) {
     radius: 2.5,
   };
 
+  var classes = opts.classes;
+  classes = _.omit(classes, ['very-low', 'very-high']);
+  opts.classes = classes;
   _.defaults(opts, defaults);
 
   var mainGroup = pool.parent();
@@ -41,6 +46,9 @@ module.exports = function(pool, opts) {
   function cbg(selection) {
     opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
+
+      cbg.addAnnotations(_.filter(currentData, function(d) { return d.annotations; }));
+
       var allCBG = d3.select(this).selectAll('circle.d3-cbg')
         .data(currentData, function(d) {
           return d.id;
@@ -78,7 +86,9 @@ module.exports = function(pool, opts) {
 
       // tooltips
       selection.selectAll('.d3-circle-cbg').on('mouseover', function() {
-        cbg.addTooltip(d3.select(this).datum());
+        var thisCbg = _.clone(d3.select(this).datum());
+        thisCbg.value = format.tooltipBG(thisCbg, opts.bgUnits);
+        cbg.addTooltip(thisCbg);
       });
       selection.selectAll('.d3-circle-cbg').on('mouseout', function() {
         var id = d3.select(this).attr('id').replace('cbg_', 'tooltip_');
@@ -120,6 +130,26 @@ module.exports = function(pool, opts) {
       xPosition: cbg.xPosition,
       yPosition: cbg.yPosition
     });
+  };
+
+  cbg.addAnnotations = function(data) {
+    for (var i = 0; i < data.length; ++i) {
+      var d = data[i];
+      var annotationOpts = {
+        x: cbg.xPosition(d),
+        y: opts.yScale(d.value),
+        xMultiplier: 0,
+        yMultiplier: 2,
+        orientation: {
+          down: true
+        },
+        d: d
+      };
+      if (mainGroup.select('#annotation_for_' + d.id)[0][0] == null) {
+        mainGroup.select('#tidelineAnnotations_cbg')
+          .call(pool.annotations(), annotationOpts);
+      }
+    }
   };
 
   return cbg;

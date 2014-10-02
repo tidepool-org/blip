@@ -17,11 +17,10 @@
 
 var _ = require('lodash');
 
+var commonbolus = require('../plot/util/commonbolus');
 var format = require('./util/format');
 var datetime = require('./util/datetime');
 var TidelineCrossFilter = require('./util/tidelinecrossfilter');
-
-var log = require('bows')('BolusUtil');
 
 function BolusUtil(data) {
 
@@ -36,7 +35,7 @@ function BolusUtil(data) {
     });
     if (firstBolus !== -1) {
       _.forEach(currentData, function(d) {
-        dose += d.value;
+        dose += commonbolus.getDelivered(d);
       });
     }
     return format.fixFloatingPoint(dose);
@@ -51,7 +50,6 @@ function BolusUtil(data) {
         total += this.subtotal(s, e);
       }
       else if (datetime.isLessThanTwentyFourHours(s, e)) {
-        log('Data domain less than twenty-four hours; cannot calculate bolus total.');
         return NaN;
       }
       else {

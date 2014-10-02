@@ -1,4 +1,20 @@
 /** @jsx React.DOM */
+/* 
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
 var _ = require('lodash');
 var bows = require('bows');
 var React = require('react');
@@ -9,7 +25,7 @@ var Daily = require('./components/daily');
 var Weekly = require('./components/weekly');
 var Settings = require('./components/settings');
 // tideline dependencies & plugins
-var preprocess = require('../plugins/data/preprocess/');
+var nurseshark = require('../plugins/nurseshark/');
 var TidelineData = require('../js/tidelinedata');
 
 require('../css/tideline.less');
@@ -33,7 +49,6 @@ var Example = React.createClass({
   getInitialState: function() {
     return {
       chartPrefs: {
-        bgUnits: 'mg/dL',
         hiddenPools: {
           basalSettings: true
         }
@@ -67,6 +82,7 @@ var Example = React.createClass({
         /* jshint ignore:start */
         return (
           <Daily
+            bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
             patientData={this.state.chartData}
@@ -81,6 +97,7 @@ var Example = React.createClass({
         /* jshint ignore:start */
         return (
           <Weekly
+            bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
             patientData={this.state.chartData}
@@ -95,6 +112,7 @@ var Example = React.createClass({
         /* jshint ignore:start */
         return (
           <Settings
+            bgPrefs={this.state.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             patientData={this.state.chartData}
             onSwitchToDaily={this.handleSwitchToDaily}
@@ -114,14 +132,24 @@ var Example = React.createClass({
     if (err) {
       throw new Error('Could not fetch data file at ' + dataUrl);
     }
-    var processed = preprocess.processData(data);
-    this.updateData(processed.valid);
+    // run nurseshark on data that isn't generated demo data
+    // i.e., real data exported from current blip
+    if (dataUrl !== 'data/device-data.json') {
+      console.time('Nurseshark');
+      data = nurseshark.processData(data).processedData;
+      console.timeEnd('Nurseshark');
+    }
+    this.updateData(data);
   },
   updateData: function(data) {
     var tidelineData = new TidelineData(data);
     window.tidelineData = tidelineData;
     this.setState({
       chartData: tidelineData,
+      bgPrefs: {
+        bgClasses: tidelineData.bgClasses,
+        bgUnits: tidelineData.bgUnits
+      },
       chartType: 'daily'
     });
   },

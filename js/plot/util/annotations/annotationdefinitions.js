@@ -33,6 +33,9 @@
 // Main text annotation for carelink/settings/activeSchedule-mismatch:
 // You may have changed pumps recently - perhaps because you had to have your pump replaced due to malfuction. As a result of how Demo reports the data, we can't be 100% certain of your active basal pattern here.
 //
+// Main text annotation for carelink/device-overlap-boundary:
+// We are not showing data here because we've received datasets from multiple pumps that are in conflict. Demo did not provide enough information to distinguish the data from each pump.
+//
 // Main text annotation for diasend/basal/temp-basal-fabrication:
 // The Demo .xls file doesn't report temp basals directly, so we have to infer from other evidence where you might have been using a temp basal rate. We think this segment could be a temp basal, but it may not be.
 //
@@ -41,6 +44,9 @@
 //
 // Main text annotation for diasend/bolus/extended:
 // The Demo .xls file doesn't report the split between the intitial and the extended delivery during a combo bolus. All we can display is the duration of the combo bolus and the total dose delivered.
+//
+// Main text annotation for basal/intersects-incomplete-suspend
+// Within this basal segment, we are omitting a suspend event that didn't end. This may have resulted from switching to a new device. As a result, this basal segment may be inaccurate.
 //
 // Main text annotation for stats-insufficient-data:
 // There is not enough data to show this statistic.
@@ -82,6 +88,11 @@ var definitions = {
       var b = " reports the data, we can't be 100% certain of your active basal pattern here.";
       return defs.stitch(a, b, source);
     },
+    'carelink/device-overlap-boundary': function(source, defs) {
+      var a = "We are not showing data here because we've received datasets from multiple pumps that are in conflict.";
+      var b = " did not provide enough information to distinguish the data from each pump.";
+      return defs.stitch(a, b, source);
+    },
     'diasend/basal/temp-basal-fabrication': function(source, defs) {
       var a = "The ";
       var b = " .xls file doesn't report temp basals directly, so we have to infer from other evidence where you might have been using a temp basal rate. We think this segment could be a temp basal, but it may not be.";
@@ -96,6 +107,9 @@ var definitions = {
       var a = "The ";
       var b = " .xls file doesn't report the split between the intitial and the extended delivery during a combo bolus. All we can display is the duration of the combo bolus and the total dose delivered.";
       return defs.stitch(a, b, source);
+    },
+    'basal/intersects-incomplete-susppend': function() {
+      return "Within this basal segment, we are omitting a suspend event that didn't end. This may have resulted from switching to a new device. As a result, this basal segment may be inaccurate.";
     },
     'stats-insufficient-data': function() {
       return 'There is not enough data to show this statistic.';
@@ -119,7 +133,8 @@ var definitions = {
     }
   },
   stitch: function(a, b, source) {
-    return a + format.capitalize(source) + b;
+    var sourceText = source === 'carelink' ? ' CareLink' : format.capitalize(source);
+    return a + sourceText + b;
   },
   lead: function(code) {
     code = code || '';

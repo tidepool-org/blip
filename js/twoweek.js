@@ -815,21 +815,20 @@ module.exports = function(emitter) {
 
     container.dataPerDay = [];
 
-    this.days.forEach(function(day) {
-      var thisDay = {
-        year: day.slice(0,4),
-        month: day.slice(5,7),
-        day: day.slice(8,10)
-      };
-      container.dataPerDay.push(_.filter(data, function(d) {
-        var date = new Date(d.normalTime);
-        if ((date.getUTCFullYear() === parseInt(thisDay.year, 10)) &&
-          (date.getUTCMonth() + 1 === parseInt(thisDay.month, 10)) &&
-          (date.getUTCDate() === parseInt(thisDay.day, 10))) {
-          return d;
-        }
-      }));
-    });
+    var dayIndex = 0, thisDay = this.days[dayIndex], current = [];
+    for (var i = 0; i < data.length; ++i) {
+      var date = data[i].normalTime.slice(0,10);
+      if (date === thisDay) {
+        current.push(data[i]);
+      }
+      else {
+        container.dataPerDay.push(current);
+        current = [data[i]];
+        dayIndex += 1;
+        thisDay = this.days[dayIndex];
+      }
+    }
+    container.dataPerDay.push(current);
 
     return container;
   };

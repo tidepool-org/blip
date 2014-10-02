@@ -28,6 +28,7 @@ module.exports = function(pool, opts) {
   opts = opts || {};
 
   var defaults = {
+    bgUnits: 'mg/dL',
     classes: {
       'very-low': {boundary: 60},
       low: {boundary: 80},
@@ -47,6 +48,9 @@ module.exports = function(pool, opts) {
   function smbg(selection) {
     opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
+
+      smbg.addAnnotations(_.filter(currentData, function(d) { return d.annotations; }));
+
       var circles = d3.select(this)
         .selectAll('circle.d3-smbg')
         .data(currentData, function(d) {
@@ -115,7 +119,7 @@ module.exports = function(pool, opts) {
     group.append('p')
       .attr('class', 'value')
       .append('span')
-      .html(Math.round(datum.value));
+      .html(format.tooltipBG(datum, opts.bgUnits));
   };
 
   smbg.addTooltip = function(d) {
@@ -146,6 +150,26 @@ module.exports = function(pool, opts) {
       shape: 'smbg',
       edge: res.edge
     });
+  };
+
+  smbg.addAnnotations = function(data) {
+    for (var i = 0; i < data.length; ++i) {
+      var d = data[i];
+      var annotationOpts = {
+        x: smbg.xPosition(d),
+        y: opts.yScale(d.value),
+        xMultiplier: 0,
+        yMultiplier: 2,
+        orientation: {
+          down: true
+        },
+        d: d
+      };
+      if (mainGroup.select('#annotation_for_' + d.id)[0][0] == null) {
+        mainGroup.select('#tidelineAnnotations_smbg')
+          .call(pool.annotations(), annotationOpts);
+      }
+    }
   };
 
   return smbg;

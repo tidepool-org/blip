@@ -61,6 +61,8 @@ module.exports = function(pool, opts) {
     }
   };
 
+  _.defaults(opts, defaults);
+
   var data = {
     ratio: [],
     range: [],
@@ -77,8 +79,6 @@ module.exports = function(pool, opts) {
     stats.getStats(domain);
     stats.draw();
   });
-
-  opts = _.defaults(opts, defaults);
 
   var getBgBoundaryClass = bgBoundaryClass(opts.classes);
   var widgetGroup, rectScale;
@@ -97,8 +97,9 @@ module.exports = function(pool, opts) {
     });
 
     var pw = opts.puddleWeights;
-
-    var targetRangeString = 'Target range: ' + opts.classes.low.boundary + ' - ' + opts.classes.target.boundary + ' ';
+    var lowBound = opts.bgUnits === 'mg/dL' ? opts.classes.low.boundary : opts.classes.low.boundary.toFixed(1); 
+    var highBound = opts.bgUnits === 'mg/dL' ? opts.classes.target.boundary : opts.classes.target.boundary.toFixed(1);
+    var targetRangeString = 'Target range: ' + lowBound + ' - ' + highBound + ' ';
 
     // create basal-to-bolus ratio puddle
     stats.newPuddle('Ratio', 'Basal : Bolus', 'Basal to bolus insulin ratio', pw.ratio, true);
@@ -222,19 +223,19 @@ module.exports = function(pool, opts) {
     rectGroup.append('line')
       .attr({
         x1: puddle.width() / 16,
-        x2: puddle.width() * (7/16),
-        y1: rectScale(80) + (pool.height() / 10),
-        y2: rectScale(80) + (pool.height() / 10),
+        x2: puddle.width() * (3/8),
+        y1: rectScale(opts.classes.low.boundary) + (pool.height() / 10),
+        y2: rectScale(opts.classes.low.boundary) + (pool.height() / 10),
         class: 'd3-line-guide d3-line-bg-threshold'
       });
 
     rectGroup.append('line')
       .attr({
         x1: puddle.width() / 16,
-        x2: puddle.width() * (7/16),
-        y1: rectScale(180) + (pool.height() / 10),
-        y2: rectScale(180) + (pool.height() / 10),
-        class: 'd3-line-guide d3-line-bg-threshold'
+        x2: puddle.width() * (3/8),
+        y1: rectScale(opts.classes.target.boundary) + (pool.height() / 10),
+        y2: rectScale(opts.classes.target.boundary) + (pool.height() / 10),
+        'class': 'd3-line-guide d3-line-bg-threshold'
       });
 
     var imageY = rectScale(data.value) + (pool.height() / 10);
@@ -244,7 +245,7 @@ module.exports = function(pool, opts) {
         cx: (puddle.width() * (7/32)),
         cy: isFinite(imageY) ? imageY : 0,
         r: 7,
-        class: getBgBoundaryClass(data)
+        'class': getBgBoundaryClass(data)
       })
       .classed({
         'd3-image': true,
@@ -286,7 +287,7 @@ module.exports = function(pool, opts) {
     if (isFinite(imageY)) {
       stats.rectGroup.selectAll('.d3-stats-circle')
         .attr({
-          class: getBgBoundaryClass(data),
+          'class': getBgBoundaryClass(data),
           cy: imageY
         })
         .classed({'d3-stats-circle': true, 'd3-smbg': true, 'd3-circle-smbg': true, 'hidden': false});
@@ -310,7 +311,7 @@ module.exports = function(pool, opts) {
     var pieGroup = puddleGroup.append('g')
       .attr({
         transform: 'translate(' + xOffset + ',' + yOffset + ')',
-        class: 'd3-stats-pie'
+        'class': 'd3-stats-pie'
       });
     if (stats.hasNaN(data)) {
       puddleGroup.classed('d3-insufficient-data', true);
@@ -350,7 +351,7 @@ module.exports = function(pool, opts) {
         .append('path')
         .attr({
           d: arc,
-          class: function(d) {
+          'class': function(d) {
             return 'd3-stats-slice d3-' + d.data.type;
           }
         });
@@ -414,26 +415,26 @@ module.exports = function(pool, opts) {
     var total = bolus + basal;
     return [{
         text: format.percentage(basal/total) + ' : ',
-        class: 'd3-stats-basal'
+        'class': 'd3-stats-basal'
       },
       {
         text: format.percentage(bolus/total),
-        class: 'd3-stats-bolus'
+        'class': 'd3-stats-bolus'
       }];
   };
 
   stats.rangeDisplay = function() {
     var target = _.findWhere(data.range, {type: 'bg-target'}).value;
     var total = parseFloat(data.bgReadings);
-    return [{text: format.percentage(target/total), class: 'd3-stats-percentage'}];
+    return [{text: format.percentage(target/total), 'class': 'd3-stats-percentage'}];
   };
 
   stats.averageDisplay = function() {
     if (isNaN(data.average.value)) {
-      return [{text: '--- mg/dL', class: 'd3-stats-' + data.average.category}];
+      return [{text: '--- ' + opts.bgUnits, 'class': 'd3-stats-' + data.average.category}];
     }
     else {
-      return [{text: data.average.value + ' mg/dL', class: 'd3-stats-' + data.average.category}];
+      return [{text: data.average.value + ' ' + opts.bgUnits, 'class': 'd3-stats-' + data.average.category}];
     }
   };
 

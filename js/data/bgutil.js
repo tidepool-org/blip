@@ -20,11 +20,18 @@ var _ = require('lodash');
 var datetime = require('./util/datetime');
 var TidelineCrossFilter = require('./util/tidelinecrossfilter');
 
-var log = require('bows')('BGUtil');
-
 function BGUtil(data, opts) {
 
   opts = opts || {};
+  var defaults = {
+    bgClasses: {
+      low: {boundary: 80},
+      target: {boundary: 180}
+    },
+    bgUnits: 'mg/dL'
+  };
+  _.defaults(opts, defaults);
+
   if (opts.DAILY_MIN == null) {
     throw new Error('BGUtil needs a daily minimum readings (`opts.DAILY_MIN`) in order to calculate a statistic.');
   }
@@ -32,12 +39,7 @@ function BGUtil(data, opts) {
   var MS_IN_24 = 86400000;
   var currentIndex = 0, currentData;
 
-  var categories = {
-    low: 80,
-    target: 180
-  };
-
-  var defaults = {
+  var defaultResult = {
     low: 0,
     target: 0,
     high: 0,
@@ -52,10 +54,10 @@ function BGUtil(data, opts) {
   };
 
   function getCategory (n) {
-    if (n <= categories.low) {
+    if (n <= opts.bgClasses.low.boundary) {
       return 'low';
     }
-    else if ((n > categories.low) && (n <= categories.target)) {
+    else if ((n > opts.bgClasses.low.boundary) && (n <= opts.bgClasses.target.boundary)) {
       return 'target';
     }
     else {
@@ -90,7 +92,6 @@ function BGUtil(data, opts) {
         return this.filtered(s, e);
       }
       else if (datetime.isLessThanTwentyFourHours(s, e)) {
-        log('Data domain less than twenty-four hours; cannot calculate bolus total.');
         return {data: [], excluded: []};
       }
       else {
@@ -106,7 +107,6 @@ function BGUtil(data, opts) {
           time = new Date(next).valueOf();
         }
         if (excluded.length > exclusionThreshold) {
-          log(excluded.length, 'days excluded. Not enough CGM data in some days to calculate stats.');
           return {data: [], excluded: excluded};
         }
         else {
@@ -115,7 +115,6 @@ function BGUtil(data, opts) {
       }
     }
     else {
-      log('Endpoint verification failed!');
       return {data: [], excluded: []};
     }
   };
@@ -129,7 +128,7 @@ function BGUtil(data, opts) {
       var groups = _.countBy(filtered, function(d) {
         return getCategory(d.value);
       });
-      breakdown = _.defaults(breakdown, groups, defaults);
+      breakdown = _.defaults(breakdown, groups, defaultResult);
       breakdown.total = breakdown.low + breakdown.target + breakdown.high;
     }
     return _.defaults(breakdown, breakdownNaN);
@@ -140,7 +139,14 @@ function BGUtil(data, opts) {
       var sum = _.reduce(filtered, function(memo, d) {
         return memo + d.value;
       }, 0);
-      var average = parseInt((sum/filtered.length).toFixed(0), 10);
+      var average;
+      if (opts.bgUnits === 'mmol/L') {
+        average = (sum/filtered.length).toFixed(1);
+      }
+      else {
+        average = parseInt((sum/filtered.length).toFixed(0), 10);
+      }
+      
       return {value: average, category: getCategory(average)};
     }
     else {

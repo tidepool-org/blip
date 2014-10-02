@@ -1,3 +1,20 @@
+/* 
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+
 var util = require('util');
 
 var _ = require('lodash');
@@ -13,7 +30,7 @@ function error() {
 function matchesRegex(regex) {
   return function(v) {
     if (!regex.test(v)) {
-      error('Should match the regex [%s], got [%s]', regex, v);
+      error('should match the regex [%s], got [%s]', regex, v);
     }
   };
 }
@@ -21,16 +38,15 @@ function matchesRegex(regex) {
 function typeOf(match) {
   return function(e) {
     if (typeof(e) !== match) {
-      error('Should be of type [%s], value was [%s]', match, e);
+      error('should be of type [%s], value was [%s]', match, e);
     }
   };
 }
 
 var isAnId = matchesRegex(/^[A-Za-z0-9\-\_]+$/);
 // deviceTime is the raw, non-timezone-aware string
-var isADeviceTime = matchesRegex(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
+var isADeviceTime = matchesRegex(/^(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d)$/);
 var isoPattern = /^(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))$/;
-
 
 module.exports = function() {
   if (arguments.length > 0) {
@@ -42,9 +58,9 @@ module.exports = function() {
 
   return _.assign(
     function(e) {
-      if (optional && e == null) {
+      if (optional && e === undefined) {
         return;
-      } else if (!optional && e == null) {
+      } else if (!optional && e === undefined) {
         error('is required');
       }
 
@@ -56,11 +72,23 @@ module.exports = function() {
       array: function(fn) {
         fns.push(function(e){
           if (!Array.isArray(e)) {
-            error('Should be an array, value was [%s]', e);
+            error('should be an array, value was [%s]', e);
           }
 
           for (var i = 0; i < e.length; ++i) {
             fn(e[i]);
+          }
+        });
+
+        return this;
+      },
+
+      banned: function() {
+        optional = true;
+
+        fns.push(function(e) {
+          if (e !== undefined) {
+            error('should not exist, but found [%s]', e);
           }
         });
 
@@ -86,7 +114,7 @@ module.exports = function() {
 
         fns.push(function (e) {
           if (obj[e] == null) {
-            error('Should be one of %j, got [%s]', vals, e);
+            error('should be one of %j, got [%s]', vals, e);
           }
         });
         return this;
@@ -103,11 +131,19 @@ module.exports = function() {
         return this;
       },
 
+      isNull: function() {
+        fns.push(function(value) {
+          if (value !== null) {
+            error('is not null, got [%s]', value);
+          }
+        });
+        return this;
+      },
 
       isISODateTime: function () {
         fns.push(function (value) {
           if (!isoPattern.test(value)) {
-            error('Is not an ISODate string, got [%s]', value);
+            error('is not an ISODate string, got [%s]', value);
           }
         });
         return this;
@@ -116,7 +152,7 @@ module.exports = function() {
       minLength: function(length) {
         fns.push(function(e) {
           if (e.length < length) {
-            error('Should have a length >= [%s], got [%s]', length, e);
+            error('should have a length >= [%s], got [%s]', length, e);
           }
         });
         return this;
@@ -125,7 +161,7 @@ module.exports = function() {
       max: function (val) {
         fns.push(function (e) {
           if (e > val) {
-            error('Should be <= [%s], got [%s]', val, e);
+            error('should be <= [%s], got [%s]', val, e);
           }
         });
         return this;
@@ -134,7 +170,7 @@ module.exports = function() {
       min: function (val) {
         fns.push(function (e) {
           if (e < val) {
-            error('Should be >= [%s], got [%s]', val, e);
+            error('should be >= [%s], got [%s]', val, e);
           }
         });
         return this;
@@ -150,6 +186,31 @@ module.exports = function() {
         if (arguments.length > 0) {
           fns.push(module.exports(arguments[0]));
         }
+
+        return this;
+      },
+
+      oneOf: function() {
+        var alts = [];
+        for (var i = 0; i < arguments.length; ++i) {
+          alts.push(arguments[i]);
+        }
+        fns.push(function(e) {
+          var errors = [];
+          for (var i = 0; i < alts.length; ++i) {
+            try {
+              alts[i](e);
+            }
+            catch(err) {
+              errors.push(err);
+            }
+          }
+          if (errors.length > (alts.length - 1)) {
+            error('failed all schemas %j',
+              _.pluck(errors, 'message'),
+              typeof e === 'object' ? JSON.stringify(e) : e);
+          }
+        });
 
         return this;
       },

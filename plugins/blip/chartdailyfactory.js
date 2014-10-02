@@ -52,7 +52,7 @@ function chartDailyFactory(el, options) {
 
   var SMBG_SIZE = 16;
 
-  var create = function(el, options) {
+  var create = function(el) {
 
     if (!el) {
       throw new Error('Sorry, you must provide a DOM element! :(');
@@ -195,8 +195,10 @@ function chartDailyFactory(el, options) {
     chart.setAnnotation().setTooltip();
 
     // add annotations
+    chart.annotations().addGroup(chart.svg().select('#' + poolBG.id()), 'cbg');
+    chart.annotations().addGroup(chart.svg().select('#' + poolBG.id()), 'smbg');
     chart.annotations().addGroup(chart.svg().select('#' + poolBolus.id()), 'bolus');
-    chart.annotations().addGroup(chart.svg().select('#' + poolBasal.id()), 'basal-rate-segment');
+    chart.annotations().addGroup(chart.svg().select('#' + poolBasal.id()), 'basal');
     chart.annotations().addGroup(chart.svg().select('#' + poolStats.id()), 'stats');
 
     // add tooltips
@@ -263,29 +265,34 @@ function chartDailyFactory(el, options) {
       guidelines: [
         {
           'class': 'd3-line-bg-threshold',
-          'height': 80
+          'height': chart.options.bgClasses.low.boundary
         },
         {
           'class': 'd3-line-bg-threshold',
-          'height': 180
+          'height': chart.options.bgClasses.target.boundary
         }
       ],
       yScale: scaleBG
     }), true, true);
 
     // add CBG data to BG pool
-    poolBG.addPlotType('cbg', tideline.plot.cbg(poolBG, {yScale: scaleBG}), true, true);
+    poolBG.addPlotType('cbg', tideline.plot.cbg(poolBG, {
+      bgUnits: chart.options.bgUnits,
+      classes: chart.options.bgClasses,
+      yScale: scaleBG
+    }), true, true);
 
     // add SMBG data to BG pool
     poolBG.addPlotType('smbg', tideline.plot.smbg(poolBG, {
-      yScale: scaleBG,
-      bgUnits: options.bgUnits
+      bgUnits: chart.options.bgUnits,
+      classes: chart.options.bgClasses,
+      yScale: scaleBG
     }), true, true);
 
     // TODO: when we bring responsiveness in
     // decide number of ticks for these scales based on container height?
     // bolus & carbs pool
-    var scaleBolus = scales.bolus(tidelineData.grouped.bolus, poolBolus);
+    var scaleBolus = scales.bolus(tidelineData.grouped.bolus.concat(tidelineData.grouped.wizard), poolBolus);
     var scaleCarbs = options.dynamicCarbs ? scales.carbs(tidelineData.grouped.wizard, poolBolus) : null;
     // set up y-axis for bolus
     poolBolus.yAxis(d3.svg.axis()
@@ -320,7 +327,7 @@ function chartDailyFactory(el, options) {
     }), true, true);
 
     // basal pool
-    var scaleBasal = scales.basal(tidelineData.grouped['basal-rate-segment'], poolBasal);
+    var scaleBasal = scales.basal(tidelineData.grouped.basal, poolBasal);
     // set up y-axis
     poolBasal.yAxis(d3.svg.axis()
       .scale(scaleBasal)
@@ -331,10 +338,10 @@ function chartDailyFactory(el, options) {
     poolBasal.addPlotType('fill', fill(poolBasal, {endpoints: chart.endpoints}), true, true);
 
     // add basal data to basal pool
-    poolBasal.addPlotType('basal-rate-segment', tideline.plot.basal(poolBasal, {
+    poolBasal.addPlotType('basal', tideline.plot.basal(poolBasal, {
       yScale: scaleBasal,
       emitter: emitter,
-      data: tidelineData.grouped['basal-rate-segment']
+      data: tidelineData.grouped.basal
     }), true, true);
 
     if (poolBasalSettings !== undefined) {
@@ -358,6 +365,8 @@ function chartDailyFactory(el, options) {
 
     // stats pool
     poolStats.addPlotType('stats', tideline.plot.stats.widget(poolStats, {
+      classes: chart.options.bgClasses,
+      bgUnits: chart.options.bgUnits,
       cbg: cbgUtil,
       smbg: smbgUtil,
       bolus: bolusUtil,

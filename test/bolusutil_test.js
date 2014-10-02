@@ -19,94 +19,114 @@ var chai = require('chai');
 var assert = chai.assert;
 var expect = chai.expect;
 
-var _ = require('lodash');
-var Duration = require('duration-js');
-
-var watson = require('../plugins/data/watson');
-var data = watson.normalizeAll(require('../example/data/device-data.json'));
-
-var datetime = require('../js/data/util/datetime');
-var format = require('../js/data/util/format');
 var BolusUtil = require('../js/data/bolusutil');
 
-describe('bolus utilities', function() {
-  var bolus = new BolusUtil(_.where(data, {'type': 'bolus'}));
-  var bolusData = _.where(data, {'type': 'bolus'});
+var dt = require('../js/data/util/datetime');
+var patterns = require('../dev/testpage/patterns');
+
+var MS_IN_DAY = 86400000;
+
+describe('BolusUtil', function() {
+  var bu = new BolusUtil([]);
+
+  it('should be a function', function() {
+    assert.isFunction(BolusUtil);
+  });
+
+  it('should be a (newable) constructor', function() {
+    expect(bu).to.exist;
+  });
 
   describe('totalBolus', function() {
     it('should be a function', function() {
-      assert.isFunction(bolus.totalBolus);
+      assert.isFunction(bu.totalBolus);
     });
 
-    it('should return a number or NaN when given invalid date range', function() {
-      var type = typeof bolus.totalBolus('', '');
-      expect(type).equals('number');
+    it('should return total of NaN when given invalid date range', function() {
+      var res = bu.totalBolus('', '');
+      expect(isNaN(res)).to.be.true;
     });
 
     it('should return total of NaN when passed a valid but not long enough date range', function() {
-      expect(isNaN(bolus.totalBolus(bolusData[0].normalTime, bolusData[1].normalTime))).to.be.true;
+      var d = new Date().toISOString();
+      var later = dt.addDuration(d, 10);
+      var res = bu.totalBolus(d, later);
+      expect(isNaN(res)).to.be.true;
     });
 
     it('should return a number when passed a valid and long enough date range', function() {
-      var res = bolus.totalBolus(bolusData[0].normalTime, datetime.addDays(bolusData[0].normalTime, 1));
-      expect((typeof res === 'number') && !(isNaN(res))).to.be.true;
+      var now = new Date();
+      // b/c we strip off milliseconds when creating deviceTimes in testpage data
+      now = new Date(now.setUTCMilliseconds(0)).toISOString();
+      var nextDay = dt.addDuration(now, MS_IN_DAY);
+      var bolusData = patterns.bolus.constantFour({start: now.slice(0, -5)});
+      var bolus = new BolusUtil(bolusData);
+      var res = bolus.totalBolus(now, nextDay);
+      expect(res).to.equal(10.0);
     });
 
     it('should accurately compute a total with exclusion, exclusion at left edge', function() {
-      var start = bolusData[0].normalTime;
-      var res1 = bolus.totalBolus(start, datetime.addDays(start, 14));
-      var res2 = bolus.totalBolus(start, datetime.addDays(start, 1));
-      var res3 = bolus.totalBolus(start, datetime.addDays(start, 14), {'excluded': [start]});
-      expect(res3).to.equal(format.fixFloatingPoint(res1 - res2));
+      var start = '2014-06-01T00:00:00.000Z';
+      var end = dt.addDuration(start, MS_IN_DAY*14);
+      var bolusData = patterns.bolus.constantFour({start: start.slice(0, -5), days: 14, value: 0.25});
+      var bolus = new BolusUtil(bolusData);
+      var res = bolus.totalBolus(start, end, {excluded: [start]});
+      expect(res).to.equal(13.0);
     });
 
     it('should accurately compute a total with exclusion, exclusion at right edge', function() {
-      var start = bolusData[0].normalTime;
-      var notQuite = datetime.addDays(start, 13);
-      var end = datetime.addDays(start, 14);
-      var res1 = bolus.totalBolus(start, end);
-      var res2 = bolus.totalBolus(notQuite, end);
-      var res3 = bolus.totalBolus(start, end, {'excluded': [notQuite]});
-      expect(res3).to.equal(format.fixFloatingPoint(res1 - res2));
+      var start = '2014-06-01T00:00:00.000Z';
+      var notQuite = dt.addDuration(start, MS_IN_DAY*13);
+      var end = dt.addDuration(start, MS_IN_DAY*14);
+      var bolusData = patterns.bolus.constantFour({start: start.slice(0, -5), days: 14, value: 0.25});
+      var bolus = new BolusUtil(bolusData);
+      var res = bolus.totalBolus(start, end, {excluded: [notQuite]});
+      expect(res).to.equal(13.0);
     });
 
-    it('should accurately compute a total with exclusion, exclusion somewhere in the middle', function() {
-      var start = bolusData[0].normalTime;
-      var s2 = datetime.addDays(start, 3);
-      var e2 = datetime.addDays(s2, 4);
-      var end = datetime.addDays(start, 14);
-      var res1 = bolus.totalBolus(start, end);
-      var res2 = bolus.totalBolus(s2, e2);
-      var res3 = bolus.totalBolus(start, end, {'excluded': [s2, datetime.addDays(s2, 1), datetime.addDays(s2, 2), datetime.addDays(s2, 3)]});
-      expect(res3).to.equal(format.fixFloatingPoint(res1 - res2));
+    it('should accurately compute a total with exclusion, exclusion in the middle', function() {
+      var start = '2014-06-01T00:00:00.000Z';
+      var middle = dt.addDuration(start, MS_IN_DAY*7);
+      var middlePlus = dt.addDuration(start, MS_IN_DAY*8);
+      var end = dt.addDuration(start, MS_IN_DAY*14);
+      var bolusData = patterns.bolus.constantFour({start: start.slice(0, -5), days: 14, value: 0.5});
+      var bolus = new BolusUtil(bolusData);
+      var res = bolus.totalBolus(start, end, {excluded: [middle, middlePlus]});
+      expect(res).to.equal(24.0);
     });
 
     it('should compute a total exclusive of endpoint', function() {
-      var tEnd = bolusData[bolusData.length - 2].normalTime;
-      var b = bolusData[bolusData.length - 2].value;
-      var d = Duration.parse('1ms');
-      var tPlus = new Date(tEnd).valueOf() + d;
-      var res1 = bolus.totalBolus(datetime.addDays(tEnd, -1), tEnd);
-      var res2 = bolus.totalBolus(datetime.addDays(tPlus, -1), tPlus);
-      expect(format.fixFloatingPoint(res1)).to.equal(format.fixFloatingPoint(res2 - b));
+      var start = '2014-06-01T00:00:00.000Z';
+      var nextDay = dt.addDuration(start, MS_IN_DAY);
+      var end = dt.addDuration(start, MS_IN_DAY*2);
+      var bolusData = patterns.bolus.constantFour({start: start.slice(0, -5), days: 2});
+      var bolus = new BolusUtil(bolusData);
+      var res = bolus.totalBolus(start, nextDay);
+      expect(res).to.equal(10.0);
     });
   });
 
   describe('subtotal', function() {
     it('should be a function', function() {
-      assert.isFunction(bolus.subtotal);
+      assert.isFunction(bu.subtotal);
     });
 
     it('should return b.value where b is the first bolus in the dataset and the date range is restricted to one bolus', function() {
-      var value = bolusData[0].value;
-      var d = Duration.parse('1ms');
-      var next = new Date(bolusData[1].normalTime) - d;
-      expect(bolus.subtotal(bolusData[0].normalTime, next)).to.equal(value);
+      var start = '2014-06-01T00:00:00.000Z';
+      var nextDay = dt.addDuration(start, MS_IN_DAY);
+      var bolusData = patterns.bolus.constantFour({start: start.slice(0, -5)});
+      var bolus = new BolusUtil(bolusData);
+      var res = bolus.subtotal(start, dt.addDuration(bolusData[1].normalTime, -1));
+      expect(res).to.equal(bolusData[0].normal);
     });
 
     it('should return b1.value where b1 & b2 are the first two boluses and the date range is set to their datetimes', function() {
-      var v1 = bolusData[0].value;
-      expect(bolus.subtotal(bolusData[0].normalTime, bolusData[1].normalTime)).to.equal(v1);
+      var start = '2014-06-01T00:00:00.000Z';
+      var nextDay = dt.addDuration(start, MS_IN_DAY);
+      var bolusData = patterns.bolus.constantFour({start: start.slice(0, -5)});
+      var bolus = new BolusUtil(bolusData);
+      var res = bolus.subtotal(bolusData[0].normalTime, bolusData[1].normalTime);
+      expect(res).to.equal(bolusData[0].normal);
     });
   });
 });

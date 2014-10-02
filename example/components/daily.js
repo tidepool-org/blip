@@ -1,4 +1,20 @@
 /** @jsx React.DOM */
+/* 
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
 var _ = require('lodash');
 var bows = require('bows');
 var moment = require('moment');
@@ -14,6 +30,7 @@ var Daily = React.createClass({
   chartType: 'daily',
   log: bows('Daily View'),
   propTypes: {
+    bgPrefs: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
@@ -51,7 +68,8 @@ var Daily = React.createClass({
         ref="header" />
         <div id="tidelineOuterContainer">
           <DailyChart
-            bgUnits={this.props.chartPrefs.bgUnits}
+            bgClasses={this.props.bgPrefs.bgClasses}
+            bgUnits={this.props.bgPrefs.bgUnits}
             hiddenPools={this.props.chartPrefs.hiddenPools}
             initialDatetimeLocation={this.props.initialDatetimeLocation}
             patientData={this.props.patientData}
@@ -78,6 +96,7 @@ var Daily = React.createClass({
     this.refs.chart.goToMostRecent();
   },
   handleClickOneDay: function() {
+    // when you're on one-day view, clicking one-day does nothing
     return;
   },
   handleClickTwoWeeks: function() {
@@ -135,9 +154,10 @@ var Daily = React.createClass({
 });
 
 var DailyChart = React.createClass({
-  chartOpts: ['bgUnits', 'hiddenPools'],
+  chartOpts: ['bgClasses', 'bgUnits', 'hiddenPools'],
   log: bows('Daily Chart'),
   propTypes: {
+    bgClasses: React.PropTypes.object.isRequired,
     bgUnits: React.PropTypes.string.isRequired,
     hiddenPools: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,

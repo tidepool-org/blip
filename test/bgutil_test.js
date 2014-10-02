@@ -19,22 +19,16 @@ var chai = require('chai');
 var assert = chai.assert;
 var expect = chai.expect;
 
-var _ = require('lodash');
-var Duration = require('duration-js');
-
-var watson = require('../plugins/data/watson');
-var data = watson.normalizeAll(require('../example/data/device-data.json'));
-
-var dt = require('../js/data/util/datetime');
 var BGUtil = require('../js/data/bgutil');
 
-describe('bg utilities', function() {
-  var cbgData = _.where(data, {'type': 'cbg'});
-  var smbgData = _.where(data, {'type': 'smbg'});
-  var cbgMin = 0.75 * 288;
-  var smbgMin = 4;
-  var cbg = new BGUtil(cbgData, {'DAILY_MIN': cbgMin});
-  var smbg = new BGUtil(smbgData, {'DAILY_MIN': smbgMin});
+var dt = require('../js/data/util/datetime');
+var patterns = require('../dev/testpage/patterns');
+
+var MS_IN_DAY = 86400000;
+
+describe('BGUtil', function() {
+  var bg = new BGUtil([], {DAILY_MIN: 10});
+  var cbgMin = 0.75*288, smbgMin = 4;
   var cbgNaNObject = {
     'low': NaN,
     'target': NaN,
@@ -49,187 +43,204 @@ describe('bg utilities', function() {
     'total': NaN,
     'type': 'smbg'
   };
-
-
-  var generateDayOfData = function(startTime, n, datatype) {
-    var random = function() { return Math.floor((Math.random() * 400) + 1); };
-    var data = [{
-      'normalTime': startTime.toISOString(),
-      'value': random(),
-      'type': datatype
-    }], i = 0;
-    var fiveMin = Duration.parse('5m');
-    while (i < n) {
-      var next = new Date(startTime.valueOf() + fiveMin);
-      data.push({
-        'normalTime': next.toISOString(),
-        'value': random(),
-        'type': datatype
-      });
-      i++;
-      startTime = next;
-    }
-
-    return data;
-  };
-  var startTime = new Date();
-  var endTime = new Date(startTime.valueOf() + Duration.parse('24h'));
-
-  var inadequateData = generateDayOfData(startTime, 50, 'cbg');
-  var cbgInadequate = new BGUtil(inadequateData, {'DAILY_MIN': cbgMin});
-
-  var tooLittleSMBG = generateDayOfData(startTime, 2, 'smbg');
-  var smbgInadequate = new BGUtil(tooLittleSMBG, {'DAILY_MIN': smbgMin});
-
-  var dayData = generateDayOfData(endTime, 287, 'cbg');
-  var cbgDay = new BGUtil(dayData, {'DAILY_MIN': cbgMin});
-
-  var mixData = inadequateData.concat(dayData);
-  mixData = _.sortBy(mixData, function(d) {
-    return new Date(d.normalTime).valueOf();
+  it('should be a function', function() {
+    assert.isFunction(BGUtil);
   });
-  var cbgMix = new BGUtil(mixData, {'DAILY_MIN': cbgMin});
+
+  it('should be a (newable) constructor', function() {
+    expect(bg).to.exist;
+  });
 
   describe('filtered', function() {
     it('should be a function', function() {
-      assert.isFunction(cbg.filtered);
-    });
-
-    it('should return an object', function() {
-      assert.typeOf(cbg.filtered('', ''), 'object');
+      assert.isFunction(bg.filtered);
     });
 
     it('should return an object with two embedded arrays', function() {
-      var res = cbg.filtered('', '');
+      var res = bg.filtered('', '');
+      assert.typeOf(res, 'object');
       assert.typeOf(res.data, 'array');
       assert.typeOf(res.excluded, 'array');
     });
 
     it('should return a non-empty array when passed a valid date range', function() {
+      var cbgData = patterns.cbg.constantFull();
+      var cbg = new BGUtil(cbgData, {DAILY_MIN: cbgMin});
       expect(cbg.filtered(cbgData[0].normalTime, cbgData[1].normalTime).data.length).to.be.above(0);
     });
   });
 
   describe('filter', function() {
     it('should be a function', function() {
-      assert.isFunction(cbg.filter);
-    });
-
-    it('should return an object', function() {
-      assert.typeOf(cbg.filter('', ''), 'object');
+      assert.isFunction(bg.filter);
     });
 
     it('should return an object with two embedded arrays', function() {
-      var res = cbg.filter('', '');
+      var res = bg.filter('', '');
+      assert.typeOf(res, 'object');
       assert.typeOf(res.data, 'array');
       assert.typeOf(res.excluded, 'array');
     });
 
     it('(on cbg data) should return an object with a data array with length 0 or >= cbgMin (216)', function() {
+      var now = new Date();
+      // b/c we strip off milliseconds when creating deviceTimes in testpage data
+      now = new Date(now.setUTCMilliseconds(0)).toISOString();
+      var nextDay = dt.addDuration(now, MS_IN_DAY);
+      var cbgData = patterns.cbg.constantFull({start: now.slice(0, -5)});
+      var cbg = new BGUtil(cbgData, {DAILY_MIN: cbgMin});
       var l1 = cbg.filter('', '').data.length;
-      var l2 = cbg.filter(cbgData[0].normalTime, dt.addDays(cbgData[0].normalTime, 1)).data.length;
-      expect((l1 === 0) && (l2 >= 216)).to.be.true;
+      var l2 = cbg.filter(now, nextDay).data.length;
+      expect(l1).to.equal(0);
+      expect(l2).to.be.above(cbgMin);
     });
 
     it('(on smbg data) should return an object with a data array with length 0 or >= smbgMin (4)', function() {
+      var now = new Date();
+      now = new Date(now.setUTCMilliseconds(0)).toISOString();
+      var nextDay = dt.addDuration(now, MS_IN_DAY);
+      var smbgData = patterns.smbg.constantFull({start: now.slice(0, -5)});
+      var smbg = new BGUtil(smbgData, {DAILY_MIN: smbgMin});
       var l1 = smbg.filter('', '').data.length;
-      var l2 = smbg.filter(smbgData[0].normalTime, dt.addDays(smbgData[0].normalTime, 1)).data.length;
-      expect((l1 === 0) && (l2 >= 4)).to.be.true;
-    });
-
-    it('should return a non-empty array when passed a valid date range', function() {
-      expect(cbg.filter(cbgData[0].normalTime, dt.addDays(cbgData[0].normalTime, 1)).data.length).to.be.above(0);
+      var l2 = smbg.filter(now, nextDay).data.length;
+      expect(l1).to.equal(0);
+      expect(l2).to.be.at.least(smbgMin);
     });
   });
 
   describe('rangeBreakdown', function() {
     it('should be a function', function() {
-      assert.isFunction(cbg.rangeBreakdown);
+      assert.isFunction(bg.rangeBreakdown);
     });
 
     it('should return an object', function() {
-      assert.typeOf(cbg.rangeBreakdown(cbg.filter('', '').data), 'object');
+      assert.typeOf(bg.rangeBreakdown([]), 'object');
     });
 
     it('(on cbg data) should return NaN for each component if less than threshold for complete day of data', function() {
-      var res = cbgInadequate.rangeBreakdown(cbgInadequate.filter(startTime.valueOf(), endTime.valueOf()).data);
-      expect(res).to.eql(cbgNaNObject);
+      var d = new Date();
+      d = new Date(d.setUTCMilliseconds(0)).toISOString();
+      var nextDay = dt.addDuration(d, MS_IN_DAY);
+      var cbgData = patterns.cbg.constantInadequate({start: d.slice(0, -5)});
+      var cbg = new BGUtil(cbgData, {DAILY_MIN: cbgMin});
+      expect(cbg.rangeBreakdown(cbg.filter(d, nextDay).data)).to.eql(cbgNaNObject);
     });
 
     it('(on smbg data) should return NaN for each component if less than threshold for complete day of data', function() {
-      var res = smbgInadequate.rangeBreakdown(smbgInadequate.filter(startTime.valueOf(), endTime.valueOf()).data);
-      expect(res).to.eql(smbgNaNObject);
+      var d = new Date();
+      d = new Date(d.setUTCMilliseconds(0)).toISOString();
+      var nextDay = dt.addDuration(d, MS_IN_DAY);
+      var smbgData = patterns.smbg.constantInadequate({start: d.slice(0, -5)});
+      var smbg = new BGUtil(smbgData, {DAILY_MIN: smbgMin});
+      expect(smbg.rangeBreakdown(smbg.filter(d, nextDay).data)).to.eql(smbgNaNObject);
     });
 
     it('should return same breakdown for date range including and excluding a day of incomplete data', function() {
-      var res1 = cbgMix.rangeBreakdown(cbgMix.filter(startTime.toISOString(), dt.addDays(startTime, 2)).data);
-      var res2 = cbgMix.rangeBreakdown(cbgMix.filter(dt.addDays(startTime, 1), dt.addDays(startTime, 2)).data);
-      expect(res1).to.eql(res2);
+      var d1 = new Date();
+      d1 = new Date(d1.setUTCMilliseconds(0)).toISOString();
+      var d2 = dt.addDuration(d1, MS_IN_DAY);
+      var end = dt.addDuration(d1, MS_IN_DAY*2);
+      var cbgFull = patterns.cbg.constantFull({start: d1.slice(0, -5)});
+      var cbgInadequate = patterns.cbg.constantInadequate({start: d2.slice(0, -5)});
+      var cbgData = cbgFull.concat(cbgInadequate);
+      var cbg = new BGUtil(cbgData, {DAILY_MIN: cbgMin});
+      var excluding = cbg.filter(d1, d2).data;
+      var including = cbg.filter(d1, end).data;
+      expect(cbg.rangeBreakdown(including)).to.eql(cbg.rangeBreakdown(excluding));
     });
   });
 
   describe('average', function() {
-    var start = new Date (cbgData[0].normalTime);
-    var day = Duration.parse('1d');
     it('should be a function', function() {
-      assert.isFunction(cbg.average);
+      assert.isFunction(bg.average);
     });
 
     it('should return value of NaN when passed a valid but not long enough date range', function() {
-      expect(isNaN(cbg.average(cbg.filter(cbgData[0].normalTime, cbgData[1].normalTime).data).value)).to.be.true;
+      var d = new Date().toISOString();
+      var later = dt.addDuration(d, 10);
+      expect(isNaN(bg.average(d, later))).to.be.true;
     });
 
-    it('should return value of NaN when passed a valid and long enough date range', function() {
-      expect(isNaN(cbgInadequate.average(cbgInadequate.filter(cbgData[0].normalTime, new Date(start.valueOf() + day).toISOString()).data).value)).to.be.true;
+    it('should return value of NaN when passed a valid and long enough date range but not enough data', function() {
+      var d = new Date().toISOString();
+      var nextDay = dt.addDuration(d, MS_IN_DAY);
+      expect(isNaN(bg.average(d, nextDay))).to.be.true;
     });
 
     it('(on cbg data) should return a number value when passed a valid, long enough date range with enough data', function() {
-      var res = cbg.average(cbg.filter(cbgData[0].normalTime, new Date(start.valueOf() + day).toISOString()).data).value;
-      expect((typeof res === 'number') && !isNaN(res)).to.be.true;
+      var cbgData = patterns.cbg.constantJustEnough();
+      var expected = {
+        value: 100,
+        category: 'target'
+      };
+      expect(bg.average(cbgData)).to.eql(expected);
     });
 
     it('(on smbg data) should return a number value when passed a valid, long enough date range with enough data', function() {
-      var res = smbg.average(smbg.filter(smbgData[0].normalTime, dt.addDays(smbgData[0].normalTime, 1)).data).value;
-      expect((typeof res === 'number') && !isNaN(res)).to.be.true;
+      var smbgData = patterns.smbg.constantJustEnough();
+      var expected = {
+        value: 100,
+        category: 'target'
+      };
+      expect(bg.average(smbgData)).to.eql(expected);
     });
 
     it('should return same average for date range including and excluding a day of incomplete data', function() {
-      var res1 = cbgMix.average(cbgMix.filter(startTime.toISOString(), dt.addDays(startTime, 2)).data);
-      var res2 = cbgMix.average(cbgMix.filter(dt.addDays(startTime, 1), dt.addDays(startTime, 2)).data);
-      expect(res1).to.eql(res2);
+      var d1 = new Date();
+      d1 = new Date(d1.setUTCMilliseconds(0)).toISOString();
+      var d2 = dt.addDuration(d1, MS_IN_DAY);
+      var end = dt.addDuration(d1, MS_IN_DAY*2);
+      var cbgFull = patterns.cbg.constantFull({start: d1.slice(0, -5)});
+      var cbgInadequate = patterns.cbg.constantInadequate({start: d2.slice(0, -5)});
+      var cbgData = cbgFull.concat(cbgInadequate);
+      var cbg = new BGUtil(cbgData, {DAILY_MIN: cbgMin});
+      var excluding = cbg.filter(d1, d2).data;
+      var including = cbg.filter(d1, end).data;
+      expect(cbg.average(including)).to.eql(cbg.average(excluding));
     });
   });
 
   describe('threshold', function() {
-    var start = new Date (cbgData[0].normalTime);
-    var d = new Date();
+    var cbg = new BGUtil([], {DAILY_MIN: cbgMin});
+    var smbg = new BGUtil([], {DAILY_MIN: smbgMin});
+    it('should be a function', function() {
+      assert.isFunction(bg.threshold);
+    });
+
     it('should return a number', function() {
-      assert.typeOf(cbg.threshold(cbg.endpoints[0], cbg.endpoints[1]), 'number');
+      var d = new Date().toISOString();
+      var later = dt.addDuration(d, 10);
+      assert.typeOf(bg.threshold(d, later), 'number');
     });
 
     it('should return 0 given a start and end five minutes apart or less', function() {
-      var five = Duration.parse('5m');
-      expect(cbg.threshold(d, new Date(d.valueOf() + five))).to.equal(0);
+      var d = new Date().toISOString();
+      var later = dt.addDuration(d, 10);
+      expect(bg.threshold(d, later)).to.equal(0);
     });
 
     it('(on cbg data) should return cbgMin (216) given a start and end 24 hours apart', function() {
-      var day = Duration.parse('1d');
-      expect(cbg.threshold(d, new Date(d.valueOf() + day))).to.equal(216);
+      var d = new Date().toISOString();
+      var nextDay = dt.addDuration(d, MS_IN_DAY);
+      expect(cbg.threshold(d, nextDay)).to.equal(cbgMin);
     });
 
     it('(on smbg data) should return 2 * smbgMin (8) given a start and end 48 hours apart', function() {
-      var day = Duration.parse('2d');
-      expect(smbg.threshold(d, new Date(d.valueOf() + day))).to.equal(8);
+      var d = new Date().toISOString();
+      var twoDaysLater = dt.addDuration(d, MS_IN_DAY*2);
+      expect(smbg.threshold(d, twoDaysLater)).to.equal(smbgMin*2);
     });
 
     it('(on cbg data) should return 3024 given a start and end 14 days apart', function() {
-      var fourteen = Duration.parse('14d');
-      expect(cbg.threshold(d, new Date(d.valueOf() + fourteen))).to.equal(3024);
+      var d = new Date().toISOString();
+      var fourteenDaysLater = dt.addDuration(d, MS_IN_DAY*14);
+      expect(cbg.threshold(d, fourteenDaysLater)).to.equal(cbgMin*14);
     });
 
     it('(on smbg data) should return 56 given a start and end 14 days apart', function() {
-      var fourteen = Duration.parse('14d');
-      expect(smbg.threshold(d, new Date(d.valueOf() + fourteen))).to.equal(56);
+      var d = new Date().toISOString();
+      var fourteenDaysLater = dt.addDuration(d, MS_IN_DAY*14);
+      expect(smbg.threshold(d, fourteenDaysLater)).to.equal(smbgMin*14);
     });
   });
 });

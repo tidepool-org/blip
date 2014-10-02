@@ -18,11 +18,11 @@
 var d3 = require('d3');
 var _ = require('lodash');
 
-var Duration = require('duration-js');
-var format = require('../data/util/format');
 var log = require('bows')('Bolus');
 
+var commonbolus = require('./util/commonbolus');
 var drawbolus = require('./util/drawbolus');
+var format = require('../data/util/format');
 
 module.exports = function(pool, opts) {
   opts = opts || {};
@@ -57,35 +57,35 @@ module.exports = function(pool, opts) {
           id: function(d) { return 'bolus_group_' + d.id; }
         });
 
-      //Sort by size so smaller boluses are drawn last.
+      // sort by size so smaller boluses are drawn last
       bolusGroups = bolusGroups.sort(function(a,b){
-        return d3.descending(a.value, b.value);
+        return d3.descending(commonbolus.getMaxValue(a), commonbolus.getMaxValue(b));
       });
 
-      drawBolus.bolus(bolusGroups);
+      drawBolus.bolus(bolusGroups.filter(function(d) {
+        return commonbolus.getDelivered(d);
+      }));
 
       var extended = boluses.filter(function(d) {
-        if (d.extended && d.extended === true) {
-          return d;
-        }
+        return d.extended;
       });
 
       drawBolus.extended(extended);
 
-      var suspended = bolusGroups.filter(function(d) {
-        if (d.programmed && d.value !== d.programmed) {
-          return d;
-        }
+      // boluses where programmed differs from delivered
+      var suspended = boluses.filter(function(d) {
+        return commonbolus.getDelivered(d) !== commonbolus.getProgrammed(d);
       });
 
       drawBolus.suspended(suspended);
 
-      var extendedSuspended = bolusGroups.filter(function(d) {
-        if (d.suspendedAt) {
-          return d;
+      var extendedSuspended = boluses.filter(function(d) {
+        if (d.expectedExtended) {
+          return d.extended > 0 && d.extended !== d.expectedExtended;
         }
+        return false;
       });
-      
+
       drawBolus.extendedSuspended(extendedSuspended);
 
       boluses.exit().remove();
@@ -103,7 +103,6 @@ module.exports = function(pool, opts) {
       });
     });
   }
-
 
   return bolus;
 };

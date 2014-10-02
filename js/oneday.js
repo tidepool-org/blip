@@ -382,6 +382,11 @@ module.exports = function(emitter) {
 
   container.setAnnotation = function() {
     var annotationGroup = mainGroup.append('g')
+      .attr({
+        id: 'tidelineAnnotationsOuter',
+        'clip-path': 'url(#mainClipPath)'
+      })
+      .append('g')
       .attr('id', 'tidelineAnnotations');
 
     annotations = annotation(container, annotationGroup).id(annotationGroup.attr('id'));
