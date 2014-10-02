@@ -874,8 +874,47 @@ module.exports = function (config, deps) {
     invitesRecieved: function (cb) {
       assertArgumentsSize(arguments, 1);
 
+      this.getCurrentUser(function(err,details){
+
+        if(_.isEmpty(err)===false){
+          return cb(err,[]);
+        }
+        var self = this;
+        var email = details.emails[0];
+
+        return withToken(cb, function(token) {
+          superagent
+            .get(makeUrl('/confirm/invitations/'+email))
+            .set(sessionTokenHeader, token)
+            .end(
+            function (err, res) {
+              if (err != null) {
+                return cb(err);
+              }
+
+              if (res.status === 200) {
+                async.map(res.body, function (invite, callback) {
+                  self.findProfile(invite.creatorId,function(err,profile){
+                    if (_.isEmpty(profile)===false){
+                      invite.creator = profile;
+                    }
+                    callback(err,invite);
+                  })
+                }, function(err, invites){
+                return cb(null,invites);
+              });
+
+              } else if (res.status === 204){
+                return cb(null,[]);
+              }
+
+              return handleHttpError(res, cb);
+            });
+        });
+      }
+
       //attach the profile on success
-      var self = this;
+      /*var self = this;
       var onSuccess=function(res){
         async.map(res.body, function (invite, callback) {
           self.findProfile(invite.creatorId,function(err,profile){
@@ -908,7 +947,7 @@ module.exports = function (config, deps) {
         } else {
           return cb(err,[]);
         }
-      });
+      });*/
 
     },
     /**
