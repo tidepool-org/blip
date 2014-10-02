@@ -72,26 +72,21 @@ module.exports = function(pool, opts) {
 
       drawBolus.extended(extended);
 
-      // var suspended = bolusGroups.filter(function(d) {
-      //   if (d.expectedNormal) {
-      //     return d.normal !== d.expectedNormal;
-      //   }
-      //   return false;
-      // });
+      // boluses where programmed differs from delivered
+      var suspended = boluses.filter(function(d) {
+        return commonbolus.getDelivered(d) !== commonbolus.getProgrammed(d);
+      });
 
-      // drawBolus.suspended(suspended);
+      drawBolus.suspended(suspended);
 
-      // var extendedSuspended = bolusGroups.filter(function(d) {
-      //   if (d.expectedExtended) {
-      //     return d.extended !== d.expectedExtended;
-      //   }
-      //   else if (d.extended > 0 && d.normal && d.expectedNormal) {
-      //     return d.normal !== d.expectedNormal;
-      //   }
-      //   return false;
-      // });
-      
-      // drawBolus.extendedSuspended(extendedSuspended);
+      var extendedSuspended = boluses.filter(function(d) {
+        if (d.expectedExtended) {
+          return d.extended > 0 && d.extended !== d.expectedExtended;
+        }
+        return false;
+      });
+
+      drawBolus.extendedSuspended(extendedSuspended);
 
       boluses.exit().remove();
 
