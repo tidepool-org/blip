@@ -1,5 +1,18 @@
 /*
  * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
  */
 
 var _ = require('lodash');
@@ -15,6 +28,13 @@ var TidelineData = require('../../js/tidelinedata');
 
 describe('TidelineData', function() {
   var td = new TidelineData([]);
+  var bgClasses = {
+    'very-low': {boundary: 60},
+    low: {boundary: 80},
+    target: {boundary: 180},
+    high: {boundary: 200},
+    'very-high': {boundary: 300}
+  };
   it('should be a function', function() {
     assert.isFunction(TidelineData);
   });
@@ -30,6 +50,44 @@ describe('TidelineData', function() {
   it('should have a `filterData` attribute that is a TidelineCrossFilter', function() {
     assert.isObject(td.filterData);
     expect(td.filterData).to.be.an.instanceOf(TidelineCrossFilter);
+  });
+
+  it('should have `bgClasses` and `bgUnits` properties', function() {
+    expect(td.bgClasses).to.exist;
+    expect(td.bgUnits).to.exist;
+  });
+
+  it('should default to mg/dL for `bgUnits` and `bgClasses`', function() {
+    expect(td.bgClasses).to.eql(bgClasses);
+    expect(td.bgUnits).to.equal('mg/dL');
+  });
+
+  it('should have `mixed` for `bgUnits` when blood glucose data is of mixed units', function() {
+    var data = [
+      new types.SMBG(),
+      new types.CBG()
+    ];
+    data[1].units = 'mmol/L';
+    var thisTd = new TidelineData(data);
+    expect(thisTd.bgUnits).to.equal('mixed');
+  });
+
+  it('should maintain default `bgClasses` when blood glucose data is of mixed units', function() {
+    var data = [
+      new types.SMBG(),
+      new types.CBG()
+    ];
+    data[1].units = 'mmol/L';
+    var thisTd = new TidelineData(data);
+    expect(thisTd.bgClasses).to.eql(bgClasses);
+  });
+
+  it('should transform `bgClasses` when `bgUnits` are mmol/L', function() {
+    var data = [new types.SMBG()];
+    data[0].units = 'mmol/L';
+    var thisTd = new TidelineData(data);
+    expect(thisTd.bgClasses).to.not.eql(bgClasses);
+    expect(thisTd.bgUnits).to.equal('mmol/L');
   });
 
   // NB: eventually we probably do want to support plotting messages only

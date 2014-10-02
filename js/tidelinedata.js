@@ -46,6 +46,7 @@ function TidelineData(data, opts) {
       high: {boundary: 200},
       'very-high': {boundary: 300}
     },
+    bgUnits: 'mg/dL',
     fillOpts: {
       classes: {
         0: 'darkest',
@@ -221,11 +222,11 @@ function TidelineData(data, opts) {
     });
   };
 
-  this.setBGCategories = function() {
+  this.setBGPrefs = function() {
     this.bgClasses = opts.bgClasses;
     var bgData;
     if (!(this.grouped.smbg || this.grouped.cbg)) {
-      this.bgUnits = null;
+      this.bgUnits = opts.bgUnits;
       return;
     }
     else {
@@ -242,7 +243,7 @@ function TidelineData(data, opts) {
     var units = _.uniq(_.pluck(bgData, 'units'));
     if (units.length > 1) {
       log(new Error('Your BG data is of mixed units; I have no idea how to display it :('));
-      this.bgUnits = null;
+      this.bgUnits = 'mixed';
     }
     else {
       this.bgUnits = units[0];
@@ -251,12 +252,7 @@ function TidelineData(data, opts) {
     if (this.bgUnits === 'mmol/L') { 
       var GLUCOSE_MM = 18.01559;
       for (var key in opts.bgClasses) {
-        if (key === 'units') {
-          opts.bgClasses[key] = 'mmol/L';
-        }
-        else {
-          opts.bgClasses[key].boundary = opts.bgClasses[key].boundary/GLUCOSE_MM;
-        }
+        opts.bgClasses[key].boundary = opts.bgClasses[key].boundary/GLUCOSE_MM;
       } 
     }
   };
@@ -273,7 +269,6 @@ function TidelineData(data, opts) {
     res = validate.validateAll(data);
   }
 
-
   log('Valid items:', res.valid.length);
   log('Invalid items:', res.invalid.length);
 
@@ -287,7 +282,7 @@ function TidelineData(data, opts) {
     return d.normalTime;
   });
 
-  this.setBGCategories();
+  this.setBGPrefs();
 
   this.basalUtil = new BasalUtil(this.grouped.basal);
   this.bolusUtil = new BolusUtil(this.grouped.bolus);
