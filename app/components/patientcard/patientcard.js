@@ -82,7 +82,7 @@ var PatientCard = React.createClass({
         <a className={classes}
           href={this.props.href}
           onClick={this.props.onClick}>
-          <i className="Navbar-icon icon-face-standin">{patient.profile.fullName}</i>
+          <i className="Navbar-icon icon-face-standin"><span className="patientcard-fullname">{patient.profile.fullName}</span></i>
         </a>
         <div className="patientcard-controls">
           {remove}
