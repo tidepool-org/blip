@@ -82,7 +82,7 @@ var PatientTeam = React.createClass({
 
   renderChangeTeamMemberPermissionsDialog: function(member) {
     var self = this;
-    var value = member.permissions.admin || member.permissions.upload ? 'upload' : 'view';
+    var value = _.isEmpty(member.permissions) === false && member.permissions.admin || _.isEmpty(member.permissions) === false && member.permissions.upload ? 'upload' : 'view';
     var name = 'permissionOptions'+ member.userid;
     var inputs = this.renderPermissionOptions(value, name);
 
@@ -173,14 +173,18 @@ var PatientTeam = React.createClass({
       'icon-permissions': true
     };
 
-    if(member.permissions.admin) {
-      classes['icon-permissions-own'] = true;
-    } else if(member.permissions.upload) {
-      classes['icon-permissions-upload'] = true;
-    } else if(member.permissions.view) {
-      classes['icon-permissions-view'] = true;
-    } else {
+    if(_.isEmpty(member.permissions)){
       return null;
+    }else {
+      if(member.permissions.admin) {
+        classes['icon-permissions-own'] = true;
+      } else if(member.permissions.upload) {
+        classes['icon-permissions-upload'] = true;
+      } else if(member.permissions.view) {
+        classes['icon-permissions-view'] = true;
+      } else {
+        return null;
+      }
     }
 
     var iconClasses = cx(classes);

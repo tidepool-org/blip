@@ -65,7 +65,7 @@ var Patients = React.createClass({
     /* jshint ignore:start */
     return (
       <Invitation
-        key={invitation.from.userid}
+        key={invitation.key}
         invitation={invitation}
         patientsComponent={this}
         onAcceptInvitation={this.props.onAcceptInvitation}

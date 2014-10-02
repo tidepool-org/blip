@@ -13,6 +13,7 @@
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
+'use strict';
 
 var React = require('react');
 var bows = require('bows');
@@ -362,7 +363,7 @@ var AppComponent = React.createClass({
   renderPatientTeam: function() {
     return (
       /* jshint ignore:start */
-      <PatientTeam
+      new <PatientTeam
         user={this.state.user}
         patient={this.state.patient}
         pendingInvites={this.state.pendingInvites}
@@ -409,11 +410,11 @@ var AppComponent = React.createClass({
     return function(invitation, mod) {
       self.setState({
         invites: self.state.invites.filter(function(e){
-          return e.from.userid !== invitation.from.userid;
+          return e.creatorId !== invitation.creatorId;
         })
       });
 
-      modifier(invitation.from.userid, function(err) {
+      modifier(invitation.key,invitation.creatorId, function(err) {
         if(err || options.fetchPatients) {
           self.fetchPatients({hideLoading: true});
         }
@@ -424,11 +425,9 @@ var AppComponent = React.createClass({
       });
     };
   },
-
   handleDismissInvitation: function(invitation) {
     return this.modifyInvites(app.api.invitation.dismiss)(invitation);
   },
-
   handleAcceptInvitation: function(invitation) {
     return this.modifyInvites(app.api.invitation.accept, {fetchPatients: true})(invitation);
   },
@@ -446,7 +445,7 @@ var AppComponent = React.createClass({
     });
   },
 
-  handleRemovePatient: function(patientId) {
+  handleRemovePatient: function(patientId,cb) {
     var self = this;
 
     api.access.leaveGroup(patientId, function(err) {
@@ -497,7 +496,6 @@ var AppComponent = React.createClass({
       self.fetchPendingInvites(cb);
     });
   },
-
   showPatient: function(patientId) {
     this.renderPage = this.renderPatient;
     this.setState({
