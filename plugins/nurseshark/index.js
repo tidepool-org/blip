@@ -344,14 +344,18 @@ function getHandlers() {
         d.rate = 0.0;
       }
       watson(d);
-      if (d.suppressed) {
+      function equalizeSuppressed(d) {
         // a suppressed should share these attributes with its parent
-        // NB: multiple levels of suppressed are obviously not (yet) being recursively processed
-        // because we do not yet visualize more than one layer of suppressed
         d.suppressed.deviceTime = d.deviceTime;
         d.suppressed.duration = d.duration;
         d.suppressed.time = d.time;
         watson(d.suppressed);
+        if (d.suppressed.suppressed) {
+          equalizeSuppressed(d.suppressed);
+        }
+      }
+      if (d.suppressed) {
+        equalizeSuppressed(d);
       }
       return d;
     },
