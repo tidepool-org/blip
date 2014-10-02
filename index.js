@@ -891,8 +891,8 @@ module.exports = function (config, deps) {
             if (err != null) {
               return cb(err);
             }
-
             if (res.status === 200) {
+              //add the profiles
               async.map(res.body, function (invite, callback) {
                 self.findProfile(invite.creatorId,function(err,profile){
                   if (_.isEmpty(profile)===false){
@@ -910,42 +910,6 @@ module.exports = function (config, deps) {
             return cb(err,[]);
           });
         });
-
-      //attach the profile on success
-      /*var self = this;
-      var onSuccess=function(res){
-        async.map(res.body, function (invite, callback) {
-          self.findProfile(invite.creatorId,function(err,profile){
-            if (_.isEmpty(profile)===false){
-              invite.creator = profile;
-            }
-            callback(err,invite);
-          })
-        }, function(err, invites){
-          console.log('returning now');
-          return invites;
-        });
-      };
-
-      this.getCurrentUser(function(err,details){
-
-        if(_.isEmpty(err)){
-
-          var email = details.emails[0];
-
-          if(_.isEmpty(email)){
-            return cb({ status : STATUS_BAD_REQUEST, message: 'user details not found'});
-          }else{
-            doGetWithToken(
-              encodeURI('/confirm/invitations/'+email),
-              { 200: onSuccess, 204: function(res){ return res.body; } },
-              cb
-            );
-          }
-        } else {
-          return cb(err,[]);
-        }
-      });*/
     },
     /**
      * Invite a user
