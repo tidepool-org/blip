@@ -814,7 +814,7 @@ var AppComponent = React.createClass({
   },
 
   processPatientData: function(data) {
-    if (!(data && data.length)) {
+    if (!(data && data.length >= 0)) {
       return null;
     }
 
