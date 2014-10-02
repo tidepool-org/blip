@@ -874,51 +874,42 @@ module.exports = function (config, deps) {
     invitesRecieved: function (cb) {
       assertArgumentsSize(arguments, 1);
 
+      //attach the profile on success
       var self = this;
-
-      async.series([
-        function(callback){
-          // do some stuff ...
-          this.getCurrentUser(function(err,details){
-
-            if(_.isEmpty(err)){
-
-              var email = details.emails[0];
-
-              if(_.isEmpty(email)){
-                return cb({ status : STATUS_BAD_REQUEST, message: 'user details not found'});
-              }else{
-                doGetWithToken(
-                  encodeURI('/confirm/invitations/'+email),
-                  { 200: onSuccess, 204: function(res){ return res.body; } },
-                  callback
-                );
-              }
+      var onSuccess=function(res){
+        async.map(res.body, function (invite, callback) {
+          self.findProfile(invite.creatorId,function(err,profile){
+            if (_.isEmpty(profile)===false){
+              invite.creator = profile;
             }
-            return callback(err,[]);
+            callback(err,invite);
+          })
+        }, function(err, invites){
+          console.log('returning now');
+          return invites;
+        });
+      };
+
+      this.getCurrentUser(function(err,details){
+
+        if(_.isEmpty(err)){
+
+          var email = details.emails[0];
+
+          if(_.isEmpty(email)){
+            return cb({ status : STATUS_BAD_REQUEST, message: 'user details not found'});
+          }else{
+            doGetWithToken(
+              encodeURI('/confirm/invitations/'+email),
+              { 200: onSuccess, 204: function(res){ return res.body; } },
+              cb
+            );
           }
-        },
-        function(callback){
-            // attach the profiles
-            if(_.isEmpty(err) && _.isEmpty(results)===false){
-              async.map(res.body, function (invite, cb) {
-                self.findProfile(invite.creatorId,function(err,profile){
-                  if (_.isEmpty(profile)===false){
-                    invite.creator = profile;
-                  }
-                  cb(err,invite);
-                })
-              }, function(err, invites){
-                return callback(null,invites);
-              });
-            }
-            return callback(err,[]);
-          }
+        } else {
+          return cb(err,[]);
         }
-      ],
-      function(err, invites){
-       return cb(err,invites);
       });
+
     },
     /**
      * Invite a user
