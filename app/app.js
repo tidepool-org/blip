@@ -363,7 +363,7 @@ var AppComponent = React.createClass({
   renderPatientTeam: function() {
     return (
       /* jshint ignore:start */
-      <PatientTeam
+      new <PatientTeam
         user={this.state.user}
         patient={this.state.patient}
         pendingInvites={this.state.pendingInvites}
