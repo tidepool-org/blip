@@ -16,6 +16,7 @@
 'use strict';
 
 var _ = require('lodash');
+var async = require('async');
 
 var sessionTokenHeader = 'x-tidepool-session-token';
 var tokenLocalKey = 'authToken';
@@ -873,25 +874,42 @@ module.exports = function (config, deps) {
     invitesRecieved: function (cb) {
       assertArgumentsSize(arguments, 1);
 
+      var self = this;
+
       this.getCurrentUser(function(err,details){
 
-        if(_.isEmpty(err)){
-
-          var email = details.emails[0];
-
-          if(_.isEmpty(email)){
-            return cb({ status : STATUS_BAD_REQUEST, message: 'user details not found'});
-          }else{
-            doGetWithToken(
-              encodeURI('/confirm/invitations/'+email),
-              { 200: function(res){ return res.body; }, 204: function(res){ return res.body; } },
-              cb
-            );
-          }
+        if(_.isEmpty(err)===false){
+          return cb(err,[]);
         }
-        return cb(err,[]);
-      });
+        var email = details.emails[0];
 
+        superagent
+          .get(makeUrl('/confirm/invitations/'+email))
+          .set(sessionTokenHeader, myToken)
+          .end(
+          function (err, res) {
+            if (err != null) {
+              return cb(err);
+            }
+            if (res.status === 200) {
+              //add the profiles
+              async.map(res.body, function (invite, callback) {
+                self.findProfile(invite.creatorId,function(err,profile){
+                  if (_.isEmpty(profile)===false){
+                    invite.creator = profile;
+                  }
+                  callback(err,invite);
+                });
+              }, function(err, invites){
+              return cb(null,invites);
+            });
+
+            } else if (res.status === 204){
+              return cb(null,[]);
+            }
+            return cb(err,[]);
+          });
+        });
     },
     /**
      * Invite a user
