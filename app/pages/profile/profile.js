@@ -69,7 +69,6 @@ var Profile = React.createClass({
 
   render: function() {
     var form = this.renderForm();
-    var careTeam = this.renderCareTeam();
     var self = this;
     var handleClickBack = function() {
       self.props.trackMetric('Clicked Back To Care Team List');
@@ -96,7 +95,6 @@ var Profile = React.createClass({
         <div className="container-box-outer profile-content">
           <div className="container-box-inner profile-content-box">
             <div className="profile-form">{form}</div>
-            {careTeam}
           </div>
         </div>
       </div>
@@ -117,30 +115,6 @@ var Profile = React.createClass({
         onSubmit={this.handleSubmit}
         notification={this.state.notification}
         disabled={disabled}/>
-    );
-    /* jshint ignore:end */
-  },
-
-  renderCareTeam: function() {
-    if (this.isResettingUserData()) {
-      return null;
-    }
-
-    var user = this.props.user;
-    var content;
-    if (!personUtils.isPatient(user)) {
-      content = this.renderCreateCareTeam();
-    }
-    else {
-      content = this.renderUserCareTeam();
-    }
-
-    /* jshint ignore:start */
-    return (
-      <div className="profile-careteam">
-        <div className="profile-careteam-title">YOUR CARE TEAM</div>
-        {content}
-      </div>
     );
     /* jshint ignore:end */
   },
