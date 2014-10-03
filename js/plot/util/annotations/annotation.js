@@ -48,7 +48,7 @@ module.exports = function(container, annotationsGroup) {
 
     var hoverTarget;
 
-    if (opts.d.annotations[0].code !== 'demo annotation') {
+    if (opts.d.annotations[0].code.slice(0, 6) === 'stats-') {
       if (opts.hoverTarget != null) {
         hoverTarget = opts.hoverTarget;
       }
