@@ -87,7 +87,7 @@ module.exports = function(container, annotationsGroup) {
   annotation.tooltip = function(opts, selection, hoverTarget) {
     opts = opts || {};
 
-    if (opts.d.annotations[0].code !== 'demo annotation') {
+    if (opts.d.annotations[0].code.slice(0, 6) === 'stats-') {
       if (container.type === 'daily') {
         opts.x = opts.x - (container.currentTranslation() - container.axisGutter());
       }
