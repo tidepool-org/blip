@@ -411,11 +411,11 @@ var AppComponent = React.createClass({
     return function(invitation, mod) {
       self.setState({
         invites: self.state.invites.filter(function(e){
-          return e.creatorId !== invitation.creatorId;
+          return e.key !== invitation.key;
         })
       });
 
-      modifier(invitation.key,invitation.creatorId, function(err) {
+      modifier(invitation.key, invitation.creator.userid, function(err) {
         if(err || options.fetchPatients) {
           self.fetchPatients({hideLoading: true});
         }

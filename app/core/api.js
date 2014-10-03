@@ -490,16 +490,16 @@ api.invitation.getReceived = function(callback) {
   return tidepool.invitesRecieved(callback);
 };
 
-api.invitation.accept = function(inviteId, fromUserId, callback) {
+api.invitation.accept = function(key, fromUserId, callback) {
   var loggedInUser = tidepool.getUserId();
   api.log('POST /confirm/accept/invite/' + loggedInUser +'/'+fromUserId );
-  return tidepool.acceptInvite(inviteId, loggedInUser, fromUserId, callback);
+  return tidepool.acceptInvite(key, loggedInUser, fromUserId, callback);
 };
 
-api.invitation.dismiss = function(inviteId, fromUserId, callback) {
+api.invitation.dismiss = function(key, fromUserId, callback) {
   var loggedInUser = tidepool.getUserId();
   api.log('POST /confirm/dismiss/invite/'+ loggedInUser+ '/'+fromUserId );
-  return tidepool.dismissInvite(inviteId, loggedInUser, fromUserId, callback);
+  return tidepool.dismissInvite(key, loggedInUser, fromUserId, callback);
 };
 
 api.invitation.getSent = function(callback) {

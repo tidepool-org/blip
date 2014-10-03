@@ -48,6 +48,9 @@ var patch = function(mock, api) {
       if (options.email) {
         match = match && confirmation.email === options.email;
       }
+      if (options.key) {
+        match = match && confirmation.key === options.key;
+      }
 
       return match;
     });
@@ -86,7 +89,7 @@ var patch = function(mock, api) {
     }, getDelayFor('api.invitation.getReceived'));
   };
 
-  api.invitation.accept = function(fromUserId, callback) {
+  api.invitation.accept = function(key, fromUserId, callback) {
     api.log('[mock] POST /invitations/from/' + fromUserId + '/accept');
 
     setTimeout(function() {
@@ -94,7 +97,8 @@ var patch = function(mock, api) {
 
       var invitation = getPendingInvitation({
         from: fromUserId,
-        to: userId
+        to: userId,
+        key: key
       });
 
       if (!invitation) {
@@ -104,13 +108,13 @@ var patch = function(mock, api) {
 
       setPermissions(fromUserId, userId, invitation.permissions);
       // Note: we are mutating the object in the mock data here
-      invitation.status = 'confirmed';
+      invitation.status = 'completed';
 
       callback();
     }, getDelayFor('api.invitation.accept'));
   };
 
-  api.invitation.dismiss = function(fromUserId, callback) {
+  api.invitation.dismiss = function(key, fromUserId, callback) {
     api.log('[mock] POST /invitations/from/' + fromUserId + '/dismiss');
 
     setTimeout(function() {
@@ -118,7 +122,8 @@ var patch = function(mock, api) {
 
       var invitation = getPendingInvitation({
         from: fromUserId,
-        to: userId
+        to: userId,
+        key: key
       });
 
       if (!invitation) {
@@ -127,7 +132,7 @@ var patch = function(mock, api) {
       }
 
       // Note: we are mutating the object in the mock data here
-      invitation.status = 'dismissed';
+      invitation.status = 'declined';
 
       callback();
     }, getDelayFor('api.invitation.dismiss'));
