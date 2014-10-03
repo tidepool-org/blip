@@ -17,7 +17,7 @@ var React = require('react');
 var _ = require('lodash');
 var cx = require('react/lib/cx');
 
-var api = require('../../core/api');
+var utils = require('../../core/utils');
 
 var PatientCard = React.createClass({
   propTypes: {
@@ -33,7 +33,8 @@ var PatientCard = React.createClass({
     this.props.onDismissInvitation(this.props.invitation);
   },
   render: function() {
-    var message = 'You have been invited to see ' + this.props.invitation.creator.fullName + '\'s data!';
+    var name = utils.getIn(this.props.invitation, ['creator', 'profile', 'fullName']);
+    var message = 'You have been invited to see ' + name + '\'s data!';
     /* jshint ignore:start */
     return (
       <li className='invitation'>

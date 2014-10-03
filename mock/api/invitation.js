@@ -33,7 +33,7 @@ var patch = function(mock, api) {
     return _.find(data.confirmations, function(confirmation) {
       var match = (
         confirmation.type === 'invite' &&
-        confirmation.invitedBy === options.from &&
+        confirmation.creatorId === options.from &&
         confirmation.status === 'pending'
       );
 
@@ -48,13 +48,12 @@ var patch = function(mock, api) {
     });
   }
 
-  function replaceInvitedByWithUser(invitation) {
-    var fromUserId = invitation.invitedBy;
-    var from = data.users[fromUserId];
-    from = _.cloneDeep(from);
-    from = publicPersonInfo(from);
-    return _.assign({}, _.omit(invitation, 'invitedBy'), {
-      from: from
+  function replaceCreatorIdWithUser(invitation) {
+    var creator = data.users[invitation.creatorId];
+    creator = _.cloneDeep(creator);
+    creator = publicPersonInfo(creator);
+    return _.assign({}, _.omit(invitation, 'creatorId'), {
+      creator: creator
     });
   }
 
@@ -73,10 +72,10 @@ var patch = function(mock, api) {
       });
 
       invitations = _.map(invitations, function(invitation) {
-        return _.pick(invitation, 'invitedBy', 'permissions');
+        return _.pick(invitation, 'creatorId', 'permissions');
       });
 
-      invitations = _.map(invitations, replaceInvitedByWithUser);
+      invitations = _.map(invitations, replaceCreatorIdWithUser);
 
       callback(null, invitations);
     }, getDelayFor('api.invitation.getReceived'));
@@ -131,12 +130,12 @@ var patch = function(mock, api) {
 
   api.invitation.getSent = function(callback) {
     api.log('[mock] GET /invitations/sent');
-    
+
     setTimeout(function() {
       var invitations = _.filter(data.confirmations, function(confirmation) {
         return (
           confirmation.type === 'invite' &&
-          confirmation.invitedBy === api.userId &&
+          confirmation.creatorId === api.userId &&
           confirmation.status === 'pending'
         );
       });
@@ -159,7 +158,7 @@ var patch = function(mock, api) {
         return (
           confirmation.type === 'invite' &&
           confirmation.email === toEmail &&
-          confirmation.invitedBy === userId
+          confirmation.creatorId === userId
         );
       });
 
@@ -172,7 +171,7 @@ var patch = function(mock, api) {
         type: 'invite',
         status: 'pending',
         email: toEmail,
-        invitedBy: userId,
+        creatorId: userId,
         permissions: permissions,
         token: generateInvitationToken()
       };
@@ -239,7 +238,7 @@ var patch = function(mock, api) {
         return callback(err);
       }
 
-      invitation = replaceInvitedByWithUser(invitation);
+      invitation = replaceCreatorIdWithUser(invitation);
       // If invitation was sent to existing user account, add user object
       if (invitation.userid) {
         var user = data.users[invitation.userid];
