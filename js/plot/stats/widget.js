@@ -44,11 +44,6 @@ module.exports = function(pool, opts) {
     },
     size: 16,
     pieRadius: pool.height() * 0.5,
-    defaultAnnotationOpts: {
-      lead: 'stats-insufficient-data',
-      d: {annotations: [{code: 'stats-insufficient-data'}]},
-      orientation: {up: true}
-    },
     bgUnits: 'mg/dL',
     PTiRLabels: {
       cbg: 'Time in Target Range',
@@ -102,11 +97,44 @@ module.exports = function(pool, opts) {
     var targetRangeString = 'Target range: ' + lowBound + ' - ' + highBound + ' ';
 
     // create basal-to-bolus ratio puddle
-    stats.newPuddle('Ratio', 'Basal : Bolus', 'Basal to bolus insulin ratio', pw.ratio, true);
+    var ratioOpts = {
+      id: 'Ratio',
+      head: 'Basal : Bolus',
+      lead: 'Basal to bolus insulin ratio',
+      weight: pw.ratio,
+      pieBoolean: true,
+      annotationOpts: {
+        lead: 'stats-how-calculated',
+        d: {annotations: [{code: 'stats-how-calculated-ratio'}]}
+      }
+    };
+    stats.newPuddle(ratioOpts);
     // create time-in-range puddle
-    stats.newPuddle('Range', opts.PTiRLabels.cbg, targetRangeString + opts.bgUnits, pw.range, true);
+    var rangeOpts = {
+      id: 'Range',
+      head: opts.PTiRLabels.cbg,
+      lead: targetRangeString + opts.bgUnits,
+      weight: pw.range,
+      pieBoolean: true,
+      annotationOpts: {
+        lead: 'stats-how-calculated',
+        d: {annotations: [{code: 'stats-how-calculated-range'}]}
+      }
+    };
+    stats.newPuddle(rangeOpts);
     // create average BG puddle
-    stats.newPuddle('Average', 'Average BG', opts.averageLabel, pw.average, false);
+    var averageOpts = {
+      id: 'Average',
+      head: 'Average BG',
+      lead: opts.averageLabel,
+      weight: pw.average,
+      pieBoolean: false,
+      annotationOpts: {
+        lead: 'stats-how-calculated',
+        d: {annotations: [{code: 'stats-how-calculated-average'}]}
+      }
+    };
+    stats.newPuddle(averageOpts);
     stats.arrangePuddles();
   });
 
@@ -117,12 +145,16 @@ module.exports = function(pool, opts) {
     puddles.forEach(function(puddle, i) {
       currentWeight += puddle.weight;
       puddle.width((puddle.weight/cumWeight) * pool.width());
+      puddle.height(pool.height());
       var puddleGroup = widgetGroup.append('g')
         .attr({
           transform: 'translate(' + currX + ',0)',
           class: 'd3-stats',
           id: 'puddle_' + puddle.id
-        });
+        })
+        // This is needed to capture hover events from the hidden 
+        // rectangle in the puddle.
+        .style('pointer-events', 'all');
       puddle.xPosition(currX);
       currX = (currentWeight / cumWeight) * pool.width();
       puddleGroup.call(puddle);
@@ -172,6 +204,7 @@ module.exports = function(pool, opts) {
           // or just update the current pie
           else {
             stats.updatePie(thisPie, data[puddle.id.toLowerCase()]);
+            stats.updatePieAnnotation(puddle, puddleGroup, false);
           }
         }
       }
@@ -252,7 +285,7 @@ module.exports = function(pool, opts) {
         'd3-stats-circle': true,
         'd3-smbg': true,
         'd3-circle-smbg': true,
-        'hidden': !isFinite(imageY)
+        hidden: !isFinite(imageY)
       });
 
     stats.rectGroup = rectGroup;
@@ -260,13 +293,12 @@ module.exports = function(pool, opts) {
     if (isNaN(data.value)) {
       puddleGroup.classed('d3-insufficient-data', true);
       stats.rectGroup.selectAll('.d3-stats-circle').classed('hidden', true);
-      stats.rectAnnotation(puddle, puddleGroup);
+      stats.updateRectAnnotation(puddle, puddleGroup, true);
     }
     else {
-      puddleGroup.on('mouseover', null);
-      puddleGroup.on('mouseout', null);
       puddleGroup.classed('d3-insufficient-data', false);
       stats.rectGroup.selectAll('.d3-stats-circle').classed('hidden', false);
+      stats.updateRectAnnotation(puddle, puddleGroup, false);
     }
   };
 
@@ -274,12 +306,11 @@ module.exports = function(pool, opts) {
     if (isNaN(data.value)) {
       puddleGroup.classed('d3-insufficient-data', true);
       stats.rectGroup.selectAll('.d3-stats-circle').classed('hidden', true);
-      stats.rectAnnotation(puddle, puddleGroup);
+      stats.updateRectAnnotation(puddle, puddleGroup, true);
     }
     else {
-      puddleGroup.on('mouseover', null);
-      puddleGroup.on('mouseout', null);
       puddleGroup.classed('d3-insufficient-data', false);
+      stats.updateRectAnnotation(puddle, puddleGroup, false);
     }
 
     var imageY = rectScale(data.value) + (puddle.height() / 10);
@@ -294,14 +325,54 @@ module.exports = function(pool, opts) {
     }
   };
 
-  stats.rectAnnotation = function(puddle, puddleGroup) {
+  stats.updateAnnotation = function(annotationOpts, puddle, insufficientData) {
+    if (insufficientData) {
+      annotationOpts.lead = 'stats-insufficient-data';
+      annotationOpts.d.annotations[0].code = 'stats-insufficient-data';
+      pool.parent().select('#tidelineAnnotations_stats').call(annotation, annotationOpts);
+    }
+    else {
+      annotationOpts.lead = puddle.annotationOpts.lead;
+      annotationOpts.d.annotations[0].code = puddle.annotationOpts.d.annotations[0].code;
+      // For range and average, display will be different for smbg and cbg.
+      // The possible resulting code options are (placed here for searchability):
+      // stats-how-calculated-range-cbg
+      // stats-how-calculated-range-smbg
+      // stats-how-calculated-average-cbg
+      // stats-how-calculated-average-smbg
+      if (puddle.id === 'Range' || puddle.id === 'Average') {
+        annotationOpts.d.annotations[0].code += ('-'+data.bgType);
+      }
+      pool.parent().select('#tidelineAnnotations_stats').call(annotation, annotationOpts);
+    }
+  };
+
+  stats.updateRectAnnotation = function(puddle, puddleGroup, insufficientData) {
     var annotationOpts = {
-      x: puddle.width() * (3/16) + puddle.xPosition(),
-      y: puddle.height() / 2,
-      hoverTarget: puddleGroup
+      x: puddle.width() * (7/32) + puddle.xPosition(),
+      y: pool.height() / 2,
+      hoverTarget: puddleGroup,
+      lead: 'stats-insufficient-data',
+      d: {annotations: [{code: 'stats-insufficient-data'}]},
+      orientation: {up: true}
     };
-    _.defaults(annotationOpts, opts.defaultAnnotationOpts);
-    pool.parent().select('#tidelineAnnotations_stats').call(annotation, annotationOpts);
+
+    stats.updateAnnotation(annotationOpts, puddle, insufficientData);
+  };
+
+  stats.updatePieAnnotation = function(puddle, puddleGroup, insufficientData) {
+    var xOffset = (pool.width()/3) * (1/6);
+    var yOffset = pool.height() / 2;
+    var annotationOpts = {
+      x: xOffset + puddle.xPosition(),
+      y: yOffset,
+      hoverTarget: puddleGroup,
+      lead: 'stats-insufficient-data',
+      d: {annotations: [{code: 'stats-insufficient-data'}]},
+      orientation: {up: true}
+    };
+
+    stats.updateAnnotation(annotationOpts, puddle, insufficientData);
   };
 
   stats.createPie = function(puddle, puddleGroup, data) {
@@ -313,6 +384,7 @@ module.exports = function(pool, opts) {
         transform: 'translate(' + xOffset + ',' + yOffset + ')',
         'class': 'd3-stats-pie'
       });
+
     if (stats.hasNaN(data)) {
       puddleGroup.classed('d3-insufficient-data', true);
       pieGroup.append('circle')
@@ -322,19 +394,13 @@ module.exports = function(pool, opts) {
           r: opts.pieRadius
         });
 
-      var annotationOpts = {
-        x: xOffset + puddle.xPosition(),
-        y: yOffset,
-        hoverTarget: puddleGroup
-      };
-      _.defaults(annotationOpts, opts.defaultAnnotationOpts);
-      pool.parent().select('#tidelineAnnotations_stats').call(annotation, annotationOpts);
+      stats.updatePieAnnotation(puddle, puddleGroup, true);
 
       return null;
     }
     else {
-      puddleGroup.on('mouseover', null);
-      puddleGroup.on('mouseout', null);
+      stats.updatePieAnnotation(puddle, puddleGroup, false);
+
       puddleGroup.classed('d3-insufficient-data', false);
       pie = d3.layout.pie().value(function(d) {
           return d.value;
@@ -377,23 +443,24 @@ module.exports = function(pool, opts) {
     return found;
   };
 
-  stats.newPuddle = function(id, head, lead, weight, pieBoolean) {
+  stats.newPuddle = function(opts) {
     var p = new Puddle({
-      id: id,
-      head: head,
-      lead: lead,
+      id: opts.id,
+      head: opts.head,
+      lead: opts.lead,
       width: pool.width()/3,
       height: pool.height(),
-      weight: weight,
+      weight: opts.weight,
       xOffset: function() {
-        if (pieBoolean) {
+        if (opts.pieBoolean) {
           return (pool.width()/3) / 3;
         }
         else {
           return (pool.width()/3) * (2 / 5);
         }
       },
-      pie: pieBoolean
+      pie: opts.pieBoolean,
+      annotationOpts: opts.annotationOpts
     });
     puddles.push(p);
   };

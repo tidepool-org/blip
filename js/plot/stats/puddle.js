@@ -36,6 +36,7 @@ module.exports = function(opts) {
   function puddle(selection, txt) {
     selection.call(puddle.addHead);
     selection.call(puddle.addLead);
+    selection.call(puddle.addHoverRect);
   }
 
   puddle.dataDisplay = function(selection, display) {
@@ -45,9 +46,9 @@ module.exports = function(opts) {
     selection.selectAll('text.d3-stats-display').remove();
     var displayGroup = selection.append('text')
       .attr({
-        'x': opts.xOffset,
-        'y': dataDisplayHeight,
-        'class': 'd3-stats-display'
+        x: opts.xOffset,
+        y: dataDisplayHeight,
+        class: 'd3-stats-display'
       });
 
     display.forEach(function(txt) {
@@ -60,9 +61,9 @@ module.exports = function(opts) {
   puddle.addHead = _.once(function(selection) {
     selection.append('text')
       .attr({
-        'x': opts.xOffset,
-        'y': 0,
-        'class': 'd3-stats-head'
+        x: opts.xOffset,
+        y: 0,
+        class: 'd3-stats-head'
       })
       .text(opts.head);
   });
@@ -73,11 +74,25 @@ module.exports = function(opts) {
     var leadHeight = opts.height * 0.45;
     selection.append('text')
       .attr({
-        'x': opts.xOffset,
-        'y': leadHeight,
-        'class': 'd3-stats-lead'
+        x: opts.xOffset,
+        y: leadHeight,
+        class: 'd3-stats-lead'
       })
       .text(opts.lead);
+  });
+
+  // Creates a hidden rectangle for capturing hover events for the entire
+  // puddle. This is necessary because SVG g elements don't trigger hover
+  // events on their own.
+  puddle.addHoverRect = _.once(function(selection) {
+    selection.append('rect')
+      .attr({
+        x: 0,
+        y: 0,
+        width: puddle.width(),
+        height: puddle.height(),
+        class: 'd3-stats-hover-capture'
+      });
   });
 
   puddle.xPosition = function(x) {
@@ -103,6 +118,8 @@ module.exports = function(opts) {
   puddle.weight = opts.weight;
 
   puddle.pie = opts.pie;
+
+  puddle.annotationOpts = opts.annotationOpts;
 
   return puddle;
 };
