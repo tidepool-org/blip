@@ -18,7 +18,12 @@ var _ = require('lodash');
 var common = require('./common');
 var publicPersonInfo = common.publicPersonInfo;
 
+var invitationKeySize = 6;
 var invitationTokenSize = 12;
+
+function generateInvitationKey() {
+  return common.generateRandomId(invitationKeySize);
+}
 
 function generateInvitationToken() {
   return common.generateRandomId(invitationTokenSize);
@@ -72,7 +77,7 @@ var patch = function(mock, api) {
       });
 
       invitations = _.map(invitations, function(invitation) {
-        return _.pick(invitation, 'creatorId', 'permissions');
+        return _.pick(invitation, 'key', 'creatorId', 'permissions');
       });
 
       invitations = _.map(invitations, replaceCreatorIdWithUser);
@@ -141,7 +146,7 @@ var patch = function(mock, api) {
       });
 
       invitations = _.map(invitations, function(invitation) {
-        return _.pick(invitation, 'email', 'permissions');
+        return _.pick(invitation, 'key', 'email', 'permissions');
       });
 
       callback(null, invitations);
@@ -168,6 +173,7 @@ var patch = function(mock, api) {
       }
 
       var invitation = {
+        key: generateInvitationKey(),
         type: 'invite',
         status: 'pending',
         email: toEmail,
@@ -249,7 +255,7 @@ var patch = function(mock, api) {
         });
       }
 
-      invitation = _.pick(invitation, 'user', 'email', 'from', 'permissions');
+      invitation = _.pick(invitation, 'key', 'user', 'email', 'creator', 'permissions');
       callback(null, invitation);
     }, getDelayFor('api.invitation.getForToken'));
   };
