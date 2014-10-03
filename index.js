@@ -892,12 +892,16 @@ module.exports = function (config, deps) {
               return cb(err);
             }
             if (res.status === 200) {
-              //add the profiles
+
+              // Replace `creatorId` with a `creator` user object
               async.map(res.body, function (invite, callback) {
                 self.findProfile(invite.creatorId,function(err,profile){
-                  if (_.isEmpty(profile)===false){
-                    invite.creator = profile;
-                  }
+                  invite.creator = {
+                    userid: invite.creatorId,
+                    profile: profile
+                  };
+                  invite = _.omit(invite, 'creatorId');
+
                   callback(err,invite);
                 });
               }, function(err, invites){
