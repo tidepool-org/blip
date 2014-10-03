@@ -347,6 +347,14 @@ function getHandlers() {
         var err = new Error('Basal overlaps with previous.');
         d.errorMessage = err.message;
         d.overlapsWith = lastBasal;
+        return d;
+      }
+      // NB: truthiness warranted here
+      // basals with duration of 0 are *not* legitimate targets for visualization
+      if (!d.duration) {
+        var err2 = new Error('Null duration. Expect an `off-schedule-rate` annotation here. Investigate if that is missing.');
+        d.errorMessage = err2.message;
+        return d;
       }
       lastBasal = d;
       lastEnd = dt.addDuration(d.time, d.duration);

@@ -172,6 +172,22 @@ describe('nurseshark', function() {
       expect(res[0].errorMessage).to.equal('Basal overlaps with previous.');
     });
 
+    it('should return off-schedule-rate and null-duration basals in the erroredData', function() {
+      var now = new Date();
+      var dummyDT = '2014-01-01T12:00:00';
+      var nullDuration = [{
+        type: 'basal',
+        time: now.toISOString(),
+        duration: null,
+        deviceTime: dummyDT,
+        normalTime: dummyDT + '.000Z',
+        normalEnd: new Date(new Date(dummyDT + '.000Z').valueOf() + 1200000).toISOString()
+      }];
+      var res = nurseshark.processData(nullDuration).erroredData;
+      expect(res.length).to.equal(1);
+      expect(res[0].errorMessage).to.equal('Null duration. Expect an `off-schedule-rate` annotation here. Investigate if that is missing.');
+    });
+
     describe('suppressed handler', function() {
       var dummyDT1 = '2014-01-01T12:00:00';
       var dummyDT2 = '2014-01-01T11:30:00';
