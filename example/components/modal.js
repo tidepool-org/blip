@@ -17,33 +17,31 @@
  */
 var _ = require('lodash');
 var bows = require('bows');
+var moment = require('moment');
 var React = require('react');
-
-// tideline dependencies & plugins
-var chartSettingsFactory = require('../../plugins/blip').settings;
 
 var Header = require('./header');
 var Footer = require('./footer');
 
-var tideline = {
-  log: bows('Settings')
-};
+var ModalDay = require('../modalday/ModalDay');
 
-var Settings = React.createClass({
-  chartType: 'settings',
-  log: bows('Settings View'),
+var Modal = React.createClass({
+  chartType: 'modal',
+  log: bows('Modal Day'),
   propTypes: {
     bgPrefs: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
+    initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
     onSwitchToDaily: React.PropTypes.func.isRequired,
     onSwitchToModal: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
-    onSwitchToWeekly: React.PropTypes.func.isRequired
+    onSwitchToWeekly: React.PropTypes.func.isRequired,
+    updateChartPrefs: React.PropTypes.func.isRequired,
+    updateDatetimeLocation: React.PropTypes.func.isRequired
   },
   getInitialState: function() {
     return {
-      atMostRecent: true,
       inTransition: false,
       title: ''
     };
@@ -63,14 +61,18 @@ var Settings = React.createClass({
           onClickSettings={this.handleClickSettings}
         ref="header" />
         <div id="tidelineOuterContainer">
-          <SettingsChart
+          <ModalChart
+            bgClasses={this.props.bgPrefs.bgClasses}
             bgUnits={this.props.bgPrefs.bgUnits}
-            patientData={this.props.patientData}
+            initialDatetimeLocation={this.props.initialDatetimeLocation}
+            patientData={this.props.patientData.data}
+            onDatetimeLocationChange={this.props.updateDatetimeLocation}
+            onMostRecent={this.handleClickMostRecent}
             ref="chart" />
         </div>
         <Footer
          chartType={this.chartType}
-         onClickModal={this.handleClickModal}
+         onClickModal={this.props.onSwitchToModal}
         ref="footer" />
       </div>
       );
@@ -78,9 +80,11 @@ var Settings = React.createClass({
   },
   // handlers
   handleClickModal: function() {
-    this.props.onSwitchToModal();
+    // when you're on modal view, clicking modal does nothing
+    return;
   },
   handleClickMostRecent: function() {
+    // TODO!!!
     return;
   },
   handleClickOneDay: function() {
@@ -90,41 +94,40 @@ var Settings = React.createClass({
     this.props.onSwitchToWeekly();
   },
   handleClickSettings: function() {
-    // when you're on settings view, clicking settings does nothing
-    return;
+    this.props.onSwitchToSettings();
   }
 });
 
-var SettingsChart = React.createClass({
-  chartOpts: ['bgUnits'],
-  log: bows('Settings Chart'),
+var ModalChart = React.createClass({
+  chartOpts: ['bgClasses', 'bgUnits'],
+  log: bows('Modal Chart'),
   propTypes: {
+    bgClasses: React.PropTypes.object.isRequired,
     bgUnits: React.PropTypes.string.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
-    patientData: React.PropTypes.object.isRequired,
+    patientData: React.PropTypes.array.isRequired,
+    // handlers
+    onDatetimeLocationChange: React.PropTypes.func.isRequired,
+    onMostRecent: React.PropTypes.func.isRequired
+  },
+  getInitialState: function() {
+    return {
+      datetimeLocation: null
+    };
   },
   componentDidMount: function() {
-    this.mountChart(this.getDOMNode());
-    this.initializeChart(this.props.patientData);
+    this.log('Mounting...');
+    var el = this.getDOMNode();
+    this.chart = ModalDay.create(el);
+    this.chart.render(this.props.patientData);
+  },
+  componentDidUpdate: function() {
+    this.log('Updating...');
+    this.chart.render(this.props.patientData);
   },
   componentWillUnmount: function() {
-    this.unmountChart();
-  },
-  mountChart: function(node, chartOpts) {
-    this.log('Mounting...');
-    this.chart = chartSettingsFactory(node, _.pick(this.props, this.chartOpts));
-  },
-  unmountChart: function() {
     this.log('Unmounting...');
     this.chart.destroy();
-  },
-  initializeChart: function(data) {
-    this.log('Initializing...');
-    if (_.isEmpty(data)) {
-      throw new Error('Cannot create new chart with no data');
-    }
-
-    this.chart.load(data);
   },
   render: function() {
     /* jshint ignore:start */
@@ -135,4 +138,4 @@ var SettingsChart = React.createClass({
   }
 });
 
-module.exports = Settings;
+module.exports = Modal;

@@ -35,6 +35,7 @@ var Daily = React.createClass({
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
     onSwitchToDaily: React.PropTypes.func.isRequired,
+    onSwitchToModal: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToWeekly: React.PropTypes.func.isRequired,
     updateChartPrefs: React.PropTypes.func.isRequired,
@@ -82,6 +83,7 @@ var Daily = React.createClass({
         </div>
         <Footer
          chartType={this.chartType}
+         onClickModal={this.handleClickModal}
         ref="footer" />
       </div>
       );
@@ -94,6 +96,10 @@ var Daily = React.createClass({
     return moment(datetime).utc().format('dddd, MMMM Do');
   },
   // handlers
+  handleClickModal: function() {
+    var datetime = this.refs.chart.getCurrentDay();
+    this.props.onSwitchToModal(datetime);
+  },
   handleClickMostRecent: function() {
     this.refs.chart.goToMostRecent();
   },

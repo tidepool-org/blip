@@ -26,6 +26,7 @@ var tideline = {
 var TidelineFooter = React.createClass({
   propTypes: {
     chartType: React.PropTypes.string.isRequired,
+    onClickModal: React.PropTypes.func.isRequired,
     onClickValues: React.PropTypes.func,
     showingValues: React.PropTypes.bool
   },
@@ -33,6 +34,11 @@ var TidelineFooter = React.createClass({
     var valuesLinkClass = cx({
       'tidelineNavLabel': true,
       'tidelineNavRightLabel': true
+    });
+
+    var modalLinkClass = cx({
+      'tidelineNavLabel': true,
+      'active': this.props.chartType === 'modal'
     });
 
     function getValuesLinkText(props) {
@@ -61,6 +67,7 @@ var TidelineFooter = React.createClass({
     return (
       <div className="tidelineNav grid">
         <div className="grid-item one-half">
+          <a className={modalLinkClass} onClick={this.props.onClickModal}>Trends</a>
         </div>
         <div className="grid-item one-half">{showValues}</div>
       </div>
