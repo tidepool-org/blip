@@ -49,6 +49,11 @@ module.exports = function(container, annotationsGroup) {
     var hoverTarget;
 
     if (opts.d.annotations[0].code.slice(0, 6) === 'stats-') {
+      // NB: this (temporarily) disables the new explainer tooltips
+      // for all stats widget components when stats are active
+      if (opts.d.annotations[0].code !== 'stats-insufficient-data') {
+        return;
+      }
       if (opts.hoverTarget != null) {
         hoverTarget = opts.hoverTarget;
       }

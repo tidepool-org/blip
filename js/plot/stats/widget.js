@@ -347,7 +347,13 @@ module.exports = function(pool, opts) {
     }
   };
 
+  function removeMouseListeners(selection) {
+    selection.on('mouseover', null);
+    selection.on('mouseout', null);
+  }
+
   stats.updateRectAnnotation = function(puddle, puddleGroup, insufficientData) {
+    removeMouseListeners(puddleGroup);
     var annotationOpts = {
       x: puddle.width() * (7/32) + puddle.xPosition(),
       y: pool.height() / 2,
@@ -361,6 +367,7 @@ module.exports = function(pool, opts) {
   };
 
   stats.updatePieAnnotation = function(puddle, puddleGroup, insufficientData) {
+    removeMouseListeners(puddleGroup);
     var xOffset = (pool.width()/3) * (1/6);
     var yOffset = pool.height() / 2;
     var annotationOpts = {
