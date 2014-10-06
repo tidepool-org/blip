@@ -80,7 +80,7 @@ var patch = function(mock, api) {
       });
 
       invitations = _.map(invitations, function(invitation) {
-        return _.pick(invitation, 'key', 'creatorId', 'permissions');
+        return _.pick(invitation, 'key', 'creatorId', 'context');
       });
 
       invitations = _.map(invitations, replaceCreatorIdWithUser);
@@ -106,7 +106,7 @@ var patch = function(mock, api) {
         return callback(err);
       }
 
-      setPermissions(fromUserId, userId, invitation.permissions);
+      setPermissions(fromUserId, userId, invitation.context);
       // Note: we are mutating the object in the mock data here
       invitation.status = 'completed';
 
@@ -151,7 +151,7 @@ var patch = function(mock, api) {
       });
 
       invitations = _.map(invitations, function(invitation) {
-        return _.pick(invitation, 'key', 'email', 'permissions');
+        return _.pick(invitation, 'key', 'email', 'context');
       });
 
       callback(null, invitations);
@@ -183,7 +183,7 @@ var patch = function(mock, api) {
         status: 'pending',
         email: toEmail,
         creatorId: userId,
-        permissions: permissions,
+        context: permissions,
         token: generateInvitationToken()
       };
 
@@ -204,7 +204,7 @@ var patch = function(mock, api) {
 
       data.confirmations.push(invitation);
 
-      invitation = _.pick(invitation, 'email', 'permissions');
+      invitation = _.pick(invitation, 'key', 'email', 'context');
       callback(null, invitation);
     }, getDelayFor('api.invitation.send'));
   };
@@ -260,7 +260,7 @@ var patch = function(mock, api) {
         });
       }
 
-      invitation = _.pick(invitation, 'key', 'user', 'email', 'creator', 'permissions');
+      invitation = _.pick(invitation, 'key', 'user', 'email', 'creator', 'context');
       callback(null, invitation);
     }, getDelayFor('api.invitation.getForToken'));
   };
