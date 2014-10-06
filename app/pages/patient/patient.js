@@ -18,10 +18,9 @@ var React = require('react');
 var _ = require('lodash');
 
 var personUtils = require('../../core/personutils');
-var PatientInfo = require('./patientinfo');
-var PeopleList = require('../../components/peoplelist');
-var PersonCard = require('../../components/personcard');
 var ModalOverlay = require('../../components/modaloverlay');
+var PatientInfo = require('./patientinfo');
+var PatientTeam = require('./patientteam');
 
 var Patient = React.createClass({
   propTypes: {
@@ -30,8 +29,12 @@ var Patient = React.createClass({
     patient: React.PropTypes.object,
     fetchingPatient: React.PropTypes.bool,
     onUpdatePatient: React.PropTypes.func,
-    trackMetric: React.PropTypes.func.isRequired,
-    patientTeam: React.PropTypes.component
+    pendingInvites: React.PropTypes.array,
+    onChangeMemberPermissions: React.PropTypes.func,
+    onRemoveMember: React.PropTypes.func,
+    onInviteMember: React.PropTypes.func,
+    onCancelInvite: React.PropTypes.func,
+    trackMetric: React.PropTypes.func.isRequired
   },
 
   getInitialState: function() {
@@ -181,10 +184,14 @@ var Patient = React.createClass({
     return (
       <div className="PatientPage-teamSection">
         <div className="PatientPage-sectionTitle">My Care Team <span className="PatientPage-sectionTitleMessage">These are the people who have access to your data.</span></div>
-        {this.props.patientTeam}
+        {this.renderPatientTeam()}
       </div>
     );
-  }
+  },
+
+  renderPatientTeam: function() {
+    return this.transferPropsTo(<PatientTeam />);
+  },
 });
 
 module.exports = Patient;

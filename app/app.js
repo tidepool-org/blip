@@ -37,7 +37,6 @@ var BrowserWarningOverlay = require('./components/browserwarningoverlay');
 var Notification = require('./components/notification');
 var TermsOverlay = require('./components/termsoverlay');
 var MailTo = require('./components/mailto');
-var PatientTeam = require('./components/patientteam');
 
 var Login = require('./pages/login');
 var Signup = require('./pages/signup');
@@ -361,21 +360,6 @@ var AppComponent = React.createClass({
     );
   },
 
-  renderPatientTeam: function() {
-    return (
-      /* jshint ignore:start */
-      new <PatientTeam
-        user={this.state.user}
-        patient={this.state.patient}
-        pendingInvites={this.state.pendingInvites}
-        onChangeMemberPermissions={this.handleChangeMemberPermissions}
-        onRemoveMember={this.handleRemoveMember}
-        onInviteMember={this.handleInviteMember}
-        onCancelInvite={this.handleCancelInvite}/>
-      /* jshint ignore:end */
-    );
-  },
-
   showPatients: function() {
     this.renderPage = this.renderPatients;
     this.setState({page: 'patients'});
@@ -521,8 +505,6 @@ var AppComponent = React.createClass({
       return;
     }
 
-    var patientTeam = this.renderPatientTeam();
-
     /* jshint ignore:start */
     return (
       <Patient
@@ -530,8 +512,12 @@ var AppComponent = React.createClass({
         fetchingUser={this.state.fetchingUser}
         patient={this.state.patient}
         fetchingPatient={this.state.fetchingPatient}
-        patientTeam={patientTeam}
         onUpdatePatient={this.updatePatient}
+        pendingInvites={this.state.pendingInvites}
+        onChangeMemberPermissions={this.handleChangeMemberPermissions}
+        onRemoveMember={this.handleRemoveMember}
+        onInviteMember={this.handleInviteMember}
+        onCancelInvite={this.handleCancelInvite}
         trackMetric={trackMetric}/>
     );
     /* jshint ignore:end */

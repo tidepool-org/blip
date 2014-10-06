@@ -17,11 +17,12 @@
 var React = require('react');
 var _ = require('lodash');
 var cx = require('react/lib/cx');
-var ModalOverlay = require('../modaloverlay');
-var InputGroup = require('../inputgroup');
+var ModalOverlay = require('../../components/modaloverlay');
+var InputGroup = require('../../components/inputgroup');
 
 var PermissionInputGroup = React.createClass({
   propTypes: {
+    name: React.PropTypes.string,
     items: React.PropTypes.array,
     value: React.PropTypes.string
   },
@@ -37,8 +38,8 @@ var PermissionInputGroup = React.createClass({
     return (
       /* jshint ignore:start */
       <InputGroup
-        name={name}
-        items={items}
+        name={this.props.name}
+        items={this.props.items}
         type={'radios'}
         value={this.state.value}
         onChange={this.handleChange}/>
@@ -155,6 +156,7 @@ var PatientTeam = React.createClass({
     return (
       /* jshint ignore:start */
       <PermissionInputGroup
+        name={name}
         items={items}
         value={value}/>
       /* jshint ignore:end */
