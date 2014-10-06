@@ -356,9 +356,9 @@ var PatientTeam = React.createClass({
     var self = this;
 
     var handleSubmit = function(email, permissions) {
-      self.props.onInviteMember(self.props.user.userid, email, permissions, function(err) {
+      self.props.onInviteMember(email, permissions, function(err) {
         self.setState({
-          showModalOverlay: false,
+          invite: false,
         });
       });
     };

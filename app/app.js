@@ -455,7 +455,7 @@ var AppComponent = React.createClass({
     });
   },
 
-  handleInviteMember: function(patientId, email, permissions, cb) {
+  handleInviteMember: function(email, permissions, cb) {
     var self = this;
 
     api.invitation.send(email, permissions, function(err) {
@@ -464,7 +464,7 @@ var AppComponent = React.createClass({
         return self.handleApiError(err, 'Something went wrong while inviting member.');
       }
 
-      self.fetchPatient(patientId, cb);
+      self.fetchPendingInvites(cb);
     });
   },
 
