@@ -272,7 +272,7 @@ var PatientTeam = React.createClass({
 
     return (
       /* jshint ignore:start */
-      <li className="PatientTeam-member">
+      <li key={member.userid} className="PatientTeam-member">
         <div className="PatientInfo-head">
           <div className="PatientTeam-picture PatientInfo-picture"></div>
           <div className="PatientTeam-blocks PatientInfo-blocks">
@@ -332,7 +332,7 @@ var PatientTeam = React.createClass({
 
     return (
       /* jshint ignore:start */
-      <li className="PatientTeam-member--fadeNew  PatientTeam-member">
+      <li key={invite.key} className="PatientTeam-member--fadeNew  PatientTeam-member">
         <div className="PatientInfo-head">
           <div className="PatientTeam-picture PatientInfo-picture"></div>
           <div className="PatientTeam-blocks PatientInfo-blocks">
