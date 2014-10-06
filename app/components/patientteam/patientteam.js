@@ -20,6 +20,114 @@ var cx = require('react/lib/cx');
 var ModalOverlay = require('../modaloverlay');
 var InputGroup = require('../inputgroup');
 
+var PermissionInputGroup = React.createClass({
+  propTypes: {
+    items: React.PropTypes.array,
+    value: React.PropTypes.string
+  },
+  getInitialState: function() {
+    return {
+      value: this.props.value
+    };
+  },
+  handleChange: function(obj) {
+    this.setState({value: obj.value});
+  },
+  render: function() {
+    return (
+      /* jshint ignore:start */
+      <InputGroup
+        name={name}
+        items={items}
+        type={'radios'}
+        value={this.state.value}
+        onChange={this.handleChange}/>
+        /* jshint ignore:end */
+    );
+  }
+});
+
+var MemberInviteForm = React.createClass({
+  propTypes: {
+    onSubmit: React.PropTypes.func,
+    onCancel: React.PropTypes.func,
+    inputs: React.PropTypes.renderable
+  },
+  getInitialState: function() {
+    return {
+      validationError: false
+    };
+  },
+  render: function() {
+    var self = this;
+
+    var handleSubmit = function(obj) {
+      var email = self.refs.email.getDOMNode().value;
+
+      var validateEmail = function(email) {
+        var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(email);
+      };
+
+      if (!validateEmail(email)) {
+        self.setState({
+          validationError: true
+        });
+        return;
+      } else {
+        self.setState({
+          validationError: false
+        });
+      }
+
+      var permissions = {
+        view: {},
+        note: {}
+      };
+
+      if (self.props.inputs.state.value === 'upload') {
+        permissions.upload = {};
+      }
+
+      self.props.onSubmit(email, permissions);
+    };
+
+    var error = null;
+
+    if (this.state.validationError) {
+      error = 'Invalid email address';
+    }
+
+
+    return (
+      /* jshint ignore:start */
+      <li className="PatientTeam-member--fadeNew  PatientTeam-member PatientTeam-member--first">
+        <div className="PatientInfo-head">
+          <div className="PatientTeam-pending">
+            <i className="icon-pending-invite"></i>
+          </div>
+          <div className="PatientTeam-memberContent PatientTeam-blocks">
+            <div className="">
+              <input className="PatientInfo-input" id="email" ref="email" placeholder="email" />
+              <div className="PatientTeam-permissionSelection">
+                {this.props.inputs}
+              </div>
+              <div className="PatientTeam-buttonHolder">
+                <button className="PatientInfo-button PatientInfo-button--secondary" type="button" onClick={this.props.onCancel}>Cancel</button>
+                <button className="PatientInfo-button PatientInfo-button--primary" type="submit" onClick={handleSubmit}>Invite</button>
+              </div>
+              <div className="PatientTeam-validationError">{error}</div>
+              <div className="clear"></div>
+            </div>
+          </div>
+          <div className="clear"></div>
+        </div>
+      </li>
+      /* jshint ignore:end */
+    );
+  }
+});
+
 var PatientTeam = React.createClass({
   propTypes: {
     user: React.PropTypes.object,
@@ -39,32 +147,6 @@ var PatientTeam = React.createClass({
   },
 
   renderPermissionOptions: function(value, name) {
-    var PermissionInputGroup = React.createClass({
-        propTypes: {
-          items: React.PropTypes.array
-        },
-        getInitialState: function() {
-          return {
-            value: value
-          };
-        },
-        handleChange: function(obj) {
-          this.setState({value: obj.value});
-        },
-        render: function() {
-          return (
-            /* jshint ignore:start */
-            <InputGroup
-              name={name}
-              items={items}
-              type={'radios'}
-              value={this.state.value}
-              onChange={this.handleChange}/>
-              /* jshint ignore:end */
-          );
-        }
-    });
-
     var items = [
       {value: 'view', label: 'View only'},
       {value: 'upload', label: 'View and upload'}
@@ -77,7 +159,6 @@ var PatientTeam = React.createClass({
         value={value}/>
       /* jshint ignore:end */
     );
-
   },
 
   renderChangeTeamMemberPermissionsDialog: function(member) {
@@ -285,89 +366,6 @@ var PatientTeam = React.createClass({
         invite: false
       });
     };
-
-    var MemberInviteForm = React.createClass({
-        propTypes: {
-          onSubmit: React.PropTypes.func,
-          onCancel: React.PropTypes.func,
-          inputs: React.PropTypes.renderable
-        },
-        getInitialState: function() {
-          return {
-            validationError: false
-          };
-        },
-        render: function() {
-          var self = this;
-
-          var handleSubmit = function(obj) {
-            var email = self.refs.email.getDOMNode().value;
-
-            var validateEmail = function(email) {
-              var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-              return re.test(email);
-            };
-
-            if (!validateEmail(email)) {
-              self.setState({
-                validationError: true
-              });
-              return;
-            } else {
-              self.setState({
-                validationError: false
-              });
-            }
-
-            var permissions = {
-              view: {},
-              note: {}
-            };
-
-            if (self.props.inputs.state.value === 'upload') {
-              permissions.upload = {};
-            }
-
-            self.props.onSubmit(email, permissions);
-          };
-
-          var error = null;
-
-          if (this.state.validationError) {
-            error = 'Invalid email address';
-          }
-
-
-          return (
-            /* jshint ignore:start */
-            <li className="PatientTeam-member--fadeNew  PatientTeam-member PatientTeam-member--first">
-              <div className="PatientInfo-head">
-                <div className="PatientTeam-pending">
-                  <i className="icon-pending-invite"></i>
-                </div>
-                <div className="PatientTeam-memberContent PatientTeam-blocks">
-                  <div className="">
-                    <input className="PatientInfo-input" id="email" ref="email" placeholder="email" />
-                    <div className="PatientTeam-permissionSelection">
-                      {this.props.inputs}
-                    </div>
-                    <div className="PatientTeam-buttonHolder">
-                      <button className="PatientInfo-button PatientInfo-button--secondary" type="button" onClick={this.props.onCancel}>Cancel</button>
-                      <button className="PatientInfo-button PatientInfo-button--primary" type="submit" onClick={handleSubmit}>Invite</button>
-                    </div>
-                    <div className="PatientTeam-validationError">{error}</div>
-                    <div className="clear"></div>
-                  </div>
-                </div>
-                <div className="clear"></div>
-              </div>
-            </li>
-            /* jshint ignore:end */
-          );
-
-        }
-    });
-
 
     return(
       /* jshint ignore:start */
