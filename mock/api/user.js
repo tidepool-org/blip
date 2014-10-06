@@ -118,9 +118,13 @@ var patch = function(mock, api) {
     var token;
     var localStorage = window.localStorage;
 
-    if (getParam('auth.skip')) {
+    var skipWithUserId = getParam('auth.skip');
+    if (_.isNumber(skipWithUserId)) {
+      skipWithUserId = '' + skipWithUserId;
+    }
+    if (skipWithUserId && skipWithUserId.length) {
       api.log('[mock] Skipping auth');
-      userId = data.defaultUserId;
+      userId = skipWithUserId;
       token = generateTokenId();
       addToken(userId, token);
       saveSession(userId, token);

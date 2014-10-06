@@ -42,7 +42,7 @@
     "webpack": "1.3.3-beta1"
   },
   "devDependencies": {
-    "blip-mock-data": "tidepool-org/blip-mock-data#3a31ccf453d52b3a140cf596d6aad38da245f9a1",
+    "blip-mock-data": "tidepool-org/blip-mock-data#eb75dc71ab1ebf1775f4d01f6943c4ec32ea961d",
     "chai": "~1.9.1",
     "gulp": "~3.8.7",
     "gulp-jshint": "~1.8.4",
