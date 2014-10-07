@@ -356,30 +356,29 @@ var PatientTeam = React.createClass({
     };
   },
 
-  handleRemoveMember: function(member) {
+  renderRemoveTeamMemberDialog: function(member) {
     var self = this;
 
-    return function() {
+    var handleCancel = this.overlayClickHandler;
+    var handleSubmit = function(cb) {
       self.props.onRemoveMember(self.props.user.userid, member.userid, function(err) {
-          self.setState({
-            showModalOverlay: false,
-          });
+        if (err) {
+          return cb(err);
         }
-      );
+        cb();
+        self.setState({
+          showModalOverlay: false,
+        });
+      });
     };
-  },
 
-  renderRemoveTeamMemberDialog: function(member) {
     return (
-      /* jshint ignore:start */
-      <div>
-        <div className="ModalOverlay-content">{"Are you sure you want to remove this person? They will no longer be able to see or comment on your data."}</div>
-        <div className="ModalOverlay-controls">
-          <button className="PatientInfo-button PatientInfo-button--secondary" type="button" onClick={this.overlayClickHandler}>Cancel</button>
-          <button className="PatientInfo-button PatientInfo-button--primary" type="submit" onClick={this.handleRemoveMember(member)}>{"I'm sure, remove them."}</button>
-        </div>
-      </div>
-      /* jshint ignore:end */
+      <ConfirmDialog
+        message={'Are you sure you want to remove this person? They will no longer be able to see or comment on your data.'}
+        buttonText={'I\'m sure, remove them'}
+        buttonTextWorking={'Removing...'}
+        onSubmit={handleSubmit}
+        onCancel={handleCancel} />
     );
   },
 
