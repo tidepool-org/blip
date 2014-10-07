@@ -866,12 +866,12 @@ module.exports = function (config, deps) {
       );
     },
     /**
-     * Get the invites recieved
+     * Get the invites received
      *
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    invitesRecieved: function (cb) {
+    invitesReceived: function (cb) {
       assertArgumentsSize(arguments, 1);
 
       var self = this;
