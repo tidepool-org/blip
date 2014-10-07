@@ -22,7 +22,7 @@ var LoginLogo = require('../../components/loginlogo');
 
 var ErrorPage = React.createClass({
   propTypes: {
-    errorMessage: React.PropTypes.string
+    message: React.PropTypes.string
   },
   render: function() {
     /* jshint ignore:start */
@@ -32,7 +32,10 @@ var ErrorPage = React.createClass({
           page="errorpage"
           invite={true}/>
         <LoginLogo />
-        <div className="error-message">{this.props.errorMessage}</div>
+        <div className="errorpage-content">
+          <div className="errorpage-message">{this.props.message}</div>
+          <div className="errorpage-description">{this.props.description}</div>
+        </div>
       </div>
     );
     /* jshint ignore:end */

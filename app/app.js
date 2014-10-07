@@ -316,7 +316,8 @@ var AppComponent = React.createClass({
 
     if (this.state.inviteNotFound) {
       this.setState({
-        errorMessage: 'Invitation is invalid or has expired'
+        errorMessage: 'This invitation doesn’t work.',
+        errorDescription: 'You need to ask the person who sent it to you to send you another invitation.'
       });
 
       this.showError();
@@ -345,7 +346,8 @@ var AppComponent = React.createClass({
     return (
       /* jshint ignore:start */
       <ErrorPage
-        errorMessage={this.state.errorMessage} />
+        message={this.state.errorMessage}
+        description={this.state.errorDescription} />
       /* jshint ignore:end */
     );
   },
@@ -360,7 +362,7 @@ var AppComponent = React.createClass({
       /* jshint ignore:start */
       <Login
         onSubmit={this.login}
-        invite={this.state.invite}
+        invite={(this.state.invite && this.state.invite.user) ? this.state.invite : null}
         onSubmitSuccess={this.handleLoginSuccess}
         trackMetric={trackMetric} />
       /* jshint ignore:end */
@@ -378,7 +380,7 @@ var AppComponent = React.createClass({
       <Signup
         onSubmit={this.signup}
         onSubmitSuccess={this.handleSignupSuccess}
-        invite={this.state.invite}
+        invite={(this.state.invite && !this.state.invite.user) ? this.state.invite : null}
         trackMetric={trackMetric} />
       /* jshint ignore:end */
     );
@@ -704,7 +706,7 @@ var AppComponent = React.createClass({
 
   fetchInviteByToken: function(token) {
     var self = this;
-    
+
     app.api.invitation.getForToken(token, function(err, invite) {
       if (err.status && err.satus === 404) {
         self.setState({

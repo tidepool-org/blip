@@ -59,7 +59,7 @@ var Signup = React.createClass({
   getInitialState: function() {
     var formValues = {};
 
-    if (this.props.presetEmail) {
+    if (this.props.invite) {
       formValues = {
         username: this.props.invite.email
       };
