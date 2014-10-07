@@ -414,9 +414,25 @@ var AppComponent = React.createClass({
     return this.modifyInvites(app.api.invitation.dismiss)(invitation);
   },
   handleAcceptInvitation: function(invitation) {
-    return this.modifyInvites(app.api.invitation.accept, {fetchPatients: true})(invitation);
-  },
+    /* Set invitation to processing */
+    var invites = _.cloneDeep(this.state.invites);
 
+    invites.map(function(invite) {
+      if (invite.key === invitation.key) {
+        invite.accepting = true;
+      }
+
+      return invite;
+    })
+
+    this.setState({
+      invites: invites
+    });
+
+    var self = this;
+
+    self.modifyInvites(app.api.invitation.accept, {fetchPatients: true})(invitation);
+  },
   handleChangeMemberPermissions: function(patientId, memberId, permissions, cb) {
     var self = this;
 
