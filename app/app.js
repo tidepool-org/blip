@@ -116,6 +116,8 @@ var AppComponent = React.createClass({
       fetchingPatient: true,
       invites: null,
       fetchingInvites: true,
+      pendingInvites:null,
+      fetchingPendingInvites: true,
       bgPrefs: null,
       patientData: null,
       fetchingPatientData: true,
@@ -423,7 +425,7 @@ var AppComponent = React.createClass({
 
     app.api.invitation.accept(invitation.key, invitation.creator.userid, function(err) {
       self.fetchPatients({hideLoading: true});
-      
+
       if(err) {
         return self.handleApiError(err, 'Something went wrong while accepting the invitation.');
       }
@@ -476,13 +478,21 @@ var AppComponent = React.createClass({
   handleInviteMember: function(email, permissions, cb) {
     var self = this;
 
-    api.invitation.send(email, permissions, function(err) {
+    api.invitation.send(email, permissions, function(err, invitation) {
       if(err) {
-        cb(err);
+        if (cb) {
+          cb(err);
+        }
         return self.handleApiError(err, 'Something went wrong while inviting member.');
       }
 
-      self.fetchPendingInvites(cb);
+      self.setState({
+        pendingInvites: utils.concat(self.state.pendingInvites || [], invitation)
+      });
+      if (cb) {
+        cb(null, invitation);
+      }
+      self.fetchPendingInvites();
     });
   },
 
@@ -491,11 +501,21 @@ var AppComponent = React.createClass({
 
     api.invitation.cancel(email, function(err) {
       if(err) {
-        cb(err);
+        if (cb) {
+          cb(err);
+        }
         return self.handleApiError(err, 'Something went wrong while canceling the invitation.');
       }
 
-      self.fetchPendingInvites(cb);
+      self.setState({
+        pendingInvites: _.reject(self.state.pendingInvites, function(i) {
+          return i.email === email;
+        })
+      });
+      if (cb) {
+        cb();
+      }
+      self.fetchPendingInvites();
     });
   },
   showPatient: function(patientId) {

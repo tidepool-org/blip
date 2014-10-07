@@ -72,52 +72,12 @@ var MemberInviteForm = React.createClass({
   },
   getInitialState: function() {
     return {
-      validationError: false
+      error: null,
+      working: false
     };
   },
   render: function() {
-    var self = this;
-
-    var handleSubmit = function(obj) {
-      var email = self.refs.email.getDOMNode().value;
-      var permissionOption = self.refs.permissionOptions.getValue();
-
-      var validateEmail = function(email) {
-        var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        return re.test(email);
-      };
-
-      if (!validateEmail(email)) {
-        self.setState({
-          validationError: true
-        });
-        return;
-      } else {
-        self.setState({
-          validationError: false
-        });
-      }
-
-      var permissions = {
-        view: {},
-        note: {}
-      };
-
-      if (permissionOption === 'upload') {
-        permissions.upload = {};
-      }
-
-      self.props.onSubmit(email, permissions);
-    };
-
-    var error = null;
-
-    if (this.state.validationError) {
-      error = 'Invalid email address';
-    }
-
     return (
-      /* jshint ignore:start */
       <li className="PatientTeam-member--fadeNew  PatientTeam-member PatientTeam-member--first">
         <div className="PatientInfo-head">
           <div className="PatientTeam-pending">
@@ -130,18 +90,70 @@ var MemberInviteForm = React.createClass({
                 <PermissionInputGroup ref="permissionOptions" />
               </div>
               <div className="PatientTeam-buttonHolder">
-                <button className="PatientInfo-button PatientInfo-button--secondary" type="button" onClick={this.props.onCancel}>Cancel</button>
-                <button className="PatientInfo-button PatientInfo-button--primary" type="submit" onClick={handleSubmit}>Invite</button>
+                <button className="PatientInfo-button PatientInfo-button--secondary" type="button"
+                  onClick={this.props.onCancel}
+                  disabled={this.state.working}>Cancel</button>
+                <button className="PatientInfo-button PatientInfo-button--primary" type="submit"
+                  onClick={this.handleSubmit}
+                  disabled={this.state.working}>
+                  {this.state.working ? 'Sending...' : 'Invite'}
+                </button>
               </div>
-              <div className="PatientTeam-validationError">{error}</div>
+              <div className="PatientTeam-validationError">{this.state.error}</div>
               <div className="clear"></div>
             </div>
           </div>
           <div className="clear"></div>
         </div>
       </li>
-      /* jshint ignore:end */
     );
+  },
+
+  handleSubmit: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+
+    var email = this.refs.email.getDOMNode().value;
+    var permissionOption = this.refs.permissionOptions.getValue();
+
+    var validateEmail = function(email) {
+      var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      return re.test(email);
+    };
+
+    if (!validateEmail(email)) {
+      this.setState({
+        error: 'Invalid email address'
+      });
+      return;
+    } else {
+      this.setState({
+        validationError: false
+      });
+    }
+
+    var permissions = {
+      view: {},
+      note: {}
+    };
+
+    if (permissionOption === 'upload') {
+      permissions.upload = {};
+    }
+
+    this.setState({working: true});
+    var self = this;
+    this.props.onSubmit(email, permissions, function(err) {
+      if (err) {
+        self.setState({
+          working: false,
+          error: 'Sorry! Something went wrong...'
+        });
+        return;
+      }
+      self.setState({working: false});
+    });
   }
 });
 
