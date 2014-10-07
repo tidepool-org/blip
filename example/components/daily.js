@@ -61,6 +61,7 @@ var Daily = React.createClass({
           iconNext={'icon-next'}
           iconMostRecent={'icon-most-recent'}
           onClickBack={this.handlePanBack}
+          onClickModal={this.handleClickModal}
           onClickMostRecent={this.handleClickMostRecent}
           onClickNext={this.handlePanForward}
           onClickOneDay={this.handleClickOneDay}
@@ -83,7 +84,6 @@ var Daily = React.createClass({
         </div>
         <Footer
          chartType={this.chartType}
-         onClickModal={this.handleClickModal}
         ref="footer" />
       </div>
       );

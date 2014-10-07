@@ -44,7 +44,6 @@ var Settings = React.createClass({
   getInitialState: function() {
     return {
       atMostRecent: true,
-      inTransition: false,
       title: ''
     };
   },
@@ -55,8 +54,8 @@ var Settings = React.createClass({
         <Header
           chartType={this.chartType}
           atMostRecent={true}
-          inTransition={this.state.inTransition}
           title={this.state.title}
+          onClickModal={this.handleClickModal}
           onClickMostRecent={this.handleClickMostRecent}
           onClickOneDay={this.handleClickOneDay}
           onClickTwoWeeks={this.handleClickTwoWeeks}
@@ -70,7 +69,6 @@ var Settings = React.createClass({
         </div>
         <Footer
          chartType={this.chartType}
-         onClickModal={this.handleClickModal}
         ref="footer" />
       </div>
       );

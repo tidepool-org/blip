@@ -179,7 +179,7 @@ var Example = React.createClass({
         bgClasses: tidelineData.bgClasses,
         bgUnits: tidelineData.bgUnits
       },
-      chartType: 'daily'
+      chartType: 'modal'
     });
   },
   // handlers

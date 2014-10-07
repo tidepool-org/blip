@@ -66,6 +66,7 @@ var Weekly = React.createClass({
           iconNext={'icon-next-up'}
           iconMostRecent={'icon-most-recent-up'}
           onClickBack={this.handlePanBack}
+          onClickModal={this.handleClickModal}
           onClickMostRecent={this.handleClickMostRecent}
           onClickNext={this.handlePanForward}
           onClickOneDay={this.handleClickOneDay}
@@ -89,7 +90,6 @@ var Weekly = React.createClass({
         </div>
         <Footer
          chartType={this.chartType}
-         onClickModal={this.handleClickModal}
          onClickValues={this.toggleValues}
          showingValues={this.state.showingValues}
         ref="footer" />
