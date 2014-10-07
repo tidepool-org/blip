@@ -569,7 +569,7 @@ describe('platform client', function () {
     it('a_Member can see the invites they have received', function(done){
       pwdClient.inviteUser(a_Member.emails[0],{view: {}}, a_PWD.id,function(err, invite) {
         expect(err).to.be.empty;
-        memberClient.invitesRecieved(a_Member.id,function(err, received) {
+        memberClient.invitesReceived(a_Member.id,function(err, received) {
           expect(err).to.be.empty;
           expect(received).to.not.be.empty;
           done();
