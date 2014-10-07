@@ -26,13 +26,30 @@ var PermissionInputGroup = React.createClass({
     items: React.PropTypes.array,
     value: React.PropTypes.string
   },
+  getDefaultProps: function() {
+    return {
+      name: 'permissionOptions',
+      items: [
+        {value: 'view', label: 'View only'},
+        {value: 'upload', label: 'View and upload'}
+      ],
+      value: 'view'
+    };
+  },
   getInitialState: function() {
     return {
       value: this.props.value
     };
   },
+  componentWillReceiveProps: function(nextProps) {
+    this.setState({value: nextProps.value});
+  },
   handleChange: function(obj) {
     this.setState({value: obj.value});
+  },
+  // Doesn't feel very React-y, but handy in this case
+  getValue: function() {
+    return this.state.value;
   },
   render: function() {
     return (
@@ -51,8 +68,7 @@ var PermissionInputGroup = React.createClass({
 var MemberInviteForm = React.createClass({
   propTypes: {
     onSubmit: React.PropTypes.func,
-    onCancel: React.PropTypes.func,
-    inputs: React.PropTypes.renderable
+    onCancel: React.PropTypes.func
   },
   getInitialState: function() {
     return {
@@ -64,6 +80,7 @@ var MemberInviteForm = React.createClass({
 
     var handleSubmit = function(obj) {
       var email = self.refs.email.getDOMNode().value;
+      var permissionOption = self.refs.permissionOptions.getValue();
 
       var validateEmail = function(email) {
         var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -86,7 +103,7 @@ var MemberInviteForm = React.createClass({
         note: {}
       };
 
-      if (self.props.inputs.state.value === 'upload') {
+      if (permissionOption === 'upload') {
         permissions.upload = {};
       }
 
@@ -99,7 +116,6 @@ var MemberInviteForm = React.createClass({
       error = 'Invalid email address';
     }
 
-
     return (
       /* jshint ignore:start */
       <li className="PatientTeam-member--fadeNew  PatientTeam-member PatientTeam-member--first">
@@ -111,7 +127,7 @@ var MemberInviteForm = React.createClass({
             <div className="">
               <input className="PatientInfo-input" id="email" ref="email" placeholder="email" />
               <div className="PatientTeam-permissionSelection">
-                {this.props.inputs}
+                <PermissionInputGroup ref="permissionOptions" />
               </div>
               <div className="PatientTeam-buttonHolder">
                 <button className="PatientInfo-button PatientInfo-button--secondary" type="button" onClick={this.props.onCancel}>Cancel</button>
@@ -124,6 +140,49 @@ var MemberInviteForm = React.createClass({
           <div className="clear"></div>
         </div>
       </li>
+      /* jshint ignore:end */
+    );
+  }
+});
+
+var ChangePermissionsForm = React.createClass({
+  propTypes: {
+    member: React.PropTypes.object,
+    onSubmit: React.PropTypes.func,
+    onCancel: React.PropTypes.func
+  },
+
+  render: function() {
+    var member = this.props.member;
+    var self = this;
+    var inputValue = _.isEmpty(member.permissions) === false && member.permissions.admin || _.isEmpty(member.permissions) === false && member.permissions.upload ? 'upload' : 'view';
+    var inputName = 'permissionOptions'+ member.userid;
+
+    var handleSave = function() {
+      var permissions = {
+        view: {},
+        note: {}
+      };
+
+      if (self.refs.permissionsChange.getValue() === 'upload') {
+        permissions.upload = {};
+      }
+
+      self.props.onSubmit(permissions);
+    };
+
+    return (
+      /* jshint ignore:start */
+      <div>
+        <div className="ModalOverlay-content">
+          <div>This is what {member.profile.fullName} is allowed to do with your data.</div>
+          <PermissionInputGroup ref="permissionsChange" name={inputName} value={inputValue} />
+        </div>
+        <div className="ModalOverlay-controls">
+          <button className="PatientInfo-button PatientInfo-button--secondary" type="button" onClick={this.props.onCancel}>Cancel</button>
+          <button className="PatientInfo-button PatientInfo-button--primary" type="submit" onClick={handleSave}>Save</button>
+        </div>
+      </div>
       /* jshint ignore:end */
     );
   }
@@ -143,42 +202,18 @@ var PatientTeam = React.createClass({
   getInitialState: function() {
     return {
       showModalOverlay: false,
-      checked: 'view'
+      invite: false,
+      dialog: null
     };
-  },
-
-  renderPermissionOptions: function(value, name) {
-    var items = [
-      {value: 'view', label: 'View only'},
-      {value: 'upload', label: 'View and upload'}
-    ];
-
-    return (
-      /* jshint ignore:start */
-      <PermissionInputGroup
-        name={name}
-        items={items}
-        value={value}/>
-      /* jshint ignore:end */
-    );
   },
 
   renderChangeTeamMemberPermissionsDialog: function(member) {
     var self = this;
-    var value = _.isEmpty(member.permissions) === false && member.permissions.admin || _.isEmpty(member.permissions) === false && member.permissions.upload ? 'upload' : 'view';
-    var name = 'permissionOptions'+ member.userid;
-    var inputs = this.renderPermissionOptions(value, name);
+    var inputValue = _.isEmpty(member.permissions) === false && member.permissions.admin || _.isEmpty(member.permissions) === false && member.permissions.upload ? 'upload' : 'view';
+    var inputName = 'permissionOptions'+ member.userid;
 
-    var handleChangeMemberPermissions = function() {
-      var permissions = {
-        view: {},
-        note: {}
-      };
-
-      if (inputs.state.value === 'upload') {
-        permissions.upload = {};
-      }
-
+    var handleCancel = this.overlayClickHandler;
+    var handleSubmit = function(permissions) {
       self.props.onChangeMemberPermissions(self.props.user.userid, member.userid, permissions, function(err) {
         self.setState({
           showModalOverlay: false,
@@ -187,18 +222,10 @@ var PatientTeam = React.createClass({
     };
 
     return (
-      /* jshint ignore:start */
-      <div>
-        <div className="ModalOverlay-content">
-          <div>This is what {member.profile.fullName} is allowed to do with your data.</div>
-          {inputs}
-        </div>
-        <div className="ModalOverlay-controls">
-          <button className="PatientInfo-button PatientInfo-button--secondary" type="button" onClick={this.overlayClickHandler}>Cancel</button>
-          <button className="PatientInfo-button PatientInfo-button--primary" type="submit" onClick={handleChangeMemberPermissions}>Save</button>
-        </div>
-      </div>
-      /* jshint ignore:end */
+      <ChangePermissionsForm
+        member={member}
+        onSubmit={handleSubmit}
+        onCancel={handleCancel} />
     );
   },
 
@@ -373,9 +400,7 @@ var PatientTeam = React.createClass({
       /* jshint ignore:start */
       <MemberInviteForm
         onSubmit={handleSubmit}
-        onCancel={handleCancel}
-        inputs={self.renderPermissionOptions('view', 'invitePermissionOptions')}
-      />
+        onCancel={handleCancel} />
       /* jshint ignore:end */
     );
 
