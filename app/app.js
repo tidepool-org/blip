@@ -423,7 +423,7 @@ var AppComponent = React.createClass({
       }
 
       return invite;
-    })
+    });
 
     this.setState({
       invites: invites

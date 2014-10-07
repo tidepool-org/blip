@@ -33,24 +33,22 @@ var Invitation = React.createClass({
     this.props.onDismissInvitation(this.props.invitation);
   },
   render: function() {
-    if (this.props.invitation.accepting) {
-      var message = 'Joining ' + name + '\'s team...';
+    var name = utils.getIn(this.props.invitation, ['creator', 'profile', 'fullName']);
 
+    if (this.props.invitation.accepting) {
       /* jshint ignore:start */
       return (
         <li className='invitation'>
-          <div className='invitation-message'>{message}</div>
+          <div className='invitation-message'>{'Joining ' + name + '\'s team...'}</div>
         </li>
       );
       /* jshint ignore:end */
     }
 
-    var name = utils.getIn(this.props.invitation, ['creator', 'profile', 'fullName']);
-    var message = 'You have been invited to see ' + name + '\'s data!';
     /* jshint ignore:start */
     return (
       <li className='invitation'>
-        <div className='invitation-message'>{message}</div>
+        <div className='invitation-message'>{'You have been invited to see ' + name + '\'s data!'}</div>
         <div className='invitation-action'>
           <button
             className='invitation-action-submit btn btn-primary js-form-submit'
