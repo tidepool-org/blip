@@ -571,6 +571,9 @@ describe('nurseshark', function() {
         else if (error.errorMessage === 'Overlapping CareLink upload.') {
           ok += 1;
         }
+        else if (error.errorMessage === 'Null duration. Expect an `off-schedule-rate` annotation here. Investigate if that is missing.') {
+          ok += 1;
+        }
       }
       expect(res.erroredData.length - ok).to.equal(0);
     });
