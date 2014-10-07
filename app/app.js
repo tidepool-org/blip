@@ -37,7 +37,6 @@ var BrowserWarningOverlay = require('./components/browserwarningoverlay');
 var Notification = require('./components/notification');
 var TermsOverlay = require('./components/termsoverlay');
 var MailTo = require('./components/mailto');
-var PatientTeam = require('./components/patientteam');
 
 var Login = require('./pages/login');
 var Signup = require('./pages/signup');
@@ -117,6 +116,8 @@ var AppComponent = React.createClass({
       fetchingPatient: true,
       invites: null,
       fetchingInvites: true,
+      pendingInvites:null,
+      fetchingPendingInvites: true,
       bgPrefs: null,
       patientData: null,
       fetchingPatientData: true,
@@ -361,21 +362,6 @@ var AppComponent = React.createClass({
     );
   },
 
-  renderPatientTeam: function() {
-    return (
-      /* jshint ignore:start */
-      new <PatientTeam
-        user={this.state.user}
-        patient={this.state.patient}
-        pendingInvites={this.state.pendingInvites}
-        onChangeMemberPermissions={this.handleChangeMemberPermissions}
-        onRemoveMember={this.handleRemoveMember}
-        onInviteMember={this.handleInviteMember}
-        onCancelInvite={this.handleCancelInvite}/>
-      /* jshint ignore:end */
-    );
-  },
-
   showPatients: function() {
     this.renderPage = this.renderPatients;
     this.setState({page: 'patients'});
@@ -403,36 +389,54 @@ var AppComponent = React.createClass({
     );
     /* jshint ignore:end */
   },
-  modifyInvites: function(modifier, options) {
+  handleDismissInvitation: function(invitation) {
     var self = this;
 
-    options = options || {};
+    this.setState({
+      invites: this.state.invites.filter(function(e){
+        return e.key !== invitation.key;
+      })
+    });
 
-    return function(invitation, mod) {
-      self.setState({
-        invites: self.state.invites.filter(function(e){
-          return e.creatorId !== invitation.creatorId;
-        })
-      });
+    app.api.invitation.dismiss(invitation.key, invitation.creator.userid, function(err) {
+      if(err) {
+        self.fetchInvites();
 
-      modifier(invitation.key,invitation.creatorId, function(err) {
-        if(err || options.fetchPatients) {
-          self.fetchPatients({hideLoading: true});
-        }
-
-        if(err) {
-          return self.handleApiError(err, 'Something went wrong while modifying the invitation.');
-        }
-      });
-    };
-  },
-  handleDismissInvitation: function(invitation) {
-    return this.modifyInvites(app.api.invitation.dismiss)(invitation);
+        return self.handleApiError(err, 'Something went wrong while dismissing the invitation.');
+      }
+    });
   },
   handleAcceptInvitation: function(invitation) {
-    return this.modifyInvites(app.api.invitation.accept, {fetchPatients: true})(invitation);
-  },
+    /* Set invitation to processing */
+    var invites = _.cloneDeep(this.state.invites);
+    var self = this;
 
+    invites.map(function(invite) {
+      if (invite.key === invitation.key) {
+        invite.accepting = true;
+      }
+
+      return invite;
+    });
+
+    this.setState({
+      invites: invites
+    });
+
+    app.api.invitation.accept(invitation.key, invitation.creator.userid, function(err) {
+      self.fetchPatients({hideLoading: true});
+
+      if(err) {
+        return self.handleApiError(err, 'Something went wrong while accepting the invitation.');
+      }
+
+      self.setState({
+        invites: self.state.invites.filter(function(e){
+          return e.key !== invitation.key;
+        })
+      });
+    });
+  },
   handleChangeMemberPermissions: function(patientId, memberId, permissions, cb) {
     var self = this;
 
@@ -471,16 +475,24 @@ var AppComponent = React.createClass({
     });
   },
 
-  handleInviteMember: function(patientId, email, permissions, cb) {
+  handleInviteMember: function(email, permissions, cb) {
     var self = this;
 
-    api.invitation.send(email, permissions, function(err) {
+    api.invitation.send(email, permissions, function(err, invitation) {
       if(err) {
-        cb(err);
+        if (cb) {
+          cb(err);
+        }
         return self.handleApiError(err, 'Something went wrong while inviting member.');
       }
 
-      self.fetchPatient(patientId, cb);
+      self.setState({
+        pendingInvites: utils.concat(self.state.pendingInvites || [], invitation)
+      });
+      if (cb) {
+        cb(null, invitation);
+      }
+      self.fetchPendingInvites();
     });
   },
 
@@ -489,11 +501,21 @@ var AppComponent = React.createClass({
 
     api.invitation.cancel(email, function(err) {
       if(err) {
-        cb(err);
+        if (cb) {
+          cb(err);
+        }
         return self.handleApiError(err, 'Something went wrong while canceling the invitation.');
       }
 
-      self.fetchPendingInvites(cb);
+      self.setState({
+        pendingInvites: _.reject(self.state.pendingInvites, function(i) {
+          return i.email === email;
+        })
+      });
+      if (cb) {
+        cb();
+      }
+      self.fetchPendingInvites();
     });
   },
   showPatient: function(patientId) {
@@ -521,8 +543,6 @@ var AppComponent = React.createClass({
       return;
     }
 
-    var patientTeam = this.renderPatientTeam();
-
     /* jshint ignore:start */
     return (
       <Patient
@@ -530,8 +550,12 @@ var AppComponent = React.createClass({
         fetchingUser={this.state.fetchingUser}
         patient={this.state.patient}
         fetchingPatient={this.state.fetchingPatient}
-        patientTeam={patientTeam}
         onUpdatePatient={this.updatePatient}
+        pendingInvites={this.state.pendingInvites}
+        onChangeMemberPermissions={this.handleChangeMemberPermissions}
+        onRemoveMember={this.handleRemoveMember}
+        onInviteMember={this.handleInviteMember}
+        onCancelInvite={this.handleCancelInvite}
         trackMetric={trackMetric}/>
     );
     /* jshint ignore:end */

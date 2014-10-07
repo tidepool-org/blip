@@ -12,6 +12,24 @@
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
+.patient-list-item {
+  background: @gray-lighter;
+
+  .no-touch &:hover,
+  &:focus,
+  &:active {
+      .icon-remove {
+        display: block;
+      }
+
+      background-color: @gray-light;
+
+      .icon-face-standin {
+        color: @gray-darker;
+      }
+  }
+
+}
 
 .patientcard {
   display: block;
@@ -20,7 +38,6 @@
   font-weight: lighter;
   color: @gray-darker;
   position: relative;
-  background: @gray-lighter;
 }
 
 .patientcard-owner {
@@ -49,6 +66,7 @@
     &:focus,
     &:active {
       color: @blue-green-light;
+
     }
   }
 
@@ -95,31 +113,10 @@
   font-style: normal;
 }
 
-.patient-list-item {
-  .no-touch &:hover,
-  &:focus,
-  &:active {
-      .icon-remove {
-        display: block;
-      }
-  }
-
-}
-
 .patientcard,
 a.patientcard {
   color: @gray-darker;
   text-decoration: none;
-
-  .no-touch &:hover,
-  &:focus,
-  &:active {
-    background-color: @gray-light;
-
-    .icon-face-standin {
-      color: @gray-darker;
-    }
-  }
 }
 
 .patientcard-owner.patientcard,

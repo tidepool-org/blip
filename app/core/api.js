@@ -311,7 +311,6 @@ api.patient.get = function(patientId, cb) {
       if (err) {
         return cb(err);
       }
-
       if (_.isEmpty(permissions)) {
         return cb(null, patient);
       }
@@ -322,13 +321,18 @@ api.patient.get = function(patientId, cb) {
       // Convert to array of user ids
       var memberIds = Object.keys(permissions);
 
-      async.map(memberIds, getPerson, function(err, people) {
+      async.map(memberIds, getPerson, function(err, members) {
         if (err) {
           return cb(err);
         }
-        // Filter any people ids that returned nothing
-        people = _.filter(people);
-        patient.team = people;
+        // Filter any member ids that returned nothing
+        members = _.filter(members);
+        // Add each member's permissions
+        members = _.map(members, function(member) {
+          member.permissions = permissions[member.userid];
+          return member;
+        });
+        patient.team = members;
         return cb(null, patient);
       });
     });
@@ -487,19 +491,19 @@ api.invitation.send = function(emailAddress, permissions, callback) {
 
 api.invitation.getReceived = function(callback) {
   api.log('GET /confirm/invitations');
-  return tidepool.invitesRecieved(callback);
+  return tidepool.invitesReceived(callback);
 };
 
-api.invitation.accept = function(inviteId, fromUserId, callback) {
+api.invitation.accept = function(key, fromUserId, callback) {
   var loggedInUser = tidepool.getUserId();
   api.log('POST /confirm/accept/invite/' + loggedInUser +'/'+fromUserId );
-  return tidepool.acceptInvite(inviteId, loggedInUser, fromUserId, callback);
+  return tidepool.acceptInvite(key, loggedInUser, fromUserId, callback);
 };
 
-api.invitation.dismiss = function(inviteId, fromUserId, callback) {
+api.invitation.dismiss = function(key, fromUserId, callback) {
   var loggedInUser = tidepool.getUserId();
   api.log('POST /confirm/dismiss/invite/'+ loggedInUser+ '/'+fromUserId );
-  return tidepool.dismissInvite(inviteId, loggedInUser, fromUserId, callback);
+  return tidepool.dismissInvite(key, loggedInUser, fromUserId, callback);
 };
 
 api.invitation.getSent = function(callback) {

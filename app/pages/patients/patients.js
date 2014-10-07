@@ -132,23 +132,35 @@ var Patients = React.createClass({
 
     var title = this.renderSectionTitle('View data for:');
     var welcome = this.renderUserPatientWelcome();
+    var addAccount = this.renderAddAccount();
+
     /* jshint ignore:start */
     return (
       <div className="container-box-inner patients-section js-patients-shared">
         {title}
         <div className="patients-section-content">
-          <a
-            className="patients-new-account"
-            href="#/patients/new"
-            onClick={this.handleClickCreateProfile}>
-            Add account
-            <i className="icon-add"></i>
-          </a>
+          {addAccount}
           <div className='clear'></div>
           {welcome}
           {content}
         </div>
       </div>
+    );
+    /* jshint ignore:end */
+  },
+  renderAddAccount: function() {
+    if(personUtils.isPatient(this.props.user)) {
+      return null;
+    }
+
+    return (
+      <a
+        className="patients-new-account"
+        href="#/patients/new"
+        onClick={this.handleClickCreateProfile}>
+        Add account
+        <i className="icon-add"></i>
+      </a>
     );
     /* jshint ignore:end */
   },
