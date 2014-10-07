@@ -188,6 +188,56 @@ describe('nurseshark', function() {
       expect(res[0].errorMessage).to.equal('Null duration. Expect an `off-schedule-rate` annotation here. Investigate if that is missing.');
     });
 
+    it('should extend the duration of Carelink temps and suspends that are one second short', function() {
+      var dummyDT = '2014-01-01T12:00:00';
+      var nextDT = '2014-01-01T12:20:00';
+      var basals = [{
+        type: 'basal',
+        deliveryType: 'temp',
+        source: 'carelink',
+        time: dummyDT + '.000Z',
+        duration: 1199000,
+        deviceTime: dummyDT,
+        rate: 0.5,
+        percent: 0.5
+      }, {
+        type: 'basal',
+        deliveryType: 'scheduled',
+        source: 'carelink',
+        time: nextDT + '.000Z',
+        duration: 3600000,
+        deviceTime: nextDT,
+        rate: 0.9
+      }];
+      var res = nurseshark.processData(basals).processedData;
+      expect(res.length).to.equal(2);
+      expect(res[0].normalEnd).to.equal(res[1].normalTime);
+    });
+
+    it('should not extend the duration of non-Carelink temps and suspends', function() {
+      var dummyDT = '2014-01-01T12:00:00';
+      var nextDT = '2014-01-01T12:20:00';
+      var basals = [{
+        type: 'basal',
+        deliveryType: 'temp',
+        time: dummyDT + '.000Z',
+        duration: 1199000,
+        deviceTime: dummyDT,
+        rate: 0.5,
+        percent: 0.5
+      }, {
+        type: 'basal',
+        deliveryType: 'scheduled',
+        time: nextDT + '.000Z',
+        duration: 3600000,
+        deviceTime: nextDT,
+        rate: 0.9
+      }];
+      var res = nurseshark.processData(basals).processedData;
+      expect(res.length).to.equal(2);
+      expect(res[0].normalEnd).to.not.equal(res[1].normalTime);
+    });
+
     describe('suppressed handler', function() {
       var dummyDT1 = '2014-01-01T12:00:00';
       var dummyDT2 = '2014-01-01T11:30:00';

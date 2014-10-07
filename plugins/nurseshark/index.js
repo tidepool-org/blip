@@ -356,7 +356,6 @@ function getHandlers() {
         d.errorMessage = err2.message;
         return d;
       }
-      lastBasal = d;
       lastEnd = dt.addDuration(d.time, d.duration);
       // TODO: remove if we change to data model to require rate even on basals of deliveryType 'suspend'
       if (!d.rate && d.deliveryType === 'suspend') {
@@ -366,6 +365,16 @@ function getHandlers() {
       if (d.suppressed) {
         this.suppressed(d);
       }
+      // some Carelink temps and suspends are precisely one second short
+      // so we extend them to avoid discontinuity
+      if (d.source === 'carelink' && d.normalTime !== lastBasal.normalEnd) {
+        // check that the difference is indeed no more than one second (= 1000 milliseconds)
+        if (dt.difference(d.normalTime, lastBasal.normalEnd) <= 1000) {
+          lastBasal.normalEnd = d.normalTime;
+          lastBasal.duration = dt.difference(lastBasal.normalEnd, lastBasal.normalTime);
+        }
+      }
+      lastBasal = d;
       return d;
     },
     bolus: function(d, collections) {
