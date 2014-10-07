@@ -98,6 +98,82 @@ d3.chart('ModalDay', {
       }
     });
 
+    this.layer('yAxis', this.base.select('#modalMainGroup').append('g').attr('id', 'modalYAxis'), {
+      dataBind: function() {
+        var bgClasses = chart.bgClasses();
+        var data = _.map(Object.keys(bgClasses), function(key) {
+          return bgClasses[key].boundary;
+        });
+        return this.selectAll('g')
+          .data(data);
+      },
+      insert: function() {
+        return this.append('g')
+          .attr('class', 'd3-axis d3-left');
+      },
+      events: {
+        enter: function() {
+          var yScale = chart.yScale();
+          var toEnter = this;
+          // TODO: refactor magic nums, etc.
+          toEnter.append('text')
+            .attr({
+              x: chart.margins().main.left - 10,
+              y: function(d) { return yScale(d); }
+            })
+            .text(function(d) { return d; });
+
+          toEnter.append('line')
+            .attr({
+              x1: chart.margins().main.left - 8,
+              x2: chart.margins().main.left,
+              y1: function(d) { return yScale(d); },
+              y2: function(d) { return yScale(d); }
+            });
+        }
+      }
+    });
+
+    this.layer('yAxisCategories', this.base.select('#modalMainGroup').append('g').attr('id', 'modalYAxisCateogries'), {
+      dataBind: function() {
+        var bgClasses = chart.bgClasses();
+        return this.selectAll('text')
+          .data([{
+            name: 'low',
+            value: bgClasses['very-low'].boundary
+          }, {
+            name: 'target',
+            value: (bgClasses.target.boundary - bgClasses.low.boundary)/2 + bgClasses.low.boundary
+          }, {
+            name: 'high',
+            value: (bgClasses['very-high'].boundary - bgClasses.high.boundary)/2 + bgClasses.high.boundary
+          }]);
+      },
+      insert: function() {
+        return this.append('g')
+          .attr('class', 'd3-axis d3-left')
+          .append('text');
+      },
+      events: {
+        enter: function() {
+          var x = chart.margins().main.left/5;
+          var y = function(d) { return chart.yScale()(d.value); };
+          this.attr({
+            x: x,
+            y: y,
+            transform: function(d) {
+              return 'rotate(270 ' + x + ',' + y(d) + ')';
+            }
+          })
+          .text(function(d) { return d.name; })
+          // TODO: this is a haaaaack
+          // because I set 'text-anchor' to 'end' for the other yAxis stuff
+          // but now I want to override
+          .style('text-anchor', 'middle');
+        }
+      }
+    });
+
     this.layer('modalDays', this.base.select('#modalMainGroup').append('g').attr('id', 'modalDays'), {
       dataBind: function(data) {
         return this.selectAll('g')
@@ -209,7 +285,8 @@ module.exports = {
       },
       // TODO: replace with non-zero when ready to add stats component
       statsHeight: 0,
-      bgDomain: [0,600]
+      bgDomain: [0,600],
+      clampTop: false
     };
     defaults.margins = {
       main: {
@@ -228,7 +305,8 @@ module.exports = {
     _.defaults(opts, defaults);
 
     var yScale = d3.scale.linear()
-      .domain(opts.bgDomain);
+      .clamp(opts.clampTop)
+      .domain(opts.clampTop ? [opts.bgDomain[0], 400] : opts.bgDomain);
 
     var xScale = d3.scale.linear()
       .domain([0, 86400000]);

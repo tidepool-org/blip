@@ -18,6 +18,7 @@
 var _ = require('lodash');
 var bows = require('bows');
 var crossfilter = require('crossfilter');
+var d3 = window.d3;
 var moment = require('moment');
 var React = require('react');
 
@@ -149,11 +150,13 @@ var ModalChart = React.createClass({
     this.dataByDayOfWeek.filterFunction(function(d) {
       return activeDays[d];
     });
-    var bgData = _.groupBy(this.dataByDayOfWeek.top(Infinity), function(d) {
+    var currentData = this.dataByDayOfWeek.top(Infinity);
+    var bgData = _.groupBy(currentData, function(d) {
       return d.normalTime.slice(0,10);
     });
     this.setState({
-      bgData: bgData
+      bgData: bgData,
+      bgDomain: d3.extent(currentData, function(d) { return d.value; })
     });
     console.timeEnd('Modal Mount');
   },
@@ -161,7 +164,7 @@ var ModalChart = React.createClass({
     this.log('Mounting...');
     var el = this.getDOMNode();
     console.time('Modal Draw');
-    this.chart = ModalDay.create(el);
+    this.chart = ModalDay.create(el, {bgDomain: this.state.bgDomain, clampTop: true});
     this.chart.render(this.state.bgData, _.pick(this.props, this.chartOpts));
     console.timeEnd('Modal Draw');
   },
