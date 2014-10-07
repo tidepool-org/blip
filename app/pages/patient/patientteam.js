@@ -142,7 +142,10 @@ var MemberInviteForm = React.createClass({
       permissions.upload = {};
     }
 
-    this.setState({working: true});
+    this.setState({
+      working: true,
+      error: null
+    });
     var self = this;
     this.props.onSubmit(email, permissions, function(err) {
       if (err) {
@@ -222,10 +225,71 @@ var ChangePermissionsForm = React.createClass({
 
     this.setState({
       value: value,
-      working: true
+      working: true,
+      error: null
     });
     var self = this;
     this.props.onSubmit(permissions, function(err) {
+      if (err) {
+        self.setState({
+          working: false,
+          error: 'Sorry! Something went wrong...'
+        });
+        return;
+      }
+      self.setState({working: false});
+    });
+  }
+});
+
+var ConfirmDialog = React.createClass({
+  propTypes: {
+    message: React.PropTypes.renderable,
+    buttonText: React.PropTypes.string,
+    buttonTextWorking: React.PropTypes.string,
+    onSubmit: React.PropTypes.func,
+    onCancel: React.PropTypes.func
+  },
+
+  getInitialState: function() {
+    return {
+      working: false,
+      error: null
+    };
+  },
+
+  render: function() {
+    return (
+      <div>
+        <div className="ModalOverlay-content">
+          <div className="ModalOverlay-content">{this.props.message}</div>
+        </div>
+        <div className="ModalOverlay-controls">
+          <button className="PatientInfo-button PatientInfo-button--secondary" type="button"
+            onClick={this.props.onCancel}
+            disabled={this.state.working}>Cancel</button>
+          <button className="PatientInfo-button PatientInfo-button--primary" type="submit"
+            onClick={this.handleSubmit}
+            disabled={this.state.working}>
+            {this.state.working ? this.props.buttonTextWorking : this.props.buttonText}
+          </button>
+        </div>
+        <div className="PatientTeam-validationError">{this.state.error}</div>
+      </div>
+    );
+  },
+
+  handleSubmit: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+
+    this.setState({
+      working: true,
+      error: null
+    });
+    var self = this;
+    this.props.onSubmit(function(err) {
       if (err) {
         self.setState({
           working: false,
@@ -371,30 +435,29 @@ var PatientTeam = React.createClass({
 
   },
 
-  handleCancelInviteDialog: function(invite) {
+  renderCancelInviteDialog: function(invite) {
     var self = this;
 
-    return function() {
+    var handleCancel = this.overlayClickHandler;
+    var handleSubmit = function(cb) {
       self.props.onCancelInvite(invite.email, function(err) {
-          self.setState({
-            showModalOverlay: false,
-          });
+        if (err) {
+          return cb(err);
         }
-      );
+        cb();
+        self.setState({
+          showModalOverlay: false,
+        });
+      });
     };
-  },
 
-  renderCancelInviteDialog: function(invite) {
     return (
-      /* jshint ignore:start */
-      <div>
-        <div className="ModalOverlay-content">Are you sure you want to cancel your invitation to {invite.email}?</div>
-        <div className="ModalOverlay-controls">
-          <button className="PatientInfo-button PatientInfo-button--secondary" type="button" onClick={this.overlayClickHandler}>Cancel</button>
-          <button className="PatientInfo-button PatientInfo-button--primary" type="submit" onClick={this.handleCancelInviteDialog(invite)}>{"I'm sure, cancel it."}</button>
-        </div>
-      </div>
-      /* jshint ignore:end */
+      <ConfirmDialog
+        message={'Are you sure you want to cancel your invitation to ' + invite.email + '?'}
+        buttonText={'I\'m sure, cancel it'}
+        buttonTextWorking={'Canceling...'}
+        onSubmit={handleSubmit}
+        onCancel={handleCancel} />
     );
   },
 
