@@ -164,39 +164,77 @@ var ChangePermissionsForm = React.createClass({
     onCancel: React.PropTypes.func
   },
 
+  getInitialState: function() {
+    return {
+      value: this.permissionOptionFromMember(this.props.member),
+      working: false,
+      error: null
+    };
+  },
+
+  permissionOptionFromMember: function(member) {
+    if ((_.isEmpty(member.permissions) === false && member.permissions.admin) ||
+        (_.isEmpty(member.permissions) === false && member.permissions.upload)) {
+      return 'upload';
+    } else {
+      return 'view';
+    }
+  },
+
   render: function() {
     var member = this.props.member;
-    var self = this;
-    var inputValue = _.isEmpty(member.permissions) === false && member.permissions.admin || _.isEmpty(member.permissions) === false && member.permissions.upload ? 'upload' : 'view';
     var inputName = 'permissionOptions'+ member.userid;
 
-    var handleSave = function() {
-      var permissions = {
-        view: {},
-        note: {}
-      };
-
-      if (self.refs.permissionsChange.getValue() === 'upload') {
-        permissions.upload = {};
-      }
-
-      self.props.onSubmit(permissions);
-    };
-
     return (
-      /* jshint ignore:start */
       <div>
         <div className="ModalOverlay-content">
           <div>This is what {member.profile.fullName} is allowed to do with your data.</div>
-          <PermissionInputGroup ref="permissionsChange" name={inputName} value={inputValue} />
+          <PermissionInputGroup ref="permissionsChange" name={inputName} value={this.state.value} />
         </div>
         <div className="ModalOverlay-controls">
-          <button className="PatientInfo-button PatientInfo-button--secondary" type="button" onClick={this.props.onCancel}>Cancel</button>
-          <button className="PatientInfo-button PatientInfo-button--primary" type="submit" onClick={handleSave}>Save</button>
+          <button className="PatientInfo-button PatientInfo-button--secondary" type="button"
+            onClick={this.props.onCancel}
+            disabled={this.state.working}>Cancel</button>
+          <button className="PatientInfo-button PatientInfo-button--primary" type="submit"
+            onClick={this.handleSave}
+            disabled={this.state.working}>
+            {this.state.working ? 'Saving...' : 'Save'}</button>
         </div>
+        <div className="PatientTeam-validationError">{this.state.error}</div>
       </div>
-      /* jshint ignore:end */
     );
+  },
+
+  handleSave: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+
+    var permissions = {
+      view: {},
+      note: {}
+    };
+
+    var value = this.refs.permissionsChange.getValue();
+    if (value === 'upload') {
+      permissions.upload = {};
+    }
+
+    this.setState({
+      value: value,
+      working: true
+    });
+    var self = this;
+    this.props.onSubmit(permissions, function(err) {
+      if (err) {
+        self.setState({
+          working: false,
+          error: 'Sorry! Something went wrong...'
+        });
+        return;
+      }
+      self.setState({working: false});
+    });
   }
 });
 
@@ -221,12 +259,14 @@ var PatientTeam = React.createClass({
 
   renderChangeTeamMemberPermissionsDialog: function(member) {
     var self = this;
-    var inputValue = _.isEmpty(member.permissions) === false && member.permissions.admin || _.isEmpty(member.permissions) === false && member.permissions.upload ? 'upload' : 'view';
-    var inputName = 'permissionOptions'+ member.userid;
 
     var handleCancel = this.overlayClickHandler;
-    var handleSubmit = function(permissions) {
+    var handleSubmit = function(permissions, cb) {
       self.props.onChangeMemberPermissions(self.props.user.userid, member.userid, permissions, function(err) {
+        if (err) {
+          return cb(err);
+        }
+        cb();
         self.setState({
           showModalOverlay: false,
         });
@@ -394,8 +434,12 @@ var PatientTeam = React.createClass({
   renderInviteForm: function() {
     var self = this;
 
-    var handleSubmit = function(email, permissions) {
+    var handleSubmit = function(email, permissions, cb) {
       self.props.onInviteMember(email, permissions, function(err) {
+        if (err) {
+          return cb(err);
+        }
+        cb();
         self.setState({
           invite: false,
         });
