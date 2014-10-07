@@ -73,7 +73,6 @@ var Patient = React.createClass({
       <div className="PatientPage-content">
         {this.renderInfo()}
         {this.renderAccess()}
-        {this.renderDelete()}
         {this.renderModalOverlay()}
       </div>
     );

@@ -387,36 +387,54 @@ var AppComponent = React.createClass({
     );
     /* jshint ignore:end */
   },
-  modifyInvites: function(modifier, options) {
+  handleDismissInvitation: function(invitation) {
     var self = this;
 
-    options = options || {};
+    this.setState({
+      invites: this.state.invites.filter(function(e){
+        return e.key !== invitation.key;
+      })
+    });
 
-    return function(invitation, mod) {
+    app.api.invitation.dismiss(invitation.key, invitation.creator.userid, function(err) {
+      if(err) {
+        self.fetchInvites();
+
+        return self.handleApiError(err, 'Something went wrong while dismissing the invitation.');
+      }
+    });
+  },
+  handleAcceptInvitation: function(invitation) {
+    /* Set invitation to processing */
+    var invites = _.cloneDeep(this.state.invites);
+    var self = this;
+
+    invites.map(function(invite) {
+      if (invite.key === invitation.key) {
+        invite.accepting = true;
+      }
+
+      return invite;
+    });
+
+    this.setState({
+      invites: invites
+    });
+
+    app.api.invitation.accept(invitation.key, invitation.creator.userid, function(err) {
+      self.fetchPatients({hideLoading: true});
+      
+      if(err) {
+        return self.handleApiError(err, 'Something went wrong while accepting the invitation.');
+      }
+
       self.setState({
         invites: self.state.invites.filter(function(e){
           return e.key !== invitation.key;
         })
       });
-
-      modifier(invitation.key, invitation.creator.userid, function(err) {
-        if(err || options.fetchPatients) {
-          self.fetchPatients({hideLoading: true});
-        }
-
-        if(err) {
-          return self.handleApiError(err, 'Something went wrong while modifying the invitation.');
-        }
-      });
-    };
+    });
   },
-  handleDismissInvitation: function(invitation) {
-    return this.modifyInvites(app.api.invitation.dismiss)(invitation);
-  },
-  handleAcceptInvitation: function(invitation) {
-    return this.modifyInvites(app.api.invitation.accept, {fetchPatients: true})(invitation);
-  },
-
   handleChangeMemberPermissions: function(patientId, memberId, permissions, cb) {
     var self = this;
 

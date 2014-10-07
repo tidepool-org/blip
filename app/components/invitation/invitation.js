@@ -19,7 +19,7 @@ var cx = require('react/lib/cx');
 
 var utils = require('../../core/utils');
 
-var PatientCard = React.createClass({
+var Invitation = React.createClass({
   propTypes: {
     invitation: React.PropTypes.object,
     patientsComponent: React.PropTypes.component,
@@ -34,11 +34,21 @@ var PatientCard = React.createClass({
   },
   render: function() {
     var name = utils.getIn(this.props.invitation, ['creator', 'profile', 'fullName']);
-    var message = 'You have been invited to see ' + name + '\'s data!';
+
+    if (this.props.invitation.accepting) {
+      /* jshint ignore:start */
+      return (
+        <li className='invitation'>
+          <div className='invitation-message'>{'Joining ' + name + '\'s team...'}</div>
+        </li>
+      );
+      /* jshint ignore:end */
+    }
+
     /* jshint ignore:start */
     return (
       <li className='invitation'>
-        <div className='invitation-message'>{message}</div>
+        <div className='invitation-message'>{'You have been invited to see ' + name + '\'s data!'}</div>
         <div className='invitation-action'>
           <button
             className='invitation-action-submit btn btn-primary js-form-submit'
@@ -57,4 +67,4 @@ var PatientCard = React.createClass({
   }
 });
 
-module.exports = PatientCard;
+module.exports = Invitation;
