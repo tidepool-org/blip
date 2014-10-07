@@ -311,7 +311,6 @@ api.patient.get = function(patientId, cb) {
       if (err) {
         return cb(err);
       }
-
       if (_.isEmpty(permissions)) {
         return cb(null, patient);
       }
@@ -322,13 +321,18 @@ api.patient.get = function(patientId, cb) {
       // Convert to array of user ids
       var memberIds = Object.keys(permissions);
 
-      async.map(memberIds, getPerson, function(err, people) {
+      async.map(memberIds, getPerson, function(err, members) {
         if (err) {
           return cb(err);
         }
-        // Filter any people ids that returned nothing
-        people = _.filter(people);
-        patient.team = people;
+        // Filter any member ids that returned nothing
+        members = _.filter(members);
+        // Add each member's permissions
+        members = _.map(members, function(member) {
+          member.permissions = permissions[member.userid];
+          return member;
+        });
+        patient.team = members;
         return cb(null, patient);
       });
     });
