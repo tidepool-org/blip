@@ -34,7 +34,7 @@ var Invitation = React.createClass({
   },
   render: function() {
     if (this.props.invitation.accepting) {
-      var message = 'Joining ' + name + '\'s team!';
+      var message = 'Joining ' + name + '\'s team...';
 
       /* jshint ignore:start */
       return (
