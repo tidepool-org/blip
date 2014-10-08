@@ -216,7 +216,6 @@ module.exports = function (config, deps) {
               return cb(null, handler);
             }
           }
-
           return handleHttpError(res, cb);
         });
     });
@@ -861,7 +860,7 @@ module.exports = function (config, deps) {
       assertArgumentsSize(arguments, 2);
       doGetWithToken(
         '/confirm/invite/'+inviterId,
-        { 200: function(res){ return res.body; }, 204: function(res){ return res.body; } },
+        { 200: function(res){ return res.body; }, 204: function(res){ return []; } },
         cb
       );
     },
