@@ -27,6 +27,7 @@ var Footer = require('./footer');
 
 var Brush = require('../modalday/Brush');
 var SMBGMean = require('../modalday/brushopts/SMBGMean');
+var SMBGMeanHeat = require('../modalday/brushopts/SMBGMeanHeat');
 var ModalDay = require('../modalday/ModalDay');
 require('../modalday/modalday.less');
 

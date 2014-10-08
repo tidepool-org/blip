@@ -27,11 +27,10 @@ d3.chart('Brush', {
       events: {
         enter: function() {
           var xScale = chart.xScale();
-          var toEnter = this;
           var range = xScale.range();
           var extent = range[1] - range[0];
           var mainMargins = chart.margins().main;
-          toEnter.append('rect')
+          this.append('rect')
             .attr({
               x: function(d) { return xScale(d); },
               y: mainMargins.top,
@@ -109,7 +108,8 @@ d3.chart('Brush', {
 
     brushHandleGroup.selectAll('rect')
       .attr({
-        height: this.height - mainMargins.top - mainMargins.bottom
+        height: this.height - mainMargins.top - mainMargins.bottom,
+        transform: 'translate(0,' + mainMargins.top + ')'
       });
   },
   reducedData: function(data) {
@@ -166,7 +166,7 @@ module.exports = {
     };
     defaults.margins = {
       main: {
-        top: 0,
+        top: 3,
         right: defaults.baseMargin,
         bottom: defaults.baseMargin,
         left: 50 + defaults.baseMargin
@@ -186,7 +186,7 @@ module.exports = {
         width: el.offsetWidth,
         height: opts.brushHeight
       })
-      .chart('SMBGMean')
+      .chart('SMBGMeanHeat')
       .emitter(this.emitter)
       .initialExtent(opts.initialExtent)
       .margins(opts.margins)
