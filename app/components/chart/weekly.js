@@ -19,6 +19,7 @@ var Weekly = React.createClass({
   chartType: 'weekly',
   log: bows('Weekly View'),
   propTypes: {
+    bgPrefs: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
     imagesBaseUrl: React.PropTypes.string.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
@@ -66,7 +67,8 @@ var Weekly = React.createClass({
     /* jshint ignore:start */
     return (
       <WeeklyChart
-        bgUnits={this.props.chartPrefs.bgUnits}
+        bgClasses={this.props.bgPrefs.bgClasses}
+        bgUnits={this.props.bgPrefs.bgUnits}
         imagesBaseUrl={this.props.imagesBaseUrl}
         initialDatetimeLocation={this.props.initialDatetimeLocation}
         patientData={this.props.patientData}

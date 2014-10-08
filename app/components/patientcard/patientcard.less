@@ -12,6 +12,24 @@
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
+.patient-list-item {
+  background: @gray-lighter;
+
+  .no-touch &:hover,
+  &:focus,
+  &:active {
+      .icon-remove {
+        display: block;
+      }
+
+      background-color: @gray-light;
+
+      .icon-face-standin {
+        color: @gray-darker;
+      }
+  }
+
+}
 
 .patientcard {
   display: block;
@@ -20,7 +38,6 @@
   font-weight: lighter;
   color: @gray-darker;
   position: relative;
-  background: @gray-lighter;
 }
 
 .patientcard-owner {
@@ -28,8 +45,9 @@
 }
 
 .patientcard-controls {
-  position: absolute;
-  right: 25px;
+  position: relative;
+  top: -65px;
+  right: 20px;
 
   > i {
     font-size: 20px;
@@ -37,7 +55,7 @@
   }
 
   .icon-remove {
-    display: block;
+    display: none;
     color: @blue-green;
     position: absolute;
     top: -15px;
@@ -48,6 +66,7 @@
     &:focus,
     &:active {
       color: @blue-green-light;
+
     }
   }
 
@@ -74,9 +93,8 @@
 
   .icon-face-standin {
     font-size: 30px;
-    width: 50px;
+    width: 280px;
     color: @blue-green;
-    float: left;
   }
 
   .icon-remove {
@@ -85,33 +103,20 @@
 }
 .patientcard-fullname {
   padding-top: 5px;
+  padding-left: 5px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   height: 33px;
   width: 220px;
-  text-align: left;
-  float: left;
+  color: @gray-dark;
+  font-style: normal;
 }
 
 .patientcard,
 a.patientcard {
   color: @gray-darker;
   text-decoration: none;
-
-  .no-touch &:hover,
-  &:focus,
-  &:active {
-    background-color: @gray-light;
-
-    .icon-face-standin {
-      color: @gray-darker;
-    }
-
-    .icon-remove {
-      display: block;
-    }
-  }
 }
 
 .patientcard-owner.patientcard,

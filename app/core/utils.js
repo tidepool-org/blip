@@ -56,6 +56,12 @@ utils.validateEmail = function(email) {
     return re.test(email);
 };
 
+// concat([1, 2], 3, [4, 5]) -> [1, 2, 3, 4, 5]
+utils.concat = function() {
+  var args = Array.prototype.slice.call(arguments, 0);
+  return Array.prototype.concat.apply([], args);
+};
+
 utils.isChrome = function() {
   return navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
 };

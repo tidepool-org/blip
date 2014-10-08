@@ -13,13 +13,14 @@
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
+'use strict';
 
 var React = require('react');
 var bows = require('bows');
 var _ = require('lodash');
 var async = require('async');
 
-var chartUtil = require('tideline/plugins/data/preprocess');
+var nurseShark = require('tideline/plugins/nurseshark/');
 var TidelineData = require('tideline/js/tidelinedata');
 
 var config = require('./config');
@@ -42,6 +43,7 @@ var Signup = require('./pages/signup');
 var Profile = require('./pages/profile');
 var Patients = require('./pages/patients');
 var Patient = require('./pages/patient');
+
 var PatientEdit = require('./pages/patientedit');
 var PatientData = require('./pages/patientdata');
 var ErrorPage = require('./pages/errorpage');
@@ -116,6 +118,9 @@ var AppComponent = React.createClass({
       fetchingPatient: true,
       invites: null,
       fetchingInvites: true,
+      pendingInvites:null,
+      fetchingPendingInvites: true,
+      bgPrefs: null,
       patientData: null,
       fetchingPatientData: true,
       fetchingMessageData: true,
@@ -426,42 +431,140 @@ var AppComponent = React.createClass({
           onSetAsCareGiver={this.setUserAsCareGiver}
           trackMetric={trackMetric}
           onAcceptInvitation={this.handleAcceptInvitation}
-          onDismissInvitation={this.handleDismissInvitation}/>
+          onDismissInvitation={this.handleDismissInvitation}
+          onRemovePatient={this.handleRemovePatient}/>
     );
     /* jshint ignore:end */
   },
-  modifyInvites: function(modifier, options) {
+  handleDismissInvitation: function(invitation) {
     var self = this;
 
-    options = options || {};
+    this.setState({
+      invites: this.state.invites.filter(function(e){
+        return e.key !== invitation.key;
+      })
+    });
 
-    return function(invitation, mod) {
+    app.api.invitation.dismiss(invitation.key, invitation.creator.userid, function(err) {
+      if(err) {
+        self.fetchInvites();
+
+        return self.handleApiError(err, 'Something went wrong while dismissing the invitation.');
+      }
+    });
+  },
+  handleAcceptInvitation: function(invitation) {
+    /* Set invitation to processing */
+    var invites = _.cloneDeep(this.state.invites);
+    var self = this;
+
+    invites.map(function(invite) {
+      if (invite.key === invitation.key) {
+        invite.accepting = true;
+      }
+
+      return invite;
+    });
+
+    this.setState({
+      invites: invites
+    });
+
+    app.api.invitation.accept(invitation.key, invitation.creator.userid, function(err) {
+      self.fetchPatients({hideLoading: true});
+
+      if(err) {
+        return self.handleApiError(err, 'Something went wrong while accepting the invitation.');
+      }
+
       self.setState({
         invites: self.state.invites.filter(function(e){
-          return e.from.userid !== invitation.from.userid;
+          return e.key !== invitation.key;
         })
       });
+    });
+  },
+  handleChangeMemberPermissions: function(patientId, memberId, permissions, cb) {
+    var self = this;
 
-      modifier(invitation.from.userid, function(err) {
-        if(err || options.fetchPatients) {
-          self.fetchPatients({hideLoading: true});
-        }
+    api.access.setMemberPermissions(memberId, permissions, function(err) {
+      if(err) {
+        cb(err);
+        return self.handleApiError(err, 'Something went wrong while changing member perimissions.');
+      }
 
-        if(err) {
-          return self.handleApiError(err, 'Something went wrong while modifying the invitation.');
+      self.fetchPatient(patientId, cb);
+    });
+  },
+
+  handleRemovePatient: function(patientId,cb) {
+    var self = this;
+
+    api.access.leaveGroup(patientId, function(err) {
+      if(err) {
+        return self.handleApiError(err, 'Something went wrong while removing member from group.');
+      }
+
+      self.fetchPatients();
+    });
+  },
+
+  handleRemoveMember: function(patientId, memberId, cb) {
+    var self = this;
+
+    api.access.removeMember(memberId, function(err) {
+      if(err) {
+        cb(err);
+        return self.handleApiError(err, 'Something went wrong while removing member.');
+      }
+
+      self.fetchPatient(patientId, cb);
+    });
+  },
+
+  handleInviteMember: function(email, permissions, cb) {
+    var self = this;
+
+    api.invitation.send(email, permissions, function(err, invitation) {
+      if(err) {
+        if (cb) {
+          cb(err);
         }
+        return self.handleApiError(err, 'Something went wrong while inviting member.');
+      }
+
+      self.setState({
+        pendingInvites: utils.concat(self.state.pendingInvites || [], invitation)
       });
-    };
+      if (cb) {
+        cb(null, invitation);
+      }
+      self.fetchPendingInvites();
+    });
   },
 
-  handleDismissInvitation: function(invitation) {
-    return this.modifyInvites(app.api.invitation.dismiss)(invitation);
-  },
+  handleCancelInvite: function(email, cb) {
+    var self = this;
 
-  handleAcceptInvitation: function(invitation) {
-    return this.modifyInvites(app.api.invitation.accept, {fetchPatients: true})(invitation);
-  },
+    api.invitation.cancel(email, function(err) {
+      if(err) {
+        if (cb) {
+          cb(err);
+        }
+        return self.handleApiError(err, 'Something went wrong while canceling the invitation.');
+      }
 
+      self.setState({
+        pendingInvites: _.reject(self.state.pendingInvites, function(i) {
+          return i.email === email;
+        })
+      });
+      if (cb) {
+        cb();
+      }
+      self.fetchPendingInvites();
+    });
+  },
   showPatient: function(patientId) {
     this.renderPage = this.renderPatient;
     this.setState({
@@ -472,6 +575,7 @@ var AppComponent = React.createClass({
       // (important to have this on next render)
       fetchingPatient: true
     });
+    this.fetchPendingInvites();
     this.fetchPatient(patientId,function(err,patient){
       return;
     });
@@ -489,12 +593,17 @@ var AppComponent = React.createClass({
     /* jshint ignore:start */
     return (
       <Patient
-          user={this.state.user}
-          fetchingUser={this.state.fetchingUser}
-          patient={this.state.patient}
-          fetchingPatient={this.state.fetchingPatient}
-          onUpdatePatient={this.updatePatient}
-          trackMetric={trackMetric}/>
+        user={this.state.user}
+        fetchingUser={this.state.fetchingUser}
+        patient={this.state.patient}
+        fetchingPatient={this.state.fetchingPatient}
+        onUpdatePatient={this.updatePatient}
+        pendingInvites={this.state.pendingInvites}
+        onChangeMemberPermissions={this.handleChangeMemberPermissions}
+        onRemoveMember={this.handleRemoveMember}
+        onInviteMember={this.handleInviteMember}
+        onCancelInvite={this.handleCancelInvite}
+        trackMetric={trackMetric}/>
     );
     /* jshint ignore:end */
   },
@@ -595,6 +704,7 @@ var AppComponent = React.createClass({
       <PatientData
         user={this.state.user}
         patient={this.state.patient}
+        bgPrefs={this.state.bgPrefs}
         patientData={this.state.patientData}
         fetchingPatientData={this.state.fetchingPatientData}
         isUserPatient={this.isSamePersonUserAndPatient()}
@@ -746,28 +856,37 @@ var AppComponent = React.createClass({
       });
     });
   },
-
-  fetchInvite: function() {
+  fetchPendingInvites: function(cb) {
     var self = this;
 
-    api.invitation.getReceived(function(err, invites) {
+    self.setState({fetchingPendingInvites: true});
+
+    api.invitation.getSent(function(err, invites) {
       if (err) {
-        var message = 'Something went wrong while fetching invitations';
+        var message = 'Something went wrong while fetching pending invites';
 
         self.setState({
-          fetchingInvites: false
+          fetchingPendingInvites: false
         });
+
+        if (cb) {
+          cb(err);
+        }
 
         return self.handleApiError(err, message);
       }
 
       self.setState({
-        invites: invites,
-        fetchingInvites: false
+        pendingInvites: invites,
+        fetchingPendingInvites: false
       });
+
+      if (cb) {
+        cb();
+      }
     });
   },
-
+  
   fetchInvites: function() {
     var self = this;
 
@@ -878,24 +997,20 @@ var AppComponent = React.createClass({
       var patientData = results.patientData || [];
       var notes = results.teamNotes || [];
 
-      // Return message objects the visualization can use
-      notes = _.map(notes, function(message) {
-        return {
-          utcTime : message.timestamp,
-          messageText : message.messagetext,
-          parentMessage : message.parentmessage,
-          type: 'message',
-          id: message.id
-        };
-      });
-
       app.log('Patient device data count', patientData.length);
       app.log('Team notes count', notes.length);
 
-      patientData = patientData.concat(notes);
-      patientData = self.processPatientData(patientData);
+      var combinedData = patientData.concat(notes);
+      window.downloadInputData = function() {
+        console.save(combinedData, 'blip-input.json');
+      };
+      patientData = self.processPatientData(combinedData);
 
       self.setState({
+        bgPrefs: {
+          bgClasses: patientData.bgClasses,
+          bgUnits: patientData.bgUnits
+        },
         patientData: patientData,
         fetchingPatientData: false
       });
@@ -924,21 +1039,18 @@ var AppComponent = React.createClass({
   },
 
   processPatientData: function(data) {
-    if (!(data && data.length)) {
+    if (!(data && data.length >= 0)) {
       return null;
     }
-    // TODO: move the deep cloning of the objects inside data into preprocess instead
-    // will come up v. soon when @jebeck does client-side data validation (next up)
-    var preTidelineData = _.map(data, function(d) {
-      return _.cloneDeep(d);
-    });
-    window.downloadJSON = function() {
-      console.save(preTidelineData);
+
+    var res = nurseShark.processData(data);
+    var tidelineData = new TidelineData(res.processedData);
+
+    window.tidelineData = tidelineData;
+    window.downloadProcessedData = function() {
+      console.save(res.processedData);
     };
 
-    var processData = chartUtil.processData(data);
-    var tidelineData = new TidelineData(processData.valid);
-    window.tidelineData = tidelineData;
     return tidelineData;
   },
 

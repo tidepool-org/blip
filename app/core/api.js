@@ -18,8 +18,6 @@
 var _ = require('lodash');
 var async = require('async');
 var bows = require('bows');
-var moment = require('moment');
-var Rx = require('rx');
 
 var createTidepoolClient = require('tidepool-platform-client');
 var tidepool;
@@ -27,9 +25,6 @@ var tidepool;
 var config = require('../config');
 
 var personUtils = require('./personutils');
-// devicedata just registers stuff on the Rx prototype,
-// so we are doing this for the side-effects
-var deviceData = require('./lib/devicedata');
 var migrations = require('./lib/apimigrations');
 
 var api = {
@@ -243,7 +238,10 @@ function getPerson(userId, cb) {
   });
 }
 
-// Not every user is a "patient"
+/*
+ * Not every user is a "patient".
+ * Get the "patient" and attach the logged in users permissons
+ */
 function getPatient(patientId, cb) {
   return getPerson(patientId, function(err, person) {
     if (err) {
@@ -253,8 +251,14 @@ function getPatient(patientId, cb) {
     if (!personUtils.isPatient(person)) {
       return cb();
     }
+    //attach the logged in users perms
+    loggedInUsersPermissons(function(err, perms){
 
-    return cb(null, person);
+      person.permissions = _.values(perms);
+
+      return cb(err, person);
+    });
+
   });
 }
 
@@ -276,6 +280,10 @@ function updatePatient(patient, cb) {
     });
     return cb(null, patient);
   });
+}
+
+function loggedInUsersPermissons(cb) {
+  tidepool.getAccessPermissions(cb);
 }
 
 api.patient.get = function(patientId, cb) {
@@ -303,7 +311,6 @@ api.patient.get = function(patientId, cb) {
       if (err) {
         return cb(err);
       }
-
       if (_.isEmpty(permissions)) {
         return cb(null, patient);
       }
@@ -314,13 +321,18 @@ api.patient.get = function(patientId, cb) {
       // Convert to array of user ids
       var memberIds = Object.keys(permissions);
 
-      async.map(memberIds, getPerson, function(err, people) {
+      async.map(memberIds, getPerson, function(err, members) {
         if (err) {
           return cb(err);
         }
-        // Filter any people ids that returned nothing
-        people = _.filter(people);
-        patient.team = people;
+        // Filter any member ids that returned nothing
+        members = _.filter(members);
+        // Add each member's permissions
+        members = _.map(members, function(member) {
+          member.permissions = permissions[member.userid];
+          return member;
+        });
+        patient.team = members;
         return cb(null, patient);
       });
     });
@@ -461,39 +473,9 @@ api.patientData.get = function(patientId, cb) {
     }
     api.log('Data received in ' + (Date.now() - now) + ' millis.');
 
-    now = Date.now();
     window.inData = data;
-    Rx.Observable.fromArray(data)
-      .map(function(e){
-             if (e.time != null) {
-               if (e.timezoneOffset == null) {
-                 e.deviceTime = moment.utc(e.time).format('YYYY-MM-DDTHH:mm:ss');
-               } else {
-                 // Moment timezone offsets are the number of minutes to add to the *local* time to make UTC,
-                 // which is backwards from what we do (and the sign on the UTC timezone offset)
-                 e.deviceTime = moment(e.time).zone(-e.timezoneOffset).format('YYYY-MM-DDTHH:mm:ss');
-               }
-             }
-             return e;
-           })
-      .map(function(e){
-                 if (e.time != null) {
-                   if (e.type === 'cbg' || e.type === 'smbg') {
-                     return _.assign({}, e, {value: e.value * 18.01559});
-                   }
-                 }
-                 return e;
-               })
-      .tidepoolConvertBasal()
-      .tidepoolConvertBolus()
-      .tidepoolConvertWizard()
-      .toArray()
-      .subscribe(function(data) {
-                   api.log('Processing completed in ' + (Date.now() - now) + ' millis.');
-                   window.theData = data;
-                   cb(null, data);
-                 },
-                 cb);
+
+    cb(null, data);
   });
 };
 
@@ -501,29 +483,44 @@ api.patientData.get = function(patientId, cb) {
 
 api.invitation = {};
 
+api.invitation.send = function(emailAddress, permissions, callback) {
+  var loggedInUser = tidepool.getUserId();
+  api.log('POST /confirm/send/invite/' + loggedInUser);
+  return tidepool.inviteUser(emailAddress, permissions, loggedInUser, callback);
+};
+
 api.invitation.getReceived = function(callback) {
-  api.log('GET /invitations/received [NOT IMPLEMENTED]');
-  callback(null, []);
+  api.log('GET /confirm/invitations');
+  return tidepool.invitesReceived(callback);
 };
 
-api.invitation.accept = function(fromUserId, callback) {
-  api.log('POST /invitations/from/' + fromUserId + '/accept [NOT IMPLEMENTED]');
-  callback(null, {});
+api.invitation.accept = function(key, fromUserId, callback) {
+  var loggedInUser = tidepool.getUserId();
+  api.log('POST /confirm/accept/invite/' + loggedInUser +'/'+fromUserId );
+  return tidepool.acceptInvite(key, loggedInUser, fromUserId, callback);
 };
 
-api.invitation.dismiss = function(fromUserId, callback) {
-  api.log('POST /invitations/from/' + fromUserId + '/dismiss [NOT IMPLEMENTED]');
-  callback(null, {});
+api.invitation.dismiss = function(key, fromUserId, callback) {
+  var loggedInUser = tidepool.getUserId();
+  api.log('POST /confirm/dismiss/invite/'+ loggedInUser+ '/'+fromUserId );
+  return tidepool.dismissInvite(key, loggedInUser, fromUserId, callback);
 };
 
 api.invitation.getSent = function(callback) {
-  api.log('GET /invitations/sent [NOT IMPLEMENTED]');
-  callback(null, []);
+  var loggedInUser = tidepool.getUserId();
+  api.log('GET /confirm/invite/'+loggedInUser);
+  return  tidepool.invitesSent(loggedInUser, callback);
 };
 
-api.invitation.cancel = function(toEmail, callback) {
-  api.log('POST /invitations/to/' + toEmail + '/cancel [NOT IMPLEMENTED]');
-  callback();
+api.invitation.cancel = function(emailAddress, callback) {
+   var loggedInUser = tidepool.getUserId();
+  api.log('DELETE /confirm/' + loggedInUser+ '/invited/'+ emailAddress);
+  return tidepool.removeInvite(emailAddress, loggedInUser, callback);
+};
+
+api.invitation.getForToken = function(token, callback) {
+  api.log('GET /invitations/token/' + token);
+  callback(null, {});
 };
 
 // ----- Access -----
