@@ -115,7 +115,6 @@ var Weekly = React.createClass({
   },
   handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
     this.setState({
-      datetimeLocation: datetimeLocationEndpoints[1],
       title: this.getTitle(datetimeLocationEndpoints)
     });
     this.props.updateDatetimeLocation(this.refs.chart.getCurrentDay());
@@ -209,9 +208,6 @@ var WeeklyChart = React.createClass({
   },
   // handlers
   handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
-    this.setState({
-      datetimeLocation: datetimeLocationEndpoints[1]
-    });
     this.props.onDatetimeLocationChange(datetimeLocationEndpoints);
   },
   getCurrentDay: function() {
