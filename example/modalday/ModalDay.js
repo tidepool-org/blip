@@ -266,8 +266,10 @@ d3.chart('ModalDay', {
     return this;
   },
   transform: function(data) {
-    this.data = data;
-    return _.sortBy(Object.keys(data), function(d) { return d; });
+    this.data = _.groupBy(data, function(d) {
+      return d.normalTime.slice(0,10);
+    });
+    return _.sortBy(Object.keys(this.data), function(d) { return d; });
   }
 });
 

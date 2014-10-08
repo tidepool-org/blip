@@ -211,7 +211,7 @@ var Example = React.createClass({
     });
   },
   updateChartPrefs: function(newChartPrefs) {
-    var currentPrefs = _.clone(this.state.chartPrefs);
+    var currentPrefs = _.cloneDeep(this.state.chartPrefs);
     _.assign(currentPrefs, newChartPrefs);
     this.setState({
       chartPrefs: currentPrefs

@@ -101,3 +101,22 @@
     stroke: @sunday;
   }
 }
+
+@brush: #989897;
+
+// brushing component
+.brushBackgroundDayGroup {
+  rect {
+    fill: lighten(@brush, 35%);
+  }
+}
+
+#brushHandleGroup {
+  rect.extent {
+    fill: lighten(@brush, 10%);
+    fill-opacity: 0.5;
+    stroke-width: 2;
+    stroke: @brush;
+    shape-rendering: crispEdges;
+  }
+}
