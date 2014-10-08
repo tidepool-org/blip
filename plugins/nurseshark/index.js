@@ -195,7 +195,7 @@ var nurseshark = {
           }
           return p;
         },
-        function reduceInitial(p, v) {
+        function reduceInitial() {
           return {start: null, end: null};
         }
       ).order(function(p) {
