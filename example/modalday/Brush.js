@@ -1,4 +1,5 @@
 var _ = require('lodash');
+var crossfilter = require('crossfilter');
 var d3 = window.d3;
 var EventEmitter = require('events').EventEmitter;
 
@@ -12,7 +13,7 @@ d3.chart('Brush', {
     this.base.append('g').attr('id', 'brushMainGroup');
 
     this.layer('backgroundRect', this.base.select('#brushMainGroup').append('g').attr('id', 'brushBackgroundRects'), {
-      dataBind: function(data) {
+      dataBind: function() {
         chart.emitter().emit('brushed', chart.initialExtent());
         var domain = chart.xScale().domain();
         chart.days = d3.time.day.utc.range(domain[0], domain[1]);
@@ -111,6 +112,42 @@ d3.chart('Brush', {
         height: this.height - mainMargins.top - mainMargins.bottom
       });
   },
+  reducedData: function(data) {
+    console.time('Reduce');
+    var crossData = crossfilter(data);
+    var dataByDate = crossData.dimension(function(d) { return d.normalTime.slice(0, 10); });
+    var grouped = dataByDate.group();
+    grouped.reduce(
+      function reduceAdd(p, v) {
+        p.values.push(v.value);
+        if (p.values.length >= 4) {
+          p.mean = d3.sum(p.values)/p.values.length;
+        }
+        return p;
+      },
+      function reduceRemove(p, v) {
+        var i = p.values.indexOf(v.value);
+        p.values.splice(i, 1);
+        if (p.values.length >= 4) {
+          p.mean = d3.sum(p.values)/p.values.length;
+        }
+        else {
+          p.mean = null;
+        }
+        return p;
+      },
+      function reduceInitial() {
+        return {
+          values: [],
+          mean: null
+        };
+      }
+    );
+    this.reducedData = grouped.all();
+
+    console.timeEnd('Reduce');
+    return this;
+  },
   remove: function() {
     this.base.remove();
     return this;
@@ -149,7 +186,7 @@ module.exports = {
         width: el.offsetWidth,
         height: opts.brushHeight
       })
-      .chart('Brush')
+      .chart('SMBGMean')
       .emitter(this.emitter)
       .initialExtent(opts.initialExtent)
       .margins(opts.margins)
@@ -166,7 +203,8 @@ module.exports = {
     var defaults = {};
     _.defaults(opts, defaults);
 
-    chart.draw(data);
+    chart.reducedData(data)
+      .draw();
 
     return this;
   },

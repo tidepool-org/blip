@@ -26,6 +26,7 @@ var Header = require('./header');
 var Footer = require('./footer');
 
 var Brush = require('../modalday/Brush');
+var SMBGMean = require('../modalday/brushopts/SMBGMean');
 var ModalDay = require('../modalday/ModalDay');
 require('../modalday/modalday.less');
 
@@ -160,15 +161,15 @@ var ModalChart = React.createClass({
       return moment(d.normalTime).utc().format('dddd').toLowerCase();
     });
     this.dataByType.filter(this.props.bgType);
-    var allData = this.dataByType.top(Infinity);
+    this.allData = this.dataByType.top(Infinity);
     var activeDays = this.props.activeDays;
     this.dataByDayOfWeek.filterFunction(function(d) {
       return activeDays[d];
     });
-    var domain = d3.extent(allData, function(d) { return d.normalTime; });
+    var domain = d3.extent(this.allData, function(d) { return d.normalTime; });
     this.dataByDate.filter(this.getInitialExtent(domain));
     this.setState({
-      bgDomain: d3.extent(allData, function(d) { return d.value; }),
+      bgDomain: d3.extent(this.allData, function(d) { return d.value; }),
       dateDomain: domain
     });
     console.timeEnd('Modal Mount');
@@ -186,7 +187,7 @@ var ModalChart = React.createClass({
     });
     this.bindEvents();
     this.brush.emitter.emit('brushed', extent);
-    this.brush.render();
+    this.brush.render(this.allData);
     console.timeEnd('Modal Draw');
   },
   componentWillReceiveProps: function(nextProps) {
