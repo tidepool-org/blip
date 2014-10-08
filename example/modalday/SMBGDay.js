@@ -1,7 +1,6 @@
 var _ = require('lodash');
 var d3 = window.d3;
 var moment = require('moment');
-var EventEmitter = require('events').EventEmitter;
 
 d3.chart('SMBGDay', {
   initialize: function() {

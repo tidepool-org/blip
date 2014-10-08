@@ -1,5 +1,6 @@
 var _ = require('lodash');
 var d3 = window.d3;
+var EventEmitter = require('events').EventEmitter;
 var moment = require('moment');
 
 var SMBGDay = require('./SMBGDay');
@@ -185,6 +186,7 @@ d3.chart('ModalDay', {
       events: {
         merge: function() {
           var dayCharts = [];
+          var emitter = chart.emitter();
           this.attr('id', function(d) { return d; })
             .attr('class', function(d) {
               return 'modalDay ' + moment(d).utc().format('dddd').toLowerCase();
@@ -195,6 +197,9 @@ d3.chart('ModalDay', {
                 smbg: chart.smbgOpts()
               });
               dayPlot.render(chart.data[d]);
+            })
+            .on('click', function(d) {
+              emitter.emit('selectDay', d);
             });
         },
         exit: function() {
@@ -211,6 +216,11 @@ d3.chart('ModalDay', {
   bgUnits: function(bgUnits) {
     if (!arguments.length) { return this._bgUnits; }
     this._bgUnits = bgUnits;
+    return this;
+  },
+  emitter: function(emitter) {
+    if (!arguments.length) { return this._emitter; }
+    this._emitter = emitter;
     return this;
   },
   margins: function(margins) {
@@ -321,6 +331,7 @@ module.exports = {
         id: 'tidelineModalDay'
       })
       .chart('ModalDay')
+      .emitter(this.emitter)
       .margins(opts.margins)
       .smbgOpts(opts.smbg)
       .xScale(xScale)
@@ -328,6 +339,7 @@ module.exports = {
 
     return this;
   },
+  emitter: new EventEmitter(),
   render: function(data, opts) {
     opts = opts || {};
     var defaults = {};

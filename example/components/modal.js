@@ -77,6 +77,7 @@ var Modal = React.createClass({
             showingLines={this.props.chartPrefs.modal.showingLines}
             // handlers
             onDatetimeLocationChange={this.handleDatetimeLocationChange}
+            onSelectDay={this.handleSelectDay}
             ref="chart" />
         </div>
         <Footer
@@ -104,10 +105,12 @@ var Modal = React.createClass({
     return;
   },
   handleClickOneDay: function() {
-    this.props.onSwitchToDaily();
+    var datetime = this.refs.chart.getCurrentDay();
+    this.props.onSwitchToDaily(datetime);
   },
   handleClickTwoWeeks: function() {
-    this.props.onSwitchToWeekly();
+    var datetime = this.refs.chart.getCurrentDay();
+    this.props.onSwitchToWeekly(datetime);
   },
   handleClickSettings: function() {
     this.props.onSwitchToSettings();
@@ -122,6 +125,9 @@ var Modal = React.createClass({
       this.props.updateChartPrefs(prefs);
       this.props.updateDatetimeLocation(this.refs.chart.getCurrentDay());
     }
+  },
+  handleSelectDay: function(date) {
+    this.props.onSwitchToDaily(date + 'T12:00:00.000Z');
   },
   toggleLines: function() {
     var prefs = _.cloneDeep(this.props.chartPrefs);
@@ -151,7 +157,8 @@ var ModalChart = React.createClass({
     patientData: React.PropTypes.array.isRequired,
     showingLines: React.PropTypes.bool.isRequired,
     // handlers
-    onDatetimeLocationChange: React.PropTypes.func.isRequired
+    onDatetimeLocationChange: React.PropTypes.func.isRequired,
+    onSelectDay: React.PropTypes.func.isRequired
   },
   componentWillMount: function() {
     console.time('Modal Mount');
@@ -214,6 +221,7 @@ var ModalChart = React.createClass({
   },
   bindEvents: function() {
     this.brush.emitter.on('brushed', this.handleDatetimeLocationChange);
+    this.chart.emitter.on('selectDay', this.props.onSelectDay);
   },
   render: function() {
     /* jshint ignore:start */
