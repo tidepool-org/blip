@@ -85,7 +85,7 @@ var MemberInviteForm = React.createClass({
           </div>
           <div className="PatientTeam-memberContent PatientTeam-blocks">
             <div className="">
-              <input className="PatientInfo-input" id="email" ref="email" placeholder="email" />
+              <input className="PatientInfo-input" id="email" ref="email" placeholder="Email" />
               <div className="PatientTeam-permissionSelection">
                 <PermissionInputGroup ref="permissionOptions" />
               </div>
