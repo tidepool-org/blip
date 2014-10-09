@@ -4,6 +4,7 @@ var EventEmitter = require('events').EventEmitter;
 var moment = require('moment');
 
 var SMBGDay = require('./SMBGDay');
+var SMBGInfo = require('./SMBGInfo');
 
 d3.chart('ModalDay', {
   initialize: function() {
@@ -13,6 +14,8 @@ d3.chart('ModalDay', {
     this.height = this.base.attr('height');
 
     this.base.append('g').attr('id', 'modalMainGroup');
+
+    this.base.append('g').attr('id', 'modalHighlightGroup');
 
     var THREE_HRS = 10800000;
 
@@ -187,6 +190,7 @@ d3.chart('ModalDay', {
         merge: function() {
           var dayCharts = [];
           var emitter = chart.emitter();
+          var infoPlot;
           this.attr('id', function(d) { return d; })
             .attr('class', function(d) {
               return 'modalDay ' + moment(d).utc().format('dddd').toLowerCase();
@@ -200,6 +204,41 @@ d3.chart('ModalDay', {
             })
             .on('click', function(d) {
               emitter.emit('selectDay', d);
+            })
+            .on('mouseover', function(d) {
+              d3.select(this).classed('highlight', true);
+              d3.select(this).selectAll('path')
+                .attr('stroke-width', chart.smbgOpts().stroke * 1.5);
+              d3.select(this).selectAll('circle')
+                .attr('r', chart.smbgOpts().r * 1.5);
+              if (d3.event.target.nodeName === 'path') {
+                var mainMargins = chart.margins().main;
+                d3.select(this).append('text')
+                  .attr({
+                    x: chart.width - mainMargins.right - 10,
+                    y: mainMargins.top + 30,
+                    'class': 'smbgDayLabel'
+                  })
+                  .text(moment(d).format('dddd, MMMM Do'));
+                infoPlot = SMBGInfo.create(this, {x: chart.xScale(), y: chart.yScale()});
+                infoPlot.render(chart.data[d]); 
+              }
+              var copy = d3.select(this)[0][0];
+              d3.select(this).remove();
+              var first = document.getElementById('modalHighlightGroup').firstChild;
+              document.getElementById('modalHighlightGroup').insertBefore(copy, first);  
+            })
+            .on('mouseout', function(d) {
+              d3.select(this).classed('highlight', false);
+              d3.select(this).selectAll('path')
+                .attr('stroke-width', chart.smbgOpts().stroke);
+              d3.select(this).selectAll('circle')
+                .attr('r', chart.smbgOpts().r);
+              d3.select(this).selectAll('.smbgInfo').remove();
+              d3.select(this).selectAll('.smbgDayLabel').remove();
+              var copy = d3.select(this)[0][0];
+              d3.select(this).remove();
+              document.getElementById('modalDays').appendChild(copy);
             });
         },
         exit: function() {
@@ -254,8 +293,8 @@ d3.chart('ModalDay', {
     var mainMargins = this.margins().main;
     var smbgOpts = this.smbgOpts();
     this._xScale = xScale.copy().range([
-      mainMargins.left + Math.round(smbgOpts.r),
-      w - mainMargins.right - Math.round(smbgOpts.r)
+      mainMargins.left + Math.round(smbgOpts.maxR),
+      w - mainMargins.right - Math.round(smbgOpts.maxR)
     ]);
     this.rectXScale(xScale);
     return this;
@@ -266,8 +305,8 @@ d3.chart('ModalDay', {
     var mainMargins = this.margins().main;
     var smbgOpts = this.smbgOpts();
     this._yScale = yScale.range([
-      h - mainMargins.bottom - Math.round(smbgOpts.r),
-      mainMargins.top + Math.round(smbgOpts.r)
+      h - mainMargins.bottom - Math.round(smbgOpts.maxR),
+      mainMargins.top + Math.round(smbgOpts.maxR)
     ]);
     return this;
   },
@@ -292,8 +331,10 @@ module.exports = {
       baseMargin: opts.baseMargin || 10,
       brushHeight: 80,
       smbg: {
+        maxR: 7.5,
         r: 5,
         stroke: 3,
+        units: 'mg/dL'
       },
       // TODO: replace with non-zero when ready to add stats component
       statsHeight: 0,

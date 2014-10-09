@@ -28,11 +28,37 @@
   background-color: @sunday !important;
 }
 
+.svg-tooltip-smbg.monday {
+  stroke: @monday;
+}
+.svg-tooltip-smbg.tuesday {
+  stroke: @tuesday;
+}
+.svg-tooltip-smbg.wednesday {
+  stroke: @wednesday;
+}
+.svg-tooltip-smbg.thursday {
+  stroke: @thursday;
+}
+.svg-tooltip-smbg.friday {
+  stroke: @friday;
+}
+.svg-tooltip-smbg.saturday {
+  stroke: @saturday;
+}
+.svg-tooltip-smbg.sunday {
+  stroke: @sunday;
+}
+
 .d3-axis.d3-left {
   text {
     text-anchor: end;
     dominant-baseline: central;
   }
+}
+
+.solid {
+  opacity: 1.0;
 }
 
 .modalDay {
@@ -42,6 +68,29 @@
   path {
     fill: none;
     opacity: 0.75;
+  }
+  rect {
+    fill: white;
+    opacity: 0.75;
+    pointer-events: none;
+  }
+  text {
+    text-anchor: middle;
+    fill: #727375;
+    font-size: 14px;
+    pointer-events: none;
+    &.smbgDayLabel {
+      text-anchor: end;
+      font-size: 16px;
+    }
+  }
+}
+.modalDay.highlight {
+  circle {
+    .solid;
+  }
+  path {
+    .solid;
   }
 }
 
