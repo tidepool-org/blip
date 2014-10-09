@@ -959,7 +959,7 @@ module.exports = function (config, deps) {
       doPutWithToken(
         '/confirm/dismiss/invite/'+ inviteeId +'/'+ inviterId,
         {'key':inviteId},
-        { 204: []},
+        { 204: null},
         cb
       );
     },
