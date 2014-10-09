@@ -50,12 +50,10 @@ var Patients = React.createClass({
     return (
       <div className="container-box-outer">
         <div className="patients js-patients-page">
-          <div className="patients-heirarchy-inverted">
-            {welcomeTitle}
-            {loadingIndicator}
-            {invites}
-            {patients}
-          </div>
+          {welcomeTitle}
+          {loadingIndicator}
+          {invites}
+          {patients}
         </div>
       </div>
     );
