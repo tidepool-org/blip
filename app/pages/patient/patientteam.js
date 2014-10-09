@@ -428,8 +428,8 @@ var PatientTeam = React.createClass({
           <div className="PatientTeam-blocks PatientInfo-blocks">
             <div className="PatientInfo-blockRow">
               <div className="PatientInfo-block PatientInfo-block--withArrow"><div>{member.profile.fullName}</div></div>
-              <div className="PatientTeam-icon PatientTeam-icon--permission" title='upload' onClick={this.handleChangeTeamMemberPermissions(member)}><i className={iconClasses}></i></div>
-              <div className="PatientTeam-icon" title='remove' onClick={this.handleRemoveTeamMember(member)}><i className="icon-remove"></i></div>
+              <div className="PatientTeam-icon PatientTeam-icon--permission" title='Change permissions' onClick={this.handleChangeTeamMemberPermissions(member)}><i className={iconClasses}></i></div>
+              <div className="PatientTeam-icon" title='Remove member' onClick={this.handleRemoveTeamMember(member)}><i className="icon-remove"></i></div>
               <div className="clear"></div>
             </div>
           </div>
@@ -488,7 +488,7 @@ var PatientTeam = React.createClass({
             <div className="PatientInfo-blockRow">
               <div className="PatientInfo-block PatientInfo-block--withArrow" title={invite.email}><div>{invite.email}</div></div>
               <div className="PatientInfo-waiting">Waiting for confirmation</div>
-              <div className="PatientTeam-icon" title='remove' onClick={this.handleCancelInvite(invite)}><i className="icon-remove"></i></div>
+              <div className="PatientTeam-icon" title='Cancel invitation' onClick={this.handleCancelInvite(invite)}><i className="icon-remove"></i></div>
               <div className="clear"></div>
             </div>
           </div>
