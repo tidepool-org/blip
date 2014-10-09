@@ -123,6 +123,12 @@ d3.chart('Brush', {
         if (p.values.length >= 4) {
           p.mean = d3.sum(p.values)/p.values.length;
         }
+        if (v.value < p.low || p.low == null) {
+          p.low = v.value;
+        }
+        if (v.value > p.high || p.high == null) {
+          p.high = v.value;
+        }
         return p;
       },
       function reduceRemove(p, v) {
@@ -134,12 +140,22 @@ d3.chart('Brush', {
         else {
           p.mean = null;
         }
+        if (p.values.length === 0) {
+          p.low = null;
+          p.high = null;
+        }
+        else {
+          p.low = d3.min(p.values);
+          p.high = d3.max(p.values);
+        }
         return p;
       },
       function reduceInitial() {
         return {
           values: [],
-          mean: null
+          low: null,
+          mean: null,
+          high: null
         };
       }
     );
@@ -186,7 +202,7 @@ module.exports = {
         width: el.offsetWidth,
         height: opts.brushHeight
       })
-      .chart('SMBGMeanHeat')
+      .chart('SMBGBox')
       .emitter(this.emitter)
       .initialExtent(opts.initialExtent)
       .margins(opts.margins)
