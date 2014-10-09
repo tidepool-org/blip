@@ -405,21 +405,17 @@ describe('platform client', function () {
       };
 
       //add note
-      pwdClient.startMessageThread(noteToAdd, function (error, added) {
+      pwdClient.startMessageThread(noteToAdd, function (error, addedId) {
         expect(error).to.not.exist;
-        expect(added).to.exist;
-
+        expect(addedId).to.exist;
         var edits = {
-          id: added.id,
+          id: addedId,
           messagetext : 'we have updated'
         };
 
         pwdClient.editMessage(edits, function (error, update) {
-
           expect(error).to.not.exist;
           expect(update).to.exist;
-          expect(update._id).to.equal(added);
-          expect(update.messagetext).to.equal(edits.messagetext);
           done();
         });
       });
@@ -434,21 +430,17 @@ describe('platform client', function () {
       };
 
       //add note
-      pwdClient.startMessageThread(noteToAdd, function (error, added) {
+      pwdClient.startMessageThread(noteToAdd, function (error, addedId) {
         expect(error).to.not.exist;
-        expect(added).to.exist;
-
+        expect(addedId).to.exist;
         var edits = {
-          id: added.id,
+          id: addedId,
           timestamp : new Date().toISOString()
         };
 
         pwdClient.editMessage(edits, function (error, update) {
-
           expect(error).to.not.exist;
           expect(update).to.exist;
-          expect(update._id).to.equal(added);
-          expect(update.timestamp).to.equal(edits.timestamp);
           done();
         });
       });
@@ -531,57 +523,58 @@ describe('platform client', function () {
       });
     });
   });
-  describe.skip('handles invites', function () {
+  describe('handles invites', function () {
     //skipped as we require an email for sending of the invites for these integration tests.
     it('so we can invite a_Member to be on the team of a_PWD', function(done){
-      pwdClient.inviteUser(a_Member.emails[0],{view: {}}, function(err, invite) {
-        expect(err).to.be.empty;
-        expect(invite).to.not.be.empty;
-        memberClient.acceptInvite(invite.key,a_PWD.id,function(err, accept) {
-          expect(err).to.be.empty;
-          done();
+      pwdClient.inviteUser(a_Member.emails[0], {view: {}}, a_PWD.id, function(err, invite) {
+        //might be dup but just ensure we have an invite to accept
+        memberClient.invitesReceived(a_Member.id, function(err, received) {
+          expect(received).to.have.length.above(0);
+          memberClient.acceptInvite(received[0].key, a_Member.id, a_PWD.id, function(err, accept) {
+            expect(err).to.not.exist;
+            done();
+          });
         });
       });
     });
-
     it('a_Member can dismiss an the invite from a_PWD', function(done){
-      pwdClient.inviteUser(a_Member.emails[0],{note: {}}, a_PWD.id, function(err, invite) {
-        expect(err).to.be.empty;
-        expect(invite).to.not.be.empty;
-        memberClient.dismissInvite(invite.key, a_Member.id, a_PWD.id,function(err, dismiss) {
-          expect(err).to.be.empty;
-          done();
+      pwdClient.inviteUser(a_Member.emails[0], {view: {}}, a_PWD.id, function(err, invite) {
+        //might be dup but just ensure we have an invite to dismiss
+        memberClient.invitesReceived(a_Member.id, function(err, received) {
+          expect(received).to.have.length.above(0);
+          memberClient.dismissInvite(received[0].key, a_Member.id, a_PWD.id,function(err, dismiss) {
+            expect(err).to.not.exist;
+            done();
+          });
         });
       });
     });
-
     it('a_Member can see the invites they have sent', function(done){
-      memberClient.inviteUser(a_PWD.emails[0],{view: {}}, a_Member.id, function(err, invite) {
-        expect(err).to.be.empty;
-        memberClient.invitesSent(a_Member.id,function(err, sent) {
-          expect(err).to.be.empty;
-          expect(sent).to.not.be.empty;
-          done();
-        });
+      memberClient.invitesSent(a_Member.id, function(err, sent) {
+        expect(err).to.not.exist;
+        expect(sent).to.have.length.above(0);
+        //test what we can see
+        expect(sent[0]).to.not.be.empty;
+        expect(sent[0]).to.have.keys('key', 'type','email','context','creatorId','created');
+        done();
       });
     });
-
     it('a_Member can see the invites they have received', function(done){
-      pwdClient.inviteUser(a_Member.emails[0],{view: {}}, a_PWD.id,function(err, invite) {
-        expect(err).to.be.empty;
-        memberClient.invitesReceived(a_Member.id,function(err, received) {
-          expect(err).to.be.empty;
+      pwdClient.inviteUser(a_Member.emails[0], {view: {}}, a_PWD.id, function(err, invite) {
+        memberClient.invitesReceived(a_Member.id, function(err, received) {
+          expect(err).to.not.exist;
           expect(received).to.not.be.empty;
+          //test what we can see
+          expect(received[0]).to.not.be.empty;
+          expect(received[0]).to.have.keys('key', 'type', 'email','context','creator','created');
           done();
         });
       });
     });
     it('a_PWD can cancel an invite they sent to a_Member', function(done){
-      pwdClient.inviteUser(a_Member.emails[0],{view: {}}, a_PWD.id, function(err, invite) {
-        expect(err).to.be.empty;
+      memberClient.inviteUser(a_PWD.emails[0], {view: {}}, a_Member.id, function(err, invite) {
         pwdClient.removeInvite(a_Member.emails[0], a_PWD.id, function(err,resp){
-          expect(err).to.be.empty;
-          expect(resp).to.not.be.empty;
+          expect(err).to.not.exist;
           done();
         });
       });
