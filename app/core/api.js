@@ -491,7 +491,7 @@ api.invitation.send = function(emailAddress, permissions, callback) {
 
 api.invitation.getReceived = function(callback) {
   api.log('GET /confirm/invitations');
-  return tidepool.invitesReceived(callback);
+  return tidepool.invitesReceived(tidepool.getUserId(),callback);
 };
 
 api.invitation.accept = function(key, fromUserId, callback) {
@@ -519,7 +519,7 @@ api.invitation.cancel = function(emailAddress, callback) {
 };
 
 api.invitation.getForToken = function(token, callback) {
-  api.log('GET /invitations/token/' + token);
+  api.log('GET /confirm/invitation/' + token);
   callback(null, {});
 };
 
