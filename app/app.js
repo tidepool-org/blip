@@ -483,7 +483,10 @@ var AppComponent = React.createClass({
         if (cb) {
           cb(err);
         }
-        return self.handleApiError(err, 'Something went wrong while inviting member.');
+        if (err.status === 500) {
+          return self.handleApiError(err, 'Something went wrong while inviting member.');
+        }
+        return;
       }
 
       self.setState({

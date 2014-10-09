@@ -149,11 +149,17 @@ var MemberInviteForm = React.createClass({
     var self = this;
     this.props.onSubmit(email, permissions, function(err) {
       if (err) {
-        self.setState({
+        if (err.status === 409) {
+          return self.setState({
+            working: false,
+            error: 'Looks like you\'ve already sent an invitation to that email?'
+          });
+        }
+
+        return self.setState({
           working: false,
           error: 'Sorry! Something went wrong...'
         });
-        return;
       }
       self.setState({working: false});
     });
