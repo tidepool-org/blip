@@ -43,10 +43,12 @@
 
 .PatientPage-sectionTitleMessage {
   font-size: 14px;
-  color: lightgray;
+  color: @gray-dark;
   text-transform: none;
   padding: 10px;
 }
+
+@PatientTeam-fadeOpacity: 0.7;
 
 .PatientTeam-member--fadeNew {
   .PatientInfo-block {
@@ -57,7 +59,7 @@
     padding-top: 5px;
     font-size: 14px;
     font-style: italic;
-    color: @gray-dark;
+    color: @gray-darker;
     float: left;
   }
   .PatientTeam-icon {
@@ -68,16 +70,16 @@
   }
   .PatientTeam-icon:hover {
     > i {
-      opacity: 0.6;
+      opacity: @PatientTeam-fadeOpacity;
     }
   }
 
 
   .PatientTeam-picture {
-    opacity: 0.6;
+    opacity: @PatientTeam-fadeOpacity;
   }
   .PatientInfo-blockRow {
-    opacity: 0.6;
+    opacity: @PatientTeam-fadeOpacity;
   }
 
   .PatientInfo-blockRow:hover {
@@ -85,9 +87,8 @@
   }
 
   .PatientInfo-block {
-    cursor: pointer;
     background: white;
-    color: @gray;
+    color: @gray-darker;
   }
 
   .PatientInfo-block--withArrow:after {
