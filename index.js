@@ -216,7 +216,6 @@ module.exports = function (config, deps) {
               return cb(null, handler);
             }
           }
-
           return handleHttpError(res, cb);
         });
     });
@@ -861,58 +860,50 @@ module.exports = function (config, deps) {
       assertArgumentsSize(arguments, 2);
       doGetWithToken(
         '/confirm/invite/'+inviterId,
-        { 200: function(res){ return res.body; }, 204: function(res){ return res.body; } },
+        { 200: function(res){ return res.body; }, 204: [] },
         cb
       );
     },
     /**
      * Get the invites received
      *
+     * @param {String} inviteeId - id of the user who was invited
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    invitesReceived: function (cb) {
-      assertArgumentsSize(arguments, 1);
+    invitesReceived: function (inviteeId,cb) {
+      assertArgumentsSize(arguments, 2);
 
       var self = this;
 
-      this.getCurrentUser(function(err,details){
+      superagent
+        .get(makeUrl('/confirm/invitations/'+inviteeId))
+        .set(sessionTokenHeader, myToken)
+        .end(
+        function (err, res) {
+          if (err != null) {
+            return cb(err);
+          }
+          if (res.status === 200) {
+            // Replace `creatorId` with a `creator` user object
+            async.map(res.body, function (invite, callback) {
+              self.findProfile(invite.creatorId,function(err,profile){
+                invite.creator = {
+                  userid: invite.creatorId,
+                  profile: profile
+                };
+                invite = _.omit(invite, 'creatorId');
 
-        if(_.isEmpty(err)===false){
-          return cb(err,[]);
-        }
-        var email = details.emails[0];
-
-        superagent
-          .get(makeUrl('/confirm/invitations/'+email))
-          .set(sessionTokenHeader, myToken)
-          .end(
-          function (err, res) {
-            if (err != null) {
-              return cb(err);
-            }
-            if (res.status === 200) {
-
-              // Replace `creatorId` with a `creator` user object
-              async.map(res.body, function (invite, callback) {
-                self.findProfile(invite.creatorId,function(err,profile){
-                  invite.creator = {
-                    userid: invite.creatorId,
-                    profile: profile
-                  };
-                  invite = _.omit(invite, 'creatorId');
-
-                  callback(err,invite);
-                });
-              }, function(err, invites){
+                callback(err,invite);
+              });
+            }, function(err, invites){
               return cb(null,invites);
             });
-
-            } else if (res.status === 204){
-              return cb(null,[]);
-            }
+          } else if (res.status === 204){
+            return cb(null,[]);
+          } else {
             return cb(err,[]);
-          });
+          }
         });
     },
     /**
@@ -924,7 +915,7 @@ module.exports = function (config, deps) {
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    inviteUser: function (email,permissions, inviterId, cb) {
+    inviteUser: function (email, permissions, inviterId, cb) {
       assertArgumentsSize(arguments, 4);
 
       var details = { 'email':email,'permissions': permissions };
@@ -968,7 +959,7 @@ module.exports = function (config, deps) {
       doPutWithToken(
         '/confirm/dismiss/invite/'+ inviteeId +'/'+ inviterId,
         {'key':inviteId},
-        { 204: function(res){ return res.body; }},
+        { 204: null},
         cb
       );
     },
