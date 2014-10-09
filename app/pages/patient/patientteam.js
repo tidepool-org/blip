@@ -76,6 +76,11 @@ var MemberInviteForm = React.createClass({
       working: false
     };
   },
+  componentDidMount: function() {
+    // When invite form appears, automatically focus so user can start
+    // typing email without clicking a second time
+    this.refs.email.getDOMNode().focus();
+  },
   render: function() {
     return (
       <li className="PatientTeam-member--fadeNew  PatientTeam-member PatientTeam-member--first">
