@@ -182,7 +182,7 @@ var Patient = React.createClass({
 
     return (
       <div className="PatientPage-teamSection">
-        <div className="PatientPage-sectionTitle">My Care Team <span className="PatientPage-sectionTitleMessage">These are the people who have access to your data.</span></div>
+        <div className="PatientPage-sectionTitle">My Care Team <span className="PatientPage-sectionTitleMessage">These people can view your data.</span></div>
         {this.renderPatientTeam()}
       </div>
     );
