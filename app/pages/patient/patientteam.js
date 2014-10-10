@@ -72,8 +72,9 @@ var MemberInviteForm = React.createClass({
   },
   getInitialState: function() {
     return {
-      error: null,
-      working: false
+      working: false,
+      permissionOption: 'view',
+      error: null
     };
   },
   componentDidMount: function() {
@@ -92,7 +93,7 @@ var MemberInviteForm = React.createClass({
             <div className="">
               <input className="PatientInfo-input" id="email" ref="email" placeholder="Email" />
               <div className="PatientTeam-permissionSelection">
-                <PermissionInputGroup ref="permissionOptions" />
+                <PermissionInputGroup ref="permissionOptions" value={this.state.permissionOption} />
               </div>
               <div className="PatientTeam-buttonHolder">
                 <button className="PatientInfo-button PatientInfo-button--secondary" type="button"
@@ -149,6 +150,7 @@ var MemberInviteForm = React.createClass({
 
     this.setState({
       working: true,
+      permissionOption: permissionOption,
       error: null
     });
     var self = this;
