@@ -979,6 +979,32 @@ module.exports = function (config, deps) {
         null,
         cb
       );
+    },
+    /**
+     * Show this invite.
+     *
+     * Note: this call is not secured by a token. Only limited details that relate to the invitation you have the key for will be shown.
+     *
+     * @param {String} key - that realtes to the invite you want to display
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    showInvite: function (key, cb) {
+      assertArgumentsSize(arguments, 2);
+      //no token is used!
+      superagent
+        .get(makeUrl('/confirm/invitation/'+key))
+        .end(
+        function (err, res) {
+          if (err != null) {
+            return cb(err);
+          }
+          if (res.status === 200) {
+            return cb(null,res.body);
+          } else {
+            return cb(err,null);
+          }
+        });
     }
   };
 };
