@@ -569,7 +569,8 @@ var PatientTeam = React.createClass({
 
     classes = cx(classes);
 
-    var handleClick = function() {
+    var handleClick = function(e) {
+      e.preventDefault();
       self.setState({
         invite: true
       });
@@ -582,7 +583,7 @@ var PatientTeam = React.createClass({
           <div className="PatientTeam-picture PatientInfo-picture"></div>
           <div className="PatientTeam-blocks PatientInfo-blocks">
             <div className="PatientInfo-blockRow" onClick={handleClick}>
-              <a className="PatientInfo-block PatientInfo-block--withArrow">Invite new member</a>
+              <a href="" onClick={handleClick} className="PatientInfo-block PatientInfo-block--withArrow">Invite new member</a>
             </div>
           </div>
         </div>
