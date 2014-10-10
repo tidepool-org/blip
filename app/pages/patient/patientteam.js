@@ -181,8 +181,19 @@ var ChangePermissionsForm = React.createClass({
   },
 
   getInitialState: function() {
+    return this.initialStateFromProps(this.props);
+  },
+
+  componentDidMount: function() {
+  },
+
+  componentWillReceiveProps: function(nextProps) {
+    this.setState(this.initialStateFromProps(nextProps));
+  },
+
+  initialStateFromProps: function(props) {
     return {
-      value: this.permissionOptionFromMember(this.props.member),
+      value: this.permissionOptionFromMember(props.member),
       working: false,
       error: null
     };
