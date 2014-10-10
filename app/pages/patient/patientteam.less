@@ -132,28 +132,33 @@
     }
   .PatientTeam-icon {
     float: left;
-    cursor: pointer;
   }
   .PatientTeam-icon--permission {
     margin-right: 0px;
-  }
+    color: @gray-dark;
 
-  .icon-remove {
+    &:hover,
+    &:focus {
+      color: @gray;
+    }
+
+  }
+  .PatientTeam-icon--remove {
     color: rgb(223, 64, 64);
     display: none;
+
+    &:hover,
+    &:focus {
+      color: rgba(223, 64, 64, 0.5);
+    }
+
+    // Accessibility: show icon when tabbing through interface
+    &:focus {
+      display: inline;
+    }
   }
-  .icon-permissions {
-    color: @gray-dark;
-  }
-}
-.icon-permissions:hover {
-  color: @gray;
-}
-.icon-remove:hover {
-  color: rgba(223, 64, 64, 0.5);
-}
-.PatientInfo-blockRow:hover {
-  .icon-remove {
+
+  .PatientInfo-blockRow:hover .PatientTeam-icon--remove {
     display: inline;
   }
 }
