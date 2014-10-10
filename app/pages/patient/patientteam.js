@@ -483,9 +483,9 @@ var PatientTeam = React.createClass({
 
     return (
       <ConfirmDialog
-        message={'Are you sure you want to cancel your invitation to ' + invite.email + '?'}
-        buttonText={'I\'m sure, cancel it'}
-        buttonTextWorking={'Canceling...'}
+        message={'Are you sure you want to dismiss your invitation to ' + invite.email + '?'}
+        buttonText={'I\'m sure, dismiss it'}
+        buttonTextWorking={'Dismissing...'}
         onSubmit={handleSubmit}
         onCancel={handleCancel} />
     );
@@ -516,7 +516,7 @@ var PatientTeam = React.createClass({
             <div className="PatientInfo-blockRow">
               <div className="PatientInfo-block PatientInfo-block--withArrow" title={invite.email}><div>{invite.email}</div></div>
               <div className="PatientInfo-waiting">Waiting for confirmation</div>
-              <a href="" className="PatientTeam-icon PatientTeam-icon--remove" title='Cancel invitation' onClick={this.handleCancelInvite(invite)}><i className="icon-remove"></i></a>
+              <a href="" className="PatientTeam-icon PatientTeam-icon--remove" title='Dismiss invitation' onClick={this.handleCancelInvite(invite)}><i className="icon-remove"></i></a>
               <div className="clear"></div>
             </div>
           </div>
