@@ -524,6 +524,35 @@ describe('platform client', function () {
     });
   });
   describe('handles invites', function () {
+    /*
+     * For the tests we are donig this one way
+     * Cleanup each time
+     */
+    beforeEach(function (done) {
+      //get all that I have sent and remove them
+      async.parallel(
+      [function(callback){
+        memberClient.invitesSent(a_Member.id, function(err, sent) {
+            _.forEach(sent, function(invite) {
+              console.log('memberClient cleanup invite ',invite.email);
+              memberClient.removeInvite(invite.email, a_Member.id, function(err,resp){});
+            });
+            callback();
+          });
+      },
+      function(callback){
+        pwdClient.invitesSent(a_PWD.id, function(err, sent) {
+          _.forEach(sent, function(invite) {
+            console.log('pwdClient cleanup invite ',invite.email);
+            pwdClient.removeInvite(invite.email, a_PWD.id, function(err,resp){});
+          });
+          callback();
+        });
+      }],
+      function(err, clients) {
+        done();
+      });
+    });
     //skipped as we require an email for sending of the invites for these integration tests.
     it('so we can invite a_Member to be on the team of a_PWD', function(done){
       pwdClient.inviteUser(a_Member.emails[0], {view: {}}, a_PWD.id, function(err, invite) {
