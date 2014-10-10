@@ -89,15 +89,16 @@ d3.chart('Brush', {
           newExtent[1] = d3.time.day.utc.floor(origExtent[1]);
         }
       }
-      emitter.emit('brushed', newExtent);
+      emitter.emit('brushed', [newExtent[0].toISOString(), newExtent[1].toISOString()]);
       d3.select(this).call(chart.brush.extent(newExtent));
     }
 
     var xScale = this.xScale();
+    var initial = chart.initialExtent();
       
     this.brush = d3.svg.brush()
       .x(xScale)
-      .extent(chart.initialExtent())
+      .extent([Date.parse(initial[0]), Date.parse(initial[1])])
       .on('brush', brushed);
 
     var brushHandleGroup = this.base.append('g')

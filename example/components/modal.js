@@ -75,7 +75,7 @@ var Modal = React.createClass({
             bgUnits={this.props.bgPrefs.bgUnits}
             extentSize={this.props.chartPrefs.modal.extentSize}
             initialDatetimeLocation={this.props.initialDatetimeLocation}
-            patientData={this.props.patientData.data}
+            patientData={this.props.patientData}
             showingLines={this.props.chartPrefs.modal.showingLines}
             // handlers
             onDatetimeLocationChange={this.handleDatetimeLocationChange}
@@ -98,7 +98,7 @@ var Modal = React.createClass({
   },
   getTitle: function(datetimeLocationEndpoints) {
     // endpoint is exclusive, so need to subtract a day
-    var end = d3.time.day.utc.offset(datetimeLocationEndpoints[1], -1);
+    var end = d3.time.day.utc.offset(new Date(datetimeLocationEndpoints[1]), -1);
     return this.formatDate(datetimeLocationEndpoints[0]) + ' - ' + this.formatDate(end);
   },
   // handlers
@@ -156,7 +156,7 @@ var ModalChart = React.createClass({
     bgUnits: React.PropTypes.string.isRequired,
     extentSize: React.PropTypes.number.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
-    patientData: React.PropTypes.array.isRequired,
+    patientData: React.PropTypes.object.isRequired,
     showingLines: React.PropTypes.bool.isRequired,
     // handlers
     onDatetimeLocationChange: React.PropTypes.func.isRequired,
@@ -164,11 +164,14 @@ var ModalChart = React.createClass({
   },
   componentWillMount: function() {
     console.time('Modal Mount');
-    this.filterData = crossfilter(this.props.patientData);
-    this.dataByDate = this.filterData.dimension(function(d) { return new Date(d.normalTime); });
-    this.dataByType = this.filterData.dimension(function(d) { return d.type; });
+    var data = this.props.patientData;
+    this.filterData = data.filterData;
+    this.dataByDate = data.dataByDate.filterAll();
+    this.dataByDay = data.dataByDay.filterAll();
+    this.dataByType = data.dataByType.filterAll();
+    // TODO: move to TidelineData
     this.dataByDayOfWeek = this.filterData.dimension(function(d) {
-      return moment(d.normalTime).utc().format('dddd').toLowerCase();
+      return d3.time.format.utc('%A')(new Date(d.normalTime)).toLowerCase();
     });
     this.dataByType.filter(this.props.bgType);
     this.allData = this.dataByType.top(Infinity);
@@ -218,6 +221,7 @@ var ModalChart = React.createClass({
   },
   componentWillUnmount: function() {
     this.log('Unmounting...');
+    this.clearAllFilters();
     this.chart.destroy();
     this.brush.destroy();
   },
@@ -232,6 +236,12 @@ var ModalChart = React.createClass({
       );
     /* jshint ignore:end */
   },
+  clearAllFilters: function() {
+    this.dataByDate.filterAll();
+    this.dataByDate.filterAll();
+    this.dataByType.filterAll();
+    this.dataByDayOfWeek.filterAll();
+  },
   getCurrentDay: function() {
     return this.brush.getCurrentDay().toISOString();
   },
@@ -243,8 +253,8 @@ var ModalChart = React.createClass({
       start = d3.time.day.utc.floor(new Date(domain[0]));
     }
     return [
-      start,
-      d3.time.day.utc.ceil(new Date(extentBasis))
+      start.toISOString(),
+      d3.time.day.utc.ceil(new Date(extentBasis)).toISOString()
     ];
   },
   // handlers
