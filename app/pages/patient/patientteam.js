@@ -76,6 +76,11 @@ var MemberInviteForm = React.createClass({
       working: false
     };
   },
+  componentDidMount: function() {
+    // When invite form appears, automatically focus so user can start
+    // typing email without clicking a second time
+    this.refs.email.getDOMNode().focus();
+  },
   render: function() {
     return (
       <li className="PatientTeam-member--fadeNew  PatientTeam-member PatientTeam-member--first">
@@ -85,7 +90,7 @@ var MemberInviteForm = React.createClass({
           </div>
           <div className="PatientTeam-memberContent PatientTeam-blocks">
             <div className="">
-              <input className="PatientInfo-input" id="email" ref="email" placeholder="email" />
+              <input className="PatientInfo-input" id="email" ref="email" placeholder="Email" />
               <div className="PatientTeam-permissionSelection">
                 <PermissionInputGroup ref="permissionOptions" />
               </div>
@@ -149,11 +154,17 @@ var MemberInviteForm = React.createClass({
     var self = this;
     this.props.onSubmit(email, permissions, function(err) {
       if (err) {
-        self.setState({
+        if (err.status === 409) {
+          return self.setState({
+            working: false,
+            error: 'Looks like you\'ve already sent an invitation to that email?'
+          });
+        }
+
+        return self.setState({
           working: false,
           error: 'Sorry! Something went wrong...'
         });
-        return;
       }
       self.setState({working: false});
     });
@@ -348,7 +359,10 @@ var PatientTeam = React.createClass({
   handleChangeTeamMemberPermissions: function(member) {
     var self = this;
 
-    return function() {
+    return function(e) {
+      if (e) {
+        e.preventDefault();
+      }
       self.setState({
         showModalOverlay: true,
         dialog: self.renderChangeTeamMemberPermissionsDialog(member)
@@ -385,7 +399,10 @@ var PatientTeam = React.createClass({
   handleRemoveTeamMember: function(member) {
     var self = this;
 
-    return function() {
+    return function(e) {
+      if (e) {
+        e.preventDefault();
+      }
       self.setState({
         showModalOverlay: true,
         dialog: self.renderRemoveTeamMemberDialog(member)
@@ -422,8 +439,8 @@ var PatientTeam = React.createClass({
           <div className="PatientTeam-blocks PatientInfo-blocks">
             <div className="PatientInfo-blockRow">
               <div className="PatientInfo-block PatientInfo-block--withArrow"><div>{member.profile.fullName}</div></div>
-              <div className="PatientTeam-icon PatientTeam-icon--permission" title='upload' onClick={this.handleChangeTeamMemberPermissions(member)}><i className={iconClasses}></i></div>
-              <div className="PatientTeam-icon" title='remove' onClick={this.handleRemoveTeamMember(member)}><i className="icon-remove"></i></div>
+              <a href="" className="PatientTeam-icon PatientTeam-icon--permission" title='Change permissions' onClick={this.handleChangeTeamMemberPermissions(member)}><i className={iconClasses}></i></a>
+              <a href="" className="PatientTeam-icon PatientTeam-icon--remove" title='Remove member' onClick={this.handleRemoveTeamMember(member)}><i className="icon-remove"></i></a>
               <div className="clear"></div>
             </div>
           </div>
@@ -463,7 +480,10 @@ var PatientTeam = React.createClass({
   handleCancelInvite: function(invite) {
     var self = this;
 
-    return function() {
+    return function(e) {
+      if (e) {
+        e.preventDefault();
+      }
       self.setState({
         showModalOverlay: true,
         dialog: self.renderCancelInviteDialog(invite)
@@ -482,7 +502,7 @@ var PatientTeam = React.createClass({
             <div className="PatientInfo-blockRow">
               <div className="PatientInfo-block PatientInfo-block--withArrow" title={invite.email}><div>{invite.email}</div></div>
               <div className="PatientInfo-waiting">Waiting for confirmation</div>
-              <div className="PatientTeam-icon" title='remove' onClick={this.handleCancelInvite(invite)}><i className="icon-remove"></i></div>
+              <a href="" className="PatientTeam-icon PatientTeam-icon--remove" title='Cancel invitation' onClick={this.handleCancelInvite(invite)}><i className="icon-remove"></i></a>
               <div className="clear"></div>
             </div>
           </div>

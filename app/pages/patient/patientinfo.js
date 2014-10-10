@@ -128,8 +128,10 @@ var PatientInfo = React.createClass({
       self.toggleEdit();
     };
 
+    // Important to add a `key`, different from the "Cancel" button in edit mode
+    // or else react will maintain the "focus" state when flipping back and forth
     return (
-      <button className="PatientInfo-button PatientInfo-button--secondary" type="button" onClick={handleClick}>Edit</button>
+      <button key="edit" className="PatientInfo-button PatientInfo-button--secondary" type="button" onClick={handleClick}>Edit</button>
     );
   },
 
@@ -203,7 +205,7 @@ var PatientInfo = React.createClass({
           </div>
         </div>
         <div className="PatientInfo-controls">
-          <button className="PatientInfo-button PatientInfo-button--secondary" type="button" disabled={this.state.working} onClick={handleCancel}>Cancel</button>
+          <button key="cancel" className="PatientInfo-button PatientInfo-button--secondary" type="button" disabled={this.state.working} onClick={handleCancel}>Cancel</button>
           {this.renderSubmit()}
           {this.renderNotification()}
         </div>
