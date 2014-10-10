@@ -52,7 +52,7 @@
 
 .PatientTeam-member--fadeNew {
   .PatientInfo-block {
-    float: none !important;
+    float: none;
   }
 
   .PatientInfo-waiting {
@@ -92,7 +92,32 @@
   }
 
   .PatientInfo-block--withArrow:after {
-    border-right-color: white !important;
+    border-right-color: white;
+  }
+}
+
+.PatientTeam-member--new,
+.PatientTeam-member--emptyNew {
+  .PatientTeam-picture {
+    opacity: @PatientTeam-fadeOpacity;
+  }
+}
+
+.PatientTeam-member--new a.PatientInfo-block {
+  color: @gray-darker;
+  background-color: white;
+  text-decoration: none;
+  opacity: @PatientTeam-fadeOpacity;
+
+  &.PatientInfo-block--withArrow:after {
+    border-right-color: white;
+  }
+
+  &:hover,
+  &:focus {
+    opacity: 1;
+    // Not sure why it's not automatically a pointer since it's an <a> element
+    cursor: pointer;
   }
 }
 
@@ -109,20 +134,20 @@
       background: @blue-green-light;
     }
     .PatientInfo-block--withArrow:after {
-      border-right-color: @blue-green-light !important;
+      border-right-color: @blue-green-light;
     }
   }
 
   .PatientInfo-block--withArrow:after {
-    border-right-color: @blue-green !important;
+    border-right-color: @blue-green;
   }
 }
 
 .PatientTeam-member {
   font-size: 14px;
   .PatientInfo-block {
-      float: left !important;
-      margin-right: 0px !important;
+      float: left;
+      margin-right: 0px;
       > div {
           max-width: 150px;
           overflow-x: hidden;
@@ -168,14 +193,14 @@
 }
 
 .PatientTeam-picture {
-  background-size: 60px !important;
-  width: 60px !important;
-  height: 60px !important;
-  margin-right: 15px !important;
+  background-size: 60px;
+  width: 60px;
+  height: 60px;
+  margin-right: 15px;
 }
 
 .PatientTeam-blocks {
-  padding-top: 15px !important;
+  padding-top: 15px;
 }
 
 .PatientTeam-memberContent {

@@ -563,7 +563,7 @@ var PatientTeam = React.createClass({
     var classes = {
       'PatientTeam-member': true,
       'PatientTeam-member--emptyNew': isTeamEmpty,
-      'PatientTeam-member--fadeNew': !isTeamEmpty
+      'PatientTeam-member--new': !isTeamEmpty
     };
 
     classes = cx(classes);
@@ -581,8 +581,7 @@ var PatientTeam = React.createClass({
           <div className="PatientTeam-picture PatientInfo-picture"></div>
           <div className="PatientTeam-blocks PatientInfo-blocks">
             <div className="PatientInfo-blockRow" onClick={handleClick}>
-              <div className="PatientInfo-block PatientInfo-block--withArrow"><div>Invite new member</div></div>
-              <div className="clear"></div>
+              <a className="PatientInfo-block PatientInfo-block--withArrow">Invite new member</a>
             </div>
           </div>
         </div>
