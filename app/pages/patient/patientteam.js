@@ -23,17 +23,11 @@ var InputGroup = require('../../components/inputgroup');
 var PermissionInputGroup = React.createClass({
   propTypes: {
     name: React.PropTypes.string,
-    items: React.PropTypes.array,
     value: React.PropTypes.string
   },
   getDefaultProps: function() {
     return {
-      name: 'permissionOptions',
-      items: [
-        {value: 'view', label: 'View only'},
-        {value: 'upload', label: 'View and upload'}
-      ],
-      value: 'view'
+      value: false
     };
   },
   getInitialState: function() {
@@ -55,9 +49,9 @@ var PermissionInputGroup = React.createClass({
     return (
       /* jshint ignore:start */
       <InputGroup
-        name={this.props.name}
-        items={this.props.items}
-        type={'radios'}
+        name="upload"
+        type="checkbox"
+        label="Allow this person to upload data for you"
         value={this.state.value}
         onChange={this.handleChange}/>
         /* jshint ignore:end */
@@ -73,7 +67,7 @@ var MemberInviteForm = React.createClass({
   getInitialState: function() {
     return {
       working: false,
-      permissionOption: 'view',
+      allowUpload: false,
       error: null
     };
   },
@@ -91,7 +85,7 @@ var MemberInviteForm = React.createClass({
             <div className="">
               <input className="PatientInfo-input" id="email" ref="email" placeholder="Email" />
               <div className="PatientTeam-permissionSelection">
-                <PermissionInputGroup ref="permissionOptions" value={this.state.permissionOption} />
+                <PermissionInputGroup ref="allowUpload" value={this.state.allowUpload} />
               </div>
               <div className="PatientTeam-buttonHolder">
                 <button className="PatientInfo-button PatientInfo-button--secondary" type="button"
@@ -119,7 +113,7 @@ var MemberInviteForm = React.createClass({
     }
 
     var email = this.refs.email.getDOMNode().value;
-    var permissionOption = this.refs.permissionOptions.getValue();
+    var allowUpload = this.refs.allowUpload.getValue();
 
     var validateEmail = function(email) {
       var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -142,13 +136,13 @@ var MemberInviteForm = React.createClass({
       note: {}
     };
 
-    if (permissionOption === 'upload') {
+    if (allowUpload) {
       permissions.upload = {};
     }
 
     this.setState({
       working: true,
-      permissionOption: permissionOption,
+      allowUpload: allowUpload,
       error: null
     });
     var self = this;
@@ -191,30 +185,30 @@ var ChangePermissionsForm = React.createClass({
 
   initialStateFromProps: function(props) {
     return {
-      value: this.permissionOptionFromMember(props.member),
+      allowUpload: this.isMemberAllowedToUpload(props.member),
       working: false,
       error: null
     };
   },
 
-  permissionOptionFromMember: function(member) {
-    if ((_.isEmpty(member.permissions) === false && member.permissions.admin) ||
-        (_.isEmpty(member.permissions) === false && member.permissions.upload)) {
-      return 'upload';
-    } else {
-      return 'view';
-    }
+  isMemberAllowedToUpload: function(member) {
+    return ((_.isEmpty(member.permissions) === false && member.permissions.admin) ||
+            (_.isEmpty(member.permissions) === false && member.permissions.upload));
   },
 
   render: function() {
     var member = this.props.member;
-    var inputName = 'permissionOptions'+ member.userid;
 
     return (
       <div>
         <div className="ModalOverlay-content">
-          <div>This is what {member.profile.fullName} is allowed to do with your data.</div>
-          <PermissionInputGroup ref="permissionsChange" name={inputName} value={this.state.value} />
+          <div className="PatientTeam-changePermissionsFormText">
+            {member.profile.fullName + ' is allowed to view your data. '}
+            {'You can set or unset additional permissions below:'}
+          </div>
+          <div className="PatientTeam-changePermissionsFormInput">
+            <PermissionInputGroup ref="allowUpload" value={this.state.allowUpload} />
+          </div>
         </div>
         <div className="ModalOverlay-controls">
           <button className="PatientInfo-button PatientInfo-button--secondary" type="button"
@@ -240,13 +234,13 @@ var ChangePermissionsForm = React.createClass({
       note: {}
     };
 
-    var value = this.refs.permissionsChange.getValue();
-    if (value === 'upload') {
+    var allowUpload = this.refs.allowUpload.getValue();
+    if (allowUpload) {
       permissions.upload = {};
     }
 
     this.setState({
-      value: value,
+      allowUpload: allowUpload,
       working: true,
       error: null
     });
