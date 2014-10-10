@@ -119,21 +119,33 @@ d3.chart('ModalDay', {
         enter: function() {
           var yScale = chart.yScale();
           var toEnter = this;
+          var mainMargins = chart.margins().main;
           // TODO: refactor magic nums, etc.
           toEnter.append('text')
             .attr({
-              x: chart.margins().main.left - 10,
+              x: mainMargins.left - 10,
               y: function(d) { return yScale(d); }
             })
             .text(function(d) { return d; });
 
           toEnter.append('line')
             .attr({
-              x1: chart.margins().main.left - 8,
-              x2: chart.margins().main.left,
+              x1: mainMargins.left - 8,
+              x2: mainMargins.left,
               y1: function(d) { return yScale(d); },
               y2: function(d) { return yScale(d); }
             });
+
+          toEnter.append('line')
+            .attr({
+              x1: mainMargins.left,
+              x2: chart.width - mainMargins.right,
+              y1: function(d) { return yScale(d); },
+              y2: function(d) { return yScale(d); },
+              'class': 'd3-line-guide d3-line-bg-threshold'
+            })
+            // TODO: this is a haaaaack to get around some CSS cascading/specificity...
+            .style('stroke', 'white');
         }
       }
     });
