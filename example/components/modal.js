@@ -31,6 +31,7 @@ var SMBGMeanBars = require('../modalday/brushopts/SMBGMeanBars');
 var SMBGBox = require('../modalday/brushopts/SMBGBox');
 var SMBGMeanHeat = require('../modalday/brushopts/SMBGMeanHeat');
 var ModalDay = require('../modalday/ModalDay');
+var Stats = require('../modalday/Stats');
 require('../modalday/modalday.less');
 
 var Modal = React.createClass({
@@ -193,6 +194,7 @@ var ModalChart = React.createClass({
     console.time('Modal Draw');
     this.chart = ModalDay.create(el, {bgDomain: this.state.bgDomain, clampTop: true});
     this.chart.render(this.dataByDate.top(Infinity), _.pick(this.props, this.chartOpts));
+    this.stats = Stats.create(el, this.props.patientData.grouped, _.pick(this.props, ['bgClasses', 'bgUnits']));
     var domain = this.state.dateDomain;
     var extent = this.getInitialExtent(domain);
     this.brush = Brush.create(el, domain, {
@@ -217,7 +219,14 @@ var ModalChart = React.createClass({
     }
   },
   componentDidUpdate: function() {
-    this.chart.render(this.dataByDate.top(Infinity), _.pick(this.props, this.chartOpts));
+    var data = this.dataByDate.top(Infinity).reverse();
+    this.chart.render(data, _.pick(this.props, this.chartOpts));
+    if (data.length > 0) {
+      this.stats.render([data[0].normalTime, data[data.length - 1].normalTime], this.props.activeDays); 
+    }
+    else {
+      this.stats.render([]);
+    }
   },
   componentWillUnmount: function() {
     this.log('Unmounting...');
@@ -238,7 +247,7 @@ var ModalChart = React.createClass({
   },
   clearAllFilters: function() {
     this.dataByDate.filterAll();
-    this.dataByDate.filterAll();
+    this.dataByDay.filterAll();
     this.dataByType.filterAll();
     this.dataByDayOfWeek.filterAll();
   },

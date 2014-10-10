@@ -114,7 +114,7 @@ d3.chart('Brush', {
       });
   },
   reducedData: function(data) {
-    console.time('Reduce');
+    console.time('Reduce Brush');
     var crossData = crossfilter(data);
     var dataByDate = crossData.dimension(function(d) { return d.normalTime.slice(0, 10); });
     var grouped = dataByDate.group();
@@ -162,7 +162,7 @@ d3.chart('Brush', {
     );
     this.reducedData = grouped.all();
 
-    console.timeEnd('Reduce');
+    console.timeEnd('Reduce Brush');
     return this;
   },
   remove: function() {
@@ -203,7 +203,7 @@ module.exports = {
         width: el.offsetWidth,
         height: opts.brushHeight
       })
-      .chart('SMBGBox')
+      .chart('SMBGMean')
       .emitter(this.emitter)
       .initialExtent(opts.initialExtent)
       .margins(opts.margins)

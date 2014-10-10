@@ -348,8 +348,7 @@ module.exports = {
         stroke: 3,
         units: 'mg/dL'
       },
-      // TODO: replace with non-zero when ready to add stats component
-      statsHeight: 0,
+      statsHeight: 90,
       bgDomain: [0,600],
       clampTop: false
     };
