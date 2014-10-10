@@ -610,23 +610,32 @@ var PatientTeam = React.createClass({
 
   },
 
+  renderEditControls: function() {
+    return (
+      <div className="PatientInfo-controls">
+        <button key="edit" className="PatientInfo-button PatientInfo-button--secondary" type="button">Edit</button>
+      </div>
+    );
+  },
+
   render: function() {
+    var editControls = this.renderEditControls();
     var members = _.map(this.props.patient.team, this.renderTeamMember);
     var pendingInvites = _.map(this.props.pendingInvites, this.renderPendingInvite);
     var invite = this.state && this.state.invite ? this.renderInviteForm() : this.renderInvite();
 
     return (
-      /* jshint ignore:start */
-      <ul>
-        {members}
-        {pendingInvites}
-        {invite}
+      <div className="PatientTeam">
+        {editControls}
+        <ul className="PatientTeam-list">
+          {members}
+          {pendingInvites}
+          {invite}
+          <div className="clear"></div>
+        </ul>
         {this.renderModalOverlay()}
-        <div className="clear"></div>
-      </ul>
-      /* jshint ignore:end */
+      </div>
     );
-
   }
 });
 
