@@ -171,11 +171,6 @@
     &:focus {
       color: rgba(223, 64, 64, 0.5);
     }
-
-    // Accessibility: show icon when tabbing through interface
-    &:focus {
-      display: inline;
-    }
   }
 
   .PatientInfo-blockRow:hover .PatientTeam-icon--remove {
@@ -205,6 +200,10 @@
   .PatientInfo-input {
     width: 175px;
   }
+}
+
+.PatientTeam.isEditing .PatientTeam-member .PatientTeam-icon--remove {
+  display: inline;
 }
 
 .PatientTeam-member {

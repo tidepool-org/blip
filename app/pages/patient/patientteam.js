@@ -341,7 +341,8 @@ var PatientTeam = React.createClass({
     return {
       showModalOverlay: false,
       invite: false,
-      dialog: null
+      dialog: null,
+      editing: false
     };
   },
 
@@ -611,21 +612,39 @@ var PatientTeam = React.createClass({
   },
 
   renderEditControls: function() {
+    var key = 'edit';
+    var text = 'Edit';
+    if (this.state.editing) {
+      key = 'cancel';
+      text = 'Cancel';
+    }
+
     return (
       <div className="PatientInfo-controls">
-        <button key="edit" className="PatientInfo-button PatientInfo-button--secondary" type="button">Edit</button>
+        <button key={key} onClick={this.toggleEdit} className="PatientInfo-button PatientInfo-button--secondary" type="button">{text}</button>
       </div>
     );
   },
 
+  toggleEdit: function() {
+    this.setState({
+      editing: !this.state.editing,
+    });
+  },
+
   render: function() {
+    var classes = cx({
+      'PatientTeam': true,
+      'isEditing': this.state.editing
+    });
+
     var editControls = this.renderEditControls();
     var members = _.map(this.props.patient.team, this.renderTeamMember);
     var pendingInvites = _.map(this.props.pendingInvites, this.renderPendingInvite);
     var invite = this.state && this.state.invite ? this.renderInviteForm() : this.renderInvite();
 
     return (
-      <div className="PatientTeam">
+      <div className={classes}>
         {editControls}
         <ul className="PatientTeam-list">
           {members}
