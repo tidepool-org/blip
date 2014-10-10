@@ -159,7 +159,7 @@ var MemberInviteForm = React.createClass({
         if (err.status === 409) {
           return self.setState({
             working: false,
-            error: 'Looks like you\'ve already sent an invitation to that email?'
+            error: 'Looks like you\'ve already sent an invitation to that email'
           });
         }
 
