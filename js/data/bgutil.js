@@ -16,9 +16,9 @@
  */
 
 var _ = require('lodash');
+var crossfilter = require('crossfilter');
 
 var datetime = require('./util/datetime');
-var TidelineCrossFilter = require('./util/tidelinecrossfilter');
 
 function BGUtil(data, opts) {
 
@@ -69,7 +69,7 @@ function BGUtil(data, opts) {
     if (!currentData) {
       currentData = filterData.getAll(dataByDate);
     }
-    var start = new Date(s).valueOf(), end = new Date(e).valueOf();
+    var start = new Date(s).toISOString(), end = new Date(e).toISOString();
     dataByDate.filter([start, end]);
     var filteredObj = {
       data: dataByDate.top(Infinity).reverse(),
@@ -161,9 +161,9 @@ function BGUtil(data, opts) {
 
   this.getStats = function(s, e, opts) {
     opts = opts || {};
-    var start = new Date(s).valueOf(), end = new Date(e).valueOf();
+    var start = new Date(s).toISOString(), end = new Date(e).toISOString();
     dataByDate.filter([start, end]);
-    currentData = filterData.getAll(dataByDate);
+    currentData = dataByDate.top(Infinity).reverse();
     var filtered = this.filter(s, e, opts.exclusionThreshold);
     var average = this.average(filtered.data);
     average.excluded = filtered.excluded;
@@ -176,8 +176,8 @@ function BGUtil(data, opts) {
   };
 
   this.data = data || [];
-  var filterData = new TidelineCrossFilter(this.data);
-  var dataByDate = filterData.addDimension('date');
+  var filterData = crossfilter(this.data);
+  var dataByDate = filterData.dimension(function(d) { return d.normalTime; });
   if (this.data.length > 0) {
     this.endpoints = [this.data[0].normalTime, this.data[data.length - 1].normalTime];
   }

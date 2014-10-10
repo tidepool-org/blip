@@ -16,11 +16,11 @@
  */
 
 var _ = require('lodash');
+var crossfilter = require('crossfilter');
 var d3 = require('d3');
 
 var validate = require('./validation/validate');
 
-var TidelineCrossFilter = require('./data/util/tidelinecrossfilter');
 var BasalUtil = require('./data/basalutil');
 var BolusUtil = require('./data/bolusutil');
 var BGUtil = require('./data/bgutil');
@@ -74,12 +74,14 @@ function TidelineData(data, opts) {
   var that = this;
 
   function checkRequired() {
+    console.time('checkRequired');
     _.each(REQUIRED_TYPES, function(type) {
       if (!that.grouped[type]) {
         log('No', type, 'data! Replaced with empty array.');
         that.grouped[type] = [];
       }
     });
+    console.timeEnd('checkRequired');
 
     return that;
   }
@@ -92,14 +94,40 @@ function TidelineData(data, opts) {
   }
 
   function updateCrossFilters(data) {
-    that.filterData = new TidelineCrossFilter(data);
-    that.dataByDate = that.createCrossFilter('date');
+    console.time('crossfilter');
+    that.filterData = crossfilter(data);
+    console.timeEnd('crossfilter');
+    that.dataByDay = that.createCrossFilter('date');
+    that.dataByDate = that.createCrossFilter('datetime');
     that.dataById = that.createCrossFilter('id');
     that.dataByType = that.createCrossFilter('datatype');
   }
 
   this.createCrossFilter = function(dim) {
-    return this.filterData.addDimension(dim);
+    var newDim;
+    switch(dim) {
+      case 'date':
+        console.time('Day Dimension');
+        newDim = this.filterData.dimension(function(d) { return d.normalTime.slice(0,10); });
+        console.timeEnd('Day Dimension');
+        break;
+      case 'datetime':
+        console.time('Datetime Dimension');
+        newDim = this.filterData.dimension(function(d) { return d.normalTime; });
+        console.timeEnd('Datetime Dimension');
+        break;
+      case 'datatype':
+        console.time('Type Dimension');
+        newDim = this.filterData.dimension(function(d) { return d.type; });
+        console.timeEnd('Type Dimension');
+        break;
+      case 'id':
+        console.time('ID Dimension');
+        newDim = this.filterData.dimension(function(d) { return d.id; });
+        console.timeEnd('ID Dimension');
+        break;
+    }
+    return newDim;
   };
 
   this.addDatum = function(datum) {
@@ -126,6 +154,7 @@ function TidelineData(data, opts) {
   };
 
   function fillDataFromInterval(first, last) {
+    console.time('fillDataFromInterval');
     var data = [];
     var points = d3.time.hour.utc.range(first, last, opts.fillOpts.duration);
     for (var i = 0; i < points.length; ++i) {
@@ -139,10 +168,12 @@ function TidelineData(data, opts) {
         });
       }
     }
+    console.timeEnd('fillDataFromInterval');
     return data;
   }
 
   function getTwoWeekFillEndpoints() {
+    console.time('getTwoWeekFillEndpoints');
     var data;
     if (that.grouped.smbg && that.grouped.smbg.length !== 0) {
       data = that.grouped.smbg;
@@ -154,10 +185,12 @@ function TidelineData(data, opts) {
     if (dt.getNumDays(first, last) < 14) {
       first = dt.addDays(last, -13);
     }
+    console.timeEnd('getTwoWeekFillEndpoints');
     return [dt.getMidnight(first), dt.getMidnight(last, true)];
   }
 
   this.generateFillData = function() {
+    console.time('generateFillData');
     var lastDatum = data[data.length - 1];
     // the fill should extend past the *end* of a segment (i.e. of basal data)
     // if that's the last datum in the data
@@ -167,6 +200,7 @@ function TidelineData(data, opts) {
     first.setUTCHours(first.getUTCHours() - first.getUTCHours() % opts.fillOpts.duration - (opts.fillOpts.duration * 2));
     last.setUTCHours(last.getUTCHours() + last.getUTCHours() % opts.fillOpts.duration + (opts.fillOpts.duration * 2));
     this.grouped.fill = fillDataFromInterval(first, last);
+    console.timeEnd('generateFillData');
     return this;
   };
 
@@ -174,6 +208,7 @@ function TidelineData(data, opts) {
   // for each day from the first through last days where smbg exists at all
   // and for at least 14 days
   this.adjustFillsForTwoWeekView = function() {
+    console.time('adjustFillsForTwoWeekView');
     var fillData = this.grouped.fill;
     var endpoints = getTwoWeekFillEndpoints();
     var startOfTwoWeekFill = endpoints[0], endOfTwoWeekFill = endpoints[1];
@@ -220,9 +255,11 @@ function TidelineData(data, opts) {
     this.twoWeekData = _.sortBy(this.twoWeekData.concat(twoWeekFills), function(d) {
       return d.normalTime;
     });
+    console.timeEnd('adjustFillsForTwoWeekView');
   };
 
   this.setBGPrefs = function() {
+    console.time('setBGPrefs');
     this.bgClasses = opts.bgClasses;
     var bgData;
     if (!(this.grouped.smbg || this.grouped.cbg)) {
@@ -255,6 +292,7 @@ function TidelineData(data, opts) {
         opts.bgClasses[key].boundary = opts.bgClasses[key].boundary/GLUCOSE_MM;
       } 
     }
+    console.timeEnd('setBGPrefs');
   };
 
   log('Items to validate:', data.length);
@@ -274,16 +312,21 @@ function TidelineData(data, opts) {
 
   data = res.valid;
 
+  console.time('group');
   this.grouped = _.groupBy(data, function(d) { return d.type; });
+  console.timeEnd('group');
 
+  console.time('diabetesData');
   this.diabetesData = _.sortBy(_.flatten([].concat(_.map(opts.diabetesDataTypes, function(type) {
     return this.grouped[type] || [];
   }, this))), function(d) {
     return d.normalTime;
   });
+  console.timeEnd('diabetesData');
 
   this.setBGPrefs();
 
+  console.time('setUtilities');
   this.basalUtil = new BasalUtil(this.grouped.basal);
   this.bolusUtil = new BolusUtil(this.grouped.bolus);
   this.cbgUtil = new BGUtil(this.grouped.cbg, {
@@ -315,6 +358,7 @@ function TidelineData(data, opts) {
   else {
     this.data = [];
   }
+  console.timeEnd('setUtilities');
   
   updateCrossFilters(this.data);
 

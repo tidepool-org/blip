@@ -529,8 +529,8 @@ module.exports = function(emitter) {
 
   container.renderedData = function(a) {
     if (!arguments.length) return renderedData;
-    var start = new Date(dt.addDays(a[0], -buffer));
-    var end = new Date(dt.addDays(a[1], buffer));
+    var start = new Date(dt.addDays(a[0], -buffer)).toISOString();
+    var end = new Date(dt.addDays(a[1], buffer)).toISOString();
     var filtered = tidelineData.dataByDate.filter([start, end]);
     renderedData = filtered.top(Infinity).reverse();
 

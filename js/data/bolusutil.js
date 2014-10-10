@@ -16,21 +16,21 @@
  */
 
 var _ = require('lodash');
+var crossfilter = require('crossfilter');
 
 var commonbolus = require('../plot/util/commonbolus');
 var format = require('./util/format');
 var datetime = require('./util/datetime');
-var TidelineCrossFilter = require('./util/tidelinecrossfilter');
 
 function BolusUtil(data) {
 
   this.subtotal = function(s, e) {
     var dose = 0.0;
-    var start = new Date(s).valueOf(), end = new Date(e).valueOf();
+    var start = new Date(s).toISOString(), end = new Date(e).toISOString();
     dataByDate.filter([start, end]);
-    var currentData = filterData.getAll(dataByDate);
+    var currentData = dataByDate.top(Infinity).reverse();
     var firstBolus = _.findIndex(currentData, function(bolus) {
-      var d = new Date(bolus.normalTime).valueOf();
+      var d = bolus.normalTime;
       return (d >= start) && (d <= end);
     });
     if (firstBolus !== -1) {
@@ -80,8 +80,8 @@ function BolusUtil(data) {
   };
 
   this.data = data || [];
-  var filterData = new TidelineCrossFilter(this.data);
-  var dataByDate = filterData.addDimension('date');
+  var filterData = crossfilter(this.data);
+  var dataByDate = filterData.dimension(function(d) { return d.normalTime; });
   if (this.data.length > 0) {
     this.endpoints = [this.data[0].normalTime, this.data[this.data.length - 1].normalTime];
   }

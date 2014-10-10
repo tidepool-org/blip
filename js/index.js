@@ -33,8 +33,7 @@ module.exports = {
     SettingsUtil: require('./data/settingsutil'),
     util: {
       datetime: require('./data/util/datetime'),
-      format: require('./data/util/format'),
-      TidelineCrossFilter: require('./data/util/tidelinecrossfilter')
+      format: require('./data/util/format')
     }
   },
 
