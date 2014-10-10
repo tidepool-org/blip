@@ -9,19 +9,6 @@
   }
 }
 
-.PatientTeam-pending {
-  float: left;
-  margin-right: 15px;
-
-  > i {
-    font-size: 55px;
-  }
-
-  > i:before {
-    margin: 0px;
-  }
-}
-
 .PatientTeam-buttonHolder {
   float: right;
 }
@@ -91,11 +78,8 @@
   }
 }
 
-.PatientTeam-member--new,
-.PatientTeam-member--emptyNew {
-  .PatientTeam-picture {
-    opacity: @PatientTeam-fadeOpacity;
-  }
+.PatientTeam-picture--newMember {
+  background-image: url('images/new-member-120x120.png');
 }
 
 .PatientTeam-member--new a.PatientInfo-block {

@@ -84,11 +84,9 @@ var MemberInviteForm = React.createClass({
   },
   render: function() {
     return (
-      <li className="PatientTeam-member--fadeNew  PatientTeam-member PatientTeam-member--first">
+      <li className="PatientTeam-member PatientTeam-member--first">
         <div className="PatientInfo-head">
-          <div className="PatientTeam-pending">
-            <i className="icon-pending-invite"></i>
-          </div>
+          <div className="PatientTeam-picture PatientInfo-picture PatientTeam-picture--newMember"></div>
           <div className="PatientTeam-memberContent PatientTeam-blocks">
             <div className="">
               <input className="PatientInfo-input" id="email" ref="email" placeholder="Email" />
@@ -580,7 +578,7 @@ var PatientTeam = React.createClass({
       /* jshint ignore:start */
       <li className={classes}>
         <div className="PatientInfo-head">
-          <div className="PatientTeam-picture PatientInfo-picture"></div>
+          <div className="PatientTeam-picture PatientInfo-picture PatientTeam-picture--newMember"></div>
           <div className="PatientTeam-blocks PatientInfo-blocks">
             <div className="PatientInfo-blockRow" onClick={handleClick}>
               <a href="" onClick={handleClick} className="PatientInfo-block PatientInfo-block--withArrow">Invite new member</a>
