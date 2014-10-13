@@ -205,7 +205,7 @@ d3.chart('ModalDay', {
           var infoPlot;
           this.attr('id', function(d) { return d; })
             .attr('class', function(d) {
-              return 'modalDay ' + moment(d).utc().format('dddd').toLowerCase();
+              return 'modalDay ' + d3.time.format.utc('%A')(new Date(d)).toLowerCase();
             })
             .each(function(d) {
               var dayPlot = SMBGDay.create(this, {x: chart.xScale(), y: chart.yScale()}, {
