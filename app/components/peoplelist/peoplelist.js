@@ -27,6 +27,7 @@ var PeopleList = React.createClass({
     people: React.PropTypes.array,
     isPatientList: React.PropTypes.bool,
     onClickPerson: React.PropTypes.func,
+    uploadUrl: React.PropTypes.string,
     onRemovePatient: React.PropTypes.func
   },
 
@@ -90,6 +91,7 @@ var PeopleList = React.createClass({
           <PatientCard
             href={person.link}
             onClick={handleClick}
+            uploadUrl={this.props.uploadUrl}
             onRemovePatient={this.props.onRemovePatient}
             patient={person}></PatientCard>
         </li>

@@ -38,6 +38,7 @@ var Patients = React.createClass({
     onAcceptInvitation: React.PropTypes.func,
     onDismissInvitation: React.PropTypes.func,
     onRemovePatient: React.PropTypes.func,
+    uploadUrl: React.PropTypes.string
   },
 
   render: function() {
@@ -122,6 +123,7 @@ var Patients = React.createClass({
         <PeopleList
           people={patients}
           isPatientList={true}
+          uploadUrl={this.props.uploadUrl}
           onClickPerson={this.handleClickPatient}
           onRemovePatient= {this.props.onRemovePatient}
           />
@@ -147,9 +149,9 @@ var Patients = React.createClass({
     /* jshint ignore:end */
   },
   renderAddAccount: function() {
-    if(personUtils.isPatient(this.props.user)) {
+    /*if(personUtils.isPatient(this.props.user)) {
       return null;
-    }
+    }*/
 
     return (
       <a

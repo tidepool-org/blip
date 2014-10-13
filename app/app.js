@@ -380,6 +380,7 @@ var AppComponent = React.createClass({
           patients={this.state.patients}
           fetchingPatients={this.state.fetchingPatients}
           invites={this.state.invites}
+          uploadUrl={app.api.getUploadUrl()}
           fetchingInvites={this.state.fetchingInvites}
           showingWelcomeMessage={this.state.showingWelcomeMessage}
           onSetAsCareGiver={this.setUserAsCareGiver}
