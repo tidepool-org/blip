@@ -54,7 +54,7 @@ var Invitation = React.createClass({
             className='invitation-action-submit btn btn-primary js-form-submit'
             onClick={this.handleAccept}
             disabled={this.state ? this.state.enable : false}
-            ref="submitButton">{'Join the Team!'}</button>
+            ref="submitButton">{'Join the team!'}</button>
           <button
             className="invitation-action-ignore btn js-form-submit"
             onClick={this.handleDismiss}

@@ -18,7 +18,7 @@
   .no-touch &:hover,
   &:focus,
   &:active {
-      .icon-remove {
+      .patientcard-controls {
         display: block;
       }
 
@@ -33,11 +33,15 @@
 
 .patientcard {
   display: block;
-  text-align: center;
+  text-align: left;
   padding: 30px @spacing-small;
   font-weight: lighter;
   color: @gray-darker;
   position: relative;
+  width: 295px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .patientcard-owner {
@@ -45,17 +49,17 @@
 }
 
 .patientcard-controls {
+  display: none;
   position: relative;
   top: -65px;
   right: 20px;
 
   > i {
-    font-size: 20px;
-    width: 20px;
+    font-size: 17px;
+    width: 17px;
   }
 
   .icon-remove {
-    display: none;
     color: @blue-green;
     position: absolute;
     top: -15px;
@@ -71,11 +75,17 @@
   }
 
   .patientcard-permissions-icon {
-    display: block;
-    color: @gray-dark;
+    color: @blue-green;
     position: absolute;
-    top: 25px;
+    top: 35px;
     right: 0px;
+
+    .no-touch &:hover,
+    &:focus,
+    &:active {
+      color: @blue-green-light;
+
+    }
   }
 }
 
@@ -95,10 +105,6 @@
     font-size: 30px;
     width: 280px;
     color: @blue-green;
-  }
-
-  .icon-remove {
-    display: none;
   }
 }
 .patientcard-fullname {

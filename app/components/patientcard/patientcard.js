@@ -25,6 +25,7 @@ var PatientCard = React.createClass({
     href: React.PropTypes.string,
     onClick: React.PropTypes.func,
     onRemovePatient: React.PropTypes.func,
+    uploadUrl: React.PropTypes.string,
     patient: React.PropTypes.object
   },
 
@@ -49,7 +50,9 @@ var PatientCard = React.createClass({
 
           return (
             /* jshint ignore:start */
-            <i className="Navbar-icon icon-remove" onClick={self.handleRemove(patient)} title={title}></i>
+            <a href="" onClick={self.handleRemove(patient)} title={title}>
+              <i className="Navbar-icon icon-remove"></i>
+            </a>
             /* jshint ignore:end */
           );
         }
@@ -71,7 +74,9 @@ var PatientCard = React.createClass({
 
       return (
         /* jshint ignore:start */
-        <i className={classes}></i>
+        <a href={self.props.uploadUrl} target='_blank' title="Upload data">
+          <i className={classes}></i>
+        </a>
         /* jshint ignore:end */
       );
     })(patient);
@@ -130,6 +135,8 @@ var PatientCard = React.createClass({
         showModalOverlay: true,
         dialog: self.renderRemoveDialog(patient)
       });
+
+      return false;
     };
   },
 

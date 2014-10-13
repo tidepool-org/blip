@@ -20,9 +20,9 @@
 }
 
 .PatientInfo-content {
-  padding-top: 40px;
-  padding-left: 140px;
-  padding-right: 140px;
+  margin-bottom: 30px;
+  padding-left: 60px;
+  padding-right: 60px;
 }
 
 .PatientInfo-head {
@@ -118,8 +118,7 @@ a.PatientInfo-block {
 }
 
 .PatientInfo-controls {
-  min-height: 30px;
-  padding: 5px;
+  min-height: 20px;
   text-align: right;
 }
 
@@ -192,6 +191,12 @@ a.PatientInfo-block {
   font-weight: normal;
   color: @gray-text;
   background: none;
+
+  &:hover,
+  &:focus,
+  &:active {
+    text-decoration: underline;
+  }
 }
 
 .PatientInfo-button--primary {

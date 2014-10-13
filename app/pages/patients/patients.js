@@ -38,6 +38,7 @@ var Patients = React.createClass({
     onAcceptInvitation: React.PropTypes.func,
     onDismissInvitation: React.PropTypes.func,
     onRemovePatient: React.PropTypes.func,
+    uploadUrl: React.PropTypes.string
   },
 
   render: function() {
@@ -50,12 +51,10 @@ var Patients = React.createClass({
     return (
       <div className="container-box-outer">
         <div className="patients js-patients-page">
-          <div className="patients-heirarchy-inverted">
-            {welcomeTitle}
-            {loadingIndicator}
-            {invites}
-            {patients}
-          </div>
+          {welcomeTitle}
+          {loadingIndicator}
+          {invites}
+          {patients}
         </div>
       </div>
     );
@@ -124,6 +123,7 @@ var Patients = React.createClass({
         <PeopleList
           people={patients}
           isPatientList={true}
+          uploadUrl={this.props.uploadUrl}
           onClickPerson={this.handleClickPatient}
           onRemovePatient= {this.props.onRemovePatient}
           />

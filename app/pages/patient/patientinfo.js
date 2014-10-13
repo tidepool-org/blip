@@ -59,6 +59,9 @@ var PatientInfo = React.createClass({
 
     return (
       <div className="PatientInfo">
+        <div className="PatientInfo-controls">
+          {this.renderEditLink()}
+        </div>
         <div className="PatientInfo-content">
           <div className="PatientInfo-head">
             <div className="PatientInfo-picture"></div>
@@ -84,9 +87,6 @@ var PatientInfo = React.createClass({
             {this.getAboutText(patient)}
           </div>
         </div>
-        <div className="PatientInfo-controls">
-          {this.renderEditLink()}
-        </div>
       </div>
     );
   },
@@ -94,6 +94,7 @@ var PatientInfo = React.createClass({
   renderSkeleton: function() {
     return (
       <div className="PatientInfo">
+        <div className="PatientInfo-controls"></div>
         <div className="PatientInfo-content">
           <div className="PatientInfo-head">
             <div className="PatientInfo-picture"></div>
@@ -111,7 +112,6 @@ var PatientInfo = React.createClass({
           </div>
           <div className="PatientInfo-bio PatientInfo-bio--placeholder">&nbsp;</div>
         </div>
-        <div className="PatientInfo-controls"></div>
       </div>
     );
   },
@@ -128,8 +128,10 @@ var PatientInfo = React.createClass({
       self.toggleEdit();
     };
 
+    // Important to add a `key`, different from the "Cancel" button in edit mode
+    // or else react will maintain the "focus" state when flipping back and forth
     return (
-      <button className="PatientInfo-button PatientInfo-button--secondary" type="button" onClick={handleClick}>Edit</button>
+      <button key="edit" className="PatientInfo-button PatientInfo-button--secondary" type="button" onClick={handleClick}>Edit</button>
     );
   },
 
@@ -173,6 +175,11 @@ var PatientInfo = React.createClass({
 
     return (
       <div className="PatientInfo">
+        <div className="PatientInfo-controls">
+          <button key="cancel" className="PatientInfo-button PatientInfo-button--secondary" type="button" disabled={this.state.working} onClick={handleCancel}>Cancel</button>
+          {this.renderSubmit()}
+          {this.renderNotification()}
+        </div>
         <div className="PatientInfo-content">
           <div className="PatientInfo-head">
             <div className="PatientInfo-picture"></div>
@@ -201,11 +208,6 @@ var PatientInfo = React.createClass({
               defaultValue={formValues.about}>
             </textarea>
           </div>
-        </div>
-        <div className="PatientInfo-controls">
-          <button className="PatientInfo-button PatientInfo-button--secondary" type="button" disabled={this.state.working} onClick={handleCancel}>Cancel</button>
-          {this.renderSubmit()}
-          {this.renderNotification()}
         </div>
       </div>
     );

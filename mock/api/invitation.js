@@ -168,7 +168,8 @@ var patch = function(mock, api) {
         return (
           confirmation.type === 'invite' &&
           confirmation.email === toEmail &&
-          confirmation.creatorId === userId
+          confirmation.creatorId === userId &&
+          confirmation.status !== 'canceled'
         );
       });
 

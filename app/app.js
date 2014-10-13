@@ -243,6 +243,7 @@ var AppComponent = React.createClass({
             fetchingUser={this.state.fetchingUser}
             patient={patient}
             fetchingPatient={this.state.fetchingPatient}
+            currentPage={this.state.page}
             getUploadUrl={getUploadUrl}
             onLogout={this.logout}
             trackMetric={trackMetric}/>
@@ -426,6 +427,7 @@ var AppComponent = React.createClass({
           patients={this.state.patients}
           fetchingPatients={this.state.fetchingPatients}
           invites={this.state.invites}
+          uploadUrl={app.api.getUploadUrl()}
           fetchingInvites={this.state.fetchingInvites}
           showingWelcomeMessage={this.state.showingWelcomeMessage}
           onSetAsCareGiver={this.setUserAsCareGiver}
@@ -530,7 +532,10 @@ var AppComponent = React.createClass({
         if (cb) {
           cb(err);
         }
-        return self.handleApiError(err, 'Something went wrong while inviting member.');
+        if (err.status === 500) {
+          return self.handleApiError(err, 'Something went wrong while inviting member.');
+        }
+        return;
       }
 
       self.setState({

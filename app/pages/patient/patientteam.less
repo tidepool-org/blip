@@ -1,31 +1,20 @@
-.PatientPage-teamSection {
-  padding-top: 30px;
-  border-bottom: 1px solid gray;
+.PatientTeam-list {
+  list-style-type: none;
+  padding: 0 60px;
+  margin: 30px 0;
 
-  > ul {
-    list-style-type: none;
-    padding: 0 60px;
-    margin: 30px 0;
-
-    > li {
-      width: 260px;
-      float: left;
-    }
+  > li {
+    width: 260px;
+    float: left;
   }
 }
 
-.PatientTeam-pending {
-  float: left;
-  margin-right: 15px;
-
-  > i {
-    font-size: 55px;
-  }
-
-  > i:before {
-    margin: 0px;
-  }
+.PatientTeam-list--single {
+    width: 260px;
+    margin: 30px auto;
+    padding: 0px;
 }
+
 
 .PatientTeam-buttonHolder {
   float: right;
@@ -43,21 +32,23 @@
 
 .PatientPage-sectionTitleMessage {
   font-size: 14px;
-  color: lightgray;
+  color: @gray-dark;
   text-transform: none;
   padding: 10px;
 }
 
+@PatientTeam-fadeOpacity: 0.7;
+
 .PatientTeam-member--fadeNew {
   .PatientInfo-block {
-    float: none !important;
+    float: none;
   }
 
   .PatientInfo-waiting {
     padding-top: 5px;
     font-size: 14px;
     font-style: italic;
-    color: @gray-dark;
+    color: @gray-darker;
     float: left;
   }
   .PatientTeam-icon {
@@ -68,16 +59,16 @@
   }
   .PatientTeam-icon:hover {
     > i {
-      opacity: 0.6;
+      opacity: @PatientTeam-fadeOpacity;
     }
   }
 
 
   .PatientTeam-picture {
-    opacity: 0.6;
+    opacity: @PatientTeam-fadeOpacity;
   }
   .PatientInfo-blockRow {
-    opacity: 0.6;
+    opacity: @PatientTeam-fadeOpacity;
   }
 
   .PatientInfo-blockRow:hover {
@@ -85,13 +76,32 @@
   }
 
   .PatientInfo-block {
-    cursor: pointer;
     background: white;
-    color: @gray;
+    color: @gray-darker;
   }
 
   .PatientInfo-block--withArrow:after {
-    border-right-color: white !important;
+    border-right-color: white;
+  }
+}
+
+.PatientTeam-picture--newMember {
+  background-image: url('images/new-member-120x120.png');
+}
+
+.PatientTeam-member--new a.PatientInfo-block {
+  color: @gray-darker;
+  background-color: white;
+  text-decoration: none;
+  opacity: @PatientTeam-fadeOpacity;
+
+  &.PatientInfo-block--withArrow:after {
+    border-right-color: white;
+  }
+
+  &:hover,
+  &:focus {
+    opacity: 1;
   }
 }
 
@@ -108,20 +118,20 @@
       background: @blue-green-light;
     }
     .PatientInfo-block--withArrow:after {
-      border-right-color: @blue-green-light !important;
+      border-right-color: @blue-green-light;
     }
   }
 
   .PatientInfo-block--withArrow:after {
-    border-right-color: @blue-green !important;
+    border-right-color: @blue-green;
   }
 }
 
 .PatientTeam-member {
   font-size: 14px;
   .PatientInfo-block {
-      float: left !important;
-      margin-right: 0px !important;
+      float: left;
+      margin-right: 0px;
       > div {
           max-width: 150px;
           overflow-x: hidden;
@@ -131,28 +141,28 @@
     }
   .PatientTeam-icon {
     float: left;
-    cursor: pointer;
   }
   .PatientTeam-icon--permission {
     margin-right: 0px;
-  }
+    color: @gray-dark;
 
-  .icon-remove {
+    &:hover,
+    &:focus {
+      color: @gray;
+    }
+
+  }
+  .PatientTeam-icon--remove {
     color: rgb(223, 64, 64);
     display: none;
+
+    &:hover,
+    &:focus {
+      color: rgba(223, 64, 64, 0.5);
+    }
   }
-  .icon-permissions {
-    color: @gray-dark;
-  }
-}
-.icon-permissions:hover {
-  color: @gray;
-}
-.icon-remove:hover {
-  color: rgba(223, 64, 64, 0.5);
-}
-.PatientInfo-blockRow:hover {
-  .icon-remove {
+
+  .PatientInfo-blockRow:hover .PatientTeam-icon--remove {
     display: inline;
   }
 }
@@ -162,14 +172,14 @@
 }
 
 .PatientTeam-picture {
-  background-size: 60px !important;
-  width: 60px !important;
-  height: 60px !important;
-  margin-right: 15px !important;
+  background-size: 60px;
+  width: 60px;
+  height: 60px;
+  margin-right: 15px;
 }
 
 .PatientTeam-blocks {
-  padding-top: 15px !important;
+  padding-top: 15px;
 }
 
 .PatientTeam-memberContent {
@@ -181,14 +191,16 @@
   }
 }
 
+.PatientTeam.isEditing .PatientTeam-member .PatientTeam-icon--remove {
+  display: inline;
+}
+
 .PatientTeam-member {
   .input-group {
     margin-bottom: 0px;
 
 
-    .input-group-radios {
-      margin-bottom: 0px;
-      margin-top: 5px;
+    .input-group-checkbox-label {
       font-size: @font-size-small;
     }
 
@@ -202,4 +214,12 @@
   float: right;
   padding-top: 5px;
   color: red;
+}
+
+.PatientTeam-changePermissionsFormText {
+  margin-bottom: 20px;
+}
+
+.PatientTeam-changePermissionsFormInput {
+  font-size: @font-size-small;
 }
