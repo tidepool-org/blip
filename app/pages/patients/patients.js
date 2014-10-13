@@ -89,12 +89,7 @@ var Patients = React.createClass({
     );
     /* jshint ignore:end */
   },
-  renderPatients: function() {
-    if (this.isResettingPatientsData() || this.isResettingUserData()) {
-      return null;
-    }
-
-    var content;
+  getPatients: function() {
     var user = _.cloneDeep(this.props.user);
     var patients = _.clone(this.props.patients) || [];
 
@@ -104,6 +99,16 @@ var Patients = React.createClass({
       };
       patients.push(user);
     }
+
+    return patients;
+  },
+  renderPatients: function() {
+    if (this.isResettingPatientsData() || this.isResettingUserData()) {
+      return null;
+    }
+
+    var content;
+    var patients = this.getPatients();
 
     if (_.isEmpty(patients)) {
       /* jshint ignore:start */
@@ -131,7 +136,6 @@ var Patients = React.createClass({
     }
 
     var title = this.renderSectionTitle('View data for:');
-    var welcome = this.renderUserPatientWelcome();
     var addAccount = this.renderAddAccount();
 
     /* jshint ignore:start */
@@ -141,7 +145,6 @@ var Patients = React.createClass({
         <div className="patients-section-content">
           {addAccount}
           <div className='clear'></div>
-          {welcome}
           {content}
         </div>
       </div>
@@ -149,11 +152,14 @@ var Patients = React.createClass({
     /* jshint ignore:end */
   },
   renderAddAccount: function() {
-    if(personUtils.isPatient(this.props.user)) {
+    var patients = this.getPatients();
+
+    if(personUtils.isPatient(this.props.user) || _.isEmpty(patients)) {
       return null;
     }
 
     return (
+      /* jshint ignore:start */
       <a
         className="patients-new-account"
         href="#/patients/new"
@@ -161,8 +167,8 @@ var Patients = React.createClass({
         Add account
         <i className="icon-add"></i>
       </a>
+      /* jshint ignore:end */
     );
-    /* jshint ignore:end */
   },
   renderWelcomeTitle: function() {
     if (!this.props.showingWelcomeMessage) {
@@ -173,20 +179,6 @@ var Patients = React.createClass({
     return (
       <div className="patients-welcome-title">
         {'Welcome to Blip!'}
-      </div>
-    );
-    /* jshint ignore:end */
-  },
-  renderUserPatientWelcome: function() {
-    if (!this.props.showingWelcomeMessage) {
-      return null;
-    }
-
-    /* jshint ignore:start */
-    return (
-      <div className="patients-welcome-message">
-        {'Will you be uploading data from devices at home? If you are an adult with T1D or the'}
-        {' mom or dad of a child with T1D, then this is for you. Go ahead and…'}
       </div>
     );
     /* jshint ignore:end */
