@@ -18,7 +18,12 @@ var _ = require('lodash');
 var common = require('./common');
 var publicPersonInfo = common.publicPersonInfo;
 
+var invitationKeySize = 6;
 var invitationTokenSize = 12;
+
+function generateInvitationKey() {
+  return common.generateRandomId(invitationKeySize);
+}
 
 function generateInvitationToken() {
   return common.generateRandomId(invitationTokenSize);
@@ -33,7 +38,7 @@ var patch = function(mock, api) {
     return _.find(data.confirmations, function(confirmation) {
       var match = (
         confirmation.type === 'invite' &&
-        confirmation.invitedBy === options.from &&
+        confirmation.creatorId === options.from &&
         confirmation.status === 'pending'
       );
 
@@ -43,18 +48,20 @@ var patch = function(mock, api) {
       if (options.email) {
         match = match && confirmation.email === options.email;
       }
+      if (options.key) {
+        match = match && confirmation.key === options.key;
+      }
 
       return match;
     });
   }
 
-  function replaceInvitedByWithUser(invitation) {
-    var fromUserId = invitation.invitedBy;
-    var from = data.users[fromUserId];
-    from = _.cloneDeep(from);
-    from = publicPersonInfo(from);
-    return _.assign({}, _.omit(invitation, 'invitedBy'), {
-      from: from
+  function replaceCreatorIdWithUser(invitation) {
+    var creator = data.users[invitation.creatorId];
+    creator = _.cloneDeep(creator);
+    creator = publicPersonInfo(creator);
+    return _.assign({}, _.omit(invitation, 'creatorId'), {
+      creator: creator
     });
   }
 
@@ -73,16 +80,16 @@ var patch = function(mock, api) {
       });
 
       invitations = _.map(invitations, function(invitation) {
-        return _.pick(invitation, 'invitedBy', 'permissions');
+        return _.pick(invitation, 'key', 'creatorId', 'context');
       });
 
-      invitations = _.map(invitations, replaceInvitedByWithUser);
+      invitations = _.map(invitations, replaceCreatorIdWithUser);
 
       callback(null, invitations);
     }, getDelayFor('api.invitation.getReceived'));
   };
 
-  api.invitation.accept = function(fromUserId, callback) {
+  api.invitation.accept = function(key, fromUserId, callback) {
     api.log('[mock] POST /invitations/from/' + fromUserId + '/accept');
 
     setTimeout(function() {
@@ -90,7 +97,8 @@ var patch = function(mock, api) {
 
       var invitation = getPendingInvitation({
         from: fromUserId,
-        to: userId
+        to: userId,
+        key: key
       });
 
       if (!invitation) {
@@ -98,15 +106,15 @@ var patch = function(mock, api) {
         return callback(err);
       }
 
-      setPermissions(fromUserId, userId, invitation.permissions);
+      setPermissions(fromUserId, userId, invitation.context);
       // Note: we are mutating the object in the mock data here
-      invitation.status = 'confirmed';
+      invitation.status = 'completed';
 
       callback();
     }, getDelayFor('api.invitation.accept'));
   };
 
-  api.invitation.dismiss = function(fromUserId, callback) {
+  api.invitation.dismiss = function(key, fromUserId, callback) {
     api.log('[mock] POST /invitations/from/' + fromUserId + '/dismiss');
 
     setTimeout(function() {
@@ -114,7 +122,8 @@ var patch = function(mock, api) {
 
       var invitation = getPendingInvitation({
         from: fromUserId,
-        to: userId
+        to: userId,
+        key: key
       });
 
       if (!invitation) {
@@ -123,7 +132,7 @@ var patch = function(mock, api) {
       }
 
       // Note: we are mutating the object in the mock data here
-      invitation.status = 'dismissed';
+      invitation.status = 'declined';
 
       callback();
     }, getDelayFor('api.invitation.dismiss'));
@@ -136,13 +145,13 @@ var patch = function(mock, api) {
       var invitations = _.filter(data.confirmations, function(confirmation) {
         return (
           confirmation.type === 'invite' &&
-          confirmation.invitedBy === api.userId &&
+          confirmation.creatorId === api.userId &&
           confirmation.status === 'pending'
         );
       });
 
       invitations = _.map(invitations, function(invitation) {
-        return _.pick(invitation, 'email', 'permissions');
+        return _.pick(invitation, 'key', 'email', 'context');
       });
 
       callback(null, invitations);
@@ -159,7 +168,8 @@ var patch = function(mock, api) {
         return (
           confirmation.type === 'invite' &&
           confirmation.email === toEmail &&
-          confirmation.invitedBy === userId
+          confirmation.creatorId === userId &&
+          confirmation.status !== 'canceled'
         );
       });
 
@@ -169,11 +179,12 @@ var patch = function(mock, api) {
       }
 
       var invitation = {
+        key: generateInvitationKey(),
         type: 'invite',
         status: 'pending',
         email: toEmail,
-        invitedBy: userId,
-        permissions: permissions,
+        creatorId: userId,
+        context: permissions,
         token: generateInvitationToken()
       };
 
@@ -194,7 +205,7 @@ var patch = function(mock, api) {
 
       data.confirmations.push(invitation);
 
-      invitation = _.pick(invitation, 'email', 'permissions');
+      invitation = _.pick(invitation, 'key', 'email', 'context');
       callback(null, invitation);
     }, getDelayFor('api.invitation.send'));
   };
@@ -239,7 +250,7 @@ var patch = function(mock, api) {
         return callback(err);
       }
 
-      invitation = replaceInvitedByWithUser(invitation);
+      invitation = replaceCreatorIdWithUser(invitation);
       // If invitation was sent to existing user account, add user object
       if (invitation.userid) {
         var user = data.users[invitation.userid];
@@ -250,7 +261,7 @@ var patch = function(mock, api) {
         });
       }
 
-      invitation = _.pick(invitation, 'user', 'email', 'from', 'permissions');
+      invitation = _.pick(invitation, 'key', 'user', 'email', 'creator', 'context');
       callback(null, invitation);
     }, getDelayFor('api.invitation.getForToken'));
   };
