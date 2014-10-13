@@ -860,7 +860,7 @@ module.exports = function (config, deps) {
       assertArgumentsSize(arguments, 2);
       doGetWithToken(
         '/confirm/invite/'+inviterId,
-        { 200: function(res){ return res.body; }, 204: [] },
+        { 200: function(res){ return res.body; }, 404: [] },
         cb
       );
     },
@@ -899,10 +899,10 @@ module.exports = function (config, deps) {
             }, function(err, invites){
               return cb(null,invites);
             });
-          } else if (res.status === 204){
+          } else if (res.status === 404){
             return cb(null,[]);
           } else {
-            return cb(err,[]);
+            return cb(res.body,[]);
           }
         });
     },
@@ -959,7 +959,7 @@ module.exports = function (config, deps) {
       doPutWithToken(
         '/confirm/dismiss/invite/'+ inviteeId +'/'+ inviterId,
         {'key':inviteId},
-        { 204: null},
+        { 200: null},
         cb
       );
     },
@@ -1002,7 +1002,7 @@ module.exports = function (config, deps) {
           if (res.status === 200) {
             return cb(null,res.body);
           } else {
-            return cb(err,null);
+            return cb(res.body,null);
           }
         });
     }
