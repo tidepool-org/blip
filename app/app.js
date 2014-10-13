@@ -241,6 +241,7 @@ var AppComponent = React.createClass({
             fetchingUser={this.state.fetchingUser}
             patient={patient}
             fetchingPatient={this.state.fetchingPatient}
+            currentPage={this.state.page}
             getUploadUrl={getUploadUrl}
             onLogout={this.logout}
             trackMetric={trackMetric}/>
