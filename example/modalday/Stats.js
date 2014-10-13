@@ -23,9 +23,7 @@ d3.chart('Stats', {
     // TODO: pass in some kind of bgDomain or calculate domain from reducedData
     var yScale = d3.scale.linear().domain([40,300]);
 
-    var pieDataFn = d3.layout.pie().value(function(d) { return d.value; }).sort(function(a, b) {
-      return a.key < b.key;
-    });
+    var pieDataFn = d3.layout.pie().value(function(d) { return d.value; }).sort(null);
     var arcFn = d3.svg.arc().innerRadius(0);
 
     this.layer('basalBolusRatio', this.base.select('#basalBolusRatio'), {
@@ -73,7 +71,7 @@ d3.chart('Stats', {
           }];
         }
         return this.selectAll('tspan')
-          .data(data.ratio);
+          .data(_.sortBy(data.ratio, function(d) { return d.key; }));
       },
       insert: function() {
         return this.append('tspan')
@@ -636,12 +634,12 @@ d3.chart('Stats', {
     if (basal.totalTime/basal.nDays >= 864e5/2) {
       var totalInsulin = basal.totalInsulin + totalBolus;
       res.ratio.push({
-        key: 'basal',
-        value: basal.totalInsulin/totalInsulin
-      });
-      res.ratio.push({
         key: 'bolus',
         value: totalBolus/totalInsulin
+      });
+      res.ratio.push({
+        key: 'basal',
+        value: basal.totalInsulin/totalInsulin
       });
     }
     if (cbg.totalN/cbg.nDays >= 216/2) {
