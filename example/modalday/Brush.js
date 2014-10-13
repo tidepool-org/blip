@@ -90,15 +90,27 @@ d3.chart('Brush', {
         }
       }
       emitter.emit('brushed', [newExtent[0].toISOString(), newExtent[1].toISOString()]);
+      brushHandleGroup.selectAll('text')
+        .data(newExtent)
+        .attr({
+          x: function(d) {
+            return xScale(d);
+          }
+        })
+        .text(function(d) {
+          return d3.time.format.utc('%a, %b %-d')(d);
+        });
       d3.select(this).call(chart.brush.extent(newExtent));
     }
 
     var xScale = this.xScale();
     var initial = chart.initialExtent();
+
+    var extentDates = [Date.parse(initial[0]), Date.parse(initial[1])];
       
     this.brush = d3.svg.brush()
       .x(xScale)
-      .extent([Date.parse(initial[0]), Date.parse(initial[1])])
+      .extent(extentDates)
       .on('brush', brushed);
 
     var brushHandleGroup = this.base.append('g')
@@ -111,6 +123,35 @@ d3.chart('Brush', {
       .attr({
         height: this.height - mainMargins.top - mainMargins.bottom,
         transform: 'translate(0,' + mainMargins.top + ')'
+      })
+      .on('mouseover', function() {
+        brushHandleGroup.selectAll('text')
+          .classed('hidden', false);
+      })
+      .on('mouseout', function() {
+        brushHandleGroup.selectAll('text')
+          .classed('hidden', true);
+      });
+
+    brushHandleGroup.selectAll('text')
+      .data(extentDates)
+      .enter()
+      .append('text')
+      .attr({
+        x: function(d) {
+          return xScale(d);
+        },
+        y: this.height - mainMargins.bottom/2,
+        'class': function(d, i) {
+          if (i === 0) {
+            return 'left';
+          }
+          return 'right';
+        }
+      })
+      .classed('hidden', true)
+      .text(function(d) {
+        return d3.time.format.utc('%a, %b %-d')(new Date(d));
       });
   },
   reducedData: function(data) {
@@ -185,7 +226,7 @@ module.exports = {
       main: {
         top: 3,
         right: defaults.baseMargin,
-        bottom: defaults.baseMargin,
+        bottom: defaults.baseMargin + 15,
         left: 50 + defaults.baseMargin
       }
     };
@@ -203,7 +244,7 @@ module.exports = {
         width: el.offsetWidth,
         height: opts.brushHeight
       })
-      .chart('SMBGMean')
+      .chart('SMBGBox')
       .emitter(this.emitter)
       .initialExtent(opts.initialExtent)
       .margins(opts.margins)

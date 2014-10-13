@@ -168,4 +168,19 @@
     stroke: @brush;
     shape-rendering: crispEdges;
   }
+
+  text {
+    dominant-baseline: central;
+    fill: @brush;
+    font-size: 14px;
+    &.hidden {
+      visibility: hidden;
+    }
+    &.left {
+      text-anchor: end;
+    }
+    &.right {
+      text-anchor: start;
+    }
+  }
 }
