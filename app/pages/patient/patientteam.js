@@ -636,10 +636,16 @@ var PatientTeam = React.createClass({
     var pendingInvites = _.map(this.props.pendingInvites, this.renderPendingInvite);
     var invite = this.state && this.state.invite ? this.renderInviteForm() : this.renderInvite();
 
+    var emptyList = !(members || pendingInvites);
+    var listClass = cx({
+      'PatientTeam-list': true,
+      'PatientTeam-list--single': emptyList,
+    });
+
     return (
       <div className={classes}>
         {editControls}
-        <ul className="PatientTeam-list">
+        <ul className={listClass}>
           {members}
           {pendingInvites}
           {invite}

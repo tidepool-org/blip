@@ -149,9 +149,9 @@ var Patients = React.createClass({
     /* jshint ignore:end */
   },
   renderAddAccount: function() {
-    /*if(personUtils.isPatient(this.props.user)) {
+    if(personUtils.isPatient(this.props.user)) {
       return null;
-    }*/
+    }
 
     return (
       <a
