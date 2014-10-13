@@ -518,9 +518,9 @@ api.invitation.cancel = function(emailAddress, callback) {
   return tidepool.removeInvite(emailAddress, loggedInUser, callback);
 };
 
-api.invitation.getForToken = function(token, callback) {
-  api.log('GET /confirm/invitation/' + token);
-  callback(null, {});
+api.invitation.getForKey = function(key, callback) {
+  api.log('GET /confirm/invitation/' + key);
+  return tidepool.showInvite(key, callback);
 };
 
 // ----- Access -----
