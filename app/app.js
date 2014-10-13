@@ -817,64 +817,6 @@ var AppComponent = React.createClass({
   fetchInviteByToken: function(token) {
     var self = this;
 
-    this.setState({
-      invite: {
-        user: {
-          userid: "11",
-          profile: {
-            fullName: "Mary Smith",
-            patient: {
-              birthday: "1987-03-08",
-              diagnosisDate: "1994-02-01",
-              about: "Loves swimming and fishing. Owns a bakery in San Francisco. Favorite color is orange."
-            }
-          }
-        },
-        email: "demo",
-        from: {
-          userid: "51",
-          profile: {
-            fullName: "Elisabeth Strider",
-            birthday: "1985-03-21",
-            patient: {
-              diagnosisDate: "1994-01-28"
-            }
-          }
-        },
-        permissions: {
-          view: {}
-        }
-      },
-      fetchingInviteByToken: false
-    });
-
-    /*this.setState({
-      invite: {
-        email: "new.user@example.com",
-        from: {
-          userid: "51",
-          profile: {
-            fullName: "Elisabeth Strider",
-            birthday: "1985-03-21",
-            patient: {
-              diagnosisDate: "1994-01-28"
-            }
-          }
-        },
-        permissions: {
-          view: {}
-        }
-      },
-      fetchingInviteByToken: false
-    });*/
-    /*
-    this.setState({
-      inviteNotFound: true,
-      fetchingInviteByToken: false
-    });*/
-
-
-    return;
     app.api.invitation.getForToken(token, function(err, invite) {
       if (err.status && err.satus === 404) {
         self.setState({
