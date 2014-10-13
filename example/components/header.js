@@ -98,7 +98,7 @@ var TidelineHeader = React.createClass({
           <a href="#" className={mostRecentLinkClass} onClick={this.props.onClickMostRecent}><i className={this.props.iconMostRecent}/></a>
         </div>
         <div className="grid-item one-quarter">
-          <a className={settingsLinkClass} onClick={this.props.onClickSettings}>Device Settings</a>
+          <a className={settingsLinkClass} onClick={this.props.onClickSettings}>Device settings</a>
         </div>
       </div>
       );

@@ -54,10 +54,10 @@ var TidelineFooter = React.createClass({
     function getValuesLinkText(props) {
       if (props.chartType === 'weekly') {
         if (props.showingValues) {
-          return 'Hide Values';
+          return 'Hide values';
         }
         else {
-          return 'Show Values';
+          return 'Show values';
         }
       }
       else {
@@ -68,10 +68,10 @@ var TidelineFooter = React.createClass({
     function getLinesLinkText(props) {
       if (props.chartType === 'modal') {
         if (props.showingLines) {
-          return 'Hide Lines';
+          return 'Hide lines';
         }
         else {
-          return 'Show Lines';
+          return 'Show lines';
         }
       }
       else {
