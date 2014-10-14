@@ -320,27 +320,19 @@ var AppComponent = React.createClass({
 
     this.fetchInviteByToken(token);
 
-    if (this.state.inviteNotFound) {
-      this.setState({
-        errorMessage: 'This invitation doesn’t work.',
-        errorDescription: 'You need to ask the person who sent it to you to send you another invitation.'
-      });
-
-      this.showError();
-      return;
-    }
-
     if (this.state.authenticated) {
       router.setRoute('/');
       return;
     }
 
-    if (this.state.invite && this.state.invite.user) {
-      this.showLogin();
-      return;
-    }
+    if (this.state.invite) {
+      if(this.state.invite.user) {
+        this.showLogin();
+        return;
+      }
 
-    this.showSignup();
+      this.showSignup();
+    }
   },
 
   showError: function() {
@@ -822,23 +814,33 @@ var AppComponent = React.createClass({
   fetchInviteByToken: function(token) {
     var self = this;
 
-    app.api.invitation.getForToken(token, function(err, invite) {
-      if (err.status && err.status === 404) {
-        self.setState({
-          inviteNotFound: true,
-          fetchingInviteByToken: false
-        });
-      }
+    app.api.invitation.getForToken(token, function(err, data) {
+      self.setState({
+        fetchingInviteByToken: false
+      });
 
       if (err) {
-        self.setState({fetchingInviteByToken: false});
-        var message = 'An error occured while fetching invitation';
-        return self.handleApiError(err, message);
+        if(err.status && err.status === 404) {
+          self.setState({
+            errorMessage: 'This invitation doesn’t work.',
+            errorDescription: 'You need to ask the person who sent it to you to send you another invitation.'
+          });
+
+          self.showError();
+          return;
+        }
+
+        self.setState({
+          errorMessage: 'An error occured while fetching invitation.',
+          errorDescription: 'Refresh the page and try again.'
+        });
+
+        self.showError();
+        return;
       }
 
       self.setState({
-        invite: invite,
-        fetchingInviteByToken: false
+        invite: data
       });
     });
   },

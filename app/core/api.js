@@ -520,7 +520,7 @@ api.invitation.cancel = function(emailAddress, callback) {
 
 api.invitation.getForToken = function(token, callback) {
   api.log('GET /confirm/invitation/' + token);
-  callback(null, {});
+  return tidepool.showInvite(token, callback);
 };
 
 // ----- Access -----
