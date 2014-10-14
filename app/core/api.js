@@ -535,14 +535,14 @@ api.access.setMemberPermissions = function(memberId, permissions, callback) {
 
 api.access.removeMember = function(memberId, callback) {
   var groupId = tidepool.getUserId();
-  api.log('DELETE /access/' + groupId + '/' + memberId);
+  api.log('POST /access/' + groupId + '/' + memberId);
   return tidepool.setAccessPermissions(memberId, null, callback);
 };
 
 api.access.leaveGroup = function(groupId, callback) {
   var memberId = tidepool.getUserId();
-  api.log('DELETE /access/' + groupId + '/' + memberId);
-  return tidepool.setAccessPermissions(memberId, null, callback);
+  api.log('POST /access/' + groupId + '/' + memberId);
+  return tidepool.setAccessPermissionsOnGroup(groupId, memberId, null, callback);
 };
 
 // ----- Upload -----

@@ -19,14 +19,9 @@ var common = require('./common');
 var publicPersonInfo = common.publicPersonInfo;
 
 var invitationKeySize = 6;
-var invitationTokenSize = 12;
 
 function generateInvitationKey() {
   return common.generateRandomId(invitationKeySize);
-}
-
-function generateInvitationToken() {
-  return common.generateRandomId(invitationTokenSize);
 }
 
 var patch = function(mock, api) {
@@ -184,8 +179,7 @@ var patch = function(mock, api) {
         status: 'pending',
         email: toEmail,
         creatorId: userId,
-        context: permissions,
-        token: generateInvitationToken()
+        context: permissions
       };
 
       var existingUser = _.find(data.users, function(user, id) {
@@ -233,14 +227,14 @@ var patch = function(mock, api) {
     }, getDelayFor('api.invitation.cancel'));
   };
 
-  api.invitation.getForToken = function(token, callback) {
-    api.log('[mock] GET /invitations/token/' + token);
+  api.invitation.getForKey = function(key, callback) {
+    api.log('[mock] GET /invitations/key/' + key);
 
     setTimeout(function() {
       var invitation = _.find(data.confirmations, function(confirmation) {
         return (
           confirmation.type === 'invite' &&
-          confirmation.token === token &&
+          confirmation.key === key &&
           confirmation.status === 'pending'
         );
       });
@@ -251,19 +245,12 @@ var patch = function(mock, api) {
       }
 
       invitation = replaceCreatorIdWithUser(invitation);
-      // If invitation was sent to existing user account, add user object
-      if (invitation.userid) {
-        var user = data.users[invitation.userid];
-        user = _.cloneDeep(user);
-        user = publicPersonInfo(user);
-        invitation = _.assign({}, _.omit(invitation, 'userid'), {
-          user: user
-        });
-      }
+      // Return only minimum creator user information
+      invitation.creator.profile = _.pick(invitation.creator.profile, 'fullName');
 
-      invitation = _.pick(invitation, 'key', 'user', 'email', 'creator', 'context');
+      invitation = _.pick(invitation, 'key', 'email', 'creator', 'context');
       callback(null, invitation);
-    }, getDelayFor('api.invitation.getForToken'));
+    }, getDelayFor('api.invitation.getForKey'));
   };
 
   return api;
