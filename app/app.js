@@ -823,7 +823,7 @@ var AppComponent = React.createClass({
     var self = this;
 
     app.api.invitation.getForToken(token, function(err, invite) {
-      if (err.status && err.satus === 404) {
+      if (err.status && err.status === 404) {
         self.setState({
           inviteNotFound: true,
           fetchingInviteByToken: false
