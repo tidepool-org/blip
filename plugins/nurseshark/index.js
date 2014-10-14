@@ -63,12 +63,26 @@ function basalSchedulesToArray(basalSchedules) {
   return standard.concat(schedules);
 }
 
-// TODO: remove after we've got tideline using timezone-aware timestamps
-function watson(d) {
-  d.normalTime = d.deviceTime + '.000Z';
-  if (d.type === 'basal') {
-    d.normalEnd = dt.addDuration(d.normalTime, d.duration);
+function makeWatsonFn(timezoneAware) {
+  var MS_IN_MIN = 60000;
+  if (timezoneAware) {
+    return function(d) {
+      d.normalTime = d.time;
+      if (d.type === 'basal') {
+        d.normalEnd = dt.addDuration(d.time, d.duration);
+      }
+    };
   }
+  return function(d) {
+    d.normalTime = dt.addDuration(d.time, d.timezoneOffset * MS_IN_MIN);
+    if (d.deviceTime && d.normalTime.slice(0, -5) !== d.deviceTime) {
+      var err = new Error('Combining `time` and `timezoneOffset` does not yield `deviceTime`.');
+      d.errorMessage = err.message;
+    }
+    if (d.type === 'basal') {
+      d.normalEnd = dt.addDuration(d.normalTime, d.duration);
+    }
+  };
 }
 
 function cloneDeep(d) {
@@ -146,7 +160,7 @@ var nurseshark = {
       }
     }
   },
-  reshapeMessage: function(d) {
+  reshapeMessage: function(d, timezoneAware) {
     var tidelineMessage = {
       time: d.timestamp,
       messageText: d.messagetext,
@@ -154,14 +168,18 @@ var nurseshark = {
       type: 'message',
       id: d.id
     };
-    // TODO: remove after we've got tideline using timezone-aware timestamps
-    var dt = new Date(tidelineMessage.time);
-    var offsetMinutes = dt.getTimezoneOffset();
-    dt.setUTCMinutes(dt.getUTCMinutes() - offsetMinutes);
-    tidelineMessage.normalTime = dt.toISOString();
+    if (timezoneAware) {
+      tidelineMessage.normalTime = tidelineMessage.time;
+    }
+    else {
+      var dt = new Date(tidelineMessage.time);
+      var offsetMinutes = dt.getTimezoneOffset();
+      dt.setUTCMinutes(dt.getUTCMinutes() - offsetMinutes);
+      tidelineMessage.normalTime = dt.toISOString();
+    }
     return tidelineMessage;
   },
-  processData: function(data) {
+  processData: function(data, timezoneAware) {
     if (!(data && data.length >= 0 && Array.isArray(data))) {
       throw new Error('An array is required.');
     }
@@ -214,7 +232,7 @@ var nurseshark = {
 
     timeIt(removeOverlapping, 'removeOverlapping');
 
-    var handlers = getHandlers();
+    var handlers = getHandlers(timezoneAware);
 
     function addNoHandlerMessage(d) {
       d = cloneDeep(d);
@@ -335,8 +353,10 @@ var nurseshark = {
   }
 };
 
-function getHandlers() {
+function getHandlers(timezoneAware) {
   var lastEnd, lastBasal;
+
+  var watson = makeWatsonFn(timezoneAware);
 
   return {
     basal: function(d) {
@@ -403,7 +423,7 @@ function getHandlers() {
       return d;
     },
     message: function(d) {
-      return nurseshark.reshapeMessage(d);
+      return nurseshark.reshapeMessage(d, timezoneAware);
     },
     smbg: function(d) {
       d = cloneDeep(d);
@@ -446,7 +466,6 @@ function getHandlers() {
         }
       }
       // a suppressed should share these attributes with its parent
-      d.suppressed.deviceTime = d.deviceTime;
       d.suppressed.duration = d.duration;
       d.suppressed.time = d.time;
       watson(d.suppressed);
