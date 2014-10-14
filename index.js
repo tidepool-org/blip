@@ -661,6 +661,23 @@ module.exports = function (config, deps) {
       );
     },
     /**
+     * Sets the access permissions for a specific user on the given group
+     *
+     * @param groupId - the groupId we are setting user permissions on
+     * @param userId - userId to have access permissions set for
+     * @param permissions - permissions to set
+     * @param cb - function(err, perms), called with error if exists and permissions as updated
+     */
+    setAccessPermissionsOnGroup: function(groupId, userId, permissions, cb) {
+      assertArgumentsSize(arguments, 4);
+
+      doPostWithToken(
+        '/access/' + groupId + '/' + userId,
+        permissions,
+        cb
+      );
+    },
+    /**
      * Get the access permissions for the currently logged in user
      *
      * @param cb - function(err, perms), called with error if exists and permissions as found
