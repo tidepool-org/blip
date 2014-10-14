@@ -608,18 +608,5 @@ describe('platform client', function () {
         });
       });
     });
-    it('we can show an invite we have the key for', function(done){
-      pwdClient.inviteUser(a_Member.emails[0], {view: {}}, a_PWD.id, function(err, invite) {
-        //might be dup but just ensure we have an invite to dismiss
-        memberClient.invitesReceived(a_Member.id, function(err, received) {
-          memberClient.showInvite(received[0].key, function(err,invite){
-            expect(err).to.not.exist;
-            expect(invite).to.not.be.empty;
-            expect(invite).to.have.keys('key', 'type', 'email','context','creator','created');
-            done();
-          });
-        });
-      });
-    });
   });
 });
