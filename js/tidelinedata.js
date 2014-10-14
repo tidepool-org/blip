@@ -138,8 +138,7 @@ function TidelineData(data, opts) {
   };
 
   this.editDatum = function(datum, timeKey) {
-    this.dataById.filter(datum.id);
-    var newDatum = this.filterData.getOne(this.dataById);
+    var newDatum = this.dataById.filter(datum.id).top(Infinity);
     // because some timestamps are deviceTime, some are utcTime
     newDatum[timeKey] = datum[timeKey];
     // everything has normalTime

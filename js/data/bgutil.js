@@ -67,17 +67,25 @@ function BGUtil(data, opts) {
 
   this.filtered = function(s, e) {
     if (!currentData) {
-      currentData = filterData.getAll(dataByDate);
+      currentData = dataByDate.top(Infinity).reverse();
     }
-    var start = new Date(s).toISOString(), end = new Date(e).toISOString();
+    var start, end;
+    if (typeof(s) === 'number') {
+      start = new Date(s).toISOString();
+      end = new Date(e).toISOString();
+    }
+    else {
+      start = s;
+      end = e;
+    }
     dataByDate.filter([start, end]);
     var filteredObj = {
       data: dataByDate.top(Infinity).reverse(),
       excluded: []
     };
     var filtered = filteredObj.data;
-    if (filtered.length < this.threshold(s, e)) {
-      filteredObj.excluded.push(new Date(s).toISOString());
+    if (filtered.length < this.threshold(start, end)) {
+      filteredObj.excluded.push(s);
       filteredObj.data = [];
       return filteredObj;
     }

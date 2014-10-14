@@ -21,7 +21,8 @@ var chai = require('chai');
 var assert = chai.assert;
 var expect = chai.expect;
 
-var TidelineCrossFilter = require('../../js/data/util/tidelinecrossfilter');
+var crossfilter = require('crossfilter');
+
 var types = require('../../dev/testpage/types');
 
 var TidelineData = require('../../js/tidelinedata');
@@ -47,9 +48,8 @@ describe('TidelineData', function() {
     assert.isArray(td.data);
   });
 
-  it('should have a `filterData` attribute that is a TidelineCrossFilter', function() {
+  it('should have a `filterData` attribute that is a crossfilter object', function() {
     assert.isObject(td.filterData);
-    expect(td.filterData).to.be.an.instanceOf(TidelineCrossFilter);
   });
 
   it('should have `bgClasses` and `bgUnits` properties', function() {
@@ -156,9 +156,9 @@ describe('TidelineData', function() {
       expect(toEdit.grouped.message.length).to.equal(messageLen);
     });
 
-    it('should mutate the original datum', function() {
+    it('should not mutate the original datum', function() {
       expect(origMessage).to.not.eql(editedMessage);
-      expect(message).to.eql(editedMessage);
+      expect(message).to.not.eql(editedMessage);
     });
   });
 
