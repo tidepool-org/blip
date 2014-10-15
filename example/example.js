@@ -55,7 +55,8 @@ var Example = React.createClass({
       },
       datetimeLocation: null,
       initialDatetimeLocation: null,
-      chartType: 'empty'
+      chartType: 'empty',
+      timezoneAware: true
     };
   },
   render: function() {
@@ -136,13 +137,13 @@ var Example = React.createClass({
     // i.e., real data exported from current blip
     if (dataUrl !== 'data/device-data.json') {
       console.time('Nurseshark');
-      data = nurseshark.processData(data).processedData;
+      data = nurseshark.processData(data, this.state.timezoneAware).processedData;
       console.timeEnd('Nurseshark');
     }
     this.updateData(data);
   },
   updateData: function(data) {
-    var tidelineData = new TidelineData(data);
+    var tidelineData = new TidelineData(data, {timezoneAware: this.state.timezoneAware});
     window.tidelineData = tidelineData;
     this.setState({
       chartData: tidelineData,

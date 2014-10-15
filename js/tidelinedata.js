@@ -67,11 +67,14 @@ function TidelineData(data, opts) {
       'settings',
       'smbg',
       'wizard'
-    ]
+    ],
+    timezoneAware: false
   };
 
   _.defaults(opts, defaults);
   var that = this;
+
+  var MS_IN_MIN = 60000;
 
   function checkRequired() {
     console.time('checkRequired');
@@ -152,23 +155,48 @@ function TidelineData(data, opts) {
     return this;
   };
 
+  function getOffset(d) {
+    for (var i = 0; i < that.offsetIntervals.length; ++i) {
+      var interval = that.offsetIntervals[i];
+      if (d > interval.start && d <= interval.end) {
+        return interval.offset;
+      }
+      else if (d <= that.offsetIntervals[0].start) {
+        return that.offsetIntervals[0].offset;
+      }
+      else if (d > that.offsetIntervals[that.offsetIntervals.length - 1].end) {
+        return that.offsetIntervals[that.offsetIntervals.length - 1].offset;
+      }
+    }
+  }
+
   function fillDataFromInterval(first, last) {
     console.time('fillDataFromInterval');
-    var data = [];
-    var points = d3.time.hour.utc.range(first, last, opts.fillOpts.duration);
+    var fillData = [], points = d3.time.hour.utc.range(first, last);
     for (var i = 0; i < points.length; ++i) {
-      if (i !== points.length - 1) {
-        data.push({
-          fillColor: opts.fillOpts.classes[points[i].getUTCHours()],
+      var point = points[i], offset = null;
+      var hoursClassifier;
+      if (opts.timezoneAware) {
+        offset = getOffset(point.toISOString());
+        var localTime = dt.addDuration(point, getOffset(point.toISOString()) * MS_IN_MIN);
+        hoursClassifier = new Date(localTime).getUTCHours();
+      }
+      else {
+        hoursClassifier = point.getUTCHours();
+      }
+      if (opts.fillOpts.classes[hoursClassifier] != null) {
+        fillData.push({
+          fillColor: opts.fillOpts.classes[hoursClassifier],
           id: 'fill_' + points[i].toISOString().replace(/[^\w\s]|_/g, ''),
-          normalEnd: points[i + 1].toISOString(),
+          normalEnd: d3.time.hour.utc.offset(points[i], 3).toISOString(),
           normalTime: points[i].toISOString(),
-          type: 'fill'
+          type: 'fill',
+          timezoneOffset: parseInt(offset, 10)
         });
       }
     }
     console.timeEnd('fillDataFromInterval');
-    return data;
+    return fillData;
   }
 
   function getTwoWeekFillEndpoints() {
@@ -195,9 +223,9 @@ function TidelineData(data, opts) {
     // if that's the last datum in the data
     var lastTimestamp = lastDatum.normalEnd || lastDatum.normalTime;
     var first = new Date(data[0].normalTime), last = new Date(lastTimestamp);
-    // make sure we encapsulate the domain completely by padding the start and end with twice the duration
-    first.setUTCHours(first.getUTCHours() - first.getUTCHours() % opts.fillOpts.duration - (opts.fillOpts.duration * 2));
-    last.setUTCHours(last.getUTCHours() + last.getUTCHours() % opts.fillOpts.duration + (opts.fillOpts.duration * 2));
+    // make sure we encapsulate the domain completely
+    first = d3.time.day.utc.floor(first);
+    last = d3.time.day.utc.ceil(last);
     this.grouped.fill = fillDataFromInterval(first, last);
     console.timeEnd('generateFillData');
     return this;
@@ -351,6 +379,20 @@ function TidelineData(data, opts) {
       return d.normalTime;
     });
 
+    if (opts.timezoneAware) {
+      var offsets = _.groupBy(data, function(d) { return d.timezoneOffset; });
+      this.offsetIntervals = [];
+      for (var offset in offsets) {
+        if (offset !== 'undefined') {
+          var set = offsets[offset];
+          this.offsetIntervals.push({
+            start: d3.time.hour.utc.floor(new Date(set[0].normalTime)).toISOString(),
+            end: d3.time.hour.utc.ceil(new Date(set[set.length - 1].normalTime)).toISOString(),
+            offset: offset
+          });
+        }
+      }
+    }
     this.generateFillData().adjustFillsForTwoWeekView();
     this.data = _.sortBy(this.data.concat(this.grouped.fill), function(d) { return d.normalTime; });
   }
