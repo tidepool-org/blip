@@ -119,12 +119,19 @@ var format = {
     return d3.time.format.utc('%-I:%M %p')(d).toLowerCase();
   },
 
-  xAxisDayText: function(i) {
+  xAxisDayText: function(i, offset) {
+    if (offset) {
+      i = new Date(i);
+      i.setUTCMinutes(i.getUTCMinutes() + offset);
+    }
     return moment(i).utc().format('dddd, MMMM Do');
   },
 
-  xAxisTickText: function(i) {
+  xAxisTickText: function(i, offset) {
     var d = new Date(i);
+    if (offset) {
+      d.setUTCMinutes(d.getUTCMinutes() + offset);
+    }
     return d3.time.format.utc('%-I %p')(d).toLowerCase();
   }
 

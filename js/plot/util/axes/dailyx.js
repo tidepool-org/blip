@@ -96,7 +96,7 @@ module.exports = function(pool, opts) {
           y: pool.height() - opts.textShiftY
         })
         .text(function(d) {
-          return format.xAxisTickText(d.normalTime);
+          return format.xAxisTickText(d.normalTime, d.timezoneOffset);
         });
 
       tickGroups.filter(function(d) {
