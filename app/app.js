@@ -319,10 +319,13 @@ var AppComponent = React.createClass({
   },
 
   renderLogin: function() {
+    var inviteEmail = utils.validateEmail(this.state.queryParams.inviteEmail) && this.state.queryParams.inviteEmail;
+
     return (
       /* jshint ignore:start */
       <Login
         onSubmit={this.login}
+        inviteEmail={inviteEmail}
         onSubmitSuccess={this.handleLoginSuccess}
         trackMetric={trackMetric} />
       /* jshint ignore:end */
@@ -335,10 +338,13 @@ var AppComponent = React.createClass({
   },
 
   renderSignup: function() {
+    var inviteEmail = utils.validateEmail(this.state.queryParams.inviteEmail) && this.state.queryParams.inviteEmail;
+
     return (
       /* jshint ignore:start */
       <Signup
         onSubmit={this.signup}
+        inviteEmail={inviteEmail}
         onSubmitSuccess={this.handleSignupSuccess}
         trackMetric={trackMetric} />
       /* jshint ignore:end */
