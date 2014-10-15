@@ -87,7 +87,7 @@ var Login = React.createClass({
 
     return (
       <div className='login-inviteIntro'>
-        <p>{'Someone has invited you to thier care team.'}</p><p>{'Login to view the invitation.'}</p>
+        <p>{'Someone has invited you to their Care Team.'}</p><p>{'Log in to view the invitation.'}</p>
       </div>
     );
   },
