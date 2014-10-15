@@ -73,6 +73,7 @@ var Daily = React.createClass({
             hiddenPools={this.props.chartPrefs.hiddenPools}
             initialDatetimeLocation={this.props.initialDatetimeLocation}
             patientData={this.props.patientData}
+            timezoneAware={this.props.chartPrefs.timezoneAware}
             // handlers
             onDatetimeLocationChange={this.handleDatetimeLocationChange}
             onHideBasalSettings={this.handleHideBasalSettings}
@@ -154,7 +155,7 @@ var Daily = React.createClass({
 });
 
 var DailyChart = React.createClass({
-  chartOpts: ['bgClasses', 'bgUnits', 'hiddenPools'],
+  chartOpts: ['bgClasses', 'bgUnits', 'hiddenPools', 'timezoneAware'],
   log: bows('Daily Chart'),
   propTypes: {
     bgClasses: React.PropTypes.object.isRequired,
@@ -162,6 +163,7 @@ var DailyChart = React.createClass({
     hiddenPools: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
+    timezoneAware: React.PropTypes.bool.isRequired,
     // handlers
     onDatetimeLocationChange: React.PropTypes.func.isRequired,
     onHideBasalSettings: React.PropTypes.func.isRequired,

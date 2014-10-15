@@ -29,6 +29,7 @@ module.exports = function(pool, opts) {
     opacity: 0.3,
     opacityDelta: 0.1,
     pathStroke: 1.5,
+    timezoneAware: false,
     tooltipPadding: 20
   };
 
@@ -267,9 +268,9 @@ module.exports = function(pool, opts) {
       .append('span')
       .attr('class', 'secondary')
       .html('<span class="fromto">from</span> ' +
-        format.timestamp(datum.normalTime) +
+        format.timestamp(datum.normalTime, opts.timezoneAware ? datum.timezoneOffset : null) +
         ' <span class="fromto">to</span> ' +
-        format.timestamp(datum.normalEnd));
+        format.timestamp(datum.normalEnd, opts.timezoneAware ? datum.timezoneOffset : null));
   };
 
   basal.addTooltip = function(d) {

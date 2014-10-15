@@ -114,8 +114,12 @@ var format = {
     }
   },
 
-  timestamp: function(i) {
+  timestamp: function(i, timezoneOffset) {
     var d = new Date(i);
+    if (timezoneOffset) {
+      console.log('Hi there :D');
+      d.setUTCMinutes(d.getUTCMinutes() + timezoneOffset);
+    }
     return d3.time.format.utc('%-I:%M %p')(d).toLowerCase();
   },
 

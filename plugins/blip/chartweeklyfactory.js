@@ -30,7 +30,8 @@ function chartWeeklyFactory(el, options) {
   var log = bows('Weekly Factory');
   options = options || {};
   var defaults = {
-    'bgUnits': 'mg/dL'
+    bgUnits: 'mg/dL',
+    timezoneAware: false
   };
   _.defaults(options, defaults);
 
@@ -111,7 +112,12 @@ function chartWeeklyFactory(el, options) {
       .domain(fillEndpoints)
       .range([chart.axisGutter() + chart.dataGutter(), chart.width() - chart.navGutter() - chart.dataGutter()]);
 
-    smbgTime = new tideline.plot.SMBGTime({emitter: emitter, bgUnits: chart.options.bgUnits, classes: chart.options.bgClasses});
+    smbgTime = new tideline.plot.SMBGTime({
+      emitter: emitter,
+      bgUnits: chart.options.bgUnits,
+      classes: chart.options.bgClasses,
+      timezoneAware: chart.options.timezoneAware
+    });
 
     chart.pools().forEach(function(pool, i) {
       var d = new Date(pool.id().replace('poolBG_', ''));

@@ -35,6 +35,7 @@ module.exports = function(pool, opts) {
     bolusStroke: 2,
     triangleSize: 6,
     carbPadding: 4,
+    timezoneAware: false,
     tooltipHeightAddition: 3,
     tooltipPadding: 20
   };
@@ -395,7 +396,7 @@ module.exports = function(pool, opts) {
         // timestamp goes in title
         title.append('p')
           .attr('class', 'timestamp left')
-          .html(format.timestamp(bolus.normalTime));
+          .html(format.timestamp(bolus.normalTime, opts.timezoneAware ? bolus.timezoneOffset : null));
         // interrupted boluses get priority on special headline
         if (commonbolus.getProgrammed(d) !== commonbolus.getDelivered(d)) {
           title.append('p')

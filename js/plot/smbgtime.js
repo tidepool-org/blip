@@ -41,6 +41,7 @@ function SMBGTime (opts) {
     },
     size: 16,
     rectWidth: 32,
+    timezoneAware: false,
     tooltipPadding: 20
   };
 
@@ -227,7 +228,7 @@ function SMBGTime (opts) {
     group.append('p')
       .append('span')
       .attr('class', 'secondary')
-      .html('<span class="fromto">at</span> ' + format.timestamp(datum.normalTime));
+      .html('<span class="fromto">at</span> ' + format.timestamp(datum.normalTime, opts.timezoneAware ? datum.timezoneOffset : null));
     group.append('p')
       .attr('class', 'value')
       .append('span')

@@ -37,6 +37,7 @@ module.exports = function(pool, opts) {
       'very-high': {boundary: 300}
     },
     size: 16,
+    timezoneAware: false,
     tooltipPadding: 20
   };
 
@@ -115,7 +116,7 @@ module.exports = function(pool, opts) {
     group.append('p')
       .append('span')
       .attr('class', 'secondary')
-      .html('<span class="fromto">at</span> ' + format.timestamp(datum.normalTime));
+      .html('<span class="fromto">at</span> ' + format.timestamp(datum.normalTime, opts.timezoneAware ? datum.timezoneOffset : null));
     group.append('p')
       .attr('class', 'value')
       .append('span')

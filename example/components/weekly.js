@@ -77,6 +77,7 @@ var Weekly = React.createClass({
             bgUnits={this.props.bgPrefs.bgUnits}
             initialDatetimeLocation={this.props.initialDatetimeLocation}
             patientData={this.props.patientData}
+            timezoneAware={this.props.chartPrefs.timezoneAware}
             // handlers
             onDatetimeLocationChange={this.handleDatetimeLocationChange}
             onMostRecent={this.handleMostRecent}
@@ -150,13 +151,14 @@ var Weekly = React.createClass({
 });
 
 var WeeklyChart = React.createClass({
-  chartOpts: ['bgClasses', 'bgUnits'],
+  chartOpts: ['bgClasses', 'bgUnits', 'timezoneAware'],
   log: bows('Weekly Chart'),
   propTypes: {
     bgClasses: React.PropTypes.object.isRequired,
     bgUnits: React.PropTypes.string.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
+    timezoneAware: React.PropTypes.bool.isRequired,
     // handlers
     onDatetimeLocationChange: React.PropTypes.func.isRequired,
     onMostRecent: React.PropTypes.func.isRequired,
