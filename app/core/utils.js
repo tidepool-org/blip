@@ -51,10 +51,20 @@ utils.getIn = function(obj, props, notFound) {
   return result.child;
 };
 
+// concat([1, 2], 3, [4, 5]) -> [1, 2, 3, 4, 5]
+utils.concat = function() {
+  var args = Array.prototype.slice.call(arguments, 0);
+  return Array.prototype.concat.apply([], args);
+};
+
 utils.isChrome = function() {
   return navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
 };
 
+utils.validateEmail = function(email) {
+  var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(email);
+};
 // from http://bgrins.github.io/devtools-snippets/#console-save
 // MIT license
 (function(console){
