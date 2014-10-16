@@ -90,6 +90,9 @@ var Daily = React.createClass({
     /* jshint ignore:end */
   },
   getTitle: function(datetime) {
+    if (this.props.chartPrefs.timePrefs.timezoneAware) {
+      return moment(datetime).tz(this.props.chartPrefs.timePrefs.timezoneName).format('dddd, MMMM Do');
+    }
     return moment(datetime).utc().format('dddd, MMMM Do');
   },
   // handlers

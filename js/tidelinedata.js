@@ -70,7 +70,7 @@ function TidelineData(data, opts) {
     ],
     timePrefs: {
       timezoneAware: false,
-      timezoneName: 'US/Pacific'
+      timezoneName: 'Pacific/Auckland'
     }
   };
 
@@ -182,8 +182,8 @@ function TidelineData(data, opts) {
       var point = points[i], offset = null;
       var hoursClassifier, localTime;
       if (opts.timePrefs.timezoneAware) {
-        offset = dt.getOffset(point, opts.timePrefs.timezoneName);
-        localTime = dt.addDuration(point, -offset * MS_IN_MIN);
+        offset = -dt.getOffset(point, opts.timePrefs.timezoneName);
+        localTime = dt.applyOffset(point, offset);
         hoursClassifier = new Date(localTime).getUTCHours();
       }
       else {
@@ -192,12 +192,12 @@ function TidelineData(data, opts) {
       if (opts.fillOpts.classes[hoursClassifier] != null) {
         fillData.push({
           fillColor: opts.fillOpts.classes[hoursClassifier],
-          fillDate: localTime? localTime.slice(0,10) : points[i].toISOString().slice(0,10),
+          fillDate: localTime ? localTime.slice(0,10) : points[i].toISOString().slice(0,10),
           id: 'fill_' + points[i].toISOString().replace(/[^\w\s]|_/g, ''),
           normalEnd: d3.time.hour.utc.offset(point, 3).toISOString(),
           normalTime: points[i].toISOString(),
           type: 'fill',
-          timezoneOffset: -offset,
+          displayOffset: offset,
           twoWeekX: hoursClassifier * 864e5/24
         });
       }
@@ -222,8 +222,17 @@ function TidelineData(data, opts) {
     }
     var endpoints;
     if (opts.timePrefs.timezoneAware) {
-      first = dt.addDuration(dt.getMidnight(first), dt.getOffset(first, opts.timePrefs.timezoneName) * MS_IN_MIN);
-      last = dt.addDuration(dt.getMidnight(last, true), dt.getOffset(first, opts.timePrefs.timezoneName) * MS_IN_MIN);
+      first = dt.applyOffset(dt.getMidnight(first), dt.getOffset(first, opts.timePrefs.timezoneName));
+      var lastOffset = dt.getOffset(last, opts.timePrefs.timezoneName);
+      last = dt.applyOffset(dt.getMidnight(last, true), lastOffset);
+      // TODO: possibly remove this
+      // it is intended to catch timezones on the other side of the dateline
+      // I think that makes sense to fix the issue found here
+      // (not generating fill for the last day of data when choosing e.g., New Zealand time)
+      // but I haven't fully convinced myself...
+      if (Math.abs(lastOffset) >= 720) {
+        last = dt.addDays(last, 1);
+      }
       endpoints = [first, last];
     }
     else {

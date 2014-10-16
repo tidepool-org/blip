@@ -188,7 +188,7 @@ function SMBGTime (opts) {
   this.xPosition = function(d) {
     var t = d.normalTime;
     if (opts.timePrefs.timezoneAware) {
-      t = dt.applyOffset(d.normalTime, d.timezoneOffset);
+      t = dt.applyOffset(d.normalTime, d.displayOffset);
     }
     return opts.xScale(dt.getMsFromMidnight(t));
   };
@@ -229,8 +229,9 @@ function SMBGTime (opts) {
     group.append('p')
       .append('span')
       .attr('class', 'secondary')
-      .html('<span class="fromto">at</span> ' + format.timestamp(datum.normalTime, opts.timePrefs.timezoneAware ? datum.timezoneOffset : null));
+      .html('<span class="fromto">at</span> ' + format.timestamp(datum.normalTime, opts.timePrefs.timezoneAware ? datum.displayOffset : null));
     group.append('p')
+
       .attr('class', 'value')
       .append('span')
       .html(format.tooltipBG(datum, opts.bgUnits));

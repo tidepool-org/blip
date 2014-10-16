@@ -140,7 +140,7 @@ var Example = React.createClass({
     // i.e., real data exported from current blip
     if (dataUrl !== 'data/device-data.json') {
       console.time('Nurseshark');
-      data = nurseshark.processData(data, this.state.chartPrefs.timePrefs.timezoneAware).processedData;
+      data = nurseshark.processData(data, this.state.chartPrefs.timePrefs).processedData;
       console.timeEnd('Nurseshark');
     }
     this.updateData(data);

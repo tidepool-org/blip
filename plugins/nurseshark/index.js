@@ -63,11 +63,12 @@ function basalSchedulesToArray(basalSchedules) {
   return standard.concat(schedules);
 }
 
-function makeWatsonFn(timezoneAware) {
+function makeWatsonFn(timePrefs) {
   var MS_IN_MIN = 60000;
-  if (timezoneAware) {
+  if (timePrefs.timezoneAware) {
     return function(d) {
       d.normalTime = d.time;
+      d.displayOffset = -dt.getOffset(d.time, timePrefs.timezoneName);
       if (d.type === 'basal') {
         d.normalEnd = dt.addDuration(d.time, d.duration);
       }
@@ -179,7 +180,7 @@ var nurseshark = {
     }
     return tidelineMessage;
   },
-  processData: function(data, timezoneAware) {
+  processData: function(data, timePrefs) {
     if (!(data && data.length >= 0 && Array.isArray(data))) {
       throw new Error('An array is required.');
     }
@@ -232,7 +233,7 @@ var nurseshark = {
 
     timeIt(removeOverlapping, 'removeOverlapping');
 
-    var handlers = getHandlers(timezoneAware);
+    var handlers = getHandlers(timePrefs);
 
     function addNoHandlerMessage(d) {
       d = cloneDeep(d);
@@ -353,10 +354,10 @@ var nurseshark = {
   }
 };
 
-function getHandlers(timezoneAware) {
+function getHandlers(timePrefs) {
   var lastEnd, lastBasal;
 
-  var watson = makeWatsonFn(timezoneAware);
+  var watson = makeWatsonFn(timePrefs);
 
   return {
     basal: function(d) {
@@ -423,7 +424,7 @@ function getHandlers(timezoneAware) {
       return d;
     },
     message: function(d) {
-      return nurseshark.reshapeMessage(d, timezoneAware);
+      return nurseshark.reshapeMessage(d, timePrefs.timezoneAware);
     },
     smbg: function(d) {
       d = cloneDeep(d);

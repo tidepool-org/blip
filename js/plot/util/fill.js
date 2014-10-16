@@ -59,6 +59,7 @@ module.exports = function(pool, opts) {
           return d.id;
         });
 
+
       fills.enter()
         .append('rect')
         .attr({

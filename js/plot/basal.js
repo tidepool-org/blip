@@ -268,9 +268,9 @@ module.exports = function(pool, opts) {
       .append('span')
       .attr('class', 'secondary')
       .html('<span class="fromto">from</span> ' +
-        format.timestamp(datum.normalTime, opts.timezoneAware ? datum.timezoneOffset : null) +
+        format.timestamp(datum.normalTime, opts.timezoneAware ? datum.displayOffset : null) +
         ' <span class="fromto">to</span> ' +
-        format.timestamp(datum.normalEnd, opts.timezoneAware ? datum.timezoneOffset : null));
+        format.timestamp(datum.normalEnd, opts.timezoneAware ? datum.displayOffset : null));
   };
 
   basal.addTooltip = function(d) {

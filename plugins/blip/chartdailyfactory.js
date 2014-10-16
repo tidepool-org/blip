@@ -246,7 +246,8 @@ function chartDailyFactory(el, options) {
     poolXAxis.addPlotType('fill', tideline.plot.util.axes.dailyx(poolXAxis, {
       'class': 'd3-top',
       emitter: emitter,
-      leftEdge: chart.axisGutter()
+      leftEdge: chart.axisGutter(),
+      timePrefs: chart.options.timePrefs
     }), true, true);
 
     // BG pool

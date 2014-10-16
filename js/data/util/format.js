@@ -114,10 +114,10 @@ var format = {
     }
   },
 
-  timestamp: function(i, timezoneOffset) {
+  timestamp: function(i, offset) {
     var d = new Date(i);
-    if (timezoneOffset) {
-      d.setUTCMinutes(d.getUTCMinutes() + timezoneOffset);
+    if (offset) {
+      d.setUTCMinutes(d.getUTCMinutes() + offset);
     }
     return d3.time.format.utc('%-I:%M %p')(d).toLowerCase();
   },

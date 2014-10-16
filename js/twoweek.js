@@ -719,23 +719,20 @@ module.exports = function(emitter) {
 
     data = a;
 
-    var first;
     var last;
     if (!(data && data.length)) {
       last = new Date();
       if (viewEndDate) {
         last = new Date(viewEndDate);
       }
-      first = new Date(last);
-      first.setUTCDate(first.getUTCDate() - 28);
     }
     else {
-      first = new Date(data[0].normalTime);
-      last = new Date(data[data.length - 1].normalTime);
+      var lastDatum = data[data.length - 1];
+      last = new Date(lastDatum.normalTime);
+      if (timezoneAware) {
+        last = new Date(dt.applyOffset(last, lastDatum.displayOffset));
+      }
     }
-
-    endpoints = [first, last];
-    container.endpoints = endpoints;
 
     function createDay(d) {
       return new Date(d.toISOString().slice(0,11) + '00:00:00Z');
@@ -789,21 +786,15 @@ module.exports = function(emitter) {
 
     container.dataPerDay = [];
 
-    var dayIndex = 0, thisDay = this.days[dayIndex], current = [];
-    for (var i = 0; i < data.length; ++i) {
-      var date = timezoneAware ? (data[i].deviceTime ? data[i].deviceTime.slice(0,10) : data[i].fillDate) : data[i].normalTime.slice(0,10);
-      if (date === thisDay) {
-        current.push(data[i]);
-      }
-      else {
-        container.dataPerDay.push(current);
-        current = [data[i]];
-        dayIndex += 1;
-        thisDay = this.days[dayIndex];
-      }
-    }
-    container.dataPerDay.push(current);
+    var groupedByDate = _.groupBy(data, function(d) {
+      return timezoneAware ? (d.fillDate ? d.fillDate : dt.applyOffset(d.normalTime, d.displayOffset).slice(0,10)) : d.normalTime.slice(0,10);
+    });
 
+    var dates = Object.keys(groupedByDate);
+    for (var i = 0; i < dates.length; ++i) {
+      var date = dates[i];
+      container.dataPerDay.push(groupedByDate[date]);
+    }
     return container;
   };
 

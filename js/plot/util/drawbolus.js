@@ -396,7 +396,7 @@ module.exports = function(pool, opts) {
         // timestamp goes in title
         title.append('p')
           .attr('class', 'timestamp left')
-          .html(format.timestamp(bolus.normalTime, opts.timezoneAware ? bolus.timezoneOffset : null));
+          .html(format.timestamp(bolus.normalTime, opts.timezoneAware ? bolus.displayOffset : null));
         // interrupted boluses get priority on special headline
         if (commonbolus.getProgrammed(d) !== commonbolus.getDelivered(d)) {
           title.append('p')
