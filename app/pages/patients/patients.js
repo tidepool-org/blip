@@ -131,7 +131,6 @@ var Patients = React.createClass({
     }
 
     var title = this.renderSectionTitle('View data for:');
-    var welcome = this.renderUserPatientWelcome();
     var addAccount = this.renderAddAccount();
 
     /* jshint ignore:start */
@@ -141,7 +140,6 @@ var Patients = React.createClass({
         <div className="patients-section-content">
           {addAccount}
           <div className='clear'></div>
-          {welcome}
           {content}
         </div>
       </div>
@@ -173,20 +171,6 @@ var Patients = React.createClass({
     return (
       <div className="patients-welcome-title">
         {'Welcome to Blip!'}
-      </div>
-    );
-    /* jshint ignore:end */
-  },
-  renderUserPatientWelcome: function() {
-    if (!this.props.showingWelcomeMessage) {
-      return null;
-    }
-
-    /* jshint ignore:start */
-    return (
-      <div className="patients-welcome-message">
-        {'Will you be uploading data from devices at home? If you are an adult with T1D or the'}
-        {' mom or dad of a child with T1D, then this is for you. Go ahead and…'}
       </div>
     );
     /* jshint ignore:end */
