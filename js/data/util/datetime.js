@@ -16,7 +16,7 @@
  */
 
 var _ = require('lodash');
-var moment = require('moment');
+var moment = require('moment-timezone');
 
 var datetime = {
 
@@ -51,6 +51,12 @@ var datetime = {
     else {
       return [start, end];
     }
+  },
+
+  applyOffset: function(d, offset) {
+    var date = new Date(d);
+    date.setUTCMinutes(date.getUTCMinutes() + offset);
+    return new Date(date).toISOString();
   },
 
   checkIfDateInRange: function(s, endpoints) {
@@ -112,6 +118,10 @@ var datetime = {
   getMsFromMidnight: function(d) {
     var midnight = new Date(this.getMidnight(d)).valueOf();
     return new Date(d).valueOf() - midnight;
+  },
+
+  getOffset: function(d, timezoneName) {
+    return moment.tz.zone(timezoneName).offset(Date.parse(d));
   },
 
   getNumDays: function(s, e) {
@@ -185,8 +195,8 @@ var datetime = {
     return date.toISOString().slice(0,10);
   },
 
-  smbgEdge: function(d) {
-    var date = new Date(d);
+  smbgEdge: function(d, offset) {
+    var date = offset ? new Date(this.applyOffset(d, offset)) : new Date(d);
     if (date.getUTCHours() <= 2) {
       return 'left';
     }

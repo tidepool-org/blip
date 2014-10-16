@@ -68,7 +68,10 @@ function TidelineData(data, opts) {
       'smbg',
       'wizard'
     ],
-    timezoneAware: false
+    timePrefs: {
+      timezoneAware: false,
+      timezoneName: 'US/Pacific'
+    }
   };
 
   _.defaults(opts, defaults);
@@ -80,7 +83,7 @@ function TidelineData(data, opts) {
     console.time('checkRequired');
     _.each(REQUIRED_TYPES, function(type) {
       if (!that.grouped[type]) {
-        log('No', type, 'data! Replaced with empty array.');
+        // log('No', type, 'data! Replaced with empty array.');
         that.grouped[type] = [];
       }
     });
@@ -155,18 +158,20 @@ function TidelineData(data, opts) {
     return this;
   };
 
-  function getOffset(d) {
-    for (var i = 0; i < that.offsetIntervals.length; ++i) {
-      var interval = that.offsetIntervals[i];
-      if (d > interval.start && d <= interval.end) {
-        return interval.offset;
+  function fixGapsAndOverlaps(fillData) {
+    var lastFill = null;
+    for (var i = 0; i < fillData.length; ++i) {
+      var fill = fillData[i];
+      if (lastFill && fill.normalTime !== lastFill.normalEnd) {
+        // catch Fall Back gap
+        if (fill.normalTime > lastFill.normalEnd) {
+          lastFill.normalEnd = fill.normalTime;
+        }
+        else if (fill.normalTime < lastFill.normalEnd) {
+          lastFill.normalEnd = fill.normalTime;
+        }
       }
-      else if (d <= that.offsetIntervals[0].start) {
-        return that.offsetIntervals[0].offset;
-      }
-      else if (d > that.offsetIntervals[that.offsetIntervals.length - 1].end) {
-        return that.offsetIntervals[that.offsetIntervals.length - 1].offset;
-      }
+      lastFill = fill;
     }
   }
 
@@ -175,10 +180,10 @@ function TidelineData(data, opts) {
     var fillData = [], points = d3.time.hour.utc.range(first, last);
     for (var i = 0; i < points.length; ++i) {
       var point = points[i], offset = null;
-      var hoursClassifier;
-      if (opts.timezoneAware) {
-        offset = getOffset(point.toISOString());
-        var localTime = dt.addDuration(point, getOffset(point.toISOString()) * MS_IN_MIN);
+      var hoursClassifier, localTime;
+      if (opts.timePrefs.timezoneAware) {
+        offset = dt.getOffset(point, opts.timePrefs.timezoneName);
+        localTime = dt.addDuration(point, -offset * MS_IN_MIN);
         hoursClassifier = new Date(localTime).getUTCHours();
       }
       else {
@@ -187,14 +192,17 @@ function TidelineData(data, opts) {
       if (opts.fillOpts.classes[hoursClassifier] != null) {
         fillData.push({
           fillColor: opts.fillOpts.classes[hoursClassifier],
+          fillDate: localTime? localTime.slice(0,10) : points[i].toISOString().slice(0,10),
           id: 'fill_' + points[i].toISOString().replace(/[^\w\s]|_/g, ''),
-          normalEnd: d3.time.hour.utc.offset(points[i], 3).toISOString(),
+          normalEnd: d3.time.hour.utc.offset(point, 3).toISOString(),
           normalTime: points[i].toISOString(),
           type: 'fill',
-          timezoneOffset: parseInt(offset, 10)
+          timezoneOffset: -offset,
+          twoWeekX: hoursClassifier * 864e5/24
         });
       }
     }
+    fixGapsAndOverlaps(fillData);
     console.timeEnd('fillDataFromInterval');
     return fillData;
   }
@@ -212,8 +220,17 @@ function TidelineData(data, opts) {
     if (dt.getNumDays(first, last) < 14) {
       first = dt.addDays(last, -13);
     }
+    var endpoints;
+    if (opts.timePrefs.timezoneAware) {
+      first = dt.addDuration(dt.getMidnight(first), dt.getOffset(first, opts.timePrefs.timezoneName) * MS_IN_MIN);
+      last = dt.addDuration(dt.getMidnight(last, true), dt.getOffset(first, opts.timePrefs.timezoneName) * MS_IN_MIN);
+      endpoints = [first, last];
+    }
+    else {
+      endpoints = [dt.getMidnight(first), dt.getMidnight(last, true)];
+    }
     console.timeEnd('getTwoWeekFillEndpoints');
-    return [dt.getMidnight(first), dt.getMidnight(last, true)];
+    return endpoints;
   }
 
   this.generateFillData = function() {
@@ -238,46 +255,8 @@ function TidelineData(data, opts) {
     console.time('adjustFillsForTwoWeekView');
     var fillData = this.grouped.fill;
     var endpoints = getTwoWeekFillEndpoints();
-    var startOfTwoWeekFill = endpoints[0], endOfTwoWeekFill = endpoints[1];
-    var startOfFill = fillData[0].normalEnd, endOfFill = fillData[fillData.length - 1].normalEnd;
     this.twoWeekData = this.grouped.smbg || [];
-    var twoWeekFills = [];
-    for (var i = 0; i < this.grouped.fill.length; ++i) {
-      var d = this.grouped.fill[i];
-      if (d.normalTime >= startOfFill || d.normalTime <= endOfFill) {
-        twoWeekFills.push(d);
-      }
-    }
-
-    // first, fill in two week fills where potentially missing at the end of data domain
-    if (endOfTwoWeekFill > endOfFill) {
-      var end = new Date(endOfTwoWeekFill);
-      // intervals are exclusive of endpoint, so
-      // to get last segment, need to extend endpoint out +1
-      end.setUTCHours(end.getUTCHours() + 3);
-      twoWeekFills = twoWeekFills.concat(
-        fillDataFromInterval(new Date(endOfFill),end)
-      );
-    }
-    else {
-      // filter out any fills from two week fills that go beyond extent of smbg data
-      twoWeekFills = _.reject(twoWeekFills, function(d) {
-        return d.normalTime >= endOfTwoWeekFill;
-      });
-    }
-
-    // similarly, fill in two week fills where potentially missing at the beginning of data domain
-    if (startOfTwoWeekFill < startOfFill) {
-      twoWeekFills = twoWeekFills.concat(
-        fillDataFromInterval(new Date(startOfTwoWeekFill), new Date(startOfFill))
-      );
-    }
-    else {
-      // filter out any fills from two week fills that go beyond extent of smbg data
-      twoWeekFills = _.reject(twoWeekFills, function(d) {
-        return d.normalTime < startOfTwoWeekFill;
-      });
-    }
+    var twoWeekFills = fillDataFromInterval(new Date(endpoints[0]), new Date(endpoints[1]));
 
     this.twoWeekData = _.sortBy(this.twoWeekData.concat(twoWeekFills), function(d) {
       return d.normalTime;
@@ -379,20 +358,6 @@ function TidelineData(data, opts) {
       return d.normalTime;
     });
 
-    if (opts.timezoneAware) {
-      var offsets = _.groupBy(data, function(d) { return d.timezoneOffset; });
-      this.offsetIntervals = [];
-      for (var offset in offsets) {
-        if (offset !== 'undefined') {
-          var set = offsets[offset];
-          this.offsetIntervals.push({
-            start: d3.time.hour.utc.floor(new Date(set[0].normalTime)).toISOString(),
-            end: d3.time.hour.utc.ceil(new Date(set[set.length - 1].normalTime)).toISOString(),
-            offset: offset
-          });
-        }
-      }
-    }
     this.generateFillData().adjustFillsForTwoWeekView();
     this.data = _.sortBy(this.data.concat(this.grouped.fill), function(d) { return d.normalTime; });
   }

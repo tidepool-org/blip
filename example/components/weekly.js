@@ -77,7 +77,7 @@ var Weekly = React.createClass({
             bgUnits={this.props.bgPrefs.bgUnits}
             initialDatetimeLocation={this.props.initialDatetimeLocation}
             patientData={this.props.patientData}
-            timezoneAware={this.props.chartPrefs.timezoneAware}
+            timePrefs={this.props.chartPrefs.timePrefs}
             // handlers
             onDatetimeLocationChange={this.handleDatetimeLocationChange}
             onMostRecent={this.handleMostRecent}
@@ -151,14 +151,14 @@ var Weekly = React.createClass({
 });
 
 var WeeklyChart = React.createClass({
-  chartOpts: ['bgClasses', 'bgUnits', 'timezoneAware'],
+  chartOpts: ['bgClasses', 'bgUnits', 'timePrefs'],
   log: bows('Weekly Chart'),
   propTypes: {
     bgClasses: React.PropTypes.object.isRequired,
     bgUnits: React.PropTypes.string.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
-    timezoneAware: React.PropTypes.bool.isRequired,
+    timePrefs: React.PropTypes.object.isRequired,
     // handlers
     onDatetimeLocationChange: React.PropTypes.func.isRequired,
     onMostRecent: React.PropTypes.func.isRequired,
@@ -175,7 +175,7 @@ var WeeklyChart = React.createClass({
   },
   mountChart: function(node, chartOpts) {
     this.log('Mounting...');
-    this.chart = chartWeeklyFactory(node,  _.pick(this.props, this.chartOpts));
+    this.chart = chartWeeklyFactory(node, _.pick(this.props, this.chartOpts));
     this.bindEvents();
   },
   unmountChart: function() {

@@ -41,7 +41,10 @@ function SMBGTime (opts) {
     },
     size: 16,
     rectWidth: 32,
-    timezoneAware: false,
+    timePrefs: {
+      timezoneAware: false,
+      timezoneName: 'US/Pacific'
+    },
     tooltipPadding: 20
   };
 
@@ -183,13 +186,11 @@ function SMBGTime (opts) {
   };
 
   this.xPosition = function(d) {
-    var localTime = new Date(d.normalTime);
-    var hour = localTime.getUTCHours();
-    var min = localTime.getUTCMinutes();
-    var sec = localTime.getUTCSeconds();
-    var msec = localTime.getUTCMilliseconds();
-    var t = hour * MS_IN_HOUR + min * MS_IN_MIN + sec * 1000 + msec;
-    return opts.xScale(t);
+    var t = d.normalTime;
+    if (opts.timePrefs.timezoneAware) {
+      t = dt.applyOffset(d.normalTime, d.timezoneOffset);
+    }
+    return opts.xScale(dt.getMsFromMidnight(t));
   };
 
   this.yPosition = function(valuesShown) {
@@ -228,7 +229,7 @@ function SMBGTime (opts) {
     group.append('p')
       .append('span')
       .attr('class', 'secondary')
-      .html('<span class="fromto">at</span> ' + format.timestamp(datum.normalTime, opts.timezoneAware ? datum.timezoneOffset : null));
+      .html('<span class="fromto">at</span> ' + format.timestamp(datum.normalTime, opts.timePrefs.timezoneAware ? datum.timezoneOffset : null));
     group.append('p')
       .attr('class', 'value')
       .append('span')
@@ -269,7 +270,7 @@ function SMBGTime (opts) {
         rightEdge: this.orientation(cssClass) === 'normal' ? 'leftAndUp': 'leftAndDown'
       },
       shape: 'smbg',
-      edge: dt.smbgEdge(d.normalTime)
+      edge: dt.smbgEdge(d.normalTime, opts.timePrefs.timezoneAware ? d.timezoneOffset : null)
     });
   };
 }

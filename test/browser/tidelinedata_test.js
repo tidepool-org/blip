@@ -22,6 +22,7 @@ var assert = chai.assert;
 var expect = chai.expect;
 
 var crossfilter = require('crossfilter');
+var moment = require('moment-timezone');
 
 var types = require('../../dev/testpage/types');
 
@@ -187,6 +188,41 @@ describe('TidelineData', function() {
         }
       }
     });
+
+    it('when timezoneAware, should produce a foreshortened interval for Spring Forward', function() {
+      var thisTd = new TidelineData([
+        new types.SMBG({deviceTime: '2014-03-08T12:00:00'}),
+        new types.SMBG({deviceTime: '2014-03-09T12:00:00'})
+      ], {timePrefs: {
+        timezoneAware: true,
+        timezoneName: 'US/Pacific'
+      }});
+      var fills = thisTd.grouped.fill;
+      var toDSTAt = '2014-03-09T10:00:00.000Z';
+      var inDST = '2014-03-09T11:00:00.000Z';
+      var endsAtInDST = _.findWhere(fills, {normalEnd: inDST});
+      var endsAtToDST = _.findWhere(fills, {normalTime: toDSTAt});
+      var startsAtToDST = _.findWhere(fills, {normalTime: toDSTAt});
+      assert.isUndefined(endsAtInDST);
+      assert.isObject(endsAtToDST);
+      assert.isObject(startsAtToDST);
+    });
+
+    it('when timezoneAware, should produce a lengthened interval for Fall Back', function() {
+      var thisTd = new TidelineData([
+        new types.SMBG({deviceTime: '2014-11-01T12:00:00'}),
+        new types.SMBG({deviceTime: '2014-11-03T12:00:00'})
+      ], {timePrefs: {
+        timezoneAware: true,
+        timezoneName: 'US/Pacific'
+      }});
+      var fills = thisTd.grouped.fill;
+      var afterChange = '2014-11-02T11:00:00.000Z';
+      var endsAtAfterChange = _.findWhere(fills, {normalEnd: afterChange});
+      var startsAtAfterChange = _.findWhere(fills, {normalTime: afterChange});
+      assert.isObject(endsAtAfterChange);
+      assert.isObject(startsAtAfterChange);
+    });
   });
 
   describe('adjustFillsForTwoWeekView', function() {
@@ -214,6 +250,17 @@ describe('TidelineData', function() {
       var thisTd = new TidelineData(data);
       expect(thisTd.twoWeekData[0].normalTime).to.equal('2014-09-01T00:00:00.000Z');
       expect(thisTd.twoWeekData[thisTd.twoWeekData.length - 1].normalTime).to.equal('2014-09-14T21:00:00.000Z');
+    });
+
+    it('when timezoneAware, it should produce appropriately shifted intervals', function() {
+      var thisTd = new TidelineData([
+        new types.SMBG({deviceTime: '2014-03-08T12:00:00'}),
+        new types.SMBG({deviceTime: '2014-03-09T12:00:00'})
+      ], {timePrefs: {
+        timezoneAware: true,
+        timezoneName: 'US/Pacific'
+      }});
+      
     });
   });
 });

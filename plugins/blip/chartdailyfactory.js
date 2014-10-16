@@ -39,7 +39,10 @@ function chartDailyFactory(el, options) {
       basalSettings: null
     },
     labelBaseline: 4,
-    timezoneAware: false
+    timePrefs: {
+      timezoneAware: false,
+      timezoneName: 'US/Pacific'
+    }
   };
   _.defaults(options, defaults);
 
@@ -288,7 +291,7 @@ function chartDailyFactory(el, options) {
       bgUnits: chart.options.bgUnits,
       classes: chart.options.bgClasses,
       yScale: scaleBG,
-      timezoneAware: chart.options.timezoneAware
+      timezoneAware: chart.options.timePrefs.timezoneAware
     }), true, true);
 
     // TODO: when we bring responsiveness in
@@ -319,7 +322,7 @@ function chartDailyFactory(el, options) {
       yScaleCarbs: scaleCarbs,
       emitter: emitter,
       subdueOpacity: 0.4,
-      timezoneAware: chart.options.timezoneAware
+      timezoneAware: chart.options.timePrefs.timezoneAware
     }), true, true);
 
     // quick bolus data to wizard pool
@@ -327,7 +330,7 @@ function chartDailyFactory(el, options) {
       yScale: scaleBolus,
       emitter: emitter,
       subdueOpacity: 0.4,
-      timezoneAware: chart.options.timezoneAware
+      timezoneAware: chart.options.timePrefs.timezoneAware
     }), true, true);
 
     // basal pool
@@ -346,7 +349,7 @@ function chartDailyFactory(el, options) {
       yScale: scaleBasal,
       emitter: emitter,
       data: tidelineData.grouped.basal,
-      timezoneAware: chart.options.timezoneAware
+      timezoneAware: chart.options.timePrefs.timezoneAware
     }), true, true);
 
     if (poolBasalSettings !== undefined) {

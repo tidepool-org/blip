@@ -36,7 +36,7 @@ module.exports = function(pool, opts) {
       duration: 3,
       gutter: 0,
       fillClass: '',
-      x: function(t) { return Date.parse(t); }
+      x: function(t) { return Date.parse(t.normalTime); }
     };
 
   _.defaults(opts || {}, defaults);
@@ -123,7 +123,7 @@ module.exports = function(pool, opts) {
   }
 
   fill.xPosition = function(d) {
-    return opts.xScale(opts.x(d.normalTime));
+    return opts.xScale(opts.x(d));
   };
 
   fill.width = function(d) {

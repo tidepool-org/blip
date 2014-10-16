@@ -52,7 +52,10 @@ var Example = React.createClass({
         hiddenPools: {
           basalSettings: true
         },
-        timezoneAware: true
+        timePrefs: {
+          timezoneAware: false,
+          timezoneName: 'US/Pacific'
+        }
       },
       datetimeLocation: null,
       initialDatetimeLocation: null,
@@ -137,13 +140,13 @@ var Example = React.createClass({
     // i.e., real data exported from current blip
     if (dataUrl !== 'data/device-data.json') {
       console.time('Nurseshark');
-      data = nurseshark.processData(data, this.state.chartPrefs.timezoneAware).processedData;
+      data = nurseshark.processData(data, this.state.chartPrefs.timePrefs.timezoneAware).processedData;
       console.timeEnd('Nurseshark');
     }
     this.updateData(data);
   },
   updateData: function(data) {
-    var tidelineData = new TidelineData(data, {timezoneAware: this.state.chartPrefs.timezoneAware});
+    var tidelineData = new TidelineData(data, {timePrefs: this.state.chartPrefs.timePrefs});
     window.tidelineData = tidelineData;
     this.setState({
       chartData: tidelineData,
