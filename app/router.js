@@ -83,6 +83,17 @@ router.setup = function(routes, options) {
   return this;
 };
 
+router.getQueryParams = function() {
+  var routeFragments = router.getRoute();
+  var lastFragment = routeFragments[routeFragments.length - 1];
+  var queryStr = lastFragment.match(/\?(.+)/);
+  if (queryStr && queryStr.length > 1) {
+    queryStr = queryStr[1];
+    return queryString.parse(queryStr);
+  }
+  return {};
+};
+
 router._parseNoAuthRoutes = function(routes) {
   return _.map(routes, this._getRouteFirstFragment);
 };

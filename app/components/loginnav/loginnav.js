@@ -63,7 +63,6 @@ var LoginNav = React.createClass({
   },
 
   renderLink: function() {
-    console.log('this.props.inviteEmail',this.props.inviteEmail);
     if (this.props.inviteEmail) {
       return null;
     }
