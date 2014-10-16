@@ -319,17 +319,26 @@ var AppComponent = React.createClass({
   },
 
   renderLogin: function() {
-    var inviteEmail = utils.validateEmail(this.state.queryParams.inviteEmail) && this.state.queryParams.inviteEmail;
-
     return (
       /* jshint ignore:start */
       <Login
         onSubmit={this.login}
-        inviteEmail={inviteEmail}
+        inviteEmail={this.getInviteEmail()}
         onSubmitSuccess={this.handleLoginSuccess}
         trackMetric={trackMetric} />
       /* jshint ignore:end */
     );
+  },
+
+  getInviteEmail: function() {
+    var hashQueryParams = app.router.getQueryParams();
+    var inviteEmail = hashQueryParams.inviteEmail;
+    if (inviteEmail && utils.validateEmail(inviteEmail)) {
+      return inviteEmail;
+    }
+    else {
+      return null;
+    }
   },
 
   showSignup: function() {
@@ -338,13 +347,11 @@ var AppComponent = React.createClass({
   },
 
   renderSignup: function() {
-    var inviteEmail = utils.validateEmail(this.state.queryParams.inviteEmail) && this.state.queryParams.inviteEmail;
-
     return (
       /* jshint ignore:start */
       <Signup
         onSubmit={this.signup}
-        inviteEmail={inviteEmail}
+        inviteEmail={this.getInviteEmail()}
         onSubmitSuccess={this.handleSignupSuccess}
         trackMetric={trackMetric} />
       /* jshint ignore:end */
