@@ -54,6 +54,7 @@ module.exports = function(pool, opts) {
     }
 
     selection.each(function(currentData) {
+      currentData.reverse();
       var fills = selection.selectAll('rect.d3-fill')
         .data(currentData, function(d) {
           return d.id;
@@ -66,7 +67,7 @@ module.exports = function(pool, opts) {
           cursor: opts.cursor ? opts.cursor : 'auto',
           x: function(d, i) {
             if (opts.dataGutter) {
-              if (i === 0) {
+              if (i === currentData.length - 1) {
                 return fill.xPosition(d) - opts.dataGutter;
               }
               else {
