@@ -28,6 +28,8 @@ var Settings = require('./components/settings');
 var nurseshark = require('../plugins/nurseshark/');
 var TidelineData = require('../js/tidelinedata');
 
+var dt = require('../js/data/util/datetime');
+
 require('../css/tideline.less');
 require('./less/example.less');
 
@@ -170,6 +172,9 @@ var Example = React.createClass({
     });
   },
   handleSwitchToWeekly: function(datetime) {
+    if (datetime && this.state.chartPrefs.timePrefs.timezoneAware) {
+      datetime = dt.applyOffset(datetime, -dt.getOffset(datetime, this.state.chartPrefs.timePrefs.timezoneName));
+    }
     this.setState({
       chartType: 'weekly',
       initialDatetimeLocation: datetime || this.state.datetimeLocation

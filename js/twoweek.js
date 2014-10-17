@@ -339,8 +339,12 @@ module.exports = function(emitter) {
     return nav.navGutter;
   };
 
-  container.getCurrentDay = function() {
-    return new Date(yScale.domain()[0].toISOString().slice(0,10) + 'T12:00:00.000Z');
+  container.getCurrentDay = function(timePrefs) {
+    var current = new Date(yScale.domain()[0]).toISOString();
+    if (timePrefs && timePrefs.timezoneAware) {
+      current = dt.applyOffset(current, dt.getOffset(current, timePrefs.timezoneName));
+    }
+    return new Date(current);
   };
 
   // chainable methods
@@ -720,18 +724,10 @@ module.exports = function(emitter) {
     data = a;
 
     var last;
-    if (!(data && data.length)) {
-      last = new Date();
-      if (viewEndDate) {
-        last = new Date(viewEndDate);
-      }
-    }
-    else {
-      var lastDatum = data[data.length - 1];
-      last = new Date(lastDatum.normalTime);
-      if (timezoneAware) {
-        last = new Date(dt.applyOffset(last, lastDatum.displayOffset));
-      }
+    var lastDatum = data[data.length - 1];
+    last = new Date(lastDatum.normalTime);
+    if (timezoneAware) {
+      last = new Date(dt.applyOffset(last, lastDatum.displayOffset));
     }
 
     function createDay(d) {

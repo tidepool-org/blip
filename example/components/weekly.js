@@ -107,7 +107,7 @@ var Weekly = React.createClass({
     this.refs.chart.goToMostRecent();
   },
   handleClickOneDay: function() {
-    var datetime = this.refs.chart.getCurrentDay();
+    var datetime = this.refs.chart.getCurrentDay(this.props.chartPrefs.timePrefs);
     this.props.onSwitchToDaily(datetime);
   },
   handleClickTwoWeeks: function() {
@@ -212,8 +212,8 @@ var WeeklyChart = React.createClass({
   handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
     this.props.onDatetimeLocationChange(datetimeLocationEndpoints);
   },
-  getCurrentDay: function() {
-    return this.chart.getCurrentDay().toISOString();
+  getCurrentDay: function(timePrefs) {
+    return this.chart.getCurrentDay(timePrefs).toISOString();
   },
   goToMostRecent: function() {
     this.chart.clear();
