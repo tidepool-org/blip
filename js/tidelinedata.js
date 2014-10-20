@@ -24,7 +24,6 @@ var validate = require('./validation/validate');
 var BasalUtil = require('./data/basalutil');
 var BolusUtil = require('./data/bolusutil');
 var BGUtil = require('./data/bgutil');
-var SettingsUtil = require('./data/settingsutil');
 var dt = require('./data/util/datetime');
 
 var log = require('bows')('TidelineData');
@@ -356,17 +355,7 @@ function TidelineData(data, opts) {
   });
   
   if (data.length > 0 && !_.isEmpty(this.diabetesData)) {
-    this.settingsUtil = new SettingsUtil(this.grouped.settings || [], [this.diabetesData[0].normalTime, this.diabetesData[this.diabetesData.length - 1].normalTime]);
-    this.settingsUtil.getAllSchedules(this.settingsUtil.endpoints[0], this.settingsUtil.endpoints[1]);
-    var segmentsBySchedule = this.settingsUtil.annotateBasalSettings(this.basalUtil.actual);
-    this.grouped['basal-settings-segment'] = [];
-    for (var key in segmentsBySchedule) {
-      this.grouped['basal-settings-segment'] = this.grouped['basal-settings-segment'].concat(segmentsBySchedule[key]);
-    }
-    this.data = _.sortBy(data.concat(this.grouped['basal-settings-segment']), function(d) {
-      return d.normalTime;
-    });
-
+    this.data = data;
     this.generateFillData().adjustFillsForTwoWeekView();
     this.data = _.sortBy(this.data.concat(this.grouped.fill), function(d) { return d.normalTime; });
   }

@@ -51,9 +51,6 @@ var Example = React.createClass({
   getInitialState: function() {
     return {
       chartPrefs: {
-        hiddenPools: {
-          basalSettings: true
-        },
         timePrefs: {
           timezoneAware: false,
           timezoneName: 'US/Pacific'

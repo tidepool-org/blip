@@ -30,7 +30,6 @@ module.exports = {
     BasalUtil: require('./data/basalutil'),
     BolusUtil: require('./data/bolusutil'),
     BGUtil: require('./data/bgutil'),
-    SettingsUtil: require('./data/settingsutil'),
     util: {
       datetime: require('./data/util/datetime'),
       format: require('./data/util/format')
@@ -39,7 +38,6 @@ module.exports = {
 
   plot: {
     basal: require('./plot/basal'),
-    basaltab: require('./plot/basaltab'),
     quickbolus: require('./plot/quickbolus'),
     cbg: require('./plot/cbg'),
     message: require('./plot/message'),
