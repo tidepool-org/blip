@@ -27,7 +27,6 @@ module.exports = function(pool, opts) {
   opts = opts || {};
 
   var defaults = {
-    timezoneAware: false,
     width: 12
   };
 

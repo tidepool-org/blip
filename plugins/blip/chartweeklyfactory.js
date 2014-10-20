@@ -114,7 +114,7 @@ function chartWeeklyFactory(el, options) {
       emitter: emitter,
       bgUnits: chart.options.bgUnits,
       classes: chart.options.bgClasses,
-      timePrefs: chart.options.timePrefs
+      timezoneAware: chart.options.timePrefs.timezoneAware
     });
 
     chart.pools().forEach(function(pool, i) {
