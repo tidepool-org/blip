@@ -56,6 +56,43 @@ var PatientInfo = React.createClass({
       e.preventDefault();
       self.toggleEdit();
     };
+    var nameNode;
+    var ageNode;
+    var diagnosisNode;
+    if (this.isSamePersonUserAndPatient()) {
+      nameNode = (
+        <a href="" onClick={handleClick} className="PatientInfo-block PatientInfo-block--withArrow">
+          {this.getDisplayName(patient)}
+        </a>
+      );
+      ageNode = (
+        <a href="" onClick={handleClick} className="PatientInfo-block">
+          {this.getAgeText(patient)}
+        </a>
+      );
+      diagnosisNode = (
+        <a href="" onClick={handleClick} className="PatientInfo-block">
+          {this.getDiagnosisText(patient)}
+        </a>
+      );
+    }
+    else {
+      nameNode = (
+        <div className="PatientInfo-block PatientInfo-block--withArrow">
+          {this.getDisplayName(patient)}
+        </div>
+      );
+      ageNode = (
+        <div className="PatientInfo-block">
+          {this.getAgeText(patient)}
+        </div>
+      );
+      diagnosisNode = (
+        <div className="PatientInfo-block">
+          {this.getDiagnosisText(patient)}
+        </div>
+      );
+    }
 
     return (
       <div className="PatientInfo">
@@ -67,19 +104,13 @@ var PatientInfo = React.createClass({
             <div className="PatientInfo-picture"></div>
             <div className="PatientInfo-blocks">
               <div className="PatientInfo-blockRow">
-                <a href="" onClick={handleClick} className="PatientInfo-block PatientInfo-block--withArrow">
-                  {this.getDisplayName(patient)}
-                </a>
+                {nameNode}
               </div>
               <div className="PatientInfo-blockRow">
-                <a href="" onClick={handleClick} className="PatientInfo-block">
-                  {this.getAgeText(patient)}
-                </a>
+                {ageNode}
               </div>
               <div className="PatientInfo-blockRow">
-                <a href="" onClick={handleClick} className="PatientInfo-block">
-                  {this.getDiagnosisText(patient)}
-                </a>
+                {diagnosisNode}
               </div>
             </div>
           </div>
