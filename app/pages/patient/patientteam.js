@@ -477,8 +477,8 @@ var PatientTeam = React.createClass({
     return (
       <ConfirmDialog
         message={'Are you sure you want to cancel your invitation to ' + invite.email + '?'}
-        buttonText={'Yes, cancel it'}
-        dismissText={'Dismiss'}
+        buttonText={'Yes'}
+        dismissText={'No'}
         buttonTextWorking={'Canceling invitation...'}
         onSubmit={handleSubmit}
         onCancel={handleCancel} />
