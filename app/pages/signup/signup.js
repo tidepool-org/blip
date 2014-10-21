@@ -101,7 +101,7 @@ var Signup = React.createClass({
 
     return (
       <div className='signup-inviteIntro'>
-        <p>{'Someone has invited you to their Care Team.'}</p><p>{'Sign up to view the invitation.'}</p>
+        <p>{'You\'ve been invited to Blip.'}</p><p>{'Sign up to view the invitation.'}</p>
       </div>
     );
   },
