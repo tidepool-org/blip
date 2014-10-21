@@ -18,6 +18,7 @@ var React = require('react');
 var _ = require('lodash');
 var cx = require('react/lib/cx');
 
+var personUtils = require('../../core/personutils');
 var ModalOverlay = require('../modaloverlay');
 
 var PatientCard = React.createClass({
@@ -46,7 +47,7 @@ var PatientCard = React.createClass({
 
         if (_.isEmpty(patient.permissions) === false && (!patient.permissions.admin && !patient.permissions.root)) {
 
-          var title = 'Remove yourself from ' + patient.profile.fullName + "'s care team.";
+          var title = 'Remove yourself from ' + self.getFullName() + "'s care team.";
 
           return (
             /* jshint ignore:start */
@@ -87,7 +88,7 @@ var PatientCard = React.createClass({
         <a className={classes}
           href={this.props.href}
           onClick={this.props.onClick}>
-          <i className="Navbar-icon icon-face-standin"><span className="patientcard-fullname">{patient.profile.fullName}</span></i>
+          <i className="Navbar-icon icon-face-standin"><span className="patientcard-fullname">{this.getFullName()}</span></i>
         </a>
         <div className="patientcard-controls">
           {remove}
@@ -157,6 +158,10 @@ var PatientCard = React.createClass({
       /* jshint ignore:end */
     );
 
+  },
+
+  getFullName: function() {
+    return personUtils.patientFullName(this.props.patient);
   }
 });
 
