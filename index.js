@@ -558,6 +558,87 @@ module.exports = function (config, deps) {
       );
     },
     /**
+     * Create a child account for the logged in user
+     *
+     * @param accountName String who the account is being created for
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    createChildAccount: function (accountName,cb) {
+
+      var childUser = {
+        username: Math.random().toString(36).slice(2),
+        password: Math.random().toString(36).slice(2),
+        emails: []
+      };
+      // create an child account to attach to ours
+      function createChildAccount(next){
+        superagent
+         .post(makeUrl('/auth/user'))
+         .send(childUser)
+         .end(
+         function (err, res) {
+          if (err != null) {
+            return next(err);
+          }
+          if(res.status === 201){
+            childUser.id = res.body.userid;
+            childUser.token = res.headers[sessionTokenHeader];
+            return next(null,{userid:res.body.userid});
+          }
+          return next({status:res.status,message:res.error});
+        });
+      }
+      //add a profile name to the child account
+      function createChildProfile(next){
+        superagent
+          .put(makeUrl('/metadata/'+ childUser.id + '/profile'))
+          .send({ fullName:accountName })
+          .set(sessionTokenHeader, childUser.token)
+          .end(
+            function (err, res) {
+              if (err != null) {
+                return next(err);
+              }
+              if(res.status === 200){
+                return next(null,childUser);
+              }
+              return next({status:res.status,message:res.error});
+            });
+      }
+      //give the parent account root perms on the child account
+      function giveRootPermsOnChild(next){
+        superagent
+          .post(makeUrl('/access/'+ childUser.id + '/' +getUserId()))
+          .send({root: {}})
+          .set(sessionTokenHeader, childUser.token)
+          .end(
+            function (err, res) {
+              if (err != null) {
+                return cb(err);
+              }
+              if(res.status === 200){
+                return next(null,childUser);
+              }
+              return next({status:res.status,message:res.error});
+            });
+      }
+
+      //Just do it!!
+      async.series([
+        createChildAccount,
+        createChildProfile,
+        giveRootPermsOnChild
+      ], function(err, results) {
+        if(_.isEmpty(err)){
+          console.log('child account data to return: ',results[0]);
+          return cb(null,results[0]);
+        }
+        console.log('stink bro - got an error! ',err);
+        return cb(err);
+      });
+    },
+    /**
      * Update current user account info
      *
      * @param {Object} user object with account info
