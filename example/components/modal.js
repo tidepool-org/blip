@@ -241,7 +241,7 @@ var ModalChart = React.createClass({
   render: function() {
     /* jshint ignore:start */
     return (
-      <div id="tidelineContainer"></div>
+      <div id="tidelineContainer" className="no-scroll"></div>
       );
     /* jshint ignore:end */
   },
