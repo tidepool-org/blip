@@ -408,47 +408,52 @@ var AppComponent = React.createClass({
     var self = this;
 
     this.setState({
-      invites: this.state.invites.filter(function(e){
+      invites: _.filter(this.state.invites, function(e){
         return e.key !== invitation.key;
       })
     });
 
     app.api.invitation.dismiss(invitation.key, invitation.creator.userid, function(err) {
       if(err) {
-        self.fetchInvites();
-
+        self.setState({
+          invites: self.state.invites.concat(invitation)
+        });
         return self.handleApiError(err, 'Something went wrong while dismissing the invitation.');
       }
     });
   },
   handleAcceptInvitation: function(invitation) {
-    /* Set invitation to processing */
     var invites = _.cloneDeep(this.state.invites);
     var self = this;
 
-    invites.map(function(invite) {
-      if (invite.key === invitation.key) {
-        invite.accepting = true;
-      }
-
-      return invite;
-    });
-
     this.setState({
-      invites: invites
+      invites: _.map(invites, function(invite) {
+        if (invite.key === invitation.key) {
+          invite.accepting = true;
+        }
+        return invite;
+      })
     });
 
     app.api.invitation.accept(invitation.key, invitation.creator.userid, function(err) {
-      self.fetchPatients({hideLoading: true});
-
-      if(err) {
+      var invites = _.cloneDeep(self.state.invites);
+      if (err) {
+        self.setState({
+          invites: _.map(invites, function(invite) {
+            if (invite.key === invitation.key) {
+              invite.accepting = false;
+            }
+            return invite;
+          })
+        });
         return self.handleApiError(err, 'Something went wrong while accepting the invitation.');
       }
 
       self.setState({
-        invites: self.state.invites.filter(function(e){
+        invites: _.filter(invites, function(e){
           return e.key !== invitation.key;
-        })
+        }),
+        patients: self.state.patients.concat(invitation.creator)
       });
     });
   },
