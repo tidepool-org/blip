@@ -19,6 +19,8 @@ d3.chart('ModalDay', {
 
     var THREE_HRS = 10800000;
 
+    var dayCharts = {};
+
     this.layer('backgroundRects', this.base.select('#modalMainGroup').append('g').attr('id', 'modalBackgroundRects'), {
       dataBind: function() {
         var data = [];
@@ -192,15 +194,14 @@ d3.chart('ModalDay', {
 
     this.layer('modalDays', this.base.select('#modalMainGroup').append('g').attr('id', 'modalDays'), {
       dataBind: function(data) {
-        return this.selectAll('g')
+        return this.selectAll('g.modalDay')
           .data(data, function(d) { return d; });
       },
       insert: function() {
         return this.append('g');
       },
       events: {
-        merge: function() {
-          var dayCharts = [];
+        enter: function() {
           var emitter = chart.emitter();
           var infoPlot;
           this.attr('id', function(d) { return d; })
@@ -208,11 +209,14 @@ d3.chart('ModalDay', {
               return 'modalDay ' + d3.time.format.utc('%A')(new Date(d)).toLowerCase();
             })
             .each(function(d) {
-              var dayPlot = SMBGDay.create(this, {x: chart.xScale(), y: chart.yScale()}, {
-                showingLines: chart.showingLines(),
+              var dayPlot = SMBGDay().create(this, {x: chart.xScale(), y: chart.yScale()}, {
                 smbg: chart.smbgOpts()
               });
-              dayPlot.render(chart.data[d]);
+              dayPlot.render(chart.data[d], {
+                grouped: chart.grouped(),
+                showingLines: chart.showingLines()
+              });
+              dayCharts[d] = dayPlot;
             })
             .on('click', function(d) {
               emitter.emit('selectDay', d);
@@ -223,7 +227,7 @@ d3.chart('ModalDay', {
                 .attr('stroke-width', chart.smbgOpts().stroke * 1.5);
               d3.select(this).selectAll('circle')
                 .attr('r', chart.smbgOpts().r * 1.5);
-              if (d3.event.target.nodeName === 'path') {
+              if (d3.event.target.nodeName === 'path' && !chart.grouped()) {
                 var mainMargins = chart.margins().main;
                 d3.select(this).append('text')
                   .attr({
@@ -253,6 +257,15 @@ d3.chart('ModalDay', {
               document.getElementById('modalDays').appendChild(copy);
             });
         },
+        update: function() {
+          this.each(function(d) {
+            var day = dayCharts[d];
+            day.render(chart.data[d], {
+              grouped: chart.grouped(),
+              showingLines: chart.showingLines()
+            });
+          });
+        },
         exit: function() {
           this.remove();
         }
@@ -267,6 +280,11 @@ d3.chart('ModalDay', {
   bgUnits: function(bgUnits) {
     if (!arguments.length) { return this._bgUnits; }
     this._bgUnits = bgUnits;
+    return this;
+  },
+  grouped: function(grouped) {
+    if (!arguments.length) { return this._grouped; }
+    this._grouped = grouped;
     return this;
   },
   emitter: function(emitter) {
@@ -399,6 +417,7 @@ module.exports = {
 
     chart.bgClasses(opts.bgClasses)
       .bgUnits(opts.bgUnits)
+      .grouped(opts.grouped)
       .showingLines(opts.showingLines)
       .draw(data);
 

@@ -27,8 +27,10 @@ var TidelineFooter = React.createClass({
   propTypes: {
     activeDays: React.PropTypes.object,
     chartType: React.PropTypes.string.isRequired,
+    onClickGroup: React.PropTypes.func,
     onClickLines: React.PropTypes.func,
     onClickValues: React.PropTypes.func,
+    grouped: React.PropTypes.bool,
     showingValues: React.PropTypes.bool
   },
   DAY_ABBREVS: {
@@ -47,6 +49,11 @@ var TidelineFooter = React.createClass({
     });
 
     var linesLinkClass = cx({
+      'tidelineNavLabel': true,
+      'tidelineNavRightLabel': true
+    });
+
+    var groupLinkClass = cx({
       'tidelineNavLabel': true,
       'tidelineNavRightLabel': true
     });
@@ -79,9 +86,25 @@ var TidelineFooter = React.createClass({
       }
     }
 
+    function getGroupLinkText(props) {
+      if (props.chartType === 'modal') {
+        if (props.grouped) {
+          return 'Ungroup';
+        }
+        else {
+          return 'Group';
+        }
+      }
+      else {
+        return '';
+      }
+    }
+
     var dayFilters = this.props.chartType === 'modal' ? this.renderDayFilters() : null;
 
     var valuesLinkText = getValuesLinkText(this.props);
+
+    var groupLinkText = getGroupLinkText(this.props);
 
     /* jshint ignore:start */
     var showValues = (
@@ -93,7 +116,10 @@ var TidelineFooter = React.createClass({
 
     /* jshint ignore:start */
     var modalOpts = (
-      <a className={linesLinkClass} onClick={this.props.onClickLines}>{linesLinkText}</a>
+      <div>
+        <a className={linesLinkClass} onClick={this.props.onClickLines}>{linesLinkText}</a>
+        <a className={groupLinkClass} onClick={this.props.onClickGroup}>{groupLinkText}</a>
+      </div>
       );
     /* jshint ignore:end */
 

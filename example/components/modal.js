@@ -77,6 +77,7 @@ var Modal = React.createClass({
             extentSize={this.props.chartPrefs.modal.extentSize}
             initialDatetimeLocation={this.props.initialDatetimeLocation}
             patientData={this.props.patientData}
+            grouped={this.props.chartPrefs.modal.grouped}
             showingLines={this.props.chartPrefs.modal.showingLines}
             // handlers
             onDatetimeLocationChange={this.handleDatetimeLocationChange}
@@ -87,7 +88,9 @@ var Modal = React.createClass({
          activeDays={this.props.chartPrefs.modal.activeDays} 
          chartType={this.chartType}
          onClickDay={this.toggleDay}
+         onClickGroup={this.toggleGroup}
          onClickLines={this.toggleLines}
+         grouped={this.props.chartPrefs.modal.grouped}
          showingLines={this.props.chartPrefs.modal.showingLines}
         ref="footer" />
       </div>
@@ -132,11 +135,6 @@ var Modal = React.createClass({
   handleSelectDay: function(date) {
     this.props.onSwitchToDaily(date + 'T12:00:00.000Z');
   },
-  toggleLines: function() {
-    var prefs = _.cloneDeep(this.props.chartPrefs);
-    prefs.modal.showingLines = prefs.modal.showingLines ? false : true;
-    this.props.updateChartPrefs(prefs);
-  },
   toggleDay: function(day) {
     var self = this;
     return function() {
@@ -144,11 +142,21 @@ var Modal = React.createClass({
       prefs.modal.activeDays[day] = prefs.modal.activeDays[day] ? false : true;
       self.props.updateChartPrefs(prefs);
     };
+  },
+  toggleGroup: function() {
+    var prefs = _.cloneDeep(this.props.chartPrefs);
+    prefs.modal.grouped = prefs.modal.grouped ? false : true;
+    this.props.updateChartPrefs(prefs);
+  },
+  toggleLines: function() {
+    var prefs = _.cloneDeep(this.props.chartPrefs);
+    prefs.modal.showingLines = prefs.modal.showingLines ? false : true;
+    this.props.updateChartPrefs(prefs);
   }
 });
 
 var ModalChart = React.createClass({
-  chartOpts: ['bgClasses', 'bgUnits', 'showingLines'],
+  chartOpts: ['bgClasses', 'bgUnits', 'grouped', 'showingLines'],
   log: bows('Modal Chart'),
   propTypes: {
     activeDays: React.PropTypes.object.isRequired,
@@ -158,6 +166,7 @@ var ModalChart = React.createClass({
     extentSize: React.PropTypes.number.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
+    grouped: React.PropTypes.bool.isRequired,
     showingLines: React.PropTypes.bool.isRequired,
     // handlers
     onDatetimeLocationChange: React.PropTypes.func.isRequired,
