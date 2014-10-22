@@ -50,6 +50,9 @@ module.exports = function (config, deps) {
   //Status Codes
   var STATUS_BAD_REQUEST = 400;
   var STATUS_UNAUTHORIZED = 401;
+  var UNAUTHORIZED_MSG = 'User is not logged in, you must log in to do this operation';
+  var STATUS_OFFLINE = 503;
+  var OFFLINE_MSG = 'User appears to be offline';
 
   var superagent = requireDep(deps, 'superagent');
   var log = requireDep(deps, 'log');
@@ -160,6 +163,10 @@ module.exports = function (config, deps) {
     return myToken != null;
   }
 
+  function hasConnection(){
+    return navigator.onLine;
+  }
+
   function getUserId() {
     return myUserId;
   }
@@ -171,9 +178,17 @@ module.exports = function (config, deps) {
     return config.uploadApi + '?token=' + myToken;
   }
 
-  function withToken(sadCb, happyCb) {
+  /*
+   * do pre-reqs check before
+   *
+   * check we are logged in and online
+   * return an error if we fail either of those otherwise return the token
+   */
+  function platformPrereqs(sadCb, happyCb) {
     if (! isLoggedIn()) {
-      return sadCb({status: STATUS_UNAUTHORIZED, body: 'User is not logged in, you must log in to do this operation'});
+      return sadCb({status: STATUS_UNAUTHORIZED, body: UNAUTHORIZED_MSG});
+    } else if (! hasConnection() ) {
+      return sadCb({status: STATUS_OFFLINE, body: OFFLINE_MSG});
     } else {
       return happyCb(myToken);
     }
@@ -198,7 +213,7 @@ module.exports = function (config, deps) {
       };
     }
 
-    return withToken(cb, function(token) {
+    return platformPrereqs(cb, function(token) {
       superagent
         .get(makeUrl(path))
         .set(sessionTokenHeader, token)
@@ -239,7 +254,7 @@ module.exports = function (config, deps) {
       };
     }
 
-    return withToken(cb, function(token) {
+    return platformPrereqs(cb, function(token) {
       superagent
         .post(makeUrl(path))
         .send(data)
@@ -281,7 +296,7 @@ module.exports = function (config, deps) {
       };
     }
 
-    return withToken(cb, function(token) {
+    return platformPrereqs(cb, function(token) {
       superagent
         .put(makeUrl(path))
         .send(data)
@@ -319,25 +334,33 @@ module.exports = function (config, deps) {
      * @param cb
      */
     initialize: function(cb) {
-      myToken = localStore.getItem(tokenLocalKey);
 
-      if (myToken == null) {
-        log.info('No local session found');
-        return cb();
-      }
+      hasConnection(function(err){
 
-      refreshUserToken(myToken, function(err, data) {
-        var hasNewSession = data && data.userid && data.token;
+        if(!_.isEmpty(err)){
+          return cb(err);
+        }
 
-        if (err || !hasNewSession) {
-          log.info('Local session invalid', err, data);
-          saveSession(null, null);
+        myToken = localStore.getItem(tokenLocalKey);
+
+        if (myToken == null) {
+          log.info('No local session found');
           return cb();
         }
 
-        log.info('Loaded local session');
-        saveSession(data.userid, data.token, {remember:true});
-        cb(null, {userid: data.userid, token: data.token});
+        refreshUserToken(myToken, function(err, data) {
+          var hasNewSession = data && data.userid && data.token;
+
+          if (err || !hasNewSession) {
+            log.info('Local session invalid', err, data);
+            saveSession(null, null);
+            return cb();
+          }
+
+          log.info('Loaded local session');
+          saveSession(data.userid, data.token, {remember:true});
+          cb(null, {userid: data.userid, token: data.token});
+        });
       });
     },
     /**
@@ -349,38 +372,45 @@ module.exports = function (config, deps) {
      * @returns {cb}  cb(err, response)
      */
     login: function (user, options, cb) {
-      if (user.username == null) {
-        return cb({ status : STATUS_BAD_REQUEST, message: 'Must specify a username' });
-      }
-      if (user.password == null) {
-        return cb({ status : STATUS_BAD_REQUEST, message: 'Must specify a password' });
-      }
+      hasConnection(function(err){
 
-      options = options || {};
-      if (typeof options === 'function') {
-        cb = options;
-        options = {};
-      }
+        if(!_.isEmpty(err)){
+          return cb(err);
+        }
 
-      superagent
-        .post(makeUrl('/auth/login', user.longtermkey))
-        .auth(user.username, user.password)
-        .end(
-        function (err, res) {
-          if (err != null) {
-            return cb(err, null);
-          }
+        if (user.username == null) {
+          return cb({ status : STATUS_BAD_REQUEST, message: 'Must specify a username' });
+        }
+        if (user.password == null) {
+          return cb({ status : STATUS_BAD_REQUEST, message: 'Must specify a password' });
+        }
 
-          if (res.status !== 200) {
-            return handleHttpError(res, cb);
-          }
+        options = options || {};
+        if (typeof options === 'function') {
+          cb = options;
+          options = {};
+        }
 
-          var theUserId = res.body.userid;
-          var theToken = res.headers[sessionTokenHeader];
+        superagent
+          .post(makeUrl('/auth/login', user.longtermkey))
+          .auth(user.username, user.password)
+          .end(
+          function (err, res) {
+            if (err != null) {
+              return cb(err, null);
+            }
 
-          saveSession(theUserId, theToken, options);
-          return cb(null,{userid: theUserId, user: res.body});
-        });
+            if (res.status !== 200) {
+              return handleHttpError(res, cb);
+            }
+
+            var theUserId = res.body.userid;
+            var theToken = res.headers[sessionTokenHeader];
+
+            saveSession(theUserId, theToken, options);
+            return cb(null,{userid: theUserId, user: res.body});
+          });
+      });
     },
     /**
      * Signup user to the Tidepool platform
@@ -504,7 +534,7 @@ module.exports = function (config, deps) {
         eventname = 'generic';
       }
 
-      withToken(
+      platformPrereqs(
         doNothingCB,
         function(token){
           superagent
@@ -546,7 +576,7 @@ module.exports = function (config, deps) {
         }
       };
 
-      withToken(
+      platformPrereqs(
         doNothingCB,
         function(token){
           superagent
