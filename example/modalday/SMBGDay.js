@@ -17,14 +17,14 @@ d3.chart('SMBGDay', {
       var msPer24 = getMsPer24(d);
       var binSize = 108e5; // 3 hrs
       var thresholds = {
-        0: 108e5,
-        3: 108e5 * 2,
-        6: 108e5 * 3,
-        9: 108e5 * 4,
-        12: 108e5 * 5,
-        15: 108e5 * 6,
-        18: 108e5 * 7,
-        21: 108e5 * 8
+        0: binSize,
+        3: binSize * 2,
+        6: binSize * 3,
+        9: binSize * 4,
+        12: binSize * 5,
+        15: binSize * 6,
+        18: binSize * 7,
+        21: binSize * 8
       };
       for (var key in thresholds) {
         var val = thresholds[key];

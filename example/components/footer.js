@@ -27,6 +27,7 @@ var TidelineFooter = React.createClass({
   propTypes: {
     activeDays: React.PropTypes.object,
     chartType: React.PropTypes.string.isRequired,
+    onClickBoxOverlay: React.PropTypes.func,
     onClickGroup: React.PropTypes.func,
     onClickLines: React.PropTypes.func,
     onClickValues: React.PropTypes.func,
@@ -54,6 +55,11 @@ var TidelineFooter = React.createClass({
     });
 
     var groupLinkClass = cx({
+      'tidelineNavLabel': true,
+      'tidelineNavRightLabel': true
+    });
+
+    var overlayLinkClass = cx({
       'tidelineNavLabel': true,
       'tidelineNavRightLabel': true
     });
@@ -100,11 +106,27 @@ var TidelineFooter = React.createClass({
       }
     }
 
+    function getOverlayLinkText(props) {
+      if (props.chartType === 'modal') {
+        if (props.boxOverlay) {
+          return 'Hide Range & Mean';
+        }
+        else {
+          return 'Show Range & Mean';
+        }
+      }
+      else {
+        return '';
+      }
+    }
+
     var dayFilters = this.props.chartType === 'modal' ? this.renderDayFilters() : null;
 
     var valuesLinkText = getValuesLinkText(this.props);
 
     var groupLinkText = getGroupLinkText(this.props);
+
+    var overlayLinkText = getOverlayLinkText(this.props);
 
     /* jshint ignore:start */
     var showValues = (
@@ -119,6 +141,7 @@ var TidelineFooter = React.createClass({
       <div>
         <a className={linesLinkClass} onClick={this.props.onClickLines}>{linesLinkText}</a>
         <a className={groupLinkClass} onClick={this.props.onClickGroup}>{groupLinkText}</a>
+        <a className={overlayLinkClass} onClick={this.props.onClickBoxOverlay}>{overlayLinkText}</a>
       </div>
       );
     /* jshint ignore:end */

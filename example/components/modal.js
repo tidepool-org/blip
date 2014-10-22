@@ -77,6 +77,7 @@ var Modal = React.createClass({
             extentSize={this.props.chartPrefs.modal.extentSize}
             initialDatetimeLocation={this.props.initialDatetimeLocation}
             patientData={this.props.patientData}
+            boxOverlay={this.props.chartPrefs.modal.boxOverlay}
             grouped={this.props.chartPrefs.modal.grouped}
             showingLines={this.props.chartPrefs.modal.showingLines}
             // handlers
@@ -87,9 +88,11 @@ var Modal = React.createClass({
         <Footer
          activeDays={this.props.chartPrefs.modal.activeDays} 
          chartType={this.chartType}
+         onClickBoxOverlay={this.toggleBoxOverlay}
          onClickDay={this.toggleDay}
          onClickGroup={this.toggleGroup}
          onClickLines={this.toggleLines}
+         boxOverlay={this.props.chartPrefs.modal.boxOverlay}
          grouped={this.props.chartPrefs.modal.grouped}
          showingLines={this.props.chartPrefs.modal.showingLines}
         ref="footer" />
@@ -143,6 +146,11 @@ var Modal = React.createClass({
       self.props.updateChartPrefs(prefs);
     };
   },
+  toggleBoxOverlay: function() {
+    var prefs = _.cloneDeep(this.props.chartPrefs);
+    prefs.modal.boxOverlay = prefs.modal.boxOverlay ? false : true;
+    this.props.updateChartPrefs(prefs);
+  },
   toggleGroup: function() {
     var prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.modal.grouped = prefs.modal.grouped ? false : true;
@@ -156,7 +164,7 @@ var Modal = React.createClass({
 });
 
 var ModalChart = React.createClass({
-  chartOpts: ['bgClasses', 'bgUnits', 'grouped', 'showingLines'],
+  chartOpts: ['bgClasses', 'bgUnits', 'boxOverlay', 'grouped', 'showingLines'],
   log: bows('Modal Chart'),
   propTypes: {
     activeDays: React.PropTypes.object.isRequired,
@@ -166,6 +174,7 @@ var ModalChart = React.createClass({
     extentSize: React.PropTypes.number.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
+    boxOverlay: React.PropTypes.object.isRequired,
     grouped: React.PropTypes.bool.isRequired,
     showingLines: React.PropTypes.bool.isRequired,
     // handlers

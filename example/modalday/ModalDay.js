@@ -3,6 +3,7 @@ var d3 = window.d3;
 var EventEmitter = require('events').EventEmitter;
 var moment = require('moment');
 
+var SMBGBox = require('./SMBGBox');
 var SMBGDay = require('./SMBGDay');
 var SMBGInfo = require('./SMBGInfo');
 
@@ -202,6 +203,9 @@ d3.chart('ModalDay', {
       },
       events: {
         enter: function() {
+          if (chart.boxOverlay()) {
+            chart.boxPlots.render(chart.rawData);
+          }
           var emitter = chart.emitter();
           var infoPlot;
           this.attr('id', function(d) { return d; })
@@ -258,6 +262,9 @@ d3.chart('ModalDay', {
             });
         },
         update: function() {
+          if (chart.boxOverlay()) {
+            chart.boxPlots.render(chart.rawData);
+          }
           this.each(function(d) {
             var day = dayCharts[d];
             day.render(chart.data[d], {
@@ -280,6 +287,21 @@ d3.chart('ModalDay', {
   bgUnits: function(bgUnits) {
     if (!arguments.length) { return this._bgUnits; }
     this._bgUnits = bgUnits;
+    return this;
+  },
+  boxOverlay: function(boxOverlay) {
+    if (!arguments.length) { return this._boxOverlay; }
+    if (boxOverlay && !this.boxPlots) {
+      this.boxPlots = SMBGBox.create(this.base.select('#modalMainGroup'), {
+        x: this.xScale(),
+        y: this.yScale()
+      });
+    }
+    else if (!boxOverlay && this.boxPlots) {
+      this.boxPlots.destroy();
+      this.boxPlots = null;
+    }
+    this._boxOverlay = boxOverlay;
     return this;
   },
   grouped: function(grouped) {
@@ -345,6 +367,7 @@ d3.chart('ModalDay', {
     return this;
   },
   transform: function(data) {
+    this.rawData = data;
     this.data = _.groupBy(data, function(d) {
       return d.normalTime.slice(0,10);
     });
@@ -412,11 +435,14 @@ module.exports = {
   emitter: new EventEmitter(),
   render: function(data, opts) {
     opts = opts || {};
-    var defaults = {};
+    var defaults = {
+      boxOverlay: true
+    };
     _.defaults(opts, defaults);
 
     chart.bgClasses(opts.bgClasses)
       .bgUnits(opts.bgUnits)
+      .boxOverlay(opts.boxOverlay)
       .grouped(opts.grouped)
       .showingLines(opts.showingLines)
       .draw(data);
