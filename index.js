@@ -335,32 +335,25 @@ module.exports = function (config, deps) {
      */
     initialize: function(cb) {
 
-      hasConnection(function(err){
+      myToken = localStore.getItem(tokenLocalKey);
 
-        if(!_.isEmpty(err)){
-          return cb(err);
-        }
+      if (myToken == null) {
+        log.info('No local session found');
+        return cb();
+      }
 
-        myToken = localStore.getItem(tokenLocalKey);
+      refreshUserToken(myToken, function(err, data) {
+        var hasNewSession = data && data.userid && data.token;
 
-        if (myToken == null) {
-          log.info('No local session found');
+        if (err || !hasNewSession) {
+          log.info('Local session invalid', err, data);
+          saveSession(null, null);
           return cb();
         }
 
-        refreshUserToken(myToken, function(err, data) {
-          var hasNewSession = data && data.userid && data.token;
-
-          if (err || !hasNewSession) {
-            log.info('Local session invalid', err, data);
-            saveSession(null, null);
-            return cb();
-          }
-
-          log.info('Loaded local session');
-          saveSession(data.userid, data.token, {remember:true});
-          cb(null, {userid: data.userid, token: data.token});
-        });
+        log.info('Loaded local session');
+        saveSession(data.userid, data.token, {remember:true});
+        cb(null, {userid: data.userid, token: data.token});
       });
     },
     /**
