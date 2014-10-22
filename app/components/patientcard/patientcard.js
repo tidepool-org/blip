@@ -65,7 +65,7 @@ var PatientCard = React.createClass({
         'patientcard-permissions-icon': true
       };
 
-      if(_.isEmpty(patient.permissions) === false && (patient.permissions.root || patient.permissions.admin || patient.permissions.upload)) {
+      if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
         classes['icon-permissions-upload'] = true;
       } else {
         return null;
