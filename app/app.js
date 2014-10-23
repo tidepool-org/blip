@@ -1164,22 +1164,17 @@ app.start = function() {
   var self = this;
 
   this.init(function() {
-    try{
-      self.component = React.renderComponent(
-        /* jshint ignore:start */
-        <AppComponent />,
-        /* jshint ignore:end */
-        document.getElementById('app')
-      );
+    self.component = React.renderComponent(
+      /* jshint ignore:start */
+      <AppComponent />,
+      /* jshint ignore:end */
+      document.getElementById('app')
+    );
 
-      self.log('App started');
+    self.log('App started');
 
-      if (self.mock) {
-        self.log('App running with mock services');
-      }
-    } catch(err){
-      console.log('not good ',err);
-      throw err
+    if (self.mock) {
+      self.log('App running with mock services');
     }
   });
 };

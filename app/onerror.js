@@ -30,7 +30,7 @@ module.exports = function myErrorHandler(errorMessage, fileUrl, lineNumber, coln
     //send it to the server
     window.app.api.errors.log(error,'Caught in onerror',details);
 
-    var html = [
+    html = [
       '<p>',
       'Sorry! Something went wrong. It\'s our fault, not yours.',
       'We have logged this error to our server.',
@@ -52,7 +52,7 @@ module.exports = function myErrorHandler(errorMessage, fileUrl, lineNumber, coln
 
     details.error = error;
 
-    var html = [
+    html = [
       '<p>',
       'Sorry! Something went wrong. It\'s our fault, not yours.',
       'We were unable to log this error to our server so could you please send us a note at',
