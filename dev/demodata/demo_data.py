@@ -349,10 +349,6 @@ class Boluses:
             }
             if bolus['normal'] > 0:
                 boluses.append(bolus)
-                wiz['bolus'] = bolus
-                wizards.append(wiz)
-
-        self.wizards.json = wizards
 
         return boluses
 
@@ -631,7 +627,7 @@ class Messages:
 
         bacon_ipsum = json.loads(request.read())[0]
 
-        return {'type': 'message', 'id': message_id, 'parentMessage': parent_message_id if len(parent_message_id) > 0 else None, 'time': dt.strftime(pytz.utc.localize(timestamp), '%Y-%m-%dT%H:%M:%S') + '.000Z', 'messageText': bacon_ipsum}
+        return {'type': 'message', 'id': message_id, 'parentmessage': parent_message_id if len(parent_message_id) > 0 else None, 'timestamp': dt.strftime(pytz.utc.localize(timestamp), '%Y-%m-%dT%H:%M:%S') + '.000Z', 'messagetext': bacon_ipsum}
 
     def _generate_messages(self):
 
@@ -744,16 +740,11 @@ class Settings:
 
         self.schedule = basal_schedule
 
-        self.schedules = [{
-            'name': 'standard',
-            'value': self._schedule_to_array(self.schedule),
-        }, {
-            'name': 'pattern a',
-            'value': self._schedule_to_array(self._mutate_schedule())
-        }, {
-            'name': 'pattern b',
-            'value': self._schedule_to_array(self._mutate_schedule())
-        }]
+        self.schedules = {
+            'standard': self._schedule_to_array(self.schedule),
+            'pattern a': self._schedule_to_array(self._mutate_schedule()),
+            'pattern b': self._schedule_to_array(self._mutate_schedule())
+        }
 
         self.schedule_names = ['standard', 'pattern a', 'pattern b']
 
@@ -782,13 +773,13 @@ class Settings:
             'units': {'carb': 'grams', 'bg': 'mg/dL'}
         }
 
-        new_schedules = []
-        for sched in self.schedules:
-            if sched['name'] == 'standard':
-                new_schedules.append(sched)
+        new_schedules = {}
+        for name, sched in self.schedules.items():
+            if name == 'standard':
+                new_schedules[name] = sched
             else:
-                sched['value'] = self._schedule_to_array(self._mutate_schedule())
-                new_schedules.append(sched)
+                sched = self._schedule_to_array(self._mutate_schedule())
+                new_schedules[name] = sched
 
         penultimate = {
             'deviceTime': self.penultimate.isoformat()[:-7],
@@ -796,7 +787,7 @@ class Settings:
             'type': 'settings',
             'activeBasalSchedule': random.choice(self.schedule_names),
             'basalSchedules': new_schedules,
-            'carbRatio': [{'start': 0, 'amount': self.ratio * 1.2}],
+            'carbRatio': [{'start': 0, 'amount': int(self.ratio * 1.2)}],
             'insulinSensitivity': [{'start': 0, 'amount': self.isf + 10}],
             'bgTarget': [{'start': 0, 'high': 100, 'low': 80}],
             'units': {'carb': 'grams', 'bg': 'mg/dL'}
@@ -861,21 +852,36 @@ class Settings:
 def _fix_floating_point(a):
     """Iterate through an array of dicts, checking for floats and rounding them."""
 
-    return map(lambda i: {key: (round(val, 3) if isinstance(val, float) else val) for key, val in i.items() }, a)
+    def get_type(thing):
+        try:
+            return thing['type']
+        except KeyError:
+            return 'message'
 
-def translate_to_mmol(all_json):
+    for thing in a:
+        if get_type(thing) not in ['cbg', 'smbg']:
+            for key, val in thing.items():
+                if isinstance(val, float):
+                    thing[key] = round(val, 3)
+
+    return a
+
+def translate_to_mmol(all_json, mmol):
 
     GLUCOSE_MM = 18.01559
 
     def translate_bg(val):
-        return round(float(val)/GLUCOSE_MM, 1)
+        if mmol:
+            return round(float(val)/GLUCOSE_MM, 1)
+        else:
+            return float(val)/GLUCOSE_MM
 
     for a in all_json:
         if a['type'] == 'cbg' or a['type'] == 'smbg':
             a['value'] = translate_bg(a['value'])
-            a['units'] = 'mmol/L'
+            a['units'] = 'mmol/L' if mmol else 'mg/dL'
         elif a['type'] == 'settings':
-            a['units']['bg'] = 'mmol/L'
+            a['units']['bg'] = 'mmol/L' if mmol else 'mg/dL'
             for t in a['bgTarget']:
                 for k in t.keys():
                     if k != 'range' and k != 'start':
@@ -883,7 +889,7 @@ def translate_to_mmol(all_json):
             for i in a['insulinSensitivity']:
                 i['amount'] = translate_bg(i['amount'])
         elif a['type'] == 'wizard':
-            a['units'] = 'mmol/L'
+            a['units'] = 'mmol/L' if mmol else 'mg/dL'
             if 'bgInput' in a.keys():
                 a['bgInput'] = translate_bg(a['bgInput'])
             if 'insulinSensitivity' in a.keys():
@@ -916,20 +922,16 @@ def print_JSON(all_json, out_file, minify=False):
         utc = pytz.utc
 
         def add_time(a):
-            a['timezoneOffset'] = -420
-            a['normalTime'] = a['deviceTime'] + '.000Z'
-
             try:
-                a['time'] = this_tz.localize(dt.strptime(a['deviceTime'], '%Y-%m-%dT%H:%M:%S')).astimezone(utc).isoformat()
+                timestamp = dt.strptime(a['deviceTime'], '%Y-%m-%dT%H:%M:%S')
             except ValueError:
-                a['time'] = this_tz.localize(dt.strptime(a['deviceTime'], '%Y-%m-%dT%H:%M:%S.%f')).astimezone(utc).isoformat()
+                timestamp = dt.strptime(a['deviceTime'], '%Y-%m-%dT%H:%M:%S.%f')
+            a['time'] = this_tz.localize(timestamp, is_dst=True).astimezone(utc).isoformat()
             a['time'] = a['time'].replace('+00:00', '.000Z')
+            a['timezoneOffset'] = -((24*60) - this_tz.utcoffset(timestamp, is_dst=True).seconds/60)
 
         if a['type'] != 'message':
             add_time(a)
-        else:
-            normalized = utc.localize(dt.strptime(a['time'].replace('.000Z',''), '%Y-%m-%dT%H:%M:%S')).astimezone(this_tz)
-            a['normalTime'] = dt.strftime(normalized, '%Y-%m-%dT%H:%M:%S') + '.000Z'
         try:
             add_time(a['suppressed'])
         except KeyError:
@@ -942,7 +944,16 @@ def print_JSON(all_json, out_file, minify=False):
                 if not num:
                     a['annotations'] = [{'code': 'demo annotation'}]
 
-    all_json = _fix_floating_point(sorted(all_json, key=lambda x: x['time']))
+        if a['type'] == 'message':
+            del a['type']
+
+    def get_sort_by(x):
+        try:
+            return x['time']
+        except KeyError:
+            return x['timestamp']
+
+    all_json = _fix_floating_point(sorted(all_json, key=lambda x: get_sort_by(x)))
 
     with open(out_file, 'w') as f:
         if not minify:
@@ -991,8 +1002,7 @@ def main():
         messages = Messages(smbg)
         all_json = dex.json + smbg.json + basal.json + wizards.json + boluses.json + messages.json + settings.json
 
-    if args.mmol:
-        translate_to_mmol(all_json)
+    translate_to_mmol(all_json, args.mmol)
 
     if not args.minify:
         print_JSON(all_json, args.output_file)
