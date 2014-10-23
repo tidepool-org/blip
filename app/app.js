@@ -123,7 +123,7 @@ var AppComponent = React.createClass({
       fetchingPatientData: true,
       fetchingMessageData: true,
       showingAcceptTerms: false,
-      showingWelcomeMessage: false,
+      showingWelcomeMessage: true,
       dismissedBrowserWarning: false,
       queryParams: queryString.parseTypes(window.location.search)
     };

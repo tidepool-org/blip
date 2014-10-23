@@ -42,22 +42,30 @@ var Patients = React.createClass({
 
   render: function() {
     var welcomeTitle = this.renderWelcomeTitle();
-    var loadingIndicator = this.renderLoadingIndicator();
+
+    if (this.isLoading()) {
+      return (
+        <div className="container-box-outer">
+          <div className="patients js-patients-page">
+            {welcomeTitle}
+            {this.renderLoadingIndicator()}
+          </div>
+        </div>
+      );
+    }
+
     var patients = this.renderPatients();
     var invites = this.renderInvitations();
 
-    /* jshint ignore:start */
     return (
       <div className="container-box-outer">
         <div className="patients js-patients-page">
           {welcomeTitle}
-          {loadingIndicator}
           {invites}
           {patients}
         </div>
       </div>
     );
-    /* jshint ignore:end */
   },
   renderInvitation: function(invitation, index) {
     /* jshint ignore:start */
@@ -89,10 +97,6 @@ var Patients = React.createClass({
     /* jshint ignore:end */
   },
   renderPatients: function() {
-    if (this.isResettingPatientsData() || this.isResettingUserData()) {
-      return null;
-    }
-
     var content;
     var user = _.cloneDeep(this.props.user);
     var patients = _.clone(this.props.patients) || [];
@@ -175,20 +179,13 @@ var Patients = React.createClass({
     /* jshint ignore:end */
   },
   renderLoadingIndicator: function() {
-    var isResettingPatientList = this.isResettingUserData() ||this.isResettingPatientsData();
-    if (isResettingPatientList && this.isResettingInvitesData()) {
-      /* jshint ignore:start */
-      return (
-        <div className="patients-section">
-          <div className="patients-message patients-message-center patients-message-loading">
-            Loading...
-          </div>
+    return (
+      <div className="patients-section">
+        <div className="patients-message patients-message-center patients-message-loading">
+          Loading...
         </div>
-      );
-      /* jshint ignore:end */
-    }
-
-    return null;
+      </div>
+    );
   },
 
   renderSectionTitle: function(text) {
@@ -205,10 +202,6 @@ var Patients = React.createClass({
     /* jshint ignore:end */
   },
 
-  isResettingUserData: function() {
-    return (this.props.fetchingUser && !this.props.user);
-  },
-
   handleClickCreateProfile: function() {
     this.props.trackMetric('Clicked Create Profile');
   },
@@ -223,10 +216,6 @@ var Patients = React.createClass({
     });
   },
 
-  isResettingPatientsData: function() {
-    return (this.props.fetchingPatients && !this.props.patients);
-  },
-
   handleClickPatient: function(patient) {
     if (personUtils.isSame(this.props.user, patient)) {
       this.props.trackMetric('Clicked Own Care Team');
@@ -236,8 +225,12 @@ var Patients = React.createClass({
     }
   },
 
-  isResettingInvitesData: function() {
-    return (this.props.fetchingInvites && !this.props.invites);
+  isLoading: function() {
+    return (
+      this.props.fetchingUser ||
+      this.props.fetchingInvites ||
+      this.props.fetchingPatients
+    );
   }
 });
 
