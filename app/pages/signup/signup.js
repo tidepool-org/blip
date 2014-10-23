@@ -107,9 +107,9 @@ var Signup = React.createClass({
   },
 
   renderForm: function() {
-    var submitButtonText = 'Create account';
+    var submitButtonText = 'Sign up';
     if (this.state.working) {
-      submitButtonText = 'Creating account...';
+      submitButtonText = 'Signing up...';
     }
 
     /* jshint ignore:start */

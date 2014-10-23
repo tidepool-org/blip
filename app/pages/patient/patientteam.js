@@ -608,10 +608,10 @@ var PatientTeam = React.createClass({
 
   renderEditControls: function() {
     var key = 'edit';
-    var text = 'Show controls';
+    var text = 'Edit';
     if (this.state.editing) {
       key = 'cancel';
-      text = 'Hide controls';
+      text = 'Done';
     }
 
     return (
