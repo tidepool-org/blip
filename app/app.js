@@ -396,7 +396,6 @@ var AppComponent = React.createClass({
           uploadUrl={app.api.getUploadUrl()}
           fetchingInvites={this.state.fetchingInvites}
           showingWelcomeMessage={this.state.showingWelcomeMessage}
-          onSetAsCareGiver={this.setUserAsCareGiver}
           trackMetric={trackMetric}
           onAcceptInvitation={this.handleAcceptInvitation}
           onDismissInvitation={this.handleDismissInvitation}
@@ -1055,12 +1054,6 @@ var AppComponent = React.createClass({
       }
       self.setState({user: user});
       trackMetric('Updated Account');
-    });
-  },
-
-  setUserAsCareGiver: function() {
-    this.updateUser({
-      profile: {isOnlyCareGiver: true}
     });
   },
 
