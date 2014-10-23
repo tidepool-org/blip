@@ -103,6 +103,13 @@ function trackMetric() {
   return app.api.metrics.track.apply(app.api.metrics, args);
 }
 
+function buildExceptionDetails(){
+  return {
+    href: window.location.href,
+    stack: console.trace()
+  };
+}
+
 var AppComponent = React.createClass({
   getInitialState: function() {
     return {
@@ -405,7 +412,7 @@ var AppComponent = React.createClass({
     app.api.invitation.dismiss(invitation.key, invitation.creator.userid, function(err) {
       if(err) {
         self.fetchInvites();
-        return self.handleApiError(err, usrMessages.ERR_DISMISSING_INVITE, console.trace());
+        return self.handleApiError(err, usrMessages.ERR_DISMISSING_INVITE, buildExceptionDetails());
       }
     });
   },
@@ -430,7 +437,7 @@ var AppComponent = React.createClass({
       self.fetchPatients({hideLoading: true});
 
       if(err) {
-        return self.handleApiError(err, usrMessages.ERR_ACCEPTING_INVITE, console.trace());
+        return self.handleApiError(err, usrMessages.ERR_ACCEPTING_INVITE, buildExceptionDetails());
       }
 
       self.setState({
@@ -446,7 +453,7 @@ var AppComponent = React.createClass({
     api.access.setMemberPermissions(memberId, permissions, function(err) {
       if(err) {
         cb(err);
-        return self.handleApiError(err, usrMessages.ERR_CHANGING_PERMS, console.trace());
+        return self.handleApiError(err, usrMessages.ERR_CHANGING_PERMS, buildExceptionDetails());
       }
 
       self.fetchPatient(patientId, cb);
@@ -459,7 +466,7 @@ var AppComponent = React.createClass({
     api.access.leaveGroup(patientId, function(err) {
       if(err) {
 
-        return self.handleApiError(err, usrMessages.ERR_REMOVING_MEMBER, console.trace());
+        return self.handleApiError(err, usrMessages.ERR_REMOVING_MEMBER, buildExceptionDetails());
 
       }
 
@@ -473,7 +480,7 @@ var AppComponent = React.createClass({
     api.access.removeMember(memberId, function(err) {
       if(err) {
         cb(err);
-        return self.handleApiError(err, usrMessages.ERR_REMOVING_MEMBER ,console.trace());
+        return self.handleApiError(err, usrMessages.ERR_REMOVING_MEMBER ,buildExceptionDetails());
       }
 
       self.fetchPatient(patientId, cb);
@@ -489,7 +496,7 @@ var AppComponent = React.createClass({
           cb(err);
         }
         if (err.status === 500) {
-          return self.handleApiError(err, usrMessages.ERR_INVITING_MEMBER, console.trace());
+          return self.handleApiError(err, usrMessages.ERR_INVITING_MEMBER, buildExceptionDetails());
         }
         return;
       }
@@ -512,7 +519,7 @@ var AppComponent = React.createClass({
         if (cb) {
           cb(err);
         }
-        return self.handleApiError(err, usrMessages.ERR_CANCELING_INVITE, console.trace());
+        return self.handleApiError(err, usrMessages.ERR_CANCELING_INVITE, buildExceptionDetails());
       }
 
       self.setState({
@@ -750,8 +757,7 @@ var AppComponent = React.createClass({
     app.api.user.logout(function(err) {
       if (err) {
         self.setState({loggingOut: false});
-        var message = 'An error occured while logging out';
-        return self.handleApiError(err, message, console.trace());
+        return self.handleApiError(err, usrMessages.ERR_ON_LOGOUT, buildExceptionDetails());
       }
       self.refs.logoutOverlay.fadeOut(function() {
         self.setState({loggingOut: false});
@@ -783,8 +789,7 @@ var AppComponent = React.createClass({
     app.api.user.get(function(err, user) {
       if (err) {
         self.setState({fetchingUser: false});
-        var message = 'An error occured while fetching user';
-        return self.handleApiError(err, message, console.trace());
+        return self.handleApiError(err, usrMessages.ERR_FETCHING_USER, buildExceptionDetails());
       }
 
       self.setState({
@@ -801,8 +806,6 @@ var AppComponent = React.createClass({
 
     api.invitation.getSent(function(err, invites) {
       if (err) {
-        var message = 'Something went wrong while fetching pending invites';
-
         self.setState({
           fetchingPendingInvites: false
         });
@@ -811,7 +814,7 @@ var AppComponent = React.createClass({
           cb(err);
         }
 
-        return self.handleApiError(err, message, console.trace());
+        return self.handleApiError(err, usrMessages.ERR_FETCHING_PENDING_INVITES, buildExceptionDetails());
       }
 
       self.setState({
@@ -832,13 +835,12 @@ var AppComponent = React.createClass({
 
     api.invitation.getReceived(function(err, invites) {
       if (err) {
-        var message = 'Something went wrong while fetching invitations';
-
+        
         self.setState({
           fetchingInvites: false
         });
 
-        return self.handleApiError(err, message, console.trace());
+        return self.handleApiError(err, usrMessages.ERR_FETCHING_INVITES, buildExceptionDetails());
       }
 
       self.setState({
@@ -857,9 +859,8 @@ var AppComponent = React.createClass({
 
     app.api.patient.getAll(function(err, patients) {
       if (err) {
-        var message = 'Something went wrong while fetching care teams';
         self.setState({fetchingPatients: false});
-        return self.handleApiError(err, message, console.trace());
+        return self.handleApiError(err, usrMessages.ERR_FETCHING_TEAMS, buildExceptionDetails());
       }
 
       self.setState({
@@ -876,16 +877,15 @@ var AppComponent = React.createClass({
 
     app.api.patient.get(patientId, function(err, patient) {
       if (err) {
-        var message = 'Error fetching patient with id ' + patientId;
         self.setState({fetchingPatient: false});
 
         // Patient with id not found, cary on
         if (err.status === 404) {
-          app.log(message);
+          app.log('Patient not found with id '+patientId);
           return;
         }
 
-        return self.handleApiError(err, message);
+        return self.handleApiError(err, usrMessages.ERR_FETCHING_PATIENT+patientId, buildExceptionDetails());
       }
 
       self.setState({
@@ -920,16 +920,14 @@ var AppComponent = React.createClass({
     },
     function(err, results) {
       if (err) {
-        var message = 'Error fetching data for patient with id ' + patientId;
         self.setState({fetchingPatientData: false});
-
         // Patient with id not found, cary on
         if (err.status === 404) {
-          app.log(message);
+          app.log('No data found for patient '+patientId);
           return;
         }
 
-        return self.handleApiError(err, message);
+        return self.handleApiError(err, usrMessages.ERR_FETCHING_PATIENT_DATA+patientId, buildExceptionDetails());
       }
 
       var patientData = results.patientData || [];
@@ -965,9 +963,7 @@ var AppComponent = React.createClass({
       self.setState({fetchingMessageData: false});
 
       if (err) {
-        var message =
-          'Error fetching data for message thread with id ' + messageId;
-        self.handleApiError(err, message);
+        self.handleApiError(err, usrMessages.ERR_FETCHING_MESSAGE_DATA+messageId, buildExceptionDetails());
         return callback(null);
       }
 
@@ -1033,10 +1029,9 @@ var AppComponent = React.createClass({
 
     app.api.user.put(user, function(err, user) {
       if (err) {
-        var message = 'An error occured while updating user account';
         // Rollback
         self.setState({user: previousUser});
-        return self.handleApiError(err, message);
+        return self.handleApiError(err, usrMessages.ERR_UPDATING_ACCOUNT, buildExceptionDetails());
       }
       self.setState({user: user});
       trackMetric('Updated Account');
@@ -1074,10 +1069,9 @@ var AppComponent = React.createClass({
 
     app.api.patient.put(patient, function(err, patient) {
       if (err) {
-        var message = 'An error occured while saving patient';
         // Rollback
         self.setState({patient: previousPatient});
-        return self.handleApiError(err, message);
+        return self.handleApiError(err, usrMessages.ERR_UPDATING_PATIENT, buildExceptionDetails());
       }
       self.setState({
         patient: _.assign({}, previousPatient, {profile: patient.profile})
@@ -1086,16 +1080,15 @@ var AppComponent = React.createClass({
     });
   },
 
-  handleApiError: function(error, message, trace) {
+  handleApiError: function(error, message, details) {
     if (message) {
       app.log(message);
     }
-    var props = {};
-    if (!_.isEmpty(trace)){
-      props.trace = this.stringifyErrorData(trace);
+    if (!_.isEmpty(details)){
+      details = this.stringifyErrorData(details);
     }
     //send it quick
-    app.api.errors.log(this.stringifyErrorData(error), message, props);
+    app.api.errors.log(this.stringifyErrorData(error), message, details);
 
     var status = error.status;
     var originalErrorMessage = [

@@ -17,7 +17,6 @@ not, you can obtain one from Tidepool Project at tidepool.org.
 
 'use strict';
 
-
 module.exports = {
 	ERR_DISMISSING_INVITE : 'Something went wrong while dismissing the invitation.',
 	ERR_ACCEPTING_INVITE : 'Something went wrong while dismissing the invitation.',
@@ -25,10 +24,18 @@ module.exports = {
 	ERR_REMOVING_MEMBER : 'Something went wrong while removing member from group.',
 	ERR_INVITING_MEMBER : 'Something went wrong while inviting member.',
 	ERR_CANCELING_INVITE : 'Something went wrong while canceling the invitation.',
+	ERR_ON_LOGOUT : 'An error occured while logging out',
+	ERR_FETCHING_USER :'An error occured while fetching user',
+	ERR_FETCHING_PENDING_INVITES : 'Something went wrong while fetching pending invites',
+	ERR_FETCHING_INVITES : 'Something went wrong while fetching invitations',
+	ERR_FETCHING_TEAMS : 'Something went wrong while fetching care teams',
+	ERR_FETCHING_PATIENT : 'Error fetching patient with id ',
+	ERR_FETCHING_PATIENT_DATA : 'Error fetching data for patient with id ',
+	ERR_FETCHING_MESSAGE_DATA : 'Error fetching data for message thread with id ',
+	ERR_UPDATING_ACCOUNT : 'An error occured while updating user account',
+	ERR_UPDATING_PATIENT : 'An error occured while saving patient',
 	STUFF: getStuff()
 };
-
-
 
 function getStuff() {
   return 'Stuff';
