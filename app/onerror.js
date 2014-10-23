@@ -38,7 +38,7 @@ module.exports = function myErrorHandler(errorMessage, fileUrl, lineNumber, coln
       'Feel free to send us a note at',
       '<a style="color: #fff; text-decoration: underline;"',
       'href="mailto:support@tidepool.org">support@tidepool.org</a>',
-      'and we\'ll try to see what broke?',
+      'and we\'ll try to see what broke.',
        'In the meantime, could you try refreshing your browser to reload the app?',
       '</p>',
       '<a id="error-close" style="color: #fff; text-decoration: underline; ',
