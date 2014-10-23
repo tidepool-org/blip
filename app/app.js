@@ -1092,10 +1092,9 @@ var AppComponent = React.createClass({
     if (!_.isEmpty(trace)){
       props.trace = this.stringifyErrorData(trace);
     }
-    // Send error to backend tracking
+    //send it quick
     app.api.errors.log(this.stringifyErrorData(error), message, props);
 
-    var self = this;
     var status = error.status;
     var originalErrorMessage = [
       message, this.stringifyErrorData(error)
@@ -1103,57 +1102,48 @@ var AppComponent = React.createClass({
 
     var type = 'error';
     var body;
-    /* jshint ignore:start */
-    body = (
-      <p>
-        {'Sorry! Something went wrong. '}
-        {'It\'s our fault, not yours. We\'re going to go investigate. '}
-        {'For the time being, go ahead and '}
-        <a href="/">refresh your browser</a>
-        {'.'}
-      </p>
-    );
-    /* jshint ignore:end */
     var isDismissable = true;
 
     if (status === 401) {
-      var handleLogBackIn = function(e) {
-        e.preventDefault();
-        self.setState({notification: null});
-        // We don't actually go through logout process,
-        // so safer to manually destroy local session
-        app.api.user.destroySession();
-        self.handleLogoutSuccess();
-      };
-
-      type = 'alert';
-      originalErrorMessage = null;
-      /* jshint ignore:start */
+      //Just log them out
+      app.log('401 so logged user out');
+      this.setState({notification: null});
+      app.api.user.destroySession();
+      this.handleLogoutSuccess();
+      return;
+    } else if(status === 500){
+      //somethings down, give a bit of time then they can try again
       body = (
         <p>
-          {'To keep your data safe we logged you out. '}
-          <a
-            href=""
-            onClick={handleLogBackIn}>Click here to log back in</a>
-          {'.'}
+          {'Sorry! Something went wrong. '}
+          {'It\'s our fault, not yours. We\'re going to go investigate. '}
+          {'Please try again in a few moments.'}
         </p>
       );
-      /* jshint ignore:end */
-      isDismissable = false;
-    }
+    } else {
 
-    //Check that this isn't a 401 where error message adds no context
-    if (!_.isEmpty(originalErrorMessage) && status !== 401) {
-      /* jshint ignore:start */
-      body = (
-        <div>
-          {body}
+      var errMsg;
+
+      if (!_.isEmpty(originalErrorMessage)) {
+       errMsg = (
           <p className="notification-body-small">
             <code>{'Original error message: ' + originalErrorMessage}</code>
           </p>
+        );
+      }
+
+      body = (
+        <div>
+          <p>
+            {'Sorry! Something went wrong. '}
+            {'It\'s our fault, not yours. We\'re going to go investigate. '}
+            {'For the time being, go ahead and '}
+            <a href="/">refresh your browser</a>
+            {'.'}
+          </p>
+          {errMsg}
         </div>
       );
-      /* jshint ignore:end */
     }
 
     this.setState({
