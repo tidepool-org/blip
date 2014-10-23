@@ -18,7 +18,6 @@ module.exports = function myErrorHandler(errorMessage, fileUrl, lineNumber, coln
   var html;
 
   var details = {
-    origin: window.location.origin,
     href: window.location.href,
     msg: errorMessage,
     file: fileUrl,
