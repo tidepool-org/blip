@@ -19,9 +19,6 @@ var _ = require('lodash');
 var crossfilter = require('crossfilter');
 var util = require('util');
 
-// TODO: eventually this will be a Sundial dependency
-// not a tideline-internal dependency
-// which is inappropriate for a "plugin" like this
 var dt = require('../../js/data/util/datetime');
 
 function translateBg(value) {
@@ -63,29 +60,6 @@ function basalSchedulesToArray(basalSchedules) {
   return standard.concat(schedules);
 }
 
-function makeWatsonFn(timePrefs) {
-  var MS_IN_MIN = 60000;
-  if (timePrefs.timezoneAware) {
-    return function(d) {
-      d.normalTime = d.time;
-      d.displayOffset = -dt.getOffset(d.time, timePrefs.timezoneName);
-      if (d.type === 'basal') {
-        d.normalEnd = dt.addDuration(d.time, d.duration);
-      }
-    };
-  }
-  return function(d) {
-    d.normalTime = dt.addDuration(d.time, d.timezoneOffset * MS_IN_MIN);
-    if (d.deviceTime && d.normalTime.slice(0, -5) !== d.deviceTime) {
-      var err = new Error('Combining `time` and `timezoneOffset` does not yield `deviceTime`.');
-      d.errorMessage = err.message;
-    }
-    if (d.type === 'basal') {
-      d.normalEnd = dt.addDuration(d.normalTime, d.duration);
-    }
-  };
-}
-
 function cloneDeep(d) {
   var newObj = {}, keys = Object.keys(d);
   var numKeys = keys.length;
@@ -103,9 +77,9 @@ function cloneDeep(d) {
 
 function timeIt(fn, name) {
   if (typeof window !== 'undefined') {
-    console.time(name);
+    // console.time(name);
     fn();
-    console.timeEnd(name);
+    // console.timeEnd(name);
   }
   else {
     fn();
@@ -169,15 +143,6 @@ var nurseshark = {
       type: 'message',
       id: d.id
     };
-    if (timezoneAware) {
-      tidelineMessage.normalTime = tidelineMessage.time;
-    }
-    else {
-      var dt = new Date(tidelineMessage.time);
-      var offsetMinutes = dt.getTimezoneOffset();
-      dt.setUTCMinutes(dt.getUTCMinutes() - offsetMinutes);
-      tidelineMessage.normalTime = dt.toISOString();
-    }
     return tidelineMessage;
   },
   processData: function(data, timePrefs) {
@@ -231,7 +196,7 @@ var nurseshark = {
       }
     }
 
-    timeIt(removeOverlapping, 'removeOverlapping');
+    timeIt(removeOverlapping, 'Remove Overlapping');
 
     var handlers = getHandlers(timePrefs);
 
@@ -294,7 +259,7 @@ var nurseshark = {
       // and someone had made a note with year 2 that caused problems for tideline
       // chose year 2008 because tidline's datetime has a validation step that rejects POSIX timestamps
       // that evaluate to year < 2008
-      if (d.normalTime && new Date(d.normalTime).getUTCFullYear() < 2008) {
+      if (new Date(d.time).getUTCFullYear() < 2008) {
         d.errorMessage = 'Invalid datetime (before 2008).';
       }
       if (d.errorMessage != null) {
@@ -321,7 +286,7 @@ var nurseshark = {
 
     timeIt(function() {
       nurseshark.joinWizardsAndBoluses(typeGroups.wizard || [], collections.bolusesToJoin);
-    }, 'joinWizardsAndBoluses');
+    }, 'Join Wizards and Boluses');
 
     if (typeGroups.deviceMeta && typeGroups.deviceMeta.length > 0) {
       timeIt(function() {
@@ -336,15 +301,15 @@ var nurseshark = {
           }
           return false;
         }));
-      }, 'annotateBasals');
+      }, 'Annotate Basals');
     }
 
     timeIt(function() {
       processedData.sort(function(a, b) {
-        if (a.normalTime < b.normalTime) {
+        if (a.time < b.time) {
           return -1;
         }
-        if (a.normalTime > b.normalTime) {
+        if (a.time > b.time) {
           return 1;
         }
         return 0;
@@ -354,10 +319,8 @@ var nurseshark = {
   }
 };
 
-function getHandlers(timePrefs) {
+function getHandlers() {
   var lastEnd, lastBasal;
-
-  var watson = makeWatsonFn(timePrefs);
 
   return {
     basal: function(d) {
@@ -382,18 +345,8 @@ function getHandlers(timePrefs) {
       if (!d.rate && d.deliveryType === 'suspend') {
         d.rate = 0.0;
       }
-      watson(d);
       if (d.suppressed) {
         this.suppressed(d);
-      }
-      // some Carelink temps and suspends are precisely one second short
-      // so we extend them to avoid discontinuity
-      if (d.source === 'carelink' && d.normalTime !== lastBasal.normalEnd) {
-        // check that the difference is indeed no more than one second (= 1000 milliseconds)
-        if (dt.difference(d.normalTime, lastBasal.normalEnd) <= 1000) {
-          lastBasal.normalEnd = d.normalTime;
-          lastBasal.duration = dt.difference(lastBasal.normalEnd, lastBasal.normalTime);
-        }
       }
       lastBasal = d;
       return d;
@@ -403,7 +356,6 @@ function getHandlers(timePrefs) {
       if (d.joinKey != null) {
         collections.bolusesToJoin[d.joinKey] = d;
       }
-      watson(d);
       return d;
     },
     cbg: function(d) {
@@ -411,7 +363,6 @@ function getHandlers(timePrefs) {
       if (d.units === 'mg/dL') {
         d.value = translateBg(d.value);
       }
-      watson(d);
       return d;
     },
     deviceMeta: function(d) {
@@ -420,18 +371,16 @@ function getHandlers(timePrefs) {
         var err = new Error('Bad pump status deviceMeta.');
         d.errorMessage = err.message;
       }
-      watson(d);
       return d;
     },
     message: function(d) {
-      return nurseshark.reshapeMessage(d, timePrefs.timezoneAware);
+      return nurseshark.reshapeMessage(d);
     },
     smbg: function(d) {
       d = cloneDeep(d);
       if (d.units === 'mg/dL') {
         d.value = translateBg(d.value);
       }
-      watson(d);
       return d;
     },
     settings: function(d) {
@@ -456,7 +405,6 @@ function getHandlers(timePrefs) {
         }
       }
       d.basalSchedules = basalSchedulesToArray(d.basalSchedules);
-      watson(d);
       return d;
     },
     suppressed: function(d) {
@@ -469,7 +417,6 @@ function getHandlers(timePrefs) {
       // a suppressed should share these attributes with its parent
       d.suppressed.duration = d.duration;
       d.suppressed.time = d.time;
-      watson(d.suppressed);
       if (d.suppressed.suppressed) {
         this.suppressed(d.suppressed);
       }
@@ -491,7 +438,6 @@ function getHandlers(timePrefs) {
           d.insulinSensitivity = translateBg(d.insulinSensitivity);
         }
       }
-      watson(d);
       return d;
     }
   };

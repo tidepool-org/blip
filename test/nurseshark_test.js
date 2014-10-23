@@ -186,56 +186,6 @@ describe('nurseshark', function() {
       expect(res[0].errorMessage).to.equal('Null duration. Expect an `off-schedule-rate` annotation here. Investigate if that is missing.');
     });
 
-    it('should extend the duration of Carelink temps and suspends that are one second short', function() {
-      var aTime = '2014-01-01T12:00:00.000Z';
-      var nextTime = '2014-01-01T12:20:00.000Z';
-      var basals = [{
-        type: 'basal',
-        deliveryType: 'temp',
-        source: 'carelink',
-        time: aTime,
-        duration: 1199000,
-        rate: 0.5,
-        percent: 0.5,
-        timezoneOffset: 0
-      }, {
-        type: 'basal',
-        deliveryType: 'scheduled',
-        source: 'carelink',
-        time: nextTime,
-        duration: 3600000,
-        rate: 0.9,
-        timezoneOffset: 0
-      }];
-      var res = nurseshark.processData(basals).processedData;
-      expect(res.length).to.equal(2);
-      expect(res[0].normalEnd).to.equal(res[1].normalTime);
-    });
-
-    it('should not extend the duration of non-Carelink temps and suspends', function() {
-      var aTime = '2014-01-01T12:00:00.000Z';
-      var nextTime = '2014-01-01T12:20:00.000Z';
-      var basals = [{
-        type: 'basal',
-        deliveryType: 'temp',
-        time: aTime,
-        duration: 1199000,
-        rate: 0.5,
-        percent: 0.5,
-        timezoneOffset: 0
-      }, {
-        type: 'basal',
-        deliveryType: 'scheduled',
-        time: nextTime,
-        duration: 3600000,
-        rate: 0.9,
-        timezoneOffset: 0
-      }];
-      var res = nurseshark.processData(basals).processedData;
-      expect(res.length).to.equal(2);
-      expect(res[0].normalEnd).to.not.equal(res[1].normalTime);
-    });
-
     describe('suppressed handler', function() {
       var dummyDT1 = '2014-01-01T12:00:00';
       var dummyDT2 = '2014-01-01T11:30:00';
@@ -433,82 +383,17 @@ describe('nurseshark', function() {
     });
   });
 
-  describe('massaging of timestamps', function() {
-    // TODO: remove after we've got tideline using timezone-aware timestamps
-    it('should Watson all device data', function() {
-      var data = [{
-        type: 'basal',
-        time: new Date().toISOString(),
-        timezoneOffset: 0,
-        duration: 3600000,
-      }, {
-        type: 'bolus',
-        time: new Date().toISOString(),
-        timezoneOffset: 0
-      }, {
-        type: 'cbg',
-        time: new Date().toISOString(),
-        timezoneOffset: 0,
-        units: 'mmol/L'
-      }, {
-        type: 'deviceMeta',
-        time: new Date().toISOString(),
-        timezoneOffset: 0,
-        duration: 300000
-      }, {
-        type: 'smbg',
-        time: new Date().toISOString(),
-        timezoneOffset: 0,
-        units: 'mmol/L'
-      }, {
-        type: 'settings',
-        time: new Date().toISOString(),
-        timezoneOffset: 0,
-        units: {
-          bg: 'mmol/L'
-        },
-        basalSchedules: {
-          foo: [],
-          bar: [],
-          time: new Date().toISOString(),
-          timezoneOffset: 0
-        }
-      }, {
-        type: 'wizard',
-        time: new Date().toISOString(),
-        timezoneOffset: 0,
-        units: 'mmol/L'
-      }];
-      var res = nurseshark.processData(data);
-      for (var i = 0; i < res.processedData.length; ++i) {
-        var datum = res.processedData[i];
-        expect(datum.normalTime).to.match(/^(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))$/);
-      }
-    });
-
-    it('should put any datum with year < 2008 into the erroredData', function() {
-      var data = [{
-        type: 'message',
-        timestamp: '0002-01-01T12:00:00.000Z'
-      }, {
-        type: 'smbg',
-        time: '0002-01-01T12:00:00.000Z',
-        timezoneOffset: 0
-      }];
-      var res = nurseshark.processData(data);
-      expect(res.erroredData.length).to.equal(2);
-    });
-
-    it('should apply the timezone offset of the environment (browser) to a message utcTime', function() {
-      var offset = new Date().getTimezoneOffset();
-      var message = [{
-        type: 'message',
-        timestamp: '2014-09-13T02:13:18.805Z'
-      }];
-      var messageTime = new Date(message[0].timestamp);
-      var res = nurseshark.processData(message).processedData[0];
-      expect(res.normalTime).to.equal(new Date(messageTime.setUTCMinutes(messageTime.getUTCMinutes() - offset)).toISOString());
-    });
+  it('should put any datum with year < 2008 into the erroredData', function() {
+    var data = [{
+      type: 'message',
+      timestamp: '0002-01-01T12:00:00.000Z'
+    }, {
+      type: 'smbg',
+      time: '0002-01-01T12:00:00.000Z',
+      timezoneOffset: 0
+    }];
+    var res = nurseshark.processData(data);
+    expect(res.erroredData.length).to.equal(2);
   });
 
   describe('reshapeMessage', function() {
@@ -530,7 +415,6 @@ describe('nurseshark', function() {
         id: 'a',
         parentMessage: null,
         time: now,
-        normalTime: new Date(messageTime.setUTCMinutes(messageTime.getUTCMinutes() - offset)).toISOString(),
         messageText: 'Hello there!',
         type: 'message'
       };
