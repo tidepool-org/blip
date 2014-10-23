@@ -1086,7 +1086,7 @@ var AppComponent = React.createClass({
     });
   },
 
-  app.handleApiError: function(error, message, trace) {
+  handleApiError: function(error, message, trace) {
     if (message) {
       app.log(message);
     }
