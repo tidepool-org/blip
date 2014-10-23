@@ -123,7 +123,8 @@ var AppComponent = React.createClass({
       fetchingPatientData: true,
       fetchingMessageData: true,
       showingAcceptTerms: false,
-      showingWelcomeMessage: true,
+      showingWelcomeTitle: true,
+      showingWelcomeSetup: true,
       dismissedBrowserWarning: false,
       queryParams: queryString.parseTypes(window.location.search)
     };
@@ -395,7 +396,9 @@ var AppComponent = React.createClass({
           invites={this.state.invites}
           uploadUrl={app.api.getUploadUrl()}
           fetchingInvites={this.state.fetchingInvites}
-          showingWelcomeMessage={this.state.showingWelcomeMessage}
+          showingWelcomeTitle={this.state.showingWelcomeTitle}
+          showingWelcomeSetup={this.state.showingWelcomeSetup}
+          onHideWelcomeSetup={this.handleHideWelcomeSetup}
           trackMetric={trackMetric}
           onAcceptInvitation={this.handleAcceptInvitation}
           onDismissInvitation={this.handleDismissInvitation}
@@ -403,10 +406,19 @@ var AppComponent = React.createClass({
     );
     /* jshint ignore:end */
   },
+
+  handleHideWelcomeSetup: function(options) {
+    if (options && options.route) {
+      app.router.setRoute(options.route);
+    }
+    this.setState({showingWelcomeSetup: false});
+  },
+
   handleDismissInvitation: function(invitation) {
     var self = this;
 
     this.setState({
+      showingWelcomeSetup: false,
       invites: _.filter(this.state.invites, function(e){
         return e.key !== invitation.key;
       })
@@ -426,6 +438,7 @@ var AppComponent = React.createClass({
     var self = this;
 
     this.setState({
+      showingWelcomeSetup: false,
       invites: _.map(invites, function(invite) {
         if (invite.key === invitation.key) {
           invite.accepting = true;
@@ -728,7 +741,8 @@ var AppComponent = React.createClass({
       user: user,
       fetchingUser: false,
       showingAcceptTerms: config.SHOW_ACCEPT_TERMS ? true : false,
-      showingWelcomeMessage: true
+      showingWelcomeTitle: true,
+      showingWelcomeSetup: true
     });
     this.redirectToDefaultRoute();
     trackMetric('Signed Up');

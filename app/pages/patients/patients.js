@@ -32,7 +32,9 @@ var Patients = React.createClass({
     fetchingPatients: React.PropTypes.bool,
     invites: React.PropTypes.array,
     fetchingInvites: React.PropTypes.bool,
-    showingWelcomeMessage: React.PropTypes.bool,
+    showingWelcomeTitle: React.PropTypes.bool,
+    showingWelcomeSetup: React.PropTypes.bool,
+    onHideWelcomeSetup: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired,
     onAcceptInvitation: React.PropTypes.func,
     onDismissInvitation: React.PropTypes.func,
@@ -54,19 +56,55 @@ var Patients = React.createClass({
       );
     }
 
-    var patients = this.renderPatients();
+    var welcomeSetup = this.renderWelcomeSetup();
+    var noPatientsOrInvites = this.renderNoPatientsOrInvitationsMessage();
     var invites = this.renderInvitations();
+    var noPatientsSetupStorage = this.renderNoPatientsSetupStorageLink();
+    var patients = this.renderPatients();
 
     return (
       <div className="container-box-outer">
         <div className="patients js-patients-page">
           {welcomeTitle}
+          {welcomeSetup}
+          {noPatientsOrInvites}
           {invites}
+          {noPatientsSetupStorage}
           {patients}
         </div>
       </div>
     );
   },
+
+  renderWelcomeSetup: function() {
+    if (!this.isShowingWelcomeSetup()) {
+      return null;
+    }
+
+    var self = this;
+    var handleClickYes = function(e) {
+      e.preventDefault();
+      self.props.onHideWelcomeSetup({route: '/patients/new'});
+    };
+    var handleClickNo = function(e) {
+      e.preventDefault();
+      self.props.onHideWelcomeSetup();
+    };
+
+    return (
+      <div className="patients-message">
+        <p>{"Tidepool provides free, secure data storage for diabetes data."}</p>
+        <p>{"Would you like to set up data storage for someone’s diabetes data?"}</p>
+        <p>
+          <a href="" onClick={handleClickYes}>{"Yes, let's set it up"}</a>
+          <br />
+          <a href="" onClick={handleClickNo}>{"No"}</a>
+          {" (You can always create one later)"}
+        </p>
+      </div>
+    );
+  },
+
   renderInvitation: function(invitation, index) {
     /* jshint ignore:start */
     return (
@@ -80,13 +118,11 @@ var Patients = React.createClass({
     /* jshint ignore:end */
   },
   renderInvitations: function() {
-    var invites = this.props.invites;
-
-    if (_.isEmpty(invites)) {
-       return null;
+    if (!this.hasInvites()) {
+      return null;
     }
 
-    var invitations = _.map(invites, this.renderInvitation);
+    var invitations = _.map(this.props.invites, this.renderInvitation);
 
     /* jshint ignore:start */
     return (
@@ -96,8 +132,65 @@ var Patients = React.createClass({
     );
     /* jshint ignore:end */
   },
+
+  renderNoPatientsOrInvitationsMessage: function() {
+    if (this.isShowingWelcomeSetup() || this.hasPatients() || this.hasInvites()) {
+      return null;
+    }
+
+    return (
+      <div className="patients-message">
+        {"Looks like you don’t have access to any data yet."}
+        <br />
+        {"Please ask people to invite you to see their data in Blip."}
+      </div>
+    );
+  },
+
+  renderNoPatientsSetupStorageLink: function() {
+    if (this.isShowingWelcomeSetup() || this.hasPatients()) {
+      return null;
+    }
+
+    return (
+      <div className="patients-message">
+        {"You can also "}
+        <a href="#/patients/new">{"setup data storage"}</a>
+        {" for someone’s diabetes data."}
+      </div>
+    );
+  },
+
   renderPatients: function() {
-    var content;
+    if (!this.hasPatients()) {
+      return null;
+    }
+
+    var patients = this.getPatients();
+    patients = this.addLinkToPatients(patients);
+
+    var addDataStorage = this.renderAddDataStorage();
+
+    return (
+      <div className="container-box-inner patients-section js-patients-shared">
+        <div className="patients-section-title-wrapper">
+          <div className="patients-section-title">{"View data for:"}</div>
+        </div>
+        <div className="patients-section-content">
+          {addDataStorage}
+          <div className='clear'></div>
+          <PeopleList
+            people={patients}
+            isPatientList={true}
+            uploadUrl={this.props.uploadUrl}
+            onClickPerson={this.handleClickPatient}
+            onRemovePatient= {this.props.onRemovePatient} />
+        </div>
+      </div>
+    );
+  },
+
+  getPatients: function() {
     var user = _.cloneDeep(this.props.user);
     var patients = _.clone(this.props.patients) || [];
 
@@ -108,49 +201,13 @@ var Patients = React.createClass({
       patients.push(user);
     }
 
-    if (_.isEmpty(patients)) {
-      /* jshint ignore:start */
-      content = (
-        <div className="patients-message">
-          <p>{"You do not have access to see anyone's data yet."}</p>
-          <p>{"You need to ask the people you care for to add you to their team."}</p>
-          <p>{"Or "} <a href="#/patients/new">create a new account</a> {" for them."}</p>
-        </div>
-      );
-      /* jshint ignore:end */
-    }
-    else {
-      patients = this.addLinkToPatients(patients);
-
-      content = (
-        <PeopleList
-          people={patients}
-          isPatientList={true}
-          uploadUrl={this.props.uploadUrl}
-          onClickPerson={this.handleClickPatient}
-          onRemovePatient= {this.props.onRemovePatient}
-          />
-      );
-    }
-
-    var title = this.renderSectionTitle('View data for:');
-    var addAccount = this.renderAddAccount();
-
-    /* jshint ignore:start */
-    return (
-      <div className="container-box-inner patients-section js-patients-shared">
-        {title}
-        <div className="patients-section-content">
-          {addAccount}
-          <div className='clear'></div>
-          {content}
-        </div>
-      </div>
-    );
-    /* jshint ignore:end */
+    return patients;
   },
-  renderAddAccount: function() {
-    if(personUtils.isPatient(this.props.user)) {
+
+  renderAddDataStorage: function() {
+    // Until the "child accounts" feature,
+    // don't allow additional data accounts once the primary one has been setup
+    if (personUtils.isPatient(this.props.user)) {
       return null;
     }
 
@@ -159,47 +216,30 @@ var Patients = React.createClass({
         className="patients-new-account"
         href="#/patients/new"
         onClick={this.handleClickCreateProfile}>
-        Add account
+        Setup data storage
         <i className="icon-add"></i>
       </a>
     );
-    /* jshint ignore:end */
   },
+
   renderWelcomeTitle: function() {
-    if (!this.props.showingWelcomeMessage) {
+    if (!this.isShowingWelcomeTitle()) {
       return null;
     }
 
-    /* jshint ignore:start */
     return (
       <div className="patients-welcome-title">
         {'Welcome to Blip!'}
       </div>
     );
-    /* jshint ignore:end */
   },
+
   renderLoadingIndicator: function() {
     return (
-      <div className="patients-section">
-        <div className="patients-message patients-message-center patients-message-loading">
-          Loading...
-        </div>
+      <div className="patients-message patients-message-loading">
+        Loading...
       </div>
     );
-  },
-
-  renderSectionTitle: function(text) {
-    if (this.props.showingWelcomeMessage) {
-      return null;
-    }
-
-    /* jshint ignore:start */
-    return (
-      <div className="patients-section-title-wrapper">
-        <div className="patients-section-title">{text}</div>
-      </div>
-    );
-    /* jshint ignore:end */
   },
 
   handleClickCreateProfile: function() {
@@ -231,6 +271,22 @@ var Patients = React.createClass({
       this.props.fetchingInvites ||
       this.props.fetchingPatients
     );
+  },
+
+  isShowingWelcomeTitle: function() {
+    return this.props.showingWelcomeTitle;
+  },
+
+  hasInvites: function() {
+    return !_.isEmpty(this.props.invites);
+  },
+
+  isShowingWelcomeSetup: function() {
+    return this.props.showingWelcomeSetup && !this.hasInvites();
+  },
+
+  hasPatients: function() {
+    return !_.isEmpty(this.props.patients) || personUtils.isPatient(this.props.user);
   }
 });
 
