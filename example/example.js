@@ -135,17 +135,15 @@ var Example = React.createClass({
     if (err) {
       throw new Error('Could not fetch data file at ' + dataUrl);
     }
-    // run nurseshark on data that isn't generated demo data
-    // i.e., real data exported from current blip
-    if (dataUrl !== 'data/device-data.json') {
-      console.time('Nurseshark');
-      data = nurseshark.processData(data, this.state.chartPrefs.timePrefs).processedData;
-      console.timeEnd('Nurseshark');
-    }
+    console.time('Nurseshark Total');
+    data = nurseshark.processData(data, this.state.chartPrefs.timePrefs).processedData;
+    console.timeEnd('Nurseshark Total');
     this.updateData(data);
   },
   updateData: function(data) {
+    console.time('TidelineData Total');
     var tidelineData = new TidelineData(data, {timePrefs: this.state.chartPrefs.timePrefs});
+    console.timeEnd('TidelineData Total');
     window.tidelineData = tidelineData;
     this.setState({
       chartData: tidelineData,

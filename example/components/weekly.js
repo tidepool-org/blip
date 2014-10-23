@@ -118,7 +118,7 @@ var Weekly = React.createClass({
     this.setState({
       title: this.getTitle(datetimeLocationEndpoints)
     });
-    this.props.updateDatetimeLocation(this.refs.chart.getCurrentDay());
+    this.props.updateDatetimeLocation(this.refs.chart.getCurrentDay(this.props.chartPrefs.timePrefs));
   },
   handleInTransition: function(inTransition) {
     this.setState({
