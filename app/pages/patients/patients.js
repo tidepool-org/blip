@@ -93,14 +93,16 @@ var Patients = React.createClass({
 
     return (
       <div className="patients-message">
-        <p>{"Tidepool provides free, secure data storage for diabetes data."}</p>
-        <p>{"Would you like to set up data storage for someone’s diabetes data?"}</p>
-        <p>
-          <a href="" onClick={handleClickYes}>{"Yes, let's set it up"}</a>
+        <div>
+          {"Tidepool provides free, secure data storage for diabetes data."}
           <br />
-          <a href="" onClick={handleClickNo}>{"No"}</a>
-          {" (You can always create one later)"}
-        </p>
+          {"Would you like to set up data storage for someone’s diabetes data?"}
+        </div>
+        <div className="patients-welcomesetup-actions">
+          <div><button className="btn btn-primary" onClick={handleClickYes}>{"Yes, let's set it up"}</button></div>
+          <div><button className="btn btn-secondary" onClick={handleClickNo}>{"No, not now"}</button></div>
+          <div className="patients-welcomesetup-actions-help">{"(You can always create one later)"}</div>
+        </div>
       </div>
     );
   },
