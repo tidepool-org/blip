@@ -59,40 +59,48 @@ var PatientCard = React.createClass({
         }
     })(patient);
 
-    var permissions = (function(patient) {
-      var classes = {
-        'Navbar-icon': true,
-        'patientcard-permissions-icon': true
-      };
-
+    var upload = (function(patient) {
       if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
-        classes['icon-permissions-upload'] = true;
-      } else {
-        return null;
+        return (
+          /* jshint ignore:start */
+          <a href={self.props.uploadUrl} target='_blank' title="Upload data">Url</a>
+          /* jshint ignore:end */
+        );
       }
 
-      classes = cx(classes);
+      return null;
+    })(patient);
 
-      return (
-        /* jshint ignore:start */
-        <a href={self.props.uploadUrl} target='_blank' title="Upload data">
-          <i className={classes}></i>
-        </a>
-        /* jshint ignore:end */
-      );
+    var share = (function(patient) {
+      if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
+        return (
+          /* jshint ignore:start */
+          <a href={self.props.shareUrl} title="Share data">Share</a>
+          /* jshint ignore:end */
+        );
+      }
+
+      return null;
     })(patient);
 
     /* jshint ignore:start */
     return (
       <div>
-        <a className={classes}
+        <div className={classes}
           href={this.props.href}
           onClick={this.props.onClick}>
-          <i className="Navbar-icon icon-face-standin"><span className="patientcard-fullname">{this.getFullName()}</span></i>
-        </a>
-        <div className="patientcard-controls">
-          {remove}
-          {permissions}
+          <i className="Navbar-icon icon-face-standin"></i>
+          <div>
+            <div className="patientcard-fullname">{this.getFullName()}</div>
+            <div className="patientcard-actions">
+              <a href={this.props.href} onClick={this.props.onClick}>View</a>
+              {upload}
+              {share}
+            </div>
+            <div className="patientcard-leave">
+              {remove}
+            </div>
+          </div>
         </div>
         {this.renderModalOverlay()}
       </div>
