@@ -13,7 +13,21 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-module.exports = function myErrorHandler(errorMessage, fileUrl, lineNumber) {
+module.exports = function myErrorHandler(errorMessage, fileUrl, lineNumber, colno, error) {
+
+  console.log('the error: ',error);
+
+  var details = {
+    msg: errorMessage,
+    file: fileUrl,
+    ln: lineNumber,
+    cn: colno
+  };
+
+  console.log('details: ',details);
+
+  window.app.api.errors.log(error, 'last chance', details);
+
   var html = [
     '<p>',
     'Sorry! Something went wrong. It\'s our fault, not yours.',

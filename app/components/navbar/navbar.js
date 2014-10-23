@@ -16,6 +16,7 @@
 
 var React = require('react');
 var _ = require('lodash');
+var cx = require('react/lib/cx');
 
 var personUtils = require('../../core/personutils');
 
@@ -24,6 +25,7 @@ var logoSrc = require('./images/blip-logo-80x80.png');
 var Navbar = React.createClass({
   propTypes: {
     version: React.PropTypes.string,
+    currentPage: React.PropTypes.string,
     user: React.PropTypes.object,
     fetchingUser: React.PropTypes.bool,
     patient: React.PropTypes.object,
@@ -150,10 +152,21 @@ var Navbar = React.createClass({
       self.props.trackMetric('Clicked Navbar CareTeam');
     };
 
+    var patientsClasses = cx({
+      'Navbar-button': true,
+      'Navbar-selected': this.props.currentPage && this.props.currentPage === 'patients'
+    });
+
+    var profileClasses = cx({
+      'Navbar-button': true,
+      'Navbar-button--withLeftLabelAndArrow': true,
+      'Navbar-selected': this.props.currentPage && this.props.currentPage === 'profile'
+    });
+
     return (
       <ul className="Navbar-menuSection" ref="user">
         <li className="Navbar-menuItem">
-          <a href="#/profile" title="Account" onClick={handleClickUser} className="Navbar-button Navbar-button--withLeftLabelAndArrow">
+          <a href="#/profile" title="Account" onClick={handleClickUser} className={profileClasses}>
             <div className="Navbar-label Navbar-label--left Navbar-label--withArrow">
               <span className="Navbar-loggedInAs">{'Logged in as '}</span>
               <span className="Navbar-userName" ref="userFullName">{displayName}</span>
@@ -162,7 +175,7 @@ var Navbar = React.createClass({
           </a>
         </li>
         <li className="Navbar-menuItem">
-          <a href="#/" title="Care Team" onClick={this.handleCareteam} className="Navbar-button" ref="careteam"><i className="Navbar-icon icon-careteam"></i></a>
+          <a href="#/" title="Care Team" onClick={this.handleCareteam} className={patientsClasses} ref="careteam"><i className="Navbar-icon icon-careteam"></i></a>
         </li>
         <li className="Navbar-menuItem">
           <a href="" title="Logout" onClick={this.handleLogout} className="Navbar-button" ref="logout"><i className="Navbar-icon icon-logout"></i></a>

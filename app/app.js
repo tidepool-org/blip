@@ -458,7 +458,9 @@ var AppComponent = React.createClass({
 
     api.access.leaveGroup(patientId, function(err) {
       if(err) {
+
         return self.handleApiError(err, usrMessages.ERR_REMOVING_MEMBER, console.trace());
+
       }
 
       self.fetchPatients();
@@ -1084,7 +1086,7 @@ var AppComponent = React.createClass({
     });
   },
 
-  handleApiError: function(error, message, trace) {
+  app.handleApiError: function(error, message, trace) {
     if (message) {
       app.log(message);
     }
@@ -1169,17 +1171,22 @@ app.start = function() {
   var self = this;
 
   this.init(function() {
-    self.component = React.renderComponent(
-      /* jshint ignore:start */
-      <AppComponent />,
-      /* jshint ignore:end */
-      document.getElementById('app')
-    );
+    try{
+      self.component = React.renderComponent(
+        /* jshint ignore:start */
+        <AppComponent />,
+        /* jshint ignore:end */
+        document.getElementById('app')
+      );
 
-    self.log('App started');
+      self.log('App started');
 
-    if (self.mock) {
-      self.log('App running with mock services');
+      if (self.mock) {
+        self.log('App running with mock services');
+      }
+    } catch(err){
+      console.log('not good ',err);
+      throw err
     }
   });
 };
