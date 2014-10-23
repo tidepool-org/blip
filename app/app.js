@@ -13,6 +13,7 @@
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
+'use strict';
 
 var React = require('react');
 var bows = require('bows');
@@ -30,6 +31,8 @@ var queryString = require('./core/querystring');
 var detectTouchScreen = require('./core/notouch');
 var utils = require('./core/utils');
 
+var usrMessages = require('./userMessages');
+
 var Navbar = require('./components/navbar');
 var LogoutOverlay = require('./components/logoutoverlay');
 var BrowserWarningOverlay = require('./components/browserwarningoverlay');
@@ -42,6 +45,7 @@ var Signup = require('./pages/signup');
 var Profile = require('./pages/profile');
 var Patients = require('./pages/patients');
 var Patient = require('./pages/patient');
+
 var PatientEdit = require('./pages/patientedit');
 var PatientData = require('./pages/patientdata');
 
@@ -70,7 +74,6 @@ var routes = {
   '/patients': 'showPatients',
   '/patients/new': 'showPatientNew',
   '/patients/:id': 'showPatient',
-  '/patients/:id/edit': 'showPatientEdit',
   '/patients/:id/data': 'showPatientData'
 };
 
@@ -113,6 +116,10 @@ var AppComponent = React.createClass({
       fetchingPatients: true,
       patient: null,
       fetchingPatient: true,
+      invites: null,
+      fetchingInvites: true,
+      pendingInvites:null,
+      fetchingPendingInvites: true,
       bgPrefs: null,
       patientData: null,
       fetchingPatientData: true,
@@ -236,6 +243,7 @@ var AppComponent = React.createClass({
             fetchingUser={this.state.fetchingUser}
             patient={patient}
             fetchingPatient={this.state.fetchingPatient}
+            currentPage={this.state.page}
             getUploadUrl={getUploadUrl}
             onLogout={this.logout}
             trackMetric={trackMetric}/>
@@ -360,6 +368,7 @@ var AppComponent = React.createClass({
   showPatients: function() {
     this.renderPage = this.renderPatients;
     this.setState({page: 'patients'});
+    this.fetchInvites();
     this.fetchPatients();
     trackMetric('Viewed Care Team List');
   },
@@ -372,13 +381,149 @@ var AppComponent = React.createClass({
           fetchingUser={this.state.fetchingUser}
           patients={this.state.patients}
           fetchingPatients={this.state.fetchingPatients}
+          invites={this.state.invites}
+          uploadUrl={app.api.getUploadUrl()}
+          fetchingInvites={this.state.fetchingInvites}
           showingWelcomeMessage={this.state.showingWelcomeMessage}
           onSetAsCareGiver={this.setUserAsCareGiver}
-          trackMetric={trackMetric}/>
+          trackMetric={trackMetric}
+          onAcceptInvitation={this.handleAcceptInvitation}
+          onDismissInvitation={this.handleDismissInvitation}
+          onRemovePatient={this.handleRemovePatient}/>
     );
     /* jshint ignore:end */
   },
+  handleDismissInvitation: function(invitation) {
+    var self = this;
 
+    this.setState({
+      invites: this.state.invites.filter(function(e){
+        return e.key !== invitation.key;
+      })
+    });
+
+    app.api.invitation.dismiss(invitation.key, invitation.creator.userid, function(err) {
+      if(err) {
+        self.fetchInvites();
+        return self.handleApiError(err, usrMessages.ERR_DISMISSING_INVITE, console.trace());
+      }
+    });
+  },
+  handleAcceptInvitation: function(invitation) {
+    /* Set invitation to processing */
+    var invites = _.cloneDeep(this.state.invites);
+    var self = this;
+
+    invites.map(function(invite) {
+      if (invite.key === invitation.key) {
+        invite.accepting = true;
+      }
+
+      return invite;
+    });
+
+    this.setState({
+      invites: invites
+    });
+
+    app.api.invitation.accept(invitation.key, invitation.creator.userid, function(err) {
+      self.fetchPatients({hideLoading: true});
+
+      if(err) {
+        return self.handleApiError(err, usrMessages.ERR_ACCEPTING_INVITE, console.trace());
+      }
+
+      self.setState({
+        invites: self.state.invites.filter(function(e){
+          return e.key !== invitation.key;
+        })
+      });
+    });
+  },
+  handleChangeMemberPermissions: function(patientId, memberId, permissions, cb) {
+    var self = this;
+
+    api.access.setMemberPermissions(memberId, permissions, function(err) {
+      if(err) {
+        cb(err);
+        return self.handleApiError(err, usrMessages.ERR_CHANGING_PERMS, console.trace());
+      }
+
+      self.fetchPatient(patientId, cb);
+    });
+  },
+
+  handleRemovePatient: function(patientId,cb) {
+    var self = this;
+
+    api.access.leaveGroup(patientId, function(err) {
+      if(err) {
+        return self.handleApiError(err, usrMessages.ERR_REMOVING_MEMBER, console.trace());
+      }
+
+      self.fetchPatients();
+    });
+  },
+
+  handleRemoveMember: function(patientId, memberId, cb) {
+    var self = this;
+
+    api.access.removeMember(memberId, function(err) {
+      if(err) {
+        cb(err);
+        return self.handleApiError(err, usrMessages.ERR_REMOVING_MEMBER ,console.trace());
+      }
+
+      self.fetchPatient(patientId, cb);
+    });
+  },
+
+  handleInviteMember: function(email, permissions, cb) {
+    var self = this;
+
+    api.invitation.send(email, permissions, function(err, invitation) {
+      if(err) {
+        if (cb) {
+          cb(err);
+        }
+        if (err.status === 500) {
+          return self.handleApiError(err, usrMessages.ERR_INVITING_MEMBER, console.trace());
+        }
+        return;
+      }
+
+      self.setState({
+        pendingInvites: utils.concat(self.state.pendingInvites || [], invitation)
+      });
+      if (cb) {
+        cb(null, invitation);
+      }
+      self.fetchPendingInvites();
+    });
+  },
+
+  handleCancelInvite: function(email, cb) {
+    var self = this;
+
+    api.invitation.cancel(email, function(err) {
+      if(err) {
+        if (cb) {
+          cb(err);
+        }
+        return self.handleApiError(err, usrMessages.ERR_CANCELING_INVITE, console.trace());
+      }
+
+      self.setState({
+        pendingInvites: _.reject(self.state.pendingInvites, function(i) {
+          return i.email === email;
+        })
+      });
+      if (cb) {
+        cb();
+      }
+      self.fetchPendingInvites();
+    });
+  },
   showPatient: function(patientId) {
     this.renderPage = this.renderPatient;
     this.setState({
@@ -389,6 +534,7 @@ var AppComponent = React.createClass({
       // (important to have this on next render)
       fetchingPatient: true
     });
+    this.fetchPendingInvites();
     this.fetchPatient(patientId,function(err,patient){
       return;
     });
@@ -406,11 +552,17 @@ var AppComponent = React.createClass({
     /* jshint ignore:start */
     return (
       <Patient
-          user={this.state.user}
-          fetchingUser={this.state.fetchingUser}
-          patient={this.state.patient}
-          fetchingPatient={this.state.fetchingPatient}
-          trackMetric={trackMetric}/>
+        user={this.state.user}
+        fetchingUser={this.state.fetchingUser}
+        patient={this.state.patient}
+        fetchingPatient={this.state.fetchingPatient}
+        onUpdatePatient={this.updatePatient}
+        pendingInvites={this.state.pendingInvites}
+        onChangeMemberPermissions={this.handleChangeMemberPermissions}
+        onRemoveMember={this.handleRemoveMember}
+        onInviteMember={this.handleInviteMember}
+        onCancelInvite={this.handleCancelInvite}
+        trackMetric={trackMetric}/>
     );
     /* jshint ignore:end */
   },
@@ -474,53 +626,6 @@ var AppComponent = React.createClass({
     }
 
     return personUtils.isPatient(this.state.user);
-  },
-
-  showPatientEdit: function(patientId) {
-    this.renderPage = this.renderPatientEdit;
-    this.setState({
-      page: 'patients/' + patientId + '/edit',
-      // Reset patient object to avoid showing previous one
-      patient: null,
-      // Indicate renderPatientEdit() that we are fetching the patient
-      // (important to have this on next render)
-      fetchingPatient: true
-    });
-    this.fetchPatient(patientId);
-    trackMetric('Viewed Profile Edit');
-  },
-
-  renderPatientEdit: function() {
-    // On each state change check if user can edit this patient
-    if (this.isDoneFetchingAndNotUserPatient()) {
-      var patientId = this.state.patient && this.state.patient.userid;
-      var route = '/patients';
-      if (patientId) {
-        route = route + '/' + patientId;
-      }
-      app.log('Not allowed to edit patient with id ' + patientId);
-      app.router.setRoute(route);
-      return;
-    }
-
-    /* jshint ignore:start */
-    return (
-      <PatientEdit
-          patient={this.state.patient}
-          fetchingPatient={this.state.fetchingPatient}
-          onSubmit={this.updatePatient}
-          trackMetric={trackMetric}/>
-    );
-    /* jshint ignore:end */
-  },
-
-  isDoneFetchingAndNotUserPatient: function() {
-    // Wait to have both user and patient objects back from server
-    if (this.state.fetchingUser || this.state.fetchingPatient) {
-      return false;
-    }
-
-    return !this.isSamePersonUserAndPatient();
   },
 
   isSamePersonUserAndPatient: function() {
@@ -644,7 +749,7 @@ var AppComponent = React.createClass({
       if (err) {
         self.setState({loggingOut: false});
         var message = 'An error occured while logging out';
-        return self.handleApiError(err, message);
+        return self.handleApiError(err, message, console.trace());
       }
       self.refs.logoutOverlay.fadeOut(function() {
         self.setState({loggingOut: false});
@@ -677,7 +782,7 @@ var AppComponent = React.createClass({
       if (err) {
         self.setState({fetchingUser: false});
         var message = 'An error occured while fetching user';
-        return self.handleApiError(err, message);
+        return self.handleApiError(err, message, console.trace());
       }
 
       self.setState({
@@ -687,16 +792,72 @@ var AppComponent = React.createClass({
     });
   },
 
-  fetchPatients: function() {
+  fetchPendingInvites: function(cb) {
     var self = this;
 
-    self.setState({fetchingPatients: true});
+    self.setState({fetchingPendingInvites: true});
+
+    api.invitation.getSent(function(err, invites) {
+      if (err) {
+        var message = 'Something went wrong while fetching pending invites';
+
+        self.setState({
+          fetchingPendingInvites: false
+        });
+
+        if (cb) {
+          cb(err);
+        }
+
+        return self.handleApiError(err, message, console.trace());
+      }
+
+      self.setState({
+        pendingInvites: invites,
+        fetchingPendingInvites: false
+      });
+
+      if (cb) {
+        cb();
+      }
+    });
+  },
+
+  fetchInvites: function() {
+    var self = this;
+
+    self.setState({fetchingInvites: true});
+
+    api.invitation.getReceived(function(err, invites) {
+      if (err) {
+        var message = 'Something went wrong while fetching invitations';
+
+        self.setState({
+          fetchingInvites: false
+        });
+
+        return self.handleApiError(err, message, console.trace());
+      }
+
+      self.setState({
+        invites: invites,
+        fetchingInvites: false
+      });
+    });
+  },
+
+  fetchPatients: function(options) {
+    var self = this;
+
+    if(options && !options.hideLoading) {
+        self.setState({fetchingPatients: true});
+    }
 
     app.api.patient.getAll(function(err, patients) {
       if (err) {
         var message = 'Something went wrong while fetching care teams';
         self.setState({fetchingPatients: false});
-        return self.handleApiError(err, message);
+        return self.handleApiError(err, message, console.trace());
       }
 
       self.setState({
@@ -916,20 +1077,28 @@ var AppComponent = React.createClass({
         self.setState({patient: previousPatient});
         return self.handleApiError(err, message);
       }
-      self.setState({patient: patient});
+      self.setState({
+        patient: _.assign({}, previousPatient, {profile: patient.profile})
+      });
       trackMetric('Updated Profile');
     });
   },
 
-  handleApiError: function(error, message) {
+  handleApiError: function(error, message, trace) {
     if (message) {
       app.log(message);
     }
+    var props = {};
+    if (!_.isEmpty(trace)){
+      props.trace = this.stringifyErrorData(trace);
+    }
+    // Send error to backend tracking
+    app.api.errors.log(this.stringifyErrorData(error), message, props);
 
     var self = this;
     var status = error.status;
     var originalErrorMessage = [
-      message, this.stringifyApiError(error)
+      message, this.stringifyErrorData(error)
     ].join(' ');
 
     var type = 'error';
@@ -987,9 +1156,6 @@ var AppComponent = React.createClass({
       /* jshint ignore:end */
     }
 
-    // Send error to backend tracking
-    app.api.errors.log(this.stringifyApiError(error), message);
-
     this.setState({
       notification: {
         type: type,
@@ -999,12 +1165,12 @@ var AppComponent = React.createClass({
     });
   },
 
-  stringifyApiError: function(error) {
-    if (_.isPlainObject(error)) {
-      return JSON.stringify(error);
+  stringifyErrorData: function(data) {
+    if (_.isPlainObject(data)) {
+      return JSON.stringify(data);
     }
     else {
-      return error.toString();
+      return data.toString();
     }
   }
 });
