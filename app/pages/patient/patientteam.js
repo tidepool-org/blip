@@ -19,6 +19,7 @@ var _ = require('lodash');
 var cx = require('react/lib/cx');
 var ModalOverlay = require('../../components/modaloverlay');
 var InputGroup = require('../../components/inputgroup');
+var personUtils = require('../../core/personutils');
 
 var PermissionInputGroup = React.createClass({
   propTypes: {
@@ -643,10 +644,16 @@ var PatientTeam = React.createClass({
       'PatientTeam-list': true,
       'PatientTeam-list--single': emptyList,
     });
+    var patientName = personUtils.patientFullName(this.props.patient);
 
     return (
       <div className={classes}>
-        <div className="PatientPage-sectionTitle">My Care Team <span className="PatientPage-sectionTitleMessage">These people can view your data.</span></div>
+        <div className="PatientPage-sectionTitle">
+          {'Care Team'}
+          <span className="PatientPage-sectionTitleMessage">
+            {'These people can view ' + patientName + '\'s data'}
+          </span>
+        </div>
         {editControls}
         <div className="clear"></div>
         <ul className={listClass}>
