@@ -63,7 +63,7 @@ var PatientCard = React.createClass({
       if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
         return (
           /* jshint ignore:start */
-          <a href={self.props.uploadUrl} target='_blank' title="Upload data">Url</a>
+          <a className='patientcard-actions-upload' href={self.props.uploadUrl} target='_blank' title="Upload data">Upload</a>
           /* jshint ignore:end */
         );
       }
@@ -72,10 +72,11 @@ var PatientCard = React.createClass({
     })(patient);
 
     var share = (function(patient) {
+      var shareUrl = patient.link.slice(0,-5);
       if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
         return (
           /* jshint ignore:start */
-          <a href={self.props.shareUrl} title="Share data">Share</a>
+          <a className='patientcard-actions-share' href={shareUrl} title="Share data">Share</a>
           /* jshint ignore:end */
         );
       }
@@ -90,17 +91,18 @@ var PatientCard = React.createClass({
           href={this.props.href}
           onClick={this.props.onClick}>
           <i className="Navbar-icon icon-face-standin"></i>
-          <div>
+          <div className="patientcard-info">
             <div className="patientcard-fullname">{this.getFullName()}</div>
             <div className="patientcard-actions">
-              <a href={this.props.href} onClick={this.props.onClick}>View</a>
-              {upload}
+              <a className='patientcard-actions-view' href={this.props.href} onClick={this.props.onClick}>View</a>
               {share}
-            </div>
-            <div className="patientcard-leave">
-              {remove}
+              {upload}
             </div>
           </div>
+          <div className="patientcard-leave">
+            {remove}
+          </div>
+          <div className="clear"></div>
         </div>
         {this.renderModalOverlay()}
       </div>

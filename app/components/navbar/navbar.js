@@ -88,6 +88,7 @@ var Navbar = React.createClass({
     var displayName = this.getPatientDisplayName();
     var patientUrl = this.getPatientUrl();
     var uploadLink = this.renderUploadLink();
+    var shareLink = this.renderShareLink();
     var self = this;
     var handleClick = function() {
       self.props.trackMetric('Clicked Navbar View Profile');
@@ -95,13 +96,17 @@ var Navbar = React.createClass({
 
     return (
       <div className="Navbar-patientSection" ref="patient">
-        <a href={patientUrl} onClick={handleClick} className="Navbar-button Navbar-button--withLeftLabelAndArrow">
+        <a href={patientUrl} onClick={handleClick} className="Navbar-button--blueBg Navbar-button Navbar-button--withLeftLabelAndArrow">
           <div className="Navbar-label Navbar-label--left Navbar-label--withArrow">
             <span className="Navbar-patientName">{displayName}</span>
           </div>
         </a>
         <div className="Navbar-patientPicture"></div>
-        {uploadLink}
+        <div>
+          {uploadLink}
+          {shareLink}
+          <div className="clear"></div>
+        </div>
       </div>
     );
   },
@@ -128,9 +133,30 @@ var Navbar = React.createClass({
     };
 
     return (
-      <a href="" onClick={handleClick} className="Navbar-button Navbar-button--blue Navbar-uploadButton">
-        <i className="Navbar-icon icon-upload"></i>
-        <span className="Navbar-uploadLabel">Upload data</span>
+      <a href="" onClick={handleClick} className="Navbar-button Navbar-button--patient Navbar-button--blue Navbar-uploadButton">
+        <i className="Navbar-icon icon-upload-data"></i>
+        <span className="Navbar-uploadLabel">Upload</span>
+      </a>
+    );
+  },
+
+  renderShareLink: function() {
+    var noLink = <div className="Navbar-shareButton"></div>;
+
+    if (!this.isSamePersonUserAndPatient()) {
+      return noLink;
+    }
+
+    var patientUrl = this.getPatientUrl();
+
+    var handleClick = function() {
+      self.props.trackMetric('Clicked Navbar Share');
+    };
+
+    return (
+      <a href={patientUrl} onClick={handleClick} className="Navbar-button Navbar-button--patient Navbar-button--blue Navbar-uploadButton">
+        <i className="Navbar-icon icon-share-data"></i>
+        <span className="Navbar-shareLabel">Share</span>
       </a>
     );
   },

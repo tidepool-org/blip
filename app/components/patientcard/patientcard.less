@@ -12,20 +12,23 @@
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
+
 .patient-list-item {
-  background: @gray-lighter;
+  cursor: pointer;
 
   .no-touch &:hover,
   &:focus,
   &:active {
-      .patientcard-controls {
+
+      .patientcard-actions-view {
+        text-decoration: underline;
+        color: @blue-green-light;
+      }
+      .patientcard-leave {
         display: block;
       }
 
-      background-color: @gray-light;
-
       .icon-face-standin {
-        color: @gray-darker;
       }
   }
 
@@ -48,47 +51,6 @@
   background: @owned-account;
 }
 
-.patientcard-controls {
-  display: none;
-  position: relative;
-  top: -65px;
-  right: 20px;
-
-  > i {
-    font-size: 17px;
-    width: 17px;
-  }
-
-  .icon-remove {
-    color: @blue-green;
-    position: absolute;
-    top: -15px;
-    right: 0px;
-    cursor: pointer;
-
-    .no-touch &:hover,
-    &:focus,
-    &:active {
-      color: @blue-green-light;
-
-    }
-  }
-
-  .patientcard-permissions-icon {
-    color: @blue-green;
-    position: absolute;
-    top: 35px;
-    right: 0px;
-
-    .no-touch &:hover,
-    &:focus,
-    &:active {
-      color: @blue-green-light;
-
-    }
-  }
-}
-
 .patientcard {
   > a {
     margin-left: 10px;
@@ -102,8 +64,9 @@
   }
 
   .icon-face-standin {
-    font-size: 30px;
-    width: 280px;
+    font-size: 50px;
+    width: 70px;
+    float: left;
     color: @blue-green;
   }
 }
@@ -114,11 +77,28 @@
   overflow: hidden;
   text-overflow: ellipsis;
   height: 33px;
-  width: 220px;
+  max-width: 210px;
   color: @gray-dark;
   font-style: normal;
 }
 
+.patientcard-leave {
+  display: none;
+  margin-top: -5px;
+  margin-left: 5px;
+}
+
+.patientcard-info, .patientcard-leave {
+  float: left;
+}
+
+.patientcard-actions {
+  font-size: @font-size-small;
+
+  > a {
+    padding: 10px 5px;
+  }
+}
 .patientcard,
 a.patientcard {
   color: @gray-darker;
@@ -136,7 +116,7 @@ a.patientcard {
       color: @gray-darker;
     }
 
-    .patientcard-controls {
+    .patientcard-leave {
       display: block;
     }
   }
