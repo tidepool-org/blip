@@ -365,45 +365,43 @@ module.exports = function (config, deps) {
      * @returns {cb}  cb(err, response)
      */
     login: function (user, options, cb) {
-      hasConnection(function(err){
+      
+      if(!_.isEmpty(err)){
+        return cb(err);
+      }
 
-        if(!_.isEmpty(err)){
-          return cb(err);
-        }
+      if (user.username == null) {
+        return cb({ status : STATUS_BAD_REQUEST, message: 'Must specify a username' });
+      }
+      if (user.password == null) {
+        return cb({ status : STATUS_BAD_REQUEST, message: 'Must specify a password' });
+      }
 
-        if (user.username == null) {
-          return cb({ status : STATUS_BAD_REQUEST, message: 'Must specify a username' });
-        }
-        if (user.password == null) {
-          return cb({ status : STATUS_BAD_REQUEST, message: 'Must specify a password' });
-        }
+      options = options || {};
+      if (typeof options === 'function') {
+        cb = options;
+        options = {};
+      }
 
-        options = options || {};
-        if (typeof options === 'function') {
-          cb = options;
-          options = {};
-        }
+      superagent
+        .post(makeUrl('/auth/login', user.longtermkey))
+        .auth(user.username, user.password)
+        .end(
+        function (err, res) {
+          if (err != null) {
+            return cb(err, null);
+          }
 
-        superagent
-          .post(makeUrl('/auth/login', user.longtermkey))
-          .auth(user.username, user.password)
-          .end(
-          function (err, res) {
-            if (err != null) {
-              return cb(err, null);
-            }
+          if (res.status !== 200) {
+            return handleHttpError(res, cb);
+          }
 
-            if (res.status !== 200) {
-              return handleHttpError(res, cb);
-            }
+          var theUserId = res.body.userid;
+          var theToken = res.headers[sessionTokenHeader];
 
-            var theUserId = res.body.userid;
-            var theToken = res.headers[sessionTokenHeader];
-
-            saveSession(theUserId, theToken, options);
-            return cb(null,{userid: theUserId, user: res.body});
-          });
-      });
+          saveSession(theUserId, theToken, options);
+          return cb(null,{userid: theUserId, user: res.body});
+        });
     },
     /**
      * Signup user to the Tidepool platform
