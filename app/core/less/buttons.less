@@ -13,7 +13,7 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-@btn-hover-shadow-size:  2px;
+@btn-border-size:  2px;
 
 // Base button
 // ====================================
@@ -27,12 +27,12 @@
   white-space: nowrap;
   background-image: none;
 
-  border: 0;
+  border: @btn-border-size solid black;
   border-radius: 0px;
 
   font-size: inherit;
-  line-height: (1.5*@spacing-base);
-  padding: 0 @spacing-base;
+  line-height: (1.5*@spacing-base) - 2*@btn-border-size;
+  padding: 0 (@spacing-base - 2*@btn-border-size);
 
   font-weight: bold;
 
@@ -63,10 +63,24 @@
 // Main action button style
 .btn-primary {
   background-color: @blue-green;
+  border-color: @blue-green;
   color: #fff;
 
   .no-touch &:hover,
   &:focus {
     background-color: @blue-green-light;
+    border-color: @blue-green-light;
+  }
+}
+
+.btn-secondary {
+  background-color: #fff;
+  border-color: @blue-green;
+  color: @blue-green;
+
+  .no-touch &:hover,
+  &:focus {
+    border-color: @blue-green-light;
+    color: @blue-green-light;
   }
 }
