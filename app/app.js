@@ -1066,6 +1066,8 @@ var AppComponent = React.createClass({
         self.setState({user: previousUser});
         return self.handleApiError(err, message);
       }
+
+      user = _.assign(previousUser, user);
       self.setState({user: user});
       trackMetric('Updated Account');
     });
