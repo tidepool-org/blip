@@ -365,10 +365,6 @@ module.exports = function (config, deps) {
      * @returns {cb}  cb(err, response)
      */
     login: function (user, options, cb) {
-      
-      if(!_.isEmpty(err)){
-        return cb(err);
-      }
 
       if (user.username == null) {
         return cb({ status : STATUS_BAD_REQUEST, message: 'Must specify a username' });
