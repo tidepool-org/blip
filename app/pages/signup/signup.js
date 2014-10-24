@@ -19,6 +19,7 @@ var _ = require('lodash');
 
 var config = require('../../config');
 
+var utils = require('../../core/utils');
 var LoginNav = require('../../components/loginnav');
 var LoginLogo = require('../../components/loginlogo');
 var SimpleForm = require('../../components/simpleform');
@@ -107,9 +108,9 @@ var Signup = React.createClass({
   },
 
   renderForm: function() {
-    var submitButtonText = 'Create account';
+    var submitButtonText = 'Sign up';
     if (this.state.working) {
-      submitButtonText = 'Creating account...';
+      submitButtonText = 'Signing up...';
     }
 
     /* jshint ignore:start */
@@ -159,6 +160,8 @@ var Signup = React.createClass({
   validateFormValues: function(formValues) {
     var validationErrors = {};
     var IS_REQUIRED = 'This field is required.';
+    var INVALID_EMAIL = 'Invalid email address.';
+    var SHORT_PASSWORD = 'Password must be longer than 5 characters.';
 
     if (!formValues.fullName) {
       validationErrors.fullName = IS_REQUIRED;
@@ -168,8 +171,16 @@ var Signup = React.createClass({
       validationErrors.username = IS_REQUIRED;
     }
 
+    if (formValues.username && !utils.validateEmail(formValues.username)) {
+      validationErrors.username = INVALID_EMAIL;
+    }
+
     if (!formValues.password) {
       validationErrors.password = IS_REQUIRED;
+    }
+
+    if (formValues.password && formValues.password.length < 6) {
+      validationErrors.password = SHORT_PASSWORD;
     }
 
     if (formValues.password) {

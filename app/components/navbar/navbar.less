@@ -102,7 +102,6 @@
 .Navbar-button--withLeftLabelAndArrow {
   // No idea why, but this makes the button keep correct height
   display: flex;
-
   margin-right: 8px;
 }
 
@@ -115,6 +114,18 @@
   .Navbar-button:active & {
     background-color: @gray-darkest;
   }
+
+  .Navbar-button--blueBg:hover &,
+  .Navbar-button--blueBg:focus &,
+  .Navbar-button--blueBg:active & {
+    background-color: @blue-green-light;
+  }
+}
+
+.Navbar-button--patient {
+  display: block;
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
 
 .Navbar-label--left {
@@ -145,6 +156,23 @@
   .Navbar-button:focus &:after,
   .Navbar-button:active &:after {
     border-left-color: @gray-darkest;
+  }
+
+  .Navbar-button--blueBg:hover  &:after,
+  .Navbar-button--blueBg:focus  &:after,
+  .Navbar-button--blueBg:active  &:after {
+    border-left-color: @blue-green-light;
+  }
+}
+
+.Navbar-button--blueBg {
+  .Navbar-label {
+    background-color: @blue-green;
+  }
+  .Navbar-label--left.Navbar-label--withArrow {
+    &:after {
+      border-left-color: @blue-green;
+    }
   }
 }
 

@@ -608,10 +608,10 @@ var PatientTeam = React.createClass({
 
   renderEditControls: function() {
     var key = 'edit';
-    var text = 'Show controls';
+    var text = 'Edit';
     if (this.state.editing) {
       key = 'cancel';
-      text = 'Hide controls';
+      text = 'Done';
     }
 
     return (
@@ -646,7 +646,9 @@ var PatientTeam = React.createClass({
 
     return (
       <div className={classes}>
+        <div className="PatientPage-sectionTitle">My Care Team <span className="PatientPage-sectionTitleMessage">These people can view your data.</span></div>
         {editControls}
+        <div className="clear"></div>
         <ul className={listClass}>
           {members}
           {pendingInvites}

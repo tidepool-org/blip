@@ -12,23 +12,29 @@
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
+
+.patientcard-actions--highlight {
+  text-decoration: underline;
+  color: @blue-green-light;
+}
+
 .patient-list-item {
-  background: @gray-lighter;
+  cursor: pointer;
 
   .no-touch &:hover,
   &:focus,
   &:active {
-      .patientcard-controls {
-        display: block;
-      }
-
-      background-color: @gray-light;
-
-      .icon-face-standin {
-        color: @gray-darker;
-      }
+    .patientcard-leave {
+      display: block;
+    }
+    .patientcard-fullname {
+    }
   }
 
+}
+
+.icon-face-standin {
+  color: @blue-green;
 }
 
 .patientcard {
@@ -38,7 +44,7 @@
   font-weight: lighter;
   color: @gray-darker;
   position: relative;
-  width: 295px;
+  width: 330px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -46,47 +52,6 @@
 
 .patientcard-owner {
   background: @owned-account;
-}
-
-.patientcard-controls {
-  display: none;
-  position: relative;
-  top: -65px;
-  right: 20px;
-
-  > i {
-    font-size: 17px;
-    width: 17px;
-  }
-
-  .icon-remove {
-    color: @blue-green;
-    position: absolute;
-    top: -15px;
-    right: 0px;
-    cursor: pointer;
-
-    .no-touch &:hover,
-    &:focus,
-    &:active {
-      color: @blue-green-light;
-
-    }
-  }
-
-  .patientcard-permissions-icon {
-    color: @blue-green;
-    position: absolute;
-    top: 35px;
-    right: 0px;
-
-    .no-touch &:hover,
-    &:focus,
-    &:active {
-      color: @blue-green-light;
-
-    }
-  }
 }
 
 .patientcard {
@@ -102,9 +67,10 @@
   }
 
   .icon-face-standin {
-    font-size: 30px;
-    width: 280px;
-    color: @blue-green;
+    font-size: 45px;
+    width: 65px;
+    float: left;
+    margin-top: 5px;
   }
 }
 .patientcard-fullname {
@@ -114,11 +80,38 @@
   overflow: hidden;
   text-overflow: ellipsis;
   height: 33px;
-  width: 220px;
+  max-width: 210px;
   color: @gray-dark;
   font-style: normal;
 }
 
+.patientcard-leave {
+  display: none;
+  margin-top: -5px;
+  margin-left: 5px;
+
+  .icon-remove {
+    color: red;
+    font-size: 14px;
+    .no-touch &:hover,
+    &:focus,
+    &:active {
+      opacity: 0.5;
+    }
+  }
+}
+
+.patientcard-info, .patientcard-leave {
+  float: left;
+}
+
+.patientcard-actions {
+  font-size: @font-size-small;
+
+  > a {
+    padding: 10px 5px;
+  }
+}
 .patientcard,
 a.patientcard {
   color: @gray-darker;
@@ -136,7 +129,7 @@ a.patientcard {
       color: @gray-darker;
     }
 
-    .patientcard-controls {
+    .patientcard-leave {
       display: block;
     }
   }

@@ -51,15 +51,15 @@ var Invitation = React.createClass({
         <div className='invitation-message'>{'You have been invited to see ' + name + '\'s data!'}</div>
         <div className='invitation-action'>
           <button
-            className='invitation-action-submit btn btn-primary js-form-submit'
-            onClick={this.handleAccept}
-            disabled={this.state ? this.state.enable : false}
-            ref="submitButton">{'Join the team!'}</button>
-          <button
             className="invitation-action-ignore btn js-form-submit"
             onClick={this.handleDismiss}
             disabled={this.state ? this.state.enable : false}
             ref="ignoreButton">{'Ignore'}</button>
+          <button
+            className='invitation-action-submit btn btn-primary js-form-submit'
+            onClick={this.handleAccept}
+            disabled={this.state ? this.state.enable : false}
+            ref="submitButton">{'Join the team!'}</button>
         </div>
       </li>
     );
