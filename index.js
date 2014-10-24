@@ -184,13 +184,13 @@ module.exports = function (config, deps) {
    * check we are logged in and online
    * return an error if we fail either of those otherwise return the token
    */
-  function platformPrereqs(sadCb, happyCb) {
-    if (! isLoggedIn()) {
-      return sadCb({status: STATUS_UNAUTHORIZED, body: UNAUTHORIZED_MSG});
+  function serviceCallChecks(sadCb, happyCb) {
+    if ( isLoggedIn() && hasConnection() ) {
+      return happyCb(myToken);
     } else if (! hasConnection() ) {
       return sadCb({status: STATUS_OFFLINE, body: OFFLINE_MSG});
-    } else {
-      return happyCb(myToken);
+    } else if(!isLoggedIn()) {
+      return sadCb({status: STATUS_UNAUTHORIZED, body: UNAUTHORIZED_MSG});
     }
   }
 
@@ -213,7 +213,7 @@ module.exports = function (config, deps) {
       };
     }
 
-    return platformPrereqs(cb, function(token) {
+    return serviceCallChecks(cb, function(token) {
       superagent
         .get(makeUrl(path))
         .set(sessionTokenHeader, token)
@@ -254,7 +254,7 @@ module.exports = function (config, deps) {
       };
     }
 
-    return platformPrereqs(cb, function(token) {
+    return serviceCallChecks(cb, function(token) {
       superagent
         .post(makeUrl(path))
         .send(data)
@@ -296,7 +296,7 @@ module.exports = function (config, deps) {
       };
     }
 
-    return platformPrereqs(cb, function(token) {
+    return serviceCallChecks(cb, function(token) {
       superagent
         .put(makeUrl(path))
         .send(data)
@@ -527,7 +527,7 @@ module.exports = function (config, deps) {
         eventname = 'generic';
       }
 
-      platformPrereqs(
+      serviceCallChecks(
         doNothingCB,
         function(token){
           superagent
@@ -569,7 +569,7 @@ module.exports = function (config, deps) {
         }
       };
 
-      platformPrereqs(
+      serviceCallChecks(
         doNothingCB,
         function(token){
           superagent
