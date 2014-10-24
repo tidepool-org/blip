@@ -1043,7 +1043,7 @@ var AppComponent = React.createClass({
     var self = this;
     var previousUser = this.state.user;
 
-    var user = _.assign(
+    var newUser = _.assign(
       {},
       _.omit(previousUser, 'profile'),
       _.omit(formValues, 'profile'),
@@ -1051,15 +1051,16 @@ var AppComponent = React.createClass({
     );
 
     // Optimistic update
-    self.setState({user: _.omit(user, 'password')});
+    self.setState({user: _.omit(newUser, 'password')});
 
+    var userUpdates = _.cloneDeep(newUser);
     // If username hasn't changed, don't try to update
     // or else backend will respond with "already taken" error
-    if (user.username === previousUser.username) {
-      user = _.omit(user, 'username', 'emails');
+    if (userUpdates.username === previousUser.username) {
+      userUpdates = _.omit(userUpdates, 'username', 'emails');
     }
 
-    app.api.user.put(user, function(err, user) {
+    app.api.user.put(userUpdates, function(err, user) {
       if (err) {
         var message = 'An error occured while updating user account';
         // Rollback
@@ -1067,7 +1068,7 @@ var AppComponent = React.createClass({
         return self.handleApiError(err, message);
       }
 
-      user = _.assign(previousUser, user);
+      user = _.assign(newUser, user);
       self.setState({user: user});
       trackMetric('Updated Account');
     });
