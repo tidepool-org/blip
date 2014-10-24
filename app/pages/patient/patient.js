@@ -117,7 +117,6 @@ var Patient = React.createClass({
   renderInfo: function() {
     return (
       <div className="PatientPage-infoSection">
-        <div className="PatientPage-sectionTitle">Info</div>
         <PatientInfo
           user={this.props.user}
           fetchingUser={this.props.fetchingUser}
@@ -182,7 +181,6 @@ var Patient = React.createClass({
 
     return (
       <div className="PatientPage-teamSection">
-        <div className="PatientPage-sectionTitle">My Care Team <span className="PatientPage-sectionTitleMessage">These people can view your data.</span></div>
         {this.renderPatientTeam()}
       </div>
     );

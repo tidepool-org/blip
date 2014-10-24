@@ -142,7 +142,8 @@ var Navbar = React.createClass({
 
   renderShareLink: function() {
     var noLink = <div className="Navbar-shareButton"></div>;
-
+    var self = this;
+    
     if (!this.isSamePersonUserAndPatient()) {
       return noLink;
     }

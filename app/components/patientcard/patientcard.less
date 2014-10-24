@@ -19,7 +19,6 @@
   .no-touch &:hover,
   &:focus,
   &:active {
-
       .patientcard-actions-view {
         text-decoration: underline;
         color: @blue-green-light;
@@ -27,8 +26,11 @@
       .patientcard-leave {
         display: block;
       }
-
       .icon-face-standin {
+        color: @blue-green;
+      }
+      .patientcard-fullname {
+        color: @blue-green;
       }
   }
 
@@ -67,7 +69,6 @@
     font-size: 50px;
     width: 70px;
     float: left;
-    color: @blue-green;
   }
 }
 .patientcard-fullname {
@@ -86,6 +87,16 @@
   display: none;
   margin-top: -5px;
   margin-left: 5px;
+
+  .icon-remove {
+    color: red;
+    font-size: 14px;
+    .no-touch &:hover,
+    &:focus,
+    &:active {
+      opacity: 0.5;
+    }
+  }
 }
 
 .patientcard-info, .patientcard-leave {
