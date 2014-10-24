@@ -1110,9 +1110,14 @@ var AppComponent = React.createClass({
       //somethings down, give a bit of time then they can try again
       body = (
         <p>
-          {'Sorry! Something went wrong. '}
-          {'It\'s our fault, not yours. We\'re going to go investigate. '}
-          {'Please try again in a few moments.'}
+          {usrMessages.ERR_SERVICE_DOWN}
+        </p>
+      );
+    } else if(status === 503){
+      //offline nothing is going to work
+      body = (
+        <p>
+          {usrMessages.ERR_OFFLINE}
         </p>
       );
     } else {
@@ -1130,9 +1135,7 @@ var AppComponent = React.createClass({
       body = (
         <div>
           <p>
-            {'Sorry! Something went wrong. '}
-            {'It\'s our fault, not yours. We\'re going to go investigate. '}
-            {'For the time being, go ahead and '}
+            {usrMessages.ERR_GENERIC}
             <a href="/">refresh your browser</a>
             {'.'}
           </p>
