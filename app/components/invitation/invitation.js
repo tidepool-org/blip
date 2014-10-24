@@ -17,7 +17,7 @@ var React = require('react');
 var _ = require('lodash');
 var cx = require('react/lib/cx');
 
-var utils = require('../../core/utils');
+var personUtils = require('../../core/personutils');
 
 var Invitation = React.createClass({
   propTypes: {
@@ -33,7 +33,7 @@ var Invitation = React.createClass({
     this.props.onDismissInvitation(this.props.invitation);
   },
   render: function() {
-    var name = utils.getIn(this.props.invitation, ['creator', 'profile', 'fullName']);
+    var name = personUtils.patientFullName(this.props.invitation.creator);
 
     if (this.props.invitation.accepting) {
       /* jshint ignore:start */
