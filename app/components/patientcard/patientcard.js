@@ -43,87 +43,20 @@ var PatientCard = React.createClass({
       'patientcard': true
     });
 
-    var setHighlight = function(highlight) {
-      return function() {
-        self.setState({
-          highlight: highlight
-        });
-      };
-    };
-
-    var stopPropagation = function(event) {
-      event.stopPropagation();
-    };
-
-    var remove = (function(patient) {
-      var classes = cx({
-        'patientcard-actions--highlight': self.state.highlight === 'remove'
-      });
-
-      if (_.isEmpty(patient.permissions) === false && (!patient.permissions.admin && !patient.permissions.root)) {
-        var title = 'Remove yourself from ' + self.getFullName() + "'s care team.";
-
-        return (
-          /* jshint ignore:start */
-          <a className={classes} href="" onMouseEnter={setHighlight('remove')} onMouseLeave={setHighlight('view')} onClick={self.handleRemove(patient)} title={title}>
-            <i className="Navbar-icon icon-remove"></i>
-          </a>
-          /* jshint ignore:end */
-        );
-      }
-    })(patient);
-
-    var upload = (function(patient) {
-      var uploadClasses = cx({
-        'patientcard-actions-upload': true,
-        'patientcard-actions--highlight': self.state.highlight === 'upload'
-      });
-
-      if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
-        return (
-          /* jshint ignore:start */
-          <a className={uploadClasses} onClick={stopPropagation} onMouseEnter={setHighlight('upload')} onMouseLeave={setHighlight('view')} href={self.props.uploadUrl} target='_blank' title="Upload data">Upload</a>
-          /* jshint ignore:end */
-        );
-      }
-
-      return null;
-    })(patient);
-
-    var share = (function(patient) {
-      var shareUrl = patient.link.slice(0,-5);
-
-      var shareClasses = cx({
-        'patientcard-actions-share': true,
-        'patientcard-actions--highlight': self.state.highlight === 'share'
-      });
-
-      if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
-        return (
-          /* jshint ignore:start */
-          <a className={shareClasses} onClick={stopPropagation} onMouseEnter={setHighlight('share')} onMouseLeave={setHighlight('view')} href={shareUrl} title="Share data">Share</a>
-          /* jshint ignore:end */
-        );
-      }
-
-      return null;
-    })(patient);
+    var remove = this.renderRemove(patient);
+    var upload = this.renderUpload(patient);
+    var share = this.renderShare(patient);
 
     var viewClasses = cx({
       'patientcard-actions-view': true,
       'patientcard-actions--highlight': self.state.highlight === 'view'
     });
 
-    var onClick = function() {
-      window.location.hash = self.props.href;
-      self.props.onClick();
-    };
-
     /* jshint ignore:start */
     return (
       <div>
-        <div onMouseEnter={setHighlight('view')} onMouseLeave={setHighlight('')} className={classes}
-          onClick={onClick}>
+        <div onMouseEnter={this.setHighlight('view')} onMouseLeave={this.setHighlight('')} className={classes}
+          onClick={this.onClick}>
           <i className="Navbar-icon icon-face-standin"></i>
           <div className="patientcard-info">
             <div className="patientcard-fullname">{this.getFullName()}</div>
@@ -144,6 +77,60 @@ var PatientCard = React.createClass({
     /* jshint ignore:end */
   },
 
+  renderRemove: function(patient) {
+    var classes = cx({
+      'patientcard-actions--highlight': this.state.highlight === 'remove'
+    });
+
+    if (_.isEmpty(patient.permissions) === false && (!patient.permissions.admin && !patient.permissions.root)) {
+      var title = 'Remove yourself from ' + this.getFullName() + "'s care team.";
+
+      return (
+        /* jshint ignore:start */
+        <a className={classes} href="" onMouseEnter={this.setHighlight('remove')} onMouseLeave={this.setHighlight('view')} onClick={this.handleRemove(patient)} title={title}>
+          <i className="Navbar-icon icon-remove"></i>
+        </a>
+        /* jshint ignore:end */
+      );
+    }
+  },
+
+  renderUpload: function(patient) {
+    var uploadClasses = cx({
+      'patientcard-actions-upload': true,
+      'patientcard-actions--highlight': this.state.highlight === 'upload'
+    });
+
+    if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
+      return (
+        /* jshint ignore:start */
+        <a className={uploadClasses} onClick={this.stopPropagation} onMouseEnter={this.setHighlight('upload')} onMouseLeave={this.setHighlight('view')} href={this.props.uploadUrl} target='_blank' title="Upload data">Upload</a>
+        /* jshint ignore:end */
+      );
+    }
+
+    return null;
+  },
+
+  renderShare: function(patient) {
+    var shareUrl = patient.link.slice(0,-5);
+
+    var shareClasses = cx({
+      'patientcard-actions-share': true,
+      'patientcard-actions--highlight': this.state.highlight === 'share'
+    });
+
+    if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
+      return (
+        /* jshint ignore:start */
+        <a className={shareClasses} onClick={this.stopPropagation} onMouseEnter={this.setHighlight('share')} onMouseLeave={this.setHighlight('view')} href={shareUrl} title="Share data">Share</a>
+        /* jshint ignore:end */
+      );
+    }
+
+    return null;
+  },
+
   renderRemoveDialog: function(patient) {
     return (
       /* jshint ignore:start */
@@ -156,6 +143,18 @@ var PatientCard = React.createClass({
       </div>
       /* jshint ignore:end */
     );
+  },
+
+  renderModalOverlay: function() {
+    return (
+      /* jshint ignore:start */
+      <ModalOverlay
+        show={this.state.showModalOverlay}
+        dialog={this.state.dialog}
+        overlayClickHandler={this.overlayClickHandler}/>
+      /* jshint ignore:end */
+    );
+
   },
 
   handleRemovePatient: function(patient) {
@@ -191,21 +190,26 @@ var PatientCard = React.createClass({
     });
   },
 
-  renderModalOverlay: function() {
-
-    return (
-      /* jshint ignore:start */
-      <ModalOverlay
-        show={this.state.showModalOverlay}
-        dialog={this.state.dialog}
-        overlayClickHandler={this.overlayClickHandler}/>
-      /* jshint ignore:end */
-    );
-
-  },
-
   getFullName: function() {
     return personUtils.patientFullName(this.props.patient);
+  },
+
+  setHighlight: function(highlight) {
+    var self = this;
+    return function() {
+      self.setState({
+        highlight: highlight
+      });
+    };
+  },
+
+  stopPropagation: function(event) {
+    event.stopPropagation();
+  },
+
+  onClick: function() {
+    window.location.hash = this.props.href;
+    this.props.onClick();
   }
 });
 
