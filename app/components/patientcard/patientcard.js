@@ -43,27 +43,46 @@ var PatientCard = React.createClass({
       'patientcard': true
     });
 
+    var setHighlight = function(highlight) {
+      return function() {
+        self.setState({
+          highlight: highlight
+        });
+      };
+    };
+
+    var stopPropagation = function(event) {
+      event.stopPropagation();
+    };
+
     var remove = (function(patient) {
+      var classes = cx({
+        'patientcard-actions--highlight': self.state.highlight === 'remove'
+      });
 
-        if (_.isEmpty(patient.permissions) === false && (!patient.permissions.admin && !patient.permissions.root)) {
+      if (_.isEmpty(patient.permissions) === false && (!patient.permissions.admin && !patient.permissions.root)) {
+        var title = 'Remove yourself from ' + self.getFullName() + "'s care team.";
 
-          var title = 'Remove yourself from ' + self.getFullName() + "'s care team.";
-
-          return (
-            /* jshint ignore:start */
-            <a href="" onClick={self.handleRemove(patient)} title={title}>
-              <i className="Navbar-icon icon-remove"></i>
-            </a>
-            /* jshint ignore:end */
-          );
-        }
+        return (
+          /* jshint ignore:start */
+          <a className={classes} href="" onMouseEnter={setHighlight('remove')} onMouseLeave={setHighlight('view')} onClick={self.handleRemove(patient)} title={title}>
+            <i className="Navbar-icon icon-remove"></i>
+          </a>
+          /* jshint ignore:end */
+        );
+      }
     })(patient);
 
     var upload = (function(patient) {
+      var uploadClasses = cx({
+        'patientcard-actions-upload': true,
+        'patientcard-actions--highlight': self.state.highlight === 'upload'
+      });
+
       if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
         return (
           /* jshint ignore:start */
-          <a className='patientcard-actions-upload' href={self.props.uploadUrl} target='_blank' title="Upload data">Upload</a>
+          <a className={uploadClasses} onClick={stopPropagation} onMouseEnter={setHighlight('upload')} onMouseLeave={setHighlight('view')} href={self.props.uploadUrl} target='_blank' title="Upload data">Upload</a>
           /* jshint ignore:end */
         );
       }
@@ -73,10 +92,16 @@ var PatientCard = React.createClass({
 
     var share = (function(patient) {
       var shareUrl = patient.link.slice(0,-5);
+
+      var shareClasses = cx({
+        'patientcard-actions-share': true,
+        'patientcard-actions--highlight': self.state.highlight === 'share'
+      });
+
       if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
         return (
           /* jshint ignore:start */
-          <a className='patientcard-actions-share' href={shareUrl} title="Share data">Share</a>
+          <a className={shareClasses} onClick={stopPropagation} onMouseEnter={setHighlight('share')} onMouseLeave={setHighlight('view')} href={shareUrl} title="Share data">Share</a>
           /* jshint ignore:end */
         );
       }
@@ -84,17 +109,26 @@ var PatientCard = React.createClass({
       return null;
     })(patient);
 
+    var viewClasses = cx({
+      'patientcard-actions-view': true,
+      'patientcard-actions--highlight': self.state.highlight === 'view'
+    });
+
+    var onClick = function() {
+      window.location.hash = self.props.href;
+      self.props.onClick();
+    };
+
     /* jshint ignore:start */
     return (
       <div>
-        <div className={classes}
-          href={this.props.href}
-          onClick={this.props.onClick}>
+        <div onMouseEnter={setHighlight('view')} onMouseLeave={setHighlight('')} className={classes}
+          onClick={onClick}>
           <i className="Navbar-icon icon-face-standin"></i>
           <div className="patientcard-info">
             <div className="patientcard-fullname">{this.getFullName()}</div>
             <div className="patientcard-actions">
-              <a className='patientcard-actions-view' href={this.props.href} onClick={this.props.onClick}>View</a>
+              <a className={viewClasses} href={this.props.href} onClick={this.props.onClick}>View</a>
               {share}
               {upload}
             </div>

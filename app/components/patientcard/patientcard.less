@@ -13,21 +13,22 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+.patientcard-actions--highlight {
+  text-decoration: underline;
+  color: @blue-green-light;
+}
+
 .patient-list-item {
   cursor: pointer;
 
   .no-touch &:hover,
   &:focus,
   &:active {
-      .patientcard-actions-view {
-        text-decoration: underline;
-        color: @blue-green-light;
-      }
-      .patientcard-leave {
-        display: block;
-      }
-      .patientcard-fullname {
-      }
+    .patientcard-leave {
+      display: block;
+    }
+    .patientcard-fullname {
+    }
   }
 
 }
