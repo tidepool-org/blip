@@ -29,6 +29,7 @@ require('./browser/tidelinedata_test');
 // ====================================
 
 /* js/data/ */
+require('./format_test');
 require('./datetime_test');
 require('./basalutil_test');
 require('./bgutil_test');
