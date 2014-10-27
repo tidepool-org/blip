@@ -27,7 +27,7 @@ module.exports = function myErrorHandler(errorMessage, fileUrl, lineNumber, coln
 
   try{
 
-    //send it to the server
+    //try and send it to the server in the first instance
     window.app.api.errors.log(error,'Caught in onerror',details);
 
     html = [
