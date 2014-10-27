@@ -1,0 +1,74 @@
+/**
+ * Copyright (c) 2014, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ */
+
+.invitation {
+  margin-bottom: @spacing-small;
+}
+
+.invitations {
+  list-style-type: none;
+  width: 700px;
+  margin: 0 auto;
+  padding: 0px;
+}
+.invitation {
+  margin: 10px;
+  background-color: @blue-green;
+  padding: 15px;
+
+  button {
+    margin: 10px;
+  }
+}
+.invitation:first-child {
+  margin-top: 30px;
+}
+.invitation:last-child {
+  margin-bottom: 30px;
+}
+.invitation-action {
+  width: 290px;
+  margin: 0 auto;
+  padding-top: 10px;
+}
+.invitation-message {
+  text-align: center;
+  font-size: @font-size-base;
+  color: white;
+  font-weight: lighter;
+}
+
+.invitation-action-submit {
+  color: @blue-green;
+  background: @gray-light;
+  border-color: @gray-light;
+
+  &:hover, &:focus {
+    color: @gray-light;
+    background: @blue-green;
+    border-color: @blue-green;
+  }
+}
+
+.invitation-action-ignore {
+  color: white;
+  background: @blue-green;
+  border-color: @blue-green;
+
+  &:hover, &:focus {
+    background: @blue-green-light;
+    border-color: @blue-green-light;
+  }
+}

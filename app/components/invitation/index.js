@@ -13,34 +13,4 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-.login-form {
-  margin-bottom: @spacing-large;
-}
-
-.login-form-box {
-  padding-top: @spacing-base;
-  padding-bottom: @spacing-base;
-
-  @media(min-width: @screen-md-min) {
-    padding-top: @spacing-large;
-    padding-bottom: @spacing-large;
-  }
-}
-
-.login-simpleform {
-  margin-bottom: @spacing-small;
-}
-
-.login-mailto {
-  text-align: right;
-}
-
-.login-inviteIntro {
-  width: 450px;
-  margin: 0 auto;
-  text-align: center;
-
-  > p {
-    margin: 5px 0;
-  }
-}
+module.exports = require('./invitation');

@@ -238,7 +238,10 @@ function getPerson(userId, cb) {
   });
 }
 
-// Not every user is a "patient"
+/*
+ * Not every user is a "patient".
+ * Get the "patient" and attach the logged in users permissons
+ */
 function getPatient(patientId, cb) {
   return getPerson(patientId, function(err, person) {
     if (err) {
@@ -248,8 +251,14 @@ function getPatient(patientId, cb) {
     if (!personUtils.isPatient(person)) {
       return cb();
     }
+    //attach the logged in users perms
+    loggedInUsersPermissons(function(err, perms){
 
-    return cb(null, person);
+      person.permissions = _.values(perms);
+
+      return cb(err, person);
+    });
+
   });
 }
 
@@ -271,6 +280,10 @@ function updatePatient(patient, cb) {
     });
     return cb(null, patient);
   });
+}
+
+function loggedInUsersPermissons(cb) {
+  tidepool.getAccessPermissions(cb);
 }
 
 api.patient.get = function(patientId, cb) {
@@ -298,7 +311,6 @@ api.patient.get = function(patientId, cb) {
       if (err) {
         return cb(err);
       }
-
       if (_.isEmpty(permissions)) {
         return cb(null, patient);
       }
@@ -309,13 +321,18 @@ api.patient.get = function(patientId, cb) {
       // Convert to array of user ids
       var memberIds = Object.keys(permissions);
 
-      async.map(memberIds, getPerson, function(err, people) {
+      async.map(memberIds, getPerson, function(err, members) {
         if (err) {
           return cb(err);
         }
-        // Filter any people ids that returned nothing
-        people = _.filter(people);
-        patient.team = people;
+        // Filter any member ids that returned nothing
+        members = _.filter(members);
+        // Add each member's permissions
+        members = _.map(members, function(member) {
+          member.permissions = permissions[member.userid];
+          return member;
+        });
+        patient.team = members;
         return cb(null, patient);
       });
     });
@@ -466,39 +483,39 @@ api.patientData.get = function(patientId, cb) {
 
 api.invitation = {};
 
+api.invitation.send = function(emailAddress, permissions, callback) {
+  var loggedInUser = tidepool.getUserId();
+  api.log('POST /confirm/send/invite/' + loggedInUser);
+  return tidepool.inviteUser(emailAddress, permissions, loggedInUser, callback);
+};
+
 api.invitation.getReceived = function(callback) {
-  api.log('GET /invitations/received [NOT IMPLEMENTED]');
-  callback(null, []);
+  api.log('GET /confirm/invitations');
+  return tidepool.invitesReceived(tidepool.getUserId(),callback);
 };
 
-api.invitation.accept = function(fromUserId, callback) {
-  api.log('POST /invitations/from/' + fromUserId + '/accept [NOT IMPLEMENTED]');
-  callback(null, {});
+api.invitation.accept = function(key, fromUserId, callback) {
+  var loggedInUser = tidepool.getUserId();
+  api.log('POST /confirm/accept/invite/' + loggedInUser +'/'+fromUserId );
+  return tidepool.acceptInvite(key, loggedInUser, fromUserId, callback);
 };
 
-api.invitation.dismiss = function(fromUserId, callback) {
-  api.log('POST /invitations/from/' + fromUserId + '/dismiss [NOT IMPLEMENTED]');
-  callback(null, {});
+api.invitation.dismiss = function(key, fromUserId, callback) {
+  var loggedInUser = tidepool.getUserId();
+  api.log('POST /confirm/dismiss/invite/'+ loggedInUser+ '/'+fromUserId );
+  return tidepool.dismissInvite(key, loggedInUser, fromUserId, callback);
 };
 
 api.invitation.getSent = function(callback) {
-  api.log('GET /invitations/sent [NOT IMPLEMENTED]');
-  callback(null, []);
+  var loggedInUser = tidepool.getUserId();
+  api.log('GET /confirm/invite/'+loggedInUser);
+  return  tidepool.invitesSent(loggedInUser, callback);
 };
 
-api.invitation.send = function(toEmail, permissions, callback) {
-  api.log('POST /invitations [NOT IMPLEMENTED]');
-  callback(null, {});
-};
-
-api.invitation.cancel = function(toEmail, callback) {
-  api.log('POST /invitations/to/' + toEmail + '/cancel [NOT IMPLEMENTED]');
-  callback();
-};
-
-api.invitation.getForToken = function(token, callback) {
-  api.log('GET /invitations/token/' + token);
-  callback(null, {});
+api.invitation.cancel = function(emailAddress, callback) {
+   var loggedInUser = tidepool.getUserId();
+  api.log('DELETE /confirm/' + loggedInUser+ '/invited/'+ emailAddress);
+  return tidepool.removeInvite(emailAddress, loggedInUser, callback);
 };
 
 // ----- Access -----
@@ -513,14 +530,14 @@ api.access.setMemberPermissions = function(memberId, permissions, callback) {
 
 api.access.removeMember = function(memberId, callback) {
   var groupId = tidepool.getUserId();
-  api.log('DELETE /access/' + groupId + '/' + memberId);
+  api.log('POST /access/' + groupId + '/' + memberId);
   return tidepool.setAccessPermissions(memberId, null, callback);
 };
 
 api.access.leaveGroup = function(groupId, callback) {
   var memberId = tidepool.getUserId();
-  api.log('DELETE /access/' + groupId + '/' + memberId);
-  return tidepool.setAccessPermissions(memberId, null, callback);
+  api.log('POST /access/' + groupId + '/' + memberId);
+  return tidepool.setAccessPermissionsOnGroup(groupId, memberId, null, callback);
 };
 
 // ----- Upload -----

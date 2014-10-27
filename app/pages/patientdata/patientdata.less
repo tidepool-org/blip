@@ -140,7 +140,6 @@
 
 .patient-data-message {
   text-align: center;
-  font-style: italic;
   padding: 30px @spacing-small;
   margin-top: 80px;
 
@@ -161,7 +160,11 @@
 }
 
 .patient-data-message-no-data {
-  color: @gray-dark;
+  > a {
+    font-size: 40px;
+    padding: 40px;
+    display: inline-block;
+  }
 }
 
 // Footer

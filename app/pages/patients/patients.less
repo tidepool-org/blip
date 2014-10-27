@@ -1,4 +1,4 @@
-/**
+ /**
  * Copyright (c) 2014, Tidepool Project
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -18,14 +18,16 @@
 .patients {
   margin-right: auto;
   margin-left: auto;
-  max-width: @patients-box-max-width;
   margin-bottom: @spacing-large;
+  background: white;
+  border: 1px solid @gray-light;
 }
 
 .patients-section {
   position: relative;
   background-color: #fff;
-  margin-bottom: @spacing-large;
+  padding-bottom: @spacing-large;
+  border-top: 1px solid @gray-light;
 }
 
 .patients-section-title-wrapper {
@@ -36,13 +38,40 @@
 .patients-section-title {
   display: inline-block;
   min-width: 260px;
-  background-color: @gray;
+  background-color: @gray-light;
+  font-weight: 200;
   padding: @spacing-small;
 }
 
 .patients-section-content {
-  padding: 0 @spacing-base;
+  width: 700px;
+  margin: 0 auto;
   padding-bottom: @spacing-base;
+}
+
+.patients-new-account {
+  position: absolute;
+  top: 10px;
+  right: 145px;
+
+  > span {
+    padding-right: 4px;
+  }
+
+  .icon-add {
+    color: @blue-green;
+  }
+
+  .no-touch &:hover,
+  &:focus,
+  &:active {
+    text-decoration: none;
+    color: @blue-green-light;
+
+    .icon-add {
+      color: @blue-green-light;
+    }
+  }
 }
 
 .patients-section-dismiss {
@@ -81,7 +110,7 @@
   text-decoration: none;
 }
 
-// Empty lists
+// Messages
 // ====================================
 
 .patients-message {
@@ -89,8 +118,8 @@
   font-weight: 300;
   text-align: center;
 
-  margin-top: @spacing-base;
-  margin-bottom: @spacing-base;
+  margin-top: 60px;
+  margin-bottom: 60px;
 }
 
 .patients-message-small {
@@ -103,8 +132,8 @@
 
 .patients-message-loading {
   font-weight: normal;
-  padding-top: @spacing-base;
-  padding-bottom: @spacing-base;
+  margin-top: 100px;
+  margin-bottom: 100px;
 }
 
 // Welcome messages
@@ -114,15 +143,19 @@
   font-size: 22px;
   line-height: 1;
   text-align: center;
-  margin-bottom: @spacing-large;
+  margin: 20px 0;
   color: @blue-green;
 }
 
-.patients-welcome-message {
-  color: @gray-dark;
-  font-weight: 300;
-  padding-top: @spacing-base;
-  margin-bottom: @spacing-base;
-  padding-bottom: @spacing-small;
-  border-bottom: 1px solid @gray;
+.patients-welcomesetup-actions {
+  margin-top: 30px;
+
+  button {
+    min-width: 180px;
+    margin-top: 10px;
+  }
+}
+
+.patients-welcomesetup-actions-help {
+  font-size: @font-size-small;
 }
