@@ -1084,76 +1084,61 @@ var AppComponent = React.createClass({
     if (message) {
       app.log(message);
     }
-    if (!_.isEmpty(details)){
-      details = this.stringifyErrorData(details);
-    }
     //send it quick
-    app.api.errors.log(this.stringifyErrorData(error), message, details);
+    app.api.errors.log(this.stringifyErrorData(error), message, this.stringifyErrorData(details));
 
-    var status = error.status;
-    var originalErrorMessage = [
-      message, this.stringifyErrorData(error)
-    ].join(' ');
-
-    var type = 'error';
-    var body;
-    var isDismissable = true;
-
-    if (status === 401) {
+    if (error.status === 401) {
       //Just log them out
       app.log('401 so logged user out');
       this.setState({notification: null});
       app.api.user.destroySession();
       this.handleLogoutSuccess();
       return;
-    } else if(status === 500){
-      //somethings down, give a bit of time then they can try again
-      body = (
-        <p>
-          {usrMessages.ERR_SERVICE_DOWN}
-        </p>
-      );
-    } else if(status === 503){
-      //offline nothing is going to work
-      body = (
-        <p>
-          {usrMessages.ERR_OFFLINE}
-        </p>
-      );
     } else {
+      var body;
 
-      var errMsg;
+      if(error.status === 500){
+        //somethings down, give a bit of time then they can try again
+        body = ( <p> {usrMessages.ERR_SERVICE_DOWN} </p> );
+      } else if(error.status === 503){
+        //offline nothing is going to work
+        body = ( <p> {usrMessages.ERR_OFFLINE} </p> );
+      } else {
 
-      if (!_.isEmpty(originalErrorMessage)) {
-       errMsg = (
-          <p className="notification-body-small">
-            <code>{'Original error message: ' + originalErrorMessage}</code>
-          </p>
+        var originalErrorMessage = [
+          message, this.stringifyErrorData(error)
+        ].join(' ');
+
+        body = (
+          <div>
+            <p>
+              {usrMessages.ERR_GENERIC}
+              <a href="/">refresh your browser</a>
+              {'.'}
+            </p>
+            <p className="notification-body-small">
+              <code>{'Original error message: ' + originalErrorMessage}</code>
+            </p>
+          </div>
         );
       }
-
-      body = (
-        <div>
-          <p>
-            {usrMessages.ERR_GENERIC}
-            <a href="/">refresh your browser</a>
-            {'.'}
-          </p>
-          {errMsg}
-        </div>
-      );
     }
 
     this.setState({
       notification: {
-        type: type,
+        type: 'error',
         body: body,
-        isDismissable: isDismissable
+        isDismissable: true
       }
     });
   },
 
   stringifyErrorData: function(data) {
+
+    if(_.isEmpty(data)){
+      return '';
+    }
+
     if (_.isPlainObject(data)) {
       return JSON.stringify(data);
     }
