@@ -1152,15 +1152,16 @@ var AppComponent = React.createClass({
           </div>
         );
       }
-    }
-
-    this.setState({
+      this.setState({
       notification: {
         type: 'error',
         body: body,
         isDismissable: true
       }
     });
+    }
+
+    
   },
 
   stringifyErrorData: function(data) {
