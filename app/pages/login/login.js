@@ -27,20 +27,29 @@ var MailTo = require('../../components/mailto');
 var Login = React.createClass({
   propTypes: {
     onSubmit: React.PropTypes.func.isRequired,
+    inviteEmail: React.PropTypes.string,
     onSubmitSuccess: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired
   },
 
-  formInputs: [
-    {name: 'username', label: 'Email', type: 'email'},
-    {name: 'password', label: 'Password', type: 'password'},
-    {name: 'remember', label: 'Remember me', type: 'checkbox'}
-  ],
+  formInputs: function() {
+    return [
+      {name: 'username', label: 'Email', type: 'email', disabled: !!this.props.inviteEmail},
+      {name: 'password', label: 'Password', type: 'password'},
+      {name: 'remember', label: 'Remember me', type: 'checkbox'}
+    ];
+  },
 
   getInitialState: function() {
+    var formValues = {};
+
+    if (this.props.inviteEmail) {
+      formValues.username = this.props.inviteEmail;
+    }
+
     return {
       working: false,
-      formValues: {},
+      formValues: formValues,
       validationErrors: {},
       notification: null
     };
@@ -49,14 +58,17 @@ var Login = React.createClass({
   render: function() {
     var form = this.renderForm();
     var forgotPassword = this.renderPasswordMailTo();
+    var inviteIntro = this.renderInviteIntroduction();
 
     /* jshint ignore:start */
     return (
       <div className="login">
         <LoginNav
           page="login"
+          inviteEmail={this.props.inviteEmail}
           trackMetric={this.props.trackMetric} />
         <LoginLogo />
+        {inviteIntro}
         <div className="container-small-outer login-form">
           <div className="container-small-inner login-form-box">
             <div className="login-simpleform">{form}</div>
@@ -68,13 +80,25 @@ var Login = React.createClass({
     /* jshint ignore:end */
   },
 
+  renderInviteIntroduction: function() {
+    if (!this.props.inviteEmail) {
+      return null;
+    }
+
+    return (
+      <div className='login-inviteIntro'>
+        <p>{'You\'ve been invited to Blip.'}</p><p>{'Log in to view the invitation.'}</p>
+      </div>
+    );
+  },
+
   renderForm: function() {
     var submitButtonText = this.state.working ? 'Logging in...' : 'Log in';
 
     /* jshint ignore:start */
     return (
       <SimpleForm
-        inputs={this.formInputs}
+        inputs={this.formInputs()}
         formValues={this.state.formValues}
         validationErrors={this.state.validationErrors}
         submitButtonText={submitButtonText}

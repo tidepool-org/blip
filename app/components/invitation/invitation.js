@@ -17,7 +17,7 @@ var React = require('react');
 var _ = require('lodash');
 var cx = require('react/lib/cx');
 
-var utils = require('../../core/utils');
+var personUtils = require('../../core/personutils');
 
 var Invitation = React.createClass({
   propTypes: {
@@ -33,7 +33,7 @@ var Invitation = React.createClass({
     this.props.onDismissInvitation(this.props.invitation);
   },
   render: function() {
-    var name = utils.getIn(this.props.invitation, ['creator', 'profile', 'fullName']);
+    var name = personUtils.patientFullName(this.props.invitation.creator);
 
     if (this.props.invitation.accepting) {
       /* jshint ignore:start */
@@ -51,15 +51,15 @@ var Invitation = React.createClass({
         <div className='invitation-message'>{'You have been invited to see ' + name + '\'s data!'}</div>
         <div className='invitation-action'>
           <button
-            className='invitation-action-submit btn btn-primary js-form-submit'
-            onClick={this.handleAccept}
-            disabled={this.state ? this.state.enable : false}
-            ref="submitButton">{'Join the team!'}</button>
-          <button
             className="invitation-action-ignore btn js-form-submit"
             onClick={this.handleDismiss}
             disabled={this.state ? this.state.enable : false}
             ref="ignoreButton">{'Ignore'}</button>
+          <button
+            className='invitation-action-submit btn btn-primary js-form-submit'
+            onClick={this.handleAccept}
+            disabled={this.state ? this.state.enable : false}
+            ref="submitButton">{'Join the team!'}</button>
         </div>
       </li>
     );

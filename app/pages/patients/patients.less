@@ -23,10 +23,6 @@
   border: 1px solid @gray-light;
 }
 
-.patients-message {
-  padding: 50px 0;
-}
-
 .patients-section {
   position: relative;
   background-color: #fff;
@@ -48,17 +44,15 @@
 }
 
 .patients-section-content {
-
-
   width: 700px;
   margin: 0 auto;
   padding-bottom: @spacing-base;
 }
 
 .patients-new-account {
-  float:right;
-  margin-top: -45px;
-  margin-right: 8px;
+  position: absolute;
+  top: 10px;
+  right: 145px;
 
   > span {
     padding-right: 4px;
@@ -116,7 +110,7 @@
   text-decoration: none;
 }
 
-// Empty lists
+// Messages
 // ====================================
 
 .patients-message {
@@ -124,8 +118,8 @@
   font-weight: 300;
   text-align: center;
 
-  margin-top: @spacing-base;
-  margin-bottom: @spacing-base;
+  margin-top: 60px;
+  margin-bottom: 60px;
 }
 
 .patients-message-small {
@@ -138,8 +132,8 @@
 
 .patients-message-loading {
   font-weight: normal;
-  padding-top: @spacing-base;
-  padding-bottom: @spacing-base;
+  margin-top: 100px;
+  margin-bottom: 100px;
 }
 
 // Welcome messages
@@ -149,15 +143,19 @@
   font-size: 22px;
   line-height: 1;
   text-align: center;
-  margin-bottom: @spacing-large;
+  margin: 20px 0;
   color: @blue-green;
 }
 
-.patients-welcome-message {
-  color: @gray-dark;
-  font-weight: 300;
-  padding-top: @spacing-base;
-  margin-bottom: @spacing-base;
-  padding-bottom: @spacing-small;
-  border-bottom: 1px solid @gray;
+.patients-welcomesetup-actions {
+  margin-top: 30px;
+
+  button {
+    min-width: 180px;
+    margin-top: 10px;
+  }
+}
+
+.patients-welcomesetup-actions-help {
+  font-size: @font-size-small;
 }

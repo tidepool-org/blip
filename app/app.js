@@ -132,7 +132,8 @@ var AppComponent = React.createClass({
       fetchingPatientData: true,
       fetchingMessageData: true,
       showingAcceptTerms: false,
-      showingWelcomeMessage: false,
+      showingWelcomeTitle: false,
+      showingWelcomeSetup: false,
       dismissedBrowserWarning: false,
       queryParams: queryString.parseTypes(window.location.search)
     };
@@ -332,10 +333,22 @@ var AppComponent = React.createClass({
       /* jshint ignore:start */
       <Login
         onSubmit={this.login}
+        inviteEmail={this.getInviteEmail()}
         onSubmitSuccess={this.handleLoginSuccess}
         trackMetric={trackMetric} />
       /* jshint ignore:end */
     );
+  },
+
+  getInviteEmail: function() {
+    var hashQueryParams = app.router.getQueryParams();
+    var inviteEmail = hashQueryParams.inviteEmail;
+    if (inviteEmail && utils.validateEmail(inviteEmail)) {
+      return inviteEmail;
+    }
+    else {
+      return null;
+    }
   },
 
   showSignup: function() {
@@ -348,6 +361,7 @@ var AppComponent = React.createClass({
       /* jshint ignore:start */
       <Signup
         onSubmit={this.signup}
+        inviteEmail={this.getInviteEmail()}
         onSubmitSuccess={this.handleSignupSuccess}
         trackMetric={trackMetric} />
       /* jshint ignore:end */
@@ -391,8 +405,9 @@ var AppComponent = React.createClass({
           invites={this.state.invites}
           uploadUrl={app.api.getUploadUrl()}
           fetchingInvites={this.state.fetchingInvites}
-          showingWelcomeMessage={this.state.showingWelcomeMessage}
-          onSetAsCareGiver={this.setUserAsCareGiver}
+          showingWelcomeTitle={this.state.showingWelcomeTitle}
+          showingWelcomeSetup={this.state.showingWelcomeSetup}
+          onHideWelcomeSetup={this.handleHideWelcomeSetup}
           trackMetric={trackMetric}
           onAcceptInvitation={this.handleAcceptInvitation}
           onDismissInvitation={this.handleDismissInvitation}
@@ -400,50 +415,67 @@ var AppComponent = React.createClass({
     );
     /* jshint ignore:end */
   },
+
+  handleHideWelcomeSetup: function(options) {
+    if (options && options.route) {
+      app.router.setRoute(options.route);
+    }
+    this.setState({showingWelcomeSetup: false});
+  },
+
   handleDismissInvitation: function(invitation) {
     var self = this;
 
     this.setState({
-      invites: this.state.invites.filter(function(e){
+      showingWelcomeSetup: false,
+      invites: _.filter(this.state.invites, function(e){
         return e.key !== invitation.key;
       })
     });
 
     app.api.invitation.dismiss(invitation.key, invitation.creator.userid, function(err) {
       if(err) {
-        self.fetchInvites();
-        return self.handleApiError(err, usrMessages.ERR_DISMISSING_INVITE, buildExceptionDetails());
+        self.setState({
+          invites: self.state.invites.concat(invitation)
+        });
+       return self.handleApiError(err, usrMessages.ERR_DISMISSING_INVITE, buildExceptionDetails());
       }
     });
   },
   handleAcceptInvitation: function(invitation) {
-    /* Set invitation to processing */
     var invites = _.cloneDeep(this.state.invites);
     var self = this;
 
-    invites.map(function(invite) {
-      if (invite.key === invitation.key) {
-        invite.accepting = true;
-      }
-
-      return invite;
-    });
-
     this.setState({
-      invites: invites
+      showingWelcomeSetup: false,
+      invites: _.map(invites, function(invite) {
+        if (invite.key === invitation.key) {
+          invite.accepting = true;
+        }
+        return invite;
+      })
     });
 
     app.api.invitation.accept(invitation.key, invitation.creator.userid, function(err) {
-      self.fetchPatients({hideLoading: true});
 
-      if(err) {
+      var invites = _.cloneDeep(self.state.invites);
+      if (err) {
+        self.setState({
+          invites: _.map(invites, function(invite) {
+            if (invite.key === invitation.key) {
+              invite.accepting = false;
+            }
+            return invite;
+          })
+        });
         return self.handleApiError(err, usrMessages.ERR_ACCEPTING_INVITE, buildExceptionDetails());
       }
 
       self.setState({
-        invites: self.state.invites.filter(function(e){
+        invites: _.filter(invites, function(e){
           return e.key !== invitation.key;
-        })
+        }),
+        patients: self.state.patients.concat(invitation.creator)
       });
     });
   },
@@ -721,7 +753,8 @@ var AppComponent = React.createClass({
       user: user,
       fetchingUser: false,
       showingAcceptTerms: config.SHOW_ACCEPT_TERMS ? true : false,
-      showingWelcomeMessage: true
+      showingWelcomeTitle: true,
+      showingWelcomeSetup: true
     });
     this.redirectToDefaultRoute();
     trackMetric('Signed Up');
@@ -1011,7 +1044,7 @@ var AppComponent = React.createClass({
     var self = this;
     var previousUser = this.state.user;
 
-    var user = _.assign(
+    var newUser = _.assign(
       {},
       _.omit(previousUser, 'profile'),
       _.omit(formValues, 'profile'),
@@ -1019,28 +1052,25 @@ var AppComponent = React.createClass({
     );
 
     // Optimistic update
-    self.setState({user: _.omit(user, 'password')});
+    self.setState({user: _.omit(newUser, 'password')});
 
+    var userUpdates = _.cloneDeep(newUser);
     // If username hasn't changed, don't try to update
     // or else backend will respond with "already taken" error
-    if (user.username === previousUser.username) {
-      user = _.omit(user, 'username', 'emails');
+    if (userUpdates.username === previousUser.username) {
+      userUpdates = _.omit(userUpdates, 'username', 'emails');
     }
 
-    app.api.user.put(user, function(err, user) {
+    app.api.user.put(userUpdates, function(err, user) {
       if (err) {
         // Rollback
         self.setState({user: previousUser});
         return self.handleApiError(err, usrMessages.ERR_UPDATING_ACCOUNT, buildExceptionDetails());
       }
+
+      user = _.assign(newUser, user);
       self.setState({user: user});
       trackMetric('Updated Account');
-    });
-  },
-
-  setUserAsCareGiver: function() {
-    this.updateUser({
-      profile: {isOnlyCareGiver: true}
     });
   },
 

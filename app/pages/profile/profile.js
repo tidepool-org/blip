@@ -17,6 +17,7 @@
 var React = require('react');
 var _ = require('lodash');
 
+var utils = require('../../core/utils');
 var personUtils = require('../../core/personutils');
 var SimpleForm = require('../../components/simpleform');
 var PeopleList = require('../../components/peoplelist');
@@ -33,8 +34,8 @@ var Profile = React.createClass({
   formInputs: [
     {name: 'fullName', label: 'Full name'},
     {name: 'username', label: 'Email', type: 'email'},
-    {name: 'password', label: 'Password', type: 'password'},
-    {name: 'passwordConfirm', label: 'Confirm password', type: 'password'}
+    {name: 'password', label: 'Password', type: 'password', placeholder: '******'},
+    {name: 'passwordConfirm', label: 'Confirm password', type: 'password', placeholder: '******'}
   ],
 
   MESSAGE_TIMEOUT: 2000,
@@ -192,10 +193,12 @@ var Profile = React.createClass({
 
     return formValues;
   },
-
+  
   validateFormValues: function(formValues) {
     var validationErrors = {};
     var IS_REQUIRED = 'This field is required.';
+    var INVALID_EMAIL = 'Invalid email address.';
+    var SHORT_PASSWORD = 'Password must be longer than 5 characters.';
 
     if (!formValues.fullName) {
       validationErrors.fullName = IS_REQUIRED;
@@ -203,6 +206,10 @@ var Profile = React.createClass({
 
     if (!formValues.username) {
       validationErrors.username = IS_REQUIRED;
+    }
+
+    if (formValues.username && !utils.validateEmail(formValues.username)) {
+      validationErrors.username = INVALID_EMAIL;
     }
 
     if (formValues.password || formValues.passwordConfirm) {
@@ -215,6 +222,10 @@ var Profile = React.createClass({
       else if (formValues.passwordConfirm !== formValues.password) {
         validationErrors.passwordConfirm = 'Passwords don\'t match.';
       }
+    }
+
+    if (formValues.password && formValues.password.length < 6) {
+      validationErrors.password = SHORT_PASSWORD;
     }
 
     if (!_.isEmpty(validationErrors)) {

@@ -19,6 +19,7 @@ var _ = require('lodash');
 
 var config = require('../../config');
 
+var utils = require('../../core/utils');
 var LoginNav = require('../../components/loginnav');
 var LoginLogo = require('../../components/loginlogo');
 var SimpleForm = require('../../components/simpleform');
@@ -27,35 +28,45 @@ var Signup = React.createClass({
   propTypes: {
     onSubmit: React.PropTypes.func.isRequired,
     onSubmitSuccess: React.PropTypes.func.isRequired,
+    inviteEmail: React.PropTypes.string,
     trackMetric: React.PropTypes.func.isRequired
   },
 
-  formInputs: [
-    {name: 'fullName', label: 'Full name', placeholder: 'ex: Mary Smith'},
-    {
-      name: 'username',
-      label: 'Email',
-      type: 'email',
-      placeholder: 'ex: mary.smith@example.com'
-    },
-    {
-      name: 'password',
-      label: 'Password',
-      type: 'password',
-      placeholder: '******'
-    },
-    {
-      name: 'passwordConfirm',
-      label: 'Confirm password',
-      type: 'password',
-      placeholder: '******'
-    }
-  ],
+  formInputs: function() {
+    return [
+      {name: 'fullName', label: 'Full name', placeholder: 'ex: Mary Smith'},
+      {
+        name: 'username',
+        label: 'Email',
+        type: 'email',
+        placeholder: '',
+        disabled: !!this.props.inviteEmail
+      },
+      {
+        name: 'password',
+        label: 'Password',
+        type: 'password',
+        placeholder: '******'
+      },
+      {
+        name: 'passwordConfirm',
+        label: 'Confirm password',
+        type: 'password',
+        placeholder: '******'
+      }
+    ];
+  },
 
   getInitialState: function() {
+    var formValues = {};
+
+    if (this.props.inviteEmail) {
+      formValues.username = this.props.inviteEmail;
+    }
+
     return {
       working: false,
-      formValues: {},
+      formValues: formValues,
       validationErrors: {},
       notification: null
     };
@@ -63,14 +74,17 @@ var Signup = React.createClass({
 
   render: function() {
     var form = this.renderForm();
+    var inviteIntro = this.renderInviteIntroduction();
 
     /* jshint ignore:start */
     return (
       <div className="signup">
         <LoginNav
           page="signup"
+          inviteEmail={this.props.inviteEmail}
           trackMetric={this.props.trackMetric} />
         <LoginLogo />
+        {inviteIntro}
         <div className="container-small-outer signup-form">
           <div className="container-small-inner signup-form-box">
             {form}
@@ -81,16 +95,28 @@ var Signup = React.createClass({
     /* jshint ignore:end */
   },
 
+  renderInviteIntroduction: function() {
+    if (!this.props.inviteEmail) {
+      return null;
+    }
+
+    return (
+      <div className='signup-inviteIntro'>
+        <p>{'You\'ve been invited to Blip.'}</p><p>{'Sign up to view the invitation.'}</p>
+      </div>
+    );
+  },
+
   renderForm: function() {
-    var submitButtonText = 'Create account';
+    var submitButtonText = 'Sign up';
     if (this.state.working) {
-      submitButtonText = 'Creating account...';
+      submitButtonText = 'Signing up...';
     }
 
     /* jshint ignore:start */
     return (
       <SimpleForm
-        inputs={this.formInputs}
+        inputs={this.formInputs()}
         formValues={this.state.formValues}
         validationErrors={this.state.validationErrors}
         submitButtonText={submitButtonText}
@@ -134,6 +160,8 @@ var Signup = React.createClass({
   validateFormValues: function(formValues) {
     var validationErrors = {};
     var IS_REQUIRED = 'This field is required.';
+    var INVALID_EMAIL = 'Invalid email address.';
+    var SHORT_PASSWORD = 'Password must be longer than 5 characters.';
 
     if (!formValues.fullName) {
       validationErrors.fullName = IS_REQUIRED;
@@ -143,8 +171,16 @@ var Signup = React.createClass({
       validationErrors.username = IS_REQUIRED;
     }
 
+    if (formValues.username && !utils.validateEmail(formValues.username)) {
+      validationErrors.username = INVALID_EMAIL;
+    }
+
     if (!formValues.password) {
       validationErrors.password = IS_REQUIRED;
+    }
+
+    if (formValues.password && formValues.password.length < 6) {
+      validationErrors.password = SHORT_PASSWORD;
     }
 
     if (formValues.password) {

@@ -227,32 +227,6 @@ var patch = function(mock, api) {
     }, getDelayFor('api.invitation.cancel'));
   };
 
-  api.invitation.getForKey = function(key, callback) {
-    api.log('[mock] GET /invitations/key/' + key);
-
-    setTimeout(function() {
-      var invitation = _.find(data.confirmations, function(confirmation) {
-        return (
-          confirmation.type === 'invite' &&
-          confirmation.key === key &&
-          confirmation.status === 'pending'
-        );
-      });
-
-      if (!invitation) {
-        var err = {status: 404, response: 'Not found'};
-        return callback(err);
-      }
-
-      invitation = replaceCreatorIdWithUser(invitation);
-      // Return only minimum creator user information
-      invitation.creator.profile = _.pick(invitation.creator.profile, 'fullName');
-
-      invitation = _.pick(invitation, 'key', 'email', 'creator', 'context');
-      callback(null, invitation);
-    }, getDelayFor('api.invitation.getForKey'));
-  };
-
   return api;
 };
 

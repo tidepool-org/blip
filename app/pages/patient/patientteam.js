@@ -19,6 +19,7 @@ var _ = require('lodash');
 var cx = require('react/lib/cx');
 var ModalOverlay = require('../../components/modaloverlay');
 var InputGroup = require('../../components/inputgroup');
+var personUtils = require('../../core/personutils');
 
 var PermissionInputGroup = React.createClass({
   propTypes: {
@@ -262,6 +263,7 @@ var ConfirmDialog = React.createClass({
   propTypes: {
     message: React.PropTypes.renderable,
     buttonText: React.PropTypes.string,
+    dismissText: React.PropTypes.string,
     buttonTextWorking: React.PropTypes.string,
     onSubmit: React.PropTypes.func,
     onCancel: React.PropTypes.func
@@ -283,7 +285,7 @@ var ConfirmDialog = React.createClass({
         <div className="ModalOverlay-controls">
           <button className="PatientInfo-button PatientInfo-button--secondary" type="button"
             onClick={this.props.onCancel}
-            disabled={this.state.working}>Cancel</button>
+            disabled={this.state.working}>{this.props.dismissText || 'Cancel'}</button>
           <button className="PatientInfo-button PatientInfo-button--primary" type="submit"
             onClick={this.handleSubmit}
             disabled={this.state.working}>
@@ -475,9 +477,10 @@ var PatientTeam = React.createClass({
 
     return (
       <ConfirmDialog
-        message={'Are you sure you want to dismiss your invitation to ' + invite.email + '?'}
-        buttonText={'I\'m sure, dismiss it'}
-        buttonTextWorking={'Dismissing...'}
+        message={'Are you sure you want to cancel your invitation to ' + invite.email + '?'}
+        buttonText={'Yes'}
+        dismissText={'No'}
+        buttonTextWorking={'Canceling invitation...'}
         onSubmit={handleSubmit}
         onCancel={handleCancel} />
     );
@@ -606,10 +609,10 @@ var PatientTeam = React.createClass({
 
   renderEditControls: function() {
     var key = 'edit';
-    var text = 'Show controls';
+    var text = 'Edit';
     if (this.state.editing) {
       key = 'cancel';
-      text = 'Hide controls';
+      text = 'Done';
     }
 
     return (
@@ -641,10 +644,18 @@ var PatientTeam = React.createClass({
       'PatientTeam-list': true,
       'PatientTeam-list--single': emptyList,
     });
+    var patientName = personUtils.patientFullName(this.props.patient);
 
     return (
       <div className={classes}>
+        <div className="PatientPage-sectionTitle">
+          {'Care Team'}
+          <span className="PatientPage-sectionTitleMessage">
+            {'These people can view ' + patientName + '\'s data'}
+          </span>
+        </div>
         {editControls}
+        <div className="clear"></div>
         <ul className={listClass}>
           {members}
           {pendingInvites}
