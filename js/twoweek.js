@@ -554,7 +554,7 @@ module.exports = function(emitter) {
     return container;
   };
 
-  container.setScrollNav = function(timezoneName) {
+  container.setScrollNav = function() {
     if (!lessThanTwoWeeks) {
       var translationAdjustment, yStart, xPos;
       if (sortReverse) {

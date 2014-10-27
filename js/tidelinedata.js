@@ -76,7 +76,7 @@ function TidelineData(data, opts) {
   _.defaults(opts, defaults);
   var that = this;
 
-  var MS_IN_MIN = 60000;
+  var MS_IN_MIN = 60000, MS_IN_DAY = 864e5;
 
   function checkRequired() {
     // console.time('checkRequired');
@@ -136,13 +136,16 @@ function TidelineData(data, opts) {
   };
 
   this.addDatum = function(datum) {
+    this.watson(datum);
     this.grouped[datum.type] = addAndResort(datum, this.grouped[datum.type]);
     this.data = addAndResort(datum, this.data);
     updateCrossFilters(this.data);
+    this.generateFillData().adjustFillsForTwoWeekView();
     return this;
   };
 
   this.editDatum = function(datum, timeKey) {
+    this.watson(datum);
     var newDatum = this.dataById.filter(datum.id).top(Infinity);
     // because some timestamps are deviceTime, some are utcTime
     newDatum[timeKey] = datum[timeKey];
@@ -154,6 +157,7 @@ function TidelineData(data, opts) {
     // clear filters
     this.dataById.filter(null);
     this.dataByDate.filter(null);
+    this.generateFillData().adjustFillsForTwoWeekView();
     return this;
   };
 
@@ -194,10 +198,10 @@ function TidelineData(data, opts) {
           fillDate: localTime ? localTime.slice(0,10) : points[i].toISOString().slice(0,10),
           id: 'fill_' + points[i].toISOString().replace(/[^\w\s]|_/g, ''),
           normalEnd: d3.time.hour.utc.offset(point, 3).toISOString(),
-          normalTime: points[i].toISOString(),
+          normalTime: point.toISOString(),
           type: 'fill',
           displayOffset: offset,
-          twoWeekX: hoursClassifier * 864e5/24
+          twoWeekX: hoursClassifier * MS_IN_DAY/24
         });
       }
     }
@@ -221,16 +225,33 @@ function TidelineData(data, opts) {
     }
     var endpoints;
     if (opts.timePrefs.timezoneAware) {
-      first = dt.applyOffset(dt.getMidnight(first), dt.getOffset(first, opts.timePrefs.timezoneName));
+      var firstOffset = dt.getOffset(first, opts.timePrefs.timezoneName);
+      var firstDate = first.slice(0,10), firstDateAdjusted = dt.applyOffset(first, -firstOffset).slice(0,10);
+      first = dt.applyOffset(dt.getMidnight(dt.applyOffset(first, firstOffset)), firstOffset-1440);
+      if (firstDateAdjusted >= firstDate) {
+        first = dt.addDays(first, 1);
+        // TODO: possibly remove this
+        // it is intended to catch timezones on the other side of the dateline
+        // I think that makes sense to fix the issue found here
+        // (not generating fill for the last day of data when choosing e.g., New 
+        // but I haven't fully convinced myself...
+        if (Math.abs(firstOffset) >= 720) {
+          first = dt.addDays(first, 1);
+        }
+      }
       var lastOffset = dt.getOffset(last, opts.timePrefs.timezoneName);
-      last = dt.applyOffset(dt.getMidnight(last, true), lastOffset);
-      // TODO: possibly remove this
-      // it is intended to catch timezones on the other side of the dateline
-      // I think that makes sense to fix the issue found here
-      // (not generating fill for the last day of data when choosing e.g., New Zealand time)
-      // but I haven't fully convinced myself...
-      if (Math.abs(lastOffset) >= 720) {
+      var lastDate = dt.applyOffset(last, data[data.length - 1].timezoneOffset).slice(0,10), lastDateAdjusted = dt.applyOffset(last, -lastOffset).slice(0,10);
+      if (lastDateAdjusted > lastDate) {
+        last = dt.applyOffset(dt.getMidnight(dt.applyOffset(last, lastOffset), true), lastOffset);
         last = dt.addDays(last, 1);
+      }
+      else {
+        if (lastDateAdjusted < last.slice(0,10)) {
+          last = dt.applyOffset(dt.getMidnight(dt.applyOffset(last, lastOffset)), lastOffset);  
+        }
+        else {
+          last = dt.applyOffset(dt.getMidnight(dt.applyOffset(last, lastOffset), true), lastOffset);
+        }
       }
       endpoints = [first, last];
     }
@@ -242,6 +263,7 @@ function TidelineData(data, opts) {
   }
 
   this.generateFillData = function() {
+    data = this.data;
     // console.time('generateFillData');
     var lastDatum = data[data.length - 1];
     // the fill should extend past the *end* of a segment (i.e. of basal data)
@@ -249,8 +271,14 @@ function TidelineData(data, opts) {
     var lastTimestamp = lastDatum.normalEnd || lastDatum.normalTime;
     var first = new Date(data[0].normalTime), last = new Date(lastTimestamp);
     // make sure we encapsulate the domain completely
-    first = d3.time.hour.utc.offset(first, -6);
-    last = d3.time.hour.utc.offset(last, 6);
+    if (last - first < MS_IN_DAY) {
+      first = d3.time.hour.utc.offset(first, -12);
+      last = d3.time.hour.utc.offset(last, 12);
+    }
+    else {
+      first = d3.time.hour.utc.offset(first, -6);
+      last = d3.time.hour.utc.offset(last, 6);
+    }
     this.grouped.fill = fillDataFromInterval(first, last);
     // console.timeEnd('generateFillData');
     return this;
@@ -265,7 +293,6 @@ function TidelineData(data, opts) {
     var endpoints = getTwoWeekFillEndpoints();
     this.twoWeekData = this.grouped.smbg || [];
     var twoWeekFills = fillDataFromInterval(new Date(endpoints[0]), new Date(endpoints[1]));
-
     this.twoWeekData = _.sortBy(this.twoWeekData.concat(twoWeekFills), function(d) {
       return d.normalTime;
     });
@@ -313,31 +340,35 @@ function TidelineData(data, opts) {
     var MS_IN_MIN = 60000, watson;
     if (opts.timePrefs.timezoneAware) {
       watson = function(d) {
-        d.normalTime = d.time;
-        d.displayOffset = -dt.getOffset(d.time, opts.timePrefs.timezoneName);
-        if (d.type === 'basal') {
-          d.normalEnd = dt.addDuration(d.time, d.duration);
+        if (d.type !== 'fill') {
+          d.normalTime = d.time;
+          d.displayOffset = -dt.getOffset(d.time, opts.timePrefs.timezoneName);
+          if (d.type === 'basal') {
+            d.normalEnd = dt.addDuration(d.time, d.duration);
+          }
         }
       };
     }
     else {
       watson = function(d) {
-        if (d.timezoneOffset) {
-          d.normalTime = dt.addDuration(d.time, d.timezoneOffset * MS_IN_MIN); 
-        }
-        else if (d.type === 'message') {
-          var datumDt = new Date(d.time);
-          var offsetMinutes = datumDt.getTimezoneOffset();
-          datumDt.setUTCMinutes(datumDt.getUTCMinutes() - offsetMinutes);
-          d.normalTime = datumDt.toISOString();
-        }
-        if (d.deviceTime && d.normalTime.slice(0, -5) !== d.deviceTime) {
-          var err = new Error('Combining `time` and `timezoneOffset` does not yield `deviceTime`.');
-          // log(err);
-          d.errorMessage = err.message;
-        }
-        if (d.type === 'basal') {
-          d.normalEnd = dt.addDuration(d.normalTime, d.duration);
+        if (d.type !== 'fill') {
+          if (d.timezoneOffset) {
+            d.normalTime = dt.addDuration(d.time, d.timezoneOffset * MS_IN_MIN); 
+          }
+          else if (d.type === 'message') {
+            var datumDt = new Date(d.time);
+            var offsetMinutes = datumDt.getTimezoneOffset();
+            datumDt.setUTCMinutes(datumDt.getUTCMinutes() - offsetMinutes);
+            d.normalTime = datumDt.toISOString();
+          }
+          if (d.deviceTime && d.normalTime.slice(0, -5) !== d.deviceTime) {
+            var err = new Error('Combining `time` and `timezoneOffset` does not yield `deviceTime`.');
+            // log(err);
+            d.errorMessage = err.message;
+          }
+          if (d.type === 'basal') {
+            d.normalEnd = dt.addDuration(d.normalTime, d.duration);
+          }
         }
       };
     }
@@ -350,15 +381,26 @@ function TidelineData(data, opts) {
     return applyWatson;
   }
 
-  var watson = makeWatsonFn();
+  this.applyNewTimePrefs = function(timePrefs) {
+    opts.timePrefs = _.defaults(timePrefs, opts.timePrefs);
+    this.createNormalTime().generateFillData().adjustFillsForTwoWeekView();
+  };
+
+  this.createNormalTime = function(data) {
+    data = data || this.data;
+    this.watson = makeWatsonFn();
+    for (var i = 0; i < data.length; ++i) {
+      var d = data[i];
+      this.watson(d);
+    }
+
+    return this;
+  };
 
   // console.time('Watson');
   // first thing to do is Watson the data
   // because validation requires Watson'd data
-  for (var i = 0; i < data.length; ++i) {
-    var d = data[i];
-    watson(d);
-  }
+  this.createNormalTime(data);
   // console.timeEnd('Watson');
 
   // log('Items to validate:', data.length);

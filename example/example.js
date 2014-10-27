@@ -53,7 +53,12 @@ var Example = React.createClass({
       chartPrefs: {
         timePrefs: {
           timezoneAware: false,
+          // timezoneAware: true,
+          // timezoneName: 'Pacific/Auckland'
+          // timezoneName: 'Europe/Paris'
+          // timezoneName: 'US/Eastern'
           timezoneName: 'US/Pacific'
+          // timezoneName: 'US/Hawaii'
         }
       },
       datetimeLocation: null,
@@ -167,12 +172,13 @@ var Example = React.createClass({
     });
   },
   handleSwitchToWeekly: function(datetime) {
-    if (datetime && this.state.chartPrefs.timePrefs.timezoneAware) {
+    datetime = datetime || this.state.datetimeLocation;
+    if (this.state.chartPrefs.timePrefs.timezoneAware) {
       datetime = dt.applyOffset(datetime, -dt.getOffset(datetime, this.state.chartPrefs.timePrefs.timezoneName));
     }
     this.setState({
       chartType: 'weekly',
-      initialDatetimeLocation: datetime || this.state.datetimeLocation
+      initialDatetimeLocation: datetime
     });
   },
   updateChartPrefs: function(newChartPrefs) {

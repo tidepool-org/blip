@@ -26,6 +26,7 @@ var scales = function(opts) {
   var defaults = {
     bgUnits: 'mg/dL',
     bolusRatio: 0.35,
+    MIN_CBG: 39,
     MAX_CBG: 401,
     carbRadius: 14
   };
@@ -33,10 +34,11 @@ var scales = function(opts) {
   _.defaults(opts, defaults);
 
   return {
+    MIN_CBG: opts.MIN_CBG,
     MAX_CBG: opts.MAX_CBG,
     bg: function(data, pool, pad) {
       var ext = d3.extent(data, function(d) { return d.value; });
-      if (ext[1] > this.MAX_CBG) {
+      if (ext[1] > this.MAX_CBG || ext[0] === ext[1]) {
         return d3.scale.linear()
           .domain([0, this.MAX_CBG])
           .range([pool.height() - pad, pad])
@@ -56,6 +58,12 @@ var scales = function(opts) {
           .range([pool.height() - pad, pad])
           .clamp(true);
       }
+      else if (ext[0] === ext[1]) {
+        return d3.scale.log()
+          .domain([this.MIN_CBG, this.MAX_CBG])
+          .range([pool.height() - pad, pad])
+          .clamp(true);
+      }
       else {
         return d3.scale.log()
           .domain(ext)
@@ -68,6 +76,9 @@ var scales = function(opts) {
       }
       var defaultTicks = opts.bgUnits === 'mg/dL' ? [40, 80, 120, 180, 300] : [2.0, 4.5, 7.0, 10.0, 16.0];
       var ext = d3.extent(data, function(d) { return d.value; });
+      if (ext[0] === ext[1]) {
+        return defaultTicks;
+      }
       // if the min of our data is greater than any of the defaultTicks, remove that tick
       defaultTicks.forEach(function(tick) {
         if (ext[0] > tick) {

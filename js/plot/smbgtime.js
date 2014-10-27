@@ -268,7 +268,7 @@ function SMBGTime (opts) {
         rightEdge: this.orientation(cssClass) === 'normal' ? 'leftAndUp': 'leftAndDown'
       },
       shape: 'smbg',
-      edge: dt.smbgEdge(d.normalTime, opts.timezoneAware ? d.timezoneOffset : null)
+      edge: dt.smbgEdge(d.normalTime, opts.timezoneAware ? d.displayOffset : null)
     });
   };
 }
