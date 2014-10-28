@@ -1036,7 +1036,11 @@ var AppComponent = React.createClass({
       user: null,
       patients: null,
       patient: null,
-      patientData: null
+      patientData: null,
+      showingAcceptTerms: false,
+      showingWelcomeTitle: false,
+      showingWelcomeSetup: false,
+      dismissedBrowserWarning: false
     });
   },
 
