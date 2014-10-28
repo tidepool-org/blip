@@ -1153,15 +1153,13 @@ var AppComponent = React.createClass({
         );
       }
       this.setState({
-      notification: {
-        type: 'error',
-        body: body,
-        isDismissable: true
-      }
-    });
+        notification: {
+          type: 'error',
+          body: body,
+          isDismissable: true
+        }
+      });
     }
-
-    
   },
 
   stringifyErrorData: function(data) {
