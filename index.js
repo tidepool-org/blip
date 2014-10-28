@@ -50,6 +50,9 @@ module.exports = function (config, deps) {
   //Status Codes
   var STATUS_BAD_REQUEST = 400;
   var STATUS_UNAUTHORIZED = 401;
+  var UNAUTHORIZED_MSG = 'User is not logged in, you must log in to do this operation';
+  var STATUS_OFFLINE = 503;
+  var OFFLINE_MSG = 'User appears to be offline';
 
   var superagent = requireDep(deps, 'superagent');
   var log = requireDep(deps, 'log');
@@ -160,6 +163,10 @@ module.exports = function (config, deps) {
     return myToken != null;
   }
 
+  function hasConnection(){
+    return navigator.onLine;
+  }
+
   function getUserId() {
     return myUserId;
   }
@@ -171,11 +178,19 @@ module.exports = function (config, deps) {
     return config.uploadApi + '?token=' + myToken;
   }
 
-  function withToken(sadCb, happyCb) {
-    if (! isLoggedIn()) {
-      return sadCb({status: STATUS_UNAUTHORIZED, body: 'User is not logged in, you must log in to do this operation'});
-    } else {
+  /*
+   * do pre-reqs check before
+   *
+   * check we are logged in and online
+   * return an error if we fail either of those otherwise return the token
+   */
+  function serviceCallChecks(sadCb, happyCb) {
+    if ( isLoggedIn() && hasConnection() ) {
       return happyCb(myToken);
+    } else if (! hasConnection() ) {
+      return sadCb({status: STATUS_OFFLINE, body: OFFLINE_MSG});
+    } else if(!isLoggedIn()) {
+      return sadCb({status: STATUS_UNAUTHORIZED, body: UNAUTHORIZED_MSG});
     }
   }
 
@@ -198,7 +213,7 @@ module.exports = function (config, deps) {
       };
     }
 
-    return withToken(cb, function(token) {
+    return serviceCallChecks(cb, function(token) {
       superagent
         .get(makeUrl(path))
         .set(sessionTokenHeader, token)
@@ -239,7 +254,7 @@ module.exports = function (config, deps) {
       };
     }
 
-    return withToken(cb, function(token) {
+    return serviceCallChecks(cb, function(token) {
       superagent
         .post(makeUrl(path))
         .send(data)
@@ -281,7 +296,7 @@ module.exports = function (config, deps) {
       };
     }
 
-    return withToken(cb, function(token) {
+    return serviceCallChecks(cb, function(token) {
       superagent
         .put(makeUrl(path))
         .send(data)
@@ -319,6 +334,7 @@ module.exports = function (config, deps) {
      * @param cb
      */
     initialize: function(cb) {
+
       myToken = localStore.getItem(tokenLocalKey);
 
       if (myToken == null) {
@@ -349,6 +365,7 @@ module.exports = function (config, deps) {
      * @returns {cb}  cb(err, response)
      */
     login: function (user, options, cb) {
+
       if (user.username == null) {
         return cb({ status : STATUS_BAD_REQUEST, message: 'Must specify a username' });
       }
@@ -504,7 +521,7 @@ module.exports = function (config, deps) {
         eventname = 'generic';
       }
 
-      withToken(
+      serviceCallChecks(
         doNothingCB,
         function(token){
           superagent
@@ -546,7 +563,7 @@ module.exports = function (config, deps) {
         }
       };
 
-      withToken(
+      serviceCallChecks(
         doNothingCB,
         function(token){
           superagent
