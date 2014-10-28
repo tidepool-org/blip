@@ -31,6 +31,8 @@ var queryString = require('./core/querystring');
 var detectTouchScreen = require('./core/notouch');
 var utils = require('./core/utils');
 
+var usrMessages = require('./userMessages');
+
 var Navbar = require('./components/navbar');
 var LogoutOverlay = require('./components/logoutoverlay');
 var BrowserWarningOverlay = require('./components/browserwarningoverlay');
@@ -99,6 +101,13 @@ function objectDifference(destination, source) {
 function trackMetric() {
   var args = Array.prototype.slice.call(arguments);
   return app.api.metrics.track.apply(app.api.metrics, args);
+}
+
+function buildExceptionDetails(){
+  return {
+    href: window.location.href,
+    stack: console.trace()
+  };
 }
 
 var AppComponent = React.createClass({
@@ -429,7 +438,7 @@ var AppComponent = React.createClass({
         self.setState({
           invites: self.state.invites.concat(invitation)
         });
-        return self.handleApiError(err, 'Something went wrong while dismissing the invitation.');
+       return self.handleApiError(err, usrMessages.ERR_DISMISSING_INVITE, buildExceptionDetails());
       }
     });
   },
@@ -448,6 +457,7 @@ var AppComponent = React.createClass({
     });
 
     app.api.invitation.accept(invitation.key, invitation.creator.userid, function(err) {
+
       var invites = _.cloneDeep(self.state.invites);
       if (err) {
         self.setState({
@@ -458,7 +468,7 @@ var AppComponent = React.createClass({
             return invite;
           })
         });
-        return self.handleApiError(err, 'Something went wrong while accepting the invitation.');
+        return self.handleApiError(err, usrMessages.ERR_ACCEPTING_INVITE, buildExceptionDetails());
       }
 
       self.setState({
@@ -475,7 +485,7 @@ var AppComponent = React.createClass({
     api.access.setMemberPermissions(memberId, permissions, function(err) {
       if(err) {
         cb(err);
-        return self.handleApiError(err, 'Something went wrong while changing member perimissions.');
+        return self.handleApiError(err, usrMessages.ERR_CHANGING_PERMS, buildExceptionDetails());
       }
 
       self.fetchPatient(patientId, cb);
@@ -487,7 +497,9 @@ var AppComponent = React.createClass({
 
     api.access.leaveGroup(patientId, function(err) {
       if(err) {
-        return self.handleApiError(err, 'Something went wrong while removing member from group.');
+
+        return self.handleApiError(err, usrMessages.ERR_REMOVING_MEMBER, buildExceptionDetails());
+
       }
 
       self.fetchPatients();
@@ -500,7 +512,7 @@ var AppComponent = React.createClass({
     api.access.removeMember(memberId, function(err) {
       if(err) {
         cb(err);
-        return self.handleApiError(err, 'Something went wrong while removing member.');
+        return self.handleApiError(err, usrMessages.ERR_REMOVING_MEMBER ,buildExceptionDetails());
       }
 
       self.fetchPatient(patientId, cb);
@@ -516,7 +528,7 @@ var AppComponent = React.createClass({
           cb(err);
         }
         if (err.status === 500) {
-          return self.handleApiError(err, 'Something went wrong while inviting member.');
+          return self.handleApiError(err, usrMessages.ERR_INVITING_MEMBER, buildExceptionDetails());
         }
         return;
       }
@@ -539,7 +551,7 @@ var AppComponent = React.createClass({
         if (cb) {
           cb(err);
         }
-        return self.handleApiError(err, 'Something went wrong while canceling the invitation.');
+        return self.handleApiError(err, usrMessages.ERR_CANCELING_INVITE, buildExceptionDetails());
       }
 
       self.setState({
@@ -778,8 +790,7 @@ var AppComponent = React.createClass({
     app.api.user.logout(function(err) {
       if (err) {
         self.setState({loggingOut: false});
-        var message = 'An error occured while logging out';
-        return self.handleApiError(err, message);
+        return self.handleApiError(err, usrMessages.ERR_ON_LOGOUT, buildExceptionDetails());
       }
       self.refs.logoutOverlay.fadeOut(function() {
         self.setState({loggingOut: false});
@@ -811,8 +822,7 @@ var AppComponent = React.createClass({
     app.api.user.get(function(err, user) {
       if (err) {
         self.setState({fetchingUser: false});
-        var message = 'An error occured while fetching user';
-        return self.handleApiError(err, message);
+        return self.handleApiError(err, usrMessages.ERR_FETCHING_USER, buildExceptionDetails());
       }
 
       self.setState({
@@ -829,8 +839,6 @@ var AppComponent = React.createClass({
 
     api.invitation.getSent(function(err, invites) {
       if (err) {
-        var message = 'Something went wrong while fetching pending invites';
-
         self.setState({
           fetchingPendingInvites: false
         });
@@ -839,7 +847,7 @@ var AppComponent = React.createClass({
           cb(err);
         }
 
-        return self.handleApiError(err, message);
+        return self.handleApiError(err, usrMessages.ERR_FETCHING_PENDING_INVITES, buildExceptionDetails());
       }
 
       self.setState({
@@ -860,13 +868,12 @@ var AppComponent = React.createClass({
 
     api.invitation.getReceived(function(err, invites) {
       if (err) {
-        var message = 'Something went wrong while fetching invitations';
-
+        
         self.setState({
           fetchingInvites: false
         });
 
-        return self.handleApiError(err, message);
+        return self.handleApiError(err, usrMessages.ERR_FETCHING_INVITES, buildExceptionDetails());
       }
 
       self.setState({
@@ -885,9 +892,8 @@ var AppComponent = React.createClass({
 
     app.api.patient.getAll(function(err, patients) {
       if (err) {
-        var message = 'Something went wrong while fetching care teams';
         self.setState({fetchingPatients: false});
-        return self.handleApiError(err, message);
+        return self.handleApiError(err, usrMessages.ERR_FETCHING_TEAMS, buildExceptionDetails());
       }
 
       self.setState({
@@ -904,16 +910,15 @@ var AppComponent = React.createClass({
 
     app.api.patient.get(patientId, function(err, patient) {
       if (err) {
-        var message = 'Error fetching patient with id ' + patientId;
         self.setState({fetchingPatient: false});
 
         // Patient with id not found, cary on
         if (err.status === 404) {
-          app.log(message);
+          app.log('Patient not found with id '+patientId);
           return;
         }
 
-        return self.handleApiError(err, message);
+        return self.handleApiError(err, usrMessages.ERR_FETCHING_PATIENT+patientId, buildExceptionDetails());
       }
 
       self.setState({
@@ -948,16 +953,14 @@ var AppComponent = React.createClass({
     },
     function(err, results) {
       if (err) {
-        var message = 'Error fetching data for patient with id ' + patientId;
         self.setState({fetchingPatientData: false});
-
         // Patient with id not found, cary on
         if (err.status === 404) {
-          app.log(message);
+          app.log('No data found for patient '+patientId);
           return;
         }
 
-        return self.handleApiError(err, message);
+        return self.handleApiError(err, usrMessages.ERR_FETCHING_PATIENT_DATA+patientId, buildExceptionDetails());
       }
 
       var patientData = results.patientData || [];
@@ -993,9 +996,7 @@ var AppComponent = React.createClass({
       self.setState({fetchingMessageData: false});
 
       if (err) {
-        var message =
-          'Error fetching data for message thread with id ' + messageId;
-        self.handleApiError(err, message);
+        self.handleApiError(err, usrMessages.ERR_FETCHING_MESSAGE_DATA+messageId, buildExceptionDetails());
         return callback(null);
       }
 
@@ -1066,10 +1067,9 @@ var AppComponent = React.createClass({
 
     app.api.user.put(userUpdates, function(err, user) {
       if (err) {
-        var message = 'An error occured while updating user account';
         // Rollback
         self.setState({user: previousUser});
-        return self.handleApiError(err, message);
+        return self.handleApiError(err, usrMessages.ERR_UPDATING_ACCOUNT, buildExceptionDetails());
       }
 
       user = _.assign(newUser, user);
@@ -1103,10 +1103,9 @@ var AppComponent = React.createClass({
 
     app.api.patient.put(patient, function(err, patient) {
       if (err) {
-        var message = 'An error occured while saving patient';
         // Rollback
         self.setState({patient: previousPatient});
-        return self.handleApiError(err, message);
+        return self.handleApiError(err, usrMessages.ERR_UPDATING_PATIENT, buildExceptionDetails());
       }
       self.setState({
         patient: _.assign({}, previousPatient, {profile: patient.profile})
@@ -1115,90 +1114,69 @@ var AppComponent = React.createClass({
     });
   },
 
-  handleApiError: function(error, message) {
+  handleApiError: function(error, message, details) {
     if (message) {
       app.log(message);
     }
+    //send it quick
+    app.api.errors.log(this.stringifyErrorData(error), message, this.stringifyErrorData(details));
 
-    var self = this;
-    var status = error.status;
-    var originalErrorMessage = [
-      message, this.stringifyApiError(error)
-    ].join(' ');
+    if (error.status === 401) {
+      //Just log them out
+      app.log('401 so logged user out');
+      this.setState({notification: null});
+      app.api.user.destroySession();
+      this.handleLogoutSuccess();
+      return;
+    } else {
+      var body;
 
-    var type = 'error';
-    var body;
-    /* jshint ignore:start */
-    body = (
-      <p>
-        {'Sorry! Something went wrong. '}
-        {'It\'s our fault, not yours. We\'re going to go investigate. '}
-        {'For the time being, go ahead and '}
-        <a href="/">refresh your browser</a>
-        {'.'}
-      </p>
-    );
-    /* jshint ignore:end */
-    var isDismissable = true;
+      if(error.status === 500){
+        //somethings down, give a bit of time then they can try again
+        body = ( <p> {usrMessages.ERR_SERVICE_DOWN} </p> );
+      } else if(error.status === 503){
+        //offline nothing is going to work
+        body = ( <p> {usrMessages.ERR_OFFLINE} </p> );
+      } else {
 
-    if (status === 401) {
-      var handleLogBackIn = function(e) {
-        e.preventDefault();
-        self.setState({notification: null});
-        // We don't actually go through logout process,
-        // so safer to manually destroy local session
-        app.api.user.destroySession();
-        self.handleLogoutSuccess();
-      };
+        var originalErrorMessage = [
+          message, this.stringifyErrorData(error)
+        ].join(' ');
 
-      type = 'alert';
-      originalErrorMessage = null;
-      /* jshint ignore:start */
-      body = (
-        <p>
-          {'To keep your data safe we logged you out. '}
-          <a
-            href=""
-            onClick={handleLogBackIn}>Click here to log back in</a>
-          {'.'}
-        </p>
-      );
-      /* jshint ignore:end */
-      isDismissable = false;
-    }
-
-    //Check that this isn't a 401 where error message adds no context
-    if (!_.isEmpty(originalErrorMessage) && status !== 401) {
-      /* jshint ignore:start */
-      body = (
-        <div>
-          {body}
-          <p className="notification-body-small">
-            <code>{'Original error message: ' + originalErrorMessage}</code>
-          </p>
-        </div>
-      );
-      /* jshint ignore:end */
-    }
-
-    // Send error to backend tracking
-    app.api.errors.log(this.stringifyApiError(error), message);
-
-    this.setState({
-      notification: {
-        type: type,
-        body: body,
-        isDismissable: isDismissable
+        body = (
+          <div>
+            <p>
+              {usrMessages.ERR_GENERIC}
+              <a href="/">refresh your browser</a>
+              {'.'}
+            </p>
+            <p className="notification-body-small">
+              <code>{'Original error message: ' + originalErrorMessage}</code>
+            </p>
+          </div>
+        );
       }
-    });
+      this.setState({
+        notification: {
+          type: 'error',
+          body: body,
+          isDismissable: true
+        }
+      });
+    }
   },
 
-  stringifyApiError: function(error) {
-    if (_.isPlainObject(error)) {
-      return JSON.stringify(error);
+  stringifyErrorData: function(data) {
+
+    if(_.isEmpty(data)){
+      return '';
+    }
+
+    if (_.isPlainObject(data)) {
+      return JSON.stringify(data);
     }
     else {
-      return error.toString();
+      return data.toString();
     }
   }
 });
