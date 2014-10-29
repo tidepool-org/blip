@@ -123,23 +123,33 @@ describe('Tidepool Dates', function() {
       });
     });
     describe('formatForDisplay', function() {
-      it('returns a string formated as specified',function(done){
+      var isoDateString = '2013-05-09T00:00:00-00:00';
+      // formatForDisplay gives a display string in the browser's local timezone
+      // so to test we need to create such a string and check
+      // that results of formatting a local timezone-naive string
+      // are identical to results of formatting an ISO string in the local browser/env
+      var localString = testMoment(isoDateString).format('YYYY-MM-DDTHH:mm:ss');
+      // get the browser and/or test env's local offset
+      var offset = new Date().getTimezoneOffset();
+      it('returns a string formated as MMMM D [at] h:mm a',function(done){
+        // we expect the isoDateString and the localString to be different
+        // except when the env is UTC (i.e., offset 0)
+        if (offset !== 0) {
+          expect(isoDateString.replace('-00:00', '')).not.to.equal(localString);
+        }
 
-        var isoDateString = '2013-05-09T00:00:00-00:00';
-
-        var formatedString = datetimeWrapper.formatForDisplay(isoDateString,'YYYY/MM/DD HH:mm');
-        //check the format is correct, not looking at the time as it changes for auto test run
-        expect(formatedString).to.contain('2013/05/09');
+        var formattedIsoString = datetimeWrapper.formatForDisplay(isoDateString);
+        var formattedLocalString = datetimeWrapper.formatForDisplay(localString);
+        expect(formattedIsoString).to.equal(formattedLocalString);
         done();
       });
 
-      it('returns a string formated as MMMM D [at] h:mm a',function(done){
+      it('returns a string formatted to the mask specified',function(done){
+        var mask = 'YYYY/MM/DD HH:mm';
 
-        var isoDateString = '2013-05-09T00:00:00-00:00';
-
-        var formatedString = datetimeWrapper.formatForDisplay(isoDateString);
-        //check the format is correct, skipping am/pm becuse of zone for auto test run
-        expect(formatedString).to.contain('May 9 at 12:00');
+        var formattedIsoString = datetimeWrapper.formatForDisplay(isoDateString, mask);
+        var formattedLocalString = datetimeWrapper.formatForDisplay(localString, mask);
+        expect(formattedIsoString).to.equal(formattedLocalString);
         done();
       });
 
