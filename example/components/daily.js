@@ -70,12 +70,11 @@ var Daily = React.createClass({
           <DailyChart
             bgClasses={this.props.bgPrefs.bgClasses}
             bgUnits={this.props.bgPrefs.bgUnits}
-            hiddenPools={this.props.chartPrefs.hiddenPools}
             initialDatetimeLocation={this.props.initialDatetimeLocation}
             patientData={this.props.patientData}
+            timePrefs={this.props.chartPrefs.timePrefs}
             // handlers
             onDatetimeLocationChange={this.handleDatetimeLocationChange}
-            onHideBasalSettings={this.handleHideBasalSettings}
             onMostRecent={this.handleMostRecent}
             onShowBasalSettings={this.handleShowBasalSettings}
             onTransition={this.handleInTransition}
@@ -89,6 +88,9 @@ var Daily = React.createClass({
     /* jshint ignore:end */
   },
   getTitle: function(datetime) {
+    if (this.props.chartPrefs.timePrefs.timezoneAware) {
+      return moment(datetime).tz(this.props.chartPrefs.timePrefs.timezoneName).format('dddd, MMMM Do');
+    }
     return moment(datetime).utc().format('dddd, MMMM Do');
   },
   // handlers
@@ -138,35 +140,21 @@ var Daily = React.createClass({
   },
   handlePanForward: function() {
     this.refs.chart.panForward();
-  },
-  handleShowBasalSettings: function() {
-    this.props.updateChartPrefs({
-      hiddenPools: {
-        basalSettings: false
-      }
-    });
-    this.setState({
-      hiddenPools: {
-        basalSettings: false
-      }
-    }, this.refs.chart.rerenderChart);
   }
 });
 
 var DailyChart = React.createClass({
-  chartOpts: ['bgClasses', 'bgUnits', 'hiddenPools'],
+  chartOpts: ['bgClasses', 'bgUnits', 'timePrefs'],
   log: bows('Daily Chart'),
   propTypes: {
     bgClasses: React.PropTypes.object.isRequired,
     bgUnits: React.PropTypes.string.isRequired,
-    hiddenPools: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
+    timePrefs: React.PropTypes.object.isRequired,
     // handlers
     onDatetimeLocationChange: React.PropTypes.func.isRequired,
-    onHideBasalSettings: React.PropTypes.func.isRequired,
     onMostRecent: React.PropTypes.func.isRequired,
-    onShowBasalSettings: React.PropTypes.func.isRequired,
     onTransition: React.PropTypes.func.isRequired
   },
   getInitialState: function() {
@@ -193,10 +181,8 @@ var DailyChart = React.createClass({
   },
   bindEvents: function() {
     this.chart.emitter.on('navigated', this.handleDatetimeLocationChange);
-    this.chart.emitter.on('hideBasalSettings', this.props.onHideBasalSettings);
     this.chart.emitter.on('inTransition', this.props.onTransition);
     this.chart.emitter.on('mostRecent', this.props.onMostRecent);
-    this.chart.emitter.on('showBasalSettings', this.props.onShowBasalSettings);
   },
   initializeChart: function(datetime) {
     this.log('Initializing...');

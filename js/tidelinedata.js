@@ -15,19 +15,36 @@
  * == BSD2 LICENSE ==
  */
 
+/* global __DEV__ */
+
 var _ = require('lodash');
+var crossfilter = require('crossfilter');
 var d3 = require('d3');
 
 var validate = require('./validation/validate');
 
-var TidelineCrossFilter = require('./data/util/tidelinecrossfilter');
 var BasalUtil = require('./data/basalutil');
 var BolusUtil = require('./data/bolusutil');
 var BGUtil = require('./data/bgutil');
-var SettingsUtil = require('./data/settingsutil');
 var dt = require('./data/util/datetime');
 
-var log = require('bows')('TidelineData');
+var log;
+if (typeof window !== 'undefined') {
+  log = require('bows')('TidelineData');
+}
+else {
+  log = function() { return; };
+}
+
+var startTimer, endTimer;
+if (typeof window !== 'undefined' && __DEV__ === true) {
+  startTimer = function(name) { console.time(name); };
+  endTimer = function(name) { console.timeEnd(name); };
+}
+else {
+  startTimer = function() { return; };
+  endTimer = function() { return; };
+}
 
 function TidelineData(data, opts) {
 
@@ -67,19 +84,27 @@ function TidelineData(data, opts) {
       'settings',
       'smbg',
       'wizard'
-    ]
+    ],
+    timePrefs: {
+      timezoneAware: false,
+      timezoneName: 'US/Pacific'
+    }
   };
 
   _.defaults(opts, defaults);
   var that = this;
 
+  var MS_IN_MIN = 60000, MS_IN_DAY = 864e5;
+
   function checkRequired() {
+    startTimer('checkRequired');
     _.each(REQUIRED_TYPES, function(type) {
       if (!that.grouped[type]) {
-        log('No', type, 'data! Replaced with empty array.');
+        // log('No', type, 'data! Replaced with empty array.');
         that.grouped[type] = [];
       }
     });
+    endTimer('checkRequired');
 
     return that;
   }
@@ -92,26 +117,54 @@ function TidelineData(data, opts) {
   }
 
   function updateCrossFilters(data) {
-    that.filterData = new TidelineCrossFilter(data);
-    that.dataByDate = that.createCrossFilter('date');
+    startTimer('crossfilter');
+    that.filterData = crossfilter(data);
+    endTimer('crossfilter');
+    that.dataByDay = that.createCrossFilter('date');
+    that.dataByDate = that.createCrossFilter('datetime');
     that.dataById = that.createCrossFilter('id');
     that.dataByType = that.createCrossFilter('datatype');
   }
 
   this.createCrossFilter = function(dim) {
-    return this.filterData.addDimension(dim);
+    var newDim;
+    switch(dim) {
+      case 'date':
+        startTimer(dim + ' dimension');
+        newDim = this.filterData.dimension(function(d) { return d.normalTime.slice(0,10); });
+        endTimer(dim + ' dimenstion');
+        break;
+      case 'datetime':
+        startTimer(dim + ' dimenstion');
+        newDim = this.filterData.dimension(function(d) { return d.normalTime; });
+        endTimer(dim + ' dimenstion');
+        break;
+      case 'datatype':
+        startTimer(dim + ' dimenstion');
+        newDim = this.filterData.dimension(function(d) { return d.type; });
+        endTimer(dim + ' dimenstion');
+        break;
+      case 'id':
+        startTimer(dim + ' dimenstion');
+        newDim = this.filterData.dimension(function(d) { return d.id; });
+        endTimer(dim + ' dimenstion');
+        break;
+    }
+    return newDim;
   };
 
   this.addDatum = function(datum) {
+    this.watson(datum);
     this.grouped[datum.type] = addAndResort(datum, this.grouped[datum.type]);
     this.data = addAndResort(datum, this.data);
     updateCrossFilters(this.data);
+    this.generateFillData().adjustFillsForTwoWeekView();
     return this;
   };
 
   this.editDatum = function(datum, timeKey) {
-    this.dataById.filter(datum.id);
-    var newDatum = this.filterData.getOne(this.dataById);
+    this.watson(datum);
+    var newDatum = this.dataById.filter(datum.id).top(Infinity);
     // because some timestamps are deviceTime, some are utcTime
     newDatum[timeKey] = datum[timeKey];
     // everything has normalTime
@@ -122,27 +175,61 @@ function TidelineData(data, opts) {
     // clear filters
     this.dataById.filter(null);
     this.dataByDate.filter(null);
+    this.generateFillData().adjustFillsForTwoWeekView();
     return this;
   };
 
+  function fixGapsAndOverlaps(fillData) {
+    var lastFill = null;
+    for (var i = 0; i < fillData.length; ++i) {
+      var fill = fillData[i];
+      if (lastFill && fill.normalTime !== lastFill.normalEnd) {
+        // catch Fall Back gap
+        if (fill.normalTime > lastFill.normalEnd) {
+          lastFill.normalEnd = fill.normalTime;
+        }
+        else if (fill.normalTime < lastFill.normalEnd) {
+          lastFill.normalEnd = fill.normalTime;
+        }
+      }
+      lastFill = fill;
+    }
+  }
+
   function fillDataFromInterval(first, last) {
-    var data = [];
-    var points = d3.time.hour.utc.range(first, last, opts.fillOpts.duration);
+    startTimer('fillDataFromInterval');
+    var fillData = [], points = d3.time.hour.utc.range(first, last);
     for (var i = 0; i < points.length; ++i) {
-      if (i !== points.length - 1) {
-        data.push({
-          fillColor: opts.fillOpts.classes[points[i].getUTCHours()],
+      var point = points[i], offset = null;
+      var hoursClassifier, localTime;
+      if (opts.timePrefs.timezoneAware) {
+        offset = -dt.getOffset(point, opts.timePrefs.timezoneName);
+        localTime = dt.applyOffset(point, offset);
+        hoursClassifier = new Date(localTime).getUTCHours();
+      }
+      else {
+        hoursClassifier = point.getUTCHours();
+      }
+      if (opts.fillOpts.classes[hoursClassifier] != null) {
+        fillData.push({
+          fillColor: opts.fillOpts.classes[hoursClassifier],
+          fillDate: localTime ? localTime.slice(0,10) : points[i].toISOString().slice(0,10),
           id: 'fill_' + points[i].toISOString().replace(/[^\w\s]|_/g, ''),
-          normalEnd: points[i + 1].toISOString(),
-          normalTime: points[i].toISOString(),
-          type: 'fill'
+          normalEnd: d3.time.hour.utc.offset(point, 3).toISOString(),
+          normalTime: point.toISOString(),
+          type: 'fill',
+          displayOffset: offset,
+          twoWeekX: hoursClassifier * MS_IN_DAY/24
         });
       }
     }
-    return data;
+    fixGapsAndOverlaps(fillData);
+    endTimer('fillDataFromInterval');
+    return fillData;
   }
 
   function getTwoWeekFillEndpoints() {
+    startTimer('getTwoWeekFillEndpoints');
     var data;
     if (that.grouped.smbg && that.grouped.smbg.length !== 0) {
       data = that.grouped.smbg;
@@ -154,19 +241,64 @@ function TidelineData(data, opts) {
     if (dt.getNumDays(first, last) < 14) {
       first = dt.addDays(last, -13);
     }
-    return [dt.getMidnight(first), dt.getMidnight(last, true)];
+    var endpoints;
+    if (opts.timePrefs.timezoneAware) {
+      var firstOffset = dt.getOffset(first, opts.timePrefs.timezoneName);
+      var firstDate = first.slice(0,10), firstDateAdjusted = dt.applyOffset(first, -firstOffset).slice(0,10);
+      first = dt.applyOffset(dt.getMidnight(dt.applyOffset(first, firstOffset)), firstOffset-1440);
+      if (firstDateAdjusted >= firstDate) {
+        first = dt.addDays(first, 1);
+        // TODO: possibly remove this
+        // it is intended to catch timezones on the other side of the dateline
+        // I think that makes sense to fix the issue found here
+        // (not generating fill for the last day of data when choosing e.g., New 
+        // but I haven't fully convinced myself...
+        if (Math.abs(firstOffset) >= 720) {
+          first = dt.addDays(first, 1);
+        }
+      }
+      var lastOffset = dt.getOffset(last, opts.timePrefs.timezoneName);
+      var lastDate = dt.applyOffset(last, data[data.length - 1].timezoneOffset).slice(0,10), lastDateAdjusted = dt.applyOffset(last, -lastOffset).slice(0,10);
+      if (lastDateAdjusted > lastDate) {
+        last = dt.applyOffset(dt.getMidnight(dt.applyOffset(last, lastOffset), true), lastOffset);
+        last = dt.addDays(last, 1);
+      }
+      else {
+        if (lastDateAdjusted < last.slice(0,10)) {
+          last = dt.applyOffset(dt.getMidnight(dt.applyOffset(last, lastOffset)), lastOffset);  
+        }
+        else {
+          last = dt.applyOffset(dt.getMidnight(dt.applyOffset(last, lastOffset), true), lastOffset);
+        }
+      }
+      endpoints = [first, last];
+    }
+    else {
+      endpoints = [dt.getMidnight(first), dt.getMidnight(last, true)];
+    }
+    endTimer('getTwoWeekFillEndpoints');
+    return endpoints;
   }
 
   this.generateFillData = function() {
+    data = this.data;
+    startTimer('generateFillData');
     var lastDatum = data[data.length - 1];
     // the fill should extend past the *end* of a segment (i.e. of basal data)
     // if that's the last datum in the data
     var lastTimestamp = lastDatum.normalEnd || lastDatum.normalTime;
     var first = new Date(data[0].normalTime), last = new Date(lastTimestamp);
-    // make sure we encapsulate the domain completely by padding the start and end with twice the duration
-    first.setUTCHours(first.getUTCHours() - first.getUTCHours() % opts.fillOpts.duration - (opts.fillOpts.duration * 2));
-    last.setUTCHours(last.getUTCHours() + last.getUTCHours() % opts.fillOpts.duration + (opts.fillOpts.duration * 2));
+    // make sure we encapsulate the domain completely
+    if (last - first < MS_IN_DAY) {
+      first = d3.time.hour.utc.offset(first, -12);
+      last = d3.time.hour.utc.offset(last, 12);
+    }
+    else {
+      first = d3.time.hour.utc.offset(first, -6);
+      last = d3.time.hour.utc.offset(last, 6);
+    }
     this.grouped.fill = fillDataFromInterval(first, last);
+    endTimer('generateFillData');
     return this;
   };
 
@@ -174,55 +306,19 @@ function TidelineData(data, opts) {
   // for each day from the first through last days where smbg exists at all
   // and for at least 14 days
   this.adjustFillsForTwoWeekView = function() {
+    startTimer('adjustFillsForTwoWeekView');
     var fillData = this.grouped.fill;
     var endpoints = getTwoWeekFillEndpoints();
-    var startOfTwoWeekFill = endpoints[0], endOfTwoWeekFill = endpoints[1];
-    var startOfFill = fillData[0].normalEnd, endOfFill = fillData[fillData.length - 1].normalEnd;
     this.twoWeekData = this.grouped.smbg || [];
-    var twoWeekFills = [];
-    for (var i = 0; i < this.grouped.fill.length; ++i) {
-      var d = this.grouped.fill[i];
-      if (d.normalTime >= startOfFill || d.normalTime <= endOfFill) {
-        twoWeekFills.push(d);
-      }
-    }
-
-    // first, fill in two week fills where potentially missing at the end of data domain
-    if (endOfTwoWeekFill > endOfFill) {
-      var end = new Date(endOfTwoWeekFill);
-      // intervals are exclusive of endpoint, so
-      // to get last segment, need to extend endpoint out +1
-      end.setUTCHours(end.getUTCHours() + 3);
-      twoWeekFills = twoWeekFills.concat(
-        fillDataFromInterval(new Date(endOfFill),end)
-      );
-    }
-    else {
-      // filter out any fills from two week fills that go beyond extent of smbg data
-      twoWeekFills = _.reject(twoWeekFills, function(d) {
-        return d.normalTime >= endOfTwoWeekFill;
-      });
-    }
-
-    // similarly, fill in two week fills where potentially missing at the beginning of data domain
-    if (startOfTwoWeekFill < startOfFill) {
-      twoWeekFills = twoWeekFills.concat(
-        fillDataFromInterval(new Date(startOfTwoWeekFill), new Date(startOfFill))
-      );
-    }
-    else {
-      // filter out any fills from two week fills that go beyond extent of smbg data
-      twoWeekFills = _.reject(twoWeekFills, function(d) {
-        return d.normalTime < startOfTwoWeekFill;
-      });
-    }
-
+    var twoWeekFills = fillDataFromInterval(new Date(endpoints[0]), new Date(endpoints[1]));
     this.twoWeekData = _.sortBy(this.twoWeekData.concat(twoWeekFills), function(d) {
       return d.normalTime;
     });
+    endTimer('adjustFillsForTwoWeekView');
   };
 
   this.setBGPrefs = function() {
+    startTimer('setBGPrefs');
     this.bgClasses = opts.bgClasses;
     var bgData;
     if (!(this.grouped.smbg || this.grouped.cbg)) {
@@ -255,35 +351,105 @@ function TidelineData(data, opts) {
         opts.bgClasses[key].boundary = opts.bgClasses[key].boundary/GLUCOSE_MM;
       } 
     }
+    endTimer('setBGPrefs');
   };
+
+  function makeWatsonFn() {
+    var MS_IN_MIN = 60000, watson;
+    if (opts.timePrefs.timezoneAware) {
+      watson = function(d) {
+        if (d.type !== 'fill') {
+          d.normalTime = d.time;
+          d.displayOffset = -dt.getOffset(d.time, opts.timePrefs.timezoneName);
+          if (d.type === 'basal') {
+            d.normalEnd = dt.addDuration(d.time, d.duration);
+          }
+        }
+      };
+    }
+    else {
+      watson = function(d) {
+        if (d.type !== 'fill') {
+          if (d.timezoneOffset) {
+            d.normalTime = dt.addDuration(d.time, d.timezoneOffset * MS_IN_MIN);
+            d.displayOffset = 0;
+          }
+          else if (d.type === 'message') {
+            var datumDt = new Date(d.time);
+            var offsetMinutes = datumDt.getTimezoneOffset();
+            datumDt.setUTCMinutes(datumDt.getUTCMinutes() - offsetMinutes);
+            d.normalTime = datumDt.toISOString();
+            d.displayOffset = 0;
+          }
+          if (d.deviceTime && d.normalTime.slice(0, -5) !== d.deviceTime) {
+            var err = new Error('Combining `time` and `timezoneOffset` does not yield `deviceTime`.');
+            // log(err);
+            d.errorMessage = err.message;
+          }
+          if (d.type === 'basal') {
+            d.normalEnd = dt.addDuration(d.normalTime, d.duration);
+          }
+        }
+      };
+    }
+    function applyWatson(d) {
+      watson(d);
+      if (d.suppressed) {
+        applyWatson(d.suppressed);
+      }
+    }
+    return applyWatson;
+  }
+
+  this.applyNewTimePrefs = function(timePrefs) {
+    opts.timePrefs = _.defaults(timePrefs, opts.timePrefs);
+    this.createNormalTime().generateFillData().adjustFillsForTwoWeekView();
+  };
+
+  this.createNormalTime = function(data) {
+    data = data || this.data;
+    this.watson = makeWatsonFn();
+    for (var i = 0; i < data.length; ++i) {
+      var d = data[i];
+      this.watson(d);
+    }
+
+    return this;
+  };
+
+  startTimer('Watson');
+  // first thing to do is Watson the data
+  // because validation requires Watson'd data
+  this.createNormalTime(data);
+  endTimer('Watson');
 
   log('Items to validate:', data.length);
 
   var res;
-  if (typeof window !== 'undefined') {
-    console.time('Validation');
-    res = validate.validateAll(data);
-    console.timeEnd('Validation');
-  }
-  else {
-    res = validate.validateAll(data);
-  }
+  startTimer('Validation');
+  res = validate.validateAll(data);
+  endTimer('Validation');
 
   log('Valid items:', res.valid.length);
   log('Invalid items:', res.invalid.length);
 
   data = res.valid;
 
+  startTimer('group');
   this.grouped = _.groupBy(data, function(d) { return d.type; });
+  endTimer('group');
 
+  startTimer('diabetesData');
   this.diabetesData = _.sortBy(_.flatten([].concat(_.map(opts.diabetesDataTypes, function(type) {
     return this.grouped[type] || [];
   }, this))), function(d) {
     return d.normalTime;
   });
+  endTimer('diabetesData');
 
   this.setBGPrefs();
 
+  startTimer('setUtilities');
   this.basalUtil = new BasalUtil(this.grouped.basal);
   this.bolusUtil = new BolusUtil(this.grouped.bolus);
   this.cbgUtil = new BGUtil(this.grouped.cbg, {
@@ -298,23 +464,14 @@ function TidelineData(data, opts) {
   });
   
   if (data.length > 0 && !_.isEmpty(this.diabetesData)) {
-    this.settingsUtil = new SettingsUtil(this.grouped.settings || [], [this.diabetesData[0].normalTime, this.diabetesData[this.diabetesData.length - 1].normalTime]);
-    this.settingsUtil.getAllSchedules(this.settingsUtil.endpoints[0], this.settingsUtil.endpoints[1]);
-    var segmentsBySchedule = this.settingsUtil.annotateBasalSettings(this.basalUtil.actual);
-    this.grouped['basal-settings-segment'] = [];
-    for (var key in segmentsBySchedule) {
-      this.grouped['basal-settings-segment'] = this.grouped['basal-settings-segment'].concat(segmentsBySchedule[key]);
-    }
-    this.data = _.sortBy(data.concat(this.grouped['basal-settings-segment']), function(d) {
-      return d.normalTime;
-    });
-
+    this.data = data;
     this.generateFillData().adjustFillsForTwoWeekView();
     this.data = _.sortBy(this.data.concat(this.grouped.fill), function(d) { return d.normalTime; });
   }
   else {
     this.data = [];
   }
+  endTimer('setUtilities');
   
   updateCrossFilters(this.data);
 

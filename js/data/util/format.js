@@ -24,7 +24,7 @@ var format = {
   MS_IN_24: 86400000,
 
   tooltipBG: function(d, units) {
-    return units === 'mg/dL' ? Math.round(d.value) : d3.format('.1f')(d.value);
+    return units === 'mg/dL' ? d3.format('g')(Math.round(d.value)) : d3.format('.1f')(d.value);
   },
 
   tooltipValue: function(x) {
@@ -114,17 +114,27 @@ var format = {
     }
   },
 
-  timestamp: function(i) {
+  timestamp: function(i, offset) {
     var d = new Date(i);
+    if (offset) {
+      d.setUTCMinutes(d.getUTCMinutes() + offset);
+    }
     return d3.time.format.utc('%-I:%M %p')(d).toLowerCase();
   },
 
-  xAxisDayText: function(i) {
+  xAxisDayText: function(i, offset) {
+    if (offset) {
+      i = new Date(i);
+      i.setUTCMinutes(i.getUTCMinutes() + offset);
+    }
     return moment(i).utc().format('dddd, MMMM Do');
   },
 
-  xAxisTickText: function(i) {
+  xAxisTickText: function(i, offset) {
     var d = new Date(i);
+    if (offset) {
+      d.setUTCMinutes(d.getUTCMinutes() + offset);
+    }
     return d3.time.format.utc('%-I %p')(d).toLowerCase();
   }
 

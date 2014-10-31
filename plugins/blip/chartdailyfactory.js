@@ -15,8 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
- /* global __DEV__ */
-
 var _ = require('lodash');
 var bows = require('bows');
 var d3 = require('d3');
@@ -35,10 +33,11 @@ function chartDailyFactory(el, options) {
     bgUnits: 'mg/dL',
     bolusRatio: 0.35,
     dynamicCarbs: false,
-    hiddenPools: {
-      basalSettings: null
-    },
-    labelBaseline: 4
+    labelBaseline: 4,
+    timePrefs: {
+      timezoneAware: false,
+      timezoneName: 'US/Pacific'
+    }
   };
   _.defaults(options, defaults);
 
@@ -48,7 +47,7 @@ function chartDailyFactory(el, options) {
   chart.emitter = emitter;
   chart.options = options;
 
-  var poolXAxis, poolMessages, poolBG, poolBolus, poolBasal, poolBasalSettings, poolStats;
+  var poolXAxis, poolMessages, poolBG, poolBolus, poolBasal, poolStats;
 
   var SMBG_SIZE = 16;
 
@@ -122,66 +121,18 @@ function chartDailyFactory(el, options) {
       .weight(1.5)
       .gutterWeight(1.0);
 
-    var basalSettingsBool = chart.options.hiddenPools.basalSettings;
-
-    var basalPoolLabel = {
-      main: 'Basal Rates',
-      light: ' u/hr'
-    };
-
-    if (basalSettingsBool === null) {
-      // basal data pool
-      poolBasal = chart.newPool()
-        .id('poolBasal', chart.poolGroup())
-        .label([basalPoolLabel])
-        .labelBaseline(options.labelBaseline)
-        .legend(['basal'])
-        .index(chart.pools().indexOf(poolBasal))
-        .weight(1.0)
-        .gutterWeight(1.0);
-    }
-    else if (basalSettingsBool) {
-      // basal settings pool, bare
-      poolBasalSettings = chart.newPool()
-        .id('poolBasalSettings', chart.poolGroup())
-        .label('')
-        .labelBaseline(options.labelBaseline)
-        .index(chart.pools().indexOf(poolBasal))
-        .weight(1.0)
-        .gutterWeight(1.0)
-        .hidden(chart.options.hiddenPools.basalSettings);
-
-      // basal data pool with label, legend, and gutter
-      poolBasal = chart.newPool()
-        .id('poolBasal', chart.poolGroup())
-        .label([basalPoolLabel])
-        .labelBaseline(options.labelBaseline)
-        .legend(['basal'])
-        .index(chart.pools().indexOf(poolBasal))
-        .weight(1.0)
-        .gutterWeight(1.0);
-    }
-    else if (basalSettingsBool === false) {
-      // basal settings pool with label, legend, and gutter
-      poolBasalSettings = chart.newPool()
-        .id('poolBasalSettings', chart.poolGroup())
-        .label([basalPoolLabel])
-        .labelBaseline(options.labelBaseline)
-        .legend(['basal'])
-        .index(chart.pools().indexOf(poolBasal))
-        .weight(1.0)
-        .gutterWeight(1.0)
-        .hidden(chart.options.hiddenPools.basalSettings);
-
-      // basal data pool, bare
-      poolBasal = chart.newPool()
-        .id('poolBasal', chart.poolGroup())
-        .label('')
-        .labelBaseline(options.labelBaseline)
-        .index(chart.pools().indexOf(poolBasal))
-        .weight(1.0)
-        .gutterWeight(0.1);
-    }
+    // basal data pool
+    poolBasal = chart.newPool()
+      .id('poolBasal', chart.poolGroup())
+      .label([{
+        main: 'Basal Rates',
+        light: ' u/hr'
+      }])
+      .labelBaseline(options.labelBaseline)
+      .legend(['basal'])
+      .index(chart.pools().indexOf(poolBasal))
+      .weight(1.0)
+      .gutterWeight(1.0);
 
     // stats data pool
     poolStats = chart.newPool()
@@ -242,7 +193,8 @@ function chartDailyFactory(el, options) {
     poolXAxis.addPlotType('fill', tideline.plot.util.axes.dailyx(poolXAxis, {
       'class': 'd3-top',
       emitter: emitter,
-      leftEdge: chart.axisGutter()
+      leftEdge: chart.axisGutter(),
+      timePrefs: chart.options.timePrefs
     }), true, true);
 
     // BG pool
@@ -286,7 +238,8 @@ function chartDailyFactory(el, options) {
     poolBG.addPlotType('smbg', tideline.plot.smbg(poolBG, {
       bgUnits: chart.options.bgUnits,
       classes: chart.options.bgClasses,
-      yScale: scaleBG
+      yScale: scaleBG,
+      timezoneAware: chart.options.timePrefs.timezoneAware
     }), true, true);
 
     // TODO: when we bring responsiveness in
@@ -316,14 +269,16 @@ function chartDailyFactory(el, options) {
       yScale: scaleBolus,
       yScaleCarbs: scaleCarbs,
       emitter: emitter,
-      subdueOpacity: 0.4
+      subdueOpacity: 0.4,
+      timezoneAware: chart.options.timePrefs.timezoneAware
     }), true, true);
 
     // quick bolus data to wizard pool
     poolBolus.addPlotType('bolus', tideline.plot.quickbolus(poolBolus, {
       yScale: scaleBolus,
       emitter: emitter,
-      subdueOpacity: 0.4
+      subdueOpacity: 0.4,
+      timezoneAware: chart.options.timePrefs.timezoneAware
     }), true, true);
 
     // basal pool
@@ -341,14 +296,9 @@ function chartDailyFactory(el, options) {
     poolBasal.addPlotType('basal', tideline.plot.basal(poolBasal, {
       yScale: scaleBasal,
       emitter: emitter,
-      data: tidelineData.grouped.basal
+      data: tidelineData.grouped.basal,
+      timezoneAware: chart.options.timePrefs.timezoneAware
     }), true, true);
-
-    if (poolBasalSettings !== undefined) {
-      poolBasalSettings.addPlotType('basal-settings-segment', tideline.plot.basaltab(poolBasalSettings, {
-        data: tidelineData.grouped['basal-settings-segment']
-      }), true, true);
-    }
 
     // messages pool
     // add background fill rectangles to messages pool
@@ -436,15 +386,6 @@ function chartDailyFactory(el, options) {
       pool.render(chart.poolGroup(), chart.renderedData());
     });
 
-    if (poolBasalSettings !== undefined) {
-      if (__DEV__) {
-        setTimeout(function() { chart.drawBasalSettingsButton(); }, 500);
-      }
-      else {
-        chart.drawBasalSettingsButton();
-      }
-    }
-
     chart.setAtDate(start, atMostRecent);
 
     return chart;
@@ -476,57 +417,6 @@ function chartDailyFactory(el, options) {
 
   chart.closeMessage = function() {
     chart.poolGroup().selectAll('.d3-rect-message').classed('hidden', true);
-  };
-
-  chart.drawBasalSettingsButton = function() {
-    var labelGroup = chart.svg().select('#tidelineLabels');
-    var labelTextBox = chart.options.hiddenPools.basalSettings ?
-      labelGroup.select('text#poolBasal_label') :
-      labelGroup.select('text#poolBasalSettings_label');
-    var labelDims = labelTextBox[0][0].getBoundingClientRect();
-    var labelHeight = labelDims.height, labelWidth = labelDims.width;
-    var horizontalTranslation = labelWidth + chart.axisGutter();
-    var verticalTranslation = parseFloat(labelTextBox.attr('transform').match(/translate\([0-9.]+,([0-9.]+)\)/)[1]);
-    var fo = labelGroup.append('foreignObject')
-      .attr({
-        transform: 'translate(' + horizontalTranslation + ',' + verticalTranslation + ')'
-      });
-
-    var div = fo.append('xhtml:div')
-      .attr('class', 'd3-tabular-ui');
-
-    var icon = div.html(chart.options.hiddenPools.basalSettings ?
-        '<i class="icon-right"></i>' : '<i class="icon-down"></i>');
-
-    var iconWidth = icon.select('i')[0][0].getBoundingClientRect().width;
-    var foHeight = div[0][0].getBoundingClientRect().height;
-
-    fo.attr({
-      width: iconWidth,
-      height: foHeight,
-      transform: 'translate(' + horizontalTranslation + ',' + (verticalTranslation - foHeight + options.labelBaseline) + ')'
-    });
-
-    labelGroup.append('text')
-      .attr({
-        x: chart.axisGutter() + labelWidth + iconWidth,
-        y: verticalTranslation,
-        'class': 'd3-tabular-ui'
-      })
-      .text(chart.options.hiddenPools.basalSettings ? 'show rates' : 'hide rates');
-
-    if (chart.options.hiddenPools.basalSettings) {
-      labelGroup.selectAll('.d3-tabular-ui')
-        .on('click', function() {
-          chart.emitter.emit('showBasalSettings');
-        });
-    }
-    else {
-      labelGroup.selectAll('.d3-tabular-ui')
-        .on('click', function() {
-          chart.emitter.emit('hideBasalSettings');
-        });
-    }
   };
 
   chart.type = 'daily';

@@ -77,6 +77,7 @@ var Weekly = React.createClass({
             bgUnits={this.props.bgPrefs.bgUnits}
             initialDatetimeLocation={this.props.initialDatetimeLocation}
             patientData={this.props.patientData}
+            timePrefs={this.props.chartPrefs.timePrefs}
             // handlers
             onDatetimeLocationChange={this.handleDatetimeLocationChange}
             onMostRecent={this.handleMostRecent}
@@ -106,7 +107,7 @@ var Weekly = React.createClass({
     this.refs.chart.goToMostRecent();
   },
   handleClickOneDay: function() {
-    var datetime = this.refs.chart.getCurrentDay();
+    var datetime = this.refs.chart.getCurrentDay(this.props.chartPrefs.timePrefs);
     this.props.onSwitchToDaily(datetime);
   },
   handleClickTwoWeeks: function() {
@@ -117,7 +118,7 @@ var Weekly = React.createClass({
     this.setState({
       title: this.getTitle(datetimeLocationEndpoints)
     });
-    this.props.updateDatetimeLocation(this.refs.chart.getCurrentDay());
+    this.props.updateDatetimeLocation(this.refs.chart.getCurrentDay(this.props.chartPrefs.timePrefs));
   },
   handleInTransition: function(inTransition) {
     this.setState({
@@ -150,13 +151,14 @@ var Weekly = React.createClass({
 });
 
 var WeeklyChart = React.createClass({
-  chartOpts: ['bgClasses', 'bgUnits'],
+  chartOpts: ['bgClasses', 'bgUnits', 'timePrefs'],
   log: bows('Weekly Chart'),
   propTypes: {
     bgClasses: React.PropTypes.object.isRequired,
     bgUnits: React.PropTypes.string.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
+    timePrefs: React.PropTypes.object.isRequired,
     // handlers
     onDatetimeLocationChange: React.PropTypes.func.isRequired,
     onMostRecent: React.PropTypes.func.isRequired,
@@ -173,7 +175,7 @@ var WeeklyChart = React.createClass({
   },
   mountChart: function(node, chartOpts) {
     this.log('Mounting...');
-    this.chart = chartWeeklyFactory(node,  _.pick(this.props, this.chartOpts));
+    this.chart = chartWeeklyFactory(node, _.pick(this.props, this.chartOpts));
     this.bindEvents();
   },
   unmountChart: function() {
@@ -210,8 +212,8 @@ var WeeklyChart = React.createClass({
   handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
     this.props.onDatetimeLocationChange(datetimeLocationEndpoints);
   },
-  getCurrentDay: function() {
-    return this.chart.getCurrentDay().toISOString();
+  getCurrentDay: function(timePrefs) {
+    return this.chart.getCurrentDay(timePrefs).toISOString();
   },
   goToMostRecent: function() {
     this.chart.clear();

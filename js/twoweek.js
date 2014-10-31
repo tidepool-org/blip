@@ -20,6 +20,7 @@ var _ = require('lodash');
 
 var Pool = require('./pool');
 var annotation = require('./plot/util/annotations/annotation');
+var dt = require('./data/util/datetime');
 var Tooltips = require('./plot/util/tooltips/tooltip');
 var legend = require('./plot/util/legend');
 
@@ -338,8 +339,12 @@ module.exports = function(emitter) {
     return nav.navGutter;
   };
 
-  container.getCurrentDay = function() {
-    return new Date(yScale.domain()[0].toISOString().slice(0,10) + 'T12:00:00.000Z');
+  container.getCurrentDay = function(timePrefs) {
+    var current = new Date(yScale.domain()[0]).toISOString();
+    if (timePrefs && timePrefs.timezoneAware) {
+      current = dt.applyOffset(current, dt.getOffset(current, timePrefs.timezoneName));
+    }
+    return new Date(current);
   };
 
   // chainable methods
@@ -558,9 +563,6 @@ module.exports = function(emitter) {
 
         xPos = 2 * nav.navGutter / 3;
 
-        var start = new Date(dataStartNoon);
-        start.setUTCDate(start.getUTCDate() - 1);
-
         scrollNav.attr('transform', 'translate(' + (width - nav.navGutter) + ',0)')
           .append('line')
           .attr({
@@ -716,64 +718,30 @@ module.exports = function(emitter) {
   };
 
   // data getters and setters
-  container.data = function(a, viewEndDate) {
+  container.data = function(a, timezoneAware, viewEndDate) {
     if (!arguments.length) return data;
 
     data = a;
 
-    var first;
     var last;
-    if (!(data && data.length)) {
-      last = new Date();
-      if (viewEndDate) {
-        last = new Date(viewEndDate);
-      }
-      first = new Date(last);
-      first.setUTCDate(first.getUTCDate() - 28);
+    var lastDatum = data[data.length - 1];
+    last = new Date(lastDatum.normalTime);
+    if (timezoneAware) {
+      last = new Date(dt.applyOffset(last, lastDatum.displayOffset));
     }
-    else {
-      first = new Date(data[0].normalTime);
-      last = new Date(data[data.length - 1].normalTime);
-    }
-
-    endpoints = [first, last];
-    container.endpoints = endpoints;
 
     function createDay(d) {
       return new Date(d.toISOString().slice(0,11) + '00:00:00Z');
     }
-    days = [];
-    var firstDay = createDay(new Date(container.endpoints[0]));
-    var lastDay = createDay(new Date(container.endpoints[1]));
-    days.push(firstDay.toISOString().slice(0,10));
-    var currentDay = firstDay;
-    while (currentDay < lastDay) {
-      var newDay = new Date(currentDay);
-      newDay.setUTCDate(newDay.getUTCDate() + 1);
-      days.push(newDay.toISOString().slice(0,10));
-      currentDay = newDay;
-    }
+    days = _.uniq(_.pluck(_.where(data, {type: 'fill'}), 'fillDate'));
 
-    if (days.length < 14) {
-      var day = new Date(firstDay);
-      // fill in previous days if less than two weeks data
-      while (days.length < 14) {
-        day.setUTCDate(day.getUTCDate() - 1);
-        days.unshift(day.toISOString().slice(0,10));
-        currentDay = day;
-      }
-      first = days[0];
-      lessThanTwoWeeks = true;
-    }
-
-    dataStartNoon = new Date(first);
+    dataStartNoon = new Date(days[0]);
     dataStartNoon.setUTCHours(12);
     dataStartNoon.setUTCMinutes(0);
     dataStartNoon.setUTCSeconds(0);
     if (!sortReverse) {
       dataStartNoon.setUTCDate(dataStartNoon.getUTCDate() - 1);
     }
-
     var noon = '12:00:00Z';
 
     dataEndNoon = new Date(last);
@@ -789,7 +757,6 @@ module.exports = function(emitter) {
     var viewBeginning = new Date(viewEndDate);
     viewBeginning.setUTCDate(viewBeginning.getUTCDate() - 14);
     var firstDayInView;
-
     if (sortReverse) {
       this.days = days;
 
@@ -815,21 +782,15 @@ module.exports = function(emitter) {
 
     container.dataPerDay = [];
 
-    var dayIndex = 0, thisDay = this.days[dayIndex], current = [];
-    for (var i = 0; i < data.length; ++i) {
-      var date = data[i].normalTime.slice(0,10);
-      if (date === thisDay) {
-        current.push(data[i]);
-      }
-      else {
-        container.dataPerDay.push(current);
-        current = [data[i]];
-        dayIndex += 1;
-        thisDay = this.days[dayIndex];
-      }
-    }
-    container.dataPerDay.push(current);
+    var groupedByDate = _.groupBy(data, function(d) {
+      return timezoneAware ? (d.fillDate ? d.fillDate : dt.applyOffset(d.normalTime, d.displayOffset).slice(0,10)) : d.normalTime.slice(0,10);
+    });
 
+    var dates = Object.keys(groupedByDate);
+    for (var i = 0; i < dates.length; ++i) {
+      var date = dates[i];
+      container.dataPerDay.push(groupedByDate[date]);
+    }
     return container;
   };
 

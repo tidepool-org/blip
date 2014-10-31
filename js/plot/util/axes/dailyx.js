@@ -17,7 +17,9 @@
 
 var _ = require('lodash');
 var d3 = require('d3');
+var moment = require('moment-timezone');
 
+var dt = require('../../../data/util/datetime');
 var format = require('../../../data/util/format');
 
 var log = require('bows')('DailyX');
@@ -28,10 +30,14 @@ module.exports = function(pool, opts) {
     textShiftX: 5,
     textShiftY: 5,
     tickLength: 15,
-    longTickMultiplier: 2.5
+    longTickMultiplier: 2.5,
+    timePrefs: {
+      timezoneAware: false,
+      timezoneName: 'US/Pacific'
+    }
   };
 
-  opts = _.defaults(opts || {}, defaults);
+  _.defaults(opts || {}, defaults);
 
   var mainGroup = pool.parent();
 
@@ -56,14 +62,21 @@ module.exports = function(pool, opts) {
   });
 
   opts.emitter.on('navigated', function(a) {
-    var d = a[0].start;
+    var offset = 0, d;
+    if (opts.timePrefs.timezoneAware) {
+      offset = -dt.getOffset(a[0].start, opts.timePrefs.timezoneName);
+      d = moment(a[0].start).tz(opts.timePrefs.timezoneName);
+    }
+    else {
+      d = moment(a[0].start).utc();
+    }
     // when we're close to midnight (where close = five hours on either side)
     // remove the sticky label so it doesn't overlap with the midnight-anchored day label
-    if ((d.getUTCHours() >= 19) || (d.getUTCHours() <= 4)) {
+    if ((d.hours() >= 19) || (d.hours() <= 4)) {
       stickyLabel.text('');
       return;
     }
-    stickyLabel.text(format.xAxisDayText(d.toISOString()));
+    stickyLabel.text(format.xAxisDayText(d.toISOString(), offset));
   });
 
   function dailyx(selection) {
@@ -96,12 +109,13 @@ module.exports = function(pool, opts) {
           y: pool.height() - opts.textShiftY
         })
         .text(function(d) {
-          return format.xAxisTickText(d.normalTime);
+          return format.xAxisTickText(d.normalTime, d.displayOffset);
         });
 
       tickGroups.filter(function(d) {
-        var dt = new Date(d.normalTime);
-        if (dt.getUTCHours() === 0) {
+        var date = new Date(d.normalTime);
+        date = new Date(dt.applyOffset(date, d.displayOffset));
+        if (date.getUTCHours() === 0) {
           return d;
         }
       })
@@ -112,7 +126,7 @@ module.exports = function(pool, opts) {
           y: dailyx.dayYPosition
         })
         .text(function(d) {
-          return format.xAxisDayText(d.normalTime);
+          return format.xAxisDayText(d.normalTime, d.displayOffset);
         });
 
       ticks.exit().remove();
@@ -132,8 +146,9 @@ module.exports = function(pool, opts) {
   };
 
   dailyx.tickLength = function(d) {
-    var dt = new Date(d.normalTime);
-    if (dt.getUTCHours() === 0) {
+    var date = new Date(d.normalTime);
+    date = new Date(dt.applyOffset(date, d.displayOffset));
+    if (date.getUTCHours() === 0) {
       return pool.height() - opts.tickLength * opts.longTickMultiplier;
     }
     else return pool.height() - opts.tickLength;

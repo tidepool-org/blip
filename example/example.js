@@ -28,6 +28,8 @@ var Settings = require('./components/settings');
 var nurseshark = require('../plugins/nurseshark/');
 var TidelineData = require('../js/tidelinedata');
 
+var dt = require('../js/data/util/datetime');
+
 require('../css/tideline.less');
 require('./less/example.less');
 
@@ -49,8 +51,14 @@ var Example = React.createClass({
   getInitialState: function() {
     return {
       chartPrefs: {
-        hiddenPools: {
-          basalSettings: true
+        timePrefs: {
+          timezoneAware: false,
+          // timezoneAware: true,
+          // timezoneName: 'Pacific/Auckland'
+          // timezoneName: 'Europe/Paris'
+          // timezoneName: 'US/Eastern'
+          timezoneName: 'US/Pacific'
+          // timezoneName: 'US/Hawaii'
         }
       },
       datetimeLocation: null,
@@ -132,13 +140,15 @@ var Example = React.createClass({
     if (err) {
       throw new Error('Could not fetch data file at ' + dataUrl);
     }
-    console.time('Nurseshark');
-    data = nurseshark.processData(data).processedData;
-    console.timeEnd('Nurseshark');
+    console.time('Nurseshark Total');
+    data = nurseshark.processData(data, this.state.chartPrefs.timePrefs).processedData;
+    console.timeEnd('Nurseshark Total');
     this.updateData(data);
   },
   updateData: function(data) {
-    var tidelineData = new TidelineData(data);
+    console.time('TidelineData Total');
+    var tidelineData = new TidelineData(data, {timePrefs: this.state.chartPrefs.timePrefs});
+    console.timeEnd('TidelineData Total');
     window.tidelineData = tidelineData;
     this.setState({
       chartData: tidelineData,
@@ -162,9 +172,13 @@ var Example = React.createClass({
     });
   },
   handleSwitchToWeekly: function(datetime) {
+    datetime = datetime || this.state.datetimeLocation;
+    if (this.state.chartPrefs.timePrefs.timezoneAware) {
+      datetime = dt.applyOffset(datetime, -dt.getOffset(datetime, this.state.chartPrefs.timePrefs.timezoneName));
+    }
     this.setState({
       chartType: 'weekly',
-      initialDatetimeLocation: datetime || this.state.datetimeLocation
+      initialDatetimeLocation: datetime
     });
   },
   updateChartPrefs: function(newChartPrefs) {

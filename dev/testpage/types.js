@@ -48,6 +48,11 @@ var common = {
     d.setUTCMinutes(d.getUTCMinutes() + offsetMinutes);
     return d.toISOString();
   },
+  makeTimezoneOffset: function() {
+    var d = new Date(this.deviceTime + APPEND);
+    var offsetMinutes = d.getTimezoneOffset();
+    return -offsetMinutes;
+  },
   makeId: function() { return guid(); }
 };
 
@@ -69,6 +74,7 @@ var Basal = function(opts) {
   this.rate = opts.rate;
 
   this.time = this.makeTime();
+  this.timezoneOffset = this.makeTimezoneOffset();
   this.normalTime = this.makeNormalTime();
   this.normalEnd = dt.addDuration(this.normalTime, this.duration);
   
@@ -95,6 +101,7 @@ var Bolus = function(opts) {
   }
 
   this.time = this.makeTime();
+  this.timezoneOffset = this.makeTimezoneOffset();
   this.normalTime = this.makeNormalTime();
 
   this.id = this.makeId();
@@ -118,6 +125,7 @@ var CBG = function(opts) {
   this.value = opts.value;
 
   this.time = this.makeTime();
+  this.timezoneOffset = this.makeTimezoneOffset();
   this.normalTime = this.makeNormalTime();
 
   this.id = this.makeId();
@@ -191,6 +199,7 @@ var Settings = function(opts) {
   this.units = opts.units;
 
   this.time = this.makeTime();
+  this.timezoneOffset = this.makeTimezoneOffset();
   this.normalTime = this.makeNormalTime();
 
   this.id = this.makeId();
@@ -214,6 +223,7 @@ var SMBG = function(opts) {
   this.value = opts.value;
 
   this.time = this.makeTime();
+  this.timezoneOffset = this.makeTimezoneOffset();
   this.normalTime = this.makeNormalTime();
 
   this.id = this.makeId();
@@ -249,6 +259,7 @@ var Wizard = function(opts) {
   this.recommended = opts.recommended;
 
   this.time = this.makeTime();
+  this.timezoneOffset = this.makeTimezoneOffset();
   this.normalTime = this.makeNormalTime();
 
   this.id = this.makeId();

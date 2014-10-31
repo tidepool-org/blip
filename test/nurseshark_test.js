@@ -21,6 +21,8 @@ var expect = chai.expect;
 
 var _ = require('lodash');
 
+var dt = require('../js/data/util/datetime');
+
 var nurseshark = require('../plugins/nurseshark');
 
 describe('nurseshark', function() {
@@ -54,49 +56,53 @@ describe('nurseshark', function() {
       var minusTwenty = new Date(now.valueOf() - 1200000);
       var data = [{
         type: 'bolus',
-        deviceTime: minusTwenty.toISOString().slice(0,-5),
         time: minusTwenty.toISOString(),
         deviceId: 'z',
-        source: 'carelink'
+        source: 'carelink',
+        timezoneOffset: 0
       }, {
         type: 'smbg',
-        deviceTime: minusTen.toISOString().slice(0,-5),
         time: minusTen.toISOString(),
         deviceId: 'z',
-        source: 'carelink'
+        source: 'carelink',
+        timezoneOffset: 0
       }, {
         type: 'smbg',
         time: now.toISOString(),
         deviceId: 'a',
-        source: 'carelink'
+        source: 'carelink',
+        timezoneOffset: 0
       }, {
         type: 'bolus',
         time: plusTen.toISOString(),
         deviceId: 'b',
-        source: 'carelink'
+        source: 'carelink',
+        timezoneOffset: 0
       }, {
         type: 'basal',
         time: plusHalf.toISOString(),
         deviceId: 'a',
-        source: 'carelink'
+        source: 'carelink',
+        timezoneOffset: 0
       }, {
         type: 'bolus',
         time: plusHour.toISOString(),
         deviceId: 'b',
-        source: 'carelink'
+        source: 'carelink',
+        timezoneOffset: 0
       }, {
         type: 'basal',
         duration: 1000000,
-        deviceTime: plusTwo.toISOString().slice(0,-5),
         time: plusTwo.toISOString(),
         deviceId: 'c',
-        source: 'carelink'
+        source: 'carelink',
+        timezoneOffset: 0
       }, {
         type: 'bolus',
-        deviceTime: plusThree.toISOString().slice(0,-5),
         time: plusThree.toISOString(),
         deviceId: 'c',
-        source: 'carelink'
+        source: 'carelink',
+        timezoneOffset: 0
       }];
       var res = nurseshark.processData(data);
       expect(res.erroredData.length).to.equal(4);
@@ -123,7 +129,6 @@ describe('nurseshark', function() {
     });
 
     it('should return an array of new (not mutated) objects', function() {
-      var dummyDT = '2014-01-01T12:00:00';
       var now = new Date().toISOString();
       var input = [{
         type: 'bolus',
@@ -132,13 +137,13 @@ describe('nurseshark', function() {
           b: 2,
           c: 3
         },
-        deviceTime: dummyDT,
-        time: now
+        time: now,
+        timezoneOffset: 0
       }, {
         type: 'wizard',
         d: [{x: 4},{y: 5}],
-        deviceTime: dummyDT,
-        time: now
+        time: now,
+        timezoneOffset: 0
       }];
       var output = nurseshark.processData(input).processedData;
       for (var i = 0; i < input.length; ++i) {
@@ -151,24 +156,20 @@ describe('nurseshark', function() {
     it('should return overlapping basals in the erroredData', function() {
       var now = new Date();
       var plusTen = new Date(now.valueOf() + 600000);
-      var dummyDT = '2014-01-01T12:00:00';
       var overlapping = [{
         type: 'basal',
         time: now.toISOString(),
         duration: 1200000,
-        deviceTime: dummyDT,
-        normalTime: dummyDT + '.000Z',
-        normalEnd: new Date(new Date(dummyDT + '.000Z').valueOf() + 1200000).toISOString()
+        timezoneOffset: 0
       }, {
         type: 'basal',
         time: plusTen.toISOString(),
         duration: 1200000,
-        deviceTime: dummyDT,
-        normalTime: dummyDT + '.000Z'
+        timezoneOffset: 0
       }];
       var res = nurseshark.processData(overlapping).erroredData;
       expect(res.length).to.equal(1);
-      expect(res[0].overlapsWith).to.eql(overlapping[0]);
+      expect(_.omit(res[0].overlapsWith, ['normalTime', 'normalEnd'])).to.eql(overlapping[0]);
       expect(res[0].errorMessage).to.equal('Basal overlaps with previous.');
     });
 
@@ -179,7 +180,6 @@ describe('nurseshark', function() {
         type: 'basal',
         time: now.toISOString(),
         duration: null,
-        deviceTime: dummyDT,
         normalTime: dummyDT + '.000Z',
         normalEnd: new Date(new Date(dummyDT + '.000Z').valueOf() + 1200000).toISOString()
       }];
@@ -189,53 +189,55 @@ describe('nurseshark', function() {
     });
 
     it('should extend the duration of Carelink temps and suspends that are one second short', function() {
-      var dummyDT = '2014-01-01T12:00:00';
-      var nextDT = '2014-01-01T12:20:00';
+      var aTime = '2014-01-01T12:00:00.000Z';
+      var nextTime = '2014-01-01T12:20:00.000Z';
       var basals = [{
         type: 'basal',
         deliveryType: 'temp',
         source: 'carelink',
-        time: dummyDT + '.000Z',
+        time: aTime,
         duration: 1199000,
-        deviceTime: dummyDT,
         rate: 0.5,
-        percent: 0.5
+        percent: 0.5,
+        timezoneOffset: 0
       }, {
         type: 'basal',
         deliveryType: 'scheduled',
         source: 'carelink',
-        time: nextDT + '.000Z',
+        time: nextTime,
         duration: 3600000,
-        deviceTime: nextDT,
-        rate: 0.9
+        rate: 0.9,
+        timezoneOffset: 0
       }];
       var res = nurseshark.processData(basals).processedData;
       expect(res.length).to.equal(2);
-      expect(res[0].normalEnd).to.equal(res[1].normalTime);
+      var first = res[0], second = res[1];
+      expect(dt.addDuration(first.time, first.duration)).to.equal(second.time);
     });
 
     it('should not extend the duration of non-Carelink temps and suspends', function() {
-      var dummyDT = '2014-01-01T12:00:00';
-      var nextDT = '2014-01-01T12:20:00';
+      var aTime = '2014-01-01T12:00:00.000Z';
+      var nextTime = '2014-01-01T12:20:00.000Z';
       var basals = [{
         type: 'basal',
         deliveryType: 'temp',
-        time: dummyDT + '.000Z',
+        time: aTime,
         duration: 1199000,
-        deviceTime: dummyDT,
         rate: 0.5,
-        percent: 0.5
+        percent: 0.5,
+        timezoneOffset: 0
       }, {
         type: 'basal',
         deliveryType: 'scheduled',
-        time: nextDT + '.000Z',
+        time: nextTime,
         duration: 3600000,
-        deviceTime: nextDT,
-        rate: 0.9
+        rate: 0.9,
+        timezoneOffset: 0
       }];
       var res = nurseshark.processData(basals).processedData;
       expect(res.length).to.equal(2);
-      expect(res[0].normalEnd).to.not.equal(res[1].normalTime);
+      var first = res[0], second = res[1];
+      expect(dt.addDuration(first.time, first.duration)).to.not.equal(second.time);
     });
 
     describe('suppressed handler', function() {
@@ -249,20 +251,20 @@ describe('nurseshark', function() {
         type: 'basal',
         duration: 1200000,
         time: now.toISOString(),
-        deviceTime: dummyDT1,
+        timezoneOffset: 0,
         suppressed: {
           type: 'basal',
           deliveryType: 'temp',
           duration: 3600000,
           time: minusTen.toISOString(),
-          deviceTime: dummyDT2,
+          timezoneOffset: 0,
           percent: 0.5,
           suppressed: {
             type: 'basal',
             deliveryType: 'scheduled',
             duration: 3600000*2,
             time: minusHour.toISOString(),
-            deviceTime: dummyDT3,
+            timezoneOffset: 0,
             rate: 0.5
           }
         }
@@ -291,25 +293,24 @@ describe('nurseshark', function() {
     });
 
     it('should filter out bad deviceMeta events', function() {
-      var dummyDT = '2014-01-01T12:00:00';
       var data = [{
         type: 'deviceMeta',
         time: new Date().toISOString(),
         duration: 300000,
-        deviceTime: dummyDT
+        timezoneOffset: 0
       }, {
         type: 'deviceMeta',
         time: new Date().toISOString(),
         annotations: [{
           code: 'status/incomplete-tuple'
         }],
-        deviceTime: dummyDT
+        timezoneOffset: 0
       }, {
         type: 'deviceMeta',
         annotations: [{
           code: 'status/unknown-previous'
         }],
-        deviceTime: dummyDT
+        timezoneOffset: 0
       }];
       var res = nurseshark.processData(data);
       expect(res.processedData.length).to.equal(2);
@@ -317,26 +318,25 @@ describe('nurseshark', function() {
     });
 
     it('should translate cbg and smbg into mg/dL when such units specified', function() {
-      var dummyDT = '2014-01-01T12:00:00';
       var now = new Date().toISOString();
       var bgs = [{
         type: 'cbg',
         units: 'mg/dL',
         value: 14.211645580300173,
-        deviceTime: dummyDT,
-        time: now
+        time: now,
+        timezoneOffset: 0
       }, {
         type: 'smbg',
         units: 'mg/dL',
         value: 2.487452256628842,
-        deviceTime: dummyDT,
-        time: now
+        time: now,
+        timezoneOffset: 0
       }, {
         type: 'cbg',
         units: 'mmol/L',
         value: 7.048584587016023,
-        deviceTime: dummyDT,
-        time: now
+        time: now,
+        timezoneOffset: 0
       }];
       var res = nurseshark.processData(bgs).processedData;
       expect(res[0].value).to.equal(256);
@@ -345,11 +345,9 @@ describe('nurseshark', function() {
     });
 
     it('should translate wizard bg-related fields to mg/dL when such units specified', function() {
-      var dummyDT = '2014-01-01T12:00:00';
       var now = new Date().toISOString();
       var datum = [{
         type: 'wizard',
-        deviceTime: dummyDT,
         time: now,
         units: 'mg/dL',
         bgInput: 15.1518112923307,
@@ -357,7 +355,8 @@ describe('nurseshark', function() {
           high: 5.550747991045533,
           low: 5.550747991045533
         },
-        insulinSensitivity: 3.7753739955227665
+        insulinSensitivity: 3.7753739955227665,
+        timezoneOffset: 0
       }];
       var res = nurseshark.processData(datum).processedData[0];
       expect(res.bgInput).to.equal(273);
@@ -367,11 +366,9 @@ describe('nurseshark', function() {
     });
 
     it('should translate settings bg-related fields to mg/dL when such units specified', function() {
-      var dummyDT = '2014-01-01T12:00:00';
       var now = new Date().toISOString();
       var settings = [{
         type: 'settings',
-        deviceTime: dummyDT,
         time: now,
         units: {
           bg: 'mg/dL',
@@ -390,7 +387,8 @@ describe('nurseshark', function() {
             amount: 4.9956731919409805,
             start: 43200000
           }
-        ]
+        ],
+        timezoneOffset: 0
       }];
       var res = nurseshark.processData(settings).processedData[0];
       expect(res.bgTarget[0].target).to.equal(120);
@@ -400,7 +398,6 @@ describe('nurseshark', function() {
     });
 
     it('should reshape basalSchedules from an object to an array', function() {
-      var dummyDT = '2014-01-01T12:00:00';
       var now = new Date().toISOString();
       var settings = [{
         type: 'settings',
@@ -411,106 +408,46 @@ describe('nurseshark', function() {
         units: {
           bg: 'mg/dL'
         },
-        deviceTime: dummyDT,
-        time: now
+        time: now,
+        timezoneOffset: 0
       }];
       var res = nurseshark.processData(settings).processedData;
       assert.isArray(res[0].basalSchedules);
     });
 
     it('should return sorted data', function() {
-      var dummyDT1 = '2014-01-01T12:00:00';
-      var dummyDT2 = '2014-01-01T13:00:00';
-      var now = new Date().toISOString();
+      var now = new Date();
+      var nextTime = new Date(now.valueOf() + 600000);
       var APPEND = '.000Z';
       var data = [{
         type: 'smbg',
         units: 'mmol/L',
-        deviceTime: dummyDT2,
-        time: now
+        time: nextTime.toISOString(),
+        timezoneOffset: 0
       }, {
         type: 'cbg',
         units: 'mmol/L',
-        deviceTime: dummyDT1,
-        time: now
+        time: now.toISOString(),
+        timezoneOffset: 0
       }];
       var sorted = [data[1], data[0]];
-      sorted[0].normalTime = dummyDT1 + APPEND;
-      sorted[1].normalTime = dummyDT2 + APPEND;
+      sorted[0].normalTime = now.toISOString();
+      sorted[1].normalTime = nextTime.toISOString();
       expect(nurseshark.processData(data).processedData).to.eql(sorted);
     });
   });
 
-  describe('massaging of timestamps', function() {
-    // TODO: remove after we've got tideline using timezone-aware timestamps
-    it('should Watson all data with a deviceTime', function() {
-      var dummyDT = '2014-01-01T12:00:00';
-      var data = [{
-        type: 'basal',
-        time: new Date().toISOString(),
-        duration: 3600000,
-        deviceTime: dummyDT
-      }, {
-        type: 'bolus',
-        deviceTime: dummyDT
-      }, {
-        type: 'cbg',
-        units: 'mmol/L',
-        deviceTime: dummyDT
-      }, {
-        type: 'deviceMeta',
-        time: new Date().toISOString(),
-        duration: 300000,
-        deviceTime: dummyDT
-      }, {
-        type: 'smbg',
-        units: 'mmol/L',
-        deviceTime: dummyDT
-      }, {
-        type: 'settings',
-        units: {
-          bg: 'mmol/L'
-        },
-        basalSchedules: {
-          foo: [],
-          bar: []
-        },
-        deviceTime: dummyDT,
-      }, {
-        type: 'wizard',
-        units: 'mmol/L',
-        deviceTime: dummyDT
-      }];
-      var res = nurseshark.processData(data);
-      for (var i = 0; i < res.processedData.length; ++i) {
-        var datum = res.processedData[i];
-        expect(datum.normalTime).to.match(/^(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))$/);
-      }
-    });
-
-    it('should put any datum with year < 2008 into the erroredData', function() {
-      var data = [{
-        type: 'message',
-        timestamp: '0002-01-01T12:00:00.000Z'
-      }, {
-        type: 'smbg',
-        time: '0002-01-01T12:00:00.000Z',
-        deviceTime: '0002-01-01T12:00:00'
-      }];
-      var res = nurseshark.processData(data);
-      expect(res.erroredData.length).to.equal(2);
-    });
-
-    it('should apply the timezone offset of the environment (browser) to a message utcTime', function() {
-      var offset = new Date().getTimezoneOffset();
-      var message = [{
-        type: 'message',
-        timestamp: '2014-09-13T02:13:18.805Z'
-      }];
-      var messageTime = new Date(message[0].timestamp);
-      var res = nurseshark.processData(message).processedData[0];
-      expect(res.normalTime).to.equal(new Date(messageTime.setUTCMinutes(messageTime.getUTCMinutes() - offset)).toISOString());
-    });
+  it('should put any datum with year < 2008 into the erroredData', function() {
+    var data = [{
+      type: 'message',
+      timestamp: '0002-01-01T12:00:00.000Z'
+    }, {
+      type: 'smbg',
+      time: '0002-01-01T12:00:00.000Z',
+      timezoneOffset: 0
+    }];
+    var res = nurseshark.processData(data);
+    expect(res.erroredData.length).to.equal(2);
   });
 
   describe('reshapeMessage', function() {
@@ -532,7 +469,6 @@ describe('nurseshark', function() {
         id: 'a',
         parentMessage: null,
         time: now,
-        normalTime: new Date(messageTime.setUTCMinutes(messageTime.getUTCMinutes() - offset)).toISOString(),
         messageText: 'Hello there!',
         type: 'message'
       };
@@ -546,30 +482,29 @@ describe('nurseshark', function() {
     });
 
     it('should join a bolus and wizard with matching joinKey', function() {
-      var dummyDT = '2014-01-01T12:00:00';
       var now = new Date().toISOString();
       var data = [{
         type: 'bolus',
         joinKey: '12345',
         id: 'abcde',
-        deviceTime: dummyDT,
-        time: now
+        time: now,
+        timezoneOffset: 0
       }, {
         type: 'wizard',
         joinKey: '12345',
         id: 'bcdef',
-        deviceTime: dummyDT,
-        time: now
+        time: now,
+        timezoneOffset: 0
       }, {
         type: 'bolus',
         id: 'cdefg',
-        deviceTime: dummyDT,
-        time: now
+        time: now,
+        timezoneOffset: 0
       }, {
         type: 'wizard',
         id: 'defgh',
-        deviceTime: dummyDT,
-        time: now
+        time: now,
+        timezoneOffset: 0
       }];
       var res = nurseshark.processData(data).processedData;
       var embeddedBolus = res[1].bolus;
@@ -587,11 +522,10 @@ describe('nurseshark', function() {
     it('should annotate a basal segment containing an incomplete suspend', function() {
       var now = new Date();
       var plusTen = new Date(now.valueOf() + 600000);
-      var dummyDT = '2014-01-01T12:00:00';
       var data = [{
         type: 'basal',
         time: now.toISOString(),
-        deviceTime: dummyDT,
+        timezoneOffset: 0,
         duration: 1800000
       }, {
         type: 'deviceMeta',
@@ -599,7 +533,7 @@ describe('nurseshark', function() {
           code: 'status/incomplete-tuple'
         }],
         time: plusTen.toISOString(),
-        deviceTime: dummyDT
+        timezoneOffset: 0
       }];
       var res = nurseshark.processData(data).processedData;
       expect(res[0].annotations[0].code).to.equal('basal/intersects-incomplete-suspend');

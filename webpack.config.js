@@ -14,6 +14,7 @@ module.exports = {
   module: {
     loaders: [
       {test: /\.js$/, loader: 'jsx-loader!envify-loader'},
+      {test: /\.json$/, loader: 'json-loader'},
       {test: /\.less$/, loader: 'style-loader!css-loader!autoprefixer-loader!less-loader'},
       {test: /\.svg/, loader: 'url-loader?mimetype=image/svg+xml'},
       {test: /\.png/, loader: 'url-loader?mimetype=image/png'},

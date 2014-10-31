@@ -36,7 +36,7 @@ module.exports = function(pool, opts) {
       duration: 3,
       gutter: 0,
       fillClass: '',
-      x: function(t) { return Date.parse(t); }
+      x: function(t) { return Date.parse(t.normalTime); }
     };
 
   _.defaults(opts || {}, defaults);
@@ -54,10 +54,12 @@ module.exports = function(pool, opts) {
     }
 
     selection.each(function(currentData) {
+      currentData.reverse();
       var fills = selection.selectAll('rect.d3-fill')
         .data(currentData, function(d) {
           return d.id;
         });
+
 
       fills.enter()
         .append('rect')
@@ -65,7 +67,7 @@ module.exports = function(pool, opts) {
           cursor: opts.cursor ? opts.cursor : 'auto',
           x: function(d, i) {
             if (opts.dataGutter) {
-              if (i === 0) {
+              if (i === currentData.length - 1) {
                 return fill.xPosition(d) - opts.dataGutter;
               }
               else {
@@ -123,7 +125,7 @@ module.exports = function(pool, opts) {
   }
 
   fill.xPosition = function(d) {
-    return opts.xScale(opts.x(d.normalTime));
+    return opts.xScale(opts.x(d));
   };
 
   fill.width = function(d) {

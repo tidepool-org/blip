@@ -30,7 +30,11 @@ function chartWeeklyFactory(el, options) {
   var log = bows('Weekly Factory');
   options = options || {};
   var defaults = {
-    'bgUnits': 'mg/dL'
+    bgUnits: 'mg/dL',
+    timePrefs: {
+      timezoneAware: false,
+      timezoneName: 'US/Pacific'
+    }
   };
   _.defaults(options, defaults);
 
@@ -74,14 +78,14 @@ function chartWeeklyFactory(el, options) {
     var twoWeekData = tidelineData.twoWeekData || [];
 
     if (!datetime) {
-      chart.data(twoWeekData);
+      chart.data(twoWeekData, chart.options.timePrefs.timezoneAware);
     }
     else {
       if (twoWeekData.length &&
           Date.parse(datetime) > Date.parse(twoWeekData[twoWeekData.length - 1].normalTime)) {
         datetime = twoWeekData[twoWeekData.length - 1].normalTime;
       }
-      chart.data(twoWeekData, datetime);
+      chart.data(twoWeekData, chart.options.timePrefs.timezoneAware, datetime);
     }
 
     chart.setup();
@@ -106,12 +110,12 @@ function chartWeeklyFactory(el, options) {
 
     chart.setAxes().setNav().setScrollNav();
 
-    var fillEndpoints = [new Date('2014-01-01T00:00:00Z'), new Date('2014-01-02T00:00:00Z')];
-    var fillScale = d3.time.scale.utc()
-      .domain(fillEndpoints)
-      .range([chart.axisGutter() + chart.dataGutter(), chart.width() - chart.navGutter() - chart.dataGutter()]);
-
-    smbgTime = new tideline.plot.SMBGTime({emitter: emitter, bgUnits: chart.options.bgUnits, classes: chart.options.bgClasses});
+    smbgTime = new tideline.plot.SMBGTime({
+      emitter: emitter,
+      bgUnits: chart.options.bgUnits,
+      classes: chart.options.bgClasses,
+      timezoneAware: chart.options.timePrefs.timezoneAware
+    });
 
     chart.pools().forEach(function(pool, i) {
       var d = new Date(pool.id().replace('poolBG_', ''));
@@ -122,7 +126,7 @@ function chartWeeklyFactory(el, options) {
         gutter: {'top': 0.5, 'bottom': 0.5},
         dataGutter: chart.dataGutter(),
         fillClass: weekend ? 'd3-pool-weekend' : '',
-        x: function(t) { return dt.getMsFromMidnight(t); }
+        x: function(t) { return t.twoWeekX; }
       }), true, true);
       pool.addPlotType('smbg', smbgTime.draw(pool), true, true);
       chart.tooltips().addGroup(pool, {
