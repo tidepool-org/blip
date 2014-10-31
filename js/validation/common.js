@@ -19,6 +19,7 @@ var schema = require('./validator/schematron.js');
 
 module.exports = schema(
   {
+    displayOffset: schema().number(),
     id: schema().isId(),
     joinKey: schema().ifExists().isId(),
     normalTime: schema().isISODateTime(),

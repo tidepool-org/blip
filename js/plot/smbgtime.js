@@ -226,7 +226,7 @@ function SMBGTime (opts) {
     group.append('p')
       .append('span')
       .attr('class', 'secondary')
-      .html('<span class="fromto">at</span> ' + format.timestamp(datum.normalTime, opts.timezoneAware ? datum.displayOffset : null));
+      .html('<span class="fromto">at</span> ' + format.timestamp(datum.normalTime, datum.displayOffset));
     group.append('p')
 
       .attr('class', 'value')
@@ -268,7 +268,7 @@ function SMBGTime (opts) {
         rightEdge: this.orientation(cssClass) === 'normal' ? 'leftAndUp': 'leftAndDown'
       },
       shape: 'smbg',
-      edge: dt.smbgEdge(d.normalTime, opts.timezoneAware ? d.displayOffset : null)
+      edge: dt.smbgEdge(d.normalTime, d.displayOffset)
     });
   };
 }

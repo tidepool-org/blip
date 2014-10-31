@@ -116,7 +116,7 @@ module.exports = function(pool, opts) {
     group.append('p')
       .append('span')
       .attr('class', 'secondary')
-      .html('<span class="fromto">at</span> ' + format.timestamp(datum.normalTime, opts.timezoneAware ? datum.displayOffset : null));
+      .html('<span class="fromto">at</span> ' + format.timestamp(datum.normalTime, datum.displayOffset));
     group.append('p')
       .attr('class', 'value')
       .append('span')
