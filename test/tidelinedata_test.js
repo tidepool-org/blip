@@ -24,9 +24,9 @@ var expect = chai.expect;
 var crossfilter = require('crossfilter');
 var moment = require('moment-timezone');
 
-var types = require('../../dev/testpage/types');
+var types = require('../dev/testpage/types');
 
-var TidelineData = require('../../js/tidelinedata');
+var TidelineData = require('../js/tidelinedata');
 
 describe('TidelineData', function() {
   var td = new TidelineData([]);

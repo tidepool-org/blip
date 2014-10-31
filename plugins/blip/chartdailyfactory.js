@@ -15,8 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
- /* global __DEV__ */
-
 var _ = require('lodash');
 var bows = require('bows');
 var d3 = require('d3');

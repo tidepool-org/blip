@@ -10,7 +10,7 @@
   "scripts": {
     "test": "testem",
     "start": "BUILD_DEV=true webpack-dev-server -d --cache --colors --progress --content-base example --port 8081",
-    "build-test": "BUILD_DEV=true webpack --config test.config.js",
+    "build-test": "webpack --config test.config.js",
     "jshint": "gulp jshint",
     "jshint-watch": "gulp jshint-watch"
   },

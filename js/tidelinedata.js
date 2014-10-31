@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+/* global __DEV__ */
+
 var _ = require('lodash');
 var crossfilter = require('crossfilter');
 var d3 = require('d3');
@@ -26,7 +28,23 @@ var BolusUtil = require('./data/bolusutil');
 var BGUtil = require('./data/bgutil');
 var dt = require('./data/util/datetime');
 
-var log = require('bows')('TidelineData');
+var log;
+if (typeof window !== 'undefined') {
+  log = require('bows')('TidelineData');
+}
+else {
+  log = function() { return; };
+}
+
+var startTimer, endTimer;
+if (typeof window !== 'undefined' && __DEV__ === true) {
+  startTimer = function(name) { console.time(name); };
+  endTimer = function(name) { console.timeEnd(name); };
+}
+else {
+  startTimer = function() { return; };
+  endTimer = function() { return; };
+}
 
 function TidelineData(data, opts) {
 
@@ -79,14 +97,14 @@ function TidelineData(data, opts) {
   var MS_IN_MIN = 60000, MS_IN_DAY = 864e5;
 
   function checkRequired() {
-    console.time('checkRequired');
+    startTimer('checkRequired');
     _.each(REQUIRED_TYPES, function(type) {
       if (!that.grouped[type]) {
         // log('No', type, 'data! Replaced with empty array.');
         that.grouped[type] = [];
       }
     });
-    console.timeEnd('checkRequired');
+    endTimer('checkRequired');
 
     return that;
   }
@@ -99,9 +117,9 @@ function TidelineData(data, opts) {
   }
 
   function updateCrossFilters(data) {
-    console.time('crossfilter');
+    startTimer('crossfilter');
     that.filterData = crossfilter(data);
-    console.timeEnd('crossfilter');
+    endTimer('crossfilter');
     that.dataByDay = that.createCrossFilter('date');
     that.dataByDate = that.createCrossFilter('datetime');
     that.dataById = that.createCrossFilter('id');
@@ -112,24 +130,24 @@ function TidelineData(data, opts) {
     var newDim;
     switch(dim) {
       case 'date':
-        console.time(dim, 'dimension');
+        startTimer(dim + ' dimension');
         newDim = this.filterData.dimension(function(d) { return d.normalTime.slice(0,10); });
-        console.timeEnd(dim, 'dimension');
+        endTimer(dim + ' dimenstion');
         break;
       case 'datetime':
-        console.time(dim, 'dimension');
+        startTimer(dim + ' dimenstion');
         newDim = this.filterData.dimension(function(d) { return d.normalTime; });
-        console.timeEnd(dim, 'dimension');
+        endTimer(dim + ' dimenstion');
         break;
       case 'datatype':
-        console.time(dim, 'dimension');
+        startTimer(dim + ' dimenstion');
         newDim = this.filterData.dimension(function(d) { return d.type; });
-        console.timeEnd(dim, 'dimension');
+        endTimer(dim + ' dimenstion');
         break;
       case 'id':
-        console.time(dim, 'dimension');
+        startTimer(dim + ' dimenstion');
         newDim = this.filterData.dimension(function(d) { return d.id; });
-        console.timeEnd(dim, 'dimension');
+        endTimer(dim + ' dimenstion');
         break;
     }
     return newDim;
@@ -179,7 +197,7 @@ function TidelineData(data, opts) {
   }
 
   function fillDataFromInterval(first, last) {
-    console.time('fillDataFromInterval');
+    startTimer('fillDataFromInterval');
     var fillData = [], points = d3.time.hour.utc.range(first, last);
     for (var i = 0; i < points.length; ++i) {
       var point = points[i], offset = null;
@@ -206,12 +224,12 @@ function TidelineData(data, opts) {
       }
     }
     fixGapsAndOverlaps(fillData);
-    console.timeEnd('fillDataFromInterval');
+    endTimer('fillDataFromInterval');
     return fillData;
   }
 
   function getTwoWeekFillEndpoints() {
-    console.time('getTwoWeekFillEndpoints');
+    startTimer('getTwoWeekFillEndpoints');
     var data;
     if (that.grouped.smbg && that.grouped.smbg.length !== 0) {
       data = that.grouped.smbg;
@@ -258,13 +276,13 @@ function TidelineData(data, opts) {
     else {
       endpoints = [dt.getMidnight(first), dt.getMidnight(last, true)];
     }
-    console.timeEnd('getTwoWeekFillEndpoints');
+    endTimer('getTwoWeekFillEndpoints');
     return endpoints;
   }
 
   this.generateFillData = function() {
     data = this.data;
-    console.time('generateFillData');
+    startTimer('generateFillData');
     var lastDatum = data[data.length - 1];
     // the fill should extend past the *end* of a segment (i.e. of basal data)
     // if that's the last datum in the data
@@ -280,7 +298,7 @@ function TidelineData(data, opts) {
       last = d3.time.hour.utc.offset(last, 6);
     }
     this.grouped.fill = fillDataFromInterval(first, last);
-    console.timeEnd('generateFillData');
+    endTimer('generateFillData');
     return this;
   };
 
@@ -288,7 +306,7 @@ function TidelineData(data, opts) {
   // for each day from the first through last days where smbg exists at all
   // and for at least 14 days
   this.adjustFillsForTwoWeekView = function() {
-    console.time('adjustFillsForTwoWeekView');
+    startTimer('adjustFillsForTwoWeekView');
     var fillData = this.grouped.fill;
     var endpoints = getTwoWeekFillEndpoints();
     this.twoWeekData = this.grouped.smbg || [];
@@ -296,11 +314,11 @@ function TidelineData(data, opts) {
     this.twoWeekData = _.sortBy(this.twoWeekData.concat(twoWeekFills), function(d) {
       return d.normalTime;
     });
-    console.timeEnd('adjustFillsForTwoWeekView');
+    endTimer('adjustFillsForTwoWeekView');
   };
 
   this.setBGPrefs = function() {
-    console.time('setBGPrefs');
+    startTimer('setBGPrefs');
     this.bgClasses = opts.bgClasses;
     var bgData;
     if (!(this.grouped.smbg || this.grouped.cbg)) {
@@ -333,7 +351,7 @@ function TidelineData(data, opts) {
         opts.bgClasses[key].boundary = opts.bgClasses[key].boundary/GLUCOSE_MM;
       } 
     }
-    console.timeEnd('setBGPrefs');
+    endTimer('setBGPrefs');
   };
 
   function makeWatsonFn() {
@@ -399,39 +417,39 @@ function TidelineData(data, opts) {
     return this;
   };
 
-  console.time('Watson');
+  startTimer('Watson');
   // first thing to do is Watson the data
   // because validation requires Watson'd data
   this.createNormalTime(data);
-  console.timeEnd('Watson');
+  endTimer('Watson');
 
   log('Items to validate:', data.length);
 
   var res;
-  console.time('Validation');
+  startTimer('Validation');
   res = validate.validateAll(data);
-  console.timeEnd('Validation');
+  endTimer('Validation');
 
   log('Valid items:', res.valid.length);
   log('Invalid items:', res.invalid.length);
 
   data = res.valid;
 
-  console.time('group');
+  startTimer('group');
   this.grouped = _.groupBy(data, function(d) { return d.type; });
-  console.timeEnd('group');
+  endTimer('group');
 
-  console.time('diabetesData');
+  startTimer('diabetesData');
   this.diabetesData = _.sortBy(_.flatten([].concat(_.map(opts.diabetesDataTypes, function(type) {
     return this.grouped[type] || [];
   }, this))), function(d) {
     return d.normalTime;
   });
-  console.timeEnd('diabetesData');
+  endTimer('diabetesData');
 
   this.setBGPrefs();
 
-  console.time('setUtilities');
+  startTimer('setUtilities');
   this.basalUtil = new BasalUtil(this.grouped.basal);
   this.bolusUtil = new BolusUtil(this.grouped.bolus);
   this.cbgUtil = new BGUtil(this.grouped.cbg, {
@@ -453,7 +471,7 @@ function TidelineData(data, opts) {
   else {
     this.data = [];
   }
-  console.timeEnd('setUtilities');
+  endTimer('setUtilities');
   
   updateCrossFilters(this.data);
 

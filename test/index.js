@@ -20,22 +20,17 @@
 require('../css/tideline.less');
 require('./less/test.less');
 
-/* js/ */
-require('./browser/tidelinedata_test');
-// TODO: rewrite
-// require('./browser/oneday_test');
-
 // DOM not required
 // ====================================
 
+/* js/ */
+require('./tidelinedata_test');
 /* js/data/ */
 require('./format_test');
 require('./datetime_test');
 require('./basalutil_test');
 require('./bgutil_test');
 require('./bolusutil_test');
-// TODO: rewrite
-// require('./settingsutil_test');
 
 /* js/plot/ */
 require('./annotations_test');

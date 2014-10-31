@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+/* global __DEV__ */
+
 var _ = require('lodash');
 var crossfilter = require('crossfilter');
 var util = require('util');
@@ -76,10 +78,10 @@ function cloneDeep(d) {
 }
 
 function timeIt(fn, name) {
-  if (typeof window !== 'undefined') {
-    // console.time(name);
+  if (typeof window !== 'undefined' && __DEV__ === true) {
+    console.time(name);
     fn();
-    // console.timeEnd(name);
+    console.timeEnd(name);
   }
   else {
     fn();
