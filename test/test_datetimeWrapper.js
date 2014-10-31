@@ -32,10 +32,6 @@ describe('Tidepool Dates', function() {
       expect(datetimeWrapper).exists;
       done();
     });
-    it('should have applyOffset method',function(done){
-      expect(datetimeWrapper.applyOffset()).exists;
-      done();
-    });
     it('should have applyTimezone method',function(done){
       expect(datetimeWrapper.applyTimezone()).exists;
       done();
@@ -72,8 +68,9 @@ describe('Tidepool Dates', function() {
       expect(datetimeWrapper.getTimezones()).exists;
       done();
     });
-    it.skip('[TO REMOVE] should have momentInstance method',function(done){
+    it('[TO REMOVE] should have momentInstance method',function(done){
       expect(datetimeWrapper.momentInstance()).exists;
+      done();
     });
     it('should have isISODate method',function(done){
       expect(datetimeWrapper.isISODate()).exists;
@@ -92,16 +89,31 @@ describe('Tidepool Dates', function() {
       done();
     });
 
-    describe('applyOffset', function() {
-      it.skip('applyOffset tests');
-    });
-
     describe('applyTimezone', function() {
-      it.skip('applyTimezone tests');
+      it('should yield a UTC time offset five hours later when non-DST and given `US/Eastern` timezone', function(done) {
+        var res = datetimeWrapper.applyTimezone('2014-01-01T00:00:00', 'US/Eastern').toISOString();
+        expect(res).to.equal('2014-01-01T05:00:00.000Z');
+        done();
+      });
+
+      it('should yield a UTC time offset four hours later when DST and given `US/Eastern` timezone', function(done) {
+        var res = datetimeWrapper.applyTimezone('2014-06-01T00:00:00', 'US/Eastern').toISOString();
+        expect(res).to.equal('2014-06-01T04:00:00.000Z');
+        done();
+      });
+
+      it('should assume UTC time when no timezone provided', function(done) {
+        var res = datetimeWrapper.applyTimezone('2014-01-01T00:00:00').toISOString();
+        expect(res).to.equal('2014-01-01T00:00:00.000Z');
+        done();
+      });
     });
 
     describe('formatDeviceTime', function() {
-      it.skip('formatDeviceTime tests');
+      it('returns a string formatted as ISO-format without milliseconds or timezone offset', function(done) {
+        expect(datetimeWrapper.formatDeviceTime('2014-01-01T00:00:00.000Z')).to.equal('2014-01-01T00:00:00');
+        done();
+      });
     });
 
     describe('formatForDisplay', function() {
@@ -113,7 +125,7 @@ describe('Tidepool Dates', function() {
       var localString = testMoment(isoDateString).format('YYYY-MM-DDTHH:mm:ss');
       // get the browser and/or test env's local offset
       var offset = new Date().getTimezoneOffset();
-      it('returns a string formated as MMMM D [at] h:mm a',function(done){
+      it('returns a string formatted as MMMM D [at] h:mm a',function(done){
         // we expect the isoDateString and the localString to be different
         // except when the env is UTC (i.e., offset 0)
         if (offset !== 0) {
@@ -185,7 +197,22 @@ describe('Tidepool Dates', function() {
     });
 
     describe('getMsFromMidnight', function() {
-      it.skip('getMsFromMidnight tests');
+      it('should return 1 when 1ms from UTC midnight and no offset', function(done) {
+        expect(datetimeWrapper.getMsFromMidnight('2014-01-01T00:00:00.001Z')).to.equal(1);
+        done();
+      });
+
+      it('should return 25 when 25ms from US/Eastern midnight during non-DST', function(done) {
+        var easternNoDSTOffset = -300;
+        expect(datetimeWrapper.getMsFromMidnight('2014-01-01T05:00:00.025Z', easternNoDSTOffset)).to.equal(25);
+        done();
+      });
+
+      it('should return 300000 when 5 min from Pacific/Auckland midnight during DST', function(done) {
+        var aucklandDSTOffset = 780;
+        expect(datetimeWrapper.getMsFromMidnight('2013-12-31T11:05:00.000Z', aucklandDSTOffset)).to.equal(300000);
+        done();
+      });
     });
 
     describe('getOffset', function() {
@@ -289,7 +316,24 @@ describe('Tidepool Dates', function() {
     });
 
     describe('parseAndApplyTimezone', function() {
-      it.skip('parseAndApplyTimezone tests');
+      var euroFormat = 'DD-MM-YYYY hh:mm a';
+      it('should yield a UTC time offset five hours later when non-DST and given `US/Eastern` timezone', function(done) {
+        var res = datetimeWrapper.parseAndApplyTimezone('31-12-2013 06:32 p.m.', euroFormat, 'US/Eastern').toISOString();
+        expect(res).to.equal('2013-12-31T23:32:00.000Z');
+        done();
+      });
+
+      it('should yield a UTC time offset four hours later when DST and given `US/Eastern` timezone', function(done) {
+        var res = datetimeWrapper.parseAndApplyTimezone('30-06-2014 07:32 p.m.', euroFormat, 'US/Eastern').toISOString();
+        expect(res).to.equal('2014-06-30T23:32:00.000Z');
+        done();
+      });
+
+      it('should assume UTC time when no timezone provided', function(done) {
+        var res = datetimeWrapper.parseAndApplyTimezone('30-06-2014 07:32 p.m.', euroFormat).toISOString();
+        expect(res).to.equal('2014-06-30T19:32:00.000Z');
+        done();
+      });
     });
 
     describe('utcDateString', function() {
