@@ -109,14 +109,34 @@ describe('Tidepool Dates', function() {
       });
     });
 
-    describe('formatDeviceTime', function() {
+    describe('formatDeviceTime', function(done) {
       it('returns a string formatted as ISO-format without milliseconds or timezone offset', function(done) {
         expect(datetimeWrapper.formatDeviceTime('2014-01-01T00:00:00.000Z')).to.equal('2014-01-01T00:00:00');
         done();
       });
+
+      it('always speaks UTC, even when given non-Zulu ISO timestamp', function(done) {
+        expect(datetimeWrapper.formatDeviceTime('2013-12-31T16:00:00-08:00')).to.equal('2014-01-01T00:00:00');
+        done();
+      });
+
+      it('interprets a timezone-naive timestamp as if it is Zulu time', function(done) {
+        expect(datetimeWrapper.formatDeviceTime('2014-01-01T00:00:00')).to.equal('2014-01-01T00:00:00');
+        done();
+      });
+
+      it('speaks integer timestamps fluently', function(done) {
+        expect(datetimeWrapper.formatDeviceTime(Date.parse('2014-01-01T00:00:00.000Z'))).to.equal('2014-01-01T00:00:00');
+        done();
+      });
+
+      it('speaks JavaScript Date fluently too', function(done) {
+        expect(datetimeWrapper.formatDeviceTime(new Date('2014-01-01T00:00:00.000Z'))).to.equal('2014-01-01T00:00:00');
+        done();
+      });
     });
 
-    describe('formatFromOffset', function() {
+    describe('formatFromOffset', function(done) {
       var utcDateString = '2013-05-09T00:00:00-00:00';
       it('returns a string formatted as MMMM D [at] h:mm a with the given offset applied', function(done) {
         expect(datetimeWrapper.formatFromOffset(utcDateString, -240)).to.equal('May 8 at 8:00 pm');
@@ -183,6 +203,12 @@ describe('Tidepool Dates', function() {
         done();
       });
 
+      it('should return 25 when 25ms from US/Eastern midnight during non-DST', function(done) {
+        var easternNoDSTOffset = -300;
+        expect(datetimeWrapper.getMsFromMidnight('2014-01-01T00:00:00.025-05:00', easternNoDSTOffset)).to.equal(25);
+        done();
+      });
+
       it('should return 300000 when 5 min from Pacific/Auckland midnight during DST', function(done) {
         var aucklandDSTOffset = 780;
         expect(datetimeWrapper.getMsFromMidnight('2013-12-31T11:05:00.000Z', aucklandDSTOffset)).to.equal(300000);
@@ -213,12 +239,12 @@ describe('Tidepool Dates', function() {
 
     describe('getTimezones', function() {
 
-      it('returns all timezone objects',function(done){
+      it('returns 131 timezone objects',function(done){
         expect(datetimeWrapper.getTimezones()).to.have.length(131);
         done();
       });
 
-      it('returns timezone objects with correct properties',function(done){
+      it('returns timezone objects with a non-empty string name and label each',function(done){
         datetimeWrapper.getTimezones().forEach(function(timezone){
           expect(timezone.name).to.have.length.above(0);
           expect(timezone.label).to.have.length.above(0);
