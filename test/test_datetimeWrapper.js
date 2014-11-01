@@ -33,59 +33,59 @@ describe('Tidepool Dates', function() {
       done();
     });
     it('should have applyTimezone method',function(done){
-      expect(datetimeWrapper.applyTimezone()).exists;
+      expect(datetimeWrapper.applyTimezone).exists;
       done();
     });
     it('should have formatDeviceTime method',function(done){
-      expect(datetimeWrapper.formatDeviceTime()).exists;
+      expect(datetimeWrapper.formatDeviceTime).exists;
       done();
     });
-    it('should have formatForDisplay method',function(done){
-      expect(datetimeWrapper.formatForDisplay()).exists;
+    it('should have formatFromOffset method',function(done){
+      expect(datetimeWrapper.formatFromOffset).exists;
       done();
     });
     it('should have formatForStorage method',function(done){
-      expect(datetimeWrapper.formatForDisplay()).exists;
+      expect(datetimeWrapper.formatForStorage).exists;
+      done();
+    });
+    it('should have a formatInTimezone method', function(done){
+      expect(datetimeWrapper.formatInTimezone).exists;
       done();
     });
     it('should have getDeviceTimezone method',function(done) {
-      expect(datetimeWrapper.getDeviceTimezone()).exists;
+      expect(datetimeWrapper.getDeviceTimezone).exists;
       done();
     });
     it('should have getMsFromMidnight method',function(done) {
-      expect(datetimeWrapper.getMsFromMidnight()).exists;
+      expect(datetimeWrapper.getMsFromMidnight).exists;
       done();
     });
     it('should have getOffset method',function(done){
-      expect(datetimeWrapper.getOffset()).exists;
+      expect(datetimeWrapper.getOffset).exists;
       done();
     });
     it('should have getOffsetFromTime method',function(done){
-      expect(datetimeWrapper.getOffsetFromTime()).exists;
+      expect(datetimeWrapper.getOffsetFromTime).exists;
       done();
     });
     it('should have getTimezones method',function(done){
-      expect(datetimeWrapper.getTimezones()).exists;
-      done();
-    });
-    it('[TO REMOVE] should have momentInstance method',function(done){
-      expect(datetimeWrapper.momentInstance()).exists;
+      expect(datetimeWrapper.getTimezones).exists;
       done();
     });
     it('should have isISODate method',function(done){
-      expect(datetimeWrapper.isISODate()).exists;
+      expect(datetimeWrapper.isISODate).exists;
       done();
     });
     it('should have isValidDate method',function(done){
-      expect(datetimeWrapper.isValidDate()).exists;
+      expect(datetimeWrapper.isValidDate).exists;
       done();
     });
     it('should have parseAndApplyTimezone method',function(done){
-      expect(datetimeWrapper.parseAndApplyTimezone()).exists;
+      expect(datetimeWrapper.parseAndApplyTimezone).exists;
       done();
     });
     it('should have utcString method',function(done){
-      expect(datetimeWrapper.utcDateString()).exists;
+      expect(datetimeWrapper.utcDateString).exists;
       done();
     });
 
@@ -116,42 +116,50 @@ describe('Tidepool Dates', function() {
       });
     });
 
-    describe('formatForDisplay', function() {
-      var isoDateString = '2013-05-09T00:00:00-00:00';
-      // formatForDisplay gives a display string in the browser's local timezone
-      // so to test we need to create such a string and check
-      // that results of formatting a local timezone-naive string
-      // are identical to results of formatting an ISO string in the local browser/env
-      var localString = testMoment(isoDateString).format('YYYY-MM-DDTHH:mm:ss');
-      // get the browser and/or test env's local offset
-      var offset = new Date().getTimezoneOffset();
-      it('returns a string formatted as MMMM D [at] h:mm a',function(done){
-        // we expect the isoDateString and the localString to be different
-        // except when the env is UTC (i.e., offset 0)
-        if (offset !== 0) {
-          expect(isoDateString.replace('-00:00', '')).not.to.equal(localString);
-        }
-
-        var formattedIsoString = datetimeWrapper.formatForDisplay(isoDateString);
-        var formattedLocalString = datetimeWrapper.formatForDisplay(localString);
-        expect(formattedIsoString).to.equal(formattedLocalString);
+    describe('formatFromOffset', function() {
+      var utcDateString = '2013-05-09T00:00:00-00:00';
+      it('returns a string formatted as MMMM D [at] h:mm a with the given offset applied', function(done) {
+        expect(datetimeWrapper.formatFromOffset(utcDateString, -240)).to.equal('May 8 at 8:00 pm');
         done();
       });
-
-      it('returns a string formatted to the mask specified',function(done){
-        var mask = 'YYYY/MM/DD HH:mm';
-
-        var formattedIsoString = datetimeWrapper.formatForDisplay(isoDateString, mask);
-        var formattedLocalString = datetimeWrapper.formatForDisplay(localString, mask);
-        expect(formattedIsoString).to.equal(formattedLocalString);
-        done();
-      });
-
     });
+
+    // describe('formatForDisplay', function() {
+    //   var isoDateString = '2013-05-09T00:00:00-00:00';
+    //   // formatForDisplay gives a display string in the browser's local timezone
+    //   // so to test we need to create such a string and check
+    //   // that results of formatting a local timezone-naive string
+    //   // are identical to results of formatting an ISO string in the local browser/env
+    //   var localString = testMoment(isoDateString).format('YYYY-MM-DDTHH:mm:ss');
+    //   // get the browser and/or test env's local offset
+    //   var offset = new Date().getTimezoneOffset();
+    //   it('returns a string formatted as MMMM D [at] h:mm a',function(done){
+    //     // we expect the isoDateString and the localString to be different
+    //     // except when the env is UTC (i.e., offset 0)
+    //     if (offset !== 0) {
+    //       expect(isoDateString.replace('-00:00', '')).not.to.equal(localString);
+    //     }
+
+    //     var formattedIsoString = datetimeWrapper.formatForDisplay(isoDateString);
+    //     var formattedLocalString = datetimeWrapper.formatForDisplay(localString);
+    //     expect(formattedIsoString).to.equal(formattedLocalString);
+    //     done();
+    //   });
+
+    //   it('returns a string formatted to the mask specified',function(done){
+    //     var mask = 'YYYY/MM/DD HH:mm';
+
+    //     var formattedIsoString = datetimeWrapper.formatForDisplay(isoDateString, mask);
+    //     var formattedLocalString = datetimeWrapper.formatForDisplay(localString, mask);
+    //     expect(formattedIsoString).to.equal(formattedLocalString);
+    //     done();
+    //   });
+
+    // });
 
     describe('formatForStorage', function() {
       var basicTimestamp = '2014-10-03T13:23';
-      var offsetMins = 780;
+      var offsetMins = -780;
 
       it('returns a string',function(done){
 
@@ -170,8 +178,8 @@ describe('Tidepool Dates', function() {
       it('has the offset from UTC',function(done){
 
         var utcString = datetimeWrapper.formatForStorage(basicTimestamp,offsetMins);
-        var offsetFromTimestap = testMoment.parseZone(utcString).zone();
-        expect(offsetFromTimestap).to.equal(offsetMins);
+        var offsetFromTimestamp = testMoment.parseZone(utcString).zone();
+        expect(-offsetFromTimestamp).to.equal(offsetMins);
 
         done();
       });
@@ -216,22 +224,22 @@ describe('Tidepool Dates', function() {
     });
 
     describe('getOffset', function() {
-      it('retuns an offset from utc in minutes',function(done){
+      it('returns the browser local offset from UTC in minutes',function(done){
 
         var offset = datetimeWrapper.getOffset();
-        var usersZone = testMoment().zone();
-        expect(offset).to.equal(usersZone);
+        var usersZone = new Date().getTimezoneOffset();
+        expect(offset).to.equal(-usersZone);
         done();
       });
     });
 
     describe('getOffsetFromTime', function() {
-      it('retuns an offset from utc in minutes',function(done){
+      it('returns the offset from UTC in minutes',function(done){
 
         var timestamp = '2013-01-01T00:00:00-13:00';
 
         var offset = datetimeWrapper.getOffsetFromTime(timestamp);
-        expect(offset).to.equal(780);
+        expect(offset).to.equal(-780);
         done();
       });
     });
@@ -300,17 +308,6 @@ describe('Tidepool Dates', function() {
       });
       it('returns true for a valid date',function(done){
         expect(datetimeWrapper.isValidDate(new Date().toISOString())).is.true;
-        done();
-      });
-    });
-
-    describe('momentInstance', function() {
-      it('returns a valid instance of moment',function(done){
-
-        var givenMoment = datetimeWrapper.momentInstance();
-
-        expect(testMoment.isMoment(givenMoment())).to.be.true;
-
         done();
       });
     });
