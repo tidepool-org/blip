@@ -124,39 +124,6 @@ describe('Tidepool Dates', function() {
       });
     });
 
-    // describe('formatForDisplay', function() {
-    //   var isoDateString = '2013-05-09T00:00:00-00:00';
-    //   // formatForDisplay gives a display string in the browser's local timezone
-    //   // so to test we need to create such a string and check
-    //   // that results of formatting a local timezone-naive string
-    //   // are identical to results of formatting an ISO string in the local browser/env
-    //   var localString = testMoment(isoDateString).format('YYYY-MM-DDTHH:mm:ss');
-    //   // get the browser and/or test env's local offset
-    //   var offset = new Date().getTimezoneOffset();
-    //   it('returns a string formatted as MMMM D [at] h:mm a',function(done){
-    //     // we expect the isoDateString and the localString to be different
-    //     // except when the env is UTC (i.e., offset 0)
-    //     if (offset !== 0) {
-    //       expect(isoDateString.replace('-00:00', '')).not.to.equal(localString);
-    //     }
-
-    //     var formattedIsoString = datetimeWrapper.formatForDisplay(isoDateString);
-    //     var formattedLocalString = datetimeWrapper.formatForDisplay(localString);
-    //     expect(formattedIsoString).to.equal(formattedLocalString);
-    //     done();
-    //   });
-
-    //   it('returns a string formatted to the mask specified',function(done){
-    //     var mask = 'YYYY/MM/DD HH:mm';
-
-    //     var formattedIsoString = datetimeWrapper.formatForDisplay(isoDateString, mask);
-    //     var formattedLocalString = datetimeWrapper.formatForDisplay(localString, mask);
-    //     expect(formattedIsoString).to.equal(formattedLocalString);
-    //     done();
-    //   });
-
-    // });
-
     describe('formatForStorage', function() {
       var basicTimestamp = '2014-10-03T13:23';
       var offsetMins = -780;
@@ -351,14 +318,11 @@ describe('Tidepool Dates', function() {
 
         done();
       });
-      it('has the offset from UTC',function(done){
+      it('has the offset from UTC or is Zulu time',function(done){
 
         var utcString = datetimeWrapper.utcDateString();
 
-        var zoneOfTestRun = testMoment().zone();
-        var offsetFromTimestap = testMoment.parseZone(utcString).zone();
-        //may be zero as some of the test run services are configured as if they are in UTC
-        expect(offsetFromTimestap).to.equal(zoneOfTestRun);
+        expect(datetimeWrapper.isISODate(utcString)).to.be.true;
 
         done();
       });
