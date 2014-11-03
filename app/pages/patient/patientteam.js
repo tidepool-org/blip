@@ -423,15 +423,19 @@ var PatientTeam = React.createClass({
       'icon-permissions': true
     };
 
+    var permission = '';
     if(_.isEmpty(member.permissions)){
       return null;
     }else {
       if(member.permissions.admin) {
         classes['icon-permissions-own'] = true;
+        permission = 'Administrator';
       } else if(member.permissions.upload) {
         classes['icon-permissions-upload'] = true;
+        permission = 'Can upload';
       } else if(member.permissions.view) {
         classes['icon-permissions-view'] = true;
+        permission = 'View only';
       } else {
         return null;
       }
@@ -447,9 +451,9 @@ var PatientTeam = React.createClass({
           <div className="PatientTeam-blocks PatientInfo-blocks">
             <div className="PatientInfo-blockRow">
               <div className="PatientInfo-block PatientInfo-block--withArrow"><div>{member.profile.fullName}</div></div>
-              <a href="" className="PatientTeam-icon PatientTeam-icon--permission" title='Change permissions' onClick={this.handleChangeTeamMemberPermissions(member)}><i className={iconClasses}></i></a>
               <a href="" className="PatientTeam-icon PatientTeam-icon--remove" title='Remove member' onClick={this.handleRemoveTeamMember(member)}><i className="icon-remove"></i></a>
               <div className="clear"></div>
+              <a href="" className="PatientTeam-icon PatientTeam-icon--permission" title='Change permissions' onClick={this.handleChangeTeamMemberPermissions(member)}>{permission}</a>
             </div>
           </div>
         </div>
@@ -510,9 +514,9 @@ var PatientTeam = React.createClass({
           <div className="PatientTeam-blocks PatientInfo-blocks">
             <div className="PatientInfo-blockRow">
               <div className="PatientInfo-block PatientInfo-block--withArrow" title={invite.email}><div>{invite.email}</div></div>
-              <div className="PatientInfo-waiting">Waiting for confirmation</div>
-              <a href="" className="PatientTeam-icon PatientTeam-icon--remove" title='Dismiss invitation' onClick={this.handleCancelInvite(invite)}><i className="icon-remove"></i></a>
+              <a href="" className="PatientTeam-icon PatientTeam-icon--remove" title='Dismiss invitation' onClick={this.handleCancelInvite(invite)}><i className="icon-delete"></i></a>
               <div className="clear"></div>
+              <div className="PatientInfo-waiting">Waiting for confirmation</div>
             </div>
           </div>
         </div>
@@ -634,8 +638,10 @@ var PatientTeam = React.createClass({
       'isEditing': this.state.editing
     });
 
-    var editControls = this.renderEditControls();
+
     var members = _.map(this.props.patient.team, this.renderTeamMember);
+    var editControls = _.isEmpty(members) ? null : this.renderEditControls();
+
     var pendingInvites = _.map(this.props.pendingInvites, this.renderPendingInvite);
     var invite = this.state && this.state.invite ? this.renderInviteForm() : this.renderInvite();
 
@@ -649,7 +655,7 @@ var PatientTeam = React.createClass({
     return (
       <div className={classes}>
         <div className="PatientPage-sectionTitle">
-          {'Care Team'}
+          {'Share'}
           <span className="PatientPage-sectionTitleMessage">
             {'These people can view ' + patientName + '\'s data'}
           </span>

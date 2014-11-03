@@ -21,6 +21,7 @@ var bows = require('bows');
 
 var config = require('../../config');
 
+var personUtils = require('../../core/personutils');
 var utils = require('../../core/utils');
 var Header = require('../../components/chart').header;
 var Daily = require('../../components/chart').daily;
@@ -148,7 +149,7 @@ var PatientData = React.createClass({
   },
 
   renderNoData: function() {
-    var content = 'This patient doesn\'t have any data yet.';
+    var content = personUtils.patientFullName(this.props.patient) + ' does not have any data yet.';
     var header = this.renderEmptyHeader();
 
     var self = this;

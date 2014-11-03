@@ -96,7 +96,7 @@ var PatientInfo = React.createClass({
 
     return (
       <div className="PatientInfo">
-        <div className="PatientPage-sectionTitle">Info</div>
+        <div className="PatientPage-sectionTitle">Profile</div>
         <div className="PatientInfo-controls">
           {this.renderEditLink()}
         </div>
@@ -128,7 +128,7 @@ var PatientInfo = React.createClass({
   renderSkeleton: function() {
     return (
       <div className="PatientInfo">
-        <div className="PatientPage-sectionTitle">Info</div>
+        <div className="PatientPage-sectionTitle">Profile</div>
         <div className="PatientInfo-controls"></div>
         <div className="clear"></div>
         <div className="PatientInfo-content">

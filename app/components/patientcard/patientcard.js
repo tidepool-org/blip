@@ -24,6 +24,7 @@ var ModalOverlay = require('../modaloverlay');
 var PatientCard = React.createClass({
   propTypes: {
     href: React.PropTypes.string,
+    currentPage: React.PropTypes.string,
     onClick: React.PropTypes.func,
     onRemovePatient: React.PropTypes.func,
     uploadUrl: React.PropTypes.string,
@@ -43,14 +44,13 @@ var PatientCard = React.createClass({
       'patientcard': true
     });
 
+    var view = this.renderView(patient);
     var remove = this.renderRemove(patient);
     var upload = this.renderUpload(patient);
     var share = this.renderShare(patient);
+    var profile = this.renderProfile(patient);
 
-    var viewClasses = cx({
-      'patientcard-actions-view': true,
-      'patientcard-actions--highlight': self.state.highlight === 'view'
-    });
+
 
     /* jshint ignore:start */
     return (
@@ -61,7 +61,8 @@ var PatientCard = React.createClass({
           <div className="patientcard-info">
             <div className="patientcard-fullname">{this.getFullName()}</div>
             <div className="patientcard-actions">
-              <a className={viewClasses} href={this.props.href} onClick={this.props.onClick}>View</a>
+              {view}
+              {profile}
               {share}
               {upload}
             </div>
@@ -75,6 +76,34 @@ var PatientCard = React.createClass({
       </div>
     );
     /* jshint ignore:end */
+  },
+
+  renderView: function() {
+    var classes = cx({
+      'patientcard-actions-view': true,
+      'patientcard-actions--highlight': this.state.highlight === 'view' || this.props.currentPage && this.props.currentPage.match(/(data)$/i)
+    });
+
+    return (
+      /* jshint ignore:start */
+      <a className={classes} href={this.props.href} onClick={this.props.onClick}>View</a>
+      /* jshint ignore:end */
+    );
+  },
+
+  renderProfile: function(patient) {
+    var url = patient.link.slice(0,-5) + '/profile';
+
+    var classes = cx({
+      'patientcard-actions-profile': true,
+      'patientcard-actions--highlight': this.state.highlight === 'profile' || this.props.currentPage && this.props.currentPage.match(/(profile)$/i)
+    });
+
+    return (
+      /* jshint ignore:start */
+      <a className={classes} onClick={this.stopPropagation} onMouseEnter={this.setHighlight('profile')} onMouseLeave={this.setHighlight('view')} href={url} title="Profile">Profile</a>
+      /* jshint ignore:end */
+    );
   },
 
   renderRemove: function(patient) {
@@ -96,7 +125,7 @@ var PatientCard = React.createClass({
   },
 
   renderUpload: function(patient) {
-    var uploadClasses = cx({
+    var classes = cx({
       'patientcard-actions-upload': true,
       'patientcard-actions--highlight': this.state.highlight === 'upload'
     });
@@ -104,7 +133,7 @@ var PatientCard = React.createClass({
     if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
       return (
         /* jshint ignore:start */
-        <a className={uploadClasses} onClick={this.stopPropagation} onMouseEnter={this.setHighlight('upload')} onMouseLeave={this.setHighlight('view')} href={this.props.uploadUrl} target='_blank' title="Upload data">Upload</a>
+        <a className={classes} onClick={this.stopPropagation} onMouseEnter={this.setHighlight('upload')} onMouseLeave={this.setHighlight('view')} href={this.props.uploadUrl} target='_blank' title="Upload data">Upload</a>
         /* jshint ignore:end */
       );
     }
@@ -113,17 +142,17 @@ var PatientCard = React.createClass({
   },
 
   renderShare: function(patient) {
-    var shareUrl = patient.link.slice(0,-5);
+    var shareUrl = patient.link.slice(0,-5) + '/share';
 
-    var shareClasses = cx({
+    var classes = cx({
       'patientcard-actions-share': true,
-      'patientcard-actions--highlight': this.state.highlight === 'share'
+      'patientcard-actions--highlight': this.state.highlight === 'share'  || this.props.currentPage && this.props.currentPage.match(/(share)$/i)
     });
 
     if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
       return (
         /* jshint ignore:start */
-        <a className={shareClasses} onClick={this.stopPropagation} onMouseEnter={this.setHighlight('share')} onMouseLeave={this.setHighlight('view')} href={shareUrl} title="Share data">Share</a>
+        <a className={classes} onClick={this.stopPropagation} onMouseEnter={this.setHighlight('share')} onMouseLeave={this.setHighlight('view')} href={shareUrl} title="Share data">Share</a>
         /* jshint ignore:end */
       );
     }

@@ -31,19 +31,17 @@ module.exports = function myErrorHandler(errorMessage, fileUrl, lineNumber, coln
     window.app.api.errors.log(error,'Caught in onerror',details);
 
     html = [
-      '<p>',
+      '<div style="background: #fefefe;border: gray solid 1px;margin-left: -200px;position: fixed;left: 50%;top: 20%;z-index: 11;width: 390px;padding: 20px 25px;padding-top:40px;">',
       'Sorry! Something went wrong. It\'s our fault, not yours.',
       'We have logged this error to our server.',
       'Feel free to send us a note at',
-      '<a style="color: #fff; text-decoration: underline;"',
+      '<a style="text-decoration: underline;"',
       'href="mailto:support@tidepool.org">support@tidepool.org</a>',
       'and we\'ll try to see what broke.',
        'In the meantime, could you try refreshing your browser to reload the app?',
       '</p>',
-      '<a id="error-close" style="color: #fff; text-decoration: underline; ',
-      'position: absolute; top: 5px; right: 5px; font-size: 13px;"',
-      'href="#">Close</a>',
-      '</p>',
+      '<a id="error-close" style="text-decoration: underline; position: absolute; top: 10px; right: 15px; font-size: 13px;" href="#">Close</a>',
+      '</div>',
     ].join(' ');
 
 
@@ -53,10 +51,10 @@ module.exports = function myErrorHandler(errorMessage, fileUrl, lineNumber, coln
     details.error = error;
 
     html = [
-      '<p>',
+      '<div style="background: #fefefe;border: gray solid 1px;margin-left: -200px;position: fixed;left: 50%;top: 20%;z-index: 11;width: 390px;padding: 20px 25px;padding-top:40px">',
       'Sorry! Something went wrong. It\'s our fault, not yours.',
       'We were unable to log this error to our server so could you please send us a note at',
-      '<a style="color: #fff; text-decoration: underline;"',
+      '<a style="text-decoration: underline;"',
       'href="mailto:support@tidepool.org">support@tidepool.org</a>',
       'and we\'ll try to see what broke?',
       'In the meantime, could you try refreshing your browser to reload the app?',
@@ -66,22 +64,20 @@ module.exports = function myErrorHandler(errorMessage, fileUrl, lineNumber, coln
       '"' + details + '"',
       '</p>',
       '<p>',
-      '<a id="error-close" style="color: #fff; text-decoration: underline; ',
-      'position: absolute; top: 5px; right: 5px; font-size: 13px;"',
-      'href="#">Close</a>',
-      '</p>',
+      '<a id="error-close" style="text-decoration: underline; position: absolute; top: 10px; right: 15px; font-size: 13px;" href="#">Close</a>',
+      '</div>',
     ].join(' ');
   }
 
   var style = [
+    'content: "";',
+    'background: rgba(0,0,0,.6);',
     'position: fixed;',
     'top: 0;',
     'left: 0;',
-    'right: 0;',
-    'padding: 0 20px;',
-    'text-align: center;',
-    'background: #ff8b7c;',
-    'color: #fff;'
+    'right: 0; ',
+    'bottom: 0;',
+    'z-index: 10;'
   ].join(' ');
 
   var el = document.createElement('div');
@@ -94,7 +90,6 @@ module.exports = function myErrorHandler(errorMessage, fileUrl, lineNumber, coln
     e.preventDefault();
     el.parentNode.removeChild(el);
   });
-
   // Let default handler run
   return false;
 };

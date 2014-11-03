@@ -28,6 +28,8 @@ var Patients = React.createClass({
   propTypes: {
     user: React.PropTypes.object,
     fetchingUser: React.PropTypes.bool,
+    fetchingUser: React.PropTypes.bool,
+    canSkipPatients: React.PropTypes.bool,
     patients: React.PropTypes.array,
     fetchingPatients: React.PropTypes.bool,
     invites: React.PropTypes.array,

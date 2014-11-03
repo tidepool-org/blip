@@ -19,6 +19,7 @@ var _ = require('lodash');
 var cx = require('react/lib/cx');
 
 var personUtils = require('../../core/personutils');
+var PatientCard = require('../../components/patientcard');
 
 var logoSrc = require('./images/blip-logo-80x80.png');
 
@@ -78,12 +79,22 @@ var Navbar = React.createClass({
     return null;
   },
 
+  getPatientLink: function(patient) {
+    if (!patient || !patient.userid) {
+      return '';
+    }
+
+    return '#/patients/' + patient.userid + '/data';
+  },
+
   renderPatientSection: function() {
     var patient = this.props.patient;
 
     if (_.isEmpty(patient)) {
       return <div className="Navbar-patientSection"></div>;
     }
+
+    patient.link = this.getPatientLink(patient);
 
     var displayName = this.getPatientDisplayName();
     var patientUrl = this.getPatientUrl();
@@ -96,17 +107,12 @@ var Navbar = React.createClass({
 
     return (
       <div className="Navbar-patientSection" ref="patient">
-        <a href={patientUrl} onClick={handleClick} className="Navbar-button--blueBg Navbar-button Navbar-button--withLeftLabelAndArrow">
-          <div className="Navbar-label Navbar-label--left Navbar-label--withArrow">
-            <span className="Navbar-patientName">{displayName}</span>
-          </div>
-        </a>
-        <div className="Navbar-patientPicture"></div>
-        <div>
-          {uploadLink}
-          {shareLink}
-          <div className="clear"></div>
-        </div>
+        <PatientCard
+          href={patient.link}
+          currentPage={this.props.currentPage}
+          onClick={handleClick}
+          uploadUrl={this.props.getUploadUrl()}
+          patient={patient}></PatientCard>
       </div>
     );
   },
@@ -143,7 +149,7 @@ var Navbar = React.createClass({
   renderShareLink: function() {
     var noLink = <div className="Navbar-shareButton"></div>;
     var self = this;
-    
+
     if (!this.isSamePersonUserAndPatient()) {
       return noLink;
     }
@@ -194,7 +200,7 @@ var Navbar = React.createClass({
       <ul className="Navbar-menuSection" ref="user">
         <li className="Navbar-menuItem">
           <a href="#/profile" title="Account" onClick={handleClickUser} className={profileClasses}>
-            <div className="Navbar-label Navbar-label--left Navbar-label--withArrow">
+            <div className="Navbar-label">
               <span className="Navbar-loggedInAs">{'Logged in as '}</span>
               <span className="Navbar-userName" ref="userFullName">{displayName}</span>
             </div>
@@ -202,7 +208,7 @@ var Navbar = React.createClass({
           </a>
         </li>
         <li className="Navbar-menuItem">
-          <a href="#/" title="Care Team" onClick={this.handleCareteam} className={patientsClasses} ref="careteam"><i className="Navbar-icon icon-careteam"></i></a>
+          <a href="#/patients" title="Care Team" onClick={this.handleCareteam} className={patientsClasses} ref="careteam"><i className="Navbar-icon icon-careteam"></i></a>
         </li>
         <li className="Navbar-menuItem">
           <a href="" title="Logout" onClick={this.handleLogout} className="Navbar-button" ref="logout"><i className="Navbar-icon icon-logout"></i></a>

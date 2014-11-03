@@ -31,7 +31,7 @@
 .Navbar-menuSection {
   // Magic number width: should contain whole menu,
   // and put some space between menu an patient section
-  width: 365px;
+  width: 330px;
 
   // Align child items to the right (flex-end)
   // and to the top (default)
@@ -48,6 +48,14 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
+
+  .patientcard {
+    padding: 0px;
+
+    .icon-face-standin {
+      color: @gray-darker;
+    }
+  }
 }
 
 // Logo section
@@ -106,13 +114,12 @@
 }
 
 .Navbar-label {
-  color: #fff;
-  background-color: @gray-dark;
+  color: @gray-dark;
 
   .Navbar-button:hover &,
   .Navbar-button:focus &,
   .Navbar-button:active & {
-    background-color: @gray-darkest;
+    color: @gray-darkest;
   }
 
   .Navbar-button--blueBg:hover &,

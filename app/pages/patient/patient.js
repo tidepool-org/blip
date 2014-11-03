@@ -25,6 +25,7 @@ var PatientTeam = require('./patientteam');
 var Patient = React.createClass({
   propTypes: {
     user: React.PropTypes.object,
+    shareOnly: React.PropTypes.bool,
     fetchingUser: React.PropTypes.bool,
     patient: React.PropTypes.object,
     fetchingPatient: React.PropTypes.bool,
@@ -58,22 +59,26 @@ var Patient = React.createClass({
   renderSubnav: function() {
     return (
       <div className="PatientPage-subnav grid">
-        <div className="grid-item one-whole medium-one-third">
-          {this.renderBackButton()}
-        </div>
-        <div className="grid-item one-whole medium-one-third">
-          <div className="PatientPage-subnavTitle">{this.renderTitle()}</div>
-        </div>
       </div>
     );
   },
 
   renderContent: function() {
+    var share;
+    var modal;
+    var profile = this.renderInfo();
+
+    if (this.props.shareOnly) {
+      share = this.renderAccess();
+      modal = this.renderModalOverlay();
+      profile = null;
+    }
+
     return (
       <div className="PatientPage-content">
-        {this.renderInfo()}
-        {this.renderAccess()}
-        {this.renderModalOverlay()}
+        {profile}
+        {share}
+        {modal}
       </div>
     );
   },

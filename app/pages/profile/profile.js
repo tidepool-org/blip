@@ -72,7 +72,9 @@ var Profile = React.createClass({
     var form = this.renderForm();
     var self = this;
     var handleClickBack = function() {
-      self.props.trackMetric('Clicked Back To Care Team List');
+      self.props.trackMetric('Clicked Back in Account');
+      window.history.back();
+      return false;
     };
 
     /* jshint ignore:start */
@@ -82,7 +84,7 @@ var Profile = React.createClass({
           <div className="container-box-inner profile-subnav-box">
             <div className="grid">
               <div className="grid-item one-whole medium-one-third">
-                <a className="js-back" href="#/" onClick={handleClickBack}>
+                <a className="js-back" href="" onClick={handleClickBack}>
                   <i className="icon-back"></i>
                   {' ' + 'Back'}
                 </a>
@@ -193,7 +195,7 @@ var Profile = React.createClass({
 
     return formValues;
   },
-  
+
   validateFormValues: function(formValues) {
     var validationErrors = {};
     var IS_REQUIRED = 'This field is required.';

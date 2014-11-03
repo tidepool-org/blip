@@ -57,6 +57,11 @@ require('./style.less');
 // For React developer tools
 window.React = React;
 
+// Push state to be able to always go back in browser history within the app
+var path = window.location.hash;
+window.history.pushState(null, null, '#/patients');
+window.history.pushState(null, null, path);
+
 var DEBUG = window.localStorage && window.localStorage.debug;
 
 var app = {
@@ -73,7 +78,8 @@ var routes = {
   '/profile': 'showProfile',
   '/patients': 'showPatients',
   '/patients/new': 'showPatientNew',
-  '/patients/:id': 'showPatient',
+  '/patients/:id/profile': 'showPatient',
+  '/patients/:id/share': 'showPatientShare',
   '/patients/:id/data': 'showPatientData'
 };
 
@@ -319,10 +325,6 @@ var AppComponent = React.createClass({
     return null;
   },
 
-  redirectToDefaultRoute: function() {
-    app.router.setRoute(defaultAuthenticatedRoute);
-  },
-
   showLogin: function() {
     this.renderPage = this.renderLogin;
     this.setState({page: 'login'});
@@ -386,7 +388,12 @@ var AppComponent = React.createClass({
     );
   },
 
-  showPatients: function() {
+  redirectToDefaultRoute: function() {
+    this.showPatients(true);
+  },
+
+  showPatients: function(canSkipPatients) {
+    this.setState({canSkipPatients: canSkipPatients});
     this.renderPage = this.renderPatients;
     this.setState({page: 'patients'});
     this.fetchInvites();
@@ -396,24 +403,50 @@ var AppComponent = React.createClass({
 
   renderPatients: function() {
     /* jshint ignore:start */
-    return (
-      <Patients
-          user={this.state.user}
-          fetchingUser={this.state.fetchingUser}
-          patients={this.state.patients}
-          fetchingPatients={this.state.fetchingPatients}
-          invites={this.state.invites}
-          uploadUrl={app.api.getUploadUrl()}
-          fetchingInvites={this.state.fetchingInvites}
-          showingWelcomeTitle={this.state.showingWelcomeTitle}
-          showingWelcomeSetup={this.state.showingWelcomeSetup}
-          onHideWelcomeSetup={this.handleHideWelcomeSetup}
-          trackMetric={trackMetric}
-          onAcceptInvitation={this.handleAcceptInvitation}
-          onDismissInvitation={this.handleDismissInvitation}
-          onRemovePatient={this.handleRemovePatient}/>
-    );
+    var patients = <Patients
+        user={this.state.user}
+        canSkipPatients={this.state.canSkipPatients}
+        fetchingUser={this.state.fetchingUser}
+        patients={this.state.patients}
+        fetchingPatients={this.state.fetchingPatients}
+        invites={this.state.invites}
+        uploadUrl={app.api.getUploadUrl()}
+        fetchingInvites={this.state.fetchingInvites}
+        showingWelcomeTitle={this.state.showingWelcomeTitle}
+        showingWelcomeSetup={this.state.showingWelcomeSetup}
+        onHideWelcomeSetup={this.handleHideWelcomeSetup}
+        trackMetric={trackMetric}
+        onAcceptInvitation={this.handleAcceptInvitation}
+        onDismissInvitation={this.handleDismissInvitation}
+        onRemovePatient={this.handleRemovePatient}/>;
     /* jshint ignore:end */
+
+    if (this.state.canSkipPatients) {
+      // check that data is loaded then redirect apropately (skip patient if no invites and only one patient is available)
+      if (!this.state.fetchingUser && !this.state.fetchingPatients && !this.state.fetchingInvites) {
+
+        if(!_.isEmpty(this.state.invites)) {
+
+          if (personUtils.isPatient(this.state.user)) {
+
+            if(_.isEmpty(this.state.patients)) {
+              app.router.setRoute('/patients/' + this.state.user.userid + '/data');
+              return;
+            }
+            else if (this.state.patients.length == 1) {
+              app.router.setRoute('/patients/' + this.state.patients[0].userid + '/data');
+              return;
+            }
+          }
+        }
+
+        app.router.setRoute('/patients');
+      }
+
+      return;
+    }
+
+    return (patients);
   },
 
   handleHideWelcomeSetup: function(options) {
@@ -568,7 +601,7 @@ var AppComponent = React.createClass({
   showPatient: function(patientId) {
     this.renderPage = this.renderPatient;
     this.setState({
-      page: 'patients/' + patientId,
+      page: 'patients/' + patientId + '/profile',
       // Reset patient object to avoid showing previous one
       patient: null,
       // Indicate renderPatient() that we are fetching the patient
@@ -580,6 +613,23 @@ var AppComponent = React.createClass({
       return;
     });
     trackMetric('Viewed Profile');
+  },
+
+  showPatientShare: function(patientId) {
+    this.renderPage = this.renderPatientShare;
+    this.setState({
+      page: 'patients/' + patientId + '/share',
+      // Reset patient object to avoid showing previous one
+      patient: null,
+      // Indicate renderPatient() that we are fetching the patient
+      // (important to have this on next render)
+      fetchingPatient: true
+    });
+    this.fetchPendingInvites();
+    this.fetchPatient(patientId,function(err,patient){
+      return;
+    });
+    trackMetric('Viewed Share');
   },
 
   renderPatient: function() {
@@ -594,6 +644,33 @@ var AppComponent = React.createClass({
     return (
       <Patient
         user={this.state.user}
+        fetchingUser={this.state.fetchingUser}
+        patient={this.state.patient}
+        fetchingPatient={this.state.fetchingPatient}
+        onUpdatePatient={this.updatePatient}
+        pendingInvites={this.state.pendingInvites}
+        onChangeMemberPermissions={this.handleChangeMemberPermissions}
+        onRemoveMember={this.handleRemoveMember}
+        onInviteMember={this.handleInviteMember}
+        onCancelInvite={this.handleCancelInvite}
+        trackMetric={trackMetric}/>
+    );
+    /* jshint ignore:end */
+  },
+
+  renderPatientShare: function() {
+    // On each state change check if patient object was returned from server
+    if (this.isDoneFetchingAndNotFoundPatient()) {
+      app.log('Patient not found');
+      this.redirectToDefaultRoute();
+      return;
+    }
+
+    /* jshint ignore:start */
+    return (
+      <Patient
+        user={this.state.user}
+        shareOnly={true}
         fetchingUser={this.state.fetchingUser}
         patient={this.state.patient}
         fetchingPatient={this.state.fetchingPatient}
@@ -868,7 +945,7 @@ var AppComponent = React.createClass({
 
     api.invitation.getReceived(function(err, invites) {
       if (err) {
-        
+
         self.setState({
           fetchingInvites: false
         });
