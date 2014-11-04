@@ -81,7 +81,7 @@ var Signup = React.createClass({
       <div className="signup">
         <LoginNav
           page="signup"
-          inviteEmail={this.props.inviteEmail}
+          hideLinks={Boolean(this.props.inviteEmail)}
           trackMetric={this.props.trackMetric} />
         <LoginLogo />
         {inviteIntro}

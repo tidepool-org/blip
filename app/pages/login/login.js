@@ -65,7 +65,7 @@ var Login = React.createClass({
       <div className="login">
         <LoginNav
           page="login"
-          inviteEmail={this.props.inviteEmail}
+          hideLinks={Boolean(this.props.inviteEmail)}
           trackMetric={this.props.trackMetric} />
         <LoginLogo />
         {inviteIntro}
