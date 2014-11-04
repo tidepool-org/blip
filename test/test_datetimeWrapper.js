@@ -19,226 +19,289 @@ var salinity = require('salinity');
 var expect = salinity.expect;
 var testMoment = require('moment');
 
-describe('Tidepool Dates', function() {
+describe('sundial', function() {
 
-  describe('wrapper',function(){
-    var datetimeWrapper;
+  describe('datetimeWrapper',function(){
+    var datetimeWrapper = require('../sundial');
 
-    beforeEach(function () {
-      datetimeWrapper = require('../sundial');
-    });
-
-    it('should not break require',function(done){
+    it('should not break require',function(){
       expect(datetimeWrapper).exists;
-      done();
     });
-    it('should have utcString method',function(done){
-      expect(datetimeWrapper.utcDateString()).exists;
-      done();
+    it('should have applyTimezone method',function(){
+      expect(datetimeWrapper.applyTimezone).exists;
     });
-    it('should have getOffsetFromTime method',function(done){
-      expect(datetimeWrapper.getOffsetFromTime()).exists;
-      done();
+    it('should have formatDeviceTime method',function(){
+      expect(datetimeWrapper.formatDeviceTime).exists;
     });
-    it('should have getOffsetFromTime method',function(done){
-      expect(datetimeWrapper.getOffsetFromTime()).exists;
-      done();
+    it('should have formatFromOffset method',function(){
+      expect(datetimeWrapper.formatFromOffset).exists;
     });
-    it('should have getOffset method',function(done){
-      expect(datetimeWrapper.getOffset()).exists;
-      done();
+    it('should have formatForStorage method',function(){
+      expect(datetimeWrapper.formatForStorage).exists;
+    });
+    it('should have a formatInTimezone method', function(){
+      expect(datetimeWrapper.formatInTimezone).exists;
+    });
+    it('should have getDeviceTimezone method',function() {
+      expect(datetimeWrapper.getDeviceTimezone).exists;
+    });
+    it('should have getMsFromMidnight method',function() {
+      expect(datetimeWrapper.getMsFromMidnight).exists;
+    });
+    it('should have getOffset method',function(){
+      expect(datetimeWrapper.getOffset).exists;
+    });
+    it('should have getOffsetFromTime method',function(){
+      expect(datetimeWrapper.getOffsetFromTime).exists;
+    });
+    it('should have getTimezones method',function(){
+      expect(datetimeWrapper.getTimezones).exists;
+    });
+    it('should have isISODate method',function(){
+      expect(datetimeWrapper.isISODate).exists;
+    });
+    it('should have isValidDate method',function(){
+      expect(datetimeWrapper.isValidDate).exists;
+    });
+    it('should have parseAndApplyTimezone method',function(){
+      expect(datetimeWrapper.parseAndApplyTimezone).exists;
+    });
+    it('should have utcString method',function(){
+      expect(datetimeWrapper.utcDateString).exists;
     });
 
-    it('should have formatForDisplay method',function(done){
-      expect(datetimeWrapper.formatForDisplay()).exists;
-      done();
-    });
-
-    describe('momentInstance', function() {
-      it('returns a valid instance of moment',function(done){
-
-        var givenMoment = datetimeWrapper.momentInstance();
-
-        expect(testMoment.isMoment(givenMoment())).to.be.true;
-
-        done();
-      });
-    });
-    describe('getUtcString', function() {
-      /*
-       * http://en.wikipedia.org/wiki/Iso8601#Time_offsets_from_UTC
-       */
-      it('returns a string',function(done){
-
-        var utcString = datetimeWrapper.utcDateString();
-        expect(utcString).is.a.String;
-        done();
-      });
-
-      it('returns a valid date',function(done){
-
-        var utcString = datetimeWrapper.utcDateString();
-        expect(testMoment(utcString).isValid()).is.true;
-
-        done();
-      });
-      it('has the offset from UTC',function(done){
-
-        var utcString = datetimeWrapper.utcDateString();
-
-        var zoneOfTestRun = testMoment().zone();
-        var offsetFromTimestap = testMoment.parseZone(utcString).zone();
-        //may be zero as some of the test run services are configured as if they are in UTC
-        expect(offsetFromTimestap).to.equal(zoneOfTestRun);
-
-        done();
-      });
-      it('does not contain the `Z` designator for the zero UTC offset',function(done){
-
-        var utcString = datetimeWrapper.utcDateString();
-
-        expect(utcString).to.not.contain('Z');
-        expect(utcString).to.not.contain('z');
-
-        done();
-      });
-    });
-    describe('getOffset', function() {
-      it('retuns an offset from utc in minutes',function(done){
-
-        var offset = datetimeWrapper.getOffset();
-        var usersZone = testMoment().zone();
-        expect(offset).to.equal(usersZone);
-        done();
-      });
-    });
-    describe('getOffsetFromTime', function() {
-      it('retuns an offset from utc in minutes',function(done){
-
-        var timestamp = '2013-01-01T00:00:00-13:00';
-
-        var offset = datetimeWrapper.getOffsetFromTime(timestamp);
-        expect(offset).to.equal(780);
-        done();
-      });
-    });
-    describe('formatForDisplay', function() {
-      it('returns a string formated as specified',function(done){
-
-        var isoDateString = '2013-05-09T00:00:00-00:00';
-
-        var formatedString = datetimeWrapper.formatForDisplay(isoDateString,'YYYY/MM/DD HH:mm');
-        //check the format is correct, not looking at the time as it changes for auto test run
-        expect(formatedString).to.contain('2013/05/09');
-        done();
+    describe('applyTimezone', function() {
+      it('should yield a UTC time offset five hours later when non-DST and given `US/Eastern` timezone', function() {
+        var res = datetimeWrapper.applyTimezone('2014-01-01T00:00:00', 'US/Eastern').toISOString();
+        expect(res).to.equal('2014-01-01T05:00:00.000Z');
       });
 
-      it('returns a string formated as MMMM D [at] h:mm a',function(done){
-
-        var isoDateString = '2013-05-09T00:00:00-00:00';
-
-        var formatedString = datetimeWrapper.formatForDisplay(isoDateString);
-        //check the format is correct, skipping am/pm becuse of zone for auto test run
-        expect(formatedString).to.contain('May 9 at 12:00');
-        done();
+      it('should yield a UTC time offset four hours later when DST and given `US/Eastern` timezone', function() {
+        var res = datetimeWrapper.applyTimezone('2014-06-01T00:00:00', 'US/Eastern').toISOString();
+        expect(res).to.equal('2014-06-01T04:00:00.000Z');
       });
 
+      it('should assume UTC time when no timezone provided', function() {
+        var res = datetimeWrapper.applyTimezone('2014-01-01T00:00:00').toISOString();
+        expect(res).to.equal('2014-01-01T00:00:00.000Z');
+      });
     });
+
+    describe('formatDeviceTime', function() {
+      it('returns a string formatted as ISO-format without milliseconds or timezone offset', function() {
+        expect(datetimeWrapper.formatDeviceTime('2014-01-01T00:00:00.000Z')).to.equal('2014-01-01T00:00:00');
+      });
+
+      it('always speaks UTC, even when given non-Zulu ISO timestamp', function() {
+        expect(datetimeWrapper.formatDeviceTime('2013-12-31T16:00:00-08:00')).to.equal('2014-01-01T00:00:00');
+      });
+
+      it('interprets a timezone-naive timestamp as if it is Zulu time', function() {
+        expect(datetimeWrapper.formatDeviceTime('2014-01-01T00:00:00')).to.equal('2014-01-01T00:00:00');
+      });
+
+      it('speaks integer timestamps fluently', function() {
+        expect(datetimeWrapper.formatDeviceTime(Date.parse('2014-01-01T00:00:00.000Z'))).to.equal('2014-01-01T00:00:00');
+      });
+
+      it('speaks JavaScript Date fluently too', function() {
+        expect(datetimeWrapper.formatDeviceTime(new Date('2014-01-01T00:00:00.000Z'))).to.equal('2014-01-01T00:00:00');
+      });
+    });
+
+    describe('formatFromOffset', function() {
+      var utcDateString = '2013-05-09T00:00:00-00:00';
+      it('returns a string formatted as MMMM D [at] h:mm a with the given offset applied', function() {
+        expect(datetimeWrapper.formatFromOffset(utcDateString, -240)).to.equal('May 8 at 8:00 pm');
+      });
+    });
+
     describe('formatForStorage', function() {
       var basicTimestamp = '2014-10-03T13:23';
-      var offsetMins = 780;
+      var offsetMins = -780;
 
-      it('returns a string',function(done){
+      it('returns a string',function(){
 
         var utcString = datetimeWrapper.formatForStorage(basicTimestamp,offsetMins);
         expect(utcString).is.a.String;
-        done();
       });
 
-      it('returns a valid date',function(done){
+      it('returns a valid date',function(){
 
         var utcString = datetimeWrapper.formatForStorage(basicTimestamp,offsetMins);
         expect(testMoment(utcString).isValid()).is.true;
 
-        done();
       });
-      it('has the offset from UTC',function(done){
+      it('has the offset from UTC',function(){
 
         var utcString = datetimeWrapper.formatForStorage(basicTimestamp,offsetMins);
-        var offsetFromTimestap = testMoment.parseZone(utcString).zone();
-        expect(offsetFromTimestap).to.equal(offsetMins);
+        var offsetFromTimestamp = testMoment.parseZone(utcString).zone();
+        expect(-offsetFromTimestamp).to.equal(offsetMins);
 
-        done();
       });
-      it('does not contain the `Z` designator for the zero UTC offset',function(done){
+      it('does not contain the `Z` designator for the zero UTC offset',function(){
 
         var utcString = datetimeWrapper.utcDateString();
 
         expect(utcString).to.not.contain('Z');
         expect(utcString).to.not.contain('z');
 
-        done();
-      });
-    });
-    describe('isValidDate', function() {
-
-      it('returns false for null',function(done){
-        expect(datetimeWrapper.isValidDate(null)).is.false;
-        done();
-      });
-      it('returns false for empty string',function(done){
-        expect(datetimeWrapper.isValidDate('')).is.false;
-        done();
-      });
-      it('returns false for invalid date',function(done){
-        expect(datetimeWrapper.isValidDate('Junk')).is.false;
-        done();
-      });
-      it('returns true for a valid date',function(done){
-        expect(datetimeWrapper.isValidDate(new Date().toISOString())).is.true;
-        done();
-      });
-    });
-
-    describe('timeAgo', function() {
-
-      it('returns the time ago for the given period',function(done){
-        var now =  testMoment();
-        var twoMonthsAgo = now.subtract(2, 'months');
-        expect(datetimeWrapper.timeAgo(twoMonthsAgo.format(),'months')).equals(2);
-        done();
-      });
-      it('returns nothing if the period is not given',function(done){
-        var now =  testMoment();
-        var twoMonthsAgo = now.subtract(2, 'months');
-        expect(datetimeWrapper.timeAgo(twoMonthsAgo.format())).to.be.null;
-        done();
-      });
-    });
-
-    describe('getTimezones', function() {
-
-      it('returns all timezone objects',function(done){
-        expect(datetimeWrapper.getTimezones()).to.have.length(131);
-        done();
-      });
-
-      it('returns timezone objects with correct properties',function(done){
-        datetimeWrapper.getTimezones().forEach(function(timezone){
-          expect(timezone.name).to.have.length.above(0);
-          expect(timezone.label).to.have.length.above(0);
-        });
-        done();
       });
     });
 
     describe('getDeviceTimezone', function() {
 
-      it('returns a valid timezone object',function(done){
+      it('returns a valid timezone object',function(){
         var timezone = datetimeWrapper.getDeviceTimezone();
         expect(timezone.name).to.have.length.above(0);
         expect(timezone.label).to.have.length.above(0);
-        done();
+      });
+    });
+
+    describe('getMsFromMidnight', function() {
+      it('should return 1 when 1ms from UTC midnight and no offset', function() {
+        expect(datetimeWrapper.getMsFromMidnight('2014-01-01T00:00:00.001Z')).to.equal(1);
+      });
+
+      it('should return 25 when 25ms from US/Eastern midnight during non-DST', function() {
+        var easternNoDSTOffset = -300;
+        expect(datetimeWrapper.getMsFromMidnight('2014-01-01T05:00:00.025Z', easternNoDSTOffset)).to.equal(25);
+      });
+
+      it('should return 25 when 25ms from US/Eastern midnight during non-DST', function() {
+        var easternNoDSTOffset = -300;
+        expect(datetimeWrapper.getMsFromMidnight('2014-01-01T00:00:00.025-05:00', easternNoDSTOffset)).to.equal(25);
+      });
+
+      it('should return 300000 when 5 min from Pacific/Auckland midnight during DST', function() {
+        var aucklandDSTOffset = 780;
+        expect(datetimeWrapper.getMsFromMidnight('2013-12-31T11:05:00.000Z', aucklandDSTOffset)).to.equal(300000);
+      });
+    });
+
+    describe('getOffset', function() {
+      it('returns the browser local offset from UTC in minutes',function(){
+
+        var offset = datetimeWrapper.getOffset();
+        var usersZone = new Date().getTimezoneOffset();
+        expect(offset).to.equal(-usersZone);
+      });
+    });
+
+    describe('getOffsetFromTime', function() {
+      it('returns the offset from UTC in minutes',function(){
+
+        var timestamp = '2013-01-01T00:00:00-13:00';
+
+        var offset = datetimeWrapper.getOffsetFromTime(timestamp);
+        expect(offset).to.equal(-780);
+      });
+    });
+
+    describe('getTimezones', function() {
+
+      it('returns 131 timezone objects',function(){
+        expect(datetimeWrapper.getTimezones()).to.have.length(131);
+      });
+
+      it('returns timezone objects with a non-empty string name and label each',function(){
+        datetimeWrapper.getTimezones().forEach(function(timezone){
+          expect(timezone.name).to.have.length.above(0);
+          expect(timezone.label).to.have.length.above(0);
+        });
+      });
+    });
+
+    describe('isISODate', function() {
+      it('returns false for null',function(){
+        expect(datetimeWrapper.isISODate(null)).is.false;
+      });
+
+      it('returns false for empty string',function(){
+        expect(datetimeWrapper.isISODate('')).is.false;
+      });
+
+      it('returns false for invalid date',function(){
+        expect(datetimeWrapper.isISODate('Junk')).is.false;
+      });
+
+      it('return false for valid but non-ISO (i.e., timezone-naive) date',function(){
+        expect(datetimeWrapper.isISODate(new Date().toISOString().slice(0,-5))).is.false;
+      });
+
+      it('returns true for valid non-Zulu ISO date',function(){
+        expect(datetimeWrapper.isISODate(testMoment().parseZone().format())).is.true;
+      });
+
+      it('returns true for valid Zulu ISO date',function(){
+        expect(datetimeWrapper.isISODate(new Date().toISOString())).is.true;
+      });
+    });
+
+    describe('isValidDate', function() {
+
+      it('returns false for null',function(){
+        expect(datetimeWrapper.isValidDate(null)).is.false;
+      });
+      it('returns false for empty string',function(){
+        expect(datetimeWrapper.isValidDate('')).is.false;
+      });
+      it('returns false for invalid date',function(){
+        expect(datetimeWrapper.isValidDate('Junk')).is.false;
+      });
+      it('returns true for a valid date',function(){
+        expect(datetimeWrapper.isValidDate(new Date().toISOString())).is.true;
+      });
+    });
+
+    describe('parseAndApplyTimezone', function() {
+      var euroFormat = 'DD-MM-YYYY hh:mm a';
+      it('should yield a UTC time offset five hours later when non-DST and given `US/Eastern` timezone', function() {
+        var res = datetimeWrapper.parseAndApplyTimezone('31-12-2013 06:32 p.m.', euroFormat, 'US/Eastern').toISOString();
+        expect(res).to.equal('2013-12-31T23:32:00.000Z');
+      });
+
+      it('should yield a UTC time offset four hours later when DST and given `US/Eastern` timezone', function() {
+        var res = datetimeWrapper.parseAndApplyTimezone('30-06-2014 07:32 p.m.', euroFormat, 'US/Eastern').toISOString();
+        expect(res).to.equal('2014-06-30T23:32:00.000Z');
+      });
+
+      it('should assume UTC time when no timezone provided', function() {
+        var res = datetimeWrapper.parseAndApplyTimezone('30-06-2014 07:32 p.m.', euroFormat).toISOString();
+        expect(res).to.equal('2014-06-30T19:32:00.000Z');
+      });
+    });
+
+    describe('utcDateString', function() {
+      /*
+       * http://en.wikipedia.org/wiki/Iso8601#Time_offsets_from_UTC
+       */
+      it('returns a string',function(){
+
+        var utcString = datetimeWrapper.utcDateString();
+        expect(utcString).is.a.String;
+      });
+
+      it('returns a valid date',function(){
+
+        var utcString = datetimeWrapper.utcDateString();
+        expect(testMoment(utcString).isValid()).is.true;
+
+      });
+      it('has the offset from UTC or is Zulu time',function(){
+
+        var utcString = datetimeWrapper.utcDateString();
+
+        expect(datetimeWrapper.isISODate(utcString)).to.be.true;
+
+      });
+      it('does not contain the `Z` designator for the zero UTC offset',function(){
+
+        var utcString = datetimeWrapper.utcDateString();
+
+        expect(utcString).to.not.contain('Z');
+        expect(utcString).to.not.contain('z');
+
       });
     });
 
