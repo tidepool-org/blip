@@ -182,9 +182,7 @@ var patch = function(mock, api) {
         context: permissions
       };
 
-      var existingUser = _.find(data.users, function(user, id) {
-        return _.contains(user.emails, toEmail);
-      });
+      var existingUser = common.getUserWithEmail(data, toEmail);
       if (existingUser) {
         // Does user matched with email already belong to the group?
         var members = common.getMembersForGroup(data, userId);

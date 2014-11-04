@@ -212,6 +212,16 @@ function userFromAccountAndProfile(results) {
   return user;
 }
 
+api.user.requestPasswordReset = function(email, callback) {
+  api.log('POST /confirm/send/forgot/' + email + ' [NOT IMPLEMENTED]');
+  callback();
+};
+
+api.user.confirmPasswordReset = function(payload, callback) {
+  api.log('PUT /confirm/accept/forgot [NOT IMPLEMENTED]');
+  callback();
+};
+
 // ----- Patient -----
 
 api.patient = {};
