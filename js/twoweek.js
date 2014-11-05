@@ -42,7 +42,7 @@ module.exports = function(emitter) {
       currentTranslation: 0
     },
     axisGutter = 52, dataGutter, dayTickSize = 0,
-    statsHeight = 100,
+    statsHeight = 80,
     pools = [], poolGroup, days, daysGroup,
     xScale = d3.scale.linear(), xAxis, yScale = d3.time.scale.utc(), yAxis,
     tidelineData, data, endpoints, viewEndpoints, dataStartNoon, dataEndNoon, poolScaleHeight,
@@ -209,7 +209,7 @@ module.exports = function(emitter) {
 
     // setup stats group
     container.poolStats = new Pool(container);
-    container.poolStats.id('poolStats', poolGroup).weight(1.0).height(statsHeight * (4/5));
+    container.poolStats.id('poolStats', poolGroup).weight(1.05).height(statsHeight * (4/5));
     container.poolStats.group().attr({
       transform: 'translate(' + axisGutter + ',' + (height - statsHeight) + ')'
     });

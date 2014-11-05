@@ -685,7 +685,7 @@ module.exports = {
     opts = opts || {};
     var defaults = {
       baseMargin: opts.baseMargin || 10,
-      statsHeight: 90
+      statsHeight: 80
     };
     defaults.margins = {
       main: {
