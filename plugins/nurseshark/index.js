@@ -126,7 +126,9 @@ var nurseshark = {
       }
     }
   },
-  joinWizardsAndBoluses: function(wizards, bolusesToJoin) {
+  joinWizardsAndBoluses: function(wizards, collections) {
+    var bolusesToJoin = collections.bolusesToJoin;
+    var allBoluses = collections.allBoluses;
     var numWizards = wizards.length;
     for (var i = 0; i < numWizards; ++i) {
       var wizard = wizards[i];
@@ -134,6 +136,9 @@ var nurseshark = {
         if (typeof bolusesToJoin[wizard.joinKey] === 'object') {
           wizard.bolus = bolusesToJoin[wizard.joinKey];
         }
+      }
+      else if (wizard.bolus && typeof wizard.bolus === 'string') {
+        wizard.bolus = allBoluses[wizard.bolus];
       }
     }
   },
@@ -153,6 +158,7 @@ var nurseshark = {
     }
     var processedData = [], erroredData = [];
     var collections = {
+      allBoluses: {},
       bolusesToJoin: {}
     };
     var typeGroups = {}, overlappingUploads = {};
@@ -287,7 +293,7 @@ var nurseshark = {
     }, 'Process');
 
     timeIt(function() {
-      nurseshark.joinWizardsAndBoluses(typeGroups.wizard || [], collections.bolusesToJoin);
+      nurseshark.joinWizardsAndBoluses(typeGroups.wizard || [], collections);
     }, 'Join Wizards and Boluses');
 
     if (typeGroups.deviceMeta && typeGroups.deviceMeta.length > 0) {
@@ -366,6 +372,7 @@ function getHandlers() {
       if (d.joinKey != null) {
         collections.bolusesToJoin[d.joinKey] = d;
       }
+      collections.allBoluses[d.id] = d;
       return d;
     },
     cbg: function(d) {
