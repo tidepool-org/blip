@@ -71,7 +71,7 @@ describe('platform client', function () {
 
     var client = platform(
       {
-        host: 'https://devel-api.tidepool.io',
+        host: 'http://localhost:8009',
         metricsSource : pjson.name,
         metricsVersion : pjson.version
       },
@@ -211,7 +211,7 @@ describe('platform client', function () {
       });
     });
   });
-  describe.skip('allows applications too', function () {
+  describe('allows applications too', function () {
     var defaulted = null;
     it('track metrics to tidepool', function (done) {
 
@@ -233,7 +233,7 @@ describe('platform client', function () {
       });
     });
   });
-  describe.skip('handles user profiles', function () {
+  describe('handles user profiles', function () {
     it('so we can add or update the logged in users profile', function (done) {
     //add or update for both our users
       async.parallel(
@@ -272,7 +272,7 @@ describe('platform client', function () {
       });
     });
   });
-  describe.skip('handles messages', function () {
+  describe('handles messages', function () {
     var noteToAddId;
     var noteToAdd;
     var commentOnNote;

@@ -597,7 +597,7 @@ module.exports = function (config, deps) {
                 return next(err);
               }
               if(res.status === 200){
-                return next(null,childUser);
+                return next(null,res.body);
               }
               return next({status:res.status,message:res.error});
             });
@@ -614,7 +614,7 @@ module.exports = function (config, deps) {
                 return cb(err);
               }
               if(res.status === 200){
-                return next(null,childUser);
+                return next(null,res.body);
               }
               return next({status:res.status,message:res.error});
             });
@@ -626,13 +626,13 @@ module.exports = function (config, deps) {
         giveRootPermsOnChild
       ], function(err, results) {
         if(_.isEmpty(err)){
-          var account = {
-            userid : results[0],
-            profile : results[1]
-          };
-          console.log('child account data to return: ',account);
 
-          return cb(null,account);
+          var acct = {
+            userid: results[0].userid,
+            profile: results[1]
+          };
+          
+          return cb(null,acct);
         }
         return cb(err);
       });
