@@ -328,7 +328,7 @@ var PatientTeam = React.createClass({
           showModalOverlay: false,
         });
       });
-    }
+    };
   },
 
   renderTeamMember: function(member) {

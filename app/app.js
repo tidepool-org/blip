@@ -402,8 +402,9 @@ var AppComponent = React.createClass({
   },
 
   renderPatients: function() {
+    var patients;
     /* jshint ignore:start */
-    var patients = <Patients
+    patients = <Patients
         user={this.state.user}
         canSkipPatients={this.state.canSkipPatients}
         fetchingUser={this.state.fetchingUser}
@@ -433,7 +434,7 @@ var AppComponent = React.createClass({
               app.router.setRoute('/patients/' + this.state.user.userid + '/data');
               return;
             }
-            else if (this.state.patients.length == 1) {
+            else if (this.state.patients.length === 1) {
               app.router.setRoute('/patients/' + this.state.patients[0].userid + '/data');
               return;
             }
