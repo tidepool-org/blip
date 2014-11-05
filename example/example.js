@@ -55,6 +55,22 @@ var Example = React.createClass({
   getInitialState: function() {
     return {
       chartPrefs: {
+        modal: {
+          activeDays: {
+            monday: true,
+            tuesday: true,
+            wednesday: true,
+            thursday: true,
+            friday: true,
+            saturday: true,
+            sunday: true,
+          },
+          bgType: 'smbg',
+          extentSize: 14,
+          boxOverlay: false,
+          grouped: false,
+          showingLines: true
+        },
         timePrefs: {
           timezoneAware: false,
           // timezoneAware: true,
