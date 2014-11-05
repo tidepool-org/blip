@@ -97,41 +97,60 @@ d3.chart('ModalDay', {
       }
     });
 
-    this.layer('xAxis', this.base.select('#modalMainGroup').append('g').attr('id', 'modalXAxis'), {
+    this.layer('xAxis', this.base.select('#modalMainGroup').append('g')
+      .attr('id', 'modalXAxis')
+      .append('g')
+      .attr('class', 'd3-axis d3-top'), {
       dataBind: function() {
         var now = new Date();
         var start = d3.time.day.utc.floor(now);
         var end = d3.time.day.utc.ceil(now);
-        return this.selectAll('g')
-          .data(d3.time.hour.utc.range(start, end, 3));
+        var data;
+        if (chart.grouped()) {
+          data = [
+            '12 - 3 am',
+            '3 - 6 am',
+            '6 - 9 am',
+            '9 am - 12 pm',
+            '12 - 3 pm',
+            '3 - 6 pm',
+            '6 - 9 pm',
+            '9 pm - 12 am'
+          ];
+        }
+        else {
+          data = d3.time.hour.utc.range(start, end, 3).map(function (d) {
+            return moment(d).utc().format('h:mm a');
+          });
+        }
+        return this.selectAll('text')
+          .data(data);
       },
       insert: function() {
-        return this.append('g')
-          .attr('class', 'd3-axis d3-top');
+        return this.append('text')
+          .attr({
+            y: chart.margins().main.top -5
+          });
       },
       events: {
-        enter: function() {
+        merge: function() {
+          var grouped = chart.grouped();
           var xPosition = function(d, i) {
             return chart.rectXScale()(i * THREE_HRS);
           };
-          var toEnter = this;
-          toEnter.append('text')
-            .attr({
+          var half3HrWidth = (xPosition(null, 1) - xPosition(null, 0))/2;
+          this.attr({
+              'text-anchor': grouped ? 'middle' : 'start',
               x: function(d, i) {
-                // TODO: factor out magic number
-                return xPosition(d, i) + 5;
-              },
-              y: chart.margins().main.top - 5
+                  if (grouped) {
+                    return xPosition(d, i) + half3HrWidth;
+                  }
+                  // TODO: factor out magic number
+                  return xPosition(d, i) + 5;
+                },
+              'font-style': grouped ? 'italic' : 'normal'
             })
-            .text(function(d) { return moment(d).utc().format('h:mm a'); });
-          toEnter.append('line')
-            .attr({
-              x1: xPosition,
-              x2: xPosition,
-              // TODO: factor out magic number
-              y1: 10,
-              y2: chart.margins().main.top
-            });
+            .text(function(d) { return d; });
         }
       }
     });
