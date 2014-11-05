@@ -113,14 +113,11 @@
   margin-right: 8px;
 }
 
+.Navbar-logged {
+  padding-right: 2px;
+}
 .Navbar-label {
   color: @gray-dark;
-
-  .Navbar-button:hover &,
-  .Navbar-button:focus &,
-  .Navbar-button:active & {
-    color: @gray-darkest;
-  }
 
   .Navbar-button--blueBg:hover &,
   .Navbar-button--blueBg:focus &,
@@ -264,6 +261,49 @@
   margin-left: 5px;
 }
 
-.Navbar-selected > .Navbar-icon {
-    color: @blue-green;
+.Navbar-selected {
+  > .Navbar-icon {
+    color: @blue-green-light;
+
+    &:hover,
+    &:focus,
+    &:active {
+      color: @blue-green-light;
+    }
+  }
+
+  &:hover,
+  &:focus,
+  &:active {
+    color: @blue-green-light;
+  }
+
+  .Navbar-logged {
+    color: @blue-green-light;
+
+    &:hover,
+    &:focus,
+    &:active {
+      color: @blue-green-light;
+    }
+  }
+}
+
+.patientcard-actions--highlight > .patientcard-icon {
+  color: @blue-green-light;
+}
+
+.patientcard-icon {
+  color: @gray-dark;
+  font-size: 14px;
+
+  &:hover,
+  &:focus,
+  &:active {
+    color: @gray-darkest;
+  }
+}
+
+.patientcard-icon--highlight:hover {
+  color: @blue-green-light;
 }

@@ -87,38 +87,6 @@ var Patient = React.createClass({
     return <div className="PatientPage-footer"></div>;
   },
 
-  renderBackButton: function() {
-    var patient = this.props.patient;
-    if (this.props.fetchingPatient || !(patient && patient.userid)) {
-      return null;
-    }
-
-    var text = 'Data';
-    var url = '#/patients/' + patient.userid + '/data';
-
-    var self = this;
-    var handleClick = function() {
-      self.props.trackMetric('Clicked Back To Data');
-    };
-
-    return (
-      <a className="js-back" href={url} onClick={handleClick}>
-        <i className="icon-back"></i>
-        {' ' + text}
-      </a>
-    );
-  },
-
-  renderTitle: function() {
-    var text = 'Profile';
-
-    if (!this.props.fetchingPatient) {
-      text = personUtils.patientFullName(this.props.patient) + '\'s Profile';
-    }
-
-    return text;
-  },
-
   renderInfo: function() {
     return (
       <div className="PatientPage-infoSection">

@@ -15,7 +15,6 @@
 
 .patientcard-actions--highlight {
   text-decoration: underline;
-  color: @blue-green-light;
 }
 
 .patient-list-item {
@@ -31,6 +30,10 @@
     }
   }
 
+}
+
+.patientcard.isEditing .patientcard-leave {
+  display: inline;
 }
 
 .icon-face-standin {
@@ -95,7 +98,7 @@
     color: red;
     font-size: 14px;
     opacity: 0.5;
-    
+
     .no-touch &:hover,
     &:focus,
     &:active {
@@ -134,6 +137,48 @@ a.patientcard {
 
     .patientcard-leave {
       display: block;
+    }
+  }
+}
+
+.navbarpatientcard-profile {
+  text-decoration: none;
+
+  .no-touch &:hover,
+  &:focus,
+  &:active {
+    text-decoration: none;
+
+    .patientcard-fullname {
+      color: @gray-darker;
+    }
+
+    i {
+      color: @gray-darker;
+    }
+  }
+}
+
+.patientcard-actions--highlight {
+  color: @blue-green-light;
+
+  .patientcard-fullname {
+    color: @blue-green-light;
+  }
+
+  .icon-settings {
+    color: @blue-green-light;
+  }
+
+  .no-touch &:hover,
+  &:focus,
+  &:active {
+    .patientcard-fullname {
+      color: @blue-green-light;
+    }
+
+    .icon-settings {
+      color: @blue-green-light;
     }
   }
 }

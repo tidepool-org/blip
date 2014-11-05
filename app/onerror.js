@@ -31,17 +31,11 @@ module.exports = function myErrorHandler(errorMessage, fileUrl, lineNumber, coln
     window.app.api.errors.log(error,'Caught in onerror',details);
 
     html = [
-      '<div style="background: #fefefe;border: gray solid 1px;margin-left: -200px;position: fixed;left: 50%;top: 20%;z-index: 11;width: 390px;padding: 20px 25px;padding-top:40px;">',
-      'Sorry! Something went wrong. It\'s our fault, not yours.',
-      'We have logged this error to our server.',
-      'Feel free to send us a note at',
-      '<a style="text-decoration: underline;"',
-      'href="mailto:support@tidepool.org">support@tidepool.org</a>',
-      'and we\'ll try to see what broke.',
-       'In the meantime, could you try refreshing your browser to reload the app?',
-      '</p>',
-      '<a id="error-close" style="text-decoration: underline; position: absolute; top: 10px; right: 15px; font-size: 13px;" href="#">Close</a>',
-      '</div>',
+    '<div style="background: #fefefe;border: gray solid 1px;margin-left: -200px;position: fixed;left: 50%;top: 20%;z-index: 11;width: 390px;padding: 20px 25px;padding-top:30px;">',
+      '<p>Woops! Something went wrong. Its our fault not yours, we will look into it.</p>',
+      '<p>In the meantime, try refreshing your browser to reload the app.</p>',
+      '<a id="error-close" style="text-decoration: underline; position: absolute; top: 10px; right: 15px;" href="#"><i class="icon-close"></i></a>',
+    '</div>'
     ].join(' ');
 
 
@@ -51,21 +45,12 @@ module.exports = function myErrorHandler(errorMessage, fileUrl, lineNumber, coln
     details.error = error;
 
     html = [
-      '<div style="background: #fefefe;border: gray solid 1px;margin-left: -200px;position: fixed;left: 50%;top: 20%;z-index: 11;width: 390px;padding: 20px 25px;padding-top:40px">',
-      'Sorry! Something went wrong. It\'s our fault, not yours.',
-      'We were unable to log this error to our server so could you please send us a note at',
-      '<a style="text-decoration: underline;"',
-      'href="mailto:support@tidepool.org">support@tidepool.org</a>',
-      'and we\'ll try to see what broke?',
-      'In the meantime, could you try refreshing your browser to reload the app?',
-      '</p>',
-      '<p>',
-      'Error details:',
-      '"' + details + '"',
-      '</p>',
-      '<p>',
-      '<a id="error-close" style="text-decoration: underline; position: absolute; top: 10px; right: 15px; font-size: 13px;" href="#">Close</a>',
-      '</div>',
+    '<div style="background: #fefefe;border: gray solid 1px;margin-left: -200px;position: fixed;left: 50%;top: 20%;z-index: 11;width: 390px;padding: 20px 25px;padding-top:30px">',
+      '<p>Woops! Something went wrong. We were unable to log this error to our server so could you please send us a note at <a style="text-decoration: underline;" href="mailto:support@tidepool.org">support@tidepool.org</a> and we\'ll try to see what broke?</p>',
+      '<p>In the meantime, try refreshing your browser to reload the app.</p>',
+      '<p style="color:rgb(240, 93, 93); overflow: hidden; text-overflow: ellipsis;">Error details: "' + JSON.stringify(details) + '"</p>',
+      '<a id="error-close" style="text-decoration: underline; position: absolute; top: 10px; right: 15px;" href="#"><i class="icon-close"></i></a>',
+    '</div>'
     ].join(' ');
   }
 

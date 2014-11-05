@@ -422,10 +422,10 @@ var AppComponent = React.createClass({
     /* jshint ignore:end */
 
     if (this.state.canSkipPatients) {
+
       // check that data is loaded then redirect apropately (skip patient if no invites and only one patient is available)
       if (!this.state.fetchingUser && !this.state.fetchingPatients && !this.state.fetchingInvites) {
-
-        if(!_.isEmpty(this.state.invites)) {
+        if(_.isEmpty(this.state.invites)) {
 
           if (personUtils.isPatient(this.state.user)) {
 
@@ -503,6 +503,9 @@ var AppComponent = React.createClass({
         });
         return self.handleApiError(err, usrMessages.ERR_ACCEPTING_INVITE, buildExceptionDetails());
       }
+
+
+      console.log('LOOOOOK', self.state.patients, invitation.creator);
 
       self.setState({
         invites: _.filter(invites, function(e){

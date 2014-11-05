@@ -31,6 +31,12 @@ var PeopleList = React.createClass({
     onRemovePatient: React.PropTypes.func
   },
 
+  getInitialState: function() {
+    return {
+      editing: false
+    };
+  },
+
   getDefaultProps: function() {
     return {
       onClickPerson: function() {}
@@ -64,14 +70,52 @@ var PeopleList = React.createClass({
       'people-list-single': this.props.people.length === 1
     });
 
+    var editControls = this.editablePersonExists(this.props.people) ? this.renderEditControls() : null;
+
       /* jshint ignore:start */
     return (
-      <ul className={classes}>
-        {peopleNodes}
-        <div className="clear"></div>
-      </ul>
+      <div>
+        {editControls}
+        <ul className={classes}>
+          {peopleNodes}
+          <div className="clear"></div>
+        </ul>
+      </div>
     );
     /* jshint ignore:end */
+  },
+
+  editablePersonExists: function(patients) {
+    for(var i in patients) {
+      var patient = patients[i];
+
+
+      if (_.isEmpty(patient.permissions) === false && (!patient.permissions.admin && !patient.permissions.root)) {
+        return true;
+      }
+    }
+    return false;
+  },
+
+  renderEditControls: function() {
+    var key = 'edit';
+    var text = 'Edit';
+    if (this.state.editing) {
+      key = 'cancel';
+      text = 'Done';
+    }
+
+    return (
+      <div className="patient-list-controls">
+        <button key={key} onClick={this.toggleEdit} className="patient-list-controls-button patient-list-controls-button--secondary" type="button">{text}</button>
+      </div>
+    );
+  },
+
+  toggleEdit: function() {
+    this.setState({
+      editing: !this.state.editing,
+    });
   },
 
   renderPeopleListItem: function(person, index) {
@@ -92,6 +136,7 @@ var PeopleList = React.createClass({
             href={person.link}
             onClick={handleClick}
             uploadUrl={this.props.uploadUrl}
+            isEditing={this.state.editing}
             onRemovePatient={this.props.onRemovePatient}
             patient={person}></PatientCard>
         </li>

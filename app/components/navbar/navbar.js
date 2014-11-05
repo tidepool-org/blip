@@ -19,7 +19,7 @@ var _ = require('lodash');
 var cx = require('react/lib/cx');
 
 var personUtils = require('../../core/personutils');
-var PatientCard = require('../../components/patientcard');
+var NavbarPatientCard = require('../../components/NavbarPatientCard');
 
 var logoSrc = require('./images/blip-logo-80x80.png');
 
@@ -101,18 +101,14 @@ var Navbar = React.createClass({
     var uploadLink = this.renderUploadLink();
     var shareLink = this.renderShareLink();
     var self = this;
-    var handleClick = function() {
-      self.props.trackMetric('Clicked Navbar View Profile');
-    };
 
     return (
       <div className="Navbar-patientSection" ref="patient">
-        <PatientCard
+        <NavbarPatientCard
           href={patient.link}
           currentPage={this.props.currentPage}
-          onClick={handleClick}
           uploadUrl={this.props.getUploadUrl()}
-          patient={patient}></PatientCard>
+          patient={patient}></NavbarPatientCard>
       </div>
     );
   },
@@ -200,7 +196,7 @@ var Navbar = React.createClass({
       <ul className="Navbar-menuSection" ref="user">
         <li className="Navbar-menuItem">
           <a href="#/profile" title="Account" onClick={handleClickUser} className={profileClasses}>
-            <div className="Navbar-label">
+            <div className="Navbar-label Navbar-logged">
               <span className="Navbar-loggedInAs">{'Logged in as '}</span>
               <span className="Navbar-userName" ref="userFullName">{displayName}</span>
             </div>
