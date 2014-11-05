@@ -49,6 +49,7 @@ var Patient = require('./pages/patient');
 var PatientEdit = require('./pages/patientedit');
 var PatientData = require('./pages/patientdata');
 var RequestPasswordReset = require('./pages/passwordreset/request');
+var ConfirmPasswordReset = require('./pages/passwordreset/confirm');
 
 // Styles
 require('tideline/css/tideline.less');
@@ -76,13 +77,15 @@ var routes = {
   '/patients/new': 'showPatientNew',
   '/patients/:id': 'showPatient',
   '/patients/:id/data': 'showPatientData',
-  '/request-password-reset': 'showRequestPasswordReset'
+  '/request-password-reset': 'showRequestPasswordReset',
+  '/confirm-password-reset': 'showConfirmPasswordReset'
 };
 
 var noAuthRoutes = [
   '/login',
   '/signup',
-  '/request-password-reset'
+  '/request-password-reset',
+  '/confirm-password-reset'
 ];
 
 var defaultNotAuthenticatedRoute = '/login';
@@ -1201,6 +1204,29 @@ var AppComponent = React.createClass({
         trackMetric={trackMetric} />
       /* jshint ignore:end */
     );
+  },
+
+  showConfirmPasswordReset: function() {
+    this.renderPage = this.renderConfirmPasswordReset;
+    this.setState({
+      page: 'confirm-password-reset'
+    });
+  },
+
+  renderConfirmPasswordReset: function() {
+    return (
+      /* jshint ignore:start */
+      <ConfirmPasswordReset
+        key={this.getPasswordResetKey()}
+        onSubmit={app.api.user.confirmPasswordReset.bind(app.api)}
+        trackMetric={trackMetric} />
+      /* jshint ignore:end */
+    );
+  },
+
+  getPasswordResetKey: function() {
+    var hashQueryParams = app.router.getQueryParams();
+    return hashQueryParams.key;
   }
 });
 

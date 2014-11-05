@@ -328,7 +328,7 @@ var patch = function(mock, api) {
       confirmation.status = 'completed';
 
       callback();
-    }, getDelayFor('api.user.resetPassword'));
+    }, getDelayFor('api.user.confirmPasswordReset'));
   };
 
   return api;
