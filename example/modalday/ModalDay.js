@@ -29,11 +29,11 @@ d3.chart('ModalDay', {
         for (var i = 0; i < 8; ++i) {
           data.push(i*THREE_HRS);
         }
-        return this.selectAll('rect')
+        return this.selectAll('g')
           .data(data);
       },
       insert: function() {
-        return this.append('rect');
+        return this.append('g');
       },
       events: {
         enter: function() {
@@ -49,19 +49,50 @@ d3.chart('ModalDay', {
           ];
           var range = chart.rectXScale().range();
           var extent = range[1] - range[0];
+          var yScale = chart.yScale();
+          var toEnter = this;
           var mainMargins = chart.margins().main;
-          this.attr({
-            'class': function(d, i) {
-              return fillClasses[i];
-            },
-            x: chart.rectXScale(),
-            y: chart.margins().main.top,
-            width: extent/8,
-            height: chart.height - mainMargins.top - mainMargins.bottom
-          })
-          .classed({
-            'd3-rect-fill': true
-          });
+          var usableHeight = chart.height - mainMargins.top - mainMargins.bottom;
+          toEnter.append('rect')
+            .attr({
+              'class': function(d, i) {
+                return fillClasses[i];
+              },
+              x: chart.rectXScale(),
+              y: chart.margins().main.top,
+              width: extent/8,
+              height: yScale(180) - mainMargins.top
+            })
+            .classed({
+              'd3-rect-fill': true
+            });
+          toEnter.append('rect')
+            .attr({
+              'class': function(d, i) {
+                return fillClasses[i];
+              },
+              x: chart.rectXScale(),
+              y: yScale(180),
+              width: extent/8,
+              height: yScale(80) - yScale(180)
+            })
+            .classed({
+              'd3-rect-fill': true,
+              'd3-rect-fill-faded': true
+            });
+          toEnter.append('rect')
+            .attr({
+              'class': function(d, i) {
+                return fillClasses[i];
+              },
+              x: chart.rectXScale(),
+              y: yScale(80),
+              width: extent/8,
+              height: chart.height - mainMargins.bottom - yScale(80)
+            })
+            .classed({
+              'd3-rect-fill': true
+            });
         }
       }
     });
@@ -107,12 +138,8 @@ d3.chart('ModalDay', {
 
     this.layer('yAxis', this.base.select('#modalMainGroup').append('g').attr('id', 'modalYAxis'), {
       dataBind: function() {
-        var bgClasses = chart.bgClasses();
-        var data = _.map(Object.keys(bgClasses), function(key) {
-          return bgClasses[key].boundary;
-        });
         return this.selectAll('g')
-          .data(data);
+          .data([100,200,300]);
       },
       insert: function() {
         return this.append('g')
@@ -138,57 +165,6 @@ d3.chart('ModalDay', {
               y1: function(d) { return yScale(d); },
               y2: function(d) { return yScale(d); }
             });
-
-          toEnter.append('line')
-            .attr({
-              x1: mainMargins.left,
-              x2: chart.width - mainMargins.right,
-              y1: function(d) { return yScale(d); },
-              y2: function(d) { return yScale(d); },
-              'class': 'd3-line-guide d3-line-bg-threshold'
-            })
-            // TODO: this is a haaaaack to get around some CSS cascading/specificity...
-            .style('stroke', 'white');
-        }
-      }
-    });
-
-    this.layer('yAxisCategories', this.base.select('#modalMainGroup').append('g').attr('id', 'modalYAxisCateogries'), {
-      dataBind: function() {
-        var bgClasses = chart.bgClasses();
-        return this.selectAll('text')
-          .data([{
-            name: 'low',
-            value: bgClasses['very-low'].boundary
-          }, {
-            name: 'target',
-            value: (bgClasses.target.boundary - bgClasses.low.boundary)/2 + bgClasses.low.boundary
-          }, {
-            name: 'high',
-            value: (bgClasses['very-high'].boundary - bgClasses.high.boundary)/2 + bgClasses.high.boundary
-          }]);
-      },
-      insert: function() {
-        return this.append('g')
-          .attr('class', 'd3-axis d3-left')
-          .append('text');
-      },
-      events: {
-        enter: function() {
-          var x = chart.margins().main.left/5;
-          var y = function(d) { return chart.yScale()(d.value); };
-          this.attr({
-            x: x,
-            y: y,
-            transform: function(d) {
-              return 'rotate(270 ' + x + ',' + y(d) + ')';
-            }
-          })
-          .text(function(d) { return d.name; })
-          // TODO: this is a haaaaack
-          // because I set 'text-anchor' to 'end' for the other yAxis stuff
-          // but now I want to override
-          .style('text-anchor', 'middle');
         }
       }
     });
@@ -398,7 +374,7 @@ module.exports = {
         top: 20 + defaults.baseMargin,
         right: defaults.baseMargin,
         bottom: defaults.baseMargin,
-        left: 50 + defaults.baseMargin
+        left: 30 + defaults.baseMargin
       },
       stats: {
         top: defaults.baseMargin/2,
