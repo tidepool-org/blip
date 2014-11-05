@@ -174,7 +174,7 @@ var ModalChart = React.createClass({
     extentSize: React.PropTypes.number.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
-    boxOverlay: React.PropTypes.object.isRequired,
+    boxOverlay: React.PropTypes.bool.isRequired,
     grouped: React.PropTypes.bool.isRequired,
     showingLines: React.PropTypes.bool.isRequired,
     // handlers
