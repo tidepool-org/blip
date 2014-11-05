@@ -65,6 +65,7 @@ var Example = React.createClass({
             saturday: true,
             sunday: true,
           },
+          activeDomain: '2 weeks',
           bgType: 'smbg',
           extentSize: 14,
           boxOverlay: false,

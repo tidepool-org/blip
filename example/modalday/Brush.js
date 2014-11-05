@@ -11,35 +11,6 @@ d3.chart('Brush', {
     this.height = this.base.attr('height');
 
     this.base.append('g').attr('id', 'brushMainGroup');
-
-    this.layer('backgroundRect', this.base.select('#brushMainGroup').append('g').attr('id', 'brushBackgroundRects'), {
-      dataBind: function() {
-        chart.emitter().emit('brushed', chart.initialExtent());
-        var domain = chart.xScale().domain();
-        chart.days = d3.time.day.utc.range(domain[0], domain[1]);
-        return this.selectAll('g')
-          .data(chart.days);
-      },
-      insert: function() {
-        return this.append('g')
-          .attr('class', 'brushBackgroundDayGroup');
-      },
-      events: {
-        enter: function() {
-          var xScale = chart.xScale();
-          var range = xScale.range();
-          var extent = range[1] - range[0];
-          var mainMargins = chart.margins().main;
-          this.append('rect')
-            .attr({
-              x: function(d) { return xScale(d); },
-              y: mainMargins.top,
-              width: extent/chart.days.length,
-              height: chart.height - mainMargins.top - mainMargins.bottom
-            });
-        }
-      }
-    });
   },
   emitter: function(emitter) {
     if (!arguments.length) { return this._emitter; }
@@ -56,6 +27,11 @@ d3.chart('Brush', {
     this._margins = margins;
     return this;
   },
+  setExtent: function(newExtent) {
+    this.brushHandleGroup.call(this.brush.extent(newExtent));
+    this.fixBrushHandlers(this.brushHandleGroup);
+    return this;
+  },
   xScale: function(xScale) {
     if (!arguments.length) { return this._xScale; }
     var w = this.width;
@@ -65,6 +41,17 @@ d3.chart('Brush', {
       w - mainMargins.right
     ]);
     this.makeBrush();
+    var domainAxis = d3.svg.axis()
+      .scale(xScale)
+      .orient('top')
+      .ticks(d3.time.month.utc, 1)
+      .tickFormat(d3.time.format.utc('%b'));
+    this.base.append('g')
+      .attr({
+        id: 'domainAxis',
+        transform: 'translate(0,' + mainMargins.top + ')'
+      })
+      .call(domainAxis);
     return this;
   },
   makeBrush: function() {
@@ -90,17 +77,8 @@ d3.chart('Brush', {
         }
       }
       emitter.emit('brushed', [newExtent[0].toISOString(), newExtent[1].toISOString()]);
-      brushHandleGroup.selectAll('text')
-        .data(newExtent)
-        .attr({
-          x: function(d) {
-            return xScale(d);
-          }
-        })
-        .text(function(d) {
-          return d3.time.format.utc('%a, %b %-d')(d);
-        });
       d3.select(this).call(chart.brush.extent(newExtent));
+      chart.fixBrushHandlers(d3.select(this));
     }
 
     var xScale = this.xScale();
@@ -113,98 +91,48 @@ d3.chart('Brush', {
       .extent(extentDates)
       .on('brush', brushed);
 
-    var brushHandleGroup = this.base.append('g')
+    this.brushHandleGroup = this.base.append('g')
       .attr('id', 'brushHandleGroup')
       .call(this.brush);
 
+    this.fixBrushHandlers(this.brushHandleGroup);
+
     var mainMargins = this.margins().main;
 
-    brushHandleGroup.selectAll('rect')
+    this.brushHandleGroup.select('rect.background')
       .attr({
         height: this.height - mainMargins.top - mainMargins.bottom,
-        transform: 'translate(0,' + mainMargins.top + ')'
+        transform: 'translate(0,' + mainMargins.top + ')',
+        rx: 10,
+        ry: 10
       })
-      .on('mouseover', function() {
-        brushHandleGroup.selectAll('text')
-          .classed('hidden', false);
-      })
-      .on('mouseout', function() {
-        brushHandleGroup.selectAll('text')
-          .classed('hidden', true);
-      });
+      .style('visibility', 'visible');
 
-    brushHandleGroup.selectAll('text')
-      .data(extentDates)
-      .enter()
-      .append('text')
+    this.brushHandleGroup.select('rect.extent')
       .attr({
-        x: function(d) {
-          return xScale(d);
-        },
-        y: this.height - mainMargins.bottom/2,
-        'class': function(d, i) {
-          if (i === 0) {
-            return 'left';
-          }
-          return 'right';
-        }
-      })
-      .classed('hidden', true)
-      .text(function(d) {
-        return d3.time.format.utc('%a, %b %-d')(new Date(d));
+        height: this.height - mainMargins.top - mainMargins.bottom,
+        transform: 'translate(0,' + mainMargins.top + ')',
+        rx: 10,
+        ry: 10
       });
   },
-  reducedData: function(data) {
-    console.time('Reduce Brush');
-    var crossData = crossfilter(data);
-    var dataByDate = crossData.dimension(function(d) { return d.normalTime.slice(0, 10); });
-    var grouped = dataByDate.group();
-    grouped.reduce(
-      function reduceAdd(p, v) {
-        p.values.push(v.value);
-        if (p.values.length >= 4) {
-          p.mean = d3.sum(p.values)/p.values.length;
-        }
-        if (v.value < p.low || p.low == null) {
-          p.low = v.value;
-        }
-        if (v.value > p.high || p.high == null) {
-          p.high = v.value;
-        }
-        return p;
-      },
-      function reduceRemove(p, v) {
-        var i = p.values.indexOf(v.value);
-        p.values.splice(i, 1);
-        if (p.values.length >= 4) {
-          p.mean = d3.sum(p.values)/p.values.length;
-        }
-        else {
-          p.mean = null;
-        }
-        if (p.values.length === 0) {
-          p.low = null;
-          p.high = null;
-        }
-        else {
-          p.low = d3.min(p.values);
-          p.high = d3.max(p.values);
-        }
-        return p;
-      },
-      function reduceInitial() {
-        return {
-          values: [],
-          low: null,
-          mean: null,
-          high: null
-        };
-      }
-    );
-    this.reducedData = grouped.all();
+  fixBrushHandlers: function(brushNode) {
+    var oldMousedown = brushNode.on('mousedown.brush');
+    brushNode.on('mousedown.brush', function() {
+      brushNode.on('mouseup.brush', function() {
+        clearHandlers();
+      });
 
-    console.timeEnd('Reduce Brush');
-    return this;
+      brushNode.on('mousemove.brush', function() {
+        clearHandlers();
+        oldMousedown.call(this);
+      });
+
+      function clearHandlers() {
+        brushNode.on('mousemove.brush', null);
+        brushNode.on('mouseup.brush', null);
+      }
+    });
   },
   remove: function() {
     this.base.remove();
@@ -219,15 +147,15 @@ module.exports = {
     opts = opts || {};
     var defaults = {
       baseMargin: opts.baseMargin || 10,
-      brushHeight: 80,
+      brushHeight: el.offsetHeight,
       initialExtent: [d3.time.day.utc.offset(new Date(dateDomain[1]), -14), new Date(dateDomain[1])]
     };
     defaults.margins = {
       main: {
-        top: 3,
+        top: defaults.baseMargin + 11,
         right: defaults.baseMargin,
-        bottom: defaults.baseMargin + 15,
-        left: 50 + defaults.baseMargin
+        bottom: defaults.baseMargin - 5,
+        left: defaults.baseMargin
       }
     };
     _.defaults(opts, defaults);
@@ -244,7 +172,7 @@ module.exports = {
         width: el.offsetWidth,
         height: opts.brushHeight
       })
-      .chart('SMBGBox')
+      .chart('Brush')
       .emitter(this.emitter)
       .initialExtent(opts.initialExtent)
       .margins(opts.margins)
@@ -261,10 +189,12 @@ module.exports = {
     var defaults = {};
     _.defaults(opts, defaults);
 
-    chart.reducedData(data)
-      .draw();
+    chart.draw();
 
     return this;
+  },
+  setExtent: function(newExtent) {
+    chart.setExtent(newExtent);
   },
   destroy: function() {
     chart.remove();

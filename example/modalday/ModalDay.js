@@ -158,7 +158,7 @@ d3.chart('ModalDay', {
     this.layer('yAxis', this.base.select('#modalMainGroup').append('g').attr('id', 'modalYAxis'), {
       dataBind: function() {
         return this.selectAll('g')
-          .data([100,200,300]);
+          .data([80,180,300]);
       },
       insert: function() {
         return this.append('g')
@@ -377,7 +377,7 @@ module.exports = {
     opts = opts || {};
     var defaults = {
       baseMargin: opts.baseMargin || 10,
-      brushHeight: 80,
+      brushHeight: 0,
       smbg: {
         maxR: 7.5,
         r: 5,

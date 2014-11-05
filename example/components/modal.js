@@ -23,6 +23,8 @@ var moment = require('moment');
 var React = require('react');
 
 var Header = require('./header');
+var SubNav = require('./modalsubnav');
+require('../modalday/modalsubnav.less');
 var Footer = require('./footer');
 
 var Brush = require('../modalday/Brush');
@@ -31,8 +33,8 @@ var SMBGMeanBars = require('../modalday/brushopts/SMBGMeanBars');
 var SMBGBox = require('../modalday/brushopts/SMBGBox');
 var SMBGMeanHeat = require('../modalday/brushopts/SMBGMeanHeat');
 var ModalDay = require('../modalday/ModalDay');
-var Stats = require('../modalday/Stats');
 require('../modalday/modalday.less');
+var Stats = require('../modalday/Stats');
 
 var Modal = React.createClass({
   chartType: 'modal',
@@ -51,7 +53,8 @@ var Modal = React.createClass({
   },
   getInitialState: function() {
     return {
-      title: ''
+      title: '',
+      visibleDays: 0
     };
   },
   render: function() {
@@ -64,10 +67,23 @@ var Modal = React.createClass({
           inTransition={null}
           title={this.state.title}
           onClickModal={this.handleClickModal}
-          onClickOneDay={this.handleClickOneDay}
-          onClickTwoWeeks={this.handleClickTwoWeeks}
+          onClickOneDay={this.handleClickDaily}
+          onClickTwoWeeks={this.handleClickWeekly}
           onClickSettings={this.handleClickSettings}
         ref="header" />
+        <SubNav
+         activeDays={this.props.chartPrefs.modal.activeDays}
+         activeDomain={this.props.chartPrefs.modal.activeDomain}
+         extentSize={this.props.chartPrefs.modal.extentSize}
+         domainClickHandlers={{
+          '1 week': this.handleClickOneWeek,
+          '2 weeks': this.handleClickTwoWeeks,
+          '4 weeks': this.handleClickFourWeeks
+         }}
+         onClickDay={this.toggleDay}
+         toggleWeekdays={this.toggleWeekdays}
+         toggleWeekends={this.toggleWeekends}
+         ref="subnav" />
         <div id="tidelineOuterContainer">
           <ModalChart
             activeDays={this.props.chartPrefs.modal.activeDays}
@@ -86,10 +102,8 @@ var Modal = React.createClass({
             ref="chart" />
         </div>
         <Footer
-         activeDays={this.props.chartPrefs.modal.activeDays} 
          chartType={this.chartType}
          onClickBoxOverlay={this.toggleBoxOverlay}
-         onClickDay={this.toggleDay}
          onClickGroup={this.toggleGroup}
          onClickLines={this.toggleLines}
          boxOverlay={this.props.chartPrefs.modal.boxOverlay}
@@ -108,28 +122,64 @@ var Modal = React.createClass({
     var end = d3.time.day.utc.offset(new Date(datetimeLocationEndpoints[1]), -1);
     return this.formatDate(datetimeLocationEndpoints[0]) + ' - ' + this.formatDate(end);
   },
+  getNewDomain: function(current, extent) {
+    current = d3.time.day.utc.ceil(current);
+    return [d3.time.day.utc.offset(current, -extent), current];
+  },
+  updateVisibleDays: function() {
+    this.setState({
+      visibleDays: d3.select('#modalDays').selectAll('g.modalDay').size()
+    });
+  },
   // handlers
+  handleClickDaily: function() {
+    var datetime = this.refs.chart.getCurrentDay();
+    this.props.onSwitchToDaily(datetime);
+  },
   handleClickModal: function() {
     // when you're on modal view, clicking modal does nothing
     return;
   },
-  handleClickOneDay: function() {
-    var datetime = this.refs.chart.getCurrentDay();
-    this.props.onSwitchToDaily(datetime);
+  handleClickOneWeek: function() {
+    var prefs = _.cloneDeep(this.props.chartPrefs);
+    prefs.modal.activeDomain = '1 week';
+    prefs.modal.extentSize = 7;
+    var current = new Date(this.refs.chart.getCurrentDay());
+    var newDomain = this.getNewDomain(current, 7);
+    this.refs.chart.setExtent(newDomain);
+    this.handleDatetimeLocationChange(newDomain, prefs);
   },
   handleClickTwoWeeks: function() {
+    var prefs = _.cloneDeep(this.props.chartPrefs);
+    prefs.modal.activeDomain = '2 weeks';
+    prefs.modal.extentSize = 14;
+    var current = new Date(this.refs.chart.getCurrentDay());
+    var newDomain = this.getNewDomain(current, 14);
+    this.refs.chart.setExtent(newDomain);
+    this.handleDatetimeLocationChange(newDomain, prefs);
+  },
+  handleClickFourWeeks: function() {
+    var prefs = _.cloneDeep(this.props.chartPrefs);
+    prefs.modal.activeDomain = '4 weeks';
+    prefs.modal.extentSize = 28;
+    var current = new Date(this.refs.chart.getCurrentDay());
+    var newDomain = this.getNewDomain(current, 28);
+    this.refs.chart.setExtent(newDomain);
+    this.handleDatetimeLocationChange(newDomain, prefs);
+  },
+  handleClickWeekly: function() {
     var datetime = this.refs.chart.getCurrentDay();
     this.props.onSwitchToWeekly(datetime);
   },
   handleClickSettings: function() {
     this.props.onSwitchToSettings();
   },
-  handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
+  handleDatetimeLocationChange: function(datetimeLocationEndpoints, prefs) {
     if (this.isMounted()) {
       this.setState({
         title: this.getTitle(datetimeLocationEndpoints)
       });
-      var prefs = _.cloneDeep(this.props.chartPrefs);
+      prefs = prefs || _.cloneDeep(this.props.chartPrefs);
       prefs.modal.extentSize = (Date.parse(datetimeLocationEndpoints[1]) - Date.parse(datetimeLocationEndpoints[0]))/864e5;
       this.props.updateChartPrefs(prefs);
       this.props.updateDatetimeLocation(this.refs.chart.getCurrentDay());
@@ -140,7 +190,8 @@ var Modal = React.createClass({
   },
   toggleDay: function(day) {
     var self = this;
-    return function() {
+    return function(e) {
+      e.stopPropagation();
       var prefs = _.cloneDeep(self.props.chartPrefs);
       prefs.modal.activeDays[day] = prefs.modal.activeDays[day] ? false : true;
       self.props.updateChartPrefs(prefs);
@@ -159,6 +210,32 @@ var Modal = React.createClass({
   toggleLines: function() {
     var prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.modal.showingLines = prefs.modal.showingLines ? false : true;
+    this.props.updateChartPrefs(prefs);
+  },
+  toggleWeekdays: function(allActive) {
+    var prefs = _.cloneDeep(this.props.chartPrefs);
+    prefs.modal.activeDays = {
+      'monday': !allActive,
+      'tuesday': !allActive,
+      'wednesday': !allActive,
+      'thursday': !allActive,
+      'friday': !allActive,
+      'saturday': prefs.modal.activeDays.saturday,
+      'sunday': prefs.modal.activeDays.sunday
+    };
+    this.props.updateChartPrefs(prefs);
+  },
+  toggleWeekends: function(allActive) {
+    var prefs = _.cloneDeep(this.props.chartPrefs);
+    prefs.modal.activeDays = {
+      'monday': prefs.modal.activeDays.monday,
+      'tuesday': prefs.modal.activeDays.tuesday,
+      'wednesday': prefs.modal.activeDays.wednesday,
+      'thursday': prefs.modal.activeDays.thursday,
+      'friday': prefs.modal.activeDays.friday,
+      'saturday': !allActive,
+      'sunday': !allActive
+    };
     this.props.updateChartPrefs(prefs);
   }
 });
@@ -215,7 +292,7 @@ var ModalChart = React.createClass({
     this.stats = Stats.create(el, this.props.patientData.grouped, _.pick(this.props, ['bgClasses', 'bgUnits']));
     var domain = this.state.dateDomain;
     var extent = this.getInitialExtent(domain);
-    this.brush = Brush.create(el, domain, {
+    this.brush = Brush.create(document.getElementById('modalScroll'), domain, {
       initialExtent: extent
     });
     this.bindEvents();
@@ -230,6 +307,15 @@ var ModalChart = React.createClass({
       this.dataByDayOfWeek.filterFunction(function(d) {
         return activeDays[d];
       });
+    }
+    // refilter by time if necessary
+    if (this.props.extentSize !== nextProps.extentSize) {
+      var current = this.getCurrentDay();
+      this.dataByDate.filter([
+        // not quite sure why I half to reduce the extent by one here...
+        d3.time.day.utc.offset(new Date(current), -(nextProps.extentSize - 1)).toISOString(),
+        current
+      ]);
     }
     // refilter by type if necessary
     if (this.props.bgType !== nextProps.bgType) {
@@ -283,6 +369,9 @@ var ModalChart = React.createClass({
       start.toISOString(),
       d3.time.day.utc.ceil(new Date(extentBasis)).toISOString()
     ];
+  },
+  setExtent: function(domain) {
+    this.brush.setExtent(domain);
   },
   // handlers
   handleDatetimeLocationChange: function(datetimeLocationEndpoints) {

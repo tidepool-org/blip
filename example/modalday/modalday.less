@@ -1,32 +1,21 @@
-@monday: rgb(102, 194, 165);
-@tuesday: rgb(252, 141, 98);
-@wednesday: rgb(141, 160, 203);
-@thursday: rgb(231, 138, 195);
-@friday: rgb(166, 216, 84);
-@saturday: rgb(255, 217, 47);
-@sunday: rgb(229, 196, 148);
-
-.tidelineNavLabel.monday {
-  background-color: @monday !important;
-}
-.tidelineNavLabel.tuesday {
-  background-color: @tuesday !important;
-}
-.tidelineNavLabel.wednesday {
-  background-color: @wednesday !important;
-}
-.tidelineNavLabel.thursday {
-  background-color: @thursday !important;
-}
-.tidelineNavLabel.friday {
-  background-color: @friday !important;
-}
-.tidelineNavLabel.saturday {
-  background-color: @saturday !important;
-}
-.tidelineNavLabel.sunday {
-  background-color: @sunday !important;
-}
+/*
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ *
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ *
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
+ 
+@import '../../css/tideline-colors.less';
 
 .svg-tooltip-smbg.monday {
   stroke: @monday;
@@ -151,22 +140,17 @@
   }
 }
 
-@brush: #989897;
-
-// brushing component
-.brushBackgroundDayGroup {
-  rect {
-    fill: lighten(@brush, 35%);
-  }
-}
+@brush: lighten(@background, 20%);
 
 #brushHandleGroup {
-  rect.extent {
-    fill: lighten(@brush, 20%);
-    fill-opacity: 0.5;
-    stroke-width: 2.5;
+  rect.background {
+    fill: none;
     stroke: @brush;
-    shape-rendering: crispEdges;
+    stroke-width: 1.5;
+  }
+  rect.extent {
+    fill: @brush;
+    stroke: none;
   }
 
   text {
@@ -185,10 +169,20 @@
   }
 }
 
+#domainAxis {
+  path {
+    fill: none;
+  }
+  g.tick text {
+    font-size: 12px;
+    fill: @text;
+  }
+}
+
 rect.meanLine {
   fill: white;
 }
 rect.rangeBox {
-  fill: darken(#989897, 10);
+  fill: darken(@background, 10);
   opacity: 0.5;
 }

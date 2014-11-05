@@ -25,7 +25,6 @@ var tideline = {
 
 var TidelineFooter = React.createClass({
   propTypes: {
-    activeDays: React.PropTypes.object,
     chartType: React.PropTypes.string.isRequired,
     onClickBoxOverlay: React.PropTypes.func,
     onClickGroup: React.PropTypes.func,
@@ -33,15 +32,6 @@ var TidelineFooter = React.createClass({
     onClickValues: React.PropTypes.func,
     grouped: React.PropTypes.bool,
     showingValues: React.PropTypes.bool
-  },
-  DAY_ABBREVS: {
-    monday: 'M',
-    tuesday: 'T',
-    wednesday: 'W',
-    thursday: 'Th',
-    friday: 'F',
-    saturday: 'S',
-    sunday: 'Su'
   },
   render: function() {
     var valuesLinkClass = cx({
@@ -109,18 +99,16 @@ var TidelineFooter = React.createClass({
     function getOverlayLinkText(props) {
       if (props.chartType === 'modal') {
         if (props.boxOverlay) {
-          return 'Hide Range & Mean';
+          return 'Hide range & average';
         }
         else {
-          return 'Show Range & Mean';
+          return 'Show range & average';
         }
       }
       else {
         return '';
       }
     }
-
-    var dayFilters = this.props.chartType === 'modal' ? this.renderDayFilters() : null;
 
     var valuesLinkText = getValuesLinkText(this.props);
 
@@ -154,35 +142,9 @@ var TidelineFooter = React.createClass({
     /* jshint ignore:start */
     return (
       <div className="tidelineNav grid">
-        <div className="grid-item one-half">{dayFilters}</div>
+        <div className="grid-item one-half"/>
         <div className="grid-item one-half">{rightSide}</div>
       </div>
-      );
-    /* jshint ignore:end */
-  },
-  renderDayFilters: function() {
-    var days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-    var dayLinks = [];
-    for (var i = 0; i < days.length; ++i) {
-      dayLinks.push(this.renderDay(days[i]));
-    }
-    /* jshint ignore:start */
-    return (
-      <div className="dayFilters">
-        {dayLinks}
-      </div>
-      );
-    /* jshint ignore:end */
-  },
-  renderDay: function(day) {
-    var dayLinkClass = cx({
-      'tidelineNavLabel': true,
-      'active': this.props.activeDays[day],
-      'inactive': !this.props.activeDays[day]
-    }) + ' ' + day;
-    /* jshint ignore:start */
-    return (
-      <a className={dayLinkClass} key={day} onClick={this.props.onClickDay(day)}>{this.DAY_ABBREVS[day]}</a>
       );
     /* jshint ignore:end */
   }
