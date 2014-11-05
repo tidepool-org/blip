@@ -48,6 +48,7 @@ var Patient = require('./pages/patient');
 
 var PatientEdit = require('./pages/patientedit');
 var PatientData = require('./pages/patientdata');
+var RequestPasswordReset = require('./pages/passwordreset/request');
 
 // Styles
 require('tideline/css/tideline.less');
@@ -74,10 +75,15 @@ var routes = {
   '/patients': 'showPatients',
   '/patients/new': 'showPatientNew',
   '/patients/:id': 'showPatient',
-  '/patients/:id/data': 'showPatientData'
+  '/patients/:id/data': 'showPatientData',
+  '/request-password-reset': 'showRequestPasswordReset'
 };
 
-var noAuthRoutes = ['/login', '/signup'];
+var noAuthRoutes = [
+  '/login',
+  '/signup',
+  '/request-password-reset'
+];
 
 var defaultNotAuthenticatedRoute = '/login';
 var defaultAuthenticatedRoute = '/patients';
@@ -868,7 +874,7 @@ var AppComponent = React.createClass({
 
     api.invitation.getReceived(function(err, invites) {
       if (err) {
-        
+
         self.setState({
           fetchingInvites: false
         });
@@ -1178,6 +1184,23 @@ var AppComponent = React.createClass({
     else {
       return data.toString();
     }
+  },
+
+  showRequestPasswordReset: function() {
+    this.renderPage = this.renderRequestPasswordReset;
+    this.setState({
+      page: 'request-password-reset'
+    });
+  },
+
+  renderRequestPasswordReset: function() {
+    return (
+      /* jshint ignore:start */
+      <RequestPasswordReset
+        onSubmit={app.api.user.requestPasswordReset.bind(app.api)}
+        trackMetric={trackMetric} />
+      /* jshint ignore:end */
+    );
   }
 });
 
