@@ -566,15 +566,11 @@ module.exports = function (config, deps) {
      */
     createChildAccount: function (accountName,cb) {
 
-      var childUser = {
-        username: Math.random().toString(36).slice(2),
-        password: Math.random().toString(36).slice(2),
-        emails: []
-      };
+      var childUser = { username: accountName };
       // create an child account to attach to ours
       function createChildAccount(next){
         superagent
-         .post(makeUrl('/auth/user'))
+         .post(makeUrl('/auth/childuser'))
          .send(childUser)
          .end(
          function (err, res) {
