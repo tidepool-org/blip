@@ -602,11 +602,11 @@ module.exports = function (config, deps) {
               return next({status:res.status,message:res.error});
             });
       }
-      //give the parent account root perms on the child account
+      //give the parent account admin perms on the child account
       function giveRootPermsOnChild(next){
         superagent
           .post(makeUrl('/access/'+ childUser.id + '/' +getUserId()))
-          .send({root: {}})
+          .send({admin: {}})
           .set(sessionTokenHeader, childUser.token)
           .end(
             function (err, res) {
@@ -620,17 +620,20 @@ module.exports = function (config, deps) {
             });
       }
 
-      //Just do it!!
       async.series([
         createChildAccount,
         createChildProfile,
         giveRootPermsOnChild
       ], function(err, results) {
         if(_.isEmpty(err)){
-          console.log('child account data to return: ',results[0]);
-          return cb(null,results[0]);
+          var account = {
+            userid : results[0],
+            profile : results[1]
+          };
+          console.log('child account data to return: ',account);
+
+          return cb(null,account);
         }
-        console.log('stink bro - got an error! ',err);
         return cb(err);
       });
     },

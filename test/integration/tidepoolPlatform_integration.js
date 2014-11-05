@@ -460,7 +460,10 @@ describe('platform client', function () {
       memberClient.createChildAccount('My Kid', function(err, childAccount){
         expect(err).to.not.exist;
         expect(childAccount).to.exist;
-        expect(childAccount).to.have.keys('userid');
+        expect(childAccount).to.have.keys('userid', 'profile');
+        //check the profile
+        var profile = childAccount.profile;
+        expect(profile).to.have.keys('fullName');
         done();
       });
     });
