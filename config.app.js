@@ -27,11 +27,20 @@ function booleanFromText(value, defaultValue) {
   return defaultValue || false;
 }
 
+function integerFromText(value, defaultValue) {
+  value = parseInt(value, 10);
+  if (isNaN(value)) {
+    return defaultValue === undefined ? 0 : defaultValue;
+  }
+  return value;
+}
+
 module.exports = {
   VERSION: pkg.version,
   MOCK: booleanFromText(process.env.MOCK, false),
   MOCK_PARAMS: process.env.MOCK_PARAMS || '',
   UPLOAD_API: process.env.UPLOAD_API || 'https://devel-uploads.tidepool.io',
   API_HOST: process.env.API_HOST || 'https://devel-api.tidepool.io',
-  SHOW_ACCEPT_TERMS: booleanFromText(process.env.SHOW_ACCEPT_TERMS, true)
+  SHOW_ACCEPT_TERMS: booleanFromText(process.env.SHOW_ACCEPT_TERMS, true),
+  PASSWORD_MIN_LENGTH: integerFromText(process.env.PASSWORD_MIN_LENGTH, 8)
 };

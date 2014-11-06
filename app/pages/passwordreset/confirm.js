@@ -68,8 +68,8 @@ var ConfirmPasswordReset = React.createClass({
           <div className="PasswordReset-instructions">
             <p>{'Your password was changed successfully. You can now log in with your new password.'}</p>
           </div>
-          <div className="PasswordReset-link">
-            <a href="#/login">Log in</a>
+          <div className="PasswordReset-button">
+            <a className="btn btn-primary" href="#/login">Log in</a>
           </div>
         </div>
       );
@@ -150,7 +150,7 @@ var ConfirmPasswordReset = React.createClass({
     var validationErrors = {};
     var IS_REQUIRED = 'This field is required.';
     var INVALID_EMAIL = 'Invalid email address.';
-    var SHORT_PASSWORD = 'Password must be longer than 5 characters.';
+    var SHORT_PASSWORD = 'Password must be at least ' + config.PASSWORD_MIN_LENGTH + ' characters long.';
 
     if (!formValues.email) {
       validationErrors.email = IS_REQUIRED;
@@ -164,7 +164,7 @@ var ConfirmPasswordReset = React.createClass({
       validationErrors.password = IS_REQUIRED;
     }
 
-    if (formValues.password && formValues.password.length < 6) {
+    if (formValues.password && formValues.password.length < config.PASSWORD_MIN_LENGTH) {
       validationErrors.password = SHORT_PASSWORD;
     }
 
