@@ -66,10 +66,10 @@ var ConfirmPasswordReset = React.createClass({
         <div className="PasswordReset-intro">
           <div className="PasswordReset-title">{'Success!'}</div>
           <div className="PasswordReset-instructions">
-            <p>{'Your password was changed successfully. You can now log back in with your new password.'}</p>
+            <p>{'Your password was changed successfully. You can now log in with your new password.'}</p>
           </div>
           <div className="PasswordReset-link">
-            <a href="#/login">Click here to log back in</a>
+            <a href="#/login">Log in</a>
           </div>
         </div>
       );
@@ -78,10 +78,7 @@ var ConfirmPasswordReset = React.createClass({
       content = (
         <div>
           <div className="PasswordReset-intro">
-            <div className="PasswordReset-title">{'Change password'}</div>
-            <div className="PasswordReset-instructions">
-              {'Please enter the email you used to sign up, then choose your new password.'}
-            </div>
+            <div className="PasswordReset-title">{'Change your password'}</div>
           </div>
           <div className="PasswordReset-form">{this.renderForm()}</div>
         </div>
@@ -104,7 +101,7 @@ var ConfirmPasswordReset = React.createClass({
   },
 
   renderForm: function() {
-    var submitButtonText = this.state.working ? 'Changing...' : 'Change password';
+    var submitButtonText = this.state.working ? 'Saving...' : 'Save';
 
     return (
       <SimpleForm

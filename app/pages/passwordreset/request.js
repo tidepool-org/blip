@@ -51,10 +51,9 @@ var RequestPasswordReset = React.createClass({
     if (this.state.success) {
       content = (
         <div className="PasswordReset-intro">
-          <div className="PasswordReset-title">{'Success!'}</div>
+          <div className="PasswordReset-title">{'Email sent!'}</div>
           <div className="PasswordReset-instructions">
-            <p>{'Please check your email and click on the password reset link we sent you at: '}</p>
-            <p><strong>{this.state.formValues.email}</strong></p>
+            <p>{'Check your email and follow the instructions to reset your password.'}</p>
           </div>
         </div>
       );
@@ -63,9 +62,9 @@ var RequestPasswordReset = React.createClass({
       content = (
         <div>
           <div className="PasswordReset-intro">
-            <div className="PasswordReset-title">{'Password reset'}</div>
+            <div className="PasswordReset-title">{'Forgot your password?'}</div>
             <div className="PasswordReset-instructions">
-              {'Please enter the email you used to sign up, and we\'ll email you a password reset link.'}
+              {'Please enter your email address.'}
             </div>
           </div>
           <div className="PasswordReset-form">{this.renderForm()}</div>
@@ -92,7 +91,7 @@ var RequestPasswordReset = React.createClass({
   },
 
   renderForm: function() {
-    var submitButtonText = this.state.working ? 'Resetting...' : 'Reset password';
+    var submitButtonText = this.state.working ? 'Sending email...' : 'Send reset link';
 
     return (
       <SimpleForm
