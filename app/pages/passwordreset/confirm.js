@@ -177,11 +177,7 @@ var ConfirmPasswordReset = React.createClass({
     if (!_.isEmpty(validationErrors)) {
       this.setState({
         working: false,
-        validationErrors: validationErrors,
-        notification: {
-          type: 'error',
-          message:'Some entries are invalid.'
-        }
+        validationErrors: validationErrors
       });
     }
 
