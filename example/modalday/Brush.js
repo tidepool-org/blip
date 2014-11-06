@@ -28,6 +28,13 @@ d3.chart('Brush', {
     return this;
   },
   setExtent: function(newExtent) {
+    var xScale = this.xScale();
+    var scaleDomain = xScale.domain();
+    if (newExtent[0] < scaleDomain[0]) {
+      var extentSize = (newExtent[1] - newExtent[0])/862e5;
+      var s = d3.time.day.utc.floor(scaleDomain[0]);
+      newExtent = [s, d3.time.day.utc.offset(s, extentSize)];
+    }
     this.brushHandleGroup.call(this.brush.extent(newExtent));
     this.fixBrushHandlers(this.brushHandleGroup);
     return this;
