@@ -126,14 +126,17 @@ var nurseshark = {
       }
     }
   },
-  joinWizardsAndBoluses: function(wizards, bolusesToJoin) {
+  joinWizardsAndBoluses: function(wizards, allBoluses) {
     var numWizards = wizards.length;
     for (var i = 0; i < numWizards; ++i) {
       var wizard = wizards[i];
-      if (wizard.joinKey != null) {
-        if (typeof bolusesToJoin[wizard.joinKey] === 'object') {
-          wizard.bolus = bolusesToJoin[wizard.joinKey];
-        }
+      var bolusId = wizard.bolus;
+      // TODO: remove once we've phased out in-d-gestion CareLink parsing
+      if (bolusId ==  null) {
+        bolusId = wizard.joinKey;
+      }
+      if (bolusId != null) {
+        wizard.bolus = allBoluses[bolusId];
       }
     }
   },
@@ -153,7 +156,7 @@ var nurseshark = {
     }
     var processedData = [], erroredData = [];
     var collections = {
-      bolusesToJoin: {}
+      allBoluses: {}
     };
     var typeGroups = {}, overlappingUploads = {};
 
@@ -287,7 +290,7 @@ var nurseshark = {
     }, 'Process');
 
     timeIt(function() {
-      nurseshark.joinWizardsAndBoluses(typeGroups.wizard || [], collections.bolusesToJoin);
+      nurseshark.joinWizardsAndBoluses(typeGroups.wizard || [], collections.allBoluses);
     }, 'Join Wizards and Boluses');
 
     if (typeGroups.deviceMeta && typeGroups.deviceMeta.length > 0) {
@@ -363,9 +366,11 @@ function getHandlers() {
     },
     bolus: function(d, collections) {
       d = cloneDeep(d);
+      // TODO: remove once we've phased out in-d-gestion CareLink parsing
       if (d.joinKey != null) {
-        collections.bolusesToJoin[d.joinKey] = d;
+        collections.allBoluses[d.joinKey] = d;
       }
+      collections.allBoluses[d.id] = d;
       return d;
     },
     cbg: function(d) {

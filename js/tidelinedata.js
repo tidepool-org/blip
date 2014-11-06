@@ -370,7 +370,7 @@ function TidelineData(data, opts) {
     else {
       watson = function(d) {
         if (d.type !== 'fill') {
-          if (d.timezoneOffset) {
+          if (d.timezoneOffset != null) {
             d.normalTime = dt.addDuration(d.time, d.timezoneOffset * MS_IN_MIN);
             d.displayOffset = 0;
           }
@@ -383,7 +383,7 @@ function TidelineData(data, opts) {
           }
           if (d.deviceTime && d.normalTime.slice(0, -5) !== d.deviceTime) {
             var err = new Error('Combining `time` and `timezoneOffset` does not yield `deviceTime`.');
-            // log(err);
+            log(err);
             d.errorMessage = err.message;
           }
           if (d.type === 'basal') {

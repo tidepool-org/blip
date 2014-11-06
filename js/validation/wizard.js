@@ -21,7 +21,7 @@ var schema = require('./validator/schematron.js');
 module.exports = schema(
   common,
   {
-    deviceTime: schema().isDeviceTime(),
+    deviceTime: schema().ifExists().isDeviceTime(),
     recommended: schema().object({
       carb: schema().ifExists().number(),
       correction: schema().ifExists().number()

@@ -21,7 +21,7 @@ var schema = require('./validator/schematron.js');
 module.exports = schema(
   common,
   {
-    deviceTime: schema().isDeviceTime(),
+    deviceTime: schema().ifExists().isDeviceTime(),
     units: schema().in(['mg/dL', 'mmol/L']),
     value: schema().number()
   }

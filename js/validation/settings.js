@@ -83,7 +83,7 @@ module.exports = schema(
         }
       )
     ),
-    deviceTime: schema().isDeviceTime(),
+    deviceTime: schema().ifExists().isDeviceTime(),
     insulinSensitivity: schema().array(
       schema(
         {

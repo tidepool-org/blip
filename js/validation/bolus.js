@@ -20,7 +20,7 @@ var schema = require('./validator/schematron.js');
 
 var bolusCommon = schema(
   {
-    deviceTime: schema().isDeviceTime(),
+    deviceTime: schema().ifExists().isDeviceTime(),
   }
 );
 
