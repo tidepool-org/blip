@@ -1013,6 +1013,38 @@ module.exports = function (config, deps) {
         null,
         cb
       );
+    },
+    /**
+     * Request a password reset
+     *
+     * @param {String} email - email of the user requesting the password reset
+     * @param cb
+     * @returns {cb}  cb(err)
+     */
+    requestPasswordReset: function (email, cb) {
+      assertArgumentsSize(arguments, 2);
+
+      doPostWithToken(
+        '/confirm/send/forgot/' + email,
+        null,
+        cb
+      );
+    },
+    /**
+     * Confirm a password reset request with a new password
+     *
+     * @param {Object} payload - object with `key`, `email`, `password`
+     * @param cb
+     * @returns {cb}  cb(err)
+     */
+    confirmPasswordReset: function (payload, cb) {
+      assertArgumentsSize(arguments, 2);
+
+      doPutWithToken(
+        '/confirm/accept/forgot/',
+        payload,
+        cb
+      );
     }
   };
 };
