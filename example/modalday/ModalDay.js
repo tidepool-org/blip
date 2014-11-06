@@ -230,7 +230,7 @@ d3.chart('ModalDay', {
                 var mainMargins = chart.margins().main;
                 d3.select(this).append('text')
                   .attr({
-                    x: chart.width - mainMargins.right - 10,
+                    x: mainMargins.left + 10,
                     y: mainMargins.top + 30,
                     'class': 'smbgDayLabel'
                   })
