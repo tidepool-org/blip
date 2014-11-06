@@ -205,7 +205,7 @@ var ConfirmPasswordReset = React.createClass({
           working: false,
           notification: {
             type: 'error',
-            message: 'An error occured while changing your password.'
+            message: 'We couldn\'t change your password. You may have mistyped your email, or the reset link may have expired.'
           }
         });
       }
