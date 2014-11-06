@@ -217,7 +217,7 @@ d3.chart('ModalDay', {
               });
               dayCharts[d] = dayPlot;
             })
-            .on('click', function(d) {
+            .on('dblclick', function(d) {
               emitter.emit('selectDay', d);
             })
             .on('mouseover', function(d) {
