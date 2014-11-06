@@ -164,7 +164,12 @@ module.exports = function (config, deps) {
   }
 
   function hasConnection(){
-    return navigator.onLine;
+    try{
+      return navigator.onLine;
+    }catch(e){
+      //can't test so just assume
+      return true;
+    }
   }
 
   function getUserId() {
@@ -577,13 +582,17 @@ module.exports = function (config, deps) {
     /**
      * Create a child account for the logged in user
      *
-     * @param accountName String who the account is being created for
+     * @param profile {Object} profile for account that is being created for
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    createChildAccount: function (accountName,cb) {
+    createChildAccount: function (profile,cb) {
 
-      var childUser = { username: accountName };
+      if (_.isEmpty(profile.fullName)) {
+        return cb({ status : STATUS_BAD_REQUEST, message: 'Must specify a fullName' });
+      }
+
+      var childUser = { username: profile.fullName };
       // create an child account to attach to ours
       function createChildAccount(next){
         superagent
@@ -606,7 +615,7 @@ module.exports = function (config, deps) {
       function createChildProfile(next){
         superagent
           .put(makeUrl('/metadata/'+ childUser.id + '/profile'))
-          .send({ fullName:accountName })
+          .send(profile)
           .set(sessionTokenHeader, childUser.token)
           .end(
             function (err, res) {
@@ -648,7 +657,6 @@ module.exports = function (config, deps) {
             userid: results[0].userid,
             profile: results[1]
           };
-          
           return cb(null,acct);
         }
         return cb(err);

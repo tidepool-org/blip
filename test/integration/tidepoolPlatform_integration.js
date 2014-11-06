@@ -122,9 +122,7 @@ describe('platform client', function () {
     async.parallel(
       [createClientWithUser.bind(null, a_PWD,noLoginOpts,storage()), createClientWithUser.bind(null, a_Member,noLoginOpts,storage())],
       function(err, clients) {
-        if (err != null) {
-          return done(err);
-        }
+        expect(err).to.not.exist;
         pwdClient = clients[0];
         memberClient = clients[1];
         done();
@@ -139,9 +137,7 @@ describe('platform client', function () {
     async.parallel(
       [function(callback){ pwdClient.logout(callback); }, function(callback){ memberClient.logout(callback); }],
       function(err, clients) {
-        if (err != null) {
-          return done(err);
-        }
+        expect(err).to.not.exist;
         done();
       }
       );
@@ -159,24 +155,17 @@ describe('platform client', function () {
       };
 
       createClientWithUser(refreshOnlyUser, {remember:true}, store, function(error, loggedIn){
-        if (error != null) {
-          return done(error);
-        }
+        expect(error).to.not.exist;
         expect(loggedIn.isLoggedIn()).to.be.true;
         console.log('first logged in');
 
         createClient(store, function(err, client) {
-          if (err != null) {
-            return done(err);
-          }
+          expect(err).to.not.exist;
 
           expect(client.isLoggedIn()).to.be.true;
           console.log('second logged in');
           createClient(store, function(err, anotherClient){
-            if (err != null) {
-              return done(err);
-            }
-
+            expect(err).to.not.exist;
             expect(anotherClient.isLoggedIn()).to.be.true;
             console.log('thirdlogged in');
             done();
@@ -239,9 +228,7 @@ describe('platform client', function () {
       async.parallel(
         [pwdClient.addOrUpdateProfile.bind(null, a_PWD.id, a_PWD.profile), memberClient.addOrUpdateProfile.bind(null, a_Member.id, a_Member.profile)],
         function(err, profiles) {
-          if (err != null) {
-            return done(err);
-          }
+          expect(err).to.not.exist;
           done();
         }
       );
@@ -282,8 +269,9 @@ describe('platform client', function () {
     */
     before(function (done) {
       pwdClient.setAccessPermissions(a_Member.id, {view: {}}, function(err, permissions) {
+        expect(err).to.not.exist;
         expect(permissions).to.deep.equal({view: {}});
-        done(err);
+        done();
       });
     });
 
@@ -292,8 +280,9 @@ describe('platform client', function () {
     */
     after(function (done) {
       pwdClient.setAccessPermissions(a_Member.id, null, function(err, permissions) {
+        expect(err).to.not.exist;
         expect(permissions).to.be.empty;
-        done(err);
+        done();
       });
     });
 
@@ -456,14 +445,41 @@ describe('platform client', function () {
   });
   describe('handles child accounts', function () {
 
+    it('only if we have a profile.fullName', function(done){
+
+      var notProfile = {
+        opps:'My Kid',
+        patient: {
+          stuff: 'I am not patient :)'
+        }
+      };
+
+      memberClient.createChildAccount(notProfile, function(err, childAccount){
+        expect(err).to.exist;
+        expect(err).to.have.keys('status', 'message');
+        expect(childAccount).to.not.exist;
+        done();
+      });
+    });
+
     it('so we can create a child account that a_Member has root permissions on', function(done){
-      memberClient.createChildAccount('My Kid', function(err, childAccount){
+
+      var kidsProfile = {
+        fullName:'My Kid',
+        patient: {
+          stuff: 'I am not patient :)'
+        }
+      };
+
+
+      memberClient.createChildAccount(kidsProfile, function(err, childAccount){
         expect(err).to.not.exist;
         expect(childAccount).to.exist;
         expect(childAccount).to.have.keys('userid', 'profile');
         //check the profile
         var profile = childAccount.profile;
-        expect(profile).to.have.keys('fullName');
+        expect(profile).to.have.keys('fullName','patient');
+        expect(profile.patient.stuff).to.equal(kidsProfile.patient.stuff);
         done();
       });
     });
@@ -477,32 +493,45 @@ describe('platform client', function () {
 
     it('so we can give a_Member permisson to view a_PWD', function(done){
       pwdClient.setAccessPermissions(a_Member.id, {view: {}}, function(err, permissions) {
+        expect(err).to.not.exist;
         expect(permissions).to.deep.equal({view: {}});
-        done(err);
+        done();
       });
     });
 
     it('so a_Member has a_PWD as a viewable user', function (done) {
       memberClient.getViewableUsers(a_Member.id, function (error, viewableUsers) {
-        var expectation = {};
+        expect(error).to.not.exist;
+        expect(viewableUsers).to.exist;
+       /* var expectation = {};
         expectation[a_Member.id] = {root: {}};
         expectation[a_PWD.id] = {view: {}};
-        expect(viewableUsers).to.deep.equal(expectation);
 
+        var rootMember = {};
+        rootMember[a_PWD.id] = {root: {}};*/
+
+        //expect(viewableUsers[a_Member.id]).to.equal({root: {}});
+
+        //console.log('has id '+a_PWD.id);
+
+        //console.log('is? '+viewableUsers[a_PWD.id]);
+        //expect(viewableUsers[a_PWD.id]).to.deep.equal({view: {}});
+        //expect(viewableUsers[a_Member.id]).to.deep.equal({root: {}});
         careTeamViewable = viewableUsers;
-        done(error);
+        done();
       });
     });
 
     it('and a_PWD has a_Member included in the team ', function (done) {
       pwdClient.getTeamMembers(a_PWD.id, function (error, team) {
+        expect(error).to.not.exist;
         var expectation = {};
         expectation[a_PWD.id] = {root: {}};
         expectation[a_Member.id] = {view: {}};
 
         expect(team).to.deep.equal(expectation);
         pwdsTeam = team;
-        done(error);
+        done();
       });
     });
 
@@ -533,8 +562,9 @@ describe('platform client', function () {
 
     it('a_PWD can remove the permissions for a_Member', function(done) {
       pwdClient.setAccessPermissions(a_Member.id, null, function(err, perms){
+        expect(err).to.not.exist;
         expect(perms).to.be.empty;
-        done(err);
+        done();
       });
     });
   });
