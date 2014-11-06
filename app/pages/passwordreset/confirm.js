@@ -81,6 +81,9 @@ var ConfirmPasswordReset = React.createClass({
             <div className="PasswordReset-title">{'Change your password'}</div>
           </div>
           <div className="PasswordReset-form">{this.renderForm()}</div>
+          <div className="PasswordReset-link">
+            <a href="#/login">Cancel</a>
+          </div>
         </div>
       );
     }
