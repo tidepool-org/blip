@@ -102,7 +102,7 @@
   &:hover,
   &:focus,
   &:active {
-    color: @gray-darkest;
+    color: @blue-green-light;
     text-decoration: none;
   }
 }
@@ -159,7 +159,7 @@
   .Navbar-button:hover &:after,
   .Navbar-button:focus &:after,
   .Navbar-button:active &:after {
-    border-left-color: @gray-darkest;
+    background-color: @blue-green-light;
   }
 
   .Navbar-button--blueBg:hover  &:after,
@@ -222,6 +222,14 @@
   max-width: 150px;
 }
 
+.Navbar-menuItem {
+  &:hover,
+  &:focus,
+  &:active {
+    color: @blue-green-light;
+  }
+}
+
 .Navbar-menuItem .Navbar-icon {
   padding-left: 2px;
 }
@@ -263,34 +271,34 @@
 
 .Navbar-selected {
   > .Navbar-icon {
-    color: @blue-green-light;
+    color: @blue-green;
 
     &:hover,
     &:focus,
     &:active {
-      color: @blue-green-light;
+      color: @blue-green;
     }
   }
 
   &:hover,
   &:focus,
   &:active {
-    color: @blue-green-light;
+    color: @blue-green;
   }
 
   .Navbar-logged {
-    color: @blue-green-light;
+    color: @blue-green;
 
     &:hover,
     &:focus,
     &:active {
-      color: @blue-green-light;
+      color: @blue-green;
     }
   }
 }
 
 .patientcard-actions--highlight > .patientcard-icon {
-  color: @blue-green-light;
+  color: @blue-green;
 }
 
 .patientcard-icon {

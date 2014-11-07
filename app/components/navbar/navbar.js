@@ -196,7 +196,7 @@ var Navbar = React.createClass({
       <ul className="Navbar-menuSection" ref="user">
         <li className="Navbar-menuItem">
           <a href="#/profile" title="Account" onClick={handleClickUser} className={profileClasses}>
-            <div className="Navbar-label Navbar-logged">
+            <div className="Navbar-logged">
               <span className="Navbar-loggedInAs">{'Logged in as '}</span>
               <span className="Navbar-userName" ref="userFullName">{displayName}</span>
             </div>

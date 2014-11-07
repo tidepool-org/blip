@@ -75,11 +75,11 @@ var PeopleList = React.createClass({
       /* jshint ignore:start */
     return (
       <div>
-        {editControls}
         <ul className={classes}>
           {peopleNodes}
           <div className="clear"></div>
         </ul>
+        {editControls}
       </div>
     );
     /* jshint ignore:end */
@@ -89,17 +89,16 @@ var PeopleList = React.createClass({
     for(var i in patients) {
       var patient = patients[i];
 
-
       if (_.isEmpty(patient.permissions) === false && (!patient.permissions.admin && !patient.permissions.root)) {
         return true;
       }
     }
     return false;
   },
-
+  
   renderEditControls: function() {
     var key = 'edit';
-    var text = 'Edit';
+    var text = 'Remove people…';
     if (this.state.editing) {
       key = 'cancel';
       text = 'Done';

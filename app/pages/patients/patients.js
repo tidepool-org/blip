@@ -45,7 +45,7 @@ var Patients = React.createClass({
 
   render: function() {
     var welcomeTitle = this.renderWelcomeTitle();
-
+    
     if (this.isLoading()) {
       return (
         <div className="container-box-outer">

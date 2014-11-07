@@ -90,11 +90,11 @@
 
 .patientcard-leave {
   display: none;
-  margin-top: -5px;
+  margin-top: 3px;
   margin-left: 5px;
 
 
-  .icon-remove {
+  .icon-delete {
     color: red;
     font-size: 14px;
     opacity: 0.5;
@@ -116,8 +116,16 @@
 
   > a {
     padding: 10px 5px;
+    color: @gray-dark;
+
+    .no-touch &:hover,
+    &:focus,
+    &:active {
+        color: @blue-green-light;
+    }
   }
 }
+
 .patientcard,
 a.patientcard {
   color: @gray-darker;
@@ -160,25 +168,25 @@ a.patientcard {
 }
 
 .patientcard-actions--highlight {
-  color: @blue-green-light;
+  color: @blue-green !important;
 
   .patientcard-fullname {
-    color: @blue-green-light;
+    color: @blue-green;
   }
 
   .icon-settings {
-    color: @blue-green-light;
+    color: @blue-green;
   }
 
   .no-touch &:hover,
   &:focus,
   &:active {
     .patientcard-fullname {
-      color: @blue-green-light;
+      color: @blue-green;
     }
 
     .icon-settings {
-      color: @blue-green-light;
+      color: @blue-green;
     }
   }
 }

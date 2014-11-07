@@ -363,7 +363,7 @@ var PatientTeam = React.createClass({
           <div className="PatientTeam-blocks PatientInfo-blocks">
             <div className="PatientInfo-blockRow">
               <div className="PatientInfo-block PatientInfo-block--withArrow"><div>{member.profile.fullName}</div></div>
-              <a href="" className="PatientTeam-icon PatientTeam-icon--remove" title='Remove member' onClick={this.handleRemoveTeamMember(member)}><i className="icon-remove"></i></a>
+              <a href="" className="PatientTeam-icon PatientTeam-icon--remove" title='Remove member' onClick={this.handleRemoveTeamMember(member)}><i className="icon-delete"></i></a>
               <div className="clear"></div>
               <PermissionInputGroup onChange={this.handlePermissionChange(member)} value={allowUpload} />
             </div>
@@ -525,7 +525,7 @@ var PatientTeam = React.createClass({
 
   renderEditControls: function() {
     var key = 'edit';
-    var text = 'Edit';
+    var text = 'Remove people…';
     if (this.state.editing) {
       key = 'cancel';
       text = 'Done';
@@ -572,7 +572,6 @@ var PatientTeam = React.createClass({
             {'These people can view ' + patientName + '\'s data'}
           </span>
         </div>
-        {editControls}
         <div className="clear"></div>
         <ul className={listClass}>
           {members}
@@ -580,6 +579,7 @@ var PatientTeam = React.createClass({
           {invite}
           <div className="clear"></div>
         </ul>
+        {editControls}
         {this.renderModalOverlay()}
       </div>
     );

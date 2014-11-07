@@ -28,8 +28,19 @@
 
 .patient-list-controls {
   min-height: 20px;
-  text-align: right;
-  margin-top: -20px;
+  text-align: center;
+  padding-top: 20px;
+
+  button {
+    color: @gray-dark;
+
+    &:hover,
+    &:focus,
+    &:active {
+      text-decoration: underline;
+      color: @blue-green-light;
+    }
+  }
 }
 
 .patient-list-controls-button {

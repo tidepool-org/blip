@@ -12,9 +12,17 @@
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
-
 module.exports = function myErrorHandler(errorMessage, fileUrl, lineNumber, colno, error) {
 
+  var ERR_GENERIC_LIST = [
+    'Whoops! Blip\'s servers got clogged with glucose tabs.',
+    'Whoops! Blip ran out of test strips...',
+    'Hang on, i\’ve ran out of test strips...',
+    'Whoa, sorry about that. Needed to change the battery on my pump.',
+    'Oh no! Blip\'s blood sugar crashed and now it’s going slower than usual.',
+    'Oh man, my blood sugars high and im moving slowly.'
+  ];
+  var ERR_GENERIC_HELP = 'Blip is stuck and isn\'t doing what you want it to do. We\'re sorry for the trouble. Try refreshing.';
   var html;
 
   var details = {
@@ -25,6 +33,8 @@ module.exports = function myErrorHandler(errorMessage, fileUrl, lineNumber, coln
     cn: colno
   };
 
+  var chosenMessage = ERR_GENERIC_LIST[Math.ceil(Math.random() * (ERR_GENERIC_LIST.length - 1))];
+
   try{
 
     //try and send it to the server in the first instance
@@ -32,8 +42,8 @@ module.exports = function myErrorHandler(errorMessage, fileUrl, lineNumber, coln
 
     html = [
     '<div style="background: #fefefe;border: gray solid 1px;margin-left: -200px;position: fixed;left: 50%;top: 20%;z-index: 11;width: 390px;padding: 20px 25px;padding-top:30px;">',
-      '<p>Woops! Something went wrong. Its our fault not yours, we will look into it.</p>',
-      '<p>In the meantime, try refreshing your browser to reload the app.</p>',
+      '<p>' + chosenMessage + '</p>',
+      '<p>' + ERR_GENERIC_HELP + '</p>',
       '<a id="error-close" style="text-decoration: underline; position: absolute; top: 10px; right: 15px;" href="#"><i class="icon-close"></i></a>',
     '</div>'
     ].join(' ');
@@ -46,8 +56,9 @@ module.exports = function myErrorHandler(errorMessage, fileUrl, lineNumber, coln
 
     html = [
     '<div style="background: #fefefe;border: gray solid 1px;margin-left: -200px;position: fixed;left: 50%;top: 20%;z-index: 11;width: 390px;padding: 20px 25px;padding-top:30px">',
-      '<p>Woops! Something went wrong. We were unable to log this error to our server so could you please send us a note at <a style="text-decoration: underline;" href="mailto:support@tidepool.org">support@tidepool.org</a> and we\'ll try to see what broke?</p>',
-      '<p>In the meantime, try refreshing your browser to reload the app.</p>',
+      '<p>' + chosenMessage + '</p>',
+      '<p>We were unable to log this error to our server so could you please send us a note at <a style="text-decoration: underline;" href="mailto:support@tidepool.org">support@tidepool.org</a> and we\'ll try to see what broke?</p>',
+      '<p>' + ERR_GENERIC_HELP + '</p>',
       '<p style="color:rgb(240, 93, 93); overflow: hidden; text-overflow: ellipsis;">Error details: "' + JSON.stringify(details) + '"</p>',
       '<a id="error-close" style="text-decoration: underline; position: absolute; top: 10px; right: 15px;" href="#"><i class="icon-close"></i></a>',
     '</div>'

@@ -129,7 +129,7 @@ var PatientCard = React.createClass({
       return (
         /* jshint ignore:start */
         <a className={classes} href="" onMouseEnter={this.setHighlight('remove')} onMouseLeave={this.setHighlight('view')} onClick={this.handleRemove(patient)} title={title}>
-          <i className="Navbar-icon icon-remove"></i>
+          <i className="Navbar-icon icon-delete"></i>
         </a>
         /* jshint ignore:end */
       );
