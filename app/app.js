@@ -1226,7 +1226,7 @@ var AppComponent = React.createClass({
 
   getPasswordResetKey: function() {
     var hashQueryParams = app.router.getQueryParams();
-    return hashQueryParams.key;
+    return hashQueryParams.resetKey;
   }
 });
 
