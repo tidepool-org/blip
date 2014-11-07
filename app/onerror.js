@@ -13,11 +13,10 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 module.exports = function myErrorHandler(errorMessage, fileUrl, lineNumber, colno, error) {
-
   var ERR_GENERIC_LIST = [
     'Whoops! Blip\'s servers got clogged with glucose tabs.',
     'Whoops! Blip ran out of test strips...',
-    'Hang on, i\’ve ran out of test strips...',
+    'Hang on, i\'ve ran out of test strips...',
     'Whoa, sorry about that. Needed to change the battery on my pump.',
     'Oh no! Blip\'s blood sugar crashed and now it’s going slower than usual.',
     'Oh man, my blood sugars high and im moving slowly.'
