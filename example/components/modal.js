@@ -259,7 +259,7 @@ var ModalChart = React.createClass({
     onSelectDay: React.PropTypes.func.isRequired
   },
   componentWillMount: function() {
-    console.time('Modal Mount');
+    console.time('Modal Pre-Mount');
     var data = this.props.patientData;
     this.filterData = data.filterData;
     this.dataByDate = data.dataByDate.filterAll();
@@ -281,15 +281,15 @@ var ModalChart = React.createClass({
       bgDomain: d3.extent(this.allData, function(d) { return d.value; }),
       dateDomain: domain
     });
-    console.timeEnd('Modal Mount');
+    console.timeEnd('Modal Pre-Mount');
   },
   componentDidMount: function() {
     this.log('Mounting...');
     var el = this.getDOMNode();
-    console.time('Modal Draw');
     this.chart = ModalDay.create(el, {bgDomain: this.state.bgDomain, clampTop: true});
-    this.chart.render(this.dataByDate.top(Infinity), _.pick(this.props, this.chartOpts));
     this.stats = Stats.create(el, this.props.patientData.grouped, _.pick(this.props, ['bgClasses', 'bgUnits']));
+    console.time('Modal Draw');
+    this.chart.render(this.dataByDate.top(Infinity), _.pick(this.props, this.chartOpts));
     var domain = this.state.dateDomain;
     var extent = this.getInitialExtent(domain);
     this.brush = Brush.create(document.getElementById('modalScroll'), domain, {
