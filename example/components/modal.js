@@ -275,7 +275,7 @@ var ModalChart = React.createClass({
     onSelectDay: React.PropTypes.func.isRequired
   },
   componentWillMount: function() {
-    console.time('Modal Mount');
+    console.time('Modal Pre-Mount');
     var timezone;
     if (!this.props.timePrefs.timezoneAware) {
       timezone = 'UTC';
@@ -304,7 +304,7 @@ var ModalChart = React.createClass({
       bgDomain: d3.extent(this.allData, function(d) { return d.value; }),
       dateDomain: domain
     });
-    console.timeEnd('Modal Mount');
+    console.timeEnd('Modal Pre-Mount');
   },
   componentDidMount: function() {
     this.log('Mounting...');

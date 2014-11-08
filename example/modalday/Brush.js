@@ -58,6 +58,7 @@ d3.chart('Brush', {
     var domainAxis = d3.svg.axis()
       .scale(xScale)
       .orient('top')
+      // TODO: these have to be adjusted for arbitrary timezone support!
       .ticks(d3.time.month.utc, 1)
       .tickFormat(d3.time.format.utc('%b'));
     this.base.append('g')

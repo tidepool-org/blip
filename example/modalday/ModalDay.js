@@ -149,8 +149,7 @@ d3.chart('ModalDay', {
                   }
                   // TODO: factor out magic number
                   return xPosition(d, i) + 5;
-                },
-              'font-style': grouped ? 'italic' : 'normal'
+                }
             })
             .text(function(d) { return d; });
         }
@@ -396,8 +395,8 @@ module.exports = {
       brushHeight: 0,
       smbg: {
         maxR: 7.5,
-        r: 5,
-        stroke: 3,
+        r: 6,
+        stroke: 2,
         units: 'mg/dL'
       },
       statsHeight: 80,
