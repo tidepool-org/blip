@@ -103,6 +103,8 @@ d3.chart('ModalDay', {
       .attr('class', 'd3-axis d3-top'), {
       dataBind: function() {
         var now = new Date();
+        // this is fine to leave with no arbitrary timezone
+        // it's only generating text for x-axis tick labels
         var start = d3.time.day.utc.floor(now);
         var end = d3.time.day.utc.ceil(now);
         var data;
@@ -201,15 +203,16 @@ d3.chart('ModalDay', {
           if (chart.boxOverlay()) {
             chart.boxPlots.render(chart.rawData);
           }
-          var emitter = chart.emitter();
+          var emitter = chart.emitter(), timezone = chart.timezone();
           var infoPlot;
           this.attr('id', function(d) { return d; })
             .attr('class', function(d) {
-              return 'modalDay ' + d3.time.format.utc('%A')(new Date(d)).toLowerCase();
+              return 'modalDay ' + moment(d).tz(timezone).format('dddd').toLowerCase();
             })
             .each(function(d) {
               var dayPlot = SMBGDay().create(this, {x: chart.xScale(), y: chart.yScale()}, {
-                smbg: chart.smbgOpts()
+                smbg: chart.smbgOpts(),
+                timezone: chart.timezone()
               });
               dayPlot.render(chart.data[d], {
                 grouped: chart.grouped(),
@@ -218,7 +221,8 @@ d3.chart('ModalDay', {
               dayCharts[d] = dayPlot;
             })
             .on('dblclick', function(d) {
-              emitter.emit('selectDay', d);
+              var utcDay = moment(d).tz(timezone).hours(12).toISOString();
+              emitter.emit('selectDay', utcDay);
             })
             .on('mouseover', function(d) {
               d3.select(this).classed('highlight', true);
@@ -234,8 +238,12 @@ d3.chart('ModalDay', {
                     y: mainMargins.top + 30,
                     'class': 'smbgDayLabel'
                   })
-                  .text(moment(d).format('dddd, MMMM Do'));
-                infoPlot = SMBGInfo.create(this, {x: chart.xScale(), y: chart.yScale()});
+                  .text(moment(d).tz(timezone).format('dddd, MMMM Do'));
+                infoPlot = SMBGInfo.create(this, {
+                  x: chart.xScale(), y: chart.yScale()
+                }, {
+                  timezone: chart.timezone()
+                });
                 infoPlot.render(chart.data[d]); 
               }
               var copy = d3.select(this)[0][0];
@@ -290,6 +298,8 @@ d3.chart('ModalDay', {
       this.boxPlots = SMBGBox.create(this.base.select('#modalMainGroup'), {
         x: this.xScale(),
         y: this.yScale()
+      }, {
+        timezone: this.timezone()
       });
     }
     else if (!boxOverlay && this.boxPlots) {
@@ -322,6 +332,11 @@ d3.chart('ModalDay', {
   smbgOpts: function(smbgOpts) {
     if (!arguments.length) { return this._smbgOpts; }
     this._smbgOpts = smbgOpts;
+    return this;
+  },
+  timezone: function(timezone) {
+    if (!arguments.length) { return this._timezone; }
+    this._timezone = timezone;
     return this;
   },
   rectXScale: function(xScale) {
@@ -362,9 +377,10 @@ d3.chart('ModalDay', {
     return this;
   },
   transform: function(data) {
+    var timezone = this.timezone();
     this.rawData = data;
     this.data = _.groupBy(data, function(d) {
-      return d.normalTime.slice(0,10);
+      return moment.utc(d.normalTime).tz(timezone).format().slice(0,10);
     });
     return _.sortBy(Object.keys(this.data), function(d) { return d; });
   }
@@ -422,6 +438,7 @@ module.exports = {
       .emitter(this.emitter)
       .margins(opts.margins)
       .smbgOpts(opts.smbg)
+      .timezone(opts.timezone)
       .xScale(xScale)
       .yScale(yScale);
 

@@ -96,6 +96,7 @@ var Modal = React.createClass({
             boxOverlay={this.props.chartPrefs.modal.boxOverlay}
             grouped={this.props.chartPrefs.modal.grouped}
             showingLines={this.props.chartPrefs.modal.showingLines}
+            timePrefs={this.props.chartPrefs.timePrefs}
             // handlers
             onDatetimeLocationChange={this.handleDatetimeLocationChange}
             onSelectDay={this.handleSelectDay}
@@ -115,7 +116,14 @@ var Modal = React.createClass({
     /* jshint ignore:end */
   },
   formatDate: function(datetime) {
-    return moment(datetime).utc().format('MMMM Do');
+    var timePrefs = this.props.chartPrefs.timePrefs, timezone;
+    if (!timePrefs.timezoneAware) {
+      timezone = 'UTC';
+    }
+    else {
+      timezone = timePrefs.timezoneName || 'UTC';
+    }
+    return moment.utc(datetime).tz(timezone).format('MMMM Do');
   },
   getTitle: function(datetimeLocationEndpoints) {
     // endpoint is exclusive, so need to subtract a day
@@ -123,7 +131,14 @@ var Modal = React.createClass({
     return this.formatDate(datetimeLocationEndpoints[0]) + ' - ' + this.formatDate(end);
   },
   getNewDomain: function(current, extent) {
-    current = d3.time.day.utc.ceil(current);
+    var timePrefs = this.props.chartPrefs.timePrefs, timezone;
+    if (!timePrefs.timezoneAware) {
+      timezone = 'UTC';
+    }
+    else {
+      timezone = timePrefs.timezoneName || 'UTC';
+    }
+    current = moment(current).tz(timezone).startOf('day').add(1, 'days');
     return [d3.time.day.utc.offset(current, -extent), current];
   },
   updateVisibleDays: function() {
@@ -186,7 +201,7 @@ var Modal = React.createClass({
     }
   },
   handleSelectDay: function(date) {
-    this.props.onSwitchToDaily(date + 'T12:00:00.000Z');
+    this.props.onSwitchToDaily(date);
   },
   toggleDay: function(day) {
     var self = this;
@@ -254,12 +269,20 @@ var ModalChart = React.createClass({
     boxOverlay: React.PropTypes.bool.isRequired,
     grouped: React.PropTypes.bool.isRequired,
     showingLines: React.PropTypes.bool.isRequired,
+    timePrefs: React.PropTypes.object.isRequired,
     // handlers
     onDatetimeLocationChange: React.PropTypes.func.isRequired,
     onSelectDay: React.PropTypes.func.isRequired
   },
   componentWillMount: function() {
     console.time('Modal Mount');
+    var timezone;
+    if (!this.props.timePrefs.timezoneAware) {
+      timezone = 'UTC';
+    }
+    else {
+      timezone = this.props.timePrefs.timezoneName || 'UTC';
+    }
     var data = this.props.patientData;
     this.filterData = data.filterData;
     this.dataByDate = data.dataByDate.filterAll();
@@ -267,7 +290,7 @@ var ModalChart = React.createClass({
     this.dataByType = data.dataByType.filterAll();
     // TODO: move to TidelineData
     this.dataByDayOfWeek = this.filterData.dimension(function(d) {
-      return d3.time.format.utc('%A')(new Date(d.normalTime)).toLowerCase();
+      return moment.utc(d.normalTime).tz(timezone).format('dddd').toLowerCase();
     });
     this.dataByType.filter(this.props.bgType);
     this.allData = this.dataByType.top(Infinity);
@@ -286,14 +309,24 @@ var ModalChart = React.createClass({
   componentDidMount: function() {
     this.log('Mounting...');
     var el = this.getDOMNode();
+    var timezone;
+    if (!this.props.timePrefs.timezoneAware) {
+      timezone = 'UTC';
+    }
+    else {
+      timezone = this.props.timePrefs.timezoneName || 'UTC';
+    }
+    this.chart = ModalDay.create(el, {bgDomain: this.state.bgDomain, clampTop: true, timezone: timezone});
+    this.stats = Stats.create(el, this.props.patientData.grouped,
+      _.assign(_.pick(this.props, ['bgClasses', 'bgUnits']), {timezone: timezone})
+    );
     console.time('Modal Draw');
-    this.chart = ModalDay.create(el, {bgDomain: this.state.bgDomain, clampTop: true});
     this.chart.render(this.dataByDate.top(Infinity), _.pick(this.props, this.chartOpts));
-    this.stats = Stats.create(el, this.props.patientData.grouped, _.pick(this.props, ['bgClasses', 'bgUnits']));
     var domain = this.state.dateDomain;
     var extent = this.getInitialExtent(domain);
     this.brush = Brush.create(document.getElementById('modalScroll'), domain, {
-      initialExtent: extent
+      initialExtent: extent,
+      timezone: timezone
     });
     this.bindEvents();
     this.brush.emitter.emit('brushed', extent);
@@ -359,15 +392,27 @@ var ModalChart = React.createClass({
     return this.brush.getCurrentDay().toISOString();
   },
   getInitialExtent: function(domain) {
+    var timePrefs = this.props.timePrefs, timezone;
+    if (!timePrefs.timezoneAware) {
+      timezone = 'UTC';
+    }
+    else {
+      timezone = timePrefs.timezoneName || 'UTC';
+    }
+
     var extentSize = this.props.extentSize;
     var extentBasis = this.props.initialDatetimeLocation || domain[1];
-    var start = d3.time.day.utc.offset(d3.time.day.utc.ceil(new Date(extentBasis)), -extentSize);
+    // startOf('day') followed by add(1, 'days') is equivalent to d3's d3.time.day.ceil
+    // but we can't use that when dealing with arbitrary timezones :(
+    extentBasis = moment.utc(extentBasis).tz(timezone).startOf('day').add(1, 'days');
+    var start = d3.time.day.utc.offset(extentBasis, -extentSize);
     if (start.toISOString() < domain[0]) {
-      start = d3.time.day.utc.floor(new Date(domain[0]));
+      start = moment.utc(domain[0]).tz(timezone).startOf('day');
+      extentBasis = d3.time.day.utc.offset(start, extentSize);
     }
     return [
       start.toISOString(),
-      d3.time.day.utc.ceil(new Date(extentBasis)).toISOString()
+      extentBasis.toISOString()
     ];
   },
   setExtent: function(domain) {

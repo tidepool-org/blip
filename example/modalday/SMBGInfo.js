@@ -7,7 +7,8 @@ d3.chart('SMBGInfo', {
     var chart = this;
 
     var xPosition = function(d) {
-      var msPer24Pos = Date.parse(d.normalTime) - d3.time.day.utc.floor(new Date(d.normalTime));
+      var timezone = chart.timezone();
+      var msPer24Pos = Date.parse(d.normalTime) - moment.utc(d.normalTime).tz(timezone).startOf('day');
       return chart.xScale()(msPer24Pos);
     };
 
@@ -57,6 +58,11 @@ d3.chart('SMBGInfo', {
     this._smbgOpts = smbgOpts;
     return this;
   },
+  timezone: function(timezone) {
+    if (!arguments.length) { return this._timezone; }
+    this._timezone = timezone;
+    return this;
+  },
   xScale: function(xScale) {
     if (!arguments.length) { return this._xScale; }
     this._xScale = xScale;
@@ -79,6 +85,7 @@ module.exports = {
 
     chart = d3.select(el)
       .chart('SMBGInfo')
+      .timezone(opts.timezone)
       .xScale(scales.x)
       .yScale(scales.y);
 

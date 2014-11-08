@@ -105,7 +105,7 @@ var Weekly = React.createClass({
   },
   // handlers
   handleClickModal: function() {
-    var datetime = this.refs.chart.getCurrentDay();
+    var datetime = this.refs.chart.getCurrentDay(this.props.chartPrefs.timePrefs);
     this.props.onSwitchToModal(datetime);
   },
   handleClickMostRecent: function() {

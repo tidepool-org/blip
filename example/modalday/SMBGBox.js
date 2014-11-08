@@ -73,9 +73,10 @@ d3.chart('SMBGBoxOverlay', {
     return this;
   },
   transform: function(data) {
+    var timezone = this.timezone();
     var binSize = 108e5; // 3 hrs
     var binned = _.groupBy(data, function(d) {
-      var msPer24 = Date.parse(d.normalTime) - d3.time.day.utc.floor(new Date(d.normalTime));
+      var msPer24 = Date.parse(d.normalTime) - moment.utc(d.normalTime).tz(timezone).startOf('day');
       return Math.ceil(msPer24/binSize) * binSize - (binSize/2);
     });
     var binKeys = Object.keys(binned);
@@ -90,6 +91,11 @@ d3.chart('SMBGBoxOverlay', {
       });
     }
     return retData;
+  },
+  timezone: function(timezone) {
+    if (!arguments.length) { return this._timezone; }
+    this._timezone = timezone;
+    return this;
   },
   xScale: function(xScale) {
     if (!arguments.length) { return this._xScale; }
@@ -112,6 +118,7 @@ module.exports = {
     _.defaults(opts, defaults);
 
     chart = el.chart('SMBGBoxOverlay')
+      .timezone(opts.timezone)
       .xScale(scales.x)
       .yScale(scales.y);
 

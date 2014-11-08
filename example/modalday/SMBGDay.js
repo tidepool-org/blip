@@ -10,7 +10,8 @@ d3.chart('SMBGDay', {
     var chart = this;
 
     function getMsPer24(d) {
-      return Date.parse(d.normalTime) - d3.time.day.utc.floor(new Date(d.normalTime));
+      var timezone = chart.timezone();
+      return Date.parse(d.normalTime) - moment.utc(d.normalTime).tz(timezone).startOf('day');
     }
 
     var xPositionGrouped = function(d) {
@@ -68,7 +69,7 @@ d3.chart('SMBGDay', {
       foGroup.append('p')
         .append('span')
         .attr('class', 'secondary')
-        .html('<span class="fromto">at</span> ' + format.timestamp(d.normalTime));
+        .html('<span class="fromto">at</span> ' + format.timestamp(d.normalTime, d.displayOffset));
       foGroup.append('p')
         .attr('class', 'value')
         .append('span')
@@ -211,6 +212,11 @@ d3.chart('SMBGDay', {
     this._smbgOpts = smbgOpts;
     return this;
   },
+  timezone: function(timezone) {
+    if (!arguments.length) { return this._timezone; }
+    this._timezone = timezone;
+    return this;
+  },
   xScale: function(xScale) {
     if (!arguments.length) { return this._xScale; }
     this._xScale = xScale;
@@ -241,6 +247,7 @@ module.exports = function() {
       chart = d3.select(el)
         .chart('SMBGDay')
         .smbgOpts(opts.smbg)
+        .timezone(opts.timezone)
         .xScale(scales.x)
         .yScale(scales.y);
 

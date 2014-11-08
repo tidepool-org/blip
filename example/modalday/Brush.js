@@ -3,6 +3,8 @@ var crossfilter = require('crossfilter');
 var d3 = window.d3;
 var EventEmitter = require('events').EventEmitter;
 
+var moment = require('moment');
+
 d3.chart('Brush', {
   initialize: function() {
     var chart = this;
@@ -27,12 +29,17 @@ d3.chart('Brush', {
     this._margins = margins;
     return this;
   },
+  timezone: function(timezone) {
+    if (!arguments.length) { return this._timezone; }
+    this._timezone = timezone;
+    return this;
+  },
   setExtent: function(newExtent) {
-    var xScale = this.xScale();
+    var xScale = this.xScale(), timezone = this.timezone();
     var scaleDomain = xScale.domain();
     if (newExtent[0] < scaleDomain[0]) {
       var extentSize = (newExtent[1] - newExtent[0])/862e5;
-      var s = d3.time.day.utc.floor(scaleDomain[0]);
+      var s = moment.utc(scaleDomain[0]).tz(timezone).startOf('day');
       newExtent = [s, d3.time.day.utc.offset(s, extentSize)];
     }
     this.brushHandleGroup.call(this.brush.extent(newExtent));
@@ -66,10 +73,11 @@ d3.chart('Brush', {
     function brushed() {
       var MS_IN_24 = 86400000;
       var origExtent = chart.brush.extent(), newExtent;
+      var timezone = chart.timezone();
       // preserve width of handle on drag
       if (d3.event.mode === 'move') {
-        var s = d3.time.day.utc.round(origExtent[0]),
-          e = d3.time.day.utc.offset(s, Math.round((origExtent[1] - origExtent[0])/MS_IN_24));
+        var s = moment.utc(origExtent[0]).tz(timezone).startOf('day');
+        var e = moment(s).add(Math.round((origExtent[1] - origExtent[0])/MS_IN_24), 'days');
         newExtent = [s, e];
       }
       // on resize, round to midnights
@@ -79,8 +87,8 @@ d3.chart('Brush', {
         // if empty when rounded, use floor & ceil instead
         // i.e., enforce min of 1 day
         if (newExtent[0] >= newExtent[1]) {
-          newExtent[0] = d3.time.day.utc.floor(origExtent[0]);
-          newExtent[1] = d3.time.day.utc.floor(origExtent[1]);
+          newExtent[0] = moment.utc(origExtent[0]).tz(timezone).startOf('day');
+          newExtent[1] = moment.utc(origExtent[1]).tz(timezone).startOf('day');
         }
       }
       emitter.emit('brushed', [newExtent[0].toISOString(), newExtent[1].toISOString()]);
@@ -169,8 +177,8 @@ module.exports = {
 
     var xScale = d3.time.scale.utc()
       .domain([
-        d3.time.day.utc.floor(new Date(dateDomain[0])),
-        d3.time.day.utc.ceil(new Date(dateDomain[1]))
+        moment.utc(dateDomain[0]).tz(opts.timezone).startOf('day'),
+        moment.utc(dateDomain[1]).tz(opts.timezone).startOf('day').add(1, 'days')
       ]);
 
     chart = d3.select(el)
@@ -183,6 +191,7 @@ module.exports = {
       .emitter(this.emitter)
       .initialExtent(opts.initialExtent)
       .margins(opts.margins)
+      .timezone(opts.timezone)
       .xScale(xScale);
 
     return this;

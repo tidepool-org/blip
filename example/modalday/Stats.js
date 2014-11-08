@@ -1,6 +1,7 @@
 var _ = require('lodash');
 var crossfilter = require('crossfilter');
 var d3 = window.d3;
+var moment = require('moment');
 
 var bgboundaryClass = require('../../js/plot/util/bgboundary');
 var commonbolus = require('../../js/plot/util/commonbolus');
@@ -401,10 +402,18 @@ d3.chart('Stats', {
     this.addText();
     return this;
   },
+  timezone: function(timezone) {
+    if (!arguments.length) { return this._timezone; }
+    this._timezone = timezone;
+    return this;
+  },
   reducedData: function(groups) {
     console.time('Reduce Stats');
     var crossData = crossfilter(groups.basal.concat(groups.bolus.concat(groups.cbg.concat(groups.smbg))));
-    var dataByDate = crossData.dimension(function(d) { return d.normalTime.slice(0,10); });
+    var timezone = this.timezone();
+    var dataByDate = crossData.dimension(function(d) {
+      return moment.utc(d.normalTime).tz(timezone).format().slice(0,10);
+    });
     var grouped = dataByDate.group();
     function basalDose(d) {
       return d.rate * d.duration/3600000;
@@ -565,14 +574,15 @@ d3.chart('Stats', {
     return this;
   },
   transform: function(data) {
-    var activeDays = this.activeDays();
+    var activeDays = this.activeDays(), timezone = this.timezone();
     var days = [];
     _.each(d3.time.day.utc.range(
-      d3.time.day.utc.floor(new Date(data[0])),
-      d3.time.day.utc.ceil(new Date(data[1]))
+      moment.utc(data[0]).tz(timezone).startOf('day').toDate(),
+      moment.utc(data[1]).tz(timezone).startOf('day').add(1, 'days').toDate()
     ), function(d) {
-      if (activeDays[d3.time.format.utc('%A')(d).toLowerCase()]) {
-        days.push(d.toISOString().slice(0,10));
+      var dayOfWeek = moment(d).format('dddd').toLowerCase();
+      if (activeDays[dayOfWeek]) {
+        days.push(moment.utc(d).tz(timezone).format().slice(0,10));
       }
     });
 
@@ -707,6 +717,7 @@ module.exports = {
       .bgClasses(opts.bgClasses)
       .bgUnits(opts.bgUnits)
       .margins(opts.margins)
+      .timezone(opts.timezone)
       .reducedData(dateDimension);
 
     return this;
