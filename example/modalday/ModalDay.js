@@ -380,8 +380,8 @@ module.exports = {
       brushHeight: 0,
       smbg: {
         maxR: 7.5,
-        r: 5,
-        stroke: 3,
+        r: 6,
+        stroke: 2,
         units: 'mg/dL'
       },
       statsHeight: 80,
