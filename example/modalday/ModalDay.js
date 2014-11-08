@@ -147,8 +147,7 @@ d3.chart('ModalDay', {
                   }
                   // TODO: factor out magic number
                   return xPosition(d, i) + 5;
-                },
-              'font-style': grouped ? 'italic' : 'normal'
+                }
             })
             .text(function(d) { return d; });
         }
