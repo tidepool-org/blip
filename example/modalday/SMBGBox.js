@@ -39,30 +39,29 @@ d3.chart('SMBGBoxOverlay', {
       }
     });
 
-    this.layer('meanLines', boxPlotsGroup.append('g').attr('id', 'meanLines'), {
+    this.layer('meanCircles', boxPlotsGroup.append('g').attr('id', 'meanCircles'), {
       dataBind: function(data) {
-        return this.selectAll('rect.meanLine')
+        return this.selectAll('circle.meanCircle')
           .data(data, function(d) { return d.msX; });
       },
       insert: function() {
-        return this.append('rect')
+        return this.append('circle')
           .attr({
-            'class': 'meanLine',
-            width: 10,
-            height: 2
+            'class': 'meanCircle',
+            r: 5
           });
       },
       events: {
         enter: function() {
           var xScale = chart.xScale(), yScale = chart.yScale();
           this.attr({
-              x: function(d) { return xScale(d.msX) - 5; }
+              cx: function(d) { return xScale(d.msX); }
             });
         },
         merge: function() {
           var xScale = chart.xScale(), yScale = chart.yScale();
           this.attr({
-              y: function(d) { return yScale(d.mean); },
+              cy: function(d) { return yScale(d.mean); },
             });
         }
       }
