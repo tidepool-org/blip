@@ -382,9 +382,7 @@ function TidelineData(data, opts) {
             d.displayOffset = 0;
           }
           if (d.deviceTime && d.normalTime.slice(0, -5) !== d.deviceTime) {
-            var err = new Error('Combining `time` and `timezoneOffset` does not yield `deviceTime`.');
-            log(err);
-            d.errorMessage = err.message;
+            log('WARNING: Combining `time` and `timezoneOffset` does not yield `deviceTime`.', d);
           }
           if (d.type === 'basal') {
             d.normalEnd = dt.addDuration(d.normalTime, d.duration);
