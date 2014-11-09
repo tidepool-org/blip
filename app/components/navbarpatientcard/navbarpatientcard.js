@@ -19,7 +19,6 @@ var _ = require('lodash');
 var cx = require('react/lib/cx');
 
 var personUtils = require('../../core/personutils');
-var ModalOverlay = require('../modaloverlay');
 
 var NavbarPatientCard = React.createClass({
   propTypes: {

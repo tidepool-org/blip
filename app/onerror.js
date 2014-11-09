@@ -16,10 +16,9 @@ module.exports = function myErrorHandler(errorMessage, fileUrl, lineNumber, coln
   var ERR_GENERIC_LIST = [
     'Whoops! Blip\'s servers got clogged with glucose tabs.',
     'Whoops! Blip ran out of test strips...',
-    'Hang on, i\'ve ran out of test strips...',
-    'Whoa, sorry about that. Needed to change the battery on my pump.',
+    'Whoa, sorry about that. Looks like Blip needs to change the battery on its pump.',
     'Oh no! Blip\'s blood sugar crashed and now it’s going slower than usual.',
-    'Oh man, my blood sugars high and im moving slowly.'
+    'Uh oh, Blip\'s blood sugar\'s high and it\'s moving slowly.'
   ];
   var ERR_GENERIC_HELP = 'Blip is stuck and isn\'t doing what you want it to do. We\'re sorry for the trouble. Try refreshing.';
   var html;
@@ -32,7 +31,7 @@ module.exports = function myErrorHandler(errorMessage, fileUrl, lineNumber, coln
     cn: colno
   };
 
-  var chosenMessage = ERR_GENERIC_LIST[Math.ceil(Math.random() * (ERR_GENERIC_LIST.length - 1))];
+  var chosenMessage = ERR_GENERIC_LIST[Math.floor(Math.random() * (ERR_GENERIC_LIST.length))];
 
   try{
 

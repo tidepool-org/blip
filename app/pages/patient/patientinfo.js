@@ -211,11 +211,13 @@ var PatientInfo = React.createClass({
 
     return (
       <div className="PatientInfo">
+        <div className="PatientPage-sectionTitle">Profile</div>
         <div className="PatientInfo-controls">
           <button key="cancel" className="PatientInfo-button PatientInfo-button--secondary" type="button" disabled={this.state.working} onClick={handleCancel}>Cancel</button>
           {this.renderSubmit()}
           {this.renderNotification()}
         </div>
+        <div className="clear"></div>
         <div className="PatientInfo-content">
           <div className="PatientInfo-head">
             <div className="PatientInfo-picture"></div>

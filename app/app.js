@@ -406,7 +406,6 @@ var AppComponent = React.createClass({
     /* jshint ignore:start */
     patients = <Patients
         user={this.state.user}
-        canSkipPatients={this.state.canSkipPatients}
         fetchingUser={this.state.fetchingUser}
         patients={this.state.patients}
         fetchingPatients={this.state.fetchingPatients}
@@ -504,9 +503,6 @@ var AppComponent = React.createClass({
         });
         return self.handleApiError(err, usrMessages.ERR_ACCEPTING_INVITE, buildExceptionDetails());
       }
-
-
-      console.log('LOOOOOK', self.state.patients, invitation.creator);
 
       self.setState({
         invites: _.filter(invites, function(e){

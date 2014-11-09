@@ -86,16 +86,9 @@ var PeopleList = React.createClass({
   },
 
   editablePersonExists: function(patients) {
-    for(var i in patients) {
-      var patient = patients[i];
-
-      if (_.isEmpty(patient.permissions) === false && (!patient.permissions.admin && !patient.permissions.root)) {
-        return true;
-      }
-    }
-    return false;
+    return Boolean(_.find(patients, personUtils.hasEditPermissions));
   },
-  
+
   renderEditControls: function() {
     var key = 'edit';
     var text = 'Remove people…';
