@@ -19,7 +19,7 @@ var _ = require('lodash');
 var cx = require('react/lib/cx');
 
 var personUtils = require('../../core/personutils');
-var NavbarPatientCard = require('../../components/NavbarPatientCard');
+var NavbarPatientCard = require('../../components/navbarpatientcard');
 
 var logoSrc = require('./images/blip-logo-80x80.png');
 
