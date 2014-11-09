@@ -389,10 +389,11 @@ var AppComponent = React.createClass({
   },
 
   redirectToDefaultRoute: function() {
-    this.showPatients();
+    this.showPatients(true);
   },
 
-  showPatients: function() {
+  showPatients: function(canSkipPatients) {
+    this.setState({canSkipPatients: canSkipPatients});
     this.renderPage = this.renderPatients;
     this.setState({page: 'patients'});
     this.fetchInvites();
@@ -401,8 +402,9 @@ var AppComponent = React.createClass({
   },
 
   renderPatients: function() {
+    var patients;
     /* jshint ignore:start */
-    return <Patients
+    patients = <Patients
         user={this.state.user}
         fetchingUser={this.state.fetchingUser}
         patients={this.state.patients}
@@ -418,6 +420,33 @@ var AppComponent = React.createClass({
         onDismissInvitation={this.handleDismissInvitation}
         onRemovePatient={this.handleRemovePatient}/>;
     /* jshint ignore:end */
+
+    if (this.state.canSkipPatients) {
+
+      // check that data is loaded then redirect apropately (skip patient if no invites and only one patient is available)
+      if (!this.state.fetchingUser && !this.state.fetchingPatients && !this.state.fetchingInvites) {
+        if(_.isEmpty(this.state.invites)) {
+
+          if (personUtils.isPatient(this.state.user)) {
+
+            if(_.isEmpty(this.state.patients)) {
+              app.router.setRoute('/patients/' + this.state.user.userid + '/data');
+              return;
+            }
+            else if (this.state.patients.length === 1) {
+              app.router.setRoute('/patients/' + this.state.patients[0].userid + '/data');
+              return;
+            }
+          }
+        }
+
+        app.router.setRoute('/patients');
+      }
+
+      return;
+    }
+
+    return (patients);
   },
 
   handleHideWelcomeSetup: function(options) {
