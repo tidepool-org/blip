@@ -26,6 +26,39 @@
   margin-bottom: @spacing-small;
 }
 
+.patient-list-controls {
+  min-height: 20px;
+  text-align: center;
+  padding-top: 20px;
+
+  button {
+    color: @gray-dark;
+
+    &:hover,
+    &:focus,
+    &:active {
+      text-decoration: underline;
+      color: @blue-green-light;
+    }
+  }
+}
+
+.patient-list-controls-button {
+  display: inline-block;
+  margin-left: 10px;
+  line-height: 20px;
+  height: 22px;
+  padding: 0 8px;
+}
+
+.patient-list-controls-button--secondary {
+  font-size: 12px;
+  font-weight: normal;
+  color: #545454;
+  background: none;
+  border-color: transparent;
+}
+
 .people-list-single {
   width: 350px;
   margin: 0 auto;

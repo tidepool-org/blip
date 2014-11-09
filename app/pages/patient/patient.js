@@ -25,6 +25,7 @@ var PatientTeam = require('./patientteam');
 var Patient = React.createClass({
   propTypes: {
     user: React.PropTypes.object,
+    shareOnly: React.PropTypes.bool,
     fetchingUser: React.PropTypes.bool,
     patient: React.PropTypes.object,
     fetchingPatient: React.PropTypes.bool,
@@ -58,60 +59,32 @@ var Patient = React.createClass({
   renderSubnav: function() {
     return (
       <div className="PatientPage-subnav grid">
-        <div className="grid-item one-whole medium-one-third">
-          {this.renderBackButton()}
-        </div>
-        <div className="grid-item one-whole medium-one-third">
-          <div className="PatientPage-subnavTitle">{this.renderTitle()}</div>
-        </div>
       </div>
     );
   },
 
   renderContent: function() {
+    var share;
+    var modal;
+    var profile = this.renderInfo();
+
+    if (this.props.shareOnly) {
+      share = this.renderAccess();
+      modal = this.renderModalOverlay();
+      profile = null;
+    }
+
     return (
       <div className="PatientPage-content">
-        {this.renderInfo()}
-        {this.renderAccess()}
-        {this.renderModalOverlay()}
+        {profile}
+        {share}
+        {modal}
       </div>
     );
   },
 
   renderFooter: function() {
     return <div className="PatientPage-footer"></div>;
-  },
-
-  renderBackButton: function() {
-    var patient = this.props.patient;
-    if (this.props.fetchingPatient || !(patient && patient.userid)) {
-      return null;
-    }
-
-    var text = 'Data';
-    var url = '#/patients/' + patient.userid + '/data';
-
-    var self = this;
-    var handleClick = function() {
-      self.props.trackMetric('Clicked Back To Data');
-    };
-
-    return (
-      <a className="js-back" href={url} onClick={handleClick}>
-        <i className="icon-back"></i>
-        {' ' + text}
-      </a>
-    );
-  },
-
-  renderTitle: function() {
-    var text = 'Profile';
-
-    if (!this.props.fetchingPatient) {
-      text = personUtils.patientFullName(this.props.patient) + '\'s Profile';
-    }
-
-    return text;
   },
 
   renderInfo: function() {

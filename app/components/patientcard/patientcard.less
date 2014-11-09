@@ -15,7 +15,6 @@
 
 .patientcard-actions--highlight {
   text-decoration: underline;
-  color: @blue-green-light;
 }
 
 .patient-list-item {
@@ -31,6 +30,10 @@
     }
   }
 
+}
+
+.patientcard.isEditing .patientcard-leave {
+  display: inline;
 }
 
 .icon-face-standin {
@@ -87,16 +90,19 @@
 
 .patientcard-leave {
   display: none;
-  margin-top: -5px;
+  margin-top: 3px;
   margin-left: 5px;
 
-  .icon-remove {
+
+  .icon-delete {
     color: red;
     font-size: 14px;
+    opacity: 0.5;
+
     .no-touch &:hover,
     &:focus,
     &:active {
-      opacity: 0.5;
+        opacity: 1;
     }
   }
 }
@@ -110,8 +116,16 @@
 
   > a {
     padding: 10px 5px;
+    color: @gray-dark;
+
+    .no-touch &:hover,
+    &:focus,
+    &:active {
+        color: @blue-green-light;
+    }
   }
 }
+
 .patientcard,
 a.patientcard {
   color: @gray-darker;
@@ -131,6 +145,50 @@ a.patientcard {
 
     .patientcard-leave {
       display: block;
+    }
+  }
+}
+
+.navbarpatientcard-profile {
+  text-decoration: none;
+
+  .no-touch &:hover,
+  &:focus,
+  &:active {
+    text-decoration: none;
+
+    .patientcard-fullname {
+      color: @gray-darker;
+    }
+
+    i {
+      color: @gray-darker;
+    }
+  }
+}
+
+.patientcard-actions--highlight {
+  color: @blue-green !important;
+  text-decoration: none;
+  font-weight: 400;
+
+  .patientcard-fullname {
+    color: @blue-green;
+  }
+
+  .icon-settings {
+    color: @blue-green;
+  }
+
+  .no-touch &:hover,
+  &:focus,
+  &:active {
+    .patientcard-fullname {
+      color: @blue-green;
+    }
+
+    .icon-settings {
+      color: @blue-green;
     }
   }
 }

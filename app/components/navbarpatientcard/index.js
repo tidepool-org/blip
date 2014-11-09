@@ -13,23 +13,4 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-@media print {
-  .mailto {
-    display: none;
-  }
-}
-
-.mailto {
-  font-size: 14px;
-}
-
-.mailto a {
-  color: @gray-dark;
-
-  &:hover,
-  &:active,
-  &:focus {
-    color: @blue-green-light;
-    text-decoration: underline;
-  }
-}
+module.exports = require('./navbarpatientcard');

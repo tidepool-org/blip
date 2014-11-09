@@ -31,6 +31,12 @@ var PeopleList = React.createClass({
     onRemovePatient: React.PropTypes.func
   },
 
+  getInitialState: function() {
+    return {
+      editing: false
+    };
+  },
+
   getDefaultProps: function() {
     return {
       onClickPerson: function() {}
@@ -64,14 +70,44 @@ var PeopleList = React.createClass({
       'people-list-single': this.props.people.length === 1
     });
 
+    var editControls = this.editablePersonExists(this.props.people) ? this.renderEditControls() : null;
+
       /* jshint ignore:start */
     return (
-      <ul className={classes}>
-        {peopleNodes}
-        <div className="clear"></div>
-      </ul>
+      <div>
+        <ul className={classes}>
+          {peopleNodes}
+          <div className="clear"></div>
+        </ul>
+        {editControls}
+      </div>
     );
     /* jshint ignore:end */
+  },
+
+  editablePersonExists: function(patients) {
+    return Boolean(_.find(patients, personUtils.hasEditPermissions));
+  },
+
+  renderEditControls: function() {
+    var key = 'edit';
+    var text = 'Remove people…';
+    if (this.state.editing) {
+      key = 'cancel';
+      text = 'Done';
+    }
+
+    return (
+      <div className="patient-list-controls">
+        <button key={key} onClick={this.toggleEdit} className="patient-list-controls-button patient-list-controls-button--secondary" type="button">{text}</button>
+      </div>
+    );
+  },
+
+  toggleEdit: function() {
+    this.setState({
+      editing: !this.state.editing,
+    });
   },
 
   renderPeopleListItem: function(person, index) {
@@ -92,6 +128,7 @@ var PeopleList = React.createClass({
             href={person.link}
             onClick={handleClick}
             uploadUrl={this.props.uploadUrl}
+            isEditing={this.state.editing}
             onRemovePatient={this.props.onRemovePatient}
             patient={person}></PatientCard>
         </li>

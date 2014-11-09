@@ -24,6 +24,9 @@ var ModalOverlay = require('../modaloverlay');
 var PatientCard = React.createClass({
   propTypes: {
     href: React.PropTypes.string,
+    currentPage: React.PropTypes.string,
+    isEditing: React.PropTypes.bool,
+    isNavbar: React.PropTypes.bool,
     onClick: React.PropTypes.func,
     onRemovePatient: React.PropTypes.func,
     uploadUrl: React.PropTypes.string,
@@ -40,17 +43,15 @@ var PatientCard = React.createClass({
     var patient = this.props.patient;
     var self = this;
     var classes = cx({
-      'patientcard': true
+      'patientcard': true,
+      'isEditing': this.props.isEditing
     });
 
+    var view = this.renderView(patient);
     var remove = this.renderRemove(patient);
     var upload = this.renderUpload(patient);
     var share = this.renderShare(patient);
-
-    var viewClasses = cx({
-      'patientcard-actions-view': true,
-      'patientcard-actions--highlight': self.state.highlight === 'view'
-    });
+    var profile = this.renderProfile(patient);
 
     /* jshint ignore:start */
     return (
@@ -59,9 +60,9 @@ var PatientCard = React.createClass({
           onClick={this.onClick}>
           <i className="Navbar-icon icon-face-standin"></i>
           <div className="patientcard-info">
-            <div className="patientcard-fullname">{this.getFullName()}</div>
+            <div className="patientcard-fullname">{this.getFullName()} {profile}</div>
             <div className="patientcard-actions">
-              <a className={viewClasses} href={this.props.href} onClick={this.props.onClick}>View</a>
+              {view}
               {share}
               {upload}
             </div>
@@ -77,6 +78,46 @@ var PatientCard = React.createClass({
     /* jshint ignore:end */
   },
 
+  renderView: function() {
+    var classes = cx({
+      'patientcard-actions-view': true,
+      'patientcard-actions--highlight': (!this.props.isNavbar && this.state.highlight === 'view') || this.props.currentPage && this.props.currentPage.match(/(data)$/i)
+    });
+
+    return (
+      /* jshint ignore:start */
+      <a className={classes} href={this.props.href} onClick={this.props.onClick}>View</a>
+      /* jshint ignore:end */
+    );
+  },
+
+  renderProfile: function(patient) {
+    if (!this.props.isNavbar) {
+      return;
+    }
+
+    var url = patient.link.slice(0,-5) + '/profile';
+
+    var classes = cx({
+      'patientcard-actions-profile': true,
+      'patientcard-actions--highlight': (!this.props.isNavbar && this.state.highlight === 'profile') || this.props.currentPage && this.props.currentPage.match(/(profile)$/i)
+    });
+
+    var iconClass = cx({
+      'patientcard-icon': true,
+      'icon-settings': true,
+      'patientcard-icon--highlight': this.props.currentPage && this.props.currentPage.match(/(profile)$/i)
+    });
+
+    return (
+      /* jshint ignore:start */
+      <a className={classes} onClick={this.stopPropagation} onMouseEnter={this.setHighlight('profile')} onMouseLeave={this.setHighlight('view')} href={url} title="Profile">
+        <i className={iconClass}></i>
+      </a>
+      /* jshint ignore:end */
+    );
+  },
+
   renderRemove: function(patient) {
     var classes = cx({
       'patientcard-actions--highlight': this.state.highlight === 'remove'
@@ -88,7 +129,7 @@ var PatientCard = React.createClass({
       return (
         /* jshint ignore:start */
         <a className={classes} href="" onMouseEnter={this.setHighlight('remove')} onMouseLeave={this.setHighlight('view')} onClick={this.handleRemove(patient)} title={title}>
-          <i className="Navbar-icon icon-remove"></i>
+          <i className="Navbar-icon icon-delete"></i>
         </a>
         /* jshint ignore:end */
       );
@@ -96,7 +137,7 @@ var PatientCard = React.createClass({
   },
 
   renderUpload: function(patient) {
-    var uploadClasses = cx({
+    var classes = cx({
       'patientcard-actions-upload': true,
       'patientcard-actions--highlight': this.state.highlight === 'upload'
     });
@@ -104,7 +145,7 @@ var PatientCard = React.createClass({
     if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
       return (
         /* jshint ignore:start */
-        <a className={uploadClasses} onClick={this.stopPropagation} onMouseEnter={this.setHighlight('upload')} onMouseLeave={this.setHighlight('view')} href={this.props.uploadUrl} target='_blank' title="Upload data">Upload</a>
+        <a className={classes} onClick={this.stopPropagation} onMouseEnter={this.setHighlight('upload')} onMouseLeave={this.setHighlight('view')} href={this.props.uploadUrl} target='_blank' title="Upload data">Upload</a>
         /* jshint ignore:end */
       );
     }
@@ -113,17 +154,17 @@ var PatientCard = React.createClass({
   },
 
   renderShare: function(patient) {
-    var shareUrl = patient.link.slice(0,-5);
+    var shareUrl = patient.link.slice(0,-5) + '/share';
 
-    var shareClasses = cx({
+    var classes = cx({
       'patientcard-actions-share': true,
-      'patientcard-actions--highlight': this.state.highlight === 'share'
+      'patientcard-actions--highlight': (!this.props.isNavbar && this.state.highlight === 'share')  || this.props.currentPage && this.props.currentPage.match(/(share)$/i)
     });
 
     if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
       return (
         /* jshint ignore:start */
-        <a className={shareClasses} onClick={this.stopPropagation} onMouseEnter={this.setHighlight('share')} onMouseLeave={this.setHighlight('view')} href={shareUrl} title="Share data">Share</a>
+        <a className={classes} onClick={this.stopPropagation} onMouseEnter={this.setHighlight('share')} onMouseLeave={this.setHighlight('view')} href={shareUrl} title="Share data">Share</a>
         /* jshint ignore:end */
       );
     }
@@ -138,7 +179,7 @@ var PatientCard = React.createClass({
         <div className="ModalOverlay-content">{"Are you sure you want to leave this person's Care Team? You will no longer be able to view their data."}</div>
         <div className="ModalOverlay-controls">
           <button className="PatientInfo-button PatientInfo-button--secondary" type="button" onClick={this.overlayClickHandler}>Cancel</button>
-          <button className="PatientInfo-button PatientInfo-button--primary" type="submit" onClick={this.handleRemovePatient(patient)}>{"I'm sure, remove me."}</button>
+          <button className="PatientInfo-button PatientInfo-button--warning PatientInfo-button--primary" type="submit" onClick={this.handleRemovePatient(patient)}>{"I'm sure, remove me."}</button>
         </div>
       </div>
       /* jshint ignore:end */
