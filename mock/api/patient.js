@@ -29,6 +29,7 @@ var patch = function(mock, api) {
     var patientInfo = personUtils.patientInfo(patient);
 
     var profile = data.users[patientId].profile;
+    
     data.users[patientId].profile = _.assign(profile, {
       patient: patientInfo
     });

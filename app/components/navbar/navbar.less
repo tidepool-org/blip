@@ -31,7 +31,7 @@
 .Navbar-menuSection {
   // Magic number width: should contain whole menu,
   // and put some space between menu an patient section
-  width: 365px;
+  width: 330px;
 
   // Align child items to the right (flex-end)
   // and to the top (default)
@@ -48,6 +48,14 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
+
+  .patientcard {
+    padding: 0px;
+
+    .icon-face-standin {
+      color: @gray-darker;
+    }
+  }
 }
 
 // Logo section
@@ -94,7 +102,7 @@
   &:hover,
   &:focus,
   &:active {
-    color: @gray-darkest;
+    color: @blue-green-light;
     text-decoration: none;
   }
 }
@@ -105,15 +113,11 @@
   margin-right: 8px;
 }
 
+.Navbar-logged {
+  padding-right: 2px;
+}
 .Navbar-label {
-  color: #fff;
-  background-color: @gray-dark;
-
-  .Navbar-button:hover &,
-  .Navbar-button:focus &,
-  .Navbar-button:active & {
-    background-color: @gray-darkest;
-  }
+  color: @gray-dark;
 
   .Navbar-button--blueBg:hover &,
   .Navbar-button--blueBg:focus &,
@@ -155,7 +159,7 @@
   .Navbar-button:hover &:after,
   .Navbar-button:focus &:after,
   .Navbar-button:active &:after {
-    border-left-color: @gray-darkest;
+    background-color: @blue-green-light;
   }
 
   .Navbar-button--blueBg:hover  &:after,
@@ -218,6 +222,14 @@
   max-width: 150px;
 }
 
+.Navbar-menuItem {
+  &:hover,
+  &:focus,
+  &:active {
+    color: @blue-green-light;
+  }
+}
+
 .Navbar-menuItem .Navbar-icon {
   padding-left: 2px;
 }
@@ -257,6 +269,49 @@
   margin-left: 5px;
 }
 
-.Navbar-selected > .Navbar-icon {
+.Navbar-selected {
+  > .Navbar-icon {
     color: @blue-green;
+
+    &:hover,
+    &:focus,
+    &:active {
+      color: @blue-green;
+    }
+  }
+
+  &:hover,
+  &:focus,
+  &:active {
+    color: @blue-green;
+  }
+
+  .Navbar-logged {
+    color: @blue-green;
+
+    &:hover,
+    &:focus,
+    &:active {
+      color: @blue-green;
+    }
+  }
+}
+
+.patientcard-actions--highlight > .patientcard-icon {
+  color: @blue-green;
+}
+
+.patientcard-icon {
+  color: @gray-dark;
+  font-size: 14px;
+
+  &:hover,
+  &:focus,
+  &:active {
+    color: @gray-darkest;
+  }
+}
+
+.patientcard-icon--highlight:hover {
+  color: @blue-green-light;
 }
