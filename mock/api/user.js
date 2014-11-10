@@ -107,7 +107,7 @@ var patch = function(mock, api) {
     var emails = user.emails;
     _.forEach(data.confirmations, function(confirmation) {
       var match = (
-        confirmation.type === 'invite' &&
+        confirmation.type === 'group_invitation' &&
         _.contains(emails, confirmation.email)
       );
 
