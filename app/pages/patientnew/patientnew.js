@@ -30,16 +30,9 @@ var PatientNew = React.createClass({
   propTypes: {
     patient: React.PropTypes.object,
     fetchingPatient: React.PropTypes.bool,
-    isNewPatient: React.PropTypes.bool,
     onSubmit: React.PropTypes.func.isRequired,
     onSubmitSuccess: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired
-  },
-
-  getDefaultProps: function() {
-    return {
-      isNewPatient: true
-    };
   },
 
   formInputs: [
@@ -73,7 +66,7 @@ var PatientNew = React.createClass({
   getInitialState: function() {
     return {
       working: false,
-      isOtherPerson: personUtils.patientIsOtherPerson(this.props.patient),
+      isOtherPerson: false,
       formValues: this.formValuesFromPatient(this.props.patient),
       validationErrors: {},
       notification: null
@@ -85,33 +78,9 @@ var PatientNew = React.createClass({
       return {};
     }
 
-    var formValues = {};
-    var patientInfo = personUtils.patientInfo(patient);
-
-    if (patientInfo.isOtherPerson) {
-      formValues.fullName = patientInfo.fullName;
-    }
-
-    if (patientInfo.birthday) {
-      formValues.birthday = moment(patientInfo.birthday)
-        .format(DISPLAY_DATE_FORMAT);
-    }
-
-    if (patientInfo.diagnosisDate) {
-      formValues.diagnosisDate = moment(patientInfo.diagnosisDate)
-        .format(DISPLAY_DATE_FORMAT);
-    }
-
-    if (patientInfo.about) {
-      formValues.about = patientInfo.about;
-    }
-
-    return formValues;
-  },
-
-  componentWillReceiveProps: function(nextProps) {
-    // Keep form values in sync with upstream changes
-    this.setState({formValues: this.formValuesFromPatient(nextProps.patient)});
+    return {
+      fullName: patient.profile.fullName
+    };
   },
 
   componentWillUnmount: function() {
@@ -124,7 +93,6 @@ var PatientNew = React.createClass({
     var name = this.renderName();
     var form = this.renderForm();
 
-    /* jshint ignore:start */
     return (
       <div className="patient-edit">
         {subnav}
@@ -139,60 +107,25 @@ var PatientNew = React.createClass({
         </div>
       </div>
     );
-    /* jshint ignore:end */
   },
 
   renderSubnav: function() {
-    var backButton = this.renderBackButton();
-    var title = this.getTitle();
-
-    /* jshint ignore:start */
     return (
       <div className="container-box-outer patient-edit-subnav-outer">
         <div className="container-box-inner patient-edit-subnav-inner">
           <div className="grid patient-edit-subnav">
             <div className="grid-item one-whole medium-one-third">
-              {backButton}
+              <a href="#/"><i className="icon-back"></i>{' Back'}</a>
             </div>
             <div className="grid-item one-whole medium-one-third">
-              <div className="patient-edit-subnav-title">{title}</div>
+              <div className="patient-edit-subnav-title">
+                {'Setup data storage'}
+              </div>
             </div>
           </div>
         </div>
       </div>
     );
-    /* jshint ignore:end */
-  },
-
-  renderBackButton: function() {
-    var url = '#/';
-    var text = 'Back';
-    var patient = this.props.patient;
-
-    if (!this.props.isNewPatient && patient && patient.userid) {
-      url = '#/patients/' + patient.userid;
-    }
-
-    var self = this;
-    var handleClick = function() {
-      self.props.trackMetric('Clicked Back To Profile');
-    };
-
-    /* jshint ignore:start */
-    return (
-      <a className="js-back" href={url} onClick={handleClick}>
-        <i className="icon-back"></i>
-        {' ' + text}
-      </a>
-    );
-    /* jshint ignore:end */
-  },
-
-  getTitle: function() {
-    if (this.props.isNewPatient) {
-      return 'Setup data storage';
-    }
-    return 'Edit profile';
   },
 
   renderOptions: function() {
@@ -203,7 +136,6 @@ var PatientNew = React.createClass({
     var value = this.state.isOtherPerson ? 'yes' : 'no';
     var disabled = this.isResettingPatientData();
 
-    /* jshint ignore:start */
     return (
       <InputGroup
         name="isOtherPerson"
@@ -213,7 +145,6 @@ var PatientNew = React.createClass({
         disabled={disabled}
         onChange={this.handleOptionsChange}/>
     );
-    /* jshint ignore:end */
   },
 
   renderName: function() {
@@ -221,21 +152,14 @@ var PatientNew = React.createClass({
       return null;
     }
 
-    var label = 'Data storage for:';
-    if (this.props.isNewPatient) {
-      label = 'New data storage for:';
-    }
-
-    /* jshint ignore:start */
     return (
       <div className="patient-edit-name">
-        {label}
+        {'New data storage for:'}
         <div className="patient-edit-name-value">
           {personUtils.fullName(this.props.patient)}
         </div>
       </div>
     );
-    /* jshint ignore:end */
   },
 
   renderForm: function() {
@@ -243,7 +167,6 @@ var PatientNew = React.createClass({
     var submitButtonText = this.getSubmitButtonText();
     var disabled = this.isResettingPatientData();
 
-    /* jshint ignore:start */
     return (
       <SimpleForm
         inputs={formInputs}
@@ -256,7 +179,6 @@ var PatientNew = React.createClass({
         disabled={disabled}
         ref="form"/>
     );
-    /* jshint ignore:end */
   },
 
   getFormInputs: function() {
@@ -272,14 +194,10 @@ var PatientNew = React.createClass({
   },
 
   getSubmitButtonText: function() {
-    var text = 'Save';
-    if (this.props.isNewPatient) {
-      text = 'Create data storage';
-      if (this.state.working) {
-        text = 'Creating data storage...';
-      }
+    if (this.state.working) {
+      return 'Creating data storage...';
     }
-    return text;
+    return 'Create data storage';
   },
 
   isResettingPatientData: function() {
@@ -316,13 +234,8 @@ var PatientNew = React.createClass({
   },
 
   resetFormStateBeforeSubmit: function(formValues) {
-    var working = false;
-    if (this.props.isNewPatient) {
-      working = true;
-    }
-
     this.setState({
-      working: working,
+      working: true,
       formValues: formValues,
       validationErrors: {},
       notification: null
@@ -413,28 +326,6 @@ var PatientNew = React.createClass({
   },
 
   submitFormValues: function(formValues) {
-    if (this.props.isNewPatient) {
-      return this.submitFormValuesForCreation(formValues);
-    }
-    return this.submitFormValuesForUpdate(formValues);
-  },
-
-  submitFormValuesForUpdate: function(formValues) {
-    var self = this;
-    var submit = this.props.onSubmit;
-
-    // Save optimistically
-    submit(formValues);
-    this.setState({
-      notification: {type: 'success', message: 'All changes saved.'}
-    });
-
-    this.messageTimeoutId = setTimeout(function() {
-      self.setState({notification: null});
-    }, this.MESSAGE_TIMEOUT);
-  },
-
-  submitFormValuesForCreation: function(formValues) {
     var self = this;
     var submit = this.props.onSubmit;
     var submitSuccess = this.props.onSubmitSuccess;
@@ -445,7 +336,7 @@ var PatientNew = React.createClass({
           working: false,
           notification: {
             type: 'error',
-            message: 'An error occured while creating your patient profile.'
+            message: 'An error occured while creating data storage.'
           }
         });
         return;
