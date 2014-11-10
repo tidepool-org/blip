@@ -26,7 +26,7 @@ var datetimeUtils = require('../../core/datetimeutils');
 var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 var DISPLAY_DATE_FORMAT = 'MM-DD-YYYY';
 
-var PatientEdit = React.createClass({
+var PatientNew = React.createClass({
   propTypes: {
     patient: React.PropTypes.object,
     fetchingPatient: React.PropTypes.bool,
@@ -34,6 +34,12 @@ var PatientEdit = React.createClass({
     onSubmit: React.PropTypes.func.isRequired,
     onSubmitSuccess: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired
+  },
+
+  getDefaultProps: function() {
+    return {
+      isNewPatient: true
+    };
   },
 
   formInputs: [
@@ -451,4 +457,4 @@ var PatientEdit = React.createClass({
   }
 });
 
-module.exports = PatientEdit;
+module.exports = PatientNew;

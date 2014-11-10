@@ -45,8 +45,7 @@ var Signup = require('./pages/signup');
 var Profile = require('./pages/profile');
 var Patients = require('./pages/patients');
 var Patient = require('./pages/patient');
-
-var PatientEdit = require('./pages/patientedit');
+var PatientNew = require('./pages/patientnew');
 var PatientData = require('./pages/patientdata');
 
 // Styles
@@ -697,10 +696,9 @@ var AppComponent = React.createClass({
 
     /* jshint ignore:start */
     return (
-      <PatientEdit
+      <PatientNew
           patient={patient}
           fetchingPatient={this.state.fetchingUser}
-          isNewPatient={true}
           onSubmit={this.createPatient}
           onSubmitSuccess={this.handlePatientCreationSuccess}
           trackMetric={trackMetric}/>
