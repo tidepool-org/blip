@@ -147,7 +147,7 @@ describe('platform client', function () {
       );
   });
 
-  describe('on initialization', function () {
+  describe.skip('on initialization', function () {
     it('when the remember flag is true the user stays logged in', function (done) {
 
       var store = storage();
@@ -211,7 +211,7 @@ describe('platform client', function () {
       });
     });
   });
-  describe('allows applications too', function () {
+  describe.skip('allows applications too', function () {
     var defaulted = null;
     it('track metrics to tidepool', function (done) {
 
@@ -233,7 +233,7 @@ describe('platform client', function () {
       });
     });
   });
-  describe('handles user profiles', function () {
+  describe.skip('handles user profiles', function () {
     it('so we can add or update the logged in users profile', function (done) {
     //add or update for both our users
       async.parallel(
@@ -272,7 +272,7 @@ describe('platform client', function () {
       });
     });
   });
-  describe('handles messages', function () {
+  describe.skip('handles messages', function () {
     var noteToAddId;
     var noteToAdd;
     var commentOnNote;
@@ -454,7 +454,7 @@ describe('platform client', function () {
       });
     });
   });
-  describe('handles team permissions', function () {
+  describe.skip('handles team permissions', function () {
 
     var careTeamViewable;
     var pwdsTeam;
@@ -523,7 +523,35 @@ describe('platform client', function () {
       });
     });
   });
-  describe('handles invites', function () {
+  describe('allows us to reset a users password', function () {
+
+    /* for pw reset with legit email*/
+    var pwResetUsr = {
+      id: null,
+      token: null,
+      username: 'noreply@tidepool.org',
+      password: 'noreply',
+      emails: ['noreply@tidepool.org'],
+      profile: {fullName: 'Platform Client'}
+    };
+    var pwResetClient;
+
+    before(function (done) {
+      createClientWithUser(pwResetUsr, {}, storage() ,function(err,client){
+        expect(err).to.be.empty();
+        expect(client).to.not.be.empty();
+        pwResetClient = client;
+        done();
+      });
+    });
+    it('so we can request the pw if forgotten', function(done){
+      pwResetClient.requestPasswordReset(a_Member.emails[0], function(err, details) {
+        expect(err).to.be.empty();
+        console.log('pw reset ',details);
+      });
+    });
+  });
+  describe.skip('handles invites', function () {
     /*
      * For the tests we are donig this one way
      * Cleanup each time
