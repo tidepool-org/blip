@@ -164,7 +164,12 @@ module.exports = function (config, deps) {
   }
 
   function hasConnection(){
-    return navigator.onLine;
+    try{
+      return navigator.onLine;
+    }catch(e){
+      //can't test so just assume
+      return true;
+    }
   }
 
   function getUserId() {
@@ -573,6 +578,89 @@ module.exports = function (config, deps) {
             .end(doNothingCB);
         }
       );
+    },
+    /**
+     * Create a child account for the logged in user
+     *
+     * @param profile {Object} profile for account that is being created for
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    createChildAccount: function (profile,cb) {
+
+      if (_.isEmpty(profile.fullName)) {
+        return cb({ status : STATUS_BAD_REQUEST, message: 'Must specify a fullName' });
+      }
+
+      var childUser = { username: profile.fullName };
+      // create an child account to attach to ours
+      function createChildAccount(next){
+        superagent
+         .post(makeUrl('/auth/childuser'))
+         .send(childUser)
+         .end(
+         function (err, res) {
+          if (err != null) {
+            return next(err);
+          }
+          if(res.status === 201){
+            childUser.id = res.body.userid;
+            childUser.token = res.headers[sessionTokenHeader];
+            return next(null,{userid:res.body.userid});
+          }
+          return next({status:res.status,message:res.error});
+        });
+      }
+      //add a profile name to the child account
+      function createChildProfile(next){
+        superagent
+          .put(makeUrl('/metadata/'+ childUser.id + '/profile'))
+          .send(profile)
+          .set(sessionTokenHeader, childUser.token)
+          .end(
+            function (err, res) {
+              if (err != null) {
+                return next(err);
+              }
+              if(res.status === 200){
+                return next(null,res.body);
+              }
+              return next({status:res.status,message:res.error});
+            });
+      }
+      //give the parent account admin perms on the child account
+      function giveRootPermsOnChild(next){
+        superagent
+          .post(makeUrl('/access/'+ childUser.id + '/' +getUserId()))
+          .send({admin: {}})
+          .set(sessionTokenHeader, childUser.token)
+          .end(
+            function (err, res) {
+              if (err != null) {
+                return cb(err);
+              }
+              if(res.status === 200){
+                return next(null,res.body);
+              }
+              return next({status:res.status,message:res.error});
+            });
+      }
+
+      async.series([
+        createChildAccount,
+        createChildProfile,
+        giveRootPermsOnChild
+      ], function(err, results) {
+        if(_.isEmpty(err)){
+
+          var acct = {
+            userid: results[0].userid,
+            profile: results[1]
+          };
+          return cb(null,acct);
+        }
+        return cb(err);
+      });
     },
     /**
      * Update current user account info
@@ -1039,6 +1127,10 @@ module.exports = function (config, deps) {
      */
     confirmPasswordReset: function (payload, cb) {
       assertArgumentsSize(arguments, 2);
+      //fail fast
+      if( _.isEmpty(payload.key) || _.isEmpty(payload.email) || _.isEmpty(payload.password) ){
+        return cb({ status : STATUS_BAD_REQUEST, body:'payload requires object with `key`, `email`, `password`'});
+      }
 
       doPutWithToken(
         '/confirm/accept/forgot/',
