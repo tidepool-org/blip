@@ -24,12 +24,5 @@
 }
 
 .mailto a {
-  color: @gray-dark;
-
-  &:hover,
-  &:active,
-  &:focus {
-    color: @blue-green-light;
-    text-decoration: underline;
-  }
+  &:extend(.link-secondary all);
 }
