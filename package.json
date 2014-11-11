@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "0.2.14",
+  "version": "0.2.14-v2",
   "private": true,
   "scripts": {
     "test": "webpack-dev-server 'mocha!./test/entry.js' --output-file test.js --devtool eval-source-map --cache --colors --progress",
