@@ -126,17 +126,27 @@ var nurseshark = {
       }
     }
   },
-  joinWizardsAndBoluses: function(wizards, allBoluses) {
+  joinWizardsAndBoluses: function(wizards, boluses, collections) {
+    var allBoluses = collections.allBoluses, allWizards = collections.allWizards;
     var numWizards = wizards.length;
     for (var i = 0; i < numWizards; ++i) {
       var wizard = wizards[i];
       var bolusId = wizard.bolus;
       // TODO: remove once we've phased out in-d-gestion CareLink parsing
-      if (bolusId ==  null) {
+      if (bolusId == null) {
         bolusId = wizard.joinKey;
       }
       if (bolusId != null) {
         wizard.bolus = allBoluses[bolusId];
+      }
+    }
+    var numBoluses = boluses.length;
+    for (var j = 0; j < numBoluses; ++j) {
+      var bolus = boluses[j];
+      if (bolus.joinKey != null) {
+        if (allWizards[bolus.joinKey] == null) {
+          delete bolus.joinKey;
+        }
       }
     }
   },
@@ -156,7 +166,8 @@ var nurseshark = {
     }
     var processedData = [], erroredData = [];
     var collections = {
-      allBoluses: {}
+      allBoluses: {},
+      allWizards: {}
     };
     var typeGroups = {}, overlappingUploads = {};
 
@@ -290,7 +301,7 @@ var nurseshark = {
     }, 'Process');
 
     timeIt(function() {
-      nurseshark.joinWizardsAndBoluses(typeGroups.wizard || [], collections.allBoluses);
+      nurseshark.joinWizardsAndBoluses(typeGroups.wizard || [], typeGroups.bolus || [], collections);
     }, 'Join Wizards and Boluses');
 
     if (typeGroups.deviceMeta && typeGroups.deviceMeta.length > 0) {
@@ -436,8 +447,12 @@ function getHandlers() {
         this.suppressed(d.suppressed);
       }
     },
-    wizard: function(d) {
+    wizard: function(d, collections) {
       d = cloneDeep(d);
+      // TODO: remove once we've phased out in-d-gestion CareLink parsing
+      if (d.joinKey != null) {
+        collections.allWizards[d.joinKey] = d;
+      }
       if (d.units === 'mg/dL') {
         if (d.bgInput) {
           d.bgInput = translateBg(d.bgInput);
