@@ -19,82 +19,93 @@ var _ = require('lodash');
 
 var config = require('../../config');
 
+var utils = require('../../core/utils');
 var LoginNav = require('../../components/loginnav');
 var LoginLogo = require('../../components/loginlogo');
 var SimpleForm = require('../../components/simpleform');
 
-var Login = React.createClass({
+var ConfirmPasswordReset = React.createClass({
   propTypes: {
+    key: React.PropTypes.string,
     onSubmit: React.PropTypes.func.isRequired,
-    inviteEmail: React.PropTypes.string,
-    onSubmitSuccess: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired
   },
 
   formInputs: function() {
     return [
-      {name: 'username', label: 'Email', type: 'email', disabled: !!this.props.inviteEmail},
-      {name: 'password', label: 'Password', type: 'password'},
-      {name: 'remember', label: 'Remember me', type: 'checkbox'}
+      {name: 'email', label: 'Email', type: 'email'},
+      {
+        name: 'password',
+        label: 'New password',
+        type: 'password',
+        placeholder: '******'
+      },
+      {
+        name: 'passwordConfirm',
+        label: 'Confirm new password',
+        type: 'password',
+        placeholder: '******'
+      }
     ];
   },
 
   getInitialState: function() {
-    var formValues = {};
-
-    if (this.props.inviteEmail) {
-      formValues.username = this.props.inviteEmail;
-    }
-
     return {
       working: false,
-      formValues: formValues,
+      success: false,
+      formValues: {},
       validationErrors: {},
       notification: null
     };
   },
 
   render: function() {
-    var form = this.renderForm();
-    var forgotPassword = this.renderForgotPassword();
-    var inviteIntro = this.renderInviteIntroduction();
-
-    /* jshint ignore:start */
-    return (
-      <div className="login">
-        <LoginNav
-          page="login"
-          hideLinks={Boolean(this.props.inviteEmail)}
-          trackMetric={this.props.trackMetric} />
-        <LoginLogo />
-        {inviteIntro}
-        <div className="container-small-outer login-form">
-          <div className="container-small-inner login-form-box">
-            <div className="login-simpleform">{form}</div>
-            <div className="login-forgotpassword">{forgotPassword}</div>
+    var content;
+    if (this.state.success) {
+      content = (
+        <div className="PasswordReset-intro">
+          <div className="PasswordReset-title">{'Success!'}</div>
+          <div className="PasswordReset-instructions">
+            <p>{'Your password was changed successfully. You can now log in with your new password.'}</p>
+          </div>
+          <div className="PasswordReset-button">
+            <a className="btn btn-primary" href="#/login">Log in</a>
           </div>
         </div>
-      </div>
-    );
-    /* jshint ignore:end */
-  },
-
-  renderInviteIntroduction: function() {
-    if (!this.props.inviteEmail) {
-      return null;
+      );
+    }
+    else {
+      content = (
+        <div>
+          <div className="PasswordReset-intro">
+            <div className="PasswordReset-title">{'Change your password'}</div>
+          </div>
+          <div className="PasswordReset-form">{this.renderForm()}</div>
+          <div className="PasswordReset-link">
+            <a href="#/login">Cancel</a>
+          </div>
+        </div>
+      );
     }
 
     return (
-      <div className='login-inviteIntro'>
-        <p>{'You\'ve been invited to Blip.'}</p><p>{'Log in to view the invitation.'}</p>
+      <div className="PasswordReset">
+        <LoginNav
+          hideLinks={true}
+          trackMetric={this.props.trackMetric} />
+        <LoginLogo />
+        <div className="container-small-outer login-form">
+          <div className="container-small-inner login-form-box">
+            {content}
+          </div>
+        </div>
       </div>
     );
   },
 
   renderForm: function() {
-    var submitButtonText = this.state.working ? 'Logging in...' : 'Log in';
+    var submitButtonText = this.state.working ? 'Saving...' : 'Save';
 
-    /* jshint ignore:start */
     return (
       <SimpleForm
         inputs={this.formInputs()}
@@ -105,15 +116,6 @@ var Login = React.createClass({
         onSubmit={this.handleSubmit}
         notification={this.state.notification}/>
     );
-    /* jshint ignore:end */
-  },
-
-  logPasswordReset : function() {
-    this.props.trackMetric('Clicked Forgot Password');
-  },
-
-  renderForgotPassword: function() {
-    return <a href="#/request-password-reset">{'I forgot my password'}</a>;
   },
 
   handleSubmit: function(formValues) {
@@ -147,23 +149,38 @@ var Login = React.createClass({
   validateFormValues: function(formValues) {
     var validationErrors = {};
     var IS_REQUIRED = 'This field is required.';
+    var INVALID_EMAIL = 'Invalid email address.';
+    var SHORT_PASSWORD = 'Password must be at least ' + config.PASSWORD_MIN_LENGTH + ' characters long.';
 
-    if (!formValues.username) {
-      validationErrors.username = IS_REQUIRED;
+    if (!formValues.email) {
+      validationErrors.email = IS_REQUIRED;
+    }
+
+    if (formValues.email && !utils.validateEmail(formValues.email)) {
+      validationErrors.email = INVALID_EMAIL;
     }
 
     if (!formValues.password) {
       validationErrors.password = IS_REQUIRED;
     }
 
+    if (formValues.password && formValues.password.length < config.PASSWORD_MIN_LENGTH) {
+      validationErrors.password = SHORT_PASSWORD;
+    }
+
+    if (formValues.password) {
+      if (!formValues.passwordConfirm) {
+        validationErrors.passwordConfirm = IS_REQUIRED;
+      }
+      else if (formValues.passwordConfirm !== formValues.password) {
+        validationErrors.passwordConfirm = 'Passwords don\'t match.';
+      }
+    }
+
     if (!_.isEmpty(validationErrors)) {
       this.setState({
         working: false,
-        validationErrors: validationErrors,
-        notification: {
-          type: 'error',
-          message:'Some entries are invalid.'
-        }
+        validationErrors: validationErrors
       });
     }
 
@@ -172,13 +189,9 @@ var Login = React.createClass({
 
   prepareFormValuesForSubmit: function(formValues) {
     return {
-      user: {
-        username: formValues.username,
-        password: formValues.password
-      },
-      options: {
-        remember: formValues.remember
-      }
+      key: this.props.key,
+      email: formValues.email,
+      password: formValues.password
     };
   },
 
@@ -188,27 +201,21 @@ var Login = React.createClass({
 
     submit(formValues, function(err) {
       if (err) {
-        var message = 'An error occured while logging in.';
-        if (err.status === 401) {
-          message = 'Wrong username or password.';
-        }
-
-        self.setState({
+        return self.setState({
           working: false,
           notification: {
             type: 'error',
-            message: message
+            message: 'We couldn\'t change your password. You may have mistyped your email, or the reset link may have expired.'
           }
         });
-        return;
       }
-      self.props.onSubmitSuccess();
-      // NOTE: We don't set state `working: false` because it seems to trigger
-      // a re-render of the login page before the redirect in `onSubmitSuccess`
-      // making an unpleasant UI flash. We don't really need it as the login
-      // page will be recreated on next visit to `/login`.
+
+      self.setState({
+        working: false,
+        success: true
+      });
     });
   }
 });
 
-module.exports = Login;
+module.exports = ConfirmPasswordReset;

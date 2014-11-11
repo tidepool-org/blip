@@ -47,6 +47,8 @@ var Patients = require('./pages/patients');
 var Patient = require('./pages/patient');
 var PatientNew = require('./pages/patientnew');
 var PatientData = require('./pages/patientdata');
+var RequestPasswordReset = require('./pages/passwordreset/request');
+var ConfirmPasswordReset = require('./pages/passwordreset/confirm');
 
 // Styles
 require('tideline/css/tideline.less');
@@ -79,10 +81,17 @@ var routes = {
   '/patients/new': 'showPatientNew',
   '/patients/:id/profile': 'showPatient',
   '/patients/:id/share': 'showPatientShare',
-  '/patients/:id/data': 'showPatientData'
+  '/patients/:id/data': 'showPatientData',
+  '/request-password-reset': 'showRequestPasswordReset',
+  '/confirm-password-reset': 'showConfirmPasswordReset'
 };
 
-var noAuthRoutes = ['/login', '/signup'];
+var noAuthRoutes = [
+  '/login',
+  '/signup',
+  '/request-password-reset',
+  '/confirm-password-reset'
+];
 
 var defaultNotAuthenticatedRoute = '/login';
 var defaultAuthenticatedRoute = '/patients';
@@ -1214,6 +1223,46 @@ var AppComponent = React.createClass({
     else {
       return data.toString();
     }
+  },
+
+  showRequestPasswordReset: function() {
+    this.renderPage = this.renderRequestPasswordReset;
+    this.setState({
+      page: 'request-password-reset'
+    });
+  },
+
+  renderRequestPasswordReset: function() {
+    return (
+      /* jshint ignore:start */
+      <RequestPasswordReset
+        onSubmit={app.api.user.requestPasswordReset.bind(app.api)}
+        trackMetric={trackMetric} />
+      /* jshint ignore:end */
+    );
+  },
+
+  showConfirmPasswordReset: function() {
+    this.renderPage = this.renderConfirmPasswordReset;
+    this.setState({
+      page: 'confirm-password-reset'
+    });
+  },
+
+  renderConfirmPasswordReset: function() {
+    return (
+      /* jshint ignore:start */
+      <ConfirmPasswordReset
+        key={this.getPasswordResetKey()}
+        onSubmit={app.api.user.confirmPasswordReset.bind(app.api)}
+        trackMetric={trackMetric} />
+      /* jshint ignore:end */
+    );
+  },
+
+  getPasswordResetKey: function() {
+    var hashQueryParams = app.router.getQueryParams();
+    return hashQueryParams.resetKey;
   }
 });
 

@@ -21,7 +21,7 @@ var logoSrc = require('./images/tidepool-logo-370x40.png');
 var LoginNav = React.createClass({
   propTypes: {
     page: React.PropTypes.string,
-    inviteEmail: React.PropTypes.string,
+    hideLinks: React.PropTypes.bool,
     trackMetric: React.PropTypes.func.isRequired
   },
 
@@ -63,7 +63,7 @@ var LoginNav = React.createClass({
   },
 
   renderLink: function() {
-    if (this.props.inviteEmail) {
+    if (this.props.hideLinks) {
       return null;
     }
 

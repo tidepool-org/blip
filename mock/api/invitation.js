@@ -32,7 +32,7 @@ var patch = function(mock, api) {
   function getPendingInvitation(options) {
     return _.find(data.confirmations, function(confirmation) {
       var match = (
-        confirmation.type === 'invite' &&
+        confirmation.type === 'group_invitation' &&
         confirmation.creatorId === options.from &&
         confirmation.status === 'pending'
       );
@@ -68,7 +68,7 @@ var patch = function(mock, api) {
     setTimeout(function() {
       var invitations = _.filter(data.confirmations, function(confirmation) {
         return (
-          confirmation.type === 'invite' &&
+          confirmation.type === 'group_invitation' &&
           confirmation.userid === api.userId &&
           confirmation.status === 'pending'
         );
@@ -139,7 +139,7 @@ var patch = function(mock, api) {
     setTimeout(function() {
       var invitations = _.filter(data.confirmations, function(confirmation) {
         return (
-          confirmation.type === 'invite' &&
+          confirmation.type === 'group_invitation' &&
           confirmation.creatorId === api.userId &&
           confirmation.status === 'pending'
         );
@@ -161,7 +161,7 @@ var patch = function(mock, api) {
       var userId = api.userId;
       var existingInvitation = _.find(data.confirmations, function(confirmation) {
         return (
-          confirmation.type === 'invite' &&
+          confirmation.type === 'group_invitation' &&
           confirmation.email === toEmail &&
           confirmation.creatorId === userId &&
           confirmation.status !== 'canceled'
@@ -175,16 +175,14 @@ var patch = function(mock, api) {
 
       var invitation = {
         key: generateInvitationKey(),
-        type: 'invite',
+        type: 'group_invitation',
         status: 'pending',
         email: toEmail,
         creatorId: userId,
         context: permissions
       };
 
-      var existingUser = _.find(data.users, function(user, id) {
-        return _.contains(user.emails, toEmail);
-      });
+      var existingUser = common.getUserWithEmail(data, toEmail);
       if (existingUser) {
         // Does user matched with email already belong to the group?
         var members = common.getMembersForGroup(data, userId);
