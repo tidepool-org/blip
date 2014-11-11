@@ -18,7 +18,7 @@ var React = require('react');
 var _ = require('lodash');
 var moment = require('moment');
 
-var SimpleForm = require('../../components/simpleform');
+var personUtils = require('../../core/personutils');
 var InputGroup = require('../../components/inputgroup');
 var personUtils = require('../../core/personutils');
 var datetimeUtils = require('../../core/datetimeutils');
@@ -28,8 +28,8 @@ var DISPLAY_DATE_FORMAT = 'MM-DD-YYYY';
 
 var PatientNew = React.createClass({
   propTypes: {
-    patient: React.PropTypes.object,
-    fetchingPatient: React.PropTypes.bool,
+    user: React.PropTypes.object,
+    fetchingUser: React.PropTypes.bool,
     onSubmit: React.PropTypes.func.isRequired,
     onSubmitSuccess: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired
@@ -38,8 +38,21 @@ var PatientNew = React.createClass({
   formInputs: [
     {
       name: 'fullName',
-      label: 'New data storage for: *',
-      placeholder: 'ex: Jessica Carter'
+      placeholder: 'Full name'
+    },
+    {
+      name: 'isOtherPerson',
+      type: 'radios',
+      items: [
+        {value: 'no', label: 'This is for me, I have type 1 diabetes'},
+        {value: 'yes', label: 'This is for someone I care for who has type 1 diabetes'}
+      ]
+    },
+    {
+      name: 'about',
+      label: 'About',
+      type: 'textarea',
+      placeholder: 'Anything you would like to share?'
     },
     {
       name: 'birthday',
@@ -50,47 +63,36 @@ var PatientNew = React.createClass({
       name: 'diagnosisDate',
       label: 'Date of diagnosis *',
       placeholder: DISPLAY_DATE_FORMAT
-    },
-    {
-      name: 'about',
-      label: 'About',
-      type: 'textarea',
-      placeholder: 'Anything you would like to share?'
     }
   ],
-
-  MESSAGE_TIMEOUT: 2000,
-  IS_SAME_PERSON: 'This is for me, I have type 1 diabetes',
-  IS_OTHER_PERSON: 'This is for someone I care for who has type 1 diabetes',
 
   getInitialState: function() {
     return {
       working: false,
-      isOtherPerson: false,
-      formValues: this.formValuesFromPatient(this.props.patient),
+      formValues: {
+        isOtherPerson: false,
+        fullName: this.getUserFullName()
+      },
       validationErrors: {},
       notification: null
     };
   },
 
-  formValuesFromPatient: function(patient) {
-    if (!patient) {
-      return {};
-    }
-
-    return {
-      fullName: patient.profile.fullName
-    };
+  componentWillReceiveProps: function(nextProps) {
+    this.setState({
+      formValues: _.assign(this.state.formValues, {
+        fullName: this.getUserFullName(nextProps)
+      })
+    });
   },
 
-  componentWillUnmount: function() {
-    clearTimeout(this.messageTimeoutId);
+  getUserFullName: function(props) {
+    props = props || this.props;
+    return personUtils.fullName(props.user) || '';
   },
 
   render: function() {
     var subnav = this.renderSubnav();
-    var options = this.renderOptions();
-    var name = this.renderName();
     var form = this.renderForm();
 
     return (
@@ -99,8 +101,6 @@ var PatientNew = React.createClass({
         <div className="container-box-outer patient-edit-content-outer">
           <div className="container-box-inner patient-edit-content-inner">
             <div className="patient-edit-content">
-              {options}
-              {name}
               {form}
             </div>
           </div>
@@ -128,69 +128,69 @@ var PatientNew = React.createClass({
     );
   },
 
-  renderOptions: function() {
-    var items = [
-      {value: 'no', label: this.IS_SAME_PERSON},
-      {value: 'yes', label: this.IS_OTHER_PERSON}
-    ];
-    var value = this.state.isOtherPerson ? 'yes' : 'no';
-    var disabled = this.isResettingPatientData();
+  renderForm: function() {
+    return (
+        <form className="PatientNew-form">
+          <div className="PatientNew-formInputs">
+            {this.renderInputs()}
+          </div>
+          <div className="PatientNew-formActions">
+            {this.renderSubmitButton()}
+            {this.renderNotification()}
+          </div>
+        </form>
+    );
+  },
+
+  renderInputs: function() {
+    return _.map(this.formInputs, this.renderInput);
+  },
+
+  renderInput: function(input) {
+    var name = input.name;
+    var value = this.state.formValues[name];
+
+    if (name === 'isOtherPerson') {
+      value = this.state.formValues.isOtherPerson ? 'yes' : 'no';
+    }
 
     return (
       <InputGroup
-        name="isOtherPerson"
-        items={items}
+        key={name}
+        name={name}
+        label={input.label}
         value={value}
-        type={'radios'}
-        disabled={disabled}
-        onChange={this.handleOptionsChange}/>
+        items={input.items}
+        error={this.state.validationErrors[name]}
+        type={input.type}
+        placeholder={input.placeholder}
+        disabled={this.isFormDisabled() || input.disabled}
+        onChange={this.handleInputChange}/>
     );
   },
 
-  renderName: function() {
-    if (this.state.isOtherPerson) {
-      return null;
-    }
-
+  renderSubmitButton: function() {
     return (
-      <div className="patient-edit-name">
-        {'New data storage for:'}
-        <div className="patient-edit-name-value">
-          {personUtils.fullName(this.props.patient)}
+      <button
+        className="btn btn-primary PatientNew-submit"
+        onClick={this.handleSubmit}
+        disabled={this.isFormDisabled()}>
+        {this.getSubmitButtonText()}
+      </button>
+    );
+  },
+
+  renderNotification: function() {
+    var notification = this.state.notification;
+    if (notification && notification.message) {
+      var type = notification.type || 'alert';
+      return (
+        <div className={'PatientNew-notification PatientNew-notification-' + type}>
+          {notification.message}
         </div>
-      </div>
-    );
-  },
-
-  renderForm: function() {
-    var formInputs = this.getFormInputs();
-    var submitButtonText = this.getSubmitButtonText();
-    var disabled = this.isResettingPatientData();
-
-    return (
-      <SimpleForm
-        inputs={formInputs}
-        formValues={this.state.formValues}
-        validationErrors={this.state.validationErrors}
-        submitButtonText={submitButtonText}
-        submitDisabled={this.state.working}
-        onSubmit={this.handleSubmit}
-        notification={this.state.notification}
-        disabled={disabled}
-        ref="form"/>
-    );
-  },
-
-  getFormInputs: function() {
-    var formInputs = this.formInputs;
-
-    if (!this.state.isOtherPerson) {
-      formInputs = _.filter(formInputs, function(input) {
-        return (input.name !== 'fullName');
-      });
+      );
     }
-
-    return formInputs;
+    return null;
   },
 
   getSubmitButtonText: function() {
@@ -200,24 +200,39 @@ var PatientNew = React.createClass({
     return 'Create data storage';
   },
 
-  isResettingPatientData: function() {
-    return (this.props.fetchingPatient && !this.props.patient);
+  isFormDisabled: function() {
+    return (this.props.fetchingUser && !this.props.user);
   },
 
-  handleOptionsChange: function(attributes) {
-    var isOtherPerson = (attributes.value === 'yes') ? true : false;
-    // Keep any progress filling out the form
-    var formValues = this.refs.form.getFormValues();
+  handleInputChange: function(attributes) {
+    var key = attributes.name;
+    var value = attributes.value;
+    if (!key) {
+      return;
+    }
 
-    this.setState({
-      isOtherPerson: isOtherPerson,
-      formValues: _.assign({}, this.state.formValues, formValues),
-      validationErrors: {}
-    });
+    var formValues = _.clone(this.state.formValues);
+    if (key === 'isOtherPerson') {
+      var isOtherPerson = (attributes.value === 'yes') ? true : false;
+      var fullName = isOtherPerson ? '' : this.getUserFullName();
+      formValues = _.assign(formValues, {
+        isOtherPerson: isOtherPerson,
+        fullName: fullName
+      });
+    }
+    else {
+      formValues[key] = value;
+    }
+
+    this.setState({formValues: formValues});
   },
 
-  handleSubmit: function(formValues) {
-    var self = this;
+  handleSubmit: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+
+    var formValues = this.state.formValues;
 
     this.resetFormStateBeforeSubmit(formValues);
 
@@ -240,18 +255,10 @@ var PatientNew = React.createClass({
       validationErrors: {},
       notification: null
     });
-    clearTimeout(this.messageTimeoutId);
   },
 
   prepareFormValuesForValidation: function(formValues) {
     formValues = _.clone(formValues);
-
-    if (this.state.isOtherPerson) {
-      formValues.isOtherPerson = true;
-    }
-    else {
-      formValues = _.omit(formValues, 'fullName');
-    }
 
     if (formValues.birthday) {
       formValues.birthday = moment(formValues.birthday, DISPLAY_DATE_FORMAT)
@@ -264,7 +271,7 @@ var PatientNew = React.createClass({
     }
 
     if (!formValues.about) {
-      delete formValues.about;
+      formValues = _.omit(formValues, 'about');
     }
 
     return formValues;
@@ -275,7 +282,7 @@ var PatientNew = React.createClass({
     var IS_REQUIRED = 'This field is required.';
     var IS_NOT_VALID_DATE = 'Not a valid date.';
 
-    if (formValues.isOtherPerson && !formValues.fullName) {
+    if (!formValues.fullName) {
       validationErrors.fullName = IS_REQUIRED;
     }
 
@@ -314,15 +321,28 @@ var PatientNew = React.createClass({
   },
 
   prepareFormValuesForSubmit: function(formValues) {
-    var profile = _.assign({}, this.props.patient.profile, {
-      patient: formValues
-    });
+    var profile = {};
+    var patient = {
+      birthday: formValues.birthday,
+      diagnosisDate: formValues.diagnosisDate
+    };
 
-    var result = _.assign({}, this.props.patient, {
-      profile: profile
-    });
+    if (formValues.about) {
+      patient.about = formValues.about;
+    }
 
-    return result;
+    if (formValues.isOtherPerson) {
+      profile.fullName = this.getUserFullName();
+      patient.isOtherPerson = true;
+      patient.fullName = formValues.fullName;
+    }
+    else {
+      profile.fullName = formValues.fullName;
+    }
+
+    profile.patient = patient;
+
+    return {profile: profile};
   },
 
   submitFormValues: function(formValues) {

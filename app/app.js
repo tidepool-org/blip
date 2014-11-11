@@ -675,30 +675,20 @@ var AppComponent = React.createClass({
   },
 
   renderPatientNew: function() {
-    var user = this.state.user;
-    var patient;
-
     // Make sure user doesn't already have a patient
     if (this.isDoneFetchingAndUserHasPatient()) {
-      var patientId = user.userid;
+      var patientId = this.state.user.userid;
       var route = '/patients/' + patientId;
       app.log('User already has patient');
       app.router.setRoute(route);
       return;
     }
 
-    if (user) {
-      patient = {
-        userid: user.userid,
-        profile: _.assign({}, user.profile, {patient: {}})
-      };
-    }
-
     /* jshint ignore:start */
     return (
       <PatientNew
-          patient={patient}
-          fetchingPatient={this.state.fetchingUser}
+          user={this.state.user}
+          fetchingUser={this.state.fetchingUser}
           onSubmit={this.createPatient}
           onSubmitSuccess={this.handlePatientCreationSuccess}
           trackMetric={trackMetric}/>

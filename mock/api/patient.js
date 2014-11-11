@@ -26,13 +26,8 @@ var patch = function(mock, api) {
 
   function updatePatient(patient) {
     var patientId = patient.userid;
-    var patientInfo = personUtils.patientInfo(patient);
-
     var profile = data.users[patientId].profile;
-    
-    data.users[patientId].profile = _.assign(profile, {
-      patient: patientInfo
-    });
+    data.users[patientId].profile = _.assign(profile, patient.profile);
   }
 
   api.patient.getAll = function(callback) {

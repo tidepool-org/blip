@@ -266,9 +266,8 @@ function updatePatient(patient, cb) {
   var patientId = patient.userid;
   // Hang on to team, we'll add back later
   var team = patient.team || [];
-  // Patient info is contained in the `patient` attribute of the user's profile
-  var patientInfo = personUtils.patientInfo(patient);
-  var profile = {patient: patientInfo};
+
+  var profile = patient.profile;
   tidepool.addOrUpdateProfile(patientId, profile, function(err, profile) {
     if (err) {
       return cb(err);
