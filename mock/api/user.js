@@ -22,6 +22,7 @@ var tokenLocalKey = 'mockAuthToken';
 
 var userIdSize = 10;
 var tokenIdSize = 16;
+var confirmationKeySize = 6;
 
 function generateUserId() {
   return common.generateRandomId(userIdSize);
@@ -29,6 +30,10 @@ function generateUserId() {
 
 function generateTokenId() {
   return common.generateRandomId(tokenIdSize);
+}
+
+function generateConfirmationKey() {
+  return common.generateRandomId(confirmationKeySize);
 }
 
 var patch = function(mock, api) {
@@ -102,7 +107,7 @@ var patch = function(mock, api) {
     var emails = user.emails;
     _.forEach(data.confirmations, function(confirmation) {
       var match = (
-        confirmation.type === 'invite' &&
+        confirmation.type === 'group_invitation' &&
         _.contains(emails, confirmation.email)
       );
 
@@ -110,6 +115,17 @@ var patch = function(mock, api) {
         // Mutate confirmation object in mock data
         confirmation.userid = userId;
       }
+    });
+  }
+
+  function getPendingPasswordReset(options) {
+    return _.find(data.confirmations, function(confirmation) {
+      return (
+        confirmation.type === 'password_reset' &&
+        confirmation.key === options.key &&
+        confirmation.email === options.email &&
+        confirmation.status === 'pending'
+      );
     });
   }
 
@@ -268,6 +284,51 @@ var patch = function(mock, api) {
       user = _.omit(user, 'password');
       callback(err, user);
     }, getDelayFor('api.user.put'));
+  };
+
+  api.user.requestPasswordReset = function(email, callback) {
+    api.log('[mock] POST /user/requestpasswordreset/' + email);
+
+    setTimeout(function() {
+      var confirmation = {
+        key: generateConfirmationKey(),
+        type: 'password_reset',
+        status: 'pending',
+        email: email
+      };
+
+      var user = common.getUserWithEmail(data, email);
+      if (user) {
+        confirmation.userid = user.userid;
+      }
+
+      data.confirmations.push(confirmation);
+
+      callback();
+    }, getDelayFor('api.user.requestPasswordReset'));
+  };
+
+  api.user.confirmPasswordReset = function(payload, callback) {
+    api.log('[mock] POST /user/resetpassword');
+
+    setTimeout(function() {
+      var err = {status: 404, response: 'Not found'};
+      var confirmation = getPendingPasswordReset(payload);
+      if (!confirmation) {
+        return callback(err);
+      }
+
+      var user = common.getUserWithEmail(data, payload.email);
+      if (!user) {
+        return callback(err);
+      }
+
+      // Note: we are mutating the object in the mock data here
+      user.password = payload.password;
+      confirmation.status = 'completed';
+
+      callback();
+    }, getDelayFor('api.user.confirmPasswordReset'));
   };
 
   return api;

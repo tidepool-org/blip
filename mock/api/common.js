@@ -65,5 +65,11 @@ module.exports = {
       result.push(member);
       return result;
     }, []);
+  },
+
+  getUserWithEmail: function(data, email) {
+    return _.find(data.users, function(user, id) {
+      return _.contains(user.emails, email);
+    });
   }
 };
