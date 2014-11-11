@@ -1112,11 +1112,17 @@ module.exports = function (config, deps) {
     requestPasswordReset: function (email, cb) {
       assertArgumentsSize(arguments, 2);
 
-      doPostWithToken(
-        '/confirm/send/forgot/' + email,
-        null,
-        cb
-      );
+      superagent
+       .post(makeUrl('/confirm/send/forgot/' + email))
+       .end(function (err, res) {
+        if (err != null) {
+          return cb(err);
+        }
+        if (res.status !== 200) {
+          return cb({status:res.status,message:res.error});
+        }
+        return cb();
+      });
     },
     /**
      * Confirm a password reset request with a new password
@@ -1132,11 +1138,18 @@ module.exports = function (config, deps) {
         return cb({ status : STATUS_BAD_REQUEST, body:'payload requires object with `key`, `email`, `password`'});
       }
 
-      doPutWithToken(
-        '/confirm/accept/forgot/',
-        payload,
-        cb
-      );
+      superagent
+       .put(makeUrl('/confirm/accept/forgot'))
+       .send(payload)
+       .end(function (err, res) {
+        if (err != null) {
+          return cb(err);
+        }
+        if (res.status !== 200) {
+          return cb({status:res.status,message:res.error});
+        }
+        return cb();
+      });
     }
   };
 };
