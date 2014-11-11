@@ -71,7 +71,7 @@ describe('platform client', function () {
 
     var client = platform(
       {
-        host: 'http://localhost:8009',
+        host: 'https://devel-api.tidepool.io',
         metricsSource : pjson.name,
         metricsVersion : pjson.version
       },
@@ -446,7 +446,6 @@ describe('platform client', function () {
   describe('handles child accounts', function () {
 
     it('only if we have a profile.fullName', function(done){
-
       var notProfile = {
         opps:'My Kid',
         patient: {
@@ -483,7 +482,6 @@ describe('platform client', function () {
         done();
       });
     });
-
   });
   describe('handles team permissions', function () {
 
@@ -503,20 +501,6 @@ describe('platform client', function () {
       memberClient.getViewableUsers(a_Member.id, function (error, viewableUsers) {
         expect(error).to.not.exist;
         expect(viewableUsers).to.exist;
-       /* var expectation = {};
-        expectation[a_Member.id] = {root: {}};
-        expectation[a_PWD.id] = {view: {}};
-
-        var rootMember = {};
-        rootMember[a_PWD.id] = {root: {}};*/
-
-        //expect(viewableUsers[a_Member.id]).to.equal({root: {}});
-
-        //console.log('has id '+a_PWD.id);
-
-        //console.log('is? '+viewableUsers[a_PWD.id]);
-        //expect(viewableUsers[a_PWD.id]).to.deep.equal({view: {}});
-        //expect(viewableUsers[a_Member.id]).to.deep.equal({root: {}});
         careTeamViewable = viewableUsers;
         done();
       });
@@ -564,6 +548,57 @@ describe('platform client', function () {
       pwdClient.setAccessPermissions(a_Member.id, null, function(err, perms){
         expect(err).to.not.exist;
         expect(perms).to.be.empty;
+        done();
+      });
+    });
+  });
+  describe('allows us to reset a users password', function () {
+    /* for pw reset with legit email*/
+    var pwResetUsr = {
+      id: null,
+      token: null,
+      username: 'noreply@tidepool.org',
+      password: 'noreply',
+      emails: ['noreply@tidepool.org'],
+      profile: {fullName: 'Platform Client'}
+    };
+    var pwResetClient;
+
+    before(function (done) {
+      console.log('doing reset setup ...');
+      createClientWithUser(pwResetUsr, {}, storage() ,function(err,client){
+        expect(err).to.not.exist;
+        expect(client).to.exist;
+        pwResetClient = client;
+        done();
+      });
+    });
+    it('so we can request the pw if forgotten', function(done){
+      pwResetClient.requestPasswordReset(a_Member.emails[0], function(err, details) {
+        expect(err).to.not.exist;
+        //leak no details
+        expect(details).to.be.empty;
+        done();
+      });
+    });
+    it('a pw confirmation will be rejected without all the required details', function(done){
+      var payload = {key:'i-dont-know',email:'nan@nan.org'};
+
+      pwResetClient.confirmPasswordReset(payload, function(err, details) {
+        expect(err).to.exist;
+        expect(err.status).to.equal(400);
+        expect(err.body).to.equal('payload requires object with `key`, `email`, `password`');
+        done();
+      });
+    });
+    it('a pw confirmation will not be found without a valid key and email', function(done){
+      var payload = {key:'i-dont-know',email:'nan@nan.org',password:'an3w1n3'};
+
+      pwResetClient.confirmPasswordReset(payload, function(err, details) {
+        expect(err).to.exist;
+        expect(err.status).to.equal(404);
+        //leak no details
+        expect(err.body).to.be.empty;
         done();
       });
     });
