@@ -593,27 +593,4 @@ describe('nurseshark', function() {
       expect(res[0].annotations[0].code).to.equal('basal/intersects-incomplete-suspend');
     });
   });
-
-  // TODO: remove this! just for development
-  describe('on real data', function() {
-    var data = require('../example/data/blip-input.json');
-    it('should succeed without error', function() {
-      var res = nurseshark.processData(data);
-      assert.isArray(res.processedData);
-      var ok = 0;
-      for (var i = 0; i < res.erroredData.length; ++i) {
-        var error = res.erroredData[i];
-        if (error.errorMessage === 'Bad pump status deviceMeta.') {
-          ok += 1;
-        }
-        else if (error.errorMessage === 'Overlapping CareLink upload.') {
-          ok += 1;
-        }
-        else if (error.errorMessage === 'Null duration. Expect an `off-schedule-rate` annotation here. Investigate if that is missing.') {
-          ok += 1;
-        }
-      }
-      expect(res.erroredData.length - ok).to.equal(0);
-    });
-  });
 });
