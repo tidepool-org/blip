@@ -129,6 +129,7 @@ var nurseshark = {
   joinWizardsAndBoluses: function(wizards, boluses, collections) {
     var allBoluses = collections.allBoluses, allWizards = collections.allWizards;
     var numWizards = wizards.length;
+    var joinedWizards = {};
     for (var i = 0; i < numWizards; ++i) {
       var wizard = wizards[i];
       var bolusId = wizard.bolus;
@@ -136,8 +137,9 @@ var nurseshark = {
       if (bolusId == null) {
         bolusId = wizard.joinKey;
       }
-      if (bolusId != null) {
+      if (bolusId != null && allBoluses[bolusId]) {
         wizard.bolus = allBoluses[bolusId];
+        joinedWizards[bolusId] = wizard;
       }
     }
     var numBoluses = boluses.length;
@@ -147,6 +149,9 @@ var nurseshark = {
         if (allWizards[bolus.joinKey] == null) {
           delete bolus.joinKey;
         }
+      }
+      else if (bolus.joinKey == null && joinedWizards[bolus.id] != null) {
+        bolus.joinKey = joinedWizards[bolus.id].id;
       }
     }
   },
