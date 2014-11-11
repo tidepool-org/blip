@@ -20,11 +20,11 @@ var moment = require('moment');
 
 var personUtils = require('../../core/personutils');
 var InputGroup = require('../../components/inputgroup');
+var DatePicker = require('../../components/datepicker');
 var personUtils = require('../../core/personutils');
 var datetimeUtils = require('../../core/datetimeutils');
 
 var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
-var DISPLAY_DATE_FORMAT = 'MM-DD-YYYY';
 
 var PatientNew = React.createClass({
   propTypes: {
@@ -57,12 +57,12 @@ var PatientNew = React.createClass({
     {
       name: 'birthday',
       label: 'Date of birth *',
-      placeholder: DISPLAY_DATE_FORMAT
+      type: 'datepicker'
     },
     {
       name: 'diagnosisDate',
       label: 'Date of diagnosis *',
-      placeholder: DISPLAY_DATE_FORMAT
+      type: 'datepicker'
     }
   ],
 
@@ -154,6 +154,10 @@ var PatientNew = React.createClass({
       value = this.state.formValues.isOtherPerson ? 'yes' : 'no';
     }
 
+    if (input.type === 'datepicker') {
+      return this.renderDatePicker(input);
+    }
+
     return (
       <InputGroup
         key={name}
@@ -166,6 +170,31 @@ var PatientNew = React.createClass({
         placeholder={input.placeholder}
         disabled={this.isFormDisabled() || input.disabled}
         onChange={this.handleInputChange}/>
+    );
+  },
+
+  renderDatePicker: function(input) {
+    var name = input.name;
+    var classes = 'PatientNew-datePicker';
+    var error = this.state.validationErrors[name];
+    var message;
+    if (error) {
+      classes = classes + ' PatientNew-datePicker--error';
+      message = <div className="PatientNew-datePickerMessage">{error}</div>;
+    }
+
+    return (
+      <div key={name} className={classes}>
+        <div>
+          <label className="PatientNew-datePickerLabel">{input.label}</label>
+          <DatePicker
+            name={name}
+            value={this.state.formValues[name]}
+            disabled={this.isFormDisabled() || input.disabled}
+            onChange={this.handleInputChange} />
+        </div>
+        {message}
+      </div>
     );
   },
 
@@ -261,12 +290,12 @@ var PatientNew = React.createClass({
     formValues = _.clone(formValues);
 
     if (formValues.birthday) {
-      formValues.birthday = moment(formValues.birthday, DISPLAY_DATE_FORMAT)
+      formValues.birthday = moment(formValues.birthday)
         .format(MODEL_DATE_FORMAT);
     }
 
     if (formValues.diagnosisDate) {
-      formValues.diagnosisDate = moment(formValues.diagnosisDate, DISPLAY_DATE_FORMAT)
+      formValues.diagnosisDate = moment(formValues.diagnosisDate)
         .format(MODEL_DATE_FORMAT);
     }
 
