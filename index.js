@@ -783,21 +783,17 @@ module.exports = function (config, deps) {
       );
     },
     /**
-     * Get the access permissions for the currently logged in user
+     * Get the access permissions for a specific user on the given group
      *
-     * @param cb - function(err, perms), called with error if exists and permissions as found
+     * @param groupId - the groupId we want permissions for
+     * @param userId - userId that has those permissions
+     * @param cb - function(err, perms), called with error if exists and permissions object
      */
-    getAccessPermissions: function(cb) {
-      assertArgumentsSize(arguments, 1);
-
-      var userId = getUserId();
-
-      if (userId == null) {
-        return cb({ status : STATUS_BAD_REQUEST, message: 'userId not set'});
-      }
+    getAccessPermissionsForGroup: function(groupId, userId, cb) {
+      assertArgumentsSize(arguments, 3);
 
       doGetWithToken(
-        '/access/' + userId,
+        '/access/' + groupId + '/' + userId,
         { 200: function(res){ return res.body; }, 404: null },
         cb
       );
