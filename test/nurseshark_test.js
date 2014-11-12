@@ -481,7 +481,7 @@ describe('nurseshark', function() {
       assert.isFunction(nurseshark.joinWizardsAndBoluses);
     });
 
-    it('should join a bolus and wizard with matching joinKey', function() {
+    describe('old data model (i.e., in-d-gestion)', function() {
       var now = new Date().toISOString();
       var data = [{
         type: 'bolus',
@@ -499,6 +499,7 @@ describe('nurseshark', function() {
         type: 'bolus',
         id: 'cdefg',
         time: now,
+        joinKey: 'foo',
         timezoneOffset: 0
       }, {
         type: 'wizard',
@@ -508,9 +509,62 @@ describe('nurseshark', function() {
       }];
       var res = nurseshark.processData(data).processedData;
       var embeddedBolus = res[1].bolus;
+      var secondBolus = res[2];
       var secondWiz = res[3];
-      expect(embeddedBolus.id).to.equal(data[0].id);
-      expect(secondWiz.bolus).to.be.undefined;
+
+      it('should join a bolus and wizard with matching joinKey', function() {
+        expect(embeddedBolus.id).to.equal(data[0].id);
+        expect(secondWiz.bolus).to.be.undefined;
+      });
+
+      it('should delete dangling joinKeys', function() {
+        expect(secondBolus.joinKey).to.be.undefined;
+      });
+    });
+
+    describe('new data model', function() {
+      var now = new Date().toISOString();
+      var data = [{
+        type: 'bolus',
+        id: 'abcde',
+        time: now,
+        timezoneOffset: 0
+      }, {
+        type: 'wizard',
+        bolus: 'abcde',
+        id: 'bcdef',
+        time: now,
+        timezoneOffset: 0
+      }, {
+        type: 'bolus',
+        id: 'cdefg',
+        time: now,
+        timezoneOffset: 0
+      }, {
+        type: 'wizard',
+        id: 'defgh',
+        time: now,
+        timezoneOffset: 0
+      }];
+      var res = nurseshark.processData(data).processedData;
+      var firstBolus = res[0];
+      var firstWiz = res[1];
+      var embeddedBolus = res[1].bolus;
+      var secondBolus = res[2];
+      var secondWiz = res[3];
+
+      it('should join a bolus to a wizard that includes the bolus\'s `id` in the `bolus` field', function() {
+        expect(embeddedBolus.id).to.equal(data[0].id);
+        expect(secondWiz.bolus).to.be.undefined;
+      });
+
+      it('should add a joinKey to a bolus matching a wizard', function() {
+        expect(firstBolus.joinKey).to.equal(firstWiz.id);
+      });
+
+      it('should not leave dangling joinKeys on boluses that don\'t match wizards', function() {
+        expect(secondBolus.joinKey).to.be.undefined;
+      });
     });
   });
 
@@ -537,29 +591,6 @@ describe('nurseshark', function() {
       }];
       var res = nurseshark.processData(data).processedData;
       expect(res[0].annotations[0].code).to.equal('basal/intersects-incomplete-suspend');
-    });
-  });
-
-  // TODO: remove this! just for development
-  describe('on real data', function() {
-    var data = require('../example/data/blip-input.json');
-    it('should succeed without error', function() {
-      var res = nurseshark.processData(data);
-      assert.isArray(res.processedData);
-      var ok = 0;
-      for (var i = 0; i < res.erroredData.length; ++i) {
-        var error = res.erroredData[i];
-        if (error.errorMessage === 'Bad pump status deviceMeta.') {
-          ok += 1;
-        }
-        else if (error.errorMessage === 'Overlapping CareLink upload.') {
-          ok += 1;
-        }
-        else if (error.errorMessage === 'Null duration. Expect an `off-schedule-rate` annotation here. Investigate if that is missing.') {
-          ok += 1;
-        }
-      }
-      expect(res.erroredData.length - ok).to.equal(0);
     });
   });
 });

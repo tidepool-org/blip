@@ -8,6 +8,7 @@
   },
   "main": "js/index.js",
   "scripts": {
+    "travis": "./node_modules/.bin/mocha test/*_test.js",
     "test": "testem",
     "start": "BUILD_DEV=true webpack-dev-server -d --cache --colors --progress --content-base example --port 8081",
     "build-test": "webpack --config test.config.js",
