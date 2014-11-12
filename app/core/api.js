@@ -261,12 +261,15 @@ function getPatient(patientId, cb) {
     if (!personUtils.isPatient(person)) {
       return cb();
     }
-    //attach the logged in users perms
-    loggedInUsersPermissons(function(err, perms){
+    // Attach the logged-in user's permissions for that patient
+    var userId = tidepool.getUserId();
+    tidepool.getAccessPermissionsForGroup(patientId, userId, function(err, permissions) {
+      if (err) {
+        return cb(err);
+      }
 
-      person.permissions = _.values(perms);
-
-      return cb(err, person);
+      person.permissions = permissions;
+      return cb(null, person);
     });
 
   });
@@ -290,10 +293,6 @@ function updatePatient(patient, cb) {
     });
     return cb(null, patient);
   });
-}
-
-function loggedInUsersPermissons(cb) {
-  tidepool.getAccessPermissions(cb);
 }
 
 api.patient.get = function(patientId, cb) {
