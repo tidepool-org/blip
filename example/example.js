@@ -141,9 +141,11 @@ var Example = React.createClass({
       throw new Error('Could not fetch data file at ' + dataUrl);
     }
     console.time('Nurseshark Total');
-    data = nurseshark.processData(data, this.state.chartPrefs.timePrefs).processedData;
+    data = nurseshark.processData(data, this.state.chartPrefs.timePrefs);
     console.timeEnd('Nurseshark Total');
-    this.updateData(data);
+    this.log(data.erroredData.length, 'items in the erroredData. :(', _.countBy(data.erroredData, 'type'));
+    this.log('Unique error messages:', _.unique(_.pluck(data.erroredData, 'errorMessage')));
+    this.updateData(data.processedData);
   },
   updateData: function(data) {
     console.time('TidelineData Total');
