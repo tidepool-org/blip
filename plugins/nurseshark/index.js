@@ -207,11 +207,15 @@ var nurseshark = {
         return p.start;
       });
       var dataByUploadGroups = dataByUploadGrouping.top(Infinity).reverse();
+      console.log(dataByUploadGroups);
       for (var i = 0; i < dataByUploadGroups.length; ++i) {
         var group = dataByUploadGroups[i], lastGroup = lastGroup || {};
         if (lastGroup.value && group.value.start < lastGroup.value.end) {
           overlappingUploads[group.key] = true;
           overlappingUploads[lastGroup.key] = true;
+          console.log(lastGroup.key, 'starts at', lastGroup.value.start, 'and ends at', lastGroup.value.end);
+          console.log(group.key, 'starts at', group.value.start, 'and ends at', group.value.end);
+          console.log('These two uploads overlap, so we are removing both of them :(');
         }
         lastGroup = group;
       }
@@ -239,39 +243,8 @@ var nurseshark = {
         if (overlappingUploads[d.deviceId]) {
           d = cloneDeep(d);
           d.errorMessage = 'Overlapping CareLink upload.';
-          if (lastD && lastD.source === 'carelink') {
-            if (!lastD.annotations) {
-              lastD.annotations = [];
-            }
-            lastD.annotations.push({
-              code: 'carelink/device-overlap-boundary'
-            });
-          }
         }
         else {
-          if (lastD && lastD.errorMessage === 'Overlapping CareLink upload.') {
-            unannotatedRemoval = true;
-            if (d.source === 'carelink' && d.type === 'basal') {
-              if (!d.annotations) {
-                d.annotations = [];
-              }
-              d.annotations.push({
-                code: 'carelink/device-overlap-boundary'
-              });
-              unannotatedRemoval = false;
-            }
-          }
-          else if (unannotatedRemoval) {
-            if (d.source === 'carelink' && d.type === 'basal') {
-              if (!d.annotations) {
-                d.annotations = [];
-              }
-              d.annotations.push({
-                code: 'carelink/device-overlap-boundary'
-              });
-              unannotatedRemoval = false;
-            }
-          }
           d = handlers[d.type] ? handlers[d.type](d, collections) : d.messagetext ? handlers.message(d, collections) : addNoHandlerMessage(d);
         }
       }
