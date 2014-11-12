@@ -36,7 +36,7 @@
     "shelljs": "0.3.0",
     "style-loader": "0.6.4",
     "sundial": "0.1.6",
-    "tideline": "0.0.63",
+    "tideline": "0.0.64",
     "tidepool-platform-client": "0.10.0",
     "url-loader": "0.5.5",
     "webpack": "1.4.9"
