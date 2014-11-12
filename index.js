@@ -100,10 +100,11 @@ module.exports = function (config, deps) {
       .set(sessionTokenHeader, token)
       .end(
       function (err, res) {
+        console.log('err? ',err);
         if (err) {
           return cb(err, null);
         }
-
+        console.log('status: ',res.status);
         if (res.status !== 200) {
           return handleHttpError(res, cb);
         }
@@ -838,6 +839,32 @@ module.exports = function (config, deps) {
         { 200: function(res){ return res.body; }, 404: [] },
         cb
       );
+    },
+    /**
+     * Upload device data for the logged in user
+     *
+     * @param {Object} data to be uploaded
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    uploadDeviceDataForUser: function (data, cb) {
+      assertArgumentsSize(arguments, 2);
+
+      if (_.isEmpty(config.uploadApi)) {
+        return cb({ status : STATUS_BAD_REQUEST, message: 'The upload api needs to be configured' });
+      }
+
+       superagent
+        .post(config.uploadApi + '/data')
+        .send(data)
+        .set(sessionTokenHeader, myToken)
+        .end(
+        function (err, res) {
+          if (err != null) {
+            return cb(err);
+          }
+          return cb(null,res.body);
+        });
     },
     /**
      * Get messages for a team between the given dates
