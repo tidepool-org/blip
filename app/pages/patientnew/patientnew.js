@@ -96,11 +96,11 @@ var PatientNew = React.createClass({
     var form = this.renderForm();
 
     return (
-      <div className="patient-edit">
+      <div className="PatientNew">
         {subnav}
-        <div className="container-box-outer patient-edit-content-outer">
-          <div className="container-box-inner patient-edit-content-inner">
-            <div className="patient-edit-content">
+        <div className="container-box-outer PatientNew-contentOuter">
+          <div className="container-box-inner PatientNew-contentInner">
+            <div className="PatientNew-content">
               {form}
             </div>
           </div>
@@ -111,14 +111,14 @@ var PatientNew = React.createClass({
 
   renderSubnav: function() {
     return (
-      <div className="container-box-outer patient-edit-subnav-outer">
-        <div className="container-box-inner patient-edit-subnav-inner">
-          <div className="grid patient-edit-subnav">
+      <div className="container-box-outer">
+        <div className="container-box-inner PatientNew-subnavInner">
+          <div className="grid PatientNew-subnav">
             <div className="grid-item one-whole medium-one-third">
               <a href="#/"><i className="icon-back"></i>{' Back'}</a>
             </div>
             <div className="grid-item one-whole medium-one-third">
-              <div className="patient-edit-subnav-title">
+              <div className="PatientNew-subnavTitle">
                 {'Setup data storage'}
               </div>
             </div>
@@ -159,23 +159,25 @@ var PatientNew = React.createClass({
     }
 
     return (
-      <InputGroup
-        key={name}
-        name={name}
-        label={input.label}
-        value={value}
-        items={input.items}
-        error={this.state.validationErrors[name]}
-        type={input.type}
-        placeholder={input.placeholder}
-        disabled={this.isFormDisabled() || input.disabled}
-        onChange={this.handleInputChange}/>
+      <div className={'PatientNew-inputGroup PatientNew-inputGroup--' + name}>
+        <InputGroup
+          key={name}
+          name={name}
+          label={input.label}
+          value={value}
+          items={input.items}
+          error={this.state.validationErrors[name]}
+          type={input.type}
+          placeholder={input.placeholder}
+          disabled={this.isFormDisabled() || input.disabled}
+          onChange={this.handleInputChange}/>
+      </div>
     );
   },
 
   renderDatePicker: function(input) {
     var name = input.name;
-    var classes = 'PatientNew-datePicker';
+    var classes = 'PatientNew-datePicker PatientNew-inputGroup PatientNew-inputGroup--' + name;
     var error = this.state.validationErrors[name];
     var message;
     if (error) {
@@ -214,7 +216,7 @@ var PatientNew = React.createClass({
     if (notification && notification.message) {
       var type = notification.type || 'alert';
       return (
-        <div className={'PatientNew-notification PatientNew-notification-' + type}>
+        <div className={'PatientNew-notification PatientNew-notification--' + type}>
           {notification.message}
         </div>
       );
