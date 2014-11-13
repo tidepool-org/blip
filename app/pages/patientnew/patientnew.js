@@ -114,10 +114,7 @@ var PatientNew = React.createClass({
       <div className="container-box-outer">
         <div className="container-box-inner PatientNew-subnavInner">
           <div className="grid PatientNew-subnav">
-            <div className="grid-item one-whole medium-one-third">
-              <a href="#/"><i className="icon-back"></i>{' Back'}</a>
-            </div>
-            <div className="grid-item one-whole medium-one-third">
+            <div className="grid-item one-whole">
               <div className="PatientNew-subnavTitle">
                 {'Set up data storage'}
               </div>
@@ -135,7 +132,7 @@ var PatientNew = React.createClass({
             {this.renderInputs()}
           </div>
           <div className="PatientNew-formActions">
-            {this.renderSubmitButton()}
+            {this.renderButtons()}
             {this.renderNotification()}
           </div>
         </form>
@@ -200,14 +197,17 @@ var PatientNew = React.createClass({
     );
   },
 
-  renderSubmitButton: function() {
+  renderButtons: function() {
     return (
-      <button
-        className="btn btn-primary PatientNew-submit"
-        onClick={this.handleSubmit}
-        disabled={this.isFormDisabled()}>
-        {this.getSubmitButtonText()}
-      </button>
+      <div>
+        <a href="#/" className="btn btn-secondary PatientNew-cancel">Cancel</a>
+        <button
+          className="btn btn-primary PatientNew-submit"
+          onClick={this.handleSubmit}
+          disabled={this.isFormDisabled()}>
+          {this.getSubmitButtonText()}
+        </button>
+      </div>
     );
   },
 
