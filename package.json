@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "0.2.21",
+  "version": "0.2.22",
   "private": true,
   "scripts": {
     "test": "webpack-dev-server 'mocha!./test/entry.js' --output-file test.js --devtool eval-source-map --cache --colors --progress",
@@ -36,8 +36,8 @@
     "shelljs": "0.3.0",
     "style-loader": "0.6.4",
     "sundial": "0.1.6",
-    "tideline": "0.0.63",
-    "tidepool-platform-client": "0.10.0",
+    "tideline": "0.0.64",
+    "tidepool-platform-client": "0.11.0",
     "url-loader": "0.5.5",
     "webpack": "1.4.9"
   },
