@@ -23,6 +23,14 @@ var util = require('util');
 
 var dt = require('../../js/data/util/datetime');
 
+var log;
+if (typeof window !== 'undefined') {
+  log = require('bows')('Nurseshark');
+}
+else {
+  log = function() { return; };
+}
+
 function translateBg(value) {
   var GLUCOSE_MM = 18.01559;
   return Math.round(GLUCOSE_MM * value);
@@ -174,7 +182,7 @@ var nurseshark = {
       allBoluses: {},
       allWizards: {}
     };
-    var typeGroups = {}, overlappingUploads = {};
+    var typeGroups = {}, overlappingUploads = {}, mostRecentFromOverlapping = null;
 
     function removeOverlapping() {
       // NB: this problem is specific to CareLink data
@@ -188,6 +196,13 @@ var nurseshark = {
           }
           if (v.time > p.end || p.end === null) {
             p.end = v.time;
+            p.lastDatumTime = v.time;
+            if (v.type === 'basal') {
+              p.lastBasalEnd = dt.addDuration(v.time, v.duration || 0);
+            }
+            else {
+              p.lastNonBasalTime = v.time;
+            }
           }
           return p;
         },
@@ -197,27 +212,71 @@ var nurseshark = {
           }
           if (v.time === p.end) {
             p.end = null;
+            p.lastBasalEnd = null;
+            p.lastDatumTime = null;
+            p.lastNonBasalTime = null;
           }
           return p;
         },
         function reduceInitial() {
-          return {start: null, end: null};
+          return {
+            start: null,
+            end: null,
+            // track just the last datum in the upload isn't sufficient
+            // since folks often leave their pumps pumping basals into the void
+            // after switching to a different pump
+            lastBasalEnd: null,
+            lastDatumTime: null,
+            lastNonBasalTime: null
+          };
         }
       ).order(function(p) {
         return p.start;
       });
       var dataByUploadGroups = dataByUploadGrouping.top(Infinity).reverse();
-      console.log(dataByUploadGroups);
       for (var i = 0; i < dataByUploadGroups.length; ++i) {
-        var group = dataByUploadGroups[i], lastGroup = lastGroup || {};
-        if (lastGroup.value && group.value.start < lastGroup.value.end) {
-          overlappingUploads[group.key] = true;
-          overlappingUploads[lastGroup.key] = true;
-          console.log(lastGroup.key, 'starts at', lastGroup.value.start, 'and ends at', lastGroup.value.end);
-          console.log(group.key, 'starts at', group.value.start, 'and ends at', group.value.end);
-          console.log('These two uploads overlap, so we are removing both of them :(');
+        var oneGroup = dataByUploadGroups[i];
+        for (var j = 0; j < dataByUploadGroups.length; ++j) {
+          var anotherGroup = dataByUploadGroups[j];
+          if (oneGroup.value.start < anotherGroup.value.end &&
+            oneGroup.value.start > anotherGroup.value.start) {
+            overlappingUploads[oneGroup.key] = true;
+            overlappingUploads[anotherGroup.key] = true;
+          }
         }
-        lastGroup = group;
+      }
+      var dataByOverlappingUploadGroups = _.filter(dataByUploadGroups, function(group) {
+        return overlappingUploads[group.key];
+      });
+      if (dataByUploadGroups.length > 0) {
+        var sortedByBasalEnd = _.sortBy(dataByOverlappingUploadGroups, function(group) {
+          return group.value.lastBasalEnd;
+        }).reverse();
+        var sortedByLast = _.sortBy(dataByOverlappingUploadGroups, function(group) {
+          return group.value.lastDatumTime;
+        }).reverse();
+        var sortedByNonBasal = _.sortBy(dataByOverlappingUploadGroups, function(group) {
+          return group.value.lastNonBasalTime;
+        }).reverse();
+        if (sortedByBasalEnd.length > 0 && sortedByLast[0].value.lastDatumTime < sortedByBasalEnd[0].value.lastBasalEnd) {
+          // if someone left the basals pumping away into the void after switching pumps
+          // the datasets may end at the exact same point - at the end of the basals
+          // so we check if the two most recent uploads have the same endpoint re: basals
+          if (sortedByBasalEnd[0].value.lastBasalEnd !== sortedByBasalEnd[1].value.lastBasalEnd) {
+            mostRecentFromOverlapping = sortedByBasalEnd[0].key;
+          }
+          // if the two most recent uploads have the same endpoint re: basals
+          // then we use the most recent sorting by non-basal events instead
+          else {
+            mostRecentFromOverlapping = sortedByNonBasal[0].key;
+          }
+        }
+        // if there are no basals, we simply sort everything and pick the latest
+        else {
+          mostRecentFromOverlapping = sortedByLast[0].key;
+        }
+        log('Overlapping Carelink uploads:', Object.keys(overlappingUploads));
+        log('Upload with most recent data:', mostRecentFromOverlapping);
       }
     }
 
@@ -240,7 +299,7 @@ var nurseshark = {
         d.errorMessage = 'No time or timestamp field; suspected legacy old data model data.';
       }
       else {
-        if (overlappingUploads[d.deviceId]) {
+        if (overlappingUploads[d.deviceId] && d.deviceId !== mostRecentFromOverlapping) {
           d = cloneDeep(d);
           d.errorMessage = 'Overlapping CareLink upload.';
         }
