@@ -37,10 +37,6 @@ var PatientNew = React.createClass({
 
   formInputs: [
     {
-      name: 'fullName',
-      placeholder: 'Full name'
-    },
-    {
       name: 'isOtherPerson',
       type: 'radios',
       items: [
@@ -49,10 +45,13 @@ var PatientNew = React.createClass({
       ]
     },
     {
+      name: 'fullName',
+      placeholder: 'Full name'
+    },
+    {
       name: 'about',
-      label: 'About',
       type: 'textarea',
-      placeholder: 'Anything you would like to share?'
+      placeholder: 'Share a bit about yourself or this person.'
     },
     {
       name: 'birthday',

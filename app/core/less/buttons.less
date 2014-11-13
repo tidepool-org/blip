@@ -68,8 +68,9 @@ a.btn-primary {
   border-color: @blue-green;
   color: #fff;
 
-  .no-touch &:hover,
-  &:focus {
+  &:hover,
+  &:focus,
+  &:active {
     background-color: @blue-green-light;
     border-color: @blue-green-light;
   }
@@ -77,12 +78,28 @@ a.btn-primary {
 
 .btn-secondary,
 a.btn-secondary {
+  font-weight: normal;
+  color: @gray-dark;
+  background: none;
+  border-color: transparent;
+
+  &:hover,
+  &:focus,
+  &:active {
+    text-decoration: underline;
+    color: @blue-green-light;
+  }
+}
+
+.btn-tertiary,
+a.btn-tertiary {
   background-color: #fff;
   border-color: @blue-green;
   color: @blue-green;
 
-  .no-touch &:hover,
-  &:focus {
+  &:hover,
+  &:focus,
+  &:active {
     border-color: @blue-green-light;
     color: @blue-green-light;
   }
