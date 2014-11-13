@@ -56,12 +56,12 @@ var PatientNew = React.createClass({
     },
     {
       name: 'birthday',
-      label: 'Date of birth *',
+      label: 'Birthday',
       type: 'datepicker'
     },
     {
       name: 'diagnosisDate',
-      label: 'Date of diagnosis *',
+      label: 'Diagnosis date',
       type: 'datepicker'
     }
   ],
@@ -119,7 +119,7 @@ var PatientNew = React.createClass({
             </div>
             <div className="grid-item one-whole medium-one-third">
               <div className="PatientNew-subnavTitle">
-                {'Setup data storage'}
+                {'Set up data storage'}
               </div>
             </div>
           </div>
@@ -226,9 +226,9 @@ var PatientNew = React.createClass({
 
   getSubmitButtonText: function() {
     if (this.state.working) {
-      return 'Creating data storage...';
+      return 'Setting up...';
     }
-    return 'Create data storage';
+    return 'Set up';
   },
 
   isFormDisabled: function() {
@@ -310,8 +310,8 @@ var PatientNew = React.createClass({
 
   validateFormValues: function(formValues) {
     var validationErrors = {};
-    var IS_REQUIRED = 'This field is required.';
-    var IS_NOT_VALID_DATE = 'Not a valid date.';
+    var IS_REQUIRED = 'We need this information.';
+    var IS_NOT_VALID_DATE = 'Hmm, this date doesn\'t look right.';
 
     if (!formValues.fullName) {
       validationErrors.fullName = IS_REQUIRED;
@@ -334,7 +334,7 @@ var PatientNew = React.createClass({
     var maxLength = 256;
     if (formValues.about && formValues.about.length > maxLength) {
       validationErrors.about =
-        'Please keep text under ' + maxLength + ' characters.';
+        'Please keep this text under ' + maxLength + ' characters.';
     }
 
     if (!_.isEmpty(validationErrors)) {
