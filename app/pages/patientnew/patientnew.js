@@ -290,14 +290,20 @@ var PatientNew = React.createClass({
   prepareFormValuesForValidation: function(formValues) {
     formValues = _.clone(formValues);
 
-    if (formValues.birthday) {
+    if (this.isDateObjectComplete(formValues.birthday)) {
       formValues.birthday = moment(formValues.birthday)
         .format(MODEL_DATE_FORMAT);
     }
+    else {
+      formValues.birthday = null;
+    }
 
-    if (formValues.diagnosisDate) {
+    if (this.isDateObjectComplete(formValues.diagnosisDate)) {
       formValues.diagnosisDate = moment(formValues.diagnosisDate)
         .format(MODEL_DATE_FORMAT);
+    }
+    else {
+      formValues.diagnosisDate = null;
     }
 
     if (!formValues.about) {
@@ -305,6 +311,13 @@ var PatientNew = React.createClass({
     }
 
     return formValues;
+  },
+
+  isDateObjectComplete: function(dateObj) {
+    if (!dateObj) {
+      return false;
+    }
+    return !(_.isEmpty(dateObj.year) || _.isEmpty(dateObj.month) || _.isEmpty(dateObj.day));
   },
 
   validateFormValues: function(formValues) {
