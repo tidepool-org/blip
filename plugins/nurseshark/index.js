@@ -248,7 +248,7 @@ var nurseshark = {
       var dataByOverlappingUploadGroups = _.filter(dataByUploadGroups, function(group) {
         return overlappingUploads[group.key];
       });
-      if (dataByUploadGroups.length > 0) {
+      if (dataByOverlappingUploadGroups.length > 0) {
         var sortedByBasalEnd = _.sortBy(dataByOverlappingUploadGroups, function(group) {
           return group.value.lastBasalEnd;
         }).reverse();
