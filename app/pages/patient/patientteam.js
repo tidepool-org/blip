@@ -525,7 +525,7 @@ var PatientTeam = React.createClass({
 
   renderEditControls: function() {
     var key = 'edit';
-    var text = 'Remove people…';
+    var text = 'Remove People';
     if (this.state.editing) {
       key = 'cancel';
       text = 'Done';

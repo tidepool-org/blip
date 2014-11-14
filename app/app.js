@@ -260,7 +260,6 @@ var AppComponent = React.createClass({
         /* jshint ignore:start */
         <div className="App-navbar">
           <Navbar
-            version={config.VERSION}
             user={this.state.user}
             fetchingUser={this.state.fetchingUser}
             patient={patient}
@@ -323,9 +322,19 @@ var AppComponent = React.createClass({
             emailSubject={'Feedback on Blip'}
             onLinkClicked={this.logSupportContact} />
         </div>
+        {this.renderVersion()}
       </div>
       /* jshint ignore:end */
     );
+  },
+
+  renderVersion: function() {
+    var version = config.VERSION;
+    if (version) {
+      version = 'v' + version;
+      return <div className="Navbar-version" ref="version">{version}</div>;
+    }
+    return null;
   },
 
   // Override on route change
