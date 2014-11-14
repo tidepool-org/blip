@@ -155,9 +155,8 @@ var PatientNew = React.createClass({
     }
 
     return (
-      <div className={'PatientNew-inputGroup PatientNew-inputGroup--' + name}>
+      <div key={name} className={'PatientNew-inputGroup PatientNew-inputGroup--' + name}>
         <InputGroup
-          key={name}
           name={name}
           label={input.label}
           value={value}
