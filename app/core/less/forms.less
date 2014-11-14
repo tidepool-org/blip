@@ -46,7 +46,7 @@ label,
 
   border: @form-control-border-size solid @form-control-border-color;
   border-radius: 0px;
-
+  background: #fff;
   color: #000;
 
   // Remove inset shadow in iOS
@@ -82,6 +82,10 @@ input[type="date"] {
   line-height: @form-control-height;
   padding-top: 0;
   padding-bottom: 0;
+}
+
+select.form-control {
+  -webkit-appearance: menulist;
 }
 
 // Form groups

@@ -186,23 +186,13 @@ a.PatientInfo-block {
   padding: 0 8px;
 }
 
-.PatientInfo-button--secondary {
-  font-size: @font-size-tiny;
-  font-weight: normal;
-  color: @gray-dark;
-  background: none;
-  border-color: transparent;
-
-  &:hover,
-  &:focus,
-  &:active {
-    text-decoration: underline;
-    color: @blue-green-light;
-  }
-}
-
 .PatientInfo-button--primary {
   &:extend(.btn-primary all);
+}
+
+.PatientInfo-button--secondary {
+  &:extend(.btn-secondary all);
+  font-size: @font-size-tiny;
 }
 
 .PatientInfo-notification {

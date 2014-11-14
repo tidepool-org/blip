@@ -13,27 +13,28 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+
 // Subnav
 // ====================================
 
-@patient-edit-subnav-vertical-padding:  @spacing-small;
+@PatientNew-subnavPadding:  @spacing-small;
 
-.patient-edit-subnav-inner {
+.PatientNew-subnavInner {
   color: #fff;
   background-color: @gray-dark;
 }
 
-.patient-edit-subnav-title {
-  padding-top: @patient-edit-subnav-vertical-padding;
-  padding-bottom: @patient-edit-subnav-vertical-padding;
+.PatientNew-subnavTitle {
+  padding-top: @PatientNew-subnavPadding;
+  padding-bottom: @PatientNew-subnavPadding;
 
   text-align: center;
 }
 
-.patient-edit-subnav a {
+.PatientNew-subnav a {
   display: inline-block;
-  padding-top: @patient-edit-subnav-vertical-padding;
-  padding-bottom: @patient-edit-subnav-vertical-padding;
+  padding-top: @PatientNew-subnavPadding;
+  padding-bottom: @PatientNew-subnavPadding;
 
   color: #fff;
   text-decoration: none;
@@ -52,40 +53,74 @@
 // Content
 // ====================================
 
-@patient-edit-content-width:               260px;
-// Match `.container-small` breakpoint
-@patient-edit-content-breakpoint:          (2*130px + @profile-form-width);
+@PatientNew-contentWidth:               340px;
 
-.patient-edit-content-outer {
+.PatientNew-contentOuter {
   margin-bottom: @spacing-large;
 }
 
-.patient-edit-content-inner {
+.PatientNew-contentInner {
   background-color: #fff;
 
-  padding-top: @spacing-base;
+  padding-top: @spacing-large;
   padding-bottom: @spacing-large;
 }
 
-.patient-edit-content {
-  @media(min-width: @patient-edit-content-breakpoint) {
+.PatientNew-content {
     margin-left: auto;
     margin-right: auto;
-    width: @patient-edit-content-width;
+    width: @PatientNew-contentWidth;
+}
+
+// Form
+// ====================================
+
+.PatientNew-form .input-group {
+  margin: 0;
+}
+
+.PatientNew-inputGroup {
+  margin-bottom: 30px;
+}
+
+.PatientNew-inputGroup--fullName {
+  margin-bottom: 5px;
+}
+
+.PatientNew-inputGroup--birthday {
+  margin-bottom: 10px;
+}
+
+.PatientNew-datePickerMessage {
+  &:extend(.form-help-block);
+}
+
+.PatientNew-datePicker--error {
+  .DatePicker-control {
+    border-color: @red-error;
+  }
+
+  .PatientNew-datePickerMessage {
+    color: @red-error;
   }
 }
 
-// Patient name
-// ====================================
-
-.patient-edit-name {
-  min-height: 60px; // Height of input group for name
-  margin-bottom: @spacing-small;
+.PatientNew-formActions {
+  text-align: right;
+  margin-top: 40px;
 }
 
-.patient-edit-name-value {
-  font-weight: bold;
-  // Mimic text input line height and padding
-  line-height: 20px;
-  padding: 10px 7px;
+a.PatientNew-cancel {
+  margin-right: 10px;
+}
+
+// Notification
+// ====================================
+
+.PatientNew-notification {
+  margin-top: @spacing-small;
+}
+
+.PatientNew-notification--error {
+  color: @red-error;
 }

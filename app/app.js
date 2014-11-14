@@ -45,8 +45,7 @@ var Signup = require('./pages/signup');
 var Profile = require('./pages/profile');
 var Patients = require('./pages/patients');
 var Patient = require('./pages/patient');
-
-var PatientEdit = require('./pages/patientedit');
+var PatientNew = require('./pages/patientnew');
 var PatientData = require('./pages/patientdata');
 var RequestPasswordReset = require('./pages/passwordreset/request');
 var ConfirmPasswordReset = require('./pages/passwordreset/confirm');
@@ -685,31 +684,20 @@ var AppComponent = React.createClass({
   },
 
   renderPatientNew: function() {
-    var user = this.state.user;
-    var patient;
-
     // Make sure user doesn't already have a patient
     if (this.isDoneFetchingAndUserHasPatient()) {
-      var patientId = user.userid;
+      var patientId = this.state.user.userid;
       var route = '/patients/' + patientId;
       app.log('User already has patient');
       app.router.setRoute(route);
       return;
     }
 
-    if (user) {
-      patient = {
-        userid: user.userid,
-        profile: _.assign({}, user.profile, {patient: {}})
-      };
-    }
-
     /* jshint ignore:start */
     return (
-      <PatientEdit
-          patient={patient}
-          fetchingPatient={this.state.fetchingUser}
-          isNewPatient={true}
+      <PatientNew
+          user={this.state.user}
+          fetchingUser={this.state.fetchingUser}
           onSubmit={this.createPatient}
           onSubmitSuccess={this.handlePatientCreationSuccess}
           trackMetric={trackMetric}/>

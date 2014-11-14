@@ -13,34 +13,4 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-.input-group-error {
-  .input-group-control {
-    border-color: @red-error;
-  }
-
-  .input-group-message {
-    color: @red-error;
-  }
-}
-
-.input-group-checkbox-label,
-.input-group-radio-label {
-  padding-left: 20px;
-  cursor: pointer;
-
-  margin-bottom: 10px;
-  &:last-child {
-    margin-bottom: 0;
-  }
-}
-
-.input-group-checkbox-control,
-.input-group-radio-control {
-  float: left;
-  margin-left: -18px;
-  margin-top: 2px;
-}
-
-.input-group textarea {
-  resize: vertical;
-}
+module.exports = require('./patientnew');
