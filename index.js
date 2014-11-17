@@ -867,6 +867,29 @@ module.exports = function (config, deps) {
         });
     },
     /**
+     * Upload carelink data for the logged in user
+     *
+     * @param {Object} formData for the carelink upload
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    uploadCarelinkDataForUser: function (formData, cb) {
+      assertArgumentsSize(arguments, 2);
+
+       superagent
+        .post(config.uploadApi + '/v1/device/upload/cl')
+        .send(formData)
+        .type('form')
+        .set(sessionTokenHeader, myToken)
+        .end(
+        function (err, res) {
+          if (err != null) {
+            return cb(err);
+          }
+          return cb(null,res.body);
+        });
+    },
+    /**
      * Get messages for a team between the given dates
      *
      * @param {String} userId of the user to get the messages for
