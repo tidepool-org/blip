@@ -69,6 +69,10 @@ d3.chart('SMBGDay', {
       foGroup.append('p')
         .append('span')
         .attr('class', 'secondary')
+	.html(format.dayAndDate(d.normalTime, d.displayOffset));
+      foGroup.append('p')
+	.append('span')
+	.attr('class', 'secondary')
         .html('<span class="fromto">at</span> ' + format.timestamp(d.normalTime, d.displayOffset));
       foGroup.append('p')
         .attr('class', 'value')
