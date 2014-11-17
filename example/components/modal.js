@@ -34,7 +34,6 @@ var SMBGBox = require('../modalday/brushopts/SMBGBox');
 var SMBGMeanHeat = require('../modalday/brushopts/SMBGMeanHeat');
 var ModalDay = require('../modalday/ModalDay');
 require('../modalday/modalday.less');
-var Stats = require('../modalday/Stats');
 
 var Modal = React.createClass({
   chartType: 'modal',
@@ -317,9 +316,6 @@ var ModalChart = React.createClass({
       timezone = this.props.timePrefs.timezoneName || 'UTC';
     }
     this.chart = ModalDay.create(el, {bgDomain: this.state.bgDomain, clampTop: true, timezone: timezone});
-    this.stats = Stats.create(el, this.props.patientData.grouped,
-      _.assign(_.pick(this.props, ['bgClasses', 'bgUnits']), {timezone: timezone})
-    );
     console.time('Modal Draw');
     this.chart.render(this.dataByDate.top(Infinity), _.pick(this.props, this.chartOpts));
     var domain = this.state.dateDomain;
@@ -358,12 +354,6 @@ var ModalChart = React.createClass({
   componentDidUpdate: function() {
     var data = this.dataByDate.top(Infinity).reverse();
     this.chart.render(data, _.pick(this.props, this.chartOpts));
-    if (data.length > 0) {
-      this.stats.render([data[0].normalTime, data[data.length - 1].normalTime], this.props.activeDays); 
-    }
-    else {
-      this.stats.render([]);
-    }
   },
   componentWillUnmount: function() {
     this.log('Unmounting...');

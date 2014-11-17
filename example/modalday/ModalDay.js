@@ -399,7 +399,7 @@ module.exports = {
         stroke: 2,
         units: 'mg/dL'
       },
-      statsHeight: 80,
+      statsHeight: 0,
       bgDomain: [0,600],
       clampTop: false
     };
