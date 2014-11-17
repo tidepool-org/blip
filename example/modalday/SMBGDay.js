@@ -69,10 +69,10 @@ d3.chart('SMBGDay', {
       foGroup.append('p')
         .append('span')
         .attr('class', 'secondary')
-	.html(format.dayAndDate(d.normalTime, d.displayOffset));
+        .html(format.dayAndDate(d.normalTime, d.displayOffset));
       foGroup.append('p')
-	.append('span')
-	.attr('class', 'secondary')
+        .append('span')
+        .attr('class', 'secondary')
         .html('<span class="fromto">at</span> ' + format.timestamp(d.normalTime, d.displayOffset));
       foGroup.append('p')
         .attr('class', 'value')
@@ -148,11 +148,14 @@ d3.chart('SMBGDay', {
           this.attr({
             d: function(d) {
               var byX = _.groupBy(d, function(p) { return p[0]; });
+              function reduceSameX(sum, num) {
+                return sum + num[1];
+              }
               for (var key in byX) {
                 var haveSameX = byX[key].length;
                 if (haveSameX > 1) {
                   var newPoint = [parseFloat(key)];
-                  newPoint.push(_.reduce(byX[key], function(sum, num) { return sum + num[1]; }, 0)/haveSameX);
+                  newPoint.push(_.reduce(byX[key], reduceSameX, 0)/haveSameX);
                   byX[key] = [newPoint];
                 }
               }
