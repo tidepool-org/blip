@@ -68,6 +68,10 @@ d3.chart('SMBGDay', {
       foGroup.append('p')
         .append('span')
         .attr('class', 'secondary')
+        .html(moment.utc(d.normalTime).format('ddd, MMM Do'));
+      foGroup.append('p')
+        .append('span')
+        .attr('class', 'secondary')
         .html('<span class="fromto">at</span> ' + format.timestamp(d.normalTime));
       foGroup.append('p')
         .attr('class', 'value')
