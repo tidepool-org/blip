@@ -2,11 +2,14 @@ var _ = require('lodash');
 var d3 = window.d3;
 var moment = require('moment');
 
+var THREE_HRS = 10800000;
+
 d3.chart('SMBGBoxOverlay', {
   initialize: function() {
     var chart = this;
 
-    var boxPlotsGroup = this.base.append('g').attr('id', 'boxPlots');
+    var boxPlotsGroup = this.base.insert('g', '#modalDays').attr('id', 'overlayUnderneath');
+    var meanCirclesGroup = this.base.append('g').attr('id', 'overlayOnTop');
 
     this.layer('rangeBoxes', boxPlotsGroup.append('g').attr('id', 'rangeBoxes'), {
       dataBind: function(data) {
@@ -17,14 +20,15 @@ d3.chart('SMBGBoxOverlay', {
         return this.append('rect')
           .attr({
             'class': 'rangeBox',
-            width: 10
+            width: chart.opts().rectWidth
           });
       },
       events: {
         enter: function() {
           var xScale = chart.xScale(), yScale = chart.yScale();
+          var halfRect = chart.opts().rectWidth/2;
           this.attr({
-              x: function(d) { return xScale(d.msX) - 5; }
+              x: function(d) { return xScale(d.msX) - halfRect; }
             });
         },
         merge: function() {
@@ -39,7 +43,7 @@ d3.chart('SMBGBoxOverlay', {
       }
     });
 
-    this.layer('meanCircles', boxPlotsGroup.append('g').attr('id', 'meanCircles'), {
+    this.layer('meanCircles', meanCirclesGroup.append('g').attr('id', 'meanCircles'), {
       dataBind: function(data) {
         return this.selectAll('circle.meanCircle')
           .data(data, function(d) { return d.msX; });
@@ -48,7 +52,7 @@ d3.chart('SMBGBoxOverlay', {
         return this.append('circle')
           .attr({
             'class': 'meanCircle',
-            r: 5
+            r: chart.opts().rectWidth/2
           });
       },
       events: {
@@ -67,13 +71,19 @@ d3.chart('SMBGBoxOverlay', {
       }
     });
   },
+  opts: function(opts) {
+    if (!arguments.length) { return this._opts; }
+    this._opts = opts;
+    return this;
+  },
   remove: function() {
-    this.base.select('#boxPlots').remove();
+    this.base.select('#overlayUnderneath').remove();
+    this.base.select('#overlayOnTop').remove();
     return this;
   },
   transform: function(data) {
     var timezone = this.timezone();
-    var binSize = 108e5; // 3 hrs
+    var binSize = THREE_HRS;
     var binned = _.groupBy(data, function(d) {
       var msPer24 = Date.parse(d.normalTime) - moment.utc(d.normalTime).tz(timezone).startOf('day');
       return Math.ceil(msPer24/binSize) * binSize - (binSize/2);
@@ -115,10 +125,15 @@ var chart;
 module.exports = {
   create: function(el, scales, opts) {
     opts = opts || {};
-    var defaults = {};
+    var defaults = {
+      opts: {
+        rectWidth: 18
+      }
+    };
     _.defaults(opts, defaults);
 
     chart = el.chart('SMBGBoxOverlay')
+      .opts(opts.opts)
       .timezone(opts.timezone)
       .xScale(scales.x)
       .yScale(scales.y);

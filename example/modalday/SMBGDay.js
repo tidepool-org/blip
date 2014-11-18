@@ -7,11 +7,11 @@ var format = require('../../js/data/util/format');
 var tooltips = require('../../js/plot/util/tooltips/generalized');
 var shapes = require('../../js/plot/util/tooltips/shapes');
 
+var THREE_HRS = 10800000, NINE_HRS = 75600000;
+
 d3.chart('SMBGDay', {
   initialize: function() {
     var chart = this;
-
-    var THREE_HRS = 10800000, NINE_HRS = 75600000;
 
     function getMsPer24(d) {
       var timezone = chart.timezone();
@@ -20,7 +20,7 @@ d3.chart('SMBGDay', {
 
     var xPositionGrouped = function(d) {
       var msPer24 = getMsPer24(d);
-      var binSize = 108e5; // 3 hrs
+      var binSize = THREE_HRS;
       var thresholds = {
         0: binSize,
         3: binSize * 2,
@@ -35,7 +35,7 @@ d3.chart('SMBGDay', {
         var val = thresholds[key];
         if (msPer24 < val) {
           msPer24 = val;
-          return chart.xScale()(thresholds[key]-(108e5/2));
+          return chart.xScale()(thresholds[key]-(THREE_HRS/2));
         }
       }
     };
