@@ -143,7 +143,8 @@ var Example = React.createClass({
     console.time('Nurseshark Total');
     data = nurseshark.processData(data, this.state.chartPrefs.timePrefs);
     console.timeEnd('Nurseshark Total');
-    this.log(data.erroredData.length, 'items in the erroredData. :(', _.countBy(data.erroredData, 'type'));
+    var emoticon = data.erroredData.length ? ':(' : ':)';
+    this.log(data.erroredData.length, 'items in the erroredData.', emoticon, _.countBy(data.erroredData, 'type'));
     this.log('Unique error messages:', _.unique(_.pluck(data.erroredData, 'errorMessage')));
     this.updateData(data.processedData);
   },
