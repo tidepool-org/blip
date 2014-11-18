@@ -904,21 +904,23 @@ module.exports = function (config, deps) {
                     log.info('Sync failed', JSON.stringify(err));
                     return done(err);
                   }
-                  log.info('Sync task poll complete', task);
+                  var taskData = JSON.parse(task.text);
+                  log.info('Sync task poll complete', taskData);
+
                   /*
                   task._id
                   task.status === 'success'
                   task.status === 'error'
                   */
-                  console.log('status now = ',task.status);
-                  if (task.status === 'error') {
-
-                    return callback({message: 'Sync task failed'});
+                  console.log('status now = ',task.text);
+                  if (taskData.status === 'error') {
+                    return done({message: 'Sync task failed'});
                   }
 
-                  if (task.status === 'success') {
+                  if (taskData.status === 'success') {
                     log.info('Upload Success');
-                    return callback(null, task);
+                    log.info('Sync task poll complete', task);
+                    return done(null, task);
                   }
 
                   poll(done);
