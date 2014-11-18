@@ -169,13 +169,17 @@
   }
 }
 
-#domainAxis {
-  path {
-    fill: none;
+#brushTicks {
+  line {
+    stroke: @brush;
   }
-  g.tick text {
-    font-size: 12px;
+}
+
+#brushAxisText {
+  text {
     fill: @text;
+    font-size: 12px;
+    dominant-baseline: hanging;
   }
 }
 

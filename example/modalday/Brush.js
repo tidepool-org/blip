@@ -3,7 +3,9 @@ var crossfilter = require('crossfilter');
 var d3 = window.d3;
 var EventEmitter = require('events').EventEmitter;
 
-var moment = require('moment');
+var moment = require('moment-timezone');
+
+var MS_IN_24 = 86400000;
 
 d3.chart('Brush', {
   initialize: function() {
@@ -13,6 +15,63 @@ d3.chart('Brush', {
     this.height = this.base.attr('height');
 
     this.base.append('g').attr('id', 'brushMainGroup');
+
+    var xPosition = function(d) {
+      return chart.xScale()(d);
+    };
+
+    this.layer('brushTicks', this.base.append('g').attr('id', 'brushTicks'), {
+      dataBind: function() {
+        return this.selectAll('line')
+          .data(chart.ticks);
+      },
+      insert: function() {
+        return this.append('line');
+      },
+      events: {
+        enter: function() {
+          var xScale = chart.xScale();
+          var margins = chart.margins().main;
+          var tickLength = chart.tickLength();
+          this.attr({
+            x1: xPosition,
+            x2: xPosition,
+            y1: margins.top,
+            y2: margins.top + tickLength
+          });
+        }
+      }
+    });
+
+    this.layer('brushAxisText', this.base.append('g').attr('id', 'brushAxisText'), {
+      dataBind: function() {
+        return this.selectAll('text')
+          .data(chart.textTicks || chart.ticks);
+      },
+      insert: function() {
+        return this.append('text');
+      },
+      events: {
+        enter: function() {
+          var xScale = chart.xScale(), tz = chart.timezone();
+          var tickShift = chart.tickShift();
+          this.attr({
+            x: function(d) {
+              return xPosition(d) + tickShift.x;
+            },
+            y: tickShift.y
+          })
+          .text(function(d) {
+            return moment.utc(d).tz(tz).format('MMM');
+          });
+        }
+      }
+    });
+  },
+  cornerRadius: function(cornerRadius) {
+    if (!arguments.length) { return this._cornerRadius; }
+    this._cornerRadius = cornerRadius;
+    return this;
   },
   emitter: function(emitter) {
     if (!arguments.length) { return this._emitter; }
@@ -29,6 +88,16 @@ d3.chart('Brush', {
     this._margins = margins;
     return this;
   },
+  tickLength: function(tickLength) {
+    if (!arguments.length) { return this._tickLength; }
+    this._tickLength = tickLength;
+    return this;
+  },
+  tickShift: function(tickShift) {
+    if (!arguments.length) { return this._tickShift; }
+    this._tickShift = tickShift;
+    return this;
+  },
   timezone: function(timezone) {
     if (!arguments.length) { return this._timezone; }
     this._timezone = timezone;
@@ -38,7 +107,7 @@ d3.chart('Brush', {
     var xScale = this.xScale(), timezone = this.timezone();
     var scaleDomain = xScale.domain();
     if (newExtent[0] < scaleDomain[0]) {
-      var extentSize = (newExtent[1] - newExtent[0])/862e5;
+      var extentSize = (newExtent[1] - newExtent[0])/MS_IN_24;
       var s = moment.utc(scaleDomain[0]).tz(timezone).startOf('day');
       newExtent = [s, d3.time.day.utc.offset(s, extentSize)];
     }
@@ -54,25 +123,30 @@ d3.chart('Brush', {
       mainMargins.left,
       w - mainMargins.right
     ]);
+    var domain = xScale.domain();
+    var ticks = [], current = domain[0];
+    var tz = this.timezone();
+    while (current < domain[1]) {
+      current = moment(current).add(1, 'month').startOf('month').tz(tz).toDate();
+      ticks.push(current);
+    }
+    // final tick will go beyond the domain, so pop it
+    ticks.pop();
+    this.ticks = ticks;
+    // don't want tick labels to appear too close to edge
+    // so only show if > two weeks from start of floor of end-of-domain month
+    var lastTick = ticks[ticks.length - 1];
+    if (domain[1] - lastTick / MS_IN_24 > (MS_IN_24 * 14)) {
+      this.textTicks = ticks.slice();
+      this.textTicks.pop();
+    }
     this.makeBrush();
-    var domainAxis = d3.svg.axis()
-      .scale(xScale)
-      .orient('top')
-      // TODO: these have to be adjusted for arbitrary timezone support!
-      .ticks(d3.time.month.utc, 1)
-      .tickFormat(d3.time.format.utc('%b'));
-    this.base.append('g')
-      .attr({
-        id: 'domainAxis',
-        transform: 'translate(0,' + mainMargins.top + ')'
-      })
-      .call(domainAxis);
     return this;
   },
   makeBrush: function() {
     var chart = this, emitter = this.emitter();
     function brushed() {
-      var MS_IN_24 = 86400000;
+      
       var origExtent = chart.brush.extent(), newExtent;
       var timezone = chart.timezone();
       // preserve width of handle on drag
@@ -115,12 +189,14 @@ d3.chart('Brush', {
 
     var mainMargins = this.margins().main;
 
+    var cornerRadius = this.cornerRadius();
+
     this.brushHandleGroup.select('rect.background')
       .attr({
         height: this.height - mainMargins.top - mainMargins.bottom,
         transform: 'translate(0,' + mainMargins.top + ')',
-        rx: 10,
-        ry: 10
+        rx: cornerRadius,
+        ry: cornerRadius
       })
       .style('visibility', 'visible');
 
@@ -128,8 +204,8 @@ d3.chart('Brush', {
       .attr({
         height: this.height - mainMargins.top - mainMargins.bottom,
         transform: 'translate(0,' + mainMargins.top + ')',
-        rx: 10,
-        ry: 10
+        rx: cornerRadius,
+        ry: cornerRadius
       });
   },
   fixBrushHandlers: function(brushNode) {
@@ -164,14 +240,17 @@ module.exports = {
     var defaults = {
       baseMargin: opts.baseMargin || 10,
       brushHeight: el.offsetHeight,
-      initialExtent: [d3.time.day.utc.offset(new Date(dateDomain[1]), -14), new Date(dateDomain[1])]
+      cornerRadius: 10,
+      initialExtent: [d3.time.day.utc.offset(new Date(dateDomain[1]), -14), new Date(dateDomain[1])],
+      tickLength: 10,
+      tickShift: {x: 5, y: 3}
     };
     defaults.margins = {
       main: {
         top: defaults.baseMargin + 11,
-        right: defaults.baseMargin,
+        right: defaults.baseMargin + 30,
         bottom: defaults.baseMargin - 5,
-        left: defaults.baseMargin
+        left: defaults.baseMargin + 30
       }
     };
     _.defaults(opts, defaults);
@@ -189,16 +268,19 @@ module.exports = {
         height: opts.brushHeight
       })
       .chart('Brush')
+      .cornerRadius(opts.cornerRadius)
       .emitter(this.emitter)
       .initialExtent(opts.initialExtent)
       .margins(opts.margins)
+      .tickLength(opts.tickLength)
+      .tickShift(opts.tickShift)
       .timezone(opts.timezone)
       .xScale(xScale);
 
     return this;
   },
   getCurrentDay: function() {
-    return new Date(chart.brush.extent()[1].valueOf() - 864e5/2);
+    return new Date(chart.brush.extent()[1].valueOf() - MS_IN_24/2);
   },
   emitter: new EventEmitter(),
   render: function(data, opts) {
