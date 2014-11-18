@@ -876,7 +876,8 @@ module.exports = function (config, deps) {
 
       var uploadEndpoint =  config.uploadApi;
 
-      function waitForSyncTaskWithIdToFinish(syncTaskId,cb){
+      //waiting for our task to finish
+      function waitForSyncTaskWithIdToFinish(syncTaskId,callback){
 
         // Polling frequency, in milliseconds
         var pollingInterval = 3 * 1000;
@@ -899,7 +900,7 @@ module.exports = function (config, deps) {
               .set(sessionTokenHeader, myToken)
               .end(
                 function (err, task) {
-                  if (err != null) {
+                  if (!_.isEmpty(err)) {
                     log.info('Sync failed', JSON.stringify(err));
                     return done(err);
                   }
@@ -921,17 +922,17 @@ module.exports = function (config, deps) {
                   poll(done);
               });
           }, pollingInterval);
-        }(cb));
+        }(callback));
       }
-
+       //download the file and returns its contents
        superagent
-        .post(config.uploadApi + '/v1/device/upload/cl')
+        .post(uploadEndpoint + '/v1/device/upload/cl')
         .send(formData)
         .type('form')
         .set(sessionTokenHeader, myToken)
         .end(
         function (err, res) {
-          if (err != null) {
+          if (!_.isEmpty(err)) {
             log.info('Upload Failed');
             return cb(err);
           }
@@ -943,7 +944,13 @@ module.exports = function (config, deps) {
             return cb({message: 'No sync task id'});
           }
 
-          waitForSyncTaskWithIdToFinish(syncTaskId,cb);
+          waitForSyncTaskWithIdToFinish(syncTaskId,function(err,data){
+            if (!_.isEmpty(err)) {
+              log.info('Return failure from uploadCarelinkDataForUser');
+              return cb(err);
+            }
+            return cb(null,data);
+          });
 
         });
     },
