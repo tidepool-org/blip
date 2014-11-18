@@ -382,9 +382,7 @@ function TidelineData(data, opts) {
             d.displayOffset = 0;
           }
           if (d.deviceTime && d.normalTime.slice(0, -5) !== d.deviceTime) {
-            var err = new Error('Combining `time` and `timezoneOffset` does not yield `deviceTime`.');
-            log(err);
-            d.errorMessage = err.message;
+            d.warning = 'Combining `time` and `timezoneOffset` does not yield `deviceTime`.';
           }
           if (d.type === 'basal') {
             d.normalEnd = dt.addDuration(d.normalTime, d.duration);
@@ -417,10 +415,20 @@ function TidelineData(data, opts) {
     return this;
   };
 
+  function hasAWarning(d) {
+    if (d.suppressed) {
+      return hasAWarning(d.suppressed);
+    }
+    return d.warning != null;
+  }
+
   startTimer('Watson');
   // first thing to do is Watson the data
   // because validation requires Watson'd data
   this.createNormalTime(data);
+  log('Items with deviceTime mismatch warning:', _.filter(data, function(d) {
+    return hasAWarning(d);
+  }).length);
   endTimer('Watson');
 
   log('Items to validate:', data.length);

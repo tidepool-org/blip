@@ -14,6 +14,10 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+
+// Local only (e.g., running on real data)
+// ====================================
+require('./local/local_tests');
  
 // DOM required
 // ====================================

@@ -23,6 +23,14 @@ var util = require('util');
 
 var dt = require('../../js/data/util/datetime');
 
+var log;
+if (typeof window !== 'undefined') {
+  log = require('bows')('Nurseshark');
+}
+else {
+  log = function() { return; };
+}
+
 function translateBg(value) {
   var GLUCOSE_MM = 18.01559;
   return Math.round(GLUCOSE_MM * value);
@@ -126,17 +134,32 @@ var nurseshark = {
       }
     }
   },
-  joinWizardsAndBoluses: function(wizards, allBoluses) {
+  joinWizardsAndBoluses: function(wizards, boluses, collections) {
+    var allBoluses = collections.allBoluses, allWizards = collections.allWizards;
     var numWizards = wizards.length;
+    var joinedWizards = {};
     for (var i = 0; i < numWizards; ++i) {
       var wizard = wizards[i];
       var bolusId = wizard.bolus;
       // TODO: remove once we've phased out in-d-gestion CareLink parsing
-      if (bolusId ==  null) {
+      if (bolusId == null) {
         bolusId = wizard.joinKey;
       }
-      if (bolusId != null) {
+      if (bolusId != null && allBoluses[bolusId]) {
         wizard.bolus = allBoluses[bolusId];
+        joinedWizards[bolusId] = wizard;
+      }
+    }
+    var numBoluses = boluses.length;
+    for (var j = 0; j < numBoluses; ++j) {
+      var bolus = boluses[j];
+      if (bolus.joinKey != null) {
+        if (allWizards[bolus.joinKey] == null) {
+          delete bolus.joinKey;
+        }
+      }
+      else if (bolus.joinKey == null && joinedWizards[bolus.id] != null) {
+        bolus.joinKey = joinedWizards[bolus.id].id;
       }
     }
   },
@@ -156,9 +179,10 @@ var nurseshark = {
     }
     var processedData = [], erroredData = [];
     var collections = {
-      allBoluses: {}
+      allBoluses: {},
+      allWizards: {}
     };
-    var typeGroups = {}, overlappingUploads = {};
+    var typeGroups = {}, overlappingUploads = {}, mostRecentFromOverlapping = null;
 
     function removeOverlapping() {
       // NB: this problem is specific to CareLink data
@@ -172,6 +196,13 @@ var nurseshark = {
           }
           if (v.time > p.end || p.end === null) {
             p.end = v.time;
+            p.lastDatumTime = v.time;
+            if (v.type === 'basal') {
+              p.lastBasalEnd = dt.addDuration(v.time, v.duration || 0);
+            }
+            else {
+              p.lastNonBasalTime = v.time;
+            }
           }
           return p;
         },
@@ -181,23 +212,71 @@ var nurseshark = {
           }
           if (v.time === p.end) {
             p.end = null;
+            p.lastBasalEnd = null;
+            p.lastDatumTime = null;
+            p.lastNonBasalTime = null;
           }
           return p;
         },
         function reduceInitial() {
-          return {start: null, end: null};
+          return {
+            start: null,
+            end: null,
+            // track just the last datum in the upload isn't sufficient
+            // since folks often leave their pumps pumping basals into the void
+            // after switching to a different pump
+            lastBasalEnd: null,
+            lastDatumTime: null,
+            lastNonBasalTime: null
+          };
         }
       ).order(function(p) {
         return p.start;
       });
       var dataByUploadGroups = dataByUploadGrouping.top(Infinity).reverse();
       for (var i = 0; i < dataByUploadGroups.length; ++i) {
-        var group = dataByUploadGroups[i], lastGroup = lastGroup || {};
-        if (lastGroup.value && group.value.start < lastGroup.value.end) {
-          overlappingUploads[group.key] = true;
-          overlappingUploads[lastGroup.key] = true;
+        var oneGroup = dataByUploadGroups[i];
+        for (var j = 0; j < dataByUploadGroups.length; ++j) {
+          var anotherGroup = dataByUploadGroups[j];
+          if (oneGroup.value.start < anotherGroup.value.end &&
+            oneGroup.value.start > anotherGroup.value.start) {
+            overlappingUploads[oneGroup.key] = true;
+            overlappingUploads[anotherGroup.key] = true;
+          }
         }
-        lastGroup = group;
+      }
+      var dataByOverlappingUploadGroups = _.filter(dataByUploadGroups, function(group) {
+        return overlappingUploads[group.key];
+      });
+      if (dataByOverlappingUploadGroups.length > 0) {
+        var sortedByBasalEnd = _.sortBy(dataByOverlappingUploadGroups, function(group) {
+          return group.value.lastBasalEnd;
+        }).reverse();
+        var sortedByLast = _.sortBy(dataByOverlappingUploadGroups, function(group) {
+          return group.value.lastDatumTime;
+        }).reverse();
+        var sortedByNonBasal = _.sortBy(dataByOverlappingUploadGroups, function(group) {
+          return group.value.lastNonBasalTime;
+        }).reverse();
+        if (sortedByBasalEnd.length > 0 && sortedByLast[0].value.lastDatumTime < sortedByBasalEnd[0].value.lastBasalEnd) {
+          // if someone left the basals pumping away into the void after switching pumps
+          // the datasets may end at the exact same point - at the end of the basals
+          // so we check if the two most recent uploads have the same endpoint re: basals
+          if (sortedByBasalEnd[0].value.lastBasalEnd !== sortedByBasalEnd[1].value.lastBasalEnd) {
+            mostRecentFromOverlapping = sortedByBasalEnd[0].key;
+          }
+          // if the two most recent uploads have the same endpoint re: basals
+          // then we use the most recent sorting by non-basal events instead
+          else {
+            mostRecentFromOverlapping = sortedByNonBasal[0].key;
+          }
+        }
+        // if there are no basals, we simply sort everything and pick the latest
+        else {
+          mostRecentFromOverlapping = sortedByLast[0].key;
+        }
+        log('Overlapping Carelink uploads:', Object.keys(overlappingUploads));
+        log('Upload with most recent data:', mostRecentFromOverlapping);
       }
     }
 
@@ -220,42 +299,11 @@ var nurseshark = {
         d.errorMessage = 'No time or timestamp field; suspected legacy old data model data.';
       }
       else {
-        if (overlappingUploads[d.deviceId]) {
+        if (overlappingUploads[d.deviceId] && d.deviceId !== mostRecentFromOverlapping) {
           d = cloneDeep(d);
           d.errorMessage = 'Overlapping CareLink upload.';
-          if (lastD && lastD.source === 'carelink') {
-            if (!lastD.annotations) {
-              lastD.annotations = [];
-            }
-            lastD.annotations.push({
-              code: 'carelink/device-overlap-boundary'
-            });
-          }
         }
         else {
-          if (lastD && lastD.errorMessage === 'Overlapping CareLink upload.') {
-            unannotatedRemoval = true;
-            if (d.source === 'carelink' && d.type === 'basal') {
-              if (!d.annotations) {
-                d.annotations = [];
-              }
-              d.annotations.push({
-                code: 'carelink/device-overlap-boundary'
-              });
-              unannotatedRemoval = false;
-            }
-          }
-          else if (unannotatedRemoval) {
-            if (d.source === 'carelink' && d.type === 'basal') {
-              if (!d.annotations) {
-                d.annotations = [];
-              }
-              d.annotations.push({
-                code: 'carelink/device-overlap-boundary'
-              });
-              unannotatedRemoval = false;
-            }
-          }
           d = handlers[d.type] ? handlers[d.type](d, collections) : d.messagetext ? handlers.message(d, collections) : addNoHandlerMessage(d);
         }
       }
@@ -290,7 +338,7 @@ var nurseshark = {
     }, 'Process');
 
     timeIt(function() {
-      nurseshark.joinWizardsAndBoluses(typeGroups.wizard || [], collections.allBoluses);
+      nurseshark.joinWizardsAndBoluses(typeGroups.wizard || [], typeGroups.bolus || [], collections);
     }, 'Join Wizards and Boluses');
 
     if (typeGroups.deviceMeta && typeGroups.deviceMeta.length > 0) {
@@ -436,8 +484,12 @@ function getHandlers() {
         this.suppressed(d.suppressed);
       }
     },
-    wizard: function(d) {
+    wizard: function(d, collections) {
       d = cloneDeep(d);
+      // TODO: remove once we've phased out in-d-gestion CareLink parsing
+      if (d.joinKey != null) {
+        collections.allWizards[d.joinKey] = d;
+      }
       if (d.units === 'mg/dL') {
         if (d.bgInput) {
           d.bgInput = translateBg(d.bgInput);
