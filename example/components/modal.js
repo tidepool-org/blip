@@ -22,6 +22,8 @@ var d3 = window.d3;
 var moment = require('moment');
 var React = require('react');
 
+var dt = require('../../js/data/util/datetime');
+
 var Header = require('./header');
 var SubNav = require('./modalsubnav');
 require('../modalday/modalsubnav.less');
@@ -285,7 +287,7 @@ var ModalChart = React.createClass({
     this.dataByType = data.dataByType.filterAll();
     // TODO: move to TidelineData
     this.dataByDayOfWeek = this.filterData.dimension(function(d) {
-      return moment.utc(d.normalTime).tz(timezone).format('dddd').toLowerCase();
+      return dt.weekdayLookup(moment.utc(d.normalTime).tz(timezone).day());
     });
     this.dataByType.filter(this.props.bgType);
     this.allData = this.dataByType.top(Infinity);

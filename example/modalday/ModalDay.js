@@ -3,9 +3,13 @@ var d3 = window.d3;
 var EventEmitter = require('events').EventEmitter;
 var moment = require('moment');
 
+var dt = require('../../js/data/util/datetime');
+
 var smbgBox = require('./SMBGBox');
 var smbgDay = require('./SMBGDay');
 var smbgInfo = require('./SMBGInfo');
+
+var THREE_HRS = 10800000;
 
 d3.chart('ModalDay', {
   initialize: function() {
@@ -18,14 +22,11 @@ d3.chart('ModalDay', {
 
     this.base.append('g').attr('id', 'modalHighlightGroup');
 
-    var THREE_HRS = 10800000;
-
     var dayCharts = {};
 
     this.layer('backgroundRects', this.base.select('#modalMainGroup').append('g').attr('id', 'modalBackgroundRects'), {
       dataBind: function() {
         var data = [];
-        // TODO: could be generalized via options for number of intervals
         for (var i = 0; i < 8; ++i) {
           data.push(i*THREE_HRS);
         }
@@ -48,11 +49,13 @@ d3.chart('ModalDay', {
             'd3-fill-darker'
           ];
           var range = chart.rectXScale().range();
-          var extent = range[1] - range[0];
+          // rectangles are three hours wide, so we get width of one from dividing total width by eight
+          var rectWidth = (range[1] - range[0])/8;
           var yScale = chart.yScale();
           var toEnter = this;
           var mainMargins = chart.margins().main;
           var usableHeight = chart.height - mainMargins.top - mainMargins.bottom;
+          var bgClasses = chart.bgClasses();
           toEnter.append('rect')
             .attr({
               'class': function(d, i) {
@@ -60,8 +63,8 @@ d3.chart('ModalDay', {
               },
               x: chart.rectXScale(),
               y: chart.margins().main.top,
-              width: extent/8,
-              height: yScale(180) - mainMargins.top
+              width: rectWidth,
+              height: yScale(bgClasses.target.boundary) - mainMargins.top
             })
             .classed({
               'd3-rect-fill': true
@@ -72,9 +75,9 @@ d3.chart('ModalDay', {
                 return fillClasses[i];
               },
               x: chart.rectXScale(),
-              y: yScale(180),
-              width: extent/8,
-              height: yScale(80) - yScale(180)
+              y: yScale(bgClasses.target.boundary),
+              width: rectWidth,
+              height: yScale(bgClasses.low.boundary) - yScale(bgClasses.target.boundary)
             })
             .classed({
               'd3-rect-fill': true,
@@ -86,9 +89,9 @@ d3.chart('ModalDay', {
                 return fillClasses[i];
               },
               x: chart.rectXScale(),
-              y: yScale(80),
-              width: extent/8,
-              height: chart.height - mainMargins.bottom - yScale(80)
+              y: yScale(bgClasses.low.boundary),
+              width: rectWidth,
+              height: chart.height - mainMargins.bottom - yScale(bgClasses.low.boundary)
             })
             .classed({
               'd3-rect-fill': true
@@ -122,7 +125,7 @@ d3.chart('ModalDay', {
         }
         else {
           data = d3.time.hour.utc.range(start, end, 3).map(function (d) {
-            return moment(d).utc().format('h:mm a');
+            return d3.time.format.utc('%-I:%M %p')(d).toLowerCase();
           });
         }
         return this.selectAll('text')
@@ -131,7 +134,7 @@ d3.chart('ModalDay', {
       insert: function() {
         return this.append('text')
           .attr({
-            y: chart.margins().main.top -5
+            y: chart.margins().main.top - chart.tickShift().x
           });
       },
       events: {
@@ -147,8 +150,7 @@ d3.chart('ModalDay', {
                   if (grouped) {
                     return xPosition(d, i) + half3HrWidth;
                   }
-                  // TODO: factor out magic number
-                  return xPosition(d, i) + 5;
+                  return xPosition(d, i) + chart.tickShift().x;
                 }
             })
             .text(function(d) { return d; });
@@ -158,8 +160,9 @@ d3.chart('ModalDay', {
 
     this.layer('yAxis', this.base.select('#modalMainGroup').append('g').attr('id', 'modalYAxis'), {
       dataBind: function() {
+        var bgClasses = chart.bgClasses();
         return this.selectAll('g')
-          .data([80,180,300]);
+          .data([bgClasses.low.boundary,bgClasses.target.boundary,bgClasses['very-high'].boundary]);
       },
       insert: function() {
         return this.append('g')
@@ -170,17 +173,16 @@ d3.chart('ModalDay', {
           var yScale = chart.yScale();
           var toEnter = this;
           var mainMargins = chart.margins().main;
-          // TODO: refactor magic nums, etc.
           toEnter.append('text')
             .attr({
-              x: mainMargins.left - 10,
+              x: mainMargins.left - chart.tickShift().y,
               y: function(d) { return yScale(d); }
             })
             .text(function(d) { return d; });
 
           toEnter.append('line')
             .attr({
-              x1: mainMargins.left - 8,
+              x1: mainMargins.left - chart.tickLength().y,
               x2: mainMargins.left,
               y1: function(d) { return yScale(d); },
               y2: function(d) { return yScale(d); }
@@ -206,7 +208,7 @@ d3.chart('ModalDay', {
           var infoPlot;
           this.attr('id', function(d) { return d; })
             .attr('class', function(d) {
-              return 'modalDay ' + moment(d).tz(timezone).format('dddd').toLowerCase();
+              return 'modalDay ' + dt.weekdayLookup(moment(d).tz(timezone).day());
             })
             .each(function(d) {
               var dayPlot = smbgDay().create(this, {x: chart.xScale(), y: chart.yScale()}, {
@@ -225,17 +227,18 @@ d3.chart('ModalDay', {
               emitter.emit('selectDay', utcDay);
             })
             .on('mouseover', function(d) {
+              var smbgOpts = chart.smbgOpts();
               d3.select(this).classed('highlight', true);
               d3.select(this).selectAll('path')
-                .attr('stroke-width', chart.smbgOpts().stroke * 1.5);
+                .attr('stroke-width', smbgOpts.stroke * smbgOpts.strokeMultiplier);
               d3.select(this).selectAll('circle')
-                .attr('r', chart.smbgOpts().r * 1.5);
+                .attr('r', smbgOpts.r * smbgOpts.radiusMultiplier);
               if (d3.event.target.nodeName === 'path' && !chart.grouped()) {
-                var mainMargins = chart.margins().main;
+                var labelMargins = chart.margins().highlightLabel;
                 d3.select(this).append('text')
                   .attr({
-                    x: mainMargins.left + 10,
-                    y: mainMargins.top + 30,
+                    x: labelMargins.x,
+                    y: labelMargins.y,
                     'class': 'smbgDayLabel'
                   })
                   .text(moment(d).tz(timezone).format('dddd, MMMM Do'));
@@ -334,6 +337,16 @@ d3.chart('ModalDay', {
     this._smbgOpts = smbgOpts;
     return this;
   },
+  tickLength: function(tickLength) {
+    if (!arguments.length) { return this._tickLength; }
+    this._tickLength = tickLength;
+    return this;
+  },
+  tickShift: function(tickShift) {
+    if (!arguments.length) { return this._tickShift; }
+    this._tickShift = tickShift;
+    return this;
+  },
   timezone: function(timezone) {
     if (!arguments.length) { return this._timezone; }
     this._timezone = timezone;
@@ -380,6 +393,7 @@ d3.chart('ModalDay', {
     var timezone = this.timezone();
     this.rawData = data;
     this.data = _.groupBy(data, function(d) {
+      // TODO: replace by adding a localDate attribute earlier on, then just grouping by that
       return moment.utc(d.normalTime).tz(timezone).format().slice(0,10);
     });
     return _.sortBy(Object.keys(this.data), function(d) { return d; });
@@ -393,16 +407,20 @@ module.exports = {
     opts = opts || {};
     var defaults = {
       baseMargin: opts.baseMargin || 10,
+      bgDomain: [0,600],
       brushHeight: 0,
+      clampTop: false,
       smbg: {
         maxR: 7.5,
         r: 6,
+        radiusMultiplier: 1.5,
         stroke: 2,
+        strokeMultiplier: 1.5,
         units: 'mg/dL'
       },
       statsHeight: 0,
-      bgDomain: [0,600],
-      clampTop: false
+      tickLength: {y: 8},
+      tickShift: {x: 5, y: 10}
     };
     defaults.margins = {
       main: {
@@ -417,6 +435,10 @@ module.exports = {
         left: defaults.baseMargin,
         bottom: defaults.baseMargin/2
       }
+    };
+    defaults.margins.highlightLabel = {
+      x: defaults.margins.main.left + 10,
+      y: defaults.margins.main.top + 30
     };
     _.defaults(opts, defaults);
 
@@ -438,6 +460,8 @@ module.exports = {
       .emitter(this.emitter)
       .margins(opts.margins)
       .smbgOpts(opts.smbg)
+      .tickLength(opts.tickLength)
+      .tickShift(opts.tickShift)
       .timezone(opts.timezone)
       .xScale(xScale)
       .yScale(yScale);
@@ -448,7 +472,14 @@ module.exports = {
   render: function(data, opts) {
     opts = opts || {};
     var defaults = {
-      boxOverlay: true
+      boxOverlay: true,
+      classes: {
+        'very-low': {boundary: 60},
+        low: {boundary: 80},
+        target: {boundary: 180},
+        high: {boundary: 200},
+        'very-high': {boundary: 300}
+      }
     };
     _.defaults(opts, defaults);
 
