@@ -896,6 +896,7 @@ module.exports = function (config, deps) {
 
             superagent
               .get(uploadEndpoint + '/v1/synctasks/' + syncTaskId)
+              .set(sessionTokenHeader, myToken)
               .end(
                 function (err, task) {
                   if (err != null) {
