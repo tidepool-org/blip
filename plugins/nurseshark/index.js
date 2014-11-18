@@ -368,6 +368,9 @@ var nurseshark = {
         return 0;
       });
     }, 'Sort');
+    var emoticon = erroredData.length ? ':(' : ':)';
+    log(erroredData.length, 'items in the erroredData.', emoticon, _.countBy(erroredData, 'type'));
+    log('Unique error messages:', _.unique(_.pluck(erroredData, 'errorMessage')));
     return {erroredData: erroredData, processedData: processedData};
   }
 };

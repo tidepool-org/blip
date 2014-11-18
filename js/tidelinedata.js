@@ -100,7 +100,7 @@ function TidelineData(data, opts) {
     startTimer('checkRequired');
     _.each(REQUIRED_TYPES, function(type) {
       if (!that.grouped[type]) {
-        // log('No', type, 'data! Replaced with empty array.');
+        log('No', type, 'data! Replaced with empty array.');
         that.grouped[type] = [];
       }
     });
