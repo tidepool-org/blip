@@ -3,9 +3,9 @@ var d3 = window.d3;
 var EventEmitter = require('events').EventEmitter;
 var moment = require('moment');
 
-var SMBGBox = require('./SMBGBox');
-var SMBGDay = require('./SMBGDay');
-var SMBGInfo = require('./SMBGInfo');
+var smbgBox = require('./SMBGBox');
+var smbgDay = require('./SMBGDay');
+var smbgInfo = require('./SMBGInfo');
 
 d3.chart('ModalDay', {
   initialize: function() {
@@ -209,7 +209,8 @@ d3.chart('ModalDay', {
               return 'modalDay ' + moment(d).tz(timezone).format('dddd').toLowerCase();
             })
             .each(function(d) {
-              var dayPlot = SMBGDay().create(this, {x: chart.xScale(), y: chart.yScale()}, {
+              var dayPlot = smbgDay().create(this, {x: chart.xScale(), y: chart.yScale()}, {
+                bgClasses: chart.bgClasses(),
                 smbg: chart.smbgOpts(),
                 timezone: chart.timezone()
               });
@@ -238,7 +239,7 @@ d3.chart('ModalDay', {
                     'class': 'smbgDayLabel'
                   })
                   .text(moment(d).tz(timezone).format('dddd, MMMM Do'));
-                infoPlot = SMBGInfo.create(this, {
+                infoPlot = smbgInfo.create(this, {
                   x: chart.xScale(), y: chart.yScale()
                 }, {
                   timezone: chart.timezone()
@@ -294,7 +295,7 @@ d3.chart('ModalDay', {
   boxOverlay: function(boxOverlay) {
     if (!arguments.length) { return this._boxOverlay; }
     if (boxOverlay && !this.boxPlots) {
-      this.boxPlots = SMBGBox.create(this.base.select('#modalMainGroup'), {
+      this.boxPlots = smbgBox.create(this.base.select('#modalMainGroup'), {
         x: this.xScale(),
         y: this.yScale()
       }, {

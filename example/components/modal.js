@@ -27,12 +27,8 @@ var SubNav = require('./modalsubnav');
 require('../modalday/modalsubnav.less');
 var Footer = require('./footer');
 
-var Brush = require('../modalday/Brush');
-var SMBGMean = require('../modalday/brushopts/SMBGMean');
-var SMBGMeanBars = require('../modalday/brushopts/SMBGMeanBars');
-var SMBGBox = require('../modalday/brushopts/SMBGBox');
-var SMBGMeanHeat = require('../modalday/brushopts/SMBGMeanHeat');
-var ModalDay = require('../modalday/ModalDay');
+var brush = require('../modalday/Brush');
+var modalDay = require('../modalday/ModalDay');
 require('../modalday/modalday.less');
 
 var Modal = React.createClass({
@@ -315,12 +311,17 @@ var ModalChart = React.createClass({
     else {
       timezone = this.props.timePrefs.timezoneName || 'UTC';
     }
-    this.chart = ModalDay.create(el, {bgDomain: this.state.bgDomain, clampTop: true, timezone: timezone});
+    this.chart = modalDay.create(el, {
+      bgClasses: this.props.bgClasses,
+      bgDomain: this.state.bgDomain,
+      clampTop: true,
+      timezone: timezone
+    });
     console.time('Modal Draw');
     this.chart.render(this.dataByDate.top(Infinity), _.pick(this.props, this.chartOpts));
     var domain = this.state.dateDomain;
     var extent = this.getInitialExtent(domain);
-    this.brush = Brush.create(document.getElementById('modalScroll'), domain, {
+    this.brush = brush.create(document.getElementById('modalScroll'), domain, {
       initialExtent: extent,
       timezone: timezone
     });

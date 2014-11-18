@@ -57,6 +57,7 @@ module.exports = {
         dailyx: require('./plot/util/axes/dailyx')
       },
       tooltips: {
+        generalized: require('./plot/util/tooltips/generalized'),
         shapes: require('./plot/util/tooltips/shapes'),
         Tooltips: require('./plot/util/tooltips/tooltip')
       },
