@@ -352,4 +352,21 @@ describe('datetime utility', function() {
       expect(dt.verifyEndpoints(endpoints[0], endpoints[1], endpoints)).to.be.true;
     });
   });
+
+  describe('weekdayLookup', function() {
+    it('should be a function', function() {
+      assert.isFunction(dt.weekdayLookup);
+    });
+
+    it('should return null if given invalid int', function() {
+      expect(dt.weekdayLookup(-1)).to.equal(null);
+      expect(dt.weekdayLookup(7)).to.equal(null);
+    });
+
+    it('should return `monday` when given 1', function() {
+      var d = new Date('2014-11-17T00:00:00.000Z');
+      expect(dt.weekdayLookup(d.getUTCDay())).to.equal('monday');
+      expect(dt.weekdayLookup(1)).to.equal('monday');
+    });
+  });
 });

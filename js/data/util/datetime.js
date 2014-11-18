@@ -226,7 +226,23 @@ var datetime = {
     else {
       return false;
     }
-  }
+  },
+
+  weekdayLookup: function(n) {
+    if (n < 0 || n > 6) {
+      return null;
+    }
+    var weekdays = {
+      0: 'sunday',
+      1: 'monday',
+      2: 'tuesday',
+      3: 'wednesday',
+      4: 'thursday',
+      5: 'friday',
+      6: 'saturday'
+    };
+    return weekdays[n];
+  } 
 };
 
 module.exports = datetime;
