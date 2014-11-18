@@ -80,11 +80,13 @@ d3.chart('SMBGBoxOverlay', {
     });
     var binKeys = Object.keys(binned);
     var retData = [];
+    var value = function(d) { return d.value; };
+    var reduceForMean = function(s, n) { return s + n.value; };
     for (var i = 0; i < binKeys.length; ++i) {
       retData.push({
-        max: d3.max(binned[binKeys[i]], function(d) { return d.value; }),
-        mean: _.reduce(binned[binKeys[i]], function(s, n) { return s + n.value; }, 0)/binned[binKeys[i]].length,
-        min: d3.min(binned[binKeys[i]], function(d) { return d.value; }),
+        max: d3.max(binned[binKeys[i]], value),
+        mean: _.reduce(binned[binKeys[i]], reduceForMean, 0)/binned[binKeys[i]].length,
+        min: d3.min(binned[binKeys[i]], value),
         msX: parseInt(binKeys[i], 10),
         values: binned[binKeys[i]]
       });
