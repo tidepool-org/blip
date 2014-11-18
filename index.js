@@ -100,11 +100,9 @@ module.exports = function (config, deps) {
       .set(sessionTokenHeader, token)
       .end(
       function (err, res) {
-        console.log('err? ',err);
         if (err) {
           return cb(err, null);
         }
-        console.log('status: ',res.status);
         if (res.status !== 200) {
           return handleHttpError(res, cb);
         }
@@ -876,6 +874,55 @@ module.exports = function (config, deps) {
     uploadCarelinkDataForUser: function (formData, cb) {
       assertArgumentsSize(arguments, 2);
 
+      var uploadEndpoint =  config.uploadApi;
+
+      function waitForSyncTaskWithIdToFinish(syncTask,cb){
+
+        // Polling frequency, in milliseconds
+        var pollingInterval = 3 * 1000;
+
+        // When to give up, in milliseconds
+        var pollingTimeout = 5 * 60 * 1000;
+        var pollingTimedOut = false;
+
+        setTimeout(function () {
+          pollingTimedOut = true;
+        }, pollingTimeout);
+
+        // Start long-polling
+        log.info('Starting sync task long polling with id', syncTaskId);
+        (function poll(done) {
+          setTimeout(function () {
+
+            superagent
+              .get(uploadEndpoint + '/v1/synctasks/' + syncTaskId)
+              .end(
+                function (err, task) {
+                  if (err != null) {
+                    log.info('Sync failed', JSON.stringify(err));
+                    return done(err);
+                  }
+                  log.info('Sync task poll complete', task);
+                  /*
+                  task._id
+                  task.status === 'success'
+                  task.status === 'error'
+                  */
+                  if (task.status === 'error') {
+                    return done({message: 'Sync task failed'});
+                  }
+
+                  if (task.status === 'success') {
+                    trackMetric('Upload Success');
+                    return done(null, task);
+                  }
+
+                  poll(done);
+              });
+          }, pollingInterval);
+        }(cb));
+      }
+
        superagent
         .post(config.uploadApi + '/v1/device/upload/cl')
         .send(formData)
@@ -884,9 +931,21 @@ module.exports = function (config, deps) {
         .end(
         function (err, res) {
           if (err != null) {
+            trackMetric('Upload Failed');
+            isSyncTaskInProgress = false;
             return cb(err);
           }
-          return cb(null,res.body);
+          var syncTask = res.body;
+          var syncTaskId = syncTask._id;
+
+          if (!syncTaskId) {
+            trackMetric('Upload Failed');
+            isSyncTaskInProgress = false;
+            return cb({message: 'No sync task id'});
+          }
+
+          waitForSyncTaskWithIdToFinish(syncTaskId,cb);
+
         });
     },
     /**
