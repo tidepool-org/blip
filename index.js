@@ -876,7 +876,7 @@ module.exports = function (config, deps) {
 
       var uploadEndpoint =  config.uploadApi;
 
-      function waitForSyncTaskWithIdToFinish(syncTask,cb){
+      function waitForSyncTaskWithIdToFinish(syncTaskId,cb){
 
         // Polling frequency, in milliseconds
         var pollingInterval = 3 * 1000;
@@ -913,7 +913,7 @@ module.exports = function (config, deps) {
                   }
 
                   if (task.status === 'success') {
-                    trackMetric('Upload Success');
+                    log.info('Upload Success');
                     return done(null, task);
                   }
 
@@ -931,16 +931,14 @@ module.exports = function (config, deps) {
         .end(
         function (err, res) {
           if (err != null) {
-            trackMetric('Upload Failed');
-            isSyncTaskInProgress = false;
+            log.info('Upload Failed');
             return cb(err);
           }
           var syncTask = res.body;
           var syncTaskId = syncTask._id;
 
           if (!syncTaskId) {
-            trackMetric('Upload Failed');
-            isSyncTaskInProgress = false;
+            log.info('Upload Failed');
             return cb({message: 'No sync task id'});
           }
 
