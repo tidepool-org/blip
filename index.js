@@ -910,13 +910,15 @@ module.exports = function (config, deps) {
                   task.status === 'success'
                   task.status === 'error'
                   */
+                  console.log('status now = ',task.status);
                   if (task.status === 'error') {
-                    return done({message: 'Sync task failed'});
+
+                    return callback({message: 'Sync task failed'});
                   }
 
                   if (task.status === 'success') {
                     log.info('Upload Success');
-                    return done(null, task);
+                    return callback(null, task);
                   }
 
                   poll(done);
