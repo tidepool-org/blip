@@ -22,16 +22,16 @@ module.exports = schema(
   common,
   {
     deviceTime: schema().ifExists().isDeviceTime(),
-    recommended: schema().object({
+    recommended: schema().ifExists().object({
       carb: schema().ifExists().number(),
       correction: schema().ifExists().number()
     }),
     bgInput: schema().ifExists().number(),
     carbInput: schema().ifExists().number(),
     insulinOnBoard: schema().ifExists().number(),
-    insulinCarbRatio: schema().number(),
-    insulinSensitivity: schema().number(),
-    bgTarget: schema().oneOf(
+    insulinCarbRatio: schema().ifExists().number(),
+    insulinSensitivity: schema().ifExists().number(),
+    bgTarget: schema().ifExists().oneOf(
       schema(
           {
             low: schema().number(),
