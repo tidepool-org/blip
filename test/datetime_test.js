@@ -215,6 +215,14 @@ describe('datetime utility', function() {
     it('should return 1 when passed a timestamp 1ms after midnight Pacific time', function() {
       expect(dt.getMsPer24('2014-03-06T08:00:00.001Z', 'US/Pacific')).to.equal(1);
     });
+
+    it('should return a value less than 864e5 even when past 11 p.m. on switch to DST', function() {
+      expect(dt.getMsPer24('2014-11-03T07:25:00.000Z', 'US/Pacific')).to.equal(84300000);
+    });
+
+    it('should return same value as above when past 11 p.m. on switch to non-DST', function() {
+      expect(dt.getMsPer24('2014-03-10T06:25:00.000Z', 'US/Pacific')).to.equal(84300000);
+    });
   });
 
   describe('getNumDays', function() {

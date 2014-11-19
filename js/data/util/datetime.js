@@ -126,7 +126,13 @@ var datetime = {
   // and make sure all uses of former are covered by latter
   getMsPer24: function(d, timezoneName) {
     timezoneName = timezoneName || 'UTC';
-    return Date.parse(d) - moment.utc(d).tz(timezoneName).startOf('day');
+    var localized = moment.utc(d).tz(timezoneName);
+    var total;
+    var hrsToMs = localized.hours() * 1000 * 60 * 60;
+    var minToMs = localized.minutes() * 1000 * 60;
+    var secToMs = localized.seconds() * 1000;
+    var ms = localized.milliseconds();
+    return hrsToMs + minToMs + secToMs + ms;
   },
 
   getOffset: function(d, timezoneName) {
