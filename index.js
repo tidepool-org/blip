@@ -959,6 +959,25 @@ module.exports = function (config, deps) {
         });
     },
     /**
+     * Upload carelink data for the logged in user
+     *
+     * @param {string} dataId for the carelink upload
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    getCarelinkData: function (dataId, cb) {
+      assertArgumentsSize(arguments, 2);
+
+       //get the contents of the carelink csv file
+       superagent
+        .get(uploadEndpoint + '/v1/device/data/'+dataId)
+        .set(sessionTokenHeader, myToken)
+        .end(
+        function (err, res) {
+          return cb(err,res.body)
+        });
+    },
+    /**
      * Get messages for a team between the given dates
      *
      * @param {String} userId of the user to get the messages for
