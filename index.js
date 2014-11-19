@@ -974,7 +974,7 @@ module.exports = function (config, deps) {
         .set(sessionTokenHeader, myToken)
         .end(
         function (err, res) {
-          return cb(err,res.body)
+          return cb(err,res.text)
         });
     },
     /**
