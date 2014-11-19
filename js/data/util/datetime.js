@@ -1,3 +1,4 @@
+
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -118,6 +119,14 @@ var datetime = {
   getMsFromMidnight: function(d) {
     var midnight = new Date(this.getMidnight(d)).valueOf();
     return new Date(d).valueOf() - midnight;
+  },
+
+  // this does basically the same as above method
+  // but I don't want to take the time right now to consolidate them
+  // and make sure all uses of former are covered by latter
+  getMsPer24: function(d, timezoneName) {
+    timezoneName = timezoneName || 'UTC';
+    return Date.parse(d) - moment.utc(d).tz(timezoneName).startOf('day');
   },
 
   getOffset: function(d, timezoneName) {

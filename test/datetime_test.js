@@ -203,6 +203,20 @@ describe('datetime utility', function() {
     });
   });
 
+  describe('getMsPer24', function() {
+    it('should be a function', function() {
+      assert.isFunction(dt.getMsPer24);
+    });
+
+    it('should return 1 when passed a timestamp 1ms after midnight', function() {
+      expect(dt.getMsPer24('2014-03-06T00:00:00.001Z')).to.equal(1);
+    });
+
+    it('should return 1 when passed a timestamp 1ms after midnight Pacific time', function() {
+      expect(dt.getMsPer24('2014-03-06T08:00:00.001Z', 'US/Pacific')).to.equal(1);
+    });
+  });
+
   describe('getNumDays', function() {
     it('should be a function', function() {
       assert.isFunction(dt.getNumDays);
