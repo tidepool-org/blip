@@ -240,7 +240,7 @@ d3.chart('ModalDay', {
               dayCharts[d] = dayPlot;
             })
             .on('dblclick', function(d) {
-              var utcDay = moment(d).tz(timezone).hours(12).toISOString();
+              var utcDay = moment(d).tz(timezone).startOf('day').add(12, 'hours').toISOString();
               emitter.emit('selectDay', utcDay);
             })
             .on('mouseover', function(d) {
@@ -399,8 +399,7 @@ d3.chart('ModalDay', {
     var timezone = this.timezone();
     this.rawData = data;
     this.data = _.groupBy(data, function(d) {
-      // TODO: replace by adding a localDate attribute earlier on, then just grouping by that
-      return moment.utc(d.normalTime).tz(timezone).format().slice(0,10);
+      return d.localDate;
     });
     return _.sortBy(Object.keys(this.data), function(d) { return d; });
   }

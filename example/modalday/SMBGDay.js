@@ -1,6 +1,5 @@
 var _ = require('lodash');
 var d3 = window.d3;
-var moment = require('moment');
 
 var dt = require('../../js/data/util/datetime');
 

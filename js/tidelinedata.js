@@ -119,35 +119,36 @@ function TidelineData(data, opts) {
   function updateCrossFilters(data) {
     startTimer('crossfilter');
     that.filterData = crossfilter(data);
+    that.smbgData = crossfilter(that.grouped.smbg || []);
     endTimer('crossfilter');
-    that.dataByDay = that.createCrossFilter('date');
     that.dataByDate = that.createCrossFilter('datetime');
     that.dataById = that.createCrossFilter('id');
-    that.dataByType = that.createCrossFilter('datatype');
+    that.smbgByDate = that.createCrossFilter('smbgByDatetime');
+    that.smbgByDayOfWeek = that.createCrossFilter('smbgByDayOfWeek');
   }
 
   this.createCrossFilter = function(dim) {
     var newDim;
     switch(dim) {
-      case 'date':
-        startTimer(dim + ' dimension');
-        newDim = this.filterData.dimension(function(d) { return d.normalTime.slice(0,10); });
-        endTimer(dim + ' dimenstion');
-        break;
       case 'datetime':
         startTimer(dim + ' dimenstion');
         newDim = this.filterData.dimension(function(d) { return d.normalTime; });
-        endTimer(dim + ' dimenstion');
-        break;
-      case 'datatype':
-        startTimer(dim + ' dimenstion');
-        newDim = this.filterData.dimension(function(d) { return d.type; });
         endTimer(dim + ' dimenstion');
         break;
       case 'id':
         startTimer(dim + ' dimenstion');
         newDim = this.filterData.dimension(function(d) { return d.id; });
         endTimer(dim + ' dimenstion');
+        break;
+      case 'smbgByDatetime':
+        startTimer(dim + ' dimension');
+        newDim = this.smbgData.dimension(function(d) { return d.normalTime; });
+        endTimer(dim + ' dimension');
+        break;
+      case 'smbgByDayOfWeek':
+        startTimer(dim + ' dimension');
+        newDim = this.smbgData.dimension(function(d) { return d.localDayOfWeek; });
+        endTimer(dim + ' dimension');
         break;
     }
     return newDim;
@@ -365,6 +366,12 @@ function TidelineData(data, opts) {
             d.normalEnd = dt.addDuration(d.time, d.duration);
           }
         }
+        // for now only adding local features to smbg (for modal day)
+        if (d.type === 'smbg') {
+          var date = new Date(d.time);
+          d.localDayOfWeek = dt.getLocalDayOfWeek(date, opts.timePrefs.timezoneName);
+          d.localDate = dt.getLocalDate(date, opts.timePrefs.timezoneName);
+        }
       };
     }
     else {
@@ -387,6 +394,12 @@ function TidelineData(data, opts) {
           if (d.type === 'basal') {
             d.normalEnd = dt.addDuration(d.normalTime, d.duration);
           }
+        }
+        // for now only adding local features to smbg (for modal day)
+        if (d.type === 'smbg') {
+          var date = new Date(d.normalTime);
+          d.localDayOfWeek = dt.getLocalDayOfWeek(date);
+          d.localDate = d.normalTime.slice(0,10);
         }
       };
     }

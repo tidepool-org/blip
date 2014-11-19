@@ -85,7 +85,6 @@ var Modal = React.createClass({
           <ModalChart
             activeDays={this.props.chartPrefs.modal.activeDays}
             bgClasses={this.props.bgPrefs.bgClasses}
-            bgType={this.props.chartPrefs.modal.bgType}
             bgUnits={this.props.bgPrefs.bgUnits}
             extentSize={this.props.chartPrefs.modal.extentSize}
             initialDatetimeLocation={this.props.initialDatetimeLocation}
@@ -258,7 +257,6 @@ var ModalChart = React.createClass({
   propTypes: {
     activeDays: React.PropTypes.object.isRequired,
     bgClasses: React.PropTypes.object.isRequired,
-    bgType: React.PropTypes.string.isRequired,
     bgUnits: React.PropTypes.string.isRequired,
     extentSize: React.PropTypes.number.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
@@ -282,15 +280,9 @@ var ModalChart = React.createClass({
     }
     var data = this.props.patientData;
     this.filterData = data.filterData;
-    this.dataByDate = data.dataByDate.filterAll();
-    this.dataByDay = data.dataByDay.filterAll();
-    this.dataByType = data.dataByType.filterAll();
-    // TODO: move to TidelineData
-    this.dataByDayOfWeek = this.filterData.dimension(function(d) {
-      return dt.weekdayLookup(moment.utc(d.normalTime).tz(timezone).day());
-    });
-    this.dataByType.filter(this.props.bgType);
-    this.allData = this.dataByType.top(Infinity);
+    this.dataByDate = data.smbgByDate.filterAll();
+    this.dataByDayOfWeek = data.smbgByDayOfWeek.filterAll();
+    this.allData = this.dataByDate.top(Infinity);
     var activeDays = this.props.activeDays;
     this.dataByDayOfWeek.filterFunction(function(d) {
       return activeDays[d];
@@ -349,10 +341,6 @@ var ModalChart = React.createClass({
         current
       ]);
     }
-    // refilter by type if necessary
-    if (this.props.bgType !== nextProps.bgType) {
-      this.dataByType.filter(nextProps.bgType); 
-    }
   },
   componentDidUpdate: function() {
     var data = this.dataByDate.top(Infinity).reverse();
@@ -377,8 +365,6 @@ var ModalChart = React.createClass({
   },
   clearAllFilters: function() {
     this.dataByDate.filterAll();
-    this.dataByDay.filterAll();
-    this.dataByType.filterAll();
     this.dataByDayOfWeek.filterAll();
   },
   getCurrentDay: function() {
