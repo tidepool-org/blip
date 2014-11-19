@@ -48,20 +48,37 @@ d3.chart('ModalDay', {
             'd3-fill-dark',
             'd3-fill-darker'
           ];
-          var range = chart.rectXScale().range();
-          // rectangles are three hours wide, so we get width of one from dividing total width by eight
-          var rectWidth = (range[1] - range[0])/8;
+          var range = chart.xScale().range();
           var yScale = chart.yScale();
           var toEnter = this;
           var mainMargins = chart.margins().main;
           var usableHeight = chart.height - mainMargins.top - mainMargins.bottom;
           var bgClasses = chart.bgClasses();
+          var xPosition = function(d, i) {
+            if (i === 0) {
+              return mainMargins.left;
+            }
+            else {
+              return chart.xScale()(d);
+            }
+          };
+          var rectWidth = function(d, i) {
+            // rectangles are three hours wide, so we get width of one from dividing total width by eight
+            var baseWidth = (range[1] - range[0])/8;
+            var bigR = chart.smbgOpts().maxR;
+            if (i === 0 || i === 7) {
+              return baseWidth + bigR;
+            }
+            else {
+              return baseWidth;
+            }
+          };
           toEnter.append('rect')
             .attr({
               'class': function(d, i) {
                 return fillClasses[i];
               },
-              x: chart.rectXScale(),
+              x: xPosition,
               y: chart.margins().main.top,
               width: rectWidth,
               height: yScale(bgClasses.target.boundary) - mainMargins.top
@@ -74,7 +91,7 @@ d3.chart('ModalDay', {
               'class': function(d, i) {
                 return fillClasses[i];
               },
-              x: chart.rectXScale(),
+              x: xPosition,
               y: yScale(bgClasses.target.boundary),
               width: rectWidth,
               height: yScale(bgClasses.low.boundary) - yScale(bgClasses.target.boundary)
@@ -88,7 +105,7 @@ d3.chart('ModalDay', {
               'class': function(d, i) {
                 return fillClasses[i];
               },
-              x: chart.rectXScale(),
+              x: xPosition,
               y: yScale(bgClasses.low.boundary),
               width: rectWidth,
               height: chart.height - mainMargins.bottom - yScale(bgClasses.low.boundary)
@@ -141,7 +158,7 @@ d3.chart('ModalDay', {
         merge: function() {
           var grouped = chart.grouped();
           var xPosition = function(d, i) {
-            return chart.rectXScale()(i * THREE_HRS);
+            return chart.xScale()(i * THREE_HRS);
           };
           var half3HrWidth = (xPosition(null, 1) - xPosition(null, 0))/2;
           this.attr({
@@ -352,16 +369,6 @@ d3.chart('ModalDay', {
     this._timezone = timezone;
     return this;
   },
-  rectXScale: function(xScale) {
-    if (!arguments.length) { return this._rectXScale; }
-    var w = this.width;
-    var mainMargins = this.margins().main;
-    this._rectXScale = xScale.copy().range([
-      mainMargins.left,
-      w - mainMargins.right
-    ]);
-    return this;
-  },
   xScale: function(xScale) {
     if (!arguments.length) { return this._xScale; }
     var w = this.width;
@@ -371,7 +378,6 @@ d3.chart('ModalDay', {
       mainMargins.left + Math.round(smbgOpts.maxR),
       w - mainMargins.right - Math.round(smbgOpts.maxR)
     ]);
-    this.rectXScale(xScale);
     return this;
   },
   yScale: function(yScale) {
@@ -380,7 +386,7 @@ d3.chart('ModalDay', {
     var mainMargins = this.margins().main;
     var smbgOpts = this.smbgOpts();
     this._yScale = yScale.range([
-      h - mainMargins.bottom - Math.round(smbgOpts.maxR),
+      h - mainMargins.bottom - Math.round(smbgOpts.maxR) - this.margins().bottomBumper,
       mainMargins.top + Math.round(smbgOpts.maxR)
     ]);
     return this;
@@ -434,7 +440,8 @@ module.exports = {
         right: defaults.baseMargin,
         left: defaults.baseMargin,
         bottom: defaults.baseMargin/2
-      }
+      },
+      bottomBumper: 28
     };
     defaults.margins.highlightLabel = {
       x: defaults.margins.main.left + 10,

@@ -2,6 +2,8 @@ var _ = require('lodash');
 var d3 = window.d3;
 var moment = require('moment');
 
+var dt = require('../../js/data/util/datetime');
+
 var bgBoundaryClass = require('../../js/plot/util/bgboundary');
 var format = require('../../js/data/util/format');
 var tooltips = require('../../js/plot/util/tooltips/generalized');
@@ -14,8 +16,7 @@ d3.chart('SMBGDay', {
     var chart = this;
 
     function getMsPer24(d) {
-      var timezone = chart.timezone();
-      return Date.parse(d.normalTime) - moment.utc(d.normalTime).tz(timezone).startOf('day');
+      return dt.getMsPer24(d.normalTime, chart.timezone());
     }
 
     var xPositionGrouped = function(d) {
@@ -110,12 +111,16 @@ d3.chart('SMBGDay', {
     this.layer('smbgLines', this.base.append('g').attr('class', 'smbgLines'), {
       dataBind: function(data) {
         var xFn = chart.grouped() ? xPositionGrouped : xPosition;
-        var pathData = _.map(_.sortBy(data, function(d) { return d.normalTime; }), function(d) {
-          return [
-            xFn(d),
-            yPosition(d)
-          ];
-        });
+        var pathData = [];
+        // only draw a line if there are at least three datapoints
+        if (data.length > 2) {
+          pathData = _.map(_.sortBy(data, function(d) { return d.normalTime; }), function(d) {
+            return [
+              xFn(d),
+              yPosition(d)
+            ];
+          });
+        }
         return this.selectAll('path')
           .data([pathData]);
       },

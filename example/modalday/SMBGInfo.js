@@ -2,13 +2,14 @@ var _ = require('lodash');
 var d3 = window.d3;
 var moment = require('moment');
 
+var dt = require('../../js/data/util/datetime');
+
 d3.chart('SMBGInfo', {
   initialize: function() {
     var chart = this;
 
     var xPosition = function(d) {
-      var timezone = chart.timezone();
-      var msPer24Pos = Date.parse(d.normalTime) - moment.utc(d.normalTime).tz(timezone).startOf('day');
+      var msPer24Pos = dt.getMsPer24(d.normalTime, chart.timezone());
       return chart.xScale()(msPer24Pos);
     };
 
@@ -26,26 +27,25 @@ d3.chart('SMBGInfo', {
       },
       events: {
         enter: function() {
+          var opts = chart.opts().infoRects;
           var toEnter = this;
           toEnter.append('rect')
             .attr({
               x: function(d) {
-                return xPosition(d) - 15;
+                return xPosition(d) - opts.width/2;
               },
               y: function(d) {
-                return yPosition(d) + 10;
+                return yPosition(d) + opts.height/2;
               },
-              width: 30,
-              height: 20,
-              fill: '#FFFFFF',
-              opacity: 0.75
+              width: opts.width,
+              height: opts.height
             });
 
           toEnter.append('text')
             .attr({
               x: xPosition,
               y: function(d) {
-                return yPosition(d) + 25;
+                return yPosition(d) + chart.opts().textShift.y;
               }
             })
             .text(function(d) { return d.value; });
@@ -53,9 +53,9 @@ d3.chart('SMBGInfo', {
       }
     });
   },
-  smbgOpts: function(smbgOpts) {
-    if (!arguments.length) { return this._smbgOpts; }
-    this._smbgOpts = smbgOpts;
+  opts: function(opts) {
+    if (!arguments.length) { return this._opts; }
+    this._opts = opts;
     return this;
   },
   timezone: function(timezone) {
@@ -80,11 +80,22 @@ var chart;
 module.exports = {
   create: function(el, scales, opts) {
     opts = opts || {};
-    var defaults = {};
+    var defaults = {
+      opts: {
+        infoRects: {
+          height: 20,
+          width: 30
+        },
+        textShift: {
+          y: 25
+        }
+      }
+    };
     _.defaults(opts, defaults);
 
     chart = d3.select(el)
       .chart('SMBGInfo')
+      .opts(opts.opts)
       .timezone(opts.timezone)
       .xScale(scales.x)
       .yScale(scales.y);
