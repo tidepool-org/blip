@@ -60,7 +60,7 @@ var PatientCard = React.createClass({
           onClick={this.onClick}>
           <i className="Navbar-icon icon-face-standin"></i>
           <div className="patientcard-info">
-            <div className="patientcard-fullname">{this.getFullName()} {profile}</div>
+            <div className="patientcard-fullname" title={this.getFullName()}>{this.getFullName()} {profile}</div>
             <div className="patientcard-actions">
               {view}
               {share}
