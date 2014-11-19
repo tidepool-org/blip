@@ -899,28 +899,26 @@ module.exports = function (config, deps) {
               .get(uploadEndpoint + '/v1/synctasks/' + syncTaskId)
               .set(sessionTokenHeader, myToken)
               .end(
-                function (err, task) {
+                function (err, res) {
                   if (!_.isEmpty(err)) {
                     log.info('Sync failed', JSON.stringify(err));
                     return done(err);
                   }
-                  var taskData = JSON.parse(task.text);
-                  log.info('Sync task poll complete', taskData);
 
-                  /*
-                  task._id
-                  task.status === 'success'
-                  task.status === 'error'
-                  */
-                  console.log('status now = ',task.text);
-                  if (taskData.status === 'error') {
+                  if (res.status !== 200) {
+                    return handleHttpError(res, done);
+                  }
+
+                  var syncTask = res.body;
+                  log.info('Sync task poll complete', syncTask);
+
+                  if (syncTask.status === 'error') {
                     return done({message: 'Sync task failed'});
                   }
 
-                  if (taskData.status === 'success') {
-                    log.info('Upload Success');
-                    log.info('Sync task poll complete', task);
-                    return done(null, task);
+                  if (syncTask.status === 'success') {
+                    log.info('Carelink download success');
+                    return done(null, syncTask);
                   }
 
                   poll(done);
@@ -974,7 +972,15 @@ module.exports = function (config, deps) {
         .set(sessionTokenHeader, myToken)
         .end(
         function (err, res) {
-          return cb(err,res.text)
+          if (err) {
+            return cb(err);
+          }
+
+          if (res.status !== 200) {
+            return handleHttpError(res, cb);
+          }
+
+          return cb(null, res.text);
         });
     },
     /**
