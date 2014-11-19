@@ -970,7 +970,7 @@ module.exports = function (config, deps) {
 
        //get the contents of the carelink csv file
        superagent
-        .get(uploadEndpoint + '/v1/device/data/'+dataId)
+        .get(config.uploadApi + '/v1/device/data/'+dataId)
         .set(sessionTokenHeader, myToken)
         .end(
         function (err, res) {
