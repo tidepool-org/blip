@@ -179,6 +179,34 @@ describe('datetime utility', function() {
     });
   });
 
+  describe('getLocalDate', function() {
+    it('should be a function', function() {
+      assert.isFunction(dt.getLocalDate);
+    });
+
+    it('should return `2015-01-01` for UTC midnight January 1st, 2015, no timezoneName', function() {
+      expect(dt.getLocalDate('2015-01-01T00:00:00.000Z')).to.equal('2015-01-01');
+    });
+
+    it('should return `2014-12-31` for UTC midnight January 1st, 2015, Pacific/Honolulu', function() {
+      expect(dt.getLocalDate('2015-01-01T00:00:00.000Z', 'Pacific/Honolulu')).to.equal('2014-12-31');
+    });
+  });
+
+  describe('getLocalDayOfWeek', function() {
+    it('should be a function', function() {
+      assert.isFunction(dt.getLocalDayOfWeek);
+    });
+
+    it('should return Thursday for UTC midnight January 1st, 2015, no timezoneName', function() {
+      expect(dt.getLocalDayOfWeek('2015-01-01T00:00:00.000Z')).to.equal('thursday');
+    });
+
+    it('should return Wednesday for UTC midnight January 1st, 2015, Pacific/Honolulu', function() {
+      expect(dt.getLocalDayOfWeek('2015-01-01T00:00:00.000Z', 'Pacific/Honolulu')).to.equal('wednesday');
+    });
+  });
+
   describe('getMidnight', function() {
     it('should be a function', function() {
       assert.isFunction(dt.getMidnight);

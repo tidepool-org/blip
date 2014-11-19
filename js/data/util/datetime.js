@@ -107,6 +107,16 @@ var datetime = {
     return new Date(d2).valueOf() - new Date(d1).valueOf();
   },
 
+  getLocalDate: function(d, timezoneName) {
+    timezoneName = timezoneName || 'UTC';
+    return moment.utc(d).tz(timezoneName).format('YYYY-MM-DD');
+  },
+
+  getLocalDayOfWeek: function(d, timezoneName) {
+    timezoneName = timezoneName || 'UTC';
+    return this.weekdayLookup(moment.utc(d).tz(timezoneName).day());
+  },
+
   getMidnight: function(d, next) {
     if (next) {
       return this.getMidnight(this.addDays(d, 1));
