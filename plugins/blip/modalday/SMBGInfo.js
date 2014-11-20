@@ -1,7 +1,8 @@
 var _ = require('lodash');
 var d3 = window.d3;
 
-var dt = require('../../js/data/util/datetime');
+var tideline = require('../../../js/index');
+var dt = tideline.data.util.datetime;
 
 d3.chart('SMBGInfo', {
   initialize: function() {

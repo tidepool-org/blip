@@ -3,7 +3,8 @@ var d3 = window.d3;
 var EventEmitter = require('events').EventEmitter;
 var moment = require('moment');
 
-var dt = require('../../js/data/util/datetime');
+var tideline = require('../../../js/index');
+var dt = tideline.data.util.datetime;
 
 var smbgBox = require('./SMBGBox');
 var smbgDay = require('./SMBGDay');

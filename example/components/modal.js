@@ -26,12 +26,12 @@ var dt = require('../../js/data/util/datetime');
 
 var Header = require('./header');
 var SubNav = require('./modalsubnav');
-require('../modalday/modalsubnav.less');
+require('../less/modalsubnav.less');
 var Footer = require('./footer');
 
-var brush = require('../modalday/Brush');
-var modalDay = require('../modalday/ModalDay');
-require('../modalday/modalday.less');
+var modalPlugin = require('../../plugins/blip').modalday;
+var brush = modalPlugin.brush;
+var modalDay = modalPlugin.modalDay;
 
 var Modal = React.createClass({
   chartType: 'modal',

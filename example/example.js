@@ -66,7 +66,6 @@ var Example = React.createClass({
             sunday: true,
           },
           activeDomain: '2 weeks',
-          bgType: 'smbg',
           extentSize: 14,
           boxOverlay: false,
           grouped: false,
@@ -196,7 +195,7 @@ var Example = React.createClass({
         bgClasses: tidelineData.bgClasses,
         bgUnits: tidelineData.bgUnits
       },
-      chartType: 'modal'
+      chartType: 'daily'
     });
   },
   // handlers

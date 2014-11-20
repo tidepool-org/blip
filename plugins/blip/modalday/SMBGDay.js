@@ -1,12 +1,12 @@
 var _ = require('lodash');
 var d3 = window.d3;
 
-var dt = require('../../js/data/util/datetime');
-
-var bgBoundaryClass = require('../../js/plot/util/bgboundary');
-var format = require('../../js/data/util/format');
-var tooltips = require('../../js/plot/util/tooltips/generalized');
-var shapes = require('../../js/plot/util/tooltips/shapes');
+var tideline = require('../../../js/index');
+var bgBoundaryClass = tideline.plot.util.bgboundary;
+var dt = tideline.data.util.datetime;
+var format = tideline.data.util.format;
+var tooltips = tideline.plot.util.tooltips.generalized;
+var shapes = tideline.plot.util.tooltips.shapes;
 
 var THREE_HRS = 10800000, NINE_HRS = 75600000;
 
