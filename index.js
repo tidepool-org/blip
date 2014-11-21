@@ -103,7 +103,6 @@ module.exports = function (config, deps) {
         if (err) {
           return cb(err, null);
         }
-
         if (res.status !== 200) {
           return handleHttpError(res, cb);
         }
@@ -834,6 +833,157 @@ module.exports = function (config, deps) {
         { 200: function(res){ return res.body; }, 404: [] },
         cb
       );
+    },
+    /**
+     * Upload device data for the logged in user
+     *
+     * @param {Object} data to be uploaded
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    uploadDeviceDataForUser: function (data, cb) {
+      assertArgumentsSize(arguments, 2);
+
+      if (_.isEmpty(config.uploadApi)) {
+        return cb({ status : STATUS_BAD_REQUEST, message: 'The upload api needs to be configured' });
+      }
+
+       superagent
+        .post(config.uploadApi + '/data')
+        .send(data)
+        .set(sessionTokenHeader, myToken)
+        .end(
+        function (err, res) {
+          if (err != null) {
+            return cb(err);
+          }
+          return cb(null,res.body);
+        });
+    },
+    /**
+     * Upload carelink data for the logged in user
+     *
+     * @param {Object} formData for the carelink upload
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    uploadCarelinkDataForUser: function (formData, cb) {
+      assertArgumentsSize(arguments, 2);
+
+      var uploadEndpoint =  config.uploadApi;
+
+      //waiting for our task to finish
+      function waitForSyncTaskWithIdToFinish(syncTaskId,callback){
+
+        // Polling frequency, in milliseconds
+        var pollingInterval = 3 * 1000;
+
+        // When to give up, in milliseconds
+        var pollingTimeout = 5 * 60 * 1000;
+        var pollingTimedOut = false;
+
+        setTimeout(function () {
+          pollingTimedOut = true;
+        }, pollingTimeout);
+
+        // Start long-polling
+        log.info('Starting sync task long polling with id', syncTaskId);
+        (function poll(done) {
+          setTimeout(function () {
+
+            superagent
+              .get(uploadEndpoint + '/v1/synctasks/' + syncTaskId)
+              .set(sessionTokenHeader, myToken)
+              .end(
+                function (err, res) {
+                  if (!_.isEmpty(err)) {
+                    log.info('Sync failed', JSON.stringify(err));
+                    return done(err);
+                  }
+
+                  if (res.status !== 200) {
+                    return handleHttpError(res, done);
+                  }
+
+                  var syncTask = res.body;
+                  log.info('Sync task poll complete', syncTask);
+
+                  if (syncTask.status === 'error') {
+                    return done({message: 'Sync task failed'});
+                  }
+
+                  if (syncTask.status === 'success') {
+                    log.info('Carelink download success');
+                    return done(null, syncTask);
+                  }
+
+                  poll(done);
+              });
+          }, pollingInterval);
+        }(callback));
+      }
+       //download the file and returns its contents
+       superagent
+        .post(uploadEndpoint + '/v1/device/upload/cl')
+        .send(formData)
+        .type('form')
+        .set(sessionTokenHeader, myToken)
+        .end(
+        function (err, res) {
+          if (!_.isEmpty(err)) {
+            log.info('Upload Failed');
+            return cb(err);
+          }
+
+          if (res.status !== 200) {
+            log.info('Upload Failed');
+            return handleHttpError(res, cb);
+          }
+
+          var syncTask = res.body;
+          var syncTaskId = syncTask._id;
+
+          if (!syncTaskId) {
+            log.info('Upload Failed');
+            return cb({message: 'No sync task id'});
+          }
+
+          waitForSyncTaskWithIdToFinish(syncTaskId,function(err,data){
+            if (!_.isEmpty(err)) {
+              log.info('Return failure from uploadCarelinkDataForUser');
+              return cb(err);
+            }
+            return cb(null,data);
+          });
+
+        });
+    },
+    /**
+     * Upload carelink data for the logged in user
+     *
+     * @param {string} dataId for the carelink upload
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    getCarelinkData: function (dataId, cb) {
+      assertArgumentsSize(arguments, 2);
+
+       //get the contents of the carelink csv file
+       superagent
+        .get(config.uploadApi + '/v1/device/data/'+dataId)
+        .set(sessionTokenHeader, myToken)
+        .end(
+        function (err, res) {
+          if (err) {
+            return cb(err);
+          }
+
+          if (res.status !== 200) {
+            return handleHttpError(res, cb);
+          }
+
+          return cb(null, res.text);
+        });
     },
     /**
      * Get messages for a team between the given dates
