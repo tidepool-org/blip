@@ -938,6 +938,12 @@ module.exports = function (config, deps) {
             log.info('Upload Failed');
             return cb(err);
           }
+
+          if (res.status !== 200) {
+            log.info('Upload Failed');
+            return handleHttpError(res, cb);
+          }
+
           var syncTask = res.body;
           var syncTaskId = syncTask._id;
 
