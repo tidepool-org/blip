@@ -17,6 +17,8 @@
 
 @import '../../css/tideline-colors.less';
 
+@dark-text: #636363;
+
 #modalSubNav {
   width: 980px;
   height: 50px;
@@ -79,41 +81,41 @@
     }
   }
 
-  a.dayFilter, a.moda {
+  a.dayFilter {
     line-height: 30px;
     min-width: 30px;
     margin: 0 3px;
 
+    background-color: white;
     border-radius: 5px;
     border: @background 1px solid;
-    color: @text;
-    opacity: 0.5;
+    color: @dark-text;
     text-align: center;
     &.active {
       font-weight: bold;
       opacity: 1.0;
     }
-  }
-}
 
-.dayFilter.monday {
-  background-color: @monday !important;
-}
-.dayFilter.tuesday {
-  background-color: @tuesday !important;
-}
-.dayFilter.wednesday {
-  background-color: @wednesday !important;
-}
-.dayFilter.thursday {
-  background-color: @thursday !important;
-}
-.dayFilter.friday {
-  background-color: @friday !important;
-}
-.dayFilter.saturday {
-  background-color: @saturday !important;
-}
-.dayFilter.sunday {
-  background-color: @sunday !important;
+    &.monday.active {
+      background-color: @monday;
+    }
+    &.tuesday.active {
+      background-color: @tuesday;
+    }
+    &.wednesday.active {
+      background-color: @wednesday;
+    }
+    &.thursday.active {
+      background-color: @thursday;
+    }
+    &.friday.active {
+      background-color: @friday;
+    }
+    &.saturday.active {
+      background-color: @saturday;
+    }
+    &.sunday.active {
+      background-color: @sunday;
+    }
+  }
 }
