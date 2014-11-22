@@ -107,6 +107,62 @@ d3.chart('SMBGDay', {
       tooltips.remove(d);
     };
 
+    this.layer('smbgInvisibleLines', this.base.append('g').attr('class', 'smbgInvisibleLines'), {
+      dataBind: function(data) {
+        var xFn = chart.grouped() ? xPositionGrouped : xPosition;
+        var pathData = [];
+        // only draw a line if there are at least three datapoints
+        if (data.length > 2) {
+          pathData = _.map(_.sortBy(data, function(d) { return d.normalTime; }), function(d) {
+            return [
+              xFn(d),
+              yPosition(d)
+            ];
+          });
+        }
+        return this.selectAll('path')
+          .data([pathData]);
+      },
+      insert: function() {
+        return this.append('path')
+          .attr({
+            fill: 'none',
+            'stroke-width': 8,
+            opacity: 0
+          });
+      },
+      events: {
+        merge: function() {
+          var line = d3.svg.line()
+            .x(function(d) { return d[0]; })
+            .y(function(d) { return d[1]; })
+            .interpolate('linear');
+          this.attr({
+            d: function(d) {
+              var byX = _.groupBy(d, function(p) { return p[0]; });
+              function reduceSameX(sum, num) {
+                return sum + num[1];
+              }
+              for (var key in byX) {
+                var haveSameX = byX[key].length;
+                if (haveSameX > 1) {
+                  var newPoint = [parseFloat(key)];
+                  newPoint.push(_.reduce(byX[key], reduceSameX, 0)/haveSameX);
+                  byX[key] = [newPoint];
+                }
+              }
+              d = _.map(Object.keys(byX), function(key) { return byX[key][0]; });
+              return line(d);
+            },
+            visibility: chart.showingLines() ? 'visible': 'hidden'
+          });
+        },
+        exit: function() {
+          this.remove();
+        }
+      }
+    });
+
     this.layer('smbgLines', this.base.append('g').attr('class', 'smbgLines'), {
       dataBind: function(data) {
         var xFn = chart.grouped() ? xPositionGrouped : xPosition;
@@ -249,7 +305,7 @@ module.exports = function() {
         },
         smbg: {
           r: 5,
-          stroke: 3,
+          stroke: 1,
           units: 'mg/dL'
         }
       };

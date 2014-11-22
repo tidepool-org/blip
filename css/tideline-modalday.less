@@ -52,9 +52,10 @@
   circle {
     opacity: 0.75;
   }
-  path {
+  .smbgPath {
     fill: none;
     opacity: 0.75;
+    stroke-dasharray: 4, 4;
   }
   rect {
     fill: white;
@@ -76,8 +77,9 @@
   circle {
     .solid;
   }
-  path {
+  .smbgPath {
     .solid;
+    stroke-dasharray: none;
   }
 }
 
@@ -182,11 +184,11 @@
 }
 
 circle.meanCircle {
-  fill: white;
-  stroke: @background;
-  stroke-width: 1px;
+  fill: none;
+  stroke: white;
+  stroke-width: 3px;
 }
 rect.rangeBox {
-  fill: darken(@background, 10);
-  opacity: 0.2;
+  fill: @range;
+  opacity: 0.3;
 }

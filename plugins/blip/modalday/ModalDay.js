@@ -247,7 +247,7 @@ d3.chart('ModalDay', {
             .on('mouseover', function(d) {
               var smbgOpts = chart.smbgOpts();
               d3.select(this).classed('highlight', true);
-              d3.select(this).selectAll('path')
+              d3.select(this).selectAll('.smbgPath')
                 .attr('stroke-width', smbgOpts.stroke * smbgOpts.strokeMultiplier);
               d3.select(this).selectAll('circle')
                 .attr('r', smbgOpts.r * smbgOpts.radiusMultiplier);
@@ -274,7 +274,7 @@ d3.chart('ModalDay', {
             })
             .on('mouseout', function(d) {
               d3.select(this).classed('highlight', false);
-              d3.select(this).selectAll('path')
+              d3.select(this).selectAll('.smbgPath')
                 .attr('stroke-width', chart.smbgOpts().stroke);
               d3.select(this).selectAll('circle')
                 .attr('r', chart.smbgOpts().r);
@@ -420,8 +420,8 @@ module.exports = {
         maxR: 7.5,
         r: 6,
         radiusMultiplier: 1.5,
-        stroke: 2,
-        strokeMultiplier: 1.5,
+        stroke: 1,
+        strokeMultiplier: 2,
         units: 'mg/dL'
       },
       statsHeight: 0,
