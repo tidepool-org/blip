@@ -70,6 +70,28 @@ describe('sundial', function() {
       expect(datetimeWrapper.utcDateString).exists;
     });
 
+    describe('applyOffset', function() {
+      it('should yield a UTC timestamp five hours later when given offset of 300, Zulu timestamp', function() {
+        var res = datetimeWrapper.applyOffset('2014-01-01T00:00:00.000Z', 300);
+        expect(res.toISOString()).to.equal('2014-01-01T05:00:00.000Z');
+      });
+
+      it('should yield a UTC timestamp five hours later when given offset of 300, timezone-naive timestamp', function() {
+        var res = datetimeWrapper.applyOffset('2014-01-01T00:00:00', 300);
+        expect(res.toISOString()).to.equal('2014-01-01T05:00:00.000Z');
+      });
+
+      it('should yield a UTC timestamp five hours earlier when given offset of -300, Zulu timestamp', function() {
+        var res = datetimeWrapper.applyOffset('2014-01-01T05:00:00.000Z', -300);
+        expect(res.toISOString()).to.equal('2014-01-01T00:00:00.000Z');
+      });
+
+      it('should yield a UTC timestamp five hours earlier when given offset of -300, timezone-naive timestamp', function() {
+        var res = datetimeWrapper.applyOffset('2014-01-01T05:00:00', -300);
+        expect(res.toISOString()).to.equal('2014-01-01T00:00:00.000Z');
+      });
+    });
+
     describe('applyTimezone', function() {
       it('should yield a UTC time offset five hours later when non-DST and given `US/Eastern` timezone', function() {
         var res = datetimeWrapper.applyTimezone('2014-01-01T00:00:00', 'US/Eastern').toISOString();
@@ -195,6 +217,18 @@ describe('sundial', function() {
 
         var offset = datetimeWrapper.getOffsetFromTime(timestamp);
         expect(offset).to.equal(-780);
+      });
+    });
+
+    describe('getOffsetFromZone', function() {
+      it('returns an offset of -300 for US/Eastern during non-DST', function() {
+        var offset = datetimeWrapper.getOffsetFromZone('2014-01-01T00:00:00.000Z', 'US/Eastern');
+        expect(offset).to.equal(-300);
+      });
+
+      it('returns an offset of -240 for US/Eastern during DST', function() {
+        var offset = datetimeWrapper.getOffsetFromZone('2014-07-01T05:00:00.000Z', 'US/Eastern');
+        expect(offset).to.equal(-240);
       });
     });
 
