@@ -81,7 +81,7 @@ var Modal = React.createClass({
          toggleWeekdays={this.toggleWeekdays}
          toggleWeekends={this.toggleWeekends}
          ref="subnav" />
-        <div id="tidelineOuterContainer">
+        <div id="tidelineOuterContainer" className="modal">
           <ModalChart
             activeDays={this.props.chartPrefs.modal.activeDays}
             bgClasses={this.props.bgPrefs.bgClasses}

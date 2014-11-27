@@ -78,7 +78,6 @@ var Daily = React.createClass({
             // handlers
             onDatetimeLocationChange={this.handleDatetimeLocationChange}
             onMostRecent={this.handleMostRecent}
-            onShowBasalSettings={this.handleShowBasalSettings}
             onTransition={this.handleInTransition}
             ref="chart" />
         </div>
@@ -117,18 +116,6 @@ var Daily = React.createClass({
       title: this.getTitle(datetimeLocationEndpoints[1])
     });
     this.props.updateDatetimeLocation(datetimeLocationEndpoints[1]);
-  },
-  handleHideBasalSettings: function() {
-    this.props.updateChartPrefs({
-      hiddenPools: {
-        basalSettings: true
-      }
-    });
-    this.setState({
-      hiddenPools: {
-        basalSettings: true
-      }
-    }, this.refs.chart.rerenderChart);
   },
   handleInTransition: function(inTransition) {
     this.setState({
