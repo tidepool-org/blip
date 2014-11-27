@@ -136,7 +136,7 @@ d3.chart('Brush', {
     // don't want tick labels to appear too close to edge
     // so only show if > two weeks from start of floor of end-of-domain month
     var lastTick = ticks[ticks.length - 1];
-    if (domain[1] - lastTick / MS_IN_24 > (MS_IN_24 * 14)) {
+    if ((domain[1] - lastTick) / MS_IN_24 < 14) {
       this.textTicks = ticks.slice();
       this.textTicks.pop();
     }
