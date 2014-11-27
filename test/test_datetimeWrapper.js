@@ -241,12 +241,20 @@ describe('sundial', function() {
     });
 
     describe('getOffsetFromTime', function() {
-      it('returns the offset from UTC in minutes',function(){
+      it('returns the offset from UTC in minutes, +/-HH:MM zone format',function(){
 
         var timestamp = '2013-01-01T00:00:00-13:00';
 
         var offset = datetimeWrapper.getOffsetFromTime(timestamp);
         expect(offset).to.equal(-780);
+      });
+
+      it('returns the offset from UTC in minutes, assuming local timezone, Zulu timestamp',function(){
+        var timestamp = '2013-01-01T00:00:00.000Z';
+
+        var offset = datetimeWrapper.getOffsetFromTime(timestamp);
+        var localOffset = new Date().getTimezoneOffset();
+        expect(offset).to.equal(-localOffset);
       });
     });
 
