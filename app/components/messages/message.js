@@ -44,10 +44,12 @@ var Message = React.createClass({
     };
   },
   componentDidMount: function () {
+    var offset = sundial.getOffsetFromTime(this.props.theNote.timestamp) || sundial.getOffset();
+
     this.setState({
       author :  this.getUserDisplayName(this.props.theNote.user),
       note : this.props.theNote.messagetext,
-      when : sundial.formatForDisplay(this.props.theNote.timestamp)
+      when : sundial.formatFromOffset(this.props.theNote.timestamp, offset)
     });
   },
   getUserDisplayName: function(user) {
@@ -67,16 +69,19 @@ var Message = React.createClass({
     var saveEdit = this.props.onSaveEdit;
 
     if(saveEdit){
-      this.props.theNote.messagetext = edits.text;
+      var newNote = _.cloneDeep(this.props.theNote);
+      newNote.messagetext = edits.text;
       if (edits.timestamp) {
-        this.props.theNote.timestamp = edits.timestamp;
+        newNote.timestamp = edits.timestamp;
       }
-      saveEdit(this.props.theNote);
+      saveEdit(newNote);
+
+      var offset = sundial.getOffsetFromTime(edits.timestamp || this.props.theNote.timestamp) || sundial.getOffset();
 
       this.setState({
         editing : false,
         note : this.props.theNote.messagetext,
-        when : sundial.formatForDisplay(this.props.theNote.timestamp)
+        when : sundial.formatFromOffset(edits.timestamp || this.props.theNote.timestamp, offset)
       });
     }
 
