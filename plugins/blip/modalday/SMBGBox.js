@@ -39,6 +39,9 @@ d3.chart('SMBGBoxOverlay', {
                 return yScale(d.min) - yScale(d.max);
               }
             });
+        },
+        exit: function() {
+          this.remove();
         }
       }
     });
@@ -67,6 +70,9 @@ d3.chart('SMBGBoxOverlay', {
           this.attr({
               cy: function(d) { return yScale(d.mean); },
             });
+        },
+        exit: function() {
+          this.remove();
         }
       }
     });

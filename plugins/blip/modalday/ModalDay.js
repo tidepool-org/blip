@@ -298,6 +298,9 @@ d3.chart('ModalDay', {
           });
         },
         exit: function() {
+          if (chart.boxOverlay()) {
+            chart.boxPlots.render(chart.rawData);
+          }
           this.remove();
         }
       }
