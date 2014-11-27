@@ -1064,8 +1064,12 @@ var AppComponent = React.createClass({
       return null;
     }
 
+    console.time('Nurseshark Total');
     var res = nurseShark.processData(data);
+    console.timeEnd('Nurseshark Total');
+    console.time('TidelineData Total');
     var tidelineData = new TidelineData(res.processedData);
+    console.timeEnd('TidelineData Total');
 
     window.tidelineData = tidelineData;
     window.downloadProcessedData = function() {
