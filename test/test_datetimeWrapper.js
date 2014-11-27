@@ -30,6 +30,12 @@ describe('sundial', function() {
     it('should have applyTimezone method',function(){
       expect(datetimeWrapper.applyTimezone).exists;
     });
+    it('should have a ceil method',function(){
+      expect(datetimeWrapper.ceil).exists;
+    });
+    it('should have a floor method',function(){
+      expect(datetimeWrapper.floor).exists;
+    });
     it('should have formatDeviceTime method',function(){
       expect(datetimeWrapper.formatDeviceTime).exists;
     });
@@ -106,6 +112,30 @@ describe('sundial', function() {
       it('should assume UTC time when no timezone provided', function() {
         var res = datetimeWrapper.applyTimezone('2014-01-01T00:00:00').toISOString();
         expect(res).to.equal('2014-01-01T00:00:00.000Z');
+      });
+    });
+
+    describe('ceil', function() {
+      it('returns midnight of next day when units are days', function() {
+        var res = datetimeWrapper.ceil('2014-01-01T12:00:00.000Z', 'days');
+        expect(res.toISOString()).to.equal('2014-01-02T00:00:00.000Z');
+      });
+
+      it('returns midnight of next day in specified timezone when units are days', function() {
+        var res = datetimeWrapper.ceil('2014-01-01T12:00:00.000Z', 'days', 'Pacific/Honolulu');
+        expect(res.toISOString()).to.equal('2014-01-02T10:00:00.000Z');
+      });
+    });
+
+    describe('floor', function() {
+      it('returns previous midnight when units are days', function() {
+        var res = datetimeWrapper.floor('2014-01-01T12:00:00.000Z', 'days');
+        expect(res.toISOString()).to.equal('2014-01-01T00:00:00.000Z');
+      });
+
+      it('returns previous midnight in specified timezone when units are days', function() {
+        var res = datetimeWrapper.floor('2014-01-01T12:00:00.000Z', 'days', 'Pacific/Honolulu');
+        expect(res.toISOString()).to.equal('2014-01-01T10:00:00.000Z');
       });
     });
 
