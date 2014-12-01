@@ -181,22 +181,24 @@ var Navbar = React.createClass({
       'Navbar-selected': this.props.currentPage && this.props.currentPage === 'profile'
     });
 
+    /*
+    <div style='display:none'>
+      <a href="" title="Logout" onClick={this.handleLogout} className="Navbar-button" ref="logout"><i className="Navbar-icon icon-logout"></i></a>-->
+      <div className="Navbar-logged">
+        <span className="Navbar-loggedInAs">{'Logged in as '}</span>
+        <span className="Navbar-userName" ref="userFullName">{displayName}</span>
+      </div>
+    </div>
+    */
     return (
       <ul className="Navbar-menuSection" ref="user">
-        <li className="Navbar-menuItem">
-          <a href="#/profile" title="Account" onClick={handleClickUser} className={profileClasses}>
-            <div className="Navbar-logged">
-              <span className="Navbar-loggedInAs">{'Logged in as '}</span>
-              <span className="Navbar-userName" ref="userFullName">{displayName}</span>
-            </div>
-            <i className="Navbar-icon icon-profile"></i>
-          </a>
-        </li>
         <li className="Navbar-menuItem">
           <a href="#/patients" title="Care Team" onClick={this.handleCareteam} className={patientsClasses} ref="careteam"><i className="Navbar-icon icon-careteam"></i></a>
         </li>
         <li className="Navbar-menuItem">
-          <a href="" title="Logout" onClick={this.handleLogout} className="Navbar-button" ref="logout"><i className="Navbar-icon icon-logout"></i></a>
+          <a href="#/profile" title="Account" onClick={handleClickUser} className={profileClasses}>
+            <i className="Navbar-icon icon-account--down"></i>
+          </a>
         </li>
       </ul>
     );
