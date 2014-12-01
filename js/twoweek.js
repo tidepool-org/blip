@@ -229,6 +229,7 @@ module.exports = function(emitter) {
   };
 
   container.destroy = function() {
+    emitter.removeAllListeners();
     mainSVG.remove();
 
     return container;

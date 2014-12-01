@@ -400,7 +400,6 @@ d3.chart('ModalDay', {
     return this;
   },
   transform: function(data) {
-    var timezone = this.timezone();
     this.rawData = data;
     this.data = _.groupBy(data, function(d) {
       return d.localDate;
@@ -503,6 +502,7 @@ module.exports = {
     return this;
   },
   destroy: function() {
+    this.emitter.removeAllListeners();
     chart.remove();
 
     return this;

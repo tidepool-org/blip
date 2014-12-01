@@ -296,6 +296,7 @@ module.exports = {
     chart.setExtent(newExtent);
   },
   destroy: function() {
+    this.emitter.removeAllListeners();
     chart.remove();
 
     return this;
