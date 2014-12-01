@@ -37,6 +37,7 @@ var Messages = require('../../components/messages');
 var PatientData = React.createClass({
   propTypes: {
     bgPrefs: React.PropTypes.object,
+    timePrefs: React.PropTypes.object.isRequired,
     patientData: React.PropTypes.object,
     patient: React.PropTypes.object,
     fetchingPatientData: React.PropTypes.bool,
@@ -73,15 +74,7 @@ var PatientData = React.createClass({
           grouped: false,
           showingLines: true
         },
-        timePrefs: {
-          timezoneAware: false,
-          // timezoneAware: true,
-          // timezoneName: 'Pacific/Auckland'
-          // timezoneName: 'Europe/Paris'
-          // timezoneName: 'US/Eastern'
-          timezoneName: 'US/Pacific'
-          // timezoneName: 'US/Hawaii'
-        }
+        timePrefs: this.props.timePrefs
       },
       chartType: 'daily',
       createMessage: null,
@@ -419,10 +412,11 @@ var PatientData = React.createClass({
     datetime = datetime || this.state.datetimeLocation;
     if (this.state.chartPrefs.timePrefs.timezoneAware) {
       datetime = sundial.applyOffset(datetime, sundial.getOffsetFromZone(datetime, this.state.chartPrefs.timePrefs.timezoneName));
+      datetime = datetime.toISOString();
     }
     this.setState({
       chartType: 'weekly',
-      initialDatetimeLocation: datetime || this.state.datetimeLocation
+      initialDatetimeLocation: datetime
     });
   },
 

@@ -352,7 +352,7 @@ var ModalChart = React.createClass({
     if (this.props.extentSize !== nextProps.extentSize) {
       var current = this.getCurrentDay();
       this.dataByDate.filter([
-        // not quite sure why I half to reduce the extent by one here...
+        // not quite sure why I have to reduce the extent by one here...
         d3.time.day.utc.offset(new Date(current), -(nextProps.extentSize - 1)).toISOString(),
         current
       ]);

@@ -17,8 +17,8 @@
  */
 var _ = require('lodash');
 var bows = require('bows');
-var moment = require('moment');
 var React = require('react');
+var sundial = require('sundial');
 
 // tideline dependencies & plugins
 var tidelineBlip = require('tideline/plugins/blip');
@@ -110,7 +110,14 @@ var Daily = React.createClass({
     /* jshint ignore:end */
   },
   getTitle: function(datetime) {
-    return moment(datetime).utc().format('dddd, MMMM Do');
+    var timePrefs = this.props.chartPrefs.timePrefs, timezone;
+    if (!timePrefs.timezoneAware) {
+      timezone = 'UTC';
+    }
+    else {
+      timezone = timePrefs.timezoneName || 'UTC';
+    }
+    return sundial.formatInTimezone(datetime, timezone, 'dddd, MMMM Do');
   },
   // handlers
   handleClickModal: function(e) {

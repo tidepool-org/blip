@@ -142,6 +142,11 @@ var AppComponent = React.createClass({
       pendingInvites:null,
       fetchingPendingInvites: true,
       bgPrefs: null,
+      timePrefs: {
+        timezoneAware: false,
+        // TODO: remove hardcoding of this in future once we actually introduce arbitrary timezone support
+        timezoneName: 'US/Pacific'
+      },
       patientData: null,
       fetchingPatientData: true,
       fetchingMessageData: true,
@@ -759,6 +764,7 @@ var AppComponent = React.createClass({
         user={this.state.user}
         patient={this.state.patient}
         bgPrefs={this.state.bgPrefs}
+        timePrefs={this.state.timePrefs}
         patientData={this.state.patientData}
         fetchingPatientData={this.state.fetchingPatientData}
         isUserPatient={this.isSamePersonUserAndPatient()}
@@ -1065,10 +1071,10 @@ var AppComponent = React.createClass({
     }
 
     console.time('Nurseshark Total');
-    var res = nurseShark.processData(data);
+    var res = nurseShark.processData(data, this.state.timePrefs);
     console.timeEnd('Nurseshark Total');
     console.time('TidelineData Total');
-    var tidelineData = new TidelineData(res.processedData);
+    var tidelineData = new TidelineData(res.processedData, {timePrefs: this.state.timePrefs});
     console.timeEnd('TidelineData Total');
 
     window.tidelineData = tidelineData;
