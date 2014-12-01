@@ -63,11 +63,9 @@ var ModalSubNav = React.createClass({
     saturday: 'Sa',
     sunday: 'Su'
   },
-  getInitialState: function() {
-    return {
-      weekdaysActive: true,
-      weekendsActive: true
-    };
+  componentWillMount: function() {
+    this.areWeekdaysActive(this.props);
+    this.areWeekendsActive(this.props);
   },
   componentWillReceiveProps: function(nextProps) {
     this.areWeekdaysActive(nextProps);
