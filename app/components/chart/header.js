@@ -1,4 +1,20 @@
 /** @jsx React.DOM */
+/* 
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
 var bows = require('bows');
 var React = require('react');
 var cx = require('react/lib/cx');
@@ -14,6 +30,7 @@ var TidelineHeader = React.createClass({
     atMostRecent: React.PropTypes.bool.isRequired,
     title: React.PropTypes.string.isRequired,
     onClickBack: React.PropTypes.func,
+    onClickModal: React.PropTypes.func,
     onClickMostRecent: React.PropTypes.func,
     onClickNext: React.PropTypes.func,
     onClickOneDay: React.PropTypes.func,
@@ -26,6 +43,11 @@ var TidelineHeader = React.createClass({
       'patient-data-subnav-hidden': this.props.chartType === 'no-data'
     });
 
+    var modalLinkClass = cx({
+      'patient-data-subnav-active': this.props.chartType === 'modal',
+      'patient-data-subnav-hidden': this.props.chartType === 'no-data'
+    });
+
     var weekLinkClass = cx({
       'patient-data-subnav-active': this.props.chartType === 'weekly',
       'patient-data-subnav-hidden': this.props.chartType === 'no-data'
@@ -34,21 +56,22 @@ var TidelineHeader = React.createClass({
     var mostRecentLinkClass = cx({
       'patient-data-subnav-active': !this.props.atMostRecent && !this.props.inTransition,
       'patient-data-subnav-disabled': this.props.atMostRecent || this.props.inTransition,
-      'patient-data-subnav-hidden': this.props.chartType === 'no-data'
+      'patient-data-subnav-hidden': this.props.chartType === 'no-data' ||
+        this.props.chartType === 'modal'
     });
 
     var backClass = cx({
       'patient-data-subnav-active': !this.props.inTransition,
       'patient-data-subnav-disabled': this.props.inTransition,
       'patient-data-subnav-hidden': this.props.chartType === 'settings' ||
-        this.props.chartType === 'no-data'
+        this.props.chartType === 'no-data' || this.props.chartType === 'modal'
     });
 
     var nextClass = cx({
       'patient-data-subnav-active': !this.props.atMostRecent && !this.props.inTransition,
       'patient-data-subnav-disabled': this.props.atMostRecent || this.props.inTransition,
       'patient-data-subnav-hidden': this.props.chartType === 'settings' ||
-        this.props.chartType === 'no-data'
+        this.props.chartType === 'no-data' || this.props.chartType === 'modal'
     });
 
     var settingsLinkClass = cx({
@@ -64,12 +87,9 @@ var TidelineHeader = React.createClass({
         <div className="container-box-inner patient-data-subnav-inner">
           <div className="grid patient-data-subnav">
             <div className="grid-item one-whole large-one-quarter">
-              <div className="grid-item large-three-eighths">
-                <a href="" className={dayLinkClass} onClick={this.props.onClickOneDay}>One day</a>
-              </div>
-              <div className="grid-item large-one-half patient-data-subnav-left">
-                <a href="" className={weekLinkClass} onClick={this.props.onClickTwoWeeks}>Two weeks</a>
-              </div>
+                <a href="" className={dayLinkClass} onClick={this.props.onClickOneDay}>Daily</a>
+                <a href="" className={weekLinkClass} onClick={this.props.onClickTwoWeeks}>Weekly</a>
+                <a href="" className={modalLinkClass} onClick={this.props.onClickModal}>Trends</a>
             </div>
             <div className="grid-item one-whole large-one-half patient-data-subnav-center" id="tidelineLabel">
               <a href="" className={backClass} onClick={this.props.onClickBack}><i className={this.props.iconBack}/></a>

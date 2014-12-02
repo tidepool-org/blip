@@ -1,8 +1,24 @@
 /** @jsx React.DOM */
+/* 
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
 var _ = require('lodash');
 var bows = require('bows');
-var moment = require('moment');
 var React = require('react');
+var sundial = require('sundial');
 
 // tideline dependencies & plugins
 var tidelineBlip = require('tideline/plugins/blip');
@@ -22,7 +38,7 @@ var Weekly = React.createClass({
     bgPrefs: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
     imagesBaseUrl: React.PropTypes.string.isRequired,
-    initialDatetimeLocation: React.PropTypes.string,
+    initialDatetimeLocation: React.PropTypes.string.isRequired,
     patientData: React.PropTypes.object.isRequired,
     onClickRefresh: React.PropTypes.func.isRequired,
     onSwitchToDaily: React.PropTypes.func.isRequired,
@@ -72,6 +88,7 @@ var Weekly = React.createClass({
         imagesBaseUrl={this.props.imagesBaseUrl}
         initialDatetimeLocation={this.props.initialDatetimeLocation}
         patientData={this.props.patientData}
+        timePrefs={this.props.chartPrefs.timePrefs}
         // handlers
         onDatetimeLocationChange={this.handleDatetimeLocationChange}
         onMostRecent={this.handleMostRecent}
@@ -94,6 +111,7 @@ var Weekly = React.createClass({
         iconNext={'icon-next-up'}
         iconMostRecent={'icon-most-recent-up'}
         onClickBack={this.handlePanBack}
+        onClickModal={this.handleClickModal}
         onClickMostRecent={this.handleClickMostRecent}
         onClickNext={this.handlePanForward}
         onClickOneDay={this.handleClickOneDay}
@@ -142,7 +160,8 @@ var Weekly = React.createClass({
     /* jshint ignore:end */
   },
   formatDate: function(datetime) {
-    return moment(datetime).utc().format('MMMM Do');
+    // even when timezoneAware, labels should be generated as if UTC; just trust me (JEB)
+    return sundial.formatInTimezone(datetime, 'UTC', 'MMMM Do');
   },
   getTitle: function(datetimeLocationEndpoints) {
     return this.formatDate(datetimeLocationEndpoints[0]) + ' - ' + this.formatDate(datetimeLocationEndpoints[1]);
@@ -155,6 +174,13 @@ var Weekly = React.createClass({
     return false;
   },
   // handlers
+  handleClickModal: function(e) {
+    if(e) {
+      e.preventDefault();
+    }
+    var datetime = this.refs.chart.getCurrentDay(this.props.chartPrefs.timePrefs);
+    this.props.onSwitchToModal(datetime);
+  },
   handleClickMostRecent: function(e) {
     if (e) {
       e.preventDefault();
@@ -168,7 +194,7 @@ var Weekly = React.createClass({
     }
     var datetime;
     if (this.refs.chart) {
-      datetime = this.refs.chart.getCurrentDay();
+      datetime = this.refs.chart.getCurrentDay(this.props.chartPrefs.timePrefs);
     }
     this.props.onSwitchToDaily(datetime);
   },
@@ -225,13 +251,14 @@ var Weekly = React.createClass({
 });
 
 var WeeklyChart = React.createClass({
-  chartOpts: ['bgUnits'],
+  chartOpts: ['bgClasses', 'bgUnits', 'timePrefs'],
   log: bows('Weekly Chart'),
   propTypes: {
     bgUnits: React.PropTypes.string.isRequired,
     imagesBaseUrl: React.PropTypes.string.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
+    timePrefs: React.PropTypes.object.isRequired,
     // handlers
     onDatetimeLocationChange: React.PropTypes.func.isRequired,
     onMostRecent: React.PropTypes.func.isRequired,
@@ -289,8 +316,8 @@ var WeeklyChart = React.createClass({
     });
     this.props.onDatetimeLocationChange(datetimeLocationEndpoints);
   },
-  getCurrentDay: function() {
-    return this.chart.getCurrentDay().toISOString();
+  getCurrentDay: function(timePrefs) {
+    return this.chart.getCurrentDay(timePrefs).toISOString();
   },
   goToMostRecent: function() {
     this.chart.clear();
