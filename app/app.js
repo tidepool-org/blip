@@ -1186,11 +1186,9 @@ var AppComponent = React.createClass({
     app.api.errors.log(this.stringifyErrorData(error), message, this.stringifyErrorData(details));
 
     if (error.status === 401) {
-      //Just log them out
-      app.log('401 so logged user out');
+      //Just log it as there isn't much we can do
+      app.log('401 returned ',error);
       this.setState({notification: null});
-      app.api.user.destroySession();
-      this.handleLogoutSuccess();
       return;
     } else {
       var body;
