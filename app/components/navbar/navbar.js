@@ -196,13 +196,6 @@ var Navbar = React.createClass({
       'Navbar-menuDropdown-hide': !self.state.showDropdown
     });
 
-
-    var dropdownIconClasses = cx({
-      'Navbar-dropdownIcon': true,
-      'Navbar-dropdownIcon-show': self.state.showDropdown,
-      'Navbar-dropdownIcon-current': this.props.currentPage && this.props.currentPage === 'profile'
-    });
-
     var dropdownIconClasses = cx({
       'Navbar-dropdownIcon': true,
       'Navbar-dropdownIcon-show': self.state.showDropdown,
