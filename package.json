@@ -19,10 +19,11 @@
     "bows": "0.5.0",
     "crossfilter": "1.3.7",
     "d3": "3.4.8",
+    "d3.chart": "git://github.com/misoproject/d3.chart#bbf8ff3b8452033efbd955e83e3761ecf725d623",
     "duration-js": "3.3.3",
     "lodash": "2.4.1",
     "moment": "2.8.1",
-    "moment-timezone": "^0.2.2"
+    "moment-timezone": "0.2.2"
   },
   "devDependencies": {
     "async": "0.9.0",
@@ -39,13 +40,14 @@
     "jquery-simulate": "git://github.com/jquery/jquery-simulate.git#b91832e9f1f65ee6c6f2dc93a5e917735c33db8e",
     "jshint": "2.5.5",
     "jshint-stylish": "0.4.0",
-    "json-loader": "^0.5.1",
+    "json-loader": "0.5.1",
     "jsx-loader": "0.10.2",
     "less": "1.7.4",
     "less-loader": "0.7.7",
     "mocha": "1.20.1",
     "mversion": "0.4.3",
     "react": "0.11.1",
+    "script-loader": "0.6.0",
     "style-loader": "0.6.4",
     "testem": "0.6.18",
     "url-loader": "0.5.5",

@@ -1,3 +1,4 @@
+
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -106,6 +107,16 @@ var datetime = {
     return new Date(d2).valueOf() - new Date(d1).valueOf();
   },
 
+  getLocalDate: function(d, timezoneName) {
+    timezoneName = timezoneName || 'UTC';
+    return moment.utc(d).tz(timezoneName).format('YYYY-MM-DD');
+  },
+
+  getLocalDayOfWeek: function(d, timezoneName) {
+    timezoneName = timezoneName || 'UTC';
+    return this.weekdayLookup(moment.utc(d).tz(timezoneName).day());
+  },
+
   getMidnight: function(d, next) {
     if (next) {
       return this.getMidnight(this.addDays(d, 1));
@@ -118,6 +129,20 @@ var datetime = {
   getMsFromMidnight: function(d) {
     var midnight = new Date(this.getMidnight(d)).valueOf();
     return new Date(d).valueOf() - midnight;
+  },
+
+  // this does basically the same as above method
+  // but I don't want to take the time right now to consolidate them
+  // and make sure all uses of former are covered by latter
+  getMsPer24: function(d, timezoneName) {
+    timezoneName = timezoneName || 'UTC';
+    var localized = moment.utc(d).tz(timezoneName);
+    var total;
+    var hrsToMs = localized.hours() * 1000 * 60 * 60;
+    var minToMs = localized.minutes() * 1000 * 60;
+    var secToMs = localized.seconds() * 1000;
+    var ms = localized.milliseconds();
+    return hrsToMs + minToMs + secToMs + ms;
   },
 
   getOffset: function(d, timezoneName) {
@@ -226,7 +251,23 @@ var datetime = {
     else {
       return false;
     }
-  }
+  },
+
+  weekdayLookup: function(n) {
+    if (n < 0 || n > 6) {
+      return null;
+    }
+    var weekdays = {
+      0: 'sunday',
+      1: 'monday',
+      2: 'tuesday',
+      3: 'wednesday',
+      4: 'thursday',
+      5: 'friday',
+      6: 'saturday'
+    };
+    return weekdays[n];
+  } 
 };
 
 module.exports = datetime;

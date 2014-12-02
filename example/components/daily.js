@@ -35,6 +35,7 @@ var Daily = React.createClass({
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
     onSwitchToDaily: React.PropTypes.func.isRequired,
+    onSwitchToModal: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToWeekly: React.PropTypes.func.isRequired,
     updateChartPrefs: React.PropTypes.func.isRequired,
@@ -60,6 +61,7 @@ var Daily = React.createClass({
           iconNext={'icon-next'}
           iconMostRecent={'icon-most-recent'}
           onClickBack={this.handlePanBack}
+          onClickModal={this.handleClickModal}
           onClickMostRecent={this.handleClickMostRecent}
           onClickNext={this.handlePanForward}
           onClickOneDay={this.handleClickOneDay}
@@ -76,7 +78,6 @@ var Daily = React.createClass({
             // handlers
             onDatetimeLocationChange={this.handleDatetimeLocationChange}
             onMostRecent={this.handleMostRecent}
-            onShowBasalSettings={this.handleShowBasalSettings}
             onTransition={this.handleInTransition}
             ref="chart" />
         </div>
@@ -94,6 +95,10 @@ var Daily = React.createClass({
     return moment(datetime).utc().format('dddd, MMMM Do');
   },
   // handlers
+  handleClickModal: function() {
+    var datetime = this.refs.chart.getCurrentDay();
+    this.props.onSwitchToModal(datetime);
+  },
   handleClickMostRecent: function() {
     this.refs.chart.goToMostRecent();
   },
@@ -111,18 +116,6 @@ var Daily = React.createClass({
       title: this.getTitle(datetimeLocationEndpoints[1])
     });
     this.props.updateDatetimeLocation(datetimeLocationEndpoints[1]);
-  },
-  handleHideBasalSettings: function() {
-    this.props.updateChartPrefs({
-      hiddenPools: {
-        basalSettings: true
-      }
-    });
-    this.setState({
-      hiddenPools: {
-        basalSettings: true
-      }
-    }, this.refs.chart.rerenderChart);
   },
   handleInTransition: function(inTransition) {
     this.setState({

@@ -23,6 +23,8 @@ module.exports = schema(
   {
     deviceTime: schema().ifExists().isDeviceTime(),
     units: schema().in(['mg/dL', 'mmol/L']),
-    value: schema().number()
+    value: schema().number(),
+    localDate: schema().ifExists().isDate(),
+    localDayOfWeek: schema().ifExists().in(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'])
   }
 );

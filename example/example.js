@@ -15,6 +15,9 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+require('script!d3/d3.min.js');
+require('script!d3.chart/d3.chart.min.js');
+
 var _ = require('lodash');
 var bows = require('bows');
 var React = require('react');
@@ -22,6 +25,7 @@ var d3 = require('d3');
 
 var Empty = require('./components/empty');
 var Daily = require('./components/daily');
+var Modal = require('./components/modal');
 var Weekly = require('./components/weekly');
 var Settings = require('./components/settings');
 // tideline dependencies & plugins
@@ -51,6 +55,22 @@ var Example = React.createClass({
   getInitialState: function() {
     return {
       chartPrefs: {
+        modal: {
+          activeDays: {
+            monday: true,
+            tuesday: true,
+            wednesday: true,
+            thursday: true,
+            friday: true,
+            saturday: true,
+            sunday: true,
+          },
+          activeDomain: '2 weeks',
+          extentSize: 14,
+          boxOverlay: false,
+          grouped: false,
+          showingLines: true
+        },
         timePrefs: {
           timezoneAware: false,
           // timezoneAware: true,
@@ -95,6 +115,23 @@ var Example = React.createClass({
             initialDatetimeLocation={this.state.initialDatetimeLocation}
             patientData={this.state.chartData}
             onSwitchToDaily={this.handleSwitchToDaily}
+            onSwitchToModal={this.handleSwitchToModal}
+            onSwitchToSettings={this.handleSwitchToSettings}
+            onSwitchToWeekly={this.handleSwitchToWeekly}
+            updateChartPrefs={this.updateChartPrefs}
+            updateDatetimeLocation={this.updateDatetimeLocation} />
+          );
+        /* jshint ignore:end */
+      case 'modal':
+        /* jshint ignore:start */
+        return (
+          <Modal
+            bgPrefs={this.state.bgPrefs}
+            chartPrefs={this.state.chartPrefs}
+            initialDatetimeLocation={this.state.initialDatetimeLocation}
+            patientData={this.state.chartData}
+            onSwitchToDaily={this.handleSwitchToDaily}
+            onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
             updateChartPrefs={this.updateChartPrefs}
@@ -110,6 +147,7 @@ var Example = React.createClass({
             initialDatetimeLocation={this.state.initialDatetimeLocation}
             patientData={this.state.chartData}
             onSwitchToDaily={this.handleSwitchToDaily}
+            onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
             updateChartPrefs={this.updateChartPrefs}
@@ -124,6 +162,7 @@ var Example = React.createClass({
             chartPrefs={this.state.chartPrefs}
             patientData={this.state.chartData}
             onSwitchToDaily={this.handleSwitchToDaily}
+            onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly} />
           );
@@ -166,6 +205,12 @@ var Example = React.createClass({
       initialDatetimeLocation: datetime || this.state.datetimeLocation
     });
   },
+  handleSwitchToModal: function(datetime) {
+    this.setState({
+      chartType: 'modal',
+      initialDatetimeLocation: datetime || this.state.datetimeLocation
+    });
+  },
   handleSwitchToSettings: function() {
     this.setState({
       chartType: 'settings'
@@ -182,7 +227,7 @@ var Example = React.createClass({
     });
   },
   updateChartPrefs: function(newChartPrefs) {
-    var currentPrefs = _.clone(this.state.chartPrefs);
+    var currentPrefs = _.cloneDeep(this.state.chartPrefs);
     _.assign(currentPrefs, newChartPrefs);
     this.setState({
       chartPrefs: currentPrefs

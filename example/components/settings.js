@@ -37,13 +37,13 @@ var Settings = React.createClass({
     chartPrefs: React.PropTypes.object.isRequired,
     patientData: React.PropTypes.object.isRequired,
     onSwitchToDaily: React.PropTypes.func.isRequired,
+    onSwitchToModal: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToWeekly: React.PropTypes.func.isRequired
   },
   getInitialState: function() {
     return {
       atMostRecent: true,
-      inTransition: false,
       title: ''
     };
   },
@@ -54,8 +54,8 @@ var Settings = React.createClass({
         <Header
           chartType={this.chartType}
           atMostRecent={true}
-          inTransition={this.state.inTransition}
           title={this.state.title}
+          onClickModal={this.handleClickModal}
           onClickMostRecent={this.handleClickMostRecent}
           onClickOneDay={this.handleClickOneDay}
           onClickTwoWeeks={this.handleClickTwoWeeks}
@@ -69,13 +69,15 @@ var Settings = React.createClass({
         </div>
         <Footer
          chartType={this.chartType}
-         onClickSettings={this.props.onSwitchToSettings}
         ref="footer" />
       </div>
       );
     /* jshint ignore:end */
   },
   // handlers
+  handleClickModal: function() {
+    this.props.onSwitchToModal();
+  },
   handleClickMostRecent: function() {
     return;
   },
@@ -86,7 +88,7 @@ var Settings = React.createClass({
     this.props.onSwitchToWeekly();
   },
   handleClickSettings: function() {
-    // when you're on settings view, clicking one-day does nothing
+    // when you're on settings view, clicking settings does nothing
     return;
   }
 });

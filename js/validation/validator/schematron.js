@@ -44,6 +44,8 @@ function typeOf(match) {
 }
 
 var isAnId = matchesRegex(/^[A-Za-z0-9\-\_]+$/);
+// localDate is a date in YYYY-MM-DD format
+var isADate = matchesRegex(/^(\d{4}-[01]\d-[0-3]\d)$/);
 // deviceTime is the raw, non-timezone-aware string
 var isADeviceTime = matchesRegex(/^(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d)$/);
 var isoPattern = /^(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))$/;
@@ -117,6 +119,11 @@ module.exports = function() {
             error('should be one of %j, got [%s]', vals, e);
           }
         });
+        return this;
+      },
+
+      isDate: function() {
+        fns.push(isADate);
         return this;
       },
 

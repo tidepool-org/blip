@@ -79,6 +79,23 @@ describe('format utility', function() {
     });
   });
 
+  describe('dayAndDate', function() {
+    it('should be a function', function() {
+      assert.isFunction(fmt.dayAndDate);
+    });
+
+    it('should return `Mon, Nov 17th` on a UTC timestamp of midnight 11/17/2014', function() {
+      var tstr = '2014-11-17T00:00:00.000Z';
+      expect(fmt.dayAndDate(tstr)).to.equal('Mon, Nov 17th');
+    });
+
+    it('should return `Mon, Nov 17th` on a UTC timestamp of 8 a.m. 11/17/2014 when passed a Pacific DST offset', function() {
+      var tstr = '2014-11-17T08:00:00.000Z';
+      expect(fmt.dayAndDate(new Date(Date.parse(tstr) - 1).toISOString(), -480)).to.equal('Sun, Nov 16th');
+      expect(fmt.dayAndDate(tstr, -480)).to.equal('Mon, Nov 17th');
+    });
+  });
+
   describe('fixFloatingPoint', function() {
     it('should be a function', function() {
       assert.isFunction(fmt.fixFloatingPoint);

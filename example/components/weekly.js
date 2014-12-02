@@ -39,6 +39,7 @@ var Weekly = React.createClass({
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
     onSwitchToDaily: React.PropTypes.func.isRequired,
+    onSwitchToModal: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToWeekly: React.PropTypes.func.isRequired,
     updateChartPrefs: React.PropTypes.func.isRequired,
@@ -65,6 +66,7 @@ var Weekly = React.createClass({
           iconNext={'icon-next-up'}
           iconMostRecent={'icon-most-recent-up'}
           onClickBack={this.handlePanBack}
+          onClickModal={this.handleClickModal}
           onClickMostRecent={this.handleClickMostRecent}
           onClickNext={this.handlePanForward}
           onClickOneDay={this.handleClickOneDay}
@@ -102,6 +104,10 @@ var Weekly = React.createClass({
     return this.formatDate(datetimeLocationEndpoints[0]) + ' - ' + this.formatDate(datetimeLocationEndpoints[1]);
   },
   // handlers
+  handleClickModal: function() {
+    var datetime = this.refs.chart.getCurrentDay(this.props.chartPrefs.timePrefs);
+    this.props.onSwitchToModal(datetime);
+  },
   handleClickMostRecent: function() {
     this.setState({showingValues: false});
     this.refs.chart.goToMostRecent();
@@ -111,7 +117,7 @@ var Weekly = React.createClass({
     this.props.onSwitchToDaily(datetime);
   },
   handleClickTwoWeeks: function() {
-    // when you're on two-week view, clicking one-day does nothing
+    // when you're on two-week view, clicking two-week does nothing
     return;
   },
   handleDatetimeLocationChange: function(datetimeLocationEndpoints) {

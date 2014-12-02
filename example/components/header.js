@@ -26,11 +26,12 @@ var tideline = {
 var TidelineHeader = React.createClass({
   propTypes: {
     chartType: React.PropTypes.string.isRequired,
-    inTransition: React.PropTypes.bool.isRequired,
-    atMostRecent: React.PropTypes.bool.isRequired,
+    inTransition: React.PropTypes.bool,
+    atMostRecent: React.PropTypes.bool,
     title: React.PropTypes.string.isRequired,
     onClickBack: React.PropTypes.func,
-    onClickMostRecent: React.PropTypes.func.isRequired,
+    onClickModal: React.PropTypes.func.isRequired,
+    onClickMostRecent: React.PropTypes.func,
     onClickNext: React.PropTypes.func,
     onClickOneDay: React.PropTypes.func.isRequired,
     onClickTwoWeeks: React.PropTypes.func.isRequired,
@@ -44,6 +45,11 @@ var TidelineHeader = React.createClass({
     var dayLinkClass = cx({
       'tidelineNavLabel': true,
       'active': this.props.chartType === 'daily'
+    });
+
+    var modalLinkClass = cx({
+      'tidelineNavLabel': true,
+      'active': this.props.chartType === 'modal'
     });
 
     var weekLinkClass = cx({
@@ -60,13 +66,13 @@ var TidelineHeader = React.createClass({
     var backClass = cx({
       'active': !this.props.inTransition,
       'inactive': this.props.inTransition,
-      'hidden': this.props.chartType === 'settings'
+      'hidden': this.props.chartType === 'settings' || this.props.chartType === 'modal'
     });
 
     var nextClass = cx({
       'active': !this.props.atMostRecent && !this.props.inTransition,
       'inactive': this.props.atMostRecent || this.props.inTransition,
-      'hidden': this.props.chartType === 'settings'
+      'hidden': this.props.chartType === 'settings' || this.props.chartType === 'modal'
     });
 
     var settingsLinkClass = cx({
@@ -79,12 +85,9 @@ var TidelineHeader = React.createClass({
     return (
       <div className="tidelineNav grid">
         <div className="grid-item one-quarter">
-          <div className="grid-item three-eighths">
-            <a className={dayLinkClass} onClick={this.props.onClickOneDay}>One Day</a>
-          </div>
-          <div className="grid-item one-half">
-            <a className={weekLinkClass} onClick={this.props.onClickTwoWeeks}>Two Weeks</a>
-          </div>
+            <a className={dayLinkClass} onClick={this.props.onClickOneDay}>Daily</a>
+            <a className={weekLinkClass} onClick={this.props.onClickTwoWeeks}>Weekly</a>
+            <a className={modalLinkClass} onClick={this.props.onClickModal}>Trends</a>
         </div>
         <div className="grid-item one-half" id="tidelineLabel">
           <a href="#" className={backClass} onClick={this.props.onClickBack}><i className={this.props.iconBack}/></a>
@@ -95,7 +98,7 @@ var TidelineHeader = React.createClass({
           <a href="#" className={mostRecentLinkClass} onClick={this.props.onClickMostRecent}><i className={this.props.iconMostRecent}/></a>
         </div>
         <div className="grid-item one-quarter">
-          <a className={settingsLinkClass} onClick={this.props.onClickSettings}>Device Settings</a>
+          <a className={settingsLinkClass} onClick={this.props.onClickSettings}>Device settings</a>
         </div>
       </div>
       );

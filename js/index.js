@@ -14,6 +14,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+require('script!d3/d3.min.js');
+require('script!d3.chart/d3.chart.min.js');
 
 module.exports = {
   TidelineData: require('./tidelinedata'),
@@ -57,6 +59,7 @@ module.exports = {
         dailyx: require('./plot/util/axes/dailyx')
       },
       tooltips: {
+        generalized: require('./plot/util/tooltips/generalized'),
         shapes: require('./plot/util/tooltips/shapes'),
         Tooltips: require('./plot/util/tooltips/tooltip')
       },

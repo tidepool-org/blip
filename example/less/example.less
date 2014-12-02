@@ -94,6 +94,7 @@
 
 body {
   background-color: #F7F7F8;
+  user-select: none;
 }
 
 @media (max-width: 1024px) {
@@ -146,6 +147,9 @@ body {
         font-weight: bold;
         cursor: text;
       }
+      &.inactive {
+        opacity: 0.5;
+      }
     }
 
     .tidelineNavRightLabel {
@@ -181,6 +185,10 @@ body {
   height: 590px;
   background-color: white;
 
+  &.modal {
+    height: 520px;
+  }
+
   #fetchAndProcess {
     height: 100%;
     display: flex;
@@ -197,5 +205,9 @@ body {
   #tidelineContainer {
     height: 590px;
     overflow-y: auto;
+    &.no-scroll {
+      height: 520px;
+      overflow: hidden;
+    }
   }
 }

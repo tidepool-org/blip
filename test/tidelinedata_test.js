@@ -53,6 +53,10 @@ describe('TidelineData', function() {
     assert.isObject(td.filterData);
   });
 
+  it('should have a `smbgData` attribute that is a crossfilter object', function() {
+    assert.isObject(td.smbgData);
+  });
+  
   it('should have `bgClasses` and `bgUnits` properties', function() {
     expect(td.bgClasses).to.exist;
     expect(td.bgUnits).to.exist;
