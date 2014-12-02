@@ -315,3 +315,58 @@
 .patientcard-icon--highlight:hover {
   color: @blue-green-light;
 }
+
+.Navbar-menuDropdown {
+  position: absolute;
+  background: white;
+  border: 1px solid rgb(218, 218, 218);
+  right: 0px;
+  width: 200px;
+  top: 30px;
+
+  > ul {
+    list-style: none;
+    padding: 0 10px;
+
+    > li {
+      padding: 10px 0;
+    }
+
+    > li:last-child {
+      padding-top: 0px;
+      padding-bottom: 10px;
+    }
+  }
+}
+
+.Navbar-dropdownIcon {
+  position: relative;
+}
+
+.Navbar-menuDropdown-title {
+  border-bottom: 1px solid rgb(218, 218, 218);
+  padding: 10px 0;
+  font-size: 14px;
+  color: @gray-darker;
+  text-decoration: none;
+}
+
+.Navbar-menuDropdown-hide {
+  display: none;
+}
+
+.Navbar-dropdownIcon-show {
+  color: @blue-green-light;
+}
+
+.Navbar-dropdownIcon {
+  &:hover,
+  &:focus,
+  &:active {
+    color: @blue-green-light;
+  }
+}
+
+.Navbar-dropdownIcon-current {
+  color: @blue-green;
+}

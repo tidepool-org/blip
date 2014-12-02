@@ -35,6 +35,12 @@ var Navbar = React.createClass({
     trackMetric: React.PropTypes.func.isRequired
   },
 
+  getInitialState: function() {
+    return {
+      showDropdown: false
+    };
+  },
+
   render: function() {
     return (
       <div className="Navbar">
@@ -154,6 +160,10 @@ var Navbar = React.createClass({
   },
 
   renderMenuSection: function() {
+    document.getElementById('app').onclick = function() {
+      self.setState({showDropdown: false});
+    };
+
     var user = this.props.user;
 
     if (_.isEmpty(user)) {
@@ -164,6 +174,7 @@ var Navbar = React.createClass({
     var self = this;
     var handleClickUser = function() {
       self.props.trackMetric('Clicked Navbar Logged In User');
+      self.setState({showDropdown: false});
     };
 
     var handleCareteam = function() {
@@ -175,30 +186,62 @@ var Navbar = React.createClass({
       'Navbar-selected': this.props.currentPage && this.props.currentPage === 'patients'
     });
 
-    var profileClasses = cx({
+    var accountSettingsClasses = cx({
       'Navbar-button': true,
-      'Navbar-button--withLeftLabelAndArrow': true,
-      'Navbar-selected': this.props.currentPage && this.props.currentPage === 'profile'
+      'Navbar-dropdownIcon-show': this.props.currentPage && this.props.currentPage === 'profile'
     });
 
+    var dropdownClasses = cx({
+      'Navbar-menuDropdown': true,
+      'Navbar-menuDropdown-hide': !self.state.showDropdown
+    });
+
+
+    var dropdownIconClasses = cx({
+      'Navbar-dropdownIcon': true,
+      'Navbar-dropdownIcon-show': self.state.showDropdown,
+      'Navbar-dropdownIcon-current': this.props.currentPage && this.props.currentPage === 'profile'
+    });
+
+    var dropdownIconClasses = cx({
+      'Navbar-dropdownIcon': true,
+      'Navbar-dropdownIcon-show': self.state.showDropdown,
+      'Navbar-dropdownIcon-current': this.props.currentPage && this.props.currentPage === 'profile'
+    });
+
+    var handleDropdown = function() {
+      self.setState({showDropdown: !self.state.showDropdown});
+    };
+
+    var stopPropagation = function(e) {
+      e.stopPropagation();
+    };
+
     /*
-    <div style='display:none'>
-      <a href="" title="Logout" onClick={this.handleLogout} className="Navbar-button" ref="logout"><i className="Navbar-icon icon-logout"></i></a>-->
-      <div className="Navbar-logged">
-        <span className="Navbar-loggedInAs">{'Logged in as '}</span>
-        <span className="Navbar-userName" ref="userFullName">{displayName}</span>
-      </div>
-    </div>
     */
     return (
       <ul className="Navbar-menuSection" ref="user">
         <li className="Navbar-menuItem">
-          <a href="#/patients" title="Care Team" onClick={this.handleCareteam} className={patientsClasses} ref="careteam"><i className="Navbar-icon icon-careteam"></i></a>
+          <a href="#/patients" title="Care Team" onClick={handleCareteam} className={patientsClasses} ref="careteam"><i className="Navbar-icon icon-careteam"></i></a>
         </li>
-        <li className="Navbar-menuItem">
-          <a href="#/profile" title="Account" onClick={handleClickUser} className={profileClasses}>
-            <i className="Navbar-icon icon-account--down"></i>
-          </a>
+        <li className={dropdownIconClasses}>
+          <div onClick={handleDropdown}><i className="Navbar-icon icon-account--down"></i></div>
+          <div onClick={stopPropagation} className={dropdownClasses}>
+            <ul>
+              <li className='Navbar-menuDropdown-title'>
+                <div className="Navbar-logged">
+                  <span className="Navbar-loggedInAs">{'Logged in as '}</span>
+                  <span className="Navbar-userName" ref="userFullName">{displayName}</span>
+                </div>
+              </li>
+              <li>
+                <a href="#/profile" title="Account" onClick={handleClickUser} className={accountSettingsClasses}>Account Settings</a>
+              </li>
+              <li>
+                <a href="" title="Logout" onClick={this.handleLogout} className="Navbar-button" ref="logout">Logout</a>
+              </li>
+            </ul>
+          </div>
         </li>
       </ul>
     );
@@ -225,6 +268,8 @@ var Navbar = React.createClass({
   },
 
   handleLogout: function(e) {
+    this.setState({showDropdown: false});
+
     if (e) {
       e.preventDefault();
     }
