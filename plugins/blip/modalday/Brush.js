@@ -54,7 +54,10 @@ d3.chart('Brush', {
       events: {
         enter: function() {
           var xScale = chart.xScale(), tz = chart.timezone();
-          var tickShift = chart.brushTickInterval() === 'month' ? chart.tickShift() : {x: 0};
+          var tickShift = chart.tickShift();
+          if (chart.brushTickInterval() !== 'month') {
+            tickShift.x = 0;
+          }
           this.attr({
             x: function(d) {
               return xPosition(d) + tickShift.x;
@@ -132,9 +135,10 @@ d3.chart('Brush', {
     ]);
     var domain = xScale.domain();
     var domainDays = (domain[1] - domain[0])/MS_IN_24;
-    this._brushTickInterval = domainDays < 90 ? 'week' : 'month';
+    var smallDaysLimit = 40, mediumDaysLimit = 90;
+    this._brushTickInterval = domainDays < mediumDaysLimit ? 'week' : 'month';
     var tickJump = 1;
-    if (domainDays > 40 && domainDays < 90) {
+    if (domainDays > smallDaysLimit && domainDays < mediumDaysLimit) {
       tickJump = 2;
     }
     var ticks = [], current = domain[0];
