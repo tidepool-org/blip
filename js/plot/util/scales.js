@@ -96,7 +96,7 @@ var scales = function(opts) {
     },
     carbs: function(data, pool) {
       var scale = d3.scale.linear()
-        .domain([0, d3.max(data, function(d) { return d.carbs ? d.carbs.value : 0; })])
+        .domain([0, d3.max(data, function(d) { return d.carbInput ? d.carbInput : 0; })])
         .range([opts.carbRadius, opts.carbRadius + ((1 - opts.bolusRatio) * pool.height())/4]);
       return scale;
     },
