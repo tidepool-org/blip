@@ -194,8 +194,8 @@ var DailyChart = React.createClass({
   propTypes: {
     bgClasses: React.PropTypes.object.isRequired,
     bgUnits: React.PropTypes.string.isRequired,
-    bolusRatio: React.PropTypes.number.isRequired,
-    dynamicCarbs: React.PropTypes.bool.isRequired,
+    bolusRatio: React.PropTypes.number,
+    dynamicCarbs: React.PropTypes.bool,
     imagesBaseUrl: React.PropTypes.string.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,

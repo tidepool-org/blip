@@ -139,6 +139,7 @@ var AppComponent = React.createClass({
         sundial.checkTimezoneName(queryTimezone);
         timePrefs.timezoneAware = true;
         timePrefs.timezoneName = queryTimezone;
+        app.log('Viewing data in timezone-aware mode with', queryTimezone, 'as the selected timezone.');
       }
       catch(err) {
         console.log(new Error('Invalid timezone name in query parameter. (Try capitalizing properly.)'));
