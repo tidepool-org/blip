@@ -325,6 +325,10 @@ var ModalChart = React.createClass({
       return activeDays[d];
     });
     var domain = d3.extent(this.allData, function(d) { return d.normalTime; });
+    // extend the domain to 28 days if existing data is less than that
+    if (Math.floor((Date.parse(domain[1]) - Date.parse(domain[0]))/864e5) < 28) {
+      domain[0] = d3.time.day.utc.offset(Date.parse(domain[1]), -28).toISOString();
+    }
     this.dataByDate.filter(this.getInitialExtent(domain));
     this.setState({
       bgDomain: d3.extent(this.allData, function(d) { return d.value; }),
@@ -416,8 +420,15 @@ var ModalChart = React.createClass({
       timezone = timePrefs.timezoneName || 'UTC';
     }
 
-    var extentSize = this.props.extentSize;
-    var extentBasis = this.props.initialDatetimeLocation || domain[1];
+    var extentSize = this.props.extentSize, extentBasis;
+    // only use passed in initialDatetimeLocation as extentBasis if it doesn't
+    // go past the domain of available smbg data
+    if (this.props.initialDatetimeLocation && this.props.initialDatetimeLocation < domain[1]) {
+      extentBasis = this.props.initialDatetimeLocation;
+    }
+    else {
+      extentBasis = domain[1];
+    }
     // startOf('day') followed by add(1, 'days') is equivalent to d3's d3.time.day.ceil
     // but we can't use that when dealing with arbitrary timezones :(
     extentBasis = sundial.ceil(extentBasis, 'day', timezone);
