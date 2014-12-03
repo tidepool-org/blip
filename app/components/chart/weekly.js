@@ -85,7 +85,6 @@ var Weekly = React.createClass({
       <WeeklyChart
         bgClasses={this.props.bgPrefs.bgClasses}
         bgUnits={this.props.bgPrefs.bgUnits}
-        imagesBaseUrl={this.props.imagesBaseUrl}
         initialDatetimeLocation={this.props.initialDatetimeLocation}
         patientData={this.props.patientData}
         timePrefs={this.props.chartPrefs.timePrefs}
@@ -254,8 +253,8 @@ var WeeklyChart = React.createClass({
   chartOpts: ['bgClasses', 'bgUnits', 'timePrefs'],
   log: bows('Weekly Chart'),
   propTypes: {
+    bgClasses: React.PropTypes.object.isRequired,
     bgUnits: React.PropTypes.string.isRequired,
-    imagesBaseUrl: React.PropTypes.string.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
     timePrefs: React.PropTypes.object.isRequired,

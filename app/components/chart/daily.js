@@ -189,11 +189,13 @@ var Daily = React.createClass({
 });
 
 var DailyChart = React.createClass({
-  chartOpts: ['bgClasses', 'bgUnits', 'dynamicCarbs', 'bolusRatio', 'hiddenPools', 'imagesBaseUrl'],
+  chartOpts: ['bgClasses', 'bgUnits', 'bolusRatio', 'dynamicCarbs', 'imagesBaseUrl', 'timePrefs'],
   log: bows('Daily Chart'),
   propTypes: {
     bgClasses: React.PropTypes.object.isRequired,
     bgUnits: React.PropTypes.string.isRequired,
+    bolusRatio: React.PropTypes.number,
+    dynamicCarbs: React.PropTypes.bool,
     imagesBaseUrl: React.PropTypes.string.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
