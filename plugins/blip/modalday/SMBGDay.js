@@ -95,7 +95,7 @@ d3.chart('SMBGDay', {
         group: d3.select('#modalHighlightGroup'),
         classes: ['svg-tooltip-smbg', day],
         orientation: tooltipOrientation(d),
-        translation: 'translate(' + xPosition(d) + ',' + yPosition(d) + ')'
+        translation: 'translate(' + (chart.grouped() ? xPositionGrouped(d) : xPosition(d)) + ',' + yPosition(d) + ')'
       });
       tooltipHtml(tooltip.foGroup, d);
       tooltip.anchor();
@@ -242,8 +242,8 @@ d3.chart('SMBGDay', {
         },
         merge: function() {
           var grouped = chart.grouped();
-          this.on('mouseover', grouped ? null : createTooltip)
-            .on('mouseout', grouped ? null : removeTooltip);
+          this.on('mouseover', createTooltip)
+            .on('mouseout', removeTooltip);
         },
         exit: function() {
           this.remove();
