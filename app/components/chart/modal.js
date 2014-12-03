@@ -39,6 +39,8 @@ var Modal = React.createClass({
     chartPrefs: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
+    // refresh handler
+    onClickRefresh: React.PropTypes.func.isRequired,
     onSwitchToDaily: React.PropTypes.func.isRequired,
     onSwitchToModal: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
@@ -107,6 +109,7 @@ var Modal = React.createClass({
          onClickBoxOverlay={this.toggleBoxOverlay}
          onClickGroup={this.toggleGroup}
          onClickLines={this.toggleLines}
+         onClickRefresh={this.props.onClickRefresh}
          boxOverlay={this.props.chartPrefs.modal.boxOverlay}
          grouped={this.props.chartPrefs.modal.grouped}
          showingLines={this.props.chartPrefs.modal.showingLines}
@@ -161,7 +164,10 @@ var Modal = React.createClass({
     // when you're on modal view, clicking modal does nothing
     return;
   },
-  handleClickOneWeek: function() {
+  handleClickOneWeek: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
     var prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.modal.activeDomain = '1 week';
     prefs.modal.extentSize = 7;
@@ -170,7 +176,10 @@ var Modal = React.createClass({
     this.refs.chart.setExtent(newDomain);
     this.handleDatetimeLocationChange(newDomain, prefs);
   },
-  handleClickTwoWeeks: function() {
+  handleClickTwoWeeks: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
     var prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.modal.activeDomain = '2 weeks';
     prefs.modal.extentSize = 14;
@@ -179,7 +188,10 @@ var Modal = React.createClass({
     this.refs.chart.setExtent(newDomain);
     this.handleDatetimeLocationChange(newDomain, prefs);
   },
-  handleClickFourWeeks: function() {
+  handleClickFourWeeks: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
     var prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.modal.activeDomain = '4 weeks';
     prefs.modal.extentSize = 28;
@@ -224,17 +236,26 @@ var Modal = React.createClass({
       self.props.updateChartPrefs(prefs);
     };
   },
-  toggleBoxOverlay: function() {
+  toggleBoxOverlay: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
     var prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.modal.boxOverlay = prefs.modal.boxOverlay ? false : true;
     this.props.updateChartPrefs(prefs);
   },
-  toggleGroup: function() {
+  toggleGroup: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
     var prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.modal.grouped = prefs.modal.grouped ? false : true;
     this.props.updateChartPrefs(prefs);
   },
-  toggleLines: function() {
+  toggleLines: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
     var prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.modal.showingLines = prefs.modal.showingLines ? false : true;
     this.props.updateChartPrefs(prefs);
