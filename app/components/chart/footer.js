@@ -26,31 +26,17 @@ var tideline = {
 var TidelineFooter = React.createClass({
   propTypes: {
     chartType: React.PropTypes.string.isRequired,
+    onClickBoxOverlay: React.PropTypes.func,
+    onClickGroup: React.PropTypes.func,
+    onClickLines: React.PropTypes.func,
     onClickValues: React.PropTypes.func,
+    boxOverlay: React.PropTypes.bool,
+    grouped: React.PropTypes.bool,
+    showingLines: React.PropTypes.bool,
     showingValues: React.PropTypes.bool,
     onClickRefresh: React.PropTypes.func
   },
   render: function() {
-    var valuesLinkClass = cx({
-      'tidelineNavLabel': true,
-      'tidelineNavRightLabel': true
-    });
-
-    var linesLinkClass = cx({
-      'tidelineNavLabel': true,
-      'tidelineNavRightLabel': true
-    });
-
-    var groupLinkClass = cx({
-      'tidelineNavLabel': true,
-      'tidelineNavRightLabel': true
-    });
-
-    var overlayLinkClass = cx({
-      'tidelineNavLabel': true,
-      'tidelineNavRightLabel': true
-    });
-
     var refreshLinkClass = cx({
       'patient-data-subnav-hidden': this.props.chartType === 'no-data'
     });
@@ -121,16 +107,16 @@ var TidelineFooter = React.createClass({
 
     /* jshint ignore:start */
     var showValues = (
-      <a className={valuesLinkClass} onClick={this.props.onClickValues}>{valuesLinkText}</a>
+      <a href="" onClick={this.props.onClickValues}>{valuesLinkText}</a>
       );
     /* jshint ignore:end */
 
     /* jshint ignore:start */
     var modalOpts = (
       <div>
-        <a className={linesLinkClass} onClick={this.props.onClickLines}>{linesLinkText}</a>
-        <a className={groupLinkClass} onClick={this.props.onClickGroup}>{groupLinkText}</a>
-        <a className={overlayLinkClass} onClick={this.props.onClickBoxOverlay}>{overlayLinkText}</a>
+        <a href="" onClick={this.props.onClickLines}>{linesLinkText}</a>
+        <a href="" onClick={this.props.onClickGroup}>{groupLinkText}</a>
+        <a href="" onClick={this.props.onClickBoxOverlay}>{overlayLinkText}</a>
       </div>
       );
     /* jshint ignore:end */
@@ -148,7 +134,7 @@ var TidelineFooter = React.createClass({
             <div className="grid-item one-whole medium-one-half patient-data-footer-left">
               <a href="" className={refreshLinkClass} onClick={this.props.onClickRefresh}>Refresh</a>
             </div>
-            <div href="" className="grid-item one-whole medium-one-half patient-data-footer-right">{rightSide}</div>
+            <div className="grid-item one-whole medium-one-half patient-data-footer-right">{rightSide}</div>
           </div>
         </div>
       </div>

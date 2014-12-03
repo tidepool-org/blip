@@ -39,6 +39,8 @@ var Modal = React.createClass({
     chartPrefs: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
+    // refresh handler
+    onClickRefresh: React.PropTypes.func.isRequired,
     onSwitchToDaily: React.PropTypes.func.isRequired,
     onSwitchToModal: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
@@ -107,6 +109,7 @@ var Modal = React.createClass({
          onClickBoxOverlay={this.toggleBoxOverlay}
          onClickGroup={this.toggleGroup}
          onClickLines={this.toggleLines}
+         onClickRefresh={this.props.onClickRefresh}
          boxOverlay={this.props.chartPrefs.modal.boxOverlay}
          grouped={this.props.chartPrefs.modal.grouped}
          showingLines={this.props.chartPrefs.modal.showingLines}
@@ -161,7 +164,10 @@ var Modal = React.createClass({
     // when you're on modal view, clicking modal does nothing
     return;
   },
-  handleClickOneWeek: function() {
+  handleClickOneWeek: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
     var prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.modal.activeDomain = '1 week';
     prefs.modal.extentSize = 7;
@@ -170,7 +176,10 @@ var Modal = React.createClass({
     this.refs.chart.setExtent(newDomain);
     this.handleDatetimeLocationChange(newDomain, prefs);
   },
-  handleClickTwoWeeks: function() {
+  handleClickTwoWeeks: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
     var prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.modal.activeDomain = '2 weeks';
     prefs.modal.extentSize = 14;
@@ -179,7 +188,10 @@ var Modal = React.createClass({
     this.refs.chart.setExtent(newDomain);
     this.handleDatetimeLocationChange(newDomain, prefs);
   },
-  handleClickFourWeeks: function() {
+  handleClickFourWeeks: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
     var prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.modal.activeDomain = '4 weeks';
     prefs.modal.extentSize = 28;
@@ -224,17 +236,26 @@ var Modal = React.createClass({
       self.props.updateChartPrefs(prefs);
     };
   },
-  toggleBoxOverlay: function() {
+  toggleBoxOverlay: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
     var prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.modal.boxOverlay = prefs.modal.boxOverlay ? false : true;
     this.props.updateChartPrefs(prefs);
   },
-  toggleGroup: function() {
+  toggleGroup: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
     var prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.modal.grouped = prefs.modal.grouped ? false : true;
     this.props.updateChartPrefs(prefs);
   },
-  toggleLines: function() {
+  toggleLines: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
     var prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.modal.showingLines = prefs.modal.showingLines ? false : true;
     this.props.updateChartPrefs(prefs);
@@ -304,6 +325,10 @@ var ModalChart = React.createClass({
       return activeDays[d];
     });
     var domain = d3.extent(this.allData, function(d) { return d.normalTime; });
+    // extend the domain to 28 days if existing data is less than that
+    if (Math.floor((Date.parse(domain[1]) - Date.parse(domain[0]))/864e5) < 28) {
+      domain[0] = d3.time.day.utc.offset(Date.parse(domain[1]), -28).toISOString();
+    }
     this.dataByDate.filter(this.getInitialExtent(domain));
     this.setState({
       bgDomain: d3.extent(this.allData, function(d) { return d.value; }),
@@ -395,8 +420,15 @@ var ModalChart = React.createClass({
       timezone = timePrefs.timezoneName || 'UTC';
     }
 
-    var extentSize = this.props.extentSize;
-    var extentBasis = this.props.initialDatetimeLocation || domain[1];
+    var extentSize = this.props.extentSize, extentBasis;
+    // only use passed in initialDatetimeLocation as extentBasis if it doesn't
+    // go past the domain of available smbg data
+    if (this.props.initialDatetimeLocation && this.props.initialDatetimeLocation < domain[1]) {
+      extentBasis = this.props.initialDatetimeLocation;
+    }
+    else {
+      extentBasis = domain[1];
+    }
     // startOf('day') followed by add(1, 'days') is equivalent to d3's d3.time.day.ceil
     // but we can't use that when dealing with arbitrary timezones :(
     extentBasis = sundial.ceil(extentBasis, 'day', timezone);

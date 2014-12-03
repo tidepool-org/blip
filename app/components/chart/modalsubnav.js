@@ -122,7 +122,7 @@ var ModalSubNav = React.createClass({
     });
     /* jshint ignore:start */
     return (
-      <a className={domainLinkClass} key={domain} onClick={this.props.domainClickHandlers[domain]}>{domain}</a>
+      <a href="" className={domainLinkClass} key={domain} onClick={this.props.domainClickHandlers[domain]}>{domain}</a>
       );
     /* jshint ignore:end */
   },
