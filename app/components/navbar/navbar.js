@@ -202,6 +202,12 @@ var Navbar = React.createClass({
       'Navbar-dropdownIcon-current': this.props.currentPage && this.props.currentPage === 'profile'
     });
 
+    var dropdownIconIClasses = cx({
+      'Navbar-icon': true,
+      'icon-account--down': !self.state.showDropdown,
+      'icon-account--up': self.state.showDropdown
+    });
+
     var handleDropdown = function() {
       self.setState({showDropdown: !self.state.showDropdown});
     };
@@ -218,20 +224,26 @@ var Navbar = React.createClass({
           <a href="#/patients" title="Care Team" onClick={handleCareteam} className={patientsClasses} ref="careteam"><i className="Navbar-icon icon-careteam"></i></a>
         </li>
         <li className={dropdownIconClasses}>
-          <div onClick={handleDropdown}><i className="Navbar-icon icon-account--down"></i></div>
+          <div onClick={handleDropdown}>
+            <i className='Navbar-icon Navbar-icon-profile icon-profile'></i>
+            <div className="Navbar-logged">
+              <span className="Navbar-loggedInAs">{'Logged in as '}</span>
+              <span className="Navbar-userName" ref="userFullName">{displayName}</span>
+            </div>
+            <i className='Navbar-icon Navbar-icon-down icon-arrow-down'></i>
+            <div class='clear'></div>
+          </div>
           <div onClick={stopPropagation} className={dropdownClasses}>
             <ul>
-              <li className='Navbar-menuDropdown-title'>
-                <div className="Navbar-logged">
-                  <span className="Navbar-loggedInAs">{'Logged in as '}</span>
-                  <span className="Navbar-userName" ref="userFullName">{displayName}</span>
-                </div>
+              <li>
+                <a href="#/profile" title="Account" onClick={handleClickUser} className={accountSettingsClasses}>
+                  <i className='Navbar-icon icon-settings'></i>Account Settings
+                </a>
               </li>
               <li>
-                <a href="#/profile" title="Account" onClick={handleClickUser} className={accountSettingsClasses}>Account Settings</a>
-              </li>
-              <li>
-                <a href="" title="Logout" onClick={this.handleLogout} className="Navbar-button" ref="logout">Logout</a>
+                <a href="" title="Logout" onClick={this.handleLogout} className="Navbar-button" ref="logout">
+                  <i className='Navbar-icon icon-logout'></i>Logout
+                </a>
               </li>
             </ul>
           </div>
