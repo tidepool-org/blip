@@ -55,18 +55,28 @@ d3.chart('Brush', {
         enter: function() {
           var xScale = chart.xScale(), tz = chart.timezone();
           var tickShift = chart.tickShift();
+          if (chart.brushTickInterval() !== 'month') {
+            tickShift.x = 0;
+          }
           this.attr({
             x: function(d) {
               return xPosition(d) + tickShift.x;
             },
             y: tickShift.y
           })
+          .classed('centered', chart.brushTickInterval() !== 'month')
           .text(function(d) {
-            return moment.utc(d).tz(tz).format('MMM');
+            var format = chart.brushTickInterval() === 'month' ? 'MMM': 'MMM D';
+            return moment.utc(d).tz(tz).format(format);
           });
         }
       }
     });
+  },
+  brushTickInterval: function(brushTickInterval) {
+    if (!arguments.length) { return this._brushTickInterval; }
+    this._brushTickInterval = brushTickInterval;
+    return this;
   },
   cornerRadius: function(cornerRadius) {
     if (!arguments.length) { return this._cornerRadius; }
@@ -124,10 +134,17 @@ d3.chart('Brush', {
       w - mainMargins.right
     ]);
     var domain = xScale.domain();
+    var domainDays = (domain[1] - domain[0])/MS_IN_24;
+    var smallDaysLimit = 40, mediumDaysLimit = 90;
+    this._brushTickInterval = domainDays < mediumDaysLimit ? 'week' : 'month';
+    var tickJump = 1;
+    if (domainDays > smallDaysLimit && domainDays < mediumDaysLimit) {
+      tickJump = 2;
+    }
     var ticks = [], current = domain[0];
     var tz = this.timezone();
     while (current < domain[1]) {
-      current = moment(current).add(1, 'month').startOf('month').tz(tz).toDate();
+      current = moment(current).add(tickJump, this._brushTickInterval).startOf(this._brushTickInterval).tz(tz).toDate();
       ticks.push(current);
     }
     // final tick will go beyond the domain, so pop it
@@ -136,7 +153,7 @@ d3.chart('Brush', {
     // don't want tick labels to appear too close to edge
     // so only show if > two weeks from start of floor of end-of-domain month
     var lastTick = ticks[ticks.length - 1];
-    if ((domain[1] - lastTick) / MS_IN_24 < 14) {
+    if (this._brushTickInterval === 'month' && (domain[1] - lastTick) / MS_IN_24 < 14) {
       this.textTicks = ticks.slice();
       this.textTicks.pop();
     }

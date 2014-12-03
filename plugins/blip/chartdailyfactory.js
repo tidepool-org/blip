@@ -203,7 +203,7 @@ function chartDailyFactory(el, options) {
         return d;
       }
     });
-    var scaleBG = scales.bgLog(allBG, poolBG, SMBG_SIZE/2);
+    var scaleBG = scales.bg(allBG, poolBG, SMBG_SIZE/2);
     // set up y-axis
     poolBG.yAxis(d3.svg.axis()
       .scale(scaleBG)
