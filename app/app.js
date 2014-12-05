@@ -1094,7 +1094,10 @@ var AppComponent = React.createClass({
 
     window.tidelineData = tidelineData;
     window.downloadProcessedData = function() {
-      console.save(res.processedData);
+      console.save(res.processedData, 'nurseshark-output.json');
+    };
+    window.downloadErroredData = function() {
+      console.save(res.erroredData, 'errored.json');
     };
 
     return tidelineData;
