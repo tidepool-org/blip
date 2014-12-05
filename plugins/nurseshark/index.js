@@ -483,6 +483,7 @@ function getHandlers() {
       // a suppressed should share these attributes with its parent
       d.suppressed.duration = d.duration;
       d.suppressed.time = d.time;
+      d.suppressed.deviceTime = d.deviceTime;
       if (d.suppressed.suppressed) {
         this.suppressed(d.suppressed);
       }
