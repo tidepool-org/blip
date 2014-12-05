@@ -24,18 +24,22 @@ var tidepool;
 
 var config = require('../config');
 
+var queryString = require('./querystring');
 var personUtils = require('./personutils');
 var migrations = require('./lib/apimigrations');
+
 
 var api = {
   log: bows('Api')
 };
 
 api.init = function(cb) {
+  var chromeUpload = !!queryString.parseTypes(window.location.search).chromeUpload;
+  
   var tidepoolLog = bows('Tidepool');
   tidepool = createTidepoolClient({
     host: config.API_HOST,
-    uploadApi: config.UPLOAD_API,
+    uploadApi: chromeUpload ? config.CHROMEUPlOAD_EXTENSION_URL : config.UPLOAD_API,
     log: {
       warn: tidepoolLog,
       info: tidepoolLog,
