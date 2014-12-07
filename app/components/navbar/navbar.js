@@ -159,11 +159,26 @@ var Navbar = React.createClass({
     );
   },
 
-  renderMenuSection: function() {
-    document.getElementById('app').onclick = function() {
-      self.setState({showDropdown: false});
-    };
+  toggleDropdown: function(e) {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
 
+    this.setState({showDropdown: !this.state.showDropdown});
+  },
+
+  stopPropagation: function(e) {
+    e.stopPropagation();
+  },
+
+  hideDropdown: function()  {
+    if (this.state.showDropdown) {
+      this.setState({showDropdown: false});
+    }
+  },
+
+  renderMenuSection: function() {
     var user = this.props.user;
 
     if (_.isEmpty(user)) {
@@ -208,23 +223,13 @@ var Navbar = React.createClass({
       'icon-account--up': self.state.showDropdown
     });
 
-    var handleDropdown = function() {
-      self.setState({showDropdown: !self.state.showDropdown});
-    };
-
-    var stopPropagation = function(e) {
-      e.stopPropagation();
-    };
-
-    /*
-    */
     return (
       <ul className="Navbar-menuSection" ref="user">
         <li className="Navbar-menuItem">
           <a href="#/patients" title="Care Team" onClick={handleCareteam} className={patientsClasses} ref="careteam"><i className="Navbar-icon icon-careteam"></i></a>
         </li>
         <li className={dropdownIconClasses}>
-          <div onClick={handleDropdown}>
+          <div onClick={this.toggleDropdown}>
             <i className='Navbar-icon Navbar-icon-profile icon-profile'></i>
             <div className="Navbar-logged">
               <span className="Navbar-loggedInAs">{'Logged in as '}</span>
@@ -233,7 +238,7 @@ var Navbar = React.createClass({
             <i className='Navbar-icon Navbar-icon-down icon-arrow-down'></i>
             <div class='clear'></div>
           </div>
-          <div onClick={stopPropagation} className={dropdownClasses}>
+          <div onClick={this.stopPropagation} className={dropdownClasses}>
             <ul>
               <li>
                 <a href="#/profile" title="Account" onClick={handleClickUser} className={accountSettingsClasses}>

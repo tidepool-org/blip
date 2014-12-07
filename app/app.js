@@ -205,7 +205,7 @@ var AppComponent = React.createClass({
 
     /* jshint ignore:start */
     return (
-      <div className="app">
+      <div className="app" onClick={this.hideNavbarDropdown}>
         {overlay}
         {navbar}
         {notification}
@@ -267,7 +267,8 @@ var AppComponent = React.createClass({
             currentPage={this.state.page}
             getUploadUrl={getUploadUrl}
             onLogout={this.logout}
-            trackMetric={trackMetric}/>
+            trackMetric={trackMetric}
+            ref="navbar"/>
         </div>
         /* jshint ignore:end */
       );
@@ -1272,7 +1273,15 @@ var AppComponent = React.createClass({
   getPasswordResetKey: function() {
     var hashQueryParams = app.router.getQueryParams();
     return hashQueryParams.resetKey;
+  },
+
+  hideNavbarDropdown: function() {
+  var navbar = this.refs.navbar;
+
+  if (navbar) {
+    navbar.hideDropdown();
   }
+}
 });
 
 app.start = function() {
