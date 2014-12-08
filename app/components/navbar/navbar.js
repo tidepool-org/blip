@@ -35,6 +35,12 @@ var Navbar = React.createClass({
     trackMetric: React.PropTypes.func.isRequired
   },
 
+  getInitialState: function() {
+    return {
+      showDropdown: false
+    };
+  },
+
   render: function() {
     return (
       <div className="Navbar">
@@ -153,6 +159,25 @@ var Navbar = React.createClass({
     );
   },
 
+  toggleDropdown: function(e) {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    this.setState({showDropdown: !this.state.showDropdown});
+  },
+
+  stopPropagation: function(e) {
+    e.stopPropagation();
+  },
+
+  hideDropdown: function()  {
+    if (this.state.showDropdown) {
+      this.setState({showDropdown: false});
+    }
+  },
+
   renderMenuSection: function() {
     var user = this.props.user;
 
@@ -164,6 +189,7 @@ var Navbar = React.createClass({
     var self = this;
     var handleClickUser = function() {
       self.props.trackMetric('Clicked Navbar Logged In User');
+      self.setState({showDropdown: false});
     };
 
     var handleCareteam = function() {
@@ -175,28 +201,57 @@ var Navbar = React.createClass({
       'Navbar-selected': this.props.currentPage && this.props.currentPage === 'patients'
     });
 
-    var profileClasses = cx({
+    var accountSettingsClasses = cx({
       'Navbar-button': true,
-      'Navbar-button--withLeftLabelAndArrow': true,
-      'Navbar-selected': this.props.currentPage && this.props.currentPage === 'profile'
+      'Navbar-dropdownIcon-show': this.props.currentPage && this.props.currentPage === 'profile'
+    });
+
+    var dropdownClasses = cx({
+      'Navbar-menuDropdown': true,
+      'Navbar-menuDropdown-hide': !self.state.showDropdown
+    });
+
+    var dropdownIconClasses = cx({
+      'Navbar-dropdownIcon': true,
+      'Navbar-dropdownIcon-show': self.state.showDropdown,
+      'Navbar-dropdownIcon-current': this.props.currentPage && this.props.currentPage === 'profile'
+    });
+
+    var dropdownIconIClasses = cx({
+      'Navbar-icon': true,
+      'icon-account--down': !self.state.showDropdown,
+      'icon-account--up': self.state.showDropdown
     });
 
     return (
       <ul className="Navbar-menuSection" ref="user">
         <li className="Navbar-menuItem">
-          <a href="#/profile" title="Account" onClick={handleClickUser} className={profileClasses}>
+          <a href="#/patients" title="Care Team" onClick={handleCareteam} className={patientsClasses} ref="careteam"><i className="Navbar-icon icon-careteam"></i></a>
+        </li>
+        <li className={dropdownIconClasses}>
+          <div onClick={this.toggleDropdown}>
+            <i className='Navbar-icon Navbar-icon-profile icon-profile'></i>
             <div className="Navbar-logged">
               <span className="Navbar-loggedInAs">{'Logged in as '}</span>
               <span className="Navbar-userName" ref="userFullName">{displayName}</span>
             </div>
-            <i className="Navbar-icon icon-profile"></i>
-          </a>
-        </li>
-        <li className="Navbar-menuItem">
-          <a href="#/patients" title="Care Team" onClick={this.handleCareteam} className={patientsClasses} ref="careteam"><i className="Navbar-icon icon-careteam"></i></a>
-        </li>
-        <li className="Navbar-menuItem">
-          <a href="" title="Logout" onClick={this.handleLogout} className="Navbar-button" ref="logout"><i className="Navbar-icon icon-logout"></i></a>
+            <i className='Navbar-icon Navbar-icon-down icon-arrow-down'></i>
+            <div class='clear'></div>
+          </div>
+          <div onClick={this.stopPropagation} className={dropdownClasses}>
+            <ul>
+              <li>
+                <a href="#/profile" title="Account" onClick={handleClickUser} className={accountSettingsClasses}>
+                  <i className='Navbar-icon icon-settings'></i>Account Settings
+                </a>
+              </li>
+              <li>
+                <a href="" title="Logout" onClick={this.handleLogout} className="Navbar-button" ref="logout">
+                  <i className='Navbar-icon icon-logout'></i>Logout
+                </a>
+              </li>
+            </ul>
+          </div>
         </li>
       </ul>
     );
@@ -223,6 +278,8 @@ var Navbar = React.createClass({
   },
 
   handleLogout: function(e) {
+    this.setState({showDropdown: false});
+
     if (e) {
       e.preventDefault();
     }
