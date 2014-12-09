@@ -909,7 +909,7 @@ module.exports = function (config, deps) {
                   log.info('Sync task poll complete', syncTask);
 
                   if (syncTask.status === 'error') {
-                    return done({message: 'Sync task failed'});
+                    return done({message: 'Sync task failed', error: syncTask.error});
                   }
 
                   if (syncTask.status === 'success') {
