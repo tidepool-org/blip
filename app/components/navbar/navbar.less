@@ -323,9 +323,9 @@
   cursor: default;
   position: absolute;
   background: white;
-  border: 1px solid rgb(218, 218, 218);
   right: 0px;
   width: 200px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
   top: 25px;
 
   > ul {
@@ -343,28 +343,16 @@
   }
 }
 
-.Navbar-menuDropdown:after, .arrow_box:before {
-	bottom: 100%;
-	left: 50%;
-	border: solid transparent;
-	content: " ";
-	height: 0;
-	width: 0;
-	position: absolute;
-	pointer-events: none;
-}
-
-.Navbar-menuDropdown:after {
-	border-color: rgba(136, 183, 213, 0);
-	border-bottom-color: rgb(218, 218, 218);
-	border-width: 6px;
-	margin-left: 80px;
-}
 .Navbar-menuDropdown:before {
-	border-color: rgba(194, 225, 245, 0);
-	border-bottom-color: rgb(218, 218, 218);
-	border-width: 31px;
-	margin-left: -31px;
+	position: absolute;
+  top: -7px;
+  left: 98px;
+  display: inline-block;
+  border-right: 7px solid transparent;
+  border-bottom: 7px solid #eee;
+  border-left: 7px solid transparent;
+  border-bottom-color: white;
+  content: '';
 }
 
 .Navbar-dropdownIcon {
