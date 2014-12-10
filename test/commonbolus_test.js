@@ -111,6 +111,15 @@ describe('common bolus functions', function() {
       recommended: {
         carb: 5.0
       }
+    },
+    withNetRec: {
+      type: 'wizard',
+      bolus: {
+        normal: 1.0
+      },
+      recommended: {
+        net: 2.0
+      }
     }
   };
 
@@ -138,6 +147,10 @@ describe('common bolus functions', function() {
 
     it('should return correction rec when only correction rec exists', function() {
       expect(commonbolus.getRecommended(fixtures.squareUnderride)).to.equal(fixtures.squareUnderride.recommended.correction);
+    });
+
+    it('should return net rec when net rec exists', function() {
+      expect(commonbolus.getRecommended(fixtures.withNetRec)).to.equal(fixtures.withNetRec.recommended.net);
     });
   });
 
