@@ -22,6 +22,9 @@ module.exports = {
     if (!d.recommended) {
       return NaN;
     }
+    if (d.recommended.net != null) {
+      return d.recommended.net;
+    }
     var rec = 0;
     if (d.recommended.carb) {
       rec += d.recommended.carb;
