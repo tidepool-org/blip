@@ -258,8 +258,10 @@ var PatientData = React.createClass({
             onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
+            trackMetric={this.props.trackMetric}
             updateChartPrefs={this.updateChartPrefs}
-            updateDatetimeLocation={this.updateDatetimeLocation} 
+            updateDatetimeLocation={this.updateDatetimeLocation}
+            uploadUrl={this.props.uploadUrl}
             ref="tideline" />
           );
         /* jshint ignore:end */

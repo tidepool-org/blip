@@ -45,8 +45,10 @@ var Modal = React.createClass({
     onSwitchToModal: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToWeekly: React.PropTypes.func.isRequired,
+    trackMetric: React.PropTypes.func.isRequired,
     updateChartPrefs: React.PropTypes.func.isRequired,
-    updateDatetimeLocation: React.PropTypes.func.isRequired
+    updateDatetimeLocation: React.PropTypes.func.isRequired,
+    uploadUrl: React.PropTypes.string.isRequired
   },
   getInitialState: function() {
     return {
@@ -60,52 +62,17 @@ var Modal = React.createClass({
     /* jshint ignore:start */
     return (
       <div id="tidelineMain">
-        <Header
-          chartType={this.chartType}
-          atMostRecent={this.state.atMostRecent}
-          inTransition={this.state.inTransition}
-          title={this.state.title}
-          onClickModal={this.handleClickModal}
-          onClickOneDay={this.handleClickDaily}
-          onClickTwoWeeks={this.handleClickWeekly}
-          onClickSettings={this.handleClickSettings}
-        ref="header" />
-        <SubNav
-         activeDays={this.props.chartPrefs.modal.activeDays}
-         activeDomain={this.props.chartPrefs.modal.activeDomain}
-         extentSize={this.props.chartPrefs.modal.extentSize}
-         domainClickHandlers={{
-          '1 week': this.handleClickOneWeek,
-          '2 weeks': this.handleClickTwoWeeks,
-          '4 weeks': this.handleClickFourWeeks
-         }}
-         onClickDay={this.toggleDay}
-         toggleWeekdays={this.toggleWeekdays}
-         toggleWeekends={this.toggleWeekends}
-         ref="subnav" />
+        {this.isMissingSMBG() ? this.renderMissingSMBGHeader() : this.renderHeader()}
+        {this.isMissingSMBG() ? null : this.renderSubNav()}
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
-              <ModalChart
-                activeDays={this.props.chartPrefs.modal.activeDays}
-                bgClasses={this.props.bgPrefs.bgClasses}
-                bgUnits={this.props.bgPrefs.bgUnits}
-                extentSize={this.props.chartPrefs.modal.extentSize}
-                initialDatetimeLocation={this.props.initialDatetimeLocation}
-                patientData={this.props.patientData}
-                boxOverlay={this.props.chartPrefs.modal.boxOverlay}
-                grouped={this.props.chartPrefs.modal.grouped}
-                showingLines={this.props.chartPrefs.modal.showingLines}
-                timePrefs={this.props.chartPrefs.timePrefs}
-                // handlers
-                onDatetimeLocationChange={this.handleDatetimeLocationChange}
-                onSelectDay={this.handleSelectDay}
-                ref="chart" />
+              {this.isMissingSMBG() ? this.renderMissingSMBGMessage() : this.renderChart()}
             </div>
           </div>
         </div>
         <Footer
-         chartType={this.chartType}
+         chartType={this.isMissingSMBG() ? 'no-data' : this.chartType}
          onClickBoxOverlay={this.toggleBoxOverlay}
          onClickGroup={this.toggleGroup}
          onClickLines={this.toggleLines}
@@ -116,6 +83,99 @@ var Modal = React.createClass({
         ref="footer" />
       </div>
       );
+    /* jshint ignore:end */
+  },
+  renderHeader: function() {
+    /* jshint ignore:start */
+    return (
+      <Header
+        chartType={this.chartType}
+        atMostRecent={this.state.atMostRecent}
+        inTransition={this.state.inTransition}
+        title={this.state.title}
+        onClickModal={this.handleClickModal}
+        onClickOneDay={this.handleClickDaily}
+        onClickTwoWeeks={this.handleClickWeekly}
+        onClickSettings={this.handleClickSettings}
+      ref="header" />
+      );
+  },
+  renderSubNav: function() {
+    /* jshint ignore:start */
+    return (
+      <SubNav
+       activeDays={this.props.chartPrefs.modal.activeDays}
+       activeDomain={this.props.chartPrefs.modal.activeDomain}
+       extentSize={this.props.chartPrefs.modal.extentSize}
+       domainClickHandlers={{
+        '1 week': this.handleClickOneWeek,
+        '2 weeks': this.handleClickTwoWeeks,
+        '4 weeks': this.handleClickFourWeeks
+       }}
+       onClickDay={this.toggleDay}
+       toggleWeekdays={this.toggleWeekdays}
+       toggleWeekends={this.toggleWeekends}
+       ref="subnav" />
+      );
+    /* jshint ignore:end */
+  },
+  renderChart: function() {
+    /* jshint ignore:start */
+    return (
+      <ModalChart
+        activeDays={this.props.chartPrefs.modal.activeDays}
+        bgClasses={this.props.bgPrefs.bgClasses}
+        bgUnits={this.props.bgPrefs.bgUnits}
+        extentSize={this.props.chartPrefs.modal.extentSize}
+        initialDatetimeLocation={this.props.initialDatetimeLocation}
+        patientData={this.props.patientData}
+        boxOverlay={this.props.chartPrefs.modal.boxOverlay}
+        grouped={this.props.chartPrefs.modal.grouped}
+        showingLines={this.props.chartPrefs.modal.showingLines}
+        timePrefs={this.props.chartPrefs.timePrefs}
+        // handlers
+        onDatetimeLocationChange={this.handleDatetimeLocationChange}
+        onSelectDay={this.handleSelectDay}
+        ref="chart" />
+      );
+    /* jshint ignore:end */
+  },
+  renderMissingSMBGHeader: function() {
+    /* jshint ignore:start */
+    return (
+      <Header
+        chartType={this.chartType}
+        atMostRecent={this.state.atMostRecent}
+        inTransition={this.state.inTransition}
+        title={''}
+        onClickOneDay={this.handleClickDaily}
+        onClickSettings={this.handleClickSettings}
+        onClickTwoWeeks={this.handleClickWeekly}
+      ref="header" />
+    );
+    /* jshint ignore:end */
+  },
+  renderMissingSMBGMessage: function() {
+    var self = this;
+    var handleClickUpload = function() {
+      self.props.trackMetric('Clicked Partial Data Upload, No SMBG');
+    };
+    /* jshint ignore:start */
+    return (
+      <div className="patient-data-message patient-data-message-loading">
+        <p>{'It looks like you don\'t have any BG meter data yet!'}</p>
+        <p>{'To see all your data together, please '}
+          <a
+            href={this.props.uploadUrl}
+            target="_blank"
+            onClick={handleClickUpload}>upload</a>
+          {' your insulin pump data and CGM data at the same time.'}</p>
+        <p>{'Or if you already have, try '}
+          <a href="" onClick={this.props.onClickRefresh}>refreshing</a>
+          {'.'}
+        </p>
+      </div>
+    );
     /* jshint ignore:end */
   },
   formatDate: function(datetime) {
@@ -144,6 +204,13 @@ var Modal = React.createClass({
     current = sundial.ceil(current, 'day', timezone);
     return [d3.time.day.utc.offset(current, -extent), current];
   },
+  isMissingSMBG: function() {
+    var data = this.props.patientData;
+    if (_.isEmpty(data.grouped.smbg)) {
+      return true;
+    }
+    return false;
+  },
   updateVisibleDays: function() {
     this.setState({
       visibleDays: d3.select('#modalDays').selectAll('g.modalDay').size()
@@ -154,7 +221,7 @@ var Modal = React.createClass({
     if (e) {
       e.preventDefault();
     }
-    var datetime = this.refs.chart.getCurrentDay();
+    var datetime = this.refs.chart ? this.refs.chart.getCurrentDay() : this.props.initialDatetimeLocation;
     this.props.onSwitchToDaily(datetime);
   },
   handleClickModal: function(e) {
@@ -204,7 +271,8 @@ var Modal = React.createClass({
     if (e) {
       e.preventDefault();
     }
-    var datetime = this.refs.chart.getCurrentDay();
+    var datetime = this.refs.chart ? this.refs.chart.getCurrentDay() : this.props.initialDatetimeLocation;
+    console.log(datetime);
     this.props.onSwitchToWeekly(datetime);
   },
   handleClickSettings: function(e) {
