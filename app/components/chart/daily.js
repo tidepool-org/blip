@@ -1,8 +1,24 @@
 /** @jsx React.DOM */
+/* 
+ * == BSD2 LICENSE ==
+ * Copyright (c) 2014, Tidepool Project
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the associated License, which is identical to the BSD 2-Clause
+ * License as published by the Open Source Initiative at opensource.org.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the License for more details.
+ * 
+ * You should have received a copy of the License along with this program; if
+ * not, you can obtain one from Tidepool Project at tidepool.org.
+ * == BSD2 LICENSE ==
+ */
 var _ = require('lodash');
 var bows = require('bows');
-var moment = require('moment');
 var React = require('react');
+var sundial = require('sundial');
 
 // tideline dependencies & plugins
 var tidelineBlip = require('tideline/plugins/blip');
@@ -53,6 +69,7 @@ var Daily = React.createClass({
           iconNext={'icon-next'}
           iconMostRecent={'icon-most-recent'}
           onClickBack={this.handlePanBack}
+          onClickModal={this.handleClickModal}
           onClickMostRecent={this.handleClickMostRecent}
           onClickNext={this.handlePanForward}
           onClickOneDay={this.handleClickOneDay}
@@ -67,10 +84,10 @@ var Daily = React.createClass({
                 bgUnits={this.props.bgPrefs.bgUnits}
                 bolusRatio={this.props.chartPrefs.bolusRatio}
                 dynamicCarbs={this.props.chartPrefs.dynamicCarbs}
-                hiddenPools={this.props.chartPrefs.hiddenPools}
                 imagesBaseUrl={this.props.imagesBaseUrl}
                 initialDatetimeLocation={this.props.initialDatetimeLocation}
                 patientData={this.props.patientData}
+                timePrefs={this.props.chartPrefs.timePrefs}
                 // message handlers
                 onCreateMessage={this.props.onCreateMessage}
                 onShowMessageThread={this.props.onShowMessageThread}
@@ -93,9 +110,23 @@ var Daily = React.createClass({
     /* jshint ignore:end */
   },
   getTitle: function(datetime) {
-    return moment(datetime).utc().format('dddd, MMMM Do');
+    var timePrefs = this.props.chartPrefs.timePrefs, timezone;
+    if (!timePrefs.timezoneAware) {
+      timezone = 'UTC';
+    }
+    else {
+      timezone = timePrefs.timezoneName || 'UTC';
+    }
+    return sundial.formatInTimezone(datetime, timezone, 'dddd, MMMM Do');
   },
   // handlers
+  handleClickModal: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+    var datetime = this.refs.chart.getCurrentDay();
+    this.props.onSwitchToModal(datetime);
+  },
   handleClickMostRecent: function(e) {
     if (e) {
       e.preventDefault();
@@ -122,18 +153,6 @@ var Daily = React.createClass({
     });
     this.props.updateDatetimeLocation(datetimeLocationEndpoints[1]);
   },
-  handleHideBasalSettings: function() {
-    this.props.updateChartPrefs({
-      hiddenPools: {
-        basalSettings: true
-      }
-    });
-    this.setState({
-      hiddenPools: {
-        basalSettings: true
-      }
-    }, this.refs.chart.rerenderChart);
-  },
   handleInTransition: function(inTransition) {
     this.setState({
       inTransition: inTransition
@@ -157,18 +176,6 @@ var Daily = React.createClass({
     }
     this.refs.chart.panForward();
   },
-  handleShowBasalSettings: function() {
-    this.props.updateChartPrefs({
-      hiddenPools: {
-        basalSettings: false
-      }
-    });
-    this.setState({
-      hiddenPools: {
-        basalSettings: false
-      }
-    }, this.refs.chart.rerenderChart);
-  },
   // methods for messages
   closeMessageThread: function() {
     return this.refs.chart.closeMessage();
@@ -182,23 +189,23 @@ var Daily = React.createClass({
 });
 
 var DailyChart = React.createClass({
-  chartOpts: ['bgClasses', 'bgUnits', 'dynamicCarbs', 'bolusRatio', 'hiddenPools', 'imagesBaseUrl'],
+  chartOpts: ['bgClasses', 'bgUnits', 'bolusRatio', 'dynamicCarbs', 'imagesBaseUrl', 'timePrefs'],
   log: bows('Daily Chart'),
   propTypes: {
     bgClasses: React.PropTypes.object.isRequired,
     bgUnits: React.PropTypes.string.isRequired,
-    hiddenPools: React.PropTypes.object.isRequired,
+    bolusRatio: React.PropTypes.number,
+    dynamicCarbs: React.PropTypes.bool,
     imagesBaseUrl: React.PropTypes.string.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
+    timePrefs: React.PropTypes.object.isRequired,
     // message handlers
     onCreateMessage: React.PropTypes.func.isRequired,
     onShowMessageThread: React.PropTypes.func.isRequired,
     // other handlers
     onDatetimeLocationChange: React.PropTypes.func.isRequired,
-    onHideBasalSettings: React.PropTypes.func.isRequired,
     onMostRecent: React.PropTypes.func.isRequired,
-    onShowBasalSettings: React.PropTypes.func.isRequired,
     onTransition: React.PropTypes.func.isRequired
   },
   getInitialState: function() {
@@ -225,12 +232,10 @@ var DailyChart = React.createClass({
   },
   bindEvents: function() {
     this.chart.emitter.on('createMessage', this.props.onCreateMessage);
-    this.chart.emitter.on('hideBasalSettings', this.props.onHideBasalSettings);
     this.chart.emitter.on('inTransition', this.props.onTransition);
     this.chart.emitter.on('messageThread', this.props.onShowMessageThread);
     this.chart.emitter.on('mostRecent', this.props.onMostRecent);
     this.chart.emitter.on('navigated', this.handleDatetimeLocationChange);
-    this.chart.emitter.on('showBasalSettings', this.props.onShowBasalSettings);
   },
   initializeChart: function(datetime) {
     this.log('Initializing...');

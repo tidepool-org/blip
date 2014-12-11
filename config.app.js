@@ -39,7 +39,7 @@ module.exports = {
   VERSION: pkg.version,
   MOCK: booleanFromText(process.env.MOCK, false),
   MOCK_PARAMS: process.env.MOCK_PARAMS || '',
-  UPLOAD_API: process.env.UPLOAD_API || 'https://devel-uploads.tidepool.io',
+  UPLOAD_API: process.env.UPLOAD_API || 'https://chrome.google.com/webstore/detail/tidepool-uploader/cabklgajffclbljkhmjphejemhpbghfb',
   API_HOST: process.env.API_HOST || 'https://devel-api.tidepool.io',
   SHOW_ACCEPT_TERMS: booleanFromText(process.env.SHOW_ACCEPT_TERMS, true),
   PASSWORD_MIN_LENGTH: integerFromText(process.env.PASSWORD_MIN_LENGTH, 8)

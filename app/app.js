@@ -19,6 +19,7 @@ var React = require('react');
 var bows = require('bows');
 var _ = require('lodash');
 var async = require('async');
+var sundial = require('sundial');
 
 var nurseShark = require('tideline/plugins/nurseshark/');
 var TidelineData = require('tideline/js/tidelinedata');
@@ -126,6 +127,24 @@ function buildExceptionDetails(){
 
 var AppComponent = React.createClass({
   getInitialState: function() {
+    var queryParams = queryString.parseTypes(window.location.search);
+    var timePrefs = {
+      timezoneAware: false,
+      // TODO: remove hardcoding of this in future once we actually introduce arbitrary timezone support
+      timezoneName: 'US/Pacific'
+    };
+    if (!_.isEmpty(queryParams.timezone)) {
+      var queryTimezone = queryParams.timezone.replace('-', '/');
+      try {
+        sundial.checkTimezoneName(queryTimezone);
+        timePrefs.timezoneAware = true;
+        timePrefs.timezoneName = queryTimezone;
+        app.log('Viewing data in timezone-aware mode with', queryTimezone, 'as the selected timezone.');
+      }
+      catch(err) {
+        console.log(new Error('Invalid timezone name in query parameter. (Try capitalizing properly.)'));
+      }
+    }
     return {
       authenticated: app.api.user.isAuthenticated(),
       notification: null,
@@ -142,6 +161,7 @@ var AppComponent = React.createClass({
       pendingInvites:null,
       fetchingPendingInvites: true,
       bgPrefs: null,
+      timePrefs: timePrefs,
       patientData: null,
       fetchingPatientData: true,
       fetchingMessageData: true,
@@ -149,7 +169,7 @@ var AppComponent = React.createClass({
       showingWelcomeTitle: false,
       showingWelcomeSetup: false,
       dismissedBrowserWarning: false,
-      queryParams: queryString.parseTypes(window.location.search)
+      queryParams: queryParams
     };
   },
 
@@ -760,6 +780,7 @@ var AppComponent = React.createClass({
         user={this.state.user}
         patient={this.state.patient}
         bgPrefs={this.state.bgPrefs}
+        timePrefs={this.state.timePrefs}
         patientData={this.state.patientData}
         fetchingPatientData={this.state.fetchingPatientData}
         isUserPatient={this.isSamePersonUserAndPatient()}
@@ -1065,12 +1086,19 @@ var AppComponent = React.createClass({
       return null;
     }
 
-    var res = nurseShark.processData(data);
-    var tidelineData = new TidelineData(res.processedData);
+    console.time('Nurseshark Total');
+    var res = nurseShark.processData(data, this.state.timePrefs);
+    console.timeEnd('Nurseshark Total');
+    console.time('TidelineData Total');
+    var tidelineData = new TidelineData(res.processedData, {timePrefs: this.state.timePrefs});
+    console.timeEnd('TidelineData Total');
 
     window.tidelineData = tidelineData;
     window.downloadProcessedData = function() {
-      console.save(res.processedData);
+      console.save(res.processedData, 'nurseshark-output.json');
+    };
+    window.downloadErroredData = function() {
+      console.save(res.erroredData, 'errored.json');
     };
 
     return tidelineData;

@@ -59,14 +59,15 @@ var MessageForm = React.createClass({
   },
   initEdit:function() {
     if( this.hasTextToEdit() && this.hasTimestampToEdit() ){
+      var offset = sundial.getOffsetFromTime(this.props.formFields.editableTimestamp) || sundial.getOffset();
       //allow editing of both the note text and timestamp
       this.setState({
         msg : this.props.formFields.editableText,
         whenUtc : this.props.formFields.editableTimestamp ,
         editing : true,
         changeDateTime : true,
-        time : sundial.formatForDisplay(this.props.formFields.editableTimestamp,this.props.TIME_MASK),
-        date : sundial.formatForDisplay(this.props.formFields.editableTimestamp,this.props.DATE_MASK)
+        time : sundial.formatFromOffset(this.props.formFields.editableTimestamp, offset, this.props.TIME_MASK),
+        date : sundial.formatFromOffset(this.props.formFields.editableTimestamp, offset, this.props.DATE_MASK)
       });
     } else if(this.hasTextToEdit()) {
       //allow editing of the note text only
@@ -142,9 +143,9 @@ var MessageForm = React.createClass({
     var utcTimestamp = this.state.whenUtc;
 
     if(this.state.date && this.state.time){
-      var offset = sundial.getOffsetFromTime(this.state.whenUtc) || sundial.getOffset();
       var editedTimestamp = this.state.date+'T'+this.state.time;
-      utcTimestamp =  sundial.formatForStorage(editedTimestamp,offset);
+      var offset = sundial.getOffsetFromTime(editedTimestamp);
+      utcTimestamp = sundial.formatForStorage(editedTimestamp,offset);
     }
 
     return utcTimestamp;
@@ -186,10 +187,11 @@ var MessageForm = React.createClass({
     if (e) {
       e.preventDefault();
     }
+    var offset = sundial.getOffsetFromTime(this.state.whenUtc) || sundial.getOffset();
     this.setState({
       changeDateTime : true,
-      time : sundial.formatForDisplay(this.state.whenUtc,this.props.TIME_MASK),
-      date : sundial.formatForDisplay(this.state.whenUtc,this.props.DATE_MASK)
+      time : sundial.formatFromOffset(this.state.whenUtc, offset, this.props.TIME_MASK),
+      date : sundial.formatFromOffset(this.state.whenUtc, offset, this.props.DATE_MASK)
     });
   },
   isButtonDisabled: function() {
@@ -211,11 +213,13 @@ var MessageForm = React.createClass({
         );
       }
 
+      var offset = sundial.getOffsetFromTime(this.state.whenUtc) || sundial.getOffset();
+
       displayDate = (
         <div>
           {editLink}
           <label className='messageform-datetime-label'>
-            {sundial.formatForDisplay(this.state.whenUtc)}
+            {sundial.formatFromOffset(this.state.whenUtc, offset)}
           </label>
         </div>
       );

@@ -18,6 +18,7 @@ var React = require('react');
 var _ = require('lodash');
 var moment = require('moment');
 var bows = require('bows');
+var sundial = require('sundial');
 
 var config = require('../../config');
 
@@ -25,6 +26,7 @@ var personUtils = require('../../core/personutils');
 var utils = require('../../core/utils');
 var Header = require('../../components/chart').header;
 var Daily = require('../../components/chart').daily;
+var Modal = require('../../components/chart').modal;
 var Weekly = require('../../components/chart').weekly;
 var Settings = require('../../components/chart').settings;
 
@@ -35,6 +37,7 @@ var Messages = require('../../components/messages');
 var PatientData = React.createClass({
   propTypes: {
     bgPrefs: React.PropTypes.object,
+    timePrefs: React.PropTypes.object.isRequired,
     patientData: React.PropTypes.object,
     patient: React.PropTypes.object,
     fetchingPatientData: React.PropTypes.bool,
@@ -55,10 +58,23 @@ var PatientData = React.createClass({
     var params = this.props.queryParams;
     var state = {
       chartPrefs: {
-        hiddenPools: {
-          // pass null here to *completely* disable the tabular display of basal settings
-          basalSettings: null
-        }
+        modal: {
+          activeDays: {
+            monday: true,
+            tuesday: true,
+            wednesday: true,
+            thursday: true,
+            friday: true,
+            saturday: true,
+            sunday: true,
+          },
+          activeDomain: '2 weeks',
+          extentSize: 14,
+          boxOverlay: false,
+          grouped: false,
+          showingLines: true
+        },
+        timePrefs: this.props.timePrefs
       },
       chartType: 'daily',
       createMessage: null,
@@ -75,14 +91,11 @@ var PatientData = React.createClass({
     var params = this.props.queryParams;
 
     if (!_.isEmpty(params)) {
+      var prefs = _.cloneDeep(this.state.chartPrefs);
+      prefs.bolusRatio = params.dynamicCarbs ? 0.5 : 0.35;
+      prefs.dynamicCarbs = params.dynamicCarbs;
       this.setState({
-        chartPrefs: {
-          hiddenPools: {
-            basalSettings: params.showbasalsettings ?  true : null
-          },
-          bolusRatio: params.dynamicCarbs ? 0.5 : 0.35,
-          dynamicCarbs: params.dynamicCarbs
-        }
+        chartPrefs: prefs
       });
     }
   },
@@ -199,22 +212,8 @@ var PatientData = React.createClass({
   },
 
   isInsufficientPatientData: function() {
-    // add additional checks against data and return false iff:
-    // only one datapoint
     var data = this.props.patientData.data;
-    if (data.length === 1) {
-      this.log('Sorry, you need more than one datapoint.');
-      return true;
-    }
-
-    // only two datapoints, less than 24 hours apart
-    var start = moment(data[0].normalTime);
-    var end = moment(data[data.length - 1].normalTime);
-    if (end.diff(start, 'days') < 1) {
-      this.log('Sorry, your data needs to span at least a day.');
-      return true;
-    }
-
+    // add additional checks against data and return false iff:
     // only messages data
     if (_.reject(data, function(d) { return d.type === 'message'; }).length === 0) {
       this.log('Sorry, tideline is kind of pointless with only messages.');
@@ -238,10 +237,29 @@ var PatientData = React.createClass({
             onCreateMessage={this.handleShowMessageCreation}
             onShowMessageThread={this.handleShowMessageThread}
             onSwitchToDaily={this.handleSwitchToDaily}
+            onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
             updateChartPrefs={this.updateChartPrefs}
             updateDatetimeLocation={this.updateDatetimeLocation}
+            ref="tideline" />
+          );
+        /* jshint ignore:end */
+      case 'modal':
+        /* jshint ignore:start */
+        return (
+          <Modal
+            bgPrefs={this.props.bgPrefs}
+            chartPrefs={this.state.chartPrefs}
+            initialDatetimeLocation={this.state.initialDatetimeLocation}
+            patientData={this.props.patientData}
+            onClickRefresh={this.handleClickRefresh}
+            onSwitchToDaily={this.handleSwitchToDaily}
+            onSwitchToModal={this.handleSwitchToModal}
+            onSwitchToSettings={this.handleSwitchToSettings}
+            onSwitchToWeekly={this.handleSwitchToWeekly}
+            updateChartPrefs={this.updateChartPrefs}
+            updateDatetimeLocation={this.updateDatetimeLocation} 
             ref="tideline" />
           );
         /* jshint ignore:end */
@@ -256,6 +274,7 @@ var PatientData = React.createClass({
             patientData={this.props.patientData}
             onClickRefresh={this.handleClickRefresh}
             onSwitchToDaily={this.handleSwitchToDaily}
+            onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
             trackMetric={this.props.trackMetric}
@@ -274,6 +293,7 @@ var PatientData = React.createClass({
             patientData={this.props.patientData}
             onClickRefresh={this.handleClickRefresh}
             onSwitchToDaily={this.handleSwitchToDaily}
+            onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
             trackMetric={this.props.trackMetric}
@@ -366,34 +386,49 @@ var PatientData = React.createClass({
   },
 
   handleSwitchToDaily: function(datetime) {
+    this.props.trackMetric('Clicked Switch To One Day', {
+      fromChart: this.state.chartType
+    });
     this.setState({
       chartType: 'daily',
       initialDatetimeLocation: datetime || this.state.datetimeLocation
     });
-    this.props.trackMetric('Clicked Switch To One Day', {
+  },
+
+  handleSwitchToModal: function(datetime) {
+    this.props.trackMetric('Clicked Switch To Modal', {
       fromChart: this.state.chartType
+    });
+    this.setState({
+      chartType: 'modal',
+      initialDatetimeLocation: datetime || this.state.datetimeLocation
     });
   },
 
   handleSwitchToWeekly: function(datetime) {
-    this.setState({
-      chartType: 'weekly',
-      initialDatetimeLocation: datetime || this.state.datetimeLocation
-    });
     this.props.trackMetric('Clicked Switch To Two Week', {
       fromChart: this.state.chartType
+    });
+    datetime = datetime || this.state.datetimeLocation;
+    if (this.state.chartPrefs.timePrefs.timezoneAware) {
+      datetime = sundial.applyOffset(datetime, sundial.getOffsetFromZone(datetime, this.state.chartPrefs.timePrefs.timezoneName));
+      datetime = datetime.toISOString();
+    }
+    this.setState({
+      chartType: 'weekly',
+      initialDatetimeLocation: datetime
     });
   },
 
   handleSwitchToSettings: function(e) {
+    this.props.trackMetric('Clicked Switch To Settings', {
+      fromChart: this.state.chartType
+    });
     if (e) {
       e.preventDefault();
     }
     this.setState({
       chartType: 'settings'
-    });
-    this.props.trackMetric('Clicked Switch To Settings', {
-      fromChart: this.state.chartType
     });
   },
 
