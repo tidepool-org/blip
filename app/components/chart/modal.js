@@ -272,7 +272,6 @@ var Modal = React.createClass({
       e.preventDefault();
     }
     var datetime = this.refs.chart ? this.refs.chart.getCurrentDay() : this.props.initialDatetimeLocation;
-    console.log(datetime);
     this.props.onSwitchToWeekly(datetime);
   },
   handleClickSettings: function(e) {
