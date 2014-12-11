@@ -84,7 +84,7 @@ var NavbarPatientCard = React.createClass({
     return (
       /* jshint ignore:start */
       <a className={classes} href={url} title="Profile">
-        <div className="patientcard-fullname">
+        <div className="patientcard-fullname" title={this.getFullName()}>
           {this.getFullName()}
           <i className="patientcard-icon icon-settings"></i>
         </div>

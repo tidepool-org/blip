@@ -233,7 +233,7 @@ var Navbar = React.createClass({
             <i className='Navbar-icon Navbar-icon-profile icon-profile'></i>
             <div className="Navbar-logged">
               <span className="Navbar-loggedInAs">{'Logged in as '}</span>
-              <span className="Navbar-userName" ref="userFullName">{displayName}</span>
+              <span className="Navbar-userName" ref="userFullName" title={displayName}>{displayName}</span>
             </div>
             <i className='Navbar-icon Navbar-icon-down icon-arrow-down'></i>
             <div class='clear'></div>
