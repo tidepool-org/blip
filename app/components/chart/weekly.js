@@ -129,6 +129,7 @@ var Weekly = React.createClass({
         inTransition={this.state.inTransition}
         title={''}
         onClickOneDay={this.handleClickOneDay}
+        onClickModal={this.handleClickModal}
         onClickSettings={this.props.onSwitchToSettings}
         onClickTwoWeeks={this.handleClickTwoWeeks}
       ref="header" />
@@ -177,7 +178,10 @@ var Weekly = React.createClass({
     if(e) {
       e.preventDefault();
     }
-    var datetime = this.refs.chart.getCurrentDay(this.props.chartPrefs.timePrefs);
+    var datetime;
+    if (this.refs.chart) {
+      datetime = this.refs.chart.getCurrentDay(this.props.chartPrefs.timePrefs);
+    }
     this.props.onSwitchToModal(datetime);
   },
   handleClickMostRecent: function(e) {

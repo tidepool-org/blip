@@ -236,7 +236,7 @@ var Navbar = React.createClass({
               <span className="Navbar-userName" ref="userFullName" title={displayName}>{displayName}</span>
             </div>
             <i className='Navbar-icon Navbar-icon-down icon-arrow-down'></i>
-            <div class='clear'></div>
+            <div className='clear'></div>
           </div>
           <div onClick={this.stopPropagation} className={dropdownClasses}>
             <ul>
