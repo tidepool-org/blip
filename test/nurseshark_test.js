@@ -81,6 +81,7 @@ describe('nurseshark', function() {
           timezoneOffset: 0
         }, {
           type: 'basal',
+          duration: 1000000,
           time: plusHalf.toISOString(),
           deviceId: 'a',
           source: 'carelink',
@@ -137,6 +138,7 @@ describe('nurseshark', function() {
           timezoneOffset: 0
         }, {
           type: 'basal',
+          duration: 1000000,
           time: plusHalf.toISOString(),
           deviceId: 'a',
           source: 'carelink',
@@ -194,6 +196,7 @@ describe('nurseshark', function() {
           timezoneOffset: 0
         }, {
           type: 'basal',
+          duration: 1000000,
           time: plusHalf.toISOString(),
           deviceId: 'a',
           source: 'carelink',
@@ -225,12 +228,128 @@ describe('nurseshark', function() {
         expect(_.uniq(_.pluck(res.processedData, 'deviceId'))).to.eql(['z', 'c']);
       });
 
-      it.skip('should disregard settings events when determining overlapping uploads', function() {
-
+      it('should disregard settings events when determining overlapping uploads', function() {
+        var data = [{
+          type: 'bolus',
+          time: minusTwenty.toISOString(),
+          deviceId: 'z',
+          source: 'carelink',
+          timezoneOffset: 0
+        }, {
+          type: 'smbg',
+          time: minusTen.toISOString(),
+          deviceId: 'z',
+          source: 'carelink',
+          timezoneOffset: 0
+        }, {
+          type: 'smbg',
+          time: now.toISOString(),
+          deviceId: 'a',
+          source: 'carelink',
+          timezoneOffset: 0
+        }, {
+          type: 'settings',
+          time: plusTen.toISOString(),
+          deviceId: 'b',
+          source: 'carelink',
+          timezoneOffset: 0,
+          units: {
+            bg: 'mg/dL',
+            carb: 'g'
+          }
+        }, {
+          type: 'settings',
+          time: plusHalf.toISOString(),
+          deviceId: 'a',
+          source: 'carelink',
+          timezoneOffset: 0,
+          units: {
+            bg: 'mg/dL',
+            carb: 'g'
+          }
+        }, {
+          type: 'bolus',
+          time: plusHour.toISOString(),
+          deviceId: 'b',
+          source: 'carelink',
+          timezoneOffset: 0
+        }, {
+          type: 'basal',
+          duration: 1000000,
+          time: plusTwo.toISOString(),
+          deviceId: 'c',
+          source: 'carelink',
+          timezoneOffset: 0
+        }, {
+          type: 'bolus',
+          time: plusThree.toISOString(),
+          deviceId: 'c',
+          source: 'carelink',
+          timezoneOffset: 0
+        }];
+        var res = nurseshark.processData(data);
+        expect(res.erroredData.length).to.equal(0);
+        expect(res.processedData.length).to.equal(8);
+        expect(_.uniq(_.pluck(res.processedData, 'deviceId'))).to.eql(['z', 'a', 'b', 'c']);
       });
 
-      it.skip('should disregard annotated basals when determining overlapping uploads', function() {
-
+      it('should disregard annotated basals when determining overlapping uploads', function() {
+        var data = [{
+          type: 'bolus',
+          time: minusTwenty.toISOString(),
+          deviceId: 'z',
+          source: 'carelink',
+          timezoneOffset: 0
+        }, {
+          type: 'smbg',
+          time: minusTen.toISOString(),
+          deviceId: 'z',
+          source: 'carelink',
+          timezoneOffset: 0
+        }, {
+          type: 'smbg',
+          time: now.toISOString(),
+          deviceId: 'a',
+          source: 'carelink',
+          timezoneOffset: 0
+        }, {
+          type: 'bolus',
+          time: plusTen.toISOString(),
+          deviceId: 'b',
+          source: 'carelink',
+          timezoneOffset: 0
+        }, {
+          type: 'basal',
+          duration: 1000000,
+          time: plusHalf.toISOString(),
+          deviceId: 'a',
+          source: 'carelink',
+          timezoneOffset: 0,
+          annotations: [{code: 'foo'}]
+        }, {
+          type: 'bolus',
+          time: plusHour.toISOString(),
+          deviceId: 'b',
+          source: 'carelink',
+          timezoneOffset: 0
+        }, {
+          type: 'basal',
+          duration: 1000000,
+          time: plusTwo.toISOString(),
+          deviceId: 'c',
+          source: 'carelink',
+          timezoneOffset: 0
+        }, {
+          type: 'bolus',
+          time: plusThree.toISOString(),
+          deviceId: 'c',
+          source: 'carelink',
+          timezoneOffset: 0
+        }];
+        var res = nurseshark.processData(data);
+        expect(res.erroredData.length).to.equal(0);
+        expect(res.processedData.length).to.equal(8);
+        expect(_.uniq(_.pluck(res.processedData, 'deviceId'))).to.eql(['z', 'a', 'b', 'c']);
       });
     });
 
