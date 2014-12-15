@@ -186,7 +186,21 @@ var nurseshark = {
 
     function removeOverlapping() {
       // NB: this problem is specific to CareLink data
-      var crossData = crossfilter(_.where(data, {source: 'carelink'}));
+      // sometimes settings events can be out-of-sequence wrt uploads
+      // for reasons that are not entirely clear to me, but since we only read more recent settings
+      // it doesn't hurt anything to have overlapping settings history across uploads
+      // and we want to reduce how often we "find" overlapping uploads, so we disregard settings
+      var withoutSettings = _.reject(data, {type: 'settings'});
+      // basals that we fabricate in the simulator may have the wrong uploadId attached to the deviceId
+      // and obviously we *created* them, so they shouldn't conflict with anything and are safe to remove
+      // again in order to reduce how many overlapping uploads we're "finding"
+      var withoutAnnotatedBasals = _.reject(withoutSettings, function(d) {
+        if (d.type === 'basal' && d.annotations && d.annotations.length !== 0) {
+          return true;
+        }
+        return false;
+      });
+      var crossData = crossfilter(_.where(withoutAnnotatedBasals, {source: 'carelink'}));
       var dataByUpload = crossData.dimension(function(d) { return d.deviceId; });
       var dataByUploadGrouping = dataByUpload.group();
       dataByUploadGrouping.reduce(

@@ -224,6 +224,14 @@ describe('nurseshark', function() {
         expect(res.processedData.length).to.equal(4);
         expect(_.uniq(_.pluck(res.processedData, 'deviceId'))).to.eql(['z', 'c']);
       });
+
+      it.skip('should disregard settings events when determining overlapping uploads', function() {
+
+      });
+
+      it.skip('should disregard annotated basals when determining overlapping uploads', function() {
+
+      });
     });
 
     it('should return an object, with erroredData and processedData', function() {
