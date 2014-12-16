@@ -864,50 +864,36 @@ module.exports = function (config, deps) {
      * Start an device upload session by generating an uploadMeta record
      *
      * @param {Object} details to initialise the upload session
-     * @param {String} details.deviceId
-     * @param {String} details.startTime
-     * @param {String} details.timezoneName
+     * @param {String} deviceId
+     * @param {String} startTime
+     * @param {String} timezoneName
      * @param cb
      * @returns {cb}  cb(err, uploadMeta)
      */
-    startUploadSession: function (details, cb) {
-      assertArgumentsSize(arguments, 2);
+    startUploadSession: function (deviceId, startTime, timezoneName  cb) {
+      assertArgumentsSize(arguments, 4);
 
-      var badRequestMsg = {};
+      superagent
+      .get(config.uploadApi + '/data/session/'+deviceId)
+      .set(sessionTokenHeader, myToken)
+      .end(
+      function (err, res) {
+        if (err != null) {
+          return cb(err);
+        }
+        if (res.status !== 200) {
+          return handleHttpError(res, cb);
+        }
 
-      if (_.isEmpty(details.deviceId)) {
-        badRequestMsg.deviceId = 'Must specify details.deviceId';
-      }
-      if (_.isEmpty(details.startTime)) {
-        badRequestMsg.startTime = 'Must specify details.startTime';
-      }
-      if (_.isEmpty(details.timezoneName)) {
-        badRequestMsg.timezoneName = 'Must specify details.timezoneName';
-      }
-      if(_.isEmpty(badRequestMsg)){
-        superagent
-        .get(config.uploadApi + '/data/session/'+details.deviceId)
-        .set(sessionTokenHeader, myToken)
-        .end(
-        function (err, res) {
-          if (err != null) {
-            return cb(err);
-          }
-          if (res.status !== 200) {
-            return handleHttpError(res, cb);
-          }
+        var uploadMeta = {
+          time: startTime,
+          timezone: timezoneName,
+          uploadId: res.body.uploadId,
+          byUser: getUserId()
+        };
 
-          var uploadMeta = {
-            time: details.startTime,
-            timezone: details.timezoneName,
-            uploadId: res.body.uploadId,
-            byUser: getUserId()
-          };
-
-          return cb(null,uploadMeta);
-        });
-      }
-      return cb({ status : STATUS_BAD_REQUEST, message:badRequestMsg});
+        return cb(null,uploadMeta);
+      });
 
     },
     /**
