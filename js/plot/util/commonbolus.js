@@ -17,6 +17,8 @@
 
 var _ = require('lodash');
 
+var format = require('../../data/util/format');
+
 module.exports = {
   getRecommended: function(d) {
     if (!d.recommended) {
@@ -32,7 +34,7 @@ module.exports = {
     if (d.recommended.correction) {
       rec += d.recommended.correction;
     }
-    return rec;
+    return format.fixFloatingPoint(rec);
   },
   getMaxValue: function(d) {
     var wiz;
@@ -63,7 +65,7 @@ module.exports = {
     }
     if (d.extended != null) {
       if (d.normal != null) {
-        return d.extended + d.normal;
+        return format.fixFloatingPoint(d.extended + d.normal);
       }
       else {
         return d.extended;
@@ -85,10 +87,10 @@ module.exports = {
     if (d.extended != null && d.expectedExtended != null) {
       if (d.normal != null) {
         if (d.expectedNormal != null) {
-          return d.expectedNormal + d.expectedExtended;
+          return format.fixFloatingPoint(d.expectedNormal + d.expectedExtended);
         }
         else {
-          return d.normal + d.expectedExtended;
+          return format.fixFloatingPoint(d.normal + d.expectedExtended);
         }
       }
       else {
@@ -98,10 +100,10 @@ module.exports = {
     else if (d.extended != null) {
       if (d.normal != null) {
         if (d.expectedNormal != null) {
-          return d.expectedNormal + d.extended;
+          return format.fixFloatingPoint(d.expectedNormal + d.extended);
         }
         else {
-          return d.normal + d.extended;
+          return format.fixFloatingPoint(d.normal + d.extended);
         }
       }
       else {
