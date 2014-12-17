@@ -18,6 +18,9 @@
 var _ = require('lodash');
 var async = require('async');
 
+var id = require('./lib/id.js');
+
+
 var sessionTokenHeader = 'x-tidepool-session-token';
 var tokenLocalKey = 'authToken';
 
@@ -859,6 +862,45 @@ module.exports = function (config, deps) {
           }
           return cb(null,res.body);
         });
+    },
+    /**
+     * Start an device upload session by generating an uploadMeta record
+     *
+     * @param {Object} sessionInfo to initialise the upload session
+     * @param {String} deviceId that this session is associated with
+     * @param {String} uploaderVersion that this session will use to process the data
+     * @param {String} start when the upload started
+     * @param {String} tzName name of the timezone
+     * @param cb
+     * @returns {cb}  cb(err, uploadMeta)
+     */
+    startUploadSession: function (sessionInfo,  cb) {
+      assertArgumentsSize(arguments, 2);
+
+      if (_.isEmpty(sessionInfo.deviceId) || _.isEmpty(sessionInfo.start) || _.isEmpty(sessionInfo.tzName) || _.isEmpty(sessionInfo.version)) {
+        return cb({ status : STATUS_BAD_REQUEST, message: 'All session info must be given' });
+      }
+
+      try{
+
+        var generatedId = id.generateId([sessionInfo.deviceId,sessionInfo.start, myToken]);
+
+        var uploadMeta = {
+          type: 'upload',
+          time: sessionInfo.start,
+          timezone: sessionInfo.tzName,
+          version: sessionInfo.version,
+          deviceId: sessionInfo.deviceId,
+          uploadId: generatedId,
+          byUser: myUserId,
+          source : 'tidepool'
+        };
+
+        return cb(null,uploadMeta);
+
+      } catch(error) {
+        return cb(error);
+      }
     },
     /**
      * Upload carelink data for the logged in user

@@ -31,6 +31,12 @@ module.exports = function(grunt) {
           reporter: 'spec'
         },
         src: ['test/integration/*.js']
+      },
+      unit: {
+        options: {
+          reporter: 'spec'
+        },
+        src: ['test/unit/*.js']
       }
     }
   });
@@ -42,5 +48,6 @@ module.exports = function(grunt) {
   // Default task(s).
   grunt.registerTask('default', ['test']);
   // Standard tasks
-  grunt.registerTask('test', ['jshint','mochaTest:integration']);
+  grunt.registerTask('unit-test', ['mochaTest:unit']);
+  grunt.registerTask('test', ['jshint','mochaTest:integration','mochaTest:unit']);
 };
