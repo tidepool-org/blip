@@ -18,6 +18,9 @@
 var _ = require('lodash');
 var async = require('async');
 
+var id = require('./lib/id.js');
+
+
 var sessionTokenHeader = 'x-tidepool-session-token';
 var tokenLocalKey = 'authToken';
 
@@ -863,37 +866,39 @@ module.exports = function (config, deps) {
     /**
      * Start an device upload session by generating an uploadMeta record
      *
-     * @param {Object} details to initialise the upload session
-     * @param {String} deviceId
-     * @param {String} startTime
-     * @param {String} timezoneName
+     * @param {Object} sessionInfo to initialise the upload session
+     * @param {String} deviceId that this session is associated with
+     * @param {String} uploaderVersion that this session will use to process the data
+     * @param {String} start when the upload started
+     * @param {String} tzName name of the timezone
      * @param cb
      * @returns {cb}  cb(err, uploadMeta)
      */
-    startUploadSession: function (deviceId, startTime, timezoneName  cb) {
-      assertArgumentsSize(arguments, 4);
+    startUploadSession: function (sessionInfo,  cb) {
+      assertArgumentsSize(arguments, 2);
 
-      superagent
-      .get(config.uploadApi + '/data/session/'+deviceId)
-      .set(sessionTokenHeader, myToken)
-      .end(
-      function (err, res) {
-        if (err != null) {
-          return cb(err);
-        }
-        if (res.status !== 200) {
-          return handleHttpError(res, cb);
-        }
+      if (_.isEmpty(sessionInfo.deviceId) || _.isEmpty(sessionInfo.deviceId) || _.isEmpty(sessionInfo.deviceId) || _.isEmpty(sessionInfo.deviceId)) {
+        return cb({ status : STATUS_BAD_REQUEST, message: 'All session info must be given' });
+      }
+
+      try{
+
+        var generatedId = id.generateId([sessionInfo.deviceId,sessionInfo.start, myToken]);
 
         var uploadMeta = {
-          time: startTime,
-          timezone: timezoneName,
-          uploadId: res.body.uploadId,
-          byUser: getUserId()
+          time: sessionInfo.start,
+          timezone: sessionInfo.tzName,
+          version: sessionInfo.uploaderVersion,
+          deviceId: sessionInfo.deviceId,
+          uploadId: generatedId,
+          byUser: myUserId
         };
 
         return cb(null,uploadMeta);
-      });
+
+      }catch(error){
+        return cb(error);
+      }
 
     },
     /**
