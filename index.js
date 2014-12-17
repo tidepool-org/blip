@@ -877,7 +877,7 @@ module.exports = function (config, deps) {
     startUploadSession: function (sessionInfo,  cb) {
       assertArgumentsSize(arguments, 2);
 
-      if (_.isEmpty(sessionInfo.deviceId) || _.isEmpty(sessionInfo.deviceId) || _.isEmpty(sessionInfo.deviceId) || _.isEmpty(sessionInfo.deviceId)) {
+      if (_.isEmpty(sessionInfo.deviceId) || _.isEmpty(sessionInfo.start) || _.isEmpty(sessionInfo.tzName) || _.isEmpty(sessionInfo.version)) {
         return cb({ status : STATUS_BAD_REQUEST, message: 'All session info must be given' });
       }
 
@@ -886,20 +886,21 @@ module.exports = function (config, deps) {
         var generatedId = id.generateId([sessionInfo.deviceId,sessionInfo.start, myToken]);
 
         var uploadMeta = {
+          type: 'upload',
           time: sessionInfo.start,
           timezone: sessionInfo.tzName,
-          version: sessionInfo.uploaderVersion,
+          version: sessionInfo.version,
           deviceId: sessionInfo.deviceId,
           uploadId: generatedId,
-          byUser: myUserId
+          byUser: myUserId,
+          source : 'tidepool'
         };
 
         return cb(null,uploadMeta);
 
-      }catch(error){
+      } catch(error) {
         return cb(error);
       }
-
     },
     /**
      * Upload carelink data for the logged in user
