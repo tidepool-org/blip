@@ -61,14 +61,13 @@ describe('id generator', function () {
     }
   });
 
-  it.skip('crypto sha1 is the same as other sha1', function (done) {
+  it('crypto sha1 is the same as other sha1', function (done) {
 
-    /* Python output generted with:
+    /* Python output generated with:
      *
-     * h=hashlib.sha1(), h.update('abc'), h.update('_'), h.update('def'), h.update('_'), h.update('hij'), h.update('_')
-     * base64.b64encode(h.hexdigest())
+     * python -c "import hashlib; import base64; h=hashlib.sha1(); h.update('abc_def_hij_'); print base64.b64encode(h.digest());"
      */
-    var PYTHON_SHA1 = 'NmEyYWRjOGJkYmEzODIzZGZmNjliN2JmZGNhODdlYTE1MGIzOTMxZA';
+    var PYTHON_SHA1 = '4uXsTMx01+aqPTIBWjz/WXJdwhg=';
 
     var ourSha1 = id.generateId(['abc','def','hij']);
     expect(ourSha1).to.equal(PYTHON_SHA1);
