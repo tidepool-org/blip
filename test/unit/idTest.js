@@ -47,4 +47,17 @@ describe('id generator', function () {
       expect(error).is.empty;
     }
   });
+
+  it('makes diff ids', function (done) {
+    try{
+      var myIdOne = id.generateId(['carelink','token']);
+      expect(myIdOne).is.not.empty;
+      var myIdTwo = id.generateId(['carelinkto','ken']);
+      expect(myIdTwo).is.not.empty;
+      expect(myIdOne).to.not.equal(myIdTwo);
+      done();
+    }catch(error){
+      expect(error).is.empty;
+    }
+  });
 });
