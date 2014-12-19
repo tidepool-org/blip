@@ -883,7 +883,7 @@ module.exports = function (config, deps) {
 
       try{
 
-        var generatedId = id.generateId([sessionInfo.deviceId,sessionInfo.start, myToken]);
+        var generatedId = id.generateId([sessionInfo.deviceId, sessionInfo.start]);
 
         var uploadMeta = {
           type: 'upload',
