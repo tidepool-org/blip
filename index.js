@@ -841,24 +841,40 @@ module.exports = function (config, deps) {
      * Upload device data for the logged in user
      *
      * @param {Object} data to be uploaded
+     * @param (optional) string gorupdId for which to upload data
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    uploadDeviceDataForUser: function (data, cb) {
-      assertArgumentsSize(arguments, 2);
+    uploadDeviceDataForUser: function (data, groupId, cb) {
+      if (cb && arguments.length > 3) {
+        throw new Error('Expected arguments to be length 3 but was ' + arguments.length);
+      }
+
+      if (!cb) {
+        cb = groupId;
+        groupId = null;
+      }
 
       if (_.isEmpty(config.uploadApi)) {
         return cb({ status : STATUS_BAD_REQUEST, message: 'The upload api needs to be configured' });
       }
 
        superagent
-        .post(config.uploadApi + '/data')
+        .post(config.uploadApi + '/data' + (groupId ? ('/' + groupId) : ''))
         .send(data)
         .set(sessionTokenHeader, myToken)
         .end(
         function (err, res) {
           if (err != null) {
             return cb(err);
+          }
+
+          if (res.statusCode !== 200) {
+            return cb({
+              error: 'Request failed with statusCode ' + res.statusCode,
+              code: res.statusCode,
+              message: res.body
+            });
           }
           return cb(null,res.body);
         });
