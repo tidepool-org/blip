@@ -44,6 +44,11 @@ var definitions = {
       var b = " reports the data, we can't be 100% certain of your basal rate here.";
       return defs.stitch(a, b, source);
     },
+    'carelink/wizard/long-search': function(source, defs) {
+      var a = "Because of how ";
+      var b = " reports bolus and wizard data, we can't be 100% certain that the bolus wizard information here (e.g., carbs, suggested dose) corresponds with the bolus.";
+      return defs.stitch(a, b, source);
+    },
     'basal/intersects-incomplete-susppend': function() {
       return "Within this basal segment, we are omitting a suspend event that didn't end. This may have resulted from switching to a new device. As a result, this basal segment may be inaccurate.";
     },

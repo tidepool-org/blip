@@ -39,6 +39,24 @@ module.exports = function(pool, opts) {
     opts.xScale = pool.xScale().copy();
 
     selection.each(function(currentData) {
+      var withAnnotations = [];
+      _.each(
+        _.filter(currentData, function(d) {
+          if (d.annotations) {
+            return true;
+          }
+          else if (d.bolus) {
+            return d.bolus.annotations;
+          }
+        }),
+        function(d) {
+          if (d.bolus) {
+            withAnnotations.push(d.bolus);
+          }
+        }
+      );
+      drawBolus.annotations(withAnnotations);
+
       var wizards = d3.select(this)
         .selectAll('g.d3-wizard-group')
         .data(currentData, function(d) {
