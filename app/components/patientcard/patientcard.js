@@ -147,6 +147,7 @@ var PatientCard = React.createClass({
     var handleClick = function(e) {
       if (e) {
         e.preventDefault();
+        e.stopPropagation();
       }
       window.open(self.props.uploadUrl, '_blank');
       self.props.trackMetric('Clicked VDF Upload Data');
