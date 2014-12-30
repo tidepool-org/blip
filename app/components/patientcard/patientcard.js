@@ -30,7 +30,8 @@ var PatientCard = React.createClass({
     onClick: React.PropTypes.func,
     onRemovePatient: React.PropTypes.func,
     uploadUrl: React.PropTypes.string,
-    patient: React.PropTypes.object
+    patient: React.PropTypes.object,
+    trackMetric: React.PropTypes.func.isRequired
   },
 
   getInitialState: function() {
@@ -142,10 +143,19 @@ var PatientCard = React.createClass({
       'patientcard-actions--highlight': this.state.highlight === 'upload'
     });
 
+    var self = this;
+    var handleClick = function(e) {
+      if (e) {
+        e.stopPropagation();
+      }
+      window.open(self.props.uploadUrl, '_blank');
+      self.props.trackMetric('Clicked VDF Upload Data');
+    };
+
     if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
       return (
         /* jshint ignore:start */
-        <a className={classes} onClick={this.stopPropagation} onMouseEnter={this.setHighlight('upload')} onMouseLeave={this.setHighlight('view')} href={this.props.uploadUrl} target='_blank' title="Upload data">Upload</a>
+        <a className={classes} href='' onClick={handleClick} onMouseEnter={this.setHighlight('upload')} onMouseLeave={this.setHighlight('view')} title="Upload data">Upload</a>
         /* jshint ignore:end */
       );
     }

@@ -25,7 +25,8 @@ var NavbarPatientCard = React.createClass({
     href: React.PropTypes.string,
     currentPage: React.PropTypes.string,
     uploadUrl: React.PropTypes.string,
-    patient: React.PropTypes.object
+    patient: React.PropTypes.object,
+    trackMetric: React.PropTypes.func.isRequired
   },
 
   render: function() {
@@ -98,10 +99,19 @@ var NavbarPatientCard = React.createClass({
       'patientcard-actions-upload': true
     });
 
+    var self = this;
+    var handleClick = function(e) {
+      if (e) {
+        e.preventDefault();
+      }
+      window.open(self.props.uploadUrl, '_blank');
+      self.props.trackMetric('Clicked Navbar Upload Data');
+    };
+
     if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
       return (
         /* jshint ignore:start */
-        <a className={classes} href={this.props.uploadUrl} target='_blank' title="Upload data">Upload</a>
+        <a href="" onClick={handleClick} className={classes} title="Upload data">Upload</a>
         /* jshint ignore:end */
       );
     }

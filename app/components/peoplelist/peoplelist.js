@@ -28,7 +28,8 @@ var PeopleList = React.createClass({
     isPatientList: React.PropTypes.bool,
     onClickPerson: React.PropTypes.func,
     uploadUrl: React.PropTypes.string,
-    onRemovePatient: React.PropTypes.func
+    onRemovePatient: React.PropTypes.func,
+    trackMetric: React.PropTypes.func.isRequired
   },
 
   getInitialState: function() {
@@ -130,7 +131,8 @@ var PeopleList = React.createClass({
             uploadUrl={this.props.uploadUrl}
             isEditing={this.state.editing}
             onRemovePatient={this.props.onRemovePatient}
-            patient={person}></PatientCard>
+            patient={person}
+            trackMetric={this.props.trackMetric}></PatientCard>
         </li>
       );
       /* jshint ignore:end */
