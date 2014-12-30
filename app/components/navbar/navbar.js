@@ -103,7 +103,8 @@ var Navbar = React.createClass({
           href={patient.link}
           currentPage={this.props.currentPage}
           uploadUrl={this.props.getUploadUrl()}
-          patient={patient} />
+          patient={patient}
+          trackMetric={this.props.trackMetric} />
       </div>
     );
   },

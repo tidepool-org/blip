@@ -186,7 +186,8 @@ var Patients = React.createClass({
             isPatientList={true}
             uploadUrl={this.props.uploadUrl}
             onClickPerson={this.handleClickPatient}
-            onRemovePatient= {this.props.onRemovePatient} />
+            onRemovePatient= {this.props.onRemovePatient}
+            trackMetric={this.props.trackMetric} />
         </div>
       </div>
     );
