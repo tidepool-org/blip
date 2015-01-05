@@ -48,44 +48,46 @@ module.exports = function(container, annotationsGroup) {
 
     var hoverTarget;
 
-    if (opts.d.annotations[0].code.slice(0, 6) === 'stats-') {
-      // NB: this (temporarily) disables the new explainer tooltips
-      // for all stats widget components when stats are active
-      if (opts.d.annotations[0].code !== 'stats-insufficient-data') {
-        return;
+    if (opts && opts.d && opts.d.annotations && opts.d.annotations.length > 0) {
+      if (opts.d.annotations[0].code.slice(0, 6) === 'stats-') {
+        // NB: this (temporarily) disables the new explainer tooltips
+        // for all stats widget components when stats are active
+        if (opts.d.annotations[0].code !== 'stats-insufficient-data') {
+          return;
+        }
+        if (opts.hoverTarget != null) {
+          hoverTarget = opts.hoverTarget;
+        }
+        annotation.tooltip(opts, selection, hoverTarget);
       }
-      if (opts.hoverTarget != null) {
-        hoverTarget = opts.hoverTarget;
+      else {
+        var iconGroup = selection.append('g')
+          .attr('class', 'd3-data-annotation-group')
+          .attr('id', 'annotation_for_' + opts.d.id);
+
+        opts.x = annotation.xOffset(opts);
+        opts.y = annotation.yOffset(opts);
+
+        hoverTarget = iconGroup.append('circle')
+          .attr({
+            'cx': opts.x,
+            'cy': opts.y,
+            'r': r,
+            'class': 'd3-circle-data-annotation',
+          });
+        iconGroup.append('text')
+          .attr({
+            'x': opts.x,
+            'y': opts.y,
+            'class': 'd3-text-data-annotation'
+          })
+          .text('?');
+
+        if (opts.hoverTarget != null) {
+          hoverTarget = opts.hoverTarget;
+        }
+        annotation.tooltip(opts, selection, hoverTarget);
       }
-      annotation.tooltip(opts, selection, hoverTarget);
-    }
-    else {
-      var iconGroup = selection.append('g')
-        .attr('class', 'd3-data-annotation-group')
-        .attr('id', 'annotation_for_' + opts.d.id);
-
-      opts.x = annotation.xOffset(opts);
-      opts.y = annotation.yOffset(opts);
-
-      hoverTarget = iconGroup.append('circle')
-        .attr({
-          'cx': opts.x,
-          'cy': opts.y,
-          'r': r,
-          'class': 'd3-circle-data-annotation',
-        });
-      iconGroup.append('text')
-        .attr({
-          'x': opts.x,
-          'y': opts.y,
-          'class': 'd3-text-data-annotation'
-        })
-        .text('?');
-
-      if (opts.hoverTarget != null) {
-        hoverTarget = opts.hoverTarget;
-      }
-      annotation.tooltip(opts, selection, hoverTarget);
     }
   }
 
