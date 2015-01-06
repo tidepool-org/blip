@@ -45,15 +45,6 @@ describe('nurseshark', function() {
       expect(res.processedData.length).to.equal(0);
     });
 
-    it('should exclude suspected legacy old data model data in the erroredData', function() {
-      var data = [{
-        type: 'message'
-      }];
-      var res = nurseshark.processData(data);
-      expect(res.erroredData.length).to.equal(1);
-      expect(res.erroredData[0].errorMessage).to.equal('No time or timestamp field; suspected legacy old data model data.');
-    });
-
     describe('on overlapping Carelink uploads', function() {
       var now = new Date();
       var plusTen = new Date(now.valueOf() + 600000);

@@ -181,10 +181,7 @@ var nurseshark = {
     function removeNoTime() {
       var noTimeCount = 0;
       data = _.filter(data, function(d) {
-        if (d.type !== 'message' && d.time != null) {
-          return true;
-        }
-        else if (d.type === 'message') {
+        if (d.timestamp != null || d.time != null) {
           return true;
         }
         else {
@@ -192,7 +189,7 @@ var nurseshark = {
           return false;
         }
       });
-      log(noTimeCount, 'records removed due to not having a `time` field.');
+      log(noTimeCount, 'records removed due to not having a `time` or `timestamp` field.');
     }
     timeIt(removeNoTime, 'removeNoTime');
 
@@ -327,18 +324,12 @@ var nurseshark = {
     var lastD, unannotatedRemoval = false;
 
     function process(d) {
-      // NB: to avoid tideline crashing on legacy old data model data
-      if (!(d.time || d.timestamp)) {
-        d.errorMessage = 'No time or timestamp field; suspected legacy old data model data.';
+      if (overlappingUploads[d.deviceId] && d.deviceId !== mostRecentFromOverlapping) {
+        d = cloneDeep(d);
+        d.errorMessage = 'Overlapping CareLink upload.';
       }
       else {
-        if (overlappingUploads[d.deviceId] && d.deviceId !== mostRecentFromOverlapping) {
-          d = cloneDeep(d);
-          d.errorMessage = 'Overlapping CareLink upload.';
-        }
-        else {
-          d = handlers[d.type] ? handlers[d.type](d, collections) : d.messagetext ? handlers.message(d, collections) : addNoHandlerMessage(d);
-        }
+        d = handlers[d.type] ? handlers[d.type](d, collections) : d.messagetext ? handlers.message(d, collections) : addNoHandlerMessage(d);
       }
 
       // because we don't yet have validation on editing timestamps in clamshell and blip notes
