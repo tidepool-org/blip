@@ -177,6 +177,22 @@ var nurseshark = {
     if (!(data && data.length >= 0 && Array.isArray(data))) {
       throw new Error('An array is required.');
     }
+    // data from the old-old data model (pre-v1 docs) doesn't have a `time` field
+    function removeNoTime() {
+      var noTimeCount = 0;
+      data = _.filter(data, function(d) {
+        if (d.time != null) {
+          return true;
+        }
+        else {
+          noTimeCount += 1;
+          return false;
+        }
+      });
+      log(noTimeCount, 'records removed due to not having a `time` field.');
+    }
+    timeIt(removeNoTime, 'removeNoTime');
+
     var processedData = [], erroredData = [];
     var collections = {
       allBoluses: {},
