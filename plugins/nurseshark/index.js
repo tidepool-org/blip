@@ -181,7 +181,10 @@ var nurseshark = {
     function removeNoTime() {
       var noTimeCount = 0;
       data = _.filter(data, function(d) {
-        if (d.time != null) {
+        if (d.type !== 'message' && d.time != null) {
+          return true;
+        }
+        else if (d.type === 'message') {
           return true;
         }
         else {

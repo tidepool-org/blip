@@ -36,9 +36,18 @@ describe('nurseshark', function() {
       expect(fn).to.throw('An array is required.');
     });
 
-    it('should include suspected legacy old data model data in the erroredData', function() {
+    it('should exclude pre-v1 data model data', function() {
       var data = [{
         deviceTime: ''
+      }];
+      var res = nurseshark.processData(data);
+      expect(res.erroredData.length).to.equal(0);
+      expect(res.processedData.length).to.equal(0);
+    });
+
+    it('should exclude suspected legacy old data model data in the erroredData', function() {
+      var data = [{
+        type: 'message'
       }];
       var res = nurseshark.processData(data);
       expect(res.erroredData.length).to.equal(1);
@@ -361,7 +370,7 @@ describe('nurseshark', function() {
     });
 
     it('should log an error when no type handler exists for an obj in the input array', function() {
-      var res = nurseshark.processData([{type:'foo'}]);
+      var res = nurseshark.processData([{type:'foo', time: '2014-01-01T00:00:00.000Z'}]);
       expect(res.erroredData.length).to.equal(1);
     });
 
@@ -549,6 +558,7 @@ describe('nurseshark', function() {
         timezoneOffset: 0
       }, {
         type: 'deviceMeta',
+        time: new Date().toISOString(),
         annotations: [{
           code: 'status/unknown-previous'
         }],
