@@ -405,6 +405,18 @@ describe('sundial', function() {
         expect(res).to.equal('2014-06-30T23:32:00.000Z');
       });
 
+      it('should correctly parse another format', function() {
+        var fmt = 'MMMM DD YYYY HH:mm:ss';
+        var res = datetimeWrapper.parseAndApplyTimezone('Jun 30 2014 19:32:00', fmt, 'US/Eastern').toISOString();
+        expect(res).to.equal('2014-06-30T23:32:00.000Z');
+      });
+
+      it('should correctly parse another format even if seconds are missing', function() {
+        var fmt = 'MMMM DD YYYY HH:mm:ss';
+        var res = datetimeWrapper.parseAndApplyTimezone('Jun 30 2014 19:32', fmt, 'US/Eastern').toISOString();
+        expect(res).to.equal('2014-06-30T23:32:00.000Z');
+      });
+
       it('should assume UTC time when no timezone provided', function() {
         var res = datetimeWrapper.parseAndApplyTimezone('30-06-2014 07:32 p.m.', euroFormat).toISOString();
         expect(res).to.equal('2014-06-30T19:32:00.000Z');
