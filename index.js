@@ -750,6 +750,33 @@ module.exports = function (config, deps) {
       );
     },
     /**
+     * Get the users 'patients' to whom he can upload to.
+     *
+     * @param {String} userId id of the user
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    getUploadGroups: function (userId, cb) {
+      if (userId == null) {
+        return cb({ status : STATUS_BAD_REQUEST,  message: 'Must specify a userId' });
+      }
+      assertArgumentsSize(arguments, 2);
+
+      doGetWithToken(
+        '/access/groups/' + userId,
+        { 200: function(res){
+          var groups = res.body;
+
+          groups.filter(function(group) {
+            return group.permissions.admin || group.permissions.upload;
+          });
+
+          return groups;
+        }, 404: null },
+        cb
+      );
+    },
+    /**
      * Sets the access permissions for a specific user on the group for the currently logged in user
      *
      * @param userId - userId to have access permissions set for
