@@ -117,7 +117,7 @@ var Daily = React.createClass({
     else {
       timezone = timePrefs.timezoneName || 'UTC';
     }
-    return sundial.formatInTimezone(datetime, timezone, 'ddd, MMM Do');
+    return sundial.formatInTimezone(datetime, timezone, 'ddd, MMM D, YYYY');
   },
   // handlers
   handleClickModal: function(e) {

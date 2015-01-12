@@ -161,7 +161,7 @@ var Weekly = React.createClass({
   },
   formatDate: function(datetime) {
     // even when timezoneAware, labels should be generated as if UTC; just trust me (JEB)
-    return sundial.formatInTimezone(datetime, 'UTC', 'MMM Do');
+    return sundial.formatInTimezone(datetime, 'UTC', 'MMM D, YYYY');
   },
   getTitle: function(datetimeLocationEndpoints) {
     return this.formatDate(datetimeLocationEndpoints[0]) + ' - ' + this.formatDate(datetimeLocationEndpoints[1]);

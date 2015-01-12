@@ -186,7 +186,7 @@ var Modal = React.createClass({
     else {
       timezone = timePrefs.timezoneName || 'UTC';
     }
-    return sundial.formatInTimezone(datetime, timezone, 'MMM Do');
+    return sundial.formatInTimezone(datetime, timezone, 'MMM D, YYYY');
   },
   getTitle: function(datetimeLocationEndpoints) {
     // endpoint is exclusive, so need to subtract a day
