@@ -43,7 +43,7 @@ function typeOf(match) {
   };
 }
 
-var isAnId = matchesRegex(/^[A-Za-z0-9\-\_\=\+\/]+$/);
+var isAnId = matchesRegex(/^[A-Za-z0-9\-\_]+$/);
 // localDate is a date in YYYY-MM-DD format
 var isADate = matchesRegex(/^(\d{4}-[01]\d-[0-3]\d)$/);
 // deviceTime is the raw, non-timezone-aware string
