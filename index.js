@@ -72,12 +72,43 @@ module.exports = function (config, deps) {
 
 
   /*
-   Make the URL
+   Make URLs -- always use these, because the URLs can change.
    */
-  function makeUrl(path, extra) {
-    var result = config.host + path;
+
+  // We want local copies of the config variables so we can change them on demand
+  var apihost = config.host;
+  var uploadhost = config.uploadApi;
+  var bliphost = config.bliphost;
+
+  function makeAPIUrl(path, extra) {
+    var result = apihost + path;
     if (extra) {
       result += '/' + extra;
+    }
+    return result;
+  }
+
+  function makeBlipUrl(path, extra) {
+    var result = bliphost + path;
+    if (extra) {
+      result += '/' + extra;
+    }
+    return result;
+  }
+
+  function makeUploadUrl(path, query) {
+    if (uploadhost == null) {
+      return null;
+    }
+
+    var result = uploadhost + path;
+    if (!_.isEmpty(query)) {
+      result += '?';
+      var fields = [];
+      for (var k in query) {
+        fields.push(k + '=' + query[k]);
+      }
+      result += fields.join('&');
     }
     return result;
   }
@@ -99,7 +130,7 @@ module.exports = function (config, deps) {
    * @param cb
    */
   function refreshUserToken(token, cb) {
-    superagent.get(makeUrl('/auth/login'))
+    superagent.get(makeAPIUrl('/auth/login'))
       .set(sessionTokenHeader, token)
       .end(
       function (err, res) {
@@ -179,10 +210,10 @@ module.exports = function (config, deps) {
   }
 
   function getUploadUrl() {
-    if (config.uploadApi == null || myToken == null) {
+    if (myToken == null) {
       return null;
     }
-    return config.uploadApi + '?token=' + myToken;
+    return makeUploadUrl('', { token: myToken });
   }
 
   /*
@@ -222,7 +253,7 @@ module.exports = function (config, deps) {
 
     return serviceCallChecks(cb, function(token) {
       superagent
-        .get(makeUrl(path))
+        .get(makeAPIUrl(path))
         .set(sessionTokenHeader, token)
         .end(
         function (err, res) {
@@ -263,7 +294,7 @@ module.exports = function (config, deps) {
 
     return serviceCallChecks(cb, function(token) {
       superagent
-        .post(makeUrl(path))
+        .post(makeAPIUrl(path))
         .send(data)
         .set(sessionTokenHeader, token)
         .end(
@@ -305,7 +336,7 @@ module.exports = function (config, deps) {
 
     return serviceCallChecks(cb, function(token) {
       superagent
-        .put(makeUrl(path))
+        .put(makeAPIUrl(path))
         .send(data)
         .set(sessionTokenHeader, token)
         .end(
@@ -387,7 +418,7 @@ module.exports = function (config, deps) {
       }
 
       superagent
-        .post(makeUrl('/auth/login', user.longtermkey))
+        .post(makeAPIUrl('/auth/login', user.longtermkey))
         .auth(user.username, user.password)
         .end(
         function (err, res) {
@@ -431,7 +462,7 @@ module.exports = function (config, deps) {
       var newUser = _.pick(user, 'username', 'password', 'emails');
 
       superagent
-        .post(makeUrl('/auth/user'))
+        .post(makeAPIUrl('/auth/user'))
         .send(newUser)
         .end(
         function (err, res) {
@@ -503,6 +534,37 @@ module.exports = function (config, deps) {
       doGetWithToken('/auth/user', cb);
     },
     /**
+     * Set API host
+     *
+     * @param newhost Sets the API host to a new value
+     */
+    setApiHost: function (newhost) {
+      apihost = newhost;
+    },
+    /**
+     * Set Upload host
+     *
+     * @param newhost Sets the Upload host to a new value
+     */
+    setUploadHost: function (newhost) {
+      uploadhost = newhost;
+    },
+    /**
+     * Set Blip host
+     *
+     * @param newhost Sets the Blip host to a new value
+     */
+    setBlipHost: function (newhost) {
+      bliphost = newhost;
+    },
+    /**
+     * Make a blip-based URL
+     *
+     * @param path Appends the path to the URL
+     * @param extra Appends any extras to the path with a /
+     */
+     makeBlipUrl: makeBlipUrl,
+    /**
      * Post something to metrics.
      * This call never errors, so the callback is optional; it will be called if supplied.
      * This call also doesn't wait for the metrics call to return but returns immediately,
@@ -532,7 +594,7 @@ module.exports = function (config, deps) {
         doNothingCB,
         function(token){
           superagent
-            .get(makeUrl('/metrics/thisuser/' + config.metricsSource + ' - ' + eventname))
+            .get(makeAPIUrl('/metrics/thisuser/' + config.metricsSource + ' - ' + eventname))
             .set(sessionTokenHeader, token)
             .query(properties)
             .end(doNothingCB);
@@ -574,7 +636,7 @@ module.exports = function (config, deps) {
         doNothingCB,
         function(token){
           superagent
-            .get(makeUrl('/metrics/thisuser/' + config.metricsSource + ' - ' + eventname))
+            .get(makeAPIUrl('/metrics/thisuser/' + config.metricsSource + ' - ' + eventname))
             .set(sessionTokenHeader, token)
             .query(properties)
             .end(doNothingCB);
@@ -598,7 +660,7 @@ module.exports = function (config, deps) {
       // create an child account to attach to ours
       function createChildAccount(next){
         superagent
-         .post(makeUrl('/auth/childuser'))
+         .post(makeAPIUrl('/auth/childuser'))
          .send(childUser)
          .end(
          function (err, res) {
@@ -616,7 +678,7 @@ module.exports = function (config, deps) {
       //add a profile name to the child account
       function createChildProfile(next){
         superagent
-          .put(makeUrl('/metadata/'+ childUser.id + '/profile'))
+          .put(makeAPIUrl('/metadata/'+ childUser.id + '/profile'))
           .send(profile)
           .set(sessionTokenHeader, childUser.token)
           .end(
@@ -633,7 +695,7 @@ module.exports = function (config, deps) {
       //give the parent account admin perms on the child account
       function giveRootPermsOnChild(next){
         superagent
-          .post(makeUrl('/access/'+ childUser.id + '/' +getUserId()))
+          .post(makeAPIUrl('/access/'+ childUser.id + '/' +getUserId()))
           .send({admin: {}})
           .set(sessionTokenHeader, childUser.token)
           .end(
@@ -847,12 +909,12 @@ module.exports = function (config, deps) {
     uploadDeviceDataForUser: function (data, cb) {
       assertArgumentsSize(arguments, 2);
 
-      if (_.isEmpty(config.uploadApi)) {
+      if (_.isEmpty(uploadhost)) {
         return cb({ status : STATUS_BAD_REQUEST, message: 'The upload api needs to be configured' });
       }
 
        superagent
-        .post(config.uploadApi + '/data')
+        .post(makeUploadUrl('/data'))
         .send(data)
         .set(sessionTokenHeader, myToken)
         .end(
@@ -912,8 +974,6 @@ module.exports = function (config, deps) {
     uploadCarelinkDataForUser: function (formData, cb) {
       assertArgumentsSize(arguments, 2);
 
-      var uploadEndpoint =  config.uploadApi;
-
       //waiting for our task to finish
       function waitForSyncTaskWithIdToFinish(syncTaskId,callback){
 
@@ -934,7 +994,7 @@ module.exports = function (config, deps) {
           setTimeout(function () {
 
             superagent
-              .get(uploadEndpoint + '/v1/synctasks/' + syncTaskId)
+              .get(makeUploadUrl('/v1/synctasks/' + syncTaskId))
               .set(sessionTokenHeader, myToken)
               .end(
                 function (err, res) {
@@ -966,7 +1026,7 @@ module.exports = function (config, deps) {
       }
        //download the file and returns its contents
        superagent
-        .post(uploadEndpoint + '/v1/device/upload/cl')
+        .post(makeUploadUrl('/v1/device/upload/cl'))
         .send(formData)
         .type('form')
         .set(sessionTokenHeader, myToken)
@@ -1012,7 +1072,7 @@ module.exports = function (config, deps) {
 
        //get the contents of the carelink csv file
        superagent
-        .get(config.uploadApi + '/v1/device/data/'+dataId)
+        .get(makeUploadUrl('/v1/device/data/' + dataId))
         .set(sessionTokenHeader, myToken)
         .end(
         function (err, res) {
@@ -1187,7 +1247,7 @@ module.exports = function (config, deps) {
       var self = this;
 
       superagent
-        .get(makeUrl('/confirm/invitations/'+inviteeId))
+        .get(makeAPIUrl('/confirm/invitations/'+inviteeId))
         .set(sessionTokenHeader, myToken)
         .end(
         function (err, res) {
@@ -1301,7 +1361,7 @@ module.exports = function (config, deps) {
       assertArgumentsSize(arguments, 2);
 
       superagent
-       .post(makeUrl('/confirm/send/forgot/' + email))
+       .post(makeAPIUrl('/confirm/send/forgot/' + email))
        .end(function (err, res) {
         if (err != null) {
           return cb(err);
@@ -1327,7 +1387,7 @@ module.exports = function (config, deps) {
       }
 
       superagent
-       .put(makeUrl('/confirm/accept/forgot'))
+       .put(makeAPIUrl('/confirm/accept/forgot'))
        .send(payload)
        .end(function (err, res) {
         if (err != null) {
