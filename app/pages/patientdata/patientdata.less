@@ -27,27 +27,30 @@
   color: #fff;
   background-color: @gray-dark;
 
-  padding-left: 0;
-  padding-right: 0;
+  padding: @patient-data-subnav-vertical-padding 0 @patient-data-subnav-horizontal-padding 0;
 }
 
 .patient-data-subnav-text {
   display: inline-block;
-  padding: @patient-data-subnav-vertical-padding @patient-data-subnav-horizontal-padding;
 
   text-align: center;
 }
 
-.patient-data-subnav-text-dates {
-  width: 275px;
+.patient-data-subnav-dates-daily {
+  width: 150px;
+}
 
-  padding-left: 0;
-  padding-right: 0;
+.patient-data-subnav-dates-weekly {
+  width: 220px;
+}
+
+.patient-data-subnav-dates-modal {
+  width: 275px;
 }
 
 .patient-data-subnav a {
   display: inline-block;
-  padding: @patient-data-subnav-vertical-padding @patient-data-subnav-horizontal-padding;
+  padding: 0 @patient-data-subnav-vertical-padding 0 @patient-data-subnav-horizontal-padding;
 
   color: #fff;
   text-decoration: none;
