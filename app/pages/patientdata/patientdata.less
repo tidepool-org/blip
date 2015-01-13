@@ -186,8 +186,6 @@
 @patient-data-footer-horizontal-padding:  @spacing-small;
 
 .patient-data-footer-inner {
-  background-color: @gray-dark;
-
   padding-left: 0;
   padding-right: 0;
 
@@ -195,7 +193,7 @@
 }
 
 .patient-data-footer a {
-  color: #fff;
+  color: @gray-darkest;
   display: inline-block;
   padding: @patient-data-footer-vertical-padding @patient-data-footer-horizontal-padding;
 
@@ -204,7 +202,7 @@
   &:hover,
   &:focus {
     color: @gray-darkest;
-    text-decoration: none;
+    text-decoration: underline;
   }
 
   &:active,
@@ -216,6 +214,7 @@
 
 .patient-data-footer-left {
   text-align: left;
+  padding: @spacing-small;
 }
 
 .patient-data-footer-right {
