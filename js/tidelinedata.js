@@ -388,6 +388,11 @@ function TidelineData(data, opts) {
             d.normalTime = datumDt.toISOString();
             d.displayOffset = 0;
           }
+          // timezoneOffset is an optional attribute according to the Tidepool data model
+          else {
+            d.normalTime = d.time;
+            d.displayOffset = 0;
+          }
           if (d.deviceTime && d.normalTime.slice(0, -5) !== d.deviceTime) {
             d.warning = 'Combining `time` and `timezoneOffset` does not yield `deviceTime`.';
           }
