@@ -46,7 +46,7 @@ var definitions = {
     },
     'carelink/bolus/missing-square-component': function(source, defs) {
       var a = "Because of how ";
-      var b = " reports bolus and wizard data, we may have failed to combine a square-wave bolus with this normal bolus to display a dual-wave bolus.";
+      var b = " reports bolus and wizard data, this normal and square-wave bolus may not be properly combined to appear as a dual-wave bolus.";
       return defs.stitch(a, b, source);
     },
     'carelink/wizard/long-search': function(source, defs) {
