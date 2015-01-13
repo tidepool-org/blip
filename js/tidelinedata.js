@@ -490,7 +490,15 @@ function TidelineData(data, opts) {
   });
   
   if (data.length > 0 && !_.isEmpty(this.diabetesData)) {
-    this.data = data;
+    var dData = this.diabetesData;
+    this.data = _.reject(data, function(d) {
+      if (d.type === 'message' && d.normalTime < dData[0].normalTime) {
+        return true;
+      }
+      if (d.type === 'upload') {
+        return true;
+      }
+    });
     this.generateFillData().adjustFillsForTwoWeekView();
     this.data = _.sortBy(this.data.concat(this.grouped.fill), function(d) { return d.normalTime; });
   }

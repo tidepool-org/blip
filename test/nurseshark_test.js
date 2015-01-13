@@ -427,7 +427,7 @@ describe('nurseshark', function() {
       }];
       var res = nurseshark.processData(nullDuration).erroredData;
       expect(res.length).to.equal(1);
-      expect(res[0].errorMessage).to.equal('Null duration. Expect an `off-schedule-rate` annotation here. Investigate if that is missing.');
+      expect(res[0].errorMessage).to.equal('Basal with null/zero duration.');
     });
 
     it('should extend the duration of Carelink temps and suspends that are one second short', function() {

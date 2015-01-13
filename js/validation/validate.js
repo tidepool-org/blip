@@ -29,6 +29,7 @@ var schemas = {
   message: require('./message'),
   settings: require('./settings'),
   smbg: require('./bg'),
+  upload: require('./upload'),
   wizard: require('./wizard')
 };
 

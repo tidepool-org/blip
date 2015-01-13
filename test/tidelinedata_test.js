@@ -136,7 +136,7 @@ describe('TidelineData', function() {
       expect(toAdd.grouped.bolus.length - 1).to.equal(bolusLen);
     });
 
-    it('should expand the fill data if necessary', function() {
+    it('should expand the fill data on the right if necessary', function() {
       var origData = [new types.Bolus()];
       var toAdd = new TidelineData(origData);
       var origFill = toAdd.grouped.fill;
@@ -373,7 +373,7 @@ describe('TidelineData', function() {
     });
 
     it('should apply the timezone offset of the environment (browser) to a message time when not timezoneAware', function() {
-      var data = [new types.Message(), new types.SMBG()];
+      var data = [new types.SMBG({deviceTime: '2014-01-01T00:00:00'}), new types.Message()];
       var thisTd = new TidelineData(data);
       var datum = _.findWhere(thisTd.data, {type: 'message'});
       var now = new Date();

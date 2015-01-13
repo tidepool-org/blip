@@ -416,7 +416,7 @@ function getHandlers() {
       // NB: truthiness warranted here
       // basals with duration of 0 are *not* legitimate targets for visualization
       if (!d.duration) {
-        var err2 = new Error('Null duration. Expect an `off-schedule-rate` annotation here. Investigate if that is missing.');
+        var err2 = new Error('Basal with null/zero duration.');
         d.errorMessage = err2.message;
         return d;
       }
@@ -511,6 +511,10 @@ function getHandlers() {
       if (d.suppressed.suppressed) {
         this.suppressed(d.suppressed);
       }
+    },
+    upload: function(d) {
+      d = cloneDeep(d);
+      return d;
     },
     wizard: function(d, collections) {
       d = cloneDeep(d);
