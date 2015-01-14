@@ -243,12 +243,12 @@ var Navbar = React.createClass({
             <ul>
               <li>
                 <a href="#/profile" title="Account" onClick={handleClickUser} className={accountSettingsClasses}>
-                  <i className='Navbar-icon icon-settings'></i>Account Settings
+                  <i className='Navbar-icon icon-settings'></i><span className="Navbar-menuText">Account Settings</span>
                 </a>
               </li>
               <li>
                 <a href="" title="Logout" onClick={this.handleLogout} className="Navbar-button" ref="logout">
-                  <i className='Navbar-icon icon-logout'></i>Logout
+                  <i className='Navbar-icon icon-logout'></i><span className="Navbar-menuText">Logout</span>
                 </a>
               </li>
             </ul>

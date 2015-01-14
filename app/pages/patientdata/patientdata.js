@@ -70,13 +70,13 @@ var PatientData = React.createClass({
           },
           activeDomain: '2 weeks',
           extentSize: 14,
-          boxOverlay: false,
-          grouped: false,
-          showingLines: true
+          boxOverlay: true,
+          grouped: true,
+          showingLines: false
         },
         timePrefs: this.props.timePrefs
       },
-      chartType: 'daily',
+      chartType: 'modal',
       createMessage: null,
       createMessageDatetime: null,
       datetimeLocation: null,
