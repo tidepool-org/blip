@@ -863,11 +863,8 @@ var AppComponent = React.createClass({
     // Need to track this before expiring auth token
     trackMetric('Logged Out');
 
-    app.api.user.logout(function(err) {
-      if (err) {
-        self.setState({loggingOut: false});
-        return self.handleApiError(err, usrMessages.ERR_ON_LOGOUT, buildExceptionDetails());
-      }
+    app.api.user.logout(function() {
+      //ignore the error - the session has already been destroyed
       self.refs.logoutOverlay.fadeOut(function() {
         self.setState({loggingOut: false});
       });
