@@ -62,6 +62,10 @@ module.exports = function (config, deps) {
   config.metricsSource = config.metricsSource.replace(/-/g, ' ');
 
   var common = require('./lib/common.js')(config, deps);
+  var confirm = require('./confirm.js')(
+    common,
+    {superagent:superagent, findProfile: findProfile}
+  );
 
   /**
    * Refresh a users token
@@ -147,6 +151,15 @@ module.exports = function (config, deps) {
       return null;
     }
     return config.uploadApi + '?token=' + myToken;
+  }
+
+  function findProfile(userId, cb) {
+    if (userId == null) {
+      return cb({ status : common.STATUS_BAD_REQUEST,  message: 'Must specify a userId' });
+    }
+    common.assertArgumentsSize(arguments, 2);
+
+    common.doGetWithToken('/metadata/' + userId + '/profile', cb);
   }
 
   return {
@@ -519,14 +532,7 @@ module.exports = function (config, deps) {
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    findProfile: function (userId, cb) {
-      if (userId == null) {
-        return cb({ status : common.STATUS_BAD_REQUEST,  message: 'Must specify a userId' });
-      }
-      common.assertArgumentsSize(arguments, 2);
-
-      common.doGetWithToken('/metadata/' + userId + '/profile', cb);
-    },
+    findProfile: findProfile,
     /**
      * Get the users 'team'
      *
@@ -976,184 +982,15 @@ module.exports = function (config, deps) {
       );
     },
     /**
-     * Get the invites sent
-     *
-     * @param {String} inviterId - id of the user that send the invite
-     * @param cb
-     * @returns {cb}  cb(err, response)
+     * All confirmation functionality
      */
-    invitesSent: function (inviterId, cb) {
-      common.assertArgumentsSize(arguments, 2);
-      common.doGetWithToken(
-        '/confirm/invite/'+inviterId,
-        { 200: function(res){ return res.body; }, 404: [] },
-        cb
-      );
-    },
-    /**
-     * Get the invites received
-     *
-     * @param {String} inviteeId - id of the user who was invited
-     * @param cb
-     * @returns {cb}  cb(err, response)
-     */
-    invitesReceived: function (inviteeId,cb) {
-      common.assertArgumentsSize(arguments, 2);
-
-      var self = this;
-
-      superagent
-        .get(common.makeUrl('/confirm/invitations/'+inviteeId))
-        .set(common.SESSION_TOKEN_HEADER, myToken)
-        .end(
-        function (err, res) {
-          if (err != null) {
-            return cb(err);
-          }
-          if (res.status === 200) {
-            // Replace `creatorId` with a `creator` user object
-            async.map(res.body, function (invite, callback) {
-              self.findProfile(invite.creatorId,function(err,profile){
-                invite.creator = {
-                  userid: invite.creatorId,
-                  profile: profile
-                };
-                invite = _.omit(invite, 'creatorId');
-
-                callback(err,invite);
-              });
-            }, function(err, invites){
-              return cb(null,invites);
-            });
-          } else if (res.status === 404){
-            return cb(null,[]);
-          } else {
-            return cb(res.body,[]);
-          }
-        });
-    },
-    /**
-     * Invite a user
-     *
-     * @param {String} email - email of the user to invite
-     * @param {Object} permissions - permissions to be given
-     * @param {String} inviterId - id of the user that send the invite
-     * @param cb
-     * @returns {cb}  cb(err, response)
-     */
-    inviteUser: function (email, permissions, inviterId, cb) {
-      common.assertArgumentsSize(arguments, 4);
-
-      var details = { 'email':email,'permissions': permissions };
-
-      common.doPostWithToken(
-        '/confirm/send/invite/'+inviterId,
-        details,
-        cb
-      );
-    },
-    /**
-     * Accept the invite
-     *
-     * @param {String} inviteId
-     * @param {String} inviteeId - id of the user who was invited
-     * @param {String} inviterId - id of the user that send the invite
-     * @param cb
-     * @returns {cb}  cb(err, response)
-     */
-    acceptInvite: function (inviteId, inviteeId ,inviterId, cb) {
-      common.assertArgumentsSize(arguments, 4);
-
-      common.doPutWithToken(
-        '/confirm/accept/invite/'+ inviteeId +'/'+ inviterId,
-        {'key':inviteId},
-        cb
-      );
-    },
-    /**
-     * Dismiss the invite
-     *
-     * @param {String} inviteId
-     * @param {String} inviteeId - id of the user who was invited
-     * @param {String} inviterId - id of the user that send the invite
-     * @param cb
-     * @returns {cb}  cb(err, response)
-     */
-    dismissInvite: function (inviteId, inviteeId ,inviterId, cb) {
-      common.assertArgumentsSize(arguments, 4);
-
-      common.doPutWithToken(
-        '/confirm/dismiss/invite/'+ inviteeId +'/'+ inviterId,
-        {'key':inviteId},
-        { 200: null},
-        cb
-      );
-    },
-    /**
-     * Remove the invite
-     *
-     * @param {String} email - email of the user to remove
-     * @param {String} inviterId - id of the user that send the invite
-     * @param cb
-     * @returns {cb}  cb(err, response)
-     */
-    removeInvite: function (email, inviterId, cb) {
-      common.assertArgumentsSize(arguments, 3);
-
-      common.doPutWithToken(
-        '/confirm/'+inviterId+'/invited/'+email,
-        null,
-        cb
-      );
-    },
-    /**
-     * Request a password reset
-     *
-     * @param {String} email - email of the user requesting the password reset
-     * @param cb
-     * @returns {cb}  cb(err)
-     */
-    requestPasswordReset: function (email, cb) {
-      common.assertArgumentsSize(arguments, 2);
-
-      superagent
-       .post(common.makeUrl('/confirm/send/forgot/' + email))
-       .end(function (err, res) {
-        if (err != null) {
-          return cb(err);
-        }
-        if (res.status !== 200) {
-          return cb({status:res.status,message:res.error});
-        }
-        return cb();
-      });
-    },
-    /**
-     * Confirm a password reset request with a new password
-     *
-     * @param {Object} payload - object with `key`, `email`, `password`
-     * @param cb
-     * @returns {cb}  cb(err)
-     */
-    confirmPasswordReset: function (payload, cb) {
-      common.assertArgumentsSize(arguments, 2);
-      //fail fast
-      if( _.isEmpty(payload.key) || _.isEmpty(payload.email) || _.isEmpty(payload.password) ){
-        return cb({ status : common.STATUS_BAD_REQUEST, body:'payload requires object with `key`, `email`, `password`'});
-      }
-
-      superagent
-       .put(common.makeUrl('/confirm/accept/forgot'))
-       .send(payload)
-       .end(function (err, res) {
-        if (err != null) {
-          return cb(err);
-        }
-        if (res.status !== 200) {
-          return cb({status:res.status,message:res.error});
-        }
-        return cb();
-      });
-    }
+    invitesSent: confirm.invitesSent,
+    invitesReceived: confirm.invitesReceived,
+    inviteUser: confirm.inviteUser,
+    acceptInvite: confirm.acceptInvite,
+    dismissInvite: confirm.dismissInvite,
+    removeInvite: confirm.removeInvite,
+    requestPasswordReset: confirm.requestPasswordReset,
+    confirmPasswordReset: confirm.confirmPasswordReset
   };
 };
