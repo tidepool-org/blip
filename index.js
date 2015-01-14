@@ -757,9 +757,12 @@ module.exports = function (config, deps) {
      * @returns {cb}  cb(err, response)
      */
     getUploadGroups: function (userId, cb) {
+      console.log('getUploadGroups userId:', userId);
+
       if (userId == null) {
         return cb({ status : STATUS_BAD_REQUEST,  message: 'Must specify a userId' });
       }
+
       assertArgumentsSize(arguments, 2);
 
       doGetWithToken(
@@ -767,11 +770,17 @@ module.exports = function (config, deps) {
         { 200: function(res){
           var groups = res.body;
 
-          groups.filter(function(group) {
-            return group.permissions.admin || group.permissions.upload;
-          });
+          var filter = {};
 
-          return groups;
+          for(var i in groups) {
+            var group = groups[i];
+
+            if (group.root || group.upload) {
+              filter[i] = group;
+            }
+          }
+          
+          return filter;
         }, 404: null },
         cb
       );
