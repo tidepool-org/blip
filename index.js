@@ -982,7 +982,14 @@ module.exports = function (config, deps) {
       );
     },
     /**
-     * All confirmation functionality
+     * Signup
+     */
+    signupStart: confirm.signupStart,
+    signupConfirm: confirm.signupConfirm,
+    signupResend: confirm.signupResend,
+    signupCancel: confirm.signupCancel,
+    /**
+     * Invites
      */
     invitesSent: confirm.invitesSent,
     invitesReceived: confirm.invitesReceived,
@@ -990,6 +997,9 @@ module.exports = function (config, deps) {
     acceptInvite: confirm.acceptInvite,
     dismissInvite: confirm.dismissInvite,
     removeInvite: confirm.removeInvite,
+    /**
+     * Password reset
+     */
     requestPasswordReset: confirm.requestPasswordReset,
     confirmPasswordReset: confirm.confirmPasswordReset
   };

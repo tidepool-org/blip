@@ -42,9 +42,9 @@ describe('platform client', function () {
   var a_PWD = {
     id: null,
     token: null,
-    username: 'a_PWD@user.com',
+    username: 'jamie+pwd@tidepool.org',
     password: 'a_PWD',
-    emails: ['a_PWD@user.com'],
+    emails: ['jamie+pwd@tidepool.org'],
     profile: {fullName: 'Jamie'}
   };
 
@@ -60,9 +60,9 @@ describe('platform client', function () {
   var a_Member = {
     id: null,
     token: null,
-    username: 'team@member.com',
+    username: 'jamie+member@tidepool.org',
     password: 'teammember',
-    emails: ['team@member.com'],
+    emails: ['jamie+member@tidepool.org'],
     profile: {fullName: 'Dr Doogie'}
   };
 
@@ -71,7 +71,8 @@ describe('platform client', function () {
 
     var client = platform(
       {
-        host: 'https://devel-api.tidepool.io',
+        //host: 'https://devel-api.tidepool.io',
+        host: 'http://localhost:8009',
         metricsSource : pjson.name,
         metricsVersion : pjson.version
       },
@@ -557,10 +558,10 @@ describe('platform client', function () {
     var pwResetUsr = {
       id: null,
       token: null,
-      username: 'noreply@tidepool.org',
+      username: 'noreply+pwreset@tidepool.org',
       password: 'noreply',
-      emails: ['noreply@tidepool.org'],
-      profile: {fullName: 'Platform Client'}
+      emails: ['noreply+pwreset@tidepool.org'],
+      profile: {fullName: 'Platform Client Password Reset'}
     };
     var pwResetClient;
 
@@ -686,6 +687,60 @@ describe('platform client', function () {
           expect(err).to.not.exist;
           done();
         });
+      });
+    });
+  });
+  describe('handles signup flow', function () {
+
+    /* for signup flow with legit email*/
+    var signUpUsr = {
+      id: null,
+      token: null,
+      username: 'noreply+signup@tidepool.org',
+      password: 'noreply',
+      emails: ['noreply+signup@tidepool.org'],
+      profile: {fullName: 'Platform Client Signup'}
+    };
+
+    var signupClient;
+    var signupConfirmation;
+
+    before(function (done) {
+      console.log('doing signup setup ...');
+      createClientWithUser(signUpUsr, {}, storage() ,function(err,client){
+        console.log('## setup err ',err);
+        signupClient = client;
+        signupClient.signupCancel(signUpUsr.id, function(err, canceled) {
+          //expect(err).to.not.exist;
+          console.log('## canceled err ',err);
+          console.log('## canceled ',canceled);
+          done();
+        });
+      });
+    });
+    it('so we can signup a new user', function(done){
+      signupClient.signupStart(signUpUsr.id, function(err, signup) {
+        console.log('## sent err ',err);
+        signupConfirmation = signup;
+        console.log('## sent ',signup);
+        //expect(signupConfirmation).to.exist;
+        done();
+      });
+    });
+    it('the user can resend the signup', function(done){
+      signupClient.signupResend(signUpUsr.id, function(err, resent) {
+        console.log('## resent err ',err);
+        signupConfirmation = resent;
+        console.log('## resent ',resent);
+        done();
+      });
+    });
+    it('the user can confirm signing up', function(done){
+      signupClient.signupConfirm(signUpUsr.id, signupConfirmation.key, function(err, confirmed) {
+        console.log('## confrim err ',err);
+        console.log('## confrim ',confirmed);
+        expect(confirmed).to.exist;
+        done();
       });
     });
   });

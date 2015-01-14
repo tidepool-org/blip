@@ -35,7 +35,7 @@ module.exports = function (common, deps) {
       common.assertArgumentsSize(arguments, 2);
       common.doPostWithToken(
         '/confirm/send/signup/'+invitedId,
-        { 200: function(res){ return res.body; }, 404: [] },
+        { 201: function(res){ return res.body; }, 404: [] },
         cb
       );
     },
@@ -48,9 +48,11 @@ module.exports = function (common, deps) {
      * @returns {cb}  cb(err, response)
      */
     signupConfirm: function (invitedId, signupId, cb) {
-      common.assertArgumentsSize(arguments, 2);
+      common.assertArgumentsSize(arguments, 3);
+
       common.doPutWithToken(
         '/confirm/accept/signup/'+invitedId+'/'+signupId,
+        {'key':signupId},
         { 200: function(res){ return res.body; }, 404: [] },
         cb
       );
@@ -65,7 +67,22 @@ module.exports = function (common, deps) {
     signupResend: function (invitedId, cb) {
       common.assertArgumentsSize(arguments, 2);
       common.doPostWithToken(
-        '/confirm/resend/signup/'+inviterId,
+        '/confirm/resend/signup/'+invitedId,
+        { 200: function(res){ return res.body; }, 404: [] },
+        cb
+      );
+    },
+    /**
+     * Cancel an existing invite
+     *
+     * @param {String} inviterId - id of the user that send the invite
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    signupCancel: function (invitedId, cb) {
+      common.assertArgumentsSize(arguments, 2);
+      common.doPutWithToken(
+        '/confirm/signup/'+invitedId,
         { 200: function(res){ return res.body; }, 404: [] },
         cb
       );
