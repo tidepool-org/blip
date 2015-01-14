@@ -1,16 +1,16 @@
 /** @jsx React.DOM */
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -53,6 +53,13 @@ var TidelineHeader = React.createClass({
       'patient-data-subnav-hidden': this.props.chartType === 'no-data'
     });
 
+    var dateLinkClass = cx({
+      'patient-data-subnav-text' : this.props.chartType === 'daily' || this.props.chartType === 'weekly' || this.props.chartType === 'modal',
+      'patient-data-subnav-dates-daily': this.props.chartType === 'daily',
+      'patient-data-subnav-dates-weekly': this.props.chartType === 'weekly',
+      'patient-data-subnav-dates-modal': this.props.chartType === 'modal'
+    });
+
     var mostRecentLinkClass = cx({
       'patient-data-subnav-active': !this.props.atMostRecent && !this.props.inTransition,
       'patient-data-subnav-disabled': this.props.atMostRecent || this.props.inTransition,
@@ -93,7 +100,7 @@ var TidelineHeader = React.createClass({
             </div>
             <div className="grid-item one-whole large-one-half patient-data-subnav-center" id="tidelineLabel">
               <a href="" className={backClass} onClick={this.props.onClickBack}><i className={this.props.iconBack}/></a>
-              <div className="patient-data-subnav-text patient-data-subnav-text-dates">
+              <div className={dateLinkClass}>
                 {this.props.title}
               </div>
               <a href="" className={nextClass} onClick={this.props.onClickNext}><i className={this.props.iconNext}/></a>
