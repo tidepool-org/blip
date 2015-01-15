@@ -200,9 +200,8 @@
 // ====================================
 
 .Navbar-menuSection {
-  margin: 0;
-  padding: 0;
   list-style: none;
+  vertical-align: top;
 }
 
 
@@ -236,6 +235,7 @@
 
 .Navbar-menuItem .Navbar-icon {
   padding-left: 2px;
+  vertical-align: top;
 }
 
 // Patient section
@@ -321,13 +321,13 @@
 }
 
 .Navbar-menuDropdown {
+  border: 1px solid @gray-light;
   cursor: default;
   position: absolute;
   background: white;
   right: 0px;
   z-index: 100;
   width: 200px;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
   top: 25px;
 
   > ul {
@@ -345,16 +345,28 @@
   }
 }
 
+.Navbar-menuDropdown:after,
 .Navbar-menuDropdown:before {
 	position: absolute;
-  top: -7px;
+  top: -8px;
   right: 14px;
   display: inline-block;
+  border: solid transparent;
   border-right: 7px solid transparent;
   border-bottom: 7px solid #eee;
   border-left: 7px solid transparent;
   border-bottom-color: white;
   content: '';
+  height: 0;
+  width: 0;
+}
+
+.Navbar-menuDropdown:before {
+  top: -14px;
+  border-color: rgba(230, 230, 229, 0);
+  border-bottom-color: @gray-light;
+  border-width: 7px;
+  margin-left: -7px;
 }
 
 .Navbar-dropdownIcon {
