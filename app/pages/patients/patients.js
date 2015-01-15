@@ -63,14 +63,14 @@ var Patients = React.createClass({
     var noPatientsSetupStorage = this.renderNoPatientsSetupStorageLink();
     var patients = this.renderPatients();
 
-    var bgClasses = cx({
+    var backgroundClasses = cx({
       'patients js-patients-page': true,
       'patients-welcome js-patients-page': this.isShowingWelcomeTitle()
     });
 
     return (
       <div className="container-box-outer">
-        <div className={bgClasses}>
+        <div className={backgroundClasses}>
           {welcomeTitle}
           {welcomeSetup}
           {noPatientsOrInvites}
