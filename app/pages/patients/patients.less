@@ -15,12 +15,18 @@
 
 @patients-box-max-width: 680px;
 
-.patients {
+.patients,
+.patients-welcome {
   margin-right: auto;
   margin-left: auto;
   margin-bottom: @spacing-large;
   background: white;
   border: 1px solid @gray-light;
+}
+
+.patients-welcome {
+  background: none;
+  border: 0;
 }
 
 .patients-section {
@@ -113,7 +119,7 @@
 // ====================================
 
 .patients-message {
-  color: @gray-dark;
+  color: @gray-text;
   font-weight: 300;
   text-align: center;
 
@@ -151,7 +157,11 @@
 
   button {
     min-width: 180px;
-    margin-top: 10px;
+    margin: 10px 10px;
+
+    .btn .btn-primary {
+      float: left;
+    }
   }
 }
 
