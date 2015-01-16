@@ -30,6 +30,9 @@ describe('sundial', function() {
     it('should have applyTimezone method',function(){
       expect(datetimeWrapper.applyTimezone).exists;
     });
+    it('should have a buildTimestamp method',function(){
+      expect(datetimeWrapper.buildTimestamp).exists;
+    });
     it('should have a ceil method',function(){
       expect(datetimeWrapper.ceil).exists;
     });
@@ -72,8 +75,8 @@ describe('sundial', function() {
     it('should have isValidDate method',function(){
       expect(datetimeWrapper.isValidDate).exists;
     });
-    it('should have parseAndApplyTimezone method',function(){
-      expect(datetimeWrapper.parseAndApplyTimezone).exists;
+    it('should have parseFromFormat method',function(){
+      expect(datetimeWrapper.parseFromFormat).exists;
     });
     it('should have utcString method',function(){
       expect(datetimeWrapper.utcDateString).exists;
@@ -125,6 +128,55 @@ describe('sundial', function() {
       it('should throw an error if timezone name not recognized by moment', function() {
         var fn = function() { datetimeWrapper.applyTimezone('2014-01-01T00:00:00', 'Foo'); };
         expect(fn).to.throw(Error, 'Unrecognized timezone name!');
+      });
+    });
+
+    describe('buildTimestamp', function() {
+      var inputObj = {
+        year: 2013,
+        month: 1,
+        day: 22,
+        hours: 4,
+        minutes: 25,
+        seconds: 21
+      };
+      var built = datetimeWrapper.buildTimestamp(inputObj);
+      it('returns a JavaScript Date object when input object has all required fields', function() {
+        expect(built).to.eql(new Date('2013-01-22T04:25:21.000Z'));
+      });
+
+      it('can have a timezone applied later', function() {
+        expect(datetimeWrapper.applyTimezone(built, 'US/Eastern').toISOString()).to.equal('2013-01-22T09:25:21.000Z');
+      });
+
+      it('can yield a deviceTime later', function() {
+        expect(datetimeWrapper.formatDeviceTime(built)).to.equal('2013-01-22T04:25:21');
+      });
+
+      it('can yield a timezoneOffset after conversion to UTC (when given named timezone)', function() {
+        var edgeCase = {
+          year: 2014,
+          month: 3,
+          day: 9,
+          hours: 2,
+          minutes: 0,
+          seconds: 0
+        };
+        var builtEdgeCase = datetimeWrapper.buildTimestamp(edgeCase);
+        var edgeInUTC = datetimeWrapper.applyTimezone(builtEdgeCase, 'US/Eastern');
+        expect(datetimeWrapper.getOffsetFromZone(edgeInUTC.toISOString(), 'US/Eastern')).to.equal(-240);
+      });
+
+      it('returns null when input object is missing one or more required fields', function() {
+        var inputObj = {
+          year: 2013,
+          month: 1,
+          day: 22,
+          hours: 4,
+          minutes: 25
+        };
+        var built = datetimeWrapper.buildTimestamp(inputObj);
+        expect(built).to.equal(null);
       });
     });
 
@@ -393,37 +445,37 @@ describe('sundial', function() {
       });
     });
 
-    describe('parseAndApplyTimezone', function() {
+    describe('parseFromFormat', function() {
       var euroFormat = 'DD-MM-YYYY hh:mm a';
       it('should yield a UTC time offset five hours later when non-DST and given `US/Eastern` timezone', function() {
-        var res = datetimeWrapper.parseAndApplyTimezone('31-12-2013 06:32 p.m.', euroFormat, 'US/Eastern').toISOString();
+        var res = datetimeWrapper.parseFromFormat('31-12-2013 06:32 p.m.', euroFormat, 'US/Eastern').toISOString();
         expect(res).to.equal('2013-12-31T23:32:00.000Z');
       });
 
       it('should yield a UTC time offset four hours later when DST and given `US/Eastern` timezone', function() {
-        var res = datetimeWrapper.parseAndApplyTimezone('30-06-2014 07:32 p.m.', euroFormat, 'US/Eastern').toISOString();
+        var res = datetimeWrapper.parseFromFormat('30-06-2014 07:32 p.m.', euroFormat, 'US/Eastern').toISOString();
         expect(res).to.equal('2014-06-30T23:32:00.000Z');
       });
 
       it('should correctly parse another format', function() {
         var fmt = 'MMMM DD YYYY HH:mm:ss';
-        var res = datetimeWrapper.parseAndApplyTimezone('Jun 30 2014 19:32:00', fmt, 'US/Eastern').toISOString();
+        var res = datetimeWrapper.parseFromFormat('Jun 30 2014 19:32:00', fmt, 'US/Eastern').toISOString();
         expect(res).to.equal('2014-06-30T23:32:00.000Z');
       });
 
       it('should correctly parse another format even if seconds are missing', function() {
         var fmt = 'MMMM DD YYYY HH:mm:ss';
-        var res = datetimeWrapper.parseAndApplyTimezone('Jun 30 2014 19:32', fmt, 'US/Eastern').toISOString();
+        var res = datetimeWrapper.parseFromFormat('Jun 30 2014 19:32', fmt, 'US/Eastern').toISOString();
         expect(res).to.equal('2014-06-30T23:32:00.000Z');
       });
 
       it('should assume UTC time when no timezone provided', function() {
-        var res = datetimeWrapper.parseAndApplyTimezone('30-06-2014 07:32 p.m.', euroFormat).toISOString();
+        var res = datetimeWrapper.parseFromFormat('30-06-2014 07:32 p.m.', euroFormat).toISOString();
         expect(res).to.equal('2014-06-30T19:32:00.000Z');
       });
 
       it('should throw an error if timezone name not recognized by moment', function() {
-        var fn = function() { datetimeWrapper.parseAndApplyTimezone('30-06-2014 07:32 p.m.', euroFormat, 'Foo'); };
+        var fn = function() { datetimeWrapper.parseFromFormat('30-06-2014 07:32 p.m.', euroFormat, 'Foo'); };
         expect(fn).to.throw(Error, 'Unrecognized timezone name!');
       });
     });
