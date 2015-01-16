@@ -50,6 +50,7 @@ var PatientNew = require('./pages/patientnew');
 var PatientData = require('./pages/patientdata');
 var RequestPasswordReset = require('./pages/passwordreset/request');
 var ConfirmPasswordReset = require('./pages/passwordreset/confirm');
+var SignupVerification = require('./pages/signupverification');
 
 // Styles
 require('tideline/css/tideline.less');
@@ -77,6 +78,7 @@ var routes = {
   '/': 'redirectToDefaultRoute',
   '/login': 'showLogin',
   '/signup': 'showSignup',
+  '/signup-verification' : 'showSignupVerification',
   '/profile': 'showProfile',
   '/patients': 'showPatients',
   '/patients/new': 'showPatientNew',
@@ -90,6 +92,7 @@ var routes = {
 var noAuthRoutes = [
   '/login',
   '/signup',
+  '/signup-verification',
   '/request-password-reset',
   '/confirm-password-reset'
 ];
@@ -169,6 +172,7 @@ var AppComponent = React.createClass({
       showingWelcomeTitle: false,
       showingWelcomeSetup: false,
       dismissedBrowserWarning: false,
+      signupEmailSent: false,
       queryParams: queryParams
     };
   },
@@ -375,6 +379,7 @@ var AppComponent = React.createClass({
         onSubmit={this.login}
         inviteEmail={this.getInviteEmail()}
         onSubmitSuccess={this.handleLoginSuccess}
+        onSubmitNotAuthorized={this.handleNotAuthorized}
         trackMetric={trackMetric} />
       /* jshint ignore:end */
     );
@@ -396,6 +401,11 @@ var AppComponent = React.createClass({
     this.setState({page: 'signup'});
   },
 
+  showSignupVerification: function() {
+    this.renderPage = this.renderSignupVerification;
+    this.setState({page: 'signup-verification'});
+  },
+
   renderSignup: function() {
     return (
       /* jshint ignore:start */
@@ -403,6 +413,16 @@ var AppComponent = React.createClass({
         onSubmit={this.signup}
         inviteEmail={this.getInviteEmail()}
         onSubmitSuccess={this.handleSignupSuccess}
+        trackMetric={trackMetric} />
+      /* jshint ignore:end */
+    );
+  },
+
+  renderSignupVerification: function() {
+    return (
+      /* jshint ignore:start */
+      <SignupVerification
+        sent={this.state.signupEmailSent}
         trackMetric={trackMetric} />
       /* jshint ignore:end */
     );
@@ -817,13 +837,30 @@ var AppComponent = React.createClass({
     trackMetric('Logged In');
   },
 
+  handleNotAuthorized:function(){
+     this.setState({authenticated: false,  signupEmailSent: false});
+     this.showSignupVerification();
+  },
+
   signup: function(formValues, cb) {
     var user = formValues;
-
     app.api.user.signup(user, cb);
   },
 
   handleSignupSuccess: function(user) {
+    //once signed up we need to authenicate the email which is done via the email we have sent them
+    this.setState({
+      fetchingUser: false,
+      signupEmailSent: true
+    });
+
+    this.showSignupVerification();
+
+    trackMetric('Signed Up');
+  },
+
+  handleSignupVerificationSuccess: function(user) {
+    //once signed up we need to authenicate the email which is done via the email we have sent them
     this.setState({
       authenticated: true,
       user: user,
@@ -832,8 +869,9 @@ var AppComponent = React.createClass({
       showingWelcomeTitle: true,
       showingWelcomeSetup: true
     });
+
     this.redirectToDefaultRoute();
-    trackMetric('Signed Up');
+    trackMetric('Signup Verified');
   },
 
   handleAcceptedTerms: function() {

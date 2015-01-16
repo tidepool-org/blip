@@ -94,6 +94,13 @@ api.user.signup = function(user, cb) {
 
     var userId = account.userid;
 
+    tidepool.signupStart(userId,function(err, results){
+      if(err){
+        api.log('signup process error',err);
+      }
+      api.log('signup process started ',results);
+    });
+
     // Then, add additional user info (full name, etc.) to profile
     tidepool.addOrUpdateProfile(userId, newProfile, function(err, results) {
       if (err) {

@@ -28,6 +28,7 @@ var Login = React.createClass({
     onSubmit: React.PropTypes.func.isRequired,
     inviteEmail: React.PropTypes.string,
     onSubmitSuccess: React.PropTypes.func.isRequired,
+    onSubmitNotAuthorized: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired
   },
 
@@ -189,6 +190,10 @@ var Login = React.createClass({
     submit(formValues, function(err) {
       if (err) {
         var message = 'An error occured while logging in.';
+        if(err.status === 403){
+          self.props.onSubmitNotAuthorized();
+          return;
+        }
         if (err.status === 401) {
           message = 'Wrong username or password.';
         }
