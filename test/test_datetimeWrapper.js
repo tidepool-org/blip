@@ -153,6 +153,20 @@ describe('sundial', function() {
         expect(datetimeWrapper.formatDeviceTime(built)).to.equal('2013-01-22T04:25:21');
       });
 
+      it('can yield a timezoneOffset after conversion to UTC (when given named timezone)', function() {
+        var edgeCase = {
+          year: 2014,
+          month: 3,
+          day: 9,
+          hours: 2,
+          minutes: 0,
+          seconds: 0
+        };
+        var builtEdgeCase = datetimeWrapper.buildTimestamp(edgeCase);
+        var edgeInUTC = datetimeWrapper.applyTimezone(builtEdgeCase, 'US/Eastern');
+        expect(datetimeWrapper.getOffsetFromZone(edgeInUTC.toISOString(), 'US/Eastern')).to.equal(-240);
+      });
+
       it('returns null when input object is missing one or more required fields', function() {
         var inputObj = {
           year: 2013,
