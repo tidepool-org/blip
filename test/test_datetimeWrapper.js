@@ -30,6 +30,9 @@ describe('sundial', function() {
     it('should have applyTimezone method',function(){
       expect(datetimeWrapper.applyTimezone).exists;
     });
+    it('should have a buildTimestamp method',function(){
+      expect(datetimeWrapper.buildTimestamp).exists;
+    });
     it('should have a ceil method',function(){
       expect(datetimeWrapper.ceil).exists;
     });
@@ -125,6 +128,41 @@ describe('sundial', function() {
       it('should throw an error if timezone name not recognized by moment', function() {
         var fn = function() { datetimeWrapper.applyTimezone('2014-01-01T00:00:00', 'Foo'); };
         expect(fn).to.throw(Error, 'Unrecognized timezone name!');
+      });
+    });
+
+    describe('buildTimestamp', function() {
+      var inputObj = {
+        year: 2013,
+        month: 1,
+        day: 22,
+        hours: 4,
+        minutes: 25,
+        seconds: 21
+      };
+      var built = datetimeWrapper.buildTimestamp(inputObj);
+      it('returns a JavaScript Date object when input object has all required fields', function() {
+        expect(built).to.eql(new Date('2013-01-22T04:25:21.000Z'));
+      });
+
+      it('can have a timezone applied later', function() {
+        expect(datetimeWrapper.applyTimezone(built, 'US/Eastern').toISOString()).to.equal('2013-01-22T09:25:21.000Z');
+      });
+
+      it('can yield a deviceTime later', function() {
+        expect(datetimeWrapper.formatDeviceTime(built)).to.equal('2013-01-22T04:25:21');
+      });
+
+      it('returns null when input object is missing one or more required fields', function() {
+        var inputObj = {
+          year: 2013,
+          month: 1,
+          day: 22,
+          hours: 4,
+          minutes: 25
+        };
+        var built = datetimeWrapper.buildTimestamp(inputObj);
+        expect(built).to.equal(null);
       });
     });
 
