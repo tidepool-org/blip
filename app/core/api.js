@@ -118,12 +118,11 @@ api.user.logout = function(cb) {
   }
 
   tidepool.logout(function(err) {
-    //don't return the error, we just want to log out and be done with it
     if (err) {
       api.log('error logging out but still destroySession');
       tidepool.destroySession();
     }
-    return cb();
+    return cb(err);
   });
 };
 
