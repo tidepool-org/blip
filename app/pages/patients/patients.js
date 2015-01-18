@@ -16,6 +16,7 @@
 
 var React = require('react');
 var _ = require('lodash');
+var cx = require('react/lib/cx');
 
 var config = require('../../config');
 
@@ -62,9 +63,14 @@ var Patients = React.createClass({
     var noPatientsSetupStorage = this.renderNoPatientsSetupStorageLink();
     var patients = this.renderPatients();
 
+    var backgroundClasses = cx({
+      'patients js-patients-page': true,
+      'patients-welcome js-patients-page': this.isShowingWelcomeTitle()
+    });
+
     return (
       <div className="container-box-outer">
-        <div className="patients js-patients-page">
+        <div className={backgroundClasses}>
           {welcomeTitle}
           {welcomeSetup}
           {noPatientsOrInvites}
@@ -99,8 +105,8 @@ var Patients = React.createClass({
           {"Would you like to set up data storage for someone’s diabetes data?"}
         </div>
         <div className="patients-welcomesetup-actions">
-          <div><button className="btn btn-primary" onClick={handleClickYes}>{"Yes, let's set it up"}</button></div>
-          <div><button className="btn btn-tertiary" onClick={handleClickNo}>{"No, not now"}</button></div>
+          <button className="btn btn-tertiary" onClick={handleClickNo}>{"No, not now"}</button>
+          <button className="btn btn-primary" onClick={handleClickYes}>{"Yes, let's set it up"}</button>
           <div className="patients-welcomesetup-actions-help">{"(You can always create one later)"}</div>
         </div>
       </div>
