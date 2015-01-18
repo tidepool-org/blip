@@ -18,14 +18,12 @@ var React = require('react');
 
 var LoginNav = require('../../components/loginnav');
 var LoginLogo = require('../../components/loginlogo');
-var MailTo = require('../../components/mailto');
 
 var SignupVerification = React.createClass({
   propTypes: {
     sent: React.PropTypes.bool,
     trackMetric: React.PropTypes.func.isRequired
   },
-
   render: function() {
     var content;
     if (this.props.sent) {
@@ -40,20 +38,11 @@ var SignupVerification = React.createClass({
     }
     else {
       content = (
-        <div>
-          <div className="SignupVerification-intro">
-            <div className="SignupVerification-title">{'Hey your not verified yet.'}</div>
-              <div className="SignupVerification-instructions">
-                <p>{'Check your email and follow the link there. (We need to confirm that you are really you).'}</p>
-              </div>
-          </div>
-          <div className="SignupVerification-link">
-            <MailTo
-              linkTitle={'Help, I cannot complete signup'}
-              emailAddress={'support@tidepool.org'}
-              emailSubject={'Help, I cannot complete signup'}
-              onLinkClicked={this.logSupportContact} />
-          </div>
+        <div className="SignupVerification-intro">
+          <div className="SignupVerification-title">{'Hey your not verified yet.'}</div>
+            <div className="SignupVerification-instructions">
+              <p>{'Check your email and follow the link there. (We need to confirm that you are really you).'}</p>
+            </div>
         </div>
       );
     }
@@ -68,9 +57,6 @@ var SignupVerification = React.createClass({
         {content}
       </div>
     );
-  },
-  logSupportContact: function(){
-    trackMetric('Clicked Signup Help Needed');
   }
 });
 
