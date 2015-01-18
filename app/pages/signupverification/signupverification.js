@@ -49,7 +49,7 @@ var SignupVerification = React.createClass({
           </div>
           <div className="SignupVerification-link">
             <MailTo
-              linkTitle={'Send us an email'}
+              linkTitle={'Help, I cannot complete signup'}
               emailAddress={'support@tidepool.org'}
               emailSubject={'Help, I cannot complete signup'}
               onLinkClicked={this.logSupportContact} />
@@ -61,12 +61,11 @@ var SignupVerification = React.createClass({
     return (
       <div className="signup">
         <LoginNav
-          hideLinks={true}
+          page="signup"
+          hideLinks={false}
           trackMetric={this.props.trackMetric} />
         <LoginLogo />
-        <div>
-          {content}
-        </div>
+        {content}
       </div>
     );
   },

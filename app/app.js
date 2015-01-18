@@ -335,11 +335,18 @@ var AppComponent = React.createClass({
     trackMetric('Clicked Give Feedback');
   },
 
+  showFeedBackLink: function(){
+    //at this stage its only on verification we don't show this link
+    return this.state.page !== 'signup-verification';
+  },
+
   renderFooter: function() {
-    // just the feedbak link at this stage
-    return (
-      /* jshint ignore:start */
-      <div className='container-small-outer footer'>
+    // just the feedback link at this stage
+
+    var feedbackLink;
+
+    if( this.showFeedBackLink() ){
+      feedbackLink = (
         <div className='container-small-inner'>
           <MailTo
             linkTitle={'Send us feedback'}
@@ -347,6 +354,13 @@ var AppComponent = React.createClass({
             emailSubject={'Feedback on Blip'}
             onLinkClicked={this.logSupportContact} />
         </div>
+        );
+    }
+
+    return (
+      /* jshint ignore:start */
+      <div className='container-small-outer footer'>
+        {feedbackLink}
         {this.renderVersion()}
       </div>
       /* jshint ignore:end */
