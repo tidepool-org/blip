@@ -108,22 +108,21 @@ api.user.signup = function(user, cb) {
   });
 };
 
-api.user.logout = function(cb) {
+api.user.logout = function() {
   api.log('POST /user/logout');
 
   if (!api.user.isAuthenticated()) {
     api.log('not authenticated but still destroySession');
     tidepool.destroySession();
-    return cb();
+    return;
   }
 
   tidepool.logout(function(err) {
-    //don't return the error, we just want to log out and be done with it
     if (err) {
       api.log('error logging out but still destroySession');
       tidepool.destroySession();
     }
-    return cb();
+    return;
   });
 };
 
