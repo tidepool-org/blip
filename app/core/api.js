@@ -108,13 +108,13 @@ api.user.signup = function(user, cb) {
   });
 };
 
-api.user.logout = function(cb) {
+api.user.logout = function() {
   api.log('POST /user/logout');
 
   if (!api.user.isAuthenticated()) {
     api.log('not authenticated but still destroySession');
     tidepool.destroySession();
-    return cb();
+    return;
   }
 
   tidepool.logout(function(err) {
@@ -122,7 +122,7 @@ api.user.logout = function(cb) {
       api.log('error logging out but still destroySession');
       tidepool.destroySession();
     }
-    return cb(err);
+    return;
   });
 };
 

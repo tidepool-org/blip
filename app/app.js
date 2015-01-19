@@ -863,18 +863,12 @@ var AppComponent = React.createClass({
     // Need to track this before expiring auth token
     trackMetric('Logged Out');
 
-    app.api.user.logout(function(err) {
-      if(_.isEmpty(err)){
-        self.refs.logoutOverlay.fadeOut(function() {
-          self.setState({loggingOut: false});
-        });
-      } else {
-        //if there has been an error we don't have the logoutOverlay
-        self.setState({loggingOut: false});
-      }
+    //Logout but don't wait for details
+    app.api.user.logout();
 
-      self.handleLogoutSuccess();
-    });
+    self.setState({loggingOut: false});
+
+    self.handleLogoutSuccess();
   },
 
   handleLogoutSuccess: function() {
