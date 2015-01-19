@@ -575,10 +575,14 @@ describe('platform client', function () {
     });
     it('so we can request the pw if forgotten', function(done){
       pwResetClient.requestPasswordReset(a_Member.emails[0], function(err, details) {
-        expect(err).to.not.exist;
-        //leak no details
-        expect(details).to.be.empty;
-        done();
+        if (_.isEmpty(err)){
+          //leak no details
+          expect(details).to.be.empty;
+          done();
+        } else {
+          console.log("requestPasswordReset err: ",err);
+          done(err);
+        }
       });
     });
     it('a pw confirmation will be rejected without all the required details', function(done){
