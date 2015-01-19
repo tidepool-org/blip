@@ -20,8 +20,6 @@ var async = require('async');
 
 var id = require('./lib/id.js');
 
-
-var sessionTokenHeader = 'x-tidepool-session-token';
 var tokenLocalKey = 'authToken';
 
 function defaultProperty(obj, property, defaultValue) {
@@ -50,13 +48,6 @@ module.exports = function (config, deps) {
   // It is used to invalidate stale attempts at refreshing a token
   var loginVersion = 0;
 
-  //Status Codes
-  var STATUS_BAD_REQUEST = 400;
-  var STATUS_UNAUTHORIZED = 401;
-  var UNAUTHORIZED_MSG = 'User is not logged in, you must log in to do this operation';
-  var STATUS_OFFLINE = 503;
-  var OFFLINE_MSG = 'User appears to be offline';
-
   var superagent = requireDep(deps, 'superagent');
   var log = requireDep(deps, 'log');
   var localStore = requireDep(deps, 'localStore');
@@ -70,57 +61,11 @@ module.exports = function (config, deps) {
   // this way, the first dash in the eventname will be the separator for the source
   config.metricsSource = config.metricsSource.replace(/-/g, ' ');
 
-
-  /*
-   Make URLs -- always use these, because the URLs can change.
-   */
-
-  // We want local copies of the config variables so we can change them on demand
-  var apihost = config.host;
-  var uploadhost = config.uploadApi;
-  var bliphost = config.bliphost;
-
-  function makeAPIUrl(path, extra) {
-    var result = apihost + path;
-    if (extra) {
-      result += '/' + extra;
-    }
-    return result;
-  }
-
-  function makeBlipUrl(path, extra) {
-    var result = bliphost + path;
-    if (extra) {
-      result += '/' + extra;
-    }
-    return result;
-  }
-
-  function makeUploadUrl(path, query) {
-    if (uploadhost == null) {
-      return null;
-    }
-
-    var result = uploadhost + path;
-    if (!_.isEmpty(query)) {
-      result += '?';
-      var fields = [];
-      for (var k in query) {
-        fields.push(k + '=' + query[k]);
-      }
-      result += fields.join('&');
-    }
-    return result;
-  }
-
-  /*
-   Handle an HTTP error (status code !== 2xx)
-   Create an error object and pass it to callback
-   */
-  function handleHttpError(res, cb) {
-    var err = {status: res.status, body: res.body};
-    return cb(err);
-  }
+  var common = require('./lib/common.js')(config, deps);
+  var confirm = require('./confirm.js')(
+    common,
+    {superagent:superagent, findProfile: findProfile}
+  );
 
   /**
    * Refresh a users token
@@ -130,24 +75,25 @@ module.exports = function (config, deps) {
    * @param cb
    */
   function refreshUserToken(token, cb) {
-    superagent.get(makeAPIUrl('/auth/login'))
-      .set(sessionTokenHeader, token)
+    superagent.get(common.makeAPIUrl('/auth/login'))
+      .set(common.SESSION_TOKEN_HEADER, token)
       .end(
       function (err, res) {
         if (err) {
           return cb(err, null);
         }
         if (res.status !== 200) {
-          return handleHttpError(res, cb);
+          return common.handleHttpError(res, cb);
         }
 
-        return cb(null, {userid: res.body.userid, token: res.headers[sessionTokenHeader]});
+        return cb(null, {userid: res.body.userid, token: res.headers[common.SESSION_TOKEN_HEADER]});
       });
   }
 
   function saveSession(newUserId, newToken, options) {
     options = options || {};
     myToken = newToken;
+    common.syncToken(myToken);
     myUserId = newUserId;
 
     // Store and increment the loginVersion.  This is a mechanism to nullify any refreshSession calls that
@@ -196,173 +142,16 @@ module.exports = function (config, deps) {
     return myToken != null;
   }
 
-  function hasConnection(){
-    try{
-      return navigator.onLine;
-    }catch(e){
-      //can't test so just assume
-      return true;
-    }
-  }
-
   function getUserId() {
     return myUserId;
   }
 
-  function getUploadUrl() {
-    if (myToken == null) {
-      return null;
+  function findProfile(userId, cb) {
+    if (userId == null) {
+      return cb({ status : common.STATUS_BAD_REQUEST,  message: 'Must specify a userId' });
     }
-    return makeUploadUrl('', { token: myToken });
-  }
-
-  /*
-   * do pre-reqs check before
-   *
-   * check we are logged in and online
-   * return an error if we fail either of those otherwise return the token
-   */
-  function serviceCallChecks(sadCb, happyCb) {
-    if ( isLoggedIn() && hasConnection() ) {
-      return happyCb(myToken);
-    } else if (! hasConnection() ) {
-      return sadCb({status: STATUS_OFFLINE, body: OFFLINE_MSG});
-    } else if(!isLoggedIn()) {
-      return sadCb({status: STATUS_UNAUTHORIZED, body: UNAUTHORIZED_MSG});
-    }
-  }
-
-  /*
-   * do a GET with the stored token
-   *
-   * @param path path to resource
-   * @param codes (optional) defaults to { 200: function(res){ return res.body; }}
-   *  e.g. { 200: function(res){ return res.body.messages; } }
-   * @param cb
-   * @returns {cb}  cb(err, response)
-   */
-  function doGetWithToken(path, codes, cb) {
-    //if the cb is not defined and the codes param is a function then set that
-    //to be the cb
-    if (cb == null && typeof(codes) === 'function') {
-      cb = codes;
-      codes = {
-        200: function(res) { return res.body; }
-      };
-    }
-
-    return serviceCallChecks(cb, function(token) {
-      superagent
-        .get(makeAPIUrl(path))
-        .set(sessionTokenHeader, token)
-        .end(
-        function (err, res) {
-          if (err != null) {
-            return cb(err);
-          }
-
-          if (_.has(codes, res.status)) {
-            var handler = codes[res.status];
-            if (typeof(handler) === 'function') {
-              return cb(null, handler(res));
-            } else {
-              return cb(null, handler);
-            }
-          }
-          return handleHttpError(res, cb);
-        });
-    });
-  }
-
-  /*
-   * do a POST with the stored token
-   *
-   * @param path path to resource
-   * @param data to send
-   * @param codes (optional) defaults to { 200: function(res){ return res.body; }}
-   *  e.g. { 201: function(res){ return res.body.id; } }
-   * @param cb
-   * @returns {cb}  cb(err, response)
-   */
-  function doPostWithToken(path, data, codes, cb) {
-    if (cb == null && typeof(codes) === 'function') {
-      cb = codes;
-      codes = {
-        200: function(res) { return res.body; }
-      };
-    }
-
-    return serviceCallChecks(cb, function(token) {
-      superagent
-        .post(makeAPIUrl(path))
-        .send(data)
-        .set(sessionTokenHeader, token)
-        .end(
-        function (err, res) {
-          if (err != null) {
-            return cb(err);
-          }
-
-          if (_.has(codes, res.status)) {
-            var handler = codes[res.status];
-            if (typeof(handler) === 'function') {
-              return cb(null, handler(res));
-            } else {
-              return cb(null, handler);
-            }
-          }
-
-          return handleHttpError(res, cb);
-        });
-    });
-  }
-
-  /*
-   * do a PUT with the stored token
-   *
-   * @param path path to resource
-   * @param data to send
-   * @param codes (optional) defaults to { 200: function(res){ return res.body; }}
-   * @param cb
-   * @returns {cb}  cb(err, response)
-   */
-  function doPutWithToken(path, data, codes, cb) {
-    if (cb == null && typeof(codes) === 'function') {
-      cb = codes;
-      codes = {
-        200: function(res) { return res.body; }
-      };
-    }
-
-    return serviceCallChecks(cb, function(token) {
-      superagent
-        .put(makeAPIUrl(path))
-        .send(data)
-        .set(sessionTokenHeader, token)
-        .end(
-        function (err, res) {
-          if (err != null) {
-            return cb(err);
-          }
-
-          if (_.has(codes, res.status)) {
-            var handler = codes[res.status];
-            if (typeof(handler) === 'function') {
-              return cb(null, handler(res));
-            } else {
-              return cb(null, handler);
-            }
-          }
-
-          return handleHttpError(res, cb);
-        });
-    });
-  }
-
-  function assertArgumentsSize(argumentsObj, length) {
-    if (argumentsObj.length !== length) {
-      throw new Error('Expected arguments to be length ' + length + ' but was ' + argumentsObj.length);
-    }
+    common.assertArgumentsSize(arguments, 2);
+    common.doGetWithToken('/metadata/' + userId + '/profile', cb);
   }
 
   return {
@@ -374,6 +163,7 @@ module.exports = function (config, deps) {
     initialize: function(cb) {
 
       myToken = localStore.getItem(tokenLocalKey);
+      common.syncToken(myToken);
 
       if (myToken == null) {
         log.info('No local session found');
@@ -405,10 +195,10 @@ module.exports = function (config, deps) {
     login: function (user, options, cb) {
 
       if (user.username == null) {
-        return cb({ status : STATUS_BAD_REQUEST, message: 'Must specify a username' });
+        return cb({ status : common.STATUS_BAD_REQUEST, message: 'Must specify a username' });
       }
       if (user.password == null) {
-        return cb({ status : STATUS_BAD_REQUEST, message: 'Must specify a password' });
+        return cb({ status : common.STATUS_BAD_REQUEST, message: 'Must specify a password' });
       }
 
       options = options || {};
@@ -418,7 +208,7 @@ module.exports = function (config, deps) {
       }
 
       superagent
-        .post(makeAPIUrl('/auth/login', user.longtermkey))
+        .post(common.makeAPIUrl('/auth/login', user.longtermkey))
         .auth(user.username, user.password)
         .end(
         function (err, res) {
@@ -427,11 +217,11 @@ module.exports = function (config, deps) {
           }
 
           if (res.status !== 200) {
-            return handleHttpError(res, cb);
+            return common.handleHttpError(res, cb);
           }
 
           var theUserId = res.body.userid;
-          var theToken = res.headers[sessionTokenHeader];
+          var theToken = res.headers[common.SESSION_TOKEN_HEADER];
 
           saveSession(theUserId, theToken, options);
           return cb(null,{userid: theUserId, user: res.body});
@@ -447,10 +237,10 @@ module.exports = function (config, deps) {
      */
     signup: function (user, options, cb) {
       if (user.username == null) {
-        return cb({ status : STATUS_BAD_REQUEST, message: 'Must specify a username' });
+        return cb({ status : common.STATUS_BAD_REQUEST, message: 'Must specify a username' });
       }
       if (user.password == null) {
-        return cb({ status : STATUS_BAD_REQUEST, message: 'Must specify a password' });
+        return cb({ status : common.STATUS_BAD_REQUEST, message: 'Must specify a password' });
       }
 
       options = options || {};
@@ -462,7 +252,7 @@ module.exports = function (config, deps) {
       var newUser = _.pick(user, 'username', 'password', 'emails');
 
       superagent
-        .post(makeAPIUrl('/auth/user'))
+        .post(common.makeAPIUrl('/auth/user'))
         .send(newUser)
         .end(
         function (err, res) {
@@ -470,7 +260,7 @@ module.exports = function (config, deps) {
             return cb(err);
           }
           var theUserId = res.body.userid;
-          var theToken = res.headers[sessionTokenHeader];
+          var theToken = res.headers[common.SESSION_TOKEN_HEADER];
 
           saveSession(theUserId, theToken, options);
           return cb(null,res.body);
@@ -483,7 +273,7 @@ module.exports = function (config, deps) {
      * @returns {cb}  cb(err, response)
      */
     logout: function (cb) {
-      assertArgumentsSize(arguments, 1);
+      common.assertArgumentsSize(arguments, 1);
 
       if (! this.isLoggedIn()) {
         setTimeout(function(){ cb(null, {}); }, 0);
@@ -494,7 +284,7 @@ module.exports = function (config, deps) {
         return res.body;
       };
 
-      doPostWithToken(
+      common.doPostWithToken(
         '/auth/logout',
         {},
         {200: onSuccess},
@@ -522,48 +312,20 @@ module.exports = function (config, deps) {
     *
     * @returns {String} url for uploads
     */
-    getUploadUrl: getUploadUrl,
+    getUploadUrl: common.getUploadUrl,
     /**
      * Get current user account info
      *
      * @returns {cb}  cb(err, response)
      */
     getCurrentUser: function (cb) {
-      assertArgumentsSize(arguments, 1);
-
-      doGetWithToken('/auth/user', cb);
+      common.assertArgumentsSize(arguments, 1);
+      common.doGetWithToken('/auth/user', cb);
     },
-    /**
-     * Set API host
-     *
-     * @param newhost Sets the API host to a new value
-     */
-    setApiHost: function (newhost) {
-      apihost = newhost;
-    },
-    /**
-     * Set Upload host
-     *
-     * @param newhost Sets the Upload host to a new value
-     */
-    setUploadHost: function (newhost) {
-      uploadhost = newhost;
-    },
-    /**
-     * Set Blip host
-     *
-     * @param newhost Sets the Blip host to a new value
-     */
-    setBlipHost: function (newhost) {
-      bliphost = newhost;
-    },
-    /**
-     * Make a blip-based URL
-     *
-     * @param path Appends the path to the URL
-     * @param extra Appends any extras to the path with a /
-     */
-     makeBlipUrl: makeBlipUrl,
+    setApiHost: common.setApiHost,
+    setUploadHost: common.setUploadHost,
+    setBlipHost: common.setBlipHost,
+     makeBlipUrl: common.makeBlipUrl,
     /**
      * Post something to metrics.
      * This call never errors, so the callback is optional; it will be called if supplied.
@@ -590,12 +352,12 @@ module.exports = function (config, deps) {
         eventname = 'generic';
       }
 
-      serviceCallChecks(
+      common.serviceCallChecks(
         doNothingCB,
         function(token){
           superagent
-            .get(makeAPIUrl('/metrics/thisuser/' + config.metricsSource + ' - ' + eventname))
-            .set(sessionTokenHeader, token)
+            .get(common.makeAPIUrl('/metrics/thisuser/' + config.metricsSource + ' - ' + eventname))
+            .set(common.SESSION_TOKEN_HEADER, token)
             .query(properties)
             .end(doNothingCB);
         }
@@ -632,12 +394,12 @@ module.exports = function (config, deps) {
         }
       };
 
-      serviceCallChecks(
+      common.serviceCallChecks(
         doNothingCB,
         function(token){
           superagent
-            .get(makeAPIUrl('/metrics/thisuser/' + config.metricsSource + ' - ' + eventname))
-            .set(sessionTokenHeader, token)
+            .get(common.makeAPIUrl('/metrics/thisuser/' + config.metricsSource + ' - ' + eventname))
+            .set(common.SESSION_TOKEN_HEADER, token)
             .query(properties)
             .end(doNothingCB);
         }
@@ -653,14 +415,14 @@ module.exports = function (config, deps) {
     createChildAccount: function (profile,cb) {
 
       if (_.isEmpty(profile.fullName)) {
-        return cb({ status : STATUS_BAD_REQUEST, message: 'Must specify a fullName' });
+        return cb({ status : common.STATUS_BAD_REQUEST, message: 'Must specify a fullName' });
       }
 
       var childUser = { username: profile.fullName };
       // create an child account to attach to ours
       function createChildAccount(next){
         superagent
-         .post(makeAPIUrl('/auth/childuser'))
+         .post(common.makeAPIUrl('/auth/childuser'))
          .send(childUser)
          .end(
          function (err, res) {
@@ -669,7 +431,7 @@ module.exports = function (config, deps) {
           }
           if(res.status === 201){
             childUser.id = res.body.userid;
-            childUser.token = res.headers[sessionTokenHeader];
+            childUser.token = res.headers[common.SESSION_TOKEN_HEADER];
             return next(null,{userid:res.body.userid});
           }
           return next({status:res.status,message:res.error});
@@ -678,9 +440,9 @@ module.exports = function (config, deps) {
       //add a profile name to the child account
       function createChildProfile(next){
         superagent
-          .put(makeAPIUrl('/metadata/'+ childUser.id + '/profile'))
+          .put(common.makeAPIUrl('/metadata/'+ childUser.id + '/profile'))
           .send(profile)
-          .set(sessionTokenHeader, childUser.token)
+          .set(common.SESSION_TOKEN_HEADER, childUser.token)
           .end(
             function (err, res) {
               if (err != null) {
@@ -695,9 +457,9 @@ module.exports = function (config, deps) {
       //give the parent account admin perms on the child account
       function giveRootPermsOnChild(next){
         superagent
-          .post(makeAPIUrl('/access/'+ childUser.id + '/' +getUserId()))
+          .post(common.makeAPIUrl('/access/'+ childUser.id + '/' +getUserId()))
           .send({admin: {}})
-          .set(sessionTokenHeader, childUser.token)
+          .set(common.SESSION_TOKEN_HEADER, childUser.token)
           .end(
             function (err, res) {
               if (err != null) {
@@ -734,12 +496,12 @@ module.exports = function (config, deps) {
      * @returns {cb}  cb(err, response)
      */
     updateCurrentUser: function (user, cb) {
-      assertArgumentsSize(arguments, 2);
+      common.assertArgumentsSize(arguments, 2);
       var updateData = {
         updates: _.pick(user, 'username', 'password', 'emails')
       };
 
-      doPutWithToken('/auth/user', updateData, cb);
+      common.doPutWithToken('/auth/user', updateData, cb);
     },
     /**
      * Add a new or update an existing profile for a user
@@ -750,9 +512,9 @@ module.exports = function (config, deps) {
      * @returns {cb}  cb(err, response)
      */
     addOrUpdateProfile: function (userId, profile, cb) {
-      assertArgumentsSize(arguments, 3);
+      common.assertArgumentsSize(arguments, 3);
 
-      doPutWithToken(
+      common.doPutWithToken(
         '/metadata/' + userId + '/profile',
         profile,
         cb
@@ -765,14 +527,7 @@ module.exports = function (config, deps) {
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    findProfile: function (userId, cb) {
-      if (userId == null) {
-        return cb({ status : STATUS_BAD_REQUEST,  message: 'Must specify a userId' });
-      }
-      assertArgumentsSize(arguments, 2);
-
-      doGetWithToken('/metadata/' + userId + '/profile', cb);
-    },
+    findProfile: findProfile,
     /**
      * Get the users 'team'
      *
@@ -782,11 +537,11 @@ module.exports = function (config, deps) {
      */
     getTeamMembers: function (userId, cb) {
       if (userId == null) {
-        return cb({ status : STATUS_BAD_REQUEST, message: 'Must specify a userId' });
+        return cb({ status : common.STATUS_BAD_REQUEST, message: 'Must specify a userId' });
       }
-      assertArgumentsSize(arguments, 2);
+      common.assertArgumentsSize(arguments, 2);
 
-      doGetWithToken(
+      common.doGetWithToken(
         '/access/' + userId,
         {200: function(res){ return res.body; }, 404: null},
         cb
@@ -801,11 +556,11 @@ module.exports = function (config, deps) {
      */
     getViewableUsers: function (userId, cb) {
       if (userId == null) {
-        return cb({ status : STATUS_BAD_REQUEST,  message: 'Must specify a userId' });
+        return cb({ status : common.STATUS_BAD_REQUEST,  message: 'Must specify a userId' });
       }
-      assertArgumentsSize(arguments, 2);
+      common.assertArgumentsSize(arguments, 2);
 
-      doGetWithToken(
+      common.doGetWithToken(
         '/access/groups/' + userId,
         { 200: function(res){ return res.body; }, 404: null },
         cb
@@ -820,10 +575,10 @@ module.exports = function (config, deps) {
      */
     setAccessPermissions: function(userId, permissions, cb) {
       if (userId == null) {
-        return cb({ status : STATUS_BAD_REQUEST, message: 'Must specify a userId'});
+        return cb({ status : common.STATUS_BAD_REQUEST, message: 'Must specify a userId'});
       }
 
-      doPostWithToken(
+      common.doPostWithToken(
         '/access/' + getUserId() + '/' + userId,
         permissions,
         cb
@@ -838,9 +593,9 @@ module.exports = function (config, deps) {
      * @param cb - function(err, perms), called with error if exists and permissions as updated
      */
     setAccessPermissionsOnGroup: function(groupId, userId, permissions, cb) {
-      assertArgumentsSize(arguments, 4);
+      common.assertArgumentsSize(arguments, 4);
 
-      doPostWithToken(
+      common.doPostWithToken(
         '/access/' + groupId + '/' + userId,
         permissions,
         cb
@@ -854,9 +609,9 @@ module.exports = function (config, deps) {
      * @param cb - function(err, perms), called with error if exists and permissions object
      */
     getAccessPermissionsForGroup: function(groupId, userId, cb) {
-      assertArgumentsSize(arguments, 3);
+      common.assertArgumentsSize(arguments, 3);
 
-      doGetWithToken(
+      common.doGetWithToken(
         '/access/' + groupId + '/' + userId,
         { 200: function(res){ return res.body; }, 404: null },
         cb
@@ -871,13 +626,13 @@ module.exports = function (config, deps) {
      */
     getPatientsInfo: function (patientIds, cb) {
       if (patientIds == null) {
-        return cb({ status : STATUS_BAD_REQUEST, message: 'Must specify a patientIds' });
+        return cb({ status : common.STATUS_BAD_REQUEST, message: 'Must specify a patientIds' });
       }
-      assertArgumentsSize(arguments, 2);
+      common.assertArgumentsSize(arguments, 2);
 
       var idList = _(patientIds).uniq().join(',');
 
-      doGetWithToken(
+      common.doGetWithToken(
         '/metadata/publicinfo?users=' + idList,
         { 200: function(res){ return res.body; }, 404: null },
         cb
@@ -891,9 +646,9 @@ module.exports = function (config, deps) {
      * @returns {cb}  cb(err, response)
      */
     getDeviceDataForUser: function (userId, cb) {
-      assertArgumentsSize(arguments, 2);
+      common.assertArgumentsSize(arguments, 2);
 
-      doGetWithToken(
+      common.doGetWithToken(
         '/data/' + userId,
         { 200: function(res){ return res.body; }, 404: [] },
         cb
@@ -907,16 +662,16 @@ module.exports = function (config, deps) {
      * @returns {cb}  cb(err, response)
      */
     uploadDeviceDataForUser: function (data, cb) {
-      assertArgumentsSize(arguments, 2);
+      common.assertArgumentsSize(arguments, 2);
 
-      if (_.isEmpty(uploadhost)) {
-        return cb({ status : STATUS_BAD_REQUEST, message: 'The upload api needs to be configured' });
+      if (_.isEmpty(common.getUploadUrl())) {
+        return cb({ status : common.STATUS_BAD_REQUEST, message: 'The upload api needs to be configured' });
       }
 
        superagent
-        .post(makeUploadUrl('/data'))
+        .post(common.makeUploadUrl('/data'))
         .send(data)
-        .set(sessionTokenHeader, myToken)
+        .set(common.SESSION_TOKEN_HEADER, myToken)
         .end(
         function (err, res) {
           if (err != null) {
@@ -937,10 +692,10 @@ module.exports = function (config, deps) {
      * @returns {cb}  cb(err, uploadMeta)
      */
     startUploadSession: function (sessionInfo,  cb) {
-      assertArgumentsSize(arguments, 2);
+      common.assertArgumentsSize(arguments, 2);
 
       if (_.isEmpty(sessionInfo.deviceId) || _.isEmpty(sessionInfo.start) || _.isEmpty(sessionInfo.tzName) || _.isEmpty(sessionInfo.version)) {
-        return cb({ status : STATUS_BAD_REQUEST, message: 'All session info must be given' });
+        return cb({ status : common.STATUS_BAD_REQUEST, message: 'All session info must be given' });
       }
 
       try{
@@ -972,7 +727,7 @@ module.exports = function (config, deps) {
      * @returns {cb}  cb(err, response)
      */
     uploadCarelinkDataForUser: function (formData, cb) {
-      assertArgumentsSize(arguments, 2);
+      common.assertArgumentsSize(arguments, 2);
 
       //waiting for our task to finish
       function waitForSyncTaskWithIdToFinish(syncTaskId,callback){
@@ -994,8 +749,8 @@ module.exports = function (config, deps) {
           setTimeout(function () {
 
             superagent
-              .get(makeUploadUrl('/v1/synctasks/' + syncTaskId))
-              .set(sessionTokenHeader, myToken)
+              .get(common.makeUploadUrl('/v1/synctasks/' + syncTaskId))
+              .set(common.SESSION_TOKEN_HEADER, myToken)
               .end(
                 function (err, res) {
                   if (!_.isEmpty(err)) {
@@ -1004,7 +759,7 @@ module.exports = function (config, deps) {
                   }
 
                   if (res.status !== 200) {
-                    return handleHttpError(res, done);
+                    return common.handleHttpError(res, done);
                   }
 
                   var syncTask = res.body;
@@ -1026,10 +781,10 @@ module.exports = function (config, deps) {
       }
        //download the file and returns its contents
        superagent
-        .post(makeUploadUrl('/v1/device/upload/cl'))
+        .post(common.makeUploadUrl('/v1/device/upload/cl'))
         .send(formData)
         .type('form')
-        .set(sessionTokenHeader, myToken)
+        .set(common.SESSION_TOKEN_HEADER, myToken)
         .end(
         function (err, res) {
           if (!_.isEmpty(err)) {
@@ -1039,7 +794,7 @@ module.exports = function (config, deps) {
 
           if (res.status !== 200) {
             log.info('Upload Failed');
-            return handleHttpError(res, cb);
+            return common.handleHttpError(res, cb);
           }
 
           var syncTask = res.body;
@@ -1068,12 +823,12 @@ module.exports = function (config, deps) {
      * @returns {cb}  cb(err, response)
      */
     getCarelinkData: function (dataId, cb) {
-      assertArgumentsSize(arguments, 2);
+      common.assertArgumentsSize(arguments, 2);
 
        //get the contents of the carelink csv file
        superagent
-        .get(makeUploadUrl('/v1/device/data/' + dataId))
-        .set(sessionTokenHeader, myToken)
+        .get(common.makeUploadUrl('/v1/device/data/' + dataId))
+        .set(common.SESSION_TOKEN_HEADER, myToken)
         .end(
         function (err, res) {
           if (err) {
@@ -1081,7 +836,7 @@ module.exports = function (config, deps) {
           }
 
           if (res.status !== 200) {
-            return handleHttpError(res, cb);
+            return common.handleHttpError(res, cb);
           }
 
           return cb(null, res.text);
@@ -1098,13 +853,13 @@ module.exports = function (config, deps) {
      * @returns {cb}  cb(err, response)
      */
     getAllMessagesForUser: function (userId, options, cb) {
-      assertArgumentsSize(arguments, 3);
+      common.assertArgumentsSize(arguments, 3);
 
       options = options || {};
       var start = options.start || '';
       var end = options.end || '';
 
-      doGetWithToken(
+      common.doGetWithToken(
         '/message/all/' + userId + '?starttime=' + start + '&endtime=' + end,
         { 200: function(res){ return res.body.messages; }, 404: [] },
         cb
@@ -1121,13 +876,13 @@ module.exports = function (config, deps) {
      * @returns {cb}  cb(err, response)
      */
     getNotesForUser: function (userId, options, cb) {
-      assertArgumentsSize(arguments, 3);
+      common.assertArgumentsSize(arguments, 3);
 
       options = options || {};
       var start = options.start || '';
       var end = options.end || '';
 
-      doGetWithToken(
+      common.doGetWithToken(
         '/message/notes/' + userId + '?starttime=' + start + '&endtime=' + end,
         { 200: function(res){ return res.body.messages; }, 404: [] },
         cb
@@ -1146,9 +901,9 @@ module.exports = function (config, deps) {
      * @returns {cb}  cb(err, response)
      */
     replyToMessageThread: function (comment, cb) {
-      assertArgumentsSize(arguments, 2);
+      common.assertArgumentsSize(arguments, 2);
 
-      doPostWithToken(
+      common.doPostWithToken(
         '/message/reply/' + comment.parentmessage,
         {message: comment},
         { 201: function(res){ return res.body.id; }},
@@ -1167,9 +922,9 @@ module.exports = function (config, deps) {
      * @returns {cb}  cb(err, response)
      */
     startMessageThread: function (message, cb) {
-      assertArgumentsSize(arguments, 2);
+      common.assertArgumentsSize(arguments, 2);
 
-      doPostWithToken(
+      common.doPostWithToken(
         '/message/send/' + message.groupid,
         { message: message },
         { 201: function(res){ return res.body.id; }},
@@ -1185,9 +940,9 @@ module.exports = function (config, deps) {
      * @returns {cb}  cb(err, response)
      */
     getMessageThread: function (messageId, cb) {
-      assertArgumentsSize(arguments, 2);
+      common.assertArgumentsSize(arguments, 2);
 
-      doGetWithToken(
+      common.doGetWithToken(
         '/message/thread/' + messageId,
         { 200: function(res){ return res.body.messages; }, 404: [] },
         cb
@@ -1204,200 +959,41 @@ module.exports = function (config, deps) {
      * @returns {cb}  cb(err, response)
      */
     editMessage: function (edits, cb) {
-      assertArgumentsSize(arguments, 2);
+      common.assertArgumentsSize(arguments, 2);
 
       if( _.isEmpty(edits.id) ){
-        return cb({ status : STATUS_BAD_REQUEST, message:'You must specify the edits.id'});
+        return cb({ status : common.STATUS_BAD_REQUEST, message:'You must specify the edits.id'});
       }
       if( _.isEmpty(edits.timestamp) && _.isEmpty(edits.messagetext) ){
-        return cb({ status : STATUS_BAD_REQUEST, message: 'You must specify one or both of edits.messagetext, edits.timestamp'});
+        return cb({ status : common.STATUS_BAD_REQUEST, message: 'You must specify one or both of edits.messagetext, edits.timestamp'});
       }
 
-      doPutWithToken(
+      common.doPutWithToken(
         '/message/edit/' + edits.id,
         {message: edits},
         cb
       );
     },
     /**
-     * Get the invites sent
-     *
-     * @param {String} inviterId - id of the user that send the invite
-     * @param cb
-     * @returns {cb}  cb(err, response)
+     * Signup
      */
-    invitesSent: function (inviterId, cb) {
-      assertArgumentsSize(arguments, 2);
-      doGetWithToken(
-        '/confirm/invite/'+inviterId,
-        { 200: function(res){ return res.body; }, 404: [] },
-        cb
-      );
-    },
+    signupStart: confirm.signupStart,
+    signupConfirm: confirm.signupConfirm,
+    signupResend: confirm.signupResend,
+    signupCancel: confirm.signupCancel,
     /**
-     * Get the invites received
-     *
-     * @param {String} inviteeId - id of the user who was invited
-     * @param cb
-     * @returns {cb}  cb(err, response)
+     * Invites
      */
-    invitesReceived: function (inviteeId,cb) {
-      assertArgumentsSize(arguments, 2);
-
-      var self = this;
-
-      superagent
-        .get(makeAPIUrl('/confirm/invitations/'+inviteeId))
-        .set(sessionTokenHeader, myToken)
-        .end(
-        function (err, res) {
-          if (err != null) {
-            return cb(err);
-          }
-          if (res.status === 200) {
-            // Replace `creatorId` with a `creator` user object
-            async.map(res.body, function (invite, callback) {
-              self.findProfile(invite.creatorId,function(err,profile){
-                invite.creator = {
-                  userid: invite.creatorId,
-                  profile: profile
-                };
-                invite = _.omit(invite, 'creatorId');
-
-                callback(err,invite);
-              });
-            }, function(err, invites){
-              return cb(null,invites);
-            });
-          } else if (res.status === 404){
-            return cb(null,[]);
-          } else {
-            return cb(res.body,[]);
-          }
-        });
-    },
+    invitesSent: confirm.invitesSent,
+    invitesReceived: confirm.invitesReceived,
+    inviteUser: confirm.inviteUser,
+    acceptInvite: confirm.acceptInvite,
+    dismissInvite: confirm.dismissInvite,
+    removeInvite: confirm.removeInvite,
     /**
-     * Invite a user
-     *
-     * @param {String} email - email of the user to invite
-     * @param {Object} permissions - permissions to be given
-     * @param {String} inviterId - id of the user that send the invite
-     * @param cb
-     * @returns {cb}  cb(err, response)
+     * Password reset
      */
-    inviteUser: function (email, permissions, inviterId, cb) {
-      assertArgumentsSize(arguments, 4);
-
-      var details = { 'email':email,'permissions': permissions };
-
-      doPostWithToken(
-        '/confirm/send/invite/'+inviterId,
-        details,
-        cb
-      );
-    },
-    /**
-     * Accept the invite
-     *
-     * @param {String} inviteId
-     * @param {String} inviteeId - id of the user who was invited
-     * @param {String} inviterId - id of the user that send the invite
-     * @param cb
-     * @returns {cb}  cb(err, response)
-     */
-    acceptInvite: function (inviteId, inviteeId ,inviterId, cb) {
-      assertArgumentsSize(arguments, 4);
-
-      doPutWithToken(
-        '/confirm/accept/invite/'+ inviteeId +'/'+ inviterId,
-        {'key':inviteId},
-        cb
-      );
-    },
-    /**
-     * Dismiss the invite
-     *
-     * @param {String} inviteId
-     * @param {String} inviteeId - id of the user who was invited
-     * @param {String} inviterId - id of the user that send the invite
-     * @param cb
-     * @returns {cb}  cb(err, response)
-     */
-    dismissInvite: function (inviteId, inviteeId ,inviterId, cb) {
-      assertArgumentsSize(arguments, 4);
-
-      doPutWithToken(
-        '/confirm/dismiss/invite/'+ inviteeId +'/'+ inviterId,
-        {'key':inviteId},
-        { 200: null},
-        cb
-      );
-    },
-    /**
-     * Remove the invite
-     *
-     * @param {String} email - email of the user to remove
-     * @param {String} inviterId - id of the user that send the invite
-     * @param cb
-     * @returns {cb}  cb(err, response)
-     */
-    removeInvite: function (email, inviterId, cb) {
-      assertArgumentsSize(arguments, 3);
-
-      doPutWithToken(
-        '/confirm/'+inviterId+'/invited/'+email,
-        null,
-        cb
-      );
-    },
-    /**
-     * Request a password reset
-     *
-     * @param {String} email - email of the user requesting the password reset
-     * @param cb
-     * @returns {cb}  cb(err)
-     */
-    requestPasswordReset: function (email, cb) {
-      assertArgumentsSize(arguments, 2);
-
-      superagent
-       .post(makeAPIUrl('/confirm/send/forgot/' + email))
-       .end(function (err, res) {
-        if (err != null) {
-          return cb(err);
-        }
-        if (res.status !== 200) {
-          return cb({status:res.status,message:res.error});
-        }
-        return cb();
-      });
-    },
-    /**
-     * Confirm a password reset request with a new password
-     *
-     * @param {Object} payload - object with `key`, `email`, `password`
-     * @param cb
-     * @returns {cb}  cb(err)
-     */
-    confirmPasswordReset: function (payload, cb) {
-      assertArgumentsSize(arguments, 2);
-      //fail fast
-      if( _.isEmpty(payload.key) || _.isEmpty(payload.email) || _.isEmpty(payload.password) ){
-        return cb({ status : STATUS_BAD_REQUEST, body:'payload requires object with `key`, `email`, `password`'});
-      }
-
-      superagent
-       .put(makeAPIUrl('/confirm/accept/forgot'))
-       .send(payload)
-       .end(function (err, res) {
-        if (err != null) {
-          return cb(err);
-        }
-        if (res.status !== 200) {
-          return cb({status:res.status,message:res.error});
-        }
-        return cb();
-      });
-    }
+    requestPasswordReset: confirm.requestPasswordReset,
+    confirmPasswordReset: confirm.confirmPasswordReset
   };
 };

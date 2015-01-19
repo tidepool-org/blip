@@ -557,10 +557,10 @@ describe('platform client', function () {
     var pwResetUsr = {
       id: null,
       token: null,
-      username: 'noreply@tidepool.org',
+      username: 'noreply+pwreset@tidepool.org',
       password: 'noreply',
-      emails: ['noreply@tidepool.org'],
-      profile: {fullName: 'Platform Client'}
+      emails: ['noreply+pwreset@tidepool.org'],
+      profile: {fullName: 'Platform Client Password Reset'}
     };
     var pwResetClient;
 
@@ -575,10 +575,14 @@ describe('platform client', function () {
     });
     it('so we can request the pw if forgotten', function(done){
       pwResetClient.requestPasswordReset(a_Member.emails[0], function(err, details) {
-        expect(err).to.not.exist;
-        //leak no details
-        expect(details).to.be.empty;
-        done();
+        if (_.isEmpty(err)){
+          //leak no details
+          expect(details).to.be.empty;
+          done();
+        } else {
+          console.log("requestPasswordReset err: ",err);
+          done(err);
+        }
       });
     });
     it('a pw confirmation will be rejected without all the required details', function(done){
@@ -686,6 +690,61 @@ describe('platform client', function () {
           expect(err).to.not.exist;
           done();
         });
+      });
+    });
+  });
+  //skipped until deployed to devel
+  describe.skip('handles signup flow', function () {
+
+    /* for signup flow with legit email*/
+    var signUpUsr = {
+      id: null,
+      token: null,
+      username: 'noreply+signup@tidepool.org',
+      password: 'noreply',
+      emails: ['noreply+signup@tidepool.org'],
+      profile: {fullName: 'Platform Client Signup'}
+    };
+
+    var signupClient;
+    var signupConfirmation;
+
+    before(function (done) {
+      console.log('doing signup setup ...');
+      createClientWithUser(signUpUsr, {}, storage() ,function(err,client){
+        console.log('## setup err ',err);
+        signupClient = client;
+        signupClient.signupCancel(signUpUsr.id, function(err, canceled) {
+          //expect(err).to.not.exist;
+          console.log('## canceled err ',err);
+          console.log('## canceled ',canceled);
+          done();
+        });
+      });
+    });
+    it('so we can signup a new user', function(done){
+      signupClient.signupStart(signUpUsr.id, function(err, signup) {
+        console.log('## sent err ',err);
+        signupConfirmation = signup;
+        console.log('## sent ',signup);
+        //expect(signupConfirmation).to.exist;
+        done();
+      });
+    });
+    it('the user can resend the signup', function(done){
+      signupClient.signupResend(signUpUsr.id, function(err, resent) {
+        console.log('## resent err ',err);
+        signupConfirmation = resent;
+        console.log('## resent ',resent);
+        done();
+      });
+    });
+    it('the user can confirm signing up', function(done){
+      signupClient.signupConfirm(signUpUsr.id, signupConfirmation.key, function(err, confirmed) {
+        console.log('## confrim err ',err);
+        console.log('## confrim ',confirmed);
+        expect(confirmed).to.exist;
+        done();
       });
     });
   });
