@@ -71,7 +71,7 @@ var PeopleList = React.createClass({
       'people-list-single': this.props.people.length === 1
     });
 
-    var editControls = this.editablePersonExists(this.props.people) ? this.renderEditControls() : null;
+    var removeControls = this.removeablePersonExists(this.props.people) ? this.renderRemoveControls() : null;
 
       /* jshint ignore:start */
     return (
@@ -80,17 +80,17 @@ var PeopleList = React.createClass({
           {peopleNodes}
           <div className="clear"></div>
         </ul>
-        {editControls}
+        {removeControls}
       </div>
     );
     /* jshint ignore:end */
   },
 
-  editablePersonExists: function(patients) {
-    return Boolean(_.find(patients, personUtils.hasEditPermissions));
+  removeablePersonExists: function(patients) {
+    return Boolean(_.find(patients, personUtils.isRemoveable));
   },
 
-  renderEditControls: function() {
+  renderRemoveControls: function() {
     var key = 'edit';
     var text = 'Remove People';
     if (this.state.editing) {

@@ -69,4 +69,13 @@ personUtils.hasEditPermissions = function(person) {
   );
 };
 
+personUtils.isRemoveable = function(person) {
+  return (
+    person &&
+    !_.isEmpty(person.permissions) &&
+    !person.permissions.admin &&
+    !person.permissions.root
+  );
+};
+
 module.exports = personUtils;
