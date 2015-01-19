@@ -42,9 +42,9 @@ describe('platform client', function () {
   var a_PWD = {
     id: null,
     token: null,
-    username: 'jamie+pwd@tidepool.org',
+    username: 'a_PWD@user.com',
     password: 'a_PWD',
-    emails: ['jamie+pwd@tidepool.org'],
+    emails: ['a_PWD@user.com'],
     profile: {fullName: 'Jamie'}
   };
 
@@ -60,9 +60,9 @@ describe('platform client', function () {
   var a_Member = {
     id: null,
     token: null,
-    username: 'jamie+member@tidepool.org',
+    username: 'team@member.com',
     password: 'teammember',
-    emails: ['jamie+member@tidepool.org'],
+    emails: ['team@member.com'],
     profile: {fullName: 'Dr Doogie'}
   };
 
