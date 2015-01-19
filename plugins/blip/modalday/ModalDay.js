@@ -259,18 +259,18 @@ d3.chart('ModalDay', {
                     y: labelMargins.y,
                     'class': 'smbgDayLabel'
                   })
-                  .text(moment(d).tz(timezone).format('dddd, MMMM Do'));
+                  .text(moment(d).tz(timezone).format('dddd, MMMM D'));
                 infoPlot = smbgInfo.create(this, {
                   x: chart.xScale(), y: chart.yScale()
                 }, {
                   timezone: chart.timezone()
                 });
-                infoPlot.render(chart.data[d]); 
+                infoPlot.render(chart.data[d]);
               }
               var copy = d3.select(this)[0][0];
               d3.select(this).remove();
               var first = document.getElementById('modalHighlightGroup').firstChild;
-              document.getElementById('modalHighlightGroup').insertBefore(copy, first);  
+              document.getElementById('modalHighlightGroup').insertBefore(copy, first);
             })
             .on('mouseout', function(d) {
               d3.select(this).classed('highlight', false);
