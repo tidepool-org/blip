@@ -20,8 +20,9 @@ var _ = require('lodash');
 
 module.exports = function (common, deps) {
 
-  var superagent = deps.superagent;
-  var findProfile = deps.findProfile;
+  var superagent = _.clone(deps.superagent);
+  /*jshint unused:false */
+  var findProfile = _.clone(deps.findProfile);
 
   return {
     /**
@@ -115,7 +116,7 @@ module.exports = function (common, deps) {
       var self = this;
 
       superagent
-        .get(common.makeUrl('/confirm/invitations/'+inviteeId))
+        .get(common.makeAPIUrl('/confirm/invitations/'+inviteeId))
         .set(common.SESSION_TOKEN_HEADER, common.getToken())
         .end(
         function (err, res) {
@@ -229,7 +230,7 @@ module.exports = function (common, deps) {
       common.assertArgumentsSize(arguments, 2);
 
       superagent
-       .post(common.makeUrl('/confirm/send/forgot/' + email))
+       .post(common.makeAPIUrl('/confirm/send/forgot/' + email))
        .end(function (err, res) {
         if (err != null) {
           return cb(err);
@@ -255,7 +256,7 @@ module.exports = function (common, deps) {
       }
 
       superagent
-       .put(common.makeUrl('/confirm/accept/forgot'))
+       .put(common.makeAPIUrl('/confirm/accept/forgot'))
        .send(payload)
        .end(function (err, res) {
         if (err != null) {
