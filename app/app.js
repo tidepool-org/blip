@@ -56,6 +56,9 @@ require('tideline/css/tideline.less');
 require('./core/less/fonts.less');
 require('./style.less');
 
+// Blip favicon
+require('../favicon.ico');
+
 // For React developer tools
 window.React = React;
 
