@@ -427,10 +427,11 @@ var AppComponent = React.createClass({
   },
 
   redirectToDefaultRoute: function() {
-    this.showPatients();
+    this.showPatients(true);
   },
 
-  showPatients: function() {
+  showPatients: function(showPatientData) {
+    this.setState({showPatientData: showPatientData});
     this.renderPage = this.renderPatients;
     this.setState({page: 'patients'});
     this.fetchInvites();
@@ -439,8 +440,9 @@ var AppComponent = React.createClass({
   },
 
   renderPatients: function() {
+    var patients;
     /* jshint ignore:start */
-    return <Patients
+    patients = <Patients
         user={this.state.user}
         fetchingUser={this.state.fetchingUser}
         patients={this.state.patients}
@@ -456,6 +458,49 @@ var AppComponent = React.createClass({
         onDismissInvitation={this.handleDismissInvitation}
         onRemovePatient={this.handleRemovePatient}/>;
     /* jshint ignore:end */
+
+    // Determine whether to skip the Patients page & go directly to Patient data.
+    // If there is only one patient you can see data for, go to the patient's data.
+    // Otherwise, display the Patients page.
+    if (this.state.showPatientData) {
+
+      if (!this.state.fetchingUser && !this.state.fetchingPatients && !this.state.fetchingInvites) {
+
+        var viewerUserId = null;
+        var isPatient = personUtils.isPatient(this.state.user);
+        var numPatientsUserCanSee = (this.state.patients == null) ? 0 : this.state.patients.length;
+
+        // First check that the user has no pending invites
+        if (_.isEmpty(this.state.invites)) {
+
+          // Then determine how many people the user can view
+          if (isPatient) {
+            if (numPatientsUserCanSee === 0) {
+              viewerUserId = this.state.user.userid;
+            }
+          } else {
+            if (numPatientsUserCanSee === 1) {
+              viewerUserId = this.state.patients[0].userid;
+            }
+          }
+
+          // Last, set the appropriate route
+          if (viewerUserId === null) {
+            app.router.setRoute('/patients');
+            return;
+          } else {
+            app.router.setRoute('/patients/' + viewerUserId + '/data');
+            return;
+          }
+        }
+
+        app.router.setRoute('/patients');
+      }
+
+      return;
+    }
+
+    return (patients);
   },
 
   handleHideWelcomeSetup: function(options) {
