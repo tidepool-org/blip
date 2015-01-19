@@ -1,15 +1,15 @@
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -84,15 +84,15 @@ describe('format utility', function() {
       assert.isFunction(fmt.dayAndDate);
     });
 
-    it('should return `Mon, Nov 17th` on a UTC timestamp of midnight 11/17/2014', function() {
+    it('should return `Mon, Nov 17` on a UTC timestamp of midnight 11/17/2014', function() {
       var tstr = '2014-11-17T00:00:00.000Z';
-      expect(fmt.dayAndDate(tstr)).to.equal('Mon, Nov 17th');
+      expect(fmt.dayAndDate(tstr)).to.equal('Mon, Nov 17');
     });
 
-    it('should return `Mon, Nov 17th` on a UTC timestamp of 8 a.m. 11/17/2014 when passed a Pacific DST offset', function() {
+    it('should return `Mon, Nov 17` on a UTC timestamp of 8 a.m. 11/17/2014 when passed a Pacific DST offset', function() {
       var tstr = '2014-11-17T08:00:00.000Z';
-      expect(fmt.dayAndDate(new Date(Date.parse(tstr) - 1).toISOString(), -480)).to.equal('Sun, Nov 16th');
-      expect(fmt.dayAndDate(tstr, -480)).to.equal('Mon, Nov 17th');
+      expect(fmt.dayAndDate(new Date(Date.parse(tstr) - 1).toISOString(), -480)).to.equal('Sun, Nov 16');
+      expect(fmt.dayAndDate(tstr, -480)).to.equal('Mon, Nov 17');
     });
   });
 
@@ -168,12 +168,12 @@ describe('format utility', function() {
       assert.isFunction(fmt.xAxisDayText);
     });
 
-    it('should return `Wednesday, January 1st` on a UTC timestamp at 1 am on first day of 2014', function() {
-      expect(fmt.xAxisDayText('2014-01-01T01:00:00.000Z')).to.equal('Wednesday, January 1st');
+    it('should return `Wednesday, January 1` on a UTC timestamp at 1 am on first day of 2014', function() {
+      expect(fmt.xAxisDayText('2014-01-01T01:00:00.000Z')).to.equal('Wednesday, January 1');
     });
 
-    it('should return `Tuesday, December 31st` on same UTC timestamp when passed a Pacific non-DST offset', function() {
-      expect(fmt.xAxisDayText('2014-01-01T01:00:00.000Z', -480)).to.equal('Tuesday, December 31st');
+    it('should return `Tuesday, December 31` on same UTC timestamp when passed a Pacific non-DST offset', function() {
+      expect(fmt.xAxisDayText('2014-01-01T01:00:00.000Z', -480)).to.equal('Tuesday, December 31');
     });
   });
 
