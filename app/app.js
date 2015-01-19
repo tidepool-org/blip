@@ -430,8 +430,8 @@ var AppComponent = React.createClass({
     this.showPatients(true);
   },
 
-  showPatients: function(canSkipPatients) {
-    this.setState({canSkipPatients: canSkipPatients});
+  showPatients: function(showPatientData) {
+    this.setState({showPatientData: showPatientData});
     this.renderPage = this.renderPatients;
     this.setState({page: 'patients'});
     this.fetchInvites();
@@ -462,7 +462,7 @@ var AppComponent = React.createClass({
     // Determine whether to skip the Patients page & go directly to Patient data.
     // If there is only one patient you can see data for, go to the patient's data.
     // Otherwise, display the Patients page.
-    if (this.state.canSkipPatients) {
+    if (this.state.showPatientData) {
 
       if (!this.state.fetchingUser && !this.state.fetchingPatients && !this.state.fetchingInvites) {
 
