@@ -31,7 +31,7 @@ var EmailVerification = React.createClass({
   },
   formInputs: function() {
     return [
-      {name: 'email', label: 'Email', type: 'email'}
+      {name: 'email', label: 'Email used to signup', type: 'email'}
     ];
   },
   getInitialState: function() {
@@ -45,7 +45,9 @@ var EmailVerification = React.createClass({
   },
   render: function() {
     var content;
+    var loginPage;
     if (this.props.sent) {
+      loginPage = 'login';
       content = (
         <div className="EmailVerification-intro">
           <div className="EmailVerification-title">{'Keeping your data private and secure is important to us!'}</div>
@@ -56,6 +58,7 @@ var EmailVerification = React.createClass({
       );
     }
     else {
+      loginPage = 'signup';
       content = (
         <div>
           <div className="EmailVerification-intro">
@@ -70,18 +73,22 @@ var EmailVerification = React.createClass({
     }
 
     return (
-      <div>
+      <div className="EmailVerification">
         <LoginNav
-          page="signup"
+          page={loginPage}
           hideLinks={false}
           trackMetric={this.props.trackMetric} />
         <LoginLogo />
-        {content}
+        <div className="container-small-outer login-form">
+          <div className="container-small-inner login-form-box">
+            {content}
+          </div>
+        </div>
       </div>
     );
   },
   renderForm: function() {
-    var submitButtonText = this.state.working ? 'Sending email...' : 'Send reset link';
+    var submitButtonText = this.state.working ? 'Sending email...' : 'Resend';
 
     return (
       <SimpleForm
