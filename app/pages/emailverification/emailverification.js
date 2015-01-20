@@ -19,7 +19,7 @@ var React = require('react');
 var LoginNav = require('../../components/loginnav');
 var LoginLogo = require('../../components/loginlogo');
 
-var SignupVerification = React.createClass({
+var EmailVerification = React.createClass({
   propTypes: {
     sent: React.PropTypes.bool,
     trackMetric: React.PropTypes.func.isRequired
@@ -28,9 +28,9 @@ var SignupVerification = React.createClass({
     var content;
     if (this.props.sent) {
       content = (
-        <div className="SignupVerification-intro">
-          <div className="SignupVerification-title">{'Keeping your data private and secure is important to us!'}</div>
-          <div className="SignupVerification-instructions">
+        <div className="EmailVerification-intro">
+          <div className="EmailVerification-title">{'Keeping your data private and secure is important to us!'}</div>
+          <div className="EmailVerification-instructions">
             <p>{'We just sent you an email. To verify we have the right email address, please click the link in the email to activate your account.'}</p>
           </div>
         </div>
@@ -38,9 +38,9 @@ var SignupVerification = React.createClass({
     }
     else {
       content = (
-        <div className="SignupVerification-intro">
-          <div className="SignupVerification-title">{'Hey, you\'re not verified yet.'}</div>
-            <div className="SignupVerification-instructions">
+        <div className="EmailVerification-intro">
+          <div className="EmailVerification-title">{'Hey, you\'re not verified yet.'}</div>
+            <div className="EmailVerification-instructions">
               <p>{'Check your email and follow the link there. (We need to confirm that you are really you.)'}</p>
             </div>
         </div>
@@ -48,7 +48,7 @@ var SignupVerification = React.createClass({
     }
 
     return (
-      <div className="signup">
+      <div>
         <LoginNav
           page="signup"
           hideLinks={false}
@@ -60,4 +60,4 @@ var SignupVerification = React.createClass({
   }
 });
 
-module.exports = SignupVerification;
+module.exports = EmailVerification;

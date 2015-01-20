@@ -50,7 +50,7 @@ var PatientNew = require('./pages/patientnew');
 var PatientData = require('./pages/patientdata');
 var RequestPasswordReset = require('./pages/passwordreset/request');
 var ConfirmPasswordReset = require('./pages/passwordreset/confirm');
-var SignupVerification = require('./pages/signupverification');
+var EmailVerification = require('./pages/emailverification');
 
 // Styles
 require('tideline/css/tideline.less');
@@ -78,7 +78,7 @@ var routes = {
   '/': 'redirectToDefaultRoute',
   '/login': 'showLogin',
   '/signup': 'showSignup',
-  '/signup-verification' : 'showSignupVerification',
+  '/email-verification' : 'showEmailVerification',
   '/profile': 'showProfile',
   '/patients': 'showPatients',
   '/patients/new': 'showPatientNew',
@@ -92,7 +92,7 @@ var routes = {
 var noAuthRoutes = [
   '/login',
   '/signup',
-  '/signup-verification',
+  '/email-verification',
   '/request-password-reset',
   '/confirm-password-reset'
 ];
@@ -340,11 +340,6 @@ var AppComponent = React.createClass({
     var title ='Send us feedback';
     var subject = 'Feedback on Blip';
 
-    if (this.state.page === 'signup-verification') {
-      title = 'Help, I cannot complete signup';
-      subject = 'Help, I cannot complete signup';
-    }
-
     return (
       /* jshint ignore:start */
       <div className='container-small-outer footer'>
@@ -365,7 +360,11 @@ var AppComponent = React.createClass({
     var version = config.VERSION;
     if (version) {
       version = 'v' + version;
-      return <div className="Navbar-version" ref="version">{version}</div>;
+      return (
+        /* jshint ignore:start */
+        <div className="Navbar-version" ref="version">{version}</div>
+        /* jshint ignore:end */
+      );
     }
     return null;
   },
@@ -409,9 +408,9 @@ var AppComponent = React.createClass({
     this.setState({page: 'signup'});
   },
 
-  showSignupVerification: function() {
-    this.renderPage = this.renderSignupVerification;
-    this.setState({page: 'signup-verification'});
+  showEmailVerification: function() {
+    this.renderPage = this.renderEmailVerification;
+    this.setState({page: 'email-verification'});
   },
 
   renderSignup: function() {
@@ -426,10 +425,10 @@ var AppComponent = React.createClass({
     );
   },
 
-  renderSignupVerification: function() {
+  renderEmailVerification: function() {
     return (
       /* jshint ignore:start */
-      <SignupVerification
+      <EmailVerification
         sent={this.state.signupEmailSent}
         trackMetric={trackMetric} />
       /* jshint ignore:end */
@@ -847,7 +846,7 @@ var AppComponent = React.createClass({
 
   handleNotAuthorized:function(){
      this.setState({authenticated: false,  signupEmailSent: false});
-     this.showSignupVerification();
+     this.showEmailVerification();
   },
 
   signup: function(formValues, cb) {
@@ -862,7 +861,7 @@ var AppComponent = React.createClass({
       signupEmailSent: true
     });
 
-    this.showSignupVerification();
+    this.showEmailVerification();
 
     trackMetric('Signed Up');
   },
