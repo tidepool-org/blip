@@ -172,7 +172,7 @@ var AppComponent = React.createClass({
       showingWelcomeTitle: false,
       showingWelcomeSetup: false,
       dismissedBrowserWarning: false,
-      signupEmailSent: false,
+      verificationEmailSent: false,
       queryParams: queryParams
     };
   },
@@ -429,7 +429,8 @@ var AppComponent = React.createClass({
     return (
       /* jshint ignore:start */
       <EmailVerification
-        sent={this.state.signupEmailSent}
+        sent={this.state.verificationEmailSent}
+        onSubmitResend={app.api.user.requestVerificationResend.bind(app.api)}
         trackMetric={trackMetric} />
       /* jshint ignore:end */
     );
@@ -845,7 +846,7 @@ var AppComponent = React.createClass({
   },
 
   handleNotAuthorized:function(){
-     this.setState({authenticated: false,  signupEmailSent: false});
+     this.setState({authenticated: false,  verificationEmailSent: false});
      this.showEmailVerification();
   },
 
@@ -858,7 +859,7 @@ var AppComponent = React.createClass({
     //once signed up we need to authenicate the email which is done via the email we have sent them
     this.setState({
       fetchingUser: false,
-      signupEmailSent: true
+      verificationEmailSent: true
     });
 
     this.showEmailVerification();
