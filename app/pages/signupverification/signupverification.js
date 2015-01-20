@@ -39,9 +39,9 @@ var SignupVerification = React.createClass({
     else {
       content = (
         <div className="SignupVerification-intro">
-          <div className="SignupVerification-title">{'Hey your not verified yet.'}</div>
+          <div className="SignupVerification-title">{'Hey, you\'re not verified yet.'}</div>
             <div className="SignupVerification-instructions">
-              <p>{'Check your email and follow the link there. (We need to confirm that you are really you).'}</p>
+              <p>{'Check your email and follow the link there. (We need to confirm that you are really you.)'}</p>
             </div>
         </div>
       );
