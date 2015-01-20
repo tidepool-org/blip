@@ -55,7 +55,6 @@ api.init = function(cb) {
 };
 
 // ----- User -----
-
 api.user = {};
 
 api.user.isAuthenticated = function() {
@@ -221,6 +220,11 @@ function userFromAccountAndProfile(results) {
 
   return user;
 }
+
+api.user.resendEmailVerification = function(email, callback) {
+  api.log('POST /confirm/resend/signup/' + email);
+  return tidepool.signupResend(email, callback);
+};
 
 api.user.requestPasswordReset = function(email, callback) {
   api.log('POST /confirm/send/forgot/' + email);

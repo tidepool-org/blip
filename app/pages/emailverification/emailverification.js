@@ -15,14 +15,33 @@
  */
 
 var React = require('react');
+var _ = require('lodash');
 
 var LoginNav = require('../../components/loginnav');
 var LoginLogo = require('../../components/loginlogo');
+var SimpleForm = require('../../components/simpleform');
+
+var utils = require('../../core/utils');
 
 var EmailVerification = React.createClass({
   propTypes: {
     sent: React.PropTypes.bool,
+    onSubmitResend: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired
+  },
+  formInputs: function() {
+    return [
+      {name: 'email', label: 'Email', type: 'email'}
+    ];
+  },
+  getInitialState: function() {
+    return {
+      working: false,
+      success: false,
+      formValues: {},
+      validationErrors: {},
+      notification: null
+    };
   },
   render: function() {
     var content;
@@ -38,11 +57,14 @@ var EmailVerification = React.createClass({
     }
     else {
       content = (
-        <div className="EmailVerification-intro">
-          <div className="EmailVerification-title">{'Hey, you\'re not verified yet.'}</div>
-            <div className="EmailVerification-instructions">
-              <p>{'Check your email and follow the link there. (We need to confirm that you are really you.)'}</p>
-            </div>
+        <div>
+          <div className="EmailVerification-intro">
+            <div className="EmailVerification-title">{'Hey, you\'re not verified yet.'}</div>
+              <div className="EmailVerification-instructions">
+                <p>{'Check your email and follow the link there. (We need to confirm that you are really you.)'}</p>
+              </div>
+          </div>
+          <div className="EmailVerification-form">{this.renderForm()}</div>
         </div>
       );
     }
@@ -57,6 +79,87 @@ var EmailVerification = React.createClass({
         {content}
       </div>
     );
+  },
+  renderForm: function() {
+    var submitButtonText = this.state.working ? 'Sending email...' : 'Send reset link';
+
+    return (
+      <SimpleForm
+        inputs={this.formInputs()}
+        formValues={this.state.formValues}
+        validationErrors={this.state.validationErrors}
+        submitButtonText={submitButtonText}
+        submitDisabled={this.state.working}
+        onSubmit={this.handleSubmit}
+        notification={this.state.notification}/>
+    );
+  },
+  handleSubmit: function(formValues) {
+    var self = this;
+
+    if (this.state.working) {
+      return;
+    }
+
+    this.resetFormStateBeforeSubmit(formValues);
+
+    var validationErrors = this.validateFormValues(formValues);
+    if (!_.isEmpty(validationErrors)) {
+      return;
+    }
+
+    this.submitFormValues(formValues);
+  },
+  resetFormStateBeforeSubmit: function(formValues) {
+    this.setState({
+      working: true,
+      formValues: formValues,
+      validationErrors: {},
+      notification: null
+    });
+  },
+  validateFormValues: function(formValues) {
+    var validationErrors = {};
+    var IS_REQUIRED = 'This field is required.';
+    var INVALID_EMAIL = 'Invalid email address.';
+
+    if (!formValues.email) {
+      validationErrors.email = IS_REQUIRED;
+    }
+
+    if (formValues.email && !utils.validateEmail(formValues.email)) {
+      validationErrors.email = INVALID_EMAIL;
+    }
+
+    if (!_.isEmpty(validationErrors)) {
+      this.setState({
+        working: false,
+        validationErrors: validationErrors
+      });
+    }
+
+    return validationErrors;
+  },
+  submitFormValues: function(formValues) {
+    var self = this;
+    var submit = this.props.onSubmitResend;
+
+    submit(formValues.email, function(err) {
+      if (err) {
+        return self.setState({
+          working: false,
+          notification: {
+            type: 'error',
+            message: 'An error occured while trying to resend your verification email.'
+          }
+        });
+      }
+
+      self.setState({
+        working: false,
+        success: true
+      });
+    });
   }
 });
 
