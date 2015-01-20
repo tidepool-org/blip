@@ -61,17 +61,23 @@ module.exports = function (common, deps) {
     /**
      * Resend an existing invite
      *
-     * @param {String} inviterId - id of the user that send the invite
+     * @param {String} email - email of the user that send the invite
      * @param cb
-     * @returns {cb}  cb(err, response)
+     * @returns {cb}  cb(err)
      */
-    signupResend: function (invitedId, cb) {
+    signupResend: function (email, cb) {
       common.assertArgumentsSize(arguments, 2);
-      common.doPostWithToken(
-        '/confirm/resend/signup/'+invitedId,
-        { 200: function(res){ return res.body; }, 404: [] },
-        cb
-      );
+      superagent
+       .post(common.makeAPIUrl('/confirm/resend/signup/' + email))
+       .end(function (err, res) {
+        if (err != null) {
+          return cb(err);
+        }
+        if (res.status !== 200) {
+          return cb({status:res.status,message:res.error});
+        }
+        return cb();
+      });
     },
     /**
      * Cancel an existing invite
