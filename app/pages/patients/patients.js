@@ -107,7 +107,6 @@ var Patients = React.createClass({
         <div className="patients-welcomesetup-actions">
           <button className="btn btn-tertiary" onClick={handleClickNo}>{"No, not now"}</button>
           <button className="btn btn-primary" onClick={handleClickYes}>{"Yes, let's set it up"}</button>
-          <div className="patients-welcomesetup-actions-help">{"(You can always create one later)"}</div>
         </div>
       </div>
     );
