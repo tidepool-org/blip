@@ -236,9 +236,8 @@ api.user.confirmPasswordReset = function(payload, callback) {
 };
 
 api.user.confirmSignUp = function(key, callback) {
-  var userId = tidepool.getUserId();
-  api.log('PUT /confirm/accept/signup/'+userId+'/'+key);
-  return tidepool.signupConfirm(userId, key, callback);
+  api.log('PUT /confirm/accept/signup/'+key);
+  return tidepool.signupConfirm(key, callback);
 };
 
 // ----- Patient -----
