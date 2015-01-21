@@ -460,14 +460,14 @@ var AppComponent = React.createClass({
   },
 
   renderEmailVerification: function() {
-    /* jshint ignore:start */
     return (
-      <EmailVerification
+      /* jshint ignore:start */
+      <new EmailVerification
         sent={this.state.verificationEmailSent}
         onSubmitResend={api.user.resendEmailVerification.bind(app.api)}
         trackMetric={trackMetric}/>
+      /* jshint ignore:end */
     );
-    /* jshint ignore:end */
   },
 
   showProfile: function() {
