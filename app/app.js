@@ -176,6 +176,7 @@ var AppComponent = React.createClass({
       showingWelcomeSetup: false,
       dismissedBrowserWarning: false,
       verificationEmailSent: false,
+      finalizingVerification: false,
       queryParams: queryParams
     };
   },
@@ -379,18 +380,18 @@ var AppComponent = React.createClass({
 
   showLogin: function() {
     this.renderPage = this.renderLogin;
+    //always check
+    this.finialiseSignup();
     this.setState({page: 'login'});
   },
 
   renderLogin: function() {
-    //always check
-    this.finialiseSignup();
-
     return (
       /* jshint ignore:start */
       <Login
         onSubmit={this.login}
-        inviteEmail={this.getLoginEmail()}
+        inviteEmail={this.getInviteEmail()}
+        signupEmail={this.getSignupEmail()}
         onSubmitSuccess={this.handleLoginSuccess}
         onSubmitNotAuthorized={this.handleNotAuthorized}
         trackMetric={trackMetric} />
@@ -398,18 +399,11 @@ var AppComponent = React.createClass({
     );
   },
 
-  getLoginEmail: function() {
-
+  getSignupEmail: function() {
     var hashQueryParams = app.router.getQueryParams();
-    var email = this.getInviteEmail();
-
-    if(email){
+    var email = hashQueryParams.signupEmail;
+    if (!_.isEmpty(email) && utils.validateEmail(email)){
       return email;
-    } else if (!_.isEmpty(hashQueryParams.signupEmail)){
-      email = hashQueryParams.signupEmail;
-      if (email && utils.validateEmail(email)) {
-        return email;
-      }
     }
     return null;
   },
@@ -424,14 +418,15 @@ var AppComponent = React.createClass({
   },
 
   finialiseSignup: function() {
+    var self = this;
 
     var hashQueryParams = app.router.getQueryParams();
-    if(!_.isEmpty(hashQueryParams.signupKey)){
+    if(!_.isEmpty(hashQueryParams.signupKey) && !this.state.finalizingVerification){
       app.api.user.confirmSignUp(hashQueryParams.signupKey, function(err){
         if(err){
           console.log('finialiseSignup err ',err);
         }
-        this.handleSignupVerificationSuccess();
+        self.setState({finalizingVerification:true});
       });
     }
     return;
@@ -491,7 +486,6 @@ var AppComponent = React.createClass({
   redirectToDefaultRoute: function() {
     this.showPatients(true);
   },
-
   showPatients: function(showPatientData) {
     this.setState({showPatientData: showPatientData});
     this.renderPage = this.renderPatients;
@@ -500,7 +494,6 @@ var AppComponent = React.createClass({
     this.fetchPatients();
     trackMetric('Viewed Care Team List');
   },
-
   renderPatients: function() {
     var patients;
     /* jshint ignore:start */
@@ -912,8 +905,19 @@ var AppComponent = React.createClass({
   },
 
   handleLoginSuccess: function() {
+
     this.fetchUser();
-    this.setState({authenticated: true});
+    if( this.state.finalizingVerification ){
+      this.setState({
+        authenticated: true,
+        showingAcceptTerms: config.SHOW_ACCEPT_TERMS ? true : false,
+        showingWelcomeTitle: true,
+        showingWelcomeSetup: true
+      });
+      trackMetric('Finalized Signup');
+    } else {
+      this.setState({authenticated: true});
+    }
     this.redirectToDefaultRoute();
     trackMetric('Logged In');
   },
