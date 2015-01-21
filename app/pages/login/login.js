@@ -27,6 +27,7 @@ var Login = React.createClass({
   propTypes: {
     onSubmit: React.PropTypes.func.isRequired,
     inviteEmail: React.PropTypes.string,
+    signupEmail: React.PropTypes.string,
     onSubmitSuccess: React.PropTypes.func.isRequired,
     onSubmitNotAuthorized: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired
@@ -34,7 +35,7 @@ var Login = React.createClass({
 
   formInputs: function() {
     return [
-      {name: 'username', label: 'Email', type: 'email', disabled: !!this.props.inviteEmail},
+      {name: 'username', label: 'Email', type: 'email', disabled: !!this.state.email},
       {name: 'password', label: 'Password', type: 'password'},
       {name: 'remember', label: 'Remember me', type: 'checkbox'}
     ];
@@ -42,13 +43,15 @@ var Login = React.createClass({
 
   getInitialState: function() {
     var formValues = {};
+    var email = this.props.signupEmail || this.props.inviteEmail;
 
-    if (this.props.inviteEmail) {
-      formValues.username = this.props.inviteEmail;
+    if (email) {
+      formValues.username = email;
     }
 
     return {
       working: false,
+      email: email,
       formValues: formValues,
       validationErrors: {},
       notification: null
@@ -65,7 +68,7 @@ var Login = React.createClass({
       <div className="login">
         <LoginNav
           page="login"
-          hideLinks={Boolean(this.props.inviteEmail)}
+          hideLinks={Boolean(this.state.email)}
           trackMetric={this.props.trackMetric} />
         <LoginLogo />
         {inviteIntro}
