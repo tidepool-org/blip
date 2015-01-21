@@ -31,7 +31,7 @@ var EmailVerification = React.createClass({
   },
   formInputs: function() {
     return [
-      {name: 'email', label: 'Email used to signup', type: 'email'}
+      {name: 'email', label: 'Email', type: 'email'}
     ];
   },
   getInitialState: function() {
@@ -67,7 +67,14 @@ var EmailVerification = React.createClass({
                 <p>{'Check your email and follow the link there. (We need to confirm that you are really you.)'}</p>
               </div>
           </div>
-          <div className="EmailVerification-form">{this.renderForm()}</div>
+          <div className="container-small-outer login-form">
+            <div className="EmailVerification-resend-note">
+              <p>{'Do you want us to resend the email? Enter the address you used to signup below.'}</p>
+            </div>
+            <div className="container-small-inner login-form-box">
+              <div className="EmailVerification-form">{this.renderForm()}</div>
+            </div>
+          </div>
         </div>
       );
     }
@@ -79,11 +86,7 @@ var EmailVerification = React.createClass({
           hideLinks={false}
           trackMetric={this.props.trackMetric} />
         <LoginLogo />
-        <div className="container-small-outer login-form">
-          <div className="container-small-inner login-form-box">
-            {content}
-          </div>
-        </div>
+        {content}
       </div>
     );
   },
@@ -153,6 +156,7 @@ var EmailVerification = React.createClass({
 
     submit(formValues.email, function(err) {
       if (err) {
+
         return self.setState({
           working: false,
           notification: {
@@ -164,7 +168,11 @@ var EmailVerification = React.createClass({
 
       self.setState({
         working: false,
-        success: true
+        success: true,
+        notification: {
+            type: 'alert',
+            message: 'We just sent you an email.'
+          }
       });
     });
   }

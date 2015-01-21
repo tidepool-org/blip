@@ -383,11 +383,14 @@ var AppComponent = React.createClass({
   },
 
   renderLogin: function() {
+    //always check
+    this.finialiseSignup();
+
     return (
       /* jshint ignore:start */
       <Login
         onSubmit={this.login}
-        inviteEmail={this.getInviteEmail()}
+        inviteEmail={this.getLoginEmail()}
         onSubmitSuccess={this.handleLoginSuccess}
         onSubmitNotAuthorized={this.handleNotAuthorized}
         trackMetric={trackMetric} />
@@ -395,15 +398,43 @@ var AppComponent = React.createClass({
     );
   },
 
+  getLoginEmail: function() {
+
+    var hashQueryParams = app.router.getQueryParams();
+    var email = this.getInviteEmail();
+
+    if(email){
+      return email;
+    } else if (!_.isEmpty(hashQueryParams.signupEmail)){
+      email = hashQueryParams.signupEmail;
+      if (email && utils.validateEmail(email)) {
+        return email;
+      }
+    }
+    return null;
+  },
+
   getInviteEmail: function() {
     var hashQueryParams = app.router.getQueryParams();
-    var inviteEmail = hashQueryParams.inviteEmail;
-    if (inviteEmail && utils.validateEmail(inviteEmail)) {
-      return inviteEmail;
+    var email = hashQueryParams.inviteEmail;
+    if(!_.isEmpty(email) && utils.validateEmail(email)){
+      return email;
     }
-    else {
-      return null;
+    return null
+  },
+
+  finialiseSignup: function() {
+
+    var hashQueryParams = app.router.getQueryParams();
+    if(!_.isEmpty(hashQueryParams.signupKey)){
+      app.api.user.confirmSignUp(hashQueryParams.signupKey, function(err){
+        if(err){
+          console.log('finialiseSignup err ',err);
+        }
+        this.handleSignupVerificationSuccess();
+      });
     }
+    return;
   },
 
   showSignup: function() {
@@ -533,14 +564,12 @@ var AppComponent = React.createClass({
 
     return (patients);
   },
-
   handleHideWelcomeSetup: function(options) {
     if (options && options.route) {
       app.router.setRoute(options.route);
     }
     this.setState({showingWelcomeSetup: false});
   },
-
   handleDismissInvitation: function(invitation) {
     var self = this;
 
@@ -609,7 +638,6 @@ var AppComponent = React.createClass({
       self.fetchPatient(patientId, cb);
     });
   },
-
   handleRemovePatient: function(patientId,cb) {
     var self = this;
 
@@ -623,7 +651,6 @@ var AppComponent = React.createClass({
       self.fetchPatients();
     });
   },
-
   handleRemoveMember: function(patientId, memberId, cb) {
     var self = this;
 
@@ -636,7 +663,6 @@ var AppComponent = React.createClass({
       self.fetchPatient(patientId, cb);
     });
   },
-
   handleInviteMember: function(email, permissions, cb) {
     var self = this;
 
@@ -660,7 +686,6 @@ var AppComponent = React.createClass({
       self.fetchPendingInvites();
     });
   },
-
   handleCancelInvite: function(email, cb) {
     var self = this;
 
