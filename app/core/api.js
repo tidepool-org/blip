@@ -93,7 +93,7 @@ api.user.signup = function(user, cb) {
 
     var userId = account.userid;
 
-    tidepool.signupStart(userId,function(err, results){
+    tidepool.signupStart(userId, function(err, results){
       if(err){
         api.log('signup process error',err);
       }
