@@ -911,16 +911,13 @@ var AppComponent = React.createClass({
     this.fetchUser();
     if( this.state.finalizingVerification ){
       this.setState({
-        authenticated: true,
         showingAcceptTerms: config.SHOW_ACCEPT_TERMS ? true : false,
         showingWelcomeTitle: true,
-        showingWelcomeSetup: true,
-        finalizingVerification : false
+        showingWelcomeSetup: true
       });
       trackMetric('Finalized Signup');
-    } else {
-      this.setState({authenticated: true});
     }
+    this.setState({authenticated: true});
     this.redirectToDefaultRoute();
     trackMetric('Logged In');
   },
@@ -1244,6 +1241,7 @@ var AppComponent = React.createClass({
       patientData: null,
       showingAcceptTerms: false,
       showingWelcomeTitle: false,
+      finalizingVerification: false,
       showingWelcomeSetup: false,
       dismissedBrowserWarning: false
     });
