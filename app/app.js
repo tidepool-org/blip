@@ -462,7 +462,7 @@ var AppComponent = React.createClass({
   renderEmailVerification: function() {
     return (
       /* jshint ignore:start */
-      <new EmailVerification
+      <EmailVerification
         sent={this.state.verificationEmailSent}
         onSubmitResend={api.user.resendEmailVerification.bind(app.api)}
         trackMetric={trackMetric}/>
