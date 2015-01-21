@@ -420,7 +420,7 @@ var AppComponent = React.createClass({
     if(!_.isEmpty(email) && utils.validateEmail(email)){
       return email;
     }
-    return null
+    return null;
   },
 
   finialiseSignup: function() {
@@ -460,14 +460,14 @@ var AppComponent = React.createClass({
   },
 
   renderEmailVerification: function() {
+    /* jshint ignore:start */
     return (
-      /* jshint ignore:start */
       <EmailVerification
         sent={this.state.verificationEmailSent}
         onSubmitResend={api.user.resendEmailVerification.bind(app.api)}
-        trackMetric={trackMetric} />
-      /* jshint ignore:end */
+        trackMetric={trackMetric}/>
     );
+    /* jshint ignore:end */
   },
 
   showProfile: function() {
