@@ -43,6 +43,7 @@ module.exports = schema(schema().oneOf(
       bolusCommon,
       {
         duration: schema().number().min(0),
+        expectedDuration: schema().ifExists().number().min(0),
         extended: schema().number().min(0),
         expectedExtended: schema().ifExists().number().min(0),
         normal: schema().ifExists().number().min(0),
