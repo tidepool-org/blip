@@ -43,20 +43,23 @@ module.exports = function (common, deps) {
     /**
      * Confirm a signup
      *
-     * @param {String} invitedId - id of the user that signup if for
-     * @param {String} signupId - id of the signup
+     * @param {String} signupId - id of the signup confirmation
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    signupConfirm: function (invitedId, signupId, cb) {
-      common.assertArgumentsSize(arguments, 3);
-
-      common.doPutWithToken(
-        '/confirm/accept/signup/'+invitedId+'/'+signupId,
-        {'key':signupId},
-        { 200: function(res){ return res.body; }, 404: [] },
-        cb
-      );
+    signupConfirm: function (signupId, cb) {
+      common.assertArgumentsSize(arguments, 2);
+      superagent
+       .put(common.makeAPIUrl('/confirm/accept/signup/'+signupId))
+       .end(function (err, res) {
+        if (err != null) {
+          return cb(err);
+        }
+        if (res.status !== 200) {
+          return cb({status:res.status,message:res.error});
+        }
+        return cb();
+      });
     },
     /**
      * Resend an existing invite
