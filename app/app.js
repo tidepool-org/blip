@@ -386,12 +386,14 @@ var AppComponent = React.createClass({
   },
 
   renderLogin: function() {
+    var email = this.getInviteEmail() || this.getSignupEmail();
+    var showAsInvite = !_.isEmpty(this.getInviteEmail());
     return (
       /* jshint ignore:start */
       <Login
         onSubmit={this.login}
-        inviteEmail={this.getInviteEmail()}
-        signupEmail={this.getSignupEmail()}
+        seedEmail={email}
+        isInvite={showAsInvite}
         onSubmitSuccess={this.handleLoginSuccess}
         onSubmitNotAuthorized={this.handleNotAuthorized}
         trackMetric={trackMetric} />
@@ -912,7 +914,8 @@ var AppComponent = React.createClass({
         authenticated: true,
         showingAcceptTerms: config.SHOW_ACCEPT_TERMS ? true : false,
         showingWelcomeTitle: true,
-        showingWelcomeSetup: true
+        showingWelcomeSetup: true,
+        finalizingVerification : false
       });
       trackMetric('Finalized Signup');
     } else {

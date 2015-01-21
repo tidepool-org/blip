@@ -26,8 +26,8 @@ var SimpleForm = require('../../components/simpleform');
 var Login = React.createClass({
   propTypes: {
     onSubmit: React.PropTypes.func.isRequired,
-    inviteEmail: React.PropTypes.string,
-    signupEmail: React.PropTypes.string,
+    seedEmail: React.PropTypes.string,
+    isInvite: React.PropTypes.bool,
     onSubmitSuccess: React.PropTypes.func.isRequired,
     onSubmitNotAuthorized: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired
@@ -35,7 +35,7 @@ var Login = React.createClass({
 
   formInputs: function() {
     return [
-      {name: 'username', label: 'Email', type: 'email', disabled: !!this.state.email},
+      {name: 'username', label: 'Email', type: 'email', disabled: !!this.props.seedEmail},
       {name: 'password', label: 'Password', type: 'password'},
       {name: 'remember', label: 'Remember me', type: 'checkbox'}
     ];
@@ -43,7 +43,7 @@ var Login = React.createClass({
 
   getInitialState: function() {
     var formValues = {};
-    var email = this.props.signupEmail || this.props.inviteEmail;
+    var email = this.props.seedEmail;
 
     if (email) {
       formValues.username = email;
@@ -51,7 +51,6 @@ var Login = React.createClass({
 
     return {
       working: false,
-      email: email,
       formValues: formValues,
       validationErrors: {},
       notification: null
@@ -68,7 +67,7 @@ var Login = React.createClass({
       <div className="login">
         <LoginNav
           page="login"
-          hideLinks={Boolean(this.state.email)}
+          hideLinks={Boolean(this.props.seedEmail)}
           trackMetric={this.props.trackMetric} />
         <LoginLogo />
         {inviteIntro}
@@ -84,7 +83,7 @@ var Login = React.createClass({
   },
 
   renderInviteIntroduction: function() {
-    if (!this.props.inviteEmail) {
+    if (!this.props.isInvite) {
       return null;
     }
 
