@@ -17,7 +17,7 @@ module.exports = {
       {test: /\.jpg$/, loader: 'url-loader?limit=10000&mimetype=image/jpg'},
       {test: /\.png$/, loader: 'url-loader?limit=10000&mimetype=image/png'},
       {test: /\.svg$/, loader: 'url-loader?limit=10000&mimetype=image/svg+xml'},
-      {test: /\.ico$/, loader: 'url-loader?limit=10000&mimetype=image/x-icon'},
+      {test: /favicon\.ico$/, loader: 'file-loader?name=favicon.ico&limit=100000&mimetype=image/x-icon'},
       {test: /\.eot$/, loader: 'url-loader?limit=10000&mimetype=application/vnd.ms-fontobject'},
       {test: /\.woff$/, loader: 'url-loader?limit=10000&mimetype=application/font-woff'},
       {test: /\.ttf$/, loader: 'url-loader?limit=10000&mimetype=application/x-font-ttf'},
