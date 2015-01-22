@@ -16,7 +16,7 @@
 
 var React = require('react');
 
-var Notification = React.createClass({
+var TidepoolNotification = React.createClass({
   propTypes: {
     type: React.PropTypes.string,
     onClose: React.PropTypes.func
@@ -73,4 +73,4 @@ var Notification = React.createClass({
   }
 });
 
-module.exports = Notification;
+module.exports = TidepoolNotification;
