@@ -304,25 +304,16 @@ var Modal = React.createClass({
     };
   },
   toggleBoxOverlay: function(e) {
-    if (e) {
-      e.preventDefault();
-    }
     var prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.modal.boxOverlay = prefs.modal.boxOverlay ? false : true;
     this.props.updateChartPrefs(prefs);
   },
   toggleGroup: function(e) {
-    if (e) {
-      e.preventDefault();
-    }
     var prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.modal.grouped = prefs.modal.grouped ? false : true;
     this.props.updateChartPrefs(prefs);
   },
   toggleLines: function(e) {
-    if (e) {
-      e.preventDefault();
-    }
     var prefs = _.cloneDeep(this.props.chartPrefs);
     prefs.modal.showingLines = prefs.modal.showingLines ? false : true;
     this.props.updateChartPrefs(prefs);

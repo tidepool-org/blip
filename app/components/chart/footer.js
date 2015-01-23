@@ -41,82 +41,49 @@ var TidelineFooter = React.createClass({
       'patient-data-subnav-hidden': this.props.chartType === 'no-data'
     });
 
-    function getValuesLinkText(props) {
-      if (props.chartType === 'weekly') {
-        if (props.showingValues) {
-          return 'Hide numbers';
-        }
-        else {
-          return 'Show numbers';
-        }
-      }
-      else {
-        return '';
-      }
+    function getValuesCheckboxValue(props) {
+      return props.showingValues;
     }
 
-    function getLinesLinkText(props) {
-      if (props.chartType === 'modal') {
-        if (props.showingLines) {
-          return 'Hide lines';
-        }
-        else {
-          return 'Show lines';
-        }
-      }
-      else {
-        return '';
-      }
+    function getLinesCheckboxValue(props) {
+      return props.showingLines;
     }
 
-    function getGroupLinkText(props) {
-      if (props.chartType === 'modal') {
-        if (props.grouped) {
-          return 'Ungroup';
-        }
-        else {
-          return 'Group';
-        }
-      }
-      else {
-        return '';
-      }
+    function getGroupCheckboxValue(props) {
+      return props.grouped;
     }
 
-    function getOverlayLinkText(props) {
-      if (props.chartType === 'modal') {
-        if (props.boxOverlay) {
-          return 'Hide range & average';
-        }
-        else {
-          return 'Show range & average';
-        }
-      }
-      else {
-        return '';
-      }
+    function getOverlayCheckboxValue(props) {
+      return props.boxOverlay;
     }
 
-    var valuesLinkText = getValuesLinkText(this.props);
-
-    var linesLinkText = getLinesLinkText(this.props);
-
-    var groupLinkText = getGroupLinkText(this.props);
-
-    var overlayLinkText = getOverlayLinkText(this.props);
+    var valuesCheck = getValuesCheckboxValue(this.props);
+    var linesCheck = getLinesCheckboxValue(this.props);
+    var groupCheck = getGroupCheckboxValue(this.props);
+    var overlayCheck = getOverlayCheckboxValue(this.props);
 
     /* jshint ignore:start */
     var showValues = (
-      <a href="" onClick={this.props.onClickValues}>{valuesLinkText}</a>
+      <label htmlFor="valuesCheckbox" ref="label">
+        <input type="checkbox" name="valuesCheckbox" id="valuesCheckbox" checked={valuesCheck} onChange={this.props.onClickValues} ref="control" /> Values
+      </label>
       );
     /* jshint ignore:end */
 
     /* jshint ignore:start */
     var modalOpts = (
       <div>
-        <a href="" onClick={this.props.onClickLines}>{linesLinkText}</a>
-        <a href="" onClick={this.props.onClickGroup}>{groupLinkText}</a>
-        <a href="" onClick={this.props.onClickBoxOverlay}>{overlayLinkText}</a>
+        <label htmlFor="linesCheckbox" ref="label">
+          <input type="checkbox" name="linesCheckbox" id="linesCheckbox" checked={linesCheck} onChange={this.props.onClickLines} ref="control" /> Lines
+        </label>
+
+        <label htmlFor="groupCheckbox" ref="label">
+          <input type="checkbox" name="groupCheckbox" id="groupCheckbox" checked={groupCheck} onChange={this.props.onClickGroup} ref="control" /> Group
+        </label>
+
+        <label htmlFor="overlayCheckbox" ref="label">
+          <input type="checkbox" name="overlayCheckbox" id="overlayCheckbox" checked={overlayCheck} onChange={this.props.onClickBoxOverlay} ref="control" /> Range &amp; Average
+        </label>
       </div>
       );
     /* jshint ignore:end */
