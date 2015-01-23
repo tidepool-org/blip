@@ -117,12 +117,12 @@ var ModalSubNav = React.createClass({
   },
   renderDomainLink: function(domain) {
     var domainLinkClass = cx({
-      'active': domain === this.props.activeDomain,
-      'modalDomain': true
+      'btn btn-chart-control' : true,
+      'active': domain === this.props.activeDomain
     });
     /* jshint ignore:start */
     return (
-      <a href="" className={domainLinkClass} key={domain} onClick={this.props.domainClickHandlers[domain]}>{domain}</a>
+      <button className={domainLinkClass} onClick={this.props.domainClickHandlers[domain]}>{domain}</button>
       );
     /* jshint ignore:end */
   },
