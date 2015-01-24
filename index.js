@@ -939,28 +939,27 @@ module.exports = function (config, deps) {
     startUploadSession: function (sessionInfo,  cb) {
       assertArgumentsSize(arguments, 2);
 
-      if (_.isEmpty(sessionInfo.deviceId) || _.isEmpty(sessionInfo.start) || _.isEmpty(sessionInfo.tzName) || _.isEmpty(sessionInfo.version)) {
-        return cb({ status : STATUS_BAD_REQUEST, message: 'All session info must be given' });
-      }
+      var fields = ['version', 'deviceType', 'deviceManufacturer',
+                    'deviceSeries', 'deviceModel', 'deviceSerialNumber', 'deviceId'];
 
-      try{
+      _.each(fields, function(field) {
+        if (!_.has(sessionInfo, field)) {
+          return cb({ status : STATUS_BAD_REQUEST, message: 'sessionInfo is missing "' + field +'"' });
+        }
+      });
 
-        var generatedId = id.generateId([sessionInfo.deviceId, sessionInfo.start]);
+      try {
 
-        var uploadMeta = {
-          type: 'upload',
-          time: sessionInfo.start,
-          timezone: sessionInfo.tzName,
-          version: sessionInfo.version,
-          deviceId: sessionInfo.deviceId,
-          uploadId: generatedId,
-          byUser: myUserId,
-          source : 'tidepool'
-        };
+        var uploadMeta = _.pick(sessionInfo, fields);
+        uploadMeta.type = 'upload';
+        uploadMeta.time = sessionInfo.start;
+        uploadMeta.timezone = sessionInfo.tzName;
+        uploadMeta.uploadId = id.generateId([sessionInfo.deviceId, sessionInfo.start]);
+        uploadMeta.byUser = myUserId;
 
         return cb(null,uploadMeta);
 
-      } catch(error) {
+      } catch (error) {
         return cb(error);
       }
     },
