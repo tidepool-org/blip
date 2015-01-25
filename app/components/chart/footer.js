@@ -41,31 +41,13 @@ var TidelineFooter = React.createClass({
       'patient-data-subnav-hidden': this.props.chartType === 'no-data'
     });
 
-    function getValuesCheckboxValue(props) {
-      return props.showingValues;
-    }
-
-    function getLinesCheckboxValue(props) {
-      return props.showingLines;
-    }
-
-    function getGroupCheckboxValue(props) {
-      return props.grouped;
-    }
-
-    function getOverlayCheckboxValue(props) {
-      return props.boxOverlay;
-    }
-
-    var valuesCheck = getValuesCheckboxValue(this.props);
-    var linesCheck = getLinesCheckboxValue(this.props);
-    var groupCheck = getGroupCheckboxValue(this.props);
-    var overlayCheck = getOverlayCheckboxValue(this.props);
-
     /* jshint ignore:start */
     var showValues = (
       <label htmlFor="valuesCheckbox" ref="label">
-        <input type="checkbox" name="valuesCheckbox" id="valuesCheckbox" checked={valuesCheck} onChange={this.props.onClickValues} ref="control" /> Values
+        <input type="checkbox" name="valuesCheckbox" id="valuesCheckbox"
+          checked={this.props.showingValues}
+          onChange={this.props.onClickValues}
+          ref="control" /> Values
       </label>
       );
     /* jshint ignore:end */
@@ -74,15 +56,24 @@ var TidelineFooter = React.createClass({
     var modalOpts = (
       <div>
         <label htmlFor="linesCheckbox" ref="label">
-          <input type="checkbox" name="linesCheckbox" id="linesCheckbox" checked={linesCheck} onChange={this.props.onClickLines} ref="control" /> Lines
+          <input type="checkbox" name="linesCheckbox" id="linesCheckbox"
+            checked={this.props.showingLines}
+            onChange={this.props.onClickLines}
+            ref="control" /> Lines
         </label>
 
         <label htmlFor="groupCheckbox" ref="label">
-          <input type="checkbox" name="groupCheckbox" id="groupCheckbox" checked={groupCheck} onChange={this.props.onClickGroup} ref="control" /> Group
+          <input type="checkbox" name="groupCheckbox" id="groupCheckbox"
+            checked={this.props.grouped}
+            onChange={this.props.onClickGroup}
+            ref="control" /> Group
         </label>
 
         <label htmlFor="overlayCheckbox" ref="label">
-          <input type="checkbox" name="overlayCheckbox" id="overlayCheckbox" checked={overlayCheck} onChange={this.props.onClickBoxOverlay} ref="control" /> Range &amp; Average
+          <input type="checkbox" name="overlayCheckbox" id="overlayCheckbox"
+            checked={this.props.boxOverlay}
+            onChange={this.props.onClickBoxOverlay}
+            ref="control" /> Range &amp; Average
         </label>
       </div>
       );
