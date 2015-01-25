@@ -35,7 +35,12 @@ var DaysGroup = React.createClass({
     }) + ' ' + this.props.category;
     /* jshint ignore:start */
     return (
-      <div className={groupClass} onClick={this.handleDaysGroupClick}>{this.props.days}</div>
+      <div>
+        <input type="checkbox" className={groupClass}
+        onChange={this.handleDaysGroupClick}
+        checked={this.props.active} />
+        {this.props.days}
+      </div>
       );
     /* jshint ignore:end */
   },
@@ -109,7 +114,7 @@ var ModalSubNav = React.createClass({
     /* jshint ignore:start */
     return (
       <div>
-        <div>{domainLinks}</div>
+        <div className="domainContainer">{domainLinks}</div>
         <div className="visibleDays">{visibleDaysText}</div>
       </div>
       );
@@ -134,7 +139,7 @@ var ModalSubNav = React.createClass({
     }
     /* jshint ignore:start */
     return (
-      <div className="dayGroupsContainer">
+      <div className="daysGroupContainer">
         <DaysGroup
           active={this.state.weekdaysActive}
           category={'weekday'}
