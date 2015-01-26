@@ -37,7 +37,7 @@ var usrMessages = require('./userMessages');
 var Navbar = require('./components/navbar');
 var LogoutOverlay = require('./components/logoutoverlay');
 var BrowserWarningOverlay = require('./components/browserwarningoverlay');
-var Notification = require('./components/notification');
+var TidepoolNotification = require('./components/notification');
 var TermsOverlay = require('./components/termsoverlay');
 var MailTo = require('./components/mailto');
 
@@ -323,11 +323,11 @@ var AppComponent = React.createClass({
 
       return (
         /* jshint ignore:start */
-        <Notification
+        <TidepoolNotification
           type={notification.type}
           onClose={handleClose}>
           {notification.body}
-        </Notification>
+        </TidepoolNotification>
         /* jshint ignore:end */
       );
     }
