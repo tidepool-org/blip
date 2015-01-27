@@ -690,8 +690,8 @@ module.exports = function (config, deps) {
     startUploadSession: function (sessionInfo,  cb) {
       common.assertArgumentsSize(arguments, 2);
 
-      var fields = ['version', 'deviceType', 'deviceManufacturer',
-                    'deviceSeries', 'deviceModel', 'deviceSerialNumber', 'deviceId'];
+      var fields = ['version', 'deviceTags', 'deviceManufacturers',
+                    'deviceModel', 'deviceSerialNumber', 'deviceId'];
 
       _.each(fields, function(field) {
         if (!_.has(sessionInfo, field)) {
@@ -711,6 +711,10 @@ module.exports = function (config, deps) {
         uploadMeta.timezone = sessionInfo.tzName;
         uploadMeta.uploadId = id.generateId([sessionInfo.deviceId, sessionInfo.start]);
         uploadMeta.byUser = myUserId;
+        // this is to permit us to continue to identify carelink data
+        if (sessionInfo.source) {
+          uploadMeta.source = sessionInfo.source;
+        }
 
         return cb(null,uploadMeta);
 
