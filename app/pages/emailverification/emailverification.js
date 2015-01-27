@@ -46,8 +46,9 @@ var EmailVerification = React.createClass({
   render: function() {
     var content;
     var loginPage;
+
     if (this.props.sent) {
-      loginPage = 'login';
+      loginPage = 'signup';
       content = (
         <div className="EmailVerification-intro">
           <div className="EmailVerification-title">{'Keeping your data private and secure is important to us!'}</div>
@@ -58,7 +59,7 @@ var EmailVerification = React.createClass({
       );
     }
     else {
-      loginPage = 'signup';
+      loginPage = 'login';
       content = (
         <div>
           <div className="EmailVerification-intro">
