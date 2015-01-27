@@ -574,15 +574,8 @@ module.exports = function (config, deps) {
      * @returns {cb}  cb(err, response)
      */
     getUploadGroups: function (userId, cb) {
-      console.log('getUploadGroups userId:', userId);
-
-      if (userId == null) {
-        return cb({ status : STATUS_BAD_REQUEST,  message: 'Must specify a userId' });
-      }
-
-      assertArgumentsSize(arguments, 2);
-
-      doGetWithToken(
+      common.assertArgumentsSize(arguments, 2);
+      common.doGetWithToken(
         '/access/groups/' + userId,
         { 200: function(res){
           var groups = res.body;
@@ -712,7 +705,7 @@ module.exports = function (config, deps) {
       }
 
        superagent
-        .post(common.makeUploadUrl('/data' + (groupId ? ('/' + groupId) : ''))
+        .post(common.makeUploadUrl('/data' + (groupId ? ('/' + groupId) : '')))
         .send(data)
         .set(common.SESSION_TOKEN_HEADER, myToken)
         .end(
