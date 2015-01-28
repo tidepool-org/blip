@@ -50,6 +50,7 @@ var PatientNew = require('./pages/patientnew');
 var PatientData = require('./pages/patientdata');
 var RequestPasswordReset = require('./pages/passwordreset/request');
 var ConfirmPasswordReset = require('./pages/passwordreset/confirm');
+var EmailVerification = require('./pages/emailverification');
 
 // Styles
 require('tideline/css/tideline.less');
@@ -81,6 +82,7 @@ var routes = {
   '/': 'redirectToDefaultRoute',
   '/login': 'showLogin',
   '/signup': 'showSignup',
+  '/email-verification' : 'showEmailVerification',
   '/profile': 'showProfile',
   '/patients': 'showPatients',
   '/patients/new': 'showPatientNew',
@@ -96,6 +98,7 @@ var routes = {
 var noAuthRoutes = [
   '/login',
   '/signup',
+  '/email-verification',
   '/request-password-reset',
   '/confirm-password-reset'
 ];
@@ -181,6 +184,8 @@ var AppComponent = React.createClass({
       showingWelcomeTitle: false,
       showingWelcomeSetup: false,
       dismissedBrowserWarning: false,
+      verificationEmailSent: false,
+      finalizingVerification: false,
       queryParams: queryParams
     };
   },
@@ -345,15 +350,18 @@ var AppComponent = React.createClass({
   },
 
   renderFooter: function() {
-    // just the feedbak link at this stage
+
+    var title ='Send us feedback';
+    var subject = 'Feedback on Blip';
+
     return (
       /* jshint ignore:start */
       <div className='container-small-outer footer'>
         <div className='container-small-inner'>
           <MailTo
-            linkTitle={'Send us feedback'}
+            linkTitle={title}
             emailAddress={'support@tidepool.org'}
-            emailSubject={'Feedback on Blip'}
+            emailSubject={subject}
             onLinkClicked={this.logSupportContact} />
         </div>
         {this.renderVersion()}
@@ -366,7 +374,11 @@ var AppComponent = React.createClass({
     var version = config.VERSION;
     if (version) {
       version = 'v' + version;
-      return <div className="Navbar-version" ref="version">{version}</div>;
+      return (
+        /* jshint ignore:start */
+        <div className="Navbar-version" ref="version">{version}</div>
+        /* jshint ignore:end */
+      );
     }
     return null;
   },
@@ -378,35 +390,68 @@ var AppComponent = React.createClass({
 
   showLogin: function() {
     this.renderPage = this.renderLogin;
+    //always check
+    this.finializeSignup();
     this.setState({page: 'login'});
   },
 
   renderLogin: function() {
+    var email = this.getInviteEmail() || this.getSignupEmail();
+    var showAsInvite = !_.isEmpty(this.getInviteEmail());
     return (
       /* jshint ignore:start */
       <Login
         onSubmit={this.login}
-        inviteEmail={this.getInviteEmail()}
+        seedEmail={email}
+        isInvite={showAsInvite}
         onSubmitSuccess={this.handleLoginSuccess}
+        onSubmitNotAuthorized={this.handleNotAuthorized}
         trackMetric={trackMetric} />
       /* jshint ignore:end */
     );
   },
 
+  getSignupEmail: function() {
+    var hashQueryParams = app.router.getQueryParams();
+    var email = hashQueryParams.signupEmail;
+    if (!_.isEmpty(email) && utils.validateEmail(email)){
+      return email;
+    }
+    return null;
+  },
+
   getInviteEmail: function() {
     var hashQueryParams = app.router.getQueryParams();
-    var inviteEmail = hashQueryParams.inviteEmail;
-    if (inviteEmail && utils.validateEmail(inviteEmail)) {
-      return inviteEmail;
+    var email = hashQueryParams.inviteEmail;
+    if(!_.isEmpty(email) && utils.validateEmail(email)){
+      return email;
     }
-    else {
-      return null;
+    return null;
+  },
+
+  finializeSignup: function() {
+    var self = this;
+
+    var hashQueryParams = app.router.getQueryParams();
+    if(!_.isEmpty(hashQueryParams.signupKey) && !this.state.finalizingVerification){
+      app.api.user.confirmSignUp(hashQueryParams.signupKey, function(err){
+        if(err){
+          app.log('finializeSignup err ',err);
+        }
+        self.setState({finalizingVerification:true});
+      });
     }
+    return;
   },
 
   showSignup: function() {
     this.renderPage = this.renderSignup;
     this.setState({page: 'signup'});
+  },
+
+  showEmailVerification: function() {
+    this.renderPage = this.renderEmailVerification;
+    this.setState({page: 'email-verification'});
   },
 
   renderSignup: function() {
@@ -417,6 +462,17 @@ var AppComponent = React.createClass({
         inviteEmail={this.getInviteEmail()}
         onSubmitSuccess={this.handleSignupSuccess}
         trackMetric={trackMetric} />
+      /* jshint ignore:end */
+    );
+  },
+
+  renderEmailVerification: function() {
+    return (
+      /* jshint ignore:start */
+      <EmailVerification
+        sent={this.state.verificationEmailSent}
+        onSubmitResend={api.user.resendEmailVerification.bind(app.api)}
+        trackMetric={trackMetric}/>
       /* jshint ignore:end */
     );
   },
@@ -442,7 +498,6 @@ var AppComponent = React.createClass({
   redirectToDefaultRoute: function() {
     this.showPatients(true);
   },
-
   showPatients: function(showPatientData) {
     this.setState({showPatientData: showPatientData});
     this.renderPage = this.renderPatients;
@@ -451,7 +506,6 @@ var AppComponent = React.createClass({
     this.fetchPatients();
     trackMetric('Viewed Care Team List');
   },
-
   renderPatients: function() {
     var patients;
     /* jshint ignore:start */
@@ -515,14 +569,12 @@ var AppComponent = React.createClass({
 
     return (patients);
   },
-
   handleHideWelcomeSetup: function(options) {
     if (options && options.route) {
       app.router.setRoute(options.route);
     }
     this.setState({showingWelcomeSetup: false});
   },
-
   handleDismissInvitation: function(invitation) {
     var self = this;
 
@@ -591,7 +643,6 @@ var AppComponent = React.createClass({
       self.fetchPatient(patientId, cb);
     });
   },
-
   handleRemovePatient: function(patientId,cb) {
     var self = this;
 
@@ -605,7 +656,6 @@ var AppComponent = React.createClass({
       self.fetchPatients();
     });
   },
-
   handleRemoveMember: function(patientId, memberId, cb) {
     var self = this;
 
@@ -618,7 +668,6 @@ var AppComponent = React.createClass({
       self.fetchPatient(patientId, cb);
     });
   },
-
   handleInviteMember: function(email, permissions, cb) {
     var self = this;
 
@@ -642,7 +691,6 @@ var AppComponent = React.createClass({
       self.fetchPendingInvites();
     });
   },
-
   handleCancelInvite: function(email, cb) {
     var self = this;
 
@@ -869,19 +917,45 @@ var AppComponent = React.createClass({
   },
 
   handleLoginSuccess: function() {
+
     this.fetchUser();
+    if( this.state.finalizingVerification ){
+      this.setState({
+        showingAcceptTerms: config.SHOW_ACCEPT_TERMS ? true : false,
+        showingWelcomeTitle: true,
+        showingWelcomeSetup: true
+      });
+      trackMetric('Finalized Signup');
+    }
     this.setState({authenticated: true});
     this.redirectToDefaultRoute();
     trackMetric('Logged In');
   },
 
+  handleNotAuthorized:function(){
+     this.setState({authenticated: false,  verificationEmailSent: false});
+     this.showEmailVerification();
+  },
+
   signup: function(formValues, cb) {
     var user = formValues;
-
     app.api.user.signup(user, cb);
   },
 
   handleSignupSuccess: function(user) {
+    //once signed up we need to authenicate the email which is done via the email we have sent them
+    this.setState({
+      fetchingUser: false,
+      verificationEmailSent: true
+    });
+
+    this.showEmailVerification();
+
+    trackMetric('Signed Up');
+  },
+
+  handleSignupVerificationSuccess: function(user) {
+    //once signed up we need to authenicate the email which is done via the email we have sent them
     this.setState({
       authenticated: true,
       user: user,
@@ -890,8 +964,9 @@ var AppComponent = React.createClass({
       showingWelcomeTitle: true,
       showingWelcomeSetup: true
     });
+
     this.redirectToDefaultRoute();
-    trackMetric('Signed Up');
+    trackMetric('Signup Verified');
   },
 
   handleAcceptedTerms: function() {
@@ -1176,6 +1251,7 @@ var AppComponent = React.createClass({
       patientData: null,
       showingAcceptTerms: false,
       showingWelcomeTitle: false,
+      finalizingVerification: false,
       showingWelcomeSetup: false,
       dismissedBrowserWarning: false
     });

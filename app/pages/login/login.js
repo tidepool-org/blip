@@ -26,14 +26,16 @@ var SimpleForm = require('../../components/simpleform');
 var Login = React.createClass({
   propTypes: {
     onSubmit: React.PropTypes.func.isRequired,
-    inviteEmail: React.PropTypes.string,
+    seedEmail: React.PropTypes.string,
+    isInvite: React.PropTypes.bool,
     onSubmitSuccess: React.PropTypes.func.isRequired,
+    onSubmitNotAuthorized: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired
   },
 
   formInputs: function() {
     return [
-      {name: 'username', label: 'Email', type: 'email', disabled: !!this.props.inviteEmail},
+      {name: 'username', label: 'Email', type: 'email', disabled: !!this.props.seedEmail},
       {name: 'password', label: 'Password', type: 'password'},
       {name: 'remember', label: 'Remember me', type: 'checkbox'}
     ];
@@ -41,9 +43,10 @@ var Login = React.createClass({
 
   getInitialState: function() {
     var formValues = {};
+    var email = this.props.seedEmail;
 
-    if (this.props.inviteEmail) {
-      formValues.username = this.props.inviteEmail;
+    if (email) {
+      formValues.username = email;
     }
 
     return {
@@ -64,7 +67,7 @@ var Login = React.createClass({
       <div className="login">
         <LoginNav
           page="login"
-          hideLinks={Boolean(this.props.inviteEmail)}
+          hideLinks={Boolean(this.props.seedEmail)}
           trackMetric={this.props.trackMetric} />
         <LoginLogo />
         {inviteIntro}
@@ -80,7 +83,7 @@ var Login = React.createClass({
   },
 
   renderInviteIntroduction: function() {
-    if (!this.props.inviteEmail) {
+    if (!this.props.isInvite) {
       return null;
     }
 
@@ -188,10 +191,14 @@ var Login = React.createClass({
 
     submit(formValues, function(err) {
       if (err) {
-        var message = 'An error occured while logging in.';
-        if (err.status === 401) {
-          message = 'Wrong username or password.';
+        //If the user is not yet validated lets get out quick
+        if(err.status === 403){
+          self.props.onSubmitNotAuthorized();
+          return;
         }
+
+        //Error message for display
+        var message = (err.status === 401) ? 'Wrong username or password.' : 'An error occured while logging in.';
 
         self.setState({
           working: false,
