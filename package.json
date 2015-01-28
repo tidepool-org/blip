@@ -39,7 +39,7 @@
     "style-loader": "0.6.4",
     "sundial": "1.0.1",
     "tideline": "0.1.13",
-    "tidepool-platform-client": "0.11.0",
+    "tidepool-platform-client": "git://github.com/tidepool-org/platform-client.git#jhbate/fixes",
     "url-loader": "0.5.5",
     "webpack": "1.4.9"
   },
