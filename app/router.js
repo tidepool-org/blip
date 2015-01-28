@@ -32,6 +32,16 @@ var configuration = {
     routeBase = routeBase.replace(/(\?.*)/, '');
     var isNoAuthRoute = _.contains(router.noAuthRoutes, routeBase);
 
+    // Check to see if the route is an external request
+    var isExternalAppRoute = _.contains(router.externalAppRoutes, routeBase);
+
+    if (isExternalAppRoute) {
+      router.log('External app request');
+      redirectRoute = routeBase;
+      router.setRoute(redirectRoute);
+      return true;
+    }
+
     if (!isAuthenticated && !isNoAuthRoute) {
       router.log('Not logged in, redirecting');
       redirectRoute = router.defaultNotAuthenticatedRoute;
@@ -65,7 +75,10 @@ router.setup = function(routes, options) {
                          function() { return true; };
 
   this.noAuthRoutes = options.noAuthRoutes || [];
-  this.noAuthRoutes = this._parseNoAuthRoutes(this.noAuthRoutes);
+  this.noAuthRoutes = this._parseRouteLists(this.noAuthRoutes);
+
+  this.externalAppRoutes = options.externalAppRoutes || [];
+  this.externalAppRoutes = this._parseRouteLists(this.externalAppRoutes);
 
   this.defaultNotAuthenticatedRoute =
     options.defaultNotAuthenticatedRoute || '/';
@@ -94,7 +107,7 @@ router.getQueryParams = function() {
   return {};
 };
 
-router._parseNoAuthRoutes = function(routes) {
+router._parseRouteLists = function(routes) {
   return _.map(routes, this._getRouteFirstFragment);
 };
 
