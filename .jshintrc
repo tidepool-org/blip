@@ -17,5 +17,6 @@
   "noarg": true,
   "undef": true,
   "unused": false,
-  "trailing": true
+  "trailing": true,
+  "newcap": false
 }

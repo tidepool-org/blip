@@ -286,6 +286,17 @@ var patch = function(mock, api) {
     }, getDelayFor('api.user.put'));
   };
 
+  api.user.resendEmailVerification = function(email, callback) {
+    api.log('[mock] POST /confirm/resend/signup/' + email);
+    setTimeout(function() {
+      var err;
+      if (getParam('api.user.resendEmailVerification.error')) {
+        err = {status: 500};
+      }
+      callback(err);
+    }, getDelayFor('api.user.resendEmailVerification'));
+  };
+
   api.user.requestPasswordReset = function(email, callback) {
     api.log('[mock] POST /user/requestpasswordreset/' + email);
 

@@ -55,7 +55,6 @@ api.init = function(cb) {
 };
 
 // ----- User -----
-
 api.user = {};
 
 api.user.isAuthenticated = function() {
@@ -93,6 +92,13 @@ api.user.signup = function(user, cb) {
     }
 
     var userId = account.userid;
+
+    tidepool.signupStart(userId, function(err, results){
+      if(err){
+        api.log('signup process error',err);
+      }
+      api.log('signup process started ',results);
+    });
 
     // Then, add additional user info (full name, etc.) to profile
     tidepool.addOrUpdateProfile(userId, newProfile, function(err, results) {
@@ -214,6 +220,11 @@ function userFromAccountAndProfile(results) {
   return user;
 }
 
+api.user.resendEmailVerification = function(email, callback) {
+  api.log('POST /confirm/resend/signup/' + email);
+  return tidepool.signupResend(email, callback);
+};
+
 api.user.requestPasswordReset = function(email, callback) {
   api.log('POST /confirm/send/forgot/' + email);
   return tidepool.requestPasswordReset(email, callback);
@@ -222,6 +233,11 @@ api.user.requestPasswordReset = function(email, callback) {
 api.user.confirmPasswordReset = function(payload, callback) {
   api.log('PUT /confirm/accept/forgot');
   return tidepool.confirmPasswordReset(payload, callback);
+};
+
+api.user.confirmSignUp = function(key, callback) {
+  api.log('PUT /confirm/accept/signup/'+key);
+  return tidepool.signupConfirm(key, callback);
 };
 
 // ----- Patient -----
