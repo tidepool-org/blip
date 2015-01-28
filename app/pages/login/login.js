@@ -191,14 +191,14 @@ var Login = React.createClass({
 
     submit(formValues, function(err) {
       if (err) {
-        var message = 'An error occured while logging in.';
+        //If the user is not yet validated lets get out quick
         if(err.status === 403){
           self.props.onSubmitNotAuthorized();
           return;
         }
-        if (err.status === 401) {
-          message = 'Wrong username or password.';
-        }
+
+        //Error message for display
+        var message = (err.status === 401) ? 'Wrong username or password.' : 'An error occured while logging in.';
 
         self.setState({
           working: false,
