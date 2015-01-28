@@ -43,11 +43,11 @@ var TidelineFooter = React.createClass({
 
     /* jshint ignore:start */
     var showValues = (
-      <label htmlFor="valuesCheckbox" ref="label">
+      <label htmlFor="valuesCheckbox">
         <input type="checkbox" name="valuesCheckbox" id="valuesCheckbox"
           checked={this.props.showingValues}
           onChange={this.props.onClickValues}
-          ref="control" /> Values
+          onKeyDown={this.handleValuesKeyDown} /> Values
       </label>
       );
     /* jshint ignore:end */
@@ -55,25 +55,25 @@ var TidelineFooter = React.createClass({
     /* jshint ignore:start */
     var modalOpts = (
       <div>
-        <label htmlFor="linesCheckbox" ref="label">
+        <label htmlFor="linesCheckbox">
           <input type="checkbox" name="linesCheckbox" id="linesCheckbox"
             checked={this.props.showingLines}
             onChange={this.props.onClickLines}
-            ref="control" /> Lines
+            onKeyDown={this.handleLinesKeyDown} /> Lines
         </label>
 
-        <label htmlFor="groupCheckbox" ref="label">
+        <label htmlFor="groupCheckbox">
           <input type="checkbox" name="groupCheckbox" id="groupCheckbox"
             checked={this.props.grouped}
             onChange={this.props.onClickGroup}
-            ref="control" /> Group
+            onKeyDown={this.handleGroupKeyDown} /> Group
         </label>
 
-        <label htmlFor="overlayCheckbox" ref="label">
+        <label htmlFor="overlayCheckbox">
           <input type="checkbox" name="overlayCheckbox" id="overlayCheckbox"
             checked={this.props.boxOverlay}
             onChange={this.props.onClickBoxOverlay}
-            ref="control" /> Range &amp; Average
+            onKeyDown={this.handleOverlayKeyDown} /> Range &amp; Average
         </label>
       </div>
       );
@@ -100,6 +100,20 @@ var TidelineFooter = React.createClass({
       </div>
       );
     /* jshint ignore:end */
+  },
+
+  // The following handlers let the user select a checkbox by hitting enter
+  handleValuesKeyDown: function() {
+    return event.keyCode !== 13 || this.props.onClickValues();
+  },
+  handleLinesKeyDown: function() {
+    return event.keyCode !== 13 || this.props.onClickLines();
+  },
+  handleGroupKeyDown: function() {
+    return event.keyCode !== 13 || this.props.onClickGroup();
+  },
+  handleOverlayKeyDown: function() {
+    return event.keyCode !== 13 || this.props.onClickBoxOverlay();
   }
 });
 
