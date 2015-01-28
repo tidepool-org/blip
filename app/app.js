@@ -381,7 +381,7 @@ var AppComponent = React.createClass({
   showLogin: function() {
     this.renderPage = this.renderLogin;
     //always check
-    this.finialiseSignup();
+    this.finializeSignup();
     this.setState({page: 'login'});
   },
 
@@ -419,14 +419,14 @@ var AppComponent = React.createClass({
     return null;
   },
 
-  finialiseSignup: function() {
+  finializeSignup: function() {
     var self = this;
 
     var hashQueryParams = app.router.getQueryParams();
     if(!_.isEmpty(hashQueryParams.signupKey) && !this.state.finalizingVerification){
       app.api.user.confirmSignUp(hashQueryParams.signupKey, function(err){
         if(err){
-          console.log('finialiseSignup err ',err);
+          app.log('finializeSignup err ',err);
         }
         self.setState({finalizingVerification:true});
       });
