@@ -174,6 +174,7 @@ var AppComponent = React.createClass({
       showingAcceptTerms: false,
       showingWelcomeTitle: false,
       showingWelcomeSetup: false,
+      showPatientData: false,
       dismissedBrowserWarning: false,
       verificationEmailSent: false,
       finalizingVerification: false,
@@ -1242,8 +1243,12 @@ var AppComponent = React.createClass({
       showingAcceptTerms: false,
       showingWelcomeTitle: false,
       finalizingVerification: false,
+      fetchingUser: true,
+      fetchingPatients: true,
+      fetchingInvites: true,
       showingWelcomeSetup: false,
-      dismissedBrowserWarning: false
+      dismissedBrowserWarning: false,
+      showPatientData: false
     });
   },
 
