@@ -171,6 +171,7 @@ var AppComponent = React.createClass({
       showingAcceptTerms: false,
       showingWelcomeTitle: false,
       showingWelcomeSetup: false,
+      showPatientData: false,
       dismissedBrowserWarning: false,
       queryParams: queryParams
     };
@@ -1166,8 +1167,12 @@ var AppComponent = React.createClass({
       patientData: null,
       showingAcceptTerms: false,
       showingWelcomeTitle: false,
+      fetchingUser: true,
+      fetchingPatients: true,
+      fetchingInvites: true,
       showingWelcomeSetup: false,
-      dismissedBrowserWarning: false
+      dismissedBrowserWarning: false,
+      showPatientData: false
     });
   },
 
