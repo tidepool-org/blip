@@ -38,7 +38,6 @@ var DaysGroup = React.createClass({
       <div>
         <input type="checkbox" className={groupClass}
         onChange={this.handleDaysGroupClick}
-        onKeyDown={this.handleDaysGroupKeyDown}
         checked={this.props.active} />
         {this.props.days}
       </div>
@@ -47,9 +46,6 @@ var DaysGroup = React.createClass({
   },
   handleDaysGroupClick: function() {
     this.props.onClickGroup(this.props.category);
-  },
-  handleDaysGroupKeyDown: function() {
-    return event.keyCode !== 13 || this.handleDaysGroupClick();
   }
 });
 

@@ -46,8 +46,7 @@ var TidelineFooter = React.createClass({
       <label htmlFor="valuesCheckbox">
         <input type="checkbox" name="valuesCheckbox" id="valuesCheckbox"
           checked={this.props.showingValues}
-          onChange={this.props.onClickValues}
-          onKeyDown={this.handleValuesKeyDown} /> Values
+          onChange={this.props.onClickValues} /> Values
       </label>
       );
     /* jshint ignore:end */
@@ -58,22 +57,19 @@ var TidelineFooter = React.createClass({
         <label htmlFor="linesCheckbox">
           <input type="checkbox" name="linesCheckbox" id="linesCheckbox"
             checked={this.props.showingLines}
-            onChange={this.props.onClickLines}
-            onKeyDown={this.handleLinesKeyDown} /> Lines
+            onChange={this.props.onClickLines} /> Lines
         </label>
 
         <label htmlFor="groupCheckbox">
           <input type="checkbox" name="groupCheckbox" id="groupCheckbox"
             checked={this.props.grouped}
-            onChange={this.props.onClickGroup}
-            onKeyDown={this.handleGroupKeyDown} /> Group
+            onChange={this.props.onClickGroup} /> Group
         </label>
 
         <label htmlFor="overlayCheckbox">
           <input type="checkbox" name="overlayCheckbox" id="overlayCheckbox"
             checked={this.props.boxOverlay}
-            onChange={this.props.onClickBoxOverlay}
-            onKeyDown={this.handleOverlayKeyDown} /> Range &amp; Average
+            onChange={this.props.onClickBoxOverlay} /> Range &amp; Average
         </label>
       </div>
       );
@@ -100,20 +96,6 @@ var TidelineFooter = React.createClass({
       </div>
       );
     /* jshint ignore:end */
-  },
-
-  // The following handlers let the user select a checkbox by hitting enter
-  handleValuesKeyDown: function() {
-    return event.keyCode !== 13 || this.props.onClickValues();
-  },
-  handleLinesKeyDown: function() {
-    return event.keyCode !== 13 || this.props.onClickLines();
-  },
-  handleGroupKeyDown: function() {
-    return event.keyCode !== 13 || this.props.onClickGroup();
-  },
-  handleOverlayKeyDown: function() {
-    return event.keyCode !== 13 || this.props.onClickBoxOverlay();
   }
 });
 
