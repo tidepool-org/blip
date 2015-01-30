@@ -29,6 +29,7 @@ Table of contents:
     - [Perceived speed](#perceived-speed)
 - [Testing](#testing)
 - [Build and deployment](#build-and-deployment)
+- [Running locally](#running-local)
 
 ## Install
 
@@ -306,3 +307,9 @@ $ source config/mock.sh
 $ npm run build
 $ npm run server
 ```
+
+### Running local
+
+If you are running Blip and all services locally as per [Run Servers](https://github.com/tidepool-org/tools#runservers) then there is a workaround so you don't have to verify your new user.
+
+If you create a new user then add the localhost secret +skip to the email address. e.g. ```me+skip@something.org```. This will then allow you to login straight away.
