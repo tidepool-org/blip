@@ -225,17 +225,21 @@ All app objects (mostly app services) that make any external call should have th
 
 Mock data is generated from `.json` files, which are combined into a JavaScript object that mirrors the directory structure of the data files (for example `patients/11.json` will be available at `data.patients['11']`). See the [blip-mock-data](https://github.com/tidepool-org/blip-mock-data) repository for more details.
 
-You can configure the behavior of mock services using **mock parameters**. These are passed through the URL query string (before the hash), for example:
+You can configure the behavior of mock services using **mock parameters**. These are passed through the URL query string.
+
+Note that because of the way URLs work, the query parameters MUST be before the '#'.
+
+For example:
 
 ```
-http://localhost:3000/?auth.skip&api.patient.getall.delay=2000#/patients
+http://localhost:3000/?auth.skip=11&api.patient.getall.delay=2000#/patients
 ```
 
 With the URL above, mock services will receive the parameters:
 
 ```javascript
 {
-  'auth.skip': true,
+  'auth.skip': 11,
   'api.patient.getall.delay': 2000
 }
 ```
@@ -246,7 +250,7 @@ To find out which mock parameters are available, please see the corresponding se
 
 The naming convention for these parameters is **all lower-case**, and **name-spaced with periods**. For example, to have the call to `api.patient.getAll()` return an empty list, I would use the name `api.patient.getall.empty`.
 
-If you would like to build the app with mock parameters "baked-in", you can also use the `MOCK_PARAMS` environement variable, which works like a query string (ex: `$ export MOCK_PARAMS='auth.skip&api.delay=1000'`). If the same parameter is set in the URL and the environment variable, the URL's value will be used.
+If you would like to build the app with mock parameters "baked-in", you can also use the `MOCK_PARAMS` environement variable, which works like a query string (ex: `$ export MOCK_PARAMS='auth.skip=11&api.delay=1000'`). If the same parameter is set in the URL and the environment variable, the URL's value will be used.
 
 ### Perceived speed
 
