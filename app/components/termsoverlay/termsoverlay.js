@@ -76,7 +76,7 @@ var TermsOverlay = React.createClass({
             className="js-terms-checkbox"
             checked={this.state.agreed}
             onChange={this.handleChange} />
-          <span> I Agree to these Terms</span>
+          <span> I agree to these terms</span>
         </label>
       </div>
     );
