@@ -43,21 +43,23 @@ var TidelineFooter = React.createClass({
 
     /* jshint ignore:start */
     var showValues = (
-      <label htmlFor="valuesCheckbox">
-        <input type="checkbox" name="valuesCheckbox" id="valuesCheckbox"
-          checked={this.props.showingValues}
-          onChange={this.props.onClickValues} /> Values
-      </label>
+      <div className="footer-right-options">
+        <label htmlFor="valuesCheckbox">
+          <input type="checkbox" name="valuesCheckbox" id="valuesCheckbox"
+            checked={this.props.showingValues}
+            onChange={this.props.onClickValues} /> Values
+        </label>
+      </div>
       );
     /* jshint ignore:end */
 
     /* jshint ignore:start */
     var modalOpts = (
-      <div>
-        <label htmlFor="linesCheckbox">
-          <input type="checkbox" name="linesCheckbox" id="linesCheckbox"
-            checked={this.props.showingLines}
-            onChange={this.props.onClickLines} /> Lines
+      <div className="footer-right-options">
+        <label htmlFor="overlayCheckbox">
+          <input type="checkbox" name="overlayCheckbox" id="overlayCheckbox"
+            checked={this.props.boxOverlay}
+            onChange={this.props.onClickBoxOverlay} /> Range &amp; Average
         </label>
 
         <label htmlFor="groupCheckbox">
@@ -66,10 +68,10 @@ var TidelineFooter = React.createClass({
             onChange={this.props.onClickGroup} /> Group
         </label>
 
-        <label htmlFor="overlayCheckbox">
-          <input type="checkbox" name="overlayCheckbox" id="overlayCheckbox"
-            checked={this.props.boxOverlay}
-            onChange={this.props.onClickBoxOverlay} /> Range &amp; Average
+        <label htmlFor="linesCheckbox">
+          <input type="checkbox" name="linesCheckbox" id="linesCheckbox"
+            checked={this.props.showingLines}
+            onChange={this.props.onClickLines} /> Lines
         </label>
       </div>
       );
@@ -84,14 +86,12 @@ var TidelineFooter = React.createClass({
     return (
       <div className="container-box-outer patient-data-footer-outer">
         <div className="container-box-inner patient-data-footer-inner">
-          <div className="grid patient-data-footer">
-            <div className="grid-item one-whole medium-one-half patient-data-footer-left">
-              <button className="btn btn-chart"
-                onClick={this.props.onClickRefresh}>
-                Refresh</button>
-            </div>
-            <div className="grid-item one-whole medium-one-half patient-data-footer-right">{rightSide}</div>
+          <div className="patient-data-footer-left">
+            <button className="btn btn-chart"
+              onClick={this.props.onClickRefresh}>
+              Refresh</button>
           </div>
+          <div className="patient-data-footer-right">{rightSide}</div>
         </div>
       </div>
       );
