@@ -77,6 +77,7 @@ var app = {
   router: router
 };
 
+// List of routes and associated handlers which display/render the routes
 var routes = {
   '/': 'redirectToDefaultRoute',
   '/login': 'showLogin',
@@ -89,15 +90,23 @@ var routes = {
   '/patients/:id/share': 'showPatientShare',
   '/patients/:id/data': 'showPatientData',
   '/request-password-reset': 'showRequestPasswordReset',
-  '/confirm-password-reset': 'showConfirmPasswordReset'
+  '/confirm-password-reset': 'showConfirmPasswordReset',
+  '/request-password-from-uploader': 'handleExternalPasswordUpdate'
 };
 
+// List of routes that are accessible to logged-out users
 var noAuthRoutes = [
   '/login',
   '/signup',
   '/email-verification',
   '/request-password-reset',
   '/confirm-password-reset'
+];
+
+// List of routes that are requested from other apps
+// (like the Chrome Uploader, for example)
+var externalAppRoutes = [
+  '/request-password-from-uploader'
 ];
 
 var defaultNotAuthenticatedRoute = '/login';
@@ -208,6 +217,7 @@ var AppComponent = React.createClass({
     app.router.setup(routingTable, {
       isAuthenticated: isAuthenticated,
       noAuthRoutes: noAuthRoutes,
+      externalAppRoutes: externalAppRoutes,
       defaultNotAuthenticatedRoute: defaultNotAuthenticatedRoute,
       defaultAuthenticatedRoute: defaultAuthenticatedRoute,
       onRouteChange: onRouteChange
@@ -1426,6 +1436,18 @@ var AppComponent = React.createClass({
   getPasswordResetKey: function() {
     var hashQueryParams = app.router.getQueryParams();
     return hashQueryParams.resetKey;
+  },
+
+  handleExternalPasswordUpdate: function() {
+    // If the user is logged in, go to their profile to update password
+    if (this.state.authenticated) {
+      this.renderPage = this.renderProfile;
+      this.setState({page: 'profile'});
+    } else {
+      // If the user is not logged in, go to the forgot password page
+      this.renderPage = this.renderRequestPasswordReset;
+      this.setState({page: 'request-password-reset'});
+    }
   },
 
   hideNavbarDropdown: function() {
