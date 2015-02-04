@@ -240,9 +240,6 @@ var Weekly = React.createClass({
     this.props.onSwitchToDaily(datetime);
   },
   toggleValues: function(e) {
-    if (e) {
-      e.preventDefault();
-    }
     if (this.state.showingValues) {
       this.refs.chart.hideValues();
     }

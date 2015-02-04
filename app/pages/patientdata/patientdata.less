@@ -185,6 +185,7 @@
 .patient-data-footer-inner {
   padding-left: 0;
   padding-right: 0;
+  display: flex;
 
   min-height: (2*@spacing-small + @line-height-base);
 }
@@ -216,6 +217,17 @@
 
 .patient-data-footer-right {
   text-align: right;
+  flex-grow: 2;
+}
+
+.footer-right-options {
+  display: flex;
+  justify-content: flex-end;
+
+  label {
+    padding: 15px 12px 0 10px;
+    cursor: pointer;
+  }
 }
 
 @media print {

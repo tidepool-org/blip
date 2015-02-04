@@ -1,16 +1,16 @@
 /** @jsx React.DOM */
-/* 
+/*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- * 
+ *
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
@@ -35,7 +35,12 @@ var DaysGroup = React.createClass({
     }) + ' ' + this.props.category;
     /* jshint ignore:start */
     return (
-      <div className={groupClass} onClick={this.handleDaysGroupClick}>{this.props.days}</div>
+      <div>
+        <input type="checkbox" className={groupClass}
+        onChange={this.handleDaysGroupClick}
+        checked={this.props.active} />
+        {this.props.days}
+      </div>
       );
     /* jshint ignore:end */
   },
@@ -109,20 +114,21 @@ var ModalSubNav = React.createClass({
     /* jshint ignore:start */
     return (
       <div>
+        <div className="domainContainer">{domainLinks}</div>
         <div className="visibleDays">{visibleDaysText}</div>
-        <div>{domainLinks}</div>
       </div>
       );
     /* jshint ignore:end */
   },
   renderDomainLink: function(domain) {
     var domainLinkClass = cx({
-      'active': domain === this.props.activeDomain,
-      'modalDomain': true
+      'btn btn-chart-control' : true,
+      'active': domain === this.props.activeDomain
     });
     /* jshint ignore:start */
     return (
-      <a href="" className={domainLinkClass} key={domain} onClick={this.props.domainClickHandlers[domain]}>{domain}</a>
+      <button className={domainLinkClass} key={domain}
+        onClick={this.props.domainClickHandlers[domain]}>{domain}</button>
       );
     /* jshint ignore:end */
   },
@@ -134,7 +140,7 @@ var ModalSubNav = React.createClass({
     }
     /* jshint ignore:start */
     return (
-      <div className="dayGroupsContainer">
+      <div className="daysGroupContainer">
         <DaysGroup
           active={this.state.weekdaysActive}
           category={'weekday'}

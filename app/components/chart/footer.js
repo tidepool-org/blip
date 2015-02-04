@@ -41,82 +41,38 @@ var TidelineFooter = React.createClass({
       'patient-data-subnav-hidden': this.props.chartType === 'no-data'
     });
 
-    function getValuesLinkText(props) {
-      if (props.chartType === 'weekly') {
-        if (props.showingValues) {
-          return 'Hide numbers';
-        }
-        else {
-          return 'Show numbers';
-        }
-      }
-      else {
-        return '';
-      }
-    }
-
-    function getLinesLinkText(props) {
-      if (props.chartType === 'modal') {
-        if (props.showingLines) {
-          return 'Hide lines';
-        }
-        else {
-          return 'Show lines';
-        }
-      }
-      else {
-        return '';
-      }
-    }
-
-    function getGroupLinkText(props) {
-      if (props.chartType === 'modal') {
-        if (props.grouped) {
-          return 'Ungroup';
-        }
-        else {
-          return 'Group';
-        }
-      }
-      else {
-        return '';
-      }
-    }
-
-    function getOverlayLinkText(props) {
-      if (props.chartType === 'modal') {
-        if (props.boxOverlay) {
-          return 'Hide range & average';
-        }
-        else {
-          return 'Show range & average';
-        }
-      }
-      else {
-        return '';
-      }
-    }
-
-    var valuesLinkText = getValuesLinkText(this.props);
-
-    var linesLinkText = getLinesLinkText(this.props);
-
-    var groupLinkText = getGroupLinkText(this.props);
-
-    var overlayLinkText = getOverlayLinkText(this.props);
-
     /* jshint ignore:start */
     var showValues = (
-      <a href="" onClick={this.props.onClickValues}>{valuesLinkText}</a>
+      <div className="footer-right-options">
+        <label htmlFor="valuesCheckbox">
+          <input type="checkbox" name="valuesCheckbox" id="valuesCheckbox"
+            checked={this.props.showingValues}
+            onChange={this.props.onClickValues} /> Values
+        </label>
+      </div>
       );
     /* jshint ignore:end */
 
     /* jshint ignore:start */
     var modalOpts = (
-      <div>
-        <a href="" onClick={this.props.onClickLines}>{linesLinkText}</a>
-        <a href="" onClick={this.props.onClickGroup}>{groupLinkText}</a>
-        <a href="" onClick={this.props.onClickBoxOverlay}>{overlayLinkText}</a>
+      <div className="footer-right-options">
+        <label htmlFor="overlayCheckbox">
+          <input type="checkbox" name="overlayCheckbox" id="overlayCheckbox"
+            checked={this.props.boxOverlay}
+            onChange={this.props.onClickBoxOverlay} /> Range &amp; Average
+        </label>
+
+        <label htmlFor="groupCheckbox">
+          <input type="checkbox" name="groupCheckbox" id="groupCheckbox"
+            checked={this.props.grouped}
+            onChange={this.props.onClickGroup} /> Group
+        </label>
+
+        <label htmlFor="linesCheckbox">
+          <input type="checkbox" name="linesCheckbox" id="linesCheckbox"
+            checked={this.props.showingLines}
+            onChange={this.props.onClickLines} /> Lines
+        </label>
       </div>
       );
     /* jshint ignore:end */
@@ -130,14 +86,12 @@ var TidelineFooter = React.createClass({
     return (
       <div className="container-box-outer patient-data-footer-outer">
         <div className="container-box-inner patient-data-footer-inner">
-          <div className="grid patient-data-footer">
-            <div className="grid-item one-whole medium-one-half patient-data-footer-left">
-              <button className="btn btn-chart"
-                onClick={this.props.onClickRefresh}>
-                Refresh</button>
-            </div>
-            <div className="grid-item one-whole medium-one-half patient-data-footer-right">{rightSide}</div>
+          <div className="patient-data-footer-left">
+            <button className="btn btn-chart"
+              onClick={this.props.onClickRefresh}>
+              Refresh</button>
           </div>
+          <div className="patient-data-footer-right">{rightSide}</div>
         </div>
       </div>
       );
