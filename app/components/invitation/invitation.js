@@ -24,12 +24,15 @@ var Invitation = React.createClass({
     invitation: React.PropTypes.object,
     patientsComponent: React.PropTypes.component,
     onAcceptInvitation: React.PropTypes.func,
-    onDismissInvitation: React.PropTypes.func
+    onDismissInvitation: React.PropTypes.func,
+    trackMetric: React.PropTypes.func.isRequired,
   },
   handleAccept: function() {
+    this.props.trackMetric('Clicked Join the Team');
     this.props.onAcceptInvitation(this.props.invitation);
   },
   handleDismiss: function() {
+    this.props.trackMetric('Clicked Ignore');
     this.props.onDismissInvitation(this.props.invitation);
   },
   render: function() {
@@ -44,6 +47,8 @@ var Invitation = React.createClass({
       );
       /* jshint ignore:end */
     }
+
+    this.props.trackMetric('Invite Displayed');
 
     /* jshint ignore:start */
     return (
