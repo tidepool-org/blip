@@ -87,10 +87,6 @@ var PatientCard = React.createClass({
 
     var self = this;
     var handleClick = function(e) {
-      if (e) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
       self.props.trackMetric('Clicked VDF View Data');
       self.props.onClick(e);
     };
@@ -184,10 +180,6 @@ var PatientCard = React.createClass({
 
     var self = this;
     var handleClick = function(e) {
-      if (e) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
       self.props.trackMetric('Clicked VDF Share Data');
     };
 
