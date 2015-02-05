@@ -728,38 +728,41 @@ module.exports = function (config, deps) {
      * Start an device upload session by generating an uploadMeta record
      *
      * @param {Object} sessionInfo to initialise the upload session
-     * @param {String} deviceId that this session is associated with
-     * @param {String} uploaderVersion that this session will use to process the data
-     * @param {String} start when the upload started
-     * @param {String} tzName name of the timezone
      * @param cb
      * @returns {cb}  cb(err, uploadMeta)
      */
     startUploadSession: function (sessionInfo,  cb) {
       common.assertArgumentsSize(arguments, 2);
 
-      if (_.isEmpty(sessionInfo.deviceId) || _.isEmpty(sessionInfo.start) || _.isEmpty(sessionInfo.tzName) || _.isEmpty(sessionInfo.version)) {
-        return cb({ status : common.STATUS_BAD_REQUEST, message: 'All session info must be given' });
+      var fields = ['version', 'deviceTags', 'deviceManufacturers',
+                    'deviceModel', 'deviceSerialNumber', 'deviceId'];
+
+      _.each(fields, function(field) {
+        if (!_.has(sessionInfo, field)) {
+          return cb({ status : common.STATUS_BAD_REQUEST, message: 'sessionInfo is missing "' + field +'"' });
+        }
+      });
+
+      if (_.isEmpty(sessionInfo.start) || _.isEmpty(sessionInfo.tzName)) {
+        return cb({ status : common.STATUS_BAD_REQUEST, message: 'sessionInfo must contain both tzName and start' });
       }
 
-      try{
+      try {
 
-        var generatedId = id.generateId([sessionInfo.deviceId, sessionInfo.start]);
-
-        var uploadMeta = {
-          type: 'upload',
-          time: sessionInfo.start,
-          timezone: sessionInfo.tzName,
-          version: sessionInfo.version,
-          deviceId: sessionInfo.deviceId,
-          uploadId: generatedId,
-          byUser: myUserId,
-          source : 'tidepool'
-        };
+        var uploadMeta = _.pick(sessionInfo, fields);
+        uploadMeta.type = 'upload';
+        uploadMeta.time = sessionInfo.start;
+        uploadMeta.timezone = sessionInfo.tzName;
+        uploadMeta.uploadId = id.generateId([sessionInfo.deviceId, sessionInfo.start]);
+        uploadMeta.byUser = myUserId;
+        // this is to permit us to continue to identify carelink data
+        if (sessionInfo.source) {
+          uploadMeta.source = sessionInfo.source;
+        }
 
         return cb(null,uploadMeta);
 
-      } catch(error) {
+      } catch (error) {
         return cb(error);
       }
     },
