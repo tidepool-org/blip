@@ -66,9 +66,14 @@ var NavbarPatientCard = React.createClass({
       'patientcard-actions--highlight': this.props.currentPage && this.props.currentPage.match(/(data)$/i)
     });
 
+    var self = this;
+    var handleClick = function(e) {
+      self.props.trackMetric('Clicked Navbar View Data');
+    };
+
     return (
       /* jshint ignore:start */
-      <a className={classes} href={this.props.href}>View</a>
+      <a className={classes} onClick={handleClick} href={this.props.href}>View</a>
       /* jshint ignore:end */
     );
   },
@@ -82,9 +87,14 @@ var NavbarPatientCard = React.createClass({
       'patientcard-actions--highlight': this.props.currentPage && this.props.currentPage.match(/(profile)$/i)
     });
 
+    var self = this;
+    var handleClick = function(e) {
+      self.props.trackMetric('Clicked Navbar Name');
+    };
+
     return (
       /* jshint ignore:start */
-      <a className={classes} href={url} title="Profile">
+      <a className={classes} href={url} onClick={handleClick} title="Profile">
         <div className="patientcard-fullname" title={this.getFullName()}>
           {this.getFullName()}
           <i className="patientcard-icon icon-settings"></i>
@@ -127,10 +137,15 @@ var NavbarPatientCard = React.createClass({
       'patientcard-actions--highlight': this.props.currentPage && this.props.currentPage.match(/(share)$/i)
     });
 
+    var self = this;
+    var handleClick = function(e) {
+      self.props.trackMetric('Clicked Navbar Share Data');
+    };
+
     if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
       return (
         /* jshint ignore:start */
-        <a className={classes} href={shareUrl} title="Share data">Share</a>
+        <a className={classes} onClick={handleClick} href={shareUrl} title="Share data">Share</a>
         /* jshint ignore:end */
       );
     }

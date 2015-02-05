@@ -82,7 +82,8 @@ var PermissionInputGroup = React.createClass({
 var MemberInviteForm = React.createClass({
   propTypes: {
     onSubmit: React.PropTypes.func,
-    onCancel: React.PropTypes.func
+    onCancel: React.PropTypes.func,
+    trackMetric: React.PropTypes.func.isRequired
   },
   getInitialState: function() {
     return {
@@ -157,6 +158,7 @@ var MemberInviteForm = React.createClass({
     };
 
     if (allowUpload) {
+      this.props.trackMetric('Clicked Allow Uploading');
       permissions.upload = {};
     }
 
@@ -180,6 +182,7 @@ var MemberInviteForm = React.createClass({
           error: 'Sorry! Something went wrong...'
         });
       }
+      self.props.trackMetric('Clicked Invite');
       self.setState({working: false});
     });
   }
@@ -255,6 +258,7 @@ var PatientTeam = React.createClass({
     onRemoveMember: React.PropTypes.func,
     onInviteMember: React.PropTypes.func,
     onCancelInvite: React.PropTypes.func,
+    trackMetric: React.PropTypes.func.isRequired
   },
 
   getInitialState: function() {
@@ -463,7 +467,8 @@ var PatientTeam = React.createClass({
       /* jshint ignore:start */
       <MemberInviteForm
         onSubmit={handleSubmit}
-        onCancel={handleCancel} />
+        onCancel={handleCancel}
+        trackMetric={this.props.trackMetric}/>
       /* jshint ignore:end */
     );
 
@@ -482,6 +487,7 @@ var PatientTeam = React.createClass({
 
     var handleClick = function(e) {
       e.preventDefault();
+      self.props.trackMetric('Clicked Invite New Member');
       self.setState({
         invite: true
       });

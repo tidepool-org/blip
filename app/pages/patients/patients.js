@@ -121,6 +121,7 @@ var Patients = React.createClass({
         patientsComponent={this}
         onAcceptInvitation={this.props.onAcceptInvitation}
         onDismissInvitation={this.props.onDismissInvitation}
+        trackMetric={this.props.trackMetric}
       ></Invitation>);
     /* jshint ignore:end */
   },
