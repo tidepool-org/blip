@@ -85,9 +85,19 @@ var PatientCard = React.createClass({
       'patientcard-actions--highlight': (!this.props.isNavbar && this.state.highlight === 'view') || this.props.currentPage && this.props.currentPage.match(/(data)$/i)
     });
 
+    var self = this;
+    var handleClick = function(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      self.props.trackMetric('Clicked VDF View Data');
+      self.props.onClick(e);
+    };
+
     return (
       /* jshint ignore:start */
-      <a className={classes} href={this.props.href} onClick={this.props.onClick}>View</a>
+      <a className={classes} href={this.props.href} onClick={handleClick}>View</a>
       /* jshint ignore:end */
     );
   },
@@ -172,10 +182,19 @@ var PatientCard = React.createClass({
       'patientcard-actions--highlight': (!this.props.isNavbar && this.state.highlight === 'share')  || this.props.currentPage && this.props.currentPage.match(/(share)$/i)
     });
 
+    var self = this;
+    var handleClick = function(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      self.props.trackMetric('Clicked VDF Share Data');
+    };
+
     if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
       return (
         /* jshint ignore:start */
-        <a className={classes} onClick={this.stopPropagation} onMouseEnter={this.setHighlight('share')} onMouseLeave={this.setHighlight('view')} href={shareUrl} title="Share data">Share</a>
+        <a className={classes} onClick={handleClick} onMouseEnter={this.setHighlight('share')} onMouseLeave={this.setHighlight('view')} href={shareUrl} title="Share data">Share</a>
         /* jshint ignore:end */
       );
     }
