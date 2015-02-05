@@ -82,7 +82,8 @@ var PermissionInputGroup = React.createClass({
 var MemberInviteForm = React.createClass({
   propTypes: {
     onSubmit: React.PropTypes.func,
-    onCancel: React.PropTypes.func
+    onCancel: React.PropTypes.func,
+    trackMetric: React.PropTypes.func.isRequired
   },
   getInitialState: function() {
     return {
@@ -157,7 +158,7 @@ var MemberInviteForm = React.createClass({
     };
 
     if (allowUpload) {
-      self.props.trackMetric('Clicked Allow Uploading');
+      this.props.trackMetric('Clicked Allow Uploading');
       permissions.upload = {};
     }
 
@@ -466,7 +467,8 @@ var PatientTeam = React.createClass({
       /* jshint ignore:start */
       <MemberInviteForm
         onSubmit={handleSubmit}
-        onCancel={handleCancel} />
+        onCancel={handleCancel}
+        trackMetric={this.props.trackMetric}/>
       /* jshint ignore:end */
     );
 

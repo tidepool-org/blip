@@ -68,9 +68,6 @@ var NavbarPatientCard = React.createClass({
 
     var self = this;
     var handleClick = function(e) {
-      if (e) {
-        e.preventDefault();
-      }
       self.props.trackMetric('Clicked Navbar View Data');
     };
 
@@ -92,9 +89,6 @@ var NavbarPatientCard = React.createClass({
 
     var self = this;
     var handleClick = function(e) {
-      if (e) {
-        e.preventDefault();
-      }
       self.props.trackMetric('Clicked Navbar Name');
     };
 
@@ -145,9 +139,6 @@ var NavbarPatientCard = React.createClass({
 
     var self = this;
     var handleClick = function(e) {
-      if (e) {
-        e.preventDefault();
-      }
       self.props.trackMetric('Clicked Navbar Share Data');
     };
 
