@@ -692,20 +692,24 @@ module.exports = function (config, deps) {
      */
     uploadDeviceDataForUser: function (data, groupId, cb) {
 
-      if (typeof groupId === 'function') {
-        common.assertArgumentsSize(arguments, 2);
-        cb = groupId;
-        groupId = null;
-      } else {
-        common.assertArgumentsSize(arguments, 3);
-      }
-
       if (_.isEmpty(common.getUploadUrl())) {
         return cb({ status : common.STATUS_BAD_REQUEST, message: 'The upload api needs to be configured' });
       }
 
+      var dataUploadUrl;
+
+      if (typeof groupId === 'function') {
+        common.assertArgumentsSize(arguments, 2);
+        cb = groupId;
+        groupId = null;
+        dataUploadUrl = common.makeUploadUrl('/data');
+      } else {
+        common.assertArgumentsSize(arguments, 3);
+        dataUploadUrl = common.makeUploadUrl('/data/'+groupId);
+      }
+
        superagent
-        .post(common.makeUploadUrl('/data' + (groupId ? ('/' + groupId) : '')))
+        .post(dataUploadUrl)
         .send(data)
         .set(common.SESSION_TOKEN_HEADER, myToken)
         .end(
@@ -714,9 +718,9 @@ module.exports = function (config, deps) {
             return cb(err);
           }
 
-          if (res.statusCode !== 200) {
+          if (res.status !== 200) {
             return cb({
-              error: 'Request failed with statusCode ' + res.statusCode,
+              error: 'Request failed with statusCode ' + res.status,
               code: res.statusCode,
               message: res.body
             });
