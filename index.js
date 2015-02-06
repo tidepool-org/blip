@@ -567,6 +567,34 @@ module.exports = function (config, deps) {
       );
     },
     /**
+     * Get the users 'patients' to whom he can upload to.
+     *
+     * @param {String} userId id of the user
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    getUploadGroups: function (userId, cb) {
+      common.assertArgumentsSize(arguments, 2);
+      common.doGetWithToken(
+        '/access/groups/' + userId,
+        { 200: function(res){
+          var groups = res.body;
+
+          var filter = {};
+
+          for(var i in groups) {
+            var group = groups[i];
+
+            if (group.root || group.upload) {
+              filter[i] = group;
+            }
+          }
+          return filter;
+        }, 404: null },
+        cb
+      );
+    },
+    /**
      * Sets the access permissions for a specific user on the group for the currently logged in user
      *
      * @param userId - userId to have access permissions set for
@@ -658,24 +686,44 @@ module.exports = function (config, deps) {
      * Upload device data for the logged in user
      *
      * @param {Object} data to be uploaded
+     * @param (optional) string groupId for which to upload data
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    uploadDeviceDataForUser: function (data, cb) {
-      common.assertArgumentsSize(arguments, 2);
+    uploadDeviceDataForUser: function (data, groupId, cb) {
 
       if (_.isEmpty(common.getUploadUrl())) {
         return cb({ status : common.STATUS_BAD_REQUEST, message: 'The upload api needs to be configured' });
       }
 
+      var dataUploadUrl;
+
+      if (typeof groupId === 'function') {
+        common.assertArgumentsSize(arguments, 2);
+        cb = groupId;
+        groupId = null;
+        dataUploadUrl = common.makeUploadUrl('/data');
+      } else {
+        common.assertArgumentsSize(arguments, 3);
+        dataUploadUrl = common.makeUploadUrl('/data/'+groupId);
+      }
+
        superagent
-        .post(common.makeUploadUrl('/data'))
+        .post(dataUploadUrl)
         .send(data)
         .set(common.SESSION_TOKEN_HEADER, myToken)
         .end(
         function (err, res) {
           if (err != null) {
             return cb(err);
+          }
+
+          if (res.status !== 200) {
+            return cb({
+              error: 'Request failed with statusCode ' + res.status,
+              code: res.statusCode,
+              message: res.body
+            });
           }
           return cb(null,res.body);
         });
