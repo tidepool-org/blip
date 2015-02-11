@@ -30,28 +30,28 @@ var definitions = {
   },
   MAIN_TEXT: {
     'carelink/basal/fabricated-from-schedule': function(source, defs) {
-      var a = "We are calculating the basal rates here using the active basal schedule in your pump settings (and applying the percentage of an active temp basal where applicable), but ";
-      var b = " did not directly provide us with these rate changes.";
+      var a = 'We are calculating the basal rates here using the active basal schedule in your pump settings (and applying the percentage of an active temp basal where applicable), but ';
+      var b = ' did not directly provide us with these rate changes.';
       return defs.stitch(a, b, source);
     },
     'carelink/basal/fabricated-from-suppressed': function(source, defs) {
-      var a = "We are deriving the basal rate to display here assuming that your pump resumed to the basal that was active before the pump was suspended, but ";
-      var b = " did not directly provide us with this rate change.";
+      var a = 'We are deriving the basal rate to display here assuming that your pump resumed to the basal that was active before the pump was suspended, but ';
+      var b = ' did not directly provide us with this rate change.';
       return defs.stitch(a, b, source);
     },
     'carelink/basal/off-schedule-rate': function(source, defs) {
-      var a = "You may have changed pumps recently - perhaps because you had to have your pump replaced due to malfuction. As a result of how ";
-      var b = " reports the data, we can't be 100% certain of your basal rate here.";
+      var a = 'You may have changed pumps recently - perhaps because you had to have your pump replaced due to malfuction. As a result of how ';
+      var b = ' reports the data, we can\'t be 100% certain of your basal rate here.';
       return defs.stitch(a, b, source);
     },
     'carelink/bolus/missing-square-component': function(source, defs) {
-      var a = "Because of how ";
-      var b = " reports bolus data, normal and square-wave boluses may not be properly combined to appear as a dual-wave bolus.";
+      var a = 'Because of how ';
+      var b = ' reports bolus data, normal and square-wave boluses may not be properly combined to appear as a dual-wave bolus.';
       return defs.stitch(a, b, source);
     },
     'carelink/wizard/long-search': function(source, defs) {
-      var a = "Because of how ";
-      var b = " reports bolus and wizard data, we can't be 100% certain that the bolus wizard information here (e.g., carbs, suggested dose) corresponds with the bolus.";
+      var a = 'Because of how ';
+      var b = ' reports bolus and wizard data, we can\'t be 100% certain that the bolus wizard information here (e.g., carbs, suggested dose) corresponds with the bolus.';
       return defs.stitch(a, b, source);
     },
     'insulet/basal/fabricated-from-schedule': function(source, defs) {
@@ -65,14 +65,14 @@ var definitions = {
       return defs.stitch(a, b, source);
     },
     'basal/intersects-incomplete-susppend': function() {
-      return "Within this basal segment, we are omitting a suspend event that didn't end. This may have resulted from switching to a new device. As a result, this basal segment may be inaccurate.";
+      return 'Within this basal segment, we are omitting a suspend event that didn\'t end. This may have resulted from switching to a new device. As a result, this basal segment may be inaccurate.';
     },
     'basal/mismatched-series': function() {
-      return "A basal rate segment may be missing here because it wasn't reported to the Tidepool API in sequence. We can't be 100% certain of your basal rate here.";
+      return 'A basal rate segment may be missing here because it wasn\'t reported to the Tidepool API in sequence. We can\'t be 100% certain of your basal rate here.';
     },
     'basal/unknown-duration': function(source, defs) {
-      var a = "Because of how ";
-      var b = " reports the data, we could not determine the duration of this basal rate segment.";
+      var a = 'Because of how ';
+      var b = ' reports the data, we could not determine the duration of this basal rate segment.';
       return defs.stitch(a, b, source);
     },
     'stats-insufficient-data': function() {
@@ -99,10 +99,10 @@ var definitions = {
   },
   default: function(source) {
     if (source == null) {
-      return "We can't be 100% certain of the data displayed here.";
+      return 'We can\'t be 100% certain of the data displayed here.';
     }
-    var a = "We can't be 100% certain of the data displayed here because of how ";
-    var b = " reports the data.";
+    var a = 'We can\'t be 100% certain of the data displayed here because of how ';
+    var b = ' reports the data.';
     return this.stitch(a, b, source);
   },
   main: function(annotation, source) {

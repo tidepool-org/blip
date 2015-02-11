@@ -1,7 +1,8 @@
 tideline
 ========
 
-[![Build Status](https://travis-ci.org/tidepool-org/tideline.png?branch=master)](https://travis-ci.org/tidepool-org/tideline)
+[![Build Status](https://img.shields.io/travis/tidepool-org/tideline/master.svg)](https://travis-ci.org/tidepool-org/tideline)
+[![Coverage Status](https://img.shields.io/coveralls/tidepool-org/tideline/master.svg)](https://coveralls.io/r/tidepool-org/tideline)
 
 This repository is a self-contained module library for [Tidepool](http://tidepool.org/ 'Tidepool')'s timeline-style diabetes data visualization(s).
 

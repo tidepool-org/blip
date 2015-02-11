@@ -8,7 +8,7 @@
   },
   "main": "js/index.js",
   "scripts": {
-    "travis": "./node_modules/.bin/mocha test/*_test.js",
+    "travis": "istanbul cover node_modules/mocha/bin/_mocha test/*_test.js",
     "test": "testem",
     "start": "BUILD_DEV=true webpack-dev-server -d --cache --colors --progress --content-base example --port 8081",
     "build-test": "webpack --config test.config.js",
@@ -36,6 +36,7 @@
     "file-loader": "0.5.1",
     "gulp": "3.8.7",
     "gulp-jshint": "1.8.4",
+    "istanbul": "0.3.5",
     "jquery": "2.1.1",
     "jquery-simulate": "git://github.com/jquery/jquery-simulate.git#b91832e9f1f65ee6c6f2dc93a5e917735c33db8e",
     "jshint": "2.5.5",
