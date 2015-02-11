@@ -45,7 +45,7 @@ describe('annotation definitions', function() {
         assert.isString(annotations.default());
       });
       it('should have a source when possible', function() {
-        var expected = "We can't be 100% certain of the data displayed here because of how Demo reports the data.";
+        var expected = 'We can\'t be 100% certain of the data displayed here because of how Demo reports the data.';
         expect(annotations.default('demo')).to.equal(expected);
       });
     });
