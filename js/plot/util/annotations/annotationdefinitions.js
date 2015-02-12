@@ -55,13 +55,13 @@ var definitions = {
       return defs.stitch(a, b, source);
     },
     'insulet/basal/fabricated-from-schedule': function(source, defs) {
-      var a = "We are estimating the duration of the basal rate here using the basal schedule active at download, but";
-      var b = " did not directly provide us with this information.";
+      var a = 'We are estimating the duration of the basal rate here using the basal schedule active at download, but';
+      var b = ' did not directly provide us with this information.';
       return defs.stitch(a, b, source);
     },
     'insulet/bolus/split-extended': function(source, defs) {
-      var a = "Because";
-      var b = " represents extended boluses that cross midnight as two boluses, this bolus could be part of a dual-wave bolus, not an independent square-wave bolus as represented here.";
+      var a = 'Because';
+      var b = ' represents extended boluses that cross midnight as two boluses, this bolus could be part of a dual-wave bolus, not an independent square-wave bolus as represented here.';
       return defs.stitch(a, b, source);
     },
     'basal/intersects-incomplete-suspend': function() {
