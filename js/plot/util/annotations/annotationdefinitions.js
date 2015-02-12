@@ -64,8 +64,8 @@ var definitions = {
       var b = " represents extended boluses that cross midnight as two boluses, this bolus could be part of a dual-wave bolus, not an independent square-wave bolus as represented here.";
       return defs.stitch(a, b, source);
     },
-    'basal/intersects-incomplete-susppend': function() {
-      return 'Within this basal segment, we are omitting a suspend event that didn\'t end. This may have resulted from switching to a new device. As a result, this basal segment may be inaccurate.';
+    'basal/intersects-incomplete-suspend': function() {
+      return 'Within this basal segment, we are omitting a suspend event that didn\'t end. This may have resulted from changing the date & time settings on the device or switching to a new device. As a result, this basal segment may be inaccurate.';
     },
     'basal/mismatched-series': function() {
       return 'A basal rate segment may be missing here because it wasn\'t reported to the Tidepool API in sequence. We can\'t be 100% certain of your basal rate here.';
