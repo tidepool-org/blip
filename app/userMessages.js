@@ -37,6 +37,7 @@ module.exports = {
   ERR_GENERIC : 'Sorry! Something went wrong. It\'s our fault, not yours. We\'re going to go investigate. For the time being, go ahead and ',
   ERR_SERVICE_DOWN : 'Sorry! Something went wrong. It\'s our fault, not yours. We\'re going to go investigate. Please try again in a few moments.',
   ERR_OFFLINE : 'Sorry but it appears that you are offline.',
+  MSG_UTC : 'UTC time: ',
   STUFF: getStuff()
 };
 
