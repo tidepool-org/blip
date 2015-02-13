@@ -1354,10 +1354,20 @@ var AppComponent = React.createClass({
 
       if(error.status === 500){
         //somethings down, give a bit of time then they can try again
-        body = ( <p> {usrMessages.ERR_SERVICE_DOWN} </p><p> {utcTime} </p> );
+        body = (
+          <div>
+            <p> {usrMessages.ERR_SERVICE_DOWN} </p>
+            <p> {utcTime} </p>
+          </div>
+        );
       } else if(error.status === 503){
         //offline nothing is going to work
-        body = ( <p> {usrMessages.ERR_OFFLINE} </p> <p> {utcTime} </p> );
+        body = (
+          <div>
+            <p> {usrMessages.ERR_OFFLINE} </p>
+            <p> {utcTime} </p>
+          </div>
+        );
       } else {
 
         var originalErrorMessage = [
