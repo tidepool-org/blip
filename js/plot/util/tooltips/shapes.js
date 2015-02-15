@@ -75,7 +75,7 @@ var shapes = {
           y: -boundingBox.height/2 + (_.contains(usedTransform, 'scale(1,-1)') ? boundingBox.height : 0),
           'class': 'd3-tooltip-text'
         })
-        .text(opts.datum.value);
+        .text(opts.datum.tooltipText ? opts.datum.tooltipText : opts.datum.value);
     }
   },
   basal: {
