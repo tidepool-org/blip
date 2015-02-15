@@ -193,6 +193,7 @@ var nurseshark = {
     }
     timeIt(removeNoTime, 'removeNoTime');
 
+    var uploadIDSources = {};
     var processedData = [], erroredData = [];
     var collections = {
       allBoluses: {},
@@ -312,6 +313,18 @@ var nurseshark = {
 
     timeIt(removeOverlapping, 'Remove Overlapping');
 
+    function createUploadIDsMap() {
+      var uploads = _.where(data, {type: 'upload'});
+      _.each(uploads, function(upload) {
+        uploadIDSources[upload.uploadId] = upload.source || 
+          ((upload.deviceManufacturers && Array.isArray(upload.deviceManufacturers) && upload.deviceManufacturers.length > 0) ? 
+            upload.deviceManufacturers[0] : 'Unknown');
+      });
+    }
+
+    // create a hash of uploadId: source
+    createUploadIDsMap();
+
     var handlers = getHandlers(timePrefs);
 
     function addNoHandlerMessage(d) {
@@ -330,6 +343,15 @@ var nurseshark = {
       }
       else {
         d = handlers[d.type] ? handlers[d.type](d, collections) : d.messagetext ? handlers.message(d, collections) : addNoHandlerMessage(d);
+        if (!d.source) {
+          if (d.uploadId) {
+            d.source = uploadIDSources[d.uploadId];
+          }
+          // probably doesn't exist: for data too old to have uploadId but also without `source`
+          else {
+            d.source = 'Unspecified Data Source';
+          }
+        }
       }
 
       // because we don't yet have validation on editing timestamps in clamshell and blip notes
