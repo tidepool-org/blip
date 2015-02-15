@@ -39,8 +39,7 @@ module.exports = function myErrorHandler(errorMessage, fileUrl, lineNumber, coln
 
     html = [
     '<div style="background: #fefefe;border: gray solid 1px;margin-left: -200px;position: fixed;left: 50%;top: 20%;z-index: 11;width: 390px;padding: 20px 25px;padding-top:30px;">',
-      '<p>' + chosenMessage + '</p>',
-      '<p>' + ERR_GENERIC_HELP + '</p>',
+      '<p>' + ERR_GENERIC_HELP + '</p></br></br>',
       '<p>' + ERR_SENT_TO_SERVER + '</p>',
       '<a id="error-close" style="text-decoration: underline; position: absolute; top: 10px; right: 15px;" href="#"><i class="icon-close"></i></a>',
     '</div>'
