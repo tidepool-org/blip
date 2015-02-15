@@ -29,6 +29,11 @@ var definitions = {
     }
   },
   MAIN_TEXT: {
+    'bg/out-of-range': function(source, defs) {
+      var a = 'This BG value was above or below ';
+      var b = '\'s threshold for reporting a numerical value. Your actual BG value was higher or lower than displayed.';
+      return defs.stitch(a, b, source);
+    },
     'carelink/basal/fabricated-from-schedule': function(source, defs) {
       var a = 'We are calculating the basal rates here using the active basal schedule in your pump settings (and applying the percentage of an active temp basal where applicable), but ';
       var b = ' did not directly provide us with these rate changes.';
@@ -55,12 +60,12 @@ var definitions = {
       return defs.stitch(a, b, source);
     },
     'insulet/basal/fabricated-from-schedule': function(source, defs) {
-      var a = 'We are estimating the duration of the basal rate here using the basal schedule active at download, but';
+      var a = 'We are estimating the duration of the basal rate here using the basal schedule active at download, but ';
       var b = ' did not directly provide us with this information.';
       return defs.stitch(a, b, source);
     },
     'insulet/bolus/split-extended': function(source, defs) {
-      var a = 'Because';
+      var a = 'Because ';
       var b = ' represents extended boluses that cross midnight as two boluses, this bolus could be part of a dual-wave bolus, not an independent square-wave bolus as represented here.';
       return defs.stitch(a, b, source);
     },
