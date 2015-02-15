@@ -1379,8 +1379,8 @@ var AppComponent = React.createClass({
             <p>{usrMessages.ERR_GENERIC}</p>
             <p className="notification-body-small">
               <code>{'Original error message: ' + originalErrorMessage}</code>
+              <span>{utcTime}</span>
             </p>
-            <p>{utcTime}</p>
           </div>
         );
       }
