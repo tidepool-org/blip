@@ -123,7 +123,9 @@ module.exports = {
         return NaN;
       }
     }
-    if (!d.duration) {
+    // don't want truthiness here because want to return expectedDuration
+    // from a bolus interrupted immediately (duration = 0)
+    if (d.duration == null) {
       return NaN;
     }
     return d.expectedDuration || d.duration;
