@@ -495,80 +495,72 @@ var AppComponent = React.createClass({
       /* jshint ignore:end */
     );
   },
+  setPatientsRoute : function(){
+    // Determine whether to skip the Patients page & go directly to Patient data.
+    // If I have invites to review then display the Patients page
+    //
+    // If there is only one patient you can see data for, go to the patient's data.
+    // Otherwise, display the Patients page.
+    if (_.size(this.state.invites) === 0) {
+      var otherViewable = _.size(this.state.patients);
+      var doIHaveData = personUtils.isPatient(this.state.user);
 
+      if ( doIHaveData && otherViewable === 0){
+        app.router.setRoute('/patients/' + this.state.user.userid +'/data');
+        return;
+      } else if (otherViewable === 1){
+        app.router.setRoute('/patients/' + this.state.patients[0].userid +'/data');
+        return;
+      }
+    }
+    app.router.setRoute('/patients');
+    return;
+  },
   redirectToDefaultRoute: function() {
     this.showPatients(true);
   },
   showPatients: function(showPatientData) {
     this.setState({showPatientData: showPatientData});
-    this.renderPage = this.renderPatients;
-    this.setState({page: 'patients'});
-    this.fetchInvites();
-    this.fetchPatients();
-    trackMetric('Viewed Care Team List');
+    app.log('showPatients: show data?', showPatientData);
+
+    var self = this;
+
+    async.parallel({
+      invites: function(cb) {
+        self.fetchPatients({},cb);
+      },
+      patients: function(cb) {
+        self.fetchInvites(cb);
+      }
+    },
+    function(err, results) {
+      self.setPatientsRoute();
+      self.renderPage = self.renderPatients;
+      self.setState({page: 'patients'});
+      trackMetric('Viewed Care Team List');
+    });
   },
   renderPatients: function() {
-    var patients;
-    /* jshint ignore:start */
-    patients = <Patients
-        user={this.state.user}
-        fetchingUser={this.state.fetchingUser}
-        patients={this.state.patients}
-        fetchingPatients={this.state.fetchingPatients}
-        invites={this.state.invites}
-        uploadUrl={app.api.getUploadUrl()}
-        fetchingInvites={this.state.fetchingInvites}
-        showingWelcomeTitle={this.state.showingWelcomeTitle}
-        showingWelcomeSetup={this.state.showingWelcomeSetup}
-        onHideWelcomeSetup={this.handleHideWelcomeSetup}
-        trackMetric={trackMetric}
-        onAcceptInvitation={this.handleAcceptInvitation}
-        onDismissInvitation={this.handleDismissInvitation}
-        onRemovePatient={this.handleRemovePatient}/>;
-    /* jshint ignore:end */
-
-    // Determine whether to skip the Patients page & go directly to Patient data.
-    // If there is only one patient you can see data for, go to the patient's data.
-    // Otherwise, display the Patients page.
-    if (this.state.showPatientData) {
-
-      if (!this.state.fetchingUser && !this.state.fetchingPatients && !this.state.fetchingInvites) {
-
-        var viewerUserId = null;
-        var isPatient = personUtils.isPatient(this.state.user);
-        var numPatientsUserCanSee = (this.state.patients == null) ? 0 : this.state.patients.length;
-
-        // First check that the user has no pending invites
-        if (_.isEmpty(this.state.invites)) {
-
-          // Then determine how many people the user can view
-          if (isPatient) {
-            if (numPatientsUserCanSee === 0) {
-              viewerUserId = this.state.user.userid;
-            }
-          } else {
-            if (numPatientsUserCanSee === 1) {
-              viewerUserId = this.state.patients[0].userid;
-            }
-          }
-
-          // Last, set the appropriate route
-          if (viewerUserId === null) {
-            app.router.setRoute('/patients');
-            return;
-          } else {
-            app.router.setRoute('/patients/' + viewerUserId + '/data');
-            return;
-          }
-        }
-
-        app.router.setRoute('/patients');
-      }
-
+    if(this.state.fetchUser){
+      app.log('still loading user');
       return;
     }
-
-    return (patients);
+    return (<Patients
+      user={this.state.user}
+      fetchingUser={this.state.fetchingUser}
+      patients={this.state.patients}
+      fetchingPatients={this.state.fetchingPatients}
+      invites={this.state.invites}
+      uploadUrl={app.api.getUploadUrl()}
+      fetchingInvites={this.state.fetchingInvites}
+      showingWelcomeTitle={this.state.showingWelcomeTitle}
+      showingWelcomeSetup={this.state.showingWelcomeSetup}
+      onHideWelcomeSetup={this.handleHideWelcomeSetup}
+      trackMetric={trackMetric}
+      onAcceptInvitation={this.handleAcceptInvitation}
+      onDismissInvitation={this.handleDismissInvitation}
+      onRemovePatient={this.handleRemovePatient}/>
+    );
   },
   handleHideWelcomeSetup: function(options) {
     if (options && options.route) {
@@ -649,9 +641,7 @@ var AppComponent = React.createClass({
 
     api.access.leaveGroup(patientId, function(err) {
       if(err) {
-
         return self.handleApiError(err, usrMessages.ERR_REMOVING_MEMBER, buildExceptionDetails());
-
       }
 
       self.fetchPatients();
@@ -730,7 +720,6 @@ var AppComponent = React.createClass({
     });
     trackMetric('Viewed Profile');
   },
-
   showPatientShare: function(patientId) {
     this.renderPage = this.renderPatientShare;
     this.setState({
@@ -809,6 +798,14 @@ var AppComponent = React.createClass({
 
     return !this.state.patient;
   },
+  isDoneFetchingAndUserHasPatient: function() {
+    // Wait to have user object back from server
+    if (this.state.fetchingUser) {
+      return false;
+    }
+
+    return personUtils.isPatient(this.state.user);
+  },
 
   showPatientNew: function() {
     this.renderPage = this.renderPatientNew;
@@ -841,22 +838,13 @@ var AppComponent = React.createClass({
     );
     /* jshint ignore:end */
   },
-
-  isDoneFetchingAndUserHasPatient: function() {
-    // Wait to have user object back from server
-    if (this.state.fetchingUser) {
-      return false;
-    }
-
-    return personUtils.isPatient(this.state.user);
-  },
-
   isSamePersonUserAndPatient: function() {
     return personUtils.isSame(this.state.user, this.state.patient);
   },
 
   showPatientData: function(patientId) {
     this.renderPage = this.renderPatientData;
+
     this.setState({
       page: 'patients/' + patientId + '/data',
       patient: null,
@@ -1022,7 +1010,6 @@ var AppComponent = React.createClass({
 
   fetchUser: function() {
     var self = this;
-
     self.setState({fetchingUser: true});
 
     app.api.user.get(function(err, user) {
@@ -1067,7 +1054,7 @@ var AppComponent = React.createClass({
     });
   },
 
-  fetchInvites: function() {
+  fetchInvites: function(cb) {
     var self = this;
 
     self.setState({fetchingInvites: true});
@@ -1078,7 +1065,6 @@ var AppComponent = React.createClass({
         self.setState({
           fetchingInvites: false
         });
-
         return self.handleApiError(err, usrMessages.ERR_FETCHING_INVITES, buildExceptionDetails());
       }
 
@@ -1086,10 +1072,13 @@ var AppComponent = React.createClass({
         invites: invites,
         fetchingInvites: false
       });
+      if (cb) {
+        return cb();
+      }
     });
   },
 
-  fetchPatients: function(options) {
+  fetchPatients: function(options, cb) {
     var self = this;
 
     if(options && !options.hideLoading) {
@@ -1106,6 +1095,9 @@ var AppComponent = React.createClass({
         patients: patients,
         fetchingPatients: false
       });
+      if (cb) {
+        return cb();
+      }
     });
   },
 
