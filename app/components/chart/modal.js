@@ -169,7 +169,7 @@ var Modal = React.createClass({
             href={this.props.uploadUrl}
             target="_blank"
             onClick={handleClickUpload}>upload</a>
-          {' upload your insulin pump or BG meter.'}</p>
+          {' your insulin pump or BG meter.'}</p>
         <p>{'Or if you already have, try '}
           <a href="" onClick={this.props.onClickRefresh}>refreshing</a>
           {'.'}
