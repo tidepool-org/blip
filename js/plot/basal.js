@@ -26,8 +26,8 @@ module.exports = function(pool, opts) {
   opts = opts || {};
 
   var defaults = {
-    opacity: 0.3,
-    opacityDelta: 0.1,
+    opacity: 0.4,
+    opacityDelta: 0.2,
     pathStroke: 1.5,
     timezoneAware: false,
     tooltipPadding: 20
@@ -116,9 +116,8 @@ module.exports = function(pool, opts) {
       // tooltips
       basalSegmentGroups.on('mouseover', function() {
         basal.addTooltip(d3.select(this).datum());
-        var currOpacity = parseFloat(d3.select(this).selectAll('.d3-basal.d3-rect-basal').attr('opacity'));
         d3.select(this).selectAll('.d3-basal.d3-rect-basal')
-          .attr('opacity', currOpacity + opts.opacityDelta);
+          .attr('opacity', opts.opacity + opts.opacityDelta);
       });
       basalSegmentGroups.on('mouseout', function() {
         var id = d3.select(this).attr('id').replace('basal_group_', 'tooltip_');
