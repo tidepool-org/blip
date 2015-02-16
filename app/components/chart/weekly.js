@@ -145,12 +145,12 @@ var Weekly = React.createClass({
     return (
       <div className="patient-data-message patient-data-message-loading">
         <p>{'It looks like you don\'t have any BG meter data yet!'}</p>
-        <p>{'To see all your data together, please '}
+        <p>{'Please '}
           <a
             href={this.props.uploadUrl}
             target="_blank"
             onClick={handleClickUpload}>upload</a>
-          {' your insulin pump data and CGM data at the same time.'}</p>
+          {' upload your insulin pump or BG meter.'}</p>
         <p>{'Or if you already have, try '}
           <a href="" onClick={this.props.onClickRefresh}>refreshing</a>
           {'.'}

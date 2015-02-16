@@ -101,12 +101,12 @@ var Settings = React.createClass({
     return (
       <div className="patient-data-message patient-data-message-loading">
         <p>{'It looks like you don\'t have any insulin pump data yet!'}</p>
-        <p>{'To see all your data together, please '}
+        <p>{'To view your settings, please '}
           <a
             href={this.props.uploadUrl}
             target="_blank"
             onClick={handleClickUpload}>upload</a>
-          {' your insulin pump data and CGM data at the same time.'}</p>
+          {' your insulin pump.'}</p>
         <p>{'Or if you already have, try '}
           <a href="" onClick={this.props.onClickRefresh}>refreshing</a>
           {'.'}
