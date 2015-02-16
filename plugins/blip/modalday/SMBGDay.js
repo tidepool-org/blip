@@ -62,6 +62,12 @@ d3.chart('SMBGDay', {
         .attr('class', 'value')
         .append('span')
         .html(format.tooltipBG(d, chart.smbgOpts().units));
+      if (!_.isEmpty(d.subType)) {
+        foGroup.append('p')
+          .append('span')
+          .attr('class', 'secondary')
+          .html(format.capitalize(d.subType));
+      }
     };
 
     var tooltipOrientation = function(d) {

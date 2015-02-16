@@ -228,10 +228,15 @@ function SMBGTime (opts) {
       .attr('class', 'secondary')
       .html('<span class="fromto">at</span> ' + format.timestamp(datum.normalTime, datum.displayOffset));
     group.append('p')
-
       .attr('class', 'value')
       .append('span')
       .html(format.tooltipBG(datum, opts.bgUnits));
+    if (!_.isEmpty(datum.subType)) {
+      group.append('p')
+        .append('span')
+        .attr('class', 'secondary')
+        .html(format.capitalize(datum.subType));
+    }
   };
 
   this.addTooltip = function(d, pool) {

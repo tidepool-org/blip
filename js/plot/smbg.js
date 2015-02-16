@@ -124,7 +124,7 @@ module.exports = function(pool, opts) {
     if (!_.isEmpty(datum.subType)) {
       group.append('p')
         .append('span')
-        .attr('class', 'plain')
+        .attr('class', 'secondary')
         .html(format.capitalize(datum.subType));
     }
   };
