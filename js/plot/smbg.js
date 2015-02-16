@@ -121,6 +121,12 @@ module.exports = function(pool, opts) {
       .attr('class', 'value')
       .append('span')
       .html(format.tooltipBG(datum, opts.bgUnits));
+    if (!_.isEmpty(datum.subType)) {
+      group.append('p')
+        .append('span')
+        .attr('class', 'plain')
+        .html(format.capitalize(datum.subType));
+    }
   };
 
   smbg.addTooltip = function(d) {
