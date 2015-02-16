@@ -116,13 +116,20 @@ module.exports = function(pool, opts) {
       // tooltips
       basalSegmentGroups.on('mouseover', function() {
         basal.addTooltip(d3.select(this).datum());
+        var currOpacity = parseFloat(d3.select(this).selectAll('.d3-basal.d3-rect-basal').attr('opacity'));
         d3.select(this).selectAll('.d3-basal.d3-rect-basal')
-          .attr('opacity', opts.opacity + opts.opacityDelta);
+          .attr('opacity', currOpacity + opts.opacityDelta);
       });
       basalSegmentGroups.on('mouseout', function() {
         var id = d3.select(this).attr('id').replace('basal_group_', 'tooltip_');
         mainGroup.select('#' + id).remove();
-        d3.select(this).selectAll('.d3-basal.d3-rect-basal').attr('opacity', opts.opacity);
+        var datum = d3.select(this).datum();
+        if (datum.deliveryType === 'temp' && datum.rate > 0) {
+          d3.select(this).selectAll('.d3-basal.d3-rect-basal').attr('opacity', opts.opacity - opts.opacityDelta);
+        }
+        else {
+          d3.select(this).selectAll('.d3-basal.d3-rect-basal').attr('opacity', opts.opacity);
+        }
       });
     });
   }
@@ -140,7 +147,12 @@ module.exports = function(pool, opts) {
       .attr({
         x: basal.xPosition,
         y: yPosFn,
-        opacity: opts.opacity,
+        opacity: function(d) {
+          if (d.deliveryType === 'temp' && d.rate > 0) {
+            return opts.opacity - opts.opacityDelta;
+          }
+          return opts.opacity;
+        },
         width: basal.width,
         height: heightFn,
         'class': rectClass
