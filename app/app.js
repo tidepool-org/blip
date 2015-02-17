@@ -1118,10 +1118,8 @@ var AppComponent = React.createClass({
       if (err) {
         // Patient with id not found, carry on
         if (err.status === 404) {
-          app.log('Patient not found with id '+patientId);
-          var setupMsg = (patientId === self.state.user.userid) ? usrMessages.ERR_YOUR_ACCOUNT_NOT_CONFIGURED : usrMessages.ERR_ACCOUNT_NOT_CONFIGURED;
-          var dataStoreLink = (<a href="#/patients/new">{usrMessages.YOUR_ACCOUNT_DATA_SETUP}</a>);
-          return self.handleActionableError(err, setupMsg, dataStoreLink);
+          self.setState({fetchingPatient: false});
+          return;
         }
 
         return self.handleApiError(err, usrMessages.ERR_FETCHING_PATIENT+patientId, buildExceptionDetails());
@@ -1395,33 +1393,7 @@ var AppComponent = React.createClass({
       });
     }
   },
-
-  handleActionableError: function(error, message, link) {
-
-    console.log('handleApiError ', error);
-
-    var utcTime = usrMessages.MSG_UTC + new Date().toISOString();
-
-    message = message || '';
-    //send it quick
-    app.api.errors.log(this.stringifyErrorData(error), message, '');
-
-    var body = (
-      <div>
-        <p>{message}</p>
-        {link}
-      </div>
-    );
-
-    this.setState({
-      notification: {
-        type: 'alert',
-        body: body,
-        isDismissable: true
-      }
-    });
-  },
-
+  
   stringifyErrorData: function(data) {
 
     if(_.isEmpty(data)){
