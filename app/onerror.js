@@ -20,9 +20,11 @@ module.exports = function myErrorHandler(errorMessage, fileUrl, lineNumber, coln
   ];
   var ERR_GENERIC_HELP = 'Blip is stuck and isn\'t doing what you want it to do. We\'re sorry for the trouble.';
   var ERR_SENT_TO_SERVER = 'Blip will attempt to send the details to our server.';
+  var ERR_PLEASE_SEND_DETAIL = 'We were unable to log this error to our server so could you please send us a note at <a style="text-decoration: underline;" href="mailto:support@tidepool.org">support@tidepool.org</a> and we\'ll try to see what broke?';
   var html;
 
   var details = {
+    utcDateTime: new Date().toISOString(),
     href: window.location.href,
     msg: errorMessage,
     file: fileUrl,
@@ -39,8 +41,9 @@ module.exports = function myErrorHandler(errorMessage, fileUrl, lineNumber, coln
 
     html = [
     '<div style="background: #fefefe;border: gray solid 1px;margin-left: -200px;position: fixed;left: 50%;top: 20%;z-index: 11;width: 390px;padding: 20px 25px;padding-top:30px;">',
-      '<p>' + ERR_GENERIC_HELP + '</p></br></br>',
+      '<p>' + ERR_GENERIC_HELP + '</p>',
       '<p>' + ERR_SENT_TO_SERVER + '</p>',
+      '<p> UTC time: ' + new Date().toISOString() + '</p>',
       '<a id="error-close" style="text-decoration: underline; position: absolute; top: 10px; right: 15px;" href="#"><i class="icon-close"></i></a>',
     '</div>'
     ].join(' ');
@@ -54,8 +57,8 @@ module.exports = function myErrorHandler(errorMessage, fileUrl, lineNumber, coln
     html = [
     '<div style="background: #fefefe;border: gray solid 1px;margin-left: -200px;position: fixed;left: 50%;top: 20%;z-index: 11;width: 390px;padding: 20px 25px;padding-top:30px">',
       '<p>' + ERR_GENERIC_HELP + '</p>',
-      '<p>We were unable to log this error to our server so could you please send us a note at <a style="text-decoration: underline;" href="mailto:support@tidepool.org">support@tidepool.org</a> and we\'ll try to see what broke?</p>',
-      '<p style="color:rgb(240, 93, 93); overflow: hidden; text-overflow: ellipsis;">Error details: "' + JSON.stringify(details) + '"</p>',
+      '<p>'+ ERR_PLEASE_SEND_DETAIL +'</p>',
+      '<p style="color:rgb(240, 93, 93); overflow: hidden; text-overflow: ellipsis;">Error details: "\n' +' '+ new Date().toISOString() +'' + JSON.stringify(details) + '"</p>',
       '<a id="error-close" style="text-decoration: underline; position: absolute; top: 10px; right: 15px;" href="#"><i class="icon-close"></i></a>',
     '</div>'
     ].join(' ');
