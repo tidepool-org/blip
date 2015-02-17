@@ -37,6 +37,10 @@ module.exports = {
   ERR_GENERIC : 'Sorry! Something went wrong. It\'s our fault, not yours. We\'re going to go investigate. For the time being, go ahead and ',
   ERR_SERVICE_DOWN : 'Sorry! Something went wrong. It\'s our fault, not yours. We\'re going to go investigate. Please try again in a few moments.',
   ERR_OFFLINE : 'Sorry but it appears that you are offline.',
+  ERR_ACCOUNT_NOT_CONFIGURED : 'Sorry but it appears that this account hasn\'t been fully setup. Please notify the account owner that the storage may not be setup for the account.',
+  ERR_YOUR_ACCOUNT_NOT_CONFIGURED : 'Sorry but it appears that this account hasn\'t been fully setup.',
+  YOUR_ACCOUNT_DATA_SETUP : 'Click here complete the setup of the data storage',
+  MSG_UTC : 'UTC time: ',
   STUFF: getStuff()
 };
 
