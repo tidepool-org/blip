@@ -163,14 +163,14 @@ var Modal = React.createClass({
     /* jshint ignore:start */
     return (
       <div className="patient-data-message patient-data-message-loading">
-        <p>{'It looks like you don\'t have any BG meter data yet!'}</p>
-        <p>{'To view your BG trends, please '}
+        <p>{'Blip\'s Trends view shows patterns in your finger stick BG data, but it looks like you haven\'t uploaded finger stick data yet.'}</p>
+        <p>{'To see your finger stick BG patterns, '}
           <a
             href={this.props.uploadUrl}
             target="_blank"
             onClick={handleClickUpload}>upload</a>
-          {' your insulin pump or BG meter.'}</p>
-        <p>{'Or if you already have, try '}
+          {' your pump or BG meter.'}</p>
+        <p>{'If you just uploaded, try '}
           <a href="" onClick={this.props.onClickRefresh}>refreshing</a>
           {'.'}
         </p>

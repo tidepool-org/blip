@@ -100,14 +100,14 @@ var Settings = React.createClass({
     /* jshint ignore:start */
     return (
       <div className="patient-data-message patient-data-message-loading">
-        <p>{'It looks like you don\'t have any insulin pump data yet!'}</p>
-        <p>{'To view your settings, please '}
+        <p>{'Blip\'s Device Settings view shows your basal rates, carb ratios, sensitivity factors and more, but it looks like you haven\'t uploaded pump data yet.'}</p>
+        <p>{'To see your Device Settings in Blip,  '}
           <a
             href={this.props.uploadUrl}
             target="_blank"
             onClick={handleClickUpload}>upload</a>
-          {' your insulin pump.'}</p>
-        <p>{'Or if you already have, try '}
+          {' your pump.'}</p>
+        <p>{'If you just uploaded, try '}
           <a href="" onClick={this.props.onClickRefresh}>refreshing</a>
           {'.'}
         </p>
