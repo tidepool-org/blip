@@ -39,8 +39,7 @@ module.exports = {
   ERR_OFFLINE : 'Sorry but it appears that you are offline.',
   ERR_ACCOUNT_NOT_CONFIGURED : 'Sorry but it appears that this account hasn\'t been fully setup. Please notify the account owner that the storage may not be setup for the account.',
   ERR_YOUR_ACCOUNT_NOT_CONFIGURED : 'Sorry but it appears that this account hasn\'t been fully setup.',
-  YOUR_ACCOUNT_DATA_SETUP : 'Click here complete the setup of the data storage',
-  MSG_UTC : 'UTC time: ',
+  YOUR_ACCOUNT_DATA_SETUP : 'Click here complete the "Set up data storage" step',
   STUFF: getStuff()
 };
 
