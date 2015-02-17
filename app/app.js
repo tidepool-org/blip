@@ -1116,15 +1116,13 @@ var AppComponent = React.createClass({
 
     app.api.patient.get(patientId, function(err, patient) {
       if (err) {
-        // Patient with id not found, carry on
         if (err.status === 404) {
-
           app.log('Patient not found with id '+patientId);
           var setupMsg = (patientId === self.state.user.userid) ? usrMessages.ERR_YOUR_ACCOUNT_NOT_CONFIGURED : usrMessages.ERR_ACCOUNT_NOT_CONFIGURED;
           var dataStoreLink = (<a href="#/patients/new">{usrMessages.YOUR_ACCOUNT_DATA_SETUP}</a>);
           return self.handleActionableError(err, setupMsg, dataStoreLink);
         }
-
+        // we can't deal with it so just show error handler
         return self.handleApiError(err, usrMessages.ERR_FETCHING_PATIENT+patientId, buildExceptionDetails());
       }
 
