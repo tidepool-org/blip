@@ -58,7 +58,7 @@ module.exports = function myErrorHandler(errorMessage, fileUrl, lineNumber, coln
     '<div style="background: #fefefe;border: gray solid 1px;margin-left: -200px;position: fixed;left: 50%;top: 20%;z-index: 11;width: 390px;padding: 20px 25px;padding-top:30px">',
       '<p>' + ERR_GENERIC_HELP + '</p>',
       '<p>'+ ERR_PLEASE_SEND_DETAIL +'</p>',
-      '<p style="color:rgb(240, 93, 93); overflow: hidden; text-overflow: ellipsis;">Error details: "\n' +' '+ new Date().toISOString() +'' + JSON.stringify(details) + '"</p>',
+      '<p style="color:rgb(240, 93, 93); overflow: hidden; text-overflow: ellipsis;">Error details:' + JSON.stringify(details) + '"</p>',
       '<a id="error-close" style="text-decoration: underline; position: absolute; top: 10px; right: 15px;" href="#"><i class="icon-close"></i></a>',
     '</div>'
     ].join(' ');
