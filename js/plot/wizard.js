@@ -81,13 +81,13 @@ module.exports = function(pool, opts) {
       drawBolus.carb(carbs);
 
       var boluses = wizardGroups.filter(function(d) {
-        return d.bolus != null && commonbolus.getDelivered(d);
+        return d.bolus != null && (commonbolus.getDelivered(d) || commonbolus.getProgrammed(d));
       });
 
       drawBolus.bolus(boluses);
 
       var extended = boluses.filter(function(d) {
-        return d.bolus.extended;
+        return d.bolus.extended || d.bolus.expectedExtended;
       });
 
       drawBolus.extended(extended);
@@ -115,7 +115,7 @@ module.exports = function(pool, opts) {
 
       var extendedSuspended = boluses.filter(function(d) {
         if (d.bolus.expectedExtended) {
-          return d.bolus.extended > 0 && d.bolus.extended !== d.bolus.expectedExtended;
+          return d.bolus.extended !== d.bolus.expectedExtended;
         }
         return false;
       });

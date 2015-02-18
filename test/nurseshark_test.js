@@ -411,7 +411,7 @@ describe('nurseshark', function() {
       }];
       var res = nurseshark.processData(overlapping).erroredData;
       expect(res.length).to.equal(1);
-      expect(_.omit(res[0].overlapsWith, ['normalTime', 'normalEnd'])).to.eql(overlapping[0]);
+      expect(_.omit(res[0].overlapsWith, ['normalTime', 'normalEnd', 'source'])).to.eql(overlapping[0]);
       expect(res[0].errorMessage).to.equal('Basal overlaps with previous.');
     });
 
@@ -658,6 +658,41 @@ describe('nurseshark', function() {
       assert.isArray(res[0].basalSchedules);
     });
 
+    it('should add a source field if missing and there is an upload object with deviceManufacturers', function() {
+      var now = new Date().toISOString();
+      var upload = {
+        type: 'upload',
+        deviceManufacturers: ['Demo'],
+        uploadId: '1234',
+        time: now,
+        timezoneOffset: 0
+      };
+      var bolus = {
+        time: now,
+        timezoneOffset: 0,
+        type: 'bolus',
+        subType: 'normal',
+        normal: 2.0,
+        uploadId: '1234'
+      };
+      var res = nurseshark.processData([upload, bolus]).processedData;
+      expect(res[1].type).to.equal('bolus');
+      expect(res[1].source).to.equal('Demo');
+    });
+
+    it('should add `Unknown` as source if no upload metadata', function() {
+      var now = new Date().toISOString();
+      var bolus = {
+        time: now,
+        timezoneOffset: 0,
+        type: 'bolus',
+        subType: 'normal',
+        normal: 2.0
+      };
+      var res = nurseshark.processData([bolus]).processedData;
+      expect(res[0].source).to.equal('Unspecified Data Source');
+    });
+
     it('should return sorted data', function() {
       var now = new Date();
       var nextTime = new Date(now.valueOf() + 600000);
@@ -674,6 +709,7 @@ describe('nurseshark', function() {
         timezoneOffset: 0
       }];
       var sorted = [data[1], data[0]];
+      _.each(sorted, function(d) { d.source = 'Unspecified Data Source'; });
       sorted[0].normalTime = now.toISOString();
       sorted[1].normalTime = nextTime.toISOString();
       expect(nurseshark.processData(data).processedData).to.eql(sorted);

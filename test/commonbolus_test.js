@@ -60,6 +60,12 @@ describe('common bolus functions', function() {
       duration: 900000,
       expectedDuration: 3600000
     },
+    immediatelyCancelledSquare: {
+      extended: 0,
+      expectedExtended: 2.0,
+      duration: 0,
+      expectedDuration: 3600000
+    },
     underride: {
       type: 'wizard',
       bolus: {
@@ -363,6 +369,10 @@ describe('common bolus functions', function() {
 
     it('should return expectedDuration of a cancelled dual-wave underride', function() {
       expect(commonbolus.getMaxDuration(fixtures.dualUnderrideCancelled)).to.equal(fixtures.dualUnderrideCancelled.bolus.expectedDuration);
+    });
+
+    it('should return expectedDuration of an immediately cancelled square bolus (duration = 0)', function() {
+      expect(commonbolus.getMaxDuration(fixtures.immediatelyCancelledSquare)).to.equal(fixtures.immediatelyCancelledSquare.expectedDuration);
     });
   });
 });

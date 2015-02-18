@@ -63,11 +63,11 @@ module.exports = function(pool, opts) {
       });
 
       drawBolus.bolus(bolusGroups.filter(function(d) {
-        return commonbolus.getDelivered(d);
+        return commonbolus.getDelivered(d) || commonbolus.getProgrammed(d);
       }));
 
       var extended = boluses.filter(function(d) {
-        return d.extended;
+        return d.extended || d.expectedExtended;
       });
 
       drawBolus.extended(extended);
@@ -81,7 +81,7 @@ module.exports = function(pool, opts) {
 
       var extendedSuspended = boluses.filter(function(d) {
         if (d.expectedExtended) {
-          return d.extended > 0 && d.extended !== d.expectedExtended;
+          return d.extended !== d.expectedExtended;
         }
         return false;
       });

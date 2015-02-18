@@ -81,7 +81,6 @@ function TidelineData(data, opts) {
       'basal',
       'bolus',
       'cbg',
-      'settings',
       'smbg',
       'wizard'
     ],
@@ -493,6 +492,9 @@ function TidelineData(data, opts) {
     var dData = this.diabetesData;
     this.data = _.reject(data, function(d) {
       if (d.type === 'message' && d.normalTime < dData[0].normalTime) {
+        return true;
+      }
+      if (d.type === 'settings' && (d.normalTime < dData[0].normalTime || d.normalTime > dData[dData.length - 1].normalTime)) {
         return true;
       }
       if (d.type === 'upload') {

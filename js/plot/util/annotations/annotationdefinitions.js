@@ -29,6 +29,11 @@ var definitions = {
     }
   },
   MAIN_TEXT: {
+    'bg/out-of-range': function(source, defs) {
+      var a = 'This BG value was above or below ';
+      var b = '\'s threshold for reporting a numerical value. Your actual BG value was higher or lower than displayed.';
+      return defs.stitch(a, b, source);
+    },
     'carelink/basal/fabricated-from-schedule': function(source, defs) {
       var a = 'We are calculating the basal rates here using the active basal schedule in your pump settings (and applying the percentage of an active temp basal where applicable), but ';
       var b = ' did not directly provide us with these rate changes.';
@@ -54,8 +59,18 @@ var definitions = {
       var b = ' reports bolus and wizard data, we can\'t be 100% certain that the bolus wizard information here (e.g., carbs, suggested dose) corresponds with the bolus.';
       return defs.stitch(a, b, source);
     },
-    'basal/intersects-incomplete-susppend': function() {
-      return 'Within this basal segment, we are omitting a suspend event that didn\'t end. This may have resulted from switching to a new device. As a result, this basal segment may be inaccurate.';
+    'insulet/basal/fabricated-from-schedule': function(source, defs) {
+      var a = 'We are estimating the duration of the basal rate here using the basal schedule active at download, but ';
+      var b = ' did not directly provide us with this information.';
+      return defs.stitch(a, b, source);
+    },
+    'insulet/bolus/split-extended': function(source, defs) {
+      var a = 'Because ';
+      var b = ' represents extended boluses that cross midnight as two boluses, this bolus could be part of a dual-wave bolus, not an independent square-wave bolus as represented here.';
+      return defs.stitch(a, b, source);
+    },
+    'basal/intersects-incomplete-suspend': function() {
+      return 'Within this basal segment, we are omitting a suspend event that didn\'t end. This may have resulted from changing the date & time settings on the device or switching to a new device. As a result, this basal segment may be inaccurate.';
     },
     'basal/mismatched-series': function() {
       return 'A basal rate segment may be missing here because it wasn\'t reported to the Tidepool API in sequence. We can\'t be 100% certain of your basal rate here.';
@@ -82,6 +97,9 @@ var definitions = {
     },
     'stats-how-calculated-average-smbg': function() {
       return 'If you don’t wear a CGM or don’t have enough CGM data, to get one number that gives you a rough idea of your glucose level, we add together all of the fingerstick readings you have and then divide them by the number of readings. We will only show a number if there is enough data - at least 4 readings in the one day view, and at least 4 readings for at least half of the days shown in the two week view.';
+    },
+    'time-change': function() {
+      return 'The date and/or time settings of your device were changed recently, and this datum may overlap in the timeline display with other data from the same device.';
     }
   },
   default: function(source) {

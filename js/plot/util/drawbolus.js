@@ -55,7 +55,11 @@ module.exports = function(pool, opts) {
     return x;
   };
   var computePathHeight = function(d) {
-    return opts.yScale(d.extended) + opts.bolusStroke / 2;
+    var base = opts.yScale(d.extended) + opts.bolusStroke / 2;
+    if (d.extended === 0) {
+      return base - opts.bolusStroke;
+    }
+    return base;
   };
 
   var triangleLeft = function(x) { return x + opts.width/2 - opts.triangleOffset; };
@@ -142,13 +146,6 @@ module.exports = function(pool, opts) {
         });
     },
     suspended: function(suspended) {
-      // don't draw a bolus that doesn't exist at all
-      // e.g., square bolus cancelled immediately can slip through
-      // unless you filter like this
-      suspended = suspended.filter(function(d) {
-        return commonbolus.getDelivered(d) > 0;
-      });
-
       // draw color in the suspended portion
       suspended.append('rect')
         .attr({
@@ -175,6 +172,9 @@ module.exports = function(pool, opts) {
             return xPosition(d);
           },
           y: function(d) {
+            if (commonbolus.getDelivered(d) === 0) {
+              return opts.yScale(0) - opts.markerHeight;
+            }
             return opts.yScale(commonbolus.getDelivered(d));
           },
           width: opts.width,
@@ -456,7 +456,8 @@ module.exports = function(pool, opts) {
           .text(format.tooltipValue(commonbolus.getDelivered(d)));
 
         // extended bolus
-        if (bolus.extended) {
+        // not truthy here because extended may have been interrupted before any delivery achieved
+        if (bolus.extended != null) {
           var extRow = tbl.append('tr');
           // square bolus
           if (!bolus.normal) {

@@ -24,6 +24,18 @@ var format = {
   MS_IN_24: 86400000,
 
   tooltipBG: function(d, units) {
+    if (d.annotations && Array.isArray(d.annotations) && d.annotations.length > 0) {
+      var annotation = d.annotations[0];
+      if (annotation.code && annotation.code === 'bg/out-of-range') {
+        var value = annotation.value;
+        if (value === 'low') {
+          d.tooltipText = 'Lo';
+        }
+        else if (value === 'high') {
+          d.tooltipText = 'Hi';
+        }
+      }
+    }
     return units === 'mg/dL' ? d3.format('g')(Math.round(d.value)) : d3.format('.1f')(d.value);
   },
 

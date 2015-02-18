@@ -114,11 +114,14 @@ describe('TidelineData', function() {
   };
 
   _.each(Object.keys(dataTypes), function(dType) {
-    it('should be able to handle only ' + dType + ' without error', function() {
-      var data = [dataTypes[dType]];
-      var single = new TidelineData(data);
-      expect(single.data.length).to.be.above(1);
-    });
+    // because one-day view doesn't involve settings
+    if (dType !== 'settings') {
+      it('should be able to handle only ' + dType + ' without error', function() {
+        var data = [dataTypes[dType]];
+        var single = new TidelineData(data);
+        expect(single.data.length).to.be.above(1);
+      });
+    }
   });
 
   describe('addDatum', function() {
