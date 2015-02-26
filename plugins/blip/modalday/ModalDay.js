@@ -5,6 +5,7 @@ var moment = require('moment');
 
 var tideline = require('../../../js/index');
 var dt = tideline.data.util.datetime;
+var format = tideline.data.util.format;
 
 var smbgBox = require('./SMBGBox');
 var smbgDay = require('./SMBGDay');
@@ -196,7 +197,12 @@ d3.chart('ModalDay', {
               x: mainMargins.left - chart.tickShift().y,
               y: function(d) { return yScale(d); }
             })
-            .text(function(d) { return d; });
+            .text(function(d) {
+              if (chart.smbgOpts().units === 'mmol/L') {
+                return format.tooltipBG({value: d}, 'mmol/L');
+              }
+              return d;
+            });
 
           toEnter.append('line')
             .attr({
@@ -424,7 +430,7 @@ module.exports = {
         radiusMultiplier: 1.5,
         stroke: 1,
         strokeMultiplier: 2,
-        units: 'mg/dL'
+        units: opts.bgUnits || 'mg/dL'
       },
       statsHeight: 0,
       tickLength: {y: 8},
@@ -451,9 +457,19 @@ module.exports = {
     };
     _.defaults(opts, defaults);
 
+    var bgDomain = [opts.bgDomain[0]];
+    if (opts.clampTop) {
+      if (opts.bgUnits === 'mg/dL') {
+        bgDomain.push(400);
+      }
+      else if (opts.bgUnits === 'mmol/L') {
+        bgDomain.push(22.5);
+      }
+    }
+
     var yScale = d3.scale.linear()
       .clamp(opts.clampTop)
-      .domain(opts.clampTop ? [opts.bgDomain[0], 400] : opts.bgDomain);
+      .domain(opts.clampTop ? bgDomain : opts.bgDomain);
 
     var xScale = d3.scale.linear()
       .domain([0, 86400000]);
