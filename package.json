@@ -27,7 +27,7 @@
     "json-loader": "0.5.1",
     "jsx-loader": "0.12.2",
     "less": "2.4.0",
-    "less-loader": "0.7.7",
+    "less-loader": "2.0.0",
     "lodash": "3.3.1",
     "moment": "2.9.0",
     "ms": "0.7.0",
