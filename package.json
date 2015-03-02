@@ -51,7 +51,7 @@
     "gulp-react": "2.1.0",
     "jshint-stylish": "1.0.1",
     "mocha": "2.1.0",
-    "mocha-loader": "~0.6.5",
+    "mocha-loader": "0.7.1",
     "sinon": "1.12.2",
     "sinon-chai": "2.7.0",
     "webpack-dev-server": "1.7.0"
