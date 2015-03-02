@@ -48,7 +48,7 @@
     "chai": "2.1.0",
     "gulp": "~3.8.7",
     "gulp-jshint": "1.9.2",
-    "gulp-react": "~0.5.0",
+    "gulp-react": "2.1.0",
     "jshint-stylish": "1.0.1",
     "mocha": "~1.18.2",
     "mocha-loader": "~0.6.5",
