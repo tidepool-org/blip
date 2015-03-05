@@ -55,7 +55,7 @@ You can define your own validator factories:
 */
 
 var _ = require('lodash');
-var moment = require('moment');
+var sundial = require('sundial');
 
 var validation = {
   required: function() {
@@ -68,12 +68,7 @@ var validation = {
 
   isValidDate: function() {
     return function(value) {
-      var m = moment(value);
-      // Be careful, if `value` is empty, `m` can be null
-      var isValid = m && m.isValid();
-      if (!isValid) {
-        return 'Not a valid date.';
-      }
+      return sundial.isValidDate(value);
     };
   },
 

@@ -16,12 +16,11 @@
 
 var React = require('react');
 var _ = require('lodash');
-var moment = require('moment');
+var sundial = require('sundial');
 
 var personUtils = require('../../core/personutils');
-var datetimeUtils = require('../../core/datetimeutils');
 
-var SERVER_DATE_FORMAT = 'YYYY-MM-DD';
+
 var FORM_DATE_FORMAT = 'MM/DD/YYYY';
 
 var PatientInfo = React.createClass({
@@ -289,7 +288,16 @@ var PatientInfo = React.createClass({
       return;
     }
 
-    return datetimeUtils.yearsOldText(birthday);
+    var yrsAgo = sundial.ceil(birthday, 'year', sundial.getDeviceTimezone());
+
+    switch(yrsAgo) {
+      case yrsAgo === 1:
+        return '1 year old';
+      case yrsAgo > 1:
+        return yrsAgo +' years old';
+      default:
+        default 'Birthdate not known';
+    }
   },
 
   getDiagnosisText: function(patient) {
@@ -300,7 +308,18 @@ var PatientInfo = React.createClass({
       return;
     }
 
-    return 'Diagnosed ' + datetimeUtils.yearsAgoText(diagnosisDate);
+    var yrsAgo = sundial.ceil(diagnosisDate, 'year', sundial.getDeviceTimezone());
+
+    switch(yrsAgo) {
+      case yrsAgo === 0:
+        return 'Diagnosed This year';
+      case yrsAgo === 1:
+        return 'Diagnosed 1 year ago';
+      case yrsAgo > 1:
+        return 'Diagnosed ' yrsAgo + ' years ago';
+      default:
+        default 'Diagnosis date not known';
+    }
   },
 
   getAboutText: function(patient) {
@@ -318,14 +337,14 @@ var PatientInfo = React.createClass({
 
     formValues.fullName = personUtils.patientFullName(patient);
 
+    var offset = sundial.getOffsetFromTime(patientInfo.birthday) || sundial.getOffset();
+
     if (patientInfo.birthday) {
-      formValues.birthday = moment(patientInfo.birthday)
-        .format(FORM_DATE_FORMAT);
+      formValues.birthday =  sundial.formatFromOffset(patientInfo.birthday,offset,FORM_DATE_FORMAT);
     }
 
     if (patientInfo.diagnosisDate) {
-      formValues.diagnosisDate = moment(patientInfo.diagnosisDate)
-        .format(FORM_DATE_FORMAT);
+      formValues.diagnosisDate = sundial.formatFromOffset(patientInfo.diagnosisDate,offset,FORM_DATE_FORMAT);
     }
 
     if (patientInfo.about) {
@@ -374,12 +393,12 @@ var PatientInfo = React.createClass({
     }
 
     var birthday = formValues.birthday;
-    if (!(birthday && datetimeUtils.isValidDate(birthday))) {
+    if (!(birthday && sundial.isValidDate(birthday))) {
       return 'Date of birth needs to be a valid date';
     }
 
     var diagnosisDate = formValues.diagnosisDate;
-    if (!(diagnosisDate && datetimeUtils.isValidDate(diagnosisDate))) {
+    if (!(diagnosisDate && sundial.isValidDate(diagnosisDate))) {
       return 'Diagnosis date needs to be a valid date';
     }
 
@@ -405,14 +424,14 @@ var PatientInfo = React.createClass({
       formValues.isOtherPerson = true;
     }
 
+    var offset = sundial.getOffsetFromTime(formValues.birthday) || sundial.getOffset();
+
     if (formValues.birthday) {
-      formValues.birthday = moment(formValues.birthday, FORM_DATE_FORMAT)
-        .format(SERVER_DATE_FORMAT);
+      formValues.birthday =  sundial.formatForStorage(formValues.birthday,offset);
     }
 
     if (formValues.diagnosisDate) {
-      formValues.diagnosisDate = moment(formValues.diagnosisDate, FORM_DATE_FORMAT)
-        .format(SERVER_DATE_FORMAT);
+      formValues.diagnosisDate = sundial.formatForStorage(formValues.diagnosisDate,offset);
     }
 
     if (!formValues.about) {

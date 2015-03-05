@@ -16,13 +16,12 @@
 
 var React = require('react');
 var _ = require('lodash');
-var moment = require('moment');
+var sundial = require('sundial');
 
 var personUtils = require('../../core/personutils');
 var InputGroup = require('../../components/inputgroup');
 var DatePicker = require('../../components/datepicker');
 var personUtils = require('../../core/personutils');
-var datetimeUtils = require('../../core/datetimeutils');
 
 var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 
@@ -289,17 +288,17 @@ var PatientNew = React.createClass({
   prepareFormValuesForValidation: function(formValues) {
     formValues = _.clone(formValues);
 
+    var offset = sundial.getOffset();
+
     if (this.isDateObjectComplete(formValues.birthday)) {
-      formValues.birthday = moment(formValues.birthday)
-        .format(MODEL_DATE_FORMAT);
+      formValues.birthday = sundial.formatFromOffset(formValues.birthday, offset, MODEL_DATE_FORMAT);
     }
     else {
       formValues.birthday = null;
     }
 
     if (this.isDateObjectComplete(formValues.diagnosisDate)) {
-      formValues.diagnosisDate = moment(formValues.diagnosisDate)
-        .format(MODEL_DATE_FORMAT);
+      formValues.diagnosisDate = sundial.formatFromOffset(formValues.diagnosisDate, offset, MODEL_DATE_FORMAT);
     }
     else {
       formValues.diagnosisDate = null;
@@ -331,14 +330,14 @@ var PatientNew = React.createClass({
     if (!formValues.birthday) {
       validationErrors.birthday = IS_REQUIRED;
     }
-    else if (!datetimeUtils.isValidDate(formValues.birthday)) {
+    else if (!sundial.isValidDate(formValues.birthday)) {
       validationErrors.birthday = IS_NOT_VALID_DATE;
     }
 
     if (!formValues.diagnosisDate) {
       validationErrors.diagnosisDate = IS_REQUIRED;
     }
-    else if (!datetimeUtils.isValidDate(formValues.diagnosisDate)) {
+    else if (!sundial.isValidDate(formValues.diagnosisDate)) {
       validationErrors.diagnosisDate = IS_NOT_VALID_DATE;
     }
 
