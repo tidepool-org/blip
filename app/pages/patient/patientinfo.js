@@ -288,15 +288,14 @@ var PatientInfo = React.createClass({
       return;
     }
 
-    var yrsAgo = sundial.ceil(birthday, 'year', sundial.getDeviceTimezone());
+    var yrsAgo = new Date().getFullYear()-new Date(birthday).getFullYear();
 
-    switch(yrsAgo) {
-      case yrsAgo === 1:
-        return '1 year old';
-      case yrsAgo > 1:
-        return yrsAgo +' years old';
-      default:
-        default 'Birthdate not known';
+    if (yrsAgo === 1) {
+      return '1 year old';
+    } else if (yrsAgo > 1) {
+      return yrsAgo +' years old';
+    } else {
+      return 'Birthdate not known';
     }
   },
 
@@ -308,17 +307,16 @@ var PatientInfo = React.createClass({
       return;
     }
 
-    var yrsAgo = sundial.ceil(diagnosisDate, 'year', sundial.getDeviceTimezone());
+    var yrsAgo = new Date().getFullYear()-new Date(diagnosisDate).getFullYear();
 
-    switch(yrsAgo) {
-      case yrsAgo === 0:
-        return 'Diagnosed This year';
-      case yrsAgo === 1:
-        return 'Diagnosed 1 year ago';
-      case yrsAgo > 1:
-        return 'Diagnosed ' yrsAgo + ' years ago';
-      default:
-        default 'Diagnosis date not known';
+    if (yrsAgo === 0) {
+      return 'Diagnosed This year';
+    } else if (yrsAgo === 1) {
+      return 'Diagnosed 1 year ago';
+    } else if (yrsAgo > 1) {
+      return 'Diagnosed ' + yrsAgo + ' years ago';
+    } else {
+      return 'Diagnosis date not known';
     }
   },
 

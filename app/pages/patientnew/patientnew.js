@@ -289,16 +289,20 @@ var PatientNew = React.createClass({
     formValues = _.clone(formValues);
 
     var offset = sundial.getOffset();
+    var formBDay = formValues.birthday;
+    var formDDay = formValues.diagnosisDate;
 
-    if (this.isDateObjectComplete(formValues.birthday)) {
-      formValues.birthday = sundial.formatFromOffset(formValues.birthday, offset, MODEL_DATE_FORMAT);
+    if (this.isDateObjectComplete(formBDay)) {
+      var bDay = new Date(formBDay.year,formBDay.month,formBDay.day);
+      formValues.birthday = sundial.formatFromOffset(bDay, offset, MODEL_DATE_FORMAT);
     }
     else {
       formValues.birthday = null;
     }
 
-    if (this.isDateObjectComplete(formValues.diagnosisDate)) {
-      formValues.diagnosisDate = sundial.formatFromOffset(formValues.diagnosisDate, offset, MODEL_DATE_FORMAT);
+    if (this.isDateObjectComplete(formDDay)) {
+      var dDay = new Date(formDDay.year,formDDay.month,formDDay.day);
+      formValues.diagnosisDate = sundial.formatFromOffset(dDay, offset, MODEL_DATE_FORMAT);
     }
     else {
       formValues.diagnosisDate = null;
