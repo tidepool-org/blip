@@ -511,6 +511,17 @@ describe('sundial', function() {
         expect(utcString).to.not.contain('z');
 
       });
+      it('returns a plausible date for future date', function() {
+        var fd0 = datetimeWrapper.futureDate(0);  // current time
+        var fd5 = datetimeWrapper.futureDate(5);  // 5 days from now
+        var jd0 = datetimeWrapper.parseFromFormat(fd0, 'YYYY-MM-DDTHH:mm:ss.SSSZ');
+        var jd5 = datetimeWrapper.parseFromFormat(fd5, 'YYYY-MM-DDTHH:mm:ss.SSSZ');
+        // this should be 5 days (plus a couple of msec)
+        var delta = jd5 - jd0;
+        var expected = 5 * 24 * 60 * datetimeWrapper.MIN_TO_MSEC;
+        var variance = delta - expected;
+        expect(variance < 10 && variance >= 0).to.be.true;
+      });
     });
 
   });
