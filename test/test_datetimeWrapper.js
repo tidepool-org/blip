@@ -537,19 +537,26 @@ describe('sundial', function() {
         var t1 = '2013-01-22T04:25:21.000Z';
         var t2 = '2013-01-23T04:25:21.000Z';
 
-        var diffHrs = datetimeWrapper.dateDifference(t1,t2,'hours');
-        expect(diffHrs).to.equal(-24);
+        var hrsNeg = datetimeWrapper.dateDifference(t1,t2,'hours');
+        expect(hrsNeg).to.equal(-24);
+
+        var hrs = datetimeWrapper.dateDifference(t2,t1,'hours');
+        expect(hrs).to.equal(24);
 
       });
-      it('returns the difference between two timestamps allowing for negative difference', function() {
-        var t1 = '2000-01-22T04:25:21.000Z';
-        var t2 = '2013-11-22T04:25:21.000Z';
+      it('returns the difference between two timestamps rounded down', function() {
+        var birthday = '2000-01-22T04:25:21.000Z';
+        var today = '2013-01-21T04:25:21.000Z';
 
-        var yrsNeg = datetimeWrapper.dateDifference(t1,t2,'years');
-        expect(yrsNeg).to.equal(-13);
+        var yrsAgo = datetimeWrapper.dateDifference(birthday,today,'years');
+        expect(yrsAgo).to.equal(-12);
 
-        var yrs = datetimeWrapper.dateDifference(t2,t1,'years');
-        expect(yrs).to.equal(13);
+        //and then if it was your bday 'today'
+        var birthdayToday = '2000-01-21T04:25:21.000Z';
+
+        var yrsAgo = datetimeWrapper.dateDifference(birthdayToday,today,'years');
+        expect(yrsAgo).to.equal(-13);
+
 
       });
     });
