@@ -81,6 +81,12 @@ describe('sundial', function() {
     it('should have utcString method',function(){
       expect(datetimeWrapper.utcDateString).exists;
     });
+    it('should have futureDate method',function(){
+      expect(datetimeWrapper.futureDate).exists;
+    });
+    it('should have dateDifference method',function(){
+      expect(datetimeWrapper.dateDifference).exists;
+    });
 
     describe('applyOffset', function() {
       it('should yield a UTC timestamp five hours later when given offset of 300, Zulu timestamp', function() {
@@ -511,6 +517,9 @@ describe('sundial', function() {
         expect(utcString).to.not.contain('z');
 
       });
+    });
+
+    describe('futureDate', function() {
       it('returns a plausible date for future date', function() {
         var fd0 = datetimeWrapper.futureDate(0);  // current time
         var fd5 = datetimeWrapper.futureDate(5);  // 5 days from now
@@ -523,6 +532,26 @@ describe('sundial', function() {
         expect(variance < 10 && variance >= 0).to.be.true;
       });
     });
+    describe('dateDifference', function() {
+      it('returns the difference between two timestamps', function() {
+        var t1 = '2013-01-22T04:25:21.000Z';
+        var t2 = '2013-01-23T04:25:21.000Z';
 
+        var diffHrs = datetimeWrapper.dateDifference(t1,t2,'hours');
+        expect(diffHrs).to.equal(-24);
+
+      });
+      it('returns the difference between two timestamps allowing for negative difference', function() {
+        var t1 = '2000-01-22T04:25:21.000Z';
+        var t2 = '2013-11-22T04:25:21.000Z';
+
+        var yrsNeg = datetimeWrapper.dateDifference(t1,t2,'years');
+        expect(yrsNeg).to.equal(-13);
+
+        var yrs = datetimeWrapper.dateDifference(t2,t1,'years');
+        expect(yrs).to.equal(13);
+
+      });
+    });
   });
 });
