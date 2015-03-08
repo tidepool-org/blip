@@ -554,7 +554,7 @@ describe('sundial', function() {
         //and then if it was your bday 'today'
         var birthdayToday = '2000-01-21T04:25:21.000Z';
 
-        var yrsAgo = datetimeWrapper.dateDifference(birthdayToday,today,'years');
+        yrsAgo = datetimeWrapper.dateDifference(birthdayToday,today,'years');
         expect(yrsAgo).to.equal(-13);
 
 
