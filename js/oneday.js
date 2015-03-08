@@ -514,7 +514,7 @@ module.exports = function(emitter) {
     var last = lastObj.normalEnd ? new Date(lastObj.normalEnd) : new Date(lastObj.normalTime);
 
     var minusOne = new Date(last);
-    minusOne.setDate(minusOne.getDate() - 1);
+    minusOne.setUTCHours(minusOne.getUTCHours() - 24);
     container.initialEndpoints = [minusOne, last];
 
     endpoints = [first, last];
