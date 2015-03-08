@@ -87,7 +87,9 @@ describe('sundial', function() {
     it('should have dateDifference method',function(){
       expect(datetimeWrapper.dateDifference).exists;
     });
-
+    it('should have isValidDateForMask method',function(){
+      expect(datetimeWrapper.isValidDateForMask).exists;
+    });
     describe('applyOffset', function() {
       it('should yield a UTC timestamp five hours later when given offset of 300, Zulu timestamp', function() {
         var res = datetimeWrapper.applyOffset('2014-01-01T00:00:00.000Z', 300);
@@ -448,6 +450,32 @@ describe('sundial', function() {
       });
       it('returns true for a valid date',function(){
         expect(datetimeWrapper.isValidDate(new Date().toISOString())).is.true;
+      });
+    });
+
+    describe('isValidDateForMask', function() {
+
+      var MASK = 'MM/DD/YYYY';
+
+      it('returns false for null',function(){
+        expect(datetimeWrapper.isValidDateForMask(null,MASK)).is.false;
+      });
+      it('returns false for empty string',function(){
+        expect(datetimeWrapper.isValidDateForMask('',MASK)).is.false;
+      });
+      it('returns false for invalid date',function(){
+        expect(datetimeWrapper.isValidDateForMask('Junk',MASK)).is.false;
+      });
+      it('returns false when valid date doesn\'t match the given mask',function(){
+        expect(datetimeWrapper.isValidDateForMask(new Date().toISOString(),MASK)).is.false;
+      });
+      it('returns false for a invalid date that matchs the mask',function(){
+        var badFebDate = '02/31/1999';
+        expect(datetimeWrapper.isValidDateForMask(badFebDate, MASK)).is.false;
+      });
+      it('returns true for a valid date that matchs the mask',function(){
+        var goodFebDate = '02/28/1999';
+        expect(datetimeWrapper.isValidDateForMask(goodFebDate, MASK)).is.true;
       });
     });
 
