@@ -91,6 +91,15 @@ module.exports = function(opts) {
     if (!arguments.length) return settings;
 
     settings = data.grouped.settings;
+    var firstBgTarget = settings[settings.length - 1].bgTarget[0];
+    if (_.has(firstBgTarget, 'target') && _.has(firstBgTarget, 'high')) {
+      opts.rowHeadersByType.bgTarget = ['Start time', 'Target (' + opts.bgUnits + ')', 'High (' + opts.bgUnits + ')'];
+      opts.mapsByType.bgTarget = {
+        start: msStartString,
+        target: function(x) { return x; },
+        high: function(x) { return x; }
+      };
+    }
     basalUtil = data.basalUtil;
     return container;
   };
