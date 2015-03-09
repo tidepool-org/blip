@@ -48,7 +48,7 @@
     "mocha": "2.2.1",
     "mversion": "1.10.0",
     "react": "0.12.2",
-    "script-loader": "0.6.0",
+    "script-loader": "0.6.1",
     "style-loader": "0.8.3",
     "testem": "0.7.1",
     "url-loader": "0.5.5",
