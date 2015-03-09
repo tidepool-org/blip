@@ -23,7 +23,7 @@
     "envify": "3.3.0",
     "envify-loader": "0.1.0",
     "file-loader": "0.8.1",
-    "hakken": "0.1.4",
+    "hakken": "0.1.7",
     "json-loader": "0.5.1",
     "jsx-loader": "0.12.2",
     "less": "2.4.0",
