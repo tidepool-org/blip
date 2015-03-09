@@ -37,7 +37,7 @@
     "gulp": "3.8.11",
     "gulp-jshint": "1.9.2",
     "istanbul": "0.3.7",
-    "jquery": "2.1.1",
+    "jquery": "2.1.3",
     "jquery-simulate": "git://github.com/jquery/jquery-simulate.git#b91832e9f1f65ee6c6f2dc93a5e917735c33db8e",
     "jshint": "2.6.3",
     "jshint-stylish": "1.0.1",
