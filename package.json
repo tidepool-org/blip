@@ -50,7 +50,7 @@
     "react": "0.12.2",
     "script-loader": "0.6.0",
     "style-loader": "0.8.3",
-    "testem": "0.6.18",
+    "testem": "0.7.1",
     "url-loader": "0.5.5",
     "webpack": "1.7.2",
     "webpack-dev-server": "1.7.0"
