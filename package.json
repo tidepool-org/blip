@@ -50,7 +50,7 @@
     "gulp-jshint": "1.9.2",
     "gulp-react": "2.1.0",
     "jshint-stylish": "1.0.1",
-    "mocha": "2.1.0",
+    "mocha": "2.2.1",
     "mocha-loader": "0.7.1",
     "sinon": "1.12.2",
     "sinon-chai": "2.7.0",
