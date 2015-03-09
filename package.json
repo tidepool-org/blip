@@ -46,7 +46,7 @@
     "less": "2.4.0",
     "less-loader": "0.7.7",
     "mocha": "2.2.1",
-    "mversion": "0.4.3",
+    "mversion": "1.10.0",
     "react": "0.11.1",
     "script-loader": "0.6.0",
     "style-loader": "0.8.3",
