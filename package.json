@@ -53,6 +53,6 @@
     "testem": "0.6.18",
     "url-loader": "0.5.5",
     "webpack": "1.4.4",
-    "webpack-dev-server": "1.4.7"
+    "webpack-dev-server": "1.7.0"
   }
 }
