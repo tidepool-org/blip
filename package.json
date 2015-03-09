@@ -41,7 +41,7 @@
     "tideline": "0.1.16",
     "tidepool-platform-client": "0.16.5",
     "url-loader": "0.5.5",
-    "webpack": "1.6.0"
+    "webpack": "1.7.2"
   },
   "devDependencies": {
     "blip-mock-data": "tidepool-org/blip-mock-data#v0.3.7",
