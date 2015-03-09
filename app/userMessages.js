@@ -34,12 +34,13 @@ module.exports = {
   ERR_FETCHING_MESSAGE_DATA : 'Something went wrong while fetching data for message thread with id ',
   ERR_UPDATING_ACCOUNT : 'Something went wrong while updating user account',
   ERR_UPDATING_PATIENT : 'Something went wrong while saving patient',
-  ERR_GENERIC : 'Sorry! Something went wrong. It\'s our fault, not yours. We\'re going to investigate. For the time being, go ahead and ',
-  ERR_SERVICE_DOWN : 'Sorry! Something went wrong. It\'s our fault, not yours. We\'re going to investigate. Please try again in a few moments.',
-  ERR_OFFLINE : 'It appears that you are offline. Blip requires that you be connected to the internet.',
+  ERR_GENERIC : 'Sorry! Something went wrong. It\'s our fault, not yours. We\'re going to investigate.',
+  ERR_SERVICE_DOWN : 'Sorry! Something went wrong. It\'s our fault, not yours. We\'re going to go investigate. Please try again in a few moments.',
+  ERR_OFFLINE : 'Sorry but it appears that you are offline. Blip requires that you be connected to the internet.',
   ERR_ACCOUNT_NOT_CONFIGURED : 'Sorry! It appears that this account hasn\'t been fully set up. Please notify the account owner that the storage may not be set up for the account.',
   ERR_YOUR_ACCOUNT_NOT_CONFIGURED : 'Sorry! It appears that this account hasn\'t been fully set up.',
   YOUR_ACCOUNT_DATA_SETUP : 'Click here to complete the "Set up data storage" step.',
+  MSG_UTC : 'UTC time: ',
   STUFF: getStuff()
 };
 

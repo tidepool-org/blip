@@ -1333,6 +1333,8 @@ var AppComponent = React.createClass({
 
   handleApiError: function(error, message, details) {
 
+    var utcTime = usrMessages.MSG_UTC + new Date().toISOString();
+
     if (message) {
       app.log(message);
     }
@@ -1351,10 +1353,20 @@ var AppComponent = React.createClass({
 
       if(error.status === 500){
         //somethings down, give a bit of time then they can try again
-        body = ( <p> {usrMessages.ERR_SERVICE_DOWN} </p> );
+        body = (
+          <div>
+            <p> {usrMessages.ERR_SERVICE_DOWN} </p>
+            <p> {utcTime} </p>
+          </div>
+        );
       } else if(error.status === 503){
         //offline nothing is going to work
-        body = ( <p> {usrMessages.ERR_OFFLINE} </p> );
+        body = (
+          <div>
+            <p> {usrMessages.ERR_OFFLINE} </p>
+            <p> {utcTime} </p>
+          </div>
+        );
       } else {
 
         var originalErrorMessage = [
@@ -1363,13 +1375,10 @@ var AppComponent = React.createClass({
 
         body = (
           <div>
-            <p>
-              {usrMessages.ERR_GENERIC}
-              <a href="/">refresh your browser</a>
-              {'.'}
-            </p>
+            <p>{usrMessages.ERR_GENERIC}</p>
             <p className="notification-body-small">
               <code>{'Original error message: ' + originalErrorMessage}</code>
+              <br>{utcTime}</br>
             </p>
           </div>
         );
