@@ -477,6 +477,29 @@ describe('sundial', function() {
         var goodFebDate = '02/28/1999';
         expect(datetimeWrapper.isValidDateForMask(goodFebDate, MASK)).is.true;
       });
+      it('works for a range of dates',function(){
+
+        var badFebDate = '02/29/1999';
+        expect(datetimeWrapper.isValidDateForMask(badFebDate, MASK)).is.false;
+
+        var feb2012LeapYear = '02/29/2012';
+        expect(datetimeWrapper.isValidDateForMask(feb2012LeapYear, MASK)).is.true;
+
+        var feb2008LeapYear = '02/29/2008';
+        expect(datetimeWrapper.isValidDateForMask(feb2008LeapYear, MASK)).is.true;
+
+        var badAprilDate = '04/31/1962';
+        expect(datetimeWrapper.isValidDateForMask(badAprilDate, MASK)).is.false;
+
+        var badJuneDate = '06/31/1951';
+        expect(datetimeWrapper.isValidDateForMask(badJuneDate, MASK)).is.false;
+        
+        var badSepDate = '09/31/1977';
+        expect(datetimeWrapper.isValidDateForMask(badSepDate, MASK)).is.false;
+        
+        var badNovDate = '11/31/1983';
+        expect(datetimeWrapper.isValidDateForMask(badNovDate, MASK)).is.false;
+      });
     });
 
     describe('parseFromFormat', function() {
