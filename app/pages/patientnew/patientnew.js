@@ -334,14 +334,14 @@ var PatientNew = React.createClass({
     if (!formValues.birthday) {
       validationErrors.birthday = IS_REQUIRED;
     }
-    else if (!sundial.isValidDate(formValues.birthday)) {
+    else if (!sundial.isValidDateForMask(formValues.birthday, MODEL_DATE_FORMAT)) {
       validationErrors.birthday = IS_NOT_VALID_DATE;
     }
 
     if (!formValues.diagnosisDate) {
       validationErrors.diagnosisDate = IS_REQUIRED;
     }
-    else if (!sundial.isValidDate(formValues.diagnosisDate)) {
+    else if (!sundial.isValidDateForMask(formValues.diagnosisDate, MODEL_DATE_FORMAT)) {
       validationErrors.diagnosisDate = IS_NOT_VALID_DATE;
     }
 

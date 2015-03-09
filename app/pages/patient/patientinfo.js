@@ -288,7 +288,7 @@ var PatientInfo = React.createClass({
       return;
     }
 
-    var yrsAgo = new Date().getFullYear()-new Date(birthday).getFullYear();
+    var yrsAgo = sundial.dateDifference(new Date(), birthday, 'years');
 
     if (yrsAgo === 1) {
       return '1 year old';
@@ -307,7 +307,7 @@ var PatientInfo = React.createClass({
       return;
     }
 
-    var yrsAgo = new Date().getFullYear()-new Date(diagnosisDate).getFullYear();
+    var yrsAgo = sundial.dateDifference(new Date(), diagnosisDate, 'years');
 
     if (yrsAgo === 0) {
       return 'Diagnosed This year';
@@ -391,12 +391,12 @@ var PatientInfo = React.createClass({
     }
 
     var birthday = formValues.birthday;
-    if (!(birthday && sundial.isValidDate(birthday))) {
+    if (!(birthday && sundial.isValidDateForMask(birthday,FORM_DATE_FORMAT))) {
       return 'Date of birth needs to be a valid date';
     }
 
     var diagnosisDate = formValues.diagnosisDate;
-    if (!(diagnosisDate && sundial.isValidDate(diagnosisDate))) {
+    if (!(diagnosisDate && sundial.isValidDateForMask(diagnosisDate,FORM_DATE_FORMAT))) {
       return 'Diagnosis date needs to be a valid date';
     }
 
