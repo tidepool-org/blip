@@ -310,7 +310,7 @@ var PatientInfo = React.createClass({
     var yrsAgo = sundial.dateDifference(new Date(), diagnosisDate, 'years');
 
     if (yrsAgo === 0) {
-      return 'Diagnosed This year';
+      return 'Diagnosed this year';
     } else if (yrsAgo === 1) {
       return 'Diagnosed 1 year ago';
     } else if (yrsAgo > 1) {
@@ -335,14 +335,14 @@ var PatientInfo = React.createClass({
 
     formValues.fullName = personUtils.patientFullName(patient);
 
-    var offset = sundial.getOffsetFromTime(patientInfo.birthday) || sundial.getOffset();
-
     if (patientInfo.birthday) {
-      formValues.birthday =  sundial.formatFromOffset(patientInfo.birthday,offset,FORM_DATE_FORMAT);
+      // we store birthday as yyyy-mm-dd with no time or offset info, so use offset of 0 to format
+      formValues.birthday =  sundial.formatFromOffset(patientInfo.birthday,0,FORM_DATE_FORMAT);
     }
 
     if (patientInfo.diagnosisDate) {
-      formValues.diagnosisDate = sundial.formatFromOffset(patientInfo.diagnosisDate,offset,FORM_DATE_FORMAT);
+      // we store diagnosisDate as yyyy-mm-dd with no time or offset info, so use offset of 0 to format
+      formValues.diagnosisDate = sundial.formatFromOffset(patientInfo.diagnosisDate,0,FORM_DATE_FORMAT);
     }
 
     if (patientInfo.about) {
