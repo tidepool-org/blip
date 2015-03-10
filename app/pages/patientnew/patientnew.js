@@ -311,10 +311,12 @@ var PatientNew = React.createClass({
     return formValues;
   },
 
-  //dates - I hate you!
+  // because JavaScript Date will coerce impossible dates into possible ones with
+  // no opportunity for exposing the error to the user
+  // i.e., mis-typing 02/31/2014 instead of 03/31/2014 will be saved as 03/03/2014!
   makeRawDateString: function(dateObj){
 
-    var mm = ''+(parseInt(dateObj.month) + 1); //as a string
+    var mm = ''+(parseInt(dateObj.month) + 1); //as a string, add 1 because 0-indexed
     mm = (mm.length === 1) ? '0'+ mm : mm;
     var dd = (dateObj.day.length === 1) ? '0'+dateObj.day : dateObj.day;
 
