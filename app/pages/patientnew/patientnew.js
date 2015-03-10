@@ -287,22 +287,18 @@ var PatientNew = React.createClass({
 
   prepareFormValuesForValidation: function(formValues) {
     formValues = _.clone(formValues);
-
-    var offset = sundial.getOffset();
     var formBDay = formValues.birthday;
     var formDDay = formValues.diagnosisDate;
 
     if (this.isDateObjectComplete(formBDay)) {
-      var bDay = new Date(formBDay.year,formBDay.month,formBDay.day);
-      formValues.birthday = sundial.formatFromOffset(bDay, offset, MODEL_DATE_FORMAT);
+      formValues.birthday = this.makeRawDateString(formBDay);
     }
     else {
       formValues.birthday = null;
     }
 
     if (this.isDateObjectComplete(formDDay)) {
-      var dDay = new Date(formDDay.year,formDDay.month,formDDay.day);
-      formValues.diagnosisDate = sundial.formatFromOffset(dDay, offset, MODEL_DATE_FORMAT);
+      formValues.diagnosisDate = this.makeRawDateString(formDDay);
     }
     else {
       formValues.diagnosisDate = null;
@@ -315,11 +311,21 @@ var PatientNew = React.createClass({
     return formValues;
   },
 
+  //dates - I hate you!
+  makeRawDateString: function(dateObj){
+
+    var mm = ''+(parseInt(dateObj.month) + 1); //as a string
+    mm = (mm.length === 1) ? '0'+ mm : mm;
+    var dd = (dateObj.day.length === 1) ? '0'+dateObj.day : dateObj.day;
+
+    return dateObj.year+'-'+mm+'-'+dd;
+  },
+
   isDateObjectComplete: function(dateObj) {
     if (!dateObj) {
       return false;
     }
-    return !(_.isEmpty(dateObj.year) || _.isEmpty(dateObj.month) || _.isEmpty(dateObj.day));
+    return !(_.isEmpty(dateObj.year) && dateObj.year.length === 4 || _.isEmpty(dateObj.month) || _.isEmpty(dateObj.day));
   },
 
   validateFormValues: function(formValues) {
