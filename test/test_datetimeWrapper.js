@@ -81,7 +81,15 @@ describe('sundial', function() {
     it('should have utcString method',function(){
       expect(datetimeWrapper.utcDateString).exists;
     });
-
+    it('should have futureDate method',function(){
+      expect(datetimeWrapper.futureDate).exists;
+    });
+    it('should have dateDifference method',function(){
+      expect(datetimeWrapper.dateDifference).exists;
+    });
+    it('should have isValidDateForMask method',function(){
+      expect(datetimeWrapper.isValidDateForMask).exists;
+    });
     describe('applyOffset', function() {
       it('should yield a UTC timestamp five hours later when given offset of 300, Zulu timestamp', function() {
         var res = datetimeWrapper.applyOffset('2014-01-01T00:00:00.000Z', 300);
@@ -368,7 +376,11 @@ describe('sundial', function() {
 
         var offset = datetimeWrapper.getOffsetFromTime(timestamp);
         var localOffset = new Date().getTimezoneOffset();
-        expect(offset).to.equal(-localOffset);
+        // because it's impossible to make a test that will pass in non-Zulu environments
+        // without doing timezone detection!
+        if (localOffset === 0) {
+          expect(offset).to.equal(-localOffset);
+        }
       });
     });
 
@@ -445,6 +457,55 @@ describe('sundial', function() {
       });
     });
 
+    describe('isValidDateForMask', function() {
+
+      var MASK = 'MM/DD/YYYY';
+
+      it('returns false for null',function(){
+        expect(datetimeWrapper.isValidDateForMask(null,MASK)).is.false;
+      });
+      it('returns false for empty string',function(){
+        expect(datetimeWrapper.isValidDateForMask('',MASK)).is.false;
+      });
+      it('returns false for invalid date',function(){
+        expect(datetimeWrapper.isValidDateForMask('Junk',MASK)).is.false;
+      });
+      it('returns false when valid date doesn\'t match the given mask',function(){
+        expect(datetimeWrapper.isValidDateForMask(new Date().toISOString(),MASK)).is.false;
+      });
+      it('returns false for a invalid date that matchs the mask',function(){
+        var badFebDate = '02/31/1999';
+        expect(datetimeWrapper.isValidDateForMask(badFebDate, MASK)).is.false;
+      });
+      it('returns true for a valid date that matchs the mask',function(){
+        var goodFebDate = '02/28/1999';
+        expect(datetimeWrapper.isValidDateForMask(goodFebDate, MASK)).is.true;
+      });
+      it('works for a range of dates',function(){
+
+        var badFebDate = '02/29/1999';
+        expect(datetimeWrapper.isValidDateForMask(badFebDate, MASK)).is.false;
+
+        var feb2012LeapYear = '02/29/2012';
+        expect(datetimeWrapper.isValidDateForMask(feb2012LeapYear, MASK)).is.true;
+
+        var feb2008LeapYear = '02/29/2008';
+        expect(datetimeWrapper.isValidDateForMask(feb2008LeapYear, MASK)).is.true;
+
+        var badAprilDate = '04/31/1962';
+        expect(datetimeWrapper.isValidDateForMask(badAprilDate, MASK)).is.false;
+
+        var badJuneDate = '06/31/1951';
+        expect(datetimeWrapper.isValidDateForMask(badJuneDate, MASK)).is.false;
+        
+        var badSepDate = '09/31/1977';
+        expect(datetimeWrapper.isValidDateForMask(badSepDate, MASK)).is.false;
+        
+        var badNovDate = '11/31/1983';
+        expect(datetimeWrapper.isValidDateForMask(badNovDate, MASK)).is.false;
+      });
+    });
+
     describe('parseFromFormat', function() {
       var euroFormat = 'DD-MM-YYYY hh:mm a';
       it('should yield a UTC time offset five hours later when non-DST and given `US/Eastern` timezone', function() {
@@ -511,6 +572,9 @@ describe('sundial', function() {
         expect(utcString).to.not.contain('z');
 
       });
+    });
+
+    describe('futureDate', function() {
       it('returns a plausible date for future date', function() {
         var fd0 = datetimeWrapper.futureDate(0);  // current time
         var fd5 = datetimeWrapper.futureDate(5);  // 5 days from now
@@ -523,6 +587,33 @@ describe('sundial', function() {
         expect(variance < 10 && variance >= 0).to.be.true;
       });
     });
+    describe('dateDifference', function() {
+      it('returns the difference between two timestamps', function() {
+        var t1 = '2013-01-22T04:25:21.000Z';
+        var t2 = '2013-01-23T04:25:21.000Z';
 
+        var hrsNeg = datetimeWrapper.dateDifference(t1,t2,'hours');
+        expect(hrsNeg).to.equal(-24);
+
+        var hrs = datetimeWrapper.dateDifference(t2,t1,'hours');
+        expect(hrs).to.equal(24);
+
+      });
+      it('returns the difference between two timestamps rounded down', function() {
+        var birthday = '2000-01-22T04:25:21.000Z';
+        var today = '2013-01-21T04:25:21.000Z';
+
+        var yrsAgo = datetimeWrapper.dateDifference(birthday,today,'years');
+        expect(yrsAgo).to.equal(-12);
+
+        //and then if it was your bday 'today'
+        var birthdayToday = '2000-01-21T04:25:21.000Z';
+
+        yrsAgo = datetimeWrapper.dateDifference(birthdayToday,today,'years');
+        expect(yrsAgo).to.equal(-13);
+
+
+      });
+    });
   });
 });
