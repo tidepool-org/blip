@@ -14,6 +14,7 @@ Table of contents:
 
 - [Install](#install)
 - [Quick start](#quick-start)
+  - [Running locally](#running-local)
 - [Config](#config)
 - [Development](#development)
     - [Code organization](#code-organization)
@@ -29,7 +30,7 @@ Table of contents:
     - [Perceived speed](#perceived-speed)
 - [Testing](#testing)
 - [Build and deployment](#build-and-deployment)
-- [Running locally](#running-local)
+
 
 ## Install
 
@@ -54,6 +55,12 @@ $ npm start
 
 Open your web browser and navigate to `http://localhost:3000/`. You can see the
 mock data by logging in with email "**demo**" and password "**demo**".
+
+### Running local
+
+If you are running Blip and all services locally as per [Run Servers](https://github.com/tidepool-org/tools#runservers) then there is a workaround so you don't have to verify your new user.
+
+If you create a new user then add the localhost secret +skip to the email address. e.g. ```me+skip@something.org```. This will then allow you to login straight away.
 
 ## Config
 
@@ -311,9 +318,3 @@ $ source config/mock.sh
 $ npm run build
 $ npm run server
 ```
-
-### Running local
-
-If you are running Blip and all services locally as per [Run Servers](https://github.com/tidepool-org/tools#runservers) then there is a workaround so you don't have to verify your new user.
-
-If you create a new user then add the localhost secret +skip to the email address. e.g. ```me+skip@something.org```. This will then allow you to login straight away.

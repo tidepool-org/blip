@@ -1116,14 +1116,13 @@ var AppComponent = React.createClass({
 
     app.api.patient.get(patientId, function(err, patient) {
       if (err) {
-        self.setState({fetchingPatient: false});
-
-        // Patient with id not found, cary on
         if (err.status === 404) {
           app.log('Patient not found with id '+patientId);
-          return;
+          var setupMsg = (patientId === self.state.user.userid) ? usrMessages.ERR_YOUR_ACCOUNT_NOT_CONFIGURED : usrMessages.ERR_ACCOUNT_NOT_CONFIGURED;
+          var dataStoreLink = (<a href="#/patients/new" onClick={self.closeNotification}>{usrMessages.YOUR_ACCOUNT_DATA_SETUP}</a>);
+          return self.handleActionableError(err, setupMsg, dataStoreLink);
         }
-
+        // we can't deal with it so just show error handler
         return self.handleApiError(err, usrMessages.ERR_FETCHING_PATIENT+patientId, buildExceptionDetails());
       }
 
@@ -1333,6 +1332,9 @@ var AppComponent = React.createClass({
   },
 
   handleApiError: function(error, message, details) {
+
+    var utcTime = usrMessages.MSG_UTC + new Date().toISOString();
+
     if (message) {
       app.log(message);
     }
@@ -1351,10 +1353,20 @@ var AppComponent = React.createClass({
 
       if(error.status === 500){
         //somethings down, give a bit of time then they can try again
-        body = ( <p> {usrMessages.ERR_SERVICE_DOWN} </p> );
+        body = (
+          <div>
+            <p> {usrMessages.ERR_SERVICE_DOWN} </p>
+            <p> {utcTime} </p>
+          </div>
+        );
       } else if(error.status === 503){
         //offline nothing is going to work
-        body = ( <p> {usrMessages.ERR_OFFLINE} </p> );
+        body = (
+          <div>
+            <p> {usrMessages.ERR_OFFLINE} </p>
+            <p> {utcTime} </p>
+          </div>
+        );
       } else {
 
         var originalErrorMessage = [
@@ -1363,13 +1375,10 @@ var AppComponent = React.createClass({
 
         body = (
           <div>
-            <p>
-              {usrMessages.ERR_GENERIC}
-              <a href="/">refresh your browser</a>
-              {'.'}
-            </p>
+            <p>{usrMessages.ERR_GENERIC}</p>
             <p className="notification-body-small">
               <code>{'Original error message: ' + originalErrorMessage}</code>
+              <br>{utcTime}</br>
             </p>
           </div>
         );
@@ -1382,6 +1391,30 @@ var AppComponent = React.createClass({
         }
       });
     }
+  },
+
+  handleActionableError: function(error, message, link) {
+
+    var utcTime = usrMessages.MSG_UTC + new Date().toISOString();
+
+    message = message || '';
+    //send it quick
+    app.api.errors.log(this.stringifyErrorData(error), message, '');
+
+    var body = (
+      <div>
+        <p>{message}</p>
+        {link}
+      </div>
+    );
+
+    this.setState({
+      notification: {
+        type: 'alert',
+        body: body,
+        isDismissable: true
+      }
+    });
   },
 
   stringifyErrorData: function(data) {
