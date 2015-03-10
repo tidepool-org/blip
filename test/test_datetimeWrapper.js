@@ -39,6 +39,9 @@ describe('sundial', function() {
     it('should have a checkTimezoneName method',function(){
       expect(datetimeWrapper.checkTimezoneName).exists;
     });
+    it('should have dateDifference method',function(){
+      expect(datetimeWrapper.dateDifference).exists;
+    });
     it('should have a floor method',function(){
       expect(datetimeWrapper.floor).exists;
     });
@@ -69,26 +72,26 @@ describe('sundial', function() {
     it('should have getTimezones method',function(){
       expect(datetimeWrapper.getTimezones).exists;
     });
+    it('should have futureDate method',function(){
+      expect(datetimeWrapper.futureDate).exists;
+    });
     it('should have isISODate method',function(){
       expect(datetimeWrapper.isISODate).exists;
     });
     it('should have isValidDate method',function(){
       expect(datetimeWrapper.isValidDate).exists;
     });
+    it('should have isValidDateForMask method',function(){
+      expect(datetimeWrapper.isValidDateForMask).exists;
+    });
     it('should have parseFromFormat method',function(){
       expect(datetimeWrapper.parseFromFormat).exists;
     });
+    it('should have a translateMask method',function(){
+      expect(datetimeWrapper.translateMask).exists;
+    });
     it('should have utcString method',function(){
       expect(datetimeWrapper.utcDateString).exists;
-    });
-    it('should have futureDate method',function(){
-      expect(datetimeWrapper.futureDate).exists;
-    });
-    it('should have dateDifference method',function(){
-      expect(datetimeWrapper.dateDifference).exists;
-    });
-    it('should have isValidDateForMask method',function(){
-      expect(datetimeWrapper.isValidDateForMask).exists;
     });
     describe('applyOffset', function() {
       it('should yield a UTC timestamp five hours later when given offset of 300, Zulu timestamp', function() {
@@ -222,6 +225,35 @@ describe('sundial', function() {
       });
     });
 
+    describe('dateDifference', function() {
+      it('returns the difference between two timestamps', function() {
+        var t1 = '2013-01-22T04:25:21.000Z';
+        var t2 = '2013-01-23T04:25:21.000Z';
+
+        var hrsNeg = datetimeWrapper.dateDifference(t1,t2,'hours');
+        expect(hrsNeg).to.equal(-24);
+
+        var hrs = datetimeWrapper.dateDifference(t2,t1,'hours');
+        expect(hrs).to.equal(24);
+
+      });
+      it('returns the difference between two timestamps rounded down', function() {
+        var birthday = '2000-01-22T04:25:21.000Z';
+        var today = '2013-01-21T04:25:21.000Z';
+
+        var yrsAgo = datetimeWrapper.dateDifference(birthday,today,'years');
+        expect(yrsAgo).to.equal(-12);
+
+        //and then if it was your bday 'today'
+        var birthdayToday = '2000-01-21T04:25:21.000Z';
+
+        yrsAgo = datetimeWrapper.dateDifference(birthdayToday,today,'years');
+        expect(yrsAgo).to.equal(-13);
+
+
+      });
+    });
+
     describe('floor', function() {
       it('returns previous midnight when units are days', function() {
         var res = datetimeWrapper.floor('2014-01-01T12:00:00.000Z', 'days');
@@ -320,6 +352,20 @@ describe('sundial', function() {
       it('should throw an error if timezone name not recognized by moment', function() {
         var fn = function() { datetimeWrapper.formatInTimezone('2014-01-01T15:00:00Z', 'Foo', 'DDDo'); };
         expect(fn).to.throw(Error, 'Unrecognized timezone name!');
+      });
+    });
+
+    describe('futureDate', function() {
+      it('returns a plausible date for future date', function() {
+        var fd0 = datetimeWrapper.futureDate(0);  // current time
+        var fd5 = datetimeWrapper.futureDate(5);  // 5 days from now
+        var jd0 = datetimeWrapper.parseFromFormat(fd0, 'YYYY-MM-DDTHH:mm:ss.SSSZ');
+        var jd5 = datetimeWrapper.parseFromFormat(fd5, 'YYYY-MM-DDTHH:mm:ss.SSSZ');
+        // this should be 5 days (plus a couple of msec)
+        var delta = jd5 - jd0;
+        var expected = 5 * 24 * 60 * datetimeWrapper.MIN_TO_MSEC;
+        var variance = delta - expected;
+        expect(variance < 10 && variance >= 0).to.be.true;
       });
     });
 
@@ -541,6 +587,24 @@ describe('sundial', function() {
       });
     });
 
+    describe('translateMask', function() {
+      var AMERICAN_MASK = 'MM/DD/YYYY';
+      var INTL_MASK = 'DD/MM/YYYY';
+      var ISO_MASK = 'YYYY-MM-DD';
+      it('translates an American date format into ISO date format', function() {
+        expect(datetimeWrapper.translateMask('03/10/2014', AMERICAN_MASK, ISO_MASK)).to.equal('2014-03-10');
+      });
+
+      it('translates an international date format into ISO date format', function() {
+        expect(datetimeWrapper.translateMask('10/03/2014', INTL_MASK, ISO_MASK)).to.equal('2014-03-10');
+      });
+
+      it('throws an error if input datetime does not match input mask', function() {
+        var fn = function() { datetimeWrapper.translateMask('31/03/2014', AMERICAN_MASK, ISO_MASK); };
+        expect(fn).to.throw(Error);
+      });
+    });
+
     describe('utcDateString', function() {
       /*
        * http://en.wikipedia.org/wiki/Iso8601#Time_offsets_from_UTC
@@ -570,48 +634,6 @@ describe('sundial', function() {
 
         expect(utcString).to.not.contain('Z');
         expect(utcString).to.not.contain('z');
-
-      });
-    });
-
-    describe('futureDate', function() {
-      it('returns a plausible date for future date', function() {
-        var fd0 = datetimeWrapper.futureDate(0);  // current time
-        var fd5 = datetimeWrapper.futureDate(5);  // 5 days from now
-        var jd0 = datetimeWrapper.parseFromFormat(fd0, 'YYYY-MM-DDTHH:mm:ss.SSSZ');
-        var jd5 = datetimeWrapper.parseFromFormat(fd5, 'YYYY-MM-DDTHH:mm:ss.SSSZ');
-        // this should be 5 days (plus a couple of msec)
-        var delta = jd5 - jd0;
-        var expected = 5 * 24 * 60 * datetimeWrapper.MIN_TO_MSEC;
-        var variance = delta - expected;
-        expect(variance < 10 && variance >= 0).to.be.true;
-      });
-    });
-    describe('dateDifference', function() {
-      it('returns the difference between two timestamps', function() {
-        var t1 = '2013-01-22T04:25:21.000Z';
-        var t2 = '2013-01-23T04:25:21.000Z';
-
-        var hrsNeg = datetimeWrapper.dateDifference(t1,t2,'hours');
-        expect(hrsNeg).to.equal(-24);
-
-        var hrs = datetimeWrapper.dateDifference(t2,t1,'hours');
-        expect(hrs).to.equal(24);
-
-      });
-      it('returns the difference between two timestamps rounded down', function() {
-        var birthday = '2000-01-22T04:25:21.000Z';
-        var today = '2013-01-21T04:25:21.000Z';
-
-        var yrsAgo = datetimeWrapper.dateDifference(birthday,today,'years');
-        expect(yrsAgo).to.equal(-12);
-
-        //and then if it was your bday 'today'
-        var birthdayToday = '2000-01-21T04:25:21.000Z';
-
-        yrsAgo = datetimeWrapper.dateDifference(birthdayToday,today,'years');
-        expect(yrsAgo).to.equal(-13);
-
 
       });
     });
