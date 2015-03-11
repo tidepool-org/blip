@@ -20,8 +20,9 @@ var sundial = require('sundial');
 
 var personUtils = require('../../core/personutils');
 
-
+//date masks we use
 var FORM_DATE_FORMAT = 'MM/DD/YYYY';
+var SERVER_DATE_FORMAT = 'YYYY-MM-DD';
 
 var PatientInfo = React.createClass({
   propTypes: {
@@ -336,13 +337,11 @@ var PatientInfo = React.createClass({
     formValues.fullName = personUtils.patientFullName(patient);
 
     if (patientInfo.birthday) {
-      // we store birthday as yyyy-mm-dd with no time or offset info, so use offset of 0 to format
-      formValues.birthday =  sundial.formatFromOffset(patientInfo.birthday,0,FORM_DATE_FORMAT);
+      formValues.birthday =  sundial.translateMask(patientInfo.birthday, SERVER_DATE_FORMAT, FORM_DATE_FORMAT);
     }
 
     if (patientInfo.diagnosisDate) {
-      // we store diagnosisDate as yyyy-mm-dd with no time or offset info, so use offset of 0 to format
-      formValues.diagnosisDate = sundial.formatFromOffset(patientInfo.diagnosisDate,0,FORM_DATE_FORMAT);
+      formValues.diagnosisDate = sundial.translateMask(patientInfo.diagnosisDate, SERVER_DATE_FORMAT, FORM_DATE_FORMAT);
     }
 
     if (patientInfo.about) {
@@ -422,14 +421,12 @@ var PatientInfo = React.createClass({
       formValues.isOtherPerson = true;
     }
 
-    var offset = sundial.getOffsetFromTime(formValues.birthday) || sundial.getOffset();
-
     if (formValues.birthday) {
-      formValues.birthday =  sundial.formatForStorage(formValues.birthday,offset);
+      formValues.birthday =  sundial.translateMask(formValues.birthday, FORM_DATE_FORMAT, SERVER_DATE_FORMAT);
     }
 
     if (formValues.diagnosisDate) {
-      formValues.diagnosisDate = sundial.formatForStorage(formValues.diagnosisDate,offset);
+      formValues.diagnosisDate = sundial.translateMask(formValues.diagnosisDate, FORM_DATE_FORMAT, SERVER_DATE_FORMAT);
     }
 
     if (!formValues.about) {
