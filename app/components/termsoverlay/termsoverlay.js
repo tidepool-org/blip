@@ -31,22 +31,41 @@ var TermsOverlay = React.createClass({
   render: function() {
     var checkbox = this.renderCheckbox();
     var submitButton = this.renderSubmitButton();
+    var terms = this.websiteTerms();
 
     return (
       /* jshint ignore:start */
       <div className="terms-overlay js-terms">
         <div className="terms-overlay-content terms-overlay-box">
           <div className="terms-overlay-title">TERMS OF USE</div>
-          <div className="terms-overlay-text">
-            <p>This is pre-released software for test purposes only. It is not intended for general use or for medical decision making outside of currently approved pilot studies. Please send all questions, comments or other feedback on this software to <a href="mailto:support@tidepool.org">support@tidepool.org</a>.</p>
-            <p>If you are not a participant in an approved pilot study, then you must read and agree to the terms of the <a target="_blank" href="http://developer.tidepool.io/files/tidepool-vcla.pdf">Tidepool Volunteer/Contributor License Agreement</a>.</p>
-            <p><strong>Do not make therapy changes without first consulting your physician.</strong></p>
-          </div>
+          {terms}
           <form className="terms-overlay-form">
             {checkbox}
             {submitButton}
           </form>
         </div>
+      </div>
+      /* jshint ignore:end */
+    );
+  },
+
+  websiteTerms: function() {
+    return React.DOM.iframe({
+      className         : "terms-overlay-iframe",
+      src               : "http://tidepool.org/products/blip",
+      scrolling         : "no",
+      frameborder       : "0",
+      allowTransparency : "true"
+    });
+  },
+
+  terms: function() {
+    return (
+      /* jshint ignore:start */
+      <div className="terms-overlay-text">
+        <p>This is pre-released software for test purposes only. It is not intended for general use or for medical decision making outside of currently approved pilot studies. Please send all questions, comments or other feedback on this software to <a href="mailto:support@tidepool.org">support@tidepool.org</a>.</p>
+        <p>If you are not a participant in an approved pilot study, then you must read and agree to the terms of the <a target="_blank" href="http://developer.tidepool.io/files/tidepool-vcla.pdf">Tidepool Volunteer/Contributor License Agreement</a>.</p>
+        <p><strong>Do not make therapy changes without first consulting your physician.</strong></p>
       </div>
       /* jshint ignore:end */
     );
