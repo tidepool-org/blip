@@ -57,6 +57,12 @@ module.exports = function (config, deps) {
 
   return {
     /**
+     * Do any requied initialization
+     */
+    initialize: function(cb){
+      return user.initialize(cb);
+    },
+    /**
     * Url used for uploads to the platform
     *
     * @returns {String} url for uploads
@@ -627,7 +633,6 @@ module.exports = function (config, deps) {
     destroySession: user.destroySession,
     getCurrentUser: user.getCurrentUser,
     getUserId: user.getUserId,
-    initialize: user.initialize,
     isLoggedIn: user.isLoggedIn,
     login: user.login,
     logout: user.logout,
