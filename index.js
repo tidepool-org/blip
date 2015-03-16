@@ -16,11 +16,8 @@
 'use strict';
 
 var _ = require('lodash');
-var async = require('async');
 
 var id = require('./lib/id.js');
-
-var tokenLocalKey = 'authToken';
 
 function defaultProperty(obj, property, defaultValue) {
   if (obj[property] == null) {
@@ -41,12 +38,12 @@ var requireConfig = requireProperty.bind(null, 'config');
 var requireDep = requireProperty.bind(null, 'deps');
 
 module.exports = function (config, deps) {
-  var myToken = null;
-  var myUserId = null;
+  //var myToken = null;
+  //var myUserId = null;
 
   // This is a 'version' counter for the number of times we've logged in.
   // It is used to invalidate stale attempts at refreshing a token
-  var loginVersion = 0;
+  //var loginVersion = 0;
 
   var superagent = requireDep(deps, 'superagent');
   var log = requireDep(deps, 'log');
@@ -62,10 +59,8 @@ module.exports = function (config, deps) {
   config.metricsSource = config.metricsSource.replace(/-/g, ' ');
 
   var common = require('./lib/common.js')(config, deps);
-  var confirm = require('./confirm.js')(
-    common,
-    {superagent:superagent, findProfile: findProfile}
-  );
+  var confirm = require('./confirm.js')( common, {superagent:superagent, findProfile: findProfile});
+  var user = require('./user.js')( common, config, {superagent:superagent, log: log, localStore: localStore});
 
   /**
    * Refresh a users token
@@ -73,7 +68,7 @@ module.exports = function (config, deps) {
    * @param token a user token
    * @returns {cb}  cb(err, response)
    * @param cb
-   */
+   
   function refreshUserToken(token, cb) {
     superagent.get(common.makeAPIUrl('/auth/login'))
       .set(common.SESSION_TOKEN_HEADER, token)
@@ -144,7 +139,7 @@ module.exports = function (config, deps) {
 
   function getUserId() {
     return myUserId;
-  }
+  }*/
 
   function findProfile(userId, cb) {
     if (userId == null) {
@@ -156,176 +151,15 @@ module.exports = function (config, deps) {
 
   return {
     /**
-     * Initialize client
-     *
-     * @param cb
-     */
-    initialize: function(cb) {
-
-      myToken = localStore.getItem(tokenLocalKey);
-      common.syncToken(myToken);
-
-      if (myToken == null) {
-        log.info('No local session found');
-        return cb();
-      }
-
-      refreshUserToken(myToken, function(err, data) {
-        var hasNewSession = data && data.userid && data.token;
-
-        if (err || !hasNewSession) {
-          log.info('Local session invalid', err, data);
-          saveSession(null, null);
-          return cb();
-        }
-
-        log.info('Loaded local session');
-        saveSession(data.userid, data.token, {remember:true});
-        cb(null, {userid: data.userid, token: data.token});
-      });
-    },
-    /**
-     * Login user to the Tidepool platform
-     *
-     * @param user object with a username and password to login
-     * @param options (optional) object with `remember` boolean attribute
-     * @param cb
-     * @returns {cb}  cb(err, response)
-     */
-    login: function (user, options, cb) {
-
-      if (user.username == null) {
-        return cb({ status : common.STATUS_BAD_REQUEST, message: 'Must specify a username' });
-      }
-      if (user.password == null) {
-        return cb({ status : common.STATUS_BAD_REQUEST, message: 'Must specify a password' });
-      }
-
-      options = options || {};
-      if (typeof options === 'function') {
-        cb = options;
-        options = {};
-      }
-
-      superagent
-        .post(common.makeAPIUrl('/auth/login', user.longtermkey))
-        .auth(user.username, user.password)
-        .end(
-        function (err, res) {
-          if (err != null) {
-            return cb(err, null);
-          }
-
-          if (res.status !== 200) {
-            return common.handleHttpError(res, cb);
-          }
-
-          var theUserId = res.body.userid;
-          var theToken = res.headers[common.SESSION_TOKEN_HEADER];
-
-          saveSession(theUserId, theToken, options);
-          return cb(null,{userid: theUserId, user: res.body});
-        });
-    },
-    /**
-     * Signup user to the Tidepool platform
-     *
-     * @param user object with a username and password
-     * @param options (optional) object with `remember` boolean attribute
-     * @param cb
-     * @returns {cb}  cb(err, response)
-     */
-    signup: function (user, options, cb) {
-      if (user.username == null) {
-        return cb({ status : common.STATUS_BAD_REQUEST, message: 'Must specify a username' });
-      }
-      if (user.password == null) {
-        return cb({ status : common.STATUS_BAD_REQUEST, message: 'Must specify a password' });
-      }
-
-      options = options || {};
-      if (typeof options === 'function') {
-        cb = options;
-        options = {};
-      }
-
-      var newUser = _.pick(user, 'username', 'password', 'emails');
-
-      superagent
-        .post(common.makeAPIUrl('/auth/user'))
-        .send(newUser)
-        .end(
-        function (err, res) {
-          if (err != null) {
-            return cb(err);
-          }
-          var theUserId = res.body.userid;
-          var theToken = res.headers[common.SESSION_TOKEN_HEADER];
-
-          saveSession(theUserId, theToken, options);
-          return cb(null,res.body);
-        });
-
-    },
-    /**
-     * Logout user
-     *
-     * @returns {cb}  cb(err, response)
-     */
-    logout: function (cb) {
-      common.assertArgumentsSize(arguments, 1);
-
-      if (! this.isLoggedIn()) {
-        setTimeout(function(){ cb(null, {}); }, 0);
-      }
-
-      var onSuccess=function(res){
-        saveSession(null, null);
-        return res.body;
-      };
-
-      common.doPostWithToken(
-        '/auth/logout',
-        {},
-        {200: onSuccess},
-        cb
-      );
-    },
-    /**
-     * Tells if the current client is logged in
-     *
-     * @returns {boolean} true if logged in
-     */
-    isLoggedIn: isLoggedIn,
-    /**
-     * Returns the logged in user's id
-     *
-     * @returns {String} userid or null if not logged in
-     */
-    getUserId: getUserId,
-    /**
-     * Destroy user session (in-memory and stored in browser)
-     */
-    destroySession: destroySession,
-    /**
     * Url used for uploads to the platform
     *
     * @returns {String} url for uploads
     */
     getUploadUrl: common.getUploadUrl,
-    /**
-     * Get current user account info
-     *
-     * @returns {cb}  cb(err, response)
-     */
-    getCurrentUser: function (cb) {
-      common.assertArgumentsSize(arguments, 1);
-      common.doGetWithToken('/auth/user', cb);
-    },
     setApiHost: common.setApiHost,
     setUploadHost: common.setUploadHost,
     setBlipHost: common.setBlipHost,
-     makeBlipUrl: common.makeBlipUrl,
+    makeBlipUrl: common.makeBlipUrl,
     /**
      * Post something to metrics.
      * This call never errors, so the callback is optional; it will be called if supplied.
@@ -406,104 +240,6 @@ module.exports = function (config, deps) {
       );
     },
     /**
-     * Create a child account for the logged in user
-     *
-     * @param profile {Object} profile for account that is being created for
-     * @param cb
-     * @returns {cb}  cb(err, response)
-     */
-    createChildAccount: function (profile,cb) {
-
-      if (_.isEmpty(profile.fullName)) {
-        return cb({ status : common.STATUS_BAD_REQUEST, message: 'Must specify a fullName' });
-      }
-
-      var childUser = { username: profile.fullName };
-      // create an child account to attach to ours
-      function createChildAccount(next){
-        superagent
-         .post(common.makeAPIUrl('/auth/childuser'))
-         .send(childUser)
-         .end(
-         function (err, res) {
-          if (err != null) {
-            return next(err);
-          }
-          if(res.status === 201){
-            childUser.id = res.body.userid;
-            childUser.token = res.headers[common.SESSION_TOKEN_HEADER];
-            return next(null,{userid:res.body.userid});
-          }
-          return next({status:res.status,message:res.error});
-        });
-      }
-      //add a profile name to the child account
-      function createChildProfile(next){
-        superagent
-          .put(common.makeAPIUrl('/metadata/'+ childUser.id + '/profile'))
-          .send(profile)
-          .set(common.SESSION_TOKEN_HEADER, childUser.token)
-          .end(
-            function (err, res) {
-              if (err != null) {
-                return next(err);
-              }
-              if(res.status === 200){
-                return next(null,res.body);
-              }
-              return next({status:res.status,message:res.error});
-            });
-      }
-      //give the parent account admin perms on the child account
-      function giveRootPermsOnChild(next){
-        superagent
-          .post(common.makeAPIUrl('/access/'+ childUser.id + '/' +getUserId()))
-          .send({admin: {}})
-          .set(common.SESSION_TOKEN_HEADER, childUser.token)
-          .end(
-            function (err, res) {
-              if (err != null) {
-                return cb(err);
-              }
-              if(res.status === 200){
-                return next(null,res.body);
-              }
-              return next({status:res.status,message:res.error});
-            });
-      }
-
-      async.series([
-        createChildAccount,
-        createChildProfile,
-        giveRootPermsOnChild
-      ], function(err, results) {
-        if(_.isEmpty(err)){
-
-          var acct = {
-            userid: results[0].userid,
-            profile: results[1]
-          };
-          return cb(null,acct);
-        }
-        return cb(err);
-      });
-    },
-    /**
-     * Update current user account info
-     *
-     * @param {Object} user object with account info
-     * @param cb
-     * @returns {cb}  cb(err, response)
-     */
-    updateCurrentUser: function (user, cb) {
-      common.assertArgumentsSize(arguments, 2);
-      var updateData = {
-        updates: _.pick(user, 'username', 'password', 'emails')
-      };
-
-      common.doPutWithToken('/auth/user', updateData, cb);
-    },
-    /**
      * Add a new or update an existing profile for a user
      *
      * @param {String} userId id of the user you are updating the profile of
@@ -567,34 +303,6 @@ module.exports = function (config, deps) {
       );
     },
     /**
-     * Get the users 'patients' to whom he can upload to.
-     *
-     * @param {String} userId id of the user
-     * @param cb
-     * @returns {cb}  cb(err, response)
-     */
-    getUploadGroups: function (userId, cb) {
-      common.assertArgumentsSize(arguments, 2);
-      common.doGetWithToken(
-        '/access/groups/' + userId,
-        { 200: function(res){
-          var groups = res.body;
-
-          var filter = {};
-
-          for(var i in groups) {
-            var group = groups[i];
-
-            if (group.root || group.upload) {
-              filter[i] = group;
-            }
-          }
-          return filter;
-        }, 404: null },
-        cb
-      );
-    },
-    /**
      * Sets the access permissions for a specific user on the group for the currently logged in user
      *
      * @param userId - userId to have access permissions set for
@@ -607,7 +315,7 @@ module.exports = function (config, deps) {
       }
 
       common.doPostWithToken(
-        '/access/' + getUserId() + '/' + userId,
+        '/access/' + user.getUserId() + '/' + userId,
         permissions,
         cb
       );
@@ -686,44 +394,24 @@ module.exports = function (config, deps) {
      * Upload device data for the logged in user
      *
      * @param {Object} data to be uploaded
-     * @param (optional) string groupId for which to upload data
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    uploadDeviceDataForUser: function (data, groupId, cb) {
+    uploadDeviceDataForUser: function (data, cb) {
+      common.assertArgumentsSize(arguments, 2);
 
       if (_.isEmpty(common.getUploadUrl())) {
         return cb({ status : common.STATUS_BAD_REQUEST, message: 'The upload api needs to be configured' });
       }
 
-      var dataUploadUrl;
-
-      if (typeof groupId === 'function') {
-        common.assertArgumentsSize(arguments, 2);
-        cb = groupId;
-        groupId = null;
-        dataUploadUrl = common.makeUploadUrl('/data');
-      } else {
-        common.assertArgumentsSize(arguments, 3);
-        dataUploadUrl = common.makeUploadUrl('/data/'+groupId);
-      }
-
        superagent
-        .post(dataUploadUrl)
+        .post(common.makeUploadUrl('/data'))
         .send(data)
-        .set(common.SESSION_TOKEN_HEADER, myToken)
+        .set(common.SESSION_TOKEN_HEADER, user.getUserToken())
         .end(
         function (err, res) {
           if (err != null) {
             return cb(err);
-          }
-
-          if (res.status !== 200) {
-            return cb({
-              error: 'Request failed with statusCode ' + res.status,
-              code: res.statusCode,
-              message: res.body
-            });
           }
           return cb(null,res.body);
         });
@@ -758,7 +446,7 @@ module.exports = function (config, deps) {
         uploadMeta.time = sessionInfo.start;
         uploadMeta.timezone = sessionInfo.tzName;
         uploadMeta.uploadId = id.generateId([sessionInfo.deviceId, sessionInfo.start]);
-        uploadMeta.byUser = myUserId;
+        uploadMeta.byUser = user.getUserId();
         // this is to permit us to continue to identify carelink data
         if (sessionInfo.source) {
           uploadMeta.source = sessionInfo.source;
@@ -801,7 +489,7 @@ module.exports = function (config, deps) {
 
             superagent
               .get(common.makeUploadUrl('/v1/synctasks/' + syncTaskId))
-              .set(common.SESSION_TOKEN_HEADER, myToken)
+              .set(common.SESSION_TOKEN_HEADER, user.getUserToken())
               .end(
                 function (err, res) {
                   if (!_.isEmpty(err)) {
@@ -835,7 +523,7 @@ module.exports = function (config, deps) {
         .post(common.makeUploadUrl('/v1/device/upload/cl'))
         .send(formData)
         .type('form')
-        .set(common.SESSION_TOKEN_HEADER, myToken)
+        .set(common.SESSION_TOKEN_HEADER, user.getUserToken())
         .end(
         function (err, res) {
           if (!_.isEmpty(err)) {
@@ -879,7 +567,7 @@ module.exports = function (config, deps) {
        //get the contents of the carelink csv file
        superagent
         .get(common.makeUploadUrl('/v1/device/data/' + dataId))
-        .set(common.SESSION_TOKEN_HEADER, myToken)
+        .set(common.SESSION_TOKEN_HEADER, user.getUserToken())
         .end(
         function (err, res) {
           if (err) {
@@ -1025,6 +713,19 @@ module.exports = function (config, deps) {
         cb
       );
     },
+    /**
+     * User
+     */
+    login: user.login,
+    signup: user.signup,
+    logout: user.logout,
+    createChildAccount: user.createChildAccount,
+    initialize: user.initialize,
+    updateCurrentUser: user.updateCurrentUser,
+    getCurrentUser: user.getCurrentUser,
+    isLoggedIn: user.isLoggedIn,
+    getUserId: user.getUserId,
+    destroySession: user.destroySession,
     /**
      * Signup
      */
