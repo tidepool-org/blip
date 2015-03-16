@@ -225,16 +225,16 @@ describe('platform client', function () {
   describe('handles updating the user', function () {
     it('so we can change the users email', function (done) {
 
-      function cleanup409(error){
-        console.log('cleanup? ', error);
-        if( error.status === '409') {
+      function cleanup409(errorToCheck){
+        if( errorToCheck.status === 409 ) {
           var resetUpdate = {username : pwdClient.username};
-          pwdClient.updateCurrentUser(resetUpdate, function(error){
-            expect(error).to.not.exist;
+          pwdClient.updateCurrentUser(resetUpdate, function(cleanupError){
+            expect(cleanupError).to.not.exist;
             return;
           });
+        } else {
+          expect(errorToCheck).to.not.exist;
         }
-        expect(error).to.not.exist;
       }
 
 
@@ -244,9 +244,8 @@ describe('platform client', function () {
         if(error){ cleanup409(error) }
 
         pwdClient.getCurrentUser(function(error2, details){
-          console.log('## name error 2 ## ', error2);
           expect(error2).to.not.exist;
-          console.log('## name update details ## ', details);
+          expect(details.username).to.equal(updatesToApply.username);
           done();
         });
       });
@@ -257,7 +256,6 @@ describe('platform client', function () {
         expect(error).to.not.exist;
         pwdClient.getCurrentUser(function(error2, details){
           expect(error2).to.not.exist;
-          console.log('## terms update details ## ', details);
           done();
         });
       });
