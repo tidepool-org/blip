@@ -18,6 +18,13 @@
 var async = require('async');
 var _ = require('lodash');
 
+function defaultProperty(obj, property, defaultValue) {
+  if (obj[property] == null) {
+    obj[property] = defaultValue;
+  }
+  return obj;
+}
+
 module.exports = function (common, config, deps) {
 
   var myToken = null;

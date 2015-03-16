@@ -19,13 +19,6 @@ var _ = require('lodash');
 
 var id = require('./lib/id.js');
 
-function defaultProperty(obj, property, defaultValue) {
-  if (obj[property] == null) {
-    obj[property] = defaultValue;
-  }
-  return obj;
-}
-
 function requireProperty(objectName, obj, property) {
   var value = obj[property];
   if (value == null) {
