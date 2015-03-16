@@ -27,12 +27,15 @@ module.exports = function (common, config, deps) {
   var loginVersion = 0;
   var TOKEN_LOCAL_KEY = 'authToken';
 
-  var superagent = _.clone(deps.superagent);
 
   /*jshint unused:false */
   var log = _.clone(deps.log);
-  var localStore = _.clone(deps.localStore);
+  var store = _.clone(deps.localStore);
+  var superagent = _.clone(deps.superagent);
+
+  //config
   config = _.clone(config);
+  defaultProperty(config, 'tokenRefreshInterval', 10 * 60 * 1000); // 10 minutes
 
   /**
    * Initialize client for user
@@ -41,7 +44,7 @@ module.exports = function (common, config, deps) {
    */
   function initialize(cb) {
 
-    myToken = localStore.getItem(TOKEN_LOCAL_KEY);
+    myToken = store.getItem(TOKEN_LOCAL_KEY);
     common.syncToken(myToken);
 
     if (myToken == null) {
@@ -93,7 +96,7 @@ module.exports = function (common, config, deps) {
     var currVersion = ++loginVersion;
 
     if (newToken == null) {
-      localStore.removeItem(TOKEN_LOCAL_KEY);
+      store.removeItem(TOKEN_LOCAL_KEY);
       log.info('Destroyed local session');
       return;
     }
@@ -101,7 +104,7 @@ module.exports = function (common, config, deps) {
     log.info('Session saved');
 
     if (options.remember) {
-      localStore.setItem(TOKEN_LOCAL_KEY, newToken);
+      store.setItem(TOKEN_LOCAL_KEY, newToken);
       log.info('Saved session locally');
     }
 

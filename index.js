@@ -38,19 +38,11 @@ var requireConfig = requireProperty.bind(null, 'config');
 var requireDep = requireProperty.bind(null, 'deps');
 
 module.exports = function (config, deps) {
-  //var myToken = null;
-  //var myUserId = null;
-
-  // This is a 'version' counter for the number of times we've logged in.
-  // It is used to invalidate stale attempts at refreshing a token
-  //var loginVersion = 0;
 
   var superagent = requireDep(deps, 'superagent');
   var log = requireDep(deps, 'log');
-  var localStore = requireDep(deps, 'localStore');
 
   config = _.clone(config);
-  defaultProperty(config, 'tokenRefreshInterval', 10 * 60 * 1000); // 10 minutes
   requireConfig(config, 'host');
   requireConfig(config, 'metricsSource');
   requireConfig(config, 'metricsVersion');
@@ -60,7 +52,7 @@ module.exports = function (config, deps) {
 
   var common = require('./lib/common.js')(config, deps);
   var confirm = require('./confirm.js')( common, {superagent:superagent, findProfile: findProfile});
-  var user = require('./user.js')( common, config, {superagent:superagent, log: log, localStore: localStore});
+  var user = require('./user.js')( common, config, {superagent:superagent, log: log, localStore: requireDep(deps, 'localStore')});
 
   function findProfile(userId, cb) {
     if (userId == null) {
