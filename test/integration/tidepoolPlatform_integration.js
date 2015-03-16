@@ -222,6 +222,47 @@ describe('platform client', function () {
       });
     });
   });
+  describe('handles updating the user', function () {
+    it('so we can change the users email', function (done) {
+
+      function cleanup409(error){
+        console.log('cleanup? ', error);
+        if( error.status === '409') {
+          var resetUpdate = {username : pwdClient.username};
+          pwdClient.updateCurrentUser(resetUpdate, function(error){
+            expect(error).to.not.exist;
+            return;
+          });
+        }
+        expect(error).to.not.exist;
+      }
+
+
+      var updatesToApply = {username:'b_PWD@user.com'};
+      pwdClient.updateCurrentUser(updatesToApply, function(error){
+
+        if(error){ cleanup409(error) }
+
+        pwdClient.getCurrentUser(function(error2, details){
+          console.log('## name error 2 ## ', error2);
+          expect(error2).to.not.exist;
+          console.log('## name update details ## ', details);
+          done();
+        });
+      });
+    });
+    it('so we can accept the T&C', function (done) {
+      var termsToApply = { terms : new Date().toISOString()};
+      pwdClient.updateCurrentUser(termsToApply, function(error){
+        expect(error).to.not.exist;
+        pwdClient.getCurrentUser(function(error2, details){
+          expect(error2).to.not.exist;
+          console.log('## terms update details ## ', details);
+          done();
+        });
+      });
+    });
+  });
   describe('handles user profiles', function () {
     it('so we can add or update the logged in users profile', function (done) {
     //add or update for both our users
