@@ -62,85 +62,6 @@ module.exports = function (config, deps) {
   var confirm = require('./confirm.js')( common, {superagent:superagent, findProfile: findProfile});
   var user = require('./user.js')( common, config, {superagent:superagent, log: log, localStore: localStore});
 
-  /**
-   * Refresh a users token
-   *
-   * @param token a user token
-   * @returns {cb}  cb(err, response)
-   * @param cb
-   
-  function refreshUserToken(token, cb) {
-    superagent.get(common.makeAPIUrl('/auth/login'))
-      .set(common.SESSION_TOKEN_HEADER, token)
-      .end(
-      function (err, res) {
-        if (err) {
-          return cb(err, null);
-        }
-        if (res.status !== 200) {
-          return common.handleHttpError(res, cb);
-        }
-
-        return cb(null, {userid: res.body.userid, token: res.headers[common.SESSION_TOKEN_HEADER]});
-      });
-  }
-
-  function saveSession(newUserId, newToken, options) {
-    options = options || {};
-    myToken = newToken;
-    common.syncToken(myToken);
-    myUserId = newUserId;
-
-    // Store and increment the loginVersion.  This is a mechanism to nullify any refreshSession calls that
-    // are waiting for their timeout to run.
-    var currVersion = ++loginVersion;
-
-    if (newToken == null) {
-      localStore.removeItem(tokenLocalKey);
-      log.info('Destroyed local session');
-      return;
-    }
-
-    log.info('Session saved');
-
-    if (options.remember) {
-      localStore.setItem(tokenLocalKey, newToken);
-      log.info('Saved session locally');
-    }
-
-    var refreshSession = function() {
-      if (myToken == null || currVersion !== loginVersion) {
-        log.info('Stopping session token refresh for version', currVersion);
-        return;
-      }
-
-      log.info('Refreshing session token');
-      refreshUserToken(myToken, function(err, data) {
-        var hasNewSession = data && data.userid && data.token;
-        if (err || !hasNewSession) {
-          log.warn('Failed refreshing session token', err);
-          saveSession(null, null);
-        } else {
-          saveSession(data.userid, data.token, options);
-        }
-      });
-    };
-
-    setTimeout(refreshSession, config.tokenRefreshInterval);
-  }
-
-  function destroySession() {
-    return saveSession(null, null);
-  }
-
-  function isLoggedIn() {
-    return myToken != null;
-  }
-
-  function getUserId() {
-    return myUserId;
-  }*/
-
   function findProfile(userId, cb) {
     if (userId == null) {
       return cb({ status : common.STATUS_BAD_REQUEST,  message: 'Must specify a userId' });
@@ -716,16 +637,17 @@ module.exports = function (config, deps) {
     /**
      * User
      */
-    login: user.login,
-    signup: user.signup,
-    logout: user.logout,
+    acceptTerms: user.acceptTerms,
     createChildAccount: user.createChildAccount,
-    initialize: user.initialize,
-    updateCurrentUser: user.updateCurrentUser,
-    getCurrentUser: user.getCurrentUser,
-    isLoggedIn: user.isLoggedIn,
-    getUserId: user.getUserId,
     destroySession: user.destroySession,
+    getCurrentUser: user.getCurrentUser,
+    getUserId: user.getUserId,
+    initialize: user.initialize,
+    isLoggedIn: user.isLoggedIn,
+    login: user.login,
+    logout: user.logout,
+    signup: user.signup,
+    updateCurrentUser: user.updateCurrentUser,
     /**
      * Signup
      */
