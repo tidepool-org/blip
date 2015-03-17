@@ -184,6 +184,7 @@ api.user.get = function(cb) {
       return cb(err);
     }
 
+
     cb(null, userFromAccountAndProfile(results));
   });
 };
@@ -220,7 +221,7 @@ function userFromAccountAndProfile(results) {
   var account = results.account;
   var profile = results.profile;
 
-  var user = _.pick(account, 'userid', 'username', 'emails');
+  var user = _.pick(account, 'userid', 'username', 'emails', 'terms');
   user.profile = profile;
 
   return user;
