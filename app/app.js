@@ -180,7 +180,7 @@ var AppComponent = React.createClass({
       patientData: null,
       fetchingPatientData: true,
       fetchingMessageData: true,
-      showingAcceptTerms: false,
+      termsAccepted: null,
       showingWelcomeTitle: false,
       showingWelcomeSetup: false,
       showPatientData: false,
@@ -272,7 +272,7 @@ var AppComponent = React.createClass({
       /* jshint ignore:end */
     }
 
-    if (this.state.showingAcceptTerms) {
+    if (_.isEmpty(this.state.termsAccepted) && this.state.authenticated === true) {
       /* jshint ignore:start */
       return (
         <TermsOverlay
@@ -730,7 +730,6 @@ var AppComponent = React.createClass({
     });
     trackMetric('Viewed Profile');
   },
-
   showPatientShare: function(patientId) {
     this.renderPage = this.renderPatientShare;
     this.setState({
@@ -747,7 +746,6 @@ var AppComponent = React.createClass({
     });
     trackMetric('Viewed Share');
   },
-
   renderPatient: function() {
     // On each state change check if patient object was returned from server
     if (this.isDoneFetchingAndNotFoundPatient()) {
@@ -773,7 +771,6 @@ var AppComponent = React.createClass({
     );
     /* jshint ignore:end */
   },
-
   renderPatientShare: function() {
     // On each state change check if patient object was returned from server
     if (this.isDoneFetchingAndNotFoundPatient()) {
@@ -800,7 +797,6 @@ var AppComponent = React.createClass({
     );
     /* jshint ignore:end */
   },
-
   isDoneFetchingAndNotFoundPatient: function() {
     // Wait for patient object to come back from server
     if (this.state.fetchingPatient) {
@@ -809,7 +805,6 @@ var AppComponent = React.createClass({
 
     return !this.state.patient;
   },
-
   showPatientNew: function() {
     this.renderPage = this.renderPatientNew;
     this.setState({
@@ -819,7 +814,6 @@ var AppComponent = React.createClass({
     });
     trackMetric('Viewed Profile Create');
   },
-
   renderPatientNew: function() {
     // Make sure user doesn't already have a patient
     if (this.isDoneFetchingAndUserHasPatient()) {
@@ -841,7 +835,6 @@ var AppComponent = React.createClass({
     );
     /* jshint ignore:end */
   },
-
   isDoneFetchingAndUserHasPatient: function() {
     // Wait to have user object back from server
     if (this.state.fetchingUser) {
@@ -850,11 +843,9 @@ var AppComponent = React.createClass({
 
     return personUtils.isPatient(this.state.user);
   },
-
   isSamePersonUserAndPatient: function() {
     return personUtils.isSame(this.state.user, this.state.patient);
   },
-
   showPatientData: function(patientId) {
     this.renderPage = this.renderPatientData;
     this.setState({
@@ -872,7 +863,6 @@ var AppComponent = React.createClass({
 
     trackMetric('Viewed Data');
   },
-
   renderPatientData: function() {
     // On each state change check if patient object was returned from server
     if (this.isDoneFetchingAndNotFoundPatient()) {
@@ -903,26 +893,22 @@ var AppComponent = React.createClass({
     );
     /* jshint ignore:end */
   },
-
   handleUpdatePatientData: function(data) {
     this.setState({
       patientData: data
     });
   },
-
   login: function(formValues, cb) {
     var user = formValues.user;
     var options = formValues.options;
 
     app.api.user.login(user, options, cb);
   },
-
   handleLoginSuccess: function() {
 
     this.fetchUser();
     if( this.state.finalizingVerification ){
       this.setState({
-        showingAcceptTerms: config.SHOW_ACCEPT_TERMS ? true : false,
         showingWelcomeTitle: true,
         showingWelcomeSetup: true
       });
@@ -932,17 +918,14 @@ var AppComponent = React.createClass({
     this.redirectToDefaultRoute();
     trackMetric('Logged In');
   },
-
   handleNotAuthorized:function(){
      this.setState({authenticated: false,  verificationEmailSent: false});
      this.showEmailVerification();
   },
-
   signup: function(formValues, cb) {
     var user = formValues;
     app.api.user.signup(user, cb);
   },
-
   handleSignupSuccess: function(user) {
     //once signed up we need to authenicate the email which is done via the email we have sent them
     this.setState({
@@ -954,14 +937,12 @@ var AppComponent = React.createClass({
 
     trackMetric('Signed Up');
   },
-
   handleSignupVerificationSuccess: function(user) {
     //once signed up we need to authenicate the email which is done via the email we have sent them
     this.setState({
       authenticated: true,
       user: user,
       fetchingUser: false,
-      showingAcceptTerms: config.SHOW_ACCEPT_TERMS ? true : false,
       showingWelcomeTitle: true,
       showingWelcomeSetup: true
     });
@@ -969,19 +950,22 @@ var AppComponent = React.createClass({
     this.redirectToDefaultRoute();
     trackMetric('Signup Verified');
   },
-
   handleAcceptedTerms: function() {
-    this.setState({
-      showingAcceptTerms: false
+    var self = this;
+    var acceptedDate = sundial.utcDateString();
+    app.api.user.acceptTerms({ terms: acceptedDate },function(err) {
+      if(_.isEmpty(err)){
+        self.setState({ termsAccepted: acceptedDate });
+        return;
+      }
+      return self.handleApiError(err, usrMessages.ERR_ACCEPTING_TERMS, buildExceptionDetails());
     });
   },
-
   handleAcceptedBrowserWarning: function() {
     this.setState({
       dismissedBrowserWarning: true
     });
   },
-
   logout: function() {
     var self = this;
 
@@ -1033,6 +1017,7 @@ var AppComponent = React.createClass({
 
       self.setState({
         user: user,
+        termsAccepted : user.terms,
         fetchingUser: false
       });
     });

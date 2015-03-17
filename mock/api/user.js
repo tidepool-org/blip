@@ -342,6 +342,16 @@ var patch = function(mock, api) {
     }, getDelayFor('api.user.confirmPasswordReset'));
   };
 
+  api.user.acceptTerms = function(termsData, cb){
+    api.log('[mock] PUT /user' );
+    api.log('terms accepted on', termsData.terms );
+
+    setTimeout(function() {
+      return cb(null);
+    }, getDelayFor('api.user.acceptTerms'));
+
+  };
+
   return api;
 };
 

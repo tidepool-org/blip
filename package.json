@@ -38,7 +38,7 @@
     "style-loader": "0.6.4",
     "sundial": "1.1.7",
     "tideline": "0.1.16",
-    "tidepool-platform-client": "0.16.1",
+    "tidepool-platform-client": "git://github.com/tidepool-org/platform-client.git#jhbate/t-and-c",
     "url-loader": "0.5.5",
     "webpack": "1.4.9"
   },

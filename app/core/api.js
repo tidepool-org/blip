@@ -132,6 +132,12 @@ api.user.logout = function() {
   });
 };
 
+api.user.acceptTerms = function(termsData, cb){
+  api.log('PUT /user' );
+  api.log('terms accepted on', termsData.terms );
+  return tidepool.acceptTerms(termsData,cb);
+}
+
 api.user.destroySession = function() {
   tidepool.destroySession();
 };
