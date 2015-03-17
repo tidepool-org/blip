@@ -225,12 +225,14 @@ describe('platform client', function () {
   describe('handles updating the user', function () {
     it('so we can change the users email', function (done) {
 
-      function cleanup409(errorToCheck){
-        if( errorToCheck.status === 409 ) {
+      function rollbackUserUpdate(errorToCheck, cb){
+        if(_.isEmpty(errorToCheck) || errorToCheck.status === 409 ) {
           var resetUpdate = {username : pwdClient.username};
           pwdClient.updateCurrentUser(resetUpdate, function(cleanupError){
             expect(cleanupError).to.not.exist;
-            return;
+            if(cb){
+              return cb();
+            }
           });
         } else {
           expect(errorToCheck).to.not.exist;
@@ -241,12 +243,12 @@ describe('platform client', function () {
       var updatesToApply = {username:'b_PWD@user.com'};
       pwdClient.updateCurrentUser(updatesToApply, function(error){
 
-        if(error){ cleanup409(error) }
+        if(error){ rollbackUserUpdate(error); }
 
         pwdClient.getCurrentUser(function(error2, details){
           expect(error2).to.not.exist;
           expect(details.username).to.equal(updatesToApply.username);
-          done();
+          rollbackUserUpdate(null,done());
         });
       });
     });
@@ -619,7 +621,7 @@ describe('platform client', function () {
           expect(details).to.be.empty;
           done();
         } else {
-          console.log("requestPasswordReset err: ",err);
+          console.log('requestPasswordReset err: ',err);
           done(err);
         }
       });
