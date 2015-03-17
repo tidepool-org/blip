@@ -222,47 +222,6 @@ describe('platform client', function () {
       });
     });
   });
-  describe('handles updating the user', function () {
-    it('so we can change the users email', function (done) {
-
-      function rollbackUserUpdate(errorToCheck, cb){
-        if(_.isEmpty(errorToCheck) || errorToCheck.status === 409 ) {
-          var resetUpdate = {username : pwdClient.username};
-          pwdClient.updateCurrentUser(resetUpdate, function(cleanupError){
-            expect(cleanupError).to.not.exist;
-            if(cb){
-              return cb();
-            }
-          });
-        } else {
-          expect(errorToCheck).to.not.exist;
-        }
-      }
-
-
-      var updatesToApply = {username:'b_PWD@user.com'};
-      pwdClient.updateCurrentUser(updatesToApply, function(error){
-
-        if(error){ rollbackUserUpdate(error); }
-
-        pwdClient.getCurrentUser(function(error2, details){
-          expect(error2).to.not.exist;
-          expect(details.username).to.equal(updatesToApply.username);
-          rollbackUserUpdate(null,done());
-        });
-      });
-    });
-    it('so we can accept the T&C', function (done) {
-      var termsToApply = { terms : new Date().toISOString()};
-      pwdClient.updateCurrentUser(termsToApply, function(error){
-        expect(error).to.not.exist;
-        pwdClient.getCurrentUser(function(error2, details){
-          expect(error2).to.not.exist;
-          done();
-        });
-      });
-    });
-  });
   describe('handles user profiles', function () {
     it('so we can add or update the logged in users profile', function (done) {
     //add or update for both our users
@@ -645,6 +604,47 @@ describe('platform client', function () {
         //leak no details
         expect(err.body).to.be.empty;
         done();
+      });
+    });
+  });
+  describe('handles updating the user', function () {
+    it('so we can change the users email', function (done) {
+
+      function rollbackUserUpdate(errorToCheck, cb){
+        if(_.isEmpty(errorToCheck) || errorToCheck.status === 409 ) {
+          var resetUpdate = {username : pwdClient.username};
+          pwdClient.updateCurrentUser(resetUpdate, function(cleanupError){
+            expect(cleanupError).to.not.exist;
+            if(cb){
+              return cb();
+            }
+          });
+        } else {
+          expect(errorToCheck).to.not.exist;
+        }
+      }
+
+
+      var updatesToApply = {username:'b_PWD@user.com'};
+      pwdClient.updateCurrentUser(updatesToApply, function(error){
+
+        if(error){ rollbackUserUpdate(error); }
+
+        pwdClient.getCurrentUser(function(error2, details){
+          expect(error2).to.not.exist;
+          expect(details.username).to.equal(updatesToApply.username);
+          rollbackUserUpdate(null,done());
+        });
+      });
+    });
+    it('so we can accept the T&C', function (done) {
+      var termsToApply = { terms : new Date().toISOString()};
+      pwdClient.updateCurrentUser(termsToApply, function(error){
+        expect(error).to.not.exist;
+        pwdClient.getCurrentUser(function(error2, details){
+          expect(error2).to.not.exist;
+          done();
+        });
       });
     });
   });
