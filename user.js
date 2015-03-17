@@ -25,6 +25,16 @@ function defaultProperty(obj, property, defaultValue) {
   return obj;
 }
 
+function requireProperty(objectName, obj, property) {
+  var value = obj[property];
+  if (value == null) {
+    throw new Error('Property [' + property + '] required on ' + objectName);
+  }
+  return value;
+}
+
+var requireDep = requireProperty.bind(null, 'deps');
+
 module.exports = function (common, config, deps) {
 
   var myToken = null;
@@ -34,11 +44,10 @@ module.exports = function (common, config, deps) {
   var loginVersion = 0;
   var TOKEN_LOCAL_KEY = 'authToken';
 
-
   /*jshint unused:false */
-  var log = _.clone(deps.log);
-  var store = _.clone(deps.localStore);
-  var superagent = _.clone(deps.superagent);
+  var log = requireDep(deps,'log');
+  var store = requireDep(deps, 'localStore');
+  var superagent = requireDep(deps, 'superagent');
 
   //config
   config = _.clone(config);

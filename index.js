@@ -45,7 +45,7 @@ module.exports = function (config, deps) {
 
   var common = require('./lib/common.js')(config, deps);
   var confirm = require('./confirm.js')( common, {superagent:superagent, findProfile: findProfile});
-  var user = require('./user.js')( common, config, {superagent:superagent, log: log, localStore: requireDep(deps, 'localStore')});
+  var user = require('./user.js')( common, config, deps);
 
   function findProfile(userId, cb) {
     if (userId == null) {
