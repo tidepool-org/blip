@@ -44,7 +44,7 @@
   },
   "devDependencies": {
     "blip-mock-data": "tidepool-org/blip-mock-data#v0.3.7",
-    "chai": "2.1.1",
+    "chai": "2.1.2",
     "gulp": "3.8.11",
     "gulp-jshint": "1.9.4",
     "gulp-react": "3.0.0",
