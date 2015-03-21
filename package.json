@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "0.5.13",
+  "version": "0.5.14",
   "private": true,
   "scripts": {
     "test": "webpack-dev-server 'mocha!./test/entry.js' --output-file test.js --devtool eval-source-map --cache --colors --progress",
@@ -28,7 +28,6 @@
     "less": "2.4.0",
     "less-loader": "2.1.0",
     "lodash": "3.5.0",
-    "moment": "2.9.0",
     "ms": "0.7.0",
     "qs": "2.4.1",
     "react": "0.12.2",
@@ -51,6 +50,7 @@
     "jshint-stylish": "1.0.1",
     "mocha": "2.2.1",
     "mocha-loader": "0.7.1",
+    "moment": "2.9.0",
     "sinon": "1.14.1",
     "sinon-chai": "2.7.0",
     "webpack-dev-server": "1.7.0"

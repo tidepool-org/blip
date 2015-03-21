@@ -16,7 +16,6 @@
 
 var React = require('react');
 var _ = require('lodash');
-var moment = require('moment');
 var bows = require('bows');
 var sundial = require('sundial');
 

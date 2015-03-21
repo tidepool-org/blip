@@ -16,13 +16,12 @@
 
 var React = require('react');
 var _ = require('lodash');
-var moment = require('moment');
+var sundial = require('sundial');
 
 var personUtils = require('../../core/personutils');
 var InputGroup = require('../../components/inputgroup');
 var DatePicker = require('../../components/datepicker');
 var personUtils = require('../../core/personutils');
-var datetimeUtils = require('../../core/datetimeutils');
 
 var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 
@@ -288,18 +287,18 @@ var PatientNew = React.createClass({
 
   prepareFormValuesForValidation: function(formValues) {
     formValues = _.clone(formValues);
+    var formBDay = formValues.birthday;
+    var formDDay = formValues.diagnosisDate;
 
-    if (this.isDateObjectComplete(formValues.birthday)) {
-      formValues.birthday = moment(formValues.birthday)
-        .format(MODEL_DATE_FORMAT);
+    if (this.isDateObjectComplete(formBDay)) {
+      formValues.birthday = this.makeRawDateString(formBDay);
     }
     else {
       formValues.birthday = null;
     }
 
-    if (this.isDateObjectComplete(formValues.diagnosisDate)) {
-      formValues.diagnosisDate = moment(formValues.diagnosisDate)
-        .format(MODEL_DATE_FORMAT);
+    if (this.isDateObjectComplete(formDDay)) {
+      formValues.diagnosisDate = this.makeRawDateString(formDDay);
     }
     else {
       formValues.diagnosisDate = null;
@@ -312,11 +311,23 @@ var PatientNew = React.createClass({
     return formValues;
   },
 
+  // because JavaScript Date will coerce impossible dates into possible ones with
+  // no opportunity for exposing the error to the user
+  // i.e., mis-typing 02/31/2014 instead of 03/31/2014 will be saved as 03/03/2014!
+  makeRawDateString: function(dateObj){
+
+    var mm = ''+(parseInt(dateObj.month) + 1); //as a string, add 1 because 0-indexed
+    mm = (mm.length === 1) ? '0'+ mm : mm;
+    var dd = (dateObj.day.length === 1) ? '0'+dateObj.day : dateObj.day;
+
+    return dateObj.year+'-'+mm+'-'+dd;
+  },
+
   isDateObjectComplete: function(dateObj) {
     if (!dateObj) {
       return false;
     }
-    return !(_.isEmpty(dateObj.year) || _.isEmpty(dateObj.month) || _.isEmpty(dateObj.day));
+    return !(_.isEmpty(dateObj.year) && dateObj.year.length === 4 || _.isEmpty(dateObj.month) || _.isEmpty(dateObj.day));
   },
 
   validateFormValues: function(formValues) {
@@ -331,14 +342,14 @@ var PatientNew = React.createClass({
     if (!formValues.birthday) {
       validationErrors.birthday = IS_REQUIRED;
     }
-    else if (!datetimeUtils.isValidDate(formValues.birthday)) {
+    else if (!sundial.isValidDateForMask(formValues.birthday, MODEL_DATE_FORMAT)) {
       validationErrors.birthday = IS_NOT_VALID_DATE;
     }
 
     if (!formValues.diagnosisDate) {
       validationErrors.diagnosisDate = IS_REQUIRED;
     }
-    else if (!datetimeUtils.isValidDate(formValues.diagnosisDate)) {
+    else if (!sundial.isValidDateForMask(formValues.diagnosisDate, MODEL_DATE_FORMAT)) {
       validationErrors.diagnosisDate = IS_NOT_VALID_DATE;
     }
 
