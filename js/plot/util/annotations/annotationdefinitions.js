@@ -99,7 +99,7 @@ var definitions = {
       return 'If you don’t wear a CGM or don’t have enough CGM data, to get one number that gives you a rough idea of your glucose level, we add together all of the fingerstick readings you have and then divide them by the number of readings. We will only show a number if there is enough data - at least 4 readings in the one day view, and at least 4 readings for at least half of the days shown in the two week view.';
     },
     'spring-forward': function() {
-      return 'The change to Daylight Savings Time happened near here. Since you didn\'t change the time on your device at exactly the point of changeover, you will see some overlap in your data.';
+      return 'Spring forward! You may see your data overlap. Make sure you update the time on all your devices.';
     },
     'time-change': function() {
       return 'The date and/or time settings of your device were changed recently, and this datum may overlap in the timeline display with other data from the same device.';
