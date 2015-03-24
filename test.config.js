@@ -13,7 +13,7 @@ module.exports = {
   },
   module: {
     loaders: [
-      {test: /\.js$/, loader: 'jsx-loader!envify-loader'},
+      {test: /\.js$/, loader: 'jsx-loader'},
       {test: /\.less$/, loader: 'style-loader!css-loader!autoprefixer-loader!less-loader'},
       {test: /\.svg/, loader: 'url-loader?mimetype=image/svg+xml'},
       {test: /\.png/, loader: 'url-loader?mimetype=image/png'},
@@ -26,5 +26,13 @@ module.exports = {
   externals: {
     'jquery': 'jQuery'
   },
-  plugins: [definePlugin]
+  plugins: [
+    definePlugin,
+    new webpack.DefinePlugin({
+      'process.env': Object.keys(process.env).reduce(function(o, k) {
+        o[k] = JSON.stringify(process.env[k]);
+        return o;
+      }, {})
+    })
+  ]
 };

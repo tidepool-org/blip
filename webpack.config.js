@@ -13,7 +13,7 @@ module.exports = {
   },
   module: {
     loaders: [
-      {test: /\.js$/, loader: 'jsx-loader!envify-loader'},
+      {test: /\.js$/, loader: 'jsx-loader'},
       {test: /\.json$/, loader: 'json-loader'},
       {test: /\.less$/, loader: 'style-loader!css-loader!autoprefixer-loader!less-loader'},
       {test: /\.svg/, loader: 'url-loader?mimetype=image/svg+xml'},
@@ -23,5 +23,13 @@ module.exports = {
       {test: /\.ttf/, loader: 'url-loader?mimetype=application/x-font-ttf'}
     ]
   },
-  plugins: [definePlugin]
+  plugins: [
+    definePlugin,
+    new webpack.DefinePlugin({
+      'process.env': Object.keys(process.env).reduce(function(o, k) {
+        o[k] = JSON.stringify(process.env[k]);
+        return o;
+      }, {})
+    })
+  ]
 };
