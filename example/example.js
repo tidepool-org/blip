@@ -244,7 +244,7 @@ var Example = React.createClass({
   }
 });
 
-React.renderComponent(
+React.render(
   /* jshint ignore:start */
   <Example/>,
   /* jshint ignore:end */
