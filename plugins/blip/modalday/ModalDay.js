@@ -1,7 +1,7 @@
 var _ = require('lodash');
 var d3 = window.d3;
 var EventEmitter = require('events').EventEmitter;
-var moment = require('moment');
+var moment = require('moment-timezone');
 
 var tideline = require('../../../js/index');
 var dt = tideline.data.util.datetime;
