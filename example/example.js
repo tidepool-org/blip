@@ -16,7 +16,7 @@
  * == BSD2 LICENSE ==
  */
 require('script!d3/d3.min.js');
-require('script!d3.chart/d3.chart.min.js');
+require('!script!d3.chart/d3.chart.min.js');
 
 var _ = require('lodash');
 var bows = require('bows');
@@ -244,7 +244,7 @@ var Example = React.createClass({
   }
 });
 
-React.renderComponent(
+React.render(
   /* jshint ignore:start */
   <Example/>,
   /* jshint ignore:end */
