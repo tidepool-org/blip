@@ -459,10 +459,10 @@ module.exports = {
 
     var bgDomain = [opts.bgDomain[0]];
     if (opts.clampTop) {
-      if (opts.bgUnits === 'mg/dL') {
+      if (opts.smbg.units === 'mg/dL') {
         bgDomain.push(400);
       }
-      else if (opts.bgUnits === 'mmol/L') {
+      else if (opts.smbg.units === 'mmol/L') {
         bgDomain.push(22.5);
       }
     }
