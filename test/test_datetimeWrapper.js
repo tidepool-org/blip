@@ -319,8 +319,8 @@ describe('sundial', function() {
       it('has the offset from UTC',function(){
 
         var utcString = datetimeWrapper.formatForStorage(basicTimestamp,offsetMins);
-        var offsetFromTimestamp = testMoment.parseZone(utcString).zone();
-        expect(-offsetFromTimestamp).to.equal(offsetMins);
+        var offsetFromTimestamp = testMoment.parseZone(utcString).utcOffset();
+        expect(offsetFromTimestamp).to.equal(offsetMins);
 
       });
       it('does not contain the `Z` designator for the zero UTC offset',function(){
