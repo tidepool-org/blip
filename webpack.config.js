@@ -11,7 +11,7 @@ module.exports = {
   },
   module: {
     loaders: [
-      {test: /\.js$/, loader: 'jsx-loader!envify-loader'},
+      {test: /\.js$/, loader: 'jsx-loader'},
       {test: /\.less$/, loader: 'style-loader!css-loader!autoprefixer-loader!less-loader'},
       {test: /\.gif$/, loader: 'url-loader?limit=10000&mimetype=image/gif'},
       {test: /\.jpg$/, loader: 'url-loader?limit=10000&mimetype=image/jpg'},
@@ -25,5 +25,13 @@ module.exports = {
     ]
   },
   // tideline DEV env variable only needs to be true in tideline local dev
-  plugins: [new webpack.DefinePlugin({__DEV__: false})]
+  plugins: [
+    new webpack.DefinePlugin({
+      'process.env': Object.keys(process.env).reduce(function(o, k) {
+        o[k] = JSON.stringify(process.env[k]);
+        return o;
+      }, {})
+    }),
+    new webpack.DefinePlugin({__DEV__: false})
+  ]
 };
