@@ -53,7 +53,7 @@ var TermsOverlay = React.createClass({
     return React.DOM.iframe({
       className         : "terms-overlay-iframe",
       src               : "http://developer.tidepool.io/privacy-policy",
-      scrolling         : "no",
+      scrolling         : "yes",
       frameborder       : "0",
       allowTransparency : "true"
     });
