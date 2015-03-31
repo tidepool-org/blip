@@ -954,11 +954,10 @@ var AppComponent = React.createClass({
     var self = this;
     var acceptedDate = sundial.utcDateString();
     app.api.user.acceptTerms({ terms: acceptedDate },function(err) {
-      if(_.isEmpty(err)){
-        self.setState({ termsAccepted: acceptedDate });
-        return;
+      if (err) {
+        return self.handleApiError(err, usrMessages.ERR_ACCEPTING_TERMS, buildExceptionDetails());
       }
-      return self.handleApiError(err, usrMessages.ERR_ACCEPTING_TERMS, buildExceptionDetails());
+      return self.setState({ termsAccepted: acceptedDate });
     });
   },
   handleAcceptedBrowserWarning: function() {
