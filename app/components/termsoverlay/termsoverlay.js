@@ -52,23 +52,11 @@ var TermsOverlay = React.createClass({
   websiteTerms: function() {
     return React.DOM.iframe({
       className         : "terms-overlay-iframe",
-      src               : "http://tidepool.org/products/blip",
+      src               : "http://developer.tidepool.io/privacy-policy",
       scrolling         : "no",
       frameborder       : "0",
       allowTransparency : "true"
     });
-  },
-
-  terms: function() {
-    return (
-      /* jshint ignore:start */
-      <div className="terms-overlay-text">
-        <p>This is pre-released software for test purposes only. It is not intended for general use or for medical decision making outside of currently approved pilot studies. Please send all questions, comments or other feedback on this software to <a href="mailto:support@tidepool.org">support@tidepool.org</a>.</p>
-        <p>If you are not a participant in an approved pilot study, then you must read and agree to the terms of the <a target="_blank" href="http://developer.tidepool.io/files/tidepool-vcla.pdf">Tidepool Volunteer/Contributor License Agreement</a>.</p>
-        <p><strong>Do not make therapy changes without first consulting your physician.</strong></p>
-      </div>
-      /* jshint ignore:end */
-    );
   },
 
   renderSubmitButton: function() {
