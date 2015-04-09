@@ -13,6 +13,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+/*global describe, it, jest, expect */
+
 jest.dontMock('../termsoverlay');
 
 describe('termsoverlay', function() {
