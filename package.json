@@ -3,7 +3,7 @@
   "version": "0.5.20",
   "private": true,
   "scripts": {
-    "test": "webpack-dev-server 'mocha!./test/entry.js' --output-file test.js --devtool eval-source-map --cache --colors --progress",
+    "test": "jest",
     "start": "webpack-dev-server --devtool eval-source-map --cache --colors --progress --port 3000",
     "build": "npm run build-app && npm run build-config",
     "build-app": "node buildapp",
@@ -47,13 +47,19 @@
     "gulp": "3.8.11",
     "gulp-jshint": "1.9.4",
     "gulp-react": "3.0.1",
+    "jest-cli": "0.4.0",
     "jshint-stylish": "1.0.1",
     "mocha": "2.2.1",
     "mocha-loader": "0.7.1",
     "moment": "2.9.0",
+    "react-tools": "0.13.1",
     "sinon": "1.14.1",
     "sinon-chai": "2.7.0",
     "webpack-dev-server": "1.7.0"
+  },
+  "jest": {
+    "scriptPreprocessor": "app/preprocessor.js",
+    "unmockedModulePathPatterns": ["node_modules/react"]
   },
   "engines": {
     "node": "0.10.x"
