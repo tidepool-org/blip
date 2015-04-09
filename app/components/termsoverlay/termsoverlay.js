@@ -32,6 +32,7 @@ var TermsOverlay = React.createClass({
     var checkbox = this.renderCheckbox();
     var submitButton = this.renderSubmitButton();
     var terms = this.websiteTerms();
+    var privacy = this.websitePrivacy();
 
     return (
       /* jshint ignore:start */
@@ -39,6 +40,8 @@ var TermsOverlay = React.createClass({
         <div className="terms-overlay-content terms-overlay-box">
           <div className="terms-overlay-title">TERMS OF USE</div>
           {terms}
+          <div className="privacy-overlay-title">PRIVACY POLICY</div>
+          {privacy}
           <form className="terms-overlay-form">
             {checkbox}
             {submitButton}
@@ -52,9 +55,19 @@ var TermsOverlay = React.createClass({
   websiteTerms: function() {
     return React.DOM.iframe({
       className         : "terms-overlay-iframe",
+      src               : "http://developer.tidepool.io/terms-of-use",
+      scrolling         : "yes",
+      frameBorder       : "0",
+      allowTransparency : "true"
+    });
+  },
+
+  websitePrivacy: function() {
+    return React.DOM.iframe({
+      className         : "terms-overlay-iframe",
       src               : "http://developer.tidepool.io/privacy-policy",
       scrolling         : "yes",
-      frameborder       : "0",
+      frameBorder       : "0",
       allowTransparency : "true"
     });
   },
