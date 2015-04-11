@@ -15,48 +15,39 @@
  * == BSD2 LICENSE ==
  */
 
-@import 'fonts.less';
-@import 'icons.less';
-@import 'TimeNav.less';
-@import 'DashboardSection.less';
+@nav-font: 16px;
 
-@headline: #281A45;
-
-html, body, div, p {
-  font-family: @font-family-base;
-  font-size: @font-size-base;
-
-  margin: 0;
-  padding: 0;
-}
-
-a {
-  color: @headline;
-}
-
-#tidelineContainer {
-  width: 75%;
-  margin: 5vh auto;
-  background-color: #F7F7F8;
-
-  height: 90vh;
-}
-
-.Container--flex {
+.TimeNav {
   display: flex;
+  flex-direction: column;
+  align-items: center;
 
-  .Column {
-    padding: 5px;
+  background-color: white;
 
-    display: flex;
-    flex-direction: column;
+  font-size: @nav-font;
+
+  h3 {
+    color: @headline;
   }
 
-  .Column--left {
-    width: 33%;
-  }
+  .TimeNav-domainSelector {
+    margin-bottom: 1em;    
 
-  .Column--right {
-    width: 67%;
+    .TimeNav-button {
+      border: 2px solid @headline;
+      cursor: pointer;
+
+      font-size: @nav-font;
+      padding: 10px 20px;
+
+      &.TimeNav-button--inactive {
+        background-color: white;
+      }
+
+      &.TimeNav-button--active {
+        background-color: @headline;
+        color: white;
+      }
+    }
   }
 }

@@ -15,48 +15,20 @@
  * == BSD2 LICENSE ==
  */
 
-@import 'fonts.less';
-@import 'icons.less';
-@import 'TimeNav.less';
-@import 'DashboardSection.less';
-
-@headline: #281A45;
-
-html, body, div, p {
-  font-family: @font-family-base;
-  font-size: @font-size-base;
-
-  margin: 0;
-  padding: 0;
-}
-
-a {
-  color: @headline;
-}
-
-#tidelineContainer {
-  width: 75%;
-  margin: 5vh auto;
-  background-color: #F7F7F8;
-
-  height: 90vh;
-}
-
-.Container--flex {
+.DashboardSection {
   display: flex;
+  flex-direction: column;
 
-  .Column {
-    padding: 5px;
+  background-color: #EEF5F9;
 
-    display: flex;
-    flex-direction: column;
-  }
+  h3 {
+    background-color: #E3E1E6;
+    color: @headline;
+    margin: 0;
+    padding: 1em;
 
-  .Column--left {
-    width: 33%;
-  }
-
-  .Column--right {
-    width: 67%;
+    i {
+      float: right;
+    }
   }
 }

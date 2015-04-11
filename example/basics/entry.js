@@ -17,18 +17,8 @@
  */
 
 require('./less/basics.less');
-
-var _ = require('lodash');
-var bows = require('bows');
 var React = require('react');
-
-var Basics = React.createClass({
-  render: function() {
-    return (
-      <p>Hello, world</p>
-    );
-  }
-});
+var Basics = require('./components/Basics');
 
 React.render(
   <Basics/>,
