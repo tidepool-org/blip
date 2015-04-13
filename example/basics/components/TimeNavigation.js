@@ -36,13 +36,13 @@ var TimeNav = React.createClass({
   getDefaultProps: function() {
     return {
       dateRangeMask: 'MMM D'
-    }
+    };
   },
   render: function() {
     var dateRange = this.renderDateRange();
     var domainSelection = this.renderDomainSelection();
     return (
-      <div className="TimeNav">
+      <div className='TimeNav'>
         {dateRange}
         {domainSelection}
       </div>
@@ -52,11 +52,11 @@ var TimeNav = React.createClass({
     var s = sundial.formatInTimezone(this.props.dateRange[0], this.props.timezone, this.props.dateRangeMask);
     var e = sundial.formatInTimezone(this.props.dateRange[1], this.props.timezone, this.props.dateRangeMask);
     return (
-      <h3 className="TimeNav-dateRange">
-        <a href=""><i className="icon-back"/></a>
+      <h3 className='TimeNav-dateRange'>
+        <a href=''><i className='icon-back'/></a>
         {s} - {e}
-        <a href=""><i className="icon-next"/></a>
-        <a href=""><i className="icon-most-recent"/></a>
+        <a href=''><i className='icon-next'/></a>
+        <a href=''><i className='icon-most-recent'/></a>
       </h3>
     );
   },
@@ -64,7 +64,7 @@ var TimeNav = React.createClass({
     var self = this;
     var domains = ['1 week', '2 weeks', '4 weeks'];
     return (
-      <div className="TimeNav-domainSelector">
+      <div className='TimeNav-domainSelector'>
         {_.map(domains, function(domain) {
           var buttonClass = cx({
             'TimeNav-button': true,

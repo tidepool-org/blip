@@ -37,15 +37,15 @@ var Basics = React.createClass({
     var leftColumn = this.renderColumn('left');
     var rightColumn = this.renderColumn('right');
     return (
-      <div className="Container--flex">
-        <div className="Column Column--left">
+      <div className='Container--flex'>
+        <div className='Column Column--left'>
           <TimeNav dateRange={this.state.dateRange} 
             domain={this.state.domain} 
             timezone={this.state.timezone}
             switchDomain={basicsActions.switchDomain} />
           {leftColumn}
         </div>
-        <div className="Column Column--right">
+        <div className='Column Column--right'>
           {rightColumn}
         </div>
       </div>

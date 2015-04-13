@@ -28,7 +28,7 @@ var DashboardSection = React.createClass({
   render: function() {
     return (
       <div className='DashboardSection'>
-        <h3>{this.props.title}<a href=""><i className='icon-down'/></a></h3>
+        <h3>{this.props.title}<a href=''><i className='icon-down'/></a></h3>
       </div>
     );
   }

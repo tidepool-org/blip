@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+var d3 = require('d3');
+
 var sundial = require('sundial');
 
 var basicsState = {};
