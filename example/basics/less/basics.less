@@ -44,8 +44,12 @@ a {
 
 .Container--flex {
   display: flex;
+  @media only screen and (max-width : 1366px) {
+    flex-direction: column;
+  }
 
   .Column {
+    box-sizing: border-box;
     padding: 5px;
 
     display: flex;
@@ -53,10 +57,12 @@ a {
   }
 
   .Column--left {
-    width: 33%;
+    width: 100%;
+    @media only screen and (min-width : 1366px) { width: 33%; }
   }
 
   .Column--right {
-    width: 67%;
+    width: 100%;
+    @media only screen and (min-width : 1366px) { width: 67%; }
   }
 }
