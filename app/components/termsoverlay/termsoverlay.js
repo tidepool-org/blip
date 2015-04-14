@@ -18,9 +18,15 @@ var React = require('react');
 var _ = require('lodash');
 
 var AGES = {
-  OVER_EIGHTEEN : {value: '>=18', label: 'I am 18 years old or older.'},
-  THIRTEEN_TO_SEVENTEEN : {value: '13-17', label: 'I am between 13 and 17 years old. You\'ll need to have a parent or guardian agree to the terms on the next screen.' },
-  TWELVE_OR_UNDER : {value: '<=12', label: 'I am 12 years old or younger.'}
+  OF_AGE : {value: '>=18', label: 'I am 18 years old or older.'},
+  WITH_CONSENT : {value: '13-17', label: 'I am between 13 and 17 years old. You\'ll need to have a parent or guardian agree to the terms on the next screen.' },
+  NOT_OF_AGE : {value: '<=12', label: 'I am 12 years old or younger.'}
+};
+
+var MESSAGES = {
+  ACCEPT_OF_AGE : "I am 18 or older and I accept the terms of the Tidepool Applications Terms of Use and Privacy Policy",
+  ACCEPT_ON_BEHALF: "I to my child aged 13 through 17 using Tidepool Applications and agree that they are also bound to the terms of the Tidepool Applications Terms of Use and Privacy Policy",
+  SORRY_NOT_OF_AGE : "We are really sorry, but you need to be 13 or older in order to create an account and use Tidepool's Applications."
 };
 
 
@@ -32,13 +38,14 @@ var TermsOverlay = React.createClass({
   getInitialState: function() {
     return {
       agreed: false,
-      isChecked: false,
+      agreedOnBehalf: false,
+      isAgreementChecked: false,
       ageConfirmed: false,
-      ageSelected: AGES.OVER_EIGHTEEN.value //default
+      ageSelected: AGES.OF_AGE.value //default
     };
   },
   onChange: function() {
-    this.setState({isChecked: !this.state.isChecked});
+    this.setState({isAgreementChecked: !this.state.isAgreementChecked});
   },
   /*
    * Age consent
@@ -48,16 +55,16 @@ var TermsOverlay = React.createClass({
     return (
       <form ref='ageConfirmation' className="terms-overlay-age-form">
         <label>
-          <input type="radio" key={AGES.OVER_EIGHTEEN.value} value={AGES.OVER_EIGHTEEN.value} onChange={this.handleAgeChange} defaultChecked={true} />
-          {AGES.OVER_EIGHTEEN.label}
+          <input type="radio" key={AGES.OF_AGE.value} value={AGES.OF_AGE.value} onChange={this.handleAgeChange} defaultChecked={true} />
+          {AGES.OF_AGE.label}
         </label>
         <label>
-          <input type="radio" key={AGES.THIRTEEN_TO_SEVENTEEN.value} value={AGES.THIRTEEN_TO_SEVENTEEN.value} onChange={this.handleAgeChange}/>
-          {AGES.THIRTEEN_TO_SEVENTEEN.label}
+          <input type="radio" key={AGES.WITH_CONSENT.value} value={AGES.WITH_CONSENT.value} onChange={this.handleAgeChange}/>
+          {AGES.WITH_CONSENT.label}
         </label>
         <label>
-          <input type="radio" key={AGES.TWELVE_OR_UNDER.value} value={AGES.TWELVE_OR_UNDER.value} onChange={this.handleAgeChange}/>
-          {AGES.TWELVE_OR_UNDER.label}
+          <input type="radio" key={AGES.NOT_OF_AGE.value} value={AGES.NOT_OF_AGE.value} onChange={this.handleAgeChange}/>
+          {AGES.NOT_OF_AGE.label}
         </label>
         <button
           className="btn btn-primary js-terms-submit"
@@ -72,6 +79,7 @@ var TermsOverlay = React.createClass({
     var terms = this.websiteTerms();
     var privacy = this.websitePrivacy();
     var continueBtnDisabled = !this.state.agreed;
+    var agreeConfirmation = this.renderAgreeCheckboxes();
 
     return (
       /* jshint ignore:start */
@@ -82,17 +90,6 @@ var TermsOverlay = React.createClass({
           <div className="privacy-overlay-title">PRIVACY POLICY</div>
           {privacy}
           <form className="terms-overlay-form">
-            <div className="terms-overlay-accept-checkbox">
-              <label htmlFor="agreed">
-                <input
-                  id="agreed"
-                  type="checkbox"
-                  className="js-terms-checkbox"
-                  checked={this.state.agreed}
-                  onChange={this.handleChange} />
-                <span> I agree to these terms</span>
-              </label>
-            </div>
             <button
               className="btn btn-primary js-terms-submit"
               onClick={this.handleTermsAndPrivacySubmit}
@@ -103,21 +100,52 @@ var TermsOverlay = React.createClass({
       /* jshint ignore:end */
     );
   },
-  /*
-   * Message
-   */
+  renderSorryMessage:function(){
+
+    var parentConsent;
+
+    if(this.state.ageSelected === AGES.WITH_CONSENT.value){
+      parentConsent = (
+        <label htmlFor="agreedOnBehalf">
+          <input
+            id="agreedOnBehalf"
+            type="checkbox"
+            className="js-terms-checkbox"
+            checked={this.state.agreedOnBehalf}
+            onChange={this.handleAgreementChange} />
+          <span>{MESSAGES.ACCEPT_ON_BEHALF}</span>
+        </label>
+      );
+    }
+
+
+    return (
+      <div className="terms-overlay-accept-checkbox">
+        <label htmlFor="agreed">
+          <input
+            id="agreed"
+            type="checkbox"
+            className="js-terms-checkbox"
+            checked={this.state.agreed}
+            onChange={this.handleAgreementChange} />
+          <span>{MESSAGES.ACCEPT_OF_AGE}</span>
+        </label>
+        {parentConsent}
+      </div>
+    );
+  },
   renderSorryMessage:function(){
     return (
       <div className="terms-overlay">
-        <p className="terms-overlay-sorry-message">{'We are really sorry, but you need to be 13 or older in order to create an account and use Tidepool\'s Applications.'}</p>
+        <p className="terms-overlay-sorry-message">{MESSAGES.SORRY_NOT_OF_AGE}</p>
       </div>
     );
   },
   render: function() {
-    if(this.state.ageConfirmed && this.state.ageSelected !== AGES.TWELVE_OR_UNDER.value){
+    if(this.state.ageConfirmed && this.state.ageSelected !== AGES.NOT_OF_AGE.value){
       console.log('do terms');
       return this.renderTermsAndPrivacyStep();
-    }else if( this.state.ageConfirmed && this.state.ageSelected === AGES.TWELVE_OR_UNDER.value){
+    }else if( this.state.ageConfirmed && this.state.ageSelected === AGES.NOT_OF_AGE.value){
       console.log('sorry');
       return this.renderSorryMessage();
     }
@@ -153,8 +181,14 @@ var TermsOverlay = React.createClass({
     this.setState({ ageSelected: e.target.value});
     console.log('change age ',e.target.value);
   },
-  handleChange: function(e) {
-    var checked = e.target.checked;
+  handleAgreementChange: function(e) {
+    var checked = false;
+    //if(this.state.ageSelected === AGES.WITH_CONSENT){
+
+    //} else { 
+
+    //}
+    checked = e.target.checked;
     this.setState({agreed: checked});
   },
   handleTermsAndPrivacySubmit: function(e) {
@@ -173,5 +207,6 @@ var TermsOverlay = React.createClass({
 
 module.exports = {
   TermsOverlay: TermsOverlay,
-  AGES: AGES
+  AGES: AGES,
+  MESSAGES: MESSAGES
 };

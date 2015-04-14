@@ -20,6 +20,7 @@ jest.dontMock('../termsoverlay');
 var React = require('react/addons');
 var TermsOverlay = require('../termsoverlay').TermsOverlay;
 var AGES = require('../termsoverlay').AGES;
+var MESSAGES = require('../termsoverlay').MESSAGES;
 var TestUtils = React.addons.TestUtils;
 
 /*
@@ -65,11 +66,17 @@ describe('termsoverlay', function() {
     );
     expect(terms.state.agreed).toEqual(false);
   });
-  it('is not checked by default', function() {
+  it('is not agreedOnBehalf by default', function() {
+    var terms = TestUtils.renderIntoDocument(
+      <TermsOverlay trackMetric={metricsCallMock}/>
+    );
+    expect(terms.state.agreedOnBehalf).toEqual(false);
+  });
+  it('isAgreementChecked is not checked by default', function() {
     var terms = TestUtils.renderIntoDocument(
       <TermsOverlay trackMetric={metricsCallMock} />
     );
-    expect(terms.state.isChecked).toEqual(false);
+    expect(terms.state.isAgreementChecked).toEqual(false);
   });
   it('age is not confirmed by default', function() {
     var terms = TestUtils.renderIntoDocument(
@@ -81,7 +88,7 @@ describe('termsoverlay', function() {
     var terms = TestUtils.renderIntoDocument(
       <TermsOverlay trackMetric={metricsCallMock} />
     );
-    expect(terms.state.ageSelected).toEqual(AGES.OVER_EIGHTEEN.value);
+    expect(terms.state.ageSelected).toEqual(AGES.OF_AGE.value);
   });
   it('shows age confirmation form by defaut', function() {
     var terms = TestUtils.renderIntoDocument(
@@ -128,7 +135,7 @@ describe('termsoverlay', function() {
           <TermsOverlay trackMetric={metricsCallMock} />
         );
         var overEighteen = TestUtils.scryRenderedDOMComponentsWithTag(terms,'input')[0];
-        expect(overEighteen.props.value).toEqual(AGES.OVER_EIGHTEEN.value);
+        expect(overEighteen.props.value).toEqual(AGES.OF_AGE.value);
         //continue
         var ageBtn = TestUtils.findRenderedDOMComponentWithTag(terms, 'button');
         React.addons.TestUtils.Simulate.click(ageBtn);
@@ -161,7 +168,7 @@ describe('termsoverlay', function() {
         );
 
         var thirteenToSeventeenOpt = TestUtils.scryRenderedDOMComponentsWithTag(terms,'input')[1];
-        expect(thirteenToSeventeenOpt.props.value).toEqual(AGES.THIRTEEN_TO_SEVENTEEN.value);
+        expect(thirteenToSeventeenOpt.props.value).toEqual(AGES.WITH_CONSENT.value);
         React.addons.TestUtils.Simulate.click(thirteenToSeventeenOpt);
         //Continue
         var ageBtn = TestUtils.findRenderedDOMComponentWithTag(terms, 'button');
@@ -193,6 +200,9 @@ describe('termsoverlay', function() {
         //age confirmation is now true
         expect(terms.state.ageConfirmed).toEqual(true);
         //Check both confirmation boxes
+
+
+
         expect(terms.state.isChecked).toEqual(false);
         expect(terms.state.agreed).toEqual(false);
       });
@@ -210,7 +220,7 @@ describe('termsoverlay', function() {
         // I am 12 years old or younger.
         var underTwelveOpt = TestUtils.scryRenderedDOMComponentsWithTag(terms,'input')[2];
         React.addons.TestUtils.Simulate.change(underTwelveOpt);
-        expect(underTwelveOpt.props.value).toEqual(AGES.TWELVE_OR_UNDER.value);
+        expect(underTwelveOpt.props.value).toEqual(AGES.NOT_OF_AGE.value);
         //Continue
         var ageBtn = TestUtils.findRenderedDOMComponentWithTag(terms, 'button');
         React.addons.TestUtils.Simulate.click(ageBtn);
