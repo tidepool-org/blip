@@ -21,43 +21,9 @@ var React = require('react/addons');
 var TermsOverlay = require('../termsoverlay').TermsOverlay;
 var AGES = require('../termsoverlay').AGES;
 var MESSAGES = require('../termsoverlay').MESSAGES;
-var TestUtils = React.addons.TestUtils;
-
-/*
-TOU = Terms of Use
-PP = Privacy Policy
-
-Final URLs will be: TOU: http://developer.tidepool.io/privacy-policy/
-PP: http://developer.tidepool.io/terms-of-use/
-
-Prior to showing TOU and PP, present a
-Before you can sign up for Blip, we need to know how old you are:
-
-[ ] I am 18 years old or older. (default selection)
-[ ] I am between 13 and 17 years old. You'll need to have a parent or guardian agree to the terms on the next screen.
-[ ] I am 12 years old or younger.
-
-[ CONTINUE ]
-
-Store the state of this selection for the user.
-
-== For under 12 login flow. ==
-Display: "We are really sorry, but you need to be 13 or older in order to create an account and use Tidepool's Applications."
-
-== For 18 and over login flow: ==
-Present TOU and PP in separate scrollable windows. Can be side by side or top/bottom or one followed by the next: Present one checkbox and text.
-[ ] "I am 18 or older and I accept the terms of the Tidepool Applications Terms of Use and Privacy Policy".
-Do not enable [I ACCEPT] button until the checkbox is selected.
-
-== For 13 - 17 login flow: ==
-Present TOU and PP in separate scrollable windows (as above).
-Present TWO checkboxes: [ ] "I am 18 or older and I accept the terms of the Tidepool Applications Terms of Use and Privacy Policy".
-[ ] "I to my child aged 13 through 17 using Tidepool Applications and agree that they are also bound to the terms of the Tidepool Applications Terms of Use and Privacy Policy".
-
-Do not enable [I ACCEPT] button until BOTH checkboxes are selected.
-*/
-
 var metricsCallMock = jest.genMockFunction();
+
+var TestUtils = React.addons.TestUtils;
 
 describe('termsoverlay', function() {
   it('is not agreed by default', function() {
@@ -123,13 +89,6 @@ describe('termsoverlay', function() {
       expect(iframes.length).toEqual(2);
     });
     describe('flow for 18 and over login', function() {
-      /*
-        == For 18 and over login flow: ==
-        Present TOU and PP in separate scrollable windows. Can be side by side or top/bottom or one followed by the next:
-        Present one checkbox and text.
-        [ ] "I am 18 or older and I accept the terms of the Tidepool Applications Terms of Use and Privacy Policy".
-        Do not enable [I ACCEPT] button until the checkbox is selected.
-      */
       it('shows TOU and PP', function() {
         var terms = TestUtils.renderIntoDocument(
           <TermsOverlay trackMetric={metricsCallMock} />
@@ -150,18 +109,11 @@ describe('termsoverlay', function() {
         var privacyDetails = iframes[1];
         expect(privacyDetails.props.src).toEqual('http://developer.tidepool.io/privacy-policy');
 
-        expect(terms.state.isChecked).toEqual(false);
+        expect(terms.state.isAgreementChecked).toEqual(false);
         expect(terms.state.agreed).toEqual(false);
       });
     });
     describe('flow for between 13 and 17 years old', function() {
-      /*
-        == For 13 - 17 login flow: ==
-        Present TOU and PP in separate scrollable windows (as above).
-        Present TWO checkboxes:
-          [ ] "I am 18 or older and I accept the terms of the Tidepool Applications Terms of Use and Privacy Policy".
-          [ ] "I to my child aged 13 through 17 using Tidepool Applications and agree that they are also bound to the terms of the Tidepool Applications Terms of Use and Privacy Policy".
-      */
       it('shows TOU and PP and asks for parental consent also', function() {
         var terms = TestUtils.renderIntoDocument(
           <TermsOverlay trackMetric={metricsCallMock} />
@@ -169,12 +121,15 @@ describe('termsoverlay', function() {
 
         var thirteenToSeventeenOpt = TestUtils.scryRenderedDOMComponentsWithTag(terms,'input')[1];
         expect(thirteenToSeventeenOpt.props.value).toEqual(AGES.WITH_CONSENT.value);
-        React.addons.TestUtils.Simulate.click(thirteenToSeventeenOpt);
+        TestUtils.Simulate.click(thirteenToSeventeenOpt);
         //Continue
         var ageBtn = TestUtils.findRenderedDOMComponentWithTag(terms, 'button');
-        React.addons.TestUtils.Simulate.click(ageBtn);
+        TestUtils.Simulate.click(ageBtn);
         //age confirmation is now true
         expect(terms.state.ageConfirmed).toEqual(true);
+        //but not yet accepted
+        expect(terms.state.isAgreementChecked).toEqual(false);
+        expect(terms.state.agreed).toEqual(false);
         //TOU and PP shown
         var iframes = TestUtils.scryRenderedDOMComponentsWithClass(terms, 'terms-overlay-iframe');
         expect(iframes).not.toBeNull();
@@ -183,9 +138,23 @@ describe('termsoverlay', function() {
         expect(termsDetails.props.src).toEqual('http://developer.tidepool.io/terms-of-use');
         var privacyDetails = iframes[1];
         expect(privacyDetails.props.src).toEqual('http://developer.tidepool.io/privacy-policy');
-        //not yet accpeted
-        expect(terms.state.isChecked).toEqual(false);
-        expect(terms.state.agreed).toEqual(false);
+        //show the two checkboxes
+        var checkboxes = TestUtils.scryRenderedDOMComponentsWithTag(terms,'input');
+        expect(checkboxes.length).toEqual(2);
+        expect(checkboxes[0].props.type).toEqual('checkbox');
+        expect(checkboxes[0].props.checked).toEqual(false);
+        expect(checkboxes[1].props.type).toEqual('checkbox');
+        expect(checkboxes[1].props.checked).toEqual(false);
+        //click both
+        TestUtils.Simulate.click(checkboxes[0]);
+        TestUtils.Simulate.click(checkboxes[1]);
+        //click button
+        var continueButton = TestUtils.findRenderedDOMComponentWithTag(terms, 'button');
+        TestUtils.Simulate.click(continueButton);
+        //now we have accepted
+        expect(terms.state.isAgreementChecked).toEqual(true);
+        expect(terms.state.agreed).toEqual(true);
+
       });
       it('allows confirmation once both checkboxes selected', function() {
         var terms = TestUtils.renderIntoDocument(
@@ -193,25 +162,18 @@ describe('termsoverlay', function() {
         );
         //Select between 13 and 17
         var thirteenToSeventeenOpt = TestUtils.scryRenderedDOMComponentsWithTag(terms,'input')[1];
-        React.addons.TestUtils.Simulate.change(thirteenToSeventeenOpt);
+        TestUtils.Simulate.change(thirteenToSeventeenOpt);
         //Select Continue
         var ageBtn = TestUtils.findRenderedDOMComponentWithTag(terms, 'button');
-        React.addons.TestUtils.Simulate.click(ageBtn);
+        TestUtils.Simulate.click(ageBtn);
         //age confirmation is now true
         expect(terms.state.ageConfirmed).toEqual(true);
         //Check both confirmation boxes
-
-
-
-        expect(terms.state.isChecked).toEqual(false);
+        expect(terms.state.isAgreementChecked).toEqual(false);
         expect(terms.state.agreed).toEqual(false);
       });
     });
     describe('flow for under 12 login flow', function() {
-      /*
-        == For under 12 login flow. ==
-        Display: "We are really sorry, but you need to be 13 or older in order to create an account and use Tidepool's Applications."
-      */
       it('display sorry message', function() {
         var terms = TestUtils.renderIntoDocument(
           <TermsOverlay trackMetric={metricsCallMock} />
@@ -219,15 +181,15 @@ describe('termsoverlay', function() {
 
         // I am 12 years old or younger.
         var underTwelveOpt = TestUtils.scryRenderedDOMComponentsWithTag(terms,'input')[2];
-        React.addons.TestUtils.Simulate.change(underTwelveOpt);
+        TestUtils.Simulate.change(underTwelveOpt);
         expect(underTwelveOpt.props.value).toEqual(AGES.NOT_OF_AGE.value);
         //Continue
         var ageBtn = TestUtils.findRenderedDOMComponentWithTag(terms, 'button');
-        React.addons.TestUtils.Simulate.click(ageBtn);
+        TestUtils.Simulate.click(ageBtn);
         //age confirmation is now true
         expect(terms.state.ageConfirmed).toEqual(true);
         //not yet accepted
-        expect(terms.state.isChecked).toEqual(false);
+        expect(terms.state.isAgreementChecked).toEqual(false);
         expect(terms.state.agreed).toEqual(false);
         //No TOU and PP shown
         var iframes = TestUtils.scryRenderedDOMComponentsWithClass(terms, 'terms-overlay-iframe');
@@ -236,7 +198,7 @@ describe('termsoverlay', function() {
         var sorryMsg = TestUtils.findRenderedDOMComponentWithClass(terms, 'terms-overlay-sorry-message');
         expect(sorryMsg).not.toBeNull();
         //still not accepted
-        expect(terms.state.isChecked).toEqual(false);
+        expect(terms.state.isAgreementChecked).toEqual(false);
         expect(terms.state.agreed).toEqual(false);
       });
     });
