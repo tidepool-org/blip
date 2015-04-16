@@ -26,7 +26,7 @@ var TermsOverlay = React.createClass({
     return {
       ages: {
         OF_AGE : { value: '>=18', label: ' I am 18 years old or older.'},
-        WITH_CONSENT : { value: '13-17', label: ' I am between 13 and 17 years old. You\'ll need to have a parent or guardian agree to the terms on the next screen.' },
+        WITH_CONSENT : { value: '13-17', label: ' I am between 13 and 17 years old.\n You\'ll need to have a parent or guardian agree to the terms on the next screen.' },
         NOT_OF_AGE : { value: '<=12', label: ' I am 12 years old or younger.'}
       },
       messages: {
@@ -53,18 +53,30 @@ var TermsOverlay = React.createClass({
       <div className='terms-overlay js-terms'>
         <div className='terms-overlay-content terms-overlay-box'>
           <form ref='ageConfirmation' className='terms-overlay-age-form'>
-            <label>
-              <input type='radio' name='age' key={this.props.ages.OF_AGE.value} value={this.props.ages.OF_AGE.value} onChange={this.handleAgeChange} defaultChecked={true} />
-              {this.props.ages.OF_AGE.label}
-            </label>
-            <label>
-              <input type='radio' name='age' key={this.props.ages.WITH_CONSENT.value} value={this.props.ages.WITH_CONSENT.value} onChange={this.handleAgeChange} />
-              {this.props.ages.WITH_CONSENT.label}
-            </label>
-            <label>
-              <input type='radio' name='age' key={this.props.ages.NOT_OF_AGE.value} value={this.props.ages.NOT_OF_AGE.value} onChange={this.handleAgeChange} />
-              {this.props.ages.NOT_OF_AGE.label}
-            </label>
+            <div className='terms-overlay-age-radio'>
+              <label>
+                <input type='radio' name='age'
+                  key={this.props.ages.OF_AGE.value}
+                  value={this.props.ages.OF_AGE.value}
+                  onChange={this.handleAgeChange}
+                  defaultChecked={true} />
+                {this.props.ages.OF_AGE.label}
+              </label>
+              <label>
+                <input type='radio' name='age'
+                  key={this.props.ages.WITH_CONSENT.value}
+                  value={this.props.ages.WITH_CONSENT.value}
+                  onChange={this.handleAgeChange} />
+                {this.props.ages.WITH_CONSENT.label}
+              </label>
+              <label>
+                <input type='radio' name='age'
+                  key={this.props.ages.NOT_OF_AGE.value}
+                  value={this.props.ages.NOT_OF_AGE.value}
+                  onChange={this.handleAgeChange} />
+                {this.props.ages.NOT_OF_AGE.label}
+              </label>
+            </div>
             <button
               className='btn btn-primary js-terms-submit'
               onClick={this.handleAgeSubmit}>Continue</button>
@@ -103,6 +115,21 @@ var TermsOverlay = React.createClass({
     );
   },
   renderAgreeCheckboxes:function(){
+
+    var onBehalf;
+    if (this.state.ageSelected === this.props.ages.WITH_CONSENT.value) {
+      onBehalf = (
+        <label htmlFor='agreedOnBehalf'>
+          <input
+            id='agreedOnBehalf'
+            type='checkbox'
+            className='js-terms-checkbox'
+            checked={this.state.agreedOnBehalf}
+            onChange={this.handleOnBehalfAgreementChange} />
+          {this.props.messages.ACCEPT_ON_BEHALF}
+        </label>
+      );
+    }
     return (
       <div className='terms-overlay-accept-checkbox'>
         <label htmlFor='agreed'>
@@ -114,15 +141,7 @@ var TermsOverlay = React.createClass({
             onChange={this.handleAgreementChange} />
           {this.props.messages.ACCEPT_OF_AGE}
         </label>
-        <label htmlFor='agreedOnBehalf'>
-          <input
-            id='agreedOnBehalf'
-            type='checkbox'
-            className='js-terms-checkbox'
-            checked={this.state.agreedOnBehalf}
-            onChange={this.handleOnBehalfAgreementChange} />
-          {this.props.messages.ACCEPT_ON_BEHALF}
-        </label>
+        {onBehalf}
       </div>
     );
   },
