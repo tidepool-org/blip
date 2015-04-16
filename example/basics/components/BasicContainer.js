@@ -1,3 +1,4 @@
+/** @jsx React.DOM */
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2015 Tidepool Project
@@ -16,29 +17,23 @@
  */
 
 var _ = require('lodash');
+var bows = require('bows');
+var cx = require('classnames');
+var React = require('react');
 
-var basicsActions = {};
+var BasicContainer = React.createClass({
+  propTypes: {
 
-basicsActions.bindApp = function(app) {
-  this.app = app;
-  return this;
-};
+  },
+  render: function() {
+    return (
+      <div className='Container'>
+        <svg height='50' width='100'>
+          <circle cx='50'cy='25' r='15' fill='#06BCE4'/>
+        </svg>
+      </div>
+    );
+  }
+});
 
-basicsActions.switchDomain = function(newDomain) {
-  var offsetsInHours = {
-    '1 week': 7*24,
-    '2 weeks': 14*24,
-    '4 weeks': 28*24
-  };
-  this.app.setState({
-    domain: newDomain
-  });
-};
-
-basicsActions.toggleSection = function(sectionName) {
-  var state = _.cloneDeep(this.app.state);
-  state.sections[sectionName].open = !state.sections[sectionName].open;
-  this.app.setState(state);
-};
-
-module.exports = basicsActions;
+module.exports = BasicContainer;

@@ -51,11 +51,27 @@ var Basics = React.createClass({
       </div>
     );
   },
-  renderColumn: function(column) {
+  renderColumn: function(columnSide) {
     var self = this;
-    return _.map(_.sortBy(_.where(self.state.sections, {column: column, active: true}), 'index'), function(section) {
+    var sections = [];
+    for (var key in this.state.sections) {
+      var section = _.cloneDeep(self.state.sections[key]);
+      section.name = key;
+      sections.push(section);
+    }
+    var column = _.sortBy(
+      _.where(sections, {column: columnSide, active: true}),
+      'index'
+    );
+
+    var keys = Object.keys(column);
+    return _.map(column, function(section, index) {
       return (
-        <Section key={section.name} title={section.name} open={true} />
+        <Section key={section.name}
+          chart={section.chart || section.components}
+          name={section.name}
+          open={section.open}
+          title={section.title} />
       );
     });
   }

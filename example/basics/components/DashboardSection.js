@@ -18,19 +18,68 @@
 
 var _ = require('lodash');
 var bows = require('bows');
+var cx = require('classnames');
 var React = require('react');
+
+var basicsActions = require('../logic/actions');
 
 var DashboardSection = React.createClass({
   propTypes: {
-    title: React.PropTypes.string.isRequired,
-    open: React.PropTypes.bool.isRequired
+    chart: React.PropTypes.any.isRequired,
+    name: React.PropTypes.string.isRequired,
+    open: React.PropTypes.bool.isRequired,
+    title: React.PropTypes.string.isRequired
+  },
+  componentDidMount: function() {
+    var content = this.refs.content.getDOMNode();
+    var container = this.refs.container.getDOMNode();
+    container.style.height = content.offsetHeight + 'px';
   },
   render: function() {
+    var dataDisplay;
+    if (typeof this.props.chart === 'object') {
+      var componentKeys = Object.keys(this.props.chart);
+      dataDisplay = [];
+      for (var i = 0; i < componentKeys.length; ++i) {
+        var component = this.props.chart[componentKeys[i]];
+        if (component.active) {
+          dataDisplay.push(
+            <component.chart key={componentKeys[i]}/>
+          );
+        }
+      }
+    }
+    else {
+      dataDisplay = (
+        <this.props.chart />
+      );
+    }
+    var iconClass = cx({
+      'icon-down': this.props.open,
+      'icon-right': !this.props.open
+    });
+    var containerClass = cx({
+      'DashboardSection-container': true,
+      'DashboardSection-container--closed': !this.props.open
+    });
     return (
       <div className='DashboardSection'>
-        <h3>{this.props.title}<a href=''><i className='icon-down'/></a></h3>
+        <h3>{this.props.title}
+          <a href='' onClick={this.handleToggleSection}>
+            <i className={iconClass}/>
+          </a>
+        </h3>
+        <div className={containerClass} ref="container">
+          <div className='DashboardSection-content' ref="content">
+            {dataDisplay}
+          </div>
+        </div>
       </div>
     );
+  },
+  handleToggleSection: function(e) {
+    e.preventDefault();
+    basicsActions.toggleSection(this.props.name);
   }
 });
 

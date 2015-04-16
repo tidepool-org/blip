@@ -19,6 +19,9 @@ var d3 = require('d3');
 
 var sundial = require('sundial');
 
+var BasicContainer = require('../components/BasicContainer');
+var CalendarContainer = require('../components/CalendarContainer');
+
 var basicsState = {};
 
 basicsState.getInitial = function(datum, timezone) {
@@ -35,53 +38,65 @@ basicsState.getInitial = function(datum, timezone) {
     sections: {
       basalBolusRatio: {
         active: true,
+        chart: BasicContainer,
         column: 'left',
         index: 3,
-        name: 'Basal : bolus ratio'
+        title: 'Basal : bolus ratio',
+        open: true
       },
       basals: {
         active: true,
         column: 'right',
         index: 3,
-        name: 'Basals',
+        title: 'Basals',
+        open: true,
         components: {
           rates: {
             active: true,
-            name: 'Basal rates'
+            chart: BasicContainer,
+            title: 'Basal rates'
           },
           suspends: {
-            active: true,
-            name: 'Suspends'
+            active: false,
+            chart: CalendarContainer,
+            title: 'Suspends'
           },
           temps: {
-            active: true,
-            name: 'Temp basals'
+            active: false,
+            chart: CalendarContainer,
+            title: 'Temp basals'
           }
         }
       },
       bgDistribution: {
         active: true,
+        chart: BasicContainer,
         column: 'left',
         index: 1,
-        name: 'BG distribution'
+        title: 'BG distribution',
+        open: true
       },
       bgTesting: {
         active: true,
         column: 'right',
         index: 1,
-        name: 'Blood sugar testing',
+        title: 'Blood sugar testing',
+        open: true,
         components: {
           fingerstick: {
             active: true,
-            name: 'Fingersticks'
+            chart: CalendarContainer,
+            title: 'Fingersticks'
           },
           cgm: {
-            active: true,
-            name: 'CGM use'
+            active: false,
+            chart: CalendarContainer,
+            title: 'CGM use'
           },
           cgmCalibration: {
-            active: true,
-            name: 'CGM calibration'
+            active: false,
+            chart: CalendarContainer,
+            title: 'CGM calibration'
           }
         }
       },
@@ -89,11 +104,13 @@ basicsState.getInitial = function(datum, timezone) {
         active: true,
         column: 'right',
         index: 2,
-        name: 'Bolusing',
+        title: 'Bolusing',
+        open: true,
         components: {
           bolusFreq: {
             active: true,
-            name: 'Boluses'
+            chart: CalendarContainer,
+            title: 'Boluses'
           }
         }
       },
@@ -101,19 +118,23 @@ basicsState.getInitial = function(datum, timezone) {
         active: true,
         column: 'right',
         index: 4,
-        name: 'General care',
+        title: 'General care',
+        open: true,
         components: {
           infusionSite: {
             active: true,
-            name: 'Infusion site changes'
+            chart: CalendarContainer,
+            title: 'Infusion site changes'
           }
         }
       },
       tdd: {
         active: true,
+        chart: BasicContainer,
         column: 'left',
         index: 2,
-        name: 'Total daily dose'
+        title: 'Total daily dose',
+        open: true
       }
     },
     timezone: timezone

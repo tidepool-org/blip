@@ -20,6 +20,11 @@
 @import 'TimeNav.less';
 @import 'DashboardSection.less';
 
+svg {
+  display: block;
+  margin: 0 auto;
+}
+
 @headline: #281A45;
 
 html, body, div, p {
@@ -38,13 +43,11 @@ a {
   width: 75%;
   margin: 5vh auto;
   background-color: #F7F7F8;
-
-  height: 90vh;
 }
 
 .Container--flex {
   display: flex;
-  @media only screen and (max-width : 1366px) {
+  @media only screen and (max-width : 1365px) {
     flex-direction: column;
   }
 
@@ -58,11 +61,11 @@ a {
 
   .Column--left {
     width: 100%;
-    @media only screen and (min-width : 1366px) { width: 33%; }
+    @media only screen and (min-width : 1365px) { width: 33%; }
   }
 
   .Column--right {
     width: 100%;
-    @media only screen and (min-width : 1366px) { width: 67%; }
+    @media only screen and (min-width : 1365px) { width: 67%; }
   }
 }

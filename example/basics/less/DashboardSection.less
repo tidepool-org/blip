@@ -19,6 +19,8 @@
   display: flex;
   flex-direction: column;
 
+  overflow-y: hidden;
+
   background-color: #EEF5F9;
 
   h3 {
@@ -31,4 +33,22 @@
       float: right;
     }
   }
+}
+
+
+.DashboardSection-container {
+  transition: height 0.3s ease-in;
+
+  &.DashboardSection-container--closed {
+    height: 0px !important;
+  }
+
+  .DashboardSection-content {
+    box-sizing: border-box;
+    padding: 15px;
+
+    .Container {
+      width: 100%;
+    }
+  } 
 }
