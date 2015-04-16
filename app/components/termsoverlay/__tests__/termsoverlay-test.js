@@ -18,12 +18,18 @@
 jest.dontMock('../termsoverlay');
 
 var React = require('react/addons');
-var TermsOverlay = require('../termsoverlay').TermsOverlay;
-var AGES = require('../termsoverlay').AGES;
-var MESSAGES = require('../termsoverlay').MESSAGES;
-var metricsCallMock = jest.genMockFunction();
-
 var TestUtils = React.addons.TestUtils;
+
+var TermsOverlay = require('../termsoverlay');
+//TODO clean this up for testing
+var AGES = {
+  OF_AGE : { value: '>=18', label: 'I am 18 years old or older.'},
+  WITH_CONSENT : { value: '13-17', label: 'I am between 13 and 17 years old. You\'ll need to have a parent or guardian agree to the terms on the next screen.' },
+  NOT_OF_AGE : { value: '<=12', label: 'I am 12 years old or younger.'}
+};
+
+
+var metricsCallMock = jest.genMockFunction();
 
 describe('termsoverlay', function() {
   it('is not agreed by default', function() {
@@ -82,7 +88,7 @@ describe('termsoverlay', function() {
       );
 
       var ageBtn = TestUtils.findRenderedDOMComponentWithTag(terms, 'button');
-      React.addons.TestUtils.Simulate.click(ageBtn);
+      TestUtils.Simulate.click(ageBtn);
 
       var iframes = TestUtils.scryRenderedDOMComponentsWithClass(terms, 'terms-overlay-iframe');
       expect(iframes).not.toBeNull();
@@ -141,19 +147,22 @@ describe('termsoverlay', function() {
         //show the two checkboxes
         var checkboxes = TestUtils.scryRenderedDOMComponentsWithTag(terms,'input');
         expect(checkboxes.length).toEqual(2);
-        expect(checkboxes[0].props.type).toEqual('checkbox');
-        expect(checkboxes[0].props.checked).toEqual(false);
-        expect(checkboxes[1].props.type).toEqual('checkbox');
-        expect(checkboxes[1].props.checked).toEqual(false);
+        var agreed = checkboxes[0];
+        var agreedOnBehalf = checkboxes[1];
+        
+        expect(agreed.props.type).toEqual('checkbox');
+        expect(agreed.props.checked).toEqual(false);
+        expect(agreedOnBehalf.props.type).toEqual('checkbox');
+        expect(agreedOnBehalf.props.checked).toEqual(false);
         //click both
-        TestUtils.Simulate.click(checkboxes[0]);
-        TestUtils.Simulate.click(checkboxes[1]);
-        //click button
-        var continueButton = TestUtils.findRenderedDOMComponentWithTag(terms, 'button');
-        TestUtils.Simulate.click(continueButton);
-        //now we have accepted
+        TestUtils.Simulate.click(agreed);
+        TestUtils.Simulate.click(agreedOnBehalf);
+
         expect(terms.state.isAgreementChecked).toEqual(true);
         expect(terms.state.agreed).toEqual(true);
+        //now we should be able to click the button
+        var continueButton = TestUtils.findRenderedDOMComponentWithTag(terms, 'button');
+        TestUtils.Simulate.click(continueButton);
 
       });
       it('allows confirmation once both checkboxes selected', function() {
@@ -178,7 +187,6 @@ describe('termsoverlay', function() {
         var terms = TestUtils.renderIntoDocument(
           <TermsOverlay trackMetric={metricsCallMock} />
         );
-
         // I am 12 years old or younger.
         var underTwelveOpt = TestUtils.scryRenderedDOMComponentsWithTag(terms,'input')[2];
         TestUtils.Simulate.change(underTwelveOpt);
