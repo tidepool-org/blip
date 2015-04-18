@@ -111,9 +111,6 @@ describe('termsoverlay', function() {
           <TermsOverlay trackMetric={metricsCallMock} />
         );
 
-        var terms = TestUtils.renderIntoDocument(
-          <TermsOverlay trackMetric={metricsCallMock} />
-        );
         //Select between 13 and 17
         var thirteenToSeventeenOpt = TestUtils.scryRenderedDOMComponentsWithTag(terms,'input')[1];
         TestUtils.Simulate.change(thirteenToSeventeenOpt);
