@@ -37,12 +37,6 @@ describe('termsoverlay', function() {
     );
     expect(terms.state.agreedOnBehalf).toEqual(false);
   });
-  it('isAgreementChecked is not checked by default', function() {
-    var terms = TestUtils.renderIntoDocument(
-      <TermsOverlay trackMetric={metricsCallMock} />
-    );
-    expect(terms.state.isAgreementChecked).toEqual(false);
-  });
   it('age is not confirmed by default', function() {
     var terms = TestUtils.renderIntoDocument(
       <TermsOverlay trackMetric={metricsCallMock} />
@@ -96,7 +90,7 @@ describe('termsoverlay', function() {
         expect(overEighteen.props.value).toEqual(terms.props.ages.OF_AGE.value);
         //continue
         var ageBtn = TestUtils.findRenderedDOMComponentWithTag(terms, 'button');
-        React.addons.TestUtils.Simulate.click(ageBtn);
+        TestUtils.Simulate.click(ageBtn);
         //age confirmation is now true
         expect(terms.state.ageConfirmed).toEqual(true);
         //iframes shown with TOU and PP
@@ -108,7 +102,6 @@ describe('termsoverlay', function() {
         var privacyDetails = iframes[1];
         expect(privacyDetails.props.src).toEqual('http://developer.tidepool.io/privacy-policy');
 
-        expect(terms.state.isAgreementChecked).toEqual(false);
         expect(terms.state.agreed).toEqual(false);
       });
     });
@@ -118,47 +111,6 @@ describe('termsoverlay', function() {
           <TermsOverlay trackMetric={metricsCallMock} />
         );
 
-        var thirteenToSeventeenOpt = TestUtils.scryRenderedDOMComponentsWithTag(terms,'input')[1];
-        expect(thirteenToSeventeenOpt.props.value).toEqual(terms.props.ages.WITH_CONSENT.value);
-        TestUtils.Simulate.click(thirteenToSeventeenOpt);
-        //Continue
-        var ageBtn = TestUtils.findRenderedDOMComponentWithTag(terms, 'button');
-        TestUtils.Simulate.click(ageBtn);
-        //age confirmation is now true
-        expect(terms.state.ageConfirmed).toEqual(true);
-        //but not yet accepted
-        expect(terms.state.isAgreementChecked).toEqual(false);
-        expect(terms.state.agreed).toEqual(false);
-        //TOU and PP shown
-        var iframes = TestUtils.scryRenderedDOMComponentsWithClass(terms, 'terms-overlay-iframe');
-        expect(iframes).not.toBeNull();
-        expect(iframes.length).toEqual(2);
-        var termsDetails = iframes[0];
-        expect(termsDetails.props.src).toEqual('http://developer.tidepool.io/terms-of-use');
-        var privacyDetails = iframes[1];
-        expect(privacyDetails.props.src).toEqual('http://developer.tidepool.io/privacy-policy');
-        //show the two checkboxes
-        var checkboxes = TestUtils.scryRenderedDOMComponentsWithTag(terms,'input');
-        expect(checkboxes.length).toEqual(2);
-        var agreed = checkboxes[0];
-        var agreedOnBehalf = checkboxes[1];
-
-        expect(agreed.props.type).toEqual('checkbox');
-        expect(agreed.props.checked).toEqual(false);
-        expect(agreedOnBehalf.props.type).toEqual('checkbox');
-        expect(agreedOnBehalf.props.checked).toEqual(false);
-        //click both
-        TestUtils.Simulate.click(agreed);
-        TestUtils.Simulate.click(agreedOnBehalf);
-
-        expect(terms.state.isAgreementChecked).toEqual(true);
-        expect(terms.state.agreed).toEqual(true);
-        //now we should be able to click the button
-        var continueButton = TestUtils.findRenderedDOMComponentWithTag(terms, 'button');
-        TestUtils.Simulate.click(continueButton);
-
-      });
-      it('allows confirmation once both checkboxes selected', function() {
         var terms = TestUtils.renderIntoDocument(
           <TermsOverlay trackMetric={metricsCallMock} />
         );
@@ -170,9 +122,58 @@ describe('termsoverlay', function() {
         TestUtils.Simulate.click(ageBtn);
         //age confirmation is now true
         expect(terms.state.ageConfirmed).toEqual(true);
-        //Check both confirmation boxes
-        expect(terms.state.isAgreementChecked).toEqual(false);
+        //terms not yet
         expect(terms.state.agreed).toEqual(false);
+        expect(terms.state.agreedOnBehalf).toEqual(false);
+
+        var checkboxes = TestUtils.scryRenderedDOMComponentsWithTag(terms,'input');
+        expect(checkboxes.length).toEqual(2);
+        var agreed = checkboxes[0];
+        var agreedOnBehalf = checkboxes[1];
+
+        TestUtils.Simulate.change(agreedOnBehalf);
+        TestUtils.Simulate.change(agreed);
+
+        expect(terms.state.agreed).toEqual(true);
+        expect(terms.state.agreedOnBehalf).toEqual(true);
+
+        //now we should be able to click the button
+        var continueButton = TestUtils.findRenderedDOMComponentWithTag(terms, 'button');
+        expect(continueButton.props.children).toEqual('Continue');
+        expect(continueButton.props.disabled).toEqual(false);
+
+      });
+      it('will not allow TOU and PP confirmation if both checkboxes are not selected', function() {
+        var terms = TestUtils.renderIntoDocument(
+          <TermsOverlay trackMetric={metricsCallMock} />
+        );
+        //Select between 13 and 17
+        var thirteenToSeventeenOpt = TestUtils.scryRenderedDOMComponentsWithTag(terms,'input')[1];
+        TestUtils.Simulate.change(thirteenToSeventeenOpt);
+        //Select Continue
+        var ageBtn = TestUtils.findRenderedDOMComponentWithTag(terms, 'button');
+        TestUtils.Simulate.click(ageBtn);
+        //age confirmation is now true
+        expect(terms.state.ageConfirmed).toEqual(true);
+        //terms not yet
+        expect(terms.state.agreed).toEqual(false);
+        expect(terms.state.agreedOnBehalf).toEqual(false);
+
+        var checkboxes = TestUtils.scryRenderedDOMComponentsWithTag(terms,'input');
+        expect(checkboxes.length).toEqual(2);
+        var agreed = checkboxes[0];
+        var agreedOnBehalf = checkboxes[1];
+        //only check one
+        TestUtils.Simulate.change(agreedOnBehalf);
+
+        expect(terms.state.agreed).toEqual(false);
+        expect(terms.state.agreedOnBehalf).toEqual(true);
+
+        //now we should NOT be able to click the button
+        var continueButton = TestUtils.findRenderedDOMComponentWithTag(terms, 'button');
+        expect(continueButton.props.children).toEqual('Continue');
+        expect(continueButton.props.disabled).toEqual(true);
+
       });
     });
     describe('flow for under 12 login flow', function() {
@@ -190,7 +191,6 @@ describe('termsoverlay', function() {
         //age confirmation is now true
         expect(terms.state.ageConfirmed).toEqual(true);
         //not yet accepted
-        expect(terms.state.isAgreementChecked).toEqual(false);
         expect(terms.state.agreed).toEqual(false);
         //No TOU and PP shown
         var iframes = TestUtils.scryRenderedDOMComponentsWithClass(terms, 'terms-overlay-iframe');
@@ -199,7 +199,6 @@ describe('termsoverlay', function() {
         var sorryMsg = TestUtils.findRenderedDOMComponentWithClass(terms, 'terms-overlay-sorry-message');
         expect(sorryMsg).not.toBeNull();
         //still not accepted
-        expect(terms.state.isAgreementChecked).toEqual(false);
         expect(terms.state.agreed).toEqual(false);
       });
     });

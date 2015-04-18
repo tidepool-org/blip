@@ -40,13 +40,9 @@ var TermsOverlay = React.createClass({
     return {
       agreed: false,
       agreedOnBehalf: false,
-      isAgreementChecked: false,
       ageConfirmed: false,
       ageSelected: this.props.ages.OF_AGE.value //default
     };
-  },
-  onChange: function() {
-    this.setState({isAgreementChecked: !this.state.isAgreementChecked});
   },
   renderAgeConsentStep:function(){
     return (
@@ -85,15 +81,22 @@ var TermsOverlay = React.createClass({
       </div>
     );
   },
+  getTermsAndPrivacyButtonState:function(){
+    var isDisabled = !this.state.agreed;
+
+    if (this.state.ageSelected === this.props.ages.WITH_CONSENT.value) {
+      if (this.state.agreed && this.state.agreedOnBehalf){
+        isDisabled = false;
+      } else {
+        isDisabled = true;
+      }
+    }
+    return isDisabled;
+  },
   renderTermsAndPrivacyStep:function(){
     var terms = this.websiteTerms();
     var privacy = this.websitePrivacy();
-
-    var continueBtnDisabled = !this.state.agreed;
-    if (this.state.ageSelected === this.props.ages.WITH_CONSENT.value) {
-      var continueBtnDisabled = !this.state.agreed && !this.state.agreedOnBehalf;
-    }
-
+    var continueBtnDisabled = this.getTermsAndPrivacyButtonState();
     var agreeConfirmation = this.renderAgreeCheckboxes();
 
     return (
@@ -190,13 +193,11 @@ var TermsOverlay = React.createClass({
   handleAgeChange:function(e){
     this.setState({ ageSelected: e.target.value});
   },
-  handleAgreementChange: function(e) {
-    //console.log('handleAgreementChange');
-    this.setState({agreed: e.target.checked});
+  handleAgreementChange: function() {
+    this.setState({agreed: !this.state.agreed});
   },
-  handleOnBehalfAgreementChange: function(e) {
-    //console.log('handleOnBehalfAgreementChange');
-    this.setState({agreedOnBehalf: e.target.checked});
+  handleOnBehalfAgreementChange: function() {
+    this.setState({agreedOnBehalf: !this.state.agreedOnBehalf});
   },
   handleTermsAndPrivacySubmit: function(e) {
     if (e) {
