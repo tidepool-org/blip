@@ -142,7 +142,7 @@ Assets, like fonts, can also be required in Less files (Webpack will apply the s
 
 ### Config object
 
-The `config.app.js` file will have its `process.env.FOO` statements replaced by the value of the corresponding environment variable when the build or development server is run. This is done thanks to [envify](https://github.com/hughsk/envify).
+The `config.app.js` file will have some magic constants that look like ```__FOO__``` statements replaced by the value of the corresponding environment variable when the build or development server is run. If you need to add new environment variables, you should also update `webpack.config.js` with definitions for them, as well as .jshintrc.
 
 ### Dependencies
 
