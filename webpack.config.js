@@ -3,6 +3,19 @@ var webpack = require('webpack');
 
 var entry = (process.env.MOCK === 'true') ? './app/main.mock.js' : './app/main.js';
 
+// these values are required in the config.app.js file -- we can't use
+// process.env with webpack, we have to create these magic constants
+// individually.
+var defineEnvPlugin = new webpack.DefinePlugin({
+  __MOCK__: JSON.stringify(process.env.MOCK || null),
+  __MOCK_PARAMS__: JSON.stringify(process.env.MOCK_PARAMS || null),
+  __UPLOAD_API__: JSON.stringify(process.env.UPLOAD_API || null),
+  __API_HOST__: JSON.stringify(process.env.API_HOST || null),
+  __SHOW_ACCEPT_TERMS__: JSON.stringify(process.env.SHOW_ACCEPT_TERMS || null),
+  __PASSWORD_MIN_LENGTH__: JSON.stringify(process.env.PASSWORD_MIN_LENGTH || null),
+  __DEV__: false
+});
+
 module.exports = {
   entry: entry,
   output: {
@@ -26,12 +39,6 @@ module.exports = {
   },
   // tideline DEV env variable only needs to be true in tideline local dev
   plugins: [
-    new webpack.DefinePlugin({
-      'process.env': Object.keys(process.env).reduce(function(o, k) {
-        o[k] = JSON.stringify(process.env[k]);
-        return o;
-      }, {})
-    }),
-    new webpack.DefinePlugin({__DEV__: false})
+    defineEnvPlugin
   ]
 };

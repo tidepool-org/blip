@@ -35,12 +35,14 @@ function integerFromText(value, defaultValue) {
   return value;
 }
 
+// the constants below are defined in webpack.config.js -- they're aliases for
+// environment variables.
 module.exports = {
   VERSION: pkg.version,
-  MOCK: booleanFromText(process.env.MOCK, false),
-  MOCK_PARAMS: process.env.MOCK_PARAMS || '',
-  UPLOAD_API: process.env.UPLOAD_API || 'https://chrome.google.com/webstore/detail/tidepool-uploader/cabklgajffclbljkhmjphejemhpbghfb',
-  API_HOST: process.env.API_HOST || 'https://devel-api.tidepool.io',
-  SHOW_ACCEPT_TERMS: booleanFromText(process.env.SHOW_ACCEPT_TERMS, true),
-  PASSWORD_MIN_LENGTH: integerFromText(process.env.PASSWORD_MIN_LENGTH, 8)
+  MOCK: booleanFromText(__MOCK__, false),
+  MOCK_PARAMS: __MOCK_PARAMS__ || '',
+  UPLOAD_API: __UPLOAD_API__ || 'https://tidepool.org/uploader',
+  API_HOST: __API_HOST__ || 'https://devel-api.tidepool.io',
+  SHOW_ACCEPT_TERMS: booleanFromText(__SHOW_ACCEPT_TERMS__, true),
+  PASSWORD_MIN_LENGTH: integerFromText(__PASSWORD_MIN_LENGTH__, 8)
 };
