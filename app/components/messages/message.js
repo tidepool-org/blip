@@ -27,8 +27,10 @@ var sundial = require('sundial');
 
 var MessageForm = require('./messageform');
 
-var profileLargeSrc = require('./images/profile-100x100.png');
-var profileSmallSrc = require('./images/profile-64x64.png');
+if (!window.process) {
+  var profileLargeSrc = require('./images/profile-100x100.png');
+  var profileSmallSrc = require('./images/profile-64x64.png');
+}
 
 var Message = React.createClass({
 

@@ -3,7 +3,7 @@
   "version": "0.5.24",
   "private": true,
   "scripts": {
-    "test": "webpack-dev-server 'mocha!./test/entry.js' --output-file test.js --devtool eval-source-map --cache --colors --progress",
+    "test": "jest",
     "start": "webpack-dev-server --devtool eval-source-map --cache --colors --progress --port 3000",
     "build": "npm run build-app && npm run build-config",
     "build-app": "node buildapp",
@@ -34,7 +34,7 @@
     "serve-static": "1.9.2",
     "shelljs": "0.4.0",
     "style-loader": "0.8.3",
-    "sundial": "1.1.7",
+    "sundial": "1.1.8",
     "tideline": "0.1.20",
     "tidepool-platform-client": "0.16.5",
     "url-loader": "0.5.5",
@@ -46,15 +46,21 @@
     "gulp": "3.8.11",
     "gulp-jshint": "1.9.4",
     "gulp-react": "3.0.1",
+    "jest-cli": "0.4.0",
     "jshint-stylish": "1.0.1",
     "mocha": "2.2.1",
     "mocha-loader": "0.7.1",
     "moment": "2.9.0",
+    "react-tools": "0.13.2",
     "sinon": "1.14.1",
     "sinon-chai": "2.7.0",
     "webpack-dev-server": "1.7.0"
   },
   "engines": {
-    "node": "0.10.x"
+    "node": "0.12.x"
+  },
+  "jest": {
+    "scriptPreprocessor": "app/preprocessor.js",
+    "unmockedModulePathPatterns": ["node_modules/react", "node_modules/blip-mock-data"]
   }
 }

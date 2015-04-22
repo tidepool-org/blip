@@ -1496,7 +1496,7 @@ app.start = function() {
   var self = this;
 
   this.init(function() {
-    self.component = React.renderComponent(
+    self.component = React.render(
       /* jshint ignore:start */
       <AppComponent />,
       /* jshint ignore:end */
