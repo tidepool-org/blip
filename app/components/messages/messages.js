@@ -179,7 +179,7 @@ var Messages = React.createClass({
   },
   getParent : function(){
     if(this.isMessageThread()){
-      return _.first(this.state.messages, function(message){ return !(message.parentmessage); });
+      return _.find(this.state.messages, function(message){ return !(message.parentmessage); });
     }
     return;
   },
