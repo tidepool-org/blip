@@ -18,7 +18,13 @@
 
 var _ = require('lodash');
 var bows = require('bows');
+var d3 = require('d3');
+var moment = require('moment-timezone');
 var React = require('react');
+
+var sundial = require('sundial');
+
+var debug = bows('Basics');
 
 var basicsState = require('../logic/state');
 var basicsActions = require('../logic/actions');
@@ -26,12 +32,26 @@ var basicsActions = require('../logic/actions');
 var Section = require('./DashboardSection');
 var TimeNav = require('./TimeNavigation');
 
+var dataUrl = 'data/blip-input.json';
+
 var Basics = React.createClass({
   getInitialState: function() {
     return basicsState.getInitial();
   },
   componentWillMount: function() {
+    this.fetchData();
     basicsActions.bindApp(this);
+  },
+  fetchData: function() {
+    debug('Loading data...');
+    d3.json(dataUrl, function(err, data) {
+      if (err) {
+        throw new Error('Could not fetch data!');
+      }
+      if (this.isMounted()) {
+        basicsActions.initialDataMunge(data);
+      }
+    }.bind(this));
   },
   render: function() {
     var leftColumn = this.renderColumn('left');
@@ -64,11 +84,13 @@ var Basics = React.createClass({
       'index'
     );
 
-    var keys = Object.keys(column);
     return _.map(column, function(section, index) {
       return (
         <Section key={section.name}
-          chart={section.chart || section.components}
+          chart={section.chart || null}
+          container={section.container || section.components}
+          data={self.state.data}
+          days={self.state.days}
           name={section.name}
           open={section.open}
           title={section.title} />

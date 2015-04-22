@@ -15,6 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
+var _ = require('lodash');
 var d3 = require('d3');
 
 var sundial = require('sundial');
@@ -22,23 +23,35 @@ var sundial = require('sundial');
 var BasicContainer = require('../components/BasicContainer');
 var CalendarContainer = require('../components/CalendarContainer');
 
+var BasalBolusRatio = _.noop;
+var BasalRates = _.noop;
+var BGDistribution = _.noop;
+var WrapCount = require('../components/WrapCount');
+var SiteChanges = _.noop;
+var TDD = _.noop;
+
+var basicsActions = require('./actions');
+
 var basicsState = {};
 
 basicsState.getInitial = function(datum, timezone) {
   timezone = timezone || 'US/Pacific';
   var latest = datum ? datum.time : new Date();
-  var endOfRange = sundial.ceil(latest, 'days', timezone);
+  var endOfRange = sundial.ceil(sundial.floor(latest, 'weeks', timezone), 'days', timezone);
   var begOfRange = d3.time.hour.utc.offset(new Date(endOfRange), -14*24);
   return {
+    data: {},
     dateRange: [
       begOfRange.toISOString(),
-      endOfRange.toISOString()
+      new Date(endOfRange - 1).toISOString()
     ],
+    days: basicsActions.getCurrentDays([begOfRange, endOfRange], timezone),
     domain: '2 weeks',
     sections: {
       basalBolusRatio: {
         active: true,
-        chart: BasicContainer,
+        chart: BasalBolusRatio,
+        container: BasicContainer,
         column: 'left',
         index: 3,
         title: 'Basal : bolus ratio',
@@ -53,24 +66,28 @@ basicsState.getInitial = function(datum, timezone) {
         components: {
           rates: {
             active: true,
-            chart: BasicContainer,
+            chart: BasalRates,
+            container: BasicContainer,
             title: 'Basal rates'
           },
           suspends: {
             active: false,
-            chart: CalendarContainer,
+            container: CalendarContainer,
+            open: true,
             title: 'Suspends'
           },
           temps: {
             active: false,
-            chart: CalendarContainer,
+            container: CalendarContainer,
+            open: true,
             title: 'Temp basals'
           }
         }
       },
       bgDistribution: {
         active: true,
-        chart: BasicContainer,
+        chart: BGDistribution,
+        container: BasicContainer,
         column: 'left',
         index: 1,
         title: 'BG distribution',
@@ -85,17 +102,21 @@ basicsState.getInitial = function(datum, timezone) {
         components: {
           fingerstick: {
             active: true,
-            chart: CalendarContainer,
+            chart: WrapCount,
+            container: CalendarContainer,
+            open: true,
             title: 'Fingersticks'
           },
           cgm: {
             active: false,
-            chart: CalendarContainer,
+            container: CalendarContainer,
+            open: true,
             title: 'CGM use'
           },
           cgmCalibration: {
             active: false,
-            chart: CalendarContainer,
+            container: CalendarContainer,
+            open: true,
             title: 'CGM calibration'
           }
         }
@@ -109,7 +130,9 @@ basicsState.getInitial = function(datum, timezone) {
         components: {
           bolusFreq: {
             active: true,
-            chart: CalendarContainer,
+            chart: WrapCount,
+            container: CalendarContainer,
+            open: true,
             title: 'Boluses'
           }
         }
@@ -123,14 +146,17 @@ basicsState.getInitial = function(datum, timezone) {
         components: {
           infusionSite: {
             active: true,
-            chart: CalendarContainer,
+            chart: SiteChanges,
+            container: CalendarContainer,
+            open: true,
             title: 'Infusion site changes'
           }
         }
       },
       tdd: {
         active: true,
-        chart: BasicContainer,
+        chart: TDD,
+        container: BasicContainer,
         column: 'left',
         index: 2,
         title: 'Total daily dose',

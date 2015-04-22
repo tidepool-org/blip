@@ -1,0 +1,31 @@
+@day-width: 85px;
+@day-height: 75px;
+@day-between: 8px;
+
+@days-max: @day-width * 7 + @day-between * 6;
+
+.Calendar-container {
+	.collapsible;
+
+	&.Calendar-container--closed {
+		.hard-zero;
+	}
+
+	.Calendar {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+
+		max-width: @days-max;
+		margin: 0 auto;
+
+		.Calendar-day {
+			flex: 0 1 @day-width;
+			height: @day-height;
+
+			margin: 8px 0px;
+
+			background-color: #E7F5F7;
+		}
+	}
+}

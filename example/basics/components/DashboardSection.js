@@ -21,37 +21,53 @@ var bows = require('bows');
 var cx = require('classnames');
 var React = require('react');
 
+var debug = bows('Section');
+
 var basicsActions = require('../logic/actions');
 
 var DashboardSection = React.createClass({
   propTypes: {
-    chart: React.PropTypes.any.isRequired,
+    chart: React.PropTypes.func,
+    container: React.PropTypes.any.isRequired,
+    data: React.PropTypes.object.isRequired,
+    days: React.PropTypes.array.isRequired,
     name: React.PropTypes.string.isRequired,
     open: React.PropTypes.bool.isRequired,
     title: React.PropTypes.string.isRequired
   },
   componentDidMount: function() {
-    var content = this.refs.content.getDOMNode();
-    var container = this.refs.container.getDOMNode();
-    container.style.height = content.offsetHeight + 'px';
+    this.setHeight();
   },
   render: function() {
+    // debug('Rendered section with props', this.props);
     var dataDisplay;
     if (typeof this.props.chart === 'object') {
-      var componentKeys = Object.keys(this.props.chart);
+      var componentKeys = Object.keys(this.props.container);
       dataDisplay = [];
       for (var i = 0; i < componentKeys.length; ++i) {
-        var component = this.props.chart[componentKeys[i]];
+        var component = this.props.container[componentKeys[i]];
         if (component.active) {
           dataDisplay.push(
-            <component.chart key={componentKeys[i]}/>
+            <component.container
+              key={componentKeys[i]}
+              section={this.props.name}
+              component={componentKeys[i]}
+              chart={component.chart}
+              data={this.props.data}
+              days={this.props.days}
+              open={component.open}
+              title={component.title}
+              onRerender={this.setHeight} />
           );
         }
       }
     }
     else {
       dataDisplay = (
-        <this.props.chart />
+        <this.props.container chart={this}
+          data={this.props.data}
+          days={this.props.days}
+          title={this.props.title} />
       );
     }
     var iconClass = cx({
@@ -69,13 +85,19 @@ var DashboardSection = React.createClass({
             <i className={iconClass}/>
           </a>
         </h3>
-        <div className={containerClass} ref="container">
-          <div className='DashboardSection-content' ref="content">
+        <div className={containerClass} ref='container'>
+          <div className='DashboardSection-content' ref='content'>
             {dataDisplay}
           </div>
         </div>
       </div>
     );
+  },
+  setHeight: function() {
+    var content = this.refs.content.getDOMNode();
+    var container = this.refs.container.getDOMNode();
+    container.style.height = content.offsetHeight + 'px';
+    debug('setHeight triggered on', this.props.name, content.offsetHeight);
   },
   handleToggleSection: function(e) {
     e.preventDefault();

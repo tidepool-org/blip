@@ -21,18 +21,101 @@ var bows = require('bows');
 var cx = require('classnames');
 var React = require('react');
 
-var CalendarContainer = React.createClass({
-  propTypes: {
+var debug = bows('Calendar');
 
+var basicsActions = require('../logic/actions');
+
+var ADay = React.createClass({
+  propTypes: {
+    dayAbbrevMask: React.PropTypes.string.isRequired,
+    fullDateMask: React.PropTypes.string.isRequired,
+    chart: React.PropTypes.func.isRequired,
+    data: React.PropTypes.object.isRequired,
+    date: React.PropTypes.string.isRequired
+  },
+  getDefaultProps: function() {
+    return {
+      dayAbbrevMask: 'dd',
+      fullDateMask: 'ddd, MMM D'
+    };
   },
   render: function() {
     return (
+      <div className='Calendar-day'></div>
+    );
+  }
+});
+
+var CalendarContainer = React.createClass({
+  propTypes: {
+    section: React.PropTypes.string.isRequired,
+    component: React.PropTypes.string.isRequired,
+    chart: React.PropTypes.func.isRequired,
+    data: React.PropTypes.object.isRequired,
+    days: React.PropTypes.array.isRequired,
+    open: React.PropTypes.bool.isRequired,
+    title: React.PropTypes.string.isRequired,
+    onRerender: React.PropTypes.func.isRequired
+  },
+  componentDidMount: function() {
+    this.setHeight();
+  },
+  componentDidUpdate: function(prevProps) {
+    if (prevProps.open !== this.props.open) {
+      window.setTimeout(this.props.onRerender, 325);
+    }
+  },
+  render: function() {
+    var self = this;
+
+    var iconClass = cx({
+      'icon-down': this.props.open,
+      'icon-right': !this.props.open
+    });
+    var containerClass = cx({
+      'Calendar-container': true,
+      'Calendar-container--closed': !this.props.open
+    });
+
+    var days = this.renderDays();
+
+    return (
       <div className='Container'>
-        <svg height='50' width='100'>
-          <rect x='0'cy='0' height='50' width='100' fill='#06BCE4'/>
-        </svg>
+        <h4>
+          {this.props.title}
+          <a href='' onClick={this.handleToggleComponent}>
+            <i className={iconClass} />
+          </a>
+        </h4>
+        <div className={containerClass} ref='container'>
+          <div className='Calendar' ref='content'>
+            {days}
+          </div>
+        </div>
       </div>
     );
+  },
+  renderDays: function(numWeeks) {
+    var self = this;
+
+    return _.map(self.props.days, function(day) {
+      return (
+        <ADay key={day}
+          chart={self.props.chart}
+          data={self.props.data}
+          date={day} />
+      );
+    });
+  },
+  handleToggleComponent: function(e) {
+    debug('Clicked to toggle', this.props.component);
+    e.preventDefault();
+    basicsActions.toggleComponent(this.props.section, this.props.component);
+  },
+  setHeight: function() {
+    var content = this.refs.content.getDOMNode();
+    var container = this.refs.container.getDOMNode();
+    container.style.height = content.offsetHeight + 'px';
   }
 });
 

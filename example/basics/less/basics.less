@@ -19,6 +19,7 @@
 @import 'icons.less';
 @import 'TimeNav.less';
 @import 'DashboardSection.less';
+@import 'CalendarContainer.less';
 
 svg {
   display: block;
@@ -68,4 +69,16 @@ a {
     width: 100%;
     @media only screen and (min-width : 1365px) { width: 67%; }
   }
+}
+
+// animation mix-ins
+
+// open-close height-animated container
+
+.collapsible {
+  transition: height 0.3s ease-in;
+}
+
+.hard-zero {
+  height: 0px !important;
 }
