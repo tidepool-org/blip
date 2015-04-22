@@ -26,12 +26,12 @@ var TermsOverlay = React.createClass({
     return {
       ages: {
         OF_AGE : { value: '>=18', label: ' I am 18 years old or older.'},
-        WITH_CONSENT : { value: '13-17', label: ' I am between 13 and 17 years old.\n You\'ll need to have a parent or guardian agree to the terms on the next screen.' },
+        WITH_CONSENT : { value: '13-17', label: ' I am between 13 and 17 years old. You\'ll need to have a parent or guardian agree to the terms on the next screen.' },
         NOT_OF_AGE : { value: '<=12', label: ' I am 12 years old or younger.'}
       },
       messages: {
         ACCEPT_OF_AGE : 'I am 18 or older and I accept the terms of the Tidepool Applications Terms of Use and Privacy Policy',
-        ACCEPT_ON_BEHALF: 'I to my child aged 13 through 17 using Tidepool Applications and agree that they are also bound to the terms of the Tidepool Applications Terms of Use and Privacy Policy',
+        ACCEPT_ON_BEHALF: 'I agree that my child aged 13 through 17 can use Tidepool Applications and agree that they are also bound to the terms of the Tidepool Applications Terms of Use and Privacy Policy',
         SORRY_NOT_OF_AGE : 'We are really sorry, but you need to be 13 or older in order to create an account and use Tidepool\'s Applications.'
       }
     };
@@ -47,7 +47,7 @@ var TermsOverlay = React.createClass({
   renderAgeConsentStep:function(){
     return (
       <div className='terms-overlay js-terms'>
-        <div className='terms-overlay-content terms-overlay-box'>
+        <div className='terms-overlay-content terms-overlay-age-box'>
           <form ref='ageConfirmation' className='terms-overlay-age-form'>
             <div className='terms-overlay-age-radio'>
               <label>
