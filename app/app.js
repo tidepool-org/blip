@@ -950,10 +950,10 @@ var AppComponent = React.createClass({
     this.redirectToDefaultRoute();
     trackMetric('Signup Verified');
   },
-  handleAcceptedTerms: function() {
+  handleAcceptedTerms: function(ageRange) {
     var self = this;
     var acceptedDate = sundial.utcDateString();
-    app.api.user.acceptTerms({ terms: acceptedDate },function(err) {
+    app.api.user.acceptTerms({ terms: acceptedDate, termsAge: ageRange },function(err) {
       if (err) {
         return self.handleApiError(err, usrMessages.ERR_ACCEPTING_TERMS, buildExceptionDetails());
       }

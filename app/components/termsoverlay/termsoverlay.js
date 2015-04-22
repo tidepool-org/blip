@@ -208,7 +208,7 @@ var TermsOverlay = React.createClass({
 
     var submit = this.props.onSubmit;
     if (submit) {
-      submit();
+      submit(this.state.ageSelected);
     }
   }
 });
