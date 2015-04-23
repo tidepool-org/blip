@@ -31,8 +31,8 @@ describe('Message', function() {
     );
 
     expect(renderedMessage.state.note).toBe('foo');
-    var updates = {timestamp : new Date().toISOString(), text : 'bar'}
-    renderedMessage.handleEditSave(updates)
+    var updates = {timestamp : new Date().toISOString(), text : 'bar'};
+    renderedMessage.handleEditSave(updates);
 
     expect(renderedMessage.state.note).toBe('bar');
   });
