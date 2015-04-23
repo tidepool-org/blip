@@ -37,13 +37,13 @@ var basicsState = {};
 basicsState.getInitial = function(datum, timezone) {
   timezone = timezone || 'US/Pacific';
   var latest = datum ? datum.time : new Date();
-  var endOfRange = sundial.ceil(sundial.floor(latest, 'weeks', timezone), 'days', timezone);
+  var endOfRange = sundial.ceil(sundial.ceil(latest, 'weeks', timezone), 'days', timezone);
   var begOfRange = d3.time.hour.utc.offset(new Date(endOfRange), -14*24);
   return {
     data: {},
     dateRange: [
-      begOfRange.toISOString(),
-      new Date(endOfRange - 1).toISOString()
+      begOfRange,
+      new Date(endOfRange.valueOf() - 1)
     ],
     days: basicsActions.getCurrentDays([begOfRange, endOfRange], timezone),
     domain: '2 weeks',
@@ -55,6 +55,7 @@ basicsState.getInitial = function(datum, timezone) {
         column: 'left',
         index: 3,
         title: 'Basal : bolus ratio',
+        types: ['basal', 'bolus'],
         open: true
       },
       basals: {
@@ -68,19 +69,22 @@ basicsState.getInitial = function(datum, timezone) {
             active: true,
             chart: BasalRates,
             container: BasicContainer,
-            title: 'Basal rates'
+            title: 'Basal rates',
+            type: 'settings'
           },
           suspends: {
             active: false,
             container: CalendarContainer,
             open: true,
-            title: 'Suspends'
+            title: 'Suspends',
+            type: 'basal'
           },
           temps: {
             active: false,
             container: CalendarContainer,
             open: true,
-            title: 'Temp basals'
+            title: 'Temp basals',
+            type: 'basal'
           }
         }
       },
@@ -91,6 +95,7 @@ basicsState.getInitial = function(datum, timezone) {
         column: 'left',
         index: 1,
         title: 'BG distribution',
+        types: ['cbg', 'smbg'],
         open: true
       },
       bgTesting: {
@@ -105,19 +110,22 @@ basicsState.getInitial = function(datum, timezone) {
             chart: WrapCount,
             container: CalendarContainer,
             open: true,
-            title: 'Fingersticks'
+            title: 'Fingersticks',
+            type: 'smbg'
           },
           cgm: {
             active: false,
             container: CalendarContainer,
             open: true,
-            title: 'CGM use'
+            title: 'CGM use',
+            type: 'cbg'
           },
           cgmCalibration: {
             active: false,
             container: CalendarContainer,
             open: true,
-            title: 'CGM calibration'
+            title: 'CGM calibration',
+            type: 'deviceMeta'
           }
         }
       },
@@ -133,7 +141,8 @@ basicsState.getInitial = function(datum, timezone) {
             chart: WrapCount,
             container: CalendarContainer,
             open: true,
-            title: 'Boluses'
+            title: 'Boluses',
+            type: 'bolus'
           }
         }
       },
@@ -149,7 +158,8 @@ basicsState.getInitial = function(datum, timezone) {
             chart: SiteChanges,
             container: CalendarContainer,
             open: true,
-            title: 'Infusion site changes'
+            title: 'Infusion site changes',
+            type: 'deviceMeta'
           }
         }
       },
@@ -160,6 +170,7 @@ basicsState.getInitial = function(datum, timezone) {
         column: 'left',
         index: 2,
         title: 'Total daily dose',
+        types: ['basal', 'bolus'],
         open: true
       }
     },

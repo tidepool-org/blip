@@ -35,12 +35,16 @@ var TimeNav = require('./TimeNavigation');
 var dataUrl = 'data/blip-input.json';
 
 var Basics = React.createClass({
-  getInitialState: function() {
-    return basicsState.getInitial();
+  propTypes: {
+    timezone: React.PropTypes.string.isRequired
+  },
+  getDefaultProps: function() {
+    return {
+      timezone: 'US/Pacific'
+    };
   },
   componentWillMount: function() {
     this.fetchData();
-    basicsActions.bindApp(this);
   },
   fetchData: function() {
     debug('Loading data...');
@@ -49,11 +53,22 @@ var Basics = React.createClass({
         throw new Error('Could not fetch data!');
       }
       if (this.isMounted()) {
-        basicsActions.initialDataMunge(data);
+        var restrictedToType = _.filter(data, function(d) {
+          var types = ['bolus', 'cbg', 'deviceMeta', 'smbg'];
+          return _.includes(types, d.type);
+        });
+        debug('Latest BG, bolus, or deviceMeta:', restrictedToType[restrictedToType.length - 1]);
+        this.setState(basicsState.getInitial(restrictedToType[restrictedToType.length - 1], this.props.timezone));
+        basicsActions.bindApp(this).initialDataMunge(data);
       }
     }.bind(this));
   },
   render: function() {
+    if (_.isEmpty(this.state)) {
+      return (
+        <div className='Container--flex'></div>
+      );
+    }
     var leftColumn = this.renderColumn('left');
     var rightColumn = this.renderColumn('right');
     return (

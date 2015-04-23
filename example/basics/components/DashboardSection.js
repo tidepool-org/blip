@@ -57,6 +57,7 @@ var DashboardSection = React.createClass({
               days={this.props.days}
               open={component.open}
               title={component.title}
+              type={component.type}
               onRerender={this.setHeight} />
           );
         }
@@ -97,10 +98,12 @@ var DashboardSection = React.createClass({
     var content = this.refs.content.getDOMNode();
     var container = this.refs.container.getDOMNode();
     container.style.height = content.offsetHeight + 'px';
-    debug('setHeight triggered on', this.props.name, content.offsetHeight);
+    // debug('setHeight triggered on', this.props.name, content.offsetHeight);
   },
   handleToggleSection: function(e) {
-    e.preventDefault();
+    if (e) {
+      e.preventDefault();
+    }
     basicsActions.toggleSection(this.props.name);
   }
 });

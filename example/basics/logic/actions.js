@@ -27,6 +27,12 @@ var dataservice = require('../dataservice');
 
 var basicsActions = {};
 
+var offsetsInDays = {
+  '1 week': 7,
+  '2 weeks': 14,
+  '4 weeks': 28
+};
+
 basicsActions.bindApp = function(app) {
   this.app = app;
   return this;
@@ -36,7 +42,7 @@ basicsActions.initialDataMunge = function(data) {
   debug('Munging data...');
   this.app.setState({
     data: dataservice(data)
-  }, function() { console.log(this.app.state.data); }.bind(this));
+  }, function() { debug('Initial data munge results:', this.app.state.data); }.bind(this));
 };
 
 basicsActions.getCurrentDays = function(range, timezone) {
@@ -45,19 +51,47 @@ basicsActions.getCurrentDays = function(range, timezone) {
     days.push(sundial.applyTimezone(currentDate.toISOString().slice(0,-5), timezone).toISOString().slice(0,10));
     currentDate = moment(currentDate).tz(timezone).add(1, 'days').toDate();
   }
-  console.log(days);
+  debug('Days:', days);
   return days;
 };
 
-basicsActions.switchDomain = function(newDomain) {
-  var offsetsInHours = {
-    '1 week': 7*24,
-    '2 weeks': 14*24,
-    '4 weeks': 28*24
+basicsActions.shiftDomainForward = function(dateRange) {
+  var tz = this.app.state.timezone, offset = offsetsInDays[this.app.state.domain];
+  var s = dateRange[0], e = dateRange[1];
+  var begOfRange = moment(s).tz(tz).add(offset, 'days').toDate();
+  var endOfRange = moment(e).tz(tz).add(offset, 'days').toDate();
+  var newState = {
+    dateRange: [begOfRange, endOfRange]
   };
-  this.app.setState({
+  newState.days = this.getCurrentDays(newState.dateRange, tz);
+  this.app.setState(newState, function() { debug('Shifted domain forward', newState); });
+};
+
+basicsActions.shiftDomainBack = function(dateRange) {
+  var tz = this.app.state.timezone, offset = offsetsInDays[this.app.state.domain];
+  var s = dateRange[0], e = dateRange[1];
+  var begOfRange = moment(s).tz(tz).subtract(offset, 'days').toDate();
+  var endOfRange = moment(e).tz(tz).subtract(offset, 'days').toDate();
+  var newState = {
+    dateRange: [begOfRange, endOfRange]
+  };
+  newState.days = this.getCurrentDays(newState.dateRange, tz);
+  this.app.setState(newState, function() { debug('Shifted domain back', newState); });
+};
+
+basicsActions.switchDomain = function(newDomain) {
+  var tz = this.app.state.timezone;
+  var endOfRange = new Date(this.app.state.dateRange[1].valueOf() + 1);
+  var begOfRange = moment(endOfRange).tz(tz).subtract(offsetsInDays[newDomain], 'days').toDate();
+  var newState = {
+    dateRange: [
+      begOfRange,
+      new Date(endOfRange - 1)
+    ],
     domain: newDomain
-  });
+  };
+  newState.days = this.getCurrentDays(newState.dateRange, tz);
+  this.app.setState(newState, function() { debug('Changed domain', newState); });
 };
 
 basicsActions.toggleSection = function(sectionName) {

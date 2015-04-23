@@ -24,14 +24,14 @@ var React = require('react');
 
 var sundial = require('sundial');
 
+var basicsActions = require('../logic/actions');
+
 var TimeNav = React.createClass({
   propTypes: {
     dateRange: React.PropTypes.array.isRequired,
     dateRangeMask: React.PropTypes.string.isRequired,
     domain: React.PropTypes.string.isRequired,
-    timezone: React.PropTypes.string.isRequired,
-    // action functions
-    switchDomain: React.PropTypes.func.isRequired
+    timezone: React.PropTypes.string.isRequired
   },
   getDefaultProps: function() {
     return {
@@ -53,9 +53,9 @@ var TimeNav = React.createClass({
     var e = sundial.formatInTimezone(this.props.dateRange[1], this.props.timezone, this.props.dateRangeMask);
     return (
       <h3 className='TimeNav-dateRange'>
-        <a href=''><i className='icon-back'/></a>
+        <a href='' onClick={this.handleShiftDomainBack}><i className='icon-back'/></a>
         {s} - {e}
-        <a href=''><i className='icon-next'/></a>
+        <a href='' onClick={this.handleShiftDomainForward}><i className='icon-next'/></a>
         <a href=''><i className='icon-most-recent'/></a>
       </h3>
     );
@@ -73,23 +73,38 @@ var TimeNav = React.createClass({
           });
           var onClickFn = _.noop;
           if (domain !== self.props.domain) {
-            self.makeHandleSwitchDomain(domain);
+            onClickFn = self.makeHandleSwitchDomain(domain);
           }
           return (
-            <button key={domain} className={buttonClass}>{domain}</button>
+            <button key={domain}
+              className={buttonClass}
+              onClick={onClickFn}>
+              {domain}
+            </button>
           );
         })}
       </div>
     );
   },
-  makeHandleSwitchDomain: function(newDomain) {
-    var self = this;
+  handleShiftDomainForward: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+    basicsActions.shiftDomainForward(this.props.dateRange);
+  },
+  handleShiftDomainBack: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+    basicsActions.shiftDomainBack(this.props.dateRange);
 
+  },
+  makeHandleSwitchDomain: function(newDomain) {
     return function(e) {
       if (e) {
         e.preventDefault();
-        self.props.switchDomain(newDomain);
       }
+      basicsActions.switchDomain(newDomain);
     };
   }
 });

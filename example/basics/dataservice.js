@@ -22,7 +22,7 @@ var crossfilter = require('crossfilter');
 var sundial = require('sundial');
 
 module.exports = function(data) {
-	var basicsTypes = ['basal', 'bolus', 'cbg', 'smbg', 'deviceMeta'];
+	var basicsTypes = ['basal', 'bolus', 'cbg', 'smbg', 'deviceMeta', 'settings'];
 
 	var grouped = _.groupBy(data, 'type');
 
@@ -39,7 +39,13 @@ module.exports = function(data) {
 			grouped[key] = {};
 			grouped[key].cf = crossfilter(groupData);
 			grouped[key].byLocalDate = grouped[key].cf.dimension(getLocalDate);
-			grouped[key].countByDate = grouped[key].byLocalDate.group().reduceCount().top(Infinity);
+			var byLocalDate = grouped[key].byLocalDate.group().reduceCount().all();
+			var countByDateHash = {};
+			for (var i = 0; i < byLocalDate.length; ++i) {
+				var day = byLocalDate[i];
+				countByDateHash[day.key] = day.value;
+			}
+			grouped[key].countByDate = countByDateHash;
 		}
 	}
 

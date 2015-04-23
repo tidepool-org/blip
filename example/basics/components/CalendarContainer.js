@@ -19,6 +19,7 @@
 var _ = require('lodash');
 var bows = require('bows');
 var cx = require('classnames');
+var moment = require('moment');
 var React = require('react');
 
 var debug = bows('Calendar');
@@ -30,7 +31,7 @@ var ADay = React.createClass({
     dayAbbrevMask: React.PropTypes.string.isRequired,
     fullDateMask: React.PropTypes.string.isRequired,
     chart: React.PropTypes.func.isRequired,
-    data: React.PropTypes.object.isRequired,
+    data: React.PropTypes.object,
     date: React.PropTypes.string.isRequired
   },
   getDefaultProps: function() {
@@ -41,7 +42,14 @@ var ADay = React.createClass({
   },
   render: function() {
     return (
-      <div className='Calendar-day'></div>
+      <div className='Calendar-day'>
+        <p className='Calendar-weekday'>
+          {moment(this.props.date).format(this.props.dayAbbrevMask)}
+        </p>
+        <this.props.chart data={this.props.data}
+          date={this.props.date}
+          hover={false} />
+      </div>
     );
   }
 });
@@ -55,15 +63,15 @@ var CalendarContainer = React.createClass({
     days: React.PropTypes.array.isRequired,
     open: React.PropTypes.bool.isRequired,
     title: React.PropTypes.string.isRequired,
+    type: React.PropTypes.string.isRequired,
     onRerender: React.PropTypes.func.isRequired
   },
   componentDidMount: function() {
     this.setHeight();
   },
   componentDidUpdate: function(prevProps) {
-    if (prevProps.open !== this.props.open) {
-      window.setTimeout(this.props.onRerender, 325);
-    }
+    this.setHeight();
+    window.setTimeout(this.props.onRerender, 175);
   },
   render: function() {
     var self = this;
@@ -102,14 +110,16 @@ var CalendarContainer = React.createClass({
       return (
         <ADay key={day}
           chart={self.props.chart}
-          data={self.props.data}
+          data={self.props.data[self.props.type]}
           date={day} />
       );
     });
   },
   handleToggleComponent: function(e) {
     debug('Clicked to toggle', this.props.component);
-    e.preventDefault();
+    if (e) {
+      e.preventDefault();
+    }
     basicsActions.toggleComponent(this.props.section, this.props.component);
   },
   setHeight: function() {

@@ -1,8 +1,12 @@
-@day-width: 85px;
-@day-height: 75px;
+@day-width: 90px + @small-pad;
+@day-height: 90px + @small-pad;
 @day-between: 8px;
 
 @days-max: @day-width * 7 + @day-between * 6;
+
+@corner: 18px;
+
+@small-pad: 6px;
 
 .Calendar-container {
 	.collapsible;
@@ -22,10 +26,37 @@
 		.Calendar-day {
 			flex: 0 1 @day-width;
 			height: @day-height;
+			position: relative;
 
-			margin: 8px 0px;
+			margin-top: 8px;
 
 			background-color: #E7F5F7;
+
+			.Calendar-weekday {
+				position: absolute;
+				top: 0;
+				left: 0;
+
+				color: @light;
+				padding-left: @small-pad/2;
+			}
+
+			.WrapCount {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: flex-start;
+
+				padding: @corner @small-pad @small-pad @corner;
+				height: @day-height - @corner - @small-pad;
+
+				svg {
+					margin: 0;
+
+					circle {
+						fill: @blue-calendar;
+					}
+				}
+			}
 		}
 	}
 }

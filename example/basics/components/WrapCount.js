@@ -16,12 +16,50 @@
  * == BSD2 LICENSE ==
  */
 
+var _ = require('lodash');
 var React = require('react');
 
 var WrapCount = React.createClass({
-	render: function() {
-		return null;
-	}
+  propTypes: {
+    data: React.PropTypes.object,
+    date: React.PropTypes.string.isRequired,
+    hover: React.PropTypes.bool.isRequired
+  },
+  render: function() {
+    if (!this.props.hover) {
+      var dots = this.renderDots();
+      return (
+        <div className='WrapCount'>
+          {dots}
+        </div>
+      );
+    }
+  },
+  renderDots: function() {
+    var dots = [];
+    var count = this.getCount();
+    for (var i = 1; i <= 9; ++i) {
+      if (i <= count) {
+        dots.push(
+          <svg key={i} width='24px' height='24px'>
+            <circle cx='12px' cy='12px' r='8px'/>
+          </svg>
+        );
+      }
+      else {
+        dots.push(
+          <svg key={i} width='24px' height='24px'></svg>
+        );
+      }
+    }
+    return dots;
+  },
+  getCount: function() {
+    if (_.isEmpty(this.props.data)) {
+      return 0;
+    }
+    return this.props.data.countByDate[this.props.date];
+  }
 });
 
 module.exports = WrapCount;
