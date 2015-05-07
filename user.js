@@ -175,6 +175,35 @@ module.exports = function (common, config, deps) {
     return myToken;
   }
   /**
+   * Login user to the Tidepool platform using the provided oauth token
+   *
+   * @param provided oauth token
+   * @param cb
+   * @returns {cb}  cb(err, response)
+   */
+  function oauthLogin(oauthToken, cb) {
+
+    superagent
+      .post(common.makeAPIUrl('/auth/access_token'))
+      .set('Authorization', 'Bearer '+oauthToken)
+      .end(
+      function (err, res) {
+        if (err != null) {
+          return cb(err, null);
+        }
+
+        if (res.status !== 200) {
+          return common.handleHttpError(res, cb);
+        }
+
+        var theUserId = res.body.userid;
+        var theToken = res.headers[common.SESSION_TOKEN_HEADER];
+
+        saveSession(theUserId, theToken, options);
+        return cb(null,{userid: theUserId, user: res.body});
+      });
+  }
+  /**
    * Login user to the Tidepool platform
    *
    * @param user object with a username and password to login
