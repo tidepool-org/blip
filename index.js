@@ -635,6 +635,7 @@ module.exports = function (config, deps) {
     getUserId: user.getUserId,
     isLoggedIn: user.isLoggedIn,
     login: user.login,
+    oauthLogin: user.oauthLogin,
     logout: user.logout,
     signup: user.signup,
     updateCurrentUser: user.updateCurrentUser,

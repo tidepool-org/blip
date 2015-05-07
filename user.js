@@ -184,10 +184,11 @@ module.exports = function (common, config, deps) {
   function oauthLogin(oauthToken, cb) {
 
     superagent
-      .post(common.makeAPIUrl('/auth/access_token'))
-      .set('Authorization', 'Bearer '+oauthToken)
+      .post(common.makeAPIUrl('/auth/oauthlogin'))
+      .set('Authorization', 'bearer '+oauthToken)
       .end(
       function (err, res) {
+
         if (err != null) {
           return cb(err, null);
         }
@@ -199,7 +200,7 @@ module.exports = function (common, config, deps) {
         var theUserId = res.body.userid;
         var theToken = res.headers[common.SESSION_TOKEN_HEADER];
 
-        saveSession(theUserId, theToken, options);
+        saveSession(theUserId, theToken, {});
         return cb(null,{userid: theUserId, user: res.body});
       });
   }
@@ -445,6 +446,7 @@ module.exports = function (common, config, deps) {
     getUserToken : getUserToken,
     isLoggedIn: isLoggedIn,
     login : login,
+    oauthLogin : oauthLogin,
     logout : logout,
     signup : signup,
     initialize : initialize,
