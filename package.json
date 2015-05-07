@@ -36,7 +36,7 @@
     "style-loader": "0.8.3",
     "sundial": "1.1.8",
     "tideline": "0.1.20",
-    "tidepool-platform-client": "0.16.5",
+    "tidepool-platform-client": "git://github.com/tidepool-org/platform-client.git#8df12dc63f5087adae80dc8eb70f0c96007c0d03",
     "url-loader": "0.5.5",
     "webpack": "1.7.3"
   },

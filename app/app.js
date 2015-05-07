@@ -160,6 +160,9 @@ var AppComponent = React.createClass({
         console.log(new Error('Invalid timezone name in query parameter. (Try capitalizing properly.)'));
       }
     }
+    if (!_.isEmpty(queryParams.accessToken)) {
+      this.doOauthLogin(queryParams.accessToken);
+    }
     return {
       authenticated: app.api.user.isAuthenticated(),
       notification: null,
@@ -189,6 +192,22 @@ var AppComponent = React.createClass({
       finalizingVerification: false,
       queryParams: queryParams
     };
+  },
+
+  doOauthLogin:function(accessToken){
+
+    var self = this;
+    app.api.user.oauthLogin(accessToken, function(err, data){
+      if(_.isEmpty(err)){
+        app.log('Logged in via OAuth');
+        self.fetchUser();
+        self.setState({authenticated: true});
+        self.redirectToDefaultRoute();
+        trackMetric('Logged In with OAuth');
+      }else{
+        app.log('Login via OAuth failed ', err);
+      }
+    });
   },
 
   componentDidMount: function() {
@@ -730,7 +749,6 @@ var AppComponent = React.createClass({
     });
     trackMetric('Viewed Profile');
   },
-
   showPatientShare: function(patientId) {
     this.renderPage = this.renderPatientShare;
     this.setState({
@@ -747,7 +765,6 @@ var AppComponent = React.createClass({
     });
     trackMetric('Viewed Share');
   },
-
   renderPatient: function() {
     // On each state change check if patient object was returned from server
     if (this.isDoneFetchingAndNotFoundPatient()) {
@@ -773,7 +790,6 @@ var AppComponent = React.createClass({
     );
     /* jshint ignore:end */
   },
-
   renderPatientShare: function() {
     // On each state change check if patient object was returned from server
     if (this.isDoneFetchingAndNotFoundPatient()) {
@@ -800,7 +816,6 @@ var AppComponent = React.createClass({
     );
     /* jshint ignore:end */
   },
-
   isDoneFetchingAndNotFoundPatient: function() {
     // Wait for patient object to come back from server
     if (this.state.fetchingPatient) {
@@ -809,7 +824,6 @@ var AppComponent = React.createClass({
 
     return !this.state.patient;
   },
-
   showPatientNew: function() {
     this.renderPage = this.renderPatientNew;
     this.setState({
@@ -819,7 +833,6 @@ var AppComponent = React.createClass({
     });
     trackMetric('Viewed Profile Create');
   },
-
   renderPatientNew: function() {
     // Make sure user doesn't already have a patient
     if (this.isDoneFetchingAndUserHasPatient()) {
@@ -841,7 +854,6 @@ var AppComponent = React.createClass({
     );
     /* jshint ignore:end */
   },
-
   isDoneFetchingAndUserHasPatient: function() {
     // Wait to have user object back from server
     if (this.state.fetchingUser) {
@@ -850,11 +862,9 @@ var AppComponent = React.createClass({
 
     return personUtils.isPatient(this.state.user);
   },
-
   isSamePersonUserAndPatient: function() {
     return personUtils.isSame(this.state.user, this.state.patient);
   },
-
   showPatientData: function(patientId) {
     this.renderPage = this.renderPatientData;
     this.setState({
@@ -872,7 +882,6 @@ var AppComponent = React.createClass({
 
     trackMetric('Viewed Data');
   },
-
   renderPatientData: function() {
     // On each state change check if patient object was returned from server
     if (this.isDoneFetchingAndNotFoundPatient()) {
@@ -903,13 +912,11 @@ var AppComponent = React.createClass({
     );
     /* jshint ignore:end */
   },
-
   handleUpdatePatientData: function(data) {
     this.setState({
       patientData: data
     });
   },
-
   login: function(formValues, cb) {
     var user = formValues.user;
     var options = formValues.options;
