@@ -393,7 +393,7 @@ var AppComponent = React.createClass({
   renderVersion: function() {
     var version = config.VERSION;
     if (version) {
-      version = 'v' + version;
+      version = 'v' + version + ' beta';
       return (
         /* jshint ignore:start */
         <div className="Navbar-version" ref="version">{version}</div>
