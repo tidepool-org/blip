@@ -197,11 +197,11 @@ module.exports = function (common, config, deps) {
           return common.handleHttpError(res, cb);
         }
 
-        var theUserId = res.body.userid;
+        var oauthUserId = res.body.oauthUser.userid;
         var theToken = res.headers[common.SESSION_TOKEN_HEADER];
-
-        saveSession(theUserId, theToken, {});
-        return cb(null,{userid: theUserId, user: res.body});
+        //save the session and remember by default
+        saveSession(oauthUserId, theToken, {remember:true});
+        return cb(null,{userid: oauthUserId, user: res.body.oauthUser, target: res.body.oauthTarget});
       });
   }
   /**
