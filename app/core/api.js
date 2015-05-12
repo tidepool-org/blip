@@ -86,7 +86,7 @@ api.user.oauthLogin = function(accessToken, cb) {
     if (err) {
       return cb(err);
     }
-    cb();
+    cb(null, data);
   });
 };
 

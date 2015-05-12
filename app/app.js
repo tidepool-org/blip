@@ -202,8 +202,15 @@ var AppComponent = React.createClass({
         app.log('Logged in via OAuth');
         self.fetchUser();
         self.setState({authenticated: true});
-        self.redirectToDefaultRoute();
         trackMetric('Logged In with OAuth');
+        //go to the specified paitient if there is one
+        if(_.isEmpty(data.target)){
+          app.log('No targeted OAuth user so defaulting');
+          self.redirectToDefaultRoute();
+        }else{
+          app.log('Using the targeted OAuth user');
+          app.router.setRoute('/patients/' + data.target + '/data');
+        }
       }else{
         app.log('Login via OAuth failed ', err);
       }
