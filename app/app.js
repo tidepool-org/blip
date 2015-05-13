@@ -160,9 +160,6 @@ var AppComponent = React.createClass({
         console.log(new Error('Invalid timezone name in query parameter. (Try capitalizing properly.)'));
       }
     }
-    if (!_.isEmpty(queryParams.accessToken)) {
-      this.doOauthLogin(queryParams.accessToken);
-    }
     return {
       authenticated: app.api.user.isAuthenticated(),
       notification: null,
@@ -416,10 +413,16 @@ var AppComponent = React.createClass({
   },
 
   showLogin: function() {
-    this.renderPage = this.renderLogin;
-    //always check
-    this.finializeSignup();
-    this.setState({page: 'login'});
+    var hashQueryParams = app.router.getQueryParams();
+    if (!_.isEmpty(hashQueryParams.accessToken)) {
+      app.log('logging in via OAuth ...');
+      this.doOauthLogin(hashQueryParams.accessToken);
+    } else {
+      this.renderPage = this.renderLogin;
+      //always check
+      this.finializeSignup();
+      this.setState({page: 'login'});
+    }
   },
 
   renderLogin: function() {
