@@ -10,7 +10,7 @@ This module is currently under construction; check back often for updates!
 
 More information is also available in [the wiki](https://github.com/tidepool-org/tideline/wiki).
 
-## Install
+## Dependencies and Installation
 
 ### Front-end dependencies
 
@@ -25,8 +25,7 @@ More information is also available in [the wiki](https://github.com/tidepool-org
 
 Development-only dependencies: See the `package.json`.
 
-
-Install using:
+Install for use in your own web application using:
 
 ```bash
 $ npm install --save tideline
