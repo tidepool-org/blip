@@ -16,6 +16,7 @@
 'use strict';
 
 var _ = require('lodash');
+var uuid = require('node-uuid');
 
 var id = require('./lib/id.js');
 
@@ -556,7 +557,7 @@ module.exports = function (config, deps) {
 
       common.doPostWithToken(
         '/message/reply/' + comment.parentmessage,
-        {message: comment},
+        { message: _.assign(comment, {guid: uuid.v4()}) },
         { 201: function(res){ return res.body.id; }},
         cb
       );
@@ -577,7 +578,7 @@ module.exports = function (config, deps) {
 
       common.doPostWithToken(
         '/message/send/' + message.groupid,
-        { message: message },
+        { message: _.assign(message, {guid: uuid.v4()}) },
         { 201: function(res){ return res.body.id; }},
         cb
       );
