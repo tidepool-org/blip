@@ -45,14 +45,14 @@ describe('sundial', function() {
     it('should have a floor method',function(){
       expect(datetimeWrapper.floor).to.exist;
     });
+    it('should have a formatCalendarTime method',function(){
+      expect(datetimeWrapper.formatCalendarTime).to.exist;
+    });
     it('should have a formatDeviceTime method',function(){
       expect(datetimeWrapper.formatDeviceTime).to.exist;
     });
     it('should have a formatFromOffset method',function(){
       expect(datetimeWrapper.formatFromOffset).to.exist;
-    });
-    it('should have a formatFromReferenceTime method',function(){
-      expect(datetimeWrapper.formatFromReferenceTime).to.exist;
     });
     it('should have formatForStorage method',function(){
       expect(datetimeWrapper.formatForStorage).to.exist;
@@ -274,6 +274,19 @@ describe('sundial', function() {
       });
     });
 
+    describe('formatCalendarTime', function() {
+      var dt = new Date();
+      var dtStr = dt.toISOString();
+
+      it('works with a Date object', function() {
+        expect(datetimeWrapper.formatCalendarTime(dt)).to.contain('Today');
+      });
+
+      it('works with a string timestamp', function() {
+        expect(datetimeWrapper.formatCalendarTime(dtStr)).to.contain('Today');
+      });
+    });
+
     describe('formatDeviceTime', function() {
       it('returns a string formatted as ISO-format without milliseconds or timezone offset', function() {
         expect(datetimeWrapper.formatDeviceTime('2014-01-01T00:00:00.000Z')).to.equal('2014-01-01T00:00:00');
@@ -302,20 +315,7 @@ describe('sundial', function() {
         expect(datetimeWrapper.formatFromOffset(utcDateString, -240)).to.equal('May 8 at 8:00 pm');
       });
     });
-
-    describe('formatFromReferenceTime', function() {
-      var dt = new Date();
-      var dtStr = dt.toISOString();
-
-      it('works with a Date object', function() {
-        expect(datetimeWrapper.formatFromReferenceTime(dt)).to.contain('Today');
-      });
-
-      it('works with a string timestamp', function() {
-        expect(datetimeWrapper.formatFromReferenceTime(dtStr)).to.contain('Today');
-      });
-    });
-
+    
     describe('formatForStorage', function() {
       var basicTimestamp = '2014-10-03T13:23';
       var offsetMins = -780;
