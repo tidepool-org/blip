@@ -17,7 +17,7 @@
 
 var salinity = require('salinity');
 var expect = salinity.expect;
-var testMoment = require('moment');
+var testMoment = require('moment-timezone');
 
 describe('sundial', function() {
 
@@ -25,73 +25,76 @@ describe('sundial', function() {
     var datetimeWrapper = require('../sundial');
 
     it('should not break require',function(){
-      expect(datetimeWrapper).exists;
+      expect(datetimeWrapper).to.exist;
     });
-    it('should have applyTimezone method',function(){
-      expect(datetimeWrapper.applyTimezone).exists;
+    it('should have an applyTimezone method',function(){
+      expect(datetimeWrapper.applyTimezone).to.exist;
     });
     it('should have a buildTimestamp method',function(){
-      expect(datetimeWrapper.buildTimestamp).exists;
+      expect(datetimeWrapper.buildTimestamp).to.exist;
     });
     it('should have a ceil method',function(){
-      expect(datetimeWrapper.ceil).exists;
+      expect(datetimeWrapper.ceil).to.exist;
     });
     it('should have a checkTimezoneName method',function(){
-      expect(datetimeWrapper.checkTimezoneName).exists;
+      expect(datetimeWrapper.checkTimezoneName).to.exist;
     });
-    it('should have dateDifference method',function(){
-      expect(datetimeWrapper.dateDifference).exists;
+    it('should have a dateDifference method',function(){
+      expect(datetimeWrapper.dateDifference).to.exist;
     });
     it('should have a floor method',function(){
-      expect(datetimeWrapper.floor).exists;
+      expect(datetimeWrapper.floor).to.exist;
     });
-    it('should have formatDeviceTime method',function(){
-      expect(datetimeWrapper.formatDeviceTime).exists;
+    it('should have a formatDeviceTime method',function(){
+      expect(datetimeWrapper.formatDeviceTime).to.exist;
     });
-    it('should have formatFromOffset method',function(){
-      expect(datetimeWrapper.formatFromOffset).exists;
+    it('should have a formatFromOffset method',function(){
+      expect(datetimeWrapper.formatFromOffset).to.exist;
+    });
+    it('should have a formatFromReferenceTime method',function(){
+      expect(datetimeWrapper.formatFromReferenceTime).to.exist;
     });
     it('should have formatForStorage method',function(){
-      expect(datetimeWrapper.formatForStorage).exists;
+      expect(datetimeWrapper.formatForStorage).to.exist;
     });
     it('should have a formatInTimezone method', function(){
-      expect(datetimeWrapper.formatInTimezone).exists;
+      expect(datetimeWrapper.formatInTimezone).to.exist;
     });
-    it('should have getDeviceTimezone method',function() {
-      expect(datetimeWrapper.getDeviceTimezone).exists;
+    it('should have a getDeviceTimezone method',function() {
+      expect(datetimeWrapper.getDeviceTimezone).to.exist;
     });
-    it('should have getMsFromMidnight method',function() {
-      expect(datetimeWrapper.getMsFromMidnight).exists;
+    it('should have a getMsFromMidnight method',function() {
+      expect(datetimeWrapper.getMsFromMidnight).to.exist;
     });
-    it('should have getOffset method',function(){
-      expect(datetimeWrapper.getOffset).exists;
+    it('should have a getOffset method',function(){
+      expect(datetimeWrapper.getOffset).to.exist;
     });
-    it('should have getOffsetFromTime method',function(){
-      expect(datetimeWrapper.getOffsetFromTime).exists;
+    it('should have a getOffsetFromTime method',function(){
+      expect(datetimeWrapper.getOffsetFromTime).to.exist;
     });
-    it('should have getTimezones method',function(){
-      expect(datetimeWrapper.getTimezones).exists;
+    it('should have a getTimezones method',function(){
+      expect(datetimeWrapper.getTimezones).to.exist;
     });
-    it('should have futureDate method',function(){
-      expect(datetimeWrapper.futureDate).exists;
+    it('should have a futureDate method',function(){
+      expect(datetimeWrapper.futureDate).to.exist;
     });
-    it('should have isISODate method',function(){
-      expect(datetimeWrapper.isISODate).exists;
+    it('should have an isISODate method',function(){
+      expect(datetimeWrapper.isISODate).to.exist;
     });
-    it('should have isValidDate method',function(){
-      expect(datetimeWrapper.isValidDate).exists;
+    it('should have an isValidDate method',function(){
+      expect(datetimeWrapper.isValidDate).to.exist;
     });
-    it('should have isValidDateForMask method',function(){
-      expect(datetimeWrapper.isValidDateForMask).exists;
+    it('should have an isValidDateForMask method',function(){
+      expect(datetimeWrapper.isValidDateForMask).to.exist;
     });
-    it('should have parseFromFormat method',function(){
-      expect(datetimeWrapper.parseFromFormat).exists;
+    it('should have a parseFromFormat method',function(){
+      expect(datetimeWrapper.parseFromFormat).to.exist;
     });
     it('should have a translateMask method',function(){
-      expect(datetimeWrapper.translateMask).exists;
+      expect(datetimeWrapper.translateMask).to.exist;
     });
-    it('should have utcString method',function(){
-      expect(datetimeWrapper.utcDateString).exists;
+    it('should have a utcString method',function(){
+      expect(datetimeWrapper.utcDateString).to.exist;
     });
     describe('applyOffset', function() {
       it('should yield a UTC timestamp five hours later when given offset of 300, Zulu timestamp', function() {
@@ -297,6 +300,19 @@ describe('sundial', function() {
       var utcDateString = '2013-05-09T00:00:00-00:00';
       it('returns a string formatted as MMMM D [at] h:mm a with the given offset applied', function() {
         expect(datetimeWrapper.formatFromOffset(utcDateString, -240)).to.equal('May 8 at 8:00 pm');
+      });
+    });
+
+    describe('formatFromReferenceTime', function() {
+      var dt = new Date();
+      var dtStr = dt.toISOString();
+
+      it('works with a Date object', function() {
+        expect(datetimeWrapper.formatFromReferenceTime(dt)).to.contain('Today');
+      });
+
+      it('works with a string timestamp', function() {
+        expect(datetimeWrapper.formatFromReferenceTime(dtStr)).to.contain('Today');
       });
     });
 
