@@ -465,8 +465,8 @@ describe('sundial', function() {
 
     describe('getTimezones', function() {
 
-      it('returns 131 timezone objects',function(){
-        expect(datetimeWrapper.getTimezones()).to.have.length(131);
+      it('returns 135 timezone objects',function(){
+        expect(datetimeWrapper.getTimezones()).to.have.length(135);
       });
 
       it('returns timezone objects with a non-empty string name and label each',function(){
