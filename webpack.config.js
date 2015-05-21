@@ -40,5 +40,7 @@ module.exports = {
   // tideline DEV env variable only needs to be true in tideline local dev
   plugins: [
     defineEnvPlugin
-  ]
+  ],
+  resolve: { fallback: path.join(__dirname, 'node_modules') },
+  resolveLoader: { fallback: path.join(__dirname, 'node_modules') }
 };
