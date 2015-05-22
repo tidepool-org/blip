@@ -797,8 +797,6 @@ describe('platform client', function () {
         //do oauthLogin but with an invalid token
         function(callback){
           pwdClient.oauthLogin('fakeToken',function(err, data){
-            console.log('oauthLogin error: ', err);
-            console.log('oauthLogin data: ', data);
             expect(err).to.exist;
             expect(err.status).to.exist;
             expect(err.status).to.equal(401);
