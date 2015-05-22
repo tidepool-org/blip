@@ -789,4 +789,28 @@ describe('platform client', function () {
       });
     });
   });
+  describe('handles oauth token login', function () {
+    it('an invalid token returns 401', function(done){
+      async.series([
+        //ensure we are logged out
+        function(callback){ pwdClient.logout(callback);},
+        //do oauthLogin but with an invalid token
+        function(callback){
+          pwdClient.oauthLogin('fakeToken',function(err, data){
+            console.log('oauthLogin error: ', err);
+            console.log('oauthLogin data: ', data);
+            expect(err).to.exist;
+            expect(err.status).to.exist;
+            expect(err.status).to.equal(401);
+            callback(null);
+          });
+        },
+        //we do a legit login for cleanup in this instance
+        function(callback){ pwdClient.login(a_PWD,{}, callback);},
+        ],
+        function(err, details) {
+          done(); //finish up
+        });
+    });
+  });
 });
