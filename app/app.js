@@ -191,6 +191,29 @@ var AppComponent = React.createClass({
     };
   },
 
+  doOauthLogin:function(accessToken){
+
+    var self = this;
+    app.api.user.oauthLogin(accessToken, function(err, data){
+      if(_.isEmpty(err)){
+        app.log('Logged in via OAuth');
+        self.fetchUser();
+        self.setState({authenticated: true});
+        trackMetric('Logged In with OAuth');
+        //go to the specified patient if there is one
+        if(_.isEmpty(data.target)){
+          app.log('No targeted OAuth user so defaulting');
+          self.redirectToDefaultRoute();
+        }else{
+          app.log('Using the targeted OAuth user');
+          app.router.setRoute('/patients/' + data.target + '/data');
+        }
+      }else{
+        app.log('Login via OAuth failed ', err);
+      }
+    });
+  },
+
   componentDidMount: function() {
     if (this.state.authenticated) {
       this.fetchUser();
@@ -390,10 +413,16 @@ var AppComponent = React.createClass({
   },
 
   showLogin: function() {
-    this.renderPage = this.renderLogin;
-    //always check
-    this.finializeSignup();
-    this.setState({page: 'login'});
+    var hashQueryParams = app.router.getQueryParams();
+    if (!_.isEmpty(hashQueryParams.accessToken)) {
+      app.log('logging in via OAuth ...');
+      this.doOauthLogin(hashQueryParams.accessToken);
+    } else {
+      this.renderPage = this.renderLogin;
+      //always check
+      this.finializeSignup();
+      this.setState({page: 'login'});
+    }
   },
 
   renderLogin: function() {
@@ -730,7 +759,6 @@ var AppComponent = React.createClass({
     });
     trackMetric('Viewed Profile');
   },
-
   showPatientShare: function(patientId) {
     this.renderPage = this.renderPatientShare;
     this.setState({
@@ -747,7 +775,6 @@ var AppComponent = React.createClass({
     });
     trackMetric('Viewed Share');
   },
-
   renderPatient: function() {
     // On each state change check if patient object was returned from server
     if (this.isDoneFetchingAndNotFoundPatient()) {
@@ -773,7 +800,6 @@ var AppComponent = React.createClass({
     );
     /* jshint ignore:end */
   },
-
   renderPatientShare: function() {
     // On each state change check if patient object was returned from server
     if (this.isDoneFetchingAndNotFoundPatient()) {
@@ -800,7 +826,6 @@ var AppComponent = React.createClass({
     );
     /* jshint ignore:end */
   },
-
   isDoneFetchingAndNotFoundPatient: function() {
     // Wait for patient object to come back from server
     if (this.state.fetchingPatient) {
@@ -809,7 +834,6 @@ var AppComponent = React.createClass({
 
     return !this.state.patient;
   },
-
   showPatientNew: function() {
     this.renderPage = this.renderPatientNew;
     this.setState({
@@ -819,7 +843,6 @@ var AppComponent = React.createClass({
     });
     trackMetric('Viewed Profile Create');
   },
-
   renderPatientNew: function() {
     // Make sure user doesn't already have a patient
     if (this.isDoneFetchingAndUserHasPatient()) {
@@ -841,7 +864,6 @@ var AppComponent = React.createClass({
     );
     /* jshint ignore:end */
   },
-
   isDoneFetchingAndUserHasPatient: function() {
     // Wait to have user object back from server
     if (this.state.fetchingUser) {
@@ -850,11 +872,9 @@ var AppComponent = React.createClass({
 
     return personUtils.isPatient(this.state.user);
   },
-
   isSamePersonUserAndPatient: function() {
     return personUtils.isSame(this.state.user, this.state.patient);
   },
-
   showPatientData: function(patientId) {
     this.renderPage = this.renderPatientData;
     this.setState({
@@ -872,7 +892,6 @@ var AppComponent = React.createClass({
 
     trackMetric('Viewed Data');
   },
-
   renderPatientData: function() {
     // On each state change check if patient object was returned from server
     if (this.isDoneFetchingAndNotFoundPatient()) {
@@ -903,13 +922,11 @@ var AppComponent = React.createClass({
     );
     /* jshint ignore:end */
   },
-
   handleUpdatePatientData: function(data) {
     this.setState({
       patientData: data
     });
   },
-
   login: function(formValues, cb) {
     var user = formValues.user;
     var options = formValues.options;
