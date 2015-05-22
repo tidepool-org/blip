@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "0.5.28",
+  "version": "0.6.3",
   "private": true,
   "scripts": {
     "test": "jest",
