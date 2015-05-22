@@ -200,7 +200,7 @@ var AppComponent = React.createClass({
         self.fetchUser();
         self.setState({authenticated: true});
         trackMetric('Logged In with OAuth');
-        //go to the specified paitient if there is one
+        //go to the specified patient if there is one
         if(_.isEmpty(data.target)){
           app.log('No targeted OAuth user so defaulting');
           self.redirectToDefaultRoute();
