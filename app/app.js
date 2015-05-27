@@ -1235,14 +1235,24 @@ var AppComponent = React.createClass({
     var mostRecentUpload = _.sortBy(_.where(data, {type: 'upload'}), function(d) {
       return Date.parse(d.time);
     }).reverse()[0];
-    var timePrefsForTideline = {
-      timezoneAware: true,
-      timezoneName: mostRecentUpload.timezone
-    };
+    var timePrefsForTideline;
+    if (!_.isEmpty(mostRecentUpload.timezone)) {
+      try {
+        sundial.checkTimezoneName(mostRecentUpload.timezone);
+        timePrefsForTideline = {
+          timezoneAware: true,
+          timezoneName: mostRecentUpload.timezone
+        };
+      }
+      catch(err) {
+        app.log(err);
+        app.log('Upload metadata lacking a valid timezone!', mostRecentUpload);
+      }
+    }
     var queryParams = this.state.queryParams;
     // if the user has put a timezone in the query params
     // it'll be stored already in the state, and we just keep using it
-    if (!_.isEmpty(queryParams.timezone)) {
+    if (!_.isEmpty(queryParams.timezone) || _.isEmpty(timePrefsForTideline)) {
       timePrefsForTideline = this.state.timePrefs;
     }
     // but otherwise we use the timezone from the most recent upload metadata obj
