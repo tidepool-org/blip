@@ -157,7 +157,7 @@ var AppComponent = React.createClass({
         app.log('Viewing data in timezone-aware mode with', queryTimezone, 'as the selected timezone.');
       }
       catch(err) {
-        console.log(new Error('Invalid timezone name in query parameter. (Try capitalizing properly.)'));
+        app.log(new Error('Invalid timezone name in query parameter. (Try capitalizing properly.)'));
       }
     }
     return {
@@ -1232,11 +1232,32 @@ var AppComponent = React.createClass({
       return null;
     }
 
+    var mostRecentUpload = _.sortBy(_.where(data, {type: 'upload'}), function(d) {
+      return Date.parse(d.time);
+    }).reverse()[0];
+    var timePrefsForTideline = {
+      timezoneAware: true,
+      timezoneName: mostRecentUpload.timezone
+    };
+    var queryParams = this.state.queryParams;
+    // if the user has put a timezone in the query params
+    // it'll be stored already in the state, and we just keep using it
+    if (!_.isEmpty(queryParams.timezone)) {
+      timePrefsForTideline = this.state.timePrefs;
+    }
+    // but otherwise we use the timezone from the most recent upload metadata obj
+    else {
+      this.setState({
+        timePrefs: timePrefsForTideline
+      });
+      app.log('Defaulting to display in timezone of most recent upload at', mostRecentUpload.time, mostRecentUpload.timezone);
+    }
+
     console.time('Nurseshark Total');
-    var res = nurseShark.processData(data, this.state.timePrefs);
+    var res = nurseShark.processData(data, timePrefsForTideline);
     console.timeEnd('Nurseshark Total');
     console.time('TidelineData Total');
-    var tidelineData = new TidelineData(res.processedData, {timePrefs: this.state.timePrefs});
+    var tidelineData = new TidelineData(res.processedData, {timePrefs: timePrefsForTideline});
     console.timeEnd('TidelineData Total');
 
     window.tidelineData = tidelineData;
