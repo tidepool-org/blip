@@ -2,7 +2,7 @@ var React = require('react');
 var TestUtils = require('react/lib/ReactTestUtils');
 var expect = require('expect');
 
-var DatePicker = require('../../app/components/datepicker');
+var DatePicker = require('../../../app/components/datepicker');
 
 describe('DatePicker', function () {
   it('should be a function', function() {

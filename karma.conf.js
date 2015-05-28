@@ -16,7 +16,8 @@ module.exports = function (config) {
       devtool: 'inline-source-map', //just do inline source maps instead of the default
       module: {
         loaders: [
-          { test: /\.js$/, loader: 'jsx-loader' }
+          { test: /\.js$/, loader: 'jsx-loader' },
+          { test: /\.json$/, loader: 'json-loader' }
         ]
       }
     },
