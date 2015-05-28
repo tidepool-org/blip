@@ -70,4 +70,77 @@ describe('PatientInfo', function () {
       expect(elem.isSamePersonUserAndPatient()).toBe(true);
     });
   });
+
+  describe('getAgeText', function() {
+    it('should return unknown birthday if less than 1 years old, or birthdate in future', function() {
+      var props = {
+        patient: {
+          userid: 1,
+          profile: {
+            patient: {
+              birthday: '1984-05-18'
+            }
+          }
+        },
+        trackMetric: function() {}
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      expect(elem).toExist();
+      expect(elem.getAgeText(elem.props.patient, new Date(1984, 4, 20))).toBe('Birthdate not known');
+      expect(elem.getAgeText(elem.props.patient, new Date(1983, 4, 20))).toBe('Birthdate not known');
+    });
+
+    it('should return text representing years difference', function() {
+      var props = {
+        patient: {
+          userid: 1,
+          profile: {
+            patient: {
+              birthday: '1984-05-18'
+            }
+          }
+        },
+        trackMetric: function() {}
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      expect(elem).toExist();
+      expect(elem.getAgeText(elem.props.patient, new Date(1985, 4, 19))).toBe('1 year old');
+      expect(elem.getAgeText(elem.props.patient, new Date(1986, 4, 19))).toBe('2 years old');
+      expect(elem.getAgeText(elem.props.patient, new Date(1987, 4, 19))).toBe('3 years old');
+      expect(elem.getAgeText(elem.props.patient, new Date(1988, 4, 19))).toBe('4 years old');
+      expect(elem.getAgeText(elem.props.patient, new Date(1999, 4, 19))).toBe('15 years old');
+      expect(elem.getAgeText(elem.props.patient, new Date(2015, 4, 19))).toBe('31 years old');
+    });
+
+    it('should handle return correct text representation for various birthdays', function() {
+      var props = {
+        patient: {
+          userid: 1,
+          profile: {
+            patient: {
+              birthday: '1984-05-18'
+            }
+          }
+        },
+        trackMetric: function() {}
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var today = new Date(2015, 4, 28); //for testing purposes - set today as fixed
+      expect(elem).toExist();
+      expect(elem.getAgeText(elem.props.patient, new Date(2015, 4, 28))).toBe('31 years old');
+      elem.props.patient.profile.patient.birthday = '1984-04-30';
+      expect(elem.getAgeText(elem.props.patient, new Date(2015, 4, 28))).toBe('31 years old');
+      elem.props.patient.profile.patient.birthday = '1984-05-29';
+      expect(elem.getAgeText(elem.props.patient, new Date(2015, 4, 28))).toBe('30 years old');
+    });
+  });
+
+  describe('getDiagnosisText', function() {
+  });
 });

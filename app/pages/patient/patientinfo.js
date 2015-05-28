@@ -281,16 +281,15 @@ var PatientInfo = React.createClass({
     return personUtils.patientFullName(patient);
   },
 
-  getAgeText: function(patient) {
+  getAgeText: function(patient, currentDate) {
     var patientInfo = personUtils.patientInfo(patient) || {};
     var birthday = patientInfo.birthday;
 
     if (!birthday) {
       return;
     }
-
-    var yrsAgo = sundial.dateDifference(new Date(), birthday, 'years');
-
+    currentDate = currentDate || new Date();
+    var yrsAgo = sundial.dateDifference(currentDate, birthday, 'years');
     if (yrsAgo === 1) {
       return '1 year old';
     } else if (yrsAgo > 1) {
@@ -298,9 +297,10 @@ var PatientInfo = React.createClass({
     } else {
       return 'Birthdate not known';
     }
+
   },
 
-  getDiagnosisText: function(patient) {
+  getDiagnosisText: function(patient, currentDate) {
     var patientInfo = personUtils.patientInfo(patient) || {};
     var diagnosisDate = patientInfo.diagnosisDate;
 
@@ -308,7 +308,8 @@ var PatientInfo = React.createClass({
       return;
     }
 
-    var yrsAgo = sundial.dateDifference(new Date(), diagnosisDate, 'years');
+    currentDate = currentDate || new Date();
+    var yrsAgo = sundial.dateDifference(currentDate, diagnosisDate, 'years');
 
     if (yrsAgo === 0) {
       return 'Diagnosed this year';
