@@ -4,7 +4,7 @@ module.exports = function (config) {
   config.set({
     browsers: [ 'PhantomJS' ], // use PhantomJS for now (@gordyd - I'm using a VM)
     singleRun: true,
-    frameworks: [ 'mocha' ], // Mocha is our testing framework of choice
+    frameworks: [ 'mocha', 'sinon' ], // Mocha is our testing framework of choice
     files: [
       'tests.webpack.js' //just load this file
     ],
