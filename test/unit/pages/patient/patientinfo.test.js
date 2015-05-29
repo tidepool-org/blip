@@ -465,7 +465,7 @@ describe('PatientInfo', function () {
       expect(result.profile.patient.birthday).to.equal('2016-02-29');
     });
 
-  it('should throw a errors with invalid diagnosisDate - non-leap year 29th Feb', function() {
+    it('should throw a errors with invalid diagnosisDate - non-leap year 29th Feb', function() {
       console.error = sinon.spy(); // Stub the error function
       var props = {
         trackMetric: function() {},
@@ -562,6 +562,28 @@ describe('PatientInfo', function () {
       var result = elem.prepareFormValuesForSubmit(formValues);
 
       expect(result.profile.patient.about).to.be.an('undefined');
+    });
+
+    it('should prepare full form and return expected values', function() {
+      var props = {
+        trackMetric: function() {},
+        patient: {
+          profile : {}
+        }
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var formValues = {
+        about: 'I am a testing developer.',
+        birthday: '02-02-1990',
+        diagnosisDate: '04-05-2001'
+      }
+      var result = elem.prepareFormValuesForSubmit(formValues);
+
+      expect(result.profile.patient.about).to.equal('I am a testing developer.');
+      expect(result.profile.patient.birthday).to.equal('1990-02-02');
+      expect(result.profile.patient.diagnosisDate).to.equal('2001-04-05');
     });
   });
 });
