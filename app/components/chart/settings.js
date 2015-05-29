@@ -118,7 +118,7 @@ var Settings = React.createClass({
   },
   isMissingSettings: function() {
     var data = this.props.patientData;
-    if (_.isEmpty(data.grouped.settings)) {
+    if (_.isEmpty(data) || _.isEmpty(data.grouped) || _.isEmpty(data.grouped.settings)) {
       return true;
     }
     return false;
