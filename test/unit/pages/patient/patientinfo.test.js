@@ -381,4 +381,30 @@ describe('PatientInfo', function () {
       expect(typeof error).toBe('undefined');
     });   
   });
+  
+  describe('prepareFormValuesForSubmit', function() {
+    it('should convert birthday to YYYY-MM-DD', function() {
+      var props = {
+        trackMetric: function() {},
+        patient: {
+          profile : {}
+        }
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var formValues = {
+        birthday: '07/01/1984',
+      }
+      
+      var result = elem.prepareFormValuesForSubmit(formValues);
+      expect(result.profile.patient.birthday).toBe('1984-07-01');
+      
+      formValues = {
+        birthday: '08/02/1984',
+      }
+      result = elem.prepareFormValuesForSubmit(formValues);
+      expect(result.profile.patient.birthday).toBe('1984-08-02');
+    })
+  });
 });
