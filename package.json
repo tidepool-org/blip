@@ -40,7 +40,6 @@
     "test": "grunt test"
   },
   "dependencies": {
-    "moment": "2.9.0",
     "moment-timezone": "0.3.0"
   },
   "devDependencies": {
