@@ -2,18 +2,17 @@ var webpack = require('webpack');
 
 module.exports = function (config) {
   config.set({
-    browsers: [ 'PhantomJS' ], // use PhantomJS for now (@gordyd - I'm using a VM)
+    browsers: [ 'PhantomJS' ], // Use PhantomJS for now (@gordyd - I'm using a VM)
     singleRun: true,
     frameworks: [ 'mocha', 'sinon' ], // Mocha is our testing framework of choice
     files: [
-      'tests.webpack.js' //just load this file
+      'tests.webpack.js' // We're using Webpack to build
     ],
     preprocessors: {
-      'tests.webpack.js': [ 'webpack', 'sourcemap' ] //preprocess with webpack and our sourcemap loader
+      'tests.webpack.js': [ 'webpack', 'sourcemap' ] // Preprocess with webpack and our sourcemap loader
     },
     reporters: [ 'mocha' ],
-    webpack: { // kind of a copy of your webpack config
-      devtool: 'inline-source-map', //just do inline source maps instead of the default
+    webpack: { // Simplified Webpack configuration
       module: {
         loaders: [
           { test: /\.js$/, loader: 'jsx-loader' },
@@ -22,7 +21,7 @@ module.exports = function (config) {
       }
     },
     webpackServer: {
-      noInfo: true //please don't spam the console when running in karma!
+      noInfo: true // We don't want webpack output
     }
   });
 };
