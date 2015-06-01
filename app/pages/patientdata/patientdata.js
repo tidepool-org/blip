@@ -72,8 +72,7 @@ var PatientData = React.createClass({
           boxOverlay: true,
           grouped: true,
           showingLines: false
-        },
-        timePrefs: this.props.timePrefs
+        }
       },
       chartType: 'modal',
       createMessage: null,
@@ -229,6 +228,7 @@ var PatientData = React.createClass({
           <Daily
             bgPrefs={this.props.bgPrefs}
             chartPrefs={this.state.chartPrefs}
+            timePrefs={this.props.timePrefs}
             imagesBaseUrl={config.IMAGES_ENDPOINT + '/tideline'}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
             patientData={this.props.patientData}
@@ -250,6 +250,7 @@ var PatientData = React.createClass({
           <Modal
             bgPrefs={this.props.bgPrefs}
             chartPrefs={this.state.chartPrefs}
+            timePrefs={this.props.timePrefs}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
             patientData={this.props.patientData}
             onClickRefresh={this.handleClickRefresh}
@@ -270,6 +271,7 @@ var PatientData = React.createClass({
           <Weekly
             bgPrefs={this.props.bgPrefs}
             chartPrefs={this.state.chartPrefs}
+            timePrefs={this.props.timePrefs}
             imagesBaseUrl={config.IMAGES_ENDPOINT + '/tideline'}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
             patientData={this.props.patientData}
@@ -291,6 +293,7 @@ var PatientData = React.createClass({
           <Settings
             bgPrefs={this.props.bgPrefs}
             chartPrefs={this.state.chartPrefs}
+            timePrefs={this.props.timePrefs}
             patientData={this.props.patientData}
             onClickRefresh={this.handleClickRefresh}
             onSwitchToDaily={this.handleSwitchToDaily}
