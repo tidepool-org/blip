@@ -77,6 +77,7 @@ var Settings = React.createClass({
         </div>
         <Footer
          chartType={this.chartType}
+         onClickRefresh={this.props.onClickRefresh}
          onClickSettings={this.props.onSwitchToSettings}
         ref="footer" />
       </div>
