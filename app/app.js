@@ -1236,7 +1236,7 @@ var AppComponent = React.createClass({
       return Date.parse(d.time);
     }).reverse()[0];
     var timePrefsForTideline;
-    if (!_.isEmpty(mostRecentUpload.timezone)) {
+    if (!_.isEmpty(mostRecentUpload) && !_.isEmpty(mostRecentUpload.timezone)) {
       try {
         sundial.checkTimezoneName(mostRecentUpload.timezone);
         timePrefsForTideline = {
