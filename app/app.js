@@ -1449,43 +1449,49 @@ var AppComponent = React.createClass({
   },
 
   showRequestPasswordReset: function() {
-    this.renderPage = this.renderRequestPasswordReset;
-    this.setState({
-      page: 'request-password-reset'
-    });
-  },
 
-  renderRequestPasswordReset: function() {
-    return (
-      /* jshint ignore:start */
-      <RequestPasswordReset
-        onSubmit={app.api.user.requestPasswordReset.bind(app.api)}
-        trackMetric={trackMetric} />
-      /* jshint ignore:end */
-    );
+    this.renderPage = function(){
+      return(
+        /* jshint ignore:start */
+        <RequestPasswordReset
+          onSubmit={app.api.user.requestPasswordReset.bind(app.api)}
+          trackMetric={trackMetric} />
+        /* jshint ignore:end */
+      );
+    };
+
+    this.setState({ page: 'request-password-reset'});
   },
 
   showConfirmPasswordReset: function() {
-    this.renderPage = this.renderConfirmPasswordReset;
-    this.setState({
-      page: 'confirm-password-reset'
-    });
+
+    var givenResetKey = this.getQueryParam('resetKey');
+
+    this.renderPage = function(){
+      return(
+        /* jshint ignore:start */
+        <ConfirmPasswordReset
+          resetKey={givenResetKey}
+          onSubmit={app.api.user.confirmPasswordReset.bind(app.api)}
+          trackMetric={trackMetric} />
+        /* jshint ignore:end */
+      );
+    };
+
+    this.setState({ page: 'confirm-password-reset'});
   },
 
-  renderConfirmPasswordReset: function() {
-    return (
-      /* jshint ignore:start */
-      <ConfirmPasswordReset
-        key={this.getPasswordResetKey()}
-        onSubmit={app.api.user.confirmPasswordReset.bind(app.api)}
-        trackMetric={trackMetric} />
-      /* jshint ignore:end */
-    );
-  },
-
-  getPasswordResetKey: function() {
-    var hashQueryParams = app.router.getQueryParams();
-    return hashQueryParams.resetKey;
+  // look for the specified key in the attached queryParams and return the value
+  //
+  // If we don't find what we asked for then log that the value has not been found.
+  // NOTE: The caller can decide how they want to deal with the fact there is no value in this instance
+  getQueryParam: function(key){
+    var params = app.router.getQueryParams();
+    var val = params[key];
+    if(_.isEmpty(val)){
+      app.log('You asked for ['+key+'] but it was not found in ',params);
+    }
+    return val;
   },
 
   handleExternalPasswordUpdate: function() {
@@ -1495,8 +1501,7 @@ var AppComponent = React.createClass({
       this.setState({page: 'profile'});
     } else {
       // If the user is not logged in, go to the forgot password page
-      this.renderPage = this.renderRequestPasswordReset;
-      this.setState({page: 'request-password-reset'});
+      this.showRequestPasswordReset();
     }
   },
 
