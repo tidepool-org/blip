@@ -137,26 +137,7 @@ d3.chart('Brush', {
     var domainDays = (domain[1] - domain[0])/MS_IN_24;
     var smallDaysLimit = 40, mediumDaysLimit = 90;
     this._brushTickInterval = domainDays < mediumDaysLimit ? 'week' : 'month';
-    var tickJump = 1;
-    if (domainDays > smallDaysLimit && domainDays < mediumDaysLimit) {
-      tickJump = 2;
-    }
-    var ticks = [], current = domain[0];
-    var tz = this.timezone();
-    while (current < domain[1]) {
-      current = moment(current).add(tickJump, this._brushTickInterval).startOf(this._brushTickInterval).tz(tz).toDate();
-      ticks.push(current);
-    }
-    // final tick will go beyond the domain, so pop it
-    ticks.pop();
-    this.ticks = ticks;
-    // don't want tick labels to appear too close to edge
-    // so only show if > two weeks from start of floor of end-of-domain month
-    var lastTick = ticks[ticks.length - 1];
-    if (this._brushTickInterval === 'month' && (domain[1] - lastTick) / MS_IN_24 < 14) {
-      this.textTicks = ticks.slice();
-      this.textTicks.pop();
-    }
+    this.ticks = xScale.ticks(7);
     this.makeBrush();
     return this;
   },
