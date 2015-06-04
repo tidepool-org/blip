@@ -70,6 +70,28 @@ describe('Settings', function () {
       expect(x.props.children.length).to.equal(3);
     });
 
+    it('should have a refresh button which should be call onClickRefresh when clicked', function () {
+      var props = {
+        bgPrefs: {},
+        chartPrefs: {},
+        patientData: {
+        },
+        onClickRefresh: sinon.spy(),
+        onSwitchToDaily: sinon.spy(),
+        onSwitchToSettings: sinon.spy(),
+        onSwitchToWeekly: sinon.spy(),
+        trackMetric: sinon.spy(),
+        uploadUrl: ''
+      };
+      var settingsElem = React.createElement(Settings, props);
+      var elem = TestUtils.renderIntoDocument(settingsElem);
+      var refreshButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'btn-refresh');
+
+      expect(props.onClickRefresh.callCount).to.equal(0);
+      TestUtils.Simulate.click(refreshButton);
+      expect(props.onClickRefresh.callCount).to.equal(1);
+    });
+
     /**
      * I want to test the alternative now, what happens when data is present, however...
      *
