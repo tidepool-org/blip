@@ -322,6 +322,60 @@ describe('PatientInfo', function () {
       expect(typeof error).to.equal('undefined');
     });
 
+    it('should return error message when birthday is in the future', function() {
+      var props = {
+        trackMetric: function() {}
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var formValues = {
+        fullName: 'Joe Bloggs',
+        birthday: '01/01/2016',
+        diagnosisDate: '01/05/1984',
+        about: null
+      }
+      var error = elem.validateFormValues(formValues, new Date(2015, 4, 18));
+
+      expect(error).to.equal('Date of birth cannot be in the future!');
+    });
+
+    it('should return error message when diagnosisDate is in the future', function() {
+      var props = {
+        trackMetric: function() {}
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var formValues = {
+        fullName: 'Joe Bloggs',
+        birthday: '01/05/1984',
+        diagnosisDate: '01/01/2016',
+        about: null
+      }
+      var error = elem.validateFormValues(formValues, new Date(2015, 4, 18));
+
+      expect(error).to.equal('Diagnosis date cannot be in the future!');
+    });
+
+    it('should return error message when diagnosisDate is before birthday', function() {
+      var props = {
+        trackMetric: function() {}
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      var formValues = {
+        fullName: 'Joe Bloggs',
+        birthday: '01/05/1984',
+        diagnosisDate: '01/01/1983',
+        about: null
+      }
+      var error = elem.validateFormValues(formValues, new Date(2015, 4, 18));
+
+      expect(error).to.equal('Diagnosis cannot be before date of birth!');
+    });
+
     it('should return no error message when diagnosisDate and birthday and about is valid', function() {
       var props = {
         trackMetric: function() {}
@@ -340,7 +394,7 @@ describe('PatientInfo', function () {
       expect(typeof error).to.equal('undefined');
     });
 
-    it('should return an error message when about is over max length', function() {
+    it('should return error message when about is over max length', function() {
       var props = {
         trackMetric: function() {}
       };

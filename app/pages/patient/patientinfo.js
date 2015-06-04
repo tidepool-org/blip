@@ -383,7 +383,18 @@ var PatientInfo = React.createClass({
     }, {});
   },
 
-  validateFormValues: function(formValues) {
+  /**
+   * Validate the form data
+   *  - name has to be present (can only not be present if user is not patient)
+   *  - date of birth needs to be a valid date, and not in the future
+   *  - diagnosis date need to be a valid date, and not in the future, and not before date of birth
+   *  
+   * @param  {Object} formValues
+   * @param  {Date|null} currentDate mainly for testing purposes
+   * 
+   * @return {String|undefined} returns a string if there is an error
+   */
+  validateFormValues: function(formValues, currentDateObj) {
     // Legacy: revisit when proper "child accounts" are implemented
     if (personUtils.patientIsOtherPerson(this.props.patient) &&
         !formValues.fullName) {
@@ -398,6 +409,22 @@ var PatientInfo = React.createClass({
     var diagnosisDate = formValues.diagnosisDate;
     if (!(diagnosisDate && sundial.isValidDateForMask(diagnosisDate,FORM_DATE_FORMAT))) {
       return 'Diagnosis date needs to be a valid date';
+    }
+
+    currentDateObj = currentDateObj || new Date();
+    var birthdayDateObj = sundial.parseFromFormat(birthday, FORM_DATE_FORMAT);
+    var diagnosisDateObj = sundial.parseFromFormat(diagnosisDate, FORM_DATE_FORMAT);
+
+    if (birthdayDateObj > currentDateObj) {
+      return 'Date of birth cannot be in the future!';
+    }
+
+    if (diagnosisDateObj > currentDateObj) {
+      return 'Diagnosis date cannot be in the future!';
+    }
+
+    if (birthdayDateObj > diagnosisDateObj) {
+      return 'Diagnosis cannot be before date of birth!';
     }
 
     var maxLength = 256;
