@@ -327,26 +327,38 @@ var PatientInfo = React.createClass({
     return patientInfo.about;
   },
 
+  /**
+   * Given a patient object, extract the values from it 
+   * that needs to be displayed on the patientinfo form
+   * 
+   * @param  {Object} patient
+   * @return {Object} 
+   */
   formValuesFromPatient: function(patient) {
-    if (!patient) {
+    if (!_.isPlainObject(patient) || _.isEmpty(patient)) {
       return {};
     }
 
     var formValues = {};
     var patientInfo = personUtils.patientInfo(patient);
+    var name = personUtils.patientFullName(patient);
 
-    formValues.fullName = personUtils.patientFullName(patient);
-
-    if (patientInfo.birthday) {
-      formValues.birthday =  sundial.translateMask(patientInfo.birthday, SERVER_DATE_FORMAT, FORM_DATE_FORMAT);
+    if (name) {
+      formValues.fullName = name;
     }
 
-    if (patientInfo.diagnosisDate) {
-      formValues.diagnosisDate = sundial.translateMask(patientInfo.diagnosisDate, SERVER_DATE_FORMAT, FORM_DATE_FORMAT);
-    }
+    if (patientInfo) {
+      if (patientInfo.birthday) {
+        formValues.birthday =  sundial.translateMask(patientInfo.birthday, SERVER_DATE_FORMAT, FORM_DATE_FORMAT);
+      }
 
-    if (patientInfo.about) {
-      formValues.about = patientInfo.about;
+      if (patientInfo.diagnosisDate) {
+        formValues.diagnosisDate = sundial.translateMask(patientInfo.diagnosisDate, SERVER_DATE_FORMAT, FORM_DATE_FORMAT);
+      }
+
+      if (patientInfo.about) {
+        formValues.about = patientInfo.about;
+      }
     }
 
     return formValues;

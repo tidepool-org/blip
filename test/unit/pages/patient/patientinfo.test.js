@@ -34,6 +34,39 @@ describe('PatientInfo', function () {
       expect(console.warn.callCount).to.equal(0);
     });
   });
+
+  describe('getInitialState', function() {
+    it('should be return an object with editing set to false and contains no notification', function() {
+      var props = {
+        trackMetric: function() {}
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+
+      var initialState = elem.getInitialState();
+      expect(Object.keys(initialState).length).to.equal(2);
+      expect(initialState.editing).to.equal(false);
+      expect(initialState.notification).to.equal(null);
+    });
+  });
+
+  describe('toggleEdit', function() {
+    it('should change the value of editing from false to true and back', function() {
+      var props = {
+        trackMetric: function() {}
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+
+      expect(elem.state.editing).to.equal(false);
+      elem.toggleEdit();
+      expect(elem.state.editing).to.equal(true);
+      elem.toggleEdit();
+      expect(elem.state.editing).to.equal(false);
+    });
+  });
   
   describe('isSamePersonUserAndPatient', function() {
     it('should return false when both userids are the different', function() {
@@ -68,6 +101,24 @@ describe('PatientInfo', function () {
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
       expect(elem).to.be.ok;
       expect(elem.isSamePersonUserAndPatient()).to.equal(true);
+    });
+  });
+
+  describe('getDisplayName', function() {
+    it('should return the users full name', function() {
+      var props = {
+        patient: {
+          userid: 1,
+          profile: {
+            fullName: 'Joe Bloggs'
+          }
+        },
+        trackMetric: function() {}
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      expect(elem.getDisplayName(elem.props.patient)).to.equal('Joe Bloggs');
     });
   });
 
@@ -210,6 +261,188 @@ describe('PatientInfo', function () {
       expect(elem.getDiagnosisText(elem.props.patient, new Date(2015, 4, 28))).to.equal('Diagnosed 31 years ago');
       elem.props.patient.profile.patient.diagnosisDate = '1984-05-29';
       expect(elem.getDiagnosisText(elem.props.patient, new Date(2015, 4, 28))).to.equal('Diagnosed 30 years ago');
+    });
+  });
+
+  describe('getAboutText', function() {
+    it('should return about text from patient profile', function() {
+      var props = {
+        patient: {
+          userid: 1,
+          profile: {
+            patient: {
+              about: 'I am a developer.'
+            }
+          }
+        },
+        trackMetric: function() {}
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+
+      expect(elem.getAboutText(elem.props.patient)).to.equal('I am a developer.');
+    });
+  });
+
+  describe('formValuesFromPatient', function() {
+    it('should return empty object if patient is empty', function() {
+      var props = {
+        patient: {},
+        trackMetric: function() {}
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      // If patient is empty object
+      // Easy way to check if the returned variable is an empty POJO
+      expect(Object.keys(elem.formValuesFromPatient(elem.props.patient)).length).to.equal(0);
+      // If patient is 0 (not an object)
+      elem.props.patient = 0;
+      expect(Object.keys(elem.formValuesFromPatient(elem.props.patient)).length).to.equal(0);
+      // If patient is false
+      elem.props.patient = false;
+      expect(Object.keys(elem.formValuesFromPatient(elem.props.patient)).length).to.equal(0);
+      // If patient is null
+      elem.props.patient = null;
+      expect(Object.keys(elem.formValuesFromPatient(elem.props.patient)).length).to.equal(0);
+      // If patient is undefined
+      delete elem.props.patient;
+      expect(Object.keys(elem.formValuesFromPatient(elem.props.patient)).length).to.equal(0);
+    });
+
+    it('should return empty object when no form values present', function() {
+      var props = {
+        patient: {
+          userid: 1,
+          profile: {
+            patient: {
+            }
+          }
+        },
+        trackMetric: function() {}
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+
+      var formValues = elem.formValuesFromPatient(elem.props.patient);
+
+      expect(Object.keys(formValues).length).to.equal(0);
+    });
+
+    it('should return object containing fullName', function() {
+      var props = {
+        patient: {
+          userid: 1,
+          profile: {
+            fullName: 'Joe Bloggs'
+          }
+        },
+        trackMetric: function() {}
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+
+      var formValues = elem.formValuesFromPatient(elem.props.patient);
+
+      expect(Object.keys(formValues).length).to.equal(1);
+      expect(formValues.fullName).to.equal('Joe Bloggs');
+    });
+
+    it('should return object containing birthday', function() {
+      var props = {
+        patient: {
+          userid: 1,
+          profile: {
+            patient: {
+              birthday: '1995-05-01'
+            }
+          }
+        },
+        trackMetric: function() {}
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+
+      var formValues = elem.formValuesFromPatient(elem.props.patient);
+
+      expect(Object.keys(formValues).length).to.equal(1);
+      expect(formValues.birthday).to.equal('05/01/1995');
+    });
+
+    it('should return object containing diagnosisDate', function() {
+      var props = {
+        patient: {
+          userid: 1,
+          profile: {
+            patient: {
+              diagnosisDate: '2006-06-05'
+            }
+          }
+        },
+        trackMetric: function() {}
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+
+      var formValues = elem.formValuesFromPatient(elem.props.patient);
+
+      expect(Object.keys(formValues).length).to.equal(1);
+      expect(formValues.diagnosisDate).to.equal('06/05/2006');
+    });
+
+    it('should return object containing about', function() {
+      var props = {
+        patient: {
+          userid: 1,
+          profile: {
+            patient: {
+              about: 'I have a wonderful coffee mug.'
+            }
+          }
+        },
+        trackMetric: function() {}
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+
+      var formValues = elem.formValuesFromPatient(elem.props.patient);
+
+      expect(Object.keys(formValues).length).to.equal(1);
+      expect(formValues.about).to.equal('I have a wonderful coffee mug.');
+    });
+
+    it('should return object containing fullName, birthday, diagnosisDate and about', function() {
+      var props = {
+        patient: {
+          userid: 1,
+          profile: {
+            fullName: 'Joe Bloggs',
+            patient: {
+              birthday: '1995-05-01',
+              diagnosisDate: '2006-06-05',
+              about: 'I have a wonderful coffee mug.'
+            }
+          }
+        },
+        trackMetric: function() {}
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+
+      var formValues = elem.formValuesFromPatient(elem.props.patient);
+
+      expect(Object.keys(formValues).length).to.equal(4);
+      expect(formValues.fullName).to.equal('Joe Bloggs');
+      expect(formValues.birthday).to.equal('05/01/1995');
+      expect(formValues.diagnosisDate).to.equal('06/05/2006');
+      expect(formValues.about).to.equal('I have a wonderful coffee mug.');
     });
   });
 
