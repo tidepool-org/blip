@@ -70,8 +70,10 @@ describe('Settings', function () {
       expect(x.props.children.length).to.equal(3);
     });
 
-
     /**
+     * I want to test the alternative now, what happens when data is present, however...
+     *
+     * 
      * Been wrestling with this test for a while. Hitting a brick wall trying to understand
      * why this is failing. Need to defer until when I can connect with Jana again
      *
@@ -83,6 +85,32 @@ describe('Settings', function () {
 
      * Something to do with tideline and loading a chart, possibly to do with the fixtures data
      * I have created for this file.
+     *
+     * Previously I tried settings props to:
+     *
+     * var props = {
+        bgPrefs: {},
+        chartPrefs: {},
+        patientData: {
+          "grouped": {
+            "basal": [],
+            "bolus": [],
+            "cbg": [],
+            "fill": [],
+            "message": [],
+            "settings": [],
+            "smbg": [],
+            "wizard": []
+          }
+        },
+        onClickRefresh: sinon.spy(),
+        onSwitchToDaily: sinon.spy(),
+        onSwitchToSettings: sinon.spy(),
+        onSwitchToWeekly: sinon.spy(),
+        trackMetric: sinon.spy(),
+        uploadUrl: ''
+      };
+     * 
      */
     // it('should render with grouped data', function () {
     //   var props = _.extend(
