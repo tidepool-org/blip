@@ -3,7 +3,7 @@
   "version": "0.6.3",
   "private": true,
   "scripts": {
-    "test": "karma start",
+    "test": "./node_modules/karma/bin/karma start",
     "start": "webpack-dev-server --devtool eval-source-map --cache --colors --progress --port 3000",
     "build": "npm run build-app && npm run build-config",
     "build-app": "node buildapp",
@@ -51,7 +51,6 @@
     "karma": "0.12.33",
     "karma-chai": "0.1.0",
     "karma-chrome-launcher": "0.1.12",
-    "karma-cli": "0.0.4",
     "karma-mocha": "0.1.10",
     "karma-mocha-reporter": "1.0.2",
     "karma-phantomjs-launcher": "0.1.4",
