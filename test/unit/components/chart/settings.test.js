@@ -2,8 +2,8 @@
 
 var React = require('react');
 var TestUtils = require('react/lib/ReactTestUtils');
+var _ = require('lodash');
 var expect = chai.expect;
-
 var Settings = require('../../../../app/components/chart/settings');
 
 describe('Settings', function () {
@@ -48,5 +48,61 @@ describe('Settings', function () {
       var elem = TestUtils.renderIntoDocument(settingsElem);
       expect(elem).to.be.ok
     });
+
+    it('should render with missing data message when no grouped data supplied', function () {
+      var props = {
+        bgPrefs: {},
+        chartPrefs: {},
+        patientData: {
+        },
+        onClickRefresh: sinon.spy(),
+        onSwitchToDaily: sinon.spy(),
+        onSwitchToSettings: sinon.spy(),
+        onSwitchToWeekly: sinon.spy(),
+        trackMetric: sinon.spy(),
+        uploadUrl: ''
+      };
+      var settingsElem = React.createElement(Settings, props);
+      var elem = TestUtils.renderIntoDocument(settingsElem);
+      expect(elem).to.be.ok
+      var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message');
+      expect(x).to.be.ok;
+      expect(x.props.children.length).to.equal(3);
+    });
+
+
+    /**
+     * Been wrestling with this test for a while. Hitting a brick wall trying to understand
+     * why this is failing. Need to defer until when I can connect with Jana again
+     *
+     * Error message is:
+     *
+     * ✖ should render with grouped data
+        PhantomJS 1.9.8 (Linux)
+        TypeError: 'undefined' is not an object (evaluating 'basalUtil.scheduleTotal')
+
+     * Something to do with tideline and loading a chart, possibly to do with the fixtures data
+     * I have created for this file.
+     */
+    // it('should render with grouped data', function () {
+    //   var props = _.extend(
+    //     propsData, 
+    //     {
+    //       onClickRefresh: sinon.spy(),
+    //       onSwitchToDaily: sinon.spy(),
+    //       onSwitchToSettings: sinon.spy(),
+    //       onSwitchToWeekly: sinon.spy(),
+    //       trackMetric: sinon.spy(),
+    //       uploadUrl: ''
+    //     }
+    //   );
+    //   var settingsElem = React.createElement(Settings, props);
+    //   var elem = TestUtils.renderIntoDocument(settingsElem);
+    //   expect(elem).to.be.ok
+    //   var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message');
+    //   expect(x).to.be.ok;
+
+    //   console.log(x.getDOMNode());
+    // });
   });
 });
