@@ -7,14 +7,6 @@ var expect = chai.expect;
 var Settings = require('../../../../app/components/chart/settings');
 
 describe('Settings', function () {
-  it('should be a function', function() {
-    expect(Settings).to.be.a('function');
-  });
-
-  it('is a ReactElement', function () {
-    expect(TestUtils.isElement(<Settings/>)).to.equal(true);
-  });
-
   describe('render', function() {
     it('should console.warn with missing required props', function () {
       console.warn = sinon.spy();

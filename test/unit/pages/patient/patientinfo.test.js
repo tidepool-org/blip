@@ -5,14 +5,6 @@ var expect = chai.expect;
 var PatientInfo = require('../../../../app/pages/patient/patientinfo');
 
 describe('PatientInfo', function () {
-  it('should be a function and is exposed as a module', function() {
-    expect(PatientInfo).to.be.a('function');
-  });
-
-  it('is a ReactElement', function () {
-    expect(TestUtils.isElement(<PatientInfo/>)).to.equal(true);
-  });
-
 
   describe('render', function() {
     it('should console.warn when trackMetric not set', function () {
