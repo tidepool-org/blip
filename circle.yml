@@ -1,0 +1,4 @@
+test:
+  override:
+    - nvm exec 0.10 npm test
+    - nvm exec 0.12 npm test
