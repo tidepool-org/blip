@@ -922,9 +922,11 @@ var AppComponent = React.createClass({
     );
     /* jshint ignore:end */
   },
-  handleUpdatePatientData: function(data) {
+  handleUpdatePatientData: function(userid, data) {
+    var patientData = _.cloneDeep(this.state.patientData);
+    patientData[userid] = data;
     this.setState({
-      patientData: data
+      patientData: patientData
     });
   },
   login: function(formValues, cb) {
@@ -1196,13 +1198,15 @@ var AppComponent = React.createClass({
         console.save(combinedData, 'blip-input.json');
       };
       patientData = self.processPatientData(combinedData);
+      var allPatientsData = _.cloneDeep(self.state.patientData) || {};
+      allPatientsData[patientId] = patientData;
 
       self.setState({
         bgPrefs: {
           bgClasses: patientData.bgClasses,
           bgUnits: patientData.bgUnits
         },
-        patientData: patientData,
+        patientData: allPatientsData,
         fetchingPatientData: false
       });
     });
