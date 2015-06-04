@@ -1,3 +1,6 @@
+/** @jsx React.DOM */
+/* global chai */
+
 var React = require('react');
 var TestUtils = require('react/lib/ReactTestUtils');
 var expect = chai.expect;
@@ -15,6 +18,6 @@ describe('DatePicker', function () {
 
   it('should render without problems', function () {
     var elem = TestUtils.renderIntoDocument(<DatePicker/>);
-    expect(elem).to.be.ok
+    expect(elem).to.be.ok;
   });
 });

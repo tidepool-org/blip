@@ -5,7 +5,7 @@ var expect = chai.expect;
 var PatientInfo = require('../../../../app/pages/patient/patientinfo');
 
 describe('PatientInfo', function () {
-  it('should be a function', function() {
+  it('should be a function and is exposed as a module', function() {
     expect(PatientInfo).to.be.a('function');
   });
 
@@ -88,6 +88,7 @@ describe('PatientInfo', function () {
       var patientInfoElem = React.createElement(PatientInfo, props);
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
       expect(elem).to.be.ok;
+      // NB: Remember that Date is a bit weird, in that months are zero indexed - so 4 -> May !
       expect(elem.getAgeText(elem.props.patient, new Date(1984, 4, 20))).to.equal('Birthdate not known');
       expect(elem.getAgeText(elem.props.patient, new Date(1983, 4, 20))).to.equal('Birthdate not known');
     });
@@ -481,7 +482,7 @@ describe('PatientInfo', function () {
       }
       var error;
       try {
-        elem.prepareFormValuesForSubmit(formValues)
+        elem.prepareFormValuesForSubmit(formValues);
       } catch(e) {
         error = e;
       }
