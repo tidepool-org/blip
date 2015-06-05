@@ -1,3 +1,5 @@
+/* global chai */
+
 var React = require('react');
 var TestUtils = require('react/lib/ReactTestUtils');
 var expect = chai.expect;
@@ -451,7 +453,7 @@ describe('PatientInfo', function () {
         birthday: null,
         diagnosisDate: null,
         about: null
-      }
+      };
       var error = elem.validateFormValues(formValues);
 
       expect(error).to.equal('Date of birth needs to be a valid date');
@@ -469,7 +471,7 @@ describe('PatientInfo', function () {
         birthday: 'randomstring',
         diagnosisDate: null,
         about: null
-      }
+      };
       var error = elem.validateFormValues(formValues);
 
       expect(error).to.equal('Date of birth needs to be a valid date');
@@ -487,7 +489,7 @@ describe('PatientInfo', function () {
         birthday: '2014-05-01',
         diagnosisDate: null,
         about: null
-      }
+      };
       var error = elem.validateFormValues(formValues);
 
       expect(error).to.equal('Date of birth needs to be a valid date');
@@ -505,7 +507,7 @@ describe('PatientInfo', function () {
         birthday: '01/01/1984',
         diagnosisDate: null,
         about: null
-      }
+      };
       var error = elem.validateFormValues(formValues);
 
       expect(error).to.equal('Diagnosis date needs to be a valid date');
@@ -523,7 +525,7 @@ describe('PatientInfo', function () {
         birthday: '01/01/1984',
         diagnosisDate: '1234',
         about: null
-      }
+      };
       var error = elem.validateFormValues(formValues);
 
       expect(error).to.equal('Diagnosis date needs to be a valid date');
@@ -541,7 +543,7 @@ describe('PatientInfo', function () {
         birthday: '01/01/1984',
         diagnosisDate: '01/05/1984',
         about: null
-      }
+      };
       var error = elem.validateFormValues(formValues);
 
       expect(typeof error).to.equal('undefined');
@@ -559,7 +561,7 @@ describe('PatientInfo', function () {
         birthday: '01/01/2016',
         diagnosisDate: '01/05/1984',
         about: null
-      }
+      };
       var error = elem.validateFormValues(formValues, new Date(2015, 4, 18));
 
       expect(error).to.equal('Date of birth cannot be in the future!');
@@ -577,7 +579,7 @@ describe('PatientInfo', function () {
         birthday: '01/05/1984',
         diagnosisDate: '01/01/2016',
         about: null
-      }
+      };
       var error = elem.validateFormValues(formValues, new Date(2015, 4, 18));
 
       expect(error).to.equal('Diagnosis date cannot be in the future!');
@@ -595,7 +597,7 @@ describe('PatientInfo', function () {
         birthday: '01/05/1984',
         diagnosisDate: '01/01/1983',
         about: null
-      }
+      };
       var error = elem.validateFormValues(formValues, new Date(2015, 4, 18));
 
       expect(error).to.equal('Diagnosis cannot be before date of birth!');
@@ -613,7 +615,7 @@ describe('PatientInfo', function () {
         birthday: '01/01/1984',
         diagnosisDate: '01/05/1984',
         about: 'This is a valid length about section'
-      }
+      };
       var error = elem.validateFormValues(formValues);
 
       expect(typeof error).to.equal('undefined');
@@ -630,11 +632,11 @@ describe('PatientInfo', function () {
         fullName: 'Joe Bloggs',
         birthday: '01/01/1984',
         diagnosisDate: '01/05/1984',
-        about: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' 
-        + 'Enim in consectetur ultricies netus torquent nisi gravida pulvinar' 
-        + ' - curae congue tellus sodales nec proin?Risus in nostra montes rhoncus'
-        + ' vestibulum tempus per ut: curae maecenas nibh arcu eget. Dolby'
-      }
+        about: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' +
+        'Enim in consectetur ultricies netus torquent nisi gravida pulvinar' +
+        ' - curae congue tellus sodales nec proin?Risus in nostra montes rhoncus' +
+        ' vestibulum tempus per ut: curae maecenas nibh arcu eget. Dolby'
+      };
       var error = elem.validateFormValues(formValues);
 
       expect(error).to.equal('Please keep "about" text under 256 characters');
@@ -651,11 +653,11 @@ describe('PatientInfo', function () {
         fullName: 'Joe Bloggs',
         birthday: '01/01/1984',
         diagnosisDate: '01/05/1984',
-        about: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' 
-        + 'Enim in consectetur ultricies netus torquent nisi gravida pulvinar' 
-        + ' - curae congue tellus sodales nec proin?Risus in nostra montes rhoncus'
-        + ' vestibulum tempus per ut: curae maecenas nibh arcu eget. Dolb'
-      }
+        about: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' + 
+        'Enim in consectetur ultricies netus torquent nisi gravida pulvinar' + 
+        ' - curae congue tellus sodales nec proin?Risus in nostra montes rhoncus' + 
+        ' vestibulum tempus per ut: curae maecenas nibh arcu eget. Dolb'
+      };
       var error = elem.validateFormValues(formValues);
 
       expect(typeof error).to.equal('undefined');
@@ -677,10 +679,10 @@ describe('PatientInfo', function () {
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
       var formValues = {
         birthday: '02/29/2015',
-      }
+      };
       var error;
       try {
-        elem.prepareFormValuesForSubmit(formValues)
+        elem.prepareFormValuesForSubmit(formValues);
       } catch(e) {
         error = e;
       }
@@ -702,10 +704,10 @@ describe('PatientInfo', function () {
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
       var formValues = {
         birthday: '000/00/0000',
-      }
+      };
       var error;
       try {
-        elem.prepareFormValuesForSubmit(formValues)
+        elem.prepareFormValuesForSubmit(formValues);
       } catch(e) {
         error = e;
       }
@@ -726,7 +728,7 @@ describe('PatientInfo', function () {
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
       var formValues = {
         birthday: '07/01/1984',
-      }
+      };
       var result = elem.prepareFormValuesForSubmit(formValues);
 
       expect(result.profile.patient.birthday).to.equal('1984-07-01');
@@ -758,7 +760,7 @@ describe('PatientInfo', function () {
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
       var formValues = {
         diagnosisDate: '02/29/2015',
-      }
+      };
       var error;
       try {
         elem.prepareFormValuesForSubmit(formValues);
@@ -783,10 +785,10 @@ describe('PatientInfo', function () {
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
       var formValues = {
         diagnosisDate: '000/00/0000',
-      }
+      };
       var error;
       try {
-        elem.prepareFormValuesForSubmit(formValues)
+        elem.prepareFormValuesForSubmit(formValues);
       } catch(e) {
         error = e;
       }
@@ -807,7 +809,7 @@ describe('PatientInfo', function () {
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
       var formValues = {
         diagnosisDate: '07/01/1984',
-      }
+      };
       var result = elem.prepareFormValuesForSubmit(formValues);
 
       expect(result.profile.patient.diagnosisDate).to.equal('1984-07-01');
@@ -838,7 +840,7 @@ describe('PatientInfo', function () {
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
       var formValues = {
         about: '',
-      }
+      };
       var result = elem.prepareFormValuesForSubmit(formValues);
 
       expect(result.profile.patient.about).to.be.an('undefined');
@@ -858,7 +860,7 @@ describe('PatientInfo', function () {
         about: 'I am a testing developer.',
         birthday: '02-02-1990',
         diagnosisDate: '04-05-2001'
-      }
+      };
       var result = elem.prepareFormValuesForSubmit(formValues);
 
       expect(result.profile.patient.about).to.equal('I am a testing developer.');
