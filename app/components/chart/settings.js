@@ -19,6 +19,8 @@ var _ = require('lodash');
 var bows = require('bows');
 var React = require('react');
 
+var utils = require('../../core/utils');
+
 // tideline dependencies & plugins
 var tidelineBlip = require('tideline/plugins/blip');
 var chartSettingsFactory = tidelineBlip.settings;
@@ -118,7 +120,7 @@ var Settings = React.createClass({
   },
   isMissingSettings: function() {
     var data = this.props.patientData;
-    if (_.isEmpty(data) || _.isEmpty(data.grouped) || _.isEmpty(data.grouped.settings)) {
+    if (!utils.getIn(data, ['grouped', 'settings'], false)) {
       return true;
     }
     return false;
