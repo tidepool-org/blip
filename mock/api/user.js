@@ -195,7 +195,9 @@ var patch = function(mock, api) {
       else {
         api.log('[mock] Login failed');
       }
-      callback(err);
+      if (callback) {
+        callback(err);
+      }
     }, getDelayFor('api.user.login'));
   };
 
@@ -213,7 +215,10 @@ var patch = function(mock, api) {
       else {
         api.log('[mock] Logout failed');
       }
-      callback(err);
+
+      if (callback) {
+        callback(err);
+      }
     }, getDelayFor('api.user.logout'));
   };
 
@@ -245,7 +250,9 @@ var patch = function(mock, api) {
       }
 
       user = _.omit(user, 'password');
-      callback(err, user);
+      if (callback) {
+        callback(err, user);
+      }
     }, getDelayFor('api.user.signup'));
   };
 
@@ -265,7 +272,9 @@ var patch = function(mock, api) {
     }
 
     setTimeout(function() {
-      callback(null, user);
+      if (callback) {
+        callback(null, user);
+      }
     }, getDelayFor('api.user.get'));
   };
 
@@ -282,7 +291,9 @@ var patch = function(mock, api) {
       data.users[api.userId] = user;
 
       user = _.omit(user, 'password');
-      callback(err, user);
+      if(callback) {
+        callback(err, user);
+      }
     }, getDelayFor('api.user.put'));
   };
 
@@ -293,7 +304,9 @@ var patch = function(mock, api) {
       if (getParam('api.user.resendEmailVerification.error')) {
         err = {status: 500};
       }
-      callback(err);
+      if (callback) {
+        callback(err);
+      }
     }, getDelayFor('api.user.resendEmailVerification'));
   };
 
@@ -315,7 +328,9 @@ var patch = function(mock, api) {
 
       data.confirmations.push(confirmation);
 
-      callback();
+      if (callback) {
+        callback(err);
+      }
     }, getDelayFor('api.user.requestPasswordReset'));
   };
 
@@ -338,7 +353,9 @@ var patch = function(mock, api) {
       user.password = payload.password;
       confirmation.status = 'completed';
 
-      callback();
+      if (callback) {
+        callback(err);
+      }
     }, getDelayFor('api.user.confirmPasswordReset'));
   };
 
