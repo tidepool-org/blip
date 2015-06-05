@@ -147,7 +147,6 @@ var AppComponent = React.createClass({
     }
 
     this.setupAndStartRouter();
-    this.context.log('component mounter and router started');
   },
 
   setupAndStartRouter: function() {
@@ -306,7 +305,6 @@ var AppComponent = React.createClass({
   },
 
   renderFooter: function() {
-    this.context.log('Rendering footer');
     var title ='Send us feedback';
     var subject = 'Feedback on Blip';
 
@@ -327,7 +325,6 @@ var AppComponent = React.createClass({
   },
 
   renderVersion: function() {
-    this.context.log('Rendering version');
     var version = config.VERSION;
     if (version) {
       version = 'v' + version + ' beta';
@@ -359,7 +356,6 @@ var AppComponent = React.createClass({
   },
 
   renderLogin: function() {
-    this.context.log('Rendering login');
     var email = this.getInviteEmail() || this.getSignupEmail();
     var showAsInvite = !_.isEmpty(this.getInviteEmail());
     return (
