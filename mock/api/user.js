@@ -329,7 +329,7 @@ var patch = function(mock, api) {
       data.confirmations.push(confirmation);
 
       if (callback) {
-        callback(err);
+        callback();
       }
     }, getDelayFor('api.user.requestPasswordReset'));
   };
