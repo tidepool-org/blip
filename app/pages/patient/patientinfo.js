@@ -281,16 +281,15 @@ var PatientInfo = React.createClass({
     return personUtils.patientFullName(patient);
   },
 
-  getAgeText: function(patient) {
+  getAgeText: function(patient, currentDate) {
     var patientInfo = personUtils.patientInfo(patient) || {};
     var birthday = patientInfo.birthday;
 
     if (!birthday) {
       return;
     }
-
-    var yrsAgo = sundial.dateDifference(new Date(), birthday, 'years');
-
+    currentDate = currentDate || new Date();
+    var yrsAgo = sundial.dateDifference(currentDate, birthday, 'years');
     if (yrsAgo === 1) {
       return '1 year old';
     } else if (yrsAgo > 1) {
@@ -298,9 +297,10 @@ var PatientInfo = React.createClass({
     } else {
       return 'Birthdate not known';
     }
+
   },
 
-  getDiagnosisText: function(patient) {
+  getDiagnosisText: function(patient, currentDate) {
     var patientInfo = personUtils.patientInfo(patient) || {};
     var diagnosisDate = patientInfo.diagnosisDate;
 
@@ -308,7 +308,8 @@ var PatientInfo = React.createClass({
       return;
     }
 
-    var yrsAgo = sundial.dateDifference(new Date(), diagnosisDate, 'years');
+    currentDate = currentDate || new Date();
+    var yrsAgo = sundial.dateDifference(currentDate, diagnosisDate, 'years');
 
     if (yrsAgo === 0) {
       return 'Diagnosed this year';
@@ -326,26 +327,38 @@ var PatientInfo = React.createClass({
     return patientInfo.about;
   },
 
+  /**
+   * Given a patient object, extract the values from it 
+   * that needs to be displayed on the patientinfo form
+   * 
+   * @param  {Object} patient
+   * @return {Object} 
+   */
   formValuesFromPatient: function(patient) {
-    if (!patient) {
+    if (!_.isPlainObject(patient) || _.isEmpty(patient)) {
       return {};
     }
 
     var formValues = {};
     var patientInfo = personUtils.patientInfo(patient);
+    var name = personUtils.patientFullName(patient);
 
-    formValues.fullName = personUtils.patientFullName(patient);
-
-    if (patientInfo.birthday) {
-      formValues.birthday =  sundial.translateMask(patientInfo.birthday, SERVER_DATE_FORMAT, FORM_DATE_FORMAT);
+    if (name) {
+      formValues.fullName = name;
     }
 
-    if (patientInfo.diagnosisDate) {
-      formValues.diagnosisDate = sundial.translateMask(patientInfo.diagnosisDate, SERVER_DATE_FORMAT, FORM_DATE_FORMAT);
-    }
+    if (patientInfo) {
+      if (patientInfo.birthday) {
+        formValues.birthday =  sundial.translateMask(patientInfo.birthday, SERVER_DATE_FORMAT, FORM_DATE_FORMAT);
+      }
 
-    if (patientInfo.about) {
-      formValues.about = patientInfo.about;
+      if (patientInfo.diagnosisDate) {
+        formValues.diagnosisDate = sundial.translateMask(patientInfo.diagnosisDate, SERVER_DATE_FORMAT, FORM_DATE_FORMAT);
+      }
+
+      if (patientInfo.about) {
+        formValues.about = patientInfo.about;
+      }
     }
 
     return formValues;
@@ -382,7 +395,18 @@ var PatientInfo = React.createClass({
     }, {});
   },
 
-  validateFormValues: function(formValues) {
+  /**
+   * Validate the form data
+   *  - name has to be present (can only not be present if user is not patient)
+   *  - date of birth needs to be a valid date, and not in the future
+   *  - diagnosis date need to be a valid date, and not in the future, and not before date of birth
+   *  
+   * @param  {Object} formValues
+   * @param  {Date|null} currentDate mainly for testing purposes
+   * 
+   * @return {String|undefined} returns a string if there is an error
+   */
+  validateFormValues: function(formValues, currentDateObj) {
     // Legacy: revisit when proper "child accounts" are implemented
     if (personUtils.patientIsOtherPerson(this.props.patient) &&
         !formValues.fullName) {
@@ -397,6 +421,22 @@ var PatientInfo = React.createClass({
     var diagnosisDate = formValues.diagnosisDate;
     if (!(diagnosisDate && sundial.isValidDateForMask(diagnosisDate,FORM_DATE_FORMAT))) {
       return 'Diagnosis date needs to be a valid date';
+    }
+
+    currentDateObj = currentDateObj || new Date();
+    var birthdayDateObj = sundial.parseFromFormat(birthday, FORM_DATE_FORMAT);
+    var diagnosisDateObj = sundial.parseFromFormat(diagnosisDate, FORM_DATE_FORMAT);
+
+    if (birthdayDateObj > currentDateObj) {
+      return 'Date of birth cannot be in the future!';
+    }
+
+    if (diagnosisDateObj > currentDateObj) {
+      return 'Diagnosis date cannot be in the future!';
+    }
+
+    if (birthdayDateObj > diagnosisDateObj) {
+      return 'Diagnosis cannot be before date of birth!';
     }
 
     var maxLength = 256;
