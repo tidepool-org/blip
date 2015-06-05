@@ -308,6 +308,7 @@ var ModalChart = React.createClass({
     this.chart = modalDay.create(el, {
       bgClasses: this.props.bgClasses,
       bgDomain: this.state.bgDomain,
+      bgUnits: this.props.bgUnits,
       clampTop: true,
       timezone: timezone
     });
