@@ -119,9 +119,9 @@ function objectDifference(destination, source) {
   var result = {};
 
   _.forEach(source, function(sourceValue, key) {
-    var destinactionValue = destination[key];
-    if (!_.isEqual(sourceValue, destinactionValue)) {
-      result[key] = destinactionValue;
+    var destinationValue = destination[key];
+    if (!_.isEqual(sourceValue, destinationValue)) {
+      result[key] = destinationValue;
     }
   });
 
