@@ -1198,7 +1198,11 @@ var AppComponent = React.createClass({
         console.save(combinedData, 'blip-input.json');
       };
       patientData = self.processPatientData(combinedData);
-      var allPatientsData = _.cloneDeep(self.state.patientData) || {};
+      // NOTE: intentional use of _.clone instead of _.cloneDeep
+      // we only need a shallow clone at the top level of the patientId keys
+      // and the _.cloneDeep I had originally would hang the browser for *seconds*
+      // when there was actually something in this.state.patientData
+      var allPatientsData = _.clone(self.state.patientData) || {};
       allPatientsData[patientId] = patientData;
 
       self.setState({
