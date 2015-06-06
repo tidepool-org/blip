@@ -854,9 +854,11 @@ var AppComponent = React.createClass({
     );
     /* jshint ignore:end */
   },
-  handleUpdatePatientData: function(data) {
+  handleUpdatePatientData: function(userid, data) {
+    var patientData = _.cloneDeep(this.state.patientData);
+    patientData[userid] = data;
     this.setState({
-      patientData: data
+      patientData: patientData
     });
   },
   login: function(formValues, cb) {
@@ -1128,13 +1130,20 @@ var AppComponent = React.createClass({
         console.save(combinedData, 'blip-input.json');
       };
       patientData = self.processPatientData(combinedData);
+      
+      // NOTE: intentional use of _.clone instead of _.cloneDeep
+      // we only need a shallow clone at the top level of the patientId keys
+      // and the _.cloneDeep I had originally would hang the browser for *seconds*
+      // when there was actually something in this.state.patientData
+      var allPatientsData = _.clone(self.state.patientData) || {};
+      allPatientsData[patientId] = patientData;
 
       self.setState({
         bgPrefs: {
           bgClasses: patientData.bgClasses,
           bgUnits: patientData.bgUnits
         },
-        patientData: patientData,
+        patientData: allPatientsData,
         fetchingPatientData: false
       });
     });
@@ -1382,43 +1391,49 @@ var AppComponent = React.createClass({
   },
 
   showRequestPasswordReset: function() {
-    this.renderPage = this.renderRequestPasswordReset;
-    this.setState({
-      page: 'request-password-reset'
-    });
-  },
 
-  renderRequestPasswordReset: function() {
-    return (
-      /* jshint ignore:start */
-      <RequestPasswordReset
-        onSubmit={this.context.api.user.requestPasswordReset.bind(this.context.api)}
-        trackMetric={this.context.trackMetric} />
-      /* jshint ignore:end */
-    );
+    this.renderPage = function(){
+      return(
+        /* jshint ignore:start */
+        <RequestPasswordReset
+          onSubmit={this.context.api.user.requestPasswordReset.bind(this.context.api)}
+          trackMetric={this.context.trackMetric} />
+        /* jshint ignore:end */
+      );
+    };
+
+    this.setState({ page: 'request-password-reset'});
   },
 
   showConfirmPasswordReset: function() {
-    this.renderPage = this.renderConfirmPasswordReset;
-    this.setState({
-      page: 'confirm-password-reset'
-    });
+
+    var givenResetKey = this.getQueryParam('resetKey');
+
+    this.renderPage = function(){
+      return(
+        /* jshint ignore:start */
+        <ConfirmPasswordReset
+          resetKey={givenResetKey}
+          onSubmit={this.context.api.user.confirmPasswordReset.bind(this.context.api)}
+          trackMetric={this.context.trackMetric} />
+        /* jshint ignore:end */
+      );
+    };
+
+    this.setState({ page: 'confirm-password-reset'});
   },
 
-  renderConfirmPasswordReset: function() {
-    return (
-      /* jshint ignore:start */
-      <ConfirmPasswordReset
-        key={this.getPasswordResetKey()}
-        onSubmit={this.context.api.user.confirmPasswordReset.bind(this.context.api)}
-        trackMetric={this.context.trackMetric} />
-      /* jshint ignore:end */
-    );
-  },
-
-  getPasswordResetKey: function() {
-    var hashQueryParams = this.context.router.getQueryParams();
-    return hashQueryParams.resetKey;
+  // look for the specified key in the attached queryParams and return the value
+  //
+  // If we don't find what we asked for then log that the value has not been found.
+  // NOTE: The caller can decide how they want to deal with the fact there is no value in this instance
+  getQueryParam: function(key){
+    var params = this.context.router.getQueryParams();
+    var val = params[key];
+    if(_.isEmpty(val)){
+      this.context.log('You asked for ['+key+'] but it was not found in ',params);
+    }
+    return val;
   },
 
   handleExternalPasswordUpdate: function() {
@@ -1428,8 +1443,7 @@ var AppComponent = React.createClass({
       this.setState({page: 'profile'});
     } else {
       // If the user is not logged in, go to the forgot password page
-      this.renderPage = this.renderRequestPasswordReset;
-      this.setState({page: 'request-password-reset'});
+      this.showRequestPasswordReset();
     }
   },
 
