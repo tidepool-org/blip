@@ -65,7 +65,7 @@ var Messages = React.createClass({
     return saveEdit;
   },
   renderNote: function(message){
-    /* jshint ignore:start */
+    
     return (
       <Message
         key={message.id}
@@ -73,10 +73,10 @@ var Messages = React.createClass({
         imageSize='large'
         onSaveEdit={this.getSaveEdit(message.userid)}/>
       );
-    /* jshint ignore:end */
+    
   },
   renderComment:function(message){
-    /* jshint ignore:start */
+    
     return (
       <Message
         key={message.id}
@@ -84,7 +84,7 @@ var Messages = React.createClass({
         imageSize='small'
         onSaveEdit={this.getSaveEdit(message.userid)}/>
       );
-    /* jshint ignore:end */
+    
   },
   renderThread:function(){
 
@@ -98,11 +98,11 @@ var Messages = React.createClass({
         }
       }.bind(this));
 
-      /* jshint ignore:start */
+      
       return (
         <div className='messages-thread'>{thread}</div>
       );
-      /* jshint ignore:end */
+      
     }
 
     return;
@@ -114,7 +114,7 @@ var Messages = React.createClass({
 
     var submitButtonText = 'Comment';
 
-    /* jshint ignore:start */
+    
     return (
       <div className='messages-form'>
         <MessageForm
@@ -123,14 +123,14 @@ var Messages = React.createClass({
           onSubmit={this.handleAddComment}/>
       </div>
     );
-    /* jshint ignore:end */
+    
 
   },
   renderNewThreadForm:function(){
 
     var submitButtonText = 'Post';
 
-    /* jshint ignore:start */
+    
     return (
       <div className='messages-form'>
         <MessageForm
@@ -141,13 +141,13 @@ var Messages = React.createClass({
             onCancel={this.handleClose}/>
       </div>
     );
-      /* jshint ignore:end */
+      
 
   },
   renderClose:function(){
-    /* jshint ignore:start */
+    
     return (<a className='messages-close' onClick={this.handleClose}>Close</a>);
-    /* jshint ignore:end */
+    
   },
   render: function() {
 
@@ -162,7 +162,7 @@ var Messages = React.createClass({
     }
 
     return (
-     /* jshint ignore:start */
+     
      <div className='messages'>
       <div className='messages-inner'>
         <div className='messages-header'>
@@ -174,7 +174,7 @@ var Messages = React.createClass({
         </div>
       </div>
      </div>
-     /* jshint ignore:end */
+     
      );
   },
   getParent : function(){

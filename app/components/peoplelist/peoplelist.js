@@ -73,7 +73,7 @@ var PeopleList = React.createClass({
 
     var removeControls = this.removeablePersonExists(this.props.people) ? this.renderRemoveControls() : null;
 
-      /* jshint ignore:start */
+      
     return (
       <div>
         <ul className={classes}>
@@ -83,7 +83,7 @@ var PeopleList = React.createClass({
         {removeControls}
       </div>
     );
-    /* jshint ignore:end */
+    
   },
 
   removeablePersonExists: function(patients) {
@@ -122,7 +122,7 @@ var PeopleList = React.createClass({
         self.props.onClickPerson(person);
       };
 
-      /* jshint ignore:start */
+      
       return (
         <li key={person.userid || index} className="patient-list-item">
           <PatientCard
@@ -135,36 +135,36 @@ var PeopleList = React.createClass({
             trackMetric={this.props.trackMetric}></PatientCard>
         </li>
       );
-      /* jshint ignore:end */
+      
     }
 
     if (person.link) {
       handleClick = function() {
         self.props.onClickPerson(person);
       };
-      /* jshint ignore:start */
+      
       peopleListItemContent = (
         <PersonCard
           href={person.link}
           onClick={handleClick}>{displayName}</PersonCard>
       );
-      /* jshint ignore:end */
+      
     }
     else {
-      /* jshint ignore:start */
+      
       peopleListItemContent = (
         <PersonCard>{displayName}</PersonCard>
       );
-      /* jshint ignore:end */
+      
     }
 
-    /* jshint ignore:start */
+    
     return (
       <li key={person.userid || index} className="people-list-item">
         {peopleListItemContent}
       </li>
     );
-    /* jshint ignore:end */
+    
   },
 
   getPersonDisplayName: function(person) {

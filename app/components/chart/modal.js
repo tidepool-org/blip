@@ -59,7 +59,7 @@ var Modal = React.createClass({
     };
   },
   render: function() {
-    /* jshint ignore:start */
+    
     return (
       <div id="tidelineMain">
         {this.isMissingSMBG() ? this.renderMissingSMBGHeader() : this.renderHeader()}
@@ -83,10 +83,10 @@ var Modal = React.createClass({
         ref="footer" />
       </div>
       );
-    /* jshint ignore:end */
+    
   },
   renderHeader: function() {
-    /* jshint ignore:start */
+    
     return (
       <Header
         chartType={this.chartType}
@@ -101,7 +101,7 @@ var Modal = React.createClass({
       );
   },
   renderSubNav: function() {
-    /* jshint ignore:start */
+    
     return (
       <SubNav
        activeDays={this.props.chartPrefs.modal.activeDays}
@@ -117,10 +117,10 @@ var Modal = React.createClass({
        toggleWeekends={this.toggleWeekends}
        ref="subnav" />
       );
-    /* jshint ignore:end */
+    
   },
   renderChart: function() {
-    /* jshint ignore:start */
+    
     return (
       <ModalChart
         activeDays={this.props.chartPrefs.modal.activeDays}
@@ -138,10 +138,10 @@ var Modal = React.createClass({
         onSelectDay={this.handleSelectDay}
         ref="chart" />
       );
-    /* jshint ignore:end */
+    
   },
   renderMissingSMBGHeader: function() {
-    /* jshint ignore:start */
+    
     return (
       <Header
         chartType={this.chartType}
@@ -153,14 +153,14 @@ var Modal = React.createClass({
         onClickTwoWeeks={this.handleClickWeekly}
       ref="header" />
     );
-    /* jshint ignore:end */
+    
   },
   renderMissingSMBGMessage: function() {
     var self = this;
     var handleClickUpload = function() {
       self.props.trackMetric('Clicked Partial Data Upload, No SMBG');
     };
-    /* jshint ignore:start */
+    
     return (
       <div className="patient-data-message patient-data-message-loading">
         <p>{'Blip\'s Trends view shows patterns in your finger stick BG data, but it looks like you haven\'t uploaded finger stick data yet.'}</p>
@@ -176,7 +176,7 @@ var Modal = React.createClass({
         </p>
       </div>
     );
-    /* jshint ignore:end */
+    
   },
   formatDate: function(datetime) {
     var timePrefs = this.props.chartPrefs.timePrefs, timezone;
@@ -457,11 +457,11 @@ var ModalChart = React.createClass({
     this.chart.emitter.on('selectDay', this.props.onSelectDay);
   },
   render: function() {
-    /* jshint ignore:start */
+    
     return (
       <div id="tidelineContainer" className="patient-data-chart-modal"></div>
       );
-    /* jshint ignore:end */
+    
   },
   clearAllFilters: function() {
     this.dataByDate.filterAll();

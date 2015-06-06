@@ -33,7 +33,7 @@ var TermsOverlay = React.createClass({
     var submitButton = this.renderSubmitButton();
 
     return (
-      /* jshint ignore:start */
+      
       <div className="terms-overlay js-terms">
         <div className="terms-overlay-content terms-overlay-box">
           <div className="terms-overlay-title">TERMS OF USE</div>
@@ -48,25 +48,25 @@ var TermsOverlay = React.createClass({
           </form>
         </div>
       </div>
-      /* jshint ignore:end */
+      
     );
   },
 
   renderSubmitButton: function() {
     var disabled = !this.state.agreed;
 
-    /* jshint ignore:start */
+    
     return (
       <button
         className="btn btn-primary js-terms-submit"
         onClick={this.handleSubmit}
         disabled={disabled}>Continue</button>
     );
-    /* jshint ignore:end */
+    
   },
 
   renderCheckbox: function() {
-    /* jshint ignore:start */
+    
     return (
       <div className="terms-overlay-form-checkbox">
         <label htmlFor="agreed">
@@ -80,7 +80,7 @@ var TermsOverlay = React.createClass({
         </label>
       </div>
     );
-    /* jshint ignore:end */
+    
   },
 
   handleChange: function(e) {

@@ -30,7 +30,7 @@ var ModalOverlay = React.createClass({
       'ModalOverlay--show': this.props.show
     });
 
-    /* jshint ignore:start */
+    
     return (
       <div className={classes}>
         <div className="ModalOverlay-target" onClick={this.props.overlayClickHandler}></div>
@@ -39,7 +39,7 @@ var ModalOverlay = React.createClass({
         </div>
       </div>
     );
-    /* jshint ignore:end */
+    
   }
 });
 

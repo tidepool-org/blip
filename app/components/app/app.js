@@ -69,6 +69,7 @@ var AppComponent = React.createClass({
     trackMetric: React.PropTypes.func.isRequired,
     DEBUG: React.PropTypes.bool.isRequired
   },
+
   getInitialState: function() {
     var queryParams = queryString.parseTypes(window.location.search);
     var timePrefs = {
@@ -193,7 +194,6 @@ var AppComponent = React.createClass({
     var page = this.renderPage();
     var footer = this.renderFooter();
 
-    /* jshint ignore:start */
     return (
       <div className="app" onClick={this.hideNavbarDropdown}>
         {overlay}
@@ -203,35 +203,31 @@ var AppComponent = React.createClass({
         {footer}
       </div>
     );
-    /* jshint ignore:end */
   },
 
   renderOverlay: function() {
     this.context.log('Rendering overlay');
     if (this.state.loggingOut) {
-      /* jshint ignore:start */
       return (
         <LogoutOverlay ref="logoutOverlay" />
       );
-      /* jshint ignore:end */
+
     }
 
     if (!utils.isChrome() && !this.state.dismissedBrowserWarning) {
-      /* jshint ignore:start */
       return (
         <BrowserWarningOverlay onSubmit={this.handleAcceptedBrowserWarning} />
       );
-      /* jshint ignore:end */
+
     }
 
     if (this.state.showingAcceptTerms) {
-      /* jshint ignore:start */
       return (
         <TermsOverlay
           onSubmit={this.handleAcceptedTerms}
           trackMetric={this.context.trackMetric} />
       );
-      /* jshint ignore:end */
+
     }
 
     return null;
@@ -249,7 +245,7 @@ var AppComponent = React.createClass({
       }
 
       return (
-        /* jshint ignore:start */
+ 
         <div className="App-navbar">
           <Navbar
             user={this.state.user}
@@ -262,7 +258,7 @@ var AppComponent = React.createClass({
             trackMetric={this.context.trackMetric}
             ref="navbar"/>
         </div>
-        /* jshint ignore:end */
+  
       );
     }
 
@@ -287,13 +283,13 @@ var AppComponent = React.createClass({
       }
 
       return (
-        /* jshint ignore:start */
+ 
         <TidepoolNotification
           type={notification.type}
           onClose={handleClose}>
           {notification.body}
         </TidepoolNotification>
-        /* jshint ignore:end */
+  
       );
     }
 
@@ -309,7 +305,6 @@ var AppComponent = React.createClass({
     var subject = 'Feedback on Blip';
 
     return (
-      /* jshint ignore:start */
       <div className='container-small-outer footer'>
         <div className='container-small-inner'>
           <MailTo
@@ -320,7 +315,7 @@ var AppComponent = React.createClass({
         </div>
         {this.renderVersion()}
       </div>
-      /* jshint ignore:end */
+
     );
   },
 
@@ -329,9 +324,9 @@ var AppComponent = React.createClass({
     if (version) {
       version = 'v' + version + ' beta';
       return (
-        /* jshint ignore:start */
+ 
         <div className="Navbar-version" ref="version">{version}</div>
-        /* jshint ignore:end */
+  
       );
     }
     return null;
@@ -359,7 +354,6 @@ var AppComponent = React.createClass({
     var email = this.getInviteEmail() || this.getSignupEmail();
     var showAsInvite = !_.isEmpty(this.getInviteEmail());
     return (
-      /* jshint ignore:start */
       <Login
         onSubmit={this.login}
         seedEmail={email}
@@ -367,7 +361,7 @@ var AppComponent = React.createClass({
         onSubmitSuccess={this.handleLoginSuccess}
         onSubmitNotAuthorized={this.handleNotAuthorized}
         trackMetric={this.context.trackMetric} />
-      /* jshint ignore:end */
+
     );
   },
 
@@ -416,24 +410,22 @@ var AppComponent = React.createClass({
 
   renderSignup: function() {
     return (
-      /* jshint ignore:start */
       <Signup
         onSubmit={this.signup}
         inviteEmail={this.getInviteEmail()}
         onSubmitSuccess={this.handleSignupSuccess}
         trackMetric={this.context.trackMetric} />
-      /* jshint ignore:end */
+
     );
   },
 
   renderEmailVerification: function() {
     return (
-      /* jshint ignore:start */
       <EmailVerification
         sent={this.state.verificationEmailSent}
-        onSubmitResend={api.user.resendEmailVerification.bind(this.context.api)}
+        onSubmitResend={this.context.api.user.resendEmailVerification.bind(this.context.api)}
         trackMetric={this.context.trackMetric}/>
-      /* jshint ignore:end */
+
     );
   },
 
@@ -445,13 +437,12 @@ var AppComponent = React.createClass({
 
   renderProfile: function() {
     return (
-      /* jshint ignore:start */
       <Profile
           user={this.state.user}
           fetchingUser={this.state.fetchingUser}
           onSubmit={this.updateUser}
           trackMetric={this.context.trackMetric}/>
-      /* jshint ignore:end */
+
     );
   },
 
@@ -467,9 +458,7 @@ var AppComponent = React.createClass({
     this.context.trackMetric('Viewed Care Team List');
   },
   renderPatients: function() {
-    var patients;
-    /* jshint ignore:start */
-    patients = <Patients
+    var patients = <Patients
         user={this.state.user}
         fetchingUser={this.state.fetchingUser}
         patients={this.state.patients}
@@ -484,7 +473,6 @@ var AppComponent = React.createClass({
         onAcceptInvitation={this.handleAcceptInvitation}
         onDismissInvitation={this.handleDismissInvitation}
         onRemovePatient={this.handleRemovePatient}/>;
-    /* jshint ignore:end */
 
     // Determine whether to skip the Patients page & go directly to Patient data.
     // If there is only one patient you can see data for, go to the patient's data.
@@ -712,8 +700,6 @@ var AppComponent = React.createClass({
       this.redirectToDefaultRoute();
       return;
     }
-
-    /* jshint ignore:start */
     return (
       <Patient
         user={this.state.user}
@@ -728,7 +714,6 @@ var AppComponent = React.createClass({
         onCancelInvite={this.handleCancelInvite}
         trackMetric={this.context.trackMetric}/>
     );
-    /* jshint ignore:end */
   },
   renderPatientShare: function() {
     // On each state change check if patient object was returned from server
@@ -737,8 +722,6 @@ var AppComponent = React.createClass({
       this.redirectToDefaultRoute();
       return;
     }
-
-    /* jshint ignore:start */
     return (
       <Patient
         user={this.state.user}
@@ -754,7 +737,6 @@ var AppComponent = React.createClass({
         onCancelInvite={this.handleCancelInvite}
         trackMetric={this.context.trackMetric}/>
     );
-    /* jshint ignore:end */
   },
   isDoneFetchingAndNotFoundPatient: function() {
     // Wait for patient object to come back from server
@@ -782,8 +764,6 @@ var AppComponent = React.createClass({
       this.context.router.setRoute(route);
       return;
     }
-
-    /* jshint ignore:start */
     return (
       <PatientNew
           user={this.state.user}
@@ -792,7 +772,6 @@ var AppComponent = React.createClass({
           onSubmitSuccess={this.handlePatientCreationSuccess}
           trackMetric={this.context.trackMetric}/>
     );
-    /* jshint ignore:end */
   },
   isDoneFetchingAndUserHasPatient: function() {
     // Wait to have user object back from server
@@ -831,8 +810,6 @@ var AppComponent = React.createClass({
       this.redirectToDefaultRoute();
       return;
     }
-
-    /* jshint ignore:start */
     return (
       <PatientData
         user={this.state.user}
@@ -852,7 +829,6 @@ var AppComponent = React.createClass({
         onUpdatePatientData={this.handleUpdatePatientData}
         trackMetric={this.context.trackMetric}/>
     );
-    /* jshint ignore:end */
   },
   handleUpdatePatientData: function(data) {
     this.setState({
@@ -1390,11 +1366,10 @@ var AppComponent = React.createClass({
 
   renderRequestPasswordReset: function() {
     return (
-      /* jshint ignore:start */
       <RequestPasswordReset
         onSubmit={this.context.api.user.requestPasswordReset.bind(this.context.api)}
         trackMetric={this.context.trackMetric} />
-      /* jshint ignore:end */
+
     );
   },
 
@@ -1407,12 +1382,11 @@ var AppComponent = React.createClass({
 
   renderConfirmPasswordReset: function() {
     return (
-      /* jshint ignore:start */
       <ConfirmPasswordReset
         key={this.getPasswordResetKey()}
         onSubmit={this.context.api.user.confirmPasswordReset.bind(this.context.api)}
         trackMetric={this.context.trackMetric} />
-      /* jshint ignore:end */
+
     );
   },
 

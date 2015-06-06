@@ -9,8 +9,7 @@
     "build-app": "node buildapp",
     "build-config": "node buildconfig",
     "server": "node server",
-    "jshint": "gulp jshint",
-    "jshint-watch": "gulp jshint-watch"
+    "jsxhint": "node_modules/jsxhint/cli.js 'app/**/*.js' 'mock/**/*.js' 'test/**/*.js' '*.js'"
   },
   "dependencies": {
     "async": "0.9.0",
@@ -43,11 +42,7 @@
   "devDependencies": {
     "blip-mock-data": "tidepool-org/blip-mock-data#v0.3.7",
     "chai": "2.1.2",
-    "gulp": "3.8.11",
-    "gulp-jshint": "1.9.4",
-    "gulp-react": "3.0.1",
-    "jest-cli": "0.4.0",
-    "jshint-stylish": "1.0.1",
+    "jsxhint": "^0.15.1",
     "karma": "0.12.33",
     "karma-chai": "0.1.0",
     "karma-chrome-launcher": "0.1.12",
@@ -69,15 +64,5 @@
   },
   "engines": {
     "node": "0.12.x"
-  },
-  "jest": {
-    "scriptPreprocessor": "app/preprocessor.js",
-    "unmockedModulePathPatterns": [
-      "node_modules/react",
-      "node_modules/sundial",
-      "node_modules/moment",
-      "node_modules/lodash",
-      "node_modules/blip-mock-data"
-    ]
   }
 }

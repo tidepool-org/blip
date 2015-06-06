@@ -30,7 +30,7 @@ var BrowserWarningOverlay = React.createClass({
   render: function() {
     var submitButton = this.renderSubmitButton();
 
-    /* jshint ignore:start */
+    
     return (
       <div className="browser-warning-overlay js-terms">
         <div className="browser-warning-overlay-content browser-warning-overlay-box">
@@ -45,11 +45,11 @@ var BrowserWarningOverlay = React.createClass({
         </div>
       </div>
     );
-    /* jshint ignore:end */
+    
   },
 
   renderSubmitButton: function() {
-    /* jshint ignore:start */
+    
     return (
       <button
         className="btn btn-primary js-terms-submit"
@@ -57,7 +57,7 @@ var BrowserWarningOverlay = React.createClass({
         >I understand, Continue.
       </button>
     );
-    /* jshint ignore:end */
+    
   },
 
   handleSubmit: function(e) {

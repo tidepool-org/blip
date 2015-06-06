@@ -54,7 +54,7 @@ var Settings = React.createClass({
     };
   },
   render: function() {
-    /* jshint ignore:start */
+    
     return (
       <div id="tidelineMain">
         <Header
@@ -83,24 +83,24 @@ var Settings = React.createClass({
         ref="footer" />
       </div>
       );
-    /* jshint ignore:end */
+    
   },
   renderChart: function() {
-    /* jshint ignore:start */
+    
     return (
       <SettingsChart
         bgUnits={this.props.bgPrefs.bgUnits}
         patientData={this.props.patientData}
         ref="chart" />
     );
-    /* jshint ignore:end */
+    
   },
   renderMissingSettingsMessage: function() {
     var self = this;
     var handleClickUpload = function() {
       self.props.trackMetric('Clicked Partial Data Upload, No Settings');
     };
-    /* jshint ignore:start */
+    
     return (
       <div className="patient-data-message patient-data-message-loading">
         <p>{'Blip\'s Device Settings view shows your basal rates, carb ratios, sensitivity factors and more, but it looks like you haven\'t uploaded pump data yet.'}</p>
@@ -116,7 +116,7 @@ var Settings = React.createClass({
         </p>
       </div>
     );
-    /* jshint ignore:end */
+    
   },
   isMissingSettings: function() {
     var data = this.props.patientData;
@@ -190,11 +190,11 @@ var SettingsChart = React.createClass({
     this.chart.load(data);
   },
   render: function() {
-    /* jshint ignore:start */
+    
     return (
       <div id="tidelineContainer" className="patient-data-chart"></div>
       );
-    /* jshint ignore:end */
+    
   }
 });
 

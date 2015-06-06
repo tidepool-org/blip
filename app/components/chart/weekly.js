@@ -58,7 +58,7 @@ var Weekly = React.createClass({
     };
   },
   render: function() {
-    /* jshint ignore:start */
+    
     return (
       <div id="tidelineMain" className="grid">
         {this.isMissingSMBG() ? this.renderMissingSMBGHeader() : this.renderHeader()}
@@ -77,10 +77,10 @@ var Weekly = React.createClass({
         ref="footer" />
       </div>
       );
-    /* jshint ignore:end */
+    
   },
   renderChart: function() {
-    /* jshint ignore:start */
+    
     return (
       <WeeklyChart
         bgClasses={this.props.bgPrefs.bgClasses}
@@ -96,10 +96,10 @@ var Weekly = React.createClass({
         onTransition={this.handleInTransition}
         ref="chart" />
     );
-    /* jshint ignore:end */
+    
   },
   renderHeader: function() {
-    /* jshint ignore:start */
+    
     return (
       <Header
         chartType={this.chartType}
@@ -118,10 +118,10 @@ var Weekly = React.createClass({
         onClickTwoWeeks={this.handleClickTwoWeeks}
       ref="header" />
     );
-    /* jshint ignore:end */
+    
   },
   renderMissingSMBGHeader: function() {
-    /* jshint ignore:start */
+    
     return (
       <Header
         chartType={this.chartType}
@@ -134,14 +134,14 @@ var Weekly = React.createClass({
         onClickTwoWeeks={this.handleClickTwoWeeks}
       ref="header" />
     );
-    /* jshint ignore:end */
+    
   },
   renderMissingSMBGMessage: function() {
     var self = this;
     var handleClickUpload = function() {
       self.props.trackMetric('Clicked Partial Data Upload, No SMBG');
     };
-    /* jshint ignore:start */
+    
     return (
       <div className="patient-data-message patient-data-message-loading">
         <p>{'Blip\'s Weekly view shows a history of your finger stick BG data, but it looks like you haven\'t uploaded finger stick data yet.'}</p>
@@ -157,7 +157,7 @@ var Weekly = React.createClass({
         </p>
       </div>
     );
-    /* jshint ignore:end */
+    
   },
   formatDate: function(datetime) {
     // even when timezoneAware, labels should be generated as if UTC; just trust me (JEB)
@@ -303,11 +303,11 @@ var WeeklyChart = React.createClass({
     }
   },
   render: function() {
-    /* jshint ignore:start */
+    
     return (
       <div id="tidelineContainer" className="patient-data-chart"></div>
       );
-    /* jshint ignore:end */
+    
   },
   // handlers
   handleDatetimeLocationChange: function(datetimeLocationEndpoints) {

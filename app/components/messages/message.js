@@ -108,26 +108,26 @@ var Message = React.createClass({
 
   renderTitle : function(){
     var edit = this.renderEditLink();
-    /* jshint ignore:start */
+    
     return (
       <div>
         {edit}
         <span className='message-author'>{this.state.author}</span>
       </div>
     );
-    /* jshint ignore:end */
+    
   },
 
   renderEditLink : function(){
     if( this.state.editing === false && this.props.onSaveEdit){
       return (
-        /* jshint ignore:start */
+        
         <a
           className='message-edit'
           href=''
           onClick={this.handleAllowEdit}
           ref='editNote'>Edit</a>
-        /* jshint ignore:end */
+        
       );
     }
   },
@@ -143,19 +143,19 @@ var Message = React.createClass({
       imageSource = profileSmallSrc;
     }
 
-    /* jshint ignore:start */
+    
     return (
       <img
         className={'message-picture message-picture-' + imageSize}
         src={imageSource}
         alt='Profile picture'/>
     );
-    /* jshint ignore:end */
+    
   },
   renderNoteEdit:function(){
     if(this.state.editing){
       var editForm;
-       /* jshint ignore:start */
+       
       if ( this.isComment() ){
 
         //we only allow the editing of the text on a comment
@@ -186,7 +186,7 @@ var Message = React.createClass({
           </div>
         </div>
       );
-      /* jshint ignore:end */
+      
     }
   },
   renderNoteContent: function() {
@@ -197,7 +197,7 @@ var Message = React.createClass({
       var title = this.renderTitle();
 
       return this.transferPropsTo(
-        /* jshint ignore:start */
+        
         <div>
           {image}
           <div className='message-body'>
@@ -208,7 +208,7 @@ var Message = React.createClass({
             <div ref='messageText'>{this.state.note}</div>
           </div>
         </div>
-        /* jshint ignore:end */
+        
       );
     }
   },
@@ -222,11 +222,11 @@ var Message = React.createClass({
     }
 
     return (
-      /* jshint ignore:start */
+      
       <div className={noteClasses} >
         {note}
       </div>
-      /* jshint ignore:end */
+      
     );
   }
 });

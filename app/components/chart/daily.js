@@ -57,7 +57,7 @@ var Daily = React.createClass({
     };
   },
   render: function() {
-    /* jshint ignore:start */
+    
     return (
       <div id="tidelineMain">
         <Header
@@ -107,7 +107,7 @@ var Daily = React.createClass({
         ref="footer" />
       </div>
       );
-    /* jshint ignore:end */
+    
   },
   getTitle: function(datetime) {
     var timePrefs = this.props.chartPrefs.timePrefs, timezone;
@@ -255,11 +255,11 @@ var DailyChart = React.createClass({
     }
   },
   render: function() {
-    /* jshint ignore:start */
+    
     return (
       <div id="tidelineContainer" className="patient-data-chart"></div>
       );
-    /* jshint ignore:end */
+    
   },
   // handlers
   handleDatetimeLocationChange: function(datetimeLocationEndpoints) {

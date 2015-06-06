@@ -103,9 +103,9 @@ appContext.start = function() {
     React.withContext(appContext, function() {
       self.log('Starting app...');
       self.component = React.render(
-        /* jshint ignore:start */
+        
         <AppComponent />,
-        /* jshint ignore:end */
+        
         document.getElementById('app')
       );
 
