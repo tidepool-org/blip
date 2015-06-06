@@ -206,12 +206,12 @@ var PatientData = React.createClass({
 
   isEmptyPatientData: function() {
     var patientDataLength =
-      utils.getIn(this.props.patientData, ['data', 'length'], 0);
+      utils.getIn(this.props.patientData[this.props.patient.userid], ['data', 'length'], 0);
     return !Boolean(patientDataLength);
   },
 
   isInsufficientPatientData: function() {
-    var data = this.props.patientData.data;
+    var data = this.props.patientData[this.props.patient.userid].data;
     // add additional checks against data and return false iff:
     // only messages data
     if (_.reject(data, function(d) { return d.type === 'message'; }).length === 0) {
@@ -231,7 +231,7 @@ var PatientData = React.createClass({
             chartPrefs={this.state.chartPrefs}
             imagesBaseUrl={config.IMAGES_ENDPOINT + '/tideline'}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
-            patientData={this.props.patientData}
+            patientData={this.props.patientData[this.props.patient.userid]}
             onClickRefresh={this.handleClickRefresh}
             onCreateMessage={this.handleShowMessageCreation}
             onShowMessageThread={this.handleShowMessageThread}
@@ -251,7 +251,7 @@ var PatientData = React.createClass({
             bgPrefs={this.props.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
-            patientData={this.props.patientData}
+            patientData={this.props.patientData[this.props.patient.userid]}
             onClickRefresh={this.handleClickRefresh}
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToModal={this.handleSwitchToModal}
@@ -272,7 +272,7 @@ var PatientData = React.createClass({
             chartPrefs={this.state.chartPrefs}
             imagesBaseUrl={config.IMAGES_ENDPOINT + '/tideline'}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
-            patientData={this.props.patientData}
+            patientData={this.props.patientData[this.props.patient.userid]}
             onClickRefresh={this.handleClickRefresh}
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToModal={this.handleSwitchToModal}
@@ -291,7 +291,7 @@ var PatientData = React.createClass({
           <Settings
             bgPrefs={this.props.bgPrefs}
             chartPrefs={this.state.chartPrefs}
-            patientData={this.props.patientData}
+            patientData={this.props.patientData[this.props.patient.userid]}
             onClickRefresh={this.handleClickRefresh}
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToModal={this.handleSwitchToModal}
@@ -346,7 +346,7 @@ var PatientData = React.createClass({
 
   handleMessageCreation: function(message){
     var data = this.refs.tideline.createMessageThread(nurseShark.reshapeMessage(message));
-    this.props.onUpdatePatientData(data);
+    this.props.onUpdatePatientData(this.props.patient.userid, data);
     this.props.trackMetric('Created New Message');
   },
 
@@ -364,7 +364,7 @@ var PatientData = React.createClass({
       edit(message, cb);
     }
     var data = this.refs.tideline.editMessageThread(nurseShark.reshapeMessage(message));
-    this.props.onUpdatePatientData(data);
+    this.props.onUpdatePatientData(this.props.patient.userid, data);
     this.props.trackMetric('Edit To Message');
   },
 
