@@ -32,6 +32,47 @@ var tideline = {
   log: bows('Settings')
 };
 
+
+var SettingsChart = React.createClass({
+  chartOpts: ['bgUnits'],
+  log: bows('Settings Chart'),
+  propTypes: {
+    bgUnits: React.PropTypes.string.isRequired,
+    initialDatetimeLocation: React.PropTypes.string,
+    patientData: React.PropTypes.object.isRequired,
+  },
+  componentDidMount: function() {
+    this.mountChart(this.getDOMNode());
+    this.initializeChart(this.props.patientData);
+  },
+  componentWillUnmount: function() {
+    this.unmountChart();
+  },
+  mountChart: function(node, chartOpts) {
+    this.log('Mounting...');
+    this.chart = chartSettingsFactory(node, _.pick(this.props, this.chartOpts));
+  },
+  unmountChart: function() {
+    this.log('Unmounting...');
+    this.chart.destroy();
+  },
+  initializeChart: function(data) {
+    this.log('Initializing...');
+    if (_.isEmpty(data)) {
+      throw new Error('Cannot create new chart with no data');
+    }
+
+    this.chart.load(data);
+  },
+  render: function() {
+    
+    return (
+      <div id="tidelineContainer" className="patient-data-chart"></div>
+      );
+    
+  }
+});
+
 var Settings = React.createClass({
   chartType: 'settings',
   log: bows('Settings View'),
@@ -155,46 +196,6 @@ var Settings = React.createClass({
       e.preventDefault();
     }
     this.props.onSwitchToWeekly();
-  }
-});
-
-var SettingsChart = React.createClass({
-  chartOpts: ['bgUnits'],
-  log: bows('Settings Chart'),
-  propTypes: {
-    bgUnits: React.PropTypes.string.isRequired,
-    initialDatetimeLocation: React.PropTypes.string,
-    patientData: React.PropTypes.object.isRequired,
-  },
-  componentDidMount: function() {
-    this.mountChart(this.getDOMNode());
-    this.initializeChart(this.props.patientData);
-  },
-  componentWillUnmount: function() {
-    this.unmountChart();
-  },
-  mountChart: function(node, chartOpts) {
-    this.log('Mounting...');
-    this.chart = chartSettingsFactory(node, _.pick(this.props, this.chartOpts));
-  },
-  unmountChart: function() {
-    this.log('Unmounting...');
-    this.chart.destroy();
-  },
-  initializeChart: function(data) {
-    this.log('Initializing...');
-    if (_.isEmpty(data)) {
-      throw new Error('Cannot create new chart with no data');
-    }
-
-    this.chart.load(data);
-  },
-  render: function() {
-    
-    return (
-      <div id="tidelineContainer" className="patient-data-chart"></div>
-      );
-    
   }
 });
 
