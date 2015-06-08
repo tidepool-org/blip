@@ -64,7 +64,7 @@ describe('Patient', function () {
       var elem = TestUtils.renderIntoDocument(patientElem);
       var getShareSection = function() {
         TestUtils.findRenderedDOMComponentWithClass(elem, 'PatientPage-teamSection');
-      }
+      };
 
       expect(getShareSection).to.throw(Error);
       expect(console.warn.callCount).to.equal(0);
@@ -87,7 +87,7 @@ describe('Patient', function () {
       var elem = TestUtils.renderIntoDocument(patientElem);
       var getShareSection = function() {
         TestUtils.findRenderedDOMComponentWithClass(elem, 'PatientPage-teamSection');
-      }
+      };
 
       expect(getShareSection).to.throw(Error);
       expect(console.warn.callCount).to.equal(0);
