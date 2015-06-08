@@ -22,7 +22,6 @@ var personUtils = require('../../core/personutils');
 var Invitation = React.createClass({
   propTypes: {
     invitation: React.PropTypes.object,
-    patientsComponent: React.PropTypes.component,
     onAcceptInvitation: React.PropTypes.func,
     onDismissInvitation: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired,

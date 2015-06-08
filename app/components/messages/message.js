@@ -196,7 +196,7 @@ var Message = React.createClass({
       var image = this.renderImage();
       var title = this.renderTitle();
 
-      return this.transferPropsTo(
+      return (
         /* jshint ignore:start */
         <div>
           {image}
