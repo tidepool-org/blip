@@ -28,46 +28,45 @@ module.exports = function(opts) {
 
   var msStartString = function(x) { return format.millisecondsAsTimeOfDay(x); };
   var defaults = {
-    'bgUnits': 'mg/dL',
-    'sections': {
-      'basal': {
-        'label': 'Basal Rates',
-        'columnTypes': ['basalSchedules']
+    sections: {
+      basal: {
+        label: 'Basal Rates',
+        columnTypes: ['basalSchedules']
       },
-      'wizard': {
-        'label': 'Bolus Wizard',
-        'columnTypes': ['carbRatio', 'insulinSensitivity', 'bgTarget']
+      wizard: {
+        label: 'Bolus Wizard',
+        columnTypes: ['carbRatio', 'insulinSensitivity', 'bgTarget']
       }
     },
-    'labelsByType': {
-      'carbRatio': 'Insulin to Carb Ratio (I:C)',
-      'insulinSensitivity': 'Sensitivity (ISF, Correction)',
-      'bgTarget': 'BG Target'
+    labelsByType: {
+      carbRatio: 'Insulin to Carb Ratio (I:C)',
+      insulinSensitivity: 'Sensitivity (ISF, Correction)',
+      bgTarget: 'BG Target'
     },
-    'rowHeadersByType': {
-      'basalSchedules': ['Start time', 'Value (U/hr)'],
-      'basalScheduleSum': ['Total', (function() { return 0.0; }())],
-      'carbRatio': ['Start time', 'Value (g/U)'],
-      'insulinSensitivity': ['Start time', 'Value (' + opts.bgUnits + '/U)'],
-      'bgTarget': ['Start time', 'Low (' + opts.bgUnits + ')', 'High (' + opts.bgUnits + ')']
+    rowHeadersByType: {
+      basalSchedules: ['Start time', 'Value (U/hr)'],
+      basalScheduleSum: ['Total', (function() { return 0.0; }())],
+      carbRatio: ['Start time', 'Value (g/U)'],
+      insulinSensitivity: ['Start time', 'Value (' + opts.bgUnits + '/U)'],
+      bgTarget: ['Start time', 'Low (' + opts.bgUnits + ')', 'High (' + opts.bgUnits + ')']
     },
-    'mapsByType': {
-      'basalSchedules': {
-        'start': msStartString,
-        'rate': function(x) { return x.toFixed(3); }
+    mapsByType: {
+      basalSchedules: {
+        start: msStartString,
+        rate: function(x) { return x.toFixed(3); }
       },
-      'carbRatio': {
-        'start': msStartString,
-        'amount': function(x) { return x; }
+      carbRatio: {
+        start: msStartString,
+        amount: function(x) { return x; }
       },
-      'insulinSensitivity': {
-        'start': msStartString,
-        'amount': function(x) { return x; }
+      insulinSensitivity: {
+        start: msStartString,
+        amount: function(x) { return format.tooltipBG({value: x}, opts.bgUnits); }
       },
-      'bgTarget': {
-        'start': msStartString,
-        'low': function(x) { return x; },
-        'high': function(x) { return x; }
+      bgTarget: {
+        start: msStartString,
+        low: function(x) { return format.tooltipBG({value: x}, opts.bgUnits); },
+        high: function(x) { return format.tooltipBG({value: x}, opts.bgUnits); }
       }
     }
   };
