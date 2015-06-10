@@ -67,30 +67,10 @@ describe('TidelineData', function() {
     expect(td.bgUnits).to.equal('mg/dL');
   });
 
-  it('should have `mixed` for `bgUnits` when blood glucose data is of mixed units', function() {
-    var data = [
-      new types.SMBG(),
-      new types.CBG()
-    ];
-    data[1].units = 'mmol/L';
-    var thisTd = new TidelineData(data);
-    expect(thisTd.bgUnits).to.equal('mixed');
-  });
-
-  it('should maintain default `bgClasses` when blood glucose data is of mixed units', function() {
-    var data = [
-      new types.SMBG(),
-      new types.CBG()
-    ];
-    data[1].units = 'mmol/L';
-    var thisTd = new TidelineData(data);
-    expect(thisTd.bgClasses).to.eql(bgClasses);
-  });
-
   it('should transform `bgClasses` when `bgUnits` are mmol/L', function() {
     var data = [new types.SMBG()];
     data[0].units = 'mmol/L';
-    var thisTd = new TidelineData(data);
+    var thisTd = new TidelineData(data, {bgUnits: 'mmol/L'});
     expect(thisTd.bgClasses).to.not.eql(bgClasses);
     expect(thisTd.bgUnits).to.equal('mmol/L');
   });
@@ -335,25 +315,21 @@ describe('TidelineData', function() {
       expect(thisTd.bgClasses).to.eql(defaultBgClasses);
     });
 
-    it('should set bgUnits to mg/dL', function() {
-      expect(thisTd.bgUnits).to.eql('mg/dL');
-    });
-
-    it('should set bgUnits to `mixed` when data is mixed', function() {
-      var mixedData = [
-        new types.SMBG({deviceTime: '2014-09-13T05:00:00', units: 'mmol/L'}),
-        new types.SMBG({deviceTime: '2014-09-14T19:00:00'})
-      ];
-      var thisTd = new TidelineData(mixedData);
-      expect(thisTd.bgUnits).to.equal('mixed');
-    });
-
-    it('should set bgUnits to mmol/L when data is mmol/L', function() {
+    it('should default bgUnits to mg/dL', function() {
       var mmolData = [
         new types.SMBG({deviceTime: '2014-09-13T05:00:00', units: 'mmol/L'}),
         new types.SMBG({deviceTime: '2014-09-14T19:00:00', units: 'mmol/L'})
       ];
       var thisTd = new TidelineData(mmolData);
+      expect(thisTd.bgUnits).to.eql('mg/dL');
+    });
+
+    it('should set bgUnits to mmol/L when mmol/L opt is passed in', function() {
+      var mmolData = [
+        new types.SMBG({deviceTime: '2014-09-13T05:00:00', units: 'mmol/L'}),
+        new types.SMBG({deviceTime: '2014-09-14T19:00:00', units: 'mmol/L'})
+      ];
+      var thisTd = new TidelineData(mmolData, {bgUnits: 'mmol/L'});
       expect(thisTd.bgUnits).to.equal('mmol/L');
     });
   });

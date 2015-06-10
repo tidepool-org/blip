@@ -564,13 +564,13 @@ describe('nurseshark', function() {
       var now = new Date().toISOString();
       var bgs = [{
         type: 'cbg',
-        units: 'mg/dL',
+        units: 'mmol/L',
         value: 14.211645580300173,
         time: now,
         timezoneOffset: 0
       }, {
         type: 'smbg',
-        units: 'mg/dL',
+        units: 'mmol/L',
         value: 2.487452256628842,
         time: now,
         timezoneOffset: 0
@@ -581,10 +581,10 @@ describe('nurseshark', function() {
         time: now,
         timezoneOffset: 0
       }];
-      var res = nurseshark.processData(bgs).processedData;
+      var res = nurseshark.processData(bgs, 'mg/dL').processedData;
       expect(res[0].value).to.equal(256);
       expect(res[1].value).to.equal(45);
-      expect(res[2].value).to.equal(7.048584587016023);
+      expect(res[2].value).to.equal(127);
     });
 
     it('should translate wizard bg-related fields to mg/dL when such units specified', function() {
@@ -592,7 +592,7 @@ describe('nurseshark', function() {
       var datum = [{
         type: 'wizard',
         time: now,
-        units: 'mg/dL',
+        units: 'mmol/L',
         bgInput: 15.1518112923307,
         bgTarget: {
           high: 5.550747991045533,
@@ -601,7 +601,7 @@ describe('nurseshark', function() {
         insulinSensitivity: 3.7753739955227665,
         timezoneOffset: 0
       }];
-      var res = nurseshark.processData(datum).processedData[0];
+      var res = nurseshark.processData(datum, 'mg/dL').processedData[0];
       expect(res.bgInput).to.equal(273);
       expect(res.bgTarget.low).to.equal(100);
       expect(res.bgTarget.high).to.equal(100);
@@ -614,7 +614,7 @@ describe('nurseshark', function() {
         type: 'settings',
         time: now,
         units: {
-          bg: 'mg/dL',
+          bg: 'mmol/L',
           carb: 'grams'
         },
         bgTarget: [{
@@ -633,7 +633,7 @@ describe('nurseshark', function() {
         ],
         timezoneOffset: 0
       }];
-      var res = nurseshark.processData(settings).processedData[0];
+      var res = nurseshark.processData(settings, 'mg/dL').processedData[0];
       expect(res.bgTarget[0].target).to.equal(120);
       expect(res.bgTarget[0].range).to.equal(10);
       expect(res.insulinSensitivity[0].amount).to.equal(80);
