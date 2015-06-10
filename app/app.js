@@ -160,6 +160,15 @@ var AppComponent = React.createClass({
         console.log(new Error('Invalid timezone name in query parameter. (Try capitalizing properly.)'));
       }
     }
+    var bgPrefs = {
+      bgUnits: 'mg/dL'
+    };
+    if (!_.isEmpty(queryParams.units)) {
+      var queryUnits = queryParams.units.toLowerCase();
+      if (queryUnits === 'mmoll') {
+        bgPrefs.bgUnits = 'mmol/L';
+      }
+    }
     return {
       authenticated: app.api.user.isAuthenticated(),
       notification: null,
@@ -175,7 +184,7 @@ var AppComponent = React.createClass({
       fetchingInvites: true,
       pendingInvites:null,
       fetchingPendingInvites: true,
-      bgPrefs: null,
+      bgPrefs: bgPrefs,
       timePrefs: timePrefs,
       patientData: null,
       fetchingPatientData: true,
