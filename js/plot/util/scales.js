@@ -21,7 +21,9 @@ var _ = require('lodash');
 var commonbolus = require('./commonbolus');
 
 var scales = function(opts) {
-  opts = opts || {};
+  opts = _.assign({}, opts) || {};
+
+  var GLUCOSE_MM = 18.01559;
 
   var defaults = {
     bgUnits: 'mg/dL',
@@ -30,8 +32,12 @@ var scales = function(opts) {
     MAX_CBG: 401,
     carbRadius: 14
   };
-
   _.defaults(opts, defaults);
+
+  if (opts.bgUnits === 'mmol/L') {
+    opts.MIN_CBG = opts.MIN_CBG/GLUCOSE_MM;
+    opts.MAX_CBG = opts.MAX_CBG/GLUCOSE_MM;
+  }
 
   return {
     MIN_CBG: opts.MIN_CBG,
