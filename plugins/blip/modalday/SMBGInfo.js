@@ -3,6 +3,7 @@ var d3 = window.d3;
 
 var tideline = require('../../../js/index');
 var dt = tideline.data.util.datetime;
+var format = tideline.data.util.format;
 
 d3.chart('SMBGInfo', {
   initialize: function() {
@@ -27,20 +28,19 @@ d3.chart('SMBGInfo', {
       },
       events: {
         enter: function() {
-          var opts = chart.opts().infoRects;
+          var rectOpts = chart.opts().infoRects;
           var toEnter = this;
           toEnter.append('rect')
             .attr({
               x: function(d) {
-                return xPosition(d) - opts.width/2;
+                return xPosition(d) - rectOpts.width/2;
               },
               y: function(d) {
-                return yPosition(d) + opts.height/2;
+                return yPosition(d) + rectOpts.height/2;
               },
-              width: opts.width,
-              height: opts.height
+              width: rectOpts.width,
+              height: rectOpts.height
             });
-
           toEnter.append('text')
             .attr({
               x: xPosition,
@@ -48,10 +48,15 @@ d3.chart('SMBGInfo', {
                 return yPosition(d) + chart.opts().textShift.y;
               }
             })
-            .text(function(d) { return d.value; });
+            .text(function(d) { return format.tooltipBG(d, chart.bgUnits()); });
         }
       }
     });
+  },
+  bgUnits: function(bgUnits) {
+    if (!arguments.length) { return this._bgUnits; }
+    this._bgUnits = bgUnits;
+    return this;
   },
   opts: function(opts) {
     if (!arguments.length) { return this._opts; }
@@ -81,6 +86,7 @@ module.exports = {
   create: function(el, scales, opts) {
     opts = opts || {};
     var defaults = {
+      bgUnits: 'mg/dL',
       opts: {
         infoRects: {
           height: 20,
@@ -95,6 +101,7 @@ module.exports = {
 
     chart = d3.select(el)
       .chart('SMBGInfo')
+      .bgUnits(opts.bgUnits)
       .opts(opts.opts)
       .timezone(opts.timezone)
       .xScale(scales.x)
