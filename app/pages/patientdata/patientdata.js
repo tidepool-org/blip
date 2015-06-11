@@ -39,7 +39,8 @@ var PatientData = React.createClass({
     timePrefs: React.PropTypes.object.isRequired,
     patientData: React.PropTypes.object,
     patient: React.PropTypes.object,
-    fetchingPatientData: React.PropTypes.bool,
+    fetchingPatient: React.PropTypes.bool.isRequired,
+    fetchingPatientData: React.PropTypes.bool.isRequired,
     isUserPatient: React.PropTypes.bool,
     queryParams: React.PropTypes.object.isRequired,
     uploadUrl: React.PropTypes.string,
@@ -116,7 +117,7 @@ var PatientData = React.createClass({
   },
 
   renderPatientData: function() {
-    if (this.props.fetchingPatientData) {
+    if (this.props.fetchingPatient || this.props.fetchingPatientData) {
       return this.renderLoading();
     }
 
