@@ -245,7 +245,6 @@ module.exports = function(pool, opts) {
         class: 'd3-stats-rect rect-right'
       });
 
-    var allBG = opts.smbg.data.concat(opts.cbg.data);
     // scales expects 2nd arg to have a .height() function
     var rect = {
       height: function() { return pool.height() * 4/5; }
