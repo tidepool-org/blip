@@ -817,6 +817,7 @@ var AppComponent = React.createClass({
         bgPrefs={this.state.bgPrefs}
         timePrefs={this.state.timePrefs}
         patientData={this.state.patientData}
+        fetchingPatient={this.state.fetchingPatient}
         fetchingPatientData={this.state.fetchingPatientData}
         isUserPatient={this.isSamePersonUserAndPatient()}
         queryParams={this.state.queryParams}
