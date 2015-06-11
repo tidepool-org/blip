@@ -39,7 +39,8 @@ var PatientData = React.createClass({
     timePrefs: React.PropTypes.object.isRequired,
     patientData: React.PropTypes.object,
     patient: React.PropTypes.object,
-    fetchingPatientData: React.PropTypes.bool,
+    fetchingPatient: React.PropTypes.bool.isRequired,
+    fetchingPatientData: React.PropTypes.bool.isRequired,
     isUserPatient: React.PropTypes.bool,
     queryParams: React.PropTypes.object.isRequired,
     uploadUrl: React.PropTypes.string,
@@ -115,7 +116,7 @@ var PatientData = React.createClass({
   },
 
   renderPatientData: function() {
-    if (this.props.fetchingPatientData) {
+    if (this.props.fetchingPatient || this.props.fetchingPatientData) {
       return this.renderLoading();
     }
 
@@ -205,12 +206,12 @@ var PatientData = React.createClass({
 
   isEmptyPatientData: function() {
     var patientDataLength =
-      utils.getIn(this.props.patientData, ['data', 'length'], 0);
+      utils.getIn(this.props.patientData, [this.props.patient.userid, 'data', 'length'], 0);
     return !Boolean(patientDataLength);
   },
 
   isInsufficientPatientData: function() {
-    var data = this.props.patientData.data;
+    var data = this.props.patientData[this.props.patient.userid].data;
     // add additional checks against data and return false iff:
     // only messages data
     if (_.reject(data, function(d) { return d.type === 'message'; }).length === 0) {
@@ -231,7 +232,7 @@ var PatientData = React.createClass({
             timePrefs={this.props.timePrefs}
             imagesBaseUrl={config.IMAGES_ENDPOINT + '/tideline'}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
-            patientData={this.props.patientData}
+            patientData={this.props.patientData[this.props.patient.userid]}
             onClickRefresh={this.handleClickRefresh}
             onCreateMessage={this.handleShowMessageCreation}
             onShowMessageThread={this.handleShowMessageThread}
@@ -252,7 +253,7 @@ var PatientData = React.createClass({
             chartPrefs={this.state.chartPrefs}
             timePrefs={this.props.timePrefs}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
-            patientData={this.props.patientData}
+            patientData={this.props.patientData[this.props.patient.userid]}
             onClickRefresh={this.handleClickRefresh}
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToModal={this.handleSwitchToModal}
@@ -274,7 +275,7 @@ var PatientData = React.createClass({
             timePrefs={this.props.timePrefs}
             imagesBaseUrl={config.IMAGES_ENDPOINT + '/tideline'}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
-            patientData={this.props.patientData}
+            patientData={this.props.patientData[this.props.patient.userid]}
             onClickRefresh={this.handleClickRefresh}
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToModal={this.handleSwitchToModal}
@@ -294,7 +295,7 @@ var PatientData = React.createClass({
             bgPrefs={this.props.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             timePrefs={this.props.timePrefs}
-            patientData={this.props.patientData}
+            patientData={this.props.patientData[this.props.patient.userid]}
             onClickRefresh={this.handleClickRefresh}
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToModal={this.handleSwitchToModal}
@@ -349,7 +350,7 @@ var PatientData = React.createClass({
 
   handleMessageCreation: function(message){
     var data = this.refs.tideline.createMessageThread(nurseShark.reshapeMessage(message));
-    this.props.onUpdatePatientData(data);
+    this.props.onUpdatePatientData(this.props.patient.userid, data);
     this.props.trackMetric('Created New Message');
   },
 
@@ -367,7 +368,7 @@ var PatientData = React.createClass({
       edit(message, cb);
     }
     var data = this.refs.tideline.editMessageThread(nurseShark.reshapeMessage(message));
-    this.props.onUpdatePatientData(data);
+    this.props.onUpdatePatientData(this.props.patient.userid, data);
     this.props.trackMetric('Edit To Message');
   },
 
@@ -414,8 +415,8 @@ var PatientData = React.createClass({
       fromChart: this.state.chartType
     });
     datetime = datetime || this.state.datetimeLocation;
-    if (this.state.chartPrefs.timePrefs.timezoneAware) {
-      datetime = sundial.applyOffset(datetime, sundial.getOffsetFromZone(datetime, this.state.chartPrefs.timePrefs.timezoneName));
+    if (this.props.timePrefs.timezoneAware) {
+      datetime = sundial.applyOffset(datetime, sundial.getOffsetFromZone(datetime, this.props.timePrefs.timezoneName));
       datetime = datetime.toISOString();
     }
     this.setState({

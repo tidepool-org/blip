@@ -26,7 +26,7 @@ var SimpleForm = require('../../components/simpleform');
 
 var ConfirmPasswordReset = React.createClass({
   propTypes: {
-    key: React.PropTypes.string,
+    resetKey: React.PropTypes.string.isRequired,
     onSubmit: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired
   },
@@ -189,7 +189,7 @@ var ConfirmPasswordReset = React.createClass({
 
   prepareFormValuesForSubmit: function(formValues) {
     return {
-      key: this.props.key,
+      key: this.props.resetKey,
       email: formValues.email,
       password: formValues.password
     };
