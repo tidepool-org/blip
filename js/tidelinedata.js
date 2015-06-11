@@ -27,6 +27,7 @@ var BasalUtil = require('./data/basalutil');
 var BolusUtil = require('./data/bolusutil');
 var BGUtil = require('./data/bgutil');
 var dt = require('./data/util/datetime');
+var constants = require('./data/util/constants');
 
 var log;
 if (typeof window !== 'undefined') {
@@ -322,9 +323,8 @@ function TidelineData(data, opts) {
     this.bgClasses = opts.bgClasses;
     this.bgUnits = opts.bgUnits;
     if (this.bgUnits === 'mmol/L') { 
-      var GLUCOSE_MM = 18.01559;
       for (var key in opts.bgClasses) {
-        opts.bgClasses[key].boundary = opts.bgClasses[key].boundary/GLUCOSE_MM;
+        opts.bgClasses[key].boundary = opts.bgClasses[key].boundary/constants.GLUCOSE_MM;
       } 
     }
     endTimer('setBGPrefs');

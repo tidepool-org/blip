@@ -25,6 +25,7 @@ require('./local/local_tests');
 /* js/ */
 require('./tidelinedata_test');
 /* js/data/ */
+require('./constants_test');
 require('./format_test');
 require('./datetime_test');
 require('./basalutil_test');

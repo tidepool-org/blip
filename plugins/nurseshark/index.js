@@ -21,6 +21,7 @@ var _ = require('lodash');
 var crossfilter = require('crossfilter');
 var util = require('util');
 
+var constants = require('../../js/data/util/constants');
 var dt = require('../../js/data/util/datetime');
 
 var log;
@@ -32,8 +33,7 @@ else {
 }
 
 function translateBg(value) {
-  var GLUCOSE_MM = 18.01559;
-  return Math.round(GLUCOSE_MM * value);
+  return Math.round(constants.GLUCOSE_MM * value);
 }
 
 function isBadStatus(d) {
