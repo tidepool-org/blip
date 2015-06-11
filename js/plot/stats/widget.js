@@ -251,7 +251,7 @@ module.exports = function(pool, opts) {
       height: function() { return pool.height() * 4/5; }
     };
 
-    rectScale = scales.bgLog(allBG, rect, opts.size/2);
+    rectScale = scales.bgClamped([opts.classes['very-low'].boundary, opts.classes['very-high'].boundary], rect, opts.size/2);
 
     rectGroup.append('line')
       .attr({

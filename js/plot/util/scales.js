@@ -42,6 +42,12 @@ var scales = function(opts) {
   return {
     MIN_CBG: opts.MIN_CBG,
     MAX_CBG: opts.MAX_CBG,
+    bgClamped: function(domain, pool, pad) {
+      return d3.scale.linear()
+        .domain(domain)
+        .range([pool.height() - pad, pad])
+        .clamp(true);
+    },
     bg: function(data, pool, pad) {
       var ext = d3.extent(data, function(d) { return d.value; });
       if (ext[1] > this.MAX_CBG || ext[0] === ext[1]) {
