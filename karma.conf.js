@@ -9,16 +9,20 @@ module.exports = function (config) {
     browsers: [ 'PhantomJS' ], // Use PhantomJS for now (@gordyd - I'm using a VM)
     captureTimeout: 60000,
     browserNoActivityTimeout: 60000, // We need to accept that Webpack may take a while to build!
-    singleRun: true,
+    singleRun: false,
+    autoWatch: true,
+    colors: true,
     frameworks: [ 'mocha', 'sinon', 'chai' ], // Mocha is our testing framework of choice
     files: [
-      'tests.webpack.js' // We're using Webpack to build
+      { pattern: 'tests.webpack.js', watched: false },
+      { pattern: 'app/**/*.js', included: false, served: false, watched: true },
     ],
     preprocessors: {
       'tests.webpack.js': [ 'webpack', 'sourcemap' ] // Preprocess with webpack and our sourcemap loader
     },
     reporters: [ 'mocha' ],
     webpack: { // Simplified Webpack configuration
+      devtool: 'inline-source-map',
       module: {
         loaders: [
           {test: /\.js$/, loader: 'jsx-loader'},
@@ -34,6 +38,7 @@ module.exports = function (config) {
           {test: /\.json$/, loader: 'json-loader'}
         ]
       },
+      watch: true,
       plugins: [
         defineEnvPlugin
       ]
