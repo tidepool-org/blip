@@ -38,6 +38,7 @@ var Settings = React.createClass({
   propTypes: {
     bgPrefs: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
+    timePrefs: React.PropTypes.object.isRequired,
     patientData: React.PropTypes.object.isRequired,
     onClickRefresh: React.PropTypes.func.isRequired,
     onSwitchToDaily: React.PropTypes.func.isRequired,

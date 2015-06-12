@@ -37,6 +37,7 @@ var Modal = React.createClass({
   propTypes: {
     bgPrefs: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
+    timePrefs: React.PropTypes.object.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
     // refresh handler
@@ -132,7 +133,7 @@ var Modal = React.createClass({
         boxOverlay={this.props.chartPrefs.modal.boxOverlay}
         grouped={this.props.chartPrefs.modal.grouped}
         showingLines={this.props.chartPrefs.modal.showingLines}
-        timePrefs={this.props.chartPrefs.timePrefs}
+        timePrefs={this.props.timePrefs}
         // handlers
         onDatetimeLocationChange={this.handleDatetimeLocationChange}
         onSelectDay={this.handleSelectDay}
@@ -179,7 +180,7 @@ var Modal = React.createClass({
     /* jshint ignore:end */
   },
   formatDate: function(datetime) {
-    var timePrefs = this.props.chartPrefs.timePrefs, timezone;
+    var timePrefs = this.props.timePrefs, timezone;
     if (!timePrefs.timezoneAware) {
       timezone = 'UTC';
     }
@@ -194,7 +195,7 @@ var Modal = React.createClass({
     return this.formatDate(datetimeLocationEndpoints[0]) + ' - ' + this.formatDate(end);
   },
   getNewDomain: function(current, extent) {
-    var timePrefs = this.props.chartPrefs.timePrefs, timezone;
+    var timePrefs = this.props.timePrefs, timezone;
     if (!timePrefs.timezoneAware) {
       timezone = 'UTC';
     }

@@ -119,9 +119,9 @@ function objectDifference(destination, source) {
   var result = {};
 
   _.forEach(source, function(sourceValue, key) {
-    var destinactionValue = destination[key];
-    if (!_.isEqual(sourceValue, destinactionValue)) {
-      result[key] = destinactionValue;
+    var destinationValue = destination[key];
+    if (!_.isEqual(sourceValue, destinationValue)) {
+      result[key] = destinationValue;
     }
   });
 
@@ -145,8 +145,7 @@ var AppComponent = React.createClass({
     var queryParams = queryString.parseTypes(window.location.search);
     var timePrefs = {
       timezoneAware: false,
-      // TODO: remove hardcoding of this in future once we actually introduce arbitrary timezone support
-      timezoneName: 'US/Pacific'
+      timezoneName: null
     };
     if (!_.isEmpty(queryParams.timezone)) {
       var queryTimezone = queryParams.timezone.replace('-', '/');
@@ -157,7 +156,16 @@ var AppComponent = React.createClass({
         app.log('Viewing data in timezone-aware mode with', queryTimezone, 'as the selected timezone.');
       }
       catch(err) {
-        console.log(new Error('Invalid timezone name in query parameter. (Try capitalizing properly.)'));
+        app.log(new Error('Invalid timezone name in query parameter. (Try capitalizing properly.)'));
+      }
+    }
+    var bgPrefs = {
+      bgUnits: 'mg/dL'
+    };
+    if (!_.isEmpty(queryParams.units)) {
+      var queryUnits = queryParams.units.toLowerCase();
+      if (queryUnits === 'mmoll') {
+        bgPrefs.bgUnits = 'mmol/L';
       }
     }
     return {
@@ -175,7 +183,7 @@ var AppComponent = React.createClass({
       fetchingInvites: true,
       pendingInvites:null,
       fetchingPendingInvites: true,
-      bgPrefs: null,
+      bgPrefs: bgPrefs,
       timePrefs: timePrefs,
       patientData: null,
       fetchingPatientData: true,
@@ -908,6 +916,7 @@ var AppComponent = React.createClass({
         bgPrefs={this.state.bgPrefs}
         timePrefs={this.state.timePrefs}
         patientData={this.state.patientData}
+        fetchingPatient={this.state.fetchingPatient}
         fetchingPatientData={this.state.fetchingPatientData}
         isUserPatient={this.isSamePersonUserAndPatient()}
         queryParams={this.state.queryParams}
@@ -922,9 +931,11 @@ var AppComponent = React.createClass({
     );
     /* jshint ignore:end */
   },
-  handleUpdatePatientData: function(data) {
+  handleUpdatePatientData: function(userid, data) {
+    var patientData = _.cloneDeep(this.state.patientData);
+    patientData[userid] = data;
     this.setState({
-      patientData: data
+      patientData: patientData
     });
   },
   login: function(formValues, cb) {
@@ -1196,13 +1207,19 @@ var AppComponent = React.createClass({
         console.save(combinedData, 'blip-input.json');
       };
       patientData = self.processPatientData(combinedData);
+      // NOTE: intentional use of _.clone instead of _.cloneDeep
+      // we only need a shallow clone at the top level of the patientId keys
+      // and the _.cloneDeep I had originally would hang the browser for *seconds*
+      // when there was actually something in this.state.patientData
+      var allPatientsData = _.clone(self.state.patientData) || {};
+      allPatientsData[patientId] = patientData;
 
       self.setState({
         bgPrefs: {
           bgClasses: patientData.bgClasses,
-          bgUnits: patientData.bgUnits
+          bgUnits: self.state.bgPrefs.bgUnits
         },
-        patientData: patientData,
+        patientData: allPatientsData,
         fetchingPatientData: false
       });
     });
@@ -1232,11 +1249,45 @@ var AppComponent = React.createClass({
       return null;
     }
 
+    var mostRecentUpload = _.sortBy(_.where(data, {type: 'upload'}), function(d) {
+      return Date.parse(d.time);
+    }).reverse()[0];
+    var timePrefsForTideline;
+    if (!_.isEmpty(mostRecentUpload) && !_.isEmpty(mostRecentUpload.timezone)) {
+      try {
+        sundial.checkTimezoneName(mostRecentUpload.timezone);
+        timePrefsForTideline = {
+          timezoneAware: true,
+          timezoneName: mostRecentUpload.timezone
+        };
+      }
+      catch(err) {
+        app.log(err);
+        app.log('Upload metadata lacking a valid timezone!', mostRecentUpload);
+      }
+    }
+    var queryParams = this.state.queryParams;
+    // if the user has put a timezone in the query params
+    // it'll be stored already in the state, and we just keep using it
+    if (!_.isEmpty(queryParams.timezone) || _.isEmpty(timePrefsForTideline)) {
+      timePrefsForTideline = this.state.timePrefs;
+    }
+    // but otherwise we use the timezone from the most recent upload metadata obj
+    else {
+      this.setState({
+        timePrefs: timePrefsForTideline
+      });
+      app.log('Defaulting to display in timezone of most recent upload at', mostRecentUpload.time, mostRecentUpload.timezone);
+    }
+
     console.time('Nurseshark Total');
-    var res = nurseShark.processData(data, this.state.timePrefs);
+    var res = nurseShark.processData(data, this.state.bgPrefs.bgUnits);
     console.timeEnd('Nurseshark Total');
     console.time('TidelineData Total');
-    var tidelineData = new TidelineData(res.processedData, {timePrefs: this.state.timePrefs});
+    var tidelineData = new TidelineData(res.processedData, {
+      timePrefs: this.state.timePrefs,
+      bgUnits: this.state.bgPrefs.bgUnits
+    });
     console.timeEnd('TidelineData Total');
 
     window.tidelineData = tidelineData;
