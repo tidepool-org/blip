@@ -37,6 +37,7 @@ var Weekly = React.createClass({
   propTypes: {
     bgPrefs: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
+    timePrefs: React.PropTypes.object.isRequired,
     imagesBaseUrl: React.PropTypes.string.isRequired,
     initialDatetimeLocation: React.PropTypes.string.isRequired,
     patientData: React.PropTypes.object.isRequired,
@@ -87,7 +88,7 @@ var Weekly = React.createClass({
         bgUnits={this.props.bgPrefs.bgUnits}
         initialDatetimeLocation={this.props.initialDatetimeLocation}
         patientData={this.props.patientData}
-        timePrefs={this.props.chartPrefs.timePrefs}
+        timePrefs={this.props.timePrefs}
         // handlers
         onDatetimeLocationChange={this.handleDatetimeLocationChange}
         onMostRecent={this.handleMostRecent}
@@ -180,7 +181,7 @@ var Weekly = React.createClass({
     }
     var datetime;
     if (this.refs.chart) {
-      datetime = this.refs.chart.getCurrentDay(this.props.chartPrefs.timePrefs);
+      datetime = this.refs.chart.getCurrentDay(this.props.timePrefs);
     }
     this.props.onSwitchToModal(datetime);
   },
@@ -197,7 +198,7 @@ var Weekly = React.createClass({
     }
     var datetime;
     if (this.refs.chart) {
-      datetime = this.refs.chart.getCurrentDay(this.props.chartPrefs.timePrefs);
+      datetime = this.refs.chart.getCurrentDay(this.props.timePrefs);
     }
     this.props.onSwitchToDaily(datetime);
   },
