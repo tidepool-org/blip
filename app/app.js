@@ -145,8 +145,7 @@ var AppComponent = React.createClass({
     var queryParams = queryString.parseTypes(window.location.search);
     var timePrefs = {
       timezoneAware: false,
-      // TODO: remove hardcoding of this in future once we actually introduce arbitrary timezone support
-      timezoneName: 'US/Pacific'
+      timezoneName: null
     };
     if (!_.isEmpty(queryParams.timezone)) {
       var queryTimezone = queryParams.timezone.replace('-', '/');
@@ -157,7 +156,7 @@ var AppComponent = React.createClass({
         app.log('Viewing data in timezone-aware mode with', queryTimezone, 'as the selected timezone.');
       }
       catch(err) {
-        console.log(new Error('Invalid timezone name in query parameter. (Try capitalizing properly.)'));
+        app.log(new Error('Invalid timezone name in query parameter. (Try capitalizing properly.)'));
       }
     }
     var bgPrefs = {
@@ -1248,6 +1247,37 @@ var AppComponent = React.createClass({
   processPatientData: function(data) {
     if (!(data && data.length >= 0)) {
       return null;
+    }
+
+    var mostRecentUpload = _.sortBy(_.where(data, {type: 'upload'}), function(d) {
+      return Date.parse(d.time);
+    }).reverse()[0];
+    var timePrefsForTideline;
+    if (!_.isEmpty(mostRecentUpload) && !_.isEmpty(mostRecentUpload.timezone)) {
+      try {
+        sundial.checkTimezoneName(mostRecentUpload.timezone);
+        timePrefsForTideline = {
+          timezoneAware: true,
+          timezoneName: mostRecentUpload.timezone
+        };
+      }
+      catch(err) {
+        app.log(err);
+        app.log('Upload metadata lacking a valid timezone!', mostRecentUpload);
+      }
+    }
+    var queryParams = this.state.queryParams;
+    // if the user has put a timezone in the query params
+    // it'll be stored already in the state, and we just keep using it
+    if (!_.isEmpty(queryParams.timezone) || _.isEmpty(timePrefsForTideline)) {
+      timePrefsForTideline = this.state.timePrefs;
+    }
+    // but otherwise we use the timezone from the most recent upload metadata obj
+    else {
+      this.setState({
+        timePrefs: timePrefsForTideline
+      });
+      app.log('Defaulting to display in timezone of most recent upload at', mostRecentUpload.time, mostRecentUpload.timezone);
     }
 
     console.time('Nurseshark Total');
