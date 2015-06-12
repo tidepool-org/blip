@@ -269,7 +269,8 @@ d3.chart('ModalDay', {
                 infoPlot = smbgInfo.create(this, {
                   x: chart.xScale(), y: chart.yScale()
                 }, {
-                  timezone: chart.timezone()
+                  timezone: chart.timezone(),
+                  bgUnits: chart.smbgOpts().units
                 });
                 infoPlot.render(chart.data[d]);
               }
@@ -315,11 +316,6 @@ d3.chart('ModalDay', {
   bgClasses: function(bgClasses) {
     if (!arguments.length) { return this._bgClasses; }
     this._bgClasses = bgClasses;
-    return this;
-  },
-  bgUnits: function(bgUnits) {
-    if (!arguments.length) { return this._bgUnits; }
-    this._bgUnits = bgUnits;
     return this;
   },
   boxOverlay: function(boxOverlay) {
@@ -509,7 +505,6 @@ module.exports = {
     _.defaults(opts, defaults);
 
     chart.bgClasses(opts.bgClasses)
-      .bgUnits(opts.bgUnits)
       .boxOverlay(opts.boxOverlay)
       .grouped(opts.grouped)
       .showingLines(opts.showingLines)

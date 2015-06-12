@@ -245,13 +245,12 @@ module.exports = function(pool, opts) {
         class: 'd3-stats-rect rect-right'
       });
 
-    var allBG = opts.smbg.data.concat(opts.cbg.data);
     // scales expects 2nd arg to have a .height() function
     var rect = {
       height: function() { return pool.height() * 4/5; }
     };
 
-    rectScale = scales.bgLog(allBG, rect, opts.size/2);
+    rectScale = scales.bgClamped([opts.classes['very-low'].boundary, opts.classes['very-high'].boundary], rect, opts.size/2);
 
     rectGroup.append('line')
       .attr({

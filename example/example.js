@@ -54,6 +54,10 @@ var Example = React.createClass({
   },
   getInitialState: function() {
     return {
+      bgPrefs: {
+        bgUnits: 'mg/dL'
+        // bgUnits: 'mmol/L'
+      },
       chartPrefs: {
         modal: {
           activeDays: {
@@ -91,9 +95,9 @@ var Example = React.createClass({
     /* jshint ignore:start */
     return (
       <div>
-        <div className="vSpace"></div>
+        <div className='vSpace'></div>
           {chart}
-        <div className="vSpace"></div>
+        <div className='vSpace'></div>
       </div>
     );
     /* jshint ignore:end */
@@ -180,20 +184,23 @@ var Example = React.createClass({
       throw new Error('Could not fetch data file at ' + dataUrl);
     }
     console.time('Nurseshark Total');
-    data = nurseshark.processData(data, this.state.chartPrefs.timePrefs);
+    data = nurseshark.processData(data, this.state.bgPrefs.bgUnits);
     console.timeEnd('Nurseshark Total');
     this.updateData(data.processedData);
   },
   updateData: function(data) {
     console.time('TidelineData Total');
-    var tidelineData = new TidelineData(data, {timePrefs: this.state.chartPrefs.timePrefs});
+    var tidelineData = new TidelineData(data, {
+      bgUnits: this.state.bgPrefs.bgUnits,
+      timePrefs: this.state.chartPrefs.timePrefs
+    });
     console.timeEnd('TidelineData Total');
     window.tidelineData = tidelineData;
     this.setState({
       chartData: tidelineData,
       bgPrefs: {
         bgClasses: tidelineData.bgClasses,
-        bgUnits: tidelineData.bgUnits
+        bgUnits: this.state.bgPrefs.bgUnits
       },
       chartType: 'daily'
     });

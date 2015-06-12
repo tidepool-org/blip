@@ -14,29 +14,18 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
- 
-// DOM required
-// ====================================
-require('../css/tideline.less');
-require('./less/test.less');
 
-// DOM not required
-// ====================================
+var chai = require('chai');
+var expect = chai.expect;
 
-/* js/ */
-require('./tidelinedata_test');
-/* js/data/ */
-require('./constants_test');
-require('./format_test');
-require('./datetime_test');
-require('./basalutil_test');
-require('./bgutil_test');
-require('./bolusutil_test');
+var constants = require('../js/data/util/constants');
 
-/* js/plot/ */
-require('./annotations_test');
-require('./commonbolus_test');
+describe('constants', function() {
+  it('should export an object', function() {
+    expect(typeof constants).to.equal('object');
+  });
 
-/* plugins/ */
-require('./nurseshark_test');
-
+  it('should have 18.01559 for the GLUCOSE_MM conversion', function() {
+    expect(constants.GLUCOSE_MM).to.equal(18.01559);
+  });
+});

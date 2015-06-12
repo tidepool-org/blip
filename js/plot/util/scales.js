@@ -21,7 +21,9 @@ var _ = require('lodash');
 var commonbolus = require('./commonbolus');
 
 var scales = function(opts) {
-  opts = opts || {};
+  opts = _.assign({}, opts) || {};
+
+  var GLUCOSE_MM = 18.01559;
 
   var defaults = {
     bgUnits: 'mg/dL',
@@ -30,12 +32,22 @@ var scales = function(opts) {
     MAX_CBG: 401,
     carbRadius: 14
   };
-
   _.defaults(opts, defaults);
+
+  if (opts.bgUnits === 'mmol/L') {
+    opts.MIN_CBG = opts.MIN_CBG/GLUCOSE_MM;
+    opts.MAX_CBG = opts.MAX_CBG/GLUCOSE_MM;
+  }
 
   return {
     MIN_CBG: opts.MIN_CBG,
     MAX_CBG: opts.MAX_CBG,
+    bgClamped: function(domain, pool, pad) {
+      return d3.scale.linear()
+        .domain(domain)
+        .range([pool.height() - pad, pad])
+        .clamp(true);
+    },
     bg: function(data, pool, pad) {
       var ext = d3.extent(data, function(d) { return d.value; });
       if (ext[1] > this.MAX_CBG || ext[0] === ext[1]) {

@@ -21,6 +21,7 @@ var _ = require('lodash');
 var crossfilter = require('crossfilter');
 var util = require('util');
 
+var constants = require('../../js/data/util/constants');
 var dt = require('../../js/data/util/datetime');
 
 var log;
@@ -32,8 +33,7 @@ else {
 }
 
 function translateBg(value) {
-  var GLUCOSE_MM = 18.01559;
-  return Math.round(GLUCOSE_MM * value);
+  return Math.round(constants.GLUCOSE_MM * value);
 }
 
 function isBadStatus(d) {
@@ -173,7 +173,7 @@ var nurseshark = {
     };
     return tidelineMessage;
   },
-  processData: function(data, timePrefs) {
+  processData: function(data, bgUnits) {
     if (!(data && data.length >= 0 && Array.isArray(data))) {
       throw new Error('An array is required.');
     }
@@ -325,7 +325,7 @@ var nurseshark = {
     // create a hash of uploadId: source
     createUploadIDsMap();
 
-    var handlers = getHandlers(timePrefs);
+    var handlers = getHandlers(bgUnits);
 
     function addNoHandlerMessage(d) {
       d = cloneDeep(d);
@@ -421,7 +421,7 @@ var nurseshark = {
   }
 };
 
-function getHandlers() {
+function getHandlers(bgUnits) {
   var lastEnd, lastBasal;
 
   return {
@@ -472,7 +472,7 @@ function getHandlers() {
     },
     cbg: function(d) {
       d = cloneDeep(d);
-      if (d.units === 'mg/dL') {
+      if (bgUnits === 'mg/dL') {
         d.value = translateBg(d.value);
       }
       return d;
@@ -490,14 +490,14 @@ function getHandlers() {
     },
     smbg: function(d) {
       d = cloneDeep(d);
-      if (d.units === 'mg/dL') {
+      if (bgUnits === 'mg/dL') {
         d.value = translateBg(d.value);
       }
       return d;
     },
     settings: function(d) {
       d = cloneDeep(d);
-      if (d.units.bg === 'mg/dL') {
+      if (bgUnits === 'mg/dL') {
         if (d.bgTarget) {
           for (var j = 0; j < d.bgTarget.length; ++j) {
             var current = d.bgTarget[j];
@@ -544,7 +544,7 @@ function getHandlers() {
       if (d.joinKey != null) {
         collections.allWizards[d.joinKey] = d;
       }
-      if (d.units === 'mg/dL') {
+      if (bgUnits === 'mg/dL') {
         if (d.bgInput) {
           d.bgInput = translateBg(d.bgInput);
         }

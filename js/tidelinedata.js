@@ -27,6 +27,7 @@ var BasalUtil = require('./data/basalutil');
 var BolusUtil = require('./data/bolusutil');
 var BGUtil = require('./data/bgutil');
 var dt = require('./data/util/datetime');
+var constants = require('./data/util/constants');
 
 var log;
 if (typeof window !== 'undefined') {
@@ -320,35 +321,10 @@ function TidelineData(data, opts) {
   this.setBGPrefs = function() {
     startTimer('setBGPrefs');
     this.bgClasses = opts.bgClasses;
-    var bgData;
-    if (!(this.grouped.smbg || this.grouped.cbg)) {
-      this.bgUnits = opts.bgUnits;
-      return;
-    }
-    else {
-      if (!this.grouped.smbg) {
-        bgData = this.grouped.cbg;
-      }
-      else if (!this.grouped.cbg) {
-        bgData = this.grouped.smbg;
-      }
-      else {
-        bgData = this.grouped.smbg.concat(this.grouped.cbg);
-      }
-    }
-    var units = _.uniq(_.pluck(bgData, 'units'));
-    if (units.length > 1) {
-      log(new Error('Your BG data is of mixed units; I have no idea how to display it :('));
-      this.bgUnits = 'mixed';
-    }
-    else {
-      this.bgUnits = units[0];
-    }
-
+    this.bgUnits = opts.bgUnits;
     if (this.bgUnits === 'mmol/L') { 
-      var GLUCOSE_MM = 18.01559;
       for (var key in opts.bgClasses) {
-        opts.bgClasses[key].boundary = opts.bgClasses[key].boundary/GLUCOSE_MM;
+        opts.bgClasses[key].boundary = opts.bgClasses[key].boundary/constants.GLUCOSE_MM;
       } 
     }
     endTimer('setBGPrefs');
