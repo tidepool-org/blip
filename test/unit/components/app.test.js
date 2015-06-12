@@ -46,6 +46,14 @@ describe('App', function () {
       });
     });
 
+    it('timezoneAware should be false and timeZoneName should be US/Pacific', function() {
+      React.withContext(context, function() {
+        var elem = TestUtils.renderIntoDocument(<App/>);
+        expect(elem.state.timePrefs.timezoneAware).to.equal(false);
+        expect(elem.state.timePrefs.timezoneName).to.equal('US/Pacific');
+      });
+    });
+
     it('should render login form', function () {
       React.withContext(context, function() {
         var elem = TestUtils.renderIntoDocument(<App/>);
