@@ -117,7 +117,7 @@ describe('PatientInfo', function () {
   });
 
   describe('getAgeText', function() {
-    it('should return unknown birthday if less than 1 years old, or birthdate in future', function() {
+    it('should return text being born this year if birthday less than 1 year', function() {
       var props = {
         patient: {
           userid: 1,
@@ -134,8 +134,39 @@ describe('PatientInfo', function () {
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
       expect(elem).to.be.ok;
       // NB: Remember that Date is a bit weird, in that months are zero indexed - so 4 -> May !
-      expect(elem.getAgeText(elem.props.patient, new Date(1984, 4, 20))).to.equal('Birthdate not known');
-      expect(elem.getAgeText(elem.props.patient, new Date(1983, 4, 20))).to.equal('Birthdate not known');
+      // 
+      // Edge cases to do with how moment.dff behaves around dtes with diff between >1 and 1, 
+      // the range for 0 spans between these values
+      expect(elem.getAgeText(elem.props.patient, new Date(1983, 4, 20))).to.equal('Born this year');
+      expect(elem.getAgeText(elem.props.patient, new Date(1983, 4, 19))).to.equal('Born this year');
+
+
+      expect(elem.getAgeText(elem.props.patient, new Date(1985, 4, 17))).to.equal('Born this year');
+    });
+
+
+    it('should return unknown birthday if birthdate is in future', function() {
+      var props = {
+        patient: {
+          userid: 1,
+          profile: {
+            patient: {
+              birthday: '1984-05-18'
+            }
+          }
+        },
+        trackMetric: function() {}
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      expect(elem).to.be.ok;
+      // NB: Remember that Date is a bit weird, in that months are zero indexed - so 4 -> May !
+      expect(elem.getAgeText(elem.props.patient, new Date(1980, 4, 17))).to.equal('Birthdate not known');
+      expect(elem.getAgeText(elem.props.patient, new Date(1981, 4, 17))).to.equal('Birthdate not known');
+      expect(elem.getAgeText(elem.props.patient, new Date(1982, 4, 17))).to.equal('Birthdate not known');
+      expect(elem.getAgeText(elem.props.patient, new Date(1983, 4, 17))).to.equal('Birthdate not known');
+      expect(elem.getAgeText(elem.props.patient, new Date(1983, 4, 18))).to.equal('Birthdate not known');
     });
 
     it('should return text representing years difference', function() {

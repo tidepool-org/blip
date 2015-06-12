@@ -288,12 +288,17 @@ var PatientInfo = React.createClass({
     if (!birthday) {
       return;
     }
-    currentDate = currentDate || new Date();
+    
+    var now = new Date();
+    currentDate = currentDate || new Date(now.getFullYear(), now.getMonth(), now.getDate());
     var yrsAgo = sundial.dateDifference(currentDate, birthday, 'years');
+    
     if (yrsAgo === 1) {
       return '1 year old';
     } else if (yrsAgo > 1) {
       return yrsAgo +' years old';
+    } else if (yrsAgo === 0) {
+      return 'Born this year';
     } else {
       return 'Birthdate not known';
     }
@@ -308,7 +313,9 @@ var PatientInfo = React.createClass({
       return;
     }
 
-    currentDate = currentDate || new Date();
+    
+    var now = new Date();
+    currentDate = currentDate || new Date(now.getFullYear(), now.getMonth(), now.getDate());
     var yrsAgo = sundial.dateDifference(currentDate, diagnosisDate, 'years');
 
     if (yrsAgo === 0) {
@@ -317,6 +324,8 @@ var PatientInfo = React.createClass({
       return 'Diagnosed 1 year ago';
     } else if (yrsAgo > 1) {
       return 'Diagnosed ' + yrsAgo + ' years ago';
+    } else if (yrsAgo === 0) {
+      return 'Diagnosed this year';
     } else {
       return 'Diagnosis date not known';
     }
@@ -423,7 +432,8 @@ var PatientInfo = React.createClass({
       return 'Diagnosis date needs to be a valid date';
     }
 
-    currentDateObj = currentDateObj || new Date();
+    var now = new Date();
+    currentDateObj = currentDateObj || new Date(now.getFullYear(), now.getMonth(), now.getDate())
     var birthdayDateObj = sundial.parseFromFormat(birthday, FORM_DATE_FORMAT);
     var diagnosisDateObj = sundial.parseFromFormat(diagnosisDate, FORM_DATE_FORMAT);
 
