@@ -159,6 +159,15 @@ var AppComponent = React.createClass({
         app.log(new Error('Invalid timezone name in query parameter. (Try capitalizing properly.)'));
       }
     }
+    var bgPrefs = {
+      bgUnits: 'mg/dL'
+    };
+    if (!_.isEmpty(queryParams.units)) {
+      var queryUnits = queryParams.units.toLowerCase();
+      if (queryUnits === 'mmoll') {
+        bgPrefs.bgUnits = 'mmol/L';
+      }
+    }
     return {
       authenticated: app.api.user.isAuthenticated(),
       notification: null,
@@ -174,7 +183,7 @@ var AppComponent = React.createClass({
       fetchingInvites: true,
       pendingInvites:null,
       fetchingPendingInvites: true,
-      bgPrefs: null,
+      bgPrefs: bgPrefs,
       timePrefs: timePrefs,
       patientData: null,
       fetchingPatientData: true,
@@ -1208,7 +1217,7 @@ var AppComponent = React.createClass({
       self.setState({
         bgPrefs: {
           bgClasses: patientData.bgClasses,
-          bgUnits: patientData.bgUnits
+          bgUnits: self.state.bgPrefs.bgUnits
         },
         patientData: allPatientsData,
         fetchingPatientData: false
@@ -1272,10 +1281,13 @@ var AppComponent = React.createClass({
     }
 
     console.time('Nurseshark Total');
-    var res = nurseShark.processData(data, timePrefsForTideline);
+    var res = nurseShark.processData(data, this.state.bgPrefs.bgUnits);
     console.timeEnd('Nurseshark Total');
     console.time('TidelineData Total');
-    var tidelineData = new TidelineData(res.processedData, {timePrefs: timePrefsForTideline});
+    var tidelineData = new TidelineData(res.processedData, {
+      timePrefs: this.state.timePrefs,
+      bgUnits: this.state.bgPrefs.bgUnits
+    });
     console.timeEnd('TidelineData Total');
 
     window.tidelineData = tidelineData;
