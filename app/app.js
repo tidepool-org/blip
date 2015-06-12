@@ -145,8 +145,7 @@ var AppComponent = React.createClass({
     var queryParams = queryString.parseTypes(window.location.search);
     var timePrefs = {
       timezoneAware: false,
-      // TODO: remove hardcoding of this in future once we actually introduce arbitrary timezone support
-      timezoneName: 'US/Pacific'
+      timezoneName: null
     };
     if (!_.isEmpty(queryParams.timezone)) {
       var queryTimezone = queryParams.timezone.replace('-', '/');
