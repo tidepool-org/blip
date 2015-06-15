@@ -10,8 +10,6 @@ describe('Message', function () {
   describe('getInitialState', function() {
     it('should return an object with editing set to false', function() {
       console.warn = sinon.spy();
-      // TODO: consider requiring Proptype: theNote (maybe define as a shape as well?)
-      //   -> Properties of theNote are accessed in componentDidMount()
       var note = {
         timestamp : new Date().toISOString(),
         messagetext : 'foo',
@@ -31,6 +29,14 @@ describe('Message', function () {
   });
 
   describe('render', function() {
+    it('should console.warn when theNote not set', function () {
+      console.warn = sinon.spy();
+      var elem = TestUtils.renderIntoDocument(<Message />);
+
+      expect(console.warn.calledWith('Warning: Required prop `theNote` was not specified in `Message`.')).to.equal(true);
+      expect(console.warn.callCount).to.equal(1);
+    });
+
     it('should render a populated message', function() {
       console.warn = sinon.spy();
       var note = {

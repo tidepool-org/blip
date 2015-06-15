@@ -161,15 +161,7 @@ var Patient = React.createClass({
 
   renderPatientTeam: function() {
     return (
-      <PatientTeam
-        user={this.props.user}
-        patient={this.props.patient}
-        pendingInvites={this.props.pendingInvites}
-        onChangeMemberPermissions={this.props.onChangeMemberPermissions}
-        onRemoveMember={this.props.onRemoveMember}
-        onInviteMember={this.props.onInviteMember}
-        onCancelInvite={this.props.onCancelInvite}
-        trackMetric={this.props.trackMetric}/>
+      <PatientTeam {...this.props} />
     );
   },
 });
