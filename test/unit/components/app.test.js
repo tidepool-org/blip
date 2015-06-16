@@ -36,6 +36,8 @@ describe('App', function () {
         expect(elem).to.be.ok;
         expect(console.warn.callCount).to.equal(0);
         expect(console.error.callCount).to.equal(0);
+        var app = TestUtils.findRenderedDOMComponentWithClass(elem, 'app');
+        expect(app).to.be.ok;
       });
     });
 
