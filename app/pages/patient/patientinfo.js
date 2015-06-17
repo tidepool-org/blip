@@ -433,7 +433,7 @@ var PatientInfo = React.createClass({
     }
 
     var now = new Date();
-    currentDateObj = currentDateObj || new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    currentDateObj = currentDateObj || new Date(now.getFullYear(), now.getMonth(), now.getDate());
     var birthdayDateObj = sundial.parseFromFormat(birthday, FORM_DATE_FORMAT);
     var diagnosisDateObj = sundial.parseFromFormat(diagnosisDate, FORM_DATE_FORMAT);
 
