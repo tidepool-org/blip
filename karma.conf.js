@@ -16,11 +16,10 @@ module.exports = function (config) {
       'tests.webpack.js'
     ],
     preprocessors: {
-      'tests.webpack.js': [ 'webpack', 'sourcemap' ] // Preprocess with webpack and our sourcemap loader
+      'tests.webpack.js': [ 'webpack' ] // Preprocess with webpack and our sourcemap loader
     },
     reporters: [ 'mocha' ],
     webpack: { // Simplified Webpack configuration
-      devtool: 'inline-source-map',
       module: {
         loaders: [
           {test: /\.js$/, loader: 'jsx-loader'},
@@ -36,7 +35,6 @@ module.exports = function (config) {
           {test: /\.json$/, loader: 'json-loader'}
         ]
       },
-      watch: true,
       plugins: [
         defineEnvPlugin
       ]
