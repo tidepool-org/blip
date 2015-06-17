@@ -45,6 +45,30 @@ describe('nurseshark', function() {
       expect(res.processedData.length).to.equal(0);
     });
 
+    it('should sort data', function() {
+      var now = new Date();
+      var first = now.toISOString();
+      var second = new Date(now.valueOf() + 864e5).toISOString();
+      var input = [{
+        type: 'bolus',
+        a: 1,
+        z: {
+          b: 2,
+          c: 3
+        },
+        time: second,
+        timezoneOffset: 0
+      }, {
+        type: 'wizard',
+        d: [{x: 4},{y: 5}],
+        time: first,
+        timezoneOffset: 0
+      }];
+      var res = nurseshark.processData(input);
+      expect(res.processedData[0]).to.eql(_.assign({}, input[1], {source: 'Unspecified Data Source'}));
+      expect(res.processedData[1]).to.eql(_.assign({}, input[0], {source: 'Unspecified Data Source'}));
+    });
+
     describe('on overlapping Carelink uploads', function() {
       var now = new Date();
       var plusTen = new Date(now.valueOf() + 600000);
