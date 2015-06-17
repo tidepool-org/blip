@@ -27,6 +27,7 @@ module.exports = function(opts) {
   opts = opts || {};
 
   var msStartString = function(x) { return format.millisecondsAsTimeOfDay(x); };
+  var formatBG = function(x) { return format.tooltipBG({value: x}, opts.bgUnits); };
   var defaults = {
     sections: {
       basal: {
@@ -61,12 +62,12 @@ module.exports = function(opts) {
       },
       insulinSensitivity: {
         start: msStartString,
-        amount: function(x) { return format.tooltipBG({value: x}, opts.bgUnits); }
+        amount: formatBG
       },
       bgTarget: {
         start: msStartString,
-        low: function(x) { return format.tooltipBG({value: x}, opts.bgUnits); },
-        high: function(x) { return format.tooltipBG({value: x}, opts.bgUnits); }
+        low: formatBG,
+        high: formatBG
       }
     }
   };
@@ -95,8 +96,8 @@ module.exports = function(opts) {
       opts.rowHeadersByType.bgTarget = ['Start time', 'Target (' + opts.bgUnits + ')', 'High (' + opts.bgUnits + ')'];
       opts.mapsByType.bgTarget = {
         start: msStartString,
-        target: function(x) { return x; },
-        high: function(x) { return x; }
+        target: formatBG,
+        high: formatBG
       };
     }
     basalUtil = data.basalUtil;
