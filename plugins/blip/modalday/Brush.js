@@ -17,7 +17,8 @@ d3.chart('Brush', {
     this.base.append('g').attr('id', 'brushMainGroup');
 
     var xPosition = function(d) {
-      return chart.xScale()(d);
+      var zone = moment.tz.zone(chart.timezone());
+      return chart.xScale()(moment.utc(d).add('minutes', zone.parse(d.valueOf())).toDate());
     };
 
     this.layer('brushTicks', this.base.append('g').attr('id', 'brushTicks'), {
@@ -67,7 +68,7 @@ d3.chart('Brush', {
           .classed('centered', chart.brushTickInterval() !== 'month')
           .text(function(d) {
             var format = chart.brushTickInterval() === 'month' ? 'MMM': 'MMM D';
-            return moment.utc(d).tz(tz).format(format);
+            return moment.utc(d).format(format);
           });
         }
       }

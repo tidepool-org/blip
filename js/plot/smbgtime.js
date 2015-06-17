@@ -115,7 +115,7 @@ function SMBGTime (opts) {
             'class': 'd3-smbg-numbers d3-text-smbg d3-smbg-time'
           })
           .text(function(d) {
-            return d.value;
+            return format.tooltipBG(d, opts.bgUnits);
           });
 
         circles.exit().remove();

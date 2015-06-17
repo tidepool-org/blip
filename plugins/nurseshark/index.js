@@ -191,7 +191,15 @@ var nurseshark = {
       });
       log(noTimeCount, 'records removed due to not having a `time` or `timestamp` field.');
     }
-    timeIt(removeNoTime, 'removeNoTime');
+    timeIt(removeNoTime, 'Remove No Time');
+
+    function sortByTime() {
+      data = _.sortBy(data, function(d) {
+        return Date.parse(d.time);
+      });
+    }
+
+    timeIt(sortByTime, 'Sort');
 
     var uploadIDSources = {};
     var processedData = [], erroredData = [];
@@ -403,17 +411,6 @@ var nurseshark = {
       }, 'Annotate Basals');
     }
 
-    timeIt(function() {
-      processedData.sort(function(a, b) {
-        if (a.time < b.time) {
-          return -1;
-        }
-        if (a.time > b.time) {
-          return 1;
-        }
-        return 0;
-      });
-    }, 'Sort');
     var emoticon = erroredData.length ? ':(' : ':)';
     log(erroredData.length, 'items in the erroredData.', emoticon, _.countBy(erroredData, 'type'));
     log('Unique error messages:', _.unique(_.pluck(erroredData, 'errorMessage')));
