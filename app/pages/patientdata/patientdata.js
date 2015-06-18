@@ -205,6 +205,12 @@ var PatientData = React.createClass({
   },
 
   isEmptyPatientData: function() {
+    // Make sure the patient object and userid is set to prevent TypeErrors
+    // when not setting this prop
+    if (!utils.getIn(this.props, ['patient', 'userid'])) {
+      return true;
+    }
+
     var patientDataLength =
       utils.getIn(this.props.patientData, [this.props.patient.userid, 'data', 'length'], 0);
     return !Boolean(patientDataLength);
