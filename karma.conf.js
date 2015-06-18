@@ -1,4 +1,5 @@
 var webpack = require('webpack');
+var RewirePlugin = require("rewire-webpack");
 
 var defineEnvPlugin = new webpack.DefinePlugin({
   __DEV__: false
@@ -35,8 +36,13 @@ module.exports = function (config) {
         ]
       },
       plugins: [
-        defineEnvPlugin
-      ]
+        defineEnvPlugin,
+        new RewirePlugin()
+      ],
+      node: {
+        fs: "empty",
+        module: "empty"
+      }
     },
     webpackServer: {
       noInfo: true // We don't want webpack output

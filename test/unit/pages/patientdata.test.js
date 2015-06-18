@@ -3,16 +3,19 @@
 var React = require('react');
 var TestUtils = require('react/lib/ReactTestUtils');
 var expect = chai.expect;
-
+var rewire = require('rewire');
 
 /**
  * Need to set window.config for config module
  */
 window.config = {};
 
-var PatientData = require('../../../app/pages/patientdata');
-
 describe('PatientData', function () {
+
+  var PatientData = rewire('../../../app/pages/patientdata');
+
+  var stub = sinon.stub().returns(<a className='fake-modal-view'/>);
+
   it('should be exposed as a module and be of type function', function() {
     expect(PatientData).to.be.a('function');
   });
@@ -180,29 +183,36 @@ describe('PatientData', function () {
     expect(x).to.be.ok;
   });
 
-  // it ('should render when data is present for current patient', function() {
-  //   var props = {
-  //     timePrefs: {
-  //       timezoneAware: false,
-  //       timezoneName: null
-  //     },
-  //     patient: {
-  //       userid: 40
-  //     },
-  //     patientData: {
-  //       40: { data: [ 1, 2] }
-  //     },
-  //     fetchingPatient: false,
-  //     fetchingPatientData: false,
-  //     queryParams: {},
-  //     trackMetric: sinon.stub()
-  //   };
+  it ('should render when data is present for current patient', function() {
+    var props = {
+      timePrefs: {
+        timezoneAware: false,
+        timezoneName: null
+      },
+      patient: {
+        userid: 40
+      },
+      patientData: {
+        40: { data: [ 1, 2] }
+      },
+      fetchingPatient: false,
+      fetchingPatientData: false,
+      queryParams: {},
+      trackMetric: sinon.stub()
+    };
 
-  //   // Try out using the spread props syntax in JSX
-  //   var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
-  //   expect(elem).to.be.ok;
+    PatientData.__set__('Modal', React.createClass({
+      render: function() {
+        console.log('Mock', this.props);
+        return <div className='fake-modal-view'/>;
+      }
+    }));
+
+    // Try out using the spread props syntax in JSX
+    var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+    expect(elem).to.be.ok;
     
-  //   var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message');
-  //   expect(x).to.be.ok;
-  // });
+    // var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-modal-view');
+    // expect(x).to.be.ok;
+  });
 });

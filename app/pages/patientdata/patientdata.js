@@ -252,6 +252,7 @@ var PatientData = React.createClass({
           );
         /* jshint ignore:end */
       case 'modal':
+        console.log('rendering modal chart');
         /* jshint ignore:start */
         return (
           <Modal
@@ -273,6 +274,7 @@ var PatientData = React.createClass({
           );
         /* jshint ignore:end */
       case 'weekly':
+        console.log('rendering weekly chart');
         /* jshint ignore:start */
         return (
           <Weekly
