@@ -290,7 +290,7 @@ var PatientInfo = React.createClass({
     }
     
     var now = new Date();
-    currentDate = currentDate || new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    currentDate = currentDate || Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
     var yrsAgo = sundial.dateDifference(currentDate, birthday, 'years');
     
     if (yrsAgo === 1) {
@@ -315,7 +315,7 @@ var PatientInfo = React.createClass({
 
     
     var now = new Date();
-    currentDate = currentDate || new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    currentDate = currentDate || Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
     var yrsAgo = sundial.dateDifference(currentDate, diagnosisDate, 'years');
 
     if (yrsAgo === 0) {
@@ -433,7 +433,7 @@ var PatientInfo = React.createClass({
     }
 
     var now = new Date();
-    currentDateObj = currentDateObj || new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    currentDateObj = currentDateObj || Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
     var birthdayDateObj = sundial.parseFromFormat(birthday, FORM_DATE_FORMAT);
     var diagnosisDateObj = sundial.parseFromFormat(diagnosisDate, FORM_DATE_FORMAT);
 
