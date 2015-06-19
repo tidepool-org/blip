@@ -266,8 +266,12 @@ var PatientNew = React.createClass({
 
     formValues = this.prepareFormValuesForValidation(formValues);
 
-    var validationErrors = this.validateFormValues(formValues);
+    var validationErrors = personUtils.validateFormValues(formValues, true, MODEL_DATE_FORMAT);
     if (!_.isEmpty(validationErrors)) {
+      this.setState({
+        working: false,
+        validationErrors: validationErrors
+      });
       return;
     }
 
