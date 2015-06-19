@@ -334,45 +334,6 @@ var PatientNew = React.createClass({
     return !(_.isEmpty(dateObj.year) && dateObj.year.length === 4 || _.isEmpty(dateObj.month) || _.isEmpty(dateObj.day));
   },
 
-  validateFormValues: function(formValues) {
-    var validationErrors = {};
-    var IS_REQUIRED = 'We need this information.';
-    var IS_NOT_VALID_DATE = 'Hmm, this date doesn\'t look right.';
-
-    if (!formValues.fullName) {
-      validationErrors.fullName = IS_REQUIRED;
-    }
-
-    if (!formValues.birthday) {
-      validationErrors.birthday = IS_REQUIRED;
-    }
-    else if (!sundial.isValidDateForMask(formValues.birthday, MODEL_DATE_FORMAT)) {
-      validationErrors.birthday = IS_NOT_VALID_DATE;
-    }
-
-    if (!formValues.diagnosisDate) {
-      validationErrors.diagnosisDate = IS_REQUIRED;
-    }
-    else if (!sundial.isValidDateForMask(formValues.diagnosisDate, MODEL_DATE_FORMAT)) {
-      validationErrors.diagnosisDate = IS_NOT_VALID_DATE;
-    }
-
-    var maxLength = 256;
-    if (formValues.about && formValues.about.length > maxLength) {
-      validationErrors.about =
-        'Please keep this text under ' + maxLength + ' characters.';
-    }
-
-    if (!_.isEmpty(validationErrors)) {
-      this.setState({
-        working: false,
-        validationErrors: validationErrors
-      });
-    }
-
-    return validationErrors;
-  },
-
   prepareFormValuesForSubmit: function(formValues) {
     var profile = {};
     var patient = {
