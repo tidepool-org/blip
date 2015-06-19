@@ -243,6 +243,18 @@ describe('personutils', function() {
       expect(error.diagnosisDate).to.equal('Diagnosis date needs to be a valid date');
     });
 
+    it('should return error message when diagnosisDate is in wrong format', function() {
+      var formValues = {
+        fullName: 'Joe Bloggs',
+        birthday: '01/01/1984',
+        diagnosisDate: '02/02/1988',
+        about: null
+      };
+      var error = personUtils.validateFormValues(formValues, true, 'MM-DD-YYYY');
+
+      expect(error.diagnosisDate).to.equal('Diagnosis date needs to be a valid date');
+    });
+
     it('should return no error message when diagnosisDate and birthday are valid and about is empty', function() {
       var formValues = {
         fullName: 'Joe Bloggs',
