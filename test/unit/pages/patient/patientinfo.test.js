@@ -1,3 +1,4 @@
+/** @jsx React.DOM */
 /* global chai */
 
 var React = require('react');
@@ -30,7 +31,7 @@ describe('PatientInfo', function () {
   });
 
   describe('getInitialState', function() {
-    it('should be return an object with editing set to false and contains no notification', function() {
+    it('should be return an object with editing set to false and contains no validationErrors', function() {
       var props = {
         trackMetric: function() {}
       };
@@ -41,7 +42,7 @@ describe('PatientInfo', function () {
       var initialState = elem.getInitialState();
       expect(Object.keys(initialState).length).to.equal(2);
       expect(initialState.editing).to.equal(false);
-      expect(initialState.notification).to.equal(null);
+      expect(Object.keys(initialState.validationErrors).length).length.to.equal(0);
     });
   });
 
@@ -468,230 +469,6 @@ describe('PatientInfo', function () {
       expect(formValues.diagnosisDate).to.equal('06/05/2006');
       expect(formValues.about).to.equal('I have a wonderful coffee mug.');
     });
-  });
-
-  describe('validateFormValues', function() {
-    it('should return error message when birthday is null', function() {
-      var props = {
-        trackMetric: function() {}
-      };
-
-      var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
-      var formValues = {
-        fullName: 'Joe Bloggs',
-        birthday: null,
-        diagnosisDate: null,
-        about: null
-      };
-      var error = elem.validateFormValues(formValues);
-
-      expect(error).to.equal('Date of birth needs to be a valid date');
-    });
-
-    it('should return error message when birthday is invalid string', function() {
-      var props = {
-        trackMetric: function() {}
-      };
-
-      var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
-      var formValues = {
-        fullName: 'Joe Bloggs',
-        birthday: 'randomstring',
-        diagnosisDate: null,
-        about: null
-      };
-      var error = elem.validateFormValues(formValues);
-
-      expect(error).to.equal('Date of birth needs to be a valid date');
-    });
-
-    it('should return error message when birthday is wrong date format', function() {
-      var props = {
-        trackMetric: function() {}
-      };
-
-      var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
-      var formValues = {
-        fullName: 'Joe Bloggs',
-        birthday: '2014-05-01',
-        diagnosisDate: null,
-        about: null
-      };
-      var error = elem.validateFormValues(formValues);
-
-      expect(error).to.equal('Date of birth needs to be a valid date');
-    });
-
-    it('should return error message when diagnosisDate is null', function() {
-      var props = {
-        trackMetric: function() {}
-      };
-
-      var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
-      var formValues = {
-        fullName: 'Joe Bloggs',
-        birthday: '01/01/1984',
-        diagnosisDate: null,
-        about: null
-      };
-      var error = elem.validateFormValues(formValues);
-
-      expect(error).to.equal('Diagnosis date needs to be a valid date');
-    });
-
-    it('should return error message when diagnosisDate is invalid', function() {
-      var props = {
-        trackMetric: function() {}
-      };
-
-      var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
-      var formValues = {
-        fullName: 'Joe Bloggs',
-        birthday: '01/01/1984',
-        diagnosisDate: '1234',
-        about: null
-      };
-      var error = elem.validateFormValues(formValues);
-
-      expect(error).to.equal('Diagnosis date needs to be a valid date');
-    });
-
-    it('should return no error message when diagnosisDate and birthday are valid and about is empty', function() {
-      var props = {
-        trackMetric: function() {}
-      };
-
-      var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
-      var formValues = {
-        fullName: 'Joe Bloggs',
-        birthday: '01/01/1984',
-        diagnosisDate: '01/05/1984',
-        about: null
-      };
-      var error = elem.validateFormValues(formValues);
-
-      expect(typeof error).to.equal('undefined');
-    });
-
-    it('should return error message when birthday is in the future', function() {
-      var props = {
-        trackMetric: function() {}
-      };
-
-      var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
-      var formValues = {
-        fullName: 'Joe Bloggs',
-        birthday: '01/01/2016',
-        diagnosisDate: '01/05/1984',
-        about: null
-      };
-      var error = elem.validateFormValues(formValues, Date.UTC(2015, 4, 18));
-
-      expect(error).to.equal('Date of birth cannot be in the future!');
-    });
-
-    it('should return error message when diagnosisDate is in the future', function() {
-      var props = {
-        trackMetric: function() {}
-      };
-
-      var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
-      var formValues = {
-        fullName: 'Joe Bloggs',
-        birthday: '01/05/1984',
-        diagnosisDate: '01/01/2016',
-        about: null
-      };
-      var error = elem.validateFormValues(formValues, Date.UTC(2015, 4, 18));
-
-      expect(error).to.equal('Diagnosis date cannot be in the future!');
-    });
-
-    it('should return error message when diagnosisDate is before birthday', function() {
-      var props = {
-        trackMetric: function() {}
-      };
-
-      var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
-      var formValues = {
-        fullName: 'Joe Bloggs',
-        birthday: '01/05/1984',
-        diagnosisDate: '01/01/1983',
-        about: null
-      };
-      var error = elem.validateFormValues(formValues, Date.UTC(2015, 4, 18));
-
-      expect(error).to.equal('Diagnosis cannot be before date of birth!');
-    });
-
-    it('should return no error message when diagnosisDate and birthday and about is valid', function() {
-      var props = {
-        trackMetric: function() {}
-      };
-
-      var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
-      var formValues = {
-        fullName: 'Joe Bloggs',
-        birthday: '01/01/1984',
-        diagnosisDate: '01/05/1984',
-        about: 'This is a valid length about section'
-      };
-      var error = elem.validateFormValues(formValues);
-
-      expect(typeof error).to.equal('undefined');
-    });
-
-    it('should return error message when about is over max length', function() {
-      var props = {
-        trackMetric: function() {}
-      };
-
-      var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
-      var formValues = {
-        fullName: 'Joe Bloggs',
-        birthday: '01/01/1984',
-        diagnosisDate: '01/05/1984',
-        about: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' +
-        'Enim in consectetur ultricies netus torquent nisi gravida pulvinar' +
-        ' - curae congue tellus sodales nec proin?Risus in nostra montes rhoncus' +
-        ' vestibulum tempus per ut: curae maecenas nibh arcu eget. Dolby'
-      };
-      var error = elem.validateFormValues(formValues);
-
-      expect(error).to.equal('Please keep "about" text under 256 characters');
-    }); 
-
-    it('should return no error message when diagnosisDate and birthday and about is at max length', function() {
-      var props = {
-        trackMetric: function() {}
-      };
-
-      var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
-      var formValues = {
-        fullName: 'Joe Bloggs',
-        birthday: '01/01/1984',
-        diagnosisDate: '01/05/1984',
-        about: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' + 
-        'Enim in consectetur ultricies netus torquent nisi gravida pulvinar' + 
-        ' - curae congue tellus sodales nec proin?Risus in nostra montes rhoncus' + 
-        ' vestibulum tempus per ut: curae maecenas nibh arcu eget. Dolb'
-      };
-      var error = elem.validateFormValues(formValues);
-
-      expect(typeof error).to.equal('undefined');
-    });   
   });
   
   describe('prepareFormValuesForSubmit', function() {

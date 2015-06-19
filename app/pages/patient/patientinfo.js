@@ -37,7 +37,7 @@ var PatientInfo = React.createClass({
   getInitialState: function() {
     return {
       editing: false,
-      notification: null
+      validationErrors: {}
     };
   },
 
@@ -174,7 +174,7 @@ var PatientInfo = React.createClass({
   toggleEdit: function() {
     this.setState({
       editing: !this.state.editing,
-      notification: null
+      validationErrors: {}
     });
   },
 
@@ -188,12 +188,44 @@ var PatientInfo = React.createClass({
       self.toggleEdit();
     };
 
+    return (
+      <div className="PatientInfo">
+        <div className="PatientPage-sectionTitle">Profile</div>
+        <div className="PatientInfo-controls">
+          <button key="cancel" className="PatientInfo-button PatientInfo-button--secondary" type="button" disabled={this.state.working} onClick={handleCancel}>Cancel</button>
+          {this.renderSubmit()}
+        </div>
+        <div className="clear"></div>
+        <div className="PatientInfo-content">
+          <div className="PatientInfo-head">
+            <div className="PatientInfo-picture"></div>
+            <div className="PatientInfo-blocks">
+              {this.renderFullNameInput(formValues)}
+              {this.renderBirthdayInput(formValues)}
+              {this.renderDiagnosisDateInput(formValues)}
+            </div>
+          </div>
+          {this.renderAboutInput(formValues)}
+        </div>
+      </div>
+    );
+  },
+
+  renderFullNameInput: function(formValues) {
+    
+    var fullNameNode, errorElem, classes;
+    var error = this.state.validationErrors.fullName;
     // Legacy: revisit when proper "child accounts" are implemented
-    var fullNameNode;
-    if (personUtils.patientIsOtherPerson(patient)) {
+    if (personUtils.patientIsOtherPerson(this.props.patient)) {
+      classes = 'PatientInfo-input';
+      if (error) {
+        classes += ' PatientInfo-input-error';
+        errorElem = <div className="PatientInfo-error-message">{error}</div>;
+      }
       fullNameNode = (
-        <div className="">
+        <div className={classes}>
           <input className="PatientInfo-input" id="fullName" ref="fullName" placeholder="Full name" defaultValue={formValues.fullName} />
+          {errorElem}
         </div>
       );
     }
@@ -201,7 +233,7 @@ var PatientInfo = React.createClass({
       formValues = _.omit(formValues, 'fullName');
       fullNameNode = (
         <div className="PatientInfo-block PatientInfo-block--withArrow">
-          {this.getDisplayName(patient)}
+          {this.getDisplayName(this.props.patient)}
           {' (edit in '}
           <a href="#/profile">account</a>
           {')'}
@@ -209,46 +241,58 @@ var PatientInfo = React.createClass({
       );
     }
 
-    return (
-      <div className="PatientInfo">
-        <div className="PatientPage-sectionTitle">Profile</div>
-        <div className="PatientInfo-controls">
-          <button key="cancel" className="PatientInfo-button PatientInfo-button--secondary" type="button" disabled={this.state.working} onClick={handleCancel}>Cancel</button>
-          {this.renderSubmit()}
-          {this.renderNotification()}
-        </div>
-        <div className="clear"></div>
-        <div className="PatientInfo-content">
-          <div className="PatientInfo-head">
-            <div className="PatientInfo-picture"></div>
-            <div className="PatientInfo-blocks">
-              <div className="PatientInfo-blockRow">
-                {fullNameNode}
-              </div>
-              <div className="PatientInfo-blockRow">
-                <div className="">
-                  <label className="PatientInfo-label" htmlFor="birthday">Date of birth</label>
-                  <input className="PatientInfo-input" id="birthday" ref="birthday" placeholder={FORM_DATE_FORMAT} defaultValue={formValues.birthday} />
-                </div>
-              </div>
-              <div className="PatientInfo-blockRow">
-                <div className="">
-                  <label className="PatientInfo-label" htmlFor="diagnosisDate">Date of diagnosis</label>
-                  <input className="PatientInfo-input" id="diagnosisDate" ref="diagnosisDate" placeholder={FORM_DATE_FORMAT} defaultValue={formValues.diagnosisDate} />
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="PatientInfo-bio">
-            <textarea className="PatientInfo-input" ref="about"
-              placeholder="Anything you would like to share?"
-              rows="3"
-              defaultValue={formValues.about}>
-            </textarea>
-          </div>
-        </div>
+    return (<div className="PatientInfo-blockRow">
+      {fullNameNode}
+    </div>);
+  },
+
+  renderBirthdayInput: function(formValues) {
+    var classes = 'PatientInfo-input', errorElem;
+    var error = this.state.validationErrors.birthday;
+    if (error) {
+      classes += ' PatientInfo-input-error';
+      errorElem = <div className="PatientInfo-error-message">{error}</div>;
+    }
+    return (<div className="PatientInfo-blockRow">
+      <div className="">
+        <label className="PatientInfo-label" htmlFor="birthday">Date of birth</label>
+        <input className={classes} id="birthday" ref="birthday" placeholder={FORM_DATE_FORMAT} defaultValue={formValues.birthday} />
+        {errorElem}
       </div>
-    );
+    </div>);
+  },
+
+  renderDiagnosisDateInput: function(formValues) {
+    var classes = 'PatientInfo-input', errorElem;
+    var error = this.state.validationErrors.diagnosisDate;
+    if (error) {
+      classes += ' PatientInfo-input-error';
+      errorElem = <div className="PatientInfo-error-message">{error}</div>;
+    }
+    return (<div className="PatientInfo-blockRow">
+      <div className="">
+        <label className="PatientInfo-label" htmlFor="diagnosisDate">Date of diagnosis</label>
+        <input className={classes} id="diagnosisDate" ref="diagnosisDate" placeholder={FORM_DATE_FORMAT} defaultValue={formValues.diagnosisDate} />
+        {errorElem}
+      </div>
+    </div>);
+  },
+
+  renderAboutInput: function(formValues) {
+    var classes = 'PatientInfo-input', errorElem;
+    var error = this.state.validationErrors.about;
+    if (error) {
+      classes += ' PatientInfo-input-error';
+      errorElem = <div className="PatientInfo-error-message">{error}</div>;
+    }
+    return (<div className="PatientInfo-bio">
+      <textarea className={classes} ref="about"
+        placeholder="Anything you would like to share?"
+        rows="3"
+        defaultValue={formValues.about}>
+      </textarea>
+      {errorElem}
+    </div>);
   },
 
   renderSubmit: function() {
@@ -257,19 +301,6 @@ var PatientInfo = React.createClass({
         type="submit" onClick={this.handleSubmit}>
         {'Save changes'}
       </button>
-    );
-  },
-
-  renderNotification: function() {
-    var notification = this.state.notification;
-    if (!notification) {
-      return null;
-    }
-
-    return (
-      <div className={'PatientInfo-notification PatientInfo-notification--' + notification.type}>
-        {notification.message}
-      </div>
     );
   },
 
@@ -377,11 +408,14 @@ var PatientInfo = React.createClass({
     e.preventDefault();
     var formValues = this.getFormValues();
 
-    this.setState({notification: null});
-    var validationError = this.validateFormValues(formValues);
-    if (validationError) {
+    this.setState({validationErrors: {}});
+   
+    var isNameRequired = personUtils.patientIsOtherPerson(this.props.patient);
+    var validationErrors = personUtils.validateFormValues(formValues, isNameRequired,  FORM_DATE_FORMAT);
+    
+    if (!_.isEmpty(validationErrors)) {
       this.setState({
-        notification: {type: 'error', message: validationError}
+        validationErrors: validationErrors
       });
       return;
     }
@@ -416,20 +450,22 @@ var PatientInfo = React.createClass({
    * @return {String|undefined} returns a string if there is an error
    */
   validateFormValues: function(formValues, currentDateObj) {
+    var validationErrors = {};
+
     // Legacy: revisit when proper "child accounts" are implemented
     if (personUtils.patientIsOtherPerson(this.props.patient) &&
         !formValues.fullName) {
-      return 'Full name is required';
+      validationErrors.fullName = 'Full name is required';
     }
 
     var birthday = formValues.birthday;
     if (!(birthday && sundial.isValidDateForMask(birthday,FORM_DATE_FORMAT))) {
-      return 'Date of birth needs to be a valid date';
+      validationErrors.birthday = 'Date of birth needs to be a valid date';
     }
 
     var diagnosisDate = formValues.diagnosisDate;
     if (!(diagnosisDate && sundial.isValidDateForMask(diagnosisDate,FORM_DATE_FORMAT))) {
-      return 'Diagnosis date needs to be a valid date';
+      validationErrors.diagnosisDate = 'Diagnosis date needs to be a valid date';
     }
 
     var now = new Date();
@@ -438,21 +474,21 @@ var PatientInfo = React.createClass({
     var diagnosisDateObj = sundial.parseFromFormat(diagnosisDate, FORM_DATE_FORMAT);
 
     if (birthdayDateObj > currentDateObj) {
-      return 'Date of birth cannot be in the future!';
+      validationErrors.birthday = 'Date of birth cannot be in the future!';
     }
 
     if (diagnosisDateObj > currentDateObj) {
-      return 'Diagnosis date cannot be in the future!';
+      validationErrors.diagnosisDate = 'Diagnosis date cannot be in the future!';
     }
 
     if (birthdayDateObj > diagnosisDateObj) {
-      return 'Diagnosis cannot be before date of birth!';
+      validationErrors.diagnosisDate = 'Diagnosis cannot be before date of birth!';
     }
 
     var maxLength = 256;
     var about = formValues.about;
     if (about && about.length > maxLength) {
-      return 'Please keep "about" text under ' + maxLength + ' characters';
+      validationErrors.about = 'Please keep "about" text under ' + maxLength + ' characters';
     }
   },
 
