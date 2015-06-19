@@ -83,7 +83,9 @@ function chartWeeklyFactory(el, options) {
     else {
       if (twoWeekData.length &&
           Date.parse(datetime) > Date.parse(twoWeekData[twoWeekData.length - 1].normalTime)) {
-        datetime = twoWeekData[twoWeekData.length - 1].normalTime;
+        datetime = twoWeekData[_.findLastIndex(twoWeekData, function(d) {
+          return d.twoWeekX === 0;
+        })].normalTime;
       }
       chart.data(twoWeekData, chart.options.timePrefs.timezoneAware, datetime);
     }
