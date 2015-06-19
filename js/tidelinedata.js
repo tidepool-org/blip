@@ -244,35 +244,11 @@ function TidelineData(data, opts) {
     }
     var endpoints;
     if (opts.timePrefs.timezoneAware) {
-      var firstOffset = dt.getOffset(first, opts.timePrefs.timezoneName);
-      var firstDate = first.slice(0,10), firstDateAdjusted = dt.applyOffset(first, -firstOffset).slice(0,10);
-      first = dt.applyOffset(dt.getMidnight(dt.applyOffset(first, firstOffset)), firstOffset-1440);
-      if (firstDateAdjusted >= firstDate) {
-        first = dt.addDays(first, 1);
-        // TODO: possibly remove this
-        // it is intended to catch timezones on the other side of the dateline
-        // I think that makes sense to fix the issue found here
-        // (not generating fill for the last day of data when choosing e.g., New 
-        // but I haven't fully convinced myself...
-        if (Math.abs(firstOffset) >= 720) {
-          first = dt.addDays(first, 1);
-        }
-      }
-      var lastOffset = dt.getOffset(last, opts.timePrefs.timezoneName);
-      var lastDate = dt.applyOffset(last, data[data.length - 1].timezoneOffset).slice(0,10), lastDateAdjusted = dt.applyOffset(last, -lastOffset).slice(0,10);
-      if (lastDateAdjusted > lastDate) {
-        last = dt.applyOffset(dt.getMidnight(dt.applyOffset(last, lastOffset), true), lastOffset);
-        last = dt.addDays(last, 1);
-      }
-      else {
-        if (lastDateAdjusted < last.slice(0,10)) {
-          last = dt.applyOffset(dt.getMidnight(dt.applyOffset(last, lastOffset)), lastOffset);  
-        }
-        else {
-          last = dt.applyOffset(dt.getMidnight(dt.applyOffset(last, lastOffset), true), lastOffset);
-        }
-      }
-      endpoints = [first, last];
+      var tz = opts.timePrefs.timezoneName;
+      endpoints = [
+        dt.getUTCOfLocalPriorMidnight(first, tz),
+        dt.getUTCOfLocalNextMidnight(last, tz)
+      ];
     }
     else {
       endpoints = [dt.getMidnight(first), dt.getMidnight(last, true)];

@@ -202,9 +202,25 @@ describe('TidelineData', function() {
     });
 
     it('when timezoneAware, should produce a foreshortened interval for Spring Forward', function() {
+      var start = '2014-03-08T12:00:00', end = '2014-03-09T12:00:00';
       var thisTd = new TidelineData([
-        new types.SMBG({deviceTime: '2014-03-08T12:00:00'}),
-        new types.SMBG({deviceTime: '2014-03-09T12:00:00'})
+        {
+          type: 'smbg',
+          deviceTime: start,
+          time: '2014-03-08T20:00:00.000Z',
+          timezoneOffset: -480,
+          id: 'abcde',
+          units: 'mg/dL',
+          value: 100
+        }, {
+          type: 'smbg',
+          deviceTime: end,
+          time: '2014-03-09T19:00:00.000Z',
+          timezoneOffset: -420,
+          id: 'abcde',
+          units: 'mg/dL',
+          value: 101
+        }
       ], {timePrefs: {
         timezoneAware: true,
         timezoneName: 'US/Pacific'
@@ -264,32 +280,64 @@ describe('TidelineData', function() {
       expect(thisTd.twoWeekData[thisTd.twoWeekData.length - 1].normalTime).to.equal('2014-09-14T21:00:00.000Z');
     });
 
-    it('when timezoneAware, it should produce appropriately shifted intervals', function() {
-      var start = '2014-01-01T12:00:00', end = '2014-01-02T12:00:00';
+    it('when timezoneAware, it should produce appropriately shifted intervals: true story, bruh', function() {
+      var start = '2014-12-19T08:28:00', end = '2015-03-18T05:42:00';
       var thisTd = new TidelineData([
-        new types.SMBG({deviceTime: start}),
-        new types.SMBG({deviceTime: end})
+        {
+          type: 'smbg',
+          deviceTime: start,
+          time: '2014-12-19T16:28:00.000Z',
+          timezoneOffset: -480,
+          id: 'abcde',
+          units: 'mg/dL',
+          value: 100
+        }, {
+          type: 'smbg',
+          deviceTime: end,
+          time: '2015-03-18T12:42:00.000Z',
+          timezoneOffset: -420,
+          id: 'abcde',
+          units: 'mg/dL',
+          value: 101
+        }
       ], {timePrefs: {
         timezoneAware: true,
         timezoneName: 'US/Pacific'
       }});
       var twoWeekFills = _.where(thisTd.twoWeekData, {type: 'fill'});
       var firstFill = twoWeekFills[0], lastFill = twoWeekFills[twoWeekFills.length - 1];
-      var offset = new Date().getTimezoneOffset();
-      if (offset === 0) {
-        // SHAME: hack to get tests to pass on Travis UTC box
-        // really this is evidence of some weirdness in the code when you are running it
-        // in timezoneAware mode with 'UTC' as the timezone
-        // you get an extra day of fill rectangles in two-week view
-        // but nothing is actually broken and the rabbit hole isn't worth it
-        expect(firstFill.normalTime).to.be.at.most(moment.utc(end).subtract(13, 'days').tz('US/Pacific').startOf('day').toISOString());
-        expect(lastFill.normalTime).to.equal(moment.utc(end).tz('US/Pacific').hours(21).toISOString());
-      }
-      else {
-        expect(firstFill.normalTime).to.be.at.most(moment.utc(end).subtract(12, 'days').tz('US/Pacific').startOf('day').toISOString());
-        expect(lastFill.normalTime).to.equal(moment.utc(end).add(1, 'days').tz('US/Pacific').hours(21).toISOString());
-      }
-      expect(new Date(lastFill.normalEnd) - new Date(firstFill.normalTime)).to.be.at.least(864e5*14);
+      expect(firstFill.normalTime).to.equal('2014-12-19T08:00:00.000Z');
+      expect(lastFill.normalTime).to.equal('2015-03-19T04:00:00.000Z');
+    });
+
+    it('when timezoneAware, it should produce appropriately shifted intervals: New Zealand!', function() {
+      var start = '2014-12-19T08:28:00', end = '2015-03-18T05:42:00';
+      var thisTd = new TidelineData([
+        {
+          type: 'smbg',
+          deviceTime: start,
+          time: '2014-12-19T16:28:00.000Z',
+          timezoneOffset: -480,
+          id: 'abcde',
+          units: 'mg/dL',
+          value: 100
+        }, {
+          type: 'smbg',
+          deviceTime: end,
+          time: '2015-03-18T12:42:00.000Z',
+          timezoneOffset: -420,
+          id: 'abcde',
+          units: 'mg/dL',
+          value: 101
+        }
+      ], {timePrefs: {
+        timezoneAware: true,
+        timezoneName: 'Pacific/Auckland'
+      }});
+      var twoWeekFills = _.where(thisTd.twoWeekData, {type: 'fill'});
+      var firstFill = twoWeekFills[0], lastFill = twoWeekFills[twoWeekFills.length - 1];
+      expect(firstFill.normalTime).to.equal('2014-12-19T11:00:00.000Z');
+      expect(lastFill.normalTime).to.equal('2015-03-19T08:00:00.000Z');
     });
   });
 

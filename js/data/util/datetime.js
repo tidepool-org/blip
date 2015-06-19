@@ -154,6 +154,18 @@ var datetime = {
     return Math.ceil((end - start)/this.MS_IN_24);
   },
 
+  getUTCOfLocalPriorMidnight: function(d, timezoneName) {
+    timezoneName = timezoneName || 'UTC';
+    var local = moment.utc(d).tz(timezoneName);
+    return local.startOf('day').toDate().toISOString();
+  },
+
+  getUTCOfLocalNextMidnight: function(d, timezoneName) {
+    timezoneName = timezoneName || 'UTC';
+    var local = moment.utc(d).tz(timezoneName);
+    return new Date(local.endOf('day').valueOf() + 1).toISOString();
+  },
+
   isLessThanTwentyFourHours: function(s, e) {
     var start = new Date(s).valueOf(), end = new Date(e).valueOf();
     if (end - start < this.MS_IN_24) {

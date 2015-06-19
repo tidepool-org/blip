@@ -276,6 +276,44 @@ describe('datetime utility', function() {
     });
   });
 
+  describe('getUTCOfLocalPriorMidnight', function() {
+    it('should be a function', function() {
+      assert.isFunction(dt.getUTCOfLocalPriorMidnight);
+    });
+
+    it('should return the input if given a UTC midnight and no timezone', function() {
+      var priorMidnight = new Date().toISOString().slice(0,10) + 'T00:00:00.000Z';
+      expect(dt.getUTCOfLocalPriorMidnight(priorMidnight)).to.equal(priorMidnight);
+    });
+
+    it('should return the UTC equivalent of the prior local midnight given a timezone', function() {
+      var datetime = '2015-03-06T14:00:00.000Z';
+      // NB: Hawaii doesn't do DST so we can hardcode the +10 offset for this test
+      var priorMidnight = '2015-03-06T10:00:00.000Z';
+      expect(dt.getUTCOfLocalPriorMidnight(datetime, 'Pacific/Honolulu')).to.equal(priorMidnight);
+    });
+  });
+
+  describe('getUTCOfLocalNextMidnight', function() {
+    it('should be a function', function() {
+      assert.isFunction(dt.getUTCOfLocalNextMidnight);
+    });
+
+    it('should return the input if given a UTC midnight and no timezone', function() {
+      var thisMidnight = new Date().toISOString().slice(0,10) + 'T00:00:00.000Z';
+      var nextMidnight = new Date(thisMidnight);
+      nextMidnight.setUTCDate(nextMidnight.getUTCDate() + 1);
+      expect(dt.getUTCOfLocalNextMidnight(thisMidnight)).to.equal(nextMidnight.toISOString());
+    });
+
+    it('should return the UTC equivalent of the prior local midnight given a timezone', function() {
+      var datetime = '2015-03-06T14:00:00.000Z';
+      // NB: Hawaii doesn't do DST so we can hardcode the +10 offset for this test
+      var nextMidnight = '2015-03-07T10:00:00.000Z';
+      expect(dt.getUTCOfLocalNextMidnight(datetime, 'Pacific/Honolulu')).to.equal(nextMidnight);
+    });
+  });
+
   describe('getOffset', function() {
     it('should be a function', function() {
       assert.isFunction(dt.getOffset);
