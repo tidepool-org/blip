@@ -9,7 +9,7 @@
   ],
   "homepage": "https://github.com/tidepool-org/sundial",
   "bugs": "https://github.com/tidepool-org/sundial/issues",
-  "license": "BSD-2-clause",
+  "license": "BSD-2-Clause",
   "author": {
     "name": "Eric Tschetter",
     "url": "https://github.com/cheddar"
