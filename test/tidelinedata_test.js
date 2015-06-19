@@ -202,9 +202,25 @@ describe('TidelineData', function() {
     });
 
     it('when timezoneAware, should produce a foreshortened interval for Spring Forward', function() {
+      var start = '2014-03-08T12:00:00', end = '2014-03-09T12:00:00';
       var thisTd = new TidelineData([
-        new types.SMBG({deviceTime: '2014-03-08T12:00:00'}),
-        new types.SMBG({deviceTime: '2014-03-09T12:00:00'})
+        {
+          type: 'smbg',
+          deviceTime: start,
+          time: '2014-03-08T20:00:00.000Z',
+          timezoneOffset: -480,
+          id: 'abcde',
+          units: 'mg/dL',
+          value: 100
+        }, {
+          type: 'smbg',
+          deviceTime: end,
+          time: '2014-03-09T19:00:00.000Z',
+          timezoneOffset: -420,
+          id: 'abcde',
+          units: 'mg/dL',
+          value: 101
+        }
       ], {timePrefs: {
         timezoneAware: true,
         timezoneName: 'US/Pacific'
@@ -267,8 +283,23 @@ describe('TidelineData', function() {
     it('when timezoneAware, it should produce appropriately shifted intervals: true story, bruh', function() {
       var start = '2014-12-19T08:28:00', end = '2015-03-18T05:42:00';
       var thisTd = new TidelineData([
-        new types.SMBG({deviceTime: start}),
-        new types.SMBG({deviceTime: end})
+        {
+          type: 'smbg',
+          deviceTime: start,
+          time: '2014-12-19T16:28:00.000Z',
+          timezoneOffset: -480,
+          id: 'abcde',
+          units: 'mg/dL',
+          value: 100
+        }, {
+          type: 'smbg',
+          deviceTime: end,
+          time: '2015-03-18T12:42:00.000Z',
+          timezoneOffset: -420,
+          id: 'abcde',
+          units: 'mg/dL',
+          value: 101
+        }
       ], {timePrefs: {
         timezoneAware: true,
         timezoneName: 'US/Pacific'
@@ -282,8 +313,23 @@ describe('TidelineData', function() {
     it('when timezoneAware, it should produce appropriately shifted intervals: New Zealand!', function() {
       var start = '2014-12-19T08:28:00', end = '2015-03-18T05:42:00';
       var thisTd = new TidelineData([
-        new types.SMBG({deviceTime: start}),
-        new types.SMBG({deviceTime: end})
+        {
+          type: 'smbg',
+          deviceTime: start,
+          time: '2014-12-19T16:28:00.000Z',
+          timezoneOffset: -480,
+          id: 'abcde',
+          units: 'mg/dL',
+          value: 100
+        }, {
+          type: 'smbg',
+          deviceTime: end,
+          time: '2015-03-18T12:42:00.000Z',
+          timezoneOffset: -420,
+          id: 'abcde',
+          units: 'mg/dL',
+          value: 101
+        }
       ], {timePrefs: {
         timezoneAware: true,
         timezoneName: 'Pacific/Auckland'
