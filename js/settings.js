@@ -90,7 +90,7 @@ module.exports = function(opts) {
   container.data = function(data) {
     if (!arguments.length) return settings;
 
-    settings = data.grouped.settings;
+    settings = data.grouped.pumpSettings;
     var firstBgTarget = settings[settings.length - 1].bgTarget[0];
     if (_.has(firstBgTarget, 'target') && _.has(firstBgTarget, 'high')) {
       opts.rowHeadersByType.bgTarget = ['Start time', 'Target (' + opts.bgUnits + ')', 'High (' + opts.bgUnits + ')'];

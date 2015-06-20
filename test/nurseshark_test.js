@@ -324,10 +324,10 @@ describe('nurseshark', function() {
       expect(res.insulinSensitivity).to.equal(68);
     });
 
-    it('should translate settings bg-related fields to mg/dL when such units specified', function() {
+    it('should translate pumpSettings bg-related fields to mg/dL when such units specified', function() {
       var now = new Date().toISOString();
       var settings = [{
-        type: 'settings',
+        type: 'pumpSettings',
         time: now,
         units: {
           bg: 'mmol/L',
@@ -359,7 +359,7 @@ describe('nurseshark', function() {
     it('should reshape basalSchedules from an object to an array', function() {
       var now = new Date().toISOString();
       var settings = [{
-        type: 'settings',
+        type: 'pumpSettings',
         basalSchedules: {
           foo: [],
           bar: []

@@ -27,7 +27,7 @@ var schemas = {
   common: require('./common'),
   deviceMeta: schema(),
   message: require('./message'),
-  settings: require('./settings'),
+  pumpSettings: require('./pumpSettings'),
   smbg: require('./bg'),
   upload: require('./upload'),
   wizard: require('./wizard')

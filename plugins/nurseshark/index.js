@@ -380,7 +380,7 @@ function getHandlers(bgUnits) {
       }
       return d;
     },
-    settings: function(d) {
+    pumpSettings: function(d) {
       d = cloneDeep(d);
       if (bgUnits === 'mg/dL') {
         if (d.bgTarget) {
