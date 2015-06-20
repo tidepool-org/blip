@@ -82,6 +82,7 @@ personUtils.isRemoveable = function(person) {
     !person.permissions.root
   );
 };
+
 /**
    * Validate the form data
    *  - name has to be present (can only not be present if user is not patient)
@@ -90,7 +91,7 @@ personUtils.isRemoveable = function(person) {
    *  
    * @param  {Object} formValues
    * @param  {Boolean} isNameRequired
-   * @apram  {String} dateFormat of input
+   * @param  {String} dateFormat of input
    * @param  {Date|null} currentDate mainly for testing purposes
    * 
    * @return {String|undefined} returns a string if there is an error
