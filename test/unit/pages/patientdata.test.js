@@ -209,10 +209,6 @@ describe('PatientData', function () {
       var pdElem = React.createElement(PatientData, props);
       var elem = TestUtils.renderIntoDocument(pdElem);
       expect(elem).to.be.ok;
-      
-      // var x = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'fake-modal-view');
-      // console.log(x.length);
-      //expect(x).to.be.ok;
     });
   });
 });
