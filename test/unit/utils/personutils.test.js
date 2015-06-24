@@ -343,6 +343,18 @@ describe('personutils', function() {
       var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT);
 
       expect(Object.keys(error).length).to.equal(0);
-    });   
+    });
+
+    it('should return multiple error messages when multiple validation problems', function() {
+      var formValues = {
+        fullName: 'Joe Bloggs',
+        birthday: '05/19/2015',
+        diagnosisDate: '01/01/2015',
+        about: null
+      };
+      var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT, Date.UTC(2015, 4, 18));
+
+      expect(Object.keys(error).length).to.equal(2);
+    });
   });
 });
