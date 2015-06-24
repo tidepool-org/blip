@@ -190,7 +190,7 @@ var MemberInviteForm = React.createClass({
 
 var ConfirmDialog = React.createClass({
   propTypes: {
-    message: React.PropTypes.renderable,
+    message: React.PropTypes.node,
     buttonText: React.PropTypes.string,
     dismissText: React.PropTypes.string,
     buttonTextWorking: React.PropTypes.string,

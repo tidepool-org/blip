@@ -160,7 +160,9 @@ var Patient = React.createClass({
   },
 
   renderPatientTeam: function() {
-    return this.transferPropsTo(<PatientTeam />);
+    return (
+      <PatientTeam {...this.props} />
+    );
   },
 });
 

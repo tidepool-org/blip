@@ -35,7 +35,7 @@ if (!window.process) {
 var Message = React.createClass({
 
   propTypes: {
-    theNote : React.PropTypes.object,
+    theNote : React.PropTypes.object.isRequired,
     imageSize: React.PropTypes.string,
     onSaveEdit : React.PropTypes.func
   },
@@ -46,13 +46,15 @@ var Message = React.createClass({
     };
   },
   componentDidMount: function () {
-    var offset = sundial.getOffsetFromTime(this.props.theNote.timestamp) || sundial.getOffset();
+    if (this.props.theNote) {
+      var offset = sundial.getOffsetFromTime(this.props.theNote.timestamp) || sundial.getOffset();
 
-    this.setState({
-      author :  this.getUserDisplayName(this.props.theNote.user),
-      note : this.props.theNote.messagetext,
-      when : sundial.formatFromOffset(this.props.theNote.timestamp, offset)
-    });
+      this.setState({
+        author : this.getUserDisplayName(this.props.theNote.user),
+        note : this.props.theNote.messagetext,
+        when : sundial.formatFromOffset(this.props.theNote.timestamp, offset)
+      });
+    }
   },
   getUserDisplayName: function(user) {
     var result = 'Anonymous user';
@@ -196,7 +198,7 @@ var Message = React.createClass({
       var image = this.renderImage();
       var title = this.renderTitle();
 
-      return this.transferPropsTo(
+      return (
         /* jshint ignore:start */
         <div>
           {image}
