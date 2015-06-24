@@ -1,5 +1,6 @@
 var personUtils = require('../../../app/core/personutils');
 var expect = chai.expect;
+var FORM_DATE_FORMAT = 'MM/DD/YYYY';
 
 describe('personutils', function() {
 
@@ -153,6 +154,207 @@ describe('personutils', function() {
       var result = personUtils.isSame(person1, person2);
 
       expect(result).to.not.be.ok;
+    });
+  });
+
+  describe('validateFormValues', function() {
+    it('should return error message when name is required but is null', function() {
+      var formValues = {
+        fullName: null,
+        birthday: null,
+        diagnosisDate: null,
+        about: null
+      };
+      var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT);
+
+      expect(error.fullName).to.equal('Full name is required');
+    });
+
+    it('should not return error message when name is not required and is null', function() {
+      var formValues = {
+        fullName: null,
+        birthday: null,
+        diagnosisDate: null,
+        about: null
+      };
+      var error = personUtils.validateFormValues(formValues, false, FORM_DATE_FORMAT);
+
+      expect(error.fullName).to.be.undefined;
+    });
+
+    it('should return error message when birthday is null', function() {
+      var formValues = {
+        fullName: 'Joe Bloggs',
+        birthday: null,
+        diagnosisDate: null,
+        about: null
+      };
+      var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT);
+
+      expect(error.fullName).to.be.undefined;
+      expect(error.birthday).to.equal('Date of birth needs to be a valid date');
+    });
+
+    it('should return error message when birthday is invalid string', function() {
+      var formValues = {
+        fullName: 'Joe Bloggs',
+        birthday: 'randomstring',
+        diagnosisDate: null,
+        about: null
+      };
+      var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT);
+
+      expect(error.birthday).to.equal('Date of birth needs to be a valid date');
+    });
+
+    it('should return error message when birthday is wrong date format', function() {
+      var formValues = {
+        fullName: 'Joe Bloggs',
+        birthday: '2014-05-01',
+        diagnosisDate: null,
+        about: null
+      };
+      var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT);
+
+      expect(error.birthday).to.equal('Date of birth needs to be a valid date');
+    });
+
+    it('should return error message when diagnosisDate is null', function() {
+      var formValues = {
+        fullName: 'Joe Bloggs',
+        birthday: '01/01/1984',
+        diagnosisDate: null,
+        about: null
+      };
+      var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT);
+
+      expect(error.diagnosisDate).to.equal('Diagnosis date needs to be a valid date');
+    });
+
+    it('should return error message when diagnosisDate is invalid', function() {
+      var formValues = {
+        fullName: 'Joe Bloggs',
+        birthday: '01/01/1984',
+        diagnosisDate: '1234',
+        about: null
+      };
+      var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT);
+
+      expect(error.diagnosisDate).to.equal('Diagnosis date needs to be a valid date');
+    });
+
+    it('should return error message when diagnosisDate is in wrong format', function() {
+      var formValues = {
+        fullName: 'Joe Bloggs',
+        birthday: '01/01/1984',
+        diagnosisDate: '02/02/1988',
+        about: null
+      };
+      var error = personUtils.validateFormValues(formValues, true, 'MM-DD-YYYY');
+
+      expect(error.diagnosisDate).to.equal('Diagnosis date needs to be a valid date');
+    });
+
+    it('should return no error message when diagnosisDate and birthday are valid and about is empty', function() {
+      var formValues = {
+        fullName: 'Joe Bloggs',
+        birthday: '01/01/1984',
+        diagnosisDate: '01/05/1984',
+        about: null
+      };
+      var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT);
+
+      expect(Object.keys(error).length).to.equal(0);
+    });
+
+    it('should return error message when birthday is in the future', function() {
+      var formValues = {
+        fullName: 'Joe Bloggs',
+        birthday: '01/01/2016',
+        diagnosisDate: '01/05/1984',
+        about: null
+      };
+      var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT, Date.UTC(2015, 4, 18));
+
+      expect(error.birthday).to.equal('Date of birth cannot be in the future!');
+    });
+
+    it('should return error message when diagnosisDate is in the future', function() {
+      var formValues = {
+        fullName: 'Joe Bloggs',
+        birthday: '01/05/1984',
+        diagnosisDate: '01/01/2016',
+        about: null
+      };
+      var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT, Date.UTC(2015, 4, 18));
+
+      expect(error.diagnosisDate).to.equal('Diagnosis date cannot be in the future!');
+    });
+
+    it('should return error message when diagnosisDate is before birthday', function() {
+      var formValues = {
+        fullName: 'Joe Bloggs',
+        birthday: '01/05/1984',
+        diagnosisDate: '01/01/1983',
+        about: null
+      };
+      var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT, Date.UTC(2015, 4, 18));
+
+      expect(error.diagnosisDate).to.equal('Diagnosis cannot be before date of birth!');
+    });
+
+    it('should return no error message when diagnosisDate and birthday and about is valid', function() {
+      var formValues = {
+        fullName: 'Joe Bloggs',
+        birthday: '01/01/1984',
+        diagnosisDate: '01/05/1984',
+        about: 'This is a valid length about section'
+      };
+      var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT);
+
+      expect(Object.keys(error).length).to.equal(0);
+    });
+
+    it('should return error message when about is over max length', function() {
+      var formValues = {
+        fullName: 'Joe Bloggs',
+        birthday: '01/01/1984',
+        diagnosisDate: '01/05/1984',
+        about: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' +
+        'Enim in consectetur ultricies netus torquent nisi gravida pulvinar' +
+        ' - curae congue tellus sodales nec proin?Risus in nostra montes rhoncus' +
+        ' vestibulum tempus per ut: curae maecenas nibh arcu eget. Dolby'
+      };
+      var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT);
+
+      expect(error.about).to.equal('Please keep "about" text under 256 characters');
+    }); 
+
+    it('should return no error message when diagnosisDate and birthday and about is at max length', function() {
+      var formValues = {
+        fullName: 'Joe Bloggs',
+        birthday: '01/01/1984',
+        diagnosisDate: '01/05/1984',
+        about: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' + 
+        'Enim in consectetur ultricies netus torquent nisi gravida pulvinar' + 
+        ' - curae congue tellus sodales nec proin?Risus in nostra montes rhoncus' + 
+        ' vestibulum tempus per ut: curae maecenas nibh arcu eget. Dolb'
+      };
+      var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT);
+
+      expect(Object.keys(error).length).to.equal(0);
+    });
+
+    it('should return multiple error messages when multiple validation problems', function() {
+      var formValues = {
+        fullName: 'Joe Bloggs',
+        birthday: '05/19/2015',
+        diagnosisDate: '01/01/2015',
+        about: null
+      };
+      var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT, Date.UTC(2015, 4, 18));
+
+      expect(Object.keys(error).length).to.equal(2);
     });
   });
 });

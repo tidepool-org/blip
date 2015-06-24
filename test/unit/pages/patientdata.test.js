@@ -4,6 +4,7 @@ var React = require('react');
 var TestUtils = require('react/lib/ReactTestUtils');
 var expect = chai.expect;
 var rewire = require('rewire');
+var rewireModule = require('../../utils/rewireModule');
 
 /**
  * Need to set window.config for config module
@@ -11,10 +12,15 @@ var rewire = require('rewire');
 window.config = {};
 
 describe('PatientData', function () {
-
   var PatientData = rewire('../../../app/pages/patientdata');
-
-  var stub = sinon.stub().returns(<a className='fake-modal-view'/>);
+  rewireModule(PatientData, { 
+    Modal: React.createClass({
+      render: function() {
+        console.log('Mock', this.props);
+        return (<div className='fake-modal-view'></div>);
+      }
+    })
+  });
 
   it('should be exposed as a module and be of type function', function() {
     expect(PatientData).to.be.a('function');
@@ -132,87 +138,77 @@ describe('PatientData', function () {
       var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message-no-data');
       expect(x).to.be.ok;
     });
-  });
 
-  it ('should render the no data message when no data is present, isUserPatient and loading is false', function() {
-    var props = {
-      timePrefs: {
-        timezoneAware: false,
-        timezoneName: null
-      },
-      patient: {
-        userid: 40
-      },
-      fetchingPatient: false,
-      fetchingPatientData: false,
-      queryParams: {},
-      trackMetric: sinon.stub()
-    };
+    it ('should render the no data message when no data is present, isUserPatient and loading is false', function() {
+      var props = {
+        timePrefs: {
+          timezoneAware: false,
+          timezoneName: null
+        },
+        patient: {
+          userid: 40
+        },
+        fetchingPatient: false,
+        fetchingPatientData: false,
+        queryParams: {},
+        trackMetric: sinon.stub()
+      };
 
-    // Try out using the spread props syntax in JSX
-    var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
-    expect(elem).to.be.ok;
-    
-    var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message');
-    expect(x).to.be.ok;
-  });
+      // Try out using the spread props syntax in JSX
+      var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+      expect(elem).to.be.ok;
+      
+      var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message');
+      expect(x).to.be.ok;
+    });
 
-  it ('should render the no data message when no data is present for current patient', function() {
-    var props = {
-      timePrefs: {
-        timezoneAware: false,
-        timezoneName: null
-      },
-      patient: {
-        userid: 40
-      },
-      patientData: {
-        41: { data: [] }
-      },
-      fetchingPatient: false,
-      fetchingPatientData: false,
-      queryParams: {},
-      trackMetric: sinon.stub()
-    };
+    it ('should render the no data message when no data is present for current patient', function() {
+      var props = {
+        timePrefs: {
+          timezoneAware: false,
+          timezoneName: null
+        },
+        patient: {
+          userid: 40
+        },
+        patientData: {
+          41: { data: [] }
+        },
+        fetchingPatient: false,
+        fetchingPatientData: false,
+        queryParams: {},
+        trackMetric: sinon.stub()
+      };
 
-    // Try out using the spread props syntax in JSX
-    var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
-    expect(elem).to.be.ok;
-    
-    var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message');
-    expect(x).to.be.ok;
-  });
+      // Try out using the spread props syntax in JSX
+      var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+      expect(elem).to.be.ok;
+      
+      var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message');
+      expect(x).to.be.ok;
+    });
 
-  it ('should render when data is present for current patient', function() {
-    var props = {
-      timePrefs: {
-        timezoneAware: false,
-        timezoneName: null
-      },
-      patient: {
-        userid: 40
-      },
-      patientData: {
-        40: { data: [ 1, 2] }
-      },
-      fetchingPatient: false,
-      fetchingPatientData: false,
-      queryParams: {},
-      trackMetric: sinon.stub()
-    };
+    it ('should render when data is present for current patient', function() {
+      var props = {
+        timePrefs: {
+          timezoneAware: false,
+          timezoneName: null
+        },
+        patient: {
+          userid: 40
+        },
+        patientData: {
+          40: { data: [ 1, 2] }
+        },
+        fetchingPatient: false,
+        fetchingPatientData: false,
+        queryParams: {},
+        trackMetric: sinon.stub()
+      };
 
-    PatientData.__set__('Modal', React.createClass({
-      render: function() {
-        console.log('Mock', this.props);
-        return <div className='fake-modal-view'/>;
-      }
-    }));
-
-    // Try out using the spread props syntax in JSX
-    var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
-    expect(elem).to.be.ok;
-    
-    // var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-modal-view');
-    // expect(x).to.be.ok;
+      var pdElem = React.createElement(PatientData, props);
+      var elem = TestUtils.renderIntoDocument(pdElem);
+      expect(elem).to.be.ok;
+    });
   });
 });

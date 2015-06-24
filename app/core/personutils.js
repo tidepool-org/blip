@@ -14,6 +14,11 @@
  */
 
 var _ = require('lodash');
+var sundial = require('sundial');
+
+//date masks we use
+var FORM_DATE_FORMAT = 'MM/DD/YYYY';
+var SERVER_DATE_FORMAT = 'YYYY-MM-DD';
 
 var utils = require('./utils');
 
@@ -76,6 +81,64 @@ personUtils.isRemoveable = function(person) {
     !person.permissions.admin &&
     !person.permissions.root
   );
+};
+
+/**
+   * Validate the form data
+   *  - name has to be present (can only not be present if user is not patient)
+   *  - date of birth needs to be a valid date, and not in the future
+   *  - diagnosis date need to be a valid date, and not in the future, and not before date of birth
+   *  
+   * @param  {Object} formValues
+   * @param  {Boolean} isNameRequired
+   * @param  {String} dateFormat of input
+   * @param  {Date|null} currentDate mainly for testing purposes
+   * 
+   * @return {String|undefined} returns a string if there is an error
+   */
+personUtils.validateFormValues = function(formValues, isNameRequired, dateFormat, currentDateObj) {
+  var validationErrors = {};
+
+  // Legacy: revisit when proper "child accounts" are implemented
+  if (isNameRequired &&
+      !formValues.fullName) {
+    validationErrors.fullName = 'Full name is required';
+  }
+
+  var birthday = formValues.birthday;
+  if (!(birthday && sundial.isValidDateForMask(birthday, dateFormat))) {
+    validationErrors.birthday = 'Date of birth needs to be a valid date';
+  }
+
+  var diagnosisDate = formValues.diagnosisDate;
+  if (!(diagnosisDate && sundial.isValidDateForMask(diagnosisDate, dateFormat))) {
+    validationErrors.diagnosisDate = 'Diagnosis date needs to be a valid date';
+  }
+
+  var now = new Date();
+  currentDateObj = currentDateObj || Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  var birthdayDateObj = sundial.parseFromFormat(birthday, dateFormat);
+  var diagnosisDateObj = sundial.parseFromFormat(diagnosisDate, dateFormat);
+
+  if (!validationErrors.birthday && birthdayDateObj > currentDateObj) {
+    validationErrors.birthday = 'Date of birth cannot be in the future!';
+  }
+
+  if (!validationErrors.diagnosisDate && diagnosisDateObj > currentDateObj) {
+    validationErrors.diagnosisDate = 'Diagnosis date cannot be in the future!';
+  }
+
+  if (!validationErrors.diagnosisDate && birthdayDateObj > diagnosisDateObj) {
+    validationErrors.diagnosisDate = 'Diagnosis cannot be before date of birth!';
+  }
+
+  var maxLength = 256;
+  var about = formValues.about;
+  if (about && about.length > maxLength) {
+    validationErrors.about = 'Please keep "about" text under ' + maxLength + ' characters';
+  }
+
+  return validationErrors;
 };
 
 module.exports = personUtils;

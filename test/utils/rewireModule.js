@@ -10,8 +10,6 @@ var rewireModule = function rewireModule(rewiredModule, varValues) {
         rewiredReverts.push(revert);
       }
     }
-
-    console.log('boo', rewiredModule.__get__('Header'));
   });
 
   afterEach(function() {

@@ -62,7 +62,7 @@ describe('Settings', function () {
       expect(x.props.children.length).to.equal(3);
     });
 
-    it('should have a refresh button which should be call onClickRefresh when clicked', function () {
+    it('should have a refresh button which should call onClickRefresh when clicked', function () {
       var props = {
         bgPrefs: {},
         chartPrefs: {},
