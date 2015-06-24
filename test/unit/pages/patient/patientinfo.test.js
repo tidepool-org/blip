@@ -100,7 +100,7 @@ describe('PatientInfo', function () {
   });
 
   describe('getDisplayName', function() {
-    it('should return the users full name', function() {
+    it('should return the user\'s full name', function() {
       var props = {
         patient: {
           userid: 1,
@@ -118,7 +118,7 @@ describe('PatientInfo', function () {
   });
 
   describe('getAgeText', function() {
-    it('should return text being born this year if birthday less than 1 year', function() {
+    it('should return text `Born this year` if birthday less than 1 year', function() {
       var props = {
         patient: {
           userid: 1,
@@ -219,7 +219,7 @@ describe('PatientInfo', function () {
   });
 
   describe('getDiagnosisText', function() {
-    it('should return unknown birthday if less than 1 years old, or birthdate in future', function() {
+    it('should return unknown Dx date if less than 1 years old, or Dx date in future', function() {
       var props = {
         patient: {
           userid: 1,
@@ -264,7 +264,7 @@ describe('PatientInfo', function () {
       expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(2015, 4, 19))).to.equal('Diagnosed 31 years ago');
     });
 
-    it('should handle return correct text representation for various diagnosisDates', function() {
+    it('should handle return correct text representation for various Dx dates', function() {
       var props = {
         patient: {
           userid: 1,
@@ -473,7 +473,7 @@ describe('PatientInfo', function () {
   
   describe('prepareFormValuesForSubmit', function() {
 
-    it('should throw a errors with invalid birthday - non-leap year 29th Feb', function() {
+    it('should throw an error with invalid birthday - non-leap year 29th Feb', function() {
       console.error = sinon.spy(); // Stub the error function
       var props = {
         trackMetric: function() {},
@@ -498,7 +498,7 @@ describe('PatientInfo', function () {
       expect(error).to.be.an.instanceof(Error);
     });
 
-    it('should throw a errors with invalid birthday - non-existent date', function() {
+    it('should throw an error with invalid birthday - non-existent date', function() {
       console.error = sinon.spy(); // Stub the error function
       var props = {
         trackMetric: function() {},
@@ -523,7 +523,7 @@ describe('PatientInfo', function () {
       expect(error).to.be.an.instanceof(Error);
     });
 
-    it('should convert valid birthday to YYYY-MM-DD equivalents', function() {
+    it('should convert valid birthday to YYYY-MM-DD equivalent', function() {
       var props = {
         trackMetric: function() {},
         patient: {
@@ -554,7 +554,7 @@ describe('PatientInfo', function () {
       expect(result.profile.patient.birthday).to.equal('2016-02-29');
     });
 
-    it('should throw a errors with invalid diagnosisDate - non-leap year 29th Feb', function() {
+    it('should throw an error with invalid diagnosisDate - non-leap year 29th Feb', function() {
       console.error = sinon.spy(); // Stub the error function
       var props = {
         trackMetric: function() {},
@@ -579,7 +579,7 @@ describe('PatientInfo', function () {
       expect(error).to.be.an.instanceof(Error);
     });
 
-    it('should throw a errors with invalid diagnosisDate - non-existent date', function() {
+    it('should throw an error with invalid diagnosisDate - non-existent date', function() {
       console.error = sinon.spy(); // Stub the error function
       var props = {
         trackMetric: function() {},
@@ -604,7 +604,7 @@ describe('PatientInfo', function () {
       expect(error).to.be.an.instanceof(Error);
     });
 
-    it('should convert valid diagnosisDate to YYYY-MM-DD equivalents', function() {
+    it('should convert valid diagnosisDate to YYYY-MM-DD equivalent', function() {
       var props = {
         trackMetric: function() {},
         patient: {
