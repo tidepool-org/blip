@@ -67,7 +67,7 @@ module.exports = function(emitter, opts) {
     if (!opts.timePrefs.timezoneAware) {
       var offsetMinutes = new Date(date).getTimezoneOffset();
       date.setUTCMinutes(date.getUTCMinutes() + offsetMinutes);
-      emitter.emit('clickTranslatesToDate', date);
+      emitter.emit('clickTranslatesToDate', date);  
     }
     else {
       emitter.emit('clickTranslatesToDate', date);
