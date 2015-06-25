@@ -25,6 +25,8 @@ var React = require('react');
 var _ = require('lodash');
 var sundial = require('sundial');
 
+var getIn = require('../../core/utils').getIn;
+
 var MessageForm = require('./messageform');
 
 if (!window.process) {
@@ -35,9 +37,10 @@ if (!window.process) {
 var Message = React.createClass({
 
   propTypes: {
-    theNote : React.PropTypes.object,
+    theNote: React.PropTypes.object,
     imageSize: React.PropTypes.string,
-    onSaveEdit : React.PropTypes.func
+    onSaveEdit: React.PropTypes.func,
+    timePrefs: React.PropTypes.object.isRequired
   },
 
   getInitialState: function() {
@@ -46,12 +49,20 @@ var Message = React.createClass({
     };
   },
   componentDidMount: function () {
-    var offset = sundial.getOffsetFromTime(this.props.theNote.timestamp) || sundial.getOffset();
+    var displayTimestamp;
+    if (getIn(this.props, ['timePrefs', 'timezoneAware'], false) &&
+      getIn(this.props, ['timePrefs', 'timezoneAware'], false)) {
+      displayTimestamp = sundial.formatInTimezone(this.props.theNote.timestamp, this.props.timePrefs.timezoneName);
+    }
+    else {
+      var offset = sundial.getOffsetFromTime(this.props.theNote.timestamp) || sundial.getOffset();
+      displayTimestamp = sundial.formatFromOffset(this.props.theNote.timestamp, offset);
+    }
 
     this.setState({
-      author :  this.getUserDisplayName(this.props.theNote.user),
-      note : this.props.theNote.messagetext,
-      when : sundial.formatFromOffset(this.props.theNote.timestamp, offset)
+      author: this.getUserDisplayName(this.props.theNote.user),
+      note: this.props.theNote.messagetext,
+      when: displayTimestamp
     });
   },
   getUserDisplayName: function(user) {

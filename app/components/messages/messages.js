@@ -37,7 +37,8 @@ var Messages = React.createClass({
     onClose : React.PropTypes.func,
     onSave : React.PropTypes.func,
     onEdit : React.PropTypes.func,
-    onNewMessage : React.PropTypes.func
+    onNewMessage : React.PropTypes.func,
+    timePrefs: React.PropTypes.object.isRequired
   },
 
   getDefaultProps: function () {
@@ -71,7 +72,8 @@ var Messages = React.createClass({
         key={message.id}
         theNote={message}
         imageSize='large'
-        onSaveEdit={this.getSaveEdit(message.userid)}/>
+        onSaveEdit={this.getSaveEdit(message.userid)}
+        timePrefs={this.props.timePrefs} />
       );
     /* jshint ignore:end */
   },
@@ -82,7 +84,8 @@ var Messages = React.createClass({
         key={message.id}
         theNote={message}
         imageSize='small'
-        onSaveEdit={this.getSaveEdit(message.userid)}/>
+        onSaveEdit={this.getSaveEdit(message.userid)}
+        timePrefs={this.props.timePrefs} />
       );
     /* jshint ignore:end */
   },
