@@ -25,7 +25,16 @@ var dt = require('./data/util/datetime');
 
 var log = require('bows')('One Day');
 
-module.exports = function(emitter) {
+module.exports = function(emitter, opts) {
+
+  opts = opts || {};
+  var defaults = {
+    timePrefs: {
+      timezoneAware: false,
+      timezoneName: 'US/Pacific'
+    }
+  };
+  _.defaults(opts, defaults);
 
   // constants
   var MS_IN_24 = 86400000;
@@ -55,9 +64,14 @@ module.exports = function(emitter) {
   emitter.on('clickInPool', function(offset) {
     var leftEdge = xScale(xScale.domain()[0]);
     var date = xScale.invert(leftEdge + offset - container.axisGutter());
-    var offsetMinutes = new Date(date).getTimezoneOffset();
-    date.setUTCMinutes(date.getUTCMinutes() + offsetMinutes);
-    emitter.emit('clickTranslatesToDate', date);
+    if (!opts.timePrefs.timezoneAware) {
+      var offsetMinutes = new Date(date).getTimezoneOffset();
+      date.setUTCMinutes(date.getUTCMinutes() + offsetMinutes);
+      emitter.emit('clickTranslatesToDate', date);
+    }
+    else {
+      emitter.emit('clickTranslatesToDate', date);
+    }
   });
 
   function container(selection) {
