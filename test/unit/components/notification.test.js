@@ -4,14 +4,14 @@ var React = require('react');
 var TestUtils = require('react/lib/ReactTestUtils');
 var expect = chai.expect;
 
-var Notification = require('../../../app/components/notification');
+var NotificationElem = require('../../../app/components/notification');
 
-describe('Notification', function () {
+describe('NotificationElem', function () {
   
   describe('render', function() {
     it('should not console.warn when props is empty', function () {
       console.warn = sinon.stub();
-      var elem = TestUtils.renderIntoDocument(<Notification/>);
+      var elem = TestUtils.renderIntoDocument(<NotificationElem/>);
 
       expect(elem).to.be.ok;
       expect(console.warn.callCount).to.equal(0);
@@ -23,7 +23,7 @@ describe('Notification', function () {
         type: 'foo',
         onClose: function() {}
       };
-      var notificationElem = React.createElement(Notification, props);
+      var notificationElem = React.createElement(NotificationElem, props);
       var elem = TestUtils.renderIntoDocument(notificationElem);
 
       expect(elem).to.be.ok;
