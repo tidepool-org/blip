@@ -123,7 +123,8 @@ var Messages = React.createClass({
         <MessageForm
           messagePrompt={this.props.COMMENT_PROMPT}
           saveBtnText={submitButtonText}
-          onSubmit={this.handleAddComment}/>
+          onSubmit={this.handleAddComment}
+          timePrefs={this.props.timePrefs} />
       </div>
     );
     /* jshint ignore:end */
@@ -141,7 +142,8 @@ var Messages = React.createClass({
             messagePrompt={this.props.NOTE_PROMPT}
             saveBtnText={submitButtonText}
             onSubmit={this.handleCreateNote}
-            onCancel={this.handleClose}/>
+            onCancel={this.handleClose}
+          timePrefs={this.props.timePrefs} />
       </div>
     );
       /* jshint ignore:end */

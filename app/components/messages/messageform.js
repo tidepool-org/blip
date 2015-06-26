@@ -25,15 +25,19 @@ var React = require('react');
 var _ = require('lodash');
 var sundial = require('sundial');
 
+var MessageMixins = require('./messagemixins');
+
 // Form for creating new Notes or adding Comments
 var MessageForm = React.createClass({
+  mixins: [MessageMixins],
   propTypes: {
-    formFields : React.PropTypes.object,
-    messagePrompt : React.PropTypes.string,
-    saveBtnText : React.PropTypes.string,
-    cancelBtnText : React.PropTypes.string,
-    onCancel : React.PropTypes.func,
-    onSubmit : React.PropTypes.func
+    formFields: React.PropTypes.object,
+    messagePrompt: React.PropTypes.string,
+    saveBtnText: React.PropTypes.string,
+    cancelBtnText: React.PropTypes.string,
+    onCancel: React.PropTypes.func,
+    onSubmit: React.PropTypes.func,
+    timePrefs: React.PropTypes.object.isRequired
   },
   getInitialState: function() {
     return this.initialState();
@@ -48,6 +52,23 @@ var MessageForm = React.createClass({
       saveBtnText : 'Post',
     };
   },
+  getEditableDateAndTime: function(ts) {
+    var editableTime, editableDate;
+    if (this.isTimezoneAware()) {
+      var tz = this.props.timePrefs.timezoneName;
+      editableTime = sundial.formatInTimezone(ts, tz, this.props.TIME_MASK);
+      editableDate = sundial.formatInTimezone(ts, tz, this.props.DATE_MASK);
+    }
+    else {
+      var offset = sundial.getOffsetFromTime(ts) || sundial.getOffset();
+      editableTime = sundial.formatFromOffset(ts, offset, this.props.TIME_MASK);
+      editableDate = sundial.formatFromOffset(ts, offset, this.props.DATE_MASK);
+    }
+    return {
+      time: editableTime,
+      date: editableDate
+    };
+  },
   isExistingNoteEdit:function() {
     return _.isEmpty(this.props.formFields) === false;
   },
@@ -58,16 +79,19 @@ var MessageForm = React.createClass({
     return this.isExistingNoteEdit() && _.isEmpty(this.props.formFields.editableTimestamp) === false;
   },
   initEdit:function() {
+    var editable;
+    if (this.hasTimestampToEdit()) {
+      editable = this.getEditableDateAndTime(this.props.formFields.editableTimestamp);
+    }
     if( this.hasTextToEdit() && this.hasTimestampToEdit() ){
-      var offset = sundial.getOffsetFromTime(this.props.formFields.editableTimestamp) || sundial.getOffset();
       //allow editing of both the note text and timestamp
       this.setState({
         msg : this.props.formFields.editableText,
         whenUtc : this.props.formFields.editableTimestamp ,
         editing : true,
         changeDateTime : true,
-        time : sundial.formatFromOffset(this.props.formFields.editableTimestamp, offset, this.props.TIME_MASK),
-        date : sundial.formatFromOffset(this.props.formFields.editableTimestamp, offset, this.props.DATE_MASK)
+        time : editable.time,
+        date : editable.date
       });
     } else if(this.hasTextToEdit()) {
       //allow editing of the note text only
@@ -77,7 +101,7 @@ var MessageForm = React.createClass({
         editing : true
       });
     } else if(this.hasTimestampToEdit()) {
-      //allow editing of the note text only
+      //this is the case of a brand-new note/thread, with no text yet
       this.setState({
         whenUtc : this.props.formFields.editableTimestamp,
         editing : true
@@ -140,11 +164,17 @@ var MessageForm = React.createClass({
    *
    */
   getUtcTimestamp: function() {
-    var utcTimestamp = this.state.whenUtc;
+    var utcTimestamp = this.state.whenUtc, offset;
 
     if(this.state.date && this.state.time){
       var editedTimestamp = this.state.date+'T'+this.state.time;
-      var offset = sundial.getOffsetFromTime(editedTimestamp);
+      if (this.isTimezoneAware()) {
+        editedTimestamp = sundial.applyTimezone(editedTimestamp, this.props.timePrefs.timezoneName);
+        offset = sundial.getOffsetFromZone(editedTimestamp, this.props.timePrefs.timezoneName);
+      }
+      else {
+        offset = sundial.getOffsetFromTime(editedTimestamp);
+      }
       utcTimestamp = sundial.formatForStorage(editedTimestamp,offset);
     }
 
@@ -187,11 +217,11 @@ var MessageForm = React.createClass({
     if (e) {
       e.preventDefault();
     }
-    var offset = sundial.getOffsetFromTime(this.state.whenUtc) || sundial.getOffset();
+    var editable = this.getEditableDateAndTime(this.state.whenUtc);
     this.setState({
       changeDateTime : true,
-      time : sundial.formatFromOffset(this.state.whenUtc, offset, this.props.TIME_MASK),
-      date : sundial.formatFromOffset(this.state.whenUtc, offset, this.props.DATE_MASK)
+      time : editable.time,
+      date : editable.date
     });
   },
   isButtonDisabled: function() {
@@ -213,13 +243,13 @@ var MessageForm = React.createClass({
         );
       }
 
-      var offset = sundial.getOffsetFromTime(this.state.whenUtc) || sundial.getOffset();
+      var displayTimestamp = this.getDisplayTimestamp(this.state.whenUtc);
 
       displayDate = (
         <div>
           {editLink}
           <label className='messageform-datetime-label'>
-            {sundial.formatFromOffset(this.state.whenUtc, offset)}
+            {displayTimestamp}
           </label>
         </div>
       );

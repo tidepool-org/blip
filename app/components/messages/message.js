@@ -25,9 +25,8 @@ var React = require('react');
 var _ = require('lodash');
 var sundial = require('sundial');
 
-var getIn = require('../../core/utils').getIn;
-
 var MessageForm = require('./messageform');
+var MessageMixins = require('./messagemixins');
 
 if (!window.process) {
   var profileLargeSrc = require('./images/profile-100x100.png');
@@ -35,6 +34,7 @@ if (!window.process) {
 }
 
 var Message = React.createClass({
+  mixins: [MessageMixins],
 
   propTypes: {
     theNote: React.PropTypes.object,
@@ -49,20 +49,10 @@ var Message = React.createClass({
     };
   },
   componentDidMount: function () {
-    var displayTimestamp;
-    if (getIn(this.props, ['timePrefs', 'timezoneAware'], false) &&
-      getIn(this.props, ['timePrefs', 'timezoneAware'], false)) {
-      displayTimestamp = sundial.formatInTimezone(this.props.theNote.timestamp, this.props.timePrefs.timezoneName);
-    }
-    else {
-      var offset = sundial.getOffsetFromTime(this.props.theNote.timestamp) || sundial.getOffset();
-      displayTimestamp = sundial.formatFromOffset(this.props.theNote.timestamp, offset);
-    }
-
     this.setState({
       author: this.getUserDisplayName(this.props.theNote.user),
       note: this.props.theNote.messagetext,
-      when: displayTimestamp
+      when: this.getDisplayTimestamp(this.props.theNote.timestamp)
     });
   },
   getUserDisplayName: function(user) {
@@ -183,7 +173,8 @@ var Message = React.createClass({
             formFields={{editableText: this.props.theNote.messagetext, editableTimestamp: this.props.theNote.timestamp}}
             onSubmit={this.handleEditSave}
             onCancel={this.handleCancelEdit}
-            saveBtnText='Save' />
+            saveBtnText='Save'
+            timePrefs={this.props.timePrefs} />
         );
       }
       var title = this.renderTitle();
