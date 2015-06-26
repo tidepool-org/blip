@@ -11,12 +11,13 @@ module.exports = function (config) {
     captureTimeout: 60000,
     browserNoActivityTimeout: 60000, // We need to accept that Webpack may take a while to build!
     singleRun: true,
+    colors: true,
     frameworks: [ 'mocha', 'sinon', 'chai' ], // Mocha is our testing framework of choice
     files: [
-      'tests.webpack.js' // We're using Webpack to build
+      'tests.webpack.js'
     ],
     preprocessors: {
-      'tests.webpack.js': [ 'webpack', 'sourcemap' ] // Preprocess with webpack and our sourcemap loader
+      'tests.webpack.js': [ 'webpack' ] // Preprocess with webpack and our sourcemap loader
     },
     reporters: [ 'mocha' ],
     webpack: { // Simplified Webpack configuration

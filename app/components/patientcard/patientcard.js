@@ -30,18 +30,19 @@ var PatientCard = React.createClass({
     onClick: React.PropTypes.func,
     onRemovePatient: React.PropTypes.func,
     uploadUrl: React.PropTypes.string,
-    patient: React.PropTypes.object,
+    patient: React.PropTypes.object.isRequired,
     trackMetric: React.PropTypes.func.isRequired
   },
 
   getInitialState: function() {
     return {
-      showModalOverlay: false
+      showModalOverlay: false,
+      dialog: ''
     };
   },
 
   render: function() {
-    var patient = this.props.patient;
+    var patient = this.props.patient || {};
     var self = this;
     var classes = cx({
       'patientcard': true,
@@ -103,7 +104,10 @@ var PatientCard = React.createClass({
       return;
     }
 
-    var url = patient.link.slice(0,-5) + '/profile';
+    var url = '';
+    if (!_.isEmpty(patient.link)) {
+      url = patient.link.slice(0,-5) + '/profile';
+    }
 
     var classes = cx({
       'patientcard-actions-profile': true,
@@ -171,7 +175,10 @@ var PatientCard = React.createClass({
   },
 
   renderShare: function(patient) {
-    var shareUrl = patient.link.slice(0,-5) + '/share';
+    var shareUrl = '';
+    if (!_.isEmpty(patient.link)) {
+      shareUrl = patient.link.slice(0,-5) + '/share';
+    }
 
     var classes = cx({
       'patientcard-actions-share': true,

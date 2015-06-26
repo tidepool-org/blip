@@ -19,6 +19,7 @@ var _ = require('lodash');
 var cx = require('react/lib/cx');
 
 var personUtils = require('../../core/personutils');
+var utils = require('../../core/utils');
 
 var NavbarPatientCard = React.createClass({
   propTypes: {
@@ -30,7 +31,7 @@ var NavbarPatientCard = React.createClass({
   },
 
   render: function() {
-    var patient = this.props.patient;
+    var patient = this.props.patient || {};
     var self = this;
 
     var classes = cx({
@@ -79,7 +80,10 @@ var NavbarPatientCard = React.createClass({
   },
 
   renderProfile: function(patient) {
-    var url = patient.link.slice(0,-5) + '/profile';
+    var url = '';
+    if (!_.isEmpty(patient.link)) {
+      url = patient.link.slice(0,-5) + '/profile';
+    }
 
     var classes = cx({
       'patientcard-actions-profile': true,
@@ -130,7 +134,10 @@ var NavbarPatientCard = React.createClass({
   },
 
   renderShare: function(patient) {
-    var shareUrl = patient.link.slice(0,-5) + '/share';
+    var shareUrl = '';
+    if (!_.isEmpty(patient.link)) {
+      shareUrl = patient.link.slice(0,-5) + '/share';
+    }
 
     var classes = cx({
       'patientcard-actions-share': true,

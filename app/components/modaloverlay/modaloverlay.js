@@ -19,9 +19,9 @@ var cx = require('react/lib/cx');
 
 var ModalOverlay = React.createClass({
   propTypes: {
-    show: React.PropTypes.bool,
-    dialog: React.PropTypes.node,
-    overlayClickHandler: React.PropTypes.func
+    show: React.PropTypes.bool.isRequired,
+    dialog: React.PropTypes.node.isRequired,
+    overlayClickHandler: React.PropTypes.func.isRequired
   },
   render: function() {
     var self = this;

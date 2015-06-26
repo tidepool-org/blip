@@ -40,7 +40,8 @@ var Patient = React.createClass({
 
   getInitialState: function() {
     return {
-      showModalOverlay: false
+      showModalOverlay: false,
+      dialog: ''
     };
   },
 
@@ -132,9 +133,7 @@ var Patient = React.createClass({
     );
   },
   overlayClickHandler: function() {
-    this.setState({
-      showModalOverlay: false
-    });
+    this.setState(this.getInitialState());
   },
   renderModalOverlay: function() {
     /* jshint ignore:start */

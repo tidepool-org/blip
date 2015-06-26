@@ -20,6 +20,7 @@ var cx = require('react/lib/cx');
 var ModalOverlay = require('../../components/modaloverlay');
 var InputGroup = require('../../components/inputgroup');
 var personUtils = require('../../core/personutils');
+var utils = require('../../core/utils');
 
 var PermissionInputGroup = React.createClass({
   propTypes: {
@@ -265,7 +266,7 @@ var PatientTeam = React.createClass({
     return {
       showModalOverlay: false,
       invite: false,
-      dialog: null,
+      dialog: '',
       editing: false
     };
   },
@@ -475,7 +476,10 @@ var PatientTeam = React.createClass({
   },
 
   renderInvite: function() {
-    var isTeamEmpty = this.props.patient.team.length === 0;
+    var isTeamEmpty = false;
+    if (utils.getIn(this.props, ['patient', 'team'])) {
+      isTeamEmpty = this.props.patient.team.length === 0;
+    }
     var self = this;
     var classes = {
       'PatientTeam-member': true,
@@ -556,11 +560,18 @@ var PatientTeam = React.createClass({
       'isEditing': this.state.editing
     });
 
-
-    var members = _.map(this.props.patient.team, this.renderTeamMember);
+    var members = [];
+    if (utils.getIn(this.props, ['patient', 'team'])) {
+      members = _.map(this.props.patient.team, this.renderTeamMember);
+    }
+    
     var editControls = _.isEmpty(members) ? null : this.renderEditControls();
 
-    var pendingInvites = _.map(this.props.pendingInvites, this.renderPendingInvite);
+    var pendingInvites = [];
+    if (utils.getIn(this.props, ['pendingInvites'])) {
+      pendingInvites = _.map(this.props.pendingInvites, this.renderPendingInvite);
+    }
+
     var invite = this.state && this.state.invite ? this.renderInviteForm() : this.renderInvite();
 
     var emptyList = !(members || pendingInvites);
@@ -568,6 +579,7 @@ var PatientTeam = React.createClass({
       'PatientTeam-list': true,
       'PatientTeam-list--single': emptyList,
     });
+    
     var patientName = personUtils.patientFullName(this.props.patient);
 
     return (

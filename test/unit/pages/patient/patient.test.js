@@ -10,7 +10,7 @@ var PatientTeam = require('../../../../app/pages/patient/patientteam');
 describe('Patient', function () {
   describe('getInitialState', function() {
     it('should return an object when showModalOverlay is false', function() {
-      console.warn = sinon.spy();
+      console.warn = sinon.stub();
       var props = {
         trackMetric: function() {}
       };
@@ -18,15 +18,16 @@ describe('Patient', function () {
       var elem = TestUtils.renderIntoDocument(patientElem);
       var initialState = elem.getInitialState();
 
-      expect(Object.keys(initialState).length).to.equal(1);
+      expect(Object.keys(initialState).length).to.equal(2);
       expect(initialState.showModalOverlay).to.equal(false);
+      expect(initialState.dialog).to.equal('');
       expect(console.warn.callCount).to.equal(0);
     });
   });
 
   describe('render', function() {
     it('should console.warn when trackMetric not set', function () {
-      console.warn = sinon.spy();
+      console.warn = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<Patient/>);
 
       expect(elem).to.be.ok;
@@ -34,7 +35,7 @@ describe('Patient', function () {
     });
 
     it('should not console.warn when trackMetric set', function() {
-      console.warn = sinon.spy();
+      console.warn = sinon.stub();
       var props = {
         trackMetric: function() {}
       };
@@ -48,7 +49,7 @@ describe('Patient', function () {
 
   describe('renderPatientTeam', function() {
     it('should not render when user and patient ids are different', function() {
-      console.warn = sinon.spy();
+      console.warn = sinon.stub();
       var props = {
         user: {
           userid: 'foo'
@@ -71,7 +72,7 @@ describe('Patient', function () {
     });
 
     it('should not render when shareOnly is false', function() {
-      console.warn = sinon.spy();
+      console.warn = sinon.stub();
       var props = {
         user: {
           userid: 'foo'
@@ -94,7 +95,7 @@ describe('Patient', function () {
     });
 
     it('should render when shareOnly is true', function() {
-      console.warn = sinon.spy();
+      console.warn = sinon.stub();
       var props = {
         user: {
           userid: 'foo'
@@ -115,7 +116,7 @@ describe('Patient', function () {
     });
 
     it('should transfer all props to patient-team', function() {
-      console.warn = sinon.spy();
+      console.warn = sinon.stub();
       var props = {
         onCancelInvite: function() {},
         onChangeMemberPermissions: function() {},
