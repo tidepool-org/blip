@@ -27,6 +27,7 @@ describe('Patients', function () {
         trackMetric: sinon.stub()
       };
       var elem = React.createElement(Patients, props);
+      var render = TestUtils.renderIntoDocument(elem);
       expect(console.warn.callCount).to.equal(0);
     });
   });

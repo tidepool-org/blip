@@ -33,7 +33,28 @@ describe('Signup', function () {
         trackMetric: sinon.stub()
       };
       var elem = React.createElement(Signup, props);
+      var render = TestUtils.renderIntoDocument(elem);
       expect(console.warn.callCount).to.equal(0);
+    });
+  });
+
+  describe('getInitialState', function() {
+    it('should return expect initial state', function() {
+      console.warn = sinon.stub();
+      var props = {
+        onSubmit: sinon.stub(),
+        onSubmitSuccess: sinon.stub(),
+        trackMetric: sinon.stub(),
+        inviteEmail: 'gordonmdent@gmail.com'
+      };
+      var elem = React.createElement(Signup, props);
+      var render = TestUtils.renderIntoDocument(elem);
+      var state = render.getInitialState();
+
+      expect(state.working).to.equal(false);
+      expect(state.formValues.username).to.equal('gordonmdent@gmail.com');
+      expect(Object.keys(state.validationErrors).length).to.equal(0);
+      expect(state.notification).to.equal(null);
     });
   });
 });

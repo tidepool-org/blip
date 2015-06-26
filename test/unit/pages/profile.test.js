@@ -28,7 +28,52 @@ describe('Profile', function () {
         trackMetric: sinon.stub()
       };
       var elem = React.createElement(Profile, props);
+      var render = TestUtils.renderIntoDocument(elem);
       expect(console.warn.callCount).to.equal(0);
     });
   });
+
+  describe('getInitialState', function() {
+    it('should return expect initial state', function() {
+      console.warn = sinon.stub();
+      var props = {
+        onSubmit: sinon.stub(),
+        trackMetric: sinon.stub(),
+        user: {
+          profile: {
+            fullName: 'Gordon Dent'
+          },
+          username: 'foobar'
+        }
+      };
+      var elem = React.createElement(Profile, props);
+      var render = TestUtils.renderIntoDocument(elem);
+      var state = render.getInitialState();
+
+      expect(state.formValues.username).to.equal('foobar');
+      expect(state.formValues.fullName).to.equal('Gordon Dent');
+      expect(Object.keys(state.validationErrors).length).to.equal(0);
+      expect(state.notification).to.equal(null);
+    });
+
+
+    it('should take a step back through history on clicking back button', function() {
+      window.history.back = sinon.stub();
+      var props = {
+        onSubmit: sinon.stub(),
+        trackMetric: sinon.stub()
+      };
+      var elem = React.createElement(Profile, props);
+      var render = TestUtils.renderIntoDocument(elem);
+      var backButton = TestUtils.findRenderedDOMComponentWithClass(render, 'js-back');
+
+      expect(props.trackMetric.callCount).to.equal(0);
+      expect(window.history.back.callCount).to.equal(0);
+      TestUtils.Simulate.click(backButton);
+      expect(props.trackMetric.callCount).to.equal(1);
+      expect(window.history.back.callCount).to.equal(1);
+    });
+  });
+
+
 });
