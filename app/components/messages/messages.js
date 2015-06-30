@@ -28,18 +28,17 @@ var Message = require('./message');
 var MessageForm = require('./messageform');
 
 var Messages = React.createClass({
-
   propTypes: {
-    messages : React.PropTypes.array,
-    createDatetime : React.PropTypes.string,
-    user : React.PropTypes.object,
-    patient : React.PropTypes.object,
-    onClose : React.PropTypes.func,
-    onSave : React.PropTypes.func,
-    onEdit : React.PropTypes.func,
-    onNewMessage : React.PropTypes.func
+    messages: React.PropTypes.array,
+    createDatetime: React.PropTypes.string,
+    user: React.PropTypes.object,
+    patient: React.PropTypes.object,
+    onClose: React.PropTypes.func,
+    onSave: React.PropTypes.func,
+    onEdit: React.PropTypes.func,
+    onNewMessage: React.PropTypes.func,
+    timePrefs: React.PropTypes.object.isRequired
   },
-
   getDefaultProps: function () {
     return {
       NOTE_PROMPT : 'Type a new note here ...',
@@ -55,43 +54,43 @@ var Messages = React.createClass({
     };
   },
   /*
-   * Should the use be able to edit this message?
+   * Should the user be able to edit this message?
    */
-  getSaveEdit:function(messageUserId){
+  getSaveEdit: function(messageUserId) {
     var saveEdit;
-    if(messageUserId === this.props.user.userid){
+    if (messageUserId === this.props.user.userid) {
       saveEdit = this.handleEditNote;
     }
     return saveEdit;
   },
-  renderNote: function(message){
+  renderNote: function(message) {
     /* jshint ignore:start */
     return (
       <Message
         key={message.id}
         theNote={message}
         imageSize='large'
-        onSaveEdit={this.getSaveEdit(message.userid)}/>
+        onSaveEdit={this.getSaveEdit(message.userid)}
+        timePrefs={this.props.timePrefs} />
       );
     /* jshint ignore:end */
   },
-  renderComment:function(message){
+  renderComment: function(message) {
     /* jshint ignore:start */
     return (
       <Message
         key={message.id}
         theNote={message}
         imageSize='small'
-        onSaveEdit={this.getSaveEdit(message.userid)}/>
+        onSaveEdit={this.getSaveEdit(message.userid)}
+        timePrefs={this.props.timePrefs} />
       );
     /* jshint ignore:end */
   },
-  renderThread:function(){
-
-    if(this.isMessageThread()){
-
+  renderThread: function() {
+    if (this.isMessageThread()) {
       var thread = _.map(this.state.messages, function(message) {
-        if(!message.parentmessage) {
+        if (!message.parentmessage) {
           return this.renderNote(message);
         } else if (message.parentmessage) {
           return this.renderComment(message);
@@ -107,11 +106,10 @@ var Messages = React.createClass({
 
     return;
   },
-  isMessageThread:function(){
-    return this.state.messages;
+  isMessageThread: function() {
+    return !_.isEmpty(this.state.messages);
   },
-  renderCommentOnThreadForm:function(){
-
+  renderCommentOnThreadForm: function() {
     var submitButtonText = 'Comment';
 
     /* jshint ignore:start */
@@ -120,43 +118,41 @@ var Messages = React.createClass({
         <MessageForm
           messagePrompt={this.props.COMMENT_PROMPT}
           saveBtnText={submitButtonText}
-          onSubmit={this.handleAddComment}/>
+          onSubmit={this.handleAddComment}
+          timePrefs={this.props.timePrefs} />
       </div>
     );
     /* jshint ignore:end */
-
   },
-  renderNewThreadForm:function(){
-
+  renderNewThreadForm: function() {
     var submitButtonText = 'Post';
 
     /* jshint ignore:start */
     return (
       <div className='messages-form'>
         <MessageForm
-            formFields={{ editableTimestamp : this.props.createDatetime }}
-            messagePrompt={this.props.NOTE_PROMPT}
-            saveBtnText={submitButtonText}
-            onSubmit={this.handleCreateNote}
-            onCancel={this.handleClose}/>
+          formFields={{editableTimestamp: this.props.createDatetime}}
+          messagePrompt={this.props.NOTE_PROMPT}
+          saveBtnText={submitButtonText}
+          onSubmit={this.handleCreateNote}
+          onCancel={this.handleClose}
+          timePrefs={this.props.timePrefs} />
       </div>
     );
-      /* jshint ignore:end */
-
+    /* jshint ignore:end */
   },
-  renderClose:function(){
+  renderClose: function() {
     /* jshint ignore:start */
     return (<a className='messages-close' onClick={this.handleClose}>Close</a>);
     /* jshint ignore:end */
   },
   render: function() {
-
     var thread = this.renderThread();
     var form = this.renderNewThreadForm() ;
     var close;
 
     //If we are closing an existing thread then have close and render the comment form
-    if(thread){
+    if (thread) {
       close = this.renderClose();
       form = this.renderCommentOnThreadForm();
     }
@@ -175,31 +171,31 @@ var Messages = React.createClass({
       </div>
      </div>
      /* jshint ignore:end */
-     );
+    );
   },
-  getParent : function(){
-    if(this.isMessageThread()){
-      return _.find(this.state.messages, function(message){ return !(message.parentmessage); });
+  getParent: function() {
+    if (this.isMessageThread()) {
+      return _.find(
+        this.state.messages,
+        function(message) { return !(message.parentmessage); }
+      );
     }
     return;
   },
-  handleAddComment : function (formValues,cb){
-
-    if(_.isEmpty(formValues) === false){
-
+  handleAddComment: function(formValues, cb) {
+    if (_.isEmpty(formValues) === false) {
       var addComment = this.props.onSave;
       var parent = this.getParent();
 
       var comment = {
-        parentmessage : parent.id,
-        userid : this.props.user.userid,
-        groupid : parent.groupid,
-        messagetext : formValues.text,
-        timestamp : formValues.timestamp
+        parentmessage: parent.id,
+        userid: this.props.user.userid,
+        groupid: parent.groupid,
+        messagetext: formValues.text,
+        timestamp: formValues.timestamp
       };
 
-      addComment(comment, function(error,commentId){
-
+      addComment(comment, function(error, commentId) {
         if (commentId) {
           if(cb){
             //let the form know all is good
@@ -217,21 +213,21 @@ var Messages = React.createClass({
       }.bind(this));
     }
   },
-  handleCreateNote: function (formValues,cb){
-
-    if(_.isEmpty(formValues) === false){
-
+  handleCreateNote: function(formValues,cb) {
+    if (_.isEmpty(formValues) === false) {
       var createNote = this.props.onSave;
 
       var message = {
         userid : this.props.user.userid,
         groupid : this.props.patient.userid,
         messagetext : formValues.text,
-        timestamp : sundial.formatForStorage(formValues.timestamp,sundial.getOffsetFromTime(formValues.timestamp))
+        timestamp : sundial.formatForStorage(
+          formValues.timestamp,
+          sundial.getOffsetFromTime(formValues.timestamp)
+        )
       };
 
-      createNote(message, function(error,messageId){
-
+      createNote(message, function(error, messageId) {
         if (messageId) {
           if(cb){
             //let the form know all is good
@@ -254,14 +250,12 @@ var Messages = React.createClass({
             });
           }
         }
-
       }.bind(this));
     }
   },
-  handleEditNote: function (updated){
+  handleEditNote: function(updated) {
     if(_.isEmpty(updated) === false){
-      this.props.onEdit(updated, function(error,details){
-      });
+      this.props.onEdit(updated, function(error, details){});
     }
   },
   handleClose: function(e) {

@@ -932,7 +932,11 @@ var AppComponent = React.createClass({
     /* jshint ignore:end */
   },
   handleUpdatePatientData: function(userid, data) {
-    var patientData = _.cloneDeep(this.state.patientData);
+    // NOTE: intentional use of _.clone instead of _.cloneDeep
+    // we only need a shallow clone at the top level of the patientId keys
+    // and the _.cloneDeep I had originally would hang the browser for *seconds*
+    // when there was actually something in this.state.patientData
+    var patientData = _.clone(this.state.patientData);
     patientData[userid] = data;
     this.setState({
       patientData: patientData
