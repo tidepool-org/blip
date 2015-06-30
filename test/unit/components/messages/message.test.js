@@ -7,6 +7,11 @@ var expect = chai.expect;
 var Message = require('../../../../app/components/messages/message');
 
 describe('Message', function () {
+  var timePrefs = {
+    timezoneAware: true,
+    timezoneName: 'Pacific/Honolulu'
+  };
+
   describe('getInitialState', function() {
     it('should return an object with editing set to false', function() {
       console.warn = sinon.spy();
@@ -18,7 +23,7 @@ describe('Message', function () {
         }
       };
 
-      var elem = TestUtils.renderIntoDocument(<Message theNote={note}/>);
+      var elem = TestUtils.renderIntoDocument(<Message theNote={note} timePrefs={timePrefs} />);
       expect(elem).to.be.ok;
 
       var initialState = elem.getInitialState();
@@ -29,12 +34,13 @@ describe('Message', function () {
   });
 
   describe('render', function() {
-    it('should console.warn when theNote not set', function () {
+    it('should console.warn when required props are missing', function () {
       console.warn = sinon.spy();
       var elem = TestUtils.renderIntoDocument(<Message />);
 
       expect(console.warn.calledWith('Warning: Required prop `theNote` was not specified in `Message`.')).to.equal(true);
-      expect(console.warn.callCount).to.equal(1);
+      expect(console.warn.calledWith('Warning: Required prop `timePrefs` was not specified in `Message`.')).to.equal(true);
+      expect(console.warn.callCount).to.equal(2);
     });
 
     it('should render a populated message', function() {
@@ -47,7 +53,7 @@ describe('Message', function () {
         }
       };
 
-      var elem = TestUtils.renderIntoDocument(<Message theNote={note}/>);
+      var elem = TestUtils.renderIntoDocument(<Message theNote={note} timePrefs={timePrefs} />);
       expect(elem).to.be.ok;
 
       // actual rendered text is modified version of input 'note'

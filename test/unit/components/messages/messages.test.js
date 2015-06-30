@@ -15,13 +15,15 @@ describe('Messages', function () {
   });
 
   describe('render', function() {
-
-    it('should render without problems when properties are defined', function () {
-      console.warn = console.log;
+    it('should console.warn when required props are missing', function () {
+      console.warn = sinon.stub();
       var props = {};
       var elem = React.createElement(Messages, props);
       var render = TestUtils.renderIntoDocument(elem);
-      //expect(console.warn.callCount).to.equal(0);
+
+      expect(console.warn.calledWith('Warning: Required prop `timePrefs` was not specified in `Messages`.')).to.equal(true);
+      expect(console.warn.calledWith('Warning: Required prop `timePrefs` was not specified in `MessageForm`. Check the render method of `Messages`.')).to.equal(true);
+      expect(console.warn.callCount).to.equal(2);
     });
 
     it('should render without problems when properties are defined', function () {
@@ -34,7 +36,8 @@ describe('Messages', function () {
         onClose : sinon.stub(),
         onSave : sinon.stub(),
         onEdit : sinon.stub(),
-        onNewMessage : sinon.stub()
+        onNewMessage : sinon.stub(),
+        timePrefs: {}
       };
       var elem = React.createElement(Messages, props);
       var render = TestUtils.renderIntoDocument(elem);
