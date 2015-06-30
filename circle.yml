@@ -1,0 +1,5 @@
+test:
+  override:
+    - npm run jshint
+    - nvm exec 0.10 npm test
+    - nvm exec 0.12 npm test

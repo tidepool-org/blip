@@ -87,7 +87,7 @@ var TidelineFooter = React.createClass({
       <div className="container-box-outer patient-data-footer-outer">
         <div className="container-box-inner patient-data-footer-inner">
           <div className="patient-data-footer-left">
-            <button className="btn btn-chart"
+            <button className="btn btn-chart btn-refresh"
               onClick={this.props.onClickRefresh}>
               Refresh</button>
           </div>

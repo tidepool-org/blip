@@ -18,7 +18,8 @@
     "afterEach": false,
     "expect": true,
     "sinon": false,
-    "helpers": true
+    "helpers": true,
+    "chai": true
   },
   "immed": true,
   "indent": 2,
