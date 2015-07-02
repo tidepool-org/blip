@@ -55,6 +55,10 @@ describe('App', function () {
       });
     });
 
+    it.skip('bgUnits should be mg/dL', function() {
+
+    });
+
     it('should render login form', function () {
       React.withContext(context, function() {
         var elem = TestUtils.renderIntoDocument(<App/>);
