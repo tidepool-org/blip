@@ -65,6 +65,31 @@ utils.validateEmail = function(email) {
   var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   return re.test(email);
 };
+
+
+// Shallow difference of two objects
+// Returns all attributes and their values in `destination`
+// that have different values from `source`
+utils.objectDifference = function(destination, source) {
+  var result = {};
+
+  _.forEach(source, function(sourceValue, key) {
+    var destinationValue = destination[key];
+    if (!_.isEqual(sourceValue, destinationValue)) {
+      result[key] = destinationValue;
+    }
+  });
+
+  return result;
+};
+
+utils.buildExceptionDetails = function(){
+  return {
+    href: window.location.href,
+    stack: console.trace()
+  };
+};
+
 // from http://bgrins.github.io/devtools-snippets/#console-save
 // MIT license
 (function(console){
