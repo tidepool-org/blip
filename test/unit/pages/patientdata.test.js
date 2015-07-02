@@ -12,11 +12,13 @@ var rewireModule = require('../../utils/rewireModule');
 window.config = {};
 
 describe('PatientData', function () {
-  var PatientData = rewire('../../../app/pages/patientdata');
+  // We must remember to require the base module when mocking dependencies,
+  // otherwise dependencies mocked will be bound to the wrong scope!
+  var PatientData = rewire('../../../app/pages/patientdata/patientdata.js');
+
   rewireModule(PatientData, { 
     Modal: React.createClass({
       render: function() {
-        console.log('Mock', this.props);
         return (<div className='fake-modal-view'></div>);
       }
     })
@@ -209,6 +211,8 @@ describe('PatientData', function () {
       var pdElem = React.createElement(PatientData, props);
       var elem = TestUtils.renderIntoDocument(pdElem);
       expect(elem).to.be.ok;
+      var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-modal-view');
+      expect(x).to.be.ok;
     });
   });
 });

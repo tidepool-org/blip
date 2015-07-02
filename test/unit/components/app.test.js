@@ -5,18 +5,22 @@
 var React = require('react');
 var TestUtils = require('react/lib/ReactTestUtils');
 var expect = chai.expect;
+var rewire = require('rewire');
+var rewireModule = require('../../utils/rewireModule');
 
 // Need to add this line as app.js includes config 
 // which errors if window.config does not exist
-window.config = {VERSION: 1.4};
+window.config = {};
 var api = require('../../../app/core/api');
 var personUtils = require('../../../app/core/personutils');
 var router = require('../../../app/router');
 var mock = require('../../../mock');
 
-var App = require('../../../app/components/app');
-
 describe('App', function () {
+  // We must remember to require the base module when mocking dependencies,
+  // otherwise dependencies mocked will be bound to the wrong scope!
+  var App = rewire('../../../app/components/app/app.js');
+
   var context = {
     log: sinon.stub(),
     api: mock.patchApi(api),
@@ -71,7 +75,9 @@ describe('App', function () {
       });
     });
 
-    it.skip('should not render a version element when version not set in config', function () {
+    it('should not render a version element when version not set in config', function () {
+      App.__set__('config', {VERSION: null});
+
       React.withContext(context, function() {
         var elem = TestUtils.renderIntoDocument(<App/>);
         var footer = TestUtils.findRenderedDOMComponentWithClass(elem, 'footer');
@@ -81,6 +87,7 @@ describe('App', function () {
     });
 
     it('should render version when version present in config', function () {
+      App.__set__('config', {VERSION: 1.4});
       React.withContext(context, function() {
         var elem = TestUtils.renderIntoDocument(<App/>);
         var footer = TestUtils.findRenderedDOMComponentWithClass(elem, 'footer');
