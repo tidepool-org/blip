@@ -59,8 +59,11 @@ describe('App', function () {
       });
     });
 
-    it.skip('bgUnits should be mg/dL', function() {
-
+    it('bgUnits should be mg/dL', function() {
+      React.withContext(context, function() {
+        var elem = TestUtils.renderIntoDocument(<App/>);
+        expect(elem.state.bgPrefs.bgUnits).to.equal('mg/dL');
+      });
     });
 
     it('should render login form', function () {
