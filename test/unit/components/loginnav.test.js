@@ -22,7 +22,7 @@ describe('LoginNav', function () {
       expect(console.warn.calledWith('Warning: Required prop `trackMetric` was not specified in `LoginNav`.')).to.equal(true);
     });
 
-    it('should render without problems with required props are present', function () {
+    it('should render without problems when required props are present', function () {
       console.warn = sinon.stub();
       var props = {
         trackMetric: sinon.stub()

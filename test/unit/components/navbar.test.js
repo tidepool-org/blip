@@ -16,7 +16,7 @@ describe('Navbar', function () {
 
   describe('render', function() {
 
-    it('should render without problems with required props present', function () {
+    it('should render without problems when required props present', function () {
       console.warn = sinon.stub();
       var props = {
         currentPage: '',
@@ -33,7 +33,7 @@ describe('Navbar', function () {
       expect(console.warn.callCount).to.equal(0);
     });
 
-    it('should render without 3 warnings when no props are present', function () {
+    it('should render with 3 warnings when no props are present', function () {
       console.warn = sinon.stub();
       var props = {};
       var elem = React.createElement(Navbar, props);

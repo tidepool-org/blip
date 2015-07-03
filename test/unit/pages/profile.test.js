@@ -15,13 +15,13 @@ describe('Profile', function () {
   });
 
   describe('render', function() {
-    it('should render console.warn when required props are missing', function () {
+    it('should console.warn when required props are missing', function () {
       console.warn = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<Profile />);
       expect(console.warn.callCount).to.equal(2);
     });
 
-    it('should render without problems when trackMetric is set', function () {
+    it('should render without problems when required props are set', function () {
       console.warn = sinon.stub();
       var props = {
         onSubmit: sinon.stub(),
@@ -34,7 +34,7 @@ describe('Profile', function () {
   });
 
   describe('getInitialState', function() {
-    it('should return expect initial state', function() {
+    it('should return expected initial state', function() {
       console.warn = sinon.stub();
       var props = {
         onSubmit: sinon.stub(),

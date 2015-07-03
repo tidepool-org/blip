@@ -14,7 +14,7 @@ describe('EmailVerification', function () {
   });
 
   describe('render', function() {
-    it('should render console.warn when required props are missing', function () {
+    it('should console.warn when required props are missing', function () {
       console.warn = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<EmailVerification />);
       expect(console.warn.callCount).to.equal(3);
@@ -23,7 +23,7 @@ describe('EmailVerification', function () {
       expect(console.warn.calledWith('Warning: Required prop `trackMetric` was not specified in `LoginNav`. Check the render method of `EmailVerification`.')).to.equal(true);
     });
 
-    it('should render without problems with required props are present', function () {
+    it('should render without problems when required props are present', function () {
       console.warn = sinon.stub();
       var props = {
         trackMetric: sinon.stub(),

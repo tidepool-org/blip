@@ -9,7 +9,7 @@ var BrowserWarningOverlay = require('../../../app/components/browserwarningoverl
 
 describe('BrowserWarningOverlay', function () {
 
-  it('should be exported correctly as a module and function', function() {
+  it('should be exposed as a module and be of type function', function() {
     expect(BrowserWarningOverlay).to.be.a('function');
   });
 

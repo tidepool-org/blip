@@ -33,7 +33,7 @@ describe('PeopleList', function () {
   });
 
   describe('getInitialState', function() {
-    it('should return object with expect properties', function() {
+    it('should return object with expected properties', function() {
       console.warn = sinon.stub();
       var props = {
         trackMetric: function() {},

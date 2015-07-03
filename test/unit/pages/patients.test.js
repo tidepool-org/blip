@@ -15,7 +15,7 @@ describe('Patients', function () {
   });
 
   describe('render', function() {
-    it('should render console.warn when required props are missing', function () {
+    it('should console.warn when required props are missing', function () {
       console.warn = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<Patients />);
       expect(console.warn.callCount).to.equal(1);

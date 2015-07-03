@@ -15,7 +15,7 @@ describe('ConfirmPasswordReset', function () {
   });
 
   describe('render', function() {
-    it('should render console.warn when required props are missing', function () {
+    it('should console.warn when required props are missing', function () {
       console.warn = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<ConfirmPasswordReset />);
       expect(console.warn.callCount).to.equal(4);
@@ -25,7 +25,7 @@ describe('ConfirmPasswordReset', function () {
       expect(console.warn.calledWith('Warning: Required prop `trackMetric` was not specified in `LoginNav`. Check the render method of `ConfirmPasswordReset`.')).to.equal(true);
     });
 
-    it('should render without problems when trackMetric is set', function () {
+    it('should render without problems when required props are set', function () {
       console.warn = sinon.stub();
       var props = {
         resetKey: 'some-key',

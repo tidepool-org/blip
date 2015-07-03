@@ -15,7 +15,7 @@ describe('InputGroup', function () {
   });
 
   describe('render', function() {
-    it('should render without problems', function () {
+    it('should render without problems when required props are present', function () {
       console.warn = sinon.stub();
       var props = {
         trackMetric: sinon.stub()

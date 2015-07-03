@@ -19,7 +19,7 @@ describe('PatientCard', function () {
       expect(console.warn.calledWith('Warning: Required prop `patient` was not specified in `PatientCard`.')).to.equal(true);
     });
 
-    it('should not console.warn when trackMetric set', function() {
+    it('should not console.warn when trackMetric and patient set', function() {
       console.warn = sinon.stub();
       var props = {
         trackMetric: function() {},
@@ -31,11 +31,5 @@ describe('PatientCard', function () {
       expect(elem).to.be.ok;
       expect(console.warn.callCount).to.equal(0);
     });
-  });
-
-  describe('getInitialState', function() {
-    it('should return object with expect properties', function() {
-
-    }); 
   });
 });

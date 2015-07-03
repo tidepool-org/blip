@@ -16,7 +16,7 @@ describe('LoginLogo', function () {
 
   describe('render', function() {
 
-    it('should render without problems with required props are present', function () {
+    it('should render without problems', function () {
       console.warn = sinon.stub();
       var props = {};
       var elem = React.createElement(LoginLogo, props);

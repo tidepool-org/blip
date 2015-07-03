@@ -8,7 +8,7 @@ var Settings = require('../../../../app/components/chart/settings');
 
 describe('Settings', function () {
   describe('render', function() {
-    it('should console.warn with missing required props', function () {
+    it('should console.warn when missing required props', function () {
       console.warn = sinon.spy();
       var settingsElem = React.createElement(Settings, {});
       var elem = TestUtils.renderIntoDocument(settingsElem);

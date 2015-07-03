@@ -26,7 +26,7 @@ describe('Messages', function () {
       expect(console.warn.callCount).to.equal(2);
     });
 
-    it('should render without problems when properties are defined', function () {
+    it('should render without problems with required props are present', function () {
       console.warn = sinon.stub();
       var props = {
         messages : [],

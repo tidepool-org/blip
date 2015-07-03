@@ -31,7 +31,7 @@ describe('PatientInfo', function () {
   });
 
   describe('getInitialState', function() {
-    it('should be return an object with editing set to false and contains no validationErrors', function() {
+    it('should return an object with editing set to false and containing no validationErrors', function() {
       var props = {
         trackMetric: function() {}
       };

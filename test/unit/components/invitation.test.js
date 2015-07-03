@@ -15,14 +15,14 @@ describe('Invitation', function () {
   });
 
   describe('render', function() {
-    it('should render console.warn when required props are missing', function () {
+    it('should console.warn when required props are missing', function () {
       console.warn = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<Invitation />);
       expect(console.warn.callCount).to.equal(4);
       expect(console.warn.calledWith('Warning: Required prop `trackMetric` was not specified in `Invitation`.')).to.equal(true);
     });
 
-    it('should render without problems with required props are present', function () {
+    it('should render without problems when required props are present', function () {
       console.warn = sinon.stub();
       var props = {
         invitation: {
