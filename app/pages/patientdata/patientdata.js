@@ -320,7 +320,8 @@ var PatientData = React.createClass({
           onClose={this.closeMessageCreation}
           onSave={this.props.onCreateMessage}
           onNewMessage={this.handleMessageCreation}
-          onEdit={this.handleEditMessage} />
+          onEdit={this.handleEditMessage}
+          timePrefs={this.props.timePrefs} />
       );
     } else if(this.state.messages) {
       return (
@@ -330,7 +331,8 @@ var PatientData = React.createClass({
           patient={this.props.patient}
           onClose={this.closeMessageThread}
           onSave={this.handleReplyToMessage}
-          onEdit={this.handleEditMessage} />
+          onEdit={this.handleEditMessage}
+          timePrefs={this.props.timePrefs} />
       );
     }
     /* jshint ignore:end */
