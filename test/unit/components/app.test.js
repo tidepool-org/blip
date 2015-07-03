@@ -20,6 +20,8 @@ describe('App', function () {
   // We must remember to require the base module when mocking dependencies,
   // otherwise dependencies mocked will be bound to the wrong scope!
   var App = rewire('../../../app/components/app/app.js');
+  router.log = sinon.stub();
+  api.log = sinon.stub();
 
   var context = {
     log: sinon.stub(),
