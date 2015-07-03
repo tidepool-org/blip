@@ -43,7 +43,7 @@ function chartDailyFactory(el, options) {
 
   var scales = scalesutil(options);
   var emitter = new EventEmitter();
-  var chart = tideline.oneDay(emitter);
+  var chart = tideline.oneDay(emitter, options);
   chart.emitter = emitter;
   chart.options = options;
 
