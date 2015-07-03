@@ -1,6 +1,7 @@
-var utils = require('../../app/core/utils');
+var utils = require('../../../app/core/utils');
+var expect = chai.expect;
 
-describe('Utils', function() {
+describe('utils', function() {
 
   describe('getIn', function() {
     var obj = {a: {b: 1, l: [1]}};

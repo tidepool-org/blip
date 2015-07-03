@@ -207,7 +207,7 @@ var Modal = React.createClass({
   },
   isMissingSMBG: function() {
     var data = this.props.patientData;
-    if (_.isEmpty(data.grouped.smbg)) {
+    if (_.isEmpty(data.grouped) || _.isEmpty(data.grouped.smbg)) {
       return true;
     }
     return false;

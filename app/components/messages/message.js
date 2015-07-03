@@ -36,7 +36,7 @@ if (!window.process) {
 var Message = React.createClass({
   mixins: [MessageMixins],
   propTypes: {
-    theNote: React.PropTypes.object,
+    theNote : React.PropTypes.object.isRequired,
     imageSize: React.PropTypes.string,
     onSaveEdit: React.PropTypes.func,
     timePrefs: React.PropTypes.object.isRequired
@@ -47,11 +47,13 @@ var Message = React.createClass({
     };
   },
   componentDidMount: function () {
-    this.setState({
+    if (this.props.theNote) {
+      this.setState({
       author: this.getUserDisplayName(this.props.theNote.user),
       note: this.props.theNote.messagetext,
       when: this.getDisplayTimestamp(this.props.theNote.timestamp)
-    });
+      });
+    }
   },
   getUserDisplayName: function(user) {
     var result = 'Anonymous user';
@@ -60,7 +62,7 @@ var Message = React.createClass({
     }
     return result;
   },
-  isComment: function(){
+  isComment: function() {
     return _.isEmpty(this.props.theNote.parentmessage) === false;
   },
   handleEditSave: function(edits) {
@@ -87,13 +89,13 @@ var Message = React.createClass({
       this.setState(newState);
     }
   },
-  handleAllowEdit: function(e){
+  handleAllowEdit: function(e) {
     if (e) {
       e.preventDefault();
     }
     this.setState({editing:true});
   },
-  handleCancelEdit: function(e){
+  handleCancelEdit: function(e) {
     if (e) {
       e.preventDefault();
     }
@@ -110,7 +112,7 @@ var Message = React.createClass({
     );
     /* jshint ignore:end */
   },
-  renderEditLink: function(){
+  renderEditLink: function() {
     if (this.state.editing === false && this.props.onSaveEdit) {
       return (
         /* jshint ignore:start */
@@ -191,7 +193,7 @@ var Message = React.createClass({
       var image = this.renderImage();
       var title = this.renderTitle();
 
-      return this.transferPropsTo(
+      return (
         /* jshint ignore:start */
         <div>
           {image}

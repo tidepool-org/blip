@@ -15,16 +15,16 @@
  */
 var React = require('react');
 var _ = require('lodash');
+var utils = require('../../core/utils');
 var cx = require('react/lib/cx');
 
 var personUtils = require('../../core/personutils');
 
 var Invitation = React.createClass({
   propTypes: {
-    invitation: React.PropTypes.object,
-    patientsComponent: React.PropTypes.component,
-    onAcceptInvitation: React.PropTypes.func,
-    onDismissInvitation: React.PropTypes.func,
+    invitation: React.PropTypes.object.isRequired,
+    onAcceptInvitation: React.PropTypes.func.isRequired,
+    onDismissInvitation: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
   },
   handleAccept: function() {
@@ -36,9 +36,12 @@ var Invitation = React.createClass({
     this.props.onDismissInvitation(this.props.invitation);
   },
   render: function() {
-    var name = personUtils.patientFullName(this.props.invitation.creator);
+    var name = 'Not set';
+    if (utils.getIn(this.props, ['invitation', 'creator'])) {
+      name = personUtils.patientFullName(this.props.invitation.creator);
+    }
 
-    if (this.props.invitation.accepting) {
+    if (utils.getIn(this.props, ['invitation', 'accepting'])) {
       /* jshint ignore:start */
       return (
         <li className='invitation'>
@@ -48,7 +51,9 @@ var Invitation = React.createClass({
       /* jshint ignore:end */
     }
 
-    this.props.trackMetric('Invite Displayed');
+    if (utils.getIn(this.props, ['trackMetric'])) {
+      this.props.trackMetric('Invite Displayed');
+    }
 
     /* jshint ignore:start */
     return (
