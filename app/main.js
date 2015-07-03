@@ -16,6 +16,6 @@
 window.onerror = require('./onerror');
 window.config = require('../config.app.js');
 
-var app = window.app = require('./app');
+var app = window.app = require('./bootstrap');
 
 app.start();
