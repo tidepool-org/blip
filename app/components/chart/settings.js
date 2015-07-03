@@ -1,4 +1,4 @@
-/** @jsx React.DOM */
+is/** @jsx React.DOM */
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -121,7 +121,7 @@ var Settings = React.createClass({
   },
   isMissingSettings: function() {
     var data = this.props.patientData;
-    if (!utils.getIn(data, ['grouped', 'settings'], false)) {
+    if (!utils.getIn(data, ['grouped', 'pumpSettings'], false)) {
       return true;
     }
     return false;
