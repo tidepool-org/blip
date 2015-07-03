@@ -283,9 +283,9 @@ var nurseshark = {
       nurseshark.joinWizardsAndBoluses(typeGroups.wizard || [], typeGroups.bolus || [], collections);
     }, 'Join Wizards and Boluses');
 
-    if (typeGroups.deviceMeta && typeGroups.deviceMeta.length > 0) {
+    if (typeGroups.deviceEvent && typeGroups.deviceEvent.length > 0) {
       timeIt(function() {
-        nurseshark.annotateBasals(typeGroups.basal || [], _.filter(typeGroups.deviceMeta, function(d) {
+        nurseshark.annotateBasals(typeGroups.basal || [], _.filter(typeGroups.deviceEvent, function(d) {
           if (d.annotations && d.annotations.length > 0) {
             for (var i = 0; i < d.annotations.length; ++i) {
               var annotation = d.annotations[i];
@@ -362,10 +362,10 @@ function getHandlers(bgUnits) {
       }
       return d;
     },
-    deviceMeta: function(d) {
+    deviceEvent: function(d) {
       d = cloneDeep(d);
       if (isBadStatus(d)) {
-        var err = new Error('Bad pump status deviceMeta.');
+        var err = new Error('Bad pump status deviceEvent.');
         d.errorMessage = err.message;
       }
       return d;

@@ -35,7 +35,7 @@ describe('local-only tests', function() {
         var ok = 0;
         for (var i = 0; i < res.erroredData.length; ++i) {
           var error = res.erroredData[i];
-          if (error.errorMessage === 'Bad pump status deviceMeta.') {
+          if (error.errorMessage === 'Bad pump status deviceEvent.') {
             ok += 1;
           }
           else if (error.errorMessage === 'Overlapping CareLink upload.') {

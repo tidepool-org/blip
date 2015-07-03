@@ -250,21 +250,21 @@ describe('nurseshark', function() {
       });
     });
 
-    it('should filter out bad deviceMeta events', function() {
+    it('should filter out bad deviceEvent events', function() {
       var data = [{
-        type: 'deviceMeta',
+        type: 'deviceEvent',
         time: new Date().toISOString(),
         duration: 300000,
         timezoneOffset: 0
       }, {
-        type: 'deviceMeta',
+        type: 'deviceEvent',
         time: new Date().toISOString(),
         annotations: [{
           code: 'status/incomplete-tuple'
         }],
         timezoneOffset: 0
       }, {
-        type: 'deviceMeta',
+        type: 'deviceEvent',
         time: new Date().toISOString(),
         annotations: [{
           code: 'status/unknown-previous'
@@ -577,7 +577,7 @@ describe('nurseshark', function() {
         timezoneOffset: 0,
         duration: 1800000
       }, {
-        type: 'deviceMeta',
+        type: 'deviceEvent',
         annotations: [{
           code: 'status/incomplete-tuple'
         }],
