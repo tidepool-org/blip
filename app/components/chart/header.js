@@ -60,7 +60,7 @@ var TidelineHeader = React.createClass({
       'patient-data-subnav-dates-modal': this.props.chartType === 'modal'
     });
 
-    var mostRecentLinkClass = cx({
+    var mostRecentClass = cx({
       'patient-data-subnav-active': !this.props.atMostRecent && !this.props.inTransition,
       'patient-data-subnav-disabled': this.props.atMostRecent || this.props.inTransition,
       'patient-data-subnav-hidden': this.props.chartType === 'no-data' ||
@@ -99,12 +99,12 @@ var TidelineHeader = React.createClass({
                 <a href="" className={modalLinkClass} onClick={this.props.onClickModal}>Trends</a>
             </div>
             <div className="grid-item one-whole large-one-half patient-data-subnav-center" id="tidelineLabel">
-              <a href="" className={backClass} onClick={this.props.onClickBack}><i className={this.props.iconBack}/></a>
+              {this.renderNavButton(backClass, this.props.onClickBack, this.props.iconBack)}
               <div className={dateLinkClass}>
                 {this.props.title}
               </div>
-              <a href="" className={nextClass} onClick={this.props.onClickNext}><i className={this.props.iconNext}/></a>
-              <a href="" className={mostRecentLinkClass} onClick={this.props.onClickMostRecent}><i className={this.props.iconMostRecent}/></a>
+              {this.renderNavButton(nextClass, this.props.onClickNext, this.props.iconNext)}
+              {this.renderNavButton(mostRecentClass, this.props.onClickMostRecent, this.props.iconMostRecent)}
             </div>
             <div className="grid-item one-whole large-one-quarter">
               <a href="" className={settingsLinkClass} onClick={this.props.onClickSettings}>Device settings</a>
@@ -114,6 +114,33 @@ var TidelineHeader = React.createClass({
       </div>
       );
     /* jshint ignore:end */
+  },
+
+  /**
+   * Helper function for rendering the various navigation buttons in the header.
+   * It accounts for the transition state and disables the button if it is currently processing.
+   * 
+   * @param  {String} buttonClass
+   * @param  {Function} clickAction
+   * @param  {String} icon
+   * 
+   * @return {ReactElement}
+   */
+  renderNavButton: function(buttonClass, clickAction, icon) {
+    var nullAction = function(e) {
+      if (e) {
+        e.preventDefault();
+      }
+    };
+    if (this.props.inTransition) {
+      /* jshint ignore:start */
+      return (<a href="" className={buttonClass} onClick={nullAction}><i className={icon}/></a>)
+      /* jshint ignore:end */
+    } else {
+      /* jshint ignore:start */
+      return (<a href="" className={buttonClass} onClick={clickAction}><i className={icon}/></a>)
+      /* jshint ignore:end */
+    }
   }
 });
 
