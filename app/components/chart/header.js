@@ -39,21 +39,25 @@ var TidelineHeader = React.createClass({
   },
   render: function() {
     var dayLinkClass = cx({
+      'js-day': true,
       'patient-data-subnav-active': this.props.chartType === 'daily',
       'patient-data-subnav-hidden': this.props.chartType === 'no-data'
     });
 
     var modalLinkClass = cx({
+      'js-modal': true,
       'patient-data-subnav-active': this.props.chartType === 'modal',
       'patient-data-subnav-hidden': this.props.chartType === 'no-data'
     });
 
     var weekLinkClass = cx({
+      'js-week': true,
       'patient-data-subnav-active': this.props.chartType === 'weekly',
       'patient-data-subnav-hidden': this.props.chartType === 'no-data'
     });
 
     var dateLinkClass = cx({
+      'js-date': true,
       'patient-data-subnav-text' : this.props.chartType === 'daily' || this.props.chartType === 'weekly' || this.props.chartType === 'modal',
       'patient-data-subnav-dates-daily': this.props.chartType === 'daily',
       'patient-data-subnav-dates-weekly': this.props.chartType === 'weekly',
@@ -61,6 +65,7 @@ var TidelineHeader = React.createClass({
     });
 
     var mostRecentClass = cx({
+      'js-most-recent': true,
       'patient-data-subnav-active': !this.props.atMostRecent && !this.props.inTransition,
       'patient-data-subnav-disabled': this.props.atMostRecent || this.props.inTransition,
       'patient-data-subnav-hidden': this.props.chartType === 'no-data' ||
@@ -68,6 +73,7 @@ var TidelineHeader = React.createClass({
     });
 
     var backClass = cx({
+      'js-back': true,
       'patient-data-subnav-active': !this.props.inTransition,
       'patient-data-subnav-disabled': this.props.inTransition,
       'patient-data-subnav-hidden': this.props.chartType === 'settings' ||
@@ -75,6 +81,7 @@ var TidelineHeader = React.createClass({
     });
 
     var nextClass = cx({
+      'js-next': true,
       'patient-data-subnav-active': !this.props.atMostRecent && !this.props.inTransition,
       'patient-data-subnav-disabled': this.props.atMostRecent || this.props.inTransition,
       'patient-data-subnav-hidden': this.props.chartType === 'settings' ||
@@ -82,6 +89,7 @@ var TidelineHeader = React.createClass({
     });
 
     var settingsLinkClass = cx({
+      'js-settings': true,
       'patient-data-subnav-right': true,
       'patient-data-subnav-right-label': true,
       'patient-data-subnav-active': this.props.chartType === 'settings',
