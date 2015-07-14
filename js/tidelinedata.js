@@ -159,6 +159,9 @@ function TidelineData(data, opts) {
     this.grouped[datum.type] = addAndResort(datum, this.grouped[datum.type]);
     this.data = addAndResort(datum, this.data);
     updateCrossFilters(this.data);
+    if (_.includes(opts.diabetesDataTypes, datum.type)) {
+      this.diabetesData = addAndResort(datum, this.diabetesData);
+    }
     this.generateFillData().adjustFillsForTwoWeekView();
     return this;
   };
@@ -258,13 +261,12 @@ function TidelineData(data, opts) {
   }
 
   this.generateFillData = function() {
-    data = this.data;
     startTimer('generateFillData');
-    var lastDatum = data[data.length - 1];
+    var lastDatum = this.diabetesData[this.diabetesData.length - 1];
     // the fill should extend past the *end* of a segment (i.e. of basal data)
     // if that's the last datum in the data
     var lastTimestamp = lastDatum.normalEnd || lastDatum.normalTime;
-    var first = new Date(data[0].normalTime), last = new Date(lastTimestamp);
+    var first = new Date(this.diabetesData[0].normalTime), last = new Date(lastTimestamp);
     // make sure we encapsulate the domain completely
     if (last - first < MS_IN_DAY) {
       first = d3.time.hour.utc.offset(first, -12);
@@ -377,8 +379,7 @@ function TidelineData(data, opts) {
     data = data || this.data;
     this.watson = makeWatsonFn();
     for (var i = 0; i < data.length; ++i) {
-      var d = data[i];
-      this.watson(d);
+      this.watson(data[i]);
     }
 
     return this;
