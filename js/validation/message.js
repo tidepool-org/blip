@@ -24,6 +24,7 @@ module.exports = schema(
     parentMessage: schema().oneOf(
         schema(schema().isNull()), 
         schema(schema().isId())
-    )
+    ),
+    time: schema().isISODateTime()
   }
 );

@@ -335,11 +335,13 @@ function TidelineData(data, opts) {
             d.displayOffset = 0;
           }
           else if (d.type === 'message') {
-            var datumDt = new Date(d.time);
-            var offsetMinutes = datumDt.getTimezoneOffset();
-            datumDt.setUTCMinutes(datumDt.getUTCMinutes() - offsetMinutes);
-            d.normalTime = datumDt.toISOString();
-            d.displayOffset = 0;
+            if (dt.isATimestamp(d.time)) {
+              var datumDt = new Date(d.time);
+              var offsetMinutes = datumDt.getTimezoneOffset();
+              datumDt.setUTCMinutes(datumDt.getUTCMinutes() - offsetMinutes);
+              d.normalTime = datumDt.toISOString();
+              d.displayOffset = 0;
+            }
           }
           // timezoneOffset is an optional attribute according to the Tidepool data model
           else {

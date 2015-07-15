@@ -84,6 +84,26 @@ describe('TidelineData', function() {
     expect(messageOnly.data.length).to.equal(0);
   });
 
+  it('should filter out messages with bad timestamps', function() {
+    var data = [{
+      time: 'Invalid date',
+      messageText: 'Hi there',
+      parentMessage: null,
+      type: 'message',
+      id: 'foo',
+      source: 'Unspecified Data Source',
+      // this is a somewhat artificial example because `Invalid date` in the `time`
+      // field will actually prevent the `normalTime` and `displayOffset` from being generated
+      // but I wanted to show the validation actually operating on the lack
+      // of a valid timestamp in the `time` field rather than on the missing `displayOffset`
+      // which is what actually fails validation first IRL
+      normalTime: '2015-01-01T00:00:00.000Z',
+      displayOffset: 0
+    }];
+    var res = new TidelineData(data);
+    expect(res.grouped.message.length).to.equal(0);
+  });
+
   var dataTypes = {
     basal: new types.Basal(),
     bolus: new types.Bolus(),
