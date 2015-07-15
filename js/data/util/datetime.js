@@ -166,6 +166,15 @@ var datetime = {
     return new Date(local.endOf('day').valueOf() + 1).toISOString();
   },
 
+  isATimestamp: function(s) {
+    if (isNaN(Date.parse(s))) {
+      return false;
+    }
+    else {
+      return true;
+    }
+  },
+
   isLessThanTwentyFourHours: function(s, e) {
     var start = new Date(s).valueOf(), end = new Date(e).valueOf();
     if (end - start < this.MS_IN_24) {

@@ -328,6 +328,20 @@ describe('datetime utility', function() {
     });
   });
 
+  describe('isATimestamp', function() {
+    it('should be a function', function() {
+      assert.isFunction(dt.isATimestamp);
+    });
+
+    it('should return `false` when passed `Invalid date`', function() {
+      expect(dt.isATimestamp('Invalid date')).to.be.false;
+    });
+
+    it('should return `true` when passed an ISO-formatted date string', function() {
+      expect(dt.isATimestamp(new Date().toISOString())).to.be.true;
+    });
+  });
+
   describe('isLessThanTwentyFourHours', function() {
     it('should be a function', function() {
       assert.isFunction(dt.isLessThanTwentyFourHours);
