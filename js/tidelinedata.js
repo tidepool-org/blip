@@ -85,6 +85,14 @@ function TidelineData(data, opts) {
       'smbg',
       'wizard'
     ],
+    oneDayDataTypes: [
+      'basal',
+      'bolus',
+      'cbg',
+      'message',
+      'smbg',
+      'wizard'
+    ],
     timePrefs: {
       timezoneAware: false,
       timezoneName: 'US/Pacific'
@@ -161,6 +169,9 @@ function TidelineData(data, opts) {
     updateCrossFilters(this.data);
     if (_.includes(opts.diabetesDataTypes, datum.type)) {
       this.diabetesData = addAndResort(datum, this.diabetesData);
+    }
+    if (_.includes(opts.oneDayDataTypes, datum.type)) {
+      this.oneDayData = addAndResort(datum, this.oneDayData);
     }
     this.generateFillData().adjustFillsForTwoWeekView();
     return this;
@@ -262,11 +273,11 @@ function TidelineData(data, opts) {
 
   this.generateFillData = function() {
     startTimer('generateFillData');
-    var lastDatum = this.diabetesData[this.diabetesData.length - 1];
+    var lastDatum = this.oneDayData[this.oneDayData.length - 1];
     // the fill should extend past the *end* of a segment (i.e. of basal data)
     // if that's the last datum in the data
     var lastTimestamp = lastDatum.normalEnd || lastDatum.normalTime;
-    var first = new Date(this.diabetesData[0].normalTime), last = new Date(lastTimestamp);
+    var first = new Date(this.oneDayData[0].normalTime), last = new Date(lastTimestamp);
     // make sure we encapsulate the domain completely
     if (last - first < MS_IN_DAY) {
       first = d3.time.hour.utc.offset(first, -12);
@@ -426,6 +437,14 @@ function TidelineData(data, opts) {
     return d.normalTime;
   });
   endTimer('diabetesData');
+
+  startTimer('oneDayData');
+  this.oneDayData = _.sortBy(_.flatten([].concat(_.map(opts.oneDayDataTypes, function(type) {
+    return this.grouped[type] || [];
+  }, this))), function(d) {
+    return d.normalTime;
+  });
+  endTimer('oneDayData');
 
   this.setBGPrefs();
 
