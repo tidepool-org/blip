@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "0.6.13",
+  "version": "0.6.14",
   "private": true,
   "scripts": {
     "test": "./node_modules/karma/bin/karma start",
@@ -35,7 +35,7 @@
     "shelljs": "0.4.0",
     "style-loader": "0.8.3",
     "sundial": "1.1.8",
-    "tideline": "0.1.25",
+    "tideline": "0.1.26",
     "tidepool-platform-client": "0.18.0",
     "url-loader": "0.5.6",
     "webpack": "1.10.0"
