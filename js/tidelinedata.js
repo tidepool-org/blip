@@ -159,6 +159,9 @@ function TidelineData(data, opts) {
     this.grouped[datum.type] = addAndResort(datum, this.grouped[datum.type]);
     this.data = addAndResort(datum, this.data);
     updateCrossFilters(this.data);
+    if (_.includes(opts.diabetesDataTypes, datum.type)) {
+      this.diabetesData = addAndResort(datum, this.diabetesData);
+    }
     this.generateFillData().adjustFillsForTwoWeekView();
     return this;
   };
@@ -258,13 +261,12 @@ function TidelineData(data, opts) {
   }
 
   this.generateFillData = function() {
-    data = this.data;
     startTimer('generateFillData');
-    var lastDatum = data[data.length - 1];
+    var lastDatum = this.data[this.data.length - 1];
     // the fill should extend past the *end* of a segment (i.e. of basal data)
     // if that's the last datum in the data
     var lastTimestamp = lastDatum.normalEnd || lastDatum.normalTime;
-    var first = new Date(data[0].normalTime), last = new Date(lastTimestamp);
+    var first = new Date(this.data[0].normalTime), last = new Date(lastTimestamp);
     // make sure we encapsulate the domain completely
     if (last - first < MS_IN_DAY) {
       first = d3.time.hour.utc.offset(first, -12);
@@ -333,11 +335,13 @@ function TidelineData(data, opts) {
             d.displayOffset = 0;
           }
           else if (d.type === 'message') {
-            var datumDt = new Date(d.time);
-            var offsetMinutes = datumDt.getTimezoneOffset();
-            datumDt.setUTCMinutes(datumDt.getUTCMinutes() - offsetMinutes);
-            d.normalTime = datumDt.toISOString();
-            d.displayOffset = 0;
+            if (dt.isATimestamp(d.time)) {
+              var datumDt = new Date(d.time);
+              var offsetMinutes = datumDt.getTimezoneOffset();
+              datumDt.setUTCMinutes(datumDt.getUTCMinutes() - offsetMinutes);
+              d.normalTime = datumDt.toISOString();
+              d.displayOffset = 0;
+            }
           }
           // timezoneOffset is an optional attribute according to the Tidepool data model
           else {
@@ -377,8 +381,7 @@ function TidelineData(data, opts) {
     data = data || this.data;
     this.watson = makeWatsonFn();
     for (var i = 0; i < data.length; ++i) {
-      var d = data[i];
-      this.watson(d);
+      this.watson(data[i]);
     }
 
     return this;
@@ -442,7 +445,7 @@ function TidelineData(data, opts) {
   
   if (data.length > 0 && !_.isEmpty(this.diabetesData)) {
     var dData = this.diabetesData;
-    this.data = _.reject(data, function(d) {
+    this.data = _.sortBy(_.reject(data, function(d) {
       if (d.type === 'message' && d.normalTime < dData[0].normalTime) {
         return true;
       }
@@ -452,7 +455,7 @@ function TidelineData(data, opts) {
       if (d.type === 'upload') {
         return true;
       }
-    });
+    }), function(d) { return d.normalTime; });
     this.generateFillData().adjustFillsForTwoWeekView();
     this.data = _.sortBy(this.data.concat(this.grouped.fill), function(d) { return d.normalTime; });
   }
