@@ -8,7 +8,7 @@ var Settings = require('../../../../app/components/chart/settings');
 
 describe('Settings', function () {
   describe('render', function() {
-    it('should console.warn with missing required props', function () {
+    it('should console.warn when missing required props', function () {
       console.warn = sinon.spy();
       var settingsElem = React.createElement(Settings, {});
       var elem = TestUtils.renderIntoDocument(settingsElem);
@@ -62,7 +62,7 @@ describe('Settings', function () {
       expect(x.props.children.length).to.equal(3);
     });
 
-    it('should have a refresh button which should be call onClickRefresh when clicked', function () {
+    it('should have a refresh button which should call onClickRefresh when clicked', function () {
       var props = {
         bgPrefs: {},
         chartPrefs: {},

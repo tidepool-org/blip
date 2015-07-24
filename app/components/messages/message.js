@@ -26,6 +26,7 @@ var _ = require('lodash');
 var sundial = require('sundial');
 
 var MessageForm = require('./messageform');
+var MessageMixins = require('./messagemixins');
 
 if (!window.process) {
   var profileLargeSrc = require('./images/profile-100x100.png');
@@ -33,26 +34,26 @@ if (!window.process) {
 }
 
 var Message = React.createClass({
-
+  mixins: [MessageMixins],
   propTypes: {
-    theNote : React.PropTypes.object,
+    theNote : React.PropTypes.object.isRequired,
     imageSize: React.PropTypes.string,
-    onSaveEdit : React.PropTypes.func
+    onSaveEdit: React.PropTypes.func,
+    timePrefs: React.PropTypes.object.isRequired
   },
-
   getInitialState: function() {
     return {
-      editing : false
+      editing: false
     };
   },
   componentDidMount: function () {
-    var offset = sundial.getOffsetFromTime(this.props.theNote.timestamp) || sundial.getOffset();
-
-    this.setState({
-      author :  this.getUserDisplayName(this.props.theNote.user),
-      note : this.props.theNote.messagetext,
-      when : sundial.formatFromOffset(this.props.theNote.timestamp, offset)
-    });
+    if (this.props.theNote) {
+      this.setState({
+      author: this.getUserDisplayName(this.props.theNote.user),
+      note: this.props.theNote.messagetext,
+      when: this.getDisplayTimestamp(this.props.theNote.timestamp)
+      });
+    }
   },
   getUserDisplayName: function(user) {
     var result = 'Anonymous user';
@@ -61,16 +62,13 @@ var Message = React.createClass({
     }
     return result;
   },
-
-  isComment : function(){
+  isComment: function() {
     return _.isEmpty(this.props.theNote.parentmessage) === false;
   },
-
-  handleEditSave:function(edits){
-
+  handleEditSave: function(edits) {
     var saveEdit = this.props.onSaveEdit;
 
-    if(saveEdit){
+    if (saveEdit) {
       var newNote = _.cloneDeep(this.props.theNote);
       if (this.props.theNote.messagetext !== edits.text ||
         (edits.timestamp && this.props.theNote.timestamp !== edits.timestamp)) {
@@ -80,33 +78,30 @@ var Message = React.createClass({
         }
         saveEdit(newNote);
       }
-
-      var offset = sundial.getOffsetFromTime(edits.timestamp || this.props.theNote.timestamp) || sundial.getOffset();
-
-      this.setState({
-        editing : false,
-        note : edits.text,
-        when : sundial.formatFromOffset(edits.timestamp || this.props.theNote.timestamp, offset)
-      });
+      var newState = {
+        editing: false,
+        note: edits.text,
+        when: this.getDisplayTimestamp(edits.timestamp || this.props.theNote.timestamp)
+      };
+      if (edits.timestamp) {
+        newState.timestamp = edits.timestamp;
+      }
+      this.setState(newState);
     }
-
   },
-
-  handleAllowEdit : function(e){
+  handleAllowEdit: function(e) {
     if (e) {
       e.preventDefault();
     }
     this.setState({editing:true});
   },
-
-  handleCancelEdit : function(e){
+  handleCancelEdit: function(e) {
     if (e) {
       e.preventDefault();
     }
     this.setState({editing:false});
   },
-
-  renderTitle : function(){
+  renderTitle: function() {
     var edit = this.renderEditLink();
     
     return (
@@ -117,9 +112,8 @@ var Message = React.createClass({
     );
     
   },
-
-  renderEditLink : function(){
-    if( this.state.editing === false && this.props.onSaveEdit){
+  renderEditLink: function() {
+    if (this.state.editing === false && this.props.onSaveEdit) {
       return (
         
         <a
@@ -145,23 +139,23 @@ var Message = React.createClass({
 
     
     return (
-      <img
-        className={'message-picture message-picture-' + imageSize}
+      <img className={'message-picture message-picture-' + imageSize}
         src={imageSource}
         alt='Profile picture'/>
     );
     
   },
-  renderNoteEdit:function(){
-    if(this.state.editing){
+  renderNoteEdit: function() {
+    if (this.state.editing) {
       var editForm;
-       
       if ( this.isComment() ){
-
         //we only allow the editing of the text on a comment
         editForm = (
           <MessageForm
-            formFields={{editableText: this.props.theNote.messagetext, displayOnlyTimestamp : this.props.theNote.timestamp }}
+            formFields={{
+              editableText: this.state.note || this.props.theNote.messagetext,
+              displayOnlyTimestamp: this.state.timestamp || this.props.theNote.timestamp
+            }}
             onSubmit={this.handleEditSave}
             onCancel={this.handleCancelEdit}
             saveBtnText='Save' />
@@ -169,10 +163,14 @@ var Message = React.createClass({
       } else {
         editForm = (
           <MessageForm
-            formFields={{editableText: this.props.theNote.messagetext, editableTimestamp: this.props.theNote.timestamp}}
+            formFields={{
+              editableText: this.state.note || this.props.theNote.messagetext,
+              editableTimestamp: this.state.timestamp || this.props.theNote.timestamp
+            }}
             onSubmit={this.handleEditSave}
             onCancel={this.handleCancelEdit}
-            saveBtnText='Save' />
+            saveBtnText='Save'
+            timePrefs={this.props.timePrefs} />
         );
       }
       var title = this.renderTitle();
@@ -190,14 +188,11 @@ var Message = React.createClass({
     }
   },
   renderNoteContent: function() {
-
-    if(this.state.editing === false){
-
+    if (this.state.editing === false) {
       var image = this.renderImage();
       var title = this.renderTitle();
 
-      return this.transferPropsTo(
-        
+      return (
         <div>
           {image}
           <div className='message-body'>
@@ -214,10 +209,9 @@ var Message = React.createClass({
   },
 
   render: function() {
-
     var noteClasses = 'message';
     var note = this.renderNoteContent() ? this.renderNoteContent() : this.renderNoteEdit();
-    if( this.state.editing ){
+    if (this.state.editing) {
       noteClasses = noteClasses + ' message-editing';
     }
 

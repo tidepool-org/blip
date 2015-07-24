@@ -87,7 +87,7 @@ var SimpleForm = React.createClass({
 
   renderInputs: function() {
     var self = this;
-    var inputs = this.props.inputs;
+    var inputs = this.props.inputs || [];
     if (inputs.length) {
       
       return _.map(inputs, self.renderInput);

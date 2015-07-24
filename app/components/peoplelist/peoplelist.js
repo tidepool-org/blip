@@ -45,30 +45,31 @@ var PeopleList = React.createClass({
   },
 
   render: function() {
-    var peopleNodes = _.map(this.props.people, this.renderPeopleListItem);
+    var peopleNodes = [];
+    if (!_.isEmpty(this.props.people)) {
+      this.props.people = _.sortBy(_.sortBy(this.props.people, 'fullname'), function(person) {
 
-    this.props.people = _.sortBy(_.sortBy(this.props.people, 'fullname'), function(person) {
+        if (_.isEmpty(person.permissions) === false){
+          if (person.permissions.root) {
+            return 1;
+          }
+          if (person.permissions.admin) {
+            return 2;
+          }
+          if (person.permissions.upload) {
+            return 3;
+          }
+        }
+        return 4;
+      });
 
-      if (_.isEmpty(person.permissions) === false){
-        if (person.permissions.root) {
-          return 1;
-        }
-        if (person.permissions.admin) {
-          return 2;
-        }
-        if (person.permissions.upload) {
-          return 3;
-        }
-      }
-      return 4;
-    });
-
-    peopleNodes = _.map(this.props.people, this.renderPeopleListItem);
+      peopleNodes = _.map(this.props.people, this.renderPeopleListItem);
+    }
 
     var classes = cx({
       'people-list': true,
       'list-group': true,
-      'people-list-single': this.props.people.length === 1
+      'people-list-single': (this.props.people && this.props.people.length === 1)
     });
 
     var removeControls = this.removeablePersonExists(this.props.people) ? this.renderRemoveControls() : null;

@@ -73,8 +73,7 @@ var PatientData = React.createClass({
           boxOverlay: true,
           grouped: true,
           showingLines: false
-        },
-        timePrefs: this.props.timePrefs
+        }
       },
       chartType: 'modal',
       createMessage: null,
@@ -206,6 +205,12 @@ var PatientData = React.createClass({
   },
 
   isEmptyPatientData: function() {
+    // Make sure the patient object and userid is set to prevent TypeErrors
+    // when not setting this prop
+    if (!utils.getIn(this.props, ['patient', 'userid'])) {
+      return true;
+    }
+
     var patientDataLength =
       utils.getIn(this.props.patientData, [this.props.patient.userid, 'data', 'length'], 0);
     return !Boolean(patientDataLength);
@@ -230,6 +235,7 @@ var PatientData = React.createClass({
           <Daily
             bgPrefs={this.props.bgPrefs}
             chartPrefs={this.state.chartPrefs}
+            timePrefs={this.props.timePrefs}
             imagesBaseUrl={config.IMAGES_ENDPOINT + '/tideline'}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
             patientData={this.props.patientData[this.props.patient.userid]}
@@ -251,6 +257,7 @@ var PatientData = React.createClass({
           <Modal
             bgPrefs={this.props.bgPrefs}
             chartPrefs={this.state.chartPrefs}
+            timePrefs={this.props.timePrefs}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
             patientData={this.props.patientData[this.props.patient.userid]}
             onClickRefresh={this.handleClickRefresh}
@@ -271,6 +278,7 @@ var PatientData = React.createClass({
           <Weekly
             bgPrefs={this.props.bgPrefs}
             chartPrefs={this.state.chartPrefs}
+            timePrefs={this.props.timePrefs}
             imagesBaseUrl={config.IMAGES_ENDPOINT + '/tideline'}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
             patientData={this.props.patientData[this.props.patient.userid]}
@@ -292,6 +300,7 @@ var PatientData = React.createClass({
           <Settings
             bgPrefs={this.props.bgPrefs}
             chartPrefs={this.state.chartPrefs}
+            timePrefs={this.props.timePrefs}
             patientData={this.props.patientData[this.props.patient.userid]}
             onClickRefresh={this.handleClickRefresh}
             onSwitchToDaily={this.handleSwitchToDaily}
@@ -317,7 +326,8 @@ var PatientData = React.createClass({
           onClose={this.closeMessageCreation}
           onSave={this.props.onCreateMessage}
           onNewMessage={this.handleMessageCreation}
-          onEdit={this.handleEditMessage} />
+          onEdit={this.handleEditMessage}
+          timePrefs={this.props.timePrefs} />
       );
     } else if(this.state.messages) {
       return (
@@ -327,7 +337,8 @@ var PatientData = React.createClass({
           patient={this.props.patient}
           onClose={this.closeMessageThread}
           onSave={this.handleReplyToMessage}
-          onEdit={this.handleEditMessage} />
+          onEdit={this.handleEditMessage}
+          timePrefs={this.props.timePrefs} />
       );
     }
     
@@ -412,8 +423,8 @@ var PatientData = React.createClass({
       fromChart: this.state.chartType
     });
     datetime = datetime || this.state.datetimeLocation;
-    if (this.state.chartPrefs.timePrefs.timezoneAware) {
-      datetime = sundial.applyOffset(datetime, sundial.getOffsetFromZone(datetime, this.state.chartPrefs.timePrefs.timezoneName));
+    if (this.props.timePrefs.timezoneAware) {
+      datetime = sundial.applyOffset(datetime, sundial.getOffsetFromZone(datetime, this.props.timePrefs.timezoneName));
       datetime = datetime.toISOString();
     }
     this.setState({

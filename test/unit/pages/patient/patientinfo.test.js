@@ -1,3 +1,4 @@
+/** @jsx React.DOM */
 /* global chai */
 
 var React = require('react');
@@ -30,7 +31,7 @@ describe('PatientInfo', function () {
   });
 
   describe('getInitialState', function() {
-    it('should be return an object with editing set to false and contains no notification', function() {
+    it('should return an object with editing set to false and containing no validationErrors', function() {
       var props = {
         trackMetric: function() {}
       };
@@ -41,7 +42,7 @@ describe('PatientInfo', function () {
       var initialState = elem.getInitialState();
       expect(Object.keys(initialState).length).to.equal(2);
       expect(initialState.editing).to.equal(false);
-      expect(initialState.notification).to.equal(null);
+      expect(Object.keys(initialState.validationErrors).length).length.to.equal(0);
     });
   });
 
@@ -99,7 +100,7 @@ describe('PatientInfo', function () {
   });
 
   describe('getDisplayName', function() {
-    it('should return the users full name', function() {
+    it('should return the user\'s full name', function() {
       var props = {
         patient: {
           userid: 1,
@@ -117,7 +118,7 @@ describe('PatientInfo', function () {
   });
 
   describe('getAgeText', function() {
-    it('should return unknown birthday if less than 1 years old, or birthdate in future', function() {
+    it('should return text `Born this year` if birthday less than 1 year', function() {
       var props = {
         patient: {
           userid: 1,
@@ -134,8 +135,38 @@ describe('PatientInfo', function () {
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
       expect(elem).to.be.ok;
       // NB: Remember that Date is a bit weird, in that months are zero indexed - so 4 -> May !
-      expect(elem.getAgeText(elem.props.patient, new Date(1984, 4, 20))).to.equal('Birthdate not known');
-      expect(elem.getAgeText(elem.props.patient, new Date(1983, 4, 20))).to.equal('Birthdate not known');
+      // 
+      // Edge cases to do with how moment.dff behaves around dtes with diff between >1 and 1, 
+      // the range for 0 spans between these values
+      expect(elem.getAgeText(elem.props.patient, Date.UTC(1983, 4, 20))).to.equal('Born this year');
+      expect(elem.getAgeText(elem.props.patient, Date.UTC(1983, 4, 19))).to.equal('Born this year');
+
+      expect(elem.getAgeText(elem.props.patient, Date.UTC(1985, 4, 17))).to.equal('Born this year');
+    });
+
+
+    it('should return unknown birthday if birthdate is in future', function() {
+      var props = {
+        patient: {
+          userid: 1,
+          profile: {
+            patient: {
+              birthday: '1984-05-18'
+            }
+          }
+        },
+        trackMetric: function() {}
+      };
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      expect(elem).to.be.ok;
+      // NB: Remember that Date is a bit weird, in that months are zero indexed - so 4 -> May !
+      expect(elem.getAgeText(elem.props.patient, Date.UTC(1980, 4, 17))).to.equal('Birthdate not known');
+      expect(elem.getAgeText(elem.props.patient, Date.UTC(1981, 4, 17))).to.equal('Birthdate not known');
+      expect(elem.getAgeText(elem.props.patient, Date.UTC(1982, 4, 17))).to.equal('Birthdate not known');
+      expect(elem.getAgeText(elem.props.patient, Date.UTC(1983, 4, 17))).to.equal('Birthdate not known');
+      expect(elem.getAgeText(elem.props.patient, Date.UTC(1983, 4, 18))).to.equal('Birthdate not known');
     });
 
     it('should return text representing years difference', function() {
@@ -154,12 +185,12 @@ describe('PatientInfo', function () {
       var patientInfoElem = React.createElement(PatientInfo, props);
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
       expect(elem).to.be.ok;
-      expect(elem.getAgeText(elem.props.patient, new Date(1985, 4, 19))).to.equal('1 year old');
-      expect(elem.getAgeText(elem.props.patient, new Date(1986, 4, 19))).to.equal('2 years old');
-      expect(elem.getAgeText(elem.props.patient, new Date(1987, 4, 19))).to.equal('3 years old');
-      expect(elem.getAgeText(elem.props.patient, new Date(1988, 4, 19))).to.equal('4 years old');
-      expect(elem.getAgeText(elem.props.patient, new Date(1999, 4, 19))).to.equal('15 years old');
-      expect(elem.getAgeText(elem.props.patient, new Date(2015, 4, 19))).to.equal('31 years old');
+      expect(elem.getAgeText(elem.props.patient, Date.UTC(1985, 4, 19))).to.equal('1 year old');
+      expect(elem.getAgeText(elem.props.patient, Date.UTC(1986, 4, 19))).to.equal('2 years old');
+      expect(elem.getAgeText(elem.props.patient, Date.UTC(1987, 4, 19))).to.equal('3 years old');
+      expect(elem.getAgeText(elem.props.patient, Date.UTC(1988, 4, 19))).to.equal('4 years old');
+      expect(elem.getAgeText(elem.props.patient, Date.UTC(1999, 4, 19))).to.equal('15 years old');
+      expect(elem.getAgeText(elem.props.patient, Date.UTC(2015, 4, 19))).to.equal('31 years old');
     });
 
     it('should handle return correct text representation for various birthdays', function() {
@@ -177,18 +208,18 @@ describe('PatientInfo', function () {
 
       var patientInfoElem = React.createElement(PatientInfo, props);
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
-      var today = new Date(2015, 4, 28); //for testing purposes - set today as fixed
+      var today = Date.UTC(2015, 4, 28); //for testing purposes - set today as fixed
       expect(elem).to.be.ok;
-      expect(elem.getAgeText(elem.props.patient, new Date(2015, 4, 28))).to.equal('31 years old');
+      expect(elem.getAgeText(elem.props.patient, Date.UTC(2015, 4, 28))).to.equal('31 years old');
       elem.props.patient.profile.patient.birthday = '1984-04-30';
-      expect(elem.getAgeText(elem.props.patient, new Date(2015, 4, 28))).to.equal('31 years old');
+      expect(elem.getAgeText(elem.props.patient, Date.UTC(2015, 4, 28))).to.equal('31 years old');
       elem.props.patient.profile.patient.birthday = '1984-05-29';
-      expect(elem.getAgeText(elem.props.patient, new Date(2015, 4, 28))).to.equal('30 years old');
+      expect(elem.getAgeText(elem.props.patient, Date.UTC(2015, 4, 28))).to.equal('30 years old');
     });
   });
 
   describe('getDiagnosisText', function() {
-    it('should return unknown birthday if less than 1 years old, or birthdate in future', function() {
+    it('should return unknown Dx date if less than 1 years old, or Dx date in future', function() {
       var props = {
         patient: {
           userid: 1,
@@ -204,8 +235,8 @@ describe('PatientInfo', function () {
       var patientInfoElem = React.createElement(PatientInfo, props);
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
       expect(elem).to.be.ok;
-      expect(elem.getDiagnosisText(elem.props.patient, new Date(1983, 3, 20))).to.equal('Diagnosis date not known');
-      expect(elem.getDiagnosisText(elem.props.patient, new Date(1982, 4, 20))).to.equal('Diagnosis date not known');
+      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(1983, 3, 20))).to.equal('Diagnosis date not known');
+      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(1982, 4, 20))).to.equal('Diagnosis date not known');
     });
 
     it('should return text representing years difference', function() {
@@ -224,16 +255,16 @@ describe('PatientInfo', function () {
       var patientInfoElem = React.createElement(PatientInfo, props);
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
       expect(elem).to.be.ok;
-      expect(elem.getDiagnosisText(elem.props.patient, new Date(1984, 4, 18))).to.equal('Diagnosed this year');
-      expect(elem.getDiagnosisText(elem.props.patient, new Date(1985, 4, 19))).to.equal('Diagnosed 1 year ago');
-      expect(elem.getDiagnosisText(elem.props.patient, new Date(1986, 4, 19))).to.equal('Diagnosed 2 years ago');
-      expect(elem.getDiagnosisText(elem.props.patient, new Date(1987, 4, 19))).to.equal('Diagnosed 3 years ago');
-      expect(elem.getDiagnosisText(elem.props.patient, new Date(1988, 4, 19))).to.equal('Diagnosed 4 years ago');
-      expect(elem.getDiagnosisText(elem.props.patient, new Date(1999, 4, 19))).to.equal('Diagnosed 15 years ago');
-      expect(elem.getDiagnosisText(elem.props.patient, new Date(2015, 4, 19))).to.equal('Diagnosed 31 years ago');
+      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(1984, 4, 18))).to.equal('Diagnosed this year');
+      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(1985, 4, 19))).to.equal('Diagnosed 1 year ago');
+      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(1986, 4, 19))).to.equal('Diagnosed 2 years ago');
+      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(1987, 4, 19))).to.equal('Diagnosed 3 years ago');
+      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(1988, 4, 19))).to.equal('Diagnosed 4 years ago');
+      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(1999, 4, 19))).to.equal('Diagnosed 15 years ago');
+      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(2015, 4, 19))).to.equal('Diagnosed 31 years ago');
     });
 
-    it('should handle return correct text representation for various diagnosisDates', function() {
+    it('should handle return correct text representation for various Dx dates', function() {
       var props = {
         patient: {
           userid: 1,
@@ -248,13 +279,13 @@ describe('PatientInfo', function () {
 
       var patientInfoElem = React.createElement(PatientInfo, props);
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
-      var today = new Date(2015, 4, 28); //for testing purposes - set today as fixed
+      var today = Date.UTC(2015, 4, 28); //for testing purposes - set today as fixed
       expect(elem).to.be.ok;
-      expect(elem.getDiagnosisText(elem.props.patient, new Date(2015, 4, 28))).to.equal('Diagnosed 31 years ago');
+      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(2015, 4, 28))).to.equal('Diagnosed 31 years ago');
       elem.props.patient.profile.patient.diagnosisDate = '1984-04-30';
-      expect(elem.getDiagnosisText(elem.props.patient, new Date(2015, 4, 28))).to.equal('Diagnosed 31 years ago');
+      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(2015, 4, 28))).to.equal('Diagnosed 31 years ago');
       elem.props.patient.profile.patient.diagnosisDate = '1984-05-29';
-      expect(elem.getDiagnosisText(elem.props.patient, new Date(2015, 4, 28))).to.equal('Diagnosed 30 years ago');
+      expect(elem.getDiagnosisText(elem.props.patient, Date.UTC(2015, 4, 28))).to.equal('Diagnosed 30 years ago');
     });
   });
 
@@ -439,234 +470,10 @@ describe('PatientInfo', function () {
       expect(formValues.about).to.equal('I have a wonderful coffee mug.');
     });
   });
-
-  describe('validateFormValues', function() {
-    it('should return error message when birthday is null', function() {
-      var props = {
-        trackMetric: function() {}
-      };
-
-      var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
-      var formValues = {
-        fullName: 'Joe Bloggs',
-        birthday: null,
-        diagnosisDate: null,
-        about: null
-      };
-      var error = elem.validateFormValues(formValues);
-
-      expect(error).to.equal('Date of birth needs to be a valid date');
-    });
-
-    it('should return error message when birthday is invalid string', function() {
-      var props = {
-        trackMetric: function() {}
-      };
-
-      var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
-      var formValues = {
-        fullName: 'Joe Bloggs',
-        birthday: 'randomstring',
-        diagnosisDate: null,
-        about: null
-      };
-      var error = elem.validateFormValues(formValues);
-
-      expect(error).to.equal('Date of birth needs to be a valid date');
-    });
-
-    it('should return error message when birthday is wrong date format', function() {
-      var props = {
-        trackMetric: function() {}
-      };
-
-      var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
-      var formValues = {
-        fullName: 'Joe Bloggs',
-        birthday: '2014-05-01',
-        diagnosisDate: null,
-        about: null
-      };
-      var error = elem.validateFormValues(formValues);
-
-      expect(error).to.equal('Date of birth needs to be a valid date');
-    });
-
-    it('should return error message when diagnosisDate is null', function() {
-      var props = {
-        trackMetric: function() {}
-      };
-
-      var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
-      var formValues = {
-        fullName: 'Joe Bloggs',
-        birthday: '01/01/1984',
-        diagnosisDate: null,
-        about: null
-      };
-      var error = elem.validateFormValues(formValues);
-
-      expect(error).to.equal('Diagnosis date needs to be a valid date');
-    });
-
-    it('should return error message when diagnosisDate is invalid', function() {
-      var props = {
-        trackMetric: function() {}
-      };
-
-      var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
-      var formValues = {
-        fullName: 'Joe Bloggs',
-        birthday: '01/01/1984',
-        diagnosisDate: '1234',
-        about: null
-      };
-      var error = elem.validateFormValues(formValues);
-
-      expect(error).to.equal('Diagnosis date needs to be a valid date');
-    });
-
-    it('should return no error message when diagnosisDate and birthday are valid and about is empty', function() {
-      var props = {
-        trackMetric: function() {}
-      };
-
-      var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
-      var formValues = {
-        fullName: 'Joe Bloggs',
-        birthday: '01/01/1984',
-        diagnosisDate: '01/05/1984',
-        about: null
-      };
-      var error = elem.validateFormValues(formValues);
-
-      expect(typeof error).to.equal('undefined');
-    });
-
-    it('should return error message when birthday is in the future', function() {
-      var props = {
-        trackMetric: function() {}
-      };
-
-      var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
-      var formValues = {
-        fullName: 'Joe Bloggs',
-        birthday: '01/01/2016',
-        diagnosisDate: '01/05/1984',
-        about: null
-      };
-      var error = elem.validateFormValues(formValues, new Date(2015, 4, 18));
-
-      expect(error).to.equal('Date of birth cannot be in the future!');
-    });
-
-    it('should return error message when diagnosisDate is in the future', function() {
-      var props = {
-        trackMetric: function() {}
-      };
-
-      var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
-      var formValues = {
-        fullName: 'Joe Bloggs',
-        birthday: '01/05/1984',
-        diagnosisDate: '01/01/2016',
-        about: null
-      };
-      var error = elem.validateFormValues(formValues, new Date(2015, 4, 18));
-
-      expect(error).to.equal('Diagnosis date cannot be in the future!');
-    });
-
-    it('should return error message when diagnosisDate is before birthday', function() {
-      var props = {
-        trackMetric: function() {}
-      };
-
-      var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
-      var formValues = {
-        fullName: 'Joe Bloggs',
-        birthday: '01/05/1984',
-        diagnosisDate: '01/01/1983',
-        about: null
-      };
-      var error = elem.validateFormValues(formValues, new Date(2015, 4, 18));
-
-      expect(error).to.equal('Diagnosis cannot be before date of birth!');
-    });
-
-    it('should return no error message when diagnosisDate and birthday and about is valid', function() {
-      var props = {
-        trackMetric: function() {}
-      };
-
-      var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
-      var formValues = {
-        fullName: 'Joe Bloggs',
-        birthday: '01/01/1984',
-        diagnosisDate: '01/05/1984',
-        about: 'This is a valid length about section'
-      };
-      var error = elem.validateFormValues(formValues);
-
-      expect(typeof error).to.equal('undefined');
-    });
-
-    it('should return error message when about is over max length', function() {
-      var props = {
-        trackMetric: function() {}
-      };
-
-      var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
-      var formValues = {
-        fullName: 'Joe Bloggs',
-        birthday: '01/01/1984',
-        diagnosisDate: '01/05/1984',
-        about: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' +
-        'Enim in consectetur ultricies netus torquent nisi gravida pulvinar' +
-        ' - curae congue tellus sodales nec proin?Risus in nostra montes rhoncus' +
-        ' vestibulum tempus per ut: curae maecenas nibh arcu eget. Dolby'
-      };
-      var error = elem.validateFormValues(formValues);
-
-      expect(error).to.equal('Please keep "about" text under 256 characters');
-    }); 
-
-    it('should return no error message when diagnosisDate and birthday and about is at max length', function() {
-      var props = {
-        trackMetric: function() {}
-      };
-
-      var patientInfoElem = React.createElement(PatientInfo, props);
-      var elem = TestUtils.renderIntoDocument(patientInfoElem);
-      var formValues = {
-        fullName: 'Joe Bloggs',
-        birthday: '01/01/1984',
-        diagnosisDate: '01/05/1984',
-        about: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' + 
-        'Enim in consectetur ultricies netus torquent nisi gravida pulvinar' + 
-        ' - curae congue tellus sodales nec proin?Risus in nostra montes rhoncus' + 
-        ' vestibulum tempus per ut: curae maecenas nibh arcu eget. Dolb'
-      };
-      var error = elem.validateFormValues(formValues);
-
-      expect(typeof error).to.equal('undefined');
-    });   
-  });
   
   describe('prepareFormValuesForSubmit', function() {
 
-    it('should throw a errors with invalid birthday - non-leap year 29th Feb', function() {
+    it('should throw an error with invalid birthday - non-leap year 29th Feb', function() {
       console.error = sinon.spy(); // Stub the error function
       var props = {
         trackMetric: function() {},
@@ -691,7 +498,7 @@ describe('PatientInfo', function () {
       expect(error).to.be.an.instanceof(Error);
     });
 
-    it('should throw a errors with invalid birthday - non-existent date', function() {
+    it('should throw an error with invalid birthday - non-existent date', function() {
       console.error = sinon.spy(); // Stub the error function
       var props = {
         trackMetric: function() {},
@@ -716,7 +523,7 @@ describe('PatientInfo', function () {
       expect(error).to.be.an.instanceof(Error);
     });
 
-    it('should convert valid birthday to YYYY-MM-DD equivalents', function() {
+    it('should convert valid birthday to YYYY-MM-DD equivalent', function() {
       var props = {
         trackMetric: function() {},
         patient: {
@@ -747,7 +554,7 @@ describe('PatientInfo', function () {
       expect(result.profile.patient.birthday).to.equal('2016-02-29');
     });
 
-    it('should throw a errors with invalid diagnosisDate - non-leap year 29th Feb', function() {
+    it('should throw an error with invalid diagnosisDate - non-leap year 29th Feb', function() {
       console.error = sinon.spy(); // Stub the error function
       var props = {
         trackMetric: function() {},
@@ -772,7 +579,7 @@ describe('PatientInfo', function () {
       expect(error).to.be.an.instanceof(Error);
     });
 
-    it('should throw a errors with invalid diagnosisDate - non-existent date', function() {
+    it('should throw an error with invalid diagnosisDate - non-existent date', function() {
       console.error = sinon.spy(); // Stub the error function
       var props = {
         trackMetric: function() {},
@@ -797,7 +604,7 @@ describe('PatientInfo', function () {
       expect(error).to.be.an.instanceof(Error);
     });
 
-    it('should convert valid diagnosisDate to YYYY-MM-DD equivalents', function() {
+    it('should convert valid diagnosisDate to YYYY-MM-DD equivalent', function() {
       var props = {
         trackMetric: function() {},
         patient: {

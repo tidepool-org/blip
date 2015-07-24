@@ -143,6 +143,7 @@ var Daily = React.createClass({
   propTypes: {
     bgPrefs: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
+    timePrefs: React.PropTypes.object.isRequired,
     imagesBaseUrl: React.PropTypes.string.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
@@ -197,7 +198,7 @@ var Daily = React.createClass({
                 imagesBaseUrl={this.props.imagesBaseUrl}
                 initialDatetimeLocation={this.props.initialDatetimeLocation}
                 patientData={this.props.patientData}
-                timePrefs={this.props.chartPrefs.timePrefs}
+                timePrefs={this.props.timePrefs}
                 // message handlers
                 onCreateMessage={this.props.onCreateMessage}
                 onShowMessageThread={this.props.onShowMessageThread}
@@ -220,7 +221,7 @@ var Daily = React.createClass({
     
   },
   getTitle: function(datetime) {
-    var timePrefs = this.props.chartPrefs.timePrefs, timezone;
+    var timePrefs = this.props.timePrefs, timezone;
     if (!timePrefs.timezoneAware) {
       timezone = 'UTC';
     }
