@@ -27,8 +27,14 @@ describe('sundial', function() {
     it('should not break require',function(){
       expect(datetimeWrapper).to.exist;
     });
+    it('should have an applyOffset method',function(){
+      expect(datetimeWrapper.applyOffset).to.exist;
+    });
     it('should have an applyTimezone method',function(){
       expect(datetimeWrapper.applyTimezone).to.exist;
+    });
+    it('should have an applyTimezoneAndConversionOffset method',function(){
+      expect(datetimeWrapper.applyTimezoneAndConversionOffset).to.exist;
     });
     it('should have a buildTimestamp method',function(){
       expect(datetimeWrapper.buildTimestamp).to.exist;
@@ -41,6 +47,9 @@ describe('sundial', function() {
     });
     it('should have a dateDifference method',function(){
       expect(datetimeWrapper.dateDifference).to.exist;
+    });
+    it('should have an findTimeFromDeviceTimeAndOffsets method',function(){
+      expect(datetimeWrapper.findTimeFromDeviceTimeAndOffsets).to.exist;
     });
     it('should have a floor method',function(){
       expect(datetimeWrapper.floor).to.exist;
@@ -96,6 +105,7 @@ describe('sundial', function() {
     it('should have a utcString method',function(){
       expect(datetimeWrapper.utcDateString).to.exist;
     });
+
     describe('applyOffset', function() {
       it('should yield a UTC timestamp five hours later when given offset of 300, Zulu timestamp', function() {
         var res = datetimeWrapper.applyOffset('2014-01-01T00:00:00.000Z', 300);
@@ -142,6 +152,18 @@ describe('sundial', function() {
       it('should throw an error if timezone name not recognized by moment', function() {
         var fn = function() { datetimeWrapper.applyTimezone('2014-01-01T00:00:00', 'Foo'); };
         expect(fn).to.throw(Error, 'Unrecognized timezone name!');
+      });
+    });
+
+    describe('applyTimezoneAndConversionOffset', function() {
+      it('should yield a UTC time offset five hours later when non-DST and given `US/Eastern` timezone, no conversionOffset', function() {
+        var res = datetimeWrapper.applyTimezoneAndConversionOffset('2014-01-01T00:00:00', 'US/Eastern', 0).toISOString();
+        expect(res).to.equal('2014-01-01T05:00:00.000Z');
+      });
+
+      it('should yield a UTC time offset five hours + one min later when non-DST and given `US/Eastern` and -60000 `conversionOffset`', function() {
+        var res = datetimeWrapper.applyTimezoneAndConversionOffset('2014-01-01T00:00:00', 'US/Eastern', -60000).toISOString();
+        expect(res).to.equal('2014-01-01T05:01:00.000Z');
       });
     });
 
@@ -254,6 +276,24 @@ describe('sundial', function() {
         expect(yrsAgo).to.equal(-13);
 
 
+      });
+    });
+
+    describe('findTimeFromDeviceTimeAndOffsets', function() {
+      it('should just add `.000Z` when all offsets are 0', function() {
+        var ts = '2013-03-06T10:13:00';
+        var res = datetimeWrapper.findTimeFromDeviceTimeAndOffsets(new Date(ts), 0, 0);
+        expect(res.toISOString()).to.equal(ts + '.000Z');
+      });
+
+      it('should yield a UTC timestamp such that time + timezoneOffset + conversionOffset = deviceTime', function() {
+        var ts = '2014-01-01T00:00:00';
+        var res1 = datetimeWrapper.findTimeFromDeviceTimeAndOffsets(new Date(ts), 0, -120000);
+        expect(res1.toISOString()).to.equal('2014-01-01T00:02:00.000Z');
+        var res2 = datetimeWrapper.findTimeFromDeviceTimeAndOffsets(new Date(ts), -600, 0);
+        expect(res2.toISOString()).to.equal('2014-01-01T10:00:00.000Z');
+        var res3 = datetimeWrapper.findTimeFromDeviceTimeAndOffsets(new Date(ts), -480, -120000);
+        expect(res3.toISOString()).to.equal('2014-01-01T08:02:00.000Z');
       });
     });
 
