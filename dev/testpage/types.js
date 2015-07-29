@@ -27,6 +27,7 @@ var APPEND = '.000Z';
 var common = {
   deviceId: 'Test Page Data - 123',
   source: 'testpage',
+  conversionOffset: 0,
   asObject: function() {
     var clone = {}, key;
     for (key in this) {

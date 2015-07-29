@@ -330,8 +330,8 @@ function TidelineData(data, opts) {
     else {
       watson = function(d) {
         if (d.type !== 'fill') {
-          if (d.timezoneOffset != null) {
-            d.normalTime = dt.addDuration(d.time, d.timezoneOffset * MS_IN_MIN);
+          if (d.timezoneOffset != null && d.conversionOffset != null) {
+            d.normalTime = dt.addDuration(d.time, d.timezoneOffset * MS_IN_MIN + d.conversionOffset);
             d.displayOffset = 0;
           }
           else if (d.type === 'message') {
@@ -345,7 +345,7 @@ function TidelineData(data, opts) {
           }
           // timezoneOffset is an optional attribute according to the Tidepool data model
           else {
-            d.normalTime = d.time;
+            d.normalTime = d.deviceTime + '.000Z';
             d.displayOffset = 0;
           }
           if (d.deviceTime && d.normalTime.slice(0, -5) !== d.deviceTime) {
