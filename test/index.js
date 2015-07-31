@@ -23,6 +23,8 @@ require('./less/test.less');
 // DOM not required
 // ====================================
 
+require('./polyfill/function.prototype.bind');
+
 /* js/ */
 require('./tidelinedata_test');
 /* js/data/ */
