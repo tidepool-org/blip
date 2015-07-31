@@ -15,36 +15,31 @@ d3.chart('SMBGBoxOverlay', {
     var meanCirclesGroup = this.base.append('g').attr('id', 'overlayOnTop');
 
     function getMsPer24(d) {
-      return dt.getMsPer24(d.normalTime, chart.timezone());
+      return dt.getMsPer24(d.msX, chart.timezone());
     }
 
     function getMeanPosition(d) {
       var mean = d3.select('#meanCircle-'+d.id);
-      console.log(mean);
-      console.log(mean.attr('cx'));
-      console.log(mean.attr('cy'));
       return [mean.attr('cx'), mean.attr('cy')]
     }
 
     var tooltipHtml = function(foGroup, d) {
-      console.log(foGroup, d);
       foGroup.append('p')
         .append('span')
         .attr('class', 'secondary')
-        .html('Max: ' + d.max);
+        .html('max ' + d.max);
       foGroup.append('p')
         .append('span')
         .attr('class', 'secondary')
-        .html('Mean: ' + d.mean);
+        .html('mu ' + Math.round(parseFloat(d.mean)));
       foGroup.append('p')
         .append('span')
         .attr('class', 'secondary')
-        .html('Min: ' + d.min);
+        .html('min ' + d.min);
     };
 
     var tooltipOrientation = function(d) {
-      var cssClass = 'target';
-      var high = (cssClass.search('d3-bg-high') !== -1);
+      var high = (d.mean > 200); //200 is the threshold for high values
       var msPer24 = getMsPer24(d);
       var left = msPer24 <= THREE_HRS;
       var right = msPer24 >= NINE_HRS;
@@ -70,16 +65,19 @@ d3.chart('SMBGBoxOverlay', {
       var coords = getMeanPosition(d);
       var tooltip = tooltips.add(d, {
         group: d3.select('#modalHighlightGroup'),
+        classes: ['svg-tooltip-range'],
         orientation: tooltipOrientation(d),
         translation: 'translate(' + coords[0] + ',' + coords[1] + ')'
       });
       tooltipHtml(tooltip.foGroup, d);
       tooltip.anchor();
       tooltip.makeShape();
+      d3.select('#rangeBox-'+d.id).classed('hover', true);
     };
 
     var removeTooltip = function(d) {
       tooltips.remove(d);
+      d3.select('#rangeBox-'+d.id).classed('hover', false);
     };
 
     this.layer('rangeBoxes', boxPlotsGroup.append('g').attr('id', 'rangeBoxes'), {
@@ -145,7 +143,8 @@ d3.chart('SMBGBoxOverlay', {
           this.attr({
               cy: function(d) { return yScale(d.mean); },
             });
-          this.on('mouseover', function(d) { console.log('mean circle hover', d); });
+          this.on('mouseover', createTooltip);
+          this.on('mouseout', removeTooltip);
         },
         exit: function() {
           this.remove();
