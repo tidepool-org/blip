@@ -420,7 +420,6 @@ function TidelineData(data, opts) {
   endTimer('group');
 
   startTimer('sort groupings');
-  var that = this;
   _.forEach(this.grouped, function(group, key) {
      that.grouped[key] = _.sortBy(group, 'normalTime');
   });

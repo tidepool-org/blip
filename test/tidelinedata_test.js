@@ -133,7 +133,7 @@ describe('TidelineData', function() {
         "units": "mmol/L",
         "value": 1
       }
-    ]
+    ];
     var thisTd = new TidelineData(data);
     expect(thisTd.grouped.smbg[0].id).to.equal('1');
     expect(thisTd.grouped.smbg[1].id).to.equal('2');
