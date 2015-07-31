@@ -1,8 +1,11 @@
 var _ = require('lodash');
 var d3 = window.d3;
 var moment = require('moment-timezone');
+var tideline = require('../../../js/index');
+var dt = tideline.data.util.datetime;
+var tooltips = tideline.plot.util.tooltips.generalized;
 
-var THREE_HRS = 10800000;
+var THREE_HRS = 10800000, NINE_HRS = 75600000;
 
 d3.chart('SMBGBoxOverlay', {
   initialize: function() {
@@ -10,6 +13,74 @@ d3.chart('SMBGBoxOverlay', {
 
     var boxPlotsGroup = this.base.insert('g', '#modalDays').attr('id', 'overlayUnderneath');
     var meanCirclesGroup = this.base.append('g').attr('id', 'overlayOnTop');
+
+    function getMsPer24(d) {
+      return dt.getMsPer24(d.normalTime, chart.timezone());
+    }
+
+    function getMeanPosition(d) {
+      var mean = d3.select('#meanCircle-'+d.id);
+      console.log(mean);
+      console.log(mean.attr('cx'));
+      console.log(mean.attr('cy'));
+      return [mean.attr('cx'), mean.attr('cy')]
+    }
+
+    var tooltipHtml = function(foGroup, d) {
+      console.log(foGroup, d);
+      foGroup.append('p')
+        .append('span')
+        .attr('class', 'secondary')
+        .html('Max: ' + d.max);
+      foGroup.append('p')
+        .append('span')
+        .attr('class', 'secondary')
+        .html('Mean: ' + d.mean);
+      foGroup.append('p')
+        .append('span')
+        .attr('class', 'secondary')
+        .html('Min: ' + d.min);
+    };
+
+    var tooltipOrientation = function(d) {
+      var cssClass = 'target';
+      var high = (cssClass.search('d3-bg-high') !== -1);
+      var msPer24 = getMsPer24(d);
+      var left = msPer24 <= THREE_HRS;
+      var right = msPer24 >= NINE_HRS;
+      if (high) {
+        if (left) {
+          return 'rightAndDown';
+        }
+        else {
+          return 'leftAndDown';
+        }
+      }
+      else {
+        if (right) {
+          return 'leftAndUp';
+        }
+        else {
+          return 'normal';
+        }
+      }
+    };
+
+    var createTooltip = function(d) {
+      var coords = getMeanPosition(d);
+      var tooltip = tooltips.add(d, {
+        group: d3.select('#modalHighlightGroup'),
+        orientation: tooltipOrientation(d),
+        translation: 'translate(' + coords[0] + ',' + coords[1] + ')'
+      });
+      tooltipHtml(tooltip.foGroup, d);
+      tooltip.anchor();
+      tooltip.makeShape();
+    };
+
+    var removeTooltip = function(d) {
+      tooltips.remove(d);
+    };
 
     this.layer('rangeBoxes', boxPlotsGroup.append('g').attr('id', 'rangeBoxes'), {
       dataBind: function(data) {
@@ -20,7 +91,8 @@ d3.chart('SMBGBoxOverlay', {
         return this.append('rect')
           .attr({
             'class': 'rangeBox',
-            width: chart.opts().rectWidth
+            width: chart.opts().rectWidth,
+            id: function(d) { return 'rangeBox-' + d.id }
           });
       },
       events: {
@@ -39,12 +111,14 @@ d3.chart('SMBGBoxOverlay', {
                 return yScale(d.min) - yScale(d.max);
               }
             });
+          this.on('mouseover', createTooltip);
+          this.on('mouseout', removeTooltip);
         },
         exit: function() {
           this.remove();
         }
       }
-    });
+    }); 
 
     this.layer('meanCircles', meanCirclesGroup.append('g').attr('id', 'meanCircles'), {
       dataBind: function(data) {
@@ -55,7 +129,8 @@ d3.chart('SMBGBoxOverlay', {
         return this.append('circle')
           .attr({
             'class': 'meanCircle',
-            r: chart.opts().rectWidth/2
+            r: chart.opts().rectWidth/2,
+            id: function(d) { return 'meanCircle-' + d.id }
           });
       },
       events: {
@@ -70,6 +145,7 @@ d3.chart('SMBGBoxOverlay', {
           this.attr({
               cy: function(d) { return yScale(d.mean); },
             });
+          this.on('mouseover', function(d) { console.log('mean circle hover', d); });
         },
         exit: function() {
           this.remove();
@@ -100,6 +176,7 @@ d3.chart('SMBGBoxOverlay', {
     var reduceForMean = function(s, n) { return s + n.value; };
     for (var i = 0; i < binKeys.length; ++i) {
       retData.push({
+        id: i,
         max: d3.max(binned[binKeys[i]], value),
         mean: _.reduce(binned[binKeys[i]], reduceForMean, 0)/binned[binKeys[i]].length,
         min: d3.min(binned[binKeys[i]], value),
