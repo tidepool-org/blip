@@ -158,6 +158,9 @@ describe('personutils', function() {
   });
 
   describe('validateFormValues', function() {
+    var INVALID_DATE_TEXT = 'Hmm, this date doesn’t look right';
+    var OUT_OF_ORDER_TEXT = 'Hmm, diagnosis date usually comes after birthday';
+
     it('should return error message when name is required but is null', function() {
       var formValues = {
         fullName: null,
@@ -192,7 +195,7 @@ describe('personutils', function() {
       var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT);
 
       expect(error.fullName).to.be.undefined;
-      expect(error.birthday).to.equal('Date of birth needs to be a valid date');
+      expect(error.birthday).to.equal(INVALID_DATE_TEXT);
     });
 
     it('should return error message when birthday is invalid string', function() {
@@ -204,7 +207,7 @@ describe('personutils', function() {
       };
       var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT);
 
-      expect(error.birthday).to.equal('Date of birth needs to be a valid date');
+      expect(error.birthday).to.equal(INVALID_DATE_TEXT);
     });
 
     it('should return error message when birthday is wrong date format', function() {
@@ -216,7 +219,7 @@ describe('personutils', function() {
       };
       var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT);
 
-      expect(error.birthday).to.equal('Date of birth needs to be a valid date');
+      expect(error.birthday).to.equal(INVALID_DATE_TEXT);
     });
 
     it('should return error message when diagnosisDate is null', function() {
@@ -228,7 +231,7 @@ describe('personutils', function() {
       };
       var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT);
 
-      expect(error.diagnosisDate).to.equal('Diagnosis date needs to be a valid date');
+      expect(error.diagnosisDate).to.equal(INVALID_DATE_TEXT);
     });
 
     it('should return error message when diagnosisDate is invalid', function() {
@@ -240,7 +243,7 @@ describe('personutils', function() {
       };
       var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT);
 
-      expect(error.diagnosisDate).to.equal('Diagnosis date needs to be a valid date');
+      expect(error.diagnosisDate).to.equal(INVALID_DATE_TEXT);
     });
 
     it('should return error message when diagnosisDate is in wrong format', function() {
@@ -252,7 +255,7 @@ describe('personutils', function() {
       };
       var error = personUtils.validateFormValues(formValues, true, 'MM-DD-YYYY');
 
-      expect(error.diagnosisDate).to.equal('Diagnosis date needs to be a valid date');
+      expect(error.diagnosisDate).to.equal(INVALID_DATE_TEXT);
     });
 
     it('should return no error message when diagnosisDate and birthday are valid and about is empty', function() {
@@ -276,7 +279,7 @@ describe('personutils', function() {
       };
       var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT, Date.UTC(2015, 4, 18));
 
-      expect(error.birthday).to.equal('Date of birth cannot be in the future!');
+      expect(error.birthday).to.equal(INVALID_DATE_TEXT);
     });
 
     it('should return error message when diagnosisDate is in the future', function() {
@@ -288,7 +291,7 @@ describe('personutils', function() {
       };
       var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT, Date.UTC(2015, 4, 18));
 
-      expect(error.diagnosisDate).to.equal('Diagnosis date cannot be in the future!');
+      expect(error.diagnosisDate).to.equal(INVALID_DATE_TEXT);
     });
 
     it('should return error message when diagnosisDate is before birthday', function() {
@@ -300,7 +303,7 @@ describe('personutils', function() {
       };
       var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT, Date.UTC(2015, 4, 18));
 
-      expect(error.diagnosisDate).to.equal('Diagnosis cannot be before date of birth!');
+      expect(error.diagnosisDate).to.equal(OUT_OF_ORDER_TEXT);
     });
 
     it('should return no error message when diagnosisDate and birthday and about is valid', function() {
