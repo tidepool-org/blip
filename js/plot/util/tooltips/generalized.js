@@ -54,7 +54,7 @@ module.exports = {
 
     function anchor() {
       var widths = [];
-      foGroup.selectAll('span')
+      foGroup.selectAll('*') //if we want to set the width effectively, we need to pay attention all children no?
         .each(function() {
           widths.push(d3.select(this)[0][0].getBoundingClientRect().width);
         });

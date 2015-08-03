@@ -2,6 +2,7 @@ var _ = require('lodash');
 var d3 = window.d3;
 var moment = require('moment-timezone');
 var tideline = require('../../../js/index');
+var bgBoundaryClass = tideline.plot.util.bgboundary;
 var dt = tideline.data.util.datetime;
 var tooltips = tideline.plot.util.tooltips.generalized;
 
@@ -18,28 +19,43 @@ d3.chart('SMBGBoxOverlay', {
       return dt.getMsPer24(d.msX, chart.timezone());
     }
 
+    /**
+     * Get the coordinates of the mean point given a record
+     * 
+     * @param  {Object} d the record
+     * @return {Array}   coordinates
+     */
     function getMeanPosition(d) {
       var mean = d3.select('#meanCircle-'+d.id);
       return [mean.attr('cx'), mean.attr('cy')]
     }
 
     var tooltipHtml = function(foGroup, d) {
-      foGroup.append('p')
-        .append('span')
-        .attr('class', 'secondary')
-        .html('max ' + d.max);
-      foGroup.append('p')
-        .append('span')
-        .attr('class', 'secondary')
-        .html('mu ' + Math.round(parseFloat(d.mean)));
-      foGroup.append('p')
-        .append('span')
-        .attr('class', 'secondary')
-        .html('min ' + d.min);
+      var table = foGroup.append('table');
+      var maxRow = table.append('tr');
+      var meanRow = table.append('tr');
+      var minRow = table.append('tr');
+
+      maxRow.append('td')
+            .html('Max');
+      maxRow.append('td')
+            .html(d.max);
+      
+      maxRow.append('td')
+            .html('Mean');
+      maxRow.append('td')
+            .html(Math.round(d.mean));
+
+      maxRow.append('td')
+            .html('Min');
+      maxRow.append('td')
+            .html(d.min);
     };
 
     var tooltipOrientation = function(d) {
-      var high = (d.mean > 200); //200 is the threshold for high values
+      d.value = d.mean; // need to make datum have a value field - a bit hacky :/
+      var cssClass = chart.getBgBoundaryClass(d);
+      var high = (cssClass.search('d3-bg-high') !== -1);
       var msPer24 = getMsPer24(d);
       var left = msPer24 <= THREE_HRS;
       var right = msPer24 >= NINE_HRS;
@@ -185,6 +201,12 @@ d3.chart('SMBGBoxOverlay', {
     }
     return retData;
   },
+  bgClasses: function(bgClasses) {
+    if (!arguments.length) { return this._bgClasses; }
+    this._bgClasses = bgClasses;
+    this.getBgBoundaryClass = bgBoundaryClass(bgClasses);
+    return this;
+  },
   timezone: function(timezone) {
     if (!arguments.length) { return this._timezone; }
     this._timezone = timezone;
@@ -216,6 +238,7 @@ module.exports = {
 
     chart = el.chart('SMBGBoxOverlay')
       .opts(opts.opts)
+      .bgClasses(opts.bgClasses)
       .timezone(opts.timezone)
       .xScale(scales.x)
       .yScale(scales.y);

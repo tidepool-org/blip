@@ -325,6 +325,7 @@ d3.chart('ModalDay', {
         x: this.xScale(),
         y: this.yScale()
       }, {
+        bgClasses: chart.bgClasses(),
         timezone: this.timezone()
       });
     }
