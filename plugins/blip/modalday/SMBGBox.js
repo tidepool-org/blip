@@ -37,18 +37,24 @@ d3.chart('SMBGBoxOverlay', {
       var minRow = table.append('tr');
 
       maxRow.append('td')
+            .attr('class', 'label')
             .html('Max');
       maxRow.append('td')
+            .attr('class', 'value')
             .html(d.max);
       
-      maxRow.append('td')
+      meanRow.append('td')
+            .attr('class', 'label')
             .html('Mean');
-      maxRow.append('td')
+      meanRow.append('td')
+            .attr('class', 'value mean')
             .html(Math.round(d.mean));
 
-      maxRow.append('td')
+      minRow.append('td')
+            .attr('class', 'label')
             .html('Min');
-      maxRow.append('td')
+      minRow.append('td')
+            .attr('class', 'value')
             .html(d.min);
     };
 

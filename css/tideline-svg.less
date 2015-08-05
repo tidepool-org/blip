@@ -67,8 +67,31 @@ g.svg-tooltip-range {
   polygon {
     fill: @fill-lightest;
     stroke-width: 1.5;
+    stroke-opacity: 0.4;
     stroke: @range;
-    stroke-opacity: 0.5;
+  }
+
+  table {
+    margin: 0 0 5px 10px;
+
+    .label {
+      display: table-cell;
+      font-size: @font-size-small;
+      font-weight: normal;
+      color: darken(@text-light, 15%);
+      vertical-align: baseline;
+    }
+
+    .value {
+      display: table-cell;
+      color: @text;
+      text-align: right;
+      vertical-align: baseline;
+    }
+
+    .mean {
+      font-weight: bold;
+    }
   }
 }
 
