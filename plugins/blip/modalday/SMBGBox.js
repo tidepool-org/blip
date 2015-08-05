@@ -27,7 +27,7 @@ d3.chart('SMBGBoxOverlay', {
      */
     function getMeanPosition(d) {
       var mean = d3.select('#meanCircle-'+d.id);
-      return [mean.attr('cx'), mean.attr('cy')]
+      return [mean.attr('cx'), mean.attr('cy')];
     }
 
     var tooltipHtml = function(foGroup, d) {
@@ -112,7 +112,7 @@ d3.chart('SMBGBoxOverlay', {
           .attr({
             'class': 'rangeBox',
             width: chart.opts().rectWidth,
-            id: function(d) { return 'rangeBox-' + d.id }
+            id: function(d) { return 'rangeBox-' + d.id; }
           });
       },
       events: {
@@ -150,7 +150,7 @@ d3.chart('SMBGBoxOverlay', {
           .attr({
             'class': 'meanCircle',
             r: chart.opts().rectWidth/2,
-            id: function(d) { return 'meanCircle-' + d.id }
+            id: function(d) { return 'meanCircle-' + d.id; }
           });
       },
       events: {
