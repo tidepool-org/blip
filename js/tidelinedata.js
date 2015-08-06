@@ -237,10 +237,10 @@ function TidelineData(data, opts) {
     var data;
     if (that.grouped.smbg && that.grouped.smbg.length !== 0) {
       data = that.grouped.smbg;
-    }
-    else {
+    } else {
       data = that.diabetesData;
     }
+
     var first = data[0].normalTime, last = data[data.length - 1].normalTime;
     if (dt.getNumDays(first, last) < 14) {
       first = dt.addDays(last, -13);
@@ -418,6 +418,12 @@ function TidelineData(data, opts) {
   startTimer('group');
   this.grouped = _.groupBy(data, function(d) { return d.type; });
   endTimer('group');
+
+  startTimer('sort groupings');
+  _.forEach(this.grouped, function(group, key) {
+     that.grouped[key] = _.sortBy(group, 'normalTime');
+  });
+  endTimer('sort groupings');
 
   startTimer('diabetesData');
   this.diabetesData = _.sortBy(_.flatten([].concat(_.map(opts.diabetesDataTypes, function(type) {

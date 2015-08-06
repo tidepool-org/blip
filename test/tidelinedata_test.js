@@ -75,6 +75,72 @@ describe('TidelineData', function() {
     expect(thisTd.bgUnits).to.equal('mmol/L');
   });
 
+  it('should contain sorted groups of data by normalTime', function() {
+    var data = [
+      {
+        "_schemaVersion": 0,
+        "conversionOffset": 2678355000,
+        "deviceId": "InsOmn-130133672",
+        "deviceTime": "2015-06-03T13:03:16",
+        "guid": "3",
+        "id": "3",
+        "subType": "manual",
+        "time": "2015-06-03T20:04:01.000Z",
+        "timezoneOffset": -1860,
+        "type": "smbg",
+        "units": "mmol/L",
+        "value": 1
+      },
+      {
+        "_schemaVersion": 0,
+        "conversionOffset": 2678355000,
+        "deviceId": "InsOmn-130133672",
+        "deviceTime": "2014-04-03T13:03:16",
+        "guid": "2",
+        "id": "2",
+        "subType": "manual",
+        "time": "2014-04-03T20:04:01.000Z",
+        "timezoneOffset": -1860,
+        "type": "smbg",
+        "units": "mmol/L",
+        "value": 1
+      },
+      {
+        "_schemaVersion": 0,
+        "conversionOffset": 2678355000,
+        "deviceId": "InsOmn-130133672",
+        "deviceTime": "2016-10-03T13:03:16",
+        "guid": "4",
+        "id": "4",
+        "subType": "manual",
+        "time": "2016-10-03T20:04:01.000Z",
+        "timezoneOffset": -1860,
+        "type": "smbg",
+        "units": "mmol/L",
+        "value": 1
+      },
+      {
+        "_schemaVersion": 0,
+        "conversionOffset": 2678355000,
+        "deviceId": "InsOmn-130133672",
+        "deviceTime": "2013-02-03T13:03:16",
+        "guid": "1",
+        "id": "1",
+        "subType": "manual",
+        "time": "2013-02-03T20:04:01.000Z",
+        "timezoneOffset": -1860,
+        "type": "smbg",
+        "units": "mmol/L",
+        "value": 1
+      }
+    ];
+    var thisTd = new TidelineData(data);
+    expect(thisTd.grouped.smbg[0].id).to.equal('1');
+    expect(thisTd.grouped.smbg[1].id).to.equal('2');
+    expect(thisTd.grouped.smbg[2].id).to.equal('3');
+    expect(thisTd.grouped.smbg[3].id).to.equal('4');
+  });
+
   // NB: eventually we probably do want to support plotting messages only
   // so TODO: remove this once we do
   it('should be able to handle message data only by returning empty tidelineData', function() {
