@@ -313,6 +313,13 @@ function chartDailyFactory(el, options) {
       emitter: emitter
     }), true, true);
 
+    // add timechange images to messages pool
+    poolMessages.addPlotType('deviceEvent', tideline.plot.timechange(poolMessages, {
+      size: 30,
+      emitter: emitter,
+      timezone: chart.options.timePrefs.timezoneName
+    }), true, true);
+
     // stats pool
     poolStats.addPlotType('stats', tideline.plot.stats.widget(poolStats, {
       classes: chart.options.bgClasses,
