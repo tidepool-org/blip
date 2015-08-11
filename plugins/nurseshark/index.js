@@ -328,20 +328,11 @@ function getHandlers(bgUnits) {
         return d;
       }
       lastEnd = dt.addDuration(d.time, d.duration);
-      // TODO: remove if we change to data model to require rate even on basals of deliveryType 'suspend'
       if (!d.rate && d.deliveryType === 'suspend') {
         d.rate = 0.0;
       }
       if (d.suppressed) {
         this.suppressed(d);
-      }
-      // some Carelink temps and suspends are precisely one second short
-      // so we extend them to avoid discontinuity
-      if (d.source === 'carelink' && d.time !== lastEnd) {
-        // check that the difference is indeed no more than one second (= 1000 milliseconds)
-        if (dt.difference(d.time, lastEnd) <= 1000) {
-          lastBasal.duration = dt.difference(d.time, lastBasal.time);
-        }
       }
       lastBasal = d;
       return d;
