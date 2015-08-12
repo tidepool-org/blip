@@ -40,7 +40,8 @@ module.exports = function(pool, opts) {
    * Default configuration for this component
    */
   var defaults = {
-    highlightWidth: 4
+    highlightWidth: 4,
+    tooltipPadding: 20
   };
 
   _.defaults(opts, defaults);
@@ -74,55 +75,40 @@ module.exports = function(pool, opts) {
 
   timechange.addTimeChangeToPool = function(selection) {
     opts.xScale = pool.xScale().copy();
-
-    selection.append('rect')
-      .attr({
-        x: timechange.highlightXPosition,
-        y: timechange.highlightYPosition,
-        width: opts.size + opts.highlightWidth * 2,
-        height: opts.size + opts.highlightWidth * 2,
-        'class': 'd3-rect-timechange hidden'
-      });
-
     selection.append('image')
       .attr({
         'xlink:href': timeChangeImage,
         cursor: 'pointer',
-        x: timechange.xPosition,
-        y: timechange.yPosition,
+        x: timechange.xPositionCorner,
+        y: timechange.yPositionCorner,
         width: opts.size,
         height: opts.size
       })
       .classed({'d3-image': true, 'd3-timechange': true});
 
     selection.on('mouseover', timechange._displayTooltip);
+    selection.on('mouseout', timechange._removeTooltip);
   };
 
+  timechange._removeTooltip = function(d) {
+    var elem = d3.select('#tooltip_' + d.id).remove();
+  }
+
   timechange._displayTooltip = function(d) {
-    log('tooltipDisplay', d);
     var elem = d3.select('#timechange_' + d.id + ' image');
-
-    var x = elem.attr('x'),
-        y =  elem.attr('y'),
-        width = elem.attr('width'),
-        height = elem.attr('height');
-    
-    var xCentre = x + (width/2);
-    var yCentre = y + (width/2);
-
-    var tooltip = tooltips.add(d, {
-      group: d3.select('#tidelineTooltips'),
-      classes: ['svg-tooltip-smbg'],
-      orientation: 'leftAndDown',
-      translation: 'translate(' + xCentre + ',' + yCentre + ')'
+    var tooltips = pool.tooltips();
+    var tooltip = tooltips.addForeignObjTooltip({
+      cssClass: 'svg-tooltip-timechange',
+      datum: d,//_.assign(d, {type: 'deviceEvent'}), // we're currently using the message pool to display the tooltip
+      shape: 'generic',
+      xPosition: timechange.xPositionCenter,
+      yPosition: timechange.yPositionCenter
     });
-
-    console.log(d);
-
-    tooltip.foGroup.append('p')
+    var foGroup = tooltip.foGroup;
+    foGroup.append('p')
       .append('span')
       .attr('class', 'secondary')
-      .html('Time Adjustment');
+      .html('Time Change');
     tooltip.foGroup.append('p')
       .append('span')
       .attr('class', 'secondary')
@@ -131,26 +117,38 @@ module.exports = function(pool, opts) {
       .append('span')
       .attr('class', 'secondary')
       .html('<span class="fromto">to:</span> ' + format.timestamp(d.change.to, d.displayOffset));
-
-    console.log('foGroup', tooltip.foGroup);
-    tooltip.anchor();
-    tooltip.makeShape();
+    var dims = tooltips.foreignObjDimensions(foGroup);
+    // foGroup.node().parentNode is the <foreignObject> itself
+    // because foGroup is actually the top-level <xhtml:div> element
+    tooltips.anchorForeignObj(d3.select(foGroup.node().parentNode), {
+      w: dims.width + opts.tooltipPadding,
+      h: dims.height,
+      x: timechange.xPositionCenter(d),
+      y: -dims.height,
+      orientation: {
+        'default': 'leftAndDown',
+        leftEdge: 'rightAndDown',
+        rightEdge: 'leftAndDown'
+      },
+      shape: 'generic',
+      edge: tooltip.edge
+    });
   }
 
-  timechange.highlightXPosition = function(d) {
-    return opts.xScale(Date.parse(d.normalTime)) - opts.size / 2 - opts.highlightWidth;
-  };
-
-  timechange.highlightYPosition = function(d) {
-    return pool.height() / 2 - opts.size / 2 - opts.highlightWidth;
-  };
-
-  timechange.xPosition = function(d) {
+  timechange.xPositionCorner = function(d) {
     return opts.xScale(Date.parse(d.normalTime)) - opts.size / 2;
   };
 
-  timechange.yPosition = function(d) {
+  timechange.yPositionCorner = function(d) {
     return pool.height() / 2 - opts.size / 2;
+  };
+
+  timechange.xPositionCenter = function(d) {
+    return opts.xScale(Date.parse(d.normalTime));
+  };
+
+  timechange.yPositionCenter = function(d) {
+    return pool.height() / 2;
   };
 
   return timechange;

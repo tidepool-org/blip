@@ -153,6 +153,14 @@ function chartDailyFactory(el, options) {
     chart.annotations().addGroup(chart.svg().select('#' + poolStats.id()), 'stats');
 
     // add tooltips
+    chart.tooltips().addGroup(poolMessages, {
+      type: 'deviceEvent',
+      shape: 'generic'
+    });
+    chart.tooltips().addGroup(poolMessages, {
+      type: 'message',
+      shape: 'generic'
+    });
     chart.tooltips().addGroup(poolBG, {
       type: 'cbg',
       classes: ['d3-bg-low', 'd3-bg-target', 'd3-bg-high']
