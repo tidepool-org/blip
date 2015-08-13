@@ -146,33 +146,6 @@ describe('nurseshark', function() {
       expect(res[0].errorMessage).to.equal('Basal with null/zero duration.');
     });
 
-    it('should extend the duration of Carelink temps and suspends that are one second short', function() {
-      var aTime = '2014-01-01T12:00:00.000Z';
-      var nextTime = '2014-01-01T12:20:00.000Z';
-      var basals = [{
-        type: 'basal',
-        deliveryType: 'temp',
-        source: 'carelink',
-        time: aTime,
-        duration: 1199000,
-        rate: 0.5,
-        percent: 0.5,
-        timezoneOffset: 0
-      }, {
-        type: 'basal',
-        deliveryType: 'scheduled',
-        source: 'carelink',
-        time: nextTime,
-        duration: 3600000,
-        rate: 0.9,
-        timezoneOffset: 0
-      }];
-      var res = nurseshark.processData(basals).processedData;
-      expect(res.length).to.equal(2);
-      var first = res[0], second = res[1];
-      expect(dt.addDuration(first.time, first.duration)).to.equal(second.time);
-    });
-
     it('should not extend the duration of non-Carelink temps and suspends', function() {
       var aTime = '2014-01-01T12:00:00.000Z';
       var nextTime = '2014-01-01T12:20:00.000Z';
