@@ -99,6 +99,9 @@ personUtils.isRemoveable = function(person) {
 personUtils.validateFormValues = function(formValues, isNameRequired, dateFormat, currentDateObj) {
   var validationErrors = {};
 
+  var INVALID_DATE_TEXT = 'Hmm, this date doesn’t look right';
+  var OUT_OF_ORDER_TEXT = 'Hmm, diagnosis date usually comes after birthday';
+
   // Legacy: revisit when proper "child accounts" are implemented
   if (isNameRequired &&
       !formValues.fullName) {
@@ -107,12 +110,12 @@ personUtils.validateFormValues = function(formValues, isNameRequired, dateFormat
 
   var birthday = formValues.birthday;
   if (!(birthday && sundial.isValidDateForMask(birthday, dateFormat))) {
-    validationErrors.birthday = 'Date of birth needs to be a valid date';
+    validationErrors.birthday = INVALID_DATE_TEXT;
   }
 
   var diagnosisDate = formValues.diagnosisDate;
   if (!(diagnosisDate && sundial.isValidDateForMask(diagnosisDate, dateFormat))) {
-    validationErrors.diagnosisDate = 'Diagnosis date needs to be a valid date';
+    validationErrors.diagnosisDate = INVALID_DATE_TEXT;
   }
 
   var now = new Date();
@@ -121,15 +124,15 @@ personUtils.validateFormValues = function(formValues, isNameRequired, dateFormat
   var diagnosisDateObj = sundial.parseFromFormat(diagnosisDate, dateFormat);
 
   if (!validationErrors.birthday && birthdayDateObj > currentDateObj) {
-    validationErrors.birthday = 'Date of birth cannot be in the future!';
+    validationErrors.birthday = INVALID_DATE_TEXT;
   }
 
   if (!validationErrors.diagnosisDate && diagnosisDateObj > currentDateObj) {
-    validationErrors.diagnosisDate = 'Diagnosis date cannot be in the future!';
+    validationErrors.diagnosisDate = INVALID_DATE_TEXT;
   }
 
   if (!validationErrors.diagnosisDate && birthdayDateObj > diagnosisDateObj) {
-    validationErrors.diagnosisDate = 'Diagnosis cannot be before date of birth!';
+    validationErrors.diagnosisDate = OUT_OF_ORDER_TEXT;
   }
 
   var maxLength = 256;

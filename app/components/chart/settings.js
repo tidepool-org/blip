@@ -121,7 +121,13 @@ var Settings = React.createClass({
   },
   isMissingSettings: function() {
     var data = this.props.patientData;
-    if (!utils.getIn(data, ['grouped', 'settings'], false)) {
+    var pumpSettings = utils.getIn(data, ['grouped', 'pumpSettings'], false);
+    if (pumpSettings === false) {
+      return true;
+    }
+    // the TidelineData constructor currently replaces missing data with
+    // an empty array, so we also have to check for content
+    else if (_.isEmpty(pumpSettings)) {
       return true;
     }
     return false;
