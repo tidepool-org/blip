@@ -148,7 +148,7 @@ var format = {
    * @param {String} to - date string
    * @return {Object} containing keys from and to
    */
-  timeDiffInfo: function(from,to) {
+  timeChangeInfo: function(from,to) {
     if (!from || !to) { // guard statement
       throw new Error('You have not provided two datetime strings');
     }

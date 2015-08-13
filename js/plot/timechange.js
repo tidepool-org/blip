@@ -104,19 +104,23 @@ module.exports = function(pool, opts) {
       xPosition: timechange.xPositionCenter,
       yPosition: timechange.yPositionCenter
     });
+
+    var timeChange = format.timeChangeInfo(d.change.from, d.change.to);
+
     var foGroup = tooltip.foGroup;
     foGroup.append('p')
       .append('span')
       .attr('class', 'secondary')
-      .html('Time Change');
+      .html(timeChange.type);
     tooltip.foGroup.append('p')
       .append('span')
       .attr('class', 'secondary')
-      .html('<span class="fromto">from:</span> ' + format.timestamp(d.change.from, d.displayOffset));
+      .html('<span class="fromto">from:</span> ' + timeChange.from);
     tooltip.foGroup.append('p')
       .append('span')
       .attr('class', 'secondary')
-      .html('<span class="fromto">to:</span> ' + format.timestamp(d.change.to, d.displayOffset));
+      .html('<span class="fromto">to:</span> ' + timeChange.to);
+      
     var dims = tooltips.foreignObjDimensions(foGroup);
     // foGroup.node().parentNode is the <foreignObject> itself
     // because foGroup is actually the top-level <xhtml:div> element
