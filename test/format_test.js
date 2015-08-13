@@ -163,6 +163,44 @@ describe('format utility', function() {
     });
   });
 
+  describe('timeDiffTimestamps', function() {
+    it('should be a function', function() {
+      assert.isFunction(fmt.timeDiffTimestamps);
+    });
+
+    it('should error if 2 arguments are not passed', function() {
+      var err = 'You have not provided two datetime strings';
+      var x = '2014-01-01T01:00:00.000Z';
+      expect(fmt.timeDiffTimestamps.bind(fmt)).to.throw(err);
+      expect(fmt.timeDiffTimestamps.bind(fmt, x)).to.throw(err);
+    });
+
+    it('should return an object containing strings of times when both are on same day', function() {
+      var x = '2014-01-01T01:00:00.000Z';
+      var y = '2014-01-01T04:00:00.000Z';
+      var y2 = '2014-01-01T23:00:00.000Z';
+      expect(fmt.timeDiffTimestamps(x,y)).to.eql({from: '1:00 AM', to: '4:00 AM'});
+      expect(fmt.timeDiffTimestamps(x,y2)).to.eql({from: '1:00 AM', to: '11:00 PM'});
+      expect(fmt.timeDiffTimestamps(y,y2)).to.eql({from: '4:00 AM', to: '11:00 PM'});
+    });
+
+    it('should return an object containing strings of times and date when values are on different days', function() {
+      var x = '2014-01-01T01:00:00.000Z';
+      var y = '2014-01-02T04:00:00.000Z';
+      var y2 = '2014-01-30T04:00:00.000Z';
+      expect(fmt.timeDiffTimestamps(x,y)).to.eql({from: '1 Jan 1:00 AM', to: '2 Jan 4:00 AM'});
+      expect(fmt.timeDiffTimestamps(x,y2)).to.eql({from: '1 Jan 1:00 AM', to: '30 Jan 4:00 AM'});
+    });
+
+    it('should return an object containing strings of times and date when values are in different years', function() {
+      var x = '2014-12-31T04:00:00.000Z';
+      var y = '2015-01-01T01:00:00.000Z';
+      var y2 = '2015-04-15T04:25:00.000Z';
+      expect(fmt.timeDiffTimestamps(x,y)).to.eql({from: '31 Dec 2014 4:00 AM', to: '1 Jan 2015 1:00 AM'});
+      expect(fmt.timeDiffTimestamps(x,y2)).to.eql({from: '31 Dec 2014 4:00 AM', to: '15 Apr 2015 4:25 AM'});
+    });
+  });
+
   describe('xAxisDayText', function() {
     it('should be a function', function() {
       assert.isFunction(fmt.xAxisDayText);

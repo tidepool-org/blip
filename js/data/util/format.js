@@ -141,6 +141,35 @@ var format = {
     }
     return d3.time.format.utc('%-I:%M %p')(d).toLowerCase();
   },
+  /**
+   * [timeDiffTimestamps description]
+   * @param {String} from - date string
+   * @param {String} to - date string
+   * @return {Object} containing keys from and to
+   */
+  timeDiffTimestamps: function(from,to) {
+    if (!from || !to) { // guard statement
+      throw new Error('You have not provided two datetime strings');
+    }
+
+    var fromDate = new Date(from);
+    var toDate = new Date(to);
+
+    var format = '%-I:%M %p';
+    if (fromDate.getUTCFullYear() !== toDate.getUTCFullYear()) {
+      format = '%-d %b %Y %-I:%M %p';
+    } else if (
+      fromDate.getUTCMonth() !== toDate.getUTCMonth() ||
+      fromDate.getUTCDay() !== toDate.getUTCDay()
+    ) {
+      format = '%-d %b %-I:%M %p';
+    }
+
+    return {
+      from: d3.time.format.utc(format)(fromDate),
+      to: d3.time.format.utc(format)(toDate)
+    };
+  },
 
   xAxisDayText: function(i, offset) {
     if (offset) {
