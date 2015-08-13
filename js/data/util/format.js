@@ -142,18 +142,20 @@ var format = {
     return d3.time.format.utc('%-I:%M %p')(d).toLowerCase();
   },
   /**
-   * [timeDiffTimestamps description]
+   * Given two timestamps return an object containing a timechange 
+   * 
    * @param {String} from - date string
    * @param {String} to - date string
    * @return {Object} containing keys from and to
    */
-  timeDiffTimestamps: function(from,to) {
+  timeDiffInfo: function(from,to) {
     if (!from || !to) { // guard statement
       throw new Error('You have not provided two datetime strings');
     }
 
     var fromDate = new Date(from);
     var toDate = new Date(to);
+    var type = 'Time Change';
 
     var format = '%-I:%M %p';
     if (fromDate.getUTCFullYear() !== toDate.getUTCFullYear()) {
@@ -165,7 +167,12 @@ var format = {
       format = '%-d %b %-I:%M %p';
     }
 
+    if (toDate - fromDate < 8000) {
+      type = 'Clock Shift';
+    }
+
     return {
+      type: type,
       from: d3.time.format.utc(format)(fromDate),
       to: d3.time.format.utc(format)(toDate)
     };
