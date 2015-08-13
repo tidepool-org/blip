@@ -30,32 +30,63 @@ d3.chart('SMBGBoxOverlay', {
       return [mean.attr('cx'), mean.attr('cy')];
     }
 
-    var tooltipHtml = function(foGroup, d) {
-      var table = foGroup.append('table');
-      var maxRow = table.append('tr');
-      var meanRow = table.append('tr');
-      var minRow = table.append('tr');
+    var tooltipHtml = function(tooltip, d) {
+      var rectOpts = chart.opts().infoRects;
+      var xScale = chart.xScale();
+      var yScale = chart.yScale();
 
-      maxRow.append('td')
-            .attr('class', 'label')
-            .html('Max');
-      maxRow.append('td')
-            .attr('class', 'value')
-            .html(d.max);
-      
-      meanRow.append('td')
-            .attr('class', 'label')
-            .html('Mean');
-      meanRow.append('td')
-            .attr('class', 'value mean')
-            .html(Math.round(d.mean));
+      var parent = d3.select(tooltip.tooltipGroup.node().parentNode);
 
-      minRow.append('td')
-            .attr('class', 'label')
-            .html('Min');
-      minRow.append('td')
-            .attr('class', 'value')
-            .html(d.min);
+      var rangeLabels = parent.append('g')
+        .attr('class', 'smbgRangeInfo modalDay');
+
+      var maxYRect = yScale(d.max) - rectOpts.height - rectOpts.pad;
+      var maxYText = yScale(d.max) - (rectOpts.height/2);
+      var minYRect = yScale(d.min) + rectOpts.pad;
+      var minYText = yScale(d.min) + rectOpts.height;
+
+      if (d.max > 385) {
+        maxYRect = yScale(d.max) + rectOpts.pad;
+        maxYText = yScale(d.max) + rectOpts.height;
+      }
+
+      if (d.min < 60) {
+        minYRect = yScale(d.min) - rectOpts.height - rectOpts.pad;
+        minYText = yScale(d.min) - (rectOpts.height/2);
+      }
+
+      appendRangeLabel(rangeLabels, maxYRect, maxYText, d.max);
+      appendRangeLabel(rangeLabels, minYRect, minYText, d.min);
+
+      tooltip.foGroup
+        .append('p')
+        .append('span')
+        .attr('class', 'secondary')
+        .html(Math.round(d.mean));
+
+      /**
+       * Add a label to either end of the range
+       * 
+       * @param  {Object} elem  a d3 selection
+       * @param  {Number} yRect
+       * @param  {Number} yText
+       * @param  {Number|String} val
+       */
+      function appendRangeLabel(elem, yRect, yText, val) {
+        elem.append('rect')
+        .attr({
+          x: xScale(d.msX) - (rectOpts.width/2),
+          y: yRect,
+          width: rectOpts.width,
+          height: rectOpts.height
+        });
+        elem.append('text')
+          .attr({
+            x: xScale(d.msX),
+            y: yText
+          })
+          .text(val);
+      }
     };
 
     var tooltipOrientation = function(d) {
@@ -91,7 +122,7 @@ d3.chart('SMBGBoxOverlay', {
         orientation: tooltipOrientation(d),
         translation: 'translate(' + coords[0] + ',' + coords[1] + ')'
       });
-      tooltipHtml(tooltip.foGroup, d);
+      tooltipHtml(tooltip, d);
       tooltip.anchor();
       tooltip.makeShape();
       d3.select('#rangeBox-'+d.id).classed('hover', true);
@@ -99,6 +130,7 @@ d3.chart('SMBGBoxOverlay', {
 
     var removeTooltip = function(d) {
       tooltips.remove(d);
+      d3.select('.smbgRangeInfo').remove();
       d3.select('#rangeBox-'+d.id).classed('hover', false);
     };
 
@@ -237,6 +269,11 @@ module.exports = {
     opts = opts || {};
     var defaults = {
       opts: {
+        infoRects: {
+          pad: 5,
+          height: 20,
+          width: 30
+        },
         rectWidth: 18
       }
     };
