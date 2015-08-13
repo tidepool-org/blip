@@ -92,7 +92,7 @@ module.exports = function(pool, opts) {
 
   timechange._removeTooltip = function(d) {
     var elem = d3.select('#tooltip_' + d.id).remove();
-  }
+  };
 
   timechange._displayTooltip = function(d) {
     var elem = d3.select('#timechange_' + d.id + ' image');
@@ -137,7 +137,7 @@ module.exports = function(pool, opts) {
       shape: 'generic',
       edge: tooltip.edge
     });
-  }
+  };
 
   timechange.xPositionCorner = function(d) {
     return opts.xScale(Date.parse(d.normalTime)) - opts.size / 2;
