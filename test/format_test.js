@@ -179,25 +179,31 @@ describe('format utility', function() {
       var x = '2014-01-01T01:00:00.000Z';
       var y = '2014-01-01T04:00:00.000Z';
       var y2 = '2014-01-01T23:00:00.000Z';
-      expect(fmt.timeDiffInfo(x,y)).to.eql({type: 'TimeChange', from: '1:00 AM', to: '4:00 AM'});
-      expect(fmt.timeDiffInfo(x,y2)).to.eql({type: 'TimeChange', from: '1:00 AM', to: '11:00 PM'});
-      expect(fmt.timeDiffInfo(y,y2)).to.eql({type: 'TimeChange', from: '4:00 AM', to: '11:00 PM'});
+      expect(fmt.timeDiffInfo(x,y)).to.eql({type: 'Time Change', from: '1:00 AM', to: '4:00 AM'});
+      expect(fmt.timeDiffInfo(x,y2)).to.eql({type: 'Time Change', from: '1:00 AM', to: '11:00 PM'});
+      expect(fmt.timeDiffInfo(y,y2)).to.eql({type: 'Time Change', from: '4:00 AM', to: '11:00 PM'});
+    });
+
+    it('should label object as type Clock Drift Adjustment if difference is less than 8 minutes', function() {
+      var x = '2014-01-01T01:00:00.000Z';
+      var y = '2014-01-01T01:06:00.000Z';
+      expect(fmt.timeDiffInfo(x,y)).to.eql({type: 'Clock Drift Adjustment', from: '1:00 AM', to: '1:06 AM'});
     });
 
     it('should return an object containing strings of times and date when values are on different days', function() {
       var x = '2014-01-01T01:00:00.000Z';
       var y = '2014-01-02T04:00:00.000Z';
       var y2 = '2014-01-30T04:00:00.000Z';
-      expect(fmt.timeDiffInfo(x,y)).to.eql({type: 'TimeChange', from: '1 Jan 1:00 AM', to: '2 Jan 4:00 AM'});
-      expect(fmt.timeDiffInfo(x,y2)).to.eql({type: 'TimeChange', from: '1 Jan 1:00 AM', to: '30 Jan 4:00 AM'});
+      expect(fmt.timeDiffInfo(x,y)).to.eql({type: 'Time Change', from: '1 Jan 1:00 AM', to: '2 Jan 4:00 AM'});
+      expect(fmt.timeDiffInfo(x,y2)).to.eql({type: 'Time Change', from: '1 Jan 1:00 AM', to: '30 Jan 4:00 AM'});
     });
 
     it('should return an object containing strings of times and date when values are in different years', function() {
       var x = '2014-12-31T04:00:00.000Z';
       var y = '2015-01-01T01:00:00.000Z';
       var y2 = '2015-04-15T04:25:00.000Z';
-      expect(fmt.timeDiffInfo(x,y)).to.eql({type: 'TimeChange', from: '31 Dec 2014 4:00 AM', to: '1 Jan 2015 1:00 AM'});
-      expect(fmt.timeDiffInfo(x,y2)).to.eql({type: 'TimeChange', from: '31 Dec 2014 4:00 AM', to: '15 Apr 2015 4:25 AM'});
+      expect(fmt.timeDiffInfo(x,y)).to.eql({type: 'Time Change', from: '31 Dec 2014 4:00 AM', to: '1 Jan 2015 1:00 AM'});
+      expect(fmt.timeDiffInfo(x,y2)).to.eql({type: 'Time Change', from: '31 Dec 2014 4:00 AM', to: '15 Apr 2015 4:25 AM'});
     });
   });
 

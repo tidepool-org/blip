@@ -167,8 +167,8 @@ var format = {
       format = '%-d %b %-I:%M %p';
     }
 
-    if (toDate - fromDate < 8000) {
-      type = 'Clock Shift';
+    if (Math.abs(toDate - fromDate) <= (8*(60*1000))) { // Clock Drift Adjustment if less than 8 minutes
+      type = 'Clock Drift Adjustment';
     }
 
     return {
