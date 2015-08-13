@@ -157,24 +157,26 @@ var format = {
     var toDate = new Date(to);
     var type = 'Time Change';
 
-    var format = '%-I:%M %p';
+    var format = 'h:mm a';
     if (fromDate.getUTCFullYear() !== toDate.getUTCFullYear()) {
-      format = '%-d %b %Y %-I:%M %p';
+      format = 'Do MMM YYYY h:mm a';
     } else if (
       fromDate.getUTCMonth() !== toDate.getUTCMonth() ||
       fromDate.getUTCDay() !== toDate.getUTCDay()
     ) {
-      format = '%-d %b %-I:%M %p';
+      format = 'Do MMM h:mm a';
     }
 
     if (Math.abs(toDate - fromDate) <= (8*(60*1000))) { // Clock Drift Adjustment if less than 8 minutes
       type = 'Clock Drift Adjustment';
     }
 
+
+
     return {
       type: type,
-      from: d3.time.format.utc(format)(fromDate),
-      to: d3.time.format.utc(format)(toDate)
+      from: moment(fromDate).utc().format(format),
+      to: moment(toDate).utc().format(format),
     };
   },
 
