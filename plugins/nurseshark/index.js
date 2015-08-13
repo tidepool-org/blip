@@ -209,118 +209,6 @@ var nurseshark = {
     };
     var typeGroups = {}, overlappingUploads = {}, mostRecentFromOverlapping = null;
 
-    function removeOverlapping() {
-      // NB: this problem is specific to CareLink data
-      // sometimes settings events can be out-of-sequence wrt uploads
-      // for reasons that are not entirely clear to me, but since we only read more recent settings
-      // it doesn't hurt anything to have overlapping settings history across uploads
-      // and we want to reduce how often we "find" overlapping uploads, so we disregard settings
-      var withoutSettings = _.reject(data, {type: 'settings'});
-      // basals that we fabricate in the simulator may have the wrong uploadId attached to the deviceId
-      // and obviously we *created* them, so they shouldn't conflict with anything and are safe to remove
-      // again in order to reduce how many overlapping uploads we're "finding"
-      var withoutAnnotatedBasals = _.reject(withoutSettings, function(d) {
-        if (d.type === 'basal' && d.annotations && d.annotations.length !== 0) {
-          return true;
-        }
-        return false;
-      });
-      var crossData = crossfilter(_.where(withoutAnnotatedBasals, {source: 'carelink'}));
-      var dataByUpload = crossData.dimension(function(d) { return d.deviceId; });
-      var dataByUploadGrouping = dataByUpload.group();
-      dataByUploadGrouping.reduce(
-        function reduceAdd(p, v) {
-          if (v.time < p.start || p.start === null) {
-            p.start = v.time;
-          }
-          if (v.time > p.end || p.end === null) {
-            p.end = v.time;
-            p.lastDatumTime = v.time;
-            if (v.type === 'basal') {
-              p.lastBasalEnd = dt.addDuration(v.time, v.duration || 0);
-            }
-            else {
-              p.lastNonBasalTime = v.time;
-            }
-          }
-          return p;
-        },
-        function reduceRemove(p, v) {
-          if (v.time === p.start) {
-            p.start = null;
-          }
-          if (v.time === p.end) {
-            p.end = null;
-            p.lastBasalEnd = null;
-            p.lastDatumTime = null;
-            p.lastNonBasalTime = null;
-          }
-          return p;
-        },
-        function reduceInitial() {
-          return {
-            start: null,
-            end: null,
-            // track just the last datum in the upload isn't sufficient
-            // since folks often leave their pumps pumping basals into the void
-            // after switching to a different pump
-            lastBasalEnd: null,
-            lastDatumTime: null,
-            lastNonBasalTime: null
-          };
-        }
-      ).order(function(p) {
-        return p.start;
-      });
-      var dataByUploadGroups = dataByUploadGrouping.top(Infinity).reverse();
-      for (var i = 0; i < dataByUploadGroups.length; ++i) {
-        var oneGroup = dataByUploadGroups[i];
-        for (var j = 0; j < dataByUploadGroups.length; ++j) {
-          var anotherGroup = dataByUploadGroups[j];
-          if (oneGroup.value.start < anotherGroup.value.end &&
-            oneGroup.value.start > anotherGroup.value.start) {
-            overlappingUploads[oneGroup.key] = true;
-            overlappingUploads[anotherGroup.key] = true;
-          }
-        }
-      }
-      var dataByOverlappingUploadGroups = _.filter(dataByUploadGroups, function(group) {
-        return overlappingUploads[group.key];
-      });
-      if (dataByOverlappingUploadGroups.length > 0) {
-        var sortedByBasalEnd = _.sortBy(dataByOverlappingUploadGroups, function(group) {
-          return group.value.lastBasalEnd;
-        }).reverse();
-        var sortedByLast = _.sortBy(dataByOverlappingUploadGroups, function(group) {
-          return group.value.lastDatumTime;
-        }).reverse();
-        var sortedByNonBasal = _.sortBy(dataByOverlappingUploadGroups, function(group) {
-          return group.value.lastNonBasalTime;
-        }).reverse();
-        if (sortedByBasalEnd.length > 0 && sortedByLast[0].value.lastDatumTime < sortedByBasalEnd[0].value.lastBasalEnd) {
-          // if someone left the basals pumping away into the void after switching pumps
-          // the datasets may end at the exact same point - at the end of the basals
-          // so we check if the two most recent uploads have the same endpoint re: basals
-          if (sortedByBasalEnd[0].value.lastBasalEnd !== sortedByBasalEnd[1].value.lastBasalEnd) {
-            mostRecentFromOverlapping = sortedByBasalEnd[0].key;
-          }
-          // if the two most recent uploads have the same endpoint re: basals
-          // then we use the most recent sorting by non-basal events instead
-          else {
-            mostRecentFromOverlapping = sortedByNonBasal[0].key;
-          }
-        }
-        // if there are no basals, we simply sort everything and pick the latest
-        else {
-          mostRecentFromOverlapping = sortedByLast[0].key;
-        }
-        log('Overlapping Carelink uploads:', Object.keys(overlappingUploads));
-        log('Upload with most recent data:', mostRecentFromOverlapping);
-      }
-    }
-
-    timeIt(removeOverlapping, 'Remove Overlapping');
-
     function createUploadIDsMap() {
       var uploads = _.where(data, {type: 'upload'});
       _.each(uploads, function(upload) {
@@ -395,9 +283,9 @@ var nurseshark = {
       nurseshark.joinWizardsAndBoluses(typeGroups.wizard || [], typeGroups.bolus || [], collections);
     }, 'Join Wizards and Boluses');
 
-    if (typeGroups.deviceMeta && typeGroups.deviceMeta.length > 0) {
+    if (typeGroups.deviceEvent && typeGroups.deviceEvent.length > 0) {
       timeIt(function() {
-        nurseshark.annotateBasals(typeGroups.basal || [], _.filter(typeGroups.deviceMeta, function(d) {
+        nurseshark.annotateBasals(typeGroups.basal || [], _.filter(typeGroups.deviceEvent, function(d) {
           if (d.annotations && d.annotations.length > 0) {
             for (var i = 0; i < d.annotations.length; ++i) {
               var annotation = d.annotations[i];
@@ -440,20 +328,11 @@ function getHandlers(bgUnits) {
         return d;
       }
       lastEnd = dt.addDuration(d.time, d.duration);
-      // TODO: remove if we change to data model to require rate even on basals of deliveryType 'suspend'
       if (!d.rate && d.deliveryType === 'suspend') {
         d.rate = 0.0;
       }
       if (d.suppressed) {
         this.suppressed(d);
-      }
-      // some Carelink temps and suspends are precisely one second short
-      // so we extend them to avoid discontinuity
-      if (d.source === 'carelink' && d.time !== lastEnd) {
-        // check that the difference is indeed no more than one second (= 1000 milliseconds)
-        if (dt.difference(d.time, lastEnd) <= 1000) {
-          lastBasal.duration = dt.difference(d.time, lastBasal.time);
-        }
       }
       lastBasal = d;
       return d;
@@ -474,10 +353,10 @@ function getHandlers(bgUnits) {
       }
       return d;
     },
-    deviceMeta: function(d) {
+    deviceEvent: function(d) {
       d = cloneDeep(d);
       if (isBadStatus(d)) {
-        var err = new Error('Bad pump status deviceMeta.');
+        var err = new Error('Bad pump status deviceEvent.');
         d.errorMessage = err.message;
       }
       return d;
@@ -492,7 +371,7 @@ function getHandlers(bgUnits) {
       }
       return d;
     },
-    settings: function(d) {
+    pumpSettings: function(d) {
       d = cloneDeep(d);
       if (bgUnits === 'mg/dL') {
         if (d.bgTarget) {

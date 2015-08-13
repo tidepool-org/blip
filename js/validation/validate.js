@@ -25,9 +25,9 @@ var schemas = {
   bolus: require('./bolus'),
   cbg: require('./bg'),
   common: require('./common'),
-  deviceMeta: schema(),
+  deviceEvent: schema(),
   message: require('./message'),
-  settings: require('./settings'),
+  pumpSettings: require('./pumpSettings'),
   smbg: require('./bg'),
   upload: require('./upload'),
   wizard: require('./wizard')

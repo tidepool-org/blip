@@ -69,314 +69,6 @@ describe('nurseshark', function() {
       expect(res.processedData[1]).to.eql(_.assign({}, input[0], {source: 'Unspecified Data Source'}));
     });
 
-    describe('on overlapping Carelink uploads', function() {
-      var now = new Date();
-      var plusTen = new Date(now.valueOf() + 600000);
-      var plusHalf = new Date(now.valueOf() + 1800000);
-      var plusHour = new Date(now.valueOf() + 3600000);
-      var plusTwo = new Date(now.valueOf() + 3600000*2);
-      var plusThree = new Date(now.valueOf() + 3600000*3);
-      var minusTen = new Date(now.valueOf() - 600000);
-      var minusTwenty = new Date(now.valueOf() - 1200000);
-      it('should remove data from two or more uploads from `carelink` source that overlap in time', function() {
-        var data = [{
-          type: 'bolus',
-          time: minusTwenty.toISOString(),
-          deviceId: 'z',
-          source: 'carelink',
-          timezoneOffset: 0
-        }, {
-          type: 'smbg',
-          time: minusTen.toISOString(),
-          deviceId: 'z',
-          source: 'carelink',
-          timezoneOffset: 0
-        }, {
-          type: 'smbg',
-          time: now.toISOString(),
-          deviceId: 'a',
-          source: 'carelink',
-          timezoneOffset: 0
-        }, {
-          type: 'bolus',
-          time: plusTen.toISOString(),
-          deviceId: 'b',
-          source: 'carelink',
-          timezoneOffset: 0
-        }, {
-          type: 'basal',
-          duration: 1000000,
-          time: plusHalf.toISOString(),
-          deviceId: 'a',
-          source: 'carelink',
-          timezoneOffset: 0
-        }, {
-          type: 'bolus',
-          time: plusHour.toISOString(),
-          deviceId: 'b',
-          source: 'carelink',
-          timezoneOffset: 0
-        }, {
-          type: 'basal',
-          duration: 1000000,
-          time: plusTwo.toISOString(),
-          deviceId: 'c',
-          source: 'carelink',
-          timezoneOffset: 0
-        }, {
-          type: 'bolus',
-          time: plusThree.toISOString(),
-          deviceId: 'c',
-          source: 'carelink',
-          timezoneOffset: 0
-        }];
-        var res = nurseshark.processData(data);
-        expect(res.erroredData.length).to.equal(2);
-        expect(res.processedData.length).to.equal(6);
-      });
-
-      it('should preserve the most recent upload by basal when nesting uploads', function() {
-        var data = [{
-          type: 'bolus',
-          time: minusTwenty.toISOString(),
-          deviceId: 'z',
-          source: 'carelink',
-          timezoneOffset: 0
-        }, {
-          type: 'smbg',
-          time: minusTen.toISOString(),
-          deviceId: 'z',
-          source: 'carelink',
-          timezoneOffset: 0
-        }, {
-          type: 'smbg',
-          time: now.toISOString(),
-          deviceId: 'a',
-          source: 'carelink',
-          timezoneOffset: 0
-        }, {
-          type: 'bolus',
-          time: plusTen.toISOString(),
-          deviceId: 'b',
-          source: 'carelink',
-          timezoneOffset: 0
-        }, {
-          type: 'basal',
-          duration: 1000000,
-          time: plusHalf.toISOString(),
-          deviceId: 'a',
-          source: 'carelink',
-          timezoneOffset: 0
-        }, {
-          type: 'bolus',
-          time: plusThree.toISOString(),
-          deviceId: 'b',
-          source: 'carelink',
-          timezoneOffset: 0
-        }, {
-          type: 'bolus',
-          time: plusTwo.toISOString(),
-          deviceId: 'c',
-          source: 'carelink',
-          timezoneOffset: 0
-        }, {
-          type: 'basal',
-          duration: 1000000,
-          time: plusThree.toISOString(),
-          deviceId: 'c',
-          source: 'carelink',
-          timezoneOffset: 0
-        }];
-        var res = nurseshark.processData(data);
-        expect(res.erroredData.length).to.equal(4);
-        expect(res.processedData.length).to.equal(4);
-        expect(_.uniq(_.pluck(res.processedData, 'deviceId'))).to.eql(['z', 'c']);
-      });
-
-      it('should look at other events if two uploads are identical re: basals', function() {
-        var data = [{
-          type: 'bolus',
-          time: minusTwenty.toISOString(),
-          deviceId: 'z',
-          source: 'carelink',
-          timezoneOffset: 0
-        }, {
-          type: 'smbg',
-          time: minusTen.toISOString(),
-          deviceId: 'z',
-          source: 'carelink',
-          timezoneOffset: 0
-        }, {
-          type: 'smbg',
-          time: now.toISOString(),
-          deviceId: 'a',
-          source: 'carelink',
-          timezoneOffset: 0
-        }, {
-          type: 'bolus',
-          time: plusTen.toISOString(),
-          deviceId: 'b',
-          source: 'carelink',
-          timezoneOffset: 0
-        }, {
-          type: 'basal',
-          duration: 1000000,
-          time: plusHalf.toISOString(),
-          deviceId: 'a',
-          source: 'carelink',
-          timezoneOffset: 0
-        }, {
-          type: 'basal',
-          duration: 1000000,
-          time: plusThree.toISOString(),
-          deviceId: 'b',
-          source: 'carelink',
-          timezoneOffset: 0
-        }, {
-          type: 'bolus',
-          time: plusTwo.toISOString(),
-          deviceId: 'c',
-          source: 'carelink',
-          timezoneOffset: 0
-        }, {
-          type: 'basal',
-          duration: 1000000,
-          time: plusThree.toISOString(),
-          deviceId: 'c',
-          source: 'carelink',
-          timezoneOffset: 0
-        }];
-        var res = nurseshark.processData(data);
-        expect(res.erroredData.length).to.equal(4);
-        expect(res.processedData.length).to.equal(4);
-        expect(_.uniq(_.pluck(res.processedData, 'deviceId'))).to.eql(['z', 'c']);
-      });
-
-      it('should disregard settings events when determining overlapping uploads', function() {
-        var data = [{
-          type: 'bolus',
-          time: minusTwenty.toISOString(),
-          deviceId: 'z',
-          source: 'carelink',
-          timezoneOffset: 0
-        }, {
-          type: 'smbg',
-          time: minusTen.toISOString(),
-          deviceId: 'z',
-          source: 'carelink',
-          timezoneOffset: 0
-        }, {
-          type: 'smbg',
-          time: now.toISOString(),
-          deviceId: 'a',
-          source: 'carelink',
-          timezoneOffset: 0
-        }, {
-          type: 'settings',
-          time: plusTen.toISOString(),
-          deviceId: 'b',
-          source: 'carelink',
-          timezoneOffset: 0,
-          units: {
-            bg: 'mg/dL',
-            carb: 'g'
-          }
-        }, {
-          type: 'settings',
-          time: plusHalf.toISOString(),
-          deviceId: 'a',
-          source: 'carelink',
-          timezoneOffset: 0,
-          units: {
-            bg: 'mg/dL',
-            carb: 'g'
-          }
-        }, {
-          type: 'bolus',
-          time: plusHour.toISOString(),
-          deviceId: 'b',
-          source: 'carelink',
-          timezoneOffset: 0
-        }, {
-          type: 'basal',
-          duration: 1000000,
-          time: plusTwo.toISOString(),
-          deviceId: 'c',
-          source: 'carelink',
-          timezoneOffset: 0
-        }, {
-          type: 'bolus',
-          time: plusThree.toISOString(),
-          deviceId: 'c',
-          source: 'carelink',
-          timezoneOffset: 0
-        }];
-        var res = nurseshark.processData(data);
-        expect(res.erroredData.length).to.equal(0);
-        expect(res.processedData.length).to.equal(8);
-        expect(_.uniq(_.pluck(res.processedData, 'deviceId'))).to.eql(['z', 'a', 'b', 'c']);
-      });
-
-      it('should disregard annotated basals when determining overlapping uploads', function() {
-        var data = [{
-          type: 'bolus',
-          time: minusTwenty.toISOString(),
-          deviceId: 'z',
-          source: 'carelink',
-          timezoneOffset: 0
-        }, {
-          type: 'smbg',
-          time: minusTen.toISOString(),
-          deviceId: 'z',
-          source: 'carelink',
-          timezoneOffset: 0
-        }, {
-          type: 'smbg',
-          time: now.toISOString(),
-          deviceId: 'a',
-          source: 'carelink',
-          timezoneOffset: 0
-        }, {
-          type: 'bolus',
-          time: plusTen.toISOString(),
-          deviceId: 'b',
-          source: 'carelink',
-          timezoneOffset: 0
-        }, {
-          type: 'basal',
-          duration: 1000000,
-          time: plusHalf.toISOString(),
-          deviceId: 'a',
-          source: 'carelink',
-          timezoneOffset: 0,
-          annotations: [{code: 'foo'}]
-        }, {
-          type: 'bolus',
-          time: plusHour.toISOString(),
-          deviceId: 'b',
-          source: 'carelink',
-          timezoneOffset: 0
-        }, {
-          type: 'basal',
-          duration: 1000000,
-          time: plusTwo.toISOString(),
-          deviceId: 'c',
-          source: 'carelink',
-          timezoneOffset: 0
-        }, {
-          type: 'bolus',
-          time: plusThree.toISOString(),
-          deviceId: 'c',
-          source: 'carelink',
-          timezoneOffset: 0
-        }];
-        var res = nurseshark.processData(data);
-        expect(res.erroredData.length).to.equal(0);
-        expect(res.processedData.length).to.equal(8);
-        expect(_.uniq(_.pluck(res.processedData, 'deviceId'))).to.eql(['z', 'a', 'b', 'c']);
-      });
-    });
-
     it('should return an object, with erroredData and processedData', function() {
       var res = nurseshark.processData([{type:'cbg'},{type:'wizard'}]);
       assert.isObject(res);
@@ -452,33 +144,6 @@ describe('nurseshark', function() {
       var res = nurseshark.processData(nullDuration).erroredData;
       expect(res.length).to.equal(1);
       expect(res[0].errorMessage).to.equal('Basal with null/zero duration.');
-    });
-
-    it('should extend the duration of Carelink temps and suspends that are one second short', function() {
-      var aTime = '2014-01-01T12:00:00.000Z';
-      var nextTime = '2014-01-01T12:20:00.000Z';
-      var basals = [{
-        type: 'basal',
-        deliveryType: 'temp',
-        source: 'carelink',
-        time: aTime,
-        duration: 1199000,
-        rate: 0.5,
-        percent: 0.5,
-        timezoneOffset: 0
-      }, {
-        type: 'basal',
-        deliveryType: 'scheduled',
-        source: 'carelink',
-        time: nextTime,
-        duration: 3600000,
-        rate: 0.9,
-        timezoneOffset: 0
-      }];
-      var res = nurseshark.processData(basals).processedData;
-      expect(res.length).to.equal(2);
-      var first = res[0], second = res[1];
-      expect(dt.addDuration(first.time, first.duration)).to.equal(second.time);
     });
 
     it('should not extend the duration of non-Carelink temps and suspends', function() {
@@ -558,21 +223,21 @@ describe('nurseshark', function() {
       });
     });
 
-    it('should filter out bad deviceMeta events', function() {
+    it('should filter out bad deviceEvent events', function() {
       var data = [{
-        type: 'deviceMeta',
+        type: 'deviceEvent',
         time: new Date().toISOString(),
         duration: 300000,
         timezoneOffset: 0
       }, {
-        type: 'deviceMeta',
+        type: 'deviceEvent',
         time: new Date().toISOString(),
         annotations: [{
           code: 'status/incomplete-tuple'
         }],
         timezoneOffset: 0
       }, {
-        type: 'deviceMeta',
+        type: 'deviceEvent',
         time: new Date().toISOString(),
         annotations: [{
           code: 'status/unknown-previous'
@@ -632,10 +297,10 @@ describe('nurseshark', function() {
       expect(res.insulinSensitivity).to.equal(68);
     });
 
-    it('should translate settings bg-related fields to mg/dL when such units specified', function() {
+    it('should translate pumpSettings bg-related fields to mg/dL when such units specified', function() {
       var now = new Date().toISOString();
       var settings = [{
-        type: 'settings',
+        type: 'pumpSettings',
         time: now,
         units: {
           bg: 'mmol/L',
@@ -667,7 +332,7 @@ describe('nurseshark', function() {
     it('should reshape basalSchedules from an object to an array', function() {
       var now = new Date().toISOString();
       var settings = [{
-        type: 'settings',
+        type: 'pumpSettings',
         basalSchedules: {
           foo: [],
           bar: []
@@ -885,7 +550,7 @@ describe('nurseshark', function() {
         timezoneOffset: 0,
         duration: 1800000
       }, {
-        type: 'deviceMeta',
+        type: 'deviceEvent',
         annotations: [{
           code: 'status/incomplete-tuple'
         }],
