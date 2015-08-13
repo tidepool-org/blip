@@ -110,7 +110,7 @@ module.exports = function(pool, opts) {
     var foGroup = tooltip.foGroup;
     foGroup.append('p')
       .append('span')
-      .attr('class', 'secondary')
+      .attr('class', 'mainText')
       .html(timeChange.type);
     tooltip.foGroup.append('p')
       .append('span')
