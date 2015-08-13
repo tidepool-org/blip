@@ -20,7 +20,6 @@ var _ = require('lodash');
 
 var dt = require('../data/util/datetime');
 var format = require('../data/util/format');
-var tooltips = require('../plot/util/tooltips/generalized');
 
 var timeChangeImage = require('../../img/timechange/timechange.svg');
 
