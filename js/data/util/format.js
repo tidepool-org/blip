@@ -56,6 +56,27 @@ var format = {
     }
   },
 
+  /**
+   * Function for returning a preview of a text value followed by elipsis.
+   * Will return a string of max length + 3 (for elipsis). Will end preview
+   * at last completed word that fits into preview.
+   * 
+   * @param  {String} text
+   * @param  {Number} previewLength
+   * @return {String}
+   */
+  textPreview: function(text, previewLength) {
+    previewLength = previewLength || 50; // default length
+    if (text.length <= previewLength) {
+      return text;
+    } else {
+      var substring = text.substring(0, previewLength);
+      var lastSpaceIndex = substring.lastIndexOf(' ');
+      var end = (lastSpaceIndex > 0) ? lastSpaceIndex : previewLength;
+      return substring.substring(0, end) + '...';
+    }
+  },
+
   capitalize: function(s) {
     // transform the first letter of string s to uppercase
     return s[0].toUpperCase() + s.slice(1);
@@ -132,6 +153,14 @@ var format = {
     } else {
       return 'over ' + minutes + ' min';
     }
+  },
+
+  datestamp: function(i, offset) {
+    var d = new Date(i);
+    if (offset) {
+      d.setUTCMinutes(d.getUTCMinutes() + offset);
+    }
+    return moment(d).utc().format('MMMM D');
   },
 
   timestamp: function(i, offset) {

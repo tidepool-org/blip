@@ -29,6 +29,7 @@ module.exports = function(pool, opts) {
   opts = opts || {};
 
   var defaults = {
+    previewLength: 50,
     tooltipPadding: 20,
     highlightWidth: 4
   };
@@ -109,16 +110,20 @@ module.exports = function(pool, opts) {
       yPosition: message.yPositionCenter
     });
 
+    console.log(d);
+
     var foGroup = tooltip.foGroup;
     tooltip.foGroup.append('p')
+      .attr('class', 'messageTooltip')
       .append('span')
       .attr('class', 'secondary')
-      .html(d.messageText);
+      .html(format.datestamp(d.normalTime) + ' <span class="at">at</span> ' + format.timestamp(d.normalTime));
     tooltip.foGroup.append('p')
+      .attr('class', 'messageTooltip')
       .append('span')
       .attr('class', 'secondary')
-      .html('<span class="at">at:</span> ' + format.timestamp(d.normalTime));
-      
+      .html('<span class="value">' + d.user.fullName + '</span> ' + format.textPreview(d.messageText));
+    
     var dims = tooltips.foreignObjDimensions(foGroup);
     // foGroup.node().parentNode is the <foreignObject> itself
     // because foGroup is actually the top-level <xhtml:div> element
