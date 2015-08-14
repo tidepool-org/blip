@@ -235,12 +235,13 @@ d3.chart('SMBGBoxOverlay', {
     var binKeys = Object.keys(binned);
     var retData = [];
     var value = function(d) { return d.value; };
+    var normalTime = function(d) { return new Date(d.normalTime); };
     var reduceForMean = function(s, n) { return s + n.value; };
     for (var i = 0; i < binKeys.length; ++i) {
       retData.push({
         id: i,
-        fromDate: d3.min(binned[binKeys[i]], function(d) { return new Date(d.normalTime)}),
-        toDate: d3.max(binned[binKeys[i]], function(d) { return new Date(d.normalTime)}),
+        fromDate: d3.min(binned[binKeys[i]], normalTime),
+        toDate: d3.max(binned[binKeys[i]], normalTime),
         max: d3.max(binned[binKeys[i]], value),
         mean: _.reduce(binned[binKeys[i]], reduceForMean, 0)/binned[binKeys[i]].length,
         min: d3.min(binned[binKeys[i]], value),
