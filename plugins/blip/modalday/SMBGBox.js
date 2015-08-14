@@ -3,6 +3,7 @@ var d3 = window.d3;
 var moment = require('moment-timezone');
 var tideline = require('../../../js/index');
 var bgBoundaryClass = tideline.plot.util.bgboundary;
+var format = tideline.data.util.format;
 var dt = tideline.data.util.datetime;
 var tooltips = tideline.plot.util.tooltips.generalized;
 
@@ -58,11 +59,19 @@ d3.chart('SMBGBoxOverlay', {
       appendRangeLabel(rangeLabels, maxYRect, maxYText, d.max);
       appendRangeLabel(rangeLabels, minYRect, minYText, d.min);
 
+      console.log(d);
+
       tooltip.foGroup
         .append('p')
         .append('span')
         .attr('class', 'secondary')
-        .html(Math.round(d.mean));
+        .html('<span class="fromto">avg of</span> <span class="value">'+ Math.round(d.mean) + '</span>');
+
+      tooltip.foGroup
+        .append('p')
+        .append('span')
+        .attr('class', 'secondary')
+        .html('<span class="fromto">from</span> ' + format.timestamp(d.fromDate) +  ' <span class="fromto">to</span> ' + format.timestamp(d.toDate));
 
       /**
        * Add a label to either end of the range
@@ -230,6 +239,8 @@ d3.chart('SMBGBoxOverlay', {
     for (var i = 0; i < binKeys.length; ++i) {
       retData.push({
         id: i,
+        fromDate: d3.min(binned[binKeys[i]], function(d) { return new Date(d.normalTime)}),
+        toDate: d3.max(binned[binKeys[i]], function(d) { return new Date(d.normalTime)}),
         max: d3.max(binned[binKeys[i]], value),
         mean: _.reduce(binned[binKeys[i]], reduceForMean, 0)/binned[binKeys[i]].length,
         min: d3.min(binned[binKeys[i]], value),
