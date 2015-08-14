@@ -69,9 +69,6 @@ describe('sundial', function() {
     it('should have a formatInTimezone method', function(){
       expect(datetimeWrapper.formatInTimezone).to.exist;
     });
-    it('should have a getDeviceTimezone method',function() {
-      expect(datetimeWrapper.getDeviceTimezone).to.exist;
-    });
     it('should have a getMsFromMidnight method',function() {
       expect(datetimeWrapper.getMsFromMidnight).to.exist;
     });
@@ -422,15 +419,6 @@ describe('sundial', function() {
         var expected = 5 * 24 * 60 * datetimeWrapper.MIN_TO_MSEC;
         var variance = delta - expected;
         expect(variance < 10 && variance >= 0).to.be.true;
-      });
-    });
-
-    describe('getDeviceTimezone', function() {
-
-      it('returns a valid timezone object',function(){
-        var timezone = datetimeWrapper.getDeviceTimezone();
-        expect(timezone.name).to.have.length.above(0);
-        expect(timezone.label).to.have.length.above(0);
       });
     });
 
