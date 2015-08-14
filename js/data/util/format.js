@@ -146,7 +146,7 @@ var format = {
    * 
    * @param {String} from - date string
    * @param {String} to - date string
-   * @return {Object} containing keys from and to
+   * @return {Object} containing keys from, to, type, format
    */
   timeChangeInfo: function(from,to) {
     if (!from || !to) { // guard statement
@@ -159,12 +159,12 @@ var format = {
 
     var format = 'h:mm a';
     if (fromDate.getUTCFullYear() !== toDate.getUTCFullYear()) {
-      format = 'Do MMM YYYY h:mm a';
+      format = 'MMM D YYYY h:mm a';
     } else if (
       fromDate.getUTCMonth() !== toDate.getUTCMonth() ||
       fromDate.getUTCDay() !== toDate.getUTCDay()
     ) {
-      format = 'Do MMM h:mm a';
+      format = 'MMM D h:mm a';
     }
 
     if (Math.abs(toDate - fromDate) <= (8*(60*1000))) { // Clock Drift Adjustment if less than 8 minutes
@@ -177,6 +177,7 @@ var format = {
       type: type,
       from: moment(fromDate).utc().format(format),
       to: moment(toDate).utc().format(format),
+      format: format
     };
   },
 

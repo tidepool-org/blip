@@ -107,18 +107,25 @@ module.exports = function(pool, opts) {
     var timeChange = format.timeChangeInfo(d.change.from, d.change.to);
 
     var foGroup = tooltip.foGroup;
+    if (timeChange.format === 'h:mm a') { // if the timechange is on the same display time info on one line
+      tooltip.foGroup.append('p')
+        .append('span')
+        .attr('class', 'secondary')
+        .html('<span class="fromto">from</span> ' + timeChange.from + ' <span class="fromto">to</span> ' + timeChange.to);
+    } else {
+      tooltip.foGroup.append('p')
+        .append('span')
+        .attr('class', 'secondary')
+        .html('<span class="fromto">from</span> ' + timeChange.from);
+      tooltip.foGroup.append('p')
+        .append('span')
+        .attr('class', 'secondary')
+        .html('<span class="fromto">to</span> ' + timeChange.to);
+    }
     foGroup.append('p')
       .append('span')
       .attr('class', 'mainText')
       .html(timeChange.type);
-    tooltip.foGroup.append('p')
-      .append('span')
-      .attr('class', 'secondary')
-      .html('<span class="fromto">from:</span> ' + timeChange.from);
-    tooltip.foGroup.append('p')
-      .append('span')
-      .attr('class', 'secondary')
-      .html('<span class="fromto">to:</span> ' + timeChange.to);
       
     var dims = tooltips.foreignObjDimensions(foGroup);
     // foGroup.node().parentNode is the <foreignObject> itself
