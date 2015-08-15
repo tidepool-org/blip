@@ -492,15 +492,24 @@ describe('sundial', function() {
     });
 
     describe('getTimezones', function() {
+      var tzs = datetimeWrapper.getTimezones();
 
-      it('returns 135 timezone objects',function(){
-        expect(datetimeWrapper.getTimezones()).to.have.length(135);
+      it('returns an object with arrays of timezones',function(){
+        var keys = ['bigFour', 'unitedStates', 'hoisted', 'theRest'];
+        expect(Object.keys(tzs)).to.deep.equal(keys);
+        expect(tzs.bigFour.length).to.equal(4);
+        expect(tzs.unitedStates.length).to.equal(9);
+        expect(tzs.hoisted.length).to.equal(95);
+        expect(tzs.theRest.length).to.equal(440);
       });
 
       it('returns timezone objects with a non-empty string name and label each',function(){
-        datetimeWrapper.getTimezones().forEach(function(timezone){
-          expect(timezone.name).to.have.length.above(0);
-          expect(timezone.label).to.have.length.above(0);
+        var timezoneObjs = tzs.bigFour.concat(tzs.unitedStates)
+          .concat(tzs.hoisted).concat(tzs.theRest);
+        timezoneObjs.forEach(function(timezone){
+          expect(timezone.label).to.exist;
+          expect(timezone.value).to.exist;
+          expect(timezone.offset).to.exist;
         });
       });
     });
