@@ -55,7 +55,9 @@ module.exports = function(pool, opts) {
 
       var timechanges = d3.select(this)
         .selectAll('g.d3-timechange-group')
-        .data(filteredData);
+        .data(filteredData, function(d) {
+          return d.id;
+        });
 
       var timechangeGroup = timechanges.enter()
         .append('g')
