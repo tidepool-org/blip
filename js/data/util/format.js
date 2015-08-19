@@ -155,16 +155,32 @@ var format = {
     }
   },
 
-  datestamp: function(i, offset) {
-    var d = new Date(i);
+  /**
+   * Given a string timestamp, return a formatted date string
+   * Optionally adjust the time if an offset is supplied.
+   * 
+   * @param  {String} timestring
+   * @param  {Number} offset
+   * @return {String} [MMMM D] e.g. August 4
+   */
+  datestamp: function(timestring, offset) {
+    var d = new Date(timestring);
     if (offset) {
       d.setUTCMinutes(d.getUTCMinutes() + offset);
     }
     return moment(d).utc().format('MMMM D');
   },
 
-  timestamp: function(i, offset) {
-    var d = new Date(i);
+  /**
+   * Given a string timestamp, return a formatted time string.
+   * Optionally adjust the time if an offset is supplied.
+   * 
+   * @param  {String} timestring
+   * @param  {Number} offset
+   * @return {String} [%-I:%M %p] D e.g. 3:14 am
+   */
+  timestamp: function(timestring, offset) {
+    var d = new Date(timestring);
     if (offset) {
       d.setUTCMinutes(d.getUTCMinutes() + offset);
     }
