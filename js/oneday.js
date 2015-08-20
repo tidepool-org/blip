@@ -163,15 +163,15 @@ module.exports = function(emitter, opts) {
 
   container.poolScaleHeight = function(pools) {
     if (!arguments.length) return poolScaleHeight;
-    var cumWeight = 0, cumGutterWeight = 0;
+    var cumHeightRatio = 0, cumGutterWeight = 0;
     pools.forEach(function(pool) {
-      cumWeight += pool.weight();
+      cumHeightRatio += pool.heightRatio();
       cumGutterWeight += pool.gutterWeight();
     });
-    gutter = 0.25 * (container.height() / cumWeight);
+    gutter = 0.25 * (container.height() / cumHeightRatio);
     var totalPoolsHeight =
       container.height() - nav.scrollNavHeight - (cumGutterWeight * gutter);
-    poolScaleHeight = totalPoolsHeight/cumWeight;
+    poolScaleHeight = totalPoolsHeight/cumHeightRatio;
     return container;
   };
 
