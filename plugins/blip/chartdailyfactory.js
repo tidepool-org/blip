@@ -101,7 +101,7 @@ function chartDailyFactory(el, options) {
       .labelBaseline(options.labelBaseline)
       .legend(['bg'])
       .index(chart.pools().indexOf(poolBG))
-      .weight(2)
+      .weight(2.5)
       .gutterWeight(1.0);
 
     // carbs and boluses data pool
@@ -118,7 +118,7 @@ function chartDailyFactory(el, options) {
       .labelBaseline(options.labelBaseline)
       .legend(['bolus', 'carbs'])
       .index(chart.pools().indexOf(poolBolus))
-      .weight(1.5)
+      .weight(1.0)
       .gutterWeight(1.0);
 
     // basal data pool
