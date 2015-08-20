@@ -19,6 +19,7 @@ var d3 = require('d3');
 var _ = require('lodash');
 
 var postItImage = require('../../img/message/post_it.svg');
+var newNoteImg = require('../../img/message/new.png');
 
 var log = require('bows')('Message');
 
@@ -129,6 +130,39 @@ module.exports = function(pool, opts) {
     });
   };
 
+  /**
+   * Render the affordance for adding notes through blip
+   */
+  message.drawNewNoteIcon = _.once(function() {
+    if (!d3.select('#tidelineLabels .newNoteIcon').empty()) { // do not draw twice!
+      return;
+    }
+
+    var newNote = d3.select('#tidelineLabels').append('image')
+      .attr({
+        'class': 'newNoteIcon',
+        'xlink:href': newNoteImg,
+        cursor: 'pointer',
+        x: 0,
+        y: 45,
+        width: 36,
+        height: 29
+      });
+
+    newNote.on('mouseover', function() {
+      d3.select('#tidelineLabels').append('text')
+      .attr({
+        'class': 'newNoteText',
+        x: 45,
+        y: 63,
+      })
+      .text('New note');
+    });
+    newNote.on('mouseout', function() {
+      d3.select('#tidelineLabels .newNoteText').remove();
+    });
+  });
+
   message.highlightXPosition = function(d) {
     return opts.xScale(Date.parse(d.normalTime)) - opts.size / 2 - opts.highlightWidth;
   };
@@ -146,6 +180,7 @@ module.exports = function(pool, opts) {
   };
 
   message.setUpMessageCreation();
+  message.drawNewNoteIcon();
 
   return message;
 };
