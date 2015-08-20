@@ -20,6 +20,8 @@
 var d3 = require('d3');
 var _ = require('lodash');
 
+var newNoteImg = require('../img/message/new.png');
+
 var legend = require('./plot/util/legend');
 
 var log = require('bows')('Pool');
@@ -60,6 +62,7 @@ function Pool (container) {
 
     this.drawAxes();
     this.updateAxes();
+    this.drawNewNoteIcon();
     if (__DEV__ === true) {
       var that = this;
       setTimeout(function() { that.drawLabel(); that.drawLegend(); }, 250);
@@ -108,6 +111,39 @@ function Pool (container) {
   this.width = function() {
     return container.width() - container.axisGutter();
   };
+
+  /**
+   * Render the affordance for adding notes through blip
+   */
+  this.drawNewNoteIcon = _.once(function() {
+    if (!mainSVG.select('#tidelineLabels .newNoteIcon').empty()) { // do not draw twice!
+      return;
+    }
+
+    var newNote = mainSVG.select('#tidelineLabels').append('image')
+      .attr({
+        'class': 'newNoteIcon',
+        'xlink:href': newNoteImg,
+        cursor: 'pointer',
+        x: 0,
+        y: 45,
+        width: 36,
+        height: 29
+      });
+
+    newNote.on('mouseover', function() {
+      mainSVG.select('#tidelineLabels').append('text')
+      .attr({
+        'class': 'newNoteText',
+        x: 45,
+        y: 63,
+      })
+      .text('New note');
+    });
+    newNote.on('mouseout', function() {
+      mainSVG.select('#tidelineLabels .newNoteText').remove();
+    });
+  });
 
   // only once methods
   this.drawLabel = _.once(function() {
