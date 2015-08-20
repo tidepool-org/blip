@@ -159,12 +159,12 @@ var format = {
 
     var format = 'h:mm a';
     if (fromDate.getUTCFullYear() !== toDate.getUTCFullYear()) {
-      format = 'MMM D YYYY h:mm a';
+      format = 'MMM D, YYYY h:mm a';
     } else if (
       fromDate.getUTCMonth() !== toDate.getUTCMonth() ||
       fromDate.getUTCDay() !== toDate.getUTCDay()
     ) {
-      format = 'MMM D h:mm a';
+      format = 'MMM D, h:mm a';
     }
 
     if (Math.abs(toDate - fromDate) <= (8*(60*1000))) { // Clock Drift Adjustment if less than 8 minutes
