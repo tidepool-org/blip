@@ -125,7 +125,8 @@ module.exports = function(pool, opts) {
       fills.exit().remove();
 
       // Add midnight markers
-      selection.selectAll('rect.d3-fill-midnight')
+      if (opts.isDaily) {
+        selection.selectAll('rect.d3-fill-midnight')
         .data(_.filter(currentData, {startsAtMidnight: true}))
         .enter()
         .append('rect')
@@ -169,6 +170,7 @@ module.exports = function(pool, opts) {
             return 'd3-fill d3-rect-fill d3-fill-midnight';
           }
         });
+      }
     });
   }
 
