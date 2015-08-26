@@ -88,7 +88,7 @@ module.exports = function(pool, opts) {
     selection.on('click', function(d) {
       d3.event.stopPropagation(); // silence the click-and-drag listener
       opts.emitter.emit('messageThread', d.id);
-      log('Message clicked!');
+      log('Message clicked!', d.id);
       d3.select(this).selectAll('.d3-rect-message').classed('hidden', false);
     });
   };
@@ -109,6 +109,7 @@ module.exports = function(pool, opts) {
 
   message.setUpMessageCreation = function() {
     log('Set up message creation listeners.');
+
     opts.emitter.on('clickTranslatesToDate', function(date) {
       log('Creating message at', date.toISOString().slice(0,-5));
       opts.emitter.emit('createMessage', date.toISOString());
@@ -153,13 +154,32 @@ module.exports = function(pool, opts) {
       d3.select('#tidelineLabels').append('text')
       .attr({
         'class': 'newNoteText',
-        x: 45,
-        y: 63,
+        x: 1,
+        y: 88,
       })
-      .text('New note');
+      .text('New');
+      d3.select('#tidelineLabels').append('text')
+      .attr({
+        'class': 'newNoteText',
+        x: 1,
+        y: 103,
+      })
+      .text('note');
     });
     newNote.on('mouseout', function() {
-      d3.select('#tidelineLabels .newNoteText').remove();
+      d3.selectAll('#tidelineLabels .newNoteText').remove();
+    });
+
+    newNote.on('click', function(event) {
+      var date = new Date();
+      if (!opts.timezoneAware) {
+        var offsetMinutes = new Date(date).getTimezoneOffset();
+        date.setUTCMinutes(date.getUTCMinutes() + offsetMinutes);
+        opts.emitter.emit('clickTranslatesToDate', date);  
+      }
+      else {
+        opts.emitter.emit('clickTranslatesToDate', date);
+      }
     });
   });
 

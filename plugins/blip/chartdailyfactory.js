@@ -310,7 +310,8 @@ function chartDailyFactory(el, options) {
     // add message images to messages pool
     poolMessages.addPlotType('message', tideline.plot.message(poolMessages, {
       size: 30,
-      emitter: emitter
+      emitter: emitter,
+      timezoneAware: chart.options.timePrefs.timezoneAware
     }), true, true);
 
     // stats pool
