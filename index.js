@@ -216,6 +216,34 @@ module.exports = function (config, deps) {
       );
     },
     /**
+     * Get the users 'patients' to whom he can upload to.
+     *
+     * @param {String} userId id of the user
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    getUploadGroups: function (userId, cb) {
+      common.assertArgumentsSize(arguments, 2);
+      common.doGetWithToken(
+        '/access/groups/' + userId,
+        { 200: function(res){
+          var groups = res.body;
+
+          var filter = {};
+
+          for(var i in groups) {
+            var group = groups[i];
+
+            if (group.root || group.upload) {
+              filter[i] = group;
+            }
+          }
+          return filter;
+        }, 404: null },
+        cb
+      );
+    },
+    /**
      * Sets the access permissions for a specific user on the group for the currently logged in user
      *
      * @param userId - userId to have access permissions set for
