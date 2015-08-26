@@ -75,7 +75,7 @@ var PatientData = React.createClass({
           showingLines: false
         }
       },
-      chartType: 'modal',
+      chartType: 'daily',
       createMessage: null,
       createMessageDatetime: null,
       datetimeLocation: null,

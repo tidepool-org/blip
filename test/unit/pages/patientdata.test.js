@@ -16,10 +16,10 @@ describe('PatientData', function () {
   // otherwise dependencies mocked will be bound to the wrong scope!
   var PatientData = rewire('../../../app/pages/patientdata/patientdata.js');
 
-  rewireModule(PatientData, { 
-    Modal: React.createClass({
+  rewireModule(PatientData, {
+    Daily: React.createClass({
       render: function() {
-        return (<div className='fake-modal-view'></div>);
+        return (<div className='fake-daily-view'></div>);
       }
     })
   });
@@ -211,7 +211,7 @@ describe('PatientData', function () {
       var pdElem = React.createElement(PatientData, props);
       var elem = TestUtils.renderIntoDocument(pdElem);
       expect(elem).to.be.ok;
-      var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-modal-view');
+      var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-daily-view');
       expect(x).to.be.ok;
     });
   });
