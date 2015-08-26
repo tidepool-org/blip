@@ -42,7 +42,7 @@
   "devDependencies": {
     "blip-mock-data": "tidepool-org/blip-mock-data#v0.3.7",
     "chai": "2.1.2",
-    "jsxhint": "^0.15.1",
+    "jsxhint": "0.15.1",
     "karma": "0.12.33",
     "karma-chai": "0.1.0",
     "karma-chrome-launcher": "0.1.12",
