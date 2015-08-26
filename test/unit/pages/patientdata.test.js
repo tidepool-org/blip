@@ -60,27 +60,7 @@ describe('PatientData', function () {
       expect(console.warn.callCount).to.equal(0);
     });
 
-    it ('should render the loading when no data is present and fetchingPatient is true', function() {
-      var props = {
-        timePrefs: {
-          timezoneAware: false,
-          timezoneName: null
-        },
-        fetchingPatient: true,
-        fetchingPatientData: false,
-        queryParams: {},
-        trackMetric: sinon.stub()
-      };
-
-      // Try out using the spread props syntax in JSX
-      var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
-      expect(elem).to.be.ok;
-      
-      var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message-loading');
-      expect(x).to.be.ok;
-    });
-
-    it ('should render the loading when no data is present and fetchingPatient is true', function() {
+    it ('should render the loading message and image when no data is present and fetchingPatient is true', function() {
       var props = {
         timePrefs: {
           timezoneAware: false,
@@ -96,7 +76,10 @@ describe('PatientData', function () {
       var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
       expect(elem).to.be.ok;
       
-      var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message-loading');
+      var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-loading-image');
+      expect(x).to.be.ok;
+
+      var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-loading-message');
       expect(x).to.be.ok;
     });
 
