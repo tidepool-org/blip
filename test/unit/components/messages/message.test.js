@@ -27,7 +27,6 @@ describe('Message', function () {
       expect(elem).to.be.ok;
 
       var initialState = elem.getInitialState();
-      console.log(initialState);
       expect(Object.keys(initialState).length).to.equal(1);
       expect(initialState.editing).to.equal(false);
       expect(console.warn.callCount).to.equal(0);
