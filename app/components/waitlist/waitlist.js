@@ -20,8 +20,8 @@ var cx = require('react/lib/cx');
 var WaitList = React.createClass({
   render: function() {
     return (
-      <div className="WaitList" >
-        <iframe id="typeform-full" width="100%" height="100%" frameborder="0" src="https://brandon72.typeform.com/to/tKY9nN"></iframe>
+      <div className="waitlist-container" >
+        <iframe id="typeform-full" width="100%" height="100%" frameBorder="0" src="https://brandon72.typeform.com/to/tKY9nN"></iframe>
       </div>
     );
   }

@@ -29,6 +29,7 @@ var Signup = React.createClass({
   propTypes: {
     onSubmit: React.PropTypes.func.isRequired,
     onSubmitSuccess: React.PropTypes.func.isRequired,
+    checkInviteKey: React.PropTypes.func.isRequired,
     inviteKey: React.PropTypes.string,
     inviteEmail: React.PropTypes.string,
     trackMetric: React.PropTypes.func.isRequired
@@ -59,6 +60,17 @@ var Signup = React.createClass({
     ];
   },
 
+  componentWillMount: function() {
+    var that = this;
+    if (this.props.inviteKey && this.props.checkInviteKey) {
+      this.props.checkInviteKey(this.props.inviteKey, function(valid) {
+        that.setState({loading: false, showWaitList: !valid });
+      });
+    } else {
+      that.setState({loading: false, showWaitList: true });
+    }
+  },
+
   getInitialState: function() {
     var formValues = {};
 
@@ -68,7 +80,8 @@ var Signup = React.createClass({
 
     return {
       working: false,
-      showWaitList: (!this.props.inviteKey),
+      loading: true,
+      showWaitList: false,
       formValues: formValues,
       validationErrors: {},
       notification: null
@@ -78,29 +91,30 @@ var Signup = React.createClass({
   render: function() {
     var form = this.renderForm();
     var inviteIntro = this.renderInviteIntroduction();
-
-    if (this.state.showWaitList) {
-      return (
-        <div className="signup">
-          <WaitList />
-        </div>
-      )
-    } else {
-      return (
-        <div className="signup">
-          <LoginNav
-            page="signup"
-            hideLinks={Boolean(this.props.inviteEmail)}
-            trackMetric={this.props.trackMetric} />
-          <LoginLogo />
-          {inviteIntro}
-          <div className="container-small-outer signup-form">
-            <div className="container-small-inner signup-form-box">
-              {form}
+    if (!this.state.loading) {
+      if (this.state.showWaitList) {
+        return (
+          <div className="waitlist">
+            <WaitList />
+          </div>
+        )
+      } else {
+        return (
+          <div className="signup">
+            <LoginNav
+              page="signup"
+              hideLinks={Boolean(this.props.inviteEmail)}
+              trackMetric={this.props.trackMetric} />
+            <LoginLogo />
+            {inviteIntro}
+            <div className="container-small-outer signup-form">
+              <div className="container-small-inner signup-form-box">
+                {form}
+              </div>
             </div>
           </div>
-        </div>
-      );
+        );
+      }
     }
   },
 

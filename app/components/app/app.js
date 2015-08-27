@@ -432,12 +432,17 @@ var AppComponent = React.createClass({
   },
 
   renderSignup: function() {
+    var fakeCheckKey = function(key, cb) {
+      cb(true);
+    };
+
     return (
       /* jshint ignore:start */
       <Signup
         onSubmit={this.signup}
         inviteEmail={this.getInviteEmail()}
         inviteKey={this.getInviteKey()}
+        checkInviteKey={fakeCheckKey}
         onSubmitSuccess={this.handleSignupSuccess}
         trackMetric={this.context.trackMetric} />
       /* jshint ignore:end */
