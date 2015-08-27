@@ -38,6 +38,7 @@ var BrowserWarningOverlay = require('../browserwarningoverlay');
 var TidepoolNotification = require('../notification');
 var TermsOverlay = require('../termsoverlay');
 var MailTo = require('../mailto');
+var NotesLink = require('../noteslink');
 
 // Pages
 var Login = require('../../pages/login');
