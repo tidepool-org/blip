@@ -388,6 +388,15 @@ var AppComponent = React.createClass({
     return null;
   },
 
+  getInviteKey: function() {
+    var hashQueryParams = this.context.router.getQueryParams();
+    var key = hashQueryParams.inviteKey;
+    if(!_.isEmpty(key)){
+      return key;
+    }
+    return null;
+  },
+
   getInviteEmail: function() {
     var hashQueryParams = this.context.router.getQueryParams();
     var email = hashQueryParams.inviteEmail;
@@ -428,6 +437,7 @@ var AppComponent = React.createClass({
       <Signup
         onSubmit={this.signup}
         inviteEmail={this.getInviteEmail()}
+        inviteKey={this.getInviteKey()}
         onSubmitSuccess={this.handleSignupSuccess}
         trackMetric={this.context.trackMetric} />
       /* jshint ignore:end */

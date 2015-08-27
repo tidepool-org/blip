@@ -20,6 +20,7 @@ var _ = require('lodash');
 var config = require('../../config');
 
 var utils = require('../../core/utils');
+var WaitList = require('../../components/waitlist');
 var LoginNav = require('../../components/loginnav');
 var LoginLogo = require('../../components/loginlogo');
 var SimpleForm = require('../../components/simpleform');
@@ -28,6 +29,7 @@ var Signup = React.createClass({
   propTypes: {
     onSubmit: React.PropTypes.func.isRequired,
     onSubmitSuccess: React.PropTypes.func.isRequired,
+    inviteKey: React.PropTypes.string,
     inviteEmail: React.PropTypes.string,
     trackMetric: React.PropTypes.func.isRequired
   },
@@ -66,6 +68,7 @@ var Signup = React.createClass({
 
     return {
       working: false,
+      showWaitList: (!this.props.inviteKey),
       formValues: formValues,
       validationErrors: {},
       notification: null
@@ -76,23 +79,29 @@ var Signup = React.createClass({
     var form = this.renderForm();
     var inviteIntro = this.renderInviteIntroduction();
 
-    /* jshint ignore:start */
-    return (
-      <div className="signup">
-        <LoginNav
-          page="signup"
-          hideLinks={Boolean(this.props.inviteEmail)}
-          trackMetric={this.props.trackMetric} />
-        <LoginLogo />
-        {inviteIntro}
-        <div className="container-small-outer signup-form">
-          <div className="container-small-inner signup-form-box">
-            {form}
+    if (this.state.showWaitList) {
+      return (
+        <div className="signup">
+          <WaitList />
+        </div>
+      )
+    } else {
+      return (
+        <div className="signup">
+          <LoginNav
+            page="signup"
+            hideLinks={Boolean(this.props.inviteEmail)}
+            trackMetric={this.props.trackMetric} />
+          <LoginLogo />
+          {inviteIntro}
+          <div className="container-small-outer signup-form">
+            <div className="container-small-inner signup-form-box">
+              {form}
+            </div>
           </div>
         </div>
-      </div>
-    );
-    /* jshint ignore:end */
+      );
+    }
   },
 
   renderInviteIntroduction: function() {
