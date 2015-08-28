@@ -56,8 +56,8 @@ d3.chart('SMBGBoxOverlay', {
         minYText = yScale(d.min) - (rectOpts.height/2);
       }
 
-      appendRangeLabel(rangeLabels, maxYRect, maxYText, 'max', d.max);
-      appendRangeLabel(rangeLabels, minYRect, minYText, 'min',d.min);
+      appendRangeLabel(rangeLabels, maxYRect, maxYText, rectOpts.width, 'max', d.max);
+      appendRangeLabel(rangeLabels, minYRect, minYText, (rectOpts.width - 5), 'min',d.min);
 
       tooltip.foGroup
         .append('p')
@@ -72,19 +72,16 @@ d3.chart('SMBGBoxOverlay', {
         .html('<span class="fromto">from</span> ' + format.timestamp(d.fromDate) +  ' <span class="fromto">to</span> ' + format.timestamp(d.toDate));
 
       /**
-       * Add a label to either end of the range
+       * Add a label to either end of the range for min and max labels
        * 
        * @param  {Object} elem  a d3 selection
        * @param  {Number} yRect
        * @param  {Number} yText
+       * @param  {Number} width
+       * @param  {String} label
        * @param  {Number|String} val
        */
-      function appendRangeLabel(elem, yRect, yText, label, val) {
-        var width = rectOpts.width;
-        if (label === 'min') {
-          width = width - 5;
-        }
-        
+      function appendRangeLabel(elem, yRect, yText, width, label, val) {
         elem.append('rect')
         .attr({
           x: xScale(d.msX) - (width/2),
