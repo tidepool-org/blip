@@ -216,6 +216,34 @@ module.exports = function (config, deps) {
       );
     },
     /**
+     * Get the users 'patients' to whom they can upload for.
+     *
+     * @param {String} userId of the user
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     */
+    getUploadGroups: function (userId, cb) {
+      common.assertArgumentsSize(arguments, 2);
+      common.doGetWithToken(
+        '/access/groups/' + userId,
+        { 200: function(res){
+          var groups = res.body;
+
+          var filter = {};
+
+          for(var i in groups) {
+            var group = groups[i];
+
+            if (group.root || group.upload) {
+              filter[i] = group;
+            }
+          }
+          return filter;
+        }, 404: null },
+        cb
+      );
+    },
+    /**
      * Sets the access permissions for a specific user on the group for the currently logged in user
      *
      * @param userId - userId to have access permissions set for
@@ -304,21 +332,22 @@ module.exports = function (config, deps) {
       );
     },
     /**
-     * Upload device data for the logged in user
+     * Upload device data for the given user
      *
+     * @param {String} userId of the user to get the device data for
      * @param {Object} data to be uploaded
      * @param cb
      * @returns {cb}  cb(err, response)
      */
-    uploadDeviceDataForUser: function (data, cb) {
-      common.assertArgumentsSize(arguments, 2);
+    uploadDeviceDataForUser: function (userId, data, cb) {
+      common.assertArgumentsSize(arguments, 3);
 
       if (_.isEmpty(common.getUploadUrl())) {
         return cb({ status : common.STATUS_BAD_REQUEST, message: 'The upload api needs to be configured' });
       }
 
        superagent
-        .post(common.makeUploadUrl('/data'))
+        .post(common.makeUploadUrl('/data/'+userId))
         .send(data)
         .set(common.SESSION_TOKEN_HEADER, user.getUserToken())
         .end(
