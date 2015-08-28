@@ -332,32 +332,6 @@ module.exports = function (config, deps) {
       );
     },
     /**
-     * Upload device data for the logged in user
-     *
-     * @param {Object} data to be uploaded
-     * @param cb
-     * @returns {cb}  cb(err, response)
-     */
-    uploadDeviceData: function (data, cb) {
-      common.assertArgumentsSize(arguments, 2);
-
-      if (_.isEmpty(common.getUploadUrl())) {
-        return cb({ status : common.STATUS_BAD_REQUEST, message: 'The upload api needs to be configured' });
-      }
-
-       superagent
-        .post(common.makeUploadUrl('/data'))
-        .send(data)
-        .set(common.SESSION_TOKEN_HEADER, user.getUserToken())
-        .end(
-        function (err, res) {
-          if (err != null) {
-            return cb(err);
-          }
-          return cb(null,res.body);
-        });
-    },
-    /**
      * Upload device data for the given user
      *
      * @param {String} userId of the user to get the device data for
