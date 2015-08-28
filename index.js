@@ -216,9 +216,9 @@ module.exports = function (config, deps) {
       );
     },
     /**
-     * Get the users 'patients' to whom he can upload to.
+     * Get the users 'patients' to whom they can upload for.
      *
-     * @param {String} userId id of the user
+     * @param {String} userId of the user
      * @param cb
      * @returns {cb}  cb(err, response)
      */
