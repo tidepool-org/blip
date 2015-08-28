@@ -479,7 +479,7 @@ module.exports = function (config, deps) {
           }
 
           var syncTask = res.body;
-          var syncTaskId = syncTask.id;
+          var syncTaskId = syncTask._id;
 
           if (!syncTaskId) {
             log.info('Upload Failed');
