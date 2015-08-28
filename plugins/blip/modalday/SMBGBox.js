@@ -80,17 +80,22 @@ d3.chart('SMBGBoxOverlay', {
        * @param  {Number|String} val
        */
       function appendRangeLabel(elem, yRect, yText, label, val) {
+        var width = rectOpts.width;
+        if (label === 'min') {
+          width = width - 5;
+        }
+        
         elem.append('rect')
         .attr({
-          x: xScale(d.msX) - (rectOpts.width/2),
+          x: xScale(d.msX) - (width/2),
           y: yRect,
-          width: rectOpts.width,
+          width: width,
           height: rectOpts.height
         });
 
         elem.append('text')
         .attr({
-          x: xScale(d.msX) - (rectOpts.width/2) + 5,
+          x: xScale(d.msX) - (width/2) + 5,
           y: yText,
           class: 'label'
         })
@@ -98,7 +103,7 @@ d3.chart('SMBGBoxOverlay', {
 
         elem.append('text')
         .attr({
-          x: xScale(d.msX) + (rectOpts.width/2) - 5,
+          x: xScale(d.msX) + (width/2) - 5,
           y: yText,
           class: 'value'
         })
