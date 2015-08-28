@@ -79,6 +79,20 @@ g.svg-tooltip-range {
     stroke-opacity: 0.4;
     stroke: @range;
   }
+
+  text {
+    &.label {
+      text-anchor: start;
+      font-size: 12px;
+      fill: #a6a6a6;
+      font-weight: normal;
+    }
+
+    &.value {
+      font-weight: bold;
+      text-anchor: end;
+    }
+  }
 }
 
 // generic = bolus(/wizard)

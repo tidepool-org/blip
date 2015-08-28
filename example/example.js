@@ -77,7 +77,6 @@ var Example = React.createClass({
         },
         timePrefs: {
           timezoneAware: false,
-          // timezoneAware: true,
           // timezoneName: 'Pacific/Auckland'
           // timezoneName: 'Europe/Paris'
           // timezoneName: 'US/Eastern'

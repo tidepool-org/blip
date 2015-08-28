@@ -56,10 +56,8 @@ d3.chart('SMBGBoxOverlay', {
         minYText = yScale(d.min) - (rectOpts.height/2);
       }
 
-      appendRangeLabel(rangeLabels, maxYRect, maxYText, d.max);
-      appendRangeLabel(rangeLabels, minYRect, minYText, d.min);
-
-      console.log(d);
+      appendRangeLabel(rangeLabels, maxYRect, maxYText, 'max', d.max);
+      appendRangeLabel(rangeLabels, minYRect, minYText, 'min',d.min);
 
       tooltip.foGroup
         .append('p')
@@ -81,7 +79,7 @@ d3.chart('SMBGBoxOverlay', {
        * @param  {Number} yText
        * @param  {Number|String} val
        */
-      function appendRangeLabel(elem, yRect, yText, val) {
+      function appendRangeLabel(elem, yRect, yText, label, val) {
         elem.append('rect')
         .attr({
           x: xScale(d.msX) - (rectOpts.width/2),
@@ -89,12 +87,22 @@ d3.chart('SMBGBoxOverlay', {
           width: rectOpts.width,
           height: rectOpts.height
         });
+
         elem.append('text')
-          .attr({
-            x: xScale(d.msX),
-            y: yText
-          })
-          .text(val);
+        .attr({
+          x: xScale(d.msX) - (rectOpts.width/2) + 5,
+          y: yText,
+          class: 'label'
+        })
+        .text(label);
+
+        elem.append('text')
+        .attr({
+          x: xScale(d.msX) + (rectOpts.width/2) - 5,
+          y: yText,
+          class: 'value'
+        })
+        .text(val);
       }
     };
 
@@ -103,8 +111,10 @@ d3.chart('SMBGBoxOverlay', {
       var cssClass = chart.getBgBoundaryClass(d);
       var high = (cssClass.search('d3-bg-high') !== -1);
       var msPer24 = getMsPer24(d);
+
       var left = msPer24 <= THREE_HRS;
       var right = msPer24 >= NINE_HRS;
+      console.log(high, left, right, d);
       if (high) {
         if (left) {
           return 'rightAndDown';
@@ -285,7 +295,7 @@ module.exports = {
         infoRects: {
           pad: 5,
           height: 20,
-          width: 30
+          width: 65
         },
         rectWidth: 18
       }
