@@ -344,7 +344,7 @@ var AppComponent = React.createClass({
       version = 'v' + version + ' beta';
       return (
         /* jshint ignore:start */
-        <div className="footer-subtext" ref="version">{version}</div>
+        <div className="footer-subtext footer-version" ref="version">{version}</div>
         /* jshint ignore:end */
       );
     }

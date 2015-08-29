@@ -90,7 +90,7 @@ describe('App', function () {
       React.withContext(context, function() {
         var elem = TestUtils.renderIntoDocument(<App/>);
         var footer = TestUtils.findRenderedDOMComponentWithClass(elem, 'footer');
-        var versionElems = TestUtils.scryRenderedDOMComponentsWithClass(footer, 'Navbar-version');
+        var versionElems = TestUtils.scryRenderedDOMComponentsWithClass(footer, 'footer-version');
         expect(versionElems.length).to.equal(0);
       });
     });
@@ -100,7 +100,7 @@ describe('App', function () {
       React.withContext(context, function() {
         var elem = TestUtils.renderIntoDocument(<App/>);
         var footer = TestUtils.findRenderedDOMComponentWithClass(elem, 'footer');
-        var version = TestUtils.findRenderedDOMComponentWithClass(footer, 'Navbar-version');
+        var version = TestUtils.findRenderedDOMComponentWithClass(footer, 'footer-version');
         expect(version).to.be.ok;
       });
     });
