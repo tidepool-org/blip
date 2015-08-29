@@ -17,6 +17,8 @@
 var React = require('react');
 
 var ModalOverlay = require('../modaloverlay');
+var screenshot = require('./blip-notes-screenshot.png');
+var icon = require('./blip-notes-icon.png');
 
 var NotesLink = React.createClass({
   getInitialState: function() {
@@ -24,20 +26,59 @@ var NotesLink = React.createClass({
       showModal: false
     };
   },
-  onClick: function() {
+  showModal: function() {
     this.setState({showModal: true});
   },
-  onBlur: function() {
+  hideModal: function() {
     this.setState({showModal: false});
   },
   render: function() {
     return (
-      <div className='noteslink'>
-        <a onClick={this.onClick}>Blip Notes</a>
+      <div className='footer-link NotesLink-dialog'>
+        <a href="#" onClick={this.showModal}>Get Blip Notes</a>
+        {this.renderModalOverlay()}
+      </div>
+    );
+  },
+  renderModalOverlay: function() {
+    return (
+      <ModalOverlay
+        show={this.state.showModal}
+        dialog={this.renderDialog()}
+        overlayClickHandler={this.hideModal}/>
+    );
+
+  },
+  renderDialog: function(patient) {
+    return (
+      <div>
+        <div className="ModalOverlay-content">
+          <div className="ModalOverlay-controls clearfix">
+            <div className="NotesLink-close" onClick={this.hideModal}></div>
+          </div>
+          <div className="NotesLink-screenshot">
+            <img src={screenshot} alt="Blip Notes Screenshot"/>
+          </div>
+          <div className="NotesLink-content">
+            <div className="NotesLink-header">
+              <div className="NotesLink-icon"></div>
+              <div className="NotesLink-title">
+                <h2>Blip Notes</h2>
+                <h4>context for your data</h4>
+              </div>
+            </div>
+            <div>
+              <p className="NotesLink-key-paragraph">To add Blip notes from any smartphone go to <a href="notes.tidepool.io">notes.tidepool.io</a>.</p>
+              <p>For iPhones use 'Add to home screen' to save Blip Notes as an app.</p>
+              <p>For Android ...</p>
+              <br/>
+              <p>Have questions? Get in touch, <a className="NotesLink-support-link" href="mailto:support@tidepool.org">support@tidepool.org</a></p>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
-
 });
 
 module.exports = NotesLink;

@@ -32,6 +32,44 @@
 }
 
 .footer {
+  display: block;
   text-align: center;
   margin-bottom: @spacing-large;
+
+  .footer-section {
+    display: block;
+    text-align: center;
+    vertical-align: top;
+    margin: 0 auto;
+    padding: 0 20px;
+
+    .footer-link {
+      font-size: 14px;
+
+      a {
+        &:extend(.link-secondary all);
+      }
+    }
+
+    .footer-subtext {
+      font-size: 14px;
+      line-height: 20px;
+      height: 20px;
+      color: @gray-dark;
+    }
+
+    &.footer-section-top {
+      margin-bottom: 50px;
+
+      .footer-link {
+        a {
+          color: @blue-green;
+          &:hover,
+          &:focus {
+            color: @blue-green-light;
+          }
+        }
+      }
+    }
+  }
 }

@@ -318,15 +318,21 @@ var AppComponent = React.createClass({
 
     return (
       /* jshint ignore:start */
-      <div className='container-small-outer footer'>
-        <div className='container-small-inner'>
-          <MailTo
-            linkTitle={title}
-            emailAddress={'support@tidepool.org'}
-            emailSubject={subject}
-            onLinkClicked={this.logSupportContact} />
+      <div className='container-nav-outer footer'>
+        <div className='container-nav-inner'>
+          <div className='footer-section footer-section-top'>
+            <NotesLink />
+            <div className="footer-subtext">{"Record notes on the go"}</div>
+          </div>
+          <div className='footer-section'>
+            <MailTo
+              linkTitle={title}
+              emailAddress={'support@tidepool.org'}
+              emailSubject={subject}
+              onLinkClicked={this.logSupportContact} />
+            {this.renderVersion()}
+          </div>
         </div>
-        {this.renderVersion()}
       </div>
       /* jshint ignore:end */
     );
@@ -338,7 +344,7 @@ var AppComponent = React.createClass({
       version = 'v' + version + ' beta';
       return (
         /* jshint ignore:start */
-        <div className="Navbar-version" ref="version">{version}</div>
+        <div className="footer-subtext" ref="version">{version}</div>
         /* jshint ignore:end */
       );
     }

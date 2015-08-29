@@ -34,7 +34,7 @@ var MailTo = React.createClass({
 
     return (
       /* jshint ignore:start */
-      <div className='mailto'>
+      <div className='mailto footer-link'>
         <a href={mailtoInfo} onClick={this.props.onLinkClicked} target="mailto">{this.props.linkTitle}</a>
         <iframe name="mailto" src="about:blank" style={{display: 'none'}}></iframe>
       </div>
