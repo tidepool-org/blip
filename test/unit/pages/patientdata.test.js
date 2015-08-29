@@ -79,8 +79,8 @@ describe('PatientData', function () {
       var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-loading-image');
       expect(x).to.be.ok;
 
-      var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-loading-message');
-      expect(x).to.be.ok;
+      var y = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-loading-message');
+      expect(y).to.be.ok;
     });
 
     it ('should render the no data message when no data is present and loading is false', function() {
