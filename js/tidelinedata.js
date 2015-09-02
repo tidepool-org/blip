@@ -49,7 +49,7 @@ else {
 
 function TidelineData(data, opts) {
 
-  var REQUIRED_TYPES = ['basal', 'bolus', 'wizard', 'cbg', 'message', 'smbg', 'settings'];
+  var REQUIRED_TYPES = ['basal', 'bolus', 'wizard', 'cbg', 'message', 'smbg', 'pumpSettings'];
 
   opts = opts || {};
 
@@ -237,10 +237,10 @@ function TidelineData(data, opts) {
     var data;
     if (that.grouped.smbg && that.grouped.smbg.length !== 0) {
       data = that.grouped.smbg;
-    }
-    else {
+    } else {
       data = that.diabetesData;
     }
+
     var first = data[0].normalTime, last = data[data.length - 1].normalTime;
     if (dt.getNumDays(first, last) < 14) {
       first = dt.addDays(last, -13);
@@ -330,8 +330,8 @@ function TidelineData(data, opts) {
     else {
       watson = function(d) {
         if (d.type !== 'fill') {
-          if (d.timezoneOffset != null) {
-            d.normalTime = dt.addDuration(d.time, d.timezoneOffset * MS_IN_MIN);
+          if (d.timezoneOffset != null && d.conversionOffset != null) {
+            d.normalTime = dt.addDuration(d.time, d.timezoneOffset * MS_IN_MIN + d.conversionOffset);
             d.displayOffset = 0;
           }
           else if (d.type === 'message') {
@@ -345,7 +345,7 @@ function TidelineData(data, opts) {
           }
           // timezoneOffset is an optional attribute according to the Tidepool data model
           else {
-            d.normalTime = d.time;
+            d.normalTime = d.deviceTime + '.000Z';
             d.displayOffset = 0;
           }
           if (d.deviceTime && d.normalTime.slice(0, -5) !== d.deviceTime) {
@@ -418,6 +418,12 @@ function TidelineData(data, opts) {
   startTimer('group');
   this.grouped = _.groupBy(data, function(d) { return d.type; });
   endTimer('group');
+
+  startTimer('sort groupings');
+  _.forEach(this.grouped, function(group, key) {
+     that.grouped[key] = _.sortBy(group, 'normalTime');
+  });
+  endTimer('sort groupings');
 
   startTimer('diabetesData');
   this.diabetesData = _.sortBy(_.flatten([].concat(_.map(opts.diabetesDataTypes, function(type) {

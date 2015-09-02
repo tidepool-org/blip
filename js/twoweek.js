@@ -418,6 +418,7 @@ module.exports = function(emitter) {
     mainGroup.selectAll('#tidelineXAxis g.tick text').style('text-anchor', 'start').attr('transform', 'translate(5,15)');
 
     // set the domain and range for the main two-week y-scale
+    
     yScale.domain(viewEndpoints)
       .range([nav.axisHeight, height - statsHeight])
       .ticks(d3.time.day.utc, 1);
@@ -443,6 +444,7 @@ module.exports = function(emitter) {
       nav.scrollScale = d3.time.scale.utc()
           .domain([dataEndNoon, start])
           .range([nav.axisHeight + nav.scrollThumbRadius, height - statsHeight - nav.scrollThumbRadius]);
+
     }
     else {
       nav.scrollScale = d3.time.scale.utc()
@@ -726,20 +728,19 @@ module.exports = function(emitter) {
 
     var last;
     var lastDatum = data[data.length - 1];
+
     last = new Date(lastDatum.normalTime);
+
     if (timezoneAware) {
       last = new Date(dt.applyOffset(last, lastDatum.displayOffset));
     }
 
-    function createDay(d) {
-      return new Date(d.toISOString().slice(0,11) + '00:00:00Z');
-    }
     days = _.uniq(_.pluck(_.where(data, {type: 'fill'}), 'fillDate'));
-
     dataStartNoon = new Date(days[0]);
     dataStartNoon.setUTCHours(12);
     dataStartNoon.setUTCMinutes(0);
     dataStartNoon.setUTCSeconds(0);
+
     if (!sortReverse) {
       dataStartNoon.setUTCDate(dataStartNoon.getUTCDate() - 1);
     }
@@ -756,16 +757,15 @@ module.exports = function(emitter) {
     }
 
     var viewBeginning = new Date(viewEndDate);
-    viewBeginning.setUTCDate(viewBeginning.getUTCDate() - 14);
     var firstDayInView;
+
+    viewBeginning.setUTCDate(viewBeginning.getUTCDate() - 14);
+
     if (sortReverse) {
       this.days = days;
-
       firstDayInView = new Date(days[0]);
-    }
-    else {
-      this.days = days.reverse();
-
+    } else {
+      days = days.reverse();
       firstDayInView = new Date(days[days.length - 1]);
     }
 
@@ -775,12 +775,14 @@ module.exports = function(emitter) {
       viewEndDate = new Date(firstDayInView);
       viewEndDate.setUTCDate(viewEndDate.getUTCDate() + 14);
     }
+    
     viewEndpoints = [new Date(viewBeginning.toISOString().slice(0,11) + noon), new Date(viewEndDate.toISOString().slice(0,11) + noon)];
+
     if (sortReverse) {
       viewEndpoints = viewEndpoints.reverse();
     }
-    viewIndex = days.indexOf(viewEndDate.toISOString().slice(0,10));
 
+    viewIndex = days.indexOf(viewEndDate.toISOString().slice(0,10));
     container.dataPerDay = [];
 
     var groupedByDate = _.groupBy(data, function(d) {
@@ -788,10 +790,12 @@ module.exports = function(emitter) {
     });
 
     var dates = Object.keys(groupedByDate);
+
     for (var i = 0; i < dates.length; ++i) {
       var date = dates[i];
       container.dataPerDay.push(groupedByDate[date]);
     }
+
     return container;
   };
 
