@@ -4,9 +4,20 @@ var React = require('react');
 var TestUtils = require('react/lib/ReactTestUtils');
 var _ = require('lodash');
 var expect = chai.expect;
-var Settings = require('../../../../app/components/chart/settings');
+var rewire = require('rewire');
+var rewireModule = require('../../../utils/rewireModule');
 
 describe('Settings', function () {
+  var Settings = rewire('../../../../app/components/chart/settings');
+
+  rewireModule(Settings, {
+    SettingsChart: React.createClass({
+      render: function() {
+        return (<div className='fake-settings-view'></div>);
+      }
+    })
+  });
+
   describe('render', function() {
     it('should console.warn when missing required props', function () {
       console.warn = sinon.spy();
@@ -27,7 +38,7 @@ describe('Settings', function () {
         bgPrefs: {},
         chartPrefs: {},
         patientData: {
-          grouped: { foo: 'bar' }
+          grouped: { pumpSettings: 'bar' }
         },
         onClickRefresh: function() {},
         onSwitchToDaily: function() {},
@@ -41,11 +52,12 @@ describe('Settings', function () {
       expect(elem).to.be.ok;
     });
 
-    it('should render with missing data message when no grouped data supplied', function () {
+    it('should render with missing data message when no pumpSettings data supplied', function () {
       var props = {
         bgPrefs: {},
         chartPrefs: {},
         patientData: {
+          grouped: { foo: 'bar' }
         },
         onClickRefresh: sinon.spy(),
         onSwitchToDaily: sinon.spy(),

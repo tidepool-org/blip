@@ -75,7 +75,7 @@ var PatientData = React.createClass({
           showingLines: false
         }
       },
-      chartType: 'modal',
+      chartType: 'daily',
       createMessage: null,
       createMessageDatetime: null,
       datetimeLocation: null,
@@ -236,7 +236,6 @@ var PatientData = React.createClass({
             bgPrefs={this.props.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             timePrefs={this.props.timePrefs}
-            imagesBaseUrl={config.IMAGES_ENDPOINT + '/tideline'}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
             patientData={this.props.patientData[this.props.patient.userid]}
             onClickRefresh={this.handleClickRefresh}
@@ -279,7 +278,6 @@ var PatientData = React.createClass({
             bgPrefs={this.props.bgPrefs}
             chartPrefs={this.state.chartPrefs}
             timePrefs={this.props.timePrefs}
-            imagesBaseUrl={config.IMAGES_ENDPOINT + '/tideline'}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
             patientData={this.props.patientData[this.props.patient.userid]}
             onClickRefresh={this.handleClickRefresh}
