@@ -30,7 +30,6 @@ var basicsState = require('../logic/state');
 var basicsActions = require('../logic/actions');
 
 var Section = require('./DashboardSection');
-var TimeNav = require('./TimeNavigation');
 
 var dataUrl = 'data/blip-input.json';
 
@@ -74,10 +73,6 @@ var Basics = React.createClass({
     return (
       <div className='Container--flex'>
         <div className='Column Column--left'>
-          <TimeNav dateRange={this.state.dateRange} 
-            domain={this.state.domain} 
-            timezone={this.state.timezone}
-            switchDomain={basicsActions.switchDomain} />
           {leftColumn}
         </div>
         <div className='Column Column--right'>
