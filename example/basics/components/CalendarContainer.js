@@ -81,12 +81,6 @@ var CalendarContainer = React.createClass({
 
     return (
       <div className='Container'>
-        <h4>
-          {this.props.title}
-          <a href='' onClick={this.handleToggleComponent}>
-            <i className={iconClass} />
-          </a>
-        </h4>
         <div className={containerClass} ref='container'>
           <div className='Calendar' ref='content'>
             {days}
