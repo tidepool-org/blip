@@ -38,7 +38,6 @@ var Weekly = React.createClass({
     bgPrefs: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
     timePrefs: React.PropTypes.object.isRequired,
-    imagesBaseUrl: React.PropTypes.string.isRequired,
     initialDatetimeLocation: React.PropTypes.string.isRequired,
     patientData: React.PropTypes.object.isRequired,
     onClickRefresh: React.PropTypes.func.isRequired,
@@ -276,7 +275,7 @@ var WeeklyChart = React.createClass({
   },
   mountChart: function(node, chartOpts) {
     this.log('Mounting...');
-    chartOpts = chartOpts || {imagesBaseUrl: this.props.imagesBaseUrl};
+    chartOpts = chartOpts || {};
     this.chart = chartWeeklyFactory(node, _.assign(chartOpts, _.pick(this.props, this.chartOpts)));
     this.bindEvents();
   },
