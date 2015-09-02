@@ -43,6 +43,8 @@ a {
   color: @headline;
 }
 
+@break-point: 1430px;
+
 #tidelineContainer {
   width: 75%;
   margin: 5vh auto;
@@ -51,7 +53,7 @@ a {
 
 .Container--flex {
   display: flex;
-  @media only screen and (max-width : 1365px) {
+  @media only screen and (max-width : @break-point) {
     flex-direction: column;
   }
 
@@ -65,21 +67,13 @@ a {
 
   .Column--left {
     width: 100%;
-    @media only screen and (min-width : 1365px) { width: 33%; }
+    @media only screen and (min-width : @break-point) { width: 33%; }
   }
 
   .Column--right {
     width: 100%;
-    @media only screen and (min-width : 1365px) { width: 67%; }
+    @media only screen and (min-width : @break-point) { width: 67%; }
   }
-}
-
-// animation mix-ins
-
-// open-close height-animated container
-
-.collapsible {
-  transition: height 0.15s ease-in;
 }
 
 .hard-zero {

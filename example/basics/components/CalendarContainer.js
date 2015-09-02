@@ -63,15 +63,7 @@ var CalendarContainer = React.createClass({
     days: React.PropTypes.array.isRequired,
     open: React.PropTypes.bool.isRequired,
     title: React.PropTypes.string.isRequired,
-    type: React.PropTypes.string.isRequired,
-    onRerender: React.PropTypes.func.isRequired
-  },
-  componentDidMount: function() {
-    this.setHeight();
-  },
-  componentDidUpdate: function(prevProps) {
-    this.setHeight();
-    window.setTimeout(this.props.onRerender, 175);
+    type: React.PropTypes.string.isRequired
   },
   render: function() {
     var self = this;
