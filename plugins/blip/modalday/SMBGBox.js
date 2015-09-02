@@ -17,7 +17,7 @@ d3.chart('SMBGBoxOverlay', {
     var meanCirclesGroup = this.base.append('g').attr('id', 'overlayOnTop');
 
     function getMsPer24(d) {
-      return dt.getMsPer24(d.msX, chart.timezone());
+      return dt.getMsPer24(d.msX);
     }
 
     /**
