@@ -17,58 +17,21 @@
 var React = require('react');
 
 var BrowserWarningOverlay = React.createClass({
-  propTypes: {
-    onSubmit: React.PropTypes.func
-  },
-
-  getInitialState: function() {
-    return {
-      agreed: false
-    };
-  },
 
   render: function() {
-    var submitButton = this.renderSubmitButton();
-
-    
     return (
       <div className="browser-warning-overlay js-terms">
         <div className="browser-warning-overlay-content browser-warning-overlay-box">
           <div className="browser-warning-overlay-title">WARNING</div>
           <div className="browser-warning-overlay-text">
-          <p>PLEASE NOTE: This version of <strong>Blip</strong> should only be used with the Chrome browser.</p>
-          <p><strong>THERAPY CHANGES SHOULD ONLY BE MADE AFTER CONSULTING WITH YOUR DOCTOR, AND ONLY BASED ON DATA SHOWN IN THE CHROME BROWSER.</strong></p>
+          <p>Currently Blip is only certified to work with the Chrome browser.</p>
+          <p>If you don't have Chrome installed, you can download and install it from <a href="https://www.google.com/chrome/browser/desktop/">here</a>.</p>
+          <p>Instructions for changing your default system browser are <a href="https://support.google.com/chrome/answer/95417?hl=en-GB">here</a>.</p>
+          <p>Once you have installed Chrome, please use it to visit <a href="https://blip-pilot.tidepool.io">Blip</a>.</p>
           </div>
-          <form className="browser-warning-overlay-form">
-            {submitButton}
-          </form>
         </div>
       </div>
     );
-    
-  },
-
-  renderSubmitButton: function() {
-    
-    return (
-      <button
-        className="btn btn-primary js-terms-submit"
-        onClick={this.handleSubmit}
-        >I understand, Continue.
-      </button>
-    );
-    
-  },
-
-  handleSubmit: function(e) {
-    if (e) {
-      e.preventDefault();
-    }
-
-    var submit = this.props.onSubmit;
-    if (submit) {
-      submit();
-    }
   }
 });
 
