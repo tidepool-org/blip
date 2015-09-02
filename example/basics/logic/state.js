@@ -38,7 +38,7 @@ basicsState.getInitial = function(datum, timezone) {
   timezone = timezone || 'US/Pacific';
   var latest = datum ? datum.time : new Date();
   var endOfRange = sundial.ceil(sundial.ceil(latest, 'weeks', timezone), 'days', timezone);
-  var begOfRange = d3.time.hour.utc.offset(new Date(endOfRange), -14*24);
+  var begOfRange = d3.time.hour.utc.offset(new Date(endOfRange), -35*24);
   return {
     data: {},
     dateRange: [
@@ -46,7 +46,6 @@ basicsState.getInitial = function(datum, timezone) {
       new Date(endOfRange.valueOf() - 1)
     ],
     days: basicsActions.getCurrentDays([begOfRange, endOfRange], timezone),
-    domain: '2 weeks',
     sections: {
       basalBolusRatio: {
         active: true,
