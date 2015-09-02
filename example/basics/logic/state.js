@@ -57,36 +57,6 @@ basicsState.getInitial = function(datum, timezone) {
         types: ['basal', 'bolus'],
         open: true
       },
-      basals: {
-        active: true,
-        column: 'right',
-        index: 3,
-        title: 'Basals',
-        open: true,
-        components: {
-          rates: {
-            active: true,
-            chart: BasalRates,
-            container: BasicContainer,
-            title: 'Basal rates',
-            type: 'settings'
-          },
-          suspends: {
-            active: false,
-            container: CalendarContainer,
-            open: true,
-            title: 'Suspends',
-            type: 'basal'
-          },
-          temps: {
-            active: false,
-            container: CalendarContainer,
-            open: true,
-            title: 'Temp basals',
-            type: 'basal'
-          }
-        }
-      },
       bgDistribution: {
         active: true,
         chart: BGDistribution,
@@ -111,20 +81,6 @@ basicsState.getInitial = function(datum, timezone) {
             open: true,
             title: 'Fingersticks',
             type: 'smbg'
-          },
-          cgm: {
-            active: false,
-            container: CalendarContainer,
-            open: true,
-            title: 'CGM use',
-            type: 'cbg'
-          },
-          cgmCalibration: {
-            active: false,
-            container: CalendarContainer,
-            open: true,
-            title: 'CGM calibration',
-            type: 'deviceMeta'
           }
         }
       },
