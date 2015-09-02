@@ -27,9 +27,9 @@ var BrowserWarningOverlay = React.createClass({
           <div className="browser-warning-overlay-title">WARNING</div>
           <div className="browser-warning-overlay-text">
           <p>Currently Blip is only certified to work with the Chrome browser.</p>
-          <p>If you don't have Chrome installed, you can download and install it from <a href="https://www.google.com/chrome/browser/desktop/">here</a></p>
-          <p>Instructions for changing your default system browser are <a href="https://support.google.com/chrome/answer/95417?hl=en-GB">here</a></p>
-          <p>Once you have installed Chrome, please use it to visit <a href="https://blip.tidepool.io">Blip</a></p>
+          <p>If you don't have Chrome installed, you can download and install it from <a href="https://www.google.com/chrome/browser/desktop/">here</a>.</p>
+          <p>Instructions for changing your default system browser are <a href="https://support.google.com/chrome/answer/95417?hl=en-GB">here</a>.</p>
+          <p>Once you have installed Chrome, please use it to visit <a href="https://blip-pilot.tidepool.io">Blip</a>.</p>
           </div>
         </div>
       </div>
