@@ -13,7 +13,6 @@
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
-'use strict';
 
 var React = require('react');
 var bows = require('bows');
