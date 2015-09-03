@@ -68,17 +68,7 @@ module.exports = function(pool, opts) {
         .attr({
           cursor: opts.cursor ? opts.cursor : 'auto',
           x: function(d, i) {
-            if (opts.dataGutter) {
-              if (i === currentData.length - 1) {
-                return fill.xPosition(d) - opts.dataGutter;
-              }
-              else {
-                return fill.xPosition(d);
-              }
-            }
-            else {
-              return fill.xPosition(d);
-            }
+            return fill.xPosition(d);
           },
           y: function() {
             if (opts.gutter.top) {
@@ -89,17 +79,7 @@ module.exports = function(pool, opts) {
             }
           },
           width: function(d, i) {
-            if (opts.dataGutter) {
-              if ((i === 0) || (i === currentData.length  - 1)) {
-                return fill.width(d) + opts.dataGutter;
-              }
-              else {
-                return fill.width(d);
-              }
-            }
-            else {
-              return fill.width(d);
-            }
+            return fill.width(d);
           },
           height: function() {
             if (opts.gutter.top) {
@@ -127,23 +107,15 @@ module.exports = function(pool, opts) {
       // Add midnight markers
       if (opts.isDaily) {
         selection.selectAll('rect.d3-fill-midnight')
-        .data(_.filter(currentData, {startsAtMidnight: true}))
+        .data(_.filter(currentData, {startsAtMidnight: true}), function(d) {
+          return d.id;
+        })
         .enter()
         .append('rect')
         .attr({
           x: function(d, i) {
             var pos;
-            if (opts.dataGutter) {
-              if (i === currentData.length - 1) {
-                pos = fill.xPosition(d) - opts.dataGutter;
-              }
-              else {
-                pos = fill.xPosition(d);
-              }
-            }
-            else {
-              pos = fill.xPosition(d);
-            }
+            pos = fill.xPosition(d);
             return pos - (opts.midnightWidth/2);
           },
           y: function() {
