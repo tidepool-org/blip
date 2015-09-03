@@ -214,6 +214,7 @@ function chartDailyFactory(el, options) {
     // add background fill rectangles to BG pool
     poolBG.addPlotType('fill', fill(poolBG, {
       endpoints: chart.endpoints,
+      isDaily: true,
       guidelines: [
         {
           'class': 'd3-line-bg-threshold',
@@ -261,6 +262,7 @@ function chartDailyFactory(el, options) {
 
     poolBolus.addPlotType('fill', fill(poolBolus, {
       endpoints: chart.endpoints,
+      isDaily: true,
       yScale: scaleHeight
     }), true, true);
 
@@ -290,7 +292,7 @@ function chartDailyFactory(el, options) {
       .outerTickSize(0)
       .ticks(2));
     // add background fill rectangles to basal pool
-    poolBasal.addPlotType('fill', fill(poolBasal, {endpoints: chart.endpoints}), true, true);
+    poolBasal.addPlotType('fill', fill(poolBasal, {endpoints: chart.endpoints, isDaily: true}), true, true);
 
     // add basal data to basal pool
     poolBasal.addPlotType('basal', tideline.plot.basal(poolBasal, {
@@ -304,6 +306,7 @@ function chartDailyFactory(el, options) {
     // add background fill rectangles to messages pool
     poolMessages.addPlotType('fill', fill(poolMessages, {
       emitter: emitter,
+      isDaily: true,
       cursor: 'cell'
     }), true, true);
 
