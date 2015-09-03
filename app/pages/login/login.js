@@ -62,7 +62,7 @@ var Login = React.createClass({
     var forgotPassword = this.renderForgotPassword();
     var inviteIntro = this.renderInviteIntroduction();
 
-    /* jshint ignore:start */
+    
     return (
       <div className="login">
         <LoginNav
@@ -79,7 +79,7 @@ var Login = React.createClass({
         </div>
       </div>
     );
-    /* jshint ignore:end */
+    
   },
 
   renderInviteIntroduction: function() {
@@ -97,7 +97,7 @@ var Login = React.createClass({
   renderForm: function() {
     var submitButtonText = this.state.working ? 'Logging in...' : 'Log in';
 
-    /* jshint ignore:start */
+    
     return (
       <SimpleForm
         inputs={this.formInputs()}
@@ -108,7 +108,7 @@ var Login = React.createClass({
         onSubmit={this.handleSubmit}
         notification={this.state.notification}/>
     );
-    /* jshint ignore:end */
+    
   },
 
   logPasswordReset : function() {
