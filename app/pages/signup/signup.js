@@ -136,7 +136,7 @@ var Signup = React.createClass({
       submitButtonText = 'Signing up...';
     }
 
-    /* jshint ignore:start */
+    
     return (
       <SimpleForm
         inputs={this.formInputs()}
@@ -147,7 +147,7 @@ var Signup = React.createClass({
         onSubmit={this.handleSubmit}
         notification={this.state.notification}/>
     );
-    /* jshint ignore:end */
+    
   },
 
   handleSubmit: function(formValues) {

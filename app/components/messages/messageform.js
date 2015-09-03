@@ -19,8 +19,6 @@ not, you can obtain one from Tidepool Project at tidepool.org.
 == BSD2 LICENSE ==
 */
 
-'use strict';
-
 var React = require('react');
 var _ = require('lodash');
 var sundial = require('sundial');
@@ -226,7 +224,7 @@ var MessageForm = React.createClass({
     var msg = this.state.msg;
     return !(msg && msg.length);
   },
-  /* jshint ignore:start */
+  
   /*
    * Just displays the notes date if it is set
    */
@@ -334,7 +332,7 @@ var MessageForm = React.createClass({
       </form>
     );
   }
-  /* jshint ignore:end */
+  
 });
 
 module.exports = MessageForm;

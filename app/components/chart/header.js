@@ -88,7 +88,7 @@ var TidelineHeader = React.createClass({
       'patient-data-subnav-hidden': this.props.chartType === 'no-data'
     });
 
-    /* jshint ignore:start */
+    
     return (
       <div className="container-box-outer patient-data-subnav-outer">
         <div className="container-box-inner patient-data-subnav-inner">
@@ -113,7 +113,7 @@ var TidelineHeader = React.createClass({
         </div>
       </div>
       );
-    /* jshint ignore:end */
+    
   }
 });
 
