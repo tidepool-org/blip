@@ -57,7 +57,7 @@
     "moment": "2.9.0",
     "phantomjs": "1.9.17",
     "react-tools": "0.13.2",
-    "rewire": "^2.3.4",
+    "rewire": "2.3.4",
     "rewire-webpack": "^1.0.0",
     "salinity": "0.0.7",
     "sinon": "1.14.1",
