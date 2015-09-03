@@ -56,7 +56,7 @@ var WeeklyChart = React.createClass({
   },
   mountChart: function(node, chartOpts) {
     this.log('Mounting...');
-    chartOpts = chartOpts || {imagesBaseUrl: this.props.imagesBaseUrl};
+    chartOpts = chartOpts || {};
     this.chart = chartWeeklyFactory(node, _.assign(chartOpts, _.pick(this.props, this.chartOpts)));
     this.bindEvents();
   },
@@ -84,11 +84,11 @@ var WeeklyChart = React.createClass({
     }
   },
   render: function() {
-    
+    /* jshint ignore:start */
     return (
       <div id="tidelineContainer" className="patient-data-chart"></div>
       );
-    
+    /* jshint ignore:end */
   },
   // handlers
   handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
@@ -126,7 +126,6 @@ var Weekly = React.createClass({
     bgPrefs: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
     timePrefs: React.PropTypes.object.isRequired,
-    imagesBaseUrl: React.PropTypes.string.isRequired,
     initialDatetimeLocation: React.PropTypes.string.isRequired,
     patientData: React.PropTypes.object.isRequired,
     onClickRefresh: React.PropTypes.func.isRequired,

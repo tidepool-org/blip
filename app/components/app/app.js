@@ -121,7 +121,6 @@ var AppComponent = React.createClass({
       showingWelcomeTitle: false,
       showingWelcomeSetup: false,
       showPatientData: false,
-      dismissedBrowserWarning: false,
       verificationEmailSent: false,
       finalizingVerification: false,
       queryParams: queryParams
@@ -222,9 +221,9 @@ var AppComponent = React.createClass({
 
     }
 
-    if (!utils.isChrome() && !this.state.dismissedBrowserWarning) {
+    if (!utils.isChrome()) {
       return (
-        <BrowserWarningOverlay onSubmit={this.handleAcceptedBrowserWarning} />
+        <BrowserWarningOverlay />
       );
 
     }
@@ -916,12 +915,6 @@ var AppComponent = React.createClass({
     });
   },
 
-  handleAcceptedBrowserWarning: function() {
-    this.setState({
-      dismissedBrowserWarning: true
-    });
-  },
-
   logout: function() {
     var self = this;
 
@@ -930,8 +923,7 @@ var AppComponent = React.createClass({
     }
 
     self.setState({
-      loggingOut: true,
-      dismissedBrowserWarning: false
+      loggingOut: true
     });
 
     // Need to track this before expiring auth token
@@ -1238,7 +1230,6 @@ var AppComponent = React.createClass({
       fetchingPatients: true,
       fetchingInvites: true,
       showingWelcomeSetup: false,
-      dismissedBrowserWarning: false,
       showPatientData: false
     });
   },

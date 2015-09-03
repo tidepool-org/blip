@@ -27,16 +27,14 @@ var chartDailyFactory = tidelineBlip.oneday;
 var Header = require('./header');
 var Footer = require('./footer');
 
-
 var DailyChart = React.createClass({
-  chartOpts: ['bgClasses', 'bgUnits', 'bolusRatio', 'dynamicCarbs', 'imagesBaseUrl', 'timePrefs'],
+  chartOpts: ['bgClasses', 'bgUnits', 'bolusRatio', 'dynamicCarbs', 'timePrefs'],
   log: bows('Daily Chart'),
   propTypes: {
     bgClasses: React.PropTypes.object.isRequired,
     bgUnits: React.PropTypes.string.isRequired,
     bolusRatio: React.PropTypes.number,
     dynamicCarbs: React.PropTypes.bool,
-    imagesBaseUrl: React.PropTypes.string.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
     timePrefs: React.PropTypes.object.isRequired,
@@ -95,11 +93,11 @@ var DailyChart = React.createClass({
     }
   },
   render: function() {
-    
+    /* jshint ignore:start */
     return (
       <div id="tidelineContainer" className="patient-data-chart"></div>
       );
-    
+    /* jshint ignore:end */
   },
   // handlers
   handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
@@ -144,7 +142,6 @@ var Daily = React.createClass({
     bgPrefs: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
     timePrefs: React.PropTypes.object.isRequired,
-    imagesBaseUrl: React.PropTypes.string.isRequired,
     initialDatetimeLocation: React.PropTypes.string,
     patientData: React.PropTypes.object.isRequired,
     // refresh handler
@@ -195,7 +192,6 @@ var Daily = React.createClass({
                 bgUnits={this.props.bgPrefs.bgUnits}
                 bolusRatio={this.props.chartPrefs.bolusRatio}
                 dynamicCarbs={this.props.chartPrefs.dynamicCarbs}
-                imagesBaseUrl={this.props.imagesBaseUrl}
                 initialDatetimeLocation={this.props.initialDatetimeLocation}
                 patientData={this.props.patientData}
                 timePrefs={this.props.timePrefs}
