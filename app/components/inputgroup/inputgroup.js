@@ -44,7 +44,7 @@ var InputGroup = React.createClass({
     var message = this.renderMessage();
 
     return (
-      /* jshint ignore:start */
+      
       <div className={className}>
         <div>
           {label}
@@ -52,7 +52,7 @@ var InputGroup = React.createClass({
         </div>
         {message}
       </div>
-      /* jshint ignore:end */
+      
     );
   },
 
@@ -68,12 +68,12 @@ var InputGroup = React.createClass({
 
     if (text) {
       return (
-        /* jshint ignore:start */
+        
         <label
           className="input-group-label"
           htmlFor={htmlFor}
           ref="label">{text}</label>
-        /* jshint ignore:end */
+        
       );
     }
 
@@ -96,7 +96,7 @@ var InputGroup = React.createClass({
     }
 
     return (
-      /* jshint ignore:start */
+      
       <input
         type={type}
         className="input-group-control form-control"
@@ -107,14 +107,14 @@ var InputGroup = React.createClass({
         onChange={this.handleChange}
         disabled={this.props.disabled}
         ref="control"/>
-      /* jshint ignore:end */
+      
     );
   },
 
   renderTextArea: function() {
     var rows = this.props.rows || this.DEFAULT_TEXTAREA_ROWS;
 
-    /* jshint ignore:start */
+    
     return (
       <textarea
         className="input-group-control form-control"
@@ -127,13 +127,13 @@ var InputGroup = React.createClass({
         disabled={this.props.disabled}
         ref="control"></textarea>
     );
-    /* jshint ignore:end */
+    
   },
 
   renderCheckbox: function() {
 
     return (
-      /* jshint ignore:start */
+      
       <label
         className="input-group-checkbox-label"
         htmlFor={this.props.name}
@@ -150,7 +150,7 @@ var InputGroup = React.createClass({
         {' '}
         {this.props.label}
       </label>
-      /* jshint ignore:end */
+      
     );
   },
 
@@ -159,7 +159,7 @@ var InputGroup = React.createClass({
     var radios = _.map(this.props.items, function(radio, index) {
       var id = self.props.name + index;
       var checked = (self.props.value === radio.value);
-      /* jshint ignore:start */
+      
       return (
         <label
           className="input-group-radio-label"
@@ -180,15 +180,15 @@ var InputGroup = React.createClass({
           {radio.label}
         </label>
       );
-      /* jshint ignore:end */
+      
     });
 
     return (
-      /* jshint ignore:start */
+      
       <div className="input-group-radios">
         {radios}
       </div>
-      /* jshint ignore:end */
+      
     );
   },
 
@@ -196,11 +196,11 @@ var InputGroup = React.createClass({
     var error = this.props.error;
     if (error) {
       return (
-        /* jshint ignore:start */
+        
         <div
           className="input-group-message form-help-block"
           ref="message">{error}</div>
-        /* jshint ignore:end */
+        
       );
     }
     return null;

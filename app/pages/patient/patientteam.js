@@ -67,7 +67,7 @@ var PermissionInputGroup = React.createClass({
   },
   render: function() {
     return (
-      /* jshint ignore:start */
+      
       <InputGroup
         name={this.state.name}
         type="checkbox"
@@ -75,7 +75,7 @@ var PermissionInputGroup = React.createClass({
         disabled={this.state.working}
         value={this.state.value}
         onChange={this.handleChange}/>
-        /* jshint ignore:end */
+        
     );
   }
 });
@@ -361,7 +361,7 @@ var PatientTeam = React.createClass({
     var iconClasses = cx(classes);
 
     return (
-      /* jshint ignore:start */
+      
       <li key={member.userid} className="PatientTeam-member">
         <div className="PatientInfo-head">
           <div className="PatientTeam-picture PatientInfo-picture"></div>
@@ -375,7 +375,7 @@ var PatientTeam = React.createClass({
           </div>
         </div>
       </li>
-      /* jshint ignore:end */
+      
     );
 
   },
@@ -424,7 +424,7 @@ var PatientTeam = React.createClass({
   renderPendingInvite: function(invite) {
 
     return (
-      /* jshint ignore:start */
+      
       <li key={invite.key} className="PatientTeam-member--fadeNew  PatientTeam-member">
         <div className="PatientInfo-head">
           <div className="PatientTeam-picture PatientInfo-picture"></div>
@@ -438,7 +438,7 @@ var PatientTeam = React.createClass({
           </div>
         </div>
       </li>
-      /* jshint ignore:end */
+      
     );
 
   },
@@ -465,12 +465,12 @@ var PatientTeam = React.createClass({
     };
 
     return(
-      /* jshint ignore:start */
+      
       <MemberInviteForm
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         trackMetric={this.props.trackMetric}/>
-      /* jshint ignore:end */
+      
     );
 
   },
@@ -498,7 +498,7 @@ var PatientTeam = React.createClass({
     };
 
     return (
-      /* jshint ignore:start */
+      
       <li className={classes}>
         <div className="PatientInfo-head">
           <div className="PatientTeam-picture PatientInfo-picture PatientTeam-picture--newMember"></div>
@@ -509,7 +509,7 @@ var PatientTeam = React.createClass({
           </div>
         </div>
       </li>
-      /* jshint ignore:end */
+      
     );
 
   },
@@ -523,12 +523,12 @@ var PatientTeam = React.createClass({
   renderModalOverlay: function() {
 
     return (
-      /* jshint ignore:start */
+      
       <ModalOverlay
         show={this.state.showModalOverlay}
         dialog={this.state.dialog}
         overlayClickHandler={this.overlayClickHandler}/>
-      /* jshint ignore:end */
+      
     );
 
   },

@@ -76,7 +76,7 @@ var Signup = React.createClass({
     var form = this.renderForm();
     var inviteIntro = this.renderInviteIntroduction();
 
-    /* jshint ignore:start */
+    
     return (
       <div className="signup">
         <LoginNav
@@ -92,7 +92,7 @@ var Signup = React.createClass({
         </div>
       </div>
     );
-    /* jshint ignore:end */
+    
   },
 
   renderInviteIntroduction: function() {
@@ -113,7 +113,7 @@ var Signup = React.createClass({
       submitButtonText = 'Signing up...';
     }
 
-    /* jshint ignore:start */
+    
     return (
       <SimpleForm
         inputs={this.formInputs()}
@@ -124,7 +124,7 @@ var Signup = React.createClass({
         onSubmit={this.handleSubmit}
         notification={this.state.notification}/>
     );
-    /* jshint ignore:end */
+    
   },
 
   handleSubmit: function(formValues) {

@@ -43,7 +43,7 @@ var NavbarPatientCard = React.createClass({
     var share = this.renderShare(patient);
     var profile = this.renderProfile(patient);
 
-    /* jshint ignore:start */
+    
     return (
       <div className={classes}>
         <i className="Navbar-icon icon-face-standin"></i>
@@ -58,7 +58,7 @@ var NavbarPatientCard = React.createClass({
         <div className="clear"></div>
       </div>
     );
-    /* jshint ignore:end */
+    
   },
 
   renderView: function() {
@@ -73,9 +73,9 @@ var NavbarPatientCard = React.createClass({
     };
 
     return (
-      /* jshint ignore:start */
+      
       <a className={classes} onClick={handleClick} href={this.props.href}>View</a>
-      /* jshint ignore:end */
+      
     );
   },
 
@@ -97,14 +97,14 @@ var NavbarPatientCard = React.createClass({
     };
 
     return (
-      /* jshint ignore:start */
+      
       <a className={classes} href={url} onClick={handleClick} title="Profile">
         <div className="patientcard-fullname" title={this.getFullName()}>
           {this.getFullName()}
           <i className="patientcard-icon icon-settings"></i>
         </div>
       </a>
-      /* jshint ignore:end */
+      
     );
   },
 
@@ -124,9 +124,9 @@ var NavbarPatientCard = React.createClass({
 
     if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
       return (
-        /* jshint ignore:start */
+        
         <a href="" onClick={handleClick} className={classes} title="Upload data">Upload</a>
-        /* jshint ignore:end */
+        
       );
     }
 
@@ -151,9 +151,9 @@ var NavbarPatientCard = React.createClass({
 
     if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
       return (
-        /* jshint ignore:start */
+        
         <a className={classes} onClick={handleClick} href={shareUrl} title="Share data">Share</a>
-        /* jshint ignore:end */
+        
       );
     }
 

@@ -19,8 +19,6 @@ var React = require('react');
 var BrowserWarningOverlay = React.createClass({
 
   render: function() {
-
-    /* jshint ignore:start */
     return (
       <div className="browser-warning-overlay js-terms">
         <div className="browser-warning-overlay-content browser-warning-overlay-box">
@@ -34,7 +32,6 @@ var BrowserWarningOverlay = React.createClass({
         </div>
       </div>
     );
-    /* jshint ignore:end */
   }
 });
 
