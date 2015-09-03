@@ -63,8 +63,7 @@ var Messages = React.createClass({
     }
     return saveEdit;
   },
-  renderNote: function(message) {
-    /* jshint ignore:start */
+  renderNote: function(message){
     return (
       <Message
         key={message.id}
@@ -73,10 +72,9 @@ var Messages = React.createClass({
         onSaveEdit={this.getSaveEdit(message.userid)}
         timePrefs={this.props.timePrefs} />
       );
-    /* jshint ignore:end */
+    
   },
-  renderComment: function(message) {
-    /* jshint ignore:start */
+  renderComment: function(message){
     return (
       <Message
         key={message.id}
@@ -85,7 +83,7 @@ var Messages = React.createClass({
         onSaveEdit={this.getSaveEdit(message.userid)}
         timePrefs={this.props.timePrefs} />
       );
-    /* jshint ignore:end */
+    
   },
   renderThread: function() {
     if (this.isMessageThread()) {
@@ -97,11 +95,11 @@ var Messages = React.createClass({
         }
       }.bind(this));
 
-      /* jshint ignore:start */
+      
       return (
         <div className='messages-thread'>{thread}</div>
       );
-      /* jshint ignore:end */
+      
     }
 
     return;
@@ -112,7 +110,7 @@ var Messages = React.createClass({
   renderCommentOnThreadForm: function() {
     var submitButtonText = 'Comment';
 
-    /* jshint ignore:start */
+    
     return (
       <div className='messages-form'>
         <MessageForm
@@ -122,12 +120,11 @@ var Messages = React.createClass({
           timePrefs={this.props.timePrefs} />
       </div>
     );
-    /* jshint ignore:end */
   },
   renderNewThreadForm: function() {
     var submitButtonText = 'Post';
 
-    /* jshint ignore:start */
+    
     return (
       <div className='messages-form'>
         <MessageForm
@@ -139,12 +136,10 @@ var Messages = React.createClass({
           timePrefs={this.props.timePrefs} />
       </div>
     );
-    /* jshint ignore:end */
   },
-  renderClose: function() {
-    /* jshint ignore:start */
+  renderClose:function(){
     return (<a className='messages-close' onClick={this.handleClose}>Close</a>);
-    /* jshint ignore:end */
+    
   },
   render: function() {
     var thread = this.renderThread();
@@ -158,7 +153,7 @@ var Messages = React.createClass({
     }
 
     return (
-     /* jshint ignore:start */
+     
      <div className='messages'>
       <div className='messages-inner'>
         <div className='messages-header'>
@@ -170,7 +165,6 @@ var Messages = React.createClass({
         </div>
       </div>
      </div>
-     /* jshint ignore:end */
     );
   },
   getParent: function() {

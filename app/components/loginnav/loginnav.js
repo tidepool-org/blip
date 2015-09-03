@@ -29,7 +29,7 @@ var LoginNav = React.createClass({
     var logo = this.renderLogo();
     var link = this.renderLink();
 
-    /* jshint ignore:start */
+    
     return (
       <div className="container-nav-outer login-nav">
         <div className="container-nav-inner nav-wrapper">
@@ -46,11 +46,11 @@ var LoginNav = React.createClass({
         </div>
       </div>
     );
-    /* jshint ignore:end */
+    
   },
 
   renderLogo: function() {
-    /* jshint ignore:start */
+    
     return (
       <a
         href="http://tidepool.org/"
@@ -59,7 +59,7 @@ var LoginNav = React.createClass({
         <img src={logoSrc} alt="Tidepool"/>
       </a>
     );
-    /* jshint ignore:end */
+    
   },
 
   renderLink: function() {
@@ -88,11 +88,11 @@ var LoginNav = React.createClass({
     }
 
     return (
-      /* jshint ignore:start */
+      
       <a
         href={href}
         className={className}><i className={icon}></i>{' ' + text}</a>
-      /* jshint ignore:end */
+      
     );
   }
 });

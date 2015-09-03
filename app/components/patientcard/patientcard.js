@@ -55,7 +55,7 @@ var PatientCard = React.createClass({
     var share = this.renderShare(patient);
     var profile = this.renderProfile(patient);
 
-    /* jshint ignore:start */
+    
     return (
       <div>
         <div onMouseEnter={this.setHighlight('view')} onMouseLeave={this.setHighlight('')} className={classes}
@@ -77,7 +77,7 @@ var PatientCard = React.createClass({
         {this.renderModalOverlay()}
       </div>
     );
-    /* jshint ignore:end */
+    
   },
 
   renderView: function() {
@@ -93,9 +93,9 @@ var PatientCard = React.createClass({
     };
 
     return (
-      /* jshint ignore:start */
+      
       <a className={classes} href={this.props.href} onClick={handleClick}>View</a>
-      /* jshint ignore:end */
+      
     );
   },
 
@@ -121,11 +121,11 @@ var PatientCard = React.createClass({
     });
 
     return (
-      /* jshint ignore:start */
+      
       <a className={classes} onClick={this.stopPropagation} onMouseEnter={this.setHighlight('profile')} onMouseLeave={this.setHighlight('view')} href={url} title="Profile">
         <i className={iconClass}></i>
       </a>
-      /* jshint ignore:end */
+      
     );
   },
 
@@ -138,11 +138,11 @@ var PatientCard = React.createClass({
       var title = 'Remove yourself from ' + this.getFullName() + "'s care team.";
 
       return (
-        /* jshint ignore:start */
+        
         <a className={classes} href="" onMouseEnter={this.setHighlight('remove')} onMouseLeave={this.setHighlight('view')} onClick={this.handleRemove(patient)} title={title}>
           <i className="Navbar-icon icon-delete"></i>
         </a>
-        /* jshint ignore:end */
+        
       );
     }
   },
@@ -165,9 +165,9 @@ var PatientCard = React.createClass({
 
     if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
       return (
-        /* jshint ignore:start */
+        
         <a className={classes} href='' onClick={handleClick} onMouseEnter={this.setHighlight('upload')} onMouseLeave={this.setHighlight('view')} title="Upload data">Upload</a>
-        /* jshint ignore:end */
+        
       );
     }
 
@@ -192,9 +192,9 @@ var PatientCard = React.createClass({
 
     if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
       return (
-        /* jshint ignore:start */
+        
         <a className={classes} onClick={handleClick} onMouseEnter={this.setHighlight('share')} onMouseLeave={this.setHighlight('view')} href={shareUrl} title="Share data">Share</a>
-        /* jshint ignore:end */
+        
       );
     }
 
@@ -203,7 +203,7 @@ var PatientCard = React.createClass({
 
   renderRemoveDialog: function(patient) {
     return (
-      /* jshint ignore:start */
+      
       <div>
         <div className="ModalOverlay-content">{"Are you sure you want to leave this person's Care Team? You will no longer be able to view their data."}</div>
         <div className="ModalOverlay-controls">
@@ -211,18 +211,18 @@ var PatientCard = React.createClass({
           <button className="PatientInfo-button PatientInfo-button--warning PatientInfo-button--primary" type="submit" onClick={this.handleRemovePatient(patient)}>{"I'm sure, remove me."}</button>
         </div>
       </div>
-      /* jshint ignore:end */
+      
     );
   },
 
   renderModalOverlay: function() {
     return (
-      /* jshint ignore:start */
+      
       <ModalOverlay
         show={this.state.showModalOverlay}
         dialog={this.state.dialog}
         overlayClickHandler={this.overlayClickHandler}/>
-      /* jshint ignore:end */
+      
     );
 
   },

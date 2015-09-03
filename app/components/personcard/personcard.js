@@ -32,16 +32,16 @@ var PersonCard = React.createClass({
     });
 
     if (!this.isClickable()) {
-      /* jshint ignore:start */
+      
       return (
         <div className={classes}>
           {this.props.children}
         </div>
       );
-      /* jshint ignore:end */
+      
     }
 
-    /* jshint ignore:start */
+    
     return (
       <a
         className={classes}
@@ -50,7 +50,7 @@ var PersonCard = React.createClass({
         {this.props.children}
       </a>
     );
-    /* jshint ignore:end */
+    
   },
 
   isClickable: function() {

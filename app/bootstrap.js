@@ -126,9 +126,7 @@ appContext.start = function() {
   this.init(function() {
     self.log('Starting app...');
     self.component = React.render(
-      /* jshint ignore:start */
       <Bootstrap />,
-      /* jshint ignore:end */
       document.getElementById('app')
     );
 
