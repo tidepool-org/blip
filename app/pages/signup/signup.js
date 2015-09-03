@@ -97,7 +97,7 @@ var Signup = React.createClass({
           <div className="waitlist">
             <WaitList />
           </div>
-        )
+        );
       } else {
         return (
           <div className="signup">
