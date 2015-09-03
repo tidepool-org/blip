@@ -27,6 +27,116 @@ var chartDailyFactory = tidelineBlip.oneday;
 var Header = require('./header');
 var Footer = require('./footer');
 
+
+var DailyChart = React.createClass({
+  chartOpts: ['bgClasses', 'bgUnits', 'bolusRatio', 'dynamicCarbs', 'imagesBaseUrl', 'timePrefs'],
+  log: bows('Daily Chart'),
+  propTypes: {
+    bgClasses: React.PropTypes.object.isRequired,
+    bgUnits: React.PropTypes.string.isRequired,
+    bolusRatio: React.PropTypes.number,
+    dynamicCarbs: React.PropTypes.bool,
+    imagesBaseUrl: React.PropTypes.string.isRequired,
+    initialDatetimeLocation: React.PropTypes.string,
+    patientData: React.PropTypes.object.isRequired,
+    timePrefs: React.PropTypes.object.isRequired,
+    // message handlers
+    onCreateMessage: React.PropTypes.func.isRequired,
+    onShowMessageThread: React.PropTypes.func.isRequired,
+    // other handlers
+    onDatetimeLocationChange: React.PropTypes.func.isRequired,
+    onMostRecent: React.PropTypes.func.isRequired,
+    onTransition: React.PropTypes.func.isRequired
+  },
+  getInitialState: function() {
+    return {
+      datetimeLocation: null
+    };
+  },
+  componentDidMount: function() {
+    this.mountChart();
+    this.initializeChart(this.props.initialDatetimeLocation);
+  },
+  componentWillUnmount: function() {
+    this.unmountChart();
+  },
+  mountChart: function() {
+    this.log('Mounting...');
+    this.chart = chartDailyFactory(this.getDOMNode(), _.pick(this.props, this.chartOpts))
+      .setupPools();
+    this.bindEvents();
+  },
+  unmountChart: function() {
+    this.log('Unmounting...');
+    this.chart.destroy();
+  },
+  bindEvents: function() {
+    this.chart.emitter.on('createMessage', this.props.onCreateMessage);
+    this.chart.emitter.on('inTransition', this.props.onTransition);
+    this.chart.emitter.on('messageThread', this.props.onShowMessageThread);
+    this.chart.emitter.on('mostRecent', this.props.onMostRecent);
+    this.chart.emitter.on('navigated', this.handleDatetimeLocationChange);
+  },
+  initializeChart: function(datetime) {
+    this.log('Initializing...');
+    if (_.isEmpty(this.props.patientData)) {
+      throw new Error('Cannot create new chart with no data');
+    }
+
+    this.chart.load(this.props.patientData);
+    if (datetime) {
+      this.chart.locate(datetime);
+    }
+    else if (this.state.datetimeLocation != null) {
+      this.chart.locate(this.state.datetimeLocation);
+    }
+    else {
+      this.chart.locate();
+    }
+  },
+  render: function() {
+    
+    return (
+      <div id="tidelineContainer" className="patient-data-chart"></div>
+      );
+    
+  },
+  // handlers
+  handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
+    this.setState({
+      datetimeLocation: datetimeLocationEndpoints[1]
+    });
+    this.props.onDatetimeLocationChange(datetimeLocationEndpoints);
+  },
+  rerenderChart: function() {
+    this.unmountChart();
+    this.mountChart();
+    this.initializeChart();
+  },
+  getCurrentDay: function() {
+    return this.chart.getCurrentDay().toISOString();
+  },
+  goToMostRecent: function() {
+    this.chart.setAtDate(null, true);
+  },
+  panBack: function() {
+    this.chart.panBack();
+  },
+  panForward: function() {
+    this.chart.panForward();
+  },
+  // methods for messages
+  closeMessage: function() {
+    return this.chart.closeMessage();
+  },
+  createMessage: function(message) {
+    return this.chart.createMessage(message);
+  },
+  editMessage: function(message) {
+    return this.chart.editMessage(message);
+  }
+});
+
 var Daily = React.createClass({
   chartType: 'daily',
   log: bows('Daily View'),
@@ -184,114 +294,6 @@ var Daily = React.createClass({
   },
   editMessageThread: function(message) {
     return this.refs.chart.editMessage(message);
-  }
-});
-
-var DailyChart = React.createClass({
-  chartOpts: ['bgClasses', 'bgUnits', 'bolusRatio', 'dynamicCarbs', 'timePrefs'],
-  log: bows('Daily Chart'),
-  propTypes: {
-    bgClasses: React.PropTypes.object.isRequired,
-    bgUnits: React.PropTypes.string.isRequired,
-    bolusRatio: React.PropTypes.number,
-    dynamicCarbs: React.PropTypes.bool,
-    initialDatetimeLocation: React.PropTypes.string,
-    patientData: React.PropTypes.object.isRequired,
-    timePrefs: React.PropTypes.object.isRequired,
-    // message handlers
-    onCreateMessage: React.PropTypes.func.isRequired,
-    onShowMessageThread: React.PropTypes.func.isRequired,
-    // other handlers
-    onDatetimeLocationChange: React.PropTypes.func.isRequired,
-    onMostRecent: React.PropTypes.func.isRequired,
-    onTransition: React.PropTypes.func.isRequired
-  },
-  getInitialState: function() {
-    return {
-      datetimeLocation: null
-    };
-  },
-  componentDidMount: function() {
-    this.mountChart();
-    this.initializeChart(this.props.initialDatetimeLocation);
-  },
-  componentWillUnmount: function() {
-    this.unmountChart();
-  },
-  mountChart: function() {
-    this.log('Mounting...');
-    this.chart = chartDailyFactory(this.getDOMNode(), _.pick(this.props, this.chartOpts))
-      .setupPools();
-    this.bindEvents();
-  },
-  unmountChart: function() {
-    this.log('Unmounting...');
-    this.chart.destroy();
-  },
-  bindEvents: function() {
-    this.chart.emitter.on('createMessage', this.props.onCreateMessage);
-    this.chart.emitter.on('inTransition', this.props.onTransition);
-    this.chart.emitter.on('messageThread', this.props.onShowMessageThread);
-    this.chart.emitter.on('mostRecent', this.props.onMostRecent);
-    this.chart.emitter.on('navigated', this.handleDatetimeLocationChange);
-  },
-  initializeChart: function(datetime) {
-    this.log('Initializing...');
-    if (_.isEmpty(this.props.patientData)) {
-      throw new Error('Cannot create new chart with no data');
-    }
-
-    this.chart.load(this.props.patientData);
-    if (datetime) {
-      this.chart.locate(datetime);
-    }
-    else if (this.state.datetimeLocation != null) {
-      this.chart.locate(this.state.datetimeLocation);
-    }
-    else {
-      this.chart.locate();
-    }
-  },
-  render: function() {
-    /* jshint ignore:start */
-    return (
-      <div id="tidelineContainer" className="patient-data-chart"></div>
-      );
-    /* jshint ignore:end */
-  },
-  // handlers
-  handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
-    this.setState({
-      datetimeLocation: datetimeLocationEndpoints[1]
-    });
-    this.props.onDatetimeLocationChange(datetimeLocationEndpoints);
-  },
-  rerenderChart: function() {
-    this.unmountChart();
-    this.mountChart();
-    this.initializeChart();
-  },
-  getCurrentDay: function() {
-    return this.chart.getCurrentDay().toISOString();
-  },
-  goToMostRecent: function() {
-    this.chart.setAtDate(null, true);
-  },
-  panBack: function() {
-    this.chart.panBack();
-  },
-  panForward: function() {
-    this.chart.panForward();
-  },
-  // methods for messages
-  closeMessage: function() {
-    return this.chart.closeMessage();
-  },
-  createMessage: function(message) {
-    return this.chart.createMessage(message);
-  },
-  editMessage: function(message) {
-    return this.chart.editMessage(message);
   }
 });
 
