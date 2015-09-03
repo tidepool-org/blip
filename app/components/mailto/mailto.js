@@ -33,12 +33,12 @@ var MailTo = React.createClass({
     // https://github.com/angular/angular.js/issues/7461#issuecomment-43073994
 
     return (
-      /* jshint ignore:start */
+      
       <div className='mailto'>
         <a href={mailtoInfo} onClick={this.props.onLinkClicked} target="mailto">{this.props.linkTitle}</a>
         <iframe name="mailto" src="about:blank" style={{display: 'none'}}></iframe>
       </div>
-      /* jshint ignore:end */
+      
     );
   }
 

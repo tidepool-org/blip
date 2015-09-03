@@ -113,7 +113,7 @@ var Patients = React.createClass({
   },
 
   renderInvitation: function(invitation, index) {
-    /* jshint ignore:start */
+    
     return (
       <Invitation
         key={invitation.key}
@@ -122,7 +122,7 @@ var Patients = React.createClass({
         onDismissInvitation={this.props.onDismissInvitation}
         trackMetric={this.props.trackMetric}
       ></Invitation>);
-    /* jshint ignore:end */
+    
   },
   renderInvitations: function() {
     if (!this.hasInvites()) {
@@ -131,13 +131,13 @@ var Patients = React.createClass({
 
     var invitations = _.map(this.props.invites, this.renderInvitation);
 
-    /* jshint ignore:start */
+    
     return (
       <ul className='invitations'>
         {invitations}
       </ul>
     );
-    /* jshint ignore:end */
+    
   },
 
   renderNoPatientsOrInvitationsMessage: function() {

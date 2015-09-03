@@ -96,7 +96,7 @@ var TidelineHeader = React.createClass({
       'patient-data-subnav-hidden': this.props.chartType === 'no-data'
     });
 
-    /* jshint ignore:start */
+    
     return (
       <div className="container-box-outer patient-data-subnav-outer">
         <div className="container-box-inner patient-data-subnav-inner">
@@ -121,7 +121,6 @@ var TidelineHeader = React.createClass({
         </div>
       </div>
       );
-    /* jshint ignore:end */
   },
 
   /**
@@ -141,13 +140,9 @@ var TidelineHeader = React.createClass({
       }
     };
     if (this.props.inTransition) {
-      /* jshint ignore:start */
       return (<a href="" className={buttonClass} onClick={nullAction}><i className={icon}/></a>)
-      /* jshint ignore:end */
     } else {
-      /* jshint ignore:start */
       return (<a href="" className={buttonClass} onClick={clickAction}><i className={icon}/></a>)
-      /* jshint ignore:end */
     }
   }
 });
