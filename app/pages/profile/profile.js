@@ -79,7 +79,7 @@ var Profile = React.createClass({
       return false;
     };
 
-    /* jshint ignore:start */
+    
     return (
       <div className="profile">
         <div className="container-box-outer profile-subnav">
@@ -104,13 +104,13 @@ var Profile = React.createClass({
         </div>
       </div>
     );
-    /* jshint ignore:end */
+    
   },
 
   renderForm: function() {
     var disabled = this.isResettingUserData();
 
-    /* jshint ignore:start */
+    
     return (
       <SimpleForm
         inputs={this.formInputs}
@@ -121,11 +121,11 @@ var Profile = React.createClass({
         notification={this.state.notification}
         disabled={disabled}/>
     );
-    /* jshint ignore:end */
+    
   },
 
   renderCreateCareTeam: function() {
-    /* jshint ignore:start */
+    
     return (
       <div>
         <div className="profile-careteam-message">
@@ -139,7 +139,7 @@ var Profile = React.createClass({
         </PersonCard>
       </div>
     );
-    /* jshint ignore:end */
+    
   },
 
   renderUserCareTeam: function() {
@@ -148,13 +148,13 @@ var Profile = React.createClass({
       patient.link = '#/patients/' + patient.userid + '/edit';
     }
 
-    /* jshint ignore:start */
+    
     return (
       <PeopleList
         people={[patient]}
         isPatientList={true}/>
     );
-    /* jshint ignore:end */
+    
   },
 
   isResettingUserData: function() {

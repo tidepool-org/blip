@@ -107,14 +107,14 @@ var PatientData = React.createClass({
     var patientData = this.renderPatientData();
     var messages = this.renderMessagesContainer();
 
-    /* jshint ignore:start */
+    
     return (
       <div className="patient-data js-patient-data-page">
         {messages}
         {patientData}
       </div>
     );
-    /* jshint ignore:end */
+    
   },
 
   renderPatientData: function() {
@@ -130,7 +130,7 @@ var PatientData = React.createClass({
   },
 
   renderEmptyHeader: function() {
-    /* jshint ignore:start */
+    
     return (
       <Header
         chartType={'no-data'}
@@ -139,12 +139,12 @@ var PatientData = React.createClass({
         title={'Data'}
         ref="header" />
       );
-    /* jshint ignore:end */
+    
   },
 
   renderLoading: function() {
     var header = this.renderEmptyHeader();
-    /* jshint ignore:start */
+    
     return (
       <div>
         {header}
@@ -160,7 +160,7 @@ var PatientData = React.createClass({
         </div>
       </div>
     );
-    /* jshint ignore:end */
+    
   },
 
   renderNoData: function() {
@@ -173,7 +173,7 @@ var PatientData = React.createClass({
     };
 
     if (this.props.isUserPatient) {
-      /* jshint ignore:start */
+      
       content = (
         <div className="patient-data-message-no-data">
           <p>{'There is no data in here yet!'}</p>
@@ -186,10 +186,10 @@ var PatientData = React.createClass({
           </p>
         </div>
       );
-      /* jshint ignore:end */
+      
     }
 
-    /* jshint ignore:start */
+    
     return (
       <div>
         {header}
@@ -204,7 +204,7 @@ var PatientData = React.createClass({
         </div>
       </div>
     );
-    /* jshint ignore:end */
+    
   },
 
   isEmptyPatientData: function() {
@@ -233,7 +233,7 @@ var PatientData = React.createClass({
   renderChart: function() {
     switch (this.state.chartType) {
       case 'daily':
-        /* jshint ignore:start */
+        
         return (
           <Daily
             bgPrefs={this.props.bgPrefs}
@@ -252,9 +252,9 @@ var PatientData = React.createClass({
             updateDatetimeLocation={this.updateDatetimeLocation}
             ref="tideline" />
           );
-        /* jshint ignore:end */
+        
       case 'modal':
-        /* jshint ignore:start */
+        
         return (
           <Modal
             bgPrefs={this.props.bgPrefs}
@@ -273,9 +273,9 @@ var PatientData = React.createClass({
             uploadUrl={this.props.uploadUrl}
             ref="tideline" />
           );
-        /* jshint ignore:end */
+        
       case 'weekly':
-        /* jshint ignore:start */
+        
         return (
           <Weekly
             bgPrefs={this.props.bgPrefs}
@@ -294,9 +294,9 @@ var PatientData = React.createClass({
             uploadUrl={this.props.uploadUrl}
             ref="tideline" />
           );
-        /* jshint ignore:end */
+        
       case 'settings':
-        /* jshint ignore:start */
+        
         return (
           <Settings
             bgPrefs={this.props.bgPrefs}
@@ -312,12 +312,12 @@ var PatientData = React.createClass({
             uploadUrl={this.props.uploadUrl}
             ref="tideline" />
           );
-        /* jshint ignore:end */
+        
     }
   },
 
   renderMessagesContainer: function() {
-    /* jshint ignore:start */
+    
     if (this.state.createMessageDatetime) {
       return (
         <Messages
@@ -342,7 +342,7 @@ var PatientData = React.createClass({
           timePrefs={this.props.timePrefs} />
       );
     }
-    /* jshint ignore:end */
+    
   },
 
   closeMessageThread: function(){
