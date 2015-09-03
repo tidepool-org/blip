@@ -68,6 +68,19 @@ module.exports = function(pool, opts) {
         .attr({
           cursor: opts.cursor ? opts.cursor : 'auto',
           x: function(d, i) {
+            // dataGutter is the extra space on the right & left edges
+            // of each "pool" in weekly view
+            if (opts.dataGutter) {
+              if (i === currentData.length - 1) {
+                return fill.xPosition(d) - opts.dataGutter;
+              }
+              else {
+                return fill.xPosition(d);
+              }
+            }
+            else {
+              return fill.xPosition(d);
+            }
             return fill.xPosition(d);
           },
           y: function() {
@@ -79,6 +92,19 @@ module.exports = function(pool, opts) {
             }
           },
           width: function(d, i) {
+            // dataGutter is the extra space on the right & left edges
+            // of each "pool" in weekly view
+            if (opts.dataGutter) {
+              if ((i === 0) || (i === currentData.length  - 1)) {
+                return fill.width(d) + opts.dataGutter;
+              }
+              else {
+                return fill.width(d);
+              }
+            }
+            else {
+              return fill.width(d);
+            }
             return fill.width(d);
           },
           height: function() {
