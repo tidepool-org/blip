@@ -68,11 +68,7 @@ var NotesLink = React.createClass({
               </div>
             </div>
             <div>
-              <p className="NotesLink-key-paragraph">To add Blip notes from any smartphone go to <a href="notes.tidepool.io">notes.tidepool.io</a>.</p>
-              <p>For iPhones use 'Add to home screen' to save Blip Notes as an app.</p>
-              <p>For Android ...</p>
-              <br/>
-              <p>Have questions? Get in touch, <a className="NotesLink-support-link" href="mailto:support@tidepool.org">support@tidepool.org</a></p>
+              <p className="NotesLink-key-paragraph">On your smartphone, go to <a href="notes.tidepool.io">notes.tidepool.io</a>.</p>
             </div>
           </div>
         </div>
