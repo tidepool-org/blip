@@ -31,6 +31,94 @@ var tideline = {
   log: bows('Two Weeks')
 };
 
+var WeeklyChart = React.createClass({
+  chartOpts: ['bgClasses', 'bgUnits', 'timePrefs'],
+  log: bows('Weekly Chart'),
+  propTypes: {
+    bgClasses: React.PropTypes.object.isRequired,
+    bgUnits: React.PropTypes.string.isRequired,
+    initialDatetimeLocation: React.PropTypes.string,
+    patientData: React.PropTypes.object.isRequired,
+    timePrefs: React.PropTypes.object.isRequired,
+    // handlers
+    onDatetimeLocationChange: React.PropTypes.func.isRequired,
+    onMostRecent: React.PropTypes.func.isRequired,
+    onClickValues: React.PropTypes.func.isRequired,
+    onSelectSMBG: React.PropTypes.func.isRequired,
+    onTransition: React.PropTypes.func.isRequired
+  },
+  componentDidMount: function() {
+    this.mountChart(this.getDOMNode());
+    this.initializeChart(this.props.patientData, this.props.initialDatetimeLocation);
+  },
+  componentWillUnmount: function() {
+    this.unmountChart();
+  },
+  mountChart: function(node, chartOpts) {
+    this.log('Mounting...');
+    chartOpts = chartOpts || {};
+    this.chart = chartWeeklyFactory(node, _.assign(chartOpts, _.pick(this.props, this.chartOpts)));
+    this.bindEvents();
+  },
+  unmountChart: function() {
+    this.log('Unmounting...');
+    this.chart.destroy();
+  },
+  bindEvents: function() {
+    this.chart.emitter.on('inTransition', this.props.onTransition);
+    this.chart.emitter.on('navigated', this.handleDatetimeLocationChange);
+    this.chart.emitter.on('mostRecent', this.props.onMostRecent);
+    this.chart.emitter.on('selectSMBG', this.props.onSelectSMBG);
+  },
+  initializeChart: function(data, datetimeLocation) {
+    this.log('Initializing...');
+    if (_.isEmpty(data)) {
+      throw new Error('Cannot create new chart with no data');
+    }
+
+    if (datetimeLocation) {
+      this.chart.load(data, datetimeLocation);
+    }
+    else {
+      this.chart.load(data);
+    }
+  },
+  render: function() {
+    /* jshint ignore:start */
+    return (
+      <div id="tidelineContainer" className="patient-data-chart"></div>
+      );
+    /* jshint ignore:end */
+  },
+  // handlers
+  handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
+    this.setState({
+      datetimeLocation: datetimeLocationEndpoints[1]
+    });
+    this.props.onDatetimeLocationChange(datetimeLocationEndpoints);
+  },
+  getCurrentDay: function(timePrefs) {
+    return this.chart.getCurrentDay(timePrefs).toISOString();
+  },
+  goToMostRecent: function() {
+    this.chart.clear();
+    this.bindEvents();
+    this.chart.load(this.props.patientData);
+  },
+  hideValues: function() {
+    this.chart.hideValues();
+  },
+  panBack: function() {
+    this.chart.panBack();
+  },
+  panForward: function() {
+    this.chart.panForward();
+  },
+  showValues: function() {
+    this.chart.showValues();
+  }
+});
+
 var Weekly = React.createClass({
   chartType: 'weekly',
   log: bows('Weekly View'),
@@ -58,7 +146,7 @@ var Weekly = React.createClass({
     };
   },
   render: function() {
-    /* jshint ignore:start */
+    
     return (
       <div id="tidelineMain" className="grid">
         {this.isMissingSMBG() ? this.renderMissingSMBGHeader() : this.renderHeader()}
@@ -77,10 +165,10 @@ var Weekly = React.createClass({
         ref="footer" />
       </div>
       );
-    /* jshint ignore:end */
+    
   },
   renderChart: function() {
-    /* jshint ignore:start */
+    
     return (
       <WeeklyChart
         bgClasses={this.props.bgPrefs.bgClasses}
@@ -96,10 +184,10 @@ var Weekly = React.createClass({
         onTransition={this.handleInTransition}
         ref="chart" />
     );
-    /* jshint ignore:end */
+    
   },
   renderHeader: function() {
-    /* jshint ignore:start */
+    
     return (
       <Header
         chartType={this.chartType}
@@ -118,10 +206,10 @@ var Weekly = React.createClass({
         onClickTwoWeeks={this.handleClickTwoWeeks}
       ref="header" />
     );
-    /* jshint ignore:end */
+    
   },
   renderMissingSMBGHeader: function() {
-    /* jshint ignore:start */
+    
     return (
       <Header
         chartType={this.chartType}
@@ -134,14 +222,14 @@ var Weekly = React.createClass({
         onClickTwoWeeks={this.handleClickTwoWeeks}
       ref="header" />
     );
-    /* jshint ignore:end */
+    
   },
   renderMissingSMBGMessage: function() {
     var self = this;
     var handleClickUpload = function() {
       self.props.trackMetric('Clicked Partial Data Upload, No SMBG');
     };
-    /* jshint ignore:start */
+    
     return (
       <div className="patient-data-message patient-data-message-loading">
         <p>{'Blip\'s Weekly view shows a history of your finger stick BG data, but it looks like you haven\'t uploaded finger stick data yet.'}</p>
@@ -157,7 +245,7 @@ var Weekly = React.createClass({
         </p>
       </div>
     );
-    /* jshint ignore:end */
+    
   },
   formatDate: function(datetime) {
     // even when timezoneAware, labels should be generated as if UTC; just trust me (JEB)
@@ -247,94 +335,6 @@ var Weekly = React.createClass({
       this.refs.chart.showValues();
     }
     this.setState({showingValues: !this.state.showingValues});
-  }
-});
-
-var WeeklyChart = React.createClass({
-  chartOpts: ['bgClasses', 'bgUnits', 'timePrefs'],
-  log: bows('Weekly Chart'),
-  propTypes: {
-    bgClasses: React.PropTypes.object.isRequired,
-    bgUnits: React.PropTypes.string.isRequired,
-    initialDatetimeLocation: React.PropTypes.string,
-    patientData: React.PropTypes.object.isRequired,
-    timePrefs: React.PropTypes.object.isRequired,
-    // handlers
-    onDatetimeLocationChange: React.PropTypes.func.isRequired,
-    onMostRecent: React.PropTypes.func.isRequired,
-    onClickValues: React.PropTypes.func.isRequired,
-    onSelectSMBG: React.PropTypes.func.isRequired,
-    onTransition: React.PropTypes.func.isRequired
-  },
-  componentDidMount: function() {
-    this.mountChart(this.getDOMNode());
-    this.initializeChart(this.props.patientData, this.props.initialDatetimeLocation);
-  },
-  componentWillUnmount: function() {
-    this.unmountChart();
-  },
-  mountChart: function(node, chartOpts) {
-    this.log('Mounting...');
-    chartOpts = chartOpts || {};
-    this.chart = chartWeeklyFactory(node, _.assign(chartOpts, _.pick(this.props, this.chartOpts)));
-    this.bindEvents();
-  },
-  unmountChart: function() {
-    this.log('Unmounting...');
-    this.chart.destroy();
-  },
-  bindEvents: function() {
-    this.chart.emitter.on('inTransition', this.props.onTransition);
-    this.chart.emitter.on('navigated', this.handleDatetimeLocationChange);
-    this.chart.emitter.on('mostRecent', this.props.onMostRecent);
-    this.chart.emitter.on('selectSMBG', this.props.onSelectSMBG);
-  },
-  initializeChart: function(data, datetimeLocation) {
-    this.log('Initializing...');
-    if (_.isEmpty(data)) {
-      throw new Error('Cannot create new chart with no data');
-    }
-
-    if (datetimeLocation) {
-      this.chart.load(data, datetimeLocation);
-    }
-    else {
-      this.chart.load(data);
-    }
-  },
-  render: function() {
-    /* jshint ignore:start */
-    return (
-      <div id="tidelineContainer" className="patient-data-chart"></div>
-      );
-    /* jshint ignore:end */
-  },
-  // handlers
-  handleDatetimeLocationChange: function(datetimeLocationEndpoints) {
-    this.setState({
-      datetimeLocation: datetimeLocationEndpoints[1]
-    });
-    this.props.onDatetimeLocationChange(datetimeLocationEndpoints);
-  },
-  getCurrentDay: function(timePrefs) {
-    return this.chart.getCurrentDay(timePrefs).toISOString();
-  },
-  goToMostRecent: function() {
-    this.chart.clear();
-    this.bindEvents();
-    this.chart.load(this.props.patientData);
-  },
-  hideValues: function() {
-    this.chart.hideValues();
-  },
-  panBack: function() {
-    this.chart.panBack();
-  },
-  panForward: function() {
-    this.chart.panForward();
-  },
-  showValues: function() {
-    this.chart.showValues();
   }
 });
 

@@ -42,20 +42,19 @@ var Invitation = React.createClass({
     }
 
     if (utils.getIn(this.props, ['invitation', 'accepting'])) {
-      /* jshint ignore:start */
       return (
         <li className='invitation'>
           <div className='invitation-message'>{'Joining ' + name + '\'s team...'}</div>
         </li>
       );
-      /* jshint ignore:end */
+      
     }
 
     if (utils.getIn(this.props, ['trackMetric'])) {
       this.props.trackMetric('Invite Displayed');
     }
 
-    /* jshint ignore:start */
+    
     return (
       <li className='invitation'>
         <div className='invitation-message'>{'You have been invited to see ' + name + '\'s data!'}</div>
@@ -73,7 +72,7 @@ var Invitation = React.createClass({
         </div>
       </li>
     );
-    /* jshint ignore:end */
+    
   }
 });
 

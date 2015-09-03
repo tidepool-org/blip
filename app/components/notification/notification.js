@@ -32,7 +32,7 @@ var TidepoolNotification = React.createClass({
     }
 
     return (
-      /* jshint ignore:start */
+      
       <div className={className}>
         <div className="notification-inner">
           {closeLink}
@@ -41,7 +41,7 @@ var TidepoolNotification = React.createClass({
           </div>
         </div>
       </div>
-      /* jshint ignore:end */
+      
     );
   },
 
@@ -51,13 +51,13 @@ var TidepoolNotification = React.createClass({
     }
 
     return (
-      /* jshint ignore:start */
+      
       <a
         className="notification-close"
         href=""
         onClick={this.handleClose}
         ref='close'>Close</a>
-      /* jshint ignore:end */
+      
     );
   },
 
