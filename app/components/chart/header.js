@@ -140,9 +140,9 @@ var TidelineHeader = React.createClass({
       }
     };
     if (this.props.inTransition) {
-      return (<a href="" className={buttonClass} onClick={nullAction}><i className={icon}/></a>)
+      return (<a href="" className={buttonClass} onClick={nullAction}><i className={icon}/></a>);
     } else {
-      return (<a href="" className={buttonClass} onClick={clickAction}><i className={icon}/></a>)
+      return (<a href="" className={buttonClass} onClick={clickAction}><i className={icon}/></a>);
     }
   }
 });
