@@ -117,7 +117,9 @@ module.exports = function(pool, opts) {
       .attr('class', 'messageTooltip')
       .append('span')
       .attr('class', 'secondary')
-      .html(format.datestamp(d.normalTime) + ' <span class="fromto">at</span> ' + format.timestamp(d.normalTime));
+      .html(format.datestamp(d.normalTime, d.displayOffset) + 
+        ' <span class="fromto">at</span> ' + 
+        format.timestamp(d.normalTime, d.displayOffset));
     tooltip.foGroup.append('p')
       .attr('class', 'messageTooltip')
       .append('span')
