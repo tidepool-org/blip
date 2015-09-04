@@ -220,6 +220,7 @@ function TidelineData(data, opts) {
           fillDate: localTime ? localTime.slice(0,10) : points[i].toISOString().slice(0,10),
           id: 'fill_' + points[i].toISOString().replace(/[^\w\s]|_/g, ''),
           normalEnd: d3.time.hour.utc.offset(point, 3).toISOString(),
+          startsAtMidnight: (hoursClassifier === 0),
           normalTime: point.toISOString(),
           type: 'fill',
           displayOffset: offset,
