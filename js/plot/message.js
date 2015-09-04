@@ -23,6 +23,11 @@ var newNoteImg = require('../../img/message/new.png');
 
 var log = require('bows')('Message');
 
+var NEW_NOTE_WIDTH = 36;
+var NEW_NOTE_HEIGHT = 29;
+var NEW_NOTE_X = 0;
+var NEW_NOTE_Y = 45;
+
 module.exports = function(pool, opts) {
 
   opts = opts || {};
@@ -144,25 +149,25 @@ module.exports = function(pool, opts) {
         'class': 'newNoteIcon',
         'xlink:href': newNoteImg,
         cursor: 'pointer',
-        x: 0,
-        y: 45,
-        width: 36,
-        height: 29
+        x: NEW_NOTE_X,
+        y: NEW_NOTE_Y,
+        width: NEW_NOTE_WIDTH,
+        height: NEW_NOTE_HEIGHT
       });
 
     newNote.on('mouseover', function() {
       d3.select('#tidelineLabels').append('text')
       .attr({
         'class': 'newNoteText',
-        x: 1,
-        y: 88,
+        x: NEW_NOTE_X + 1,
+        y: NEW_NOTE_Y + 43,
       })
       .text('New');
       d3.select('#tidelineLabels').append('text')
       .attr({
         'class': 'newNoteText',
-        x: 1,
-        y: 103,
+        x: NEW_NOTE_X + 1,
+        y: NEW_NOTE_Y + 56,
       })
       .text('note');
     });
