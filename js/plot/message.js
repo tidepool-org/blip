@@ -176,7 +176,7 @@ module.exports = function(pool, opts) {
       message.addMessageToPool(messageGroup);
     });
 
-    opts.emitter.on('messageTimestampEdited', function(obj) {
+    opts.emitter.on('messageEdited', function(obj) {
       var messageGroup = mainGroup.select('g#message_' + obj.id)
         .datum(obj);
       message.updateMessageInPool(messageGroup);
