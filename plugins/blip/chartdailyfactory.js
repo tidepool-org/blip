@@ -153,6 +153,14 @@ function chartDailyFactory(el, options) {
     chart.annotations().addGroup(chart.svg().select('#' + poolStats.id()), 'stats');
 
     // add tooltips
+    chart.tooltips().addGroup(poolMessages, {
+      type: 'deviceEvent',
+      shape: 'generic'
+    });
+    chart.tooltips().addGroup(poolMessages, {
+      type: 'message',
+      shape: 'generic'
+    });
     chart.tooltips().addGroup(poolBG, {
       type: 'cbg',
       classes: ['d3-bg-low', 'd3-bg-target', 'd3-bg-high']
@@ -408,13 +416,13 @@ function chartDailyFactory(el, options) {
   };
 
   chart.editMessage = function(message) {
-    log('Message timestamp edited:', message);
+    log('Message edited:', message);
     // tideline only cares if the edited message was a top-level note
     // not a comment
     if (_.isEmpty(message.parentMessage)) {
       chart.tidelineData.editDatum(message, 'utcTime');
       chart.data(chart.tidelineData);
-      chart.emitter.emit('messageTimestampEdited', message);
+      chart.emitter.emit('messageEdited', message);
     }
     return chart.tidelineData;
   };

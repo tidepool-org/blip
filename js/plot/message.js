@@ -18,6 +18,8 @@
 var d3 = require('d3');
 var _ = require('lodash');
 
+var format = require('../data/util/format');
+
 var postItImage = require('../../img/message/post_it.svg');
 var newNoteImg = require('../../img/message/new.png');
 
@@ -33,6 +35,8 @@ module.exports = function(pool, opts) {
   opts = opts || {};
 
   var defaults = {
+    previewLength: 50,
+    tooltipPadding: 20,
     highlightWidth: 4
   };
 
@@ -90,12 +94,62 @@ module.exports = function(pool, opts) {
       })
       .classed({'d3-image': true, 'd3-message': true});
 
+    selection.on('mouseover', message._displayTooltip);
+    selection.on('mouseout', message._removeTooltip);
     selection.on('click', function(d) {
       d3.event.stopPropagation(); // silence the click-and-drag listener
       opts.emitter.emit('messageThread', d.id);
       log('Message clicked!', d.id);
       d3.select(this).selectAll('.d3-rect-message').classed('hidden', false);
     });
+  };
+
+  message._displayTooltip = function(d) {
+    var elem = d3.select('#message_' + d.id + ' image');
+    var tooltips = pool.tooltips();
+
+    var tooltip = tooltips.addForeignObjTooltip({
+      cssClass: 'svg-tooltip-message',
+      datum: _.assign(d, {type: 'message'}), // we're currently using the message pool to display the tooltip
+      shape: 'generic',
+      xPosition: message.xPositionCenter,
+      yPosition: message.yPositionCenter
+    });
+
+    var foGroup = tooltip.foGroup;
+    tooltip.foGroup.append('p')
+      .attr('class', 'messageTooltip')
+      .append('span')
+      .attr('class', 'secondary')
+      .html(format.datestamp(d.normalTime, d.displayOffset) + 
+        ' <span class="fromto">at</span> ' + 
+        format.timestamp(d.normalTime, d.displayOffset));
+    tooltip.foGroup.append('p')
+      .attr('class', 'messageTooltip')
+      .append('span')
+      .attr('class', 'secondary')
+      .html('<span class="value">' + d.user.fullName + '</span> ' + format.textPreview(d.messageText));
+    
+    var dims = tooltips.foreignObjDimensions(foGroup);
+    // foGroup.node().parentNode is the <foreignObject> itself
+    // because foGroup is actually the top-level <xhtml:div> element
+    tooltips.anchorForeignObj(d3.select(foGroup.node().parentNode), {
+      w: dims.width + opts.tooltipPadding,
+      h: dims.height,
+      x: message.xPositionCenter(d),
+      y: -dims.height,
+      orientation: {
+        'default': 'leftAndDown',
+        leftEdge: 'rightAndDown',
+        rightEdge: 'leftAndDown'
+      },
+      shape: 'generic',
+      edge: tooltip.edge
+    });
+  };
+
+  message._removeTooltip = function(d) {
+    var elem = d3.select('#tooltip_' + d.id).remove();
   };
 
   message.updateMessageInPool = function(selection) {
@@ -129,7 +183,7 @@ module.exports = function(pool, opts) {
       message.addMessageToPool(messageGroup);
     });
 
-    opts.emitter.on('messageTimestampEdited', function(obj) {
+    opts.emitter.on('messageEdited', function(obj) {
       var messageGroup = mainGroup.select('g#message_' + obj.id)
         .datum(obj);
       message.updateMessageInPool(messageGroup);
@@ -202,6 +256,14 @@ module.exports = function(pool, opts) {
 
   message.yPosition = function(d) {
     return pool.height() / 2 - opts.size / 2;
+  };
+
+  message.xPositionCenter = function(d) {
+    return opts.xScale(Date.parse(d.normalTime));
+  };
+
+  message.yPositionCenter = function(d) {
+    return pool.height() / 2;
   };
 
   message.setUpMessageCreation();

@@ -79,6 +79,35 @@ describe('format utility', function() {
     });
   });
 
+  describe('textPreview', function() {
+    it('should be a function', function() {
+      assert.isFunction(fmt.textPreview);
+    });
+
+    it('should return the same string if string length is less than preview length', function() {
+      expect(fmt.textPreview('foo', 4)).to.equal('foo');
+      expect(fmt.textPreview('I had a dream', 200)).to.equal('I had a dream');
+      expect(fmt.textPreview('In a world where people live forever.', 50)).to.equal('In a world where people live forever.');
+    });
+
+    it('should return the return a segment of word is no spaces in sentence and previewLength is less than word length', function() {
+      expect(fmt.textPreview('foobar', 5)).to.equal('fooba...');
+    });
+
+    it('should return the same string if string length is less than preview length', function() {
+      expect(fmt.textPreview('foo', 3)).to.equal('foo');
+      expect(fmt.textPreview('I had a dream', 13)).to.equal('I had a dream');
+      expect(fmt.textPreview('In a world where people live forever.', 50)).to.equal('In a world where people live forever.');
+    });
+
+    it('should return the same string if string length is less than preview length', function() {
+      expect(fmt.textPreview('foo bar', 3)).to.equal('foo...');
+      expect(fmt.textPreview('I had a dream', 12)).to.equal('I had a...');
+      expect(fmt.textPreview('In a world where people live forever.', 12)).to.equal('In a world...');
+      expect(fmt.textPreview('In a world where people live forever.', 18)).to.equal('In a world where...');
+    });
+  });
+
   describe('dayAndDate', function() {
     it('should be a function', function() {
       assert.isFunction(fmt.dayAndDate);
