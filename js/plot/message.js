@@ -110,8 +110,6 @@ module.exports = function(pool, opts) {
       yPosition: message.yPositionCenter
     });
 
-    console.log(d);
-
     var foGroup = tooltip.foGroup;
     tooltip.foGroup.append('p')
       .attr('class', 'messageTooltip')
