@@ -171,7 +171,6 @@ function TidelineData(data, opts) {
     var sortByNormalTime = function(d) { return d.normalTime; };
     this.watson(editedDatum);
     var origDatum = this.dataById.filter(editedDatum.id).top(Infinity)[0];
-    this.filterData.remove();
     origDatum[timeKey] = editedDatum[timeKey];
     // everything has normalTime
     origDatum.normalTime = editedDatum.normalTime;
@@ -183,11 +182,8 @@ function TidelineData(data, opts) {
     if (_.includes(opts.diabetesDataTypes, editedDatum)) {
       this.diabetesData = _.sortBy(self.diabetesData, sortByNormalTime);
     }
-    this.filterData.add(origDatum);
-    // clear filters
-    this.dataById.filter(null);
-    this.dataByDate.filter(null);
     this.generateFillData().adjustFillsForTwoWeekView();
+    updateCrossFilters(this.data);
     return this;
   };
 
