@@ -19,8 +19,14 @@ var d3 = require('d3');
 var _ = require('lodash');
 
 var postItImage = require('../../img/message/post_it.svg');
+var newNoteImg = require('../../img/message/new.png');
 
 var log = require('bows')('Message');
+
+var NEW_NOTE_WIDTH = 36;
+var NEW_NOTE_HEIGHT = 29;
+var NEW_NOTE_X = 0;
+var NEW_NOTE_Y = 45;
 
 module.exports = function(pool, opts) {
 
@@ -87,7 +93,7 @@ module.exports = function(pool, opts) {
     selection.on('click', function(d) {
       d3.event.stopPropagation(); // silence the click-and-drag listener
       opts.emitter.emit('messageThread', d.id);
-      log('Message clicked!');
+      log('Message clicked!', d.id);
       d3.select(this).selectAll('.d3-rect-message').classed('hidden', false);
     });
   };
@@ -108,6 +114,7 @@ module.exports = function(pool, opts) {
 
   message.setUpMessageCreation = function() {
     log('Set up message creation listeners.');
+
     opts.emitter.on('clickTranslatesToDate', function(date) {
       log('Creating message at', date.toISOString().slice(0,-5));
       opts.emitter.emit('createMessage', date.toISOString());
@@ -129,6 +136,58 @@ module.exports = function(pool, opts) {
     });
   };
 
+  /**
+   * Render the affordance for adding notes through blip
+   */
+  message.drawNewNoteIcon = _.once(function() {
+    if (!d3.select('#tidelineLabels .newNoteIcon').empty()) { // do not draw twice!
+      return;
+    }
+
+    var newNote = d3.select('#tidelineLabels').append('image')
+      .attr({
+        'class': 'newNoteIcon',
+        'xlink:href': newNoteImg,
+        cursor: 'pointer',
+        x: NEW_NOTE_X,
+        y: NEW_NOTE_Y,
+        width: NEW_NOTE_WIDTH,
+        height: NEW_NOTE_HEIGHT
+      });
+
+    newNote.on('mouseover', function() {
+      d3.select('#tidelineLabels').append('text')
+      .attr({
+        'class': 'newNoteText',
+        x: NEW_NOTE_X + 1,
+        y: NEW_NOTE_Y + 43,
+      })
+      .text('New');
+      d3.select('#tidelineLabels').append('text')
+      .attr({
+        'class': 'newNoteText',
+        x: NEW_NOTE_X + 1,
+        y: NEW_NOTE_Y + 56,
+      })
+      .text('note');
+    });
+    newNote.on('mouseout', function() {
+      d3.selectAll('#tidelineLabels .newNoteText').remove();
+    });
+
+    newNote.on('click', function(event) {
+      var date = new Date();
+      if (!opts.timezoneAware) {
+        var offsetMinutes = new Date(date).getTimezoneOffset();
+        date.setUTCMinutes(date.getUTCMinutes() + offsetMinutes);
+        opts.emitter.emit('clickTranslatesToDate', date);  
+      }
+      else {
+        opts.emitter.emit('clickTranslatesToDate', date);
+      }
+    });
+  });
+
   message.highlightXPosition = function(d) {
     return opts.xScale(Date.parse(d.normalTime)) - opts.size / 2 - opts.highlightWidth;
   };
@@ -146,6 +205,7 @@ module.exports = function(pool, opts) {
   };
 
   message.setUpMessageCreation();
+  message.drawNewNoteIcon();
 
   return message;
 };
