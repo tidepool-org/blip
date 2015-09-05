@@ -34,6 +34,7 @@
     "css-loader": "0.15.3",
     "gulp": "3.9.0",
     "gulp-jshint": "1.11.2",
+    "gulp-react": "3.0.1",
     "istanbul": "0.3.17",
     "jshint": "2.8.0",
     "jshint-stylish": "2.0.1",
