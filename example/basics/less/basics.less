@@ -43,16 +43,27 @@ a {
 }
 
 @break-point: 1430px;
+@retina-break-point: 1279px;
+@retina-resolution: 120dpi;
+.full-width {
+  width: 100%;
+}
 
 #tidelineContainer {
   width: 75%;
+  @media only screen and (min-width : @retina-break-point) and (min-resolution : @retina-resolution) {
+    width: 90%;
+  }
   margin: 5vh auto;
   background-color: #F7F7F8;
 }
 
 .Container--flex {
   display: flex;
-  @media only screen and (max-width : @break-point) {
+  @media only screen and (max-width : @retina-break-point) and (min-resolution : @retina-resolution) {
+    flex-direction: column;
+  }
+  @media only screen and (max-width : @break-point) and (max-resolution : @retina-resolution) {
     flex-direction: column;
   }
 
@@ -65,13 +76,23 @@ a {
   }
 
   .Column--left {
-    width: 100%;
-    @media only screen and (min-width : @break-point) { width: 33%; }
+    width: 33%;
+    @media only screen and (max-width : @retina-break-point) and (min-resolution : @retina-resolution) {
+      .full-width();
+    }
+    @media only screen and (min-width : @break-point) and (max-resolution : @retina-resolution) {
+      .full-width();
+    }
   }
 
   .Column--right {
-    width: 100%;
-    @media only screen and (min-width : @break-point) { width: 67%; }
+    width: 67%;
+    @media only screen and (max-width : @retina-break-point) and (min-resolution : @retina-resolution) {
+      .full-width();
+    }
+    @media only screen and (min-width : @break-point) and (max-resolution : @retina-resolution) {
+      .full-width();
+    }
   }
 }
 
