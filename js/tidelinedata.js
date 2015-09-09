@@ -20,6 +20,9 @@
 var _ = require('lodash');
 var crossfilter = require('crossfilter');
 var d3 = require('d3');
+var sundial = require('sundial');
+
+var basicsState = require('../plugins/blip/basics/logic/state');
 
 var validate = require('./validation/validate');
 
@@ -57,6 +60,7 @@ function TidelineData(data, opts) {
     CBG_PERCENT_FOR_ENOUGH: 0.75,
     CBG_MAX_DAILY: 288,
     SMBG_DAILY_MIN: 4,
+    basicsTypes: ['basal', 'bolus', 'cbg', 'smbg', 'deviceEvent'],
     bgClasses: {
       'very-low': {boundary: 60},
       low: {boundary: 80},
@@ -471,6 +475,76 @@ function TidelineData(data, opts) {
   endTimer('setUtilities');
   
   updateCrossFilters(this.data);
+
+  startTimer('basicsData');
+  this.basicsData = {};
+  this.findBasicsData = function() {
+    var last = _.findLast(this.data, function(d) {
+      switch (d.type) {
+        case 'basal':
+          return true;
+        case 'bolus':
+          return true;
+        case 'deviceEvent':
+          if (d.subType === 'reservoirChange') {
+            return true;
+          }
+          return false;
+        default:
+          return false;
+      }
+    });
+
+    function getLocalDate(d) {
+      return sundial.applyOffset(d.time, d.displayOffset).toISOString().slice(0,10);
+    }
+    // wrapping in an if-clause here because of the no-data
+    // or CGM-only data cases
+    if (last) {
+      this.basicsData.timezone = opts.timePrefs.timezoneAware ?
+        opts.timePrefs.timezoneName : 'UTC';
+      this.basicsData.dateRange = [last.time];
+      this.basicsData.dateRange.unshift(
+        opts.timePrefs.timezoneAware ?
+          dt.findBasicsStart(last.time, opts.timePrefs.timezoneName) :
+          dt.findBasicsStart(last.time)
+      );
+      this.basicsData.days =  opts.timePrefs.timezoneAware ?
+        dt.findBasicsDays(this.basicsData.dateRange, opts.timePrefs.timezoneName) :
+        dt.findBasicsDays(this.basicsData.dateRange);
+      this.basicsData.data = {};
+
+      for (var i = 0; i < opts.basicsTypes.length; ++i) {
+        var aType = opts.basicsTypes[i];
+        if (!_.isEmpty(this.grouped[aType])) {
+          this.basicsData.data[aType] = {};
+          var typeObj = this.basicsData.data[aType];
+          if (aType !== 'deviceEvent') {
+            typeObj.data = this.grouped[aType];
+          }
+          else {
+            typeObj.data = _.filter(this.grouped[aType], function(d) {
+              return d.subType === 'reservoirChange';
+            });
+          }
+          if (_.includes(['smbg', 'bolus', 'deviceEvent'], aType)) {
+            typeObj.cf = crossfilter(typeObj.data);
+            typeObj.byLocalDate = typeObj.cf.dimension(getLocalDate);
+            var countByLocalDate = typeObj.byLocalDate.group().reduceCount().all();
+            var countByDateHash = {};
+            for (var j = 0; j < countByLocalDate.length; ++j) {
+              var day = countByLocalDate[j];
+              countByDateHash[day.key] = day.value;
+            }
+            typeObj.countByDate = countByDateHash;
+          }
+        }
+      }
+    }
+    _.assign(this.basicsData, basicsState);
+  };
+  this.findBasicsData();
+  endTimer('basicsData');
 
   return checkRequired(this);
 }

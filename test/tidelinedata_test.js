@@ -45,6 +45,10 @@ describe('TidelineData', function() {
     expect(td).to.exist;
   });
 
+  it('should have a `basicsData` attribute that is an object', function() {
+    assert.isObject(td.basicsData);
+  });
+
   it('should have a `data` attribute that is an array', function() {
     assert.isArray(td.data);
   });
@@ -258,6 +262,20 @@ describe('TidelineData', function() {
       toEdit.editDatum(editedMessage, 'time');
       var newFill = toEdit.grouped.fill;
       expect(newFill[newFill.length - 1].normalTime).to.be.at.least(toEdit.grouped.message[0].normalTime);
+    });
+  });
+
+  describe('findBasicsData', function() {
+    var smbg = new types.SMBG({deviceTime: '2015-08-31T00:01:00'});
+    var bolus = new types.Bolus({deviceTime: '2015-09-28T14:05:00'});
+    var thisTd = new TidelineData([smbg, bolus]);
+    it.skip('should build a basicsData objects with all necessary attributes', function() {
+      // expect(thisTd.basicsData).to.deep.equal({
+      //   start: '2015-08-31T07:00:00.000Z',
+      //   end: '2015-09-28T21:05:00.000Z',
+      //   bolus: [bolus],
+      //   smbg: [smbg]
+      // });
     });
   });
 

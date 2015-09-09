@@ -24,50 +24,29 @@ var React = require('react');
 
 var sundial = require('sundial');
 
-var debug = bows('Basics');
+require('../../example/basics/less/basics.less');
+var debug = bows('Basics Chart');
+var basicsState = require('../../example/basics/logic/state');
+var basicsActions = require('../../example/basics/logic/actions');
 
-var basicsState = require('../logic/state');
-var basicsActions = require('../logic/actions');
-
-var Section = require('./DashboardSection');
+var Section = require('../../example/basics/components/DashboardSection');
 
 var dataUrl = 'data/blip-input.json';
 
 var Basics = React.createClass({
   propTypes: {
-    timezone: React.PropTypes.string.isRequired
-  },
-  getDefaultProps: function() {
-    return {
-      timezone: 'US/Pacific'
-    };
+    bgClasses: React.PropTypes.object.isRequired,
+    bgUnits: React.PropTypes.string.isRequired,
+    patientData: React.PropTypes.object.isRequired,
+    timePrefs: React.PropTypes.object.isRequired
   },
   componentWillMount: function() {
-    this.fetchData();
-  },
-  fetchData: function() {
-    debug('Loading data...');
-    d3.json(dataUrl, function(err, data) {
-      if (err) {
-        throw new Error('Could not fetch data!');
-      }
-      if (this.isMounted()) {
-        var restrictedToType = _.filter(data, function(d) {
-          var types = ['bolus', 'cbg', 'deviceMeta', 'smbg'];
-          return _.includes(types, d.type);
-        });
-        debug('Latest BG, bolus, or deviceMeta:', restrictedToType[restrictedToType.length - 1]);
-        this.setState(basicsState.getInitial(restrictedToType[restrictedToType.length - 1], this.props.timezone));
-        basicsActions.bindApp(this).initialDataMunge(data);
-      }
-    }.bind(this));
+    var timePrefs = this.props.timePrefs;
+    var tz = timePrefs.timezoneAware ? timePrefs.timezoneName : 'UTC';
+    this.setState(basicsState.getInitial(this.props.patientData.basicsData, tz));
+    basicsActions.bindApp(this);
   },
   render: function() {
-    if (_.isEmpty(this.state)) {
-      return (
-        <div className='Container--flex'></div>
-      );
-    }
     var leftColumn = this.renderColumn('left');
     var rightColumn = this.renderColumn('right');
     return (

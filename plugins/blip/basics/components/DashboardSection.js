@@ -35,9 +35,6 @@ var DashboardSection = React.createClass({
     open: React.PropTypes.bool.isRequired,
     title: React.PropTypes.string.isRequired
   },
-  componentDidMount: function() {
-    this.setHeight();
-  },
   render: function() {
     // debug('Rendered section with props', this.props);
     var dataDisplay;
@@ -55,10 +52,8 @@ var DashboardSection = React.createClass({
               chart={component.chart}
               data={this.props.data}
               days={this.props.days}
-              open={component.open}
               title={component.title}
-              type={component.type}
-              onRerender={this.setHeight} />
+              type={component.type} />
           );
         }
       }
@@ -76,29 +71,20 @@ var DashboardSection = React.createClass({
       'icon-right': !this.props.open
     });
     var containerClass = cx({
-      'DashboardSection-container': true,
-      'DashboardSection-container--closed': !this.props.open
+      'DashboardSection-container': true
     });
     return (
       <div className='DashboardSection'>
-        <h3>{this.props.title}
-          <a href='' onClick={this.handleToggleSection}>
-            <i className={iconClass}/>
-          </a>
+        <h3 onClick={this.handleToggleSection}>{this.props.title}
+          <i className={iconClass}/>
         </h3>
         <div className={containerClass} ref='container'>
           <div className='DashboardSection-content' ref='content'>
-            {dataDisplay}
+            {this.props.open ? dataDisplay : null}
           </div>
         </div>
       </div>
     );
-  },
-  setHeight: function() {
-    var content = this.refs.content.getDOMNode();
-    var container = this.refs.container.getDOMNode();
-    container.style.height = content.offsetHeight + 'px';
-    // debug('setHeight triggered on', this.props.name, content.offsetHeight);
   },
   handleToggleSection: function(e) {
     if (e) {

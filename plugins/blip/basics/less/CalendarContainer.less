@@ -1,5 +1,5 @@
-@day-width: 90px + @small-pad;
-@day-height: 90px + @small-pad;
+@day-width: 72px + @small-pad;
+@day-height: 72px + @small-pad;
 @day-between: 8px;
 
 @days-max: @day-width * 7 + @day-between * 6;
@@ -9,10 +9,6 @@
 @small-pad: 6px;
 
 .Calendar-container {
-
-	&.Calendar-container--closed {
-		.hard-zero;
-	}
 
 	.Calendar {
 		display: flex;
@@ -37,6 +33,8 @@
 				left: 0;
 
 				color: @light;
+				font-size: 12px;
+				margin: 0;
 				padding-left: @small-pad/2;
 			}
 

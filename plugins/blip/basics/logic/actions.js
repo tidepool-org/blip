@@ -1,4 +1,3 @@
-/** @jsx React.DOM */
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2015 Tidepool Project
@@ -16,11 +15,25 @@
  * == BSD2 LICENSE ==
  */
 
-require('./less/basics.less');
-var React = require('react');
-var Basics = require('./components/Basics');
+var _ = require('lodash');
+var bows = require('bows');
+var moment = require('moment-timezone');
 
-React.render(
-  <Basics/>,
-  document.getElementById('tidelineContainer')
-);
+var sundial = require('sundial');
+
+var debug = bows('basicsActions');
+
+var basicsActions = {};
+
+basicsActions.bindApp = function(app) {
+  this.app = app;
+  return this;
+};
+
+basicsActions.toggleSection = function(sectionName) {
+  var sections = _.cloneDeep(this.app.state.sections);
+  sections[sectionName].open = !sections[sectionName].open;
+  this.app.setState({sections: sections});
+};
+
+module.exports = basicsActions;

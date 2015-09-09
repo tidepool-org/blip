@@ -26,18 +26,18 @@ var debug = bows('Calendar');
 
 var basicsActions = require('../logic/actions');
 
+var WrapCount = require('./WrapCount');
+
 var ADay = React.createClass({
   propTypes: {
     dayAbbrevMask: React.PropTypes.string.isRequired,
-    fullDateMask: React.PropTypes.string.isRequired,
     chart: React.PropTypes.func.isRequired,
     data: React.PropTypes.object,
     date: React.PropTypes.string.isRequired
   },
   getDefaultProps: function() {
     return {
-      dayAbbrevMask: 'dd',
-      fullDateMask: 'ddd, MMM D'
+      dayAbbrevMask: 'D'
     };
   },
   render: function() {
@@ -46,9 +46,7 @@ var ADay = React.createClass({
         <p className='Calendar-weekday'>
           {moment(this.props.date).format(this.props.dayAbbrevMask)}
         </p>
-        <this.props.chart data={this.props.data}
-          date={this.props.date}
-          hover={false} />
+        {this.props.chart({data: this.props.data, date: this.props.date})}
       </div>
     );
   }
@@ -61,20 +59,14 @@ var CalendarContainer = React.createClass({
     chart: React.PropTypes.func.isRequired,
     data: React.PropTypes.object.isRequired,
     days: React.PropTypes.array.isRequired,
-    open: React.PropTypes.bool.isRequired,
     title: React.PropTypes.string.isRequired,
     type: React.PropTypes.string.isRequired
   },
   render: function() {
     var self = this;
 
-    var iconClass = cx({
-      'icon-down': this.props.open,
-      'icon-right': !this.props.open
-    });
     var containerClass = cx({
-      'Calendar-container': true,
-      'Calendar-container--closed': !this.props.open
+      'Calendar-container': true
     });
 
     var days = this.renderDays();
@@ -89,10 +81,10 @@ var CalendarContainer = React.createClass({
       </div>
     );
   },
-  renderDays: function(numWeeks) {
+  renderDays: function() {
     var self = this;
 
-    return _.map(self.props.days, function(day) {
+    return this.props.days.map(function(day) {
       return (
         <ADay key={day}
           chart={self.props.chart}
@@ -100,18 +92,6 @@ var CalendarContainer = React.createClass({
           date={day} />
       );
     });
-  },
-  handleToggleComponent: function(e) {
-    debug('Clicked to toggle', this.props.component);
-    if (e) {
-      e.preventDefault();
-    }
-    basicsActions.toggleComponent(this.props.section, this.props.component);
-  },
-  setHeight: function() {
-    var content = this.refs.content.getDOMNode();
-    var container = this.refs.container.getDOMNode();
-    container.style.height = content.offsetHeight + 'px';
   }
 });
 

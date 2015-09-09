@@ -22,18 +22,15 @@ var React = require('react');
 var WrapCount = React.createClass({
   propTypes: {
     data: React.PropTypes.object,
-    date: React.PropTypes.string.isRequired,
-    hover: React.PropTypes.bool.isRequired
+    date: React.PropTypes.string.isRequired
   },
   render: function() {
-    if (!this.props.hover) {
-      var dots = this.renderDots();
-      return (
-        <div className='WrapCount'>
-          {dots}
-        </div>
-      );
-    }
+    var dots = this.renderDots();
+    return (
+      <div className='WrapCount'>
+        {dots}
+      </div>
+    );
   },
   renderDots: function() {
     var dots = [];
@@ -41,14 +38,14 @@ var WrapCount = React.createClass({
     for (var i = 1; i <= 9; ++i) {
       if (i <= count) {
         dots.push(
-          <svg key={i} width='24px' height='24px'>
-            <circle cx='12px' cy='12px' r='8px'/>
+          <svg key={i} width='18px' height='18px'>
+            <circle cx='9px' cy='9px' r='7px'/>
           </svg>
         );
       }
       else {
         dots.push(
-          <svg key={i} width='24px' height='24px'></svg>
+          <svg key={i} width='18px' height='18px'></svg>
         );
       }
     }

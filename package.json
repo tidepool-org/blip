@@ -14,8 +14,7 @@
     "start": "BUILD_DEV=true webpack-dev-server -d --cache --colors --progress --content-base example --port 8081",
     "build-test": "webpack --config test.config.js",
     "jshint": "gulp jshint",
-    "jshint-watch": "gulp jshint-watch",
-    "basics": "webpack-dev-server -d --cache --colors --progress --config basics.config.js --content-base example/basics --port 8081"
+    "jshint-watch": "gulp jshint-watch"
   },
   "dependencies": {
     "bows": "1.4.2",

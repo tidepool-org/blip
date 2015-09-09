@@ -15,8 +15,6 @@
  * == BSD2 LICENSE ==
  */
 
-@import 'fonts.less';
-@import 'icons.less';
 @import 'DashboardSection.less';
 @import 'CalendarContainer.less';
 
@@ -30,14 +28,6 @@ svg {
 
 @blue-calendar: #6480FB;
 
-html, body, div, p {
-  font-family: @font-family-base;
-  font-size: @font-size-base;
-
-  margin: 0;
-  padding: 0;
-}
-
 a {
   color: @headline;
 }
@@ -49,12 +39,14 @@ a {
   width: 100%;
 }
 
-#tidelineContainer {
+.tidelineContainer--basics {
+  height: 590px;
   width: 75%;
   @media only screen and (min-width : @retina-break-point) and (min-resolution : @retina-resolution) {
     width: 90%;
   }
   margin: 5vh auto;
+  overflow-y: scroll;
   background-color: #F7F7F8;
 }
 
@@ -87,6 +79,7 @@ a {
 
   .Column--right {
     width: 67%;
+    margin-right: 10px;
     @media only screen and (max-width : @retina-break-point) and (min-resolution : @retina-resolution) {
       .full-width();
     }
@@ -94,8 +87,4 @@ a {
       .full-width();
     }
   }
-}
-
-.hard-zero {
-  height: 0px !important;
 }

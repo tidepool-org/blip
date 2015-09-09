@@ -16,6 +16,7 @@
  */
 
 module.exports = {
+  basics: require('./basics/chartbasicsfactory'),
   oneday: require('./chartdailyfactory'),
   twoweek: require('./chartweeklyfactory'),
   modalday: {
