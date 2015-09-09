@@ -56,6 +56,15 @@ var format = {
     }
   },
 
+  nameForDisplay: function(name, maxWordLength) {
+    maxWordLength = maxWordLength || 22;
+    return name.split(' ').map(function(part) {
+      return (part.length <= maxWordLength) ? 
+        part : 
+        [part.substring(0,maxWordLength), '...'].join('');
+    }).join(' ');
+  },
+
   /**
    * Function for returning a preview of a text value followed by elipsis.
    * Will return a string of max length + 3 (for elipsis). Will end preview
