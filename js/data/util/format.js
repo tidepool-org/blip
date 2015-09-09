@@ -58,7 +58,7 @@ var format = {
 
   nameForDisplay: function(name, maxWordLength) {
     maxWordLength = maxWordLength || 22;
-    return display = name.split(' ').map(function(part) {
+    return name.split(' ').map(function(part) {
       return (part.length <= maxWordLength) ? 
         part : 
         [part.substring(0,maxWordLength), '...'].join('');
