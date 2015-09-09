@@ -43,7 +43,11 @@ var BasicsChart = React.createClass({
   componentWillMount: function() {
     var timePrefs = this.props.timePrefs;
     var tz = timePrefs.timezoneAware ? timePrefs.timezoneName : 'UTC';
-    this.setState(this.props.patientData.basicsData);
+    var basicsData = this.props.patientData.basicsData;
+    if (basicsData.sections == null) {
+      basicsData = _.assign(basicsData, basicsState);
+    }
+    this.setState(basicsData);
     basicsActions.bindApp(this);
   },
   componentWillUnmount: function() {

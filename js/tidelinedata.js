@@ -22,8 +22,6 @@ var crossfilter = require('crossfilter');
 var d3 = require('d3');
 var sundial = require('sundial');
 
-var basicsState = require('../plugins/blip/basics/logic/state');
-
 var validate = require('./validation/validate');
 
 var BasalUtil = require('./data/basalutil');
@@ -553,7 +551,6 @@ function TidelineData(data, opts) {
         }
       }
     }
-    _.assign(this.basicsData, basicsState);
   };
   this.findBasicsData();
   endTimer('basicsData');
