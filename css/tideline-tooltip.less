@@ -41,6 +41,12 @@
   text-transform: uppercase;
 }
 
+.newNoteText {
+  font-weight: bold;
+  font-size: @font-size-small;
+  fill: #1E9EB1;
+}
+
 .tooltip-div {
   margin: 0;
   padding: @margin-shift 0 0 0;
@@ -64,6 +70,10 @@
     text-align: center;
     &.value {
       .bigText;
+    }
+
+    &.messageTooltip {
+      text-align: left;
     }
   }
 }
