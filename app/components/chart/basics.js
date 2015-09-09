@@ -49,7 +49,7 @@ var Basics = React.createClass({
     return {
       atMostRecent: true,
       inTransition: false,
-      title: ''
+      title: this.getTitle()
     };
   },
   render: function() {
@@ -128,8 +128,8 @@ var Basics = React.createClass({
     }
     var basicsData = this.props.patientData.basicsData;
     var dtMask = 'MMM D, YYYY';
-    return sundial.formatInTimezone(basicsData.start, timezone, dtMask) +
-      ' - ' + sundial.formatInTimezone(basicsData.end, timezone, dtMask);
+    return sundial.formatInTimezone(basicsData.dateRange[0], timezone, dtMask) +
+      ' - ' + sundial.formatInTimezone(basicsData.dateRange[1], timezone, dtMask);
   },
   isMissingBasics: function() {
     var data = this.props.patientData.basicsData.data;
