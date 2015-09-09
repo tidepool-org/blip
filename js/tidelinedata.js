@@ -498,6 +498,15 @@ function TidelineData(data, opts) {
     function getLocalDate(d) {
       return sundial.applyOffset(d.time, d.displayOffset).toISOString().slice(0,10);
     }
+
+    function skimFromTop(groupData, start) {
+      return _.takeRightWhile(groupData, function(d) {
+        if (d.type === 'basal') {
+          return d.normalEnd >= start;
+        }
+        return d.normalTime >= start;
+      });
+    }
     // wrapping in an if-clause here because of the no-data
     // or CGM-only data cases
     if (last) {
@@ -520,7 +529,10 @@ function TidelineData(data, opts) {
           this.basicsData.data[aType] = {};
           var typeObj = this.basicsData.data[aType];
           if (aType !== 'deviceEvent') {
-            typeObj.data = this.grouped[aType];
+            typeObj.data = skimFromTop(
+              this.grouped[aType],
+              this.basicsData.dateRange[0]
+            );
           }
           else {
             typeObj.data = _.filter(this.grouped[aType], function(d) {
