@@ -31,7 +31,6 @@ var tidelineBlip = require('tideline/plugins/blip');
 var brush = tidelineBlip.modalday.brush;
 var modalDay = tidelineBlip.modalday.modalDay;
 
-
 var ModalChart = React.createClass({
   chartOpts: ['bgClasses', 'bgUnits', 'boxOverlay', 'grouped', 'showingLines'],
   log: bows('Modal Chart'),
@@ -209,6 +208,7 @@ var Modal = React.createClass({
     patientData: React.PropTypes.object.isRequired,
     // refresh handler
     onClickRefresh: React.PropTypes.func.isRequired,
+    onSwitchToBasics: React.PropTypes.func.isRequired,
     onSwitchToDaily: React.PropTypes.func.isRequired,
     onSwitchToModal: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
@@ -261,6 +261,7 @@ var Modal = React.createClass({
         atMostRecent={this.state.atMostRecent}
         inTransition={this.state.inTransition}
         title={this.state.title}
+        onClickBasics={this.props.onSwitchToBasics}
         onClickModal={this.handleClickModal}
         onClickOneDay={this.handleClickDaily}
         onClickTwoWeeks={this.handleClickWeekly}

@@ -150,6 +150,7 @@ var Daily = React.createClass({
     onCreateMessage: React.PropTypes.func.isRequired,
     onShowMessageThread: React.PropTypes.func.isRequired,
     // navigation handlers
+    onSwitchToBasics: React.PropTypes.func.isRequired,
     onSwitchToDaily: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToWeekly: React.PropTypes.func.isRequired,
@@ -177,6 +178,7 @@ var Daily = React.createClass({
           iconNext={'icon-next'}
           iconMostRecent={'icon-most-recent'}
           onClickBack={this.handlePanBack}
+          onClickBasics={this.props.onSwitchToBasics}
           onClickModal={this.handleClickModal}
           onClickMostRecent={this.handleClickMostRecent}
           onClickNext={this.handlePanForward}

@@ -25,6 +25,7 @@ var loadingGif = require('./loading.gif');
 var personUtils = require('../../core/personutils');
 var utils = require('../../core/utils');
 var Header = require('../../components/chart').header;
+var Basics = require('../../components/chart').basics;
 var Daily = require('../../components/chart').daily;
 var Modal = require('../../components/chart').modal;
 var Weekly = require('../../components/chart').weekly;
@@ -76,7 +77,7 @@ var PatientData = React.createClass({
           showingLines: false
         }
       },
-      chartType: 'daily',
+      chartType: 'basics',
       createMessage: null,
       createMessageDatetime: null,
       datetimeLocation: null,
@@ -231,6 +232,25 @@ var PatientData = React.createClass({
 
   renderChart: function() {
     switch (this.state.chartType) {
+      case 'basics':
+
+        return (
+          <Basics
+            bgPrefs={this.props.bgPrefs}
+            chartPrefs={this.state.chartPrefs}
+            timePrefs={this.props.timePrefs}
+            patientData={this.props.patientData[this.props.patient.userid]}
+            onClickRefresh={this.handleClickRefresh}
+            onSwitchToBasics={this.handleSwitchToBasics}
+            onSwitchToDaily={this.handleSwitchToDaily}
+            onSwitchToModal={this.handleSwitchToModal}
+            onSwitchToSettings={this.handleSwitchToSettings}
+            onSwitchToWeekly={this.handleSwitchToWeekly}
+            trackMetric={this.props.trackMetric}
+            uploadUrl={this.props.uploadUrl}
+            ref="tideline" />
+          );
+
       case 'daily':
         
         return (
@@ -243,6 +263,7 @@ var PatientData = React.createClass({
             onClickRefresh={this.handleClickRefresh}
             onCreateMessage={this.handleShowMessageCreation}
             onShowMessageThread={this.handleShowMessageThread}
+            onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
@@ -262,6 +283,7 @@ var PatientData = React.createClass({
             initialDatetimeLocation={this.state.initialDatetimeLocation}
             patientData={this.props.patientData[this.props.patient.userid]}
             onClickRefresh={this.handleClickRefresh}
+            onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
@@ -283,6 +305,7 @@ var PatientData = React.createClass({
             initialDatetimeLocation={this.state.initialDatetimeLocation}
             patientData={this.props.patientData[this.props.patient.userid]}
             onClickRefresh={this.handleClickRefresh}
+            onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
@@ -303,6 +326,7 @@ var PatientData = React.createClass({
             timePrefs={this.props.timePrefs}
             patientData={this.props.patientData[this.props.patient.userid]}
             onClickRefresh={this.handleClickRefresh}
+            onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
@@ -398,6 +422,18 @@ var PatientData = React.createClass({
     this.props.trackMetric('Clicked Message Pool Background');
   },
 
+  handleSwitchToBasics: function(e) {
+    this.props.trackMetric('Clicked Switch To Basics', {
+      fromChart: this.state.chartType
+    });
+    if (e) {
+      e.preventDefault();
+    }
+    this.setState({
+      chartType: 'basics'
+    });
+  },
+
   handleSwitchToDaily: function(datetime) {
     this.props.trackMetric('Clicked Switch To One Day', {
       fromChart: this.state.chartType
@@ -423,6 +459,14 @@ var PatientData = React.createClass({
       fromChart: this.state.chartType
     });
     datetime = datetime || this.state.datetimeLocation;
+    // when switching from initial Basics
+    // won't even have a datetimeLocation in the state yet
+    if (!datetime) {
+      this.setState({
+        chartType: 'weekly'
+      });
+      return;
+    }
     if (this.props.timePrefs.timezoneAware) {
       datetime = sundial.applyOffset(datetime, sundial.getOffsetFromZone(datetime, this.props.timePrefs.timezoneName));
       datetime = datetime.toISOString();
@@ -467,16 +511,12 @@ var PatientData = React.createClass({
     _.assign(currentPrefs, newChartPrefs);
     this.setState({
       chartPrefs: currentPrefs
-    }, function() {
-      // this.log('Global example state changed:', JSON.stringify(this.state));
     });
   },
 
   updateDatetimeLocation: function(datetime) {
     this.setState({
       datetimeLocation: datetime
-    }, function() {
-      // this.log('Global example state changed:', JSON.stringify(this.state));
     });
   }
 });

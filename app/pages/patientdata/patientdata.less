@@ -27,7 +27,7 @@
   color: #fff;
   background-color: @gray-dark;
 
-  padding: @patient-data-subnav-vertical-padding 0 @patient-data-subnav-horizontal-padding 0;
+  padding: @patient-data-subnav-vertical-padding 0;
 }
 
 .patient-data-subnav-text {
@@ -50,7 +50,10 @@
 
 .patient-data-subnav a {
   display: inline-block;
-  padding: 0 @patient-data-subnav-vertical-padding 0 @patient-data-subnav-horizontal-padding;
+  padding: 0 @patient-data-subnav-horizontal-padding;
+  &.patient-data-icon {
+    padding: 0;
+  }
 
   color: #fff;
   text-decoration: none;

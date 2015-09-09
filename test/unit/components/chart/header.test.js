@@ -19,6 +19,7 @@ describe('Header', function () {
         atMostRecent: false,
         title: 'Most Awesome',
         onClickBack: sinon.stub(),
+        onClickBasics: sinon.stub(),
         onClickModal: sinon.stub(),
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
@@ -40,6 +41,7 @@ describe('Header', function () {
         atMostRecent: false,
         title: 'Most Awesome',
         onClickBack: sinon.stub(),
+        onClickBasics: sinon.stub(),
         onClickModal: sinon.stub(),
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
@@ -66,6 +68,7 @@ describe('Header', function () {
         atMostRecent: false,
         title: 'Most Awesome',
         onClickBack: sinon.stub(),
+        onClickBasics: sinon.stub(),
         onClickModal: sinon.stub(),
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
@@ -92,6 +95,7 @@ describe('Header', function () {
         atMostRecent: false,
         title: 'Most Awesome',
         onClickBack: sinon.stub(),
+        onClickBasics: sinon.stub(),
         onClickModal: sinon.stub(),
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
@@ -110,7 +114,7 @@ describe('Header', function () {
       expect(props.onClickModal.callCount).to.equal(1);
     });
 
-    it('should trigger onClickMostRecent when inTransition is false and back button is clicked', function () {
+    it('should trigger onClickMostRecent when inTransition is false and mostRecent button is clicked', function () {
       console.warn = sinon.stub();
       var props = {
         chartType: 'Awesome',
@@ -118,6 +122,7 @@ describe('Header', function () {
         atMostRecent: false,
         title: 'Most Awesome',
         onClickBack: sinon.stub(),
+        onClickBasics: sinon.stub(),
         onClickModal: sinon.stub(),
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
@@ -129,10 +134,10 @@ describe('Header', function () {
       var elem = TestUtils.renderIntoDocument(dailyElem);
       expect(elem).to.be.ok;
       
-      var backButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-most-recent');
+      var mostRecentButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-most-recent');
 
       expect(props.onClickMostRecent.callCount).to.equal(0);
-      TestUtils.Simulate.click(backButton);
+      TestUtils.Simulate.click(mostRecentButton);
       expect(props.onClickMostRecent.callCount).to.equal(1);
     });
 
@@ -144,6 +149,7 @@ describe('Header', function () {
         atMostRecent: false,
         title: 'Most Awesome',
         onClickBack: sinon.stub(),
+        onClickBasics: sinon.stub(),
         onClickModal: sinon.stub(),
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
@@ -170,6 +176,7 @@ describe('Header', function () {
         atMostRecent: false,
         title: 'Most Awesome',
         onClickBack: sinon.stub(),
+        onClickBasics: sinon.stub(),
         onClickModal: sinon.stub(),
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
@@ -196,6 +203,7 @@ describe('Header', function () {
         atMostRecent: false,
         title: 'Most Awesome',
         onClickBack: sinon.stub(),
+        onClickBasics: sinon.stub(),
         onClickModal: sinon.stub(),
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
@@ -214,7 +222,7 @@ describe('Header', function () {
       expect(props.onClickNext.callCount).to.equal(0);
     });
 
-    it('should trigger onClickOneDay when modal button is clicked', function () {
+    it('should trigger onClickBasics when basics button is clicked', function () {
       console.warn = sinon.stub();
       var props = {
         chartType: 'Awesome',
@@ -222,6 +230,7 @@ describe('Header', function () {
         atMostRecent: false,
         title: 'Most Awesome',
         onClickBack: sinon.stub(),
+        onClickBasics: sinon.stub(),
         onClickModal: sinon.stub(),
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
@@ -233,14 +242,41 @@ describe('Header', function () {
       var elem = TestUtils.renderIntoDocument(dailyElem);
       expect(elem).to.be.ok;
       
-      var dayButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-day');
+      var basicsButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-basics');
+
+      expect(props.onClickBasics.callCount).to.equal(0);
+      TestUtils.Simulate.click(basicsButton);
+      expect(props.onClickBasics.callCount).to.equal(1);
+    });
+
+    it('should trigger onClickOneDay when daily button is clicked', function () {
+      console.warn = sinon.stub();
+      var props = {
+        chartType: 'Awesome',
+        inTransition: false,
+        atMostRecent: false,
+        title: 'Most Awesome',
+        onClickBack: sinon.stub(),
+        onClickBasics: sinon.stub(),
+        onClickModal: sinon.stub(),
+        onClickMostRecent: sinon.stub(),
+        onClickNext: sinon.stub(),
+        onClickOneDay: sinon.stub(),
+        onClickTwoWeeks: sinon.stub(),
+        onClickSettings: sinon.stub()
+      };
+      var dailyElem = React.createElement(Header, props);
+      var elem = TestUtils.renderIntoDocument(dailyElem);
+      expect(elem).to.be.ok;
+      
+      var dayButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-daily');
 
       expect(props.onClickOneDay.callCount).to.equal(0);
       TestUtils.Simulate.click(dayButton);
       expect(props.onClickOneDay.callCount).to.equal(1);
     });
 
-    it('should trigger onClickTwoWeeks when week button is clicked', function () {
+    it('should trigger onClickTwoWeeks when weekly button is clicked', function () {
       console.warn = sinon.stub();
       var props = {
         chartType: 'Awesome',
@@ -248,6 +284,7 @@ describe('Header', function () {
         atMostRecent: false,
         title: 'Most Awesome',
         onClickBack: sinon.stub(),
+        onClickBasics: sinon.stub(),
         onClickModal: sinon.stub(),
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
@@ -259,7 +296,7 @@ describe('Header', function () {
       var elem = TestUtils.renderIntoDocument(dailyElem);
       expect(elem).to.be.ok;
       
-      var weekButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-week');
+      var weekButton = TestUtils.findRenderedDOMComponentWithClass(elem, 'js-weekly');
 
       expect(props.onClickTwoWeeks.callCount).to.equal(0);
       TestUtils.Simulate.click(weekButton);
@@ -274,6 +311,7 @@ describe('Header', function () {
         atMostRecent: false,
         title: 'Most Awesome',
         onClickBack: sinon.stub(),
+        onClickBasics: sinon.stub(),
         onClickModal: sinon.stub(),
         onClickMostRecent: sinon.stub(),
         onClickNext: sinon.stub(),
