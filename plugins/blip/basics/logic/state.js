@@ -55,7 +55,7 @@ var basicsState = {
       active: true,
       column: 'right',
       index: 1,
-      title: 'Blood sugar testing',
+      title: 'Fingerstick testing',
       open: true,
       components: {
         fingerstick: {
@@ -87,7 +87,7 @@ var basicsState = {
       active: true,
       column: 'right',
       index: 4,
-      title: 'General care',
+      title: 'Infusion site changes',
       open: false,
       components: {
         infusionSite: {
