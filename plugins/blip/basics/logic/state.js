@@ -95,7 +95,7 @@ var basicsState = {
           chart: SiteChanges,
           container: CalendarContainer,
           title: 'Infusion site changes',
-          type: 'deviceMeta'
+          type: 'deviceEvent'
         }
       }
     },
