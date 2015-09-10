@@ -1,0 +1,25 @@
+.Infusion {
+  display: block;
+  height: 100%;
+  background-color: red;
+
+  .Infusion-daysSince-count {
+    
+  }
+
+  .Infusion-daysSince-text {
+    
+  }
+
+  .Infusion-line-end {
+    @include infusionLine;
+    left: @infusion-line-end-x;
+    width: @infusion-line-end-width;
+  }
+
+  .Infusion-line-start {
+    @include infusionLine;
+    left: @infusion-line-start-x;
+    width: @infusion-line-start-width;
+  }
+}

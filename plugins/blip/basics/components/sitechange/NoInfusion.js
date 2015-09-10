@@ -23,6 +23,7 @@ var NoInfusion = React.createClass({
   render: function() {
     return (
       <div className='NoInfusion'>
+        <div className='NoInfusion-line'></div>
       </div>
     );
   },

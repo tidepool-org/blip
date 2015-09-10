@@ -20,9 +20,19 @@ var _ = require('lodash');
 var React = require('react');
 
 var Infusion = React.createClass({
+  propTypes: {
+    daysSince: React.PropTypes.number.isRequired
+  },
   render: function() {
+    var daysText = (this.props.daysSince === 1) ? 'day' : 'days';
     return (
       <div className='Infusion'>
+        <div className='Infusion-daysSince-count'>{this.props.daysSince}</div>
+        <div className='Infusion-daysSince-text'>{daysText}</div>
+        <div className='Infusion-line-end'></div>
+        <div className='Infusion-line-stop'></div>
+        <div className='Infusion-line-start'></div>
+        <div className='Infusion-line-mark'></div>
       </div>
     );
   },

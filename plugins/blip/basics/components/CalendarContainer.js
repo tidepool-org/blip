@@ -26,7 +26,6 @@ var debug = bows('Calendar');
 var basicsActions = require('../logic/actions');
 
 var ADay = require('./day/ADay');
-var WrapCount = require('./chart/WrapCount');
 
 var CalendarContainer = React.createClass({
   propTypes: {

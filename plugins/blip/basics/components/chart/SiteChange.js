@@ -19,23 +19,29 @@
 var _ = require('lodash');
 var React = require('react');
 
+var constants = require('../../logic/constants');
+var Infusion = require('../sitechange/Infusion');
+var NoInfusion = require('../sitechange/NoInfusion');
+
 var SiteChange = React.createClass({
   propTypes: {
     data: React.PropTypes.object.isRequired,
     date: React.PropTypes.string.isRequired
   },
   render: function() {
+    var value = this.getValue();
+    var siteChangeComponent = 
+      ( value.type === constants.SITE_CHANGE) ?
+        <Infusion daysSince={value.daysSince} /> :
+        <NoInfusion />;
     return (
       <div className='SiteChange'>
+        {siteChangeComponent}
       </div>
     );
   },
-  getType: function() {
-    var type = this.props.data.deviceEvent.infusionSiteHistory[date];
-
-    if (type === 'siteChange') {
-      
-    }
+  getValue: function() {
+    return this.props.data.infusionSiteHistory[this.props.date];
   }
 });
 
