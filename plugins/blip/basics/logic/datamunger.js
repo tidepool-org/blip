@@ -1,5 +1,7 @@
 var _ = require('lodash');
 
+var constants = require('./constants');
+
 module.exports = {
   bgDistribution: function(data, bgClasses) {
     
@@ -16,11 +18,11 @@ module.exports = {
       else {
         daysSince += 1;
         if (countInfusionSitesPerDay[day.date] >= 1) {
-          infusionSiteHistory[day.date] = {type: 'siteChange', daysSince: daysSince};
+          infusionSiteHistory[day.date] = {type: constants.SITE_CHANGE, daysSince: daysSince};
           daysSince = 0;
         }
         else {
-          infusionSiteHistory[day.date] = {type: 'noSiteChange'};
+          infusionSiteHistory[day.date] = {type: constants.NO_SITE_CHANGE};
         }
       }
     });

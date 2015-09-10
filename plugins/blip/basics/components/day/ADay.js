@@ -25,3 +25,5 @@ var ADay = React.createClass({
     );
   }
 });
+
+module.exports = ADay;
