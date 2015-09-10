@@ -24,7 +24,7 @@ var CalendarContainer = require('../components/CalendarContainer');
 var BasalBolusRatio = _.noop;
 var BGDistribution = _.noop;
 var WrapCount = React.createFactory(require('../components/chart/WrapCount'));
-var SiteChanges = _.noop;
+var SiteChange = React.createFactory(require('../components/chart/SiteChange'));
 var TDD = _.noop;
 
 var basicsActions = require('./actions');
@@ -92,7 +92,7 @@ var basicsState = {
       components: {
         infusionSite: {
           active: true,
-          chart: SiteChanges,
+          chart: SiteChange,
           container: CalendarContainer,
           title: 'Infusion site changes',
           type: 'deviceEvent'
