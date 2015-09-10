@@ -128,7 +128,7 @@ module.exports = function(pool, opts) {
       .attr('class', 'messageTooltip')
       .append('span')
       .attr('class', 'secondary')
-      .html('<span class="value">' + d.user.fullName + '</span> ' + format.textPreview(d.messageText));
+      .html('<span class="value">' + format.nameForDisplay(d.user.fullName) + '</span> ' + format.textPreview(d.messageText));
     
     var dims = tooltips.foreignObjDimensions(foGroup);
     // foGroup.node().parentNode is the <foreignObject> itself

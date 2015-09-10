@@ -79,6 +79,24 @@ describe('format utility', function() {
     });
   });
 
+  describe('nameForDisplay', function() {
+    it('should be a function', function() {
+      assert.isFunction(fmt.nameForDisplay);
+    });
+
+    it('should return the same name for display if no words longer than maxWordLength', function() {
+      expect(fmt.nameForDisplay('food', 4)).to.equal('food');
+      expect(fmt.nameForDisplay('I had a dream', 5)).to.equal('I had a dream');
+      expect(fmt.nameForDisplay('In a world where people live forever', 7)).to.equal('In a world where people live forever');
+    });
+
+    it('should trim words that are longer than max word length', function() {
+      expect(fmt.nameForDisplay('foody', 4)).to.equal('food...');
+      expect(fmt.nameForDisplay('Derek Jonesy', 5)).to.equal('Derek Jones...');
+      expect(fmt.nameForDisplay('testing123@tidepool.org', 12)).to.equal('testing123@t...');
+    });
+  });
+
   describe('textPreview', function() {
     it('should be a function', function() {
       assert.isFunction(fmt.textPreview);
