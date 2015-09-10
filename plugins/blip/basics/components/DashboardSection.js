@@ -27,6 +27,8 @@ var basicsActions = require('../logic/actions');
 
 var DashboardSection = React.createClass({
   propTypes: {
+    bgClasses: React.PropTypes.object.isRequired,
+    bgUnits: React.PropTypes.string.isRequired,
     chart: React.PropTypes.func,
     container: React.PropTypes.any.isRequired,
     data: React.PropTypes.object.isRequired,
@@ -60,7 +62,10 @@ var DashboardSection = React.createClass({
     }
     else {
       dataDisplay = (
-        <this.props.container chart={this}
+        <this.props.container
+          bgClasses={this.props.bgClasses}
+          bgUnits={this.props.bgUnits}
+          chart={this.props.chart}
           data={this.props.data}
           days={this.props.days}
           title={this.props.title} />

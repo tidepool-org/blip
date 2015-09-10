@@ -6,7 +6,7 @@ module.exports = {
   bgDistribution: function(basicsData, bgClasses) {
     function categorizeBg(d) {
       if (d.value < bgClasses['very-low'].boundary) {
-        return 'veryLow';
+        return 'verylow';
       }
       else if (d.value >= bgClasses['very-low'].boundary &&
         d.value < bgClasses.low.boundary) {
@@ -21,7 +21,7 @@ module.exports = {
         return 'high';
       }
       else if (d.value >= bgClasses['very-high'].boundary) {
-        return 'veryHigh';
+        return 'veryhigh';
       }
     }
     function reshapeAsPercentages(grouped, total) {
@@ -91,7 +91,6 @@ module.exports = {
     }), function(total, insulin) {
       return total + insulin;
     });
-    console.log(sumBolusInsulin);
     var totalInsulin = sumBasalInsulin + sumBolusInsulin;
 
     return {

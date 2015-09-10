@@ -95,6 +95,8 @@ var BasicsChart = React.createClass({
     return _.map(column, function(section, index) {
       return (
         <Section key={section.name}
+          bgClasses={self.props.bgClasses}
+          bgUnits={self.props.bgUnits}
           chart={section.chart || null}
           container={section.container || section.components}
           data={self.state.data}

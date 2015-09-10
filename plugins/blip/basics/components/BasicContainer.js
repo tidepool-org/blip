@@ -23,14 +23,21 @@ var React = require('react');
 
 var BasicContainer = React.createClass({
   propTypes: {
-
+    bgClasses: React.PropTypes.object.isRequired,
+    bgUnits: React.PropTypes.string.isRequired,
+    chart: React.PropTypes.func.isRequired,
+    data: React.PropTypes.object.isRequired,
+    days: React.PropTypes.array.isRequired,
+    title: React.PropTypes.string.isRequired,
   },
   render: function() {
     return (
-      <div className='Container'>
-        <svg height='50' width='100'>
-          <circle cx='50'cy='25' r='15' fill='#06BCE4'/>
-        </svg>
+      <div className='BasicContainer'>
+        {this.props.chart({
+          bgClasses: this.props.bgClasses,
+          bgUnits: this.props.bgUnits,
+          data: this.props.data
+        })}
       </div>
     );
   }
