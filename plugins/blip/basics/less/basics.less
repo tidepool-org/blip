@@ -32,32 +32,12 @@ a {
   color: @headline;
 }
 
-@break-point: 1430px;
-@retina-break-point: 1279px;
-@retina-resolution: 120dpi;
 .full-width {
   width: 100%;
 }
 
-.tidelineContainer--basics {
-  height: 590px;
-  width: 75%;
-  @media only screen and (min-width : @retina-break-point) and (min-resolution : @retina-resolution) {
-    width: 90%;
-  }
-  margin: 5vh auto;
-  overflow-y: scroll;
-  background-color: #F7F7F8;
-}
-
 .Container--flex {
   display: flex;
-  @media only screen and (max-width : @retina-break-point) and (min-resolution : @retina-resolution) {
-    flex-direction: column;
-  }
-  @media only screen and (max-width : @break-point) and (max-resolution : @retina-resolution) {
-    flex-direction: column;
-  }
 
   .Column {
     box-sizing: border-box;
@@ -69,22 +49,10 @@ a {
 
   .Column--left {
     width: 33%;
-    @media only screen and (max-width : @retina-break-point) and (min-resolution : @retina-resolution) {
-      .full-width();
-    }
-    @media only screen and (min-width : @break-point) and (max-resolution : @retina-resolution) {
-      .full-width();
-    }
   }
 
   .Column--right {
     width: 67%;
     margin-right: 10px;
-    @media only screen and (max-width : @retina-break-point) and (min-resolution : @retina-resolution) {
-      .full-width();
-    }
-    @media only screen and (min-width : @break-point) and (max-resolution : @retina-resolution) {
-      .full-width();
-    }
   }
 }
