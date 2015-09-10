@@ -31,7 +31,35 @@ describe('basics datamunger', function() {
       assert.isFunction(dm.bgDistribution);
     });
 
-    
+    it('should always calculate a BG distribution for smbg data');
+
+    it('should yield cgmStatus `noCGM` if no cbg data');
+
+    it('should yield cgmStatus `notEnoughCGM` if not enough cbg data');
+
+    it('should calculate a BG distribution for cbg data if averages >= 144 readings per day');
+
+    it('should yield cgmStatus `calculatedCGM` when have calculated a BG distribution for cbg data');
+  });
+
+  describe('calculateBasalBolusStats', function() {
+    it('should be a function', function() {
+      assert.isFunction(dm.calculateBasalBolusStats);
+    });
+
+    describe('basalBolusRatio', function() {
+      it('should calculate percentage of basal insulin');
+
+      it('should calculate percentage of bolus insulin');
+
+      it('should exclude any portion of basal duration prior to or following basics date range');
+    });
+
+    describe('totalDailyDose', function() {
+      it('should calculate average total daily dose');
+
+      it('should exclude any portion of basal duration prior to or following basics date range');
+    });
   });
 
   describe('infusionSiteHistory', function() {
@@ -52,6 +80,8 @@ describe('basics datamunger', function() {
       assert.isFunction(dm.infusionSiteHistory);
     });
 
-    it.skip('should return an object keyed by date; value is object with attrs type, daysSince');
+    it('should return an object keyed by date; value is object with attrs type, daysSince');
+
+    it('should properly calculate the daysSince for the first infusion site change');
   });
 });
