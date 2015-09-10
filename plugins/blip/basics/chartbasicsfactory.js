@@ -28,6 +28,7 @@ require('./less/basics.less');
 var debug = bows('Basics Chart');
 var basicsState = require('./logic/state');
 var basicsActions = require('./logic/actions');
+var dataMunger = require('./logic/datamunger');
 
 var Section = require('./components/DashboardSection');
 
@@ -46,6 +47,8 @@ var BasicsChart = React.createClass({
     var basicsData = this.props.patientData.basicsData;
     if (basicsData.sections == null) {
       basicsData = _.assign(basicsData, basicsState);
+      // TODO: check for existence of deviceEvent first
+      basicsData.data.deviceEvent.infusionSiteHistory = dataMunger.infusionSiteHistory(basicsData);
     }
     this.setState(basicsData);
     basicsActions.bindApp(this);
