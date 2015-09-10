@@ -106,8 +106,20 @@ var datetime = {
   findBasicsDays: function(range, timezone) {
     timezone = timezone || 'UTC';
     var currentDate = new Date(range[0]), days = [];
+    var dateOfUpload = moment(Date.parse(range[1])).tz(timezone).format('YYYY-MM-DD');
     while (currentDate < moment(Date.parse(range[1])).tz(timezone).endOf('isoWeek')) {
-      days.push(moment(currentDate).tz(timezone).format('YYYY-MM-DD'));
+      var date = moment(currentDate).tz(timezone).format('YYYY-MM-DD');
+      var dateObj = {date: date};
+      if (date < dateOfUpload) {
+        dateObj.type = 'past';
+      }
+      else if (date === dateOfUpload) {
+        dateObj.type = 'mostRecent';
+      }
+      else {
+        dateObj.type = 'future';
+      }
+      days.push(dateObj);
       currentDate = moment(currentDate).tz(timezone).add(1, 'days').toDate();
     }
     return days;

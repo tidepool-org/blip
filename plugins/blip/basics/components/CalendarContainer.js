@@ -33,7 +33,8 @@ var ADay = React.createClass({
     dayAbbrevMask: React.PropTypes.string.isRequired,
     chart: React.PropTypes.func.isRequired,
     data: React.PropTypes.object,
-    date: React.PropTypes.string.isRequired
+    date: React.PropTypes.string.isRequired,
+    future: React.PropTypes.bool.isRequired
   },
   getDefaultProps: function() {
     return {
@@ -86,10 +87,11 @@ var CalendarContainer = React.createClass({
 
     return this.props.days.map(function(day) {
       return (
-        <ADay key={day}
+        <ADay key={day.date}
           chart={self.props.chart}
           data={self.props.data[self.props.type]}
-          date={day} />
+          date={day.date}
+          future={day.type === 'future'} />
       );
     });
   }

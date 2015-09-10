@@ -167,10 +167,10 @@ describe('datetime utility', function() {
     });
 
     it('should always return at least 7 days, Monday thru Friday', function() {
-      expect(dt.findBasicsDays([
+      expect(_.pluck(dt.findBasicsDays([
         '2015-09-07T07:00:00.000Z',
         '2015-09-07T12:00:00.000Z'
-      ], 'US/Pacific')).to.deep.equal([
+      ], 'US/Pacific'), 'date')).to.deep.equal([
         '2015-09-07',
         '2015-09-08',
         '2015-09-09',
@@ -182,10 +182,10 @@ describe('datetime utility', function() {
     });
 
     it('should return a multiple of 7 days, Monday thru Friday', function() {
-      expect(dt.findBasicsDays([
+      expect(_.pluck(dt.findBasicsDays([
         '2015-09-07T05:00:00.000Z',
         '2015-09-24T12:00:00.000Z'
-      ], 'US/Central')).to.deep.equal([
+      ], 'US/Central'), 'date')).to.deep.equal([
         '2015-09-07',
         '2015-09-08',
         '2015-09-09',
@@ -211,10 +211,10 @@ describe('datetime utility', function() {
     });
 
     it('should use UTC for the timezone when none provided', function() {
-      expect(dt.findBasicsDays([
+      expect(_.pluck(dt.findBasicsDays([
         '2015-09-07T00:00:00.000Z',
         '2015-09-07T12:00:00.000Z'
-      ])).to.deep.equal([
+      ]), 'date')).to.deep.equal([
         '2015-09-07',
         '2015-09-08',
         '2015-09-09',
@@ -224,6 +224,8 @@ describe('datetime utility', function() {
         '2015-09-13',
       ]);
     });
+
+    it('should categorize each date as past, mostRecent or future');
   });
 
   describe('findBasicsStart', function() {
