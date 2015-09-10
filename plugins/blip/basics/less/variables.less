@@ -13,23 +13,21 @@
 
 @small-pad: 6px;
 
+@infusion-color: #e8b03f;
+
 @infusion-line-width: @day-width + @day-between;
 @infusion-line-height: 4px;
 @infusion-line-y: (@day-height / 2) - (@infusion-line-height/2);
 
 @infusion-site-gap: 20px;
+@infusion-line-mark-size: 10px;
+
+@infusion-left-bias: 10px; /* Add more length to the end of a line on an infusion day */
 
 @infusion-line-end-x: 0px;
-@infusion-line-end-width: @day-width/2 - (@infusion-site-gap/2);
+@infusion-line-end-width: @day-width/2 + @infusion-left-bias - (@infusion-site-gap/2);
 
-@infusion-line-start-x: @day-width/2 + (@infusion-site-gap/2);
+@infusion-line-start-x: @day-width/2 + @infusion-left-bias + (@infusion-site-gap/2);
 @infusion-line-start-width: (@day-width/2 - 10px) + @day-between;
 
-@mixin infusionLine {
-    display: block;
-    position: absolute;
-    top: @infusion-line-y;
-    height: @infusion-line-height;
-    background-color: blue;
-    padding: 0px;
-}
+@infusion-line-stop-height: 26px;

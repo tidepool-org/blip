@@ -1,19 +1,10 @@
-@day-width: 72px + @small-pad;
-@day-height: 72px + @small-pad;
-@day-between: 8px;
-
-@days-max: @day-width * 7 + @day-between * 6;
-
-@corner: 18px;
-
-@small-pad: 6px;
-
 .Calendar-container {
 
 	.Calendar {
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: space-between;
+		overflow-x: hidden;
 
 		max-width: @days-max;
 		margin: 0 auto;
