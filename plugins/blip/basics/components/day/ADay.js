@@ -5,6 +5,7 @@ var cx = require('classnames');
 var ADay = React.createClass({
   propTypes: {
     dayAbbrevMask: React.PropTypes.string.isRequired,
+    firstDayAbbrevMask: React.PropTypes.string.isRequired,
     chart: React.PropTypes.func.isRequired,
     data: React.PropTypes.object,
     date: React.PropTypes.string.isRequired,
@@ -14,7 +15,8 @@ var ADay = React.createClass({
   },
   getDefaultProps: function() {
     return {
-      dayAbbrevMask: 'D'
+      dayAbbrevMask: 'D',
+      firstDayAbbrevMask: 'MMM D'
     };
   },
   /**
@@ -35,17 +37,23 @@ var ADay = React.createClass({
   },
   render: function() {
     var chart = this.props.chart({data: this.props.data, date: this.props.date});
+    var date = moment(this.props.date);
 
     var containerClass = cx({
       'Calendar-day': !this.props.future,
       'Calendar-day-future': this.props.future,
-      'Calendar-day-most-recent': this.props.mostRecent
+      'Calendar-day-most-recent': this.props.mostRecent,
+      'Calendar-day-odd-month': (date.month() % 2 === 0)
     });
 
+    
+    var mask = (date.date() === 1) ?
+      this.props.firstDayAbbrevMask :
+      this.props.dayAbbrevMask;
     return (
       <div className={containerClass} onMouseEnter={this.mouseEnter} onMouseLeave={this.mouseLeave}>
         <p className='Calendar-weekday'>
-          {moment(this.props.date).format(this.props.dayAbbrevMask)}
+          {date.format(mask)}
         </p>
         {this.props.future ? null: chart}
       </div>

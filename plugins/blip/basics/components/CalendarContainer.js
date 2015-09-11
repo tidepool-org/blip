@@ -61,16 +61,34 @@ var CalendarContainer = React.createClass({
     });
 
     var days = this.renderDays();
+    var dayLabels = this.renderDayLabels();
 
     return (
       <div className='Container'>
         <div className={containerClass} ref='container'>
           <div className='Calendar' ref='content'>
+            {dayLabels}
             {days}
           </div>
         </div>
       </div>
     );
+  },
+  renderDayLabels: function() {
+    // Take the first day in the set and use this to set the day labels
+    // Could be subject to change so I thought this was preferred over
+    // hard-coding a solution that assumes Monday is the first day
+    // of the week.
+    var firstDay = moment(this.props.days[0].date).day();
+    return _.range(firstDay, firstDay + 7).map(function(dow) {
+      return (
+        <div className='Calendar-day-label'>
+          <div className='Calendar-dayofweek'>
+            {moment().day(dow).format('ddd')}
+          </div>
+        </div>
+      );
+    });
   },
   renderDays: function() {
     var self = this;

@@ -9,27 +9,31 @@
 		max-width: @days-max;
 		margin: 0 auto;
 
-		.Calendar-day, .Calendar-day-future, .Calendar-day--HOVER {
+		.Calendar-day, .Calendar-day-future, .Calendar-day-label, .Calendar-day--HOVER {
 			flex: 0 1 @day-width;
 			height: @day-height;
 			position: relative;
 
 			margin-top: 8px;
 
-			.Calendar-weekday {
+			.Calendar-weekday, .Calendar-dayofweek {
 				position: absolute;
 				top: 0;
 				left: 0;
 
-				color: @light;
+				color: @light-color;
 				font-size: 12px;
 				margin: 0;
 				padding-left: @small-pad/2;
 			}
 		}
 
+		.Calendar-day-label {
+			height: @label-height;
+		}
+
 		.Calendar-day--HOVER {
-			background-color: @blue-calendar;
+			background-color: @calendar-blue-color;
 			.Calendar-weekday {
 				position: absolute;
 				top: 0;
@@ -50,7 +54,7 @@
 		}
 
 		.Calendar-day-future {
-			background-color: lighten(#E7F5F7, 10%)
+			background-color: @future-day-color;
 		}
 
 		.Calendar-day-most-recent {
@@ -58,7 +62,11 @@
 		}
 
 		.Calendar-day, {
-			background-color: #E7F5F7;
+			background-color: @day-color;
+
+			&.Calendar-day-odd-month {
+				background-color: @alt-day-color;
+			}
 
 			.WrapCount {
 				display: flex;
@@ -72,7 +80,7 @@
 					margin: 0;
 
 					circle {
-						fill: @blue-calendar;
+						fill: @calendar-blue-color;
 					}
 				}
 			}

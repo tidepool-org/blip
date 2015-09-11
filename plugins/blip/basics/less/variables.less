@@ -1,10 +1,24 @@
-@headline: #281A45;
-@light: #A9BACE;
 
-@blue-calendar: #6480FB;
+/*
+ * Colors
+ */
+@headline-color: #281a45;
+@light-color: #a9bace;
+@header-background-base-color: #E3E1E6;
 
+@day-color: #e7f5f7;
+@alt-day-color: lighten(#e7f5f7, 2%);
+@future-day-color: lighten(#e7f5f7, 5%);
+
+@infusion-color: #e8b03f;
+@calendar-blue-color: #6480FB;
+
+/*
+ * Day sizing variables
+ */
 @day-width: 72px + @small-pad;
 @day-height: 72px + @small-pad;
+@label-height: 20px;
 @day-between: 8px;
 
 @days-max: @day-width * 7 + @day-between * 6;
@@ -13,8 +27,9 @@
 
 @small-pad: 6px;
 
-@infusion-color: #e8b03f;
-
+/*
+ * Infusion sizing variables
+ */
 @infusion-line-width: @day-width + @day-between;
 @infusion-line-height: 4px;
 @infusion-line-y: (@day-height / 2) - (@infusion-line-height/2);
