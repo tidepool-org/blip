@@ -62,7 +62,7 @@ var BGDistribution = React.createClass({
           verylow: 'below ' + bgClasses['very-low'].boundary
         };
         categories[positions[category]] = (
-          <div key={category}>
+          <div className='BGDistribution-section' key={category}>
             <p className={textClass} key={category}>
               {d3.format('%')(distribution[category])}
             </p>

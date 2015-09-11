@@ -2,13 +2,24 @@
   width: 100%;
   @small-text: 12px;
 
+  &:first-child p:first-child {
+    margin-top: 0;
+  }
+
+  .BGDistribution-section {
+    background-color: #EEF5F9;
+  }
+
   .BGDistribution-text {
     text-align: center;
+    margin-top: 10px;
+    padding: 8px 0px;
   }
   .BGDistribution-text--percentage {
     font-size: 24px;
     font-weight: bold;
-    margin-bottom: 6px;
+    margin-bottom: 0px;
+    padding-bottom: 2px;
   }
   .BGDistribution-text--low {
     color: @bg-low;
@@ -24,7 +35,8 @@
     margin-top: 0;
   }
   .BGDistribution-cgmStatus {
-    margin-top: 24px;
+    margin-top: 12px;
+    margin-bottom: 0;
     font-size: @small-text;
   }
 }
