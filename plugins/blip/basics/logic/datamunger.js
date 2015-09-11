@@ -25,12 +25,19 @@ module.exports = {
       }
     }
     function reshapeAsPercentages(grouped, total) {
+      var distributionDefaults = {
+        verylow: 0,
+        low: 0,
+        target: 0,
+        high: 0,
+        veryhigh: 0
+      };
       var reshaped = {};
       for (var key in grouped) {
         var group = grouped[key];
         reshaped[key] = group.length/total;
       }
-      return reshaped;
+      return _.defaults(reshaped, distributionDefaults);
     }
     var cgm = basicsData.data.cbg;
     var bgm = basicsData.data.smbg;
