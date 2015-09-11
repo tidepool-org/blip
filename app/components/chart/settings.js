@@ -67,7 +67,7 @@ var SettingsChart = React.createClass({
   render: function() {
     
     return (
-      <div id="tidelineContainer" className="patient-data-chart"></div>
+      <div id="tidelineContainer" className="patient-data-chart-growing"></div>
       );
     
   }
