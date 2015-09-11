@@ -2,19 +2,16 @@ var React = require('react');
 var moment = require('moment');
 var cx = require('classnames');
 
-var ADay = React.createClass({
+var HoverDay = React.createClass({
   propTypes: {
     dayAbbrevMask: React.PropTypes.string.isRequired,
-    chart: React.PropTypes.func.isRequired,
     data: React.PropTypes.object,
     date: React.PropTypes.string.isRequired,
-    future: React.PropTypes.bool.isRequired,
-    mostRecent: React.PropTypes.bool.isRequired,
     onHover: React.PropTypes.func.isRequired
   },
   getDefaultProps: function() {
     return {
-      dayAbbrevMask: 'D'
+      dayAbbrevMask: 'MMM D'
     };
   },
   mouseEnter: function () {
@@ -25,23 +22,26 @@ var ADay = React.createClass({
     this.props.onHover(null);
   },
   render: function() {
-    var chart = this.props.chart({data: this.props.data, date: this.props.date});
-
     var containerClass = cx({
-      'Calendar-day': !this.props.future,
-      'Calendar-day-future': this.props.future,
-      'Calendar-day-most-recent': this.props.mostRecent
+      'Calendar-day--HOVER': true,
     });
-
     return (
       <div className={containerClass} onMouseEnter={this.mouseEnter} onMouseLeave={this.mouseLeave}>
         <p className='Calendar-weekday'>
           {moment(this.props.date).format(this.props.dayAbbrevMask)}
         </p>
-        {this.props.future ? null: chart}
+        <div className='Calendar-day-text'>
+          {this.getCount()}
+        </div>
       </div>
     );
+  },
+  getCount: function() {
+    if (_.isEmpty(this.props.data)) {
+      return 0;
+    }
+    return this.props.data.countByDate[this.props.date];
   }
 });
 
-module.exports = ADay;
+module.exports = HoverDay;

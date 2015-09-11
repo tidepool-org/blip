@@ -26,6 +26,7 @@ var debug = bows('Calendar');
 var basicsActions = require('../logic/actions');
 
 var ADay = require('./day/ADay');
+var HoverDay = require('./day/HoverDay');
 
 var CalendarContainer = React.createClass({
   propTypes: {
@@ -35,7 +36,16 @@ var CalendarContainer = React.createClass({
     data: React.PropTypes.object.isRequired,
     days: React.PropTypes.array.isRequired,
     title: React.PropTypes.string.isRequired,
-    type: React.PropTypes.string.isRequired
+    type: React.PropTypes.string.isRequired,
+    hasHover: React.PropTypes.bool
+  },
+  getInitialState: function() {
+    return {
+      hoverDate: null
+    };
+  },
+  onHover: function(date) {
+    this.setState({hoverDate: date});
   },
   render: function() {
     var self = this;
@@ -60,13 +70,22 @@ var CalendarContainer = React.createClass({
     var self = this;
 
     return this.props.days.map(function(day) {
-      return (
-        <ADay key={day.date}
-          chart={self.props.chart}
-          data={self.props.data[self.props.type]}
-          date={day.date}
-          future={day.type === 'future'} />
-      );
+      if (self.props.hasHover && self.state.hoverDate === day.date) {
+        return <HoverDay key={day.date}
+            data={self.props.data[self.props.type]}
+            date={day.date}
+            onHover={self.onHover} />
+      } else {
+        return (
+          <ADay key={day.date}
+            chart={self.props.chart}
+            data={self.props.data[self.props.type]}
+            date={day.date}
+            future={day.type === 'future'}
+            mostRecent={day.type === 'mostRecent'}
+            onHover={self.onHover} />
+        );
+      }  
     });
   }
 });

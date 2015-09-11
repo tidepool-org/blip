@@ -63,7 +63,8 @@ var basicsState = {
           chart: WrapCount,
           container: CalendarContainer,
           title: 'Fingersticks',
-          type: 'smbg'
+          type: 'smbg',
+          hasHover: true
         }
       }
     },
@@ -79,7 +80,8 @@ var basicsState = {
           chart: WrapCount,
           container: CalendarContainer,
           title: 'Boluses',
-          type: 'bolus'
+          type: 'bolus',
+          hasHover: true
         }
       }
     },
@@ -95,7 +97,8 @@ var basicsState = {
           chart: SiteChange,
           container: CalendarContainer,
           title: 'Infusion site changes',
-          type: 'deviceEvent'
+          type: 'deviceEvent',
+          hasHover: false
         }
       }
     },
