@@ -71,7 +71,8 @@ var Basics = React.createClass({
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
-              {this.isMissingBasics() ? this.renderMissingBasicsMessage() : this.renderChart()}
+              {this.isMissingBasics() ?
+                this.renderMissingBasicsMessage() : this.renderChart()}
             </div>
           </div>
         </div>
@@ -86,12 +87,14 @@ var Basics = React.createClass({
   renderChart: function() {
     
     return (
-      <BasicsChart
-        bgClasses={this.props.bgPrefs.bgClasses}
-        bgUnits={this.props.bgPrefs.bgUnits}
-        patientData={this.props.patientData}
-        timePrefs={this.props.timePrefs}
-        ref="chart" />
+      <div id="tidelineContainer" className="patient-data-chart-growing">
+        <BasicsChart
+          bgClasses={this.props.bgPrefs.bgClasses}
+          bgUnits={this.props.bgPrefs.bgUnits}
+          patientData={this.props.patientData}
+          timePrefs={this.props.timePrefs}
+          ref="chart" />
+      </div>
     );
     
   },
