@@ -1,0 +1,67 @@
+.Change {
+  display: block;
+  height: 100%;
+  background-color: @infusion-day-color;
+
+  @font-size: 14px;
+  @line-height: 16px;
+
+  .Change-daysSince-text {
+    display: block;
+    position: absolute;
+    font-size: @font-size;
+    line-height: @line-height;
+    color: @infusion-line-color;
+    width: 30px;
+    text-align: center;
+    left: 14px;
+    top: @infusion-line-y-base + ((@infusion-line-stop-size + 5)/2) + 5;
+  }
+
+  .Change-daysSince-count {
+    font-weight: bold;
+    padding-right: 5px;
+  }
+
+  .Change-line-end, .Change-line-start, 
+  .Change-line-stop, .Change-line-mark {
+    display: block;
+    position: absolute;
+    background-color: @infusion-line-color;
+    padding: 0px;
+  }
+
+  .Change-line-end, .Change-line-start {
+    top: @infusion-line-y;
+    height: @infusion-line-height;
+  }
+
+  .Change-line-end {
+    left: @infusion-line-end-x;
+    width: @infusion-line-end-width;
+  }
+
+  .Change-line-start {
+    left: @infusion-line-start-x;
+    width: @infusion-line-start-width;
+  }
+
+  .Change-line-stop {
+    height: @infusion-line-stop-size + 5;
+    width: @infusion-line-stop-size;
+    top: @infusion-line-y-base - (@infusion-line-stop-size/2);
+    background-color: transparent;
+    background-image: url(../../components/sitechange/sitechange.png);
+    background-size: cover;
+    background-repeat: no-repeat;
+    left: @infusion-line-end-width - 2;
+  }
+
+  .Change-line-mark {
+    top: @infusion-line-y-base - (@infusion-line-mark-size/2);
+    border-radius: @infusion-line-mark-size/2;
+    height: @infusion-line-mark-size;
+    width: @infusion-line-mark-size;
+    left: @infusion-line-start-x - (@infusion-line-mark-size/2);
+  }
+}

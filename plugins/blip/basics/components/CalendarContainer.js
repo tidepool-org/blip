@@ -93,13 +93,14 @@ var CalendarContainer = React.createClass({
   renderDays: function() {
     var self = this;
 
-    return this.props.days.map(function(day) {
+    return this.props.days.map(function(day, id) {
       if (self.props.hasHover && self.state.hoverDate === day.date) {
         return (
           <HoverDay key={day.date}
             data={self.props.data[self.props.type]}
             date={day.date}
-            onHover={self.onHover} />
+            onHover={self.onHover}
+            type={self.props.type} />
         );
       } else {
         return (
@@ -109,6 +110,7 @@ var CalendarContainer = React.createClass({
             date={day.date}
             future={day.type === 'future'}
             mostRecent={day.type === 'mostRecent'}
+            isFirst={id === 0}
             onHover={self.onHover} />
         );
       }  

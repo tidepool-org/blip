@@ -6,6 +6,7 @@ var _ = require('lodash');
 var HoverDay = React.createClass({
   propTypes: {
     dayAbbrevMask: React.PropTypes.string.isRequired,
+    type: React.PropTypes.string.isRequired,
     data: React.PropTypes.object,
     date: React.PropTypes.string.isRequired,
     onHover: React.PropTypes.func.isRequired
@@ -25,6 +26,7 @@ var HoverDay = React.createClass({
   render: function() {
     var containerClass = cx({
       'Calendar-day--HOVER': true,
+      'Calendar-day--HOVER-bolus': (this.props.type === 'bolus')
     });
     return (
       <div className={containerClass} onMouseEnter={this.mouseEnter} onMouseLeave={this.mouseLeave}>
