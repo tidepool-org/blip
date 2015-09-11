@@ -20,8 +20,8 @@ var _ = require('lodash');
 var React = require('react');
 
 var constants = require('../../logic/constants');
-var Infusion = require('../sitechange/Infusion');
-var NoInfusion = require('../sitechange/NoInfusion');
+var Change = require('../sitechange/Change');
+var NoChange = require('../sitechange/NoChange');
 
 var SiteChange = React.createClass({
   propTypes: {
@@ -32,8 +32,8 @@ var SiteChange = React.createClass({
     var value = this.getValue();
     var siteChangeComponent = 
       ( value.type === constants.SITE_CHANGE) ?
-        <Infusion daysSince={value.daysSince} /> :
-        <NoInfusion />;
+        <Change daysSince={value.daysSince} /> :
+        <NoChange />;
     return (
       <div className='SiteChange'>
         {siteChangeComponent}

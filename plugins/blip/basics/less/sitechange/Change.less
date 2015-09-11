@@ -1,4 +1,4 @@
-.Infusion {
+.Change {
   display: block;
   height: 100%;
   background-color: lighten(@infusion-color, 20%);
@@ -6,7 +6,7 @@
   @font-size: 14px;
   @line-height: 16px;
 
-  .Infusion-daysSince-count, .Infusion-daysSince-text {
+  .Change-daysSince-count, .Change-daysSince-text {
     display: block;
     position: absolute;
     font-size: @font-size;
@@ -17,45 +17,45 @@
     left: 3px;
   }
 
-  .Infusion-daysSince-count {
+  .Change-daysSince-count {
     top: @day-height/2 - (5px + @line-height);
   }
 
-  .Infusion-daysSince-text {
+  .Change-daysSince-text {
     top: @day-height/2 + 5px;
   }
 
-  .Infusion-line-end, .Infusion-line-start, 
-  .Infusion-line-stop, .Infusion-line-mark {
+  .Change-line-end, .Change-line-start, 
+  .Change-line-stop, .Change-line-mark {
     display: block;
     position: absolute;
     background-color: @infusion-color;
     padding: 0px;
   }
 
-  .Infusion-line-end, .Infusion-line-start {
+  .Change-line-end, .Change-line-start {
     top: @infusion-line-y;
     height: @infusion-line-height;
   }
 
-  .Infusion-line-end {
+  .Change-line-end {
     left: @infusion-line-end-x;
     width: @infusion-line-end-width;
   }
 
-  .Infusion-line-start {
+  .Change-line-start {
     left: @infusion-line-start-x;
     width: @infusion-line-start-width;
   }
 
-  .Infusion-line-stop {
+  .Change-line-stop {
     height: @infusion-line-stop-height;
     top: @day-height/2 - (@infusion-line-stop-height/2);
     width: @infusion-line-height; /* for the stop this is correct */
     left: @infusion-line-end-width;
   }
 
-  .Infusion-line-mark {
+  .Change-line-mark {
     top: @day-height/2 - (@infusion-line-mark-size/2);
     border-radius: @infusion-line-mark-size/2;
     height: @infusion-line-mark-size;
