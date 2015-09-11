@@ -82,13 +82,17 @@ var BGDistribution = React.createClass({
     return null;
   },
   renderCgmStatus: function() {
+    var cgmStatus = this.props.data.bgDistribution.cgmStatus;
     var displayText = {};
     displayText[constants.NO_CGM] = 'No CGM data in this time period';
-    displayText[constants.NOT_ENOUGH_CGM] = 'Not enough CGM data in this period; Distribution based on fingerstick data';
+    displayText[constants.NOT_ENOUGH_CGM] = 'Not enough CGM data in this period';
     displayText[constants.CGM_CALCULATED] = 'Distribution based on CGM data';
+    var secondLine = 'Distribution based on fingerstick data';
     return (
       <p className='BGDistribution-text BGDistribution-cgmStatus'>
-        {displayText[this.props.data.bgDistribution.cgmStatus]}
+        {displayText[cgmStatus]}
+        <br/>
+        {cgmStatus === constants.NOT_ENOUGH_CGM ? secondLine : null}
       </p>
     );
   }
