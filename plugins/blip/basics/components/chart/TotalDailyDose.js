@@ -1,63 +1,40 @@
-/*
+/** @jsx React.DOM */
+/* 
  * == BSD2 LICENSE ==
- * Copyright (c) 2015, Tidepool Project
- *
+ * Copyright (c) 2015 Tidepool Project
+ * 
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- *
+ * 
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- *
+ * 
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
 
-@import '../../../../css/tideline-colors.less';
+var _ = require('lodash');
+var d3 = require('d3');
+var React = require('react');
 
-@import 'DashboardSection.less';
-@import 'CalendarContainer.less';
-
-@import 'BGDistribution.less';
-@import 'TotalDailyDose.less';
-
-svg {
-  display: block;
-  margin: 0 auto;
-}
-
-@headline: #281A45;
-@light: #A9BACE;
-
-@blue-calendar: #6480FB;
-
-a {
-  color: @headline;
-}
-
-.full-width {
-  width: 100%;
-}
-
-.Container--flex {
-  display: flex;
-
-  .Column {
-    box-sizing: border-box;
-    padding: 5px;
-
-    display: flex;
-    flex-direction: column;
+var TotalDailyDose = React.createClass({
+  propTypes: {
+    data: React.PropTypes.object.isRequired
+  },
+  render: function() {
+    return (
+      <div className='TotalDailyDose'>
+        <p className='TotalDailyDose-main'>
+          <span className='TotalDailyDose-text--large'>
+            {d3.format('.1f')(this.props.data.totalDailyDose)}
+          </span> u/day (average)
+        </p>
+      </div>
+    );
   }
+});
 
-  .Column--left {
-    width: 33%;
-  }
-
-  .Column--right {
-    width: 67%;
-    margin-right: 10px;
-  }
-}
+module.exports = TotalDailyDose;

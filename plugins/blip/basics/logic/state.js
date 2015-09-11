@@ -25,7 +25,7 @@ var BasalBolusRatio = _.noop;
 var BGDistribution = React.createFactory(require('../components/chart/BGDistribution'));
 var WrapCount = React.createFactory(require('../components/chart/WrapCount'));
 var SiteChanges = _.noop;
-var TDD = _.noop;
+var TotalDailyDose = React.createFactory(require('../components/chart/TotalDailyDose'));
 
 var basicsActions = require('./actions');
 
@@ -101,7 +101,7 @@ var basicsState = {
     },
     tdd: {
       active: true,
-      chart: TDD,
+      chart: TotalDailyDose,
       container: BasicContainer,
       column: 'left',
       index: 2,
