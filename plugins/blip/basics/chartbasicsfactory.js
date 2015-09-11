@@ -67,14 +67,12 @@ var BasicsChart = React.createClass({
     var leftColumn = this.renderColumn('left');
     var rightColumn = this.renderColumn('right');
     return (
-      <div id="tidelineContainer" className="patient-data-chart">
-        <div className='Container--flex'>
-          <div className='Column Column--left'>
-            {leftColumn}
-          </div>
-          <div className='Column Column--right'>
-            {rightColumn}
-          </div>
+      <div className='Container--flex'>
+        <div className='Column Column--left'>
+          {leftColumn}
+        </div>
+        <div className='Column Column--right'>
+          {rightColumn}
         </div>
       </div>
     );

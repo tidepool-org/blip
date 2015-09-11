@@ -72,14 +72,14 @@ module.exports = {
     if (basals[0].normalTime < basicsData.dateRange[0]) {
       start = basicsData.dateRange[0];
       firstDuration = Date.parse(basals[0].normalEnd) - Date.parse(start);
-      firstInsulin = basals[0].rate * firstDuration;
+      firstInsulin = basals[0].rate * (firstDuration/constants.MS_IN_HOUR);
       basals.shift();
     }
     var end = basals[basals.length - 1].normalEnd;
     if (basals[basals.length - 1].normalEnd > basicsData.dateRange[1]) {
       end = basicsData.dateRange[1];
       lastDuration = Date.parse(end) - Date.parse(basals[basals.length - 1].normalTime);
-      lastInsulin = basals[basals.length - 1].rate * lastDuration;
+      lastInsulin = basals[basals.length - 1].rate * (lastDuration/constants.MS_IN_HOUR);
       basals.pop();
     }
     var sumDurations = firstDuration + lastDuration + _.reduce(_.pluck(basals, 'duration'), function(total, dur) {
@@ -112,7 +112,12 @@ module.exports = {
     var countInfusionSitesPerDay = basicsData.data.deviceEvent.countByDate;
     var allDays = basicsData.days;
     var infusionSiteHistory = {};
-    var daysSince = 0;
+    // daysSince does *not* start at zero because we have to look back to the
+    // most recent infusion site change prior to the basics-restricted time domain
+    var priorSiteChange = _.findLast(_.keys(countInfusionSitesPerDay), function(date) {
+      return date < allDays[0].date;
+    });
+    var daysSince = (Date.parse(allDays[0].date) - Date.parse(priorSiteChange))/constants.MS_IN_DAY - 1;
     _.each(allDays, function(day) {
       if (day.type === 'future') {
         infusionSiteHistory[day.date] = {type: 'future'};
