@@ -1,35 +1,33 @@
 .Change {
   display: block;
   height: 100%;
-  background-color: lighten(@infusion-color, 20%);
+  background-color: @infusion-day-color;
 
   @font-size: 14px;
   @line-height: 16px;
 
-  .Change-daysSince-count, .Change-daysSince-text {
+  .Change-daysSince-text {
     display: block;
     position: absolute;
     font-size: @font-size;
     line-height: @line-height;
-    color: white;
+    color: @infusion-line-color;
     width: 30px;
     text-align: center;
-    left: 3px;
+    left: 14px;
+    top: @infusion-line-y-base + ((@infusion-line-stop-size + 5)/2) + 5;
   }
 
   .Change-daysSince-count {
-    top: @day-height/2 - (5px + @line-height);
-  }
-
-  .Change-daysSince-text {
-    top: @day-height/2 + 5px;
+    font-weight: bold;
+    padding-right: 5px;
   }
 
   .Change-line-end, .Change-line-start, 
   .Change-line-stop, .Change-line-mark {
     display: block;
     position: absolute;
-    background-color: @infusion-color;
+    background-color: @infusion-line-color;
     padding: 0px;
   }
 
@@ -49,14 +47,18 @@
   }
 
   .Change-line-stop {
-    height: @infusion-line-stop-height;
-    top: @day-height/2 - (@infusion-line-stop-height/2);
-    width: @infusion-line-height; /* for the stop this is correct */
-    left: @infusion-line-end-width;
+    height: @infusion-line-stop-size + 5;
+    width: @infusion-line-stop-size;
+    top: @infusion-line-y-base - (@infusion-line-stop-size/2);
+    background-color: transparent;
+    background-image: url(../../components/sitechange/sitechange.png);
+    background-size: cover;
+    background-repeat: no-repeat;
+    left: @infusion-line-end-width - 2;
   }
 
   .Change-line-mark {
-    top: @day-height/2 - (@infusion-line-mark-size/2);
+    top: @infusion-line-y-base - (@infusion-line-mark-size/2);
     border-radius: @infusion-line-mark-size/2;
     height: @infusion-line-mark-size;
     width: @infusion-line-mark-size;

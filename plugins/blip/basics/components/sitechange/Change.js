@@ -19,6 +19,8 @@
 var _ = require('lodash');
 var React = require('react');
 
+var siteChangeImg = require('./sitechange.png');
+
 var Change = React.createClass({
   propTypes: {
     daysSince: React.PropTypes.number.isRequired
@@ -27,8 +29,10 @@ var Change = React.createClass({
     var daysText = (this.props.daysSince === 1) ? 'day' : 'days';
     return (
       <div className='Change'>
-        <div className='Change-daysSince-count'>{this.props.daysSince}</div>
-        <div className='Change-daysSince-text'>{daysText}</div>
+        <div className='Change-daysSince-text'>
+          <span className='Change-daysSince-count'>{this.props.daysSince}</span>
+          {daysText}
+        </div>
         <div className='Change-line-end'></div>
         <div className='Change-line-stop'></div>
         <div className='Change-line-start'></div>
