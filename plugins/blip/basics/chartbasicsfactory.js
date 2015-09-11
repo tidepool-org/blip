@@ -47,8 +47,15 @@ var BasicsChart = React.createClass({
     var basicsData = this.props.patientData.basicsData;
     if (basicsData.sections == null) {
       basicsData = _.assign(basicsData, basicsState);
-      // TODO: check for existence of deviceEvent first
+      // TODO: check for existence of inner data attributes first
       basicsData.data.deviceEvent.infusionSiteHistory = dataMunger.infusionSiteHistory(basicsData);
+      basicsData.data.bgDistribution = dataMunger.bgDistribution(
+        basicsData,
+        this.props.bgClasses
+      );
+      var basalBolusStats = dataMunger.calculateBasalBolusStats(basicsData);
+      basicsData.data.basalBolusRatio = basalBolusStats.basalBolusRatio;
+      basicsData.data.totalDailyDose = basalBolusStats.totalDailyDose;
     }
     this.setState(basicsData);
     basicsActions.bindApp(this);
@@ -88,6 +95,8 @@ var BasicsChart = React.createClass({
     return _.map(column, function(section, index) {
       return (
         <Section key={section.name}
+          bgClasses={self.props.bgClasses}
+          bgUnits={self.props.bgUnits}
           chart={section.chart || null}
           container={section.container || section.components}
           data={self.state.data}

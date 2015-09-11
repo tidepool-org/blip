@@ -22,7 +22,7 @@ var BasicContainer = require('../components/BasicContainer');
 var CalendarContainer = require('../components/CalendarContainer');
 
 var BasalBolusRatio = _.noop;
-var BGDistribution = _.noop;
+var BGDistribution = React.createFactory(require('../components/chart/BGDistribution'));
 var WrapCount = React.createFactory(require('../components/chart/WrapCount'));
 var SiteChange = React.createFactory(require('../components/chart/SiteChange'));
 var TDD = _.noop;
