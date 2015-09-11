@@ -77,10 +77,12 @@ var CalendarContainer = React.createClass({
 
     return this.props.days.map(function(day) {
       if (self.props.hasHover && self.state.hoverDate === day.date) {
-        return <HoverDay key={day.date}
+        return (
+          <HoverDay key={day.date}
             data={self.props.data[self.props.type]}
             date={day.date}
             onHover={self.onHover} />
+        );
       } else {
         return (
           <ADay key={day.date}

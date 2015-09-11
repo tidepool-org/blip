@@ -1,6 +1,7 @@
 var React = require('react');
 var moment = require('moment');
 var cx = require('classnames');
+var _ = require('lodash');
 
 var HoverDay = React.createClass({
   propTypes: {
