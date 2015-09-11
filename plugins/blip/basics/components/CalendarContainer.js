@@ -82,7 +82,7 @@ var CalendarContainer = React.createClass({
     var firstDay = moment(this.props.days[0].date).day();
     return _.range(firstDay, firstDay + 7).map(function(dow) {
       return (
-        <div className='Calendar-day-label'>
+        <div key={moment().day(dow)} className='Calendar-day-label'>
           <div className='Calendar-dayofweek'>
             {moment().day(dow).format('ddd')}
           </div>
