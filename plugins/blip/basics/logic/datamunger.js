@@ -72,14 +72,14 @@ module.exports = {
     if (basals[0].normalTime < basicsData.dateRange[0]) {
       start = basicsData.dateRange[0];
       firstDuration = Date.parse(basals[0].normalEnd) - Date.parse(start);
-      firstInsulin = basals[0].rate * firstDuration;
+      firstInsulin = basals[0].rate * (firstDuration/constants.MS_IN_HOUR);
       basals.shift();
     }
     var end = basals[basals.length - 1].normalEnd;
     if (basals[basals.length - 1].normalEnd > basicsData.dateRange[1]) {
       end = basicsData.dateRange[1];
       lastDuration = Date.parse(end) - Date.parse(basals[basals.length - 1].normalTime);
-      lastInsulin = basals[basals.length - 1].rate * lastDuration;
+      lastInsulin = basals[basals.length - 1].rate * (lastDuration/constants.MS_IN_HOUR);
       basals.pop();
     }
     var sumDurations = firstDuration + lastDuration + _.reduce(_.pluck(basals, 'duration'), function(total, dur) {
