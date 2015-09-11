@@ -11,6 +11,7 @@ var ADay = React.createClass({
     date: React.PropTypes.string.isRequired,
     future: React.PropTypes.bool.isRequired,
     mostRecent: React.PropTypes.bool.isRequired,
+    isFirst: React.PropTypes.bool.isRequired,
     onHover: React.PropTypes.func.isRequired
   },
   getDefaultProps: function() {
@@ -52,7 +53,7 @@ var ADay = React.createClass({
     });
 
     
-    var mask = (date.date() === 1) ?
+    var mask = (date.date() === 1 || this.props.isFirst) ?
       this.props.firstDayAbbrevMask :
       this.props.dayAbbrevMask;
     return (
