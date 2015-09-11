@@ -17,6 +17,9 @@ var ADay = React.createClass({
       dayAbbrevMask: 'D'
     };
   },
+  shouldComponentUpdate: function() {
+    return false;
+  },
   mouseEnter: function () {
     this.props.onHover(this.props.date);
   },
