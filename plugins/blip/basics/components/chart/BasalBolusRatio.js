@@ -42,7 +42,6 @@ var BasalBolusRatio = React.createClass({
     var pie = d3.layout.pie()
       .value(function(d) { return d.value; })
       .sort(function(d) { return d.order; });
-    console.log(pie(data));
     svg.append('g')
       .attr('transform', 'translate(' + (w/2) + ',' + (h/2) + ')')
       .selectAll('path')
