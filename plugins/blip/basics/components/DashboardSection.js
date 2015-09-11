@@ -55,7 +55,8 @@ var DashboardSection = React.createClass({
               data={this.props.data}
               days={this.props.days}
               title={component.title}
-              type={component.type} />
+              type={component.type}
+              hasHover={component.hasHover} />
           );
         }
       }

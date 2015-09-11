@@ -15,10 +15,14 @@
  * == BSD2 LICENSE ==
  */
 
+@import 'variables.less';
 @import '../../../../css/tideline-colors.less';
 
 @import 'DashboardSection.less';
 @import 'CalendarContainer.less';
+@import 'chart/SiteChange.less';
+@import 'sitechange/Infusion.less';
+@import 'sitechange/NoInfusion.less';
 
 @import 'BGDistribution.less';
 @import 'TotalDailyDose.less';
@@ -28,13 +32,8 @@ svg {
   margin: 0 auto;
 }
 
-@headline: #281A45;
-@light: #A9BACE;
-
-@blue-calendar: #6480FB;
-
 a {
-  color: @headline;
+  color: @headline-color;
 }
 
 .full-width {

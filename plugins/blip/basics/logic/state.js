@@ -24,7 +24,7 @@ var CalendarContainer = require('../components/CalendarContainer');
 var BasalBolusRatio = _.noop;
 var BGDistribution = React.createFactory(require('../components/chart/BGDistribution'));
 var WrapCount = React.createFactory(require('../components/chart/WrapCount'));
-var SiteChanges = _.noop;
+var SiteChange = React.createFactory(require('../components/chart/SiteChange'));
 var TotalDailyDose = React.createFactory(require('../components/chart/TotalDailyDose'));
 
 var basicsActions = require('./actions');
@@ -63,7 +63,8 @@ var basicsState = {
           chart: WrapCount,
           container: CalendarContainer,
           title: 'Fingersticks',
-          type: 'smbg'
+          type: 'smbg',
+          hasHover: true
         }
       }
     },
@@ -79,7 +80,8 @@ var basicsState = {
           chart: WrapCount,
           container: CalendarContainer,
           title: 'Boluses',
-          type: 'bolus'
+          type: 'bolus',
+          hasHover: true
         }
       }
     },
@@ -92,10 +94,11 @@ var basicsState = {
       components: {
         infusionSite: {
           active: true,
-          chart: SiteChanges,
+          chart: SiteChange,
           container: CalendarContainer,
           title: 'Infusion site changes',
-          type: 'deviceEvent'
+          type: 'deviceEvent',
+          hasHover: false
         }
       }
     },

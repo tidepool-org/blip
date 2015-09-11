@@ -1,51 +1,32 @@
-/*
+/** @jsx React.DOM */
+/* 
  * == BSD2 LICENSE ==
- * Copyright (c) 2015, Tidepool Project
- *
+ * Copyright (c) 2015 Tidepool Project
+ * 
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
  * License as published by the Open Source Initiative at opensource.org.
- *
+ * 
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the License for more details.
- *
+ * 
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
 
-.DashboardSection {
-  display: flex;
-  flex-direction: column;
+var _ = require('lodash');
+var React = require('react');
 
-  overflow-y: hidden;
+var NoInfusion = React.createClass({
+  render: function() {
+    return (
+      <div className='NoInfusion'>
+        <div className='NoInfusion-line'></div>
+      </div>
+    );
+  },
+});
 
-  background-color: white;
-
-  .header {
-    color: @headline-color;
-    margin: 0;
-    i {
-      float: right;
-    }
-  }
-
-  h3 {
-    background-color: @header-background-base-color;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: normal;
-    .header;
-    padding: 1em;
-  }
-}
-
-
-.DashboardSection-container {
-
-  .DashboardSection-content {
-    box-sizing: border-box;
-    padding: 15px;
-  }
-}
+module.exports = NoInfusion;
