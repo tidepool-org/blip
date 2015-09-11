@@ -103,7 +103,7 @@ function chartWeeklyFactory(el, options) {
       var newPool = chart.newPool()
         .id('poolBG_' + day, chart.daysGroup())
         .index(chart.pools().indexOf(newPool))
-        .weight(1.0)
+        .heightRatio(1.0)
         .gutterWeight(0.0);
     });
 

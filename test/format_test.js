@@ -79,6 +79,53 @@ describe('format utility', function() {
     });
   });
 
+  describe('nameForDisplay', function() {
+    it('should be a function', function() {
+      assert.isFunction(fmt.nameForDisplay);
+    });
+
+    it('should return the same name for display if no words longer than maxWordLength', function() {
+      expect(fmt.nameForDisplay('food', 4)).to.equal('food');
+      expect(fmt.nameForDisplay('I had a dream', 5)).to.equal('I had a dream');
+      expect(fmt.nameForDisplay('In a world where people live forever', 7)).to.equal('In a world where people live forever');
+    });
+
+    it('should trim words that are longer than max word length', function() {
+      expect(fmt.nameForDisplay('foody', 4)).to.equal('food...');
+      expect(fmt.nameForDisplay('Derek Jonesy', 5)).to.equal('Derek Jones...');
+      expect(fmt.nameForDisplay('testing123@tidepool.org', 12)).to.equal('testing123@t...');
+    });
+  });
+
+  describe('textPreview', function() {
+    it('should be a function', function() {
+      assert.isFunction(fmt.textPreview);
+    });
+
+    it('should return the same string if string length is less than preview length', function() {
+      expect(fmt.textPreview('foo', 4)).to.equal('foo');
+      expect(fmt.textPreview('I had a dream', 200)).to.equal('I had a dream');
+      expect(fmt.textPreview('In a world where people live forever.', 50)).to.equal('In a world where people live forever.');
+    });
+
+    it('should return the return a segment of word is no spaces in sentence and previewLength is less than word length', function() {
+      expect(fmt.textPreview('foobar', 5)).to.equal('fooba...');
+    });
+
+    it('should return the same string if string length is less than preview length', function() {
+      expect(fmt.textPreview('foo', 3)).to.equal('foo');
+      expect(fmt.textPreview('I had a dream', 13)).to.equal('I had a dream');
+      expect(fmt.textPreview('In a world where people live forever.', 50)).to.equal('In a world where people live forever.');
+    });
+
+    it('should return the same string if string length is less than preview length', function() {
+      expect(fmt.textPreview('foo bar', 3)).to.equal('foo...');
+      expect(fmt.textPreview('I had a dream', 12)).to.equal('I had a...');
+      expect(fmt.textPreview('In a world where people live forever.', 12)).to.equal('In a world...');
+      expect(fmt.textPreview('In a world where people live forever.', 18)).to.equal('In a world where...');
+    });
+  });
+
   describe('dayAndDate', function() {
     it('should be a function', function() {
       assert.isFunction(fmt.dayAndDate);
