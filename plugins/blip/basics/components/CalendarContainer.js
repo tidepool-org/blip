@@ -44,6 +44,12 @@ var CalendarContainer = React.createClass({
       hoverDate: null
     };
   },
+  /**
+   * Function that is passed to children to update the state
+   * to the current hover date, of which there can only be one
+   * 
+   * @param  {String} date
+   */
   onHover: function(date) {
     this.setState({hoverDate: date});
   },

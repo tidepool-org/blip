@@ -36,6 +36,11 @@ var HoverDay = React.createClass({
       </div>
     );
   },
+  /**
+   * Get the count value associated with this day
+   * 
+   * @return {Number}
+   */
   getCount: function() {
     if (_.isEmpty(this.props.data)) {
       return 0;

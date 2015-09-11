@@ -17,6 +17,12 @@ var ADay = React.createClass({
       dayAbbrevMask: 'D'
     };
   },
+  /**
+   * We currently do not want to ever re-render this component,
+   * possibly subject to change in the future
+   *
+   * @return {boolean}
+   */
   shouldComponentUpdate: function() {
     return false;
   },
