@@ -32,6 +32,15 @@ var BGDistribution = React.createClass({
   render: function() {
     var data = this.props.data;
     var bgClasses = this.props.bgClasses;
+    var bgUnits = this.props.bgUnits;
+    function formatBGBoundary(boundary) {
+      if (bgUnits === 'mg/dL') {
+        return boundary;
+      }
+      else {
+        return d3.format('.1f')(boundary);
+      }
+    }
     if (!_.isEmpty(data.bgDistribution)) {
       var distribution = data.bgDistribution.cbg ?
         data.bgDistribution.cbg : data.bgDistribution.smbg;
@@ -55,11 +64,14 @@ var BGDistribution = React.createClass({
           'BGDistribution-text--low': isLow
         });
         var categoryDescription = {
-          veryhigh: 'above ' + bgClasses.high.boundary,
-          high: 'between ' + bgClasses.target.boundary + ' - ' + bgClasses.high.boundary,
-          target: 'between ' + bgClasses.low.boundary + ' - ' + bgClasses.target.boundary,
-          low: 'between ' + bgClasses['very-low'].boundary + ' - ' + bgClasses.low.boundary,
-          verylow: 'below ' + bgClasses['very-low'].boundary
+          veryhigh: 'above ' + formatBGBoundary(bgClasses.high.boundary),
+          high: 'between ' + formatBGBoundary(bgClasses.target.boundary) +
+            ' - ' + formatBGBoundary(bgClasses.high.boundary),
+          target: 'between ' + formatBGBoundary(bgClasses.low.boundary) +
+            ' - ' + formatBGBoundary(bgClasses.target.boundary),
+          low: 'between ' + formatBGBoundary(bgClasses['very-low'].boundary) +
+            ' - ' + formatBGBoundary(bgClasses.low.boundary),
+          verylow: 'below ' + formatBGBoundary(bgClasses['very-low'].boundary)
         };
         categories[positions[category]] = (
           <div className='BGDistribution-section' key={category}>
