@@ -29,10 +29,15 @@ var ADay = React.createClass({
     return false;
   },
   mouseEnter: function () {
+    if (this.props.future) {
+      return;
+    }
     this.props.onHover(this.props.date);
   },
-
   mouseLeave: function () {
+    if (this.props.future) {
+      return;
+    }
     this.props.onHover(null);
   },
   render: function() {
