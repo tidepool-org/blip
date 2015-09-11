@@ -26,7 +26,7 @@
 				color: @light-color;
 				font-size: 12px;
 				margin: 0;
-				padding-left: @small-pad/2;
+				padding-left: 5px;
 			}
 		}
 
@@ -39,8 +39,8 @@
 			.Calendar-weekday {
 				position: absolute;
 				top: 0;
-				width: @day-width;
-				text-align: center;
+				left: 0;
+				padding-left: 5px;
 				font-weight: bold;
 				color: white;
 			}
@@ -52,6 +52,10 @@
 				font-size: 20px;
 				font-weight: bold;
 				color: white;
+			}
+
+			&.Calendar-day--HOVER-bolus {
+				background-color: @calendar-bolus-hover-color;
 			}
 		}
 

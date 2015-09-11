@@ -99,7 +99,8 @@ var CalendarContainer = React.createClass({
           <HoverDay key={day.date}
             data={self.props.data[self.props.type]}
             date={day.date}
-            onHover={self.onHover} />
+            onHover={self.onHover}
+            type={self.props.type} />
         );
       } else {
         return (
