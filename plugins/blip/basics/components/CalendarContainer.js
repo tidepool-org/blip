@@ -110,7 +110,7 @@ var CalendarContainer = React.createClass({
             date={day.date}
             future={day.type === 'future'}
             mostRecent={day.type === 'mostRecent'}
-            isFirst={(id === 0)}
+            isFirst={id === 0}
             onHover={self.onHover} />
         );
       }  
