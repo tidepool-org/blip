@@ -1,0 +1,30 @@
+@basal-color: #7DCEED;
+@bolus-color: #1D9EB2;
+
+.BasalBolusRatio {
+  background-color: #EEF5F9;
+  
+  display: flex;
+  justify-content: space-around;
+  
+  margin: 0;
+  padding: 8px 0px;
+
+  font-size: 24px;
+  font-weight: bold;
+
+  .BasalBolusRatio-inner {
+    flex-basis: 50%;
+    p {
+      text-align: right;
+    }
+    .BasalBolusRatio-percent {
+      &.BasalBolusRatio-percent--basal {
+        color: @basal-color;
+      }
+      &.BasalBolusRatio-percent--bolus {
+        color: @bolus-color;
+      }
+    }
+  }
+}
