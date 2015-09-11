@@ -112,7 +112,12 @@ module.exports = {
     var countInfusionSitesPerDay = basicsData.data.deviceEvent.countByDate;
     var allDays = basicsData.days;
     var infusionSiteHistory = {};
-    var daysSince = 0;
+    // daysSince does *not* start at zero because we have to look back to the
+    // most recent infusion site change prior to the basics-restricted time domain
+    var priorSiteChange = _.findLast(_.keys(countInfusionSitesPerDay), function(date) {
+      return date < allDays[0].date;
+    });
+    var daysSince = (Date.parse(allDays[0].date) - Date.parse(priorSiteChange))/constants.MS_IN_DAY - 1;
     _.each(allDays, function(day) {
       if (day.type === 'future') {
         infusionSiteHistory[day.date] = {type: 'future'};
