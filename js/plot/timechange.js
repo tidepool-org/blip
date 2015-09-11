@@ -39,7 +39,6 @@ module.exports = function(pool, opts) {
    * Default configuration for this component
    */
   var defaults = {
-    highlightWidth: 4,
     tooltipPadding: 20
   };
 
@@ -48,8 +47,6 @@ module.exports = function(pool, opts) {
   var mainGroup = pool.group();
 
   function timechange(selection) {
-    opts.xScale = pool.xScale().copy();
-
     selection.each(function(currentData) {
       var filteredData = _.filter(currentData, {subType: 'timeChange'});
 
@@ -79,7 +76,6 @@ module.exports = function(pool, opts) {
     selection.append('image')
       .attr({
         'xlink:href': timeChangeImage,
-        cursor: 'pointer',
         x: timechange.xPositionCorner,
         y: timechange.yPositionCorner,
         width: opts.size,
@@ -100,7 +96,7 @@ module.exports = function(pool, opts) {
     var tooltips = pool.tooltips();
     var tooltip = tooltips.addForeignObjTooltip({
       cssClass: 'svg-tooltip-timechange',
-      datum: d,//_.assign(d, {type: 'deviceEvent'}), // we're currently using the message pool to display the tooltip
+      datum: d,
       shape: 'generic',
       xPosition: timechange.xPositionCenter,
       yPosition: timechange.yPositionCenter
