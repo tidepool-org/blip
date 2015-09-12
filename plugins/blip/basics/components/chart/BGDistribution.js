@@ -93,8 +93,8 @@ var BGDistribution = React.createClass({
       }
       return (
         <div className='BGDistribution'>
-          {categories}
           {this.renderCgmStatus()}
+          {categories}
         </div>
       );
     }
