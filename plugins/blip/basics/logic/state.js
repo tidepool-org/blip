@@ -38,7 +38,6 @@ var basicsState = {
       column: 'left',
       index: 3,
       title: 'Basal : bolus ratio',
-      types: ['basal', 'bolus'],
       open: true
     },
     bgDistribution: {
@@ -48,7 +47,6 @@ var basicsState = {
       column: 'left',
       index: 1,
       title: 'BG distribution',
-      types: ['cbg', 'smbg'],
       open: true
     },
     bgTesting: {
@@ -62,9 +60,9 @@ var basicsState = {
           active: true,
           chart: WrapCount,
           container: CalendarContainer,
+          hasHover: true,
           title: 'Fingersticks',
-          type: 'smbg',
-          hasHover: true
+          type: 'smbg'
         }
       }
     },
@@ -79,9 +77,9 @@ var basicsState = {
           active: true,
           chart: WrapCount,
           container: CalendarContainer,
+          hasHover: true,
           title: 'Boluses',
-          type: 'bolus',
-          hasHover: true
+          type: 'bolus'
         }
       }
     },
@@ -96,9 +94,9 @@ var basicsState = {
           active: true,
           chart: SiteChange,
           container: CalendarContainer,
+          hasHover: false,
           title: 'Infusion site changes',
-          type: 'deviceEvent',
-          hasHover: false
+          type: 'deviceEvent'
         }
       }
     },
@@ -109,7 +107,6 @@ var basicsState = {
       column: 'left',
       index: 2,
       title: 'Avg total daily dose',
-      types: ['basal', 'bolus'],
       open: true
     }
   }
