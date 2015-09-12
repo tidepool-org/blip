@@ -108,7 +108,7 @@ var basicsState = {
       container: BasicContainer,
       column: 'left',
       index: 2,
-      title: 'Total daily dose',
+      title: 'Avg total daily dose',
       types: ['basal', 'bolus'],
       open: true
     }

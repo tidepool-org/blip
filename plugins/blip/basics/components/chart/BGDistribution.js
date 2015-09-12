@@ -56,9 +56,16 @@ var BGDistribution = React.createClass({
         var isHigh = category.search('high') !== -1;
         var isTarget = category.search('target') !== -1;
         var isLow = category.search('low') !== -1;
-        var textClass = cx({
+        var percentClass = cx({
           'BGDistribution-text': true,
           'BGDistribution-text--percentage': true,
+          'BGDistribution-text--high': isHigh,
+          'BGDistribution-text--target': isTarget,
+          'BGDistribution-text--low': isLow
+        });
+        var labelClass = cx({
+          'BGDistribution-text': true,
+          'BGDistribution-category': true,
           'BGDistribution-text--high': isHigh,
           'BGDistribution-text--target': isTarget,
           'BGDistribution-text--low': isLow
@@ -75,11 +82,11 @@ var BGDistribution = React.createClass({
         };
         categories[positions[category]] = (
           <div className='BGDistribution-section' key={category}>
-            <p className={textClass} key={category}>
+            <p className={percentClass} key={category}>
               {d3.format('%')(distribution[category])}
             </p>
-            <p className='BGDistribution-text BGDistribution-category'>
-              {'readings ' + categoryDescription[category] + ' ' + this.props.bgUnits}
+            <p className={labelClass}>
+              {categoryDescription[category] + ' ' + this.props.bgUnits}
             </p>
           </div>
         );
@@ -96,15 +103,13 @@ var BGDistribution = React.createClass({
   renderCgmStatus: function() {
     var cgmStatus = this.props.data.bgDistribution.cgmStatus;
     var displayText = {};
-    displayText[constants.NO_CGM] = 'No CGM data in this time period';
-    displayText[constants.NOT_ENOUGH_CGM] = 'Not enough CGM data in this period';
-    displayText[constants.CGM_CALCULATED] = 'Distribution based on CGM data';
-    var secondLine = 'Distribution based on fingerstick data';
+    displayText[constants.NO_CGM] = 'Showing BGM data (no CGM)';
+    displayText[constants.NOT_ENOUGH_CGM] = 'Showing BGM data (not enough CGM)';
+    displayText[constants.CGM_CALCULATED] = 'Showing CGM data';
     return (
       <p className='BGDistribution-text BGDistribution-cgmStatus'>
         {displayText[cgmStatus]}
         <br/>
-        {cgmStatus === constants.NOT_ENOUGH_CGM ? secondLine : null}
       </p>
     );
   }

@@ -50,12 +50,12 @@ var BasalBolusRatio = React.createClass({
       .append('path')
       .attr({
         d: d3.svg.arc().outerRadius(pieRadius),
-        fill: function(d, i) {
+        class: function(d, i) {
           if (i === 0) {
-            return '#7DCEED';
+            return 'd3-arc-basal';
           }
           else {
-            return '#1D9EB2';
+            return 'd3-arc-bolus';
           }
         }
       });
@@ -65,18 +65,23 @@ var BasalBolusRatio = React.createClass({
     var percent = d3.format('%');
     return (
       <div className='BasalBolusRatio'>
+        <div ref="pie" className='BasalBolusRatio-inner BasalBolusRatio-pie'>
+        </div>
         <div className='BasalBolusRatio-inner'>
           <p>
             <span className='BasalBolusRatio-percent BasalBolusRatio-percent--basal'>
               {percent(data.basalBolusRatio.basal)}
             </span>
-            &nbsp;:&nbsp; 
+            <span className='BasalBolusRatio-label BasalBolusRatio-label--basal'>
+            &nbsp;basal
+            </span>
             <span className='BasalBolusRatio-percent BasalBolusRatio-percent--bolus'>
-              {percent(data.basalBolusRatio.bolus)}
+              {' : ' + percent(data.basalBolusRatio.bolus)}
+            </span>
+            <span className='BasalBolusRatio-label BasalBolusRatio-label--bolus'>
+            &nbsp;bolus
             </span>
           </p>
-        </div>
-        <div ref="pie" className='BasalBolusRatio-inner'>
         </div>
       </div>
     );
