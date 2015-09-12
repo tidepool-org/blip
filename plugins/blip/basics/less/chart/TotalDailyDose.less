@@ -1,15 +1,21 @@
 .TotalDailyDose {
 
   .TotalDailyDose-main {
-    font-size: 14px;
     margin: 0;
     padding: 8px 0px;
     text-align: center;
 
-    span.TotalDailyDose-text--large {
-      color: #6480FB;
-      font-size: 24px;
+    span.TotalDailyDose-text {
+      color: @calendar-blue-color;
       font-weight: bold;
+
+      &.TotalDailyDose-text--small {
+        font-size: @small-text;
+      }
+
+      &.TotalDailyDose-text--large {
+        font-size: @huge-numbers;
+      }
     }
   }
 }
