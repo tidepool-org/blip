@@ -314,6 +314,11 @@ d3.chart('ModalDay', {
       }
     });
   },
+  bgUnits: function(bgUnits) {
+    if (!arguments.length) { return this._bgUnits; }
+    this._bgUnits = bgUnits;
+    return this;
+  },
   bgClasses: function(bgClasses) {
     if (!arguments.length) { return this._bgClasses; }
     this._bgClasses = bgClasses;
@@ -327,6 +332,7 @@ d3.chart('ModalDay', {
         y: this.yScale()
       }, {
         bgClasses: chart.bgClasses(),
+        bgUnits: chart.bgUnits(),
         timezone: this.timezone()
       });
     }
@@ -505,6 +511,7 @@ module.exports = {
     _.defaults(opts, defaults);
 
     chart.bgClasses(opts.bgClasses)
+      .bgUnits(opts.bgUnits)
       .boxOverlay(opts.boxOverlay)
       .grouped(opts.grouped)
       .showingLines(opts.showingLines)

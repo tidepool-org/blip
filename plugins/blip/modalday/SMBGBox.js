@@ -63,7 +63,7 @@ d3.chart('SMBGBoxOverlay', {
         .append('p')
         .append('span')
         .attr('class', 'secondary')
-        .html('<span class="fromto">avg of</span> <span class="value">'+ Math.round(d.mean) + '</span>');
+        .html('<span class="fromto">avg of</span> <span class="value">'+ format.tooltipBGValue(d.mean) + '</span>');
 
       tooltip.foGroup
         .append('p')
@@ -82,6 +82,7 @@ d3.chart('SMBGBoxOverlay', {
        * @param  {Number|String} val
        */
       function appendRangeLabel(elem, yRect, yText, width, label, val) {
+        val = format.tooltipBGValue(val, chart.bgUnits());
         elem.append('rect')
         .attr({
           x: xScale(d.msX) - (width/2),
@@ -116,7 +117,7 @@ d3.chart('SMBGBoxOverlay', {
 
       var left = msPer24 <= THREE_HRS;
       var right = msPer24 >= NINE_HRS;
-      console.log(high, left, right, d);
+
       if (high) {
         if (left) {
           return 'rightAndDown';
@@ -264,6 +265,11 @@ d3.chart('SMBGBoxOverlay', {
     }
     return retData;
   },
+  bgUnits: function(bgUnits) {
+    if (!arguments.length) { return this._bgUnits; }
+    this._bgUnits = bgUnits;
+    return this;
+  },
   bgClasses: function(bgClasses) {
     if (!arguments.length) { return this._bgClasses; }
     this._bgClasses = bgClasses;
@@ -306,6 +312,7 @@ module.exports = {
 
     chart = el.chart('SMBGBoxOverlay')
       .opts(opts.opts)
+      .bgUnits(opts.bgUnits)
       .bgClasses(opts.bgClasses)
       .timezone(opts.timezone)
       .xScale(scales.x)
