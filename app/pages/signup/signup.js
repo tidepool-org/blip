@@ -62,7 +62,7 @@ var Signup = React.createClass({
 
   componentWillMount: function() {
     var that = this;
-    if (this.props.inviteKey && this.props.checkInviteKey) {
+    if ((this.props.inviteKey || this.props.inviteKey === '' ) && this.props.checkInviteKey) {
       this.props.checkInviteKey(this.props.inviteKey , function(valid) {
         that.setState({loading: false, showWaitList: !valid });
       });
