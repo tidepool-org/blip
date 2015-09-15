@@ -34,8 +34,8 @@ describe('TidelineData', function() {
     'very-low': {boundary: 60},
     low: {boundary: 80},
     target: {boundary: 180},
-    high: {boundary: 200},
-    'very-high': {boundary: 300}
+    high: {boundary: 300},
+    'very-high': {boundary: 600}
   };
   it('should be a function', function() {
     assert.isFunction(TidelineData);
@@ -457,14 +457,7 @@ describe('TidelineData', function() {
     });
 
     it('should set bgClasses to the default', function() {
-      var defaultBgClasses = {
-        'very-low': {boundary: 60},
-        low: {boundary: 80},
-        target: {boundary: 180},
-        high: {boundary: 200},
-        'very-high': {boundary: 300}
-      };
-      expect(thisTd.bgClasses).to.eql(defaultBgClasses);
+      expect(thisTd.bgClasses).to.eql(bgClasses);
     });
 
     it('should default bgUnits to mg/dL', function() {
