@@ -18,7 +18,7 @@ var ADay = React.createClass({
   getDefaultProps: function() {
     return {
       dayAbbrevMask: 'D',
-      firstDayAbbrevMask: 'MMM D'
+      monthAbbrevMask: 'MMM'
     };
   },
   /**
@@ -55,6 +55,14 @@ var ADay = React.createClass({
       'Calendar-day-odd-month': (date.month() % 2 === 0)
     });
 
+    var drawMonthLabel = (date.date() === 1 || this.props.isFirst);
+    var monthLabel = null;
+
+    if (drawMonthLabel) {
+      monthLabel = (
+        <span className='Calendar-monthlabel'>{date.format(this.props.monthAbbrevMask)}&nbsp;</span>
+      );
+    }
     
     var mask = (date.date() === 1 || this.props.isFirst) ?
       this.props.firstDayAbbrevMask :
@@ -62,7 +70,8 @@ var ADay = React.createClass({
     return (
       <div className={containerClass} onMouseEnter={this.mouseEnter} onMouseLeave={this.mouseLeave}>
         <p className='Calendar-weekday'>
-          {date.format(mask)}
+          {monthLabel}
+          {date.format(this.props.dayAbbrevMask)}
         </p>
         {this.props.future ? null: chart}
       </div>
