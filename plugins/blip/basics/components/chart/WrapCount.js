@@ -35,17 +35,18 @@ var WrapCount = React.createClass({
   renderDots: function() {
     var dots = [];
     var count = this.getCount();
+    var dotSize = 16;
     for (var i = 1; i <= 9; ++i) {
       if (i <= count) {
         dots.push(
-          <svg key={i} width='18px' height='18px'>
-            <circle cx='9px' cy='9px' r='7px'/>
+          <svg key={i} width={dotSize} height={dotSize}>
+            <circle cx={dotSize/2} cy={dotSize/2} r={dotSize/2 - 1.5}/>
           </svg>
         );
       }
       else {
         dots.push(
-          <svg key={i} width='18px' height='18px'></svg>
+          <svg key={i} width={dotSize} height={dotSize}></svg>
         );
       }
     }
