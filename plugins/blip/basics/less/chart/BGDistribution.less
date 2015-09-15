@@ -3,36 +3,51 @@
 
   &:first-child p:first-child {
     margin-top: -5px;
-    margin-bottom: 17px;
   }
 
-  .BGDistribution-section {
-    background-color: white;
+  .BGDistribution-chart {
+    height: 400px;
   }
 
-  .BGDistribution-text {
-    text-align: center;
-    margin-top: 10px;
-    padding: 8px 0px;
+  .BGDistribution-bar {
+    fill: white;
   }
+
+  .BGDistribution-remainder {
+    fill: @left-column-background-color;
+  }
+
+  .BGDistribution--low {
+    fill: @bg-low;
+  }
+
+  .BGDistribution--target {
+    fill: @bg-target;
+  }
+
+  .BGDistribution--high {
+    fill: @bg-high;
+  }
+
   .BGDistribution-text--percentage {
     font-size: @huge-numbers;
     font-weight: bold;
     margin-bottom: 0px;
     padding-bottom: 2px;
+    text-anchor: middle;
+  }
+  .BGDistribution-text--category {
+    font-size: @small-text;
+    text-anchor: middle;
   }
   .BGDistribution-text--low {
-    color: @bg-low;
+    fill: @bg-low;
   }
   .BGDistribution-text--target {
-    color: @bg-target;
+    fill: @bg-target;
   }
   .BGDistribution-text--high {
-    color: @bg-high;
-  }
-  .BGDistribution-category {
-    font-size: 14px;
-    margin-top: 0;
+    fill: @bg-high;
   }
   .BGDistribution-cgmStatus {
     font-size: @small-text;

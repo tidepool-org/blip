@@ -16,6 +16,9 @@
  * == BSD2 LICENSE ==
  */
 
+// in order to get d3.chart dependency
+var tideline = require('../../../js/');
+
 var _ = require('lodash');
 var bows = require('bows');
 var d3 = require('d3');

@@ -21,6 +21,7 @@ var cx = require('react/lib/cx');
 var d3 = require('d3');
 var React = require('react');
 
+var bgBars = require('./BGBars');
 var constants = require('../../logic/constants');
 
 var BGDistribution = React.createClass({
@@ -29,72 +30,29 @@ var BGDistribution = React.createClass({
     bgUnits: React.PropTypes.string.isRequired,
     data: React.PropTypes.object.isRequired
   },
-  render: function() {
+  componentDidMount: function() {
     var data = this.props.data;
     var bgClasses = this.props.bgClasses;
     var bgUnits = this.props.bgUnits;
-    function formatBGBoundary(boundary) {
-      if (bgUnits === 'mg/dL') {
-        return boundary;
-      }
-      else {
-        return d3.format('.1f')(boundary);
-      }
-    }
     if (!_.isEmpty(data.bgDistribution)) {
       var distribution = data.bgDistribution.cbg ?
         data.bgDistribution.cbg : data.bgDistribution.smbg;
-      var categories = new Array(5);
-      var positions = {
-        veryhigh: 0,
-        high: 1,
-        target: 2,
-        low: 3,
-        verylow: 4
-      };
-      for (var category in distribution) {
-        var isHigh = category.search('high') !== -1;
-        var isTarget = category.search('target') !== -1;
-        var isLow = category.search('low') !== -1;
-        var percentClass = cx({
-          'BGDistribution-text': true,
-          'BGDistribution-text--percentage': true,
-          'BGDistribution-text--high': isHigh,
-          'BGDistribution-text--target': isTarget,
-          'BGDistribution-text--low': isLow
+      
+      var chartNode = this.refs.chart.getDOMNode();
+      bgBars.create(chartNode)
+        .render(distribution, {
+          bgClasses: bgClasses,
+          bgUnits: bgUnits
         });
-        var labelClass = cx({
-          'BGDistribution-text': true,
-          'BGDistribution-category': true,
-          'BGDistribution-text--high': isHigh,
-          'BGDistribution-text--target': isTarget,
-          'BGDistribution-text--low': isLow
-        });
-        var categoryDescription = {
-          veryhigh: 'above ' + formatBGBoundary(bgClasses.high.boundary),
-          high: 'between ' + formatBGBoundary(bgClasses.target.boundary) +
-            ' - ' + formatBGBoundary(bgClasses.high.boundary),
-          target: 'between ' + formatBGBoundary(bgClasses.low.boundary) +
-            ' - ' + formatBGBoundary(bgClasses.target.boundary),
-          low: 'between ' + formatBGBoundary(bgClasses['very-low'].boundary) +
-            ' - ' + formatBGBoundary(bgClasses.low.boundary),
-          verylow: 'below ' + formatBGBoundary(bgClasses['very-low'].boundary)
-        };
-        categories[positions[category]] = (
-          <div className='BGDistribution-section' key={category}>
-            <p className={percentClass} key={category}>
-              {d3.format('%')(distribution[category])}
-            </p>
-            <p className={labelClass}>
-              {categoryDescription[category] + ' ' + this.props.bgUnits}
-            </p>
-          </div>
-        );
-      }
+    }
+  },
+  render: function() {
+    var data = this.props.data;
+    if (!_.isEmpty(data.bgDistribution)) {
       return (
         <div className='BGDistribution'>
           {this.renderCgmStatus()}
-          {categories}
+          <div ref='chart' className='BGDistribution-chart'></div>
         </div>
       );
     }
