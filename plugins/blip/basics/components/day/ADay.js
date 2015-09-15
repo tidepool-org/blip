@@ -5,7 +5,7 @@ var cx = require('classnames');
 var ADay = React.createClass({
   propTypes: {
     dayAbbrevMask: React.PropTypes.string.isRequired,
-    firstDayAbbrevMask: React.PropTypes.string.isRequired,
+    monthAbbrevMask: React.PropTypes.string.isRequired,
     chart: React.PropTypes.func.isRequired,
     data: React.PropTypes.object,
     date: React.PropTypes.string.isRequired,
