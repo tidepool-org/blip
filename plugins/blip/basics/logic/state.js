@@ -55,16 +55,14 @@ var basicsState = {
       index: 1,
       title: 'Fingerstick testing',
       open: true,
-      components: {
-        fingerstick: {
+      components: [{
           active: true,
           chart: WrapCount,
           container: CalendarContainer,
           hasHover: true,
           title: 'Fingersticks',
           type: 'smbg'
-        }
-      }
+        }]
     },
     boluses: {
       active: true,
@@ -72,16 +70,14 @@ var basicsState = {
       index: 2,
       title: 'Bolusing',
       open: false,
-      components: {
-        bolusFreq: {
+      components: [{
           active: true,
           chart: WrapCount,
           container: CalendarContainer,
           hasHover: true,
           title: 'Boluses',
           type: 'bolus'
-        }
-      }
+        }]
     },
     general: {
       active: true,
@@ -89,16 +85,15 @@ var basicsState = {
       index: 4,
       title: 'Infusion site changes',
       open: false,
-      components: {
-        infusionSite: {
+      components: [{
           active: true,
           chart: SiteChange,
           container: CalendarContainer,
           hasHover: false,
+          noDataMessage: 'Infusion site changes for CareLink data are coming soon.',
           title: 'Infusion site changes',
           type: 'deviceEvent'
-        }
-      }
+        }]
     },
     tdd: {
       active: true,

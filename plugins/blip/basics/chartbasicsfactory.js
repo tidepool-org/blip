@@ -44,13 +44,30 @@ var BasicsChart = React.createClass({
     patientData: React.PropTypes.object.isRequired,
     timePrefs: React.PropTypes.object.isRequired
   },
+  _adjustSectionsBasedOnAvailableData: function(basicsData) {
+    var typedData = basicsData.data;
+    var typedSections = _.filter(basicsData.sections, function(section) {
+      if (section.components) {
+        return _.some(section.components, function(component) {
+          return component.type != null;
+        });
+      }
+    });
+    _.each(typedSections, function(section) {
+      _.each(section.components, function(component) {
+        var type = component.type;
+        if (_.isEmpty(typedData[type].data)) {
+          component.active = false;
+        }
+      });
+    });
+  },
   componentWillMount: function() {
     var timePrefs = this.props.timePrefs;
     var tz = timePrefs.timezoneAware ? timePrefs.timezoneName : 'UTC';
     var basicsData = this.props.patientData.basicsData;
     if (basicsData.sections == null) {
       basicsData = _.assign(basicsData, basicsState);
-      // TODO: check for existence of inner data attributes first
       basicsData.data.deviceEvent.infusionSiteHistory = dataMunger.infusionSiteHistory(basicsData);
       basicsData.data.bgDistribution = dataMunger.bgDistribution(
         basicsData,
@@ -59,6 +76,7 @@ var BasicsChart = React.createClass({
       var basalBolusStats = dataMunger.calculateBasalBolusStats(basicsData);
       basicsData.data.basalBolusRatio = basalBolusStats.basalBolusRatio;
       basicsData.data.totalDailyDose = basalBolusStats.totalDailyDose;
+      this._adjustSectionsBasedOnAvailableData(basicsData);
     }
     this.setState(basicsData);
     basicsActions.bindApp(this);

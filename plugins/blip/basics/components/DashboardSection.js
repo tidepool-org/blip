@@ -24,6 +24,7 @@ var React = require('react');
 var debug = bows('Section');
 
 var basicsActions = require('../logic/actions');
+var NoDataContainer = require('./NoDataContainer');
 
 var DashboardSection = React.createClass({
   propTypes: {
@@ -57,6 +58,11 @@ var DashboardSection = React.createClass({
               title={component.title}
               type={component.type}
               hasHover={component.hasHover} />
+          );
+        }
+        else {
+          dataDisplay = (
+            <NoDataContainer moreInfo={component.noDataMessage || null} />
           );
         }
       }
