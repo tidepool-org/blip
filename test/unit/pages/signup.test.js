@@ -38,18 +38,18 @@ describe('Signup', function () {
       expect(console.warn.callCount).to.equal(0);
     });
 
-    it('should render signup when no key is set', function () {
+    it('should render waitlist when no key is set', function () {
       console.warn = sinon.stub();
       var props = {
         onSubmit: sinon.stub(),
         onSubmitSuccess: sinon.stub(),
-        checkInviteKey: function(x, cb) { cb(true); },
+        checkInviteKey: function(x, cb) { cb(false); },
         trackMetric: sinon.stub(),
         inviteKey: ''
       };
       var elem = React.createElement(Signup, props);
       var render = TestUtils.renderIntoDocument(elem);
-      var refreshButton = TestUtils.findRenderedDOMComponentWithClass(render, 'signup-form');
+      var refreshButton = TestUtils.findRenderedDOMComponentWithClass(render, 'waitlist');
     });
 
     it('should render signup form when key is set but is not valid', function () {
