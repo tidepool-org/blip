@@ -62,8 +62,8 @@ var Signup = React.createClass({
 
   componentWillMount: function() {
     var that = this;
-    if (this.props.checkInviteKey) {
-      this.props.checkInviteKey(this.props.inviteKey, function(valid) {
+    if (this.props.inviteKey && this.props.checkInviteKey) {
+      this.props.checkInviteKey(this.props.inviteKey , function(valid) {
         that.setState({loading: false, showWaitList: !valid });
       });
     } else {
@@ -136,7 +136,6 @@ var Signup = React.createClass({
       submitButtonText = 'Signing up...';
     }
 
-    
     return (
       <SimpleForm
         inputs={this.formInputs()}
@@ -147,7 +146,7 @@ var Signup = React.createClass({
         onSubmit={this.handleSubmit}
         notification={this.state.notification}/>
     );
-    
+
   },
 
   handleSubmit: function(formValues) {

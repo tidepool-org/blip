@@ -388,7 +388,7 @@ var AppComponent = React.createClass({
     if(!_.isEmpty(key)){
       return key;
     }
-    return null;
+    return '';
   },
 
   getInviteEmail: function() {
