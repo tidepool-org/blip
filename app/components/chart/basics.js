@@ -122,6 +122,9 @@ var Basics = React.createClass({
     
   },
   getTitle: function() {
+    if (this.isMissingBasics()) {
+      return '';
+    }
     var timePrefs = this.props.timePrefs, timezone;
     if (!timePrefs.timezoneAware) {
       timezone = 'UTC';
@@ -135,10 +138,17 @@ var Basics = React.createClass({
       ' - ' + sundial.formatInTimezone(basicsData.dateRange[1], timezone, dtMask);
   },
   isMissingBasics: function() {
-    var data = this.props.patientData.basicsData.data;
+    var basicsData = this.props.patientData.basicsData;
+    var data;
+    if (basicsData.data) {
+      data = basicsData;
+    }
+    else {
+      return true;
+    }
     // require basal, bolus, and smbg data to show The Basics
-    var basicsData = data.basal && data.bolus && data.smbg;
-    if (basicsData === false) {
+    var hasBasicsData = data.basal && data.bolus && data.smbg;
+    if (hasBasicsData === false) {
       return true;
     }
     return false;
