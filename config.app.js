@@ -45,5 +45,5 @@ module.exports = {
   API_HOST: __API_HOST__ || 'https://devel-api.tidepool.io',
   SHOW_ACCEPT_TERMS: booleanFromText(__SHOW_ACCEPT_TERMS__, true),
   PASSWORD_MIN_LENGTH: integerFromText(__PASSWORD_MIN_LENGTH__, 8),
-  SIGNUP_KEY: __SIGNUP_KEY__ || ''
+  INVITE_KEY: __INVITE_KEY__ || ''
 };

@@ -13,7 +13,7 @@ var defineEnvPlugin = new webpack.DefinePlugin({
   __API_HOST__: JSON.stringify(process.env.API_HOST || null),
   __SHOW_ACCEPT_TERMS__: JSON.stringify(process.env.SHOW_ACCEPT_TERMS || null),
   __PASSWORD_MIN_LENGTH__: JSON.stringify(process.env.PASSWORD_MIN_LENGTH || null),
-  __SIGNUP_KEY__: JSON.stringify(process.env.SIGNUP_KEY || null),
+  __INVITE_KEY__: JSON.stringify(process.env.INVITE_KEY || null),
   __DEV__: false
 });
 

@@ -384,6 +384,7 @@ var AppComponent = React.createClass({
   getInviteKey: function() {
     var hashQueryParams = this.context.router.getQueryParams();
     var key = hashQueryParams.inviteKey;
+
     if(!_.isEmpty(key)){
       return key;
     }
@@ -426,7 +427,7 @@ var AppComponent = React.createClass({
 
   renderSignup: function() {
     var checkKey = function(key, cb) {
-      if (key === config.SIGNUP_KEY){
+      if (_.isEmpty(config.INVITE_KEY) || key === config.INVITE_KEY){
         return cb(true);
       }
       return cb(false);
