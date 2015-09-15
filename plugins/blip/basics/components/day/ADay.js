@@ -12,7 +12,8 @@ var ADay = React.createClass({
     future: React.PropTypes.bool.isRequired,
     mostRecent: React.PropTypes.bool.isRequired,
     isFirst: React.PropTypes.bool.isRequired,
-    onHover: React.PropTypes.func.isRequired
+    onHover: React.PropTypes.func.isRequired,
+    type: React.PropTypes.string.isRequired
   },
   getDefaultProps: function() {
     return {
@@ -47,6 +48,8 @@ var ADay = React.createClass({
 
     var containerClass = cx({
       'Calendar-day': !this.props.future,
+      'Calendar-day--bolus': (this.props.type === 'bolus'),
+      'Calendar-day--fingerstick': (this.props.type === 'smbg'),
       'Calendar-day-future': this.props.future,
       'Calendar-day-most-recent': this.props.mostRecent,
       'Calendar-day-odd-month': (date.month() % 2 === 0)

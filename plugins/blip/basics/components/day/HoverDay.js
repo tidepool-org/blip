@@ -25,8 +25,9 @@ var HoverDay = React.createClass({
   },
   render: function() {
     var containerClass = cx({
+      'Calendar-day--bolus': (this.props.type === 'bolus'),
+      'Calendar-day--fingerstick': (this.props.type === 'smbg'),
       'Calendar-day--HOVER': true,
-      'Calendar-day--HOVER-bolus': (this.props.type === 'bolus')
     });
     return (
       <div className={containerClass} onMouseEnter={this.mouseEnter} onMouseLeave={this.mouseLeave}>

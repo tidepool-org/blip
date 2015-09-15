@@ -33,8 +33,27 @@
 			height: @label-height;
 		}
 
+		.Calendar-day--fingerstick {
+			&.Calendar-day--HOVER {
+				background-color: @fingerstick;
+			}
+
+			.WrapCount svg circle {
+				fill: @fingerstick;
+			}
+		}
+
+		.Calendar-day--bolus {
+			&.Calendar-day--HOVER {
+				background-color: @bolus;
+			}
+
+			circle {
+				fill: @bolus;
+			}
+		}
+
 		.Calendar-day--HOVER {
-			background-color: @calendar-blue-color;
 			.Calendar-weekday {
 				position: absolute;
 				top: 0;
@@ -51,10 +70,6 @@
 				font-size: 20px;
 				font-weight: bold;
 				color: white;
-			}
-
-			&.Calendar-day--HOVER-bolus {
-				background-color: @calendar-bolus-hover-color;
 			}
 		}
 
@@ -83,10 +98,6 @@
 
 				svg {
 					margin: 0;
-
-					circle {
-						fill: @calendar-blue-color;
-					}
 				}
 			}
 		}
