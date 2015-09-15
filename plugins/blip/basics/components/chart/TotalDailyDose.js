@@ -32,7 +32,7 @@ var TotalDailyDose = React.createClass({
             {d3.format('.1f')(this.props.data.totalDailyDose)}
           </span>
           <span className='TotalDailyDose-text TotalDailyDose-text--small'>
-            &nbsp;u/day
+            &nbsp;units/day
           </span>
         </p>
       </div>
