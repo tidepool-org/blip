@@ -1,6 +1,7 @@
 export API_HOST=''
 export UPLOAD_API=''
 export SHOW_ACCEPT_TERMS=''
+export SIGNUP_KEY=''
 
 export MOCK=''
 export MOCK_PARAMS=''

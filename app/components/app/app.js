@@ -252,7 +252,7 @@ var AppComponent = React.createClass({
       }
 
       return (
- 
+
         <div className="App-navbar">
           <Navbar
             user={this.state.user}
@@ -265,7 +265,7 @@ var AppComponent = React.createClass({
             trackMetric={this.context.trackMetric}
             ref="navbar"/>
         </div>
-  
+
       );
     }
 
@@ -290,13 +290,13 @@ var AppComponent = React.createClass({
       }
 
       return (
- 
+
         <TidepoolNotification
           type={notification.type}
           onClose={handleClose}>
           {notification.body}
         </TidepoolNotification>
-  
+
       );
     }
 
@@ -331,9 +331,9 @@ var AppComponent = React.createClass({
     if (version) {
       version = 'v' + version + ' beta';
       return (
- 
+
         <div className="Navbar-version" ref="version">{version}</div>
-  
+
       );
     }
     return null;
@@ -425,8 +425,11 @@ var AppComponent = React.createClass({
   },
 
   renderSignup: function() {
-    var fakeCheckKey = function(key, cb) {
-      cb(true);
+    var checkKey = function(key, cb) {
+      if (key === config.SIGNUP_KEY){
+        return cb(true);
+      }
+      return cb(false);
     };
 
     return (
@@ -434,7 +437,7 @@ var AppComponent = React.createClass({
         onSubmit={this.signup}
         inviteEmail={this.getInviteEmail()}
         inviteKey={this.getInviteKey()}
-        checkInviteKey={fakeCheckKey}
+        checkInviteKey={checkKey}
         onSubmitSuccess={this.handleSignupSuccess}
         trackMetric={this.context.trackMetric} />
 
@@ -818,7 +821,7 @@ var AppComponent = React.createClass({
       fetchingPatientData: true
     });
 
-    
+
     self.fetchPatient(patientId, function(err, patient) {
       self.fetchPatientData(patient);
     });
@@ -1126,7 +1129,7 @@ var AppComponent = React.createClass({
         console.save(combinedData, 'blip-input.json');
       };
       patientData = self.processPatientData(combinedData);
-      
+
       // NOTE: intentional use of _.clone instead of _.cloneDeep
       // we only need a shallow clone at the top level of the patientId keys
       // and the _.cloneDeep I had originally would hang the browser for *seconds*
