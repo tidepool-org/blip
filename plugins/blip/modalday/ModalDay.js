@@ -400,8 +400,8 @@ d3.chart('ModalDay', {
     var mainMargins = this.margins().main;
     var smbgOpts = this.smbgOpts();
     this._yScale = yScale.range([
-      h - mainMargins.bottom - Math.round(smbgOpts.maxR) - this.margins().bottomBumper,
-      mainMargins.top + Math.round(smbgOpts.maxR)
+      h - mainMargins.bottom - this.margins().bottomBumper,
+      mainMargins.top + this.margins().topBumper
     ]);
     return this;
   },
@@ -451,7 +451,8 @@ module.exports = {
         left: defaults.baseMargin,
         bottom: defaults.baseMargin/2
       },
-      bottomBumper: 28
+      topBumper: 30,
+      bottomBumper: 30
     };
     defaults.margins.highlightLabel = {
       x: defaults.margins.main.left + 10,
@@ -508,6 +509,7 @@ module.exports = {
         'very-high': {boundary: 300}
       }
     };
+
     _.defaults(opts, defaults);
 
     chart.bgClasses(opts.bgClasses)

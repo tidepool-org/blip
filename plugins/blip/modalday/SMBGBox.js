@@ -46,16 +46,6 @@ d3.chart('SMBGBoxOverlay', {
       var minYRect = yScale(d.min) + rectOpts.pad;
       var minYText = yScale(d.min) + rectOpts.height;
 
-      if (d.max > 385) {
-        maxYRect = yScale(d.max) + rectOpts.pad;
-        maxYText = yScale(d.max) + rectOpts.height;
-      }
-
-      if (d.min < 60) {
-        minYRect = yScale(d.min) - rectOpts.height - rectOpts.pad;
-        minYText = yScale(d.min) - (rectOpts.height/2);
-      }
-
       appendRangeLabel(rangeLabels, maxYRect, maxYText, rectOpts.width, 'max', d.max);
       appendRangeLabel(rangeLabels, minYRect, minYText, (rectOpts.width - 5), 'min',d.min);
 
