@@ -43,12 +43,13 @@ describe('Signup', function () {
       var props = {
         onSubmit: sinon.stub(),
         onSubmitSuccess: sinon.stub(),
-        checkInviteKey: sinon.stub(),
-        trackMetric: sinon.stub()
+        checkInviteKey: function(x, cb) { cb(true); },
+        trackMetric: sinon.stub(),
+        inviteKey: ''
       };
       var elem = React.createElement(Signup, props);
       var render = TestUtils.renderIntoDocument(elem);
-      var refreshButton = TestUtils.findRenderedDOMComponentWithClass(render, 'waitlist');
+      var refreshButton = TestUtils.findRenderedDOMComponentWithClass(render, 'signup-form');
     });
 
     it('should render signup form when key is set but is not valid', function () {

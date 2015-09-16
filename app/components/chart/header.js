@@ -39,28 +39,33 @@ var TidelineHeader = React.createClass({
   },
   render: function() {
     var dayLinkClass = cx({
+      'js-day': true,
       'patient-data-subnav-active': this.props.chartType === 'daily',
       'patient-data-subnav-hidden': this.props.chartType === 'no-data'
     });
 
     var modalLinkClass = cx({
+      'js-modal': true,
       'patient-data-subnav-active': this.props.chartType === 'modal',
       'patient-data-subnav-hidden': this.props.chartType === 'no-data'
     });
 
     var weekLinkClass = cx({
+      'js-week': true,
       'patient-data-subnav-active': this.props.chartType === 'weekly',
       'patient-data-subnav-hidden': this.props.chartType === 'no-data'
     });
 
     var dateLinkClass = cx({
+      'js-date': true,
       'patient-data-subnav-text' : this.props.chartType === 'daily' || this.props.chartType === 'weekly' || this.props.chartType === 'modal',
       'patient-data-subnav-dates-daily': this.props.chartType === 'daily',
       'patient-data-subnav-dates-weekly': this.props.chartType === 'weekly',
       'patient-data-subnav-dates-modal': this.props.chartType === 'modal'
     });
 
-    var mostRecentLinkClass = cx({
+    var mostRecentClass = cx({
+      'js-most-recent': true,
       'patient-data-subnav-active': !this.props.atMostRecent && !this.props.inTransition,
       'patient-data-subnav-disabled': this.props.atMostRecent || this.props.inTransition,
       'patient-data-subnav-hidden': this.props.chartType === 'no-data' ||
@@ -68,6 +73,7 @@ var TidelineHeader = React.createClass({
     });
 
     var backClass = cx({
+      'js-back': true,
       'patient-data-subnav-active': !this.props.inTransition,
       'patient-data-subnav-disabled': this.props.inTransition,
       'patient-data-subnav-hidden': this.props.chartType === 'settings' ||
@@ -75,6 +81,7 @@ var TidelineHeader = React.createClass({
     });
 
     var nextClass = cx({
+      'js-next': true,
       'patient-data-subnav-active': !this.props.atMostRecent && !this.props.inTransition,
       'patient-data-subnav-disabled': this.props.atMostRecent || this.props.inTransition,
       'patient-data-subnav-hidden': this.props.chartType === 'settings' ||
@@ -82,6 +89,7 @@ var TidelineHeader = React.createClass({
     });
 
     var settingsLinkClass = cx({
+      'js-settings': true,
       'patient-data-subnav-right': true,
       'patient-data-subnav-right-label': true,
       'patient-data-subnav-active': this.props.chartType === 'settings',
@@ -99,12 +107,12 @@ var TidelineHeader = React.createClass({
                 <a href="" className={modalLinkClass} onClick={this.props.onClickModal}>Trends</a>
             </div>
             <div className="grid-item one-whole large-one-half patient-data-subnav-center" id="tidelineLabel">
-              <a href="" className={backClass} onClick={this.props.onClickBack}><i className={this.props.iconBack}/></a>
+              {this.renderNavButton(backClass, this.props.onClickBack, this.props.iconBack)}
               <div className={dateLinkClass}>
                 {this.props.title}
               </div>
-              <a href="" className={nextClass} onClick={this.props.onClickNext}><i className={this.props.iconNext}/></a>
-              <a href="" className={mostRecentLinkClass} onClick={this.props.onClickMostRecent}><i className={this.props.iconMostRecent}/></a>
+              {this.renderNavButton(nextClass, this.props.onClickNext, this.props.iconNext)}
+              {this.renderNavButton(mostRecentClass, this.props.onClickMostRecent, this.props.iconMostRecent)}
             </div>
             <div className="grid-item one-whole large-one-quarter">
               <a href="" className={settingsLinkClass} onClick={this.props.onClickSettings}>Device settings</a>
@@ -113,7 +121,29 @@ var TidelineHeader = React.createClass({
         </div>
       </div>
       );
-    
+  },
+
+  /**
+   * Helper function for rendering the various navigation buttons in the header.
+   * It accounts for the transition state and disables the button if it is currently processing.
+   * 
+   * @param  {String} buttonClass
+   * @param  {Function} clickAction
+   * @param  {String} icon
+   * 
+   * @return {ReactElement}
+   */
+  renderNavButton: function(buttonClass, clickAction, icon) {
+    var nullAction = function(e) {
+      if (e) {
+        e.preventDefault();
+      }
+    };
+    if (this.props.inTransition) {
+      return (<a href="" className={buttonClass} onClick={nullAction}><i className={icon}/></a>);
+    } else {
+      return (<a href="" className={buttonClass} onClick={clickAction}><i className={icon}/></a>);
+    }
   }
 });
 

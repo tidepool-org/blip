@@ -20,6 +20,7 @@ var bows = require('bows');
 var sundial = require('sundial');
 
 var config = require('../../config');
+var loadingGif = require('./loading.gif');
 
 var personUtils = require('../../core/personutils');
 var utils = require('../../core/utils');
@@ -149,7 +150,8 @@ var PatientData = React.createClass({
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
-              <div className="patient-data-message patient-data-message-loading">
+              <img className='patient-data-loading-image' src={loadingGif} alt="Loading animation" />
+              <div className="patient-data-message patient-data-loading-message">
                 Loading data...
               </div>
             </div>
