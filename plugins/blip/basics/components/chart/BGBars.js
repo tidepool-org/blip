@@ -29,16 +29,16 @@ d3.chart('Basics-BGBars', {
       .domain(['verylow', 'low', 'target', 'high', 'veryhigh'])
       .rangeRoundBands([this.height, 0], 0.25, 0.2);
 
-    var borderStroke = 2;
+    var borderWidth = 2;
 
     var xScale = d3.scale.linear()
       .domain([0,1])
-      .range([borderStroke, chart.width - borderStroke]);
+      .range([borderWidth, chart.width - borderWidth]);
 
     this.layer('boxes', this.base.append('g').attr('class', 'BGDistribution-boxes'), {
       dataBind: function(data) {
         return this.selectAll('rect.BGDistribution-box')
-          .data(data);
+          .data(data, function(d) { return d.key; });
       },
       insert: function() {
         return this.append('rect')
@@ -46,7 +46,7 @@ d3.chart('Basics-BGBars', {
             x: 0,
             width: chart.width,
             height: barScale.rangeBand(),
-            'stroke-width': borderStroke
+            'stroke-width': borderWidth
           });
       },
       events: {
@@ -66,13 +66,13 @@ d3.chart('Basics-BGBars', {
     this.layer('bars', this.base.append('g').attr('class', 'BGDistribution-bars'), {
       dataBind: function(data) {
         return this.selectAll('rect.BGDistribution-bar')
-          .data(data);
+          .data(data, function(d) { return d.key; });
       },
       insert: function() {
         return this.append('rect')
           .attr({
             x: xScale.range()[0],
-            height: barScale.rangeBand() - borderStroke*2,
+            height: barScale.rangeBand() - borderWidth*2,
             stroke: 'none',
             'class': 'BGDistribution-bar'
           });
@@ -80,9 +80,15 @@ d3.chart('Basics-BGBars', {
       events: {
         enter: function() {
           this.attr({
-            y: function(d) { return barScale(d.key) + borderStroke; },
+            y: function(d) { return barScale(d.key) + borderWidth; },
             width: function(d) { return xScale(d.value); }
           });
+        },
+        update: function() {
+          this.transition()
+            .attr({
+              width: function(d) { return xScale(d.value); }
+            });
         }
       }
     });
@@ -90,25 +96,31 @@ d3.chart('Basics-BGBars', {
     this.layer('barends', this.base.append('g').attr('class', 'BGDistribution-barends'), {
       dataBind: function(data) {
         return this.selectAll('rect.BGDistribution-barend')
-          .data(data);
+          .data(data, function(d) { return d.key; });
       },
       insert: function() {
         return this.append('rect')
           .attr({
-            width: borderStroke,
-            height: barScale.rangeBand() - borderStroke*2,
+            width: borderWidth,
+            height: barScale.rangeBand() - borderWidth*2,
             stroke: 'none'
           });
       },
       events: {
         enter: function() {
           this.attr({
-            x: function(d) { return xScale(d.value) - borderStroke; },
-            y: function(d) { return barScale(d.key) + borderStroke; },
+            x: function(d) { return xScale(d.value) - borderWidth; },
+            y: function(d) { return barScale(d.key) + borderWidth; },
             'class': function(d) {
               return 'BGDistribution-barend BGDistribution--' + d.category;
             }
           });
+        },
+        update: function() {
+          this.transition()
+            .attr({
+              x: function(d) { return xScale(d.value) - borderWidth; }
+            });
         }
       }
     });
@@ -116,12 +128,12 @@ d3.chart('Basics-BGBars', {
     this.layer('remainders', this.base.append('g').attr('class', 'BGDistribution-remainders'), {
       dataBind: function(data) {
         return this.selectAll('rect.BGDistribution-remainder')
-          .data(data);
+          .data(data, function(d) { return d.key; });
       },
       insert: function() {
         return this.append('rect')
           .attr({
-            height: barScale.rangeBand() - borderStroke*2,
+            height: barScale.rangeBand() - borderWidth*2,
             stroke: 'none',
             'class': 'BGDistribution-remainder'
           });
@@ -130,10 +142,17 @@ d3.chart('Basics-BGBars', {
         enter: function() {
           this.attr({
             x: function(d) { return xScale(d.value); },
-            y: function(d) { return barScale(d.key) + borderStroke; },
+            y: function(d) { return barScale(d.key) + borderWidth; },
             width: function(d) { return xScale.range()[1] - xScale(d.value); },
             fill: 'white'
           });
+        },
+        update: function() {
+          this.transition()
+            .attr({
+              x: function(d) { return xScale(d.value); },
+              width: function(d) { return xScale.range()[1] - xScale(d.value); }
+            });
         }
       }
     });
@@ -141,7 +160,7 @@ d3.chart('Basics-BGBars', {
     this.layer('percentages', this.base.append('g').attr('class', 'BGDistribution-percents'), {
       dataBind: function(data) {
         return this.selectAll('text.BGDistribution-text--percentage')
-          .data(data);
+          .data(data, function(d) { return d.key; });
       },
       insert: function() {
         return this.append('text')
@@ -158,6 +177,9 @@ d3.chart('Basics-BGBars', {
             }
           })
           .text(function(d) { return d3.format('%')(d.value); });
+        },
+        update: function() {
+          this.text(function(d) { return d3.format('%')(d.value); });
         }
       }
     });
@@ -165,7 +187,7 @@ d3.chart('Basics-BGBars', {
     this.layer('categories', this.base.append('g').attr('class', 'BGDistribution-categories'), {
       dataBind: function(data) {
         return this.selectAll('text.BGDistribution-category')
-          .data(data);
+          .data(data, function(d) { return d.key; });
       },
       insert: function() {
         return this.append('text')
@@ -178,7 +200,7 @@ d3.chart('Basics-BGBars', {
           this.attr({
             y: function(d) { return barScale(d.key) + 50; },
             'class': function(d) {
-              return 'BGDistribution-text--category BGDistribution-text--' + d.category;
+              return 'BGDistribution-category BGDistribution-text--category BGDistribution-text--' + d.category;
             }
           })
           .text(function(d) {
@@ -247,6 +269,11 @@ module.exports = {
     chart.bgClasses(opts.bgClasses)
       .bgUnits(opts.bgUnits)
       .draw(data);
+
+    return this;
+  },
+  update: function(data) {
+    chart.draw(data);
 
     return this;
   },

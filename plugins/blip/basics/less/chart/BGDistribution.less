@@ -1,8 +1,14 @@
 .BGDistribution {
   width: 100%;
 
-  &:first-child p:first-child {
+  label {
     margin-top: -5px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    span {
+      font-size: @small-text;
+    }
   }
 
   .BGDistribution-chart {
@@ -51,7 +57,9 @@
   }
   .BGDistribution-cgmStatus {
     font-size: @small-text;
-    padding: 0 0 5px 0;
+    margin-bottom: 0;
+    margin-top: -5px;
+    padding: 0;
     text-align: left;
   }
 }
