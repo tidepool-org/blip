@@ -195,6 +195,45 @@ var format = {
     }
     return d3.time.format.utc('%-I:%M %p')(d).toLowerCase();
   },
+  /**
+   * Given two timestamps return an object containing a timechange 
+   * 
+   * @param {String} from - date string
+   * @param {String} to - date string
+   * @return {Object} containing keys from, to, type, format
+   */
+  timeChangeInfo: function(from,to) {
+    if (!from || !to) { // guard statement
+      throw new Error('You have not provided two datetime strings');
+    }
+
+    var fromDate = new Date(from);
+    var toDate = new Date(to);
+    var type = 'Time Change';
+
+    var format = 'h:mm a';
+    if (fromDate.getUTCFullYear() !== toDate.getUTCFullYear()) {
+      format = 'MMM D, YYYY h:mm a';
+    } else if (
+      fromDate.getUTCMonth() !== toDate.getUTCMonth() ||
+      fromDate.getUTCDay() !== toDate.getUTCDay()
+    ) {
+      format = 'MMM D, h:mm a';
+    }
+
+    if (Math.abs(toDate - fromDate) <= (8*(60*1000))) { // Clock Drift Adjustment if less than 8 minutes
+      type = 'Clock Drift Adjustment';
+    }
+
+
+
+    return {
+      type: type,
+      from: moment(fromDate).utc().format(format),
+      to: moment(toDate).utc().format(format),
+      format: format
+    };
+  },
 
   xAxisDayText: function(i, offset) {
     if (offset) {
