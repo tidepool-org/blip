@@ -19,6 +19,7 @@
 var _ = require('lodash');
 var React = require('react');
 var dotSize = 16;
+var dotPadding = 2;
 var nestedShrinkFactor = 4;
 
 var WrapCount = React.createClass({
@@ -34,14 +35,15 @@ var WrapCount = React.createClass({
       </div>
     );
   },
-  generateDots: function(start, end, dotSize) {
+  generateDots: function(start, end, dotSize, pad) {
+    pad = pad || 1.5
     var dots = [];
     var count = this.getCount();
     for (var i = start; i <= end; ++i) {
       if (i <= count) {
         dots.push(
           <svg key={i} width={dotSize} height={dotSize}>
-            <circle cx={dotSize/2} cy={dotSize/2} r={dotSize/2 - 1}/>
+            <circle cx={dotSize/2} cy={dotSize/2} r={dotSize/2 - pad}/>
           </svg>
         );
       }
@@ -54,12 +56,12 @@ var WrapCount = React.createClass({
     var dots = [];
     
     if (count > 9) {
-      dots = this.generateDots(1, 8, dotSize);
+      dots = this.generateDots(1, 8, dotSize, dotPadding);
       dots.push(<div key='nested' className='NestedCount'>
-        {this.generateDots(9,17,dotSize/nestedShrinkFactor)}
+        {this.generateDots(9,17,dotSize/nestedShrinkFactor, dotPadding/nestedShrinkFactor)}
       </div>);
     } else {
-      dots = this.generateDots(1, 9, dotSize);
+      dots = this.generateDots(1, 9, dotSize, dotPadding);
     }
 
     return dots;
