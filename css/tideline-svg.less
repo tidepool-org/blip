@@ -77,3 +77,27 @@ g.svg-tooltip-generic {
     stroke: @bolus;
   }
 }
+
+g.svg-tooltip-timechange {
+  polygon {
+    fill: none;
+    stroke-width: 3;
+    stroke: darken(@text, 10%);
+    &.no-stroke {
+      fill: @fill-lightest;
+      stroke-width: 0;
+    }
+  }
+}
+
+g.svg-tooltip-message {
+  polygon {
+    fill: none;
+    stroke-width: 3;
+    stroke: darken(@message, 10%);
+    &.no-stroke {
+      fill: @fill-lightest;
+      stroke-width: 0;
+    }
+  }
+}
