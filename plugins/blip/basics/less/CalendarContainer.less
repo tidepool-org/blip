@@ -38,7 +38,12 @@
 		}
 
 		.Calendar-day-label {
-			height: @label-height;
+			height: @dow-label-height;
+			line-height: @dow-label-height;
+			margin-top: 0px;
+			.Calendar-dayofweek {
+				padding-top: 0px;
+			}
 		}
 
 		.Calendar-day--fingerstick {
