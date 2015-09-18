@@ -36,7 +36,7 @@ var WrapCount = React.createClass({
     );
   },
   generateDots: function(start, end, dotSize, pad) {
-    pad = pad || 1.5
+    pad = pad || 1.5;
     var dots = [];
     var count = this.getCount();
     for (var i = start; i <= end; ++i) {
