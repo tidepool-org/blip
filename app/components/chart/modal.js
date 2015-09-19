@@ -80,7 +80,7 @@ var ModalChart = React.createClass({
     });
     console.timeEnd('Modal Pre-Mount');
   },
-  componentDidMount: function() {
+  mount: function() {
     this.log('Mounting...');
     var el = this.getDOMNode();
     var timezone;
@@ -225,6 +225,9 @@ var Modal = React.createClass({
       title: '',
       visibleDays: 0
     };
+  },
+  componentDidMount: function() {
+    this.refs.chart.mount();
   },
   render: function() {
     
