@@ -10,13 +10,6 @@ var PatientInfo = require('../../../../app/pages/patient/patientinfo');
 describe('PatientInfo', function () {
 
   describe('render', function() {
-    it('should console.warn when trackMetric not set', function () {
-      console.warn = sinon.spy();
-      var elem = TestUtils.renderIntoDocument(<PatientInfo/>);
-      expect(elem).to.be.ok;
-      expect(console.warn.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `PatientInfo`.')).to.equal(true);
-    });
-
     it('should not console.warn when trackMetric set', function() {
       console.warn = sinon.spy();
       var props = {
