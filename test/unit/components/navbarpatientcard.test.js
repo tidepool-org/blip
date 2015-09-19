@@ -14,7 +14,7 @@ describe('NavbarPatientCard', function () {
       var elem = TestUtils.renderIntoDocument(<NavbarPatientCard/>);
 
       expect(elem).to.be.ok;
-      expect(console.warn.calledWith('Warning: Required prop `trackMetric` was not specified in `NavbarPatientCard`.')).to.equal(true);
+      expect(console.warn.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `NavbarPatientCard`.')).to.equal(true);
     });
 
     it('should not console.warn when trackMetric set', function() {

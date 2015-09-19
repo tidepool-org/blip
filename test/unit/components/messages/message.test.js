@@ -38,8 +38,8 @@ describe('Message', function () {
       console.warn = sinon.spy();
       var elem = TestUtils.renderIntoDocument(<Message />);
 
-      expect(console.warn.calledWith('Warning: Required prop `theNote` was not specified in `Message`.')).to.equal(true);
-      expect(console.warn.calledWith('Warning: Required prop `timePrefs` was not specified in `Message`.')).to.equal(true);
+      expect(console.warn.calledWith('Warning: Failed propType: Required prop `theNote` was not specified in `Message`.')).to.equal(true);
+      expect(console.warn.calledWith('Warning: Failed propType: Required prop `timePrefs` was not specified in `Message`.')).to.equal(true);
       expect(console.warn.callCount).to.equal(2);
     });
 

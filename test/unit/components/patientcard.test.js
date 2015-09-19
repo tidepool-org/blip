@@ -15,8 +15,8 @@ describe('PatientCard', function () {
 
       expect(elem).to.be.ok;
       expect(console.warn.callCount).to.equal(2);
-      expect(console.warn.calledWith('Warning: Required prop `trackMetric` was not specified in `PatientCard`.')).to.equal(true);
-      expect(console.warn.calledWith('Warning: Required prop `patient` was not specified in `PatientCard`.')).to.equal(true);
+      expect(console.warn.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `PatientCard`.')).to.equal(true);
+      expect(console.warn.calledWith('Warning: Failed propType: Required prop `patient` was not specified in `PatientCard`.')).to.equal(true);
     });
 
     it('should not console.warn when trackMetric and patient set', function() {
