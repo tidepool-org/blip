@@ -129,7 +129,7 @@ var datetime = {
     timezone = timezone || 'UTC';
     return moment(Date.parse(timestamp)).tz(timezone)
       .startOf('isoWeek')
-      .subtract(28, 'days')
+      .subtract(14, 'days')
       .toDate().toISOString();
   },
 

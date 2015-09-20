@@ -233,28 +233,28 @@ describe('datetime utility', function() {
       assert.isFunction(dt.findBasicsStart);
     });
 
-    it('should find the timezone-local midnight of the Monday >= 28 days prior to provide datetime', function() {
+    it('should find the timezone-local midnight of the Monday >= 14 days prior to provided datetime', function() {
       // exactly 28 days
       expect(dt.findBasicsStart('2015-09-07T05:00:00.000Z', 'US/Central'))
-        .to.equal('2015-08-10T05:00:00.000Z');
+        .to.equal('2015-08-24T05:00:00.000Z');
       // almost but not quite 35 days
       expect(dt.findBasicsStart('2015-09-13T09:00:00.000Z', 'Pacific/Honolulu'))
-        .to.equal('2015-08-10T10:00:00.000Z');
+        .to.equal('2015-08-24T10:00:00.000Z');
       // just over threshold into new local week
       expect(dt.findBasicsStart('2015-09-14T06:01:00.000Z', 'US/Mountain'))
-        .to.equal('2015-08-17T06:00:00.000Z');
+        .to.equal('2015-08-31T06:00:00.000Z');
     });
 
-    it('should find UTC midnight of the Monday >= 28 days prior to provided UTC datetime (when no timezone provided)', function() {
+    it('should find UTC midnight of the Monday >= 14 days prior to provided UTC datetime (when no timezone provided)', function() {
       // exactly 28 days
       expect(dt.findBasicsStart('2015-09-07T00:00:00.000Z'))
-        .to.equal('2015-08-10T00:00:00.000Z');
+        .to.equal('2015-08-24T00:00:00.000Z');
       // almost but not quite 35 days
       expect(dt.findBasicsStart('2015-09-13T23:55:00.000Z'))
-        .to.equal('2015-08-10T00:00:00.000Z');
+        .to.equal('2015-08-24T00:00:00.000Z');
       // just over threshold into new UTC week
       expect(dt.findBasicsStart('2015-09-14T00:01:00.000Z'))
-        .to.equal('2015-08-17T00:00:00.000Z');
+        .to.equal('2015-08-31T00:00:00.000Z');
     });
   });
 
