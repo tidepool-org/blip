@@ -222,33 +222,48 @@ describe('TidelineData', function() {
   });
 
   describe('editDatum', function() {
-    var message = new types.Message();
+    var smbg = new types.SMBG({deviceTime: '2015-09-01T15:00:00'});
+    var message = new types.Message({time: '2015-09-01T22:30:00.000Z'});
     var origMessage = _.clone(message);
     var editedMessage = _.clone(origMessage);
     var d = new Date(editedMessage.time);
     d.setUTCHours(d.getUTCHours() + 1);
     editedMessage.time = d.toISOString();
+    editedMessage.messageText = 'This is an edited note.';
 
     it('should be a function', function() {
       assert.isFunction(td.editDatum);
     });
 
     it('should maintain the length of the group data and data', function() {
-      var toEdit = new TidelineData([message, new types.CBG()]);
-      var origLen = toEdit.data.length;
-      var messageLen = toEdit.grouped.message.length;
+      var toEdit = new TidelineData([smbg, _.clone(message), new types.CBG()]);
+      var origDataLen = toEdit.data.length;
+      var origGroupLen = toEdit.grouped.message.length;
       toEdit.editDatum(editedMessage, 'time');
-      expect(toEdit.data.length).to.equal(origLen);
-      expect(toEdit.grouped.message.length).to.equal(messageLen);
+      expect(toEdit.data.length).to.equal(origDataLen);
+      expect(toEdit.grouped.message.length).to.equal(origGroupLen);
     });
 
-    it('should not mutate the original datum', function() {
-      expect(origMessage).to.not.eql(editedMessage);
-      expect(message).to.not.eql(editedMessage);
+    it('should update the messageText if edited datum is message', function() {
+      var toEdit = new TidelineData([smbg, _.clone(message), new types.CBG()]);
+      expect(toEdit.grouped.message[0].messageText).to.equal('This is a note.');
+      toEdit.editDatum(editedMessage, 'time');
+      expect(toEdit.grouped.message[0].messageText).to.equal('This is an edited note.');
+    });
+
+    it('should mutate the original datum', function() {
+      var toEdit = new TidelineData([smbg, message, new types.CBG()]);
+      expect(message === origMessage).to.be.false;
+      expect(toEdit.grouped.message[0] === message).to.be.true;
+      expect(_.omit(toEdit.grouped.message[0], 'displayOffset')).to.deep.equal(origMessage);
+      expect(toEdit.grouped.message[0] === origMessage).to.be.false;
+      toEdit.editDatum(editedMessage, 'time');
+      expect(toEdit.grouped.message[0]).to.deep.equal(editedMessage);
+      expect(toEdit.grouped.message[0] === editedMessage).to.be.false;
     });
 
     it('should expand the fill data if necessary', function() {
-      var toEdit = new TidelineData([message, new types.CBG()], {
+      var toEdit = new TidelineData([smbg, _.clone(message), new types.CBG()], {
         timePrefs: {
           timezoneAware: true,
           timezoneName: 'US/Pacific'

@@ -79,18 +79,65 @@ describe('format utility', function() {
     });
   });
 
+  describe('nameForDisplay', function() {
+    it('should be a function', function() {
+      assert.isFunction(fmt.nameForDisplay);
+    });
+
+    it('should return the same name for display if no words longer than maxWordLength', function() {
+      expect(fmt.nameForDisplay('food', 4)).to.equal('food');
+      expect(fmt.nameForDisplay('I had a dream', 5)).to.equal('I had a dream');
+      expect(fmt.nameForDisplay('In a world where people live forever', 7)).to.equal('In a world where people live forever');
+    });
+
+    it('should trim words that are longer than max word length', function() {
+      expect(fmt.nameForDisplay('foody', 4)).to.equal('food...');
+      expect(fmt.nameForDisplay('Derek Jonesy', 5)).to.equal('Derek Jones...');
+      expect(fmt.nameForDisplay('testing123@tidepool.org', 12)).to.equal('testing123@t...');
+    });
+  });
+
+  describe('textPreview', function() {
+    it('should be a function', function() {
+      assert.isFunction(fmt.textPreview);
+    });
+
+    it('should return the same string if string length is less than preview length', function() {
+      expect(fmt.textPreview('foo', 4)).to.equal('foo');
+      expect(fmt.textPreview('I had a dream', 200)).to.equal('I had a dream');
+      expect(fmt.textPreview('In a world where people live forever.', 50)).to.equal('In a world where people live forever.');
+    });
+
+    it('should return the return a segment of word is no spaces in sentence and previewLength is less than word length', function() {
+      expect(fmt.textPreview('foobar', 5)).to.equal('fooba...');
+    });
+
+    it('should return the same string if string length is less than preview length', function() {
+      expect(fmt.textPreview('foo', 3)).to.equal('foo');
+      expect(fmt.textPreview('I had a dream', 13)).to.equal('I had a dream');
+      expect(fmt.textPreview('In a world where people live forever.', 50)).to.equal('In a world where people live forever.');
+    });
+
+    it('should return the same string if string length is less than preview length', function() {
+      expect(fmt.textPreview('foo bar', 3)).to.equal('foo...');
+      expect(fmt.textPreview('I had a dream', 12)).to.equal('I had a...');
+      expect(fmt.textPreview('In a world where people live forever.', 12)).to.equal('In a world...');
+      expect(fmt.textPreview('In a world where people live forever.', 18)).to.equal('In a world where...');
+    });
+  });
+
   describe('dayAndDate', function() {
     it('should be a function', function() {
       assert.isFunction(fmt.dayAndDate);
     });
 
     it('should return `Mon, Nov 17` on a UTC timestamp of midnight 11/17/2014', function() {
-      var tstr = '2014-11-17T00:00:00.000Z';
+      var tstr = '2014-11-17T00:00:00';
       expect(fmt.dayAndDate(tstr)).to.equal('Mon, Nov 17');
     });
 
     it('should return `Mon, Nov 17` on a UTC timestamp of 8 a.m. 11/17/2014 when passed a Pacific DST offset', function() {
-      var tstr = '2014-11-17T08:00:00.000Z';
+      var tstr = '2014-11-17T08:00:00';
       expect(fmt.dayAndDate(new Date(Date.parse(tstr) - 1).toISOString(), -480)).to.equal('Sun, Nov 16');
       expect(fmt.dayAndDate(tstr, -480)).to.equal('Mon, Nov 17');
     });
@@ -155,11 +202,55 @@ describe('format utility', function() {
     });
 
     it('should return `1:00 am` on a UTC timestamp at 1 am', function() {
-      expect(fmt.timestamp('2014-01-01T01:00:00.000Z')).to.equal('1:00 am');
+      expect(fmt.timestamp('2014-01-01T01:00:00')).to.equal('1:00 am');
     });
 
     it('should return `5:00 pm` on a UTC timestamp at 1 am with a Pacific non-DST offset', function() {
-      expect(fmt.timestamp('2014-01-01T01:00:00.000Z', -480)).to.equal('5:00 pm');
+      expect(fmt.timestamp('2014-01-01T01:00:00', -480)).to.equal('5:00 pm');
+    });
+  });
+
+  describe('timeChangeInfo', function() {
+    it('should be a function', function() {
+      assert.isFunction(fmt.timeChangeInfo);
+    });
+
+    it('should error if 2 arguments are not passed', function() {
+      var err = 'You have not provided two datetime strings';
+      var x = '2014-01-01T01:00:00';
+      expect(fmt.timeChangeInfo.bind(fmt)).to.throw(err);
+      expect(fmt.timeChangeInfo.bind(fmt, x)).to.throw(err);
+    });
+
+    it('should return an object containing strings of times when both are on same day', function() {
+      var x = '2014-01-01T01:00:00';
+      var y = '2014-01-01T04:00:00';
+      var y2 = '2014-01-01T23:00:00';
+      expect(fmt.timeChangeInfo(x,y)).to.eql({type: 'Time Change', from: '1:00 am', to: '4:00 am', format: 'h:mm a'});
+      expect(fmt.timeChangeInfo(x,y2)).to.eql({type: 'Time Change', from: '1:00 am', to: '11:00 pm', format: 'h:mm a'});
+      expect(fmt.timeChangeInfo(y,y2)).to.eql({type: 'Time Change', from: '4:00 am', to: '11:00 pm', format: 'h:mm a'});
+    });
+
+    it('should label object as type Clock Drift Adjustment if difference is less than 8 minutes', function() {
+      var x = '2014-01-01T01:00:00';
+      var y = '2014-01-01T01:06:00';
+      expect(fmt.timeChangeInfo(x,y)).to.eql({type: 'Clock Drift Adjustment', from: '1:00 am', to: '1:06 am', format: 'h:mm a'});
+    });
+
+    it('should return an object containing strings of times and date when values are on different days', function() {
+      var x = '2014-01-01T01:00:00';
+      var y = '2014-01-02T04:00:00';
+      var y2 = '2014-01-30T04:00:00';
+      expect(fmt.timeChangeInfo(x,y)).to.eql({type: 'Time Change', from: 'Jan 1, 1:00 am', to: 'Jan 2, 4:00 am', format: 'MMM D, h:mm a'});
+      expect(fmt.timeChangeInfo(x,y2)).to.eql({type: 'Time Change', from: 'Jan 1, 1:00 am', to: 'Jan 30, 4:00 am', format: 'MMM D, h:mm a'});
+    });
+
+    it('should return an object containing strings of times and date when values are in different years', function() {
+      var x = '2014-12-31T04:00:00';
+      var y = '2015-01-01T01:00:00';
+      var y2 = '2015-04-15T04:25:00';
+      expect(fmt.timeChangeInfo(x,y)).to.eql({type: 'Time Change', from: 'Dec 31, 2014 4:00 am', to: 'Jan 1, 2015 1:00 am', format: 'MMM D, YYYY h:mm a'});
+      expect(fmt.timeChangeInfo(x,y2)).to.eql({type: 'Time Change', from: 'Dec 31, 2014 4:00 am', to: 'Apr 15, 2015 4:25 am', format: 'MMM D, YYYY h:mm a'});
     });
   });
 
@@ -169,11 +260,11 @@ describe('format utility', function() {
     });
 
     it('should return `Wednesday, January 1` on a UTC timestamp at 1 am on first day of 2014', function() {
-      expect(fmt.xAxisDayText('2014-01-01T01:00:00.000Z')).to.equal('Wednesday, January 1');
+      expect(fmt.xAxisDayText('2014-01-01T01:00:00')).to.equal('Wednesday, January 1');
     });
 
     it('should return `Tuesday, December 31` on same UTC timestamp when passed a Pacific non-DST offset', function() {
-      expect(fmt.xAxisDayText('2014-01-01T01:00:00.000Z', -480)).to.equal('Tuesday, December 31');
+      expect(fmt.xAxisDayText('2014-01-01T01:00:00', -480)).to.equal('Tuesday, December 31');
     });
   });
 
@@ -183,15 +274,15 @@ describe('format utility', function() {
     });
 
     it('should return return `1 am` on a UTC timestamp at 1 am', function() {
-      expect(fmt.xAxisTickText('2014-01-01T01:00:00.000Z')).to.equal('1 am');
+      expect(fmt.xAxisTickText('2014-01-01T01:00:00')).to.equal('1 am');
     });
 
     it('should return `5 pm` on same UTC timestamp when passed a Pacific non-DST offset', function() {
-      expect(fmt.xAxisTickText('2014-01-01T01:00:00.000Z', -480)).to.equal('5 pm');
+      expect(fmt.xAxisTickText('2014-01-01T01:00:00', -480)).to.equal('5 pm');
     });
 
     it('should return `6 pm` on same UTC timestamp when passed a Pacific DST offset', function() {
-      expect(fmt.xAxisTickText('2014-04-01T01:00:00.000Z', -420)).to.equal('6 pm');
+      expect(fmt.xAxisTickText('2014-04-01T01:00:00', -420)).to.equal('6 pm');
     });
   });
 });

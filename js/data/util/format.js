@@ -56,6 +56,36 @@ var format = {
     }
   },
 
+  nameForDisplay: function(name, maxWordLength) {
+    maxWordLength = maxWordLength || 22;
+    return name.split(' ').map(function(part) {
+      return (part.length <= maxWordLength) ? 
+        part : 
+        [part.substring(0,maxWordLength), '...'].join('');
+    }).join(' ');
+  },
+
+  /**
+   * Function for returning a preview of a text value followed by elipsis.
+   * Will return a string of max length + 3 (for elipsis). Will end preview
+   * at last completed word that fits into preview.
+   * 
+   * @param  {String} text
+   * @param  {Number} previewLength
+   * @return {String}
+   */
+  textPreview: function(text, previewLength) {
+    previewLength = previewLength || 50; // default length
+    if (text.length <= previewLength) {
+      return text;
+    } else {
+      var substring = text.substring(0, previewLength);
+      var lastSpaceIndex = substring.lastIndexOf(' ');
+      var end = (lastSpaceIndex > 0) ? lastSpaceIndex : previewLength;
+      return substring.substring(0, end) + '...';
+    }
+  },
+
   capitalize: function(s) {
     // transform the first letter of string s to uppercase
     return s[0].toUpperCase() + s.slice(1);
@@ -134,12 +164,75 @@ var format = {
     }
   },
 
-  timestamp: function(i, offset) {
-    var d = new Date(i);
+  /**
+   * Given a string timestamp, return a formatted date string
+   * Optionally adjust the time if an offset is supplied.
+   * 
+   * @param  {String} timestring
+   * @param  {Number} offset
+   * @return {String} [MMMM D] e.g. August 4
+   */
+  datestamp: function(timestring, offset) {
+    var d = new Date(timestring);
+    if (offset) {
+      d.setUTCMinutes(d.getUTCMinutes() + offset);
+    }
+    return moment(d).utc().format('MMMM D');
+  },
+
+  /**
+   * Given a string timestamp, return a formatted time string.
+   * Optionally adjust the time if an offset is supplied.
+   * 
+   * @param  {String} timestring
+   * @param  {Number} offset
+   * @return {String} [%-I:%M %p] D e.g. 3:14 am
+   */
+  timestamp: function(timestring, offset) {
+    var d = new Date(timestring);
     if (offset) {
       d.setUTCMinutes(d.getUTCMinutes() + offset);
     }
     return d3.time.format.utc('%-I:%M %p')(d).toLowerCase();
+  },
+  /**
+   * Given two timestamps return an object containing a timechange 
+   * 
+   * @param {String} from - date string
+   * @param {String} to - date string
+   * @return {Object} containing keys from, to, type, format
+   */
+  timeChangeInfo: function(from,to) {
+    if (!from || !to) { // guard statement
+      throw new Error('You have not provided two datetime strings');
+    }
+
+    var fromDate = new Date(from);
+    var toDate = new Date(to);
+    var type = 'Time Change';
+
+    var format = 'h:mm a';
+    if (fromDate.getUTCFullYear() !== toDate.getUTCFullYear()) {
+      format = 'MMM D, YYYY h:mm a';
+    } else if (
+      fromDate.getUTCMonth() !== toDate.getUTCMonth() ||
+      fromDate.getUTCDay() !== toDate.getUTCDay()
+    ) {
+      format = 'MMM D, h:mm a';
+    }
+
+    if (Math.abs(toDate - fromDate) <= (8*(60*1000))) { // Clock Drift Adjustment if less than 8 minutes
+      type = 'Clock Drift Adjustment';
+    }
+
+
+
+    return {
+      type: type,
+      from: moment(fromDate).utc().format(format),
+      to: moment(toDate).utc().format(format),
+      format: format
+    };
   },
 
   xAxisDayText: function(i, offset) {
