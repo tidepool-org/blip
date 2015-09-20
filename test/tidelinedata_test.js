@@ -284,13 +284,13 @@ describe('TidelineData', function() {
     var smbg = new types.SMBG({deviceTime: '2015-08-31T00:01:00'});
     var bolus = new types.Bolus({deviceTime: '2015-09-28T14:05:00'});
     var thisTd = new TidelineData([smbg, bolus]);
-    it.skip('should build a basicsData objects with all necessary attributes', function() {
-      // expect(thisTd.basicsData).to.deep.equal({
-      //   start: '2015-08-31T07:00:00.000Z',
-      //   end: '2015-09-28T21:05:00.000Z',
-      //   bolus: [bolus],
-      //   smbg: [smbg]
-      // });
+    it('should build a basicsData objects with all necessary attributes', function() {
+      assert.isString(thisTd.basicsData.timezone);
+      assert.isObject(thisTd.basicsData.data);
+      assert.isObject(thisTd.basicsData.data.bolus);
+      assert.isObject(thisTd.basicsData.data.smbg);
+      assert.isArray(thisTd.basicsData.dateRange);
+      assert.isArray(thisTd.basicsData.days);
     });
   });
 
