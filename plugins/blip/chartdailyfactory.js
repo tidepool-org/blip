@@ -79,7 +79,7 @@ function chartDailyFactory(el, options) {
       .label('')
       .labelBaseline(options.labelBaseline)
       .index(chart.pools().indexOf(poolXAxis))
-      .weight(0.65)
+      .heightRatio(0.65)
       .gutterWeight(0.0);
 
     // messages pool
@@ -88,7 +88,7 @@ function chartDailyFactory(el, options) {
       .label('')
       .labelBaseline(options.labelBaseline)
       .index(chart.pools().indexOf(poolMessages))
-      .weight(0.5)
+      .heightRatio(0.5)
       .gutterWeight(0.0);
 
     // blood glucose data pool
@@ -101,7 +101,7 @@ function chartDailyFactory(el, options) {
       .labelBaseline(options.labelBaseline)
       .legend(['bg'])
       .index(chart.pools().indexOf(poolBG))
-      .weight(2)
+      .heightRatio(2.15)
       .gutterWeight(1.0);
 
     // carbs and boluses data pool
@@ -118,7 +118,7 @@ function chartDailyFactory(el, options) {
       .labelBaseline(options.labelBaseline)
       .legend(['bolus', 'carbs'])
       .index(chart.pools().indexOf(poolBolus))
-      .weight(1.5)
+      .heightRatio(1.35)
       .gutterWeight(1.0);
 
     // basal data pool
@@ -131,14 +131,14 @@ function chartDailyFactory(el, options) {
       .labelBaseline(options.labelBaseline)
       .legend(['basal'])
       .index(chart.pools().indexOf(poolBasal))
-      .weight(1.0)
+      .heightRatio(1.0)
       .gutterWeight(1.0);
 
     // stats data pool
     poolStats = chart.newPool()
       .id('poolStats', chart.poolGroup())
       .index(chart.pools().indexOf(poolStats))
-      .weight(1.0)
+      .heightRatio(1.0)
       .gutterWeight(1.0);
 
     chart.arrangePools();
@@ -153,6 +153,14 @@ function chartDailyFactory(el, options) {
     chart.annotations().addGroup(chart.svg().select('#' + poolStats.id()), 'stats');
 
     // add tooltips
+    chart.tooltips().addGroup(poolMessages, {
+      type: 'deviceEvent',
+      shape: 'generic'
+    });
+    chart.tooltips().addGroup(poolMessages, {
+      type: 'message',
+      shape: 'generic'
+    });
     chart.tooltips().addGroup(poolBG, {
       type: 'cbg',
       classes: ['d3-bg-low', 'd3-bg-target', 'd3-bg-high']
@@ -214,6 +222,7 @@ function chartDailyFactory(el, options) {
     // add background fill rectangles to BG pool
     poolBG.addPlotType('fill', fill(poolBG, {
       endpoints: chart.endpoints,
+      isDaily: true,
       guidelines: [
         {
           'class': 'd3-line-bg-threshold',
@@ -261,6 +270,7 @@ function chartDailyFactory(el, options) {
 
     poolBolus.addPlotType('fill', fill(poolBolus, {
       endpoints: chart.endpoints,
+      isDaily: true,
       yScale: scaleHeight
     }), true, true);
 
@@ -290,7 +300,7 @@ function chartDailyFactory(el, options) {
       .outerTickSize(0)
       .ticks(2));
     // add background fill rectangles to basal pool
-    poolBasal.addPlotType('fill', fill(poolBasal, {endpoints: chart.endpoints}), true, true);
+    poolBasal.addPlotType('fill', fill(poolBasal, {endpoints: chart.endpoints, isDaily: true}), true, true);
 
     // add basal data to basal pool
     poolBasal.addPlotType('basal', tideline.plot.basal(poolBasal, {
@@ -304,13 +314,22 @@ function chartDailyFactory(el, options) {
     // add background fill rectangles to messages pool
     poolMessages.addPlotType('fill', fill(poolMessages, {
       emitter: emitter,
+      isDaily: true,
       cursor: 'cell'
     }), true, true);
 
     // add message images to messages pool
     poolMessages.addPlotType('message', tideline.plot.message(poolMessages, {
       size: 30,
-      emitter: emitter
+      emitter: emitter,
+      timezoneAware: chart.options.timePrefs.timezoneAware
+    }), true, true);
+
+    // add timechange images to messages pool
+    poolMessages.addPlotType('deviceEvent', tideline.plot.timechange(poolMessages, {
+      size: 30,
+      emitter: emitter,
+      timezone: chart.options.timePrefs.timezoneName
     }), true, true);
 
     // stats pool
@@ -404,13 +423,13 @@ function chartDailyFactory(el, options) {
   };
 
   chart.editMessage = function(message) {
-    log('Message timestamp edited:', message);
+    log('Message edited:', message);
     // tideline only cares if the edited message was a top-level note
     // not a comment
     if (_.isEmpty(message.parentMessage)) {
       chart.tidelineData.editDatum(message, 'utcTime');
       chart.data(chart.tidelineData);
-      chart.emitter.emit('messageTimestampEdited', message);
+      chart.emitter.emit('messageEdited', message);
     }
     return chart.tidelineData;
   };

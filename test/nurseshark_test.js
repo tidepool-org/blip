@@ -430,7 +430,8 @@ describe('nurseshark', function() {
         id: 'a',
         parentmessage: null,
         timestamp: now,
-        messagetext: 'Hello there!'
+        messagetext: 'Hello there!',
+        user: 'foo'
       };
       var messageTime = new Date(serverMessage.timestamp);
       var tidelineMessage = {
@@ -438,6 +439,7 @@ describe('nurseshark', function() {
         parentMessage: null,
         time: now,
         messageText: 'Hello there!',
+        user: 'foo',
         type: 'message'
       };
       expect(nurseshark.reshapeMessage(serverMessage)).to.eql(tidelineMessage);
