@@ -225,7 +225,20 @@ describe('datetime utility', function() {
       ]);
     });
 
-    it('should categorize each date as past, mostRecent or future');
+    it('should categorize each date as past, mostRecent or future', function() {
+      expect(dt.findBasicsDays([
+        '2015-09-07T00:00:00.000Z',
+        '2015-09-10T12:00:00.000Z'
+      ], 'Pacific/Auckland')).to.deep.equal([
+        {date: '2015-09-07', type: 'past'},
+        {date: '2015-09-08', type: 'past'},
+        {date: '2015-09-09', type: 'past'},
+        {date: '2015-09-10', type: 'past'},
+        {date: '2015-09-11', type: 'mostRecent'},
+        {date: '2015-09-12', type: 'future'},
+        {date: '2015-09-13', type: 'future'},
+      ]);
+    });
   });
 
   describe('findBasicsStart', function() {
