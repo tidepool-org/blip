@@ -7,7 +7,8 @@ var format = tideline.data.util.format;
 var dt = tideline.data.util.datetime;
 var tooltips = tideline.plot.util.tooltips.generalized;
 
-var THREE_HRS = 10800000, NINE_HRS = 75600000;
+var THREE_HRS = 10800000,
+    EIGHTEEN_HRS = 64800000;
 
 d3.chart('SMBGBoxOverlay', {
   initialize: function() {
@@ -106,7 +107,7 @@ d3.chart('SMBGBoxOverlay', {
       var msPer24 = getMsPer24(d);
 
       var left = msPer24 <= THREE_HRS;
-      var right = msPer24 >= NINE_HRS;
+      var right = msPer24 >= EIGHTEEN_HRS;
 
       if (high) {
         if (left) {
@@ -131,6 +132,7 @@ d3.chart('SMBGBoxOverlay', {
       var tooltip = tooltips.add(d, {
         group: d3.select('#modalHighlightGroup'),
         classes: ['svg-tooltip-range'],
+        shape: 'range',
         orientation: tooltipOrientation(d),
         translation: 'translate(' + coords[0] + ',' + coords[1] + ')'
       });
@@ -243,7 +245,7 @@ d3.chart('SMBGBoxOverlay', {
     for (var i = 0; i < binKeys.length; ++i) {
       var msX = parseInt(binKeys[i], 10);
       retData.push({
-        id: i,
+        id: binKeys[i],
         fromDate: new Date(msX - (binSize/2)),
         toDate: new Date(msX + (binSize/2)),
         max: d3.max(binned[binKeys[i]], value),
