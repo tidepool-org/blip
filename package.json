@@ -20,7 +20,7 @@
     "css-loader": "0.15.1",
     "director": "1.2.8",
     "file-loader": "0.8.4",
-    "hakken": "0.1.7",
+    "hakken": "0.1.8",
     "json-loader": "0.5.2",
     "jsx-loader": "0.13.2",
     "less": "2.5.1",
