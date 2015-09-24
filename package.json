@@ -33,7 +33,7 @@
     "serve-static": "1.9.2",
     "shelljs": "0.4.0",
     "style-loader": "0.8.3",
-    "sundial": "1.1.8",
+    "sundial": "1.4.0",
     "tideline": "0.2.12",
     "tidepool-platform-client": "0.18.0",
     "url-loader": "0.5.6",
