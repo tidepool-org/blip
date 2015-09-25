@@ -252,7 +252,7 @@ var AppComponent = React.createClass({
       }
 
       return (
- 
+
         <div className="App-navbar">
           <Navbar
             user={this.state.user}
@@ -265,7 +265,7 @@ var AppComponent = React.createClass({
             trackMetric={this.context.trackMetric}
             ref="navbar"/>
         </div>
-  
+
       );
     }
 
@@ -290,13 +290,13 @@ var AppComponent = React.createClass({
       }
 
       return (
- 
+
         <TidepoolNotification
           type={notification.type}
           onClose={handleClose}>
           {notification.body}
         </TidepoolNotification>
-  
+
       );
     }
 
@@ -331,9 +331,9 @@ var AppComponent = React.createClass({
     if (version) {
       version = 'v' + version + ' beta';
       return (
- 
+
         <div className="Navbar-version" ref="version">{version}</div>
-  
+
       );
     }
     return null;
@@ -381,6 +381,16 @@ var AppComponent = React.createClass({
     return null;
   },
 
+  getInviteKey: function() {
+    var hashQueryParams = this.context.router.getQueryParams();
+    var key = hashQueryParams.inviteKey;
+
+    if(!_.isEmpty(key)){
+      return key;
+    }
+    return '';
+  },
+
   getInviteEmail: function() {
     var hashQueryParams = this.context.router.getQueryParams();
     var email = hashQueryParams.inviteEmail;
@@ -416,10 +426,19 @@ var AppComponent = React.createClass({
   },
 
   renderSignup: function() {
+    var checkKey = function(key, cb) {
+      if (_.isEmpty(config.INVITE_KEY) || key === config.INVITE_KEY){
+        return cb(true);
+      }
+      return cb(false);
+    };
+
     return (
       <Signup
         onSubmit={this.signup}
         inviteEmail={this.getInviteEmail()}
+        inviteKey={this.getInviteKey()}
+        checkInviteKey={checkKey}
         onSubmitSuccess={this.handleSignupSuccess}
         trackMetric={this.context.trackMetric} />
 
@@ -803,7 +822,7 @@ var AppComponent = React.createClass({
       fetchingPatientData: true
     });
 
-    
+
     self.fetchPatient(patientId, function(err, patient) {
       self.fetchPatientData(patient);
     });
@@ -1111,7 +1130,7 @@ var AppComponent = React.createClass({
         console.save(combinedData, 'blip-input.json');
       };
       patientData = self.processPatientData(combinedData);
-      
+
       // NOTE: intentional use of _.clone instead of _.cloneDeep
       // we only need a shallow clone at the top level of the patientId keys
       // and the _.cloneDeep I had originally would hang the browser for *seconds*
