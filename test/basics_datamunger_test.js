@@ -108,45 +108,176 @@ describe('basics datamunger', function() {
   });
 
   describe('calculateBasalBolusStats', function() {
+    var basal = [new types.Basal({
+      duration: 864e5,
+      deviceTime: '2015-09-01T00:00:00'
+    }), new types.Basal({
+      duration: 864e5,
+      deviceTime: '2015-09-02T00:00:00'
+    })];
+    var bolus = [new types.Bolus({
+      value: 4.0,
+      deviceTime: '2015-09-01T12:00:00'
+    })];
+    var anotherBolus = new types.Bolus({
+      value: 2.0,
+      deviceTime: '2015-09-02T12:00:00'
+    });
+    var bd = {
+      data: {
+        basal: {data: basal},
+        bolus: {data: bolus}
+      },
+      dateRange: [
+        '2015-09-01T00:00:00.000Z',
+        '2015-09-02T00:00:00.000Z'
+      ]
+    };
+
     it('should be a function', function() {
       assert.isFunction(dm.calculateBasalBolusStats);
     });
 
     describe('basalBolusRatio', function() {
-      it('should calculate percentage of basal insulin');
+      it('should calculate percentage of basal insulin', function() {
+        expect(dm.calculateBasalBolusStats(bd).basalBolusRatio.basal).to.equal(0.75);
+      });
 
-      it('should calculate percentage of bolus insulin');
+      it('should calculate percentage of bolus insulin', function() {
+        expect(dm.calculateBasalBolusStats(bd).basalBolusRatio.bolus).to.equal(0.25);
+      });
 
-      it('should exclude any portion of basal duration prior to or following basics date range');
+      it('should exclude any portion of basal duration prior to or following basics date range', function() {
+        var bd2 = {
+          data: {
+            basal: {data: basal},
+            bolus: {data: bolus}
+          },
+          dateRange: [
+            '2015-09-01T12:00:00.000Z',
+            '2015-09-01T20:00:00.000Z'
+          ]
+        };
+        expect(dm.calculateBasalBolusStats(bd2).basalBolusRatio.basal).to.equal(0.5);
+        expect(dm.calculateBasalBolusStats(bd2).basalBolusRatio.bolus).to.equal(0.5);
+      });
+
+      it('should exclude any boluses falling outside basal date range', function() {
+        var twoBoluses = [bolus[0], anotherBolus];
+        var bd3 = {
+          data: {
+            basal: {data: basal},
+            bolus: {data: twoBoluses}
+          },
+          dateRange: [
+            '2015-09-01T06:00:00.000Z',
+            '2015-09-01T18:00:00.000Z'
+          ]
+        };
+        expect(dm.calculateBasalBolusStats(bd3).basalBolusRatio.basal).to.equal(0.6);
+        expect(dm.calculateBasalBolusStats(bd3).basalBolusRatio.bolus).to.equal(0.4);
+      });
     });
 
     describe('totalDailyDose', function() {
-      it('should calculate average total daily dose');
+      it('should calculate average total daily dose', function() {
+        expect(dm.calculateBasalBolusStats(bd).totalDailyDose).to.equal(16.0);
+      });
 
-      it('should exclude any portion of basal duration prior to or following basics date range');
+      it('should exclude any portion of basal duration prior to or following basics date range', function() {
+        var bd2 = {
+          data: {
+            basal: {data: basal},
+            bolus: {data: bolus}
+          },
+          dateRange: [
+            '2015-09-01T12:00:00.000Z',
+            '2015-09-01T20:00:00.000Z'
+          ]
+        };
+        expect(dm.calculateBasalBolusStats(bd2).totalDailyDose).to.equal(24.0);
+      });
+
+      it('should exclude any boluses falling outside basal date range', function() {
+        var twoBoluses = [bolus[0], anotherBolus];
+        var bd3 = {
+          data: {
+            basal: {data: basal},
+            bolus: {data: twoBoluses}
+          },
+          dateRange: [
+            '2015-09-01T06:00:00.000Z',
+            '2015-09-01T18:00:00.000Z'
+          ]
+        };
+        expect(dm.calculateBasalBolusStats(bd3).totalDailyDose).to.equal(20.0);
+      });
     });
   });
 
   describe('infusionSiteHistory', function() {
-    var oneWeekDates = {
-      '2015-09-07': 'past',
-      '2015-09-08': 'past',
-      '2015-09-09': 'past',
-      '2015-09-10': 'past',
-      '2015-09-11': 'past',
-      '2015-09-12': 'dayOfUpload',
-      '2015-09-13': 'future'
-    };
+    var oneWeekDates = [{
+      date: '2015-09-07',
+      type: 'past'
+    }, {
+      date: '2015-09-08',
+      type: 'past'
+    }, {
+      date: '2015-09-09',
+      type: 'past'
+    }, {
+      date: '2015-09-10',
+      type: 'past'
+    }, {
+      date: '2015-09-11',
+      type: 'past'
+    }, {
+      date: '2015-09-12',
+      type: 'dayOfUpload'
+    }, {
+      date: '2015-09-13',
+      type: 'future'
+    }];
     var countSiteChangesByDay = {
+      '2015-09-05': 1,
       '2015-09-08': 1,
       '2015-09-12': 1
+    };
+    var bd = {
+      data: {deviceEvent: {countByDate: countSiteChangesByDay}},
+      days: oneWeekDates
     };
     it('should be a function', function() {
       assert.isFunction(dm.infusionSiteHistory);
     });
 
-    it('should return an object keyed by date; value is object with attrs type, daysSince');
+    it('should return an object keyed by date; value is object with attrs type, daysSince', function() {
+      var res = {};
+      oneWeekDates.forEach(function(d) {
+        res[d.date] = {type: d.type === 'future' ? d.type : 'noSiteChange'};
+      });
+      res['2015-09-08'] = {type: 'siteChange', daysSince: 3};
+      res['2015-09-12'] = {type: 'siteChange', daysSince: 4};
+      expect(dm.infusionSiteHistory(bd)).to.deep.equal(res);
+    });
 
-    it('should properly calculate the daysSince for the first infusion site change');
+    it('should properly calculate the daysSince for the first infusion site change', function() {
+      var res2 = {};
+      oneWeekDates.forEach(function(d) {
+        res2[d.date] = {type: d.type === 'future' ? d.type : 'noSiteChange'};
+      });
+      res2['2015-09-08'] = {type: 'siteChange', daysSince: 7};
+      res2['2015-09-12'] = {type: 'siteChange', daysSince: 4};
+      var countSiteChangesByDay2 = {
+        '2015-09-01': 1,
+        '2015-09-08': 1,
+        '2015-09-12': 1
+      };
+      var bd2 = {
+        data: {deviceEvent: {countByDate: countSiteChangesByDay2}},
+        days: oneWeekDates
+      };
+      expect(dm.infusionSiteHistory(bd2)).to.deep.equal(res2);
+    });
   });
 });
