@@ -244,16 +244,18 @@ d3.chart('SMBGBoxOverlay', {
     var reduceForMean = function(s, n) { return s + n.value; };
     for (var i = 0; i < binKeys.length; ++i) {
       var msX = parseInt(binKeys[i], 10);
-      retData.push({
-        id: binKeys[i],
-        fromDate: new Date(msX - (binSize/2)),
-        toDate: new Date(msX + (binSize/2)),
-        max: d3.max(binned[binKeys[i]], value),
-        mean: _.reduce(binned[binKeys[i]], reduceForMean, 0)/binned[binKeys[i]].length,
-        min: d3.min(binned[binKeys[i]], value),
-        msX: msX,
-        values: binned[binKeys[i]]
-      });
+      if (binned[binKeys[i]].length > 1) {
+        retData.push({
+          id: binKeys[i],
+          fromDate: new Date(msX - (binSize/2)),
+          toDate: new Date(msX + (binSize/2)),
+          max: d3.max(binned[binKeys[i]], value),
+          mean: _.reduce(binned[binKeys[i]], reduceForMean, 0)/binned[binKeys[i]].length,
+          min: d3.min(binned[binKeys[i]], value),
+          msX: msX,
+          values: binned[binKeys[i]]
+        });
+      }
     }
     return retData;
   },
