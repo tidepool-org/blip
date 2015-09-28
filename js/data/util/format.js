@@ -36,9 +36,11 @@ var format = {
         }
       }
     }
-    return units === 'mg/dL' ? d3.format('g')(Math.round(d.value)) : d3.format('.1f')(d.value);
+    return format.tooltipBGValue(d.value, units);
   },
-
+  tooltipBGValue: function(value, units) {
+    return units === 'mg/dL' ? d3.format('g')(Math.round(value)) : d3.format('.1f')(value);
+  },
   tooltipValue: function(x) {
     if (x === 0) {
       return '0.0';

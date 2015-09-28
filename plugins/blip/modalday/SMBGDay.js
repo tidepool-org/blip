@@ -302,7 +302,7 @@ module.exports = function() {
     create: function(el, scales, opts) {
       opts = opts || {};
       var defaults = {
-        classes: {
+        bgClasses: {
           'very-low': {boundary: 60},
           low: {boundary: 80},
           target: {boundary: 180},
@@ -319,7 +319,7 @@ module.exports = function() {
 
       chart = d3.select(el)
         .chart('SMBGDay')
-        .bgClasses(opts.classes)
+        .bgClasses(opts.bgClasses)
         .smbgOpts(opts.smbg)
         .timezone(opts.timezone)
         .xScale(scales.x)

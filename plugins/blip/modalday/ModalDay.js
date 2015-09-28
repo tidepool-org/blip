@@ -12,6 +12,7 @@ var smbgDay = require('./SMBGDay');
 var smbgInfo = require('./SMBGInfo');
 
 var THREE_HRS = 10800000;
+var chart;
 
 d3.chart('ModalDay', {
   initialize: function() {
@@ -313,6 +314,11 @@ d3.chart('ModalDay', {
       }
     });
   },
+  bgUnits: function(bgUnits) {
+    if (!arguments.length) { return this._bgUnits; }
+    this._bgUnits = bgUnits;
+    return this;
+  },
   bgClasses: function(bgClasses) {
     if (!arguments.length) { return this._bgClasses; }
     this._bgClasses = bgClasses;
@@ -325,6 +331,8 @@ d3.chart('ModalDay', {
         x: this.xScale(),
         y: this.yScale()
       }, {
+        bgClasses: chart.bgClasses(),
+        bgUnits: chart.bgUnits(),
         timezone: this.timezone()
       });
     }
@@ -392,8 +400,8 @@ d3.chart('ModalDay', {
     var mainMargins = this.margins().main;
     var smbgOpts = this.smbgOpts();
     this._yScale = yScale.range([
-      h - mainMargins.bottom - Math.round(smbgOpts.maxR) - this.margins().bottomBumper,
-      mainMargins.top + Math.round(smbgOpts.maxR)
+      h - mainMargins.bottom - this.margins().bottomBumper,
+      mainMargins.top + this.margins().topBumper
     ]);
     return this;
   },
@@ -409,8 +417,6 @@ d3.chart('ModalDay', {
     return _.sortBy(Object.keys(this.data), function(d) { return d; });
   }
 });
-
-var chart;
 
 module.exports = {
   create: function(el, opts) {
@@ -445,7 +451,8 @@ module.exports = {
         left: defaults.baseMargin,
         bottom: defaults.baseMargin/2
       },
-      bottomBumper: 28
+      topBumper: 30,
+      bottomBumper: 30
     };
     defaults.margins.highlightLabel = {
       x: defaults.margins.main.left + 10,
@@ -502,9 +509,11 @@ module.exports = {
         'very-high': {boundary: 300}
       }
     };
+
     _.defaults(opts, defaults);
 
     chart.bgClasses(opts.bgClasses)
+      .bgUnits(opts.bgUnits)
       .boxOverlay(opts.boxOverlay)
       .grouped(opts.grouped)
       .showingLines(opts.showingLines)
