@@ -3,7 +3,7 @@ var webpackConf = require('./test.config.js');
 
 module.exports = function (config) {
   config.set({
-    browsers: [ 'PhantomJS', 'Chrome', 'Firefox', 'Safari' ],
+    browsers: [ 'PhantomJS', 'Chrome' ],
     captureTimeout: 60000,
     browserNoActivityTimeout: 60000, // We need to accept that Webpack may take a while to build!
     singleRun: true,
