@@ -63,6 +63,7 @@ g.svg-tooltip-smbg {
   }
 }
 
+// range (& mean) overlays in trends view
 g.svg-tooltip-range {
   polygon {
     fill: @fill-lightest;
@@ -70,28 +71,6 @@ g.svg-tooltip-range {
     stroke-width: 1.5;
     stroke-opacity: 0.4;
     stroke: @range;
-  }
-}
-
-.smbgRangeInfo {
-  rect {
-    stroke-width: 1.5;
-    stroke-opacity: 0.4;
-    stroke: @range;
-  }
-
-  text {
-    &.label {
-      text-anchor: start;
-      font-size: 12px;
-      fill: @fill-smbg-hover;
-      font-weight: normal;
-    }
-
-    &.value {
-      font-weight: bold;
-      text-anchor: end;
-    }
   }
 }
 
