@@ -139,13 +139,11 @@ d3.chart('SMBGBoxOverlay', {
       tooltipHtml(tooltip, d);
       tooltip.anchor();
       tooltip.makeShape();
-      d3.select('#rangeBox-'+d.id).classed('hover', true);
     };
 
     var removeTooltip = function(d) {
       tooltips.remove(d);
       d3.select('.smbgRangeInfo').remove();
-      d3.select('#rangeBox-'+d.id).classed('hover', false);
     };
 
     this.layer('rangeBoxes', boxPlotsGroup.append('g').attr('id', 'rangeBoxes'), {
