@@ -35,7 +35,9 @@ var DashboardSection = React.createClass({
     data: React.PropTypes.object.isRequired,
     days: React.PropTypes.array.isRequired,
     name: React.PropTypes.string.isRequired,
+    onSelectDay: React.PropTypes.func.isRequired,
     open: React.PropTypes.bool.isRequired,
+    timezone: React.PropTypes.string.isRequired,
     title: React.PropTypes.string.isRequired
   },
   render: function() {
@@ -55,9 +57,11 @@ var DashboardSection = React.createClass({
               chart={component.chart}
               data={this.props.data}
               days={this.props.days}
+              hasHover={component.hasHover}
+              onSelectDay={this.props.onSelectDay}
+              timezone={this.props.timezone}
               title={component.title}
-              type={component.type}
-              hasHover={component.hasHover} />
+              type={component.type} />
           );
         }
         else {
