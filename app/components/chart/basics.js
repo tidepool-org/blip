@@ -43,6 +43,7 @@ var Basics = React.createClass({
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToWeekly: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
+    updateBasicsData: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired
   },
   getInitialState: function() {
@@ -94,6 +95,7 @@ var Basics = React.createClass({
           onSelectDay={this.handleSelectDay}
           patientData={this.props.patientData}
           timePrefs={this.props.timePrefs}
+          updateBasicsData={this.props.updateBasicsData}
           ref="chart" />
       </div>
     );

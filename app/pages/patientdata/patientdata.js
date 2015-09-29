@@ -246,6 +246,7 @@ var PatientData = React.createClass({
             onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
+            updateBasicsData={this.updateBasicsData}
             trackMetric={this.props.trackMetric}
             uploadUrl={this.props.uploadUrl}
             ref="tideline" />
@@ -502,6 +503,10 @@ var PatientData = React.createClass({
       this.setState({title: this.DEFAULT_TITLE});
       refresh();
     }
+  },
+
+  updateBasicsData: function(data) {
+    this.props.onUpdatePatientData(this.props.patient.userid, data);
   },
 
   updateChartPrefs: function(newChartPrefs) {
