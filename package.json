@@ -1,6 +1,6 @@
 {
   "name": "blip",
-  "version": "0.7.22",
+  "version": "0.8.2-alpha",
   "private": true,
   "scripts": {
     "test": "./node_modules/karma/bin/karma start",
