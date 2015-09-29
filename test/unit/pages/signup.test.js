@@ -80,15 +80,36 @@ describe('Signup', function () {
       var signupForm = TestUtils.findRenderedDOMComponentWithClass(render, 'signup-form');
     });
 
-    it('should render signup-form when both key and email are set', function () {
+    it('should render signup-form when both key and email are set and checkInviteKey is not used', function () {
       console.warn = sinon.stub();
       var props = {
         onSubmit: sinon.stub(),
         onSubmitSuccess: sinon.stub(),
-        checkInviteKey: function(x, cb) { return cb(true); },
+        checkInviteKey: function(x, cb) {
+          //in the case of having both an email and a key the invite key isn't checked client side
+          //so changing the return value will not change the test outcome
+          return cb(true);
+        },
         trackMetric: sinon.stub(),
         inviteKey: 'foobar',
         inviteEmail: 'gordonmdent@gmail.com'
+      };
+      var elem = React.createElement(Signup, props);
+      var render = TestUtils.renderIntoDocument(elem);
+      var signupForm = TestUtils.findRenderedDOMComponentWithClass(render, 'signup-form');
+    });
+
+    it('should render signup-form when key is valid and email is empty', function () {
+      console.warn = sinon.stub();
+      var props = {
+        onSubmit: sinon.stub(),
+        onSubmitSuccess: sinon.stub(),
+        checkInviteKey: function(x, cb) {
+          return cb(true);
+        },
+        trackMetric: sinon.stub(),
+        inviteKey: 'foobar',
+        inviteEmail: ''
       };
       var elem = React.createElement(Signup, props);
       var render = TestUtils.renderIntoDocument(elem);
