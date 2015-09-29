@@ -38,46 +38,82 @@ describe('Signup', function () {
       expect(console.warn.callCount).to.equal(0);
     });
 
-    it('should render waitlist when no key is set', function () {
+    it('should render signup-form when no key is set but checkInviteKey returns true', function () {
       console.warn = sinon.stub();
       var props = {
         onSubmit: sinon.stub(),
         onSubmitSuccess: sinon.stub(),
-        checkInviteKey: function(x, cb) { cb(true); },
+        checkInviteKey: function(x, cb) { return cb(true); },
         trackMetric: sinon.stub(),
         inviteKey: ''
       };
       var elem = React.createElement(Signup, props);
       var render = TestUtils.renderIntoDocument(elem);
-      var refreshButton = TestUtils.findRenderedDOMComponentWithClass(render, 'signup-form');
+      var signupForm = TestUtils.findRenderedDOMComponentWithClass(render, 'signup-form');
     });
 
-    it('should render signup form when key is set but is not valid', function () {
+    it('should render waitlist form when key is set but is not valid', function () {
       console.warn = sinon.stub();
       var props = {
         onSubmit: sinon.stub(),
         onSubmitSuccess: sinon.stub(),
-        checkInviteKey: function(x, cb) { cb(false); },
+        checkInviteKey: function(x, cb) { return cb(false); },
+        trackMetric: sinon.stub(),
+        inviteKey: 'wrong-key'
+      };
+      var elem = React.createElement(Signup, props);
+      var render = TestUtils.renderIntoDocument(elem);
+      var waitlist = TestUtils.findRenderedDOMComponentWithClass(render, 'waitlist');
+    });
+
+    it('should render signup-form when key is set and validates', function () {
+      console.warn = sinon.stub();
+      var props = {
+        onSubmit: sinon.stub(),
+        onSubmitSuccess: sinon.stub(),
+        checkInviteKey: function(x, cb) { return cb(true); },
         trackMetric: sinon.stub(),
         inviteKey: 'foobar'
       };
       var elem = React.createElement(Signup, props);
       var render = TestUtils.renderIntoDocument(elem);
-      var refreshButton = TestUtils.findRenderedDOMComponentWithClass(render, 'waitlist');
+      var signupForm = TestUtils.findRenderedDOMComponentWithClass(render, 'signup-form');
     });
 
-    it('should render signup form when key is set and validates', function () {
+    it('should render signup-form when both key and email are set and checkInviteKey is not used', function () {
       console.warn = sinon.stub();
       var props = {
         onSubmit: sinon.stub(),
         onSubmitSuccess: sinon.stub(),
-        checkInviteKey: function(x, cb) { cb(true); },
+        checkInviteKey: function(x, cb) {
+          //in the case of having both an email and a key the invite key isn't checked client side
+          //so changing the return value will not change the test outcome
+          return cb(true);
+        },
         trackMetric: sinon.stub(),
-        inviteKey: 'foobar'
+        inviteKey: 'foobar',
+        inviteEmail: 'gordonmdent@gmail.com'
       };
       var elem = React.createElement(Signup, props);
       var render = TestUtils.renderIntoDocument(elem);
-      var refreshButton = TestUtils.findRenderedDOMComponentWithClass(render, 'signup-form');
+      var signupForm = TestUtils.findRenderedDOMComponentWithClass(render, 'signup-form');
+    });
+
+    it('should render signup-form when key is valid and email is empty', function () {
+      console.warn = sinon.stub();
+      var props = {
+        onSubmit: sinon.stub(),
+        onSubmitSuccess: sinon.stub(),
+        checkInviteKey: function(x, cb) {
+          return cb(true);
+        },
+        trackMetric: sinon.stub(),
+        inviteKey: 'foobar',
+        inviteEmail: ''
+      };
+      var elem = React.createElement(Signup, props);
+      var render = TestUtils.renderIntoDocument(elem);
+      var signupForm = TestUtils.findRenderedDOMComponentWithClass(render, 'signup-form');
     });
   });
 
