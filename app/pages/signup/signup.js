@@ -60,15 +60,26 @@ var Signup = React.createClass({
     ];
   },
 
-  componentWillMount: function() {
-    var that = this;
-    if ((this.props.inviteKey || this.props.inviteKey === '' ) && this.props.checkInviteKey) {
-      this.props.checkInviteKey(this.props.inviteKey , function(valid) {
-        that.setState({loading: false, showWaitList: !valid });
+  isWaitListed:function(){
+
+    var hasInviteKey = !_.isEmpty(this.props.inviteKey) || this.props.inviteKey === '';
+    var hasInviteEmail = !_.isEmpty(this.props.inviteEmail);
+
+    if ( hasInviteKey && hasInviteEmail ) {
+      //don't show waitlist if invited user to create account and join careteam
+      return false;
+    } else if (hasInviteKey && this.props.checkInviteKey) {
+      //do we have a valid waitlist key?
+      return this.props.checkInviteKey(this.props.inviteKey, function(valid) {
+        var show = !valid
+        return show;
       });
-    } else {
-      that.setState({loading: false, showWaitList: true });
     }
+    return true;
+  },
+
+  componentWillMount: function() {
+    this.setState({loading: false, showWaitList: this.isWaitListed() });
   },
 
   getInitialState: function() {
