@@ -71,8 +71,7 @@ var Signup = React.createClass({
     } else if (hasInviteKey && this.props.checkInviteKey) {
       //do we have a valid waitlist key?
       return this.props.checkInviteKey(this.props.inviteKey, function(valid) {
-        var show = !valid
-        return show;
+        return !valid;
       });
     }
     return true;
