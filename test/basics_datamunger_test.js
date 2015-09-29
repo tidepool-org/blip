@@ -241,7 +241,7 @@ describe('basics datamunger', function() {
     var countSiteChangesByDay = {
       '2015-09-05': 1,
       '2015-09-08': 1,
-      '2015-09-12': 1
+      '2015-09-12': 2
     };
     var bd = {
       data: {deviceEvent: {countByDate: countSiteChangesByDay}},
@@ -251,13 +251,13 @@ describe('basics datamunger', function() {
       assert.isFunction(dm.infusionSiteHistory);
     });
 
-    it('should return an object keyed by date; value is object with attrs type, daysSince', function() {
+    it('should return an object keyed by date; value is object with attrs type, count, daysSince', function() {
       var res = {};
       oneWeekDates.forEach(function(d) {
         res[d.date] = {type: d.type === 'future' ? d.type : 'noSiteChange'};
       });
-      res['2015-09-08'] = {type: 'siteChange', daysSince: 3};
-      res['2015-09-12'] = {type: 'siteChange', daysSince: 4};
+      res['2015-09-08'] = {type: 'siteChange', count: 1, daysSince: 3};
+      res['2015-09-12'] = {type: 'siteChange', count: 2, daysSince: 4};
       expect(dm.infusionSiteHistory(bd)).to.deep.equal(res);
     });
 
@@ -266,8 +266,8 @@ describe('basics datamunger', function() {
       oneWeekDates.forEach(function(d) {
         res2[d.date] = {type: d.type === 'future' ? d.type : 'noSiteChange'};
       });
-      res2['2015-09-08'] = {type: 'siteChange', daysSince: 7};
-      res2['2015-09-12'] = {type: 'siteChange', daysSince: 4};
+      res2['2015-09-08'] = {type: 'siteChange', count: 1, daysSince: 7};
+      res2['2015-09-12'] = {type: 'siteChange', count: 1, daysSince: 4};
       var countSiteChangesByDay2 = {
         '2015-09-01': 1,
         '2015-09-08': 1,

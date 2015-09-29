@@ -147,7 +147,11 @@ module.exports = {
       else {
         daysSince += 1;
         if (countInfusionSitesPerDay[day.date] >= 1) {
-          infusionSiteHistory[day.date] = {type: constants.SITE_CHANGE, daysSince: daysSince};
+          infusionSiteHistory[day.date] = {
+            type: constants.SITE_CHANGE,
+            count: countInfusionSitesPerDay[day.date],
+            daysSince: daysSince
+          };
           daysSince = 0;
         }
         else {
