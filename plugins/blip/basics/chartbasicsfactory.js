@@ -43,7 +43,8 @@ var BasicsChart = React.createClass({
     bgUnits: React.PropTypes.string.isRequired,
     onSelectDay: React.PropTypes.func.isRequired,
     patientData: React.PropTypes.object.isRequired,
-    timePrefs: React.PropTypes.object.isRequired
+    timePrefs: React.PropTypes.object.isRequired,
+    updateBasicsData: React.PropTypes.func.isRequired
   },
   _adjustSectionsBasedOnAvailableData: function(basicsData) {
     var typedData = basicsData.data;
@@ -81,7 +82,9 @@ var BasicsChart = React.createClass({
     basicsActions.bindApp(this);
   },
   componentWillUnmount: function() {
-    this.props.patientData.basicsData = this.state;
+    var patientData = _.clone(this.props.patientData);
+    patientData.basicsData = this.state;
+    this.props.updateBasicsData(patientData);
   },
   render: function() {
     var leftColumn = this.renderColumn('left');
