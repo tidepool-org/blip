@@ -91,6 +91,7 @@ var Basics = React.createClass({
         <BasicsChart
           bgClasses={this.props.bgPrefs.bgClasses}
           bgUnits={this.props.bgPrefs.bgUnits}
+          onSelectDay={this.handleSelectDay}
           patientData={this.props.patientData}
           timePrefs={this.props.timePrefs}
           ref="chart" />
@@ -177,6 +178,9 @@ var Basics = React.createClass({
       e.preventDefault();
     }
     this.props.onSwitchToWeekly();
+  },
+  handleSelectDay: function(date) {
+    this.props.onSwitchToDaily(date);
   }
 });
 
