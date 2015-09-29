@@ -16,6 +16,7 @@
  */
 
 @margin-shift: 3px;
+@secondary-label-color: darken(@text-light, 15%);
 
 // mixins
 .bigText {
@@ -57,7 +58,7 @@
         .secondaryText;
         .fromto {
           .secondaryText;
-          color: darken(@text-light, 15%);
+          color: @secondary-label-color;
         }
       }
       &.plain {
@@ -74,6 +75,29 @@
 
     &.messageTooltip {
       text-align: left;
+    }
+  }
+}
+
+// min & max labels on range overlay in trends view
+.smbgRangeInfo {
+  rect {
+    stroke-width: 1.5;
+    stroke-opacity: 0.4;
+    stroke: @range;
+  }
+
+  text {
+    &.label {
+      text-anchor: start;
+      font-size: @font-size-medium;
+      fill: @secondary-label-color;
+      font-weight: normal;
+    }
+
+    &.value {
+      font-weight: bold;
+      text-anchor: end;
     }
   }
 }

@@ -213,6 +213,75 @@ var shapes = {
         y: opts.y
       });
     }
+  },
+  range: {
+    fixed: false,
+    els: [
+      {
+        el: 'polygon',
+        attrs: {
+          pointsFn: function(opts) {
+            var offset = 40;
+            var y = 10;
+            var x = 10;
+            var ysf = 4; // y offset shrink factor
+            return shapeutil.pointString(0,0) +
+              shapeutil.pointString(offset, - (offset/ysf + y)) +
+              shapeutil.pointString(offset, - ((offset/ysf) + opts.h)) +
+              shapeutil.pointString(offset + opts.w, - ((offset/ysf) + opts.h)) + 
+              shapeutil.pointString(offset + opts.w, - (offset/ysf)) + 
+              shapeutil.pointString(offset + x, - (offset/ysf)) +
+              shapeutil.pointString(0,0).trim();
+          }
+        }
+      },
+      {
+        el: 'polygon',
+        attrs: {
+          pointsFn: function(opts) {
+            var offset = 40;
+            var y = 10;
+            var x = 10;
+            var ysf = 4; // y offset shrink factor
+            return shapeutil.pointString(0,0) +
+              shapeutil.pointString(offset, - (offset/ysf + y)) +
+              shapeutil.pointString(offset, - ((offset/ysf) + opts.h)) +
+              shapeutil.pointString(offset + opts.w, - ((offset/ysf) + opts.h)) + 
+              shapeutil.pointString(offset + opts.w, - (offset/ysf)) + 
+              shapeutil.pointString(offset + x, - (offset/ysf)) +
+              shapeutil.pointString(0,0).trim();
+          },
+          'class': 'no-stroke'
+        }
+      }
+    ],
+    mainClass: 'svg-tooltip-range',
+    orientations: {
+      normal: function(pointStr) {
+        return pointStr;
+      },
+      leftAndDown: function(str) {
+        return shapeutil.mirrorImageX(shapeutil.mirrorImageY(str));
+      },
+      leftAndUp: function(str) {
+        return shapeutil.mirrorImageY(str);
+      },
+      rightAndDown: function(str) {
+        return shapeutil.mirrorImageX(str);
+      }
+    },
+    offset: function(selection, opts) {
+      if (!arguments.length) {
+        return 40;
+      } 
+      selection.attr({
+        x: opts.x,
+        y: opts.y
+      });
+    },
+    offsetY: function() {
+      return 10;
+    }
   }
 };
 

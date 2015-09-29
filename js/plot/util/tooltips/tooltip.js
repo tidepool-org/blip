@@ -214,16 +214,18 @@ function Tooltips(container, tooltipsGroup) {
     // moving the foreign object into place depending on orientation
     // see wiki page (https://github.com/tidepool-org/tideline/wiki/SVGTooltips) for definition of offset
     if (opts.y) {
-      var offsetVal = shapes[shape].offset();
+      var offsetValX = shapes[shape].offset();
+      var offsetValY = (shapes[shape].offsetY) ? shapes[shape].offsetY() : offsetValX;
+
       if (isDefaultNormal || (isDefaultLeftNormal && atLeftEdge)) {
-        shapes[shape].offset(selection, {x: offsetVal, y: opts.y - offsetVal});
+        shapes[shape].offset(selection, {x: offsetValX, y: opts.y - offsetValY});
       }
       else if (atLeftEdge) {
-        shapes[shape].offset(selection, {x: offsetVal, y: offsetVal});
+        shapes[shape].offset(selection, {x: offsetValX, y: offsetValY});
       }
       else if ((!opts.edge) || atRightEdge) {
-        var y = isDefaultLeftNormal ? opts.y - offsetVal : offsetVal;
-        shapes[shape].offset(selection, {x: -opts.w - offsetVal, y: y});
+        var y = isDefaultLeftNormal ? opts.y - offsetValY : offsetValY;
+        shapes[shape].offset(selection, {x: -opts.w - offsetValX, y: y});
       }
     }
     // isDefaultNormal tooltips get caught in the first `if` above
