@@ -131,12 +131,12 @@ module.exports = {
     };
   },
   infusionSiteHistory: function(basicsData) {
-    var countInfusionSitesPerDay = basicsData.data.deviceEvent.countByDate;
+    var infusionSitesPerDay = basicsData.data.deviceEvent.dataByDate;
     var allDays = basicsData.days;
     var infusionSiteHistory = {};
     // daysSince does *not* start at zero because we have to look back to the
     // most recent infusion site change prior to the basics-restricted time domain
-    var priorSiteChange = _.findLast(_.keys(countInfusionSitesPerDay), function(date) {
+    var priorSiteChange = _.findLast(_.keys(infusionSitesPerDay), function(date) {
       return date < allDays[0].date;
     });
     var daysSince = (Date.parse(allDays[0].date) - Date.parse(priorSiteChange))/constants.MS_IN_DAY - 1;
@@ -146,10 +146,11 @@ module.exports = {
       }
       else {
         daysSince += 1;
-        if (countInfusionSitesPerDay[day.date] >= 1) {
+        if (infusionSitesPerDay[day.date] && infusionSitesPerDay[day.date].count >= 1) {
           infusionSiteHistory[day.date] = {
             type: constants.SITE_CHANGE,
-            count: countInfusionSitesPerDay[day.date],
+            count: infusionSitesPerDay[day.date].count,
+            data: infusionSitesPerDay[day.date].data,
             daysSince: daysSince
           };
           daysSince = 0;

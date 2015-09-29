@@ -510,6 +510,26 @@ function TidelineData(data, opts) {
         return d.normalTime >= start;
       });
     }
+
+    // reduce functions for byLocalDate dimension per-datatype
+    function reduceAdd(p, v) {
+      ++p.count;
+      p.data.push(v);
+      return p;
+    }
+    function reduceRemove(p, v) {
+      --p.count;
+      _.remove(p.data, function(d) {
+        return d.id === v.id;
+      });
+      return p;
+    }
+    function reduceInitial() {
+      return {
+        count: 0,
+        data: []
+      };
+    }
     // wrapping in an if-clause here because of the no-data
     // or CGM-only data cases
     if (last) {
@@ -531,27 +551,31 @@ function TidelineData(data, opts) {
         if (!_.isEmpty(this.grouped[aType])) {
           this.basicsData.data[aType] = {};
           var typeObj = this.basicsData.data[aType];
-          if (aType !== 'deviceEvent') {
+          if (aType === 'deviceEvent') {
+            typeObj.data = _.filter(this.grouped[aType], function(d) {
+              return d.subType === 'reservoirChange';
+            });
+          }
+          else {
             typeObj.data = skimFromTop(
               this.grouped[aType],
               this.basicsData.dateRange[0]
             );
           }
-          else {
-            typeObj.data = _.filter(this.grouped[aType], function(d) {
-              return d.subType === 'reservoirChange';
-            });
-          }
           if (_.includes(['smbg', 'bolus', 'deviceEvent'], aType)) {
             typeObj.cf = crossfilter(typeObj.data);
             typeObj.byLocalDate = typeObj.cf.dimension(getLocalDate);
-            var countByLocalDate = typeObj.byLocalDate.group().reduceCount().all();
-            var countByDateHash = {};
-            for (var j = 0; j < countByLocalDate.length; ++j) {
-              var day = countByLocalDate[j];
-              countByDateHash[day.key] = day.value;
+            var dataByLocalDate = typeObj.byLocalDate.group().reduce(
+              reduceAdd,
+              reduceRemove,
+              reduceInitial
+            ).all();
+            var dataByDateHash = {};
+            for (var j = 0; j < dataByLocalDate.length; ++j) {
+              var day = dataByLocalDate[j];
+              dataByDateHash[day.key] = day.value;
             }
-            typeObj.countByDate = countByDateHash;
+            typeObj.dataByDate = dataByDateHash;
           }
         }
       }
