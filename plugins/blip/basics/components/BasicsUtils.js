@@ -1,3 +1,5 @@
+var _ = require('lodash');
+
 module.exports = {
   /**
    * Get the count value associated with this day
