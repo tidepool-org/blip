@@ -209,7 +209,7 @@ module.exports = function(emitter) {
 
     // setup stats group
     container.poolStats = new Pool(container);
-    container.poolStats.id('poolStats', poolGroup).weight(1.05).height(statsHeight * (4/5));
+    container.poolStats.id('poolStats', poolGroup).heightRatio(1.05).height(statsHeight * (4/5));
     container.poolStats.group().attr({
       transform: 'translate(' + axisGutter + ',' + (height - statsHeight) + ')'
     });

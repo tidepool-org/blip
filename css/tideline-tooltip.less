@@ -16,6 +16,7 @@
  */
 
 @margin-shift: 3px;
+@secondary-label-color: darken(@text-light, 15%);
 
 // mixins
 .bigText {
@@ -41,6 +42,12 @@
   text-transform: uppercase;
 }
 
+.newNoteText {
+  font-weight: bold;
+  font-size: @font-size-small;
+  fill: #1E9EB1;
+}
+
 .tooltip-div {
   margin: 0;
   padding: @margin-shift 0 0 0;
@@ -51,7 +58,7 @@
         .secondaryText;
         .fromto {
           .secondaryText;
-          color: darken(@text-light, 15%);
+          color: @secondary-label-color;
         }
       }
       &.plain {
@@ -64,6 +71,33 @@
     text-align: center;
     &.value {
       .bigText;
+    }
+
+    &.messageTooltip {
+      text-align: left;
+    }
+  }
+}
+
+// min & max labels on range overlay in trends view
+.smbgRangeInfo {
+  rect {
+    stroke-width: 1.5;
+    stroke-opacity: 0.4;
+    stroke: @range;
+  }
+
+  text {
+    &.label {
+      text-anchor: start;
+      font-size: @font-size-medium;
+      fill: @secondary-label-color;
+      font-weight: normal;
+    }
+
+    &.value {
+      font-weight: bold;
+      text-anchor: end;
     }
   }
 }

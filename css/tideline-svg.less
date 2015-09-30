@@ -63,6 +63,17 @@ g.svg-tooltip-smbg {
   }
 }
 
+// range (& mean) overlays in trends view
+g.svg-tooltip-range {
+  polygon {
+    fill: @fill-lightest;
+    opacity: 0.7;
+    stroke-width: 1.5;
+    stroke-opacity: 0.4;
+    stroke: @range;
+  }
+}
+
 // generic = bolus(/wizard)
 g.svg-tooltip-generic {
   polygon {
@@ -75,5 +86,29 @@ g.svg-tooltip-generic {
   }
   &.d3-bolus {
     stroke: @bolus;
+  }
+}
+
+g.svg-tooltip-timechange {
+  polygon {
+    fill: none;
+    stroke-width: 3;
+    stroke: darken(@text, 10%);
+    &.no-stroke {
+      fill: @fill-lightest;
+      stroke-width: 0;
+    }
+  }
+}
+
+g.svg-tooltip-message {
+  polygon {
+    fill: none;
+    stroke-width: 3;
+    stroke: darken(@message, 10%);
+    &.no-stroke {
+      fill: @fill-lightest;
+      stroke-width: 0;
+    }
   }
 }

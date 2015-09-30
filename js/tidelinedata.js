@@ -168,20 +168,24 @@ function TidelineData(data, opts) {
     return this;
   };
 
-  this.editDatum = function(datum, timeKey) {
-    this.watson(datum);
-    var newDatum = this.dataById.filter(datum.id).top(Infinity);
-    // because some timestamps are deviceTime, some are utcTime
-    newDatum[timeKey] = datum[timeKey];
+  this.editDatum = function(editedDatum, timeKey) {
+    var self = this;
+    var sortByNormalTime = function(d) { return d.normalTime; };
+    this.watson(editedDatum);
+    var origDatum = this.dataById.filter(editedDatum.id).top(Infinity)[0];
+    origDatum[timeKey] = editedDatum[timeKey];
     // everything has normalTime
-    newDatum.normalTime = datum.normalTime;
-    // remove pre-updated datum and add updated
-    this.filterData.remove();
-    this.filterData.add(newDatum);
-    // clear filters
-    this.dataById.filter(null);
-    this.dataByDate.filter(null);
+    origDatum.normalTime = editedDatum.normalTime;
+    if (editedDatum.type === 'message') {
+      origDatum.messageText = editedDatum.messageText;
+    }
+    this.grouped[editedDatum.type] = _.sortBy(self.grouped[editedDatum.type], sortByNormalTime);
+    this.data = _.sortBy(self.data, sortByNormalTime);
+    if (_.includes(opts.diabetesDataTypes, editedDatum)) {
+      this.diabetesData = _.sortBy(self.diabetesData, sortByNormalTime);
+    }
     this.generateFillData().adjustFillsForTwoWeekView();
+    updateCrossFilters(this.data);
     return this;
   };
 
@@ -222,6 +226,7 @@ function TidelineData(data, opts) {
           fillDate: localTime ? localTime.slice(0,10) : points[i].toISOString().slice(0,10),
           id: 'fill_' + points[i].toISOString().replace(/[^\w\s]|_/g, ''),
           normalEnd: d3.time.hour.utc.offset(point, 3).toISOString(),
+          startsAtMidnight: (hoursClassifier === 0),
           normalTime: point.toISOString(),
           type: 'fill',
           displayOffset: offset,

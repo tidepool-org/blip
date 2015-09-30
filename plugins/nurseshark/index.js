@@ -169,6 +169,7 @@ var nurseshark = {
       messageText: d.messagetext,
       parentMessage: d.parentmessage,
       type: 'message',
+      user: d.user,
       id: d.id
     };
     return tidelineMessage;

@@ -68,19 +68,20 @@ module.exports = {
           height: opts.h,
           visibility: 'visible'
         });
-      var offsetVal = shape.offset();
+      var offsetValX = shape.offset();
+      var offsetValY = (shape.offsetY) ? shape.offsetY() : offsetValX;
       switch(opts.orientation) {
         case 'rightAndDown':
-          shape.offset(foItself, {x: offsetVal, y: offsetVal});
+          shape.offset(foItself, {x: offsetValX, y: offsetValY});
           break;
         case 'leftAndDown':
-          shape.offset(foItself, {x: -opts.w - offsetVal, y: offsetVal});
+          shape.offset(foItself, {x: -opts.w - offsetValX, y: offsetValY});
           break;
         case 'leftAndUp':
-          shape.offset(foItself, {x: -opts.w - offsetVal, y: opts.y - offsetVal});
+          shape.offset(foItself, {x: -opts.w - offsetValX, y: opts.y - offsetValY});
           break;
         default:
-          shape.offset(foItself, {x: offsetVal, y: opts.y - offsetVal});
+          shape.offset(foItself, {x: offsetValX, y: opts.y - offsetValY});
       }
     }
 

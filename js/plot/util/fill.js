@@ -34,6 +34,7 @@ module.exports = function(pool, opts) {
         21: 'darker'
       },
       duration: 3,
+      midnightWidth: 3,
       gutter: 0,
       fillClass: '',
       x: function(t) { return Date.parse(t.normalTime); }
@@ -55,6 +56,7 @@ module.exports = function(pool, opts) {
 
     selection.each(function(currentData) {
       currentData.reverse();
+
       var fills = selection.selectAll('rect.d3-fill')
         .data(currentData, function(d) {
           return d.id;
@@ -66,6 +68,8 @@ module.exports = function(pool, opts) {
         .attr({
           cursor: opts.cursor ? opts.cursor : 'auto',
           x: function(d, i) {
+            // dataGutter is the extra space on the right & left edges
+            // of each "pool" in weekly view
             if (opts.dataGutter) {
               if (i === currentData.length - 1) {
                 return fill.xPosition(d) - opts.dataGutter;
@@ -77,6 +81,7 @@ module.exports = function(pool, opts) {
             else {
               return fill.xPosition(d);
             }
+            return fill.xPosition(d);
           },
           y: function() {
             if (opts.gutter.top) {
@@ -87,6 +92,8 @@ module.exports = function(pool, opts) {
             }
           },
           width: function(d, i) {
+            // dataGutter is the extra space on the right & left edges
+            // of each "pool" in weekly view
             if (opts.dataGutter) {
               if ((i === 0) || (i === currentData.length  - 1)) {
                 return fill.width(d) + opts.dataGutter;
@@ -98,6 +105,7 @@ module.exports = function(pool, opts) {
             else {
               return fill.width(d);
             }
+            return fill.width(d);
           },
           height: function() {
             if (opts.gutter.top) {
@@ -121,6 +129,46 @@ module.exports = function(pool, opts) {
         });
 
       fills.exit().remove();
+
+      // Add midnight markers
+      if (opts.isDaily) {
+        selection.selectAll('rect.d3-fill-midnight')
+        .data(_.filter(currentData, {startsAtMidnight: true}), function(d) {
+          return d.id;
+        })
+        .enter()
+        .append('rect')
+        .attr({
+          x: function(d, i) {
+            var pos;
+            pos = fill.xPosition(d);
+            return pos - (opts.midnightWidth/2);
+          },
+          y: function() {
+            if (opts.gutter.top) {
+              return opts.gutter.top;
+            }
+            else {
+              return opts.gutter;
+            }
+          },
+          width: opts.midnightWidth,
+          height: function() {
+            if (opts.gutter.top) {
+              return pool.height() - opts.gutter.top - opts.gutter.bottom;
+            }
+            else {
+              return pool.height() - 2 * opts.gutter;
+            }
+          },
+          id: function(d) {
+            return d.id;
+          },
+          'class': function(d) {
+            return 'd3-fill d3-rect-fill d3-fill-midnight';
+          }
+        });
+      }
     });
   }
 
