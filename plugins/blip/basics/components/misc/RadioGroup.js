@@ -17,6 +17,7 @@
  */
 
 var React = require('react');
+var _ = require('lodash');
 
 var RadioGroup = React.createClass({
   propTypes: {
@@ -24,17 +25,22 @@ var RadioGroup = React.createClass({
     options: React.PropTypes.array.isRequired
   },
   getInitialState: function() {
-    selectedId: 0;
+    var selectedId = _.findIndex(this.props.options, {default: true}) || 0;
+
+    return {
+      selectedId : selectedId
+    }
   },
-  onClick: function(id) {
-    this.setState({selectedId: id});
+  onClick: function(e) {
+    this.setState({selectedId: parseInt(e.target.value, 10) });
   },
   render: function() {
     var self = this;
     var options = self.props.options.map(function(option, id) {
-      var checked = (id === self.props.selectedId) ? 'checked': '';
+      var checked = (id === self.state.selectedId) ? 'checked': '';
       return (<div className="RadioGroup-option">
-        <input type="radio" name={self.props.name} value={option.value} {checked}> {option.name}
+        <input type="radio" name={self.props.name} value={id} checked={checked} onClick={self.onClick} />
+        <span>{option.label}</span>
       </div>);
     });
 

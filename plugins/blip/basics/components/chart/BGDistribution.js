@@ -61,6 +61,8 @@ var BGDistribution = React.createClass({
   },
   render: function() {
     var data = this.props.data;
+    console.log('BGDist', this.props.data);
+
     if (!_.isEmpty(data.bgDistribution)) {
       var dataToggle = this.renderDataToggle();
       return (

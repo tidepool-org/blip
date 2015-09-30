@@ -37,7 +37,9 @@ var CalendarContainer = React.createClass({
     days: React.PropTypes.array.isRequired,
     title: React.PropTypes.string.isRequired,
     type: React.PropTypes.string.isRequired,
-    hasHover: React.PropTypes.bool
+    hasHover: React.PropTypes.bool,
+    selector: React.PropTypes.func,
+    selectorOptions: React.PropTypes.array
   },
   getInitialState: function() {
     return {
@@ -63,9 +65,16 @@ var CalendarContainer = React.createClass({
     var days = this.renderDays();
     var dayLabels = this.renderDayLabels();
 
+    var selector = null;
+
+    if (this.props.selector && this.props.selectorOptions) {
+      selector = this.renderSelector();
+    }
+
     return (
       <div className='Container'>
         <div className={containerClass} ref='container'>
+          {selector}
           <div className='Calendar' ref='content'>
             {dayLabels}
             {days}
@@ -73,6 +82,9 @@ var CalendarContainer = React.createClass({
         </div>
       </div>
     );
+  },
+  renderSelector: function() {
+    return this.props.selector({ options: this.props.selectorOptions, name: this.props.title });
   },
   renderDayLabels: function() {
     // Take the first day in the set and use this to set the day labels

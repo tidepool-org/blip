@@ -20,6 +20,7 @@ var React = require('react');
 
 var BasicContainer = require('../components/BasicContainer');
 var CalendarContainer = require('../components/CalendarContainer');
+var RadioGroup = require('../components/misc/RadioGroup');
 
 var BasalBolusRatio = React.createFactory(require('../components/chart/BasalBolusRatio'));
 var BGDistribution = React.createFactory(require('../components/chart/BGDistribution'));
@@ -72,6 +73,16 @@ var basicsState = {
       open: false,
       components: [{
           active: true,
+          selector: RadioGroup,
+          selectorOptions: [
+            { value: 'all', label: 'All Boluses', 'default': true },
+            { value: 'wizard', label: 'Calculator' },
+            { value: 'manual', label: 'Manual' },
+            { value: 'extended', label: 'Extended' },
+            { value: 'override', label: 'Override' },
+            { value: 'underride', label: 'Underride' },
+            { value: 'interrupted', label : 'Interrupted' }
+          ],
           chart: WrapCount,
           container: CalendarContainer,
           hasHover: true,
