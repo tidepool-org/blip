@@ -41,8 +41,10 @@ var BasicsChart = React.createClass({
   propTypes: {
     bgClasses: React.PropTypes.object.isRequired,
     bgUnits: React.PropTypes.string.isRequired,
+    onSelectDay: React.PropTypes.func.isRequired,
     patientData: React.PropTypes.object.isRequired,
-    timePrefs: React.PropTypes.object.isRequired
+    timePrefs: React.PropTypes.object.isRequired,
+    updateBasicsData: React.PropTypes.func.isRequired
   },
   _adjustSectionsBasedOnAvailableData: function(basicsData) {
     var typedData = basicsData.data;
@@ -63,8 +65,6 @@ var BasicsChart = React.createClass({
     });
   },
   componentWillMount: function() {
-    var timePrefs = this.props.timePrefs;
-    var tz = timePrefs.timezoneAware ? timePrefs.timezoneName : 'UTC';
     var basicsData = this.props.patientData.basicsData;
     if (basicsData.sections == null) {
       basicsData = _.assign(basicsData, basicsState);
@@ -82,7 +82,9 @@ var BasicsChart = React.createClass({
     basicsActions.bindApp(this);
   },
   componentWillUnmount: function() {
-    this.props.patientData.basicsData = this.state;
+    var patientData = _.clone(this.props.patientData);
+    patientData.basicsData = this.state;
+    this.props.updateBasicsData(patientData);
   },
   render: function() {
     var leftColumn = this.renderColumn('left');
@@ -100,6 +102,8 @@ var BasicsChart = React.createClass({
   },
   renderColumn: function(columnSide) {
     var self = this;
+    var timePrefs = this.props.timePrefs;
+    var tz = timePrefs.timezoneAware ? timePrefs.timezoneName : 'UTC';
     var sections = [];
     for (var key in this.state.sections) {
       var section = _.cloneDeep(self.state.sections[key]);
@@ -121,8 +125,10 @@ var BasicsChart = React.createClass({
           data={self.state.data}
           days={self.state.days}
           name={section.name}
+          onSelectDay={self.props.onSelectDay}
           open={section.open}
-          title={section.title} />
+          title={section.title}
+          timezone={tz} />
       );
     });
   }

@@ -70,7 +70,7 @@ var basicsState = {
       column: 'right',
       index: 2,
       title: 'Bolusing',
-      open: false,
+      open: true,
       components: [{
           active: true,
           selector: RadioGroup,
@@ -95,7 +95,7 @@ var basicsState = {
       column: 'right',
       index: 4,
       title: 'Infusion site changes',
-      open: false,
+      open: true,
       components: [{
           active: true,
           chart: SiteChange,
