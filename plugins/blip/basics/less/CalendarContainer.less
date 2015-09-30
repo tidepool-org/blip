@@ -19,6 +19,10 @@
 		max-width: @days-max;
 		margin: 0 auto;
 
+		.Calendar-day--HOVER {
+			cursor: pointer;
+		}
+
 		.Calendar-day, .Calendar-day-future, .Calendar-day-label, .Calendar-day--HOVER {
 			flex: 0 1 @day-width;
 			height: @day-height;
@@ -38,7 +42,12 @@
 		}
 
 		.Calendar-day-label {
-			height: @label-height;
+			height: @dow-label-height;
+			line-height: @dow-label-height;
+			margin-top: 0px;
+			.Calendar-dayofweek {
+				padding-top: 0px;
+			}
 		}
 
 		.Calendar-day--fingerstick {
@@ -100,10 +109,18 @@
 				flex-wrap: wrap;
 				align-items: flex-start;
 
-				padding: @corner @small-pad @small-pad 26px;
+				padding: @corner 16px @small-pad 16px;
 
 				svg {
 					margin: 0;
+				}
+
+				.NestedCount {
+					width: 16px;
+					padding: 2px;
+					display: flex;
+					flex-wrap: wrap;
+					align-items: flex-start;
 				}
 			}
 		}

@@ -29,39 +29,9 @@ d3.chart('Basics-BGBars', {
       .domain(['verylow', 'low', 'target', 'high', 'veryhigh'])
       .rangeRoundBands([this.height, 0], 0.25, 0.2);
 
-    var borderWidth = 2;
-
     var xScale = d3.scale.linear()
       .domain([0,1])
-      .range([borderWidth, chart.width - borderWidth]);
-
-    this.layer('boxes', this.base.append('g').attr('class', 'BGDistribution-boxes'), {
-      dataBind: function(data) {
-        return this.selectAll('rect.BGDistribution-box')
-          .data(data, function(d) { return d.key; });
-      },
-      insert: function() {
-        return this.append('rect')
-          .attr({
-            x: 0,
-            width: chart.width,
-            height: barScale.rangeBand(),
-            'stroke-width': borderWidth
-          });
-      },
-      events: {
-        enter: function() {
-          this.attr({
-            x: 0,
-            y: function(d) { return barScale(d.key); },
-            width: chart.width,
-            'class': function(d) {
-              return 'BGDistribution-box BGDistribution--' + d.category;
-            }
-          });
-        }
-      }
-    });
+      .range([0, chart.width]);
 
     this.layer('bars', this.base.append('g').attr('class', 'BGDistribution-bars'), {
       dataBind: function(data) {
@@ -72,54 +42,24 @@ d3.chart('Basics-BGBars', {
         return this.append('rect')
           .attr({
             x: xScale.range()[0],
-            height: barScale.rangeBand() - borderWidth*2,
-            stroke: 'none',
-            'class': 'BGDistribution-bar'
-          });
-      },
-      events: {
-        enter: function() {
-          this.attr({
-            y: function(d) { return barScale(d.key) + borderWidth; },
-            width: function(d) { return xScale(d.value); }
-          });
-        },
-        update: function() {
-          this.transition()
-            .attr({
-              width: function(d) { return xScale(d.value); }
-            });
-        }
-      }
-    });
-
-    this.layer('barends', this.base.append('g').attr('class', 'BGDistribution-barends'), {
-      dataBind: function(data) {
-        return this.selectAll('rect.BGDistribution-barend')
-          .data(data, function(d) { return d.key; });
-      },
-      insert: function() {
-        return this.append('rect')
-          .attr({
-            width: borderWidth,
-            height: barScale.rangeBand() - borderWidth*2,
+            height: barScale.rangeBand(),
             stroke: 'none'
           });
       },
       events: {
         enter: function() {
           this.attr({
-            x: function(d) { return xScale(d.value) - borderWidth; },
-            y: function(d) { return barScale(d.key) + borderWidth; },
+            y: function(d) { return barScale(d.key); },
+            width: function(d) { return xScale(d.value); },
             'class': function(d) {
-              return 'BGDistribution-barend BGDistribution--' + d.category;
+              return 'BGDistribution-bar BGDistribution--' + d.category;
             }
           });
         },
         update: function() {
           this.transition()
             .attr({
-              x: function(d) { return xScale(d.value) - borderWidth; }
+              width: function(d) { return xScale(d.value); }
             });
         }
       }
@@ -133,18 +73,19 @@ d3.chart('Basics-BGBars', {
       insert: function() {
         return this.append('rect')
           .attr({
-            height: barScale.rangeBand() - borderWidth*2,
-            stroke: 'none',
-            'class': 'BGDistribution-remainder'
+            height: barScale.rangeBand(),
+            stroke: 'none'
           });
       },
       events: {
         enter: function() {
           this.attr({
             x: function(d) { return xScale(d.value); },
-            y: function(d) { return barScale(d.key) + borderWidth; },
+            y: function(d) { return barScale(d.key); },
             width: function(d) { return xScale.range()[1] - xScale(d.value); },
-            fill: 'white'
+            'class': function(d) {
+              return 'BGDistribution-remainder BGDistribution--' + d.category;
+            }
           });
         },
         update: function() {

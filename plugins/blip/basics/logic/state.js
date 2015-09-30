@@ -53,14 +53,14 @@ var basicsState = {
       active: true,
       column: 'right',
       index: 1,
-      title: 'Fingerstick testing',
+      title: 'BG readings',
       open: true,
       components: [{
           active: true,
           chart: WrapCount,
           container: CalendarContainer,
           hasHover: true,
-          title: 'Fingersticks',
+          title: 'BGs',
           type: 'smbg'
         }]
     },
@@ -69,7 +69,7 @@ var basicsState = {
       column: 'right',
       index: 2,
       title: 'Bolusing',
-      open: false,
+      open: true,
       components: [{
           active: true,
           chart: WrapCount,
@@ -84,7 +84,7 @@ var basicsState = {
       column: 'right',
       index: 4,
       title: 'Infusion site changes',
-      open: false,
+      open: true,
       components: [{
           active: true,
           chart: SiteChange,
