@@ -1,6 +1,6 @@
-/*
+/* 
  * == BSD2 LICENSE ==
- * Copyright (c) 2014, Tidepool Project
+ * Copyright (c) 2015 Tidepool Project
  * 
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
@@ -14,31 +14,26 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
- 
-// DOM required
-// ====================================
-require('../css/tideline.less');
-require('./less/test.less');
 
-// DOM not required
-// ====================================
+var _ = require('lodash');
+var bows = require('bows');
+var moment = require('moment-timezone');
 
-require('./polyfill/function.prototype.bind');
+var sundial = require('sundial');
 
-/* js/ */
-require('./tidelinedata_test');
-/* js/data/ */
-require('./constants_test');
-require('./format_test');
-require('./datetime_test');
-require('./basalutil_test');
-require('./bgutil_test');
-require('./bolusutil_test');
+var debug = bows('basicsActions');
 
-/* js/plot/ */
-require('./annotations_test');
-require('./commonbolus_test');
+var basicsActions = {};
 
-/* plugins/ */
-require('./basics_datamunger_test');
-require('./nurseshark_test');
+basicsActions.bindApp = function(app) {
+  this.app = app;
+  return this;
+};
+
+basicsActions.toggleSection = function(sectionName) {
+  var sections = _.cloneDeep(this.app.state.sections);
+  sections[sectionName].open = !sections[sectionName].open;
+  this.app.setState({sections: sections});
+};
+
+module.exports = basicsActions;

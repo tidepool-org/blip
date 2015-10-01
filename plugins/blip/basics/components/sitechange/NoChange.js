@@ -1,6 +1,7 @@
-/*
+/** @jsx React.DOM */
+/* 
  * == BSD2 LICENSE ==
- * Copyright (c) 2014, Tidepool Project
+ * Copyright (c) 2015 Tidepool Project
  * 
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the associated License, which is identical to the BSD 2-Clause
@@ -14,31 +15,18 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
- 
-// DOM required
-// ====================================
-require('../css/tideline.less');
-require('./less/test.less');
 
-// DOM not required
-// ====================================
+var _ = require('lodash');
+var React = require('react');
 
-require('./polyfill/function.prototype.bind');
+var NoChange = React.createClass({
+  render: function() {
+    return (
+      <div className='NoChange'>
+        <div className='NoChange-line'></div>
+      </div>
+    );
+  },
+});
 
-/* js/ */
-require('./tidelinedata_test');
-/* js/data/ */
-require('./constants_test');
-require('./format_test');
-require('./datetime_test');
-require('./basalutil_test');
-require('./bgutil_test');
-require('./bolusutil_test');
-
-/* js/plot/ */
-require('./annotations_test');
-require('./commonbolus_test');
-
-/* plugins/ */
-require('./basics_datamunger_test');
-require('./nurseshark_test');
+module.exports = NoChange;

@@ -1,4 +1,5 @@
 var gulp = require('gulp');
+var react = require('gulp-react');
 var jshint = require('gulp-jshint');
 
 var jsFiles = [
@@ -11,6 +12,7 @@ var jsFiles = [
 
 gulp.task('jshint', function() {
   var stream = gulp.src(jsFiles)
+    .pipe(react())
     .pipe(jshint())
     .pipe(jshint.reporter('jshint-stylish'));
 

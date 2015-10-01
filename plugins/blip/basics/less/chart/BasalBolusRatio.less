@@ -1,0 +1,49 @@
+.BasalBolusRatio {
+  margin: 0;
+  padding: 8px 0px;
+
+  font-size: @huge-numbers;
+  font-weight: bold;
+
+  .BasalBolusRatio-pie {
+    height: 90px;
+    p {
+      margin-bottom: 8px;
+    }
+  }
+  &:last-child {
+    p {
+      margin-bottom: 0px;
+    }
+  }
+
+  .BasalBolusRatio-inner {
+    width: 100%;
+    p {
+      text-align: center;
+    }
+    .BasalBolusRatio-percent {
+      &.BasalBolusRatio-percent--basal {
+        color: @basal;
+      }
+      &.BasalBolusRatio-percent--bolus {
+        color: @bolus;
+      }
+    }
+    .BasalBolusRatio-label {
+      font-size: @small-text;
+      &.BasalBolusRatio-label--basal {
+        color: @basal;
+      }
+      &.BasalBolusRatio-label--bolus {
+        color: @bolus;
+      }
+    }
+    .d3-arc-basal {
+      fill: @basal;
+    }
+    .d3-arc-bolus {
+      fill: @bolus;
+    }
+  }
+}

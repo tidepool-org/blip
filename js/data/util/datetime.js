@@ -103,6 +103,36 @@ var datetime = {
     return new Date(d2) - new Date(d1);
   },
 
+  findBasicsDays: function(range, timezone) {
+    timezone = timezone || 'UTC';
+    var currentDate = new Date(range[0]), days = [];
+    var dateOfUpload = moment(Date.parse(range[1])).tz(timezone).format('YYYY-MM-DD');
+    while (currentDate < moment(Date.parse(range[1])).tz(timezone).endOf('isoWeek')) {
+      var date = moment(currentDate).tz(timezone).format('YYYY-MM-DD');
+      var dateObj = {date: date};
+      if (date < dateOfUpload) {
+        dateObj.type = 'past';
+      }
+      else if (date === dateOfUpload) {
+        dateObj.type = 'mostRecent';
+      }
+      else {
+        dateObj.type = 'future';
+      }
+      days.push(dateObj);
+      currentDate = moment(currentDate).tz(timezone).add(1, 'days').toDate();
+    }
+    return days;
+  },
+
+  findBasicsStart: function(timestamp, timezone) {
+    timezone = timezone || 'UTC';
+    return moment(Date.parse(timestamp)).tz(timezone)
+      .startOf('isoWeek')
+      .subtract(14, 'days')
+      .toDate().toISOString();
+  },
+
   getDuration: function(d1, d2) {
     return new Date(d2).valueOf() - new Date(d1).valueOf();
   },

@@ -1,6 +1,6 @@
 {
   "name": "tideline",
-  "version": "0.2.13",
+  "version": "0.3.3-alpha",
   "description": "Tidepool's timeline data visualization",
   "repository": {
     "type": "git",
@@ -24,7 +24,8 @@
     "duration-js": "3.3.4",
     "lodash": "3.5.0",
     "moment": "2.9.0",
-    "moment-timezone": "0.3.0"
+    "moment-timezone": "0.3.0",
+    "sundial": "1.4.0"
   },
   "devDependencies": {
     "autoprefixer-loader": "2.0.0",
@@ -33,6 +34,7 @@
     "css-loader": "0.15.3",
     "gulp": "3.9.0",
     "gulp-jshint": "1.11.2",
+    "gulp-react": "3.0.1",
     "istanbul": "0.3.17",
     "jshint": "2.8.0",
     "jshint-stylish": "2.0.1",

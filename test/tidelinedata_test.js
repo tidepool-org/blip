@@ -34,8 +34,8 @@ describe('TidelineData', function() {
     'very-low': {boundary: 60},
     low: {boundary: 80},
     target: {boundary: 180},
-    high: {boundary: 200},
-    'very-high': {boundary: 300}
+    high: {boundary: 300},
+    'very-high': {boundary: 600}
   };
   it('should be a function', function() {
     assert.isFunction(TidelineData);
@@ -43,6 +43,10 @@ describe('TidelineData', function() {
 
   it('should be a (newable) constructor', function() {
     expect(td).to.exist;
+  });
+
+  it('should have a `basicsData` attribute that is an object', function() {
+    assert.isObject(td.basicsData);
   });
 
   it('should have a `data` attribute that is an array', function() {
@@ -276,6 +280,20 @@ describe('TidelineData', function() {
     });
   });
 
+  describe('findBasicsData', function() {
+    var smbg = new types.SMBG({deviceTime: '2015-08-31T00:01:00'});
+    var bolus = new types.Bolus({deviceTime: '2015-09-28T14:05:00'});
+    var thisTd = new TidelineData([smbg, bolus]);
+    it('should build a basicsData objects with all necessary attributes', function() {
+      assert.isString(thisTd.basicsData.timezone);
+      assert.isObject(thisTd.basicsData.data);
+      assert.isObject(thisTd.basicsData.data.bolus);
+      assert.isObject(thisTd.basicsData.data.smbg);
+      assert.isArray(thisTd.basicsData.dateRange);
+      assert.isArray(thisTd.basicsData.days);
+    });
+  });
+
   describe('generateFillData', function() {
     var thisTd = new TidelineData([new types.SMBG()]);
     var fills = thisTd.grouped.fill;
@@ -454,14 +472,7 @@ describe('TidelineData', function() {
     });
 
     it('should set bgClasses to the default', function() {
-      var defaultBgClasses = {
-        'very-low': {boundary: 60},
-        low: {boundary: 80},
-        target: {boundary: 180},
-        high: {boundary: 200},
-        'very-high': {boundary: 300}
-      };
-      expect(thisTd.bgClasses).to.eql(defaultBgClasses);
+      expect(thisTd.bgClasses).to.eql(bgClasses);
     });
 
     it('should default bgUnits to mg/dL', function() {
