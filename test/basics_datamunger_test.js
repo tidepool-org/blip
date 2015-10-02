@@ -244,7 +244,7 @@ describe('basics datamunger', function() {
       '2015-09-12': {count: 2, data: 'b'}
     };
     var bd = {
-      data: {deviceEvent: {dataByDate: countSiteChangesByDay}},
+      data: {reservoirChange: {dataByDate: countSiteChangesByDay}},
       days: oneWeekDates
     };
     it('should be a function', function() {
@@ -274,7 +274,7 @@ describe('basics datamunger', function() {
         '2015-09-12': {count: 1, data: 'b'}
       };
       var bd2 = {
-        data: {deviceEvent: {dataByDate: countSiteChangesByDay2}},
+        data: {reservoirChange: {dataByDate: countSiteChangesByDay2}},
         days: oneWeekDates
       };
       expect(dm.infusionSiteHistory(bd2)).to.deep.equal(res2);

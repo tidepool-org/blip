@@ -524,14 +524,24 @@ function TidelineData(data, opts) {
       for (var i = 0; i < opts.basicsTypes.length; ++i) {
         var aType = opts.basicsTypes[i];
         if (!_.isEmpty(this.grouped[aType])) {
-          this.basicsData.data[aType] = {};
-          var typeObj = this.basicsData.data[aType];
+          var typeObj;
           if (aType === 'deviceEvent') {
-            typeObj.data = _.filter(this.grouped[aType], function(d) {
-              return d.subType === 'reservoirChange';
-            });
+            this.basicsData.data.reservoirChange = {data: _.filter(
+              this.grouped[aType],
+              function(d) {
+                return d.subType === 'reservoirChange';
+              }
+            )};
+            this.basicsData.data.calibration = {data: _.filter(
+              skimFromTop(this.grouped[aType], this.basicsData.dateRange[0]),
+              function(d) {
+                return d.subType === 'calibration';
+              }
+            )};
           }
           else {
+            this.basicsData.data[aType] = {};
+            typeObj = this.basicsData.data[aType];
             typeObj.data = skimFromTop(
               this.grouped[aType],
               this.basicsData.dateRange[0]

@@ -7,7 +7,8 @@ module.exports = {
    * @return {Number}
    */
   getCount: function() {
-    if (_.isEmpty(this.props.data)) {
+    if (_.isEmpty(this.props.data) ||
+      _.isEmpty(this.props.data.dataByDate[this.props.date])) {
       return 0;
     }
     return this.props.data.dataByDate[this.props.date].count;

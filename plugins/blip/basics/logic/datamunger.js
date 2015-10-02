@@ -134,7 +134,7 @@ module.exports = {
     };
   },
   infusionSiteHistory: function(basicsData) {
-    var infusionSitesPerDay = basicsData.data.deviceEvent.dataByDate;
+    var infusionSitesPerDay = basicsData.data.reservoirChange.dataByDate;
     var allDays = basicsData.days;
     var infusionSiteHistory = {};
     // daysSince does *not* start at zero because we have to look back to the
@@ -166,6 +166,7 @@ module.exports = {
     return infusionSiteHistory;
   },
   reduceByDay: function(basicsData) {
+
     function getLocalDate(d) {
       return sundial.applyOffset(d.time, d.displayOffset).toISOString().slice(0,10);
     }
@@ -190,7 +191,7 @@ module.exports = {
     }
     for (var type in basicsData.data) {
       var typeObj = basicsData.data[type];
-      if (_.includes(['smbg', 'bolus', 'deviceEvent'], type)) {
+      if (_.includes(['bolus', 'calibration', 'reservoirChange', 'smbg'], type)) {
         typeObj.cf = crossfilter(typeObj.data);
         typeObj.byLocalDate = typeObj.cf.dimension(getLocalDate);
         var dataByLocalDate = typeObj.byLocalDate.group().reduce(
