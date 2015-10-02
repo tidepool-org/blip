@@ -16,7 +16,7 @@
 
 var React = require('react');
 var _ = require('lodash');
-var cx = require('react/lib/cx');
+var cx = require('classnames');
 var ModalOverlay = require('../../components/modaloverlay');
 var InputGroup = require('../../components/inputgroup');
 var personUtils = require('../../core/personutils');
