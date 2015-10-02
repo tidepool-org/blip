@@ -1,0 +1,51 @@
+.SummaryGroup-container {
+  padding: 0px 0px 5px;
+  margin: 0px 5px 10px;
+  width: 622px;
+  background-color: #eef5f9;
+  border-bottom: 3px solid darken(#eef5f9, 10%);
+  font-size: 13px;
+
+  display: flex;
+  justify-content: space-around;
+
+  .SummaryGroup-info, .SummaryGroup-info-primary {
+    height: 20px;
+    width: 146px;
+    padding: 10px 0px 10px 7px;
+    text-align: center;
+    cursor: pointer;
+
+    &.SummaryGroup-info--selected {
+      font-weight: bold;
+    }
+
+    .SummaryGroup-option-percentage {
+      font-size: 12px;
+      padding-left: 3px;
+    }
+
+    .SummaryGroup-option-count {
+      font-weight: bold;
+      padding-left: 3px;
+    }
+  }
+
+  .SummaryGroup-info-others {
+    display: flex;
+    justify-content: space-around;
+    flex-flow: row wrap;
+    height: 60px;
+    max-width: 469px;
+  }
+
+  .SummaryGroup-info-primary {
+    height: 40px;
+    vertical-align: top;
+    font-size: 15px;
+
+    .SummaryGroup-option-count {
+      display: block;
+    }
+  }
+}
