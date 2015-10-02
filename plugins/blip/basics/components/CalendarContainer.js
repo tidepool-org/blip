@@ -35,7 +35,6 @@ var CalendarContainer = React.createClass({
     chart: React.PropTypes.func.isRequired,
     data: React.PropTypes.object.isRequired,
     days: React.PropTypes.array.isRequired,
-    hasHover: React.PropTypes.bool.isRequired,
     onSelectDay: React.PropTypes.func.isRequired,
     timezone: React.PropTypes.string.isRequired,
     title: React.PropTypes.string.isRequired,

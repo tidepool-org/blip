@@ -69,7 +69,7 @@ var SummaryGroup = React.createClass({
     var value = <span className="SummaryGroup-option-count">{option.count}</span>;
     var percentage;
     if (option.percentage) {
-      percentage = <span className="SummaryGroup-option-percentage">{'(' +( option.percentage*100) + '%)'}</span>
+      percentage = <span className="SummaryGroup-option-percentage">{'(' +(option.percentage*100) + '%)'}</span>;
     }
 
     return (

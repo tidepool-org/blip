@@ -57,7 +57,6 @@ var DashboardSection = React.createClass({
               chart={component.chart}
               data={this.props.data}
               days={this.props.days}
-              hasHover={component.hasHover}
               onSelectDay={this.props.onSelectDay}
               timezone={this.props.timezone}
               title={component.title}
