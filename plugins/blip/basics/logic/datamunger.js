@@ -1,4 +1,7 @@
 var _ = require('lodash');
+var crossfilter = require('crossfilter');
+
+var sundial = require('sundial');
 
 var constants = require('./constants');
 
@@ -131,12 +134,12 @@ module.exports = {
     };
   },
   infusionSiteHistory: function(basicsData) {
-    var countInfusionSitesPerDay = basicsData.data.deviceEvent.countByDate;
+    var infusionSitesPerDay = basicsData.data.reservoirChange.dataByDate;
     var allDays = basicsData.days;
     var infusionSiteHistory = {};
     // daysSince does *not* start at zero because we have to look back to the
     // most recent infusion site change prior to the basics-restricted time domain
-    var priorSiteChange = _.findLast(_.keys(countInfusionSitesPerDay), function(date) {
+    var priorSiteChange = _.findLast(_.keys(infusionSitesPerDay), function(date) {
       return date < allDays[0].date;
     });
     var daysSince = (Date.parse(allDays[0].date) - Date.parse(priorSiteChange))/constants.MS_IN_DAY - 1;
@@ -146,8 +149,13 @@ module.exports = {
       }
       else {
         daysSince += 1;
-        if (countInfusionSitesPerDay[day.date] >= 1) {
-          infusionSiteHistory[day.date] = {type: constants.SITE_CHANGE, daysSince: daysSince};
+        if (infusionSitesPerDay[day.date] && infusionSitesPerDay[day.date].count >= 1) {
+          infusionSiteHistory[day.date] = {
+            type: constants.SITE_CHANGE,
+            count: infusionSitesPerDay[day.date].count,
+            data: infusionSitesPerDay[day.date].data,
+            daysSince: daysSince
+          };
           daysSince = 0;
         }
         else {
@@ -156,5 +164,49 @@ module.exports = {
       }
     });
     return infusionSiteHistory;
+  },
+  reduceByDay: function(basicsData) {
+
+    function getLocalDate(d) {
+      return sundial.applyOffset(d.time, d.displayOffset).toISOString().slice(0,10);
+    }
+    // reduce functions for byLocalDate dimension per-datatype
+    function reduceAdd(p, v) {
+      ++p.count;
+      p.data.push(v);
+      return p;
+    }
+    function reduceRemove(p, v) {
+      --p.count;
+      _.remove(p.data, function(d) {
+        return d.id === v.id;
+      });
+      return p;
+    }
+    function reduceInitial() {
+      return {
+        count: 0,
+        data: []
+      };
+    }
+    for (var type in basicsData.data) {
+      var typeObj = basicsData.data[type];
+      if (_.includes(['bolus', 'calibration', 'reservoirChange', 'smbg'], type)) {
+        typeObj.cf = crossfilter(typeObj.data);
+        typeObj.byLocalDate = typeObj.cf.dimension(getLocalDate);
+        var dataByLocalDate = typeObj.byLocalDate.group().reduce(
+          reduceAdd,
+          reduceRemove,
+          reduceInitial
+        ).all();
+        var dataByDateHash = {};
+        for (var j = 0; j < dataByLocalDate.length; ++j) {
+          var day = dataByLocalDate[j];
+          dataByDateHash[day.key] = day.value;
+        }
+        typeObj.dataByDate = dataByDateHash;
+      }
+    }
+
   }
 };

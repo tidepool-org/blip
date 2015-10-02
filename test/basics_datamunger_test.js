@@ -259,25 +259,25 @@ describe('basics datamunger', function() {
       type: 'future'
     }];
     var countSiteChangesByDay = {
-      '2015-09-05': 1,
-      '2015-09-08': 1,
-      '2015-09-12': 1
+      '2015-09-05': {count: 1},
+      '2015-09-08': {count: 1, data: 'a'},
+      '2015-09-12': {count: 2, data: 'b'}
     };
     var bd = {
-      data: {deviceEvent: {countByDate: countSiteChangesByDay}},
+      data: {reservoirChange: {dataByDate: countSiteChangesByDay}},
       days: oneWeekDates
     };
     it('should be a function', function() {
       assert.isFunction(dm.infusionSiteHistory);
     });
 
-    it('should return an object keyed by date; value is object with attrs type, daysSince', function() {
+    it('should return an object keyed by date; value is object with attrs type, count, daysSince', function() {
       var res = {};
       oneWeekDates.forEach(function(d) {
         res[d.date] = {type: d.type === 'future' ? d.type : 'noSiteChange'};
       });
-      res['2015-09-08'] = {type: 'siteChange', daysSince: 3};
-      res['2015-09-12'] = {type: 'siteChange', daysSince: 4};
+      res['2015-09-08'] = {type: 'siteChange', count: 1, daysSince: 3, data: 'a'};
+      res['2015-09-12'] = {type: 'siteChange', count: 2, daysSince: 4, data: 'b'};
       expect(dm.infusionSiteHistory(bd)).to.deep.equal(res);
     });
 
@@ -286,15 +286,15 @@ describe('basics datamunger', function() {
       oneWeekDates.forEach(function(d) {
         res2[d.date] = {type: d.type === 'future' ? d.type : 'noSiteChange'};
       });
-      res2['2015-09-08'] = {type: 'siteChange', daysSince: 7};
-      res2['2015-09-12'] = {type: 'siteChange', daysSince: 4};
+      res2['2015-09-08'] = {type: 'siteChange', count: 1, daysSince: 7, data: 'a'};
+      res2['2015-09-12'] = {type: 'siteChange', count: 1, daysSince: 4, data: 'b'};
       var countSiteChangesByDay2 = {
-        '2015-09-01': 1,
-        '2015-09-08': 1,
-        '2015-09-12': 1
+        '2015-09-01': {count: 1},
+        '2015-09-08': {count: 1, data: 'a'},
+        '2015-09-12': {count: 1, data: 'b'}
       };
       var bd2 = {
-        data: {deviceEvent: {countByDate: countSiteChangesByDay2}},
+        data: {reservoirChange: {dataByDate: countSiteChangesByDay2}},
         days: oneWeekDates
       };
       expect(dm.infusionSiteHistory(bd2)).to.deep.equal(res2);

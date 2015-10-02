@@ -3,9 +3,11 @@ var moment = require('moment-timezone');
 var cx = require('classnames');
 var _ = require('lodash');
 
+var BasicsUtils = require('../BasicsUtils');
 var constants = require('../../logic/constants');
 
 var HoverDay = React.createClass({
+  mixins: [BasicsUtils],
   propTypes: {
     data: React.PropTypes.object,
     date: React.PropTypes.string.isRequired,
@@ -54,17 +56,6 @@ var HoverDay = React.createClass({
         </div>
       </div>
     );
-  },
-  /**
-   * Get the count value associated with this day
-   * 
-   * @return {Number}
-   */
-  getCount: function() {
-    if (_.isEmpty(this.props.data)) {
-      return 0;
-    }
-    return this.props.data.countByDate[this.props.date];
   }
 });
 
