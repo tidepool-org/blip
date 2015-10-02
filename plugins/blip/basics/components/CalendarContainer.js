@@ -45,8 +45,11 @@ var CalendarContainer = React.createClass({
     selectorOptions: React.PropTypes.array
   },
   getInitialState: function() {
+    var selected = _.find(this.props.selectorOptions, {default: true});
+
     return {
-      hoverDate: null
+      hoverDate: null,
+      selectedKey: (selected) ? selected.key : null
     };
   },
   /**
@@ -57,6 +60,9 @@ var CalendarContainer = React.createClass({
    */
   onHover: function(date) {
     this.setState({hoverDate: date});
+  },
+  onSelect: function(key) {
+    this.setState({selectedKey: key});
   },
   render: function() {
     var self = this;
@@ -87,7 +93,12 @@ var CalendarContainer = React.createClass({
     );
   },
   renderSelector: function() {
-    return this.props.selector({ options: this.props.selectorOptions, name: this.props.title });
+    return this.props.selector({ 
+      options: this.props.selectorOptions, 
+      name: this.props.title,
+      selectedKey: this.state.selectedKey,
+      onSelect: this.onSelect 
+    });
   },
   renderDayLabels: function() {
     // Take the first day in the set and use this to set the day labels
