@@ -20,7 +20,6 @@
 var _ = require('lodash');
 var crossfilter = require('crossfilter');
 var d3 = require('d3');
-var sundial = require('sundial');
 
 var validate = require('./validation/validate');
 
@@ -498,10 +497,6 @@ function TidelineData(data, opts) {
       }
     });
 
-    function getLocalDate(d) {
-      return sundial.applyOffset(d.time, d.displayOffset).toISOString().slice(0,10);
-    }
-
     function skimFromTop(groupData, start) {
       return _.takeRightWhile(groupData, function(d) {
         if (d.type === 'basal') {
@@ -509,26 +504,6 @@ function TidelineData(data, opts) {
         }
         return d.normalTime >= start;
       });
-    }
-
-    // reduce functions for byLocalDate dimension per-datatype
-    function reduceAdd(p, v) {
-      ++p.count;
-      p.data.push(v);
-      return p;
-    }
-    function reduceRemove(p, v) {
-      --p.count;
-      _.remove(p.data, function(d) {
-        return d.id === v.id;
-      });
-      return p;
-    }
-    function reduceInitial() {
-      return {
-        count: 0,
-        data: []
-      };
     }
     // wrapping in an if-clause here because of the no-data
     // or CGM-only data cases
@@ -561,21 +536,6 @@ function TidelineData(data, opts) {
               this.grouped[aType],
               this.basicsData.dateRange[0]
             );
-          }
-          if (_.includes(['smbg', 'bolus', 'deviceEvent'], aType)) {
-            typeObj.cf = crossfilter(typeObj.data);
-            typeObj.byLocalDate = typeObj.cf.dimension(getLocalDate);
-            var dataByLocalDate = typeObj.byLocalDate.group().reduce(
-              reduceAdd,
-              reduceRemove,
-              reduceInitial
-            ).all();
-            var dataByDateHash = {};
-            for (var j = 0; j < dataByLocalDate.length; ++j) {
-              var day = dataByLocalDate[j];
-              dataByDateHash[day.key] = day.value;
-            }
-            typeObj.dataByDate = dataByDateHash;
           }
         }
       }

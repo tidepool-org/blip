@@ -1,4 +1,7 @@
 var _ = require('lodash');
+var crossfilter = require('crossfilter');
+
+var sundial = require('sundial');
 
 var constants = require('./constants');
 
@@ -161,5 +164,48 @@ module.exports = {
       }
     });
     return infusionSiteHistory;
+  },
+  reduceByDay: function(basicsData) {
+    function getLocalDate(d) {
+      return sundial.applyOffset(d.time, d.displayOffset).toISOString().slice(0,10);
+    }
+    // reduce functions for byLocalDate dimension per-datatype
+    function reduceAdd(p, v) {
+      ++p.count;
+      p.data.push(v);
+      return p;
+    }
+    function reduceRemove(p, v) {
+      --p.count;
+      _.remove(p.data, function(d) {
+        return d.id === v.id;
+      });
+      return p;
+    }
+    function reduceInitial() {
+      return {
+        count: 0,
+        data: []
+      };
+    }
+    for (var type in basicsData.data) {
+      var typeObj = basicsData.data[type];
+      if (_.includes(['smbg', 'bolus', 'deviceEvent'], type)) {
+        typeObj.cf = crossfilter(typeObj.data);
+        typeObj.byLocalDate = typeObj.cf.dimension(getLocalDate);
+        var dataByLocalDate = typeObj.byLocalDate.group().reduce(
+          reduceAdd,
+          reduceRemove,
+          reduceInitial
+        ).all();
+        var dataByDateHash = {};
+        for (var j = 0; j < dataByLocalDate.length; ++j) {
+          var day = dataByLocalDate[j];
+          dataByDateHash[day.key] = day.value;
+        }
+        typeObj.dataByDate = dataByDateHash;
+      }
+    }
+
   }
 };
