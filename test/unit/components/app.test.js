@@ -100,7 +100,7 @@ describe('App', function () {
       React.withContext(context, function() {
         var elem = TestUtils.renderIntoDocument(<App/>);
         var footer = TestUtils.findRenderedDOMComponentWithClass(elem, 'footer');
-        var version = TestUtils.findRenderedDOMComponentWithClass(footer, 'footer-version');
+        var version = TestUtils.findRenderedDOMComponentWithClass(footer, 'Navbar-version');
         expect(version).to.be.ok;
       });
     });
