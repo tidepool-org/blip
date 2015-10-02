@@ -92,7 +92,7 @@ var basicsState = {
           hasHover: true,
           noDataMessage: 'Infusion site changes for CareLink data are coming soon.',
           title: 'Infusion site changes',
-          type: 'deviceEvent'
+          type: 'reservoirChange'
         }]
     },
     tdd: {

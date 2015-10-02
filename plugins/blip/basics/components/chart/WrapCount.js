@@ -22,7 +22,10 @@ var dotSize = 16;
 var dotPadding = 2;
 var nestedShrinkFactor = 4;
 
+var BasicsUtils = require('../BasicsUtils');
+
 var WrapCount = React.createClass({
+  mixins: [BasicsUtils],
   propTypes: {
     data: React.PropTypes.object,
     date: React.PropTypes.string.isRequired
@@ -65,12 +68,6 @@ var WrapCount = React.createClass({
     }
 
     return dots;
-  },
-  getCount: function() {
-    if (_.isEmpty(this.props.data)) {
-      return 0;
-    }
-    return this.props.data.countByDate[this.props.date];
   }
 });
 

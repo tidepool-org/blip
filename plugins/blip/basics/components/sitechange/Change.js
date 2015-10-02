@@ -23,10 +23,19 @@ var siteChangeImg = require('./sitechange.png');
 
 var Change = React.createClass({
   propTypes: {
-    daysSince: React.PropTypes.number.isRequired
+    daysSince: React.PropTypes.number.isRequired,
+    count: React.PropTypes.number
   },
   render: function() {
     var daysText = (this.props.daysSince === 1) ? 'day' : 'days';
+    var countElement = null;
+
+    if (this.props.count > 1) {
+      countElement = <div className='Change-count-text'>
+        x{this.props.count}
+      </div>;
+    }
+
     return (
       <div className='Change'>
         <div className='Change-daysSince-text'>
@@ -35,6 +44,7 @@ var Change = React.createClass({
         </div>
         <div className='Change-line-end'></div>
         <div className='Change-line-stop'></div>
+        {countElement}
         <div className='Change-line-start'></div>
         <div className='Change-line-mark'></div>
       </div>

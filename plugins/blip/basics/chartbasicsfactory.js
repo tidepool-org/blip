@@ -68,7 +68,8 @@ var BasicsChart = React.createClass({
     var basicsData = this.props.patientData.basicsData;
     if (basicsData.sections == null) {
       basicsData = _.assign(basicsData, basicsState);
-      basicsData.data.deviceEvent.infusionSiteHistory = dataMunger.infusionSiteHistory(basicsData);
+      dataMunger.reduceByDay(basicsData);
+      basicsData.data.reservoirChange.infusionSiteHistory = dataMunger.infusionSiteHistory(basicsData);
       basicsData.data.bgDistribution = dataMunger.bgDistribution(
         basicsData,
         this.props.bgClasses
