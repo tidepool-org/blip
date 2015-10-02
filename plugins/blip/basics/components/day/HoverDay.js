@@ -13,6 +13,7 @@ var HoverDay = React.createClass({
     date: React.PropTypes.string.isRequired,
     dayAbbrevMask: React.PropTypes.string.isRequired,
     onHover: React.PropTypes.func.isRequired,
+    hoverDisplay: React.PropTypes.func,
     onSelectDay: React.PropTypes.func.isRequired,
     timezone: React.PropTypes.string.isRequired,
     type: React.PropTypes.string.isRequired
@@ -46,15 +47,22 @@ var HoverDay = React.createClass({
       'Calendar-day--infusion': (this.props.type === 'reservoirChange'),
       'Calendar-day--HOVER': true,
     });
+
+    var display = <div className='Calendar-day-text'>
+      {this.getCount()}
+    </div>;
+
+    if (this.props.hoverDisplay) {
+      display = this.props.hoverDisplay({data: this.props.data, date: this.props.date});
+    }
+
     return (
       <div className={containerClass} onDoubleClick={this.handleDblClickDay}
         onMouseEnter={this.mouseEnter} onMouseLeave={this.mouseLeave}>
         <p className='Calendar-weekday'>
           {moment(this.props.date).format(this.props.dayAbbrevMask)}
         </p>
-        <div className='Calendar-day-text'>
-          {this.getCount()}
-        </div>
+        {display}
       </div>
     );
   }
