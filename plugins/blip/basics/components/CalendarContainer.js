@@ -66,7 +66,7 @@ var CalendarContainer = React.createClass({
   render: function() {
     var self = this;
 
-    var containerClass = cx({
+    var containerClass = cx('Calendar-container-' + this.props.type, {
       'Calendar-container': true
     });
 

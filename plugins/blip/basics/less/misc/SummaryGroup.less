@@ -2,32 +2,32 @@
   padding: 0px 0px 5px;
   margin: 0px 5px 10px;
   width: 622px;
-  background-color: #eef5f9;
-  border-bottom: 3px solid darken(#eef5f9, 10%);
   font-size: 13px;
+  line-height: 21px;
 
   display: flex;
   justify-content: space-around;
 
   .SummaryGroup-info, .SummaryGroup-info-primary {
-    height: 20px;
-    width: 146px;
-    padding: 10px 0px 10px 7px;
+    width: 160px;
+    padding-top: 5px;
     text-align: center;
     cursor: pointer;
+    height: 32px;
+    background-color: @day-color;
 
-    &.SummaryGroup-info--selected {
-      font-weight: bold;
+    .SummaryGroup-option-percentage, .SummaryGroup-option-count {
+      float: right;
+      padding-right: 10px;
     }
 
     .SummaryGroup-option-percentage {
-      font-size: 12px;
-      padding-left: 3px;
+      font-size: 11px;
+      padding-right: 10px;
     }
 
     .SummaryGroup-option-count {
       font-weight: bold;
-      padding-left: 3px;
     }
   }
 
@@ -35,17 +35,42 @@
     display: flex;
     justify-content: space-around;
     flex-flow: row wrap;
-    height: 60px;
-    max-width: 469px;
+    height: 70px;
+    max-width: 489px;
   }
 
   .SummaryGroup-info-primary {
-    height: 40px;
+    width: 130px;
+    height: 67px;
     vertical-align: top;
+    padding-top: 12px;
     font-size: 15px;
+    margin-right: 3px;
 
-    .SummaryGroup-option-count {
+    .SummaryGroup-option-count, .SummaryGroup-option-label {
       display: block;
+      padding: 0;
+      float: none;
+    }
+  }
+}
+
+.Calendar-container-bolus {
+  .SummaryGroup-info, .SummaryGroup-info-primary {
+    border-bottom: 3px solid @bolus;
+
+    &.SummaryGroup-info--selected {
+      background-color: @bolus;
+    }
+  }
+}
+
+.Calendar-container-smbg {
+  .SummaryGroup-info, .SummaryGroup-info-primary {
+    border-bottom: 3px solid @fingerstick;
+    
+    &.SummaryGroup-info--selected {
+      background-color: @fingerstick;
     }
   }
 }
