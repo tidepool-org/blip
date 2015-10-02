@@ -103,7 +103,27 @@ describe('basics datamunger', function() {
         cgmStatus: 'notEnoughCGM',
         smbg: _.defaults({target: 0.5, verylow: 0.5}, zeroes)
       });
+    });
 
+    it('should categorize all BG values correctly!', function() {
+      var now = new Date();
+      var smbg = [
+        new types.SMBG({value: bgClasses['very-low'].boundary - 1}),
+        new types.SMBG({value: bgClasses.low.boundary - 1}),
+        new types.SMBG({value: bgClasses.target.boundary - 1}),
+        new types.SMBG({value: bgClasses.high.boundary - 1}),
+        new types.SMBG({value: bgClasses['very-high'].boundary - 1})
+      ];
+      expect(dm.bgDistribution({
+        data: {smbg: {data: smbg}},
+        dateRange: [d3.time.day.utc.floor(now), d3.time.day.utc.ceil(now)]
+      }, bgClasses).smbg).to.deep.equal({
+          verylow: 0.2,
+          low: 0.2,
+          target: 0.2,
+          high: 0.2,
+          veryhigh: 0.2
+      });
     });
   });
 
