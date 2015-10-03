@@ -75,6 +75,15 @@ var basicsState = {
           chart: WrapCount,
           container: CalendarContainer,
           hasHover: true,
+          selectorOptions: [
+            { key: 'total', label: 'All Boluses', 'default': true, primary: true, count: 100 },
+            { key: 'wizard', label: 'Calculator', count: 10, percentage: 0.1 },
+            { key: 'manual', label: 'Manual', count: 15, percentage: 0.15 },
+            { key: 'extended', label: 'Extended', count: 15, percentage: 0.15 },
+            { key: 'override', label: 'Override', count: 25, percentage: 0.25 },
+            { key: 'underride', label: 'Underride', count: 30, percentage: 0.30 },
+            { key: 'interrupted', label : 'Interrupted', count: 5, percentage: 0.05 }
+          ],
           title: 'Boluses',
           type: 'bolus'
         }]
