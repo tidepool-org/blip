@@ -143,6 +143,7 @@ var nurseshark = {
       var bolusId = wizard.bolus;
       if (bolusId != null && allBoluses[bolusId]) {
         wizard.bolus = allBoluses[bolusId];
+        allBoluses[bolusId].wizard = _.omit(wizard, 'bolus');
         joinedWizards[bolusId] = wizard;
       }
     }
