@@ -62,7 +62,6 @@ var basicsState = {
           chart: WrapCount,
           container: CalendarContainer,
           hasHover: true,
-          title: 'BGs',
           type: 'smbg'
         }]
     },
@@ -79,15 +78,14 @@ var basicsState = {
           hasHover: true,
           selector: SummaryGroup,
           selectorOptions: [
-            { key: 'total', label: 'All Boluses', 'default': true, primary: true, count: 100 },
-            { key: 'wizard', label: 'Calculator', count: 10, percentage: 0.1 },
-            { key: 'manual', label: 'Manual', count: 15, percentage: 0.15 },
-            { key: 'extended', label: 'Extended', count: 15, percentage: 0.15 },
-            { key: 'override', label: 'Override', count: 25, percentage: 0.25 },
-            { key: 'underride', label: 'Underride', count: 30, percentage: 0.30 },
-            { key: 'interrupted', label : 'Interrupted', count: 5, percentage: 0.05 }
+            { key: 'total', label: 'All Boluses', default: true, primary: true },
+            { key: 'wizard', label: 'Calculator' },
+            { key: 'manual', label: 'Manual' },
+            { key: 'extended', label: 'Extended' },
+            { key: 'override', label: 'Override' },
+            { key: 'underride', label: 'Underride' },
+            { key: 'interrupted', label : 'Interrupted' }
           ],
-          title: 'Boluses',
           type: 'bolus'
         }]
     },
@@ -104,7 +102,6 @@ var basicsState = {
           hasHover: true,
           hoverDisplay: InfusionHoverDisplay,
           noDataMessage: 'Infusion site changes for CareLink data are coming soon.',
-          title: 'Infusion site changes',
           type: 'reservoirChange'
         }]
     },

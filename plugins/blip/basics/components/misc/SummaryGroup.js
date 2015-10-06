@@ -24,7 +24,6 @@ var React = require('react');
 var SummaryGroup = React.createClass({
   propTypes: {
     data: React.PropTypes.object.isRequired,
-    name: React.PropTypes.string.isRequired,
     options: React.PropTypes.array.isRequired,
     selectedSubtotal: React.PropTypes.string.isRequired,
     onSelectSubtotal: React.PropTypes.func.isRequired
