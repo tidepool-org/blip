@@ -6,11 +6,15 @@ module.exports = {
    * 
    * @return {Number}
    */
-  getCount: function() {
+  getCount: function(subtotalType) {
     if (_.isEmpty(this.props.data) ||
       _.isEmpty(this.props.data.dataByDate[this.props.date])) {
       return 0;
     }
-    return this.props.data.dataByDate[this.props.date].count;
+    var dateData = this.props.data.dataByDate[this.props.date];
+    if (subtotalType) {
+      return dateData.subtotals[subtotalType] || 0;
+    }
+    return dateData.count > 0 ? dateData.count : dateData.total;
   } 
 };

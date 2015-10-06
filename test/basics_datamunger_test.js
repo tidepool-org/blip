@@ -300,4 +300,26 @@ describe('basics datamunger', function() {
       expect(dm.infusionSiteHistory(bd2)).to.deep.equal(res2);
     });
   });
+
+  describe('reduceByDay', function() {
+    it('should be a function', function() {
+      assert.isFunction(dm.reduceByDay);
+    });
+
+    it('should build crossfilter utils for smbgs');
+
+    it('should build crossfilter utils for calibrations');
+
+    it('should build crossfilter utils for boluses');
+
+    it('should build crossfilter utils for reservoirChanges');
+
+    it('should build crossfilter utils for basals');
+
+    it('should classify, subtotal, and summarize smbgs and calibrations together');
+
+    it('should classify, subtotal, and summarize boluses');
+
+    it('should classify, subtotal, and summarize basals');
+  });
 });

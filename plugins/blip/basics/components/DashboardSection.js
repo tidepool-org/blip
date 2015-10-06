@@ -57,13 +57,14 @@ var DashboardSection = React.createClass({
               chart={component.chart}
               data={this.props.data}
               days={this.props.days}
+              hasHover={component.hasHover}
+              hoverDisplay={component.hoverDisplay}
               onSelectDay={this.props.onSelectDay}
-              timezone={this.props.timezone}
-              title={component.title}
               selector={component.selector}
               selectorOptions={component.selectorOptions}
-              type={component.type}
-              hasHover={component.hasHover} />
+              timezone={this.props.timezone}
+              title={component.title}
+              type={component.type} />
           );
         }
         else {

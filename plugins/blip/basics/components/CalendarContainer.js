@@ -35,13 +35,14 @@ var CalendarContainer = React.createClass({
     chart: React.PropTypes.func.isRequired,
     data: React.PropTypes.object.isRequired,
     days: React.PropTypes.array.isRequired,
+    hasHover: React.PropTypes.bool.isRequired,
+    hoverDisplay: React.PropTypes.func,
     onSelectDay: React.PropTypes.func.isRequired,
+    selector: React.PropTypes.func,
+    selectorOptions: React.PropTypes.array,
     timezone: React.PropTypes.string.isRequired,
     title: React.PropTypes.string.isRequired,
-    type: React.PropTypes.string.isRequired,
-    hasHover: React.PropTypes.bool,
-    selector: React.PropTypes.func,
-    selectorOptions: React.PropTypes.array
+    type: React.PropTypes.string.isRequired
   },
   getInitialState: function() {
     var selected = _.find(this.props.selectorOptions, {default: true});
@@ -125,6 +126,7 @@ var CalendarContainer = React.createClass({
             data={self.props.data[self.props.type]}
             date={day.date}
             onHover={self.onHover}
+            hoverDisplay={self.props.hoverDisplay}
             onSelectDay={self.props.onSelectDay}
             timezone={self.props.timezone}
             type={self.props.type} />

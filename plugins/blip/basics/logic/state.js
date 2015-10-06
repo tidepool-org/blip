@@ -27,6 +27,7 @@ var BGDistribution = React.createFactory(require('../components/chart/BGDistribu
 var WrapCount = React.createFactory(require('../components/chart/WrapCount'));
 var SiteChange = React.createFactory(require('../components/chart/SiteChange'));
 var TotalDailyDose = React.createFactory(require('../components/chart/TotalDailyDose'));
+var InfusionHoverDisplay = React.createFactory(require('../components/day/hover/InfusionHoverDisplay'));
 
 var basicsActions = require('./actions');
 
@@ -86,6 +87,15 @@ var basicsState = {
           chart: WrapCount,
           container: CalendarContainer,
           hasHover: true,
+          selectorOptions: [
+            { key: 'total', label: 'All Boluses', 'default': true, primary: true, count: 100 },
+            { key: 'wizard', label: 'Calculator', count: 10, percentage: 0.1 },
+            { key: 'manual', label: 'Manual', count: 15, percentage: 0.15 },
+            { key: 'extended', label: 'Extended', count: 15, percentage: 0.15 },
+            { key: 'override', label: 'Override', count: 25, percentage: 0.25 },
+            { key: 'underride', label: 'Underride', count: 30, percentage: 0.30 },
+            { key: 'interrupted', label : 'Interrupted', count: 5, percentage: 0.05 }
+          ],
           title: 'Boluses',
           type: 'bolus'
         }]
@@ -100,7 +110,8 @@ var basicsState = {
           active: true,
           chart: SiteChange,
           container: CalendarContainer,
-          hasHover: false,
+          hasHover: true,
+          hoverDisplay: InfusionHoverDisplay,
           noDataMessage: 'Infusion site changes for CareLink data are coming soon.',
           title: 'Infusion site changes',
           type: 'reservoirChange'

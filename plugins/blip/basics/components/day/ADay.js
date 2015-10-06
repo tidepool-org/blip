@@ -2,6 +2,8 @@ var React = require('react');
 var moment = require('moment');
 var cx = require('classnames');
 
+var constants = require('../../logic/constants');
+
 var ADay = React.createClass({
   propTypes: {
     dayAbbrevMask: React.PropTypes.string.isRequired,
@@ -30,8 +32,23 @@ var ADay = React.createClass({
   shouldComponentUpdate: function() {
     return false;
   },
+  isAReservoirChange: function() {
+    return (this.props.type === 'reservoirChange');
+  },
+  isASiteChangeDay: function() {
+    if (!this.props.data || !this.props.data.infusionSiteHistory) {
+      return false;
+    }
+
+    return (this.props.data.infusionSiteHistory[this.props.date].type === constants.SITE_CHANGE);
+  },
   mouseEnter: function () {
+    // We do not want a hover effect on days in the future
     if (this.props.future) {
+      return;
+    }
+    // We do not want a hover effect on infusion site days that were not site changes
+    if (this.isAReservoirChange() && !this.isASiteChangeDay()) {
       return;
     }
     this.props.onHover(this.props.date);
@@ -50,9 +67,9 @@ var ADay = React.createClass({
       'Calendar-day': !this.props.future,
       'Calendar-day--bolus': (this.props.type === 'bolus'),
       'Calendar-day--fingerstick': (this.props.type === 'smbg'),
+      'Calendar-day--infusion': (this.props.type === 'reservoirChange'),
       'Calendar-day-future': this.props.future,
-      'Calendar-day-most-recent': this.props.mostRecent,
-      'Calendar-day-odd-month': (date.month() % 2 === 0)
+      'Calendar-day-most-recent': this.props.mostRecent
     });
 
     var drawMonthLabel = (date.date() === 1 || this.props.isFirst);

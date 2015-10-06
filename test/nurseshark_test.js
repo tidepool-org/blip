@@ -486,6 +486,8 @@ describe('nurseshark', function() {
         expect(embeddedBolus.id).to.equal(data[0].id);
         expect(secondWiz.bolus).to.be.undefined;
       });
+
+      it('should add a wizard inside the bolus if bolus is associated with a wizard');
     });
   });
 
