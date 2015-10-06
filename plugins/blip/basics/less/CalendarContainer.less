@@ -70,6 +70,12 @@
 			}
 		}
 
+		.Calendar-day--infusion {
+			&.Calendar-day--HOVER {
+				background-color: @infusion-day-color;
+			}
+ 		}
+
 		.Calendar-day--HOVER {
 			.Calendar-weekday {
 				.corner-dates();
@@ -84,6 +90,22 @@
 				font-size: 20px;
 				font-weight: bold;
 				color: white;
+			}
+
+			.Calendar-day-infusion-times {
+				position: absolute;
+				top: (@day-height/3.5);
+				width: @day-width;
+				font-size: 13px;
+				line-height: 16px;
+				color: white;
+				list-style-type: none;
+				padding: 0px;
+				margin: 0px;
+				li {
+					padding: 0px;
+					margin: 0px 5px;
+				}
 			}
 		}
 
