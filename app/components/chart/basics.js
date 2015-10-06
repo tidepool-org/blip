@@ -18,64 +18,20 @@
 var _ = require('lodash');
 var bows = require('bows');
 var React = require('react');
+var sundial = require('sundial');
 
 var utils = require('../../core/utils');
 
 // tideline dependencies & plugins
 var tidelineBlip = require('tideline/plugins/blip');
-var chartSettingsFactory = tidelineBlip.settings;
+var BasicsChart = tidelineBlip.basics;
 
 var Header = require('./header');
 var Footer = require('./footer');
 
-var tideline = {
-  log: bows('Settings')
-};
-
-
-var SettingsChart = React.createClass({
-  chartOpts: ['bgUnits'],
-  log: bows('Settings Chart'),
-  propTypes: {
-    bgUnits: React.PropTypes.string.isRequired,
-    initialDatetimeLocation: React.PropTypes.string,
-    patientData: React.PropTypes.object.isRequired,
-  },
-  componentDidMount: function() {
-    this.mountChart(this.getDOMNode());
-    this.initializeChart(this.props.patientData);
-  },
-  componentWillUnmount: function() {
-    this.unmountChart();
-  },
-  mountChart: function(node, chartOpts) {
-    this.log('Mounting...');
-    this.chart = chartSettingsFactory(node, _.pick(this.props, this.chartOpts));
-  },
-  unmountChart: function() {
-    this.log('Unmounting...');
-    this.chart.destroy();
-  },
-  initializeChart: function(data) {
-    this.log('Initializing...');
-    if (_.isEmpty(data)) {
-      throw new Error('Cannot create new chart with no data');
-    }
-
-    this.chart.load(data);
-  },
-  render: function() {
-    
-    return (
-      <div id="tidelineContainer" className="patient-data-chart-growing"></div>
-      );
-    
-  }
-});
-
-var Settings = React.createClass({
-  chartType: 'settings',
-  log: bows('Settings View'),
+var Basics = React.createClass({
+  chartType: 'basics',
+  log: bows('Basics View'),
   propTypes: {
     bgPrefs: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
@@ -84,17 +40,17 @@ var Settings = React.createClass({
     onClickRefresh: React.PropTypes.func.isRequired,
     onSwitchToBasics: React.PropTypes.func.isRequired,
     onSwitchToDaily: React.PropTypes.func.isRequired,
-    onSwitchToModal: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToWeekly: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
+    updateBasicsData: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired
   },
   getInitialState: function() {
     return {
       atMostRecent: true,
       inTransition: false,
-      title: ''
+      title: this.getTitle()
     };
   },
   render: function() {
@@ -106,25 +62,24 @@ var Settings = React.createClass({
           atMostRecent={true}
           inTransition={this.state.inTransition}
           title={this.state.title}
-          onClickMostRecent={this.handleClickMostRecent}
-          onClickBasics={this.props.onSwitchToBasics}
+          onClickBasics={this.handleClickBasics}
           onClickOneDay={this.handleClickOneDay}
           onClickModal={this.handleClickModal}
           onClickRefresh={this.props.onClickRefresh}
-          onClickSettings={this.handleClickSettings}
+          onClickSettings={this.props.onSwitchToSettings}
           onClickTwoWeeks={this.handleClickTwoWeeks}
         ref="header" />
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
-              {this.isMissingSettings() ? this.renderMissingSettingsMessage() : this.renderChart()}
+              {this.isMissingBasics() ?
+                this.renderMissingBasicsMessage() : this.renderChart()}
             </div>
           </div>
         </div>
         <Footer
          chartType={this.chartType}
          onClickRefresh={this.props.onClickRefresh}
-         onClickSettings={this.props.onSwitchToSettings}
         ref="footer" />
       </div>
       );
@@ -133,23 +88,29 @@ var Settings = React.createClass({
   renderChart: function() {
     
     return (
-      <SettingsChart
-        bgUnits={this.props.bgPrefs.bgUnits}
-        patientData={this.props.patientData}
-        ref="chart" />
+      <div id="tidelineContainer" className="patient-data-chart-growing">
+        <BasicsChart
+          bgClasses={this.props.bgPrefs.bgClasses}
+          bgUnits={this.props.bgPrefs.bgUnits}
+          onSelectDay={this.handleSelectDay}
+          patientData={this.props.patientData}
+          timePrefs={this.props.timePrefs}
+          updateBasicsData={this.props.updateBasicsData}
+          ref="chart" />
+      </div>
     );
     
   },
-  renderMissingSettingsMessage: function() {
+  renderMissingBasicsMessage: function() {
     var self = this;
     var handleClickUpload = function() {
-      self.props.trackMetric('Clicked Partial Data Upload, No Settings');
+      self.props.trackMetric('Clicked Partial Data Upload, No Pump Data for Basics');
     };
     
     return (
       <div className="patient-data-message patient-data-message-loading">
-        <p>{'Blip\'s Device Settings view shows your basal rates, carb ratios, sensitivity factors and more, but it looks like you haven\'t uploaded pump data yet.'}</p>
-        <p>{'To see your Device Settings in Blip,  '}
+        <p>{'Blip\'s Basics view shows a summary of your recent pump activity, but it looks like you haven\'t uploaded pump data yet.'}</p>
+        <p>{'To see your Basics in Blip,  '}
           <a
             href={this.props.uploadUrl}
             target="_blank"
@@ -163,31 +124,50 @@ var Settings = React.createClass({
     );
     
   },
-  isMissingSettings: function() {
-    var data = this.props.patientData;
-    var pumpSettings = utils.getIn(data, ['grouped', 'pumpSettings'], false);
-    if (pumpSettings === false) {
+  getTitle: function() {
+    if (this.isMissingBasics()) {
+      return '';
+    }
+    var timePrefs = this.props.timePrefs, timezone;
+    if (!timePrefs.timezoneAware) {
+      timezone = 'UTC';
+    }
+    else {
+      timezone = timePrefs.timezoneName || 'UTC';
+    }
+    var basicsData = this.props.patientData.basicsData;
+    var dtMask = 'MMM D, YYYY';
+    return sundial.formatInTimezone(basicsData.dateRange[0], timezone, dtMask) +
+      ' - ' + sundial.formatInTimezone(basicsData.dateRange[1], timezone, dtMask);
+  },
+  isMissingBasics: function() {
+    var basicsData = this.props.patientData.basicsData;
+    var data;
+    if (basicsData.data) {
+      data = basicsData;
+    }
+    else {
       return true;
     }
-    // the TidelineData constructor currently replaces missing data with
-    // an empty array, so we also have to check for content
-    else if (_.isEmpty(pumpSettings)) {
+    // require basal, bolus, and smbg data to show The Basics
+    var hasBasicsData = data.basal && data.bolus && data.smbg;
+    if (hasBasicsData === false) {
       return true;
     }
     return false;
   },
   // handlers
+  handleClickBasics: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+    return;
+  },
   handleClickModal: function(e) {
     if (e) {
       e.preventDefault();
     }
     this.props.onSwitchToModal();
-  },
-  handleClickMostRecent: function(e) {
-    if (e) {
-      e.preventDefault();
-    }
-    return;
   },
   handleClickOneDay: function(e) {
     if (e) {
@@ -195,18 +175,15 @@ var Settings = React.createClass({
     }
     this.props.onSwitchToDaily();
   },
-  handleClickSettings: function(e) {
-    if (e) {
-      e.preventDefault();
-    }
-    return;
-  },
   handleClickTwoWeeks: function(e) {
     if (e) {
       e.preventDefault();
     }
     this.props.onSwitchToWeekly();
+  },
+  handleSelectDay: function(date) {
+    this.props.onSwitchToDaily(date);
   }
 });
 
-module.exports = Settings;
+module.exports = Basics;

@@ -17,9 +17,9 @@ describe('PatientData', function () {
   var PatientData = rewire('../../../app/pages/patientdata/patientdata.js');
 
   rewireModule(PatientData, {
-    Daily: React.createClass({
+    Basics: React.createClass({
       render: function() {
-        return (<div className='fake-daily-view'></div>);
+        return (<div className='fake-basics-view'></div>);
       }
     })
   });
@@ -194,7 +194,7 @@ describe('PatientData', function () {
       var pdElem = React.createElement(PatientData, props);
       var elem = TestUtils.renderIntoDocument(pdElem);
       expect(elem).to.be.ok;
-      var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-daily-view');
+      var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-basics-view');
       expect(x).to.be.ok;
     });
   });
