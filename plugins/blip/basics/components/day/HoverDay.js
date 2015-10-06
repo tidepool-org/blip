@@ -48,9 +48,11 @@ var HoverDay = React.createClass({
       'Calendar-day--HOVER': true,
     });
 
-    var display = <div className='Calendar-day-text'>
-      {this.getCount()}
-    </div>;
+    var display = (
+      <div className='Calendar-day-text'>
+        {this.getCount()}
+      </div>
+    );
 
     if (this.props.hoverDisplay) {
       display = this.props.hoverDisplay({data: this.props.data, date: this.props.date});

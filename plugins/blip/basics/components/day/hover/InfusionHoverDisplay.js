@@ -28,11 +28,13 @@ var InfusionHoverDisplay = React.createClass({
   render: function() {
     var times = this.props.data.dataByDate[this.props.date].data;
     var timesList = times.slice(0,3).map(function(time) {
-      return <li>{format.timestamp(time.time, time.displayOffset)}</li>;
+      return (<li key={time.guid}>{format.timestamp(time.time, time.displayOffset)}</li>);
     });
-    return <ul className='Calendar-day-infusion-times'>
-      {timesList}
-    </ul>;
+    return (
+      <ul className='Calendar-day-infusion-times'>
+        {timesList}
+      </ul>
+    );
   },
 });
 

@@ -67,10 +67,9 @@ var ADay = React.createClass({
       'Calendar-day': !this.props.future,
       'Calendar-day--bolus': (this.props.type === 'bolus'),
       'Calendar-day--fingerstick': (this.props.type === 'smbg'),
-      'Calendar-day--infusion': (this.props.type === 'deviceEvent'),
+      'Calendar-day--infusion': (this.props.type === 'reservoirChange'),
       'Calendar-day-future': this.props.future,
-      'Calendar-day-most-recent': this.props.mostRecent,
-      'Calendar-day-odd-month': (date.month() % 2 === 0)
+      'Calendar-day-most-recent': this.props.mostRecent
     });
 
     var drawMonthLabel = (date.date() === 1 || this.props.isFirst);
