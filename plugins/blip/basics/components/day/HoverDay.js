@@ -12,9 +12,10 @@ var HoverDay = React.createClass({
     data: React.PropTypes.object,
     date: React.PropTypes.string.isRequired,
     dayAbbrevMask: React.PropTypes.string.isRequired,
-    onHover: React.PropTypes.func.isRequired,
     hoverDisplay: React.PropTypes.func,
+    onHover: React.PropTypes.func.isRequired,
     onSelectDay: React.PropTypes.func.isRequired,
+    subtotalType: React.PropTypes.string,
     timezone: React.PropTypes.string.isRequired,
     type: React.PropTypes.string.isRequired
   },
@@ -50,7 +51,7 @@ var HoverDay = React.createClass({
 
     var display = (
       <div className='Calendar-day-text'>
-        {this.getCount()}
+        {this.getCount(this.props.subtotalType)}
       </div>
     );
 

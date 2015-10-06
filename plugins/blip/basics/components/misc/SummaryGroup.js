@@ -16,16 +16,18 @@
  * == BSD2 LICENSE ==
  */
 
-var React = require('react');
-var classnames = require('classnames');
 var _ = require('lodash');
+var classnames = require('classnames');
+var d3 = require('d3');
+var React = require('react');
 
 var SummaryGroup = React.createClass({
   propTypes: {
+    data: React.PropTypes.object.isRequired,
     name: React.PropTypes.string.isRequired,
     options: React.PropTypes.array.isRequired,
-    selectedKey: React.PropTypes.string.isRequired,
-    onSelect: React.PropTypes.func.isRequired
+    selectedSubtotal: React.PropTypes.string.isRequired,
+    onSelectSubtotal: React.PropTypes.func.isRequired
   },
   render: function() {
     var self = this;
@@ -35,8 +37,8 @@ var SummaryGroup = React.createClass({
     if (primaryOption) {
       primaryElem = this.renderInfo(primaryOption);
 
-      if (!self.props.selectedKey) {
-        self.props.selectedKey = primaryOption.key;
+      if (!self.props.selectedSubtotal) {
+        self.props.selectedSubtotal = primaryOption.key;
       }
     }
 
@@ -53,34 +55,38 @@ var SummaryGroup = React.createClass({
       </div>
     );
   },
-
   renderInfo: function(option) {
     var self = this;
     var classes = classnames({
-      'SummaryGroup-info--selected': (option.key === self.props.selectedKey),
-      'SummaryGroup-info-primary': !!option.primary,
+      'SummaryGroup-info--selected': (option.key === self.props.selectedSubtotal),
+      'SummaryGroup-info-primary': option.primary,
       'SummaryGroup-info': !option.primary
     });
 
-    var onClick = function() {
-      self.props.onSelect(option.key);
-    };
-
-    var value = <span className="SummaryGroup-option-count">{option.count}</span>;
-    var percentage;
-    if (option.percentage) {
-      percentage = <span className="SummaryGroup-option-percentage">{(option.percentage*100) + '%'}</span>;
-    }
+    var value = (
+      <span className="SummaryGroup-option-count">
+        {option.key === 'total'? this.props.data[option.key] :
+          this.props.data[option.key].count}
+      </span>
+    );
+    var percentage = option.key === 'total' ? null : (
+      <span className="SummaryGroup-option-percentage">
+        {d3.format('%')(this.props.data[option.key].percentage)}
+      </span>
+    );
 
     return (
-      <div className={classes} onClick={onClick}>
+      <div key={option.key} className={classes}
+        onClick={this.handleClickSubtotal.bind(null, option)}>
         <span className="SummaryGroup-option-label">{option.label}</span>
         {percentage}
         {value}
       </div>
     );
+  },
+  handleClickSubtotal: function(option) {
+    this.props.onSelectSubtotal(option.key);
   }
-     
 });
 
 module.exports = SummaryGroup;

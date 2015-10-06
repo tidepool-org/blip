@@ -20,7 +20,7 @@ var React = require('react');
 
 var BasicContainer = require('../components/BasicContainer');
 var CalendarContainer = require('../components/CalendarContainer');
-var SummaryGroup = require('../components/misc/SummaryGroup');
+var SummaryGroup = React.createFactory(require('../components/misc/SummaryGroup'));
 
 var BasalBolusRatio = React.createFactory(require('../components/chart/BasalBolusRatio'));
 var BGDistribution = React.createFactory(require('../components/chart/BGDistribution'));
@@ -74,19 +74,10 @@ var basicsState = {
       open: true,
       components: [{
           active: true,
-          selector: SummaryGroup,
-          selectorOptions: [
-            { key: 'all', label: 'All Boluses', 'default': true, primary: true, count: 100 },
-            { key: 'wizard', label: 'Calculator', count: 10, percentage: 0.1 },
-            { key: 'manual', label: 'Manual', count: 15, percentage: 0.15 },
-            { key: 'extended', label: 'Extended', count: 15, percentage: 0.15 },
-            { key: 'override', label: 'Override', count: 25, percentage: 0.25 },
-            { key: 'underride', label: 'Underride', count: 30, percentage: 0.30 },
-            { key: 'interrupted', label : 'Interrupted', count: 5, percentage: 0.05 }
-          ],
           chart: WrapCount,
           container: CalendarContainer,
           hasHover: true,
+          selector: SummaryGroup,
           selectorOptions: [
             { key: 'total', label: 'All Boluses', 'default': true, primary: true, count: 100 },
             { key: 'wizard', label: 'Calculator', count: 10, percentage: 0.1 },

@@ -12,9 +12,10 @@ var ADay = React.createClass({
     data: React.PropTypes.object,
     date: React.PropTypes.string.isRequired,
     future: React.PropTypes.bool.isRequired,
-    mostRecent: React.PropTypes.bool.isRequired,
     isFirst: React.PropTypes.bool.isRequired,
+    mostRecent: React.PropTypes.bool.isRequired,
     onHover: React.PropTypes.func.isRequired,
+    subtotalType: React.PropTypes.string,
     type: React.PropTypes.string.isRequired
   },
   getDefaultProps: function() {
@@ -29,7 +30,10 @@ var ADay = React.createClass({
    *
    * @return {boolean}
    */
-  shouldComponentUpdate: function() {
+  shouldComponentUpdate: function(nextProps, nextState) {
+    if (nextProps.subtotalType !== this.props.subtotalType) {
+      return true;
+    }
     return false;
   },
   isAReservoirChange: function() {
@@ -60,7 +64,11 @@ var ADay = React.createClass({
     this.props.onHover(null);
   },
   render: function() {
-    var chart = this.props.chart({data: this.props.data, date: this.props.date});
+    var chart = this.props.chart({
+      data: this.props.data,
+      date: this.props.date,
+      subtotalType: this.props.subtotalType
+    });
     var date = moment(this.props.date);
 
     var containerClass = cx({

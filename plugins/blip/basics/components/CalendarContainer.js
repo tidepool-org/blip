@@ -49,7 +49,7 @@ var CalendarContainer = React.createClass({
 
     return {
       hoverDate: null,
-      selectedKey: (selected) ? selected.key : null
+      selectedSubtotal: (selected) ? selected.key : null
     };
   },
   /**
@@ -61,8 +61,8 @@ var CalendarContainer = React.createClass({
   onHover: function(date) {
     this.setState({hoverDate: date});
   },
-  onSelect: function(key) {
-    this.setState({selectedKey: key});
+  onSelectSubtotal: function(key) {
+    this.setState({selectedSubtotal: key});
   },
   render: function() {
     var self = this;
@@ -94,10 +94,11 @@ var CalendarContainer = React.createClass({
   },
   renderSelector: function() {
     return this.props.selector({ 
+      data: this.props.data[this.props.type].summary,
       options: this.props.selectorOptions, 
       name: this.props.title,
-      selectedKey: this.state.selectedKey,
-      onSelect: this.onSelect 
+      selectedSubtotal: this.state.selectedSubtotal,
+      onSelectSubtotal: this.onSelectSubtotal
     });
   },
   renderDayLabels: function() {
@@ -125,9 +126,10 @@ var CalendarContainer = React.createClass({
           <HoverDay key={day.date}
             data={self.props.data[self.props.type]}
             date={day.date}
-            onHover={self.onHover}
             hoverDisplay={self.props.hoverDisplay}
+            onHover={self.onHover}
             onSelectDay={self.props.onSelectDay}
+            subtotalType={self.state.selectedSubtotal}
             timezone={self.props.timezone}
             type={self.props.type} />
         );
@@ -138,9 +140,10 @@ var CalendarContainer = React.createClass({
             data={self.props.data[self.props.type]}
             date={day.date}
             future={day.type === 'future'}
-            mostRecent={day.type === 'mostRecent'}
             isFirst={id === 0}
+            mostRecent={day.type === 'mostRecent'}
             onHover={self.onHover}
+            subtotalType={self.state.selectedSubtotal}
             type={self.props.type} />
         );
       }  

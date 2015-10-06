@@ -283,12 +283,13 @@ module.exports = {
       };
     }
 
-    function summarizeTag(typeObj) {
+    function summarizeTag(typeObj, total) {
       return function(tag) {
         summary[tag] = {count: Object.keys(typeObj.dataByDate)
           .reduce(function(p, date) {
             return p + (typeObj.dataByDate[date].subtotals[tag] || 0);
           }, 0)};
+        summary[tag].percentage = summary[tag].count/total;
       };
     }
 
@@ -317,7 +318,7 @@ module.exports = {
         var tags = _.rest(_.pluck(component.selectorOptions, 'key'));
         var summary = {total: Object.keys(typeObj.dataByDate)
           .reduce(reduceTotalByDate(typeObj), 0)};
-        _.each(tags, summarizeTag(typeObj));
+        _.each(tags, summarizeTag(typeObj, summary.total));
         summary.avgPerDay = summary.total/Object.keys(typeObj.dataByDate).length;
         typeObj.summary = summary;
       }

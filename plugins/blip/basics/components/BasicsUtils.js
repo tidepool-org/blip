@@ -13,8 +13,11 @@ module.exports = {
     }
     var dateData = this.props.data.dataByDate[this.props.date];
     if (subtotalType) {
+      if (subtotalType === 'total') {
+        return dateData.total;
+      }
       return dateData.subtotals[subtotalType] || 0;
     }
-    return dateData.count > 0 ? dateData.count : dateData.total;
+    return dateData.total || 0;
   } 
 };
