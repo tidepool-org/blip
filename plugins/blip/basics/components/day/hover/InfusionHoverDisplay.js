@@ -31,7 +31,7 @@ var InfusionHoverDisplay = React.createClass({
       return (<li key={time.guid}>{format.timestamp(time.time, time.displayOffset)}</li>);
     });
     return (
-      <ul className='Calendar-day-infusion-times'>
+      <ul className='Calendar-day-reservoirChange-times'>
         {timesList}
       </ul>
     );

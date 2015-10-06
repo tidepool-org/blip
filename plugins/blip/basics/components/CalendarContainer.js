@@ -65,8 +65,6 @@ var CalendarContainer = React.createClass({
     this.setState({selectedSubtotal: key});
   },
   render: function() {
-    var self = this;
-
     var containerClass = cx('Calendar-container-' + this.props.type, {
       'Calendar-container': true
     });

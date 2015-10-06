@@ -42,10 +42,7 @@ var HoverDay = React.createClass({
     this.props.onHover(null);
   },
   render: function() {
-    var containerClass = cx({
-      'Calendar-day--bolus': (this.props.type === 'bolus'),
-      'Calendar-day--fingerstick': (this.props.type === 'smbg'),
-      'Calendar-day--infusion': (this.props.type === 'reservoirChange'),
+    var containerClass = cx('Calendar-day--' + this.props.type, {
       'Calendar-day--HOVER': true,
     });
 

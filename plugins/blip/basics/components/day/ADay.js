@@ -71,11 +71,8 @@ var ADay = React.createClass({
     });
     var date = moment(this.props.date);
 
-    var containerClass = cx({
+    var containerClass = cx('Calendar-day--' + this.props.type, {
       'Calendar-day': !this.props.future,
-      'Calendar-day--bolus': (this.props.type === 'bolus'),
-      'Calendar-day--fingerstick': (this.props.type === 'smbg'),
-      'Calendar-day--infusion': (this.props.type === 'reservoirChange'),
       'Calendar-day-future': this.props.future,
       'Calendar-day-most-recent': this.props.mostRecent
     });
