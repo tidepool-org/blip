@@ -22,7 +22,7 @@
     "d3": "3.5.5",
     "d3.chart": "git://github.com/misoproject/d3.chart#bbf8ff3b8452033efbd955e83e3761ecf725d623",
     "duration-js": "3.3.4",
-    "lodash": "3.5.0",
+    "lodash": "3.10.1",
     "moment": "2.9.0",
     "moment-timezone": "0.3.0",
     "sundial": "1.4.0"
