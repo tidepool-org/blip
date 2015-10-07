@@ -45,7 +45,9 @@ var SummaryGroup = React.createClass({
 
     var otherOptions = _.filter(
       self.props.options,
-      function(row) { return row.key !== primaryOption.key; }
+      function(row) { 
+        return row.key !== primaryOption.key && (typeof row.active === 'undefined' || row.active)
+      }
     );
 
     var others = otherOptions.map(self.renderInfo);
@@ -59,23 +61,24 @@ var SummaryGroup = React.createClass({
       </div>
     );
   },
-  renderInfo: function(option) {
+  renderInfo: function(option, id, options) {
     var self = this;
     var classes = classnames({
       'SummaryGroup-info--selected': (option.key === self.props.selectedSubtotal),
       'SummaryGroup-info-primary': option.primary,
-      'SummaryGroup-info': !option.primary
+      'SummaryGroup-info': !option.primary,
+      'SummaryGroup-info-tall': (!option.primary && options.length <= 3)
     });
 
     var value = (
       <span className="SummaryGroup-option-count">
         {option.key === 'total'? this.props.data[option.key] :
-          this.props.data[option.key].count}
+          this.props.data[option.key].count || 0}
       </span>
     );
-    var percentage = option.key === 'total' ? null : (
+    var percentage = (!option.percentage) ? null : (
       <span className="SummaryGroup-option-percentage">
-        {d3.format('%')(this.props.data[option.key].percentage)}
+        {d3.format('%')(this.props.data[option.key].percentage || 0)}
       </span>
     );
 
