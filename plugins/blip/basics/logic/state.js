@@ -62,8 +62,15 @@ var basicsState = {
       id: 'fingersticks',
       index: 1,
       open: true,
+      selector: SummaryGroup,
+      selectorOptions: [
+        { path: 'smbg', key: 'total', label: 'All BGs', default: true, primary: true},
+        { path: 'smbg', key: 'meter', label: 'Meter' },
+        { path: 'smbg', key: 'manual', label: 'Manual' },
+        { path: 'calibration', key: 'calibration', label: 'Calibrations' }
+      ],
       title: 'BG readings',
-      type: 'smbg'
+      type: 'fingerstick'
     },
     boluses: {
       active: true,
@@ -101,12 +108,12 @@ var basicsState = {
       title: 'Infusion site changes',
       type: 'reservoirChange'
     },
-    tdd: {
+    totalDailyDose: {
       active: true,
       chart: TotalDailyDose,
       container: BasicContainer,
       column: 'left',
-      id: 'tdd',
+      id: 'totalDailyDose',
       index: 2,
       title: 'Avg total daily dose',
       open: true

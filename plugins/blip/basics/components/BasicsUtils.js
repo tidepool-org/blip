@@ -16,7 +16,12 @@ module.exports = {
       if (subtotalType === 'total') {
         return dateData.total;
       }
-      return dateData.subtotals[subtotalType] || 0;
+      if (dateData.subtotals) {
+        return dateData.subtotals[subtotalType] || 0;
+      }
+      else {
+        return dateData.count;
+      }
     }
     return dateData.total || 0;
   } 

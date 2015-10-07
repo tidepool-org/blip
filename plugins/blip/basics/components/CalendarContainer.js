@@ -56,6 +56,17 @@ var CalendarContainer = React.createClass({
   onHover: function(date) {
     this.setState({hoverDate: date});
   },
+  _getPathToSelected: function() {
+    var options = this.props.selectorOptions;
+    var selected = _.find(options, {selected: true});
+    if (selected) {
+      return (selected && selected.path) ? selected.path : null;
+    }
+    else {
+      var defaultOpt = _.find(options, {default: true});
+      return (defaultOpt && defaultOpt.path) ? defaultOpt.path : null;
+    }
+  },
   _getSelectedSubtotal: function() {
     var options = this.props.selectorOptions;
     return _.get(_.find(options, {selected: true}), 'key', false) ||
@@ -113,12 +124,14 @@ var CalendarContainer = React.createClass({
   },
   renderDays: function() {
     var self = this;
+    var path = this._getPathToSelected();
 
     return this.props.days.map(function(day, id) {
       if (self.props.hasHover && self.state.hoverDate === day.date) {
         return (
           <HoverDay key={day.date}
-            data={self.props.data[self.props.type]}
+            data={path ? self.props.data[self.props.type][path] :
+              self.props.data[self.props.type]}
             date={day.date}
             hoverDisplay={self.props.hoverDisplay}
             onHover={self.onHover}
@@ -131,7 +144,8 @@ var CalendarContainer = React.createClass({
         return (
           <ADay key={day.date}
             chart={self.props.chart}
-            data={self.props.data[self.props.type]}
+            data={path ? self.props.data[self.props.type][path] :
+              self.props.data[self.props.type]}
             date={day.date}
             future={day.type === 'future'}
             isFirst={id === 0}

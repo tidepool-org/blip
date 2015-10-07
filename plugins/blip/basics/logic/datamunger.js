@@ -275,7 +275,7 @@ module.exports = {
       };
     }
 
-    function summarizeTag(typeObj, total) {
+    function summarizeTag(typeObj, summary, total) {
       return function(tag) {
         summary[tag] = {count: Object.keys(typeObj.dataByDate)
           .reduce(function(p, date) {
@@ -287,7 +287,7 @@ module.exports = {
 
     for (var type in basicsData.data) {
       var typeObj = basicsData.data[type];
-      if (_.includes(['bolus', 'calibration', 'reservoirChange', 'smbg'], type)) {
+      if (_.includes(['bolus', 'reservoirChange'], type)) {
         typeObj.cf = crossfilter(typeObj.data);
         typeObj.byLocalDate = typeObj.cf.dimension(getLocalDate);
         var classifier = classifiers[type];
@@ -303,16 +303,55 @@ module.exports = {
         }
         typeObj.dataByDate = dataByDateHash;
       }
+      if (_.includes(['calibration', 'smbg'], type)) {
+        if (!basicsData.data.fingerstick) {
+          basicsData.data.fingerstick = {};
+        }
+        basicsData.data.fingerstick[type] = {
+          cf: crossfilter(typeObj.data)
+        };
+        var fsTypeObj = basicsData.data.fingerstick[type];
+        fsTypeObj.byLocalDate = fsTypeObj.cf.dimension(getLocalDate);
+        var fsDataByLocalDate;
+        fsDataByLocalDate = fsTypeObj.byLocalDate.group().reduce(
+          reduceAddMaker(classifiers[type]),
+          reduceRemoveMaker(classifiers[type]),
+          reduceInitialMaker(classifiers[type])
+        ).all();
+        var fsDataByDateHash = {};
+        for (var k = 0; k < fsDataByLocalDate.length; ++k) {
+          var fsDay = fsDataByLocalDate[k];
+          fsDataByDateHash[fsDay.key] = fsDay.value;
+        }
+        fsTypeObj.dataByDate = fsDataByDateHash;
+      }
 
       if (_.includes(['bolus'], type)) {
         var section = _.find(basicsData.sections, findSectionContainingType(type));
         var tags = _.rest(_.pluck(section.selectorOptions, 'key'));
         var summary = {total: Object.keys(typeObj.dataByDate)
           .reduce(reduceTotalByDate(typeObj), 0)};
-        _.each(tags, summarizeTag(typeObj, summary.total));
+        _.each(tags, summarizeTag(typeObj, summary, summary.total));
         summary.avgPerDay = summary.total/Object.keys(typeObj.dataByDate).length;
         typeObj.summary = summary;
       }
     }
+
+    var fsSection = _.find(basicsData.sections, findSectionContainingType('fingerstick'));
+    var fingerstickData = basicsData.data.fingerstick;
+    var fsSummary = {total: 0};
+    _.each(['calibration', 'smbg'], function(fsCategory) {
+      fsSummary[fsCategory] = Object.keys(fingerstickData[fsCategory].dataByDate)
+        .reduce(function(p, date) {
+          var dateData = fingerstickData[fsCategory].dataByDate[date];
+          return p + (dateData.total || dateData.count);
+        }, 0);
+      fsSummary.total += fsSummary[fsCategory];
+    });
+    fingerstickData.summary = fsSummary;
+    var fsTags = _.pluck(_.filter(fsSection.selectorOptions, function(opt) {
+      return opt.path === 'smbg' && !opt.primary;
+    }), 'key');
+    _.each(fsTags, summarizeTag(fingerstickData.smbg, fsSummary, fsSummary.smbg));
   }
 };
