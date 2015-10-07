@@ -76,11 +76,11 @@ var SummaryGroup = React.createClass({
           this.props.data[option.key].count || 0}
       </span>
     );
-    var percentage = (!option.percentage) ? null : (
+    var percentage = (option.percentage) ? (
       <span className="SummaryGroup-option-percentage">
         {d3.format('%')(this.props.data[option.key].percentage || 0)}
       </span>
-    );
+    ) : null;
 
     return (
       <div key={option.key} className={classes}
