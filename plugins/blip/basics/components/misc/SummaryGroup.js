@@ -21,12 +21,14 @@ var classnames = require('classnames');
 var d3 = require('d3');
 var React = require('react');
 
+var basicsActions = require('../../logic/actions');
+
 var SummaryGroup = React.createClass({
   propTypes: {
     data: React.PropTypes.object.isRequired,
     options: React.PropTypes.array.isRequired,
-    selectedSubtotal: React.PropTypes.string.isRequired,
-    onSelectSubtotal: React.PropTypes.func.isRequired
+    sectionId: React.PropTypes.string.isRequired,
+    selectedSubtotal: React.PropTypes.string.isRequired
   },
   render: function() {
     var self = this;
@@ -41,7 +43,10 @@ var SummaryGroup = React.createClass({
       }
     }
 
-    var otherOptions = _.filter(self.props.options, function(row) { return row.key !== primaryOption.key; });
+    var otherOptions = _.filter(
+      self.props.options,
+      function(row) { return row.key !== primaryOption.key; }
+    );
 
     var others = otherOptions.map(self.renderInfo);
 
@@ -76,15 +81,15 @@ var SummaryGroup = React.createClass({
 
     return (
       <div key={option.key} className={classes}
-        onClick={this.handleClickSubtotal.bind(null, option)}>
+        onClick={self.handleSelectSubtotal.bind(null, option.key)}>
         <span className="SummaryGroup-option-label">{option.label}</span>
         {percentage}
         {value}
       </div>
     );
   },
-  handleClickSubtotal: function(option) {
-    this.props.onSelectSubtotal(option.key);
+  handleSelectSubtotal: function(selectedSubtotal) {
+    basicsActions.selectSubtotal(this.props.sectionId, selectedSubtotal);
   }
 });
 

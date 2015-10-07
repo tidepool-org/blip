@@ -36,17 +36,15 @@ var CalendarContainer = React.createClass({
     hasHover: React.PropTypes.bool.isRequired,
     hoverDisplay: React.PropTypes.func,
     onSelectDay: React.PropTypes.func.isRequired,
+    sectionId: React.PropTypes.string.isRequired,
     selector: React.PropTypes.func,
     selectorOptions: React.PropTypes.array,
     timezone: React.PropTypes.string.isRequired,
     type: React.PropTypes.string.isRequired
   },
   getInitialState: function() {
-    var selected = _.find(this.props.selectorOptions, {default: true});
-
     return {
-      hoverDate: null,
-      selectedSubtotal: (selected) ? selected.key : null
+      hoverDate: null
     };
   },
   /**
@@ -58,8 +56,10 @@ var CalendarContainer = React.createClass({
   onHover: function(date) {
     this.setState({hoverDate: date});
   },
-  onSelectSubtotal: function(key) {
-    this.setState({selectedSubtotal: key});
+  _getSelectedSubtotal: function() {
+    var options = this.props.selectorOptions;
+    return _.get(_.find(options, {selected: true}), 'key', false) ||
+      _.get(_.find(options, {default: true}), 'key', null);
   },
   render: function() {
     var containerClass = cx('Calendar-container-' + this.props.type, {
@@ -91,8 +91,8 @@ var CalendarContainer = React.createClass({
     return this.props.selector({ 
       data: this.props.data[this.props.type].summary,
       options: this.props.selectorOptions,
-      selectedSubtotal: this.state.selectedSubtotal,
-      onSelectSubtotal: this.onSelectSubtotal
+      sectionId: this.props.sectionId,
+      selectedSubtotal: this._getSelectedSubtotal()
     });
   },
   renderDayLabels: function() {
@@ -123,7 +123,7 @@ var CalendarContainer = React.createClass({
             hoverDisplay={self.props.hoverDisplay}
             onHover={self.onHover}
             onSelectDay={self.props.onSelectDay}
-            subtotalType={self.state.selectedSubtotal}
+            subtotalType={self._getSelectedSubtotal()}
             timezone={self.props.timezone}
             type={self.props.type} />
         );
@@ -137,7 +137,7 @@ var CalendarContainer = React.createClass({
             isFirst={id === 0}
             mostRecent={day.type === 'mostRecent'}
             onHover={self.onHover}
-            subtotalType={self.state.selectedSubtotal}
+            subtotalType={self._getSelectedSubtotal()}
             type={self.props.type} />
         );
       }  

@@ -36,4 +36,17 @@ basicsActions.toggleSection = function(sectionName) {
   this.app.setState({sections: sections});
 };
 
+basicsActions.selectSubtotal = function(sectionName, selectedSubtotal) {
+  var sections = _.cloneDeep(this.app.state.sections);
+  var selectorOptions = sections[sectionName].selectorOptions;
+  selectorOptions = _.map(
+    selectorOptions,
+    function(opt) { return _.omit(opt, 'selected'); }
+  );
+  var selectedIndex = _.findIndex(selectorOptions, {key: selectedSubtotal});
+  selectorOptions[selectedIndex].selected = true;
+  sections[sectionName].selectorOptions = selectorOptions;
+  this.app.setState({sections: sections});
+};
+
 module.exports = basicsActions;

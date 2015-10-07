@@ -38,6 +38,7 @@ var basicsState = {
       chart: BasalBolusRatio,
       container: BasicContainer,
       column: 'left',
+      id: 'basalBolusRatio',
       index: 3,
       title: 'Basal : bolus ratio',
       open: true
@@ -47,16 +48,18 @@ var basicsState = {
       chart: BGDistribution,
       container: BasicContainer,
       column: 'left',
+      id: 'bgDistribution',
       index: 1,
       title: 'BG distribution',
       open: true
     },
-    bgTesting: {
+    fingersticks: {
       active: true,
       chart: WrapCount,
       column: 'right',
       container: CalendarContainer,
       hasHover: true,
+      id: 'fingersticks',
       index: 1,
       open: true,
       title: 'BG readings',
@@ -68,6 +71,7 @@ var basicsState = {
       column: 'right',
       container: CalendarContainer,
       hasHover: true,
+      id: 'boluses',
       index: 2,
       open: true,
       selector: SummaryGroup,
@@ -90,6 +94,7 @@ var basicsState = {
       container: CalendarContainer,
       hasHover: true,
       hoverDisplay: InfusionHoverDisplay,
+      id: 'siteChanges',
       index: 4,
       noDataMessage: 'Infusion site changes for CareLink data are coming soon.',
       open: true,
@@ -101,6 +106,7 @@ var basicsState = {
       chart: TotalDailyDose,
       container: BasicContainer,
       column: 'left',
+      id: 'tdd',
       index: 2,
       title: 'Avg total daily dose',
       open: true
