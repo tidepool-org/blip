@@ -121,13 +121,13 @@ var BasicsChart = React.createClass({
         <Section key={section.name}
           bgClasses={self.props.bgClasses}
           bgUnits={self.props.bgUnits}
-          chart={section.chart || null}
-          container={section.container || section.components}
+          chart={section.chart}
           data={self.state.data}
           days={self.state.days}
           name={section.name}
           onSelectDay={self.props.onSelectDay}
           open={section.open}
+          section={section}
           title={section.title}
           timezone={tz} />
       );

@@ -30,8 +30,6 @@ var HoverDay = require('./day/HoverDay');
 
 var CalendarContainer = React.createClass({
   propTypes: {
-    section: React.PropTypes.string.isRequired,
-    component: React.PropTypes.string.isRequired,
     chart: React.PropTypes.func.isRequired,
     data: React.PropTypes.object.isRequired,
     days: React.PropTypes.array.isRequired,

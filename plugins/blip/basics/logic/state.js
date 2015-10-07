@@ -53,57 +53,48 @@ var basicsState = {
     },
     bgTesting: {
       active: true,
+      chart: WrapCount,
       column: 'right',
+      container: CalendarContainer,
+      hasHover: true,
       index: 1,
-      title: 'BG readings',
       open: true,
-      components: [{
-          active: true,
-          chart: WrapCount,
-          container: CalendarContainer,
-          hasHover: true,
-          type: 'smbg'
-        }]
+      title: 'BG readings',
+      type: 'smbg'
     },
     boluses: {
       active: true,
+      chart: WrapCount,
       column: 'right',
+      container: CalendarContainer,
+      hasHover: true,
       index: 2,
+      open: true,
+      selector: SummaryGroup,
+      selectorOptions: [
+        { key: 'total', label: 'All Boluses', default: true, primary: true },
+        { key: 'wizard', label: 'Calculator' },
+        { key: 'manual', label: 'Manual' },
+        { key: 'extended', label: 'Extended' },
+        { key: 'override', label: 'Override' },
+        { key: 'underride', label: 'Underride' },
+        { key: 'interrupted', label : 'Interrupted' }
+      ],
       title: 'Bolusing',
-      open: true,
-      components: [{
-          active: true,
-          chart: WrapCount,
-          container: CalendarContainer,
-          hasHover: true,
-          selector: SummaryGroup,
-          selectorOptions: [
-            { key: 'total', label: 'All Boluses', default: true, primary: true },
-            { key: 'wizard', label: 'Calculator' },
-            { key: 'manual', label: 'Manual' },
-            { key: 'extended', label: 'Extended' },
-            { key: 'override', label: 'Override' },
-            { key: 'underride', label: 'Underride' },
-            { key: 'interrupted', label : 'Interrupted' }
-          ],
-          type: 'bolus'
-        }]
+      type: 'bolus'
     },
-    general: {
+    siteChanges: {
       active: true,
+      chart: SiteChange,
       column: 'right',
+      container: CalendarContainer,
+      hasHover: true,
+      hoverDisplay: InfusionHoverDisplay,
       index: 4,
-      title: 'Infusion site changes',
+      noDataMessage: 'Infusion site changes for CareLink data are coming soon.',
       open: true,
-      components: [{
-          active: true,
-          chart: SiteChange,
-          container: CalendarContainer,
-          hasHover: true,
-          hoverDisplay: InfusionHoverDisplay,
-          noDataMessage: 'Infusion site changes for CareLink data are coming soon.',
-          type: 'reservoirChange'
-        }]
+      title: 'Infusion site changes',
+      type: 'reservoirChange'
     },
     tdd: {
       active: true,

@@ -262,18 +262,10 @@ module.exports = {
 
     function findSectionContainingType(type) {
       return function(section) {
-        if (section.components) {
-          return _.some(section.components, function(component) {
-            return component.type === type;
-          });
+        if (section.column === 'left') {
+          return false;
         }
-        return false;
-      };
-    }
-
-    function findComponentUsingType(type) {
-      return function(component) {
-        return component.type === type;
+        return section.type === type;
       };
     }
 
@@ -314,8 +306,7 @@ module.exports = {
 
       if (_.includes(['bolus'], type)) {
         var section = _.find(basicsData.sections, findSectionContainingType(type));
-        var component = _.find(section.components, findComponentUsingType(type));
-        var tags = _.rest(_.pluck(component.selectorOptions, 'key'));
+        var tags = _.rest(_.pluck(section.selectorOptions, 'key'));
         var summary = {total: Object.keys(typeObj.dataByDate)
           .reduce(reduceTotalByDate(typeObj), 0)};
         _.each(tags, summarizeTag(typeObj, summary.total));
