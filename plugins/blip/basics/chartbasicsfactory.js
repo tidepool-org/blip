@@ -31,7 +31,7 @@ require('./less/basics.less');
 var debug = bows('Basics Chart');
 var basicsState = require('./logic/state');
 var basicsActions = require('./logic/actions');
-var dataMunger = require('./logic/datamunger');
+var dataMungerMkr = require('./logic/datamunger');
 
 var Section = require('./components/DashboardSection');
 
@@ -47,33 +47,16 @@ var BasicsChart = React.createClass({
     updateBasicsData: React.PropTypes.func.isRequired
   },
   _adjustSectionsBasedOnAvailableData: function(basicsData) {
-    var typedData = basicsData.data;
-    var typedSections = _.filter(basicsData.sections, function(section) {
-      if (section.components) {
-        return _.some(section.components, function(component) {
-          return component.type != null;
-        });
-      }
-    });
-    _.each(typedSections, function(section) {
-      _.each(section.components, function(component) {
-        var type = component.type;
-        if (_.isEmpty(typedData[type].data)) {
-          component.active = false;
-        }
-      });
-    });
+    // TODO: re-do this!
   },
   componentWillMount: function() {
     var basicsData = this.props.patientData.basicsData;
     if (basicsData.sections == null) {
       basicsData = _.assign(basicsData, basicsState);
+      var dataMunger = dataMungerMkr(this.props.bgClasses);
       dataMunger.reduceByDay(basicsData);
       basicsData.data.reservoirChange.infusionSiteHistory = dataMunger.infusionSiteHistory(basicsData);
-      basicsData.data.bgDistribution = dataMunger.bgDistribution(
-        basicsData,
-        this.props.bgClasses
-      );
+      basicsData.data.bgDistribution = dataMunger.bgDistribution(basicsData);
       var basalBolusStats = dataMunger.calculateBasalBolusStats(basicsData);
       basicsData.data.basalBolusRatio = basalBolusStats.basalBolusRatio;
       basicsData.data.totalDailyDose = basalBolusStats.totalDailyDose;

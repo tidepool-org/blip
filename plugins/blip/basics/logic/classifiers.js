@@ -18,46 +18,87 @@
 var _ = require('lodash');
 var commonbolus = require('../../../../js/plot/util/commonbolus');
 
-module.exports = {
-  smbg: function(d) {
-    if (d.subType && d.subType === 'manual') {
-      return [d.subType];
-    }
-    else {
-      return ['meter'];
-    }
-  },
-  bolus: function(d) {
-    var tags = [];
-    var delivered = commonbolus.getDelivered(d);
-    var programmed = commonbolus.getProgrammed(d);
-    var recommended = commonbolus.getRecommended(d);
-    if (d.wizard && !_.isEmpty(d.wizard)) {
-      tags.push('wizard');
-      if (!isNaN(recommended)) {
-        if (recommended > delivered) {
-          tags.push('underride');
-        }
-        else if (delivered > recommended) {
-          tags.push('override');
-        }
+module.exports = function(bgClasses) {
+  var classifers = {
+    categorizeBg: function(d) {
+      if (d.value < bgClasses['very-low'].boundary) {
+        return 'verylow';
+      }
+      else if (d.value >= bgClasses['very-low'].boundary &&
+        d.value < bgClasses.low.boundary) {
+        return 'low';
+      }
+      else if (d.value >= bgClasses.low.boundary &&
+        d.value < bgClasses.target.boundary) {
+        return 'target';
+      }
+      else if (d.value >= bgClasses.target.boundary &&
+        d.value < bgClasses.high.boundary) {
+        return 'high';
+      }
+      else if (d.value >= bgClasses.high.boundary) {
+        return 'veryhigh';
+      }
+    },
+    smbg: function(d) {
+      var tags = [];
+      if (d.subType && d.subType === 'manual') {
+        tags.push(d.subType);
+      }
+      else {
+        tags.push('meter');
+      }
+      var bgCategory = classifers.categorizeBg(d);
+      switch (bgCategory) {
+        case 'verylow':
+          tags = tags.concat(['verylow', 'belowtarget']);
+          break;
+        case 'low':
+          tags.push('belowtarget');
+          break;
+        case 'high':
+        case 'veryhigh':
+          tags.push('abovetarget');
+          break;
+        default:
+          break;
+      }
+      return tags;
+    },
+    bolus: function(d) {
+      var tags = [];
+      var delivered = commonbolus.getDelivered(d);
+      var programmed = commonbolus.getProgrammed(d);
+      var recommended = commonbolus.getRecommended(d);
+      if (d.wizard && !_.isEmpty(d.wizard)) {
+        tags.push('wizard');
+        if (!isNaN(recommended)) {
+          if (recommended > delivered) {
+            tags.push('underride');
+          }
+          else if (delivered > recommended) {
+            tags.push('override');
+          }
 
-        if (d.recommended.correction > 0 && d.recommended.carb === 0) {
-          tags.push('correction');
+          if (d.recommended.correction > 0 && d.recommended.carb === 0) {
+            tags.push('correction');
+          }
         }
       }
-    }
-    else {
-      tags.push('manual');
-    }
-    
-    if (programmed !== delivered) {
-      tags.push('interrupted');
-    }
+      else {
+        tags.push('manual');
+      }
 
-    if (d.extended > 0) {
-      tags.push('extended');
+      if (programmed !== delivered) {
+        tags.push('interrupted');
+      }
+
+      if (d.extended > 0) {
+        tags.push('extended');
+      }
+      return tags;
     }
-    return tags;
-  }
+  };
+
+  return classifers;
 };

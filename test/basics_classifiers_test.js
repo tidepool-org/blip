@@ -29,4 +29,6 @@ describe('basics classifiers', function() {
   it('should return all tags that apply to a bolus');
 
   it('should classify an smbg as manual or meter');
+
+  it('should also categorize the value of an smbg');
 });
