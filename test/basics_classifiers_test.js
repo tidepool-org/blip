@@ -22,9 +22,11 @@ var expect = chai.expect;
 var classifiers = require('../plugins/blip/basics/logic/classifiers');
 
 describe('basics classifiers', function() {
-  it('should be an object', function() {
-    assert.isObject(classifiers);
+  it('should be a function', function() {
+    assert.isFunction(classifiers);
   });
+
+  it('should return an object');
 
   it('should return all tags that apply to a bolus');
 

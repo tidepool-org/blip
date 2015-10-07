@@ -22,23 +22,23 @@ var expect = chai.expect;
 var _ = require('lodash');
 var d3 = require('d3');
 
-var dm = require('../plugins/blip/basics/logic/datamunger');
+var bgClasses = {
+  'very-low': {boundary: 10},
+  low: {boundary: 20},
+  target: {boundary: 30},
+  high: {boundary: 40},
+  'very-high': {boundary: 50}
+};
+var dm = require('../plugins/blip/basics/logic/datamunger')(bgClasses);
 
 var types = require('../dev/testpage/types');
 
 describe('basics datamunger', function() {
-  it('should be an object', function() {
+  it('should return an object', function() {
     assert.isObject(dm);
   });
 
   describe('bgDistribution', function() {
-    var bgClasses = {
-      'very-low': {boundary: 10},
-      low: {boundary: 20},
-      target: {boundary: 30},
-      high: {boundary: 40},
-      'very-high': {boundary: 50}
-    };
     var zeroes = {
       veryhigh: 0,
       high: 0,
@@ -65,7 +65,7 @@ describe('basics datamunger', function() {
       expect(dm.bgDistribution({
         data: {smbg: {data: smbg}, cbg: {data: cbg}},
         dateRange: [d3.time.day.utc.floor(now), d3.time.day.utc.ceil(now)]
-      }, bgClasses)).to.deep.equal({
+      })).to.deep.equal({
         cbg: _.defaults({veryhigh: 1}, zeroes),
         cgmStatus: 'calculatedCGM',
         smbg: _.defaults({target: 1}, zeroes)
@@ -81,7 +81,7 @@ describe('basics datamunger', function() {
       expect(dm.bgDistribution({
         data: {smbg: {data: smbg}},
         dateRange: [d3.time.day.utc.floor(now), d3.time.day.utc.ceil(now)]
-      }, bgClasses)).to.deep.equal({
+      })).to.deep.equal({
         cgmStatus: 'noCGM',
         smbg: _.defaults({target: 0.5, verylow: 0.5}, zeroes)
       });
@@ -99,7 +99,7 @@ describe('basics datamunger', function() {
       expect(dm.bgDistribution({
         data: {smbg: {data: smbg}, cbg: {data: cbg}},
         dateRange: [d3.time.day.utc.floor(now), d3.time.day.utc.ceil(now)]
-      }, bgClasses)).to.deep.equal({
+      })).to.deep.equal({
         cgmStatus: 'notEnoughCGM',
         smbg: _.defaults({target: 0.5, verylow: 0.5}, zeroes)
       });
@@ -117,7 +117,7 @@ describe('basics datamunger', function() {
       expect(dm.bgDistribution({
         data: {smbg: {data: smbg}},
         dateRange: [d3.time.day.utc.floor(now), d3.time.day.utc.ceil(now)]
-      }, bgClasses).smbg).to.deep.equal({
+      }).smbg).to.deep.equal({
           verylow: 0.2,
           low: 0.2,
           target: 0.2,
