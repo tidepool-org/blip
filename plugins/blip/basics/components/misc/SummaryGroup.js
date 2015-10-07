@@ -67,7 +67,7 @@ var SummaryGroup = React.createClass({
       'SummaryGroup-info--selected': (option.key === self.props.selectedSubtotal),
       'SummaryGroup-info-primary': option.primary,
       'SummaryGroup-info': !option.primary,
-      'SummaryGroup-info-tall': (!option.primary && options.length <= 3)
+      'SummaryGroup-info-tall': ( !option.primary && options.length <= 3 )
     });
 
     var value = (

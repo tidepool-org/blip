@@ -13,7 +13,6 @@
 
     width: 160px;
     padding-top: 5px;
-    text-align: center;
     cursor: pointer;
     height: 32px;
     background-color: @day-color;
@@ -23,14 +22,24 @@
       height: 67px;
     }
 
+    .SummaryGroup-option-label {
+      float: left;
+      padding-left: 15px;
+    }
+
     .SummaryGroup-option-percentage, .SummaryGroup-option-count {
       float: right;
-      padding-right: 20px;
+      text-align: left;
+      width: 25px;
+      padding-right: 5px;
     }
 
     .SummaryGroup-option-percentage {
       font-size: 11px;
-      margin-left: -10px;
+      text-align: right;
+      min-height: 15px;
+      width: 42px;
+      padding-right: 15px;
     }
 
     .SummaryGroup-option-count {
@@ -56,11 +65,14 @@
     height: 67px;
     padding-top: 12px;
     font-size: 15px;
+    text-align: center;
     margin-right: 3px;
 
     .SummaryGroup-option-count, .SummaryGroup-option-label {
       display: block;
       padding: 0;
+      width: 100%;
+      text-align: center;
       float: none;
     }
   }
