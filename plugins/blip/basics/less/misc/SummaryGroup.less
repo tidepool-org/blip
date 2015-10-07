@@ -6,9 +6,11 @@
   line-height: 21px;
 
   display: flex;
-  justify-content: space-around;
+  justify-content: flex-start;
 
   .SummaryGroup-info, .SummaryGroup-info-primary {
+    align-self: flex-end;
+
     width: 160px;
     padding-top: 5px;
     text-align: center;
@@ -29,20 +31,24 @@
     .SummaryGroup-option-count {
       font-weight: bold;
     }
+
+    &.SummaryGroup-info--selected {
+      color: white;
+    }
   }
 
   .SummaryGroup-info-others {
     display: flex;
     justify-content: space-around;
     flex-flow: row wrap;
+
     height: 70px;
-    max-width: 489px;
+    width: 489px;
   }
 
   .SummaryGroup-info-primary {
     width: 130px;
     height: 67px;
-    vertical-align: top;
     padding-top: 12px;
     font-size: 15px;
     margin-right: 3px;
