@@ -45,8 +45,8 @@ var SummaryGroup = React.createClass({
 
     var otherOptions = _.filter(
       self.props.selectorOptions,
-      function(row) { 
-        return row.key !== primaryOption.key && (typeof row.active === 'undefined' || row.active);
+      function(row) {
+        return !row.primary && (typeof row.active === 'undefined' || row.active);
       }
     );
 
@@ -70,8 +70,8 @@ var SummaryGroup = React.createClass({
       'SummaryGroup-info--selected': (option.key === this.props.selectedSubtotal),
       'SummaryGroup-info-primary': option.primary,
       'SummaryGroup-info': !option.primary,
-	'SummaryGroup-info-tall': ( !option.primary && this.props.selectorOptions.length <= 3 ),
-	'SummaryGroup-no-percentage': ( !option.primary && !option.percentage )
+    	'SummaryGroup-info-tall': ( !option.primary && this.props.selectorOptions.length <= 4 ),
+    	'SummaryGroup-no-percentage': ( !option.primary && !option.percentage )
     });
 
     var path = option.path;
