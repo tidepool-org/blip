@@ -65,8 +65,8 @@ var basicsState = {
       selector: SummaryGroup,
       selectorOptions: [
         { path: 'smbg', key: 'total', label: 'All BGs', default: true, primary: true },
-        { path: 'smbg', key: 'meter', label: 'Meter' },
-        { path: 'smbg', key: 'manual', label: 'Manual' },
+        { path: 'smbg', key: 'meter', label: 'Meter', percentage: true },
+        { path: 'smbg', key: 'manual', label: 'Manual', percentage: true },
         { path: 'calibration', key: 'calibration', label: 'Calibrations' },
         { path: 'smbg', key: 'verylow', label: 'Very Low', percentage: true },
         { path: 'smbg', key: 'belowtarget', label: 'Below Target', percentage: true },

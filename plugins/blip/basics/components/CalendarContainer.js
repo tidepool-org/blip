@@ -24,11 +24,13 @@ var React = require('react');
 
 var debug = bows('Calendar');
 var basicsActions = require('../logic/actions');
+var BasicsUtils = require('./BasicsUtils');
 
 var ADay = require('./day/ADay');
 var HoverDay = require('./day/HoverDay');
 
 var CalendarContainer = React.createClass({
+  mixins: [BasicsUtils],
   propTypes: {
     chart: React.PropTypes.func.isRequired,
     data: React.PropTypes.object.isRequired,
@@ -55,17 +57,6 @@ var CalendarContainer = React.createClass({
    */
   onHover: function(date) {
     this.setState({hoverDate: date});
-  },
-  _getPathToSelected: function() {
-    var options = this.props.selectorOptions;
-    var selected = _.find(options, {selected: true});
-    if (selected) {
-      return (selected && selected.path) ? selected.path : null;
-    }
-    else {
-      var defaultOpt = _.find(options, {default: true});
-      return (defaultOpt && defaultOpt.path) ? defaultOpt.path : null;
-    }
   },
   _getSelectedSubtotal: function() {
     var options = this.props.selectorOptions;
@@ -101,9 +92,9 @@ var CalendarContainer = React.createClass({
   renderSelector: function() {
     return this.props.selector({ 
       data: this.props.data[this.props.type].summary,
-      options: this.props.selectorOptions,
-      sectionId: this.props.sectionId,
-      selectedSubtotal: this._getSelectedSubtotal()
+      selectedSubtotal: this._getSelectedSubtotal(),
+      selectorOptions: this.props.selectorOptions,
+      sectionId: this.props.sectionId
     });
   },
   renderDayLabels: function() {
@@ -124,7 +115,7 @@ var CalendarContainer = React.createClass({
   },
   renderDays: function() {
     var self = this;
-    var path = this._getPathToSelected();
+    var path = this.getPathToSelected();
 
     return this.props.days.map(function(day, id) {
       if (self.props.hasHover && self.state.hoverDate === day.date) {

@@ -326,18 +326,29 @@ module.exports = function(bgClasses) {
       var fingerstickData = basicsData.data.fingerstick;
       var fsSummary = {total: 0};
       _.each(['calibration', 'smbg'], function(fsCategory) {
-        fsSummary[fsCategory] = Object.keys(fingerstickData[fsCategory].dataByDate)
+        fsSummary[fsCategory] = {total: Object.keys(fingerstickData[fsCategory].dataByDate)
           .reduce(function(p, date) {
             var dateData = fingerstickData[fsCategory].dataByDate[date];
             return p + (dateData.total || dateData.count);
-          }, 0);
-        fsSummary.total += fsSummary[fsCategory];
+          }, 0)};
+        fsSummary.total += fsSummary[fsCategory].total;
       });
       fingerstickData.summary = fsSummary;
       var fsTags = _.pluck(_.filter(fsSection.selectorOptions, function(opt) {
         return opt.path === 'smbg' && !opt.primary;
       }), 'key');
-      _.each(fsTags, summarizeTag(fingerstickData.smbg, fsSummary, fsSummary.smbg));
+
+
+      function summarizeFsTag(typeObj, summary, total) {
+        return function(tag) {
+          summary.smbg[tag] = {count: Object.keys(typeObj.dataByDate)
+            .reduce(function(p, date) {
+              return p + (typeObj.dataByDate[date].subtotals[tag] || 0);
+            }, 0)};
+          summary.smbg[tag].percentage = summary.smbg[tag].count/total;
+        };
+      }
+      _.each(fsTags, summarizeFsTag(fingerstickData.smbg, fsSummary, fsSummary.smbg.total));
     }
   };
 };
