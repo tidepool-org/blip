@@ -314,6 +314,8 @@ module.exports = function(bgClasses) {
         }
 
         if (_.includes(['basal', 'bolus'], type)) {
+          // NB: for basals, the totals and avgPerDay are basal *segments*
+          // not a particular useful metric!!!
           var section = _.find(basicsData.sections, findSectionContainingType(type));
           var tags = _.rest(_.pluck(section.selectorOptions, 'key'));
           var summary = {total: Object.keys(typeObj.dataByDate)
