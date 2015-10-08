@@ -28,6 +28,8 @@ describe('basics classifiers', function() {
 
   it('should return an object');
 
+  it('should return all tags that apply to a basal (based on deliveryType)');
+
   it('should return all tags that apply to a bolus');
 
   it('should classify an smbg as manual or meter');

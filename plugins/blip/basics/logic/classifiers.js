@@ -20,6 +20,47 @@ var commonbolus = require('../../../../js/plot/util/commonbolus');
 
 module.exports = function(bgClasses) {
   var classifers = {
+    basal: function(d) {
+      if (d.deliveryType === 'scheduled') {
+        return [];
+      }
+      else {
+        return [d.deliveryType];
+      }
+    },
+    bolus: function(d) {
+      var tags = [];
+      var delivered = commonbolus.getDelivered(d);
+      var programmed = commonbolus.getProgrammed(d);
+      var recommended = commonbolus.getRecommended(d);
+      if (d.wizard && !_.isEmpty(d.wizard)) {
+        tags.push('wizard');
+        if (!isNaN(recommended)) {
+          if (recommended > delivered) {
+            tags.push('underride');
+          }
+          else if (delivered > recommended) {
+            tags.push('override');
+          }
+
+          if (d.recommended.correction > 0 && d.recommended.carb === 0) {
+            tags.push('correction');
+          }
+        }
+      }
+      else {
+        tags.push('manual');
+      }
+
+      if (programmed !== delivered) {
+        tags.push('interrupted');
+      }
+
+      if (d.extended > 0) {
+        tags.push('extended');
+      }
+      return tags;
+    },
     categorizeBg: function(d) {
       if (d.value < bgClasses['very-low'].boundary) {
         return 'verylow';
@@ -62,39 +103,6 @@ module.exports = function(bgClasses) {
           break;
         default:
           break;
-      }
-      return tags;
-    },
-    bolus: function(d) {
-      var tags = [];
-      var delivered = commonbolus.getDelivered(d);
-      var programmed = commonbolus.getProgrammed(d);
-      var recommended = commonbolus.getRecommended(d);
-      if (d.wizard && !_.isEmpty(d.wizard)) {
-        tags.push('wizard');
-        if (!isNaN(recommended)) {
-          if (recommended > delivered) {
-            tags.push('underride');
-          }
-          else if (delivered > recommended) {
-            tags.push('override');
-          }
-
-          if (d.recommended.correction > 0 && d.recommended.carb === 0) {
-            tags.push('correction');
-          }
-        }
-      }
-      else {
-        tags.push('manual');
-      }
-
-      if (programmed !== delivered) {
-        tags.push('interrupted');
-      }
-
-      if (d.extended > 0) {
-        tags.push('extended');
       }
       return tags;
     }

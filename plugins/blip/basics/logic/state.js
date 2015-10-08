@@ -33,6 +33,25 @@ var basicsActions = require('./actions');
 
 var basicsState = {
   sections: {
+    basals: {
+      active: true,
+      chart: WrapCount,
+      column: 'right',
+      container: CalendarContainer,
+      hasHover: true,
+      id: 'basals',
+      index: 4,
+      open: false,
+      selector: SummaryGroup,
+      selectorOptions: [
+        { key: 'foo', label: 'Basal', default: true, primary: true },
+        { key: 'temp', label: 'Temp Basals' },
+        { key: 'suspend', label: 'Suspends' },
+        { key: 'scheduleChange', label: 'Schedule Changes' }
+      ],
+      title: 'Basals',
+      type: 'basal'
+    },
     basalBolusRatio: {
       active: true,
       chart: BasalBolusRatio,
@@ -52,28 +71,6 @@ var basicsState = {
       index: 1,
       title: 'BG distribution',
       open: true
-    },
-    fingersticks: {
-      active: true,
-      chart: WrapCount,
-      column: 'right',
-      container: CalendarContainer,
-      hasHover: true,
-      id: 'fingersticks',
-      index: 1,
-      open: true,
-      selector: SummaryGroup,
-      selectorOptions: [
-        { path: 'smbg', key: 'total', label: 'All BGs', default: true, primary: true },
-        { path: 'smbg', key: 'meter', label: 'Meter', percentage: true },
-        { path: 'smbg', key: 'manual', label: 'Manual', percentage: true },
-        { path: 'calibration', key: 'calibration', label: 'Calibrations' },
-        { path: 'smbg', key: 'verylow', label: 'Very Low', percentage: true },
-        { path: 'smbg', key: 'belowtarget', label: 'Below Target', percentage: true },
-        { path: 'smbg', key: 'abovetarget', label: 'Above Target', percentage: true }
-      ],
-      title: 'BG readings',
-      type: 'fingerstick'
     },
     boluses: {
       active: true,
@@ -97,6 +94,28 @@ var basicsState = {
       title: 'Bolusing',
       type: 'bolus'
     },
+    fingersticks: {
+      active: true,
+      chart: WrapCount,
+      column: 'right',
+      container: CalendarContainer,
+      hasHover: true,
+      id: 'fingersticks',
+      index: 1,
+      open: true,
+      selector: SummaryGroup,
+      selectorOptions: [
+        { path: 'smbg', key: 'total', label: 'All BGs', default: true, primary: true },
+        { path: 'smbg', key: 'meter', label: 'Meter', percentage: true },
+        { path: 'smbg', key: 'manual', label: 'Manual', percentage: true },
+        { path: 'calibration', key: 'calibration', label: 'Calibrations' },
+        { path: 'smbg', key: 'verylow', label: 'Very Low', percentage: true },
+        { path: 'smbg', key: 'belowtarget', label: 'Below Target', percentage: true },
+        { path: 'smbg', key: 'abovetarget', label: 'Above Target', percentage: true }
+      ],
+      title: 'BG readings',
+      type: 'fingerstick'
+    },
     siteChanges: {
       active: true,
       chart: SiteChange,
@@ -105,7 +124,7 @@ var basicsState = {
       hasHover: true,
       hoverDisplay: InfusionHoverDisplay,
       id: 'siteChanges',
-      index: 4,
+      index: 3,
       noDataMessage: 'Infusion site changes for CareLink data are coming soon.',
       open: true,
       title: 'Infusion site changes',

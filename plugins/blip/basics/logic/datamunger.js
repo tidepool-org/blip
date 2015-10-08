@@ -272,7 +272,7 @@ module.exports = function(bgClasses) {
 
       for (var type in basicsData.data) {
         var typeObj = basicsData.data[type];
-        if (_.includes(['bolus', 'reservoirChange'], type)) {
+        if (_.includes(['basal', 'bolus', 'reservoirChange'], type)) {
           typeObj.cf = crossfilter(typeObj.data);
           typeObj.byLocalDate = typeObj.cf.dimension(getLocalDate);
           var classifier = classifiers[type];
@@ -311,7 +311,7 @@ module.exports = function(bgClasses) {
           fsTypeObj.dataByDate = fsDataByDateHash;
         }
 
-        if (_.includes(['bolus'], type)) {
+        if (_.includes(['basal', 'bolus'], type)) {
           var section = _.find(basicsData.sections, findSectionContainingType(type));
           var tags = _.rest(_.pluck(section.selectorOptions, 'key'));
           var summary = {total: Object.keys(typeObj.dataByDate)
@@ -349,6 +349,10 @@ module.exports = function(bgClasses) {
         };
       }
       _.each(fsTags, summarizeFsTag(fingerstickData.smbg, fsSummary, fsSummary.smbg.total));
+
+      // TODO: remove later!
+      basicsData.data.basal.summary.foo = 0;
+      basicsData.data.basal.summary.scheduleChange = {count: 10};
     }
   };
 };
