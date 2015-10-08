@@ -270,6 +270,8 @@ module.exports = function(bgClasses) {
         };
       }
 
+      var mostRecentDay = _.find(basicsData.days, {type: 'mostRecent'}).date;
+
       for (var type in basicsData.data) {
         var typeObj = basicsData.data[type];
         if (_.includes(['basal', 'bolus', 'reservoirChange'], type)) {
@@ -317,7 +319,13 @@ module.exports = function(bgClasses) {
           var summary = {total: Object.keys(typeObj.dataByDate)
             .reduce(reduceTotalByDate(typeObj), 0)};
           _.each(tags, summarizeTag(typeObj, summary, summary.total));
-          summary.avgPerDay = summary.total/Object.keys(typeObj.dataByDate).length;
+          var mostRecentTotal = typeObj.dataByDate[mostRecentDay] ?
+            typeObj.dataByDate[mostRecentDay].total : 0;
+          var numDaysExcludingMostRecent = typeObj.dataByDate[mostRecentDay] ?
+            Object.keys(typeObj.dataByDate).length - 1 : Object.keys(typeObj.dataByDate).length;
+          // TODO: if we end up using this, do we care that this averages only over # of days that *have* data?
+          // e.g., if you have a random day in the middle w/no boluses, that day (that 0) will be excluded from average
+          summary.avgPerDay = (summary.total - mostRecentTotal)/numDaysExcludingMostRecent;
           typeObj.summary = summary;
         }
       }
@@ -349,6 +357,13 @@ module.exports = function(bgClasses) {
         };
       }
       _.each(fsTags, summarizeFsTag(fingerstickData.smbg, fsSummary, fsSummary.smbg.total));
+      var smbgSummary = fingerstickData.summary.smbg;
+      var smbgData = fingerstickData.smbg;
+      var mostRecentSmbgTotal = smbgData.dataByDate[mostRecentDay] ?
+        smbgData.dataByDate[mostRecentDay].total : 0;
+      var numDaysExcludingMostRecentSmbg = smbgData.dataByDate[mostRecentDay] ?
+        Object.keys(smbgData.dataByDate).length - 1 : Object.keys(smbgData.dataByDate).length;
+      smbgSummary.avgPerDay = (smbgSummary.total - mostRecentSmbgTotal)/numDaysExcludingMostRecentSmbg;
 
       // TODO: remove later!
       basicsData.data.basal.summary.foo = 0;
