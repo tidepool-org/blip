@@ -270,9 +270,11 @@ module.exports = function(bgClasses) {
         };
       }
 
+      var mostRecentDay = _.find(basicsData.days, {type: 'mostRecent'}).date;
+
       for (var type in basicsData.data) {
         var typeObj = basicsData.data[type];
-        if (_.includes(['bolus', 'reservoirChange'], type)) {
+        if (_.includes(['basal', 'bolus', 'reservoirChange'], type)) {
           typeObj.cf = crossfilter(typeObj.data);
           typeObj.byLocalDate = typeObj.cf.dimension(getLocalDate);
           var classifier = classifiers[type];
@@ -311,13 +313,21 @@ module.exports = function(bgClasses) {
           fsTypeObj.dataByDate = fsDataByDateHash;
         }
 
-        if (_.includes(['bolus'], type)) {
+        if (_.includes(['basal', 'bolus'], type)) {
+          // NB: for basals, the totals and avgPerDay are basal *segments*
+          // not a particular useful metric!!!
           var section = _.find(basicsData.sections, findSectionContainingType(type));
           var tags = _.rest(_.pluck(section.selectorOptions, 'key'));
           var summary = {total: Object.keys(typeObj.dataByDate)
             .reduce(reduceTotalByDate(typeObj), 0)};
           _.each(tags, summarizeTag(typeObj, summary, summary.total));
-          summary.avgPerDay = summary.total/Object.keys(typeObj.dataByDate).length;
+          var mostRecentTotal = typeObj.dataByDate[mostRecentDay] ?
+            typeObj.dataByDate[mostRecentDay].total : 0;
+          var numDaysExcludingMostRecent = typeObj.dataByDate[mostRecentDay] ?
+            Object.keys(typeObj.dataByDate).length - 1 : Object.keys(typeObj.dataByDate).length;
+          // TODO: if we end up using this, do we care that this averages only over # of days that *have* data?
+          // e.g., if you have a random day in the middle w/no boluses, that day (that 0) will be excluded from average
+          summary.avgPerDay = (summary.total - mostRecentTotal)/numDaysExcludingMostRecent;
           typeObj.summary = summary;
         }
       }
@@ -326,18 +336,40 @@ module.exports = function(bgClasses) {
       var fingerstickData = basicsData.data.fingerstick;
       var fsSummary = {total: 0};
       _.each(['calibration', 'smbg'], function(fsCategory) {
-        fsSummary[fsCategory] = Object.keys(fingerstickData[fsCategory].dataByDate)
+        fsSummary[fsCategory] = {total: Object.keys(fingerstickData[fsCategory].dataByDate)
           .reduce(function(p, date) {
             var dateData = fingerstickData[fsCategory].dataByDate[date];
             return p + (dateData.total || dateData.count);
-          }, 0);
-        fsSummary.total += fsSummary[fsCategory];
+          }, 0)};
+        fsSummary.total += fsSummary[fsCategory].total;
       });
       fingerstickData.summary = fsSummary;
       var fsTags = _.pluck(_.filter(fsSection.selectorOptions, function(opt) {
         return opt.path === 'smbg' && !opt.primary;
       }), 'key');
-      _.each(fsTags, summarizeTag(fingerstickData.smbg, fsSummary, fsSummary.smbg));
+
+
+      function summarizeFsTag(typeObj, summary, total) {
+        return function(tag) {
+          summary.smbg[tag] = {count: Object.keys(typeObj.dataByDate)
+            .reduce(function(p, date) {
+              return p + (typeObj.dataByDate[date].subtotals[tag] || 0);
+            }, 0)};
+          summary.smbg[tag].percentage = summary.smbg[tag].count/total;
+        };
+      }
+      _.each(fsTags, summarizeFsTag(fingerstickData.smbg, fsSummary, fsSummary.smbg.total));
+      var smbgSummary = fingerstickData.summary.smbg;
+      var smbgData = fingerstickData.smbg;
+      var mostRecentSmbgTotal = smbgData.dataByDate[mostRecentDay] ?
+        smbgData.dataByDate[mostRecentDay].total : 0;
+      var numDaysExcludingMostRecentSmbg = smbgData.dataByDate[mostRecentDay] ?
+        Object.keys(smbgData.dataByDate).length - 1 : Object.keys(smbgData.dataByDate).length;
+      smbgSummary.avgPerDay = (smbgSummary.total - mostRecentSmbgTotal)/numDaysExcludingMostRecentSmbg;
+
+      // TODO: remove later!
+      basicsData.data.basal.summary.foo = 0;
+      basicsData.data.basal.summary.scheduleChange = {count: 10};
     }
   };
 };

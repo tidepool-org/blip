@@ -3,6 +3,8 @@ var _ = require('lodash');
 module.exports = {
   /**
    * Get the count value associated with this day
+   *
+   * @param {String|null} selected subtotal type/tag
    * 
    * @return {Number}
    */
@@ -24,5 +26,21 @@ module.exports = {
       }
     }
     return dateData.total || 0;
+  },
+  /**
+   * Get the `path` to the relevant sub-section of data, if any
+   *
+   * @return {String}
+   */
+  getPathToSelected: function() {
+    var options = this.props.selectorOptions;
+    var selected = _.find(options, {selected: true});
+    if (selected) {
+      return (selected && selected.path) ? selected.path : null;
+    }
+    else {
+      var defaultOpt = _.find(options, {default: true});
+      return (defaultOpt && defaultOpt.path) ? defaultOpt.path : null;
+    }
   } 
 };

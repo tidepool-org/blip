@@ -26,14 +26,14 @@ var basicsActions = require('../../logic/actions');
 var SummaryGroup = React.createClass({
   propTypes: {
     data: React.PropTypes.object.isRequired,
-    options: React.PropTypes.array.isRequired,
-    sectionId: React.PropTypes.string.isRequired,
-    selectedSubtotal: React.PropTypes.string.isRequired
+    selectedSubtotal: React.PropTypes.string.isRequired,
+    selectorOptions: React.PropTypes.array.isRequired,
+    sectionId: React.PropTypes.string.isRequired
   },
   render: function() {
     var self = this;
 
-    var primaryOption = _.find(self.props.options, { primary: true });
+    var primaryOption = _.find(self.props.selectorOptions, { primary: true });
     var primaryElem = null;
     if (primaryOption) {
       primaryElem = this.renderInfo(primaryOption);
@@ -44,9 +44,9 @@ var SummaryGroup = React.createClass({
     }
 
     var otherOptions = _.filter(
-      self.props.options,
+      self.props.selectorOptions,
       function(row) { 
-        return row.key !== primaryOption.key;
+        return row.key !== primaryOption.key && (typeof row.active === 'undefined' || row.active);
       }
     );
 
@@ -61,39 +61,69 @@ var SummaryGroup = React.createClass({
       </div>
     );
   },
-  renderInfo: function(option, id, options) {
-    var self = this;
-
+  renderInfo: function(option) {
     if (typeof option.active !== 'undefined' && !option.active) {
       return (<div key={option.key} className='SummaryGroup-info SummaryGroup-info-blank'></div>);
     }
 
     var classes = classnames({
-      'SummaryGroup-info--selected': (option.key === self.props.selectedSubtotal),
+      'SummaryGroup-info--selected': (option.key === this.props.selectedSubtotal),
       'SummaryGroup-info-primary': option.primary,
       'SummaryGroup-info': !option.primary,
-      'SummaryGroup-info-tall': ( !option.primary && options.length <= 3 ),
-      'SummaryGroup-no-percentage': ( !option.primary && !option.percentage )
+	'SummaryGroup-info-tall': ( !option.primary && this.props.selectorOptions.length <= 3 ),
+	'SummaryGroup-no-percentage': ( !option.primary && !option.percentage )
     });
 
-    var value = (
+    var path = option.path;
+
+    var value;
+    if (option.key === 'total') {
+      if (path) {
+        value = this.props.data[path].total;
+      }
+      else {
+        value = this.props.data[option.key];
+      }
+    }
+    else {
+      if (path && path === option.key) {
+        value = this.props.data[path].total;
+      }
+      else if (path) {
+        value = this.props.data[path][option.key].count;
+      }
+      else {
+        value = this.props.data[option.key].count || 0;
+      }
+    }
+
+    var percentage;
+    if (option.percentage) {
+      if (path) {
+        percentage = this.props.data[path][option.key].percentage;
+      }
+      else {
+        percentage = this.props.data[option.key].percentage;
+      }
+    }
+
+    var valueElem = (
       <span className="SummaryGroup-option-count">
-        {option.key === 'total'? this.props.data[option.key] :
-          this.props.data[option.key].count || 0}
+        {value}
       </span>
     );
-    var percentage = (option.percentage) ? (
+    var percentageElem = (option.percentage) ? (
       <span className="SummaryGroup-option-percentage">
-        {d3.format('%')(this.props.data[option.key].percentage || 0)}
+        {d3.format('%')(percentage)}
       </span>
     ) : null;
 
     return (
       <div key={option.key} className={classes}
-        onClick={self.handleSelectSubtotal.bind(null, option.key)}>
+        onClick={this.handleSelectSubtotal.bind(null, option.key)}>
         <span className="SummaryGroup-option-label">{option.label}</span>
-        {percentage}
-        {value}
+        {percentageElem}
+        {valueElem}
       </div>
     );
   },

@@ -76,6 +76,17 @@
 			}
 		}
 
+		.Calendar-day--basal {
+			&.Calendar-day--HOVER {
+				background-color: @basal;
+				.Calendar-weekday();
+			}
+
+			circle {
+				fill: @basal;
+			}
+		}
+
 		.Calendar-day--reservoirChange {
 			&.Calendar-day--HOVER {
 				background-color: @infusion-day-color;
