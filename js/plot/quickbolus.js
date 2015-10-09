@@ -39,8 +39,8 @@ module.exports = function(pool, opts) {
   function bolus(selection) {
     opts.xScale = pool.xScale().copy();
     selection.each(function(currentData) {
-      // filter out boluses with wizard (assumption that boluses with joinKey are wizard)
-      currentData = _.filter(currentData, function(d) { if(!d.joinKey) { return d; }});
+      // filter out boluses with wizard
+      currentData = _.filter(currentData, function(d) { if(!d.wizard) { return d; }});
 
       drawBolus.annotations(_.filter(currentData, function(d) { return d.annotations; }));
 
