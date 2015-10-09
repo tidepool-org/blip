@@ -47,7 +47,12 @@ var BasicsChart = React.createClass({
     updateBasicsData: React.PropTypes.func.isRequired
   },
   _adjustSectionsBasedOnAvailableData: function(basicsData) {
-    // TODO: re-do this!
+    if (_.isEmpty(basicsData.data.reservoirChange.data)) {
+      var siteChangeSection = _.find(basicsData.sections, function(section) {
+        return section.type === 'reservoirChange';
+      });
+      siteChangeSection.active = false;
+    }
   },
   componentWillMount: function() {
     var basicsData = this.props.patientData.basicsData;
@@ -95,7 +100,7 @@ var BasicsChart = React.createClass({
       sections.push(section);
     }
     var column = _.sortBy(
-      _.where(sections, {column: columnSide, active: true}),
+      _.where(sections, {column: columnSide}),
       'index'
     );
 
