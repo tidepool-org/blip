@@ -177,16 +177,18 @@ module.exports = function(bgClasses) {
       function reduceAddMaker(classifier) {
         if (classifier) {
           return function reduceAdd(p, v) {
-            ++p.total;
             var tags = classifier(v);
-            _.each(tags, function(tag) {
-              if (p.subtotals[tag]) {
-                p.subtotals[tag] += 1;
-              }
-              else {
-                p.subtotals[tag] = 1;
-              }
-            });
+            if (!_.isEmpty(tags)) {
+              ++p.total;
+              _.each(tags, function(tag) {
+                if (p.subtotals[tag]) {
+                  p.subtotals[tag] += 1;
+                }
+                else {
+                  p.subtotals[tag] = 1;
+                }
+              });
+            }
             p.data.push(v);
             return p;
           };
@@ -203,11 +205,13 @@ module.exports = function(bgClasses) {
       function reduceRemoveMaker(classifier) {
         if (classifier) {
           return function reduceRemove(p, v) {
-            --p.total;
             var tags = classifier(v);
-            _.each(tags, function(tag) {
-              p.subtotals[tag] -= 1;
-            });
+            if (!_.isEmpty(tags)) {
+              --p.total;
+              _.each(tags, function(tag) {
+                p.subtotals[tag] -= 1;
+              });
+            }
             _.remove(p.data, function(d) {
               return d.id === v.id;
             });
@@ -270,6 +274,11 @@ module.exports = function(bgClasses) {
         };
       }
 
+      function findScheduleChangesForDay(dataForDate) {
+        var changes = _.compact(_.uniq(_.pluck(dataForDate.data, 'scheduleName'))).length - 1;
+        dataForDate.subtotals.scheduleChange = changes;
+      }
+
       var mostRecentDay = _.find(basicsData.days, {type: 'mostRecent'}).date;
 
       for (var type in basicsData.data) {
@@ -289,6 +298,9 @@ module.exports = function(bgClasses) {
             dataByDateHash[day.key] = day.value;
           }
           typeObj.dataByDate = dataByDateHash;
+        }
+        if (type === 'basal') {
+          _.each(typeObj.dataByDate, findScheduleChangesForDay);
         }
         if (_.includes(['calibration', 'smbg'], type)) {
           if (!basicsData.data.fingerstick) {
@@ -314,8 +326,8 @@ module.exports = function(bgClasses) {
         }
 
         if (_.includes(['basal', 'bolus'], type)) {
-          // NB: for basals, the totals and avgPerDay are basal *segments*
-          // not a particular useful metric!!!
+          // NB: for basals, the totals and avgPerDay are basal *events*
+          // that is, temps, suspends, & maybe schedule changes
           var section = _.find(basicsData.sections, findSectionContainingType(type));
           var tags = _.rest(_.pluck(section.selectorOptions, 'key'));
           var summary = {total: Object.keys(typeObj.dataByDate)
@@ -366,10 +378,6 @@ module.exports = function(bgClasses) {
       var numDaysExcludingMostRecentSmbg = smbgData.dataByDate[mostRecentDay] ?
         Object.keys(smbgData.dataByDate).length - 1 : Object.keys(smbgData.dataByDate).length;
       smbgSummary.avgPerDay = (smbgSummary.total - mostRecentSmbgTotal)/numDaysExcludingMostRecentSmbg;
-
-      // TODO: remove later!
-      basicsData.data.basal.summary.foo = 0;
-      basicsData.data.basal.summary.scheduleChange = {count: 10};
     }
   };
 };
