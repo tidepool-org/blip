@@ -32,18 +32,19 @@ module.exports = function(bgClasses) {
       var tags = [];
       var delivered = commonbolus.getDelivered(d);
       var programmed = commonbolus.getProgrammed(d);
-      var recommended = commonbolus.getRecommended(d);
       if (d.wizard && !_.isEmpty(d.wizard)) {
+        var recommended = commonbolus.getRecommended(d.wizard);
         tags.push('wizard');
         if (!isNaN(recommended)) {
           if (recommended > delivered) {
-            tags.push('underride');
+            tags.push('override');
           }
           else if (delivered > recommended) {
             tags.push('override');
           }
 
-          if (d.recommended.correction > 0 && d.recommended.carb === 0) {
+          if (d.wizard.recommended.correction > 0 &&
+              d.wizard.recommended.carb === 0) {
             tags.push('correction');
           }
         }

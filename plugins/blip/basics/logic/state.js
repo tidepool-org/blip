@@ -88,8 +88,8 @@ var basicsState = {
         { key: 'wizard', label: 'Calculator', percentage: true  },
         { key: 'manual', label: 'Manual', percentage: true  },
         { key: 'extended', label: 'Extended', percentage: true  },
+        { key: 'correction', label: 'Correction', percentage: true  },
         { key: 'override', label: 'Override', percentage: true  },
-        { key: 'underride', label: 'Underride', percentage: true  },
         { key: 'interrupted', label : 'Interrupted', percentage: true  }
       ],
       title: 'Bolusing',
