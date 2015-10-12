@@ -276,7 +276,7 @@ module.exports = function(bgClasses) {
 
       function findScheduleChangesForDay(dataForDate) {
         var changes = _.compact(_.uniq(_.pluck(dataForDate.data, 'scheduleName'))).length - 1;
-        dataForDate.subtotals.scheduleChange = changes;
+        dataForDate.subtotals.scheduleChange = changes < 0 ? 0 : changes;
       }
 
       var mostRecentDay = _.find(basicsData.days, {type: 'mostRecent'}).date;
@@ -323,6 +323,19 @@ module.exports = function(bgClasses) {
             fsDataByDateHash[fsDay.key] = fsDay.value;
           }
           fsTypeObj.dataByDate = fsDataByDateHash;
+        }
+
+        /*
+         * This is inelegant but necessary since reduceAdd will only
+         * add to the total basal events if there are tags matched for the day.
+         * (Schedule changes aren't counted as "tags".)
+         */
+        if (type === 'basal') {
+          _.each(typeObj.dataByDate, function(dateData) {
+            if (dateData.subtotals.scheduleChange !== 0) {
+              dateData.total += dateData.subtotals.scheduleChange;
+            }
+          });
         }
 
         if (_.includes(['basal', 'bolus'], type)) {
