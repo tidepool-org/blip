@@ -35,11 +35,11 @@ module.exports = function(bgClasses) {
       if (d.wizard && !_.isEmpty(d.wizard)) {
         var recommended = commonbolus.getRecommended(d.wizard);
         tags.push('wizard');
-        if (!isNaN(recommended) && (programmed === delivered)) {
-          if (recommended > delivered) {
+        if (!isNaN(recommended)) {
+          if (recommended > Math.max(delivered, programmed)) {
             tags.push('override');
           }
-          else if (delivered > recommended) {
+          else if (Math.max(delivered, programmed) > recommended) {
             tags.push('override');
           }
 
