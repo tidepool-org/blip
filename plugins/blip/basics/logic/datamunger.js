@@ -299,9 +299,11 @@ module.exports = function(bgClasses) {
           }
           typeObj.dataByDate = dataByDateHash;
         }
-        if (type === 'basal') {
-          _.each(typeObj.dataByDate, findScheduleChangesForDay);
-        }
+        // because we're disabling this feature for now
+        // see comment in state.js
+        // if (type === 'basal') {
+        //   _.each(typeObj.dataByDate, findScheduleChangesForDay);
+        // }
         if (_.includes(['calibration', 'smbg'], type)) {
           if (!basicsData.data.fingerstick) {
             basicsData.data.fingerstick = {};
@@ -330,13 +332,13 @@ module.exports = function(bgClasses) {
          * add to the total basal events if there are tags matched for the day.
          * (Schedule changes aren't counted as "tags".)
          */
-        if (type === 'basal') {
-          _.each(typeObj.dataByDate, function(dateData) {
-            if (dateData.subtotals.scheduleChange !== 0) {
-              dateData.total += dateData.subtotals.scheduleChange;
-            }
-          });
-        }
+        // if (type === 'basal') {
+        //   _.each(typeObj.dataByDate, function(dateData) {
+        //     if (dateData.subtotals.scheduleChange !== 0) {
+        //       dateData.total += dateData.subtotals.scheduleChange;
+        //     }
+        //   });
+        // }
 
         if (_.includes(['basal', 'bolus'], type)) {
           // NB: for basals, the totals and avgPerDay are basal *events*
