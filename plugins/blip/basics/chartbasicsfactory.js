@@ -53,6 +53,15 @@ var BasicsChart = React.createClass({
       });
       siteChangeSection.active = false;
     }
+    if (_.isEmpty(basicsData.data.calibration.data)) {
+      var fingerstickSection = _.find(basicsData.sections, function(section) {
+        return section.type === 'fingerstick';
+      });
+      var calibrationSelector = _.find(fingerstickSection.selectorOptions, function(option) {
+        return option.key === 'calibration';
+      });
+      calibrationSelector.active = false;
+    }
   },
   componentWillMount: function() {
     var basicsData = this.props.patientData.basicsData;

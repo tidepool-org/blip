@@ -46,7 +46,7 @@ var SummaryGroup = React.createClass({
     var otherOptions = _.filter(
       self.props.selectorOptions,
       function(row) {
-        return !row.primary && (typeof row.active === 'undefined' || row.active);
+        return !row.primary;
       }
     );
 
