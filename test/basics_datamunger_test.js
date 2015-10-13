@@ -306,15 +306,42 @@ describe('basics datamunger', function() {
       assert.isFunction(dm.reduceByDay);
     });
 
-    it('should build crossfilter utils for smbgs');
+    describe('crossfilter utils per datatype', function() {
+      var then = '2015-01-01T00:00:00.000Z';
+      var bd = {
+        data: {
+          basal: {data: [{type: 'basal', deliveryType: 'temp', time: then, displayOffset: 0}]},
+          bolus: {data: [{type: 'bolus', time: then, displayOffset: 0}]},
+          reservoirChange: {data: [{type: 'deviceEvent', subType: 'reservoirChange', time: then, displayOffset: 0}]}
+        },
+        days: [{date: '2015-01-01', type: 'past'}, {date: '2015-01-02', type: 'mostRecent'}]
+      };
+      dm.reduceByDay(bd);
+      var types = ['bolus', 'reservoirChange', 'basal'];
+      types.forEach(function(type) {
+        it('should build crossfilter utils for ' + type, function() {
+          expect(Object.keys(bd.data[type])).to.deep.equal(['data', 'cf', 'byLocalDate', 'dataByDate']);
+        });
+      });
+    });
 
-    it('should build crossfilter utils for calibrations');
-
-    it('should build crossfilter utils for boluses');
-
-    it('should build crossfilter utils for reservoirChanges');
-
-    it('should build crossfilter utils for basals');
+    describe('crossfilter utils for fingerstick section', function() {
+      var then = '2015-01-01T00:00:00.000Z';
+      var bd = {
+        data: {
+          smbg: {data: [{type: 'smbg', time: then, displayOffset: 0}]},
+          calibration: {data: [{type: 'deviceEvent', subType: 'calibration', time: then, displayOffset: 0}]}
+        },
+        days: [{date: '2015-01-01', type: 'past'}, {date: '2015-01-02', type: 'mostRecent'}]
+      };
+      dm.reduceByDay(bd);
+      var types = ['smbg', 'calibration'];
+      types.forEach(function(type) {
+        it('should build crossfilter utils in fingerstick.' + type, function() {
+          expect(Object.keys(bd.data.fingerstick[type])).to.deep.equal(['cf', 'byLocalDate', 'dataByDate']);
+        });
+      });
+    });
 
     it('should classify, subtotal, and summarize smbgs and calibrations together');
 
