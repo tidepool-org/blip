@@ -344,37 +344,23 @@ module.exports = function(bgClasses) {
           // NB: for basals, the totals and avgPerDay are basal *events*
           // that is, temps, suspends, & maybe schedule changes
           var section = _.find(basicsData.sections, findSectionContainingType(type));
-          var tags = _.rest(_.pluck(section.selectorOptions, 'key'));
-          var summary = {total: Object.keys(typeObj.dataByDate)
-            .reduce(reduceTotalByDate(typeObj), 0)};
-          _.each(tags, summarizeTag(typeObj, summary, summary.total));
-          var mostRecentTotal = typeObj.dataByDate[mostRecentDay] ?
-            typeObj.dataByDate[mostRecentDay].total : 0;
-          var numDaysExcludingMostRecent = typeObj.dataByDate[mostRecentDay] ?
-            Object.keys(typeObj.dataByDate).length - 1 : Object.keys(typeObj.dataByDate).length;
-          // TODO: if we end up using this, do we care that this averages only over # of days that *have* data?
-          // e.g., if you have a random day in the middle w/no boluses, that day (that 0) will be excluded from average
-          summary.avgPerDay = (summary.total - mostRecentTotal)/numDaysExcludingMostRecent;
-          typeObj.summary = summary;
+          // wrap this in an if mostly for testing convenience
+          if (section) {
+            var tags = _.rest(_.pluck(section.selectorOptions, 'key'));
+            var summary = {total: Object.keys(typeObj.dataByDate)
+              .reduce(reduceTotalByDate(typeObj), 0)};
+            _.each(tags, summarizeTag(typeObj, summary, summary.total));
+            var mostRecentTotal = typeObj.dataByDate[mostRecentDay] ?
+              typeObj.dataByDate[mostRecentDay].total : 0;
+            var numDaysExcludingMostRecent = typeObj.dataByDate[mostRecentDay] ?
+              Object.keys(typeObj.dataByDate).length - 1 : Object.keys(typeObj.dataByDate).length;
+            // TODO: if we end up using this, do we care that this averages only over # of days that *have* data?
+            // e.g., if you have a random day in the middle w/no boluses, that day (that 0) will be excluded from average
+            summary.avgPerDay = (summary.total - mostRecentTotal)/numDaysExcludingMostRecent;
+            typeObj.summary = summary;
+          }
         }
       }
-
-      var fsSection = _.find(basicsData.sections, findSectionContainingType('fingerstick'));
-      var fingerstickData = basicsData.data.fingerstick;
-      var fsSummary = {total: 0};
-      _.each(['calibration', 'smbg'], function(fsCategory) {
-        fsSummary[fsCategory] = {total: Object.keys(fingerstickData[fsCategory].dataByDate)
-          .reduce(function(p, date) {
-            var dateData = fingerstickData[fsCategory].dataByDate[date];
-            return p + (dateData.total || dateData.count);
-          }, 0)};
-        fsSummary.total += fsSummary[fsCategory].total;
-      });
-      fingerstickData.summary = fsSummary;
-      var fsTags = _.pluck(_.filter(fsSection.selectorOptions, function(opt) {
-        return opt.path === 'smbg' && !opt.primary;
-      }), 'key');
-
 
       function summarizeFsTag(typeObj, summary, total) {
         return function(tag) {
@@ -385,14 +371,33 @@ module.exports = function(bgClasses) {
           summary.smbg[tag].percentage = summary.smbg[tag].count/total;
         };
       }
-      _.each(fsTags, summarizeFsTag(fingerstickData.smbg, fsSummary, fsSummary.smbg.total));
-      var smbgSummary = fingerstickData.summary.smbg;
-      var smbgData = fingerstickData.smbg;
-      var mostRecentSmbgTotal = smbgData.dataByDate[mostRecentDay] ?
-        smbgData.dataByDate[mostRecentDay].total : 0;
-      var numDaysExcludingMostRecentSmbg = smbgData.dataByDate[mostRecentDay] ?
-        Object.keys(smbgData.dataByDate).length - 1 : Object.keys(smbgData.dataByDate).length;
-      smbgSummary.avgPerDay = (smbgSummary.total - mostRecentSmbgTotal)/numDaysExcludingMostRecentSmbg;
+
+      var fsSection = _.find(basicsData.sections, findSectionContainingType('fingerstick'));
+      // wrap this in an if mostly for testing convenience
+      if (fsSection) {
+        var fingerstickData = basicsData.data.fingerstick;
+        var fsSummary = {total: 0};
+        _.each(['calibration', 'smbg'], function(fsCategory) {
+          fsSummary[fsCategory] = {total: Object.keys(fingerstickData[fsCategory].dataByDate)
+            .reduce(function(p, date) {
+              var dateData = fingerstickData[fsCategory].dataByDate[date];
+              return p + (dateData.total || dateData.count);
+            }, 0)};
+          fsSummary.total += fsSummary[fsCategory].total;
+        });
+        fingerstickData.summary = fsSummary;
+        var fsTags = _.pluck(_.filter(fsSection.selectorOptions, function(opt) {
+          return opt.path === 'smbg' && !opt.primary;
+        }), 'key');
+        _.each(fsTags, summarizeFsTag(fingerstickData.smbg, fsSummary, fsSummary.smbg.total));
+        var smbgSummary = fingerstickData.summary.smbg;
+        var smbgData = fingerstickData.smbg;
+        var mostRecentSmbgTotal = smbgData.dataByDate[mostRecentDay] ?
+          smbgData.dataByDate[mostRecentDay].total : 0;
+        var numDaysExcludingMostRecentSmbg = smbgData.dataByDate[mostRecentDay] ?
+          Object.keys(smbgData.dataByDate).length - 1 : Object.keys(smbgData.dataByDate).length;
+        smbgSummary.avgPerDay = (smbgSummary.total - mostRecentSmbgTotal)/numDaysExcludingMostRecentSmbg;
+      }
     }
   };
 };
