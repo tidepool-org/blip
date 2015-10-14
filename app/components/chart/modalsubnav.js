@@ -17,7 +17,7 @@
  */
 
 var React = require('react');
-var cx = require('react/lib/cx');
+var cx = require('classnames');
 
 var d3 = window.d3;
 

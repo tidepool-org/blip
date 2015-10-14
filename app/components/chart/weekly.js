@@ -129,11 +129,11 @@ var Weekly = React.createClass({
     initialDatetimeLocation: React.PropTypes.string.isRequired,
     patientData: React.PropTypes.object.isRequired,
     onClickRefresh: React.PropTypes.func.isRequired,
+    onSwitchToBasics: React.PropTypes.func.isRequired,
     onSwitchToDaily: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToWeekly: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
-    updateChartPrefs: React.PropTypes.func.isRequired,
     updateDatetimeLocation: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired
   },
@@ -198,6 +198,7 @@ var Weekly = React.createClass({
         iconNext={'icon-next-up'}
         iconMostRecent={'icon-most-recent-up'}
         onClickBack={this.handlePanBack}
+        onClickBasics={this.props.onSwitchToBasics}
         onClickModal={this.handleClickModal}
         onClickMostRecent={this.handleClickMostRecent}
         onClickNext={this.handlePanForward}

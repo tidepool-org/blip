@@ -16,7 +16,7 @@
 var React = require('react');
 var _ = require('lodash');
 var utils = require('../../core/utils');
-var cx = require('react/lib/cx');
+var cx = require('classnames');
 
 var personUtils = require('../../core/personutils');
 

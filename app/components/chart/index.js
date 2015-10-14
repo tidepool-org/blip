@@ -14,6 +14,7 @@
  */
 
 module.exports = {
+  basics: require('./basics'),
   daily: require('./daily'),
   weekly: require('./weekly'),
   modal: require('./modal'),
