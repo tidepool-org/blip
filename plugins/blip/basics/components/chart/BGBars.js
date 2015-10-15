@@ -14,9 +14,15 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+console.log('BGBars before script', window.d3);
+require('script!d3/d3.min.js');
+require('script!d3.chart/d3.chart.min.js');
+console.log('BGBars after script', window.d3);
 
 var _ = require('lodash');
+
 var d3 = window.d3;
+
 
 d3.chart('Basics-BGBars', {
   initialize: function() {

@@ -1,4 +1,3 @@
-/** @jsx React.DOM */
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -19,6 +18,7 @@ var _ = require('lodash');
 var bows = require('bows');
 var moment = require('moment');
 var React = require('react');
+var ReactDOM = require('react-dom');
 
 // tideline dependencies & plugins
 var chartWeeklyFactory = require('../../plugins/blip').twoweek;
@@ -97,6 +97,9 @@ var Weekly = React.createClass({
       );
     /* jshint ignore:end */
   },
+  componentDidMount: function() {
+    console.log(this.refs);
+  },
   formatDate: function(datetime) {
     return moment(datetime).utc().format('MMMM D');
   },
@@ -173,8 +176,9 @@ var WeeklyChart = React.createClass({
     onTransition: React.PropTypes.func.isRequired
   },
   componentDidMount: function() {
-    this.mountChart(this.getDOMNode());
+    this.mountChart(ReactDOM.findDOMNode(this));
     this.initializeChart(this.props.patientData, this.props.initialDatetimeLocation);
+    this.bindEvents();
   },
   componentWillUnmount: function() {
     this.unmountChart();
@@ -182,7 +186,6 @@ var WeeklyChart = React.createClass({
   mountChart: function(node, chartOpts) {
     this.log('Mounting...');
     this.chart = chartWeeklyFactory(node, _.pick(this.props, this.chartOpts));
-    this.bindEvents();
   },
   unmountChart: function() {
     this.log('Unmounting...');

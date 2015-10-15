@@ -1,4 +1,3 @@
-/** @jsx React.DOM */
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -18,6 +17,7 @@
 var _ = require('lodash');
 var bows = require('bows');
 var React = require('react');
+var ReactDOM = require('react-dom');
 
 // tideline dependencies & plugins
 var chartSettingsFactory = require('../../plugins/blip').settings;
@@ -102,7 +102,7 @@ var SettingsChart = React.createClass({
     patientData: React.PropTypes.object.isRequired,
   },
   componentDidMount: function() {
-    this.mountChart(this.getDOMNode());
+    this.mountChart(ReactDOM.findDOMNode(this));
     this.initializeChart(this.props.patientData);
   },
   componentWillUnmount: function() {

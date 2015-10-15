@@ -1,4 +1,3 @@
-/** @jsx React.DOM */
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -19,6 +18,7 @@ var _ = require('lodash');
 var bows = require('bows');
 var moment = require('moment');
 var React = require('react');
+var ReactDOM = require('react-dom');
 
 // tideline dependencies & plugins
 var chartDailyFactory = require('../../plugins/blip').oneday;
@@ -158,15 +158,15 @@ var DailyChart = React.createClass({
   componentDidMount: function() {
     this.mountChart();
     this.initializeChart(this.props.initialDatetimeLocation);
+    this.bindEvents();
   },
   componentWillUnmount: function() {
     this.unmountChart();
   },
   mountChart: function() {
     this.log('Mounting...');
-    this.chart = chartDailyFactory(this.getDOMNode(), _.pick(this.props, this.chartOpts))
+    this.chart = chartDailyFactory(ReactDOM.findDOMNode(this), _.pick(this.props, this.chartOpts))
       .setupPools();
-    this.bindEvents();
   },
   unmountChart: function() {
     this.log('Unmounting...');
