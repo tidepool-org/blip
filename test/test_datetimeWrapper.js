@@ -15,8 +15,8 @@
 
 'use strict';
 
-var salinity = require('salinity');
-var expect = salinity.expect;
+var chai = require('chai');
+var expect = chai.expect;
 var testMoment = require('moment-timezone');
 
 describe('sundial', function() {
