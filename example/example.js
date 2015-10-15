@@ -253,5 +253,5 @@ ReactDOM.render(
   /* jshint ignore:start */
   <Example/>,
   /* jshint ignore:end */
-  document.body
+  document.getElementById('app')
 );
