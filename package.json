@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "test": "./node_modules/karma/bin/karma start",
+    "test-watch": "./node_modules/karma/bin/karma start --single-run false",
     "start": "webpack-dev-server --devtool eval-source-map --cache --colors --progress --port 3000",
     "build": "npm run build-app && npm run build-config",
     "build-app": "node buildapp",
@@ -61,6 +62,7 @@
     "mocha-loader": "0.7.1",
     "moment": "2.9.0",
     "phantomjs": "1.9.17",
+    "react-addons-test-utils": "0.14.0",
     "react-tools": "0.13.3",
     "rewire": "2.3.4",
     "rewire-webpack": "1.0.0",
