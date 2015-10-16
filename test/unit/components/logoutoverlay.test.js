@@ -1,4 +1,4 @@
-/** @jsx React.DOM */
+
 
 /* global chai */
 window.config = {};
