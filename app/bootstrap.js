@@ -48,6 +48,15 @@ appContext.trackMetric = function() {
   return appContext.api.metrics.track.apply(appContext.api.metrics, args);
 };
 
+appContext.props = {
+  log: appContext.log,
+  api: appContext.api,
+  personUtils: appContext.personUtils,
+  router: appContext.router,
+  trackMetric: appContext.trackMetric,
+  DEBUG: appContext.DEBUG
+};
+
 appContext.useMock = function(mock) {
   this.mock = mock;
   this.api = mock.patchApi(this.api);
@@ -86,30 +95,6 @@ appContext.init = function(callback) {
   beginInit();
 };
 
-var Bootstrap = React.createClass({
-  childContextTypes: {
-    log: React.PropTypes.func.isRequired,
-    api: React.PropTypes.object.isRequired,
-    router: React.PropTypes.object.isRequired,
-    personUtils: React.PropTypes.object.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
-    DEBUG: React.PropTypes.bool.isRequired
-  },
-  getChildContext: function() {
-    return {
-      log: appContext.log,
-      api: appContext.api,
-      router: appContext.router,
-      personUtils: appContext.personUtils,
-      trackMetric: appContext.trackMetric,
-      DEBUG: appContext.DEBUG
-    };
-  },
-  render: function() {
-    return <AppComponent />;
-  }
-});
-
 /**
  * Application start function. This is what should be called
  * by anything wanting to start Blip and bootstrap to the DOM
@@ -125,7 +110,7 @@ appContext.start = function() {
   this.init(function() {
     self.log('Starting app...');
     self.component = React.render(
-      <Bootstrap />,
+      <AppComponent {...appContext.props} />,
       document.getElementById('app')
     );
 

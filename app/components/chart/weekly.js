@@ -47,7 +47,7 @@ var WeeklyChart = React.createClass({
     onSelectSMBG: React.PropTypes.func.isRequired,
     onTransition: React.PropTypes.func.isRequired
   },
-  componentDidMount: function() {
+  mount: function() {
     this.mountChart(this.getDOMNode());
     this.initializeChart(this.props.patientData, this.props.initialDatetimeLocation);
   },
@@ -144,6 +144,9 @@ var Weekly = React.createClass({
       showingValues: false,
       title: ''
     };
+  },
+  componentDidMount:function () {
+    this.refs.chart.mount();
   },
   render: function() {
     

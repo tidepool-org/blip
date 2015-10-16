@@ -21,9 +21,8 @@ describe('Messages', function () {
       var elem = React.createElement(Messages, props);
       var render = TestUtils.renderIntoDocument(elem);
 
-      expect(console.warn.calledWith('Warning: Required prop `timePrefs` was not specified in `Messages`.')).to.equal(true);
-      expect(console.warn.calledWith('Warning: Required prop `timePrefs` was not specified in `MessageForm`. Check the render method of `Messages`.')).to.equal(true);
-      expect(console.warn.callCount).to.equal(2);
+      expect(console.warn.calledWith('Warning: Failed propType: Required prop `timePrefs` was not specified in `Messages`.')).to.equal(true);
+      expect(console.warn.callCount).to.equal(1);
     });
 
     it('should render without problems with required props are present', function () {

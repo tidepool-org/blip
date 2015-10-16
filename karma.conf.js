@@ -7,7 +7,7 @@ var defineEnvPlugin = new webpack.DefinePlugin({
 
 module.exports = function (config) {
   config.set({
-    browsers: [ 'PhantomJS' ], // Use PhantomJS for now (@gordyd - I'm using a VM)
+    browsers: [ 'PhantomJS', 'Chrome' ], // Use PhantomJS for now (@gordyd - I'm using a VM)
     captureTimeout: 60000,
     browserNoActivityTimeout: 60000, // We need to accept that Webpack may take a while to build!
     singleRun: true,
@@ -23,7 +23,7 @@ module.exports = function (config) {
     webpack: { // Simplified Webpack configuration
       module: {
         loaders: [
-          {test: /\.js$/, loader: 'jsx-loader'},
+          {test: /\.js$/, exclude: /(node_modules)/, loader: 'babel-loader'},
           {test: /\.less$/, loader: 'style-loader!css-loader!autoprefixer-loader!less-loader'},
           {test: /\.gif$/, loader: 'url-loader?limit=10000&mimetype=image/gif'},
           {test: /\.jpg$/, loader: 'url-loader?limit=10000&mimetype=image/jpg'},

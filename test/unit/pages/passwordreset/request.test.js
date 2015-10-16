@@ -18,10 +18,9 @@ describe('RequestPasswordReset', function () {
     it('should console.warn when required props are missing', function () {
       console.warn = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<RequestPasswordReset />);
-      expect(console.warn.callCount).to.equal(3);
-      expect(console.warn.calledWith('Warning: Required prop `trackMetric` was not specified in `RequestPasswordReset`.')).to.equal(true);
-      expect(console.warn.calledWith('Warning: Required prop `onSubmit` was not specified in `RequestPasswordReset`.')).to.equal(true);
-      expect(console.warn.calledWith('Warning: Required prop `trackMetric` was not specified in `LoginNav`. Check the render method of `RequestPasswordReset`.')).to.equal(true);
+      expect(console.warn.callCount).to.equal(2);
+      expect(console.warn.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `RequestPasswordReset`.')).to.equal(true);
+      expect(console.warn.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `RequestPasswordReset`.')).to.equal(true);
     });
 
     it('should render without problems when required props are set', function () {
