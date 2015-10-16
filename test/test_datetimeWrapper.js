@@ -15,8 +15,8 @@
 
 'use strict';
 
-var salinity = require('salinity');
-var expect = salinity.expect;
+var chai = require('chai');
+var expect = chai.expect;
 var testMoment = require('moment-timezone');
 
 describe('sundial', function() {
@@ -278,18 +278,19 @@ describe('sundial', function() {
 
     describe('findTimeFromDeviceTimeAndOffsets', function() {
       it('should just add `.000Z` when all offsets are 0', function() {
-        var ts = '2013-03-06T10:13:00';
-        var res = datetimeWrapper.findTimeFromDeviceTimeAndOffsets(new Date(ts), 0, 0);
-        expect(res.toISOString()).to.equal(ts + '.000Z');
+        var ts = '2013-03-06T10:13:00.000Z';
+        var jsDate = Date.UTC(2013,2,6,10,13,0);
+        var res = datetimeWrapper.findTimeFromDeviceTimeAndOffsets(jsDate, 0, 0);
+        expect(res.toISOString()).to.equal(ts);
       });
 
       it('should yield a UTC timestamp such that time + timezoneOffset + conversionOffset = deviceTime', function() {
-        var ts = '2014-01-01T00:00:00';
-        var res1 = datetimeWrapper.findTimeFromDeviceTimeAndOffsets(new Date(ts), 0, -120000);
+        var jsDate = Date.UTC(2014,0,1,0,0,0);
+        var res1 = datetimeWrapper.findTimeFromDeviceTimeAndOffsets(new Date(jsDate), 0, -120000);
         expect(res1.toISOString()).to.equal('2014-01-01T00:02:00.000Z');
-        var res2 = datetimeWrapper.findTimeFromDeviceTimeAndOffsets(new Date(ts), -600, 0);
+        var res2 = datetimeWrapper.findTimeFromDeviceTimeAndOffsets(new Date(jsDate), -600, 0);
         expect(res2.toISOString()).to.equal('2014-01-01T10:00:00.000Z');
-        var res3 = datetimeWrapper.findTimeFromDeviceTimeAndOffsets(new Date(ts), -480, -120000);
+        var res3 = datetimeWrapper.findTimeFromDeviceTimeAndOffsets(new Date(jsDate), -480, -120000);
         expect(res3.toISOString()).to.equal('2014-01-01T08:02:00.000Z');
       });
     });

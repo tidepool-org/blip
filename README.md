@@ -34,3 +34,9 @@ Run unit tests with:
 ```bash
 $ npm test
 ```
+
+Run the tests in-browser locally with:
+
+```bash
+$ npm run browser-tests
+```
