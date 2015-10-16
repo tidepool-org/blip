@@ -20,8 +20,8 @@ describe('MessageForm', function () {
   });
 
   describe('render', function() {
-    it('should console.warn when required props are missing', function () {
-      console.warn = sinon.stub();
+    it('should console.error when required props are missing', function () {
+      console.error = sinon.stub();
       var props = {
         formFields : {},
         messagePrompt : '',
@@ -32,8 +32,8 @@ describe('MessageForm', function () {
       };
       var elem = React.createElement(MessageForm, props);
       var render = TestUtils.renderIntoDocument(elem);
-      expect(console.warn.calledWith('Warning: Failed propType: Required prop `timePrefs` was not specified in `MessageForm`.')).to.equal(true);
-      expect(console.warn.callCount).to.equal(1);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `timePrefs` was not specified in `MessageForm`.')).to.equal(true);
+      expect(console.error.callCount).to.equal(1);
     });
   });
 

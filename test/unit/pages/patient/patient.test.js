@@ -10,7 +10,7 @@ var PatientTeam = require('../../../../app/pages/patient/patientteam');
 describe('Patient', function () {
   describe('getInitialState', function() {
     it('should return an object when showModalOverlay is false', function() {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         trackMetric: function() {}
       };
@@ -21,21 +21,21 @@ describe('Patient', function () {
       expect(Object.keys(initialState).length).to.equal(2);
       expect(initialState.showModalOverlay).to.equal(false);
       expect(initialState.dialog).to.equal('');
-      expect(console.warn.callCount).to.equal(0);
+      expect(console.error.callCount).to.equal(0);
     });
   });
 
   describe('render', function() {
-    it('should console.warn when trackMetric not set', function () {
-      console.warn = sinon.stub();
+    it('should console.error when trackMetric not set', function () {
+      console.error = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<Patient/>);
 
       expect(elem).to.be.ok;
-      expect(console.warn.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `Patient`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `Patient`.')).to.equal(true);
     });
 
-    it('should not console.warn when trackMetric set', function() {
-      console.warn = sinon.stub();
+    it('should not console.error when trackMetric set', function() {
+      console.error = sinon.stub();
       var props = {
         trackMetric: function() {}
       };
@@ -43,13 +43,13 @@ describe('Patient', function () {
       var elem = TestUtils.renderIntoDocument(patientElem);
 
       expect(elem).to.be.ok;
-      expect(console.warn.callCount).to.equal(0);
+      expect(console.error.callCount).to.equal(0);
     });
   });
 
   describe('renderPatientTeam', function() {
     it('should not render when user and patient ids are different', function() {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         user: {
           userid: 'foo'
@@ -68,11 +68,11 @@ describe('Patient', function () {
       };
 
       expect(getShareSection).to.throw(Error);
-      expect(console.warn.callCount).to.equal(0);
+      expect(console.error.callCount).to.equal(0);
     });
 
     it('should not render when shareOnly is false', function() {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         user: {
           userid: 'foo'
@@ -91,11 +91,11 @@ describe('Patient', function () {
       };
 
       expect(getShareSection).to.throw(Error);
-      expect(console.warn.callCount).to.equal(0);
+      expect(console.error.callCount).to.equal(0);
     });
 
     it('should render when shareOnly is true', function() {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         user: {
           userid: 'foo'
@@ -112,11 +112,11 @@ describe('Patient', function () {
       var share = TestUtils.findRenderedDOMComponentWithClass(elem, 'PatientPage-teamSection');
 
       expect(share).to.be.ok;
-      expect(console.warn.callCount).to.equal(0);
+      expect(console.error.callCount).to.equal(0);
     });
 
     it('should transfer all props to patient-team', function() {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         onCancelInvite: function() {},
         onChangeMemberPermissions: function() {},
@@ -150,7 +150,7 @@ describe('Patient', function () {
       expect(team.props.pendingInvites.length).to.equal(3);
       expect(team.props.user.userid).to.equal('foo');
       expect(team.props.trackMetric).to.be.ok;
-      expect(console.warn.callCount).to.equal(0);
+      expect(console.error.callCount).to.equal(0);
     });
   });
 });

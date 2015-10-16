@@ -16,13 +16,13 @@ describe('InputGroup', function () {
 
   describe('render', function() {
     it('should render without problems when required props are present', function () {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         trackMetric: sinon.stub()
       };
       var elem = React.createElement(InputGroup, props);
       var render = TestUtils.renderIntoDocument(elem);
-      expect(console.warn.callCount).to.equal(0);
+      expect(console.error.callCount).to.equal(0);
     });
   });
 });

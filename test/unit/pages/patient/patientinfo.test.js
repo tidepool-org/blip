@@ -10,8 +10,8 @@ var PatientInfo = require('../../../../app/pages/patient/patientinfo');
 describe('PatientInfo', function () {
 
   describe('render', function() {
-    it('should not console.warn when trackMetric set', function() {
-      console.warn = sinon.spy();
+    it('should not console.error when trackMetric set', function() {
+      console.error = sinon.spy();
       var props = {
         trackMetric: function() {}
       };
@@ -19,7 +19,7 @@ describe('PatientInfo', function () {
       var patientInfoElem = React.createElement(PatientInfo, props);
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
       expect(elem).to.be.ok;
-      expect(console.warn.callCount).to.equal(0);
+      expect(console.error.callCount).to.equal(0);
     });
   });
 
@@ -314,18 +314,6 @@ describe('PatientInfo', function () {
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
       // If patient is empty object
       // Easy way to check if the returned variable is an empty POJO
-      expect(Object.keys(elem.formValuesFromPatient(elem.props.patient)).length).to.equal(0);
-      // If patient is 0 (not an object)
-      elem.props.patient = 0;
-      expect(Object.keys(elem.formValuesFromPatient(elem.props.patient)).length).to.equal(0);
-      // If patient is false
-      elem.props.patient = false;
-      expect(Object.keys(elem.formValuesFromPatient(elem.props.patient)).length).to.equal(0);
-      // If patient is null
-      elem.props.patient = null;
-      expect(Object.keys(elem.formValuesFromPatient(elem.props.patient)).length).to.equal(0);
-      // If patient is undefined
-      delete elem.props.patient;
       expect(Object.keys(elem.formValuesFromPatient(elem.props.patient)).length).to.equal(0);
     });
 

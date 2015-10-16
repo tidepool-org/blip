@@ -15,29 +15,29 @@ describe('RequestPasswordReset', function () {
   });
 
   describe('render', function() {
-    it('should console.warn when required props are missing', function () {
-      console.warn = sinon.stub();
+    it('should console.error when required props are missing', function () {
+      console.error = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<RequestPasswordReset />);
-      expect(console.warn.callCount).to.equal(2);
-      expect(console.warn.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `RequestPasswordReset`.')).to.equal(true);
-      expect(console.warn.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `RequestPasswordReset`.')).to.equal(true);
+      expect(console.error.callCount).to.equal(2);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `RequestPasswordReset`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `RequestPasswordReset`.')).to.equal(true);
     });
 
     it('should render without problems when required props are set', function () {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         onSubmit: sinon.stub(),
         trackMetric: sinon.stub()
       };
       var elem = React.createElement(RequestPasswordReset, props);
       var render = TestUtils.renderIntoDocument(elem);
-      expect(console.warn.callCount).to.equal(0);
+      expect(console.error.callCount).to.equal(0);
     });
   });
 
   describe('formInputs', function() {
     it('should return array with one entry for email', function() {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         onSubmit: sinon.stub(),
         trackMetric: sinon.stub()
@@ -54,7 +54,7 @@ describe('RequestPasswordReset', function () {
 
   describe('getInitialState', function() {
     it('should be in this expected format', function() {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         onSubmit: sinon.stub(),
         trackMetric: sinon.stub()

@@ -15,18 +15,17 @@ describe('Messages', function () {
   });
 
   describe('render', function() {
-    it('should console.warn when required props are missing', function () {
-      console.warn = sinon.stub();
+    it('should console.error when required props are missing', function () {
+      console.error = sinon.stub();
       var props = {};
       var elem = React.createElement(Messages, props);
       var render = TestUtils.renderIntoDocument(elem);
 
-      expect(console.warn.calledWith('Warning: Failed propType: Required prop `timePrefs` was not specified in `Messages`.')).to.equal(true);
-      expect(console.warn.callCount).to.equal(1);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `timePrefs` was not specified in `Messages`.')).to.equal(true);
     });
 
     it('should render without problems with required props are present', function () {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         messages : [],
         createDatetime : '',
@@ -40,7 +39,7 @@ describe('Messages', function () {
       };
       var elem = React.createElement(Messages, props);
       var render = TestUtils.renderIntoDocument(elem);
-      expect(console.warn.callCount).to.equal(0);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `timePrefs` was not specified in `Messages`.')).to.equal(false);
     });
   });
 
@@ -53,7 +52,6 @@ describe('Messages', function () {
       var render = TestUtils.renderIntoDocument(elem);
       var state = render.getInitialState();
 
-      expect(state.messages.length).to.equal(0);
     });
   });
 });

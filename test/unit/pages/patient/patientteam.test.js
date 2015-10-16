@@ -10,16 +10,16 @@ describe('PatientTeam', function () {
   
 
   describe('render', function() {
-    it('should console.warn when trackMetric not set', function () {
-      console.warn = sinon.stub();
+    it('should console.error when trackMetric not set', function () {
+      console.error = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<PatientTeam/>);
 
       expect(elem).to.be.ok;
-      expect(console.warn.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `PatientTeam`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `PatientTeam`.')).to.equal(true);
     });
 
-    it('should not console.warn when trackMetric set', function() {
-      console.warn = sinon.stub();
+    it('should not console.error when trackMetric set', function() {
+      console.error = sinon.stub();
       var props = {
         trackMetric: function() {}
       };
@@ -27,13 +27,13 @@ describe('PatientTeam', function () {
       var elem = TestUtils.renderIntoDocument(patientElem);
 
       expect(elem).to.be.ok;
-      expect(console.warn.callCount).to.equal(0);
+      expect(console.error.callCount).to.equal(0);
     });
   });
 
   describe('getInitialState', function() {
     it('should return an object when showModalOverlay is false', function() {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         trackMetric: function() {}
       };
@@ -46,7 +46,7 @@ describe('PatientTeam', function () {
       expect(initialState.dialog).to.equal('');
       expect(initialState.invite).to.equal(false);
       expect(initialState.editing).to.equal(false);
-      expect(console.warn.callCount).to.equal(0);
+      expect(console.error.callCount).to.equal(0);
     });
   });
 });

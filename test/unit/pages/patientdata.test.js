@@ -30,15 +30,15 @@ describe('PatientData', function () {
 
   describe('render', function() {
     it('should warn when required props are not present', function() {
-      console.warn = sinon.spy();
+      console.error = sinon.spy();
       var elem = TestUtils.renderIntoDocument(<PatientData/>);
       expect(elem).to.be.ok;
-      expect(console.warn.callCount).to.equal(5);
-      expect(console.warn.calledWith('Warning: Failed propType: Required prop `timePrefs` was not specified in `PatientData`.')).to.equal(true);
-      expect(console.warn.calledWith('Warning: Failed propType: Required prop `fetchingPatient` was not specified in `PatientData`.')).to.equal(true);
-      expect(console.warn.calledWith('Warning: Failed propType: Required prop `fetchingPatientData` was not specified in `PatientData`.')).to.equal(true);
-      expect(console.warn.calledWith('Warning: Failed propType: Required prop `queryParams` was not specified in `PatientData`.')).to.equal(true);
-      expect(console.warn.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.callCount).to.equal(5);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `timePrefs` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingPatient` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingPatientData` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `queryParams` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `PatientData`.')).to.equal(true);
     });
 
     it ('should not warn when required props are set', function() {
@@ -53,11 +53,11 @@ describe('PatientData', function () {
         trackMetric: sinon.stub()
       };
 
-      console.warn = sinon.spy();
+      console.error = sinon.spy();
       // Try out using the spread props syntax in JSX
       var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
       expect(elem).to.be.ok;
-      expect(console.warn.callCount).to.equal(0);
+      expect(console.error.callCount).to.equal(0);
     });
 
     it ('should render the loading message and image when no data is present and fetchingPatient is true', function() {

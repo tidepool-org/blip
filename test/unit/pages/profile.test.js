@@ -15,27 +15,27 @@ describe('Profile', function () {
   });
 
   describe('render', function() {
-    it('should console.warn when required props are missing', function () {
-      console.warn = sinon.stub();
+    it('should console.error when required props are missing', function () {
+      console.error = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<Profile />);
-      expect(console.warn.callCount).to.equal(2);
+      expect(console.error.callCount).to.equal(2);
     });
 
     it('should render without problems when required props are set', function () {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         onSubmit: sinon.stub(),
         trackMetric: sinon.stub()
       };
       var elem = React.createElement(Profile, props);
       var render = TestUtils.renderIntoDocument(elem);
-      expect(console.warn.callCount).to.equal(0);
+      expect(console.error.callCount).to.equal(0);
     });
   });
 
   describe('getInitialState', function() {
     it('should return expected initial state', function() {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         onSubmit: sinon.stub(),
         trackMetric: sinon.stub(),

@@ -15,18 +15,18 @@ describe('Login', function () {
   });
 
   describe('render', function() {
-    it('should console.warn when required props are missing', function () {
-      console.warn = sinon.stub();
+    it('should console.error when required props are missing', function () {
+      console.error = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<Login />);
-      expect(console.warn.callCount).to.equal(4);
-      expect(console.warn.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `Login`.')).to.equal(true);
-      expect(console.warn.calledWith('Warning: Failed propType: Required prop `onSubmitSuccess` was not specified in `Login`.')).to.equal(true);
-      expect(console.warn.calledWith('Warning: Failed propType: Required prop `onSubmitNotAuthorized` was not specified in `Login`.')).to.equal(true);
-      expect(console.warn.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `Login`.')).to.equal(true);
+      expect(console.error.callCount).to.equal(4);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `Login`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmitSuccess` was not specified in `Login`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmitNotAuthorized` was not specified in `Login`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `Login`.')).to.equal(true);
     });
 
     it('should render without problems when required props are present', function () {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         trackMetric: sinon.stub(),
         onSubmit: sinon.stub(),
@@ -35,7 +35,7 @@ describe('Login', function () {
       };
       var elem = React.createElement(Login, props);
       var render = TestUtils.renderIntoDocument(elem);
-      expect(console.warn.callCount).to.equal(0);
+      expect(console.error.callCount).to.equal(0);
     });
   });
 });

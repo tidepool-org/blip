@@ -20,18 +20,18 @@ describe('PatientNew', function () {
 
   describe('render', function() {
     it('should warn when required props are not present', function() {
-      console.warn = sinon.spy();
+      console.error = sinon.spy();
       var elem = TestUtils.renderIntoDocument(<PatientNew/>);
       expect(elem).to.be.ok;
-      expect(console.warn.callCount).to.equal(2);
-      expect(console.warn.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `PatientNew`.')).to.equal(true);
-      expect(console.warn.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `PatientNew`.')).to.equal(true);
+      expect(console.error.callCount).to.equal(2);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `PatientNew`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `PatientNew`.')).to.equal(true);
     });
   });
 
   describe('getInitialState', function() {
     it('should be in this expected format', function() {
-      console.warn = sinon.spy();
+      console.error = sinon.spy();
       var elem = TestUtils.renderIntoDocument(<PatientNew/>);
       var initialState = elem.getInitialState();
       expect(initialState.working).to.equal(false);
@@ -52,7 +52,7 @@ describe('PatientNew', function () {
         trackMetric: sinon.stub()
       };
 
-      console.warn = sinon.spy();
+      console.error = sinon.spy();
       // Try out using the spread props syntax in JSX
       var elem = TestUtils.renderIntoDocument(<PatientNew {...props}/>);
 
@@ -67,7 +67,7 @@ describe('PatientNew', function () {
         trackMetric: sinon.stub()
       };
 
-      console.warn = sinon.spy();
+      console.error = sinon.spy();
       // Try out using the spread props syntax in JSX
       var elem = TestUtils.renderIntoDocument(<PatientNew {...props}/>);
 
@@ -82,7 +82,7 @@ describe('PatientNew', function () {
         trackMetric: sinon.stub()
       };
 
-      console.warn = sinon.spy();
+      console.error = sinon.spy();
       // Try out using the spread props syntax in JSX
       var elem = TestUtils.renderIntoDocument(<PatientNew {...props}/>);
 

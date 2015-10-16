@@ -34,12 +34,12 @@ describe('App', function () {
 
   describe('render', function() {
     it('should render without problems', function () {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       console.error = sinon.stub();
       
       var elem = TestUtils.renderIntoDocument(<App {...childContext} />);
       expect(elem).to.be.ok;
-      expect(console.warn.callCount).to.equal(0);
+      expect(console.error.callCount).to.equal(0);
       expect(console.error.callCount).to.equal(0);
       var app = TestUtils.findRenderedDOMComponentWithClass(elem, 'app');
       expect(app).to.be.ok;

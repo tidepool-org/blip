@@ -15,15 +15,15 @@ describe('Invitation', function () {
   });
 
   describe('render', function() {
-    it('should console.warn when required props are missing', function () {
-      console.warn = sinon.stub();
+    it('should console.error when required props are missing', function () {
+      console.error = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<Invitation />);
-      expect(console.warn.callCount).to.equal(4);
-      expect(console.warn.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `Invitation`.')).to.equal(true);
+      expect(console.error.callCount).to.equal(4);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `Invitation`.')).to.equal(true);
     });
 
     it('should render without problems when required props are present', function () {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         invitation: {
           creator: 'awesome'
@@ -34,7 +34,7 @@ describe('Invitation', function () {
       };
       var elem = React.createElement(Invitation, props);
       var render = TestUtils.renderIntoDocument(elem);
-      expect(console.warn.callCount).to.equal(0);
+      expect(console.error.callCount).to.equal(0);
     });
   });
 });

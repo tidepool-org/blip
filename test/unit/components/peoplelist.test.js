@@ -9,17 +9,17 @@ var PeopleList = require('../../../app/components/peoplelist');
 describe('PeopleList', function () {
   
   describe('render', function() {
-    it('should console.warn when required props not set', function () {
-      console.warn = sinon.stub();
+    it('should console.error when required props not set', function () {
+      console.error = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<PeopleList/>);
 
       expect(elem).to.be.ok;
-      expect(console.warn.callCount).to.equal(1);
-      expect(console.warn.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `PeopleList`.')).to.equal(true);
+      expect(console.error.callCount).to.equal(1);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `PeopleList`.')).to.equal(true);
     });
 
-    it('should not console.warn when trackMetric set', function() {
-      console.warn = sinon.stub();
+    it('should not console.error when trackMetric set', function() {
+      console.error = sinon.stub();
       var props = {
         trackMetric: function() {},
         patient: {}
@@ -28,13 +28,13 @@ describe('PeopleList', function () {
       var elem = TestUtils.renderIntoDocument(listElem);
 
       expect(elem).to.be.ok;
-      expect(console.warn.callCount).to.equal(0);
+      expect(console.error.callCount).to.equal(0);
     });
   });
 
   describe('getInitialState', function() {
     it('should return object with expected properties', function() {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         trackMetric: function() {},
         patient: {}
