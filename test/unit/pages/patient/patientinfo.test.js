@@ -2,7 +2,7 @@
 /* global chai */
 
 var React = require('react');
-var TestUtils = require('react/lib/ReactTestUtils');
+var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
 
 var PatientInfo = require('../../../../app/pages/patient/patientinfo');
