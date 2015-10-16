@@ -3,7 +3,7 @@
 /* global sinon */
 
 var React = require('react');
-var TestUtils = require('react/lib/ReactTestUtils');
+var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
 var rewire = require('rewire');
 var rewireModule = require('../../utils/rewireModule');
@@ -77,17 +77,15 @@ describe('App', function () {
       App.__set__('config', {VERSION: null});
 
       var elem = TestUtils.renderIntoDocument(<App {...childContext} />);
-      var footer = TestUtils.findRenderedDOMComponentWithClass(elem, 'footer');
-      var versionElems = TestUtils.scryRenderedDOMComponentsWithClass(footer, 'Navbar-version');
+      var versionElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'Navbar-version');
       expect(versionElems.length).to.equal(0);
     });
 
     it('should render version when version present in config', function () {
       App.__set__('config', {VERSION: 1.4});
       var elem = TestUtils.renderIntoDocument(<App {...childContext} />);
-      var footer = TestUtils.findRenderedDOMComponentWithClass(elem, 'footer');
-      var version = TestUtils.findRenderedDOMComponentWithClass(footer, 'Navbar-version');
-      expect(version).to.be.ok;
+      var versionElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'Navbar-version');
+      expect(versionElems.length).to.equal(1);
     });
   });
 });
