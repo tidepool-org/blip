@@ -282,6 +282,12 @@ To run the unit tests, use:
 $ npm test
 ```
 
+To run the unit tests in Chrome, use:
+
+```bash
+$ npm run browser-tests
+```
+
 ## Build and deployment
 
 The app is built as a static site in the `dist/` directory.
