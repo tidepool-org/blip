@@ -18,6 +18,7 @@
 var _ = require('lodash');
 var bows = require('bows');
 var React = require('react');
+var ReactDOM = require('react-dom');
 var sundial = require('sundial');
 
 // tideline dependencies & plugins
@@ -60,7 +61,7 @@ var DailyChart = React.createClass({
   },
   mountChart: function() {
     this.log('Mounting...');
-    this.chart = chartDailyFactory(this.getDOMNode(), _.pick(this.props, this.chartOpts))
+    this.chart = chartDailyFactory(ReactDOM.findDOMNode(this), _.pick(this.props, this.chartOpts))
       .setupPools();
     this.bindEvents();
   },

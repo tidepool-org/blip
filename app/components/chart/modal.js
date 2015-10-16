@@ -20,6 +20,7 @@ var bows = require('bows');
 var crossfilter = require('crossfilter');
 var d3 = window.d3;
 var React = require('react');
+var ReactDOM = require('react-dom');
 var sundial = require('sundial');
 
 var Header = require('./header');
@@ -81,7 +82,7 @@ var ModalChart = React.createClass({
   },
   mount: function() {
     this.log('Mounting...');
-    var el = this.getDOMNode();
+    var el = ReactDOM.findDOMNode(this);
     var timezone;
     if (!this.props.timePrefs.timezoneAware) {
       timezone = 'UTC';

@@ -18,6 +18,7 @@
 var _ = require('lodash');
 var bows = require('bows');
 var React = require('react');
+var ReactDOM = require('react-dom');
 var sundial = require('sundial');
 
 // tideline dependencies & plugins
@@ -48,7 +49,7 @@ var WeeklyChart = React.createClass({
     onTransition: React.PropTypes.func.isRequired
   },
   mount: function() {
-    this.mountChart(this.getDOMNode());
+    this.mountChart(ReactDOM.findDOMNode(this));
     this.initializeChart(this.props.patientData, this.props.initialDatetimeLocation);
   },
   componentWillUnmount: function() {

@@ -15,6 +15,7 @@
  */
 
 var React = require('react');
+var ReactDOM = require('react-dom');
 var bows = require('bows');
 var _ = require('lodash');
 
@@ -109,7 +110,7 @@ appContext.start = function() {
 
   this.init(function() {
     self.log('Starting app...');
-    self.component = React.render(
+    self.component = ReactDOM.render(
       <AppComponent {...appContext.props} />,
       document.getElementById('app')
     );
