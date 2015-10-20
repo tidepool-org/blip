@@ -168,7 +168,7 @@ module.exports = function(bgClasses) {
       });
       return infusionSiteHistory;
     },
-    reduceByDay: function(basicsData) {
+    _buildCrossfilterUtils: function(dataObj, type) {
 
       function getLocalDate(d) {
         return sundial.applyOffset(d.time, d.displayOffset).toISOString().slice(0,10);
@@ -249,6 +249,40 @@ module.exports = function(bgClasses) {
         }
       }
 
+      dataObj.byLocalDate = dataObj.cf.dimension(getLocalDate);
+      var classifier = classifiers[type];
+      var dataByLocalDate = dataObj.byLocalDate.group().reduce(
+        reduceAddMaker(classifier),
+        reduceRemoveMaker(classifier),
+        reduceInitialMaker(classifier)
+      ).all();
+      var dataByDateHash = {};
+      for (var j = 0; j < dataByLocalDate.length; ++j) {
+        var day = dataByLocalDate[j];
+        dataByDateHash[day.key] = day.value;
+      }
+      dataObj.dataByDate = dataByDateHash;
+    },
+    _summarizeTagFn: function(dataObj, summary) {
+      return function(tag) {
+        summary[tag] = {count: Object.keys(dataObj.dataByDate)
+          .reduce(function(p, date) {
+            return p + (dataObj.dataByDate[date].subtotals[tag] || 0);
+          }, 0)};
+        summary[tag].percentage = summary[tag].count/summary.total;
+      };
+    },
+    _averageExcludingMostRecentDay: function(dataObj, total, mostRecentDay) {
+      var mostRecentTotal = dataObj.dataByDate[mostRecentDay] ?
+        dataObj.dataByDate[mostRecentDay].total : 0;
+      var numDaysExcludingMostRecent = dataObj.dataByDate[mostRecentDay] ?
+        Object.keys(dataObj.dataByDate).length - 1 : Object.keys(dataObj.dataByDate).length;
+      // TODO: if we end up using this, do we care that this averages only over # of days that *have* data?
+      // e.g., if you have a random day in the middle w/no boluses, that day (that 0) will be excluded from average
+      return (total - mostRecentTotal)/numDaysExcludingMostRecent;
+    },
+    reduceByDay: function(basicsData) {
+
       function findSectionContainingType(type) {
         return function(section) {
           if (section.column === 'left') {
@@ -264,16 +298,6 @@ module.exports = function(bgClasses) {
         };
       }
 
-      function summarizeTag(typeObj, summary, total) {
-        return function(tag) {
-          summary[tag] = {count: Object.keys(typeObj.dataByDate)
-            .reduce(function(p, date) {
-              return p + (typeObj.dataByDate[date].subtotals[tag] || 0);
-            }, 0)};
-          summary[tag].percentage = summary[tag].count/total;
-        };
-      }
-
       function findScheduleChangesForDay(dataForDate) {
         var changes = _.compact(_.uniq(_.pluck(dataForDate.data, 'scheduleName'))).length - 1;
         dataForDate.subtotals.scheduleChange = changes < 0 ? 0 : changes;
@@ -285,19 +309,7 @@ module.exports = function(bgClasses) {
         var typeObj = basicsData.data[type];
         if (_.includes(['basal', 'bolus', 'reservoirChange'], type)) {
           typeObj.cf = crossfilter(typeObj.data);
-          typeObj.byLocalDate = typeObj.cf.dimension(getLocalDate);
-          var classifier = classifiers[type];
-          var dataByLocalDate = typeObj.byLocalDate.group().reduce(
-            reduceAddMaker(classifier),
-            reduceRemoveMaker(classifier),
-            reduceInitialMaker(classifier)
-          ).all();
-          var dataByDateHash = {};
-          for (var j = 0; j < dataByLocalDate.length; ++j) {
-            var day = dataByLocalDate[j];
-            dataByDateHash[day.key] = day.value;
-          }
-          typeObj.dataByDate = dataByDateHash;
+          this._buildCrossfilterUtils(typeObj, type);
         }
         // because we're disabling this feature for now
         // see comment in state.js
@@ -311,22 +323,11 @@ module.exports = function(bgClasses) {
           basicsData.data.fingerstick[type] = {
             cf: crossfilter(typeObj.data)
           };
-          var fsTypeObj = basicsData.data.fingerstick[type];
-          fsTypeObj.byLocalDate = fsTypeObj.cf.dimension(getLocalDate);
-          var fsDataByLocalDate;
-          fsDataByLocalDate = fsTypeObj.byLocalDate.group().reduce(
-            reduceAddMaker(classifiers[type]),
-            reduceRemoveMaker(classifiers[type]),
-            reduceInitialMaker(classifiers[type])
-          ).all();
-          var fsDataByDateHash = {};
-          for (var k = 0; k < fsDataByLocalDate.length; ++k) {
-            var fsDay = fsDataByLocalDate[k];
-            fsDataByDateHash[fsDay.key] = fsDay.value;
-          }
-          fsTypeObj.dataByDate = fsDataByDateHash;
+          this._buildCrossfilterUtils(basicsData.data.fingerstick[type], type);
         }
 
+        // because we're disabling this feature for now
+        // see comment in state.js
         /*
          * This is inelegant but necessary since reduceAdd will only
          * add to the total basal events if there are tags matched for the day.
@@ -340,36 +341,25 @@ module.exports = function(bgClasses) {
         //   });
         // }
 
+        // for basal and boluses, summarize tags and find avg events per day
         if (_.includes(['basal', 'bolus'], type)) {
           // NB: for basals, the totals and avgPerDay are basal *events*
-          // that is, temps, suspends, & maybe schedule changes
+          // that is, temps, suspends, & (not now, but someday) schedule changes
           var section = _.find(basicsData.sections, findSectionContainingType(type));
           // wrap this in an if mostly for testing convenience
           if (section) {
             var tags = _.rest(_.pluck(section.selectorOptions, 'key'));
             var summary = {total: Object.keys(typeObj.dataByDate)
               .reduce(reduceTotalByDate(typeObj), 0)};
-            _.each(tags, summarizeTag(typeObj, summary, summary.total));
-            var mostRecentTotal = typeObj.dataByDate[mostRecentDay] ?
-              typeObj.dataByDate[mostRecentDay].total : 0;
-            var numDaysExcludingMostRecent = typeObj.dataByDate[mostRecentDay] ?
-              Object.keys(typeObj.dataByDate).length - 1 : Object.keys(typeObj.dataByDate).length;
-            // TODO: if we end up using this, do we care that this averages only over # of days that *have* data?
-            // e.g., if you have a random day in the middle w/no boluses, that day (that 0) will be excluded from average
-            summary.avgPerDay = (summary.total - mostRecentTotal)/numDaysExcludingMostRecent;
+            _.each(tags, this._summarizeTagFn(typeObj, summary));
+            summary.avgPerDay = this._averageExcludingMostRecentDay(
+              typeObj,
+              summary.total,
+              mostRecentDay
+            );
             typeObj.summary = summary;
           }
         }
-      }
-
-      function summarizeFsTag(typeObj, summary, total) {
-        return function(tag) {
-          summary.smbg[tag] = {count: Object.keys(typeObj.dataByDate)
-            .reduce(function(p, date) {
-              return p + (typeObj.dataByDate[date].subtotals[tag] || 0);
-            }, 0)};
-          summary.smbg[tag].percentage = summary.smbg[tag].count/total;
-        };
       }
 
       var fsSection = _.find(basicsData.sections, findSectionContainingType('fingerstick'));
@@ -377,6 +367,8 @@ module.exports = function(bgClasses) {
       if (fsSection) {
         var fingerstickData = basicsData.data.fingerstick;
         var fsSummary = {total: 0};
+        // calculate the total events for each type that participates in the fingerstick section
+        // as well as an overall total
         _.each(['calibration', 'smbg'], function(fsCategory) {
           fsSummary[fsCategory] = {total: Object.keys(fingerstickData[fsCategory].dataByDate)
             .reduce(function(p, date) {
@@ -386,17 +378,17 @@ module.exports = function(bgClasses) {
           fsSummary.total += fsSummary[fsCategory].total;
         });
         fingerstickData.summary = fsSummary;
+        // now summarize tags and find avg events per day
         var fsTags = _.pluck(_.filter(fsSection.selectorOptions, function(opt) {
           return opt.path === 'smbg' && !opt.primary;
         }), 'key');
-        _.each(fsTags, summarizeFsTag(fingerstickData.smbg, fsSummary, fsSummary.smbg.total));
+        _.each(fsTags, this._summarizeTagFn(fingerstickData.smbg, fsSummary.smbg));
         var smbgSummary = fingerstickData.summary.smbg;
-        var smbgData = fingerstickData.smbg;
-        var mostRecentSmbgTotal = smbgData.dataByDate[mostRecentDay] ?
-          smbgData.dataByDate[mostRecentDay].total : 0;
-        var numDaysExcludingMostRecentSmbg = smbgData.dataByDate[mostRecentDay] ?
-          Object.keys(smbgData.dataByDate).length - 1 : Object.keys(smbgData.dataByDate).length;
-        smbgSummary.avgPerDay = (smbgSummary.total - mostRecentSmbgTotal)/numDaysExcludingMostRecentSmbg;
+        smbgSummary.avgPerDay = this._averageExcludingMostRecentDay(
+          fingerstickData.smbg,
+          smbgSummary.total,
+          mostRecentDay
+        );
       }
     }
   };
