@@ -301,6 +301,70 @@ describe('basics datamunger', function() {
     });
   });
 
+  describe('_summarizeTagFn', function() {
+    it('should be a function', function() {
+      assert.isFunction(dm._summarizeTagFn);
+    });
+
+    it('should return a function that can be used with _.each to summarize tags from subtotals', function() {
+      var dataObj = {
+        dataByDate: {
+          '2015-01-01': {
+            subtotals: {
+              foo: 2,
+              bar: 3
+            }
+          },
+          '2015-01-02': {
+            subtotals: {
+              foo: 10,
+              bar: 10
+            }
+          },
+          '2015-01-03': {
+            subtotals: {
+              foo: 0,
+              bar: 0
+            }
+          }
+        }
+      };
+      var summary = {total: 25};
+      _.each(['foo', 'bar'], dm._summarizeTagFn(dataObj, summary));
+      expect(summary).to.deep.equal({
+        total: 25,
+        foo: {count: 12, percentage: 0.48},
+        bar: {count: 13, percentage: 0.52}
+      });
+    });
+  });
+
+  describe('_averageExcludingMostRecentDay', function() {
+    it('should be a function', function() {
+      assert.isFunction(dm._averageExcludingMostRecentDay);
+    });
+
+    it('should calculate an average excluding the most recent day if data exists for it', function() {
+      var dataObj = {
+        dataByDate: {
+          '2015-01-01': {
+            total: 2
+          },
+          '2015-01-02': {
+            total: 9
+          },
+          '2015-01-03': {
+            total: 16
+          },
+          '2015-01-04': {
+            total: 1
+          }
+        }
+      };
+      expect(dm._averageExcludingMostRecentDay(dataObj, 28, '2015-01-04')).to.equal(9);
+    });
+  });
+
   describe('reduceByDay', function() {
     it('should be a function', function() {
       assert.isFunction(dm.reduceByDay);
@@ -342,11 +406,5 @@ describe('basics datamunger', function() {
         });
       });
     });
-
-    it('should classify, subtotal, and summarize smbgs and calibrations together');
-
-    it('should classify, subtotal, and summarize boluses');
-
-    it('should classify, subtotal, and summarize basals');
   });
 });
