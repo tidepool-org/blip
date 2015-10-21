@@ -131,21 +131,17 @@ describe('basics classifiers', function() {
       expect(classifier({value: 25, subType: 'manual'})).to.deep.equal(['manual']);
     });
 
-    it('should classify an smbg below the very-low threshold as `verylow` and `belowtarget`', function() {
-      expect(classifier({value: 5})).to.deep.equal(['meter', 'verylow', 'belowtarget']);
+    it('should classify an smbg below the very-low threshold as `verylow`', function() {
+      expect(classifier({value: 5})).to.deep.equal(['meter', 'verylow']);
     });
 
-    it('should classify an smbg above the very-low and below the low threshold as `belowtarget`', function() {
-      expect(classifier({value: 15})).to.deep.equal(['meter', 'belowtarget']);
+    it('should not return any category tags for an in-target value', function() {
+      expect(classifier({value: 25})).to.deep.equal(['meter']);
     });
 
-    it('should classify an smbg above the target threshold as `abovetarget`', function() {
-      expect(classifier({value: 35})).to.deep.equal(['meter', 'abovetarget']);
-    });
-
-    it('should classify an smbg above the high threshold as `abovetarget`', function() {
-      expect(classifier({value: 45})).to.deep.equal(['meter', 'abovetarget']);
-      expect(classifier({value: 55})).to.deep.equal(['meter', 'abovetarget']);
+    it('should classify an smbg above the high threshold as `veryhigh`', function() {
+      expect(classifier({value: 35})).to.deep.equal(['meter']);
+      expect(classifier({value: 55})).to.deep.equal(['meter', 'veryhigh']);
     });
   });
 });

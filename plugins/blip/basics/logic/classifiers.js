@@ -93,14 +93,10 @@ module.exports = function(bgClasses) {
       var bgCategory = classifers.categorizeBg(d);
       switch (bgCategory) {
         case 'verylow':
-          tags = tags.concat(['verylow', 'belowtarget']);
+          tags.push('verylow');
           break;
-        case 'low':
-          tags.push('belowtarget');
-          break;
-        case 'high':
         case 'veryhigh':
-          tags.push('abovetarget');
+          tags.push('veryhigh');
           break;
         default:
           break;
