@@ -32,6 +32,8 @@ var HoverDay = require('./day/HoverDay');
 var CalendarContainer = React.createClass({
   mixins: [BasicsUtils],
   propTypes: {
+    bgClasses: React.PropTypes.object.isRequired,
+    bgUnits: React.PropTypes.string.isRequired,
     chart: React.PropTypes.func.isRequired,
     data: React.PropTypes.object.isRequired,
     days: React.PropTypes.array.isRequired,
@@ -90,7 +92,9 @@ var CalendarContainer = React.createClass({
     );
   },
   renderSelector: function() {
-    return this.props.selector({ 
+    return this.props.selector({
+      bgClasses: this.props.bgClasses,
+      bgUnits: this.props.bgUnits,
       data: this.props.data[this.props.type].summary,
       selectedSubtotal: this._getSelectedSubtotal(),
       selectorOptions: this.props.selectorOptions,

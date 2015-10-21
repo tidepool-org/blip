@@ -110,8 +110,8 @@ var basicsState = {
         { path: 'smbg', key: 'meter', label: 'Meter', percentage: true },
         { path: 'smbg', key: 'manual', label: 'Manual', percentage: true },
         { path: 'calibration', key: 'calibration', label: 'Calibrations' },
-        { path: 'smbg', key: 'verylow', label: 'Very Low', percentage: true },
-        { path: 'smbg', key: 'veryhigh', label: 'Very High', percentage: true }
+        { path: 'smbg', key: 'verylow', labelOpts: {type: 'bg', key: 'verylow'}, percentage: true },
+        { path: 'smbg', key: 'veryhigh', labelOpts: {type: 'bg', key: 'veryhigh'}, percentage: true }
       ],
       title: 'BG readings',
       type: 'fingerstick'
