@@ -210,8 +210,14 @@ var format = {
       throw new Error('You have not provided two datetime strings');
     }
 
-    var fromDate = new Date(from);
-    var toDate = new Date(to);
+    // the "from" and "to" fields of a time change are always timezone-naive
+    // timestamps by definition (b/c they are device-relative time)
+    // but some (versions) of (some) browsers like to coerce timestamps without TZ info into local time
+    // and we need to prevent that, so we use moment.utc and then use the UTC
+    // variant of all JS Date methods to ensure consistency across browsers
+    var fromDate = moment.utc(from).toDate();
+    var toDate = moment.utc(to).toDate();
+
     var type = 'Time Change';
 
     var format = 'h:mm a';
