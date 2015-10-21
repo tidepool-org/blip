@@ -93,6 +93,7 @@ var format = {
     return s[0].toUpperCase() + s.slice(1);
   },
 
+  
   dayAndDate: function(i, offset) {
     var d = new Date(i);
     if (offset) {

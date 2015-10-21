@@ -25,7 +25,7 @@ var BasalBolusRatio = React.createClass({
   },
   componentDidMount: function() {
     var ratioData = this.props.data.basalBolusRatio;
-    var el = this.refs.pie.getDOMNode();
+    var el = this.refs.pie;
     var w = el.offsetWidth, h = el.offsetHeight;
     var svg = d3.select(el)
       .append('svg')

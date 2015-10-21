@@ -47,7 +47,7 @@ var BGDistribution = React.createClass({
     var bgClasses = this.props.bgClasses;
     var bgUnits = this.props.bgUnits;
     if (!_.isEmpty(data.bgDistribution)) {
-      var chartNode = this.refs.chart.getDOMNode();
+      var chartNode = this.refs.chart;
       this.chart = bgBars.create(chartNode)
         .render(this.state.data, {
           bgClasses: bgClasses,
