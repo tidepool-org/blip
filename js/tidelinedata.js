@@ -497,12 +497,24 @@ function TidelineData(data, opts) {
       }
     });
 
-    function skimFromTop(groupData, start) {
+    // filters out any data that *precedes* basics date range
+    // which is determined from available pump data types
+    function skimOffBottom(groupData, start) {
       return _.takeRightWhile(groupData, function(d) {
         if (d.type === 'basal') {
           return d.normalEnd >= start;
         }
         return d.normalTime >= start;
+      });
+    }
+
+    // filters out any data that *follows* basics date range
+    // which is determined from available pump data types
+    // (data that follows basics date range is possible when a CGM
+    // is uploaded more recently (by a couple days, say) than a pump)
+    function skimOffTop(groupData, end) {
+      return _.takeWhile(groupData, function(d) {
+        return d.normalTime < end;
       });
     }
     // wrapping in an if-clause here because of the no-data
@@ -533,7 +545,10 @@ function TidelineData(data, opts) {
               }
             )};
             this.basicsData.data.calibration = {data: _.filter(
-              skimFromTop(this.grouped[aType], this.basicsData.dateRange[0]),
+              skimOffTop(
+                skimOffBottom(this.grouped[aType], this.basicsData.dateRange[0]),
+                this.basicsData.dateRange[1]
+              ),
               function(d) {
                 return d.subType === 'calibration';
               }
@@ -542,9 +557,9 @@ function TidelineData(data, opts) {
           else {
             this.basicsData.data[aType] = {};
             typeObj = this.basicsData.data[aType];
-            typeObj.data = skimFromTop(
-              this.grouped[aType],
-              this.basicsData.dateRange[0]
+            typeObj.data = skimOffTop(
+              skimOffBottom(this.grouped[aType],this.basicsData.dateRange[0]),
+              this.basicsData.dateRange[1]
             );
           }
         }
