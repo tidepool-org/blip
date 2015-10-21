@@ -41,7 +41,7 @@ var basicsState = {
       hasHover: true,
       id: 'basals',
       index: 4,
-      open: false,
+      open: true,
       selector: SummaryGroup,
       selectorOptions: [
         { key: 'total', label: 'Basal Events', default: true, primary: true },
