@@ -86,10 +86,10 @@ var basicsState = {
       selectorOptions: [
         { key: 'total', label: 'All Boluses', default: true, primary: true },
         { key: 'wizard', label: 'Calculator', percentage: true  },
-        { key: 'manual', label: 'Manual', percentage: true  },
-        { key: 'extended', label: 'Extended', percentage: true  },
         { key: 'correction', label: 'Correction', percentage: true  },
         { key: 'override', label: 'Override', percentage: true  },
+        { key: 'manual', label: 'Manual', percentage: true  },
+        { key: 'extended', label: 'Extended', percentage: true  },
         { key: 'interrupted', label : 'Interrupted', percentage: true  }
       ],
       title: 'Bolusing',
