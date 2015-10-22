@@ -92,6 +92,7 @@ var SummaryGroup = React.createClass({
         value = this.props.data[path].total;
       }
       else if (path) {
+        console.log('this.props.data[path]', path, this.props.data[path]);
         value = this.props.data[path][option.key].count;
       }
       else {
