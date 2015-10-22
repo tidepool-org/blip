@@ -348,7 +348,10 @@ module.exports = function(bgClasses) {
           var section = _.find(basicsData.sections, findSectionContainingType(type));
           // wrap this in an if mostly for testing convenience
           if (section) {
-            var tags = _.rest(_.pluck(section.selectorOptions, 'key'));
+            var tags = _.flatten(section.selectorOptions.rows.map(function(row) {
+              return _.pluck(row, 'key');
+            }));
+
             var summary = {total: Object.keys(typeObj.dataByDate)
               .reduce(reduceTotalByDate(typeObj), 0)};
             _.each(tags, this._summarizeTagFn(typeObj, summary));
@@ -378,10 +381,13 @@ module.exports = function(bgClasses) {
           fsSummary.total += fsSummary[fsCategory].total;
         });
         fingerstickData.summary = fsSummary;
-        // now summarize tags and find avg events per day
-        var fsTags = _.pluck(_.filter(fsSection.selectorOptions, function(opt) {
-          return opt.path === 'smbg' && !opt.primary;
-        }), 'key');
+        
+        var fsTags = _.flatten(section.selectorOptions.rows.map(function(row) {
+          return _.pluck(_.filter(row, function(opt) {
+            return opt.path === 'smbg';
+          }, 'key'));
+        }));
+
         _.each(fsTags, this._summarizeTagFn(fingerstickData.smbg, fsSummary.smbg));
         var smbgSummary = fingerstickData.summary.smbg;
         smbgSummary.avgPerDay = this._averageExcludingMostRecentDay(

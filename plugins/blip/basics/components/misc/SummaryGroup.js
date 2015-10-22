@@ -32,25 +32,26 @@ var SummaryGroup = React.createClass({
   },
   render: function() {
     var self = this;
-
-    var primaryOption = _.find(self.props.selectorOptions, { primary: true });
+    var primaryOption = self.props.selectorOptions.primary;
     var primaryElem = null;
     if (primaryOption) {
-      primaryElem = this.renderInfo(primaryOption);
+      primaryElem = this.renderOption(primaryOption);
 
       if (!self.props.selectedSubtotal) {
         self.props.selectedSubtotal = primaryOption.key;
       }
     }
 
-    var otherOptions = _.filter(
-      self.props.selectorOptions,
-      function(row) {
-        return !row.primary;
-      }
-    );
+    var optionRows = self.props.selectorOptions.rows;
 
-    var others = otherOptions.map(self.renderInfo);
+    var others = optionRows.map(function(row) {
+      var options = row.map(self.renderOption);
+      return (
+        <div className="SummaryGroup-row">
+          {options}
+        </div>
+      );
+    });
 
     return (
       <div className="SummaryGroup-container">
@@ -61,7 +62,8 @@ var SummaryGroup = React.createClass({
       </div>
     );
   },
-  renderInfo: function(option) {
+  renderOption: function(option) {
+    console.log('option', option);
     if (typeof option.active !== 'undefined' && !option.active) {
       return (<div key={option.key} className='SummaryGroup-info SummaryGroup-info-blank'></div>);
     }
