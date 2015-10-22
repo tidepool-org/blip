@@ -63,7 +63,6 @@ var SummaryGroup = React.createClass({
     );
   },
   renderOption: function(option) {
-    console.log('option', option);
     if (typeof option.active !== 'undefined' && !option.active) {
       return (<div key={option.key} className='SummaryGroup-info SummaryGroup-info-blank'></div>);
     }
@@ -92,7 +91,6 @@ var SummaryGroup = React.createClass({
         value = this.props.data[path].total;
       }
       else if (path) {
-        console.log('this.props.data[path]', path, this.props.data[path]);
         value = this.props.data[path][option.key].count;
       }
       else {

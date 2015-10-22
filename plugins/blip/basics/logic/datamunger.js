@@ -382,10 +382,10 @@ module.exports = function(bgClasses) {
         });
         fingerstickData.summary = fsSummary;
         
-        var fsTags = _.flatten(section.selectorOptions.rows.map(function(row) {
+        var fsTags = _.flatten(fsSection.selectorOptions.rows.map(function(row) {
           return _.pluck(_.filter(row, function(opt) {
             return opt.path === 'smbg';
-          }, 'key'));
+          }), 'key');
         }));
 
         _.each(fsTags, this._summarizeTagFn(fingerstickData.smbg, fsSummary.smbg));
