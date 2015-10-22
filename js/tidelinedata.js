@@ -523,30 +523,29 @@ function TidelineData(data, opts) {
 
       for (var i = 0; i < opts.basicsTypes.length; ++i) {
         var aType = opts.basicsTypes[i];
-        if (!_.isEmpty(this.grouped[aType])) {
-          var typeObj;
-          if (aType === 'deviceEvent') {
-            this.basicsData.data.reservoirChange = {data: _.filter(
-              this.grouped[aType],
-              function(d) {
-                return d.subType === 'reservoirChange';
-              }
-            )};
-            this.basicsData.data.calibration = {data: _.filter(
-              skimFromTop(this.grouped[aType], this.basicsData.dateRange[0]),
-              function(d) {
-                return d.subType === 'calibration';
-              }
-            )};
-          }
-          else {
-            this.basicsData.data[aType] = {};
-            typeObj = this.basicsData.data[aType];
-            typeObj.data = skimFromTop(
-              this.grouped[aType],
-              this.basicsData.dateRange[0]
-            );
-          }
+        var typeObj;
+        var typeData = this.grouped[aType] || [];
+        if (aType === 'deviceEvent') {
+          this.basicsData.data.reservoirChange = {data: _.filter(
+            typeData,
+            function(d) {
+              return d.subType === 'reservoirChange';
+            }
+          )};
+          this.basicsData.data.calibration = {data: _.filter(
+            skimFromTop(typeData, this.basicsData.dateRange[0]),
+            function(d) {
+              return d.subType === 'calibration';
+            }
+          )};
+        }
+        else {
+          this.basicsData.data[aType] = {};
+          typeObj = this.basicsData.data[aType];
+          typeObj.data = skimFromTop(
+            typeData,
+            this.basicsData.dateRange[0]
+          );
         }
       }
     }
