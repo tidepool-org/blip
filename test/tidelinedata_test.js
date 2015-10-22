@@ -301,21 +301,18 @@ describe('TidelineData', function() {
       normalTime: '2015-10-02T16:35:00.000Z',
       timezoneOffset: -420
     };
+    // defaults to timezoneAware: false
     var thisTd = new TidelineData([
       smbg,
       inBasicsCBG,
       inBasicsCalibration,
       bolus,
       futureCBG,
-      futureCalibration], {
-      timePrefs: {
-        timezoneAware: true,
-        timezoneName: 'US/Pacific'
-      }
-    });
+      futureCalibration]
+    );
     it('should determine the date range for The Basics based on available pump data', function() {
       var dateRange = thisTd.basicsData.dateRange;
-      expect(dateRange[0]).to.equal('2015-09-14T07:00:00.000Z');
+      expect(dateRange[0]).to.equal('2015-09-14T00:00:00.000Z');
       expect(dateRange[1]).to.equal('2015-09-28T21:05:00.000Z');
     });
 
