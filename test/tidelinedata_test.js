@@ -313,7 +313,7 @@ describe('TidelineData', function() {
     it('should determine the date range for The Basics based on available pump data', function() {
       var dateRange = thisTd.basicsData.dateRange;
       expect(dateRange[0]).to.equal('2015-09-14T00:00:00.000Z');
-      expect(dateRange[1]).to.equal('2015-09-28T21:05:00.000Z');
+      expect(dateRange[1]).to.equal(bolus.time);
     });
 
     it('should only include CGM data types within the pump-data determined date range', function() {
