@@ -1113,7 +1113,7 @@ var AppComponent = React.createClass({
       shimmerUid = shimmerUserId;
 
       //TODO: this should be moved over to a library
-      request.get('http://localhost:5000/auths/'+shimmerUserId, function(err, response) {
+      request.get(config.MUSSEL_HOST+'/auths/'+shimmerUserId, function(err, response) {
         if (err) {
           console.log(err);
           cb(null, []);

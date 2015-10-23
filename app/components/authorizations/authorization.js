@@ -23,7 +23,7 @@ module.exports = React.createClass({
     onClick: function(e) {
         console.log('deauth call goes here:'+ this.props.auth.shimName);
         //TODO: move this all to a better location in line what what is done with the rest of Blip
-        request.get('http://localhost:5000/deauthorize/'+this.props.auth.shimKey+'?username='+shimmerUid, function(err, response) {
+        request.get(config.MUSSEL_HOST+'/deauthorize/'+this.props.auth.shimKey+'?username='+shimmerUid, function(err, response) {
             if (err) {
                 console.log('error'+err);
             } else {

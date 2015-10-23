@@ -5,7 +5,7 @@
   "scripts": {
     "test": "./node_modules/karma/bin/karma start",
     "browser-tests": "./node_modules/karma/bin/karma start --browsers Chrome",
-    "start": "webpack-dev-server --devtool eval-source-map --cache --colors --progress --port 3000",
+    "start": "webpack-dev-server --devtool eval-source-map --cache --colors --progress --port 3000 --host 0.0.0.0",
     "build": "npm run build-app && npm run build-config",
     "build-app": "node buildapp",
     "build-config": "node buildconfig",
