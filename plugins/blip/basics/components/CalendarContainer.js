@@ -60,8 +60,9 @@ var CalendarContainer = React.createClass({
   },
   _getSelectedSubtotal: function() {
     var options = this.props.selectorOptions;
-    return _.get(_.find(options, {selected: true}), 'key', false) ||
-      _.get(_.find(options, {default: true}), 'key', null);
+
+    return _.get(_.find(_.flatten(options.rows), {selected: true}), 'key', false) ||
+      options.primary.key;
   },
   render: function() {
     var containerClass = cx('Calendar-container-' + this.props.type, {
