@@ -18,6 +18,7 @@ var _ = require('lodash');
 var React = require('react');
 var async = require('async');
 var sundial = require('sundial');
+var request = require('superagent');
 
 var nurseShark = require('tideline/plugins/nurseshark/');
 var TidelineData = require('tideline/js/tidelinedata');
@@ -1105,9 +1106,27 @@ var AppComponent = React.createClass({
       self.context.api.team.getNotes(patientId, cb);
     };
 
+    var loadAuths = function(cb) {
+      var shimmerUserId = 'tp|'+patientId+'|https:%2F%2Fdevel-api.tidepool.io'
+      
+      //TODO:remove this global when I figure out how the userid is passed down through the react components
+      shimmerUid = shimmerUserId;
+
+      //TODO: this should be moved over to a library
+      request.get('http://localhost:5000/auths/'+shimmerUserId, function(err, response) {
+        if (err) {
+          console.log(err);
+          cb(null, []);
+        } else {
+          cb(null, response.body);
+        }
+      });
+    }
+
     async.parallel({
       patientData: loadPatientData,
-      teamNotes: loadTeamNotes
+      teamNotes: loadTeamNotes,
+      authArr: loadAuths,
     },
     function(err, results) {
       if (err) {
@@ -1123,6 +1142,9 @@ var AppComponent = React.createClass({
 
       var patientData = results.patientData || [];
       var notes = results.teamNotes || [];
+
+      //TODO: don't make this local. need this to be passed down to react component
+      AUTHS = results.authArr;
 
       self.context.log('Patient device data count', patientData.length);
       self.context.log('Team notes count', notes.length);
