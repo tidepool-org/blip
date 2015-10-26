@@ -261,7 +261,7 @@ module.exports = function (common, config, deps) {
 
     var onSuccess=function(res){
       saveSession(null, null);
-      return res.body;
+      return res.status;
     };
 
     common.doPostWithToken(
