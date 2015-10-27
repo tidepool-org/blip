@@ -638,7 +638,7 @@ describe('platform client', function () {
       });
     });
     it('so we can accept the T&C', function (done) {
-      var termsToApply = { terms : new Date().toISOString()};
+      var termsToApply = { termsAccepted : new Date().toISOString()};
       pwdClient.updateCurrentUser(termsToApply, function(error){
         expect(error).to.not.exist;
         pwdClient.getCurrentUser(function(error2, details){

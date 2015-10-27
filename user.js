@@ -261,7 +261,7 @@ module.exports = function (common, config, deps) {
 
     var onSuccess=function(res){
       saveSession(null, null);
-      return res.body;
+      return res.status;
     };
 
     common.doPostWithToken(
@@ -403,7 +403,7 @@ module.exports = function (common, config, deps) {
   function updateCurrentUser(user, cb) {
     common.assertArgumentsSize(arguments, 2);
     var updateData = {
-      updates: _.pick(user, 'username', 'password', 'emails')
+      updates: _.pick(user, 'username', 'password', 'emails', 'termsAccepted')
     };
 
     common.doPutWithToken('/auth/user', updateData, cb);
