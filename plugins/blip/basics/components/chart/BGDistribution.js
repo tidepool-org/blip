@@ -57,7 +57,8 @@ var BGDistribution = React.createClass({
     }
   },
   componentDidUpdate: function() {
-    this.chart.update(this.state.data);
+    var showingCbg = this.state.showingCbg;
+    this.chart.update(this.props.data.bgDistribution[showingCbg ? 'cbg' : 'smbg']);
   },
   render: function() {
     var data = this.props.data;
@@ -108,9 +109,7 @@ var BGDistribution = React.createClass({
   },
   handleDataToggle: function() {
     var showingCbg = this.state.showingCbg;
-    var newData = showingCbg ? 'smbg' : 'cbg';
     this.setState({
-      data: this.props.data.bgDistribution[newData],
       showingCbg: !showingCbg
     });
   }

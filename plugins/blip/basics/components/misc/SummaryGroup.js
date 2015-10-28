@@ -22,9 +22,13 @@ var d3 = require('d3');
 var React = require('react');
 
 var basicsActions = require('../../logic/actions');
+var BasicsUtils = require('../BasicsUtils');
 
 var SummaryGroup = React.createClass({
+  mixins: [BasicsUtils],
   propTypes: {
+    bgClasses: React.PropTypes.object.isRequired,
+    bgUnits: React.PropTypes.string.isRequired,
     data: React.PropTypes.object.isRequired,
     selectedSubtotal: React.PropTypes.string.isRequired,
     selectorOptions: React.PropTypes.object.isRequired,
@@ -122,10 +126,23 @@ var SummaryGroup = React.createClass({
       </span>
     );
 
+    var labels = this.labelGenerator({
+      bgClasses: this.props.bgClasses,
+      bgUnits: this.props.bgUnits
+    });
+
+    var labelOpts = option.labelOpts;
+
+    var labelText = option.label ? option.label : labels[labelOpts.type][labelOpts.key];
+
+    var labelElem = (
+      <span className="SummaryGroup-option-label">{labelText}</span>
+    );
+
     return (
       <div key={option.key} className={classes}
         onClick={this.handleSelectSubtotal.bind(null, option.key)}>
-        <span className="SummaryGroup-option-label">{option.label}</span>
+        {labelElem}
         {valueElem}
       </div>
     );

@@ -57,5 +57,19 @@ module.exports = {
 
       return _.find(allOptions, filter);
     }
+  },
+  labelGenerator: function(opts) {
+    var bgClasses = opts.bgClasses;
+    var bgUnits = ' ' + opts.bgUnits;
+
+    return {
+      bg: {
+        verylow: 'below ' + bgClasses['very-low'].boundary + bgUnits,
+        low: 'between ' + bgClasses['very-low'].boundary + ' - ' + bgClasses.low.boundary + bgUnits,
+        target: 'between ' + bgClasses.low.boundary + ' - ' + bgClasses.target.boundary + bgUnits,
+        high: 'between ' + bgClasses.target.boundary + ' - ' + bgClasses.high.boundary + bgUnits,
+        veryhigh: 'above ' + bgClasses.high.boundary + bgUnits
+      }
+    };
   }
 };
