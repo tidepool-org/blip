@@ -15,13 +15,13 @@
  */
 
 var React = require('react');
-var cx = require('react/lib/cx');
+var cx = require('classnames');
 
 var ModalOverlay = React.createClass({
   propTypes: {
-    show: React.PropTypes.bool,
-    dialog: React.PropTypes.renderable,
-    overlayClickHandler: React.PropTypes.func
+    show: React.PropTypes.bool.isRequired,
+    dialog: React.PropTypes.node.isRequired,
+    overlayClickHandler: React.PropTypes.func.isRequired
   },
   render: function() {
     var self = this;
@@ -30,7 +30,7 @@ var ModalOverlay = React.createClass({
       'ModalOverlay--show': this.props.show
     });
 
-    /* jshint ignore:start */
+    
     return (
       <div className={classes}>
         <div className="ModalOverlay-target" onClick={this.props.overlayClickHandler}></div>
@@ -39,7 +39,7 @@ var ModalOverlay = React.createClass({
         </div>
       </div>
     );
-    /* jshint ignore:end */
+    
   }
 });
 

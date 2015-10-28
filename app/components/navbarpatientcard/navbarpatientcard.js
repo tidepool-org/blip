@@ -16,9 +16,10 @@
 
 var React = require('react');
 var _ = require('lodash');
-var cx = require('react/lib/cx');
+var cx = require('classnames');
 
 var personUtils = require('../../core/personutils');
+var utils = require('../../core/utils');
 
 var NavbarPatientCard = React.createClass({
   propTypes: {
@@ -30,7 +31,7 @@ var NavbarPatientCard = React.createClass({
   },
 
   render: function() {
-    var patient = this.props.patient;
+    var patient = this.props.patient || {};
     var self = this;
 
     var classes = cx({
@@ -42,7 +43,7 @@ var NavbarPatientCard = React.createClass({
     var share = this.renderShare(patient);
     var profile = this.renderProfile(patient);
 
-    /* jshint ignore:start */
+    
     return (
       <div className={classes}>
         <i className="Navbar-icon icon-face-standin"></i>
@@ -57,7 +58,7 @@ var NavbarPatientCard = React.createClass({
         <div className="clear"></div>
       </div>
     );
-    /* jshint ignore:end */
+    
   },
 
   renderView: function() {
@@ -72,14 +73,17 @@ var NavbarPatientCard = React.createClass({
     };
 
     return (
-      /* jshint ignore:start */
+      
       <a className={classes} onClick={handleClick} href={this.props.href}>View</a>
-      /* jshint ignore:end */
+      
     );
   },
 
   renderProfile: function(patient) {
-    var url = patient.link.slice(0,-5) + '/profile';
+    var url = '';
+    if (!_.isEmpty(patient.link)) {
+      url = patient.link.slice(0,-5) + '/profile';
+    }
 
     var classes = cx({
       'patientcard-actions-profile': true,
@@ -93,14 +97,14 @@ var NavbarPatientCard = React.createClass({
     };
 
     return (
-      /* jshint ignore:start */
+      
       <a className={classes} href={url} onClick={handleClick} title="Profile">
         <div className="patientcard-fullname" title={this.getFullName()}>
           {this.getFullName()}
           <i className="patientcard-icon icon-settings"></i>
         </div>
       </a>
-      /* jshint ignore:end */
+      
     );
   },
 
@@ -120,9 +124,9 @@ var NavbarPatientCard = React.createClass({
 
     if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
       return (
-        /* jshint ignore:start */
+        
         <a href="" onClick={handleClick} className={classes} title="Upload data">Upload</a>
-        /* jshint ignore:end */
+        
       );
     }
 
@@ -130,7 +134,10 @@ var NavbarPatientCard = React.createClass({
   },
 
   renderShare: function(patient) {
-    var shareUrl = patient.link.slice(0,-5) + '/share';
+    var shareUrl = '';
+    if (!_.isEmpty(patient.link)) {
+      shareUrl = patient.link.slice(0,-5) + '/share';
+    }
 
     var classes = cx({
       'patientcard-actions-share': true,
@@ -144,9 +151,9 @@ var NavbarPatientCard = React.createClass({
 
     if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
       return (
-        /* jshint ignore:start */
+        
         <a className={classes} onClick={handleClick} href={shareUrl} title="Share data">Share</a>
-        /* jshint ignore:end */
+        
       );
     }
 

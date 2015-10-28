@@ -15,8 +15,6 @@ not, you can obtain one from Tidepool Project at tidepool.org.
 == BSD2 LICENSE ==
 */
 
-'use strict';
-
 module.exports = {
   ERR_ACCEPTING_TERMS : 'Something went wrong while accepting the terms and conditions',
   ERR_DISMISSING_INVITE : 'Something went wrong while dismissing the invitation.',

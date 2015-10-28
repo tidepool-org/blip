@@ -16,7 +16,7 @@
 
 var React = require('react');
 var _ = require('lodash');
-var cx = require('react/lib/cx');
+var cx = require('classnames');
 
 var config = require('../../config');
 
@@ -113,17 +113,16 @@ var Patients = React.createClass({
   },
 
   renderInvitation: function(invitation, index) {
-    /* jshint ignore:start */
+    
     return (
       <Invitation
         key={invitation.key}
         invitation={invitation}
-        patientsComponent={this}
         onAcceptInvitation={this.props.onAcceptInvitation}
         onDismissInvitation={this.props.onDismissInvitation}
         trackMetric={this.props.trackMetric}
       ></Invitation>);
-    /* jshint ignore:end */
+    
   },
   renderInvitations: function() {
     if (!this.hasInvites()) {
@@ -132,13 +131,13 @@ var Patients = React.createClass({
 
     var invitations = _.map(this.props.invites, this.renderInvitation);
 
-    /* jshint ignore:start */
+    
     return (
       <ul className='invitations'>
         {invitations}
       </ul>
     );
-    /* jshint ignore:end */
+    
   },
 
   renderNoPatientsOrInvitationsMessage: function() {

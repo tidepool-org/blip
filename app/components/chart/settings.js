@@ -19,6 +19,8 @@ var _ = require('lodash');
 var bows = require('bows');
 var React = require('react');
 
+var utils = require('../../core/utils');
+
 // tideline dependencies & plugins
 var tidelineBlip = require('tideline/plugins/blip');
 var chartSettingsFactory = tidelineBlip.settings;
@@ -30,15 +32,59 @@ var tideline = {
   log: bows('Settings')
 };
 
+
+var SettingsChart = React.createClass({
+  chartOpts: ['bgUnits'],
+  log: bows('Settings Chart'),
+  propTypes: {
+    bgUnits: React.PropTypes.string.isRequired,
+    initialDatetimeLocation: React.PropTypes.string,
+    patientData: React.PropTypes.object.isRequired,
+  },
+  componentDidMount: function() {
+    this.mountChart(this.getDOMNode());
+    this.initializeChart(this.props.patientData);
+  },
+  componentWillUnmount: function() {
+    this.unmountChart();
+  },
+  mountChart: function(node, chartOpts) {
+    this.log('Mounting...');
+    this.chart = chartSettingsFactory(node, _.pick(this.props, this.chartOpts));
+  },
+  unmountChart: function() {
+    this.log('Unmounting...');
+    this.chart.destroy();
+  },
+  initializeChart: function(data) {
+    this.log('Initializing...');
+    if (_.isEmpty(data)) {
+      throw new Error('Cannot create new chart with no data');
+    }
+
+    this.chart.load(data);
+  },
+  render: function() {
+    
+    return (
+      <div id="tidelineContainer" className="patient-data-chart-growing"></div>
+      );
+    
+  }
+});
+
 var Settings = React.createClass({
   chartType: 'settings',
   log: bows('Settings View'),
   propTypes: {
     bgPrefs: React.PropTypes.object.isRequired,
     chartPrefs: React.PropTypes.object.isRequired,
+    timePrefs: React.PropTypes.object.isRequired,
     patientData: React.PropTypes.object.isRequired,
     onClickRefresh: React.PropTypes.func.isRequired,
+    onSwitchToBasics: React.PropTypes.func.isRequired,
     onSwitchToDaily: React.PropTypes.func.isRequired,
+    onSwitchToModal: React.PropTypes.func.isRequired,
     onSwitchToSettings: React.PropTypes.func.isRequired,
     onSwitchToWeekly: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
@@ -52,7 +98,7 @@ var Settings = React.createClass({
     };
   },
   render: function() {
-    /* jshint ignore:start */
+    
     return (
       <div id="tidelineMain">
         <Header
@@ -61,6 +107,7 @@ var Settings = React.createClass({
           inTransition={this.state.inTransition}
           title={this.state.title}
           onClickMostRecent={this.handleClickMostRecent}
+          onClickBasics={this.props.onSwitchToBasics}
           onClickOneDay={this.handleClickOneDay}
           onClickModal={this.handleClickModal}
           onClickRefresh={this.props.onClickRefresh}
@@ -76,28 +123,29 @@ var Settings = React.createClass({
         </div>
         <Footer
          chartType={this.chartType}
+         onClickRefresh={this.props.onClickRefresh}
          onClickSettings={this.props.onSwitchToSettings}
         ref="footer" />
       </div>
       );
-    /* jshint ignore:end */
+    
   },
   renderChart: function() {
-    /* jshint ignore:start */
+    
     return (
       <SettingsChart
         bgUnits={this.props.bgPrefs.bgUnits}
         patientData={this.props.patientData}
         ref="chart" />
     );
-    /* jshint ignore:end */
+    
   },
   renderMissingSettingsMessage: function() {
     var self = this;
     var handleClickUpload = function() {
       self.props.trackMetric('Clicked Partial Data Upload, No Settings');
     };
-    /* jshint ignore:start */
+    
     return (
       <div className="patient-data-message patient-data-message-loading">
         <p>{'Blip\'s Device Settings view shows your basal rates, carb ratios, sensitivity factors and more, but it looks like you haven\'t uploaded pump data yet.'}</p>
@@ -113,11 +161,17 @@ var Settings = React.createClass({
         </p>
       </div>
     );
-    /* jshint ignore:end */
+    
   },
   isMissingSettings: function() {
     var data = this.props.patientData;
-    if (_.isEmpty(data.grouped.settings)) {
+    var pumpSettings = utils.getIn(data, ['grouped', 'pumpSettings'], false);
+    if (pumpSettings === false) {
+      return true;
+    }
+    // the TidelineData constructor currently replaces missing data with
+    // an empty array, so we also have to check for content
+    else if (_.isEmpty(pumpSettings)) {
       return true;
     }
     return false;
@@ -152,46 +206,6 @@ var Settings = React.createClass({
       e.preventDefault();
     }
     this.props.onSwitchToWeekly();
-  }
-});
-
-var SettingsChart = React.createClass({
-  chartOpts: ['bgUnits'],
-  log: bows('Settings Chart'),
-  propTypes: {
-    bgUnits: React.PropTypes.string.isRequired,
-    initialDatetimeLocation: React.PropTypes.string,
-    patientData: React.PropTypes.object.isRequired,
-  },
-  componentDidMount: function() {
-    this.mountChart(this.getDOMNode());
-    this.initializeChart(this.props.patientData);
-  },
-  componentWillUnmount: function() {
-    this.unmountChart();
-  },
-  mountChart: function(node, chartOpts) {
-    this.log('Mounting...');
-    this.chart = chartSettingsFactory(node, _.pick(this.props, this.chartOpts));
-  },
-  unmountChart: function() {
-    this.log('Unmounting...');
-    this.chart.destroy();
-  },
-  initializeChart: function(data) {
-    this.log('Initializing...');
-    if (_.isEmpty(data)) {
-      throw new Error('Cannot create new chart with no data');
-    }
-
-    this.chart.load(data);
-  },
-  render: function() {
-    /* jshint ignore:start */
-    return (
-      <div id="tidelineContainer" className="patient-data-chart"></div>
-      );
-    /* jshint ignore:end */
   }
 });
 

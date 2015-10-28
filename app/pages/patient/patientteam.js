@@ -16,10 +16,11 @@
 
 var React = require('react');
 var _ = require('lodash');
-var cx = require('react/lib/cx');
+var cx = require('classnames');
 var ModalOverlay = require('../../components/modaloverlay');
 var InputGroup = require('../../components/inputgroup');
 var personUtils = require('../../core/personutils');
+var utils = require('../../core/utils');
 
 var PermissionInputGroup = React.createClass({
   propTypes: {
@@ -66,7 +67,7 @@ var PermissionInputGroup = React.createClass({
   },
   render: function() {
     return (
-      /* jshint ignore:start */
+      
       <InputGroup
         name={this.state.name}
         type="checkbox"
@@ -74,7 +75,7 @@ var PermissionInputGroup = React.createClass({
         disabled={this.state.working}
         value={this.state.value}
         onChange={this.handleChange}/>
-        /* jshint ignore:end */
+        
     );
   }
 });
@@ -190,7 +191,7 @@ var MemberInviteForm = React.createClass({
 
 var ConfirmDialog = React.createClass({
   propTypes: {
-    message: React.PropTypes.renderable,
+    message: React.PropTypes.node,
     buttonText: React.PropTypes.string,
     dismissText: React.PropTypes.string,
     buttonTextWorking: React.PropTypes.string,
@@ -265,7 +266,7 @@ var PatientTeam = React.createClass({
     return {
       showModalOverlay: false,
       invite: false,
-      dialog: null,
+      dialog: '',
       editing: false
     };
   },
@@ -360,7 +361,7 @@ var PatientTeam = React.createClass({
     var iconClasses = cx(classes);
 
     return (
-      /* jshint ignore:start */
+      
       <li key={member.userid} className="PatientTeam-member">
         <div className="PatientInfo-head">
           <div className="PatientTeam-picture PatientInfo-picture"></div>
@@ -374,7 +375,7 @@ var PatientTeam = React.createClass({
           </div>
         </div>
       </li>
-      /* jshint ignore:end */
+      
     );
 
   },
@@ -423,7 +424,7 @@ var PatientTeam = React.createClass({
   renderPendingInvite: function(invite) {
 
     return (
-      /* jshint ignore:start */
+      
       <li key={invite.key} className="PatientTeam-member--fadeNew  PatientTeam-member">
         <div className="PatientInfo-head">
           <div className="PatientTeam-picture PatientInfo-picture"></div>
@@ -437,7 +438,7 @@ var PatientTeam = React.createClass({
           </div>
         </div>
       </li>
-      /* jshint ignore:end */
+      
     );
 
   },
@@ -464,18 +465,21 @@ var PatientTeam = React.createClass({
     };
 
     return(
-      /* jshint ignore:start */
+      
       <MemberInviteForm
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         trackMetric={this.props.trackMetric}/>
-      /* jshint ignore:end */
+      
     );
 
   },
 
   renderInvite: function() {
-    var isTeamEmpty = this.props.patient.team.length === 0;
+    var isTeamEmpty = false;
+    if (utils.getIn(this.props, ['patient', 'team'])) {
+      isTeamEmpty = this.props.patient.team.length === 0;
+    }
     var self = this;
     var classes = {
       'PatientTeam-member': true,
@@ -494,7 +498,7 @@ var PatientTeam = React.createClass({
     };
 
     return (
-      /* jshint ignore:start */
+      
       <li className={classes}>
         <div className="PatientInfo-head">
           <div className="PatientTeam-picture PatientInfo-picture PatientTeam-picture--newMember"></div>
@@ -505,7 +509,7 @@ var PatientTeam = React.createClass({
           </div>
         </div>
       </li>
-      /* jshint ignore:end */
+      
     );
 
   },
@@ -519,12 +523,12 @@ var PatientTeam = React.createClass({
   renderModalOverlay: function() {
 
     return (
-      /* jshint ignore:start */
+      
       <ModalOverlay
         show={this.state.showModalOverlay}
         dialog={this.state.dialog}
         overlayClickHandler={this.overlayClickHandler}/>
-      /* jshint ignore:end */
+      
     );
 
   },
@@ -556,11 +560,18 @@ var PatientTeam = React.createClass({
       'isEditing': this.state.editing
     });
 
-
-    var members = _.map(this.props.patient.team, this.renderTeamMember);
+    var members = [];
+    if (utils.getIn(this.props, ['patient', 'team'])) {
+      members = _.map(this.props.patient.team, this.renderTeamMember);
+    }
+    
     var editControls = _.isEmpty(members) ? null : this.renderEditControls();
 
-    var pendingInvites = _.map(this.props.pendingInvites, this.renderPendingInvite);
+    var pendingInvites = [];
+    if (utils.getIn(this.props, ['pendingInvites'])) {
+      pendingInvites = _.map(this.props.pendingInvites, this.renderPendingInvite);
+    }
+
     var invite = this.state && this.state.invite ? this.renderInviteForm() : this.renderInvite();
 
     var emptyList = !(members || pendingInvites);
@@ -568,6 +579,7 @@ var PatientTeam = React.createClass({
       'PatientTeam-list': true,
       'PatientTeam-list--single': emptyList,
     });
+    
     var patientName = personUtils.patientFullName(this.props.patient);
 
     return (

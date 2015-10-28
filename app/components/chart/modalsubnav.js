@@ -17,7 +17,7 @@
  */
 
 var React = require('react');
-var cx = require('react/lib/cx');
+var cx = require('classnames');
 
 var d3 = window.d3;
 
@@ -33,7 +33,7 @@ var DaysGroup = React.createClass({
       'daysGroup': true,
       'active': this.props.active
     }) + ' ' + this.props.category;
-    /* jshint ignore:start */
+    
     return (
       <div>
         <input type="checkbox" className={groupClass}
@@ -42,7 +42,7 @@ var DaysGroup = React.createClass({
         {this.props.days}
       </div>
       );
-    /* jshint ignore:end */
+    
   },
   handleDaysGroupClick: function() {
     this.props.onClickGroup(this.props.category);
@@ -79,7 +79,7 @@ var ModalSubNav = React.createClass({
   render: function() {
     var domainLinks = this.renderDomainLinks();
     var dayFilters = this.renderDayFilters();
-    /* jshint ignore:start */
+    
     return (
       <div id="modalSubNav">
         <div className="modalSubNavContainer">
@@ -89,7 +89,7 @@ var ModalSubNav = React.createClass({
         </div>
       </div>
       );
-    /* jshint ignore:end */
+    
   },
   renderDomainLinks: function() {
     var domains = ['1 week', '2 weeks', '4 weeks'];
@@ -111,26 +111,26 @@ var ModalSubNav = React.createClass({
       visibleDaysText = numVisibleDays + ' days in view';
     }
 
-    /* jshint ignore:start */
+    
     return (
       <div>
         <div className="domainContainer">{domainLinks}</div>
         <div className="visibleDays">{visibleDaysText}</div>
       </div>
       );
-    /* jshint ignore:end */
+    
   },
   renderDomainLink: function(domain) {
     var domainLinkClass = cx({
       'btn btn-chart-control' : true,
       'active': domain === this.props.activeDomain
     });
-    /* jshint ignore:start */
+    
     return (
       <button className={domainLinkClass} key={domain}
         onClick={this.props.domainClickHandlers[domain]}>{domain}</button>
       );
-    /* jshint ignore:end */
+    
   },
   renderDayFilters: function() {
     var days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
@@ -138,7 +138,7 @@ var ModalSubNav = React.createClass({
     for (var i = 0; i < days.length; ++i) {
       dayLinks.push(this.renderDay(days[i]));
     }
-    /* jshint ignore:start */
+    
     return (
       <div className="daysGroupContainer">
         <DaysGroup
@@ -153,7 +153,7 @@ var ModalSubNav = React.createClass({
           onClickGroup={this.handleSelectDaysGroup} />
       </div>
       );
-    /* jshint ignore:end */
+    
   },
   renderDay: function(day) {
     var dayLinkClass = cx({
@@ -161,11 +161,11 @@ var ModalSubNav = React.createClass({
       'active': this.props.activeDays[day],
       'inactive': !this.props.activeDays[day]
     }) + ' ' + day;
-    /* jshint ignore:start */
+    
     return (
       <a className={dayLinkClass} key={day} onClick={this.props.onClickDay(day)}>{this.DAY_ABBREVS[day]}</a>
       );
-    /* jshint ignore:end */
+    
   },
   areWeekdaysActive: function(props) {
     var weekdays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];

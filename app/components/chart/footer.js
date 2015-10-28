@@ -17,7 +17,7 @@
  */
 var bows = require('bows');
 var React = require('react');
-var cx = require('react/lib/cx');
+var cx = require('classnames');
 
 var tideline = {
   log: bows('Footer')
@@ -41,7 +41,7 @@ var TidelineFooter = React.createClass({
       'patient-data-subnav-hidden': this.props.chartType === 'no-data'
     });
 
-    /* jshint ignore:start */
+    
     var showValues = (
       <div className="footer-right-options">
         <label htmlFor="valuesCheckbox">
@@ -51,9 +51,9 @@ var TidelineFooter = React.createClass({
         </label>
       </div>
       );
-    /* jshint ignore:end */
+    
 
-    /* jshint ignore:start */
+    
     var modalOpts = (
       <div className="footer-right-options">
         <label htmlFor="overlayCheckbox">
@@ -75,19 +75,19 @@ var TidelineFooter = React.createClass({
         </label>
       </div>
       );
-    /* jshint ignore:end */
+    
 
-    /* jshint ignore:start */
+    
     var rightSide = this.props.chartType === 'weekly' ? showValues :
       this.props.chartType === 'modal' ? modalOpts : null;
-    /* jshint ignore:end */
+    
 
-    /* jshint ignore:start */
+    
     return (
       <div className="container-box-outer patient-data-footer-outer">
         <div className="container-box-inner patient-data-footer-inner">
           <div className="patient-data-footer-left">
-            <button className="btn btn-chart"
+            <button className="btn btn-chart btn-refresh"
               onClick={this.props.onClickRefresh}>
               Refresh</button>
           </div>
@@ -95,7 +95,7 @@ var TidelineFooter = React.createClass({
         </div>
       </div>
       );
-    /* jshint ignore:end */
+    
   }
 });
 

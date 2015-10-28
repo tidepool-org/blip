@@ -40,7 +40,8 @@ var Patient = React.createClass({
 
   getInitialState: function() {
     return {
-      showModalOverlay: false
+      showModalOverlay: false,
+      dialog: ''
     };
   },
 
@@ -132,19 +133,17 @@ var Patient = React.createClass({
     );
   },
   overlayClickHandler: function() {
-    this.setState({
-      showModalOverlay: false
-    });
+    this.setState(this.getInitialState());
   },
   renderModalOverlay: function() {
-    /* jshint ignore:start */
+    
     return (
       <ModalOverlay
         show={this.state.showModalOverlay}
         dialog={this.state.dialog}
         overlayClickHandler={this.overlayClickHandler}/>
     );
-    /* jshint ignore:end */
+    
   },
 
   renderAccess: function() {
@@ -160,7 +159,9 @@ var Patient = React.createClass({
   },
 
   renderPatientTeam: function() {
-    return this.transferPropsTo(<PatientTeam />);
+    return (
+      <PatientTeam {...this.props} />
+    );
   },
 });
 

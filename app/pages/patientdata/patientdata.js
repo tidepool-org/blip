@@ -20,10 +20,12 @@ var bows = require('bows');
 var sundial = require('sundial');
 
 var config = require('../../config');
+var loadingGif = require('./loading.gif');
 
 var personUtils = require('../../core/personutils');
 var utils = require('../../core/utils');
 var Header = require('../../components/chart').header;
+var Basics = require('../../components/chart').basics;
 var Daily = require('../../components/chart').daily;
 var Modal = require('../../components/chart').modal;
 var Weekly = require('../../components/chart').weekly;
@@ -39,7 +41,8 @@ var PatientData = React.createClass({
     timePrefs: React.PropTypes.object.isRequired,
     patientData: React.PropTypes.object,
     patient: React.PropTypes.object,
-    fetchingPatientData: React.PropTypes.bool,
+    fetchingPatient: React.PropTypes.bool.isRequired,
+    fetchingPatientData: React.PropTypes.bool.isRequired,
     isUserPatient: React.PropTypes.bool,
     queryParams: React.PropTypes.object.isRequired,
     uploadUrl: React.PropTypes.string,
@@ -72,10 +75,9 @@ var PatientData = React.createClass({
           boxOverlay: true,
           grouped: true,
           showingLines: false
-        },
-        timePrefs: this.props.timePrefs
+        }
       },
-      chartType: 'modal',
+      chartType: 'basics',
       createMessage: null,
       createMessageDatetime: null,
       datetimeLocation: null,
@@ -105,18 +107,18 @@ var PatientData = React.createClass({
     var patientData = this.renderPatientData();
     var messages = this.renderMessagesContainer();
 
-    /* jshint ignore:start */
+    
     return (
       <div className="patient-data js-patient-data-page">
         {messages}
         {patientData}
       </div>
     );
-    /* jshint ignore:end */
+    
   },
 
   renderPatientData: function() {
-    if (this.props.fetchingPatientData) {
+    if (this.props.fetchingPatient || this.props.fetchingPatientData) {
       return this.renderLoading();
     }
 
@@ -128,7 +130,7 @@ var PatientData = React.createClass({
   },
 
   renderEmptyHeader: function() {
-    /* jshint ignore:start */
+    
     return (
       <Header
         chartType={'no-data'}
@@ -137,19 +139,20 @@ var PatientData = React.createClass({
         title={'Data'}
         ref="header" />
       );
-    /* jshint ignore:end */
+    
   },
 
   renderLoading: function() {
     var header = this.renderEmptyHeader();
-    /* jshint ignore:start */
+    
     return (
       <div>
         {header}
         <div className="container-box-outer patient-data-content-outer">
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
-              <div className="patient-data-message patient-data-message-loading">
+              <img className='patient-data-loading-image' src={loadingGif} alt="Loading animation" />
+              <div className="patient-data-message patient-data-loading-message">
                 Loading data...
               </div>
             </div>
@@ -157,7 +160,7 @@ var PatientData = React.createClass({
         </div>
       </div>
     );
-    /* jshint ignore:end */
+    
   },
 
   renderNoData: function() {
@@ -170,7 +173,7 @@ var PatientData = React.createClass({
     };
 
     if (this.props.isUserPatient) {
-      /* jshint ignore:start */
+      
       content = (
         <div className="patient-data-message-no-data">
           <p>{'There is no data in here yet!'}</p>
@@ -183,10 +186,10 @@ var PatientData = React.createClass({
           </p>
         </div>
       );
-      /* jshint ignore:end */
+      
     }
 
-    /* jshint ignore:start */
+    
     return (
       <div>
         {header}
@@ -201,17 +204,23 @@ var PatientData = React.createClass({
         </div>
       </div>
     );
-    /* jshint ignore:end */
+    
   },
 
   isEmptyPatientData: function() {
+    // Make sure the patient object and userid is set to prevent TypeErrors
+    // when not setting this prop
+    if (!utils.getIn(this.props, ['patient', 'userid'])) {
+      return true;
+    }
+
     var patientDataLength =
-      utils.getIn(this.props.patientData, ['data', 'length'], 0);
+      utils.getIn(this.props.patientData, [this.props.patient.userid, 'data', 'length'], 0);
     return !Boolean(patientDataLength);
   },
 
   isInsufficientPatientData: function() {
-    var data = this.props.patientData.data;
+    var data = this.props.patientData[this.props.patient.userid].data;
     // add additional checks against data and return false iff:
     // only messages data
     if (_.reject(data, function(d) { return d.type === 'message'; }).length === 0) {
@@ -223,36 +232,58 @@ var PatientData = React.createClass({
 
   renderChart: function() {
     switch (this.state.chartType) {
+      case 'basics':
+
+        return (
+          <Basics
+            bgPrefs={this.props.bgPrefs}
+            chartPrefs={this.state.chartPrefs}
+            timePrefs={this.props.timePrefs}
+            patientData={this.props.patientData[this.props.patient.userid]}
+            onClickRefresh={this.handleClickRefresh}
+            onSwitchToBasics={this.handleSwitchToBasics}
+            onSwitchToDaily={this.handleSwitchToDaily}
+            onSwitchToModal={this.handleSwitchToModal}
+            onSwitchToSettings={this.handleSwitchToSettings}
+            onSwitchToWeekly={this.handleSwitchToWeekly}
+            updateBasicsData={this.updateBasicsData}
+            trackMetric={this.props.trackMetric}
+            uploadUrl={this.props.uploadUrl}
+            ref="tideline" />
+          );
+
       case 'daily':
-        /* jshint ignore:start */
+        
         return (
           <Daily
             bgPrefs={this.props.bgPrefs}
             chartPrefs={this.state.chartPrefs}
-            imagesBaseUrl={config.IMAGES_ENDPOINT + '/tideline'}
+            timePrefs={this.props.timePrefs}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
-            patientData={this.props.patientData}
+            patientData={this.props.patientData[this.props.patient.userid]}
             onClickRefresh={this.handleClickRefresh}
             onCreateMessage={this.handleShowMessageCreation}
             onShowMessageThread={this.handleShowMessageThread}
+            onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
-            updateChartPrefs={this.updateChartPrefs}
             updateDatetimeLocation={this.updateDatetimeLocation}
             ref="tideline" />
           );
-        /* jshint ignore:end */
+        
       case 'modal':
-        /* jshint ignore:start */
+        
         return (
           <Modal
             bgPrefs={this.props.bgPrefs}
             chartPrefs={this.state.chartPrefs}
+            timePrefs={this.props.timePrefs}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
-            patientData={this.props.patientData}
+            patientData={this.props.patientData[this.props.patient.userid]}
             onClickRefresh={this.handleClickRefresh}
+            onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
@@ -263,36 +294,38 @@ var PatientData = React.createClass({
             uploadUrl={this.props.uploadUrl}
             ref="tideline" />
           );
-        /* jshint ignore:end */
+        
       case 'weekly':
-        /* jshint ignore:start */
+        
         return (
           <Weekly
             bgPrefs={this.props.bgPrefs}
             chartPrefs={this.state.chartPrefs}
-            imagesBaseUrl={config.IMAGES_ENDPOINT + '/tideline'}
+            timePrefs={this.props.timePrefs}
             initialDatetimeLocation={this.state.initialDatetimeLocation}
-            patientData={this.props.patientData}
+            patientData={this.props.patientData[this.props.patient.userid]}
             onClickRefresh={this.handleClickRefresh}
+            onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
             trackMetric={this.props.trackMetric}
-            updateChartPrefs={this.updateChartPrefs}
             updateDatetimeLocation={this.updateDatetimeLocation}
             uploadUrl={this.props.uploadUrl}
             ref="tideline" />
           );
-        /* jshint ignore:end */
+        
       case 'settings':
-        /* jshint ignore:start */
+        
         return (
           <Settings
             bgPrefs={this.props.bgPrefs}
             chartPrefs={this.state.chartPrefs}
-            patientData={this.props.patientData}
+            timePrefs={this.props.timePrefs}
+            patientData={this.props.patientData[this.props.patient.userid]}
             onClickRefresh={this.handleClickRefresh}
+            onSwitchToBasics={this.handleSwitchToBasics}
             onSwitchToDaily={this.handleSwitchToDaily}
             onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
@@ -301,12 +334,12 @@ var PatientData = React.createClass({
             uploadUrl={this.props.uploadUrl}
             ref="tideline" />
           );
-        /* jshint ignore:end */
+        
     }
   },
 
   renderMessagesContainer: function() {
-    /* jshint ignore:start */
+    
     if (this.state.createMessageDatetime) {
       return (
         <Messages
@@ -316,7 +349,8 @@ var PatientData = React.createClass({
           onClose={this.closeMessageCreation}
           onSave={this.props.onCreateMessage}
           onNewMessage={this.handleMessageCreation}
-          onEdit={this.handleEditMessage} />
+          onEdit={this.handleEditMessage}
+          timePrefs={this.props.timePrefs} />
       );
     } else if(this.state.messages) {
       return (
@@ -326,10 +360,11 @@ var PatientData = React.createClass({
           patient={this.props.patient}
           onClose={this.closeMessageThread}
           onSave={this.handleReplyToMessage}
-          onEdit={this.handleEditMessage} />
+          onEdit={this.handleEditMessage}
+          timePrefs={this.props.timePrefs} />
       );
     }
-    /* jshint ignore:end */
+    
   },
 
   closeMessageThread: function(){
@@ -346,7 +381,7 @@ var PatientData = React.createClass({
 
   handleMessageCreation: function(message){
     var data = this.refs.tideline.createMessageThread(nurseShark.reshapeMessage(message));
-    this.props.onUpdatePatientData(data);
+    this.props.onUpdatePatientData(this.props.patient.userid, data);
     this.props.trackMetric('Created New Message');
   },
 
@@ -364,7 +399,7 @@ var PatientData = React.createClass({
       edit(message, cb);
     }
     var data = this.refs.tideline.editMessageThread(nurseShark.reshapeMessage(message));
-    this.props.onUpdatePatientData(data);
+    this.props.onUpdatePatientData(this.props.patient.userid, data);
     this.props.trackMetric('Edit To Message');
   },
 
@@ -384,6 +419,18 @@ var PatientData = React.createClass({
   handleShowMessageCreation: function(datetime) {
     this.setState({ createMessageDatetime : datetime });
     this.props.trackMetric('Clicked Message Pool Background');
+  },
+
+  handleSwitchToBasics: function(e) {
+    this.props.trackMetric('Clicked Switch To Basics', {
+      fromChart: this.state.chartType
+    });
+    if (e) {
+      e.preventDefault();
+    }
+    this.setState({
+      chartType: 'basics'
+    });
   },
 
   handleSwitchToDaily: function(datetime) {
@@ -411,8 +458,16 @@ var PatientData = React.createClass({
       fromChart: this.state.chartType
     });
     datetime = datetime || this.state.datetimeLocation;
-    if (this.state.chartPrefs.timePrefs.timezoneAware) {
-      datetime = sundial.applyOffset(datetime, sundial.getOffsetFromZone(datetime, this.state.chartPrefs.timePrefs.timezoneName));
+    // when switching from initial Basics
+    // won't even have a datetimeLocation in the state yet
+    if (!datetime) {
+      this.setState({
+        chartType: 'weekly'
+      });
+      return;
+    }
+    if (this.props.timePrefs.timezoneAware) {
+      datetime = sundial.applyOffset(datetime, sundial.getOffsetFromZone(datetime, this.props.timePrefs.timezoneName));
       datetime = datetime.toISOString();
     }
     this.setState({
@@ -450,21 +505,21 @@ var PatientData = React.createClass({
     }
   },
 
+  updateBasicsData: function(data) {
+    this.props.onUpdatePatientData(this.props.patient.userid, data);
+  },
+
   updateChartPrefs: function(newChartPrefs) {
     var currentPrefs = _.clone(this.state.chartPrefs);
     _.assign(currentPrefs, newChartPrefs);
     this.setState({
       chartPrefs: currentPrefs
-    }, function() {
-      // this.log('Global example state changed:', JSON.stringify(this.state));
     });
   },
 
   updateDatetimeLocation: function(datetime) {
     this.setState({
       datetimeLocation: datetime
-    }, function() {
-      // this.log('Global example state changed:', JSON.stringify(this.state));
     });
   }
 });

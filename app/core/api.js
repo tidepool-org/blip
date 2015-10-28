@@ -79,6 +79,17 @@ api.user.login = function(user, options, cb) {
   });
 };
 
+api.user.oauthLogin = function(accessToken, cb) {
+  api.log('GET /user/oauthLogin');
+
+  tidepool.oauthLogin(accessToken, function(err, data) {
+    if (err) {
+      return cb(err);
+    }
+    cb(null, data);
+  });
+};
+
 api.user.signup = function(user, cb) {
   api.log('POST /user');
 

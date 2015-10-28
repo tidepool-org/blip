@@ -13,6 +13,7 @@ var defineEnvPlugin = new webpack.DefinePlugin({
   __API_HOST__: JSON.stringify(process.env.API_HOST || null),
   __SHOW_ACCEPT_TERMS__: JSON.stringify(process.env.SHOW_ACCEPT_TERMS || null),
   __PASSWORD_MIN_LENGTH__: JSON.stringify(process.env.PASSWORD_MIN_LENGTH || null),
+  __INVITE_KEY__: JSON.stringify(process.env.INVITE_KEY || null),
   __DEV__: false
 });
 
@@ -26,7 +27,7 @@ module.exports = {
     loaders: [
       {test: /\.js$/, loader: 'jsx-loader'},
       {test: /\.less$/, loader: 'style-loader!css-loader!autoprefixer-loader!less-loader'},
-      {test: /\.gif$/, loader: 'url-loader?limit=10000&mimetype=image/gif'},
+      {test: /\.gif$/, loader: 'url-loader?limit=100000&mimetype=image/gif'},
       {test: /\.jpg$/, loader: 'url-loader?limit=10000&mimetype=image/jpg'},
       {test: /\.png$/, loader: 'url-loader?limit=10000&mimetype=image/png'},
       {test: /\.svg$/, loader: 'url-loader?limit=10000&mimetype=image/svg+xml'},
@@ -40,5 +41,7 @@ module.exports = {
   // tideline DEV env variable only needs to be true in tideline local dev
   plugins: [
     defineEnvPlugin
-  ]
+  ],
+  resolve: { fallback: path.join(__dirname, 'node_modules') },
+  resolveLoader: { fallback: path.join(__dirname, 'node_modules') }
 };

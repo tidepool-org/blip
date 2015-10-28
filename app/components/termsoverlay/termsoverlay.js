@@ -99,6 +99,7 @@ var TermsOverlay = React.createClass({
     var continueBtnDisabled = this.getTermsAndPrivacyButtonState();
     var agreeConfirmation = this.renderAgreeCheckboxes();
 
+
     return (
       <div className='terms-overlay js-terms'>
         <div className='terms-overlay-content terms-overlay-box'>
@@ -116,6 +117,7 @@ var TermsOverlay = React.createClass({
         </div>
       </div>
     );
+
   },
   renderAgreeCheckboxes:function(){
 
@@ -133,20 +135,6 @@ var TermsOverlay = React.createClass({
         </label>
       );
     }
-    return (
-      <div className='terms-overlay-accept-checkbox'>
-        <label htmlFor='agreed'>
-          <input
-            id='agreed'
-            type='checkbox'
-            className='js-terms-checkbox'
-            checked={this.state.agreed}
-            onChange={this.handleAgreementChange} />
-          {this.props.messages.ACCEPT_OF_AGE}
-        </label>
-        {onBehalf}
-      </div>
-    );
   },
   renderSorryMessage:function(){
     return (

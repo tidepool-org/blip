@@ -70,7 +70,7 @@ var SimpleForm = React.createClass({
     var submitButton = this.renderSubmitButton();
     var notification = this.renderNotification();
 
-    /* jshint ignore:start */
+    
     return (
         <form className="simple-form">
           <div className="simple-form-inputs" ref="inputs">
@@ -82,16 +82,16 @@ var SimpleForm = React.createClass({
           </div>
         </form>
     );
-    /* jshint ignore:end */
+    
   },
 
   renderInputs: function() {
     var self = this;
-    var inputs = this.props.inputs;
+    var inputs = this.props.inputs || [];
     if (inputs.length) {
-      /* jshint ignore:start */
+      
       return _.map(inputs, self.renderInput);
-      /* jshint ignore:end */
+      
     }
 
     return null;
@@ -107,7 +107,7 @@ var SimpleForm = React.createClass({
     var placeholder = input.placeholder;
     var disabled = this.props.disabled || input.disabled;
 
-    /* jshint ignore:start */
+    
     return (
       <InputGroup
         key={name}
@@ -121,14 +121,14 @@ var SimpleForm = React.createClass({
         disabled={disabled}
         onChange={this.handleChange}/>
     );
-    /* jshint ignore:end */
+    
   },
 
   renderSubmitButton: function() {
     var text = this.props.submitButtonText || 'Submit';
     var disabled = this.props.disabled || this.props.submitDisabled;
 
-    /* jshint ignore:start */
+    
     return (
       <button
         className="simple-form-submit btn btn-primary js-form-submit"
@@ -136,7 +136,7 @@ var SimpleForm = React.createClass({
         disabled={disabled}
         ref="submitButton">{text}</button>
     );
-    /* jshint ignore:end */
+    
   },
 
   renderNotification: function() {
@@ -150,11 +150,11 @@ var SimpleForm = React.createClass({
       ].join(' ');
       var message = notification.message;
 
-      /* jshint ignore:start */
+      
       return (
         <div className={className} ref="notification">{message}</div>
       );
-      /* jshint ignore:end */
+      
     }
     return null;
   },
