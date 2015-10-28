@@ -109,22 +109,23 @@ var SummaryGroup = React.createClass({
       }
     }
 
+    var percentageElem = (option.percentage) ? (
+      <span className="SummaryGroup-option-percentage">
+        ({d3.format('%')(percentage)})
+      </span>
+    ) : null;
+
     var valueElem = (
       <span className="SummaryGroup-option-count">
         {value}
+        {percentageElem}
       </span>
     );
-    var percentageElem = (option.percentage) ? (
-      <span className="SummaryGroup-option-percentage">
-        {d3.format('%')(percentage)}
-      </span>
-    ) : null;
 
     return (
       <div key={option.key} className={classes}
         onClick={this.handleSelectSubtotal.bind(null, option.key)}>
         <span className="SummaryGroup-option-label">{option.label}</span>
-        {percentageElem}
         {valueElem}
       </div>
     );
