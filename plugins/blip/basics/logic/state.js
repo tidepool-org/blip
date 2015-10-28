@@ -46,8 +46,10 @@ var basicsState = {
       selectorOptions: {
         primary: { key: 'total', label: 'Basal Events' },
         rows: [
-          { key: 'temp', label: 'Temp Basals' },
-          { key: 'suspend', label: 'Suspends' },
+          [
+            { key: 'temp', label: 'Temp Basals' },
+            { key: 'suspend', label: 'Suspends' }
+          ]
           // commented out because there's a problem with scheduleName in OmniPod data :(
           // { key: 'scheduleChange', label: 'Schedule Changes' }
         ]

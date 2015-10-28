@@ -27,7 +27,7 @@ var SummaryGroup = React.createClass({
   propTypes: {
     data: React.PropTypes.object.isRequired,
     selectedSubtotal: React.PropTypes.string.isRequired,
-    selectorOptions: React.PropTypes.array.isRequired,
+    selectorOptions: React.PropTypes.object.isRequired,
     sectionId: React.PropTypes.string.isRequired
   },
   render: function() {
@@ -35,6 +35,7 @@ var SummaryGroup = React.createClass({
     var primaryOption = self.props.selectorOptions.primary;
     var primaryElem = null;
     if (primaryOption) {
+      primaryOption.primary = true; //need to have property present indicating option is primary
       primaryElem = this.renderOption(primaryOption);
 
       if (!self.props.selectedSubtotal) {
@@ -44,10 +45,10 @@ var SummaryGroup = React.createClass({
 
     var optionRows = self.props.selectorOptions.rows;
 
-    var others = optionRows.map(function(row) {
+    var others = optionRows.map(function(row, id) {
       var options = row.map(self.renderOption);
       return (
-        <div className="SummaryGroup-row">
+        <div key={'row-'+id} className="SummaryGroup-row">
           {options}
         </div>
       );

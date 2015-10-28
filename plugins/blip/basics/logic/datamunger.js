@@ -272,6 +272,9 @@ module.exports = function(bgClasses) {
         summary[tag].percentage = summary[tag].count/summary.total;
       };
     },
+    _getRowKey: function(row) {
+      return _.pluck(row, 'key');
+    },
     _averageExcludingMostRecentDay: function(dataObj, total, mostRecentDay) {
       var mostRecentTotal = dataObj.dataByDate[mostRecentDay] ?
         dataObj.dataByDate[mostRecentDay].total : 0;
@@ -348,9 +351,7 @@ module.exports = function(bgClasses) {
           var section = _.find(basicsData.sections, findSectionContainingType(type));
           // wrap this in an if mostly for testing convenience
           if (section) {
-            var tags = _.flatten(section.selectorOptions.rows.map(function(row) {
-              return _.pluck(row, 'key');
-            }));
+            var tags = _.flatten(_.map(section.selectorOptions.rows, this._getRowKey));
 
             var summary = {total: Object.keys(typeObj.dataByDate)
               .reduce(reduceTotalByDate(typeObj), 0)};

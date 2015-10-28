@@ -34,13 +34,28 @@ module.exports = {
    */
   getPathToSelected: function() {
     var options = this.props.selectorOptions;
-    var selected = _.find(options, {selected: true});
+    var selected = findInOptions(options, {selected: true});
+
     if (selected) {
       return (selected && selected.path) ? selected.path : null;
     }
-    else {
-      var defaultOpt = _.find(options, {default: true});
+    else if (options) {
+      var defaultOpt = options.primary;
       return (defaultOpt && defaultOpt.path) ? defaultOpt.path : null;
     }
-  } 
+
+    return null;
+
+
+    function findInOptions(options, filter) {
+      if (!options || !options.row) {
+        return null;
+      }
+
+      var allOptions =  _.flatten(options.rows);
+      allOptions.push(options.primary);
+
+      return _.find(allOptions, filter);
+    }
+  }
 };

@@ -50,7 +50,7 @@ function clearSelected(opts) {
   opts.rows = opts.rows.map(function(row) {
     return row.map(function(opt) {
       return _.omit(opt, 'selected');
-    })
+    });
   });
 
   return opts;
@@ -66,7 +66,7 @@ function setSelected(opts, selectedKey) {
           opt.selected = true;
         }
         return opt;
-      })
+      });
     });
   }
 

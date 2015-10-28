@@ -40,7 +40,7 @@ var CalendarContainer = React.createClass({
     onSelectDay: React.PropTypes.func.isRequired,
     sectionId: React.PropTypes.string.isRequired,
     selector: React.PropTypes.func,
-    selectorOptions: React.PropTypes.array,
+    selectorOptions: React.PropTypes.object,
     timezone: React.PropTypes.string.isRequired,
     type: React.PropTypes.string.isRequired
   },
@@ -61,8 +61,12 @@ var CalendarContainer = React.createClass({
   _getSelectedSubtotal: function() {
     var options = this.props.selectorOptions;
 
-    return _.get(_.find(_.flatten(options.rows), {selected: true}), 'key', false) ||
+    if (options) {
+      return _.get(_.find(_.flatten(options.rows), {selected: true}), 'key', false) ||
       options.primary.key;
+    }
+
+    return null;
   },
   render: function() {
     var containerClass = cx('Calendar-container-' + this.props.type, {
