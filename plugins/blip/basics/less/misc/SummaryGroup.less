@@ -12,6 +12,7 @@
     align-self: flex-end;
 
     width: 160px;
+    flex-grow: 1;
     padding-top: 5px;
     cursor: pointer;
     height: 32px;
@@ -70,12 +71,15 @@
   .SummaryGroup-info-others {
     height: 70px;
     width: 489px;
+    display: flex;
+    flex-flow: row wrap;
   }
 
   .SummaryGroup-row {
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-around;
     flex-flow: row wrap;
+    flex-grow: 1;
 
     padding-top: 3px;
 
