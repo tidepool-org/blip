@@ -94,8 +94,11 @@ describe('TermsOverlay', function () {
         //continue
         var ageBtn = TestUtils.findRenderedDOMComponentWithTag(termsElem, 'button');
         TestUtils.Simulate.click(ageBtn);
-        //age confirmation is now true
+
+        //Check state
         expect(termsElem.state.ageConfirmed).to.equal(true);
+        expect(termsElem.state.ageSelected).to.equal(termsElem.props.ages.OF_AGE.value);
+
         //iframes shown with TOU and PP
         var iframes = TestUtils.scryRenderedDOMComponentsWithClass(termsElem, 'terms-overlay-iframe');
         expect(iframes).not.to.equal(null);
@@ -117,15 +120,15 @@ describe('TermsOverlay', function () {
         //Select Continue
         var ageBtn = TestUtils.findRenderedDOMComponentWithTag(termsElem, 'button');
         TestUtils.Simulate.click(ageBtn);
-        //age confirmation is now true
+
+        //Check state
         expect(termsElem.state.ageConfirmed).to.equal(true);
-        //terms not yet
+        expect(termsElem.state.ageSelected).to.equal(termsElem.props.ages.WITH_CONSENT.value);
         expect(termsElem.state.agreed).to.equal(false);
         expect(termsElem.state.agreedOnBehalf).to.equal(false);
 
-        /*var checkboxes = TestUtils.scryRenderedDOMComponentsWithTag(termsElem,'input');
+        var checkboxes = TestUtils.scryRenderedDOMComponentsWithTag(termsElem,'input');
 
-        console.log('## checkboxes ##',checkboxes);
 
         expect(checkboxes.length).to.equal(2);
         var agreed = checkboxes[0];
@@ -140,7 +143,7 @@ describe('TermsOverlay', function () {
         //now we should be able to click the button
         var continueButton = TestUtils.findRenderedDOMComponentWithTag(termsElem, 'button');
         expect(continueButton.props.children).to.equal('Continue');
-        expect(continueButton.props.disabled).to.equal(false);*/
+        expect(continueButton.props.disabled).to.equal(false);
       });
       it('will not allow TOU and PP confirmation if both checkboxes are not selected', function() {
         //Select between 13 and 17
@@ -151,19 +154,21 @@ describe('TermsOverlay', function () {
         TestUtils.Simulate.click(ageBtn);
         //age confirmation is now true
         expect(termsElem.state.ageConfirmed).to.equal(true);
-        //terms not yet
+        expect(termsElem.state.ageSelected).to.equal(termsElem.props.ages.WITH_CONSENT.value);
         expect(termsElem.state.agreed).to.equal(false);
         expect(termsElem.state.agreedOnBehalf).to.equal(false);
 
-        /*var checkboxes = TestUtils.scryRenderedDOMComponentsWithTag(termsElem,'input');
+        var checkboxes = TestUtils.scryRenderedDOMComponentsWithTag(termsElem,'input');
+
         expect(checkboxes.length).to.equal(2);
+
         var agreed = checkboxes[0];
         var agreedOnBehalf = checkboxes[1];
         //only check one
         TestUtils.Simulate.change(agreedOnBehalf);
 
         expect(termsElem.state.agreed).to.equal(false);
-        expect(termsElem.state.agreedOnBehalf).to.equal(true);*/
+        expect(termsElem.state.agreedOnBehalf).to.equal(true);
 
         //now we should NOT be able to click the button
         var continueButton = TestUtils.findRenderedDOMComponentWithTag(termsElem, 'button');
@@ -176,15 +181,19 @@ describe('TermsOverlay', function () {
       it('display sorry message', function() {
         // I am 12 years old or younger.
         var underTwelveOpt = TestUtils.scryRenderedDOMComponentsWithTag(termsElem,'input')[2];
+
         TestUtils.Simulate.change(underTwelveOpt);
         expect(underTwelveOpt.props.value).to.equal(termsElem.props.ages.NOT_OF_AGE.value);
+
         //Continue
         var ageBtn = TestUtils.findRenderedDOMComponentWithTag(termsElem, 'button');
         TestUtils.Simulate.click(ageBtn);
-        //age confirmation is now true
+
+        //State check
         expect(termsElem.state.ageConfirmed).to.equal(true);
-        //not yet accepted
+        expect(termsElem.state.ageSelected).to.equal(termsElem.props.ages.NOT_OF_AGE.value);
         expect(termsElem.state.agreed).to.equal(false);
+
         //No TOU and PP shown
         var iframes = TestUtils.scryRenderedDOMComponentsWithClass(termsElem, 'terms-overlay-iframe');
         expect(iframes).to.be.empty;
