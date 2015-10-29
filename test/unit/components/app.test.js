@@ -105,4 +105,94 @@ describe('App', function () {
       });
     });
   });
+
+  describe('terms', function() {
+
+    describe('overlay', function() {
+      //override 
+      var utils = require('../../../app/core/utils'); 
+      var stub = sinon.stub(utils, 'isChrome');
+      stub.returns(true);
+
+      it('should render when user has not cccepted terms but is logged in', function() {
+
+        React.withContext(context, function() {
+
+          var elem = TestUtils.renderIntoDocument(<App/>);
+
+          elem.initAppUtils(utils);
+          elem.setState({ authenticated: true });
+
+          expect(elem.state.authenticated).to.equal(true);
+
+          var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-overlay');
+
+          expect(termsElems.length).to.not.equal(0);
+
+        });
+      });
+      it('should NOT render when user has acccepted terms and is logged in', function() {
+
+        React.withContext(context, function() {
+
+          var elem = TestUtils.renderIntoDocument(<App/>);
+
+          elem.initAppUtils(utils);
+
+          var acceptDate = new Date().toISOString();
+
+          elem.setState({ authenticated: true, termsAccepted: acceptDate });
+
+          expect(elem.state.authenticated).to.equal(true);
+          expect(elem.state.termsAccepted).to.equal(acceptDate);
+
+          var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-overlay');
+          expect(termsElems.length).to.equal(0);
+
+        });
+      });
+    });
+    describe('acceptance', function() {
+      it('should set the state for termsAccepted ', function() {
+
+        var apiStub = sinon.stub(api.user, 'acceptTerms',function () { return null; });
+
+        React.withContext(context, function() {
+
+          var elem = TestUtils.renderIntoDocument(<App/>);
+          expect(elem.state.termsAccepted).to.equal(null);
+          elem.setState({ authenticated: true });
+          elem.handleAcceptedTerms();
+          expect(elem.state.termsAccepted).to.not.equal(null);
+          apiStub.restore();
+        });
+      });
+      it('should allow user to use blip', function() {
+
+        var apiStub = sinon.stub(api.user, 'acceptTerms',function () { return null; });
+
+        React.withContext(context, function() {
+
+          var elem = TestUtils.renderIntoDocument(<App/>);
+          elem.setState({ authenticated: true });
+          expect(elem.state.authenticated).to.equal(true);
+          expect(elem.state.termsAccepted).to.equal(null);
+          elem.setState({ authenticated: true });
+          elem.handleAcceptedTerms();
+          expect(elem.state.termsAccepted).to.not.equal(null);
+          expect(elem.state.authenticated).to.equal(true);
+
+          //check we aren't seeing the terms
+          var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-overlay');
+          expect(termsElems.length).to.equal(0);
+
+          //because its fake we are showing the login page ...
+          var form = TestUtils.findRenderedDOMComponentWithClass(elem, 'login-simpleform');
+          expect(form).to.be.ok;
+
+          apiStub.restore();
+        });
+      });
+    });
+  });
 });

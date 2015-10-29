@@ -27,7 +27,7 @@ var router = require('../../router');
 var routeMap = require('../../routemap');
 var personUtils = require('../../core/personutils');
 var queryString = require('../../core/querystring');
-var utils = require('../../core/utils');
+var utils;
 
 var usrMessages = require('../../userMessages');
 
@@ -127,6 +127,15 @@ var AppComponent = React.createClass({
     };
   },
 
+  initAppUtils: function(injectedUtils){
+    if (! _.isEmpty(injectedUtils)){
+      utils = injectedUtils;
+      return;
+    }
+    utils = require('../../core/utils');
+    return;
+  },
+
   doOauthLogin:function(accessToken){
     var self = this;
     self.context.api.user.oauthLogin(accessToken, function(err, data){
@@ -153,7 +162,6 @@ var AppComponent = React.createClass({
     if (this.state.authenticated) {
       this.fetchUser();
     }
-
     this.setupAndStartRouter();
   },
 
@@ -194,6 +202,7 @@ var AppComponent = React.createClass({
   },
 
   render: function() {
+    this.initAppUtils(null);
     this.context.log('Rendering AppComponent');
     var overlay = this.renderOverlay();
     var navbar = this.renderNavbar();
@@ -218,18 +227,15 @@ var AppComponent = React.createClass({
       return (
         <LogoutOverlay ref="logoutOverlay" />
       );
-
     }
 
     if (!utils.isChrome()) {
       return (
         <BrowserWarningOverlay />
       );
-
     }
 
     if (_.isEmpty(this.state.termsAccepted) && this.state.authenticated === true) {
-
       return (
         <TermsOverlay
           onSubmit={this.handleAcceptedTerms}
@@ -923,16 +929,17 @@ var AppComponent = React.createClass({
     this.redirectToDefaultRoute();
     this.context.trackMetric('Signup Verified');
   },
-  handleAcceptedTerms: function(ageRange) {
+  handleAcceptedTerms: function() {
     var self = this;
     var acceptedDate = sundial.utcDateString();
 
-    self.api.user.acceptTerms({ terms: acceptedDate, termsAge: ageRange },function(err) {
+    self.context.api.user.acceptTerms({ termsAccepted: acceptedDate }, function(err) {
       if (err) {
         return self.handleApiError(err, usrMessages.ERR_ACCEPTING_TERMS, utils.buildExceptionDetails());
       }
-      return self.setState({ termsAccepted: acceptedDate });
     });
+
+    return self.setState({ termsAccepted: acceptedDate });
   },
   logout: function() {
     var self = this;
