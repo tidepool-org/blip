@@ -157,10 +157,9 @@ var AppComponent = React.createClass({
       }
     });
   },
-
   componentDidMount: function() {
     if (this.state.authenticated) {
-      this.fetchUser();
+        this.fetchUser();
     }
     this.setupAndStartRouter();
   },
@@ -235,15 +234,17 @@ var AppComponent = React.createClass({
       );
     }
 
+    return null;
+  },
+
+  renderTermsOverlay:function(){
     if (_.isEmpty(this.state.termsAccepted) && this.state.authenticated === true) {
       return (
         <TermsOverlay
           onSubmit={this.handleAcceptedTerms}
           trackMetric={this.context.trackMetric} />
       );
-
     }
-
     return null;
   },
 
@@ -350,7 +351,6 @@ var AppComponent = React.createClass({
   renderPage: function() {
     return null;
   },
-
   showLogin: function() {
     var hashQueryParams = this.context.router.getQueryParams();
     if (!_.isEmpty(hashQueryParams.accessToken)) {
@@ -991,9 +991,15 @@ var AppComponent = React.createClass({
 
       self.setState({
         user: user,
-        termsAccepted : user.terms,
+        termsAccepted : user.termsAccepted,
         fetchingUser: false
       });
+
+      //check they have accepted the terms
+      if( !personUtils.isConfirmed(self.state.user)){
+        self.renderOverlay = self.renderTermsOverlay;
+      }
+
     });
   },
 
