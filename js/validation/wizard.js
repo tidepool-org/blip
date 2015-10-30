@@ -34,6 +34,14 @@ module.exports = schema(
     bgTarget: schema().ifExists().oneOf(
       schema(
           {
+            target: schema().number(),
+            low: schema().banned(),
+            high: schema().banned(),
+            range: schema().banned()
+          }
+      ),
+      schema(
+          {
             low: schema().number(),
             high: schema().number(),
             range: schema().banned(),
