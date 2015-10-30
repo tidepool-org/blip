@@ -8,7 +8,7 @@ var expect = chai.expect;
 var rewire = require('rewire');
 var rewireModule = require('../../utils/rewireModule');
 
-// Need to add this line as app.js includes config 
+// Need to add this line as app.js includes config
 // which errors if window.config does not exist
 window.config = {};
 var api = require('../../../app/core/api');
@@ -109,12 +109,12 @@ describe('App', function () {
   describe('terms', function() {
 
     describe('overlay', function() {
-      //override 
-      var utils = require('../../../app/core/utils'); 
+      //override
+      var utils = require('../../../app/core/utils');
       var stub = sinon.stub(utils, 'isChrome');
       stub.returns(true);
 
-      it('should render when user has not cccepted terms but is logged in', function() {
+      it('should render when user has not accepted terms but is logged in', function() {
 
         React.withContext(context, function() {
 

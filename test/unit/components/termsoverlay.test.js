@@ -7,6 +7,7 @@ var expect = chai.expect;
 var TermsOverlay = require('../../../app/components/termsoverlay');
 
 describe('TermsOverlay', function () {
+
   describe('render', function() {
     it('should console.warn when trackMetric not set', function () {
       console.warn = sinon.stub();

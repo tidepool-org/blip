@@ -157,6 +157,7 @@ var AppComponent = React.createClass({
       }
     });
   },
+
   componentDidMount: function() {
     if (this.state.authenticated) {
         this.fetchUser();
