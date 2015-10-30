@@ -81,6 +81,9 @@ describe('sundial', function() {
     it('should have a getTimezones method',function(){
       expect(datetimeWrapper.getTimezones).to.exist;
     });
+    it('should have a getUTCFromLocalTimeAndTimezone method',function(){
+      expect(datetimeWrapper.getUTCFromLocalTimeAndTimezone).to.exist;
+    });
     it('should have a futureDate method',function(){
       expect(datetimeWrapper.futureDate).to.exist;
     });
@@ -512,6 +515,19 @@ describe('sundial', function() {
           expect(timezone.value).to.exist;
           expect(timezone.offset).to.exist;
         });
+      });
+    });
+
+    describe('getUTCFromLocalTimeAndTimezone', function() {
+      it('returns UTC integer of a local timestamp plus timezone', function(){
+        expect(datetimeWrapper.getUTCFromLocalTimeAndTimezone(
+          '2015-01-01T00:00:00', 'US/Eastern')
+        ).to.equal(Date.parse('2015-01-01T05:00:00.000Z'));
+      });
+
+      it('errors if no timezone provided', function(){
+        var fn = function() { datetimeWrapper.getUTCFromLocalTimeAndTimezone('2015-01-01T05:00:00'); };
+        expect(fn).to.throw('A timezone is required!');
       });
     });
 
