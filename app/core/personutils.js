@@ -83,6 +83,13 @@ personUtils.isRemoveable = function(person) {
   );
 };
 
+personUtils.isConfirmed = function(person) {
+  return (
+    person &&
+    !_.isEmpty(person.termsAccepted)
+  );
+};
+
 /**
    * Validate the form data
    *  - name has to be present (can only not be present if user is not patient)

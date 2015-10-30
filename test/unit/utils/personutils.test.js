@@ -156,6 +156,16 @@ describe('personutils', function() {
       expect(result).to.not.be.ok;
     });
   });
+  describe('isConfirmed', function() {
+    it('should return false if termsAccepted not set', function() {
+      expect(personUtils.isConfirmed({termsAccepted: ''})).to.equal(false);
+      expect(personUtils.isConfirmed({termsAccepted: null})).to.equal(false);
+    });
+
+    it('should return true if termsAccepted is set', function() {
+      expect(personUtils.isConfirmed({termsAccepted: new Date().toISOString()})).to.equal(true);
+    });
+  });
 
   describe('validateFormValues', function() {
     var INVALID_DATE_TEXT = 'Hmm, this date doesn’t look right';
