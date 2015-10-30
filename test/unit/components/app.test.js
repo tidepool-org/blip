@@ -124,9 +124,9 @@ describe('App', function () {
           elem.setState({ authenticated: true });
 
           expect(elem.state.authenticated).to.equal(true);
+          expect(elem.state.termsAccepted).to.equal(null);
 
           var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-overlay');
-
           expect(termsElems.length).to.not.equal(0);
 
         });

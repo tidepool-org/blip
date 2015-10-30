@@ -234,19 +234,19 @@ var AppComponent = React.createClass({
         <BrowserWarningOverlay />
       );
     }
+    if (this.state.authenticated === true && _.isEmpty(this.state.termsAccepted)){
+      return this.renderTermsOverlay();
+    }
 
     return null;
   },
 
-  renderTermsOverlay:function(){
-    if (_.isEmpty(this.state.termsAccepted) && this.state.authenticated === true) {
-      return (
-        <TermsOverlay
-          onSubmit={this.handleAcceptedTerms}
-          trackMetric={this.context.trackMetric} />
-      );
-    }
-    return null;
+  renderTermsOverlay: function(){
+    return (
+      <TermsOverlay
+        onSubmit={this.handleAcceptedTerms}
+        trackMetric={this.context.trackMetric} />
+    );
   },
 
   renderNavbar: function() {
