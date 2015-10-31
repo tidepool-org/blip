@@ -84,7 +84,7 @@ var basicsState = {
       open: true,
       selector: SummaryGroup,
       selectorOptions: [
-        { key: 'total', label: 'All Boluses', default: true, primary: true },
+        { key: 'total', label: 'Average per day', default: true, primary: true, average: true },
         { key: 'wizard', label: 'Calculator', percentage: true  },
         { key: 'correction', label: 'Correction', percentage: true  },
         { key: 'override', label: 'Override', percentage: true  },
@@ -106,7 +106,7 @@ var basicsState = {
       open: true,
       selector: SummaryGroup,
       selectorOptions: [
-        { path: 'smbg', key: 'total', label: 'All BGs', default: true, primary: true },
+        { path: 'smbg', key: 'total', label: 'Average per day', default: true, primary: true, average:true },
         { path: 'smbg', key: 'meter', label: 'Meter', percentage: true },
         { path: 'smbg', key: 'manual', label: 'Manual', percentage: true },
         { path: 'calibration', key: 'calibration', label: 'Calibrations' },

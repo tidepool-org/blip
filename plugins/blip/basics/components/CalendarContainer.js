@@ -90,8 +90,12 @@ var CalendarContainer = React.createClass({
     );
   },
   renderSelector: function() {
+    var noDays = _.filter(this.props.days, function(row) {
+      return row.type !== 'future'; 
+    }).length;
     return this.props.selector({ 
       data: this.props.data[this.props.type].summary,
+      noDays: noDays,
       selectedSubtotal: this._getSelectedSubtotal(),
       selectorOptions: this.props.selectorOptions,
       sectionId: this.props.sectionId
