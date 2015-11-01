@@ -24,8 +24,8 @@ describe('PatientNew', function () {
       var elem = TestUtils.renderIntoDocument(<PatientNew/>);
       expect(elem).to.be.ok;
       expect(console.warn.callCount).to.equal(2);
-      expect(console.warn.calledWith('Warning: Required prop `onSubmit` was not specified in `PatientNew`.')).to.equal(true);
-      expect(console.warn.calledWith('Warning: Required prop `trackMetric` was not specified in `PatientNew`.')).to.equal(true);
+      expect(console.warn.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `PatientNew`.')).to.equal(true);
+      expect(console.warn.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `PatientNew`.')).to.equal(true);
     });
   });
 

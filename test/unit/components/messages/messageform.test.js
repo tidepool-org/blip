@@ -32,7 +32,7 @@ describe('MessageForm', function () {
       };
       var elem = React.createElement(MessageForm, props);
       var render = TestUtils.renderIntoDocument(elem);
-      expect(console.warn.calledWith('Warning: Required prop `timePrefs` was not specified in `MessageForm`.')).to.equal(true);
+      expect(console.warn.calledWith('Warning: Failed propType: Required prop `timePrefs` was not specified in `MessageForm`.')).to.equal(true);
       expect(console.warn.callCount).to.equal(1);
     });
   });

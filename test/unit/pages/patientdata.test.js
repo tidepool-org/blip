@@ -34,11 +34,11 @@ describe('PatientData', function () {
       var elem = TestUtils.renderIntoDocument(<PatientData/>);
       expect(elem).to.be.ok;
       expect(console.warn.callCount).to.equal(5);
-      expect(console.warn.calledWith('Warning: Required prop `timePrefs` was not specified in `PatientData`.')).to.equal(true);
-      expect(console.warn.calledWith('Warning: Required prop `fetchingPatient` was not specified in `PatientData`.')).to.equal(true);
-      expect(console.warn.calledWith('Warning: Required prop `fetchingPatientData` was not specified in `PatientData`.')).to.equal(true);
-      expect(console.warn.calledWith('Warning: Required prop `queryParams` was not specified in `PatientData`.')).to.equal(true);
-      expect(console.warn.calledWith('Warning: Required prop `trackMetric` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.warn.calledWith('Warning: Failed propType: Required prop `timePrefs` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.warn.calledWith('Warning: Failed propType: Required prop `fetchingPatient` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.warn.calledWith('Warning: Failed propType: Required prop `fetchingPatientData` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.warn.calledWith('Warning: Failed propType: Required prop `queryParams` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.warn.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `PatientData`.')).to.equal(true);
     });
 
     it ('should not warn when required props are set', function() {

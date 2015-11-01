@@ -23,7 +23,7 @@ describe('App', function () {
   router.log = sinon.stub();
   api.log = sinon.stub();
 
-  var context = {
+  var childContext = {
     log: sinon.stub(),
     api: mock.patchApi(api),
     personUtils: personUtils,
@@ -36,73 +36,58 @@ describe('App', function () {
     it('should render without problems', function () {
       console.warn = sinon.stub();
       console.error = sinon.stub();
-      React.withContext(context, function() {
-        var elem = TestUtils.renderIntoDocument(<App/>);
-        expect(elem).to.be.ok;
-        expect(console.warn.callCount).to.equal(0);
-        expect(console.error.callCount).to.equal(0);
-        var app = TestUtils.findRenderedDOMComponentWithClass(elem, 'app');
-        expect(app).to.be.ok;
-      });
+      
+      var elem = TestUtils.renderIntoDocument(<App {...childContext} />);
+      expect(elem).to.be.ok;
+      expect(console.warn.callCount).to.equal(0);
+      expect(console.error.callCount).to.equal(0);
+      var app = TestUtils.findRenderedDOMComponentWithClass(elem, 'app');
+      expect(app).to.be.ok;
     });
 
     it('authenticated state should be false on boot', function () {
-      React.withContext(context, function() {
-        var elem = TestUtils.renderIntoDocument(<App/>);
-        expect(elem.state.authenticated).to.equal(false);
-      });
+      var elem = TestUtils.renderIntoDocument(<App {...childContext} />);
+      expect(elem.state.authenticated).to.equal(false);
     });
 
     it('timezoneAware should be false and timeZoneName should be null', function() {
-      React.withContext(context, function() {
-        var elem = TestUtils.renderIntoDocument(<App/>);
-        expect(elem.state.timePrefs.timezoneAware).to.equal(false);
-        expect(elem.state.timePrefs.timezoneName).to.equal(null);
-      });
+      var elem = TestUtils.renderIntoDocument(<App {...childContext} />);
+      expect(elem.state.timePrefs.timezoneAware).to.equal(false);
+      expect(elem.state.timePrefs.timezoneName).to.equal(null);
     });
 
     it('bgUnits should be mg/dL', function() {
-      React.withContext(context, function() {
-        var elem = TestUtils.renderIntoDocument(<App/>);
-        expect(elem.state.bgPrefs.bgUnits).to.equal('mg/dL');
-      });
+      var elem = TestUtils.renderIntoDocument(<App {...childContext} />);
+      expect(elem.state.bgPrefs.bgUnits).to.equal('mg/dL');
     });
 
     it('should render login form', function () {
-      React.withContext(context, function() {
-        var elem = TestUtils.renderIntoDocument(<App/>);
-        var form = TestUtils.findRenderedDOMComponentWithClass(elem, 'login-simpleform');
-        expect(form).to.be.ok;
-      });
+      var elem = TestUtils.renderIntoDocument(<App {...childContext} />);
+      var form = TestUtils.findRenderedDOMComponentWithClass(elem, 'login-simpleform');
+      expect(form).to.be.ok;
     });
 
     it('should render footer', function () {
-      React.withContext(context, function() {
-        var elem = TestUtils.renderIntoDocument(<App/>);
-        var footer = TestUtils.findRenderedDOMComponentWithClass(elem, 'footer');
-        expect(footer).to.be.ok;
-      });
+      var elem = TestUtils.renderIntoDocument(<App {...childContext} />);
+      var footer = TestUtils.findRenderedDOMComponentWithClass(elem, 'footer');
+      expect(footer).to.be.ok;
     });
 
     it('should not render a version element when version not set in config', function () {
       App.__set__('config', {VERSION: null});
 
-      React.withContext(context, function() {
-        var elem = TestUtils.renderIntoDocument(<App/>);
-        var footer = TestUtils.findRenderedDOMComponentWithClass(elem, 'footer');
-        var versionElems = TestUtils.scryRenderedDOMComponentsWithClass(footer, 'Navbar-version');
-        expect(versionElems.length).to.equal(0);
-      });
+      var elem = TestUtils.renderIntoDocument(<App {...childContext} />);
+      var footer = TestUtils.findRenderedDOMComponentWithClass(elem, 'footer');
+      var versionElems = TestUtils.scryRenderedDOMComponentsWithClass(footer, 'Navbar-version');
+      expect(versionElems.length).to.equal(0);
     });
 
     it('should render version when version present in config', function () {
       App.__set__('config', {VERSION: 1.4});
-      React.withContext(context, function() {
-        var elem = TestUtils.renderIntoDocument(<App/>);
-        var footer = TestUtils.findRenderedDOMComponentWithClass(elem, 'footer');
-        var version = TestUtils.findRenderedDOMComponentWithClass(footer, 'Navbar-version');
-        expect(version).to.be.ok;
-      });
+      var elem = TestUtils.renderIntoDocument(<App {...childContext} />);
+      var footer = TestUtils.findRenderedDOMComponentWithClass(elem, 'footer');
+      var version = TestUtils.findRenderedDOMComponentWithClass(footer, 'Navbar-version');
+      expect(version).to.be.ok;
     });
   });
 });

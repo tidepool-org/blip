@@ -19,7 +19,7 @@ describe('LoginNav', function () {
       console.warn = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<LoginNav />);
       expect(console.warn.callCount).to.equal(1);
-      expect(console.warn.calledWith('Warning: Required prop `trackMetric` was not specified in `LoginNav`.')).to.equal(true);
+      expect(console.warn.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `LoginNav`.')).to.equal(true);
     });
 
     it('should render without problems when required props are present', function () {
