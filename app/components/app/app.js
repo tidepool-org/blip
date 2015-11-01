@@ -242,6 +242,9 @@ var AppComponent = React.createClass({
   },
 
   renderTermsOverlay: function(){
+    if (this.state.fetchingUser){
+      return null;
+    }
     return (
       <TermsOverlay
         onSubmit={this.handleAcceptedTerms}
