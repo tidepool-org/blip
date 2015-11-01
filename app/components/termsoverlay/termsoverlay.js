@@ -169,7 +169,8 @@ var TermsOverlay = React.createClass({
   websiteTerms: function() {
     return React.DOM.iframe({
       className         : 'terms-overlay-iframe',
-      src               : 'https://github.com/tidepool-org/tidepool-org.github.io/blob/master/_docs/privacy-policy.md',
+      //src               : 'https://developer.tidepool.io/terms-of-use',
+      src               : 'https://tidepool.org/2015/10/31/its-a-matter-of-time/',
       scrolling         : 'yes',
       frameBorder       : '0',
       allowTransparency : 'true'
@@ -178,7 +179,8 @@ var TermsOverlay = React.createClass({
   websitePrivacy: function() {
     return React.DOM.iframe({
       className         : 'terms-overlay-iframe',
-      src               : 'https://github.com/tidepool-org/tidepool-org.github.io/blob/master/_docs/privacy-policy.md',
+      //src               : 'https://developer.tidepool.io/privacy-policy',
+      src               : 'https://tidepool.org/2015/10/31/its-a-matter-of-time/',
       scrolling         : 'yes',
       frameBorder       : '0',
       allowTransparency : 'true'
