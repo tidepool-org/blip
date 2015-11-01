@@ -234,7 +234,8 @@ var AppComponent = React.createClass({
         <BrowserWarningOverlay />
       );
     }
-    if (this.state.authenticated === true && _.isEmpty(this.state.termsAccepted)){
+
+    if (!this.state.fetchingUser){
       return this.renderTermsOverlay();
     }
 
@@ -242,14 +243,14 @@ var AppComponent = React.createClass({
   },
 
   renderTermsOverlay: function(){
-    if (this.state.fetchingUser){
-      return null;
+    if (this.state.authenticated && _.isEmpty(this.state.termsAccepted)){
+      return (
+        <TermsOverlay
+          onSubmit={this.handleAcceptedTerms}
+          trackMetric={this.context.trackMetric} />
+      );
     }
-    return (
-      <TermsOverlay
-        onSubmit={this.handleAcceptedTerms}
-        trackMetric={this.context.trackMetric} />
-    );
+    return null;
   },
 
   renderNavbar: function() {
@@ -941,9 +942,9 @@ var AppComponent = React.createClass({
       if (err) {
         return self.handleApiError(err, usrMessages.ERR_ACCEPTING_TERMS, utils.buildExceptionDetails());
       }
+      return self.setState({ termsAccepted: acceptedDate });
     });
 
-    return self.setState({ termsAccepted: acceptedDate });
   },
   logout: function() {
     var self = this;
@@ -999,10 +1000,8 @@ var AppComponent = React.createClass({
         fetchingUser: false
       });
 
-      //check they have accepted the terms
-      if( !personUtils.isConfirmed(self.state.user)){
-        self.renderOverlay = self.renderTermsOverlay;
-      }
+      //will show terms if not yet accepted
+      self.renderOverlay = self.renderTermsOverlay;
 
     });
   },
