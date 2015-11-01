@@ -83,24 +83,17 @@ personUtils.isRemoveable = function(person) {
   );
 };
 
-personUtils.isConfirmed = function(person) {
-  return (
-    person &&
-    !_.isEmpty(person.termsAccepted)
-  );
-};
-
 /**
    * Validate the form data
    *  - name has to be present (can only not be present if user is not patient)
    *  - date of birth needs to be a valid date, and not in the future
    *  - diagnosis date need to be a valid date, and not in the future, and not before date of birth
-   *  
+   *
    * @param  {Object} formValues
    * @param  {Boolean} isNameRequired
    * @param  {String} dateFormat of input
    * @param  {Date|null} currentDate mainly for testing purposes
-   * 
+   *
    * @return {String|undefined} returns a string if there is an error
    */
 personUtils.validateFormValues = function(formValues, isNameRequired, dateFormat, currentDateObj) {

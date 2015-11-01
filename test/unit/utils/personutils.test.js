@@ -156,16 +156,6 @@ describe('personutils', function() {
       expect(result).to.not.be.ok;
     });
   });
-  describe('isConfirmed', function() {
-    it('should return false if termsAccepted not set', function() {
-      expect(personUtils.isConfirmed({termsAccepted: ''})).to.equal(false);
-      expect(personUtils.isConfirmed({termsAccepted: null})).to.equal(false);
-    });
-
-    it('should return true if termsAccepted is set', function() {
-      expect(personUtils.isConfirmed({termsAccepted: new Date().toISOString()})).to.equal(true);
-    });
-  });
 
   describe('validateFormValues', function() {
     var INVALID_DATE_TEXT = 'Hmm, this date doesn’t look right';
@@ -341,16 +331,16 @@ describe('personutils', function() {
       var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT);
 
       expect(error.about).to.equal('Please keep "about" text under 256 characters');
-    }); 
+    });
 
     it('should return no error message when diagnosisDate and birthday and about is at max length', function() {
       var formValues = {
         fullName: 'Joe Bloggs',
         birthday: '01/01/1984',
         diagnosisDate: '01/05/1984',
-        about: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' + 
-        'Enim in consectetur ultricies netus torquent nisi gravida pulvinar' + 
-        ' - curae congue tellus sodales nec proin?Risus in nostra montes rhoncus' + 
+        about: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' +
+        'Enim in consectetur ultricies netus torquent nisi gravida pulvinar' +
+        ' - curae congue tellus sodales nec proin?Risus in nostra montes rhoncus' +
         ' vestibulum tempus per ut: curae maecenas nibh arcu eget. Dolb'
       };
       var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT);
