@@ -165,7 +165,7 @@ describe('App', function () {
 
           //stub call to api upon which the termsAccepted is set
           var acceptDate = new Date().toISOString();
-          var apiStub = sinon.stub(api.user, 'acceptTerms',function () { elem.setState({termsAccepted:acceptDate})});
+          var apiStub = sinon.stub(api.user, 'acceptTerms',function () { elem.setState({termsAccepted:acceptDate});});
 
           elem.handleAcceptedTerms();
           expect(elem.state.termsAccepted).to.equal(acceptDate);
@@ -183,7 +183,7 @@ describe('App', function () {
 
           //stub call to api upon which the termsAccepted is set
           var acceptDate = new Date().toISOString();
-          var apiStub = sinon.stub(api.user, 'acceptTerms',function () { elem.setState({termsAccepted:acceptDate})});
+          var apiStub = sinon.stub(api.user, 'acceptTerms',function () { elem.setState({termsAccepted:acceptDate});});
 
           elem.handleAcceptedTerms();
 
@@ -211,7 +211,7 @@ describe('App', function () {
           elem.setState({ authenticated: true, fetchingUser: false });
 
           //stub call to api upon which the termsAccepted is NOT set in this case
-          var apiStub = sinon.stub(api.user, 'acceptTerms',function () { elem.setState({termsAccepted:null})});
+          var apiStub = sinon.stub(api.user, 'acceptTerms',function () { elem.setState({termsAccepted:null});});
 
           elem.handleAcceptedTerms();
 
