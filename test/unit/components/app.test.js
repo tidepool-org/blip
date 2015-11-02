@@ -121,9 +121,10 @@ describe('App', function () {
           var elem = TestUtils.renderIntoDocument(<App/>);
 
           elem.initAppUtils(utils);
-          elem.setState({ authenticated: true });
+          elem.setState({ authenticated: true , fetchingUser: false});
 
           expect(elem.state.authenticated).to.equal(true);
+          expect(elem.state.fetchingUser).to.equal(false);
           expect(elem.state.termsAccepted).to.equal(null);
 
           var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-overlay');
@@ -141,9 +142,10 @@ describe('App', function () {
 
           var acceptDate = new Date().toISOString();
 
-          elem.setState({ authenticated: true, termsAccepted: acceptDate });
+          elem.setState({ authenticated: true, termsAccepted: acceptDate, fetchingUser: false });
 
           expect(elem.state.authenticated).to.equal(true);
+          expect(elem.state.fetchingUser).to.equal(false);
           expect(elem.state.termsAccepted).to.equal(acceptDate);
 
           var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-overlay');
@@ -155,32 +157,39 @@ describe('App', function () {
     describe('acceptance', function() {
       it('should set the state for termsAccepted ', function() {
 
-        var apiStub = sinon.stub(api.user, 'acceptTerms',function () { return null; });
-
         React.withContext(context, function() {
 
           var elem = TestUtils.renderIntoDocument(<App/>);
           expect(elem.state.termsAccepted).to.equal(null);
-          elem.setState({ authenticated: true });
+          elem.setState({ authenticated: true, fetchingUser: false });
+
+          //stub call to api upon which the termsAccepted is set
+          var acceptDate = new Date().toISOString();
+          var apiStub = sinon.stub(api.user, 'acceptTerms',function () { elem.setState({termsAccepted:acceptDate})});
+
           elem.handleAcceptedTerms();
-          expect(elem.state.termsAccepted).to.not.equal(null);
+          expect(elem.state.termsAccepted).to.equal(acceptDate);
+          expect(elem.state.fetchingUser).to.equal(false);
           apiStub.restore();
         });
       });
       it('should allow user to use blip', function() {
 
-        var apiStub = sinon.stub(api.user, 'acceptTerms',function () { return null; });
-
         React.withContext(context, function() {
 
           var elem = TestUtils.renderIntoDocument(<App/>);
-          elem.setState({ authenticated: true });
-          expect(elem.state.authenticated).to.equal(true);
           expect(elem.state.termsAccepted).to.equal(null);
-          elem.setState({ authenticated: true });
+          elem.setState({ authenticated: true, fetchingUser: false });
+
+          //stub call to api upon which the termsAccepted is set
+          var acceptDate = new Date().toISOString();
+          var apiStub = sinon.stub(api.user, 'acceptTerms',function () { elem.setState({termsAccepted:acceptDate})});
+
           elem.handleAcceptedTerms();
-          expect(elem.state.termsAccepted).to.not.equal(null);
+
+          expect(elem.state.termsAccepted).to.equal(acceptDate);
           expect(elem.state.authenticated).to.equal(true);
+          expect(elem.state.fetchingUser).to.equal(false);
 
           //check we aren't seeing the terms
           var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-overlay');
@@ -189,6 +198,30 @@ describe('App', function () {
           //because its fake we are showing the login page ...
           var form = TestUtils.findRenderedDOMComponentWithClass(elem, 'login-simpleform');
           expect(form).to.be.ok;
+
+          apiStub.restore();
+        });
+      });
+      it('should NOT allow user to use blip if there was an issue', function() {
+
+        React.withContext(context, function() {
+
+          var elem = TestUtils.renderIntoDocument(<App/>);
+          expect(elem.state.termsAccepted).to.equal(null);
+          elem.setState({ authenticated: true, fetchingUser: false });
+
+          //stub call to api upon which the termsAccepted is NOT set in this case
+          var apiStub = sinon.stub(api.user, 'acceptTerms',function () { elem.setState({termsAccepted:null})});
+
+          elem.handleAcceptedTerms();
+
+          expect(elem.state.termsAccepted).to.equal(null);
+          expect(elem.state.authenticated).to.equal(true);
+          expect(elem.state.fetchingUser).to.equal(false);
+
+          //check we aren't seeing the terms
+          var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-overlay');
+          expect(termsElems.length).to.not.equal(0);
 
           apiStub.restore();
         });
