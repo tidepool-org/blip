@@ -104,13 +104,11 @@ describe('TermsOverlay', function () {
         var iframes = TestUtils.scryRenderedDOMComponentsWithClass(termsElem, 'terms-overlay-iframe');
         expect(iframes).not.to.equal(null);
         expect(iframes.length).to.equal(2);
-        //TODO needs to be `https`
-        /*
+
         var termsDetails = iframes[0];
-        expect(termsDetails.props.src).to.equal('http://developer.tidepool.io/terms-of-use');
+        expect(termsDetails.props.src).to.equal('https://tidepool.org/terms-of-use/');
         var privacyDetails = iframes[1];
-        expect(privacyDetails.props.src).to.equal('http://developer.tidepool.io/privacy-policy');
-        */
+        expect(privacyDetails.props.src).to.equal('https://tidepool.org/privacy-policy/');
 
         expect(termsElem.state.agreed).to.equal(false);
       });

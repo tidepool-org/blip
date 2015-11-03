@@ -47,42 +47,35 @@ var TermsOverlay = React.createClass({
   },
   renderAgeConsentStep:function(){
     return (
-      <div className='terms-overlay js-terms'>
-       <LoginNav
-          hideLinks={true}
-          trackMetric={this.props.trackMetric} />
-        <div className='terms-overlay-content terms-overlay-age-box'>
-          <form ref='ageConfirmation' className='terms-overlay-age-form'>
-            <div className='terms-overlay-age-radio'>
-              <label>
-                <input type='radio' name='age'
-                  key={this.props.ages.OF_AGE.value}
-                  value={this.props.ages.OF_AGE.value}
-                  onChange={this.handleAgeChange}
-                  defaultChecked={true} />
-                {this.props.ages.OF_AGE.label}
-              </label>
-              <label>
-                <input type='radio' name='age'
-                  key={this.props.ages.WITH_CONSENT.value}
-                  value={this.props.ages.WITH_CONSENT.value}
-                  onChange={this.handleAgeChange} />
-                {this.props.ages.WITH_CONSENT.label}
-              </label>
-              <label>
-                <input type='radio' name='age'
-                  key={this.props.ages.NOT_OF_AGE.value}
-                  value={this.props.ages.NOT_OF_AGE.value}
-                  onChange={this.handleAgeChange} />
-                {this.props.ages.NOT_OF_AGE.label}
-              </label>
-            </div>
-            <button
-              className='btn btn-primary js-terms-submit'
-              onClick={this.handleAgeSubmit}>Continue</button>
-          </form>
+      <form ref='confirmAgeStep' className='terms-overlay-age-form'>
+        <div className='terms-overlay-age-radio'>
+          <label>
+            <input type='radio' name='age'
+              key={this.props.ages.OF_AGE.value}
+              value={this.props.ages.OF_AGE.value}
+              onChange={this.handleAgeChange}
+              defaultChecked={true} />
+            {this.props.ages.OF_AGE.label}
+          </label>
+          <label>
+            <input type='radio' name='age'
+              key={this.props.ages.WITH_CONSENT.value}
+              value={this.props.ages.WITH_CONSENT.value}
+              onChange={this.handleAgeChange} />
+            {this.props.ages.WITH_CONSENT.label}
+          </label>
+          <label>
+            <input type='radio' name='age'
+              key={this.props.ages.NOT_OF_AGE.value}
+              value={this.props.ages.NOT_OF_AGE.value}
+              onChange={this.handleAgeChange} />
+            {this.props.ages.NOT_OF_AGE.label}
+          </label>
         </div>
-      </div>
+        <button
+          className='btn btn-primary js-terms-submit'
+          onClick={this.handleAgeSubmit}>Continue</button>
+      </form>
     );
   },
   getTermsAndPrivacyButtonState:function(){
@@ -105,24 +98,19 @@ var TermsOverlay = React.createClass({
     var backBtn = this.renderBackBtn();
 
     return (
-      <div className='terms-overlay js-terms'>
-        <LoginNav
-          hideLinks={true}
-          trackMetric={this.props.trackMetric} />
-        <div className='terms-overlay-content terms-overlay-box'>
-          <div className='terms-overlay-title'>TERMS OF USE</div>
-          {terms}
-          <div className='privacy-overlay-title'>PRIVACY POLICY</div>
-          {privacy}
-          <form className='terms-overlay-form'>
-            {agreeConfirmation}
-            {backBtn}
-            <button
-              className='btn btn-primary js-terms-submit'
-              onClick={this.handleTermsAndPrivacySubmit}
-              disabled={continueBtnDisabled}>Continue</button>
-          </form>
-        </div>
+      <div ref='acceptTermsStep'>
+        <div className='terms-overlay-title'>TERMS OF USE</div>
+        {terms}
+        <div className='privacy-overlay-title'>PRIVACY POLICY</div>
+        {privacy}
+        <form className='terms-overlay-form'>
+          {agreeConfirmation}
+          {backBtn}
+          <button
+            className='btn btn-primary js-terms-submit'
+            onClick={this.handleTermsAndPrivacySubmit}
+            disabled={continueBtnDisabled}>Continue</button>
+        </form>
       </div>
     );
   },
@@ -168,24 +156,31 @@ var TermsOverlay = React.createClass({
   renderSorryMessage:function(){
     var backBtn = this.renderBackBtn();
     return (
-      <div className='terms-overlay js-terms'>
-      <LoginNav
-          hideLinks={true}
-          trackMetric={this.props.trackMetric} />
-        <div className='terms-overlay-content terms-overlay-box'>
-          <p className='terms-overlay-sorry-message'>{this.props.messages.SORRY_NOT_OF_AGE}</p>
-          {backBtn}
-        </div>
+      <div ref='sorryMsg'>
+        <p className='terms-overlay-sorry-message'>{this.props.messages.SORRY_NOT_OF_AGE}</p>
+        {backBtn}
       </div>
     );
   },
   render: function() {
+
+    var content = this.renderAgeConsentStep();
+
     if(this.state.ageConfirmed && this.state.ageSelected !== this.props.ages.NOT_OF_AGE.value){
-      return this.renderTermsAndPrivacyStep();
+      content = this.renderTermsAndPrivacyStep();
     }else if( this.state.ageConfirmed && this.state.ageSelected === this.props.ages.NOT_OF_AGE.value){
-      return this.renderSorryMessage();
+      content = this.renderSorryMessage();
     }
-    return this.renderAgeConsentStep();
+
+    return (
+      <div className='terms-overlay js-terms'>
+        <LoginNav hideLinks={true} trackMetric={this.props.trackMetric} />
+        <div className='terms-overlay-content terms-overlay-box'>
+          {content}
+        </div>
+      </div>
+    );
+
   },
   websiteTerms: function() {
     return React.DOM.iframe({
