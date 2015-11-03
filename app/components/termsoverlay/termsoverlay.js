@@ -14,7 +14,6 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 var React = require('react');
-var LoginLogo = require('../loginlogo');
 var LoginNav = require('../loginnav');
 
 var TermsOverlay = React.createClass({
@@ -52,7 +51,6 @@ var TermsOverlay = React.createClass({
        <LoginNav
           hideLinks={true}
           trackMetric={this.props.trackMetric} />
-        <LoginLogo />
         <div className='terms-overlay-content terms-overlay-age-box'>
           <form ref='ageConfirmation' className='terms-overlay-age-form'>
             <div className='terms-overlay-age-radio'>
@@ -111,7 +109,6 @@ var TermsOverlay = React.createClass({
         <LoginNav
           hideLinks={true}
           trackMetric={this.props.trackMetric} />
-        <LoginLogo />
         <div className='terms-overlay-content terms-overlay-box'>
           <div className='terms-overlay-title'>TERMS OF USE</div>
           {terms}
@@ -175,7 +172,6 @@ var TermsOverlay = React.createClass({
       <LoginNav
           hideLinks={true}
           trackMetric={this.props.trackMetric} />
-        <LoginLogo />
         <div className='terms-overlay-content terms-overlay-box'>
           <p className='terms-overlay-sorry-message'>{this.props.messages.SORRY_NOT_OF_AGE}</p>
           {backBtn}
