@@ -20,13 +20,13 @@ var logoSrc = require('./images/blip-logo-290x290.png');
 
 var LoginLogo = React.createClass({
   render: function() {
-    
+
     return (
       <div className="login-logo">
         <img src={logoSrc} alt="Blip"/>
       </div>
     );
-    
+
   }
 });
 

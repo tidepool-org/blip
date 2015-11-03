@@ -14,6 +14,8 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 var React = require('react');
+var LoginLogo = require('../loginlogo');
+var LoginNav = require('../loginnav');
 
 var TermsOverlay = React.createClass({
   propTypes: {
@@ -47,6 +49,10 @@ var TermsOverlay = React.createClass({
   renderAgeConsentStep:function(){
     return (
       <div className='terms-overlay js-terms'>
+       <LoginNav
+          hideLinks={true}
+          trackMetric={this.props.trackMetric} />
+        <LoginLogo />
         <div className='terms-overlay-content terms-overlay-age-box'>
           <form ref='ageConfirmation' className='terms-overlay-age-form'>
             <div className='terms-overlay-age-radio'>
@@ -98,9 +104,14 @@ var TermsOverlay = React.createClass({
     var privacy = this.websitePrivacy();
     var continueBtnDisabled = this.getTermsAndPrivacyButtonState();
     var agreeConfirmation = this.renderAgreeCheckboxes();
+    var backBtn = this.renderBackBtn();
 
     return (
       <div className='terms-overlay js-terms'>
+        <LoginNav
+          hideLinks={true}
+          trackMetric={this.props.trackMetric} />
+        <LoginLogo />
         <div className='terms-overlay-content terms-overlay-box'>
           <div className='terms-overlay-title'>TERMS OF USE</div>
           {terms}
@@ -108,6 +119,7 @@ var TermsOverlay = React.createClass({
           {privacy}
           <form className='terms-overlay-form'>
             {agreeConfirmation}
+            {backBtn}
             <button
               className='btn btn-primary js-terms-submit'
               onClick={this.handleTermsAndPrivacySubmit}
@@ -115,6 +127,13 @@ var TermsOverlay = React.createClass({
           </form>
         </div>
       </div>
+    );
+  },
+  renderBackBtn:function(){
+    return (
+      <button
+        className='btn btn-primary js-terms-submit'
+        onClick={this.handleBack}>Back</button>
     );
   },
   renderAgreeCheckboxes:function(){
@@ -150,10 +169,16 @@ var TermsOverlay = React.createClass({
     );
   },
   renderSorryMessage:function(){
+    var backBtn = this.renderBackBtn();
     return (
       <div className='terms-overlay js-terms'>
+      <LoginNav
+          hideLinks={true}
+          trackMetric={this.props.trackMetric} />
+        <LoginLogo />
         <div className='terms-overlay-content terms-overlay-box'>
           <p className='terms-overlay-sorry-message'>{this.props.messages.SORRY_NOT_OF_AGE}</p>
+          {backBtn}
         </div>
       </div>
     );
@@ -183,6 +208,13 @@ var TermsOverlay = React.createClass({
       frameBorder       : '0',
       allowTransparency : 'true'
     });
+  },
+  handleBack: function(e) {
+    if (e) {
+      e.preventDefault();
+    }
+    this.setState(this.getInitialState());
+    this.props.trackMetric('Back');
   },
   handleAgeSubmit: function(e) {
     if (e) {
