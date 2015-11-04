@@ -107,7 +107,7 @@ var TermsOverlay = React.createClass({
           {agreeConfirmation}
           {backBtn}
           <button
-            className='btn btn-primary js-terms-submit'
+            className='terms-button terms-button-submit'
             onClick={this.handleTermsAndPrivacySubmit}
             disabled={continueBtnDisabled}>Continue</button>
         </form>
@@ -117,7 +117,7 @@ var TermsOverlay = React.createClass({
   renderBackBtn:function(){
     return (
       <button
-        className='btn btn-primary js-terms-submit'
+        className='terms-button terms-button-back'
         onClick={this.handleBack}>Back</button>
     );
   },
