@@ -185,6 +185,18 @@ describe('TermsOverlay', function () {
         expect(buttons[1].props.disabled).to.equal(true);
         expect(buttons[0].props.children).to.equal('Back');
 
+        //now switch to test the other way also
+        TestUtils.Simulate.change(agreedOnBehalf);
+        TestUtils.Simulate.change(agreed);
+        expect(termsElem.state.agreed).to.equal(true);
+        expect(termsElem.state.agreedOnBehalf).to.equal(false);
+
+        //now we should STILL NOT be able to click the button
+        var buttons = TestUtils.scryRenderedDOMComponentsWithTag(termsElem, 'button');
+        expect(buttons[1].props.children).to.equal('Continue');
+        expect(buttons[1].props.disabled).to.equal(true);
+        expect(buttons[0].props.children).to.equal('Back');
+
       });
     });
     describe('flow for under 12 login flow', function() {
