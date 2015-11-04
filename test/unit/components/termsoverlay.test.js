@@ -192,7 +192,6 @@ describe('TermsOverlay', function () {
         expect(termsElem.state.agreedOnBehalf).to.equal(false);
 
         //now we should STILL NOT be able to click the button
-        var buttons = TestUtils.scryRenderedDOMComponentsWithTag(termsElem, 'button');
         expect(buttons[1].props.children).to.equal('Continue');
         expect(buttons[1].props.disabled).to.equal(true);
         expect(buttons[0].props.children).to.equal('Back');
