@@ -23,17 +23,17 @@ var TermsOverlay = React.createClass({
     ages: React.PropTypes.object.isRequired,
     messages: React.PropTypes.object.isRequired
   },
-  getDefaultProps: function(){
+  getDefaultProps: function() {
     return {
       ages: {
-        OF_AGE : { value: '>=18', label: ' I am 18 years old or older.'},
-        WITH_CONSENT : { value: '13-17', label: ' I am between 13 and 17 years old. You\'ll need to have a parent or guardian agree to the terms on the next screen.' },
-        NOT_OF_AGE : { value: '<=12', label: ' I am 12 years old or younger.'}
+        OF_AGE: {value: '>=18', label: ' I am 18 years old or older.'},
+        WITH_CONSENT: {value: '13-17', label: ' I am between 13 and 17 years old. You\'ll need to have a parent or guardian agree to the terms on the next screen.' },
+        NOT_OF_AGE: {value: '<=12', label: ' I am 12 years old or younger.'}
       },
       messages: {
-        ACCEPT_OF_AGE : 'I am 18 or older and I accept the terms of the Tidepool Applications Terms of Use and Privacy Policy',
+        ACCEPT_OF_AGE: 'I am 18 or older and I accept the terms of the Tidepool Applications Terms of Use and Privacy Policy',
         ACCEPT_ON_BEHALF: 'I agree that my child aged 13 through 17 can use Tidepool Applications and agree that they are also bound to the terms of the Tidepool Applications Terms of Use and Privacy Policy',
-        SORRY_NOT_OF_AGE : 'We are really sorry, but you need to be 13 or older in order to create an account and use Tidepool\'s Applications.'
+        SORRY_NOT_OF_AGE: 'We are really sorry, but you need to be 13 or older in order to create an account and use Tidepool\'s Applications.'
       }
     };
   },
@@ -45,7 +45,7 @@ var TermsOverlay = React.createClass({
       ageSelected: this.props.ages.OF_AGE.value //default
     };
   },
-  renderAgeConsentStep:function(){
+  renderAgeConsentStep: function() {
     return (
       <form ref='confirmAgeStep' className='terms-overlay-age-form'>
         <div className='terms-overlay-age-radio'>
@@ -78,19 +78,20 @@ var TermsOverlay = React.createClass({
       </form>
     );
   },
-  getTermsAndPrivacyButtonState:function(){
+  getTermsAndPrivacyButtonState: function() {
     var isDisabled = !this.state.agreed;
 
     if (this.state.ageSelected === this.props.ages.WITH_CONSENT.value) {
-      if (this.state.agreed && this.state.agreedOnBehalf){
+      if (this.state.agreed && this.state.agreedOnBehalf) {
         isDisabled = false;
-      } else {
+      }
+      else {
         isDisabled = true;
       }
     }
     return isDisabled;
   },
-  renderTermsAndPrivacyStep:function(){
+  renderTermsAndPrivacyStep: function() {
     var terms = this.websiteTerms();
     var privacy = this.websitePrivacy();
     var continueBtnDisabled = this.getTermsAndPrivacyButtonState();
@@ -114,14 +115,14 @@ var TermsOverlay = React.createClass({
       </div>
     );
   },
-  renderBackBtn:function(){
+  renderBackBtn: function() {
     return (
       <button
         className='terms-button terms-button-back'
         onClick={this.handleBack}>Back</button>
     );
   },
-  renderAgreeCheckboxes:function(){
+  renderAgreeCheckboxes: function() {
 
     var onBehalf;
     if (this.state.ageSelected === this.props.ages.WITH_CONSENT.value) {
@@ -153,7 +154,7 @@ var TermsOverlay = React.createClass({
       </div>
     );
   },
-  renderSorryMessage:function(){
+  renderSorryMessage: function() {
     var backBtn = this.renderBackBtn();
     return (
       <div ref='sorryMsg'>
@@ -166,11 +167,11 @@ var TermsOverlay = React.createClass({
 
     var content = this.renderAgeConsentStep();
 
-    if( this.state.ageConfirmed ){
+    if (this.state.ageConfirmed) {
       //assume we are good to go
       content = this.renderTermsAndPrivacyStep();
 
-      if( this.state.ageSelected === this.props.ages.NOT_OF_AGE.value ){
+      if (this.state.ageSelected === this.props.ages.NOT_OF_AGE.value) {
         //unless they are NOT_OF_AGE
         content = this.renderSorryMessage();
       }
@@ -218,7 +219,7 @@ var TermsOverlay = React.createClass({
     this.setState({ageConfirmed: true });
     this.props.trackMetric('Confirmed age');
   },
-  handleAgeChange:function(e){
+  handleAgeChange: function(e) {
     this.setState({ ageSelected: e.target.value});
   },
   handleAgreementChange: function() {
