@@ -166,10 +166,14 @@ var TermsOverlay = React.createClass({
 
     var content = this.renderAgeConsentStep();
 
-    if(this.state.ageConfirmed && this.state.ageSelected !== this.props.ages.NOT_OF_AGE.value){
+    if( this.state.ageConfirmed ){
+      //assume we are good to go
       content = this.renderTermsAndPrivacyStep();
-    }else if( this.state.ageConfirmed && this.state.ageSelected === this.props.ages.NOT_OF_AGE.value){
-      content = this.renderSorryMessage();
+
+      if( this.state.ageSelected === this.props.ages.NOT_OF_AGE.value ){
+        //unless they are NOT_OF_AGE
+        content = this.renderSorryMessage();
+      }
     }
 
     return (
