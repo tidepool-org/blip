@@ -20,7 +20,8 @@ describe('TermsOverlay', function () {
     it('should not console.warn when trackMetric set', function() {
       console.warn = sinon.stub();
       var props = {
-        trackMetric: function() {}
+        trackMetric: function() {},
+        onSubmit: function() {}
       };
       var termsOverlayElem = React.createElement(TermsOverlay, props);
       var elem = TestUtils.renderIntoDocument(termsOverlayElem);
@@ -36,7 +37,8 @@ describe('TermsOverlay', function () {
 
     beforeEach(function() {
       var props = {
-        trackMetric: function() {}
+        trackMetric: function() {},
+        onSubmit: function() {}
       };
       var termsOverlayElem = React.createElement(TermsOverlay, props);
       elem = TestUtils.renderIntoDocument(termsOverlayElem);
@@ -65,7 +67,8 @@ describe('TermsOverlay', function () {
 
     beforeEach(function() {
       var props = {
-        trackMetric: function() {}
+        trackMetric: function() {},
+        onSubmit: function() {}
       };
       var termsOverlayElem = React.createElement(TermsOverlay, props);
       termsElem = TestUtils.renderIntoDocument(termsOverlayElem);

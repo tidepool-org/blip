@@ -119,8 +119,6 @@ describe('App', function () {
         React.withContext(context, function() {
 
           var elem = TestUtils.renderIntoDocument(<App/>);
-
-          elem.initAppUtils(utils);
           elem.setState({ authenticated: true , fetchingUser: false});
 
           expect(elem.state.authenticated).to.equal(true);
@@ -137,9 +135,6 @@ describe('App', function () {
         React.withContext(context, function() {
 
           var elem = TestUtils.renderIntoDocument(<App/>);
-
-          elem.initAppUtils(utils);
-
           var acceptDate = new Date().toISOString();
 
           elem.setState({ authenticated: true, termsAccepted: acceptDate, fetchingUser: false });

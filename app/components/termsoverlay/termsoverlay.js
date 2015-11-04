@@ -18,10 +18,10 @@ var LoginNav = require('../loginnav');
 
 var TermsOverlay = React.createClass({
   propTypes: {
-    onSubmit: React.PropTypes.func,
+    onSubmit: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
-    ages: React.PropTypes.object,
-    messages: React.PropTypes.object
+    ages: React.PropTypes.object.isRequired,
+    messages: React.PropTypes.object.isRequired
   },
   getDefaultProps: function(){
     return {
@@ -229,11 +229,7 @@ var TermsOverlay = React.createClass({
     }
 
     this.props.trackMetric('Agreed To Terms Of Use');
-
-    var submit = this.props.onSubmit;
-    if (submit) {
-      submit(this.state.ageSelected);
-    }
+    this.props.onSubmit(this.state.ageSelected);
   }
 });
 

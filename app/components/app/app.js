@@ -27,7 +27,7 @@ var router = require('../../router');
 var routeMap = require('../../routemap');
 var personUtils = require('../../core/personutils');
 var queryString = require('../../core/querystring');
-var utils;
+var utils = require('../../core/utils');
 
 var usrMessages = require('../../userMessages');
 
@@ -127,15 +127,6 @@ var AppComponent = React.createClass({
     };
   },
 
-  initAppUtils: function(injectedUtils){
-    if (! _.isEmpty(injectedUtils)){
-      utils = injectedUtils;
-      return;
-    }
-    utils = require('../../core/utils');
-    return;
-  },
-
   doOauthLogin:function(accessToken){
     var self = this;
     self.context.api.user.oauthLogin(accessToken, function(err, data){
@@ -202,7 +193,6 @@ var AppComponent = React.createClass({
   },
 
   render: function() {
-    this.initAppUtils(null);
     this.context.log('Rendering AppComponent');
     var overlay = this.renderOverlay();
     var navbar = this.renderNavbar();
