@@ -9,15 +9,17 @@ var TermsOverlay = require('../../../app/components/termsoverlay');
 describe('TermsOverlay', function () {
 
   describe('render', function() {
-    it('should console.warn when trackMetric not set', function () {
+    it('should console.warn when required props not set', function () {
       console.warn = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<TermsOverlay/>);
 
       expect(elem).to.be.ok;
+      expect(console.warn.callCount).to.equal(3);
       expect(console.warn.calledWith('Warning: Required prop `trackMetric` was not specified in `TermsOverlay`.')).to.equal(true);
+      expect(console.warn.calledWith('Warning: Required prop `onSubmit` was not specified in `TermsOverlay`.')).to.equal(true);
     });
 
-    it('should not console.warn when trackMetric set', function() {
+    it('should not console.warn about when required props are set', function() {
       console.warn = sinon.stub();
       var props = {
         trackMetric: function() {},
@@ -29,6 +31,7 @@ describe('TermsOverlay', function () {
       expect(elem).to.be.ok;
       expect(console.warn.callCount).to.equal(0);
     });
+
   });
 
   describe('by default', function(){
