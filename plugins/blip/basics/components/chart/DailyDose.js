@@ -35,7 +35,8 @@ var DailyDose = React.createClass({
    */
   getInitialState: function() {
     return {
-      valid: (!!this.props.data.weight)
+      valid: (!!this.props.data.weight),
+      formWeight: null
     }
   },
   /**
@@ -65,22 +66,20 @@ var DailyDose = React.createClass({
    * @return {Element}
    */
   renderWeightSelector: function() {
-    var currentWeight = this.props.data.weight;
+    var currentWeight = this.state.formWeight;
+
+    if (currentWeight === null) {
+      currentWeight = this.props.data.weight;
+    }
     var classes = cx({
       'DailyDose-weightInputForm-selector' : true,
       'valid': this.state.valid === true
     })
-    var options = _.range(30,150).map(function(weight) {
-      return (<option key={weight} value={weight}>{weight} kg</option>);
-    });
 
     return (
       <div className={classes}>
-        <select ref={inputRef} name={inputRef} defaultValue={currentWeight} onChange={this.onWeightChange}>
-          <option value="0">Set kg</option>
-          {options}
-        </select>
-        <i className="icon-down"/>
+        <input type="number" min="0" ref={inputRef} name={inputRef} value={currentWeight} onChange={this.onWeightChange} />
+        kg
       </div>
     );
   },
@@ -90,16 +89,21 @@ var DailyDose = React.createClass({
    *
    */
   onWeightChange: function() {
-    var weight = parseInt(this.refs[inputRef].getDOMNode().value);
-    this.setState({valid: !!weight});
+    var val = this.refs[inputRef].getDOMNode().value;
+    if (val[val.length-1] === '.') {
+      this.setState({ valid: false, formWeight: val });
+    } else {
+      var weight = parseFloat(val);
+      this.setState({valid: (weight && weight > 0), formWeight: weight});
+    }
   },
   /**
    * When the calculate button is clicked this handler is used
    * to store the weight in the session storage
    */
   onClickCalculate: function() {
-    var weight = parseInt(this.refs[inputRef].getDOMNode().value);
-    if (weight) {
+    var weight = parseFloat(this.refs[inputRef].getDOMNode().value);
+    if (weight && weight > 0) {
       this.props.addToBasicsData('weight', weight);
     }
   }
