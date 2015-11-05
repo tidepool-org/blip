@@ -13,9 +13,10 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-@terms-overlay-zindex:       @zindex-overlay-background;
-@terms-overlay-text-zindex:  @zindex-overlay;
-@terms-overlay-box-width:    540px;
+@terms-overlay-zindex:        @zindex-overlay-background;
+@terms-overlay-text-zindex:   @zindex-overlay;
+@terms-overlay-box-width:     800px;
+@terms-overlay-age-box-width: 500px;
 
 .terms-overlay {
   position: fixed;
@@ -46,12 +47,29 @@
   }
 }
 
-.terms-overlay-title {
+.terms-overlay-age-box {
+  margin-right: auto;
+  margin-left: auto;
+  padding-left: @spacing-small;
+  padding-right: @spacing-small;
+
+  @media(min-width: @terms-overlay-age-box-width) {
+    width: @terms-overlay-age-box-width;
+  }
+}
+
+.terms-overlay-title .privacy-overlay-title{
   font-size: 18px;
   line-height: 20px;
   font-weight: bold;
   color: @gray-darkest;
   margin-bottom: @spacing-large;
+}
+
+.terms-overlay-iframe {
+  margin-bottom: @spacing-large;
+  width: @terms-overlay-box-width;
+  height: 400px;
 }
 
 .terms-overlay-text {
@@ -67,11 +85,29 @@
   margin-bottom: @spacing-base;
 }
 
-.terms-overlay-form-checkbox {
+.terms-overlay-age-radio {
   margin-bottom: @spacing-base;
 
   label {
     padding-left: 20px;
+    padding-bottom: 10px;
+    cursor: pointer;
+    color: @gray-darkest;
+  }
+
+  input[type="radio"] {
+    float: left;
+    margin-left: -20px;
+    margin-top: 3px;
+  }
+}
+
+.terms-overlay-accept-checkbox {
+  margin-bottom: @spacing-base;
+
+  label {
+    padding-left: 20px;
+    padding-bottom: 10px;
     cursor: pointer;
     color: @gray-darkest;
   }
@@ -81,4 +117,23 @@
     margin-left: -20px;
     margin-top: 3px;
   }
+}
+
+.terms-button {
+  &:extend(.btn all);
+  &:extend(.btn-primary all);
+
+  margin-top: 5px;
+}
+
+.terms-button-submit {
+  padding-left: 5px;
+  padding-right: 5px;
+  float: right;
+}
+
+.terms-button-back {
+  margin-right: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
 }

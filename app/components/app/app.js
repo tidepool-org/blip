@@ -117,7 +117,7 @@ var AppComponent = React.createClass({
       patientData: null,
       fetchingPatientData: true,
       fetchingMessageData: true,
-      showingAcceptTerms: false,
+      termsAccepted: null,
       showingWelcomeTitle: false,
       showingWelcomeSetup: false,
       showPatientData: false,
@@ -151,9 +151,8 @@ var AppComponent = React.createClass({
 
   componentDidMount: function() {
     if (this.state.authenticated) {
-      this.fetchUser();
+        this.fetchUser();
     }
-
     this.setupAndStartRouter();
   },
 
@@ -218,25 +217,29 @@ var AppComponent = React.createClass({
       return (
         <LogoutOverlay ref="logoutOverlay" />
       );
-
     }
 
     if (!utils.isChrome()) {
       return (
         <BrowserWarningOverlay />
       );
-
     }
 
-    if (this.state.showingAcceptTerms) {
+    if (!this.state.fetchingUser){
+      return this.renderTermsOverlay();
+    }
+
+    return null;
+  },
+
+  renderTermsOverlay: function(){
+    if (this.state.authenticated && _.isEmpty(this.state.termsAccepted)){
       return (
         <TermsOverlay
           onSubmit={this.handleAcceptedTerms}
           trackMetric={this.context.trackMetric} />
       );
-
     }
-
     return null;
   },
 
@@ -343,7 +346,6 @@ var AppComponent = React.createClass({
   renderPage: function() {
     return null;
   },
-
   showLogin: function() {
     var hashQueryParams = this.context.router.getQueryParams();
     if (!_.isEmpty(hashQueryParams.accessToken)) {
@@ -876,13 +878,11 @@ var AppComponent = React.createClass({
 
     this.context.api.user.login(user, options, cb);
   },
-
   handleLoginSuccess: function() {
 
     this.fetchUser();
     if( this.state.finalizingVerification ){
       this.setState({
-        showingAcceptTerms: config.SHOW_ACCEPT_TERMS ? true : false,
         showingWelcomeTitle: true,
         showingWelcomeSetup: true
       });
@@ -892,17 +892,14 @@ var AppComponent = React.createClass({
     this.redirectToDefaultRoute();
     this.context.trackMetric('Logged In');
   },
-
   handleNotAuthorized:function(){
      this.setState({authenticated: false,  verificationEmailSent: false});
      this.showEmailVerification();
   },
-
   signup: function(formValues, cb) {
     var user = formValues;
     this.context.api.user.signup(user, cb);
   },
-
   handleSignupSuccess: function(user) {
     //once signed up we need to authenicate the email which is done via the email we have sent them
     this.setState({
@@ -914,14 +911,12 @@ var AppComponent = React.createClass({
 
     this.context.trackMetric('Signed Up');
   },
-
   handleSignupVerificationSuccess: function(user) {
     //once signed up we need to authenicate the email which is done via the email we have sent them
     this.setState({
       authenticated: true,
       user: user,
       fetchingUser: false,
-      showingAcceptTerms: config.SHOW_ACCEPT_TERMS ? true : false,
       showingWelcomeTitle: true,
       showingWelcomeSetup: true
     });
@@ -929,13 +924,18 @@ var AppComponent = React.createClass({
     this.redirectToDefaultRoute();
     this.context.trackMetric('Signup Verified');
   },
-
   handleAcceptedTerms: function() {
-    this.setState({
-      showingAcceptTerms: false
-    });
-  },
+    var self = this;
+    var acceptedDate = sundial.utcDateString();
 
+    self.context.api.user.acceptTerms({ termsAccepted: acceptedDate }, function(err) {
+      if (err) {
+        return self.handleApiError(err, usrMessages.ERR_ACCEPTING_TERMS, utils.buildExceptionDetails());
+      }
+      return self.setState({ termsAccepted: acceptedDate });
+    });
+
+  },
   logout: function() {
     var self = this;
 
@@ -986,8 +986,13 @@ var AppComponent = React.createClass({
 
       self.setState({
         user: user,
+        termsAccepted : user.termsAccepted,
         fetchingUser: false
       });
+
+      //will show terms if not yet accepted
+      self.renderOverlay = self.renderTermsOverlay;
+
     });
   },
 
