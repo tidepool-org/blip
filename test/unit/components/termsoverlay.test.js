@@ -14,7 +14,8 @@ describe('TermsOverlay', function () {
       var elem = TestUtils.renderIntoDocument(<TermsOverlay/>);
 
       expect(elem).to.be.ok;
-      expect(console.warn.callCount).to.equal(3);
+      expect(console.warn.callCount).to.equal(3); // warnings bubble up from other components
+      expect(console.warn.calledWith('Warning: Required prop `trackMetric` was not specified in `LoginNav`. Check the render method of `TermsOverlay`.')).to.equal(true);
       expect(console.warn.calledWith('Warning: Required prop `trackMetric` was not specified in `TermsOverlay`.')).to.equal(true);
       expect(console.warn.calledWith('Warning: Required prop `onSubmit` was not specified in `TermsOverlay`.')).to.equal(true);
     });
@@ -23,7 +24,7 @@ describe('TermsOverlay', function () {
       console.warn = sinon.stub();
       var props = {
         trackMetric: function() {},
-        onSubmit: function() {}
+        onSubmit: function() {},
       };
       var termsOverlayElem = React.createElement(TermsOverlay, props);
       var elem = TestUtils.renderIntoDocument(termsOverlayElem);
