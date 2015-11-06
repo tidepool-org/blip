@@ -83,9 +83,13 @@
     width: 132px;
     height: 67px;
     padding-top: 12px;
-    font-size: 15px;
+    font-size: 14px;
     text-align: center;
     margin-right: 3px;
+
+    &.SummaryGroup-info-primary--average {
+      padding-top: 3px;
+    }
 
     .SummaryGroup-option-count, .SummaryGroup-option-label {
       display: block;
@@ -93,6 +97,22 @@
       width: 100%;
       text-align: center;
       float: none;
+    }
+
+    .SummaryGroup-option-label {
+      padding-bottom: 3px;
+    }
+
+    .SummaryGroup-option-count {
+      font-size: 18px;
+      line-height: 16px;
+    }
+
+    .SummaryGroup-option-total {
+      font-size: 11px;
+      span {
+        padding-right: 5px;
+      }
     }
   }
 }

@@ -75,6 +75,7 @@ var SummaryGroup = React.createClass({
     var classes = classnames({
       'SummaryGroup-info--selected': (option.key === this.props.selectedSubtotal),
       'SummaryGroup-info-primary': option.primary,
+      'SummaryGroup-info-primary--average': option.primary && option.average,
       'SummaryGroup-info': !option.primary,
     	'SummaryGroup-info-tall': ( !option.primary && this.props.selectorOptions.length <= 4 ),
     	'SummaryGroup-no-percentage': ( !option.primary && !option.percentage )
@@ -102,50 +103,84 @@ var SummaryGroup = React.createClass({
         value = this.props.data[option.key].count || 0;
       }
     }
-
-    var percentage;
-    if (option.percentage) {
-      if (path) {
-        percentage = this.props.data[path][option.key].percentage;
+    
+    if (option.primary && option.average) {
+      var average;
+      if (option.path) {
+        average = this.props.data[path].avgPerDay;
       }
       else {
-        percentage = this.props.data[option.key].percentage;
+        average = this.props.data.avgPerDay;
       }
+      // currently rounding average to an integer
+      var averageElem = (
+        <span className="SummaryGroup-option-count">
+          {Math.round(average)}
+        </span>
+      );
+
+      var totalElem = (
+        <span className="SummaryGroup-option-total">
+          <span>Total:</span>
+          {value}
+        </span>
+      );
+
+
+      return (
+        <div key={option.key} className={classes}
+          onClick={this.handleSelectSubtotal.bind(null, option.key)}>
+          <span className="SummaryGroup-option-label">{option.label}</span>
+          {averageElem}
+          {totalElem}
+        </div>
+      );
     }
+    else {
+      var percentage;
+      if (option.percentage) {
+        if (path) {
+          percentage = this.props.data[path][option.key].percentage;
+        }
+        else {
+          percentage = this.props.data[option.key].percentage;
+        }
+      }
+      var percentageElem = (option.percentage) ? (
+        <span className="SummaryGroup-option-percentage">
+          ({d3.format('%')(percentage)})
+        </span>
+      ) : null;
 
-    var percentageElem = (option.percentage) ? (
-      <span className="SummaryGroup-option-percentage">
-        ({d3.format('%')(percentage)})
-      </span>
-    ) : null;
+      var valueElem = (
+        <span className="SummaryGroup-option-count">
+          {value}
+          {percentageElem}
+        </span>
+      );
 
-    var valueElem = (
-      <span className="SummaryGroup-option-count">
-        {value}
-        {percentageElem}
-      </span>
-    );
+      var labels = this.labelGenerator({
+        bgClasses: this.props.bgClasses,
+        bgUnits: this.props.bgUnits
+      });
 
-    var labels = this.labelGenerator({
-      bgClasses: this.props.bgClasses,
-      bgUnits: this.props.bgUnits
-    });
+      var labelOpts = option.labelOpts;
 
-    var labelOpts = option.labelOpts;
+      var labelText = option.label ? option.label :
+        labels[labelOpts.type][labelOpts.key];
 
-    var labelText = option.label ? option.label : labels[labelOpts.type][labelOpts.key];
+      var labelElem = (
+        <span className="SummaryGroup-option-label">{labelText}</span>
+      );
 
-    var labelElem = (
-      <span className="SummaryGroup-option-label">{labelText}</span>
-    );
-
-    return (
-      <div key={option.key} className={classes}
-        onClick={this.handleSelectSubtotal.bind(null, option.key)}>
-        {labelElem}
-        {valueElem}
-      </div>
-    );
+      return (
+        <div key={option.key} className={classes}
+          onClick={this.handleSelectSubtotal.bind(null, option.key)}>
+          {labelElem}
+          {valueElem}
+        </div>
+      );
+    }
   },
   handleSelectSubtotal: function(selectedSubtotal) {
     basicsActions.selectSubtotal(this.props.sectionId, selectedSubtotal);
