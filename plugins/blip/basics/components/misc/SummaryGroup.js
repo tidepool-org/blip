@@ -26,7 +26,6 @@ var basicsActions = require('../../logic/actions');
 var SummaryGroup = React.createClass({
   propTypes: {
     data: React.PropTypes.object.isRequired,
-    noDays: React.PropTypes.number.isRequired,
     selectedSubtotal: React.PropTypes.string.isRequired,
     selectorOptions: React.PropTypes.array.isRequired,
     sectionId: React.PropTypes.string.isRequired
@@ -110,10 +109,17 @@ var SummaryGroup = React.createClass({
     }
     
     if (option.primary && option.average) {
-      var average = Math.round(value/this.props.noDays);
+      var average;
+      if (option.path) {
+        average = this.props.data[path].avgPerDay;
+      }
+      else {
+        average = this.props.data.avgPerDay;
+      }
+      // currently rounding average to an integer
       var averageElem = (
         <span className="SummaryGroup-option-count">
-          {average}
+          {Math.round(average)}
         </span>
       );
 
