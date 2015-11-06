@@ -6,3 +6,7 @@ script:
   - "npm run jshint"
   - "npm run travis"
 after_script: "npm install coveralls && cat ./coverage/lcov.info | coveralls"
+
+matrix:
+  allow_failures:
+    - node_js: "stable"
