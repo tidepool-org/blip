@@ -1,9 +1,15 @@
+@calendar-label-color: #BCBEC0;
+
 .corner-dates {
 	position: absolute;
 	top: 0;
 	left: 0;
 	padding-left: @small-pad;
 	padding-top: @small-pad/4;
+}
+
+.Calendar-weekday() {
+	color: white;
 }
 
 .Calendar-container {
@@ -27,6 +33,7 @@
 			flex: 0 1 @day-width;
 			height: @day-height;
 			position: relative;
+			color: @calendar-label-color;
 
 			margin-top: 8px;
 
@@ -53,6 +60,7 @@
 		.Calendar-day--fingerstick {
 			&.Calendar-day--HOVER {
 				background-color: @fingerstick;
+				.Calendar-weekday();
 			}
 
 			.WrapCount svg circle {
@@ -63,6 +71,7 @@
 		.Calendar-day--bolus {
 			&.Calendar-day--HOVER {
 				background-color: @bolus;
+				.Calendar-weekday();
 			}
 
 			circle {
@@ -70,11 +79,27 @@
 			}
 		}
 
+		.Calendar-day--basal {
+			&.Calendar-day--HOVER {
+				background-color: @basal;
+				.Calendar-weekday();
+			}
+
+			circle {
+				fill: @basal;
+			}
+		}
+
+		.Calendar-day--reservoirChange {
+			&.Calendar-day--HOVER {
+				background-color: @infusion-day-color;
+			}
+ 		}
+
 		.Calendar-day--HOVER {
 			.Calendar-weekday {
 				.corner-dates();
 				font-weight: bold;
-				color: white;
 			}
 			.Calendar-day-text {
 				position: absolute;
@@ -84,6 +109,21 @@
 				font-size: 20px;
 				font-weight: bold;
 				color: white;
+			}
+
+			.Calendar-day-reservoirChange-times {
+				position: absolute;
+				top: (@day-height/3.5);
+				width: @day-width;
+				font-size: 13px;
+				line-height: 16px;
+				list-style-type: none;
+				padding: 0px;
+				margin: 0px;
+				li {
+					padding: 0px;
+					margin: 0px 5px;
+				}
 			}
 		}
 

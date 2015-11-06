@@ -30,53 +30,49 @@ var DashboardSection = React.createClass({
   propTypes: {
     bgClasses: React.PropTypes.object.isRequired,
     bgUnits: React.PropTypes.string.isRequired,
-    chart: React.PropTypes.func,
-    container: React.PropTypes.any.isRequired,
     data: React.PropTypes.object.isRequired,
     days: React.PropTypes.array.isRequired,
     name: React.PropTypes.string.isRequired,
     onSelectDay: React.PropTypes.func.isRequired,
     open: React.PropTypes.bool.isRequired,
+    section: React.PropTypes.object.isRequired,
     timezone: React.PropTypes.string.isRequired,
     title: React.PropTypes.string.isRequired
   },
   render: function() {
-    // debug('Rendered section with props', this.props);
     var dataDisplay;
-    if (typeof this.props.chart === 'object') {
-      var componentKeys = Object.keys(this.props.container);
-      dataDisplay = [];
-      for (var i = 0; i < componentKeys.length; ++i) {
-        var component = this.props.container[componentKeys[i]];
-        if (component.active) {
-          dataDisplay.push(
-            <component.container
-              key={componentKeys[i]}
-              section={this.props.name}
-              component={componentKeys[i]}
-              chart={component.chart}
-              data={this.props.data}
-              days={this.props.days}
-              hasHover={component.hasHover}
-              onSelectDay={this.props.onSelectDay}
-              timezone={this.props.timezone}
-              title={component.title}
-              type={component.type} />
-          );
-        }
-        else {
-          dataDisplay = (
-            <NoDataContainer moreInfo={component.noDataMessage || null} />
-          );
-        }
+    var section = this.props.section;
+    if (section.column === 'right') {
+      if (section.active) {
+        dataDisplay = (
+          <section.container
+            bgClasses={this.props.bgClasses}
+            bgUnits={this.props.bgUnits}
+            chart={section.chart}
+            data={this.props.data}
+            days={this.props.days}
+            hasHover={section.hasHover}
+            hoverDisplay={section.hoverDisplay}
+            onSelectDay={this.props.onSelectDay}
+            sectionId={section.id}
+            selector={section.selector}
+            selectorOptions={section.selectorOptions}
+            timezone={this.props.timezone}
+            type={section.type} />
+        );
+      }
+      else {
+        dataDisplay = (
+          <NoDataContainer moreInfo={section.noDataMessage || null} />
+        );
       }
     }
     else {
       dataDisplay = (
-        <this.props.container
+        <section.container
           bgClasses={this.props.bgClasses}
           bgUnits={this.props.bgUnits}
-          chart={this.props.chart}
+          chart={section.chart}
           data={this.props.data}
           days={this.props.days}
           title={this.props.title} />

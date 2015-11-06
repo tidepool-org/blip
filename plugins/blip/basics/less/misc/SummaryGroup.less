@@ -1,0 +1,148 @@
+.SummaryGroup-container {
+  padding: 0px 0px 5px;
+  margin: 0px 5px 10px;
+  width: 624px;
+  font-size: 12px;
+  line-height: 21px;
+
+  display: flex;
+  justify-content: flex-start;
+
+  .SummaryGroup-info, .SummaryGroup-info-primary {
+    align-self: flex-end;
+
+    width: 160px;
+    flex-grow: 1;
+    padding-top: 5px;
+    cursor: pointer;
+    height: 32px;
+    background-color: @day-color;
+
+    .SummaryGroup-option-label {
+      float: left;
+      padding-left: 15px;
+      
+      &::first-letter {
+        text-transform: capitalize;
+      }
+    }
+
+    .SummaryGroup-option-count {
+      float: right;
+      text-align: right;
+      width: 76px;
+      padding-right: 15px;
+      font-weight: bold;
+    }
+
+    .SummaryGroup-option-percentage {
+      font-size: 11px;
+      text-align: right;
+      min-height: 15px;
+      padding-left: 5px;
+      font-weight: normal;
+    }
+
+    &.SummaryGroup-info--selected {
+      color: white;
+    }
+
+    &.SummaryGroup-info-blank {
+      background-color: transparent;
+      cursor: default;
+      border: 0;
+    }
+
+    &.SummaryGroup-info-tall {
+      padding-top: 20px;
+      height: 67px;
+    }
+  }
+
+  .SummaryGroup-info-others {
+    height: 70px;
+    width: 489px;
+    display: flex;
+    flex-flow: row wrap;
+  }
+
+  .SummaryGroup-row {
+    display: flex;
+    justify-content: space-around;
+    flex-flow: row wrap;
+    flex-grow: 1;
+
+    padding-top: 3px;
+
+    .SummaryGroup-info {
+      margin-right: 3px;
+    }
+  }
+
+  .SummaryGroup-info-primary {
+    width: 132px;
+    height: 67px;
+    padding-top: 12px;
+    font-size: 14px;
+    text-align: center;
+    margin-right: 3px;
+
+    &.SummaryGroup-info-primary--average {
+      padding-top: 3px;
+    }
+
+    .SummaryGroup-option-count, .SummaryGroup-option-label {
+      display: block;
+      padding: 0;
+      width: 100%;
+      text-align: center;
+      float: none;
+    }
+
+    .SummaryGroup-option-label {
+      padding-bottom: 3px;
+    }
+
+    .SummaryGroup-option-count {
+      font-size: 18px;
+      line-height: 16px;
+    }
+
+    .SummaryGroup-option-total {
+      font-size: 11px;
+      span {
+        padding-right: 5px;
+      }
+    }
+  }
+}
+
+.Calendar-container-basal {
+  .SummaryGroup-info, .SummaryGroup-info-primary {
+    border-bottom: 3px solid @basal;
+
+    &.SummaryGroup-info--selected {
+      background-color: @basal;
+    }
+  }
+}
+
+.Calendar-container-bolus {
+  .SummaryGroup-info, .SummaryGroup-info-primary {
+    border-bottom: 3px solid @bolus;
+
+    &.SummaryGroup-info--selected {
+      background-color: @bolus;
+    }
+  }
+}
+
+.Calendar-container-fingerstick {
+  .SummaryGroup-info, .SummaryGroup-info-primary {
+    border-bottom: 3px solid @fingerstick;
+    
+    &.SummaryGroup-info--selected {
+      background-color: @fingerstick;
+    }
+  }
+}

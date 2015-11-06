@@ -282,8 +282,46 @@ describe('TidelineData', function() {
 
   describe('findBasicsData', function() {
     var smbg = new types.SMBG({deviceTime: '2015-08-31T00:01:00'});
+    var inBasicsCBG = new types.CBG({deviceTime: '2015-09-25T10:10:00'});
+    var inBasicsCalibration = {
+      type: 'deviceEvent',
+      subType: 'calibration',
+      deviceTime: '2015-09-26T15:50:00',
+      time: '2015-09-26T22:50:00.000Z',
+      normalTime: '2015-09-26T22:50:00.000Z',
+      timezoneOffset: -420
+    };
     var bolus = new types.Bolus({deviceTime: '2015-09-28T14:05:00'});
-    var thisTd = new TidelineData([smbg, bolus]);
+    var futureCBG = new types.CBG({deviceTime: '2015-10-01T14:22:00'});
+    var futureCalibration = {
+      type: 'deviceEvent',
+      subType: 'calibration',
+      deviceTime: '2015-10-02T09:35:00',
+      time: '2015-10-02T16:35:00.000Z',
+      normalTime: '2015-10-02T16:35:00.000Z',
+      timezoneOffset: -420
+    };
+    // defaults to timezoneAware: false
+    var thisTd = new TidelineData([
+      smbg,
+      inBasicsCBG,
+      inBasicsCalibration,
+      bolus,
+      futureCBG,
+      futureCalibration]
+    );
+    it('should determine the date range for The Basics based on available pump data', function() {
+      var dateRange = thisTd.basicsData.dateRange;
+      expect(dateRange[0]).to.equal('2015-09-14T00:00:00.000Z');
+      expect(dateRange[1]).to.equal(bolus.time);
+    });
+
+    it('should only include CGM data types within the pump-data determined date range', function() {
+      var basicsData = thisTd.basicsData.data;
+      expect(basicsData.cbg.data.length).to.equal(1);
+      expect(basicsData.calibration.data.length).to.equal(1);
+    });
+
     it('should build a basicsData objects with all necessary attributes', function() {
       assert.isString(thisTd.basicsData.timezone);
       assert.isObject(thisTd.basicsData.data);

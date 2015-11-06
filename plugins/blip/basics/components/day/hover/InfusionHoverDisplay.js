@@ -18,38 +18,24 @@
 
 var _ = require('lodash');
 var React = require('react');
+var format = require('../../../../../../js/data/util/format');
 
-var siteChangeImg = require('./sitechange.png');
-
-var Change = React.createClass({
+var InfusionHoverDisplay = React.createClass({
   propTypes: {
-    daysSince: React.PropTypes.number.isRequired,
-    count: React.PropTypes.number
+    data: React.PropTypes.object,
+    date: React.PropTypes.string.isRequired
   },
   render: function() {
-    var daysText = (this.props.daysSince === 1) ? 'day' : 'days';
-    var countElement = null;
-
-    if (this.props.count > 1) {
-      countElement = <div className='Change-count-text'>
-        x{this.props.count}
-      </div>;
-    }
-
+    var times = this.props.data.dataByDate[this.props.date].data;
+    var timesList = times.slice(0,3).map(function(time) {
+      return (<li key={time.guid}>{format.timestamp(time.normalTime, time.displayOffset)}</li>);
+    });
     return (
-      <div className='Change'>
-        <div className='Change-daysSince-text'>
-          <span className='Change-daysSince-count'>{this.props.daysSince}</span>
-          {daysText}
-        </div>
-        <div className='Change-line-end'></div>
-        <div className='Change-line-stop'></div>
-        {countElement}
-        <div className='Change-line-start'></div>
-        <div className='Change-line-mark'></div>
-      </div>
+      <ul className='Calendar-day-reservoirChange-times'>
+        {timesList}
+      </ul>
     );
   },
 });
 
-module.exports = Change;
+module.exports = InfusionHoverDisplay;

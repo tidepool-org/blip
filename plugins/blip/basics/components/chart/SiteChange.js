@@ -30,9 +30,10 @@ var SiteChange = React.createClass({
   },
   render: function() {
     var value = this.getValue();
+    value.count = value.count || 1; //default value
     var siteChangeComponent = 
       ( value.type === constants.SITE_CHANGE) ?
-        <Change daysSince={value.daysSince} /> :
+        <Change daysSince={value.daysSince} count={value.count} /> :
         <NoChange />;
     return (
       <div className='SiteChange'>

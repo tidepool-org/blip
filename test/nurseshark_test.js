@@ -447,80 +447,36 @@ describe('nurseshark', function() {
   });
 
   describe('joinWizardsAndBoluses', function() {
+    var now = new Date().toISOString();
+    var data = [{
+      type: 'bolus',
+      id: 'abcde',
+      time: now,
+      timezoneOffset: 0
+    }, {
+      type: 'wizard',
+      bolus: 'abcde',
+      id: 'bcdef',
+      time: now,
+      timezoneOffset: 0
+    }, {
+      type: 'bolus',
+      id: 'cdefg',
+      time: now,
+      timezoneOffset: 0
+    }, {
+      type: 'wizard',
+      id: 'defgh',
+      time: now,
+      timezoneOffset: 0
+    }];
     it('should be a function', function() {
       assert.isFunction(nurseshark.joinWizardsAndBoluses);
     });
 
-    describe('old data model (i.e., in-d-gestion)', function() {
-      var now = new Date().toISOString();
-      var data = [{
-        type: 'bolus',
-        joinKey: '12345',
-        id: 'abcde',
-        time: now,
-        timezoneOffset: 0
-      }, {
-        type: 'wizard',
-        joinKey: '12345',
-        id: 'bcdef',
-        time: now,
-        timezoneOffset: 0
-      }, {
-        type: 'bolus',
-        id: 'cdefg',
-        time: now,
-        joinKey: 'foo',
-        timezoneOffset: 0
-      }, {
-        type: 'wizard',
-        id: 'defgh',
-        time: now,
-        timezoneOffset: 0
-      }];
-      var res = nurseshark.processData(data).processedData;
-      var embeddedBolus = res[1].bolus;
-      var secondBolus = res[2];
-      var secondWiz = res[3];
-
-      it('should join a bolus and wizard with matching joinKey', function() {
-        expect(embeddedBolus.id).to.equal(data[0].id);
-        expect(secondWiz.bolus).to.be.undefined;
-      });
-
-      it('should delete dangling joinKeys', function() {
-        expect(secondBolus.joinKey).to.be.undefined;
-      });
-    });
-
     describe('new data model', function() {
-      var now = new Date().toISOString();
-      var data = [{
-        type: 'bolus',
-        id: 'abcde',
-        time: now,
-        timezoneOffset: 0
-      }, {
-        type: 'wizard',
-        bolus: 'abcde',
-        id: 'bcdef',
-        time: now,
-        timezoneOffset: 0
-      }, {
-        type: 'bolus',
-        id: 'cdefg',
-        time: now,
-        timezoneOffset: 0
-      }, {
-        type: 'wizard',
-        id: 'defgh',
-        time: now,
-        timezoneOffset: 0
-      }];
       var res = nurseshark.processData(data).processedData;
-      var firstBolus = res[0];
-      var firstWiz = res[1];
       var embeddedBolus = res[1].bolus;
-      var secondBolus = res[2];
       var secondWiz = res[3];
 
       it('should join a bolus to a wizard that includes the bolus\'s `id` in the `bolus` field', function() {
@@ -528,12 +484,12 @@ describe('nurseshark', function() {
         expect(secondWiz.bolus).to.be.undefined;
       });
 
-      it('should add a joinKey to a bolus matching a wizard', function() {
-        expect(firstBolus.joinKey).to.equal(firstWiz.id);
-      });
-
-      it('should not leave dangling joinKeys on boluses that don\'t match wizards', function() {
-        expect(secondBolus.joinKey).to.be.undefined;
+      it('should add a wizard inside the bolus if bolus is associated with a wizard', function() {
+        var res = nurseshark.processData(data).processedData;
+        var embeddedWiz = res[0].wizard;
+        var secondBolus = res[3];
+        expect(embeddedWiz.id).to.equal(data[1].id);
+        expect(secondBolus.wizard).to.be.undefined;
       });
     });
   });

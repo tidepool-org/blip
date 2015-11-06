@@ -22,23 +22,23 @@ var expect = chai.expect;
 var _ = require('lodash');
 var d3 = require('d3');
 
-var dm = require('../plugins/blip/basics/logic/datamunger');
+var bgClasses = {
+  'very-low': {boundary: 10},
+  low: {boundary: 20},
+  target: {boundary: 30},
+  high: {boundary: 40},
+  'very-high': {boundary: 50}
+};
+var dm = require('../plugins/blip/basics/logic/datamunger')(bgClasses);
 
 var types = require('../dev/testpage/types');
 
 describe('basics datamunger', function() {
-  it('should be an object', function() {
+  it('should return an object', function() {
     assert.isObject(dm);
   });
 
   describe('bgDistribution', function() {
-    var bgClasses = {
-      'very-low': {boundary: 10},
-      low: {boundary: 20},
-      target: {boundary: 30},
-      high: {boundary: 40},
-      'very-high': {boundary: 50}
-    };
     var zeroes = {
       veryhigh: 0,
       high: 0,
@@ -65,7 +65,7 @@ describe('basics datamunger', function() {
       expect(dm.bgDistribution({
         data: {smbg: {data: smbg}, cbg: {data: cbg}},
         dateRange: [d3.time.day.utc.floor(now), d3.time.day.utc.ceil(now)]
-      }, bgClasses)).to.deep.equal({
+      })).to.deep.equal({
         cbg: _.defaults({veryhigh: 1}, zeroes),
         cgmStatus: 'calculatedCGM',
         smbg: _.defaults({target: 1}, zeroes)
@@ -79,9 +79,9 @@ describe('basics datamunger', function() {
         new types.SMBG({value: 25})
       ];
       expect(dm.bgDistribution({
-        data: {smbg: {data: smbg}},
+        data: {smbg: {data: smbg}, cbg: {data: []}},
         dateRange: [d3.time.day.utc.floor(now), d3.time.day.utc.ceil(now)]
-      }, bgClasses)).to.deep.equal({
+      })).to.deep.equal({
         cgmStatus: 'noCGM',
         smbg: _.defaults({target: 0.5, verylow: 0.5}, zeroes)
       });
@@ -99,7 +99,7 @@ describe('basics datamunger', function() {
       expect(dm.bgDistribution({
         data: {smbg: {data: smbg}, cbg: {data: cbg}},
         dateRange: [d3.time.day.utc.floor(now), d3.time.day.utc.ceil(now)]
-      }, bgClasses)).to.deep.equal({
+      })).to.deep.equal({
         cgmStatus: 'notEnoughCGM',
         smbg: _.defaults({target: 0.5, verylow: 0.5}, zeroes)
       });
@@ -117,7 +117,7 @@ describe('basics datamunger', function() {
       expect(dm.bgDistribution({
         data: {smbg: {data: smbg}},
         dateRange: [d3.time.day.utc.floor(now), d3.time.day.utc.ceil(now)]
-      }, bgClasses).smbg).to.deep.equal({
+      }).smbg).to.deep.equal({
           verylow: 0.2,
           low: 0.2,
           target: 0.2,
@@ -259,25 +259,25 @@ describe('basics datamunger', function() {
       type: 'future'
     }];
     var countSiteChangesByDay = {
-      '2015-09-05': 1,
-      '2015-09-08': 1,
-      '2015-09-12': 1
+      '2015-09-05': {count: 1},
+      '2015-09-08': {count: 1, data: 'a'},
+      '2015-09-12': {count: 2, data: 'b'}
     };
     var bd = {
-      data: {deviceEvent: {countByDate: countSiteChangesByDay}},
+      data: {reservoirChange: {dataByDate: countSiteChangesByDay}},
       days: oneWeekDates
     };
     it('should be a function', function() {
       assert.isFunction(dm.infusionSiteHistory);
     });
 
-    it('should return an object keyed by date; value is object with attrs type, daysSince', function() {
+    it('should return an object keyed by date; value is object with attrs type, count, daysSince', function() {
       var res = {};
       oneWeekDates.forEach(function(d) {
         res[d.date] = {type: d.type === 'future' ? d.type : 'noSiteChange'};
       });
-      res['2015-09-08'] = {type: 'siteChange', daysSince: 3};
-      res['2015-09-12'] = {type: 'siteChange', daysSince: 4};
+      res['2015-09-08'] = {type: 'siteChange', count: 1, daysSince: 3, data: 'a'};
+      res['2015-09-12'] = {type: 'siteChange', count: 2, daysSince: 4, data: 'b'};
       expect(dm.infusionSiteHistory(bd)).to.deep.equal(res);
     });
 
@@ -286,18 +286,125 @@ describe('basics datamunger', function() {
       oneWeekDates.forEach(function(d) {
         res2[d.date] = {type: d.type === 'future' ? d.type : 'noSiteChange'};
       });
-      res2['2015-09-08'] = {type: 'siteChange', daysSince: 7};
-      res2['2015-09-12'] = {type: 'siteChange', daysSince: 4};
+      res2['2015-09-08'] = {type: 'siteChange', count: 1, daysSince: 7, data: 'a'};
+      res2['2015-09-12'] = {type: 'siteChange', count: 1, daysSince: 4, data: 'b'};
       var countSiteChangesByDay2 = {
-        '2015-09-01': 1,
-        '2015-09-08': 1,
-        '2015-09-12': 1
+        '2015-09-01': {count: 1},
+        '2015-09-08': {count: 1, data: 'a'},
+        '2015-09-12': {count: 1, data: 'b'}
       };
       var bd2 = {
-        data: {deviceEvent: {countByDate: countSiteChangesByDay2}},
+        data: {reservoirChange: {dataByDate: countSiteChangesByDay2}},
         days: oneWeekDates
       };
       expect(dm.infusionSiteHistory(bd2)).to.deep.equal(res2);
+    });
+  });
+
+  describe('_summarizeTagFn', function() {
+    it('should be a function', function() {
+      assert.isFunction(dm._summarizeTagFn);
+    });
+
+    it('should return a function that can be used with _.each to summarize tags from subtotals', function() {
+      var dataObj = {
+        dataByDate: {
+          '2015-01-01': {
+            subtotals: {
+              foo: 2,
+              bar: 3
+            }
+          },
+          '2015-01-02': {
+            subtotals: {
+              foo: 10,
+              bar: 10
+            }
+          },
+          '2015-01-03': {
+            subtotals: {
+              foo: 0,
+              bar: 0
+            }
+          }
+        }
+      };
+      var summary = {total: 25};
+      _.each(['foo', 'bar'], dm._summarizeTagFn(dataObj, summary));
+      expect(summary).to.deep.equal({
+        total: 25,
+        foo: {count: 12, percentage: 0.48},
+        bar: {count: 13, percentage: 0.52}
+      });
+    });
+  });
+
+  describe('_averageExcludingMostRecentDay', function() {
+    it('should be a function', function() {
+      assert.isFunction(dm._averageExcludingMostRecentDay);
+    });
+
+    it('should calculate an average excluding the most recent day if data exists for it', function() {
+      var dataObj = {
+        dataByDate: {
+          '2015-01-01': {
+            total: 2
+          },
+          '2015-01-02': {
+            total: 9
+          },
+          '2015-01-03': {
+            total: 16
+          },
+          '2015-01-04': {
+            total: 1
+          }
+        }
+      };
+      expect(dm._averageExcludingMostRecentDay(dataObj, 28, '2015-01-04')).to.equal(9);
+    });
+  });
+
+  describe('reduceByDay', function() {
+    it('should be a function', function() {
+      assert.isFunction(dm.reduceByDay);
+    });
+
+    describe('crossfilter utils per datatype', function() {
+      var then = '2015-01-01T00:00:00.000Z';
+      var bd = {
+        data: {
+          basal: {data: [{type: 'basal', deliveryType: 'temp', time: then, displayOffset: 0}]},
+          bolus: {data: [{type: 'bolus', time: then, displayOffset: 0}]},
+          reservoirChange: {data: [{type: 'deviceEvent', subType: 'reservoirChange', time: then, displayOffset: 0}]}
+        },
+        days: [{date: '2015-01-01', type: 'past'}, {date: '2015-01-02', type: 'mostRecent'}]
+      };
+      dm.reduceByDay(bd);
+      var types = ['bolus', 'reservoirChange', 'basal'];
+      types.forEach(function(type) {
+        it('should build crossfilter utils for ' + type, function() {
+          expect(Object.keys(bd.data[type])).to.deep.equal(['data', 'cf', 'byLocalDate', 'dataByDate']);
+        });
+      });
+    });
+
+    describe('crossfilter utils for fingerstick section', function() {
+      var then = '2015-01-01T00:00:00.000Z';
+      var bd = {
+        data: {
+          smbg: {data: [{type: 'smbg', time: then, displayOffset: 0}]},
+          calibration: {data: [{type: 'deviceEvent', subType: 'calibration', time: then, displayOffset: 0}]}
+        },
+        days: [{date: '2015-01-01', type: 'past'}, {date: '2015-01-02', type: 'mostRecent'}]
+      };
+      dm.reduceByDay(bd);
+      var types = ['smbg', 'calibration'];
+      types.forEach(function(type) {
+        it('should build crossfilter utils in fingerstick.' + type, function() {
+          expect(Object.keys(bd.data.fingerstick[type])).to.deep.equal(['cf', 'byLocalDate', 'dataByDate']);
+        });
+      });
     });
   });
 });

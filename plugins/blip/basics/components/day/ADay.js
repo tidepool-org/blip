@@ -2,6 +2,8 @@ var React = require('react');
 var moment = require('moment');
 var cx = require('classnames');
 
+var constants = require('../../logic/constants');
+
 var ADay = React.createClass({
   propTypes: {
     dayAbbrevMask: React.PropTypes.string.isRequired,
@@ -10,9 +12,10 @@ var ADay = React.createClass({
     data: React.PropTypes.object,
     date: React.PropTypes.string.isRequired,
     future: React.PropTypes.bool.isRequired,
-    mostRecent: React.PropTypes.bool.isRequired,
     isFirst: React.PropTypes.bool.isRequired,
+    mostRecent: React.PropTypes.bool.isRequired,
     onHover: React.PropTypes.func.isRequired,
+    subtotalType: React.PropTypes.string,
     type: React.PropTypes.string.isRequired
   },
   getDefaultProps: function() {
@@ -27,11 +30,29 @@ var ADay = React.createClass({
    *
    * @return {boolean}
    */
-  shouldComponentUpdate: function() {
+  shouldComponentUpdate: function(nextProps, nextState) {
+    if (nextProps.subtotalType !== this.props.subtotalType) {
+      return true;
+    }
     return false;
   },
+  isAReservoirChange: function() {
+    return (this.props.type === 'reservoirChange');
+  },
+  isASiteChangeDay: function() {
+    if (!this.props.data || !this.props.data.infusionSiteHistory) {
+      return false;
+    }
+
+    return (this.props.data.infusionSiteHistory[this.props.date].type === constants.SITE_CHANGE);
+  },
   mouseEnter: function () {
+    // We do not want a hover effect on days in the future
     if (this.props.future) {
+      return;
+    }
+    // We do not want a hover effect on infusion site days that were not site changes
+    if (this.isAReservoirChange() && !this.isASiteChangeDay()) {
       return;
     }
     this.props.onHover(this.props.date);
@@ -43,16 +64,17 @@ var ADay = React.createClass({
     this.props.onHover(null);
   },
   render: function() {
-    var chart = this.props.chart({data: this.props.data, date: this.props.date});
+    var chart = this.props.chart({
+      data: this.props.data,
+      date: this.props.date,
+      subtotalType: this.props.subtotalType
+    });
     var date = moment(this.props.date);
 
-    var containerClass = cx({
+    var containerClass = cx('Calendar-day--' + this.props.type, {
       'Calendar-day': !this.props.future,
-      'Calendar-day--bolus': (this.props.type === 'bolus'),
-      'Calendar-day--fingerstick': (this.props.type === 'smbg'),
       'Calendar-day-future': this.props.future,
-      'Calendar-day-most-recent': this.props.mostRecent,
-      'Calendar-day-odd-month': (date.month() % 2 === 0)
+      'Calendar-day-most-recent': this.props.mostRecent
     });
 
     var drawMonthLabel = (date.date() === 1 || this.props.isFirst);

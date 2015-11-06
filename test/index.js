@@ -40,5 +40,6 @@ require('./annotations_test');
 require('./commonbolus_test');
 
 /* plugins/ */
+require('./basics_classifiers_test');
 require('./basics_datamunger_test');
 require('./nurseshark_test');
