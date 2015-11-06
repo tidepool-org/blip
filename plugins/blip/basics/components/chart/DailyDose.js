@@ -37,7 +37,7 @@ var DailyDose = React.createClass({
     return {
       valid: (this.props.data && !!this.props.data.weight),
       formWeight: null
-    }
+    };
   },
   /**
    * The main render function of the DailyDose component
@@ -74,7 +74,7 @@ var DailyDose = React.createClass({
     var classes = cx({
       'DailyDose-weightInputForm-selector' : true,
       'valid': this.state.valid === true
-    })
+    });
 
     return (
       <div className={classes}>

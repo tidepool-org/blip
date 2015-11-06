@@ -1,5 +1,6 @@
 /** @jsx React.DOM */
 /* global chai */
+/* global sinon */
 
 var React = require('react');
 var TestUtils = require('react/lib/ReactTestUtils');
@@ -39,6 +40,10 @@ describe('DailyDoseTitle', function () {
           sectionName={props.sectionName} />
       );
       expect(console.warn.callCount).to.equal(0);
+      
+      // actual rendered text is modified version of input 'note'
+      var headerElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle');
+      expect(headerElem).to.be.ok;
     });
 
     it('should render total daily dose / kg when weight set', function () {
@@ -70,8 +75,8 @@ describe('DailyDoseTitle', function () {
       expect(titleElem.getDOMNode().textContent).to.equal('Total daily dose / kg');
 
       // actual rendered text is modified version of input 'note'
-      var titleElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-text--large');
-      expect(titleElem.getDOMNode().textContent).to.equal('0.11');
+      var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-text--large');
+      expect(inputElem.getDOMNode().textContent).to.equal('0.11');
     });
 
     it('should render avg total daily dose when no weight set', function () {
@@ -102,8 +107,8 @@ describe('DailyDoseTitle', function () {
       expect(titleElem.getDOMNode().textContent).to.equal('Avg total daily dose');
 
       // actual rendered text is modified version of input 'note'
-      var titleElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-text--large');
-      expect(titleElem.getDOMNode().textContent).to.equal('11.0');
+      var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-text--large');
+      expect(inputElem.getDOMNode().textContent).to.equal('11.0');
     });
   });
 });

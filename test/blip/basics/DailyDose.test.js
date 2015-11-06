@@ -1,5 +1,6 @@
 /** @jsx React.DOM */
 /* global chai */
+/* global sinon */
 
 var React = require('react');
 var TestUtils = require('react/lib/ReactTestUtils');

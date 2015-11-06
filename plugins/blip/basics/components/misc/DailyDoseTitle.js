@@ -16,6 +16,8 @@
  * == BSD2 LICENSE ==
  */
 
+/* global d3 */
+
 var React = require('react');
 var basicsActions = require('../../logic/actions');
 
@@ -60,7 +62,7 @@ var DailyDoseTitle = React.createClass({
     if (!this.props.data) {
       return null;
     }
-    var weight = this.props.data.weight
+    var weight = this.props.data.weight;
     return (weight) ? weight : null;
   }
 });
