@@ -331,16 +331,16 @@ describe('personutils', function() {
       var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT);
 
       expect(error.about).to.equal('Please keep "about" text under 256 characters');
-    }); 
+    });
 
     it('should return no error message when diagnosisDate and birthday and about is at max length', function() {
       var formValues = {
         fullName: 'Joe Bloggs',
         birthday: '01/01/1984',
         diagnosisDate: '01/05/1984',
-        about: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' + 
-        'Enim in consectetur ultricies netus torquent nisi gravida pulvinar' + 
-        ' - curae congue tellus sodales nec proin?Risus in nostra montes rhoncus' + 
+        about: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' +
+        'Enim in consectetur ultricies netus torquent nisi gravida pulvinar' +
+        ' - curae congue tellus sodales nec proin?Risus in nostra montes rhoncus' +
         ' vestibulum tempus per ut: curae maecenas nibh arcu eget. Dolb'
       };
       var error = personUtils.validateFormValues(formValues, true, FORM_DATE_FORMAT);

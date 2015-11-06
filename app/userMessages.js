@@ -16,6 +16,7 @@ not, you can obtain one from Tidepool Project at tidepool.org.
 */
 
 module.exports = {
+  ERR_ACCEPTING_TERMS : 'Something went wrong while accepting the terms and conditions',
   ERR_DISMISSING_INVITE : 'Something went wrong while dismissing the invitation.',
   ERR_ACCEPTING_INVITE : 'Something went wrong while accepting the invitation.',
   ERR_CHANGING_PERMS : 'Something went wrong while changing member perimissions.',
