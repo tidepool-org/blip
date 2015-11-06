@@ -33,6 +33,17 @@ module.exports = {
    * @return {String}
    */
   getPathToSelected: function() {
+    function findInOptions(options, filter) {
+      if (!options || !options.rows) {
+        return null;
+      }
+
+      var allOptions =  _.flatten(options.rows);
+      allOptions.push(options.primary);
+
+      return _.find(allOptions, filter);
+    }
+
     var options = this.props.selectorOptions;
     var selected = findInOptions(options, {selected: true});
 
@@ -45,18 +56,6 @@ module.exports = {
     }
 
     return null;
-
-
-    function findInOptions(options, filter) {
-      if (!options || !options.row) {
-        return null;
-      }
-
-      var allOptions =  _.flatten(options.rows);
-      allOptions.push(options.primary);
-
-      return _.find(allOptions, filter);
-    }
   },
   labelGenerator: function(opts) {
     var bgClasses = opts.bgClasses;
