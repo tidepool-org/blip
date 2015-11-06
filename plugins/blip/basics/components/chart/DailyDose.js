@@ -35,7 +35,7 @@ var DailyDose = React.createClass({
    */
   getInitialState: function() {
     return {
-      valid: (!!this.props.data.weight),
+      valid: (this.props.data && !!this.props.data.weight),
       formWeight: null
     }
   },
@@ -68,7 +68,7 @@ var DailyDose = React.createClass({
   renderWeightSelector: function() {
     var currentWeight = this.state.formWeight;
 
-    if (currentWeight === null) {
+    if (currentWeight === null && this.props.data) {
       currentWeight = this.props.data.weight;
     }
     var classes = cx({
@@ -78,7 +78,7 @@ var DailyDose = React.createClass({
 
     return (
       <div className={classes}>
-        <input type="number" min="0" ref={inputRef} name={inputRef} value={currentWeight} onChange={this.onWeightChange} />
+        <input className="DailyDose-weightInputForm-input" type="number" min="0" ref={inputRef} name={inputRef} value={currentWeight} onChange={this.onWeightChange} />
         kg
       </div>
     );
