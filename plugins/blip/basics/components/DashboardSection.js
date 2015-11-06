@@ -46,6 +46,8 @@ var DashboardSection = React.createClass({
       if (section.active) {
         dataDisplay = (
           <section.container
+            bgClasses={this.props.bgClasses}
+            bgUnits={this.props.bgUnits}
             chart={section.chart}
             data={this.props.data}
             days={this.props.days}
