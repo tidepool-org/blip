@@ -48,7 +48,7 @@ module.exports = function(bgClasses) {
       var cgm = basicsData.data.cbg;
       var bgm = basicsData.data.smbg;
       var bgDistribution = {};
-      if (cgm) {
+      if (cgm && !_.isEmpty(cgm.data)) {
         var count = cgm.data.length;
         var spanInDays = (Date.parse(basicsData.dateRange[1]) -
           Date.parse(basicsData.dateRange[0]))/constants.MS_IN_DAY;
