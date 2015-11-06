@@ -49,9 +49,9 @@ var basicsState = {
           [
             { key: 'temp', label: 'Temp Basals' },
             { key: 'suspend', label: 'Suspends' }
+            // commented out because there's a problem with scheduleName in OmniPod data :(
+            // { key: 'scheduleChange', label: 'Schedule Changes' }
           ]
-          // commented out because there's a problem with scheduleName in OmniPod data :(
-          // { key: 'scheduleChange', label: 'Schedule Changes' }
         ]
       },
       title: 'Basals',
