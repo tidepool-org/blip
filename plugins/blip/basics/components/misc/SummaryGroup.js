@@ -22,35 +22,41 @@ var d3 = require('d3');
 var React = require('react');
 
 var basicsActions = require('../../logic/actions');
+var BasicsUtils = require('../BasicsUtils');
 
 var SummaryGroup = React.createClass({
+  mixins: [BasicsUtils],
   propTypes: {
+    bgClasses: React.PropTypes.object.isRequired,
+    bgUnits: React.PropTypes.string.isRequired,
     data: React.PropTypes.object.isRequired,
     selectedSubtotal: React.PropTypes.string.isRequired,
-    selectorOptions: React.PropTypes.array.isRequired,
+    selectorOptions: React.PropTypes.object.isRequired,
     sectionId: React.PropTypes.string.isRequired
   },
   render: function() {
     var self = this;
-
-    var primaryOption = _.find(self.props.selectorOptions, { primary: true });
+    var primaryOption = self.props.selectorOptions.primary;
     var primaryElem = null;
     if (primaryOption) {
-      primaryElem = this.renderInfo(primaryOption);
+      primaryOption.primary = true; //need to have property present indicating option is primary
+      primaryElem = this.renderOption(primaryOption);
 
       if (!self.props.selectedSubtotal) {
         self.props.selectedSubtotal = primaryOption.key;
       }
     }
 
-    var otherOptions = _.filter(
-      self.props.selectorOptions,
-      function(row) {
-        return !row.primary;
-      }
-    );
+    var optionRows = self.props.selectorOptions.rows;
 
-    var others = otherOptions.map(self.renderInfo);
+    var others = optionRows.map(function(row, id) {
+      var options = row.map(self.renderOption);
+      return (
+        <div key={'row-'+id} className="SummaryGroup-row">
+          {options}
+        </div>
+      );
+    });
 
     return (
       <div className="SummaryGroup-container">
@@ -61,9 +67,9 @@ var SummaryGroup = React.createClass({
       </div>
     );
   },
-  renderInfo: function(option) {
+  renderOption: function(option) {
     if (typeof option.active !== 'undefined' && !option.active) {
-      return (<div key={option.key} className='SummaryGroup-info SummaryGroup-info-blank'></div>);
+      return null; //(<div key={option.key} className='SummaryGroup-info SummaryGroup-info-blank'></div>);
     }
 
     var classes = classnames({
@@ -95,16 +101,6 @@ var SummaryGroup = React.createClass({
       }
       else {
         value = this.props.data[option.key].count || 0;
-      }
-    }
-
-    var percentage;
-    if (option.percentage) {
-      if (path) {
-        percentage = this.props.data[path][option.key].percentage;
-      }
-      else {
-        percentage = this.props.data[option.key].percentage;
       }
     }
     
@@ -139,23 +135,48 @@ var SummaryGroup = React.createClass({
           {totalElem}
         </div>
       );
-    } else {
+    }
+    else {
+      var percentage;
+      if (option.percentage) {
+        if (path) {
+          percentage = this.props.data[path][option.key].percentage;
+        }
+        else {
+          percentage = this.props.data[option.key].percentage;
+        }
+      }
+      var percentageElem = (option.percentage) ? (
+        <span className="SummaryGroup-option-percentage">
+          ({d3.format('%')(percentage)})
+        </span>
+      ) : null;
+
       var valueElem = (
         <span className="SummaryGroup-option-count">
           {value}
+          {percentageElem}
         </span>
       );
-      var percentageElem = (option.percentage) ? (
-        <span className="SummaryGroup-option-percentage">
-          {d3.format('%')(percentage)}
-        </span>
-      ) : null;
+
+      var labels = this.labelGenerator({
+        bgClasses: this.props.bgClasses,
+        bgUnits: this.props.bgUnits
+      });
+
+      var labelOpts = option.labelOpts;
+
+      var labelText = option.label ? option.label :
+        labels[labelOpts.type][labelOpts.key];
+
+      var labelElem = (
+        <span className="SummaryGroup-option-label">{labelText}</span>
+      );
 
       return (
         <div key={option.key} className={classes}
           onClick={this.handleSelectSubtotal.bind(null, option.key)}>
-          <span className="SummaryGroup-option-label">{option.label}</span>
-          {percentageElem}
+          {labelElem}
           {valueElem}
         </div>
       );

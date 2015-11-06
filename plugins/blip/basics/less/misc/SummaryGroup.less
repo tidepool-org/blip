@@ -1,7 +1,7 @@
 .SummaryGroup-container {
   padding: 0px 0px 5px;
   margin: 0px 5px 10px;
-  width: 622px;
+  width: 624px;
   font-size: 12px;
   line-height: 21px;
 
@@ -12,6 +12,7 @@
     align-self: flex-end;
 
     width: 160px;
+    flex-grow: 1;
     padding-top: 5px;
     cursor: pointer;
     height: 32px;
@@ -20,35 +21,26 @@
     .SummaryGroup-option-label {
       float: left;
       padding-left: 15px;
-    }
-
-    .SummaryGroup-option-percentage, .SummaryGroup-option-count {
-      float: right;
+      
+      &::first-letter {
+        text-transform: capitalize;
+      }
     }
 
     .SummaryGroup-option-count {
-      text-align: left;
-      width: 33px;
+      float: right;
+      text-align: right;
+      width: 76px;
       padding-right: 15px;
+      font-weight: bold;
     }
 
     .SummaryGroup-option-percentage {
       font-size: 11px;
       text-align: right;
       min-height: 15px;
-      width: 38px;
-      margin-left: -10px;
-      padding-right: 15px;
-    }
-
-    .SummaryGroup-option-count {
-      font-weight: bold;
-    }
-
-    &.SummaryGroup-no-percentage {
-      .SummaryGroup-option-count {
-        text-align: right;
-      }
+      padding-left: 5px;
+      font-weight: normal;
     }
 
     &.SummaryGroup-info--selected {
@@ -68,12 +60,19 @@
   }
 
   .SummaryGroup-info-others {
-    display: flex;
-    justify-content: flex-start;
-    flex-flow: row wrap;
-
     height: 70px;
     width: 489px;
+    display: flex;
+    flex-flow: row wrap;
+  }
+
+  .SummaryGroup-row {
+    display: flex;
+    justify-content: space-around;
+    flex-flow: row wrap;
+    flex-grow: 1;
+
+    padding-top: 3px;
 
     .SummaryGroup-info {
       margin-right: 3px;
@@ -81,7 +80,7 @@
   }
 
   .SummaryGroup-info-primary {
-    width: 130px;
+    width: 132px;
     height: 67px;
     padding-top: 12px;
     font-size: 14px;

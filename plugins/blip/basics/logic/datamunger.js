@@ -48,7 +48,7 @@ module.exports = function(bgClasses) {
       var cgm = basicsData.data.cbg;
       var bgm = basicsData.data.smbg;
       var bgDistribution = {};
-      if (cgm) {
+      if (cgm && !_.isEmpty(cgm.data)) {
         var count = cgm.data.length;
         var spanInDays = (Date.parse(basicsData.dateRange[1]) -
           Date.parse(basicsData.dateRange[0]))/constants.MS_IN_DAY;
@@ -272,6 +272,9 @@ module.exports = function(bgClasses) {
         summary[tag].percentage = summary[tag].count/summary.total;
       };
     },
+    _getRowKey: function(row) {
+      return _.pluck(row, 'key');
+    },
     _averageExcludingMostRecentDay: function(dataObj, total, mostRecentDay) {
       var mostRecentTotal = dataObj.dataByDate[mostRecentDay] ?
         dataObj.dataByDate[mostRecentDay].total : 0;
@@ -348,7 +351,8 @@ module.exports = function(bgClasses) {
           var section = _.find(basicsData.sections, findSectionContainingType(type));
           // wrap this in an if mostly for testing convenience
           if (section) {
-            var tags = _.rest(_.pluck(section.selectorOptions, 'key'));
+            var tags = _.flatten(_.map(section.selectorOptions.rows, this._getRowKey));
+
             var summary = {total: Object.keys(typeObj.dataByDate)
               .reduce(reduceTotalByDate(typeObj), 0)};
             _.each(tags, this._summarizeTagFn(typeObj, summary));
@@ -378,10 +382,13 @@ module.exports = function(bgClasses) {
           fsSummary.total += fsSummary[fsCategory].total;
         });
         fingerstickData.summary = fsSummary;
-        // now summarize tags and find avg events per day
-        var fsTags = _.pluck(_.filter(fsSection.selectorOptions, function(opt) {
-          return opt.path === 'smbg' && !opt.primary;
-        }), 'key');
+        
+        var fsTags = _.flatten(fsSection.selectorOptions.rows.map(function(row) {
+          return _.pluck(_.filter(row, function(opt) {
+            return opt.path === 'smbg';
+          }), 'key');
+        }));
+
         _.each(fsTags, this._summarizeTagFn(fingerstickData.smbg, fsSummary.smbg));
         var smbgSummary = fingerstickData.summary.smbg;
         smbgSummary.avgPerDay = this._averageExcludingMostRecentDay(

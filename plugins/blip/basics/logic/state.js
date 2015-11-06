@@ -43,13 +43,17 @@ var basicsState = {
       index: 4,
       open: true,
       selector: SummaryGroup,
-      selectorOptions: [
-        { key: 'total', label: 'Basal Events', default: true, primary: true },
-        { key: 'temp', label: 'Temp Basals' },
-        { key: 'suspend', label: 'Suspends' },
-        // commented out because there's a problem with scheduleName in OmniPod data :(
-        // { key: 'scheduleChange', label: 'Schedule Changes' }
-      ],
+      selectorOptions: {
+        primary: { key: 'total', label: 'Basal Events' },
+        rows: [
+          [
+            { key: 'temp', label: 'Temp Basals' },
+            { key: 'suspend', label: 'Suspends' }
+            // commented out because there's a problem with scheduleName in OmniPod data :(
+            // { key: 'scheduleChange', label: 'Schedule Changes' }
+          ]
+        ]
+      },
       title: 'Basals',
       type: 'basal'
     },
@@ -83,15 +87,21 @@ var basicsState = {
       index: 2,
       open: true,
       selector: SummaryGroup,
-      selectorOptions: [
-        { key: 'total', label: 'Average per day', default: true, primary: true, average: true },
-        { key: 'wizard', label: 'Calculator', percentage: true  },
-        { key: 'correction', label: 'Correction', percentage: true  },
-        { key: 'override', label: 'Override', percentage: true  },
-        { key: 'manual', label: 'Manual', percentage: true  },
-        { key: 'extended', label: 'Extended', percentage: true  },
-        { key: 'interrupted', label : 'Interrupted', percentage: true  }
-      ],
+      selectorOptions: {
+        primary: { key: 'total', label: 'All Boluses' },
+        rows: [
+          [ 
+            { key: 'wizard', label: 'Calculator', percentage: true  },
+            { key: 'correction', label: 'Correction', percentage: true  },
+            { key: 'override', label: 'Override', percentage: true  }
+          ],
+          [
+            { key: 'manual', label: 'Manual', percentage: true  },
+            { key: 'extended', label: 'Extended', percentage: true  },
+            { key: 'interrupted', label : 'Interrupted', percentage: true  }
+          ]
+        ]
+      },
       title: 'Bolusing',
       type: 'bolus'
     },
@@ -105,14 +115,20 @@ var basicsState = {
       index: 1,
       open: true,
       selector: SummaryGroup,
-      selectorOptions: [
-        { path: 'smbg', key: 'total', label: 'Average per day', default: true, primary: true, average:true },
-        { path: 'smbg', key: 'meter', label: 'Meter', percentage: true },
-        { path: 'smbg', key: 'manual', label: 'Manual', percentage: true },
-        { path: 'calibration', key: 'calibration', label: 'Calibrations' },
-        { path: 'smbg', key: 'verylow', label: 'Very Low', percentage: true },
-        { path: 'smbg', key: 'veryhigh', label: 'Very High', percentage: true }
-      ],
+      selectorOptions: {
+        primary: { path: 'smbg', key: 'total', label: 'All BGs' },
+        rows: [
+          [ 
+            { path: 'smbg', key: 'meter', label: 'Meter', percentage: true },
+            { path: 'smbg', key: 'manual', label: 'Manual', percentage: true },
+            { path: 'calibration', key: 'calibration', label: 'Calibrations' }
+          ],
+          [
+            { path: 'smbg', key: 'verylow', labelOpts: {type: 'bg', key: 'verylow'}, percentage: true },
+            { path: 'smbg', key: 'veryhigh', labelOpts: {type: 'bg', key: 'veryhigh'}, percentage: true }
+          ]
+        ]
+      },
       title: 'BG readings',
       type: 'fingerstick'
     },
