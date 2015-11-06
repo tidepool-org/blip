@@ -77,8 +77,8 @@ var SummaryGroup = React.createClass({
       'SummaryGroup-info-primary': option.primary,
       'SummaryGroup-info-primary--average': option.primary && option.average,
       'SummaryGroup-info': !option.primary,
-    	'SummaryGroup-info-tall': ( !option.primary && this.props.selectorOptions.length <= 4 ),
-    	'SummaryGroup-no-percentage': ( !option.primary && !option.percentage )
+      'SummaryGroup-info-tall': (!option.primary && this.props.selectorOptions.length <= 4),
+      'SummaryGroup-no-percentage': (!option.primary && !option.percentage)
     });
 
     var path = option.path;

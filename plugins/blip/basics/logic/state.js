@@ -88,7 +88,7 @@ var basicsState = {
       open: true,
       selector: SummaryGroup,
       selectorOptions: {
-        primary: { key: 'total', label: 'All Boluses' },
+        primary: { key: 'total', label: 'Avg per day', average: true },
         rows: [
           [ 
             { key: 'wizard', label: 'Calculator', percentage: true  },
@@ -116,7 +116,7 @@ var basicsState = {
       open: true,
       selector: SummaryGroup,
       selectorOptions: {
-        primary: { path: 'smbg', key: 'total', label: 'All BGs' },
+        primary: { path: 'smbg', key: 'total', label: 'Avg per day', average: true },
         rows: [
           [ 
             { path: 'smbg', key: 'meter', label: 'Meter', percentage: true },
