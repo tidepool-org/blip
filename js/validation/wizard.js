@@ -32,14 +32,7 @@ module.exports = schema(
     insulinCarbRatio: schema().ifExists().number(),
     insulinSensitivity: schema().ifExists().number(),
     bgTarget: schema().ifExists().oneOf(
-      schema(
-          {
-            target: schema().number(),
-            low: schema().banned(),
-            high: schema().banned(),
-            range: schema().banned()
-          }
-      ),
+      // Medtronic
       schema(
           {
             low: schema().number(),
@@ -48,28 +41,31 @@ module.exports = schema(
             target: schema().banned()
           }
       ),
+      // Animas
       schema(
           {
-            low: schema().number(),
-            high: schema().number(),
-            range: schema().banned(),
-            target: schema().number()
+            target: schema().number(),
+            range: schema().number(),
+            low: schema().banned(),
+            high: schema().banned()
           }
       ),
+      // OmniPod
       schema(
           {
+            target: schema().number(),
+            high: schema().number(),
+            low: schema().banned(),
+            range: schema().banned()
+          }
+      ),
+      // Tandem
+      schema(
+          {
+            target: schema().number(),
             low: schema().banned(),
             high: schema().banned(),
-            range: schema().number(),
-            target: schema().number()
-          }
-      ),
-      schema(
-          {
-            low: schema().banned(),
-            high: schema().number(),
-            range: schema().banned(),
-            target: schema().number()
+            range: schema().banned()
           }
       )
     ),
