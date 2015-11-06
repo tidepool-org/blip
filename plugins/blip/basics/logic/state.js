@@ -141,7 +141,7 @@ var basicsState = {
       hoverDisplay: InfusionHoverDisplay,
       id: 'siteChanges',
       index: 3,
-      noDataMessage: 'Infusion site changes for CareLink data are coming soon.',
+      noDataMessage: 'Infusion site changes are not yet available for all pumps. Coming soon!',
       open: true,
       title: 'Infusion site changes',
       type: 'reservoirChange'
