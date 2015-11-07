@@ -535,33 +535,31 @@ function TidelineData(data, opts) {
 
       for (var i = 0; i < opts.basicsTypes.length; ++i) {
         var aType = opts.basicsTypes[i];
-        if (!_.isEmpty(this.grouped[aType])) {
-          var typeObj;
-          if (aType === 'deviceEvent') {
-            this.basicsData.data.reservoirChange = {data: _.filter(
-              this.grouped[aType],
-              function(d) {
-                return d.subType === 'reservoirChange';
-              }
-            )};
-            this.basicsData.data.calibration = {data: _.filter(
-              skimOffTop(
-                skimOffBottom(this.grouped[aType], this.basicsData.dateRange[0]),
-                this.basicsData.dateRange[1]
-              ),
-              function(d) {
-                return d.subType === 'calibration';
-              }
-            )};
-          }
-          else {
-            this.basicsData.data[aType] = {};
-            typeObj = this.basicsData.data[aType];
-            typeObj.data = skimOffTop(
-              skimOffBottom(this.grouped[aType],this.basicsData.dateRange[0]),
+        var typeObj;
+        if (aType === 'deviceEvent') {
+          this.basicsData.data.reservoirChange = {data: _.filter(
+            this.grouped[aType] || [],
+            function(d) {
+              return d.subType === 'reservoirChange';
+            }
+          )};
+          this.basicsData.data.calibration = {data: _.filter(
+            skimOffTop(
+              skimOffBottom(this.grouped[aType] || [], this.basicsData.dateRange[0]),
               this.basicsData.dateRange[1]
-            );
-          }
+            ),
+            function(d) {
+              return d.subType === 'calibration';
+            }
+          )};
+        }
+        else {
+          this.basicsData.data[aType] = {};
+          typeObj = this.basicsData.data[aType];
+          typeObj.data = skimOffTop(
+            skimOffBottom(this.grouped[aType] || [], this.basicsData.dateRange[0]),
+            this.basicsData.dateRange[1]
+          );
         }
       }
     }
