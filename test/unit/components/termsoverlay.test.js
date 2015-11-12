@@ -79,7 +79,7 @@ describe('TermsOverlay', function () {
       var ageBtn = TestUtils.findRenderedDOMComponentWithTag(termsElem, 'button');
       expect(ageBtn).not.to.not.equal(null);
 
-      React.addons.TestUtils.Simulate.click(ageBtn);
+      TestUtils.Simulate.click(ageBtn);
       expect(termsElem.state.ageConfirmed).to.equal(true);
     });
     it('shows iframes once button pressed ', function() {
