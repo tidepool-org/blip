@@ -928,7 +928,7 @@ var AppComponent = React.createClass({
     var self = this;
     var acceptedDate = sundial.utcDateString();
 
-    self.context.api.user.acceptTerms({ termsAccepted: acceptedDate }, function(err) {
+    self.props.api.user.acceptTerms({ termsAccepted: acceptedDate }, function(err) {
       if (err) {
         return self.handleApiError(err, usrMessages.ERR_ACCEPTING_TERMS, utils.buildExceptionDetails());
       }

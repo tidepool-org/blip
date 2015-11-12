@@ -9,7 +9,6 @@ var TermsOverlay = require('../../../app/components/termsoverlay');
 describe('TermsOverlay', function () {
 
   describe('render', function() {
-
     it('should console.error when trackMetric not set', function () {
       console.error = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<TermsOverlay/>);
@@ -80,7 +79,7 @@ describe('TermsOverlay', function () {
       var ageBtn = TestUtils.findRenderedDOMComponentWithTag(termsElem, 'button');
       expect(ageBtn).not.to.not.equal(null);
 
-      React.addons.TestUtils.Simulate.click(ageBtn);
+      TestUtils.Simulate.click(ageBtn);
       expect(termsElem.state.ageConfirmed).to.equal(true);
     });
     it('shows iframes once button pressed ', function() {
