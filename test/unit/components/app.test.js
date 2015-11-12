@@ -8,7 +8,7 @@ var expect = chai.expect;
 var rewire = require('rewire');
 var rewireModule = require('../../utils/rewireModule');
 
-// Need to add this line as app.js includes config 
+// Need to add this line as app.js includes config
 // which errors if window.config does not exist
 window.config = {};
 var api = require('../../../app/core/api');
@@ -86,6 +86,124 @@ describe('App', function () {
       var elem = TestUtils.renderIntoDocument(<App {...childContext} />);
       var versionElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'Navbar-version');
       expect(versionElems.length).to.equal(1);
+    });
+  });
+
+  describe('terms', function() {
+
+    describe('overlay', function() {
+      //override
+      var utils = require('../../../app/core/utils');
+      var stub = sinon.stub(utils, 'isChrome');
+      stub.returns(true);
+
+      it('should render when user has not accepted terms but is logged in', function() {
+
+        React.withContext(context, function() {
+
+          var elem = TestUtils.renderIntoDocument(<App/>);
+          elem.setState({ authenticated: true , fetchingUser: false});
+
+          expect(elem.state.authenticated).to.equal(true);
+          expect(elem.state.fetchingUser).to.equal(false);
+          expect(elem.state.termsAccepted).to.equal(null);
+
+          var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-overlay');
+          expect(termsElems.length).to.not.equal(0);
+
+        });
+      });
+      it('should NOT render when user has acccepted terms and is logged in', function() {
+
+        React.withContext(context, function() {
+
+          var elem = TestUtils.renderIntoDocument(<App/>);
+          var acceptDate = new Date().toISOString();
+
+          elem.setState({ authenticated: true, termsAccepted: acceptDate, fetchingUser: false });
+
+          expect(elem.state.authenticated).to.equal(true);
+          expect(elem.state.fetchingUser).to.equal(false);
+          expect(elem.state.termsAccepted).to.equal(acceptDate);
+
+          var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-overlay');
+          expect(termsElems.length).to.equal(0);
+
+        });
+      });
+    });
+    describe('acceptance', function() {
+      it('should set the state for termsAccepted ', function() {
+
+        React.withContext(context, function() {
+
+          var elem = TestUtils.renderIntoDocument(<App/>);
+          expect(elem.state.termsAccepted).to.equal(null);
+          elem.setState({ authenticated: true, fetchingUser: false });
+
+          //stub call to api upon which the termsAccepted is set
+          var acceptDate = new Date().toISOString();
+          var apiStub = sinon.stub(api.user, 'acceptTerms',function () { elem.setState({termsAccepted:acceptDate});});
+
+          elem.handleAcceptedTerms();
+          expect(elem.state.termsAccepted).to.equal(acceptDate);
+          expect(elem.state.fetchingUser).to.equal(false);
+          apiStub.restore();
+        });
+      });
+      it('should allow user to use blip', function() {
+
+        React.withContext(context, function() {
+
+          var elem = TestUtils.renderIntoDocument(<App/>);
+          expect(elem.state.termsAccepted).to.equal(null);
+          elem.setState({ authenticated: true, fetchingUser: false });
+
+          //stub call to api upon which the termsAccepted is set
+          var acceptDate = new Date().toISOString();
+          var apiStub = sinon.stub(api.user, 'acceptTerms',function () { elem.setState({termsAccepted:acceptDate});});
+
+          elem.handleAcceptedTerms();
+
+          expect(elem.state.termsAccepted).to.equal(acceptDate);
+          expect(elem.state.authenticated).to.equal(true);
+          expect(elem.state.fetchingUser).to.equal(false);
+
+          //check we aren't seeing the terms
+          var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-overlay');
+          expect(termsElems.length).to.equal(0);
+
+          //because its fake we are showing the login page ...
+          var form = TestUtils.findRenderedDOMComponentWithClass(elem, 'login-simpleform');
+          expect(form).to.be.ok;
+
+          apiStub.restore();
+        });
+      });
+      it('should NOT allow user to use blip if there was an issue', function() {
+
+        React.withContext(context, function() {
+
+          var elem = TestUtils.renderIntoDocument(<App/>);
+          expect(elem.state.termsAccepted).to.equal(null);
+          elem.setState({ authenticated: true, fetchingUser: false });
+
+          //stub call to api upon which the termsAccepted is NOT set in this case
+          var apiStub = sinon.stub(api.user, 'acceptTerms',function () { elem.setState({termsAccepted:null});});
+
+          elem.handleAcceptedTerms();
+
+          expect(elem.state.termsAccepted).to.equal(null);
+          expect(elem.state.authenticated).to.equal(true);
+          expect(elem.state.fetchingUser).to.equal(false);
+
+          //check we aren't seeing the terms
+          var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-overlay');
+          expect(termsElems.length).to.not.equal(0);
+
+          apiStub.restore();
+        });
+      });
     });
   });
 });
