@@ -24,6 +24,8 @@ module.exports = function (config) {
       module: {
         loaders: [
           {test: /\.js$/, exclude: /(node_modules)/, loader: 'babel-loader'},
+          // need this condition when testing with Tideline loaded from Github branch
+          {test: /node_modules\/tideline\/.*\.js$/, exclude: /tideline\/node_modules/, loader: 'babel-loader'},
           {test: /\.less$/, loader: 'style-loader!css-loader!autoprefixer-loader!less-loader'},
           {test: /\.gif$/, loader: 'url-loader?limit=10000&mimetype=image/gif'},
           {test: /\.jpg$/, loader: 'url-loader?limit=10000&mimetype=image/jpg'},
