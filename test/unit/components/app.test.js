@@ -134,7 +134,6 @@ describe('App', function () {
         //stub call to api upon which the termsAccepted is set
         var acceptDate = new Date().toISOString();
 
-        console.log(childContext);
         var apiStub = sinon.stub(childContext.api.user, 'acceptTerms',function () { elem.setState({termsAccepted:acceptDate});});
 
         elem.handleAcceptedTerms();
