@@ -3,15 +3,19 @@ var moment = require('moment-timezone');
 var cx = require('classnames');
 var _ = require('lodash');
 
+var BasicsUtils = require('../BasicsUtils');
 var constants = require('../../logic/constants');
 
 var HoverDay = React.createClass({
+  mixins: [BasicsUtils],
   propTypes: {
     data: React.PropTypes.object,
     date: React.PropTypes.string.isRequired,
     dayAbbrevMask: React.PropTypes.string.isRequired,
+    hoverDisplay: React.PropTypes.func,
     onHover: React.PropTypes.func.isRequired,
     onSelectDay: React.PropTypes.func.isRequired,
+    subtotalType: React.PropTypes.string,
     timezone: React.PropTypes.string.isRequired,
     type: React.PropTypes.string.isRequired
   },
@@ -38,33 +42,29 @@ var HoverDay = React.createClass({
     this.props.onHover(null);
   },
   render: function() {
-    var containerClass = cx({
-      'Calendar-day--bolus': (this.props.type === 'bolus'),
-      'Calendar-day--fingerstick': (this.props.type === 'smbg'),
+    var containerClass = cx('Calendar-day--' + this.props.type, {
       'Calendar-day--HOVER': true,
     });
+
+    var display = (
+      <div className='Calendar-day-text'>
+        {this.getCount(this.props.subtotalType)}
+      </div>
+    );
+
+    if (this.props.hoverDisplay) {
+      display = this.props.hoverDisplay({data: this.props.data, date: this.props.date});
+    }
+
     return (
       <div className={containerClass} onDoubleClick={this.handleDblClickDay}
         onMouseEnter={this.mouseEnter} onMouseLeave={this.mouseLeave}>
         <p className='Calendar-weekday'>
           {moment(this.props.date).format(this.props.dayAbbrevMask)}
         </p>
-        <div className='Calendar-day-text'>
-          {this.getCount()}
-        </div>
+        {display}
       </div>
     );
-  },
-  /**
-   * Get the count value associated with this day
-   * 
-   * @return {Number}
-   */
-  getCount: function() {
-    if (_.isEmpty(this.props.data)) {
-      return 0;
-    }
-    return this.props.data.countByDate[this.props.date];
   }
 });
 

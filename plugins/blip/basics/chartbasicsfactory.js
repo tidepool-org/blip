@@ -30,7 +30,7 @@ require('./less/basics.less');
 var debug = bows('Basics Chart');
 var basicsState = require('./logic/state');
 var basicsActions = require('./logic/actions');
-var dataMunger = require('./logic/datamunger');
+var dataMungerMkr = require('./logic/datamunger');
 
 var Section = require('./components/DashboardSection');
 
@@ -46,32 +46,35 @@ var BasicsChart = React.createClass({
     updateBasicsData: React.PropTypes.func.isRequired
   },
   _adjustSectionsBasedOnAvailableData: function(basicsData) {
-    var typedData = basicsData.data;
-    var typedSections = _.filter(basicsData.sections, function(section) {
-      if (section.components) {
-        return _.some(section.components, function(component) {
-          return component.type != null;
+    if (_.isEmpty(basicsData.data.reservoirChange.data)) {
+      var siteChangeSection = _.find(basicsData.sections, function(section) {
+        return section.type === 'reservoirChange';
+      });
+      siteChangeSection.active = false;
+    }
+    if (_.isEmpty(basicsData.data.calibration.data)) {
+      var fingerstickSection = _.find(basicsData.sections, function(section) {
+        return section.type === 'fingerstick';
+      });
+
+      fingerstickSection.selectorOptions.rows.forEach(function(row) {
+        var calibrationSelector = _.find(row, function(option) {
+          return option.key === 'calibration';
         });
-      }
-    });
-    _.each(typedSections, function(section) {
-      _.each(section.components, function(component) {
-        var type = component.type;
-        if (_.isEmpty(typedData[type].data)) {
-          component.active = false;
+        if (calibrationSelector) {
+          calibrationSelector.active = false;
         }
       });
-    });
+    }
   },
   componentWillMount: function() {
     var basicsData = this.props.patientData.basicsData;
     if (basicsData.sections == null) {
       basicsData = _.assign(basicsData, basicsState);
-      basicsData.data.deviceEvent.infusionSiteHistory = dataMunger.infusionSiteHistory(basicsData);
-      basicsData.data.bgDistribution = dataMunger.bgDistribution(
-        basicsData,
-        this.props.bgClasses
-      );
+      var dataMunger = dataMungerMkr(this.props.bgClasses);
+      dataMunger.reduceByDay(basicsData);
+      basicsData.data.reservoirChange.infusionSiteHistory = dataMunger.infusionSiteHistory(basicsData);
+      basicsData.data.bgDistribution = dataMunger.bgDistribution(basicsData);
       var basalBolusStats = dataMunger.calculateBasalBolusStats(basicsData);
       basicsData.data.basalBolusRatio = basalBolusStats.basalBolusRatio;
       basicsData.data.totalDailyDose = basalBolusStats.totalDailyDose;
@@ -110,7 +113,7 @@ var BasicsChart = React.createClass({
       sections.push(section);
     }
     var column = _.sortBy(
-      _.where(sections, {column: columnSide, active: true}),
+      _.where(sections, {column: columnSide}),
       'index'
     );
 
@@ -119,13 +122,13 @@ var BasicsChart = React.createClass({
         <Section key={section.name}
           bgClasses={self.props.bgClasses}
           bgUnits={self.props.bgUnits}
-          chart={section.chart || null}
-          container={section.container || section.components}
+          chart={section.chart}
           data={self.state.data}
           days={self.state.days}
           name={section.name}
           onSelectDay={self.props.onSelectDay}
           open={section.open}
+          section={section}
           title={section.title}
           timezone={tz} />
       );

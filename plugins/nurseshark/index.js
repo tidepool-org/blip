@@ -141,25 +141,10 @@ var nurseshark = {
     for (var i = 0; i < numWizards; ++i) {
       var wizard = wizards[i];
       var bolusId = wizard.bolus;
-      // TODO: remove once we've phased out in-d-gestion CareLink parsing
-      if (bolusId == null) {
-        bolusId = wizard.joinKey;
-      }
       if (bolusId != null && allBoluses[bolusId]) {
         wizard.bolus = allBoluses[bolusId];
+        allBoluses[bolusId].wizard = _.omit(wizard, 'bolus');
         joinedWizards[bolusId] = wizard;
-      }
-    }
-    var numBoluses = boluses.length;
-    for (var j = 0; j < numBoluses; ++j) {
-      var bolus = boluses[j];
-      if (bolus.joinKey != null) {
-        if (allWizards[bolus.joinKey] == null) {
-          delete bolus.joinKey;
-        }
-      }
-      else if (bolus.joinKey == null && joinedWizards[bolus.id] != null) {
-        bolus.joinKey = joinedWizards[bolus.id].id;
       }
     }
   },
@@ -340,10 +325,6 @@ function getHandlers(bgUnits) {
     },
     bolus: function(d, collections) {
       d = cloneDeep(d);
-      // TODO: remove once we've phased out in-d-gestion CareLink parsing
-      if (d.joinKey != null) {
-        collections.allBoluses[d.joinKey] = d;
-      }
       collections.allBoluses[d.id] = d;
       return d;
     },
@@ -417,10 +398,6 @@ function getHandlers(bgUnits) {
     },
     wizard: function(d, collections) {
       d = cloneDeep(d);
-      // TODO: remove once we've phased out in-d-gestion CareLink parsing
-      if (d.joinKey != null) {
-        collections.allWizards[d.joinKey] = d;
-      }
       if (bgUnits === 'mg/dL') {
         if (d.bgInput) {
           d.bgInput = translateBg(d.bgInput);

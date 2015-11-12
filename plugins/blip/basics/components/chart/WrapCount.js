@@ -21,10 +21,14 @@ var dotSize = 16;
 var dotPadding = 2;
 var nestedShrinkFactor = 4;
 
+var BasicsUtils = require('../BasicsUtils');
+
 var WrapCount = React.createClass({
+  mixins: [BasicsUtils],
   propTypes: {
     data: React.PropTypes.object,
-    date: React.PropTypes.string.isRequired
+    date: React.PropTypes.string.isRequired,
+    subtotalType: React.PropTypes.string,
   },
   render: function() {
     var dots = this.renderDots();
@@ -37,7 +41,7 @@ var WrapCount = React.createClass({
   generateDots: function(start, end, dotSize, pad) {
     pad = pad || 1.5;
     var dots = [];
-    var count = this.getCount();
+    var count = this.getCount(this.props.subtotalType);
     for (var i = start; i <= end; ++i) {
       if (i <= count) {
         dots.push(
@@ -51,7 +55,7 @@ var WrapCount = React.createClass({
     return dots;
   },
   renderDots: function() {
-    var count = this.getCount();
+    var count = this.getCount(this.props.subtotalType);
     var dots = [];
     
     if (count > 9) {
@@ -64,12 +68,6 @@ var WrapCount = React.createClass({
     }
 
     return dots;
-  },
-  getCount: function() {
-    if (_.isEmpty(this.props.data)) {
-      return 0;
-    }
-    return this.props.data.countByDate[this.props.date];
   }
 });
 

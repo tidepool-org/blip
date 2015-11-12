@@ -1,3 +1,4 @@
+/** @jsx React.DOM */
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2015 Tidepool Project
@@ -17,32 +18,24 @@
 
 var _ = require('lodash');
 var React = require('react');
+var format = require('../../../../../../js/data/util/format');
 
-var constants = require('../../logic/constants');
-var Change = require('../sitechange/Change');
-var NoChange = require('../sitechange/NoChange');
-
-var SiteChange = React.createClass({
+var InfusionHoverDisplay = React.createClass({
   propTypes: {
-    data: React.PropTypes.object.isRequired,
+    data: React.PropTypes.object,
     date: React.PropTypes.string.isRequired
   },
   render: function() {
-    var value = this.getValue();
-    value.count = value.count || 1; //default value
-    var siteChangeComponent = 
-      ( value.type === constants.SITE_CHANGE) ?
-        <Change daysSince={value.daysSince} count={value.count} /> :
-        <NoChange />;
+    var times = this.props.data.dataByDate[this.props.date].data;
+    var timesList = times.slice(0,3).map(function(time) {
+      return (<li key={time.guid}>{format.timestamp(time.normalTime, time.displayOffset)}</li>);
+    });
     return (
-      <div className='SiteChange'>
-        {siteChangeComponent}
-      </div>
+      <ul className='Calendar-day-reservoirChange-times'>
+        {timesList}
+      </ul>
     );
   },
-  getValue: function() {
-    return this.props.data.infusionSiteHistory[this.props.date];
-  }
 });
 
-module.exports = SiteChange;
+module.exports = InfusionHoverDisplay;

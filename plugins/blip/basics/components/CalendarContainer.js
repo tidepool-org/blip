@@ -23,22 +23,27 @@ var React = require('react');
 
 var debug = bows('Calendar');
 var basicsActions = require('../logic/actions');
+var BasicsUtils = require('./BasicsUtils');
 
 var ADay = require('./day/ADay');
 var HoverDay = require('./day/HoverDay');
 
 var CalendarContainer = React.createClass({
+  mixins: [BasicsUtils],
   propTypes: {
-    section: React.PropTypes.string.isRequired,
-    component: React.PropTypes.string.isRequired,
+    bgClasses: React.PropTypes.object.isRequired,
+    bgUnits: React.PropTypes.string.isRequired,
     chart: React.PropTypes.func.isRequired,
     data: React.PropTypes.object.isRequired,
     days: React.PropTypes.array.isRequired,
     hasHover: React.PropTypes.bool.isRequired,
+    hoverDisplay: React.PropTypes.func,
     onSelectDay: React.PropTypes.func.isRequired,
+    sectionId: React.PropTypes.string.isRequired,
+    selector: React.PropTypes.func,
+    selectorOptions: React.PropTypes.object,
     timezone: React.PropTypes.string.isRequired,
-    title: React.PropTypes.string.isRequired,
-    type: React.PropTypes.string.isRequired,
+    type: React.PropTypes.string.isRequired
   },
   getInitialState: function() {
     return {
@@ -54,19 +59,34 @@ var CalendarContainer = React.createClass({
   onHover: function(date) {
     this.setState({hoverDate: date});
   },
-  render: function() {
-    var self = this;
+  _getSelectedSubtotal: function() {
+    var options = this.props.selectorOptions;
 
-    var containerClass = cx({
+    if (options) {
+      return _.get(_.find(_.flatten(options.rows), {selected: true}), 'key', false) ||
+      options.primary.key;
+    }
+
+    return null;
+  },
+  render: function() {
+    var containerClass = cx('Calendar-container-' + this.props.type, {
       'Calendar-container': true
     });
 
     var days = this.renderDays();
     var dayLabels = this.renderDayLabels();
 
+    var selector = null;
+
+    if (this.props.selector && this.props.selectorOptions) {
+      selector = this.renderSelector();
+    }
+
     return (
       <div className='Container'>
         <div className={containerClass} ref='container'>
+          {selector}
           <div className='Calendar' ref='content'>
             {dayLabels}
             {days}
@@ -74,6 +94,16 @@ var CalendarContainer = React.createClass({
         </div>
       </div>
     );
+  },
+  renderSelector: function() {
+    return this.props.selector({
+      bgClasses: this.props.bgClasses,
+      bgUnits: this.props.bgUnits,
+      data: this.props.data[this.props.type].summary,
+      selectedSubtotal: this._getSelectedSubtotal(),
+      selectorOptions: this.props.selectorOptions,
+      sectionId: this.props.sectionId
+    });
   },
   renderDayLabels: function() {
     // Take the first day in the set and use this to set the day labels
@@ -93,15 +123,19 @@ var CalendarContainer = React.createClass({
   },
   renderDays: function() {
     var self = this;
+    var path = this.getPathToSelected();
 
     return this.props.days.map(function(day, id) {
       if (self.props.hasHover && self.state.hoverDate === day.date) {
         return (
           <HoverDay key={day.date}
-            data={self.props.data[self.props.type]}
+            data={path ? self.props.data[self.props.type][path] :
+              self.props.data[self.props.type]}
             date={day.date}
+            hoverDisplay={self.props.hoverDisplay}
             onHover={self.onHover}
             onSelectDay={self.props.onSelectDay}
+            subtotalType={self._getSelectedSubtotal()}
             timezone={self.props.timezone}
             type={self.props.type} />
         );
@@ -109,12 +143,14 @@ var CalendarContainer = React.createClass({
         return (
           <ADay key={day.date}
             chart={self.props.chart}
-            data={self.props.data[self.props.type]}
+            data={path ? self.props.data[self.props.type][path] :
+              self.props.data[self.props.type]}
             date={day.date}
             future={day.type === 'future'}
-            mostRecent={day.type === 'mostRecent'}
             isFirst={id === 0}
+            mostRecent={day.type === 'mostRecent'}
             onHover={self.onHover}
+            subtotalType={self._getSelectedSubtotal()}
             type={self.props.type} />
         );
       }  

@@ -69,6 +69,11 @@ var definitions = {
       var b = ' represents extended boluses that cross midnight as two boluses, this bolus could be part of a dual-wave bolus, not an independent square-wave bolus as represented here.';
       return defs.stitch(a, b, source);
     },
+    'tandem/basal/fabricated-from-new-day': function(source, defs) {
+      var a = 'We have fabricated this basal segment from a ';
+      var b = ' new day event; it was not provided directly as basal data';
+      return defs.stitch(a, b, source);
+    },
     'basal/intersects-incomplete-suspend': function() {
       return 'Within this basal segment, we are omitting a suspend event that didn\'t end. This may have resulted from changing the date & time settings on the device or switching to a new device. As a result, this basal segment may be inaccurate.';
     },
