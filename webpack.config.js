@@ -25,7 +25,7 @@ module.exports = {
   },
   module: {
     loaders: [
-      {test: /\.js$/, loader: 'jsx-loader'},
+      {test: /\.js$/, exclude: /(node_modules)/, loader: 'babel-loader'},
       {test: /\.less$/, loader: 'style-loader!css-loader!autoprefixer-loader!less-loader'},
       {test: /\.gif$/, loader: 'url-loader?limit=100000&mimetype=image/gif'},
       {test: /\.jpg$/, loader: 'url-loader?limit=10000&mimetype=image/jpg'},

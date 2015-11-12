@@ -1,10 +1,10 @@
-/** @jsx React.DOM */
+
 
 /* global chai */
 window.config = {};
 
 var React = require('react');
-var TestUtils = require('react/lib/ReactTestUtils');
+var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
 
 var ConfirmPasswordReset = require('../../../../app/pages/passwordreset/confirm');
@@ -15,18 +15,17 @@ describe('ConfirmPasswordReset', function () {
   });
 
   describe('render', function() {
-    it('should console.warn when required props are missing', function () {
-      console.warn = sinon.stub();
+    it('should console.error when required props are missing', function () {
+      console.error = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<ConfirmPasswordReset />);
-      expect(console.warn.callCount).to.equal(4);
-      expect(console.warn.calledWith('Warning: Required prop `resetKey` was not specified in `ConfirmPasswordReset`.')).to.equal(true);
-      expect(console.warn.calledWith('Warning: Required prop `trackMetric` was not specified in `ConfirmPasswordReset`.')).to.equal(true);
-      expect(console.warn.calledWith('Warning: Required prop `onSubmit` was not specified in `ConfirmPasswordReset`.')).to.equal(true);
-      expect(console.warn.calledWith('Warning: Required prop `trackMetric` was not specified in `LoginNav`. Check the render method of `ConfirmPasswordReset`.')).to.equal(true);
+      expect(console.error.callCount).to.equal(3);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `resetKey` was not specified in `ConfirmPasswordReset`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `ConfirmPasswordReset`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `ConfirmPasswordReset`.')).to.equal(true);
     });
 
     it('should render without problems when required props are set', function () {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         resetKey: 'some-key',
         onSubmit: sinon.stub(),
@@ -34,13 +33,13 @@ describe('ConfirmPasswordReset', function () {
       };
       var elem = React.createElement(ConfirmPasswordReset, props);
       var render = TestUtils.renderIntoDocument(elem);
-      expect(console.warn.callCount).to.equal(0);
+      expect(console.error.callCount).to.equal(0);
     });
   });
 
   describe('formInputs', function() {
     it('should return array with one entry for email', function() {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         onSubmit: sinon.stub(),
         trackMetric: sinon.stub()
@@ -67,7 +66,7 @@ describe('ConfirmPasswordReset', function () {
 
   describe('getInitialState', function() {
     it('should be in this expected format', function() {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         resetKey: 'some-key',
         onSubmit: sinon.stub(),
@@ -86,7 +85,7 @@ describe('ConfirmPasswordReset', function () {
 
   describe('prepareFormValuesForSubmit', function() {
     it('should be in this expected format', function() {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         resetKey: 'some-key',
         onSubmit: sinon.stub(),

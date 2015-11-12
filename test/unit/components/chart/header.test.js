@@ -1,7 +1,7 @@
 /* global chai */
 
 var React = require('react');
-var TestUtils = require('react/lib/ReactTestUtils');
+var TestUtils = require('react-addons-test-utils');
 var _ = require('lodash');
 var expect = chai.expect;
 var rewire = require('rewire');
@@ -12,7 +12,7 @@ describe('Header', function () {
 
   describe('render', function() {
     it('should render without problems', function () {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         chartType: 'Awesome',
         inTransition: false,
@@ -30,11 +30,11 @@ describe('Header', function () {
       var dailyElem = React.createElement(Header, props);
       var elem = TestUtils.renderIntoDocument(dailyElem);
       expect(elem).to.be.ok;
-      expect(console.warn.callCount).to.equal(0);
+      expect(console.error.callCount).to.equal(0);
     });
 
     it('should trigger onClickBack when inTransition is false and back button is clicked', function () {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         chartType: 'Awesome',
         inTransition: false,
@@ -61,7 +61,7 @@ describe('Header', function () {
     });
 
     it('should not trigger onClickBack when inTransition is true and back button is clicked', function () {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         chartType: 'Awesome',
         inTransition: true,
@@ -88,7 +88,7 @@ describe('Header', function () {
     });
 
     it('should trigger onClickModal when modal button is clicked', function () {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         chartType: 'Awesome',
         inTransition: false,
@@ -115,7 +115,7 @@ describe('Header', function () {
     });
 
     it('should trigger onClickMostRecent when inTransition is false and mostRecent button is clicked', function () {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         chartType: 'Awesome',
         inTransition: false,
@@ -142,7 +142,7 @@ describe('Header', function () {
     });
 
     it('should not trigger onClickMostRecent when inTransition is true and mostRecent button is clicked', function () {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         chartType: 'Awesome',
         inTransition: true,
@@ -169,7 +169,7 @@ describe('Header', function () {
     });
 
     it('should trigger onClickNext when inTransition is false and next button is clicked', function () {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         chartType: 'Awesome',
         inTransition: false,
@@ -196,7 +196,7 @@ describe('Header', function () {
     });
 
     it('should not trigger onClickNext when inTransition is true and next button is clicked', function () {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         chartType: 'Awesome',
         inTransition: true,
@@ -223,7 +223,7 @@ describe('Header', function () {
     });
 
     it('should trigger onClickBasics when basics button is clicked', function () {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         chartType: 'Awesome',
         inTransition: false,
@@ -250,7 +250,7 @@ describe('Header', function () {
     });
 
     it('should trigger onClickOneDay when daily button is clicked', function () {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         chartType: 'Awesome',
         inTransition: false,
@@ -277,7 +277,7 @@ describe('Header', function () {
     });
 
     it('should trigger onClickTwoWeeks when weekly button is clicked', function () {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         chartType: 'Awesome',
         inTransition: false,
@@ -304,7 +304,7 @@ describe('Header', function () {
     });
 
     it('should trigger onClickSettings when settings button is clicked', function () {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         chartType: 'Awesome',
         inTransition: false,
