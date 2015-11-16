@@ -514,7 +514,7 @@ function TidelineData(data, opts) {
     // is uploaded more recently (by a couple days, say) than a pump)
     function skimOffTop(groupData, end) {
       return _.takeWhile(groupData, function(d) {
-        return d.normalTime < end;
+        return d.normalTime <= end;
       });
     }
     // wrapping in an if-clause here because of the no-data
@@ -522,11 +522,11 @@ function TidelineData(data, opts) {
     if (last) {
       this.basicsData.timezone = opts.timePrefs.timezoneAware ?
         opts.timePrefs.timezoneName : 'UTC';
-      this.basicsData.dateRange = [last.time];
+      this.basicsData.dateRange = [last.normalTime];
       this.basicsData.dateRange.unshift(
         opts.timePrefs.timezoneAware ?
-          dt.findBasicsStart(last.time, opts.timePrefs.timezoneName) :
-          dt.findBasicsStart(last.time)
+          dt.findBasicsStart(last.normalTime, opts.timePrefs.timezoneName) :
+          dt.findBasicsStart(last.normalTime)
       );
       this.basicsData.days =  opts.timePrefs.timezoneAware ?
         dt.findBasicsDays(this.basicsData.dateRange, opts.timePrefs.timezoneName) :
