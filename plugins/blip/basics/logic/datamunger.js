@@ -171,7 +171,7 @@ module.exports = function(bgClasses) {
     _buildCrossfilterUtils: function(dataObj, type) {
 
       function getLocalDate(d) {
-        return sundial.applyOffset(d.time, d.displayOffset).toISOString().slice(0,10);
+        return sundial.applyOffset(d.normalTime, d.displayOffset).toISOString().slice(0,10);
       }
 
       function reduceAddMaker(classifier) {
