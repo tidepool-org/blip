@@ -121,7 +121,6 @@ var Daily = React.createClass({
     this.setState({
       inTransition: inTransition
     });
-
   },
   handleMostRecent: function(atMostRecent) {
     this.setState({

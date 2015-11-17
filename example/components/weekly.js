@@ -97,9 +97,6 @@ var Weekly = React.createClass({
       );
     /* jshint ignore:end */
   },
-  componentDidMount: function() {
-    console.log(this.refs);
-  },
   formatDate: function(datetime) {
     return moment(datetime).utc().format('MMMM D');
   },
