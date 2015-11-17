@@ -18,7 +18,7 @@
 var _ = require('lodash');
 var bows = require('bows');
 var cx = require('classnames');
-var moment = require('moment');
+var moment = require('moment-timezone');
 var React = require('react');
 
 var debug = bows('Calendar');

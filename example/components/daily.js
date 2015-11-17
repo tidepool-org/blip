@@ -16,7 +16,7 @@
  */
 var _ = require('lodash');
 var bows = require('bows');
-var moment = require('moment');
+var moment = require('moment-timezone');
 var React = require('react');
 var ReactDOM = require('react-dom');
 

@@ -21,7 +21,7 @@ d3.chart('Brush', {
 
     var xPosition = function(d) {
       var zone = moment.tz.zone(chart.timezone());
-      return chart.xScale()(moment.utc(d).add('minutes', zone.parse(d.valueOf())).toDate());
+      return chart.xScale()(moment.utc(d).add(zone.parse(d.valueOf()), 'minutes').toDate());
     };
 
     this.layer('brushTicks', this.base.append('g').attr('id', 'brushTicks'), {

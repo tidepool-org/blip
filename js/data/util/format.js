@@ -17,7 +17,7 @@
 
 var d3 = require('d3');
 var Duration = require('duration-js');
-var moment = require('moment');
+var moment = require('moment-timezone');
 
 var format = {
 

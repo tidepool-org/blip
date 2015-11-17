@@ -18,7 +18,7 @@ var _ = require('lodash');
 var bows = require('bows');
 var crossfilter = require('crossfilter');
 var d3 = window.d3;
-var moment = require('moment');
+var moment = require('moment-timezone');
 var React = require('react');
 var ReactDOM = require('react-dom');
 
