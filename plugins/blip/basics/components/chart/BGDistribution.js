@@ -1,4 +1,3 @@
-/** @jsx React.DOM */
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2015 Tidepool Project
@@ -16,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 var _ = require('lodash');
-var cx = require('react/lib/cx');
+var cx = require('classnames');
 var d3 = require('d3');
 var React = require('react');
 var Toggle = require('../misc/Toggle');
@@ -48,7 +47,7 @@ var BGDistribution = React.createClass({
     var bgClasses = this.props.bgClasses;
     var bgUnits = this.props.bgUnits;
     if (!_.isEmpty(data.bgDistribution)) {
-      var chartNode = this.refs.chart.getDOMNode();
+      var chartNode = this.refs.chart;
       this.chart = bgBars.create(chartNode)
         .render(this.state.data, {
           bgClasses: bgClasses,

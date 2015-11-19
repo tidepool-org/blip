@@ -1,4 +1,3 @@
-/** @jsx React.DOM */
 /*
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -19,8 +18,9 @@ var _ = require('lodash');
 var bows = require('bows');
 var crossfilter = require('crossfilter');
 var d3 = window.d3;
-var moment = require('moment');
+var moment = require('moment-timezone');
 var React = require('react');
+var ReactDOM = require('react-dom');
 
 var dt = require('../../js/data/util/datetime');
 
@@ -297,7 +297,7 @@ var ModalChart = React.createClass({
   },
   componentDidMount: function() {
     this.log('Mounting...');
-    var el = this.getDOMNode();
+    var el = ReactDOM.findDOMNode(this);
     var timezone;
     if (!this.props.timePrefs.timezoneAware) {
       timezone = 'UTC';
@@ -320,9 +320,10 @@ var ModalChart = React.createClass({
       initialExtent: extent,
       timezone: timezone
     });
-    this.bindEvents();
     this.brush.emitter.emit('brushed', extent);
     this.brush.render(this.allData);
+    this.bindEvents(); // Must be the last action in component did mount due to cascade of calls that results
+    // in action being triggered that relies upon refs being set.
     console.timeEnd('Modal Draw');
   },
   componentWillReceiveProps: function(nextProps) {

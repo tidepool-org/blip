@@ -1,4 +1,3 @@
-/** @jsx React.DOM */
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -15,12 +14,11 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-require('script!d3/d3.min.js');
-require('!script!d3.chart/d3.chart.min.js');
-
 var _ = require('lodash');
 var bows = require('bows');
 var React = require('react');
+var ReactDOM = require('react-dom');
+
 var d3 = require('d3');
 
 var Empty = require('./components/empty');
@@ -251,9 +249,9 @@ var Example = React.createClass({
   }
 });
 
-React.render(
+ReactDOM.render(
   /* jshint ignore:start */
   <Example/>,
   /* jshint ignore:end */
-  document.body
+  document.getElementById('app')
 );
