@@ -51,7 +51,7 @@ export default class ActionHandlers {
   }
 
   handleLogoutSuccess() {
-    this.clearUserData();
+    this.component.clearUserData();
     this.component.props.history.pushState(null, 'login');
   }
 
@@ -314,9 +314,9 @@ export default class ActionHandlers {
   }
 
   handleCancelInvite(email, cb) {
-    var self = this.component;
+    var comp = this.component;
 
-    self.props.route.api.invitation.cancel(email, function(err) {
+    comp.props.route.api.invitation.cancel(email, function(err) {
       if(err) {
         if (cb) {
           cb(err);
@@ -324,8 +324,8 @@ export default class ActionHandlers {
         return this.handleApiError(err, usrMessages.ERR_CANCELING_INVITE, utils.buildExceptionDetails());
       }
 
-      self.setState({
-        pendingInvites: _.reject(self.state.pendingInvites, function(i) {
+      comp.setState({
+        pendingInvites: _.reject(comp.state.pendingInvites, function(i) {
           return i.email === email;
         })
       });
@@ -334,5 +334,112 @@ export default class ActionHandlers {
       }
       this.fetcher.fetchPendingInvites();
     });
+  }
+
+  handleCreatePatient(patient, cb) {
+    this.component.props.route.api.patient.post(patient, cb);
+  }
+
+  handleUpdateUser(formValues) {
+    var self = this;
+    var previousUser = self.component.state.user;
+
+    var newUser = _.assign(
+      {},
+      _.omit(previousUser, 'profile'),
+      _.omit(formValues, 'profile'),
+      {profile: _.assign({}, previousUser.profile, formValues.profile)}
+    );
+
+    // Optimistic update
+    self.component.setState({user: _.omit(newUser, 'password')});
+
+    var userUpdates = _.cloneDeep(newUser);
+    // If username hasn't changed, don't try to update
+    // or else backend will respond with "already taken" error
+    if (userUpdates.username === previousUser.username) {
+      userUpdates = _.omit(userUpdates, 'username', 'emails');
+    }
+
+    self.component.props.route.api.user.put(userUpdates, (err, user) => {
+      if (err) {
+        // Rollback
+        self.component.setState({user: previousUser});
+        return self.handleApiError(err, usrMessages.ERR_UPDATING_ACCOUNT, utils.buildExceptionDetails());
+      }
+
+      user = _.assign(newUser, user);
+      self.component.setState({user: user});
+      self.component.props.route.trackMetric('Updated Account');
+    });
+  }
+
+  handleUpdatePatient(patient) {
+    var self = this;
+    var previousPatient = self.component.state.patient;
+
+    // Optimistic update
+    self.component.setState({patient: patient});
+
+    self.component.props.route.api.patient.put(patient, function(err, patient) {
+      if (err) {
+        // Rollback
+        self.component.setState({patient: previousPatient});
+        return self.handleApiError(err, usrMessages.ERR_UPDATING_PATIENT, utils.buildExceptionDetails());
+      }
+      self.component.setState({
+        patient: _.assign({}, previousPatient, {profile: patient.profile})
+      });
+      self.component.props.route.trackMetric('Updated Profile');
+    });
+  }
+
+  handleLogin(formValues, cb) {
+    var user = formValues.user;
+    var options = formValues.options;
+
+    this.component.props.route.api.user.login(user, options, cb);
+  }
+
+  handleSignup(formValues, cb) {
+    var user = formValues;
+    this.component.props.route.api.user.signup(user, cb);
+  }
+
+  handleFinalizeSignup() {
+    var comp = this.component;
+
+    let { signupKey } = comp.props.location;
+    if(!_.isEmpty(signupKey) && !comp.state.finalizingVerification){
+      comp.props.route.api.user.confirmSignUp(signupKey, function(err){
+        if(err){
+          comp.props.route.log('finalizeSignup err ',err);
+        }
+        comp.setState({finalizingVerification:true});
+      });
+    }
+    return;
+  }
+
+  handleLogout() {
+    var comp = this.component;
+
+    if (comp.state.loggingOut) {
+      return;
+    }
+
+    comp.setState({
+      loggingOut: true
+    });
+
+    // Need to track this before expiring auth token
+    comp.props.route.trackMetric('Logged Out');
+
+    //Logout but don't wait for details
+    comp.props.route.api.user.logout();
+
+    comp.setState({loggingOut: false});
+
+    this.handleLogoutSuccess();
   }
 }

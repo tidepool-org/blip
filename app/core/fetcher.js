@@ -10,36 +10,34 @@ export default class Fetcher {
   }
 
   fetchUser() {
-    var self = this.component;
+    var comp = this.component;
 
-    self.setState({fetchingUser: true});
-
-    self.props.route.api.user.get(function(err, user) {
+    comp.setState({fetchingUser: true});
+    comp.props.route.api.user.get(function(err, user) {
       if (err) {
-        self.setState({fetchingUser: false});
-        return self.handleApiError(err, usrMessages.ERR_FETCHING_USER, utils.buildExceptionDetails());
+        comp.setState({fetchingUser: false});
+        return comp.actionHandlers.handleApiError(err, usrMessages.ERR_FETCHING_USER, utils.buildExceptionDetails());
       }
 
-      self.setState({
+      comp.setState({
         user: user,
         termsAccepted : user.termsAccepted,
         fetchingUser: false
       });
 
       //will show terms if not yet accepted
-      self.renderOverlay = self.renderTermsOverlay;
-
+      comp.renderOverlay = comp.renderTermsOverlay;
     });
   }
 
   fetchPendingInvites(cb) {
-    var self = this.component;
+    var comp = this.component;
 
-    self.setState({fetchingPendingInvites: true});
+    comp.setState({fetchingPendingInvites: true});
 
-    self.props.route.api.invitation.getSent(function(err, invites) {
+    comp.props.route.api.invitation.getSent(function(err, invites) {
       if (err) {
-        self.setState({
+        comp.setState({
           fetchingPendingInvites: false
         });
 
@@ -47,10 +45,10 @@ export default class Fetcher {
           cb(err);
         }
 
-        return self.handleApiError(err, usrMessages.ERR_FETCHING_PENDING_INVITES, utils.buildExceptionDetails());
+        return comp.actionHandlers.handleApiError(err, usrMessages.ERR_FETCHING_PENDING_INVITES, utils.buildExceptionDetails());
       }
 
-      self.setState({
+      comp.setState({
         pendingInvites: invites,
         fetchingPendingInvites: false
       });
@@ -62,21 +60,21 @@ export default class Fetcher {
   }
 
   fetchInvites() {
-    var self = this.component;
+    var comp = this.component;
 
-    self.setState({fetchingInvites: true});
+    comp.setState({fetchingInvites: true});
 
-    self.props.route.api.invitation.getReceived(function(err, invites) {
+    comp.props.route.api.invitation.getReceived(function(err, invites) {
       if (err) {
 
-        self.setState({
+        comp.setState({
           fetchingInvites: false
         });
 
-        return self.handleApiError(err, usrMessages.ERR_FETCHING_INVITES, utils.buildExceptionDetails());
+        return comp.actionHandlers.handleApiError(err, usrMessages.ERR_FETCHING_INVITES, utils.buildExceptionDetails());
       }
 
-      self.setState({
+      comp.setState({
         invites: invites,
         fetchingInvites: false
       });
@@ -84,19 +82,19 @@ export default class Fetcher {
   }
 
   fetchPatients(options) {
-    var self = this.component;
+    var comp = this.component;
 
     if(options && !options.hideLoading) {
-        self.setState({fetchingPatients: true});
+        comp.setState({fetchingPatients: true});
     }
 
-    self.props.route.api.patient.getAll(function(err, patients) {
+    comp.props.route.api.patient.getAll(function(err, patients) {
       if (err) {
-        self.setState({fetchingPatients: false});
-        return self.handleApiError(err, usrMessages.ERR_FETCHING_TEAMS, utils.buildExceptionDetails());
+        comp.setState({fetchingPatients: false});
+        return comp.actionHandlers.handleApiError(err, usrMessages.ERR_FETCHING_TEAMS, utils.buildExceptionDetails());
       }
 
-      self.setState({
+      comp.setState({
         patients: patients,
         fetchingPatients: false
       });
@@ -104,23 +102,23 @@ export default class Fetcher {
   }
 
   fetchPatient(patientId, callback) {
-    var self = this.component;
+    var comp = this.component;
 
-    self.setState({fetchingPatient: true});
+    comp.setState({fetchingPatient: true});
 
-    self.props.route.api.patient.get(patientId, function(err, patient) {
+    comp.props.route.api.patient.get(patientId, function(err, patient) {
       if (err) {
         if (err.status === 404) {
-          self.props.route.log('Patient not found with id '+patientId);
-          var setupMsg = (patientId === self.state.user.userid) ? usrMessages.ERR_YOUR_ACCOUNT_NOT_CONFIGURED : usrMessages.ERR_ACCOUNT_NOT_CONFIGURED;
-          var dataStoreLink = (<a href="#/patients/new" onClick={self.closeNotification}>{usrMessages.YOUR_ACCOUNT_DATA_SETUP}</a>);
-          return self.handleActionableError(err, setupMsg, dataStoreLink);
+          comp.props.route.log('Patient not found with id '+patientId);
+          var setupMsg = (patientId === comp.state.user.userid) ? usrMessages.ERR_YOUR_ACCOUNT_NOT_CONFIGURED : usrMessages.ERR_ACCOUNT_NOT_CONFIGURED;
+          var dataStoreLink = (<a href="#/patients/new" onClick={comp.closeNotification}>{usrMessages.YOUR_ACCOUNT_DATA_SETUP}</a>);
+          return comp.actionHandlers.handleActionableError(err, setupMsg, dataStoreLink);
         }
         // we can't deal with it so just show error handler
-        return self.handleApiError(err, usrMessages.ERR_FETCHING_PATIENT+patientId, utils.buildExceptionDetails());
+        return comp.actionHandlers.handleApiError(err, usrMessages.ERR_FETCHING_PATIENT+patientId, utils.buildExceptionDetails());
       }
 
-      self.setState({
+      comp.setState({
         patient: patient,
         fetchingPatient: false
       });
@@ -132,18 +130,18 @@ export default class Fetcher {
   }
 
   fetchPatientData(patient) {
-    var self = this.component;
+    var comp = this.component;
 
     var patientId = patient.userid;
 
-    self.setState({fetchingPatientData: true});
+    comp.setState({fetchingPatientData: true});
 
     var loadPatientData = function(cb) {
-      self.props.route.api.patientData.get(patientId, cb);
+      comp.props.route.api.patientData.get(patientId, cb);
     };
 
     var loadTeamNotes = function(cb) {
-      self.props.route.api.team.getNotes(patientId, cb);
+      comp.props.route.api.team.getNotes(patientId, cb);
     };
 
     async.parallel({
@@ -152,36 +150,36 @@ export default class Fetcher {
     },
     function(err, results) {
       if (err) {
-        self.setState({fetchingPatientData: false});
+        comp.setState({fetchingPatientData: false});
         // Patient with id not found, cary on
         if (err.status === 404) {
-          self.props.route.log('No data found for patient '+patientId);
+          comp.props.route.log('No data found for patient '+patientId);
           return;
         }
 
-        return self.handleApiError(err, usrMessages.ERR_FETCHING_PATIENT_DATA+patientId, utils.buildExceptionDetails());
+        return comp.actionHandlers.handleApiError(err, usrMessages.ERR_FETCHING_PATIENT_DATA+patientId, utils.buildExceptionDetails());
       }
 
       var patientData = results.patientData || [];
       var notes = results.teamNotes || [];
 
-      self.props.route.log('Patient device data count', patientData.length);
-      self.props.route.log('Team notes count', notes.length);
+      comp.props.route.log('Patient device data count', patientData.length);
+      comp.props.route.log('Team notes count', notes.length);
 
       var combinedData = patientData.concat(notes);
       window.downloadInputData = function() {
         console.save(combinedData, 'blip-input.json');
       };
-      patientData = self.processPatientData(combinedData);
+      patientData = comp.processPatientData(combinedData);
 
       // NOTE: intentional use of _.clone instead of _.cloneDeep
       // we only need a shallow clone at the top level of the patientId keys
       // and the _.cloneDeep I had originally would hang the browser for *seconds*
       // when there was actually something in this.state.patientData
-      var allPatientsData = _.clone(self.state.patientData) || {};
+      var allPatientsData = _.clone(comp.state.patientData) || {};
       allPatientsData[patientId] = patientData;
 
-      self.setState({
+      comp.setState({
         bgPrefs: {
           bgClasses: patientData.bgClasses,
           bgUnits: patientData.bgUnits
@@ -193,21 +191,21 @@ export default class Fetcher {
   }
 
   fetchMessageThread(messageId,callback) {
-    var self = this;
+    var comp = this.component;
 
-    self.props.route.log('fetching messages for ' + messageId);
+    comp.props.route.log('fetching messages for ' + messageId);
 
-    self.setState({fetchingMessageData: true});
+    comp.setState({fetchingMessageData: true});
 
-    self.props.route.api.team.getMessageThread(messageId,function(err, thread){
-      self.setState({fetchingMessageData: false});
+    comp.props.route.api.team.getMessageThread(messageId,function(err, thread){
+      comp.setState({fetchingMessageData: false});
 
       if (err) {
-        self.handleApiError(err, usrMessages.ERR_FETCHING_MESSAGE_DATA+messageId, utils.buildExceptionDetails());
+        comp.actionHandlers.handleApiError(err, usrMessages.ERR_FETCHING_MESSAGE_DATA+messageId, utils.buildExceptionDetails());
         return callback(null);
       }
 
-      self.props.route.log('Fetched message thread with '+thread.length+' messages');
+      comp.props.route.log('Fetched message thread with '+thread.length+' messages');
       return callback(thread);
     });
   }
