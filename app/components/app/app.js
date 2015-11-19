@@ -150,87 +150,21 @@ export default class AppComponent extends React.Component {
     }
   }
 
-  render() {
-    this.props.route.log('Rendering AppComponent');
-    var overlay = this.renderOverlay();
-    var navbar = this.renderNavbar();
-    var notification = this.renderNotification();
-    var page = this.renderPage();
-    var footer = this.renderFooter();
+  hideNavbarDropdown() {
+    var navbar = this.refs.navbar;
 
-    return (
-      <div className="app" onClick={this.hideNavbarDropdown}>
-        {overlay}
-        {navbar}
-        {notification}
-        {page}
-        {footer}
-      </div>
-    );
+    if (navbar) {
+      navbar.hideDropdown();
+    }
   }
 
-  renderOverlay() {
-    this.props.route.log('Rendering overlay');
-    if (this.state.loggingOut) {
-      return (
-        <LogoutOverlay ref="logoutOverlay" />
-      );
+  isDoneFetchingAndNotFoundPatient() {
+    // Wait for patient object to come back from server
+    if (this.state.fetchingPatient) {
+      return false;
     }
 
-    if (!utils.isChrome()) {
-      return (
-        <BrowserWarningOverlay />
-      );
-    }
-
-    if (!this.state.fetchingUser){
-      return this.renderTermsOverlay();
-    }
-
-    return null;
-  }
-
-  renderTermsOverlay(){
-    if (this.state.authenticated && _.isEmpty(this.state.termsAccepted)){
-      return (
-        <TermsOverlay
-          onSubmit={this.actionHandlers.handleAcceptedTerms}
-          trackMetric={this.props.route.trackMetric} />
-      );
-    }
-    return null;
-  }
-
-  renderNavbar() {
-    this.props.route.log('Rendering navbar');
-    if (this.state.authenticated) {
-      var patient;
-      var getUploadUrl;
-
-      if (this.isPatientVisibleInNavbar()) {
-        patient = this.state.patient;
-        getUploadUrl = this.props.route.api.getUploadUrl.bind(this.props.route.api);
-      }
-
-      return (
-
-        <div className="App-navbar">
-          <Navbar
-            user={this.state.user}
-            fetchingUser={this.state.fetchingUser}
-            patient={patient}
-            fetchingPatient={this.state.fetchingPatient}
-            currentPage={this.state.page}
-            getUploadUrl={getUploadUrl}
-            onLogout={this.logout}
-            trackMetric={this.props.route.trackMetric}
-            ref="navbar"/>
-        </div>
-
-      );
-    }
-
-    return null;
+    return !this.state.patient;
   }
 
   isPatientVisibleInNavbar() {
@@ -240,98 +174,21 @@ export default class AppComponent extends React.Component {
     return Boolean(result);
   }
 
-  renderNotification() {
-    this.props.route.log('Rendering notification');
-    var notification = this.state.notification;
-    var handleClose;
-
-    if (notification) {
-      if (notification.isDismissable) {
-        handleClose = this.closeNotification;
-      }
-
-      return (
-
-        <TidepoolNotification
-          type={notification.type}
-          onClose={handleClose}>
-          {notification.body}
-        </TidepoolNotification>
-
-      );
+  isDoneFetchingAndUserHasPatient() {
+    // Wait to have user object back from server
+    if (this.state.fetchingUser) {
+      return false;
     }
 
-    return null;
+    return personUtils.isPatient(this.state.user);
+  }
+
+  isSamePersonUserAndPatient() {
+    return personUtils.isSame(this.state.user, this.state.patient);
   }
 
   logSupportContact(){
     this.props.route.trackMetric('Clicked Give Feedback');
-  }
-
-  renderFooter() {
-    var title ='Send us feedback';
-    var subject = 'Feedback on Blip';
-
-    return (
-      <div className='container-small-outer footer'>
-        <div className='container-small-inner'>
-          <MailTo
-            linkTitle={title}
-            emailAddress={'support@tidepool.org'}
-            emailSubject={subject}
-            onLinkClicked={this.logSupportContact} />
-        </div>
-        {this.renderVersion()}
-      </div>
-
-    );
-  }
-
-  renderVersion() {
-    var version = config.VERSION;
-    if (version) {
-      version = 'v' + version + ' beta';
-      return (
-
-        <div className="Navbar-version" ref="version">{version}</div>
-
-      );
-    }
-    return null;
-  }
-
-  renderPage() {
-    if (this.props.login) {
-      return this.renderLogin();
-    } else if (this.props.requestPasswordReset) {
-      return this.renderRequestPasswordReset();
-    } else if (this.props.patients) {
-      return this.renderPatients();
-    } else if (this.props.patientData) {
-      return this.renderPatientData();
-    }
-
-    return (
-      <div>
-        There no are no children
-      </div>
-    );
-  }
-
-  renderLogin() {
-    var email = this.getInviteEmail() || this.getSignupEmail();
-    var showAsInvite = !_.isEmpty(this.getInviteEmail());
-
-    this.finalizeSignup();
-
-    return React.cloneElement(this.props.login, {
-      onSubmit: this.login,
-      seedEmail: email, 
-      isInvite: showAsInvite,
-      onSubmitSuccess: this.actionHandlers.handleLoginSuccess,
-      onSubmitNotAuthorized: this.actionHandlers.handleNotAuthorized,
-      trackMetric: this.props.route.trackMetric
-    });
   }
 
   getSignupEmail() {
@@ -359,304 +216,6 @@ export default class AppComponent extends React.Component {
     return '';
   }
 
-  finalizeSignup() {
-    var self = this;
-
-    let { signupKey } = this.props.location;
-
-    if(!_.isEmpty(signupKey) && !self.state.finalizingVerification){
-      self.props.route.api.user.confirmSignUp(signupKey, function(err){
-        if(err){
-          self.props.route.log('finalizeSignup err ',err);
-        }
-        self.setState({finalizingVerification:true});
-      });
-    }
-    return;
-  }
-
-  renderSignup() {
-    var checkKey = function(key, cb) {
-      if (_.isEmpty(config.INVITE_KEY) || key === config.INVITE_KEY){
-        return cb(true);
-      }
-      return cb(false);
-    };
-
-    return React.cloneElement(this.props.signup, {
-      onSubmit: this.signup,
-      inviteEmail: this.getInviteEmail(),
-      inviteKey: this.getInviteKey(),
-      checkKey: checkKey,
-      onSubmitSuccess: this.actionHandlers.handleSignupSuccess,
-      trackMetric: this.props.route.trackMetric
-    });
-  }
-
-  renderEmailVerification() {
-    return React.cloneElement(this.props.emailVerification,{
-      sent: this.state.verificationEmailSent,
-      onSubmitResend: this.props.route.api.user.resendEmailVerification.bind(this.props.route.api),
-      trackMetric: this.props.route.trackMetric
-    });
-  }
-
-  renderProfile() {
-    this.props.route.trackMetric('Viewed Account Edit');
-    return React.cloneElement(this.props.profile, {
-      user: this.state.user,
-      fetchingUser: this.state.fetchingUser,
-      onSubmit: this.updateUser,
-      trackMetric: this.props.route.trackMetric
-    });
-  }
-
-  redirectToDefaultRoute() {
-    this.setState({showPatientData: true});
-    this.fetcher.fetchInvites();
-    this.fetcher.fetchPatients();
-    this.props.route.trackMetric('Viewed Care Team List');
-    this.props.history.pushState(null, 'patients');
-  }
-
-  renderPatients(showPatientData) {
-    
-
-    var patients = React.cloneElement(this.props.patients, {
-      user: this.state.user,
-      fetchingUser: this.state.fetchingUser,
-      patients: this.state.patients,
-      fetchingPatients: this.state.fetchingPatients,
-      invites: this.state.invites,
-      uploadUrl: this.props.route.api.getUploadUrl(),
-      fetchingInvites: this.state.fetchingInvites,
-      showingWelcomeTitle: this.state.showingWelcomeTitle,
-      showingWelcomeSetup: this.state.showingWelcomeSetup,
-      onHideWelcomeSetup: this.actionHandlers.handleHideWelcomeSetup,
-      trackMetric: this.props.route.trackMetric,
-      onAcceptInvitation: this.actionHandlers.handleAcceptInvitation,
-      onDismissInvitation: this.actionHandlers.handleDismissInvitation,
-      onRemovePatient: this.actionHandlers.handleRemovePatient
-    });
-
-    // Determine whether to skip the Patients page & go directly to Patient data.
-    // If there is only one patient you can see data for, go to the patient's data.
-    // Otherwise, display the Patients page.
-    // if (this.state.showPatientData) {
-    // 
-    // 
-    // TODO: Move this block of logic to before we render anything. We do not need to render and then update again do we?
-
-    return (patients);
-  }
-
-  showPatient(patientId) {
-    this.renderPage = this.renderPatient;
-    this.setState({
-      page: 'patients/' + patientId + '/profile',
-      // Reset patient object to avoid showing previous one
-      patient: null,
-      // Indicate renderPatient() that we are fetching the patient
-      // (important to have this on next render)
-      fetchingPatient: true
-    });
-    this.fetcher.fetchPendingInvites();
-    this.fetcher.fetchPatient(patientId,function(err,patient){
-      return;
-    });
-    this.props.route.trackMetric('Viewed Profile');
-  }
-
-  showPatientShare(patientId) {
-    this.renderPage = this.renderPatientShare;
-    this.setState({
-      page: 'patients/' + patientId + '/share',
-      // Reset patient object to avoid showing previous one
-      patient: null,
-      // Indicate renderPatient() that we are fetching the patient
-      // (important to have this on next render)
-      fetchingPatient: true
-    });
-    this.fetcher.fetchPendingInvites();
-    this.fetcher.fetchPatient(patientId,function(err,patient){
-      return;
-    });
-    this.props.route.trackMetric('Viewed Share');
-  }
-
-  renderPatient() {
-    // On each state change check if patient object was returned from server
-    if (this.isDoneFetchingAndNotFoundPatient()) {
-      this.props.route.log('Patient not found');
-      this.redirectToDefaultRoute();
-      return;
-    }
-    return React.cloneElement(this.props.patient, {
-      user: this.state.user, 
-      fetchingUser: this.state.fetchingUser, 
-      patient: this.state.patient, 
-      fetchingPatient: this.state.fetchingPatient, 
-      onUpdatePatient: this.updatePatient, 
-      pendingInvites: this.state.pendingInvites, 
-      onChangeMemberPermissions: this.actionHandlers.handleChangeMemberPermissions, 
-      onRemoveMember: this.actionHandlers.handleRemoveMember, 
-      onInviteMember: this.actionHandlers.handleInviteMember, 
-      onCancelInvite: this.actionHandlers.handleCancelInvite, 
-      trackMetric: this.props.route.trackMetric
-    });
-  }
-
-  renderPatientShare() {
-    // On each state change check if patient object was returned from server
-    if (this.isDoneFetchingAndNotFoundPatient()) {
-      this.props.route.log('Patient not found');
-      this.redirectToDefaultRoute();
-      return;
-    }
-    return React.cloneElement(this.props.patient, {
-      user: this.state.user,
-      shareOnly: true,
-      fetchingUser: this.state.fetchingUser,
-      patient: this.state.patient,
-      fetchingPatient: this.state.fetchingPatient,
-      onUpdatePatient: this.updatePatient,
-      pendingInvites: this.state.pendingInvites,
-      onChangeMemberPermissions: this.actionHandlers.handleChangeMemberPermissions,
-      onRemoveMember: this.actionHandlers.handleRemoveMember,
-      onInviteMember: this.actionHandlers.handleInviteMember,
-      onCancelInvite: this.actionHandlers.handleCancelInvite,
-      trackMetric: this.props.route.trackMetric
-    });
-  }
-
-  isDoneFetchingAndNotFoundPatient() {
-    // Wait for patient object to come back from server
-    if (this.state.fetchingPatient) {
-      return false;
-    }
-
-    return !this.state.patient;
-  }
-
-  renderPatientNew() {
-    this.setState({
-      patient: null,
-      fetchingPatient: false
-    });
-    this.props.route.trackMetric('Viewed Profile Create');
-
-    // Make sure user doesn't already have a patient
-    if (this.isDoneFetchingAndUserHasPatient()) {
-      var patientId = this.state.user.userid;
-      var route = '/patients/' + patientId;
-      this.props.route.log('User already has patient');
-      this.props.history.pushState(null, route);
-      return;
-    }
-    return React.cloneElement(this.props.patientNew, {
-      user: this.state.user,
-      fetchingUser: this.state.fetchingUser,
-      onSubmit: this.createPatient,
-      onSubmitSuccess: this.actionHandlers.handlePatientCreationSuccess,
-      trackMetric: this.props.route.trackMetric
-    });
-  }
-
-  isDoneFetchingAndUserHasPatient() {
-    // Wait to have user object back from server
-    if (this.state.fetchingUser) {
-      return false;
-    }
-
-    return personUtils.isPatient(this.state.user);
-  }
-
-  isSamePersonUserAndPatient() {
-    return personUtils.isSame(this.state.user, this.state.patient);
-  }
-
-  showPatientData(patientId) {
-    var self = this;
-
-    self.renderPage = self.renderPatientData;
-    self.setState({
-      page: 'patients/' + patientId + '/data',
-      patient: null,
-      fetchingPatient: true,
-      patientData: null,
-      fetchingPatientData: true
-    });
-
-
-    self.fetcher.fetchPatient(patientId, function(err, patient) {
-      self.fetcher.fetchPatientData(patient);
-    });
-
-    self.props.route.trackMetric('Viewed Data');
-  }
-
-  renderPatientData() {
-    // On each state change check if patient object was returned from server
-    if (this.isDoneFetchingAndNotFoundPatient()) {
-      this.props.route.log('Patient not found');
-      this.redirectToDefaultRoute();
-      return;
-    }
-    return React.cloneElement(this.props.patientData, {
-      user: this.state.user,
-      patient: this.state.patient,
-      bgPrefs: this.state.bgPrefs,
-      timePrefs: this.state.timePrefs,
-      patientData: this.state.patientData,
-      fetchingPatient: this.state.fetchingPatient,
-      fetchingPatientData: this.state.fetchingPatientData,
-      isUserPatient: this.isSamePersonUserAndPatient(),
-      queryParams: this.state.queryParams,
-      uploadUrl: this.props.route.api.getUploadUrl(),
-      onRefresh: this.fetcher.fetchCurrentPatientData,
-      onFetchMessageThread: this.fetcher.fetchMessageThread,
-      onSaveComment: this.props.route.api.team.replyToMessageThread.bind(this.props.route.api.team),
-      onCreateMessage: this.props.route.api.team.startMessageThread.bind(this.props.route.api.team),
-      onEditMessage: this.props.route.api.team.editMessage.bind(this.props.route.api.team),
-      onUpdatePatientData: this.actionHandlers.handleUpdatePatientData,
-      trackMetric: this.props.route.trackMetric
-    });
-  }
-
-  login(formValues, cb) {
-    var user = formValues.user;
-    var options = formValues.options;
-
-    this.props.route.api.user.login(user, options, cb);
-  }
-
-  signup(formValues, cb) {
-    var user = formValues;
-    this.props.route.api.user.signup(user, cb);
-  }
-
-  logout() {
-    var self = this;
-
-    if (self.state.loggingOut) {
-      return;
-    }
-
-    self.setState({
-      loggingOut: true
-    });
-
-    // Need to track this before expiring auth token
-    self.props.route.trackMetric('Logged Out');
-
-    //Logout but don't wait for details
-    self.props.route.api.user.logout();
-
-    self.setState({loggingOut: false});
-
-    self.actionHandlers.handleLogoutSuccess();
-  }
-
   closeNotification() {
     this.setState({notification: null});
   }
@@ -666,9 +225,7 @@ export default class AppComponent extends React.Component {
       return null;
     }
 
-    var mostRecentUpload = _.sortBy(_.where(data, {type: 'upload'}), function(d) {
-      return Date.parse(d.time);
-    }).reverse()[0];
+    var mostRecentUpload = _.sortBy(_.where(data, {type: 'upload'}), (d) => Date.parse(d.time) ).reverse()[0];
     var timePrefsForTideline;
     if (!_.isEmpty(mostRecentUpload) && !_.isEmpty(mostRecentUpload.timezone)) {
       try {
@@ -735,61 +292,391 @@ export default class AppComponent extends React.Component {
     });
   }
 
-  updateUser(formValues) {
+  redirectToDefaultRoute() {
+    this.setState({showPatientData: true});
+    this.fetcher.fetchInvites();
+    this.fetcher.fetchPatients();
+    this.props.route.trackMetric('Viewed Care Team List');
+    this.props.history.pushState(null, 'patients');
+  }
+
+  /**
+   * Show functions
+   */
+  
+  showPatient(patientId) {
+    this.renderPage = this.renderPatient;
+    this.setState({
+      page: 'patients/' + patientId + '/profile',
+      // Reset patient object to avoid showing previous one
+      patient: null,
+      // Indicate renderPatient() that we are fetching the patient
+      // (important to have this on next render)
+      fetchingPatient: true
+    });
+    this.fetcher.fetchPendingInvites();
+    this.fetcher.fetchPatient(patientId, (err,patient) => {
+      return;
+    });
+    this.props.route.trackMetric('Viewed Profile');
+  }
+
+  showPatientData(patientId) {
     var self = this;
-    var previousUser = this.state.user;
 
-    var newUser = _.assign(
-      {},
-      _.omit(previousUser, 'profile'),
-      _.omit(formValues, 'profile'),
-      {profile: _.assign({}, previousUser.profile, formValues.profile)}
-    );
+    self.renderPage = self.renderPatientData;
+    self.setState({
+      page: 'patients/' + patientId + '/data',
+      patient: null,
+      fetchingPatient: true,
+      patientData: null,
+      fetchingPatientData: true
+    });
 
-    // Optimistic update
-    self.setState({user: _.omit(newUser, 'password')});
 
-    var userUpdates = _.cloneDeep(newUser);
-    // If username hasn't changed, don't try to update
-    // or else backend will respond with "already taken" error
-    if (userUpdates.username === previousUser.username) {
-      userUpdates = _.omit(userUpdates, 'username', 'emails');
+    self.fetcher.fetchPatient(patientId, (err, patient) => {
+      self.fetcher.fetchPatientData(patient);
+    });
+
+    self.props.route.trackMetric('Viewed Data');
+  }
+
+  showPatientShare(patientId) {
+    this.renderPage = this.renderPatientShare;
+    this.setState({
+      page: 'patients/' + patientId + '/share',
+      // Reset patient object to avoid showing previous one
+      patient: null,
+      // Indicate renderPatient() that we are fetching the patient
+      // (important to have this on next render)
+      fetchingPatient: true
+    });
+    this.fetcher.fetchPendingInvites();
+    this.fetcher.fetchPatient(patientId,function(err,patient){
+      return;
+    });
+    this.props.route.trackMetric('Viewed Share');
+  }
+
+  /**
+   * Render Functions
+   */
+
+  renderOverlay() {
+    this.props.route.log('Rendering overlay');
+    if (this.state.loggingOut) {
+      return (
+        <LogoutOverlay ref="logoutOverlay" />
+      );
     }
 
-    self.props.route.api.user.put(userUpdates, function(err, user) {
-      if (err) {
-        // Rollback
-        self.setState({user: previousUser});
-        return self.actionHandlers.handleApiError(err, usrMessages.ERR_UPDATING_ACCOUNT, utils.buildExceptionDetails());
+    if (!utils.isChrome()) {
+      return (
+        <BrowserWarningOverlay />
+      );
+    }
+
+    if (!this.state.fetchingUser){
+      return this.renderTermsOverlay();
+    }
+
+    return null;
+  }
+
+  renderTermsOverlay(){
+    if (this.state.authenticated && _.isEmpty(this.state.termsAccepted)){
+      return (
+        <TermsOverlay
+          onSubmit={this.actionHandlers.handleAcceptedTerms.bind(this.actionHandlers)}
+          trackMetric={this.props.route.trackMetric} />
+      );
+    }
+    return null;
+  }
+
+  renderNavbar() {
+    this.props.route.log('Rendering navbar');
+    if (this.state.authenticated) {
+      var patient;
+      var getUploadUrl;
+
+      if (this.isPatientVisibleInNavbar()) {
+        patient = this.state.patient;
+        getUploadUrl = this.props.route.api.getUploadUrl.bind(this.props.route.api);
       }
 
-      user = _.assign(newUser, user);
-      self.setState({user: user});
-      self.props.route.trackMetric('Updated Account');
+      return (
+
+        <div className="App-navbar">
+          <Navbar
+            user={this.state.user}
+            fetchingUser={this.state.fetchingUser}
+            patient={patient}
+            fetchingPatient={this.state.fetchingPatient}
+            currentPage={this.state.page}
+            getUploadUrl={getUploadUrl}
+            onLogout={this.actionHandlers.handleLogout.bind(this.actionHandlers)}
+            trackMetric={this.props.route.trackMetric}
+            ref="navbar"/>
+        </div>
+
+      );
+    }
+
+    return null;
+  }
+
+  renderNotification() {
+    this.props.route.log('Rendering notification');
+    var notification = this.state.notification;
+    var handleClose;
+
+    if (notification) {
+      if (notification.isDismissable) {
+        handleClose = this.closeNotification;
+      }
+
+      return (
+
+        <TidepoolNotification
+          type={notification.type}
+          onClose={handleClose}>
+          {notification.body}
+        </TidepoolNotification>
+
+      );
+    }
+
+    return null;
+  }
+
+  renderFooter() {
+    var title ='Send us feedback';
+    var subject = 'Feedback on Blip';
+
+    return (
+      <div className='container-small-outer footer'>
+        <div className='container-small-inner'>
+          <MailTo
+            linkTitle={title}
+            emailAddress={'support@tidepool.org'}
+            emailSubject={subject}
+            onLinkClicked={this.logSupportContact} />
+        </div>
+        {this.renderVersion()}
+      </div>
+
+    );
+  }
+
+  renderVersion() {
+    var version = config.VERSION;
+    if (version) {
+      version = 'v' + version + ' beta';
+      return (
+
+        <div className="Navbar-version" ref="version">{version}</div>
+
+      );
+    }
+    return null;
+  }
+
+  renderPage() {
+    if (this.props.login) {
+      return this.renderLogin();
+    } else if (this.props.requestPasswordReset) {
+      return this.renderRequestPasswordReset();
+    } else if (this.props.patients) {
+      return this.renderPatients();
+    } else if (this.props.patientData) {
+      return this.renderPatientData();
+    }
+
+    return (
+      <div>
+        There no are no children
+      </div>
+    );
+  }
+
+  renderLogin() {
+    var email = this.getInviteEmail() || this.getSignupEmail();
+    var showAsInvite = !_.isEmpty(this.getInviteEmail());
+
+    this.actionHandlers.handleFinalizeSignup();
+
+    return React.cloneElement(this.props.login, {
+      onSubmit: this.actionHandlers.handleLogin.bind(this.actionHandlers),
+      seedEmail: email, 
+      isInvite: showAsInvite,
+      onSubmitSuccess: this.actionHandlers.handleLoginSuccess.bind(this.actionHandlers),
+      onSubmitNotAuthorized: this.actionHandlers.handleNotAuthorized.bind(this.actionHandlers),
+      trackMetric: this.props.route.trackMetric
     });
   }
 
-  createPatient(patient, cb) {
-    this.props.route.api.patient.post(patient, cb);
+  renderSignup() {
+    var checkKey = (key, cb) => {
+      if (_.isEmpty(config.INVITE_KEY) || key === config.INVITE_KEY){
+        return cb(true);
+      }
+      return cb(false);
+    };
+
+    return React.cloneElement(this.props.signup, {
+      onSubmit: this.actionHandlers.handleSignup.bind(this.actionHandlers),
+      inviteEmail: this.getInviteEmail(),
+      inviteKey: this.getInviteKey(),
+      checkKey: checkKey,
+      onSubmitSuccess: this.actionHandlers.handleSignupSuccess.bind(this.actionHandlers),
+      trackMetric: this.props.route.trackMetric
+    });
   }
 
-  updatePatient(patient) {
-    var self = this;
-    var previousPatient = this.state.patient;
+  renderEmailVerification() {
+    return React.cloneElement(this.props.emailVerification,{
+      sent: this.state.verificationEmailSent,
+      onSubmitResend: this.props.route.api.user.resendEmailVerification.bind(this.props.route.api),
+      trackMetric: this.props.route.trackMetric
+    });
+  }
 
-    // Optimistic update
-    self.setState({patient: patient});
+  renderProfile() {
+    this.props.route.trackMetric('Viewed Account Edit');
+    return React.cloneElement(this.props.profile, {
+      user: this.state.user,
+      fetchingUser: this.state.fetchingUser,
+      onSubmit: this.actionHandlers.handleUpdateUser.bind(this.actionHandlers),
+      trackMetric: this.props.route.trackMetric
+    });
+  }
 
-    self.props.route.api.patient.put(patient, function(err, patient) {
-      if (err) {
-        // Rollback
-        self.setState({patient: previousPatient});
-        return self.actionHandlers.handleApiError(err, usrMessages.ERR_UPDATING_PATIENT, utils.buildExceptionDetails());
-      }
-      self.setState({
-        patient: _.assign({}, previousPatient, {profile: patient.profile})
-      });
-      self.props.route.trackMetric('Updated Profile');
+  renderPatients(showPatientData) {
+    
+
+    var patients = React.cloneElement(this.props.patients, {
+      user: this.state.user,
+      fetchingUser: this.state.fetchingUser,
+      patients: this.state.patients,
+      fetchingPatients: this.state.fetchingPatients,
+      invites: this.state.invites,
+      uploadUrl: this.props.route.api.getUploadUrl(),
+      fetchingInvites: this.state.fetchingInvites,
+      showingWelcomeTitle: this.state.showingWelcomeTitle,
+      showingWelcomeSetup: this.state.showingWelcomeSetup,
+      onHideWelcomeSetup: this.actionHandlers.handleHideWelcomeSetup.bind(this.actionHandlers),
+      trackMetric: this.props.route.trackMetric,
+      onAcceptInvitation: this.actionHandlers.handleAcceptInvitation.bind(this.actionHandlers),
+      onDismissInvitation: this.actionHandlers.handleDismissInvitation.bind(this.actionHandlers),
+      onRemovePatient: this.actionHandlers.handleRemovePatient.bind(this.actionHandlers)
+    });
+
+    // Determine whether to skip the Patients page & go directly to Patient data.
+    // If there is only one patient you can see data for, go to the patient's data.
+    // Otherwise, display the Patients page.
+    // if (this.state.showPatientData) {
+    // 
+    // 
+    // TODO: Move this block of logic to before we render anything. We do not need to render and then update again do we?
+
+    return (patients);
+  }
+
+  renderPatient() {
+    // On each state change check if patient object was returned from server
+    if (this.isDoneFetchingAndNotFoundPatient()) {
+      this.props.route.log('Patient not found');
+      this.redirectToDefaultRoute();
+      return;
+    }
+    return React.cloneElement(this.props.patient, {
+      user: this.state.user, 
+      fetchingUser: this.state.fetchingUser, 
+      patient: this.state.patient, 
+      fetchingPatient: this.state.fetchingPatient, 
+      onUpdatePatient: this.actionHandlers.handleUpdatePatient.bind(this.actionHandlers), 
+      pendingInvites: this.state.pendingInvites, 
+      onChangeMemberPermissions: this.actionHandlers.handleChangeMemberPermissions.bind(this.actionHandlers), 
+      onRemoveMember: this.actionHandlers.handleRemoveMember.bind(this.actionHandlers), 
+      onInviteMember: this.actionHandlers.handleInviteMember.bind(this.actionHandlers), 
+      onCancelInvite: this.actionHandlers.handleCancelInvite.bind(this.actionHandlers), 
+      trackMetric: this.props.route.trackMetric
+    });
+  }
+
+  renderPatientShare() {
+    // On each state change check if patient object was returned from server
+    if (this.isDoneFetchingAndNotFoundPatient()) {
+      this.props.route.log('Patient not found');
+      this.redirectToDefaultRoute();
+      return;
+    }
+    return React.cloneElement(this.props.patient, {
+      user: this.state.user,
+      shareOnly: true,
+      fetchingUser: this.state.fetchingUser,
+      patient: this.state.patient,
+      fetchingPatient: this.state.fetchingPatient,
+      onUpdatePatient: this.actionHandlers.handleUpdatePatient.bind(this.actionHandlers),
+      pendingInvites: this.state.pendingInvites,
+      onChangeMemberPermissions: this.actionHandlers.handleChangeMemberPermissions.bind(this.actionHandlers),
+      onRemoveMember: this.actionHandlers.handleRemoveMember.bind(this.actionHandlers),
+      onInviteMember: this.actionHandlers.handleInviteMember.bind(this.actionHandlers),
+      onCancelInvite: this.actionHandlers.handleCancelInvite.bind(this.actionHandlers),
+      trackMetric: this.props.route.trackMetric
+    });
+  }
+
+  renderPatientNew() {
+    this.setState({
+      patient: null,
+      fetchingPatient: false
+    });
+    this.props.route.trackMetric('Viewed Profile Create');
+
+    // Make sure user doesn't already have a patient
+    if (this.isDoneFetchingAndUserHasPatient()) {
+      var patientId = this.state.user.userid;
+      var route = '/patients/' + patientId;
+      this.props.route.log('User already has patient');
+      this.props.history.pushState(null, route);
+      return;
+    }
+    return React.cloneElement(this.props.patientNew, {
+      user: this.state.user,
+      fetchingUser: this.state.fetchingUser,
+      onSubmit: this.actionHandlers.handleCreatePatient.bind(this.actionHandlers),
+      onSubmitSuccess: this.actionHandlers.handlePatientCreationSuccess.bind(this.actionHandlers),
+      trackMetric: this.props.route.trackMetric
+    });
+  }
+
+  renderPatientData() {
+    // On each state change check if patient object was returned from server
+    if (this.isDoneFetchingAndNotFoundPatient()) {
+      this.props.route.log('Patient not found');
+      this.redirectToDefaultRoute();
+      return;
+    }
+    return React.cloneElement(this.props.patientData, {
+      user: this.state.user,
+      patient: this.state.patient,
+      bgPrefs: this.state.bgPrefs,
+      timePrefs: this.state.timePrefs,
+      patientData: this.state.patientData,
+      fetchingPatient: this.state.fetchingPatient,
+      fetchingPatientData: this.state.fetchingPatientData,
+      isUserPatient: this.isSamePersonUserAndPatient(),
+      queryParams: this.state.queryParams,
+      uploadUrl: this.props.route.api.getUploadUrl(),
+      onRefresh: this.fetcher.fetchCurrentPatientData.bind(this.fetcher),
+      onFetchMessageThread: this.fetcher.fetchMessageThread.bind(this.fetcher),
+      onSaveComment: this.props.route.api.team.replyToMessageThread.bind(this.props.route.api.team),
+      onCreateMessage: this.props.route.api.team.startMessageThread.bind(this.props.route.api.team),
+      onEditMessage: this.props.route.api.team.editMessage.bind(this.props.route.api.team),
+      onUpdatePatientData: this.actionHandlers.handleUpdatePatientData.bind(this.actionHandlers),
+      trackMetric: this.props.route.trackMetric
     });
   }
 
@@ -810,11 +697,22 @@ export default class AppComponent extends React.Component {
     });
   }
 
-  hideNavbarDropdown() {
-    var navbar = this.refs.navbar;
+  render() {
+    this.props.route.log('Rendering AppComponent');
+    var overlay = this.renderOverlay();
+    var navbar = this.renderNavbar();
+    var notification = this.renderNotification();
+    var page = this.renderPage();
+    var footer = this.renderFooter();
 
-    if (navbar) {
-      navbar.hideDropdown();
-    }
+    return (
+      <div className="app" onClick={this.hideNavbarDropdown.bind(this)}>
+        {overlay}
+        {navbar}
+        {notification}
+        {page}
+        {footer}
+      </div>
+    );
   }
 }
