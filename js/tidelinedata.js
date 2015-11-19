@@ -30,7 +30,7 @@ var dt = require('./data/util/datetime');
 var constants = require('./data/util/constants');
 
 var log;
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && __DEV__ === true) {
   log = require('bows')('TidelineData');
 }
 else {
