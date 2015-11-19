@@ -101,6 +101,9 @@
 				.corner-dates();
 				font-weight: bold;
 			}
+			&.Calendar-day--reservoirChange {
+				color: @text;
+			}
 			.Calendar-day-text {
 				position: absolute;
 				top: (@day-height/2) - 8px;
@@ -112,6 +115,7 @@
 			}
 
 			.Calendar-day-reservoirChange-times {
+				color: @text;
 				position: absolute;
 				top: (@day-height/3.5);
 				width: @day-width;
