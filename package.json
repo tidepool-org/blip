@@ -9,10 +9,9 @@
   "main": "js/index.js",
   "license": "BSD-2-Clause",
   "scripts": {
-    "travis": "istanbul cover node_modules/mocha/bin/_mocha test/*_test.js",
     "test": "./node_modules/karma/bin/karma start",
+    "browser-tests": "./node_modules/karma/bin/karma start --browsers Chrome",
     "start": "BUILD_DEV=true webpack-dev-server -d --cache --colors --progress --content-base example --port 8081",
-    "build-test": "webpack --config test.config.js",
     "jshint": "gulp jshint",
     "jshint-watch": "gulp jshint-watch"
   },
