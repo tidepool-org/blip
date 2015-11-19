@@ -66,7 +66,7 @@ describe('Message', function () {
 
       var textElem = elem.refs.messageText;
       expect(textElem).to.be.ok;
-      expect(textElem.getDOMNode().textContent).to.equal(note.messagetext);
+      expect(textElem.textContent).to.equal(note.messagetext);
     });
   });
 });
