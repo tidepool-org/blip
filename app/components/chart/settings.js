@@ -42,7 +42,7 @@ var SettingsChart = React.createClass({
     patientData: React.PropTypes.object.isRequired,
   },
   componentDidMount: function() {
-    this.mountChart(this.getDOMNode());
+    this.mountChart(React.findDOMNode(this));
     this.initializeChart(this.props.patientData);
   },
   componentWillUnmount: function() {
