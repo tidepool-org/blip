@@ -54,7 +54,10 @@ var appContext = {
   DEBUG: !!(window.localStorage && window.localStorage.debug)
 };
 
-appContext.trackMetric = () => {
+// This anonymous function must remain in ES5 format because 
+// the argument parameter used is not bound when using arrow functions
+// See: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions
+appContext.trackMetric = function() { 
   var args = Array.prototype.slice.call(arguments);
   return appContext.api.metrics.track.apply(appContext.api.metrics, args);
 };
@@ -115,8 +118,6 @@ const requireNoAuth = (nextState, replaceState) => {
     replaceState({ nextPathname: nextState.location.pathname }, '/patients');
   }
 }
-
-console.log('app------', AppComponent);
 
 const routing = (
   <Router>
