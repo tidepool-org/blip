@@ -24,8 +24,8 @@ var PatientCard = require('../../components/patientcard');
 var PeopleList = React.createClass({
   propTypes: {
     people: React.PropTypes.array,
-    onClickPerson: React.PropTypes.func,
     uploadUrl: React.PropTypes.string,
+    onClickPerson: React.PropTypes.func,
     onRemovePatient: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired
   },
@@ -116,9 +116,7 @@ var PeopleList = React.createClass({
     var peopleListItemContent;
     var displayName = this.getPersonDisplayName(person);
     var self = this;
-    var handleClick;
-
-    handleClick = function() {
+    var handleClick = function() {
       self.props.onClickPerson(person);
     };
 

@@ -49,8 +49,6 @@ describe('PeopleList', function () {
   });
 
   describe('sorting of people list', function() {
-    var renderedDOM;
-
     it('should be sorted by fullName, with logged-in user at top if has data storage acct', function() {
       var props = {
         people: [{
@@ -76,7 +74,7 @@ describe('PeopleList', function () {
       };
       var listElem = React.createElement(PeopleList, props);
       var elem = TestUtils.renderIntoDocument(listElem);
-      renderedDOM = React.findDOMNode(elem);
+      var renderedDOM = React.findDOMNode(elem);
       var fullNames = renderedDOM.querySelectorAll('.patientcard-fullname');
       expect(fullNames.length).to.equal(4);
       expect(fullNames[0].title).to.equal('Zoe Doe');
@@ -112,7 +110,7 @@ describe('PeopleList', function () {
       };
       var listElem = React.createElement(PeopleList, props);
       var elem = TestUtils.renderIntoDocument(listElem);
-      renderedDOM = React.findDOMNode(elem);
+      var renderedDOM = React.findDOMNode(elem);
       var fullNames = renderedDOM.querySelectorAll('.patientcard-fullname');
       expect(fullNames.length).to.equal(3);
       expect(fullNames[0].title).to.equal('Anna Zork');
