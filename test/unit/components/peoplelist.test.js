@@ -5,6 +5,7 @@ var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
 
 var PeopleList = require('../../../app/components/peoplelist');
+var PatientCard = require('../../../app/components/patientcard');
 
 describe('PeopleList', function () {
   
@@ -33,11 +34,11 @@ describe('PeopleList', function () {
   });
 
   describe('getInitialState', function() {
+
     it('should return object with expected properties', function() {
       console.error = sinon.stub();
       var props = {
-        trackMetric: function() {},
-        patient: {}
+        trackMetric: function() {}
       };
       var listElem = React.createElement(PeopleList, props);
       var elem = TestUtils.renderIntoDocument(listElem);
@@ -45,5 +46,78 @@ describe('PeopleList', function () {
 
       expect(state.editing).to.equal(false);
     }); 
+  });
+
+  describe('sorting of people list', function() {
+    var renderedDOM;
+
+    it('should be sorted by fullName, with logged-in user at top if has data storage acct', function() {
+      var props = {
+        people: [{
+          profile: {
+            fullName: 'Zoe Doe'
+          },
+          permissions: {
+            root: {}
+          }
+        }, {
+          profile: {
+            fullName: 'Tucker Doe'
+          }
+        }, {
+          profile: {
+            fullName: 'John Doe'
+          }
+        }, {
+          profile: {
+            fullName: 'Anna Zork'
+          }
+        }]
+      };
+      var listElem = React.createElement(PeopleList, props);
+      var elem = TestUtils.renderIntoDocument(listElem);
+      renderedDOM = React.findDOMNode(elem);
+      var fullNames = renderedDOM.querySelectorAll('.patientcard-fullname');
+      expect(fullNames.length).to.equal(4);
+      expect(fullNames[0].title).to.equal('Zoe Doe');
+      expect(fullNames[1].title).to.equal('Anna Zork');
+      expect(fullNames[2].title).to.equal('John Doe');
+      expect(fullNames[3].title).to.equal('Tucker Doe');
+    });
+
+
+
+    it('should be sorted by fullName, no logged-in user present (b/c not data storage acct)', function() {
+      var props = {
+        people: [{
+          profile: {
+            fullName: 'Tucker Doe'
+          },
+          permissions: {
+            note: {},
+            view: {}
+          }
+        }, {
+          profile: {
+            fullName: 'John Doe'
+          },
+          permissions: {
+            upload: {}
+          }
+        }, {
+          profile: {
+            fullName: 'Anna Zork'
+          }
+        }]
+      };
+      var listElem = React.createElement(PeopleList, props);
+      var elem = TestUtils.renderIntoDocument(listElem);
+      renderedDOM = React.findDOMNode(elem);
+      var fullNames = renderedDOM.querySelectorAll('.patientcard-fullname');
+      expect(fullNames.length).to.equal(3);
+      expect(fullNames[0].title).to.equal('Anna Zork');
+      expect(fullNames[1].title).to.equal('John Doe');
+      expect(fullNames[2].title).to.equal('Tucker Doe');
+    });
   });
 });

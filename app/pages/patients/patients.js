@@ -188,7 +188,6 @@ var Patients = React.createClass({
           <div className='clear'></div>
           <PeopleList
             people={patients}
-            isPatientList={true}
             uploadUrl={this.props.uploadUrl}
             onClickPerson={this.handleClickPatient}
             onRemovePatient= {this.props.onRemovePatient}
