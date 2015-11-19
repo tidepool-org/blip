@@ -19,7 +19,6 @@ var _ = require('lodash');
 var cx = require('classnames');
 
 var personUtils = require('../../core/personutils');
-var PersonCard = require('../../components/personcard');
 var PatientCard = require('../../components/patientcard');
 
 var PeopleList = React.createClass({

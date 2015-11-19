@@ -22,7 +22,6 @@ var config = require('../../config');
 
 var personUtils = require('../../core/personutils');
 var PeopleList = require('../../components/peoplelist');
-var PersonCard = require('../../components/personcard');
 var Invitation = require('../../components/invitation');
 
 var Patients = React.createClass({
