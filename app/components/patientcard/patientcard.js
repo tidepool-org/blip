@@ -244,7 +244,11 @@ var PatientCard = React.createClass({
   handleRemove: function(patient) {
     var self = this;
 
-    return function() {
+    return function(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
       self.setState({
         showModalOverlay: true,
         dialog: self.renderRemoveDialog(patient)

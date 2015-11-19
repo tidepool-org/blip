@@ -22,7 +22,6 @@ var config = require('../../config');
 
 var personUtils = require('../../core/personutils');
 var PeopleList = require('../../components/peoplelist');
-var PersonCard = require('../../components/personcard');
 var Invitation = require('../../components/invitation');
 
 var Patients = React.createClass({
@@ -188,7 +187,6 @@ var Patients = React.createClass({
           <div className='clear'></div>
           <PeopleList
             people={patients}
-            isPatientList={true}
             uploadUrl={this.props.uploadUrl}
             onClickPerson={this.handleClickPatient}
             onRemovePatient= {this.props.onRemovePatient}
