@@ -27,9 +27,9 @@
   },
   "devDependencies": {
     "autoprefixer-loader": "3.1.0",
-    "babel-core": "6.2.0",
-    "babel-loader": "6.2.0",
-    "babel-runtime": "6.2.0",
+    "babel-core": "5.8.34",
+    "babel-loader": "5.3.3",
+    "babel-runtime": "5.8.34",
     "chai": "3.4.1",
     "classnames": "2.2.0",
     "css-loader": "0.23.0",
