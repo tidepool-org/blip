@@ -484,24 +484,6 @@ export default class AppComponent extends React.Component {
     return null;
   }
 
-  renderPage() {
-    if (this.props.login) {
-      return this.renderLogin();
-    } else if (this.props.requestPasswordReset) {
-      return this.renderRequestPasswordReset();
-    } else if (this.props.patients) {
-      return this.renderPatients();
-    } else if (this.props.patientData) {
-      return this.renderPatientData();
-    }
-
-    return (
-      <div>
-        There no are no children
-      </div>
-    );
-  }
-
   renderLogin() {
     var email = this.getInviteEmail() || this.getSignupEmail();
     var showAsInvite = !_.isEmpty(this.getInviteEmail());
@@ -690,13 +672,49 @@ export default class AppComponent extends React.Component {
   }
 
   renderConfirmPasswordReset() {
-    let {resetKey} = this.props.location;
+    let {query} = this.props.location;
 
     return React.cloneElement(this.props.confirmPasswordReset, {
-      resetKey: resetKey,
+      resetKey: query.resetKey,
       onSubmit: this.props.route.api.user.confirmPasswordReset.bind(this.props.route.api),
       trackMetric: this.props.route.trackMetric
     });
+  }
+
+  renderPage() {
+    // Right now because we are not using Redux we are using a slightly
+    // hacky way of passing props to our route components by cloning them 
+    // here, and setting the props we know each component needs
+    // See: https://github.com/rackt/react-router/blob/master/examples/passing-props-to-children/app.js
+    if (this.props.login) {
+      return this.renderLogin();
+    } else if (this.props.signup) {
+      return this.renderSignup();
+    } else if (this.props.emailVerification) {
+      return renderEmailVerification();
+    } else if (this.props.profile) {
+      return renderProfile();
+    } else if (this.props.patients) {
+      return this.renderPatients();
+    } else if (this.props.patientNew) {
+      return this.renderPatientNew();
+    } else if (this.props.patient) {
+      return renderPatient();
+    } else if (this.props.patientShare) {
+      return this.renderPatientShare();
+    } else if (this.props.patientData) {
+      return this.renderPatientData();
+    } else if (this.props.requestPasswordReset) {
+      return this.renderRequestPasswordReset();
+    } else if (this.props.confirmPasswordReset) {
+      return this.renderConfirmPasswordReset();
+    }
+
+    return (
+      <div>
+        There no are no children
+      </div>
+    );
   }
 
   render() {
