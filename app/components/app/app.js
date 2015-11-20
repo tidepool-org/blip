@@ -303,64 +303,6 @@ export default class AppComponent extends React.Component {
   }
 
   /**
-   * Show functions
-   */
-  
-  showPatient(patientId) {
-    this.renderPage = this.renderPatient;
-    this.setState({
-      page: 'patients/' + patientId + '/profile',
-      // Reset patient object to avoid showing previous one
-      patient: null,
-      // Indicate renderPatient() that we are fetching the patient
-      // (important to have this on next render)
-      fetchingPatient: true
-    });
-    this.fetcher.fetchPendingInvites();
-    this.fetcher.fetchPatient(patientId, (err,patient) => {
-      return;
-    });
-    this.props.route.trackMetric('Viewed Profile');
-  }
-
-  showPatientData(patientId) {
-    var self = this;
-
-    self.renderPage = self.renderPatientData;
-    self.setState({
-      page: 'patients/' + patientId + '/data',
-      patient: null,
-      fetchingPatient: true,
-      patientData: null,
-      fetchingPatientData: true
-    });
-
-
-    self.fetcher.fetchPatient(patientId, (err, patient) => {
-      self.fetcher.fetchPatientData(patient);
-    });
-
-    self.props.route.trackMetric('Viewed Data');
-  }
-
-  showPatientShare(patientId) {
-    this.renderPage = this.renderPatientShare;
-    this.setState({
-      page: 'patients/' + patientId + '/share',
-      // Reset patient object to avoid showing previous one
-      patient: null,
-      // Indicate renderPatient() that we are fetching the patient
-      // (important to have this on next render)
-      fetchingPatient: true
-    });
-    this.fetcher.fetchPendingInvites();
-    this.fetcher.fetchPatient(patientId,function(err,patient){
-      return;
-    });
-    this.props.route.trackMetric('Viewed Share');
-  }
-
-  /**
    * Render Functions
    */
 
@@ -596,7 +538,7 @@ export default class AppComponent extends React.Component {
       this.redirectToDefaultRoute();
       return;
     }
-    return React.cloneElement(this.props.patient, {
+    return React.cloneElement(this.props.patientShare, {
       user: this.state.user,
       shareOnly: true,
       fetchingUser: this.state.fetchingUser,
@@ -681,6 +623,32 @@ export default class AppComponent extends React.Component {
     });
   }
 
+  resolve() {
+    if (this.props.login) {
+      console.log('login');
+    } else if (this.props.signup) {
+      console.log('signup');
+    } else if (this.props.emailVerification) {
+      console.log('emailVerification');
+    } else if (this.props.profile) {
+      console.log('profile');
+    } else if (this.props.patients) {
+      console.log('patients');
+    } else if (this.props.patientNew) {
+      console.log('patientNew');
+    } else if (this.props.patient) {
+      console.log('patient');
+    } else if (this.props.patientShare) {
+      console.log('patientShare');
+    } else if (this.props.patientData) {
+      console.log('patientData');
+    } else if (this.props.requestPasswordReset) {
+      console.log('requestPasswordReset');
+    } else if (this.props.confirmPasswordReset) {
+      console.log('confirmPasswordReset');
+    }
+  }
+
   renderPage() {
     // Right now because we are not using Redux we are using a slightly
     // hacky way of passing props to our route components by cloning them 
@@ -691,9 +659,9 @@ export default class AppComponent extends React.Component {
     } else if (this.props.signup) {
       return this.renderSignup();
     } else if (this.props.emailVerification) {
-      return renderEmailVerification();
+      return this.renderEmailVerification();
     } else if (this.props.profile) {
-      return renderProfile();
+      return this.renderProfile();
     } else if (this.props.patients) {
       return this.renderPatients();
     } else if (this.props.patientNew) {
