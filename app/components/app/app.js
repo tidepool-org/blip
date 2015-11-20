@@ -277,6 +277,7 @@ export default class AppComponent extends React.Component {
 
   clearUserData() {
     this.setState({
+      authenticated: false,
       user: null,
       patients: null,
       patient: null,
@@ -288,7 +289,8 @@ export default class AppComponent extends React.Component {
       fetchingPatients: true,
       fetchingInvites: true,
       showingWelcomeSetup: false,
-      showPatientData: false
+      showPatientData: false,
+      loggingOut: false
     });
   }
 

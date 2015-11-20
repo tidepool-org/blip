@@ -34,44 +34,11 @@ export default class ActionHandlers {
     this.component.props.history.pushState(null, route);
   }
 
-  handleLoginSuccess() {
-    this.fetcher.fetchUser();
-    if( this.component.state.finalizingVerification ){
-      this.component.setState({
-        showingWelcomeTitle: true,
-        showingWelcomeSetup: true
-      });
-      this.component.props.route.trackMetric('Finalized Signup');
-    }
-    this.component.setState({
-      authenticated: true 
-    });
-    this.component.redirectToDefaultRoute();
-    this.component.props.route.trackMetric('Logged In');
-  }
-
-  handleLogoutSuccess() {
-    this.component.clearUserData();
-    this.component.props.history.pushState(null, 'login');
-  }
-
   handleHideWelcomeSetup(options) {
     if (options && options.route) {
       this.component.props.history.pushState(null, options.route);
     }
     this.component.setState({showingWelcomeSetup: false});
-  }
-
-  handleSignupSuccess(user) {
-    //once signed up we need to authenicate the email which is done via the email we have sent them
-    this.component.setState({
-      fetchingUser: false,
-      verificationEmailSent: true
-    });
-
-    this.component.showEmailVerification();
-
-    this.component.props.route.trackMetric('Signed Up');
   }
 
   handleAcceptedTerms() {
@@ -435,11 +402,38 @@ export default class ActionHandlers {
     // Need to track this before expiring auth token
     comp.props.route.trackMetric('Logged Out');
 
-    //Logout but don't wait for details
-    comp.props.route.api.user.logout();
+    //Log out and wait for process to complete
+    comp.props.route.api.user.logout(() => {
+      comp.clearUserData();
+      comp.props.history.pushState(null, 'login');
+    });
+  }
 
-    comp.setState({loggingOut: false});
+  handleLoginSuccess() {
+    this.fetcher.fetchUser();
+    if( this.component.state.finalizingVerification ){
+      this.component.setState({
+        showingWelcomeTitle: true,
+        showingWelcomeSetup: true
+      });
+      this.component.props.route.trackMetric('Finalized Signup');
+    }
+    this.component.setState({
+      authenticated: true 
+    });
+    this.component.redirectToDefaultRoute();
+    this.component.props.route.trackMetric('Logged In');
+  }
 
-    this.handleLogoutSuccess();
+  handleSignupSuccess(user) {
+    //once signed up we need to authenicate the email which is done via the email we have sent them
+    this.component.setState({
+      fetchingUser: false,
+      verificationEmailSent: true
+    });
+
+    this.component.showEmailVerification();
+
+    this.component.props.route.trackMetric('Signed Up');
   }
 }

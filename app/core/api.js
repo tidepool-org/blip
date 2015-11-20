@@ -125,7 +125,7 @@ api.user.signup = function(user, cb) {
   });
 };
 
-api.user.logout = function() {
+api.user.logout = function(cb) {
   api.log('POST /user/logout');
 
   if (!api.user.isAuthenticated()) {
@@ -138,6 +138,9 @@ api.user.logout = function() {
     if (err) {
       api.log('error logging out but still destroySession');
       tidepool.destroySession();
+    }
+    if (cb) {
+      cb();
     }
     return;
   });
