@@ -46,5 +46,5 @@ module.exports = {
   SHOW_ACCEPT_TERMS: booleanFromText(__SHOW_ACCEPT_TERMS__, true),
   PASSWORD_MIN_LENGTH: integerFromText(__PASSWORD_MIN_LENGTH__, 8),
   INVITE_KEY: __INVITE_KEY__ || '',
-  MUSSEL_HOST: 'http://blip-mussel.datanosh.com:5000'
+  MUSSEL_HOST: __MUSSEL_HOST__ || ''
 };
