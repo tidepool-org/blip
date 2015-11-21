@@ -104,7 +104,7 @@ export default class Fetcher {
   fetchPatient(patientId, callback) {
     var comp = this.component;
 
-    comp.setState({fetchingPatient: true});
+    comp.setState({fetchingPatient: true, patient: null});
 
     comp.props.route.api.patient.get(patientId, function(err, patient) {
       if (err) {
@@ -134,7 +134,7 @@ export default class Fetcher {
 
     var patientId = patient.userid;
 
-    comp.setState({fetchingPatientData: true});
+    comp.setState({fetchingPatientData: true, patientData: null});
 
     var loadPatientData = function(cb) {
       comp.props.route.api.patientData.get(patientId, cb);

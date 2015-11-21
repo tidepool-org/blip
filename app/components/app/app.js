@@ -134,12 +134,6 @@ export default class AppComponent extends React.Component {
     };
   }
 
-  componentDidMount() {
-    if (this.state.authenticated) {
-        this.fetcher.fetchUser();
-    }
-  }
-
   componentWillUpdate(nextProps, nextState) {
     // Called on props or state changes
     // Since app main component has no props,
@@ -295,11 +289,46 @@ export default class AppComponent extends React.Component {
   }
 
   redirectToDefaultRoute() {
-    this.setState({showPatientData: true});
-    this.fetcher.fetchInvites();
-    this.fetcher.fetchPatients();
-    this.props.route.trackMetric('Viewed Care Team List');
     this.props.history.pushState(null, 'patients');
+  }
+
+  doFetching(nextProps) {
+    console.log(' [-] Fetching for ', nextProps.location);
+    console.log(' [-] Fetching for ', nextProps.params);
+    if (this.state.authenticated) {
+        this.fetcher.fetchUser();
+    }
+
+    if (nextProps.patients) {
+      this.setState({showPatientData: true});
+      this.fetcher.fetchInvites();
+      this.fetcher.fetchPatients();
+      this.props.route.trackMetric('Viewed Care Team List');
+    } else if (nextProps.patient) {
+      console.log('fetch patient');
+      this.fetcher.fetchPatient(nextProps.params.id);
+    } else if(nextProps.patientData) {
+      console.log('fetch patient data');
+      this.fetcher.fetchPatient(nextProps.params.id, (err, patient) => {
+        this.fetcher.fetchPatientData(patient);
+      });
+    }
+  }
+
+  /**
+   * Before rendering for first time
+   * begin fetching any required data
+   */
+  componentWillMount() {
+    this.doFetching(this.props);
+  }
+
+  /**
+   * Before any subsequent re-rendering 
+   * begin fetching any required data
+   */
+  componentWillReceiveProps(nextProps) {
+    this.doFetching(nextProps);
   }
 
   /**
@@ -621,32 +650,6 @@ export default class AppComponent extends React.Component {
       onSubmit: this.props.route.api.user.confirmPasswordReset.bind(this.props.route.api),
       trackMetric: this.props.route.trackMetric
     });
-  }
-
-  resolve() {
-    if (this.props.login) {
-      console.log('login');
-    } else if (this.props.signup) {
-      console.log('signup');
-    } else if (this.props.emailVerification) {
-      console.log('emailVerification');
-    } else if (this.props.profile) {
-      console.log('profile');
-    } else if (this.props.patients) {
-      console.log('patients');
-    } else if (this.props.patientNew) {
-      console.log('patientNew');
-    } else if (this.props.patient) {
-      console.log('patient');
-    } else if (this.props.patientShare) {
-      console.log('patientShare');
-    } else if (this.props.patientData) {
-      console.log('patientData');
-    } else if (this.props.requestPasswordReset) {
-      console.log('requestPasswordReset');
-    } else if (this.props.confirmPasswordReset) {
-      console.log('confirmPasswordReset');
-    }
   }
 
   renderPage() {
