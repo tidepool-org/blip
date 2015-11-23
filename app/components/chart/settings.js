@@ -28,6 +28,8 @@ var chartSettingsFactory = tidelineBlip.settings;
 var Header = require('./header');
 var Footer = require('./footer');
 
+var AuthorizationContainer = require('../authorizations/authorizationcontainer.js');
+
 var tideline = {
   log: bows('Settings')
 };
@@ -98,7 +100,7 @@ var Settings = React.createClass({
     };
   },
   render: function() {
-    
+
     return (
       <div id="tidelineMain">
         <Header
@@ -118,6 +120,9 @@ var Settings = React.createClass({
           <div className="container-box-inner patient-data-content-inner">
             <div className="patient-data-content">
               {this.isMissingSettings() ? this.renderMissingSettingsMessage() : this.renderChart()}
+              
+              {window.config.SHOW_DEVICE_AUTH_UI ? this.renderAuthUI(): ""};
+    
             </div>
           </div>
         </div>
@@ -129,6 +134,11 @@ var Settings = React.createClass({
       </div>
       );
     
+  },
+  renderAuthUI: function() {
+    return (
+         <AuthorizationContainer title='Connected Devices & apps' authorizations={AUTHS} />
+      );
   },
   renderChart: function() {
     

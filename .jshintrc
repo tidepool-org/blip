@@ -16,7 +16,11 @@
     "__API_HOST__": false,
     "__SHOW_ACCEPT_TERMS__": false,
     "__PASSWORD_MIN_LENGTH__": false,
-    "__INVITE_KEY__": false
+    "__INVITE_KEY__": false,
+    "__MUSSEL_HOST__": false,
+    "__SHOW_DEVICE_AUTH_UI__": false,
+    "AUTHS": true,
+    "shimmerUid": true
   },
   "immed": true,
   "indent": 2,

@@ -5,7 +5,7 @@
   "scripts": {
     "test": "./node_modules/karma/bin/karma start",
     "browser-tests": "./node_modules/karma/bin/karma start --browsers Chrome",
-    "start": "webpack-dev-server --devtool eval-source-map --cache --colors --progress --port 3000",
+    "start": "webpack-dev-server --devtool eval-source-map --cache --colors --progress --port 3000 --host 0.0.0.0",
     "build": "npm run build-app && npm run build-config",
     "build-app": "node buildapp",
     "build-config": "node buildconfig",
@@ -36,6 +36,7 @@
     "shelljs": "0.4.0",
     "style-loader": "0.8.3",
     "sundial": "1.4.0",
+    "superagent": "^1.4.0",
     "tideline": "0.4.3",
     "tidepool-platform-client": "0.21.0",
     "url-loader": "0.5.6",
