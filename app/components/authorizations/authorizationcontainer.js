@@ -34,7 +34,7 @@ module.exports = React.createClass({
 
         <Authorizations authorizations={this.props.authorizations} />
       </div>
-    )
+    );
   }
 });
 

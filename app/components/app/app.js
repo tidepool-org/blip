@@ -1112,7 +1112,7 @@ var AppComponent = React.createClass({
     };
 
     var loadAuths = function(cb) {
-      var shimmerUserId = 'tp|'+patientId+'|https:%2F%2Fdevel-api.tidepool.io'
+      var shimmerUserId = 'tp|'+patientId+'|https:%2F%2Fdevel-api.tidepool.io';
       
       //TODO:remove this global when I figure out how the userid is passed down through the react components
       shimmerUid = shimmerUserId;
@@ -1126,7 +1126,7 @@ var AppComponent = React.createClass({
           cb(null, response.body);
         }
       });
-    }
+    };
 
     async.parallel({
       patientData: loadPatientData,

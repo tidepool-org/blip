@@ -32,6 +32,6 @@ module.exports = React.createClass({
 	        </tbody>
 	        </table>
 	      </div>
-	    )
+	    );
 	  }
 });
