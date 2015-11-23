@@ -11,7 +11,6 @@ module.exports = React.createClass({
 	 },
     render: function() {
     	if (this.props.auth.isAuthorized) {
-    		//return <tr><td>{this.props.auth.shimName}</td><td><p onClick={this.handleClick}>Connected</p></td></tr>
             return <tr><td>{this.props.auth.shimName}</td><td><a href="#" onClick={this.onClick}>Disconnect</a></td></tr>
     				
     	} else {
@@ -33,7 +32,3 @@ module.exports = React.createClass({
     return false;
     }
 });
-
-
-
-//{this.props.auth.deauthURL}

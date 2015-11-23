@@ -46,5 +46,6 @@ module.exports = {
   SHOW_ACCEPT_TERMS: booleanFromText(__SHOW_ACCEPT_TERMS__, true),
   PASSWORD_MIN_LENGTH: integerFromText(__PASSWORD_MIN_LENGTH__, 8),
   INVITE_KEY: __INVITE_KEY__ || '',
-  MUSSEL_HOST: __MUSSEL_HOST__ || ''
+  MUSSEL_HOST: __MUSSEL_HOST__ || '',
+  SHOW_DEVICE_AUTH_UI: __SHOW_DEVICE_AUTH_UI__ || ''
 };
