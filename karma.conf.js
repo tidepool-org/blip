@@ -2,7 +2,8 @@ var webpack = require('webpack');
 var RewirePlugin = require("rewire-webpack");
 
 var defineEnvPlugin = new webpack.DefinePlugin({
-  __DEV__: false
+  __DEV__: false,
+  __TEST__: true
 });
 
 module.exports = function (config) {

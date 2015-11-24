@@ -228,7 +228,9 @@ var Modal = React.createClass({
     };
   },
   componentDidMount: function() {
-    this.refs.chart.mount();
+    if (this.refs.chart) {
+      this.refs.chart.mount();
+    }
   },
   render: function() {
     
