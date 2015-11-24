@@ -18,7 +18,17 @@
 var _ = require('lodash');
 var util = require('util');
 
+/* global __TEST__ */
+
 var schema = require('./validator/schematron');
+
+var log;
+if (typeof window !== 'undefined' && __TEST__ !== true) {
+  log = console.log;
+}
+else {
+  log = function() {};
+}
 
 var schemas = {
   basal: require('./basal'),
@@ -48,8 +58,8 @@ module.exports = {
         result.valid.push(datum);
       }
       catch(e) {
-        console.log('Oh noes! This is wrong:\n', datum);
-        console.log(util.format('Error Message: %s%s', datum.type, e.message));
+        log('Oh noes! This is wrong:\n', datum);
+        log(util.format('Error Message: %s%s', datum.type, e.message));
         datum.errorMessage = e.message;
         result.invalid.push(datum);
       }

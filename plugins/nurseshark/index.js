@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-/* global __DEV__ */
+/* global __DEV__,__TEST__ */
 
 var _ = require('lodash');
 var crossfilter = require('crossfilter');
@@ -25,7 +25,7 @@ var constants = require('../../js/data/util/constants');
 var dt = require('../../js/data/util/datetime');
 
 var log;
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && __TEST__ !== true) {
   log = require('bows')('Nurseshark');
 }
 else {
