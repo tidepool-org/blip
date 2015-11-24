@@ -14,7 +14,8 @@ var defineEnvPlugin = new webpack.DefinePlugin({
   __SHOW_ACCEPT_TERMS__: JSON.stringify(process.env.SHOW_ACCEPT_TERMS || null),
   __PASSWORD_MIN_LENGTH__: JSON.stringify(process.env.PASSWORD_MIN_LENGTH || null),
   __INVITE_KEY__: JSON.stringify(process.env.INVITE_KEY || null),
-  __DEV__: false
+  __DEV__: false,
+  __TEST__: false
 });
 
 module.exports = {
