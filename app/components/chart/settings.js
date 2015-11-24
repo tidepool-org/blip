@@ -1,4 +1,4 @@
-/** @jsx React.DOM */
+
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project
@@ -42,7 +42,7 @@ var SettingsChart = React.createClass({
     patientData: React.PropTypes.object.isRequired,
   },
   componentDidMount: function() {
-    this.mountChart(this.getDOMNode());
+    this.mountChart(React.findDOMNode(this));
     this.initializeChart(this.props.patientData);
   },
   componentWillUnmount: function() {

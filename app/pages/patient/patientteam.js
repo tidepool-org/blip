@@ -1,4 +1,4 @@
-/** @jsx React.DOM */
+
 /**
  * Copyright (c) 2014, Tidepool Project
  *
@@ -96,7 +96,7 @@ var MemberInviteForm = React.createClass({
   componentDidMount: function() {
     // When invite form appears, automatically focus so user can start
     // typing email without clicking a second time
-    this.refs.email.getDOMNode().focus();
+    this.refs.email.focus();
   },
   render: function() {
     return (
@@ -134,7 +134,7 @@ var MemberInviteForm = React.createClass({
       e.preventDefault();
     }
 
-    var email = this.refs.email.getDOMNode().value;
+    var email = this.refs.email.value;
     var allowUpload = this.refs.allowUpload.getValue();
 
     var validateEmail = function(email) {

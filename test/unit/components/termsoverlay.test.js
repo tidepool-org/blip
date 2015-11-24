@@ -1,7 +1,7 @@
 /* global chai */
 
 var React = require('react');
-var TestUtils = require('react/lib/ReactTestUtils');
+var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
 
 var TermsOverlay = require('../../../app/components/termsoverlay');
@@ -9,19 +9,16 @@ var TermsOverlay = require('../../../app/components/termsoverlay');
 describe('TermsOverlay', function () {
 
   describe('render', function() {
-    it('should console.warn when required props not set', function () {
-      console.warn = sinon.stub();
+    it('should console.error when trackMetric not set', function () {
+      console.error = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<TermsOverlay/>);
 
       expect(elem).to.be.ok;
-      expect(console.warn.callCount).to.equal(3); // warnings bubble up from other components
-      expect(console.warn.calledWith('Warning: Required prop `trackMetric` was not specified in `LoginNav`. Check the render method of `TermsOverlay`.')).to.equal(true);
-      expect(console.warn.calledWith('Warning: Required prop `trackMetric` was not specified in `TermsOverlay`.')).to.equal(true);
-      expect(console.warn.calledWith('Warning: Required prop `onSubmit` was not specified in `TermsOverlay`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `TermsOverlay`.')).to.equal(true);
     });
 
-    it('should not console.warn about when required props are set', function() {
-      console.warn = sinon.stub();
+    it('should not console.error when trackMetric set', function() {
+      console.error = sinon.stub();
       var props = {
         trackMetric: function() {},
         onSubmit: function() {},
@@ -30,7 +27,7 @@ describe('TermsOverlay', function () {
       var elem = TestUtils.renderIntoDocument(termsOverlayElem);
 
       expect(elem).to.be.ok;
-      expect(console.warn.callCount).to.equal(0);
+      expect(console.error.callCount).to.equal(0);
     });
 
   });
@@ -82,7 +79,7 @@ describe('TermsOverlay', function () {
       var ageBtn = TestUtils.findRenderedDOMComponentWithTag(termsElem, 'button');
       expect(ageBtn).not.to.not.equal(null);
 
-      React.addons.TestUtils.Simulate.click(ageBtn);
+      TestUtils.Simulate.click(ageBtn);
       expect(termsElem.state.ageConfirmed).to.equal(true);
     });
     it('shows iframes once button pressed ', function() {

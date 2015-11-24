@@ -1,4 +1,4 @@
-/** @jsx React.DOM */
+
 /**
  * Copyright (c) 2014, Tidepool Project
  *
@@ -61,7 +61,7 @@ require('../../style.less');
 require('../../../favicon.ico');
 
 var AppComponent = React.createClass({
-  contextTypes: {
+  propTypes: {
     log: React.PropTypes.func.isRequired,
     api: React.PropTypes.object.isRequired,
     router: React.PropTypes.object.isRequired,
@@ -82,10 +82,10 @@ var AppComponent = React.createClass({
         sundial.checkTimezoneName(queryTimezone);
         timePrefs.timezoneAware = true;
         timePrefs.timezoneName = queryTimezone;
-        this.context.log('Viewing data in timezone-aware mode with', queryTimezone, 'as the selected timezone.');
+        this.props.log('Viewing data in timezone-aware mode with', queryTimezone, 'as the selected timezone.');
       }
       catch(err) {
-        this.context.log(new Error('Invalid timezone name in query parameter. (Try capitalizing properly.)'));
+        this.props.log(new Error('Invalid timezone name in query parameter. (Try capitalizing properly.)'));
       }
     }
     var bgPrefs = {
@@ -98,7 +98,7 @@ var AppComponent = React.createClass({
       }
     }
     return {
-      authenticated: this.context.api.user.isAuthenticated(),
+      authenticated: this.props.api.user.isAuthenticated(),
       notification: null,
       page: null,
       user: null,
@@ -129,22 +129,22 @@ var AppComponent = React.createClass({
 
   doOauthLogin:function(accessToken){
     var self = this;
-    self.context.api.user.oauthLogin(accessToken, function(err, data){
+    self.props.api.user.oauthLogin(accessToken, function(err, data){
       if(_.isEmpty(err)){
-        self.context.log('Logged in via OAuth');
+        self.props.log('Logged in via OAuth');
         self.fetchUser();
         self.setState({authenticated: true});
-        self.context.trackMetric('Logged In with OAuth');
+        self.props.trackMetric('Logged In with OAuth');
         //go to the specified patient if there is one
         if(_.isEmpty(data.target)){
-          self.context.log('No targeted OAuth user so defaulting');
+          self.props.log('No targeted OAuth user so defaulting');
           self.redirectToDefaultRoute();
         }else{
-          self.context.log('Using the targeted OAuth user');
-          self.context.router.setRoute('/patients/' + data.target + '/data');
+          self.props.log('Using the targeted OAuth user');
+          self.props.router.setRoute('/patients/' + data.target + '/data');
         }
       }else{
-        self.context.log('Login via OAuth failed ', err);
+        self.props.log('Login via OAuth failed ', err);
       }
     });
   },
@@ -171,7 +171,7 @@ var AppComponent = React.createClass({
     // Currently no-op
     var onRouteChange = function() {};
 
-    self.context.router.setup(routingTable, {
+    self.props.router.setup(routingTable, {
       isAuthenticated: isAuthenticated,
       noAuthRoutes: routeMap.noAuthRoutes,
       externalAppRoutes: routeMap.externalAppRoutes,
@@ -179,21 +179,21 @@ var AppComponent = React.createClass({
       defaultAuthenticatedRoute: routeMap.defaultAuthenticatedRoute,
       onRouteChange: onRouteChange
     });
-    self.context.router.start();
+    self.props.router.start();
   },
 
   componentWillUpdate: function(nextProps, nextState) {
     // Called on props or state changes
     // Since app main component has no props,
     // this will be called on a state change
-    if (this.context.DEBUG) {
+    if (this.props.DEBUG) {
       var stateDiff = utils.objectDifference(nextState, this.state);
-      this.context.log('State changed', stateDiff);
+      this.props.log('State changed', stateDiff);
     }
   },
 
   render: function() {
-    this.context.log('Rendering AppComponent');
+    this.props.log('Rendering AppComponent');
     var overlay = this.renderOverlay();
     var navbar = this.renderNavbar();
     var notification = this.renderNotification();
@@ -212,7 +212,7 @@ var AppComponent = React.createClass({
   },
 
   renderOverlay: function() {
-    this.context.log('Rendering overlay');
+    this.props.log('Rendering overlay');
     if (this.state.loggingOut) {
       return (
         <LogoutOverlay ref="logoutOverlay" />
@@ -237,21 +237,21 @@ var AppComponent = React.createClass({
       return (
         <TermsOverlay
           onSubmit={this.handleAcceptedTerms}
-          trackMetric={this.context.trackMetric} />
+          trackMetric={this.props.trackMetric} />
       );
     }
     return null;
   },
 
   renderNavbar: function() {
-    this.context.log('Rendering navbar');
+    this.props.log('Rendering navbar');
     if (this.state.authenticated) {
       var patient;
       var getUploadUrl;
 
       if (this.isPatientVisibleInNavbar()) {
         patient = this.state.patient;
-        getUploadUrl = this.context.api.getUploadUrl.bind(this.context.api);
+        getUploadUrl = this.props.api.getUploadUrl.bind(this.props.api);
       }
 
       return (
@@ -265,7 +265,7 @@ var AppComponent = React.createClass({
             currentPage={this.state.page}
             getUploadUrl={getUploadUrl}
             onLogout={this.logout}
-            trackMetric={this.context.trackMetric}
+            trackMetric={this.props.trackMetric}
             ref="navbar"/>
         </div>
 
@@ -283,7 +283,7 @@ var AppComponent = React.createClass({
   },
 
   renderNotification: function() {
-    this.context.log('Rendering notification');
+    this.props.log('Rendering notification');
     var notification = this.state.notification;
     var handleClose;
 
@@ -307,7 +307,7 @@ var AppComponent = React.createClass({
   },
 
   logSupportContact: function(){
-    this.context.trackMetric('Clicked Give Feedback');
+    this.props.trackMetric('Clicked Give Feedback');
   },
 
   renderFooter: function() {
@@ -347,9 +347,9 @@ var AppComponent = React.createClass({
     return null;
   },
   showLogin: function() {
-    var hashQueryParams = this.context.router.getQueryParams();
+    var hashQueryParams = this.props.router.getQueryParams();
     if (!_.isEmpty(hashQueryParams.accessToken)) {
-      this.context.log('logging in via OAuth ...');
+      this.props.log('logging in via OAuth ...');
       this.doOauthLogin(hashQueryParams.accessToken);
     } else {
       this.renderPage = this.renderLogin;
@@ -369,13 +369,13 @@ var AppComponent = React.createClass({
         isInvite={showAsInvite}
         onSubmitSuccess={this.handleLoginSuccess}
         onSubmitNotAuthorized={this.handleNotAuthorized}
-        trackMetric={this.context.trackMetric} />
+        trackMetric={this.props.trackMetric} />
 
     );
   },
 
   getSignupEmail: function() {
-    var hashQueryParams = this.context.router.getQueryParams();
+    var hashQueryParams = this.props.router.getQueryParams();
     var email = hashQueryParams.signupEmail;
     if (!_.isEmpty(email) && utils.validateEmail(email)){
       return email;
@@ -384,7 +384,7 @@ var AppComponent = React.createClass({
   },
 
   getInviteKey: function() {
-    var hashQueryParams = this.context.router.getQueryParams();
+    var hashQueryParams = this.props.router.getQueryParams();
     var key = hashQueryParams.inviteKey;
 
     if(!_.isEmpty(key)){
@@ -394,7 +394,7 @@ var AppComponent = React.createClass({
   },
 
   getInviteEmail: function() {
-    var hashQueryParams = this.context.router.getQueryParams();
+    var hashQueryParams = this.props.router.getQueryParams();
     var email = hashQueryParams.inviteEmail;
     if(!_.isEmpty(email) && utils.validateEmail(email)){
       return email;
@@ -405,11 +405,11 @@ var AppComponent = React.createClass({
   finializeSignup: function() {
     var self = this;
 
-    var hashQueryParams = self.context.router.getQueryParams();
+    var hashQueryParams = self.props.router.getQueryParams();
     if(!_.isEmpty(hashQueryParams.signupKey) && !self.state.finalizingVerification){
-      self.context.api.user.confirmSignUp(hashQueryParams.signupKey, function(err){
+      self.props.api.user.confirmSignUp(hashQueryParams.signupKey, function(err){
         if(err){
-          self.context.log('finializeSignup err ',err);
+          self.props.log('finializeSignup err ',err);
         }
         self.setState({finalizingVerification:true});
       });
@@ -442,7 +442,7 @@ var AppComponent = React.createClass({
         inviteKey={this.getInviteKey()}
         checkInviteKey={checkKey}
         onSubmitSuccess={this.handleSignupSuccess}
-        trackMetric={this.context.trackMetric} />
+        trackMetric={this.props.trackMetric} />
 
     );
   },
@@ -451,8 +451,8 @@ var AppComponent = React.createClass({
     return (
       <EmailVerification
         sent={this.state.verificationEmailSent}
-        onSubmitResend={this.context.api.user.resendEmailVerification.bind(this.context.api)}
-        trackMetric={this.context.trackMetric}/>
+        onSubmitResend={this.props.api.user.resendEmailVerification.bind(this.props.api)}
+        trackMetric={this.props.trackMetric}/>
 
     );
   },
@@ -460,7 +460,7 @@ var AppComponent = React.createClass({
   showProfile: function() {
     this.renderPage = this.renderProfile;
     this.setState({page: 'profile'});
-    this.context.trackMetric('Viewed Account Edit');
+    this.props.trackMetric('Viewed Account Edit');
   },
 
   renderProfile: function() {
@@ -469,7 +469,7 @@ var AppComponent = React.createClass({
           user={this.state.user}
           fetchingUser={this.state.fetchingUser}
           onSubmit={this.updateUser}
-          trackMetric={this.context.trackMetric}/>
+          trackMetric={this.props.trackMetric}/>
 
     );
   },
@@ -483,7 +483,7 @@ var AppComponent = React.createClass({
     this.setState({page: 'patients'});
     this.fetchInvites();
     this.fetchPatients();
-    this.context.trackMetric('Viewed Care Team List');
+    this.props.trackMetric('Viewed Care Team List');
   },
   renderPatients: function() {
     var patients = <Patients
@@ -492,12 +492,12 @@ var AppComponent = React.createClass({
         patients={this.state.patients}
         fetchingPatients={this.state.fetchingPatients}
         invites={this.state.invites}
-        uploadUrl={this.context.api.getUploadUrl()}
+        uploadUrl={this.props.api.getUploadUrl()}
         fetchingInvites={this.state.fetchingInvites}
         showingWelcomeTitle={this.state.showingWelcomeTitle}
         showingWelcomeSetup={this.state.showingWelcomeSetup}
         onHideWelcomeSetup={this.handleHideWelcomeSetup}
-        trackMetric={this.context.trackMetric}
+        trackMetric={this.props.trackMetric}
         onAcceptInvitation={this.handleAcceptInvitation}
         onDismissInvitation={this.handleDismissInvitation}
         onRemovePatient={this.handleRemovePatient}/>;
@@ -529,15 +529,15 @@ var AppComponent = React.createClass({
 
           // Last, set the appropriate route
           if (viewerUserId === null) {
-            this.context.router.setRoute('/patients');
+            this.props.router.setRoute('/patients');
             return;
           } else {
-            this.context.router.setRoute('/patients/' + viewerUserId + '/data');
+            this.props.router.setRoute('/patients/' + viewerUserId + '/data');
             return;
           }
         }
 
-        this.context.router.setRoute('/patients');
+        this.props.router.setRoute('/patients');
       }
 
       return;
@@ -547,7 +547,7 @@ var AppComponent = React.createClass({
   },
   handleHideWelcomeSetup: function(options) {
     if (options && options.route) {
-      this.context.router.setRoute(options.route);
+      this.props.router.setRoute(options.route);
     }
     this.setState({showingWelcomeSetup: false});
   },
@@ -561,7 +561,7 @@ var AppComponent = React.createClass({
       })
     });
 
-    self.context.api.invitation.dismiss(invitation.key, invitation.creator.userid, function(err) {
+    self.props.api.invitation.dismiss(invitation.key, invitation.creator.userid, function(err) {
       if(err) {
         self.setState({
           invites: self.state.invites.concat(invitation)
@@ -584,7 +584,7 @@ var AppComponent = React.createClass({
       })
     });
 
-    self.context.api.invitation.accept(invitation.key, invitation.creator.userid, function(err) {
+    self.props.api.invitation.accept(invitation.key, invitation.creator.userid, function(err) {
 
       var invites = _.cloneDeep(self.state.invites);
       if (err) {
@@ -610,7 +610,7 @@ var AppComponent = React.createClass({
   handleChangeMemberPermissions: function(patientId, memberId, permissions, cb) {
     var self = this;
 
-    self.context.api.access.setMemberPermissions(memberId, permissions, function(err) {
+    self.props.api.access.setMemberPermissions(memberId, permissions, function(err) {
       if(err) {
         cb(err);
         return self.handleApiError(err, usrMessages.ERR_CHANGING_PERMS, utils.buildExceptionDetails());
@@ -622,7 +622,7 @@ var AppComponent = React.createClass({
   handleRemovePatient: function(patientId,cb) {
     var self = this;
 
-    self.context.api.access.leaveGroup(patientId, function(err) {
+    self.props.api.access.leaveGroup(patientId, function(err) {
       if(err) {
 
         return self.handleApiError(err, usrMessages.ERR_REMOVING_MEMBER, utils.buildExceptionDetails());
@@ -635,7 +635,7 @@ var AppComponent = React.createClass({
   handleRemoveMember: function(patientId, memberId, cb) {
     var self = this;
 
-    self.context.api.access.removeMember(memberId, function(err) {
+    self.props.api.access.removeMember(memberId, function(err) {
       if(err) {
         cb(err);
         return self.handleApiError(err, usrMessages.ERR_REMOVING_MEMBER ,utils.buildExceptionDetails());
@@ -647,7 +647,7 @@ var AppComponent = React.createClass({
   handleInviteMember: function(email, permissions, cb) {
     var self = this;
 
-    self.context.api.invitation.send(email, permissions, function(err, invitation) {
+    self.props.api.invitation.send(email, permissions, function(err, invitation) {
       if(err) {
         if (cb) {
           cb(err);
@@ -670,7 +670,7 @@ var AppComponent = React.createClass({
   handleCancelInvite: function(email, cb) {
     var self = this;
 
-    self.context.api.invitation.cancel(email, function(err) {
+    self.props.api.invitation.cancel(email, function(err) {
       if(err) {
         if (cb) {
           cb(err);
@@ -703,7 +703,7 @@ var AppComponent = React.createClass({
     this.fetchPatient(patientId,function(err,patient){
       return;
     });
-    this.context.trackMetric('Viewed Profile');
+    this.props.trackMetric('Viewed Profile');
   },
   showPatientShare: function(patientId) {
     this.renderPage = this.renderPatientShare;
@@ -719,12 +719,12 @@ var AppComponent = React.createClass({
     this.fetchPatient(patientId,function(err,patient){
       return;
     });
-    this.context.trackMetric('Viewed Share');
+    this.props.trackMetric('Viewed Share');
   },
   renderPatient: function() {
     // On each state change check if patient object was returned from server
     if (this.isDoneFetchingAndNotFoundPatient()) {
-      this.context.log('Patient not found');
+      this.props.log('Patient not found');
       this.redirectToDefaultRoute();
       return;
     }
@@ -740,13 +740,13 @@ var AppComponent = React.createClass({
         onRemoveMember={this.handleRemoveMember}
         onInviteMember={this.handleInviteMember}
         onCancelInvite={this.handleCancelInvite}
-        trackMetric={this.context.trackMetric}/>
+        trackMetric={this.props.trackMetric}/>
     );
   },
   renderPatientShare: function() {
     // On each state change check if patient object was returned from server
     if (this.isDoneFetchingAndNotFoundPatient()) {
-      this.context.log('Patient not found');
+      this.props.log('Patient not found');
       this.redirectToDefaultRoute();
       return;
     }
@@ -763,7 +763,7 @@ var AppComponent = React.createClass({
         onRemoveMember={this.handleRemoveMember}
         onInviteMember={this.handleInviteMember}
         onCancelInvite={this.handleCancelInvite}
-        trackMetric={this.context.trackMetric}/>
+        trackMetric={this.props.trackMetric}/>
     );
   },
   isDoneFetchingAndNotFoundPatient: function() {
@@ -781,15 +781,15 @@ var AppComponent = React.createClass({
       patient: null,
       fetchingPatient: false
     });
-    this.context.trackMetric('Viewed Profile Create');
+    this.props.trackMetric('Viewed Profile Create');
   },
   renderPatientNew: function() {
     // Make sure user doesn't already have a patient
     if (this.isDoneFetchingAndUserHasPatient()) {
       var patientId = this.state.user.userid;
       var route = '/patients/' + patientId;
-      this.context.log('User already has patient');
-      this.context.router.setRoute(route);
+      this.props.log('User already has patient');
+      this.props.router.setRoute(route);
       return;
     }
     return (
@@ -798,7 +798,7 @@ var AppComponent = React.createClass({
           fetchingUser={this.state.fetchingUser}
           onSubmit={this.createPatient}
           onSubmitSuccess={this.handlePatientCreationSuccess}
-          trackMetric={this.context.trackMetric}/>
+          trackMetric={this.props.trackMetric}/>
     );
   },
   isDoneFetchingAndUserHasPatient: function() {
@@ -829,12 +829,12 @@ var AppComponent = React.createClass({
       self.fetchPatientData(patient);
     });
 
-    self.context.trackMetric('Viewed Data');
+    self.props.trackMetric('Viewed Data');
   },
   renderPatientData: function() {
     // On each state change check if patient object was returned from server
     if (this.isDoneFetchingAndNotFoundPatient()) {
-      this.context.log('Patient not found');
+      this.props.log('Patient not found');
       this.redirectToDefaultRoute();
       return;
     }
@@ -849,14 +849,14 @@ var AppComponent = React.createClass({
         fetchingPatientData={this.state.fetchingPatientData}
         isUserPatient={this.isSamePersonUserAndPatient()}
         queryParams={this.state.queryParams}
-        uploadUrl={this.context.api.getUploadUrl()}
+        uploadUrl={this.props.api.getUploadUrl()}
         onRefresh={this.fetchCurrentPatientData}
         onFetchMessageThread={this.fetchMessageThread}
-        onSaveComment={this.context.api.team.replyToMessageThread.bind(this.context.api.team)}
-        onCreateMessage={this.context.api.team.startMessageThread.bind(this.context.api.team)}
-        onEditMessage={this.context.api.team.editMessage.bind(this.context.api.team)}
+        onSaveComment={this.props.api.team.replyToMessageThread.bind(this.props.api.team)}
+        onCreateMessage={this.props.api.team.startMessageThread.bind(this.props.api.team)}
+        onEditMessage={this.props.api.team.editMessage.bind(this.props.api.team)}
         onUpdatePatientData={this.handleUpdatePatientData}
-        trackMetric={this.context.trackMetric}/>
+        trackMetric={this.props.trackMetric}/>
     );
   },
   handleUpdatePatientData: function(userid, data) {
@@ -876,7 +876,7 @@ var AppComponent = React.createClass({
     var user = formValues.user;
     var options = formValues.options;
 
-    this.context.api.user.login(user, options, cb);
+    this.props.api.user.login(user, options, cb);
   },
   handleLoginSuccess: function() {
 
@@ -886,11 +886,11 @@ var AppComponent = React.createClass({
         showingWelcomeTitle: true,
         showingWelcomeSetup: true
       });
-      this.context.trackMetric('Finalized Signup');
+      this.props.trackMetric('Finalized Signup');
     }
     this.setState({authenticated: true});
     this.redirectToDefaultRoute();
-    this.context.trackMetric('Logged In');
+    this.props.trackMetric('Logged In');
   },
   handleNotAuthorized:function(){
      this.setState({authenticated: false,  verificationEmailSent: false});
@@ -898,7 +898,7 @@ var AppComponent = React.createClass({
   },
   signup: function(formValues, cb) {
     var user = formValues;
-    this.context.api.user.signup(user, cb);
+    this.props.api.user.signup(user, cb);
   },
   handleSignupSuccess: function(user) {
     //once signed up we need to authenicate the email which is done via the email we have sent them
@@ -909,7 +909,7 @@ var AppComponent = React.createClass({
 
     this.showEmailVerification();
 
-    this.context.trackMetric('Signed Up');
+    this.props.trackMetric('Signed Up');
   },
   handleSignupVerificationSuccess: function(user) {
     //once signed up we need to authenicate the email which is done via the email we have sent them
@@ -922,13 +922,13 @@ var AppComponent = React.createClass({
     });
 
     this.redirectToDefaultRoute();
-    this.context.trackMetric('Signup Verified');
+    this.props.trackMetric('Signup Verified');
   },
   handleAcceptedTerms: function() {
     var self = this;
     var acceptedDate = sundial.utcDateString();
 
-    self.context.api.user.acceptTerms({ termsAccepted: acceptedDate }, function(err) {
+    self.props.api.user.acceptTerms({ termsAccepted: acceptedDate }, function(err) {
       if (err) {
         return self.handleApiError(err, usrMessages.ERR_ACCEPTING_TERMS, utils.buildExceptionDetails());
       }
@@ -948,10 +948,10 @@ var AppComponent = React.createClass({
     });
 
     // Need to track this before expiring auth token
-    self.context.trackMetric('Logged Out');
+    self.props.trackMetric('Logged Out');
 
     //Logout but don't wait for details
-    self.context.api.user.logout();
+    self.props.api.user.logout();
 
     self.setState({loggingOut: false});
 
@@ -978,7 +978,7 @@ var AppComponent = React.createClass({
 
     self.setState({fetchingUser: true});
 
-    self.context.api.user.get(function(err, user) {
+    self.props.api.user.get(function(err, user) {
       if (err) {
         self.setState({fetchingUser: false});
         return self.handleApiError(err, usrMessages.ERR_FETCHING_USER, utils.buildExceptionDetails());
@@ -1001,7 +1001,7 @@ var AppComponent = React.createClass({
 
     self.setState({fetchingPendingInvites: true});
 
-    self.context.api.invitation.getSent(function(err, invites) {
+    self.props.api.invitation.getSent(function(err, invites) {
       if (err) {
         self.setState({
           fetchingPendingInvites: false
@@ -1030,7 +1030,7 @@ var AppComponent = React.createClass({
 
     self.setState({fetchingInvites: true});
 
-    self.context.api.invitation.getReceived(function(err, invites) {
+    self.props.api.invitation.getReceived(function(err, invites) {
       if (err) {
 
         self.setState({
@@ -1054,7 +1054,7 @@ var AppComponent = React.createClass({
         self.setState({fetchingPatients: true});
     }
 
-    self.context.api.patient.getAll(function(err, patients) {
+    self.props.api.patient.getAll(function(err, patients) {
       if (err) {
         self.setState({fetchingPatients: false});
         return self.handleApiError(err, usrMessages.ERR_FETCHING_TEAMS, utils.buildExceptionDetails());
@@ -1072,10 +1072,10 @@ var AppComponent = React.createClass({
 
     self.setState({fetchingPatient: true});
 
-    self.context.api.patient.get(patientId, function(err, patient) {
+    self.props.api.patient.get(patientId, function(err, patient) {
       if (err) {
         if (err.status === 404) {
-          self.context.log('Patient not found with id '+patientId);
+          self.props.log('Patient not found with id '+patientId);
           var setupMsg = (patientId === self.state.user.userid) ? usrMessages.ERR_YOUR_ACCOUNT_NOT_CONFIGURED : usrMessages.ERR_ACCOUNT_NOT_CONFIGURED;
           var dataStoreLink = (<a href="#/patients/new" onClick={self.closeNotification}>{usrMessages.YOUR_ACCOUNT_DATA_SETUP}</a>);
           return self.handleActionableError(err, setupMsg, dataStoreLink);
@@ -1103,11 +1103,11 @@ var AppComponent = React.createClass({
     self.setState({fetchingPatientData: true});
 
     var loadPatientData = function(cb) {
-      self.context.api.patientData.get(patientId, cb);
+      self.props.api.patientData.get(patientId, cb);
     };
 
     var loadTeamNotes = function(cb) {
-      self.context.api.team.getNotes(patientId, cb);
+      self.props.api.team.getNotes(patientId, cb);
     };
 
     async.parallel({
@@ -1119,7 +1119,7 @@ var AppComponent = React.createClass({
         self.setState({fetchingPatientData: false});
         // Patient with id not found, cary on
         if (err.status === 404) {
-          self.context.log('No data found for patient '+patientId);
+          self.props.log('No data found for patient '+patientId);
           return;
         }
 
@@ -1129,8 +1129,8 @@ var AppComponent = React.createClass({
       var patientData = results.patientData || [];
       var notes = results.teamNotes || [];
 
-      self.context.log('Patient device data count', patientData.length);
-      self.context.log('Team notes count', notes.length);
+      self.props.log('Patient device data count', patientData.length);
+      self.props.log('Team notes count', notes.length);
 
       var combinedData = patientData.concat(notes);
       window.downloadInputData = function() {
@@ -1159,11 +1159,11 @@ var AppComponent = React.createClass({
   fetchMessageThread: function(messageId,callback) {
     var self = this;
 
-    self.context.log('fetching messages for ' + messageId);
+    self.props.log('fetching messages for ' + messageId);
 
     self.setState({fetchingMessageData: true});
 
-    self.context.api.team.getMessageThread(messageId,function(err, thread){
+    self.props.api.team.getMessageThread(messageId,function(err, thread){
       self.setState({fetchingMessageData: false});
 
       if (err) {
@@ -1171,7 +1171,7 @@ var AppComponent = React.createClass({
         return callback(null);
       }
 
-      self.context.log('Fetched message thread with '+thread.length+' messages');
+      self.props.log('Fetched message thread with '+thread.length+' messages');
       return callback(thread);
     });
   },
@@ -1194,8 +1194,8 @@ var AppComponent = React.createClass({
         };
       }
       catch(err) {
-        this.context.log(err);
-        this.context.log('Upload metadata lacking a valid timezone!', mostRecentUpload);
+        this.props.log(err);
+        this.props.log('Upload metadata lacking a valid timezone!', mostRecentUpload);
       }
     }
     var queryParams = this.state.queryParams;
@@ -1209,7 +1209,7 @@ var AppComponent = React.createClass({
       this.setState({
         timePrefs: timePrefsForTideline
       });
-      this.context.log('Defaulting to display in timezone of most recent upload at', mostRecentUpload.time, mostRecentUpload.timezone);
+      this.props.log('Defaulting to display in timezone of most recent upload at', mostRecentUpload.time, mostRecentUpload.timezone);
     }
 
     console.time('Nurseshark Total');
@@ -1281,7 +1281,7 @@ var AppComponent = React.createClass({
       userUpdates = _.omit(userUpdates, 'username', 'emails');
     }
 
-    self.context.api.user.put(userUpdates, function(err, user) {
+    self.props.api.user.put(userUpdates, function(err, user) {
       if (err) {
         // Rollback
         self.setState({user: previousUser});
@@ -1290,16 +1290,16 @@ var AppComponent = React.createClass({
 
       user = _.assign(newUser, user);
       self.setState({user: user});
-      self.context.trackMetric('Updated Account');
+      self.props.trackMetric('Updated Account');
     });
   },
 
   createPatient: function(patient, cb) {
-    this.context.api.patient.post(patient, cb);
+    this.props.api.patient.post(patient, cb);
   },
 
   handlePatientCreationSuccess: function(patient) {
-    this.context.trackMetric('Created Profile');
+    this.props.trackMetric('Created Profile');
     this.setState({
       user: _.extend({}, this.state.user, {
         profile: _.cloneDeep(patient.profile)
@@ -1307,7 +1307,7 @@ var AppComponent = React.createClass({
       patient: patient
     });
     var route = '/patients/' + patient.userid + '/data';
-    this.context.router.setRoute(route);
+    this.props.router.setRoute(route);
   },
 
   updatePatient: function(patient) {
@@ -1317,7 +1317,7 @@ var AppComponent = React.createClass({
     // Optimistic update
     self.setState({patient: patient});
 
-    self.context.api.patient.put(patient, function(err, patient) {
+    self.props.api.patient.put(patient, function(err, patient) {
       if (err) {
         // Rollback
         self.setState({patient: previousPatient});
@@ -1326,7 +1326,7 @@ var AppComponent = React.createClass({
       self.setState({
         patient: _.assign({}, previousPatient, {profile: patient.profile})
       });
-      self.context.trackMetric('Updated Profile');
+      self.props.trackMetric('Updated Profile');
     });
   },
 
@@ -1335,16 +1335,16 @@ var AppComponent = React.createClass({
     var utcTime = usrMessages.MSG_UTC + new Date().toISOString();
 
     if (message) {
-      this.context.log(message);
+      this.props.log(message);
     }
     //send it quick
-    this.context.api.errors.log(this.stringifyErrorData(error), message, this.stringifyErrorData(details));
+    this.props.api.errors.log(this.stringifyErrorData(error), message, this.stringifyErrorData(details));
 
     if (error.status === 401) {
       //Just log them out
-      this.context.log('401 so logged user out');
+      this.props.log('401 so logged user out');
       this.setState({notification: null});
-      this.context.api.user.destroySession();
+      this.props.api.user.destroySession();
       this.handleLogoutSuccess();
       return;
     } else {
@@ -1398,7 +1398,7 @@ var AppComponent = React.createClass({
 
     message = message || '';
     //send it quick
-    this.context.api.errors.log(this.stringifyErrorData(error), message, '');
+    this.props.api.errors.log(this.stringifyErrorData(error), message, '');
 
     var body = (
       <div>
@@ -1435,8 +1435,8 @@ var AppComponent = React.createClass({
     this.renderPage = function(){
       return(
         <RequestPasswordReset
-          onSubmit={this.context.api.user.requestPasswordReset.bind(this.context.api)}
-          trackMetric={this.context.trackMetric} />
+          onSubmit={this.props.api.user.requestPasswordReset.bind(this.props.api)}
+          trackMetric={this.props.trackMetric} />
       );
     };
 
@@ -1451,8 +1451,8 @@ var AppComponent = React.createClass({
       return(
         <ConfirmPasswordReset
           resetKey={givenResetKey}
-          onSubmit={this.context.api.user.confirmPasswordReset.bind(this.context.api)}
-          trackMetric={this.context.trackMetric} />
+          onSubmit={this.props.api.user.confirmPasswordReset.bind(this.props.api)}
+          trackMetric={this.props.trackMetric} />
       );
     };
 
@@ -1464,10 +1464,10 @@ var AppComponent = React.createClass({
   // If we don't find what we asked for then log that the value has not been found.
   // NOTE: The caller can decide how they want to deal with the fact there is no value in this instance
   getQueryParam: function(key){
-    var params = this.context.router.getQueryParams();
+    var params = this.props.router.getQueryParams();
     var val = params[key];
     if(_.isEmpty(val)){
-      this.context.log('You asked for ['+key+'] but it was not found in ',params);
+      this.props.log('You asked for ['+key+'] but it was not found in ',params);
     }
     return val;
   },

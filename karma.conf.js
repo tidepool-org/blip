@@ -2,7 +2,8 @@ var webpack = require('webpack');
 var RewirePlugin = require("rewire-webpack");
 
 var defineEnvPlugin = new webpack.DefinePlugin({
-  __DEV__: false
+  __DEV__: false,
+  __TEST__: true
 });
 
 module.exports = function (config) {
@@ -23,7 +24,9 @@ module.exports = function (config) {
     webpack: { // Simplified Webpack configuration
       module: {
         loaders: [
-          {test: /\.js$/, loader: 'jsx-loader'},
+          {test: /\.js$/, exclude: /(node_modules)/, loader: 'babel-loader'},
+          // need this condition when testing with Tideline loaded from Github branch
+          {test: /node_modules\/tideline\/.*\.js$/, exclude: /tideline\/node_modules/, loader: 'babel-loader'},
           {test: /\.less$/, loader: 'style-loader!css-loader!autoprefixer-loader!less-loader'},
           {test: /\.gif$/, loader: 'url-loader?limit=10000&mimetype=image/gif'},
           {test: /\.jpg$/, loader: 'url-loader?limit=10000&mimetype=image/jpg'},

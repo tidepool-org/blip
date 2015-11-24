@@ -1,8 +1,8 @@
-/** @jsx React.DOM */
+
 /* global chai */
 
 var React = require('react');
-var TestUtils = require('react/lib/ReactTestUtils');
+var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
 
 var DatePicker = require('../../../app/components/datepicker');

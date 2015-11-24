@@ -1,4 +1,4 @@
-/** @jsx React.DOM */
+
 /**
  * Copyright (c) 2014, Tidepool Project
  *
@@ -23,7 +23,6 @@ var utils = require('../../core/utils');
 var personUtils = require('../../core/personutils');
 var SimpleForm = require('../../components/simpleform');
 var PeopleList = require('../../components/peoplelist');
-var PersonCard = require('../../components/personcard');
 
 var Profile = React.createClass({
   propTypes: {
@@ -120,39 +119,6 @@ var Profile = React.createClass({
         onSubmit={this.handleSubmit}
         notification={this.state.notification}
         disabled={disabled}/>
-    );
-    
-  },
-
-  renderCreateCareTeam: function() {
-    
-    return (
-      <div>
-        <div className="profile-careteam-message">
-          {'Creating a Care Team allows you to get data into Blip,'}
-          {' for yourself or for someone you care for with type 1 diabetes.'}
-        </div>
-        <PersonCard
-          href="#/patients/new">
-          <i className="icon-add profile-careteam-icon-link"></i>
-          {' ' + 'Create a Care Team'}
-        </PersonCard>
-      </div>
-    );
-    
-  },
-
-  renderUserCareTeam: function() {
-    var patient = _.cloneDeep(this.props.user);
-    if (patient.userid) {
-      patient.link = '#/patients/' + patient.userid + '/edit';
-    }
-
-    
-    return (
-      <PeopleList
-        people={[patient]}
-        isPatientList={true}/>
     );
     
   },

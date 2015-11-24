@@ -1,4 +1,4 @@
-/** @jsx React.DOM */
+
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2014, Tidepool Project

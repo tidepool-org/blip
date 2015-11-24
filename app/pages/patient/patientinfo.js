@@ -1,4 +1,4 @@
-/** @jsx React.DOM */
+
 /**
  * Copyright (c) 2014, Tidepool Project
  *
@@ -432,7 +432,7 @@ var PatientInfo = React.createClass({
       'about'
     ], function(acc, key, value) {
       if (self.refs[key]) {
-        acc[key] = self.refs[key].getDOMNode().value;
+        acc[key] = self.refs[key].value;
       }
       return acc;
     }, {});

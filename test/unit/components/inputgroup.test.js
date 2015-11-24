@@ -1,10 +1,10 @@
-/** @jsx React.DOM */
+
 
 /* global chai */
 window.config = {};
 
 var React = require('react');
-var TestUtils = require('react/lib/ReactTestUtils');
+var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
 
 var InputGroup = require('../../../app/components/inputgroup');
@@ -16,13 +16,13 @@ describe('InputGroup', function () {
 
   describe('render', function() {
     it('should render without problems when required props are present', function () {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var props = {
         trackMetric: sinon.stub()
       };
       var elem = React.createElement(InputGroup, props);
       var render = TestUtils.renderIntoDocument(elem);
-      expect(console.warn.callCount).to.equal(0);
+      expect(console.error.callCount).to.equal(0);
     });
   });
 });

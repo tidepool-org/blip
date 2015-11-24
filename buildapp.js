@@ -12,7 +12,7 @@ mkdir('-p', 'dist');
 var entry = (process.env.MOCK === 'true') ? './app/main.mock.js' : './app/main.prod.js';
 
 console.log('Building app from "' + entry + '"...');
-exec('webpack --entry \'' + entry + '\' --output-file \'bundle.[hash].js\' --devtool source-map --colors --progress');
+exec('webpack --entry \'' + entry + '\' --output-filename \'bundle.[hash].js\' --devtool source-map --colors --progress');
 
 function getBundleFilename() {
   var matches = ls('dist/bundle.*.js');

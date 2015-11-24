@@ -124,7 +124,7 @@ var MessageForm = React.createClass({
         editing: true
       });
     }
-    this.refs.messageText.getDOMNode().rows = 3;
+    this.refs.messageText.rows = 3;
   },
   /*
    * If there is now a message showing
@@ -144,7 +144,7 @@ var MessageForm = React.createClass({
     if (this.props.onCancel) {
       this.props.onCancel();
     } else {
-      this.refs.messageText.getDOMNode().rows = 1;
+      this.refs.messageText.rows = 1;
       this.setState(this.initialState());
     }
   },
@@ -193,14 +193,14 @@ var MessageForm = React.createClass({
     }
   },
   handleSaved: function() {
-    this.refs.messageText.getDOMNode().rows = 1;
+    this.refs.messageText.rows = 1;
     this.setState(this.initialState());
   },
   handleGrow: function(e) {
     if (e) {
       e.preventDefault();
     }
-    this.refs.messageText.getDOMNode().rows = 3;
+    this.refs.messageText.rows = 3;
     if (this.isExistingNoteEdit() === false) {
       this.setState({editing: true, whenUtc: sundial.utcDateString()});
     }
