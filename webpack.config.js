@@ -27,7 +27,7 @@ module.exports = {
   module: {
     loaders: [
       {test: /\.js$/, exclude: /(node_modules)/, loader: 'babel-loader'},
-      // need this condition when testing with Tideline loaded from Github branch
+      // need this condition when Tideline loaded from Github branch
       {test: /node_modules\/tideline\/.*\.js$/, exclude: /tideline\/node_modules/, loader: 'babel-loader'},
       {test: /\.less$/, loader: 'style-loader!css-loader!autoprefixer-loader!less-loader'},
       {test: /\.gif$/, loader: 'url-loader?limit=100000&mimetype=image/gif'},
@@ -45,6 +45,7 @@ module.exports = {
   plugins: [
     defineEnvPlugin
   ],
+  // resolves tideline's embedded React dependencies
   resolve: { fallback: path.join(__dirname, 'node_modules') },
   resolveLoader: { fallback: path.join(__dirname, 'node_modules') }
 };
