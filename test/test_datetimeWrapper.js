@@ -504,7 +504,7 @@ describe('sundial', function() {
         expect(tzs.bigFour.length).to.equal(4);
         expect(tzs.unitedStates.length).to.equal(9);
         expect(tzs.hoisted.length).to.equal(95);
-        expect(tzs.theRest.length).to.equal(440);
+        expect(tzs.theRest.length).to.equal(441);
       });
 
       it('returns timezone objects with a non-empty string name and label each',function(){
