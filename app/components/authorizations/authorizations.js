@@ -22,7 +22,9 @@ var Authorization = require('./authorization.js');
 module.exports = React.createClass({
 	render: function(){
 	    var listItems = this.props.authorizations.map(function(authorization){
-	      return <Authorization auth={authorization}/>;
+	      return (
+	      	<Authorization auth={authorization}/>
+	      	);
 	    });
 	    return (
 	      <div>

@@ -121,7 +121,7 @@ var Settings = React.createClass({
             <div className="patient-data-content">
               {this.isMissingSettings() ? this.renderMissingSettingsMessage() : this.renderChart()}
               
-              {window.config.SHOW_DEVICE_AUTH_UI ? this.renderAuthUI(): ""};
+              {window.config.SHOW_DEVICE_AUTH_UI ? this.renderAuthUI(): ""}
     
             </div>
           </div>

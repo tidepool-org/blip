@@ -28,10 +28,14 @@ module.exports = React.createClass({
 	 },
     render: function() {
     	if (this.props.auth.isAuthorized) {
-            return <tr><td>{this.props.auth.shimName}</td><td><a href="#" onClick={this.onClick}>Disconnect</a></td></tr>;
+            return (
+                <tr><td>{this.props.auth.shimName}</td><td><a href="#" onClick={this.onClick}>Disconnect</a></td></tr>
+                );
     				
     	} else {
-    		return <tr><td>{this.props.auth.shimName}</td><td><a href={this.props.auth.authorizationUrl} target="_blank">Connect</a></td></tr>;
+    		return (
+                <tr><td>{this.props.auth.shimName}</td><td><a href={this.props.auth.authorizationUrl} target="_blank">Connect</a></td></tr>
+                );
     		
     	}
     },
