@@ -305,20 +305,20 @@ export default class AppComponent extends React.Component {
       this.props.route.trackMetric('Viewed Care Team List');
     } else if (nextProps.patient) {
       this.fetcher.fetchPatient(nextProps.params.id);
-      this.props.trackMetric('Viewed Profile');
+      this.props.route.trackMetric('Viewed Profile');
     } else if(nextProps.patientData) {
       this.fetcher.fetchPatient(nextProps.params.id, (err, patient) => {
         this.fetcher.fetchPatientData(patient);
       });
       this.props.route.trackMetric('Viewed Data');
     } else if (nextProps.patientNew) {
-      this.props.trackMetric('Viewed Profile Create');
+      this.props.route.trackMetric('Viewed Profile Create');
     } else if (nextProps.patientShare) {
       this.fetcher.fetchPatient(nextProps.params.id);
       this.fetcher.fetchPendingInvites();
       this.props.route.trackMetric('Viewed Share');
     } else if (nextProps.profile) {
-      this.props.trackMetric('Viewed Account Edit');
+      this.props.route.trackMetric('Viewed Account Edit');
     }
   }
 
