@@ -22,7 +22,6 @@ import nurseShark from 'tideline/plugins/nurseshark/';
 import TidelineData from 'tideline/js/tidelinedata';
 
 import config from '../../config';
-import routeMap from '../../routemap';
 import personUtils from '../../core/personutils';
 import queryString from '../../core/querystring';
 import utils from '../../core/utils';
@@ -293,25 +292,33 @@ export default class AppComponent extends React.Component {
   }
 
   doFetching(nextProps) {
-    console.log(' [-] Fetching for ', nextProps.location);
-    console.log(' [-] Fetching for ', nextProps.params);
     if (this.state.authenticated) {
         this.fetcher.fetchUser();
     }
 
-    if (nextProps.patients) {
+    if (nextProps.login) {
+      this.actionHandlers.handleFinalizeSignup();
+    } else if (nextProps.patients) {
       this.setState({showPatientData: true});
       this.fetcher.fetchInvites();
       this.fetcher.fetchPatients();
       this.props.route.trackMetric('Viewed Care Team List');
     } else if (nextProps.patient) {
-      console.log('fetch patient');
       this.fetcher.fetchPatient(nextProps.params.id);
+      this.props.trackMetric('Viewed Profile');
     } else if(nextProps.patientData) {
-      console.log('fetch patient data');
       this.fetcher.fetchPatient(nextProps.params.id, (err, patient) => {
         this.fetcher.fetchPatientData(patient);
       });
+      this.props.route.trackMetric('Viewed Data');
+    } else if (nextProps.patientNew) {
+      this.props.trackMetric('Viewed Profile Create');
+    } else if (nextProps.patientShare) {
+      this.fetcher.fetchPatient(nextProps.params.id);
+      this.fetcher.fetchPendingInvites();
+      this.props.route.trackMetric('Viewed Share');
+    } else if (nextProps.profile) {
+      this.props.trackMetric('Viewed Account Edit');
     }
   }
 
@@ -458,8 +465,6 @@ export default class AppComponent extends React.Component {
   renderLogin() {
     var email = this.getInviteEmail() || this.getSignupEmail();
     var showAsInvite = !_.isEmpty(this.getInviteEmail());
-
-    this.actionHandlers.handleFinalizeSignup();
 
     return React.cloneElement(this.props.login, {
       onSubmit: this.actionHandlers.handleLogin.bind(this.actionHandlers),
@@ -670,7 +675,7 @@ export default class AppComponent extends React.Component {
     } else if (this.props.patientNew) {
       return this.renderPatientNew();
     } else if (this.props.patient) {
-      return renderPatient();
+      return this.renderPatient();
     } else if (this.props.patientShare) {
       return this.renderPatientShare();
     } else if (this.props.patientData) {

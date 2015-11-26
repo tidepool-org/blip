@@ -215,6 +215,6 @@ export default class Fetcher {
       return;
     }
 
-    this.fetchPatientData(patient);
+    this.fetchPatientData(this.component.state.patient);
   }
 }

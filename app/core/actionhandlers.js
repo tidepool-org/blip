@@ -42,14 +42,15 @@ export default class ActionHandlers {
   }
 
   handleAcceptedTerms() {
-    var self = this.component;
+    var self = this;
+    var comp = this.component;
     var acceptedDate = sundial.utcDateString();
 
-    self.props.route.api.user.acceptTerms({ termsAccepted: acceptedDate }, function(err) {
+    comp.props.route.api.user.acceptTerms({ termsAccepted: acceptedDate }, function(err) {
       if (err) {
         return self.handleApiError(err, usrMessages.ERR_ACCEPTING_TERMS, utils.buildExceptionDetails());
       }
-      return self.setState({ termsAccepted: acceptedDate });
+      return comp.setState({ termsAccepted: acceptedDate });
     });
 
   }
@@ -159,21 +160,22 @@ export default class ActionHandlers {
   }
 
   handleDismissInvitation(invitation) {
-    var self = this.component;
+    var self = this;
+    var comp = this.component;
 
-    self.setState({
+    comp.setState({
       showingWelcomeSetup: false,
-      invites: _.filter(self.state.invites, function(e){
+      invites: _.filter(comp.state.invites, function(e){
         return e.key !== invitation.key;
       })
     });
 
-    self.props.route.api.invitation.dismiss(invitation.key, invitation.creator.userid, function(err) {
+    comp.props.route.api.invitation.dismiss(invitation.key, invitation.creator.userid, function(err) {
       if(err) {
-        self.setState({
-          invites: self.state.invites.concat(invitation)
+        comp.setState({
+          invites: comp.state.invites.concat(invitation)
         });
-       return this.handleApiError(err, usrMessages.ERR_DISMISSING_INVITE, utils.buildExceptionDetails());
+       return self.handleApiError(err, usrMessages.ERR_DISMISSING_INVITE, utils.buildExceptionDetails());
       }
     });
   }
@@ -181,8 +183,9 @@ export default class ActionHandlers {
   handleAcceptInvitation(invitation) {
     var invites = _.cloneDeep(this.state.invites);
     var self = this;
+    var comp = this.component;
 
-    self.setState({
+    comp.setState({
       showingWelcomeSetup: false,
       invites: _.map(invites, function(invite) {
         if (invite.key === invitation.key) {
@@ -192,11 +195,11 @@ export default class ActionHandlers {
       })
     });
 
-    self.props.route.api.invitation.accept(invitation.key, invitation.creator.userid, function(err) {
+    comp.props.route.api.invitation.accept(invitation.key, invitation.creator.userid, function(err) {
 
-      var invites = _.cloneDeep(self.state.invites);
+      var invites = _.cloneDeep(comp.state.invites);
       if (err) {
-        self.setState({
+        comp.setState({
           invites: _.map(invites, function(invite) {
             if (invite.key === invitation.key) {
               invite.accepting = false;
@@ -204,83 +207,88 @@ export default class ActionHandlers {
             return invite;
           })
         });
-        return this.handleApiError(err, usrMessages.ERR_ACCEPTING_INVITE, utils.buildExceptionDetails());
+        return self.handleApiError(err, usrMessages.ERR_ACCEPTING_INVITE, utils.buildExceptionDetails());
       }
 
-      self.setState({
+      comp.setState({
         invites: _.filter(invites, function(e){
           return e.key !== invitation.key;
         }),
-        patients: self.state.patients.concat(invitation.creator)
+        patients: comp.state.patients.concat(invitation.creator)
       });
     });
   }
 
   handleChangeMemberPermissions(patientId, memberId, permissions, cb) {
-    var self = this.component;
+    var self = this;
+    var comp = this.component;
 
-    self.props.route.api.access.setMemberPermissions(memberId, permissions, function(err) {
+    comp.props.route.api.access.setMemberPermissions(memberId, permissions, function(err) {
       if(err) {
         cb(err);
-        return this.handleApiError(err, usrMessages.ERR_CHANGING_PERMS, utils.buildExceptionDetails());
+        return self.handleApiError(err, usrMessages.ERR_CHANGING_PERMS, utils.buildExceptionDetails());
       }
 
-      this.fetcher.fetchPatient(patientId, cb);
+      self.fetcher.fetchPatient(patientId, cb);
     });
   }
 
   handleRemovePatient(patientId,cb) {
-    var self = this.component;
+    var self = this;
+    var comp = this.component;
 
-    self.props.route.api.access.leaveGroup(patientId, function(err) {
+    comp.props.route.api.access.leaveGroup(patientId, function(err) {
       if(err) {
 
-        return this.handleApiError(err, usrMessages.ERR_REMOVING_MEMBER, utils.buildExceptionDetails());
+        return self.handleApiError(err, usrMessages.ERR_REMOVING_MEMBER, utils.buildExceptionDetails());
 
       }
 
-      this.fetcher.fetchPatients();
+      self.fetcher.fetchPatients();
     });
   }
 
   handleRemoveMember(patientId, memberId, cb) {
-    var self = this.component;
+    var self = this;
+    var comp = this.component;
 
-    self.props.route.api.access.removeMember(memberId, function(err) {
+    comp.props.route.api.access.removeMember(memberId, function(err) {
       if(err) {
         cb(err);
-        return this.handleApiError(err, usrMessages.ERR_REMOVING_MEMBER ,utils.buildExceptionDetails());
+        return self.handleApiError(err, usrMessages.ERR_REMOVING_MEMBER ,utils.buildExceptionDetails());
       }
 
-      this.fetcher.fetchPatient(patientId, cb);
+      self.fetcher.fetchPatient(patientId, cb);
     });
   }
 
   handleInviteMember(email, permissions, cb) {
-    var self = this.component;
+    var self = this;
+    var comp = this.component;
 
-    self.props.route.api.invitation.send(email, permissions, function(err, invitation) {
+    comp.props.route.api.invitation.send(email, permissions, function(err, invitation) {
       if(err) {
         if (cb) {
           cb(err);
         }
         if (err.status === 500) {
-          return this.handleApiError(err, usrMessages.ERR_INVITING_MEMBER, utils.buildExceptionDetails());
+          return self.handleApiError(err, usrMessages.ERR_INVITING_MEMBER, utils.buildExceptionDetails());
         }
         return;
       }
 
-      self.setState({
-        pendingInvites: utils.concat(self.state.pendingInvites || [], invitation)
+      comp.setState({
+        pendingInvites: utils.concat(comp.state.pendingInvites || [], invitation)
       });
       if (cb) {
         cb(null, invitation);
       }
-      this.fetcher.fetchPendingInvites();
+      self.fetcher.fetchPendingInvites();
     });
   }
 
   handleCancelInvite(email, cb) {
+    var self = this;
     var comp = this.component;
 
     comp.props.route.api.invitation.cancel(email, function(err) {
@@ -288,7 +296,7 @@ export default class ActionHandlers {
         if (cb) {
           cb(err);
         }
-        return this.handleApiError(err, usrMessages.ERR_CANCELING_INVITE, utils.buildExceptionDetails());
+        return self.handleApiError(err, usrMessages.ERR_CANCELING_INVITE, utils.buildExceptionDetails());
       }
 
       comp.setState({
@@ -299,7 +307,7 @@ export default class ActionHandlers {
       if (cb) {
         cb();
       }
-      this.fetcher.fetchPendingInvites();
+      self.fetcher.fetchPendingInvites();
     });
   }
 
