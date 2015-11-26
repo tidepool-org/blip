@@ -2,12 +2,13 @@ var webpack = require('webpack');
 var RewirePlugin = require("rewire-webpack");
 
 var defineEnvPlugin = new webpack.DefinePlugin({
-  __DEV__: false
+  __DEV__: false,
+  __TEST__: true
 });
 
 module.exports = function (config) {
   config.set({
-    browsers: [ 'PhantomJS', 'Chrome' ], // Use PhantomJS for now (@gordyd - I'm using a VM)
+    browsers: [ 'PhantomJS' ], // Use PhantomJS for now (@gordyd - I'm using a VM)
     captureTimeout: 60000,
     browserNoActivityTimeout: 60000, // We need to accept that Webpack may take a while to build!
     singleRun: true,
