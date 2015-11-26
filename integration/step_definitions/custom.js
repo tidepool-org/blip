@@ -1,5 +1,9 @@
 module.exports = function () {
-  this.World = require('../support/world');
+  this.World = new require('../support/world');
+
+  var EMAIL = '.login form input[type=email]';
+  var PASSWD = '.login form input[type=password]';
+  var LOGIN = '.login form button';
 
   this.Given(/^I am on the login page$/, function (next) {
     this.visit('/#/login', next);
@@ -13,10 +17,21 @@ module.exports = function () {
     this.browser.clickLink('I forgot my password', next);
   });
 
+  this.When(/^I enter and submit my credentials$/, function (next) {
+    this.browser.fill(EMAIL, 'jane+skip@tidepool.org')
+      .fill(PASSWD, 'password')
+      .pressButton(LOGIN, function(err) {
+        // we expect an error if the user doesn't have any open invitations
+        // because /confirm/invitations/:userid returns a 404
+        if (err) {}
+        next();
+      });
+  });
+
   this.Then(/^I should see a login form$/, function (next) {
-    this.browser.assert.element('.login form input[type=email]');
-    this.browser.assert.element('.login form input[type=password]');
-    this.browser.assert.element('.login form button');
+    this.browser.assert.element(EMAIL);
+    this.browser.assert.element(PASSWD);
+    this.browser.assert.element(LOGIN);
     next();
   });
 
@@ -42,6 +57,11 @@ module.exports = function () {
     this.browser.assert.element('.signup form input[name=password]');
     this.browser.assert.element('.signup form input[name=passwordConfirm]');
     this.browser.assert.element('.signup form button');
+    next();
+  });
+
+  this.Then(/^I should be on the care team page$/, function (next) {
+    this.browser.assert.url(this.host + '/#/patients');
     next();
   });
 };

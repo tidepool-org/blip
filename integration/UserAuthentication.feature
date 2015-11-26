@@ -13,3 +13,9 @@ Feature: User Authentication
     When I click on the forgot password link
     Then I should see a request password form
     And I should be on the request password page
+
+  Scenario: Login to App
+    Given I am on the login page
+    Then I should see a login form
+    When I enter and submit my credentials
+    Then I should be on the care team page
