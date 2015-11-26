@@ -71,7 +71,8 @@
     "salinity": "0.0.8",
     "sinon": "1.17.2",
     "sinon-chai": "2.8.0",
-    "webpack-dev-server": "1.12.1"
+    "webpack-dev-server": "1.12.1",
+    "zombie": "2.5.1"
   },
   "engines": {
     "node": "0.12.x"
