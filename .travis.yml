@@ -5,7 +5,7 @@ node_js:
   - "stable"
 
 script:
-  - "npm run jshint"
+  - "npm run lint"
   - "npm test"
 
 matrix:

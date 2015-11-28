@@ -1,4 +1,4 @@
-import react from 'react';
+import React from 'react';
 import { Route, IndexRoute } from 'react-router';
 
 import AppComponent from './components/app';
@@ -24,13 +24,13 @@ export default (appContext) => {
     if(!appContext.api.user.isAuthenticated()) {
       replaceState({ nextPathname: nextState.location.pathname }, '/login');
     }
-  }
+  };
 
   const requireNoAuth = (nextState, replaceState) => {
     if(appContext.api.user.isAuthenticated()) {
       replaceState({ nextPathname: nextState.location.pathname }, '/patients');
     }
-  }
+  };
 
   return (
     <Route path='/' component={AppComponent} {...appContext.props}>
@@ -49,4 +49,4 @@ export default (appContext) => {
       <Route path='request-password-from-uploader' components={{ requestPasswordReset: RequestPasswordReset}} onEnter={requireNoAuth} />
     </Route>
   );
-};
+}

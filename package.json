@@ -11,7 +11,7 @@
     "build-app": "node buildapp",
     "build-config": "node buildconfig",
     "server": "node server",
-    "jshint": "node_modules/jsxhint/cli.js 'app/**/*.js' 'mock/**/*.js' 'test/**/*.js' '*.js'"
+    "lint": "eslint app mock test"
   },
   "dependencies": {
     "async": "0.9.0",
@@ -49,10 +49,12 @@
     "webpack": "1.12.6"
   },
   "devDependencies": {
+    "babel-eslint": "5.0.0-beta2",
     "blip-mock-data": "tidepool-org/blip-mock-data#v0.3.7",
     "chai": "3.4.1",
     "cucumber": "0.9.0",
-    "jsxhint": "0.15.1",
+    "eslint": "1.10.2",
+    "eslint-plugin-react": "3.10.0",
     "karma": "0.13.15",
     "karma-chai": "0.1.0",
     "karma-chrome-launcher": "0.2.1",

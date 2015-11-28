@@ -21,7 +21,6 @@ import sundial from 'sundial';
 import nurseShark from 'tideline/plugins/nurseshark/';
 import TidelineData from 'tideline/js/tidelinedata';
 
-import config from '../../config';
 import personUtils from '../../core/personutils';
 import queryString from '../../core/querystring';
 import utils from '../../core/utils';
@@ -60,7 +59,7 @@ require('../../style.less');
 require('../../../favicon.ico');
 
 export default class AppComponent extends React.Component {
-
+  /* jshint ignore:start */
   static propTypes = {
     route: React.PropTypes.shape({
       log: React.PropTypes.func.isRequired,
@@ -71,6 +70,7 @@ export default class AppComponent extends React.Component {
       DEBUG: React.PropTypes.bool.isRequired
     }).isRequired
   }
+  /* jshint ignore:end */
 
   constructor(props) {
     super(props);
@@ -185,26 +185,32 @@ export default class AppComponent extends React.Component {
   }
 
   getSignupEmail() {
-    let { signupEmail } = this.props.location;
-    if (!_.isEmpty(signupEmail) && utils.validateEmail(signupEmail)){
-      return signupEmail;
+    if (this.props.location && this.props.location.query) {
+      let { signupEmail } = this.props.location.query;
+      if (!_.isEmpty(signupEmail) && utils.validateEmail(signupEmail)){
+        return signupEmail;
+      }
     }
     return null;
   }
 
   getInviteEmail() {
-    let { inviteEmail } = this.props.location.query;
-    if(!_.isEmpty(inviteEmail) && utils.validateEmail(inviteEmail)){
-      return inviteEmail;
+    if (this.props.location && this.props.location.query) {
+      let { inviteEmail } = this.props.location.query;
+      if(!_.isEmpty(inviteEmail) && utils.validateEmail(inviteEmail)){
+        return inviteEmail;
+      }
     }
     return null;
   }
 
   getInviteKey() {
-    let { inviteKey } = this.props.location.query;
+    if (this.props.location && this.props.location.query) {
+      let { inviteKey } = this.props.location.query;
 
-    if(!_.isEmpty(inviteKey)){
-      return inviteKey;
+      if(!_.isEmpty(inviteKey)){
+        return inviteKey;
+      }
     }
     return '';
   }
@@ -431,6 +437,7 @@ export default class AppComponent extends React.Component {
   }
 
   renderFooter() {
+    console.log('drawing footer!');
     var title ='Send us feedback';
     var subject = 'Feedback on Blip';
 
@@ -450,9 +457,11 @@ export default class AppComponent extends React.Component {
   }
 
   renderVersion() {
-    var version = config.VERSION;
+
+    var version = this.props.route.config.VERSION;
     if (version) {
       version = 'v' + version + ' beta';
+      console.log('version', version);
       return (
 
         <div className="Navbar-version" ref="version">{version}</div>
@@ -477,6 +486,7 @@ export default class AppComponent extends React.Component {
   }
 
   renderSignup() {
+    let config = this.props.route.config;
     var checkKey = (key, cb) => {
       if (_.isEmpty(config.INVITE_KEY) || key === config.INVITE_KEY){
         return cb(true);

@@ -34,7 +34,8 @@ var appContext = {
   log: bows('App'),
   api: api,
   personUtils: personUtils,
-  DEBUG: !!(window.localStorage && window.localStorage.debug)
+  DEBUG: !!(window.localStorage && window.localStorage.debug),
+  config: config
 };
 
 // This anonymous function must remain in ES5 format because 
@@ -50,7 +51,8 @@ appContext.props = {
   api: appContext.api,
   personUtils: appContext.personUtils,
   trackMetric: appContext.trackMetric,
-  DEBUG: appContext.DEBUG
+  DEBUG: appContext.DEBUG,
+  config: appContext.config
 };
 
 appContext.useMock = mock => {
@@ -90,10 +92,8 @@ appContext.init = callback => {
   beginInit();
 };
 
-let history = createHistory();
-
 const routing = (
-  <Router history={history}>
+  <Router history={createHistory()}>
     {getRoutes(appContext)}
   </Router>
 );

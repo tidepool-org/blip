@@ -1,6 +1,9 @@
+import React from 'react';
 import _ from 'lodash';
+import sundial from 'sundial';
 
 import utils from './utils';
+import usrMessages from '../userMessages';
 
 export default class ActionHandlers {
   constructor(component, fetcher) {
@@ -14,7 +17,7 @@ export default class ActionHandlers {
     // and the _.cloneDeep I had originally would hang the browser for *seconds*
     // when there was actually something in this.component.state.patientData
     var patientData = _.clone(this.component.state.patientData);
-    if (patientData != null) {
+    if (patientData !== null) {
       patientData[userid] = data;
       this.component.setState({
         patientData: patientData
@@ -384,7 +387,9 @@ export default class ActionHandlers {
   handleFinalizeSignup() {
     var comp = this.component;
 
-    let { signupKey } = comp.props.location;
+    let signupKey = (comp.props.location) ? comp.props.location.signupKey : null;
+    
+
     if(!_.isEmpty(signupKey) && !comp.state.finalizingVerification){
       comp.props.route.api.user.confirmSignUp(signupKey, function(err){
         if(err){

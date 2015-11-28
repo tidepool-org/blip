@@ -36,7 +36,7 @@ var PermissionInputGroup = React.createClass({
     return {
       value: this.props.value,
       working: false,
-      name: "permission" + parseInt(Math.random() * 10000)
+      name: 'permission' + parseInt(Math.random() * 10000)
     };
   },
   handleChange: function(obj) {
