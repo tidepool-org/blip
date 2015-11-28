@@ -1,4 +1,5 @@
 import async from 'async';
+import { Link } from 'react-router';
 
 import utils from './utils';
 import usrMessages from '../userMessages';
@@ -111,7 +112,7 @@ export default class Fetcher {
         if (err.status === 404) {
           comp.props.route.log('Patient not found with id '+patientId);
           var setupMsg = (patientId === comp.state.user.userid) ? usrMessages.ERR_YOUR_ACCOUNT_NOT_CONFIGURED : usrMessages.ERR_ACCOUNT_NOT_CONFIGURED;
-          var dataStoreLink = (<a href="#/patients/new" onClick={comp.closeNotification}>{usrMessages.YOUR_ACCOUNT_DATA_SETUP}</a>);
+          var dataStoreLink = (<Link to="#/patients/new" onClick={comp.closeNotification}>{usrMessages.YOUR_ACCOUNT_DATA_SETUP}</Link>);
           return comp.actionHandlers.handleActionableError(err, setupMsg, dataStoreLink);
         }
         // we can't deal with it so just show error handler

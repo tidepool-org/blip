@@ -15,6 +15,7 @@
  */
 
 var React = require('react');
+var Link = require('react-router').Link;
 var _ = require('lodash');
 var cx = require('classnames');
 
@@ -94,7 +95,7 @@ var PatientCard = React.createClass({
 
     return (
       
-      <a className={classes} href={this.props.href} onClick={handleClick}>View</a>
+      <Link className={classes} to={this.props.href} onClick={handleClick}>View</Link>
       
     );
   },
@@ -122,9 +123,9 @@ var PatientCard = React.createClass({
 
     return (
       
-      <a className={classes} onClick={this.stopPropagation} onMouseEnter={this.setHighlight('profile')} onMouseLeave={this.setHighlight('view')} href={url} title="Profile">
+      <Link className={classes} onClick={this.stopPropagation} onMouseEnter={this.setHighlight('profile')} onMouseLeave={this.setHighlight('view')} to={url} title="Profile">
         <i className={iconClass}></i>
-      </a>
+      </Link>
       
     );
   },
@@ -193,7 +194,7 @@ var PatientCard = React.createClass({
     if(_.isEmpty(patient.permissions) === false && patient.permissions.root) {
       return (
         
-        <a className={classes} onClick={handleClick} onMouseEnter={this.setHighlight('share')} onMouseLeave={this.setHighlight('view')} href={shareUrl} title="Share data">Share</a>
+        <Link className={classes} onClick={handleClick} onMouseEnter={this.setHighlight('share')} onMouseLeave={this.setHighlight('view')} to={shareUrl} title="Share data">Share</Link>
         
       );
     }
