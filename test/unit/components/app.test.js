@@ -13,23 +13,22 @@ var rewireModule = require('../../utils/rewireModule');
 window.config = {};
 var api = require('../../../app/core/api');
 var personUtils = require('../../../app/core/personutils');
-var router = require('../../../app/router');
 var mock = require('../../../mock');
 
 describe('App', function () {
   // We must remember to require the base module when mocking dependencies,
   // otherwise dependencies mocked will be bound to the wrong scope!
   var App = rewire('../../../app/components/app/app.js');
-  router.log = sinon.stub();
   api.log = sinon.stub();
 
   var childContext = {
-    log: sinon.stub(),
-    api: mock.patchApi(api),
-    personUtils: personUtils,
-    router: router,
-    DEBUG: false,
-    trackMetric: sinon.stub()
+    route: {
+      log: sinon.stub(),
+      api: mock.patchApi(api),
+      personUtils: personUtils,
+      DEBUG: false,
+      trackMetric: sinon.stub()
+    }
   };
 
   describe('render', function() {
