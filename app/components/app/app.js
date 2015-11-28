@@ -193,7 +193,7 @@ export default class AppComponent extends React.Component {
   }
 
   getInviteEmail() {
-    let { inviteEmail } = this.props.location;
+    let { inviteEmail } = this.props.location.query;
     if(!_.isEmpty(inviteEmail) && utils.validateEmail(inviteEmail)){
       return inviteEmail;
     }
@@ -201,7 +201,7 @@ export default class AppComponent extends React.Component {
   }
 
   getInviteKey() {
-    let { inviteKey } = this.props.location;
+    let { inviteKey } = this.props.location.query;
 
     if(!_.isEmpty(inviteKey)){
       return inviteKey;

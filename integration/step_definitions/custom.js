@@ -2,11 +2,15 @@ module.exports = function () {
   this.World = require('../support/world');
 
   this.Given(/^I am on the login page$/, function (next) {
-    this.visit('/#/login', next);
+    this.visit('/login', next);
   });
 
-  this.Given(/^I am on the signup page$/, function (next) {
-    this.visit('/#/signup', next);
+  this.Given(/^I am on the signup page with no key or email set$/, function (next) {
+    this.visit('/signup', next);
+  });
+
+  this.Given(/^I am on the signup page with key and email set$/, function (next) {
+    this.visit('/signup?inviteKey=awesome&inviteEmail=gordonmdent@gmail.com', next);
   });
 
   this.When(/^I click on the forgot password link$/, function (next) {
@@ -21,7 +25,7 @@ module.exports = function () {
   });
 
   this.Then(/^I should see a forgot my password link$/, function (next) {
-    this.browser.assert.attribute('.login-forgotpassword a', 'href', '#/request-password-reset');
+    this.browser.assert.attribute('.login-forgotpassword a', 'href', '/request-password-reset');
     next();
   });
 
@@ -32,7 +36,7 @@ module.exports = function () {
   });
 
   this.Then(/^I should be on the request password page$/, function(next) {
-    this.browser.assert.url(this.host + '/#/request-password-reset');
+    this.browser.assert.url(this.host + '/request-password-reset');
     next();
   });
 
@@ -42,6 +46,11 @@ module.exports = function () {
     this.browser.assert.element('.signup form input[name=password]');
     this.browser.assert.element('.signup form input[name=passwordConfirm]');
     this.browser.assert.element('.signup form button');
+    next();
+  });
+
+  this.Then(/^I should see a waitlist form$/, function (next) {
+    this.browser.assert.element('.waitlist .waitlist-container');
     next();
   });
 };
