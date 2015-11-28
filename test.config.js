@@ -25,9 +25,6 @@ module.exports = {
       {test: /\.json$/, loader: 'json-loader'}
     ]
   },
-  externals: {
-    'jquery': 'jQuery'
-  },
   plugins: [
     definePlugin,
     new webpack.DefinePlugin({
