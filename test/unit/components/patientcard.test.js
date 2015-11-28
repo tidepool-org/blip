@@ -1,4 +1,8 @@
 /* global chai */
+/* global describe */
+/* global sinon */
+/* global it */
+/* global beforeEach */
 
 var React = require('react');
 var TestUtils = require('react-addons-test-utils');

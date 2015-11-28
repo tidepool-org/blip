@@ -1,3 +1,7 @@
+/* global chai */
+/* global describe */
+/* global it */
+
 var utils = require('../../../app/core/utils');
 var expect = chai.expect;
 

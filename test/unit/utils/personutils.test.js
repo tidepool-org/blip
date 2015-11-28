@@ -1,3 +1,7 @@
+/* global chai */
+/* global describe */
+/* global it */
+
 var personUtils = require('../../../app/core/personutils');
 var expect = chai.expect;
 var FORM_DATE_FORMAT = 'MM/DD/YYYY';

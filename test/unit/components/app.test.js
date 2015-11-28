@@ -1,8 +1,11 @@
 
 /* global chai */
 /* global sinon */
+/* global describe */
+/* global it */
 
 var React = require('react');
+var _ = require('lodash');
 var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
 var rewire = require('rewire');
@@ -14,6 +17,7 @@ window.config = {};
 var api = require('../../../app/core/api');
 var personUtils = require('../../../app/core/personutils');
 var mock = require('../../../mock');
+var Login = require('../../../app/pages/login/login.js');
 
 describe('App', function () {
   // We must remember to require the base module when mocking dependencies,
@@ -27,7 +31,8 @@ describe('App', function () {
       api: mock.patchApi(api),
       personUtils: personUtils,
       DEBUG: false,
-      trackMetric: sinon.stub()
+      trackMetric: sinon.stub(),
+      config: {}
     }
   };
 
@@ -60,12 +65,6 @@ describe('App', function () {
       expect(elem.state.bgPrefs.bgUnits).to.equal('mg/dL');
     });
 
-    it('should render login form', function () {
-      var elem = TestUtils.renderIntoDocument(<App {...childContext} />);
-      var form = TestUtils.findRenderedDOMComponentWithClass(elem, 'login-simpleform');
-      expect(form).to.be.ok;
-    });
-
     it('should render footer', function () {
       var elem = TestUtils.renderIntoDocument(<App {...childContext} />);
       var footer = TestUtils.findRenderedDOMComponentWithClass(elem, 'footer');
@@ -73,15 +72,17 @@ describe('App', function () {
     });
 
     it('should not render a version element when version not set in config', function () {
-      App.__set__('config', {VERSION: null});
-
-      var elem = TestUtils.renderIntoDocument(<App {...childContext} />);
+      var props = _.clone(childContext);
+      props.route.config = { VERSION : null };
+      var elem = TestUtils.renderIntoDocument(<App {...props} />);
       var versionElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'Navbar-version');
       expect(versionElems.length).to.equal(0);
     });
 
     it('should render version when version present in config', function () {
-      App.__set__('config', {VERSION: 1.4});
+      var props = _.clone(childContext);
+      props.route.config = { VERSION : 1.4 };
+      var elem = TestUtils.renderIntoDocument(<App {...props} />);
       var elem = TestUtils.renderIntoDocument(<App {...childContext} />);
       var versionElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'Navbar-version');
       expect(versionElems.length).to.equal(1);
@@ -133,9 +134,9 @@ describe('App', function () {
         //stub call to api upon which the termsAccepted is set
         var acceptDate = new Date().toISOString();
 
-        var apiStub = sinon.stub(childContext.api.user, 'acceptTerms',function () { elem.setState({termsAccepted:acceptDate});});
+        var apiStub = sinon.stub(childContext.route.api.user, 'acceptTerms',function () { elem.setState({termsAccepted:acceptDate});});
 
-        elem.handleAcceptedTerms();
+        elem.actionHandlers.handleAcceptedTerms();
         expect(elem.state.termsAccepted).to.equal(acceptDate);
         expect(elem.state.fetchingUser).to.equal(false);
         apiStub.restore();
@@ -148,9 +149,9 @@ describe('App', function () {
 
         //stub call to api upon which the termsAccepted is set
         var acceptDate = new Date().toISOString();
-        var apiStub = sinon.stub(childContext.api.user, 'acceptTerms', function () { elem.setState({termsAccepted:acceptDate});});
+        var apiStub = sinon.stub(childContext.route.api.user, 'acceptTerms', function () { elem.setState({termsAccepted:acceptDate});});
 
-        elem.handleAcceptedTerms();
+        elem.actionHandlers.handleAcceptedTerms();
 
         expect(elem.state.termsAccepted).to.equal(acceptDate);
         expect(elem.state.authenticated).to.equal(true);
@@ -159,10 +160,6 @@ describe('App', function () {
         //check we aren't seeing the terms
         var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-overlay');
         expect(termsElems.length).to.equal(0);
-
-        //because its fake we are showing the login page ...
-        var form = TestUtils.findRenderedDOMComponentWithClass(elem, 'login-simpleform');
-        expect(form).to.be.ok;
 
         apiStub.restore();
       });
@@ -173,9 +170,9 @@ describe('App', function () {
         elem.setState({ authenticated: true, fetchingUser: false });
 
         //stub call to api upon which the termsAccepted is NOT set in this case
-        var apiStub = sinon.stub(childContext.api.user, 'acceptTerms',function () { elem.setState({termsAccepted:null});});
+        var apiStub = sinon.stub(childContext.route.api.user, 'acceptTerms',function () { elem.setState({termsAccepted:null});});
 
-        elem.handleAcceptedTerms();
+        elem.actionHandlers.handleAcceptedTerms();
 
         expect(elem.state.termsAccepted).to.equal(null);
         expect(elem.state.authenticated).to.equal(true);

@@ -1,13 +1,15 @@
-
-
 /* global chai */
+/* global describe */
+/* global sinon */
+/* global it */
+
 window.config = {};
 
 var React = require('react');
 var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
 
-var Login = require('../../../app/pages/login');
+var Login = require('../../../app/pages/login/login.js');
 
 describe('Login', function () {
   it('should be exposed as a module and be of type function', function() {
