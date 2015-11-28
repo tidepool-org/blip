@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "test": "./node_modules/karma/bin/karma start",
+    "integration-tests": "./node_modules/.bin/cucumber.js integration/",
     "browser-tests": "./node_modules/karma/bin/karma start --browsers Chrome",
     "start": "webpack-dev-server --devtool eval-source-map --cache --colors --progress --port 3000",
     "build": "npm run build-app && npm run build-config",
@@ -50,6 +51,7 @@
   "devDependencies": {
     "blip-mock-data": "tidepool-org/blip-mock-data#v0.3.7",
     "chai": "3.4.1",
+    "cucumber": "0.9.0",
     "jsxhint": "0.15.1",
     "karma": "0.13.15",
     "karma-chai": "0.1.0",
@@ -71,7 +73,8 @@
     "salinity": "0.0.8",
     "sinon": "1.17.2",
     "sinon-chai": "2.8.0",
-    "webpack-dev-server": "1.12.1"
+    "webpack-dev-server": "1.12.1",
+    "zombie": "2.5.1"
   },
   "engines": {
     "node": "0.12.x"
