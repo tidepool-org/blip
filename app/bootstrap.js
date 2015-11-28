@@ -1,4 +1,3 @@
-
 /**
  * Copyright (c) 2014, Tidepool Project
  *
@@ -19,7 +18,7 @@ import { render } from 'react-dom';
 import bows from 'bows';
 import _ from 'lodash';
 import { Router} from 'react-router';
-import createBrowserHistory from 'history/lib/createBrowserHistory';
+import { createHistory, useBasename } from 'history';
 
 import getRoutes from './routes';
 import config from './config';
@@ -30,11 +29,6 @@ import detectTouchScreen from './core/notouch';
 
 // For React developer tools
 window.React = React;
-
-// Push state to be able to always go back in browser history within the appContext
-//var path = window.location.hash;
-//window.history.pushState(null, null, '#/patients');
-//window.history.pushState(null, null, path);
 
 var appContext = {
   log: bows('App'),
@@ -96,8 +90,10 @@ appContext.init = callback => {
   beginInit();
 };
 
+let history = createHistory();
+
 const routing = (
-  <Router>
+  <Router history={history}>
     {getRoutes(appContext)}
   </Router>
 );

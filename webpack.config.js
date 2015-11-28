@@ -45,5 +45,8 @@ module.exports = {
     defineEnvPlugin
   ],
   resolve: { fallback: path.join(__dirname, 'node_modules') },
-  resolveLoader: { fallback: path.join(__dirname, 'node_modules') }
+  resolveLoader: { fallback: path.join(__dirname, 'node_modules') },
+  devServer: {
+    historyApiFallback: true
+  }
 };

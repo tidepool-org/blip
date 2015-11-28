@@ -21,16 +21,12 @@ import EmailVerification from './pages/emailverification';
  */
 export default (appContext) => {
   const requireAuth = (nextState, replaceState) => {
-    console.log(' [-] Require auth for', nextState.location.pathname);
-    console.log(' [-] Is authenticated?', appContext.api.user.isAuthenticated());
     if(!appContext.api.user.isAuthenticated()) {
       replaceState({ nextPathname: nextState.location.pathname }, '/login');
     }
   }
 
   const requireNoAuth = (nextState, replaceState) => {
-    console.log(' [-] Require non-auth for', nextState.location.pathname);
-    console.log(' [-] Is authenticated?', appContext.api.user.isAuthenticated());
     if(appContext.api.user.isAuthenticated()) {
       replaceState({ nextPathname: nextState.location.pathname }, '/patients');
     }

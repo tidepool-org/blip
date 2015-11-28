@@ -13,6 +13,11 @@ var app = connect();
 var staticDir = path.join(__dirname, buildDir);
 app.use(serveStatic(staticDir));
 
+// So that we can use react-router and browser history
+app.get('*', function (request, response){
+ response.sendFile(path.resolve(__dirname, buildDir, 'index.html'))
+})
+
 // If no ports specified, just start on default HTTP port
 if (!(config.httpPort || config.httpsPort)) {
   config.httpPort = 3000;
