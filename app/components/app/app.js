@@ -59,7 +59,6 @@ require('../../style.less');
 require('../../../favicon.ico');
 
 export default class AppComponent extends React.Component {
-  /* jshint ignore:start */
   static propTypes = {
     route: React.PropTypes.shape({
       log: React.PropTypes.func.isRequired,
@@ -70,7 +69,6 @@ export default class AppComponent extends React.Component {
       DEBUG: React.PropTypes.bool.isRequired
     }).isRequired
   }
-  /* jshint ignore:end */
 
   constructor(props) {
     super(props);
@@ -437,7 +435,6 @@ export default class AppComponent extends React.Component {
   }
 
   renderFooter() {
-    console.log('drawing footer!');
     var title ='Send us feedback';
     var subject = 'Feedback on Blip';
 
@@ -448,7 +445,7 @@ export default class AppComponent extends React.Component {
             linkTitle={title}
             emailAddress={'support@tidepool.org'}
             emailSubject={subject}
-            onLinkClicked={this.logSupportContact} />
+            onLinkClicked={this.logSupportContact.bind(this)} />
         </div>
         {this.renderVersion()}
       </div>
@@ -461,11 +458,8 @@ export default class AppComponent extends React.Component {
     var version = this.props.route.config.VERSION;
     if (version) {
       version = 'v' + version + ' beta';
-      console.log('version', version);
       return (
-
         <div className="Navbar-version" ref="version">{version}</div>
-
       );
     }
     return null;
@@ -523,8 +517,6 @@ export default class AppComponent extends React.Component {
   }
 
   renderPatients(showPatientData) {
-    
-
     var patients = React.cloneElement(this.props.patients, {
       user: this.state.user,
       fetchingUser: this.state.fetchingUser,
@@ -541,14 +533,6 @@ export default class AppComponent extends React.Component {
       onDismissInvitation: this.actionHandlers.handleDismissInvitation.bind(this.actionHandlers),
       onRemovePatient: this.actionHandlers.handleRemovePatient.bind(this.actionHandlers)
     });
-
-    // Determine whether to skip the Patients page & go directly to Patient data.
-    // If there is only one patient you can see data for, go to the patient's data.
-    // Otherwise, display the Patients page.
-    // if (this.state.showPatientData) {
-    // 
-    // 
-    // TODO: Move this block of logic to before we render anything. We do not need to render and then update again do we?
 
     return (patients);
   }
