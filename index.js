@@ -332,6 +332,25 @@ module.exports = function (config, deps) {
       );
     },
     /**
+     * Check the expected minimum versions for uploading
+     *
+     * @param cb
+     * @returns {cb}  cb(err, response)
+     * e.g.  {versions: {schema: 3, uploaderMinimum: '0.333.0'}}
+     */
+    checkUploadVersions: function (cb) {
+      common.assertArgumentsSize(arguments, 1);
+      superagent
+        .get(common.makeUploadUrl('/info'))
+        .end(
+        function (err, res) {
+          if (err != null) {
+            return cb(err);
+          }
+          return cb(null,res.body);
+        });
+    },
+    /**
      * Upload device data for the given user
      *
      * @param {String} userId of the user to get the device data for
