@@ -1,21 +1,21 @@
 var http = require('http');
 var https = require('https');
 var path = require('path');
-var connect = require('connect');
-var serveStatic = require('serve-static');
+var express = require('express');
 
 var config = require('./config.server.js');
 
 var buildDir = 'dist';
 
-var app = connect();
+var app = express();
 
 var staticDir = path.join(__dirname, buildDir);
-app.use(serveStatic(staticDir));
+app.use(express.static(staticDir));
 
-// So that we can use react-router and browser history
+
+//So that we can use react-router and browser history
 app.get('*', function (request, response){
- response.sendFile(path.resolve(__dirname, buildDir, 'index.html'));
+  response.sendFile(staticDir + '/index.html');
 });
 
 // If no ports specified, just start on default HTTP port
