@@ -336,7 +336,7 @@ module.exports = function (config, deps) {
      *
      * @param cb
      * @returns {cb}  cb(err, response)
-     * e.g.  {schemaMinimum: 3, uploaderMinimum: '0.333.0'}
+     * e.g.  {versions: {schema: 3, uploaderMinimum: '0.333.0'}}
      */
     checkUploadVersions: function (cb) {
       common.assertArgumentsSize(arguments, 1);
