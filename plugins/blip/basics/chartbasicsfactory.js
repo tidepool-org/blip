@@ -70,7 +70,7 @@ var BasicsChart = React.createClass({
   componentWillMount: function() {
     var basicsData = this.props.patientData.basicsData;
     if (basicsData.sections == null) {
-      basicsData = _.assign(basicsData, basicsState);
+      basicsData = _.assign({}, basicsData, _.cloneDeep(basicsState));
       var dataMunger = dataMungerMkr(this.props.bgClasses);
       dataMunger.reduceByDay(basicsData);
       basicsData.data.reservoirChange.infusionSiteHistory = dataMunger.infusionSiteHistory(basicsData);
