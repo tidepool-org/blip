@@ -24,8 +24,8 @@ Use with [Webpack](webpack.github.io/) or [Browserify](browserify.org):
 var createTidepoolClient = require('tidepool-platform-client');
 
 var tidepool = createTidepoolClient({
-  host: 'https://api.tidepool.io',
-  uploadApi: 'https://uploads.tidepool.io',
+  host: 'https://api.tidepool.org',
+  uploadApi: 'https://uploads.tidepool.org',
   log: {
     warn: function() {},
     info: function() {},

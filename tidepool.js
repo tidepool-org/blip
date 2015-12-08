@@ -24,10 +24,10 @@ var makeClient = require('./index');
 module.exports = function(options) {
   options = options || {};
   if (options.host == null) {
-    options.host = 'https://api.tidepool.io';
+    options.host = 'https://api.tidepool.org';
   }
   if (options.uploadApi == null) {
-    options.uploadApi = 'https://uploads.tidepool.io';
+    options.uploadApi = 'https://uploads.tidepool.org';
   }
 
 
