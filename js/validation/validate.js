@@ -24,7 +24,7 @@ var schema = require('./validator/schematron');
 
 var log;
 if (typeof window !== 'undefined' && __TEST__ !== true) {
-  log = console.log;
+  log = console.log.bind(console);
 }
 else {
   log = function() {};
@@ -49,7 +49,7 @@ module.exports = {
     var handler = schemas[datum.type];
     if (handler == null) {
       datum.errorMessage = util.format('No schema defined for data.type[%s]', datum.type);
-      console.log(new Error(datum.errorMessage), datum);
+      log(new Error(datum.errorMessage), datum);
       result.invalid.push(datum);
     }
     else {
