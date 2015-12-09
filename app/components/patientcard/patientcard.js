@@ -283,7 +283,6 @@ var PatientCard = React.createClass({
   },
 
   onClick: function() {
-    window.location.hash = this.props.href;
     this.props.onClick();
   }
 });
