@@ -18,7 +18,7 @@ import { render } from 'react-dom';
 import bows from 'bows';
 import _ from 'lodash';
 import { Router} from 'react-router';
-import { createHistory, useBasename } from 'history';
+import { createHistory } from 'history';
 
 import getRoutes from './routes';
 import config from './config';
