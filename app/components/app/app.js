@@ -63,7 +63,6 @@ export default class AppComponent extends React.Component {
     route: React.PropTypes.shape({
       log: React.PropTypes.func.isRequired,
       api: React.PropTypes.object.isRequired,
-      //router: React.PropTypes.object.isRequired,
       personUtils: React.PropTypes.object.isRequired,
       trackMetric: React.PropTypes.func.isRequired,
       DEBUG: React.PropTypes.bool.isRequired
@@ -72,7 +71,7 @@ export default class AppComponent extends React.Component {
 
   constructor(props) {
     super(props);
-    var queryParams = queryString.parseTypes(window.location.search);
+    var queryParams = props.location.query;
     var timePrefs = {
       timezoneAware: false,
       timezoneName: null
