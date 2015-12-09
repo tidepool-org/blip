@@ -417,7 +417,7 @@ export default class AppComponent extends React.Component {
 
     if (notification) {
       if (notification.isDismissable) {
-        handleClose = this.closeNotification;
+        handleClose = this.closeNotification.bind(this);
       }
 
       return (
