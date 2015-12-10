@@ -20,7 +20,7 @@ import _ from 'lodash';
 import { Router } from 'react-router';
 import { createHistory } from 'history';
 
-import getRoutes from './routes';
+import { getRoutes } from './routes';
 import config from './config';
 import api from './core/api';
 import personUtils from './core/personutils';

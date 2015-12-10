@@ -22,7 +22,7 @@ import EmailVerification from './pages/emailverification';
  *
  * @return {boolean|null} returns true if hash mapping happened
  */
-const requireAuth = (api) => (nextState, replaceState) => {
+export const requireAuth = (api) => (nextState, replaceState) => {
   if(!api.user.isAuthenticated()) {
     replaceState(null, '/login');
   }
@@ -37,7 +37,7 @@ const requireAuth = (api) => (nextState, replaceState) => {
  *
  * @return {boolean|null} returns true if hash mapping happened
  */
-const requireNoAuth = (api) => (nextState, replaceState) => {
+export const requireNoAuth = (api) => (nextState, replaceState) => {
   if(api.user.isAuthenticated()) {
     replaceState(null, '/patients');
   }
@@ -52,12 +52,12 @@ const requireNoAuth = (api) => (nextState, replaceState) => {
  *
  * @return {boolean|null} returns true if hash mapping happened
  */
-const hashToUrl = (nextState, replaceState) => {
+export const hashToUrl = (nextState, replaceState) => {
   let path = nextState.location.pathname;
   let hash = nextState.location.hash;
 
   if((!path || path === '/') && hash) {
-    replaceState(null, hash.substring(2));
+    replaceState(null, hash.substring(1));
     return true;
   }
 }
@@ -70,7 +70,7 @@ const hashToUrl = (nextState, replaceState) => {
  * @param  {Object} nextState
  * @param  {Function} replaceState
  */
-const onIndexRouteEnter = (api) => (nextState, replaceState) => {
+export const onIndexRouteEnter = (api) => (nextState, replaceState) => {
   if (!hashToUrl(nextState, replaceState)) {
     requireNoAuth(api)(nextState, replaceState);
   }
@@ -82,7 +82,7 @@ const onIndexRouteEnter = (api) => (nextState, replaceState) => {
  * @param  {Object} appContext
  * @return {Route} the react-router routes
  */
-export default (appContext) => {
+export const getRoutes = (appContext) => {
   let props = appContext.props;
   let api = props.api;
 
