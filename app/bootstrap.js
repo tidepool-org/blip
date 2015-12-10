@@ -17,7 +17,7 @@ import React from 'react';
 import { render } from 'react-dom';
 import bows from 'bows';
 import _ from 'lodash';
-import { Router} from 'react-router';
+import { Router } from 'react-router';
 import { createHistory } from 'history';
 
 import getRoutes from './routes';
