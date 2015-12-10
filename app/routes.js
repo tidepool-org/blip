@@ -20,21 +20,72 @@ import EmailVerification from './pages/emailverification';
  * @return {Route} the react-router routes
  */
 export default (appContext) => {
+  /**
+   * This function redirects any requests that land on pages that should only be
+   * visible when logged in if the user is logged out
+   * 
+   * @param  {Object} nextState
+   * @param  {Function} replaceState
+   *
+   * @return {boolean|null} returns true if hash mapping happened
+   */
   const requireAuth = (nextState, replaceState) => {
     if(!appContext.api.user.isAuthenticated()) {
-      replaceState({ nextPathname: nextState.location.pathname }, '/login');
+      replaceState(null, '/login');
     }
   };
 
+  /**
+   * This function redirects any requests that land on pages that should only be
+   * visible when logged out if the user is logged in
+   * 
+   * @param  {Object} nextState
+   * @param  {Function} replaceState
+   *
+   * @return {boolean|null} returns true if hash mapping happened
+   */
   const requireNoAuth = (nextState, replaceState) => {
     if(appContext.api.user.isAuthenticated()) {
-      replaceState({ nextPathname: nextState.location.pathname }, '/patients');
+      replaceState(null, '/patients');
     }
   };
+
+  /**
+   * This function exists for backward compatibility and maps hash
+   * urls to standard urls
+   * 
+   * @param  {Object} nextState
+   * @param  {Function} replaceState
+   *
+   * @return {boolean|null} returns true if hash mapping happened
+   */
+  const hashToUrl = (nextState, replaceState) => {
+    let path = nextState.location.pathname;
+    let hash = nextState.location.hash;
+
+    if((!path || path === '/') && hash) {
+      replaceState(null, hash.substring(2));
+      return true;
+    }
+  }
+
+  /**
+   * onEnter handler for IndexRoute.
+   *
+   * This function calls hashToUrl and requireNoAuth
+   * 
+   * @param  {Object} nextState
+   * @param  {Function} replaceState
+   */
+  const onIndexRouteEnter = (nextState, replaceState) => {
+    if (!hashToUrl(nextState, replaceState)) {
+      requireNoAuth(nextState, replaceState);
+    }
+  }
 
   return (
     <Route path='/' component={AppComponent} {...appContext.props}>
-      <IndexRoute components={{login:Login}} onEnter={requireNoAuth} />
+      <IndexRoute components={{login:Login}} onEnter={onIndexRouteEnter} />
       <Route path='login' components={{login:Login}} onEnter={requireNoAuth} />
       <Route path='signup' components={{signup: Signup}} onEnter={requireNoAuth} />
       <Route path='email-verification' components={{emailVerification: EmailVerification}} onEnter={requireNoAuth} />
