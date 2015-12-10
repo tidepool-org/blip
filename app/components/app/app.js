@@ -71,7 +71,7 @@ export default class AppComponent extends React.Component {
 
   constructor(props) {
     super(props);
-    var queryParams = props.location.query;
+    var queryParams = (props.location && props.location.query) ? props.location.query : {};
     var timePrefs = {
       timezoneAware: false,
       timezoneName: null
