@@ -15,10 +15,17 @@
  * == BSD2 LICENSE ==
  */
 
-// DOM not required
+require('./polyfill/function.prototype.bind');
+
+// DOM required
 // ====================================
 
-require('./polyfill/function.prototype.bind');
+/* plugins/ */
+require('./chartbasicsfactory_test');
+
+
+// DOM not required
+// ====================================
 
 /* js/ */
 require('./tidelinedata_test');
@@ -37,5 +44,4 @@ require('./commonbolus_test');
 /* plugins/ */
 require('./basics_classifiers_test');
 require('./basics_datamunger_test');
-require('./chartbasicsfactory_test');
 require('./nurseshark_test');
