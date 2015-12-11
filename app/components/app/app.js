@@ -18,9 +18,6 @@ import React from 'react';
 import async from 'async';
 import sundial from 'sundial';
 
-import nurseShark from 'tideline/plugins/nurseshark/';
-import TidelineData from 'tideline/js/tidelinedata';
-
 import personUtils from '../../core/personutils';
 import queryString from '../../core/querystring';
 import utils from '../../core/utils';
@@ -48,7 +45,6 @@ import PatientData from '../../pages/patientdata';
 import RequestPasswordReset from '../../pages/passwordreset/request';
 import ConfirmPasswordReset from '../../pages/passwordreset/confirm';
 import EmailVerification from '../../pages/emailverification';
-
 
 // Styles
 require('tideline/css/tideline.less');
@@ -214,61 +210,6 @@ export default class AppComponent extends React.Component {
 
   closeNotification() {
     this.setState({notification: null});
-  }
-
-  processPatientData(data) {
-    if (!(data && data.length >= 0)) {
-      return null;
-    }
-
-    var mostRecentUpload = _.sortBy(_.where(data, {type: 'upload'}), (d) => Date.parse(d.time) ).reverse()[0];
-    var timePrefsForTideline;
-    if (!_.isEmpty(mostRecentUpload) && !_.isEmpty(mostRecentUpload.timezone)) {
-      try {
-        sundial.checkTimezoneName(mostRecentUpload.timezone);
-        timePrefsForTideline = {
-          timezoneAware: true,
-          timezoneName: mostRecentUpload.timezone
-        };
-      }
-      catch(err) {
-        this.props.route.log(err);
-        this.props.route.log('Upload metadata lacking a valid timezone!', mostRecentUpload);
-      }
-    }
-    var queryParams = this.state.queryParams;
-    // if the user has put a timezone in the query params
-    // it'll be stored already in the state, and we just keep using it
-    if (!_.isEmpty(queryParams.timezone) || _.isEmpty(timePrefsForTideline)) {
-      timePrefsForTideline = this.state.timePrefs;
-    }
-    // but otherwise we use the timezone from the most recent upload metadata obj
-    else {
-      this.setState({
-        timePrefs: timePrefsForTideline
-      });
-      this.props.route.log('Defaulting to display in timezone of most recent upload at', mostRecentUpload.time, mostRecentUpload.timezone);
-    }
-
-    console.time('Nurseshark Total');
-    var res = nurseShark.processData(data, this.state.bgPrefs.bgUnits);
-    console.timeEnd('Nurseshark Total');
-    console.time('TidelineData Total');
-    var tidelineData = new TidelineData(res.processedData, {
-      timePrefs: this.state.timePrefs,
-      bgUnits: this.state.bgPrefs.bgUnits
-    });
-    console.timeEnd('TidelineData Total');
-
-    window.tidelineData = tidelineData;
-    window.downloadProcessedData = function() {
-      console.save(res.processedData, 'nurseshark-output.json');
-    };
-    window.downloadErroredData = function() {
-      console.save(res.erroredData, 'errored.json');
-    };
-
-    return tidelineData;
   }
 
   clearUserData() {

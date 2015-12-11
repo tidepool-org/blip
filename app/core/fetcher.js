@@ -1,7 +1,11 @@
 import React from 'react';
 import _ from 'lodash';
 import async from 'async';
+import sundial from 'sundial';
 import { Link } from 'react-router';
+
+import nurseShark from 'tideline/plugins/nurseshark/';
+import TidelineData from 'tideline/js/tidelinedata';
 
 import utils from './utils';
 import usrMessages from '../userMessages';
@@ -147,6 +151,61 @@ export default class Fetcher {
       comp.props.route.api.team.getNotes(patientId, cb);
     };
 
+    function processPatientData(data) {
+      if (!(data && data.length >= 0)) {
+        return null;
+      }
+
+      var mostRecentUpload = _.sortBy(_.where(data, {type: 'upload'}), (d) => Date.parse(d.time) ).reverse()[0];
+      var timePrefsForTideline;
+      if (!_.isEmpty(mostRecentUpload) && !_.isEmpty(mostRecentUpload.timezone)) {
+        try {
+          sundial.checkTimezoneName(mostRecentUpload.timezone);
+          timePrefsForTideline = {
+            timezoneAware: true,
+            timezoneName: mostRecentUpload.timezone
+          };
+        }
+        catch(err) {
+          comp.props.route.log(err);
+          comp.props.route.log('Upload metadata lacking a valid timezone!', mostRecentUpload);
+        }
+      }
+      var queryParams = comp.state.queryParams;
+      // if the user has put a timezone in the query params
+      // it'll be stored already in the state, and we just keep using it
+      if (!_.isEmpty(queryParams.timezone) || _.isEmpty(timePrefsForTideline)) {
+        timePrefsForTideline = comp.state.timePrefs;
+      }
+      // but otherwise we use the timezone from the most recent upload metadata obj
+      else {
+        comp.setState({
+          timePrefs: timePrefsForTideline
+        });
+        comp.props.route.log('Defaulting to display in timezone of most recent upload at', mostRecentUpload.time, mostRecentUpload.timezone);
+      }
+
+      console.time('Nurseshark Total');
+      var res = nurseShark.processData(data, comp.state.bgPrefs.bgUnits);
+      console.timeEnd('Nurseshark Total');
+      console.time('TidelineData Total');
+      var tidelineData = new TidelineData(res.processedData, {
+        timePrefs: comp.state.timePrefs,
+        bgUnits: comp.state.bgPrefs.bgUnits
+      });
+      console.timeEnd('TidelineData Total');
+
+      window.tidelineData = tidelineData;
+      window.downloadProcessedData = function() {
+        console.save(res.processedData, 'nurseshark-output.json');
+      };
+      window.downloadErroredData = function() {
+        console.save(res.erroredData, 'errored.json');
+      };
+
+      return tidelineData;
+    }
+
     async.parallel({
       patientData: loadPatientData,
       teamNotes: loadTeamNotes
@@ -173,7 +232,8 @@ export default class Fetcher {
       window.downloadInputData = function() {
         console.save(combinedData, 'blip-input.json');
       };
-      patientData = comp.processPatientData(combinedData);
+
+      patientData = processPatientData(combinedData);
 
       // NOTE: intentional use of _.clone instead of _.cloneDeep
       // we only need a shallow clone at the top level of the patientId keys
