@@ -30,7 +30,7 @@ var dt = require('./data/util/datetime');
 var constants = require('./data/util/constants');
 
 var log;
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && __DEV__ === true) {
   log = require('bows')('TidelineData');
 }
 else {
@@ -497,7 +497,9 @@ function TidelineData(data, opts) {
       }
     });
 
-    function skimFromTop(groupData, start) {
+    // filters out any data that *precedes* basics date range
+    // which is determined from available pump data types
+    function skimOffBottom(groupData, start) {
       return _.takeRightWhile(groupData, function(d) {
         if (d.type === 'basal') {
           return d.normalEnd >= start;
@@ -505,16 +507,26 @@ function TidelineData(data, opts) {
         return d.normalTime >= start;
       });
     }
+
+    // filters out any data that *follows* basics date range
+    // which is determined from available pump data types
+    // (data that follows basics date range is possible when a CGM
+    // is uploaded more recently (by a couple days, say) than a pump)
+    function skimOffTop(groupData, end) {
+      return _.takeWhile(groupData, function(d) {
+        return d.normalTime <= end;
+      });
+    }
     // wrapping in an if-clause here because of the no-data
     // or CGM-only data cases
     if (last) {
       this.basicsData.timezone = opts.timePrefs.timezoneAware ?
         opts.timePrefs.timezoneName : 'UTC';
-      this.basicsData.dateRange = [last.time];
+      this.basicsData.dateRange = [last.normalTime];
       this.basicsData.dateRange.unshift(
         opts.timePrefs.timezoneAware ?
-          dt.findBasicsStart(last.time, opts.timePrefs.timezoneName) :
-          dt.findBasicsStart(last.time)
+          dt.findBasicsStart(last.normalTime, opts.timePrefs.timezoneName) :
+          dt.findBasicsStart(last.normalTime)
       );
       this.basicsData.days =  opts.timePrefs.timezoneAware ?
         dt.findBasicsDays(this.basicsData.dateRange, opts.timePrefs.timezoneName) :
@@ -524,16 +536,18 @@ function TidelineData(data, opts) {
       for (var i = 0; i < opts.basicsTypes.length; ++i) {
         var aType = opts.basicsTypes[i];
         var typeObj;
-        var typeData = this.grouped[aType] || [];
         if (aType === 'deviceEvent') {
           this.basicsData.data.reservoirChange = {data: _.filter(
-            typeData,
+            this.grouped[aType] || [],
             function(d) {
               return d.subType === 'reservoirChange';
             }
           )};
           this.basicsData.data.calibration = {data: _.filter(
-            skimFromTop(typeData, this.basicsData.dateRange[0]),
+            skimOffTop(
+              skimOffBottom(this.grouped[aType] || [], this.basicsData.dateRange[0]),
+              this.basicsData.dateRange[1]
+            ),
             function(d) {
               return d.subType === 'calibration';
             }
@@ -542,9 +556,9 @@ function TidelineData(data, opts) {
         else {
           this.basicsData.data[aType] = {};
           typeObj = this.basicsData.data[aType];
-          typeObj.data = skimFromTop(
-            typeData,
-            this.basicsData.dateRange[0]
+          typeObj.data = skimOffTop(
+            skimOffBottom(this.grouped[aType] || [], this.basicsData.dateRange[0]),
+            this.basicsData.dateRange[1]
           );
         }
       }

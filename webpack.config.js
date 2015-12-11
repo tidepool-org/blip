@@ -2,7 +2,8 @@ var path = require('path');
 var webpack = require('webpack');
 
 var definePlugin = new webpack.DefinePlugin({
-  __DEV__: JSON.stringify(JSON.parse(process.env.BUILD_DEV || 'false'))
+  __DEV__: JSON.stringify(JSON.parse(process.env.BUILD_DEV || 'false')),
+  __TEST__: JSON.stringify(JSON.parse(process.env.BUILD_DEV || 'false'))
 });
 
 module.exports = {
@@ -13,7 +14,7 @@ module.exports = {
   },
   module: {
     loaders: [
-      {test: /\.js$/, loader: 'jsx-loader'},
+      {test: /\.js$/, exclude: /(node_modules)/, loader: 'babel-loader'},
       {test: /\.json$/, loader: 'json-loader'},
       {test: /\.less$/, loader: 'style-loader!css-loader!autoprefixer-loader!less-loader'},
       {test: /\.svg/, loader: 'url-loader?mimetype=image/svg+xml'},

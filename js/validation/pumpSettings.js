@@ -37,40 +37,34 @@ module.exports = schema(
       )
     ),
     bgTarget: schema().array(schema().oneOf(
+      // Medtronic
       schema(
           {
             low: schema().number(),
             high: schema().number(),
-            range: schema().banned(),
             start: schema().number().min(0).max(86400000),
+            range: schema().banned(),
             target: schema().banned()
           }
         ),
+      // Animas
       schema(
           {
-            low: schema().number(),
-            high: schema().number(),
-            range: schema().banned(),
-            start: schema().number().min(0).max(86400000),
-            target: schema().number()
-          }
-        ),
-      schema(
-          {
-            low: schema().banned(),
-            high: schema().banned(),
+            target: schema().number(),
             range: schema().number(),
             start: schema().number().min(0).max(86400000),
-            target: schema().number()
+            low: schema().banned(),
+            high: schema().banned()
           }
         ),
+      // OmniPod
       schema(
           {
-            low: schema().banned(),
+            target: schema().number(),
             high: schema().number(),
-            range: schema().banned(),
             start: schema().number().min(0).max(86400000),
-            target: schema().number()
+            low: schema().banned(),
+            range: schema().banned()
           }
         )
       )

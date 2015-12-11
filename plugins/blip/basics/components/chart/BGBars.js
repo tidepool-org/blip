@@ -14,9 +14,14 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+require('script!d3/d3.min.js');
+require('script!d3.chart/d3.chart.min.js');
 
 var _ = require('lodash');
+
 var d3 = window.d3;
+
+var basicsutils = require('../BasicsUtils');
 
 d3.chart('Basics-BGBars', {
   initialize: function() {
@@ -145,20 +150,11 @@ d3.chart('Basics-BGBars', {
             }
           })
           .text(function(d) {
-            var bgClasses = chart.bgClasses();
-            var bgUnits = ' ' + chart.bgUnits();
-            switch(d.key) {
-              case 'veryhigh':
-                return 'above ' + bgClasses.high.boundary + bgUnits;
-              case 'high':
-                return 'between ' + bgClasses.target.boundary + ' - ' + bgClasses.high.boundary + bgUnits;
-              case 'target':
-                return 'between ' + bgClasses.low.boundary + ' - ' + bgClasses.target.boundary + bgUnits;
-              case 'low':
-                return 'between ' + bgClasses['very-low'].boundary + ' - ' + bgClasses.low.boundary + bgUnits;
-              case 'verylow':
-                return 'below ' + bgClasses['very-low'].boundary + bgUnits;
-            }
+            var labels = basicsutils.labelGenerator({
+              bgClasses: chart.bgClasses(),
+              bgUnits: chart.bgUnits()
+            });
+            return labels.bg[d.key];
           });
         }
       }

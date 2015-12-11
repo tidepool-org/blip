@@ -79,7 +79,7 @@ describe('basics datamunger', function() {
         new types.SMBG({value: 25})
       ];
       expect(dm.bgDistribution({
-        data: {smbg: {data: smbg}},
+        data: {smbg: {data: smbg}, cbg: {data: []}},
         dateRange: [d3.time.day.utc.floor(now), d3.time.day.utc.ceil(now)]
       })).to.deep.equal({
         cgmStatus: 'noCGM',

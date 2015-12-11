@@ -2,7 +2,9 @@ var path = require('path');
 var webpack = require('webpack');
 
 var definePlugin = new webpack.DefinePlugin({
-  __DEV__: JSON.stringify(JSON.parse(process.env.BUILD_DEV || 'false'))
+  __DEV__: JSON.stringify(JSON.parse(process.env.BUILD_DEV || 'false')),
+  // default to true here!
+  __TEST__: 'true'
 });
 
 module.exports = {
@@ -13,7 +15,7 @@ module.exports = {
   },
   module: {
     loaders: [
-      {test: /\.js$/, loader: 'jsx-loader'},
+      {test: /\.js$/, exclude: /(node_modules)/, loader: 'babel-loader'},
       {test: /\.less$/, loader: 'style-loader!css-loader!autoprefixer-loader!less-loader'},
       {test: /\.svg/, loader: 'url-loader?mimetype=image/svg+xml'},
       {test: /\.png/, loader: 'url-loader?mimetype=image/png'},
@@ -22,9 +24,6 @@ module.exports = {
       {test: /\.ttf/, loader: 'url-loader?mimetype=application/x-font-ttf'},
       {test: /\.json$/, loader: 'json-loader'}
     ]
-  },
-  externals: {
-    'jquery': 'jQuery'
   },
   plugins: [
     definePlugin,

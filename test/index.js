@@ -14,11 +14,6 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
- 
-// DOM required
-// ====================================
-require('../css/tideline.less');
-require('./less/test.less');
 
 // DOM not required
 // ====================================

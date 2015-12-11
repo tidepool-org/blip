@@ -1,4 +1,3 @@
-/** @jsx React.DOM */
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2015 Tidepool Project
@@ -57,10 +56,15 @@ var BasicsChart = React.createClass({
       var fingerstickSection = _.find(basicsData.sections, function(section) {
         return section.type === 'fingerstick';
       });
-      var calibrationSelector = _.find(fingerstickSection.selectorOptions, function(option) {
-        return option.key === 'calibration';
+
+      fingerstickSection.selectorOptions.rows.forEach(function(row) {
+        var calibrationSelector = _.find(row, function(option) {
+          return option.key === 'calibration';
+        });
+        if (calibrationSelector) {
+          calibrationSelector.active = false;
+        }
       });
-      calibrationSelector.active = false;
     }
   },
   componentWillMount: function() {

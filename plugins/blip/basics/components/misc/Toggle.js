@@ -19,9 +19,7 @@ var classNames = _interopRequire(require("classnames"));
 
 // var X = _interopRequire(require("./x"));
 
-var addons = require("react/addons").addons;
-
-var PureRenderMixin = addons.PureRenderMixin;
+var PureRenderMixin = require('react-addons-pure-render-mixin');;
 
 module.exports = React.createClass({
   mixins: [PureRenderMixin],

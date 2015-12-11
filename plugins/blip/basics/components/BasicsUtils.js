@@ -33,14 +33,42 @@ module.exports = {
    * @return {String}
    */
   getPathToSelected: function() {
+    function findInOptions(options, filter) {
+      if (!options || !options.rows) {
+        return null;
+      }
+
+      var allOptions =  _.flatten(options.rows);
+      allOptions.push(options.primary);
+
+      return _.find(allOptions, filter);
+    }
+
     var options = this.props.selectorOptions;
-    var selected = _.find(options, {selected: true});
+    var selected = findInOptions(options, {selected: true});
+
     if (selected) {
       return (selected && selected.path) ? selected.path : null;
     }
-    else {
-      var defaultOpt = _.find(options, {default: true});
+    else if (options) {
+      var defaultOpt = options.primary;
       return (defaultOpt && defaultOpt.path) ? defaultOpt.path : null;
     }
-  } 
+
+    return null;
+  },
+  labelGenerator: function(opts) {
+    var bgClasses = opts.bgClasses;
+    var bgUnits = ' ' + opts.bgUnits;
+
+    return {
+      bg: {
+        verylow: 'below ' + bgClasses['very-low'].boundary + bgUnits,
+        low: 'between ' + bgClasses['very-low'].boundary + ' - ' + bgClasses.low.boundary + bgUnits,
+        target: 'between ' + bgClasses.low.boundary + ' - ' + bgClasses.target.boundary + bgUnits,
+        high: 'between ' + bgClasses.target.boundary + ' - ' + bgClasses.high.boundary + bgUnits,
+        veryhigh: 'above ' + bgClasses.high.boundary + bgUnits
+      }
+    };
+  }
 };

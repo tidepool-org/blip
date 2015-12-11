@@ -1,5 +1,5 @@
 var React = require('react');
-var moment = require('moment');
+var moment = require('moment-timezone');
 var cx = require('classnames');
 
 var constants = require('../../logic/constants');

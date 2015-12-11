@@ -36,17 +36,41 @@ basicsActions.toggleSection = function(sectionName) {
   this.app.setState({sections: sections});
 };
 
-basicsActions.selectSubtotal = function(sectionName, selectedSubtotal) {
+basicsActions.selectSubtotal = function(sectionName, selectedKey) {
   var sections = _.cloneDeep(this.app.state.sections);
   var selectorOptions = sections[sectionName].selectorOptions;
-  selectorOptions = _.map(
-    selectorOptions,
-    function(opt) { return _.omit(opt, 'selected'); }
-  );
-  var selectedIndex = _.findIndex(selectorOptions, {key: selectedSubtotal});
-  selectorOptions[selectedIndex].selected = true;
-  sections[sectionName].selectorOptions = selectorOptions;
+
+  selectorOptions = clearSelected(selectorOptions);
+  sections[sectionName].selectorOptions = setSelected(selectorOptions, selectedKey);
   this.app.setState({sections: sections});
 };
+
+function clearSelected(opts) {
+  opts.primary = _.omit(opts.primary, 'selected');
+  opts.rows = opts.rows.map(function(row) {
+    return row.map(function(opt) {
+      return _.omit(opt, 'selected');
+    });
+  });
+
+  return opts;
+}
+
+function setSelected(opts, selectedKey) {
+  if (selectedKey === opts.primary.key) {
+    opts.primary.selected = true;
+  } else {
+    opts.rows = opts.rows.map(function(row) {
+      return row.map(function(opt) {
+        if (opt.key === selectedKey) {
+          opt.selected = true;
+        }
+        return opt;
+      });
+    });
+  }
+
+  return opts;
+}
 
 module.exports = basicsActions;

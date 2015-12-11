@@ -13,6 +13,3 @@ example/data/blip-output.json
 tmp/
 web/
 wiki/
-
-# istanbul output
-coverage/

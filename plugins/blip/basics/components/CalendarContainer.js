@@ -1,4 +1,3 @@
-/** @jsx React.DOM */
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2015 Tidepool Project
@@ -19,7 +18,7 @@
 var _ = require('lodash');
 var bows = require('bows');
 var cx = require('classnames');
-var moment = require('moment');
+var moment = require('moment-timezone');
 var React = require('react');
 
 var debug = bows('Calendar');
@@ -32,6 +31,8 @@ var HoverDay = require('./day/HoverDay');
 var CalendarContainer = React.createClass({
   mixins: [BasicsUtils],
   propTypes: {
+    bgClasses: React.PropTypes.object.isRequired,
+    bgUnits: React.PropTypes.string.isRequired,
     chart: React.PropTypes.func.isRequired,
     data: React.PropTypes.object.isRequired,
     days: React.PropTypes.array.isRequired,
@@ -40,7 +41,7 @@ var CalendarContainer = React.createClass({
     onSelectDay: React.PropTypes.func.isRequired,
     sectionId: React.PropTypes.string.isRequired,
     selector: React.PropTypes.func,
-    selectorOptions: React.PropTypes.array,
+    selectorOptions: React.PropTypes.object,
     timezone: React.PropTypes.string.isRequired,
     type: React.PropTypes.string.isRequired
   },
@@ -60,8 +61,13 @@ var CalendarContainer = React.createClass({
   },
   _getSelectedSubtotal: function() {
     var options = this.props.selectorOptions;
-    return _.get(_.find(options, {selected: true}), 'key', false) ||
-      _.get(_.find(options, {default: true}), 'key', null);
+
+    if (options) {
+      return _.get(_.find(_.flatten(options.rows), {selected: true}), 'key', false) ||
+      options.primary.key;
+    }
+
+    return null;
   },
   render: function() {
     var containerClass = cx('Calendar-container-' + this.props.type, {
@@ -90,7 +96,9 @@ var CalendarContainer = React.createClass({
     );
   },
   renderSelector: function() {
-    return this.props.selector({ 
+    return this.props.selector({
+      bgClasses: this.props.bgClasses,
+      bgUnits: this.props.bgUnits,
       data: this.props.data[this.props.type].summary,
       selectedSubtotal: this._getSelectedSubtotal(),
       selectorOptions: this.props.selectorOptions,

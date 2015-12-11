@@ -1,3 +1,5 @@
+@calendar-label-color: #BCBEC0;
+
 .corner-dates {
 	position: absolute;
 	top: 0;
@@ -31,6 +33,7 @@
 			flex: 0 1 @day-width;
 			height: @day-height;
 			position: relative;
+			color: @calendar-label-color;
 
 			margin-top: 8px;
 
@@ -98,6 +101,9 @@
 				.corner-dates();
 				font-weight: bold;
 			}
+			&.Calendar-day--reservoirChange {
+				color: @text;
+			}
 			.Calendar-day-text {
 				position: absolute;
 				top: (@day-height/2) - 8px;
@@ -109,6 +115,7 @@
 			}
 
 			.Calendar-day-reservoirChange-times {
+				color: @text;
 				position: absolute;
 				top: (@day-height/3.5);
 				width: @day-width;

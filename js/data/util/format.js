@@ -17,7 +17,7 @@
 
 var d3 = require('d3');
 var Duration = require('duration-js');
-var moment = require('moment');
+var moment = require('moment-timezone');
 
 var format = {
 
@@ -93,6 +93,7 @@ var format = {
     return s[0].toUpperCase() + s.slice(1);
   },
 
+  
   dayAndDate: function(i, offset) {
     var d = new Date(i);
     if (offset) {
