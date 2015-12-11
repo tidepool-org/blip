@@ -15,6 +15,8 @@
  * == BSD2 LICENSE ==
  */
 
+/* global sinon */
+
 var _ = require('lodash');
 var chai = require('chai');
 var assert = chai.assert;
