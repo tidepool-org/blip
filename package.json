@@ -11,6 +11,7 @@
   "scripts": {
     "test": "./node_modules/karma/bin/karma start",
     "browser-tests": "./node_modules/karma/bin/karma start --browsers Chrome",
+    "karma-watch": "./node_modules/karma/bin/karma start --no-single-run",
     "start": "BUILD_DEV=true webpack-dev-server -d --cache --colors --progress --content-base example --port 8081",
     "jshint": "gulp jshint",
     "jshint-watch": "gulp jshint-watch"
@@ -54,6 +55,7 @@
     "phantomjs": "1.9.18",
     "react": "0.14.3",
     "react-addons-pure-render-mixin": "0.14.3",
+    "react-addons-test-utils": "0.14.3",
     "react-dom": "0.14.3",
     "script-loader": "0.6.1",
     "style-loader": "0.13.0",
