@@ -1,4 +1,3 @@
-/** @jsx React.DOM */
 /* 
  * == BSD2 LICENSE ==
  * Copyright (c) 2015 Tidepool Project
@@ -85,11 +84,11 @@ var DailyDose = React.createClass({
   },
   /**
    * When the weight value is changed this handler is used
-   * to reassess whether the syaye of the form is valid or not
+   * to reassess whether the state of the form is valid or not
    *
    */
   onWeightChange: function() {
-    var val = this.refs[inputRef].getDOMNode().value;
+    var val = this.refs[inputRef].value;
     if (val[val.length-1] === '.') {
       this.setState({ valid: false, formWeight: val });
     } else {
@@ -102,7 +101,7 @@ var DailyDose = React.createClass({
    * to store the weight in the session storage
    */
   onClickCalculate: function() {
-    var weight = parseFloat(this.refs[inputRef].getDOMNode().value);
+    var weight = parseFloat(this.refs[inputRef].value);
     if (weight && weight > 0) {
       this.props.addToBasicsData('weight', weight);
     }

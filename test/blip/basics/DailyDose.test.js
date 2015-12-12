@@ -1,9 +1,8 @@
-/** @jsx React.DOM */
 /* global chai */
 /* global sinon */
 
 var React = require('react');
-var TestUtils = require('react/lib/ReactTestUtils');
+var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
 
 var DailyDose = require('../../../plugins/blip/basics/components/chart/DailyDose');
@@ -16,13 +15,13 @@ describe('DailyDose', function () {
 
   describe('render', function() {
     it('should render and show 2 warning messages for missing props', function () {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<DailyDose/>);
-      expect(console.warn.callCount).to.equal(2);
+      expect(console.error.callCount).to.equal(2);
     });
 
     it('should render without problem when props provided', function () {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
 
       var props = {
         data: {
@@ -38,7 +37,7 @@ describe('DailyDose', function () {
           addToBasicsData={props.addToBasicsData}/>
       );
       
-      expect(console.warn.callCount).to.equal(0);
+      expect(console.error.callCount).to.equal(0);
 
       // actual rendered text is modified version of input 'note'
       var compElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose');
@@ -46,7 +45,7 @@ describe('DailyDose', function () {
     });
 
     it('should render with blank input when no weight specified', function () {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
 
       var props = {
         data: {
@@ -61,16 +60,16 @@ describe('DailyDose', function () {
           addToBasicsData={props.addToBasicsData}/>
       );
       
-      expect(console.warn.callCount).to.equal(0);
+      expect(console.error.callCount).to.equal(0);
       expect(elem.state.valid).to.be.false;
       expect(elem.state.formWeight).to.equal(null);
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
-      expect(inputElem.getDOMNode().value).to.be.empty;
+      expect(React.findDOMNode(inputElem).value).to.be.empty;
     });
 
     it('should render with filled in input when weight specified', function () {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
 
       var props = {
         data: {
@@ -86,12 +85,12 @@ describe('DailyDose', function () {
           addToBasicsData={props.addToBasicsData}/>
       );
       
-      expect(console.warn.callCount).to.equal(0);
+      expect(console.error.callCount).to.equal(0);
       expect(elem.state.valid).to.be.true;
       expect(elem.state.formWeight).to.equal(null);
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
-      expect(inputElem.getDOMNode().value).to.equal('10');
+      expect(React.findDOMNode(inputElem).value).to.equal('10');
     });
   });
 
@@ -111,7 +110,7 @@ describe('DailyDose', function () {
       );
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
-      inputElem.getDOMNode().value = 2;
+      React.findDOMNode(inputElem).value = 2;
 
       expect(elem.state.valid).to.be.false;
       expect(elem.state.formWeight).to.equal(null);
@@ -135,7 +134,7 @@ describe('DailyDose', function () {
       );
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
-      inputElem.getDOMNode().value = '2.';
+      React.findDOMNode(inputElem).value = '2.';
       expect(elem.state.valid).to.be.false;
       expect(elem.state.formWeight).to.equal(null);
       elem.onWeightChange();
@@ -158,7 +157,7 @@ describe('DailyDose', function () {
       );
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
-      inputElem.getDOMNode().value = 2.3;
+      React.findDOMNode(inputElem).value = 2.3;
 
       expect(elem.state.valid).to.be.false;
       expect(elem.state.formWeight).to.equal(null);
@@ -184,7 +183,7 @@ describe('DailyDose', function () {
       );
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
-      inputElem.getDOMNode().value = 2.3;
+      React.findDOMNode(inputElem).value = 2.3;
 
       elem.onClickCalculate();
       expect(props.addToBasicsData.withArgs('weight', 2.3).callCount).to.equal(1);
@@ -205,7 +204,7 @@ describe('DailyDose', function () {
       );
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
-      inputElem.getDOMNode().value = 0;
+      React.findDOMNode(inputElem).value = 0;
 
       elem.onClickCalculate();
       expect(props.addToBasicsData.callCount).to.equal(0);
@@ -226,7 +225,7 @@ describe('DailyDose', function () {
       );
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
-      inputElem.getDOMNode().value = 'foo';
+      React.findDOMNode(inputElem).value = 'foo';
 
       elem.onClickCalculate();
       expect(props.addToBasicsData.callCount).to.equal(0);

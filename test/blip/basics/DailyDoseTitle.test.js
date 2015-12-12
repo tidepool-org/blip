@@ -1,9 +1,8 @@
-/** @jsx React.DOM */
 /* global chai */
 /* global sinon */
 
 var React = require('react');
-var TestUtils = require('react/lib/ReactTestUtils');
+var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
 
 var DailyDoseTitle = require('../../../plugins/blip/basics/components/misc/DailyDoseTitle');
@@ -16,13 +15,13 @@ describe('DailyDoseTitle', function () {
 
   describe('render', function() {
     it('should render and show 3 warning messages for missing props', function () {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<DailyDoseTitle/>);
-      expect(console.warn.callCount).to.equal(3);
+      expect(console.error.callCount).to.equal(3);
     });
 
     it('should render without problem when props provided', function () {
-      console.warn = sinon.stub();
+      console.error = sinon.stub();
 
       var props = {
         data: {
@@ -39,7 +38,7 @@ describe('DailyDoseTitle', function () {
           iconClass={props.iconClass}
           sectionName={props.sectionName} />
       );
-      expect(console.warn.callCount).to.equal(0);
+      expect(console.error.callCount).to.equal(0);
       
       // actual rendered text is modified version of input 'note'
       var headerElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle');
@@ -47,8 +46,6 @@ describe('DailyDoseTitle', function () {
     });
 
     it('should render total daily dose / kg when weight set', function () {
-      console.warn = sinon.stub();
-
       var props = {
         data: {
           weight: 100,
@@ -72,15 +69,14 @@ describe('DailyDoseTitle', function () {
 
       // actual rendered text is modified version of input 'note'
       var titleElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle-label');
-      expect(titleElem.getDOMNode().textContent).to.equal('Total daily dose / kg');
+      expect(React.findDOMNode(titleElem).textContent).to.equal('Total daily dose / kg');
 
       // actual rendered text is modified version of input 'note'
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-text--large');
-      expect(inputElem.getDOMNode().textContent).to.equal('0.11');
+      expect(React.findDOMNode(inputElem).textContent).to.equal('0.11');
     });
 
     it('should render avg total daily dose when no weight set', function () {
-      console.warn = sinon.stub();
 
       var props = {
         data: {
@@ -104,11 +100,11 @@ describe('DailyDoseTitle', function () {
 
       // actual rendered text is modified version of input 'note'
       var titleElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle-label');
-      expect(titleElem.getDOMNode().textContent).to.equal('Avg total daily dose');
+      expect(React.findDOMNode(titleElem).textContent).to.equal('Avg total daily dose');
 
       // actual rendered text is modified version of input 'note'
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-text--large');
-      expect(inputElem.getDOMNode().textContent).to.equal('11.0');
+      expect(React.findDOMNode(inputElem).textContent).to.equal('11.0');
     });
   });
 });
