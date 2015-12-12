@@ -1,6 +1,7 @@
 /* global chai */
 
 var React = require('react');
+var ReactDOM = require('react-dom');
 var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
 
@@ -51,7 +52,7 @@ describe('PatientCard', function () {
       };
       var patientCardElem = React.createElement(PatientCard, props);
       var elem = TestUtils.renderIntoDocument(patientCardElem);
-      renderedDOMElem = React.findDOMNode(elem);
+      renderedDOMElem = ReactDOM.findDOMNode(elem);
     });
 
     it('should render a patientcard-leave with delete icon and title text', function() {
