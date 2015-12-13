@@ -39,7 +39,6 @@ describe('DailyDose', function () {
       
       expect(console.error.callCount).to.equal(0);
 
-      // actual rendered text is modified version of input 'note'
       var compElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose');
       expect(compElem).to.be.ok;
     });
@@ -139,7 +138,7 @@ describe('DailyDose', function () {
       expect(elem.state.formWeight).to.equal(null);
       elem.onWeightChange();
       expect(elem.state.valid).to.be.false;
-      expect(elem.state.formWeight).to.equal('2.');
+      expect(elem.state.formWeight).to.equal(null);
     });
 
     it('should update state with valid false when 2.3 is input value', function() {

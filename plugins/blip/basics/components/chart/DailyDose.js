@@ -65,11 +65,17 @@ var DailyDose = React.createClass({
    * @return {Element}
    */
   renderWeightSelector: function() {
-    var currentWeight = this.state.formWeight;
+    var currentWeight;
 
-    if (currentWeight === null && this.props.data) {
-      currentWeight = this.props.data.weight;
+    if (this.state.valid) {
+      currentWeight = this.state.formWeight;
+
+      if (!currentWeight && this.props.data) {
+        currentWeight = this.props.data.weight;
+      }
     }
+    
+
     var classes = cx({
       'DailyDose-weightInputForm-selector' : true,
       'valid': this.state.valid === true
@@ -77,7 +83,7 @@ var DailyDose = React.createClass({
 
     return (
       <div className={classes}>
-        <input className="DailyDose-weightInputForm-input" type="number" min="0" ref={inputRef} name={inputRef} value={currentWeight} onChange={this.onWeightChange} />
+        <input className="DailyDose-weightInputForm-input" type="number" min="0" step="0.01" ref={inputRef} name={inputRef} value={currentWeight} onChange={this.onWeightChange} />
         kg
       </div>
     );
@@ -88,12 +94,16 @@ var DailyDose = React.createClass({
    *
    */
   onWeightChange: function() {
-    var val = this.refs[inputRef].value;
-    if (val[val.length-1] === '.') {
-      this.setState({ valid: false, formWeight: val });
-    } else {
-      var weight = parseFloat(val);
+    let isValid = this.refs[inputRef].validity;
+    let value = this.refs[inputRef].value;
+
+    if (!isValid || value[value.length-1] === '.') {
+      this.setState({ valid: false });
+    } else if (value) {
+      let weight = parseFloat(value);
       this.setState({valid: (weight && weight > 0), formWeight: weight});
+    } else {
+      this.setState({ valid: false });
     }
   },
   /**
