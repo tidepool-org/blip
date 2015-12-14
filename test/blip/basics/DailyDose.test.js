@@ -135,13 +135,11 @@ describe('DailyDose', function () {
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
       React.findDOMNode(inputElem).value = '2.';
       expect(elem.state.valid).to.be.false;
-      expect(elem.state.formWeight).to.equal(null);
       elem.onWeightChange();
       expect(elem.state.valid).to.be.false;
-      expect(elem.state.formWeight).to.equal(null);
     });
 
-    it('should update state with valid false when 2.3 is input value', function() {
+    it('should update state with valid true when 2.3 is input value', function() {
       var props = {
         data: {
           totalDailyDose: 11
@@ -163,6 +161,101 @@ describe('DailyDose', function () {
       elem.onWeightChange();
       expect(elem.state.valid).to.be.true;
       expect(elem.state.formWeight).to.equal(2.3);
+    });
+
+    it('should update state with valid true when 0.11 is input value', function() {
+      var props = {
+        data: {
+          totalDailyDose: 11
+        },
+        addToBasicsData: sinon.stub()
+      };
+
+      var elem = TestUtils.renderIntoDocument(
+        <DailyDose 
+          data={props.data}
+          addToBasicsData={props.addToBasicsData}/>
+      );
+
+      var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
+      React.findDOMNode(inputElem).value = 0.11;
+
+      expect(elem.state.valid).to.be.false;
+      expect(elem.state.formWeight).to.equal(null);
+      elem.onWeightChange();
+      expect(elem.state.valid).to.be.true;
+      expect(elem.state.formWeight).to.equal(0.11);
+    });
+
+    it('should update state with valid false when -4 is input value', function() {
+      var props = {
+        data: {
+          totalDailyDose: 11
+        },
+        addToBasicsData: sinon.stub()
+      };
+
+      var elem = TestUtils.renderIntoDocument(
+        <DailyDose 
+          data={props.data}
+          addToBasicsData={props.addToBasicsData}/>
+      );
+
+      var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
+      React.findDOMNode(inputElem).value = -4;
+
+      expect(elem.state.valid).to.be.false;
+      elem.onWeightChange();
+      expect(elem.state.valid).to.be.false;
+    });
+
+    it('should update state with valid true when 500 is input value', function() {
+      var props = {
+        data: {
+          totalDailyDose: 11
+        },
+        addToBasicsData: sinon.stub()
+      };
+
+      var elem = TestUtils.renderIntoDocument(
+        <DailyDose 
+          data={props.data}
+          addToBasicsData={props.addToBasicsData}/>
+      );
+
+      var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
+      React.findDOMNode(inputElem).value = 500;
+
+      expect(elem.state.valid).to.be.false;
+      elem.onWeightChange();
+      expect(elem.state.valid).to.be.true;
+      expect(elem.state.formWeight).to.equal(500);
+      var errorElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'DailyDose-weightInputForm-tooHigh');
+      expect(errorElems.length).to.equal(0);
+    });
+
+    it('should update state with valid false when 501 is input value', function() {
+      var props = {
+        data: {
+          totalDailyDose: 11
+        },
+        addToBasicsData: sinon.stub()
+      };
+
+      var elem = TestUtils.renderIntoDocument(
+        <DailyDose 
+          data={props.data}
+          addToBasicsData={props.addToBasicsData}/>
+      );
+
+      var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
+      React.findDOMNode(inputElem).value = 501;
+
+      expect(elem.state.valid).to.be.false;
+      elem.onWeightChange();
+      expect(elem.state.valid).to.be.false;
+      var errorElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'DailyDose-weightInputForm-tooHigh');
+      expect(errorElems.length).to.equal(1);
     });
   });
 

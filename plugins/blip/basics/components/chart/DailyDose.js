@@ -22,6 +22,8 @@ var cx = require('classnames');
 
 var inputRef = 'weightInput';
 
+const MAX_WEIGHT = 500;
+
 var DailyDose = React.createClass({
   propTypes: {
     data: React.PropTypes.object.isRequired,
@@ -65,26 +67,35 @@ var DailyDose = React.createClass({
    * @return {Element}
    */
   renderWeightSelector: function() {
-    var currentWeight;
+    let currentWeight;
 
-    if (this.state.valid) {
+    let classes = cx({
+      'DailyDose-weightInputForm-selector' : true,
+      'valid': this.state.valid === true
+    });
+
+    let inputElem, tooHighErrorElem;
+
+    if (this.state.valid || this.state.tooHigh) {
       currentWeight = this.state.formWeight;
 
       if (!currentWeight && this.props.data) {
         currentWeight = this.props.data.weight;
       }
     }
-    
 
-    var classes = cx({
-      'DailyDose-weightInputForm-selector' : true,
-      'valid': this.state.valid === true
-    });
+    if (this.state.tooHigh) {
+      tooHighErrorElem = <div className='DailyDose-weightInputForm-tooHigh'>Weight cannot exceed 500kg</div>;
+    }
+
+    inputElem = <input className="DailyDose-weightInputForm-input" type="number" min="0" max="500" step="0.1" ref={inputRef} name={inputRef} value={currentWeight} onChange={this.onWeightChange} />;
 
     return (
-      <div className={classes}>
-        <input className="DailyDose-weightInputForm-input" type="number" min="0" step="0.01" ref={inputRef} name={inputRef} value={currentWeight} onChange={this.onWeightChange} />
-        kg
+      <div>
+        <div className={classes}>
+          {inputElem} kg
+        </div>
+        {tooHighErrorElem}
       </div>
     );
   },
@@ -99,11 +110,9 @@ var DailyDose = React.createClass({
 
     if (!isValid || value[value.length-1] === '.') {
       this.setState({ valid: false });
-    } else if (value) {
-      let weight = parseFloat(value);
-      this.setState({valid: (weight && weight > 0), formWeight: weight});
     } else {
-      this.setState({ valid: false });
+      let weight = parseFloat(value);
+      this.setState({ valid: (weight > 0 && weight <= MAX_WEIGHT), formWeight: weight, tooHigh: weight && weight > MAX_WEIGHT});
     }
   },
   /**
