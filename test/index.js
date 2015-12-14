@@ -15,10 +15,17 @@
  * == BSD2 LICENSE ==
  */
 
-// DOM not required
+require('./polyfill/function.prototype.bind');
+
+// DOM required
 // ====================================
 
-require('./polyfill/function.prototype.bind');
+/* plugins/ */
+require('./chartbasicsfactory_test');
+
+
+// DOM not required
+// ====================================
 
 /* js/ */
 require('./tidelinedata_test');

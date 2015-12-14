@@ -1,6 +1,6 @@
 {
   "name": "tideline",
-  "version": "0.4.5",
+  "version": "0.4.6",
   "description": "Tidepool's timeline data visualization",
   "repository": {
     "type": "git",
@@ -11,6 +11,7 @@
   "scripts": {
     "test": "./node_modules/karma/bin/karma start",
     "browser-tests": "./node_modules/karma/bin/karma start --browsers Chrome",
+    "karma-watch": "./node_modules/karma/bin/karma start --no-single-run",
     "start": "BUILD_DEV=true webpack-dev-server -d --cache --colors --progress --content-base example --port 8081",
     "jshint": "gulp jshint",
     "jshint-watch": "gulp jshint-watch"
