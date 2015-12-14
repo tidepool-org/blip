@@ -22,7 +22,7 @@ var cx = require('classnames');
 
 var inputRef = 'weightInput';
 
-const MAX_WEIGHT = 500;
+var MAX_WEIGHT = 500;
 
 var DailyDose = React.createClass({
   propTypes: {
@@ -67,14 +67,14 @@ var DailyDose = React.createClass({
    * @return {Element}
    */
   renderWeightSelector: function() {
-    let currentWeight;
+    var currentWeight;
 
-    let classes = cx({
+    var classes = cx({
       'DailyDose-weightInputForm-selector' : true,
       'valid': this.state.valid === true
     });
 
-    let inputElem, tooHighErrorElem;
+    var inputElem, tooHighErrorElem;
 
     if (this.state.valid || this.state.tooHigh) {
       currentWeight = this.state.formWeight;
@@ -105,13 +105,13 @@ var DailyDose = React.createClass({
    *
    */
   onWeightChange: function() {
-    let isValid = this.refs[inputRef].validity;
-    let value = this.refs[inputRef].value;
+    var isValid = this.refs[inputRef].validity;
+    var value = this.refs[inputRef].value;
 
     if (!isValid || value[value.length-1] === '.') {
       this.setState({ valid: false });
     } else {
-      let weight = parseFloat(value);
+      var weight = parseFloat(value);
       this.setState({ valid: (weight > 0 && weight <= MAX_WEIGHT), formWeight: weight, tooHigh: weight && weight > MAX_WEIGHT});
     }
   },
