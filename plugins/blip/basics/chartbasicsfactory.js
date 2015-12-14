@@ -130,8 +130,7 @@ var BasicsChart = React.createClass({
           open={section.open}
           section={section}
           title={section.title}
-          timezone={tz}
-          addToBasicsData={basicsActions.addToBasicsData.bind(basicsActions)} />
+          timezone={tz} />
       );
     });
   }

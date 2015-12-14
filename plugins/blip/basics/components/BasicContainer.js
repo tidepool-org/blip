@@ -27,7 +27,6 @@ var BasicContainer = React.createClass({
     chart: React.PropTypes.func.isRequired,
     data: React.PropTypes.object.isRequired,
     days: React.PropTypes.array.isRequired,
-    addToBasicsData: React.PropTypes.func.isRequired,
     title: React.PropTypes.oneOfType([
         React.PropTypes.string,
         React.PropTypes.func ]).isRequired
@@ -38,8 +37,7 @@ var BasicContainer = React.createClass({
         {this.props.chart({
           bgClasses: this.props.bgClasses,
           bgUnits: this.props.bgUnits,
-          data: this.props.data,
-          addToBasicsData: this.props.addToBasicsData
+          data: this.props.data
         })}
       </div>
     );

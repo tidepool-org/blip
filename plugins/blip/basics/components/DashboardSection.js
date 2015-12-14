@@ -36,7 +36,6 @@ var DashboardSection = React.createClass({
     open: React.PropTypes.bool.isRequired,
     section: React.PropTypes.object.isRequired,
     timezone: React.PropTypes.string.isRequired,
-    addToBasicsData: React.PropTypes.func.isRequired,
     title: React.PropTypes.oneOfType([
         React.PropTypes.string,
         React.PropTypes.func ]).isRequired
@@ -53,7 +52,6 @@ var DashboardSection = React.createClass({
             bgUnits={this.props.bgUnits}
             chart={section.chart}
             data={this.props.data}
-            addToBasicsData={this.props.addToBasicsData}
             days={this.props.days}
             hasHover={section.hasHover}
             hoverDisplay={section.hoverDisplay}
@@ -78,7 +76,6 @@ var DashboardSection = React.createClass({
           bgUnits={this.props.bgUnits}
           chart={section.chart}
           data={this.props.data}
-          addToBasicsData={this.props.addToBasicsData}
           days={this.props.days}
           title={this.props.title} />
       );

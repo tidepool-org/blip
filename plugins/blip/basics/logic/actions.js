@@ -48,7 +48,7 @@ basicsActions.selectSubtotal = function(sectionName, selectedKey) {
 basicsActions.addToBasicsData = function(key, value) {
   var newData = this.app.state.data;
   newData[key] = value;
-  this.app.setState( { data: newData});
+  this.app.setState({data: newData});
 };
 
 function clearSelected(opts) {

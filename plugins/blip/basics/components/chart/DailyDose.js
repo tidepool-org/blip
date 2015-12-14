@@ -20,14 +20,14 @@ var d3 = require('d3');
 var React = require('react');
 var cx = require('classnames');
 
+var basicsActions = require('../../logic/actions');
 var inputRef = 'weightInput';
 
 var MAX_WEIGHT = 500;
 
 var DailyDose = React.createClass({
   propTypes: {
-    data: React.PropTypes.object.isRequired,
-    addToBasicsData: React.PropTypes.func.isRequired
+    data: React.PropTypes.object.isRequired
   },
   /**
    * Get the initial state of the component
@@ -122,7 +122,7 @@ var DailyDose = React.createClass({
   onClickCalculate: function() {
     var weight = parseFloat(this.refs[inputRef].value);
     if (weight && weight > 0) {
-      this.props.addToBasicsData('weight', weight);
+      basicsActions.addToBasicsData('weight', weight);
     }
   }
 });
