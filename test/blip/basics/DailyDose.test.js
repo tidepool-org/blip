@@ -17,7 +17,7 @@ describe('DailyDose', function () {
     it('should render and show 2 warning messages for missing props', function () {
       console.error = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<DailyDose/>);
-      expect(console.error.callCount).to.equal(2);
+      expect(console.error.callCount).to.equal(1);
     });
 
     it('should render without problem when props provided', function () {
@@ -27,14 +27,11 @@ describe('DailyDose', function () {
         data: {
           weight: 100,
           totalDailyDose: 11
-        },
-        addToBasicsData: sinon.stub()
+        }
       };
 
       var elem = TestUtils.renderIntoDocument(
-        <DailyDose 
-          data={props.data}
-          addToBasicsData={props.addToBasicsData}/>
+        <DailyDose data={props.data} />
       );
       
       expect(console.error.callCount).to.equal(0);
@@ -49,14 +46,11 @@ describe('DailyDose', function () {
       var props = {
         data: {
           totalDailyDose: 11
-        },
-        addToBasicsData: sinon.stub()
+        }
       };
 
       var elem = TestUtils.renderIntoDocument(
-        <DailyDose 
-          data={props.data}
-          addToBasicsData={props.addToBasicsData}/>
+        <DailyDose data={props.data} />
       );
       
       expect(console.error.callCount).to.equal(0);
@@ -74,14 +68,11 @@ describe('DailyDose', function () {
         data: {
           weight: 10,
           totalDailyDose: 11
-        },
-        addToBasicsData: sinon.stub()
+        }
       };
 
       var elem = TestUtils.renderIntoDocument(
-        <DailyDose 
-          data={props.data}
-          addToBasicsData={props.addToBasicsData}/>
+        <DailyDose data={props.data} />
       );
       
       expect(console.error.callCount).to.equal(0);
@@ -98,14 +89,11 @@ describe('DailyDose', function () {
       var props = {
         data: {
           totalDailyDose: 11
-        },
-        addToBasicsData: sinon.stub()
+        }
       };
 
       var elem = TestUtils.renderIntoDocument(
-        <DailyDose 
-          data={props.data}
-          addToBasicsData={props.addToBasicsData}/>
+        <DailyDose data={props.data} />
       );
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
@@ -122,14 +110,11 @@ describe('DailyDose', function () {
       var props = {
         data: {
           totalDailyDose: 11
-        },
-        addToBasicsData: sinon.stub()
+        }
       };
 
       var elem = TestUtils.renderIntoDocument(
-        <DailyDose 
-          data={props.data}
-          addToBasicsData={props.addToBasicsData}/>
+        <DailyDose data={props.data} />
       );
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
@@ -143,14 +128,11 @@ describe('DailyDose', function () {
       var props = {
         data: {
           totalDailyDose: 11
-        },
-        addToBasicsData: sinon.stub()
+        }
       };
 
       var elem = TestUtils.renderIntoDocument(
-        <DailyDose 
-          data={props.data}
-          addToBasicsData={props.addToBasicsData}/>
+        <DailyDose data={props.data} />
       );
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
@@ -167,14 +149,11 @@ describe('DailyDose', function () {
       var props = {
         data: {
           totalDailyDose: 11
-        },
-        addToBasicsData: sinon.stub()
+        }
       };
 
       var elem = TestUtils.renderIntoDocument(
-        <DailyDose 
-          data={props.data}
-          addToBasicsData={props.addToBasicsData}/>
+        <DailyDose data={props.data} />
       );
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
@@ -191,14 +170,11 @@ describe('DailyDose', function () {
       var props = {
         data: {
           totalDailyDose: 11
-        },
-        addToBasicsData: sinon.stub()
+        }
       };
 
       var elem = TestUtils.renderIntoDocument(
-        <DailyDose 
-          data={props.data}
-          addToBasicsData={props.addToBasicsData}/>
+        <DailyDose data={props.data} />
       );
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
@@ -213,14 +189,11 @@ describe('DailyDose', function () {
       var props = {
         data: {
           totalDailyDose: 11
-        },
-        addToBasicsData: sinon.stub()
+        }
       };
 
       var elem = TestUtils.renderIntoDocument(
-        <DailyDose 
-          data={props.data}
-          addToBasicsData={props.addToBasicsData}/>
+        <DailyDose data={props.data} />
       );
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
@@ -238,14 +211,11 @@ describe('DailyDose', function () {
       var props = {
         data: {
           totalDailyDose: 11
-        },
-        addToBasicsData: sinon.stub()
+        }
       };
 
       var elem = TestUtils.renderIntoDocument(
-        <DailyDose 
-          data={props.data}
-          addToBasicsData={props.addToBasicsData}/>
+        <DailyDose data={props.data} />
       );
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
@@ -264,14 +234,11 @@ describe('DailyDose', function () {
       var props = {
         data: {
           totalDailyDose: 11
-        },
-        addToBasicsData: sinon.stub()
+        }
       };
 
       var elem = TestUtils.renderIntoDocument(
-        <DailyDose 
-          data={props.data}
-          addToBasicsData={props.addToBasicsData}/>
+        <DailyDose data={props.data} />
       );
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
@@ -285,14 +252,11 @@ describe('DailyDose', function () {
       var props = {
         data: {
           totalDailyDose: 11
-        },
-        addToBasicsData: sinon.stub()
+        }
       };
 
       var elem = TestUtils.renderIntoDocument(
-        <DailyDose 
-          data={props.data}
-          addToBasicsData={props.addToBasicsData}/>
+        <DailyDose data={props.data} />
       );
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
@@ -306,14 +270,11 @@ describe('DailyDose', function () {
       var props = {
         data: {
           totalDailyDose: 11
-        },
-        addToBasicsData: sinon.stub()
+        }
       };
 
       var elem = TestUtils.renderIntoDocument(
-        <DailyDose 
-          data={props.data}
-          addToBasicsData={props.addToBasicsData}/>
+        <DailyDose data={props.data} />
       );
 
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-weightInputForm-input');
