@@ -1,5 +1,6 @@
 var path = require('path');
 var webpack = require('webpack');
+var RewirePlugin = require("rewire-webpack");
 
 var definePlugin = new webpack.DefinePlugin({
   __DEV__: JSON.stringify(JSON.parse(process.env.BUILD_DEV || 'false')),
@@ -27,6 +28,7 @@ module.exports = {
   },
   plugins: [
     definePlugin,
+    new RewirePlugin(),
     new webpack.DefinePlugin({
       'process.env': Object.keys(process.env).reduce(function(o, k) {
         o[k] = JSON.stringify(process.env[k]);

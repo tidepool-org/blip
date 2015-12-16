@@ -4,10 +4,21 @@
 var React = require('react');
 var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
+var rewire = require('rewire');
 
-var DailyDose = require('../../../plugins/blip/basics/components/chart/DailyDose');
+var DailyDose = rewire('../../../plugins/blip/basics/components/chart/DailyDose');
 
 describe('DailyDose', function () {
+  var basicsActions = {
+    addToBasicsData: sinon.stub()
+  };
+
+  DailyDose.__set__('basicsActions', basicsActions);
+
+  beforeEach(function() {
+    // Reset the stub before each test
+    basicsActions.addToBasicsData = sinon.stub()
+  });
 
   it('should be a function', function() {
     expect(DailyDose).to.be.a('function');
@@ -245,7 +256,7 @@ describe('DailyDose', function () {
       React.findDOMNode(inputElem).value = 2.3;
 
       elem.onClickCalculate();
-      expect(props.addToBasicsData.withArgs('weight', 2.3).callCount).to.equal(1);
+      expect(basicsActions.addToBasicsData.withArgs('weight', 2.3).callCount).to.equal(1);
     });
 
     it('should not result in call to addToBasicsData when weight is 0', function() {
@@ -263,7 +274,7 @@ describe('DailyDose', function () {
       React.findDOMNode(inputElem).value = 0;
 
       elem.onClickCalculate();
-      expect(props.addToBasicsData.callCount).to.equal(0);
+      expect(basicsActions.addToBasicsData.callCount).to.equal(0);
     });
 
     it('should not result in call to addToBasicsData when weight is not a number', function() {
@@ -281,7 +292,7 @@ describe('DailyDose', function () {
       React.findDOMNode(inputElem).value = 'foo';
 
       elem.onClickCalculate();
-      expect(props.addToBasicsData.callCount).to.equal(0);
+      expect(basicsActions.addToBasicsData.callCount).to.equal(0);
     });
   });
 });
