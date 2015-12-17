@@ -17,7 +17,7 @@ describe('DailyDose', function () {
 
   beforeEach(function() {
     // Reset the stub before each test
-    basicsActions.addToBasicsData = sinon.stub()
+    basicsActions.addToBasicsData = sinon.stub();
   });
 
   it('should be a function', function() {
