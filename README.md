@@ -95,7 +95,7 @@ When writing [React](http://facebook.github.io/react) components, try to follow 
 - Keep state to a minimum. A component without anything in `state` and only `props` would be best. When state is needed, make sure nothing is reduntant and can be derived from other state values. Move state upstream (to parent components) as much as it makes sense.
 - Use the `propTypes` attribute to document what props the component expects
 
-See ["Writing good React components"](http://blog.whn.se/post/69621609605/writing-good-react-components).
+See ["Writing good React components"](https://blog.whn.se/writing-good-react-components-9923f6682d85#.nd83fi33l).
 
 More on state:
 - The main `AppComponent` holds all of the state global to the app (like if the user is logged in or not)
