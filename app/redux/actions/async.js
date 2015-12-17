@@ -18,7 +18,7 @@
 import _ from 'lodash';
 import async from 'async';
 import * as ActionTypes from '../constants/actionTypes';
-import * as syncActions from './sync.js';
+import * as sync from './sync.js';
 
 /**
  * Signup Async Action Creator
@@ -34,7 +34,7 @@ export function signup(api, accountDetails) {
       if (err) {
         dispatch(sync.signupFailure(err));
       } else {
-        api.user.api.user.get((err, user) => {
+        api.user.get((err, user) => {
           if (err) {
             dispatch(sync.signupFailure(err));
           } else {

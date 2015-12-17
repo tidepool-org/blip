@@ -142,7 +142,7 @@ describe('reducers', () => {
         let user = 'user';
 
         let requestAction = actions.sync.signupRequest();
-        console.log(initialState);
+        
         expect(initialState.working.signingUp).to.be.false;
         expect(initialState.working.loggingIn).to.be.false;
 
@@ -151,7 +151,7 @@ describe('reducers', () => {
 
         let failureAction = actions.sync.signupSuccess(user);
         let state = reducer(intermediateState, failureAction);
-        console.log('state', state);
+
         expect(state.working.signingUp).to.be.false;
         expect(state.working.loggingIn).to.be.false;
         expect(state.isLoggedIn).to.be.true;
@@ -191,7 +191,7 @@ describe('reducers', () => {
         let user = 'user';
 
         let requestAction = actions.sync.confirmSignupRequest();
-        console.log(initialState);
+        
         expect(initialState.working.confirmingSignup).to.be.false;
         expect(initialState.working.loggingIn).to.be.false;
 
@@ -200,7 +200,7 @@ describe('reducers', () => {
 
         let failureAction = actions.sync.confirmSignupSuccess(user);
         let state = reducer(intermediateState, failureAction);
-        console.log('state', state);
+
         expect(state.working.confirmingSignup).to.be.false;
         expect(state.working.loggingIn).to.be.false;
         expect(state.confirmedSignup).to.be.true;
