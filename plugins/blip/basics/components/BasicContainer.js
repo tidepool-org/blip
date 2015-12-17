@@ -27,7 +27,9 @@ var BasicContainer = React.createClass({
     chart: React.PropTypes.func.isRequired,
     data: React.PropTypes.object.isRequired,
     days: React.PropTypes.array.isRequired,
-    title: React.PropTypes.string.isRequired,
+    title: React.PropTypes.oneOfType([
+        React.PropTypes.string,
+        React.PropTypes.func ]).isRequired
   },
   render: function() {
     return (

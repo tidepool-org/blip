@@ -57,6 +57,8 @@
     "react-addons-pure-render-mixin": "0.14.3",
     "react-addons-test-utils": "0.14.3",
     "react-dom": "0.14.3",
+    "rewire": "2.5.1",
+    "rewire-webpack": "1.0.1",
     "script-loader": "0.6.1",
     "style-loader": "0.13.0",
     "url-loader": "0.5.6",

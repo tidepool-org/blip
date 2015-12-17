@@ -21,12 +21,13 @@ var React = require('react');
 var BasicContainer = require('../components/BasicContainer');
 var CalendarContainer = require('../components/CalendarContainer');
 var SummaryGroup = React.createFactory(require('../components/misc/SummaryGroup'));
+var DailyDoseTitle = React.createFactory(require('../components/misc/DailyDoseTitle'));
 
 var BasalBolusRatio = React.createFactory(require('../components/chart/BasalBolusRatio'));
 var BGDistribution = React.createFactory(require('../components/chart/BGDistribution'));
 var WrapCount = React.createFactory(require('../components/chart/WrapCount'));
 var SiteChange = React.createFactory(require('../components/chart/SiteChange'));
-var TotalDailyDose = React.createFactory(require('../components/chart/TotalDailyDose'));
+var DailyDose = React.createFactory(require('../components/chart/DailyDose'));
 var InfusionHoverDisplay = React.createFactory(require('../components/day/hover/InfusionHoverDisplay'));
 
 var basicsActions = require('./actions');
@@ -148,12 +149,12 @@ var basicsState = {
     },
     totalDailyDose: {
       active: true,
-      chart: TotalDailyDose,
+      chart: DailyDose,
       container: BasicContainer,
       column: 'left',
       id: 'totalDailyDose',
       index: 2,
-      title: 'Avg total daily dose',
+      title: DailyDoseTitle,
       open: true
     }
   }

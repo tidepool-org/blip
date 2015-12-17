@@ -45,3 +45,6 @@ require('./commonbolus_test');
 require('./basics_classifiers_test');
 require('./basics_datamunger_test');
 require('./nurseshark_test');
+
+require('./blip/basics/DailyDoseTitle.test.js');
+require('./blip/basics/DailyDose.test.js');

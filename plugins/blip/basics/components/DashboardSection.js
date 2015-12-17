@@ -36,7 +36,10 @@ var DashboardSection = React.createClass({
     open: React.PropTypes.bool.isRequired,
     section: React.PropTypes.object.isRequired,
     timezone: React.PropTypes.string.isRequired,
-    title: React.PropTypes.string.isRequired
+    title: React.PropTypes.oneOfType([
+        React.PropTypes.string,
+        React.PropTypes.func ]).isRequired
+
   },
   render: function() {
     var dataDisplay;
@@ -84,11 +87,25 @@ var DashboardSection = React.createClass({
     var containerClass = cx({
       'DashboardSection-container': true
     });
-    return (
-      <div className='DashboardSection'>
+
+    var titleContainer;
+    if (this.props.title && typeof this.props.title === 'function') {
+      titleContainer = this.props.title({
+        data: this.props.data,
+        iconClass: iconClass,
+        sectionName: this.props.name 
+      });
+    } else {
+      titleContainer = (
         <h3 onClick={this.handleToggleSection}>{this.props.title}
           <i className={iconClass}/>
         </h3>
+      );
+    }
+
+    return (
+      <div className='DashboardSection'>
+        {titleContainer}
         <div className={containerClass} ref='container'>
           <div className='DashboardSection-content' ref='content'>
             {this.props.open ? dataDisplay : null}

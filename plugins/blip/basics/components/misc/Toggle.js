@@ -12,6 +12,7 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 /* jshint esnext:true, asi: true */
 
 var React = _interopRequire(require("react"));
+var ReactDOM = _interopRequire(require("react-dom"));
 
 var classNames = _interopRequire(require("classnames"));
 
@@ -58,11 +59,7 @@ module.exports = React.createClass({
 
   handleClick: function handleClick(event) {
     var checkbox;
-    if (!React.findDOMNode) {
-      checkbox = this.refs.input.getDOMNode();
-    } else {
-      checkbox = React.findDOMNode(this.refs.input);
-    }
+    checkbox = ReactDOM.findDOMNode(this.refs.input);
     if (event.target !== checkbox) {
       event.preventDefault();
       checkbox.focus();
