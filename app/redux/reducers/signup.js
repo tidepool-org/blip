@@ -35,7 +35,8 @@ export default function signup(state = initialState, action) {
         working: {
           signingUp: false
         },
-        isLoggedIn: true
+        isLoggedIn: true,
+        user: action.payload.user
       })
     case ActionTypes.SIGNUP_FAILURE:
       return merge({
@@ -50,6 +51,7 @@ export default function signup(state = initialState, action) {
 
   // Convenience function
   function merge(newState) {
-    return _.assign({}, state, newState);
+    // important to understand that _.merge performs a deep merge, unlike _.assign
+    return _.merge({}, state, newState);
   }
 }
