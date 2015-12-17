@@ -46,7 +46,7 @@ export function signup(api, accountDetails) {
   };
 }
 
-export confirmSignup(api, signupKey) {
+export function confirmSignup(api, signupKey) {
   return (dispatch) => {
     dispatch(sync.confirmSignupRequest());
 

@@ -19,7 +19,7 @@ import _ from 'lodash';
 
 import * as ActionTypes from '../constants/actionTypes';
 
-export function signupRequest() {
+export function loginRequest() {
   return {
     type: ActionTypes.LOGIN_REQUEST
   };

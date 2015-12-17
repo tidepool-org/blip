@@ -18,4 +18,7 @@
 import * as async from './async';
 import * as sync from './sync';
 
-export default { async, sync };
+export default { 
+  async: async, 
+  sync: sync 
+};

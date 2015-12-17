@@ -14,6 +14,7 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+import _ from 'lodash';
 
 import * as ActionTypes from '../constants/actionTypes';
 import initialState from './initialState';
@@ -74,6 +75,6 @@ export default function access(state = initialState, action) {
 
   // Convenience function
   function merge(newState) {
-    return Object.assign({}, state, newState);
+    return _.assign({}, state, newState);
   }
 }

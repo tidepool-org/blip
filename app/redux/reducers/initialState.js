@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-export const initialState = {
+export default {
   patients: {},
   patientsData: {},
   invites: {},
