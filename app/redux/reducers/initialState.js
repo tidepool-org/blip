@@ -16,13 +16,15 @@
  */
 
 export default {
+  signupConfirmed: false,
+  isLoggedIn: false,
+  user: null,
   patients: {},
   patientsData: {},
   invites: {},
-  isLoggedIn: false,
-  user: null,
   currentPatient: null,
   working: {
+    confirmingSignup: false,
     fetchingInvites: false,
     fetchingPendingInvites: false,
     fetchingMessages: false,

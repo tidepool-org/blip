@@ -29,7 +29,7 @@ export default function signup(state = initialState, action) {
         working: {
           signingUp: true
         }
-      })
+      });
     case ActionTypes.SIGNUP_SUCCESS:
       return merge({
         working: {
@@ -37,14 +37,34 @@ export default function signup(state = initialState, action) {
         },
         isLoggedIn: true,
         user: action.payload.user
-      })
+      });
     case ActionTypes.SIGNUP_FAILURE:
       return merge({
         working: {
           signingUp: false
         },
         error: action.error
-      })
+      });
+    case ActionTypes.CONFIRM_SIGNUP_REQUEST: 
+      return merge({
+        working: {
+          confirmingSignup: true
+        }
+      });
+    case ActionTypes.CONFIRM_SIGNUP_SUCCESS:
+      return merge({
+        working: {
+          confirmingSignup: false
+        },
+        confirmedSignup: true
+      });
+    case ActionTypes.CONFIRM_SIGNUP_FAILURE:
+      return merge({
+        working: {
+          confirmingSignup: false
+        },
+        error: action.error
+      });
     default:
       return state;
   }

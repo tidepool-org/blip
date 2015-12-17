@@ -84,3 +84,22 @@ export function signupFailure(error) {
     error: error
   };
 }
+
+export function confirmSignupRequest() {
+  return {
+    type: ActionTypes.CONFIRM_SIGNUP_REQUEST
+  };
+}
+
+export function confirmSignupSuccess(user) {
+  return {
+    type: ActionTypes.CONFIRM_SIGNUP_SUCCESS
+  };
+}
+
+export function confirmSignupFailure(error) {
+  return {
+    type: ActionTypes.CONFIRM_SIGNUP_FAILURE,
+    error: error
+  };
+}

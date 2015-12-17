@@ -35,7 +35,7 @@ describe('reducers', () => {
         expect(intermediateState.working.loggingIn).to.be.true;
 
         let failureAction = actions.sync.loginFailure(error);
-        let state = reducer(initialState, failureAction);
+        let state = reducer(intermediateState, failureAction);
         expect(state.working.loggingIn).to.be.false;
         expect(state.error).to.equal(error);
       });
@@ -52,7 +52,7 @@ describe('reducers', () => {
         expect(intermediateState.working.loggingIn).to.be.true;
 
         let failureAction = actions.sync.loginSuccess(user);
-        let state = reducer(initialState, failureAction);
+        let state = reducer(intermediateState, failureAction);
         expect(state.working.loggingIn).to.be.false;
         expect(state.isLoggedIn).to.be.true;
         expect(state.user).to.equal(user);
@@ -80,7 +80,7 @@ describe('reducers', () => {
         expect(intermediateState.working.loggingOut).to.be.true;
 
         let failureAction = actions.sync.logoutFailure(error);
-        let state = reducer(initialState, failureAction);
+        let state = reducer(intermediateState, failureAction);
         expect(state.working.loggingOut).to.be.false;
         expect(state.error).to.equal(error);
       });
@@ -97,7 +97,7 @@ describe('reducers', () => {
         expect(intermediateState.working.loggingOut).to.be.true;
 
         let failureAction = actions.sync.logoutSuccess(user);
-        let state = reducer(initialState, failureAction);
+        let state = reducer(intermediateState, failureAction);
         expect(state.working.loggingOut).to.be.false;
         expect(state.isLoggedIn).to.be.false;
         expect(state.user).to.equal(null);
@@ -131,7 +131,7 @@ describe('reducers', () => {
         expect(intermediateState.working.signingUp).to.be.true;
 
         let failureAction = actions.sync.signupFailure(error);
-        let state = reducer(initialState, failureAction);
+        let state = reducer(intermediateState, failureAction);
         expect(state.working.signingUp).to.be.false;
         expect(state.error).to.equal(error);
       });
@@ -150,12 +150,60 @@ describe('reducers', () => {
         expect(intermediateState.working.signingUp).to.be.true;
 
         let failureAction = actions.sync.signupSuccess(user);
-        let state = reducer(initialState, failureAction);
+        let state = reducer(intermediateState, failureAction);
         console.log('state', state);
         expect(state.working.signingUp).to.be.false;
         expect(state.working.loggingIn).to.be.false;
         expect(state.isLoggedIn).to.be.true;
         expect(state.user).to.equal(user);
+      });
+    });
+
+    describe('confirmSignupRequest', () => {
+      it('should set working.confirmingSignup to true', () => {
+        let action = actions.sync.confirmSignupRequest();
+        expect(initialState.working.confirmingSignup).to.be.false;
+
+        let state = reducer(initialState, action);
+        expect(state.working.confirmingSignup).to.be.true;
+      });
+    });
+
+    describe('confirmSignupFailure', () => {
+      it('should set working.confirmingSignup to false', () => {
+        let error = 'Something bad happened when signing up';
+
+        let requestAction = actions.sync.confirmSignupRequest();
+        expect(initialState.working.confirmingSignup).to.be.false;
+
+        let intermediateState = reducer(initialState, requestAction);
+        expect(intermediateState.working.confirmingSignup).to.be.true;
+
+        let failureAction = actions.sync.confirmSignupFailure(error);
+        let state = reducer(intermediateState, failureAction);
+        expect(state.working.confirmingSignup).to.be.false;
+        expect(state.error).to.equal(error);
+      });
+    });
+
+    describe('confirmSignupSuccess', () => {
+      it('should set working.confirmingSignup to false and set user', () => {
+        let user = 'user';
+
+        let requestAction = actions.sync.confirmSignupRequest();
+        console.log(initialState);
+        expect(initialState.working.confirmingSignup).to.be.false;
+        expect(initialState.working.loggingIn).to.be.false;
+
+        let intermediateState = reducer(initialState, requestAction);
+        expect(intermediateState.working.confirmingSignup).to.be.true;
+
+        let failureAction = actions.sync.confirmSignupSuccess(user);
+        let state = reducer(intermediateState, failureAction);
+        console.log('state', state);
+        expect(state.working.confirmingSignup).to.be.false;
+        expect(state.working.loggingIn).to.be.false;
+        expect(state.confirmedSignup).to.be.true;
       });
     });
   });

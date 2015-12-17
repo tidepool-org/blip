@@ -24,7 +24,7 @@ import * as syncActions from './sync.js';
  * Signup Async Action Creator
  * 
  * @param  {[type]} api an instance of the API wrapper
- * @param  {object} accountDetails contains email, password, name
+ * @param  {Object} accountDetails contains email, password, name
  */
 export function signup(api, accountDetails) {
   return (dispatch) => {
@@ -46,19 +46,32 @@ export function signup(api, accountDetails) {
   };
 }
 
+/**
+ * Confirm Signup Action Creator
+ * 
+ * @param  {Object} api an instance of the API wrapper
+ * @param  {String} signupKey
+ */
 export function confirmSignup(api, signupKey) {
   return (dispatch) => {
     dispatch(sync.confirmSignupRequest());
 
+    api.user.confirmSignup(signupKey, function(err) {
+      if (err) {
+        dispatch(sync.confirmSignupFailure(err));
+      } else {
+        dispatch(sync.confirmSignupSuccess())
+      }
+    })
   };
 }
 
 /**
  * Login Async Action Creator
  * 
- * @param  {[type]} api an instance of the API wrapper
- * @param  {object} accountDetails contains email and password
- * @param  {?object} options optionalArgument that contains options like remember
+ * @param  {Object} api an instance of the API wrapper
+ * @param  {Object} accountDetails contains email and password
+ * @param  {?Object} options optionalArgument that contains options like remember
  */
 export function login(api, credentials, options) {
   return (dispatch) => {
