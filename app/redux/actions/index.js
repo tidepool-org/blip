@@ -15,11 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-import { combineReducers } from 'redux'
+import * as async from './async';
+import * as sync from './sync';
 
-import access from './access';
-import signup from './signup';
-
-export default function(state = initialState, action) {
-  return access(signup(state, action), action);
-}
+export default { async, sync };

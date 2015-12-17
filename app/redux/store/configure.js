@@ -15,11 +15,17 @@
  * == BSD2 LICENSE ==
  */
 
-import { combineReducers } from 'redux'
+import { applyMiddleware, compose, createStore } from 'redux';
+import createLogger from 'redux-logger';
+import thunk from 'redux-thunk';
 
-import access from './access';
-import signup from './signup';
+import reducers from '../reducers';
 
-export default function(state = initialState, action) {
-  return access(signup(state, action), action);
+const finalCreateStore = compose(
+  applyMiddleware(thunk, createLogger())
+)(createStore);
+
+export default function configureStore(initialState) {
+  const store = finalCreateStore(reducers, initialState)
+  return store
 }
