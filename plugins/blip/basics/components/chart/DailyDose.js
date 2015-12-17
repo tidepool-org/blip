@@ -60,9 +60,11 @@ var DailyDose = React.createClass({
     );
   },
   /**
-   * Render function for the weight selector. We render a SELECT element
-   * with options from 30 to 150. If weight is set in this session then
-   * this option is auto-selected.
+   * Render function for the weight selector. We render an input[type=number] element that allows
+   * numeric values between 0 and MAX_WEIGHT kgs. An error message will be displayed if the weight
+   * entered exceeds MAX_WEIGHT
+   * 
+   * If weight is set in this session then the input element is pre-populated.
    * 
    * @return {Element}
    */
@@ -85,10 +87,10 @@ var DailyDose = React.createClass({
     }
 
     if (this.state.tooHigh) {
-      tooHighErrorElem = <div className='DailyDose-weightInputForm-tooHigh'>Weight cannot exceed 500kg</div>;
+      tooHighErrorElem = <div className='DailyDose-weightInputForm-tooHigh'>Weight cannot exceed {MAX_WEIGHT}kg</div>;
     }
 
-    inputElem = <input className="DailyDose-weightInputForm-input" type="number" min="0" max="500" step="0.1" ref={inputRef} name={inputRef} value={currentWeight} onChange={this.onWeightChange} />;
+    inputElem = <input className="DailyDose-weightInputForm-input" type="number" min="0" max={MAX_WEIGHT} step="0.1" ref={inputRef} name={inputRef} value={currentWeight} onChange={this.onWeightChange} />;
 
     return (
       <div>
