@@ -40,7 +40,6 @@ describe('DailyDoseTitle', function () {
       );
       expect(console.error.callCount).to.equal(0);
       
-      // actual rendered text is modified version of input 'note'
       var headerElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle');
       expect(headerElem).to.be.ok;
     });
@@ -62,16 +61,12 @@ describe('DailyDoseTitle', function () {
           sectionName={props.sectionName} />
       );
       
-
-      // actual rendered text is modified version of input 'note'
       var headerElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle');
       expect(headerElem).to.be.ok;
 
-      // actual rendered text is modified version of input 'note'
       var titleElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle-label');
       expect(React.findDOMNode(titleElem).textContent).to.equal('Total daily dose / kg');
 
-      // actual rendered text is modified version of input 'note'
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-text--large');
       expect(React.findDOMNode(inputElem).textContent).to.equal('0.11');
     });
@@ -93,25 +88,21 @@ describe('DailyDoseTitle', function () {
           sectionName={props.sectionName} />
       );
       
-
-      // actual rendered text is modified version of input 'note'
       var headerElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle');
       expect(headerElem).to.be.ok;
 
-      // actual rendered text is modified version of input 'note'
       var titleElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle-label');
       expect(React.findDOMNode(titleElem).textContent).to.equal('Total daily dose / kg');
 
-      // actual rendered text is modified version of input 'note'
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-text--large');
       expect(React.findDOMNode(inputElem).textContent).to.equal('0.10');
     });
 
-    it('should render total daily dose / kg as 0.33 when weight set to 100 and totalDailyDose to 33', function () {
+    it('should render total daily dose / kg as 0.33 when weight set to 90 and totalDailyDose to 30', function () {
       var props = {
         data: {
-          weight: 100,
-          totalDailyDose: 33
+          weight: 90,
+          totalDailyDose: 30
         },
         iconClass: 'icon-down',
         sectionName: 'ace'
@@ -124,16 +115,12 @@ describe('DailyDoseTitle', function () {
           sectionName={props.sectionName} />
       );
       
-
-      // actual rendered text is modified version of input 'note'
       var headerElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle');
       expect(headerElem).to.be.ok;
 
-      // actual rendered text is modified version of input 'note'
       var titleElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle-label');
       expect(React.findDOMNode(titleElem).textContent).to.equal('Total daily dose / kg');
 
-      // actual rendered text is modified version of input 'note'
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-text--large');
       expect(React.findDOMNode(inputElem).textContent).to.equal('0.33');
     });
@@ -155,16 +142,12 @@ describe('DailyDoseTitle', function () {
           sectionName={props.sectionName} />
       );
       
-
-      // actual rendered text is modified version of input 'note'
       var headerElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle');
       expect(headerElem).to.be.ok;
 
-      // actual rendered text is modified version of input 'note'
       var titleElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDoseTitle-label');
       expect(React.findDOMNode(titleElem).textContent).to.equal('Avg total daily dose');
 
-      // actual rendered text is modified version of input 'note'
       var inputElem = TestUtils.findRenderedDOMComponentWithClass(elem, 'DailyDose-text--large');
       expect(React.findDOMNode(inputElem).textContent).to.equal('11.0');
     });
