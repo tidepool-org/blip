@@ -18,6 +18,7 @@
 var _ = require('lodash');
 var bows = require('bows');
 var React = require('react');
+var ReactDOM = require('react-dom');
 
 var utils = require('../../core/utils');
 
@@ -42,7 +43,7 @@ var SettingsChart = React.createClass({
     patientData: React.PropTypes.object.isRequired,
   },
   componentDidMount: function() {
-    this.mountChart(React.findDOMNode(this));
+    this.mountChart(ReactDOM.findDOMNode(this));
     this.initializeChart(this.props.patientData);
   },
   componentWillUnmount: function() {
