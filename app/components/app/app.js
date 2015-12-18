@@ -99,7 +99,7 @@ export default class AppComponent extends React.Component {
     this.state = {
       authenticated: this.props.route.api.user.isAuthenticated(),
       notification: null,
-      page: null,
+      page: this.props.location.pathname,
       user: null,
       fetchingUser: true,
       loggingOut: false,
@@ -153,11 +153,16 @@ export default class AppComponent extends React.Component {
     return !this.state.patient;
   }
 
+  /**
+   * Only show patient name in navbar on certain pages
+   *  - patients/:id/data
+   *  - patients/:id/share
+   *  - patients/:id/profile
+   *  
+   * @return {Boolean}
+   */
   isPatientVisibleInNavbar() {
-    // Only show patient name in navbar on certain pages
-    var page = this.state.page;
-    var result = page && page.match(/^patients\//);
-    return Boolean(result);
+    return /^\/patients\/(\S+)/.test(this.state.page);
   }
 
   isDoneFetchingAndUserHasPatient() {
@@ -279,6 +284,7 @@ export default class AppComponent extends React.Component {
    * begin fetching any required data
    */
   componentWillReceiveProps(nextProps) {
+    this.setState({page: nextProps.location.pathname}); //We need to pass down this prop to state for legacy behaviour
     this.doFetching(nextProps);
   }
 
