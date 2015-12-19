@@ -47,7 +47,6 @@ import EmailVerification from '../../pages/emailverification';
 
 // Styles
 require('tideline/css/tideline.less');
-require('../../core/less/fonts.less');
 require('../../style.less');
 
 // Blip favicon
