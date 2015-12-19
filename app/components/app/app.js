@@ -194,7 +194,12 @@ export default class AppComponent extends React.Component {
 
   getInviteEmail() {
     if (this.props.location && this.props.location.query) {
+
       let { inviteEmail } = this.props.location.query;
+
+      inviteEmail = inviteEmail.replace(/\s/, '+'); 
+      //swap spaces for +, needed to allow eails with mutators to pass waitlist
+
       if(!_.isEmpty(inviteEmail) && utils.validateEmail(inviteEmail)){
         return inviteEmail;
       }
