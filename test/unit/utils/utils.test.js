@@ -50,4 +50,50 @@ describe('utils', function() {
       expect(result).to.be.undefined;
     });
   });
+
+  describe('validateEmail', () => {
+    it('should validate jane@tidepool.org as email', () => {
+      expect(utils.validateEmail('jane@tidepool.org')).to.be.true;
+    });
+
+    it('should validate jane+skip@tidepool.org as email', () => {
+      expect(utils.validateEmail('jane+skip@tidepool.org')).to.be.true;
+    });
+
+    it('should validate jane@tidepool.io as email', () => {
+      expect(utils.validateEmail('jane@tidepool.io')).to.be.true;
+    });
+
+    it('should validate jane.smith@c.co.uk as email', () => {
+      expect(utils.validateEmail('jane.smith@c.co.uk')).to.be.true;
+    });
+
+    it('should validate p@b.com as email', () => {
+      expect(utils.validateEmail('p@b.com')).to.be.true;
+    });
+
+    it('should validate frank_b@google.com as email', () => {
+      expect(utils.validateEmail('frank_b@google.com')).to.be.true;
+    });
+
+    it('should validate test123@test123.co as email', () => {
+      expect(utils.validateEmail('test123@test123.co')).to.be.true;
+    });
+
+    it('should validate jane@ as email', () => {
+      expect(utils.validateEmail('jane@')).to.be.false;
+    });
+
+    it('should validate jane@linkedin as email', () => {
+      expect(utils.validateEmail('jane@linkedin')).to.be.false;
+    });
+
+    it('should validate jane@linkedin. as email', () => {
+      expect(utils.validateEmail('jane@linkedin.')).to.be.false;
+    });
+
+    it('should validate jane as email', () => {
+      expect(utils.validateEmail('jane')).to.be.false;
+    });
+  });
 });
