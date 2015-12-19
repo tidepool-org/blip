@@ -19,7 +19,6 @@ import async from 'async';
 import sundial from 'sundial';
 
 import personUtils from '../../core/personutils';
-import queryString from '../../core/querystring';
 import utils from '../../core/utils';
 import Fetcher from '../../core/fetcher';
 import ActionHandlers from '../../core/actionhandlers';

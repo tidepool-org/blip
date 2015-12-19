@@ -34,7 +34,7 @@
     "less-loader": "2.2.1",
     "lodash": "3.10.1",
     "ms": "0.7.1",
-    "qs": "6.0.1",
+    "qs": "2.4.1",
     "react": "0.14.3",
     "react-addons-pure-render-mixin": "0.14.3",
     "react-dom": "0.14.3",
