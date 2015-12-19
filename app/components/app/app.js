@@ -162,7 +162,7 @@ export default class AppComponent extends React.Component {
    * @return {Boolean}
    */
   isPatientVisibleInNavbar() {
-    return /^\/patients\/(\S+)/.test(this.state.page);
+    return /^\/patients\/\S+/.test(this.state.page);
   }
 
   isDoneFetchingAndUserHasPatient() {
@@ -197,13 +197,15 @@ export default class AppComponent extends React.Component {
 
       let { inviteEmail } = this.props.location.query;
 
-      // all standard query string parsers transform + to a space
-      // so we reverse and swap spaces for +
-      // in order to allow e-mails with mutators (e.g., +skip) to pass waitlist
-      inviteEmail = inviteEmail.replace(/\s/, '+'); 
+      if (!_.isEmpty(inviteEmail)) {
+        // all standard query string parsers transform + to a space
+        // so we reverse and swap spaces for +
+        // in order to allow e-mails with mutators (e.g., +skip) to pass waitlist
+        inviteEmail = inviteEmail.replace(/\s/, '+');
 
-      if(!_.isEmpty(inviteEmail) && utils.validateEmail(inviteEmail)){
-        return inviteEmail;
+        if (utils.validateEmail(inviteEmail)) {
+          return inviteEmail;
+        }
       }
     }
     return null;
