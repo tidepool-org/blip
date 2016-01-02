@@ -198,7 +198,7 @@ export default class AppComponent extends React.Component {
       let { inviteEmail } = this.props.location.query;
 
       inviteEmail = inviteEmail.replace(/\s/, '+'); 
-      //swap spaces for +, needed to allow eails with mutators to pass waitlist
+      //swap spaces for +, needed to allow emails with mutators to pass waitlist
 
       if(!_.isEmpty(inviteEmail) && utils.validateEmail(inviteEmail)){
         return inviteEmail;
