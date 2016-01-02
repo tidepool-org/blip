@@ -19,7 +19,6 @@ import async from 'async';
 import sundial from 'sundial';
 
 import personUtils from '../../core/personutils';
-import queryString from '../../core/querystring';
 import utils from '../../core/utils';
 import Fetcher from '../../core/fetcher';
 import ActionHandlers from '../../core/actionhandlers';
@@ -48,7 +47,6 @@ import EmailVerification from '../../pages/emailverification';
 
 // Styles
 require('tideline/css/tideline.less');
-require('../../core/less/fonts.less');
 require('../../style.less');
 
 // Blip favicon
@@ -162,7 +160,7 @@ export default class AppComponent extends React.Component {
    * @return {Boolean}
    */
   isPatientVisibleInNavbar() {
-    return /^\/patients\/(\S+)/.test(this.state.page);
+    return /^\/patients\/\S+/.test(this.state.page);
   }
 
   isDoneFetchingAndUserHasPatient() {
@@ -197,11 +195,15 @@ export default class AppComponent extends React.Component {
 
       let { inviteEmail } = this.props.location.query;
 
-      inviteEmail = inviteEmail.replace(/\s/, '+'); 
-      //swap spaces for +, needed to allow emails with mutators to pass waitlist
+      if (!_.isEmpty(inviteEmail)) {
+        // all standard query string parsers transform + to a space
+        // so we reverse and swap spaces for +
+        // in order to allow e-mails with mutators (e.g., +skip) to pass waitlist
+        inviteEmail = inviteEmail.replace(/\s/, '+');
 
-      if(!_.isEmpty(inviteEmail) && utils.validateEmail(inviteEmail)){
-        return inviteEmail;
+        if (utils.validateEmail(inviteEmail)) {
+          return inviteEmail;
+        }
       }
     }
     return null;
