@@ -434,18 +434,12 @@ export default class AppComponent extends React.Component {
 
   renderSignup() {
     let config = this.props.route.config;
-    var checkKey = (key, cb) => {
-      if (_.isEmpty(config.INVITE_KEY) || key === config.INVITE_KEY){
-        return cb(true);
-      }
-      return cb(false);
-    };
 
     return React.cloneElement(this.props.signup, {
-      onSubmit: this.actionHandlers.handleSignup.bind(this.actionHandlers),
+      configuredInviteKey: config.INVITE_KEY || '',
       inviteEmail: this.getInviteEmail(),
       inviteKey: this.getInviteKey(),
-      checkKey: checkKey,
+      onSubmit: this.actionHandlers.handleSignup.bind(this.actionHandlers),
       onSubmitSuccess: this.actionHandlers.handleSignupSuccess.bind(this.actionHandlers),
       trackMetric: this.props.route.trackMetric
     });
