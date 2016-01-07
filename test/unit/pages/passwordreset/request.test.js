@@ -1,6 +1,8 @@
-
-
 /* global chai */
+/* global describe */
+/* global sinon */
+/* global it */
+
 window.config = {};
 
 var React = require('react');

@@ -72,9 +72,10 @@ var Profile = React.createClass({
   render: function() {
     var form = this.renderForm();
     var self = this;
-    var handleClickBack = function() {
+    var handleClickBack = function(e) {
+      e.preventDefault();
       self.props.trackMetric('Clicked Back in Account');
-      window.history.back();
+      self.props.history.goBack();
       return false;
     };
 

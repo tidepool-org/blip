@@ -15,6 +15,7 @@
  */
 
 var React = require('react');
+var Link = require('react-router').Link;
 var _ = require('lodash');
 
 var config = require('../../config');
@@ -116,7 +117,7 @@ var Login = React.createClass({
   },
 
   renderForgotPassword: function() {
-    return <a href="#/request-password-reset">{'I forgot my password'}</a>;
+    return <Link to="/request-password-reset">{'I forgot my password'}</Link>;
   },
 
   handleSubmit: function(formValues) {

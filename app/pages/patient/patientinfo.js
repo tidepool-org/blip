@@ -15,6 +15,7 @@
  */
 
 var React = require('react');
+var Link = require('react-router').Link;
 var _ = require('lodash');
 var sundial = require('sundial');
 
@@ -235,7 +236,7 @@ var PatientInfo = React.createClass({
         <div className="PatientInfo-block PatientInfo-block--withArrow">
           {this.getDisplayName(this.props.patient)}
           {' (edit in '}
-          <a href="#/profile">account</a>
+          <Link to="/profile">account</Link>
           {')'}
         </div>
       );

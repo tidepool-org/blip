@@ -15,6 +15,7 @@
  */
 
 var React = require('react');
+var Link = require('react-router').Link;
 var _ = require('lodash');
 var sundial = require('sundial');
 
@@ -197,7 +198,7 @@ var PatientNew = React.createClass({
   renderButtons: function() {
     return (
       <div>
-        <a href="#/" className="btn btn-secondary PatientNew-cancel">Cancel</a>
+        <Link to="/patients" className="btn btn-secondary PatientNew-cancel">Cancel</Link>
         <button
           className="btn btn-primary PatientNew-submit"
           onClick={this.handleSubmit}

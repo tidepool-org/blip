@@ -90,6 +90,19 @@ utils.buildExceptionDetails = function(){
   };
 };
 
+utils.stringifyErrorData = function(data) {
+  if(_.isEmpty(data)){
+    return '';
+  }
+
+  if (_.isPlainObject(data)) {
+    return JSON.stringify(data);
+  }
+  else {
+    return data.toString();
+  }
+};
+
 // from http://bgrins.github.io/devtools-snippets/#console-save
 // MIT license
 (function(console){

@@ -1,3 +1,6 @@
+/* global beforeEach */
+/* global afterEach */
+
 var rewireModule = function rewireModule(rewiredModule, varValues) {
   var rewiredReverts = [];
 

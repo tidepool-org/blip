@@ -1,6 +1,10 @@
 /* global chai */
+/* global describe */
+/* global sinon */
+/* global it */
 
 var React = require('react');
+var ReactDOM = require('react-dom');
 var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
 
@@ -74,7 +78,7 @@ describe('PeopleList', function () {
       };
       var listElem = React.createElement(PeopleList, props);
       var elem = TestUtils.renderIntoDocument(listElem);
-      var renderedDOM = React.findDOMNode(elem);
+      var renderedDOM = ReactDOM.findDOMNode(elem);
       var fullNames = renderedDOM.querySelectorAll('.patientcard-fullname');
       expect(fullNames.length).to.equal(4);
       expect(fullNames[0].title).to.equal('Zoe Doe');
@@ -110,7 +114,7 @@ describe('PeopleList', function () {
       };
       var listElem = React.createElement(PeopleList, props);
       var elem = TestUtils.renderIntoDocument(listElem);
-      var renderedDOM = React.findDOMNode(elem);
+      var renderedDOM = ReactDOM.findDOMNode(elem);
       var fullNames = renderedDOM.querySelectorAll('.patientcard-fullname');
       expect(fullNames.length).to.equal(3);
       expect(fullNames[0].title).to.equal('Anna Zork');

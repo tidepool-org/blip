@@ -15,6 +15,7 @@
  */
 
 var React = require('react');
+var Link = require('react-router').Link;
 var _ = require('lodash');
 var cx = require('classnames');
 
@@ -161,7 +162,7 @@ var Patients = React.createClass({
     return (
       <div className="patients-message">
         {"You can also "}
-        <a href="#/patients/new">{"setup data storage"}</a>
+        <Link to="/patients/new">{"setup data storage"}</Link>
         {" for someone’s diabetes data."}
       </div>
     );
@@ -218,13 +219,13 @@ var Patients = React.createClass({
     }
 
     return (
-      <a
+      <Link
         className="patients-new-account"
-        href="#/patients/new"
+        to="/patients/new"
         onClick={this.handleClickCreateProfile}>
         Setup data storage
         <i className="icon-add"></i>
-      </a>
+      </Link>
     );
   },
 
@@ -256,7 +257,7 @@ var Patients = React.createClass({
     return _.map(patients, function(patient) {
       patient = _.cloneDeep(patient);
       if (patient.userid) {
-        patient.link = '#/patients/' + patient.userid + '/data';
+        patient.link = '/patients/' + patient.userid + '/data';
       }
       return patient;
     });

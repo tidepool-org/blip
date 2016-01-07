@@ -1,6 +1,8 @@
-
-
 /* global chai */
+/* global describe */
+/* global sinon */
+/* global it */
+
 window.config = {};
 
 var React = require('react');
@@ -58,20 +60,22 @@ describe('Profile', function () {
 
 
     it('should take a step back through history on clicking back button', function() {
-      window.history.back = sinon.stub();
       var props = {
         onSubmit: sinon.stub(),
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        history: {
+          goBack: sinon.stub()
+        }
       };
       var elem = React.createElement(Profile, props);
       var render = TestUtils.renderIntoDocument(elem);
       var backButton = TestUtils.findRenderedDOMComponentWithClass(render, 'js-back');
 
       expect(props.trackMetric.callCount).to.equal(0);
-      expect(window.history.back.callCount).to.equal(0);
+      expect(props.history.goBack.callCount).to.equal(0);
       TestUtils.Simulate.click(backButton);
       expect(props.trackMetric.callCount).to.equal(1);
-      expect(window.history.back.callCount).to.equal(1);
+      expect(props.history.goBack.callCount).to.equal(1);
     });
   });
 

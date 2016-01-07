@@ -86,7 +86,7 @@ var DailyChart = React.createClass({
     if (datetime) {
       this.chart.locate(datetime);
     }
-    else if (this.state.datetimeLocation != null) {
+    else if (this.state.datetimeLocation !== null) {
       this.chart.locate(this.state.datetimeLocation);
     }
     else {

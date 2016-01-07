@@ -6,11 +6,15 @@ module.exports = function () {
   var LOGIN = '.login form button';
 
   this.Given(/^I am on the login page$/, function (next) {
-    this.visit('/#/login', next);
+    this.visit('/login', next);
   });
 
-  this.Given(/^I am on the signup page$/, function (next) {
-    this.visit('/#/signup', next);
+  this.Given(/^I am on the signup page with no key or email set$/, function (next) {
+    this.visit('/signup', next);
+  });
+
+  this.Given(/^I am on the signup page with key and email set$/, function (next) {
+    this.visit('/signup?inviteKey=awesome&inviteEmail=gordonmdent@gmail.com', next);
   });
 
   this.When(/^I click on the forgot password link$/, function (next) {
@@ -36,7 +40,7 @@ module.exports = function () {
   });
 
   this.Then(/^I should see a forgot my password link$/, function (next) {
-    this.browser.assert.attribute('.login-forgotpassword a', 'href', '#/request-password-reset');
+    this.browser.assert.attribute('.login-forgotpassword a', 'href', '/request-password-reset');
     next();
   });
 
@@ -47,7 +51,7 @@ module.exports = function () {
   });
 
   this.Then(/^I should be on the request password page$/, function(next) {
-    this.browser.assert.url(this.host + '/#/request-password-reset');
+    this.browser.assert.url(this.host + '/request-password-reset');
     next();
   });
 
@@ -60,8 +64,14 @@ module.exports = function () {
     next();
   });
 
+  // you must configure an INVITE_KEY locally for this to work!
+  this.Then(/^I should see a waitlist form$/, function (next) {
+    this.browser.assert.element('.waitlist .waitlist-container');
+    next();
+  });
+    
   this.Then(/^I should be on the care team page$/, function (next) {
-    this.browser.assert.url(this.host + '/#/patients');
+    this.browser.assert.url(this.host + '/patients');
     next();
   });
 };
