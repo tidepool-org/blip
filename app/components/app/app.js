@@ -61,7 +61,7 @@ export default class AppComponent extends React.Component {
       trackMetric: React.PropTypes.func.isRequired,
       DEBUG: React.PropTypes.bool.isRequired
     }).isRequired
-  }
+  };
 
   constructor(props) {
     super(props);
