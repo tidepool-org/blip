@@ -1,6 +1,6 @@
 Feature: User Authentication
-  As a user of Blip
-  I want to to be able to log in and out of Blip
+  As a user of blip
+  I want to to be able to log in and out of blip
   So that I can have secured access to my data
 
   Scenario: Login Screen
@@ -18,4 +18,4 @@ Feature: User Authentication
     Given I am on the login page
     Then I should see a login form
     When I enter and submit my credentials
-    Then I should be on the care team page
+    Then I should be on my care team memberships page
