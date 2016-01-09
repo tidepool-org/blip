@@ -536,20 +536,6 @@ export default class AppComponent extends React.Component {
   }
 
   renderPatientNew() {
-    this.setState({
-      patient: null,
-      fetchingPatient: false
-    });
-    this.props.route.trackMetric('Viewed Profile Create');
-
-    // Make sure user doesn't already have a patient
-    if (this.isDoneFetchingAndUserHasPatient()) {
-      var patientId = this.state.user.userid;
-      var route = '/patients/' + patientId;
-      this.props.route.log('User already has patient');
-      this.props.history.pushState(null, route);
-      return;
-    }
     return React.cloneElement(this.props.patientNew, {
       user: this.state.user,
       fetchingUser: this.state.fetchingUser,

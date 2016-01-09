@@ -13,6 +13,8 @@ import RequestPasswordReset from './pages/passwordreset/request';
 import ConfirmPasswordReset from './pages/passwordreset/confirm';
 import EmailVerification from './pages/emailverification';
 
+import personUtils from './core/personutils';
+
 /**
  * This function redirects any requests that land on pages that should only be
  * visible when logged in if the user is logged out
@@ -23,8 +25,34 @@ import EmailVerification from './pages/emailverification';
  * @return {boolean|null} returns true if hash mapping happened
  */
 export const requireAuth = (api) => (nextState, replaceState) => {
-  if(!api.user.isAuthenticated()) {
+  if (!api.user.isAuthenticated()) {
     replaceState(null, '/login');
+  }
+};
+
+/**
+ * This function redirects any requests that land on pages that should only be
+ * visible when no data storage is set up if the user has data storage set up
+ *
+ * @param  {Object} nextState
+ * @param  {Function} replaceState
+ *
+ * @return {boolean|null} returns true if hash mapping happened
+ */
+export const requireAuthAndNoPatient = (api, cb) => (nextState, replaceState, cb) => {
+  console.log('requireAuthAndNoPatient');
+  if (!api.user.isAuthenticated()) {
+    replaceState(null, '/login');
+    cb();
+  }
+  else {
+    api.user.get(function(err, user) {
+      if (personUtils.isPatient(user)) {
+        replaceState(null, '/patients');
+        cb();
+      }
+      cb();
+    })
   }
 };
 
@@ -86,6 +114,10 @@ export const getRoutes = (appContext) => {
   let props = appContext.props;
   let api = props.api;
 
+  function cb() {
+    props.log('Async route transition completed!');
+  }
+
   return (
     <Route path='/' component={AppComponent} {...props}>
       <IndexRoute components={{login:Login}} onEnter={onIndexRouteEnter(api)} />
@@ -94,7 +126,7 @@ export const getRoutes = (appContext) => {
       <Route path='email-verification' components={{emailVerification: EmailVerification}} onEnter={requireNoAuth(api)} />
       <Route path='profile' components={{profile: Profile}} onEnter={requireAuth(api)} />
       <Route path='patients' components={{patients: Patients}} onEnter={requireAuth(api)} />
-      <Route path='patients/new' components={{patientNew: PatientNew}} onEnter={requireAuth(api)} />
+      <Route path='patients/new' components={{patientNew: PatientNew}} onEnter={requireAuthAndNoPatient(api, cb)} />
       <Route path='patients/:id/profile' components={{patient: Patient}} onEnter={requireAuth(api)} />
       <Route path='patients/:id/share' components={{patientShare: Patient}} onEnter={requireAuth(api)} />
       <Route path='patients/:id/data' components={{patientData: PatientData}} onEnter={requireAuth(api)} />
