@@ -1,12 +1,24 @@
+notifications:
+  email: false
+
 language: node_js
 
 node_js:
   - "0.12.0"
   - "stable"
 
+services:
+  - docker
+
+before_script:
+  - wget https://raw.githubusercontent.com/anderspitman/tools/docker-build/docker/docker-compose.yml
+  - docker-compose up -d
+  - node integration/setup.js
+
 script:
   - "npm run lint"
   - "npm test"
+  - "npm run integration-tests"
 
 matrix:
   allow_failures:
