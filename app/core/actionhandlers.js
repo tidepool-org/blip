@@ -494,6 +494,8 @@ export default class ActionHandlers {
     this.component.setState({
       fetchingUser: false,
       verificationEmailSent: true
+    }, () => {
+      this.component.props.history.pushState(null, '/email-verification');
     });
   }
 }

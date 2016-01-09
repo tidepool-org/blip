@@ -71,6 +71,21 @@ export const requireNoAuth = (api) => (nextState, replaceState) => {
   }
 };
 
+export const requireNotVerified = (api, cb) => (nextState, replaceState) => {
+  api.user.get(function(err, user) {
+    if (err) {
+      return cb(err);
+    }
+    if (user.emailVerified === true) {
+      replaceState(null, '/patients');
+      return cb();
+    }
+    // we log the user out so that requireNoAuth will work properly
+    // when they try to log in
+    api.user.logout(cb);
+  });
+}
+
 /**
  * This function exists for backward compatibility and maps hash
  * urls to standard urls
@@ -123,7 +138,7 @@ export const getRoutes = (appContext) => {
       <IndexRoute components={{login:Login}} onEnter={onIndexRouteEnter(api)} />
       <Route path='login' components={{login:Login}} onEnter={requireNoAuth(api)} />
       <Route path='signup' components={{signup: Signup}} onEnter={requireNoAuth(api)} />
-      <Route path='email-verification' components={{emailVerification: EmailVerification}} onEnter={requireNoAuth(api)} />
+      <Route path='email-verification' components={{emailVerification: EmailVerification}} onEnter={requireNotVerified(api, cb)} />
       <Route path='profile' components={{profile: Profile}} onEnter={requireAuth(api)} />
       <Route path='patients' components={{patients: Patients}} onEnter={requireAuth(api)} />
       <Route path='patients/new' components={{patientNew: PatientNew}} onEnter={requireAuthAndNoPatient(api, cb)} />
