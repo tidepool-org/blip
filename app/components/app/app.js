@@ -182,7 +182,7 @@ export default class AppComponent extends React.Component {
     return personUtils.isSame(this.state.user, this.state.patient);
   }
 
-  logSupportContact(){
+  logSupportContact() {
     this.props.route.trackMetric('Clicked Give Feedback');
   }
 
@@ -250,12 +250,12 @@ export default class AppComponent extends React.Component {
   }
 
   redirectToDefaultRoute() {
-    this.props.history.pushState(null, 'patients');
+    this.props.history.pushState(null, '/patients');
   }
 
   doFetching(nextProps) {
     if (this.state.authenticated) {
-        this.fetcher.fetchUser();
+      this.fetcher.fetchUser();
     }
 
     if (nextProps.login) {
@@ -268,7 +268,7 @@ export default class AppComponent extends React.Component {
     } else if (nextProps.patient) {
       this.fetcher.fetchPatient(nextProps.params.id);
       this.props.route.trackMetric('Viewed Profile');
-    } else if(nextProps.patientData) {
+    } else if (nextProps.patientData) {
       this.fetcher.fetchPatient(nextProps.params.id, (err, patient) => {
         this.fetcher.fetchPatientData(patient);
       });
@@ -413,7 +413,6 @@ export default class AppComponent extends React.Component {
   }
 
   renderVersion() {
-
     var version = this.props.route.config.VERSION;
     if (version) {
       version = 'v' + version + ' beta';
@@ -606,6 +605,7 @@ export default class AppComponent extends React.Component {
     } else if (this.props.patients) {
       return this.renderPatients();
     } else if (this.props.patientNew) {
+
       return this.renderPatientNew();
     } else if (this.props.patient) {
       return this.renderPatient();

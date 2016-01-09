@@ -66,7 +66,7 @@ export const requireAuthAndNoPatient = (api, cb) => (nextState, replaceState, cb
  * @return {boolean|null} returns true if hash mapping happened
  */
 export const requireNoAuth = (api) => (nextState, replaceState) => {
-  if(api.user.isAuthenticated()) {
+  if (api.user.isAuthenticated()) {
     replaceState(null, '/patients');
   }
 };
@@ -84,7 +84,7 @@ export const hashToUrl = (nextState, replaceState) => {
   let path = nextState.location.pathname;
   let hash = nextState.location.hash;
 
-  if((!path || path === '/') && hash) {
+  if ((!path || path === '/') && hash) {
     replaceState(null, hash.substring(1));
     return true;
   }

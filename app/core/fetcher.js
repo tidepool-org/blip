@@ -91,7 +91,7 @@ export default class Fetcher {
   fetchPatients(options) {
     var comp = this.component;
 
-    if(options && !options.hideLoading) {
+    if (options && !options.hideLoading) {
         comp.setState({fetchingPatients: true});
     }
 
