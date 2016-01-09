@@ -22,9 +22,9 @@ tidepool.signup({
   if (err) {
     console.log(err);
   }
-  console.log(resp);
-  console.log();
-  if (!resp.code) {
+  if (resp && !resp.code) {
+    console.log(resp);
+    console.log();
     console.log('Jane Doe account created.');
     console.log();
   }

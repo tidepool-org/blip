@@ -13,7 +13,7 @@ services:
 before_script:
   - wget https://raw.githubusercontent.com/anderspitman/tools/docker-build/docker/docker-compose.yml
   - docker-compose up -d
-  - node integration/setup.js
+  - node integration/support/setup.js
 
 script:
   - "npm run lint"
