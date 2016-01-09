@@ -8,6 +8,7 @@ var PORT = 3000;
 function World() {
   this.browser = zombie.create(); // this.browser will be available in step definitions
   this.browser.silent = true;
+  this.browser.waitDuration = 10000;
   this.host = 'http://localhost:'+ PORT;
 
   this.setHost = function(host) {
