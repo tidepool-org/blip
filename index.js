@@ -375,7 +375,7 @@ module.exports = function (config, deps) {
           if (err != null) {
             return cb(err);
           } else if (res.status !== 200) {
-            return common.handleHttpError(res, cb);
+            return return cb(res.body);
           }
 
           return cb(null,res.body);
