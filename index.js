@@ -371,10 +371,15 @@ module.exports = function (config, deps) {
         .set(common.SESSION_TOKEN_HEADER, user.getUserToken())
         .end(
         function (err, res) {
+
           if (err != null) {
             return cb(err);
+          } else if (res.status !== 200) {
+            return cb(res.body);
           }
+
           return cb(null,res.body);
+
         });
     },
     /**
