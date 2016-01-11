@@ -39,8 +39,7 @@ export const requireAuth = (api) => (nextState, replaceState) => {
  *
  * @return {boolean|null} returns true if hash mapping happened
  */
-export const requireAuthAndNoPatient = (api, cb) => (nextState, replaceState, cb) => {
-  console.log('requireAuthAndNoPatient');
+export const requireAuthAndNoPatient = (api, cb) => (nextState, replaceState) => {
   if (!api.user.isAuthenticated()) {
     replaceState(null, '/login');
     cb();
@@ -52,7 +51,7 @@ export const requireAuthAndNoPatient = (api, cb) => (nextState, replaceState, cb
         cb();
       }
       cb();
-    })
+    });
   }
 };
 
@@ -71,9 +70,24 @@ export const requireNoAuth = (api) => (nextState, replaceState) => {
   }
 };
 
+/**
+ * This function redirects any requests that land on pages that should only be
+ * visible when the user hasn't yet verified their sign-up e-mail
+ * if the user already has completed the e-mail verification
+ *
+ * @param  {Object} nextState
+ * @param  {Function} replaceState
+ *
+ * @return {boolean|null} returns true if hash mapping happened
+ */
 export const requireNotVerified = (api, cb) => (nextState, replaceState) => {
   api.user.get(function(err, user) {
     if (err) {
+      // we expect a 401 Unauthorized when navigating to /email-verification
+      // when not logged in (e.g., in a new tab after initial sign-up)
+      if (err.status === 401) {
+        return cb();
+      }
       return cb(err);
     }
     if (user.emailVerified === true) {
@@ -82,7 +96,10 @@ export const requireNotVerified = (api, cb) => (nextState, replaceState) => {
     }
     // we log the user out so that requireNoAuth will work properly
     // when they try to log in
-    api.user.logout(cb);
+    api.user.logout(() => {
+      api.log('"Logged out" user after initial set-up so that /login is accessible');
+    });
+    cb();
   });
 }
 
@@ -129,7 +146,10 @@ export const getRoutes = (appContext) => {
   let props = appContext.props;
   let api = props.api;
 
-  function cb() {
+  function cb(err) {
+    if (err) {
+      throw new Error('Error during async route transition :(');
+    }
     props.log('Async route transition completed!');
   }
 
