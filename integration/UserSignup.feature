@@ -6,10 +6,12 @@ Feature: User Signup
   Scenario: Signup page with (valid) key and email set
     Given I am on the signup page with (valid) key and email set
     Then I should see a signup form
+    And the e-mail input should be pre-filled
 
   Scenario: Signup page with (invalid) key and email set
     Given I am on the signup page with (invalid) key and email set
     Then I should see a signup form
+    And the e-mail input should be pre-filled
 
   Scenario: Signup page with just (valid) key set
     Given I am on the signup page with just (valid) key set
@@ -18,3 +20,4 @@ Feature: User Signup
   Scenario: Signup page with just email set
     Given I am on the signup page with just email set
     Then I should see a signup form
+    And the e-mail input should be pre-filled

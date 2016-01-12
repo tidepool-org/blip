@@ -24,11 +24,11 @@ module.exports = function () {
   });
 
   this.Given(/^I am on the signup page with \(valid\) key and email set$/, function (next) {
-    this.visit('/signup?inviteKey=thisisakey&inviteEmail=gordonmdent@gmail.com', next);
+    this.visit('/signup?inviteKey=thisisakey&inviteEmail=jane+skip@tidepool.org', next);
   });
 
   this.Given(/^I am on the signup page with \(invalid\) key and email set$/, function (next) {
-    this.visit('/signup?inviteKey=thisisnotakey&inviteEmail=gordonmdent@gmail.com', next);
+    this.visit('/signup?inviteKey=thisisnotakey&inviteEmail=jane+skip@tidepool.org', next);
   });
 
   this.Given(/^I am on the signup page with just \(valid\) key set$/, function (next) {
@@ -36,7 +36,7 @@ module.exports = function () {
   });
 
   this.Given(/^I am on the signup page with just email set$/, function (next) {
-    this.visit('/signup?inviteEmail=gordonmdent@gmail.com', next);
+    this.visit('/signup?inviteEmail=jane+skip@tidepool.org', next);
   });
 
   this.Given(/^I am logged in without 'Remember Me'$/, function (next) {
@@ -126,6 +126,12 @@ module.exports = function () {
     this.browser.assert.element('.signup form input[name=password]');
     this.browser.assert.element('.signup form input[name=passwordConfirm]');
     this.browser.assert.element('.signup form button');
+    next();
+  });
+
+  this.Then(/^the e\-mail input should be pre\-filled$/, function (next) {
+    this.browser.assert.element('form input[type=email]');
+    this.browser.assert.input('form input[type=email]', 'jane+skip@tidepool.org');
     next();
   });
 
