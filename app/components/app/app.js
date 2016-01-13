@@ -468,7 +468,7 @@ export default class AppComponent extends React.Component {
     });
   }
 
-  renderPatients(showPatientData) {
+  renderPatients() {
     var patients = React.cloneElement(this.props.patients, {
       user: this.state.user,
       fetchingUser: this.state.fetchingUser,

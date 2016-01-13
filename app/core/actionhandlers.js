@@ -198,9 +198,9 @@ export default class ActionHandlers {
   }
 
   handleAcceptInvitation(invitation) {
-    var invites = _.cloneDeep(this.state.invites);
     var self = this;
     var comp = this.component;
+    var invites = _.cloneDeep(comp.state.invites);
 
     comp.setState({
       showingWelcomeSetup: false,
@@ -438,7 +438,7 @@ export default class ActionHandlers {
   handleFinalizeSignup() {
     var comp = this.component;
 
-    let signupKey = (comp.props.location) ? comp.props.location.signupKey : null;
+    let signupKey = (comp.props.location) ? comp.props.location.query.signupKey : null;
     
     if (!_.isEmpty(signupKey) && !comp.state.finalizingVerification) {
       comp.props.route.api.user.confirmSignUp(signupKey, function(err) {

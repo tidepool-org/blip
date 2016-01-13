@@ -39,20 +39,19 @@ export const requireAuth = (api) => (nextState, replaceState) => {
  *
  * @return {boolean|null} returns true if hash mapping happened
  */
-export const requireAuthAndNoPatient = (api, cb) => (nextState, replaceState, cb) => {
-  console.log('requireAuthAndNoPatient');
+export const requireAuthAndNoPatient = (api) => (nextState, replaceState, cb) => {
   if (!api.user.isAuthenticated()) {
     replaceState(null, '/login');
-    cb();
+    return cb();
   }
   else {
     api.user.get(function(err, user) {
       if (personUtils.isPatient(user)) {
         replaceState(null, '/patients');
-        cb();
+        return cb();
       }
       cb();
-    })
+    });
   }
 };
 
@@ -71,10 +70,26 @@ export const requireNoAuth = (api) => (nextState, replaceState) => {
   }
 };
 
-export const requireNotVerified = (api, cb) => (nextState, replaceState) => {
+/**
+ * This function redirects any requests that land on pages that should only be
+ * visible when the user hasn't yet verified their sign-up e-mail
+ * if the user already has completed the e-mail verification
+ *
+ * @param  {Object} nextState
+ * @param  {Function} replaceState
+ *
+ * @return {boolean|null} returns true if hash mapping happened
+ */
+export const requireNotVerified = (api) => (nextState, replaceState, cb) => {
   api.user.get(function(err, user) {
     if (err) {
-      return cb(err);
+      // we expect a 401 Unauthorized when navigating to /email-verification
+      // when not logged in (e.g., in a new tab after initial sign-up)
+      if (err.status === 401) {
+        return cb();
+      }
+      throw new Error('Error getting user at /email-verification');
+      return cb();
     }
     if (user.emailVerified === true) {
       replaceState(null, '/patients');
@@ -82,8 +97,27 @@ export const requireNotVerified = (api, cb) => (nextState, replaceState) => {
     }
     // we log the user out so that requireNoAuth will work properly
     // when they try to log in
-    api.user.logout(cb);
+    api.user.logout(() => {
+      api.log('"Logged out" user after initial set-up so that /login is accessible');
+    });
+    cb();
   });
+}
+
+/**
+ * This function redirects the /request-password-from-uploader route to the
+ * account settings/profile page where the user can change password iff the user
+ * is already logged in (with token stored) to blip in their browser
+ *
+ * @param  {Object} nextState
+ * @param  {Function} replaceState
+ *
+ * @return {boolean|null} returns true if hash mapping happened
+ */
+export const onUploaderPasswordReset = (api) => (nextState, replaceState) => {
+  if (api.user.isAuthenticated()) {
+    replaceState(null, '/profile');
+  }
 }
 
 /**
@@ -129,25 +163,21 @@ export const getRoutes = (appContext) => {
   let props = appContext.props;
   let api = props.api;
 
-  function cb() {
-    props.log('Async route transition completed!');
-  }
-
   return (
     <Route path='/' component={AppComponent} {...props}>
       <IndexRoute components={{login:Login}} onEnter={onIndexRouteEnter(api)} />
       <Route path='login' components={{login:Login}} onEnter={requireNoAuth(api)} />
       <Route path='signup' components={{signup: Signup}} onEnter={requireNoAuth(api)} />
-      <Route path='email-verification' components={{emailVerification: EmailVerification}} onEnter={requireNotVerified(api, cb)} />
+      <Route path='email-verification' components={{emailVerification: EmailVerification}} onEnter={requireNotVerified(api)} />
       <Route path='profile' components={{profile: Profile}} onEnter={requireAuth(api)} />
       <Route path='patients' components={{patients: Patients}} onEnter={requireAuth(api)} />
-      <Route path='patients/new' components={{patientNew: PatientNew}} onEnter={requireAuthAndNoPatient(api, cb)} />
+      <Route path='patients/new' components={{patientNew: PatientNew}} onEnter={requireAuthAndNoPatient(api)} />
       <Route path='patients/:id/profile' components={{patient: Patient}} onEnter={requireAuth(api)} />
       <Route path='patients/:id/share' components={{patientShare: Patient}} onEnter={requireAuth(api)} />
       <Route path='patients/:id/data' components={{patientData: PatientData}} onEnter={requireAuth(api)} />
       <Route path='request-password-reset' components={{requestPasswordReset: RequestPasswordReset}} onEnter={requireNoAuth(api)} />
-      <Route path='confirm-password-reset' components={{ confirmPasswordReset: ConfirmPasswordReset}} onEnter={requireNoAuth(api)} />
-      <Route path='request-password-from-uploader' components={{ requestPasswordReset: RequestPasswordReset}} onEnter={requireNoAuth(api)} />
+      <Route path='confirm-password-reset' components={{confirmPasswordReset: ConfirmPasswordReset}} onEnter={requireNoAuth(api)} />
+      <Route path='request-password-from-uploader' components={{requestPasswordReset: RequestPasswordReset}} onEnter={onUploaderPasswordReset(api)} />
     </Route>
   );
 }
