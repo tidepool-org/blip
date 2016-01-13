@@ -4,7 +4,7 @@
 /* global it */
 
 import { 
-  requireAuth, requireNoAuth, hashToUrl, onIndexRouteEnter 
+  requireAuth, requireAuthAndNoPatient, requireNoAuth, requireNotVerified, hashToUrl, onIndexRouteEnter
 } from '../../app/routes';
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
@@ -17,7 +17,6 @@ var expect = chai.expect;
 describe('routes', () => {
 
   describe('requireAuth', () => {
-    
     it('should update route to /login if user is not authenticated', () => {
       let api = {
         user : {
@@ -48,6 +47,81 @@ describe('routes', () => {
       requireAuth(api)(null, replaceState);
 
       expect(replaceState.callCount).to.equal(0);
+    });
+  });
+
+  describe('requireAuthAndNoPatient', () => {
+    it('should update the route to /login if the user is not authenticated', (done) => {
+      let api = {
+        user: {
+          isAuthenticated: sinon.stub().returns(false)
+        }
+      };
+
+      let replaceState = sinon.stub();
+
+      expect(replaceState.callCount).to.equal(0);
+
+      requireAuthAndNoPatient(api)(null, replaceState, () => {
+        expect(replaceState.withArgs(null, '/login').callCount).to.equal(1);
+        done();
+      });
+    });
+
+    it('should update the route to /patients if the user is authenticated and already has data storage set up', (done) => {
+      let api = {
+        user: {
+          get: (cb) => {
+            cb(
+              null,
+              {
+                userid: 'a1b2c3',
+                profile: {
+                  patient: {}
+                }
+              }
+            );
+          },
+          isAuthenticated: sinon.stub().returns(true)
+        }
+      };
+
+      let replaceState = sinon.stub();
+
+      expect(replaceState.callCount).to.equal(0);
+
+      requireAuthAndNoPatient(api)(null, replaceState, () => {
+        expect(replaceState.withArgs(null, '/patients').callCount).to.equal(1);
+        done();
+      });
+    });
+
+    it('should not update the route if the user is authenticated and does not have data storage set up', (done) => {
+      let api = {
+        user: {
+          get: (cb) => {
+            cb(
+              null,
+              {
+                userid: 'a1b2c3',
+                profile: {
+                  about: 'Foo bar'
+                }
+              }
+            );
+          },
+          isAuthenticated: sinon.stub().returns(true)
+        }
+      };
+
+      let replaceState = sinon.stub();
+
+      expect(replaceState.callCount).to.equal(0);
+
+      requireAuthAndNoPatient(api)(null, replaceState, () => {
+        expect(replaceState.callCount).to.equal(0);
+        done();
+      });
     });
   });
 
@@ -82,6 +156,82 @@ describe('routes', () => {
       requireNoAuth(api)(null, replaceState);
 
       expect(replaceState.callCount).to.equal(0);
+    });
+  });
+
+  describe('requireNotVerified', () => {
+    it('should not update route if user is not logged in', (done) => {
+      let api = {
+        user: {
+          get: (cb) => {
+            cb({
+              status: 401
+            });
+          }
+        },
+        logout: sinon.stub()
+      };
+
+      let replaceState = sinon.stub();
+
+      expect(replaceState.callCount).to.equal(0);
+
+      requireNotVerified(api)(null, replaceState, () => {
+        expect(replaceState.callCount).to.equal(0);
+        done();
+      });
+    });
+
+    it('should update the route to /patients if user has already verified e-mail', (done) => {
+      let api = {
+        user: {
+          get: (cb) => {
+            cb(
+              null,
+              {
+                userid: 'a1b2c3',
+                emailVerified: true
+              }
+            );
+          }
+        }
+      };
+
+      let replaceState = sinon.stub();
+
+      expect(replaceState.callCount).to.equal(0);
+
+      requireNotVerified(api)(null, replaceState, () => {
+        expect(replaceState.withArgs(null, '/patients').callCount).to.equal(1);
+        done();
+      });
+    });
+
+    it('should not update the route if user has not yet verified e-mail and should \"logout\" user', (done) => {
+      let api = {
+        log: () => {},
+        user: {
+          get: (cb) => {
+            cb(
+              null,
+              {
+                userid: 'a1b2c3',
+                emailVerified: false
+              }
+            );
+          },
+          logout: (cb) => { cb(); }
+        }
+      };
+
+      let replaceState = sinon.stub();
+
+      expect(replaceState.callCount).to.equal(0);
+
+      requireNotVerified(api)(null, replaceState, () => {
+        expect(replaceState.callCount).to.equal(0);
+        done();
+      });
     });
   });
 
@@ -208,7 +358,7 @@ describe('routes', () => {
       expect(replaceState.withArgs(null, '/patients').callCount).to.equal(1);
     });
 
-    it('should update not route to /patients when not logged in', () => {
+    it('should not update route to /patients when not logged in', () => {
       let nextState = {
         location: {
           pathname: '/',

@@ -91,7 +91,7 @@ export default class Fetcher {
   fetchPatients(options) {
     var comp = this.component;
 
-    if(options && !options.hideLoading) {
+    if (options && !options.hideLoading) {
         comp.setState({fetchingPatients: true});
     }
 
@@ -117,12 +117,22 @@ export default class Fetcher {
       if (err) {
         if (err.status === 404) {
           comp.props.route.log('Patient not found with id '+patientId);
-          var setupMsg = (patientId === comp.state.user.userid) ? usrMessages.ERR_YOUR_ACCOUNT_NOT_CONFIGURED : usrMessages.ERR_ACCOUNT_NOT_CONFIGURED;
-          var dataStoreLink = (<Link to="/patients/new" onClick={comp.closeNotification}>{usrMessages.YOUR_ACCOUNT_DATA_SETUP}</Link>);
+          var setupMsg = (patientId === comp.state.user.userid) ?
+            usrMessages.ERR_YOUR_ACCOUNT_NOT_CONFIGURED :
+            usrMessages.ERR_ACCOUNT_NOT_CONFIGURED;
+          var dataStoreLink = (
+            <Link to="/patients/new" onClick={comp.closeNotification.bind(comp)}>
+              {usrMessages.YOUR_ACCOUNT_DATA_SETUP}
+            </Link>
+            );
           return comp.actionHandlers.handleActionableError(err, setupMsg, dataStoreLink);
         }
         // we can't deal with it so just show error handler
-        return comp.actionHandlers.handleApiError(err, usrMessages.ERR_FETCHING_PATIENT+patientId, utils.buildExceptionDetails());
+        return comp.actionHandlers.handleApiError(
+          err,
+          usrMessages.ERR_FETCHING_PATIENT+patientId,
+          utils.buildExceptionDetails()
+        );
       }
 
       comp.setState({

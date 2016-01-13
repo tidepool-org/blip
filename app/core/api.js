@@ -105,10 +105,10 @@ api.user.signup = function(user, cb) {
     var userId = account.userid;
 
     tidepool.signupStart(userId, function(err, results){
-      if(err){
-        api.log('signup process error',err);
+      if (err){
+        api.log('signup process error', err);
       }
-      api.log('signup process started ',results);
+      api.log('signup process started');
     });
 
     // Then, add additional user info (full name, etc.) to profile
@@ -117,6 +117,7 @@ api.user.signup = function(user, cb) {
         return cb(err);
       }
 
+      api.log('added profile info to signup', results);
       cb(null, userFromAccountAndProfile({
         account: account,
         profile: results
@@ -198,7 +199,6 @@ api.user.get = function(cb) {
       return cb(err);
     }
 
-
     cb(null, userFromAccountAndProfile(results));
   });
 };
@@ -235,7 +235,7 @@ function userFromAccountAndProfile(results) {
   var account = results.account;
   var profile = results.profile;
 
-  var user = _.pick(account, 'userid', 'username', 'emails', 'termsAccepted');
+  var user = account;
   user.profile = profile;
 
   return user;
@@ -442,7 +442,7 @@ api.team.getMessageThread = function(messageId,cb){
   api.log('GET /message/thread/' + messageId);
 
   tidepool.getMessageThread(messageId, function(error,messages){
-    if(error){
+    if (error){
       return cb(error);
     }
 
@@ -463,7 +463,7 @@ api.team.getNotes = function(userId,cb){
   var dateRange = null;
 
   tidepool.getNotesForUser(userId, dateRange, function(error,messages){
-    if(error){
+    if (error){
       return cb(error);
     }
 

@@ -13,6 +13,8 @@ import RequestPasswordReset from './pages/passwordreset/request';
 import ConfirmPasswordReset from './pages/passwordreset/confirm';
 import EmailVerification from './pages/emailverification';
 
+import personUtils from './core/personutils';
+
 /**
  * This function redirects any requests that land on pages that should only be
  * visible when logged in if the user is logged out
@@ -23,8 +25,33 @@ import EmailVerification from './pages/emailverification';
  * @return {boolean|null} returns true if hash mapping happened
  */
 export const requireAuth = (api) => (nextState, replaceState) => {
-  if(!api.user.isAuthenticated()) {
+  if (!api.user.isAuthenticated()) {
     replaceState(null, '/login');
+  }
+};
+
+/**
+ * This function redirects any requests that land on pages that should only be
+ * visible when no data storage is set up if the user has data storage set up
+ *
+ * @param  {Object} nextState
+ * @param  {Function} replaceState
+ *
+ * @return {boolean|null} returns true if hash mapping happened
+ */
+export const requireAuthAndNoPatient = (api) => (nextState, replaceState, cb) => {
+  if (!api.user.isAuthenticated()) {
+    replaceState(null, '/login');
+    return cb();
+  }
+  else {
+    api.user.get(function(err, user) {
+      if (personUtils.isPatient(user)) {
+        replaceState(null, '/patients');
+        return cb();
+      }
+      cb();
+    });
   }
 };
 
@@ -38,10 +65,44 @@ export const requireAuth = (api) => (nextState, replaceState) => {
  * @return {boolean|null} returns true if hash mapping happened
  */
 export const requireNoAuth = (api) => (nextState, replaceState) => {
-  if(api.user.isAuthenticated()) {
+  if (api.user.isAuthenticated()) {
     replaceState(null, '/patients');
   }
 };
+
+/**
+ * This function redirects any requests that land on pages that should only be
+ * visible when the user hasn't yet verified their sign-up e-mail
+ * if the user already has completed the e-mail verification
+ *
+ * @param  {Object} nextState
+ * @param  {Function} replaceState
+ *
+ * @return {boolean|null} returns true if hash mapping happened
+ */
+export const requireNotVerified = (api) => (nextState, replaceState, cb) => {
+  api.user.get(function(err, user) {
+    if (err) {
+      // we expect a 401 Unauthorized when navigating to /email-verification
+      // when not logged in (e.g., in a new tab after initial sign-up)
+      if (err.status === 401) {
+        return cb();
+      }
+      throw new Error('Error getting user at /email-verification');
+      return cb();
+    }
+    if (user.emailVerified === true) {
+      replaceState(null, '/patients');
+      return cb();
+    }
+    // we log the user out so that requireNoAuth will work properly
+    // when they try to log in
+    api.user.logout(() => {
+      api.log('"Logged out" user after initial set-up so that /login is accessible');
+    });
+    cb();
+  });
+}
 
 /**
  * This function exists for backward compatibility and maps hash
@@ -56,7 +117,7 @@ export const hashToUrl = (nextState, replaceState) => {
   let path = nextState.location.pathname;
   let hash = nextState.location.hash;
 
-  if((!path || path === '/') && hash) {
+  if ((!path || path === '/') && hash) {
     replaceState(null, hash.substring(1));
     return true;
   }
@@ -91,10 +152,10 @@ export const getRoutes = (appContext) => {
       <IndexRoute components={{login:Login}} onEnter={onIndexRouteEnter(api)} />
       <Route path='login' components={{login:Login}} onEnter={requireNoAuth(api)} />
       <Route path='signup' components={{signup: Signup}} onEnter={requireNoAuth(api)} />
-      <Route path='email-verification' components={{emailVerification: EmailVerification}} onEnter={requireNoAuth(api)} />
+      <Route path='email-verification' components={{emailVerification: EmailVerification}} onEnter={requireNotVerified(api)} />
       <Route path='profile' components={{profile: Profile}} onEnter={requireAuth(api)} />
       <Route path='patients' components={{patients: Patients}} onEnter={requireAuth(api)} />
-      <Route path='patients/new' components={{patientNew: PatientNew}} onEnter={requireAuth(api)} />
+      <Route path='patients/new' components={{patientNew: PatientNew}} onEnter={requireAuthAndNoPatient(api)} />
       <Route path='patients/:id/profile' components={{patient: Patient}} onEnter={requireAuth(api)} />
       <Route path='patients/:id/share' components={{patientShare: Patient}} onEnter={requireAuth(api)} />
       <Route path='patients/:id/data' components={{patientData: PatientData}} onEnter={requireAuth(api)} />

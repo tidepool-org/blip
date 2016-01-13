@@ -47,6 +47,12 @@ import EmailVerification from '../../pages/emailverification';
 
 // Styles
 require('tideline/css/tideline.less');
+// the only way to not use this work-around (requiring fonts through a JS file)
+// is to use the `publicPath` webpack config option
+// (see here: http://stackoverflow.com/questions/34133808/webpack-ots-parsing-error-loading-fonts/34133809#34133809)
+// but we can't really do that because we'd need to vary it by config
+// but we don't let our app builds vary by environment/config
+require('../../core/less/fonts.less');
 require('../../style.less');
 
 // Blip favicon
@@ -61,7 +67,7 @@ export default class AppComponent extends React.Component {
       trackMetric: React.PropTypes.func.isRequired,
       DEBUG: React.PropTypes.bool.isRequired
     }).isRequired
-  }
+  };
 
   constructor(props) {
     super(props);
@@ -176,7 +182,7 @@ export default class AppComponent extends React.Component {
     return personUtils.isSame(this.state.user, this.state.patient);
   }
 
-  logSupportContact(){
+  logSupportContact() {
     this.props.route.trackMetric('Clicked Give Feedback');
   }
 
@@ -244,12 +250,12 @@ export default class AppComponent extends React.Component {
   }
 
   redirectToDefaultRoute() {
-    this.props.history.pushState(null, 'patients');
+    this.props.history.pushState(null, '/patients');
   }
 
   doFetching(nextProps) {
     if (this.state.authenticated) {
-        this.fetcher.fetchUser();
+      this.fetcher.fetchUser();
     }
 
     if (nextProps.login) {
@@ -262,7 +268,7 @@ export default class AppComponent extends React.Component {
     } else if (nextProps.patient) {
       this.fetcher.fetchPatient(nextProps.params.id);
       this.props.route.trackMetric('Viewed Profile');
-    } else if(nextProps.patientData) {
+    } else if (nextProps.patientData) {
       this.fetcher.fetchPatient(nextProps.params.id, (err, patient) => {
         this.fetcher.fetchPatientData(patient);
       });
@@ -407,7 +413,6 @@ export default class AppComponent extends React.Component {
   }
 
   renderVersion() {
-
     var version = this.props.route.config.VERSION;
     if (version) {
       version = 'v' + version + ' beta';
@@ -434,18 +439,12 @@ export default class AppComponent extends React.Component {
 
   renderSignup() {
     let config = this.props.route.config;
-    var checkKey = (key, cb) => {
-      if (_.isEmpty(config.INVITE_KEY) || key === config.INVITE_KEY){
-        return cb(true);
-      }
-      return cb(false);
-    };
 
     return React.cloneElement(this.props.signup, {
-      onSubmit: this.actionHandlers.handleSignup.bind(this.actionHandlers),
+      configuredInviteKey: config.INVITE_KEY || '',
       inviteEmail: this.getInviteEmail(),
       inviteKey: this.getInviteKey(),
-      checkKey: checkKey,
+      onSubmit: this.actionHandlers.handleSignup.bind(this.actionHandlers),
       onSubmitSuccess: this.actionHandlers.handleSignupSuccess.bind(this.actionHandlers),
       trackMetric: this.props.route.trackMetric
     });
@@ -469,7 +468,7 @@ export default class AppComponent extends React.Component {
     });
   }
 
-  renderPatients(showPatientData) {
+  renderPatients() {
     var patients = React.cloneElement(this.props.patients, {
       user: this.state.user,
       fetchingUser: this.state.fetchingUser,
@@ -536,20 +535,6 @@ export default class AppComponent extends React.Component {
   }
 
   renderPatientNew() {
-    this.setState({
-      patient: null,
-      fetchingPatient: false
-    });
-    this.props.route.trackMetric('Viewed Profile Create');
-
-    // Make sure user doesn't already have a patient
-    if (this.isDoneFetchingAndUserHasPatient()) {
-      var patientId = this.state.user.userid;
-      var route = '/patients/' + patientId;
-      this.props.route.log('User already has patient');
-      this.props.history.pushState(null, route);
-      return;
-    }
     return React.cloneElement(this.props.patientNew, {
       user: this.state.user,
       fetchingUser: this.state.fetchingUser,
@@ -620,6 +605,7 @@ export default class AppComponent extends React.Component {
     } else if (this.props.patients) {
       return this.renderPatients();
     } else if (this.props.patientNew) {
+
       return this.renderPatientNew();
     } else if (this.props.patient) {
       return this.renderPatient();
