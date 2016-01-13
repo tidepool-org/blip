@@ -18,10 +18,14 @@
 /**
  * Syncronous action types
  */
+export const SHOW_WELCOME_MESSAGE = 'SHOW_WELCOME_MESSAGE';
 export const HIDE_WELCOME_MESSAGE = 'HIDE_WELCOME_MESSAGE';
 
+
+export const SHOW_NOTIFICATION = 'SHOW_NOTIFICATION';
 export const CLOSE_NOTIFICATION = 'CLOSE_NOTIFICATION';
 
+// probably redundant
 export const CLEAR_USER_DATA = 'CLEAR_USER_DATA';
 
 /*
@@ -107,4 +111,9 @@ export const UPDATE_PATIENT_FAILURE = 'UPDATE_PATIENT_FAILURE';
 export const UPDATE_USER_REQUEST = 'UPDATE_USER_REQUEST';
 export const UPDATE_USER_SUCCESS = 'UPDATE_USER_SUCCESS';
 export const UPDATE_USER_FAILURE = 'UPDATE_USER_FAILURE';
+
+// log api arror
+export const LOG_ERROR_REQUEST = 'LOG_ERROR_REQUEST';
+export const LOG_ERROR_SUCCESS = 'LOG_ERROR_SUCCESS';
+export const LOG_ERROR_FAILURE = 'LOG_ERROR_FAILURE';
 

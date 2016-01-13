@@ -19,6 +19,33 @@ import _ from 'lodash';
 
 import * as ActionTypes from '../constants/actionTypes';
 
+export function showWelcomeMessage() {
+  return {
+    type: ActionTypes.SHOW_WELCOME_MESSAGE
+  };
+}
+
+export function hideWelcomeMessage() {
+  return {
+    type: ActionTypes.HIDE_WELCOME_MESSAGE
+  };
+}
+
+export function showNotification(notification) {
+  return {
+    type: ActionTypes.SHOW_NOTIFICATION,
+    payload: {
+      notification: notification
+    }
+  };
+}
+
+export function closeNotification() {
+  return {
+    type: ActionTypes.CLOSE_NOTIFICATION
+  };
+}
+
 export function loginRequest() {
   return {
     type: ActionTypes.LOGIN_REQUEST
@@ -47,12 +74,9 @@ export function logoutRequest() {
   };
 }
 
-export function logoutSuccess(user) {
+export function logoutSuccess() {
   return {
     type: ActionTypes.LOGOUT_SUCCESS,
-    payload: {
-      user: user
-    }
   };
 }
 
@@ -91,7 +115,7 @@ export function confirmSignupRequest() {
   };
 }
 
-export function confirmSignupSuccess(user) {
+export function confirmSignupSuccess() {
   return {
     type: ActionTypes.CONFIRM_SIGNUP_SUCCESS
   };
@@ -100,6 +124,25 @@ export function confirmSignupSuccess(user) {
 export function confirmSignupFailure(error) {
   return {
     type: ActionTypes.CONFIRM_SIGNUP_FAILURE,
+    error: error
+  };
+}
+
+export function logErrorRequest() {
+  return {
+    type: ActionTypes.LOG_ERROR_REQUEST
+  };
+}
+
+export function logErrorSuccess() {
+  return {
+    type: ActionTypes.LOG_ERROR_SUCCESS
+  };
+}
+
+export function logErrorFailure(error) {
+  return {
+    type: ActionTypes.LOG_ERROR_FAILURE,
     error: error
   };
 }
