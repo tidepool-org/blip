@@ -62,10 +62,10 @@ describe('routes', () => {
 
       expect(replaceState.callCount).to.equal(0);
 
-      requireAuthAndNoPatient(api, () => {
+      requireAuthAndNoPatient(api)(null, replaceState, () => {
         expect(replaceState.withArgs(null, '/login').callCount).to.equal(1);
         done();
-      })(null, replaceState);
+      });
     });
 
     it('should update the route to /patients if the user is authenticated and already has data storage set up', (done) => {
@@ -90,10 +90,10 @@ describe('routes', () => {
 
       expect(replaceState.callCount).to.equal(0);
 
-      requireAuthAndNoPatient(api, () => {
+      requireAuthAndNoPatient(api)(null, replaceState, () => {
         expect(replaceState.withArgs(null, '/patients').callCount).to.equal(1);
         done();
-      })(null, replaceState);
+      });
     });
 
     it('should not update the route if the user is authenticated and does not have data storage set up', (done) => {
@@ -118,10 +118,10 @@ describe('routes', () => {
 
       expect(replaceState.callCount).to.equal(0);
 
-      requireAuthAndNoPatient(api, () => {
+      requireAuthAndNoPatient(api)(null, replaceState, () => {
         expect(replaceState.callCount).to.equal(0);
         done();
-      })(null, replaceState);
+      });
     });
   });
 
@@ -176,10 +176,10 @@ describe('routes', () => {
 
       expect(replaceState.callCount).to.equal(0);
 
-      requireNotVerified(api, () => {
+      requireNotVerified(api)(null, replaceState, () => {
         expect(replaceState.callCount).to.equal(0);
         done();
-      })(null, replaceState);
+      });
     });
 
     it('should update the route to /patients if user has already verified e-mail', (done) => {
@@ -201,10 +201,10 @@ describe('routes', () => {
 
       expect(replaceState.callCount).to.equal(0);
 
-      requireNotVerified(api, () => {
+      requireNotVerified(api)(null, replaceState, () => {
         expect(replaceState.withArgs(null, '/patients').callCount).to.equal(1);
         done();
-      })(null, replaceState);
+      });
     });
 
     it('should not update the route if user has not yet verified e-mail and should \"logout\" user', (done) => {
@@ -228,10 +228,10 @@ describe('routes', () => {
 
       expect(replaceState.callCount).to.equal(0);
 
-      requireNotVerified(api, () => {
+      requireNotVerified(api)(null, replaceState, () => {
         expect(replaceState.callCount).to.equal(0);
         done();
-      })(null, replaceState);
+      });
     });
   });
 

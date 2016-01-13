@@ -39,16 +39,16 @@ export const requireAuth = (api) => (nextState, replaceState) => {
  *
  * @return {boolean|null} returns true if hash mapping happened
  */
-export const requireAuthAndNoPatient = (api, cb) => (nextState, replaceState) => {
+export const requireAuthAndNoPatient = (api) => (nextState, replaceState, cb) => {
   if (!api.user.isAuthenticated()) {
     replaceState(null, '/login');
-    cb();
+    return cb();
   }
   else {
     api.user.get(function(err, user) {
       if (personUtils.isPatient(user)) {
         replaceState(null, '/patients');
-        cb();
+        return cb();
       }
       cb();
     });
@@ -80,7 +80,7 @@ export const requireNoAuth = (api) => (nextState, replaceState) => {
  *
  * @return {boolean|null} returns true if hash mapping happened
  */
-export const requireNotVerified = (api, cb) => (nextState, replaceState) => {
+export const requireNotVerified = (api) => (nextState, replaceState, cb) => {
   api.user.get(function(err, user) {
     if (err) {
       // we expect a 401 Unauthorized when navigating to /email-verification
@@ -88,7 +88,8 @@ export const requireNotVerified = (api, cb) => (nextState, replaceState) => {
       if (err.status === 401) {
         return cb();
       }
-      return cb(err);
+      throw new Error('Error getting user at /email-verification');
+      return cb();
     }
     if (user.emailVerified === true) {
       replaceState(null, '/patients');
@@ -146,22 +147,15 @@ export const getRoutes = (appContext) => {
   let props = appContext.props;
   let api = props.api;
 
-  function cb(err) {
-    if (err) {
-      throw new Error('Error during async route transition :(');
-    }
-    props.log('Async route transition completed!');
-  }
-
   return (
     <Route path='/' component={AppComponent} {...props}>
       <IndexRoute components={{login:Login}} onEnter={onIndexRouteEnter(api)} />
       <Route path='login' components={{login:Login}} onEnter={requireNoAuth(api)} />
       <Route path='signup' components={{signup: Signup}} onEnter={requireNoAuth(api)} />
-      <Route path='email-verification' components={{emailVerification: EmailVerification}} onEnter={requireNotVerified(api, cb)} />
+      <Route path='email-verification' components={{emailVerification: EmailVerification}} onEnter={requireNotVerified(api)} />
       <Route path='profile' components={{profile: Profile}} onEnter={requireAuth(api)} />
       <Route path='patients' components={{patients: Patients}} onEnter={requireAuth(api)} />
-      <Route path='patients/new' components={{patientNew: PatientNew}} onEnter={requireAuthAndNoPatient(api, cb)} />
+      <Route path='patients/new' components={{patientNew: PatientNew}} onEnter={requireAuthAndNoPatient(api)} />
       <Route path='patients/:id/profile' components={{patient: Patient}} onEnter={requireAuth(api)} />
       <Route path='patients/:id/share' components={{patientShare: Patient}} onEnter={requireAuth(api)} />
       <Route path='patients/:id/data' components={{patientData: PatientData}} onEnter={requireAuth(api)} />
