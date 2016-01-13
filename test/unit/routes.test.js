@@ -4,7 +4,7 @@
 /* global it */
 
 import { 
-  requireAuth, requireAuthAndNoPatient, requireNoAuth, requireNotVerified, hashToUrl, onIndexRouteEnter
+  requireAuth, requireAuthAndNoPatient, requireNoAuth, requireNotVerified, onUploaderPasswordReset, hashToUrl, onIndexRouteEnter
 } from '../../app/routes';
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
@@ -232,6 +232,40 @@ describe('routes', () => {
         expect(replaceState.callCount).to.equal(0);
         done();
       });
+    });
+  });
+
+  describe('onUploaderPasswordReset', () => {
+    it('should not update route if user is not logged in', () => {
+      let api = {
+        user: {
+          isAuthenticated: sinon.stub().returns(false)
+        }
+      };
+
+      let replaceState = sinon.stub();
+
+      expect(replaceState.callCount).to.equal(0);
+
+      onUploaderPasswordReset(api)(null, replaceState);
+
+      expect(replaceState.callCount).to.equal(0);
+    });
+
+    it('should update the route to /profile if the user is authenticated', () => {
+      let api = {
+        user: {
+          isAuthenticated: sinon.stub().returns(true)
+        }
+      };
+
+      let replaceState = sinon.stub();
+
+      expect(replaceState.callCount).to.equal(0);
+
+      onUploaderPasswordReset(api)(null, replaceState);
+
+      expect(replaceState.withArgs(null, '/profile').callCount).to.equal(1);
     });
   });
 
