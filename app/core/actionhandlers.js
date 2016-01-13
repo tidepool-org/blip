@@ -198,9 +198,9 @@ export default class ActionHandlers {
   }
 
   handleAcceptInvitation(invitation) {
-    var invites = _.cloneDeep(this.state.invites);
     var self = this;
     var comp = this.component;
+    var invites = _.cloneDeep(comp.state.invites);
 
     comp.setState({
       showingWelcomeSetup: false,
