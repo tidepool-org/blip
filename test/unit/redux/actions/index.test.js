@@ -116,7 +116,10 @@ describe('Actions', () => {
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal SHOW_WELCOME_MESSAGE');
+      it('type should equal SHOW_WELCOME_MESSAGE', () => {
+        let action = actions.sync.showWelcomeMessage();
+        expect(action.type).to.equal('SHOW_WELCOME_MESSAGE');
+      });
     });
 
     describe('hideWelcomeMessage', () => {
@@ -126,7 +129,10 @@ describe('Actions', () => {
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal HIDE_WELCOME_MESSAGE');
+      it('type should equal HIDE_WELCOME_MESSAGE', () => {
+        let action = actions.sync.hideWelcomeMessage();
+        expect(action.type).to.equal('HIDE_WELCOME_MESSAGE');
+      });
     });
 
     describe('showNotification', () => {
@@ -136,7 +142,10 @@ describe('Actions', () => {
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal SHOW_NOTIFICATION');
+      it('type should equal SHOW_NOTIFICATION', () => {
+        let action = actions.sync.showNotification();
+        expect(action.type).to.equal('SHOW_NOTIFICATION');
+      });
     });
 
     describe('closeNotification', () => {
@@ -146,7 +155,10 @@ describe('Actions', () => {
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal CLOSE_NOTIFICATION');
+      it('type should equal CLOSE_NOTIFICATION', () => {
+        let action = actions.sync.closeNotification();
+        expect(action.type).to.equal('CLOSE_NOTIFICATION');
+      });
     });
 
     describe('loginRequest', () => {
@@ -156,7 +168,10 @@ describe('Actions', () => {
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal LOGIN_REQUEST');
+      it('type should equal LOGIN_REQUEST', () => {
+        let action = actions.sync.loginRequest();
+        expect(action.type).to.equal('LOGIN_REQUEST');
+      });
     });
 
     describe('loginSuccess', () => {
@@ -167,7 +182,13 @@ describe('Actions', () => {
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal LOGIN_SUCCESS and payload should contain user');
+      it('type should equal LOGIN_SUCCESS and payload should contain user', () => {
+        let user = { id: 27, name: 'Frankie' };
+        let action = actions.sync.loginSuccess(user);
+
+        expect(action.type).to.equal('LOGIN_SUCCESS');
+        expect(action.payload.user).to.equal(user);
+      });
     });
 
     describe('loginFailure', () => {
@@ -178,7 +199,13 @@ describe('Actions', () => {
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal LOGIN_FAILURE and error should equal passed error');
+      it('type should equal LOGIN_FAILURE and error should equal passed error', () => {
+        let error = 'Error';
+        let action = actions.sync.loginFailure(error);
+
+        expect(action.type).to.equal('LOGIN_FAILURE');
+        expect(action.error).to.equal(error);
+      });
     });
 
     describe('logoutRequest', () => {
@@ -188,7 +215,10 @@ describe('Actions', () => {
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal LOGOUT_REQUEST');
+      it('type should equal LOGOUT_REQUEST', () => {
+        let action = actions.sync.logoutRequest();
+        expect(action.type).to.equal('LOGOUT_REQUEST');
+      });
     });
 
     describe('logoutSuccess', () => {
@@ -199,7 +229,11 @@ describe('Actions', () => {
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal LOGOUT_SUCCESS');
+      it('type should equal LOGOUT_SUCCESS', () => {
+        let action = actions.sync.logoutSuccess();
+
+        expect(action.type).to.equal('LOGOUT_SUCCESS');
+      });
     });
 
     describe('logoutFailure', () => {
@@ -210,7 +244,13 @@ describe('Actions', () => {
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal LOGOUT_FAILURE and error should equal passed error');
+      it('type should equal LOGOUT_FAILURE and error should equal passed error', () => {
+        let error = 'Error';
+        let action = actions.sync.logoutFailure(error);
+
+        expect(action.type).to.equal('LOGOUT_FAILURE');
+        expect(action.error).to.equal(error);
+      });
     });
 
     describe('signupRequest', () => {
@@ -220,7 +260,10 @@ describe('Actions', () => {
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal SIGNUP_REQUEST');
+      it('type should equal SIGNUP_REQUEST', () => {
+        let action = actions.sync.signupRequest();
+        expect(action.type).to.equal('SIGNUP_REQUEST');
+      });
     });
 
     describe('signupSuccess', () => {
@@ -231,7 +274,13 @@ describe('Actions', () => {
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal SIGNUP_SUCCESS and payload should contain user');
+      it('type should equal SIGNUP_SUCCESS and payload should contain user', () => {
+        let user = { id: 27, name: 'Frankie' };
+        let action = actions.sync.signupSuccess(user);
+
+        expect(action.type).to.equal('SIGNUP_SUCCESS');
+        expect(action.payload.user).to.equal(user);
+      });
     });
 
     describe('signupFailure', () => {
@@ -242,7 +291,13 @@ describe('Actions', () => {
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal SIGNUP_FAILURE and error should equal passed error');
+      it('type should equal SIGNUP_FAILURE and error should equal passed error', () => {
+        let error = 'Error';
+        let action = actions.sync.signupFailure(error);
+
+        expect(action.type).to.equal('SIGNUP_FAILURE');
+        expect(action.error).to.equal(error);
+      });
     });
 
     describe('confirmSignupRequest', () => {
@@ -252,7 +307,10 @@ describe('Actions', () => {
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal CONFIRM_SIGNUP_REQUEST');
+      it('type should equal CONFIRM_SIGNUP_REQUEST', () => {
+        let action = actions.sync.confirmSignupRequest();
+        expect(action.type).to.equal('CONFIRM_SIGNUP_REQUEST');
+      });
     });
 
     describe('confirmSignupSuccess', () => {
@@ -263,7 +321,11 @@ describe('Actions', () => {
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal CONFIRM_SIGNUP_SUCCESS');
+      it('type should equal CONFIRM_SIGNUP_SUCCESS', () => {
+        let action = actions.sync.confirmSignupSuccess();
+
+        expect(action.type).to.equal('CONFIRM_SIGNUP_SUCCESS');
+      });
     });
 
     describe('confirmSignupFailure', () => {
@@ -274,7 +336,13 @@ describe('Actions', () => {
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal CONFIRM_SIGNUP_FAILURE and error should equal passed error');
+      it('type should equal CONFIRM_SIGNUP_FAILURE and error should equal passed error', () => {
+        let error = 'Error';
+        let action = actions.sync.confirmSignupFailure(error);
+
+        expect(action.type).to.equal('CONFIRM_SIGNUP_FAILURE');
+        expect(action.error).to.equal(error);
+      });
     });
 
     describe('logErrorRequest', () => {
@@ -284,7 +352,10 @@ describe('Actions', () => {
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal LOG_ERROR_REQUEST');
+      it('type should equal LOG_ERROR_REQUEST', () => {
+        let action = actions.sync.logErrorRequest();
+        expect(action.type).to.equal('LOG_ERROR_REQUEST');
+      });
     });
 
     describe('logErrorSuccess', () => {
@@ -294,7 +365,11 @@ describe('Actions', () => {
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal LOG_ERROR_SUCCESS');
+      it('type should equal LOG_ERROR_SUCCESS', () => {
+        let action = actions.sync.logErrorSuccess();
+
+        expect(action.type).to.equal('LOG_ERROR_SUCCESS');
+      });
     });
 
     describe('logErrorFailure', () => {
@@ -305,7 +380,13 @@ describe('Actions', () => {
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal LOG_ERROR_FAILURE and error should equal passed error');
+      it('type should equal LOG_ERROR_FAILURE and error should equal passed error', () => {
+        let error = 'Error';
+        let action = actions.sync.logErrorFailure(error);
+
+        expect(action.type).to.equal('LOG_ERROR_FAILURE');
+        expect(action.error).to.equal(error);
+      });
     });
   });
 });
