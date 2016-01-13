@@ -15,6 +15,7 @@
  */
 
 var React = require('react');
+var Link = require('react-router').Link;
 var _ = require('lodash');
 
 var config = require('../../config');
@@ -69,7 +70,7 @@ var ConfirmPasswordReset = React.createClass({
             <p>{'Your password was changed successfully. You can now log in with your new password.'}</p>
           </div>
           <div className="PasswordReset-button">
-            <a className="btn btn-primary" href="#/login">Log in</a>
+            <Link className="btn btn-primary" to="/login">Log in</Link>
           </div>
         </div>
       );
@@ -82,7 +83,7 @@ var ConfirmPasswordReset = React.createClass({
           </div>
           <div className="PasswordReset-form">{this.renderForm()}</div>
           <div className="PasswordReset-link">
-            <a href="#/login">Cancel</a>
+            <Link to="/login">Cancel</Link>
           </div>
         </div>
       );

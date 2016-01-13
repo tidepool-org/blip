@@ -15,6 +15,7 @@
  */
 
 var React = require('react');
+var Link = require('react-router').Link;
 var _ = require('lodash');
 
 var config = require('../../config');
@@ -116,7 +117,7 @@ var Login = React.createClass({
   },
 
   renderForgotPassword: function() {
-    return <a href="#/request-password-reset">{'I forgot my password'}</a>;
+    return <Link to="/request-password-reset">{'I forgot my password'}</Link>;
   },
 
   handleSubmit: function(formValues) {
@@ -191,13 +192,13 @@ var Login = React.createClass({
 
     submit(formValues, function(err) {
       if (err) {
-        //If the user is not yet validated lets get out quick
-        if(err.status === 403){
+        // when the user has not yet validated their sign-up e-mail address
+        if (err.status === 403) {
           self.props.onSubmitNotAuthorized();
           return;
         }
 
-        //Error message for display
+        // error message for display
         var message = (err.status === 401) ? 'Wrong username or password.' : 'An error occured while logging in.';
 
         self.setState({

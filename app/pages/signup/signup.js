@@ -27,11 +27,11 @@ var SimpleForm = require('../../components/simpleform');
 
 var Signup = React.createClass({
   propTypes: {
-    onSubmit: React.PropTypes.func.isRequired,
-    onSubmitSuccess: React.PropTypes.func.isRequired,
-    checkInviteKey: React.PropTypes.func.isRequired,
+    configuredInviteKey: React.PropTypes.string,
     inviteKey: React.PropTypes.string,
     inviteEmail: React.PropTypes.string,
+    onSubmit: React.PropTypes.func.isRequired,
+    onSubmitSuccess: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired
   },
 
@@ -65,14 +65,19 @@ var Signup = React.createClass({
     var hasInviteKey = !_.isEmpty(this.props.inviteKey) || this.props.inviteKey === '';
     var hasInviteEmail = !_.isEmpty(this.props.inviteEmail);
 
-    if ( hasInviteKey && hasInviteEmail ) {
-      //don't show waitlist if invited user to create account and join careteam
+    if (hasInviteKey && hasInviteEmail) {
+      // don't show waitlist if invited user to create account and join careteam
       return false;
-    } else if (hasInviteKey && this.props.checkInviteKey) {
-      //do we have a valid waitlist key?
-      return this.props.checkInviteKey(this.props.inviteKey, function(valid) {
-        return !valid;
-      });
+    }
+    else if (hasInviteKey) {
+      // do we have a valid waitlist key?
+      if (_.isEmpty(this.props.configuredInviteKey) ||
+        this.props.inviteKey === this.props.configuredInviteKey) {
+        return false;
+      }
+      else {
+        return true;
+      }
     }
     return true;
   },

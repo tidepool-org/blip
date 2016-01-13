@@ -15,6 +15,7 @@
  */
 
 var React = require('react');
+var Link = require('react-router').Link;
 var _ = require('lodash');
 
 var config = require('../../config');
@@ -82,7 +83,7 @@ var RequestPasswordReset = React.createClass({
           <div className="container-small-inner login-form-box">
             {content}
             <div className="PasswordReset-link">
-              <a href="#/login">Return to login</a>
+              <Link to="/login">Return to login</Link>
             </div>
           </div>
         </div>

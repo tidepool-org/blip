@@ -57,7 +57,6 @@ var PatientData = React.createClass({
   },
 
   getInitialState: function() {
-    var params = this.props.queryParams;
     var state = {
       chartPrefs: {
         modal: {

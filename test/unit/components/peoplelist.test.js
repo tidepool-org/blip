@@ -1,4 +1,7 @@
 /* global chai */
+/* global describe */
+/* global sinon */
+/* global it */
 
 var React = require('react');
 var ReactDOM = require('react-dom');
