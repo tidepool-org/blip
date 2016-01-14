@@ -78,34 +78,16 @@ export function fetchPendingMemberships(api) {
 }
 
 /**
- * Fetch Pending Memberships Action Creator
- * 
- * @param  {Object} api an instance of the API wrapper
- */
-export function fetchPendingMemberships(api) {
-  return (dispatch) => {
-    dispatch(sync.fetchPendingMembershipsRequest());
-    
-    api.invitation.getReceived((err, pendingMemberships) => {
-      if (err) {
-        dispatch(sync.fetchPendingMembershipsFailure(err));
-      } else {
-        dispatch(sync.fetchPendingMembershipsSuccess(pendingMemberships));
-      }
-    });
-  };
-}
-
-/**
  * Fetch Patient Action Creator
  * 
  * @param  {Object} api an instance of the API wrapper
+ * @param {String|Number} id
  */
-export function fetchPatient(api) {
+export function fetchPatient(api, id) {
   return (dispatch) => {
     dispatch(sync.fetchPatientRequest());
     
-    api.invitation.getReceived((err, patient) => {
+    api.patient.get(id, (err, patient) => {
       if (err) {
         dispatch(sync.fetchPatientFailure(err));
       } else {
@@ -124,7 +106,7 @@ export function fetchPatients(api) {
   return (dispatch) => {
     dispatch(sync.fetchPatientsRequest());
     
-    api.invitation.getReceived((err, patients) => {
+    api.patient.getAll((err, patients) => {
       if (err) {
         dispatch(sync.fetchPatientsFailure(err));
       } else {
@@ -138,12 +120,13 @@ export function fetchPatients(api) {
  * Fetch Patient Data Action Creator
  * 
  * @param  {Object} api an instance of the API wrapper
+ * @param {String|Number} id
  */
-export function fetchPatientData(api) {
+export function fetchPatientData(api, id) {
   return (dispatch) => {
     dispatch(sync.fetchPatientDataRequest());
     
-    api.invitation.getReceived((err, patientData) => {
+    api.patientData.get(id, (err, patientData) => {
       if (err) {
         dispatch(sync.fetchPatientDataFailure(err));
       } else {
@@ -157,12 +140,13 @@ export function fetchPatientData(api) {
  * Fetch Team Notes Action Creator
  * 
  * @param  {Object} api an instance of the API wrapper
+ * @param {String|Number} id
  */
-export function fetchTeamNotes(api) {
+export function fetchTeamNotes(api, id) {
   return (dispatch) => {
     dispatch(sync.fetchTeamNotesRequest());
     
-    api.invitation.getReceived((err, teamNotes) => {
+    api.team.getNotes(id, (err, teamNotes) => {
       if (err) {
         dispatch(sync.fetchTeamNotesFailure(err));
       } else {
@@ -176,12 +160,13 @@ export function fetchTeamNotes(api) {
  * Fetch Message Thread Action Creator
  * 
  * @param  {Object} api an instance of the API wrapper
+ * @param {String|Number} id
  */
-export function fetchMessageThread(api) {
+export function fetchMessageThread(api, id ) {
   return (dispatch) => {
     dispatch(sync.fetchMessageThreadRequest());
     
-    api.invitation.getReceived((err, messageThread) => {
+    api.team.getMessageThread(id, (err, messageThread) => {
       if (err) {
         dispatch(sync.fetchMessageThreadFailure(err));
       } else {

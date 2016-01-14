@@ -227,7 +227,7 @@ describe('Actions', () => {
       });
     });
 
-    describe('logApiError', () => {
+    describe('logError', () => {
       it('should trigger LOG_ERROR_SUCCESS and it should call error once for a successful request', (done) => {
         let error = 'Error';
         let message = 'Some random detailed error message!';
@@ -249,7 +249,7 @@ describe('Actions', () => {
 
         store.dispatch(actions.async.logError(api, error, message, props));
 
-        expect(api.errors.log.withArgs(error, message, props)).to.equal(1);
+        expect(api.errors.log.withArgs(error, message, props).callCount).to.equal(1);
       });
 
       it('should trigger LOG_ERROR_FAILURE and it should call error once for a failed request', (done) => {
@@ -273,7 +273,359 @@ describe('Actions', () => {
 
         store.dispatch(actions.async.logError(api, error, message, props));
 
-        expect(api.errors.log.withArgs(error, message, props)).to.equal(1);
+        expect(api.errors.log.withArgs(error, message, props).callCount).to.equal(1);
+      });
+    });
+
+    describe('fetchUser', () => {
+      it('should trigger FETCH_USER_SUCCESS and it should call error once for a successful request', (done) => {
+        let user = { id: 306, name: 'Frankie Boyle' };
+
+        let api = {
+          user: {
+            get: sinon.stub().callsArgWith(0, null, user)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_USER_REQUEST' },
+          { type: 'FETCH_USER_SUCCESS', payload: { user : user } }
+        ];
+        let store = mockStore(initialState, expectedActions, done);
+
+        store.dispatch(actions.async.fetchUser(api));
+
+        expect(api.user.get.callCount).to.equal(1);
+      });
+
+      it('should trigger FETCH_USER_FAILURE and it should call error once for a failed request', (done) => {
+        let user = { id: 306, name: 'Frankie Boyle' };
+
+        let api = {
+          user: {
+            get: sinon.stub().callsArgWith(0, 'Error!', null)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_USER_REQUEST' },
+          { type: 'FETCH_USER_FAILURE', error: 'Error!' }
+        ];
+        let store = mockStore(initialState, expectedActions, done);
+
+        store.dispatch(actions.async.fetchUser(api));
+
+        expect(api.user.get.callCount).to.equal(1);
+      });
+    });
+
+    describe('fetchPendingInvites', () => {
+      it('should trigger FETCH_PENDING_INVITES_SUCCESS and it should call error once for a successful request', (done) => {
+        let pendingInvites = [ 1, 555, 78191 ];
+
+        let api = {
+          invitation: {
+            getSent: sinon.stub().callsArgWith(0, null, pendingInvites)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_PENDING_INVITES_REQUEST' },
+          { type: 'FETCH_PENDING_INVITES_SUCCESS', payload: { pendingInvites : pendingInvites } }
+        ];
+        let store = mockStore(initialState, expectedActions, done);
+
+        store.dispatch(actions.async.fetchPendingInvites(api));
+
+        expect(api.invitation.getSent.callCount).to.equal(1);
+      });
+
+      it('should trigger FETCH_PENDING_INVITES_FAILURE and it should call error once for a failed request', (done) => {
+        let pendingInvites = [ 1, 555, 78191 ];
+
+        let api = {
+          invitation: {
+            getSent: sinon.stub().callsArgWith(0, 'Error!', null)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_PENDING_INVITES_REQUEST' },
+          { type: 'FETCH_PENDING_INVITES_FAILURE', error: 'Error!' }
+        ];
+        let store = mockStore(initialState, expectedActions, done);
+
+        store.dispatch(actions.async.fetchPendingInvites(api));
+
+        expect(api.invitation.getSent.callCount).to.equal(1);
+      });
+    });
+
+    describe('fetchPendingMemberships', () => {
+      it('should trigger FETCH_PENDING_MEMBERSHIPS_SUCCESS and it should call error once for a successful request', (done) => {
+        let pendingMemberships = [ 1, 555, 78191 ];
+
+        let api = {
+          invitation: {
+            getReceived: sinon.stub().callsArgWith(0, null, pendingMemberships)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_PENDING_MEMBERSHIPS_REQUEST' },
+          { type: 'FETCH_PENDING_MEMBERSHIPS_SUCCESS', payload: { pendingMemberships : pendingMemberships } }
+        ];
+        let store = mockStore(initialState, expectedActions, done);
+
+        store.dispatch(actions.async.fetchPendingMemberships(api));
+
+        expect(api.invitation.getReceived.callCount).to.equal(1);
+      });
+
+      it('should trigger FETCH_PENDING_MEMBERSHIPS_FAILURE and it should call error once for a failed request', (done) => {
+        let pendingMemberships = [ 1, 555, 78191 ];
+
+        let api = {
+          invitation: {
+            getReceived: sinon.stub().callsArgWith(0, 'Error!', null)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_PENDING_MEMBERSHIPS_REQUEST' },
+          { type: 'FETCH_PENDING_MEMBERSHIPS_FAILURE', error: 'Error!' }
+        ];
+        let store = mockStore(initialState, expectedActions, done);
+
+        store.dispatch(actions.async.fetchPendingMemberships(api));
+
+        expect(api.invitation.getReceived.callCount).to.equal(1);
+      });
+    });
+
+    describe('fetchPatient', () => {
+      it('should trigger FETCH_PATIENT_SUCCESS and it should call error once for a successful request', (done) => {
+        let patient = { id: 58686, name: 'Buddy Holly', age: 65 };
+
+        let api = {
+          patient: {
+            get: sinon.stub().callsArgWith(1, null, patient)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_PATIENT_REQUEST' },
+          { type: 'FETCH_PATIENT_SUCCESS', payload: { patient : patient } }
+        ];
+        let store = mockStore(initialState, expectedActions, done);
+
+        store.dispatch(actions.async.fetchPatient(api, 58686));
+
+        expect(api.patient.get.withArgs(58686).callCount).to.equal(1);
+      });
+
+      it('should trigger FETCH_PATIENT_FAILURE and it should call error once for a failed request', (done) => {
+        let patient = { id: 58686, name: 'Buddy Holly', age: 65 };
+
+        let api = {
+          patient: {
+            get: sinon.stub().callsArgWith(1, 'Error!', null)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_PATIENT_REQUEST' },
+          { type: 'FETCH_PATIENT_FAILURE', error: 'Error!' }
+        ];
+        let store = mockStore(initialState, expectedActions, done);
+
+        store.dispatch(actions.async.fetchPatient(api, 58686));
+
+        expect(api.patient.get.withArgs(58686).callCount).to.equal(1);
+      });
+    });
+
+    describe('fetchPatients', () => {
+      it('should trigger FETCH_PATIENTS_SUCCESS and it should call error once for a successful request', (done) => {
+        let patients = [
+          { id: 58686, name: 'Buddy Holly', age: 65 }
+        ]
+
+        let api = {
+          patient: {
+            getAll: sinon.stub().callsArgWith(0, null, patients)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_PATIENTS_REQUEST' },
+          { type: 'FETCH_PATIENTS_SUCCESS', payload: { patients : patients } }
+        ];
+        let store = mockStore(initialState, expectedActions, done);
+
+        store.dispatch(actions.async.fetchPatients(api));
+
+        expect(api.patient.getAll.callCount).to.equal(1);
+      });
+
+      it('should trigger FETCH_PATIENTS_FAILURE and it should call error once for a failed request', (done) => {
+        let patients = [
+          { id: 58686, name: 'Buddy Holly', age: 65 }
+        ]
+
+        let api = {
+          patient: {
+            getAll: sinon.stub().callsArgWith(0, 'Error!', null)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_PATIENTS_REQUEST' },
+          { type: 'FETCH_PATIENTS_FAILURE', error: 'Error!' }
+        ];
+        let store = mockStore(initialState, expectedActions, done);
+
+        store.dispatch(actions.async.fetchPatients(api));
+
+        expect(api.patient.getAll.callCount).to.equal(1);
+      });
+    });
+
+    describe('fetchPatientData', () => {
+      it('should trigger FETCH_PATIENT_DATA_SUCCESS and it should call error once for a successful request', (done) => {
+        let patientData = [
+          { id: 25, value: 540.4 }
+        ]
+
+        let api = {
+          patientData: {
+            get: sinon.stub().callsArgWith(1, null, patientData)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_PATIENT_DATA_REQUEST' },
+          { type: 'FETCH_PATIENT_DATA_SUCCESS', payload: { patientData : patientData } }
+        ];
+        let store = mockStore(initialState, expectedActions, done);
+
+        store.dispatch(actions.async.fetchPatientData(api, 300));
+
+        expect(api.patientData.get.withArgs(300).callCount).to.equal(1);
+      });
+
+      it('should trigger FETCH_PATIENT_DATA_FAILURE and it should call error once for a failed request', (done) => {
+        let patientData = [
+          { id: 25, value: 540.4 }
+        ]
+
+        let api = {
+          patientData: {
+            get: sinon.stub().callsArgWith(1, 'Error!', null)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_PATIENT_DATA_REQUEST' },
+          { type: 'FETCH_PATIENT_DATA_FAILURE', error: 'Error!' }
+        ];
+        let store = mockStore(initialState, expectedActions, done);
+
+        store.dispatch(actions.async.fetchPatientData(api, 400));
+
+        expect(api.patientData.get.withArgs(400).callCount).to.equal(1);
+      });
+    });
+
+    describe('fetchTeamNotes', () => {
+      it('should trigger FETCH_TEAM_NOTES_SUCCESS and it should call error once for a successful request', (done) => {
+        let teamNotes = [
+          { id: 25, value: 540.4 }
+        ]
+
+        let api = {
+          team: {
+            getNotes: sinon.stub().callsArgWith(1, null, teamNotes)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_TEAM_NOTES_REQUEST' },
+          { type: 'FETCH_TEAM_NOTES_SUCCESS', payload: { teamNotes : teamNotes } }
+        ];
+        let store = mockStore(initialState, expectedActions, done);
+
+        store.dispatch(actions.async.fetchTeamNotes(api, 300));
+
+        expect(api.team.getNotes.withArgs(300).callCount).to.equal(1);
+      });
+
+      it('should trigger FETCH_TEAM_NOTES_FAILURE and it should call error once for a failed request', (done) => {
+        let teamNotes = [
+          { id: 25, value: 540.4 }
+        ]
+
+        let api = {
+          team: {
+            getNotes: sinon.stub().callsArgWith(1, 'Error!', null)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_TEAM_NOTES_REQUEST' },
+          { type: 'FETCH_TEAM_NOTES_FAILURE', error: 'Error!' }
+        ];
+        let store = mockStore(initialState, expectedActions, done);
+
+        store.dispatch(actions.async.fetchTeamNotes(api, 400));
+
+        expect(api.team.getNotes.withArgs(400).callCount).to.equal(1);
+      });
+    });
+
+    describe('fetchMessageThread', () => {
+      it('should trigger FETCH_MESSAGE_THREAD_SUCCESS and it should call error once for a successful request', (done) => {
+        let messageThread = [
+          { message: 'Foobar' }
+        ]
+
+        let api = {
+          team: {
+            getMessageThread: sinon.stub().callsArgWith(1, null, messageThread)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_MESSAGE_THREAD_REQUEST' },
+          { type: 'FETCH_MESSAGE_THREAD_SUCCESS', payload: { messageThread : messageThread } }
+        ];
+        let store = mockStore(initialState, expectedActions, done);
+
+        store.dispatch(actions.async.fetchMessageThread(api, 300));
+
+        expect(api.team.getMessageThread.withArgs(300).callCount).to.equal(1);
+      });
+
+      it('should trigger FETCH_MESSAGE_THREAD_FAILURE and it should call error once for a failed request', (done) => {
+        let messageThread = [
+          { message: 'Foobar' }
+        ]
+
+        let api = {
+          team: {
+            getMessageThread: sinon.stub().callsArgWith(1, 'Error!', null)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_MESSAGE_THREAD_REQUEST' },
+          { type: 'FETCH_MESSAGE_THREAD_FAILURE', error: 'Error!' }
+        ];
+        let store = mockStore(initialState, expectedActions, done);
+
+        store.dispatch(actions.async.fetchMessageThread(api, 400));
+
+        expect(api.team.getMessageThread.withArgs(400).callCount).to.equal(1);
       });
     });
   });
