@@ -81,29 +81,200 @@ describe('Actions', () => {
     });
 
     describe('confirmSignup', () => {
-      it('should trigger CONFIRM_SIGNUP_SUCCESS and it should call confirmSignup once for a successful request');
+      it('should trigger CONFIRM_SIGNUP_SUCCESS and it should call confirmSignup once for a successful request', (done) => {
+        let user = { id: 27 };
+        let api = {
+          user: {
+            confirmSignup: sinon.stub().callsArgWith(1, null)
+          }
+        };
 
-      it('should trigger CONFIRM_SIGNUP_FAILURE and it should call confirmSignup once for a failed request');
+        let expectedActions = [
+          { type: 'CONFIRM_SIGNUP_REQUEST' },
+          { type: 'CONFIRM_SIGNUP_SUCCESS' }
+        ];
+        let store = mockStore(initialState, expectedActions, done);
+
+        store.dispatch(actions.async.confirmSignup(api, 'fakeSignupKey'));
+
+        expect(api.user.confirmSignup.calledWith('fakeSignupKey').callCount).to.equal(1);
+      });
+
+      it('should trigger CONFIRM_SIGNUP_FAILURE and it should call confirmSignup once for a failed request', (done) => {
+        let user = { id: 27 };
+        let api = {
+          user: {
+            confirmSignup: sinon.stub().callsArgWith(1, 'Failure!')
+          }
+        };
+
+        let expectedActions = [
+          { type: 'CONFIRM_SIGNUP_REQUEST' },
+          { type: 'CONFIRM_SIGNUP_FAILURE', error: 'Failure!' }
+        ];
+
+        let store = mockStore(initialState, expectedActions, done);
+
+        store.dispatch(actions.async.confirmSignup(api, 'fakeSignupKey'));
+
+        expect(api.user.confirmSignup.calledWith('fakeSignupKey').callCount).to.equal(1);
+      });
     });
 
     describe('login', () => {
-      it('should trigger LOGIN_SUCCESS and it should call login and user.get once for a successful request');
+      it('should trigger LOGIN_SUCCESS and it should call login and user.get once for a successful request', (done) => {
+        let creds = { username: 'bruce', password: 'wayne' };
+        let user = { id: 27 };
+        let api = {
+          user: {
+            login: sinon.stub().callsArgWith(2, null),
+            get: sinon.stub().callsArgWith(0, null, user)
+          }
+        };
 
-      it('should trigger LOGIN_FAILURE and it should call login once and user.get zero times for a failed login request');
+        let expectedActions = [
+          { type: 'LOGIN_REQUEST' },
+          { type: 'LOGIN_SUCCESS', payload: { user: user } }
+        ];
+        let store = mockStore(initialState, expectedActions, done);
 
-      it('should trigger LOGIN_FAILURE and it should call login and user.get once for a failed user.get request');
+        store.dispatch(actions.async.login(api, creds));
+
+        expect(api.user.login.calledWith(creds).callCount).to.equal(1);
+        expect(api.user.get.callCount).to.equal(1);
+      });
+
+      it('should trigger LOGIN_FAILURE and it should call login once and user.get zero times for a failed login request', (done) => {
+        let creds = { username: 'bruce', password: 'wayne' };
+        let user = { id: 27 };
+        let api = {
+          user: {
+            login: sinon.stub().callsArgWith(2, 'failed!'),
+            get: sinon.stub()
+          }
+        };
+
+        let expectedActions = [
+          { type: 'LOGIN_REQUEST' },
+          { type: 'LOGIN_FAILURE', error: 'failed!' }
+        ];
+        let store = mockStore(initialState, expectedActions, done);
+
+        store.dispatch(actions.async.login(api, creds));
+
+        expect(api.user.login.calledWith(creds).callCount).to.equal(1);
+        expect(api.user.get.callCount).to.equal(0);
+      });
+
+      it('should trigger LOGIN_FAILURE and it should call login and user.get once for a failed user.get request', (done) => {
+        let creds = { username: 'bruce', password: 'wayne' };
+        let user = { id: 27 };
+        let api = {
+          user: {
+            login: sinon.stub().callsArgWith(2, null),
+            get: sinon.stub().callsArgWith(0, 'failed!')
+          }
+        };
+
+        let expectedActions = [
+          { type: 'LOGIN_REQUEST' },
+          { type: 'LOGIN_FAILURE', error: 'failed!' }
+        ];
+        let store = mockStore(initialState, expectedActions, done);
+
+        store.dispatch(actions.async.login(api, creds));
+
+        expect(api.user.login.calledWith(creds).callCount).to.equal(1);
+        expect(api.user.get.callCount).to.equal(1);
+      });
     });
 
     describe('logout', () => {
-      it('should trigger LOGOUT_SUCCESS and it should call logout once for a successful request');
+      it('should trigger LOGOUT_SUCCESS and it should call logout once for a successful request', (done) => {
+        let api = {
+          user: {
+            logout: sinon.stub().callsArgWith(0, null)
+          }
+        };
 
-      it('should trigger LOGOUT_FAILURE and it should call logout once for a failed request');
+        let expectedActions = [
+          { type: 'LOGOUT_REQUEST' },
+          { type: 'LOGOUT_SUCCESS' }
+        ];
+        let store = mockStore(initialState, expectedActions, done);
+
+        store.dispatch(actions.async.logout(api));
+
+        expect(api.user.logout.callCount).to.equal(1);
+      });
+
+      it('should trigger LOGOUT_FAILURE and it should call logout once for a failed request', (done) => {
+        let api = {
+          user: {
+            logout: sinon.stub().callsArgWith(0, 'this thing failed!')
+          }
+        };
+
+        let expectedActions = [
+          { type: 'LOGOUT_REQUEST' },
+          { type: 'LOGOUT_FAILURE', error: 'this thing failed!' }
+        ];
+        let store = mockStore(initialState, expectedActions, done);
+
+        store.dispatch(actions.async.logout(api));
+
+        expect(api.user.logout.callCount).to.equal(1);
+      });
     });
 
     describe('logApiError', () => {
-      it('should trigger LOG_ERROR_SUCCESS and it should call error once for a successful request');
+      it('should trigger LOG_ERROR_SUCCESS and it should call error once for a successful request', (done) => {
+        let error = 'Error';
+        let message = 'Some random detailed error message!';
+        let props = { 
+          stacktrace: true
+        };
 
-      it('should trigger LOG_ERROR_FAILURE and it should call error once for a failed request');
+        let api = {
+          errors: {
+            log: sinon.stub().callsArgWith(3, null)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'LOG_ERROR_REQUEST' },
+          { type: 'LOG_ERROR_SUCCESS' }
+        ];
+        let store = mockStore(initialState, expectedActions, done);
+
+        store.dispatch(actions.async.logError(api, error, message, props));
+
+        expect(api.errors.log.withArgs(error, message, props)).to.equal(1);
+      });
+
+      it('should trigger LOG_ERROR_FAILURE and it should call error once for a failed request', (done) => {
+        let error = 'Error';
+        let message = 'Another random detailed error message!';
+        let props = { 
+          stacktrace: true
+        };
+
+        let api = {
+          errors: {
+            log: sinon.stub().callsArgWith(3, 'This totally messed up!')
+          }
+        };
+
+        let expectedActions = [
+          { type: 'LOG_ERROR_REQUEST' },
+          { type: 'LOG_ERROR_FAILURE', error: 'This totally messed up!' }
+        ];
+        let store = mockStore(initialState, expectedActions, done);
+
+        store.dispatch(actions.async.logError(api, error, message, props));
+
+        expect(api.errors.log.withArgs(error, message, props)).to.equal(1);
+      });
     });
   });
 

@@ -607,10 +607,10 @@ api.metrics.track = function(eventName, properties, cb) {
 
 api.errors = {};
 
-api.errors.log = function(error, message, properties) {
+api.errors.log = function(error, message, properties, cb) {
   api.log('POST /errors');
 
-  return tidepool.logAppError(error, message, properties);
+  return tidepool.logAppError(error, message, properties, cb);
 };
 
 module.exports = api;

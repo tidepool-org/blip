@@ -23,7 +23,7 @@ import * as sync from './sync.js';
 /**
  * Signup Async Action Creator
  * 
- * @param  {[type]} api an instance of the API wrapper
+ * @param  {Object} api an instance of the API wrapper
  * @param  {Object} accountDetails contains email, password, name
  */
 export function signup(api, accountDetails) {
@@ -77,11 +77,11 @@ export function login(api, credentials, options) {
   return (dispatch) => {
     dispatch(sync.loginRequest());
 
-    api.user.login(credentials, options, (err, result) => {
+    api.user.login(credentials, options, (err) => {
       if (err) {
         dispatch(sync.loginFailure(err));
       } else {
-        api.user.api.user.get((err, user) => {
+        api.user.get((err, user) => {
           if (err) {
             dispatch(sync.loginFailure(err));
           } else {
@@ -96,7 +96,7 @@ export function login(api, credentials, options) {
 /**
  * Logout Async Action Creator
  * 
- * @param  {[type]} api an instance of the API wrapper
+ * @param  {Object} api an instance of the API wrapper
  */
 export function logout(api) {
   return (dispatch) => {
@@ -113,10 +113,23 @@ export function logout(api) {
 }
 
 /**
- * Log API Error Async Action Creator
- * @param  {[type]} api [description]
- * @return {[type]}     [description]
+ * Log Error Async Action Creator
+ * 
+ * @param  {Object} api
+ * @param  {String} error
+ * @param  {String} message
+ * @param  {Object} properties - usually an error stack trace
  */
-export function logApiError(api) {
+export function logError(api, error, message, properties) {
+  return (dispatch) => {
+    dispatch(sync.logErrorRequest());
 
+    api.errors.log(error, message, properties, (err) => {
+      if (err) {
+        dispatch(sync.logErrorFailure(err));
+      } else {
+        dispatch(sync.logErrorSuccess());
+      }
+    });
+  }
 }
