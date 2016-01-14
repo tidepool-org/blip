@@ -369,6 +369,7 @@ export default class AppComponent extends React.Component {
     return null;
   }
 
+  // TODO: find out wtf this is and what it does - theory: error messages
   renderNotification() {
     this.props.route.log('Rendering notification');
     var notification = this.state.notification;

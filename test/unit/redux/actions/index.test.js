@@ -559,5 +559,399 @@ describe('Actions', () => {
         expect(action.error).to.equal(error);
       });
     });
+
+    describe('fetchUserRequest', () => {
+      it('should be a FSA', () => {
+        let action = actions.sync.fetchUserRequest();
+
+        expect(isFSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_USER_REQUEST', () => {
+        let action = actions.sync.fetchUserRequest();
+        expect(action.type).to.equal('FETCH_USER_REQUEST');
+      });
+    });
+
+    describe('fetchUserSuccess', () => {
+      it('should be a FSA', () => {
+        let user = { id: 27, name: 'Frankie' };
+        let action = actions.sync.fetchUserSuccess(user);
+
+        expect(isFSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_USER_SUCCESS', () => {
+        let user = { id: 27, name: 'Frankie' };
+        let action = actions.sync.fetchUserSuccess(user);
+
+        expect(action.type).to.equal('FETCH_USER_SUCCESS');
+        expect(action.payload.user).to.equal(user);
+      });
+    });
+
+    describe('fetchUserFailure', () => {
+      it('should be a FSA', () => {
+        let error = 'Error';
+        let action = actions.sync.fetchUserFailure(error);
+
+        expect(isFSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_USER_FAILURE and error should equal passed error', () => {
+        let error = 'Error';
+        let action = actions.sync.fetchUserFailure(error);
+
+        expect(action.type).to.equal('FETCH_USER_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('fetchPendingInvitesRequest', () => {
+      it('should be a FSA', () => {
+        let action = actions.sync.fetchPendingInvitesRequest();
+
+        expect(isFSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_PENDING_INVITES_REQUEST', () => {
+        let action = actions.sync.fetchPendingInvitesRequest();
+        expect(action.type).to.equal('FETCH_PENDING_INVITES_REQUEST');
+      });
+    });
+
+    describe('fetchPendingInvitesSuccess', () => {
+      it('should be a FSA', () => {
+        let pendingInvites = [ 1,  2, 27 ];
+        let action = actions.sync.fetchPendingInvitesSuccess(pendingInvites);
+
+        expect(isFSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_PENDING_INVITES_SUCCESS', () => {
+        let pendingInvites = [ 1,  7, 27, 566 ];
+        let action = actions.sync.fetchPendingInvitesSuccess(pendingInvites);
+
+        expect(action.type).to.equal('FETCH_PENDING_INVITES_SUCCESS');
+        expect(action.payload.pendingInvites).to.equal(pendingInvites);
+      });
+    });
+
+    describe('fetchPendingInvitesFailure', () => {
+      it('should be a FSA', () => {
+        let error = 'Error';
+        let action = actions.sync.fetchPendingInvitesFailure(error);
+
+        expect(isFSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_PENDING_INVITES_FAILURE and error should equal passed error', () => {
+        let error = 'Error';
+        let action = actions.sync.fetchPendingInvitesFailure(error);
+
+        expect(action.type).to.equal('FETCH_PENDING_INVITES_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('fetchPendingMembershipsRequest', () => {
+      it('should be a FSA', () => {
+        let action = actions.sync.fetchPendingMembershipsRequest();
+
+        expect(isFSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_PENDING_MEMBERSHIPS_REQUEST', () => {
+        let action = actions.sync.fetchPendingMembershipsRequest();
+        expect(action.type).to.equal('FETCH_PENDING_MEMBERSHIPS_REQUEST');
+      });
+    });
+
+    describe('fetchPendingMembershipsSuccess', () => {
+      it('should be a FSA', () => {
+        let pendingMemberships = [ 1,  2, 27 ];
+        let action = actions.sync.fetchPendingMembershipsSuccess(pendingMemberships);
+
+        expect(isFSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_PENDING_MEMBERSHIPS_SUCCESS', () => {
+        let pendingMemberships = [ 1,  7, 27, 566 ];
+        let action = actions.sync.fetchPendingMembershipsSuccess(pendingMemberships);
+
+        expect(action.type).to.equal('FETCH_PENDING_MEMBERSHIPS_SUCCESS');
+        expect(action.payload.pendingMemberships).to.equal(pendingMemberships);
+      });
+    });
+
+    describe('fetchPendingMembershipsFailure', () => {
+      it('should be a FSA', () => {
+        let error = 'Error';
+        let action = actions.sync.fetchPendingMembershipsFailure(error);
+
+        expect(isFSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_PENDING_MEMBERSHIPS_FAILURE and error should equal passed error', () => {
+        let error = 'Error';
+        let action = actions.sync.fetchPendingMembershipsFailure(error);
+
+        expect(action.type).to.equal('FETCH_PENDING_MEMBERSHIPS_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('fetchPatientRequest', () => {
+      it('should be a FSA', () => {
+        let action = actions.sync.fetchPatientRequest();
+
+        expect(isFSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_PATIENT_REQUEST', () => {
+        let action = actions.sync.fetchPatientRequest();
+        expect(action.type).to.equal('FETCH_PATIENT_REQUEST');
+      });
+    });
+
+    describe('fetchPatientSuccess', () => {
+      it('should be a FSA', () => {
+        let patient = { name: 'Bruce Lee', age: 24 };
+        let action = actions.sync.fetchPatientSuccess(patient);
+
+        expect(isFSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_PATIENT_SUCCESS', () => {
+        let patient = { name: 'Jackie Chan', age: 24 };
+        let action = actions.sync.fetchPatientSuccess(patient);
+
+        expect(action.type).to.equal('FETCH_PATIENT_SUCCESS');
+        expect(action.payload.patient).to.equal(patient);
+      });
+    });
+
+    describe('fetchPatientFailure', () => {
+      it('should be a FSA', () => {
+        let error = 'Error';
+        let action = actions.sync.fetchPatientFailure(error);
+
+        expect(isFSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_PATIENT_FAILURE and error should equal passed error', () => {
+        let error = 'Error';
+        let action = actions.sync.fetchPatientFailure(error);
+
+        expect(action.type).to.equal('FETCH_PATIENT_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('fetchPatientsRequest', () => {
+      it('should be a FSA', () => {
+        let action = actions.sync.fetchPatientsRequest();
+
+        expect(isFSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_PATIENTS_REQUEST', () => {
+        let action = actions.sync.fetchPatientsRequest();
+        expect(action.type).to.equal('FETCH_PATIENTS_REQUEST');
+      });
+    });
+
+    describe('fetchPatientsSuccess', () => {
+      it('should be a FSA', () => {
+        let patients = [ { name: 'Bruce Lee', age: 24 } ];
+        let action = actions.sync.fetchPatientsSuccess(patients);
+
+        expect(isFSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_PATIENTS_SUCCESS', () => {
+        let patients = [ { name: 'Jackie Chan', age: 24 } ];
+        let action = actions.sync.fetchPatientsSuccess(patients);
+
+        expect(action.type).to.equal('FETCH_PATIENTS_SUCCESS');
+        expect(action.payload.patients).to.equal(patients);
+      });
+    });
+
+    describe('fetchPatientsFailure', () => {
+      it('should be a FSA', () => {
+        let error = 'Error';
+        let action = actions.sync.fetchPatientsFailure(error);
+
+        expect(isFSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_PATIENTS_FAILURE and error should equal passed error', () => {
+        let error = 'Error';
+        let action = actions.sync.fetchPatientsFailure(error);
+
+        expect(action.type).to.equal('FETCH_PATIENTS_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('fetchPatientDataRequest', () => {
+      it('should be a FSA', () => {
+        let action = actions.sync.fetchPatientDataRequest();
+
+        expect(isFSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_PATIENT_DATA_REQUEST', () => {
+        let action = actions.sync.fetchPatientDataRequest();
+        expect(action.type).to.equal('FETCH_PATIENT_DATA_REQUEST');
+      });
+    });
+
+    describe('fetchPatientDataSuccess', () => {
+      it('should be a FSA', () => {
+        let patientData = [
+          { id: 24, value: 500 },
+          { id: 4567, value: 300 }
+        ];
+        let action = actions.sync.fetchPatientDataSuccess(patientData);
+
+        expect(isFSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_PATIENT_DATA_SUCCESS', () => {
+        let patientData = [
+          { id: 24, value: 500 },
+          { id: 4567, value: 400 }
+        ];
+        let action = actions.sync.fetchPatientDataSuccess(patientData);
+
+        expect(action.type).to.equal('FETCH_PATIENT_DATA_SUCCESS');
+        expect(action.payload.patientData).to.equal(patientData);
+      });
+    });
+
+    describe('fetchPatientDataFailure', () => {
+      it('should be a FSA', () => {
+        let error = 'Error';
+        let action = actions.sync.fetchPatientDataFailure(error);
+
+        expect(isFSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_PATIENT_DATA_FAILURE and error should equal passed error', () => {
+        let error = 'Error';
+        let action = actions.sync.fetchPatientDataFailure(error);
+
+        expect(action.type).to.equal('FETCH_PATIENT_DATA_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('fetchTeamNotesRequest', () => {
+      it('should be a FSA', () => {
+        let action = actions.sync.fetchTeamNotesRequest();
+
+        expect(isFSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_TEAM_NOTES_REQUEST', () => {
+        let action = actions.sync.fetchTeamNotesRequest();
+        expect(action.type).to.equal('FETCH_TEAM_NOTES_REQUEST');
+      });
+    });
+
+    describe('fetchTeamNotesSuccess', () => {
+      it('should be a FSA', () => {
+        let teamNotes = [
+          { id: 24, value: 500 },
+          { id: 4567, value: 300 }
+        ];
+        let action = actions.sync.fetchTeamNotesSuccess(teamNotes);
+
+        expect(isFSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_TEAM_NOTES_SUCCESS', () => {
+        let teamNotes = [
+          { id: 24, value: 500 },
+          { id: 4567, value: 400 }
+        ];
+        let action = actions.sync.fetchTeamNotesSuccess(teamNotes);
+
+        expect(action.type).to.equal('FETCH_TEAM_NOTES_SUCCESS');
+        expect(action.payload.teamNotes).to.equal(teamNotes);
+      });
+    });
+
+    describe('fetchTeamNotesFailure', () => {
+      it('should be a FSA', () => {
+        let error = 'Error';
+        let action = actions.sync.fetchTeamNotesFailure(error);
+
+        expect(isFSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_TEAM_NOTES_FAILURE and error should equal passed error', () => {
+        let error = 'Error';
+        let action = actions.sync.fetchTeamNotesFailure(error);
+
+        expect(action.type).to.equal('FETCH_TEAM_NOTES_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('fetchMessageThreadRequest', () => {
+      it('should be a FSA', () => {
+        let action = actions.sync.fetchMessageThreadRequest();
+
+        expect(isFSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_MESSAGE_THREAD_REQUEST', () => {
+        let action = actions.sync.fetchMessageThreadRequest();
+        expect(action.type).to.equal('FETCH_MESSAGE_THREAD_REQUEST');
+      });
+    });
+
+    describe('fetchMessageThreadSuccess', () => {
+      it('should be a FSA', () => {
+        let messageThread = [
+          { id: 47, message: 'Good Morning' },
+          { id: 7447, message: 'I know Kung Fu!' }
+        ];
+        let action = actions.sync.fetchMessageThreadSuccess(messageThread);
+
+        expect(isFSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_MESSAGE_THREAD_SUCCESS', () => {
+        let messageThread = [
+          { id: 10106, message: 'Hello, this is quite fun!' },
+          { id: 7, message: 'And they all lived happily ever after.' }
+        ];
+        let action = actions.sync.fetchMessageThreadSuccess(messageThread);
+
+        expect(action.type).to.equal('FETCH_MESSAGE_THREAD_SUCCESS');
+        expect(action.payload.messageThread).to.equal(messageThread);
+      });
+    });
+
+    describe('fetchMessageThreadFailure', () => {
+      it('should be a FSA', () => {
+        let error = 'Error';
+        let action = actions.sync.fetchMessageThreadFailure(error);
+
+        expect(isFSA(action)).to.be.true;
+      });
+
+      it('type should equal FETCH_MESSAGE_THREAD_FAILURE and error should equal passed error', () => {
+        let error = 'Error';
+        let action = actions.sync.fetchMessageThreadFailure(error);
+
+        expect(action.type).to.equal('FETCH_MESSAGE_THREAD_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
   });
 });

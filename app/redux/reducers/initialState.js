@@ -37,3 +37,42 @@ export default {
   },
   error: null
 };
+
+// let iteration = {
+//   error: null,
+//   notifications: [], // depends on whether this is different from error
+//   users: {
+//     isFetching: false
+//     loggedInUser: null,
+//     memberships: [], // jury is still out best names for memberships/careteam
+//     pendingMemberships: [],
+//     careteam: [],
+//     pendingCareteam: [],
+//     collection: {
+//       // id : {
+//       //   isFetching: false
+//       //   user_id
+//       //   profile: { //might not to have profile could just promote these props to user
+//       //     fullName
+//       //     patient?: {
+//       //       birthday
+//       //       diagnosisDate
+//       //     }
+//       //   }
+//       //   tidelineData: {
+//       //     ...
+//       //   }
+//       //   currentMessageThread:  // either id or thread
+//       //   
+//       //   loggedInUserPermissions: { ? //if this user is not logged in user and is a PWD
+//       //     view - boolean
+//       //     upload - boolean
+//       //     might be a 3rd property - admin
+//       //   }
+//       //  }
+//     }
+//   },
+
+// }
+
+// users reducer

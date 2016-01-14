@@ -21,6 +21,177 @@ import * as ActionTypes from '../constants/actionTypes';
 import * as sync from './sync.js';
 
 /**
+ * Fetch User Action Creator
+ * 
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function fetchUser(api) {
+  return (dispatch) => {
+    dispatch(sync.fetchUserRequest());
+    
+    api.user.get((err, user) => {
+      if (err) {
+        dispatch(sync.fetchUserFailure(err));
+      } else {
+        dispatch(sync.fetchUserSuccess(user));
+      }
+    });
+  };
+}
+
+/**
+ * Fetch Pending Invites Action Creator
+ * 
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function fetchPendingInvites(api) {
+  return (dispatch) => {
+    dispatch(sync.fetchPendingInvitesRequest());
+    
+    api.invitation.getSent((err, pendingInvites) => {
+      if (err) {
+        dispatch(sync.fetchPendingInvitesFailure(err));
+      } else {
+        dispatch(sync.fetchPendingInvitesSuccess(pendingInvites));
+      }
+    });
+  };
+}
+
+/**
+ * Fetch Pending Memberships Action Creator
+ * 
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function fetchPendingMemberships(api) {
+  return (dispatch) => {
+    dispatch(sync.fetchPendingMembershipsRequest());
+    
+    api.invitation.getReceived((err, pendingMemberships) => {
+      if (err) {
+        dispatch(sync.fetchPendingMembershipsFailure(err));
+      } else {
+        dispatch(sync.fetchPendingMembershipsSuccess(pendingMemberships));
+      }
+    });
+  };
+}
+
+/**
+ * Fetch Pending Memberships Action Creator
+ * 
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function fetchPendingMemberships(api) {
+  return (dispatch) => {
+    dispatch(sync.fetchPendingMembershipsRequest());
+    
+    api.invitation.getReceived((err, pendingMemberships) => {
+      if (err) {
+        dispatch(sync.fetchPendingMembershipsFailure(err));
+      } else {
+        dispatch(sync.fetchPendingMembershipsSuccess(pendingMemberships));
+      }
+    });
+  };
+}
+
+/**
+ * Fetch Patient Action Creator
+ * 
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function fetchPatient(api) {
+  return (dispatch) => {
+    dispatch(sync.fetchPatientRequest());
+    
+    api.invitation.getReceived((err, patient) => {
+      if (err) {
+        dispatch(sync.fetchPatientFailure(err));
+      } else {
+        dispatch(sync.fetchPatientSuccess(patient));
+      }
+    });
+  };
+}
+
+/**
+ * Fetch Patients Action Creator
+ * 
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function fetchPatients(api) {
+  return (dispatch) => {
+    dispatch(sync.fetchPatientsRequest());
+    
+    api.invitation.getReceived((err, patients) => {
+      if (err) {
+        dispatch(sync.fetchPatientsFailure(err));
+      } else {
+        dispatch(sync.fetchPatientsSuccess(patients));
+      }
+    });
+  };
+}
+
+/**
+ * Fetch Patient Data Action Creator
+ * 
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function fetchPatientData(api) {
+  return (dispatch) => {
+    dispatch(sync.fetchPatientDataRequest());
+    
+    api.invitation.getReceived((err, patientData) => {
+      if (err) {
+        dispatch(sync.fetchPatientDataFailure(err));
+      } else {
+        dispatch(sync.fetchPatientDataSuccess(patientData));
+      }
+    });
+  };
+}
+
+/**
+ * Fetch Team Notes Action Creator
+ * 
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function fetchTeamNotes(api) {
+  return (dispatch) => {
+    dispatch(sync.fetchTeamNotesRequest());
+    
+    api.invitation.getReceived((err, teamNotes) => {
+      if (err) {
+        dispatch(sync.fetchTeamNotesFailure(err));
+      } else {
+        dispatch(sync.fetchTeamNotesSuccess(teamNotes));
+      }
+    });
+  };
+}
+
+/**
+ * Fetch Message Thread Action Creator
+ * 
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function fetchMessageThread(api) {
+  return (dispatch) => {
+    dispatch(sync.fetchMessageThreadRequest());
+    
+    api.invitation.getReceived((err, messageThread) => {
+      if (err) {
+        dispatch(sync.fetchMessageThreadFailure(err));
+      } else {
+        dispatch(sync.fetchMessageThreadSuccess(messageThread));
+      }
+    });
+  };
+}
+
+/**
  * Signup Async Action Creator
  * 
  * @param  {Object} api an instance of the API wrapper

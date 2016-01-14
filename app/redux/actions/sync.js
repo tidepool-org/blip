@@ -78,7 +78,7 @@ export function logoutSuccess() {
   return {
     type: ActionTypes.LOGOUT_SUCCESS,
   };
-}
+} 
 
 export function logoutFailure(error) {
   return {
@@ -143,6 +143,184 @@ export function logErrorSuccess() {
 export function logErrorFailure(error) {
   return {
     type: ActionTypes.LOG_ERROR_FAILURE,
+    error: error
+  };
+}
+
+// TODO: Need to confirm these functions and whether we are happy with these in principle
+
+export function fetchUserRequest() {
+  return {
+    type: ActionTypes.FETCH_USER_REQUEST
+  };
+}
+
+export function fetchUserSuccess(user) {
+  return {
+    type: ActionTypes.FETCH_USER_SUCCESS,
+    payload: {
+      user: user
+    }
+  };
+}
+
+export function fetchUserFailure(error) {
+  return {
+    type: ActionTypes.FETCH_USER_FAILURE,
+    error: error
+  };
+}
+
+export function fetchPendingMembershipsRequest() {
+  return {
+    type: ActionTypes.FETCH_PENDING_MEMBERSHIPS_REQUEST
+  };
+}
+
+export function fetchPendingMembershipsSuccess(pendingMemberships) {
+  return {
+    type: ActionTypes.FETCH_PENDING_MEMBERSHIPS_SUCCESS,
+    payload: {
+      pendingMemberships: pendingMemberships
+    }
+  };
+}
+
+export function fetchPendingMembershipsFailure(error) {
+  return {
+    type: ActionTypes.FETCH_PENDING_MEMBERSHIPS_FAILURE,
+    error: error
+  };
+}
+
+export function fetchPendingInvitesRequest() {
+  return {
+    type: ActionTypes.FETCH_PENDING_INVITES_REQUEST
+  };
+}
+
+export function fetchPendingInvitesSuccess(pendingInvites) {
+  return {
+    type: ActionTypes.FETCH_PENDING_INVITES_SUCCESS,
+    payload: {
+      pendingInvites: pendingInvites
+    }
+  };
+}
+
+export function fetchPendingInvitesFailure(error) {
+  return {
+    type: ActionTypes.FETCH_PENDING_INVITES_FAILURE,
+    error: error
+  };
+}
+
+export function fetchPatientsRequest() {
+  return {
+    type: ActionTypes.FETCH_PATIENTS_REQUEST
+  };
+}
+
+export function fetchPatientsSuccess(patients) {
+  return {
+    type: ActionTypes.FETCH_PATIENTS_SUCCESS,
+    payload: {
+      patients: patients
+    }
+  };
+}
+
+export function fetchPatientsFailure(error) {
+  return {
+    type: ActionTypes.FETCH_PATIENTS_FAILURE,
+    error: error
+  };
+}
+
+export function fetchPatientRequest() {
+  return {
+    type: ActionTypes.FETCH_PATIENT_REQUEST
+  };
+}
+
+export function fetchPatientSuccess(patient) {
+  return {
+    type: ActionTypes.FETCH_PATIENT_SUCCESS,
+    payload: {
+      patient: patient
+    }
+  };
+}
+
+export function fetchPatientFailure(error) {
+  return {
+    type: ActionTypes.FETCH_PATIENT_FAILURE,
+    error: error
+  };
+}
+
+export function fetchPatientDataRequest() {
+  return {
+    type: ActionTypes.FETCH_PATIENT_DATA_REQUEST
+  };
+}
+
+export function fetchPatientDataSuccess(patientData) {
+  return {
+    type: ActionTypes.FETCH_PATIENT_DATA_SUCCESS,
+    payload: {
+      patientData: patientData
+    }
+  };
+}
+
+export function fetchPatientDataFailure(error) {
+  return {
+    type: ActionTypes.FETCH_PATIENT_DATA_FAILURE,
+    error: error
+  };
+}
+
+export function fetchTeamNotesRequest() {
+  return {
+    type: ActionTypes.FETCH_TEAM_NOTES_REQUEST
+  };
+}
+
+export function fetchTeamNotesSuccess(teamNotes) {
+  return {
+    type: ActionTypes.FETCH_TEAM_NOTES_SUCCESS,
+    payload: {
+      teamNotes: teamNotes
+    }
+  };
+}
+
+export function fetchTeamNotesFailure(error) {
+  return {
+    type: ActionTypes.FETCH_TEAM_NOTES_FAILURE,
+    error: error
+  };
+}
+
+export function fetchMessageThreadRequest() {
+  return {
+    type: ActionTypes.FETCH_MESSAGE_THREAD_REQUEST
+  };
+}
+
+export function fetchMessageThreadSuccess(messageThread) {
+  return {
+    type: ActionTypes.FETCH_MESSAGE_THREAD_SUCCESS,
+    payload: {
+      messageThread: messageThread
+    }
+  };
+}
+
+export function fetchMessageThreadFailure(error) {
+  return {
+    type: ActionTypes.FETCH_MESSAGE_THREAD_FAILURE,
     error: error
   };
 }
