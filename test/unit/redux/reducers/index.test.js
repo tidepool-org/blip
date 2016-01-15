@@ -2,6 +2,7 @@
 /* global sinon */
 /* global describe */
 /* global it */
+/* global expect */
 
 import reducer from '../../../../app/redux/reducers/index';
 
