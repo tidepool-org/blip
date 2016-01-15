@@ -28,6 +28,8 @@ export const CLOSE_NOTIFICATION = 'CLOSE_NOTIFICATION';
 // probably redundant
 export const CLEAR_USER_DATA = 'CLEAR_USER_DATA';
 
+export const ACKNOWLEDGE_ERROR = 'ACKNOWLEDGE_ERROR';
+
 /*
  * Asyncronous action types
  */ 

@@ -128,6 +128,28 @@ export function confirmSignupFailure(error) {
   };
 }
 
+export function acceptTermsRequest() {
+  return {
+    type: ActionTypes.ACCEPT_TERMS_REQUEST
+  };
+}
+
+export function acceptTermsSuccess(user) {
+  return {
+    type: ActionTypes.ACCEPT_TERMS_SUCCESS,
+    payload: {
+      user: user
+    }
+  };
+}
+
+export function acceptTermsFailure(error) {
+  return {
+    type: ActionTypes.ACCEPT_TERMS_FAILURE,
+    error: error
+  };
+}
+
 export function logErrorRequest() {
   return {
     type: ActionTypes.LOG_ERROR_REQUEST

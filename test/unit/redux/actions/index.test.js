@@ -130,6 +130,48 @@ describe('Actions', () => {
       });
     });
 
+    describe('acceptTerms', () => {
+      it('should trigger ACCEPT_TERMS_SUCCESS and it should call acceptTerms once for a successful request', (done) => {
+        let termsData = { termsAccepted: new Date() };
+        let user = { id: 27, termsAccepted: termsData.termsAccepted };
+        let api = {
+          user: {
+            acceptTerms: sinon.stub().callsArgWith(1, null, user)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'ACCEPT_TERMS_REQUEST' },
+          { type: 'ACCEPT_TERMS_SUCCESS', payload: { user: user } }
+        ];
+        let store = mockStore(initialState, expectedActions, done);
+
+        store.dispatch(async.acceptTerms(api, termsData));
+
+        expect(api.user.acceptTerms.calledWith(termsData).callCount).to.equal(1);
+      });
+
+      it('should trigger ACCEPT_TERMS_FAILURE and it should call acceptTerms once for a failed request', (done) => {
+        let termsData = { termsAccepted: new Date() };
+        let api = {
+          user: {
+            acceptTerms: sinon.stub().callsArgWith(1, 'Failure!')
+          }
+        };
+
+        let expectedActions = [
+          { type: 'ACCEPT_TERMS_REQUEST' },
+          { type: 'ACCEPT_TERMS_FAILURE', error: 'Failure!' }
+        ];
+
+        let store = mockStore(initialState, expectedActions, done);
+
+        store.dispatch(async.acceptTerms(api, termsData));
+
+        expect(api.user.acceptTerms.calledWith(termsData).callCount).to.equal(1);
+      });
+    });
+
     describe('login', () => {
       it('should trigger LOGIN_SUCCESS and it should call login and user.get once for a successful request', (done) => {
         let creds = { username: 'bruce', password: 'wayne' };
@@ -887,6 +929,53 @@ describe('Actions', () => {
         let action = sync.confirmSignupFailure(error);
 
         expect(action.type).to.equal('CONFIRM_SIGNUP_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
+    describe('acceptTermsRequest', () => {
+      it('should be a FSA', () => {
+        let action = sync.acceptTermsRequest();
+
+        expect(isFSA(action)).to.be.true;
+      });
+
+      it('type should equal ACCEPT_TERMS_REQUEST', () => {
+        let action = sync.acceptTermsRequest();
+        expect(action.type).to.equal('ACCEPT_TERMS_REQUEST');
+      });
+    });
+
+    describe('acceptTermsSuccess', () => {
+      it('should be a FSA', () => {
+        let user = { termsAccepted: new Date() };
+        let action = sync.acceptTermsSuccess(user);
+
+        expect(isFSA(action)).to.be.true;
+      });
+
+      it('type should equal ACCEPT_TERMS_SUCCESS', () => {
+        let user = { termsAccepted: new Date() };
+        let action = sync.acceptTermsSuccess(user);
+
+        expect(action.type).to.equal('ACCEPT_TERMS_SUCCESS');
+        expect(action.payload.user).to.equal(user);
+      });
+    });
+
+    describe('acceptTermsFailure', () => {
+      it('should be a FSA', () => {
+        let error = 'Error';
+        let action = sync.acceptTermsFailure(error);
+
+        expect(isFSA(action)).to.be.true;
+      });
+
+      it('type should equal ACCEPT_TERMS_FAILURE and error should equal passed error', () => {
+        let error = 'Error';
+        let action = sync.acceptTermsFailure(error);
+
+        expect(action.type).to.equal('ACCEPT_TERMS_FAILURE');
         expect(action.error).to.equal(error);
       });
     });

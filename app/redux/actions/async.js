@@ -216,6 +216,26 @@ export function confirmSignup(api, signupKey) {
 }
 
 /**
+ * Accept Terms Action Creator
+ * 
+ * @param  {Object} api an instance of the API wrapper
+ * @param  {String} termsData
+ */
+export function acceptTerms(api, termsData) {
+  return (dispatch) => {
+    dispatch(sync.acceptTermsRequest());
+
+    api.user.acceptTerms(termsData, function(err, user) {
+      if (err) {
+        dispatch(sync.acceptTermsFailure(err));
+      } else {
+        dispatch(sync.acceptTermsSuccess(user))
+      }
+    })
+  };
+}
+
+/**
  * Login Async Action Creator
  * 
  * @param  {Object} api an instance of the API wrapper
