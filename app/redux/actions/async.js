@@ -17,6 +17,7 @@
 
 import _ from 'lodash';
 import async from 'async';
+import utils from '../../core/utils';
 import * as ActionTypes from '../constants/actionTypes';
 import * as sync from './sync.js';
 
@@ -121,36 +122,28 @@ export function fetchPatients(api) {
  * 
  * @param  {Object} api an instance of the API wrapper
  * @param {String|Number} id
+ * @param {Object} queryParams
  */
-export function fetchPatientData(api, id) {
-  return (dispatch) => {
+export function fetchPatientData(api, id, queryParams) {
+  return (dispatch, getState) => {
+    const state = getState();
+
     dispatch(sync.fetchPatientDataRequest());
-    
-    api.patientData.get(id, (err, patientData) => {
+
+    async.parallel({
+      patientData: api.patientData.get.bind(api, id),
+      teamNotes: api.team.getNotes.bind(api, id)
+    }, (err, results) => {
       if (err) {
         dispatch(sync.fetchPatientDataFailure(err));
       } else {
-        dispatch(sync.fetchPatientDataSuccess(patientData));
-      }
-    });
-  };
-}
+        let patientData = results.patientData || [];
+        let notes = results.teamNotes || [];
+        let combinedData = patientData.concat(notes);
 
-/**
- * Fetch Team Notes Action Creator
- * 
- * @param  {Object} api an instance of the API wrapper
- * @param {String|Number} id
- */
-export function fetchTeamNotes(api, id) {
-  return (dispatch) => {
-    dispatch(sync.fetchTeamNotesRequest());
-    
-    api.team.getNotes(id, (err, teamNotes) => {
-      if (err) {
-        dispatch(sync.fetchTeamNotesFailure(err));
-      } else {
-        dispatch(sync.fetchTeamNotesSuccess(teamNotes));
+        let processedData = utils.processPatientData(combinedData, queryParams, state.timePrefs, state.bgPrefs);
+
+        dispatch(sync.fetchPatientDataSuccess(processedData));
       }
     });
   };
