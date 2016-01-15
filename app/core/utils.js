@@ -15,7 +15,9 @@
 
 // Various helper functions
 
-var _ = require('lodash');
+import _  from 'lodash';
+import sundial from 'sundial';
+import TidelineData from 'tideline/js/tidelinedata';
 
 var utils = {};
 
@@ -23,13 +25,13 @@ var utils = {};
 // where `props` is the sequence of properties to follow.
 // Returns `undefined` if the key is not present,
 // or the `notFound` value if supplied
-utils.getIn = function(obj, props, notFound) {
+utils.getIn = (obj, props, notFound) => {
   var start = {
     child: obj,
     isNotFound: false
   };
 
-  var result = _.reduce(props, function(state, prop) {
+  var result = _.reduce(props, (state, prop) => {
     if (state.isNotFound) {
       return state;
     }
@@ -52,16 +54,16 @@ utils.getIn = function(obj, props, notFound) {
 };
 
 // concat([1, 2], 3, [4, 5]) -> [1, 2, 3, 4, 5]
-utils.concat = function() {
+utils.concat = () => {
   var args = Array.prototype.slice.call(arguments, 0);
   return Array.prototype.concat.apply([], args);
 };
 
-utils.isChrome = function() {
+utils.isChrome = () => {
   return navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
 };
 
-utils.validateEmail = function(email) {
+utils.validateEmail = email => {
   var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   return re.test(email);
 };
@@ -70,10 +72,10 @@ utils.validateEmail = function(email) {
 // Shallow difference of two objects
 // Returns all attributes and their values in `destination`
 // that have different values from `source`
-utils.objectDifference = function(destination, source) {
+utils.objectDifference = (destination, source) => {
   var result = {};
 
-  _.forEach(source, function(sourceValue, key) {
+  _.forEach(source, (sourceValue, key) => {
     var destinationValue = destination[key];
     if (!_.isEqual(sourceValue, destinationValue)) {
       result[key] = destinationValue;
@@ -83,14 +85,14 @@ utils.objectDifference = function(destination, source) {
   return result;
 };
 
-utils.buildExceptionDetails = function(){
+utils.buildExceptionDetails = () =>{
   return {
     href: window.location.href,
     stack: console.trace()
   };
 };
 
-utils.stringifyErrorData = function(data) {
+utils.stringifyErrorData = data => {
   if(_.isEmpty(data)){
     return '';
   }
@@ -103,9 +105,65 @@ utils.stringifyErrorData = function(data) {
   }
 };
 
+utils.processPatientData = (data, queryParams, timePrefs, bgPrefs) => {
+  if (!(data && data.length >= 0)) {
+    return null;
+  }
+
+  var mostRecentUpload = _.sortBy(_.where(data, {type: 'upload'}), (d) => Date.parse(d.time) ).reverse()[0];
+  var timePrefsForTideline;
+  if (!_.isEmpty(mostRecentUpload) && !_.isEmpty(mostRecentUpload.timezone)) {
+    try {
+      sundial.checkTimezoneName(mostRecentUpload.timezone);
+      timePrefsForTideline = {
+        timezoneAware: true,
+        timezoneName: mostRecentUpload.timezone
+      };
+    }
+    catch(err) {
+      console.log(err);
+      console.log('Upload metadata lacking a valid timezone!', mostRecentUpload);
+    }
+  }
+
+  // if the user has put a timezone in the query params
+  // it'll be stored already in the state, and we just keep using it
+  if (!_.isEmpty(queryParams.timezone) || _.isEmpty(timePrefsForTideline)) {
+    timePrefsForTideline = timePrefs;
+  }
+  // but otherwise we use the timezone from the most recent upload metadata obj
+  else {
+    comp.setState({
+      timePrefs: timePrefsForTideline
+    });
+    console.log('Defaulting to display in timezone of most recent upload at', mostRecentUpload.time, mostRecentUpload.timezone);
+  }
+
+  console.time('Nurseshark Total');
+  var res = nurseShark.processData(data, bgUnits);
+  console.timeEnd('Nurseshark Total');
+  console.time('TidelineData Total');
+  var tidelineData = new TidelineData(res.processedData, {
+    timePrefs: timePrefs,
+    bgUnits: bgPrefs.bgUnits
+  });
+  console.timeEnd('TidelineData Total');
+
+  window.tidelineData = tidelineData;
+  window.downloadProcessedData = () => {
+    console.save(res.processedData, 'nurseshark-output.json');
+  };
+  window.downloadErroredData = () => {
+    console.save(res.erroredData, 'errored.json');
+  };
+
+  return tidelineData;
+};
+
+
 // from http://bgrins.github.io/devtools-snippets/#console-save
 // MIT license
-(function(console){
+(function(console) {
 
   console.save = function(data, filename){
 
