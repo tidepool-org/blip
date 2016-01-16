@@ -40,6 +40,15 @@ export function showNotification(notification) {
   };
 }
 
+export function acknowledgeError(acknowledgedError) {
+  return {
+    type: ActionTypes.ACKNOWLEDGE_ERROR,
+    payload: {
+      acknowledgedError: acknowledgedError
+    }
+  };
+}
+
 export function closeNotification() {
   return {
     type: ActionTypes.CLOSE_NOTIFICATION
@@ -150,6 +159,233 @@ export function acceptTermsFailure(error) {
   };
 }
 
+export function createPatientRequest() {
+  return {
+    type: ActionTypes.CREATE_PATIENT_REQUEST
+  };
+}
+
+export function createPatientSuccess(patient) {
+  return {
+    type: ActionTypes.CREATE_PATIENT_SUCCESS,
+    payload: {
+      patient: patient
+    }
+  };
+}
+
+export function createPatientFailure(error) {
+  return {
+    type: ActionTypes.CREATE_PATIENT_FAILURE,
+    error: error
+  };
+}
+
+export function removePatientRequest() {
+  return {
+    type: ActionTypes.REMOVE_PATIENT_REQUEST
+  };
+}
+
+export function removePatientSuccess(removedPatientId) {
+  return {
+    type: ActionTypes.REMOVE_PATIENT_SUCCESS,
+    payload: {
+      removedPatientId: removedPatientId
+    }
+  };
+}
+
+export function removePatientFailure(error) {
+  return {
+    type: ActionTypes.REMOVE_PATIENT_FAILURE,
+    error: error
+  };
+}
+
+export function removeMemberRequest() {
+  return {
+    type: ActionTypes.REMOVE_MEMBER_REQUEST
+  };
+}
+
+export function removeMemberSuccess(removedMemberId) {
+  return {
+    type: ActionTypes.REMOVE_MEMBER_SUCCESS,
+    payload: {
+      removedMemberId: removedMemberId
+    }
+  };
+}
+
+export function removeMemberFailure(error) {
+  return {
+    type: ActionTypes.REMOVE_MEMBER_FAILURE,
+    error: error
+  };
+}
+
+export function sendInvitationRequest() {
+  return {
+    type: ActionTypes.SEND_INVITATION_REQUEST
+  };
+}
+
+export function sendInvitationSuccess(invitation) {
+  return {
+    type: ActionTypes.SEND_INVITATION_SUCCESS,
+    payload: {
+      invitation: invitation
+    }
+  };
+}
+
+export function sendInvitationFailure(error) {
+  return {
+    type: ActionTypes.SEND_INVITATION_FAILURE,
+    error: error
+  };
+}
+
+export function cancelInvitationRequest() {
+  return {
+    type: ActionTypes.CANCEL_INVITATION_REQUEST
+  };
+}
+
+export function cancelInvitationSuccess(removedEmail) {
+  return {
+    type: ActionTypes.CANCEL_INVITATION_SUCCESS,
+    payload: {
+      removedEmail: removedEmail
+    }
+  };
+}
+
+export function cancelInvitationFailure(error) {
+  return {
+    type: ActionTypes.CANCEL_INVITATION_FAILURE,
+    error: error
+  };
+}
+
+export function acceptMembershipRequest(acceptedMembership) {
+  return {
+    type: ActionTypes.ACCEPT_MEMBERSHIP_REQUEST,
+    payload: {
+      acceptedMembership: acceptedMembership
+    }
+  };
+}
+
+export function acceptMembershipSuccess(acceptedMembership) {
+  return {
+    type: ActionTypes.ACCEPT_MEMBERSHIP_SUCCESS,
+    payload: {
+      acceptedMembership: acceptedMembership
+    }
+  };
+}
+
+export function acceptMembershipFailure(error) {
+  return {
+    type: ActionTypes.ACCEPT_MEMBERSHIP_FAILURE,
+    error: error
+  };
+}
+
+export function dismissMembershipRequest(dismissedMembership) {
+  return {
+    type: ActionTypes.DISMISS_MEMBERSHIP_REQUEST,
+    payload: {
+      dismissedMembership: dismissedMembership
+    }
+  };
+}
+
+export function dismissMembershipSuccess(dismissedMembership) {
+  return {
+    type: ActionTypes.DISMISS_MEMBERSHIP_SUCCESS,
+    payload: {
+      dismissedMembership: dismissedMembership
+    }
+  };
+}
+
+export function dismissMembershipFailure(error) {
+  return {
+    type: ActionTypes.DISMISS_MEMBERSHIP_FAILURE,
+    error: error
+  };
+}
+
+export function setMemberPermissionsRequest() {
+  return {
+    type: ActionTypes.SET_MEMBER_PERMISSIONS_REQUEST
+  };
+}
+
+export function setMemberPermissionsSuccess(memberId, permissions) {
+  return {
+    type: ActionTypes.SET_MEMBER_PERMISSIONS_SUCCESS,
+    payload: {
+      memberId: memberId,
+      permissions: permissions
+    }
+  };
+}
+
+export function setMemberPermissionsFailure(error) {
+  return {
+    type: ActionTypes.SET_MEMBER_PERMISSIONS_FAILURE,
+    error: error
+  };
+}
+
+export function updatePatientRequest() {
+  return {
+    type: ActionTypes.UPDATE_PATIENT_REQUEST
+  };
+}
+
+export function updatePatientSuccess(patient) {
+  return {
+    type: ActionTypes.UPDATE_PATIENT_SUCCESS,
+    payload: {
+      patient: patient
+    }
+  };
+}
+
+export function updatePatientFailure(error) {
+  return {
+    type: ActionTypes.UPDATE_PATIENT_FAILURE,
+    error: error
+  };
+}
+
+export function updateUserRequest() {
+  return {
+    type: ActionTypes.UPDATE_USER_REQUEST
+  };
+}
+
+export function updateUserSuccess(user) {
+  return {
+    type: ActionTypes.UPDATE_USER_SUCCESS,
+    payload: {
+      user: user
+    }
+  };
+}
+
+export function updateUserFailure(error) {
+  return {
+    type: ActionTypes.UPDATE_USER_FAILURE,
+    error: error
+  };
+}
+
 export function logErrorRequest() {
   return {
     type: ActionTypes.LOG_ERROR_REQUEST
@@ -169,7 +405,9 @@ export function logErrorFailure(error) {
   };
 }
 
-// TODO: Need to confirm these functions and whether we are happy with these in principle
+/**
+ * Synchronous Action Handlers for Fetching
+ */
 
 export function fetchUserRequest() {
   return {
