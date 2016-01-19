@@ -40,7 +40,7 @@ export default {
 
 // let iteration = {
 //   error: null,
-//   notifications: [], // depends on whether this is different from error
+//   notification: null,
 //   users: {
 //     isFetching: false
 //     loggedInUser: null,

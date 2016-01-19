@@ -56,9 +56,7 @@ export default (state, action) => {
         working: {
           fetchingPendingInvites: false
         },
-        users: {
-          pendingInvites: action.payload.pendingInvites
-        }
+        pendingInvites: action.payload.pendingInvites
       });
     case types.FETCH_PENDING_INVITES_FAILURE: 
       return merge({
@@ -78,9 +76,7 @@ export default (state, action) => {
         working: {
           fetchingPendingMemberships: false
         },
-        users: {
-          pendingMemberships: action.payload.pendingMemberships
-        }
+        pendingMemberships: action.payload.pendingMemberships
       });
     case types.FETCH_PENDING_MEMBERSHIPS_FAILURE: 
       return merge({
@@ -101,9 +97,7 @@ export default (state, action) => {
         working: {
           fetchingPatients: false
         },
-        users: {
-          patients: action.payload.patients
-        }
+        patients: action.payload.patients
       });
     case types.FETCH_PATIENTS_FAILURE: 
       return merge({
@@ -123,9 +117,7 @@ export default (state, action) => {
         working: {
           fetchingPatient: false
         },
-        users: {
-          patient: action.payload.patient
-        }
+        patient: action.payload.patient
       });
     case types.FETCH_PATIENT_FAILURE: 
       return merge({
@@ -145,9 +137,7 @@ export default (state, action) => {
         working: {
           fetchingPatientData: false
         },
-        users: {
-          patientData: action.payload.patientData
-        }
+        patientData: action.payload.patientData
       });
     case types.FETCH_PATIENT_DATA_FAILURE: 
       return merge({
