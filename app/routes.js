@@ -1,6 +1,8 @@
 import React from 'react';
 import { Route, IndexRoute } from 'react-router';
 
+import _ from 'lodash';
+
 import AppComponent from './components/app';
 import Patients from './pages/patients';
 import Login from './pages/login';
@@ -188,13 +190,7 @@ export const getRoutes = (appContext) => {
       <Route path='signup' components={{signup: Signup}} onEnter={requireNoAuth(api)} />
       <Route path='email-verification' components={{emailVerification: EmailVerification}} onEnter={requireNotVerified(api)} />
       <Route path='profile' components={{profile: Profile}} onEnter={(api) => { requireAuth(api); requireTOS(api); }} />
-      <Route path='patients' components={{patients: Patients}} onEnter={
-        (nextState, replaceState) => {
-          requireAuth(api)(nextState, replaceState, () => {
-            requireTOS(api)(nextState, replaceState)
-          })
-          }
-        }
+      <Route path='patients' components={{patients: Patients}} onEnter={_.flow(requireAuth(api), requireTOS(api))}
       />
       <Route path='patients/new' components={{patientNew: PatientNew}} onEnter={requireAuthAndNoPatient(api)} />
       <Route path='patients/:id/profile' components={{patient: Patient}} onEnter={requireAuth(api)} />
