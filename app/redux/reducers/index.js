@@ -157,9 +157,7 @@ export default (state, action) => {
         working: {
           fetchingMessageThread: false
         },
-        users: {
-          messageThread: action.payload.messageThread
-        }
+        messageThread: action.payload.messageThread
       });
     case types.FETCH_MESSAGE_THREAD_FAILURE: 
       return merge({
@@ -266,7 +264,7 @@ export default (state, action) => {
         working: {
           acceptingTerms: false
         },
-        acceptedTerms: true
+        user: action.payload.user
       });
     case types.ACCEPT_TERMS_FAILURE:
       return merge({
