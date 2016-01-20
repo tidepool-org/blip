@@ -592,7 +592,9 @@ export default class AppComponent extends React.Component {
   renderTerms() {
     return React.cloneElement(this.props.terms, {
       onSubmit: this.actionHandlers.handleAcceptedTerms.bind(this.actionHandlers),
-      trackMetric: this.props.route.trackMetric
+      trackMetric: this.props.route.trackMetric,
+      authenticated: this.state.authenticated,
+      termsAccepted: this.state.termsAccepted
     });
   }
 

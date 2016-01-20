@@ -106,6 +106,22 @@ export const requireNotVerified = (api) => (nextState, replaceState, cb) => {
 }
 
 /**
+ * This function redirects any requests that land on pages that should only be
+ * visible when user has accepted the terms of service when they have not
+ *
+ * @param  {Object} nextState
+ * @param  {Function} replaceState
+ *
+ * @return {boolean|null} returns true if hash mapping happened
+ */
+export const requireTOS = (api) => (nextState, replaceState) => {
+  console.log(nextState);
+  if (!api.user.termsAccepted && nextState !== '/login') {
+    replaceState(null, '/terms');
+  }
+};
+
+/**
  * This function redirects the /request-password-from-uploader route to the
  * account settings/profile page where the user can change password iff the user
  * is already logged in (with token stored) to blip in their browser
@@ -171,8 +187,15 @@ export const getRoutes = (appContext) => {
       <Route path='terms' components={{terms:Terms}} />
       <Route path='signup' components={{signup: Signup}} onEnter={requireNoAuth(api)} />
       <Route path='email-verification' components={{emailVerification: EmailVerification}} onEnter={requireNotVerified(api)} />
-      <Route path='profile' components={{profile: Profile}} onEnter={requireAuth(api)} />
-      <Route path='patients' components={{patients: Patients}} onEnter={requireAuth(api)} />
+      <Route path='profile' components={{profile: Profile}} onEnter={(api) => { requireAuth(api); requireTOS(api); }} />
+      <Route path='patients' components={{patients: Patients}} onEnter={
+        (nextState, replaceState) => {
+          requireAuth(api)(nextState, replaceState, () => {
+            requireTOS(api)(nextState, replaceState)
+          })
+          }
+        }
+      />
       <Route path='patients/new' components={{patientNew: PatientNew}} onEnter={requireAuthAndNoPatient(api)} />
       <Route path='patients/:id/profile' components={{patient: Patient}} onEnter={requireAuth(api)} />
       <Route path='patients/:id/share' components={{patientShare: Patient}} onEnter={requireAuth(api)} />

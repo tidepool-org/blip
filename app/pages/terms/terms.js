@@ -109,14 +109,15 @@ var Terms = React.createClass({
         {terms}
         <div className='privacy-overlay-title'>PRIVACY POLICY</div>
         {privacy}
-        <form className='terms-overlay-form'>
-          {agreeConfirmation}
-          {backBtn}
-          <button
-            className='terms-button terms-button-submit'
-            onClick={this.handleTermsAndPrivacySubmit}
-            disabled={continueBtnDisabled}>Continue</button>
-        </form>
+        {this.props.authenticated && !this.props.termsAccepted ?
+          <form className='terms-overlay-form'>
+            {agreeConfirmation}
+            {backBtn}
+            <button
+              className='terms-button terms-button-submit'
+              onClick={this.handleTermsAndPrivacySubmit}
+              disabled={continueBtnDisabled}>Continue</button>
+          </form> : '' }
       </div>
     );
   },
@@ -169,8 +170,14 @@ var Terms = React.createClass({
     );
   },
   render: function() {
+    var content = '';
+    if(!this.props.authenticated || (this.props.authenticated && this.props.termsAccepted)){
+      content = this.renderTermsAndPrivacyStep();
+    }
 
-    var content = this.renderAgeConsentStep();
+    if(this.props.authenticated && !this.props.termsAccepted){
+      content = this.renderAgeConsentStep();
+    }
 
     if (this.state.ageConfirmed) {
       //assume we are good to go
@@ -181,7 +188,7 @@ var Terms = React.createClass({
         content = this.renderSorryMessage();
       }
     }
-
+    
     return (
       <div className='terms-overlay js-terms'>
         <LoginNav hideLinks={true} trackMetric={this.props.trackMetric} />
