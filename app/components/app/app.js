@@ -162,7 +162,7 @@ export default class AppComponent extends React.Component {
    *  - patients/:id/data
    *  - patients/:id/share
    *  - patients/:id/profile
-   *  
+   *
    * @return {Boolean}
    */
   isPatientVisibleInNavbar() {
@@ -293,7 +293,7 @@ export default class AppComponent extends React.Component {
   }
 
   /**
-   * Before any subsequent re-rendering 
+   * Before any subsequent re-rendering
    * begin fetching any required data
    */
   componentWillReceiveProps(nextProps) {
@@ -429,7 +429,7 @@ export default class AppComponent extends React.Component {
 
     return React.cloneElement(this.props.login, {
       onSubmit: this.actionHandlers.handleLogin.bind(this.actionHandlers),
-      seedEmail: email, 
+      seedEmail: email,
       isInvite: showAsInvite,
       onSubmitSuccess: this.actionHandlers.handleLoginSuccess.bind(this.actionHandlers),
       onSubmitNotAuthorized: this.actionHandlers.handleNotAuthorized.bind(this.actionHandlers),
@@ -497,16 +497,16 @@ export default class AppComponent extends React.Component {
       return;
     }
     return React.cloneElement(this.props.patient, {
-      user: this.state.user, 
-      fetchingUser: this.state.fetchingUser, 
-      patient: this.state.patient, 
-      fetchingPatient: this.state.fetchingPatient, 
-      onUpdatePatient: this.actionHandlers.handleUpdatePatient.bind(this.actionHandlers), 
-      pendingInvites: this.state.pendingInvites, 
-      onChangeMemberPermissions: this.actionHandlers.handleChangeMemberPermissions.bind(this.actionHandlers), 
-      onRemoveMember: this.actionHandlers.handleRemoveMember.bind(this.actionHandlers), 
-      onInviteMember: this.actionHandlers.handleInviteMember.bind(this.actionHandlers), 
-      onCancelInvite: this.actionHandlers.handleCancelInvite.bind(this.actionHandlers), 
+      user: this.state.user,
+      fetchingUser: this.state.fetchingUser,
+      patient: this.state.patient,
+      fetchingPatient: this.state.fetchingPatient,
+      onUpdatePatient: this.actionHandlers.handleUpdatePatient.bind(this.actionHandlers),
+      pendingInvites: this.state.pendingInvites,
+      onChangeMemberPermissions: this.actionHandlers.handleChangeMemberPermissions.bind(this.actionHandlers),
+      onRemoveMember: this.actionHandlers.handleRemoveMember.bind(this.actionHandlers),
+      onInviteMember: this.actionHandlers.handleInviteMember.bind(this.actionHandlers),
+      onCancelInvite: this.actionHandlers.handleCancelInvite.bind(this.actionHandlers),
       trackMetric: this.props.route.trackMetric
     });
   }
@@ -589,9 +589,16 @@ export default class AppComponent extends React.Component {
     });
   }
 
+  renderTerms() {
+    return React.cloneElement(this.props.terms, {
+      onSubmit: this.actionHandlers.handleAcceptedTerms.bind(this.actionHandlers),
+      trackMetric: this.props.route.trackMetric
+    });
+  }
+
   renderPage() {
     // Right now because we are not using Redux we are using a slightly
-    // hacky way of passing props to our route components by cloning them 
+    // hacky way of passing props to our route components by cloning them
     // here, and setting the props we know each component needs
     // See: https://github.com/rackt/react-router/blob/master/examples/passing-props-to-children/app.js
     if (this.props.login) {
@@ -605,7 +612,6 @@ export default class AppComponent extends React.Component {
     } else if (this.props.patients) {
       return this.renderPatients();
     } else if (this.props.patientNew) {
-
       return this.renderPatientNew();
     } else if (this.props.patient) {
       return this.renderPatient();
@@ -617,6 +623,8 @@ export default class AppComponent extends React.Component {
       return this.renderRequestPasswordReset();
     } else if (this.props.confirmPasswordReset) {
       return this.renderConfirmPasswordReset();
+    } else if (this.props.terms) {
+      return this.renderTerms();
     }
 
     return (

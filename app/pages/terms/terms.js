@@ -14,9 +14,14 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 var React = require('react');
-var LoginNav = require('../loginnav');
+var _ = require('lodash');
 
-var TermsOverlay = React.createClass({
+var config = require('../../config');
+
+var utils = require('../../core/utils');
+var LoginNav = require('../../components/loginnav');
+
+var Terms = React.createClass({
   propTypes: {
     onSubmit: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
@@ -238,4 +243,4 @@ var TermsOverlay = React.createClass({
   }
 });
 
-module.exports = TermsOverlay;
+module.exports = Terms;
