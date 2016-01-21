@@ -321,21 +321,31 @@ describe('Actions', () => {
     describe('removePatient', () => {
       it('should trigger REMOVE_PATIENT_SUCCESS and it should call removePatient once for a successful request', (done) => {
         let patientId = 27;
+        let patients = [
+          { id: 200 },
+          { id: 101 }
+        ]
         let api = {
           access: {
             leaveGroup: sinon.stub().callsArgWith(1, null)
+          },
+          patient: {
+            getAll: sinon.stub().callsArgWith(0, null, patients)
           }
         };
 
         let expectedActions = [
           { type: 'REMOVE_PATIENT_REQUEST' },
-          { type: 'REMOVE_PATIENT_SUCCESS', payload: { removedPatientId: patientId } }
+          { type: 'REMOVE_PATIENT_SUCCESS', payload: { removedPatientId: patientId } },
+          { type: 'FETCH_PATIENTS_REQUEST' },
+          { type: 'FETCH_PATIENTS_SUCCESS', payload: { patients: patients } }
         ];
         let store = mockStore(initialState, expectedActions, done);
 
         store.dispatch(async.removePatient(api, patientId));
 
         expect(api.access.leaveGroup.calledWith(patientId).callCount).to.equal(1);
+        expect(api.patient.getAll.callCount).to.equal(1);
       });
 
       it('should trigger REMOVE_PATIENT_FAILURE and it should call removePatient once for a failed request', (done) => {
@@ -372,6 +382,7 @@ describe('Actions', () => {
           { type: 'REMOVE_MEMBER_REQUEST' },
           { type: 'REMOVE_MEMBER_SUCCESS', payload: { removedMemberId: memberId } }
         ];
+
         let store = mockStore(initialState, expectedActions, done);
 
         store.dispatch(async.removeMember(api, memberId));
@@ -575,6 +586,7 @@ describe('Actions', () => {
     describe('setMemberPermissions', () => {
       it('should trigger SET_MEMBER_PERMISSIONS_SUCCESS and it should call setMemberPermissions once for a successful request', (done) => {
         let patientId = 50;
+        let patient = { id: 50, name: 'Jeanette Peach' };
         let memberId = 2;
         let permissions = {
           read: false
@@ -582,6 +594,9 @@ describe('Actions', () => {
         let api = {
           access: {
             setMemberPermissions: sinon.stub().callsArgWith(2, null)
+          },
+          patient: {
+            get: sinon.stub().callsArgWith(1, null, patient)
           }
         };
 
@@ -591,13 +606,16 @@ describe('Actions', () => {
               memberId: memberId,
               permissions: permissions
             } 
-          }
+          },
+          { type: 'FETCH_PATIENT_REQUEST' },
+          { type: 'FETCH_PATIENT_SUCCESS', payload: { patient: patient } },
         ];
         let store = mockStore(initialState, expectedActions, done);
 
         store.dispatch(async.setMemberPermissions(api, patientId, memberId, permissions));
 
         expect(api.access.setMemberPermissions.calledWith(memberId, permissions).callCount).to.equal(1);
+        expect(api.patient.get.calledWith(patientId).callCount).to.equal(1);
       });
 
       it('should trigger SET_MEMBER_PERMISSIONS_FAILURE and it should call setMemberPermissions once for a failed request', (done) => {

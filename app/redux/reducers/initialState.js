@@ -28,6 +28,8 @@ export default {
   working: {
     acceptingTerms: false,
     confirmingSignup: false,
+    creatingPatient: false,
+    removingPatient: false,
     fetchingPendingMemberships: false,
     fetchingPendingInvites: false,
     fetchingMessageThread: false,

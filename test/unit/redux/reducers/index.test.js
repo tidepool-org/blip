@@ -626,5 +626,95 @@ describe('reducers', () => {
         });
       });
     });
+
+    describe('createPatient', () => {
+      describe('request', () => {
+        it('should set creatingPatient to be true', () => {
+          let action = actions.sync.createPatientRequest(); 
+
+          expect(initialState.working.creatingPatient).to.be.false;
+
+          let state = reducer(initialState, action);
+          expect(state.working.creatingPatient).to.be.true;
+        });
+      });
+
+      describe('failure', () => {
+        it('should set creatingPatient to be false and set error', () => {
+          let initialStateForTest = _.merge({}, initialState, { working: { creatingPatient: true} });
+          let error = 'Oh no, did not get a message thread!!';
+          let action = actions.sync.createPatientFailure(error);
+          
+          expect(initialStateForTest.working.creatingPatient).to.be.true;
+          expect(initialStateForTest.error).to.be.null;
+          expect(initialStateForTest.patient).to.be.null;
+
+          let state = reducer(initialStateForTest, action);
+          
+          expect(state.working.creatingPatient).to.be.false;
+          expect(state.error).to.equal(error);
+          expect(state.patient).to.be.null;
+        });
+      });
+
+      describe('success', () => {
+        it('should set creatingPatient to be false and set patient', () => {
+          let initialStateForTest = _.merge({}, initialState, { working: { creatingPatient: true} });
+          let patient = 'Patient!';
+          let action = actions.sync.createPatientSuccess(patient);
+
+          expect(initialStateForTest.working.creatingPatient).to.be.true;
+          expect(initialStateForTest.patient).to.be.null;
+
+          let state = reducer(initialStateForTest, action);
+          
+          expect(state.working.creatingPatient).to.be.false;
+          expect(state.patient).to.equal(patient);
+        });
+      });
+    });
+
+    describe('removePatient', () => {
+      describe('request', () => {
+        it('should set removingPatient to be true', () => {
+          let action = actions.sync.removePatientRequest(); 
+
+          expect(initialState.working.removingPatient).to.be.false;
+
+          let state = reducer(initialState, action);
+          expect(state.working.removingPatient).to.be.true;
+        });
+      });
+
+      describe('failure', () => {
+        it('should set removingPatient to be false and set error', () => {
+          let initialStateForTest = _.merge({}, initialState, { working: { removingPatient: true} });
+          let error = 'Oh no, did not get a message thread!!';
+          let action = actions.sync.removePatientFailure(error);
+          
+          expect(initialStateForTest.working.removingPatient).to.be.true;
+          expect(initialStateForTest.error).to.be.null;
+
+          let state = reducer(initialStateForTest, action);
+          
+          expect(state.working.removingPatient).to.be.false;
+          expect(state.error).to.equal(error);
+        });
+      });
+
+      describe('success', () => {
+        it('should set removingPatient to be false', () => {
+          let initialStateForTest = _.merge({}, initialState, { working: { removingPatient: true} });
+          let patientId = 15;
+          let action = actions.sync.removePatientSuccess(patientId);
+
+          expect(initialStateForTest.working.removingPatient).to.be.true;
+
+          let state = reducer(initialStateForTest, action);
+          
+          expect(state.working.removingPatient).to.be.false;
+        });
+      });
+    });
   });
 });

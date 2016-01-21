@@ -155,6 +155,7 @@ export function createPatient(api, patient) {
 
 /**
  * Remove Patient Async Action Creator
+ * This function calls fetchPatients to get an updated list of patients
  * 
  * @param  {Object} api an instance of the API wrapper
  * @param  {Object} patientId
@@ -168,6 +169,7 @@ export function removePatient(api, patientId) {
         dispatch(sync.removePatientFailure(err));
       } else {
         dispatch(sync.removePatientSuccess(patientId));
+        dispatch(fetchPatients(api));
       }
     });
   }
@@ -279,7 +281,11 @@ export function dismissMembership(api, invitation) {
 }
 
 /**
- * Dismiss Membership Async Action Creator
+ * Set Member Permissions Async Action Creator
+ * This in turn triggers a fetch of the patient the permissions are for
+ *
+ * @todo  refactor this behaviour so that the updating of the whole patient
+ * is not neccessary
  * 
  * @param  {Object} api an instance of the API wrapper
  * @param  {String|Number} patientId
@@ -297,6 +303,7 @@ export function setMemberPermissions(api, patientId, memberId, permissions) {
         dispatch(sync.setMemberPermissionsFailure(err));
       } else {
         dispatch(sync.setMemberPermissionsSuccess(memberId, permissions));
+        dispatch(fetchPatient(api, patientId));
       }
     });
   }

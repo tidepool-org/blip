@@ -273,6 +273,67 @@ export default (state, action) => {
         },
         error: action.error
       });
+    case types.SET_MEMBER_PERMISSIONS_REQUEST: 
+      return merge({
+        working: {
+          settingMemberPermissions: true
+        }
+      });
+    case types.SET_MEMBER_PERMISSIONS_SUCCESS:
+      return merge({
+        working: {
+          settingMemberPermissions: false
+        }
+      });
+    case types.SET_MEMBER_PERMISSIONS_FAILURE:
+      return merge({
+        working: {
+          settingMemberPermissions: false
+        },
+        error: action.error
+      });
+    case types.CREATE_PATIENT_REQUEST: 
+      return merge({
+        working: {
+          creatingPatient: true
+        }
+      });
+    case types.CREATE_PATIENT_SUCCESS:
+      return merge({
+        working: {
+          creatingPatient: false
+        },
+        user: {
+          profile: action.payload.patient.profile
+        },
+        patient: action.payload.patient
+      });
+    case types.CREATE_PATIENT_FAILURE:
+      return merge({
+        working: {
+          creatingPatient: false
+        },
+        error: action.error
+      });
+    case types.REMOVE_PATIENT_REQUEST: 
+      return merge({
+        working: {
+          removingPatient: true
+        }
+      });
+    case types.REMOVE_PATIENT_SUCCESS:
+      return merge({
+        working: {
+          removingPatient: false
+        }
+      });
+    case types.REMOVE_PATIENT_FAILURE:
+      return merge({
+        working: {
+          removingPatient: false
+        },
+        error: action.error
+      });
   }
 
   // Convenience function
