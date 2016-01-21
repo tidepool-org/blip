@@ -47,12 +47,6 @@ import EmailVerification from '../../pages/emailverification';
 
 // Styles
 require('tideline/css/tideline.less');
-// the only way to not use this work-around (requiring fonts through a JS file)
-// is to use the `publicPath` webpack config option
-// (see here: http://stackoverflow.com/questions/34133808/webpack-ots-parsing-error-loading-fonts/34133809#34133809)
-// but we can't really do that because we'd need to vary it by config
-// but we don't let our app builds vary by environment/config
-require('../../core/less/fonts.less');
 require('../../style.less');
 
 // Blip favicon
