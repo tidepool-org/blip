@@ -50,6 +50,11 @@ var Terms = React.createClass({
       ageSelected: this.props.ages.OF_AGE.value //default
     };
   },
+  componentWillUpdate: function(nextProps, nextState){
+    if(nextProps.termsAccepted && this.props.location.state.originalPath){
+      this.props.history.pushState(null, this.props.location.state.originalPath)
+    }
+  },
   renderAgeConsentStep: function() {
     return (
       <form ref='confirmAgeStep' className='terms-overlay-age-form'>
@@ -188,7 +193,7 @@ var Terms = React.createClass({
         content = this.renderSorryMessage();
       }
     }
-    
+
     return (
       <div className='terms-overlay js-terms'>
         <LoginNav hideLinks={true} trackMetric={this.props.trackMetric} />

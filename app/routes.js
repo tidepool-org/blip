@@ -29,9 +29,6 @@ export const requireAuth = (api) => (nextState, replaceState) => {
   if (!api.user.isAuthenticated()) {
     replaceState(null, '/login');
   }
-  if(!api.user.termsAccepted) {
-    replaceState(null, '/terms');
-  }
 };
 
 /**

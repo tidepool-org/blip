@@ -30,7 +30,6 @@ import Navbar from '../navbar';
 import LogoutOverlay from '../logoutoverlay';
 import BrowserWarningOverlay from '../browserwarningoverlay';
 import TidepoolNotification from '../notification';
-import TermsOverlay from '../termsoverlay';
 import MailTo from '../mailto';
 
 // Pages
@@ -319,21 +318,6 @@ export default class AppComponent extends React.Component {
       );
     }
 
-    if (!this.state.fetchingUser){
-      return this.renderTermsOverlay();
-    }
-
-    return null;
-  }
-
-  renderTermsOverlay(){
-    if (this.state.authenticated && _.isEmpty(this.state.termsAccepted)){
-      return (
-        <TermsOverlay
-          onSubmit={this.actionHandlers.handleAcceptedTerms.bind(this.actionHandlers)}
-          trackMetric={this.props.route.trackMetric} />
-      );
-    }
     return null;
   }
 
