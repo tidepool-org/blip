@@ -105,6 +105,22 @@ export const requireNotVerified = (api) => (nextState, replaceState, cb) => {
 }
 
 /**
+ * This function redirects the /request-password-from-uploader route to the
+ * account settings/profile page where the user can change password iff the user
+ * is already logged in (with token stored) to blip in their browser
+ *
+ * @param  {Object} nextState
+ * @param  {Function} replaceState
+ *
+ * @return {boolean|null} returns true if hash mapping happened
+ */
+export const onUploaderPasswordReset = (api) => (nextState, replaceState) => {
+  if (api.user.isAuthenticated()) {
+    replaceState(null, '/profile');
+  }
+}
+
+/**
  * This function exists for backward compatibility and maps hash
  * urls to standard urls
  * 
@@ -160,8 +176,8 @@ export const getRoutes = (appContext) => {
       <Route path='patients/:id/share' components={{patientShare: Patient}} onEnter={requireAuth(api)} />
       <Route path='patients/:id/data' components={{patientData: PatientData}} onEnter={requireAuth(api)} />
       <Route path='request-password-reset' components={{requestPasswordReset: RequestPasswordReset}} onEnter={requireNoAuth(api)} />
-      <Route path='confirm-password-reset' components={{ confirmPasswordReset: ConfirmPasswordReset}} onEnter={requireNoAuth(api)} />
-      <Route path='request-password-from-uploader' components={{ requestPasswordReset: RequestPasswordReset}} onEnter={requireNoAuth(api)} />
+      <Route path='confirm-password-reset' components={{confirmPasswordReset: ConfirmPasswordReset}} onEnter={requireNoAuth(api)} />
+      <Route path='request-password-from-uploader' components={{requestPasswordReset: RequestPasswordReset}} onEnter={onUploaderPasswordReset(api)} />
     </Route>
   );
 }
