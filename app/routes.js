@@ -1,8 +1,6 @@
 import React from 'react';
 import { Route, IndexRoute } from 'react-router';
 
-import _ from 'lodash';
-
 import AppComponent from './components/app';
 import Patients from './pages/patients';
 import Login from './pages/login';
@@ -30,6 +28,9 @@ import personUtils from './core/personutils';
 export const requireAuth = (api) => (nextState, replaceState) => {
   if (!api.user.isAuthenticated()) {
     replaceState(null, '/login');
+  }
+  if(!api.user.termsAccepted) {
+    replaceState(null, '/terms');
   }
 };
 
@@ -117,8 +118,7 @@ export const requireNotVerified = (api) => (nextState, replaceState, cb) => {
  * @return {boolean|null} returns true if hash mapping happened
  */
 export const requireTOS = (api) => (nextState, replaceState) => {
-  console.log(nextState);
-  if (!api.user.termsAccepted && nextState !== '/login') {
+  if (!api.user.termsAccepted) {
     replaceState(null, '/terms');
   }
 };
@@ -189,9 +189,8 @@ export const getRoutes = (appContext) => {
       <Route path='terms' components={{terms:Terms}} />
       <Route path='signup' components={{signup: Signup}} onEnter={requireNoAuth(api)} />
       <Route path='email-verification' components={{emailVerification: EmailVerification}} onEnter={requireNotVerified(api)} />
-      <Route path='profile' components={{profile: Profile}} onEnter={(api) => { requireAuth(api); requireTOS(api); }} />
-      <Route path='patients' components={{patients: Patients}} onEnter={_.flow(requireAuth(api), requireTOS(api))}
-      />
+      <Route path='profile' components={{profile: Profile}} onEnter={requireAuth(api)} />
+      <Route path='patients' components={{patients: Patients}} onEnter={requireAuth(api)} />
       <Route path='patients/new' components={{patientNew: PatientNew}} onEnter={requireAuthAndNoPatient(api)} />
       <Route path='patients/:id/profile' components={{patient: Patient}} onEnter={requireAuth(api)} />
       <Route path='patients/:id/share' components={{patientShare: Patient}} onEnter={requireAuth(api)} />
