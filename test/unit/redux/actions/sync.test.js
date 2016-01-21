@@ -754,7 +754,7 @@ describe('Actions', () => {
         let action = sync.updatePatientSuccess(patient);
 
         expect(action.type).to.equal('UPDATE_PATIENT_SUCCESS');
-        expect(action.payload.patient).to.equal(patient);
+        expect(action.payload.updatedPatient).to.equal(patient);
       });
     });
 
@@ -801,7 +801,7 @@ describe('Actions', () => {
         let action = sync.updateUserSuccess(user);
 
         expect(action.type).to.equal('UPDATE_USER_SUCCESS');
-        expect(action.payload.user).to.equal(user);
+        expect(action.payload.updatedUser).to.equal(user);
       });
     });
 

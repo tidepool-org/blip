@@ -177,11 +177,13 @@ export function removePatient(api, patientId) {
 
 /**
  * Remove Member Async Action Creator
+ * This function calls fetchPatient to get an updated patient object
  * 
  * @param  {Object} api an instance of the API wrapper
- * @param  {Object} memberId
+ * @param  {String|Number} patientId
+ * @param  {String|Number} memberId
  */
-export function removeMember(api, memberId) {
+export function removeMember(api, patientId, memberId) {
   return (dispatch) => {
     dispatch(sync.removeMemberRequest());
 
@@ -190,6 +192,7 @@ export function removeMember(api, memberId) {
         dispatch(sync.removeMemberFailure(err));
       } else {
         dispatch(sync.removeMemberSuccess(memberId));
+        dispatch(fetchPatient(api, patientId));
       }
     });
   }
@@ -336,7 +339,7 @@ export function updatePatient(api, patient) {
  * @param  {Object} user
  */
 export function updateUser(api, user) {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     dispatch(sync.updateUserRequest());
     
     api.user.put(user, (err, updatedUser) => {

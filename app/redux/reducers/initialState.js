@@ -26,20 +26,37 @@ export default {
   pendingMemberships: [],
   messageThread: null,
   working: {
+    acceptingMembership: false,
     acceptingTerms: false,
+
+
+    cancellingInvitation: false,
+
     confirmingSignup: false,
     creatingPatient: false,
-    removingPatient: false,
-    fetchingPendingMemberships: false,
-    fetchingPendingInvites: false,
+
+    dismissingMembership: false,
+
     fetchingMessageThread: false,
-    fetchingPatients: false,
     fetchingPatient: false,
     fetchingPatientData: false,
+    fetchingPatients: false,
+    fetchingPendingInvites: false,
+    fetchingPendingMemberships: false,
     fetchingUser: false,
-    signingUp: false,
+
+    loggingIn: false,
     loggingOut: false,
-    loggingIn: false
+
+    removingPatient: false,
+    removingMember: false,
+
+    sendingInvitation: false,
+
+    updatingPatient: false,
+    updatingUser: false,
+    
+    signingUp: false,
   },
   error: null
 };

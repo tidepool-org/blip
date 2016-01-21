@@ -716,5 +716,515 @@ describe('reducers', () => {
         });
       });
     });
+
+    describe('removePatient', () => {
+      describe('request', () => {
+        it('should set removingPatient to be true', () => {
+          let action = actions.sync.removePatientRequest(); 
+
+          expect(initialState.working.removingPatient).to.be.false;
+
+          let state = reducer(initialState, action);
+          expect(state.working.removingPatient).to.be.true;
+        });
+      });
+
+      describe('failure', () => {
+        it('should set removingPatient to be false and set error', () => {
+          let initialStateForTest = _.merge({}, initialState, { working: { removingPatient: true} });
+          let error = 'Oh no, did not get a message thread!!';
+          let action = actions.sync.removePatientFailure(error);
+          
+          expect(initialStateForTest.working.removingPatient).to.be.true;
+          expect(initialStateForTest.error).to.be.null;
+
+          let state = reducer(initialStateForTest, action);
+          
+          expect(state.working.removingPatient).to.be.false;
+          expect(state.error).to.equal(error);
+        });
+      });
+
+      describe('success', () => {
+        it('should set removingPatient to be false', () => {
+          let initialStateForTest = _.merge({}, initialState, { working: { removingPatient: true} });
+          let patientId = 15;
+          let action = actions.sync.removePatientSuccess(patientId);
+
+          expect(initialStateForTest.working.removingPatient).to.be.true;
+
+          let state = reducer(initialStateForTest, action);
+          
+          expect(state.working.removingPatient).to.be.false;
+        });
+      });
+    });
+
+    describe('removePatient', () => {
+      describe('request', () => {
+        it('should set removingPatient to be true', () => {
+          let action = actions.sync.removePatientRequest(); 
+
+          expect(initialState.working.removingPatient).to.be.false;
+
+          let state = reducer(initialState, action);
+          expect(state.working.removingPatient).to.be.true;
+        });
+      });
+
+      describe('failure', () => {
+        it('should set removingPatient to be false and set error', () => {
+          let initialStateForTest = _.merge({}, initialState, { working: { removingPatient: true} });
+          let error = 'Oh no, did not get a message thread!!';
+          let action = actions.sync.removePatientFailure(error);
+          
+          expect(initialStateForTest.working.removingPatient).to.be.true;
+          expect(initialStateForTest.error).to.be.null;
+
+          let state = reducer(initialStateForTest, action);
+          
+          expect(state.working.removingPatient).to.be.false;
+          expect(state.error).to.equal(error);
+        });
+      });
+
+      describe('success', () => {
+        it('should set removingPatient to be false', () => {
+          let initialStateForTest = _.merge({}, initialState, { working: { removingPatient: true} });
+          let patientId = 15;
+          let action = actions.sync.removePatientSuccess(patientId);
+
+          expect(initialStateForTest.working.removingPatient).to.be.true;
+
+          let state = reducer(initialStateForTest, action);
+          
+          expect(state.working.removingPatient).to.be.false;
+        });
+      });
+    });
+
+    describe('removeMember', () => {
+      describe('request', () => {
+        it('should set removingMember to be true', () => {
+          let action = actions.sync.removeMemberRequest(); 
+
+          expect(initialState.working.removingMember).to.be.false;
+
+          let state = reducer(initialState, action);
+          expect(state.working.removingMember).to.be.true;
+        });
+      });
+
+      describe('failure', () => {
+        it('should set removingMember to be false and set error', () => {
+          let initialStateForTest = _.merge({}, initialState, { working: { removingMember: true} });
+          let error = 'Oh no, did not get a message thread!!';
+          let action = actions.sync.removeMemberFailure(error);
+          
+          expect(initialStateForTest.working.removingMember).to.be.true;
+          expect(initialStateForTest.error).to.be.null;
+
+          let state = reducer(initialStateForTest, action);
+          
+          expect(state.working.removingMember).to.be.false;
+          expect(state.error).to.equal(error);
+        });
+      });
+
+      describe('success', () => {
+        it('should set removingMember to be false', () => {
+          let initialStateForTest = _.merge({}, initialState, { working: { removingMember: true} });
+          let memberId = 15;
+          let action = actions.sync.removeMemberSuccess(memberId);
+
+          expect(initialStateForTest.working.removingMember).to.be.true;
+
+          let state = reducer(initialStateForTest, action);
+          
+          expect(state.working.removingMember).to.be.false;
+        });
+      });
+    });
+
+    describe('sendInvitation', () => {
+      describe('request', () => {
+        it('should set sendingInvitation to be true', () => {
+          let action = actions.sync.sendInvitationRequest(); 
+
+          expect(initialState.working.sendingInvitation).to.be.false;
+
+          let state = reducer(initialState, action);
+          expect(state.working.sendingInvitation).to.be.true;
+        });
+      });
+
+      describe('failure', () => {
+        it('should set sendingInvitation to be false and set error', () => {
+          let initialStateForTest = _.merge({}, initialState, { working: { sendingInvitation: true} });
+          let error = 'Oh no, did not get a message thread!!';
+          let action = actions.sync.sendInvitationFailure(error);
+          
+          expect(initialStateForTest.working.sendingInvitation).to.be.true;
+          expect(initialStateForTest.error).to.be.null;
+
+          let state = reducer(initialStateForTest, action);
+          
+          expect(state.working.sendingInvitation).to.be.false;
+          expect(state.error).to.equal(error);
+        });
+      });
+
+      describe('success', () => {
+        it('should set sendingInvitation to be false', () => {
+          let pendingInvites = [
+            { email: 'a@a.com', permissions: 'bar'}
+          ];
+
+          let initialStateForTest = _.merge(
+            {}, 
+            initialState, 
+            { 
+              working: { 
+                sendingInvitation: true
+              },
+              pendingInvites: pendingInvites
+          });
+          
+          let invitation = { email: 'f@f.com', permissions: 'foo' };
+          let action = actions.sync.sendInvitationSuccess(invitation);
+
+          expect(initialStateForTest.working.sendingInvitation).to.be.true;
+          expect(initialStateForTest.pendingInvites.length).to.equal(pendingInvites.length);
+
+          let state = reducer(initialStateForTest, action);
+          
+          expect(state.working.sendingInvitation).to.be.false;
+
+          expect(state.pendingInvites.length).to.equal(pendingInvites.length + 1);
+          expect(state.pendingInvites[0].email).to.equal(pendingInvites[0].email);
+          expect(state.pendingInvites[0].permissions).to.equal(pendingInvites[0].permissions);
+          expect(state.pendingInvites[1].email).to.equal(invitation.email);
+          expect(state.pendingInvites[1].permissions).to.equal(invitation.permissions);
+        });
+      });
+    });
+
+    describe('cancelInvitation', () => {
+      describe('request', () => {
+        it('should set cancellingInvitation to be true', () => {
+          let action = actions.sync.cancelInvitationRequest(); 
+
+          expect(initialState.working.cancellingInvitation).to.be.false;
+
+          let state = reducer(initialState, action);
+          expect(state.working.cancellingInvitation).to.be.true;
+        });
+      });
+
+      describe('failure', () => {
+        it('should set cancellingInvitation to be false and set error', () => {
+          let initialStateForTest = _.merge({}, initialState, { working: { cancellingInvitation: true} });
+          let error = 'Oh no, did not get a message thread!!';
+          let action = actions.sync.cancelInvitationFailure(error);
+          
+          expect(initialStateForTest.working.cancellingInvitation).to.be.true;
+          expect(initialStateForTest.error).to.be.null;
+
+          let state = reducer(initialStateForTest, action);
+          
+          expect(state.working.cancellingInvitation).to.be.false;
+          expect(state.error).to.equal(error);
+        });
+      });
+
+      describe('success', () => {
+        it('should set cancellingInvitation to be false', () => {
+          let pendingInvites = [
+            { email: 'a@a.com', permissions: 'bar'},
+            { email: 'f@f.com', permissions: 'foo' }
+          ];
+
+          let initialStateForTest = _.merge(
+            {}, 
+            initialState, 
+            { 
+              working: { 
+                cancellingInvitation: true
+              },
+              pendingInvites: pendingInvites
+          });
+          
+          let invitation = { email: 'f@f.com', permissions: 'foo' };
+          let action = actions.sync.cancelInvitationSuccess(invitation.email);
+
+          expect(initialStateForTest.working.cancellingInvitation).to.be.true;
+          expect(initialStateForTest.pendingInvites.length).to.equal(pendingInvites.length);
+
+          let state = reducer(initialStateForTest, action);
+          
+          expect(state.working.cancellingInvitation).to.be.false;
+
+          expect(state.pendingInvites.length).to.equal(pendingInvites.length - 1);
+          expect(state.pendingInvites[0].email).to.equal(pendingInvites[0].email);
+          expect(state.pendingInvites[0].permissions).to.equal(pendingInvites[0].permissions);
+        });
+      });
+    });
+
+    describe('acceptMembership', () => {
+      describe('request', () => {
+        it('should set acceptingMembership to be true', () => {
+          let action = actions.sync.acceptMembershipRequest(); 
+
+          expect(initialState.working.acceptingMembership).to.be.false;
+
+          let state = reducer(initialState, action);
+          expect(state.working.acceptingMembership).to.be.true;
+        });
+      });
+
+      describe('failure', () => {
+        it('should set acceptingMembership to be false and set error', () => {
+          let initialStateForTest = _.merge({}, initialState, { working: { acceptingMembership: true} });
+          let error = 'Oh no, did not get a message thread!!';
+          let action = actions.sync.acceptMembershipFailure(error);
+          
+          expect(initialStateForTest.working.acceptingMembership).to.be.true;
+          expect(initialStateForTest.error).to.be.null;
+
+          let state = reducer(initialStateForTest, action);
+          
+          expect(state.working.acceptingMembership).to.be.false;
+          expect(state.error).to.equal(error);
+        });
+      });
+
+      describe('success', () => {
+        it('should set acceptingMembership to be false', () => {
+          let pendingMemberships = [
+            { key: 'foo', creator: { userid: 500, name: 'Frank' } },
+            { key: 'jazz', creator: { userid: 505, name: 'Jess' } }
+          ];
+
+          let patients = [
+            { userid: 506, name: 'Alice' }
+          ];
+
+          let initialStateForTest = _.merge(
+            {}, 
+            initialState, 
+            { 
+              working: { 
+                acceptingMembership: true
+              },
+              pendingMemberships: pendingMemberships,
+              patients: patients
+          });
+          
+          let action = actions.sync.acceptMembershipSuccess(pendingMemberships[0]);
+
+          expect(initialStateForTest.working.acceptingMembership).to.be.true;
+          expect(initialStateForTest.pendingMemberships.length).to.equal(pendingMemberships.length);
+          expect(initialStateForTest.patients.length).to.equal(patients.length);
+
+          let state = reducer(initialStateForTest, action);
+          
+          expect(state.working.acceptingMembership).to.be.false;
+
+          expect(state.pendingMemberships.length).to.equal(pendingMemberships.length - 1);
+          expect(state.pendingMemberships[0].key).to.equal(pendingMemberships[1].key);
+          expect(state.pendingMemberships[0].creator.userid).to.equal(pendingMemberships[1].creator.userid);
+
+          expect(state.patients.length).to.equal(patients.length + 1);
+        });
+      });
+    });
+
+    describe('dismissMembership', () => {
+      describe('request', () => {
+        it('should set dismissingMembership to be true', () => {
+          let action = actions.sync.dismissMembershipRequest(); 
+
+          expect(initialState.working.dismissingMembership).to.be.false;
+
+          let state = reducer(initialState, action);
+          expect(state.working.dismissingMembership).to.be.true;
+        });
+      });
+
+      describe('failure', () => {
+        it('should set dismissingMembership to be false and set error', () => {
+          let initialStateForTest = _.merge({}, initialState, { working: { dismissingMembership: true} });
+          let error = 'Oh no, did not get a message thread!!';
+          let action = actions.sync.dismissMembershipFailure(error);
+          
+          expect(initialStateForTest.working.dismissingMembership).to.be.true;
+          expect(initialStateForTest.error).to.be.null;
+
+          let state = reducer(initialStateForTest, action);
+          
+          expect(state.working.dismissingMembership).to.be.false;
+          expect(state.error).to.equal(error);
+        });
+      });
+
+      describe('success', () => {
+        it('should set dismissingMembership to be false', () => {
+          let pendingMemberships = [
+            { key: 'foo', creator: { userid: 500, name: 'Frank' } },
+            { key: 'jazz', creator: { userid: 505, name: 'Jess' } }
+          ];
+
+          let patients = [
+            { userid: 506, name: 'Alice' }
+          ];
+
+          let initialStateForTest = _.merge(
+            {}, 
+            initialState, 
+            { 
+              working: { 
+                dismissingMembership: true
+              },
+              pendingMemberships: pendingMemberships,
+              patients: patients
+          });
+          
+          let action = actions.sync.dismissMembershipSuccess(pendingMemberships[0]);
+
+          expect(initialStateForTest.working.dismissingMembership).to.be.true;
+          expect(initialStateForTest.pendingMemberships.length).to.equal(pendingMemberships.length);
+          expect(initialStateForTest.patients.length).to.equal(patients.length);
+
+          let state = reducer(initialStateForTest, action);
+          
+          expect(state.working.dismissingMembership).to.be.false;
+
+          expect(state.pendingMemberships.length).to.equal(pendingMemberships.length - 1);
+          expect(state.pendingMemberships[0].key).to.equal(pendingMemberships[1].key);
+          expect(state.pendingMemberships[0].creator.userid).to.equal(pendingMemberships[1].creator.userid);
+
+          expect(state.patients.length).to.equal(patients.length);
+        });
+      });
+    });
+
+    describe('updatePatient', () => {
+      describe('request', () => {
+        it('should set updatingPatient to be true', () => {
+          let action = actions.sync.updatePatientRequest(); 
+
+          expect(initialState.working.updatingPatient).to.be.false;
+
+          let state = reducer(initialState, action);
+          expect(state.working.updatingPatient).to.be.true;
+        });
+      });
+
+      describe('failure', () => {
+        it('should set updatingPatient to be false and set error', () => {
+          let initialStateForTest = _.merge({}, initialState, { working: { updatingPatient: true} });
+          let error = 'Oh no, did not update patient!!';
+          let action = actions.sync.updatePatientFailure(error);
+          
+          expect(initialStateForTest.working.updatingPatient).to.be.true;
+          expect(initialStateForTest.error).to.be.null;
+
+          let state = reducer(initialStateForTest, action);
+          
+          expect(state.working.updatingPatient).to.be.false;
+          expect(state.error).to.equal(error);
+        });
+      });
+
+      describe('success', () => {
+        it('should set updatingPatient to be false', () => {
+          let currentPatient = { userid: 506, name: 'Alice' };
+          let updatedPatient = { userid: 506, name: 'Alice Cooper' };
+
+          let initialStateForTest = _.merge(
+            {}, 
+            initialState, 
+            { 
+              working: { 
+                updatingPatient: true
+              },
+              patient: currentPatient
+          });
+          
+          let action = actions.sync.updatePatientSuccess(updatedPatient);
+
+          expect(initialStateForTest.working.updatingPatient).to.be.true;
+          expect(initialStateForTest.patient.userid).to.equal(currentPatient.userid);
+          expect(initialStateForTest.patient.name).to.equal(currentPatient.name);
+
+          let state = reducer(initialStateForTest, action);
+          
+          expect(state.working.updatingPatient).to.be.false;
+
+          expect(state.patient.userid).to.equal(updatedPatient.userid);
+          expect(state.patient.name).to.equal(updatedPatient.name);
+        });
+      });
+    });
+
+    describe('updateUser', () => {
+      describe('request', () => {
+        it('should set updatingUser to be true', () => {
+          let action = actions.sync.updateUserRequest(); 
+
+          expect(initialState.working.updatingUser).to.be.false;
+
+          let state = reducer(initialState, action);
+          expect(state.working.updatingUser).to.be.true;
+        });
+      });
+
+      describe('failure', () => {
+        it('should set updatingUser to be false and set error', () => {
+          let initialStateForTest = _.merge({}, initialState, { working: { updatingUser: true} });
+          let error = 'Oh no, did not update patient!!';
+          let action = actions.sync.updateUserFailure(error);
+          
+          expect(initialStateForTest.working.updatingUser).to.be.true;
+          expect(initialStateForTest.error).to.be.null;
+
+          let state = reducer(initialStateForTest, action);
+          
+          expect(state.working.updatingUser).to.be.false;
+          expect(state.error).to.equal(error);
+        });
+      });
+
+      describe('success', () => {
+        it('should set updatingUser to be false', () => {
+          let currentUser = { id: 506, name: 'Jimmy' };
+          let updatedUser = { id: 506, name: 'Jimmy Hendrix' };
+
+          let initialStateForTest = _.merge(
+            {}, 
+            initialState, 
+            { 
+              working: { 
+                updatingUser: true
+              },
+              user: currentUser
+          });
+          
+          let action = actions.sync.updateUserSuccess(updatedUser);
+
+          expect(initialStateForTest.working.updatingUser).to.be.true;
+          expect(initialStateForTest.user.id).to.equal(currentUser.id);
+          expect(initialStateForTest.user.name).to.equal(currentUser.name);
+
+          let state = reducer(initialStateForTest, action);
+          
+          expect(state.working.updatingUser).to.be.false;
+
+          expect(state.user.id).to.equal(updatedUser.id);
+          expect(state.user.name).to.equal(updatedUser.name);
+        });
+      });
+    });
   });
 });

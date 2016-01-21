@@ -334,6 +334,159 @@ export default (state, action) => {
         },
         error: action.error
       });
+    case types.REMOVE_MEMBER_REQUEST: 
+      return merge({
+        working: {
+          removingMember: true
+        }
+      });
+    case types.REMOVE_MEMBER_SUCCESS:
+      return merge({
+        working: {
+          removingMember: false
+        }
+      });
+    case types.REMOVE_MEMBER_FAILURE:
+      return merge({
+        working: {
+          removingMember: false
+        },
+        error: action.error
+      });
+    case types.SEND_INVITATION_REQUEST: 
+      return merge({
+        working: {
+          sendingInvitation: true
+        }
+      });
+    case types.SEND_INVITATION_SUCCESS:
+      let sState = merge({
+        working: {
+          sendingInvitation: false
+        }
+      });
+
+      //add invitation into pendingInvites
+      sState.pendingInvites = state.pendingInvites.concat([action.payload.invitation ]);
+
+      return sState; 
+    case types.SEND_INVITATION_FAILURE:
+      return merge({
+        working: {
+          sendingInvitation: false
+        },
+        error: action.error
+      });
+    case types.CANCEL_INVITATION_REQUEST: 
+      return merge({
+        working: {
+          cancellingInvitation: true
+        }
+      });
+    case types.CANCEL_INVITATION_SUCCESS:
+      let cState = merge({
+        working: {
+          cancellingInvitation: false
+        }
+      });
+
+      cState.pendingInvites = state.pendingInvites.filter( (i) => i.email !== action.payload.removedEmail )
+      
+      return cState;
+    case types.CANCEL_INVITATION_FAILURE:
+      return merge({
+        working: {
+          cancellingInvitation: false
+        },
+        error: action.error
+      });
+    case types.ACCEPT_MEMBERSHIP_REQUEST: 
+      return merge({
+        working: {
+          acceptingMembership: true
+        }
+      });
+    case types.ACCEPT_MEMBERSHIP_SUCCESS:
+      let aState = merge({
+        working: {
+          acceptingMembership: false
+        }
+      });
+
+      aState.pendingMemberships = state.pendingMemberships.filter( (i) => i.key !== action.payload.acceptedMembership.key )
+      aState.patients = state.patients.concat(action.payload.acceptedMembership.creator);
+
+      return aState;
+    case types.ACCEPT_MEMBERSHIP_FAILURE:
+      return merge({
+        working: {
+          acceptingMembership: false
+        },
+        error: action.error
+      });
+    case types.DISMISS_MEMBERSHIP_REQUEST: 
+      return merge({
+        working: {
+          dismissingMembership: true
+        }
+      });
+    case types.DISMISS_MEMBERSHIP_SUCCESS:
+      let dState = merge({
+        working: {
+          dismissingMembership: false
+        }
+      });
+
+      dState.pendingMemberships = state.pendingMemberships.filter( (i) => i.key !== action.payload.dismissedMembership.key )
+      
+      return dState;
+    case types.DISMISS_MEMBERSHIP_FAILURE:
+      return merge({
+        working: {
+          dismissingMembership: false
+        },
+        error: action.error
+      });
+    case types.UPDATE_PATIENT_REQUEST: 
+      return merge({
+        working: {
+          updatingPatient: true
+        }
+      });
+    case types.UPDATE_PATIENT_SUCCESS:
+      return merge({
+        working: {
+          updatingPatient: false
+        },
+        patient: action.payload.updatedPatient
+      });
+    case types.UPDATE_PATIENT_FAILURE:
+      return merge({
+        working: {
+          updatingPatient: false
+        },
+        error: action.error
+      });
+    case types.UPDATE_USER_REQUEST: 
+      return merge({
+        working: {
+          updatingUser: true
+        }
+      });
+    case types.UPDATE_USER_SUCCESS:
+      return merge({
+        working: {
+          updatingUser: false
+        },
+        user: action.payload.updatedUser
+      });
+    case types.UPDATE_USER_FAILURE:
+      return merge({
+        working: {
+          updatingUser: false
+        },
+        error: action.error
+      });
   }
 
   // Convenience function

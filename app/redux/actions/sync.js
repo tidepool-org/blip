@@ -352,7 +352,7 @@ export function updatePatientSuccess(patient) {
   return {
     type: ActionTypes.UPDATE_PATIENT_SUCCESS,
     payload: {
-      patient: patient
+      updatedPatient: patient
     }
   };
 }
@@ -374,7 +374,7 @@ export function updateUserSuccess(user) {
   return {
     type: ActionTypes.UPDATE_USER_SUCCESS,
     payload: {
-      user: user
+      updatedUser: user
     }
   };
 }

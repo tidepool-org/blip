@@ -319,7 +319,7 @@ describe('Actions', () => {
     });
 
     describe('removePatient', () => {
-      it('should trigger REMOVE_PATIENT_SUCCESS and it should call removePatient once for a successful request', (done) => {
+      it('should trigger REMOVE_PATIENT_SUCCESS and it should call leaveGroup and patient.getAll once for a successful request', (done) => {
         let patientId = 27;
         let patients = [
           { id: 200 },
@@ -372,22 +372,30 @@ describe('Actions', () => {
     describe('removeMember', () => {
       it('should trigger REMOVE_MEMBER_SUCCESS and it should call removeMember once for a successful request', (done) => {
         let memberId = 27;
+        let patientId = 456;
+        let patient = { id: 546, name: 'Frank' };
         let api = {
           access: {
             removeMember: sinon.stub().callsArgWith(1, null)
+          },
+          patient: {
+            get: sinon.stub().callsArgWith(1, null, patient)
           }
         };
 
         let expectedActions = [
           { type: 'REMOVE_MEMBER_REQUEST' },
-          { type: 'REMOVE_MEMBER_SUCCESS', payload: { removedMemberId: memberId } }
+          { type: 'REMOVE_MEMBER_SUCCESS', payload: { removedMemberId: memberId } },
+          { type: 'FETCH_PATIENT_REQUEST' },
+          { type: 'FETCH_PATIENT_SUCCESS', payload: { patient: patient } }
         ];
 
         let store = mockStore(initialState, expectedActions, done);
 
-        store.dispatch(async.removeMember(api, memberId));
+        store.dispatch(async.removeMember(api, patientId, memberId));
 
         expect(api.access.removeMember.calledWith(memberId).callCount).to.equal(1);
+        expect(api.patient.get.calledWith(patientId).callCount).to.equal(1);
       });
 
       it('should trigger REMOVE_MEMBER_FAILURE and it should call removeMember once for a failed request', (done) => {
@@ -654,7 +662,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'UPDATE_PATIENT_REQUEST' },
-          { type: 'UPDATE_PATIENT_SUCCESS', payload: { patient: patient } }
+          { type: 'UPDATE_PATIENT_SUCCESS', payload: { updatedPatient: patient } }
         ];
         let store = mockStore(initialState, expectedActions, done);
 
@@ -695,7 +703,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'UPDATE_USER_REQUEST' },
-          { type: 'UPDATE_USER_SUCCESS', payload: { user: user } }
+          { type: 'UPDATE_USER_SUCCESS', payload: { updatedUser: user } }
         ];
         let store = mockStore(initialState, expectedActions, done);
 
