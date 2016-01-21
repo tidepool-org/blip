@@ -45,7 +45,7 @@ module.exports = {
   // tideline DEV env variable only needs to be true in tideline local dev
   plugins: [
     defineEnvPlugin,
-    new ExtractTextPlugin('styles.css')
+    new ExtractTextPlugin('style.css')
   ],
   // resolves tideline's embedded React dependencies
   resolve: { fallback: path.join(__dirname, 'node_modules') },
