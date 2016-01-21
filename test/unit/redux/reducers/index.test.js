@@ -4,6 +4,8 @@
 /* global it */
 /* global expect */
 
+import _ from 'lodash';
+
 import reducer from '../../../../app/redux/reducers/index';
 
 import actions from '../../../../app/redux/actions/index';
