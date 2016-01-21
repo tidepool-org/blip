@@ -541,28 +541,6 @@ export function fetchPatientDataFailure(error) {
   };
 }
 
-export function fetchTeamNotesRequest() {
-  return {
-    type: ActionTypes.FETCH_TEAM_NOTES_REQUEST
-  };
-}
-
-export function fetchTeamNotesSuccess(teamNotes) {
-  return {
-    type: ActionTypes.FETCH_TEAM_NOTES_SUCCESS,
-    payload: {
-      teamNotes: teamNotes
-    }
-  };
-}
-
-export function fetchTeamNotesFailure(error) {
-  return {
-    type: ActionTypes.FETCH_TEAM_NOTES_FAILURE,
-    error: error
-  };
-}
-
 export function fetchMessageThreadRequest() {
   return {
     type: ActionTypes.FETCH_MESSAGE_THREAD_REQUEST
