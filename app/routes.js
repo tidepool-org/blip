@@ -106,21 +106,6 @@ export const requireNotVerified = (api) => (nextState, replaceState, cb) => {
 }
 
 /**
- * This function redirects any requests that land on pages that should only be
- * visible when user has accepted the terms of service when they have not
- *
- * @param  {Object} nextState
- * @param  {Function} replaceState
- *
- * @return {boolean|null} returns true if hash mapping happened
- */
-export const requireTOS = (api) => (nextState, replaceState) => {
-  if (!api.user.termsAccepted) {
-    replaceState(null, '/terms');
-  }
-};
-
-/**
  * This function redirects the /request-password-from-uploader route to the
  * account settings/profile page where the user can change password iff the user
  * is already logged in (with token stored) to blip in their browser
