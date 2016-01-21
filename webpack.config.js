@@ -1,5 +1,6 @@
 var path = require('path');
 var webpack = require('webpack');
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 var entry = (process.env.MOCK === 'true') ? './app/main.mock.js' : './app/main.js';
 
@@ -29,7 +30,7 @@ module.exports = {
       {test: /\.js$/, exclude: /(node_modules)/, loader: 'babel-loader'},
       // need this condition when Tideline loaded from Github branch
       {test: /node_modules\/tideline\/.*\.js$/, exclude: /tideline\/node_modules/, loader: 'babel-loader'},
-      {test: /\.less$/, loader: 'style-loader!css-loader!autoprefixer-loader!less-loader'},
+      {test: /\.less$/, loader: ExtractTextPlugin.extract('style-loader', 'css-loader!autoprefixer-loader!less-loader')},
       {test: /\.gif$/, loader: 'url-loader?limit=100000&mimetype=image/gif'},
       {test: /\.jpg$/, loader: 'url-loader?limit=10000&mimetype=image/jpg'},
       {test: /\.png$/, loader: 'url-loader?limit=10000&mimetype=image/png'},
@@ -43,7 +44,8 @@ module.exports = {
   },
   // tideline DEV env variable only needs to be true in tideline local dev
   plugins: [
-    defineEnvPlugin
+    defineEnvPlugin,
+    new ExtractTextPlugin('style.css')
   ],
   // resolves tideline's embedded React dependencies
   resolve: { fallback: path.join(__dirname, 'node_modules') },
