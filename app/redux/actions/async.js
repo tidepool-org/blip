@@ -344,7 +344,8 @@ export function updateUser(api, formValues) {
     const newUser = _.assign({}, 
       _.omit(currentUser, 'profile'),
       _.omit(formValues, 'profile'),
-      {profile: _.assign({}, currentUser.profile, formValues.profile)});
+      { profile: _.assign({}, currentUser.profile, formValues.profile) } 
+    );
 
     dispatch(sync.updateUserRequest(_.omit(newUser, 'password')));
 
