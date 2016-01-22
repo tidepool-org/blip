@@ -1171,17 +1171,22 @@ describe('reducers', () => {
     describe('updateUser', () => {
       describe('request', () => {
         it('should set updatingUser to be true', () => {
-          let action = actions.sync.updateUserRequest(); 
+          let updatingUser = { id: 506, name: 'Jimmy Hendrix' };
+          let action = actions.sync.updateUserRequest(updatingUser); 
 
           expect(initialState.working.updatingUser).to.be.false;
+          expect(initialState.user).to.be.null;
 
           let state = reducer(initialState, action);
           expect(state.working.updatingUser).to.be.true;
+          expect(state.user.id).to.equal(updatingUser.id);
+          expect(state.user.name).to.equal(updatingUser.name);
         });
       });
 
       describe('failure', () => {
         it('should set updatingUser to be false and set error', () => {
+          
           let initialStateForTest = _.merge({}, initialState, { working: { updatingUser: true} });
           let error = 'Oh no, did not update patient!!';
           let action = actions.sync.updateUserFailure(error);

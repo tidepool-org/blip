@@ -471,7 +471,8 @@ export default (state, action) => {
       return merge({
         working: {
           updatingUser: true
-        }
+        },
+        user: action.payload.updatingUser
       });
     case types.UPDATE_USER_SUCCESS:
       return merge({

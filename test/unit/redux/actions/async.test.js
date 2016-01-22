@@ -8,6 +8,7 @@
 import { isFSA } from 'flux-standard-action';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
+import _ from 'lodash';
 
 import * as async from '../../../../app/redux/actions/async';
 
@@ -694,42 +695,130 @@ describe('Actions', () => {
 
     describe('updateUser', () => {
       it('should trigger UPDATE_USER_SUCCESS and it should call updateUser once for a successful request', (done) => {
-        let user = { name: 'Bruce' };
-        let api = {
-          user: {
-            put: sinon.stub().callsArgWith(1, null, user)
+        let currentUser = { 
+          profile: { 
+            name: 'Joe Bloggs', 
+            age: 29
+          }, 
+          password: 'foo',
+          emails: [
+            'joe@bloggs.com'
+          ],
+          username: 'Joe'
+        };
+
+        let formValues = { 
+          profile: { 
+            name: 'Joe Steven Bloggs', 
+            age: 30
+          }, 
+        };
+
+        let updatingUser = {
+          profile: { 
+            name: 'Joe Steven Bloggs', 
+            age: 30
+          }, 
+          emails: [
+            'joe@bloggs.com'
+          ],
+          username: 'Joe'
+        };
+
+        let userUpdates = {
+          profile: { 
+            name: 'Joe Steven Bloggs', 
+            age: 30
           }
         };
 
+        let updatedUser = {
+          profile: { 
+            name: 'Joe Steven Bloggs', 
+            age: 30
+          }, 
+          emails: [
+            'joe@bloggs.com'
+          ],
+          username: 'Joe',
+          password: 'foo'
+        };
+
+        let api = {
+          user: {
+            put: sinon.stub().callsArgWith(1, null, updatedUser)
+          }
+        };
+
+        let initialStateForTest = _.merge({}, initialState, { user: currentUser });
+
         let expectedActions = [
-          { type: 'UPDATE_USER_REQUEST' },
-          { type: 'UPDATE_USER_SUCCESS', payload: { updatedUser: user } }
+          { type: 'UPDATE_USER_REQUEST', payload: { updatingUser: updatingUser} },
+          { type: 'UPDATE_USER_SUCCESS', payload: { updatedUser: updatedUser } }
         ];
-        let store = mockStore(initialState, expectedActions, done);
 
-        store.dispatch(async.updateUser(api, user));
+        let store = mockStore(initialStateForTest, expectedActions, done);
 
-        expect(api.access.updateUser.calledWith(user).callCount).to.equal(1);
+        store.dispatch(async.updateUser(api, formValues));
+
+        expect(api.access.updateUser.calledWith(userUpdates).callCount).to.equal(1);
       });
 
       it('should trigger UPDATE_USER_FAILURE and it should call updateUser once for a failed request', (done) => {
-        let user = { name: 'Bruce' };
+        let currentUser = { 
+          profile: { 
+            name: 'Joe Bloggs', 
+            age: 29
+          }, 
+          password: 'foo',
+          emails: [
+            'joe@bloggs.com'
+          ],
+          username: 'Joe'
+        };
+
+        let formValues = { 
+          profile: { 
+            name: 'Joe Steven Bloggs', 
+            age: 30
+          }, 
+        };
+
+        let updatingUser = {
+          profile: { 
+            name: 'Joe Steven Bloggs', 
+            age: 30
+          }, 
+          emails: [
+            'joe@bloggs.com'
+          ],
+          username: 'Joe'
+        };
+
+        let userUpdates = {
+          profile: { 
+            name: 'Joe Steven Bloggs', 
+            age: 30
+          }
+        };
         let api = {
           user: {
             put: sinon.stub().callsArgWith(1, 'Something wrong happened!')
           }
         };
 
+        let initialStateForTest = _.merge({}, initialState, { user: currentUser });
+
         let expectedActions = [
-          { type: 'UPDATE_USER_REQUEST' },
+          { type: 'UPDATE_USER_REQUEST', payload: { updatingUser: updatingUser} },
           { type: 'UPDATE_USER_FAILURE', error: 'Something wrong happened!' }
         ];
 
-        let store = mockStore(initialState, expectedActions, done);
+        let store = mockStore(initialStateForTest, expectedActions, done);
 
-        store.dispatch(async.updateUser(api, user));
+        store.dispatch(async.updateUser(api, formValues));
 
-        expect(api.access.updateUser.calledWith(user).callCount).to.equal(1);
+        expect(api.access.updateUser.calledWith(userUpdates).callCount).to.equal(1);
       });
     });
 

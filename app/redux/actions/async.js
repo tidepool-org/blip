@@ -336,13 +336,24 @@ export function updatePatient(api, patient) {
  * Update User Data Action Creator
  * 
  * @param  {Object} api an instance of the API wrapper
- * @param  {Object} user
+ * @param  {Object} formValues
  */
-export function updateUser(api, user) {
+export function updateUser(api, formValues) {
   return (dispatch, getState) => {
-    dispatch(sync.updateUserRequest());
+    const { user: currentUser } = getState();
+    const newUser = _.assign({}, 
+      _.omit(currentUser, 'profile'),
+      _.omit(formValues, 'profile'),
+      {profile: _.assign({}, currentUser.profile, formValues.profile)});
+
+    dispatch(sync.updateUserRequest(_.omit(newUser, 'password')));
+
+    var userUpdates = _.cloneDeep(newUser);
+    if (userUpdates.username === currentUser.username) {
+      userUpdates = _.omit(userUpdates, 'username', 'emails');
+    }
     
-    api.user.put(user, (err, updatedUser) => {
+    api.user.put(userUpdates, (err, updatedUser) => {
       if (err) {
         dispatch(sync.updateUserFailure(err));
       } else {

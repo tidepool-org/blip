@@ -364,9 +364,12 @@ export function updatePatientFailure(error) {
   };
 }
 
-export function updateUserRequest() {
+export function updateUserRequest(user) {
   return {
-    type: ActionTypes.UPDATE_USER_REQUEST
+    type: ActionTypes.UPDATE_USER_REQUEST,
+    payload: {
+      updatingUser: user
+    }
   };
 }
 
