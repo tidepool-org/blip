@@ -26,7 +26,9 @@ var Terms = React.createClass({
     onSubmit: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
     ages: React.PropTypes.object.isRequired,
-    messages: React.PropTypes.object.isRequired
+    messages: React.PropTypes.object.isRequired,
+    termsAccepted: React.PropTypes.string.isRequired,
+    authenticated: React.PropTypes.bool.isRequired
   },
   getDefaultProps: function() {
     return {
@@ -195,7 +197,7 @@ var Terms = React.createClass({
     }
 
     return (
-      <div className='terms- js-terms'>
+      <div className='terms js-terms'>
         <LoginNav hideLinks={true} trackMetric={this.props.trackMetric} />
         <div className='terms-content terms-box'>
           {content}

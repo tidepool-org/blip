@@ -7,8 +7,10 @@
 var React = require('react');
 var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
+var api = require('../../../app/core/api');
+var mock = require('../../../mock');
 
-var Terms = require('../../../app/components/terms');
+var Terms = require('../../../app/pages/terms');
 
 describe('Terms', function () {
 
@@ -61,9 +63,31 @@ describe('Terms', function () {
     it('age is over 18', function() {
       expect(elem.state.ageSelected).to.equal(elem.props.ages.OF_AGE.value);
     });
-    it('shows age confirmation form', function() {
-      var age = TestUtils.findRenderedDOMComponentWithClass(elem, 'terms-age-form');
-      expect(age).not.to.equal(null);
+    it('should render age confirmation when user has not accepted terms but is logged in', () => {
+      var props = { authenticated: true , fetchingUser: false, termsAccepted: ''};
+      var termsElem = React.createElement(Terms, props);
+      var elem = TestUtils.renderIntoDocument(termsElem);
+
+      var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-age-form');
+      expect(termsElems.length).to.not.equal(0);
+    });
+    it('should NOT render age confirmation when user has acccepted terms and is logged in', () => {
+      var acceptDate = new Date().toISOString();
+      var props = { authenticated: true, termsAccepted: acceptDate, fetchingUser: false }
+      var termsElem = React.createElement(Terms, props);
+      var elem = TestUtils.renderIntoDocument(termsElem);
+
+      var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-age-form');
+      expect(termsElems.length).to.equal(0);
+    });
+    it('should NOT render age confirmation nor terms acceptance form when user is not logged in', () => {
+      var props = {};
+      var elem = TestUtils.renderIntoDocument(<Terms />);
+
+      var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-age-form');
+      expect(termsElems.length).to.equal(0);
+      var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-form');
+      expect(termsElems.length).to.equal(0);
     });
   });
   describe('age confirmation', function() {
@@ -73,9 +97,12 @@ describe('Terms', function () {
     beforeEach(function() {
       var props = {
         trackMetric: function() {},
-        onSubmit: function() {}
+        onSubmit: function() {},
+        authenticated: true,
+        termsAccepted: '',
+        fetchingUser: false
       };
-      var termsElem = React.createElement(Terms, props);
+      termsElem = React.createElement(Terms, props);
       termsElem = TestUtils.renderIntoDocument(termsElem);
     });
 

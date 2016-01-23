@@ -43,7 +43,7 @@ describe('App',  () => {
     it('should return true when page is /patients/454/data', () => {
       var elem = TestUtils.renderIntoDocument(<App {...childContext} />);
       expect(elem).to.be.ok;
-      
+
       elem.setState({page: '/patients/454/data'});
       expect(elem.isPatientVisibleInNavbar()).to.be.true;
     });
@@ -51,7 +51,7 @@ describe('App',  () => {
     it('should return false when page is /patients', () => {
       var elem = TestUtils.renderIntoDocument(<App {...childContext} />);
       expect(elem).to.be.ok;
-      
+
       elem.setState({page: '/patients'});
       expect(elem.isPatientVisibleInNavbar()).to.be.false;
     });
@@ -59,7 +59,7 @@ describe('App',  () => {
     it('should return false when page is /profile', () => {
       var elem = TestUtils.renderIntoDocument(<App {...childContext} />);
       expect(elem).to.be.ok;
-      
+
       elem.setState({page: '/profile'});
       expect(elem.isPatientVisibleInNavbar()).to.be.false;
     });
@@ -67,7 +67,7 @@ describe('App',  () => {
     it('should return false when page is /foo', () => {
       var elem = TestUtils.renderIntoDocument(<App {...childContext} />);
       expect(elem).to.be.ok;
-      
+
       elem.setState({page: '/foo'});
       expect(elem.isPatientVisibleInNavbar()).to.be.false;
     });
@@ -77,7 +77,7 @@ describe('App',  () => {
     it('should render without problems',  () => {
       console.error = sinon.stub();
       console.error = sinon.stub();
-      
+
       var elem = TestUtils.renderIntoDocument(<App {...childContext} />);
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);
@@ -143,7 +143,7 @@ describe('App',  () => {
         expect(elem.state.fetchingUser).to.equal(false);
         expect(elem.state.termsAccepted).to.equal(null);
 
-        var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-overlay');
+        var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms');
         expect(termsElems.length).to.not.equal(0);
       });
       it('should NOT render when user has acccepted terms and is logged in', () => {
@@ -157,7 +157,7 @@ describe('App',  () => {
         expect(elem.state.fetchingUser).to.equal(false);
         expect(elem.state.termsAccepted).to.equal(acceptDate);
 
-        var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-overlay');
+        var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms');
         expect(termsElems.length).to.equal(0);
       });
     });
@@ -195,7 +195,7 @@ describe('App',  () => {
         expect(elem.state.fetchingUser).to.equal(false);
 
         //check we aren't seeing the terms
-        var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-overlay');
+        var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms');
         expect(termsElems.length).to.equal(0);
 
         apiStub.restore();
@@ -216,7 +216,7 @@ describe('App',  () => {
         expect(elem.state.fetchingUser).to.equal(false);
 
         //check we aren't seeing the terms
-        var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-overlay');
+        var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms');
         expect(termsElems.length).to.not.equal(0);
 
         apiStub.restore();
