@@ -8,17 +8,17 @@ var React = require('react');
 var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
 
-var TermsOverlay = require('../../../app/components/termsoverlay');
+var Terms = require('../../../app/components/terms');
 
-describe('TermsOverlay', function () {
+describe('Terms', function () {
 
   describe('render', function() {
     it('should console.error when trackMetric not set', function () {
       console.error = sinon.stub();
-      var elem = TestUtils.renderIntoDocument(<TermsOverlay/>);
+      var elem = TestUtils.renderIntoDocument(<Terms/>);
 
       expect(elem).to.be.ok;
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `TermsOverlay`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `Terms`.')).to.equal(true);
     });
 
     it('should not console.error when trackMetric set', function() {
@@ -27,8 +27,8 @@ describe('TermsOverlay', function () {
         trackMetric: function() {},
         onSubmit: function() {},
       };
-      var termsOverlayElem = React.createElement(TermsOverlay, props);
-      var elem = TestUtils.renderIntoDocument(termsOverlayElem);
+      var termsElem = React.createElement(Terms, props);
+      var elem = TestUtils.renderIntoDocument(termsElem);
 
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);
@@ -45,8 +45,8 @@ describe('TermsOverlay', function () {
         trackMetric: function() {},
         onSubmit: function() {}
       };
-      var termsOverlayElem = React.createElement(TermsOverlay, props);
-      elem = TestUtils.renderIntoDocument(termsOverlayElem);
+      var termsElem = React.createElement(Terms, props);
+      elem = TestUtils.renderIntoDocument(termsElem);
     });
 
     it('is not agreed', function() {
@@ -62,7 +62,7 @@ describe('TermsOverlay', function () {
       expect(elem.state.ageSelected).to.equal(elem.props.ages.OF_AGE.value);
     });
     it('shows age confirmation form', function() {
-      var age = TestUtils.findRenderedDOMComponentWithClass(elem, 'terms-overlay-age-form');
+      var age = TestUtils.findRenderedDOMComponentWithClass(elem, 'terms-age-form');
       expect(age).not.to.equal(null);
     });
   });
@@ -75,8 +75,8 @@ describe('TermsOverlay', function () {
         trackMetric: function() {},
         onSubmit: function() {}
       };
-      var termsOverlayElem = React.createElement(TermsOverlay, props);
-      termsElem = TestUtils.renderIntoDocument(termsOverlayElem);
+      var termsElem = React.createElement(Terms, props);
+      termsElem = TestUtils.renderIntoDocument(termsElem);
     });
 
     it('is true once button pressed ', function() {
@@ -91,7 +91,7 @@ describe('TermsOverlay', function () {
       var ageBtn = TestUtils.findRenderedDOMComponentWithTag(termsElem, 'button');
       TestUtils.Simulate.click(ageBtn);
 
-      var iframes = TestUtils.scryRenderedDOMComponentsWithClass(termsElem, 'terms-overlay-iframe');
+      var iframes = TestUtils.scryRenderedDOMComponentsWithClass(termsElem, 'terms-iframe');
       expect(iframes).not.to.equal(null);
       expect(iframes.length).to.equal(2);
     });
@@ -109,7 +109,7 @@ describe('TermsOverlay', function () {
         expect(termsElem.state.ageSelected).to.equal(termsElem.props.ages.OF_AGE.value);
 
         //iframes shown with TOU and PP
-        var iframes = TestUtils.scryRenderedDOMComponentsWithClass(termsElem, 'terms-overlay-iframe');
+        var iframes = TestUtils.scryRenderedDOMComponentsWithClass(termsElem, 'terms-iframe');
         expect(iframes).not.to.equal(null);
         expect(iframes.length).to.equal(2);
 
@@ -218,10 +218,10 @@ describe('TermsOverlay', function () {
         expect(termsElem.state.agreed).to.equal(false);
 
         //No TOU and PP shown
-        var iframes = TestUtils.scryRenderedDOMComponentsWithClass(termsElem, 'terms-overlay-iframe');
+        var iframes = TestUtils.scryRenderedDOMComponentsWithClass(termsElem, 'terms-iframe');
         expect(iframes).to.be.empty;
         //Sorry Message shown
-        var sorryMsg = TestUtils.findRenderedDOMComponentWithClass(termsElem, 'terms-overlay-sorry-message');
+        var sorryMsg = TestUtils.findRenderedDOMComponentWithClass(termsElem, 'terms-sorry-message');
         expect(sorryMsg).not.to.equal(null);
         //still not accepted
         expect(termsElem.state.agreed).to.equal(false);

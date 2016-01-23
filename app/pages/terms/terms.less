@@ -13,52 +13,52 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-@terms-overlay-zindex:        @zindex-overlay-background;
-@terms-overlay-text-zindex:   @zindex-overlay;
-@terms-overlay-box-width:     800px;
-@terms-overlay-age-box-width: 500px;
+@terms-zindex:        @zindex-overlay-background;
+@terms-text-zindex:   @zindex-overlay;
+@terms-box-width:     800px;
+@terms-age-box-width: 500px;
 
-.terms-overlay {
+.terms {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   background: #fff;
-  z-index: @terms-overlay-zindex;
+  z-index: @terms-zindex;
   overflow-y: scroll;
 }
 
-.terms-overlay-content {
+.terms-content {
   margin-top: 80px;
   margin-bottom: 80px;
 
-  z-index: @terms-overlay-text-zindex;
+  z-index: @terms-text-zindex;
 }
 
-.terms-overlay-box {
+.terms-box {
   margin-right: auto;
   margin-left: auto;
   padding-left: @spacing-small;
   padding-right: @spacing-small;
 
-  @media(min-width: @terms-overlay-box-width) {
-    width: @terms-overlay-box-width;
+  @media(min-width: @terms-box-width) {
+    width: @terms-box-width;
   }
 }
 
-.terms-overlay-age-box {
+.terms-age-box {
   margin-right: auto;
   margin-left: auto;
   padding-left: @spacing-small;
   padding-right: @spacing-small;
 
-  @media(min-width: @terms-overlay-age-box-width) {
-    width: @terms-overlay-age-box-width;
+  @media(min-width: @terms-age-box-width) {
+    width: @terms-age-box-width;
   }
 }
 
-.terms-overlay-title .privacy-overlay-title{
+.terms-title .privacy-title{
   font-size: 18px;
   line-height: 20px;
   font-weight: bold;
@@ -66,13 +66,13 @@
   margin-bottom: @spacing-large;
 }
 
-.terms-overlay-iframe {
+.terms-iframe {
   margin-bottom: @spacing-large;
-  width: @terms-overlay-box-width;
+  width: @terms-box-width;
   height: 400px;
 }
 
-.terms-overlay-text {
+.terms-text {
   margin-bottom: @spacing-large;
 
   p {
@@ -81,11 +81,11 @@
   }
 }
 
-.terms-overlay-form {
+.terms-form {
   margin-bottom: @spacing-base;
 }
 
-.terms-overlay-age-radio {
+.terms-age-radio {
   margin-bottom: @spacing-base;
 
   label {
@@ -102,7 +102,7 @@
   }
 }
 
-.terms-overlay-accept-checkbox {
+.terms-accept-checkbox {
   margin-bottom: @spacing-base;
 
   label {
