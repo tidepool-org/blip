@@ -389,8 +389,10 @@ export default class AppComponent extends React.Component {
             emailAddress={'support@tidepool.org'}
             emailSubject={subject}
             onLinkClicked={this.logSupportContact.bind(this)} />
+          {this.renderTermsLink()}
         </div>
         {this.renderVersion()}
+
       </div>
 
     );
@@ -405,6 +407,14 @@ export default class AppComponent extends React.Component {
       );
     }
     return null;
+  }
+
+  renderTermsLink() {
+    return (
+      <div className="Navbar-terms">
+        <a href="/terms">Terms of Use</a>
+      </div>
+    )
   }
 
   renderLogin() {
