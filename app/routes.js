@@ -25,9 +25,19 @@ import personUtils from './core/personutils';
  *
  * @return {boolean|null} returns true if hash mapping happened
  */
-export const requireAuth = (api) => (nextState, replaceState) => {
+export const requireAuth = (api) => (nextState, replaceState, cb) => {
   if (!api.user.isAuthenticated()) {
     replaceState(null, '/login');
+    return cb();
+  }
+  else {
+    api.user.get(function(err, user) {
+      if(!user.termsAccepted){
+        replaceState({originalPath: nextState.location.pathname}, '/terms');
+        return cb();
+      }
+      return cb();
+    })
   }
 };
 
@@ -93,6 +103,10 @@ export const requireNotVerified = (api) => (nextState, replaceState, cb) => {
       return cb();
     }
     if (user.emailVerified === true) {
+      if(!user.termsAccepted){
+        replaceState({originalPath: '/patients'}, '/terms');
+        return cb();
+      }
       replaceState(null, '/patients');
       return cb();
     }

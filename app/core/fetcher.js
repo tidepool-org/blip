@@ -33,9 +33,11 @@ export default class Fetcher {
       });
 
       //will show terms if not yet accepted
+      /*
       if(!user.termsAccepted && comp.props.location.pathname !== '/terms'){
         comp.props.history.pushState({originalPath: comp.props.location.pathname}, '/terms');
       }
+      */
     });
   }
 

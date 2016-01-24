@@ -127,7 +127,7 @@ describe('App',  () => {
   });
 
   describe('terms', () => {
-
+/*
     describe('overlay', () => {
       //override
       var utils = require('../../../app/core/utils');
@@ -161,6 +161,7 @@ describe('App',  () => {
         expect(termsElems.length).to.equal(0);
       });
     });
+    */
     describe('acceptance', () => {
       it('should set the state for termsAccepted ', () => {
 
@@ -178,6 +179,7 @@ describe('App',  () => {
         expect(elem.state.fetchingUser).to.equal(false);
         apiStub.restore();
       });
+      /*
       it('should allow user to use blip', () => {
 
         var elem = TestUtils.renderIntoDocument(<App {...childContext}/>);
@@ -221,6 +223,7 @@ describe('App',  () => {
 
         apiStub.restore();
       });
+      */
     });
   });
 });
