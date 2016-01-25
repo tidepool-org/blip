@@ -85,55 +85,54 @@ export default class ActionHandlers {
       utils.stringifyErrorData(details)
     );
 
+    var body;
+
     if (error.status === 401) {
-      // just log them out
-      this.component.props.route.log('401 so logged user out');
-      this.component.setState({notification: null});
-      this.component.props.route.api.user.destroySession();
-      this.handleLogoutSuccess();
-      return;
+      body = (
+        // something is up with the users authorization ...
+        <div>
+          <p> {usrMessages.ERR_AUTHORIZATION} </p>
+          <p> {utcTime} </p>
+        </div>
+      );
+    } else if (error.status === 500) {
+      // something's down, give a bit of time then they can try again
+      body = (
+        <div>
+          <p> {usrMessages.ERR_SERVICE_DOWN} </p>
+          <p> {utcTime} </p>
+        </div>
+      );
+    } else if (error.status === 503) {
+      // offline nothing is going to work
+      body = (
+        <div>
+          <p> {usrMessages.ERR_OFFLINE} </p>
+          <p> {utcTime} </p>
+        </div>
+      );
     } else {
-      var body;
+      var originalErrorMessage = [
+        message, utils.stringifyErrorData(error)
+      ].join(' ');
 
-      if (error.status === 500) {
-        // something's down, give a bit of time then they can try again
-        body = (
-          <div>
-            <p> {usrMessages.ERR_SERVICE_DOWN} </p>
-            <p> {utcTime} </p>
-          </div>
-        );
-      } else if (error.status === 503) {
-        // offline nothing is going to work
-        body = (
-          <div>
-            <p> {usrMessages.ERR_OFFLINE} </p>
-            <p> {utcTime} </p>
-          </div>
-        );
-      } else {
-        var originalErrorMessage = [
-          message, utils.stringifyErrorData(error)
-        ].join(' ');
-
-        body = (
-          <div>
-            <p>{usrMessages.ERR_GENERIC}</p>
-            <p className="notification-body-small">
-              <code>{'Original error message: ' + originalErrorMessage}</code>
-              <br>{utcTime}</br>
-            </p>
-          </div>
-        );
-      }
-      this.component.setState({
-        notification: {
-          type: 'error',
-          body: body,
-          isDismissable: true
-        }
-      });
+      body = (
+        <div>
+          <p>{usrMessages.ERR_GENERIC}</p>
+          <p className="notification-body-small">
+            <code>{'Original error message: ' + originalErrorMessage}</code>
+            <br>{utcTime}</br>
+          </p>
+        </div>
+      );
     }
+    this.component.setState({
+      notification: {
+        type: 'error',
+        body: body,
+        isDismissable: true
+      }
+    });
   }
 
   handleActionableError(error, message, link) {
