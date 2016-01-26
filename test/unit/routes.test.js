@@ -20,18 +20,7 @@ describe('routes', () => {
     it('should update route to /login if user is not authenticated', (done) => {
       let api = {
         user : {
-          isAuthenticated: sinon.stub().returns(false),
-          get: (cb) => {
-            cb(
-              null,
-              {
-                userid: 'a1b2c3',
-                profile: {
-                  patient: {}
-                }
-              }
-            );
-          }
+          isAuthenticated: sinon.stub().returns(false)
         }
       };
 
@@ -88,7 +77,7 @@ describe('routes', () => {
                 profile: {
                   patient: {}
                 },
-                termsAccepted: false
+                termsAccepted: ''
               }
             );
           }
@@ -268,14 +257,13 @@ describe('routes', () => {
     it('should update route to /terms with nextState path of /patients if user has already verified e-mail and has not accepted the terms', (done) => {
       let api = {
         user: {
-          //isAuthenticated: sinon.stub().returns(true),
           get: (cb) => {
             cb(
               null,
               {
                 userid: 'a1b2c3',
                 emailVerified: true,
-                termsAccepted: null
+                termsAccepted: ''
               }
             );
           }
