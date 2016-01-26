@@ -7,8 +7,6 @@
 var React = require('react');
 var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
-var api = require('../../../app/core/api');
-var mock = require('../../../mock');
 
 var Terms = require('../../../app/pages/terms');
 
