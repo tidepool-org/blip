@@ -63,21 +63,25 @@ describe('Terms', function () {
     it('age is over 18', function() {
       expect(elem.state.ageSelected).to.equal(elem.props.ages.OF_AGE.value);
     });
-    it('should render age confirmation when user has not accepted terms but is logged in', () => {
+    it('should render age confirmation but not the terms form when user has not accepted terms but is logged in', () => {
       var props = { authenticated: true , fetchingUser: false, termsAccepted: ''};
       var termsElem = React.createElement(Terms, props);
       var elem = TestUtils.renderIntoDocument(termsElem);
 
       var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-age-form');
       expect(termsElems.length).to.not.equal(0);
+      termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-form');
+      expect(termsElems.length).to.equal(0);
     });
-    it('should NOT render age confirmation when user has acccepted terms and is logged in', () => {
+    it('should NOT render age confirmation nor terms form when user has acccepted terms and is logged in', () => {
       var acceptDate = new Date().toISOString();
       var props = { authenticated: true, termsAccepted: acceptDate, fetchingUser: false }
       var termsElem = React.createElement(Terms, props);
       var elem = TestUtils.renderIntoDocument(termsElem);
 
       var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-age-form');
+      expect(termsElems.length).to.equal(0);
+      termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-form');
       expect(termsElems.length).to.equal(0);
     });
     it('should NOT render age confirmation nor terms acceptance form when user is not logged in', () => {
