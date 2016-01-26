@@ -101,9 +101,7 @@ var Terms = React.createClass({
   renderTermsAndPrivacyStep: function() {
     var terms = this.websiteTerms();
     var privacy = this.websitePrivacy();
-    var continueBtnDisabled = this.getTermsAndPrivacyButtonState();
-    var agreeConfirmation = this.renderAgreeCheckboxes();
-    var backBtn = this.renderBackBtn();
+    var termsForm = this.renderTermsForm();
 
     return (
       <div ref='acceptTermsStep'>
@@ -111,17 +109,29 @@ var Terms = React.createClass({
         {terms}
         <div className='privacy-title'>PRIVACY POLICY</div>
         {privacy}
-        {this.props.authenticated && !this.props.termsAccepted ?
-          <form className='terms-form'>
-            {agreeConfirmation}
-            {backBtn}
-            <button
-              className='terms-button terms-button-submit'
-              onClick={this.handleTermsAndPrivacySubmit}
-              disabled={continueBtnDisabled}>Continue</button>
-          </form> : '' }
+        {termsForm}
       </div>
     );
+  },
+  renderTermsForm: function() {
+    var agreeConfirmation = this.renderAgreeCheckboxes();
+    var backBtn = this.renderBackBtn();
+    var continueBtnDisabled = this.getTermsAndPrivacyButtonState();
+
+    var termsForm;
+    if(this.props.authenticated && !this.props.termsAccepted){
+      termsForm = (
+        <form className='terms-form'>
+          {agreeConfirmation}
+          {backBtn}
+          <button
+            className='terms-button terms-button-submit'
+            onClick={this.handleTermsAndPrivacySubmit}
+            disabled={continueBtnDisabled}>Continue</button>
+        </form>
+      );
+    }
+    return termsForm;
   },
   renderBackBtn: function() {
     return (
