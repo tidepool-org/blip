@@ -48,7 +48,7 @@ var Terms = React.createClass({
     };
   },
   componentWillUpdate: function(nextProps, nextState){
-    if(nextProps.termsAccepted && this.props.location.state.originalPath){
+    if(nextProps.termsAccepted && this.props.location.state && this.props.location.state.originalPath){
       this.props.history.pushState(null, this.props.location.state.originalPath)
     }
   },
