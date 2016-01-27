@@ -18,6 +18,7 @@
 import _  from 'lodash';
 import sundial from 'sundial';
 import TidelineData from 'tideline/js/tidelinedata';
+import nurseShark from 'tideline/plugins/nurseshark';
 
 var utils = {};
 
@@ -133,14 +134,15 @@ utils.processPatientData = (data, queryParams, timePrefs, bgPrefs) => {
   }
   // but otherwise we use the timezone from the most recent upload metadata obj
   else {
-    comp.setState({
-      timePrefs: timePrefsForTideline
-    });
+    // @todo: need to figure out a way to refactor this bit of shenanigans
+    // comp.setState({
+    //   timePrefs: timePrefsForTideline
+    // });
     console.log('Defaulting to display in timezone of most recent upload at', mostRecentUpload.time, mostRecentUpload.timezone);
   }
 
   console.time('Nurseshark Total');
-  var res = nurseShark.processData(data, bgUnits);
+  var res = nurseShark.processData(data, bgPrefs.bgUnits);
   console.timeEnd('Nurseshark Total');
   console.time('TidelineData Total');
   var tidelineData = new TidelineData(res.processedData, {

@@ -17,10 +17,19 @@ import React from 'react';
 import { render } from 'react-dom';
 import bows from 'bows';
 import _ from 'lodash';
-import { Router } from 'react-router';
-import { createHistory } from 'history';
+
+import { Router, browserHistory } from 'react-router';
+import { syncHistory, routeReducer } from 'redux-simple-router';
+
+import { createStore, applyMiddleware, compose, combineReducers } from 'redux';
+import thunkMiddleware from 'redux-thunk';
+import createLogger from 'redux-logger';
+import { Provider } from 'react-redux';
 
 import { getRoutes } from './routes';
+
+import reducers from './redux/reducers';
+
 import config from './config';
 import api from './core/api';
 import personUtils from './core/personutils';
@@ -93,7 +102,7 @@ appContext.init = callback => {
 };
 
 const routing = (
-  <Router history={createHistory()}>
+  <Router history={browserHistory}>
     {getRoutes(appContext)}
   </Router>
 );
@@ -111,8 +120,32 @@ appContext.start = () => {
 
   appContext.init(() => {
     appContext.log('Starting app...');
+
+    const loggerMiddleware = createLogger({
+      level: 'info',
+      collapsed: true,
+    });
+
+    const reduxRouterMiddleware = syncHistory(browserHistory);
+
+    const reducer = combineReducers(Object.assign({}, reducers, {
+      routing: routeReducer
+    }));
+
+    const createStoreWithMiddleware = applyMiddleware(
+      thunkMiddleware, 
+      loggerMiddleware,
+      reduxRouterMiddleware
+    )(createStore);
+
+    const store = createStoreWithMiddleware(reducer);
+
     appContext.component = render(
-      routing,
+      <div>
+        <Provider store={store}>
+          {routing}
+        </Provider>
+      </div>,
       document.getElementById('app')
     );
 
