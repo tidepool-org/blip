@@ -16,15 +16,15 @@ import initialState from '../../../../app/redux/reducers/initialState';
 var expect = chai.expect;
 
 describe('reducers', () => {
-  describe('acknowledgeError', () => {
+  describe('acknowledgeNotification', () => {
     it('should set error to null', () => {
-      let initialStateForTest = _.merge({}, initialState, { error: 'foo' });
-      let action = actions.sync.acknowledgeError()
+      let initialStateForTest = _.merge({}, initialState, { notification: { message: 'foo' } });
+      let action = actions.sync.acknowledgeNotification()
 
-      expect(initialStateForTest.error).to.equal('foo');
+      expect(initialStateForTest.notification.message).to.equal('foo');
 
       let state = reducer(initialStateForTest, action);
-      expect(state.error).to.be.null;
+      expect(state.notification).to.be.null;
     });
   });
 
@@ -53,7 +53,8 @@ describe('reducers', () => {
           let failureAction = actions.sync.loginFailure(error);
           let state = reducer(intermediateState, failureAction);
           expect(state.working.loggingIn).to.be.false;
-          expect(state.error).to.equal(error);
+          expect(state.notification.type).to.equal('error');
+          expect(state.notification.message).to.equal(error);
         });
       });
 
@@ -100,7 +101,8 @@ describe('reducers', () => {
           let failureAction = actions.sync.logoutFailure(error);
           let state = reducer(intermediateState, failureAction);
           expect(state.working.loggingOut).to.be.false;
-          expect(state.error).to.equal(error);
+          expect(state.notification.type).to.equal('error');
+          expect(state.notification.message).to.equal(error);
         });
       });
 
@@ -152,7 +154,8 @@ describe('reducers', () => {
         let failureAction = actions.sync.signupFailure(error);
         let state = reducer(intermediateState, failureAction);
         expect(state.working.signingUp).to.be.false;
-        expect(state.error).to.equal(error);
+        expect(state.notification.type).to.equal('error');
+          expect(state.notification.message).to.equal(error);
       });
     });
 
@@ -203,7 +206,8 @@ describe('reducers', () => {
         let failureAction = actions.sync.confirmSignupFailure(error);
         let state = reducer(intermediateState, failureAction);
         expect(state.working.confirmingSignup).to.be.false;
-        expect(state.error).to.equal(error);
+        expect(state.notification.type).to.equal('error');
+          expect(state.notification.message).to.equal(error);
       });
     });
 
@@ -254,7 +258,8 @@ describe('reducers', () => {
         let failureAction = actions.sync.acceptTermsFailure(error);
         let state = reducer(intermediateState, failureAction);
         expect(state.working.acceptingTerms).to.be.false;
-        expect(state.error).to.equal(error);
+        expect(state.notification.type).to.equal('error');
+          expect(state.notification.message).to.equal(error);
       });
     });
 
@@ -304,7 +309,8 @@ describe('reducers', () => {
           let state = reducer(initialStateForTest, action);
 
           expect(state.working.fetchingUser).to.be.false;
-          expect(state.error).to.equal(error);
+          expect(state.notification.type).to.equal('error');
+          expect(state.notification.message).to.equal(error);
         });
       });
 
@@ -350,7 +356,8 @@ describe('reducers', () => {
           let state = reducer(initialStateForTest, action);
 
           expect(state.working.fetchingPatient).to.be.false;
-          expect(state.error).to.equal(error);
+          expect(state.notification.type).to.equal('error');
+          expect(state.notification.message).to.equal(error);
         });
       });
 
@@ -396,7 +403,8 @@ describe('reducers', () => {
           let state = reducer(initialStateForTest, action);
 
           expect(state.working.fetchingPatients).to.be.false;
-          expect(state.error).to.equal(error);
+          expect(state.notification.type).to.equal('error');
+          expect(state.notification.message).to.equal(error);
         });
       });
 
@@ -449,7 +457,8 @@ describe('reducers', () => {
           let state = reducer(initialStateForTest, action);
 
           expect(state.working.fetchingPatientData).to.be.false;
-          expect(state.error).to.equal(error);
+          expect(state.notification.type).to.equal('error');
+          expect(state.notification.message).to.equal(error);
           expect(state.patientData).to.be.empty;
         });
       });
@@ -501,7 +510,8 @@ describe('reducers', () => {
           let state = reducer(initialStateForTest, action);
 
           expect(state.working.fetchingPendingInvites).to.be.false;
-          expect(state.error).to.equal(error);
+          expect(state.notification.type).to.equal('error');
+          expect(state.notification.message).to.equal(error);
           expect(state.pendingInvites).to.be.empty;
         });
       });
@@ -553,7 +563,8 @@ describe('reducers', () => {
           let state = reducer(initialStateForTest, action);
 
           expect(state.working.fetchingPendingMemberships).to.be.false;
-          expect(state.error).to.equal(error);
+          expect(state.notification.type).to.equal('error');
+          expect(state.notification.message).to.equal(error);
           expect(state.pendingMemberships).to.be.empty;
         });
       });
@@ -605,7 +616,8 @@ describe('reducers', () => {
           let state = reducer(initialStateForTest, action);
           
           expect(state.working.fetchingMessageThread).to.be.false;
-          expect(state.error).to.equal(error);
+          expect(state.notification.type).to.equal('error');
+          expect(state.notification.message).to.equal(error);
           expect(state.messageThread).to.be.null;
         });
       });
@@ -652,7 +664,8 @@ describe('reducers', () => {
           let state = reducer(initialStateForTest, action);
           
           expect(state.working.creatingPatient).to.be.false;
-          expect(state.error).to.equal(error);
+          expect(state.notification.type).to.equal('error');
+          expect(state.notification.message).to.equal(error);
           expect(state.patient).to.be.null;
         });
       });
@@ -698,7 +711,8 @@ describe('reducers', () => {
           let state = reducer(initialStateForTest, action);
           
           expect(state.working.removingPatient).to.be.false;
-          expect(state.error).to.equal(error);
+          expect(state.notification.type).to.equal('error');
+          expect(state.notification.message).to.equal(error);
         });
       });
 
@@ -741,7 +755,8 @@ describe('reducers', () => {
           let state = reducer(initialStateForTest, action);
           
           expect(state.working.removingPatient).to.be.false;
-          expect(state.error).to.equal(error);
+          expect(state.notification.type).to.equal('error');
+          expect(state.notification.message).to.equal(error);
         });
       });
 
@@ -784,7 +799,8 @@ describe('reducers', () => {
           let state = reducer(initialStateForTest, action);
           
           expect(state.working.removingPatient).to.be.false;
-          expect(state.error).to.equal(error);
+          expect(state.notification.type).to.equal('error');
+          expect(state.notification.message).to.equal(error);
         });
       });
 
@@ -827,7 +843,8 @@ describe('reducers', () => {
           let state = reducer(initialStateForTest, action);
           
           expect(state.working.removingMember).to.be.false;
-          expect(state.error).to.equal(error);
+          expect(state.notification.type).to.equal('error');
+          expect(state.notification.message).to.equal(error);
         });
       });
 
@@ -870,7 +887,8 @@ describe('reducers', () => {
           let state = reducer(initialStateForTest, action);
           
           expect(state.working.sendingInvitation).to.be.false;
-          expect(state.error).to.equal(error);
+          expect(state.notification.type).to.equal('error');
+          expect(state.notification.message).to.equal(error);
         });
       });
 
@@ -933,7 +951,8 @@ describe('reducers', () => {
           let state = reducer(initialStateForTest, action);
           
           expect(state.working.cancellingInvitation).to.be.false;
-          expect(state.error).to.equal(error);
+          expect(state.notification.type).to.equal('error');
+          expect(state.notification.message).to.equal(error);
         });
       });
 
@@ -995,7 +1014,8 @@ describe('reducers', () => {
           let state = reducer(initialStateForTest, action);
           
           expect(state.working.acceptingMembership).to.be.false;
-          expect(state.error).to.equal(error);
+          expect(state.notification.type).to.equal('error');
+          expect(state.notification.message).to.equal(error);
         });
       });
 
@@ -1064,7 +1084,8 @@ describe('reducers', () => {
           let state = reducer(initialStateForTest, action);
           
           expect(state.working.dismissingMembership).to.be.false;
-          expect(state.error).to.equal(error);
+          expect(state.notification.type).to.equal('error');
+          expect(state.notification.message).to.equal(error);
         });
       });
 
@@ -1133,7 +1154,8 @@ describe('reducers', () => {
           let state = reducer(initialStateForTest, action);
           
           expect(state.working.updatingPatient).to.be.false;
-          expect(state.error).to.equal(error);
+          expect(state.notification.type).to.equal('error');
+          expect(state.notification.message).to.equal(error);
         });
       });
 
@@ -1197,7 +1219,8 @@ describe('reducers', () => {
           let state = reducer(initialStateForTest, action);
           
           expect(state.working.updatingUser).to.be.false;
-          expect(state.error).to.equal(error);
+          expect(state.notification.type).to.equal('error');
+          expect(state.notification.message).to.equal(error);
         });
       });
 

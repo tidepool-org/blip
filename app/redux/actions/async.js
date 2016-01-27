@@ -33,7 +33,11 @@ export function signup(api, accountDetails) {
 
     api.user.signup(accountDetails, (err, result) => {
       if (err) {
-        dispatch(sync.signupFailure(err));
+        var error = 'An error occured while signing up.';
+        if (err.status && err.status === 400) {
+          error = 'An account already exists for that email.';
+        }
+        dispatch(sync.signupFailure(error));
       } else {
         api.user.get((err, user) => {
           if (err) {

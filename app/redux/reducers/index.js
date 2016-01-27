@@ -21,9 +21,9 @@ import * as types from '../constants/actionTypes';
 
 export default (state, action) => {
   switch (action.type) {
-    case types.ACKNOWLEDGE_ERROR:
+    case types.ACKNOWLEDGE_NOTIFICATION:
       return merge({
-        error: null
+        notification: null
       });
     case types.FETCH_USER_REQUEST: 
       return merge({
@@ -43,7 +43,10 @@ export default (state, action) => {
         working: {
           fetchingUser: false
         },
-        error: action.error
+        notification: {
+          type: 'error',
+          message: action.error
+        }
       });
     case types.FETCH_PENDING_INVITES_REQUEST: 
       return merge({
@@ -63,7 +66,10 @@ export default (state, action) => {
         working: {
           fetchingPendingInvites: false
         },
-        error: action.error
+        notification: {
+          type: 'error',
+          message: action.error
+        }
       });
     case types.FETCH_PENDING_MEMBERSHIPS_REQUEST: 
       return merge({
@@ -83,7 +89,10 @@ export default (state, action) => {
         working: {
           fetchingPendingMemberships: false
         },
-        error: action.error
+        notification: {
+          type: 'error',
+          message: action.error
+        }
       });
 
     case types.FETCH_PATIENTS_REQUEST: 
@@ -104,7 +113,10 @@ export default (state, action) => {
         working: {
           fetchingPatients: false
         },
-        error: action.error
+        notification: {
+          type: 'error',
+          message: action.error
+        }
       });
     case types.FETCH_PATIENT_REQUEST: 
       return merge({
@@ -124,7 +136,10 @@ export default (state, action) => {
         working: {
           fetchingPatient: false
         },
-        error: action.error
+        notification: {
+          type: 'error',
+          message: action.error
+        }
       });
     case types.FETCH_PATIENT_DATA_REQUEST: 
       return merge({
@@ -144,7 +159,10 @@ export default (state, action) => {
         working: {
           fetchingPatientData: false
         },
-        error: action.error
+        notification: {
+          type: 'error',
+          message: action.error
+        }
       });
     case types.FETCH_MESSAGE_THREAD_REQUEST: 
       return merge({
@@ -164,7 +182,10 @@ export default (state, action) => {
         working: {
           fetchingMessageThread: false
         },
-        error: action.error
+        notification: {
+          type: 'error',
+          message: action.error
+        }
       });
     case types.LOGIN_REQUEST: 
       return merge({
@@ -185,7 +206,10 @@ export default (state, action) => {
         working: {
           loggingIn: false
         },
-        error: action.error
+        notification: {
+          type: 'error',
+          message: action.error
+        }
       });
     case types.LOGOUT_REQUEST: 
       return merge({
@@ -210,7 +234,10 @@ export default (state, action) => {
         working: {
           loggingOut: false
         },
-        error: action.error
+        notification: {
+          type: 'error',
+          message: action.error
+        }
       });
     case types.SIGNUP_REQUEST: 
       return merge({
@@ -224,6 +251,7 @@ export default (state, action) => {
           signingUp: false
         },
         isLoggedIn: true,
+        verificationEmailSent: true,
         user: action.payload.user
       });
     case types.SIGNUP_FAILURE:
@@ -231,7 +259,10 @@ export default (state, action) => {
         working: {
           signingUp: false
         },
-        error: action.error
+        notification: {
+          type: 'error',
+          message: action.error
+        }
       });
     case types.CONFIRM_SIGNUP_REQUEST: 
       return merge({
@@ -251,7 +282,10 @@ export default (state, action) => {
         working: {
           confirmingSignup: false
         },
-        error: action.error
+        notification: {
+          type: 'error',
+          message: action.error
+        }
       });
     case types.ACCEPT_TERMS_REQUEST: 
       return merge({
@@ -271,7 +305,10 @@ export default (state, action) => {
         working: {
           acceptingTerms: false
         },
-        error: action.error
+        notification: {
+          type: 'error',
+          message: action.error
+        }
       });
     case types.SET_MEMBER_PERMISSIONS_REQUEST: 
       return merge({
@@ -290,7 +327,10 @@ export default (state, action) => {
         working: {
           settingMemberPermissions: false
         },
-        error: action.error
+        notification: {
+          type: 'error',
+          message: action.error
+        }
       });
     case types.CREATE_PATIENT_REQUEST: 
       return merge({
@@ -313,7 +353,10 @@ export default (state, action) => {
         working: {
           creatingPatient: false
         },
-        error: action.error
+        notification: {
+          type: 'error',
+          message: action.error
+        }
       });
     case types.REMOVE_PATIENT_REQUEST: 
       return merge({
@@ -332,7 +375,10 @@ export default (state, action) => {
         working: {
           removingPatient: false
         },
-        error: action.error
+        notification: {
+          type: 'error',
+          message: action.error
+        }
       });
     case types.REMOVE_MEMBER_REQUEST: 
       return merge({
@@ -351,7 +397,10 @@ export default (state, action) => {
         working: {
           removingMember: false
         },
-        error: action.error
+        notification: {
+          type: 'error',
+          message: action.error
+        }
       });
     case types.SEND_INVITATION_REQUEST: 
       return merge({
@@ -375,7 +424,10 @@ export default (state, action) => {
         working: {
           sendingInvitation: false
         },
-        error: action.error
+        notification: {
+          type: 'error',
+          message: action.error
+        }
       });
     case types.CANCEL_INVITATION_REQUEST: 
       return merge({
@@ -398,7 +450,10 @@ export default (state, action) => {
         working: {
           cancellingInvitation: false
         },
-        error: action.error
+        notification: {
+          type: 'error',
+          message: action.error
+        }
       });
     case types.ACCEPT_MEMBERSHIP_REQUEST: 
       return merge({
@@ -422,7 +477,10 @@ export default (state, action) => {
         working: {
           acceptingMembership: false
         },
-        error: action.error
+        notification: {
+          type: 'error',
+          message: action.error
+        }
       });
     case types.DISMISS_MEMBERSHIP_REQUEST: 
       return merge({
@@ -445,7 +503,10 @@ export default (state, action) => {
         working: {
           dismissingMembership: false
         },
-        error: action.error
+        notification: {
+          type: 'error',
+          message: action.error
+        }
       });
     case types.UPDATE_PATIENT_REQUEST: 
       return merge({
@@ -465,7 +526,10 @@ export default (state, action) => {
         working: {
           updatingPatient: false
         },
-        error: action.error
+        notification: {
+          type: 'error',
+          message: action.error
+        }
       });
     case types.UPDATE_USER_REQUEST: 
       return merge({
@@ -486,7 +550,10 @@ export default (state, action) => {
         working: {
           updatingUser: false
         },
-        error: action.error
+        notification: {
+          type: 'error',
+          message: action.error
+        }
       });
   }
 

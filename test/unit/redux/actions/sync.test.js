@@ -63,16 +63,19 @@ describe('Actions', () => {
       });
     });
 
-    describe('closeNotification', () => {
+    describe('acknowledgeNotification', () => {
       it('should be a FSA', () => {
-        let action = sync.closeNotification();
+        let action = sync.acknowledgeNotification();
 
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal CLOSE_NOTIFICATION', () => {
-        let action = sync.closeNotification();
-        expect(action.type).to.equal('CLOSE_NOTIFICATION');
+      it('type should equal ACKNOWLEDGE_NOTIFICATION', () => {
+        let note = 'foo';
+        let action = sync.acknowledgeNotification(note);
+
+        expect(action.payload.acknowledgedNotification).to.equal(note);
+        expect(action.type).to.equal('ACKNOWLEDGE_NOTIFICATION');
       });
     });
 

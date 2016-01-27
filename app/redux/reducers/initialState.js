@@ -18,6 +18,7 @@
 export default {
   signupConfirmed: false,
   isLoggedIn: false,
+  verificationEmailSent: false,
   user: null,
   patient: null,
   patients: [],

@@ -50,14 +50,14 @@ describe('Actions', () => {
         let user = { id: 27 };
         let api = {
           user: {
-            signup: sinon.stub().callsArgWith(1, 'fail!', null),
+            signup: sinon.stub().callsArgWith(1, { status: 401 }, null),
             get: sinon.stub()
           }
         };
 
         let expectedActions = [
           { type: 'SIGNUP_REQUEST' },
-          { type: 'SIGNUP_FAILURE', error: 'fail!' }
+          { type: 'SIGNUP_FAILURE', error: 'An error occured while signing up.' }
         ];
         let store = mockStore(initialState, expectedActions, done);
 

@@ -40,18 +40,12 @@ export function showNotification(notification) {
   };
 }
 
-export function acknowledgeError(acknowledgedError) {
+export function acknowledgeNotification(acknowledgedNotification) {
   return {
-    type: ActionTypes.ACKNOWLEDGE_ERROR,
+    type: ActionTypes.ACKNOWLEDGE_NOTIFICATION,
     payload: {
-      acknowledgedError: acknowledgedError
+      acknowledgedNotification: acknowledgedNotification
     }
-  };
-}
-
-export function closeNotification() {
-  return {
-    type: ActionTypes.CLOSE_NOTIFICATION
   };
 }
 
