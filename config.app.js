@@ -41,7 +41,7 @@ module.exports = {
   VERSION: pkg.version,
   MOCK: booleanFromText(__MOCK__, false),
   MOCK_PARAMS: __MOCK_PARAMS__ || '',
-  UPLOAD_API: __UPLOAD_API__ || 'https://tidepool.org/uploader',
+  UPLOAD_API: __UPLOAD_API__ || 'https://tidepool.org/products/tidepool-uploader',
   API_HOST: __API_HOST__ || 'https://dev-api.tidepool.org',
   SHOW_ACCEPT_TERMS: booleanFromText(__SHOW_ACCEPT_TERMS__, true),
   PASSWORD_MIN_LENGTH: integerFromText(__PASSWORD_MIN_LENGTH__, 8),
