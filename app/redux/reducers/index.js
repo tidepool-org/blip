@@ -16,14 +16,23 @@
  */
 import _ from 'lodash';
 
+import initialState from './initialState';
+
 import * as types from '../constants/actionTypes';
 
-
-export default (state, action) => {
+export default (state = initialState, action) => {
   switch (action.type) {
     case types.ACKNOWLEDGE_NOTIFICATION:
       return merge({
         notification: null
+      });
+    case types.SET_TIME_PREFERENCES:
+      return merge({
+        timePrefs: action.payload.timePrefs
+      });
+    case types.SET_BLOOD_GLUCOSE_PREFERENCES:
+      return merge({
+        timePrefs: action.payload.bgPrefs
       });
     case types.FETCH_USER_REQUEST: 
       return merge({
@@ -202,7 +211,7 @@ export default (state, action) => {
         isLoggedIn: true
       });
     case types.LOGIN_FAILURE:
-      return merge({
+      var amends = {
         working: {
           loggingIn: false
         },
@@ -210,7 +219,13 @@ export default (state, action) => {
           type: 'error',
           message: action.error
         }
-      });
+      };
+
+      if (action.payload) {
+        amends = _.merge({}, amends, action.payload);
+      }
+
+      return merge(amends);
     case types.LOGOUT_REQUEST: 
       return merge({
         working: {
@@ -281,6 +296,29 @@ export default (state, action) => {
       return merge({
         working: {
           confirmingSignup: false
+        },
+        notification: {
+          type: 'error',
+          message: action.error
+        }
+      });
+    case types.CONFIRM_PASSWORD_RESET_REQUEST: 
+      return merge({
+        working: {
+          confirmingPasswordReset: true
+        }
+      });
+    case types.CONFIRM_PASSWORD_RESET_SUCCESS:
+      return merge({
+        working: {
+          confirmingPasswordReset: false
+        },
+        confirmedPasswordReset: true
+      });
+    case types.CONFIRM_PASSWORD_RESET_FAILURE:
+      return merge({
+        working: {
+          confirmingPasswordReset: false
         },
         notification: {
           type: 'error',
@@ -396,6 +434,28 @@ export default (state, action) => {
       return merge({
         working: {
           removingMember: false
+        },
+        notification: {
+          type: 'error',
+          message: action.error
+        }
+      });
+    case types.REQUEST_PASSWORD_RESET_REQUEST: 
+      return merge({
+        working: {
+          requestingPasswordReset: true
+        }
+      });
+    case types.REQUEST_PASSWORD_RESET_SUCCESS:
+      return merge({
+        working: {
+          requestingPasswordReset: false
+        }
+      });
+    case types.REQUEST_PASSWORD_RESET_FAILURE:
+      return merge({
+        working: {
+          requestingPasswordReset: false
         },
         notification: {
           type: 'error',
@@ -555,6 +615,8 @@ export default (state, action) => {
           message: action.error
         }
       });
+    default: 
+      return state;
   }
 
   // Convenience function

@@ -5,11 +5,12 @@
 
 window.config = {};
 
-var React = require('react');
-var TestUtils = require('react-addons-test-utils');
-var expect = chai.expect;
+import React from'react';
+import TestUtils from'react-addons-test-utils';
 
-var Login = require('../../../app/pages/login/login.js');
+import { Login } from'../../../app/pages/login/login.js';
+
+let expect = chai.expect;
 
 describe('Login', function () {
   it('should be exposed as a module and be of type function', function() {
@@ -21,9 +22,9 @@ describe('Login', function () {
       console.error = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<Login />);
       expect(console.error.callCount).to.equal(4);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `api` was not specified in `Login`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `working` was not specified in `Login`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `Login`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmitSuccess` was not specified in `Login`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmitNotAuthorized` was not specified in `Login`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `Login`.')).to.equal(true);
     });
 
@@ -31,9 +32,9 @@ describe('Login', function () {
       console.error = sinon.stub();
       var props = {
         trackMetric: sinon.stub(),
+        api: {},
         onSubmit: sinon.stub(),
-        onSubmitSuccess: sinon.stub(),
-        onSubmitNotAuthorized: sinon.stub(),
+        working: false,
       };
       var elem = React.createElement(Login, props);
       var render = TestUtils.renderIntoDocument(elem);

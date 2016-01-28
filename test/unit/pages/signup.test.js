@@ -3,11 +3,12 @@
 /* global sinon */
 /* global it */
 
-var React = require('react');
-var TestUtils = require('react-addons-test-utils');
-var expect = chai.expect;
+import React from 'react';
+import TestUtils from 'react-addons-test-utils';
 
-var Signup = require('../../../app/pages/signup');
+import { Signup } from '../../../app/pages/signup';
+
+var expect = chai.expect;
 
 describe('Signup', function () {
   it('should be exposed as a module and be of type function', function() {
@@ -15,20 +16,22 @@ describe('Signup', function () {
   });
 
   describe('render', function() {
-    it('should console.error 3 time when showing waitlist', function () {
+    it('should console.error 3 times when showing waitlist', function () {
       console.error = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<Signup />);
-      expect(console.error.callCount).to.equal(3);
+      expect(console.error.callCount).to.equal(4);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `Signup`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmitSuccess` was not specified in `Signup`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `api` was not specified in `Signup`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `Signup`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `working` was not specified in `Signup`.')).to.equal(true);
     });
 
     it('should render without problems when required props are set', function () {
       console.error = sinon.stub();
       var props = {
         onSubmit: sinon.stub(),
-        onSubmitSuccess: sinon.stub(),
+        api: {},
+        working: false,
         trackMetric: sinon.stub()
       };
       var elem = React.createElement(Signup, props);
@@ -42,7 +45,8 @@ describe('Signup', function () {
         configuredInviteKey: '',
         inviteKey: '',
         onSubmit: sinon.stub(),
-        onSubmitSuccess: sinon.stub(),
+        api: {},
+        working: false,
         trackMetric: sinon.stub()
       };
       var elem = React.createElement(Signup, props);
@@ -56,7 +60,8 @@ describe('Signup', function () {
         configuredInviteKey: 'foobar',
         inviteKey: 'wrong-key',
         onSubmit: sinon.stub(),
-        onSubmitSuccess: sinon.stub(),
+        api: {},
+        working: false,
         trackMetric: sinon.stub()
       };
       var elem = React.createElement(Signup, props);
@@ -70,7 +75,8 @@ describe('Signup', function () {
         configuredInviteKey: 'foobar',
         inviteKey: 'foobar',
         onSubmit: sinon.stub(),
-        onSubmitSuccess: sinon.stub(),
+        api: {},
+        working: false,
         trackMetric: sinon.stub()
       };
       var elem = React.createElement(Signup, props);
@@ -85,7 +91,8 @@ describe('Signup', function () {
         inviteKey: 'wrong-key',
         inviteEmail: 'gordonmdent@gmail.com',
         onSubmit: sinon.stub(),
-        onSubmitSuccess: sinon.stub(),
+        api: {},
+        working: false,
         trackMetric: sinon.stub()
       };
       var elem = React.createElement(Signup, props);
@@ -100,7 +107,8 @@ describe('Signup', function () {
         inviteKey: 'foobar',
         inviteEmail: '',
         onSubmit: sinon.stub(),
-        onSubmitSuccess: sinon.stub(),
+        api: {},
+        working: false,
         trackMetric: sinon.stub()
       };
       var elem = React.createElement(Signup, props);
@@ -114,7 +122,8 @@ describe('Signup', function () {
       console.error = sinon.stub();
       var props = {
         onSubmit: sinon.stub(),
-        onSubmitSuccess: sinon.stub(),
+        api: {},
+        working: false,
         trackMetric: sinon.stub(),
         inviteEmail: 'gordonmdent@gmail.com'
       };
@@ -122,7 +131,6 @@ describe('Signup', function () {
       var render = TestUtils.renderIntoDocument(elem);
       var state = render.getInitialState();
 
-      expect(state.working).to.equal(false);
       expect(state.loading).to.equal(true);
       expect(state.showWaitList).to.equal(false);
       expect(state.formValues.username).to.equal('gordonmdent@gmail.com');

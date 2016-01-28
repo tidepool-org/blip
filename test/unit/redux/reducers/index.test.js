@@ -233,6 +233,55 @@ describe('reducers', () => {
     });
   });
 
+  describe('confirmPasswordReset', () => {
+    describe('request', () => {
+      it('should set working.confirmingPasswordReset to be true', () => {
+        let action = actions.sync.confirmPasswordResetRequest();
+        expect(initialState.working.confirmingPasswordReset).to.be.false;
+
+        let state = reducer(initialState, action);
+        expect(state.working.confirmingPasswordReset).to.be.true;
+      });
+    });
+
+    describe('failure', () => {
+      it('should set working.confirmingPasswordReset to be false', () => {
+        let error = 'Something bad happened when signing up';
+
+        let requestAction = actions.sync.confirmPasswordResetRequest();
+        expect(initialState.working.confirmingPasswordReset).to.be.false;
+
+        let intermediateState = reducer(initialState, requestAction);
+        expect(intermediateState.working.confirmingPasswordReset).to.be.true;
+
+        let failureAction = actions.sync.confirmPasswordResetFailure(error);
+        let state = reducer(intermediateState, failureAction);
+        expect(state.working.confirmingPasswordReset).to.be.false;
+        expect(state.notification.type).to.equal('error');
+          expect(state.notification.message).to.equal(error);
+      });
+    });
+
+    describe('success', () => {
+      it('should set working.confirmingPasswordReset to be false and set user', () => {
+        let user = 'user';
+
+        let requestAction = actions.sync.confirmPasswordResetRequest();
+        
+        expect(initialState.working.confirmingPasswordReset).to.be.false;
+
+        let intermediateState = reducer(initialState, requestAction);
+        expect(intermediateState.working.confirmingPasswordReset).to.be.true;
+
+        let successAction = actions.sync.confirmPasswordResetSuccess(user);
+        let state = reducer(intermediateState, successAction);
+
+        expect(state.working.confirmingPasswordReset).to.be.false;
+        expect(state.confirmedPasswordReset).to.be.true;
+      });
+    });
+  });
+
   describe('acceptTerms', () => {
     describe('request', () => {
       it('should set working.acceptingTerms to be true', () => {

@@ -34,8 +34,6 @@ import TermsOverlay from '../termsoverlay';
 import MailTo from '../mailto';
 
 // Pages
-import Login from '../../pages/login';
-import Signup from '../../pages/signup';
 import Profile from '../../pages/profile';
 import Patients from '../../pages/patients';
 import Patient from '../../pages/patient';
@@ -424,33 +422,6 @@ export default class AppComponent extends React.Component {
     return null;
   }
 
-  renderLogin() {
-    var email = this.getInviteEmail() || this.getSignupEmail();
-    var showAsInvite = !_.isEmpty(this.getInviteEmail());
-
-    return React.cloneElement(this.props.login, {
-      onSubmit: this.actionHandlers.handleLogin.bind(this.actionHandlers),
-      seedEmail: email, 
-      isInvite: showAsInvite,
-      onSubmitSuccess: this.actionHandlers.handleLoginSuccess.bind(this.actionHandlers),
-      onSubmitNotAuthorized: this.actionHandlers.handleNotAuthorized.bind(this.actionHandlers),
-      trackMetric: this.props.route.trackMetric
-    });
-  }
-
-  renderSignup() {
-    let config = this.props.route.config;
-
-    return React.cloneElement(this.props.signup, {
-      configuredInviteKey: config.INVITE_KEY || '',
-      inviteEmail: this.getInviteEmail(),
-      inviteKey: this.getInviteKey(),
-      onSubmit: this.actionHandlers.handleSignup.bind(this.actionHandlers),
-      onSubmitSuccess: this.actionHandlers.handleSignupSuccess.bind(this.actionHandlers),
-      trackMetric: this.props.route.trackMetric
-    });
-  }
-
   renderEmailVerification() {
     return React.cloneElement(this.props.emailVerification,{
       sent: this.state.verificationEmailSent,
@@ -596,9 +567,10 @@ export default class AppComponent extends React.Component {
     // here, and setting the props we know each component needs
     // See: https://github.com/rackt/react-router/blob/master/examples/passing-props-to-children/app.js
     if (this.props.login) {
-      return this.renderLogin();
+      return this.props.login;
     } else if (this.props.signup) {
-      return this.renderSignup();
+      //return this.renderSignup();
+      return this.props.signup;
     } else if (this.props.emailVerification) {
       return this.renderEmailVerification();
     } else if (this.props.profile) {

@@ -28,6 +28,8 @@ import { Provider } from 'react-redux';
 
 import { getRoutes } from './routes';
 
+
+import blipState from './redux/reducers/initialState';
 import reducers from './redux/reducers';
 
 import config from './config';
@@ -128,9 +130,10 @@ appContext.start = () => {
 
     const reduxRouterMiddleware = syncHistory(browserHistory);
 
-    const reducer = combineReducers(Object.assign({}, reducers, {
+    const reducer = combineReducers({
+      blip: reducers,
       routing: routeReducer
-    }));
+    });
 
     const createStoreWithMiddleware = applyMiddleware(
       thunkMiddleware, 
@@ -138,7 +141,9 @@ appContext.start = () => {
       reduxRouterMiddleware
     )(createStore);
 
-    const store = createStoreWithMiddleware(reducer);
+    let initialState = { blip: blipState };
+
+    const store = createStoreWithMiddleware(reducer, initialState);
 
     appContext.component = render(
       <div>

@@ -14,24 +14,31 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = require('react');
-var Link = require('react-router').Link;
-var _ = require('lodash');
+import React from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
-var config = require('../../config');
+import * as actions from '../../redux/actions';
 
-var LoginNav = require('../../components/loginnav');
-var LoginLogo = require('../../components/loginlogo');
-var SimpleForm = require('../../components/simpleform');
+import { Link } from 'react-router';
+import _ from 'lodash';
 
-var Login = React.createClass({
+import config from '../../config';
+
+import utils from '../../core/utils';
+
+import LoginNav from '../../components/loginnav';
+import LoginLogo from '../../components/loginlogo';
+import SimpleForm from '../../components/simpleform';
+
+export let Login = React.createClass({
   propTypes: {
+    api: React.PropTypes.object.isRequired,
     onSubmit: React.PropTypes.func.isRequired,
     seedEmail: React.PropTypes.string,
     isInvite: React.PropTypes.bool,
-    onSubmitSuccess: React.PropTypes.func.isRequired,
-    onSubmitNotAuthorized: React.PropTypes.func.isRequired,
-    trackMetric: React.PropTypes.func.isRequired
+    trackMetric: React.PropTypes.func.isRequired,
+    working: React.PropTypes.bool.isRequired
   },
 
   formInputs: function() {
@@ -51,7 +58,6 @@ var Login = React.createClass({
     }
 
     return {
-      working: false,
       formValues: formValues,
       validationErrors: {},
       notification: null
@@ -96,7 +102,7 @@ var Login = React.createClass({
   },
 
   renderForm: function() {
-    var submitButtonText = this.state.working ? 'Logging in...' : 'Log in';
+    var submitButtonText = this.props.working ? 'Logging in...' : 'Log in';
 
     
     return (
@@ -105,9 +111,9 @@ var Login = React.createClass({
         formValues={this.state.formValues}
         validationErrors={this.state.validationErrors}
         submitButtonText={submitButtonText}
-        submitDisabled={this.state.working}
+        submitDisabled={this.props.working}
         onSubmit={this.handleSubmit}
-        notification={this.state.notification}/>
+        notification={this.state.notification || this.props.notification}/>
     );
     
   },
@@ -123,7 +129,7 @@ var Login = React.createClass({
   handleSubmit: function(formValues) {
     var self = this;
 
-    if (this.state.working) {
+    if (this.props.working) {
       return;
     }
 
@@ -134,14 +140,14 @@ var Login = React.createClass({
       return;
     }
 
-    formValues = this.prepareFormValuesForSubmit(formValues);
+    const { user, options } = this.prepareFormValuesForSubmit(formValues);
 
-    this.submitFormValues(formValues);
+    this.props.onSubmit(this.props.api, user, options);
   },
 
   resetFormStateBeforeSubmit: function(formValues) {
+    this.props.acknowledgedNotification(this.props.notification);
     this.setState({
-      working: true,
       formValues: formValues,
       validationErrors: {},
       notification: null
@@ -162,7 +168,6 @@ var Login = React.createClass({
 
     if (!_.isEmpty(validationErrors)) {
       this.setState({
-        working: false,
         validationErrors: validationErrors,
         notification: {
           type: 'error',
@@ -184,39 +189,32 @@ var Login = React.createClass({
         remember: formValues.remember
       }
     };
-  },
-
-  submitFormValues: function(formValues) {
-    var self = this;
-    var submit = this.props.onSubmit;
-
-    submit(formValues, function(err) {
-      if (err) {
-        // when the user has not yet validated their sign-up e-mail address
-        if (err.status === 403) {
-          self.props.onSubmitNotAuthorized();
-          return;
-        }
-
-        // error message for display
-        var message = (err.status === 401) ? 'Wrong username or password.' : 'An error occured while logging in.';
-
-        self.setState({
-          working: false,
-          notification: {
-            type: 'error',
-            message: message
-          }
-        });
-        return;
-      }
-      self.props.onSubmitSuccess();
-      // NOTE: We don't set state `working: false` because it seems to trigger
-      // a re-render of the login page before the redirect in `onSubmitSuccess`
-      // making an unpleasant UI flash. We don't really need it as the login
-      // page will be recreated on next visit to `/login`.
-    });
   }
 });
 
-module.exports = Login;
+/**
+ * Expose "Smart" Component that is connect-ed to Redux
+ */
+
+let mapStateToProps = state => ({
+  notification: state.blip.notification,
+  working: state.blip.working.loggingIn,
+});
+
+let mapDispatchToProps = dispatch => bindActionCreators({
+  onSubmit: actions.async.login,
+  acknowledgedNotification: actions.sync.acknowledgeNotification
+}, dispatch);
+
+let mergeProps = (stateProps, dispatchProps, ownProps) => {
+  let seedEmail = utils.getInviteEmail(ownProps.location) || utils.getSignupEmail(ownProps.location);
+  let isInvite = !_.isEmpty(utils.getInviteEmail(ownProps.location));
+  return _.merge({}, stateProps, dispatchProps, {
+    isInvite: isInvite,
+    seedEmail: seedEmail,
+    trackMetric: ownProps.routes[0].trackMetric,
+    api: ownProps.routes[0].api,
+  });
+};
+
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(Login);

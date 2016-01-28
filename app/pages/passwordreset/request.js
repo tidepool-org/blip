@@ -14,21 +14,31 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = require('react');
-var Link = require('react-router').Link;
-var _ = require('lodash');
 
-var config = require('../../config');
+import React from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
-var utils = require('../../core/utils');
-var LoginNav = require('../../components/loginnav');
-var LoginLogo = require('../../components/loginlogo');
-var SimpleForm = require('../../components/simpleform');
+import * as actions from '../../redux/actions';
 
-var RequestPasswordReset = React.createClass({
+import { Link } from 'react-router';
+import _ from 'lodash';
+
+import config from '../../config';
+
+import utils from '../../core/utils';
+import LoginNav from '../../components/loginnav';
+import LoginLogo from '../../components/loginlogo';
+import SimpleForm from '../../components/simpleform';
+
+export let RequestPasswordReset = React.createClass({
   propTypes: {
+    api: React.PropTypes.object.isRequired,
     onSubmit: React.PropTypes.func.isRequired,
-    trackMetric: React.PropTypes.func.isRequired
+    trackMetric: React.PropTypes.func.isRequired,
+    acknowledgeNotification: React.PropTypes.func.isRequired,
+    working: React.PropTypes.bool.isRequired,
+    notification: React.PropTypes.object
   },
 
   formInputs: function() {
@@ -39,7 +49,6 @@ var RequestPasswordReset = React.createClass({
 
   getInitialState: function() {
     return {
-      working: false,
       success: false,
       formValues: {},
       validationErrors: {},
@@ -92,7 +101,7 @@ var RequestPasswordReset = React.createClass({
   },
 
   renderForm: function() {
-    var submitButtonText = this.state.working ? 'Sending email...' : 'Send reset link';
+    var submitButtonText = this.props.working ? 'Sending email...' : 'Send reset link';
 
     return (
       <SimpleForm
@@ -100,16 +109,16 @@ var RequestPasswordReset = React.createClass({
         formValues={this.state.formValues}
         validationErrors={this.state.validationErrors}
         submitButtonText={submitButtonText}
-        submitDisabled={this.state.working}
+        submitDisabled={this.props.working}
         onSubmit={this.handleSubmit}
-        notification={this.state.notification}/>
+        notification={this.state.notification || this.props.notification}/>
     );
   },
 
   handleSubmit: function(formValues) {
     var self = this;
 
-    if (this.state.working) {
+    if (this.props.working) {
       return;
     }
 
@@ -120,12 +129,15 @@ var RequestPasswordReset = React.createClass({
       return;
     }
 
-    this.submitFormValues(formValues);
+    this.props.onSubmit(this.props.api, formValues.email);
+    this.setState({
+      success: true
+    })
   },
 
   resetFormStateBeforeSubmit: function(formValues) {
+    this.props.acknowledgeNotification(this.props.notification);
     this.setState({
-      working: true,
       formValues: formValues,
       validationErrors: {},
       notification: null
@@ -147,35 +159,35 @@ var RequestPasswordReset = React.createClass({
 
     if (!_.isEmpty(validationErrors)) {
       this.setState({
-        working: false,
         validationErrors: validationErrors
       });
     }
 
     return validationErrors;
-  },
-
-  submitFormValues: function(formValues) {
-    var self = this;
-    var submit = this.props.onSubmit;
-
-    submit(formValues.email, function(err) {
-      if (err) {
-        return self.setState({
-          working: false,
-          notification: {
-            type: 'error',
-            message: 'An error occured while resetting your password.'
-          }
-        });
-      }
-
-      self.setState({
-        working: false,
-        success: true
-      });
-    });
   }
 });
 
-module.exports = RequestPasswordReset;
+/**
+ * Expose "Smart" Component that is connect-ed to Redux
+ */
+
+let mapStateToProps = state => ({
+  notification: state.blip.notification,
+  working: state.blip.working.requestingPasswordReset
+});
+
+let mapDispatchToProps = dispatch => bindActionCreators({
+  onSubmit: actions.async.requestPasswordReset,
+  acknowledgeNotification: actions.sync.acknowledgeNotification
+}, dispatch);
+
+let mergeProps = (stateProps, dispatchProps, ownProps) => {
+  let seedEmail = utils.getInviteEmail(ownProps.location) || utils.getSignupEmail(ownProps.location);
+  let isInvite = !_.isEmpty(utils.getInviteEmail(ownProps.location));
+  return _.merge({}, stateProps, dispatchProps, {
+    trackMetric: ownProps.routes[0].trackMetric,
+    api: ownProps.routes[0].api,
+  });
+};
+
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(RequestPasswordReset);

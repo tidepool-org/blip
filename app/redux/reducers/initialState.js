@@ -15,7 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
-export default {
+export default { 
   signupConfirmed: false,
   isLoggedIn: false,
   verificationEmailSent: false,
@@ -29,15 +29,11 @@ export default {
   working: {
     acceptingMembership: false,
     acceptingTerms: false,
-
-
     cancellingInvitation: false,
-
+    confirmingPasswordReset: false,
     confirmingSignup: false,
     creatingPatient: false,
-
     dismissingMembership: false,
-
     fetchingMessageThread: false,
     fetchingPatient: false,
     fetchingPatientData: false,
@@ -45,21 +41,24 @@ export default {
     fetchingPendingInvites: false,
     fetchingPendingMemberships: false,
     fetchingUser: false,
-
     loggingIn: false,
     loggingOut: false,
-
     removingPatient: false,
     removingMember: false,
-
+    requestingPasswordReset: false,
     sendingInvitation: false,
-
     updatingPatient: false,
-    updatingUser: false,
-    
+    updatingUser: false,  
     signingUp: false,
   },
-  error: null
+  error: null,
+  timePrefs: {
+    timezoneAware: false,
+    timezoneName: null
+  }, 
+  bgPrefs: {
+    bgUnits: 'mg/dL'
+  }
 };
 
 // let iteration = {

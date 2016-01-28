@@ -21,6 +21,8 @@ import utils from '../../core/utils';
 import * as ActionTypes from '../constants/actionTypes';
 import * as sync from './sync.js';
 
+import { routeActions } from 'redux-simple-router';
+
 /**
  * Signup Async Action Creator
  * 
@@ -33,7 +35,7 @@ export function signup(api, accountDetails) {
 
     api.user.signup(accountDetails, (err, result) => {
       if (err) {
-        var error = 'An error occured while signing up.';
+        let error = 'An error occured while signing up.';
         if (err.status && err.status === 400) {
           error = 'An account already exists for that email.';
         }
@@ -44,6 +46,7 @@ export function signup(api, accountDetails) {
             dispatch(sync.signupFailure(err));
           } else {
             dispatch(sync.signupSuccess(user));
+            dispatch(routeActions.push('/email-verification'));
           }
         });
       }
@@ -64,13 +67,21 @@ export function login(api, credentials, options) {
 
     api.user.login(credentials, options, (err) => {
       if (err) {
-        dispatch(sync.loginFailure(err));
+        var error = (err.status === 401) ? 'Wrong username or password.' : 'An error occured while logging in.';
+
+        if (err.status === 403) {
+          dispatch(sync.loginFailure(error, { authenticated: false, verificationEmailSent: false }));
+          dispatch(routeActions.push('/email-verification'));
+        } else {
+          dispatch(sync.loginFailure(error));
+        }
       } else {
         api.user.get((err, user) => {
           if (err) {
             dispatch(sync.loginFailure(err));
           } else {
             dispatch(sync.loginSuccess(user));
+            dispatch(routeActions.push('/patients'));
           }
         });
       }
@@ -95,6 +106,26 @@ export function logout(api) {
       }
     });
   }
+}
+
+/**
+ * Confirm PasswordReset Action Creator
+ * 
+ * @param  {Object} api an instance of the API wrapper
+ * @param  {String} formValues
+ */
+export function confirmPasswordReset(api, formValues) {
+  return (dispatch) => {
+    dispatch(sync.confirmPasswordResetRequest());
+
+    api.user.confirmPasswordReset(formValues, function(err) {
+      if (err) {
+        dispatch(sync.confirmPasswordResetFailure(err));
+      } else {
+        dispatch(sync.confirmPasswordResetSuccess())
+      }
+    })
+  };
 }
 
 /**
@@ -155,6 +186,27 @@ export function createPatient(api, patient) {
       }
     });
   }
+}
+
+/**
+ * Request PasswordReset Action Creator
+ * 
+ * @param  {Object} api an instance of the API wrapper
+ * @param  {String} email
+ */
+export function requestPasswordReset(api, email) {
+  return (dispatch) => {
+    dispatch(sync.requestPasswordResetRequest());
+
+    api.user.requestPasswordReset(email, function(err) {
+      if (err) {
+        let message = 'An error occurred whilst attempting to reset your password';
+        dispatch(sync.requestPasswordResetFailure(message));
+      } else {
+        dispatch(sync.requestPasswordResetSuccess())
+      }
+    })
+  };
 }
 
 /**

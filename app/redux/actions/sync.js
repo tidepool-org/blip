@@ -49,6 +49,24 @@ export function acknowledgeNotification(acknowledgedNotification) {
   };
 }
 
+export function setTimePreferences(timePrefs) {
+  return {
+    type: ActionTypes.SET_TIME_PREFERENCES,
+    payload: {
+      timePrefs: timePrefs
+    }
+  }
+};
+
+export function setBloodGlucosePreferences(bgPrefs) {
+  return {
+    type: ActionTypes.SET_BLOOD_GLUCOSE_PREFERENCES,
+    payload: {
+      bgPrefs: bgPrefs
+    }
+  }
+};
+
 export function loginRequest() {
   return {
     type: ActionTypes.LOGIN_REQUEST
@@ -64,10 +82,11 @@ export function loginSuccess(user) {
   };
 }
 
-export function loginFailure(error) {
+export function loginFailure(error, payload) {
   return {
     type: ActionTypes.LOGIN_FAILURE,
-    error: error
+    error: error,
+    payload: payload || null
   };
 }
 
@@ -108,6 +127,25 @@ export function signupSuccess(user) {
 export function signupFailure(error) {
   return {
     type: ActionTypes.SIGNUP_FAILURE,
+    error: error
+  };
+}
+
+export function confirmPasswordResetRequest() {
+  return {
+    type: ActionTypes.CONFIRM_PASSWORD_RESET_REQUEST
+  };
+}
+
+export function confirmPasswordResetSuccess() {
+  return {
+    type: ActionTypes.CONFIRM_PASSWORD_RESET_SUCCESS
+  };
+}
+
+export function confirmPasswordResetFailure(error) {
+  return {
+    type: ActionTypes.CONFIRM_PASSWORD_RESET_FAILURE,
     error: error
   };
 }
@@ -215,6 +253,25 @@ export function removeMemberSuccess(removedMemberId) {
 export function removeMemberFailure(error) {
   return {
     type: ActionTypes.REMOVE_MEMBER_FAILURE,
+    error: error
+  };
+}
+
+export function requestPasswordResetRequest() {
+  return {
+    type: ActionTypes.REQUEST_PASSWORD_RESET_REQUEST
+  };
+}
+
+export function requestPasswordResetSuccess() {
+  return {
+    type: ActionTypes.REQUEST_PASSWORD_RESET_SUCCESS
+  };
+}
+
+export function requestPasswordResetFailure(error) {
+  return {
+    type: ActionTypes.REQUEST_PASSWORD_RESET_FAILURE,
     error: error
   };
 }

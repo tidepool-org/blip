@@ -36,7 +36,8 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'SIGNUP_REQUEST' },
-          { type: 'SIGNUP_SUCCESS', payload: { user: { id: 27 } } }
+          { type: 'SIGNUP_SUCCESS', payload: { user: { id: 27 } } },
+          { type: '@@router/TRANSITION', payload: { arg: '/email-verification', method: 'push' } }
         ];
         let store = mockStore(initialState, expectedActions, done);
 
@@ -200,14 +201,36 @@ describe('Actions', () => {
         let user = { id: 27 };
         let api = {
           user: {
-            login: sinon.stub().callsArgWith(2, 'failed!'),
+            login: sinon.stub().callsArgWith(2, { status: 400 }),
             get: sinon.stub()
           }
         };
 
         let expectedActions = [
           { type: 'LOGIN_REQUEST' },
-          { type: 'LOGIN_FAILURE', error: 'failed!' }
+          { type: 'LOGIN_FAILURE', error: 'An error occured while logging in.', payload: null }
+        ];
+        let store = mockStore(initialState, expectedActions, done);
+
+        store.dispatch(async.login(api, creds));
+
+        expect(api.user.login.calledWith(creds).callCount).to.equal(1);
+        expect(api.user.get.callCount).to.equal(0);
+      });
+
+      it('should trigger LOGIN_FAILURE and it should call login once and user.get zero times for a failed login because of wrong password request', (done) => {
+        let creds = { username: 'bruce', password: 'wayne' };
+        let user = { id: 27 };
+        let api = {
+          user: {
+            login: sinon.stub().callsArgWith(2, { status: 401 }),
+            get: sinon.stub()
+          }
+        };
+
+        let expectedActions = [
+          { type: 'LOGIN_REQUEST' },
+          { type: 'LOGIN_FAILURE', error: 'Wrong username or password.', payload: null }
         ];
         let store = mockStore(initialState, expectedActions, done);
 
@@ -229,7 +252,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'LOGIN_REQUEST' },
-          { type: 'LOGIN_FAILURE', error: 'failed!' }
+          { type: 'LOGIN_FAILURE', error: 'failed!', payload: null }
         ];
         let store = mockStore(initialState, expectedActions, done);
 
