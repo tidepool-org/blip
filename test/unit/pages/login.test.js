@@ -21,8 +21,7 @@ describe('Login', function () {
     it('should console.error when required props are missing', function () {
       console.error = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<Login />);
-      expect(console.error.callCount).to.equal(4);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `api` was not specified in `Login`.')).to.equal(true);
+      expect(console.error.callCount).to.equal(3);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `working` was not specified in `Login`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `Login`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `Login`.')).to.equal(true);
@@ -32,7 +31,6 @@ describe('Login', function () {
       console.error = sinon.stub();
       var props = {
         trackMetric: sinon.stub(),
-        api: {},
         onSubmit: sinon.stub(),
         working: false,
       };

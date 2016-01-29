@@ -33,7 +33,6 @@ import SimpleForm from '../../components/simpleform';
 
 export let Login = React.createClass({
   propTypes: {
-    api: React.PropTypes.object.isRequired,
     onSubmit: React.PropTypes.func.isRequired,
     seedEmail: React.PropTypes.string,
     isInvite: React.PropTypes.bool,
@@ -142,7 +141,7 @@ export let Login = React.createClass({
 
     const { user, options } = this.prepareFormValuesForSubmit(formValues);
 
-    this.props.onSubmit(this.props.api, user, options);
+    this.props.onSubmit(user, options);
   },
 
   resetFormStateBeforeSubmit: function(formValues) {
@@ -209,11 +208,12 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   let seedEmail = utils.getInviteEmail(ownProps.location) || utils.getSignupEmail(ownProps.location);
   let isInvite = !_.isEmpty(utils.getInviteEmail(ownProps.location));
+  let api = ownProps.routes[0].api;
   return _.merge({}, stateProps, dispatchProps, {
     isInvite: isInvite,
     seedEmail: seedEmail,
     trackMetric: ownProps.routes[0].trackMetric,
-    api: ownProps.routes[0].api,
+    onSubmit: dispatchProps.onSubmit.bind(null, api)
   });
 };
 
