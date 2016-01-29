@@ -544,23 +544,6 @@ export default class AppComponent extends React.Component {
     });
   }
 
-  renderRequestPasswordReset() {
-    return React.cloneElement(this.props.requestPasswordReset, {
-      onSubmit: this.props.route.api.user.requestPasswordReset.bind(this.props.route.api),
-      trackMetric: this.props.route.trackMetric
-    });
-  }
-
-  renderConfirmPasswordReset() {
-    let {query} = this.props.location;
-
-    return React.cloneElement(this.props.confirmPasswordReset, {
-      resetKey: query.resetKey,
-      onSubmit: this.props.route.api.user.confirmPasswordReset.bind(this.props.route.api),
-      trackMetric: this.props.route.trackMetric
-    });
-  }
-
   renderPage() {
     // Right now because we are not using Redux we are using a slightly
     // hacky way of passing props to our route components by cloning them 
@@ -569,7 +552,6 @@ export default class AppComponent extends React.Component {
     if (this.props.login) {
       return this.props.login;
     } else if (this.props.signup) {
-      //return this.renderSignup();
       return this.props.signup;
     } else if (this.props.emailVerification) {
       return this.renderEmailVerification();
@@ -587,9 +569,9 @@ export default class AppComponent extends React.Component {
     } else if (this.props.patientData) {
       return this.renderPatientData();
     } else if (this.props.requestPasswordReset) {
-      return this.renderRequestPasswordReset();
+      return this.props.requestPasswordReset;
     } else if (this.props.confirmPasswordReset) {
-      return this.renderConfirmPasswordReset();
+      return this.props.confirmPasswordReset;
     }
 
     return (

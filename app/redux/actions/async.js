@@ -120,7 +120,8 @@ export function confirmPasswordReset(api, formValues) {
 
     api.user.confirmPasswordReset(formValues, function(err) {
       if (err) {
-        dispatch(sync.confirmPasswordResetFailure(err));
+        var message = 'We couldn\'t change your password. You may have mistyped your email, or the reset link may have expired.';
+        dispatch(sync.confirmPasswordResetFailure(message));
       } else {
         dispatch(sync.confirmPasswordResetSuccess())
       }

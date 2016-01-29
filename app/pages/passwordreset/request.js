@@ -182,8 +182,6 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
-  let seedEmail = utils.getInviteEmail(ownProps.location) || utils.getSignupEmail(ownProps.location);
-  let isInvite = !_.isEmpty(utils.getInviteEmail(ownProps.location));
   return _.merge({}, stateProps, dispatchProps, {
     trackMetric: ownProps.routes[0].trackMetric,
     api: ownProps.routes[0].api,

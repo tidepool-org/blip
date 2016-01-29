@@ -16,6 +16,7 @@
  */
 
 export default { 
+  confirmedPasswordReset: false,
   signupConfirmed: false,
   isLoggedIn: false,
   verificationEmailSent: false,

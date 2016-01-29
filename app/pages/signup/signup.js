@@ -13,7 +13,7 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
