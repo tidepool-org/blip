@@ -169,6 +169,25 @@ export function confirmSignupFailure(error) {
   };
 }
 
+export function resendEmailVerificationRequest() {
+  return {
+    type: ActionTypes.RESEND_EMAIL_VERIFICATION_REQUEST
+  };
+}
+
+export function resendEmailVerificationSuccess() {
+  return {
+    type: ActionTypes.RESEND_EMAIL_VERIFICATION_SUCCESS
+  };
+}
+
+export function resendEmailVerificationFailure(error) {
+  return {
+    type: ActionTypes.RESEND_EMAIL_VERIFICATION_FAILURE,
+    error: error
+  };
+}
+
 export function acceptTermsRequest() {
   return {
     type: ActionTypes.ACCEPT_TERMS_REQUEST
@@ -579,10 +598,11 @@ export function fetchPatientDataRequest() {
   };
 }
 
-export function fetchPatientDataSuccess(patientData) {
+export function fetchPatientDataSuccess(patientId, patientData) {
   return {
     type: ActionTypes.FETCH_PATIENT_DATA_SUCCESS,
     payload: {
+      patientId: patientId,
       patientData: patientData
     }
   };

@@ -1072,14 +1072,14 @@ describe('Actions', () => {
 
     describe('fetchPatientsSuccess', () => {
       it('should be a FSA', () => {
-        let patients = [ { name: 'Bruce Lee', age: 24 } ];
+        let patients = [ { id: 20, name: 'Bruce Lee', age: 24 } ];
         let action = sync.fetchPatientsSuccess(patients);
 
         expect(isFSA(action)).to.be.true;
       });
 
       it('type should equal FETCH_PATIENTS_SUCCESS', () => {
-        let patients = [ { name: 'Jackie Chan', age: 24 } ];
+        let patients = [ { id: 20, name: 'Jackie Chan', age: 24 } ];
         let action = sync.fetchPatientsSuccess(patients);
 
         expect(action.type).to.equal('FETCH_PATIENTS_SUCCESS');
@@ -1129,14 +1129,16 @@ describe('Actions', () => {
       });
 
       it('type should equal FETCH_PATIENT_DATA_SUCCESS', () => {
+        let patientId = 400;
         let patientData = [
           { id: 24, value: 500 },
           { id: 4567, value: 400 }
         ];
-        let action = sync.fetchPatientDataSuccess(patientData);
+        let action = sync.fetchPatientDataSuccess(patientId, patientData);
 
         expect(action.type).to.equal('FETCH_PATIENT_DATA_SUCCESS');
         expect(action.payload.patientData).to.equal(patientData);
+        expect(action.payload.patientId).to.equal(patientId);
       });
     });
 

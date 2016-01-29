@@ -422,14 +422,6 @@ export default class AppComponent extends React.Component {
     return null;
   }
 
-  renderEmailVerification() {
-    return React.cloneElement(this.props.emailVerification,{
-      sent: this.state.verificationEmailSent,
-      onSubmitResend: this.props.route.api.user.resendEmailVerification.bind(this.props.route.api),
-      trackMetric: this.props.route.trackMetric
-    });
-  }
-
   renderProfile() {
     this.props.route.trackMetric('Viewed Account Edit');
     return React.cloneElement(this.props.profile, {
@@ -554,13 +546,12 @@ export default class AppComponent extends React.Component {
     } else if (this.props.signup) {
       return this.props.signup;
     } else if (this.props.emailVerification) {
-      return this.renderEmailVerification();
+      return this.props.emailVerification;
     } else if (this.props.profile) {
       return this.renderProfile();
     } else if (this.props.patients) {
       return this.renderPatients();
     } else if (this.props.patientNew) {
-
       return this.renderPatientNew();
     } else if (this.props.patient) {
       return this.renderPatient();

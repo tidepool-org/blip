@@ -70,7 +70,7 @@ export function login(api, credentials, options) {
         var error = (err.status === 401) ? 'Wrong username or password.' : 'An error occured while logging in.';
 
         if (err.status === 403) {
-          dispatch(sync.loginFailure(error, { authenticated: false, verificationEmailSent: false }));
+          dispatch(sync.loginFailure(error, { authenticated: false, emailVerificationSent: false }));
           dispatch(routeActions.push('/email-verification'));
         } else {
           dispatch(sync.loginFailure(error));
@@ -144,6 +144,27 @@ export function confirmSignup(api, signupKey) {
         dispatch(sync.confirmSignupFailure(err));
       } else {
         dispatch(sync.confirmSignupSuccess())
+      }
+    })
+  };
+}
+
+/**
+ * Resend Email Verification Action Creator
+ * 
+ * @param  {Object} api an instance of the API wrapper
+ * @param  {String} email
+ */
+export function resendEmailVerification(api, email) {
+  return (dispatch) => {
+    dispatch(sync.resendEmailVerificationRequest());
+
+    api.user.resendEmailVerification(email, function(err) {
+      if (err) {
+        var message = 'An error occured while trying to resend your verification email.'
+        dispatch(sync.resendEmailVerificationFailure(message));
+      } else {
+        dispatch(sync.resendEmailVerificationSuccess())
       }
     })
   };
@@ -397,17 +418,17 @@ export function updatePatient(api, patient) {
  */
 export function updateUser(api, formValues) {
   return (dispatch, getState) => {
-    const { user: currentUser } = getState();
+    const { loggedInUser } = getState();
     const newUser = _.assign({}, 
-      _.omit(currentUser, 'profile'),
+      _.omit(loggedInUser, 'profile'),
       _.omit(formValues, 'profile'),
-      { profile: _.assign({}, currentUser.profile, formValues.profile) } 
+      { profile: _.assign({}, loggedInUser.profile, formValues.profile) } 
     );
 
     dispatch(sync.updateUserRequest(_.omit(newUser, 'password')));
 
     var userUpdates = _.cloneDeep(newUser);
-    if (userUpdates.username === currentUser.username) {
+    if (userUpdates.username === loggedInUser.username) {
       userUpdates = _.omit(userUpdates, 'username', 'emails');
     }
     
@@ -543,7 +564,7 @@ export function fetchPatientData(api, id, queryParams) {
 
         let processedData = utils.processPatientData(combinedData, queryParams, state.timePrefs, state.bgPrefs);
 
-        dispatch(sync.fetchPatientDataSuccess(processedData));
+        dispatch(sync.fetchPatientDataSuccess(id, processedData));
       }
     });
   };

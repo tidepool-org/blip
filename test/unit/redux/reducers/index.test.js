@@ -72,7 +72,7 @@ describe('reducers', () => {
           let state = reducer(intermediateState, successAction);
           expect(state.working.loggingIn).to.be.false;
           expect(state.isLoggedIn).to.be.true;
-          expect(state.user).to.equal(user);
+          expect(state.loggedInUser).to.equal(user);
         });
       });
     });
@@ -120,8 +120,8 @@ describe('reducers', () => {
           let state = reducer(intermediateState, successAction);
           expect(state.working.loggingOut).to.be.false;
           expect(state.isLoggedIn).to.be.false;
-          expect(state.user).to.equal(null);
-          expect(state.currentPatient).to.equal(null);
+          expect(state.loggedInUser).to.equal(null);
+          expect(state.currentPatientInView).to.equal(null);
           expect(state.patients).to.equal(null);
           expect(state.patientsData).to.equal(null);
           expect(state.invites).to.equal(null);
@@ -177,7 +177,7 @@ describe('reducers', () => {
         expect(state.working.signingUp).to.be.false;
         expect(state.working.loggingIn).to.be.false;
         expect(state.isLoggedIn).to.be.true;
-        expect(state.user).to.equal(user);
+        expect(state.loggedInUser).to.equal(user);
       });
     });
   });
@@ -277,7 +277,7 @@ describe('reducers', () => {
         let state = reducer(intermediateState, successAction);
 
         expect(state.working.confirmingPasswordReset).to.be.false;
-        expect(state.confirmedPasswordReset).to.be.true;
+        expect(state.passwordResetConfirmed).to.be.true;
       });
     });
   });
@@ -319,7 +319,7 @@ describe('reducers', () => {
         let requestAction = actions.sync.acceptTermsRequest();
         
         expect(initialState.working.acceptingTerms).to.be.false;
-        expect(initialState.user).to.be.null;
+        expect(initialState.loggedInUser).to.be.null;
 
         let intermediateState = reducer(initialState, requestAction);
         expect(intermediateState.working.acceptingTerms).to.be.true;
@@ -328,7 +328,7 @@ describe('reducers', () => {
         let state = reducer(intermediateState, successAction);
 
         expect(state.working.acceptingTerms).to.be.false;
-        expect(state.user).to.equal(user);
+        expect(state.loggedInUser).to.equal(user);
       });
     });
   });
@@ -370,13 +370,13 @@ describe('reducers', () => {
           let action = actions.sync.fetchUserSuccess(user);
 
           expect(initialStateForTest.working.fetchingUser).to.be.true;
-          expect(initialStateForTest.user).to.be.null;
+          expect(initialStateForTest.loggedInUser).to.be.null;
 
           let state = reducer(initialStateForTest, action);
           
           expect(state.working.fetchingUser).to.be.false;
-          expect(state.user.id).to.equal(user.id);
-          expect(state.user.name).to.equal(user.name);
+          expect(state.loggedInUser.id).to.equal(user.id);
+          expect(state.loggedInUser.name).to.equal(user.name);
         });
       });
     });
@@ -417,13 +417,13 @@ describe('reducers', () => {
           let action = actions.sync.fetchPatientSuccess(patient);
 
           expect(initialStateForTest.working.fetchingPatient).to.be.true;
-          expect(initialStateForTest.patient).to.be.null;
+          expect(initialStateForTest.currentPatientInView).to.be.null;
 
           let state = reducer(initialStateForTest, action);
           
           expect(state.working.fetchingPatient).to.be.false;
-          expect(state.patient.id).to.equal(patient.id);
-          expect(state.patient.name).to.equal(patient.name);
+          expect(state.currentPatientInView.id).to.equal(patient.id);
+          expect(state.currentPatientInView.name).to.equal(patient.name);
         });
       });
     });
@@ -472,11 +472,11 @@ describe('reducers', () => {
           let state = reducer(initialStateForTest, action);
           
           expect(state.working.fetchingPatients).to.be.false;
-          expect(state.patients.length).to.equal(2);
-          expect(state.patients[0].id).to.equal(patients[0].id);
-          expect(state.patients[1].id).to.equal(patients[1].id);
-          expect(state.patients[0].name).to.equal(patients[0].name);
-          expect(state.patients[1].name).to.equal(patients[1].name);
+          expect(Object.keys(state.patients).length).to.equal(2);
+          expect(state.patients[patients[0].id].id).to.equal(patients[0].id);
+          expect(state.patients[patients[1].id].id).to.equal(patients[1].id);
+          expect(state.patients[patients[0].id].name).to.equal(patients[0].name);
+          expect(state.patients[patients[1].id].name).to.equal(patients[1].name);
         });
       });
     });
@@ -515,11 +515,12 @@ describe('reducers', () => {
       describe('success', () => {
         it('should set fetchingPatientData to be false and set patient', () => {
           let initialStateForTest = _.merge({}, initialState, { working: { fetchingPatientData: true} });
+          let patientId = 300;
           let patientData = [
             { id: 2020 },
             { id: 501 }
           ];
-          let action = actions.sync.fetchPatientDataSuccess(patientData);
+          let action = actions.sync.fetchPatientDataSuccess(patientId, patientData);
 
           expect(initialStateForTest.working.fetchingPatientData).to.be.true;
           expect(initialStateForTest.patientData).to.be.empty;
@@ -527,9 +528,10 @@ describe('reducers', () => {
           let state = reducer(initialStateForTest, action);
           
           expect(state.working.fetchingPatientData).to.be.false;
-          expect(state.patientData.length).to.equal(2);
-          expect(state.patientData[0].id).to.equal(patientData[0].id);
-          expect(state.patientData[1].id).to.equal(patientData[1].id);
+          expect(Object.keys(state.patientData).length).to.equal(1);
+          expect(state.patientData[patientId].length).to.equal(patientData.length);
+          expect(state.patientData[patientId][0].id).to.equal(patientData[0].id);
+          expect(state.patientData[patientId][1].id).to.equal(patientData[1].id);
         });
       });
     });
@@ -708,14 +710,14 @@ describe('reducers', () => {
           
           expect(initialStateForTest.working.creatingPatient).to.be.true;
           expect(initialStateForTest.error).to.be.null;
-          expect(initialStateForTest.patient).to.be.null;
+          expect(initialStateForTest.currentPatientInView).to.be.null;
 
           let state = reducer(initialStateForTest, action);
           
           expect(state.working.creatingPatient).to.be.false;
           expect(state.notification.type).to.equal('error');
           expect(state.notification.message).to.equal(error);
-          expect(state.patient).to.be.null;
+          expect(state.currentPatientInView).to.be.null;
         });
       });
 
@@ -726,12 +728,12 @@ describe('reducers', () => {
           let action = actions.sync.createPatientSuccess(patient);
 
           expect(initialStateForTest.working.creatingPatient).to.be.true;
-          expect(initialStateForTest.patient).to.be.null;
+          expect(initialStateForTest.currentPatientInView).to.be.null;
 
           let state = reducer(initialStateForTest, action);
           
           expect(state.working.creatingPatient).to.be.false;
-          expect(state.patient).to.equal(patient);
+          expect(state.currentPatientInView).to.equal(patient);
         });
       });
     });
@@ -1220,21 +1222,21 @@ describe('reducers', () => {
               working: { 
                 updatingPatient: true
               },
-              patient: currentPatient
+              currentPatientInView: currentPatient
           });
           
           let action = actions.sync.updatePatientSuccess(updatedPatient);
 
           expect(initialStateForTest.working.updatingPatient).to.be.true;
-          expect(initialStateForTest.patient.userid).to.equal(currentPatient.userid);
-          expect(initialStateForTest.patient.name).to.equal(currentPatient.name);
+          expect(initialStateForTest.currentPatientInView.userid).to.equal(currentPatient.userid);
+          expect(initialStateForTest.currentPatientInView.name).to.equal(currentPatient.name);
 
           let state = reducer(initialStateForTest, action);
           
           expect(state.working.updatingPatient).to.be.false;
 
-          expect(state.patient.userid).to.equal(updatedPatient.userid);
-          expect(state.patient.name).to.equal(updatedPatient.name);
+          expect(state.currentPatientInView.userid).to.equal(updatedPatient.userid);
+          expect(state.currentPatientInView.name).to.equal(updatedPatient.name);
         });
       });
     });
@@ -1246,12 +1248,12 @@ describe('reducers', () => {
           let action = actions.sync.updateUserRequest(updatingUser); 
 
           expect(initialState.working.updatingUser).to.be.false;
-          expect(initialState.user).to.be.null;
+          expect(initialState.loggedInUser).to.be.null;
 
           let state = reducer(initialState, action);
           expect(state.working.updatingUser).to.be.true;
-          expect(state.user.id).to.equal(updatingUser.id);
-          expect(state.user.name).to.equal(updatingUser.name);
+          expect(state.loggedInUser.id).to.equal(updatingUser.id);
+          expect(state.loggedInUser.name).to.equal(updatingUser.name);
         });
       });
 
@@ -1275,7 +1277,7 @@ describe('reducers', () => {
 
       describe('success', () => {
         it('should set updatingUser to be false', () => {
-          let currentUser = { id: 506, name: 'Jimmy' };
+          let loggedInUser = { id: 506, name: 'Jimmy' };
           let updatedUser = { id: 506, name: 'Jimmy Hendrix' };
 
           let initialStateForTest = _.merge(
@@ -1285,21 +1287,21 @@ describe('reducers', () => {
               working: { 
                 updatingUser: true
               },
-              user: currentUser
+              loggedInUser: loggedInUser
           });
           
           let action = actions.sync.updateUserSuccess(updatedUser);
 
           expect(initialStateForTest.working.updatingUser).to.be.true;
-          expect(initialStateForTest.user.id).to.equal(currentUser.id);
-          expect(initialStateForTest.user.name).to.equal(currentUser.name);
+          expect(initialStateForTest.loggedInUser.id).to.equal(loggedInUser.id);
+          expect(initialStateForTest.loggedInUser.name).to.equal(loggedInUser.name);
 
           let state = reducer(initialStateForTest, action);
           
           expect(state.working.updatingUser).to.be.false;
 
-          expect(state.user.id).to.equal(updatedUser.id);
-          expect(state.user.name).to.equal(updatedUser.name);
+          expect(state.loggedInUser.id).to.equal(updatedUser.id);
+          expect(state.loggedInUser.name).to.equal(updatedUser.name);
         });
       });
     });

@@ -773,7 +773,7 @@ describe('Actions', () => {
           }
         };
 
-        let initialStateForTest = _.merge({}, initialState, { user: currentUser });
+        let initialStateForTest = _.merge({}, initialState, { loggedInUser: currentUser });
 
         let expectedActions = [
           { type: 'UPDATE_USER_REQUEST', payload: { updatingUser: updatingUser} },
@@ -830,7 +830,7 @@ describe('Actions', () => {
           }
         };
 
-        let initialStateForTest = _.merge({}, initialState, { user: currentUser });
+        let initialStateForTest = _.merge({}, initialState, { loggedInUser: currentUser });
 
         let expectedActions = [
           { type: 'UPDATE_USER_REQUEST', payload: { updatingUser: updatingUser} },
@@ -1116,6 +1116,8 @@ describe('Actions', () => {
           processPatientData: sinon.stub().returnsArg(0)
         });
 
+        let patientId = 300;
+
         let patientData = [
           { id: 25, value: 540.4 }
         ];
@@ -1135,20 +1137,22 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'FETCH_PATIENT_DATA_REQUEST' },
-          { type: 'FETCH_PATIENT_DATA_SUCCESS', payload: { patientData : patientData.concat(teamNotes) } }
+          { type: 'FETCH_PATIENT_DATA_SUCCESS', payload: { patientData : patientData.concat(teamNotes), patientId: patientId } }
         ];
         let store = mockStore(initialState, expectedActions, done);
 
-        store.dispatch(async.fetchPatientData(api, 300, {}));
+        store.dispatch(async.fetchPatientData(api, patientId, {}));
 
-        expect(api.patientData.get.withArgs(300).callCount).to.equal(1);
-        expect(api.team.getNotes.withArgs(300).callCount).to.equal(1);
+        expect(api.patientData.get.withArgs(patientId).callCount).to.equal(1);
+        expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
       });
 
       it('should trigger FETCH_PATIENT_DATA_FAILURE and it should call error once for a failed request due to patient data call returning error', (done) => {
         async.__Rewire__('utils', {
           processPatientData: sinon.stub()
         });
+
+        let patientId = 400;
 
         let patientData = [
           { id: 25, value: 540.4 }
@@ -1173,10 +1177,10 @@ describe('Actions', () => {
         ];
         let store = mockStore(initialState, expectedActions, done);
 
-        store.dispatch(async.fetchPatientData(api, 400));
+        store.dispatch(async.fetchPatientData(api, patientId));
 
-        expect(api.patientData.get.withArgs(400).callCount).to.equal(1);
-        expect(api.team.getNotes.withArgs(400).callCount).to.equal(1);
+        expect(api.patientData.get.withArgs(patientId).callCount).to.equal(1);
+        expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
       });
 
 
@@ -1184,6 +1188,8 @@ describe('Actions', () => {
         async.__Rewire__('utils', {
           processPatientData: sinon.stub()
         });
+
+        let patientId = 400;
 
         let patientData = [
           { id: 25, value: 540.4 }
@@ -1208,10 +1214,10 @@ describe('Actions', () => {
         ];
         let store = mockStore(initialState, expectedActions, done);
 
-        store.dispatch(async.fetchPatientData(api, 400));
+        store.dispatch(async.fetchPatientData(api, patientId));
 
-        expect(api.patientData.get.withArgs(400).callCount).to.equal(1);
-        expect(api.team.getNotes.withArgs(400).callCount).to.equal(1);
+        expect(api.patientData.get.withArgs(patientId).callCount).to.equal(1);
+        expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);
       });
     });
 

@@ -211,7 +211,7 @@ export var ConfirmPasswordReset = React.createClass({
 let mapStateToProps = state => ({
   notification: state.blip.notification,
   working: state.blip.working.confirmingPasswordReset,
-  success: state.blip.confirmedPasswordReset
+  success: state.blip.passwordResetConfirmed
 });
 
 let mapDispatchToProps = dispatch => bindActionCreators({

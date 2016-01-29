@@ -14,20 +14,28 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = require('react');
-var _ = require('lodash');
+import React from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import _ from 'lodash';
 
-var LoginNav = require('../../components/loginnav');
-var LoginLogo = require('../../components/loginlogo');
-var SimpleForm = require('../../components/simpleform');
+import * as actions from '../../redux/actions';
 
-var utils = require('../../core/utils');
+import LoginNav from '../../components/loginnav';
+import LoginLogo from '../../components/loginlogo';
+import SimpleForm from '../../components/simpleform';
 
-var EmailVerification = React.createClass({
+import utils from '../../core/utils';
+
+export var EmailVerification = React.createClass({
   propTypes: {
+    resent: React.PropTypes.bool,
     sent: React.PropTypes.bool,
     onSubmitResend: React.PropTypes.func.isRequired,
-    trackMetric: React.PropTypes.func.isRequired
+    trackMetric: React.PropTypes.func.isRequired,
+    api: React.PropTypes.object.isRequired,
+    working: React.PropTypes.bool.isRequired,
+    notification: React.PropTypes.object
   },
   formInputs: function() {
     return [
@@ -35,13 +43,20 @@ var EmailVerification = React.createClass({
     ];
   },
   getInitialState: function() {
-    return {
-      working: false,
-      success: false,
+    var state =  {
       formValues: {},
       validationErrors: {},
       notification: null
     };
+
+    if (this.props.resent) {
+      state.notification = {
+        type: 'alert',
+        message: 'We just sent you an email.'
+      };
+    }
+
+    return state;
   },
   render: function() {
     var content;
@@ -100,7 +115,7 @@ var EmailVerification = React.createClass({
         formValues={this.state.formValues}
         validationErrors={this.state.validationErrors}
         submitButtonText={submitButtonText}
-        submitDisabled={this.state.working}
+        submitDisabled={this.props.working}
         onSubmit={this.handleSubmit}
         notification={this.state.notification}/>
     );
@@ -108,7 +123,7 @@ var EmailVerification = React.createClass({
   handleSubmit: function(formValues) {
     var self = this;
 
-    if (this.state.working) {
+    if (this.props.working) {
       return;
     }
 
@@ -119,11 +134,11 @@ var EmailVerification = React.createClass({
       return;
     }
 
-    this.submitFormValues(formValues);
+    this.props.onSubmitResend(formValues.email);
   },
   resetFormStateBeforeSubmit: function(formValues) {
+    this.props.acknowledgeNotification(this.props.notification);
     this.setState({
-      working: true,
       formValues: formValues,
       validationErrors: {},
       notification: null
@@ -144,39 +159,36 @@ var EmailVerification = React.createClass({
 
     if (!_.isEmpty(validationErrors)) {
       this.setState({
-        working: false,
         validationErrors: validationErrors
       });
     }
 
     return validationErrors;
-  },
-  submitFormValues: function(formValues) {
-    var self = this;
-    var submit = this.props.onSubmitResend;
-
-    submit(formValues.email, function(err) {
-      if (err) {
-
-        return self.setState({
-          working: false,
-          notification: {
-            type: 'error',
-            message: 'An error occured while trying to resend your verification email.'
-          }
-        });
-      }
-
-      self.setState({
-        working: false,
-        success: true,
-        notification: {
-            type: 'alert',
-            message: 'We just sent you an email.'
-          }
-      });
-    });
   }
 });
 
-module.exports = EmailVerification;
+/**
+ * Expose "Smart" Component that is connect-ed to Redux
+ */
+
+let mapStateToProps = state => ({
+  notification: state.blip.notification,
+  working: state.blip.working.resendingEmailVerification,
+  resent: state.blip.resentEmailVerification,
+  sent: state.blip.sentEmailVerification
+});
+
+let mapDispatchToProps = dispatch => bindActionCreators({
+  onSubmitSend: actions.async.resendEmailVerification,
+  acknowledgeNotification: actions.sync.acknowledgeNotification
+}, dispatch);
+
+let mergeProps = (stateProps, dispatchProps, ownProps) => {
+  return _.merge({}, stateProps, dispatchProps, {
+    trackMetric: ownProps.routes[0].trackMetric,
+    api: ownProps.routes[0].api,
+  });
+};
+
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(EmailVerification);
+

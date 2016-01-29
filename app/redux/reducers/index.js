@@ -45,7 +45,7 @@ export default (state = initialState, action) => {
         working: {
           fetchingUser: false
         },
-        user: action.payload.user
+        loggedInUser: action.payload.user
       });
     case types.FETCH_USER_FAILURE: 
       return merge({
@@ -111,11 +111,14 @@ export default (state = initialState, action) => {
         }
       });
     case types.FETCH_PATIENTS_SUCCESS: 
+      let patientMap = {};
+      action.payload.patients.forEach((p) => patientMap[p.id] = p);
+
       return merge({
         working: {
           fetchingPatients: false
         },
-        patients: action.payload.patients
+        patients: patientMap
       });
     case types.FETCH_PATIENTS_FAILURE: 
       return merge({
@@ -138,7 +141,7 @@ export default (state = initialState, action) => {
         working: {
           fetchingPatient: false
         },
-        patient: action.payload.patient
+        currentPatientInView: action.payload.patient
       });
     case types.FETCH_PATIENT_FAILURE: 
       return merge({
@@ -161,7 +164,9 @@ export default (state = initialState, action) => {
         working: {
           fetchingPatientData: false
         },
-        patientData: action.payload.patientData
+        patientData: {
+          [action.payload.patientId]: action.payload.patientData
+        }
       });
     case types.FETCH_PATIENT_DATA_FAILURE: 
       return merge({
@@ -207,7 +212,7 @@ export default (state = initialState, action) => {
         working: {
           loggingIn: false
         },
-        user: action.payload.user,
+        loggedInUser: action.payload.user,
         isLoggedIn: true
       });
     case types.LOGIN_FAILURE:
@@ -241,8 +246,8 @@ export default (state = initialState, action) => {
         patients: null, 
         patientsData: null,
         invites: null, 
-        user: null,
-        currentPatient: null
+        loggedInUser: null,
+        currentPatientInView: null
       });
     case types.LOGOUT_FAILURE:
       return merge({
@@ -266,8 +271,8 @@ export default (state = initialState, action) => {
           signingUp: false
         },
         isLoggedIn: true,
-        verificationEmailSent: true,
-        user: action.payload.user
+        emailVerificationSent: true,
+        loggedInUser: action.payload.user
       });
     case types.SIGNUP_FAILURE:
       return merge({
@@ -313,7 +318,7 @@ export default (state = initialState, action) => {
         working: {
           confirmingPasswordReset: false
         },
-        confirmedPasswordReset: true
+        passwordResetConfirmed: true
       });
     case types.CONFIRM_PASSWORD_RESET_FAILURE:
       return merge({
@@ -336,12 +341,35 @@ export default (state = initialState, action) => {
         working: {
           acceptingTerms: false
         },
-        user: action.payload.user
+        loggedInUser: action.payload.user
       });
     case types.ACCEPT_TERMS_FAILURE:
       return merge({
         working: {
           acceptingTerms: false
+        },
+        notification: {
+          type: 'error',
+          message: action.error
+        }
+      });
+    case types.RESEND_EMAIL_VERIFICATION_REQUEST: 
+      return merge({
+        working: {
+          resendingEmailVerification: true
+        }
+      });
+    case types.RESEND_EMAIL_VERIFICATION_SUCCESS:
+      return merge({
+        working: {
+          resendingEmailVerification: false
+        },
+        resentEmailVerification: true
+      });
+    case types.RESEND_EMAIL_VERIFICATION_FAILURE:
+      return merge({
+        working: {
+          resendingEmailVerification: false
         },
         notification: {
           type: 'error',
@@ -381,10 +409,10 @@ export default (state = initialState, action) => {
         working: {
           creatingPatient: false
         },
-        user: {
+        loggedInUser: {
           profile: action.payload.patient.profile
         },
-        patient: action.payload.patient
+        currentPatientInView: action.payload.patient
       });
     case types.CREATE_PATIENT_FAILURE:
       return merge({
@@ -579,7 +607,7 @@ export default (state = initialState, action) => {
         working: {
           updatingPatient: false
         },
-        patient: action.payload.updatedPatient
+        currentPatientInView: action.payload.updatedPatient
       });
     case types.UPDATE_PATIENT_FAILURE:
       return merge({
@@ -596,14 +624,14 @@ export default (state = initialState, action) => {
         working: {
           updatingUser: true
         },
-        user: action.payload.updatingUser
+        loggedInUser: action.payload.updatingUser
       });
     case types.UPDATE_USER_SUCCESS:
       return merge({
         working: {
           updatingUser: false
         },
-        user: action.payload.updatedUser
+        loggedInUser: action.payload.updatedUser
       });
     case types.UPDATE_USER_FAILURE:
       return merge({
