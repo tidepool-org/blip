@@ -34,10 +34,16 @@ var loaders = [
   {test: /\.json$/, loader: 'json-loader'}
 ];
 
+var output = {
+  path: path.join(__dirname, '/dist'),
+  filename: 'bundle.js'
+}
+
 if (isDev) {
+  output.publicPath = 'http://localhost:3000/';
   plugins.push(new webpack.HotModuleReplacementPlugin());
   entryScripts = [
-    'webpack-dev-server/client?http://0.0.0.0:3000',
+    'webpack-dev-server/client?http://localhost:3000',
     'webpack/hot/only-dev-server',
     appEntry
   ];
@@ -48,10 +54,7 @@ if (isDev) {
 
 module.exports = {
   entry: entryScripts,
-  output: {
-    path: path.join(__dirname, '/dist'),
-    filename: 'bundle.js'
-  },
+  output: output,
   module: {
     loaders: loaders
   },
@@ -61,6 +64,8 @@ module.exports = {
   resolve: { fallback: path.join(__dirname, 'node_modules') },
   resolveLoader: { fallback: path.join(__dirname, 'node_modules') },
   devServer: {
+    publicPath: output.publicPath,
+    hot: true,
     historyApiFallback: true
   }
 };
