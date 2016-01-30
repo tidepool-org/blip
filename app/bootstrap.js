@@ -18,19 +18,10 @@ import { render } from 'react-dom';
 import bows from 'bows';
 import _ from 'lodash';
 
-import { Router, browserHistory } from 'react-router';
-import { syncHistory, routeReducer } from 'redux-simple-router';
-
-import { createStore, applyMiddleware, compose, combineReducers } from 'redux';
-import thunkMiddleware from 'redux-thunk';
-import createLogger from 'redux-logger';
-import { Provider } from 'react-redux';
+import store from './redux/store';
+import AppRoot from './redux/containers/appRoot';
 
 import { getRoutes } from './routes';
-
-
-import blipState from './redux/reducers/initialState';
-import reducers from './redux/reducers';
 
 import config from './config';
 import api from './core/api';
@@ -103,12 +94,6 @@ appContext.init = callback => {
   beginInit();
 };
 
-const routing = (
-  <Router history={browserHistory}>
-    {getRoutes(appContext)}
-  </Router>
-);
-
 /**
  * Application start function. This is what should be called
  * by anything wanting to start Blip and bootstrap to the DOM
@@ -123,34 +108,8 @@ appContext.start = () => {
   appContext.init(() => {
     appContext.log('Starting app...');
 
-    const loggerMiddleware = createLogger({
-      level: 'info',
-      collapsed: true,
-    });
-
-    const reduxRouterMiddleware = syncHistory(browserHistory);
-
-    const reducer = combineReducers({
-      blip: reducers,
-      routing: routeReducer
-    });
-
-    const createStoreWithMiddleware = applyMiddleware(
-      thunkMiddleware, 
-      loggerMiddleware,
-      reduxRouterMiddleware
-    )(createStore);
-
-    let initialState = { blip: blipState };
-
-    const store = createStoreWithMiddleware(reducer, initialState);
-
     appContext.component = render(
-      <div>
-        <Provider store={store}>
-          {routing}
-        </Provider>
-      </div>,
+      <AppRoot store={store} routing={getRoutes(appContext)} />,
       document.getElementById('app')
     );
 
