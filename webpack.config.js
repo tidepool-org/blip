@@ -1,7 +1,7 @@
 var path = require('path');
 var webpack = require('webpack');
 
-var entry = (process.env.MOCK === 'true') ? './app/main.mock.js' : './app/main.js';
+var appEntry = (process.env.MOCK === 'true') ? './app/main.mock.js' : './app/main.js';
 
 // these values are required in the config.app.js file -- we can't use
 // process.env with webpack, we have to create these magic constants
@@ -18,15 +18,25 @@ var defineEnvPlugin = new webpack.DefinePlugin({
   __TEST__: false
 });
 
+var plugins = [ defineEnvPlugin ];
+console.log('Node Env:', process.env.NODE_ENV);
+if (process.env.NODE_ENV === 'development') {
+  plugins.push(new webpack.HotModuleReplacementPlugin());
+}
+
 module.exports = {
-  entry: entry,
+  entry: [
+    'webpack-dev-server/client?http://0.0.0.0:3000',
+    'webpack/hot/only-dev-server',
+    appEntry
+  ],
   output: {
     path: path.join(__dirname, '/dist'),
     filename: 'bundle.js'
   },
   module: {
     loaders: [
-      {test: /\.js$/, exclude: /(node_modules)/, loader: 'babel-loader'},
+      {test: /\.js$/, exclude: /(node_modules)/, loaders: ['react-hot', 'babel-loader']},
       // need this condition when Tideline loaded from Github branch
       {test: /node_modules\/tideline\/.*\.js$/, exclude: /tideline\/node_modules/, loader: 'babel-loader'},
       {test: /\.less$/, loader: 'style-loader!css-loader!autoprefixer-loader!less-loader'},
@@ -42,9 +52,7 @@ module.exports = {
     ]
   },
   // tideline DEV env variable only needs to be true in tideline local dev
-  plugins: [
-    defineEnvPlugin
-  ],
+  plugins: plugins,
   // resolves tideline's embedded React dependencies
   resolve: { fallback: path.join(__dirname, 'node_modules') },
   resolveLoader: { fallback: path.join(__dirname, 'node_modules') },
