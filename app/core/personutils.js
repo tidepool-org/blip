@@ -38,18 +38,13 @@ personUtils.isPatient = function(person) {
 
 personUtils.patientFullName = function(person) {
   var profile = utils.getIn(person, ['profile'], {});
+  var patientInfo = profile.patient || {};
 
-  if (!_.isEmpty(profile)) {
-
-    var patientInfo = profile.patient || {};
-
-    if (!_.isEmpty(patientInfo.isOtherPerson)) {
-      return patientInfo.fullName;
-    }
-
-    return profile.fullName;
+  if (patientInfo.isOtherPerson) {
+    return patientInfo.fullName;
   }
-  return "";
+
+  return profile.fullName;
 };
 
 personUtils.patientIsOtherPerson = function(person) {
