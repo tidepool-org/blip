@@ -36,7 +36,6 @@ import MailTo from '../mailto';
 // Pages
 import Profile from '../../pages/profile';
 import Patients from '../../pages/patients';
-import Patient from '../../pages/patient';
 import PatientNew from '../../pages/patientnew';
 import PatientData from '../../pages/patientdata';
 import RequestPasswordReset from '../../pages/passwordreset/request';
@@ -422,16 +421,6 @@ export default class AppComponent extends React.Component {
     return null;
   }
 
-  renderProfile() {
-    this.props.route.trackMetric('Viewed Account Edit');
-    return React.cloneElement(this.props.profile, {
-      user: this.state.user,
-      fetchingUser: this.state.fetchingUser,
-      onSubmit: this.actionHandlers.handleUpdateUser.bind(this.actionHandlers),
-      trackMetric: this.props.route.trackMetric
-    });
-  }
-
   renderPatients() {
     var patients = React.cloneElement(this.props.patients, {
       user: this.state.user,
@@ -451,51 +440,6 @@ export default class AppComponent extends React.Component {
     });
 
     return (patients);
-  }
-
-  renderPatient() {
-    // On each state change check if patient object was returned from server
-    if (this.isDoneFetchingAndNotFoundPatient()) {
-      this.props.route.log('Patient not found');
-      this.redirectToDefaultRoute();
-      return;
-    }
-    return React.cloneElement(this.props.patient, {
-      user: this.state.user, 
-      fetchingUser: this.state.fetchingUser, 
-      patient: this.state.patient, 
-      fetchingPatient: this.state.fetchingPatient, 
-      onUpdatePatient: this.actionHandlers.handleUpdatePatient.bind(this.actionHandlers), 
-      pendingInvites: this.state.pendingInvites, 
-      onChangeMemberPermissions: this.actionHandlers.handleChangeMemberPermissions.bind(this.actionHandlers), 
-      onRemoveMember: this.actionHandlers.handleRemoveMember.bind(this.actionHandlers), 
-      onInviteMember: this.actionHandlers.handleInviteMember.bind(this.actionHandlers), 
-      onCancelInvite: this.actionHandlers.handleCancelInvite.bind(this.actionHandlers), 
-      trackMetric: this.props.route.trackMetric
-    });
-  }
-
-  renderPatientShare() {
-    // On each state change check if patient object was returned from server
-    if (this.isDoneFetchingAndNotFoundPatient()) {
-      this.props.route.log('Patient not found');
-      this.redirectToDefaultRoute();
-      return;
-    }
-    return React.cloneElement(this.props.patientShare, {
-      user: this.state.user,
-      shareOnly: true,
-      fetchingUser: this.state.fetchingUser,
-      patient: this.state.patient,
-      fetchingPatient: this.state.fetchingPatient,
-      onUpdatePatient: this.actionHandlers.handleUpdatePatient.bind(this.actionHandlers),
-      pendingInvites: this.state.pendingInvites,
-      onChangeMemberPermissions: this.actionHandlers.handleChangeMemberPermissions.bind(this.actionHandlers),
-      onRemoveMember: this.actionHandlers.handleRemoveMember.bind(this.actionHandlers),
-      onInviteMember: this.actionHandlers.handleInviteMember.bind(this.actionHandlers),
-      onCancelInvite: this.actionHandlers.handleCancelInvite.bind(this.actionHandlers),
-      trackMetric: this.props.route.trackMetric
-    });
   }
 
   renderPatientNew() {
@@ -548,15 +492,15 @@ export default class AppComponent extends React.Component {
     } else if (this.props.emailVerification) {
       return this.props.emailVerification;
     } else if (this.props.profile) {
-      return this.renderProfile();
+      return (this.props.profile);
     } else if (this.props.patients) {
       return this.renderPatients();
     } else if (this.props.patientNew) {
       return this.renderPatientNew();
     } else if (this.props.patient) {
-      return this.renderPatient();
+      return (this.props.patient);
     } else if (this.props.patientShare) {
-      return this.renderPatientShare();
+      return (this.props.patientShare)
     } else if (this.props.patientData) {
       return this.renderPatientData();
     } else if (this.props.requestPasswordReset) {

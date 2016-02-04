@@ -90,7 +90,7 @@ var PatientCard = React.createClass({
     var self = this;
     var handleClick = function(e) {
       self.props.trackMetric('Clicked VDF View Data');
-      self.props.onClick(e);
+      self.props.onClick();
     };
 
     return (
