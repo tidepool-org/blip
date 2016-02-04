@@ -19,6 +19,7 @@ import _ from 'lodash';
 import async from 'async';
 import utils from '../../core/utils';
 import * as ActionTypes from '../constants/actionTypes';
+import * as ErrorMessages from '../constants/errorMessages';
 import * as sync from './sync.js';
 
 import { routeActions } from 'redux-simple-router';
@@ -289,7 +290,11 @@ export function sendInvitation(api, email, permissions) {
 
     api.invitation.send(email, permissions, (err, invitation) => {
       if (err) {
-        dispatch(sync.sendInvitationFailure(err));
+        if (err.status === 409) {
+          dispatch(sync.sendInvitationFailure(ErrorMessages.ALREADY_SENT_TO_EMAIL));
+        } else {
+          dispatch(sync.sendInvitationFailure(ErrorMessages.STANDARD));
+        }
       } else {
         dispatch(sync.sendInvitationSuccess(invitation));
       }
@@ -381,7 +386,7 @@ export function setMemberPermissions(api, patientId, memberId, permissions) {
       memberId, 
       permissions, (err) => {
       if (err) {
-        dispatch(sync.setMemberPermissionsFailure(err));
+        dispatch(sync.setMemberPermissionsFailure(ErrorMessages.STANDARD));
       } else {
         dispatch(sync.setMemberPermissionsSuccess(memberId, permissions));
         dispatch(fetchPatient(api, patientId));

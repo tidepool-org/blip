@@ -10,6 +10,8 @@ import reducer from '../../../../app/redux/reducers/index';
 
 import actions from '../../../../app/redux/actions/index';
 
+import * as ErrorMessages from '../../../../app/redux/constants/errorMessages';
+
 import initialState from '../../../../app/redux/reducers/initialState';
 
 
@@ -875,41 +877,55 @@ describe('reducers', () => {
         it('should set removingMember to be true', () => {
           let action = actions.sync.removeMemberRequest(); 
 
-          expect(initialState.working.removingMember).to.be.false;
+          expect(initialState.working.removingMember.inProgress).to.be.false;
 
           let state = reducer(initialState, action);
-          expect(state.working.removingMember).to.be.true;
+          expect(state.working.removingMember.inProgress).to.be.true;
         });
       });
 
       describe('failure', () => {
         it('should set removingMember to be false and set error', () => {
-          let initialStateForTest = _.merge({}, initialState, { working: { removingMember: true} });
+          let initialStateForTest = _.merge({}, initialState, { 
+            working: { 
+              removingMember: { 
+                inProgress: true, 
+                notification: null
+              }
+            } 
+          });
           let error = 'Oh no, did not get a message thread!!';
           let action = actions.sync.removeMemberFailure(error);
           
-          expect(initialStateForTest.working.removingMember).to.be.true;
+          expect(initialStateForTest.working.removingMember.inProgress).to.be.true;
           expect(initialStateForTest.error).to.be.null;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.working.removingMember).to.be.false;
-          expect(state.notification.type).to.equal('error');
-          expect(state.notification.message).to.equal(error);
+          expect(state.working.removingMember.inProgress).to.be.false;
+          expect(state.working.removingMember.notification.type).to.equal('error');
+          expect(state.working.removingMember.notification.message).to.equal(error);
         });
       });
 
       describe('success', () => {
         it('should set removingMember to be false', () => {
-          let initialStateForTest = _.merge({}, initialState, { working: { removingMember: true} });
+          let initialStateForTest = _.merge({}, initialState, { 
+            working: { 
+              removingMember: { 
+                inProgress: true, 
+                notification: null
+              }
+            } 
+          });
           let memberId = 15;
           let action = actions.sync.removeMemberSuccess(memberId);
 
-          expect(initialStateForTest.working.removingMember).to.be.true;
+          expect(initialStateForTest.working.removingMember.inProgress).to.be.true;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.working.removingMember).to.be.false;
+          expect(state.working.removingMember.inProgress).to.be.false;
         });
       });
     });
@@ -919,27 +935,35 @@ describe('reducers', () => {
         it('should set sendingInvitation to be true', () => {
           let action = actions.sync.sendInvitationRequest(); 
 
-          expect(initialState.working.sendingInvitation).to.be.false;
+          expect(initialState.working.sendingInvitation.inProgress).to.be.false;
 
           let state = reducer(initialState, action);
-          expect(state.working.sendingInvitation).to.be.true;
+          expect(state.working.sendingInvitation.inProgress).to.be.true;
         });
       });
 
       describe('failure', () => {
         it('should set sendingInvitation to be false and set error', () => {
-          let initialStateForTest = _.merge({}, initialState, { working: { sendingInvitation: true} });
-          let error = 'Oh no, did not get a message thread!!';
+          let initialStateForTest = _.merge({}, initialState, { 
+            working: { 
+              sendingInvitation: {
+                inProgress: true,
+                notification: null
+              }
+            } 
+          });
+          let error = ErrorMessages.STANDARD;
+
           let action = actions.sync.sendInvitationFailure(error);
           
-          expect(initialStateForTest.working.sendingInvitation).to.be.true;
+          expect(initialStateForTest.working.sendingInvitation.inProgress).to.be.true;
           expect(initialStateForTest.error).to.be.null;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.working.sendingInvitation).to.be.false;
-          expect(state.notification.type).to.equal('error');
-          expect(state.notification.message).to.equal(error);
+          expect(state.working.sendingInvitation.inProgress).to.be.false;
+          expect(state.working.sendingInvitation.notification.type).to.equal('error');
+          expect(state.working.sendingInvitation.notification.message).to.equal(ErrorMessages.STANDARD);
         });
       });
 
@@ -954,7 +978,10 @@ describe('reducers', () => {
             initialState, 
             { 
               working: { 
-                sendingInvitation: true
+                sendingInvitation: {
+                  inProgress: true,
+                  notification: false
+                }
               },
               pendingInvites: pendingInvites
           });
@@ -962,12 +989,12 @@ describe('reducers', () => {
           let invitation = { email: 'f@f.com', permissions: 'foo' };
           let action = actions.sync.sendInvitationSuccess(invitation);
 
-          expect(initialStateForTest.working.sendingInvitation).to.be.true;
+          expect(initialStateForTest.working.sendingInvitation.inProgress).to.be.true;
           expect(initialStateForTest.pendingInvites.length).to.equal(pendingInvites.length);
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.working.sendingInvitation).to.be.false;
+          expect(state.working.sendingInvitation.inProgress).to.be.false;
 
           expect(state.pendingInvites.length).to.equal(pendingInvites.length + 1);
           expect(state.pendingInvites[0].email).to.equal(pendingInvites[0].email);
@@ -983,27 +1010,34 @@ describe('reducers', () => {
         it('should set cancellingInvitation to be true', () => {
           let action = actions.sync.cancelInvitationRequest(); 
 
-          expect(initialState.working.cancellingInvitation).to.be.false;
+          expect(initialState.working.cancellingInvitation.inProgress).to.be.false;
 
           let state = reducer(initialState, action);
-          expect(state.working.cancellingInvitation).to.be.true;
+          expect(state.working.cancellingInvitation.inProgress).to.be.true;
         });
       });
 
       describe('failure', () => {
         it('should set cancellingInvitation to be false and set error', () => {
-          let initialStateForTest = _.merge({}, initialState, { working: { cancellingInvitation: true} });
+          let initialStateForTest = _.merge({}, initialState, { 
+            working: { 
+              cancellingInvitation: { 
+                inProgress: true, 
+                notification: null
+              }
+            } 
+          });
           let error = 'Oh no, did not get a message thread!!';
           let action = actions.sync.cancelInvitationFailure(error);
           
-          expect(initialStateForTest.working.cancellingInvitation).to.be.true;
+          expect(initialStateForTest.working.cancellingInvitation.inProgress).to.be.true;
           expect(initialStateForTest.error).to.be.null;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.working.cancellingInvitation).to.be.false;
-          expect(state.notification.type).to.equal('error');
-          expect(state.notification.message).to.equal(error);
+          expect(state.working.cancellingInvitation.inProgress).to.be.false;
+          expect(state.working.cancellingInvitation.notification.type).to.equal('error');
+          expect(state.working.cancellingInvitation.notification.message).to.equal(error);
         });
       });
 
@@ -1019,7 +1053,10 @@ describe('reducers', () => {
             initialState, 
             { 
               working: { 
-                cancellingInvitation: true
+                cancellingInvitation: { 
+                  inProgress: true, 
+                  notification: null
+                }
               },
               pendingInvites: pendingInvites
           });
@@ -1027,16 +1064,88 @@ describe('reducers', () => {
           let invitation = { email: 'f@f.com', permissions: 'foo' };
           let action = actions.sync.cancelInvitationSuccess(invitation.email);
 
-          expect(initialStateForTest.working.cancellingInvitation).to.be.true;
+          expect(initialStateForTest.working.cancellingInvitation.inProgress).to.be.true;
           expect(initialStateForTest.pendingInvites.length).to.equal(pendingInvites.length);
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.working.cancellingInvitation).to.be.false;
+          expect(state.working.cancellingInvitation.inProgress).to.be.false;
 
           expect(state.pendingInvites.length).to.equal(pendingInvites.length - 1);
           expect(state.pendingInvites[0].email).to.equal(pendingInvites[0].email);
           expect(state.pendingInvites[0].permissions).to.equal(pendingInvites[0].permissions);
+        });
+      });
+    });
+
+    describe('setMemberPermissions', () => {
+      describe('request', () => {
+        it('should set settingMemberPermissions to be true', () => {
+          let action = actions.sync.setMemberPermissionsRequest(); 
+
+          expect(initialState.working.settingMemberPermissions.inProgress).to.be.false;
+
+          let state = reducer(initialState, action);
+          expect(state.working.settingMemberPermissions.inProgress).to.be.true;
+        });
+      });
+
+      describe('failure', () => {
+        it('should set settingMemberPermissions to be false and set error', () => {
+          let initialStateForTest = _.merge({}, initialState, 
+            { working: 
+              { 
+                settingMemberPermissions: {
+                  inProgress: true,
+                  notification: null
+                }
+              } 
+            }
+          );
+          let error = 'Oh no, did not get a message thread!!';
+          let action = actions.sync.setMemberPermissionsFailure(error);
+          
+          expect(initialStateForTest.working.settingMemberPermissions.inProgress).to.be.true;
+          expect(initialStateForTest.error).to.be.null;
+
+          let state = reducer(initialStateForTest, action);
+          
+          expect(state.working.settingMemberPermissions.inProgress).to.be.false;
+          expect(state.working.settingMemberPermissions.notification.type).to.equal('error');
+          expect(state.working.settingMemberPermissions.notification.message).to.equal(error);
+        });
+      });
+
+      describe('success', () => {
+        it('should set settingMemberPermissions to be false', () => {
+          let pendingMemberships = [
+            { key: 'foo', creator: { userid: 500, name: 'Frank' } },
+            { key: 'jazz', creator: { userid: 505, name: 'Jess' } }
+          ];
+
+          let patients = [
+            { userid: 506, name: 'Alice' }
+          ];
+
+          let initialStateForTest = _.merge(
+            {}, 
+            initialState, 
+            { 
+              working: { 
+                settingMemberPermissions: {
+                  inProgress: true,
+                  notification: null
+                }
+              }
+          });
+          
+          let action = actions.sync.setMemberPermissionsSuccess(pendingMemberships[0]);
+
+          expect(initialStateForTest.working.settingMemberPermissions.inProgress).to.be.true;
+
+          let state = reducer(initialStateForTest, action);
+          
+          expect(state.working.settingMemberPermissions.inProgress).to.be.false;
         });
       });
     });

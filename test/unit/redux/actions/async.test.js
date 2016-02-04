@@ -14,6 +14,8 @@ import * as async from '../../../../app/redux/actions/async';
 
 import initialState from '../../../../app/redux/reducers/initialState';
 
+import * as ErrorMessages from '../../../../app/redux/constants/errorMessages';
+
 describe('Actions', () => {
   const mockStore = configureStore([thunk]);
 
@@ -475,13 +477,13 @@ describe('Actions', () => {
         let invitation = { foo: 'bar' };
         let api = {
           invitation: {
-            send: sinon.stub().callsArgWith(2, 'Failure!')
+            send: sinon.stub().callsArgWith(2, { status: 400 })
           }
         };
 
         let expectedActions = [
           { type: 'SEND_INVITATION_REQUEST' },
-          { type: 'SEND_INVITATION_FAILURE', error: 'Failure!' }
+          { type: 'SEND_INVITATION_FAILURE', error: ErrorMessages.STANDARD }
         ];
 
         let store = mockStore(initialState, expectedActions, done);
@@ -658,13 +660,13 @@ describe('Actions', () => {
         };
         let api = {
           access: {
-            setMemberPermissions: sinon.stub().callsArgWith(2, 'Failure!')
+            setMemberPermissions: sinon.stub().callsArgWith(2, { error: 400 })
           }
         };
 
         let expectedActions = [
           { type: 'SET_MEMBER_PERMISSIONS_REQUEST' },
-          { type: 'SET_MEMBER_PERMISSIONS_FAILURE', error: 'Failure!' }
+          { type: 'SET_MEMBER_PERMISSIONS_FAILURE', error: ErrorMessages.STANDARD }
         ];
 
         let store = mockStore(initialState, expectedActions, done);

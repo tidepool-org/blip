@@ -379,23 +379,31 @@ export default (state = initialState, action) => {
     case types.SET_MEMBER_PERMISSIONS_REQUEST: 
       return merge({
         working: {
-          settingMemberPermissions: true
+          settingMemberPermissions:  {
+            inProgress: true,
+            notification: null
+          }
         }
       });
     case types.SET_MEMBER_PERMISSIONS_SUCCESS:
       return merge({
         working: {
-          settingMemberPermissions: false
+          settingMemberPermissions:  {
+            inProgress: false,
+            notification: null
+          }
         }
       });
     case types.SET_MEMBER_PERMISSIONS_FAILURE:
       return merge({
         working: {
-          settingMemberPermissions: false
-        },
-        notification: {
-          type: 'error',
-          message: action.error
+          settingMemberPermissions:  {
+            inProgress: false,
+            notification: {
+              type: 'error',
+              message: action.error
+            }
+          }
         }
       });
     case types.CREATE_PATIENT_REQUEST: 
@@ -449,23 +457,31 @@ export default (state = initialState, action) => {
     case types.REMOVE_MEMBER_REQUEST: 
       return merge({
         working: {
-          removingMember: true
+          removingMember:  {
+            inProgress: true,
+            notification: null
+          }
         }
       });
     case types.REMOVE_MEMBER_SUCCESS:
       return merge({
         working: {
-          removingMember: false
+          removingMember:  {
+            inProgress: false,
+            notification: null
+          }
         }
       });
     case types.REMOVE_MEMBER_FAILURE:
       return merge({
         working: {
-          removingMember: false
-        },
-        notification: {
-          type: 'error',
-          message: action.error
+          removingMember:  {
+            inProgress: false,
+            notification: {
+              type: 'error',
+              message: action.error
+            }
+          }
         }
       });
     case types.REQUEST_PASSWORD_RESET_REQUEST: 
@@ -493,13 +509,19 @@ export default (state = initialState, action) => {
     case types.SEND_INVITATION_REQUEST: 
       return merge({
         working: {
-          sendingInvitation: true
+          sendingInvitation:  {
+            inProgress: true,
+            notification: null
+          }
         }
       });
     case types.SEND_INVITATION_SUCCESS:
       let sState = merge({
         working: {
-          sendingInvitation: false
+          sendingInvitation: {
+            inProgress: false,
+            notification: null
+          }
         }
       });
 
@@ -510,23 +532,31 @@ export default (state = initialState, action) => {
     case types.SEND_INVITATION_FAILURE:
       return merge({
         working: {
-          sendingInvitation: false
-        },
-        notification: {
-          type: 'error',
-          message: action.error
+          sendingInvitation:  {
+            inProgress: false,
+            notification: {
+              type: 'error',
+              message: action.error
+            }
+          }
         }
       });
     case types.CANCEL_INVITATION_REQUEST: 
       return merge({
         working: {
-          cancellingInvitation: true
+          cancellingInvitation:  {
+            inProgress: true,
+            notification: null
+          }
         }
       });
     case types.CANCEL_INVITATION_SUCCESS:
       let cState = merge({
         working: {
-          cancellingInvitation: false
+          cancellingInvitation:  {
+            inProgress: false,
+            notification: null
+          }
         }
       });
 
@@ -536,11 +566,13 @@ export default (state = initialState, action) => {
     case types.CANCEL_INVITATION_FAILURE:
       return merge({
         working: {
-          cancellingInvitation: false
-        },
-        notification: {
-          type: 'error',
-          message: action.error
+          cancellingInvitation:  {
+            inProgress: false,
+            notification: {
+              type: 'error',
+              message: action.error
+            }
+          }
         }
       });
     case types.ACCEPT_MEMBERSHIP_REQUEST: 

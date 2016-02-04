@@ -15,6 +15,13 @@
  * == BSD2 LICENSE ==
  */
 
+import _ from 'lodash';
+
+const working = {
+  inProgress: false,
+  notification: null
+};
+
 export default { 
   passwordResetConfirmed: false,
   signupConfirmed: false,
@@ -31,7 +38,7 @@ export default {
   working: {
     acceptingMembership: false,
     acceptingTerms: false,
-    cancellingInvitation: false,
+    cancellingInvitation: Object.assign({}, working),
     confirmingPasswordReset: false,
     confirmingSignup: false,
     creatingPatient: false,
@@ -46,10 +53,11 @@ export default {
     loggingIn: false,
     loggingOut: false,
     removingPatient: false,
-    removingMember: false,
+    removingMember: Object.assign({}, working),
     requestingPasswordReset: false,
     resendingEmailVerification: false,
-    sendingInvitation: false,
+    sendingInvitation: Object.assign({}, working),
+    settingMemberPermissions: Object.assign({}, working),
     updatingPatient: false,
     updatingUser: false,  
     signingUp: false,
