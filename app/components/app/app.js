@@ -421,34 +421,6 @@ export default class AppComponent extends React.Component {
     return null;
   }
 
-  renderPatientData() {
-    // On each state change check if patient object was returned from server
-    if (this.isDoneFetchingAndNotFoundPatient()) {
-      this.props.route.log('Patient not found');
-      this.redirectToDefaultRoute();
-      return;
-    }
-    return React.cloneElement(this.props.patientData, {
-      user: this.state.user,
-      patient: this.state.patient,
-      bgPrefs: this.state.bgPrefs,
-      timePrefs: this.state.timePrefs,
-      patientData: this.state.patientData,
-      fetchingPatient: this.state.fetchingPatient,
-      fetchingPatientData: this.state.fetchingPatientData,
-      isUserPatient: this.isSamePersonUserAndPatient(),
-      queryParams: this.state.queryParams,
-      uploadUrl: this.props.route.api.getUploadUrl(),
-      onRefresh: this.fetcher.fetchCurrentPatientData.bind(this.fetcher),
-      onFetchMessageThread: this.fetcher.fetchMessageThread.bind(this.fetcher),
-      onSaveComment: this.props.route.api.team.replyToMessageThread.bind(this.props.route.api.team),
-      onCreateMessage: this.props.route.api.team.startMessageThread.bind(this.props.route.api.team),
-      onEditMessage: this.props.route.api.team.editMessage.bind(this.props.route.api.team),
-      onUpdatePatientData: this.actionHandlers.handleUpdatePatientData.bind(this.actionHandlers),
-      trackMetric: this.props.route.trackMetric
-    });
-  }
-
   renderPage() {
     // Right now because we are not using Redux we are using a slightly
     // hacky way of passing props to our route components by cloning them 
@@ -471,7 +443,7 @@ export default class AppComponent extends React.Component {
     } else if (this.props.patientShare) {
       return (this.props.patientShare)
     } else if (this.props.patientData) {
-      return this.renderPatientData();
+      return this.props.patientData;
     } else if (this.props.requestPasswordReset) {
       return this.props.requestPasswordReset;
     } else if (this.props.confirmPasswordReset) {
