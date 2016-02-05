@@ -188,22 +188,19 @@ var Messages = React.createClass({
         timestamp: formValues.timestamp
       };
 
-      addComment(comment, function(error, commentId) {
-        if (commentId) {
-          if(cb){
-            //let the form know all is good
-            cb();
-          }
-          //set so we can display right away
-          comment.id = commentId;
-          comment.user = this.props.user.profile;
-          var withReply = this.state.messages;
-          withReply.push(comment);
-          this.setState({
-            messages: withReply
-          });
-        }
-      }.bind(this));
+      addComment(comment);
+      if(cb){
+        //let the form know all is good
+        cb();
+      }
+      //set so we can display right away
+      comment.id = 'commentId' ; //AHH need to do something about this
+      comment.user = this.props.user.profile;
+      var withReply = this.state.messages;
+      withReply.push(comment);
+      this.setState({
+        messages: withReply
+      });
     }
   },
   handleCreateNote: function(formValues,cb) {
@@ -220,30 +217,28 @@ var Messages = React.createClass({
         )
       };
 
-      createNote(message, function(error, messageId) {
-        if (messageId) {
-          if(cb){
-            //let the form know all is good
-            cb();
-          }
-          //set so we can display right away
-          message.id = messageId;
-          message.user = this.props.user.profile;
-          //give this message to anyone that needs it
-          this.props.onNewMessage(message);
+      createNote(message);
+      
+      if(cb){
+        //let the form know all is good
+        cb();
+      }
+      //set so we can display right away
+      message.id = 'messageId' // TODO: Need to fix this too;
+      message.user = this.props.user.profile;
+      //give this message to anyone that needs it
+      this.props.onNewMessage(message);
 
-          // Close the modal if we can, else clear form and display new message
-          var close = this.props.onClose;
-          if (close) {
-            close();
-          }
-          else {
-            this.setState({
-              messages: [message]
-            });
-          }
-        }
-      }.bind(this));
+      // Close the modal if we can, else clear form and display new message
+      var close = this.props.onClose;
+      if (close) {
+        close();
+      }
+      else {
+        this.setState({
+          messages: [message]
+        });
+      }
     }
   },
   handleEditNote: function(updated) {

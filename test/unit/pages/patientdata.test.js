@@ -3,11 +3,17 @@
 /* global sinon */
 /* global it */
 
-var React = require('react');
-var TestUtils = require('react-addons-test-utils');
+import React from 'react';
+import TestUtils from 'react-addons-test-utils';
+
+import rewire from 'rewire';
+import rewireModule from '../../utils/rewireModule';
+
 var expect = chai.expect;
-var rewire = require('rewire');
-var rewireModule = require('../../utils/rewireModule');
+
+var PD = rewire('../../../app/pages/patientdata/patientdata.js');
+
+var PatientData = PD.PatientData;
 
 /**
  * Need to set window.config for config module
@@ -17,9 +23,9 @@ window.config = {};
 describe('PatientData', function () {
   // We must remember to require the base module when mocking dependencies,
   // otherwise dependencies mocked will be bound to the wrong scope!
-  var PatientData = rewire('../../../app/pages/patientdata/patientdata.js');
+  
 
-  rewireModule(PatientData, {
+  rewireModule(PD, {
     Basics: React.createClass({
       render: function() {
         return (<div className='fake-basics-view'></div>);

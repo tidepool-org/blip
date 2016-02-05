@@ -49,6 +49,22 @@ export function acknowledgeNotification(acknowledgedNotification) {
   };
 }
 
+export function closeMessageThread() {
+  return {
+    type: ActionTypes.CLOSE_MESSAGE_THREAD,
+  };
+}
+
+export function updateLocalPatientData(patientId, data) {
+  return {
+    type: ActionTypes.UPDATE_LOCAL_PATIENT_DATA,
+    payload: {
+      patientId: patientId,
+      patientData: data
+    }
+  };
+}
+
 export function setTimePreferences(timePrefs) {
   return {
     type: ActionTypes.SET_TIME_PREFERENCES,

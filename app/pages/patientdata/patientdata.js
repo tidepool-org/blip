@@ -14,33 +14,40 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = require('react');
-var _ = require('lodash');
-var bows = require('bows');
-var sundial = require('sundial');
+import React from 'react';
+import { Link } from 'react-router';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
-var config = require('../../config');
-var loadingGif = require('./loading.gif');
+import _ from 'lodash';
+import bows from 'bows';
+import sundial from 'sundial';
 
-var personUtils = require('../../core/personutils');
-var utils = require('../../core/utils');
-var Header = require('../../components/chart').header;
-var Basics = require('../../components/chart').basics;
-var Daily = require('../../components/chart').daily;
-var Modal = require('../../components/chart').modal;
-var Weekly = require('../../components/chart').weekly;
-var Settings = require('../../components/chart').settings;
+import config from '../../config';
+import loadingGif from './loading.gif';
 
-var nurseShark = require('tideline/plugins/nurseshark/');
+import * as actions from '../../redux/actions';
 
-var Messages = require('../../components/messages');
+import personUtils from '../../core/personutils';
+import utils from '../../core/utils';
+import { header as Header } from '../../components/chart';
+import { basics as Basics } from '../../components/chart';
+import { daily as Daily } from '../../components/chart';
+import { modal as Modal } from '../../components/chart';
+import { weekly as Weekly } from '../../components/chart';
+import { settings as Settings } from '../../components/chart';
 
-var PatientData = React.createClass({
+import nurseShark from 'tideline/plugins/nurseshark/';
+
+import Messages from '../../components/messages';
+
+export let PatientData = React.createClass({
   propTypes: {
     bgPrefs: React.PropTypes.object,
     timePrefs: React.PropTypes.object.isRequired,
     patientData: React.PropTypes.object,
     patient: React.PropTypes.object,
+    messageThread: React.PropTypes.object,
     fetchingPatient: React.PropTypes.bool.isRequired,
     fetchingPatientData: React.PropTypes.bool.isRequired,
     isUserPatient: React.PropTypes.bool,
@@ -80,8 +87,7 @@ var PatientData = React.createClass({
       createMessage: null,
       createMessageDatetime: null,
       datetimeLocation: null,
-      initialDatetimeLocation: null,
-      messages: null
+      initialDatetimeLocation: null
     };
 
     return state;
@@ -351,10 +357,10 @@ var PatientData = React.createClass({
           onEdit={this.handleEditMessage}
           timePrefs={this.props.timePrefs} />
       );
-    } else if(this.state.messages) {
+    } else if(this.props.messageThread) {
       return (
         <Messages
-          messages={this.state.messages}
+          messages={this.props.messageThread}
           user={this.props.user}
           patient={this.props.patient}
           onClose={this.closeMessageThread}
@@ -367,7 +373,7 @@ var PatientData = React.createClass({
   },
 
   closeMessageThread: function(){
-    this.setState({ messages: null });
+    this.closeMessageThread();
     this.refs.tideline.closeMessageThread();
     this.props.trackMetric('Closed Message Thread Modal');
   },
@@ -407,9 +413,7 @@ var PatientData = React.createClass({
 
     var fetchMessageThread = this.props.onFetchMessageThread;
     if (fetchMessageThread) {
-      fetchMessageThread(messageThread,function(thread){
-        self.setState({ messages: thread });
-      });
+      fetchMessageThread(messageThread);
     }
 
     this.props.trackMetric('Clicked Message Icon');
@@ -523,4 +527,41 @@ var PatientData = React.createClass({
   }
 });
 
-module.exports = PatientData;
+/**
+ * Expose "Smart" Component that is connect-ed to Redux
+ */
+
+let mapStateToProps = state => ({
+  user: state.loggedInUser,
+  bgPrefs: state.bgPrefs,
+  timePrefs: state.timePrefs,
+  isUserPatient: personUtils.isSame(state.loggedInUser, state.currentPatientInView),
+  patient: state.currentPatientInView,
+  patientData: state.patientData,
+  messageThread: state.messageThread,
+  fetchingPatient: state.working.fetchingPatient,
+  fetchingPatientData: state.working.fetchingPatientData
+});
+
+let mapDispatchToProps = dispatch => bindActionCreators({
+  fetchPatientData: actions.async.fetchPatientData,
+  fetchMessageThread: actions.async.fetchMessageThread,
+  updateLocalPatientData: actions.sync.updateLocalPatientData,
+  closeMessageThread: actions.sync.closeMessageThread,
+}, dispatch);
+
+let mergeProps = (stateProps, dispatchProps, ownProps) => {
+  var api = ownProps.routes[0].api;
+  return _.merge({}, ownProps, stateProps, dispatchProps, {
+    uploadUrl: api.getUploadUrl(),
+    onRefresh: dispatchProps.fetchPatientData.bind(null, api),
+    onFetchMessageThread: dispatchProps.fetchMessageThread.bind(null, api),
+    onUpdatePatientData: dispatchProps.updateLocalPatientData,
+    onSaveComment: api.team.replyToMessageThread.bind(api),
+    onCreateMessage: api.team.startMessageThread.bind(api),
+    onEditMessage: api.team.editMessage.bind(api),
+    trackMetric: ownProps.routes[0].trackMetric
+  });
+};
+
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(PatientData);

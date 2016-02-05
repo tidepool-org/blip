@@ -421,37 +421,6 @@ export default class AppComponent extends React.Component {
     return null;
   }
 
-  renderPatients() {
-    var patients = React.cloneElement(this.props.patients, {
-      user: this.state.user,
-      fetchingUser: this.state.fetchingUser,
-      patients: this.state.patients,
-      fetchingPatients: this.state.fetchingPatients,
-      invites: this.state.invites,
-      uploadUrl: this.props.route.api.getUploadUrl(),
-      fetchingInvites: this.state.fetchingInvites,
-      showingWelcomeTitle: this.state.showingWelcomeTitle,
-      showingWelcomeSetup: this.state.showingWelcomeSetup,
-      onHideWelcomeSetup: this.actionHandlers.handleHideWelcomeSetup.bind(this.actionHandlers),
-      trackMetric: this.props.route.trackMetric,
-      onAcceptInvitation: this.actionHandlers.handleAcceptInvitation.bind(this.actionHandlers),
-      onDismissInvitation: this.actionHandlers.handleDismissInvitation.bind(this.actionHandlers),
-      onRemovePatient: this.actionHandlers.handleRemovePatient.bind(this.actionHandlers)
-    });
-
-    return (patients);
-  }
-
-  renderPatientNew() {
-    return React.cloneElement(this.props.patientNew, {
-      user: this.state.user,
-      fetchingUser: this.state.fetchingUser,
-      onSubmit: this.actionHandlers.handleCreatePatient.bind(this.actionHandlers),
-      onSubmitSuccess: this.actionHandlers.handlePatientCreationSuccess.bind(this.actionHandlers),
-      trackMetric: this.props.route.trackMetric
-    });
-  }
-
   renderPatientData() {
     // On each state change check if patient object was returned from server
     if (this.isDoneFetchingAndNotFoundPatient()) {
@@ -494,7 +463,7 @@ export default class AppComponent extends React.Component {
     } else if (this.props.profile) {
       return (this.props.profile);
     } else if (this.props.patients) {
-      return this.renderPatients();
+      return (this.props.patients);
     } else if (this.props.patientNew) {
       return this.renderPatientNew();
     } else if (this.props.patient) {

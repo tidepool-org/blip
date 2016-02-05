@@ -153,6 +153,12 @@ export default (state = initialState, action) => {
           message: action.error
         }
       });
+    case types.UPDATE_LOCAL_PATIENT_DATA:
+      return merge({
+        patientData: {
+          [action.payload.patientId]: action.payload.patientData
+        }
+      });
     case types.FETCH_PATIENT_DATA_REQUEST: 
       return merge({
         working: {
@@ -177,6 +183,10 @@ export default (state = initialState, action) => {
           type: 'error',
           message: action.error
         }
+      });
+    case types.CLOSE_MESSAGE_THREAD: 
+      return merge({
+        messageThread: null
       });
     case types.FETCH_MESSAGE_THREAD_REQUEST: 
       return merge({
