@@ -1,5 +1,6 @@
 var path = require('path');
 var webpack = require('webpack');
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 var isDev = (process.env.NODE_ENV === 'development');
 // these values are required in the config.app.js file -- we can't use
@@ -17,12 +18,12 @@ var defineEnvPlugin = new webpack.DefinePlugin({
   __TEST__: false
 });
 
-var plugins = [ defineEnvPlugin ];
+var plugins = [ defineEnvPlugin, new ExtractTextPlugin('style.css') ];
 var appEntry = (process.env.MOCK === 'true') ? './app/main.mock.js' : './app/main.js';
 var entryScripts = [ appEntry ];
 var loaders = [
   {test: /node_modules\/tideline\/.*\.js$/, exclude: /tideline\/node_modules/, loader: 'babel-loader'},
-  {test: /\.less$/, loader: 'style-loader!css-loader!autoprefixer-loader!less-loader'},
+  {test: /\.less$/, loader: ExtractTextPlugin.extract('style-loader', 'css-loader!autoprefixer-loader!less-loader')},
   {test: /\.gif$/, loader: 'url-loader?limit=100000&mimetype=image/gif'},
   {test: /\.jpg$/, loader: 'url-loader?limit=10000&mimetype=image/jpg'},
   {test: /\.png$/, loader: 'url-loader?limit=10000&mimetype=image/png'},

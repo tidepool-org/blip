@@ -232,7 +232,8 @@ function profileFromUser(user) {
 }
 
 function userFromAccountAndProfile(results) {
-  var account = results.account;
+  // sometimes `account` isn't in the results after e.g., password update
+  var account = results.account || {};
   var profile = results.profile;
 
   var user = account;

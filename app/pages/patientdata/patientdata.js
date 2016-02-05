@@ -251,7 +251,7 @@ export let PatientData = React.createClass({
             onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
-            updateBasicsData={this.updateBasicsData}
+            updateBasicsData={this.updateBasicsData.bind(null, this.props.patient.userid)}
             trackMetric={this.props.trackMetric}
             uploadUrl={this.props.uploadUrl}
             ref="tideline" />
@@ -508,8 +508,8 @@ export let PatientData = React.createClass({
     }
   },
 
-  updateBasicsData: function(data) {
-    this.props.onUpdatePatientData(this.props.patient.userid, data);
+  updateBasicsData: function(userid, data) {
+    this.props.onUpdatePatientData(userid, data);
   },
 
   updateChartPrefs: function(newChartPrefs) {
