@@ -14,18 +14,23 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = require('react');
-var Link = require('react-router').Link;
-var _ = require('lodash');
-var cx = require('classnames');
+import React from 'react';
+import { Link } from 'react-router';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
-var config = require('../../config');
+import * as actions from '../../redux/actions';
 
-var personUtils = require('../../core/personutils');
-var PeopleList = require('../../components/peoplelist');
-var Invitation = require('../../components/invitation');
+import _ from 'lodash';
+import cx from 'classnames';
 
-var Patients = React.createClass({
+import config from '../../config';
+
+import personUtils from '../../core/personutils';
+import PeopleList from '../../components/peoplelist';
+import Invitation from '../../components/invitation';
+
+export let Patients = React.createClass({
   propTypes: {
     user: React.PropTypes.object,
     fetchingUser: React.PropTypes.bool,
@@ -297,4 +302,36 @@ var Patients = React.createClass({
   }
 });
 
-module.exports = Patients;
+/**
+ * Expose "Smart" Component that is connect-ed to Redux
+ */
+
+let mapStateToProps = state => ({
+  user: state.loggedInUser,
+  fetchingUser: state.working.fetchingUser,
+  patients: state.patients,
+  fetchingPatients: state.working.fetchingPatients,
+  invites: state.pendingMemberships,
+  fetchingInvites: state.working.fetchingPendingMemberships,
+  showingWelcomeTitle: state.signupConfirmed,
+  showingWelcomeSetup: state.signupConfirmed
+});
+
+let mapDispatchToProps = dispatch => bindActionCreators({
+  acceptInvitation: actions.async.acceptInvitation,
+  dismissMembership: actions.async.dismissMembership,
+  removePatient: actions.async.removePatient
+}, dispatch);
+
+let mergeProps = (stateProps, dispatchProps, ownProps) => {
+  var api = ownProps.routes[0].api;
+  return _.merge({}, ownProps, stateProps, dispatchProps, {
+    uploadUrl: api.getUploadUrl(),
+    onAcceptInvitation: dispatchProps.acceptInvitation.bind(null, api),
+    onDismissInvitation: dispatchProps.dismissInvitation.bind(null, api),
+    onRemoveMember: dispatchProps.removeMember.bind(null, api),
+    trackMetric: ownProps.routes[0].trackMetric
+  });
+};
+
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(Patients);

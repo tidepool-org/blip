@@ -697,44 +697,58 @@ describe('reducers', () => {
         it('should set creatingPatient to be true', () => {
           let action = actions.sync.createPatientRequest(); 
 
-          expect(initialState.working.creatingPatient).to.be.false;
+          expect(initialState.working.creatingPatient.inProgress).to.be.false;
 
           let state = reducer(initialState, action);
-          expect(state.working.creatingPatient).to.be.true;
+          expect(state.working.creatingPatient.inProgress).to.be.true;
         });
       });
 
       describe('failure', () => {
         it('should set creatingPatient to be false and set error', () => {
-          let initialStateForTest = _.merge({}, initialState, { working: { creatingPatient: true} });
+          let initialStateForTest = _.merge({}, initialState, {
+            working: { 
+              creatingPatient: {
+                inProgress: true,
+                notification: null
+              }
+            } 
+          });
           let error = 'Oh no, did not get a message thread!!';
           let action = actions.sync.createPatientFailure(error);
           
-          expect(initialStateForTest.working.creatingPatient).to.be.true;
+          expect(initialStateForTest.working.creatingPatient.inProgress).to.be.true;
           expect(initialStateForTest.error).to.be.null;
           expect(initialStateForTest.currentPatientInView).to.be.null;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.working.creatingPatient).to.be.false;
-          expect(state.notification.type).to.equal('error');
-          expect(state.notification.message).to.equal(error);
+          expect(state.working.creatingPatient.inProgress).to.be.false;
+          expect(state.working.creatingPatient.notification.type).to.equal('error');
+          expect(state.working.creatingPatient.notification.message).to.equal(error);
           expect(state.currentPatientInView).to.be.null;
         });
       });
 
       describe('success', () => {
         it('should set creatingPatient to be false and set patient', () => {
-          let initialStateForTest = _.merge({}, initialState, { working: { creatingPatient: true} });
+          let initialStateForTest = _.merge({}, initialState, {
+            working: { 
+              creatingPatient: {
+                inProgress: true,
+                notification: null
+              }
+            } 
+          });
           let patient = 'Patient!';
           let action = actions.sync.createPatientSuccess(patient);
 
-          expect(initialStateForTest.working.creatingPatient).to.be.true;
+          expect(initialStateForTest.working.creatingPatient.inProgress).to.be.true;
           expect(initialStateForTest.currentPatientInView).to.be.null;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.working.creatingPatient).to.be.false;
+          expect(state.working.creatingPatient.inProgress).to.be.false;
           expect(state.currentPatientInView).to.equal(patient);
         });
       });

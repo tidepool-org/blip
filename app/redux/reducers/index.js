@@ -409,13 +409,19 @@ export default (state = initialState, action) => {
     case types.CREATE_PATIENT_REQUEST: 
       return merge({
         working: {
-          creatingPatient: true
+          creatingPatient: {
+            inProgress: true,
+            notification: null
+          }
         }
       });
     case types.CREATE_PATIENT_SUCCESS:
       return merge({
         working: {
-          creatingPatient: false
+          creatingPatient: {
+            inProgress: false,
+            notification: null
+          }
         },
         loggedInUser: {
           profile: action.payload.patient.profile
@@ -425,11 +431,13 @@ export default (state = initialState, action) => {
     case types.CREATE_PATIENT_FAILURE:
       return merge({
         working: {
-          creatingPatient: false
-        },
-        notification: {
-          type: 'error',
-          message: action.error
+          creatingPatient: {
+            inProgress: false,
+            notification: {
+              type: 'error',
+              message: action.error
+            }
+          }
         }
       });
     case types.REMOVE_PATIENT_REQUEST: 

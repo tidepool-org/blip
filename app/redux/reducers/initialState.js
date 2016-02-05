@@ -41,7 +41,7 @@ export default {
     cancellingInvitation: Object.assign({}, working),
     confirmingPasswordReset: false,
     confirmingSignup: false,
-    creatingPatient: false,
+    creatingPatient: Object.assign({}, working),
     dismissingMembership: false,
     fetchingMessageThread: false,
     fetchingPatient: false,
