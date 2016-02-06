@@ -166,19 +166,19 @@ export const getRoutes = (appContext) => {
 
   return (
     <Route path='/' component={AppComponent} {...props}>
-      <IndexRoute components={{login:Login}} onEnter={onIndexRouteEnter(api)} />
-      <Route path='login' components={{login:Login}} onEnter={requireNoAuth(api)} />
-      <Route path='signup' components={{signup: Signup}} onEnter={requireNoAuth(api)} />
-      <Route path='email-verification' components={{emailVerification: EmailVerification}} onEnter={requireNotVerified(api)} />
-      <Route path='profile' components={{profile: Profile}} onEnter={requireAuth(api)} />
-      <Route path='patients' components={{patients: Patients}} onEnter={requireAuth(api)} />
-      <Route path='patients/new' components={{patientNew: PatientNew}} onEnter={requireAuthAndNoPatient(api)} />
-      <Route path='patients/:id/profile' components={{patient: PatientProfile}} onEnter={requireAuth(api)} />
-      <Route path='patients/:id/share' components={{patientShare: PatientCareTeam}} onEnter={requireAuth(api)} />
-      <Route path='patients/:id/data' components={{patientData: PatientData}} onEnter={requireAuth(api)} />
-      <Route path='request-password-reset' components={{requestPasswordReset: RequestPasswordReset}} onEnter={requireNoAuth(api)} />
-      <Route path='confirm-password-reset' components={{confirmPasswordReset: ConfirmPasswordReset}} onEnter={requireNoAuth(api)} />
-      <Route path='request-password-from-uploader' components={{requestPasswordReset: RequestPasswordReset}} onEnter={onUploaderPasswordReset(api)} />
+      <IndexRoute component={Login} onEnter={onIndexRouteEnter(api)} />
+      <Route path='login' component={Login} onEnter={requireNoAuth(api)} />
+      <Route path='signup' component={Signup} onEnter={requireNoAuth(api)} />
+      <Route path='email-verification' component={EmailVerification} onEnter={requireNotVerified(api)} />
+      <Route path='profile' component={Profile} onEnter={requireAuth(api)} />
+      <Route path='patients' component={Patients} onEnter={requireAuth(api)} />
+      <Route path='patients/new' component={PatientNew} onEnter={requireAuthAndNoPatient(api)} />
+      <Route path='patients/:id/profile' component={PatientProfile} onEnter={requireAuth(api)} />
+      <Route path='patients/:id/share' component={PatientCareTeam} onEnter={requireAuth(api)} />
+      <Route path='patients/:id/data' component={PatientData} onEnter={requireAuth(api)} />
+      <Route path='request-password-reset' component={RequestPasswordReset} onEnter={requireNoAuth(api)} />
+      <Route path='confirm-password-reset' component={ConfirmPasswordReset} onEnter={requireNoAuth(api)} />
+      <Route path='request-password-from-uploader' component={RequestPasswordReset} onEnter={onUploaderPasswordReset(api)} />
     </Route>
   );
 }

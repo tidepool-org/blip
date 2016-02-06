@@ -33,15 +33,6 @@ import TidepoolNotification from '../notification';
 import TermsOverlay from '../termsoverlay';
 import MailTo from '../mailto';
 
-// Pages
-import Profile from '../../pages/profile';
-import Patients from '../../pages/patients';
-import PatientNew from '../../pages/patientnew';
-import PatientData from '../../pages/patientdata';
-import RequestPasswordReset from '../../pages/passwordreset/request';
-import ConfirmPasswordReset from '../../pages/passwordreset/confirm';
-import EmailVerification from '../../pages/emailverification';
-
 // Styles
 require('tideline/css/tideline.less');
 require('../../style.less');
@@ -415,48 +406,11 @@ export default class AppComponent extends React.Component {
     return null;
   }
 
-  renderPage() {
-    // Right now because we are not using Redux we are using a slightly
-    // hacky way of passing props to our route components by cloning them 
-    // here, and setting the props we know each component needs
-    // See: https://github.com/rackt/react-router/blob/master/examples/passing-props-to-children/app.js
-    if (this.props.login) {
-      return this.props.login;
-    } else if (this.props.signup) {
-      return this.props.signup;
-    } else if (this.props.emailVerification) {
-      return this.props.emailVerification;
-    } else if (this.props.profile) {
-      return (this.props.profile);
-    } else if (this.props.patients) {
-      return (this.props.patients);
-    } else if (this.props.patientNew) {
-      return this.renderPatientNew();
-    } else if (this.props.patient) {
-      return (this.props.patient);
-    } else if (this.props.patientShare) {
-      return (this.props.patientShare)
-    } else if (this.props.patientData) {
-      return this.props.patientData;
-    } else if (this.props.requestPasswordReset) {
-      return this.props.requestPasswordReset;
-    } else if (this.props.confirmPasswordReset) {
-      return this.props.confirmPasswordReset;
-    }
-
-    return (
-      <div>
-        There no are no children
-      </div>
-    );
-  }
-
   render() {
     this.props.route.log('Rendering AppComponent');
     var overlay = this.renderOverlay();
     var navbar = this.renderNavbar();
     var notification = this.renderNotification();
-    var page = this.renderPage();
     var footer = this.renderFooter();
 
     return (
@@ -464,7 +418,7 @@ export default class AppComponent extends React.Component {
         {overlay}
         {navbar}
         {notification}
-        {page}
+        {this.props.children}
         {footer}
       </div>
     );
