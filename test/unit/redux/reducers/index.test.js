@@ -35,7 +35,7 @@ describe('reducers', () => {
       describe('request', () => {
         it('should set working.loggingIn to be true', () => {
           let action = actions.sync.loginRequest();
-          expect(initialState.working.loggingIn).to.be.false;
+          expect(initialState.working.loggingIn.inProgress).to.be.false;
 
           let state = reducer(initialState, action);
           expect(state.working.loggingIn).to.be.true;
@@ -47,32 +47,32 @@ describe('reducers', () => {
           let error = 'Something bad happened';
 
           let requestAction = actions.sync.loginRequest();
-          expect(initialState.working.loggingIn).to.be.false;
+          expect(initialState.working.loggingIn.inProgress).to.be.false;
 
           let intermediateState = reducer(initialState, requestAction);
-          expect(intermediateState.working.loggingIn).to.be.true;
+          expect(intermediateState.working.loggingIn.inProgress).to.be.true;
 
           let failureAction = actions.sync.loginFailure(error);
           let state = reducer(intermediateState, failureAction);
-          expect(state.working.loggingIn).to.be.false;
-          expect(state.notification.type).to.equal('error');
-          expect(state.notification.message).to.equal(error);
+          expect(state.working.loggingIn.inProgress).to.be.false;
+          expect(state.working.loggingIn.notification.type).to.equal('error');
+          expect(state.working.loggingIn.notification.message).to.equal(error);
         });
       });
 
       describe('success', () => {
-        it('should set working.loggingIn to be false and set user', () => {
+        it('should set working.loggingIn.inProgress to be false and set user', () => {
           let user = 'user'
 
           let requestAction = actions.sync.loginRequest();
-          expect(initialState.working.loggingIn).to.be.false;
+          expect(initialState.working.loggingIn.inProgress).to.be.false;
 
           let intermediateState = reducer(initialState, requestAction);
-          expect(intermediateState.working.loggingIn).to.be.true;
+          expect(intermediateState.working.loggingIn.inProgress).to.be.true;
 
           let successAction = actions.sync.loginSuccess(user);
           let state = reducer(intermediateState, successAction);
-          expect(state.working.loggingIn).to.be.false;
+          expect(state.working.loggingIn.inProgress).to.be.false;
           expect(state.isLoggedIn).to.be.true;
           expect(state.loggedInUser).to.equal(user);
         });

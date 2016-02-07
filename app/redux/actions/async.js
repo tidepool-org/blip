@@ -22,7 +22,7 @@ import * as ActionTypes from '../constants/actionTypes';
 import * as ErrorMessages from '../constants/errorMessages';
 import * as sync from './sync.js';
 
-import { routeActions } from 'redux-simple-router';
+import { routeActions } from 'react-router-redux';
 
 /**
  * Signup Async Action Creator

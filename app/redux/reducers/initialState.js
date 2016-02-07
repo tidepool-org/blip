@@ -50,7 +50,7 @@ export default {
     fetchingPendingInvites: false,
     fetchingPendingMemberships: false,
     fetchingUser: false,
-    loggingIn: false,
+    loggingIn: Object.assign({}, working),
     loggingOut: false,
     removingPatient: false,
     removingMember: Object.assign({}, working),

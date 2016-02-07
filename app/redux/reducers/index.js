@@ -23,9 +23,17 @@ import * as types from '../constants/actionTypes';
 export default (state = initialState, action) => {
   switch (action.type) {
     case types.ACKNOWLEDGE_NOTIFICATION:
-      return merge({
-        notification: null
-      });
+      if (!action.payload.acknowledgedNotification) {
+        return merge({
+          notification: null
+        });
+      } else {
+        return merge({
+          [action.payload.acknowledgedNotification]: {
+            notification: null
+          }
+        });
+      }
     case types.SET_TIME_PREFERENCES:
       return merge({
         timePrefs: action.payload.timePrefs
@@ -214,13 +222,19 @@ export default (state = initialState, action) => {
     case types.LOGIN_REQUEST: 
       return merge({
         working: {
-          loggingIn: true
+          loggingIn: {
+            inProgress: true,
+            notification: null
+          }
         }
       });
     case types.LOGIN_SUCCESS:
       return merge({
         working: {
-          loggingIn: false
+          loggingIn: {
+            inProgress: false,
+            notification: null
+          }
         },
         loggedInUser: action.payload.user,
         isLoggedIn: true
@@ -228,11 +242,13 @@ export default (state = initialState, action) => {
     case types.LOGIN_FAILURE:
       var amends = {
         working: {
-          loggingIn: false
-        },
-        notification: {
-          type: 'error',
-          message: action.error
+          loggingIn: {
+            inProgress: false,
+            notification: {
+              type: 'error',
+              message: action.error
+            }
+          }
         }
       };
 
