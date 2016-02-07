@@ -38,7 +38,7 @@ describe('reducers', () => {
           expect(initialState.working.loggingIn.inProgress).to.be.false;
 
           let state = reducer(initialState, action);
-          expect(state.working.loggingIn).to.be.true;
+          expect(state.working.loggingIn.inProgress).to.be.true;
         });
       });
 
@@ -168,7 +168,6 @@ describe('reducers', () => {
         let requestAction = actions.sync.signupRequest();
         
         expect(initialState.working.signingUp).to.be.false;
-        expect(initialState.working.loggingIn).to.be.false;
 
         let intermediateState = reducer(initialState, requestAction);
         expect(intermediateState.working.signingUp).to.be.true;
@@ -177,7 +176,6 @@ describe('reducers', () => {
         let state = reducer(intermediateState, successAction);
 
         expect(state.working.signingUp).to.be.false;
-        expect(state.working.loggingIn).to.be.false;
         expect(state.isLoggedIn).to.be.true;
         expect(state.loggedInUser).to.equal(user);
       });
@@ -220,7 +218,6 @@ describe('reducers', () => {
         let requestAction = actions.sync.confirmSignupRequest();
         
         expect(initialState.working.confirmingSignup).to.be.false;
-        expect(initialState.working.loggingIn).to.be.false;
 
         let intermediateState = reducer(initialState, requestAction);
         expect(intermediateState.working.confirmingSignup).to.be.true;
@@ -229,7 +226,6 @@ describe('reducers', () => {
         let state = reducer(intermediateState, successAction);
 
         expect(state.working.confirmingSignup).to.be.false;
-        expect(state.working.loggingIn).to.be.false;
         expect(state.confirmedSignup).to.be.true;
       });
     });

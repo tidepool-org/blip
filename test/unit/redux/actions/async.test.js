@@ -39,7 +39,7 @@ describe('Actions', () => {
         let expectedActions = [
           { type: 'SIGNUP_REQUEST' },
           { type: 'SIGNUP_SUCCESS', payload: { user: { id: 27 } } },
-          { type: '@@router/TRANSITION', payload: { arg: '/email-verification', method: 'push' } }
+          { type: '@@router/TRANSITION', payload: { args: [ '/email-verification' ], method: 'push' } }
         ];
         let store = mockStore(initialState, expectedActions, done);
 
