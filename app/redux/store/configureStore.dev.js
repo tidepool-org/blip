@@ -20,10 +20,9 @@ import { persistState } from 'redux-devtools';
 import thunkMiddleware from 'redux-thunk';
 import createLogger from 'redux-logger';
 import { browserHistory } from 'react-router';
-import { syncHistory, routeReducer } from 'redux-simple-router';
+import { syncHistory, routeReducer } from 'react-router-redux';
 
 import DevTools from '../containers/devTools';
-
 
 import blipState from '../reducers/initialState';
 import reducers from '../reducers';

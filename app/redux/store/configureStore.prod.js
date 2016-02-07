@@ -18,7 +18,7 @@
 import { createStore, applyMiddleware, compose, combineReducers } from 'redux';
 import thunkMiddleware from 'redux-thunk';
 import { browserHistory } from 'react-router';
-import { syncHistory, routeReducer } from 'redux-simple-router';
+import { syncHistory, routeReducer } from 'react-router-redux';
 
 import blipState from '../reducers/initialState';
 import reducers from '../reducers';
