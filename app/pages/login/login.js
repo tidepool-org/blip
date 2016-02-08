@@ -103,7 +103,6 @@ export let Login = React.createClass({
   renderForm: function() {
     var submitButtonText = this.props.working ? 'Logging in...' : 'Log in';
 
-    
     return (
       <SimpleForm
         inputs={this.formInputs()}
@@ -112,7 +111,7 @@ export let Login = React.createClass({
         submitButtonText={submitButtonText}
         submitDisabled={this.props.working}
         onSubmit={this.handleSubmit}
-        notification={this.state.notification || this.props.notification}/>
+        notification={this.state.notification || this.props.notification} />
     );
     
   },
@@ -196,8 +195,8 @@ export let Login = React.createClass({
  */
 
 let mapStateToProps = state => ({
-  notification: state.blip.notification,
-  working: state.blip.working.loggingIn,
+  notification: state.blip.working.loggingIn.notification,
+  working: state.blip.working.loggingIn.inProgress,
 });
 
 let mapDispatchToProps = dispatch => bindActionCreators({

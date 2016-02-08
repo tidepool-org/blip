@@ -307,14 +307,14 @@ export let Patients = React.createClass({
  */
 
 let mapStateToProps = state => ({
-  user: state.loggedInUser,
-  fetchingUser: state.working.fetchingUser,
-  patients: state.patients,
-  fetchingPatients: state.working.fetchingPatients,
-  invites: state.pendingMemberships,
-  fetchingInvites: state.working.fetchingPendingMemberships,
-  showingWelcomeTitle: state.signupConfirmed,
-  showingWelcomeSetup: state.signupConfirmed
+  user: state.blip.loggedInUser,
+  fetchingUser: state.blip.working.fetchingUser,
+  patients: state.blip.patients,
+  fetchingPatients: state.blip.working.fetchingPatients,
+  invites: state.blip.pendingMemberships,
+  fetchingInvites: state.blip.working.fetchingPendingMemberships,
+  showingWelcomeTitle: state.blip.signupConfirmed,
+  showingWelcomeSetup: state.blip.signupConfirmed
 });
 
 let mapDispatchToProps = dispatch => bindActionCreators({
