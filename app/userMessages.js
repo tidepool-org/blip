@@ -16,7 +16,7 @@ not, you can obtain one from Tidepool Project at tidepool.org.
 */
 
 module.exports = {
-  ERR_AUTHORIZATION : 'Something went wrong with your account authorization. Maybe try logging out and then logging back in? If your still having issues then please contact support.',
+  ERR_AUTHORIZATION : 'Something went wrong with your account authorization. Maybe try logging out and then logging back in? If you\'re still having issues then please contact support.',
   ERR_ACCEPTING_TERMS : 'Something went wrong while accepting the terms and conditions',
   ERR_DISMISSING_INVITE : 'Something went wrong while dismissing the invitation.',
   ERR_ACCEPTING_INVITE : 'Something went wrong while accepting the invitation.',
