@@ -89,7 +89,7 @@ export default class ActionHandlers {
 
     if (error.status === 401) {
       body = (
-        // something is up with the users authorization ...
+        // something is up with the user's authorization...
         <div>
           <p> {usrMessages.ERR_AUTHORIZATION} </p>
           <p> {utcTime} </p>
