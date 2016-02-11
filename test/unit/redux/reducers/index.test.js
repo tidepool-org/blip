@@ -459,8 +459,8 @@ describe('reducers', () => {
         it('should set fetchingPatients to be false and set patient', () => {
           let initialStateForTest = _.merge({}, initialState, { working: { fetchingPatients: true} });
           let patients = [
-            { id: 2020, name: 'Megan Durrant'},
-            { id: 501, name: 'Jamie Blake'}
+            { userid: 2020, name: 'Megan Durrant'},
+            { userid: 501, name: 'Jamie Blake'}
           ];
           let action = actions.sync.fetchPatientsSuccess(patients);
 
@@ -471,10 +471,10 @@ describe('reducers', () => {
           
           expect(state.working.fetchingPatients).to.be.false;
           expect(Object.keys(state.patients).length).to.equal(2);
-          expect(state.patients[patients[0].id].id).to.equal(patients[0].id);
-          expect(state.patients[patients[1].id].id).to.equal(patients[1].id);
-          expect(state.patients[patients[0].id].name).to.equal(patients[0].name);
-          expect(state.patients[patients[1].id].name).to.equal(patients[1].name);
+          expect(state.patients[patients[0].userid].userid).to.equal(patients[0].userid);
+          expect(state.patients[patients[1].userid].userid).to.equal(patients[1].userid);
+          expect(state.patients[patients[0].userid].name).to.equal(patients[0].name);
+          expect(state.patients[patients[1].userid].name).to.equal(patients[1].name);
         });
       });
     });
