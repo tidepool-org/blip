@@ -40,7 +40,7 @@ export default (state = initialState, action) => {
       });
     case types.SET_BLOOD_GLUCOSE_PREFERENCES:
       return merge({
-        timePrefs: action.payload.bgPrefs
+        bgPrefs: action.payload.bgPrefs
       });
     case types.FETCH_USER_REQUEST: 
       return merge({
@@ -53,7 +53,8 @@ export default (state = initialState, action) => {
         working: {
           fetchingUser: false
         },
-        loggedInUser: action.payload.user
+        loggedInUser: action.payload.user,
+        isLoggedIn: true
       });
     case types.FETCH_USER_FAILURE: 
       return merge({
@@ -120,7 +121,7 @@ export default (state = initialState, action) => {
       });
     case types.FETCH_PATIENTS_SUCCESS: 
       let patientMap = {};
-      action.payload.patients.forEach((p) => patientMap[p.id] = p);
+      action.payload.patients.forEach((p) => patientMap[p.userid] = p);
 
       return merge({
         working: {
@@ -180,6 +181,10 @@ export default (state = initialState, action) => {
         },
         patientData: {
           [action.payload.patientId]: action.payload.patientData
+        },
+        bgPrefs: {
+          bgClasses: action.payload.patientData.bgClasses,
+          bgUnits: action.payload.patientData.bgUnits
         }
       });
     case types.FETCH_PATIENT_DATA_FAILURE: 
