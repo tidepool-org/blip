@@ -782,7 +782,7 @@ describe('Actions', () => {
           { type: 'UPDATE_USER_SUCCESS', payload: { updatedUser: updatedUser } }
         ];
 
-        let store = mockStore(initialStateForTest, expectedActions, done);
+        let store = mockStore({ blip : initialStateForTest }, expectedActions, done);
 
         store.dispatch(async.updateUser(api, formValues));
 
@@ -839,7 +839,7 @@ describe('Actions', () => {
           { type: 'UPDATE_USER_FAILURE', error: 'Something wrong happened!' }
         ];
 
-        let store = mockStore(initialStateForTest, expectedActions, done);
+        let store = mockStore({ blip : initialStateForTest }, expectedActions, done);
 
         store.dispatch(async.updateUser(api, formValues));
 
@@ -859,6 +859,7 @@ describe('Actions', () => {
           errors: {
             log: sinon.stub().callsArgWith(3, null)
           }
+
         };
 
         let expectedActions = [
@@ -1037,7 +1038,7 @@ describe('Actions', () => {
           { type: 'FETCH_PATIENT_REQUEST' },
           { type: 'FETCH_PATIENT_SUCCESS', payload: { patient : patient } }
         ];
-        let store = mockStore(initialState, expectedActions, done);
+        let store = mockStore({ blip: initialState }, expectedActions, done);
 
         store.dispatch(async.fetchPatient(api, 58686));
 
@@ -1057,7 +1058,7 @@ describe('Actions', () => {
           { type: 'FETCH_PATIENT_REQUEST' },
           { type: 'FETCH_PATIENT_FAILURE', error: 'Error!' }
         ];
-        let store = mockStore(initialState, expectedActions, done);
+        let store = mockStore({ blip: initialState }, expectedActions, done);
 
         store.dispatch(async.fetchPatient(api, 58686));
 
@@ -1141,7 +1142,7 @@ describe('Actions', () => {
           { type: 'FETCH_PATIENT_DATA_REQUEST' },
           { type: 'FETCH_PATIENT_DATA_SUCCESS', payload: { patientData : patientData.concat(teamNotes), patientId: patientId } }
         ];
-        let store = mockStore(initialState, expectedActions, done);
+        let store = mockStore({ blip: initialState }, expectedActions, done);
 
         store.dispatch(async.fetchPatientData(api, patientId, {}));
 
@@ -1177,7 +1178,7 @@ describe('Actions', () => {
           { type: 'FETCH_PATIENT_DATA_REQUEST' },
           { type: 'FETCH_PATIENT_DATA_FAILURE', error: 'Patient Error!' }
         ];
-        let store = mockStore(initialState, expectedActions, done);
+        let store = mockStore({ blip: initialState }, expectedActions, done);
 
         store.dispatch(async.fetchPatientData(api, patientId));
 
