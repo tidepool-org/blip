@@ -86,6 +86,18 @@ utils.objectDifference = (destination, source) => {
   return result;
 };
 
+/**
+ * Utility function to get whether page has changed or not
+ * 
+ * @param  {Object} oldProps
+ * @param  {[type]} newProps
+ * 
+ * @return {Boolean}
+ */
+utils.isOnSamePage = (oldProps, newProps) => {
+  return (oldProps.location.pathname === newProps.location.pathname);
+}
+
 utils.buildExceptionDetails = () =>{
   return {
     href: window.location.href,
@@ -123,6 +135,17 @@ utils.getInviteEmail = function(location) {
     }
   }
   return null;
+}
+
+utils.getSignupKey = function(location) {
+  if (location && location.query) {
+    let { signupKey } = location.query;
+
+    if(!_.isEmpty(signupKey)){
+      return signupKey;
+    }
+  }
+  return false;
 }
 
 utils.getSignupEmail = function (location) {
