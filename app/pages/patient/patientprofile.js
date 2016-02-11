@@ -11,6 +11,11 @@ import Patient from './patient';
 /**
  * Expose "Smart" Component that is connect-ed to Redux
  */
+let getFetchers = (dispatchProps, ownProps, api) => {
+  return [
+    dispatchProps.fetchPatient.bind(null, api, ownProps.routeParams.id)
+  ];
+};
 
 let mapStateToProps = state => ({
   user: state.blip.loggedInUser,
@@ -35,6 +40,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.routes[0].api;
   return _.merge({}, ownProps, stateProps, dispatchProps, {
+    fetchers: getFetchers(dispatchProps, ownProps, api),
     onUpdatePatient: dispatchProps.updatePatient.bind(null, api),
     onChangeMemberPermissions: dispatchProps.changeMemberPermissions.bind(null, api),
     onRemoveMember: dispatchProps.removeMember.bind(null, api),

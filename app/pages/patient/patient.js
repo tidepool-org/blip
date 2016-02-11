@@ -185,6 +185,28 @@ const Patient = React.createClass({
       />
     );
   },
+
+  doFetching: function(nextProps) {
+    if (this.props.trackMetric) {
+      this.props.trackMetric('Viewed Share');
+    }
+
+    if (!nextProps.fetchers) {
+      return
+    }
+
+    nextProps.fetchers.forEach(fetcher => { 
+      fetcher();
+    });
+  },
+
+  /**
+   * Before rendering for first time
+   * begin fetching any required data
+   */
+  componentWillMount: function() {
+    this.doFetching(this.props);
+  }
 });
 
 export default Patient;
