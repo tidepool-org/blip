@@ -187,12 +187,40 @@ export let Login = React.createClass({
         remember: formValues.remember
       }
     };
+  },
+
+  doFetching: function(nextProps) {
+    if (!nextProps.fetchers) {
+      return;
+    }
+    
+    nextProps.fetchers.forEach(fetcher => { 
+      fetcher();
+    });
+  },
+
+  /**
+   * Before rendering for first time
+   * begin fetching any required data
+   */
+  componentWillMount: function() {
+    this.doFetching(this.props);
   }
 });
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux
  */
+
+let getFetchers = (dispatchProps, ownProps, other, api) => {
+  if (other.signupKey) {
+    return [
+      dispatchProps.confirmSignup.bind(null, api, other.signupKey)
+    ];
+  }
+
+  return [];
+}
 
 let mapStateToProps = state => ({
   notification: state.blip.working.loggingIn.notification,
@@ -201,14 +229,17 @@ let mapStateToProps = state => ({
 
 let mapDispatchToProps = dispatch => bindActionCreators({
   onSubmit: actions.async.login,
-  acknowledgedNotification: actions.sync.acknowledgeNotification
+  acknowledgedNotification: actions.sync.acknowledgeNotification,
+  confirmSignup: actions.async.confirmSignup
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   let seedEmail = utils.getInviteEmail(ownProps.location) || utils.getSignupEmail(ownProps.location);
+  let signupKey = utils.getSignupKey(ownProps.location);
   let isInvite = !_.isEmpty(utils.getInviteEmail(ownProps.location));
   let api = ownProps.routes[0].api;
-  return _.merge({}, stateProps, dispatchProps, {
+  return _.merge({}, stateProps, dispatchProps, ownProps, {
+    fetchers: getFetchers(dispatchProps, ownProps, { signupKey }, api),
     isInvite: isInvite,
     seedEmail: seedEmail,
     trackMetric: ownProps.routes[0].trackMetric,
