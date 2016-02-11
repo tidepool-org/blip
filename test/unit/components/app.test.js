@@ -8,8 +8,7 @@ var React = require('react');
 var _ = require('lodash');
 var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
-var rewire = require('rewire');
-var rewireModule = require('../../utils/rewireModule');
+var App = require('../../../app/components/app/app.js');
 
 // Need to add this line as app.js includes config
 // which errors if window.config does not exist
@@ -22,7 +21,7 @@ var Login = require('../../../app/pages/login/login.js');
 describe('App',  () => {
   // We must remember to require the base module when mocking dependencies,
   // otherwise dependencies mocked will be bound to the wrong scope!
-  var App = rewire('../../../app/components/app/app.js');
+  
   api.log = sinon.stub();
 
   var childContext = {
