@@ -20,6 +20,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import * as actions from '../../redux/actions';
+import utils from '../../core/utils';
 
 import _ from 'lodash';
 import cx from 'classnames';
@@ -49,6 +50,7 @@ export let Patients = React.createClass({
   },
 
   render: function() {
+    console.log('Rendering Patients');
     var welcomeTitle = this.renderWelcomeTitle();
 
     if (this.isLoading()) {
@@ -299,6 +301,28 @@ export let Patients = React.createClass({
 
   hasPatients: function() {
     return !_.isEmpty(this.props.patients) || personUtils.isPatient(this.props.user);
+  },
+
+  doFetching: function(nextProps) {
+    if (this.props.trackMetric) {
+      this.props.trackMetric('Viewed Care Team List');
+    }
+
+    if (!nextProps.fetchers) {
+      return
+    }
+
+    nextProps.fetchers.forEach(fetcher => { 
+      fetcher();
+    });
+  },
+
+  /**
+   * Before rendering for first time
+   * begin fetching any required data
+   */
+  componentWillMount: function() {
+    this.doFetching(this.props);
   }
 });
 
@@ -306,10 +330,17 @@ export let Patients = React.createClass({
  * Expose "Smart" Component that is connect-ed to Redux
  */
 
+let getFetchers = (dispatchProps, ownProps, api) => {
+  return [
+    dispatchProps.fetchPendingMemberships.bind(null, api),
+    dispatchProps.fetchPatients.bind(null, api)
+  ];
+};
+
 let mapStateToProps = state => ({
   user: state.blip.loggedInUser,
   fetchingUser: state.blip.working.fetchingUser,
-  patients: state.blip.patients,
+  patients: _.values(state.blip.patients),
   fetchingPatients: state.blip.working.fetchingPatients,
   invites: state.blip.pendingMemberships,
   fetchingInvites: state.blip.working.fetchingPendingMemberships,
@@ -318,18 +349,21 @@ let mapStateToProps = state => ({
 });
 
 let mapDispatchToProps = dispatch => bindActionCreators({
-  acceptInvitation: actions.async.acceptInvitation,
+  acceptMembership: actions.async.acceptMembership,
   dismissMembership: actions.async.dismissMembership,
-  removePatient: actions.async.removePatient
+  removePatient: actions.async.removePatient,
+  fetchPendingMemberships: actions.async.fetchPendingMemberships,
+  fetchPatients: actions.async.fetchPatients
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.routes[0].api;
   return _.merge({}, ownProps, stateProps, dispatchProps, {
+    fetchers: getFetchers(dispatchProps, ownProps, api),
     uploadUrl: api.getUploadUrl(),
-    onAcceptInvitation: dispatchProps.acceptInvitation.bind(null, api),
-    onDismissInvitation: dispatchProps.dismissInvitation.bind(null, api),
-    onRemoveMember: dispatchProps.removeMember.bind(null, api),
+    onAcceptInvitation: dispatchProps.acceptMembership.bind(null, api),
+    onDismissInvitation: dispatchProps.dismissMembership.bind(null, api),
+    onRemovePatient: dispatchProps.removePatient.bind(null, api),
     trackMetric: ownProps.routes[0].trackMetric
   });
 };
