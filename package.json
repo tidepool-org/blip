@@ -59,7 +59,7 @@
   },
   "devDependencies": {
     "babel-eslint": "5.0.0-beta10",
-    "babel-plugin-rewire": "0.1.12",
+    "babel-plugin-rewire": "0.1.22",
     "blip-mock-data": "tidepool-org/blip-mock-data#v0.3.7",
     "chai": "3.5.0",
     "cucumber": "0.9.4",
