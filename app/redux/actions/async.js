@@ -140,7 +140,7 @@ export function confirmSignup(api, signupKey) {
   return (dispatch) => {
     dispatch(sync.confirmSignupRequest());
 
-    api.user.confirmSignup(signupKey, function(err) {
+    api.user.confirmSignUp(signupKey, function(err) {
       if (err) {
         dispatch(sync.confirmSignupFailure(err));
       } else {
@@ -423,7 +423,8 @@ export function updatePatient(api, patient) {
  */
 export function updateUser(api, formValues) {
   return (dispatch, getState) => {
-    const { loggedInUser } = getState();
+    const { blip: { loggedInUser } } = getState();
+
     const newUser = _.assign({}, 
       _.omit(loggedInUser, 'profile'),
       _.omit(formValues, 'profile'),
@@ -567,7 +568,7 @@ export function fetchPatientData(api, id, queryParams) {
         let notes = results.teamNotes || [];
         let combinedData = patientData.concat(notes);
 
-        let processedData = utils.processPatientData(combinedData, queryParams, state.timePrefs, state.bgPrefs);
+        let processedData = utils.processPatientData(combinedData, queryParams, state.blip.timePrefs, state.blip.bgPrefs);
 
         dispatch(sync.fetchPatientDataSuccess(id, processedData));
       }

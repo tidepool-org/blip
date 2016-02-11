@@ -97,7 +97,7 @@ describe('Actions', () => {
         let user = { id: 27 };
         let api = {
           user: {
-            confirmSignup: sinon.stub().callsArgWith(1, null)
+            confirmSignUp: sinon.stub().callsArgWith(1, null)
           }
         };
 
@@ -116,7 +116,7 @@ describe('Actions', () => {
         let user = { id: 27 };
         let api = {
           user: {
-            confirmSignup: sinon.stub().callsArgWith(1, 'Failure!')
+            confirmSignUp: sinon.stub().callsArgWith(1, 'Failure!')
           }
         };
 
