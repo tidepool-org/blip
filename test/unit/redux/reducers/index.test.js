@@ -68,6 +68,24 @@ describe('reducers', () => {
           expect(state.working.loggingIn.notification.type).to.equal('error');
           expect(state.working.loggingIn.notification.message).to.equal(error);
         });
+
+        it('should set working.loggingIn to be false and apply other payload values to state', () => {
+          let error = 'Something bad happened';
+
+          let requestAction = actions.sync.loginRequest();
+          expect(initialState.working.loggingIn.inProgress).to.be.false;
+
+          let intermediateState = reducer(initialState, requestAction);
+          expect(intermediateState.working.loggingIn.inProgress).to.be.true;
+
+          let failureAction = actions.sync.loginFailure(error, { isLoggedIn: false, emailVerificationSent: false });
+          let state = reducer(intermediateState, failureAction);
+          expect(state.working.loggingIn.inProgress).to.be.false;
+          expect(state.working.loggingIn.notification.type).to.equal('error');
+          expect(state.working.loggingIn.notification.message).to.equal(error);
+          expect(state.isLoggedIn).to.equal(false);
+          expect(state.emailVerificationSent).to.equal(false);
+        });
       });
 
       describe('success', () => {

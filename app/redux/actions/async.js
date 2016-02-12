@@ -71,7 +71,7 @@ export function login(api, credentials, options) {
         var error = (err.status === 401) ? 'Wrong username or password.' : 'An error occured while logging in.';
 
         if (err.status === 403) {
-          dispatch(sync.loginFailure(error, { authenticated: false, emailVerificationSent: false }));
+          dispatch(sync.loginFailure(error, { isLoggedIn: false, emailVerificationSent: false }));
           dispatch(routeActions.push('/email-verification'));
         } else {
           dispatch(sync.loginFailure(error));

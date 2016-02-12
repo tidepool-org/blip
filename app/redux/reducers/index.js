@@ -16,6 +16,8 @@
  */
 import _ from 'lodash';
 
+import update from 'react-addons-update';
+
 import initialState from './initialState';
 
 import * as types from '../constants/actionTypes';
@@ -24,930 +26,991 @@ export default (state = initialState, action) => {
   switch (action.type) {
     case types.ACKNOWLEDGE_NOTIFICATION:
       if (!action.payload.acknowledgedNotification) {
-        return merge({
-          notification: null
-        });
+        return update(state, { notification: { $set: null } });
       } else {
-        return merge({
+        return update(state, { 
           working: {
-            [action.payload.acknowledgedNotification]: {
-              notification: null
+            [action.payload.acknowledgedNotification]: { 
+              notification: { $set: null }
             }
           }
         });
       }
     case types.SET_TIME_PREFERENCES:
-      return merge({
-        timePrefs: action.payload.timePrefs
-      });
+      return update(state, { timePrefs: { $set: action.payload.timePrefs } });
     case types.SET_BLOOD_GLUCOSE_PREFERENCES:
-      return merge({
-        bgPrefs: action.payload.bgPrefs
-      });
+      return update(state, { bgPrefs: { $set: action.payload.bgPrefs } });
     case types.FETCH_USER_REQUEST: 
-      return merge({
+      return update(state, { 
         working: {
-          fetchingUser: {
-            inProgress: true,
-            notification: null
-          }
+          fetchingUser: { 
+            $set: {
+              inProgress: true,
+              notification: null
+            } 
+          } 
         }
       });
     case types.FETCH_USER_SUCCESS:
-      return merge({
+      return update(state, { 
         working: {
-          fetchingUser: {
-            inProgress: false,
-            notification: null
-          }
+          fetchingUser: { 
+            $set: {
+              inProgress: false,
+              notification: null
+            } 
+          } 
         },
-        loggedInUser: action.payload.user,
-        isLoggedIn: true
+        loggedInUser: { $set: action.payload.user },
+        isLoggedIn: { $set: true }
       });
     case types.FETCH_USER_FAILURE: 
-      return merge({
+      return update(state, { 
         working: {
-          fetchingUser: {
-            inProgress: false,
-            notification: {
-              type: 'error',
-              message: action.error
-            }
-          }
-        },
-        notification: {
-          type: 'error',
-          message: action.error
+          fetchingUser: { 
+            $set: {
+              inProgress: false,
+              notification: { 
+                type: 'error',
+                message: action.error
+              }
+            } 
+          } 
         }
       });
     case types.FETCH_PENDING_INVITES_REQUEST: 
-      return merge({
+      return update(state, { 
         working: {
-          fetchingPendingInvites: {
-            inProgress: true,
-            notification: null
-          }
+          fetchingPendingInvites: { 
+            $set: {
+              inProgress: true,
+              notification: null
+            } 
+          } 
         }
       });
     case types.FETCH_PENDING_INVITES_SUCCESS: 
-      return merge({
+      return update(state, { 
         working: {
-          fetchingPendingInvites: {
-            inProgress: false,
-            notification: null
-          }
+          fetchingPendingInvites: { 
+            $set: {
+              inProgress: false,
+              notification: null
+            } 
+          } 
         },
-        pendingInvites: action.payload.pendingInvites
+        pendingInvites: { $set: action.payload.pendingInvites }
       });
     case types.FETCH_PENDING_INVITES_FAILURE: 
-      return merge({
+      return update(state, { 
         working: {
-          fetchingPendingInvites: {
-            inProgress: false,
-            notification: {
-              type: 'error',
-              message: action.error
-            }
-          }
-        },
-        notification: {
-          type: 'error',
-          message: action.error
+          fetchingPendingInvites: { 
+            $set: {
+              inProgress: false,
+              notification: {
+                type: 'error',
+                message: action.error
+              }
+            } 
+          } 
         }
       });
     case types.FETCH_PENDING_MEMBERSHIPS_REQUEST: 
-      return merge({
+      return update(state, { 
         working: {
-          fetchingPendingMemberships: {
-            inProgress: true,
-            notification: null
-          }
+          fetchingPendingMemberships: { 
+            $set: {
+              inProgress: true,
+              notification: null
+            } 
+          } 
         }
       });
     case types.FETCH_PENDING_MEMBERSHIPS_SUCCESS: 
-      return merge({
+      return update(state, { 
         working: {
-          fetchingPendingMemberships: {
-            inProgress: false,
-            notification: null
-          }
+          fetchingPendingMemberships: { 
+            $set: {
+              inProgress: false,
+              notification: null
+            } 
+          } 
         },
-        pendingMemberships: action.payload.pendingMemberships
+        pendingMemberships: { $set: action.payload.pendingMemberships }
       });
     case types.FETCH_PENDING_MEMBERSHIPS_FAILURE: 
-      return merge({
+      return update(state, { 
         working: {
-          fetchingPendingMemberships: {
-            inProgress: false,
-            notification: {
-              type: 'error',
-              message: action.error
-            }
-          }
-        },
-        notification: {
-          type: 'error',
-          message: action.error
+          fetchingPendingMemberships: { 
+            $set: {
+              inProgress: false,
+              notification: {
+                type: 'error',
+                message: action.error
+              }
+            } 
+          } 
         }
       });
-
     case types.FETCH_PATIENTS_REQUEST: 
-      return merge({
+      return update(state, { 
         working: {
-          fetchingPatients: {
-            inProgress: true,
-            notification: null
-          }
+          fetchingPatients: { 
+            $set: {
+              inProgress: true,
+              notification: null
+            } 
+          } 
         }
       });
     case types.FETCH_PATIENTS_SUCCESS: 
       let patientMap = {};
       action.payload.patients.forEach((p) => patientMap[p.userid] = p);
 
-      return merge({
+      return update(state, {
         working: {
-          fetchingPatients: {
-            inProgress: false,
-            notification: null
-          }
+          fetchingPatients: { 
+            $set: {
+              inProgress: false,
+              notification: null
+            } 
+          } 
         },
-        patients: patientMap
+        patients: { $set: patientMap }
       });
     case types.FETCH_PATIENTS_FAILURE: 
-      return merge({
+      return update(state, { 
         working: {
-          fetchingPatients: {
-            inProgress: false,
-            notification: {
-              type: 'error',
-              message: action.error
-            }
-          }
-        },
-        notification: {
-          type: 'error',
-          message: action.error
+          fetchingPatients: { 
+            $set: {
+              inProgress: false,
+              notification: {
+                type: 'error',
+                message: action.error
+              }
+            } 
+          } 
         }
       });
     case types.FETCH_PATIENT_REQUEST: 
-      return merge({
+      return update(state, { 
         working: {
-          fetchingPatient: {
-            inProgress: true,
-            notification: null
-          }
+          fetchingPatient: { 
+            $set: {
+              inProgress: true,
+              notification: null
+            } 
+          } 
         }
       });
-    case types.FETCH_PATIENT_SUCCESS: 
-      return merge({
+    case types.FETCH_PATIENT_SUCCESS:
+      return update(state, { 
         working: {
-          fetchingPatient: {
-            inProgress: false,
-            notification: null
-          }
+          fetchingPatient: { 
+            $set: {
+              inProgress: false,
+              notification: null
+            } 
+          } 
         },
-        currentPatientInView: action.payload.patient
+        currentPatientInView: { $set: action.payload.patient }
       });
     case types.FETCH_PATIENT_FAILURE: 
-      return merge({
+      return update(state, { 
         working: {
-          fetchingPatient: {
-            inProgress: false,
-            notification: {
-              type: 'error',
-              message: action.error
-            }
-          }
-        },
-        notification: {
-          type: 'error',
-          message: action.error
+          fetchingPatient: { 
+            $set: {
+              inProgress: false,
+              notification: {
+                type: 'error',
+                message: action.error
+              }
+            } 
+          } 
         }
       });
     case types.UPDATE_LOCAL_PATIENT_DATA:
-      return merge({
+      return update(state, {
         patientData: {
-          [action.payload.patientId]: action.payload.patientData
+          [action.payload.patientId]: { $set: action.payload.patientData }
         }
       });
     case types.FETCH_PATIENT_DATA_REQUEST: 
-      return merge({
+      return update(state, { 
         working: {
-          fetchingPatientData: {
-            inProgress: true,
-            notification: null
-          }
+          fetchingPatientData: { 
+            $set: {
+              inProgress: true,
+              notification: null
+            } 
+          } 
         }
       });
-    case types.FETCH_PATIENT_DATA_SUCCESS: 
-      return merge({
+    case types.FETCH_PATIENT_DATA_SUCCESS:
+      return update(state, { 
         working: {
-          fetchingPatientData: {
-            inProgress: false,
-            notification: null
-          }
+          fetchingPatientData: { 
+            $set: {
+              inProgress: false,
+              notification: null
+            } 
+          } 
         },
         patientData: {
-          [action.payload.patientId]: action.payload.patientData
+          [action.payload.patientId]: { $set: action.payload.patientData }
         },
         bgPrefs: {
-          bgClasses: action.payload.patientData.bgClasses,
-          bgUnits: action.payload.patientData.bgUnits
+          bgClasses: { $set: action.payload.patientData.bgClasses },
+          bgUnits: { $set: action.payload.patientData.bgUnits }
         }
       });
     case types.FETCH_PATIENT_DATA_FAILURE: 
-      return merge({
+      return update(state, { 
         working: {
-          fetchingPatientData: {
-            inProgress: false,
-            notification: {
-              type: 'error',
-              message: action.error
-            }
-          }
-        },
-        notification: {
-          type: 'error',
-          message: action.error
+          fetchingPatientData: { 
+            $set: {
+              inProgress: false,
+              notification: {
+                type: 'error',
+                message: action.error
+              }
+            } 
+          } 
         }
       });
     case types.CLOSE_MESSAGE_THREAD: 
-      return merge({
-        messageThread: null
+      return update(state, {
+        messageThread: { $set: null }
       });
-    case types.FETCH_MESSAGE_THREAD_REQUEST: 
-      return merge({
+    case types.FETCH_MESSAGE_THREAD_REQUEST:
+      return update(state, { 
         working: {
-          fetchingMessageThread: {
-            inProgress: true,
-            notification: null
-          }
+          fetchingMessageThread: { 
+            $set: {
+              inProgress: true,
+              notification: null
+            } 
+          } 
         }
       });
     case types.FETCH_MESSAGE_THREAD_SUCCESS: 
-      return merge({
+      return update(state, { 
         working: {
-          fetchingMessageThread: {
-            inProgress: false,
-            notification: null
-          }
+          fetchingMessageThread: { 
+            $set: {
+              inProgress: false,
+              notification: null
+            } 
+          } 
         },
-        messageThread: action.payload.messageThread
+        messageThread: { $set: action.payload.messageThread }
       });
     case types.FETCH_MESSAGE_THREAD_FAILURE: 
-      return merge({
+      return update(state, { 
         working: {
-          fetchingMessageThread: {
-            inProgress: false,
-            notification: {
-              type: 'error',
-              message: action.error
-            }
-          }
-        },
-        notification: {
-          type: 'error',
-          message: action.error
+          fetchingMessageThread: { 
+            $set: {
+              inProgress: false,
+              notification: {
+                type: 'error',
+                message: action.error
+              }
+            } 
+          } 
         }
       });
     case types.LOGIN_REQUEST: 
-      return merge({
+      return update(state, { 
         working: {
-          loggingIn: {
-            inProgress: true,
-            notification: null
-          }
+          loggingIn: { 
+            $set: {
+              inProgress: true,
+              notification: null
+            } 
+          } 
         }
       });
     case types.LOGIN_SUCCESS:
-      return merge({
+      return update(state, { 
         working: {
-          loggingIn: {
-            inProgress: false,
-            notification: null
-          }
+          loggingIn: { 
+            $set: {
+              inProgress: false,
+              notification: null
+            } 
+          } 
         },
-        loggedInUser: action.payload.user,
-        isLoggedIn: true
+        loggedInUser: { $set: action.payload.user },
+        isLoggedIn: { $set: true }
       });
     case types.LOGIN_FAILURE:
-      var amends = {
+      let update1 = update(state, { 
         working: {
-          loggingIn: {
-            inProgress: false,
-            notification: {
-              type: 'error',
-              message: action.error
-            }
-          }
+          loggingIn: { 
+            $set: {
+              inProgress: false,
+              notification: {
+                type: 'error',
+                message: action.error
+              }
+            } 
+          } 
         }
-      };
+      });
 
       if (action.payload) {
-        amends = _.merge({}, amends, action.payload);
+        return update(update1, { $merge: action.payload });
+      } else {
+        return update1;
       }
-
-      return merge(amends);
     case types.LOGOUT_REQUEST: 
-      return merge({
+      return update(state, { 
         working: {
-          loggingOut: {
-            inProgress: true,
-            notification: null
-          }
+          loggingOut: { 
+            $set: {
+              inProgress: true,
+              notification: null
+            } 
+          } 
         }
       });
     case types.LOGOUT_SUCCESS:
-      return merge({
+      return update(state, { 
         working: {
-          loggingOut: {
-            inProgress: false,
-            notification: null
-          }
+          loggingOut: { 
+            $set: {
+              inProgress: false,
+              notification: null
+            } 
+          } 
         },
-        isLoggedIn: false,
-        patients: null, 
-        patientsData: null,
-        invites: null, 
-        loggedInUser: null,
-        currentPatientInView: null
+        isLoggedIn: { $set: false },
+        patients: { $set: null }, 
+        patientsData: { $set: null },
+        invites: { $set: null }, 
+        loggedInUser: { $set: null },
+        currentPatientInView: { $set: null }
       });
     case types.LOGOUT_FAILURE:
-      return merge({
+      return update(state, { 
         working: {
-          loggingOut: {
-            inProgress: false,
-            notification: {
-              type: 'error',
-              message: action.error
-            }
-          }
-        },
-        notification: {
-          type: 'error',
-          message: action.error
+          loggingOut: { 
+            $set: {
+              inProgress: false,
+              notification: {
+                type: 'error',
+                message: action.error
+              }
+            } 
+          } 
         }
       });
     case types.SIGNUP_REQUEST: 
-      return merge({
+      return update(state, { 
         working: {
-          signingUp: {
-            inProgress: true,
-            notification: null
-          }
+          signingUp: { 
+            $set: {
+              inProgress: true,
+              notification: null
+            } 
+          } 
         }
       });
     case types.SIGNUP_SUCCESS:
-      return merge({
+      return update(state, { 
         working: {
-          signingUp: {
-            inProgress: false,
-            notification: null
-          }
+          signingUp: { 
+            $set: {
+              inProgress: false,
+              notification: null
+            } 
+          } 
         },
-        isLoggedIn: true,
-        emailVerificationSent: true,
-        loggedInUser: action.payload.user
+        isLoggedIn: { $set: true },
+        emailVerificationSent: { $set: true },
+        loggedInUser: { $set: action.payload.user }
       });
     case types.SIGNUP_FAILURE:
-      return merge({
+      return update(state, { 
         working: {
-          signingUp: {
-            inProgress: false,
-            notification: {
-              type: 'error',
-              message: action.error
-            }
-          }
-        },
-        notification: {
-          type: 'error',
-          message: action.error
+          signingUp: { 
+            $set: {
+              inProgress: false,
+              notification: {
+                type: 'error',
+                message: action.error
+              }
+            } 
+          } 
         }
       });
     case types.CONFIRM_SIGNUP_REQUEST: 
-      return merge({
+      return update(state, { 
         working: {
-          confirmingSignup: {
-            inProgress: true,
-            notification: null
-          }
+          confirmingSignup: { 
+            $set: {
+              inProgress: true,
+              notification: null
+            } 
+          } 
         }
       });
     case types.CONFIRM_SIGNUP_SUCCESS:
-      return merge({
+      return update(state, { 
         working: {
-          confirmingSignup: {
-            inProgress: false,
-            notification: null
-          }
+          confirmingSignup: { 
+            $set: {
+              inProgress: false,
+              notification: null
+            } 
+          } 
         },
-        confirmedSignup: true
+        confirmedSignup: { $set: true }
       });
     case types.CONFIRM_SIGNUP_FAILURE:
-      return merge({
+      return update(state, { 
         working: {
-          confirmingSignup: {
-            inProgress: false,
-            notification: {
-              type: 'error',
-              message: action.error
-            }
-          }
-        },
-        notification: {
-          type: 'error',
-          message: action.error
+          confirmingSignup: { 
+            $set: {
+              inProgress: false,
+              notification: {
+                type: 'error',
+                message: action.error
+              }
+            } 
+          } 
         }
       });
     case types.CONFIRM_PASSWORD_RESET_REQUEST: 
-      return merge({
+      return update(state, { 
         working: {
-          confirmingPasswordReset: {
-            inProgress: true,
-            notification: null
-          }
+          confirmingPasswordReset: { 
+            $set: {
+              inProgress: true,
+              notification: null
+            } 
+          } 
         }
       });
     case types.CONFIRM_PASSWORD_RESET_SUCCESS:
-      return merge({
+      return update(state, { 
         working: {
-          confirmingPasswordReset: {
-            inProgress: false,
-            notification: null
-          }
+          confirmingPasswordReset: { 
+            $set: {
+              inProgress: false,
+              notification: null
+            } 
+          } 
         },
-        passwordResetConfirmed: true
+        passwordResetConfirmed: { $set: true }
       });
     case types.CONFIRM_PASSWORD_RESET_FAILURE:
-      return merge({
+      return update(state, { 
         working: {
-          confirmingPasswordReset: {
-            inProgress: false,
-            notification: {
-              type: 'error',
-              message: action.error
-            }
-          }
-        },
-        notification: {
-          type: 'error',
-          message: action.error
+          confirmingPasswordReset: { 
+            $set: {
+              inProgress: false,
+              notification: {
+                type: 'error',
+                message: action.error
+              }
+            } 
+          } 
         }
       });
     case types.ACCEPT_TERMS_REQUEST: 
-      return merge({
+      return update(state, { 
         working: {
-          acceptingTerms: {
-            inProgress: true,
-            notification: null
-          }
+          acceptingTerms: { 
+            $set: {
+              inProgress: true,
+              notification: null
+            } 
+          } 
         }
       });
     case types.ACCEPT_TERMS_SUCCESS:
-      return merge({
+      return update(state, { 
         working: {
-          acceptingTerms: {
-            inProgress: false,
-            notification: null
-          }
+          acceptingTerms: { 
+            $set: {
+              inProgress: false,
+              notification: null
+            } 
+          } 
         },
-        loggedInUser: action.payload.user
+        loggedInUser: { $set: action.payload.user }
       });
     case types.ACCEPT_TERMS_FAILURE:
-      return merge({
+      return update(state, { 
         working: {
-          acceptingTerms: {
-            inProgress: false,
-            notification: {
-              type: 'error',
-              message: action.error
-            }
-          }
-        },
-        notification: {
-          type: 'error',
-          message: action.error
+          acceptingTerms: { 
+            $set: {
+              inProgress: false,
+              notification: {
+                type: 'error',
+                message: action.error
+              }
+            } 
+          } 
         }
       });
     case types.RESEND_EMAIL_VERIFICATION_REQUEST: 
-      return merge({
+      return update(state, { 
         working: {
-          resendingEmailVerification: true
+          resendingEmailVerification: { 
+            $set: {
+              inProgress: true,
+              notification: null
+            } 
+          } 
         }
       });
     case types.RESEND_EMAIL_VERIFICATION_SUCCESS:
-      return merge({
+      return update(state, { 
         working: {
-          resendingEmailVerification: {
-            inProgress: false,
-            notification: null
-          }
+          resendingEmailVerification: { 
+            $set: {
+              inProgress: false,
+              notification: null
+            } 
+          } 
         },
-        resentEmailVerification: true
+        resentEmailVerification: { $set: true }
       });
     case types.RESEND_EMAIL_VERIFICATION_FAILURE:
-      return merge({
+      return update(state, { 
         working: {
-          resendingEmailVerification: {
-            inProgress: false,
-            notification: {
-              type: 'error',
-              message: action.error
-            }
-          }
-        },
-        notification: {
-          type: 'error',
-          message: action.error
+          resendingEmailVerification: { 
+            $set: {
+              inProgress: false,
+              notification: {
+                type: 'error',
+                message: action.error
+              }
+            } 
+          } 
         }
       });
     case types.SET_MEMBER_PERMISSIONS_REQUEST: 
-      return merge({
+      return update(state, { 
         working: {
-          settingMemberPermissions:  {
-            inProgress: true,
-            notification: null
-          }
+          settingMemberPermissions: { 
+            $set: {
+              inProgress: true,
+              notification: null
+            } 
+          } 
         }
       });
     case types.SET_MEMBER_PERMISSIONS_SUCCESS:
-      return merge({
+      return update(state, { 
         working: {
-          settingMemberPermissions:  {
-            inProgress: false,
-            notification: null
-          }
+          settingMemberPermissions: { 
+            $set: {
+              inProgress: false,
+              notification: null
+            } 
+          } 
         }
       });
     case types.SET_MEMBER_PERMISSIONS_FAILURE:
-      return merge({
+      return update(state, { 
         working: {
-          settingMemberPermissions:  {
-            inProgress: false,
-            notification: {
-              type: 'error',
-              message: action.error
-            }
-          }
+          settingMemberPermissions: { 
+            $set: {
+              inProgress: false,
+              notification: {
+                type: 'error',
+                message: action.error
+              }
+            } 
+          } 
         }
       });
     case types.CREATE_PATIENT_REQUEST: 
-      return merge({
+      return update(state, { 
         working: {
-          creatingPatient: {
-            inProgress: true,
-            notification: null
-          }
+          creatingPatient: { 
+            $set: {
+              inProgress: true,
+              notification: null
+            } 
+          } 
         }
       });
     case types.CREATE_PATIENT_SUCCESS:
-      return merge({
+      return update(state, { 
         working: {
-          creatingPatient: {
-            inProgress: false,
-            notification: null
-          }
+          creatingPatient: { 
+            $set: {
+              inProgress: false,
+              notification: null
+            } 
+          } 
         },
-        loggedInUser: {
-          profile: action.payload.patient.profile
+        loggedInUser: { $set:
+          { profile: action.payload.patient.profile }
         },
-        currentPatientInView: action.payload.patient
+        currentPatientInView: { $set:action.payload.patient }
       });
     case types.CREATE_PATIENT_FAILURE:
-      return merge({
+      return update(state, { 
         working: {
-          creatingPatient: {
-            inProgress: false,
-            notification: {
-              type: 'error',
-              message: action.error
-            }
-          }
+          creatingPatient: { 
+            $set: {
+              inProgress: false,
+              notification: {
+                type: 'error',
+                message: action.error
+              }
+            } 
+          } 
         }
       });
     case types.REMOVE_PATIENT_REQUEST: 
-      return merge({
+      return update(state, { 
         working: {
-          removingPatient: {
-            inProgress: true,
-            notification: null
-          }
+          removingPatient: { 
+            $set: {
+              inProgress: true,
+              notification: null
+            } 
+          } 
         }
       });
     case types.REMOVE_PATIENT_SUCCESS:
-      return merge({
+      return update(state, { 
         working: {
-          removingPatient: {
-            inProgress: false,
-            notification: null
-          }
+          removingPatient: { 
+            $set: {
+              inProgress: false,
+              notification: null
+            } 
+          } 
         }
       });
     case types.REMOVE_PATIENT_FAILURE:
-      return merge({
+      return update(state, { 
         working: {
-          removingPatient: {
-            inProgress: false,
-            notification: {
-              type: 'error',
-              message: action.error
-            }
-          }
-        },
-        notification: {
-          type: 'error',
-          message: action.error
+          removingPatient: { 
+            $set: {
+              inProgress: false,
+              notification: {
+                type: 'error',
+                message: action.error
+              }
+            } 
+          } 
         }
       });
     case types.REMOVE_MEMBER_REQUEST: 
-      return merge({
+      return update(state, { 
         working: {
-          removingMember:  {
-            inProgress: true,
-            notification: null
-          }
+          removingMember: { 
+            $set: {
+              inProgress: true,
+              notification: null
+            } 
+          } 
         }
       });
     case types.REMOVE_MEMBER_SUCCESS:
-      return merge({
+      return update(state, { 
         working: {
-          removingMember:  {
-            inProgress: false,
-            notification: null
-          }
+          removingMember: { 
+            $set: {
+              inProgress: false,
+              notification: null
+            } 
+          } 
         }
       });
     case types.REMOVE_MEMBER_FAILURE:
-      return merge({
+      return update(state, { 
         working: {
-          removingMember:  {
-            inProgress: false,
-            notification: {
-              type: 'error',
-              message: action.error
-            }
-          }
+          removingMember: { 
+            $set: {
+              inProgress: false,
+              notification: {
+                type: 'error',
+                message: action.error
+              }
+            } 
+          } 
         }
       });
     case types.REQUEST_PASSWORD_RESET_REQUEST: 
-      return merge({
+      return update(state, { 
         working: {
-          requestingPasswordReset: {
-            inProgress: true,
-            notification: null
-          }
+          requestingPasswordReset: { 
+            $set: {
+              inProgress: true,
+              notification: null
+            } 
+          } 
         }
       });
     case types.REQUEST_PASSWORD_RESET_SUCCESS:
-      return merge({
+      return update(state, { 
         working: {
-          requestingPasswordReset: {
-            inProgress: false,
-            notification: null
-          }
+          requestingPasswordReset: { 
+            $set: {
+              inProgress: false,
+              notification: null
+            } 
+          } 
         }
       });
     case types.REQUEST_PASSWORD_RESET_FAILURE:
-      return merge({
+      return update(state, { 
         working: {
-          requestingPasswordReset: {
-            inProgress: false,
-            notification: {
-              type: 'error',
-              message: action.error
-            }
-          }
-        },
-        notification: {
-          type: 'error',
-          message: action.error
+          requestingPasswordReset: { 
+            $set: {
+              inProgress: false,
+              notification: {
+                type: 'error',
+                message: action.error
+              }
+            } 
+          } 
         }
       });
     case types.SEND_INVITATION_REQUEST: 
-      return merge({
+      return update(state, { 
         working: {
-          sendingInvitation:  {
-            inProgress: true,
-            notification: null
-          }
+          sendingInvitation: { 
+            $set: {
+              inProgress: true,
+              notification: null
+            } 
+          } 
         }
       });
     case types.SEND_INVITATION_SUCCESS:
-      let sState = merge({
+      return update(state, { 
         working: {
-          sendingInvitation: {
-            inProgress: false,
-            notification: null
-          }
-        }
+          sendingInvitation: { 
+            $set: {
+              inProgress: false,
+              notification: null
+            } 
+          } 
+        },
+        pendingInvites: { $push: [action.payload.invitation ]}
       });
-
-      //add invitation into pendingInvites
-      sState.pendingInvites = state.pendingInvites.concat([action.payload.invitation ]);
-
-      return sState; 
     case types.SEND_INVITATION_FAILURE:
-      return merge({
+      return update(state, { 
         working: {
-          sendingInvitation:  {
-            inProgress: false,
-            notification: {
-              type: 'error',
-              message: action.error
-            }
-          }
+          sendingInvitation: { 
+            $set: {
+              inProgress: false,
+              notification: {
+                type: 'error',
+                message: action.error
+              }
+            } 
+          } 
         }
       });
     case types.CANCEL_INVITATION_REQUEST: 
-      return merge({
+      return update(state, { 
         working: {
-          cancellingInvitation:  {
-            inProgress: true,
-            notification: null
-          }
+          cancellingInvitation: { 
+            $set: {
+              inProgress: true,
+              notification: null
+            } 
+          } 
         }
       });
     case types.CANCEL_INVITATION_SUCCESS:
-      let cState = merge({
+      return update(state, { 
         working: {
-          cancellingInvitation:  {
-            inProgress: false,
-            notification: null
-          }
-        }
+          cancellingInvitation: { 
+            $set: {
+              inProgress: false,
+              notification: null
+            } 
+          } 
+        },
+        pendingInvites: { $apply: (currentValue) => {
+          return currentValue.filter( (i) => i.email !== action.payload.removedEmail )
+        }}
       });
-
-      cState.pendingInvites = state.pendingInvites.filter( (i) => i.email !== action.payload.removedEmail )
-      
-      return cState;
     case types.CANCEL_INVITATION_FAILURE:
-      return merge({
+      return update(state, { 
         working: {
-          cancellingInvitation:  {
-            inProgress: false,
-            notification: {
-              type: 'error',
-              message: action.error
-            }
-          }
+          cancellingInvitation: { 
+            $set: {
+              inProgress: false,
+              notification: {
+                type: 'error',
+                message: action.error
+              }
+            } 
+          } 
         }
       });
     case types.ACCEPT_MEMBERSHIP_REQUEST: 
-      return merge({
+      return update(state, { 
         working: {
-          acceptingMembership: {
-            inProgress: true,
-            notification: null
-          }
+          acceptingMembership: { 
+            $set: {
+              inProgress: true,
+              notification: null
+            } 
+          } 
         }
       });
     case types.ACCEPT_MEMBERSHIP_SUCCESS:
-      let aState = merge({
+      return update(state, { 
         working: {
-          acceptingMembership: {
-            inProgress: false,
-            notification: null
-          }
-        }
-      });
-
-      aState.pendingMemberships = state.pendingMemberships.filter( (i) => i.key !== action.payload.acceptedMembership.key )
-      aState.patients = state.patients.concat(action.payload.acceptedMembership.creator);
-
-      return aState;
-    case types.ACCEPT_MEMBERSHIP_FAILURE:
-      return merge({
-        working: {
-          acceptingMembership: {
-            inProgress: false,
-            notification: {
-              type: 'error',
-              message: action.error
-            }
-          }
+          acceptingMembership: { 
+            $set: {
+              inProgress: false,
+              notification: null
+            } 
+          } 
         },
-        notification: {
-          type: 'error',
-          message: action.error
+        pendingMemberships: { $apply: (currentValue) => {
+          return currentValue.filter( (i) => i.key !== action.payload.acceptedMembership.key );
+        }},
+        patients: { $push: [ action.payload.acceptedMembership.creator ] }
+      });
+    case types.ACCEPT_MEMBERSHIP_FAILURE:
+      return update(state, { 
+        working: {
+          acceptingMembership: { 
+            $set: {
+              inProgress: false,
+              notification: {
+                type: 'error',
+                message: action.error
+              }
+            } 
+          } 
         }
       });
     case types.DISMISS_MEMBERSHIP_REQUEST: 
-      return merge({
+      return update(state, { 
         working: {
-          dismissingMembership: {
-            inProgress: true,
-            notification: null
-          }
+          dismissingMembership: { 
+            $set: {
+              inProgress: true,
+              notification: null
+            } 
+          } 
         }
       });
     case types.DISMISS_MEMBERSHIP_SUCCESS:
-      let dState = merge({
+      return update(state, { 
         working: {
-          dismissingMembership: {
-            inProgress: false,
-            notification: null
-          }
-        }
-      });
-
-      dState.pendingMemberships = state.pendingMemberships.filter( (i) => i.key !== action.payload.dismissedMembership.key )
-      
-      return dState;
-    case types.DISMISS_MEMBERSHIP_FAILURE:
-      return merge({
-        working: {
-          dismissingMembership: {
-            inProgress: false,
-            notification: {
-              type: 'error',
-              message: action.error
-            }
-          }
+          dismissingMembership: { 
+            $set: {
+              inProgress: false,
+              notification: null
+            } 
+          } 
         },
-        notification: {
-          type: 'error',
-          message: action.error
+        pendingMemberships: { $apply: (currentValue) => {
+          return currentValue.filter( (i) => i.key !== action.payload.dismissedMembership.key );
+        }}
+      });
+    case types.DISMISS_MEMBERSHIP_FAILURE:
+      return update(state, { 
+        working: {
+          dismissingMembership: { 
+            $set: {
+              inProgress: false,
+              notification: {
+                type: 'error',
+                message: action.error
+              }
+            } 
+          } 
         }
       });
     case types.UPDATE_PATIENT_REQUEST: 
-      return merge({
+      return update(state, { 
         working: {
-          updatingPatient: {
-            inProgress: true,
-            notification: null
-          }
+          updatingPatient: { 
+            $set: {
+              inProgress: true,
+              notification: null
+            } 
+          } 
         }
       });
     case types.UPDATE_PATIENT_SUCCESS:
-      return merge({
+      return update(state, { 
         working: {
-          updatingPatient: {
-            inProgress: false,
-            notification: null
-          }
+          updatingPatient: { 
+            $set: {
+              inProgress: false,
+              notification: null
+            } 
+          } 
         },
-        currentPatientInView: action.payload.updatedPatient
+        currentPatientInView: { $set: action.payload.updatedPatient }
       });
     case types.UPDATE_PATIENT_FAILURE:
-      return merge({
+      return update(state, { 
         working: {
-          updatingPatient: {
-            inProgress: false,
-            notification: {
-              type: 'error',
-              message: action.error
-            }
-          }
-        },
-        notification: {
-          type: 'error',
-          message: action.error
+          updatingPatient: { 
+            $set: {
+              inProgress: false,
+              notification: {
+                type: 'error',
+                message: action.error
+              }
+            } 
+          } 
         }
       });
-    case types.UPDATE_USER_REQUEST: 
-      return merge({
+    case types.UPDATE_USER_REQUEST:
+      return update(state, { 
         working: {
-          updatingUser: {
-            inProgress: true,
-            notification: null
-          }
+          updatingUser: { 
+            $set: {
+              inProgress: true,
+              notification: null
+            } 
+          } 
         },
-        loggedInUser: action.payload.updatingUser
-      });
+        loggedInUser: {
+          $set: action.payload.updatingUser
+        }
+      }); 
     case types.UPDATE_USER_SUCCESS:
-      return merge({
+      return update(state, { 
         working: {
-          updatingUser: {
-            inProgress: false,
-            notification: null
-          }
+          updatingUser: { 
+            $set: {
+              inProgress: false,
+              notification: null
+            } 
+          } 
         },
-        loggedInUser: action.payload.updatedUser
+        loggedInUser: {
+          $set: action.payload.updatedUser
+        }
       });
     case types.UPDATE_USER_FAILURE:
-      return merge({
+      return update(state, { 
         working: {
-          updatingUser: {
-            inProgress: false,
-            notification: {
-              type: 'error',
-              message: action.error
-            }
-          }
-        },
-        notification: {
-          type: 'error',
-          message: action.error
+          updatingUser: { 
+            $set: {
+              inProgress: false,
+              notification: {
+                type: 'error',
+                message: action.error
+              }
+            } 
+          } 
         }
       });
     default: 
       return state;
-  }
-
-  // Convenience function
-  function merge(newState) {
-    // important to understand that _.merge performs a deep merge, unlike _.assign
-    return _.merge({}, state, newState);
   }
 };
