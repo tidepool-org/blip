@@ -262,8 +262,8 @@ export let Signup = React.createClass({
  */
 
 let mapStateToProps = state => ({
-  notification: state.blip.notification,
-  working: state.blip.working.signingUp,
+  notification: state.blip.working.signingUp.notification,
+  working: state.blip.working.signingUp.inProgress,
 });
 
 let mapDispatchToProps = dispatch => bindActionCreators({

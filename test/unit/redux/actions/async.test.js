@@ -81,7 +81,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'SIGNUP_REQUEST' },
-          { type: 'SIGNUP_FAILURE', error: 'failed user retrieval!' }
+          { type: 'SIGNUP_FAILURE', error: 'An error occured while signing up.' }
         ];
         let store = mockStore(initialState, expectedActions, done);
 
@@ -122,7 +122,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'CONFIRM_SIGNUP_REQUEST' },
-          { type: 'CONFIRM_SIGNUP_FAILURE', error: 'Failure!' }
+          { type: 'CONFIRM_SIGNUP_FAILURE', error: ErrorMessages.STANDARD }
         ];
 
         let store = mockStore(initialState, expectedActions, done);
@@ -164,7 +164,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'ACCEPT_TERMS_REQUEST' },
-          { type: 'ACCEPT_TERMS_FAILURE', error: 'Failure!' }
+          { type: 'ACCEPT_TERMS_FAILURE', error: ErrorMessages.STANDARD }
         ];
 
         let store = mockStore(initialState, expectedActions, done);
@@ -254,7 +254,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'LOGIN_REQUEST' },
-          { type: 'LOGIN_FAILURE', error: 'failed!', payload: null }
+          { type: 'LOGIN_FAILURE', error: ErrorMessages.STANDARD, payload: null }
         ];
         let store = mockStore(initialState, expectedActions, done);
 
@@ -293,7 +293,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'LOGOUT_REQUEST' },
-          { type: 'LOGOUT_FAILURE', error: 'this thing failed!' }
+          { type: 'LOGOUT_FAILURE', error: ErrorMessages.STANDARD }
         ];
         let store = mockStore(initialState, expectedActions, done);
 
@@ -333,7 +333,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'CREATE_PATIENT_REQUEST' },
-          { type: 'CREATE_PATIENT_FAILURE', error: 'Failure!' }
+          { type: 'CREATE_PATIENT_FAILURE', error: ErrorMessages.STANDARD }
         ];
 
         let store = mockStore(initialState, expectedActions, done);
@@ -384,7 +384,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'REMOVE_PATIENT_REQUEST' },
-          { type: 'REMOVE_PATIENT_FAILURE', error: 'Failure!' }
+          { type: 'REMOVE_PATIENT_FAILURE', error: ErrorMessages.STANDARD }
         ];
 
         let store = mockStore(initialState, expectedActions, done);
@@ -434,7 +434,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'REMOVE_MEMBER_REQUEST' },
-          { type: 'REMOVE_MEMBER_FAILURE', error: 'Failure!' }
+          { type: 'REMOVE_MEMBER_FAILURE', error: ErrorMessages.STANDARD }
         ];
 
         let store = mockStore(initialState, expectedActions, done);
@@ -524,7 +524,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'CANCEL_INVITATION_REQUEST' },
-          { type: 'CANCEL_INVITATION_FAILURE', error: 'Failure!' }
+          { type: 'CANCEL_INVITATION_FAILURE', error: ErrorMessages.STANDARD }
         ];
 
         let store = mockStore(initialState, expectedActions, done);
@@ -565,7 +565,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'ACCEPT_MEMBERSHIP_REQUEST', payload: { acceptedMembership: invitation } },
-          { type: 'ACCEPT_MEMBERSHIP_FAILURE', error: 'Failure!' }
+          { type: 'ACCEPT_MEMBERSHIP_FAILURE', error: ErrorMessages.STANDARD }
         ];
 
         let store = mockStore(initialState, expectedActions, done);
@@ -606,7 +606,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'DISMISS_MEMBERSHIP_REQUEST', payload: { dismissedMembership: invitation } },
-          { type: 'DISMISS_MEMBERSHIP_FAILURE', error: 'Failure!' }
+          { type: 'DISMISS_MEMBERSHIP_FAILURE', error: ErrorMessages.STANDARD }
         ];
 
         let store = mockStore(initialState, expectedActions, done);
@@ -707,7 +707,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'UPDATE_PATIENT_REQUEST' },
-          { type: 'UPDATE_PATIENT_FAILURE', error: 'Something wrong happened!' }
+          { type: 'UPDATE_PATIENT_FAILURE', error: ErrorMessages.STANDARD }
         ];
 
         let store = mockStore(initialState, expectedActions, done);
@@ -836,7 +836,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'UPDATE_USER_REQUEST', payload: { updatingUser: updatingUser} },
-          { type: 'UPDATE_USER_FAILURE', error: 'Something wrong happened!' }
+          { type: 'UPDATE_USER_FAILURE', error: ErrorMessages.STANDARD }
         ];
 
         let store = mockStore({ blip : initialStateForTest }, expectedActions, done);
@@ -888,7 +888,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'LOG_ERROR_REQUEST' },
-          { type: 'LOG_ERROR_FAILURE', error: 'This totally messed up!' }
+          { type: 'LOG_ERROR_FAILURE', error: ErrorMessages.STANDARD }
         ];
         let store = mockStore(initialState, expectedActions, done);
 
@@ -919,18 +919,38 @@ describe('Actions', () => {
         expect(api.user.get.callCount).to.equal(1);
       });
 
-      it('should trigger FETCH_USER_FAILURE and it should call error once for a failed request', (done) => {
+      it('should trigger FETCH_USER_FAILURE when a 401 happensand it should call error once for a failed request', (done) => {
         let user = { id: 306, name: 'Frankie Boyle' };
 
         let api = {
           user: {
-            get: sinon.stub().callsArgWith(0, 'Error!', null)
+            get: sinon.stub().callsArgWith(0, { status: 401 }, null)
           }
         };
 
         let expectedActions = [
           { type: 'FETCH_USER_REQUEST' },
-          { type: 'FETCH_USER_FAILURE', error: 'Error!' }
+          { type: 'FETCH_USER_FAILURE', error: null }
+        ];
+        let store = mockStore(initialState, expectedActions, done);
+
+        store.dispatch(async.fetchUser(api));
+
+        expect(api.user.get.callCount).to.equal(1);
+      });
+
+      it('should trigger FETCH_USER_FAILURE when a 500 happens and it should call error once for a failed request', (done) => {
+        let user = { id: 306, name: 'Frankie Boyle' };
+
+        let api = {
+          user: {
+            get: sinon.stub().callsArgWith(0, { status: 500 }, null)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_USER_REQUEST' },
+          { type: 'FETCH_USER_FAILURE', error: ErrorMessages.STANDARD }
         ];
         let store = mockStore(initialState, expectedActions, done);
 
@@ -972,7 +992,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'FETCH_PENDING_INVITES_REQUEST' },
-          { type: 'FETCH_PENDING_INVITES_FAILURE', error: 'Error!' }
+          { type: 'FETCH_PENDING_INVITES_FAILURE', error: ErrorMessages.STANDARD }
         ];
         let store = mockStore(initialState, expectedActions, done);
 
@@ -1014,7 +1034,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'FETCH_PENDING_MEMBERSHIPS_REQUEST' },
-          { type: 'FETCH_PENDING_MEMBERSHIPS_FAILURE', error: 'Error!' }
+          { type: 'FETCH_PENDING_MEMBERSHIPS_FAILURE', error: ErrorMessages.STANDARD }
         ];
         let store = mockStore(initialState, expectedActions, done);
 
@@ -1056,7 +1076,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'FETCH_PATIENT_REQUEST' },
-          { type: 'FETCH_PATIENT_FAILURE', error: 'Error!' }
+          { type: 'FETCH_PATIENT_FAILURE', error: ErrorMessages.STANDARD }
         ];
         let store = mockStore({ blip: initialState }, expectedActions, done);
 
@@ -1102,7 +1122,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'FETCH_PATIENTS_REQUEST' },
-          { type: 'FETCH_PATIENTS_FAILURE', error: 'Error!' }
+          { type: 'FETCH_PATIENTS_FAILURE', error: ErrorMessages.STANDARD }
         ];
         let store = mockStore(initialState, expectedActions, done);
 
@@ -1176,7 +1196,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'FETCH_PATIENT_DATA_REQUEST' },
-          { type: 'FETCH_PATIENT_DATA_FAILURE', error: 'Patient Error!' }
+          { type: 'FETCH_PATIENT_DATA_FAILURE', error: ErrorMessages.STANDARD }
         ];
         let store = mockStore({ blip: initialState }, expectedActions, done);
 
@@ -1213,7 +1233,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'FETCH_PATIENT_DATA_REQUEST' },
-          { type: 'FETCH_PATIENT_DATA_FAILURE', error: 'Team Notes Error!' }
+          { type: 'FETCH_PATIENT_DATA_FAILURE', error: ErrorMessages.STANDARD }
         ];
         let store = mockStore(initialState, expectedActions, done);
 
@@ -1260,7 +1280,7 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'FETCH_MESSAGE_THREAD_REQUEST' },
-          { type: 'FETCH_MESSAGE_THREAD_FAILURE', error: 'Error!' }
+          { type: 'FETCH_MESSAGE_THREAD_FAILURE', error: ErrorMessages.STANDARD }
         ];
         let store = mockStore(initialState, expectedActions, done);
 

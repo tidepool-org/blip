@@ -36,15 +36,15 @@ export function signup(api, accountDetails) {
 
     api.user.signup(accountDetails, (err, result) => {
       if (err) {
-        let error = 'An error occured while signing up.';
+        let error = ErrorMessages.SIGNUP_ERROR;
         if (err.status && err.status === 400) {
-          error = 'An account already exists for that email.';
+          error = ErrorMessages.ACCOUNT_ALREADY_EXISTS;
         }
         dispatch(sync.signupFailure(error));
       } else {
         api.user.get((err, user) => {
           if (err) {
-            dispatch(sync.signupFailure(err));
+            dispatch(sync.signupFailure(ErrorMessages.SIGNUP_ERROR));
           } else {
             dispatch(sync.signupSuccess(user));
             dispatch(routeActions.push('/email-verification'));
@@ -79,7 +79,7 @@ export function login(api, credentials, options) {
       } else {
         api.user.get((err, user) => {
           if (err) {
-            dispatch(sync.loginFailure(err));
+            dispatch(sync.loginFailure(ErrorMessages.STANDARD));
           } else {
             dispatch(sync.loginSuccess(user));
             dispatch(routeActions.push('/patients'));
@@ -101,7 +101,7 @@ export function logout(api) {
 
     api.user.logout((err) => {
       if (err) {
-        dispatch(sync.logoutFailure(err));
+        dispatch(sync.logoutFailure(ErrorMessages.STANDARD));
       } else {
         dispatch(sync.logoutSuccess());
       }
@@ -142,7 +142,7 @@ export function confirmSignup(api, signupKey) {
 
     api.user.confirmSignUp(signupKey, function(err) {
       if (err) {
-        dispatch(sync.confirmSignupFailure(err));
+        dispatch(sync.confirmSignupFailure(ErrorMessages.STANDARD));
       } else {
         dispatch(sync.confirmSignupSuccess())
       }
@@ -183,7 +183,7 @@ export function acceptTerms(api, termsData) {
 
     api.user.acceptTerms(termsData, function(err, user) {
       if (err) {
-        dispatch(sync.acceptTermsFailure(err));
+        dispatch(sync.acceptTermsFailure(ErrorMessages.STANDARD));
       } else {
         dispatch(sync.acceptTermsSuccess(user))
       }
@@ -203,7 +203,7 @@ export function createPatient(api, patient) {
 
     api.patient.post(patient, (err, createdPatient) => {
       if (err) {
-        dispatch(sync.createPatientFailure(err));
+        dispatch(sync.createPatientFailure(ErrorMessages.STANDARD));
       } else {
         dispatch(sync.createPatientSuccess(createdPatient));
       }
@@ -245,7 +245,7 @@ export function removePatient(api, patientId) {
 
     api.access.leaveGroup(patientId, (err) => {
       if (err) {
-        dispatch(sync.removePatientFailure(err));
+        dispatch(sync.removePatientFailure(ErrorMessages.STANDARD));
       } else {
         dispatch(sync.removePatientSuccess(patientId));
         dispatch(fetchPatients(api));
@@ -268,7 +268,7 @@ export function removeMember(api, patientId, memberId) {
 
     api.access.removeMember(memberId, (err) => {
       if (err) {
-        dispatch(sync.removeMemberFailure(err));
+        dispatch(sync.removeMemberFailure(ErrorMessages.STANDARD));
       } else {
         dispatch(sync.removeMemberSuccess(memberId));
         dispatch(fetchPatient(api, patientId));
@@ -314,7 +314,7 @@ export function cancelInvitation(api, email) {
 
     api.invitation.cancel(email, (err) => {
       if (err) {
-        dispatch(sync.cancelInvitationFailure(err));
+        dispatch(sync.cancelInvitationFailure(ErrorMessages.STANDARD));
       } else {
         dispatch(sync.cancelInvitationSuccess(email));
       }
@@ -336,7 +336,7 @@ export function acceptMembership(api, invitation) {
       invitation.key, 
       invitation.creator.userid, (err, invitation) => {
       if (err) {
-        dispatch(sync.acceptMembershipFailure(err));
+        dispatch(sync.acceptMembershipFailure(ErrorMessages.STANDARD));
       } else {
         dispatch(sync.acceptMembershipSuccess(invitation));
       }
@@ -358,7 +358,7 @@ export function dismissMembership(api, invitation) {
       invitation.key, 
       invitation.creator.userid, (err, invitation) => {
       if (err) {
-        dispatch(sync.dismissMembershipFailure(err));
+        dispatch(sync.dismissMembershipFailure(ErrorMessages.STANDARD));
       } else {
         dispatch(sync.dismissMembershipSuccess(invitation));
       }
@@ -407,7 +407,7 @@ export function updatePatient(api, patient) {
     
     api.patient.put(patient, (err, updatedPatient) => {
       if (err) {
-        dispatch(sync.updatePatientFailure(err));
+        dispatch(sync.updatePatientFailure(ErrorMessages.STANDARD));
       } else {
         dispatch(sync.updatePatientSuccess(updatedPatient));
       }
@@ -440,7 +440,7 @@ export function updateUser(api, formValues) {
     
     api.user.put(userUpdates, (err, updatedUser) => {
       if (err) {
-        dispatch(sync.updateUserFailure(err));
+        dispatch(sync.updateUserFailure(ErrorMessages.STANDARD));
       } else {
         dispatch(sync.updateUserSuccess(updatedUser));
       }
@@ -459,7 +459,12 @@ export function fetchUser(api) {
     
     api.user.get((err, user) => {
       if (err) {
-        dispatch(sync.fetchUserFailure(err));
+        if (err.status === 401) {
+          // No need to record anything if user is currently not authenticated
+          dispatch(sync.fetchUserFailure(null));
+        } else {
+          dispatch(sync.fetchUserFailure(ErrorMessages.STANDARD));
+        }
       } else {
         dispatch(sync.fetchUserSuccess(user));
       }
@@ -478,7 +483,7 @@ export function fetchPendingInvites(api) {
     
     api.invitation.getSent((err, pendingInvites) => {
       if (err) {
-        dispatch(sync.fetchPendingInvitesFailure(err));
+        dispatch(sync.fetchPendingInvitesFailure(ErrorMessages.STANDARD));
       } else {
         dispatch(sync.fetchPendingInvitesSuccess(pendingInvites));
       }
@@ -497,7 +502,7 @@ export function fetchPendingMemberships(api) {
     
     api.invitation.getReceived((err, pendingMemberships) => {
       if (err) {
-        dispatch(sync.fetchPendingMembershipsFailure(err));
+        dispatch(sync.fetchPendingMembershipsFailure(ErrorMessages.STANDARD));
       } else {
         dispatch(sync.fetchPendingMembershipsSuccess(pendingMemberships));
       }
@@ -517,7 +522,7 @@ export function fetchPatient(api, id) {
     
     api.patient.get(id, (err, patient) => {
       if (err) {
-        dispatch(sync.fetchPatientFailure(err));
+        dispatch(sync.fetchPatientFailure(ErrorMessages.STANDARD));
       } else {
         dispatch(sync.fetchPatientSuccess(patient));
       }
@@ -536,7 +541,7 @@ export function fetchPatients(api) {
     
     api.patient.getAll((err, patients) => {
       if (err) {
-        dispatch(sync.fetchPatientsFailure(err));
+        dispatch(sync.fetchPatientsFailure(ErrorMessages.STANDARD));
       } else {
         dispatch(sync.fetchPatientsSuccess(patients));
       }
@@ -562,7 +567,7 @@ export function fetchPatientData(api, id, queryParams) {
       teamNotes: api.team.getNotes.bind(api, id)
     }, (err, results) => {
       if (err) {
-        dispatch(sync.fetchPatientDataFailure(err));
+        dispatch(sync.fetchPatientDataFailure(ErrorMessages.STANDARD));
       } else {
         let patientData = results.patientData || [];
         let notes = results.teamNotes || [];
@@ -588,7 +593,7 @@ export function fetchMessageThread(api, id ) {
     
     api.team.getMessageThread(id, (err, messageThread) => {
       if (err) {
-        dispatch(sync.fetchMessageThreadFailure(err));
+        dispatch(sync.fetchMessageThreadFailure(ErrorMessages.STANDARD));
       } else {
         dispatch(sync.fetchMessageThreadSuccess(messageThread));
       }
@@ -610,7 +615,7 @@ export function logError(api, error, message, properties) {
 
     api.errors.log(error, message, properties, (err) => {
       if (err) {
-        dispatch(sync.logErrorFailure(err));
+        dispatch(sync.logErrorFailure(ErrorMessages.STANDARD));
       } else {
         dispatch(sync.logErrorSuccess());
       }

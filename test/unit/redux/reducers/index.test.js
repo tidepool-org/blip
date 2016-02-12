@@ -134,48 +134,48 @@ describe('reducers', () => {
 
   describe('signup', () => {
     describe('request', () => {
-      it('should set working.signingUp to be true', () => {
+      it('should set working.signingUp.inProgress to be true', () => {
         let action = actions.sync.signupRequest();
-        expect(initialState.working.signingUp).to.be.false;
+        expect(initialState.working.signingUp.inProgress).to.be.false;
 
         let state = reducer(initialState, action);
-        expect(state.working.signingUp).to.be.true;
+        expect(state.working.signingUp.inProgress).to.be.true;
       });
     });
 
     describe('failure', () => {
-      it('should set working.signingUp to be false', () => {
+      it('should set working.signingUp.inProgress to be false', () => {
         let error = 'Something bad happened when signing up';
 
         let requestAction = actions.sync.signupRequest();
-        expect(initialState.working.signingUp).to.be.false;
+        expect(initialState.working.signingUp.inProgress).to.be.false;
 
         let intermediateState = reducer(initialState, requestAction);
-        expect(intermediateState.working.signingUp).to.be.true;
+        expect(intermediateState.working.signingUp.inProgress).to.be.true;
 
         let failureAction = actions.sync.signupFailure(error);
         let state = reducer(intermediateState, failureAction);
-        expect(state.working.signingUp).to.be.false;
-        expect(state.notification.type).to.equal('error');
-          expect(state.notification.message).to.equal(error);
+        expect(state.working.signingUp.inProgress).to.be.false;
+        expect(state.working.signingUp.notification.type).to.equal('error');
+          expect(state.working.signingUp.notification.message).to.equal(error);
       });
     });
 
     describe('success', () => {
-      it('should set working.signingUp to be false and set user', () => {
+      it('should set working.signingUp.inProgress to be false and set user', () => {
         let user = 'user';
 
         let requestAction = actions.sync.signupRequest();
         
-        expect(initialState.working.signingUp).to.be.false;
+        expect(initialState.working.signingUp.inProgress).to.be.false;
 
         let intermediateState = reducer(initialState, requestAction);
-        expect(intermediateState.working.signingUp).to.be.true;
+        expect(intermediateState.working.signingUp.inProgress).to.be.true;
 
         let successAction = actions.sync.signupSuccess(user);
         let state = reducer(intermediateState, successAction);
 
-        expect(state.working.signingUp).to.be.false;
+        expect(state.working.signingUp.inProgress).to.be.false;
         expect(state.isLoggedIn).to.be.true;
         expect(state.loggedInUser).to.equal(user);
       });

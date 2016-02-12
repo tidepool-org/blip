@@ -293,13 +293,19 @@ export default (state = initialState, action) => {
     case types.SIGNUP_REQUEST: 
       return merge({
         working: {
-          signingUp: true
+          signingUp: {
+            inProgress: true,
+            notification: null
+          }
         }
       });
     case types.SIGNUP_SUCCESS:
       return merge({
         working: {
-          signingUp: false
+          signingUp: {
+            inProgress: false,
+            notification: null
+          }
         },
         isLoggedIn: true,
         emailVerificationSent: true,
@@ -308,7 +314,13 @@ export default (state = initialState, action) => {
     case types.SIGNUP_FAILURE:
       return merge({
         working: {
-          signingUp: false
+          signingUp: {
+            inProgress: false,
+            notification: {
+              type: 'error',
+              message: action.error
+            }
+          }
         },
         notification: {
           type: 'error',

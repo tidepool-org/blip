@@ -60,7 +60,7 @@ export default {
     settingMemberPermissions: Object.assign({}, working),
     updatingPatient: false,
     updatingUser: false,  
-    signingUp: false,
+    signingUp: Object.assign({}, working),
   },
   error: null,
   timePrefs: {
