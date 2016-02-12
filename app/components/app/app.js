@@ -17,11 +17,13 @@ import _ from 'lodash';
 import React from 'react';
 import async from 'async';
 import sundial from 'sundial';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+
+import * as actions from '../../redux/actions';
 
 import personUtils from '../../core/personutils';
 import utils from '../../core/utils';
-import Fetcher from '../../core/fetcher';
-import ActionHandlers from '../../core/actionhandlers';
 
 import usrMessages from '../../userMessages';
 
@@ -40,7 +42,7 @@ require('../../style.less');
 // Blip favicon
 require('../../../favicon.ico');
 
-export default class AppComponent extends React.Component {
+export class AppComponent extends React.Component {
   static propTypes = {
     route: React.PropTypes.shape({
       log: React.PropTypes.func.isRequired,
@@ -53,73 +55,10 @@ export default class AppComponent extends React.Component {
 
   constructor(props) {
     super(props);
-    var queryParams = (props.location && props.location.query) ? props.location.query : {};
-    var timePrefs = {
-      timezoneAware: false,
-      timezoneName: null
-    };
-    if (!_.isEmpty(queryParams.timezone)) {
-      var queryTimezone = queryParams.timezone.replace('-', '/');
-      try {
-        sundial.checkTimezoneName(queryTimezone);
-        timePrefs.timezoneAware = true;
-        timePrefs.timezoneName = queryTimezone;
-        this.props.route.log('Viewing data in timezone-aware mode with', queryTimezone, 'as the selected timezone.');
-      }
-      catch(err) {
-        this.props.route.log(new Error('Invalid timezone name in query parameter. (Try capitalizing properly.)'));
-      }
-    }
-    var bgPrefs = {
-      bgUnits: 'mg/dL'
-    };
-    if (!_.isEmpty(queryParams.units)) {
-      var queryUnits = queryParams.units.toLowerCase();
-      if (queryUnits === 'mmoll') {
-        bgPrefs.bgUnits = 'mmol/L';
-      }
-    }
 
-    this.fetcher = new Fetcher(this);
-    this.actionHandlers = new ActionHandlers(this, this.fetcher);
     this.state = {
-      authenticated: this.props.route.api.user.isAuthenticated(),
-      notification: null,
-      page: this.props.location.pathname,
-      user: null,
-      fetchingUser: true,
-      loggingOut: false,
-      patients: null,
-      fetchingPatients: true,
-      patient: null,
-      fetchingPatient: true,
-      invites: null,
-      fetchingInvites: true,
-      pendingInvites:null,
-      fetchingPendingInvites: true,
-      bgPrefs: bgPrefs,
-      timePrefs: timePrefs,
-      patientData: null,
-      fetchingPatientData: true,
-      fetchingMessageData: true,
-      termsAccepted: null,
-      showingWelcomeTitle: false,
-      showingWelcomeSetup: false,
-      showPatientData: false,
-      verificationEmailSent: false,
-      finalizingVerification: false,
-      queryParams: queryParams
+      notification: null
     };
-  }
-
-  componentWillUpdate(nextProps, nextState) {
-    // Called on props or state changes
-    // Since app main component has no props,
-    // this will be called on a state change
-    if (this.props.route.DEBUG) {
-      var stateDiff = utils.objectDifference(nextState, this.state);
-      this.props.route.log('State changed', stateDiff);
-    }
   }
 
   hideNavbarDropdown() {
@@ -128,15 +67,6 @@ export default class AppComponent extends React.Component {
     if (navbar) {
       navbar.hideDropdown();
     }
-  }
-
-  isDoneFetchingAndNotFoundPatient() {
-    // Wait for patient object to come back from server
-    if (this.state.fetchingPatient) {
-      return false;
-    }
-
-    return !this.state.patient;
   }
 
   /**
@@ -148,122 +78,57 @@ export default class AppComponent extends React.Component {
    * @return {Boolean}
    */
   isPatientVisibleInNavbar() {
-    return /^\/patients\/\S+/.test(this.state.page);
-  }
-
-  isDoneFetchingAndUserHasPatient() {
-    // Wait to have user object back from server
-    if (this.state.fetchingUser) {
-      return false;
-    }
-
-    return personUtils.isPatient(this.state.user);
-  }
-
-  isSamePersonUserAndPatient() {
-    return personUtils.isSame(this.state.user, this.state.patient);
+    return /^\/patients\/\S+/.test(this.props.location.pathname);
   }
 
   logSupportContact() {
     this.props.route.trackMetric('Clicked Give Feedback');
   }
 
-  getSignupEmail() {
-    if (this.props.location && this.props.location.query) {
-      let { signupEmail } = this.props.location.query;
-      if (!_.isEmpty(signupEmail) && utils.validateEmail(signupEmail)){
-        return signupEmail;
-      }
-    }
-    return null;
-  }
-
-  getInviteEmail() {
-    if (this.props.location && this.props.location.query) {
-
-      let { inviteEmail } = this.props.location.query;
-
-      if (!_.isEmpty(inviteEmail)) {
-        // all standard query string parsers transform + to a space
-        // so we reverse and swap spaces for +
-        // in order to allow e-mails with mutators (e.g., +skip) to pass waitlist
-        inviteEmail = inviteEmail.replace(/\s/, '+');
-
-        if (utils.validateEmail(inviteEmail)) {
-          return inviteEmail;
-        }
-      }
-    }
-    return null;
-  }
-
-  getInviteKey() {
-    if (this.props.location && this.props.location.query) {
-      let { inviteKey } = this.props.location.query;
-
-      if(!_.isEmpty(inviteKey)){
-        return inviteKey;
-      }
-    }
-    return '';
-  }
-
   closeNotification() {
-    this.setState({notification: null});
-  }
-
-  clearUserData() {
     this.setState({
-      authenticated: false,
-      user: null,
-      patients: null,
-      patient: null,
-      patientData: null,
-      showingAcceptTerms: false,
-      showingWelcomeTitle: false,
-      finalizingVerification: false,
-      fetchingUser: true,
-      fetchingPatients: true,
-      fetchingInvites: true,
-      showingWelcomeSetup: false,
-      showPatientData: false,
-      loggingOut: false
+      notitication: null
     });
-  }
-
-  redirectToDefaultRoute() {
-    this.props.history.pushState(null, '/patients');
+    this.props.acknowledgeNotification();
   }
 
   doFetching(nextProps) {
-    if (this.state.authenticated) {
-      this.fetcher.fetchUser();
+    if (!nextProps.fetchers) {
+      return
     }
 
-    if (nextProps.login) {
-      this.actionHandlers.handleFinalizeSignup();
-    } else if (nextProps.patients) {
-      this.setState({showPatientData: true});
-      this.fetcher.fetchInvites();
-      this.fetcher.fetchPatients();
-      this.props.route.trackMetric('Viewed Care Team List');
-    } else if (nextProps.patient) {
-      this.fetcher.fetchPatient(nextProps.params.id);
-      this.props.route.trackMetric('Viewed Profile');
-    } else if (nextProps.patientData) {
-      this.fetcher.fetchPatient(nextProps.params.id, (err, patient) => {
-        this.fetcher.fetchPatientData(patient);
-      });
-      this.props.route.trackMetric('Viewed Data');
-    } else if (nextProps.patientNew) {
-      this.props.route.trackMetric('Viewed Profile Create');
-    } else if (nextProps.patientShare) {
-      this.fetcher.fetchPatient(nextProps.params.id);
-      this.fetcher.fetchPendingInvites();
-      this.props.route.trackMetric('Viewed Share');
-    } else if (nextProps.profile) {
-      this.props.route.trackMetric('Viewed Account Edit');
-    }
+    nextProps.fetchers.forEach(fetcher => { 
+      fetcher();
+    });
+
+    // if (this.props.authenticated) {
+    //   this.fetcher.fetchUser();
+    // }
+
+    // if (nextProps.login) {
+    //   this.actionHandlers.handleFinalizeSignup();
+    // } else if (nextProps.patients) {
+    //   this.setState({showPatientData: true});
+    //   this.fetcher.fetchInvites();
+    //   this.fetcher.fetchPatients();
+    //   this.props.route.trackMetric('Viewed Care Team List');
+    // } else if (nextProps.patient) {
+    //   this.fetcher.fetchPatient(nextProps.params.id);
+    //   this.props.route.trackMetric('Viewed Profile');
+    // } else if (nextProps.patientData) {
+    //   this.fetcher.fetchPatient(nextProps.params.id, (err, patient) => {
+    //     this.fetcher.fetchPatientData(patient);
+    //   });
+    //   this.props.route.trackMetric('Viewed Data');
+    // } else if (nextProps.patientNew) {
+    //   this.props.route.trackMetric('Viewed Profile Create');
+    // } else if (nextProps.patientShare) {
+    //   this.fetcher.fetchPatient(nextProps.params.id);
+    //   this.fetcher.fetchPendingInvites();
+    //   this.props.route.trackMetric('Viewed Share');
+    // } else if (nextProps.profile) {
+    //   this.props.route.trackMetric('Viewed Account Edit');
+    // }
   }
 
   /**
@@ -279,8 +144,9 @@ export default class AppComponent extends React.Component {
    * begin fetching any required data
    */
   componentWillReceiveProps(nextProps) {
-    this.setState({page: nextProps.location.pathname}); //We need to pass down this prop to state for legacy behaviour
-    this.doFetching(nextProps);
+    if (!utils.isOnSamePage(this.props, nextProps)) {
+      this.doFetching(nextProps);
+    }
   }
 
   /**
@@ -289,7 +155,7 @@ export default class AppComponent extends React.Component {
 
   renderOverlay() {
     this.props.route.log('Rendering overlay');
-    if (this.state.loggingOut) {
+    if (this.props.loggingOut) {
       return (
         <LogoutOverlay ref="logoutOverlay" />
       );
@@ -301,18 +167,18 @@ export default class AppComponent extends React.Component {
       );
     }
 
-    if (!this.state.fetchingUser){
+    if (!this.props.fetchingUser){
       return this.renderTermsOverlay();
     }
 
     return null;
   }
 
-  renderTermsOverlay(){
-    if (this.state.authenticated && _.isEmpty(this.state.termsAccepted)){
+  renderTermsOverlay() {
+    if (this.props.authenticated && _.isEmpty(this.props.termsAccepted)){
       return (
         <TermsOverlay
-          onSubmit={this.actionHandlers.handleAcceptedTerms.bind(this.actionHandlers)}
+          onSubmit={this.props.onAcceptTerms}
           trackMetric={this.props.route.trackMetric} />
       );
     }
@@ -321,12 +187,12 @@ export default class AppComponent extends React.Component {
 
   renderNavbar() {
     this.props.route.log('Rendering navbar');
-    if (this.state.authenticated) {
+    if (this.props.authenticated) {
       var patient;
       var getUploadUrl;
 
       if (this.isPatientVisibleInNavbar()) {
-        patient = this.state.patient;
+        patient = this.props.patient;
         getUploadUrl = this.props.route.api.getUploadUrl.bind(this.props.route.api);
       }
 
@@ -334,13 +200,13 @@ export default class AppComponent extends React.Component {
 
         <div className="App-navbar">
           <Navbar
-            user={this.state.user}
-            fetchingUser={this.state.fetchingUser}
+            user={this.props.user}
+            fetchingUser={this.props.fetchingUser}
             patient={patient}
-            fetchingPatient={this.state.fetchingPatient}
-            currentPage={this.state.page}
+            fetchingPatient={this.props.fetchingPatient}
+            currentPage={this.props.route.pathname}
             getUploadUrl={getUploadUrl}
-            onLogout={this.actionHandlers.handleLogout.bind(this.actionHandlers)}
+            onLogout={this.props.onLogout}
             trackMetric={this.props.route.trackMetric}
             ref="navbar"/>
         </div>
@@ -354,7 +220,7 @@ export default class AppComponent extends React.Component {
   // TODO: find out wtf this is and what it does - theory: error messages
   renderNotification() {
     this.props.route.log('Rendering notification');
-    var notification = this.state.notification;
+    var notification = this.state.notification || this.props.notification;
     var handleClose;
 
     if (notification) {
@@ -367,7 +233,7 @@ export default class AppComponent extends React.Component {
         <TidepoolNotification
           type={notification.type}
           onClose={handleClose}>
-          {notification.body}
+          {notification.message}
         </TidepoolNotification>
 
       );
@@ -424,3 +290,89 @@ export default class AppComponent extends React.Component {
     );
   }
 }
+
+let setBgPrefs = (dispatchProps, ownProps) => () => {
+  let queryParams = (ownProps.location && ownProps.location.query) ? ownProps.location.query : {};
+
+  var bgPrefs = {
+    bgUnits: 'mg/dL'
+  };
+
+  if (!_.isEmpty(queryParams.units)) {
+    var queryUnits = queryParams.units.toLowerCase();
+    if (queryUnits === 'mmoll') {
+      bgPrefs.bgUnits = 'mmol/L';
+    }
+  }
+
+  dispatchProps.setBloodGlucosePreferences(bgPrefs);
+};
+
+let setTimePrefs = (dispatchProps, ownProps) => () => {
+  let queryParams = (ownProps.location && ownProps.location.query) ? ownProps.location.query : {};
+
+  var timePrefs = {
+    timezoneAware: false,
+    timezoneName: null
+  };
+  if (!_.isEmpty(queryParams.timezone)) {
+    var queryTimezone = queryParams.timezone.replace('-', '/');
+    try {
+      sundial.checkTimezoneName(queryTimezone);
+      timePrefs.timezoneAware = true;
+      timePrefs.timezoneName = queryTimezone;
+      ownProps.route.log('Viewing data in timezone-aware mode with', queryTimezone, 'as the selected timezone.');
+    }
+    catch(err) {
+      ownProps.route.log(new Error('Invalid timezone name in query parameter. (Try capitalizing properly.)'));
+    }
+  }
+
+  dispatchProps.setTimePreferences(timePrefs);
+};
+
+let getFetchers = (dispatchProps, ownProps, api) => {
+  return [
+    setBgPrefs(dispatchProps, ownProps),
+    setTimePrefs(dispatchProps, ownProps),
+    dispatchProps.fetchUser.bind(null, api)
+  ];
+}
+
+/**
+ * Expose "Smart" Component that is connect-ed to Redux
+ */
+
+let mapStateToProps = state => {
+  return {
+    authenticated: state.blip.isLoggedIn,
+    fetchingUser: state.blip.working.fetchingUser,
+    fetchingPatient: state.blip.working.fetchingPatient,
+    loggingOut: state.blip.working.loggingOut,
+    termsAccepted: _.get(state, 'blip.loggedInUser.termsAccepted', null),
+    user: state.blip.loggedInUser,
+    patient: state.blip.currentPatientInView
+  };
+
+};
+
+let mapDispatchToProps = dispatch => bindActionCreators({
+  fetchUser: actions.async.fetchUser,
+  acceptTerms: actions.async.acceptTerms,
+  logout: actions.async.logout,
+  setBloodGlucosePreferences: actions.sync.setBloodGlucosePreferences,
+  setTimePreferences: actions.sync.setTimePreferences,
+  onCloseNotification: actions.sync.acknowledgeNotification
+}, dispatch);
+
+let mergeProps = (stateProps, dispatchProps, ownProps) => {
+  var api = ownProps.routes[0].api;
+  return _.merge({}, ownProps, stateProps, dispatchProps, {
+    fetchers: getFetchers(dispatchProps, ownProps, api),
+    fetchUser: dispatchProps.fetchUser.bind(null, api),
+    onLogout: dispatchProps.logout.bind(null, api),
+    onAcceptTerms: dispatchProps.acceptTerms.bind(null, api),
+  });
+};
+
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(AppComponent);
