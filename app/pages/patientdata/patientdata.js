@@ -94,6 +94,7 @@ export let PatientData = React.createClass({
   },
 
   componentWillMount: function() {
+    this.doFetching(this.props);
     var params = this.props.queryParams;
 
     if (!_.isEmpty(params)) {
@@ -524,6 +525,19 @@ export let PatientData = React.createClass({
     this.setState({
       datetimeLocation: datetime
     });
+  },
+  doFetching: function(nextProps) {
+    if (this.props.trackMetric) {
+      this.props.trackMetric('Viewed Care Team List');
+    }
+
+    if (!nextProps.fetchers) {
+      return
+    }
+
+    nextProps.fetchers.forEach(function(fetcher) { 
+      fetcher();
+    });
   }
 });
 
@@ -531,19 +545,27 @@ export let PatientData = React.createClass({
  * Expose "Smart" Component that is connect-ed to Redux
  */
 
+let getFetchers = (dispatchProps, ownProps, api) => {
+  return [
+    dispatchProps.fetchPatient.bind(null, api, ownProps.routeParams.id),
+    dispatchProps.fetchPatientData.bind(null, api, ownProps.routeParams.id, {})
+  ];
+};
+
 let mapStateToProps = state => ({
-  user: state.loggedInUser,
-  bgPrefs: state.bgPrefs,
-  timePrefs: state.timePrefs,
-  isUserPatient: personUtils.isSame(state.loggedInUser, state.currentPatientInView),
-  patient: state.currentPatientInView,
-  patientData: state.patientData,
-  messageThread: state.messageThread,
-  fetchingPatient: state.working.fetchingPatient,
-  fetchingPatientData: state.working.fetchingPatientData
+  user: state.blip.loggedInUser,
+  bgPrefs: state.blip.bgPrefs,
+  timePrefs: state.blip.timePrefs,
+  isUserPatient: personUtils.isSame(state.blip.loggedInUser, state.blip.currentPatientInView),
+  patient: state.blip.currentPatientInView,
+  patientData: state.blip.patientData,
+  messageThread: state.blip.messageThread,
+  fetchingPatient: state.blip.working.fetchingPatient,
+  fetchingPatientData: state.blip.working.fetchingPatientData
 });
 
 let mapDispatchToProps = dispatch => bindActionCreators({
+  fetchPatient: actions.async.fetchPatient,
   fetchPatientData: actions.async.fetchPatientData,
   fetchMessageThread: actions.async.fetchMessageThread,
   updateLocalPatientData: actions.sync.updateLocalPatientData,
@@ -553,6 +575,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.routes[0].api;
   return _.merge({}, ownProps, stateProps, dispatchProps, {
+    fetchers: getFetchers(dispatchProps, ownProps, api),
     uploadUrl: api.getUploadUrl(),
     onRefresh: dispatchProps.fetchPatientData.bind(null, api),
     onFetchMessageThread: dispatchProps.fetchMessageThread.bind(null, api),
@@ -560,7 +583,8 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     onSaveComment: api.team.replyToMessageThread.bind(api),
     onCreateMessage: api.team.startMessageThread.bind(api),
     onEditMessage: api.team.editMessage.bind(api),
-    trackMetric: ownProps.routes[0].trackMetric
+    trackMetric: ownProps.routes[0].trackMetric,
+    queryParams: ownProps.location.query
   });
 };
 
