@@ -29,8 +29,10 @@ export default (state = initialState, action) => {
         });
       } else {
         return merge({
-          [action.payload.acknowledgedNotification]: {
-            notification: null
+          working: {
+            [action.payload.acknowledgedNotification]: {
+              notification: null
+            }
           }
         });
       }
@@ -45,13 +47,19 @@ export default (state = initialState, action) => {
     case types.FETCH_USER_REQUEST: 
       return merge({
         working: {
-          fetchingUser: true
+          fetchingUser: {
+            inProgress: true,
+            notification: null
+          }
         }
       });
     case types.FETCH_USER_SUCCESS:
       return merge({
         working: {
-          fetchingUser: false
+          fetchingUser: {
+            inProgress: false,
+            notification: null
+          }
         },
         loggedInUser: action.payload.user,
         isLoggedIn: true
@@ -59,7 +67,13 @@ export default (state = initialState, action) => {
     case types.FETCH_USER_FAILURE: 
       return merge({
         working: {
-          fetchingUser: false
+          fetchingUser: {
+            inProgress: false,
+            notification: {
+              type: 'error',
+              message: action.error
+            }
+          }
         },
         notification: {
           type: 'error',
@@ -69,20 +83,32 @@ export default (state = initialState, action) => {
     case types.FETCH_PENDING_INVITES_REQUEST: 
       return merge({
         working: {
-          fetchingPendingInvites: true
+          fetchingPendingInvites: {
+            inProgress: true,
+            notification: null
+          }
         }
       });
     case types.FETCH_PENDING_INVITES_SUCCESS: 
       return merge({
         working: {
-          fetchingPendingInvites: false
+          fetchingPendingInvites: {
+            inProgress: false,
+            notification: null
+          }
         },
         pendingInvites: action.payload.pendingInvites
       });
     case types.FETCH_PENDING_INVITES_FAILURE: 
       return merge({
         working: {
-          fetchingPendingInvites: false
+          fetchingPendingInvites: {
+            inProgress: false,
+            notification: {
+              type: 'error',
+              message: action.error
+            }
+          }
         },
         notification: {
           type: 'error',
@@ -92,20 +118,32 @@ export default (state = initialState, action) => {
     case types.FETCH_PENDING_MEMBERSHIPS_REQUEST: 
       return merge({
         working: {
-          fetchingPendingMemberships: true
+          fetchingPendingMemberships: {
+            inProgress: true,
+            notification: null
+          }
         }
       });
     case types.FETCH_PENDING_MEMBERSHIPS_SUCCESS: 
       return merge({
         working: {
-          fetchingPendingMemberships: false
+          fetchingPendingMemberships: {
+            inProgress: false,
+            notification: null
+          }
         },
         pendingMemberships: action.payload.pendingMemberships
       });
     case types.FETCH_PENDING_MEMBERSHIPS_FAILURE: 
       return merge({
         working: {
-          fetchingPendingMemberships: false
+          fetchingPendingMemberships: {
+            inProgress: false,
+            notification: {
+              type: 'error',
+              message: action.error
+            }
+          }
         },
         notification: {
           type: 'error',
@@ -116,7 +154,10 @@ export default (state = initialState, action) => {
     case types.FETCH_PATIENTS_REQUEST: 
       return merge({
         working: {
-          fetchingPatients: true
+          fetchingPatients: {
+            inProgress: true,
+            notification: null
+          }
         }
       });
     case types.FETCH_PATIENTS_SUCCESS: 
@@ -125,14 +166,23 @@ export default (state = initialState, action) => {
 
       return merge({
         working: {
-          fetchingPatients: false
+          fetchingPatients: {
+            inProgress: false,
+            notification: null
+          }
         },
         patients: patientMap
       });
     case types.FETCH_PATIENTS_FAILURE: 
       return merge({
         working: {
-          fetchingPatients: false
+          fetchingPatients: {
+            inProgress: false,
+            notification: {
+              type: 'error',
+              message: action.error
+            }
+          }
         },
         notification: {
           type: 'error',
@@ -142,20 +192,32 @@ export default (state = initialState, action) => {
     case types.FETCH_PATIENT_REQUEST: 
       return merge({
         working: {
-          fetchingPatient: true
+          fetchingPatient: {
+            inProgress: true,
+            notification: null
+          }
         }
       });
     case types.FETCH_PATIENT_SUCCESS: 
       return merge({
         working: {
-          fetchingPatient: false
+          fetchingPatient: {
+            inProgress: false,
+            notification: null
+          }
         },
         currentPatientInView: action.payload.patient
       });
     case types.FETCH_PATIENT_FAILURE: 
       return merge({
         working: {
-          fetchingPatient: false
+          fetchingPatient: {
+            inProgress: false,
+            notification: {
+              type: 'error',
+              message: action.error
+            }
+          }
         },
         notification: {
           type: 'error',
@@ -171,13 +233,19 @@ export default (state = initialState, action) => {
     case types.FETCH_PATIENT_DATA_REQUEST: 
       return merge({
         working: {
-          fetchingPatientData: true
+          fetchingPatientData: {
+            inProgress: true,
+            notification: null
+          }
         }
       });
     case types.FETCH_PATIENT_DATA_SUCCESS: 
       return merge({
         working: {
-          fetchingPatientData: false
+          fetchingPatientData: {
+            inProgress: false,
+            notification: null
+          }
         },
         patientData: {
           [action.payload.patientId]: action.payload.patientData
@@ -190,7 +258,13 @@ export default (state = initialState, action) => {
     case types.FETCH_PATIENT_DATA_FAILURE: 
       return merge({
         working: {
-          fetchingPatientData: false
+          fetchingPatientData: {
+            inProgress: false,
+            notification: {
+              type: 'error',
+              message: action.error
+            }
+          }
         },
         notification: {
           type: 'error',
@@ -204,20 +278,32 @@ export default (state = initialState, action) => {
     case types.FETCH_MESSAGE_THREAD_REQUEST: 
       return merge({
         working: {
-          fetchingMessageThread: true
+          fetchingMessageThread: {
+            inProgress: true,
+            notification: null
+          }
         }
       });
     case types.FETCH_MESSAGE_THREAD_SUCCESS: 
       return merge({
         working: {
-          fetchingMessageThread: false
+          fetchingMessageThread: {
+            inProgress: false,
+            notification: null
+          }
         },
         messageThread: action.payload.messageThread
       });
     case types.FETCH_MESSAGE_THREAD_FAILURE: 
       return merge({
         working: {
-          fetchingMessageThread: false
+          fetchingMessageThread: {
+            inProgress: false,
+            notification: {
+              type: 'error',
+              message: action.error
+            }
+          }
         },
         notification: {
           type: 'error',
@@ -265,13 +351,19 @@ export default (state = initialState, action) => {
     case types.LOGOUT_REQUEST: 
       return merge({
         working: {
-          loggingOut: true
+          loggingOut: {
+            inProgress: true,
+            notification: null
+          }
         }
       });
     case types.LOGOUT_SUCCESS:
       return merge({
         working: {
-          loggingOut: false
+          loggingOut: {
+            inProgress: false,
+            notification: null
+          }
         },
         isLoggedIn: false,
         patients: null, 
@@ -283,7 +375,13 @@ export default (state = initialState, action) => {
     case types.LOGOUT_FAILURE:
       return merge({
         working: {
-          loggingOut: false
+          loggingOut: {
+            inProgress: false,
+            notification: {
+              type: 'error',
+              message: action.error
+            }
+          }
         },
         notification: {
           type: 'error',
@@ -330,20 +428,32 @@ export default (state = initialState, action) => {
     case types.CONFIRM_SIGNUP_REQUEST: 
       return merge({
         working: {
-          confirmingSignup: true
+          confirmingSignup: {
+            inProgress: true,
+            notification: null
+          }
         }
       });
     case types.CONFIRM_SIGNUP_SUCCESS:
       return merge({
         working: {
-          confirmingSignup: false
+          confirmingSignup: {
+            inProgress: false,
+            notification: null
+          }
         },
         confirmedSignup: true
       });
     case types.CONFIRM_SIGNUP_FAILURE:
       return merge({
         working: {
-          confirmingSignup: false
+          confirmingSignup: {
+            inProgress: false,
+            notification: {
+              type: 'error',
+              message: action.error
+            }
+          }
         },
         notification: {
           type: 'error',
@@ -353,20 +463,32 @@ export default (state = initialState, action) => {
     case types.CONFIRM_PASSWORD_RESET_REQUEST: 
       return merge({
         working: {
-          confirmingPasswordReset: true
+          confirmingPasswordReset: {
+            inProgress: true,
+            notification: null
+          }
         }
       });
     case types.CONFIRM_PASSWORD_RESET_SUCCESS:
       return merge({
         working: {
-          confirmingPasswordReset: false
+          confirmingPasswordReset: {
+            inProgress: false,
+            notification: null
+          }
         },
         passwordResetConfirmed: true
       });
     case types.CONFIRM_PASSWORD_RESET_FAILURE:
       return merge({
         working: {
-          confirmingPasswordReset: false
+          confirmingPasswordReset: {
+            inProgress: false,
+            notification: {
+              type: 'error',
+              message: action.error
+            }
+          }
         },
         notification: {
           type: 'error',
@@ -376,20 +498,32 @@ export default (state = initialState, action) => {
     case types.ACCEPT_TERMS_REQUEST: 
       return merge({
         working: {
-          acceptingTerms: true
+          acceptingTerms: {
+            inProgress: true,
+            notification: null
+          }
         }
       });
     case types.ACCEPT_TERMS_SUCCESS:
       return merge({
         working: {
-          acceptingTerms: false
+          acceptingTerms: {
+            inProgress: false,
+            notification: null
+          }
         },
         loggedInUser: action.payload.user
       });
     case types.ACCEPT_TERMS_FAILURE:
       return merge({
         working: {
-          acceptingTerms: false
+          acceptingTerms: {
+            inProgress: false,
+            notification: {
+              type: 'error',
+              message: action.error
+            }
+          }
         },
         notification: {
           type: 'error',
@@ -405,14 +539,23 @@ export default (state = initialState, action) => {
     case types.RESEND_EMAIL_VERIFICATION_SUCCESS:
       return merge({
         working: {
-          resendingEmailVerification: false
+          resendingEmailVerification: {
+            inProgress: false,
+            notification: null
+          }
         },
         resentEmailVerification: true
       });
     case types.RESEND_EMAIL_VERIFICATION_FAILURE:
       return merge({
         working: {
-          resendingEmailVerification: false
+          resendingEmailVerification: {
+            inProgress: false,
+            notification: {
+              type: 'error',
+              message: action.error
+            }
+          }
         },
         notification: {
           type: 'error',
@@ -486,19 +629,31 @@ export default (state = initialState, action) => {
     case types.REMOVE_PATIENT_REQUEST: 
       return merge({
         working: {
-          removingPatient: true
+          removingPatient: {
+            inProgress: true,
+            notification: null
+          }
         }
       });
     case types.REMOVE_PATIENT_SUCCESS:
       return merge({
         working: {
-          removingPatient: false
+          removingPatient: {
+            inProgress: false,
+            notification: null
+          }
         }
       });
     case types.REMOVE_PATIENT_FAILURE:
       return merge({
         working: {
-          removingPatient: false
+          removingPatient: {
+            inProgress: false,
+            notification: {
+              type: 'error',
+              message: action.error
+            }
+          }
         },
         notification: {
           type: 'error',
@@ -538,19 +693,31 @@ export default (state = initialState, action) => {
     case types.REQUEST_PASSWORD_RESET_REQUEST: 
       return merge({
         working: {
-          requestingPasswordReset: true
+          requestingPasswordReset: {
+            inProgress: true,
+            notification: null
+          }
         }
       });
     case types.REQUEST_PASSWORD_RESET_SUCCESS:
       return merge({
         working: {
-          requestingPasswordReset: false
+          requestingPasswordReset: {
+            inProgress: false,
+            notification: null
+          }
         }
       });
     case types.REQUEST_PASSWORD_RESET_FAILURE:
       return merge({
         working: {
-          requestingPasswordReset: false
+          requestingPasswordReset: {
+            inProgress: false,
+            notification: {
+              type: 'error',
+              message: action.error
+            }
+          }
         },
         notification: {
           type: 'error',
@@ -629,13 +796,19 @@ export default (state = initialState, action) => {
     case types.ACCEPT_MEMBERSHIP_REQUEST: 
       return merge({
         working: {
-          acceptingMembership: true
+          acceptingMembership: {
+            inProgress: true,
+            notification: null
+          }
         }
       });
     case types.ACCEPT_MEMBERSHIP_SUCCESS:
       let aState = merge({
         working: {
-          acceptingMembership: false
+          acceptingMembership: {
+            inProgress: false,
+            notification: null
+          }
         }
       });
 
@@ -646,7 +819,13 @@ export default (state = initialState, action) => {
     case types.ACCEPT_MEMBERSHIP_FAILURE:
       return merge({
         working: {
-          acceptingMembership: false
+          acceptingMembership: {
+            inProgress: false,
+            notification: {
+              type: 'error',
+              message: action.error
+            }
+          }
         },
         notification: {
           type: 'error',
@@ -656,13 +835,19 @@ export default (state = initialState, action) => {
     case types.DISMISS_MEMBERSHIP_REQUEST: 
       return merge({
         working: {
-          dismissingMembership: true
+          dismissingMembership: {
+            inProgress: true,
+            notification: null
+          }
         }
       });
     case types.DISMISS_MEMBERSHIP_SUCCESS:
       let dState = merge({
         working: {
-          dismissingMembership: false
+          dismissingMembership: {
+            inProgress: false,
+            notification: null
+          }
         }
       });
 
@@ -672,7 +857,13 @@ export default (state = initialState, action) => {
     case types.DISMISS_MEMBERSHIP_FAILURE:
       return merge({
         working: {
-          dismissingMembership: false
+          dismissingMembership: {
+            inProgress: false,
+            notification: {
+              type: 'error',
+              message: action.error
+            }
+          }
         },
         notification: {
           type: 'error',
@@ -682,20 +873,32 @@ export default (state = initialState, action) => {
     case types.UPDATE_PATIENT_REQUEST: 
       return merge({
         working: {
-          updatingPatient: true
+          updatingPatient: {
+            inProgress: true,
+            notification: null
+          }
         }
       });
     case types.UPDATE_PATIENT_SUCCESS:
       return merge({
         working: {
-          updatingPatient: false
+          updatingPatient: {
+            inProgress: false,
+            notification: null
+          }
         },
         currentPatientInView: action.payload.updatedPatient
       });
     case types.UPDATE_PATIENT_FAILURE:
       return merge({
         working: {
-          updatingPatient: false
+          updatingPatient: {
+            inProgress: false,
+            notification: {
+              type: 'error',
+              message: action.error
+            }
+          }
         },
         notification: {
           type: 'error',
@@ -705,21 +908,33 @@ export default (state = initialState, action) => {
     case types.UPDATE_USER_REQUEST: 
       return merge({
         working: {
-          updatingUser: true
+          updatingUser: {
+            inProgress: true,
+            notification: null
+          }
         },
         loggedInUser: action.payload.updatingUser
       });
     case types.UPDATE_USER_SUCCESS:
       return merge({
         working: {
-          updatingUser: false
+          updatingUser: {
+            inProgress: false,
+            notification: null
+          }
         },
         loggedInUser: action.payload.updatedUser
       });
     case types.UPDATE_USER_FAILURE:
       return merge({
         working: {
-          updatingUser: false
+          updatingUser: {
+            inProgress: false,
+            notification: {
+              type: 'error',
+              message: action.error
+            }
+          }
         },
         notification: {
           type: 'error',

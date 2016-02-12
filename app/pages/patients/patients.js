@@ -339,11 +339,11 @@ let getFetchers = (dispatchProps, ownProps, api) => {
 
 let mapStateToProps = state => ({
   user: state.blip.loggedInUser,
-  fetchingUser: state.blip.working.fetchingUser,
+  fetchingUser: state.blip.working.fetchingUser.inProgress,
   patients: _.values(state.blip.patients),
-  fetchingPatients: state.blip.working.fetchingPatients,
+  fetchingPatients: state.blip.working.fetchingPatients.inProgress,
   invites: state.blip.pendingMemberships,
-  fetchingInvites: state.blip.working.fetchingPendingMemberships,
+  fetchingInvites: state.blip.working.fetchingPendingMemberships.inProgress,
   showingWelcomeTitle: state.blip.signupConfirmed,
   showingWelcomeSetup: state.blip.signupConfirmed
 });

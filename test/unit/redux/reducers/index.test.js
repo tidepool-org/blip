@@ -19,7 +19,7 @@ var expect = chai.expect;
 
 describe('reducers', () => {
   describe('acknowledgeNotification', () => {
-    it('should set error to null', () => {
+    it('should set state.notification to null when called with no argument', () => {
       let initialStateForTest = _.merge({}, initialState, { notification: { message: 'foo' } });
       let action = actions.sync.acknowledgeNotification()
 
@@ -27,6 +27,16 @@ describe('reducers', () => {
 
       let state = reducer(initialStateForTest, action);
       expect(state.notification).to.be.null;
+    });
+
+    it('should set state.working.fetchingUser.notification to null when called with "fetchingUser"', () => {
+      let initialStateForTest = _.merge({}, initialState, { working: { fetchingUser: { notification: { message: 'foo' } } } });
+      let action = actions.sync.acknowledgeNotification('fetchingUser')
+
+      expect(initialStateForTest.working.fetchingUser.notification.message).to.equal('foo');
+
+      let state = reducer(initialStateForTest, action);
+      expect(state.working.fetchingUser.notification).to.be.null;
     });
   });
 
@@ -81,46 +91,46 @@ describe('reducers', () => {
 
     describe('logout', () => {
       describe('request', () => {
-        it('should set working.loggingOut to be true', () => {
+        it('should set working.loggingOut.inProgress to be true', () => {
           let action = actions.sync.logoutRequest();
-          expect(initialState.working.loggingOut).to.be.false;
+          expect(initialState.working.loggingOut.inProgress).to.be.false;
 
           let state = reducer(initialState, action);
-          expect(state.working.loggingOut).to.be.true;
+          expect(state.working.loggingOut.inProgress).to.be.true;
         });
       });
 
       describe('failure', () => {
-        it('should set working.loggingOut to be false', () => {
+        it('should set working.loggingOut.inProgress to be false', () => {
           let error = 'Something bad happened';
 
           let requestAction = actions.sync.logoutRequest();
-          expect(initialState.working.loggingOut).to.be.false;
+          expect(initialState.working.loggingOut.inProgress).to.be.false;
 
           let intermediateState = reducer(initialState, requestAction);
-          expect(intermediateState.working.loggingOut).to.be.true;
+          expect(intermediateState.working.loggingOut.inProgress).to.be.true;
 
           let failureAction = actions.sync.logoutFailure(error);
           let state = reducer(intermediateState, failureAction);
-          expect(state.working.loggingOut).to.be.false;
-          expect(state.notification.type).to.equal('error');
-          expect(state.notification.message).to.equal(error);
+          expect(state.working.loggingOut.inProgress).to.be.false;
+          expect(state.working.loggingOut.notification.type).to.equal('error');
+          expect(state.working.loggingOut.notification.message).to.equal(error);
         });
       });
 
       describe('success', () => {
-        it('should set working.loggingOut to be false and clear session state values', () => {
+        it('should set working.loggingOut.inProgress to be false and clear session state values', () => {
           let user = 'user';
 
           let requestAction = actions.sync.logoutRequest();
-          expect(initialState.working.loggingOut).to.be.false;
+          expect(initialState.working.loggingOut.inProgress).to.be.false;
 
           let intermediateState = reducer(initialState, requestAction);
-          expect(intermediateState.working.loggingOut).to.be.true;
+          expect(intermediateState.working.loggingOut.inProgress).to.be.true;
 
           let successAction = actions.sync.logoutSuccess(user);
           let state = reducer(intermediateState, successAction);
-          expect(state.working.loggingOut).to.be.false;
+          expect(state.working.loggingOut.inProgress).to.be.false;
           expect(state.isLoggedIn).to.be.false;
           expect(state.loggedInUser).to.equal(null);
           expect(state.currentPatientInView).to.equal(null);
@@ -157,7 +167,7 @@ describe('reducers', () => {
         let state = reducer(intermediateState, failureAction);
         expect(state.working.signingUp.inProgress).to.be.false;
         expect(state.working.signingUp.notification.type).to.equal('error');
-          expect(state.working.signingUp.notification.message).to.equal(error);
+        expect(state.working.signingUp.notification.message).to.equal(error);
       });
     });
 
@@ -184,48 +194,48 @@ describe('reducers', () => {
 
   describe('confirmSignup', () => {
     describe('request', () => {
-      it('should set working.confirmingSignup to be true', () => {
+      it('should set working.confirmingSignup.inProgress to be true', () => {
         let action = actions.sync.confirmSignupRequest();
-        expect(initialState.working.confirmingSignup).to.be.false;
+        expect(initialState.working.confirmingSignup.inProgress).to.be.false;
 
         let state = reducer(initialState, action);
-        expect(state.working.confirmingSignup).to.be.true;
+        expect(state.working.confirmingSignup.inProgress).to.be.true;
       });
     });
 
     describe('failure', () => {
-      it('should set working.confirmingSignup to be false', () => {
+      it('should set working.confirmingSignup.inProgress to be false', () => {
         let error = 'Something bad happened when signing up';
 
         let requestAction = actions.sync.confirmSignupRequest();
-        expect(initialState.working.confirmingSignup).to.be.false;
+        expect(initialState.working.confirmingSignup.inProgress).to.be.false;
 
         let intermediateState = reducer(initialState, requestAction);
-        expect(intermediateState.working.confirmingSignup).to.be.true;
+        expect(intermediateState.working.confirmingSignup.inProgress).to.be.true;
 
         let failureAction = actions.sync.confirmSignupFailure(error);
         let state = reducer(intermediateState, failureAction);
-        expect(state.working.confirmingSignup).to.be.false;
-        expect(state.notification.type).to.equal('error');
-          expect(state.notification.message).to.equal(error);
+        expect(state.working.confirmingSignup.inProgress).to.be.false;
+        expect(state.working.confirmingSignup.notification.type).to.equal('error');
+        expect(state.working.confirmingSignup.notification.message).to.equal(error);
       });
     });
 
     describe('success', () => {
-      it('should set working.confirmingSignup to be false and set user', () => {
+      it('should set working.confirmingSignup.inProgress to be false and set user', () => {
         let user = 'user';
 
         let requestAction = actions.sync.confirmSignupRequest();
         
-        expect(initialState.working.confirmingSignup).to.be.false;
+        expect(initialState.working.confirmingSignup.inProgress).to.be.false;
 
         let intermediateState = reducer(initialState, requestAction);
-        expect(intermediateState.working.confirmingSignup).to.be.true;
+        expect(intermediateState.working.confirmingSignup.inProgress).to.be.true;
 
         let successAction = actions.sync.confirmSignupSuccess(user);
         let state = reducer(intermediateState, successAction);
 
-        expect(state.working.confirmingSignup).to.be.false;
+        expect(state.working.confirmingSignup.inProgress).to.be.false;
         expect(state.confirmedSignup).to.be.true;
       });
     });
@@ -233,48 +243,48 @@ describe('reducers', () => {
 
   describe('confirmPasswordReset', () => {
     describe('request', () => {
-      it('should set working.confirmingPasswordReset to be true', () => {
+      it('should set working.confirmingPasswordReset.inProgress to be true', () => {
         let action = actions.sync.confirmPasswordResetRequest();
-        expect(initialState.working.confirmingPasswordReset).to.be.false;
+        expect(initialState.working.confirmingPasswordReset.inProgress).to.be.false;
 
         let state = reducer(initialState, action);
-        expect(state.working.confirmingPasswordReset).to.be.true;
+        expect(state.working.confirmingPasswordReset.inProgress).to.be.true;
       });
     });
 
     describe('failure', () => {
-      it('should set working.confirmingPasswordReset to be false', () => {
+      it('should set working.confirmingPasswordReset.inProgress to be false', () => {
         let error = 'Something bad happened when signing up';
 
         let requestAction = actions.sync.confirmPasswordResetRequest();
-        expect(initialState.working.confirmingPasswordReset).to.be.false;
+        expect(initialState.working.confirmingPasswordReset.inProgress).to.be.false;
 
         let intermediateState = reducer(initialState, requestAction);
-        expect(intermediateState.working.confirmingPasswordReset).to.be.true;
+        expect(intermediateState.working.confirmingPasswordReset.inProgress).to.be.true;
 
         let failureAction = actions.sync.confirmPasswordResetFailure(error);
         let state = reducer(intermediateState, failureAction);
-        expect(state.working.confirmingPasswordReset).to.be.false;
-        expect(state.notification.type).to.equal('error');
-          expect(state.notification.message).to.equal(error);
+        expect(state.working.confirmingPasswordReset.inProgress).to.be.false;
+        expect(state.working.confirmingPasswordReset.notification.type).to.equal('error');
+        expect(state.working.confirmingPasswordReset.notification.message).to.equal(error);
       });
     });
 
     describe('success', () => {
-      it('should set working.confirmingPasswordReset to be false and set user', () => {
+      it('should set working.confirmingPasswordReset.inProgress to be false and set user', () => {
         let user = 'user';
 
         let requestAction = actions.sync.confirmPasswordResetRequest();
         
-        expect(initialState.working.confirmingPasswordReset).to.be.false;
+        expect(initialState.working.confirmingPasswordReset.inProgress).to.be.false;
 
         let intermediateState = reducer(initialState, requestAction);
-        expect(intermediateState.working.confirmingPasswordReset).to.be.true;
+        expect(intermediateState.working.confirmingPasswordReset.inProgress).to.be.true;
 
         let successAction = actions.sync.confirmPasswordResetSuccess(user);
         let state = reducer(intermediateState, successAction);
 
-        expect(state.working.confirmingPasswordReset).to.be.false;
+        expect(state.working.confirmingPasswordReset.inProgress).to.be.false;
         expect(state.passwordResetConfirmed).to.be.true;
       });
     });
@@ -282,50 +292,50 @@ describe('reducers', () => {
 
   describe('acceptTerms', () => {
     describe('request', () => {
-      it('should set working.acceptingTerms to be true', () => {
+      it('should set working.acceptingTerms.inProgress to be true', () => {
         let action = actions.sync.acceptTermsRequest(); 
 
-        expect(initialState.working.acceptingTerms).to.be.false;
+        expect(initialState.working.acceptingTerms.inProgress).to.be.false;
 
         let state = reducer(initialState, action);
-        expect(state.working.acceptingTerms).to.be.true;
+        expect(state.working.acceptingTerms.inProgress).to.be.true;
       });
     });
 
     describe('failure', () => {
-      it('should set working.acceptingTerms to be false', () => {
+      it('should set working.acceptingTerms.inProgress to be false', () => {
         let error = 'Something bad happened when signing up';
 
         let requestAction = actions.sync.acceptTermsRequest();
-        expect(initialState.working.acceptingTerms).to.be.false;
+        expect(initialState.working.acceptingTerms.inProgress).to.be.false;
 
         let intermediateState = reducer(initialState, requestAction);
-        expect(intermediateState.working.acceptingTerms).to.be.true;
+        expect(intermediateState.working.acceptingTerms.inProgress).to.be.true;
 
         let failureAction = actions.sync.acceptTermsFailure(error);
         let state = reducer(intermediateState, failureAction);
-        expect(state.working.acceptingTerms).to.be.false;
-        expect(state.notification.type).to.equal('error');
-          expect(state.notification.message).to.equal(error);
+        expect(state.working.acceptingTerms.inProgress).to.be.false;
+        expect(state.working.acceptingTerms.notification.type).to.equal('error');
+        expect(state.working.acceptingTerms.notification.message).to.equal(error);
       });
     });
 
     describe('success', () => {
-      it('should set working.acceptingTerms to be false and set user', () => {
+      it('should set working.acceptingTerms.inProgress to be false and set user', () => {
         let user = 'user';
 
         let requestAction = actions.sync.acceptTermsRequest();
         
-        expect(initialState.working.acceptingTerms).to.be.false;
+        expect(initialState.working.acceptingTerms.inProgress).to.be.false;
         expect(initialState.loggedInUser).to.be.null;
 
         let intermediateState = reducer(initialState, requestAction);
-        expect(intermediateState.working.acceptingTerms).to.be.true;
+        expect(intermediateState.working.acceptingTerms.inProgress).to.be.true;
 
         let successAction = actions.sync.acceptTermsSuccess(user);
         let state = reducer(intermediateState, successAction);
 
-        expect(state.working.acceptingTerms).to.be.false;
+        expect(state.working.acceptingTerms.inProgress).to.be.false;
         expect(state.loggedInUser).to.equal(user);
       });
     });
@@ -337,42 +347,42 @@ describe('reducers', () => {
         it('should set fetchingUser to be true', () => {
           let action = actions.sync.fetchUserRequest(); 
 
-          expect(initialState.working.fetchingUser).to.be.false;
+          expect(initialState.working.fetchingUser.inProgress).to.be.false;
 
           let state = reducer(initialState, action);
-          expect(state.working.fetchingUser).to.be.true;
+          expect(state.working.fetchingUser.inProgress).to.be.true;
         });
       });
 
       describe('failure', () => {
         it('should set fetchingUser to be false and set error', () => {
-          let initialStateForTest = _.merge({}, initialState, { working: { fetchingUser: true} });
+          let initialStateForTest = _.merge({}, initialState, { working: { fetchingUser: { inProgress : true, notification: null } } });
           let error = 'Something bad happened!';
           let action = actions.sync.fetchUserFailure(error);
 
-          expect(initialStateForTest.working.fetchingUser).to.be.true;
-          expect(initialStateForTest.error).to.be.null;
+          expect(initialStateForTest.working.fetchingUser.inProgress).to.be.true;
+          expect(initialStateForTest.working.fetchingUser.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
 
-          expect(state.working.fetchingUser).to.be.false;
-          expect(state.notification.type).to.equal('error');
-          expect(state.notification.message).to.equal(error);
+          expect(state.working.fetchingUser.inProgress).to.be.false;
+          expect(state.working.fetchingUser.notification.type).to.equal('error');
+          expect(state.working.fetchingUser.notification.message).to.equal(error);
         });
       });
 
       describe('success', () => {
         it('should set fetchingUser to be false and set user', () => {
-          let initialStateForTest = _.merge({}, initialState, { working: { fetchingUser: true} });
+          let initialStateForTest = _.merge({}, initialState, { working: { fetchingUser: { inProgress : true, notification: null } } });
           let user = { id: 501, name: 'Jamie Blake'};
           let action = actions.sync.fetchUserSuccess(user);
 
-          expect(initialStateForTest.working.fetchingUser).to.be.true;
+          expect(initialStateForTest.working.fetchingUser.inProgress).to.be.true;
           expect(initialStateForTest.loggedInUser).to.be.null;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.working.fetchingUser).to.be.false;
+          expect(state.working.fetchingUser.inProgress).to.be.false;
           expect(state.loggedInUser.id).to.equal(user.id);
           expect(state.loggedInUser.name).to.equal(user.name);
         });
@@ -384,42 +394,42 @@ describe('reducers', () => {
         it('should set fetchingPatient to be true', () => {
           let action = actions.sync.fetchPatientRequest(); 
 
-          expect(initialState.working.fetchingPatient).to.be.false;
+          expect(initialState.working.fetchingPatient.inProgress).to.be.false;
 
           let state = reducer(initialState, action);
-          expect(state.working.fetchingPatient).to.be.true;
+          expect(state.working.fetchingPatient.inProgress).to.be.true;
         });
       });
 
       describe('failure', () => {
         it('should set fetchingPatient to be false and set error', () => {
-          let initialStateForTest = _.merge({}, initialState, { working: { fetchingPatient: true} });
+          let initialStateForTest = _.merge({}, initialState, { working: { fetchingPatient: { inProgress : true, notification: null } } });
           let error = 'Something else bad happened!';
           let action = actions.sync.fetchPatientFailure(error);
 
-          expect(initialStateForTest.working.fetchingPatient).to.be.true;
-          expect(initialStateForTest.error).to.be.null;
+          expect(initialStateForTest.working.fetchingPatient.inProgress).to.be.true;
+          expect(initialStateForTest.working.fetchingPatient.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
 
-          expect(state.working.fetchingPatient).to.be.false;
-          expect(state.notification.type).to.equal('error');
-          expect(state.notification.message).to.equal(error);
+          expect(state.working.fetchingPatient.inProgress).to.be.false;
+          expect(state.working.fetchingPatient.notification.type).to.equal('error');
+          expect(state.working.fetchingPatient.notification.message).to.equal(error);
         });
       });
 
       describe('success', () => {
         it('should set fetchingPatient to be false and set patient', () => {
-          let initialStateForTest = _.merge({}, initialState, { working: { fetchingPatient: true} });
+          let initialStateForTest = _.merge({}, initialState, { working: { fetchingPatient: { inProgress : true, notification: null } } });
           let patient = { id: 2020, name: 'Megan Durrant'};
           let action = actions.sync.fetchPatientSuccess(patient);
 
-          expect(initialStateForTest.working.fetchingPatient).to.be.true;
+          expect(initialStateForTest.working.fetchingPatient.inProgress).to.be.true;
           expect(initialStateForTest.currentPatientInView).to.be.null;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.working.fetchingPatient).to.be.false;
+          expect(state.working.fetchingPatient.inProgress).to.be.false;
           expect(state.currentPatientInView.id).to.equal(patient.id);
           expect(state.currentPatientInView.name).to.equal(patient.name);
         });
@@ -431,45 +441,45 @@ describe('reducers', () => {
         it('should set fetchingPatients to be true', () => {
           let action = actions.sync.fetchPatientsRequest(); 
 
-          expect(initialState.working.fetchingPatients).to.be.false;
+          expect(initialState.working.fetchingPatients.inProgress).to.be.false;
 
           let state = reducer(initialState, action);
-          expect(state.working.fetchingPatients).to.be.true;
+          expect(state.working.fetchingPatients.inProgress).to.be.true;
         });
       });
 
       describe('failure', () => {
         it('should set fetchingPatients to be false and set error', () => {
-          let initialStateForTest = _.merge({}, initialState, { working: { fetchingPatients: true} });
+          let initialStateForTest = _.merge({}, initialState, { working: { fetchingPatients: { inProgress : true, notification: null } } });
           let error = 'Oh no!!';
           let action = actions.sync.fetchPatientsFailure(error);
 
-          expect(initialStateForTest.working.fetchingPatients).to.be.true;
-          expect(initialStateForTest.error).to.be.null;
+          expect(initialStateForTest.working.fetchingPatients.inProgress).to.be.true;
+          expect(initialStateForTest.working.fetchingPatients.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
 
-          expect(state.working.fetchingPatients).to.be.false;
-          expect(state.notification.type).to.equal('error');
-          expect(state.notification.message).to.equal(error);
+          expect(state.working.fetchingPatients.inProgress).to.be.false;
+          expect(state.working.fetchingPatients.notification.type).to.equal('error');
+          expect(state.working.fetchingPatients.notification.message).to.equal(error);
         });
       });
 
       describe('success', () => {
         it('should set fetchingPatients to be false and set patient', () => {
-          let initialStateForTest = _.merge({}, initialState, { working: { fetchingPatients: true} });
+          let initialStateForTest = _.merge({}, initialState, { working: { fetchingPatients: { inProgress : true, notification: null } } });
           let patients = [
             { userid: 2020, name: 'Megan Durrant'},
             { userid: 501, name: 'Jamie Blake'}
           ];
           let action = actions.sync.fetchPatientsSuccess(patients);
 
-          expect(initialStateForTest.working.fetchingPatients).to.be.true;
+          expect(initialStateForTest.working.fetchingPatients.inProgress).to.be.true;
           expect(initialStateForTest.patients).to.be.empty;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.working.fetchingPatients).to.be.false;
+          expect(state.working.fetchingPatients.inProgress).to.be.false;
           expect(Object.keys(state.patients).length).to.equal(2);
           expect(state.patients[patients[0].userid].userid).to.equal(patients[0].userid);
           expect(state.patients[patients[1].userid].userid).to.equal(patients[1].userid);
@@ -484,35 +494,35 @@ describe('reducers', () => {
         it('should set fetchingPatientData to be true', () => {
           let action = actions.sync.fetchPatientDataRequest(); 
 
-          expect(initialState.working.fetchingPatientData).to.be.false;
+          expect(initialState.working.fetchingPatientData.inProgress).to.be.false;
 
           let state = reducer(initialState, action);
-          expect(state.working.fetchingPatientData).to.be.true;
+          expect(state.working.fetchingPatientData.inProgress).to.be.true;
         });
       });
 
       describe('failure', () => {
         it('should set fetchingPatientData to be false and set error', () => {
-          let initialStateForTest = _.merge({}, initialState, { working: { fetchingPatientData: true} });
+          let initialStateForTest = _.merge({}, initialState, { working: { fetchingPatientData: { inProgress : true, notification: null } } });
           let error = 'Oh no!!';
           let action = actions.sync.fetchPatientDataFailure(error);
 
-          expect(initialStateForTest.working.fetchingPatientData).to.be.true;
-          expect(initialStateForTest.error).to.be.null;
+          expect(initialStateForTest.working.fetchingPatientData.inProgress).to.be.true;
+          expect(initialStateForTest.working.fetchingPatientData.notification).to.be.null;
           expect(initialStateForTest.patientData).to.be.empty;
 
           let state = reducer(initialStateForTest, action);
 
-          expect(state.working.fetchingPatientData).to.be.false;
-          expect(state.notification.type).to.equal('error');
-          expect(state.notification.message).to.equal(error);
+          expect(state.working.fetchingPatientData.inProgress).to.be.false;
+          expect(state.working.fetchingPatientData.notification.type).to.equal('error');
+          expect(state.working.fetchingPatientData.notification.message).to.equal(error);
           expect(state.patientData).to.be.empty;
         });
       });
 
       describe('success', () => {
         it('should set fetchingPatientData to be false and set patient', () => {
-          let initialStateForTest = _.merge({}, initialState, { working: { fetchingPatientData: true} });
+          let initialStateForTest = _.merge({}, initialState, { working: { fetchingPatientData: { inProgress : true, notification: null } } });
           let patientId = 300;
           let patientData = [
             { id: 2020 },
@@ -520,12 +530,12 @@ describe('reducers', () => {
           ];
           let action = actions.sync.fetchPatientDataSuccess(patientId, patientData);
 
-          expect(initialStateForTest.working.fetchingPatientData).to.be.true;
+          expect(initialStateForTest.working.fetchingPatientData.inProgress).to.be.true;
           expect(initialStateForTest.patientData).to.be.empty;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.working.fetchingPatientData).to.be.false;
+          expect(state.working.fetchingPatientData.inProgress).to.be.false;
           expect(Object.keys(state.patientData).length).to.equal(1);
           expect(state.patientData[patientId].length).to.equal(patientData.length);
           expect(state.patientData[patientId][0].id).to.equal(patientData[0].id);
@@ -539,47 +549,47 @@ describe('reducers', () => {
         it('should set fetchingPendingInvites to be true', () => {
           let action = actions.sync.fetchPendingInvitesRequest(); 
 
-          expect(initialState.working.fetchingPendingInvites).to.be.false;
+          expect(initialState.working.fetchingPendingInvites.inProgress).to.be.false;
 
           let state = reducer(initialState, action);
-          expect(state.working.fetchingPendingInvites).to.be.true;
+          expect(state.working.fetchingPendingInvites.inProgress).to.be.true;
         });
       });
 
       describe('failure', () => {
         it('should set fetchingPendingInvites to be false and set error', () => {
-          let initialStateForTest = _.merge({}, initialState, { working: { fetchingPendingInvites: true} });
+          let initialStateForTest = _.merge({}, initialState, { working: { fetchingPendingInvites: { inProgress : true, notification: null } } });
           let error = 'Oh no, did not work!!';
           let action = actions.sync.fetchPendingInvitesFailure(error);
 
-          expect(initialStateForTest.working.fetchingPendingInvites).to.be.true;
-          expect(initialStateForTest.error).to.be.null;
+          expect(initialStateForTest.working.fetchingPendingInvites.inProgress).to.be.true;
+          expect(initialStateForTest.working.fetchingPendingInvites.notification).to.be.null;
           expect(initialStateForTest.pendingInvites).to.be.empty;
 
           let state = reducer(initialStateForTest, action);
 
-          expect(state.working.fetchingPendingInvites).to.be.false;
-          expect(state.notification.type).to.equal('error');
-          expect(state.notification.message).to.equal(error);
+          expect(state.working.fetchingPendingInvites.inProgress).to.be.false;
+          expect(state.working.fetchingPendingInvites.notification.type).to.equal('error');
+          expect(state.working.fetchingPendingInvites.notification.message).to.equal(error);
           expect(state.pendingInvites).to.be.empty;
         });
       });
 
       describe('success', () => {
         it('should set fetchingPendingInvites to be false and set patient', () => {
-          let initialStateForTest = _.merge({}, initialState, { working: { fetchingPendingInvites: true} });
+          let initialStateForTest = _.merge({}, initialState, { working: { fetchingPendingInvites: { inProgress : true, notification: null } } });
           let pendingInvites = [
             { id: 1167 },
             { id: 11 }
           ];
           let action = actions.sync.fetchPendingInvitesSuccess(pendingInvites);
 
-          expect(initialStateForTest.working.fetchingPendingInvites).to.be.true;
+          expect(initialStateForTest.working.fetchingPendingInvites.inProgress).to.be.true;
           expect(initialStateForTest.pendingInvites).to.be.empty;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.working.fetchingPendingInvites).to.be.false;
+          expect(state.working.fetchingPendingInvites.inProgress).to.be.false;
           expect(state.pendingInvites.length).to.equal(2);
           expect(state.pendingInvites[0].id).to.equal(pendingInvites[0].id);
           expect(state.pendingInvites[1].id).to.equal(pendingInvites[1].id);
@@ -592,47 +602,47 @@ describe('reducers', () => {
         it('should set fetchingPendingMemberships to be true', () => {
           let action = actions.sync.fetchPendingMembershipsRequest(); 
 
-          expect(initialState.working.fetchingPendingMemberships).to.be.false;
+          expect(initialState.working.fetchingPendingMemberships.inProgress).to.be.false;
 
           let state = reducer(initialState, action);
-          expect(state.working.fetchingPendingMemberships).to.be.true;
+          expect(state.working.fetchingPendingMemberships.inProgress).to.be.true;
         });
       });
 
       describe('failure', () => {
         it('should set fetchingPendingMemberships to be false and set error', () => {
-          let initialStateForTest = _.merge({}, initialState, { working: { fetchingPendingMemberships: true} });
+          let initialStateForTest = _.merge({}, initialState, { working: { fetchingPendingMemberships: { inProgress : true, notification: null } } });
           let error = 'Oh no, did not get pending memeberships!!';
           let action = actions.sync.fetchPendingMembershipsFailure(error);
 
-          expect(initialStateForTest.working.fetchingPendingMemberships).to.be.true;
-          expect(initialStateForTest.error).to.be.null;
+          expect(initialStateForTest.working.fetchingPendingMemberships.inProgress).to.be.true;
+          expect(initialStateForTest.working.fetchingPendingMemberships.notification).to.be.null;
           expect(initialStateForTest.pendingMemberships).to.be.empty;
 
           let state = reducer(initialStateForTest, action);
 
-          expect(state.working.fetchingPendingMemberships).to.be.false;
-          expect(state.notification.type).to.equal('error');
-          expect(state.notification.message).to.equal(error);
+          expect(state.working.fetchingPendingMemberships.inProgress).to.be.false;
+          expect(state.working.fetchingPendingMemberships.notification.type).to.equal('error');
+          expect(state.working.fetchingPendingMemberships.notification.message).to.equal(error);
           expect(state.pendingMemberships).to.be.empty;
         });
       });
 
       describe('success', () => {
         it('should set fetchingPendingMemberships to be false and set patient', () => {
-          let initialStateForTest = _.merge({}, initialState, { working: { fetchingPendingMemberships: true} });
+          let initialStateForTest = _.merge({}, initialState, { working: { fetchingPendingMemberships: { inProgress : true, notification: null } } });
           let pendingMemberships = [
             { id: 204 },
             { id: 1 }
           ];
           let action = actions.sync.fetchPendingMembershipsSuccess(pendingMemberships);
 
-          expect(initialStateForTest.working.fetchingPendingMemberships).to.be.true;
+          expect(initialStateForTest.working.fetchingPendingMemberships.inProgress).to.be.true;
           expect(initialStateForTest.pendingMemberships).to.be.empty;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.working.fetchingPendingMemberships).to.be.false;
+          expect(state.working.fetchingPendingMemberships.inProgress).to.be.false;
           expect(state.pendingMemberships.length).to.equal(2);
           expect(state.pendingMemberships[0].id).to.equal(pendingMemberships[0].id);
           expect(state.pendingMemberships[1].id).to.equal(pendingMemberships[1].id);
@@ -645,44 +655,44 @@ describe('reducers', () => {
         it('should set fetchingMessageThread to be true', () => {
           let action = actions.sync.fetchMessageThreadRequest(); 
 
-          expect(initialState.working.fetchingMessageThread).to.be.false;
+          expect(initialState.working.fetchingMessageThread.inProgress).to.be.false;
 
           let state = reducer(initialState, action);
-          expect(state.working.fetchingMessageThread).to.be.true;
+          expect(state.working.fetchingMessageThread.inProgress).to.be.true;
         });
       });
 
       describe('failure', () => {
         it('should set fetchingMessageThread to be false and set error', () => {
-          let initialStateForTest = _.merge({}, initialState, { working: { fetchingMessageThread: true} });
+          let initialStateForTest = _.merge({}, initialState, { working: { fetchingMessageThread: { inProgress : true, notification: null } } });
           let error = 'Oh no, did not get a message thread!!';
           let action = actions.sync.fetchMessageThreadFailure(error);
           
-          expect(initialStateForTest.working.fetchingMessageThread).to.be.true;
-          expect(initialStateForTest.error).to.be.null;
+          expect(initialStateForTest.working.fetchingMessageThread.inProgress).to.be.true;
+          expect(initialStateForTest.working.fetchingMessageThread.notification).to.be.null;
           expect(initialStateForTest.messageThread).to.be.null;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.working.fetchingMessageThread).to.be.false;
-          expect(state.notification.type).to.equal('error');
-          expect(state.notification.message).to.equal(error);
+          expect(state.working.fetchingMessageThread.inProgress).to.be.false;
+          expect(state.working.fetchingMessageThread.notification.type).to.equal('error');
+          expect(state.working.fetchingMessageThread.notification.message).to.equal(error);
           expect(state.messageThread).to.be.null;
         });
       });
 
       describe('success', () => {
         it('should set fetchingMessageThread to be false and set patient', () => {
-          let initialStateForTest = _.merge({}, initialState, { working: { fetchingMessageThread: true} });
+          let initialStateForTest = _.merge({}, initialState, { working: { fetchingMessageThread: { inProgress : true, notification: null } } });
           let messageThread = 'some message thread';
           let action = actions.sync.fetchMessageThreadSuccess(messageThread);
 
-          expect(initialStateForTest.working.fetchingMessageThread).to.be.true;
+          expect(initialStateForTest.working.fetchingMessageThread.inProgress).to.be.true;
           expect(initialStateForTest.messageThread).to.be.null;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.working.fetchingMessageThread).to.be.false;
+          expect(state.working.fetchingMessageThread.inProgress).to.be.false;
           expect(state.messageThread).to.equal(messageThread);
         });
       });
@@ -714,7 +724,7 @@ describe('reducers', () => {
           let action = actions.sync.createPatientFailure(error);
           
           expect(initialStateForTest.working.creatingPatient.inProgress).to.be.true;
-          expect(initialStateForTest.error).to.be.null;
+          expect(initialStateForTest.working.creatingPatient.notification).to.be.null;
           expect(initialStateForTest.currentPatientInView).to.be.null;
 
           let state = reducer(initialStateForTest, action);
@@ -755,129 +765,41 @@ describe('reducers', () => {
         it('should set removingPatient to be true', () => {
           let action = actions.sync.removePatientRequest(); 
 
-          expect(initialState.working.removingPatient).to.be.false;
+          expect(initialState.working.removingPatient.inProgress).to.be.false;
 
           let state = reducer(initialState, action);
-          expect(state.working.removingPatient).to.be.true;
+          expect(state.working.removingPatient.inProgress).to.be.true;
         });
       });
 
       describe('failure', () => {
         it('should set removingPatient to be false and set error', () => {
-          let initialStateForTest = _.merge({}, initialState, { working: { removingPatient: true} });
+          let initialStateForTest = _.merge({}, initialState, { working: { removingPatient: { inProgress : true, notification: null } } });
           let error = 'Oh no, did not get a message thread!!';
           let action = actions.sync.removePatientFailure(error);
           
-          expect(initialStateForTest.working.removingPatient).to.be.true;
-          expect(initialStateForTest.error).to.be.null;
+          expect(initialStateForTest.working.removingPatient.inProgress).to.be.true;
+          expect(initialStateForTest.working.removingPatient.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.working.removingPatient).to.be.false;
-          expect(state.notification.type).to.equal('error');
-          expect(state.notification.message).to.equal(error);
+          expect(state.working.removingPatient.inProgress).to.be.false;
+          expect(state.working.removingPatient.notification.type).to.equal('error');
+          expect(state.working.removingPatient.notification.message).to.equal(error);
         });
       });
 
       describe('success', () => {
         it('should set removingPatient to be false', () => {
-          let initialStateForTest = _.merge({}, initialState, { working: { removingPatient: true} });
+          let initialStateForTest = _.merge({}, initialState, { working: { removingPatient: { inProgress : true, notification: null } } });
           let patientId = 15;
           let action = actions.sync.removePatientSuccess(patientId);
 
-          expect(initialStateForTest.working.removingPatient).to.be.true;
+          expect(initialStateForTest.working.removingPatient.inProgress).to.be.true;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.working.removingPatient).to.be.false;
-        });
-      });
-    });
-
-    describe('removePatient', () => {
-      describe('request', () => {
-        it('should set removingPatient to be true', () => {
-          let action = actions.sync.removePatientRequest(); 
-
-          expect(initialState.working.removingPatient).to.be.false;
-
-          let state = reducer(initialState, action);
-          expect(state.working.removingPatient).to.be.true;
-        });
-      });
-
-      describe('failure', () => {
-        it('should set removingPatient to be false and set error', () => {
-          let initialStateForTest = _.merge({}, initialState, { working: { removingPatient: true} });
-          let error = 'Oh no, did not get a message thread!!';
-          let action = actions.sync.removePatientFailure(error);
-          
-          expect(initialStateForTest.working.removingPatient).to.be.true;
-          expect(initialStateForTest.error).to.be.null;
-
-          let state = reducer(initialStateForTest, action);
-          
-          expect(state.working.removingPatient).to.be.false;
-          expect(state.notification.type).to.equal('error');
-          expect(state.notification.message).to.equal(error);
-        });
-      });
-
-      describe('success', () => {
-        it('should set removingPatient to be false', () => {
-          let initialStateForTest = _.merge({}, initialState, { working: { removingPatient: true} });
-          let patientId = 15;
-          let action = actions.sync.removePatientSuccess(patientId);
-
-          expect(initialStateForTest.working.removingPatient).to.be.true;
-
-          let state = reducer(initialStateForTest, action);
-          
-          expect(state.working.removingPatient).to.be.false;
-        });
-      });
-    });
-
-    describe('removePatient', () => {
-      describe('request', () => {
-        it('should set removingPatient to be true', () => {
-          let action = actions.sync.removePatientRequest(); 
-
-          expect(initialState.working.removingPatient).to.be.false;
-
-          let state = reducer(initialState, action);
-          expect(state.working.removingPatient).to.be.true;
-        });
-      });
-
-      describe('failure', () => {
-        it('should set removingPatient to be false and set error', () => {
-          let initialStateForTest = _.merge({}, initialState, { working: { removingPatient: true} });
-          let error = 'Oh no, did not get a message thread!!';
-          let action = actions.sync.removePatientFailure(error);
-          
-          expect(initialStateForTest.working.removingPatient).to.be.true;
-          expect(initialStateForTest.error).to.be.null;
-
-          let state = reducer(initialStateForTest, action);
-          
-          expect(state.working.removingPatient).to.be.false;
-          expect(state.notification.type).to.equal('error');
-          expect(state.notification.message).to.equal(error);
-        });
-      });
-
-      describe('success', () => {
-        it('should set removingPatient to be false', () => {
-          let initialStateForTest = _.merge({}, initialState, { working: { removingPatient: true} });
-          let patientId = 15;
-          let action = actions.sync.removePatientSuccess(patientId);
-
-          expect(initialStateForTest.working.removingPatient).to.be.true;
-
-          let state = reducer(initialStateForTest, action);
-          
-          expect(state.working.removingPatient).to.be.false;
+          expect(state.working.removingPatient.inProgress).to.be.false;
         });
       });
     });
@@ -908,7 +830,7 @@ describe('reducers', () => {
           let action = actions.sync.removeMemberFailure(error);
           
           expect(initialStateForTest.working.removingMember.inProgress).to.be.true;
-          expect(initialStateForTest.error).to.be.null;
+          expect(initialStateForTest.working.removingMember.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
           
@@ -967,7 +889,7 @@ describe('reducers', () => {
           let action = actions.sync.sendInvitationFailure(error);
           
           expect(initialStateForTest.working.sendingInvitation.inProgress).to.be.true;
-          expect(initialStateForTest.error).to.be.null;
+          expect(initialStateForTest.working.sendingInvitation.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
           
@@ -1041,7 +963,7 @@ describe('reducers', () => {
           let action = actions.sync.cancelInvitationFailure(error);
           
           expect(initialStateForTest.working.cancellingInvitation.inProgress).to.be.true;
-          expect(initialStateForTest.error).to.be.null;
+          expect(initialStateForTest.working.cancellingInvitation.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
           
@@ -1116,7 +1038,7 @@ describe('reducers', () => {
           let action = actions.sync.setMemberPermissionsFailure(error);
           
           expect(initialStateForTest.working.settingMemberPermissions.inProgress).to.be.true;
-          expect(initialStateForTest.error).to.be.null;
+          expect(initialStateForTest.working.settingMemberPermissions.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
           
@@ -1165,27 +1087,27 @@ describe('reducers', () => {
         it('should set acceptingMembership to be true', () => {
           let action = actions.sync.acceptMembershipRequest(); 
 
-          expect(initialState.working.acceptingMembership).to.be.false;
+          expect(initialState.working.acceptingMembership.inProgress).to.be.false;
 
           let state = reducer(initialState, action);
-          expect(state.working.acceptingMembership).to.be.true;
+          expect(state.working.acceptingMembership.inProgress).to.be.true;
         });
       });
 
       describe('failure', () => {
         it('should set acceptingMembership to be false and set error', () => {
-          let initialStateForTest = _.merge({}, initialState, { working: { acceptingMembership: true} });
+          let initialStateForTest = _.merge({}, initialState, { working: { acceptingMembership: { inProgress : true, notification: null } } });
           let error = 'Oh no, did not get a message thread!!';
           let action = actions.sync.acceptMembershipFailure(error);
           
-          expect(initialStateForTest.working.acceptingMembership).to.be.true;
-          expect(initialStateForTest.error).to.be.null;
+          expect(initialStateForTest.working.acceptingMembership.inProgress).to.be.true;
+          expect(initialStateForTest.working.acceptingMembership.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.working.acceptingMembership).to.be.false;
-          expect(state.notification.type).to.equal('error');
-          expect(state.notification.message).to.equal(error);
+          expect(state.working.acceptingMembership.inProgress).to.be.false;
+          expect(state.working.acceptingMembership.notification.type).to.equal('error');
+          expect(state.working.acceptingMembership.notification.message).to.equal(error);
         });
       });
 
@@ -1205,7 +1127,7 @@ describe('reducers', () => {
             initialState, 
             { 
               working: { 
-                acceptingMembership: true
+                acceptingMembership: { inProgress : true, notification: null }
               },
               pendingMemberships: pendingMemberships,
               patients: patients
@@ -1213,13 +1135,13 @@ describe('reducers', () => {
           
           let action = actions.sync.acceptMembershipSuccess(pendingMemberships[0]);
 
-          expect(initialStateForTest.working.acceptingMembership).to.be.true;
+          expect(initialStateForTest.working.acceptingMembership.inProgress).to.be.true;
           expect(initialStateForTest.pendingMemberships.length).to.equal(pendingMemberships.length);
           expect(initialStateForTest.patients.length).to.equal(patients.length);
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.working.acceptingMembership).to.be.false;
+          expect(state.working.acceptingMembership.inProgress).to.be.false;
 
           expect(state.pendingMemberships.length).to.equal(pendingMemberships.length - 1);
           expect(state.pendingMemberships[0].key).to.equal(pendingMemberships[1].key);
@@ -1235,27 +1157,27 @@ describe('reducers', () => {
         it('should set dismissingMembership to be true', () => {
           let action = actions.sync.dismissMembershipRequest(); 
 
-          expect(initialState.working.dismissingMembership).to.be.false;
+          expect(initialState.working.dismissingMembership.inProgress).to.be.false;
 
           let state = reducer(initialState, action);
-          expect(state.working.dismissingMembership).to.be.true;
+          expect(state.working.dismissingMembership.inProgress).to.be.true;
         });
       });
 
       describe('failure', () => {
         it('should set dismissingMembership to be false and set error', () => {
-          let initialStateForTest = _.merge({}, initialState, { working: { dismissingMembership: true} });
+          let initialStateForTest = _.merge({}, initialState, { working: { dismissingMembership: { inProgress : true, notification: null } } });
           let error = 'Oh no, did not get a message thread!!';
           let action = actions.sync.dismissMembershipFailure(error);
           
-          expect(initialStateForTest.working.dismissingMembership).to.be.true;
-          expect(initialStateForTest.error).to.be.null;
+          expect(initialStateForTest.working.dismissingMembership.inProgress).to.be.true;
+          expect(initialStateForTest.working.dismissingMembership.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.working.dismissingMembership).to.be.false;
-          expect(state.notification.type).to.equal('error');
-          expect(state.notification.message).to.equal(error);
+          expect(state.working.dismissingMembership.inProgress).to.be.false;
+          expect(state.working.dismissingMembership.notification.type).to.equal('error');
+          expect(state.working.dismissingMembership.notification.message).to.equal(error);
         });
       });
 
@@ -1275,7 +1197,7 @@ describe('reducers', () => {
             initialState, 
             { 
               working: { 
-                dismissingMembership: true
+                dismissingMembership: { inProgress : true, notification: null }
               },
               pendingMemberships: pendingMemberships,
               patients: patients
@@ -1283,13 +1205,13 @@ describe('reducers', () => {
           
           let action = actions.sync.dismissMembershipSuccess(pendingMemberships[0]);
 
-          expect(initialStateForTest.working.dismissingMembership).to.be.true;
+          expect(initialStateForTest.working.dismissingMembership.inProgress).to.be.true;
           expect(initialStateForTest.pendingMemberships.length).to.equal(pendingMemberships.length);
           expect(initialStateForTest.patients.length).to.equal(patients.length);
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.working.dismissingMembership).to.be.false;
+          expect(state.working.dismissingMembership.inProgress).to.be.false;
 
           expect(state.pendingMemberships.length).to.equal(pendingMemberships.length - 1);
           expect(state.pendingMemberships[0].key).to.equal(pendingMemberships[1].key);
@@ -1305,27 +1227,27 @@ describe('reducers', () => {
         it('should set updatingPatient to be true', () => {
           let action = actions.sync.updatePatientRequest(); 
 
-          expect(initialState.working.updatingPatient).to.be.false;
+          expect(initialState.working.updatingPatient.inProgress).to.be.false;
 
           let state = reducer(initialState, action);
-          expect(state.working.updatingPatient).to.be.true;
+          expect(state.working.updatingPatient.inProgress).to.be.true;
         });
       });
 
       describe('failure', () => {
         it('should set updatingPatient to be false and set error', () => {
-          let initialStateForTest = _.merge({}, initialState, { working: { updatingPatient: true} });
+          let initialStateForTest = _.merge({}, initialState, { working: { updatingPatient: { inProgress : true, notification: null } } });
           let error = 'Oh no, did not update patient!!';
           let action = actions.sync.updatePatientFailure(error);
           
-          expect(initialStateForTest.working.updatingPatient).to.be.true;
-          expect(initialStateForTest.error).to.be.null;
+          expect(initialStateForTest.working.updatingPatient.inProgress).to.be.true;
+          expect(initialStateForTest.working.updatingPatient.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.working.updatingPatient).to.be.false;
-          expect(state.notification.type).to.equal('error');
-          expect(state.notification.message).to.equal(error);
+          expect(state.working.updatingPatient.inProgress).to.be.false;
+          expect(state.working.updatingPatient.notification.type).to.equal('error');
+          expect(state.working.updatingPatient.notification.message).to.equal(error);
         });
       });
 
@@ -1339,20 +1261,20 @@ describe('reducers', () => {
             initialState, 
             { 
               working: { 
-                updatingPatient: true
+                updatingPatient: { inProgress : true, notification: null }
               },
               currentPatientInView: currentPatient
           });
           
           let action = actions.sync.updatePatientSuccess(updatedPatient);
 
-          expect(initialStateForTest.working.updatingPatient).to.be.true;
+          expect(initialStateForTest.working.updatingPatient.inProgress).to.be.true;
           expect(initialStateForTest.currentPatientInView.userid).to.equal(currentPatient.userid);
           expect(initialStateForTest.currentPatientInView.name).to.equal(currentPatient.name);
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.working.updatingPatient).to.be.false;
+          expect(state.working.updatingPatient.inProgress).to.be.false;
 
           expect(state.currentPatientInView.userid).to.equal(updatedPatient.userid);
           expect(state.currentPatientInView.name).to.equal(updatedPatient.name);
@@ -1366,11 +1288,11 @@ describe('reducers', () => {
           let updatingUser = { id: 506, name: 'Jimmy Hendrix' };
           let action = actions.sync.updateUserRequest(updatingUser); 
 
-          expect(initialState.working.updatingUser).to.be.false;
+          expect(initialState.working.updatingUser.inProgress).to.be.false;
           expect(initialState.loggedInUser).to.be.null;
 
           let state = reducer(initialState, action);
-          expect(state.working.updatingUser).to.be.true;
+          expect(state.working.updatingUser.inProgress).to.be.true;
           expect(state.loggedInUser.id).to.equal(updatingUser.id);
           expect(state.loggedInUser.name).to.equal(updatingUser.name);
         });
@@ -1379,18 +1301,18 @@ describe('reducers', () => {
       describe('failure', () => {
         it('should set updatingUser to be false and set error', () => {
           
-          let initialStateForTest = _.merge({}, initialState, { working: { updatingUser: true} });
+          let initialStateForTest = _.merge({}, initialState, { working: { updatingUser: { inProgress : true, notification: null } } });
           let error = 'Oh no, did not update patient!!';
           let action = actions.sync.updateUserFailure(error);
           
-          expect(initialStateForTest.working.updatingUser).to.be.true;
-          expect(initialStateForTest.error).to.be.null;
+          expect(initialStateForTest.working.updatingUser.inProgress).to.be.true;
+          expect(initialStateForTest.working.updatingUser.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.working.updatingUser).to.be.false;
-          expect(state.notification.type).to.equal('error');
-          expect(state.notification.message).to.equal(error);
+          expect(state.working.updatingUser.inProgress).to.be.false;
+          expect(state.working.updatingUser.notification.type).to.equal('error');
+          expect(state.working.updatingUser.notification.message).to.equal(error);
         });
       });
 
@@ -1404,20 +1326,20 @@ describe('reducers', () => {
             initialState, 
             { 
               working: { 
-                updatingUser: true
+                updatingUser: { inProgress : true, notification: null }
               },
               loggedInUser: loggedInUser
           });
           
           let action = actions.sync.updateUserSuccess(updatedUser);
 
-          expect(initialStateForTest.working.updatingUser).to.be.true;
+          expect(initialStateForTest.working.updatingUser.inProgress).to.be.true;
           expect(initialStateForTest.loggedInUser.id).to.equal(loggedInUser.id);
           expect(initialStateForTest.loggedInUser.name).to.equal(loggedInUser.name);
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.working.updatingUser).to.be.false;
+          expect(state.working.updatingUser.inProgress).to.be.false;
 
           expect(state.loggedInUser.id).to.equal(updatedUser.id);
           expect(state.loggedInUser.name).to.equal(updatedUser.name);

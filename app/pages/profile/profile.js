@@ -255,7 +255,7 @@ export var Profile = React.createClass({
  */
 let mapStateToProps = state => ({
   user: state.blip.loggedInUser,
-  fetchingUser: state.blip.working.fetchingUser
+  fetchingUser: state.blip.working.fetchingUser.inProgress
 });
 
 let mapDispatchToProps = dispatch => bindActionCreators({

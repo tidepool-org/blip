@@ -104,6 +104,7 @@ export function logout(api) {
         dispatch(sync.logoutFailure(ErrorMessages.STANDARD));
       } else {
         dispatch(sync.logoutSuccess());
+        dispatch(routeActions.push('/'));
       }
     });
   }

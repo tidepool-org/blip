@@ -189,7 +189,7 @@ export let Signup = React.createClass({
   },
 
   resetFormStateBeforeSubmit: function(formValues) {
-    this.props.acknowledgeNotification(this.props.notification);
+    this.props.acknowledgeNotification('signingUp');
     this.setState({
       formValues: formValues,
       validationErrors: {},

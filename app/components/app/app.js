@@ -346,9 +346,9 @@ let getFetchers = (dispatchProps, ownProps, api) => {
 let mapStateToProps = state => {
   return {
     authenticated: state.blip.isLoggedIn,
-    fetchingUser: state.blip.working.fetchingUser,
-    fetchingPatient: state.blip.working.fetchingPatient,
-    loggingOut: state.blip.working.loggingOut,
+    fetchingUser: state.blip.working.fetchingUser.inProgress,
+    fetchingPatient: state.blip.working.fetchingPatient.inProgress,
+    loggingOut: state.blip.working.loggingOut.inProgress,
     termsAccepted: _.get(state, 'blip.loggedInUser.termsAccepted', null),
     user: state.blip.loggedInUser,
     patient: state.blip.currentPatientInView

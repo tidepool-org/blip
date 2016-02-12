@@ -136,7 +136,7 @@ export let RequestPasswordReset = React.createClass({
   },
 
   resetFormStateBeforeSubmit: function(formValues) {
-    this.props.acknowledgeNotification(this.props.notification);
+    this.props.acknowledgeNotification('requestingPasswordReset');
     this.setState({
       formValues: formValues,
       validationErrors: {},
@@ -172,8 +172,8 @@ export let RequestPasswordReset = React.createClass({
  */
 
 let mapStateToProps = state => ({
-  notification: state.blip.notification,
-  working: state.blip.working.requestingPasswordReset
+  notification: state.blip.working.requestingPasswordReset.notification,
+  working: state.blip.working.requestingPasswordReset.inProgress
 });
 
 let mapDispatchToProps = dispatch => bindActionCreators({

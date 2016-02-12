@@ -560,8 +560,8 @@ let mapStateToProps = state => ({
   patient: state.blip.currentPatientInView,
   patientData: state.blip.patientData,
   messageThread: state.blip.messageThread,
-  fetchingPatient: state.blip.working.fetchingPatient,
-  fetchingPatientData: state.blip.working.fetchingPatientData
+  fetchingPatient: state.blip.working.fetchingPatient.inProgress,
+  fetchingPatientData: state.blip.working.fetchingPatientData.inProgress
 });
 
 let mapDispatchToProps = dispatch => bindActionCreators({

@@ -147,7 +147,7 @@ export var ConfirmPasswordReset = React.createClass({
   },
 
   resetFormStateBeforeSubmit: function(formValues) {
-    this.props.acknowledgeNotification(this.props.notification);
+    this.props.acknowledgeNotification('confirmingPasswordReset');
     this.setState({
       formValues: formValues,
       validationErrors: {},
@@ -209,8 +209,8 @@ export var ConfirmPasswordReset = React.createClass({
  */
 
 let mapStateToProps = state => ({
-  notification: state.blip.notification,
-  working: state.blip.working.confirmingPasswordReset,
+  notification: state.blip.working.confirmingPasswordReset.notification,
+  working: state.blip.working.confirmingPasswordReset.inProgress,
   success: state.blip.passwordResetConfirmed
 });
 

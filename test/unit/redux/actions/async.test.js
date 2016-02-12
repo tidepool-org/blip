@@ -275,7 +275,8 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'LOGOUT_REQUEST' },
-          { type: 'LOGOUT_SUCCESS' }
+          { type: 'LOGOUT_SUCCESS' },
+          { type: '@@router/TRANSITION', payload: { args: [ '/' ], method: 'push' } }
         ];
         let store = mockStore(initialState, expectedActions, done);
 

@@ -137,7 +137,7 @@ export var EmailVerification = React.createClass({
     this.props.onSubmitResend(formValues.email);
   },
   resetFormStateBeforeSubmit: function(formValues) {
-    this.props.acknowledgeNotification(this.props.notification);
+    this.props.acknowledgeNotification('resendingEmailVerification');
     this.setState({
       formValues: formValues,
       validationErrors: {},
@@ -172,8 +172,8 @@ export var EmailVerification = React.createClass({
  */
 
 let mapStateToProps = state => ({
-  notification: state.blip.notification,
-  working: state.blip.working.resendingEmailVerification,
+  notification: state.blip.working.resendingEmailVerification.notification,
+  working: state.blip.working.resendingEmailVerification.inProgress,
   resent: state.blip.resentEmailVerification,
   sent: state.blip.sentEmailVerification
 });

@@ -21,9 +21,9 @@ let getFetchers = (dispatchProps, ownProps, api) => {
 
 let mapStateToProps = state => ({
   user: state.blip.loggedInUser,
-  fetchingUser: state.blip.working.fetchingUser,
+  fetchingUser: state.blip.working.fetchingUser.inProgress,
   patient: state.blip.currentPatientInView,
-  fetchingPatient: state.blip.working.fetchingPatient,
+  fetchingPatient: state.blip.working.fetchingPatient.inProgress,
   pendingInvites: state.blip.pendingInvites,
   changingMemberPermissions: state.blip.working.settingMemberPermissions,
   removingMember: state.blip.working.removingMember,
