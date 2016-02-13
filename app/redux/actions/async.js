@@ -34,7 +34,7 @@ export function signup(api, accountDetails) {
   return (dispatch) => {
     dispatch(sync.signupRequest());
 
-    api.user.signup(accountDetails, (err, result) => {
+    api.user.signup(accountDetails, (err, user) => {
       if (err) {
         let error = ErrorMessages.SIGNUP_ERROR;
         if (err.status && err.status === 400) {
@@ -42,14 +42,8 @@ export function signup(api, accountDetails) {
         }
         dispatch(sync.signupFailure(error));
       } else {
-        api.user.get((err, user) => {
-          if (err) {
-            dispatch(sync.signupFailure(ErrorMessages.SIGNUP_ERROR));
-          } else {
-            dispatch(sync.signupSuccess(user));
-            dispatch(routeActions.push('/email-verification'));
-          }
-        });
+        dispatch(sync.signupSuccess(user));
+        dispatch(routeActions.push('/email-verification'));
       }
     });
   };

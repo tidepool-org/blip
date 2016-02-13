@@ -31,8 +31,7 @@ describe('Actions', () => {
         let user = { id: 27 };
         let api = {
           user: {
-            signup: sinon.stub().callsArgWith(1, null, 'success!'),
-            get: sinon.stub().callsArgWith(0, null, user)
+            signup: sinon.stub().callsArgWith(1, null, user),
           }
         };
 
@@ -45,8 +44,6 @@ describe('Actions', () => {
 
         store.dispatch(async.signup(api, {foo: 'bar'}));
 
-        expect(api.user.signup.callCount).to.equal(1);
-        expect(api.user.get.callCount).to.equal(1);
       });
 
       it('should trigger SIGNUP_FAILURE and it should call signup once and get zero times for a failed signup request', () => {
@@ -54,7 +51,6 @@ describe('Actions', () => {
         let api = {
           user: {
             signup: sinon.stub().callsArgWith(1, { status: 401 }, null),
-            get: sinon.stub()
           }
         };
 
@@ -67,28 +63,6 @@ describe('Actions', () => {
         store.dispatch(async.signup(api, {foo: 'bar'}));
 
         expect(api.user.signup.callCount).to.equal(1);
-        expect(api.user.get.callCount).to.equal(0);
-      });
-
-      it('should trigger SIGNUP_FAILURE and it should call signup and get once for a failed user retrieval', () => {
-        let user = { id: 27 };
-        let api = {
-          user: {
-            signup: sinon.stub().callsArgWith(1, null, 'success!'),
-            get: sinon.stub().callsArgWith(0, 'failed user retrieval!', null)
-          }
-        };
-
-        let expectedActions = [
-          { type: 'SIGNUP_REQUEST' },
-          { type: 'SIGNUP_FAILURE', error: 'An error occured while signing up.' }
-        ];
-        let store = mockStore(initialState, expectedActions, done);
-
-        store.dispatch(async.signup(api, {foo: 'bar'}));
-
-        expect(api.user.signup.callCount).to.equal(1);
-        expect(api.user.get.callCount).to.equal(1);
       });
     });
 
