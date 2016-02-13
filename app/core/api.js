@@ -480,7 +480,9 @@ api.team.replyToMessageThread = function(message,cb){
     if (error) {
       return cb(error);
     }
-    cb(null, replyId);
+    if (cb) {
+      cb(null, replyId);
+    }
   });
 };
 
@@ -492,7 +494,9 @@ api.team.startMessageThread = function(message,cb){
     if (error) {
       return cb(error);
     }
-    cb(null, messageId);
+    if (cb) {
+      cb(null, messageId);
+    }
   });
 };
 
@@ -503,7 +507,9 @@ api.team.editMessage = function(message,cb){
     if (error) {
       return cb(error);
     }
-    cb(null, null);
+    if (cb) {
+      cb(null, null);
+    }
   });
 };
 
