@@ -47,7 +47,7 @@ export let PatientData = React.createClass({
     timePrefs: React.PropTypes.object.isRequired,
     patientData: React.PropTypes.object,
     patient: React.PropTypes.object,
-    messageThread: React.PropTypes.object,
+    messageThread: React.PropTypes.array,
     fetchingPatient: React.PropTypes.bool.isRequired,
     fetchingPatientData: React.PropTypes.bool.isRequired,
     isUserPatient: React.PropTypes.bool,
@@ -374,7 +374,7 @@ export let PatientData = React.createClass({
   },
 
   closeMessageThread: function(){
-    this.closeMessageThread();
+    this.props.onCloseMessageThread();
     this.refs.tideline.closeMessageThread();
     this.props.trackMetric('Closed Message Thread Modal');
   },
@@ -580,6 +580,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     onRefresh: dispatchProps.fetchPatientData.bind(null, api),
     onFetchMessageThread: dispatchProps.fetchMessageThread.bind(null, api),
     onUpdatePatientData: dispatchProps.updateLocalPatientData,
+    onCloseMessageThread: dispatchProps.closeMessageThread,
     onSaveComment: api.team.replyToMessageThread.bind(api),
     onCreateMessage: api.team.startMessageThread.bind(api),
     onEditMessage: api.team.editMessage.bind(api),

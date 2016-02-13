@@ -246,6 +246,7 @@ var PatientTeam = React.createClass({
 
     return (
       <ConfirmDialog
+        working={self.props.removingMember.inProgress}
         message={'Are you sure you want to remove this person? They will no longer be able to see or comment on your data.'}
         buttonText={'I\'m sure, remove them'}
         buttonTextWorking={'Removing...'}
