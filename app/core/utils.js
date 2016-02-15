@@ -137,6 +137,14 @@ utils.getInviteEmail = function(location) {
   return null;
 }
 
+/**
+ * Because testing users who have email addresses with +skip do not have emailVerified set,
+ * we need to create a function that validates whether a user either has a verified email, 
+ * or uses this type of email in order to not show the verify message to users all the time!
+ * 
+ * @param  {Object}  user
+ * @return {Boolean}
+ */
 utils.hasVerifiedEmail = function(user) {
   return (user.emailVerified || user.username.indexOf('+skip@') !== -1);
 }
