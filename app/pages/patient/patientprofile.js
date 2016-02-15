@@ -23,13 +23,14 @@ let mapStateToProps = state => ({
   patient: state.blip.currentPatientInView,
   fetchingPatient: state.blip.working.fetchingPatient.inProgress,
   pendingInvites: state.blip.pendingInvites,
-  changingMemberPermissions: state.working.settingMemberPermissions,
-  removingMember: state.working.removingMember,
-  invitingMember: state.working.invitingMember,
-  cancellingInvite: state.working.cancellingInvite
+  changingMemberPermissions: state.blip.working.settingMemberPermissions,
+  removingMember: state.blip.working.removingMember,
+  invitingMember: state.blip.working.sendingInvitation,
+  cancellingInvite: state.blip.working.cancellingInvitation
 });
 
 let mapDispatchToProps = dispatch => bindActionCreators({
+  fetchPatient: actions.async.fetchPatient,
   updatePatient: actions.async.updatePatient,
   changeMemberPermissions: actions.async.setMemberPermissions,
   removeMember: actions.async.removeMember,

@@ -144,7 +144,7 @@ export let Login = React.createClass({
   },
 
   resetFormStateBeforeSubmit: function(formValues) {
-    this.props.acknowledgedNotification(this.props.notification);
+    this.props.acknowledgedNotification('loggingIn');
     this.setState({
       formValues: formValues,
       validationErrors: {},

@@ -37,9 +37,9 @@ export default (state = initialState, action) => {
         });
       }
     case types.SET_TIME_PREFERENCES:
-      return update(state, { timePrefs: { $set: action.payload.timePrefs } });
+      return update(state, { timePrefs: { $merge: action.payload.timePrefs } });
     case types.SET_BLOOD_GLUCOSE_PREFERENCES:
-      return update(state, { bgPrefs: { $set: action.payload.bgPrefs } });
+      return update(state, { bgPrefs: { $merge: action.payload.bgPrefs } });
     case types.FETCH_USER_REQUEST: 
       return update(state, { 
         working: {
@@ -426,9 +426,7 @@ export default (state = initialState, action) => {
             } 
           } 
         },
-        isLoggedIn: { $set: true },
-        emailVerificationSent: { $set: true },
-        loggedInUser: { $set: action.payload.user }
+        emailVerificationSent: { $set: true }
       });
     case types.SIGNUP_FAILURE:
       return update(state, { 
@@ -539,7 +537,9 @@ export default (state = initialState, action) => {
             } 
           } 
         },
-        loggedInUser: { $set: action.payload.user }
+        loggedInUser: {
+          termsAccepted: { $set: action.payload.acceptedDate }
+        }
       });
     case types.ACCEPT_TERMS_FAILURE:
       return update(state, { 
@@ -979,7 +979,7 @@ export default (state = initialState, action) => {
           } 
         },
         loggedInUser: {
-          $set: action.payload.updatingUser
+          $merge: action.payload.updatingUser
         }
       }); 
     case types.UPDATE_USER_SUCCESS:
@@ -993,7 +993,7 @@ export default (state = initialState, action) => {
           } 
         },
         loggedInUser: {
-          $set: action.payload.updatedUser
+          $merge: action.payload.updatedUser
         }
       });
     case types.UPDATE_USER_FAILURE:

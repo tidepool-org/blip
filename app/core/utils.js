@@ -137,6 +137,10 @@ utils.getInviteEmail = function(location) {
   return null;
 }
 
+utils.hasVerifiedEmail = function(user) {
+  return (user.emailVerified || user.username.indexOf('+skip@') !== -1);
+}
+
 utils.getSignupKey = function(location) {
   if (location && location.query) {
     let { signupKey } = location.query;

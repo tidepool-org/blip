@@ -190,7 +190,7 @@ describe('reducers', () => {
     });
 
     describe('success', () => {
-      it('should set working.signingUp.inProgress to be false and set user', () => {
+      it('should set working.signingUp.inProgress to be false and set sentEmailVerification', () => {
         let user = 'user';
 
         let requestAction = actions.sync.signupRequest();
@@ -204,8 +204,7 @@ describe('reducers', () => {
         let state = reducer(intermediateState, successAction);
 
         expect(state.working.signingUp.inProgress).to.be.false;
-        expect(state.isLoggedIn).to.be.true;
-        expect(state.loggedInUser).to.equal(user);
+        expect(state.emailVerificationSent).to.be.true;
       });
     });
   });
@@ -340,21 +339,24 @@ describe('reducers', () => {
 
     describe('success', () => {
       it('should set working.acceptingTerms.inProgress to be false and set user', () => {
-        let user = 'user';
+        let termsAccepted = '2015-02-01';
 
+        let user = { termsAccepted: false };
+
+        let initialStateForTest = _.merge({}, initialState, { loggedInUser:  user });
         let requestAction = actions.sync.acceptTermsRequest();
         
-        expect(initialState.working.acceptingTerms.inProgress).to.be.false;
-        expect(initialState.loggedInUser).to.be.null;
+        expect(initialStateForTest.working.acceptingTerms.inProgress).to.be.false;
+        expect(initialStateForTest.loggedInUser.termsAccepted).to.be.false;
 
-        let intermediateState = reducer(initialState, requestAction);
+        let intermediateState = reducer(initialStateForTest, requestAction);
         expect(intermediateState.working.acceptingTerms.inProgress).to.be.true;
 
-        let successAction = actions.sync.acceptTermsSuccess(user);
+        let successAction = actions.sync.acceptTermsSuccess(termsAccepted);
         let state = reducer(intermediateState, successAction);
 
         expect(state.working.acceptingTerms.inProgress).to.be.false;
-        expect(state.loggedInUser).to.equal(user);
+        expect(state.loggedInUser.termsAccepted).to.equal(termsAccepted);
       });
     });
   });
@@ -1304,12 +1306,16 @@ describe('reducers', () => {
       describe('request', () => {
         it('should set updatingUser to be true', () => {
           let updatingUser = { id: 506, name: 'Jimmy Hendrix' };
+
+          let user = { id: 506 };
+
+          let initialStateForTest = _.merge({}, initialState, { loggedInUser:  user });
           let action = actions.sync.updateUserRequest(updatingUser); 
 
-          expect(initialState.working.updatingUser.inProgress).to.be.false;
-          expect(initialState.loggedInUser).to.be.null;
+          expect(initialStateForTest.working.updatingUser.inProgress).to.be.false;
+          expect(initialStateForTest.loggedInUser.id).to.equal(user.id);
 
-          let state = reducer(initialState, action);
+          let state = reducer(initialStateForTest, action);
           expect(state.working.updatingUser.inProgress).to.be.true;
           expect(state.loggedInUser.id).to.equal(updatingUser.id);
           expect(state.loggedInUser.name).to.equal(updatingUser.name);

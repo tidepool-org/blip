@@ -62,7 +62,7 @@ export var EmailVerification = React.createClass({
     var content;
     var loginPage;
 
-    if (this.props.sent) {
+    if (this.props.sent || this.props.resent) {
       loginPage = 'signup';
       content = (
         <div className="EmailVerification-intro">
@@ -107,7 +107,7 @@ export var EmailVerification = React.createClass({
     );
   },
   renderForm: function() {
-    var submitButtonText = this.state.working ? 'Sending email...' : 'Resend';
+    var submitButtonText = this.props.working ? 'Sending email...' : 'Resend';
 
     return (
       <SimpleForm
@@ -117,7 +117,7 @@ export var EmailVerification = React.createClass({
         submitButtonText={submitButtonText}
         submitDisabled={this.props.working}
         onSubmit={this.handleSubmit}
-        notification={this.state.notification}/>
+        notification={this.state.notification || this.props.notification}/>
     );
   },
   handleSubmit: function(formValues) {
@@ -133,7 +133,6 @@ export var EmailVerification = React.createClass({
     if (!_.isEmpty(validationErrors)) {
       return;
     }
-
     this.props.onSubmitResend(formValues.email);
   },
   resetFormStateBeforeSubmit: function(formValues) {
@@ -179,14 +178,16 @@ let mapStateToProps = state => ({
 });
 
 let mapDispatchToProps = dispatch => bindActionCreators({
-  onSubmitSend: actions.async.resendEmailVerification,
+  submitResend: actions.async.resendEmailVerification,
   acknowledgeNotification: actions.sync.acknowledgeNotification
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
+  var api = ownProps.routes[0].api;
   return _.merge({}, stateProps, dispatchProps, {
+    onSubmitResend: dispatchProps.submitResend.bind(null, api),
     trackMetric: ownProps.routes[0].trackMetric,
-    api: ownProps.routes[0].api,
+    api: api,
   });
 };
 

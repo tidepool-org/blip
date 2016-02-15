@@ -109,21 +109,21 @@ describe('Actions', () => {
 
     describe('acceptTerms', () => {
       it('should trigger ACCEPT_TERMS_SUCCESS and it should call acceptTerms once for a successful request', (done) => {
+        let acceptedDate = new Date();
         let termsData = { termsAccepted: new Date() };
-        let user = { id: 27, termsAccepted: termsData.termsAccepted };
         let api = {
           user: {
-            acceptTerms: sinon.stub().callsArgWith(1, null, user)
+            acceptTerms: sinon.stub().callsArgWith(1, null)
           }
         };
 
         let expectedActions = [
           { type: 'ACCEPT_TERMS_REQUEST' },
-          { type: 'ACCEPT_TERMS_SUCCESS', payload: { user: user } }
+          { type: 'ACCEPT_TERMS_SUCCESS', payload: { acceptedDate: acceptedDate } }
         ];
         let store = mockStore(initialState, expectedActions, done);
 
-        store.dispatch(async.acceptTerms(api, termsData));
+        store.dispatch(async.acceptTerms(api, acceptedDate));
 
         expect(api.user.acceptTerms.calledWith(termsData).callCount).to.equal(1);
       });
@@ -875,7 +875,7 @@ describe('Actions', () => {
 
     describe('fetchUser', () => {
       it('should trigger FETCH_USER_SUCCESS and it should call error once for a successful request', (done) => {
-        let user = { id: 306, name: 'Frankie Boyle' };
+        let user = { emailVerified: true, username: 'frankie@gmaz.com', id: 306, name: 'Frankie Boyle' };
 
         let api = {
           user: {
@@ -893,6 +893,27 @@ describe('Actions', () => {
 
         expect(api.user.get.callCount).to.equal(1);
       });
+
+      it('should trigger FETCH_USER_FAILURE and it should call error once for a request for user that has not verified email', (done) => {
+        let user = { emailVerified: false, username: 'frankie@gmaz.com', id: 306, name: 'Frankie Boyle' };
+
+        let api = {
+          user: {
+            get: sinon.stub().callsArgWith(0, null, user)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_USER_REQUEST' },
+          { type: 'FETCH_USER_FAILURE', error: ErrorMessages.EMAIL_NOT_VERIFIED }
+        ];
+        let store = mockStore(initialState, expectedActions, done);
+
+        store.dispatch(async.fetchUser(api));
+
+        expect(api.user.get.callCount).to.equal(1);
+      });
+
 
       it('should trigger FETCH_USER_FAILURE when a 401 happensand it should call error once for a failed request', (done) => {
         let user = { id: 306, name: 'Frankie Boyle' };

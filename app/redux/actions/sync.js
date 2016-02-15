@@ -210,11 +210,11 @@ export function acceptTermsRequest() {
   };
 }
 
-export function acceptTermsSuccess(user) {
+export function acceptTermsSuccess(acceptedDate) {
   return {
     type: ActionTypes.ACCEPT_TERMS_SUCCESS,
     payload: {
-      user: user
+      acceptedDate: acceptedDate
     }
   };
 }

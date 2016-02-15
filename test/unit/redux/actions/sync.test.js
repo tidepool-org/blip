@@ -278,18 +278,18 @@ describe('Actions', () => {
 
     describe('acceptTermsSuccess', () => {
       it('should be a FSA', () => {
-        let user = { termsAccepted: new Date() };
-        let action = sync.acceptTermsSuccess(user);
+        let acceptedDate = new Date();
+        let action = sync.acceptTermsSuccess(acceptedDate);
 
         expect(isFSA(action)).to.be.true;
       });
 
       it('type should equal ACCEPT_TERMS_SUCCESS', () => {
-        let user = { termsAccepted: new Date() };
-        let action = sync.acceptTermsSuccess(user);
+        let acceptedDate = new Date();
+        let action = sync.acceptTermsSuccess(acceptedDate);
 
         expect(action.type).to.equal('ACCEPT_TERMS_SUCCESS');
-        expect(action.payload.user).to.equal(user);
+        expect(action.payload.acceptedDate).to.equal(acceptedDate);
       });
     });
 

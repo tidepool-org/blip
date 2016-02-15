@@ -16,6 +16,7 @@
  */
 
 import _ from 'lodash';
+import sundial from 'sundial';
 import async from 'async';
 import utils from '../../core/utils';
 import * as ActionTypes from '../constants/actionTypes';
@@ -170,17 +171,18 @@ export function resendEmailVerification(api, email) {
  * Accept Terms Action Creator
  * 
  * @param  {Object} api an instance of the API wrapper
- * @param  {String} termsData
+ * @param  {String} acceptedDate
  */
-export function acceptTerms(api, termsData) {
+export function acceptTerms(api, acceptedDate) {
+  acceptedDate = acceptedDate || sundial.utcDateString();
   return (dispatch) => {
     dispatch(sync.acceptTermsRequest());
 
-    api.user.acceptTerms(termsData, function(err, user) {
+    api.user.acceptTerms({ termsAccepted: acceptedDate }, function(err, user) {
       if (err) {
         dispatch(sync.acceptTermsFailure(ErrorMessages.STANDARD));
       } else {
-        dispatch(sync.acceptTermsSuccess(user))
+        dispatch(sync.acceptTermsSuccess(acceptedDate))
       }
     })
   };
@@ -460,6 +462,8 @@ export function fetchUser(api) {
         } else {
           dispatch(sync.fetchUserFailure(ErrorMessages.STANDARD));
         }
+      } else if (!utils.hasVerifiedEmail(user)) {
+        dispatch(sync.fetchUserFailure(ErrorMessages.EMAIL_NOT_VERIFIED));
       } else {
         dispatch(sync.fetchUserSuccess(user));
       }

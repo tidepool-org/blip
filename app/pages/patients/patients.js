@@ -50,7 +50,6 @@ export let Patients = React.createClass({
   },
 
   render: function() {
-    console.log('Rendering Patients');
     var welcomeTitle = this.renderWelcomeTitle();
 
     if (this.isLoading()) {
