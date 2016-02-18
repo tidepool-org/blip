@@ -181,7 +181,7 @@ utils.getInviteKey = function(location) {
   return '';
 }
 
-utils.processPatientData = (data, queryParams, timePrefs, bgPrefs) => {
+utils.processPatientData = (comp, data, queryParams, timePrefs, bgPrefs) => {
   if (!(data && data.length >= 0)) {
     return null;
   }
@@ -209,10 +209,9 @@ utils.processPatientData = (data, queryParams, timePrefs, bgPrefs) => {
   }
   // but otherwise we use the timezone from the most recent upload metadata obj
   else {
-    // @todo: need to figure out a way to refactor this bit of shenanigans
-    // comp.setState({
-    //   timePrefs: timePrefsForTideline
-    // });
+    comp.setState({
+      timePrefs: timePrefsForTideline
+    });
     console.log('Defaulting to display in timezone of most recent upload at', mostRecentUpload.time, mostRecentUpload.timezone);
   }
 

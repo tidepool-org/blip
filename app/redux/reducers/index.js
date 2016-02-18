@@ -229,12 +229,6 @@ export default (state = initialState, action) => {
           } 
         }
       });
-    case types.UPDATE_LOCAL_PATIENT_DATA:
-      return update(state, {
-        patientData: {
-          [action.payload.patientId]: { $set: action.payload.patientData }
-        }
-      });
     case types.FETCH_PATIENT_DATA_REQUEST: 
       return update(state, { 
         working: {
@@ -256,12 +250,11 @@ export default (state = initialState, action) => {
             } 
           } 
         },
-        patientData: {
+        patientDataMap: {
           [action.payload.patientId]: { $set: action.payload.patientData }
         },
-        bgPrefs: {
-          bgClasses: { $set: action.payload.patientData.bgClasses },
-          bgUnits: { $set: action.payload.patientData.bgUnits }
+        patientNotesMap: {
+          [action.payload.patientId]: { $set: action.payload.patientNotes }
         }
       });
     case types.FETCH_PATIENT_DATA_FAILURE: 

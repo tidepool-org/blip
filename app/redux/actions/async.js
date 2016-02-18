@@ -555,7 +555,7 @@ export function fetchPatients(api) {
  * @param {String|Number} id
  * @param {Object} queryParams
  */
-export function fetchPatientData(api, id, queryParams) {
+export function fetchPatientData(api, id) {
   return (dispatch, getState) => {
     const state = getState();
 
@@ -570,11 +570,7 @@ export function fetchPatientData(api, id, queryParams) {
       } else {
         let patientData = results.patientData || [];
         let notes = results.teamNotes || [];
-        let combinedData = patientData.concat(notes);
-
-        let processedData = utils.processPatientData(combinedData, queryParams, state.blip.timePrefs, state.blip.bgPrefs);
-
-        dispatch(sync.fetchPatientDataSuccess(id, processedData));
+        dispatch(sync.fetchPatientDataSuccess(id, patientData, notes));
       }
     });
   };

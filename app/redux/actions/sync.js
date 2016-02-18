@@ -614,12 +614,13 @@ export function fetchPatientDataRequest() {
   };
 }
 
-export function fetchPatientDataSuccess(patientId, patientData) {
+export function fetchPatientDataSuccess(patientId, patientData, patientNotes) {
   return {
     type: ActionTypes.FETCH_PATIENT_DATA_SUCCESS,
     payload: {
       patientId: patientId,
-      patientData: patientData
+      patientData: patientData,
+      patientNotes: patientNotes
     }
   };
 }
