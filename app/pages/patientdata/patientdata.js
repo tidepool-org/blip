@@ -98,25 +98,6 @@ export let PatientData = React.createClass({
     return state;
   },
 
-  componentWillMount: function() {
-    this.doFetching(this.props);
-    this.doProcessing(this.props);
-    var params = this.props.queryParams;
-
-    if (!_.isEmpty(params)) {
-      var prefs = _.cloneDeep(this.state.chartPrefs);
-      prefs.bolusRatio = params.dynamicCarbs ? 0.5 : 0.35;
-      prefs.dynamicCarbs = params.dynamicCarbs;
-      this.setState({
-        chartPrefs: prefs
-      });
-    }
-  },
-
-  componentWillReceiveProps: function(nextProps) {
-    this.doProcessing(nextProps);
-  },
-
   log: bows('PatientData'),
 
   render: function() {
@@ -533,10 +514,39 @@ export let PatientData = React.createClass({
       datetimeLocation: datetime
     });
   },
+
+  componentWillMount: function() {
+    this.doFetching(this.props);
+    var params = this.props.queryParams;
+
+    if (!_.isEmpty(params)) {
+      var prefs = _.cloneDeep(this.state.chartPrefs);
+      prefs.bolusRatio = params.dynamicCarbs ? 0.5 : 0.35;
+      prefs.dynamicCarbs = params.dynamicCarbs;
+      this.setState({
+        chartPrefs: prefs
+      });
+    }
+  },
+
+  componentWillReceiveProps: function(nextProps) {
+    var currentUserId = _.get(this.props, ['patient', 'userid'], 0);
+    var currentPatientData = _.get(this.props, ['patientDataMap', currentUserId], null);
+    
+    var nextUserId = _.get(nextProps, ['patient', 'userid'], 0);
+    var nextPatientData = _.get(nextProps, ['patientDataMap', nextUserId], null);
+
+    if (!currentPatientData && nextPatientData) {
+      this.doProcessing(nextProps);
+    }
+  },
+
   doProcessing: function(nextProps) {
+    console.log('doProcessing called', count++);
     var self = this;
     var userId = _.get(nextProps, 'patient.userid', null);
     if (userId && nextProps.patientDataMap[userId]) {
+      console.log('doProcessing inside conditional', count);
       let combinedData = nextProps.patientDataMap[userId].concat(nextProps.patientNotesMap[userId]);
       let processedData = utils.processPatientData(
         self, 
