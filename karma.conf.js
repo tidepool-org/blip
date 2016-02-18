@@ -1,5 +1,5 @@
 var webpack = require('webpack');
-var RewirePlugin = require("rewire-webpack");
+var RewirePlugin = require('rewire-webpack');
 
 var defineEnvPlugin = new webpack.DefinePlugin({
   __DEV__: false,
@@ -24,7 +24,7 @@ module.exports = function (config) {
     webpack: { // Simplified Webpack configuration
       module: {
         loaders: [
-          {test: /\.js$/, exclude: /(node_modules)/, loader: 'babel-loader'},
+          {test: /\.js$/, exclude: /(node_modules)/, loader: 'babel-loader?optional=runtime&plugins=babel-plugin-rewire'},
           // need this condition when testing with Tideline loaded from Github branch
           {test: /node_modules\/tideline\/.*\.js$/, exclude: /tideline\/node_modules/, loader: 'babel-loader'},
           {test: /\.less$/, loader: 'style-loader!css-loader!autoprefixer-loader!less-loader'},
@@ -44,8 +44,8 @@ module.exports = function (config) {
         new RewirePlugin()
       ],
       node: {
-        fs: "empty",
-        module: "empty"
+        fs: 'empty',
+        module: 'empty'
       }
     },
     webpackServer: {

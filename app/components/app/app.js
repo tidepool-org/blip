@@ -17,11 +17,13 @@ import _ from 'lodash';
 import React from 'react';
 import async from 'async';
 import sundial from 'sundial';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+
+import * as actions from '../../redux/actions';
 
 import personUtils from '../../core/personutils';
 import utils from '../../core/utils';
-import Fetcher from '../../core/fetcher';
-import ActionHandlers from '../../core/actionhandlers';
 
 import usrMessages from '../../userMessages';
 
@@ -33,18 +35,6 @@ import TidepoolNotification from '../notification';
 import TermsOverlay from '../termsoverlay';
 import MailTo from '../mailto';
 
-// Pages
-import Login from '../../pages/login';
-import Signup from '../../pages/signup';
-import Profile from '../../pages/profile';
-import Patients from '../../pages/patients';
-import Patient from '../../pages/patient';
-import PatientNew from '../../pages/patientnew';
-import PatientData from '../../pages/patientdata';
-import RequestPasswordReset from '../../pages/passwordreset/request';
-import ConfirmPasswordReset from '../../pages/passwordreset/confirm';
-import EmailVerification from '../../pages/emailverification';
-
 // Styles
 require('tideline/css/tideline.less');
 require('../../style.less');
@@ -52,7 +42,7 @@ require('../../style.less');
 // Blip favicon
 require('../../../favicon.ico');
 
-export default class AppComponent extends React.Component {
+export class AppComponent extends React.Component {
   static propTypes = {
     route: React.PropTypes.shape({
       log: React.PropTypes.func.isRequired,
@@ -65,73 +55,10 @@ export default class AppComponent extends React.Component {
 
   constructor(props) {
     super(props);
-    var queryParams = (props.location && props.location.query) ? props.location.query : {};
-    var timePrefs = {
-      timezoneAware: false,
-      timezoneName: null
-    };
-    if (!_.isEmpty(queryParams.timezone)) {
-      var queryTimezone = queryParams.timezone.replace('-', '/');
-      try {
-        sundial.checkTimezoneName(queryTimezone);
-        timePrefs.timezoneAware = true;
-        timePrefs.timezoneName = queryTimezone;
-        this.props.route.log('Viewing data in timezone-aware mode with', queryTimezone, 'as the selected timezone.');
-      }
-      catch(err) {
-        this.props.route.log(new Error('Invalid timezone name in query parameter. (Try capitalizing properly.)'));
-      }
-    }
-    var bgPrefs = {
-      bgUnits: 'mg/dL'
-    };
-    if (!_.isEmpty(queryParams.units)) {
-      var queryUnits = queryParams.units.toLowerCase();
-      if (queryUnits === 'mmoll') {
-        bgPrefs.bgUnits = 'mmol/L';
-      }
-    }
 
-    this.fetcher = new Fetcher(this);
-    this.actionHandlers = new ActionHandlers(this, this.fetcher);
     this.state = {
-      authenticated: this.props.route.api.user.isAuthenticated(),
-      notification: null,
-      page: this.props.location.pathname,
-      user: null,
-      fetchingUser: true,
-      loggingOut: false,
-      patients: null,
-      fetchingPatients: true,
-      patient: null,
-      fetchingPatient: true,
-      invites: null,
-      fetchingInvites: true,
-      pendingInvites:null,
-      fetchingPendingInvites: true,
-      bgPrefs: bgPrefs,
-      timePrefs: timePrefs,
-      patientData: null,
-      fetchingPatientData: true,
-      fetchingMessageData: true,
-      termsAccepted: null,
-      showingWelcomeTitle: false,
-      showingWelcomeSetup: false,
-      showPatientData: false,
-      verificationEmailSent: false,
-      finalizingVerification: false,
-      queryParams: queryParams
+      notification: null
     };
-  }
-
-  componentWillUpdate(nextProps, nextState) {
-    // Called on props or state changes
-    // Since app main component has no props,
-    // this will be called on a state change
-    if (this.props.route.DEBUG) {
-      var stateDiff = utils.objectDifference(nextState, this.state);
-      this.props.route.log('State changed', stateDiff);
-    }
   }
 
   hideNavbarDropdown() {
@@ -140,15 +67,6 @@ export default class AppComponent extends React.Component {
     if (navbar) {
       navbar.hideDropdown();
     }
-  }
-
-  isDoneFetchingAndNotFoundPatient() {
-    // Wait for patient object to come back from server
-    if (this.state.fetchingPatient) {
-      return false;
-    }
-
-    return !this.state.patient;
   }
 
   /**
@@ -160,122 +78,57 @@ export default class AppComponent extends React.Component {
    * @return {Boolean}
    */
   isPatientVisibleInNavbar() {
-    return /^\/patients\/\S+/.test(this.state.page);
-  }
-
-  isDoneFetchingAndUserHasPatient() {
-    // Wait to have user object back from server
-    if (this.state.fetchingUser) {
-      return false;
-    }
-
-    return personUtils.isPatient(this.state.user);
-  }
-
-  isSamePersonUserAndPatient() {
-    return personUtils.isSame(this.state.user, this.state.patient);
+    return /^\/patients\/\S+/.test(this.props.location.pathname);
   }
 
   logSupportContact() {
     this.props.route.trackMetric('Clicked Give Feedback');
   }
 
-  getSignupEmail() {
-    if (this.props.location && this.props.location.query) {
-      let { signupEmail } = this.props.location.query;
-      if (!_.isEmpty(signupEmail) && utils.validateEmail(signupEmail)){
-        return signupEmail;
-      }
-    }
-    return null;
-  }
-
-  getInviteEmail() {
-    if (this.props.location && this.props.location.query) {
-
-      let { inviteEmail } = this.props.location.query;
-
-      if (!_.isEmpty(inviteEmail)) {
-        // all standard query string parsers transform + to a space
-        // so we reverse and swap spaces for +
-        // in order to allow e-mails with mutators (e.g., +skip) to pass waitlist
-        inviteEmail = inviteEmail.replace(/\s/, '+');
-
-        if (utils.validateEmail(inviteEmail)) {
-          return inviteEmail;
-        }
-      }
-    }
-    return null;
-  }
-
-  getInviteKey() {
-    if (this.props.location && this.props.location.query) {
-      let { inviteKey } = this.props.location.query;
-
-      if(!_.isEmpty(inviteKey)){
-        return inviteKey;
-      }
-    }
-    return '';
-  }
-
   closeNotification() {
-    this.setState({notification: null});
-  }
-
-  clearUserData() {
     this.setState({
-      authenticated: false,
-      user: null,
-      patients: null,
-      patient: null,
-      patientData: null,
-      showingAcceptTerms: false,
-      showingWelcomeTitle: false,
-      finalizingVerification: false,
-      fetchingUser: true,
-      fetchingPatients: true,
-      fetchingInvites: true,
-      showingWelcomeSetup: false,
-      showPatientData: false,
-      loggingOut: false
+      notitication: null
     });
-  }
-
-  redirectToDefaultRoute() {
-    this.props.history.pushState(null, '/patients');
+    this.props.acknowledgeNotification();
   }
 
   doFetching(nextProps) {
-    if (this.state.authenticated) {
-      this.fetcher.fetchUser();
+    if (!nextProps.fetchers) {
+      return
     }
 
-    if (nextProps.login) {
-      this.actionHandlers.handleFinalizeSignup();
-    } else if (nextProps.patients) {
-      this.setState({showPatientData: true});
-      this.fetcher.fetchInvites();
-      this.fetcher.fetchPatients();
-      this.props.route.trackMetric('Viewed Care Team List');
-    } else if (nextProps.patient) {
-      this.fetcher.fetchPatient(nextProps.params.id);
-      this.props.route.trackMetric('Viewed Profile');
-    } else if (nextProps.patientData) {
-      this.fetcher.fetchPatient(nextProps.params.id, (err, patient) => {
-        this.fetcher.fetchPatientData(patient);
-      });
-      this.props.route.trackMetric('Viewed Data');
-    } else if (nextProps.patientNew) {
-      this.props.route.trackMetric('Viewed Profile Create');
-    } else if (nextProps.patientShare) {
-      this.fetcher.fetchPatient(nextProps.params.id);
-      this.fetcher.fetchPendingInvites();
-      this.props.route.trackMetric('Viewed Share');
-    } else if (nextProps.profile) {
-      this.props.route.trackMetric('Viewed Account Edit');
-    }
+    nextProps.fetchers.forEach(fetcher => { 
+      fetcher();
+    });
+
+    // if (this.props.authenticated) {
+    //   this.fetcher.fetchUser();
+    // }
+
+    // if (nextProps.login) {
+    //   this.actionHandlers.handleFinalizeSignup();
+    // } else if (nextProps.patients) {
+    //   this.setState({showPatientData: true});
+    //   this.fetcher.fetchInvites();
+    //   this.fetcher.fetchPatients();
+    //   this.props.route.trackMetric('Viewed Care Team List');
+    // } else if (nextProps.patient) {
+    //   this.fetcher.fetchPatient(nextProps.params.id);
+    //   this.props.route.trackMetric('Viewed Profile');
+    // } else if (nextProps.patientData) {
+    //   this.fetcher.fetchPatient(nextProps.params.id, (err, patient) => {
+    //     this.fetcher.fetchPatientData(patient);
+    //   });
+    //   this.props.route.trackMetric('Viewed Data');
+    // } else if (nextProps.patientNew) {
+    //   this.props.route.trackMetric('Viewed Profile Create');
+    // } else if (nextProps.patientShare) {
+    //   this.fetcher.fetchPatient(nextProps.params.id);
+    //   this.fetcher.fetchPendingInvites();
+    //   this.props.route.trackMetric('Viewed Share');
+    // } else if (nextProps.profile) {
+    //   this.props.route.trackMetric('Viewed Account Edit');
+    // }
   }
 
   /**
@@ -291,8 +144,9 @@ export default class AppComponent extends React.Component {
    * begin fetching any required data
    */
   componentWillReceiveProps(nextProps) {
-    this.setState({page: nextProps.location.pathname}); //We need to pass down this prop to state for legacy behaviour
-    this.doFetching(nextProps);
+    if (!utils.isOnSamePage(this.props, nextProps)) {
+      this.doFetching(nextProps);
+    }
   }
 
   /**
@@ -301,7 +155,7 @@ export default class AppComponent extends React.Component {
 
   renderOverlay() {
     this.props.route.log('Rendering overlay');
-    if (this.state.loggingOut) {
+    if (this.props.loggingOut) {
       return (
         <LogoutOverlay ref="logoutOverlay" />
       );
@@ -313,18 +167,18 @@ export default class AppComponent extends React.Component {
       );
     }
 
-    if (!this.state.fetchingUser){
+    if (!this.props.fetchingUser){
       return this.renderTermsOverlay();
     }
 
     return null;
   }
 
-  renderTermsOverlay(){
-    if (this.state.authenticated && _.isEmpty(this.state.termsAccepted)){
+  renderTermsOverlay() {
+    if (this.props.authenticated && _.isEmpty(this.props.termsAccepted)){
       return (
         <TermsOverlay
-          onSubmit={this.actionHandlers.handleAcceptedTerms.bind(this.actionHandlers)}
+          onSubmit={this.props.onAcceptTerms}
           trackMetric={this.props.route.trackMetric} />
       );
     }
@@ -333,12 +187,12 @@ export default class AppComponent extends React.Component {
 
   renderNavbar() {
     this.props.route.log('Rendering navbar');
-    if (this.state.authenticated) {
+    if (this.props.authenticated) {
       var patient;
       var getUploadUrl;
 
       if (this.isPatientVisibleInNavbar()) {
-        patient = this.state.patient;
+        patient = this.props.patient;
         getUploadUrl = this.props.route.api.getUploadUrl.bind(this.props.route.api);
       }
 
@@ -346,13 +200,13 @@ export default class AppComponent extends React.Component {
 
         <div className="App-navbar">
           <Navbar
-            user={this.state.user}
-            fetchingUser={this.state.fetchingUser}
+            user={this.props.user}
+            fetchingUser={this.props.fetchingUser}
             patient={patient}
-            fetchingPatient={this.state.fetchingPatient}
-            currentPage={this.state.page}
+            fetchingPatient={this.props.fetchingPatient}
+            currentPage={this.props.route.pathname}
             getUploadUrl={getUploadUrl}
-            onLogout={this.actionHandlers.handleLogout.bind(this.actionHandlers)}
+            onLogout={this.props.onLogout}
             trackMetric={this.props.route.trackMetric}
             ref="navbar"/>
         </div>
@@ -363,9 +217,10 @@ export default class AppComponent extends React.Component {
     return null;
   }
 
+  // TODO: find out wtf this is and what it does - theory: error messages
   renderNotification() {
     this.props.route.log('Rendering notification');
-    var notification = this.state.notification;
+    var notification = this.state.notification || this.props.notification;
     var handleClose;
 
     if (notification) {
@@ -378,7 +233,7 @@ export default class AppComponent extends React.Component {
         <TidepoolNotification
           type={notification.type}
           onClose={handleClose}>
-          {notification.body}
+          {notification.message}
         </TidepoolNotification>
 
       );
@@ -417,215 +272,11 @@ export default class AppComponent extends React.Component {
     return null;
   }
 
-  renderLogin() {
-    var email = this.getInviteEmail() || this.getSignupEmail();
-    var showAsInvite = !_.isEmpty(this.getInviteEmail());
-
-    return React.cloneElement(this.props.login, {
-      onSubmit: this.actionHandlers.handleLogin.bind(this.actionHandlers),
-      seedEmail: email, 
-      isInvite: showAsInvite,
-      onSubmitSuccess: this.actionHandlers.handleLoginSuccess.bind(this.actionHandlers),
-      onSubmitNotAuthorized: this.actionHandlers.handleNotAuthorized.bind(this.actionHandlers),
-      trackMetric: this.props.route.trackMetric
-    });
-  }
-
-  renderSignup() {
-    let config = this.props.route.config;
-
-    return React.cloneElement(this.props.signup, {
-      configuredInviteKey: config.INVITE_KEY || '',
-      inviteEmail: this.getInviteEmail(),
-      inviteKey: this.getInviteKey(),
-      onSubmit: this.actionHandlers.handleSignup.bind(this.actionHandlers),
-      onSubmitSuccess: this.actionHandlers.handleSignupSuccess.bind(this.actionHandlers),
-      trackMetric: this.props.route.trackMetric
-    });
-  }
-
-  renderEmailVerification() {
-    return React.cloneElement(this.props.emailVerification,{
-      sent: this.state.verificationEmailSent,
-      onSubmitResend: this.props.route.api.user.resendEmailVerification.bind(this.props.route.api),
-      trackMetric: this.props.route.trackMetric
-    });
-  }
-
-  renderProfile() {
-    this.props.route.trackMetric('Viewed Account Edit');
-    return React.cloneElement(this.props.profile, {
-      user: this.state.user,
-      fetchingUser: this.state.fetchingUser,
-      onSubmit: this.actionHandlers.handleUpdateUser.bind(this.actionHandlers),
-      trackMetric: this.props.route.trackMetric
-    });
-  }
-
-  renderPatients() {
-    var patients = React.cloneElement(this.props.patients, {
-      user: this.state.user,
-      fetchingUser: this.state.fetchingUser,
-      patients: this.state.patients,
-      fetchingPatients: this.state.fetchingPatients,
-      invites: this.state.invites,
-      uploadUrl: this.props.route.api.getUploadUrl(),
-      fetchingInvites: this.state.fetchingInvites,
-      showingWelcomeTitle: this.state.showingWelcomeTitle,
-      showingWelcomeSetup: this.state.showingWelcomeSetup,
-      onHideWelcomeSetup: this.actionHandlers.handleHideWelcomeSetup.bind(this.actionHandlers),
-      trackMetric: this.props.route.trackMetric,
-      onAcceptInvitation: this.actionHandlers.handleAcceptInvitation.bind(this.actionHandlers),
-      onDismissInvitation: this.actionHandlers.handleDismissInvitation.bind(this.actionHandlers),
-      onRemovePatient: this.actionHandlers.handleRemovePatient.bind(this.actionHandlers)
-    });
-
-    return (patients);
-  }
-
-  renderPatient() {
-    // On each state change check if patient object was returned from server
-    if (this.isDoneFetchingAndNotFoundPatient()) {
-      this.props.route.log('Patient not found');
-      this.redirectToDefaultRoute();
-      return;
-    }
-    return React.cloneElement(this.props.patient, {
-      user: this.state.user, 
-      fetchingUser: this.state.fetchingUser, 
-      patient: this.state.patient, 
-      fetchingPatient: this.state.fetchingPatient, 
-      onUpdatePatient: this.actionHandlers.handleUpdatePatient.bind(this.actionHandlers), 
-      pendingInvites: this.state.pendingInvites, 
-      onChangeMemberPermissions: this.actionHandlers.handleChangeMemberPermissions.bind(this.actionHandlers), 
-      onRemoveMember: this.actionHandlers.handleRemoveMember.bind(this.actionHandlers), 
-      onInviteMember: this.actionHandlers.handleInviteMember.bind(this.actionHandlers), 
-      onCancelInvite: this.actionHandlers.handleCancelInvite.bind(this.actionHandlers), 
-      trackMetric: this.props.route.trackMetric
-    });
-  }
-
-  renderPatientShare() {
-    // On each state change check if patient object was returned from server
-    if (this.isDoneFetchingAndNotFoundPatient()) {
-      this.props.route.log('Patient not found');
-      this.redirectToDefaultRoute();
-      return;
-    }
-    return React.cloneElement(this.props.patientShare, {
-      user: this.state.user,
-      shareOnly: true,
-      fetchingUser: this.state.fetchingUser,
-      patient: this.state.patient,
-      fetchingPatient: this.state.fetchingPatient,
-      onUpdatePatient: this.actionHandlers.handleUpdatePatient.bind(this.actionHandlers),
-      pendingInvites: this.state.pendingInvites,
-      onChangeMemberPermissions: this.actionHandlers.handleChangeMemberPermissions.bind(this.actionHandlers),
-      onRemoveMember: this.actionHandlers.handleRemoveMember.bind(this.actionHandlers),
-      onInviteMember: this.actionHandlers.handleInviteMember.bind(this.actionHandlers),
-      onCancelInvite: this.actionHandlers.handleCancelInvite.bind(this.actionHandlers),
-      trackMetric: this.props.route.trackMetric
-    });
-  }
-
-  renderPatientNew() {
-    return React.cloneElement(this.props.patientNew, {
-      user: this.state.user,
-      fetchingUser: this.state.fetchingUser,
-      onSubmit: this.actionHandlers.handleCreatePatient.bind(this.actionHandlers),
-      onSubmitSuccess: this.actionHandlers.handlePatientCreationSuccess.bind(this.actionHandlers),
-      trackMetric: this.props.route.trackMetric
-    });
-  }
-
-  renderPatientData() {
-    // On each state change check if patient object was returned from server
-    if (this.isDoneFetchingAndNotFoundPatient()) {
-      this.props.route.log('Patient not found');
-      this.redirectToDefaultRoute();
-      return;
-    }
-    return React.cloneElement(this.props.patientData, {
-      user: this.state.user,
-      patient: this.state.patient,
-      bgPrefs: this.state.bgPrefs,
-      timePrefs: this.state.timePrefs,
-      patientData: this.state.patientData,
-      fetchingPatient: this.state.fetchingPatient,
-      fetchingPatientData: this.state.fetchingPatientData,
-      isUserPatient: this.isSamePersonUserAndPatient(),
-      queryParams: this.state.queryParams,
-      uploadUrl: this.props.route.api.getUploadUrl(),
-      onRefresh: this.fetcher.fetchCurrentPatientData.bind(this.fetcher),
-      onFetchMessageThread: this.fetcher.fetchMessageThread.bind(this.fetcher),
-      onSaveComment: this.props.route.api.team.replyToMessageThread.bind(this.props.route.api.team),
-      onCreateMessage: this.props.route.api.team.startMessageThread.bind(this.props.route.api.team),
-      onEditMessage: this.props.route.api.team.editMessage.bind(this.props.route.api.team),
-      onUpdatePatientData: this.actionHandlers.handleUpdatePatientData.bind(this.actionHandlers),
-      trackMetric: this.props.route.trackMetric
-    });
-  }
-
-  renderRequestPasswordReset() {
-    return React.cloneElement(this.props.requestPasswordReset, {
-      onSubmit: this.props.route.api.user.requestPasswordReset.bind(this.props.route.api),
-      trackMetric: this.props.route.trackMetric
-    });
-  }
-
-  renderConfirmPasswordReset() {
-    let {query} = this.props.location;
-
-    return React.cloneElement(this.props.confirmPasswordReset, {
-      resetKey: query.resetKey,
-      onSubmit: this.props.route.api.user.confirmPasswordReset.bind(this.props.route.api),
-      trackMetric: this.props.route.trackMetric
-    });
-  }
-
-  renderPage() {
-    // Right now because we are not using Redux we are using a slightly
-    // hacky way of passing props to our route components by cloning them 
-    // here, and setting the props we know each component needs
-    // See: https://github.com/rackt/react-router/blob/master/examples/passing-props-to-children/app.js
-    if (this.props.login) {
-      return this.renderLogin();
-    } else if (this.props.signup) {
-      return this.renderSignup();
-    } else if (this.props.emailVerification) {
-      return this.renderEmailVerification();
-    } else if (this.props.profile) {
-      return this.renderProfile();
-    } else if (this.props.patients) {
-      return this.renderPatients();
-    } else if (this.props.patientNew) {
-
-      return this.renderPatientNew();
-    } else if (this.props.patient) {
-      return this.renderPatient();
-    } else if (this.props.patientShare) {
-      return this.renderPatientShare();
-    } else if (this.props.patientData) {
-      return this.renderPatientData();
-    } else if (this.props.requestPasswordReset) {
-      return this.renderRequestPasswordReset();
-    } else if (this.props.confirmPasswordReset) {
-      return this.renderConfirmPasswordReset();
-    }
-
-    return (
-      <div>
-        There no are no children
-      </div>
-    );
-  }
-
   render() {
     this.props.route.log('Rendering AppComponent');
     var overlay = this.renderOverlay();
     var navbar = this.renderNavbar();
     var notification = this.renderNotification();
-    var page = this.renderPage();
     var footer = this.renderFooter();
 
     return (
@@ -633,9 +284,95 @@ export default class AppComponent extends React.Component {
         {overlay}
         {navbar}
         {notification}
-        {page}
+        {this.props.children}
         {footer}
       </div>
     );
   }
 }
+
+let setBgPrefs = (dispatchProps, ownProps) => () => {
+  let queryParams = (ownProps.location && ownProps.location.query) ? ownProps.location.query : {};
+
+  var bgPrefs = {
+    bgUnits: 'mg/dL'
+  };
+
+  if (!_.isEmpty(queryParams.units)) {
+    var queryUnits = queryParams.units.toLowerCase();
+    if (queryUnits === 'mmoll') {
+      bgPrefs.bgUnits = 'mmol/L';
+    }
+  }
+
+  dispatchProps.setBloodGlucosePreferences(bgPrefs);
+};
+
+let setTimePrefs = (dispatchProps, ownProps) => () => {
+  let queryParams = (ownProps.location && ownProps.location.query) ? ownProps.location.query : {};
+
+  var timePrefs = {
+    timezoneAware: false,
+    timezoneName: null
+  };
+  if (!_.isEmpty(queryParams.timezone)) {
+    var queryTimezone = queryParams.timezone.replace('-', '/');
+    try {
+      sundial.checkTimezoneName(queryTimezone);
+      timePrefs.timezoneAware = true;
+      timePrefs.timezoneName = queryTimezone;
+      ownProps.route.log('Viewing data in timezone-aware mode with', queryTimezone, 'as the selected timezone.');
+    }
+    catch(err) {
+      ownProps.route.log(new Error('Invalid timezone name in query parameter. (Try capitalizing properly.)'));
+    }
+  }
+
+  dispatchProps.setTimePreferences(timePrefs);
+};
+
+let getFetchers = (dispatchProps, ownProps, api) => {
+  return [
+    setBgPrefs(dispatchProps, ownProps),
+    setTimePrefs(dispatchProps, ownProps),
+    dispatchProps.fetchUser.bind(null, api)
+  ];
+}
+
+/**
+ * Expose "Smart" Component that is connect-ed to Redux
+ */
+
+let mapStateToProps = state => {
+  return {
+    authenticated: state.blip.isLoggedIn,
+    fetchingUser: state.blip.working.fetchingUser.inProgress,
+    fetchingPatient: state.blip.working.fetchingPatient.inProgress,
+    loggingOut: state.blip.working.loggingOut.inProgress,
+    termsAccepted: _.get(state, 'blip.loggedInUser.termsAccepted', null),
+    user: state.blip.loggedInUser,
+    patient: state.blip.currentPatientInView
+  };
+
+};
+
+let mapDispatchToProps = dispatch => bindActionCreators({
+  fetchUser: actions.async.fetchUser,
+  acceptTerms: actions.async.acceptTerms,
+  logout: actions.async.logout,
+  setBloodGlucosePreferences: actions.sync.setBloodGlucosePreferences,
+  setTimePreferences: actions.sync.setTimePreferences,
+  onCloseNotification: actions.sync.acknowledgeNotification
+}, dispatch);
+
+let mergeProps = (stateProps, dispatchProps, ownProps) => {
+  var api = ownProps.routes[0].api;
+  return _.merge({}, ownProps, stateProps, dispatchProps, {
+    fetchers: getFetchers(dispatchProps, ownProps, api),
+    fetchUser: dispatchProps.fetchUser.bind(null, api),
+    onLogout: dispatchProps.logout.bind(null, api),
+    onAcceptTerms: dispatchProps.acceptTerms.bind(null, api),
+  });
+};
+
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(AppComponent);

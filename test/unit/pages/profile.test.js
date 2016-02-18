@@ -9,7 +9,7 @@ var React = require('react');
 var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
 
-var Profile = require('../../../app/pages/profile');
+var Profile = require('../../../app/pages/profile').Profile;
 
 describe('Profile', function () {
   it('should be exposed as a module and be of type function', function() {

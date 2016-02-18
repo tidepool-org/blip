@@ -234,7 +234,7 @@ var TermsOverlay = React.createClass({
     }
 
     this.props.trackMetric('Agreed To Terms Of Use');
-    this.props.onSubmit(this.state.ageSelected);
+    this.props.onSubmit();
   }
 });
 

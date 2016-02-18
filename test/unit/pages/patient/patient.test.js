@@ -3,19 +3,23 @@
 /* global sinon */
 /* global it */
 
-var React = require('react');
-var TestUtils = require('react-addons-test-utils');
+import React from 'react';
+import TestUtils from 'react-addons-test-utils';
 var expect = chai.expect;
 
-var Patient = require('../../../../app/pages/patient/patient');
-var PatientTeam = require('../../../../app/pages/patient/patientteam');
+import Patient from '../../../../app/pages/patient/patient';
+import PatientTeam from '../../../../app/pages/patient/patientteam';
 
 describe('Patient', function () {
   describe('getInitialState', function() {
     it('should return an object when showModalOverlay is false', function() {
       console.error = sinon.stub();
       var props = {
-        trackMetric: function() {}
+        trackMetric: function() {},
+        changingMemberPermissions: {},
+        removingMember: {},
+        invitingMember: {},
+        cancellingInvite: {}
       };
       var patientElem = React.createElement(Patient, props);
       var elem = TestUtils.renderIntoDocument(patientElem);
@@ -40,7 +44,11 @@ describe('Patient', function () {
     it('should not console.error when trackMetric set', function() {
       console.error = sinon.stub();
       var props = {
-        trackMetric: function() {}
+        trackMetric: function() {},
+        changingMemberPermissions: {},
+        removingMember: {},
+        invitingMember: {},
+        cancellingInvite: {}
       };
       var patientElem = React.createElement(Patient, props);
       var elem = TestUtils.renderIntoDocument(patientElem);
@@ -62,7 +70,11 @@ describe('Patient', function () {
           team: []
         },
         shareOnly: true,
-        trackMetric: function() {}
+        trackMetric: function() {},
+        changingMemberPermissions: {},
+        removingMember: {},
+        invitingMember: {},
+        cancellingInvite: {}
       };
       var patientElem = React.createElement(Patient, props);
       var elem = TestUtils.renderIntoDocument(patientElem);
@@ -85,7 +97,11 @@ describe('Patient', function () {
           team: []
         },
         shareOnly: false,
-        trackMetric: function() {}
+        trackMetric: function() {},
+        changingMemberPermissions: {},
+        removingMember: {},
+        invitingMember: {},
+        cancellingInvite: {}
       };
       var patientElem = React.createElement(Patient, props);
       var elem = TestUtils.renderIntoDocument(patientElem);
@@ -108,7 +124,11 @@ describe('Patient', function () {
           team: []
         },
         shareOnly: true,
-        trackMetric: function() {}
+        trackMetric: function() {},
+        changingMemberPermissions: {},
+        removingMember: {},
+        invitingMember: {},
+        cancellingInvite: {}
       };
       var patientElem = React.createElement(Patient, props);
       var elem = TestUtils.renderIntoDocument(patientElem);
@@ -138,7 +158,11 @@ describe('Patient', function () {
         trackMetric: function() {},
         user: {
           userid: 'foo'
-        }
+        },
+        changingMemberPermissions: {},
+        removingMember: {},
+        invitingMember: {},
+        cancellingInvite: {}
       };
       var patientElem = React.createElement(Patient, props);
       var elem = TestUtils.renderIntoDocument(patientElem);

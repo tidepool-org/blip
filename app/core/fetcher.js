@@ -37,6 +37,7 @@ export default class Fetcher {
     });
   }
 
+  // keep this name the same - pendingInvites = invitations you sent to people inviting them to be members of your care team
   fetchPendingInvites(cb) {
     var comp = this.component;
 
@@ -65,7 +66,8 @@ export default class Fetcher {
       }
     });
   }
-
+  // name is BAD -> pendingMemberships = invitations you have received to be part of other people's careteams that you haven't 
+  // accepted yet
   fetchInvites() {
     var comp = this.component;
 
@@ -88,6 +90,7 @@ export default class Fetcher {
     });
   }
 
+  // name is BAD -> memberships
   fetchPatients(options) {
     var comp = this.component;
 
@@ -108,6 +111,9 @@ export default class Fetcher {
     });
   }
 
+  // not sure about this but possible candidates are:
+  //  - patientInView
+  //  - currentPatient
   fetchPatient(patientId, callback) {
     var comp = this.component;
 
@@ -146,6 +152,9 @@ export default class Fetcher {
     });
   }
 
+  // not sure about this but possible candidates are:
+  //  - patientDataInView
+  //  - currentPatientData
   fetchPatientData(patient) {
     var comp = this.component;
 

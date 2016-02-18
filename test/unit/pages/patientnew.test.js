@@ -3,11 +3,15 @@
 /* global sinon */
 /* global it */
 
-var React = require('react');
-var TestUtils = require('react-addons-test-utils');
+import React from 'react';
+import TestUtils from 'react-addons-test-utils';
+
+import rewire from 'rewire';
+import rewireModule from '../../utils/rewireModule';
+
+import { PatientNew } from '../../../app/pages/patientnew';
+
 var expect = chai.expect;
-var rewire = require('rewire');
-var rewireModule = require('../../utils/rewireModule');
 
 /**
  * Need to set window.config for config module
@@ -15,7 +19,7 @@ var rewireModule = require('../../utils/rewireModule');
 window.config = {};
 
 describe('PatientNew', function () {
-  var PatientNew = rewire('../../../app/pages/patientnew');
+  
 
   it('should be exposed as a module and be of type function', function() {
     expect(PatientNew).to.be.a('function');

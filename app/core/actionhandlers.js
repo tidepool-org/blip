@@ -1,7 +1,6 @@
 import React from 'react';
 import _ from 'lodash';
 import sundial from 'sundial';
-
 import utils from './utils';
 import usrMessages from '../userMessages';
 

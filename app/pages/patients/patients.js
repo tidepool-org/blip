@@ -14,18 +14,24 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = require('react');
-var Link = require('react-router').Link;
-var _ = require('lodash');
-var cx = require('classnames');
+import React from 'react';
+import { Link } from 'react-router';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
-var config = require('../../config');
+import * as actions from '../../redux/actions';
+import utils from '../../core/utils';
 
-var personUtils = require('../../core/personutils');
-var PeopleList = require('../../components/peoplelist');
-var Invitation = require('../../components/invitation');
+import _ from 'lodash';
+import cx from 'classnames';
 
-var Patients = React.createClass({
+import config from '../../config';
+
+import personUtils from '../../core/personutils';
+import PeopleList from '../../components/peoplelist';
+import Invitation from '../../components/invitation';
+
+export let Patients = React.createClass({
   propTypes: {
     user: React.PropTypes.object,
     fetchingUser: React.PropTypes.bool,
@@ -294,7 +300,71 @@ var Patients = React.createClass({
 
   hasPatients: function() {
     return !_.isEmpty(this.props.patients) || personUtils.isPatient(this.props.user);
+  },
+
+  doFetching: function(nextProps) {
+    if (this.props.trackMetric) {
+      this.props.trackMetric('Viewed Care Team List');
+    }
+
+    if (!nextProps.fetchers) {
+      return
+    }
+
+    nextProps.fetchers.forEach(fetcher => { 
+      fetcher();
+    });
+  },
+
+  /**
+   * Before rendering for first time
+   * begin fetching any required data
+   */
+  componentWillMount: function() {
+    this.doFetching(this.props);
   }
 });
 
-module.exports = Patients;
+/**
+ * Expose "Smart" Component that is connect-ed to Redux
+ */
+
+let getFetchers = (dispatchProps, ownProps, api) => {
+  return [
+    dispatchProps.fetchPendingMemberships.bind(null, api),
+    dispatchProps.fetchPatients.bind(null, api)
+  ];
+};
+
+let mapStateToProps = state => ({
+  user: state.blip.loggedInUser,
+  fetchingUser: state.blip.working.fetchingUser.inProgress,
+  patients: _.values(state.blip.patients),
+  fetchingPatients: state.blip.working.fetchingPatients.inProgress,
+  invites: state.blip.pendingMemberships,
+  fetchingInvites: state.blip.working.fetchingPendingMemberships.inProgress,
+  showingWelcomeTitle: state.blip.signupConfirmed,
+  showingWelcomeSetup: state.blip.signupConfirmed
+});
+
+let mapDispatchToProps = dispatch => bindActionCreators({
+  acceptMembership: actions.async.acceptMembership,
+  dismissMembership: actions.async.dismissMembership,
+  removePatient: actions.async.removePatient,
+  fetchPendingMemberships: actions.async.fetchPendingMemberships,
+  fetchPatients: actions.async.fetchPatients
+}, dispatch);
+
+let mergeProps = (stateProps, dispatchProps, ownProps) => {
+  var api = ownProps.routes[0].api;
+  return _.merge({}, ownProps, stateProps, dispatchProps, {
+    fetchers: getFetchers(dispatchProps, ownProps, api),
+    uploadUrl: api.getUploadUrl(),
+    onAcceptInvitation: dispatchProps.acceptMembership.bind(null, api),
+    onDismissInvitation: dispatchProps.dismissMembership.bind(null, api),
+    onRemovePatient: dispatchProps.removePatient.bind(null, api),
+    trackMetric: ownProps.routes[0].trackMetric
+  });
+};
+
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(Patients);

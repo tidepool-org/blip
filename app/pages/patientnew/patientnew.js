@@ -14,24 +14,29 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = require('react');
-var Link = require('react-router').Link;
-var _ = require('lodash');
-var sundial = require('sundial');
+import React from 'react';
+import { Link } from 'react-router';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
-var personUtils = require('../../core/personutils');
-var InputGroup = require('../../components/inputgroup');
-var DatePicker = require('../../components/datepicker');
-var personUtils = require('../../core/personutils');
+import _ from 'lodash';
+import sundial from 'sundial';
+
+import * as actions from '../../redux/actions';
+
+import InputGroup from '../../components/inputgroup';
+import DatePicker from '../../components/datepicker';
+import personUtils from '../../core/personutils';
 
 var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 
-var PatientNew = React.createClass({
+export let PatientNew = React.createClass({
   propTypes: {
     user: React.PropTypes.object,
     fetchingUser: React.PropTypes.bool,
+    working: React.PropTypes.bool,
+    notification: React.PropTypes.object,
     onSubmit: React.PropTypes.func.isRequired,
-    onSubmitSuccess: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired
   },
 
@@ -210,7 +215,7 @@ var PatientNew = React.createClass({
   },
 
   renderNotification: function() {
-    var notification = this.state.notification;
+    var notification = this.props.notification;
     if (notification && notification.message) {
       var type = notification.type || 'alert';
       return (
@@ -223,7 +228,7 @@ var PatientNew = React.createClass({
   },
 
   getSubmitButtonText: function() {
-    if (this.state.working) {
+    if (this.props.working) {
       return 'Setting up...';
     }
     return 'Set up';
@@ -278,15 +283,14 @@ var PatientNew = React.createClass({
 
     formValues = this.prepareFormValuesForSubmit(formValues);
 
-    this.submitFormValues(formValues);
+    this.props.submit(formValues);
   },
 
   resetFormStateBeforeSubmit: function(formValues) {
     this.setState({
       working: true,
       formValues: formValues,
-      validationErrors: {},
-      notification: null
+      validationErrors: {}
     });
   },
 
@@ -357,30 +361,36 @@ var PatientNew = React.createClass({
 
     profile.patient = patient;
 
-    return {profile: profile};
-  },
-
-  submitFormValues: function(formValues) {
-    var self = this;
-    var submit = this.props.onSubmit;
-    var submitSuccess = this.props.onSubmitSuccess;
-
-    submit(formValues, function(err, result) {
-      if (err) {
-        self.setState({
-          working: false,
-          notification: {
-            type: 'error',
-            message: 'An error occured while creating data storage.'
-          }
-        });
-        return;
-      }
-      if (submitSuccess) {
-        submitSuccess(result);
-      }
-    });
+    return {
+      profile: profile
+    };
   }
 });
 
-module.exports = PatientNew;
+/**
+ * Expose "Smart" Component that is connect-ed to Redux
+ */
+
+let mapStateToProps = state => ({
+  user: state.loggedInUser,
+  fetchingUser: state.working.fetchingUser,
+  working: state.working.creatingPatient.inProgress,
+  notification: state.working.creatingPatient.notification
+});
+
+let mapDispatchToProps = dispatch => bindActionCreators({
+  createPatient: actions.async.createPatient
+}, dispatch);
+
+let mergeProps = (stateProps, dispatchProps, ownProps) => {
+  var api = ownProps.routes[0].api;
+  return _.merge({}, ownProps, stateProps, dispatchProps, {
+    uploadUrl: api.getUploadUrl(),
+    onAcceptInvitation: dispatchProps.acceptInvitation.bind(null, api),
+    onDismissInvitation: dispatchProps.dismissInvitation.bind(null, api),
+    onRemoveMember: dispatchProps.removeMember.bind(null, api),
+    trackMetric: ownProps.routes[0].trackMetric
+  });
+};
+
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(PatientNew);

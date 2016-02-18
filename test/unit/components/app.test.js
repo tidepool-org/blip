@@ -1,4 +1,3 @@
-
 /* global chai */
 /* global sinon */
 /* global describe */
@@ -7,22 +6,22 @@
 var React = require('react');
 var _ = require('lodash');
 var TestUtils = require('react-addons-test-utils');
-var expect = chai.expect;
-var rewire = require('rewire');
-var rewireModule = require('../../utils/rewireModule');
 
 // Need to add this line as app.js includes config
 // which errors if window.config does not exist
 window.config = {};
+
+var App = require('../../../app/components/app/app.js').AppComponent;
 var api = require('../../../app/core/api');
 var personUtils = require('../../../app/core/personutils');
 var mock = require('../../../mock');
-var Login = require('../../../app/pages/login/login.js');
+
+var expect = chai.expect;
 
 describe('App',  () => {
   // We must remember to require the base module when mocking dependencies,
   // otherwise dependencies mocked will be bound to the wrong scope!
-  var App = rewire('../../../app/components/app/app.js');
+  
   api.log = sinon.stub();
 
   var childContext = {
@@ -41,10 +40,9 @@ describe('App',  () => {
 
   describe('isPatientVisibleInNavbar', () => {
     it('should return true when page is /patients/454/data', () => {
-      var elem = TestUtils.renderIntoDocument(<App {...childContext} />);
+      var context = _.assign({}, childContext, {location: { pathname: '/patients/25' }});
+      var elem = TestUtils.renderIntoDocument(<App {...context} />);
       expect(elem).to.be.ok;
-      
-      elem.setState({page: '/patients/454/data'});
       expect(elem.isPatientVisibleInNavbar()).to.be.true;
     });
 
@@ -86,22 +84,6 @@ describe('App',  () => {
       expect(app).to.be.ok;
     });
 
-    it('authenticated state should be false on boot',  () => {
-      var elem = TestUtils.renderIntoDocument(<App {...childContext} />);
-      expect(elem.state.authenticated).to.equal(false);
-    });
-
-    it('timezoneAware should be false and timeZoneName should be null', () => {
-      var elem = TestUtils.renderIntoDocument(<App {...childContext} />);
-      expect(elem.state.timePrefs.timezoneAware).to.equal(false);
-      expect(elem.state.timePrefs.timezoneName).to.equal(null);
-    });
-
-    it('bgUnits should be mg/dL', () => {
-      var elem = TestUtils.renderIntoDocument(<App {...childContext} />);
-      expect(elem.state.bgPrefs.bgUnits).to.equal('mg/dL');
-    });
-
     it('should render footer',  () => {
       var elem = TestUtils.renderIntoDocument(<App {...childContext} />);
       var footer = TestUtils.findRenderedDOMComponentWithClass(elem, 'footer');
@@ -135,91 +117,28 @@ describe('App',  () => {
       stub.returns(true);
 
       it('should render when user has not accepted terms but is logged in', () => {
+        var props = _.assign({}, childContext, { authenticated: true , fetchingUser: false, termsAccepted: null});
+        var elem = TestUtils.renderIntoDocument(<App {...props}/>);
 
-        var elem = TestUtils.renderIntoDocument(<App {...childContext}/>);
-        elem.setState({ authenticated: true , fetchingUser: false});
-
-        expect(elem.state.authenticated).to.equal(true);
-        expect(elem.state.fetchingUser).to.equal(false);
-        expect(elem.state.termsAccepted).to.equal(null);
+        expect(elem.props.authenticated).to.equal(true);
+        expect(elem.props.fetchingUser).to.equal(false);
+        expect(elem.props.termsAccepted).to.equal(null);
 
         var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-overlay');
         expect(termsElems.length).to.not.equal(0);
       });
       it('should NOT render when user has acccepted terms and is logged in', () => {
-
-        var elem = TestUtils.renderIntoDocument(<App {...childContext}/>);
         var acceptDate = new Date().toISOString();
+        var props = _.assign({}, childContext, { authenticated: true, termsAccepted: acceptDate, fetchingUser: false });
+        var elem = TestUtils.renderIntoDocument(<App {...props}/>);
+        
 
-        elem.setState({ authenticated: true, termsAccepted: acceptDate, fetchingUser: false });
-
-        expect(elem.state.authenticated).to.equal(true);
-        expect(elem.state.fetchingUser).to.equal(false);
-        expect(elem.state.termsAccepted).to.equal(acceptDate);
+        expect(elem.props.authenticated).to.equal(true);
+        expect(elem.props.fetchingUser).to.equal(false);
+        expect(elem.props.termsAccepted).to.equal(acceptDate);
 
         var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-overlay');
         expect(termsElems.length).to.equal(0);
-      });
-    });
-    describe('acceptance', () => {
-      it('should set the state for termsAccepted ', () => {
-
-        var elem = TestUtils.renderIntoDocument(<App {...childContext}/>);
-        expect(elem.state.termsAccepted).to.equal(null);
-        elem.setState({ authenticated: true, fetchingUser: false });
-
-        //stub call to api upon which the termsAccepted is set
-        var acceptDate = new Date().toISOString();
-
-        var apiStub = sinon.stub(childContext.route.api.user, 'acceptTerms', () => { elem.setState({termsAccepted:acceptDate});});
-
-        elem.actionHandlers.handleAcceptedTerms();
-        expect(elem.state.termsAccepted).to.equal(acceptDate);
-        expect(elem.state.fetchingUser).to.equal(false);
-        apiStub.restore();
-      });
-      it('should allow user to use blip', () => {
-
-        var elem = TestUtils.renderIntoDocument(<App {...childContext}/>);
-        expect(elem.state.termsAccepted).to.equal(null);
-        elem.setState({ authenticated: true, fetchingUser: false });
-
-        //stub call to api upon which the termsAccepted is set
-        var acceptDate = new Date().toISOString();
-        var apiStub = sinon.stub(childContext.route.api.user, 'acceptTerms',  () => { elem.setState({termsAccepted:acceptDate});});
-
-        elem.actionHandlers.handleAcceptedTerms();
-
-        expect(elem.state.termsAccepted).to.equal(acceptDate);
-        expect(elem.state.authenticated).to.equal(true);
-        expect(elem.state.fetchingUser).to.equal(false);
-
-        //check we aren't seeing the terms
-        var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-overlay');
-        expect(termsElems.length).to.equal(0);
-
-        apiStub.restore();
-      });
-      it('should NOT allow user to use blip if there was an issue', () => {
-
-        var elem = TestUtils.renderIntoDocument(<App {...childContext}/>);
-        expect(elem.state.termsAccepted).to.equal(null);
-        elem.setState({ authenticated: true, fetchingUser: false });
-
-        //stub call to api upon which the termsAccepted is NOT set in this case
-        var apiStub = sinon.stub(childContext.route.api.user, 'acceptTerms', () => { elem.setState({termsAccepted:null});});
-
-        elem.actionHandlers.handleAcceptedTerms();
-
-        expect(elem.state.termsAccepted).to.equal(null);
-        expect(elem.state.authenticated).to.equal(true);
-        expect(elem.state.fetchingUser).to.equal(false);
-
-        //check we aren't seeing the terms
-        var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-overlay');
-        expect(termsElems.length).to.not.equal(0);
-
-        apiStub.restore();
       });
     });
   });
