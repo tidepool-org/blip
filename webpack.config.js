@@ -20,7 +20,7 @@ var defineEnvPlugin = new webpack.DefinePlugin({
 
 var plugins = [ defineEnvPlugin, new ExtractTextPlugin('style.css') ];
 var appEntry = (process.env.MOCK === 'true') ? './app/main.mock.js' : './app/main.js';
-var entryScripts = [ appEntry ];
+var entryScripts = appEntry;
 var loaders = [
   {test: /node_modules\/tideline\/.*\.js$/, exclude: /tideline\/node_modules/, loader: 'babel-loader'},
   {test: /\.less$/, loader: ExtractTextPlugin.extract('style-loader', 'css-loader!autoprefixer-loader!less-loader')},
