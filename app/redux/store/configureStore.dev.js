@@ -47,12 +47,12 @@ const loggerMiddleware = createLogger({
 const enhancer = compose(
   applyMiddleware(
     thunkMiddleware, 
-    loggerMiddleware,
+    //loggerMiddleware,
     reduxRouterMiddleware
   ),
-  DevTools.instrument(),
-  // We can persist debug sessions this way
-  persistState(getDebugSessionKey())
+  // DevTools.instrument(),
+  // // We can persist debug sessions this way
+  // persistState(getDebugSessionKey())
 );
 
 let initialState = { blip: blipState };
