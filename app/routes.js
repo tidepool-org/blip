@@ -21,13 +21,13 @@ import personUtils from './core/personutils';
  * visible when logged in if the user is logged out
  * 
  * @param  {Object} nextState
- * @param  {Function} replaceState
+ * @param  {Function} replace
  *
  * @return {boolean|null} returns true if hash mapping happened
  */
-export const requireAuth = (api) => (nextState, replaceState) => {
+export const requireAuth = (api) => (nextState, replace) => {
   if (!api.user.isAuthenticated()) {
-    replaceState(null, '/login');
+    replace('/login');
   }
 };
 
@@ -36,19 +36,19 @@ export const requireAuth = (api) => (nextState, replaceState) => {
  * visible when no data storage is set up if the user has data storage set up
  *
  * @param  {Object} nextState
- * @param  {Function} replaceState
+ * @param  {Function} replace
  *
  * @return {boolean|null} returns true if hash mapping happened
  */
-export const requireAuthAndNoPatient = (api) => (nextState, replaceState, cb) => {
+export const requireAuthAndNoPatient = (api) => (nextState, replace, cb) => {
   if (!api.user.isAuthenticated()) {
-    replaceState(null, '/login');
+    replace('/login');
     return cb();
   }
   else {
     api.user.get(function(err, user) {
       if (personUtils.isPatient(user)) {
-        replaceState(null, '/patients');
+        replace('/patients');
         return cb();
       }
       cb();
@@ -61,13 +61,13 @@ export const requireAuthAndNoPatient = (api) => (nextState, replaceState, cb) =>
  * visible when logged out if the user is logged in
  * 
  * @param  {Object} nextState
- * @param  {Function} replaceState
+ * @param  {Function} replace
  *
  * @return {boolean|null} returns true if hash mapping happened
  */
-export const requireNoAuth = (api) => (nextState, replaceState) => {
+export const requireNoAuth = (api) => (nextState, replace) => {
   if (api.user.isAuthenticated()) {
-    replaceState(null, '/patients');
+    replace('/patients');
   }
 };
 
@@ -77,11 +77,11 @@ export const requireNoAuth = (api) => (nextState, replaceState) => {
  * if the user already has completed the e-mail verification
  *
  * @param  {Object} nextState
- * @param  {Function} replaceState
+ * @param  {Function} replace
  *
  * @return {boolean|null} returns true if hash mapping happened
  */
-export const requireNotVerified = (api) => (nextState, replaceState, cb) => {
+export const requireNotVerified = (api) => (nextState, replace, cb) => {
   api.user.get(function(err, user) {
     if (err) {
       // we expect a 401 Unauthorized when navigating to /email-verification
@@ -93,7 +93,7 @@ export const requireNotVerified = (api) => (nextState, replaceState, cb) => {
       return cb();
     }
     if (user.emailVerified === true) {
-      replaceState(null, '/patients');
+      replace('/patients');
       return cb();
     }
     // we log the user out so that requireNoAuth will work properly
@@ -111,13 +111,13 @@ export const requireNotVerified = (api) => (nextState, replaceState, cb) => {
  * is already logged in (with token stored) to blip in their browser
  *
  * @param  {Object} nextState
- * @param  {Function} replaceState
+ * @param  {Function} replace
  *
  * @return {boolean|null} returns true if hash mapping happened
  */
-export const onUploaderPasswordReset = (api) => (nextState, replaceState) => {
+export const onUploaderPasswordReset = (api) => (nextState, replace) => {
   if (api.user.isAuthenticated()) {
-    replaceState(null, '/profile');
+    replace('/profile');
   }
 }
 
@@ -126,16 +126,16 @@ export const onUploaderPasswordReset = (api) => (nextState, replaceState) => {
  * urls to standard urls
  * 
  * @param  {Object} nextState
- * @param  {Function} replaceState
+ * @param  {Function} replace
  *
  * @return {boolean|null} returns true if hash mapping happened
  */
-export const hashToUrl = (nextState, replaceState) => {
+export const hashToUrl = (nextState, replace) => {
   let path = nextState.location.pathname;
   let hash = nextState.location.hash;
 
   if ((!path || path === '/') && hash) {
-    replaceState(null, hash.substring(1));
+    replace(hash.substring(1));
     return true;
   }
 }
@@ -146,11 +146,11 @@ export const hashToUrl = (nextState, replaceState) => {
  * This function calls hashToUrl and requireNoAuth
  * 
  * @param  {Object} nextState
- * @param  {Function} replaceState
+ * @param  {Function} replace
  */
-export const onIndexRouteEnter = (api) => (nextState, replaceState) => {
-  if (!hashToUrl(nextState, replaceState)) {
-    requireNoAuth(api)(nextState, replaceState);
+export const onIndexRouteEnter = (api) => (nextState, replace) => {
+  if (!hashToUrl(nextState, replace)) {
+    requireNoAuth(api)(nextState, replace);
   }
 }
 
