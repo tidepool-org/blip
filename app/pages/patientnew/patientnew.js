@@ -384,7 +384,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.routes[0].api;
-  return _.merge({}, ownProps, stateProps, dispatchProps, {
+  return Object.assign({}, ownProps, stateProps, dispatchProps, {
     uploadUrl: api.getUploadUrl(),
     onAcceptInvitation: dispatchProps.acceptInvitation.bind(null, api),
     onDismissInvitation: dispatchProps.dismissInvitation.bind(null, api),

@@ -529,14 +529,14 @@ describe('reducers', () => {
 
           expect(initialStateForTest.working.fetchingPatientData.inProgress).to.be.true;
           expect(initialStateForTest.working.fetchingPatientData.notification).to.be.null;
-          expect(initialStateForTest.patientData).to.be.empty;
+          expect(initialStateForTest.patientDataMap).to.be.empty;
 
           let state = reducer(initialStateForTest, action);
 
           expect(state.working.fetchingPatientData.inProgress).to.be.false;
           expect(state.working.fetchingPatientData.notification.type).to.equal('error');
           expect(state.working.fetchingPatientData.notification.message).to.equal(error);
-          expect(state.patientData).to.be.empty;
+          expect(state.patientDataMap).to.be.empty;
         });
       });
 
@@ -548,18 +548,25 @@ describe('reducers', () => {
             { id: 2020 },
             { id: 501 }
           ];
-          let action = actions.sync.fetchPatientDataSuccess(patientId, patientData);
+          let patientNotes = [
+            { id: 123, type: 'message' },
+            { id: 456, type: 'message' }
+          ];
+          let action = actions.sync.fetchPatientDataSuccess(patientId, patientData, patientNotes);
 
           expect(initialStateForTest.working.fetchingPatientData.inProgress).to.be.true;
-          expect(initialStateForTest.patientData).to.be.empty;
+          expect(initialStateForTest.patientDataMap).to.be.empty;
 
           let state = reducer(initialStateForTest, action);
           
           expect(state.working.fetchingPatientData.inProgress).to.be.false;
-          expect(Object.keys(state.patientData).length).to.equal(1);
-          expect(state.patientData[patientId].length).to.equal(patientData.length);
-          expect(state.patientData[patientId][0].id).to.equal(patientData[0].id);
-          expect(state.patientData[patientId][1].id).to.equal(patientData[1].id);
+          expect(Object.keys(state.patientDataMap).length).to.equal(1);
+          expect(state.patientDataMap[patientId].length).to.equal(patientData.length);
+          expect(state.patientDataMap[patientId][0].id).to.equal(patientData[0].id);
+          expect(state.patientDataMap[patientId][1].id).to.equal(patientData[1].id);
+          expect(state.patientNotesMap[patientId].length).to.equal(patientNotes.length);
+          expect(state.patientNotesMap[patientId][0].id).to.equal(patientNotes[0].id);
+          expect(state.patientNotesMap[patientId][1].id).to.equal(patientNotes[1].id);
         });
       });
     });

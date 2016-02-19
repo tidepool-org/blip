@@ -1156,11 +1156,11 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'FETCH_PATIENT_DATA_REQUEST' },
-          { type: 'FETCH_PATIENT_DATA_SUCCESS', payload: { patientData : patientData.concat(teamNotes), patientId: patientId } }
+          { type: 'FETCH_PATIENT_DATA_SUCCESS', payload: { patientData : patientData, patientNotes: teamNotes, patientId: patientId } }
         ];
         let store = mockStore({ blip: initialState }, expectedActions, done);
 
-        store.dispatch(async.fetchPatientData(api, patientId, {}));
+        store.dispatch(async.fetchPatientData(api, patientId));
 
         expect(api.patientData.get.withArgs(patientId).callCount).to.equal(1);
         expect(api.team.getNotes.withArgs(patientId).callCount).to.equal(1);

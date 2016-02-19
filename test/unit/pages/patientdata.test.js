@@ -106,8 +106,10 @@ describe('PatientData', function () {
 
       // Try out using the spread props syntax in JSX
       var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+
       expect(elem).to.be.ok;
-      
+      elem.setState({processingData: false});
+
       var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message');
       expect(x).to.be.ok;
     });
@@ -128,7 +130,7 @@ describe('PatientData', function () {
       // Try out using the spread props syntax in JSX
       var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
       expect(elem).to.be.ok;
-      
+      elem.setState({processingData: false});
       var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message-no-data');
       expect(x).to.be.ok;
     });
@@ -203,6 +205,7 @@ describe('PatientData', function () {
       var pdElem = React.createElement(PatientData, props);
       var elem = TestUtils.renderIntoDocument(pdElem);
       expect(elem).to.be.ok;
+      elem.setState({processingData: false, processedPatientData: { data: [ { type: 'data', value: 100 }]}});
       var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-basics-view');
       expect(x).to.be.ok;
     });

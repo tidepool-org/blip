@@ -61,7 +61,6 @@ export let PatientData = React.createClass({
     onSaveComment: React.PropTypes.func,
     onEditMessage: React.PropTypes.func,
     onCreateMessage: React.PropTypes.func,
-    onUpdatePatientData: React.PropTypes.func,
     user: React.PropTypes.object,
     trackMetric: React.PropTypes.func.isRequired
   },
@@ -369,7 +368,7 @@ export let PatientData = React.createClass({
 
   handleMessageCreation: function(message){
     var data = this.refs.tideline.createMessageThread(nurseShark.reshapeMessage(message));
-    this.props.onUpdatePatientData(this.props.patient.userid, data);
+    this.updateBasicsData(this.props.patient.userid, data);
     this.props.trackMetric('Created New Message');
   },
 
@@ -387,7 +386,7 @@ export let PatientData = React.createClass({
       edit(message, cb);
     }
     var data = this.refs.tideline.editMessageThread(nurseShark.reshapeMessage(message));
-    this.props.onUpdatePatientData(this.props.patient.userid, data);
+    this.props.updateBasicsData(this.props.patient.userid, data);
     this.props.trackMetric('Edit To Message');
   },
 
@@ -486,12 +485,13 @@ export let PatientData = React.createClass({
 
     var refresh = this.props.onRefresh;
     if (refresh) {
+      this.props.clearPatientData(this.props.routeParams.id);
       this.setState({ 
         title: this.DEFAULT_TITLE, 
         processingData: true,
         processedPatientData: null 
       });
-      refresh();
+      refresh(this.props.routeParams.id);
     }
   },
 
@@ -517,6 +517,7 @@ export let PatientData = React.createClass({
 
   componentWillMount: function() {
     this.doFetching(this.props);
+    this.doProcessing(this.props);
     var params = this.props.queryParams;
 
     if (!_.isEmpty(params)) {
@@ -529,12 +530,15 @@ export let PatientData = React.createClass({
     }
   },
 
+  componentWillUnmount: function() {
+    this.props.clearPatientData(this.props.patient.userid);
+  },
+
   componentWillReceiveProps: function(nextProps) {
-    var currentUserId = _.get(this.props, ['patient', 'userid'], 0);
-    var currentPatientData = _.get(this.props, ['patientDataMap', currentUserId], null);
+    var userId = this.props.routeParams.id;
+    var currentPatientData = _.get(this.props, ['patientDataMap', userId], null);
     
-    var nextUserId = _.get(nextProps, ['patient', 'userid'], 0);
-    var nextPatientData = _.get(nextProps, ['patientDataMap', nextUserId], null);
+    var nextPatientData = _.get(nextProps, ['patientDataMap', userId], null);
 
     if (!currentPatientData && nextPatientData) {
       this.doProcessing(nextProps);
@@ -542,18 +546,17 @@ export let PatientData = React.createClass({
   },
 
   doProcessing: function(nextProps) {
-    console.log('doProcessing called', count++);
-    var self = this;
-    var userId = _.get(nextProps, 'patient.userid', null);
+    // I realised the one source of truth we can rely on here to ensure we show the correct patient
+    // is to refer to the userId specified in the route! What do you think @jana?
+    var userId = _.get(this.props, 'routeParams.id', null);
     if (userId && nextProps.patientDataMap[userId]) {
-      console.log('doProcessing inside conditional', count);
       let combinedData = nextProps.patientDataMap[userId].concat(nextProps.patientNotesMap[userId]);
       let processedData = utils.processPatientData(
-        self, 
+        this, 
         combinedData, 
-        self.props.location.query, 
-        self.props.timePrefs, 
-        self.props.bgPrefs
+        this.props.location.query, 
+        this.props.timePrefs, 
+        this.props.bgPrefs
       );
 
       this.setState({
@@ -609,14 +612,14 @@ let mapStateToProps = state => ({
 let mapDispatchToProps = dispatch => bindActionCreators({
   fetchPatient: actions.async.fetchPatient,
   fetchPatientData: actions.async.fetchPatientData,
+  clearPatientData: actions.sync.clearPatientData,
   fetchMessageThread: actions.async.fetchMessageThread,
-  updateLocalPatientData: actions.sync.updateLocalPatientData,
   closeMessageThread: actions.sync.closeMessageThread,
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.routes[0].api;
-  return _.merge({}, ownProps, stateProps, dispatchProps, {
+  return Object.assign({}, ownProps, stateProps, dispatchProps, {
     fetchers: getFetchers(dispatchProps, ownProps, api),
     uploadUrl: api.getUploadUrl(),
     onRefresh: dispatchProps.fetchPatientData.bind(null, api),

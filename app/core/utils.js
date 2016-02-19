@@ -186,7 +186,7 @@ utils.processPatientData = (comp, data, queryParams, timePrefs, bgPrefs) => {
     return null;
   }
 
-  var mostRecentUpload = _.sortBy(_.where(data, {type: 'upload'}), (d) => Date.parse(d.time) ).reverse()[0];
+  var mostRecentUpload = _.sortBy(_.filter(data, {type: 'upload'}), (d) => Date.parse(d.time) ).reverse()[0];
   var timePrefsForTideline;
   if (!_.isEmpty(mostRecentUpload) && !_.isEmpty(mostRecentUpload.timezone)) {
     try {

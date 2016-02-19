@@ -556,9 +556,7 @@ export function fetchPatients(api) {
  * @param {Object} queryParams
  */
 export function fetchPatientData(api, id) {
-  return (dispatch, getState) => {
-    const state = getState();
-
+  return (dispatch) => {
     dispatch(sync.fetchPatientDataRequest());
 
     async.parallel({

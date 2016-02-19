@@ -238,7 +238,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   let signupKey = utils.getSignupKey(ownProps.location);
   let isInvite = !_.isEmpty(utils.getInviteEmail(ownProps.location));
   let api = ownProps.routes[0].api;
-  return _.merge({}, stateProps, dispatchProps, ownProps, {
+  return Object.assign({}, stateProps, dispatchProps, ownProps, {
     fetchers: getFetchers(dispatchProps, ownProps, { signupKey }, api),
     isInvite: isInvite,
     seedEmail: seedEmail,

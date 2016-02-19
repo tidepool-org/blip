@@ -272,7 +272,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
-  return _.merge({}, stateProps, dispatchProps, {
+  return Object.assign({}, stateProps, dispatchProps, {
     configuredInviteKey: config.INVITE_KEY,
     inviteKey: utils.getInviteKey(ownProps.location),
     inviteEmail: utils.getInviteEmail(ownProps.location),

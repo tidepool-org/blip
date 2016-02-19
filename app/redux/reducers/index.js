@@ -14,7 +14,6 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
-import _ from 'lodash';
 
 import update from 'react-addons-update';
 
@@ -227,6 +226,15 @@ export default (state = initialState, action) => {
               }
             } 
           } 
+        }
+      });
+    case types.REMOVE_PATIENT_DATA: 
+      return update(state, { 
+        patientDataMap: {
+          [action.payload.patientId]: { $set: null }
+        },
+        patientNotesMap: {
+          [action.payload.patientId]: { $set: null }
         }
       });
     case types.FETCH_PATIENT_DATA_REQUEST: 
