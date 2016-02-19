@@ -1,4 +1,3 @@
-
 /**
  * Copyright (c) 2014, Tidepool Project
  *
@@ -13,8 +12,6 @@
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
-
-var count= 0;
 
 import React from 'react';
 import { Link } from 'react-router';
@@ -45,6 +42,7 @@ import Messages from '../../components/messages';
 
 export let PatientData = React.createClass({
   propTypes: {
+    currentPatientInViewId: React.PropTypes.string.isRequired,
     bgPrefs: React.PropTypes.object,
     timePrefs: React.PropTypes.object.isRequired,
     patientDataMap: React.PropTypes.object,
@@ -233,7 +231,7 @@ export let PatientData = React.createClass({
             onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
-            updateBasicsData={this.updateBasicsData.bind(null, this.props.patient.userid)}
+            updateBasicsData={this.updateBasicsData.bind(null, this.props.currentPatientInViewId)}
             trackMetric={this.props.trackMetric}
             uploadUrl={this.props.uploadUrl}
             ref="tideline" />
@@ -368,7 +366,7 @@ export let PatientData = React.createClass({
 
   handleMessageCreation: function(message){
     var data = this.refs.tideline.createMessageThread(nurseShark.reshapeMessage(message));
-    this.updateBasicsData(this.props.patient.userid, data);
+    this.updateBasicsData(this.props.currentPatientInViewId, data);
     this.props.trackMetric('Created New Message');
   },
 
@@ -386,7 +384,7 @@ export let PatientData = React.createClass({
       edit(message, cb);
     }
     var data = this.refs.tideline.editMessageThread(nurseShark.reshapeMessage(message));
-    this.props.updateBasicsData(this.props.patient.userid, data);
+    this.props.updateBasicsData(this.props.currentPatientInViewId, data);
     this.props.trackMetric('Edit To Message');
   },
 
@@ -485,13 +483,13 @@ export let PatientData = React.createClass({
 
     var refresh = this.props.onRefresh;
     if (refresh) {
-      this.props.clearPatientData(this.props.routeParams.id);
+      this.props.clearPatientData(this.props.currentPatientInViewId);
       this.setState({ 
         title: this.DEFAULT_TITLE, 
         processingData: true,
         processedPatientData: null 
       });
-      refresh(this.props.routeParams.id);
+      refresh(this.props.currentPatientInViewId);
     }
   },
 
@@ -531,15 +529,15 @@ export let PatientData = React.createClass({
   },
 
   componentWillUnmount: function() {
-    this.props.clearPatientData(this.props.patient.userid);
+    this.props.clearPatientData(this.props.currentPatientInViewId);
   },
 
   componentWillReceiveProps: function(nextProps) {
-    var userId = this.props.routeParams.id;
+    var userId = this.props.currentPatientInViewId;
     var currentPatientData = _.get(this.props, ['patientDataMap', userId], null);
     
     var nextPatientData = _.get(nextProps, ['patientDataMap', userId], null);
-
+    
     if (!currentPatientData && nextPatientData) {
       this.doProcessing(nextProps);
     }
@@ -549,7 +547,7 @@ export let PatientData = React.createClass({
     // I realised the one source of truth we can rely on here to ensure we show the correct patient
     // is to refer to the userId specified in the route! What do you think @jana?
     var userId = _.get(this.props, 'routeParams.id', null);
-    if (userId && nextProps.patientDataMap[userId]) {
+    if (userId && nextProps.patientDataMap && nextProps.patientDataMap[userId]) {
       let combinedData = nextProps.patientDataMap[userId].concat(nextProps.patientNotesMap[userId]);
       let processedData = utils.processPatientData(
         this, 
@@ -558,7 +556,6 @@ export let PatientData = React.createClass({
         this.props.timePrefs, 
         this.props.bgPrefs
       );
-
       this.setState({
         processedPatientData: processedData,
         bgPrefs: {
@@ -629,7 +626,8 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     onCreateMessage: api.team.startMessageThread.bind(api),
     onEditMessage: api.team.editMessage.bind(api),
     trackMetric: ownProps.routes[0].trackMetric,
-    queryParams: ownProps.location.query
+    queryParams: ownProps.location.query,
+    currentPatientInViewId: ownProps.routeParams.id
   });
 };
 

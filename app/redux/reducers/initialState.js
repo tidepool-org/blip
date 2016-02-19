@@ -30,7 +30,7 @@ export default {
   resentEmailVerification: false,
   loggedInUser: null,
   currentPatientInView: null,
-  patients: {},
+  patientsMap: {},
   patientDataMap: {},
   patientNotesMap: {},
   pendingInvites: [],

@@ -148,13 +148,16 @@ describe('reducers', () => {
 
           let successAction = actions.sync.logoutSuccess(user);
           let state = reducer(intermediateState, successAction);
+
+          console.log(JSON.stringify(state,null, 4));
           expect(state.working.loggingOut.inProgress).to.be.false;
           expect(state.isLoggedIn).to.be.false;
           expect(state.loggedInUser).to.equal(null);
           expect(state.currentPatientInView).to.equal(null);
-          expect(state.patients).to.equal(null);
-          expect(state.patientsData).to.equal(null);
-          expect(state.invites).to.equal(null);
+          expect(Object.keys(state.patientsMap).length).to.equal(0);
+          expect(Object.keys(state.patientDataMap).length).to.equal(0);
+          expect(Object.keys(state.patientNotesMap).length).to.equal(0);
+          expect(state.invites.length).to.equal(0);
         });
       });
     });
@@ -500,11 +503,11 @@ describe('reducers', () => {
           let state = reducer(initialStateForTest, action);
           
           expect(state.working.fetchingPatients.inProgress).to.be.false;
-          expect(Object.keys(state.patients).length).to.equal(2);
-          expect(state.patients[patients[0].userid].userid).to.equal(patients[0].userid);
-          expect(state.patients[patients[1].userid].userid).to.equal(patients[1].userid);
-          expect(state.patients[patients[0].userid].name).to.equal(patients[0].name);
-          expect(state.patients[patients[1].userid].name).to.equal(patients[1].name);
+          expect(Object.keys(state.patientsMap).length).to.equal(2);
+          expect(state.patientsMap[patients[0].userid].userid).to.equal(patients[0].userid);
+          expect(state.patientsMap[patients[1].userid].userid).to.equal(patients[1].userid);
+          expect(state.patientsMap[patients[0].userid].name).to.equal(patients[0].name);
+          expect(state.patientsMap[patients[1].userid].name).to.equal(patients[1].name);
         });
       });
     });
@@ -1145,9 +1148,9 @@ describe('reducers', () => {
             { key: 'jazz', creator: { userid: 505, name: 'Jess' } }
           ];
 
-          let patients = [
-            { userid: 506, name: 'Alice' }
-          ];
+          let patientsMap = {
+            506: { userid: 506, name: 'Alice' }
+          };
 
           let initialStateForTest = _.merge(
             {}, 
@@ -1157,14 +1160,14 @@ describe('reducers', () => {
                 acceptingMembership: { inProgress : true, notification: null }
               },
               pendingMemberships: pendingMemberships,
-              patients: patients
+              patientsMap: patientsMap
           });
           
           let action = actions.sync.acceptMembershipSuccess(pendingMemberships[0]);
 
           expect(initialStateForTest.working.acceptingMembership.inProgress).to.be.true;
           expect(initialStateForTest.pendingMemberships.length).to.equal(pendingMemberships.length);
-          expect(initialStateForTest.patients.length).to.equal(patients.length);
+          expect(Object.keys(initialStateForTest.patientsMap).length).to.equal(Object.keys(patientsMap).length);
 
           let state = reducer(initialStateForTest, action);
           
@@ -1174,7 +1177,7 @@ describe('reducers', () => {
           expect(state.pendingMemberships[0].key).to.equal(pendingMemberships[1].key);
           expect(state.pendingMemberships[0].creator.userid).to.equal(pendingMemberships[1].creator.userid);
 
-          expect(state.patients.length).to.equal(patients.length + 1);
+          expect(Object.keys(state.patientsMap).length).to.equal(Object.keys(patientsMap).length + 1);
         });
       });
     });
@@ -1215,9 +1218,9 @@ describe('reducers', () => {
             { key: 'jazz', creator: { userid: 505, name: 'Jess' } }
           ];
 
-          let patients = [
-            { userid: 506, name: 'Alice' }
-          ];
+          let patientsMap = {
+            506: { userid: 506, name: 'Alice' }
+          };
 
           let initialStateForTest = _.merge(
             {}, 
@@ -1227,14 +1230,14 @@ describe('reducers', () => {
                 dismissingMembership: { inProgress : true, notification: null }
               },
               pendingMemberships: pendingMemberships,
-              patients: patients
+              patientsMap: patientsMap
           });
           
           let action = actions.sync.dismissMembershipSuccess(pendingMemberships[0]);
 
           expect(initialStateForTest.working.dismissingMembership.inProgress).to.be.true;
           expect(initialStateForTest.pendingMemberships.length).to.equal(pendingMemberships.length);
-          expect(initialStateForTest.patients.length).to.equal(patients.length);
+          expect(Object.keys(initialStateForTest.patientsMap).length).to.equal(Object.keys(patientsMap).length);
 
           let state = reducer(initialStateForTest, action);
           
@@ -1244,7 +1247,7 @@ describe('reducers', () => {
           expect(state.pendingMemberships[0].key).to.equal(pendingMemberships[1].key);
           expect(state.pendingMemberships[0].creator.userid).to.equal(pendingMemberships[1].creator.userid);
 
-          expect(state.patients.length).to.equal(patients.length);
+          expect(Object.keys(state.patientsMap).length).to.equal(Object.keys(patientsMap).length);
         });
       });
     });

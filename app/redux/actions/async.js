@@ -331,7 +331,7 @@ export function acceptMembership(api, invitation) {
 
     api.invitation.accept(
       invitation.key, 
-      invitation.creator.userid, (err, invitation) => {
+      invitation.creator.userid, (err) => {
       if (err) {
         dispatch(sync.acceptMembershipFailure(ErrorMessages.STANDARD));
       } else {

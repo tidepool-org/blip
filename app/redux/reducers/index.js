@@ -175,7 +175,7 @@ export default (state = initialState, action) => {
             } 
           } 
         },
-        patients: { $set: patientMap }
+        patientsMap: { $set: patientMap }
       });
     case types.FETCH_PATIENTS_FAILURE: 
       return update(state, { 
@@ -190,6 +190,10 @@ export default (state = initialState, action) => {
             } 
           } 
         }
+      });
+    case types.CLEAR_PATIENT_IN_VIEW: 
+      return update(state, { 
+        currentPatientInView: { $set: null }
       });
     case types.FETCH_PATIENT_REQUEST: 
       return update(state, { 
@@ -228,7 +232,7 @@ export default (state = initialState, action) => {
           } 
         }
       });
-    case types.REMOVE_PATIENT_DATA: 
+    case types.CLEAR_PATIENT_DATA: 
       return update(state, { 
         patientDataMap: {
           [action.payload.patientId]: { $set: null }
@@ -249,6 +253,7 @@ export default (state = initialState, action) => {
         }
       });
     case types.FETCH_PATIENT_DATA_SUCCESS:
+
       return update(state, { 
         working: {
           fetchingPatientData: { 
@@ -386,9 +391,10 @@ export default (state = initialState, action) => {
           } 
         },
         isLoggedIn: { $set: false },
-        patients: { $set: null }, 
-        patientsData: { $set: null },
-        invites: { $set: null }, 
+        patientsMap: { $set: {} }, 
+        patientDataMap: { $set: {} },
+        patientNotesMap: { $set: {} },
+        invites: { $set: [] }, 
         loggedInUser: { $set: null },
         currentPatientInView: { $set: null }
       });
@@ -877,7 +883,7 @@ export default (state = initialState, action) => {
         pendingMemberships: { $apply: (currentValue) => {
           return currentValue.filter( (i) => i.key !== action.payload.acceptedMembership.key );
         }},
-        patients: { $push: [ action.payload.acceptedMembership.creator ] }
+        patientsMap: { $merge: { [action.payload.acceptedMembership.creator.userid]: action.payload.acceptedMembership.creator } }
       });
     case types.ACCEPT_MEMBERSHIP_FAILURE:
       return update(state, { 
