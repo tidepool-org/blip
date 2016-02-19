@@ -231,7 +231,7 @@ export let PatientData = React.createClass({
             onSwitchToModal={this.handleSwitchToModal}
             onSwitchToSettings={this.handleSwitchToSettings}
             onSwitchToWeekly={this.handleSwitchToWeekly}
-            updateBasicsData={this.updateBasicsData.bind(null, this.props.currentPatientInViewId)}
+            updateBasicsData={this.updateBasicsData.bind(null)}
             trackMetric={this.props.trackMetric}
             uploadUrl={this.props.uploadUrl}
             ref="tideline" />
@@ -366,7 +366,7 @@ export let PatientData = React.createClass({
 
   handleMessageCreation: function(message){
     var data = this.refs.tideline.createMessageThread(nurseShark.reshapeMessage(message));
-    this.updateBasicsData(this.props.currentPatientInViewId, data);
+    this.updateBasicsData(data);
     this.props.trackMetric('Created New Message');
   },
 
@@ -384,7 +384,7 @@ export let PatientData = React.createClass({
       edit(message, cb);
     }
     var data = this.refs.tideline.editMessageThread(nurseShark.reshapeMessage(message));
-    this.props.updateBasicsData(this.props.currentPatientInViewId, data);
+    this.props.updateBasicsData(data);
     this.props.trackMetric('Edit To Message');
   },
 
@@ -493,7 +493,7 @@ export let PatientData = React.createClass({
     }
   },
 
-  updateBasicsData: function(userid, data) {
+  updateBasicsData: function(data) {
     this.setState({
       processedPatientData: data
     });
