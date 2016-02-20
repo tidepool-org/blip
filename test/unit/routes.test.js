@@ -24,11 +24,19 @@ describe('routes', () => {
         }
       };
 
+      let store = {
+        getState: () => ({
+          blip: {
+            isLoggedIn: false
+          }
+        })
+      };
+
       let replace = sinon.stub();
 
       expect(replace.callCount).to.equal(0);
 
-      requireAuth(api)(null, replace);
+      requireAuth(api, store)(null, replace);
 
       expect(replace.withArgs('/login').callCount).to.equal(1);
     });
@@ -40,11 +48,19 @@ describe('routes', () => {
         }
       };
 
+      let store = {
+        getState: () => ({
+          blip: {
+            isLoggedIn: true
+          }
+        })
+      };
+
       let replace = sinon.stub();
 
       expect(replace.callCount).to.equal(0);
 
-      requireAuth(api)(null, replace);
+      requireAuth(api, store)(null, replace);
 
       expect(replace.callCount).to.equal(0);
     });
@@ -58,11 +74,19 @@ describe('routes', () => {
         }
       };
 
+      let store = {
+        getState: () => ({
+          blip: {
+            isLoggedIn: false
+          }
+        })
+      };
+
       let replace = sinon.stub();
 
       expect(replace.callCount).to.equal(0);
 
-      requireAuthAndNoPatient(api)(null, replace, () => {
+      requireAuthAndNoPatient(api, store)(null, replace, () => {
         expect(replace.withArgs('/login').callCount).to.equal(1);
         done();
       });
@@ -86,11 +110,20 @@ describe('routes', () => {
         }
       };
 
+      let store = {
+        getState: () => ({
+          blip: {
+            isLoggedIn: true,
+            loggedInUser: null
+          }
+        })
+      };
+
       let replace = sinon.stub();
 
       expect(replace.callCount).to.equal(0);
 
-      requireAuthAndNoPatient(api)(null, replace, () => {
+      requireAuthAndNoPatient(api, store)(null, replace, () => {
         expect(replace.withArgs('/patients').callCount).to.equal(1);
         done();
       });
@@ -114,11 +147,20 @@ describe('routes', () => {
         }
       };
 
+      let store = {
+        getState: () => ({
+          blip: {
+            isLoggedIn: true,
+            loggedInUser: null
+          }
+        })
+      };
+
       let replace = sinon.stub();
 
       expect(replace.callCount).to.equal(0);
 
-      requireAuthAndNoPatient(api)(null, replace, () => {
+      requireAuthAndNoPatient(api, store)(null, replace, () => {
         expect(replace.callCount).to.equal(0);
         done();
       });
@@ -133,11 +175,19 @@ describe('routes', () => {
         }
       };
 
+      let store = {
+        getState: () => ({
+          blip: {
+            isLoggedIn: false
+          }
+        })
+      };
+
       let replace = sinon.stub();
 
       expect(replace.callCount).to.equal(0);
       
-      requireNoAuth(api)(null, replace);
+      requireNoAuth(api, store)(null, replace);
 
       expect(replace.withArgs('/patients').callCount).to.equal(1);
     });
@@ -149,11 +199,20 @@ describe('routes', () => {
         }
       };
 
+      let store = {
+        getState: () => ({
+          blip: {
+            isLoggedIn: false,
+            loggedInUser: null
+          }
+        })
+      };
+
       let replace = sinon.stub();
 
       expect(replace.callCount).to.equal(0);
 
-      requireNoAuth(api)(null, replace);
+      requireNoAuth(api, store)(null, replace);
 
       expect(replace.callCount).to.equal(0);
     });
@@ -172,11 +231,19 @@ describe('routes', () => {
         logout: sinon.stub()
       };
 
+      let store = {
+        getState: () => ({
+          blip: {
+            loggedInUser: null
+          }
+        })
+      };
+
       let replace = sinon.stub();
 
       expect(replace.callCount).to.equal(0);
 
-      requireNotVerified(api)(null, replace, () => {
+      requireNotVerified(api, store)(null, replace, () => {
         expect(replace.callCount).to.equal(0);
         done();
       });
@@ -197,11 +264,20 @@ describe('routes', () => {
         }
       };
 
+      let store = {
+        getState: () => ({
+          blip: {
+            isLoggedIn: true,
+            loggedInUser: null
+          }
+        })
+      };
+
       let replace = sinon.stub();
 
       expect(replace.callCount).to.equal(0);
 
-      requireNotVerified(api)(null, replace, () => {
+      requireNotVerified(api, store)(null, replace, () => {
         expect(replace.withArgs('/patients').callCount).to.equal(1);
         done();
       });
@@ -224,11 +300,20 @@ describe('routes', () => {
         }
       };
 
+      let store = {
+        getState: () => ({
+          blip: {
+            isLoggedIn: true,
+            loggedInUser: null
+          }
+        })
+      };
+
       let replace = sinon.stub();
 
       expect(replace.callCount).to.equal(0);
 
-      requireNotVerified(api)(null, replace, () => {
+      requireNotVerified(api, store)(null, replace, () => {
         expect(replace.callCount).to.equal(0);
         done();
       });
@@ -243,11 +328,19 @@ describe('routes', () => {
         }
       };
 
+      let store = {
+        getState: () => ({
+          blip: {
+            isLoggedIn: false
+          }
+        })
+      };
+
       let replace = sinon.stub();
 
       expect(replace.callCount).to.equal(0);
 
-      onUploaderPasswordReset(api)(null, replace);
+      onUploaderPasswordReset(api, store)(null, replace);
 
       expect(replace.callCount).to.equal(0);
     });
@@ -259,11 +352,19 @@ describe('routes', () => {
         }
       };
 
+      let store = {
+        getState: () => ({
+          blip: {
+            isLoggedIn: true
+          }
+        })
+      };
+
       let replace = sinon.stub();
 
       expect(replace.callCount).to.equal(0);
 
-      onUploaderPasswordReset(api)(null, replace);
+      onUploaderPasswordReset(api, store)(null, replace);
 
       expect(replace.withArgs('/profile').callCount).to.equal(1);
     });
@@ -337,11 +438,19 @@ describe('routes', () => {
         }
       };
 
+      let store = {
+        getState: () => ({
+          blip: {
+            isLoggedIn: true
+          }
+        })
+      };
+
       let replace = sinon.stub();
 
       expect(replace.callCount).to.equal(0);
 
-      onIndexRouteEnter(api)(nextState, replace);
+      onIndexRouteEnter(api, store)(nextState, replace);
 
       expect(replace.withArgs('/patients').callCount).to.equal(1);
     });
@@ -360,11 +469,19 @@ describe('routes', () => {
         }
       };
 
+      let store = {
+        getState: () => ({
+          blip: {
+            isLoggedIn: false
+          }
+        })
+      };
+
       let replace = sinon.stub();
 
       expect(replace.callCount).to.equal(0);
 
-      onIndexRouteEnter(api)(nextState, replace);
+      onIndexRouteEnter(api, store)(nextState, replace);
 
       expect(replace.withArgs('/patient/435/data').callCount).to.equal(1);
     });
@@ -383,11 +500,19 @@ describe('routes', () => {
         }
       };
 
+      let store = {
+        getState: () => ({
+          blip: {
+            isLoggedIn: true
+          }
+        })
+      };
+
       let replace = sinon.stub();
 
       expect(replace.callCount).to.equal(0);
 
-      onIndexRouteEnter(api)(nextState, replace);
+      onIndexRouteEnter(api, store)(nextState, replace);
 
       expect(replace.withArgs('/patients').callCount).to.equal(1);
     });
@@ -406,11 +531,19 @@ describe('routes', () => {
         }
       };
 
+      let store = {
+        getState: () => ({
+          blip: {
+            isLoggedIn: false
+          }
+        })
+      };
+
       let replace = sinon.stub();
 
       expect(replace.callCount).to.equal(0);
 
-      onIndexRouteEnter(api)(nextState, replace);
+      onIndexRouteEnter(api, store)(nextState, replace);
 
       expect(replace.callCount).to.equal(0);
     });
