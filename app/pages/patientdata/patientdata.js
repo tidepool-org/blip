@@ -544,11 +544,10 @@ export let PatientData = React.createClass({
   },
 
   doProcessing: function(nextProps) {
-    // I realised the one source of truth we can rely on here to ensure we show the correct patient
-    // is to refer to the userId specified in the route! What do you think @jana?
-    var userId = _.get(this.props, 'routeParams.id', null);
-    if (userId && nextProps.patientDataMap && nextProps.patientDataMap[userId]) {
-      let combinedData = nextProps.patientDataMap[userId].concat(nextProps.patientNotesMap[userId]);
+    var userId = this.props.currentPatientInViewId;
+    var patientData = _.get(nextProps, ['patientDataMap', userId], null);
+    if (patientData) {
+      let combinedData = patientData.concat(nextProps.patientNotesMap[userId]);
       let processedData = utils.processPatientData(
         this, 
         combinedData, 
