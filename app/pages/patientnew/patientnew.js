@@ -283,7 +283,7 @@ export let PatientNew = React.createClass({
 
     formValues = this.prepareFormValuesForSubmit(formValues);
 
-    this.props.submit(formValues);
+    this.props.onSubmit(formValues);
   },
 
   resetFormStateBeforeSubmit: function(formValues) {
@@ -372,10 +372,10 @@ export let PatientNew = React.createClass({
  */
 
 let mapStateToProps = state => ({
-  user: state.loggedInUser,
-  fetchingUser: state.working.fetchingUser,
-  working: state.working.creatingPatient.inProgress,
-  notification: state.working.creatingPatient.notification
+  user: state.blip.loggedInUser,
+  fetchingUser: state.blip.working.fetchingUser.inProgress,
+  working: state.blip.working.creatingPatient.inProgress,
+  notification: state.blip.working.creatingPatient.notification
 });
 
 let mapDispatchToProps = dispatch => bindActionCreators({
@@ -385,10 +385,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.routes[0].api;
   return Object.assign({}, ownProps, stateProps, dispatchProps, {
-    uploadUrl: api.getUploadUrl(),
-    onAcceptInvitation: dispatchProps.acceptInvitation.bind(null, api),
-    onDismissInvitation: dispatchProps.dismissInvitation.bind(null, api),
-    onRemoveMember: dispatchProps.removeMember.bind(null, api),
+    onSubmit: dispatchProps.createPatient.bind(null, api),
     trackMetric: ownProps.routes[0].trackMetric
   });
 };

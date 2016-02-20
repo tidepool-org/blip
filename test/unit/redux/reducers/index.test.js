@@ -774,9 +774,16 @@ describe('reducers', () => {
                 inProgress: true,
                 notification: null
               }
-            } 
+            },
+            loggedInUser: {
+            }
           });
-          let patient = 'Patient!';
+          let patient = {
+            userid: '27',
+            profile: {
+              foo: 'bar'
+            }
+          };
           let action = actions.sync.createPatientSuccess(patient);
 
           expect(initialStateForTest.working.creatingPatient.inProgress).to.be.true;

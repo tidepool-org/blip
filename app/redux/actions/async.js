@@ -203,6 +203,7 @@ export function createPatient(api, patient) {
         dispatch(sync.createPatientFailure(ErrorMessages.STANDARD));
       } else {
         dispatch(sync.createPatientSuccess(createdPatient));
+        dispatch(routeActions.push(`/patients/${createdPatient.userid}/data`));
       }
     });
   }

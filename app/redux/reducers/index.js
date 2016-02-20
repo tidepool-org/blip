@@ -656,9 +656,7 @@ export default (state = initialState, action) => {
             } 
           } 
         },
-        loggedInUser: { $set:
-          { profile: action.payload.patient.profile }
-        },
+        loggedInUser: { profile: { $set: action.payload.patient.profile } },
         currentPatientInView: { $set:action.payload.patient }
       });
     case types.CREATE_PATIENT_FAILURE:
