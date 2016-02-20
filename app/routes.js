@@ -180,6 +180,8 @@ export const onIndexRouteEnter = (api, store) => (nextState, replace) => {
  * Creates the route map with authentication associated with each route built in.
  * 
  * @param  {Object} appContext
+ * @param {Object} store
+ * 
  * @return {Route} the react-router routes
  */
 export const getRoutes = (appContext, store) => {
