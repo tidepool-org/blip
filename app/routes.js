@@ -25,10 +25,8 @@ import personUtils from './core/personutils';
  *
  * @return {boolean|null} returns true if hash mapping happened
  */
-export const requireAuth = (api, store) => (nextState, replace) => {
-  let { blip: state } = store.getState();
-
-  if (!state.isLoggedIn && !api.user.isAuthenticated()) {
+export const requireAuth = (api) => (nextState, replace) => {
+  if (!api.user.isAuthenticated()) {
     replace('/login');
   }
 };
@@ -45,7 +43,7 @@ export const requireAuth = (api, store) => (nextState, replace) => {
 export const requireAuthAndNoPatient = (api, store) => (nextState, replace, cb) => {
   let { blip: state } = store.getState();
 
-  if (!state.isLoggedIn && !api.user.isAuthenticated()) {
+  if (!api.user.isAuthenticated()) {
     replace('/login');
     return cb();
   } else {
@@ -74,10 +72,8 @@ export const requireAuthAndNoPatient = (api, store) => (nextState, replace, cb) 
  *
  * @return {boolean|null} returns true if hash mapping happened
  */
-export const requireNoAuth = (api, store) => (nextState, replace) => {
-  let { blip: state } = store.getState();
-
-  if (state.isLoggedIn || api.user.isAuthenticated()) {
+export const requireNoAuth = (api) => (nextState, replace) => {
+  if (api.user.isAuthenticated()) {
     replace('/patients');
   }
 };
@@ -135,10 +131,8 @@ export const requireNotVerified = (api, store) => (nextState, replace, cb) => {
  *
  * @return {boolean|null} returns true if hash mapping happened
  */
-export const onUploaderPasswordReset = (api, store) => (nextState, replace) => {
-  let { blip: state } = store.getState();
-
-  if (state.isLoggedIn || api.user.isAuthenticated()) {
+export const onUploaderPasswordReset = (api) => (nextState, replace) => {
+  if (api.user.isAuthenticated()) {
     replace('/profile');
   }
 }
@@ -172,7 +166,7 @@ export const hashToUrl = (nextState, replace) => {
  */
 export const onIndexRouteEnter = (api, store) => (nextState, replace) => {
   if (!hashToUrl(nextState, replace)) {
-    requireNoAuth(api, store)(nextState, replace);
+    requireNoAuth(api)(nextState, replace);
   }
 }
 
@@ -191,18 +185,18 @@ export const getRoutes = (appContext, store) => {
   return (
     <Route path='/' component={AppComponent} {...props}>
       <IndexRoute component={Login} onEnter={onIndexRouteEnter(api, store)} />
-      <Route path='login' component={Login} onEnter={requireNoAuth(api, store)} />
-      <Route path='signup' component={Signup} onEnter={requireNoAuth(api, store)} />
+      <Route path='login' component={Login} onEnter={requireNoAuth(api)} />
+      <Route path='signup' component={Signup} onEnter={requireNoAuth(api)} />
       <Route path='email-verification' component={EmailVerification} onEnter={requireNotVerified(api, store)} />
-      <Route path='profile' component={Profile} onEnter={requireAuth(api, store)} />
-      <Route path='patients' component={Patients} onEnter={requireAuth(api, store)} />
+      <Route path='profile' component={Profile} onEnter={requireAuth(api)} />
+      <Route path='patients' component={Patients} onEnter={requireAuth(api)} />
       <Route path='patients/new' component={PatientNew} onEnter={requireAuthAndNoPatient(api, store)} />
-      <Route path='patients/:id/profile' component={PatientProfile} onEnter={requireAuth(api, store)} />
-      <Route path='patients/:id/share' component={PatientCareTeam} onEnter={requireAuth(api, store)} />
-      <Route path='patients/:id/data' component={PatientData} onEnter={requireAuth(api, store)} />
-      <Route path='request-password-reset' component={RequestPasswordReset} onEnter={requireNoAuth(api, store)} />
-      <Route path='confirm-password-reset' component={ConfirmPasswordReset} onEnter={requireNoAuth(api, store)} />
-      <Route path='request-password-from-uploader' component={RequestPasswordReset} onEnter={onUploaderPasswordReset(api, store)} />
+      <Route path='patients/:id/profile' component={PatientProfile} onEnter={requireAuth(api)} />
+      <Route path='patients/:id/share' component={PatientCareTeam} onEnter={requireAuth(api)} />
+      <Route path='patients/:id/data' component={PatientData} onEnter={requireAuth(api)} />
+      <Route path='request-password-reset' component={RequestPasswordReset} onEnter={requireNoAuth(api)} />
+      <Route path='confirm-password-reset' component={ConfirmPasswordReset} onEnter={requireNoAuth(api)} />
+      <Route path='request-password-from-uploader' component={RequestPasswordReset} onEnter={onUploaderPasswordReset(api)} />
     </Route>
   );
 }
