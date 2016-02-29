@@ -515,7 +515,6 @@ export let PatientData = React.createClass({
 
   componentWillMount: function() {
     this.doFetching(this.props);
-    this.doProcessing(this.props);
     var params = this.props.queryParams;
 
     if (!_.isEmpty(params)) {
