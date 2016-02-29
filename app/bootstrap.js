@@ -109,7 +109,7 @@ appContext.start = () => {
     appContext.log('Starting app...');
 
     appContext.component = render(
-      <AppRoot store={store} routing={getRoutes(appContext)} />,
+      <AppRoot store={store} routing={getRoutes(appContext, store)} />,
       document.getElementById('app')
     );
 

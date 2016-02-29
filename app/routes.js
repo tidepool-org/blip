@@ -40,19 +40,26 @@ export const requireAuth = (api) => (nextState, replace) => {
  *
  * @return {boolean|null} returns true if hash mapping happened
  */
-export const requireAuthAndNoPatient = (api) => (nextState, replace, cb) => {
+export const requireAuthAndNoPatient = (api, store) => (nextState, replace, cb) => {
+  let { blip: state } = store.getState();
+
   if (!api.user.isAuthenticated()) {
     replace('/login');
     return cb();
-  }
-  else {
-    api.user.get(function(err, user) {
-      if (personUtils.isPatient(user)) {
+  } else {
+    if (state.loggedInUser) {
+      if (personUtils.isPatient(state.loggedInUser)) {
         replace('/patients');
-        return cb();
       }
       cb();
-    });
+    } else {
+      api.user.get(function(err, user) {
+        if (personUtils.isPatient(user)) {
+          replace('/patients');
+        }
+        cb();
+      });
+    }
   }
 };
 
@@ -81,18 +88,27 @@ export const requireNoAuth = (api) => (nextState, replace) => {
  *
  * @return {boolean|null} returns true if hash mapping happened
  */
-export const requireNotVerified = (api) => (nextState, replace, cb) => {
-  api.user.get(function(err, user) {
-    if (err) {
-      // we expect a 401 Unauthorized when navigating to /email-verification
-      // when not logged in (e.g., in a new tab after initial sign-up)
-      if (err.status === 401) {
+export const requireNotVerified = (api, store) => (nextState, replace, cb) => {
+  let { blip: state } = store.getState();
+  if (state.loggedInUser) { 
+    checkIfVerified(state.loggedInUser);
+  } else {
+    api.user.get(function(err, user) {
+      if (err) {
+        // we expect a 401 Unauthorized when navigating to /email-verification
+        // when not logged in (e.g., in a new tab after initial sign-up)
+        if (err.status === 401) {
+          return cb();
+        }
+        throw new Error('Error getting user at /email-verification');
         return cb();
       }
-      throw new Error('Error getting user at /email-verification');
-      return cb();
-    }
-    if (user.emailVerified === true) {
+      checkIfVerified(user, cb);
+    });
+  }
+
+  function checkIfVerified(userToCheck) {
+    if (userToCheck.emailVerified === true) {
       replace('/patients');
       return cb();
     }
@@ -102,7 +118,7 @@ export const requireNotVerified = (api) => (nextState, replace, cb) => {
       api.log('"Logged out" user after initial set-up so that /login is accessible');
     });
     cb();
-  });
+  }
 }
 
 /**
@@ -148,7 +164,7 @@ export const hashToUrl = (nextState, replace) => {
  * @param  {Object} nextState
  * @param  {Function} replace
  */
-export const onIndexRouteEnter = (api) => (nextState, replace) => {
+export const onIndexRouteEnter = (api, store) => (nextState, replace) => {
   if (!hashToUrl(nextState, replace)) {
     requireNoAuth(api)(nextState, replace);
   }
@@ -158,21 +174,23 @@ export const onIndexRouteEnter = (api) => (nextState, replace) => {
  * Creates the route map with authentication associated with each route built in.
  * 
  * @param  {Object} appContext
+ * @param {Object} store
+ * 
  * @return {Route} the react-router routes
  */
-export const getRoutes = (appContext) => {
+export const getRoutes = (appContext, store) => {
   let props = appContext.props;
   let api = props.api;
 
   return (
     <Route path='/' component={AppComponent} {...props}>
-      <IndexRoute component={Login} onEnter={onIndexRouteEnter(api)} />
+      <IndexRoute component={Login} onEnter={onIndexRouteEnter(api, store)} />
       <Route path='login' component={Login} onEnter={requireNoAuth(api)} />
       <Route path='signup' component={Signup} onEnter={requireNoAuth(api)} />
-      <Route path='email-verification' component={EmailVerification} onEnter={requireNotVerified(api)} />
+      <Route path='email-verification' component={EmailVerification} onEnter={requireNotVerified(api, store)} />
       <Route path='profile' component={Profile} onEnter={requireAuth(api)} />
       <Route path='patients' component={Patients} onEnter={requireAuth(api)} />
-      <Route path='patients/new' component={PatientNew} onEnter={requireAuthAndNoPatient(api)} />
+      <Route path='patients/new' component={PatientNew} onEnter={requireAuthAndNoPatient(api, store)} />
       <Route path='patients/:id/profile' component={PatientProfile} onEnter={requireAuth(api)} />
       <Route path='patients/:id/share' component={PatientCareTeam} onEnter={requireAuth(api)} />
       <Route path='patients/:id/data' component={PatientData} onEnter={requireAuth(api)} />

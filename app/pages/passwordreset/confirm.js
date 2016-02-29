@@ -220,7 +220,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
-  return _.merge({}, stateProps, dispatchProps, {
+  return Object.assign({}, stateProps, dispatchProps, {
     resetKey: ownProps.location.query.resetKey,
     trackMetric: ownProps.routes[0].trackMetric,
     api: ownProps.routes[0].api,

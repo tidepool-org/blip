@@ -21,13 +21,14 @@ describe('Patients', () => {
     it('should console.error when required props are missing', () => {
       console.error = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<Patients />);
-      expect(console.error.callCount).to.equal(1);
+      expect(console.error.callCount).to.equal(2);
     });
 
     it('should render without problems when trackMetric is set', () => {
       console.error = sinon.stub();
       var props = {
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        clearPatientInView: sinon.stub()
       };
       var elem = React.createElement(Patients, props);
       var render = TestUtils.renderIntoDocument(elem);

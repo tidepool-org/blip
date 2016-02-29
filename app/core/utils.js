@@ -181,12 +181,12 @@ utils.getInviteKey = function(location) {
   return '';
 }
 
-utils.processPatientData = (data, queryParams, timePrefs, bgPrefs) => {
+utils.processPatientData = (comp, data, queryParams, timePrefs, bgPrefs) => {
   if (!(data && data.length >= 0)) {
     return null;
   }
 
-  var mostRecentUpload = _.sortBy(_.where(data, {type: 'upload'}), (d) => Date.parse(d.time) ).reverse()[0];
+  var mostRecentUpload = _.sortBy(_.filter(data, {type: 'upload'}), (d) => Date.parse(d.time) ).reverse()[0];
   var timePrefsForTideline;
   if (!_.isEmpty(mostRecentUpload) && !_.isEmpty(mostRecentUpload.timezone)) {
     try {
@@ -209,10 +209,9 @@ utils.processPatientData = (data, queryParams, timePrefs, bgPrefs) => {
   }
   // but otherwise we use the timezone from the most recent upload metadata obj
   else {
-    // @todo: need to figure out a way to refactor this bit of shenanigans
-    // comp.setState({
-    //   timePrefs: timePrefsForTideline
-    // });
+    comp.setState({
+      timePrefs: timePrefsForTideline
+    });
     console.log('Defaulting to display in timezone of most recent upload at', mostRecentUpload.time, mostRecentUpload.timezone);
   }
 

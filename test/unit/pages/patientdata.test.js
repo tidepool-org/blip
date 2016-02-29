@@ -42,12 +42,13 @@ describe('PatientData', function () {
       console.error = sinon.spy();
       var elem = TestUtils.renderIntoDocument(<PatientData/>);
       expect(elem).to.be.ok;
-      expect(console.error.callCount).to.equal(5);
+      expect(console.error.callCount).to.equal(6);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `timePrefs` was not specified in `PatientData`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingPatient` was not specified in `PatientData`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingPatientData` was not specified in `PatientData`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `queryParams` was not specified in `PatientData`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `currentPatientInViewId` was not specified in `PatientData`.')).to.equal(true);
     });
 
     it ('should not warn when required props are set', function() {
@@ -59,7 +60,8 @@ describe('PatientData', function () {
         fetchingPatient: false,
         fetchingPatientData: false,
         queryParams: {},
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        currentPatientInViewId: '456kgkghs'
       };
 
       console.error = sinon.spy();
@@ -78,7 +80,8 @@ describe('PatientData', function () {
         fetchingPatient: false,
         fetchingPatientData: true,
         queryParams: {},
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        currentPatientInViewId: '456kgkghs'
       };
 
       // Try out using the spread props syntax in JSX
@@ -101,13 +104,16 @@ describe('PatientData', function () {
         fetchingPatient: false,
         fetchingPatientData: false,
         queryParams: {},
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        currentPatientInViewId: '456kgkghs'
       };
 
       // Try out using the spread props syntax in JSX
       var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+
       expect(elem).to.be.ok;
-      
+      elem.setState({processingData: false});
+
       var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message');
       expect(x).to.be.ok;
     });
@@ -122,13 +128,14 @@ describe('PatientData', function () {
         fetchingPatient: false,
         fetchingPatientData: false,
         queryParams: {},
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        currentPatientInViewId: '456kgkghs'
       };
 
       // Try out using the spread props syntax in JSX
       var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
       expect(elem).to.be.ok;
-      
+      elem.setState({processingData: false});
       var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message-no-data');
       expect(x).to.be.ok;
     });
@@ -145,7 +152,8 @@ describe('PatientData', function () {
         fetchingPatient: false,
         fetchingPatientData: false,
         queryParams: {},
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        currentPatientInViewId: '456kgkghs'
       };
 
       // Try out using the spread props syntax in JSX
@@ -171,7 +179,8 @@ describe('PatientData', function () {
         fetchingPatient: false,
         fetchingPatientData: false,
         queryParams: {},
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        currentPatientInViewId: '456kgkghs'
       };
 
       // Try out using the spread props syntax in JSX
@@ -197,12 +206,14 @@ describe('PatientData', function () {
         fetchingPatient: false,
         fetchingPatientData: false,
         queryParams: {},
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        currentPatientInViewId: '456kgkghs'
       };
 
       var pdElem = React.createElement(PatientData, props);
       var elem = TestUtils.renderIntoDocument(pdElem);
       expect(elem).to.be.ok;
+      elem.setState({processingData: false, processedPatientData: { data: [ { type: 'data', value: 100 }]}});
       var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-basics-view');
       expect(x).to.be.ok;
     });

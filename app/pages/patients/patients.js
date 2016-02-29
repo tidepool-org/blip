@@ -46,7 +46,8 @@ export let Patients = React.createClass({
     onAcceptInvitation: React.PropTypes.func,
     onDismissInvitation: React.PropTypes.func,
     onRemovePatient: React.PropTypes.func,
-    uploadUrl: React.PropTypes.string
+    uploadUrl: React.PropTypes.string,
+    clearPatientInView: React.PropTypes.func.isRequired
   },
 
   render: function() {
@@ -321,6 +322,10 @@ export let Patients = React.createClass({
    * begin fetching any required data
    */
   componentWillMount: function() {
+    if (this.props.clearPatientInView) {
+      this.props.clearPatientInView();
+    }
+    
     this.doFetching(this.props);
   }
 });
@@ -339,7 +344,7 @@ let getFetchers = (dispatchProps, ownProps, api) => {
 let mapStateToProps = state => ({
   user: state.blip.loggedInUser,
   fetchingUser: state.blip.working.fetchingUser.inProgress,
-  patients: _.values(state.blip.patients),
+  patients: _.values(state.blip.patientsMap),
   fetchingPatients: state.blip.working.fetchingPatients.inProgress,
   invites: state.blip.pendingMemberships,
   fetchingInvites: state.blip.working.fetchingPendingMemberships.inProgress,
@@ -352,12 +357,13 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   dismissMembership: actions.async.dismissMembership,
   removePatient: actions.async.removePatient,
   fetchPendingMemberships: actions.async.fetchPendingMemberships,
-  fetchPatients: actions.async.fetchPatients
+  fetchPatients: actions.async.fetchPatients,
+  clearPatientInView: actions.sync.clearPatientInView
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.routes[0].api;
-  return _.merge({}, ownProps, stateProps, dispatchProps, {
+  return Object.assign({}, ownProps, stateProps, dispatchProps, {
     fetchers: getFetchers(dispatchProps, ownProps, api),
     uploadUrl: api.getUploadUrl(),
     onAcceptInvitation: dispatchProps.acceptMembership.bind(null, api),

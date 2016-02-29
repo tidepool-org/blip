@@ -203,6 +203,7 @@ export function createPatient(api, patient) {
         dispatch(sync.createPatientFailure(ErrorMessages.STANDARD));
       } else {
         dispatch(sync.createPatientSuccess(createdPatient));
+        dispatch(routeActions.push(`/patients/${createdPatient.userid}/data`));
       }
     });
   }
@@ -331,7 +332,7 @@ export function acceptMembership(api, invitation) {
 
     api.invitation.accept(
       invitation.key, 
-      invitation.creator.userid, (err, invitation) => {
+      invitation.creator.userid, (err) => {
       if (err) {
         dispatch(sync.acceptMembershipFailure(ErrorMessages.STANDARD));
       } else {
@@ -555,10 +556,8 @@ export function fetchPatients(api) {
  * @param {String|Number} id
  * @param {Object} queryParams
  */
-export function fetchPatientData(api, id, queryParams) {
-  return (dispatch, getState) => {
-    const state = getState();
-
+export function fetchPatientData(api, id) {
+  return (dispatch) => {
     dispatch(sync.fetchPatientDataRequest());
 
     async.parallel({
@@ -570,11 +569,7 @@ export function fetchPatientData(api, id, queryParams) {
       } else {
         let patientData = results.patientData || [];
         let notes = results.teamNotes || [];
-        let combinedData = patientData.concat(notes);
-
-        let processedData = utils.processPatientData(combinedData, queryParams, state.blip.timePrefs, state.blip.bgPrefs);
-
-        dispatch(sync.fetchPatientDataSuccess(id, processedData));
+        dispatch(sync.fetchPatientDataSuccess(id, patientData, notes));
       }
     });
   };

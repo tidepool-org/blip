@@ -55,13 +55,18 @@ export function closeMessageThread() {
   };
 }
 
-export function updateLocalPatientData(patientId, data) {
+export function clearPatientData(patientId) {
   return {
-    type: ActionTypes.UPDATE_LOCAL_PATIENT_DATA,
+    type: ActionTypes.CLEAR_PATIENT_DATA,
     payload: {
-      patientId: patientId,
-      patientData: data
+      patientId: patientId
     }
+  };
+}
+
+export function clearPatientInView() {
+  return {
+    type: ActionTypes.CLEAR_PATIENT_IN_VIEW
   };
 }
 
@@ -614,12 +619,13 @@ export function fetchPatientDataRequest() {
   };
 }
 
-export function fetchPatientDataSuccess(patientId, patientData) {
+export function fetchPatientDataSuccess(patientId, patientData, patientNotes) {
   return {
     type: ActionTypes.FETCH_PATIENT_DATA_SUCCESS,
     payload: {
       patientId: patientId,
-      patientData: patientData
+      patientData: patientData,
+      patientNotes: patientNotes
     }
   };
 }

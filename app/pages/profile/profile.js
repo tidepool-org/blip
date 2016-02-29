@@ -264,7 +264,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.routes[0].api;
-  return _.merge({}, ownProps, stateProps, dispatchProps, {
+  return Object.assign({}, ownProps, stateProps, dispatchProps, {
     onSubmit: dispatchProps.updateUser.bind(null, api),
     trackMetric: ownProps.routes[0].trackMetric
   });
