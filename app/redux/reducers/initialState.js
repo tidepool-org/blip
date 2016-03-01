@@ -63,7 +63,7 @@ export default {
     updatingUser: Object.assign({}, working),  
     signingUp: Object.assign({}, working),
   },
-  error: null,
+  notification: null,
   timePrefs: {
     timezoneAware: false,
     timezoneName: null
