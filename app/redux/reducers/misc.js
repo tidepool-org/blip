@@ -102,7 +102,7 @@ export const currentPatientInView = (state = initialState.currentPatientInView, 
   switch(action.type) {
     case types.CREATE_PATIENT_SUCCESS:
     case types.FETCH_PATIENT_SUCCESS:
-      return update(state, { $set:action.payload.patient });
+      return update(state, { $set: action.payload.patient });
     case types.UPDATE_PATIENT_SUCCESS:
       return update(state, { $set: action.payload.updatedPatient });
     case types.LOGOUT_SUCCESS:

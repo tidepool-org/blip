@@ -41,6 +41,16 @@ describe('working', () => {
       let state = reducer(initialStateForTest, action);
       expect(state.fetchingUser.notification).to.be.null;
     });
+
+    it('should set not change state when no acknowledgeNotificationKey is specified', () => {
+      let initialStateForTest = _.merge({}, initialState, { fetchingUser: { notification: { message: 'foo' } } });
+      let action = actions.sync.acknowledgeNotification()
+
+      expect(initialStateForTest.fetchingUser.notification.message).to.equal('foo');
+
+      let state = reducer(initialStateForTest, action);
+      expect(state.fetchingUser.notification.message).to.equal('foo');
+    });
   });
 
   describe('access', () => {
