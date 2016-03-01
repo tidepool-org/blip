@@ -63,7 +63,7 @@ export const isLoggedIn = (state = initialState.isLoggedIn, action) => {
 export const sentEmailVerification = (state = initialState.sentEmailVerification, action) => {
   switch(action.type) {
     case types.SIGNUP_SUCCESS:
-      return update(state, { $set: false });
+      return update(state, { $set: true });
     default:
       return state;
   }
@@ -72,7 +72,7 @@ export const sentEmailVerification = (state = initialState.sentEmailVerification
 export const resentEmailVerification = (state = initialState.resentEmailVerification, action) => {
   switch(action.type) {
     case types.RESEND_EMAIL_VERIFICATION_SUCCESS:
-      return update(state, { $set: false });
+      return update(state, { $set: true });
     default:
       return state;
   }
