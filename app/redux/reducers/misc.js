@@ -163,7 +163,6 @@ export const patientsMap = (state = initialState.patientsMap, action) => {
 export const patientDataMap = (state = initialState.patientDataMap, action) => {
   switch(action.type) {
     case types.FETCH_PATIENT_DATA_SUCCESS:
-    case types.UPDATE_LOCAL_PATIENT_DATA:
       return update(state, {
         [action.payload.patientId]: { $set: action.payload.patientData }
       });
@@ -200,7 +199,7 @@ export const pendingInvites = (state = initialState.pendingInvites, action) => {
     case types.FETCH_PENDING_INVITES_SUCCESS:
       return update(state, { $set: action.payload.pendingInvites });
     case types.SEND_INVITATION_SUCCESS:
-      return update(state, { $push: action.payload.invitation });
+      return update(state, { $push: [ action.payload.invitation ] });
     case types.CANCEL_INVITATION_SUCCESS:
       return update(state, { $apply: (currentValue) => {
           return currentValue.filter( (i) => i.email !== action.payload.removedEmail )
@@ -227,6 +226,8 @@ export const pendingMemberships = (state = initialState.pendingMemberships, acti
           return currentValue.filter( (i) => i.key !== action.payload.dismissedMembership.key );
         }
       });
+    case types.LOGOUT_SUCCESS:
+      return update(state, { $set: [] });
     default:
       return state;
   }
