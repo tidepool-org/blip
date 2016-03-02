@@ -354,7 +354,7 @@ export function dismissMembership(api, invitation) {
 
     api.invitation.dismiss(
       invitation.key, 
-      invitation.creator.userid, (err, invitation) => {
+      invitation.creator.userid, (err) => {
       if (err) {
         dispatch(sync.dismissMembershipFailure(ErrorMessages.STANDARD));
       } else {
