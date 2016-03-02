@@ -23,7 +23,6 @@ var appEntry = (process.env.MOCK === 'true') ? './app/main.mock.js' : './app/mai
 var entryScripts = appEntry;
 var loaders = [
   {test: /node_modules\/tideline\/.*\.js$/, exclude: /tideline\/node_modules/, loader: 'babel-loader'},
-  {test: /\.less$/, loader: ExtractTextPlugin.extract('style-loader', 'css-loader!autoprefixer-loader!less-loader')},
   {test: /\.gif$/, loader: 'url-loader?limit=100000&mimetype=image/gif'},
   {test: /\.jpg$/, loader: 'url-loader?limit=10000&mimetype=image/jpg'},
   {test: /\.png$/, loader: 'url-loader?limit=10000&mimetype=image/png'},
@@ -49,7 +48,9 @@ if (isDev) {
     appEntry
   ];
   loaders.push({test: /\.js$/, exclude: /(node_modules)/, loaders: ['react-hot', 'babel-loader']});
+  loaders.push({test: /\.less$/, loaders: ['style-loader', 'css-loader' , 'autoprefixer-loader', 'less-loader']})
 } else {
+  loaders.push({test: /\.less$/, loader: ExtractTextPlugin.extract('style-loader', 'css-loader!autoprefixer-loader!less-loader')});
   loaders.push({test: /\.js$/, exclude: /(node_modules)/, loaders: ['babel-loader']});
 }
 
