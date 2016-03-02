@@ -276,67 +276,67 @@ export function removeMember(api, patientId, memberId) {
 }
 
 /**
- * Send Invitation Async Action Creator
+ * Send Invite Async Action Creator
  * 
  * @param  {Object} api an instance of the API wrapper
  * @param  {String} email
  * @param  {Object} permissions
  */
-export function sendInvitation(api, email, permissions) {
+export function sendInvite(api, email, permissions) {
   return (dispatch) => {
-    dispatch(sync.sendInvitationRequest());
+    dispatch(sync.sendInviteRequest());
 
-    api.invitation.send(email, permissions, (err, invitation) => {
+    api.invitation.send(email, permissions, (err, invite) => {
       if (err) {
         if (err.status === 409) {
-          dispatch(sync.sendInvitationFailure(ErrorMessages.ALREADY_SENT_TO_EMAIL));
+          dispatch(sync.sendInviteFailure(ErrorMessages.ALREADY_SENT_TO_EMAIL));
         } else {
-          dispatch(sync.sendInvitationFailure(ErrorMessages.STANDARD));
+          dispatch(sync.sendInviteFailure(ErrorMessages.STANDARD));
         }
       } else {
-        dispatch(sync.sendInvitationSuccess(invitation));
+        dispatch(sync.sendInviteSuccess(invite));
       }
     });
   }
 }
 
 /**
- * Cancel Invitation Async Action Creator
+ * Cancel Sent Invite Async Action Creator
  * 
  * @param  {Object} api an instance of the API wrapper
  * @param  {String} email
  */
-export function cancelInvitation(api, email) {
+export function cancelSentInvite(api, email) {
   return (dispatch) => {
-    dispatch(sync.cancelInvitationRequest());
+    dispatch(sync.cancelSentInviteRequest());
 
     api.invitation.cancel(email, (err) => {
       if (err) {
-        dispatch(sync.cancelInvitationFailure(ErrorMessages.STANDARD));
+        dispatch(sync.cancelSentInviteFailure(ErrorMessages.STANDARD));
       } else {
-        dispatch(sync.cancelInvitationSuccess(email));
+        dispatch(sync.cancelSentInviteSuccess(email));
       }
     });
   }
 }
 
 /**
- * Accept Membership Async Action Creator
+ * Accept ReceivedInvite Async Action Creator
  * 
  * @param  {Object} api an instance of the API wrapper
- * @param  {Object} invitation
+ * @param  {Object} invite
  */
-export function acceptMembership(api, invitation) {
+export function acceptReceivedInvite(api, invite) {
   return (dispatch) => {
-    dispatch(sync.acceptMembershipRequest(invitation));
+    dispatch(sync.acceptReceivedInviteRequest(invite));
 
     api.invitation.accept(
-      invitation.key, 
-      invitation.creator.userid, (err) => {
+      invite.key, 
+      invite.creator.userid, (err) => {
       if (err) {
-        dispatch(sync.acceptMembershipFailure(ErrorMessages.STANDARD));
+        dispatch(sync.acceptReceivedInviteFailure(ErrorMessages.STANDARD));
       } else {
-        dispatch(sync.acceptMembershipSuccess(invitation));
+        dispatch(sync.acceptReceivedInviteSuccess(invite));
       }
     });
   }
@@ -346,19 +346,19 @@ export function acceptMembership(api, invitation) {
  * Dismiss Membership Async Action Creator
  * 
  * @param  {Object} api an instance of the API wrapper
- * @param  {Object} invitation
+ * @param  {Object} invite
  */
-export function dismissMembership(api, invitation) {
+export function rejectReceivedInvite(api, invite) {
   return (dispatch) => {
-    dispatch(sync.dismissMembershipRequest(invitation));
+    dispatch(sync.rejectReceivedInviteRequest(invite));
 
     api.invitation.dismiss(
-      invitation.key, 
-      invitation.creator.userid, (err) => {
+      invite.key, 
+      invite.creator.userid, (err) => {
       if (err) {
-        dispatch(sync.dismissMembershipFailure(ErrorMessages.STANDARD));
+        dispatch(sync.rejectReceivedInviteFailure(ErrorMessages.STANDARD));
       } else {
-        dispatch(sync.dismissMembershipSuccess(invitation));
+        dispatch(sync.rejectReceivedInviteSuccess(invite));
       }
     });
   }
@@ -473,38 +473,38 @@ export function fetchUser(api) {
 }
 
 /**
- * Fetch Pending Invites Action Creator
+ * Fetch Pending Sent Invites Action Creator
  * 
  * @param  {Object} api an instance of the API wrapper
  */
-export function fetchPendingInvites(api) {
+export function fetchPendingSentInvites(api) {
   return (dispatch) => {
-    dispatch(sync.fetchPendingInvitesRequest());
+    dispatch(sync.fetchPendingSentInvitesRequest());
     
-    api.invitation.getSent((err, pendingInvites) => {
+    api.invitation.getSent((err, pending) => {
       if (err) {
-        dispatch(sync.fetchPendingInvitesFailure(ErrorMessages.STANDARD));
+        dispatch(sync.fetchPendingSentInvitesFailure(ErrorMessages.STANDARD));
       } else {
-        dispatch(sync.fetchPendingInvitesSuccess(pendingInvites));
+        dispatch(sync.fetchPendingSentInvitesSuccess(pending));
       }
     });
   };
 }
 
 /**
- * Fetch Pending Memberships Action Creator
+ * Fetch Pending Received Invites Action Creator
  * 
  * @param  {Object} api an instance of the API wrapper
  */
-export function fetchPendingMemberships(api) {
+export function fetchPendingReceivedInvites(api) {
   return (dispatch) => {
-    dispatch(sync.fetchPendingMembershipsRequest());
+    dispatch(sync.fetchPendingReceivedInvitesRequest());
     
-    api.invitation.getReceived((err, pendingMemberships) => {
+    api.invitation.getReceived((err, pending) => {
       if (err) {
-        dispatch(sync.fetchPendingMembershipsFailure(ErrorMessages.STANDARD));
+        dispatch(sync.fetchPendingReceivedInvitesFailure(ErrorMessages.STANDARD));
       } else {
-        dispatch(sync.fetchPendingMembershipsSuccess(pendingMemberships));
+        dispatch(sync.fetchPendingReceivedInvitesSuccess(pending));
       }
     });
   };

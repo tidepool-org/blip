@@ -23,35 +23,35 @@
 
 import _ from 'lodash';
 
-import { pendingInvites as reducer } from '../../../../app/redux/reducers/misc';
+import { pendingSentInvites as reducer } from '../../../../app/redux/reducers/misc';
 
 import actions from '../../../../app/redux/actions/index';
 
 import * as ErrorMessages from '../../../../app/redux/constants/errorMessages';
 
-import { pendingInvites as initialState } from '../../../../app/redux/reducers/initialState';
+import { pendingSentInvites as initialState } from '../../../../app/redux/reducers/initialState';
 
 var expect = chai.expect;
 
-describe('pendingInvites', () => {
-  describe('fetchPendingInvitesSuccess', () => {
-    it('should set state to an array of pendingInvites', () => {
+describe('pendingSentInvites', () => {
+  describe('fetchPendingSentInvitesSuccess', () => {
+    it('should set state to an array of pendingSentInvites', () => {
       let initialStateForTest = [];
 
-      let pendingInvites = [
+      let pendingSentInvites = [
         { inviteid: 30 },
         { inviteid: 50 }
       ];
 
-      let action = actions.sync.fetchPendingInvitesSuccess(pendingInvites)
+      let action = actions.sync.fetchPendingSentInvitesSuccess(pendingSentInvites)
 
       let state = reducer(initialStateForTest, action);
 
-      expect(state.length).to.equal(pendingInvites.length);
+      expect(state.length).to.equal(pendingSentInvites.length);
     });
   });
 
-  describe('sendInvitationSuccess', () => {
+  describe('sendInviteSuccess', () => {
     it('should push new invitation to state', () => {
       let initialStateForTest = [
         { inviteid: 30 },
@@ -60,7 +60,7 @@ describe('pendingInvites', () => {
 
       let invitation = { inviteid: 500 };
 
-      let action = actions.sync.sendInvitationSuccess(invitation)
+      let action = actions.sync.sendInviteSuccess(invitation)
 
       let state = reducer(initialStateForTest, action);
 
@@ -68,7 +68,7 @@ describe('pendingInvites', () => {
     });
   });
 
-  describe('cancelInvitationSuccess', () => {
+  describe('cancelSentInviteSuccess', () => {
     it('should remove invitation from state array', () => {
       let initialStateForTest = [
         { inviteid: 30, email: 'g@g.com' },
@@ -77,7 +77,7 @@ describe('pendingInvites', () => {
 
       let removedEmail = 'g@g.com';
 
-      let action = actions.sync.cancelInvitationSuccess(removedEmail)
+      let action = actions.sync.cancelSentInviteSuccess(removedEmail)
 
       let state = reducer(initialStateForTest, action);
 

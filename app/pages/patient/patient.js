@@ -35,7 +35,7 @@ const Patient = React.createClass({
     patient: React.PropTypes.object,
     fetchingPatient: React.PropTypes.bool,
     onUpdatePatient: React.PropTypes.func,
-    pendingInvites: React.PropTypes.array,
+    pendingSentInvites: React.PropTypes.array,
     onChangeMemberPermissions: React.PropTypes.func,
     changingMemberPermissions: React.PropTypes.object.isRequired,
     onRemoveMember: React.PropTypes.func,
@@ -172,7 +172,7 @@ const Patient = React.createClass({
       <PatientTeam
         user={this.props.user}
         patient={this.props.patient}
-        pendingInvites={this.props.pendingInvites}
+        pendingSentInvites={this.props.pendingSentInvites}
         onChangeMemberPermissions={this.props.onChangeMemberPermissions}
         onRemoveMember={this.props.onRemoveMember}
         onInviteMember={this.props.onInviteMember}

@@ -22,11 +22,11 @@ let mapStateToProps = state => ({
   fetchingUser: state.blip.working.fetchingUser.inProgress,
   patient: state.blip.currentPatientInView,
   fetchingPatient: state.blip.working.fetchingPatient.inProgress,
-  pendingInvites: state.blip.pendingInvites,
+  pendingSentInvites: state.blip.pendingSentInvites,
   changingMemberPermissions: state.blip.working.settingMemberPermissions,
   removingMember: state.blip.working.removingMember,
-  invitingMember: state.blip.working.sendingInvitation,
-  cancellingInvite: state.blip.working.cancellingInvitation
+  invitingMember: state.blip.working.sendingInvite,
+  cancellingInvite: state.blip.working.cancellingSentInvite
 });
 
 let mapDispatchToProps = dispatch => bindActionCreators({
@@ -34,8 +34,8 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   updatePatient: actions.async.updatePatient,
   changeMemberPermissions: actions.async.setMemberPermissions,
   removeMember: actions.async.removeMember,
-  inviteMember: actions.async.sendInvitation,
-  cancelInvite: actions.async.cancelInvitation
+  inviteMember: actions.async.sendInvite,
+  cancelInvite: actions.async.cancelSentInvite
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {

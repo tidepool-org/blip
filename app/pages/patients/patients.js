@@ -336,7 +336,7 @@ export let Patients = React.createClass({
 
 let getFetchers = (dispatchProps, ownProps, api) => {
   return [
-    dispatchProps.fetchPendingMemberships.bind(null, api),
+    dispatchProps.fetchPendingReceivedInvites.bind(null, api),
     dispatchProps.fetchPatients.bind(null, api)
   ];
 };
@@ -346,17 +346,17 @@ let mapStateToProps = state => ({
   fetchingUser: state.blip.working.fetchingUser.inProgress,
   patients: _.values(state.blip.patientsMap),
   fetchingPatients: state.blip.working.fetchingPatients.inProgress,
-  invites: state.blip.pendingMemberships,
-  fetchingInvites: state.blip.working.fetchingPendingMemberships.inProgress,
+  invites: state.blip.pendingReceivedInvites,
+  fetchingInvites: state.blip.working.fetchingPendingReceivedInvites.inProgress,
   showingWelcomeTitle: state.blip.signupConfirmed,
   showingWelcomeSetup: state.blip.signupConfirmed
 });
 
 let mapDispatchToProps = dispatch => bindActionCreators({
-  acceptMembership: actions.async.acceptMembership,
-  dismissMembership: actions.async.dismissMembership,
+  acceptReceivedInvite: actions.async.acceptReceivedInvite,
+  rejectReceivedInvite: actions.async.rejectReceivedInvite,
   removePatient: actions.async.removePatient,
-  fetchPendingMemberships: actions.async.fetchPendingMemberships,
+  fetchPendingReceivedInvites: actions.async.fetchPendingReceivedInvites,
   fetchPatients: actions.async.fetchPatients,
   clearPatientInView: actions.sync.clearPatientInView
 }, dispatch);
@@ -366,8 +366,8 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   return Object.assign({}, ownProps, stateProps, dispatchProps, {
     fetchers: getFetchers(dispatchProps, ownProps, api),
     uploadUrl: api.getUploadUrl(),
-    onAcceptInvitation: dispatchProps.acceptMembership.bind(null, api),
-    onDismissInvitation: dispatchProps.dismissMembership.bind(null, api),
+    onAcceptInvitation: dispatchProps.acceptReceivedInvite.bind(null, api),
+    onDismissInvitation: dispatchProps.rejectReceivedInvite.bind(null, api),
     onRemovePatient: dispatchProps.removePatient.bind(null, api),
     trackMetric: ownProps.routes[0].trackMetric
   });

@@ -53,8 +53,8 @@ describe('patientsMap', () => {
     });
   });
 
-  describe('acceptMembershipSuccess', () => {
-    it('should set add acceptedMembership patient to patientsMap state', () => {
+  describe('acceptReceivedInviteSuccess', () => {
+    it('should set add acceptedReceivedInvite patient to patientsMap state', () => {
       let initialStateForTest = {
         50 :{ userid: 50, name: 'Xavier' },
         100: { userid: 100, name: 'Fred' }
@@ -62,11 +62,11 @@ describe('patientsMap', () => {
 
       let name = 'Zoe';
       let userid = 200;
-      let acceptedMembership = {
+      let acceptedReceivedInvite = {
         creator: { userid: userid, name: name }
       };
 
-      let action = actions.sync.acceptMembershipSuccess(acceptedMembership)
+      let action = actions.sync.acceptReceivedInviteSuccess(acceptedReceivedInvite)
 
       expect(Object.keys(initialStateForTest).length).to.equal(2);
 

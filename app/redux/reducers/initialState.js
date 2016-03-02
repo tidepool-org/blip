@@ -33,23 +33,23 @@ export default {
   patientsMap: {},
   patientDataMap: {},
   patientNotesMap: {},
-  pendingInvites: [],
-  pendingMemberships: [],
+  pendingReceivedInvites: [],
+  pendingSentInvites: [],
   messageThread: null,
   working: {
-    acceptingMembership: Object.assign({}, working),
+    acceptingReceivedInvite: Object.assign({}, working),
     acceptingTerms: Object.assign({}, working),
-    cancellingInvitation: Object.assign({}, working),
+    cancellingSentInvite: Object.assign({}, working),
     confirmingPasswordReset: Object.assign({}, working),
     confirmingSignup: Object.assign({}, working),
     creatingPatient: Object.assign({}, working),
-    dismissingMembership: Object.assign({}, working),
+    rejectingReceivedInvite: Object.assign({}, working),
     fetchingMessageThread: Object.assign({}, working),
     fetchingPatient: Object.assign({}, working),
     fetchingPatientData: Object.assign({}, working),
     fetchingPatients: Object.assign({}, working),
-    fetchingPendingInvites: Object.assign({}, working),
-    fetchingPendingMemberships: Object.assign({}, working),
+    fetchingPendingReceivedInvites: Object.assign({}, working),
+    fetchingPendingSentInvites: Object.assign({}, working),
     fetchingUser: Object.assign({}, working),
     loggingIn: Object.assign({}, working),
     loggingOut: Object.assign({}, working),
@@ -57,7 +57,7 @@ export default {
     removingMember: Object.assign({}, working),
     requestingPasswordReset: Object.assign({}, working),
     resendingEmailVerification: Object.assign({}, working),
-    sendingInvitation: Object.assign({}, working),
+    sendingInvite: Object.assign({}, working),
     settingMemberPermissions: Object.assign({}, working),
     updatingPatient: Object.assign({}, working),
     updatingUser: Object.assign({}, working),  
@@ -72,42 +72,3 @@ export default {
     bgUnits: 'mg/dL'
   }
 };
-
-// let iteration = {
-//   error: null,
-//   notification: null,
-//   users: {
-//     isFetching: false
-//     loggedInUser: null,
-//     memberships: [], // jury is still out best names for memberships/careteam
-//     pendingMemberships: [],
-//     careteam: [],
-//     pendingCareteam: [],
-//     collection: {
-//       // id : {
-//       //   isFetching: false
-//       //   user_id
-//       //   profile: { //might not to have profile could just promote these props to user
-//       //     fullName
-//       //     patient?: {
-//       //       birthday
-//       //       diagnosisDate
-//       //     }
-//       //   }
-//       //   tidelineData: {
-//       //     ...
-//       //   }
-//       //   currentMessageThread:  // either id or thread
-//       //   
-//       //   loggedInUserPermissions: { ? //if this user is not logged in user and is a PWD
-//       //     view - boolean
-//       //     upload - boolean
-//       //     might be a 3rd property - admin
-//       //   }
-//       //  }
-//     }
-//   },
-
-// }
-
-// users reducer

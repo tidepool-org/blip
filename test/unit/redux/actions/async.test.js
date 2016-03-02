@@ -420,31 +420,31 @@ describe('Actions', () => {
       });
     });
 
-    describe('sendInvitation', () => {
-      it('should trigger SEND_INVITATION_SUCCESS and it should call sendInvitation once for a successful request', (done) => {
+    describe('sendInvite', () => {
+      it('should trigger SEND_INVITE_SUCCESS and it should call sendInvite once for a successful request', (done) => {
         let email = 'a@b.com';
         let permissions = {
           view: true
         };
-        let invitation = { foo: 'bar' };
+        let invite = { foo: 'bar' };
         let api = {
           invitation: {
-            send: sinon.stub().callsArgWith(2, null, invitation)
+            send: sinon.stub().callsArgWith(2, null, invite)
           }
         };
 
         let expectedActions = [
-          { type: 'SEND_INVITATION_REQUEST' },
-          { type: 'SEND_INVITATION_SUCCESS', payload: { invitation: invitation } }
+          { type: 'SEND_INVITE_REQUEST' },
+          { type: 'SEND_INVITE_SUCCESS', payload: { invite: invite } }
         ];
         let store = mockStore(initialState, expectedActions, done);
 
-        store.dispatch(async.sendInvitation(api, email, permissions));
+        store.dispatch(async.sendInvite(api, email, permissions));
 
-        expect(api.access.sendInvitation.calledWith(email, permissions).callCount).to.equal(1);
+        expect(api.access.sendInvite.calledWith(email, permissions).callCount).to.equal(1);
       });
 
-      it('should trigger SEND_INVITATION_FAILURE and it should call sendInvitation once for a failed request', (done) => {
+      it('should trigger SEND_INVITE_FAILURE and it should call sendInvite once for a failed request', (done) => {
         let email = 'a@b.com';
         let permissions = {
           view: true
@@ -457,20 +457,20 @@ describe('Actions', () => {
         };
 
         let expectedActions = [
-          { type: 'SEND_INVITATION_REQUEST' },
-          { type: 'SEND_INVITATION_FAILURE', error: ErrorMessages.STANDARD }
+          { type: 'SEND_INVITE_REQUEST' },
+          { type: 'SEND_INVITE_FAILURE', error: ErrorMessages.STANDARD }
         ];
 
         let store = mockStore(initialState, expectedActions, done);
 
-        store.dispatch(async.sendInvitation(api, email, permissions));
+        store.dispatch(async.sendInvite(api, email, permissions));
 
-        expect(api.access.sendInvitation.calledWith(email, permissions).callCount).to.equal(1);
+        expect(api.access.sendInvite.calledWith(email, permissions).callCount).to.equal(1);
       });
     });
 
-    describe('cancelInvitation', () => {
-      it('should trigger CANCEL_INVITATION_SUCCESS and it should call cancelInvitation once for a successful request', (done) => {
+    describe('cancelSentInvite', () => {
+      it('should trigger CANCEL_SENT_INVITE_SUCCESS and it should call cancelSentInvite once for a successful request', (done) => {
         let email = 'a@b.com';
         let api = {
           invitation: {
@@ -479,17 +479,17 @@ describe('Actions', () => {
         };
 
         let expectedActions = [
-          { type: 'CANCEL_INVITATION_REQUEST' },
-          { type: 'CANCEL_INVITATION_SUCCESS', payload: { removedEmail: email } }
+          { type: 'CANCEL_SENT_INVITE_REQUEST' },
+          { type: 'CANCEL_SENT_INVITE_SUCCESS', payload: { removedEmail: email } }
         ];
         let store = mockStore(initialState, expectedActions, done);
 
-        store.dispatch(async.cancelInvitation(api, email));
+        store.dispatch(async.cancelSentInvite(api, email));
 
-        expect(api.access.cancelInvitation.calledWith(email).callCount).to.equal(1);
+        expect(api.access.cancelSentInvite.calledWith(email).callCount).to.equal(1);
       });
 
-      it('should trigger CANCEL_INVITATION_FAILURE and it should call cancelInvitation once for a failed request', (done) => {
+      it('should trigger CANCEL_SENT_INVITE_FAILURE and it should call cancelSentInvite once for a failed request', (done) => {
         let email = 'a@b.com';
         let api = {
           invitation: {
@@ -498,20 +498,20 @@ describe('Actions', () => {
         };
 
         let expectedActions = [
-          { type: 'CANCEL_INVITATION_REQUEST' },
-          { type: 'CANCEL_INVITATION_FAILURE', error: ErrorMessages.STANDARD }
+          { type: 'CANCEL_SENT_INVITE_REQUEST' },
+          { type: 'CANCEL_SENT_INVITE_FAILURE', error: ErrorMessages.STANDARD }
         ];
 
         let store = mockStore(initialState, expectedActions, done);
 
-        store.dispatch(async.cancelInvitation(api, email));
+        store.dispatch(async.cancelSentInvite(api, email));
 
-        expect(api.access.cancelInvitation.calledWith(email).callCount).to.equal(1);
+        expect(api.access.cancelSentInvite.calledWith(email).callCount).to.equal(1);
       });
     });
 
-    describe('acceptMembership', () => {
-      it('should trigger ACCEPT_MEMBERSHIP_SUCCESS and it should call acceptMembership once for a successful request', (done) => {
+    describe('acceptReceivedInvite', () => {
+      it('should trigger ACCEPT_RECEIVED_INVITE_SUCCESS and it should call acceptReceivedInvite once for a successful request', (done) => {
         let invitation = { key: 'foo', creator: { userid: 500 } };
         let api = {
           invitation: {
@@ -520,17 +520,17 @@ describe('Actions', () => {
         };
 
         let expectedActions = [
-          { type: 'ACCEPT_MEMBERSHIP_REQUEST', payload: { acceptedMembership: invitation } },
-          { type: 'ACCEPT_MEMBERSHIP_SUCCESS', payload: { acceptedMembership: invitation } }
+          { type: 'ACCEPT_RECEIVED_INVITE_REQUEST', payload: { acceptedReceivedInvite: invitation } },
+          { type: 'ACCEPT_RECEIVED_INVITE_SUCCESS', payload: { acceptedReceivedInvite: invitation } }
         ];
         let store = mockStore(initialState, expectedActions, done);
 
-        store.dispatch(async.acceptMembership(api, invitation));
+        store.dispatch(async.acceptReceivedInvite(api, invitation));
 
-        expect(api.access.acceptMembership.calledWith(invitation.key, invitation.creator.userid).callCount).to.equal(1);
+        expect(api.access.acceptReceivedInvite.calledWith(invitation.key, invitation.creator.userid).callCount).to.equal(1);
       });
 
-      it('should trigger ACCEPT_MEMBERSHIP_FAILURE and it should call acceptMembership once for a failed request', (done) => {
+      it('should trigger ACCEPT_RECEIVED_INVITE_FAILURE and it should call acceptReceivedInvite once for a failed request', (done) => {
         let invitation = { key: 'foo', creator: { id: 500 } };
         let api = {
           invitation: {
@@ -539,20 +539,20 @@ describe('Actions', () => {
         };
 
         let expectedActions = [
-          { type: 'ACCEPT_MEMBERSHIP_REQUEST', payload: { acceptedMembership: invitation } },
-          { type: 'ACCEPT_MEMBERSHIP_FAILURE', error: ErrorMessages.STANDARD }
+          { type: 'ACCEPT_RECEIVED_INVITE_REQUEST', payload: { acceptedReceivedInvite: invitation } },
+          { type: 'ACCEPT_RECEIVED_INVITE_FAILURE', error: ErrorMessages.STANDARD }
         ];
 
         let store = mockStore(initialState, expectedActions, done);
 
-        store.dispatch(async.acceptMembership(api, invitation));
+        store.dispatch(async.acceptReceivedInvite(api, invitation));
 
-        expect(api.access.acceptMembership.calledWith(invitation.key, invitation.creator.userid).callCount).to.equal(1);
+        expect(api.access.acceptReceivedInvite.calledWith(invitation.key, invitation.creator.userid).callCount).to.equal(1);
       });
     });
 
-    describe('dismissMembership', () => {
-      it('should trigger DISMISS_MEMBERSHIP_SUCCESS and it should call dismissMembership once for a successful request', (done) => {
+    describe('rejectReceivedInvite', () => {
+      it('should trigger REJECT_RECEIVED_INVITE_SUCCESS and it should call rejectReceivedInvite once for a successful request', (done) => {
         let invitation = { key: 'foo', creator: { userid: 500 } };
         let api = {
           invitation: {
@@ -561,17 +561,17 @@ describe('Actions', () => {
         };
 
         let expectedActions = [
-          { type: 'DISMISS_MEMBERSHIP_REQUEST', payload: { dismissedMembership: invitation } },
-          { type: 'DISMISS_MEMBERSHIP_SUCCESS', payload: { dismissedMembership: invitation } }
+          { type: 'REJECT_RECEIVED_INVITE_REQUEST', payload: { rejectedReceivedInvite: invitation } },
+          { type: 'REJECT_RECEIVED_INVITE_SUCCESS', payload: { rejectedReceivedInvite: invitation } }
         ];
         let store = mockStore(initialState, expectedActions, done);
 
-        store.dispatch(async.dismissMembership(api, invitation));
+        store.dispatch(async.rejectReceivedInvite(api, invitation));
 
-        expect(api.access.dismissMembership.calledWith(invitation.key, invitation.creator.userid).callCount).to.equal(1);
+        expect(api.access.rejectReceivedInvite.calledWith(invitation.key, invitation.creator.userid).callCount).to.equal(1);
       });
 
-      it('should trigger DISMISS_MEMBERSHIP_FAILURE and it should call dismissMembership once for a failed request', (done) => {
+      it('should trigger REJECT_RECEIVED_INVITE_FAILURE and it should call rejectReceivedInvite once for a failed request', (done) => {
         let invitation = { key: 'foo', creator: { id: 500 } };
         let api = {
           invitation: {
@@ -580,15 +580,15 @@ describe('Actions', () => {
         };
 
         let expectedActions = [
-          { type: 'DISMISS_MEMBERSHIP_REQUEST', payload: { dismissedMembership: invitation } },
-          { type: 'DISMISS_MEMBERSHIP_FAILURE', error: ErrorMessages.STANDARD }
+          { type: 'REJECT_RECEIVED_INVITE_REQUEST', payload: { rejectedReceivedInvite: invitation } },
+          { type: 'REJECT_RECEIVED_INVITE_FAILURE', error: ErrorMessages.STANDARD }
         ];
 
         let store = mockStore(initialState, expectedActions, done);
 
-        store.dispatch(async.dismissMembership(api, invitation));
+        store.dispatch(async.rejectReceivedInvite(api, invitation));
 
-        expect(api.access.dismissMembership.calledWith(invitation.key, invitation.creator.userid).callCount).to.equal(1);
+        expect(api.access.rejectReceivedInvite.calledWith(invitation.key, invitation.creator.userid).callCount).to.equal(1);
       });
     });
 
@@ -956,29 +956,29 @@ describe('Actions', () => {
       });
     });
 
-    describe('fetchPendingInvites', () => {
-      it('should trigger FETCH_PENDING_INVITES_SUCCESS and it should call error once for a successful request', (done) => {
-        let pendingInvites = [ 1, 555, 78191 ];
+    describe('fetchPendingSentInvites', () => {
+      it('should trigger FETCH_PENDING_SENT_INVITES_SUCCESS and it should call error once for a successful request', (done) => {
+        let pendingSentInvites = [ 1, 555, 78191 ];
 
         let api = {
           invitation: {
-            getSent: sinon.stub().callsArgWith(0, null, pendingInvites)
+            getSent: sinon.stub().callsArgWith(0, null, pendingSentInvites)
           }
         };
 
         let expectedActions = [
-          { type: 'FETCH_PENDING_INVITES_REQUEST' },
-          { type: 'FETCH_PENDING_INVITES_SUCCESS', payload: { pendingInvites : pendingInvites } }
+          { type: 'FETCH_PENDING_SENT_INVITES_REQUEST' },
+          { type: 'FETCH_PENDING_SENT_INVITES_SUCCESS', payload: { pendingSentInvites : pendingSentInvites } }
         ];
         let store = mockStore(initialState, expectedActions, done);
 
-        store.dispatch(async.fetchPendingInvites(api));
+        store.dispatch(async.fetchPendingSentInvites(api));
 
         expect(api.invitation.getSent.callCount).to.equal(1);
       });
 
-      it('should trigger FETCH_PENDING_INVITES_FAILURE and it should call error once for a failed request', (done) => {
-        let pendingInvites = [ 1, 555, 78191 ];
+      it('should trigger FETCH_PENDING_SENT_INVITES_FAILURE and it should call error once for a failed request', (done) => {
+        let pendingSentInvites = [ 1, 555, 78191 ];
 
         let api = {
           invitation: {
@@ -987,40 +987,40 @@ describe('Actions', () => {
         };
 
         let expectedActions = [
-          { type: 'FETCH_PENDING_INVITES_REQUEST' },
-          { type: 'FETCH_PENDING_INVITES_FAILURE', error: ErrorMessages.STANDARD }
+          { type: 'FETCH_PENDING_SENT_INVITES_REQUEST' },
+          { type: 'FETCH_PENDING_SENT_INVITES_FAILURE', error: ErrorMessages.STANDARD }
         ];
         let store = mockStore(initialState, expectedActions, done);
 
-        store.dispatch(async.fetchPendingInvites(api));
+        store.dispatch(async.fetchPendingSentInvites(api));
 
         expect(api.invitation.getSent.callCount).to.equal(1);
       });
     });
 
-    describe('fetchPendingMemberships', () => {
-      it('should trigger FETCH_PENDING_MEMBERSHIPS_SUCCESS and it should call error once for a successful request', (done) => {
-        let pendingMemberships = [ 1, 555, 78191 ];
+    describe('fetchPendingReceivedInvites', () => {
+      it('should trigger FETCH_PENDING_RECEIVED_INVITES_SUCCESS and it should call error once for a successful request', (done) => {
+        let pendingReceivedInvites = [ 1, 555, 78191 ];
 
         let api = {
           invitation: {
-            getReceived: sinon.stub().callsArgWith(0, null, pendingMemberships)
+            getReceived: sinon.stub().callsArgWith(0, null, pendingReceivedInvites)
           }
         };
 
         let expectedActions = [
-          { type: 'FETCH_PENDING_MEMBERSHIPS_REQUEST' },
-          { type: 'FETCH_PENDING_MEMBERSHIPS_SUCCESS', payload: { pendingMemberships : pendingMemberships } }
+          { type: 'FETCH_PENDING_RECEIVED_INVITES_REQUEST' },
+          { type: 'FETCH_PENDING_RECEIVED_INVITES_SUCCESS', payload: { pendingReceivedInvites : pendingReceivedInvites } }
         ];
         let store = mockStore(initialState, expectedActions, done);
 
-        store.dispatch(async.fetchPendingMemberships(api));
+        store.dispatch(async.fetchPendingReceivedInvites(api));
 
         expect(api.invitation.getReceived.callCount).to.equal(1);
       });
 
-      it('should trigger FETCH_PENDING_MEMBERSHIPS_FAILURE and it should call error once for a failed request', (done) => {
-        let pendingMemberships = [ 1, 555, 78191 ];
+      it('should trigger FETCH_PENDING_RECEIVED_INVITES_FAILURE and it should call error once for a failed request', (done) => {
+        let pendingReceivedInvites = [ 1, 555, 78191 ];
 
         let api = {
           invitation: {
@@ -1029,12 +1029,12 @@ describe('Actions', () => {
         };
 
         let expectedActions = [
-          { type: 'FETCH_PENDING_MEMBERSHIPS_REQUEST' },
-          { type: 'FETCH_PENDING_MEMBERSHIPS_FAILURE', error: ErrorMessages.STANDARD }
+          { type: 'FETCH_PENDING_RECEIVED_INVITES_REQUEST' },
+          { type: 'FETCH_PENDING_RECEIVED_INVITES_FAILURE', error: ErrorMessages.STANDARD }
         ];
         let store = mockStore(initialState, expectedActions, done);
 
-        store.dispatch(async.fetchPendingMemberships(api));
+        store.dispatch(async.fetchPendingReceivedInvites(api));
 
         expect(api.invitation.getReceived.callCount).to.equal(1);
       });

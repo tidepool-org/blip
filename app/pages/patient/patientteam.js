@@ -212,7 +212,7 @@ var PatientTeam = React.createClass({
   propTypes: {
     user: React.PropTypes.object,
     patient: React.PropTypes.object,
-    pendingInvites: React.PropTypes.array,
+    pendingSentInvites: React.PropTypes.array,
     onChangeMemberPermissions: React.PropTypes.func,
     onRemoveMember: React.PropTypes.func,
     onInviteMember: React.PropTypes.func,
@@ -528,14 +528,14 @@ var PatientTeam = React.createClass({
     
     var editControls = _.isEmpty(members) ? null : this.renderEditControls();
 
-    var pendingInvites = [];
-    if (utils.getIn(this.props, ['pendingInvites'])) {
-      pendingInvites = _.map(this.props.pendingInvites, this.renderPendingInvite);
+    var pendingSentInvites = [];
+    if (utils.getIn(this.props, ['pendingSentInvites'])) {
+      pendingSentInvites = _.map(this.props.pendingSentInvites, this.renderPendingInvite);
     }
 
     var invite = this.state && this.state.invite ? this.renderInviteForm() : this.renderInvite();
 
-    var emptyList = !(members || pendingInvites);
+    var emptyList = !(members || pendingSentInvites);
     var listClass = cx({
       'PatientTeam-list': true,
       'PatientTeam-list--single': emptyList,
@@ -554,7 +554,7 @@ var PatientTeam = React.createClass({
         <div className="clear"></div>
         <ul className={listClass}>
           {members}
-          {pendingInvites}
+          {pendingSentInvites}
           {invite}
           <div className="clear"></div>
         </ul>

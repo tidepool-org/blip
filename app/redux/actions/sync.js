@@ -316,96 +316,96 @@ export function requestPasswordResetFailure(error) {
   };
 }
 
-export function sendInvitationRequest() {
+export function sendInviteRequest() {
   return {
-    type: ActionTypes.SEND_INVITATION_REQUEST
+    type: ActionTypes.SEND_INVITE_REQUEST
   };
 }
 
-export function sendInvitationSuccess(invitation) {
+export function sendInviteSuccess(invite) {
   return {
-    type: ActionTypes.SEND_INVITATION_SUCCESS,
+    type: ActionTypes.SEND_INVITE_SUCCESS,
     payload: {
-      invitation: invitation
+      invite: invite
     }
   };
 }
 
-export function sendInvitationFailure(error) {
+export function sendInviteFailure(error) {
   return {
-    type: ActionTypes.SEND_INVITATION_FAILURE,
+    type: ActionTypes.SEND_INVITE_FAILURE,
     error: error
   };
 }
 
-export function cancelInvitationRequest() {
+export function cancelSentInviteRequest() {
   return {
-    type: ActionTypes.CANCEL_INVITATION_REQUEST
+    type: ActionTypes.CANCEL_SENT_INVITE_REQUEST
   };
 }
 
-export function cancelInvitationSuccess(removedEmail) {
+export function cancelSentInviteSuccess(removedEmail) {
   return {
-    type: ActionTypes.CANCEL_INVITATION_SUCCESS,
+    type: ActionTypes.CANCEL_SENT_INVITE_SUCCESS,
     payload: {
       removedEmail: removedEmail
     }
   };
 }
 
-export function cancelInvitationFailure(error) {
+export function cancelSentInviteFailure(error) {
   return {
-    type: ActionTypes.CANCEL_INVITATION_FAILURE,
+    type: ActionTypes.CANCEL_SENT_INVITE_FAILURE,
     error: error
   };
 }
 
-export function acceptMembershipRequest(acceptedMembership) {
+export function acceptReceivedInviteRequest(acceptedReceivedInvite) {
   return {
-    type: ActionTypes.ACCEPT_MEMBERSHIP_REQUEST,
+    type: ActionTypes.ACCEPT_RECEIVED_INVITE_REQUEST,
     payload: {
-      acceptedMembership: acceptedMembership
+      acceptedReceivedInvite: acceptedReceivedInvite
     }
   };
 }
 
-export function acceptMembershipSuccess(acceptedMembership) {
+export function acceptReceivedInviteSuccess(acceptedReceivedInvite) {
   return {
-    type: ActionTypes.ACCEPT_MEMBERSHIP_SUCCESS,
+    type: ActionTypes.ACCEPT_RECEIVED_INVITE_SUCCESS,
     payload: {
-      acceptedMembership: acceptedMembership
+      acceptedReceivedInvite: acceptedReceivedInvite
     }
   };
 }
 
-export function acceptMembershipFailure(error) {
+export function acceptReceivedInviteFailure(error) {
   return {
-    type: ActionTypes.ACCEPT_MEMBERSHIP_FAILURE,
+    type: ActionTypes.ACCEPT_RECEIVED_INVITE_FAILURE,
     error: error
   };
 }
 
-export function dismissMembershipRequest(dismissedMembership) {
+export function rejectReceivedInviteRequest(rejectedReceivedInvite) {
   return {
-    type: ActionTypes.DISMISS_MEMBERSHIP_REQUEST,
+    type: ActionTypes.REJECT_RECEIVED_INVITE_REQUEST,
     payload: {
-      dismissedMembership: dismissedMembership
+      rejectedReceivedInvite: rejectedReceivedInvite
     }
   };
 }
 
-export function dismissMembershipSuccess(dismissedMembership) {
+export function rejectReceivedInviteSuccess(rejectedReceivedInvite) {
   return {
-    type: ActionTypes.DISMISS_MEMBERSHIP_SUCCESS,
+    type: ActionTypes.REJECT_RECEIVED_INVITE_SUCCESS,
     payload: {
-      dismissedMembership: dismissedMembership
+      rejectedReceivedInvite: rejectedReceivedInvite
     }
   };
 }
 
-export function dismissMembershipFailure(error) {
+export function rejectReceivedInviteFailure(error) {
   return {
-    type: ActionTypes.DISMISS_MEMBERSHIP_FAILURE,
+    type: ActionTypes.REJECT_RECEIVED_INVITE_FAILURE,
     error: error
   };
 }
@@ -525,46 +525,46 @@ export function fetchUserFailure(error) {
   };
 }
 
-export function fetchPendingMembershipsRequest() {
+export function fetchPendingReceivedInvitesRequest() {
   return {
-    type: ActionTypes.FETCH_PENDING_MEMBERSHIPS_REQUEST
+    type: ActionTypes.FETCH_PENDING_RECEIVED_INVITES_REQUEST
   };
 }
 
-export function fetchPendingMembershipsSuccess(pendingMemberships) {
+export function fetchPendingReceivedInvitesSuccess(pendingReceivedInvites) {
   return {
-    type: ActionTypes.FETCH_PENDING_MEMBERSHIPS_SUCCESS,
+    type: ActionTypes.FETCH_PENDING_RECEIVED_INVITES_SUCCESS,
     payload: {
-      pendingMemberships: pendingMemberships
+      pendingReceivedInvites: pendingReceivedInvites
     }
   };
 }
 
-export function fetchPendingMembershipsFailure(error) {
+export function fetchPendingReceivedInvitesFailure(error) {
   return {
-    type: ActionTypes.FETCH_PENDING_MEMBERSHIPS_FAILURE,
+    type: ActionTypes.FETCH_PENDING_RECEIVED_INVITES_FAILURE,
     error: error
   };
 }
 
-export function fetchPendingInvitesRequest() {
+export function fetchPendingSentInvitesRequest() {
   return {
-    type: ActionTypes.FETCH_PENDING_INVITES_REQUEST
+    type: ActionTypes.FETCH_PENDING_SENT_INVITES_REQUEST
   };
 }
 
-export function fetchPendingInvitesSuccess(pendingInvites) {
+export function fetchPendingSentInvitesSuccess(pendingSentInvites) {
   return {
-    type: ActionTypes.FETCH_PENDING_INVITES_SUCCESS,
+    type: ActionTypes.FETCH_PENDING_SENT_INVITES_SUCCESS,
     payload: {
-      pendingInvites: pendingInvites
+      pendingSentInvites: pendingSentInvites
     }
   };
 }
 
-export function fetchPendingInvitesFailure(error) {
+export function fetchPendingSentInvitesFailure(error) {
   return {
-    type: ActionTypes.FETCH_PENDING_INVITES_FAILURE,
+    type: ActionTypes.FETCH_PENDING_SENT_INVITES_FAILURE,
     error: error
   };
 }

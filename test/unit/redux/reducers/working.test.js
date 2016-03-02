@@ -544,96 +544,96 @@ describe('working', () => {
       });
     });
 
-    describe('fetchPendingInvites', () => {
+    describe('fetchPendingSentInvites', () => {
       describe('request', () => {
-        it('should set fetchingPendingInvites to be true', () => {
-          let action = actions.sync.fetchPendingInvitesRequest(); 
+        it('should set fetchingPendingSentInvites to be true', () => {
+          let action = actions.sync.fetchPendingSentInvitesRequest(); 
 
-          expect(initialState.fetchingPendingInvites.inProgress).to.be.false;
+          expect(initialState.fetchingPendingSentInvites.inProgress).to.be.false;
 
           let state = reducer(initialState, action);
-          expect(state.fetchingPendingInvites.inProgress).to.be.true;
+          expect(state.fetchingPendingSentInvites.inProgress).to.be.true;
         });
       });
 
       describe('failure', () => {
-        it('should set fetchingPendingInvites to be false and set error', () => {
-          let initialStateForTest = _.merge({}, { fetchingPendingInvites: { inProgress : true, notification: null } });
+        it('should set fetchingPendingSentInvites to be false and set error', () => {
+          let initialStateForTest = _.merge({}, { fetchingPendingSentInvites: { inProgress : true, notification: null } });
           let error = 'Oh no, did not work!!';
-          let action = actions.sync.fetchPendingInvitesFailure(error);
+          let action = actions.sync.fetchPendingSentInvitesFailure(error);
 
-          expect(initialStateForTest.fetchingPendingInvites.inProgress).to.be.true;
-          expect(initialStateForTest.fetchingPendingInvites.notification).to.be.null;
+          expect(initialStateForTest.fetchingPendingSentInvites.inProgress).to.be.true;
+          expect(initialStateForTest.fetchingPendingSentInvites.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
 
-          expect(state.fetchingPendingInvites.inProgress).to.be.false;
-          expect(state.fetchingPendingInvites.notification.type).to.equal('error');
-          expect(state.fetchingPendingInvites.notification.message).to.equal(error);
+          expect(state.fetchingPendingSentInvites.inProgress).to.be.false;
+          expect(state.fetchingPendingSentInvites.notification.type).to.equal('error');
+          expect(state.fetchingPendingSentInvites.notification.message).to.equal(error);
         });
       });
 
       describe('success', () => {
-        it('should set fetchingPendingInvites to be false and set patient', () => {
-          let initialStateForTest = _.merge({}, { fetchingPendingInvites: { inProgress : true, notification: null } });
-          let pendingInvites = [
+        it('should set fetchingPendingSentInvites to be false and set patient', () => {
+          let initialStateForTest = _.merge({}, { fetchingPendingSentInvites: { inProgress : true, notification: null } });
+          let pendingSentInvites = [
             { id: 1167 },
             { id: 11 }
           ];
-          let action = actions.sync.fetchPendingInvitesSuccess(pendingInvites);
+          let action = actions.sync.fetchPendingSentInvitesSuccess(pendingSentInvites);
 
-          expect(initialStateForTest.fetchingPendingInvites.inProgress).to.be.true;
+          expect(initialStateForTest.fetchingPendingSentInvites.inProgress).to.be.true;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.fetchingPendingInvites.inProgress).to.be.false;
+          expect(state.fetchingPendingSentInvites.inProgress).to.be.false;
         });
       });
     });
 
-    describe('fetchPendingMemberships', () => {
+    describe('fetchPendingReceivedInvites', () => {
       describe('request', () => {
-        it('should set fetchingPendingMemberships to be true', () => {
-          let action = actions.sync.fetchPendingMembershipsRequest(); 
+        it('should set fetchingPendingReceivedInvites to be true', () => {
+          let action = actions.sync.fetchPendingReceivedInvitesRequest(); 
 
-          expect(initialState.fetchingPendingMemberships.inProgress).to.be.false;
+          expect(initialState.fetchingPendingReceivedInvites.inProgress).to.be.false;
 
           let state = reducer(initialState, action);
-          expect(state.fetchingPendingMemberships.inProgress).to.be.true;
+          expect(state.fetchingPendingReceivedInvites.inProgress).to.be.true;
         });
       });
 
       describe('failure', () => {
-        it('should set fetchingPendingMemberships to be false and set error', () => {
-          let initialStateForTest = _.merge({}, initialState, { fetchingPendingMemberships: { inProgress : true, notification: null } });
-          let error = 'Oh no, did not get pending memeberships!!';
-          let action = actions.sync.fetchPendingMembershipsFailure(error);
+        it('should set fetchingPendingReceivedInvites to be false and set error', () => {
+          let initialStateForTest = _.merge({}, initialState, { fetchingPendingReceivedInvites: { inProgress : true, notification: null } });
+          let error = 'Oh no, did not get pending received invites!!';
+          let action = actions.sync.fetchPendingReceivedInvitesFailure(error);
 
-          expect(initialStateForTest.fetchingPendingMemberships.inProgress).to.be.true;
-          expect(initialStateForTest.fetchingPendingMemberships.notification).to.be.null;
+          expect(initialStateForTest.fetchingPendingReceivedInvites.inProgress).to.be.true;
+          expect(initialStateForTest.fetchingPendingReceivedInvites.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
 
-          expect(state.fetchingPendingMemberships.inProgress).to.be.false;
-          expect(state.fetchingPendingMemberships.notification.type).to.equal('error');
-          expect(state.fetchingPendingMemberships.notification.message).to.equal(error);
+          expect(state.fetchingPendingReceivedInvites.inProgress).to.be.false;
+          expect(state.fetchingPendingReceivedInvites.notification.type).to.equal('error');
+          expect(state.fetchingPendingReceivedInvites.notification.message).to.equal(error);
         });
       });
 
       describe('success', () => {
-        it('should set fetchingPendingMemberships to be false and set patient', () => {
-          let initialStateForTest = _.merge({}, initialState, { fetchingPendingMemberships: { inProgress : true, notification: null } });
-          let pendingMemberships = [
+        it('should set fetchingPendingReceivedInvites to be false and set patient', () => {
+          let initialStateForTest = _.merge({}, initialState, { fetchingPendingReceivedInvites: { inProgress : true, notification: null } });
+          let pendingReceivedInvites = [
             { id: 204 },
             { id: 1 }
           ];
-          let action = actions.sync.fetchPendingMembershipsSuccess(pendingMemberships);
+          let action = actions.sync.fetchPendingReceivedInvitesSuccess(pendingReceivedInvites);
 
-          expect(initialStateForTest.fetchingPendingMemberships.inProgress).to.be.true;
+          expect(initialStateForTest.fetchingPendingReceivedInvites.inProgress).to.be.true;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.fetchingPendingMemberships.inProgress).to.be.false;
+          expect(state.fetchingPendingReceivedInvites.inProgress).to.be.false;
         });
       });
     });
@@ -834,44 +834,44 @@ describe('working', () => {
       });
     });
 
-    describe('sendInvitation', () => {
+    describe('sendInvite', () => {
       describe('request', () => {
-        it('should set sendingInvitation to be true', () => {
-          let action = actions.sync.sendInvitationRequest(); 
+        it('should set sendingInvite to be true', () => {
+          let action = actions.sync.sendInviteRequest(); 
 
-          expect(initialState.sendingInvitation.inProgress).to.be.false;
+          expect(initialState.sendingInvite.inProgress).to.be.false;
 
           let state = reducer(initialState, action);
-          expect(state.sendingInvitation.inProgress).to.be.true;
+          expect(state.sendingInvite.inProgress).to.be.true;
         });
       });
 
       describe('failure', () => {
-        it('should set sendingInvitation to be false and set error', () => {
+        it('should set sendingInvite to be false and set error', () => {
           let initialStateForTest = _.merge({}, initialState, { 
-            sendingInvitation: {
+            sendingInvite: {
               inProgress: true,
               notification: null
             }
           });
           let error = ErrorMessages.STANDARD;
 
-          let action = actions.sync.sendInvitationFailure(error);
+          let action = actions.sync.sendInviteFailure(error);
           
-          expect(initialStateForTest.sendingInvitation.inProgress).to.be.true;
-          expect(initialStateForTest.sendingInvitation.notification).to.be.null;
+          expect(initialStateForTest.sendingInvite.inProgress).to.be.true;
+          expect(initialStateForTest.sendingInvite.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.sendingInvitation.inProgress).to.be.false;
-          expect(state.sendingInvitation.notification.type).to.equal('error');
-          expect(state.sendingInvitation.notification.message).to.equal(ErrorMessages.STANDARD);
+          expect(state.sendingInvite.inProgress).to.be.false;
+          expect(state.sendingInvite.notification.type).to.equal('error');
+          expect(state.sendingInvite.notification.message).to.equal(ErrorMessages.STANDARD);
         });
       });
 
       describe('success', () => {
-        it('should set sendingInvitation to be false', () => {
-          let pendingInvites = [
+        it('should set sendingInvite to be false', () => {
+          let pendingSentInvites = [
             { email: 'a@a.com', permissions: 'bar'}
           ];
 
@@ -879,61 +879,61 @@ describe('working', () => {
             {}, 
             initialState, 
             { 
-              sendingInvitation: {
+              sendingInvite: {
                 inProgress: true,
                 notification: false
               }
           });
           
           let invitation = { email: 'f@f.com', permissions: 'foo' };
-          let action = actions.sync.sendInvitationSuccess(invitation);
+          let action = actions.sync.sendInviteSuccess(invitation);
 
-          expect(initialStateForTest.sendingInvitation.inProgress).to.be.true;
+          expect(initialStateForTest.sendingInvite.inProgress).to.be.true;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.sendingInvitation.inProgress).to.be.false;
+          expect(state.sendingInvite.inProgress).to.be.false;
         });
       });
     });
 
-    describe('cancelInvitation', () => {
+    describe('cancelSentInvite', () => {
       describe('request', () => {
-        it('should set cancellingInvitation to be true', () => {
-          let action = actions.sync.cancelInvitationRequest(); 
+        it('should set cancellingSentInvite to be true', () => {
+          let action = actions.sync.cancelSentInviteRequest(); 
 
-          expect(initialState.cancellingInvitation.inProgress).to.be.false;
+          expect(initialState.cancellingSentInvite.inProgress).to.be.false;
 
           let state = reducer(initialState, action);
-          expect(state.cancellingInvitation.inProgress).to.be.true;
+          expect(state.cancellingSentInvite.inProgress).to.be.true;
         });
       });
 
       describe('failure', () => {
-        it('should set cancellingInvitation to be false and set error', () => {
+        it('should set cancellingSentInvite to be false and set error', () => {
           let initialStateForTest = _.merge({}, initialState, { 
-            cancellingInvitation: { 
+            cancellingSentInvite: { 
               inProgress: true, 
               notification: null
             }
           });
           let error = 'Oh no, did not get a message thread!!';
-          let action = actions.sync.cancelInvitationFailure(error);
+          let action = actions.sync.cancelSentInviteFailure(error);
           
-          expect(initialStateForTest.cancellingInvitation.inProgress).to.be.true;
-          expect(initialStateForTest.cancellingInvitation.notification).to.be.null;
+          expect(initialStateForTest.cancellingSentInvite.inProgress).to.be.true;
+          expect(initialStateForTest.cancellingSentInvite.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.cancellingInvitation.inProgress).to.be.false;
-          expect(state.cancellingInvitation.notification.type).to.equal('error');
-          expect(state.cancellingInvitation.notification.message).to.equal(error);
+          expect(state.cancellingSentInvite.inProgress).to.be.false;
+          expect(state.cancellingSentInvite.notification.type).to.equal('error');
+          expect(state.cancellingSentInvite.notification.message).to.equal(error);
         });
       });
 
       describe('success', () => {
-        it('should set cancellingInvitation to be false', () => {
-          let pendingInvites = [
+        it('should set cancellingSentInvite to be false', () => {
+          let pendingSentInvites = [
             { email: 'a@a.com', permissions: 'bar'},
             { email: 'f@f.com', permissions: 'foo' }
           ];
@@ -942,20 +942,20 @@ describe('working', () => {
             {}, 
             initialState, 
             { 
-              cancellingInvitation: { 
+              cancellingSentInvite: { 
                 inProgress: true, 
                 notification: null
               }
           });
           
           let invitation = { email: 'f@f.com', permissions: 'foo' };
-          let action = actions.sync.cancelInvitationSuccess(invitation.email);
+          let action = actions.sync.cancelSentInviteSuccess(invitation.email);
 
-          expect(initialStateForTest.cancellingInvitation.inProgress).to.be.true;
+          expect(initialStateForTest.cancellingSentInvite.inProgress).to.be.true;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.cancellingInvitation.inProgress).to.be.false;
+          expect(state.cancellingSentInvite.inProgress).to.be.false;
         });
       });
     });
@@ -998,7 +998,7 @@ describe('working', () => {
 
       describe('success', () => {
         it('should set settingMemberPermissions to be false', () => {
-          let pendingMemberships = [
+          let pendingReceivedInvites = [
             { key: 'foo', creator: { userid: 500, name: 'Frank' } },
             { key: 'jazz', creator: { userid: 505, name: 'Jess' } }
           ];
@@ -1014,7 +1014,7 @@ describe('working', () => {
             }
           );
           
-          let action = actions.sync.setMemberPermissionsSuccess(pendingMemberships[0]);
+          let action = actions.sync.setMemberPermissionsSuccess(pendingReceivedInvites[0]);
 
           expect(initialStateForTest.settingMemberPermissions.inProgress).to.be.true;
 
@@ -1025,38 +1025,38 @@ describe('working', () => {
       });
     });
 
-    describe('acceptMembership', () => {
+    describe('acceptReceivedInvite', () => {
       describe('request', () => {
-        it('should set acceptingMembership to be true', () => {
-          let action = actions.sync.acceptMembershipRequest(); 
+        it('should set acceptingReceivedInvite to be true', () => {
+          let action = actions.sync.acceptReceivedInviteRequest(); 
 
-          expect(initialState.acceptingMembership.inProgress).to.be.false;
+          expect(initialState.acceptingReceivedInvite.inProgress).to.be.false;
 
           let state = reducer(initialState, action);
-          expect(state.acceptingMembership.inProgress).to.be.true;
+          expect(state.acceptingReceivedInvite.inProgress).to.be.true;
         });
       });
 
       describe('failure', () => {
-        it('should set acceptingMembership to be false and set error', () => {
-          let initialStateForTest = _.merge({}, initialState, { acceptingMembership: { inProgress : true, notification: null } });
+        it('should set acceptingReceivedInvite to be false and set error', () => {
+          let initialStateForTest = _.merge({}, initialState, { acceptingReceivedInvite: { inProgress : true, notification: null } });
           let error = 'Oh no, did not get a message thread!!';
-          let action = actions.sync.acceptMembershipFailure(error);
+          let action = actions.sync.acceptReceivedInviteFailure(error);
           
-          expect(initialStateForTest.acceptingMembership.inProgress).to.be.true;
-          expect(initialStateForTest.acceptingMembership.notification).to.be.null;
+          expect(initialStateForTest.acceptingReceivedInvite.inProgress).to.be.true;
+          expect(initialStateForTest.acceptingReceivedInvite.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.acceptingMembership.inProgress).to.be.false;
-          expect(state.acceptingMembership.notification.type).to.equal('error');
-          expect(state.acceptingMembership.notification.message).to.equal(error);
+          expect(state.acceptingReceivedInvite.inProgress).to.be.false;
+          expect(state.acceptingReceivedInvite.notification.type).to.equal('error');
+          expect(state.acceptingReceivedInvite.notification.message).to.equal(error);
         });
       });
 
       describe('success', () => {
-        it('should set acceptingMembership to be false', () => {
-          let pendingMemberships = [
+        it('should set acceptingReceivedInvite to be false', () => {
+          let pendingReceivedInvites = [
             { key: 'foo', creator: { userid: 500, name: 'Frank' } },
             { key: 'jazz', creator: { userid: 505, name: 'Jess' } }
           ];
@@ -1064,52 +1064,52 @@ describe('working', () => {
           let initialStateForTest = _.merge(
             {}, 
             initialState, 
-            { acceptingMembership: { inProgress : true, notification: null }
+            { acceptingReceivedInvite: { inProgress : true, notification: null }
           });
           
-          let action = actions.sync.acceptMembershipSuccess(pendingMemberships[0]);
+          let action = actions.sync.acceptReceivedInviteSuccess(pendingReceivedInvites[0]);
 
-          expect(initialStateForTest.acceptingMembership.inProgress).to.be.true;
+          expect(initialStateForTest.acceptingReceivedInvite.inProgress).to.be.true;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.acceptingMembership.inProgress).to.be.false;
+          expect(state.acceptingReceivedInvite.inProgress).to.be.false;
         });
       });
     });
 
-    describe('dismissMembership', () => {
+    describe('rejectReceivedInvite', () => {
       describe('request', () => {
-        it('should set dismissingMembership to be true', () => {
-          let action = actions.sync.dismissMembershipRequest(); 
+        it('should set rejectingReceivedInvite to be true', () => {
+          let action = actions.sync.rejectReceivedInviteRequest(); 
 
-          expect(initialState.dismissingMembership.inProgress).to.be.false;
+          expect(initialState.rejectingReceivedInvite.inProgress).to.be.false;
 
           let state = reducer(initialState, action);
-          expect(state.dismissingMembership.inProgress).to.be.true;
+          expect(state.rejectingReceivedInvite.inProgress).to.be.true;
         });
       });
 
       describe('failure', () => {
-        it('should set dismissingMembership to be false and set error', () => {
-          let initialStateForTest = _.merge({}, initialState, { dismissingMembership: { inProgress : true, notification: null } });
+        it('should set rejectingReceivedInvite to be false and set error', () => {
+          let initialStateForTest = _.merge({}, initialState, { rejectingReceivedInvite: { inProgress : true, notification: null } });
           let error = 'Oh no, did not get a message thread!!';
-          let action = actions.sync.dismissMembershipFailure(error);
+          let action = actions.sync.rejectReceivedInviteFailure(error);
           
-          expect(initialStateForTest.dismissingMembership.inProgress).to.be.true;
-          expect(initialStateForTest.dismissingMembership.notification).to.be.null;
+          expect(initialStateForTest.rejectingReceivedInvite.inProgress).to.be.true;
+          expect(initialStateForTest.rejectingReceivedInvite.notification).to.be.null;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.dismissingMembership.inProgress).to.be.false;
-          expect(state.dismissingMembership.notification.type).to.equal('error');
-          expect(state.dismissingMembership.notification.message).to.equal(error);
+          expect(state.rejectingReceivedInvite.inProgress).to.be.false;
+          expect(state.rejectingReceivedInvite.notification.type).to.equal('error');
+          expect(state.rejectingReceivedInvite.notification.message).to.equal(error);
         });
       });
 
       describe('success', () => {
-        it('should set dismissingMembership to be false', () => {
-          let pendingMemberships = [
+        it('should set rejectingReceivedInvite to be false', () => {
+          let pendingReceivedInvites = [
             { key: 'foo', creator: { userid: 500, name: 'Frank' } },
             { key: 'jazz', creator: { userid: 505, name: 'Jess' } }
           ];
@@ -1117,16 +1117,16 @@ describe('working', () => {
           let initialStateForTest = _.merge(
             {}, 
             initialState, 
-            { dismissingMembership: { inProgress : true, notification: null }
+            { rejectingReceivedInvite: { inProgress : true, notification: null }
           });
           
-          let action = actions.sync.dismissMembershipSuccess(pendingMemberships[0]);
+          let action = actions.sync.rejectReceivedInviteSuccess(pendingReceivedInvites[0]);
 
-          expect(initialStateForTest.dismissingMembership.inProgress).to.be.true;
+          expect(initialStateForTest.rejectingReceivedInvite.inProgress).to.be.true;
 
           let state = reducer(initialStateForTest, action);
           
-          expect(state.dismissingMembership.inProgress).to.be.false;
+          expect(state.rejectingReceivedInvite.inProgress).to.be.false;
         });
       });
     });

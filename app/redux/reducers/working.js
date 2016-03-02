@@ -42,8 +42,8 @@ export default (state = initialState, action) => {
      *  in a consistent manner
      */
     case types.FETCH_USER_REQUEST:
-    case types.FETCH_PENDING_INVITES_REQUEST:
-    case types.FETCH_PENDING_MEMBERSHIPS_REQUEST:
+    case types.FETCH_PENDING_SENT_INVITES_REQUEST:
+    case types.FETCH_PENDING_RECEIVED_INVITES_REQUEST:
     case types.FETCH_PATIENTS_REQUEST:
     case types.FETCH_PATIENT_REQUEST:
     case types.FETCH_PATIENT_DATA_REQUEST:
@@ -59,10 +59,10 @@ export default (state = initialState, action) => {
     case types.REMOVE_PATIENT_REQUEST:
     case types.REMOVE_MEMBER_REQUEST:
     case types.REQUEST_PASSWORD_RESET_REQUEST:
-    case types.SEND_INVITATION_REQUEST:
-    case types.CANCEL_INVITATION_REQUEST:
-    case types.ACCEPT_MEMBERSHIP_REQUEST:
-    case types.DISMISS_MEMBERSHIP_REQUEST:
+    case types.SEND_INVITE_REQUEST:
+    case types.CANCEL_SENT_INVITE_REQUEST:
+    case types.ACCEPT_RECEIVED_INVITE_REQUEST:
+    case types.REJECT_RECEIVED_INVITE_REQUEST:
     case types.SET_MEMBER_PERMISSIONS_REQUEST:
     case types.UPDATE_PATIENT_REQUEST:
     case types.UPDATE_USER_REQUEST:
@@ -86,8 +86,8 @@ export default (state = initialState, action) => {
      *  in a consistent manner
      */
     case types.FETCH_USER_SUCCESS:
-    case types.FETCH_PENDING_INVITES_SUCCESS:
-    case types.FETCH_PENDING_MEMBERSHIPS_SUCCESS:
+    case types.FETCH_PENDING_SENT_INVITES_SUCCESS:
+    case types.FETCH_PENDING_RECEIVED_INVITES_SUCCESS:
     case types.FETCH_PATIENTS_SUCCESS:
     case types.FETCH_PATIENT_SUCCESS:
     case types.FETCH_PATIENT_DATA_SUCCESS:
@@ -103,10 +103,10 @@ export default (state = initialState, action) => {
     case types.REMOVE_PATIENT_SUCCESS:
     case types.REMOVE_MEMBER_SUCCESS:
     case types.REQUEST_PASSWORD_RESET_SUCCESS:
-    case types.SEND_INVITATION_SUCCESS:
-    case types.CANCEL_INVITATION_SUCCESS:
-    case types.ACCEPT_MEMBERSHIP_SUCCESS:
-    case types.DISMISS_MEMBERSHIP_SUCCESS:
+    case types.SEND_INVITE_SUCCESS:
+    case types.CANCEL_SENT_INVITE_SUCCESS:
+    case types.ACCEPT_RECEIVED_INVITE_SUCCESS:
+    case types.REJECT_RECEIVED_INVITE_SUCCESS:
     case types.SET_MEMBER_PERMISSIONS_SUCCESS:
     case types.UPDATE_PATIENT_SUCCESS:
     case types.UPDATE_USER_SUCCESS:
@@ -130,8 +130,8 @@ export default (state = initialState, action) => {
      *  in a consistent manner
      */
     case types.FETCH_USER_FAILURE:
-    case types.FETCH_PENDING_INVITES_FAILURE:
-    case types.FETCH_PENDING_MEMBERSHIPS_FAILURE:
+    case types.FETCH_PENDING_SENT_INVITES_FAILURE:
+    case types.FETCH_PENDING_RECEIVED_INVITES_FAILURE:
     case types.FETCH_PATIENTS_FAILURE:
     case types.FETCH_PATIENT_FAILURE:
     case types.FETCH_PATIENT_DATA_FAILURE:
@@ -147,10 +147,10 @@ export default (state = initialState, action) => {
     case types.REMOVE_PATIENT_FAILURE:
     case types.REMOVE_MEMBER_FAILURE:
     case types.REQUEST_PASSWORD_RESET_FAILURE:
-    case types.SEND_INVITATION_FAILURE:
-    case types.CANCEL_INVITATION_FAILURE:
-    case types.ACCEPT_MEMBERSHIP_FAILURE:
-    case types.DISMISS_MEMBERSHIP_FAILURE:
+    case types.SEND_INVITE_FAILURE:
+    case types.CANCEL_SENT_INVITE_FAILURE:
+    case types.ACCEPT_RECEIVED_INVITE_FAILURE:
+    case types.REJECT_RECEIVED_INVITE_FAILURE:
     case types.SET_MEMBER_PERMISSIONS_FAILURE:
     case types.UPDATE_PATIENT_FAILURE:
     case types.UPDATE_USER_FAILURE:

@@ -6,14 +6,14 @@ export default (type) => {
     case types.FETCH_USER_SUCCESS:
     case types.FETCH_USER_FAILURE:
       return 'fetchingUser';
-    case types.FETCH_PENDING_INVITES_REQUEST:
-    case types.FETCH_PENDING_INVITES_SUCCESS:
-    case types.FETCH_PENDING_INVITES_FAILURE:
-      return 'fetchingPendingInvites';
-    case types.FETCH_PENDING_MEMBERSHIPS_REQUEST:
-    case types.FETCH_PENDING_MEMBERSHIPS_SUCCESS:
-    case types.FETCH_PENDING_MEMBERSHIPS_FAILURE:
-      return 'fetchingPendingMemberships';
+    case types.FETCH_PENDING_SENT_INVITES_REQUEST:
+    case types.FETCH_PENDING_SENT_INVITES_SUCCESS:
+    case types.FETCH_PENDING_SENT_INVITES_FAILURE:
+      return 'fetchingPendingSentInvites';
+    case types.FETCH_PENDING_RECEIVED_INVITES_REQUEST:
+    case types.FETCH_PENDING_RECEIVED_INVITES_SUCCESS:
+    case types.FETCH_PENDING_RECEIVED_INVITES_FAILURE:
+      return 'fetchingPendingReceivedInvites';
     case types.FETCH_PATIENTS_REQUEST:
     case types.FETCH_PATIENTS_SUCCESS:
     case types.FETCH_PATIENTS_FAILURE:
@@ -74,22 +74,22 @@ export default (type) => {
     case types.REQUEST_PASSWORD_RESET_SUCCESS:
     case types.REQUEST_PASSWORD_RESET_FAILURE:
       return 'requestingPasswordReset';
-    case types.SEND_INVITATION_REQUEST:
-    case types.SEND_INVITATION_SUCCESS:
-    case types.SEND_INVITATION_FAILURE:
-      return 'sendingInvitation';
-    case types.CANCEL_INVITATION_REQUEST:
-    case types.CANCEL_INVITATION_SUCCESS:
-    case types.CANCEL_INVITATION_FAILURE:
-      return 'cancellingInvitation';
-    case types.ACCEPT_MEMBERSHIP_REQUEST:
-    case types.ACCEPT_MEMBERSHIP_SUCCESS:
-    case types.ACCEPT_MEMBERSHIP_FAILURE:
-      return 'acceptingMembership';
-    case types.DISMISS_MEMBERSHIP_REQUEST:
-    case types.DISMISS_MEMBERSHIP_SUCCESS:
-    case types.DISMISS_MEMBERSHIP_FAILURE:
-      return 'dismissingMembership';
+    case types.SEND_INVITE_REQUEST:
+    case types.SEND_INVITE_SUCCESS:
+    case types.SEND_INVITE_FAILURE:
+      return 'sendingInvite';
+    case types.CANCEL_SENT_INVITE_REQUEST:
+    case types.CANCEL_SENT_INVITE_SUCCESS:
+    case types.CANCEL_SENT_INVITE_FAILURE:
+      return 'cancellingSentInvite';
+    case types.ACCEPT_RECEIVED_INVITE_REQUEST:
+    case types.ACCEPT_RECEIVED_INVITE_SUCCESS:
+    case types.ACCEPT_RECEIVED_INVITE_FAILURE:
+      return 'acceptingReceivedInvite';
+    case types.REJECT_RECEIVED_INVITE_REQUEST:
+    case types.REJECT_RECEIVED_INVITE_SUCCESS:
+    case types.REJECT_RECEIVED_INVITE_FAILURE:
+      return 'rejectingReceivedInvite';
     case types.SET_MEMBER_PERMISSIONS_REQUEST:
     case types.SET_MEMBER_PERMISSIONS_SUCCESS:
     case types.SET_MEMBER_PERMISSIONS_FAILURE:

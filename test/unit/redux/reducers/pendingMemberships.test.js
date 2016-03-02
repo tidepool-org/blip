@@ -23,35 +23,35 @@
 
 import _ from 'lodash';
 
-import { pendingMemberships as reducer } from '../../../../app/redux/reducers/misc';
+import { pendingReceivedInvites as reducer } from '../../../../app/redux/reducers/misc';
 
 import actions from '../../../../app/redux/actions/index';
 
 import * as ErrorMessages from '../../../../app/redux/constants/errorMessages';
 
-import { pendingMemberships as initialState } from '../../../../app/redux/reducers/initialState';
+import { pendingReceivedInvites as initialState } from '../../../../app/redux/reducers/initialState';
 
 var expect = chai.expect;
 
-describe('pendingMemberships', () => {
-  describe('fetchPendingMembershipsSuccess', () => {
-    it('should set state to an array of pendingMemberships', () => {
+describe('pendingReceivedInvites', () => {
+  describe('fetchPendingReceivedInvitesSuccess', () => {
+    it('should set state to an array of pendingReceivedInvites', () => {
       let initialStateForTest = [];
 
-      let pendingMemberships = [
+      let pendingReceivedInvites = [
         { key: 30 },
         { key: 50 }
       ];
 
-      let action = actions.sync.fetchPendingMembershipsSuccess(pendingMemberships)
+      let action = actions.sync.fetchPendingReceivedInvitesSuccess(pendingReceivedInvites)
 
       let state = reducer(initialStateForTest, action);
 
-      expect(state.length).to.equal(pendingMemberships.length);
+      expect(state.length).to.equal(pendingReceivedInvites.length);
     });
   });
 
-  describe('acceptMembershipSuccess', () => {
+  describe('acceptReceivedInviteSuccess', () => {
     it('should remove accepted membership to state', () => {
       let initialStateForTest = [
         { key: 30 },
@@ -60,7 +60,7 @@ describe('pendingMemberships', () => {
 
       let membership = { key: 50 };
 
-      let action = actions.sync.acceptMembershipSuccess(membership)
+      let action = actions.sync.acceptReceivedInviteSuccess(membership)
 
       let state = reducer(initialStateForTest, action);
 
@@ -68,7 +68,7 @@ describe('pendingMemberships', () => {
     });
   });
 
-  describe('dismissMembershipSuccess', () => {
+  describe('rejectReceivedInviteSuccess', () => {
     it('should remove invitation from state array', () => {
       let initialStateForTest = [
         { key: 30, email: 'g@g.com' },
@@ -77,7 +77,7 @@ describe('pendingMemberships', () => {
 
       let membership = { key: 30 };
 
-      let action = actions.sync.dismissMembershipSuccess(membership)
+      let action = actions.sync.rejectReceivedInviteSuccess(membership)
 
       let state = reducer(initialStateForTest, action);
 

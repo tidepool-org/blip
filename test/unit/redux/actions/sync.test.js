@@ -94,14 +94,20 @@ describe('Actions', () => {
 
     describe('loginSuccess', () => {
       it('should be a FSA', () => {
-        let user = { id: 27, name: 'Frankie' };
+        let user = {
+          id: 27,
+          name: 'Frankie'
+        };
         let action = sync.loginSuccess(user);
 
         expect(isFSA(action)).to.be.true;
       });
 
       it('type should equal LOGIN_SUCCESS and payload should contain user', () => {
-        let user = { id: 27, name: 'Frankie' };
+        let user = {
+          id: 27,
+          name: 'Frankie'
+        };
         let action = sync.loginSuccess(user);
 
         expect(action.type).to.equal('LOGIN_SUCCESS');
@@ -141,7 +147,10 @@ describe('Actions', () => {
 
     describe('logoutSuccess', () => {
       it('should be a FSA', () => {
-        let user = { id: 27, name: 'Frankie' };
+        let user = {
+          id: 27,
+          name: 'Frankie'
+        };
         let action = sync.logoutSuccess(user);
 
         expect(isFSA(action)).to.be.true;
@@ -186,14 +195,20 @@ describe('Actions', () => {
 
     describe('signupSuccess', () => {
       it('should be a FSA', () => {
-        let user = { id: 27, name: 'Frankie' };
+        let user = {
+          id: 27,
+          name: 'Frankie'
+        };
         let action = sync.signupSuccess(user);
 
         expect(isFSA(action)).to.be.true;
       });
 
       it('type should equal SIGNUP_SUCCESS and payload should contain user', () => {
-        let user = { id: 27, name: 'Frankie' };
+        let user = {
+          id: 27,
+          name: 'Frankie'
+        };
         let action = sync.signupSuccess(user);
 
         expect(action.type).to.equal('SIGNUP_SUCCESS');
@@ -233,7 +248,10 @@ describe('Actions', () => {
 
     describe('confirmSignupSuccess', () => {
       it('should be a FSA', () => {
-        let user = { id: 27, name: 'Frankie' };
+        let user = {
+          id: 27,
+          name: 'Frankie'
+        };
         let action = sync.confirmSignupSuccess(user);
 
         expect(isFSA(action)).to.be.true;
@@ -325,14 +343,18 @@ describe('Actions', () => {
 
     describe('createPatientSuccess', () => {
       it('should be a FSA', () => {
-        let patient = { id: 540 };
+        let patient = {
+          id: 540
+        };
         let action = sync.createPatientSuccess(patient);
 
         expect(isFSA(action)).to.be.true;
       });
 
       it('type should equal CREATE_PATIENT_SUCCESS', () => {
-        let patient = { id: 540 };
+        let patient = {
+          id: 540
+        };
         let action = sync.createPatientSuccess(patient);
 
         expect(action.type).to.equal('CREATE_PATIENT_SUCCESS');
@@ -451,226 +473,226 @@ describe('Actions', () => {
       });
     });
 
-    describe('sendInvitationRequest', () => {
+    describe('sendInviteRequest', () => {
       it('should be a FSA', () => {
-        let action = sync.sendInvitationRequest();
+        let action = sync.sendInviteRequest();
 
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal SEND_INVITATION_REQUEST', () => {
-        let action = sync.sendInvitationRequest();
-        expect(action.type).to.equal('SEND_INVITATION_REQUEST');
+      it('type should equal SEND_INVITE_REQUEST', () => {
+        let action = sync.sendInviteRequest();
+        expect(action.type).to.equal('SEND_INVITE_REQUEST');
       });
     });
 
-    describe('sendInvitationSuccess', () => {
+    describe('sendInviteSuccess', () => {
       it('should be a FSA', () => {
-        let invitation = { 
+        let invite = {
           email: 'joe@google.com',
           permissions: {
             view: true,
             clear: true
           }
         };
-        let action = sync.sendInvitationSuccess(invitation);
+        let action = sync.sendInviteSuccess(invite);
 
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal SEND_INVITATION_SUCCESS', () => {
-        let invitation = { 
+      it('type should equal SEND_INVITE_SUCCESS', () => {
+        let invite = {
           email: 'joe@google.com',
           permissions: {
             view: true,
             clear: true
           }
         };
-        let action = sync.sendInvitationSuccess(invitation);
+        let action = sync.sendInviteSuccess(invite);
 
-        expect(action.type).to.equal('SEND_INVITATION_SUCCESS');
-        expect(action.payload.invitation).to.equal(invitation);
+        expect(action.type).to.equal('SEND_INVITE_SUCCESS');
+        expect(action.payload.invite).to.equal(invite);
       });
     });
 
-    describe('sendInvitationFailure', () => {
+    describe('sendInviteFailure', () => {
       it('should be a FSA', () => {
         let error = 'Error';
-        let action = sync.sendInvitationFailure(error);
+        let action = sync.sendInviteFailure(error);
 
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal SEND_INVITATION_FAILURE and error should equal passed error', () => {
+      it('type should equal SEND_INVITE_FAILURE and error should equal passed error', () => {
         let error = 'Error';
-        let action = sync.sendInvitationFailure(error);
+        let action = sync.sendInviteFailure(error);
 
-        expect(action.type).to.equal('SEND_INVITATION_FAILURE');
+        expect(action.type).to.equal('SEND_INVITE_FAILURE');
         expect(action.error).to.equal(error);
       });
     });
 
-    describe('cancelInvitationRequest', () => {
+    describe('cancelSentInviteRequest', () => {
       it('should be a FSA', () => {
-        let action = sync.cancelInvitationRequest();
+        let action = sync.cancelSentInviteRequest();
 
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal CANCEL_INVITATION_REQUEST', () => {
-        let action = sync.cancelInvitationRequest();
-        expect(action.type).to.equal('CANCEL_INVITATION_REQUEST');
+      it('type should equal CANCEL_SENT_INVITE_REQUEST', () => {
+        let action = sync.cancelSentInviteRequest();
+        expect(action.type).to.equal('CANCEL_SENT_INVITE_REQUEST');
       });
     });
 
-    describe('cancelInvitationSuccess', () => {
+    describe('cancelSentInviteSuccess', () => {
       it('should be a FSA', () => {
         let email = 'a@b.com';
-        let action = sync.cancelInvitationSuccess(email);
+        let action = sync.cancelSentInviteSuccess(email);
 
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal CANCEL_INVITATION_SUCCESS', () => {
+      it('type should equal CANCEL_SENT_INVITE_SUCCESS', () => {
         let email = 'a@b.com';
-        let action = sync.cancelInvitationSuccess(email);
+        let action = sync.cancelSentInviteSuccess(email);
 
-        expect(action.type).to.equal('CANCEL_INVITATION_SUCCESS');
+        expect(action.type).to.equal('CANCEL_SENT_INVITE_SUCCESS');
         expect(action.payload.removedEmail).to.equal(email);
       });
     });
 
-    describe('cancelInvitationFailure', () => {
+    describe('cancelSentInviteFailure', () => {
       it('should be a FSA', () => {
         let error = 'Error';
-        let action = sync.cancelInvitationFailure(error);
+        let action = sync.cancelSentInviteFailure(error);
 
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal CANCEL_INVITATION_FAILURE and error should equal passed error', () => {
+      it('type should equal CANCEL_SENT_INVITE_FAILURE and error should equal passed error', () => {
         let error = 'Error';
-        let action = sync.cancelInvitationFailure(error);
+        let action = sync.cancelSentInviteFailure(error);
 
-        expect(action.type).to.equal('CANCEL_INVITATION_FAILURE');
+        expect(action.type).to.equal('CANCEL_SENT_INVITE_FAILURE');
         expect(action.error).to.equal(error);
       });
     });
 
-    describe('acceptMembershipRequest', () => {
+    describe('acceptReceivedInviteRequest', () => {
       it('should be a FSA', () => {
-        let action = sync.acceptMembershipRequest();
+        let action = sync.acceptReceivedInviteRequest();
 
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal ACCEPT_MEMBERSHIP_REQUEST', () => {
-        let action = sync.acceptMembershipRequest();
-        expect(action.type).to.equal('ACCEPT_MEMBERSHIP_REQUEST');
+      it('type should equal ACCEPT_RECEIVED_INVITE_REQUEST', () => {
+        let action = sync.acceptReceivedInviteRequest();
+        expect(action.type).to.equal('ACCEPT_RECEIVED_INVITE_REQUEST');
       });
     });
 
-    describe('acceptMembershipSuccess', () => {
+    describe('acceptReceivedInviteSuccess', () => {
       it('should be a FSA', () => {
-        let invitation = { 
+        let invite = {
           email: 'joe@google.com',
           permissions: {
             view: true,
             clear: true
           }
         };
-        let action = sync.acceptMembershipSuccess(invitation);
+        let action = sync.acceptReceivedInviteSuccess(invite);
 
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal ACCEPT_MEMBERSHIP_SUCCESS', () => {
-        let invitation = { 
+      it('type should equal ACCEPT_RECEIVED_INVITE_SUCCESS', () => {
+        let invite = {
           email: 'joe@google.com',
           permissions: {
             view: true,
             clear: true
           }
         };
-        let action = sync.acceptMembershipSuccess(invitation);
+        let action = sync.acceptReceivedInviteSuccess(invite);
 
-        expect(action.type).to.equal('ACCEPT_MEMBERSHIP_SUCCESS');
-        expect(action.payload.acceptedMembership).to.equal(invitation);
+        expect(action.type).to.equal('ACCEPT_RECEIVED_INVITE_SUCCESS');
+        expect(action.payload.acceptedReceivedInvite).to.equal(invite);
       });
     });
 
-    describe('acceptMembershipFailure', () => {
+    describe('acceptReceivedInviteFailure', () => {
       it('should be a FSA', () => {
         let error = 'Error';
-        let action = sync.acceptMembershipFailure(error);
+        let action = sync.acceptReceivedInviteFailure(error);
 
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal ACCEPT_MEMBERSHIP_FAILURE and error should equal passed error', () => {
+      it('type should equal ACCEPT_RECEIVED_INVITE_FAILURE and error should equal passed error', () => {
         let error = 'Error';
-        let action = sync.acceptMembershipFailure(error);
+        let action = sync.acceptReceivedInviteFailure(error);
 
-        expect(action.type).to.equal('ACCEPT_MEMBERSHIP_FAILURE');
+        expect(action.type).to.equal('ACCEPT_RECEIVED_INVITE_FAILURE');
         expect(action.error).to.equal(error);
       });
     });
 
-    describe('dismissMembershipRequest', () => {
+    describe('rejectReceivedInviteRequest', () => {
       it('should be a FSA', () => {
-        let action = sync.dismissMembershipRequest();
+        let action = sync.rejectReceivedInviteRequest();
 
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal DISMISS_MEMBERSHIP_REQUEST', () => {
-        let action = sync.dismissMembershipRequest();
-        expect(action.type).to.equal('DISMISS_MEMBERSHIP_REQUEST');
+      it('type should equal REJECT_RECEIVED_INVITE_REQUEST', () => {
+        let action = sync.rejectReceivedInviteRequest();
+        expect(action.type).to.equal('REJECT_RECEIVED_INVITE_REQUEST');
       });
     });
 
-    describe('dismissMembershipSuccess', () => {
+    describe('rejectReceivedInviteSuccess', () => {
       it('should be a FSA', () => {
-        let invitation = { 
+        let invite = {
           email: 'joe@google.com',
           permissions: {
             view: true,
             clear: true
           }
         };
-        let action = sync.dismissMembershipSuccess(invitation);
+        let action = sync.rejectReceivedInviteSuccess(invite);
 
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal DISMISS_MEMBERSHIP_SUCCESS', () => {
-        let invitation = { 
+      it('type should equal REJECT_RECEIVED_INVITE_SUCCESS', () => {
+        let invite = {
           email: 'joe@google.com',
           permissions: {
             view: true,
             clear: true
           }
         };
-        let action = sync.dismissMembershipSuccess(invitation);
+        let action = sync.rejectReceivedInviteSuccess(invite);
 
-        expect(action.type).to.equal('DISMISS_MEMBERSHIP_SUCCESS');
-        expect(action.payload.dismissedMembership).to.equal(invitation);
+        expect(action.type).to.equal('REJECT_RECEIVED_INVITE_SUCCESS');
+        expect(action.payload.rejectedReceivedInvite).to.equal(invite);
       });
     });
 
-    describe('dismissMembershipFailure', () => {
+    describe('rejectReceivedInviteFailure', () => {
       it('should be a FSA', () => {
         let error = 'Error';
-        let action = sync.dismissMembershipFailure(error);
+        let action = sync.rejectReceivedInviteFailure(error);
 
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal DISMISS_MEMBERSHIP_FAILURE and error should equal passed error', () => {
+      it('type should equal REJECT_RECEIVED_INVITE_FAILURE and error should equal passed error', () => {
         let error = 'Error';
-        let action = sync.dismissMembershipFailure(error);
+        let action = sync.rejectReceivedInviteFailure(error);
 
-        expect(action.type).to.equal('DISMISS_MEMBERSHIP_FAILURE');
+        expect(action.type).to.equal('REJECT_RECEIVED_INVITE_FAILURE');
         expect(action.error).to.equal(error);
       });
     });
@@ -746,14 +768,18 @@ describe('Actions', () => {
 
     describe('updatePatientSuccess', () => {
       it('should be a FSA', () => {
-        let patient = { name: 'Frank' };
+        let patient = {
+          name: 'Frank'
+        };
         let action = sync.updatePatientSuccess(patient);
 
         expect(isFSA(action)).to.be.true;
       });
 
       it('type should equal UPDATE_PATIENT_SUCCESS', () => {
-        let patient = { name: 'Frank' };
+        let patient = {
+          name: 'Frank'
+        };
         let action = sync.updatePatientSuccess(patient);
 
         expect(action.type).to.equal('UPDATE_PATIENT_SUCCESS');
@@ -793,14 +819,18 @@ describe('Actions', () => {
 
     describe('updateUserSuccess', () => {
       it('should be a FSA', () => {
-        let user = { name: 'Frank' };
+        let user = {
+          name: 'Frank'
+        };
         let action = sync.updateUserSuccess(user);
 
         expect(isFSA(action)).to.be.true;
       });
 
       it('type should equal UPDATE_USER_SUCCESS', () => {
-        let user = { name: 'Frank' };
+        let user = {
+          name: 'Frank'
+        };
         let action = sync.updateUserSuccess(user);
 
         expect(action.type).to.equal('UPDATE_USER_SUCCESS');
@@ -884,14 +914,20 @@ describe('Actions', () => {
 
     describe('fetchUserSuccess', () => {
       it('should be a FSA', () => {
-        let user = { id: 27, name: 'Frankie' };
+        let user = {
+          id: 27,
+          name: 'Frankie'
+        };
         let action = sync.fetchUserSuccess(user);
 
         expect(isFSA(action)).to.be.true;
       });
 
       it('type should equal FETCH_USER_SUCCESS', () => {
-        let user = { id: 27, name: 'Frankie' };
+        let user = {
+          id: 27,
+          name: 'Frankie'
+        };
         let action = sync.fetchUserSuccess(user);
 
         expect(action.type).to.equal('FETCH_USER_SUCCESS');
@@ -916,96 +952,96 @@ describe('Actions', () => {
       });
     });
 
-    describe('fetchPendingInvitesRequest', () => {
+    describe('fetchPendingSentInvitesRequest', () => {
       it('should be a FSA', () => {
-        let action = sync.fetchPendingInvitesRequest();
+        let action = sync.fetchPendingSentInvitesRequest();
 
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal FETCH_PENDING_INVITES_REQUEST', () => {
-        let action = sync.fetchPendingInvitesRequest();
-        expect(action.type).to.equal('FETCH_PENDING_INVITES_REQUEST');
+      it('type should equal FETCH_PENDING_SENT_INVITES_REQUEST', () => {
+        let action = sync.fetchPendingSentInvitesRequest();
+        expect(action.type).to.equal('FETCH_PENDING_SENT_INVITES_REQUEST');
       });
     });
 
-    describe('fetchPendingInvitesSuccess', () => {
+    describe('fetchPendingSentInvitesSuccess', () => {
       it('should be a FSA', () => {
-        let pendingInvites = [ 1,  2, 27 ];
-        let action = sync.fetchPendingInvitesSuccess(pendingInvites);
+        let pendingSentInvites = [1, 2, 27];
+        let action = sync.fetchPendingSentInvitesSuccess(pendingSentInvites);
 
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal FETCH_PENDING_INVITES_SUCCESS', () => {
-        let pendingInvites = [ 1,  7, 27, 566 ];
-        let action = sync.fetchPendingInvitesSuccess(pendingInvites);
+      it('type should equal FETCH_PENDING_SENT_INVITES_SUCCESS', () => {
+        let pendingSentInvites = [1, 7, 27, 566];
+        let action = sync.fetchPendingSentInvitesSuccess(pendingSentInvites);
 
-        expect(action.type).to.equal('FETCH_PENDING_INVITES_SUCCESS');
-        expect(action.payload.pendingInvites).to.equal(pendingInvites);
+        expect(action.type).to.equal('FETCH_PENDING_SENT_INVITES_SUCCESS');
+        expect(action.payload.pendingSentInvites).to.equal(pendingSentInvites);
       });
     });
 
-    describe('fetchPendingInvitesFailure', () => {
+    describe('fetchPendingSentInvitesFailure', () => {
       it('should be a FSA', () => {
         let error = 'Error';
-        let action = sync.fetchPendingInvitesFailure(error);
+        let action = sync.fetchPendingSentInvitesFailure(error);
 
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal FETCH_PENDING_INVITES_FAILURE and error should equal passed error', () => {
+      it('type should equal FETCH_PENDING_SENT_INVITES_FAILURE and error should equal passed error', () => {
         let error = 'Error';
-        let action = sync.fetchPendingInvitesFailure(error);
+        let action = sync.fetchPendingSentInvitesFailure(error);
 
-        expect(action.type).to.equal('FETCH_PENDING_INVITES_FAILURE');
+        expect(action.type).to.equal('FETCH_PENDING_SENT_INVITES_FAILURE');
         expect(action.error).to.equal(error);
       });
     });
 
-    describe('fetchPendingMembershipsRequest', () => {
+    describe('fetchPendingReceivedInvitesRequest', () => {
       it('should be a FSA', () => {
-        let action = sync.fetchPendingMembershipsRequest();
+        let action = sync.fetchPendingReceivedInvitesRequest();
 
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal FETCH_PENDING_MEMBERSHIPS_REQUEST', () => {
-        let action = sync.fetchPendingMembershipsRequest();
-        expect(action.type).to.equal('FETCH_PENDING_MEMBERSHIPS_REQUEST');
+      it('type should equal FETCH_PENDING_RECEIVED_INVITES_REQUEST', () => {
+        let action = sync.fetchPendingReceivedInvitesRequest();
+        expect(action.type).to.equal('FETCH_PENDING_RECEIVED_INVITES_REQUEST');
       });
     });
 
-    describe('fetchPendingMembershipsSuccess', () => {
+    describe('fetchPendingReceivedInvitesSuccess', () => {
       it('should be a FSA', () => {
-        let pendingMemberships = [ 1,  2, 27 ];
-        let action = sync.fetchPendingMembershipsSuccess(pendingMemberships);
+        let pendingReceivedInvites = [1, 2, 27];
+        let action = sync.fetchPendingReceivedInvitesSuccess(pendingReceivedInvites);
 
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal FETCH_PENDING_MEMBERSHIPS_SUCCESS', () => {
-        let pendingMemberships = [ 1,  7, 27, 566 ];
-        let action = sync.fetchPendingMembershipsSuccess(pendingMemberships);
+      it('type should equal FETCH_PENDING_RECEIVED_INVITES_SUCCESS', () => {
+        let pendingReceivedInvites = [1, 7, 27, 566];
+        let action = sync.fetchPendingReceivedInvitesSuccess(pendingReceivedInvites);
 
-        expect(action.type).to.equal('FETCH_PENDING_MEMBERSHIPS_SUCCESS');
-        expect(action.payload.pendingMemberships).to.equal(pendingMemberships);
+        expect(action.type).to.equal('FETCH_PENDING_RECEIVED_INVITES_SUCCESS');
+        expect(action.payload.pendingReceivedInvites).to.equal(pendingReceivedInvites);
       });
     });
 
-    describe('fetchPendingMembershipsFailure', () => {
+    describe('fetchPendingReceivedInvitesFailure', () => {
       it('should be a FSA', () => {
         let error = 'Error';
-        let action = sync.fetchPendingMembershipsFailure(error);
+        let action = sync.fetchPendingReceivedInvitesFailure(error);
 
         expect(isFSA(action)).to.be.true;
       });
 
-      it('type should equal FETCH_PENDING_MEMBERSHIPS_FAILURE and error should equal passed error', () => {
+      it('type should equal FETCH_PENDING_RECEIVED_INVITES_FAILURE and error should equal passed error', () => {
         let error = 'Error';
-        let action = sync.fetchPendingMembershipsFailure(error);
+        let action = sync.fetchPendingReceivedInvitesFailure(error);
 
-        expect(action.type).to.equal('FETCH_PENDING_MEMBERSHIPS_FAILURE');
+        expect(action.type).to.equal('FETCH_PENDING_RECEIVED_INVITES_FAILURE');
         expect(action.error).to.equal(error);
       });
     });
@@ -1025,14 +1061,20 @@ describe('Actions', () => {
 
     describe('fetchPatientSuccess', () => {
       it('should be a FSA', () => {
-        let patient = { name: 'Bruce Lee', age: 24 };
+        let patient = {
+          name: 'Bruce Lee',
+          age: 24
+        };
         let action = sync.fetchPatientSuccess(patient);
 
         expect(isFSA(action)).to.be.true;
       });
 
       it('type should equal FETCH_PATIENT_SUCCESS', () => {
-        let patient = { name: 'Jackie Chan', age: 24 };
+        let patient = {
+          name: 'Jackie Chan',
+          age: 24
+        };
         let action = sync.fetchPatientSuccess(patient);
 
         expect(action.type).to.equal('FETCH_PATIENT_SUCCESS');
@@ -1072,14 +1114,22 @@ describe('Actions', () => {
 
     describe('fetchPatientsSuccess', () => {
       it('should be a FSA', () => {
-        let patients = [ { id: 20, name: 'Bruce Lee', age: 24 } ];
+        let patients = [{
+          id: 20,
+          name: 'Bruce Lee',
+          age: 24
+        }];
         let action = sync.fetchPatientsSuccess(patients);
 
         expect(isFSA(action)).to.be.true;
       });
 
       it('type should equal FETCH_PATIENTS_SUCCESS', () => {
-        let patients = [ { id: 20, name: 'Jackie Chan', age: 24 } ];
+        let patients = [{
+          id: 20,
+          name: 'Jackie Chan',
+          age: 24
+        }];
         let action = sync.fetchPatientsSuccess(patients);
 
         expect(action.type).to.equal('FETCH_PATIENTS_SUCCESS');
@@ -1120,8 +1170,14 @@ describe('Actions', () => {
     describe('fetchPatientDataSuccess', () => {
       it('should be a FSA', () => {
         let patientData = [
-          { id: 24, value: 500 },
-          { id: 4567, value: 300 }
+          {
+            id: 24,
+            value: 500
+          },
+          {
+            id: 4567,
+            value: 300
+          }
         ];
         let action = sync.fetchPatientDataSuccess(patientData);
 
@@ -1131,8 +1187,14 @@ describe('Actions', () => {
       it('type should equal FETCH_PATIENT_DATA_SUCCESS', () => {
         let patientId = 400;
         let patientData = [
-          { id: 24, value: 500 },
-          { id: 4567, value: 400 }
+          {
+            id: 24,
+            value: 500
+          },
+          {
+            id: 4567,
+            value: 400
+          }
         ];
         let action = sync.fetchPatientDataSuccess(patientId, patientData);
 
@@ -1175,8 +1237,14 @@ describe('Actions', () => {
     describe('fetchMessageThreadSuccess', () => {
       it('should be a FSA', () => {
         let messageThread = [
-          { id: 47, message: 'Good Morning' },
-          { id: 7447, message: 'I know Kung Fu!' }
+          {
+            id: 47,
+            message: 'Good Morning'
+          },
+          {
+            id: 7447,
+            message: 'I know Kung Fu!'
+          }
         ];
         let action = sync.fetchMessageThreadSuccess(messageThread);
 
@@ -1185,8 +1253,14 @@ describe('Actions', () => {
 
       it('type should equal FETCH_MESSAGE_THREAD_SUCCESS', () => {
         let messageThread = [
-          { id: 10106, message: 'Hello, this is quite fun!' },
-          { id: 7, message: 'And they all lived happily ever after.' }
+          {
+            id: 10106,
+            message: 'Hello, this is quite fun!'
+          },
+          {
+            id: 7,
+            message: 'And they all lived happily ever after.'
+          }
         ];
         let action = sync.fetchMessageThreadSuccess(messageThread);
 

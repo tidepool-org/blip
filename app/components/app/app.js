@@ -100,35 +100,6 @@ export class AppComponent extends React.Component {
     nextProps.fetchers.forEach(fetcher => { 
       fetcher();
     });
-
-    // if (this.props.authenticated) {
-    //   this.fetcher.fetchUser();
-    // }
-
-    // if (nextProps.login) {
-    //   this.actionHandlers.handleFinalizeSignup();
-    // } else if (nextProps.patients) {
-    //   this.setState({showPatientData: true});
-    //   this.fetcher.fetchInvites();
-    //   this.fetcher.fetchPatients();
-    //   this.props.route.trackMetric('Viewed Care Team List');
-    // } else if (nextProps.patient) {
-    //   this.fetcher.fetchPatient(nextProps.params.id);
-    //   this.props.route.trackMetric('Viewed Profile');
-    // } else if (nextProps.patientData) {
-    //   this.fetcher.fetchPatient(nextProps.params.id, (err, patient) => {
-    //     this.fetcher.fetchPatientData(patient);
-    //   });
-    //   this.props.route.trackMetric('Viewed Data');
-    // } else if (nextProps.patientNew) {
-    //   this.props.route.trackMetric('Viewed Profile Create');
-    // } else if (nextProps.patientShare) {
-    //   this.fetcher.fetchPatient(nextProps.params.id);
-    //   this.fetcher.fetchPendingInvites();
-    //   this.props.route.trackMetric('Viewed Share');
-    // } else if (nextProps.profile) {
-    //   this.props.route.trackMetric('Viewed Account Edit');
-    // }
   }
 
   /**

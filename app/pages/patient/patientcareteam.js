@@ -15,7 +15,7 @@ import Patient from './patient';
 let getFetchers = (dispatchProps, ownProps, api) => {
   return [
     dispatchProps.fetchPatient.bind(null, api, ownProps.routeParams.id),
-    dispatchProps.fetchPendingInvites.bind(null, api)
+    dispatchProps.fetchPendingSentInvites.bind(null, api)
   ];
 };
 
@@ -24,21 +24,21 @@ let mapStateToProps = state => ({
   fetchingUser: state.blip.working.fetchingUser.inProgress,
   patient: state.blip.currentPatientInView,
   fetchingPatient: state.blip.working.fetchingPatient.inProgress,
-  pendingInvites: state.blip.pendingInvites,
+  pendingSentInvites: state.blip.pendingSentInvites,
   changingMemberPermissions: state.blip.working.settingMemberPermissions,
   removingMember: state.blip.working.removingMember,
-  invitingMember: state.blip.working.sendingInvitation,
-  cancellingInvite: state.blip.working.cancellingInvitation
+  invitingMember: state.blip.working.sendingInvite,
+  cancellingInvite: state.blip.working.cancellingSentInvite
 });
 
 let mapDispatchToProps = dispatch => bindActionCreators({
   updatePatient: actions.async.updatePatient,
   changeMemberPermissions: actions.async.setMemberPermissions,
   removeMember: actions.async.removeMember,
-  inviteMember: actions.async.sendInvitation,
-  cancelInvite: actions.async.cancelInvitation,
+  inviteMember: actions.async.sendInvite,
+  cancelInvite: actions.async.cancelSentInvite,
   fetchPatient: actions.async.fetchPatient,
-  fetchPendingInvites: actions.async.fetchPendingInvites
+  fetchPendingSentInvites: actions.async.fetchPendingSentInvites
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
