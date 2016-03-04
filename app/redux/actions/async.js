@@ -22,6 +22,7 @@ import utils from '../../core/utils';
 import * as ActionTypes from '../constants/actionTypes';
 import * as ErrorMessages from '../constants/errorMessages';
 import * as sync from './sync.js';
+import update from 'react-addons-update';
 
 import { routeActions } from 'react-router-redux';
 
@@ -76,8 +77,20 @@ export function login(api, credentials, options) {
           if (err) {
             dispatch(sync.loginFailure(ErrorMessages.STANDARD));
           } else {
-            dispatch(sync.loginSuccess(user));
-            dispatch(routeActions.push('/patients'));
+            if (_.get(user, ['patient'])) {
+              api.patient.get(user.userid, (err, patient) => {
+                if (err) {
+                  dispatch(sync.loginFailure(ErrorMessages.STANDARD));
+                } else {
+                  user = update(user, { $merge: patient });
+                  dispatch(sync.loginSuccess(user));
+                  dispatch(routeActions.push('/patients'));
+                }
+              });
+            } else {
+              dispatch(sync.loginSuccess(user));
+              dispatch(routeActions.push('/patients'));
+            }
           }
         });
       }
@@ -470,7 +483,18 @@ export function fetchUser(api) {
       } else if (!utils.hasVerifiedEmail(user)) {
         dispatch(sync.fetchUserFailure(ErrorMessages.EMAIL_NOT_VERIFIED));
       } else {
-        dispatch(sync.fetchUserSuccess(user));
+        if (_.get(user, ['profile', 'patient'])) {
+          api.patient.get(user.userid, (err, patient) => {
+            if (err) {
+              dispatch(sync.fetchUserFailure(ErrorMessages.STANDARD));
+            } else {
+              user = update(user, { $merge: patient });
+              dispatch(sync.fetchUserSuccess(user));
+            }
+          });
+        } else {
+          dispatch(sync.fetchUserSuccess(user));
+        }
       }
     });
   };

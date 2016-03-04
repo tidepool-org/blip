@@ -19,17 +19,50 @@ let getFetchers = (dispatchProps, ownProps, api) => {
   ];
 };
 
-let mapStateToProps = state => ({
-  user: state.blip.loggedInUser,
-  fetchingUser: state.blip.working.fetchingUser.inProgress,
-  patient: state.blip.currentPatientInView,
-  fetchingPatient: state.blip.working.fetchingPatient.inProgress,
-  pendingSentInvites: state.blip.pendingSentInvites,
-  changingMemberPermissions: state.blip.working.settingMemberPermissions,
-  removingMember: state.blip.working.removingMember,
-  invitingMember: state.blip.working.sendingInvite,
-  cancellingInvite: state.blip.working.cancellingSentInvite
-});
+let mapStateToProps = state => {
+  let user = null;
+  let patient = null;
+
+  let { 
+    allUsersMap, 
+    loggedInUserId, 
+    targetUserId,
+    currentPatientInViewId,
+    membersOfTargetCareTeam,
+    permissionsOfMembersInTargetCareTeam
+  } = state.blip;
+
+  if (allUsersMap){
+    if (loggedInUserId) {
+      user = allUsersMap[loggedInUserId];
+    }
+
+    if (currentPatientInViewId){
+      patient = allUsersMap[currentPatientInViewId];
+
+      if (currentPatientInViewId === targetUserId && membersOfTargetCareTeam) {
+        patient.team = [];
+        membersOfTargetCareTeam.forEach((memberId) => {
+          let member = allUsersMap[memberId];
+          member.permissions = permissionsOfMembersInTargetCareTeam[memberId];
+          patient.team.push(member);
+        });
+      }
+    }
+  }
+
+  return {
+    user: user,
+    fetchingUser: state.blip.working.fetchingUser.inProgress,
+    patient: patient,
+    fetchingPatient: state.blip.working.fetchingPatient.inProgress,
+    pendingSentInvites: state.blip.pendingSentInvites,
+    changingMemberPermissions: state.blip.working.settingMemberPermissions,
+    removingMember: state.blip.working.removingMember,
+    invitingMember: state.blip.working.sendingInvite,
+    cancellingInvite: state.blip.working.cancellingSentInvite
+  }
+};
 
 let mapDispatchToProps = dispatch => bindActionCreators({
   updatePatient: actions.async.updatePatient,

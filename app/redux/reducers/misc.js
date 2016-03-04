@@ -83,9 +83,23 @@ export const allUsersMap = (state = initialState.allUsersMap, action) => {
   switch(action.type) {
     case types.FETCH_USER_SUCCESS:
     case types.LOGIN_SUCCESS:
-      return update(state, { [action.payload.user.userid]: { $set: _.omit(action.payload.user, ['permissions']) } });
+      return update(state, { [action.payload.user.userid]: { $set: _.omit(action.payload.user, ['team']) } });
     case types.FETCH_PATIENT_SUCCESS: 
-      return update(state, { [action.payload.patient.userid]: { $set: _.omit(action.payload.patient, ['permissions', 'team']) } });
+      let intermediate;
+
+      if (state[action.payload.patient.userid]) {
+        intermediate = update(state,  { [action.payload.patient.userid]: { $merge: _.omit(action.payload.patient, ['permissions', 'team']) } });
+      } else {
+        intermediate = update(state,  { [action.payload.patient.userid]: { $set: _.omit(action.payload.patient, ['permissions', 'team']) } });
+      }
+      
+      if (action.payload.patient.team) {
+        let others = {};
+        action.payload.patient.team.forEach((t) => others[t.userid] = _.omit(t, 'permissions'));
+        return update(intermediate, { $merge: others });
+      }
+      
+      return intermediate;
     case types.FETCH_PATIENTS_SUCCESS: 
       let patientsMap = {};
       
@@ -102,6 +116,8 @@ export const allUsersMap = (state = initialState.allUsersMap, action) => {
       return update(state, { [action.payload.userId]: { $merge: _.omit(action.payload.updatingUser, ['permissions']) }});
     case types.UPDATE_USER_SUCCESS:
       return update(state, { [action.payload.userId]: { $merge: _.omit(action.payload.updatedUser, ['permissions']) }});
+    case types.UPDATE_PATIENT_SUCCESS:
+      return update(state, { [action.payload.updatedPatient.userid]: { $merge: _.omit(action.payload.updatedPatient, ['permissions']) }});
     case types.LOGOUT_SUCCESS:
       return update(state, { $set: {} });
     default:
@@ -121,6 +137,22 @@ export const currentPatientInViewId = (state = initialState.currentPatientInView
       return update(state, { $set: null });
     default:
       return state; 
+  }
+};
+
+export const targetUserId = (state = initialState.targetUserId, action) => {
+  switch(action.type) {
+    case types.FETCH_USER_SUCCESS:
+    case types.LOGIN_SUCCESS:
+      if (_.get(action.payload.user, ['profile', 'patient'])) {
+        return update(state, { $set: action.payload.user.userid });
+      } else {
+        return update(state, { $set: null });
+      }
+    case types.LOGOUT_SUCCESS:
+      return update(state, { $set: null });
+    default:
+      return state;
   }
 };
 
@@ -172,7 +204,6 @@ export const memberInOtherCareTeams = (state = initialState.memberInOtherCareTea
 export const permissionsOfMembersInTargetCareTeam = (state = initialState.permissionsOfMembersInTargetCareTeam, action) => {
   switch(action.type) {
     case types.FETCH_PATIENT_SUCCESS:
-    console.log('team', action.payload.patient.team);
       if (action.payload.patient.team) {
         let permissions = {};
         action.payload.patient.team.forEach((t) => permissions[t.userid] = t.permissions);

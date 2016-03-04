@@ -20,11 +20,10 @@ import working from './working';
 
 import {
   bgPrefs,
-  currentPatientInView,
   currentPatientInViewId,
   isLoggedIn,
-  loggedInUser,
   loggedInUserId,
+  targetUserId,
   messageThread,
   notification,
   passwordResetConfirmed,
@@ -34,7 +33,6 @@ import {
   membershipPermissionsInOtherCareTeams,
   allUsersMap,
   patientDataMap,
-  patientsMap,
   patientNotesMap,
   pendingSentInvites,
   pendingReceivedInvites,
@@ -46,11 +44,10 @@ import {
 
 export default combineReducers({
   bgPrefs,
-  currentPatientInView,
   currentPatientInViewId,
   isLoggedIn,
-  loggedInUser,
   loggedInUserId,
+  targetUserId,
   messageThread,
   notification,
   passwordResetConfirmed,
@@ -60,7 +57,6 @@ export default combineReducers({
   membershipPermissionsInOtherCareTeams,
   allUsersMap,
   patientDataMap,
-  patientsMap,
   patientNotesMap,
   pendingSentInvites,
   pendingReceivedInvites,

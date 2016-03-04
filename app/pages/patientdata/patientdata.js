@@ -591,18 +591,32 @@ let getFetchers = (dispatchProps, ownProps, api) => {
   ];
 };
 
-let mapStateToProps = state => ({
-  user: state.blip.loggedInUser,
-  bgPrefs: state.blip.bgPrefs,
-  timePrefs: state.blip.timePrefs,
-  isUserPatient: personUtils.isSame(state.blip.loggedInUser, state.blip.currentPatientInView),
-  patient: state.blip.currentPatientInView,
-  patientDataMap: state.blip.patientDataMap,
-  patientNotesMap: state.blip.patientNotesMap,
-  messageThread: state.blip.messageThread,
-  fetchingPatient: state.blip.working.fetchingPatient.inProgress,
-  fetchingPatientData: state.blip.working.fetchingPatientData.inProgress
-});
+let mapStateToProps = state => {
+  var user = null;
+  var patient = null;
+  if (state.blip.allUsersMap){
+    if (state.blip.loggedInUserId) {
+      user = state.blip.allUsersMap[state.blip.loggedInUserId];
+    }
+
+    if (state.blip.currentPatientInViewId){
+      patient = state.blip.allUsersMap[state.blip.currentPatientInViewId];
+    }
+  }
+
+  return {
+    user: user,
+    bgPrefs: state.blip.bgPrefs,
+    timePrefs: state.blip.timePrefs,
+    isUserPatient: personUtils.isSame(user, patient),
+    patient: patient,
+    patientDataMap: state.blip.patientDataMap,
+    patientNotesMap: state.blip.patientNotesMap,
+    messageThread: state.blip.messageThread,
+    fetchingPatient: state.blip.working.fetchingPatient.inProgress,
+    fetchingPatientData: state.blip.working.fetchingPatientData.inProgress
+  }
+};
 
 let mapDispatchToProps = dispatch => bindActionCreators({
   fetchPatient: actions.async.fetchPatient,

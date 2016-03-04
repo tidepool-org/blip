@@ -180,7 +180,7 @@ export let Patients = React.createClass({
       return null;
     }
 
-    var patients = this.getPatients();
+    var patients = this.props.patients;
     patients = this.addLinkToPatients(patients);
 
     var addDataStorage = this.renderAddDataStorage();
@@ -202,20 +202,6 @@ export let Patients = React.createClass({
         </div>
       </div>
     );
-  },
-
-  getPatients: function() {
-    var user = _.cloneDeep(this.props.user);
-    var patients = _.clone(this.props.patients) || [];
-
-    if(personUtils.isPatient(user)) {
-      user.permissions = {
-        root: {}
-      };
-      patients.push(user);
-    }
-
-    return patients;
   },
 
   renderAddDataStorage: function() {
@@ -341,16 +327,38 @@ let getFetchers = (dispatchProps, ownProps, api) => {
   ];
 };
 
-let mapStateToProps = state => ({
-  user: state.blip.loggedInUser,
-  fetchingUser: state.blip.working.fetchingUser.inProgress,
-  patients: _.values(state.blip.patientsMap),
-  fetchingPatients: state.blip.working.fetchingPatients.inProgress,
-  invites: state.blip.pendingReceivedInvites,
-  fetchingInvites: state.blip.working.fetchingPendingReceivedInvites.inProgress,
-  showingWelcomeTitle: state.blip.signupConfirmed,
-  showingWelcomeSetup: state.blip.signupConfirmed
-});
+let mapStateToProps = state => { 
+  var user = null;
+  var patients = [];
+
+  if (state.blip.allUsersMap){
+    if (state.blip.loggedInUserId) {
+      user = state.blip.allUsersMap[state.blip.loggedInUserId];
+    }
+
+    if (state.blip.targetUserId) {
+
+      patients.push(state.blip.allUsersMap[state.blip.targetUserId]);
+    }
+
+    if (state.blip.memberInOtherCareTeams) {
+      state.blip.memberInOtherCareTeams.forEach((key) => {
+        patients.push(state.blip.allUsersMap[key]);
+      });
+    }
+  }
+
+  return {
+    user: user,
+    fetchingUser: state.blip.working.fetchingUser.inProgress,
+    patients: patients,
+    fetchingPatients: state.blip.working.fetchingPatients.inProgress,
+    invites: state.blip.pendingReceivedInvites,
+    fetchingInvites: state.blip.working.fetchingPendingReceivedInvites.inProgress,
+    showingWelcomeTitle: state.blip.signupConfirmed,
+    showingWelcomeSetup: state.blip.signupConfirmed
+  }
+};
 
 let mapDispatchToProps = dispatch => bindActionCreators({
   acceptReceivedInvite: actions.async.acceptReceivedInvite,
