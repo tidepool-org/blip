@@ -214,8 +214,11 @@ utils.processPatientData = (comp, data, queryParams) => {
     setNewTimePrefs(queryParams.timezone);
     console.log('Displaying in timezone from query params:', queryParams.timezone);
   }
-  else {
+  else if (!_.isEmpty(mostRecentUpload)) {
     console.log('Defaulting to display in timezone of most recent upload at', mostRecentUpload.time, mostRecentUpload.timezone);
+  }
+  else {
+    console.log('Falling back to timezone-naive display.');
   }
   if (!_.isEmpty(timePrefsForTideline)) {
     comp.setState({
