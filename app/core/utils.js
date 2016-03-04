@@ -181,47 +181,60 @@ utils.getInviteKey = function(location) {
   return '';
 }
 
-utils.processPatientData = (comp, data, queryParams, timePrefs, bgPrefs) => {
+utils.processPatientData = (comp, data, queryParams) => {
   if (!(data && data.length >= 0)) {
     return null;
   }
 
-  var mostRecentUpload = _.sortBy(_.filter(data, {type: 'upload'}), (d) => Date.parse(d.time) ).reverse()[0];
   var timePrefsForTideline;
-  if (!_.isEmpty(mostRecentUpload) && !_.isEmpty(mostRecentUpload.timezone)) {
+  function setNewTimePrefs(timezoneName) {
+    // have to replace - from queryParams set timezone with /
+    timezoneName = timezoneName.replace('-', '/');
     try {
-      sundial.checkTimezoneName(mostRecentUpload.timezone);
+      sundial.checkTimezoneName(timezoneName);
       timePrefsForTideline = {
         timezoneAware: true,
-        timezoneName: mostRecentUpload.timezone
+        timezoneName: timezoneName
       };
     }
     catch(err) {
       console.log(err);
-      console.log('Upload metadata lacking a valid timezone!', mostRecentUpload);
+      console.log('Not a valid timezone! Defaulting to timezone-naive display.');
+      timePrefsForTideline = {};
     }
   }
 
-  // if the user has put a timezone in the query params
-  // it'll be stored already in the state, and we just keep using it
-  if (!_.isEmpty(queryParams.timezone) || _.isEmpty(timePrefsForTideline)) {
-    timePrefsForTideline = timePrefs;
+  var mostRecentUpload = _.sortBy(_.filter(data, {type: 'upload'}), (d) => Date.parse(d.time) ).reverse()[0];
+  if (!_.isEmpty(mostRecentUpload) && !_.isEmpty(mostRecentUpload.timezone)) {
+    setNewTimePrefs(mostRecentUpload.timezone);
   }
-  // but otherwise we use the timezone from the most recent upload metadata obj
+
+  // a timezone in the queryParams always overrides any other timePrefs
+  if (!_.isEmpty(queryParams.timezone)) {
+    setNewTimePrefs(queryParams.timezone);
+    console.log('Displaying in timezone from query params:', queryParams.timezone);
+  }
   else {
+    console.log('Defaulting to display in timezone of most recent upload at', mostRecentUpload.time, mostRecentUpload.timezone);
+  }
+  if (!_.isEmpty(timePrefsForTideline)) {
     comp.setState({
       timePrefs: timePrefsForTideline
     });
-    console.log('Defaulting to display in timezone of most recent upload at', mostRecentUpload.time, mostRecentUpload.timezone);
   }
 
   console.time('Nurseshark Total');
-  var res = nurseShark.processData(data, bgPrefs.bgUnits);
+  var bgUnits = 'mg/dL';
+  if (!_.isEmpty(queryParams.units) && queryParams.units === 'mmoll') {
+    bgUnits = 'mmol/L';
+    console.log('Displaying BG in mmol/L from query params');
+  }
+  var res = nurseShark.processData(data, bgUnits);
   console.timeEnd('Nurseshark Total');
   console.time('TidelineData Total');
   var tidelineData = new TidelineData(res.processedData, {
-    timePrefs: timePrefs,
-    bgUnits: bgPrefs.bgUnits
+    timePrefs: timePrefsForTideline,
+    bgUnits: bgUnits
   });
   console.timeEnd('TidelineData Total');
 
