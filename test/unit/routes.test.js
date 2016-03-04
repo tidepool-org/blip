@@ -24,13 +24,13 @@ describe('routes', () => {
         }
       };
 
-      let replaceState = sinon.stub();
+      let replace = sinon.stub();
 
-      expect(replaceState.callCount).to.equal(0);
+      expect(replace.callCount).to.equal(0);
 
-      requireAuth(api)(null, replaceState);
+      requireAuth(api)(null, replace);
 
-      expect(replaceState.withArgs(null, '/login').callCount).to.equal(1);
+      expect(replace.withArgs('/login').callCount).to.equal(1);
     });
 
     it('should not update route if user is authenticated', () => {
@@ -40,13 +40,13 @@ describe('routes', () => {
         }
       };
 
-      let replaceState = sinon.stub();
+      let replace = sinon.stub();
 
-      expect(replaceState.callCount).to.equal(0);
+      expect(replace.callCount).to.equal(0);
 
-      requireAuth(api)(null, replaceState);
+      requireAuth(api)(null, replace);
 
-      expect(replaceState.callCount).to.equal(0);
+      expect(replace.callCount).to.equal(0);
     });
   });
 
@@ -58,12 +58,20 @@ describe('routes', () => {
         }
       };
 
-      let replaceState = sinon.stub();
+      let store = {
+        getState: () => ({
+          blip: {
+            loggedInUser: null
+          }
+        })
+      };
 
-      expect(replaceState.callCount).to.equal(0);
+      let replace = sinon.stub();
 
-      requireAuthAndNoPatient(api)(null, replaceState, () => {
-        expect(replaceState.withArgs(null, '/login').callCount).to.equal(1);
+      expect(replace.callCount).to.equal(0);
+
+      requireAuthAndNoPatient(api, store)(null, replace, () => {
+        expect(replace.withArgs('/login').callCount).to.equal(1);
         done();
       });
     });
@@ -86,12 +94,20 @@ describe('routes', () => {
         }
       };
 
-      let replaceState = sinon.stub();
+      let store = {
+        getState: () => ({
+          blip: {
+            loggedInUser: null
+          }
+        })
+      };
 
-      expect(replaceState.callCount).to.equal(0);
+      let replace = sinon.stub();
 
-      requireAuthAndNoPatient(api)(null, replaceState, () => {
-        expect(replaceState.withArgs(null, '/patients').callCount).to.equal(1);
+      expect(replace.callCount).to.equal(0);
+
+      requireAuthAndNoPatient(api, store)(null, replace, () => {
+        expect(replace.withArgs('/patients').callCount).to.equal(1);
         done();
       });
     });
@@ -114,12 +130,20 @@ describe('routes', () => {
         }
       };
 
-      let replaceState = sinon.stub();
+      let store = {
+        getState: () => ({
+          blip: {
+            loggedInUser: null
+          }
+        })
+      };
 
-      expect(replaceState.callCount).to.equal(0);
+      let replace = sinon.stub();
 
-      requireAuthAndNoPatient(api)(null, replaceState, () => {
-        expect(replaceState.callCount).to.equal(0);
+      expect(replace.callCount).to.equal(0);
+
+      requireAuthAndNoPatient(api, store)(null, replace, () => {
+        expect(replace.callCount).to.equal(0);
         done();
       });
     });
@@ -133,13 +157,13 @@ describe('routes', () => {
         }
       };
 
-      let replaceState = sinon.stub();
+      let replace = sinon.stub();
 
-      expect(replaceState.callCount).to.equal(0);
+      expect(replace.callCount).to.equal(0);
       
-      requireNoAuth(api)(null, replaceState);
+      requireNoAuth(api)(null, replace);
 
-      expect(replaceState.withArgs(null, '/patients').callCount).to.equal(1);
+      expect(replace.withArgs('/patients').callCount).to.equal(1);
     });
 
     it('should not update route if user is not authenticated', () => {
@@ -149,13 +173,13 @@ describe('routes', () => {
         }
       };
 
-      let replaceState = sinon.stub();
+      let replace = sinon.stub();
 
-      expect(replaceState.callCount).to.equal(0);
+      expect(replace.callCount).to.equal(0);
 
-      requireNoAuth(api)(null, replaceState);
+      requireNoAuth(api)(null, replace);
 
-      expect(replaceState.callCount).to.equal(0);
+      expect(replace.callCount).to.equal(0);
     });
   });
 
@@ -172,12 +196,20 @@ describe('routes', () => {
         logout: sinon.stub()
       };
 
-      let replaceState = sinon.stub();
+      let store = {
+        getState: () => ({
+          blip: {
+            loggedInUser: null
+          }
+        })
+      };
 
-      expect(replaceState.callCount).to.equal(0);
+      let replace = sinon.stub();
 
-      requireNotVerified(api)(null, replaceState, () => {
-        expect(replaceState.callCount).to.equal(0);
+      expect(replace.callCount).to.equal(0);
+
+      requireNotVerified(api, store)(null, replace, () => {
+        expect(replace.callCount).to.equal(0);
         done();
       });
     });
@@ -197,12 +229,21 @@ describe('routes', () => {
         }
       };
 
-      let replaceState = sinon.stub();
+      let store = {
+        getState: () => ({
+          blip: {
+            isLoggedIn: true,
+            loggedInUser: null
+          }
+        })
+      };
 
-      expect(replaceState.callCount).to.equal(0);
+      let replace = sinon.stub();
 
-      requireNotVerified(api)(null, replaceState, () => {
-        expect(replaceState.withArgs(null, '/patients').callCount).to.equal(1);
+      expect(replace.callCount).to.equal(0);
+
+      requireNotVerified(api, store)(null, replace, () => {
+        expect(replace.withArgs('/patients').callCount).to.equal(1);
         done();
       });
     });
@@ -224,12 +265,21 @@ describe('routes', () => {
         }
       };
 
-      let replaceState = sinon.stub();
+      let store = {
+        getState: () => ({
+          blip: {
+            isLoggedIn: true,
+            loggedInUser: null
+          }
+        })
+      };
 
-      expect(replaceState.callCount).to.equal(0);
+      let replace = sinon.stub();
 
-      requireNotVerified(api)(null, replaceState, () => {
-        expect(replaceState.callCount).to.equal(0);
+      expect(replace.callCount).to.equal(0);
+
+      requireNotVerified(api, store)(null, replace, () => {
+        expect(replace.callCount).to.equal(0);
         done();
       });
     });
@@ -243,13 +293,13 @@ describe('routes', () => {
         }
       };
 
-      let replaceState = sinon.stub();
+      let replace = sinon.stub();
 
-      expect(replaceState.callCount).to.equal(0);
+      expect(replace.callCount).to.equal(0);
 
-      onUploaderPasswordReset(api)(null, replaceState);
+      onUploaderPasswordReset(api)(null, replace);
 
-      expect(replaceState.callCount).to.equal(0);
+      expect(replace.callCount).to.equal(0);
     });
 
     it('should update the route to /profile if the user is authenticated', () => {
@@ -259,13 +309,13 @@ describe('routes', () => {
         }
       };
 
-      let replaceState = sinon.stub();
+      let replace = sinon.stub();
 
-      expect(replaceState.callCount).to.equal(0);
+      expect(replace.callCount).to.equal(0);
 
-      onUploaderPasswordReset(api)(null, replaceState);
+      onUploaderPasswordReset(api)(null, replace);
 
-      expect(replaceState.withArgs(null, '/profile').callCount).to.equal(1);
+      expect(replace.withArgs('/profile').callCount).to.equal(1);
     });
   });
 
@@ -278,13 +328,13 @@ describe('routes', () => {
         }
       }
 
-      let replaceState = sinon.stub();
+      let replace = sinon.stub();
 
-      expect(replaceState.callCount).to.equal(0);
+      expect(replace.callCount).to.equal(0);
 
-      hashToUrl(nextState, replaceState);
+      hashToUrl(nextState, replace);
 
-      expect(replaceState.withArgs(null, '/foobar').callCount).to.equal(1);
+      expect(replace.withArgs('/foobar').callCount).to.equal(1);
     });
 
     it('should not update route to hash if pathname and hash present', () => {
@@ -295,13 +345,13 @@ describe('routes', () => {
         }
       }
 
-      let replaceState = sinon.stub();
+      let replace = sinon.stub();
 
-      expect(replaceState.callCount).to.equal(0);
+      expect(replace.callCount).to.equal(0);
 
-      hashToUrl(nextState, replaceState);
+      hashToUrl(nextState, replace);
 
-      expect(replaceState.callCount).to.equal(0);
+      expect(replace.callCount).to.equal(0);
     });
 
     it('should not update route to hash if pathname present and no hash', () => {
@@ -312,13 +362,13 @@ describe('routes', () => {
         }
       }
 
-      let replaceState = sinon.stub();
+      let replace = sinon.stub();
 
-      expect(replaceState.callCount).to.equal(0);
+      expect(replace.callCount).to.equal(0);
 
-      hashToUrl(nextState, replaceState);
+      hashToUrl(nextState, replace);
 
-      expect(replaceState.callCount).to.equal(0);
+      expect(replace.callCount).to.equal(0);
     });
   });
 
@@ -337,13 +387,21 @@ describe('routes', () => {
         }
       };
 
-      let replaceState = sinon.stub();
+      let store = {
+        getState: () => ({
+          blip: {
+            isLoggedIn: true
+          }
+        })
+      };
 
-      expect(replaceState.callCount).to.equal(0);
+      let replace = sinon.stub();
 
-      onIndexRouteEnter(api)(nextState, replaceState);
+      expect(replace.callCount).to.equal(0);
 
-      expect(replaceState.withArgs(null, '/patients').callCount).to.equal(1);
+      onIndexRouteEnter(api, store)(nextState, replace);
+
+      expect(replace.withArgs('/patients').callCount).to.equal(1);
     });
 
     it('should update route to /patient/435/data when #/patient/435/data present', () => {
@@ -360,13 +418,21 @@ describe('routes', () => {
         }
       };
 
-      let replaceState = sinon.stub();
+      let store = {
+        getState: () => ({
+          blip: {
+            isLoggedIn: false
+          }
+        })
+      };
 
-      expect(replaceState.callCount).to.equal(0);
+      let replace = sinon.stub();
 
-      onIndexRouteEnter(api)(nextState, replaceState);
+      expect(replace.callCount).to.equal(0);
 
-      expect(replaceState.withArgs(null, '/patient/435/data').callCount).to.equal(1);
+      onIndexRouteEnter(api, store)(nextState, replace);
+
+      expect(replace.withArgs('/patient/435/data').callCount).to.equal(1);
     });
 
     it('should update route to /patients when logged in', () => {
@@ -383,13 +449,21 @@ describe('routes', () => {
         }
       };
 
-      let replaceState = sinon.stub();
+      let store = {
+        getState: () => ({
+          blip: {
+            isLoggedIn: true
+          }
+        })
+      };
 
-      expect(replaceState.callCount).to.equal(0);
+      let replace = sinon.stub();
 
-      onIndexRouteEnter(api)(nextState, replaceState);
+      expect(replace.callCount).to.equal(0);
 
-      expect(replaceState.withArgs(null, '/patients').callCount).to.equal(1);
+      onIndexRouteEnter(api, store)(nextState, replace);
+
+      expect(replace.withArgs('/patients').callCount).to.equal(1);
     });
 
     it('should not update route to /patients when not logged in', () => {
@@ -406,13 +480,21 @@ describe('routes', () => {
         }
       };
 
-      let replaceState = sinon.stub();
+      let store = {
+        getState: () => ({
+          blip: {
+            isLoggedIn: false
+          }
+        })
+      };
 
-      expect(replaceState.callCount).to.equal(0);
+      let replace = sinon.stub();
 
-      onIndexRouteEnter(api)(nextState, replaceState);
+      expect(replace.callCount).to.equal(0);
 
-      expect(replaceState.callCount).to.equal(0);
+      onIndexRouteEnter(api, store)(nextState, replace);
+
+      expect(replace.callCount).to.equal(0);
     });
   });
 

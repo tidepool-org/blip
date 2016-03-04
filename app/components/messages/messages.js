@@ -176,6 +176,7 @@ var Messages = React.createClass({
     return;
   },
   handleAddComment: function(formValues, cb) {
+    var self = this;
     if (_.isEmpty(formValues) === false) {
       var addComment = this.props.onSave;
       var parent = this.getParent();
@@ -188,25 +189,23 @@ var Messages = React.createClass({
         timestamp: formValues.timestamp
       };
 
-      addComment(comment, function(error, commentId) {
-        if (commentId) {
-          if(cb){
-            //let the form know all is good
-            cb();
-          }
-          //set so we can display right away
-          comment.id = commentId;
-          comment.user = this.props.user.profile;
-          var withReply = this.state.messages;
-          withReply.push(comment);
-          this.setState({
-            messages: withReply
-          });
+      addComment(comment, function(err, commentId) {
+        if(cb){
+          cb();
         }
-      }.bind(this));
+        comment.id = commentId ;
+        comment.user = self.props.user.profile;
+        var withReply = self.state.messages;
+        withReply.push(comment);
+        self.setState({
+          messages: withReply
+        });
+      });
+      
     }
   },
   handleCreateNote: function(formValues,cb) {
+    var self = this;
     if (_.isEmpty(formValues) === false) {
       var createNote = this.props.onSave;
 
@@ -220,30 +219,28 @@ var Messages = React.createClass({
         )
       };
 
-      createNote(message, function(error, messageId) {
-        if (messageId) {
-          if(cb){
-            //let the form know all is good
-            cb();
-          }
-          //set so we can display right away
-          message.id = messageId;
-          message.user = this.props.user.profile;
-          //give this message to anyone that needs it
-          this.props.onNewMessage(message);
-
-          // Close the modal if we can, else clear form and display new message
-          var close = this.props.onClose;
-          if (close) {
-            close();
-          }
-          else {
-            this.setState({
-              messages: [message]
-            });
-          }
+      createNote(message, function(err, messageId) {
+        if(cb){
+          //let the form know all is good
+          cb();
         }
-      }.bind(this));
+        //set so we can display right away
+        message.id = messageId // TODO: Need to fix this too;
+        message.user = self.props.user.profile;
+        //give this message to anyone that needs it
+        self.props.onNewMessage(message);
+
+        // Close the modal if we can, else clear form and display new message
+        var close = self.props.onClose;
+        if (close) {
+          close();
+        }
+        else {
+          self.setState({
+            messages: [message]
+          });
+        }
+      });
     }
   },
   handleEditNote: function(updated) {

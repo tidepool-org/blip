@@ -14,18 +14,24 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = require('react');
-var Link = require('react-router').Link;
-var _ = require('lodash');
-var cx = require('classnames');
+import React from 'react';
+import { Link } from 'react-router';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
-var config = require('../../config');
+import * as actions from '../../redux/actions';
+import utils from '../../core/utils';
 
-var personUtils = require('../../core/personutils');
-var PeopleList = require('../../components/peoplelist');
-var Invitation = require('../../components/invitation');
+import _ from 'lodash';
+import cx from 'classnames';
 
-var Patients = React.createClass({
+import config from '../../config';
+
+import personUtils from '../../core/personutils';
+import PeopleList from '../../components/peoplelist';
+import Invitation from '../../components/invitation';
+
+export let Patients = React.createClass({
   propTypes: {
     user: React.PropTypes.object,
     fetchingUser: React.PropTypes.bool,
@@ -40,7 +46,8 @@ var Patients = React.createClass({
     onAcceptInvitation: React.PropTypes.func,
     onDismissInvitation: React.PropTypes.func,
     onRemovePatient: React.PropTypes.func,
-    uploadUrl: React.PropTypes.string
+    uploadUrl: React.PropTypes.string,
+    clearPatientInView: React.PropTypes.func.isRequired
   },
 
   render: function() {
@@ -173,7 +180,7 @@ var Patients = React.createClass({
       return null;
     }
 
-    var patients = this.getPatients();
+    var patients = this.props.patients;
     patients = this.addLinkToPatients(patients);
 
     var addDataStorage = this.renderAddDataStorage();
@@ -195,20 +202,6 @@ var Patients = React.createClass({
         </div>
       </div>
     );
-  },
-
-  getPatients: function() {
-    var user = _.cloneDeep(this.props.user);
-    var patients = _.clone(this.props.patients) || [];
-
-    if(personUtils.isPatient(user)) {
-      user.permissions = {
-        root: {}
-      };
-      patients.push(user);
-    }
-
-    return patients;
   },
 
   renderAddDataStorage: function() {
@@ -294,7 +287,98 @@ var Patients = React.createClass({
 
   hasPatients: function() {
     return !_.isEmpty(this.props.patients) || personUtils.isPatient(this.props.user);
+  },
+
+  doFetching: function(nextProps) {
+    if (this.props.trackMetric) {
+      this.props.trackMetric('Viewed Care Team List');
+    }
+
+    if (!nextProps.fetchers) {
+      return
+    }
+
+    nextProps.fetchers.forEach(fetcher => { 
+      fetcher();
+    });
+  },
+
+  /**
+   * Before rendering for first time
+   * begin fetching any required data
+   */
+  componentWillMount: function() {
+    if (this.props.clearPatientInView) {
+      this.props.clearPatientInView();
+    }
+    
+    this.doFetching(this.props);
   }
 });
 
-module.exports = Patients;
+/**
+ * Expose "Smart" Component that is connect-ed to Redux
+ */
+
+let getFetchers = (dispatchProps, ownProps, api) => {
+  return [
+    dispatchProps.fetchPendingReceivedInvites.bind(null, api),
+    dispatchProps.fetchPatients.bind(null, api)
+  ];
+};
+
+let mapStateToProps = state => { 
+  var user = null;
+  var patients = [];
+
+  if (state.blip.allUsersMap){
+    if (state.blip.loggedInUserId) {
+      user = state.blip.allUsersMap[state.blip.loggedInUserId];
+    }
+
+    if (state.blip.targetUserId) {
+
+      patients.push(state.blip.allUsersMap[state.blip.targetUserId]);
+    }
+
+    if (state.blip.memberInOtherCareTeams) {
+      state.blip.memberInOtherCareTeams.forEach((key) => {
+        patients.push(state.blip.allUsersMap[key]);
+      });
+    }
+  }
+
+  return {
+    user: user,
+    fetchingUser: state.blip.working.fetchingUser.inProgress,
+    patients: patients,
+    fetchingPatients: state.blip.working.fetchingPatients.inProgress,
+    invites: state.blip.pendingReceivedInvites,
+    fetchingInvites: state.blip.working.fetchingPendingReceivedInvites.inProgress,
+    showingWelcomeTitle: state.blip.signupConfirmed,
+    showingWelcomeSetup: state.blip.signupConfirmed
+  }
+};
+
+let mapDispatchToProps = dispatch => bindActionCreators({
+  acceptReceivedInvite: actions.async.acceptReceivedInvite,
+  rejectReceivedInvite: actions.async.rejectReceivedInvite,
+  removePatient: actions.async.removePatient,
+  fetchPendingReceivedInvites: actions.async.fetchPendingReceivedInvites,
+  fetchPatients: actions.async.fetchPatients,
+  clearPatientInView: actions.sync.clearPatientInView
+}, dispatch);
+
+let mergeProps = (stateProps, dispatchProps, ownProps) => {
+  var api = ownProps.routes[0].api;
+  return Object.assign({}, ownProps, stateProps, dispatchProps, {
+    fetchers: getFetchers(dispatchProps, ownProps, api),
+    uploadUrl: api.getUploadUrl(),
+    onAcceptInvitation: dispatchProps.acceptReceivedInvite.bind(null, api),
+    onDismissInvitation: dispatchProps.rejectReceivedInvite.bind(null, api),
+    onRemovePatient: dispatchProps.removePatient.bind(null, api),
+    trackMetric: ownProps.routes[0].trackMetric
+  });
+};
+
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(Patients);

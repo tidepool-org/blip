@@ -17,10 +17,12 @@ import React from 'react';
 import { render } from 'react-dom';
 import bows from 'bows';
 import _ from 'lodash';
-import { Router } from 'react-router';
-import { createHistory } from 'history';
+
+import store from './redux/store';
+import AppRoot from './redux/containers/appRoot';
 
 import { getRoutes } from './routes';
+
 import config from './config';
 import api from './core/api';
 import personUtils from './core/personutils';
@@ -92,12 +94,6 @@ appContext.init = callback => {
   beginInit();
 };
 
-const routing = (
-  <Router history={createHistory()}>
-    {getRoutes(appContext)}
-  </Router>
-);
-
 /**
  * Application start function. This is what should be called
  * by anything wanting to start Blip and bootstrap to the DOM
@@ -111,8 +107,9 @@ appContext.start = () => {
 
   appContext.init(() => {
     appContext.log('Starting app...');
+
     appContext.component = render(
-      routing,
+      <AppRoot store={store} routing={getRoutes(appContext, store)} />,
       document.getElementById('app')
     );
 

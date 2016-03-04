@@ -480,7 +480,9 @@ api.team.replyToMessageThread = function(message,cb){
     if (error) {
       return cb(error);
     }
-    cb(null, replyId);
+    if (cb) {
+      cb(null, replyId);
+    }
   });
 };
 
@@ -492,7 +494,9 @@ api.team.startMessageThread = function(message,cb){
     if (error) {
       return cb(error);
     }
-    cb(null, messageId);
+    if (cb) {
+      cb(null, messageId);
+    }
   });
 };
 
@@ -503,7 +507,9 @@ api.team.editMessage = function(message,cb){
     if (error) {
       return cb(error);
     }
-    cb(null, null);
+    if (cb) {
+      cb(null, null);
+    }
   });
 };
 
@@ -608,10 +614,10 @@ api.metrics.track = function(eventName, properties, cb) {
 
 api.errors = {};
 
-api.errors.log = function(error, message, properties) {
+api.errors.log = function(error, message, properties, cb) {
   api.log('POST /errors');
 
-  return tidepool.logAppError(error, message, properties);
+  return tidepool.logAppError(error, message, properties, cb);
 };
 
 module.exports = api;

@@ -5,28 +5,30 @@
 
 window.config = {};
 
-var React = require('react');
-var TestUtils = require('react-addons-test-utils');
+import React from 'react';
+import TestUtils from 'react-addons-test-utils';
+
 var expect = chai.expect;
 
-var Patients = require('../../../app/pages/patients');
+import { Patients } from '../../../app/pages/patients';
 
-describe('Patients', function () {
-  it('should be exposed as a module and be of type function', function() {
+describe('Patients', () => {
+  it('should be exposed as a module and be of type function', () => {
     expect(Patients).to.be.a('function');
   });
 
-  describe('render', function() {
-    it('should console.error when required props are missing', function () {
+  describe('render', () => {
+    it('should console.error when required props are missing', () => {
       console.error = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<Patients />);
-      expect(console.error.callCount).to.equal(1);
+      expect(console.error.callCount).to.equal(2);
     });
 
-    it('should render without problems when trackMetric is set', function () {
+    it('should render without problems when trackMetric is set', () => {
       console.error = sinon.stub();
       var props = {
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        clearPatientInView: sinon.stub()
       };
       var elem = React.createElement(Patients, props);
       var render = TestUtils.renderIntoDocument(elem);

@@ -5,11 +5,13 @@
 
 window.config = {};
 
-var React = require('react');
-var TestUtils = require('react-addons-test-utils');
-var expect = chai.expect;
+import React from 'react';
+import TestUtils from 'react-addons-test-utils';
 
-var RequestPasswordReset = require('../../../../app/pages/passwordreset/request');
+
+import { RequestPasswordReset } from '../../../../app/pages/passwordreset/request';
+
+var expect = chai.expect;
 
 describe('RequestPasswordReset', function () {
   it('should be exposed as a module and be of type function', function() {
@@ -20,16 +22,22 @@ describe('RequestPasswordReset', function () {
     it('should console.error when required props are missing', function () {
       console.error = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<RequestPasswordReset />);
-      expect(console.error.callCount).to.equal(2);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `RequestPasswordReset`.')).to.equal(true);
+      expect(console.error.callCount).to.equal(5);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `api` was not specified in `RequestPasswordReset`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `RequestPasswordReset`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `RequestPasswordReset`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `acknowledgeNotification` was not specified in `RequestPasswordReset`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `working` was not specified in `RequestPasswordReset`.')).to.equal(true);
     });
 
     it('should render without problems when required props are set', function () {
       console.error = sinon.stub();
       var props = {
+        api: {},
         onSubmit: sinon.stub(),
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        acknowledgeNotification: sinon.stub(),
+        working: false
       };
       var elem = React.createElement(RequestPasswordReset, props);
       var render = TestUtils.renderIntoDocument(elem);
@@ -41,8 +49,11 @@ describe('RequestPasswordReset', function () {
     it('should return array with one entry for email', function() {
       console.error = sinon.stub();
       var props = {
+        api: {},
         onSubmit: sinon.stub(),
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        acknowledgeNotification: sinon.stub(),
+        working: false
       };
       var elem = React.createElement(RequestPasswordReset, props);
       var render = TestUtils.renderIntoDocument(elem);
@@ -58,13 +69,15 @@ describe('RequestPasswordReset', function () {
     it('should be in this expected format', function() {
       console.error = sinon.stub();
       var props = {
+        api: {},
         onSubmit: sinon.stub(),
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        acknowledgeNotification: sinon.stub(),
+        working: false
       };
       var elem = React.createElement(RequestPasswordReset, props);
       var render = TestUtils.renderIntoDocument(elem);
       var initialState = render.getInitialState();
-      expect(initialState.working).to.equal(false);
       expect(initialState.success).to.equal(false);
       expect(Object.keys(initialState.formValues).length).to.equal(0);
       expect(Object.keys(initialState.validationErrors).length).to.equal(0);

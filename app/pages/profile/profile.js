@@ -14,17 +14,22 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = require('react');
-var _ = require('lodash');
+import React from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
-var config = require('../../config');
+import * as actions from '../../redux/actions';
 
-var utils = require('../../core/utils');
-var personUtils = require('../../core/personutils');
-var SimpleForm = require('../../components/simpleform');
-var PeopleList = require('../../components/peoplelist');
+import _ from 'lodash';
 
-var Profile = React.createClass({
+import config from '../../config';
+
+import utils from '../../core/utils';
+import personUtils from '../../core/personutils';
+import SimpleForm from '../../components/simpleform';
+import PeopleList from '../../components/peoplelist';
+
+export var Profile = React.createClass({
   propTypes: {
     user: React.PropTypes.object,
     fetchingUser: React.PropTypes.bool,
@@ -244,4 +249,38 @@ var Profile = React.createClass({
   }
 });
 
-module.exports = Profile;
+
+/**
+ * Expose "Smart" Component that is connect-ed to Redux
+ */
+let mapStateToProps = state => {
+  let user = null;
+  let { 
+    allUsersMap, 
+    loggedInUserId
+  } = state.blip;
+
+  if (allUsersMap){
+    if (loggedInUserId) {
+      user = allUsersMap[loggedInUserId];
+    }
+  }
+
+  return {
+    user: user,
+    fetchingUser: state.blip.working.fetchingUser.inProgress
+  };
+};
+
+let mapDispatchToProps = dispatch => bindActionCreators({
+  updateUser: actions.async.updateUser
+}, dispatch);
+
+let mergeProps = (stateProps, dispatchProps, ownProps) => {
+  var api = ownProps.routes[0].api;
+  return Object.assign({}, ownProps, stateProps, dispatchProps, {
+    onSubmit: dispatchProps.updateUser.bind(null, api),
+    trackMetric: ownProps.routes[0].trackMetric
+  });
+};
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(Profile);
