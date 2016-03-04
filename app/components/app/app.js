@@ -272,15 +272,15 @@ let getFetchers = (dispatchProps, ownProps, api) => {
  * Expose "Smart" Component that is connect-ed to Redux
  */
 
-let mapStateToProps = state => {
+export function mapStateToProps(state) {
   var user = null;
   var patient = null;
-  if (state.blip.allUsersMap){
+  if (state.blip.allUsersMap) {
     if (state.blip.loggedInUserId) {
       user = state.blip.allUsersMap[state.blip.loggedInUserId];
     }
 
-    if (state.blip.currentPatientInViewId){
+    if (state.blip.currentPatientInViewId) {
       patient = state.blip.allUsersMap[state.blip.currentPatientInViewId];
     }
   }

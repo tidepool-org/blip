@@ -11,11 +11,15 @@ var TestUtils = require('react-addons-test-utils');
 // which errors if window.config does not exist
 window.config = {};
 
+import { mapStateToProps } from '../../../app/components/app/app.js';
+import initialState from '../../../app/redux/reducers/initialState';
+
 var App = require('../../../app/components/app/app.js').AppComponent;
 var api = require('../../../app/core/api');
 var personUtils = require('../../../app/core/personutils');
 var mock = require('../../../mock');
 
+var assert = chai.assert;
 var expect = chai.expect;
 
 describe('App',  () => {
@@ -139,6 +143,93 @@ describe('App',  () => {
 
         var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-overlay');
         expect(termsElems.length).to.equal(0);
+      });
+    });
+  });
+
+  describe('mapStateToProps', () => {
+    it('should be a function', () => {
+      assert.isFunction(mapStateToProps);
+    });
+
+    describe('initialState [not logged in]', () => {
+      const result = mapStateToProps({blip: initialState});
+
+      it('should map isLoggedIn to authenticated', () => {
+        expect(result.authenticated).to.equal(initialState.isLoggedIn);
+      });
+
+      it('should map working.fetchingUser.inProgress to fetchingUser', () => {
+        expect(result.fetchingUser).to.equal(initialState.working.fetchingUser.inProgress);
+      });
+
+      it('should map working.fetchingPatient.inProgress to fetchingPatient', () => {
+        expect(result.fetchingPatient).to.equal(initialState.working.fetchingPatient.inProgress);
+      });
+
+      it('should map working.loggingOut.inProgress to loggingOut', () => {
+        expect(result.loggingOut).to.equal(initialState.working.loggingOut.inProgress);
+      });
+
+      it('should return null for termsAccepted', () => {
+        expect(result.termsAccepted).to.be.null;
+      });
+
+      it('should return null for user', () => {
+        expect(result.user).to.be.null;
+      });
+
+      it('should return null for patient', () => {
+        expect(result.patient).to.be.null;
+      });
+    });
+
+    describe('logged-in state', () => {
+      // this is the absolute minimum state that the mapStateToProps function needs 
+      const loggedIn = {
+        allUsersMap: {
+          a1b2c3: {
+            termsAccepted: 'today'
+          },
+          d4e5f6: {}
+        },
+        currentPatientInViewId: 'd4e5f6',
+        loggedIn: true,
+        loggedInUserId: 'a1b2c3',
+        working: {
+          fetchingUser: {inProgress: false},
+          fetchingPatient: {inProgress: false},
+          loggingOut: {inProgress: false}
+        }
+      };
+      const result = mapStateToProps({blip: loggedIn});
+
+      it('should map isLoggedIn to authenticated', () => {
+        expect(result.authenticated).to.equal(loggedIn.isLoggedIn);
+      });
+
+      it('should map working.fetchingUser.inProgress to fetchingUser', () => {
+        expect(result.fetchingUser).to.equal(loggedIn.working.fetchingUser.inProgress);
+      });
+
+      it('should map working.fetchingPatient.inProgress to fetchingPatient', () => {
+        expect(result.fetchingPatient).to.equal(loggedIn.working.fetchingPatient.inProgress);
+      });
+
+      it('should map working.loggingOut.inProgress to loggingOut', () => {
+        expect(result.loggingOut).to.equal(loggedIn.working.loggingOut.inProgress);
+      });
+
+      it('should return the logged-in user\'s TOS acceptance as termsAccepted', () => {
+        expect(result.termsAccepted).to.equal(loggedIn.allUsersMap.a1b2c3.termsAccepted);
+      });
+
+      it('should return the logged-in user as user', () => {
+        expect(result.user).to.equal(loggedIn.allUsersMap.a1b2c3);
+      });
+
+      it('should retun the current patient in view as patient', () => {
+        expect(result.patient).to.equal(loggedIn.allUsersMap.d4e5f6);
       });
     });
   });
