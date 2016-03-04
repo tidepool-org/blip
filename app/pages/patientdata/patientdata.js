@@ -43,8 +43,6 @@ import Messages from '../../components/messages';
 export let PatientData = React.createClass({
   propTypes: {
     currentPatientInViewId: React.PropTypes.string.isRequired,
-    bgPrefs: React.PropTypes.object,
-    timePrefs: React.PropTypes.object.isRequired,
     patientDataMap: React.PropTypes.object,
     patientNotesMap: React.PropTypes.object,
     patient: React.PropTypes.object,
@@ -89,7 +87,11 @@ export let PatientData = React.createClass({
       datetimeLocation: null,
       initialDatetimeLocation: null,
       processingData: true,
-      processedPatientData: null
+      processedPatientData: null,
+      timePrefs: {
+        timezoneAware: false,
+        timezoneName: null
+      }
     };
 
     return state;
@@ -550,9 +552,7 @@ export let PatientData = React.createClass({
       let processedData = utils.processPatientData(
         this, 
         combinedData, 
-        this.props.location.query, 
-        this.props.timePrefs, 
-        this.props.bgPrefs
+        this.props.location.query
       );
       this.setState({
         processedPatientData: processedData,
@@ -593,8 +593,6 @@ let getFetchers = (dispatchProps, ownProps, api) => {
 
 let mapStateToProps = state => ({
   user: state.blip.loggedInUser,
-  bgPrefs: state.blip.bgPrefs,
-  timePrefs: state.blip.timePrefs,
   isUserPatient: personUtils.isSame(state.blip.loggedInUser, state.blip.currentPatientInView),
   patient: state.blip.currentPatientInView,
   patientDataMap: state.blip.patientDataMap,

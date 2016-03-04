@@ -42,8 +42,7 @@ describe('PatientData', function () {
       console.error = sinon.spy();
       var elem = TestUtils.renderIntoDocument(<PatientData/>);
       expect(elem).to.be.ok;
-      expect(console.error.callCount).to.equal(6);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `timePrefs` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.callCount).to.equal(5);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingPatient` was not specified in `PatientData`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingPatientData` was not specified in `PatientData`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `queryParams` was not specified in `PatientData`.')).to.equal(true);
