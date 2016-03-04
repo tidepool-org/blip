@@ -23,7 +23,7 @@
 
 import _ from 'lodash';
 
-import { currentPatientInView as reducer } from '../../../../app/redux/reducers/misc';
+import { currentPatientInViewId as reducer } from '../../../../app/redux/reducers/misc';
 
 import actions from '../../../../app/redux/actions/index';
 
@@ -33,56 +33,49 @@ import { notification as initialState } from '../../../../app/redux/reducers/ini
 
 var expect = chai.expect;
 
-describe('currentPatientInView', () => {
+describe('currentPatientInViewId', () => {
   describe('createPatientSuccess', () => {
     it('should set state to created patient', () => {
       let initialStateForTest = null;
       let userId = 340;
-      let patient = { name: 'Jess' };
+      let patient = { userid: userId, name: 'Jess' };
 
       let action = actions.sync.createPatientSuccess(userId, patient)
 
       let state = reducer(initialStateForTest, action);
       
-      expect(state.name).to.equal(patient.name);
+      expect(state).to.equal(userId);
     });
   });
 
   describe('fetchPatientSuccess', () => {
     it('should set state to fetched patient', () => {
       let initialStateForTest = null;
-      let patient = { name: 'Jess' };
+      let patient = { userid: '506', name: 'Jess' };
 
       let action = actions.sync.fetchPatientSuccess(patient)
 
       let state = reducer(initialStateForTest, action);
 
-      expect(state.name).to.equal(patient.name);
+      expect(state).to.equal(patient.userid);
     });
   });
 
   describe('updatePatientSuccess', () => {
     it('should set state to fetched patient', () => {
-      let patient = { name: 'Jess' };
-      let initialStateForTest = patient;
-      let updatedPatient = { name: 'Jessica', diagnosisDate: '01/01/2013' };
+      let initialStateForTest = 400;
+      let updatedPatient = { userid: 600, name: 'Jessica', diagnosisDate: '01/01/2013' };
       
       let action = actions.sync.updatePatientSuccess(updatedPatient);
-
-      expect(initialStateForTest.name).to.equal(patient.name);
-      expect(initialStateForTest.diagnosisDate).to.be.undefined;
-
       let state = reducer(initialStateForTest, action);
 
-      expect(state.name).to.equal(updatedPatient.name);
-      expect(state.diagnosisDate).to.equal(updatedPatient.diagnosisDate);
+      expect(state).to.equal(updatedPatient.userid);
     });
   });
 
   describe('logoutSuccess', () => {
     it('should set state to fetched patient', () => {
-      let patient = { name: 'Jess' };
-      let initialStateForTest = patient;
+      let initialStateForTest = 290;
 
       let action = actions.sync.logoutSuccess();
 
@@ -94,8 +87,7 @@ describe('currentPatientInView', () => {
 
   describe('clearPatientInView', () => {
     it('should set state to fetched patient', () => {
-      let patient = { name: 'Jess' };
-      let initialStateForTest = patient;
+      let initialStateForTest = 'abcd100';
 
       let action = actions.sync.clearPatientInView();
 

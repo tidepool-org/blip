@@ -179,6 +179,34 @@ describe('Actions', () => {
         expect(api.user.get.callCount).to.equal(1);
       });
 
+      it('should trigger LOGIN_SUCCESS and it should call login, user.get and patient.get once for a successful request', (done) => {
+        let creds = { username: 'bruce', password: 'wayne' };
+        let user = { id: 27, profile: { patient: true } };
+        let patient = { foo: 'bar' };
+
+        let api = {
+          user: {
+            login: sinon.stub().callsArgWith(2, null),
+            get: sinon.stub().callsArgWith(0, null, user)
+          },
+          patient: {
+            get: sinon.stub().callsArgWith(1, null, patient)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'LOGIN_REQUEST' },
+          { type: 'LOGIN_SUCCESS', payload: { user: _.merge({}, user, patient) } }
+        ];
+        let store = mockStore(initialState, expectedActions, done);
+
+        store.dispatch(async.login(api, creds));
+
+        expect(api.user.login.calledWith(creds).callCount).to.equal(1);
+        expect(api.user.get.callCount).to.equal(1);
+        expect(api.patient.get.callCount).to.equal(1);
+      });
+
       it('should trigger LOGIN_FAILURE and it should call login once and user.get zero times for a failed login request', (done) => {
         let creds = { username: 'bruce', password: 'wayne' };
         let user = { id: 27 };
@@ -889,7 +917,7 @@ describe('Actions', () => {
     });
 
     describe('fetchUser', () => {
-      it('should trigger FETCH_USER_SUCCESS and it should call error once for a successful request', (done) => {
+      it('should trigger FETCH_USER_SUCCESS and it should call get once for a successful request', (done) => {
         let user = { emailVerified: true, username: 'frankie@gmaz.com', id: 306, name: 'Frankie Boyle' };
 
         let api = {
@@ -907,6 +935,30 @@ describe('Actions', () => {
         store.dispatch(async.fetchUser(api));
 
         expect(api.user.get.callCount).to.equal(1);
+      });
+
+      it('should trigger FETCH_USER_SUCCESS and it should call user.get and patient.get once for a successful request', (done) => {
+        let user = { emailVerified: true, username: 'frankie@gmaz.com', id: 306, name: 'Frankie Boyle', profile: { patient: true } };
+        let patient = { foo: 'bar' };
+        let api = {
+          user: {
+            get: sinon.stub().callsArgWith(0, null, user)
+          },
+          patient: {
+            get: sinon.stub().callsArgWith(1, null, patient)
+          }
+        };
+
+        let expectedActions = [
+          { type: 'FETCH_USER_REQUEST' },
+          { type: 'FETCH_USER_SUCCESS', payload: { user : _.merge({}, user, patient) } }
+        ];
+        let store = mockStore(initialState, expectedActions, done);
+
+        store.dispatch(async.fetchUser(api));
+
+        expect(api.user.get.callCount).to.equal(1);
+        expect(api.patient.get.callCount).to.equal(1);
       });
 
       it('should trigger FETCH_USER_FAILURE and it should call error once for a request for user that has not verified email', (done) => {

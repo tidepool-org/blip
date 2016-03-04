@@ -77,7 +77,7 @@ export function login(api, credentials, options) {
           if (err) {
             dispatch(sync.loginFailure(ErrorMessages.STANDARD));
           } else {
-            if (_.get(user, ['patient'])) {
+            if (_.get(user, ['profile', 'patient'])) {
               api.patient.get(user.userid, (err, patient) => {
                 if (err) {
                   dispatch(sync.loginFailure(ErrorMessages.STANDARD));
