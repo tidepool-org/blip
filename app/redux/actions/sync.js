@@ -70,24 +70,6 @@ export function clearPatientInView() {
   };
 }
 
-export function setTimePreferences(timePrefs) {
-  return {
-    type: ActionTypes.SET_TIME_PREFERENCES,
-    payload: {
-      timePrefs: timePrefs
-    }
-  }
-};
-
-export function setBloodGlucosePreferences(bgPrefs) {
-  return {
-    type: ActionTypes.SET_BLOOD_GLUCOSE_PREFERENCES,
-    payload: {
-      bgPrefs: bgPrefs
-    }
-  }
-};
-
 export function loginRequest() {
   return {
     type: ActionTypes.LOGIN_REQUEST

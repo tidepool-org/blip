@@ -6,22 +6,10 @@
 /* global afterEach */
 
 import { isFSA } from 'flux-standard-action';
-import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
 
 import * as sync from '../../../../app/redux/actions/sync';
-import * as async from '../../../../app/redux/actions/async';
-
-import initialState from '../../../../app/redux/reducers/initialState';
 
 describe('Actions', () => {
-  const mockStore = configureStore([thunk]);
-
-  afterEach(function() {
-    // very important to do this in an afterEach than in each test when __Rewire__ is used
-    // if you try to reset within each test you'll make it impossible for tests to fail!
-    async.__ResetDependency__('utils')
-  })
 
   describe('Synchronous Actions', () => {
     describe('showWelcomeMessage', () => {

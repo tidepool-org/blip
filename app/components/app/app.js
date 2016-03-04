@@ -262,50 +262,8 @@ export class AppComponent extends React.Component {
   }
 }
 
-let setBgPrefs = (dispatchProps, ownProps) => () => {
-  let queryParams = (ownProps.location && ownProps.location.query) ? ownProps.location.query : {};
-
-  var bgPrefs = {
-    bgUnits: 'mg/dL'
-  };
-
-  if (!_.isEmpty(queryParams.units)) {
-    var queryUnits = queryParams.units.toLowerCase();
-    if (queryUnits === 'mmoll') {
-      bgPrefs.bgUnits = 'mmol/L';
-    }
-  }
-
-  dispatchProps.setBloodGlucosePreferences(bgPrefs);
-};
-
-let setTimePrefs = (dispatchProps, ownProps) => () => {
-  let queryParams = (ownProps.location && ownProps.location.query) ? ownProps.location.query : {};
-
-  var timePrefs = {
-    timezoneAware: false,
-    timezoneName: null
-  };
-  if (!_.isEmpty(queryParams.timezone)) {
-    var queryTimezone = queryParams.timezone.replace('-', '/');
-    try {
-      sundial.checkTimezoneName(queryTimezone);
-      timePrefs.timezoneAware = true;
-      timePrefs.timezoneName = queryTimezone;
-      ownProps.route.log('Viewing data in timezone-aware mode with', queryTimezone, 'as the selected timezone.');
-    }
-    catch(err) {
-      ownProps.route.log(new Error('Invalid timezone name in query parameter. (Try capitalizing properly.)'));
-    }
-  }
-
-  dispatchProps.setTimePreferences(timePrefs);
-};
-
 let getFetchers = (dispatchProps, ownProps, api) => {
   return [
-    setBgPrefs(dispatchProps, ownProps),
-    setTimePrefs(dispatchProps, ownProps),
     dispatchProps.fetchUser.bind(null, api)
   ];
 }
@@ -343,8 +301,6 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   fetchUser: actions.async.fetchUser,
   acceptTerms: actions.async.acceptTerms,
   logout: actions.async.logout,
-  setBloodGlucosePreferences: actions.sync.setBloodGlucosePreferences,
-  setTimePreferences: actions.sync.setTimePreferences,
   onCloseNotification: actions.sync.acknowledgeNotification
 }, dispatch);
 
