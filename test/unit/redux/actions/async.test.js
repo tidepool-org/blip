@@ -110,6 +110,7 @@ describe('Actions', () => {
     describe('acceptTerms', () => {
       it('should trigger ACCEPT_TERMS_SUCCESS and it should call acceptTerms once for a successful request', (done) => {
         let acceptedDate = new Date();
+        let loggedInUserId = 500;
         let termsData = { termsAccepted: new Date() };
         let api = {
           user: {
@@ -119,9 +120,12 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'ACCEPT_TERMS_REQUEST' },
-          { type: 'ACCEPT_TERMS_SUCCESS', payload: { acceptedDate: acceptedDate } }
+          { type: 'ACCEPT_TERMS_SUCCESS', payload: { userId: loggedInUserId, acceptedDate: acceptedDate } }
         ];
-        let store = mockStore(initialState, expectedActions, done);
+
+        let initialStateForTest = _.merge({}, initialState, { blip: { loggedInUserId: loggedInUserId } });
+
+        let store = mockStore(initialStateForTest, expectedActions, done);
 
         store.dispatch(async.acceptTerms(api, acceptedDate));
 
@@ -130,6 +134,7 @@ describe('Actions', () => {
 
       it('should trigger ACCEPT_TERMS_FAILURE and it should call acceptTerms once for a failed request', (done) => {
         let termsData = { termsAccepted: new Date() };
+        let loggedInUserId = 500;
         let api = {
           user: {
             acceptTerms: sinon.stub().callsArgWith(1, 'Failure!')
@@ -141,7 +146,9 @@ describe('Actions', () => {
           { type: 'ACCEPT_TERMS_FAILURE', error: ErrorMessages.STANDARD }
         ];
 
-        let store = mockStore(initialState, expectedActions, done);
+        let initialStateForTest = _.merge({}, initialState, { blip: { loggedInUserId: loggedInUserId } });
+
+        let store = mockStore(initialStateForTest, expectedActions, done);
 
         store.dispatch(async.acceptTerms(api, termsData));
 
@@ -280,6 +287,7 @@ describe('Actions', () => {
 
     describe('createPatient', () => {
       it('should trigger CREATE_PATIENT_SUCCESS and it should call createPatient once for a successful request', (done) => {
+        let loggedInUserId = 500;
         let patient = { id: 27, name: 'Bruce' };
         let api = {
           patient: {
@@ -289,9 +297,11 @@ describe('Actions', () => {
 
         let expectedActions = [
           { type: 'CREATE_PATIENT_REQUEST' },
-          { type: 'CREATE_PATIENT_SUCCESS', payload: { patient: patient } }
+          { type: 'CREATE_PATIENT_SUCCESS', payload: { userId: loggedInUserId, patient: patient } }
         ];
-        let store = mockStore(initialState, expectedActions, done);
+        let initialStateForTest = _.merge({}, initialState, { blip: { loggedInUserId: loggedInUserId } });
+
+        let store = mockStore(initialStateForTest, expectedActions, done);
 
         store.dispatch(async.createPatient(api, patient));
 
@@ -299,6 +309,7 @@ describe('Actions', () => {
       });
 
       it('should trigger CREATE_PATIENT_FAILURE and it should call createPatient once for a failed request', (done) => {
+        let loggedInUserId = 500;
         let patient = { id: 27, name: 'Bruce' };
         let api = {
           patient: {
@@ -311,7 +322,9 @@ describe('Actions', () => {
           { type: 'CREATE_PATIENT_FAILURE', error: ErrorMessages.STANDARD }
         ];
 
-        let store = mockStore(initialState, expectedActions, done);
+        let initialStateForTest = _.merge({}, initialState, { blip: { loggedInUserId: loggedInUserId } });
+
+        let store = mockStore(initialStateForTest, expectedActions, done);
 
         store.dispatch(async.createPatient(api, patient));
 
@@ -695,6 +708,7 @@ describe('Actions', () => {
 
     describe('updateUser', () => {
       it('should trigger UPDATE_USER_SUCCESS and it should call updateUser once for a successful request', (done) => {
+        let loggedInUserId = 400;
         let currentUser = { 
           profile: { 
             name: 'Joe Bloggs', 
@@ -750,11 +764,11 @@ describe('Actions', () => {
           }
         };
 
-        let initialStateForTest = _.merge({}, initialState, { loggedInUser: currentUser });
+        let initialStateForTest = _.merge({}, initialState, { allUsersMap: { [loggedInUserId] : currentUser }, loggedInUserId: loggedInUserId });
 
         let expectedActions = [
-          { type: 'UPDATE_USER_REQUEST', payload: { updatingUser: updatingUser} },
-          { type: 'UPDATE_USER_SUCCESS', payload: { updatedUser: updatedUser } }
+          { type: 'UPDATE_USER_REQUEST', payload: { userId: loggedInUserId, updatingUser: updatingUser} },
+          { type: 'UPDATE_USER_SUCCESS', payload: { userId: loggedInUserId, updatedUser: updatedUser } }
         ];
 
         let store = mockStore({ blip : initialStateForTest }, expectedActions, done);
@@ -765,6 +779,7 @@ describe('Actions', () => {
       });
 
       it('should trigger UPDATE_USER_FAILURE and it should call updateUser once for a failed request', (done) => {
+        let loggedInUserId = 400;
         let currentUser = { 
           profile: { 
             name: 'Joe Bloggs', 
@@ -807,10 +822,10 @@ describe('Actions', () => {
           }
         };
 
-        let initialStateForTest = _.merge({}, initialState, { loggedInUser: currentUser });
+        let initialStateForTest = _.merge({}, initialState, { allUsersMap: { [loggedInUserId] : currentUser }, loggedInUserId: loggedInUserId });
 
         let expectedActions = [
-          { type: 'UPDATE_USER_REQUEST', payload: { updatingUser: updatingUser} },
+          { type: 'UPDATE_USER_REQUEST', payload: { userId: loggedInUserId, updatingUser: updatingUser} },
           { type: 'UPDATE_USER_FAILURE', error: ErrorMessages.STANDARD }
         ];
 

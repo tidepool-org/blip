@@ -175,14 +175,15 @@ export function resendEmailVerification(api, email) {
  */
 export function acceptTerms(api, acceptedDate) {
   acceptedDate = acceptedDate || sundial.utcDateString();
-  return (dispatch) => {
+  return (dispatch, getState) => {
+    const { blip: { loggedInUserId } } = getState();
     dispatch(sync.acceptTermsRequest());
 
     api.user.acceptTerms({ termsAccepted: acceptedDate }, function(err, user) {
       if (err) {
         dispatch(sync.acceptTermsFailure(ErrorMessages.STANDARD));
       } else {
-        dispatch(sync.acceptTermsSuccess(acceptedDate))
+        dispatch(sync.acceptTermsSuccess(loggedInUserId, acceptedDate))
       }
     })
   };
@@ -195,14 +196,15 @@ export function acceptTerms(api, acceptedDate) {
  * @param  {Object} patient
  */
 export function createPatient(api, patient) {
-  return (dispatch) => {
+  return (dispatch, getState) => {
+    const { blip: { loggedInUserId } } = getState();
     dispatch(sync.createPatientRequest());
 
     api.patient.post(patient, (err, createdPatient) => {
       if (err) {
         dispatch(sync.createPatientFailure(ErrorMessages.STANDARD));
       } else {
-        dispatch(sync.createPatientSuccess(createdPatient));
+        dispatch(sync.createPatientSuccess(loggedInUserId, createdPatient));
         dispatch(routeActions.push(`/patients/${createdPatient.userid}/data`));
       }
     });
@@ -417,11 +419,13 @@ export function updatePatient(api, patient) {
  * Update User Data Action Creator
  * 
  * @param  {Object} api an instance of the API wrapper
+ * @param {userId} userId
  * @param  {Object} formValues
  */
 export function updateUser(api, formValues) {
   return (dispatch, getState) => {
-    const { blip: { loggedInUser } } = getState();
+    const { blip: { loggedInUserId, allUsersMap } } = getState();
+    const loggedInUser = allUsersMap[loggedInUserId];
 
     const newUser = _.assign({}, 
       _.omit(loggedInUser, 'profile'),
@@ -429,7 +433,7 @@ export function updateUser(api, formValues) {
       { profile: _.assign({}, loggedInUser.profile, formValues.profile) } 
     );
 
-    dispatch(sync.updateUserRequest(_.omit(newUser, 'password')));
+    dispatch(sync.updateUserRequest(loggedInUserId, _.omit(newUser, 'password')));
 
     var userUpdates = _.cloneDeep(newUser);
     if (userUpdates.username === loggedInUser.username) {
@@ -440,7 +444,7 @@ export function updateUser(api, formValues) {
       if (err) {
         dispatch(sync.updateUserFailure(ErrorMessages.STANDARD));
       } else {
-        dispatch(sync.updateUserSuccess(updatedUser));
+        dispatch(sync.updateUserSuccess(loggedInUserId, updatedUser));
       }
     });
   };

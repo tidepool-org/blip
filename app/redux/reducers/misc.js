@@ -14,6 +14,7 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  * == BSD2 LICENSE ==
  */
+import _ from 'lodash';
 import update from 'react-addons-update';
 
 import initialState from './initialState';
@@ -73,6 +74,131 @@ export const resentEmailVerification = (state = initialState.resentEmailVerifica
   switch(action.type) {
     case types.RESEND_EMAIL_VERIFICATION_SUCCESS:
       return update(state, { $set: true });
+    default:
+      return state;
+  }
+};
+
+export const allUsersMap = (state = initialState.allUsersMap, action) => {
+  switch(action.type) {
+    case types.FETCH_USER_SUCCESS:
+    case types.LOGIN_SUCCESS:
+      return update(state, { [action.payload.user.userid]: { $set: _.omit(action.payload.user, ['permissions']) } });
+    case types.FETCH_PATIENT_SUCCESS: 
+      return update(state, { [action.payload.patient.userid]: { $set: _.omit(action.payload.patient, ['permissions', 'team']) } });
+    case types.FETCH_PATIENTS_SUCCESS: 
+      let patientsMap = {};
+      
+      action.payload.patients.forEach((p) => {
+        patientsMap[p.userid] = _.omit(p, ['permissions', 'team']);
+      });
+
+      return update(state, { $merge: patientsMap });
+    case types.ACCEPT_TERMS_SUCCESS:
+      return update(state, { [action.payload.userId]: { $merge: { termsAccepted: action.payload.acceptedDate } } });
+    case types.CREATE_PATIENT_SUCCESS:
+      return update(state, { [action.payload.userId]: { $merge: { profile: action.payload.patient.profile } } });
+    case types.UPDATE_USER_REQUEST:
+      return update(state, { [action.payload.userId]: { $merge: _.omit(action.payload.updatingUser, ['permissions']) }});
+    case types.UPDATE_USER_SUCCESS:
+      return update(state, { [action.payload.userId]: { $merge: _.omit(action.payload.updatedUser, ['permissions']) }});
+    case types.LOGOUT_SUCCESS:
+      return update(state, { $set: {} });
+    default:
+      return state;
+  }
+};
+
+export const currentPatientInViewId = (state = initialState.currentPatientInViewId, action) => {
+  switch(action.type) {
+    case types.CREATE_PATIENT_SUCCESS:
+    case types.FETCH_PATIENT_SUCCESS:
+      return update(state, { $set: action.payload.patient.userid });
+    case types.UPDATE_PATIENT_SUCCESS:
+      return update(state, { $set: action.payload.updatedPatient.userid });
+    case types.LOGOUT_SUCCESS:
+    case types.CLEAR_PATIENT_IN_VIEW:
+      return update(state, { $set: null });
+    default:
+      return state; 
+  }
+};
+
+export const loggedInUserId = (state = initialState.loggedInUserId, action) => {
+  switch(action.type) {
+    case types.FETCH_USER_SUCCESS:
+    case types.LOGIN_SUCCESS:
+      return update(state, { $set: action.payload.user.userid });
+    case types.LOGOUT_SUCCESS:
+      return update(state, { $set: null });
+    default:
+      return state;
+  }
+};
+
+export const membersOfTargetCareTeam = (state = initialState.membersOfTargetCareTeam, action) => {
+  switch(action.type) {
+    case types.FETCH_PATIENT_SUCCESS:
+      if (action.payload.patient.team){
+        let ids = [];
+        ids = action.payload.patient.team.map((t) => t.userid);
+        return update(state, { $set: ids });
+      }
+
+      return state;
+    case types.LOGOUT_SUCCESS:
+      return update(state, { $set: [] });
+    default:
+      return state;
+  }
+};
+
+export const memberInOtherCareTeams = (state = initialState.memberInOtherCareTeams, action) => {
+  switch(action.type) {
+    case types.FETCH_PATIENTS_SUCCESS:
+      let ids = action.payload.patients.map((p) => p.userid);
+
+      return update(state, { $set: ids });
+    case types.ACCEPT_RECEIVED_INVITE_SUCCESS:
+      let { creator } = action.payload.acceptedReceivedInvite;
+      return update(state, { $push: [ creator.userid ] });
+    case types.LOGOUT_SUCCESS:
+      return update(state, { $set: [] });
+    default:
+      return state;
+  }
+};
+
+export const permissionsOfMembersInTargetCareTeam = (state = initialState.permissionsOfMembersInTargetCareTeam, action) => {
+  switch(action.type) {
+    case types.FETCH_PATIENT_SUCCESS:
+    console.log('team', action.payload.patient.team);
+      if (action.payload.patient.team) {
+        let permissions = {};
+        action.payload.patient.team.forEach((t) => permissions[t.userid] = t.permissions);
+        console.log('going to set state', permissions);
+        return update(state, { $set: permissions });
+      }
+        
+      return state;
+    case types.LOGOUT_SUCCESS:
+      return update(state, { $set: [] });
+    default:
+      return state;
+  }
+};
+
+export const membershipPermissionsInOtherCareTeams = (state = initialState.membershipPermissionsInOtherCareTeams, action) => {
+  switch(action.type) {
+    case types.FETCH_PATIENTS_SUCCESS:
+      let permissions = {};
+      action.payload.patients.forEach((p) => permissions[p.userid] = p.permissions);
+
+      return update(state, { $set: permissions });
+    case types.REMOVE_PATIENT_SUCCESS:
+      return update(state, { $set: permissions });
+    case types.LOGOUT_SUCCESS:
+      return update(state, { $set: {} });
     default:
       return state;
   }

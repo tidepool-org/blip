@@ -37,12 +37,13 @@ describe('currentPatientInView', () => {
   describe('createPatientSuccess', () => {
     it('should set state to created patient', () => {
       let initialStateForTest = null;
+      let userId = 340;
       let patient = { name: 'Jess' };
 
-      let action = actions.sync.createPatientSuccess(patient)
+      let action = actions.sync.createPatientSuccess(userId, patient)
 
       let state = reducer(initialStateForTest, action);
-
+      
       expect(state.name).to.equal(patient.name);
     });
   });

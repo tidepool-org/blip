@@ -215,11 +215,12 @@ export function acceptTermsRequest() {
   };
 }
 
-export function acceptTermsSuccess(acceptedDate) {
+export function acceptTermsSuccess(userId, acceptedDate) {
   return {
     type: ActionTypes.ACCEPT_TERMS_SUCCESS,
     payload: {
-      acceptedDate: acceptedDate
+      userId,
+      acceptedDate
     }
   };
 }
@@ -237,11 +238,12 @@ export function createPatientRequest() {
   };
 }
 
-export function createPatientSuccess(patient) {
+export function createPatientSuccess(userId, patient) {
   return {
     type: ActionTypes.CREATE_PATIENT_SUCCESS,
     payload: {
-      patient: patient
+      userId,
+      patient
     }
   };
 }
@@ -455,19 +457,21 @@ export function updatePatientFailure(error) {
   };
 }
 
-export function updateUserRequest(user) {
+export function updateUserRequest(userId, user) {
   return {
     type: ActionTypes.UPDATE_USER_REQUEST,
     payload: {
+      userId: userId,
       updatingUser: user
     }
   };
 }
 
-export function updateUserSuccess(user) {
+export function updateUserSuccess(userId, user) {
   return {
     type: ActionTypes.UPDATE_USER_SUCCESS,
     payload: {
+      userId: userId,
       updatedUser: user
     }
   };

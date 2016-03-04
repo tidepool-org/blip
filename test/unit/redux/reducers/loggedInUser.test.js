@@ -65,12 +65,13 @@ describe('loggedInUser', () => {
   describe('acceptTermsSuccess', () => {
     it('should set state.termsAccepted to acceptedDate', () => {
       let name = 'Jamie Foxx';
+      let userId = 500;
       let user = { name : name };
       let acceptedDate = '2016-01-01';
       let initialStateForTest = user;
       
 
-      let action = actions.sync.acceptTermsSuccess(acceptedDate)
+      let action = actions.sync.acceptTermsSuccess(userId, acceptedDate)
 
       let state = reducer(initialStateForTest, action);
 
@@ -82,11 +83,12 @@ describe('loggedInUser', () => {
     it('should set state.profile to patient.profile', () => {
       let profile = { name: 'Frank', diagnosisDate: '02/04/1996' };
       let patient = { profile };
+      let userId = 500;
       let user = { id: 500 };
       let initialStateForTest = user;
       
 
-      let action = actions.sync.createPatientSuccess(patient)
+      let action = actions.sync.createPatientSuccess(userId, patient)
 
       let state = reducer(initialStateForTest, action);
 
@@ -98,12 +100,13 @@ describe('loggedInUser', () => {
   describe('updateUserRequest', () => {
     it('should set state to updatingUser', () => {
       let name = 'Jamie Foxx';
+      let userId = 500;
       let user = { name : name };
       let initialStateForTest = user;
       let updatingUser = { diagnosisDate: '01/01/2001' };
 
 
-      let action = actions.sync.updateUserRequest(updatingUser);
+      let action = actions.sync.updateUserRequest(userId, updatingUser);
 
       expect(initialStateForTest.name).to.equal(name);
 
@@ -117,12 +120,13 @@ describe('loggedInUser', () => {
   describe('updateUserSuccess', () => {
     it('should set state to updatedUser', () => {
       let name = 'Jamie Foxx';
+      let userId = 500;
       let user = { name : name };
       let initialStateForTest = user;
       let updatedUser = { name: name, diagnosisDate: '01/01/2001' };
 
 
-      let action = actions.sync.updateUserSuccess(updatedUser);
+      let action = actions.sync.updateUserSuccess(userId, updatedUser);
 
       expect(initialStateForTest.name).to.equal(name);
 

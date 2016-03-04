@@ -297,16 +297,19 @@ describe('Actions', () => {
     describe('acceptTermsSuccess', () => {
       it('should be a FSA', () => {
         let acceptedDate = new Date();
-        let action = sync.acceptTermsSuccess(acceptedDate);
+        let userId = 647;
+        let action = sync.acceptTermsSuccess(userId, acceptedDate);
 
         expect(isFSA(action)).to.be.true;
       });
 
       it('type should equal ACCEPT_TERMS_SUCCESS', () => {
         let acceptedDate = new Date();
-        let action = sync.acceptTermsSuccess(acceptedDate);
+        let userId = 647;
+        let action = sync.acceptTermsSuccess(userId, acceptedDate);
 
         expect(action.type).to.equal('ACCEPT_TERMS_SUCCESS');
+        expect(action.payload.userId).to.equal(userId);
         expect(action.payload.acceptedDate).to.equal(acceptedDate);
       });
     });
@@ -343,21 +346,24 @@ describe('Actions', () => {
 
     describe('createPatientSuccess', () => {
       it('should be a FSA', () => {
+        let userId = 540;
         let patient = {
           id: 540
         };
-        let action = sync.createPatientSuccess(patient);
+        let action = sync.createPatientSuccess(userId, patient);
 
         expect(isFSA(action)).to.be.true;
       });
 
       it('type should equal CREATE_PATIENT_SUCCESS', () => {
+        let userId = 540;
         let patient = {
           id: 540
         };
-        let action = sync.createPatientSuccess(patient);
+        let action = sync.createPatientSuccess(userId, patient);
 
         expect(action.type).to.equal('CREATE_PATIENT_SUCCESS');
+        expect(action.payload.userId).to.equal(userId);
         expect(action.payload.patient).to.equal(patient);
       });
     });
@@ -819,21 +825,24 @@ describe('Actions', () => {
 
     describe('updateUserSuccess', () => {
       it('should be a FSA', () => {
+        let userId = 500;
         let user = {
           name: 'Frank'
         };
-        let action = sync.updateUserSuccess(user);
+        let action = sync.updateUserSuccess(userId, user);
 
         expect(isFSA(action)).to.be.true;
       });
 
       it('type should equal UPDATE_USER_SUCCESS', () => {
+        let userId = 500;
         let user = {
           name: 'Frank'
         };
-        let action = sync.updateUserSuccess(user);
+        let action = sync.updateUserSuccess(userId, user);
 
         expect(action.type).to.equal('UPDATE_USER_SUCCESS');
+        expect(action.payload.userId).to.equal(userId);
         expect(action.payload.updatedUser).to.equal(user);
       });
     });
