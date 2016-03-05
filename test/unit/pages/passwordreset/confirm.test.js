@@ -9,7 +9,9 @@ import React from 'react';
 import TestUtils from 'react-addons-test-utils';
 
 import { ConfirmPasswordReset } from '../../../../app/pages/passwordreset/confirm';
+import { mapStateToProps } from '../../../../app/pages/passwordreset/confirm';
 
+var assert = chai.assert;
 var expect = chai.expect;
 
 describe('ConfirmPasswordReset', function () {
@@ -123,6 +125,31 @@ describe('ConfirmPasswordReset', function () {
       expect(formValues.key).to.equal('some-key');
       expect(formValues.email).to.equal('foo@bar.com');
       expect(formValues.password).to.equal('woowoo');
+    });
+  });
+
+  describe('mapStateToProps', () => {
+    const state = {
+      passwordResetConfirmed: false,
+      working: {
+        confirmingPasswordReset: {inProgress: true, notification: null}
+      }
+    };
+    const result = mapStateToProps({blip: state});
+    it('should be a function', () => {
+      assert.isFunction(mapStateToProps);
+    });
+
+    it('should map working.confirmingPasswordReset.notification to notification', () => {
+      expect(result.notification).to.equal(state.working.confirmingPasswordReset.notification);
+    });
+
+    it('should map working.confirmingPasswordReset.inProgress to working', () => {
+      expect(result.working).to.equal(state.working.confirmingPasswordReset.inProgress);
+    });
+
+    it('should map passwordResetConfirmed to success', () => {
+      expect(result.success).to.equal(state.passwordResetConfirmed);
     });
   });
 });

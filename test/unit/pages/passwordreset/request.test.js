@@ -10,7 +10,9 @@ import TestUtils from 'react-addons-test-utils';
 
 
 import { RequestPasswordReset } from '../../../../app/pages/passwordreset/request';
+import { mapStateToProps } from '../../../../app/pages/passwordreset/request';
 
+var assert = chai.assert;
 var expect = chai.expect;
 
 describe('RequestPasswordReset', function () {
@@ -82,6 +84,26 @@ describe('RequestPasswordReset', function () {
       expect(Object.keys(initialState.formValues).length).to.equal(0);
       expect(Object.keys(initialState.validationErrors).length).to.equal(0);
       expect(initialState.notification).to.equal(null);
+    });
+  });
+
+  describe('mapStateToProps', () => {
+    const state = {
+      working: {
+        requestingPasswordReset: {inProgress: true, notification: null}
+      }
+    };
+    const result = mapStateToProps({blip: state});
+    it('should be a function', () => {
+      assert.isFunction(mapStateToProps);
+    });
+
+    it('should map working.requestingPasswordReset.notification to notification', () => {
+      expect(result.notification).to.equal(state.working.requestingPasswordReset.notification);
+    });
+
+    it('should map working.requestingPasswordReset.inProgress to working', () => {
+      expect(result.working).to.equal(state.working.requestingPasswordReset.inProgress);
     });
   });
 });

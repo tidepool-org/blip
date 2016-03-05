@@ -222,10 +222,12 @@ let getFetchers = (dispatchProps, ownProps, other, api) => {
   return [];
 }
 
-let mapStateToProps = state => ({
-  notification: state.blip.working.loggingIn.notification,
-  working: state.blip.working.loggingIn.inProgress,
-});
+export function mapStateToProps(state) {
+  return {
+    notification: state.blip.working.loggingIn.notification,
+    working: state.blip.working.loggingIn.inProgress,
+  };
+}
 
 let mapDispatchToProps = dispatch => bindActionCreators({
   onSubmit: actions.async.login,
