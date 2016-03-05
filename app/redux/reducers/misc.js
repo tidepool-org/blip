@@ -207,7 +207,6 @@ export const permissionsOfMembersInTargetCareTeam = (state = initialState.permis
       if (action.payload.patient.team) {
         let permissions = {};
         action.payload.patient.team.forEach((t) => permissions[t.userid] = t.permissions);
-        console.log('going to set state', permissions);
         return update(state, { $set: permissions });
       }
         

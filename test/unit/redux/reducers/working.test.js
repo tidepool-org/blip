@@ -62,7 +62,6 @@ describe('working', () => {
 
           let state = reducer(initialState, action);
 
-          console.log('login!', state);
           expect(state.loggingIn.inProgress).to.be.true;
         });
       });
