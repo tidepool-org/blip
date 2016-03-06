@@ -212,7 +212,7 @@ export const permissionsOfMembersInTargetCareTeam = (state = initialState.permis
         
       return state;
     case types.LOGOUT_SUCCESS:
-      return update(state, { $set: [] });
+      return update(state, { $set: {} });
     default:
       return state;
   }
