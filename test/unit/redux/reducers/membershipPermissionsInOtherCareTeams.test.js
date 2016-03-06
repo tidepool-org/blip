@@ -23,68 +23,45 @@
 
 import _ from 'lodash';
 
-import { patientsMap as reducer } from '../../../../app/redux/reducers/misc';
+import { membershipPermissionsInOtherCareTeams as reducer } from '../../../../app/redux/reducers/misc';
 
 import actions from '../../../../app/redux/actions/index';
 
 import * as ErrorMessages from '../../../../app/redux/constants/errorMessages';
 
-import { patientsMap as initialState } from '../../../../app/redux/reducers/initialState';
+import { notification as initialState } from '../../../../app/redux/reducers/initialState';
 
 var expect = chai.expect;
 
-describe('patientsMap', () => {
+describe('membershipPermissionsInOtherCareTeams', () => {
   describe('fetchPatientsSuccess', () => {
-    it('should set state to a hash map of patients', () => {
-      let initialStateForTest = null;
-
+    it('should set state to a hash map of permissions in other care teams', () => {
       let patients = [
-        { userid: 50, name: 'Xavier' },
-        { userid: 100, name: 'Fred' }
+          { userid: 1234, permissions: { view: {} } },
+          { userid: 250, permissions: { view: {}, notes: {} } }
       ];
 
+      let initialStateForTest = {};
+      
       let action = actions.sync.fetchPatientsSuccess(patients)
 
       let state = reducer(initialStateForTest, action);
 
-      expect(Object.keys(state).length).to.equal(patients.length);
-
-      expect(state[patients[0].userid].name).to.equal(patients[0].name);
-    });
-  });
-
-  describe('acceptReceivedInviteSuccess', () => {
-    it('should set add acceptedReceivedInvite patient to patientsMap state', () => {
-      let initialStateForTest = {
-        50 :{ userid: 50, name: 'Xavier' },
-        100: { userid: 100, name: 'Fred' }
-      };
-
-      let name = 'Zoe';
-      let userid = 200;
-      let acceptedReceivedInvite = {
-        creator: { userid: userid, name: name }
-      };
-
-      let action = actions.sync.acceptReceivedInviteSuccess(acceptedReceivedInvite)
-
-      expect(Object.keys(initialStateForTest).length).to.equal(2);
-
-      let state = reducer(initialStateForTest, action);
-
-      expect(Object.keys(state).length).to.equal(3);
-      expect(state[userid].name).to.equal(name);
+      expect(Object.keys(state).length).to.equal(2);
+      expect(Object.keys(state[1234]).length).to.equal(1);
+      expect(Object.keys(state[250]).length).to.equal(2);
     });
   });
 
   describe('logoutSuccess', () => {
-    it('should set state to a hash map of patients', () => {
+    it('should set state to null', () => {
       let initialStateForTest = {
-        50 :{ userid: 50, name: 'Xavier' },
-        100: { userid: 100, name: 'Fred' }
+        3434: { view: {}, notes: {} },
+        250: { view: {}, notes: {} }
       };
-
+      
       let action = actions.sync.logoutSuccess()
+
       let state = reducer(initialStateForTest, action);
 
       expect(Object.keys(state).length).to.equal(0);

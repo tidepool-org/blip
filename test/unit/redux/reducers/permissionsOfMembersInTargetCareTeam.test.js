@@ -23,7 +23,7 @@
 
 import _ from 'lodash';
 
-import { loggedInUserId as reducer } from '../../../../app/redux/reducers/misc';
+import { permissionsOfMembersInTargetCareTeam as reducer } from '../../../../app/redux/reducers/misc';
 
 import actions from '../../../../app/redux/actions/index';
 
@@ -33,46 +33,40 @@ import { notification as initialState } from '../../../../app/redux/reducers/ini
 
 var expect = chai.expect;
 
-describe('loggedInUserId', () => {
-  describe('fetchUserSuccess', () => {
-    it('should set state to user', () => {
-      let initialStateForTest = null;
-      let name = 'Abbie Roads';
-      let user = { userid: 203, name : name };
+describe('permissionsOfMembersInTargetCareTeam', () => {
+  describe('fetchPatientSuccess', () => {
+    it('should set state to a hash map representing the team of a patient', () => {
+      let patient = {
+        team: [
+          { userid: 3434, permissions: { view: {} } },
+          { userid: 250, permissions: { view: {}, notes: {} } }
+        ]
+      }
 
-      let action = actions.sync.fetchUserSuccess(user)
-
-      let state = reducer(initialStateForTest, action);
-
-      expect(state).to.equal(user.userid);
-    });
-  });
-
-  describe('loginSuccess', () => {
-    it('should set state to user', () => {
-      let initialStateForTest = null;
-      let name = 'Jamie Foxx';
-      let user = { userid: 'jkg8585hgkg', name : name };
-
-      let action = actions.sync.loginSuccess(user)
+      let initialStateForTest = {};
+      
+      let action = actions.sync.fetchPatientSuccess(patient)
 
       let state = reducer(initialStateForTest, action);
 
-      expect(state).to.equal(user.userid);
+      expect(Object.keys(state).length).to.equal(2);
+      expect(Object.keys(state[3434]).length).to.equal(1);
+      expect(Object.keys(state[250]).length).to.equal(2);
     });
   });
 
   describe('logoutSuccess', () => {
     it('should set state to null', () => {
-      let name = 'Jamie Foxx';
-      let user = { userid: 500, name : name };
-      let initialStateForTest = user.userid;
+      let initialStateForTest = {
+        3434: { view: {}, notes: {} },
+        250: { view: {}, notes: {} }
+      };
       
       let action = actions.sync.logoutSuccess()
 
       let state = reducer(initialStateForTest, action);
 
-      expect(state).to.be.null;
+      expect(Object.keys(state).length).to.equal(0);
     });
   });
 });

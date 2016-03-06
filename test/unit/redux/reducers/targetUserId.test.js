@@ -23,7 +23,7 @@
 
 import _ from 'lodash';
 
-import { loggedInUserId as reducer } from '../../../../app/redux/reducers/misc';
+import { targetUserId as reducer } from '../../../../app/redux/reducers/misc';
 
 import actions from '../../../../app/redux/actions/index';
 
@@ -33,12 +33,12 @@ import { notification as initialState } from '../../../../app/redux/reducers/ini
 
 var expect = chai.expect;
 
-describe('loggedInUserId', () => {
+describe('targetUserId', () => {
   describe('fetchUserSuccess', () => {
     it('should set state to user', () => {
       let initialStateForTest = null;
       let name = 'Abbie Roads';
-      let user = { userid: 203, name : name };
+      let user = { userid: 203, profile: { patient: true } };
 
       let action = actions.sync.fetchUserSuccess(user)
 
@@ -46,13 +46,25 @@ describe('loggedInUserId', () => {
 
       expect(state).to.equal(user.userid);
     });
+
+    it('should clear state if fetchedUser does not have patient object', () => {
+      let initialStateForTest = 99;
+      let name = 'Abbie Roads';
+      let user = { userid: 203, profile: null };
+
+      let action = actions.sync.fetchUserSuccess(user)
+
+      let state = reducer(initialStateForTest, action);
+
+      expect(state).to.be.null;
+    });
   });
 
   describe('loginSuccess', () => {
     it('should set state to user', () => {
       let initialStateForTest = null;
       let name = 'Jamie Foxx';
-      let user = { userid: 'jkg8585hgkg', name : name };
+      let user = { userid: 203, profile: { patient: true } };
 
       let action = actions.sync.loginSuccess(user)
 
@@ -60,12 +72,24 @@ describe('loggedInUserId', () => {
 
       expect(state).to.equal(user.userid);
     });
+
+    it('should clear state if logged in user does not have patient object', () => {
+      let initialStateForTest = 101;
+      let name = 'Abbie Roads';
+      let user = { userid: 203, profile: null };
+
+      let action = actions.sync.fetchUserSuccess(user)
+
+      let state = reducer(initialStateForTest, action);
+
+      expect(state).to.be.null;
+    });
   });
 
   describe('logoutSuccess', () => {
     it('should set state to null', () => {
       let name = 'Jamie Foxx';
-      let user = { userid: 500, name : name };
+      let user = { userid: 203, profile: { patient: true } };
       let initialStateForTest = user.userid;
       
       let action = actions.sync.logoutSuccess()
