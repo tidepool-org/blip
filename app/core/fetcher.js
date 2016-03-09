@@ -32,8 +32,6 @@ export default class Fetcher {
         fetchingUser: false
       });
 
-      //will show terms if not yet accepted
-      comp.renderOverlay = comp.renderTermsOverlay;
     });
   }
 

@@ -14,14 +14,16 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 var React = require('react');
-var LoginNav = require('../loginnav');
+var LoginNav = require('../../components/loginnav');
 
-var TermsOverlay = React.createClass({
+var Terms = React.createClass({
   propTypes: {
     onSubmit: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
     ages: React.PropTypes.object.isRequired,
-    messages: React.PropTypes.object.isRequired
+    messages: React.PropTypes.object.isRequired,
+    termsAccepted: React.PropTypes.string.isRequired,
+    authenticated: React.PropTypes.bool.isRequired
   },
   getDefaultProps: function() {
     return {
@@ -45,10 +47,15 @@ var TermsOverlay = React.createClass({
       ageSelected: this.props.ages.OF_AGE.value //default
     };
   },
+  componentWillUpdate: function(nextProps, nextState){
+    if(nextProps.termsAccepted && this.props.location.state && this.props.location.state.originalPath){
+      this.props.history.pushState(null, this.props.location.state.originalPath)
+    }
+  },
   renderAgeConsentStep: function() {
     return (
-      <form ref='confirmAgeStep' className='terms-overlay-age-form'>
-        <div className='terms-overlay-age-radio'>
+      <form ref='confirmAgeStep' className='terms-age-form'>
+        <div className='terms-age-radio'>
           <label>
             <input type='radio' name='age'
               key={this.props.ages.OF_AGE.value}
@@ -94,17 +101,27 @@ var TermsOverlay = React.createClass({
   renderTermsAndPrivacyStep: function() {
     var terms = this.websiteTerms();
     var privacy = this.websitePrivacy();
-    var continueBtnDisabled = this.getTermsAndPrivacyButtonState();
-    var agreeConfirmation = this.renderAgreeCheckboxes();
-    var backBtn = this.renderBackBtn();
+    var termsForm = this.renderTermsForm();
 
     return (
       <div ref='acceptTermsStep'>
-        <div className='terms-overlay-title'>TERMS OF USE</div>
+        <div className='terms-title'>TERMS OF USE</div>
         {terms}
-        <div className='privacy-overlay-title'>PRIVACY POLICY</div>
+        <div className='privacy-title'>PRIVACY POLICY</div>
         {privacy}
-        <form className='terms-overlay-form'>
+        {termsForm}
+      </div>
+    );
+  },
+  renderTermsForm: function() {
+    var agreeConfirmation = this.renderAgreeCheckboxes();
+    var backBtn = this.renderBackBtn();
+    var continueBtnDisabled = this.getTermsAndPrivacyButtonState();
+
+    var termsForm;
+    if(this.props.authenticated && !this.props.termsAccepted){
+      termsForm = (
+        <form className='terms-form'>
           {agreeConfirmation}
           {backBtn}
           <button
@@ -112,8 +129,9 @@ var TermsOverlay = React.createClass({
             onClick={this.handleTermsAndPrivacySubmit}
             disabled={continueBtnDisabled}>Continue</button>
         </form>
-      </div>
-    );
+      );
+    }
+    return termsForm;
   },
   renderBackBtn: function() {
     return (
@@ -140,7 +158,7 @@ var TermsOverlay = React.createClass({
     }
 
     return (
-      <div className='terms-overlay-accept-checkbox'>
+      <div className='terms-accept-checkbox'>
         <label htmlFor='agreed'>
           <input
             id='agreed'
@@ -158,14 +176,20 @@ var TermsOverlay = React.createClass({
     var backBtn = this.renderBackBtn();
     return (
       <div ref='sorryMsg'>
-        <p className='terms-overlay-sorry-message'>{this.props.messages.SORRY_NOT_OF_AGE}</p>
+        <p className='terms-sorry-message'>{this.props.messages.SORRY_NOT_OF_AGE}</p>
         {backBtn}
       </div>
     );
   },
   render: function() {
+    var content = '';
+    if(!this.props.authenticated || (this.props.authenticated && this.props.termsAccepted)){
+      content = this.renderTermsAndPrivacyStep();
+    }
 
-    var content = this.renderAgeConsentStep();
+    if(this.props.authenticated && !this.props.termsAccepted){
+      content = this.renderAgeConsentStep();
+    }
 
     if (this.state.ageConfirmed) {
       //assume we are good to go
@@ -178,9 +202,9 @@ var TermsOverlay = React.createClass({
     }
 
     return (
-      <div className='terms-overlay js-terms'>
+      <div className='terms js-terms'>
         <LoginNav hideLinks={true} trackMetric={this.props.trackMetric} />
-        <div className='terms-overlay-content terms-overlay-box'>
+        <div className='terms-content terms-box'>
           {content}
         </div>
       </div>
@@ -189,7 +213,7 @@ var TermsOverlay = React.createClass({
   },
   websiteTerms: function() {
     return React.DOM.iframe({
-      className         : 'terms-overlay-iframe',
+      className         : 'terms-iframe',
       src               : 'https://tidepool.org/terms-of-use/',
       scrolling         : 'yes',
       frameBorder       : '0',
@@ -198,7 +222,7 @@ var TermsOverlay = React.createClass({
   },
   websitePrivacy: function() {
     return React.DOM.iframe({
-      className         : 'terms-overlay-iframe',
+      className         : 'terms-iframe',
       src               : 'https://tidepool.org/privacy-policy/',
       scrolling         : 'yes',
       frameBorder       : '0',
@@ -238,4 +262,4 @@ var TermsOverlay = React.createClass({
   }
 });
 
-module.exports = TermsOverlay;
+module.exports = Terms;
