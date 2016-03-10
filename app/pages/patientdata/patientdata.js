@@ -549,6 +549,9 @@ export let PatientData = React.createClass({
     var patientData = _.get(nextProps, ['patientDataMap', userId], null);
     if (patientData) {
       let combinedData = patientData.concat(nextProps.patientNotesMap[userId]);
+      window.downloadInputData = () => {
+        console.save(combinedData, 'blip-input.json');
+      };
       let processedData = utils.processPatientData(
         this, 
         combinedData, 
