@@ -79,6 +79,9 @@ var MemberInviteForm = React.createClass({
       error: null
     };
   },
+  onAllowUploadClick: function(value) {
+    this.setState({allowUpload: value});
+  },
   componentDidMount: function() {
     // When invite form appears, automatically focus so user can start
     // typing email without clicking a second time
@@ -93,7 +96,7 @@ var MemberInviteForm = React.createClass({
             <div className="">
               <input className="PatientInfo-input" id="email" ref="email" placeholder="Email" />
               <div className="PatientTeam-permissionSelection">
-                <PermissionInputGroup ref="allowUpload" value={this.state.allowUpload} />
+                <PermissionInputGroup ref="allowUpload" value={this.state.allowUpload} onChange={this.onAllowUploadClick}/>
               </div>
               <div className="PatientTeam-buttonHolder">
                 <button className="PatientInfo-button PatientInfo-button--secondary" type="button"
