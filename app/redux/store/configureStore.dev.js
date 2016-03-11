@@ -22,7 +22,7 @@ import createLogger from 'redux-logger';
 import { browserHistory } from 'react-router';
 import { syncHistory, routeReducer } from 'react-router-redux';
 
-import DevTools from '../containers/devTools';
+import DevTools from '../containers/DevTools';
 
 import blipState from '../reducers/initialState';
 import reducers from '../reducers';

@@ -18,7 +18,7 @@
 /* global __DEV__ */
 
 if (__DEV__) {
-  module.exports = require('./appRoot.dev');
+  module.exports = require('./Root.dev');
 } else {
-  module.exports = require('./appRoot.prod');
+  module.exports = require('./Root.prod');
 }

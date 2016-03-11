@@ -19,7 +19,7 @@ import bows from 'bows';
 import _ from 'lodash';
 
 import store from './redux/store';
-import AppRoot from './redux/containers/appRoot';
+import AppRoot from './redux/containers/Root';
 
 import { getRoutes } from './routes';
 
