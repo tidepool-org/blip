@@ -4,16 +4,16 @@
 /* global it */
 /* global beforeEach */
 
-var React = require('react');
-var TestUtils = require('react-addons-test-utils');
+import React from 'react';
+import TestUtils from 'react-addons-test-utils';
 var expect = chai.expect;
 
-var Terms = require('../../../app/pages/terms');
+import { Terms } from '../../../app/pages/terms';
 
-describe('Terms', function () {
+describe('Terms', () => {
 
-  describe('render', function() {
-    it('should console.error when trackMetric not set', function () {
+  describe('render', () => {
+    it('should console.error when trackMetric not set', () => {
       console.error = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<Terms/>);
 
@@ -21,11 +21,11 @@ describe('Terms', function () {
       expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `Terms`.')).to.equal(true);
     });
 
-    it('should not console.error when trackMetric set', function() {
+    it('should not console.error when trackMetric set', () => {
       console.error = sinon.stub();
       var props = {
-        trackMetric: function() {},
-        onSubmit: function() {},
+        trackMetric: () => {},
+        onSubmit: () => {},
       };
       var termsElem = React.createElement(Terms, props);
       var elem = TestUtils.renderIntoDocument(termsElem);
@@ -40,25 +40,25 @@ describe('Terms', function () {
 
     var elem;
 
-    beforeEach(function() {
+    beforeEach(() => {
       var props = {
-        trackMetric: function() {},
-        onSubmit: function() {}
+        trackMetric: () => {},
+        onSubmit: () => {}
       };
       var termsElem = React.createElement(Terms, props);
       elem = TestUtils.renderIntoDocument(termsElem);
     });
 
-    it('is not agreed', function() {
+    it('is not agreed', () => {
       expect(elem.state.agreed).to.equal(false);
     });
-    it('is not agreedOnBehalf', function() {
+    it('is not agreedOnBehalf', () => {
       expect(elem.state.agreedOnBehalf).to.equal(false);
     });
-    it('age is not confirmed', function() {
+    it('age is not confirmed', () => {
       expect(elem.state.ageConfirmed).to.equal(false);
     });
-    it('age is over 18', function() {
+    it('age is over 18', () => {
       expect(elem.state.ageSelected).to.equal(elem.props.ages.OF_AGE.value);
     });
     it('should render age confirmation but not the terms form when user has not accepted terms but is logged in', () => {
@@ -92,14 +92,14 @@ describe('Terms', function () {
       expect(termsElems.length).to.equal(0);
     });
   });
-  describe('age confirmation', function() {
+  describe('age confirmation', () => {
 
     var termsElem;
 
-    beforeEach(function() {
+    beforeEach(() => {
       var props = {
-        trackMetric: function() {},
-        onSubmit: function() {},
+        trackMetric: () => {},
+        onSubmit: () => {},
         authenticated: true,
         termsAccepted: '',
         fetchingUser: false
@@ -108,14 +108,14 @@ describe('Terms', function () {
       termsElem = TestUtils.renderIntoDocument(termsElem);
     });
 
-    it('is true once button pressed ', function() {
+    it('is true once button pressed ', () => {
       var ageBtn = TestUtils.findRenderedDOMComponentWithTag(termsElem, 'button');
       expect(ageBtn).not.to.not.equal(null);
 
       TestUtils.Simulate.click(ageBtn);
       expect(termsElem.state.ageConfirmed).to.equal(true);
     });
-    it('shows iframes once button pressed ', function() {
+    it('shows iframes once button pressed ', () => {
 
       var ageBtn = TestUtils.findRenderedDOMComponentWithTag(termsElem, 'button');
       TestUtils.Simulate.click(ageBtn);
@@ -125,8 +125,8 @@ describe('Terms', function () {
       expect(iframes.length).to.equal(2);
     });
 
-    describe('flow for 18 and over login', function() {
-      it('shows TOU and PP', function() {
+    describe('flow for 18 and over login', () => {
+      it('shows TOU and PP', () => {
         var overEighteen = TestUtils.scryRenderedDOMComponentsWithTag(termsElem,'input')[0];
         expect(overEighteen.props.value).to.equal(termsElem.props.ages.OF_AGE.value);
         //continue
@@ -150,8 +150,8 @@ describe('Terms', function () {
         expect(termsElem.state.agreed).to.equal(false);
       });
     });
-    describe('flow for between 13 and 17 years old', function() {
-      it('shows TOU and PP and asks for parental consent also', function() {
+    describe('flow for between 13 and 17 years old', () => {
+      it('shows TOU and PP and asks for parental consent also', () => {
 
         //Select between 13 and 17
         var thirteenToSeventeenOpt = TestUtils.scryRenderedDOMComponentsWithTag(termsElem,'input')[1];
@@ -185,7 +185,7 @@ describe('Terms', function () {
         expect(buttons[1].props.disabled).to.equal(false);
         expect(buttons[0].props.children).to.equal('Back');
       });
-      it('will not allow TOU and PP confirmation if both checkboxes are not selected', function() {
+      it('will not allow TOU and PP confirmation if both checkboxes are not selected', () => {
         //Select between 13 and 17
         var thirteenToSeventeenOpt = TestUtils.scryRenderedDOMComponentsWithTag(termsElem,'input')[1];
         TestUtils.Simulate.change(thirteenToSeventeenOpt);
@@ -229,8 +229,8 @@ describe('Terms', function () {
 
       });
     });
-    describe('flow for under 12 login flow', function() {
-      it('display sorry message', function() {
+    describe('flow for under 12 login flow', () => {
+      it('display sorry message', () => {
         // I am 12 years old or younger.
         var underTwelveOpt = TestUtils.scryRenderedDOMComponentsWithTag(termsElem,'input')[2];
 
