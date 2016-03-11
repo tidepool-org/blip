@@ -44,6 +44,8 @@ export const signupConfirmed = (state = initialState.signupConfirmed, action) =>
   switch(action.type) {
     case types.CONFIRM_SIGNUP_SUCCESS:
       return update(state, { $set: true });
+    case types.HIDE_WELCOME_MESSAGE:
+      return update(state, { $set: false });
     default:
       return state;
   }

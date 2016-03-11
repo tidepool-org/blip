@@ -266,7 +266,6 @@ export class Terms extends React.Component {
   }
 
   handleAgeChange(e) {
-    console.log(this);
     this.setState({ ageSelected: e.target.value});
   }
 
@@ -297,7 +296,7 @@ export function mapStateToProps(state) {
 
   if (state.blip.allUsersMap) {
     if (state.blip.loggedInUserId) {
-      termsAccepted = state.blip.allUsersMap[state.blip.loggedInUserId].termsAccepte;
+      termsAccepted = state.blip.allUsersMap[state.blip.loggedInUserId].termsAccepted;
     }
   }
 

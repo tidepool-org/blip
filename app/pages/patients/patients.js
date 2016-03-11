@@ -97,7 +97,8 @@ export let Patients = React.createClass({
     var self = this;
     var handleClickYes = function(e) {
       e.preventDefault();
-      self.props.onHideWelcomeSetup({route: '/patients/new'});
+      self.props.onHideWelcomeSetup();
+      self.props.history.pushState(null, '/patients/new');
     };
     var handleClickNo = function(e) {
       e.preventDefault();
@@ -366,7 +367,8 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   removePatient: actions.async.removePatient,
   fetchPendingReceivedInvites: actions.async.fetchPendingReceivedInvites,
   fetchPatients: actions.async.fetchPatients,
-  clearPatientInView: actions.sync.clearPatientInView
+  clearPatientInView: actions.sync.clearPatientInView,
+  onHideWelcomeSetup: actions.sync.hideWelcomeMessage
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
