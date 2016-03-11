@@ -3,7 +3,7 @@
 /* global describe */
 /* global it */
 
-import { 
+import {
   requireAuth, requireAuthAndNoPatient, requireNoAuth, requireNotVerified, onUploaderPasswordReset, hashToUrl, onIndexRouteEnter
 } from '../../app/routes';
 import React from 'react';
@@ -17,7 +17,7 @@ var expect = chai.expect;
 describe('routes', () => {
 
   describe('requireAuth', () => {
-    it('should update route to /login if user is not authenticated', () => {
+    it('should update route to /login if user is not authenticated', (done) => {
       let api = {
         user : {
           isAuthenticated: sinon.stub().returns(false)
@@ -28,15 +28,29 @@ describe('routes', () => {
 
       expect(replace.callCount).to.equal(0);
 
-      requireAuth(api)(null, replace);
+      requireAuth(api)(null, replace, () => {
+        expect(replace.withArgs('/login').callCount).to.equal(1);
+        done()
+      });
 
-      expect(replace.withArgs('/login').callCount).to.equal(1);
     });
 
-    it('should not update route if user is authenticated', () => {
+    it('should not update route if user is authenticated and has accepted the terms', (done) => {
       let api = {
         user : {
-          isAuthenticated: sinon.stub().returns(true)
+          isAuthenticated: sinon.stub().returns(true),
+          get: (cb) => {
+            cb(
+              null,
+              {
+                userid: 'a1b2c3',
+                profile: {
+                  patient: {}
+                },
+                termsAccepted: true
+              }
+            );
+          }
         }
       };
 
@@ -44,9 +58,41 @@ describe('routes', () => {
 
       expect(replace.callCount).to.equal(0);
 
-      requireAuth(api)(null, replace);
+      requireAuth(api)(null, replace, () => {
+        expect(replace.callCount).to.equal(0);
+        done();
+      });
+
+    });
+
+    it('should update route to /terms with nextState path if user is authenticated and has not accepted the terms', (done) => {
+      let api = {
+        user : {
+          isAuthenticated: sinon.stub().returns(true),
+          get: (cb) => {
+            cb(
+              null,
+              {
+                userid: 'a1b2c3',
+                profile: {
+                  patient: {}
+                },
+                termsAccepted: ''
+              }
+            );
+          }
+        }
+      };
+
+      let replace = sinon.stub();
 
       expect(replace.callCount).to.equal(0);
+
+      requireAuth(api)({location: {pathname: 'test'}}, replace, () => {
+        expect(replace.withArgs('/terms').callCount).to.equal(1);
+        done();
+      });
+
     });
   });
 
@@ -214,7 +260,7 @@ describe('routes', () => {
       });
     });
 
-    it('should update the route to /patients if user has already verified e-mail', (done) => {
+    it('should update the route to /patients if user has already verified e-mail and accepted terms', (done) => {
       let api = {
         user: {
           get: (cb) => {
@@ -222,7 +268,8 @@ describe('routes', () => {
               null,
               {
                 userid: 'a1b2c3',
-                emailVerified: true
+                emailVerified: true,
+                termsAccepted: true
               }
             );
           }
@@ -246,6 +293,33 @@ describe('routes', () => {
         expect(replace.withArgs('/patients').callCount).to.equal(1);
         done();
       });
+    });
+
+    it('should update route to /terms with nextState path of /patients if user has already verified e-mail and has not accepted the terms', (done) => {
+      let api = {
+        user: {
+          get: (cb) => {
+            cb(
+              null,
+              {
+                userid: 'a1b2c3',
+                emailVerified: true,
+                termsAccepted: ''
+              }
+            );
+          }
+        }
+      };
+
+      let replaceState = sinon.stub();
+
+      expect(replaceState.callCount).to.equal(0);
+
+      requireNotVerified(api)({location: {pathname: 'test'}}, replaceState, () => {
+        expect(replaceState.withArgs({originalPath: '/patients'}, '/terms').callCount).to.equal(1);
+        done();
+      });
+
     });
 
     it('should not update the route if user has not yet verified e-mail and should \"logout\" user', (done) => {

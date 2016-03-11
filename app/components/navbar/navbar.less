@@ -32,7 +32,7 @@
   // Magic number width: should contain whole menu,
   // and put some space between menu an patient section
   width: 330px;
-  
+
   padding: 0;
   // Align child items to the right (flex-end)
   // and to the top (default)
@@ -78,6 +78,18 @@
   height: @Navbar-versionHeight;
   text-align: center;
   color: @gray-dark;
+}
+
+.Navbar-terms {
+  font-size: 14px;
+  line-height: @Navbar-versionHeight;
+  height: @Navbar-versionHeight;
+  text-align: center;
+  color: @gray-dark;
+}
+
+.Navbar-terms a {
+  &:extend(.link-secondary all);
 }
 
 // Buttons, icons, labels

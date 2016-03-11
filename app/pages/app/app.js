@@ -32,7 +32,6 @@ import Navbar from '../../components/navbar';
 import LogoutOverlay from '../../components/logoutoverlay';
 import BrowserWarningOverlay from '../../components/browserwarningoverlay';
 import TidepoolNotification from '../../components/notification';
-import TermsOverlay from '../../components/termsoverlay';
 import MailTo from '../../components/mailto';
 
 // Styles
@@ -137,23 +136,6 @@ export class AppComponent extends React.Component {
         <BrowserWarningOverlay />
       );
     }
-
-    if (!this.props.fetchingUser){
-      return this.renderTermsOverlay();
-    }
-
-    return null;
-  }
-
-  renderTermsOverlay() {
-    if (this.props.authenticated && _.isEmpty(this.props.termsAccepted)){
-      return (
-        <TermsOverlay
-          onSubmit={this.props.onAcceptTerms}
-          trackMetric={this.props.route.trackMetric} />
-      );
-    }
-    return null;
   }
 
   renderNavbar() {
