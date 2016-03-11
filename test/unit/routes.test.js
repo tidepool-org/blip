@@ -311,12 +311,21 @@ describe('routes', () => {
         }
       };
 
+      let store = {
+        getState: () => ({
+          blip: {
+            isLoggedIn: true,
+            loggedInUser: null
+          }
+        })
+      };
+
       let replaceState = sinon.stub();
 
       expect(replaceState.callCount).to.equal(0);
 
-      requireNotVerified(api)({location: {pathname: 'test'}}, replaceState, () => {
-        expect(replaceState.withArgs({originalPath: '/patients'}, '/terms').callCount).to.equal(1);
+      requireNotVerified(api, store)({location: {pathname: 'test'}}, replaceState, () => {
+        expect(replaceState.withArgs('/terms').callCount).to.equal(1);
         done();
       });
 
