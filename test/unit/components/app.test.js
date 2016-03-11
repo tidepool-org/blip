@@ -11,10 +11,10 @@ var TestUtils = require('react-addons-test-utils');
 // which errors if window.config does not exist
 window.config = {};
 
-import { mapStateToProps } from '../../../app/components/app/app.js';
+import { mapStateToProps } from '../../../app/pages/app/app.js';
 import initialState from '../../../app/redux/reducers/initialState';
 
-var App = require('../../../app/components/app/app.js').AppComponent;
+var App = require('../../../app/pages/app/app.js').AppComponent;
 var api = require('../../../app/core/api');
 var personUtils = require('../../../app/core/personutils');
 var mock = require('../../../mock');

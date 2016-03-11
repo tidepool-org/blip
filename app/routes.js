@@ -1,7 +1,7 @@
 import React from 'react';
 import { Route, IndexRoute } from 'react-router';
 
-import AppComponent from './components/app';
+import AppComponent from './pages/app';
 import Patients from './pages/patients';
 import Login from './pages/login';
 import Signup from './pages/signup';

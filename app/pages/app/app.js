@@ -28,12 +28,12 @@ import utils from '../../core/utils';
 import usrMessages from '../../userMessages';
 
 // Components
-import Navbar from '../navbar';
-import LogoutOverlay from '../logoutoverlay';
-import BrowserWarningOverlay from '../browserwarningoverlay';
-import TidepoolNotification from '../notification';
-import TermsOverlay from '../termsoverlay';
-import MailTo from '../mailto';
+import Navbar from '../../components/navbar';
+import LogoutOverlay from '../../components/logoutoverlay';
+import BrowserWarningOverlay from '../../components/browserwarningoverlay';
+import TidepoolNotification from '../../components/notification';
+import TermsOverlay from '../../components/termsoverlay';
+import MailTo from '../../components/mailto';
 
 // Styles
 require('tideline/css/tideline.less');
