@@ -594,7 +594,7 @@ let getFetchers = (dispatchProps, ownProps, api) => {
   ];
 };
 
-let mapStateToProps = state => {
+export function mapStateToProps(state) {
   var user = null;
   var patient = null;
   if (state.blip.allUsersMap){
@@ -616,8 +616,8 @@ let mapStateToProps = state => {
     messageThread: state.blip.messageThread,
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
     fetchingPatientData: state.blip.working.fetchingPatientData.inProgress
-  }
-};
+  };
+}
 
 let mapDispatchToProps = dispatch => bindActionCreators({
   fetchPatient: actions.async.fetchPatient,

@@ -327,17 +327,17 @@ let getFetchers = (dispatchProps, ownProps, api) => {
   ];
 };
 
-let mapStateToProps = state => { 
+
+export function mapStateToProps(state) {
   var user = null;
   var patients = [];
 
-  if (state.blip.allUsersMap){
+  if (state.blip.allUsersMap) {
     if (state.blip.loggedInUserId) {
       user = state.blip.allUsersMap[state.blip.loggedInUserId];
     }
 
     if (state.blip.targetUserId) {
-
       patients.push(state.blip.allUsersMap[state.blip.targetUserId]);
     }
 

@@ -9,9 +9,11 @@ import TestUtils from 'react-addons-test-utils';
 import rewire from 'rewire';
 import rewireModule from '../../utils/rewireModule';
 
+var assert = chai.assert;
 var expect = chai.expect;
 
 var PD = rewire('../../../app/pages/patientdata/patientdata.js');
+import { mapStateToProps } from '../../../app/pages/patientdata/patientdata.js';
 
 var PatientData = PD.PatientData;
 
@@ -215,6 +217,126 @@ describe('PatientData', function () {
       elem.setState({processingData: false, processedPatientData: { data: [ { type: 'data', value: 100 }]}});
       var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-basics-view');
       expect(x).to.be.ok;
+    });
+  });
+
+  describe('mapStateToProps', () => {
+    it('should be a function', () => {
+      assert.isFunction(mapStateToProps);
+    });
+    describe('patient in view is logged-in user', () => {
+      const state = {
+        allUsersMap: {
+          a1b2c3: {
+            userid: 'a1b2c3'
+          }
+        },
+        currentPatientInViewId: 'a1b2c3',
+        loggedInUserId: 'a1b2c3',
+        patientDataMap: {
+          a1b2c3: [1,2,3,4,5]
+        },
+        patientNotesMap: {
+          a1b2c3: [{type: 'message'}]
+        },
+        messageThread: [{type: 'message'}],
+        working: {
+          fetchingPatient: {inProgress: false, notification: null},
+          fetchingPatientData: {inProgress: false, notification: null}
+        }
+      };
+      const result = mapStateToProps({blip: state});
+
+      it('should map allUsersMap.a1b2c3 to user', () => {
+        expect(result.user).to.deep.equal(state.allUsersMap.a1b2c3);
+      });
+
+      it('should set isUserPatient to true', () => {
+        expect(result.isUserPatient).to.be.true;
+      });
+
+      it('should map allUsersMap.a1b2c3 to patient', () => {
+        expect(result.patient).to.deep.equal(state.allUsersMap.a1b2c3);
+      });
+
+      it('should pass through patientDataMap', () => {
+        expect(result.patientDataMap).to.deep.equal(state.patientDataMap);
+      });
+
+      it('should pass through patientNotesMap', () => {
+        expect(result.patientNotesMap).to.deep.equal(state.patientNotesMap);
+      });
+
+      it('should pass through messageThread', () => {
+        expect(result.messageThread).to.deep.equal(state.messageThread);
+      });
+
+      it('should map working.fetchingPatient.inProgress to fetchingPatient', () => {
+        expect(result.fetchingPatient).to.equal(state.working.fetchingPatient.inProgress);
+      });
+
+      it('should map working.fetchingPatientData.inProgress to fetchingPatientData', () => {
+        expect(result.fetchingPatientData).to.equal(state.working.fetchingPatientData.inProgress);
+      });
+    });
+
+    describe('patient in view is distinct from logged-in user', () => {
+      const state = {
+        allUsersMap: {
+          a1b2c3: {
+            userid: 'a1b2c3'
+          },
+          d4e5f6: {
+            userid: 'd4e5f6'
+          }
+        },
+        currentPatientInViewId: 'd4e5f6',
+        loggedInUserId: 'a1b2c3',
+        patientDataMap: {
+          d4e5f6: [1,2,3,4,5]
+        },
+        patientNotesMap: {
+          d4e5f6: [{type: 'message'}]
+        },
+        messageThread: [{type: 'message'}],
+        working: {
+          fetchingPatient: {inProgress: false, notification: null},
+          fetchingPatientData: {inProgress: false, notification: null}
+        }
+      };
+      const result = mapStateToProps({blip: state});
+
+      it('should map allUsersMap.a1b2c3 to user', () => {
+        expect(result.user).to.deep.equal(state.allUsersMap.a1b2c3);
+      });
+
+      it('should set isUserPatient to false', () => {
+        expect(result.isUserPatient).to.be.false;
+      });
+
+      it('should map allUsersMap.d4e5f6 to patient', () => {
+        expect(result.patient).to.deep.equal(state.allUsersMap.d4e5f6);
+      });
+
+      it('should pass through patientDataMap', () => {
+        expect(result.patientDataMap).to.deep.equal(state.patientDataMap);
+      });
+
+      it('should pass through patientNotesMap', () => {
+        expect(result.patientNotesMap).to.deep.equal(state.patientNotesMap);
+      });
+
+      it('should pass through messageThread', () => {
+        expect(result.messageThread).to.deep.equal(state.messageThread);
+      });
+
+      it('should map working.fetchingPatient.inProgress to fetchingPatient', () => {
+        expect(result.fetchingPatient).to.equal(state.working.fetchingPatient.inProgress);
+      });
+
+      it('should map working.fetchingPatientData.inProgress to fetchingPatientData', () => {
+        expect(result.fetchingPatientData).to.equal(state.working.fetchingPatientData.inProgress);
+      });
     });
   });
 });

@@ -371,7 +371,7 @@ export let PatientNew = React.createClass({
  * Expose "Smart" Component that is connect-ed to Redux
  */
 
-let mapStateToProps = state => {
+export function mapStateToProps(state) {
   var user = null;
   if (state.blip.allUsersMap){
     if (state.blip.loggedInUserId) {
@@ -385,7 +385,7 @@ let mapStateToProps = state => {
     working: state.blip.working.creatingPatient.inProgress,
     notification: state.blip.working.creatingPatient.notification
   };
-};
+}
 
 let mapDispatchToProps = dispatch => bindActionCreators({
   createPatient: actions.async.createPatient

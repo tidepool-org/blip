@@ -7,7 +7,9 @@ import React from 'react';
 import TestUtils from 'react-addons-test-utils';
 
 import { Signup } from '../../../app/pages/signup';
+import { mapStateToProps } from '../../../app/pages/signup';
 
+var assert = chai.assert;
 var expect = chai.expect;
 
 describe('Signup', function () {
@@ -136,6 +138,30 @@ describe('Signup', function () {
       expect(state.formValues.username).to.equal('gordonmdent@gmail.com');
       expect(Object.keys(state.validationErrors).length).to.equal(0);
       expect(state.notification).to.equal(null);
+    });
+  });
+
+  describe('mapStateToProps', () => {
+    const state = {
+      working: {
+        signingUp: {
+          inProgress: true,
+          notification: {msg: 'Nothing to see here...'}
+        }
+      }
+    };
+    const result = mapStateToProps({blip: state});
+
+    it('should be a function', () => {
+      assert.isFunction(mapStateToProps);
+    });
+
+    it('should map working.signingUp.notification to notification', () => {
+      expect(result.notification).to.deep.equal(state.working.signingUp.notification);
+    });
+
+    it('should map working.signingUp.inProgress to working', () => {
+      expect(result.working).to.equal(state.working.signingUp.inProgress);
     });
   });
 });
