@@ -23,6 +23,8 @@
 
 import _ from 'lodash';
 
+import mutationTracker from 'object-invariant-test-helper';
+
 import { membersOfTargetCareTeam as reducer } from '../../../../app/redux/reducers/misc';
 
 import actions from '../../../../app/redux/actions/index';
@@ -59,12 +61,15 @@ describe('membersOfTargetCareTeam', () => {
   describe('logoutSuccess', () => {
     it('should set state to null', () => {
       let initialStateForTest = [1, 2 ,3];
+
+      let tracked = mutationTracker.trackObj(initialStateForTest);
       
       let action = actions.sync.logoutSuccess()
 
       let state = reducer(initialStateForTest, action);
 
       expect(state.length).to.equal(0);
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 });

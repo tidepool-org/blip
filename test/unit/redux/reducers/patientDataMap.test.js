@@ -23,6 +23,8 @@
 
 import _ from 'lodash';
 
+import mutationTracker from 'object-invariant-test-helper';
+
 import { patientDataMap as reducer } from '../../../../app/redux/reducers/misc';
 
 import actions from '../../../../app/redux/actions/index';
@@ -65,6 +67,7 @@ describe('patientDataMap', () => {
           { value: 34 }
         ]
       };
+      let tracked = mutationTracker.trackObj(initialStateForTest);
 
       let patientId = 100;
 
@@ -76,6 +79,7 @@ describe('patientDataMap', () => {
 
       expect(Object.keys(state).length).to.equal(2);
       expect(state[patientId]).to.be.null;
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 
@@ -90,11 +94,13 @@ describe('patientDataMap', () => {
           { value: 34 }
         ]
       };
+      let tracked = mutationTracker.trackObj(initialStateForTest);
 
       let action = actions.sync.logoutSuccess()
       let state = reducer(initialStateForTest, action);
 
       expect(Object.keys(state).length).to.equal(0);
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 });

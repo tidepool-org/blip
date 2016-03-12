@@ -23,6 +23,8 @@
 
 import _ from 'lodash';
 
+import mutationTracker from 'object-invariant-test-helper';
+
 import { pendingSentInvites as reducer } from '../../../../app/redux/reducers/misc';
 
 import actions from '../../../../app/redux/actions/index';
@@ -57,6 +59,7 @@ describe('pendingSentInvites', () => {
         { inviteid: 30 },
         { inviteid: 50 }
       ];
+      let tracked = mutationTracker.trackObj(initialStateForTest);
 
       let invitation = { inviteid: 500 };
 
@@ -65,6 +68,7 @@ describe('pendingSentInvites', () => {
       let state = reducer(initialStateForTest, action);
 
       expect(state.length).to.equal(initialStateForTest.length + 1);
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 
@@ -74,6 +78,7 @@ describe('pendingSentInvites', () => {
         { inviteid: 30, email: 'g@g.com' },
         { inviteid: 50, email: 'a@a.com' }
       ];
+      let tracked = mutationTracker.trackObj(initialStateForTest);
 
       let removedEmail = 'g@g.com';
 
@@ -83,6 +88,7 @@ describe('pendingSentInvites', () => {
 
       expect(state.length).to.equal(initialStateForTest.length - 1);
       expect(state[0].email).to.equal('a@a.com');
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 
@@ -92,12 +98,14 @@ describe('pendingSentInvites', () => {
         { inviteid: 30, email: 'g@g.com' },
         { inviteid: 50, email: 'a@a.com' }
       ];
+      let tracked = mutationTracker.trackObj(initialStateForTest);
 
       let action = actions.sync.logoutSuccess()
 
       let state = reducer(initialStateForTest, action);
 
       expect(state.length).to.equal(0);
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 });

@@ -23,6 +23,8 @@
 
 import _ from 'lodash';
 
+import mutationTracker from 'object-invariant-test-helper';
+
 import { messageThread as reducer } from '../../../../app/redux/reducers/misc';
 
 import actions from '../../../../app/redux/actions/index';
@@ -67,11 +69,14 @@ describe('messageThread', () => {
         ]
       };
 
+      let tracked = mutationTracker.trackObj(initialStateForTest);
+
       let action = actions.sync.closeMessageThread()
 
       let state = reducer(initialStateForTest, action);
 
       expect(state).to.be.null;
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 
@@ -86,11 +91,14 @@ describe('messageThread', () => {
         ]
       };
 
+      let tracked = mutationTracker.trackObj(initialStateForTest);
+
       let action = actions.sync.logoutSuccess()
 
       let state = reducer(initialStateForTest, action);
 
       expect(state).to.be.null;
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 });
