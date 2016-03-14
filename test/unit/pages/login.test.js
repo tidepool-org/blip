@@ -9,7 +9,9 @@ import React from'react';
 import TestUtils from'react-addons-test-utils';
 
 import { Login } from'../../../app/pages/login/login.js';
+import { mapStateToProps } from'../../../app/pages/login/login.js';
 
+let assert = chai.assert;
 let expect = chai.expect;
 
 describe('Login', function () {
@@ -37,6 +39,26 @@ describe('Login', function () {
       var elem = React.createElement(Login, props);
       var render = TestUtils.renderIntoDocument(elem);
       expect(console.error.callCount).to.equal(0);
+    });
+  });
+
+  describe('mapStateToProps', () => {
+    const state = {
+      working: {
+        loggingIn: {inProgress: false, notification: null}
+      }
+    };
+    const result = mapStateToProps({blip: state});
+    it('should be a function', () => {
+      assert.isFunction(mapStateToProps);
+    });
+
+    it('should map working.loggingIn.inProgress to working', () => {
+      expect(result.working).to.equal(state.working.loggingIn.inProgress);
+    });
+
+    it('should map working.loggingIn.notification to notification', () => {
+      expect(result.notification).to.equal(state.working.loggingIn.notification);
     });
   });
 });

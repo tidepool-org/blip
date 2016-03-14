@@ -170,12 +170,14 @@ export var EmailVerification = React.createClass({
  * Expose "Smart" Component that is connect-ed to Redux
  */
 
-let mapStateToProps = state => ({
-  notification: state.blip.working.resendingEmailVerification.notification,
-  working: state.blip.working.resendingEmailVerification.inProgress,
-  resent: state.blip.resentEmailVerification,
-  sent: state.blip.sentEmailVerification
-});
+export function mapStateToProps(state) {
+  return {
+    notification: state.blip.working.resendingEmailVerification.notification,
+    working: state.blip.working.resendingEmailVerification.inProgress,
+    resent: state.blip.resentEmailVerification,
+    sent: state.blip.sentEmailVerification
+  };
+}
 
 let mapDispatchToProps = dispatch => bindActionCreators({
   submitResend: actions.async.resendEmailVerification,

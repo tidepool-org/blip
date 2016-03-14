@@ -253,14 +253,11 @@ export var Profile = React.createClass({
 /**
  * Expose "Smart" Component that is connect-ed to Redux
  */
-let mapStateToProps = state => {
+export function mapStateToProps(state) {
   let user = null;
-  let { 
-    allUsersMap, 
-    loggedInUserId
-  } = state.blip;
+  let { allUsersMap, loggedInUserId } = state.blip;
 
-  if (allUsersMap){
+  if (allUsersMap) {
     if (loggedInUserId) {
       user = allUsersMap[loggedInUserId];
     }
@@ -270,7 +267,7 @@ let mapStateToProps = state => {
     user: user,
     fetchingUser: state.blip.working.fetchingUser.inProgress
   };
-};
+}
 
 let mapDispatchToProps = dispatch => bindActionCreators({
   updateUser: actions.async.updateUser

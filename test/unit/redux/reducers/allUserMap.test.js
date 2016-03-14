@@ -23,6 +23,8 @@
 
 import _ from 'lodash';
 
+import mutationTracker from 'object-invariant-test-helper';
+
 import { allUsersMap as reducer } from '../../../../app/redux/reducers/misc';
 
 import actions from '../../../../app/redux/actions/index';
@@ -144,6 +146,8 @@ describe('allUsersMap', () => {
         500: { userid: 500, name: 'Xavier' }
       };
 
+      let tracked = mutationTracker.trackObj(initialStateForTest);
+
       let acceptedDate = new Date();
 
       let action = actions.sync.acceptTermsSuccess(500, acceptedDate)
@@ -153,6 +157,7 @@ describe('allUsersMap', () => {
       expect(Object.keys(state).length).to.equal(Object.keys(initialStateForTest).length);
 
       expect(state[500].termsAccepted).to.equal(acceptedDate);
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 
@@ -162,6 +167,8 @@ describe('allUsersMap', () => {
         500:  {userid: 500 }
       };
 
+      let tracked = mutationTracker.trackObj(initialStateForTest);
+
       let patient = { userid: 500, name: 'Xavier', profile: { foo: 'bar' } };
 
       let action = actions.sync.createPatientSuccess(500, patient)
@@ -169,8 +176,8 @@ describe('allUsersMap', () => {
       let state = reducer(initialStateForTest, action);
 
       expect(Object.keys(state).length).to.equal(1);
-
       expect(state[patient.userid].profile).to.equal(patient.profile);
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 
@@ -180,6 +187,8 @@ describe('allUsersMap', () => {
         505:  {userid: 505 }
       };
 
+      let tracked = mutationTracker.trackObj(initialStateForTest);
+
       let patient = { userid: 505, name: 'Xavier', profile: { foo: 'sweet' }, permissions: { foo: 'bar'} };
 
       let action = actions.sync.updateUserRequest(505, patient)
@@ -187,9 +196,9 @@ describe('allUsersMap', () => {
       let state = reducer(initialStateForTest, action);
 
       expect(Object.keys(state).length).to.equal(1);
-
       expect(state[patient.userid].profile).to.equal(patient.profile);
       expect(state[patient.userid].permissions).to.be.undefined;
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 
@@ -198,6 +207,8 @@ describe('allUsersMap', () => {
       let initialStateForTest = {
         500:  {userid: 500 }
       };
+      
+      let tracked = mutationTracker.trackObj(initialStateForTest);
 
       let patient = { userid: 500, name: 'Xavier', profile: { foo: 'bar' }, permissions: { foo: 'bar'} };
 
@@ -209,6 +220,7 @@ describe('allUsersMap', () => {
 
       expect(state[patient.userid].profile).to.equal(patient.profile);
       expect(state[patient.userid].permissions).to.be.undefined;
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 
@@ -217,6 +229,8 @@ describe('allUsersMap', () => {
       let initialStateForTest = {
         500:  {userid: 500 }
       };
+
+      let tracked = mutationTracker.trackObj(initialStateForTest);
 
       let patient = { userid: 500, name: 'Xavier', profile: { foo: 'bar' }, permissions: { foo: 'bar'} };
 
@@ -228,6 +242,7 @@ describe('allUsersMap', () => {
 
       expect(state[patient.userid].profile).to.equal(patient.profile);
       expect(state[patient.userid].permissions).to.be.undefined;
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 
@@ -237,11 +252,14 @@ describe('allUsersMap', () => {
         500:  {userid: 500 }
       };
 
+      let tracked = mutationTracker.trackObj(initialStateForTest);
+
       let action = actions.sync.logoutSuccess()
 
       let state = reducer(initialStateForTest, action);
 
       expect(Object.keys(state).length).to.equal(0);
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 });

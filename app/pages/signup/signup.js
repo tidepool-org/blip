@@ -261,10 +261,12 @@ export let Signup = React.createClass({
  * Expose "Smart" Component that is connect-ed to Redux
  */
 
-let mapStateToProps = state => ({
-  notification: state.blip.working.signingUp.notification,
-  working: state.blip.working.signingUp.inProgress,
-});
+export function mapStateToProps(state) {
+  return {
+    notification: state.blip.working.signingUp.notification,
+    working: state.blip.working.signingUp.inProgress,
+  };
+}
 
 let mapDispatchToProps = dispatch => bindActionCreators({
   onSubmit: actions.async.signup,

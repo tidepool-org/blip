@@ -208,11 +208,13 @@ export var ConfirmPasswordReset = React.createClass({
  * Expose "Smart" Component that is connect-ed to Redux
  */
 
-let mapStateToProps = state => ({
-  notification: state.blip.working.confirmingPasswordReset.notification,
-  working: state.blip.working.confirmingPasswordReset.inProgress,
-  success: state.blip.passwordResetConfirmed
-});
+export function mapStateToProps(state) {
+  return {
+    notification: state.blip.working.confirmingPasswordReset.notification,
+    working: state.blip.working.confirmingPasswordReset.inProgress,
+    success: state.blip.passwordResetConfirmed
+  };
+}
 
 let mapDispatchToProps = dispatch => bindActionCreators({
   onSubmit: actions.async.confirmPasswordReset,
