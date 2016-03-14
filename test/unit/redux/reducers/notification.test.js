@@ -23,6 +23,8 @@
 
 import _ from 'lodash';
 
+import mutationTracker from 'object-invariant-test-helper';
+
 import { notification as reducer } from '../../../../app/redux/reducers/misc';
 
 import actions from '../../../../app/redux/actions/index';
@@ -38,6 +40,7 @@ describe('notification', () => {
     it('should clear notification state when no acknowledgeNotificationKey specified in payload', () => {
       let notification = 'Some notification'
       let initialStateForTest = notification;
+      let tracked = mutationTracker.trackObj(initialStateForTest);
 
       let action = actions.sync.acknowledgeNotification()
 
@@ -45,11 +48,13 @@ describe('notification', () => {
 
       let state = reducer(initialStateForTest, action);
       expect(state).to.be.null;
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
 
     it('should not clear notification state when a acknowledgeNotificationKey is specified in payload', () => {
       let notification = 'Some notification'
       let initialStateForTest = notification;
+      let tracked = mutationTracker.trackObj(initialStateForTest);
 
       let action = actions.sync.acknowledgeNotification('someAcknowledgementKey')
 
@@ -57,6 +62,7 @@ describe('notification', () => {
 
       let state = reducer(initialStateForTest, action);
       expect(state).to.equal(notification);
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 });

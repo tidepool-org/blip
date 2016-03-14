@@ -23,6 +23,8 @@
 
 import _ from 'lodash';
 
+import mutationTracker from 'object-invariant-test-helper';
+
 import { permissionsOfMembersInTargetCareTeam as reducer } from '../../../../app/redux/reducers/misc';
 
 import actions from '../../../../app/redux/actions/index';
@@ -61,12 +63,13 @@ describe('permissionsOfMembersInTargetCareTeam', () => {
         3434: { view: {}, notes: {} },
         250: { view: {}, notes: {} }
       };
-      
+      let tracked = mutationTracker.trackObj(initialStateForTest);
       let action = actions.sync.logoutSuccess()
 
       let state = reducer(initialStateForTest, action);
 
       expect(Object.keys(state).length).to.equal(0);
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 });
