@@ -4,31 +4,31 @@
 /* global it */
 /* global beforeEach */
 
-var React = require('react');
-var TestUtils = require('react-addons-test-utils');
+import React from 'react';
+import TestUtils from 'react-addons-test-utils';
 var expect = chai.expect;
 
-var TermsOverlay = require('../../../app/components/termsoverlay');
+import { Terms } from '../../../app/pages/terms';
 
-describe('TermsOverlay', function () {
+describe('Terms', () => {
 
-  describe('render', function() {
-    it('should console.error when trackMetric not set', function () {
+  describe('render', () => {
+    it('should console.error when trackMetric not set', () => {
       console.error = sinon.stub();
-      var elem = TestUtils.renderIntoDocument(<TermsOverlay/>);
+      var elem = TestUtils.renderIntoDocument(<Terms/>);
 
       expect(elem).to.be.ok;
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `TermsOverlay`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `Terms`.')).to.equal(true);
     });
 
-    it('should not console.error when trackMetric set', function() {
+    it('should not console.error when trackMetric set', () => {
       console.error = sinon.stub();
       var props = {
-        trackMetric: function() {},
-        onSubmit: function() {},
+        trackMetric: () => {},
+        onSubmit: () => {},
       };
-      var termsOverlayElem = React.createElement(TermsOverlay, props);
-      var elem = TestUtils.renderIntoDocument(termsOverlayElem);
+      var termsElem = React.createElement(Terms, props);
+      var elem = TestUtils.renderIntoDocument(termsElem);
 
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);
@@ -40,64 +40,93 @@ describe('TermsOverlay', function () {
 
     var elem;
 
-    beforeEach(function() {
+    beforeEach(() => {
       var props = {
-        trackMetric: function() {},
-        onSubmit: function() {}
+        trackMetric: () => {},
+        onSubmit: () => {}
       };
-      var termsOverlayElem = React.createElement(TermsOverlay, props);
-      elem = TestUtils.renderIntoDocument(termsOverlayElem);
+      var termsElem = React.createElement(Terms, props);
+      elem = TestUtils.renderIntoDocument(termsElem);
     });
 
-    it('is not agreed', function() {
+    it('is not agreed', () => {
       expect(elem.state.agreed).to.equal(false);
     });
-    it('is not agreedOnBehalf', function() {
+    it('is not agreedOnBehalf', () => {
       expect(elem.state.agreedOnBehalf).to.equal(false);
     });
-    it('age is not confirmed', function() {
+    it('age is not confirmed', () => {
       expect(elem.state.ageConfirmed).to.equal(false);
     });
-    it('age is over 18', function() {
+    it('age is over 18', () => {
       expect(elem.state.ageSelected).to.equal(elem.props.ages.OF_AGE.value);
     });
-    it('shows age confirmation form', function() {
-      var age = TestUtils.findRenderedDOMComponentWithClass(elem, 'terms-overlay-age-form');
-      expect(age).not.to.equal(null);
+    it('should render age confirmation but not the terms form when user has not accepted terms but is logged in', () => {
+      var props = { authenticated: true , fetchingUser: false, termsAccepted: ''};
+      var termsElem = React.createElement(Terms, props);
+      var elem = TestUtils.renderIntoDocument(termsElem);
+
+      var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-age-form');
+      expect(termsElems.length).to.not.equal(0);
+      termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-form');
+      expect(termsElems.length).to.equal(0);
+    });
+    it('should NOT render age confirmation nor terms form when user has acccepted terms and is logged in', () => {
+      var acceptDate = new Date().toISOString();
+      var props = { authenticated: true, termsAccepted: acceptDate, fetchingUser: false }
+      var termsElem = React.createElement(Terms, props);
+      var elem = TestUtils.renderIntoDocument(termsElem);
+
+      var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-age-form');
+      expect(termsElems.length).to.equal(0);
+      termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-form');
+      expect(termsElems.length).to.equal(0);
+    });
+    it('should NOT render age confirmation nor terms acceptance form when user is not logged in', () => {
+      var props = {};
+      var elem = TestUtils.renderIntoDocument(<Terms />);
+
+      var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-age-form');
+      expect(termsElems.length).to.equal(0);
+      var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-form');
+      expect(termsElems.length).to.equal(0);
     });
   });
-  describe('age confirmation', function() {
+  describe('age confirmation', () => {
 
     var termsElem;
 
-    beforeEach(function() {
+    beforeEach(() => {
       var props = {
-        trackMetric: function() {},
-        onSubmit: function() {}
+        trackMetric: () => {},
+        onSubmit: () => {},
+        authenticated: true,
+        termsAccepted: '',
+        fetchingUser: false
       };
-      var termsOverlayElem = React.createElement(TermsOverlay, props);
-      termsElem = TestUtils.renderIntoDocument(termsOverlayElem);
+      termsElem = React.createElement(Terms, props);
+      termsElem = TestUtils.renderIntoDocument(termsElem);
     });
 
-    it('is true once button pressed ', function() {
+    it('is true once button pressed ', () => {
       var ageBtn = TestUtils.findRenderedDOMComponentWithTag(termsElem, 'button');
       expect(ageBtn).not.to.not.equal(null);
 
       TestUtils.Simulate.click(ageBtn);
       expect(termsElem.state.ageConfirmed).to.equal(true);
     });
-    it('shows iframes once button pressed ', function() {
+    it('shows iframes once button pressed ', () => {
 
       var ageBtn = TestUtils.findRenderedDOMComponentWithTag(termsElem, 'button');
       TestUtils.Simulate.click(ageBtn);
 
-      var iframes = TestUtils.scryRenderedDOMComponentsWithClass(termsElem, 'terms-overlay-iframe');
+      var iframes = TestUtils.scryRenderedDOMComponentsWithClass(termsElem, 'terms-iframe');
       expect(iframes).not.to.equal(null);
       expect(iframes.length).to.equal(2);
     });
 
-    describe('flow for 18 and over login', function() {
-      it('shows TOU and PP', function() {
+    describe('flow for 18 and over login', () => {
+      it('shows TOU and PP', () => {
         var overEighteen = TestUtils.scryRenderedDOMComponentsWithTag(termsElem,'input')[0];
         expect(overEighteen.props.value).to.equal(termsElem.props.ages.OF_AGE.value);
         //continue
@@ -109,7 +138,7 @@ describe('TermsOverlay', function () {
         expect(termsElem.state.ageSelected).to.equal(termsElem.props.ages.OF_AGE.value);
 
         //iframes shown with TOU and PP
-        var iframes = TestUtils.scryRenderedDOMComponentsWithClass(termsElem, 'terms-overlay-iframe');
+        var iframes = TestUtils.scryRenderedDOMComponentsWithClass(termsElem, 'terms-iframe');
         expect(iframes).not.to.equal(null);
         expect(iframes.length).to.equal(2);
 
@@ -121,8 +150,8 @@ describe('TermsOverlay', function () {
         expect(termsElem.state.agreed).to.equal(false);
       });
     });
-    describe('flow for between 13 and 17 years old', function() {
-      it('shows TOU and PP and asks for parental consent also', function() {
+    describe('flow for between 13 and 17 years old', () => {
+      it('shows TOU and PP and asks for parental consent also', () => {
 
         //Select between 13 and 17
         var thirteenToSeventeenOpt = TestUtils.scryRenderedDOMComponentsWithTag(termsElem,'input')[1];
@@ -156,7 +185,7 @@ describe('TermsOverlay', function () {
         expect(buttons[1].props.disabled).to.equal(false);
         expect(buttons[0].props.children).to.equal('Back');
       });
-      it('will not allow TOU and PP confirmation if both checkboxes are not selected', function() {
+      it('will not allow TOU and PP confirmation if both checkboxes are not selected', () => {
         //Select between 13 and 17
         var thirteenToSeventeenOpt = TestUtils.scryRenderedDOMComponentsWithTag(termsElem,'input')[1];
         TestUtils.Simulate.change(thirteenToSeventeenOpt);
@@ -200,8 +229,8 @@ describe('TermsOverlay', function () {
 
       });
     });
-    describe('flow for under 12 login flow', function() {
-      it('display sorry message', function() {
+    describe('flow for under 12 login flow', () => {
+      it('display sorry message', () => {
         // I am 12 years old or younger.
         var underTwelveOpt = TestUtils.scryRenderedDOMComponentsWithTag(termsElem,'input')[2];
 
@@ -218,10 +247,10 @@ describe('TermsOverlay', function () {
         expect(termsElem.state.agreed).to.equal(false);
 
         //No TOU and PP shown
-        var iframes = TestUtils.scryRenderedDOMComponentsWithClass(termsElem, 'terms-overlay-iframe');
+        var iframes = TestUtils.scryRenderedDOMComponentsWithClass(termsElem, 'terms-iframe');
         expect(iframes).to.be.empty;
         //Sorry Message shown
-        var sorryMsg = TestUtils.findRenderedDOMComponentWithClass(termsElem, 'terms-overlay-sorry-message');
+        var sorryMsg = TestUtils.findRenderedDOMComponentWithClass(termsElem, 'terms-sorry-message');
         expect(sorryMsg).not.to.equal(null);
         //still not accepted
         expect(termsElem.state.agreed).to.equal(false);

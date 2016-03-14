@@ -13,47 +13,64 @@
  * You should have received a copy of the License along with this program; if
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
-var React = require('react');
-var LoginNav = require('../loginnav');
+import React  from 'react';
+import LoginNav from '../../components/loginnav';
 
-var TermsOverlay = React.createClass({
-  propTypes: {
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+
+import * as actions from '../../redux/actions';
+
+
+
+export class Terms extends React.Component {
+  static propTypes = {
     onSubmit: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
     ages: React.PropTypes.object.isRequired,
-    messages: React.PropTypes.object.isRequired
-  },
-  getDefaultProps: function() {
-    return {
-      ages: {
-        OF_AGE: {value: '>=18', label: ' I am 18 years old or older.'},
-        WITH_CONSENT: {value: '13-17', label: ' I am between 13 and 17 years old. You\'ll need to have a parent or guardian agree to the terms on the next screen.' },
-        NOT_OF_AGE: {value: '<=12', label: ' I am 12 years old or younger.'}
-      },
-      messages: {
-        ACCEPT_OF_AGE: 'I am 18 or older and I accept the terms of the Tidepool Applications Terms of Use and Privacy Policy',
-        ACCEPT_ON_BEHALF: 'I agree that my child aged 13 through 17 can use Tidepool Applications and agree that they are also bound to the terms of the Tidepool Applications Terms of Use and Privacy Policy',
-        SORRY_NOT_OF_AGE: 'We are really sorry, but you need to be 13 or older in order to create an account and use Tidepool\'s Applications.'
-      }
-    };
-  },
-  getInitialState: function() {
-    return {
+    messages: React.PropTypes.object.isRequired,
+    termsAccepted: React.PropTypes.string.isRequired,
+    authenticated: React.PropTypes.bool.isRequired
+  };
+
+  static defaultProps = {
+    ages: {
+      OF_AGE: {value: '>=18', label: ' I am 18 years old or older.'},
+      WITH_CONSENT: {value: '13-17', label: ' I am between 13 and 17 years old. You\'ll need to have a parent or guardian agree to the terms on the next screen.' },
+      NOT_OF_AGE: {value: '<=12', label: ' I am 12 years old or younger.'}
+    },
+    messages: {
+      ACCEPT_OF_AGE: 'I am 18 or older and I accept the terms of the Tidepool Applications Terms of Use and Privacy Policy',
+      ACCEPT_ON_BEHALF: 'I agree that my child aged 13 through 17 can use Tidepool Applications and agree that they are also bound to the terms of the Tidepool Applications Terms of Use and Privacy Policy',
+      SORRY_NOT_OF_AGE: 'We are really sorry, but you need to be 13 or older in order to create an account and use Tidepool\'s Applications.'
+    }
+  };
+
+  constructor(props) {
+    super(props);
+    this.state = {
       agreed: false,
       agreedOnBehalf: false,
       ageConfirmed: false,
       ageSelected: this.props.ages.OF_AGE.value //default
     };
-  },
-  renderAgeConsentStep: function() {
+  }
+
+  componentWillUpdate(nextProps, nextState){
+    if(nextProps.termsAccepted && this.props.location.state && this.props.location.state.originalPath){
+      this.props.history.pushState(null, this.props.location.state.originalPath)
+    }
+  }
+
+  renderAgeConsentStep() {
     return (
-      <form ref='confirmAgeStep' className='terms-overlay-age-form'>
-        <div className='terms-overlay-age-radio'>
+      <form ref='confirmAgeStep' className='terms-age-form'>
+        <div className='terms-age-radio'>
           <label>
             <input type='radio' name='age'
               key={this.props.ages.OF_AGE.value}
               value={this.props.ages.OF_AGE.value}
-              onChange={this.handleAgeChange}
+              onChange={this.handleAgeChange.bind(this)}
               defaultChecked={true} />
             {this.props.ages.OF_AGE.label}
           </label>
@@ -61,24 +78,25 @@ var TermsOverlay = React.createClass({
             <input type='radio' name='age'
               key={this.props.ages.WITH_CONSENT.value}
               value={this.props.ages.WITH_CONSENT.value}
-              onChange={this.handleAgeChange} />
+              onChange={this.handleAgeChange.bind(this)} />
             {this.props.ages.WITH_CONSENT.label}
           </label>
           <label>
             <input type='radio' name='age'
               key={this.props.ages.NOT_OF_AGE.value}
               value={this.props.ages.NOT_OF_AGE.value}
-              onChange={this.handleAgeChange} />
+              onChange={this.handleAgeChange.bind(this)} />
             {this.props.ages.NOT_OF_AGE.label}
           </label>
         </div>
         <button
           className='btn btn-primary js-terms-submit'
-          onClick={this.handleAgeSubmit}>Continue</button>
+          onClick={this.handleAgeSubmit.bind(this)}>Continue</button>
       </form>
     );
-  },
-  getTermsAndPrivacyButtonState: function() {
+  }
+
+  getTermsAndPrivacyButtonState() {
     var isDisabled = !this.state.agreed;
 
     if (this.state.ageSelected === this.props.ages.WITH_CONSENT.value) {
@@ -90,39 +108,54 @@ var TermsOverlay = React.createClass({
       }
     }
     return isDisabled;
-  },
-  renderTermsAndPrivacyStep: function() {
+  }
+
+  renderTermsAndPrivacyStep() {
     var terms = this.websiteTerms();
     var privacy = this.websitePrivacy();
-    var continueBtnDisabled = this.getTermsAndPrivacyButtonState();
-    var agreeConfirmation = this.renderAgreeCheckboxes();
-    var backBtn = this.renderBackBtn();
+    var termsForm = this.renderTermsForm();
 
     return (
       <div ref='acceptTermsStep'>
-        <div className='terms-overlay-title'>TERMS OF USE</div>
+        <div className='terms-title'>TERMS OF USE</div>
         {terms}
-        <div className='privacy-overlay-title'>PRIVACY POLICY</div>
+        <div className='privacy-title'>PRIVACY POLICY</div>
         {privacy}
-        <form className='terms-overlay-form'>
+        {termsForm}
+      </div>
+    );
+  }
+
+  renderTermsForm() {
+    var agreeConfirmation = this.renderAgreeCheckboxes();
+    var backBtn = this.renderBackBtn();
+    var continueBtnDisabled = this.getTermsAndPrivacyButtonState();
+
+    var termsForm;
+    if(this.props.authenticated && !this.props.termsAccepted){
+      termsForm = (
+        <form className='terms-form'>
           {agreeConfirmation}
           {backBtn}
           <button
             className='terms-button terms-button-submit'
-            onClick={this.handleTermsAndPrivacySubmit}
+            onClick={this.handleTermsAndPrivacySubmit.bind(this)}
             disabled={continueBtnDisabled}>Continue</button>
         </form>
-      </div>
-    );
-  },
-  renderBackBtn: function() {
+      );
+    }
+    return termsForm;
+  }
+
+  renderBackBtn() {
     return (
       <button
         className='terms-button terms-button-back'
-        onClick={this.handleBack}>Back</button>
+        onClick={this.handleBack.bind(this)}>Back</button>
     );
-  },
-  renderAgreeCheckboxes: function() {
+  }
+
+  renderAgreeCheckboxes() {
 
     var onBehalf;
     if (this.state.ageSelected === this.props.ages.WITH_CONSENT.value) {
@@ -133,39 +166,47 @@ var TermsOverlay = React.createClass({
             type='checkbox'
             className='js-terms-checkbox'
             checked={this.state.agreedOnBehalf}
-            onChange={this.handleOnBehalfAgreementChange} />
+            onChange={this.handleOnBehalfAgreementChange.bind(this)} />
           {this.props.messages.ACCEPT_ON_BEHALF}
         </label>
       );
     }
 
     return (
-      <div className='terms-overlay-accept-checkbox'>
+      <div className='terms-accept-checkbox'>
         <label htmlFor='agreed'>
           <input
             id='agreed'
             type='checkbox'
             className='js-terms-checkbox'
             checked={this.state.agreed}
-            onChange={this.handleAgreementChange} />
+            onChange={this.handleAgreementChange.bind(this)} />
           {this.props.messages.ACCEPT_OF_AGE}
         </label>
         {onBehalf}
       </div>
     );
-  },
-  renderSorryMessage: function() {
+  }
+
+  renderSorryMessage() {
     var backBtn = this.renderBackBtn();
     return (
       <div ref='sorryMsg'>
-        <p className='terms-overlay-sorry-message'>{this.props.messages.SORRY_NOT_OF_AGE}</p>
+        <p className='terms-sorry-message'>{this.props.messages.SORRY_NOT_OF_AGE}</p>
         {backBtn}
       </div>
     );
-  },
-  render: function() {
+  }
 
-    var content = this.renderAgeConsentStep();
+  render() {
+    var content = '';
+    if(!this.props.authenticated || (this.props.authenticated && this.props.termsAccepted)){
+      content = this.renderTermsAndPrivacyStep();
+    }
+
+    if(this.props.authenticated && !this.props.termsAccepted){
+      content = this.renderAgeConsentStep();
+    }
 
     if (this.state.ageConfirmed) {
       //assume we are good to go
@@ -178,57 +219,65 @@ var TermsOverlay = React.createClass({
     }
 
     return (
-      <div className='terms-overlay js-terms'>
+      <div className='terms js-terms'>
         <LoginNav hideLinks={true} trackMetric={this.props.trackMetric} />
-        <div className='terms-overlay-content terms-overlay-box'>
+        <div className='terms-content terms-box'>
           {content}
         </div>
       </div>
     );
 
-  },
-  websiteTerms: function() {
+  }
+
+  websiteTerms() {
     return React.DOM.iframe({
-      className         : 'terms-overlay-iframe',
+      className         : 'terms-iframe',
       src               : 'https://tidepool.org/terms-of-use/',
       scrolling         : 'yes',
       frameBorder       : '0',
       allowTransparency : 'true'
     });
-  },
-  websitePrivacy: function() {
+  }
+
+  websitePrivacy() {
     return React.DOM.iframe({
-      className         : 'terms-overlay-iframe',
+      className         : 'terms-iframe',
       src               : 'https://tidepool.org/privacy-policy/',
       scrolling         : 'yes',
       frameBorder       : '0',
       allowTransparency : 'true'
     });
-  },
-  handleBack: function(e) {
+  }
+
+  handleBack(e) {
     if (e) {
       e.preventDefault();
     }
     this.setState(this.getInitialState());
     this.props.trackMetric('Back');
-  },
-  handleAgeSubmit: function(e) {
+  }
+
+  handleAgeSubmit(e) {
     if (e) {
       e.preventDefault();
     }
     this.setState({ageConfirmed: true });
     this.props.trackMetric('Confirmed age');
-  },
-  handleAgeChange: function(e) {
+  }
+
+  handleAgeChange(e) {
     this.setState({ ageSelected: e.target.value});
-  },
-  handleAgreementChange: function() {
+  }
+
+  handleAgreementChange() {
     this.setState({agreed: !this.state.agreed});
-  },
-  handleOnBehalfAgreementChange: function() {
+  }
+
+  handleOnBehalfAgreementChange() {
     this.setState({agreedOnBehalf: !this.state.agreedOnBehalf});
-  },
-  handleTermsAndPrivacySubmit: function(e) {
+  }
+
+  handleTermsAndPrivacySubmit(e) {
     if (e) {
       e.preventDefault();
     }
@@ -236,6 +285,38 @@ var TermsOverlay = React.createClass({
     this.props.trackMetric('Agreed To Terms Of Use');
     this.props.onSubmit();
   }
-});
+};
 
-module.exports = TermsOverlay;
+/**
+ * Expose "Smart" Component that is connect-ed to Redux
+ */
+
+export function mapStateToProps(state) {
+  var termsAccepted = null;
+
+  if (state.blip.allUsersMap) {
+    if (state.blip.loggedInUserId) {
+      termsAccepted = state.blip.allUsersMap[state.blip.loggedInUserId].termsAccepted;
+    }
+  }
+
+  return {
+    authenticated: state.blip.isLoggedIn,
+    termsAccepted: termsAccepted
+  };
+
+};
+
+let mapDispatchToProps = dispatch => bindActionCreators({
+  acceptTerms: actions.async.acceptTerms,
+}, dispatch);
+
+let mergeProps = (stateProps, dispatchProps, ownProps) => {
+  var api = ownProps.routes[0].api;
+  return Object.assign({}, ownProps, stateProps, dispatchProps, {
+    onSubmit: dispatchProps.acceptTerms.bind(null, api),
+    trackMetric: ownProps.routes[0].trackMetric
+  });
+};
+
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(Terms);

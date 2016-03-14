@@ -140,9 +140,30 @@ module.exports = function () {
     this.browser.assert.element('.waitlist .waitlist-container');
     next();
   });
-    
+
   this.Then(/^I should be on my care team memberships page$/, function (next) {
     this.browser.assert.url(this.host + '/patients');
     next();
   });
+
+  this.Given(/^I am on the terms of use page without being authenticated$/, function (next) {
+    this.visit('/terms', next);
+  });
+
+  this.Then(/^I should see the terms of service$/, function (next) {
+    this.browser.assert.element('.terms');
+    next();
+  });
+
+  this.Then(/^I should be on the terms of use page$/, function (next) {
+    this.browser.assert.url(this.host + '/terms');
+    next();
+  });
+
+  this.Then(/^I should see the age selection screen$/, function (next) {
+    this.browser.assert.element('.terms-age-form')
+    next();
+  });
+
+
 };

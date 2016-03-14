@@ -13,21 +13,32 @@ import PatientData from './pages/patientdata';
 import RequestPasswordReset from './pages/passwordreset/request';
 import ConfirmPasswordReset from './pages/passwordreset/confirm';
 import EmailVerification from './pages/emailverification';
+import Terms from './pages/terms';
 
 import personUtils from './core/personutils';
 
 /**
  * This function redirects any requests that land on pages that should only be
  * visible when logged in if the user is logged out
- * 
+ *
  * @param  {Object} nextState
  * @param  {Function} replace
  *
  * @return {boolean|null} returns true if hash mapping happened
  */
-export const requireAuth = (api) => (nextState, replace) => {
+export const requireAuth = (api) => (nextState, replace, cb) => {
   if (!api.user.isAuthenticated()) {
     replace('/login');
+    return cb();
+  }
+  else {
+    api.user.get(function(err, user) {
+      if(!user.termsAccepted){
+        replace('/terms');
+        return cb();
+      }
+      return cb();
+    })
   }
 };
 
@@ -66,7 +77,7 @@ export const requireAuthAndNoPatient = (api, store) => (nextState, replace, cb) 
 /**
  * This function redirects any requests that land on pages that should only be
  * visible when logged out if the user is logged in
- * 
+ *
  * @param  {Object} nextState
  * @param  {Function} replace
  *
@@ -103,12 +114,17 @@ export const requireNotVerified = (api, store) => (nextState, replace, cb) => {
         throw new Error('Error getting user at /email-verification');
         return cb();
       }
+
       checkIfVerified(user, cb);
     });
   }
 
   function checkIfVerified(userToCheck) {
     if (userToCheck.emailVerified === true) {
+      if(!userToCheck.termsAccepted){
+        replace('/terms');
+        return cb();
+      }
       replace('/patients');
       return cb();
     }
@@ -140,7 +156,7 @@ export const onUploaderPasswordReset = (api) => (nextState, replace) => {
 /**
  * This function exists for backward compatibility and maps hash
  * urls to standard urls
- * 
+ *
  * @param  {Object} nextState
  * @param  {Function} replace
  *
@@ -160,7 +176,7 @@ export const hashToUrl = (nextState, replace) => {
  * onEnter handler for IndexRoute.
  *
  * This function calls hashToUrl and requireNoAuth
- * 
+ *
  * @param  {Object} nextState
  * @param  {Function} replace
  */
@@ -172,7 +188,7 @@ export const onIndexRouteEnter = (api, store) => (nextState, replace) => {
 
 /**
  * Creates the route map with authentication associated with each route built in.
- * 
+ *
  * @param  {Object} appContext
  * @param {Object} store
  * 
@@ -186,6 +202,7 @@ export const getRoutes = (appContext, store) => {
     <Route path='/' component={AppComponent} {...props}>
       <IndexRoute component={Login} onEnter={onIndexRouteEnter(api, store)} />
       <Route path='login' component={Login} onEnter={requireNoAuth(api)} />
+      <Route path='terms' components={Terms} />
       <Route path='signup' component={Signup} onEnter={requireNoAuth(api)} />
       <Route path='email-verification' component={EmailVerification} onEnter={requireNotVerified(api, store)} />
       <Route path='profile' component={Profile} onEnter={requireAuth(api)} />
