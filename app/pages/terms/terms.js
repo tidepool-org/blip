@@ -21,8 +21,6 @@ import { bindActionCreators } from 'redux';
 
 import * as actions from '../../redux/actions';
 
-
-
 export class Terms extends React.Component {
   static propTypes = {
     onSubmit: React.PropTypes.func.isRequired,
@@ -56,8 +54,8 @@ export class Terms extends React.Component {
     };
   }
 
-  componentWillUpdate(nextProps, nextState){
-    if(nextProps.termsAccepted && this.props.location.state && this.props.location.state.originalPath){
+  componentWillUpdate(nextProps, nextState) {
+    if (nextProps.termsAccepted && this.props.location.state && this.props.location.state.originalPath) {
       this.props.history.pushState(null, this.props.location.state.originalPath)
     }
   }
@@ -132,7 +130,7 @@ export class Terms extends React.Component {
     var continueBtnDisabled = this.getTermsAndPrivacyButtonState();
 
     var termsForm;
-    if(this.props.authenticated && !this.props.termsAccepted){
+    if (this.props.authenticated && !this.props.termsAccepted) {
       termsForm = (
         <form className='terms-form'>
           {agreeConfirmation}
@@ -200,11 +198,11 @@ export class Terms extends React.Component {
 
   render() {
     var content = '';
-    if(!this.props.authenticated || (this.props.authenticated && this.props.termsAccepted)){
+    if (!this.props.authenticated || (this.props.authenticated && this.props.termsAccepted)) {
       content = this.renderTermsAndPrivacyStep();
     }
 
-    if(this.props.authenticated && !this.props.termsAccepted){
+    if (this.props.authenticated && !this.props.termsAccepted) {
       content = this.renderAgeConsentStep();
     }
 
