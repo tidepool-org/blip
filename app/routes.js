@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import React from 'react';
 import { Route, IndexRoute } from 'react-router';
 
@@ -20,25 +21,35 @@ import personUtils from './core/personutils';
 /**
  * This function redirects any requests that land on pages that should only be
  * visible when logged in if the user is logged out
+ * It also redirects to the Terms of Use & Privacy Policy form if the user is logged in
+ * but has not yet agreed to these
  *
  * @param  {Object} nextState
  * @param  {Function} replace
  *
  * @return {boolean|null} returns true if hash mapping happened
  */
-export const requireAuth = (api) => (nextState, replace, cb) => {
+export const requireAuth = (api, store) => (nextState, replace, cb) => {
+  let { blip: state } = store.getState();
+
   if (!api.user.isAuthenticated()) {
     replace('/login');
     return cb();
-  }
-  else {
-    api.user.get(function(err, user) {
-      if(!user.termsAccepted){
+  } else {
+    const user = _.get(state.allUsersMap, state.loggedInUserId, {});
+    if (!_.isEmpty(user)) {
+      checkIfAcceptedTerms(user);
+    } else {
+      api.user.get(function(err, user) {
+        checkIfAcceptedTerms(user);
+      });
+    }
+    function checkIfAcceptedTerms(user) {
+      if (!personUtils.hasAcceptedTerms(user)) {
         replace('/terms');
-        return cb();
       }
-      return cb();
-    })
+      cb();
+    }
   }
 };
 
@@ -58,18 +69,19 @@ export const requireAuthAndNoPatient = (api, store) => (nextState, replace, cb) 
     replace('/login');
     return cb();
   } else {
-    if (state.loggedInUser) {
-      if (personUtils.isPatient(state.loggedInUser)) {
+    const user = _.get(state.allUsersMap, state.loggedInUserId, {});
+    if (!_.isEmpty(user)) {
+      checkIfPatient(user);
+    } else {
+      api.user.get(function(err, user) {
+        checkIfPatient(user);
+      });
+    }
+    function checkIfPatient(user) {
+      if (personUtils.isPatient(user)) {
         replace('/patients');
       }
       cb();
-    } else {
-      api.user.get(function(err, user) {
-        if (personUtils.isPatient(user)) {
-          replace('/patients');
-        }
-        cb();
-      });
     }
   }
 };
@@ -101,8 +113,9 @@ export const requireNoAuth = (api) => (nextState, replace) => {
  */
 export const requireNotVerified = (api, store) => (nextState, replace, cb) => {
   let { blip: state } = store.getState();
-  if (state.loggedInUser) { 
-    checkIfVerified(state.loggedInUser);
+  const user = _.get(state.allUsersMap, state.loggedInUserId, {});
+  if (!_.isEmpty(user)) {
+    checkIfVerified(user);
   } else {
     api.user.get(function(err, user) {
       if (err) {
@@ -115,13 +128,13 @@ export const requireNotVerified = (api, store) => (nextState, replace, cb) => {
         return cb();
       }
 
-      checkIfVerified(user, cb);
+      checkIfVerified(user);
     });
   }
 
   function checkIfVerified(userToCheck) {
     if (userToCheck.emailVerified === true) {
-      if(!userToCheck.termsAccepted){
+      if (!personUtils.hasAcceptedTerms(userToCheck)) {
         replace('/terms');
         return cb();
       }
@@ -205,12 +218,12 @@ export const getRoutes = (appContext, store) => {
       <Route path='terms' components={Terms} />
       <Route path='signup' component={Signup} onEnter={requireNoAuth(api)} />
       <Route path='email-verification' component={EmailVerification} onEnter={requireNotVerified(api, store)} />
-      <Route path='profile' component={Profile} onEnter={requireAuth(api)} />
-      <Route path='patients' component={Patients} onEnter={requireAuth(api)} />
+      <Route path='profile' component={Profile} onEnter={requireAuth(api, store)} />
+      <Route path='patients' component={Patients} onEnter={requireAuth(api, store)} />
       <Route path='patients/new' component={PatientNew} onEnter={requireAuthAndNoPatient(api, store)} />
-      <Route path='patients/:id/profile' component={PatientProfile} onEnter={requireAuth(api)} />
-      <Route path='patients/:id/share' component={PatientCareTeam} onEnter={requireAuth(api)} />
-      <Route path='patients/:id/data' component={PatientData} onEnter={requireAuth(api)} />
+      <Route path='patients/:id/profile' component={PatientProfile} onEnter={requireAuth(api, store)} />
+      <Route path='patients/:id/share' component={PatientCareTeam} onEnter={requireAuth(api, store)} />
+      <Route path='patients/:id/data' component={PatientData} onEnter={requireAuth(api, store)} />
       <Route path='request-password-reset' component={RequestPasswordReset} onEnter={requireNoAuth(api)} />
       <Route path='confirm-password-reset' component={ConfirmPasswordReset} onEnter={requireNoAuth(api)} />
       <Route path='request-password-from-uploader' component={RequestPasswordReset} onEnter={onUploaderPasswordReset(api)} />
