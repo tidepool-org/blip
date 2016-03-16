@@ -62,7 +62,6 @@
     "babel-plugin-rewire": "0.1.12",
     "blip-mock-data": "tidepool-org/blip-mock-data#v0.3.7",
     "chai": "3.5.0",
-    "cucumber": "0.9.4",
     "eslint": "1.10.3",
     "eslint-plugin-react": "3.16.1",
     "karma": "0.13.19",
@@ -90,8 +89,7 @@
     "salinity": "0.0.8",
     "sinon": "1.17.3",
     "sinon-chai": "2.8.0",
-    "webpack-dev-server": "1.14.1",
-    "zombie": "2.5.1"
+    "webpack-dev-server": "1.14.1"
   },
   "engines": {
     "node": "0.12.x"
