@@ -112,41 +112,6 @@ describe('App',  () => {
     });
   });
 
-  describe('terms', () => {
-
-    describe('overlay', () => {
-      //override
-      var utils = require('../../../app/core/utils');
-      var stub = sinon.stub(utils, 'isChrome');
-      stub.returns(true);
-
-      it('should render when user has not accepted terms but is logged in', () => {
-        var props = _.assign({}, childContext, { authenticated: true , fetchingUser: false, termsAccepted: null});
-        var elem = TestUtils.renderIntoDocument(<App {...props}/>);
-
-        expect(elem.props.authenticated).to.equal(true);
-        expect(elem.props.fetchingUser).to.equal(false);
-        expect(elem.props.termsAccepted).to.equal(null);
-
-        var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-overlay');
-        expect(termsElems.length).to.not.equal(0);
-      });
-      it('should NOT render when user has acccepted terms and is logged in', () => {
-        var acceptDate = new Date().toISOString();
-        var props = _.assign({}, childContext, { authenticated: true, termsAccepted: acceptDate, fetchingUser: false });
-        var elem = TestUtils.renderIntoDocument(<App {...props}/>);
-        
-
-        expect(elem.props.authenticated).to.equal(true);
-        expect(elem.props.fetchingUser).to.equal(false);
-        expect(elem.props.termsAccepted).to.equal(acceptDate);
-
-        var termsElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'terms-overlay');
-        expect(termsElems.length).to.equal(0);
-      });
-    });
-  });
-
   describe('mapStateToProps', () => {
     it('should be a function', () => {
       assert.isFunction(mapStateToProps);
