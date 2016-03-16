@@ -40,9 +40,9 @@ export const passwordResetConfirmed = (state = initialState.passwordResetConfirm
   }
 };
 
-export const signupConfirmed = (state = initialState.signupConfirmed, action) => {
+export const showingWelcomeMessage = (state = initialState.showingWelcomeMessage, action) => {
   switch(action.type) {
-    case types.CONFIRM_SIGNUP_SUCCESS:
+    case types.SHOW_WELCOME_MESSAGE:
       return update(state, { $set: true });
     case types.HIDE_WELCOME_MESSAGE:
       return update(state, { $set: false });

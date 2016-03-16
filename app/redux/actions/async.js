@@ -84,12 +84,12 @@ export function login(api, credentials, options) {
                 } else {
                   user = update(user, { $merge: patient });
                   dispatch(sync.loginSuccess(user));
-                  dispatch(routeActions.push('/patients'));
+                  dispatch(routeActions.push('/patients?justLoggedIn=true'));
                 }
               });
             } else {
               dispatch(sync.loginSuccess(user));
-              dispatch(routeActions.push('/patients'));
+              dispatch(routeActions.push('/patients?justLoggedIn=true'));
             }
           }
         });

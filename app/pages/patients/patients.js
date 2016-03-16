@@ -15,7 +15,7 @@
  */
 
 import React from 'react';
-import { Link } from 'react-router';
+import { browserHistory, Link } from 'react-router';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
@@ -34,13 +34,9 @@ import Invitation from '../../components/invitation';
 export let Patients = React.createClass({
   propTypes: {
     user: React.PropTypes.object,
-    fetchingUser: React.PropTypes.bool,
     patients: React.PropTypes.array,
-    fetchingPatients: React.PropTypes.bool,
     invites: React.PropTypes.array,
-    fetchingInvites: React.PropTypes.bool,
-    showingWelcomeTitle: React.PropTypes.bool,
-    showingWelcomeSetup: React.PropTypes.bool,
+    showingWelcomeMessage: React.PropTypes.bool,
     onHideWelcomeSetup: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired,
     onAcceptInvitation: React.PropTypes.func,
@@ -53,7 +49,7 @@ export let Patients = React.createClass({
   render: function() {
     var welcomeTitle = this.renderWelcomeTitle();
 
-    if (this.isLoading() && !(this.props.showingWelcomeTitle && this.props.showingWelcomeSetup)) {
+    if (this.isLoading() && !(this.props.showingWelcomeMessage)) {
       return (
         <div className="container-box-outer">
           <div className="patients js-patients-page">
@@ -98,7 +94,7 @@ export let Patients = React.createClass({
     var handleClickYes = function(e) {
       e.preventDefault();
       self.props.onHideWelcomeSetup();
-      self.props.history.pushState(null, '/patients/new');
+      browserHistory.push('/patients/new');
     };
     var handleClickNo = function(e) {
       e.preventDefault();
@@ -267,15 +263,11 @@ export let Patients = React.createClass({
   },
 
   isLoading: function() {
-    return (
-      this.props.fetchingUser ||
-      this.props.fetchingInvites ||
-      this.props.fetchingPatients
-    );
+    return (this.props.loading);
   },
 
   isShowingWelcomeTitle: function() {
-    return this.props.showingWelcomeTitle;
+    return this.props.showingWelcomeMessage;
   },
 
   hasInvites: function() {
@@ -283,7 +275,7 @@ export let Patients = React.createClass({
   },
 
   isShowingWelcomeSetup: function() {
-    return this.props.showingWelcomeSetup && !this.hasInvites();
+    return this.props.showingWelcomeMessage && !this.hasInvites();
   },
 
   hasPatients: function() {
@@ -314,6 +306,18 @@ export let Patients = React.createClass({
     }
     
     this.doFetching(this.props);
+  },
+
+  componentWillReceiveProps: function(nextProps) {
+    let { loading, patients, invites, location, showingWelcomeMessage } = nextProps;
+    if (!loading && location.query.justLoggedIn) {
+      if (patients.length === 1) {
+        let patient = patients[0];
+        browserHistory.push(`/patients/${patient.userid}/data`);
+      } else if (patients.length === 0 && invites.length === 0 && showingWelcomeMessage === null) {
+        this.props.showWelcomeMessage();
+      }
+    }
   }
 });
 
@@ -349,15 +353,19 @@ export function mapStateToProps(state) {
     }
   }
 
+  let { 
+    fetchingUser: { inProgress: fetchingUser },
+    fetchingPatients: { inProgress: fetchingPatients },
+    fetchingPendingReceivedInvites: { inProgress: fetchingInvites },
+  } = state.blip.working;
+
   return {
     user: user,
-    fetchingUser: state.blip.working.fetchingUser.inProgress,
+    loading: fetchingUser || fetchingPatients || fetchingInvites,
+    fetchingUser: fetchingUser,
     patients: patients,
-    fetchingPatients: state.blip.working.fetchingPatients.inProgress,
     invites: state.blip.pendingReceivedInvites,
-    fetchingInvites: state.blip.working.fetchingPendingReceivedInvites.inProgress,
-    showingWelcomeTitle: state.blip.signupConfirmed,
-    showingWelcomeSetup: state.blip.signupConfirmed
+    showingWelcomeMessage: state.blip.showingWelcomeMessage
   }
 };
 
@@ -368,6 +376,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
   fetchPendingReceivedInvites: actions.async.fetchPendingReceivedInvites,
   fetchPatients: actions.async.fetchPatients,
   clearPatientInView: actions.sync.clearPatientInView,
+  showWelcomeMessage: actions.sync.showWelcomeMessage,
   onHideWelcomeSetup: actions.sync.hideWelcomeMessage
 }, dispatch);
 
