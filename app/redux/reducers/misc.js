@@ -110,6 +110,14 @@ export const allUsersMap = (state = initialState.allUsersMap, action) => {
       });
 
       return update(state, { $merge: patientsMap });
+    case types.FETCH_PATIENTS_SUCCESS:
+      let patientMap = {};
+      action.payload.patients.forEach((p) => patientMap[p.userid] = p);
+
+      return update(state, { $set: patientMap });
+    case types.ACCEPT_RECEIVED_INVITE_SUCCESS:
+      let { creator } = action.payload.acceptedReceivedInvite;
+      return update(state, { $merge: { [creator.userid]: creator } });
     case types.ACCEPT_TERMS_SUCCESS:
       return update(state, { [action.payload.userId]: { $merge: { termsAccepted: action.payload.acceptedDate } } });
     case types.CREATE_PATIENT_SUCCESS:
@@ -296,23 +304,6 @@ export const messageThread = (state = initialState.messageThread, action) => {
     case types.CLOSE_MESSAGE_THREAD:
     case types.LOGOUT_SUCCESS:
       return update(state, { $set: null });
-    default:
-      return state;
-  }
-};
-
-export const patientsMap = (state = initialState.patientsMap, action) => {
-  switch(action.type) {
-    case types.FETCH_PATIENTS_SUCCESS:
-      let patientMap = {};
-      action.payload.patients.forEach((p) => patientMap[p.userid] = p);
-
-      return update(state, { $set: patientMap });
-    case types.ACCEPT_RECEIVED_INVITE_SUCCESS:
-      let { creator } = action.payload.acceptedReceivedInvite;
-      return update(state, { $merge: { [creator.userid]: creator } });
-    case types.LOGOUT_SUCCESS:
-      return update(state, { $set: {} });
     default:
       return state;
   }
