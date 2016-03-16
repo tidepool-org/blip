@@ -57,11 +57,6 @@ appContext.props = {
   config: appContext.config
 };
 
-appContext.useMock = mock => {
-  appContext.mock = mock;
-  appContext.api = mock.patchApi(appContext.api);
-};
-
 appContext.init = callback => {
 
   function beginInit() {
@@ -70,20 +65,6 @@ appContext.init = callback => {
 
   function initNoTouch() {
     detectTouchScreen();
-    initMock();
-  }
-
-  function initMock() {
-    if (appContext.mock) {
-      // Load mock params from config variables
-      // and URL query string (before hash)
-      var paramsConfig = queryString.parseTypes(config.MOCK_PARAMS);
-      var paramsUrl = queryString.parseTypes(window.location.search);
-      var params = _.assign(paramsConfig, paramsUrl);
-
-      appContext.mock.init(params);
-      appContext.log('Mock services initialized with params', params);
-    }
     initApi();
   }
 

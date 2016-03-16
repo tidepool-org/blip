@@ -7,7 +7,6 @@ var isDev = (process.env.NODE_ENV === 'development');
 // process.env with webpack, we have to create these magic constants
 // individually.
 var defineEnvPlugin = new webpack.DefinePlugin({
-  __MOCK__: JSON.stringify(process.env.MOCK || null),
   __MOCK_PARAMS__: JSON.stringify(process.env.MOCK_PARAMS || null),
   __UPLOAD_API__: JSON.stringify(process.env.UPLOAD_API || null),
   __API_HOST__: JSON.stringify(process.env.API_HOST || null),
@@ -19,7 +18,7 @@ var defineEnvPlugin = new webpack.DefinePlugin({
 });
 
 var plugins = [ defineEnvPlugin, new ExtractTextPlugin('style.css') ];
-var appEntry = (process.env.MOCK === 'true') ? './app/main.mock.js' : './app/main.js';
+var appEntry = './app/main.js';
 var entryScripts = appEntry;
 var loaders = [
   {test: /node_modules\/tideline\/.*\.js$/, exclude: /tideline\/node_modules/, loader: 'babel-loader'},

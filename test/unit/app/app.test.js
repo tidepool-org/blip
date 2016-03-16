@@ -17,7 +17,6 @@ import initialState from '../../../app/redux/reducers/initialState';
 var App = require('../../../app/pages/app/app.js').AppComponent;
 var api = require('../../../app/core/api');
 var personUtils = require('../../../app/core/personutils');
-var mock = require('../../../mock');
 
 var assert = chai.assert;
 var expect = chai.expect;
@@ -31,7 +30,7 @@ describe('App',  () => {
   var childContext = {
     route: {
       log: sinon.stub(),
-      api: mock.patchApi(api),
+      api: {},
       personUtils: personUtils,
       DEBUG: false,
       trackMetric: sinon.stub(),
