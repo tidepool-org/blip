@@ -92,7 +92,7 @@ describe('pendingSentInvites', () => {
     });
   });
 
-  describe('logoutSuccess', () => {
+  describe('logoutRequest', () => {
     it('should remove invitation from state array', () => {
       let initialStateForTest = [
         { inviteid: 30, email: 'g@g.com' },
@@ -100,7 +100,7 @@ describe('pendingSentInvites', () => {
       ];
       let tracked = mutationTracker.trackObj(initialStateForTest);
 
-      let action = actions.sync.logoutSuccess()
+      let action = actions.sync.logoutRequest()
 
       let state = reducer(initialStateForTest, action);
 

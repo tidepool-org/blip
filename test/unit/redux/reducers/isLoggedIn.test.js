@@ -58,11 +58,11 @@ describe('isLoggedIn', () => {
     });
   });
 
-  describe('logoutSuccess', () => {
+  describe('logoutRequest', () => {
     it('should set state to false', () => {
       let initialStateForTest = true;
 
-      let action = actions.sync.logoutSuccess()
+      let action = actions.sync.logoutRequest()
 
       let state = reducer(initialStateForTest, action);
 

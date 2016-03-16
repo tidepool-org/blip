@@ -93,7 +93,7 @@ describe('pendingReceivedInvites', () => {
     });
   });
 
-  describe('logoutSuccess', () => {
+  describe('logoutRequest', () => {
     it('should remove invitation from state array', () => {
       let initialStateForTest = [
         { key: 30 },
@@ -102,7 +102,7 @@ describe('pendingReceivedInvites', () => {
 
       let tracked = mutationTracker.trackObj(initialStateForTest);
 
-      let action = actions.sync.logoutSuccess()
+      let action = actions.sync.logoutRequest()
 
       let state = reducer(initialStateForTest, action);
 

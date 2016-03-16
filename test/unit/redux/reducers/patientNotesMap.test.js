@@ -83,7 +83,7 @@ describe('patientNotesMap', () => {
     });
   });
 
-  describe('logoutSuccess', () => {
+  describe('logoutRequest', () => {
     it('should set state to empty hash map', () => {
       let initialStateForTest = {
         50 : [
@@ -96,7 +96,7 @@ describe('patientNotesMap', () => {
       };
       let tracked = mutationTracker.trackObj(initialStateForTest);
 
-      let action = actions.sync.logoutSuccess()
+      let action = actions.sync.logoutRequest()
       let state = reducer(initialStateForTest, action);
 
       expect(Object.keys(state).length).to.equal(0);
