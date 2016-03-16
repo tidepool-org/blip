@@ -51,11 +51,11 @@ describe('memberInOtherCareTeams', () => {
     });
   });
 
-  describe('logoutSuccess', () => {
+  describe('logoutRequest', () => {
     it('should set state to null', () => {
       let initialStateForTest = [1, 2 ,3];
       
-      let action = actions.sync.logoutSuccess()
+      let action = actions.sync.logoutRequest()
 
       let state = reducer(initialStateForTest, action);
 

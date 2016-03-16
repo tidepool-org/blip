@@ -62,13 +62,13 @@ describe('loggedInUserId', () => {
     });
   });
 
-  describe('logoutSuccess', () => {
+  describe('logoutRequest', () => {
     it('should set state to null', () => {
       let name = 'Jamie Foxx';
       let user = { userid: 500, name : name };
       let initialStateForTest = user.userid;
       
-      let action = actions.sync.logoutSuccess()
+      let action = actions.sync.logoutRequest()
 
       let state = reducer(initialStateForTest, action);
 

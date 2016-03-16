@@ -83,7 +83,7 @@ describe('patientNotesMap', () => {
     });
   });
 
-  describe('logoutSuccess', () => {
+  describe('fetchPatientDataFailure', () => {
     it('should set state to empty hash map', () => {
       let initialStateForTest = {
         50 : [
@@ -96,7 +96,28 @@ describe('patientNotesMap', () => {
       };
       let tracked = mutationTracker.trackObj(initialStateForTest);
 
-      let action = actions.sync.logoutSuccess()
+      let action = actions.sync.fetchPatientDataFailure()
+      let state = reducer(initialStateForTest, action);
+
+      expect(Object.keys(state).length).to.equal(0);
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
+  });
+
+  describe('logoutRequest', () => {
+    it('should set state to empty hash map', () => {
+      let initialStateForTest = {
+        50 : [
+          { message: 'Hello there' },
+          { message: 'This is fun!' }
+        ],
+        100: [
+          { message: 'Awesome sauce!' }
+        ]
+      };
+      let tracked = mutationTracker.trackObj(initialStateForTest);
+
+      let action = actions.sync.logoutRequest()
       let state = reducer(initialStateForTest, action);
 
       expect(Object.keys(state).length).to.equal(0);

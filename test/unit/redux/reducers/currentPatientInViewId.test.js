@@ -73,11 +73,11 @@ describe('currentPatientInViewId', () => {
     });
   });
 
-  describe('logoutSuccess', () => {
+  describe('logoutRequest', () => {
     it('should set state to fetched patient', () => {
       let initialStateForTest = 290;
 
-      let action = actions.sync.logoutSuccess();
+      let action = actions.sync.logoutRequest();
 
       let state = reducer(initialStateForTest, action);
 

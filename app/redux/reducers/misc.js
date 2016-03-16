@@ -56,7 +56,7 @@ export const isLoggedIn = (state = initialState.isLoggedIn, action) => {
     case types.FETCH_USER_SUCCESS:
     case types.LOGIN_SUCCESS:
       return update(state, { $set: true });
-    case types.LOGOUT_SUCCESS:
+    case types.LOGOUT_REQUEST:
       return update(state, { $set: false });
     default:
       return state;
@@ -110,11 +110,6 @@ export const allUsersMap = (state = initialState.allUsersMap, action) => {
       });
 
       return update(state, { $merge: patientsMap });
-    case types.FETCH_PATIENTS_SUCCESS:
-      let patientMap = {};
-      action.payload.patients.forEach((p) => patientMap[p.userid] = p);
-
-      return update(state, { $set: patientMap });
     case types.ACCEPT_RECEIVED_INVITE_SUCCESS:
       let { creator } = action.payload.acceptedReceivedInvite;
       return update(state, { $merge: { [creator.userid]: creator } });
@@ -128,7 +123,7 @@ export const allUsersMap = (state = initialState.allUsersMap, action) => {
       return update(state, { [action.payload.userId]: { $merge: _.omit(action.payload.updatedUser, ['permissions']) }});
     case types.UPDATE_PATIENT_SUCCESS:
       return update(state, { [action.payload.updatedPatient.userid]: { $merge: _.omit(action.payload.updatedPatient, ['permissions']) }});
-    case types.LOGOUT_SUCCESS:
+    case types.LOGOUT_REQUEST:
       return update(state, { $set: {} });
     default:
       return state;
@@ -142,7 +137,7 @@ export const currentPatientInViewId = (state = initialState.currentPatientInView
       return update(state, { $set: action.payload.patient.userid });
     case types.UPDATE_PATIENT_SUCCESS:
       return update(state, { $set: action.payload.updatedPatient.userid });
-    case types.LOGOUT_SUCCESS:
+    case types.LOGOUT_REQUEST:
     case types.CLEAR_PATIENT_IN_VIEW:
       return update(state, { $set: null });
     default:
@@ -159,7 +154,7 @@ export const targetUserId = (state = initialState.targetUserId, action) => {
       } else {
         return update(state, { $set: null });
       }
-    case types.LOGOUT_SUCCESS:
+    case types.LOGOUT_REQUEST:
       return update(state, { $set: null });
     default:
       return state;
@@ -171,7 +166,7 @@ export const loggedInUserId = (state = initialState.loggedInUserId, action) => {
     case types.FETCH_USER_SUCCESS:
     case types.LOGIN_SUCCESS:
       return update(state, { $set: action.payload.user.userid });
-    case types.LOGOUT_SUCCESS:
+    case types.LOGOUT_REQUEST:
       return update(state, { $set: null });
     default:
       return state;
@@ -188,7 +183,7 @@ export const membersOfTargetCareTeam = (state = initialState.membersOfTargetCare
       }
 
       return state;
-    case types.LOGOUT_SUCCESS:
+    case types.LOGOUT_REQUEST:
       return update(state, { $set: [] });
     default:
       return state;
@@ -204,7 +199,7 @@ export const memberInOtherCareTeams = (state = initialState.memberInOtherCareTea
     case types.ACCEPT_RECEIVED_INVITE_SUCCESS:
       let { creator } = action.payload.acceptedReceivedInvite;
       return update(state, { $push: [ creator.userid ] });
-    case types.LOGOUT_SUCCESS:
+    case types.LOGOUT_REQUEST:
       return update(state, { $set: [] });
     default:
       return state;
@@ -221,7 +216,7 @@ export const permissionsOfMembersInTargetCareTeam = (state = initialState.permis
       }
         
       return state;
-    case types.LOGOUT_SUCCESS:
+    case types.LOGOUT_REQUEST:
       return update(state, { $set: {} });
     default:
       return state;
@@ -237,43 +232,8 @@ export const membershipPermissionsInOtherCareTeams = (state = initialState.membe
       return update(state, { $set: permissions });
     case types.REMOVE_PATIENT_SUCCESS:
       return update(state, { $set: permissions });
-    case types.LOGOUT_SUCCESS:
+    case types.LOGOUT_REQUEST:
       return update(state, { $set: {} });
-    default:
-      return state;
-  }
-};
-
-export const loggedInUser = (state = initialState.loggedInUser, action) => {
-  switch(action.type) {
-    case types.FETCH_USER_SUCCESS:
-    case types.LOGIN_SUCCESS:
-      return update(state, { $set: action.payload.user });
-    case types.ACCEPT_TERMS_SUCCESS:
-      return update(state, { termsAccepted: { $set: action.payload.acceptedDate }});
-    case types.CREATE_PATIENT_SUCCESS:
-      return update(state, { profile: { $set: action.payload.patient.profile }});
-    case types.UPDATE_USER_REQUEST:
-      return update(state, { $merge: action.payload.updatingUser });
-    case types.UPDATE_USER_SUCCESS:
-      return update(state, { $merge: action.payload.updatedUser });
-    case types.LOGOUT_SUCCESS:
-      return update(state, { $set: null });
-    default:
-      return state;
-  }
-};
-
-export const currentPatientInView = (state = initialState.currentPatientInView, action) => {
-  switch(action.type) {
-    case types.CREATE_PATIENT_SUCCESS:
-    case types.FETCH_PATIENT_SUCCESS:
-      return update(state, { $set: action.payload.patient });
-    case types.UPDATE_PATIENT_SUCCESS:
-      return update(state, { $set: action.payload.updatedPatient });
-    case types.LOGOUT_SUCCESS:
-    case types.CLEAR_PATIENT_IN_VIEW:
-      return update(state, { $set: null });
     default:
       return state;
   }
@@ -302,7 +262,7 @@ export const messageThread = (state = initialState.messageThread, action) => {
     case types.FETCH_MESSAGE_THREAD_SUCCESS:
       return update(state, { $set: action.payload.messageThread });
     case types.CLOSE_MESSAGE_THREAD:
-    case types.LOGOUT_SUCCESS:
+    case types.LOGOUT_REQUEST:
       return update(state, { $set: null });
     default:
       return state;
@@ -319,7 +279,8 @@ export const patientDataMap = (state = initialState.patientDataMap, action) => {
       return update(state, {
         [action.payload.patientId]: { $set: null }
       });
-    case types.LOGOUT_SUCCESS:
+    case types.LOGOUT_REQUEST:
+    case types.FETCH_PATIENT_DATA_FAILURE:
       return update(state, { $set: {} });
     default:
       return state;
@@ -336,7 +297,8 @@ export const patientNotesMap = (state = initialState.patientNotesMap, action) =>
       return update(state, {
         [action.payload.patientId]: { $set: null }
       });
-    case types.LOGOUT_SUCCESS:
+    case types.LOGOUT_REQUEST:
+    case types.FETCH_PATIENT_DATA_FAILURE:
       return update(state, { $set: {} });
     default:
       return state;
@@ -354,7 +316,7 @@ export const pendingSentInvites = (state = initialState.pendingSentInvites, acti
           return currentValue.filter( (i) => i.email !== action.payload.removedEmail )
         }
       });
-    case types.LOGOUT_SUCCESS:
+    case types.LOGOUT_REQUEST:
       return update(state, { $set: [] });
     default:
       return state;
@@ -375,7 +337,7 @@ export const pendingReceivedInvites = (state = initialState.pendingReceivedInvit
           return currentValue.filter( (i) => i.key !== action.payload.rejectedReceivedInvite.key );
         }
       });
-    case types.LOGOUT_SUCCESS:
+    case types.LOGOUT_REQUEST:
       return update(state, { $set: [] });
     default:
       return state;

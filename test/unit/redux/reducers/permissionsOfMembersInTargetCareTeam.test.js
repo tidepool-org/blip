@@ -57,14 +57,14 @@ describe('permissionsOfMembersInTargetCareTeam', () => {
     });
   });
 
-  describe('logoutSuccess', () => {
+  describe('logoutRequest', () => {
     it('should set state to null', () => {
       let initialStateForTest = {
         3434: { view: {}, notes: {} },
         250: { view: {}, notes: {} }
       };
       let tracked = mutationTracker.trackObj(initialStateForTest);
-      let action = actions.sync.logoutSuccess()
+      let action = actions.sync.logoutRequest()
 
       let state = reducer(initialStateForTest, action);
 

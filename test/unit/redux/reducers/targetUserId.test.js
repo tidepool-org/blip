@@ -86,13 +86,13 @@ describe('targetUserId', () => {
     });
   });
 
-  describe('logoutSuccess', () => {
+  describe('logoutRequest', () => {
     it('should set state to null', () => {
       let name = 'Jamie Foxx';
       let user = { userid: 203, profile: { patient: true } };
       let initialStateForTest = user.userid;
       
-      let action = actions.sync.logoutSuccess()
+      let action = actions.sync.logoutRequest()
 
       let state = reducer(initialStateForTest, action);
 

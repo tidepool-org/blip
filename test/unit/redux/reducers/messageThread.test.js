@@ -80,7 +80,7 @@ describe('messageThread', () => {
     });
   });
 
-  describe('logoutSuccess', () => {
+  describe('logoutRequest', () => {
     it('should set state to false', () => {
       let initialStateForTest = {
         message: 'Cool',
@@ -93,7 +93,7 @@ describe('messageThread', () => {
 
       let tracked = mutationTracker.trackObj(initialStateForTest);
 
-      let action = actions.sync.logoutSuccess()
+      let action = actions.sync.logoutRequest()
 
       let state = reducer(initialStateForTest, action);
 

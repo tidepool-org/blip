@@ -246,7 +246,7 @@ describe('allUsersMap', () => {
     });
   });
 
-  describe('updateUserSuccess', () => {
+  describe('logoutRequest', () => {
     it('should set state to a hash map of patients', () => {
       let initialStateForTest = {
         500:  {userid: 500 }
@@ -254,7 +254,7 @@ describe('allUsersMap', () => {
 
       let tracked = mutationTracker.trackObj(initialStateForTest);
 
-      let action = actions.sync.logoutSuccess()
+      let action = actions.sync.logoutRequest()
 
       let state = reducer(initialStateForTest, action);
 
