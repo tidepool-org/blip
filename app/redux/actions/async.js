@@ -197,7 +197,7 @@ export function acceptTerms(api, acceptedDate) {
         dispatch(sync.acceptTermsFailure(ErrorMessages.STANDARD));
       } else {
         dispatch(sync.acceptTermsSuccess(loggedInUserId, acceptedDate));
-        dispatch(routeActions.push(`/patients`));
+        dispatch(routeActions.push(`/patients?justLoggedIn=true`));
       }
     })
   };
