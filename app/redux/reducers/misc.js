@@ -280,6 +280,7 @@ export const patientDataMap = (state = initialState.patientDataMap, action) => {
         [action.payload.patientId]: { $set: null }
       });
     case types.LOGOUT_REQUEST:
+    case types.FETCH_PATIENT_DATA_FAILURE:
       return update(state, { $set: {} });
     default:
       return state;
@@ -297,6 +298,7 @@ export const patientNotesMap = (state = initialState.patientNotesMap, action) =>
         [action.payload.patientId]: { $set: null }
       });
     case types.LOGOUT_REQUEST:
+    case types.FETCH_PATIENT_DATA_FAILURE:
       return update(state, { $set: {} });
     default:
       return state;
