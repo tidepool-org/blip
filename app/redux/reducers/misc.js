@@ -110,11 +110,6 @@ export const allUsersMap = (state = initialState.allUsersMap, action) => {
       });
 
       return update(state, { $merge: patientsMap });
-    case types.FETCH_PATIENTS_SUCCESS:
-      let patientMap = {};
-      action.payload.patients.forEach((p) => patientMap[p.userid] = p);
-
-      return update(state, { $set: patientMap });
     case types.ACCEPT_RECEIVED_INVITE_SUCCESS:
       let { creator } = action.payload.acceptedReceivedInvite;
       return update(state, { $merge: { [creator.userid]: creator } });
