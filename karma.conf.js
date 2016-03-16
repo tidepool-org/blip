@@ -20,7 +20,7 @@ module.exports = function (config) {
     preprocessors: {
       'tests.webpack.js': [ 'webpack' ] // Preprocess with webpack and our sourcemap loader
     },
-    reporters: [ 'mocha' ],
+    reporters: [ 'mocha', 'notification' ],
     webpack: { // Simplified Webpack configuration
       module: {
         loaders: [

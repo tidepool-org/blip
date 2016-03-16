@@ -69,6 +69,7 @@
     "karma-chrome-launcher": "0.2.2",
     "karma-mocha": "0.2.1",
     "karma-mocha-reporter": "1.1.5",
+    "karma-notification-reporter": "0.0.2",
     "karma-phantomjs-launcher": "1.0.0",
     "karma-sinon": "1.0.4",
     "karma-sourcemap-loader": "0.3.7",
