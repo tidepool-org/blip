@@ -85,11 +85,14 @@ export function loginSuccess(user) {
   };
 }
 
-export function loginFailure(error, payload) {
+export function loginFailure(error, apiError, payload) {
   return {
     type: ActionTypes.LOGIN_FAILURE,
     error: error,
-    payload: payload || null
+    payload: payload || null,
+    meta: {
+      apiError: apiError || null
+    }
   };
 }
 
@@ -105,10 +108,13 @@ export function logoutSuccess() {
   };
 } 
 
-export function logoutFailure(error) {
+export function logoutFailure(error, apiError) {
   return {
     type: ActionTypes.LOGOUT_FAILURE,
-    error: error
+    error: error,
+    meta: {
+      apiError: apiError || null
+    }
   };
 }
 
@@ -127,10 +133,13 @@ export function signupSuccess(user) {
   };
 }
 
-export function signupFailure(error) {
+export function signupFailure(error, apiError) {
   return {
     type: ActionTypes.SIGNUP_FAILURE,
-    error: error
+    error: error,
+    meta: {
+      apiError: apiError || null
+    }
   };
 }
 
@@ -146,10 +155,13 @@ export function confirmPasswordResetSuccess() {
   };
 }
 
-export function confirmPasswordResetFailure(error) {
+export function confirmPasswordResetFailure(error, apiError) {
   return {
     type: ActionTypes.CONFIRM_PASSWORD_RESET_FAILURE,
-    error: error
+    error: error,
+    meta: {
+      apiError: apiError || null
+    }
   };
 }
 
@@ -165,10 +177,13 @@ export function confirmSignupSuccess() {
   };
 }
 
-export function confirmSignupFailure(error) {
+export function confirmSignupFailure(error, apiError) {
   return {
     type: ActionTypes.CONFIRM_SIGNUP_FAILURE,
-    error: error
+    error: error,
+    meta: {
+      apiError: apiError || null
+    }
   };
 }
 
@@ -184,10 +199,13 @@ export function resendEmailVerificationSuccess() {
   };
 }
 
-export function resendEmailVerificationFailure(error) {
+export function resendEmailVerificationFailure(error, apiError) {
   return {
     type: ActionTypes.RESEND_EMAIL_VERIFICATION_FAILURE,
-    error: error
+    error: error,
+    meta: {
+      apiError: apiError || null
+    }
   };
 }
 
@@ -207,10 +225,13 @@ export function acceptTermsSuccess(userId, acceptedDate) {
   };
 }
 
-export function acceptTermsFailure(error) {
+export function acceptTermsFailure(error, apiError) {
   return {
     type: ActionTypes.ACCEPT_TERMS_FAILURE,
-    error: error
+    error: error,
+    meta: {
+      apiError: apiError || null
+    }
   };
 }
 
@@ -230,10 +251,13 @@ export function createPatientSuccess(userId, patient) {
   };
 }
 
-export function createPatientFailure(error) {
+export function createPatientFailure(error, apiError) {
   return {
     type: ActionTypes.CREATE_PATIENT_FAILURE,
-    error: error
+    error: error,
+    meta: {
+      apiError: apiError || null
+    }
   };
 }
 
@@ -252,10 +276,13 @@ export function removePatientSuccess(removedPatientId) {
   };
 }
 
-export function removePatientFailure(error) {
+export function removePatientFailure(error, apiError) {
   return {
     type: ActionTypes.REMOVE_PATIENT_FAILURE,
-    error: error
+    error: error,
+    meta: {
+      apiError: apiError || null
+    }
   };
 }
 
@@ -274,10 +301,13 @@ export function removeMemberSuccess(removedMemberId) {
   };
 }
 
-export function removeMemberFailure(error) {
+export function removeMemberFailure(error, apiError) {
   return {
     type: ActionTypes.REMOVE_MEMBER_FAILURE,
-    error: error
+    error: error,
+    meta: {
+      apiError: apiError || null
+    }
   };
 }
 
@@ -293,10 +323,13 @@ export function requestPasswordResetSuccess() {
   };
 }
 
-export function requestPasswordResetFailure(error) {
+export function requestPasswordResetFailure(error, apiError) {
   return {
     type: ActionTypes.REQUEST_PASSWORD_RESET_FAILURE,
-    error: error
+    error: error,
+    meta: {
+      apiError: apiError || null
+    }
   };
 }
 
@@ -315,10 +348,13 @@ export function sendInviteSuccess(invite) {
   };
 }
 
-export function sendInviteFailure(error) {
+export function sendInviteFailure(error, apiError) {
   return {
     type: ActionTypes.SEND_INVITE_FAILURE,
-    error: error
+    error: error,
+    meta: {
+      apiError: apiError || null
+    }
   };
 }
 
@@ -337,10 +373,13 @@ export function cancelSentInviteSuccess(removedEmail) {
   };
 }
 
-export function cancelSentInviteFailure(error) {
+export function cancelSentInviteFailure(error, apiError) {
   return {
     type: ActionTypes.CANCEL_SENT_INVITE_FAILURE,
-    error: error
+    error: error,
+    meta: {
+      apiError: apiError || null
+    }
   };
 }
 
@@ -362,10 +401,13 @@ export function acceptReceivedInviteSuccess(acceptedReceivedInvite) {
   };
 }
 
-export function acceptReceivedInviteFailure(error) {
+export function acceptReceivedInviteFailure(error, apiError) {
   return {
     type: ActionTypes.ACCEPT_RECEIVED_INVITE_FAILURE,
-    error: error
+    error: error,
+    meta: {
+      apiError: apiError || null
+    }
   };
 }
 
@@ -387,10 +429,13 @@ export function rejectReceivedInviteSuccess(rejectedReceivedInvite) {
   };
 }
 
-export function rejectReceivedInviteFailure(error) {
+export function rejectReceivedInviteFailure(error, apiError) {
   return {
     type: ActionTypes.REJECT_RECEIVED_INVITE_FAILURE,
-    error: error
+    error: error,
+    meta: {
+      apiError: apiError || null
+    }
   };
 }
 
@@ -410,10 +455,13 @@ export function setMemberPermissionsSuccess(memberId, permissions) {
   };
 }
 
-export function setMemberPermissionsFailure(error) {
+export function setMemberPermissionsFailure(error, apiError) {
   return {
     type: ActionTypes.SET_MEMBER_PERMISSIONS_FAILURE,
-    error: error
+    error: error,
+    meta: {
+      apiError: apiError || null
+    }
   };
 }
 
@@ -432,10 +480,13 @@ export function updatePatientSuccess(patient) {
   };
 }
 
-export function updatePatientFailure(error) {
+export function updatePatientFailure(error, apiError) {
   return {
     type: ActionTypes.UPDATE_PATIENT_FAILURE,
-    error: error
+    error: error,
+    meta: {
+      apiError: apiError || null
+    }
   };
 }
 
@@ -459,10 +510,13 @@ export function updateUserSuccess(userId, user) {
   };
 }
 
-export function updateUserFailure(error) {
+export function updateUserFailure(error, apiError) {
   return {
     type: ActionTypes.UPDATE_USER_FAILURE,
-    error: error
+    error: error,
+    meta: {
+      apiError: apiError || null
+    }
   };
 }
 
@@ -478,10 +532,13 @@ export function logErrorSuccess() {
   };
 }
 
-export function logErrorFailure(error) {
+export function logErrorFailure(error, apiError) {
   return {
     type: ActionTypes.LOG_ERROR_FAILURE,
-    error: error
+    error: error,
+    meta: {
+      apiError: apiError || null
+    }
   };
 }
 
@@ -504,10 +561,13 @@ export function fetchUserSuccess(user) {
   };
 }
 
-export function fetchUserFailure(error) {
+export function fetchUserFailure(error, apiError) {
   return {
     type: ActionTypes.FETCH_USER_FAILURE,
-    error: error
+    error: error,
+    meta: {
+      apiError: apiError || null
+    }
   };
 }
 
@@ -526,10 +586,13 @@ export function fetchPendingReceivedInvitesSuccess(pendingReceivedInvites) {
   };
 }
 
-export function fetchPendingReceivedInvitesFailure(error) {
+export function fetchPendingReceivedInvitesFailure(error, apiError) {
   return {
     type: ActionTypes.FETCH_PENDING_RECEIVED_INVITES_FAILURE,
-    error: error
+    error: error,
+    meta: {
+      apiError: apiError || null
+    }
   };
 }
 
@@ -548,10 +611,13 @@ export function fetchPendingSentInvitesSuccess(pendingSentInvites) {
   };
 }
 
-export function fetchPendingSentInvitesFailure(error) {
+export function fetchPendingSentInvitesFailure(error, apiError) {
   return {
     type: ActionTypes.FETCH_PENDING_SENT_INVITES_FAILURE,
-    error: error
+    error: error,
+    meta: {
+      apiError: apiError || null
+    }
   };
 }
 
@@ -570,10 +636,13 @@ export function fetchPatientsSuccess(patients) {
   };
 }
 
-export function fetchPatientsFailure(error) {
+export function fetchPatientsFailure(error, apiError) {
   return {
     type: ActionTypes.FETCH_PATIENTS_FAILURE,
-    error: error
+    error: error,
+    meta: {
+      apiError: apiError || null
+    }
   };
 }
 
@@ -592,10 +661,13 @@ export function fetchPatientSuccess(patient) {
   };
 }
 
-export function fetchPatientFailure(error) {
+export function fetchPatientFailure(error, apiError) {
   return {
     type: ActionTypes.FETCH_PATIENT_FAILURE,
-    error: error
+    error: error,
+    meta: {
+      apiError: apiError || null
+    }
   };
 }
 
@@ -616,10 +688,13 @@ export function fetchPatientDataSuccess(patientId, patientData, patientNotes) {
   };
 }
 
-export function fetchPatientDataFailure(error) {
+export function fetchPatientDataFailure(error, apiError) {
   return {
     type: ActionTypes.FETCH_PATIENT_DATA_FAILURE,
-    error: error
+    error: error,
+    meta: {
+      apiError: apiError || null
+    }
   };
 }
 
@@ -638,9 +713,12 @@ export function fetchMessageThreadSuccess(messageThread) {
   };
 }
 
-export function fetchMessageThreadFailure(error) {
+export function fetchMessageThreadFailure(error, apiError) {
   return {
     type: ActionTypes.FETCH_MESSAGE_THREAD_FAILURE,
-    error: error
+    error: error,
+    meta: {
+      apiError: apiError || null
+    }
   };
 }
