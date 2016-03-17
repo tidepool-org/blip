@@ -37,6 +37,7 @@ export let Patients = React.createClass({
     patients: React.PropTypes.array,
     invites: React.PropTypes.array,
     loading: React.PropTypes.bool,
+    loggedInUserId: React.PropTypes.string,
     showingWelcomeMessage: React.PropTypes.bool,
     onHideWelcomeSetup: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired,
@@ -310,8 +311,9 @@ export let Patients = React.createClass({
   },
 
   componentWillReceiveProps: function(nextProps) {
-    let { loading, patients, invites, location, showingWelcomeMessage } = nextProps;
-    if (!loading && location.query.justLoggedIn) {
+    let { loading, loggedInUserId, patients, invites, location, showingWelcomeMessage } = nextProps;
+    
+    if (!loading && loggedInUserId && location.query.justLoggedIn) {
       if (patients.length === 1) {
         let patient = patients[0];
         browserHistory.push(`/patients/${patient.userid}/data`);
@@ -363,6 +365,7 @@ export function mapStateToProps(state) {
   return {
     user: user,
     loading: fetchingUser || fetchingPatients || fetchingInvites,
+    loggedInUserId: state.blip.loggedInUserId,
     fetchingUser: fetchingUser,
     patients: patients,
     invites: state.blip.pendingReceivedInvites,

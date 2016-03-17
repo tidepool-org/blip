@@ -46,6 +46,8 @@ export const showingWelcomeMessage = (state = initialState.showingWelcomeMessage
       return update(state, { $set: true });
     case types.HIDE_WELCOME_MESSAGE:
       return update(state, { $set: false });
+    case types.LOGOUT_REQUEST:
+      return update(state, { $set: null });
     default:
       return state;
   }
