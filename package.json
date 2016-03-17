@@ -6,7 +6,7 @@
     "test": "./node_modules/karma/bin/karma start",
     "integration-tests": "./node_modules/.bin/cucumber.js integration/",
     "browser-tests": "./node_modules/karma/bin/karma start --browsers Chrome",
-    "karma-watch": "./node_modules/karma/bin/karma start --no-single-run",
+    "karma-watch": "./node_modules/karma/bin/karma start --no-single-run --reporters=mocha,notification",
     "start": "NODE_ENV=development webpack-dev-server --devtool eval-source-map --cache --colors --progress --port 3000",
     "build": "npm run build-app && npm run build-config",
     "build-app": "node buildapp",
