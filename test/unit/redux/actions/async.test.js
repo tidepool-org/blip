@@ -482,7 +482,7 @@ describe('Actions', () => {
 
         store.dispatch(async.sendInvite(api, email, permissions));
 
-        expect(api.access.sendInvite.calledWith(email, permissions).callCount).to.equal(1);
+        expect(api.invitation.send.calledWith(email, permissions).callCount).to.equal(1);
       });
 
       it('should trigger SEND_INVITE_FAILURE and it should call sendInvite once for a failed request', (done) => {
@@ -506,7 +506,7 @@ describe('Actions', () => {
 
         store.dispatch(async.sendInvite(api, email, permissions));
 
-        expect(api.access.sendInvite.calledWith(email, permissions).callCount).to.equal(1);
+        expect(api.invitation.send.calledWith(email, permissions).callCount).to.equal(1);
       });
     });
 
@@ -527,7 +527,7 @@ describe('Actions', () => {
 
         store.dispatch(async.cancelSentInvite(api, email));
 
-        expect(api.access.cancelSentInvite.calledWith(email).callCount).to.equal(1);
+        expect(api.invitation.cancel.calledWith(email).callCount).to.equal(1);
       });
 
       it('should trigger CANCEL_SENT_INVITE_FAILURE and it should call cancelSentInvite once for a failed request', (done) => {
@@ -547,28 +547,36 @@ describe('Actions', () => {
 
         store.dispatch(async.cancelSentInvite(api, email));
 
-        expect(api.access.cancelSentInvite.calledWith(email).callCount).to.equal(1);
+        expect(api.invitation.cancel.calledWith(email).callCount).to.equal(1);
       });
     });
 
     describe('acceptReceivedInvite', () => {
       it('should trigger ACCEPT_RECEIVED_INVITE_SUCCESS and it should call acceptReceivedInvite once for a successful request', (done) => {
         let invitation = { key: 'foo', creator: { userid: 500 } };
+        let patient = { id: 500, name: 'Buddy Holly', age: 65 };
+
         let api = {
           invitation: {
             accept: sinon.stub().callsArgWith(2, null, invitation)
+          },
+          patient: {
+            get: sinon.stub().callsArgWith(1, null, patient)
           }
         };
 
         let expectedActions = [
           { type: 'ACCEPT_RECEIVED_INVITE_REQUEST', payload: { acceptedReceivedInvite: invitation } },
-          { type: 'ACCEPT_RECEIVED_INVITE_SUCCESS', payload: { acceptedReceivedInvite: invitation } }
+          { type: 'ACCEPT_RECEIVED_INVITE_SUCCESS', payload: { acceptedReceivedInvite: invitation } },
+          { type: 'FETCH_PATIENT_REQUEST' },
+          { type: 'FETCH_PATIENT_SUCCESS', payload: { patient : patient } }
         ];
         let store = mockStore(initialState, expectedActions, done);
 
         store.dispatch(async.acceptReceivedInvite(api, invitation));
 
-        expect(api.access.acceptReceivedInvite.calledWith(invitation.key, invitation.creator.userid).callCount).to.equal(1);
+        expect(api.invitation.accept.calledWith(invitation.key, invitation.creator.userid).callCount).to.equal(1);
+        expect(api.patient.get.calledWith(invitation.creator.userid).callCount).to.equal(1);
       });
 
       it('should trigger ACCEPT_RECEIVED_INVITE_FAILURE and it should call acceptReceivedInvite once for a failed request', (done) => {
@@ -588,7 +596,7 @@ describe('Actions', () => {
 
         store.dispatch(async.acceptReceivedInvite(api, invitation));
 
-        expect(api.access.acceptReceivedInvite.calledWith(invitation.key, invitation.creator.userid).callCount).to.equal(1);
+        expect(api.invitation.accept.calledWith(invitation.key, invitation.creator.userid).callCount).to.equal(1);
       });
     });
 
@@ -609,7 +617,7 @@ describe('Actions', () => {
 
         store.dispatch(async.rejectReceivedInvite(api, invitation));
 
-        expect(api.access.rejectReceivedInvite.calledWith(invitation.key, invitation.creator.userid).callCount).to.equal(1);
+        expect(api.invitation.dismiss.calledWith(invitation.key, invitation.creator.userid).callCount).to.equal(1);
       });
 
       it('should trigger REJECT_RECEIVED_INVITE_FAILURE and it should call rejectReceivedInvite once for a failed request', (done) => {
@@ -629,7 +637,7 @@ describe('Actions', () => {
 
         store.dispatch(async.rejectReceivedInvite(api, invitation));
 
-        expect(api.access.rejectReceivedInvite.calledWith(invitation.key, invitation.creator.userid).callCount).to.equal(1);
+        expect(api.invitation.dismiss.calledWith(invitation.key, invitation.creator.userid).callCount).to.equal(1);
       });
     });
 
