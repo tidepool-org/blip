@@ -24,7 +24,7 @@ const working = {
 
 export default { 
   passwordResetConfirmed: false,
-  signupConfirmed: false,
+  showingWelcomeMessage: null,
   isLoggedIn: false,
   sentEmailVerification: false,
   resentEmailVerification: false,

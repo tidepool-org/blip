@@ -38,7 +38,7 @@ import {
   pendingReceivedInvites,
   resentEmailVerification,
   sentEmailVerification,
-  signupConfirmed,
+  showingWelcomeMessage,
   timePrefs
 } from './misc';
 
@@ -62,7 +62,7 @@ export default combineReducers({
   pendingReceivedInvites,
   resentEmailVerification,
   sentEmailVerification,
-  signupConfirmed,
+  showingWelcomeMessage,
   timePrefs,
   working
 });
