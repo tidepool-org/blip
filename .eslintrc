@@ -17,11 +17,8 @@
     "require": false,
     "define": false,
     "console": false,
-    "__MOCK_PARAMS__": false,
     "__UPLOAD_API__": false,
     "__API_HOST__": false,
-    "__SHOW_ACCEPT_TERMS__": false,
-    "__PASSWORD_MIN_LENGTH__": false,
     "__INVITE_KEY__": false
   },
   // To give you an idea how to override rule options:

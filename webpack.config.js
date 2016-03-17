@@ -7,11 +7,8 @@ var isDev = (process.env.NODE_ENV === 'development');
 // process.env with webpack, we have to create these magic constants
 // individually.
 var defineEnvPlugin = new webpack.DefinePlugin({
-  __MOCK_PARAMS__: JSON.stringify(process.env.MOCK_PARAMS || null),
   __UPLOAD_API__: JSON.stringify(process.env.UPLOAD_API || null),
   __API_HOST__: JSON.stringify(process.env.API_HOST || null),
-  __SHOW_ACCEPT_TERMS__: JSON.stringify(process.env.SHOW_ACCEPT_TERMS || null),
-  __PASSWORD_MIN_LENGTH__: JSON.stringify(process.env.PASSWORD_MIN_LENGTH || null),
   __INVITE_KEY__: JSON.stringify(process.env.INVITE_KEY || null),
   __DEV__: isDev,
   __TEST__: false

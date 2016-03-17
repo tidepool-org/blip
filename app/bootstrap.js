@@ -95,10 +95,6 @@ appContext.start = () => {
     );
 
     appContext.log('App started');
-
-    if (appContext.mock) {
-      appContext.log('App running with mock services');
-    }
   });
 };
 
