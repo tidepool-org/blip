@@ -18,7 +18,7 @@ var defineEnvPlugin = new webpack.DefinePlugin({
   __TEST__: false
 });
 
-var plugins = [ defineEnvPlugin, new ExtractTextPlugin('style.css') ];
+var plugins = [ defineEnvPlugin, new ExtractTextPlugin('style.[contenthash].css') ];
 var appEntry = (process.env.MOCK === 'true') ? './app/main.mock.js' : './app/main.js';
 var entryScripts = appEntry;
 var loaders = [
