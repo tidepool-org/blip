@@ -25,45 +25,30 @@ var utils = require('../../core/utils');
 var PermissionInputGroup = React.createClass({
   propTypes: {
     value: React.PropTypes.bool,
+    working: React.PropTypes.bool,
     onChange: React.PropTypes.func
   },
   getDefaultProps: function() {
     return {
-      value: false
+      value: false,
+      working: false,
     };
   },
   getInitialState: function() {
     return {
-      value: this.props.value,
-      working: false,
       name: 'permission' + parseInt(Math.random() * 10000)
     };
   },
   handleChange: function(obj) {
     if(this.props.onChange) {
       var self = this;
-      self.setState({working: true});
-
-      this.props.onChange(obj.value, function(err) {
-        if (err) {
-          self.setState({
-            value: !obj.value,
-            working: false
-          });
-          return;
-        }
-
-        self.setState({
-          value: obj.value,
-          working: false
-        });
-      });
+      this.props.onChange(obj.value);
     } else {
       this.setState({value: obj.value});
     }
   },
   getValue: function() {
-    return this.state.value;
+    return this.props.value;
   },
   render: function() {
     return (
@@ -72,8 +57,8 @@ var PermissionInputGroup = React.createClass({
         name={this.state.name}
         type="checkbox"
         label="Allow uploading"
-        disabled={this.state.working}
-        value={this.state.value}
+        disabled={this.props.working}
+        value={this.props.value}
         onChange={this.handleChange}/>
         
     );
@@ -84,14 +69,18 @@ var MemberInviteForm = React.createClass({
   propTypes: {
     onSubmit: React.PropTypes.func,
     onCancel: React.PropTypes.func,
+    working: React.PropTypes.bool.isRequired,
+    error: React.PropTypes.string,
     trackMetric: React.PropTypes.func.isRequired
   },
   getInitialState: function() {
     return {
-      working: false,
       allowUpload: false,
       error: null
     };
+  },
+  onAllowUploadClick: function(value) {
+    this.setState({allowUpload: value});
   },
   componentDidMount: function() {
     // When invite form appears, automatically focus so user can start
@@ -107,19 +96,19 @@ var MemberInviteForm = React.createClass({
             <div className="">
               <input className="PatientInfo-input" id="email" ref="email" placeholder="Email" />
               <div className="PatientTeam-permissionSelection">
-                <PermissionInputGroup ref="allowUpload" value={this.state.allowUpload} />
+                <PermissionInputGroup ref="allowUpload" value={this.state.allowUpload} onChange={this.onAllowUploadClick}/>
               </div>
               <div className="PatientTeam-buttonHolder">
                 <button className="PatientInfo-button PatientInfo-button--secondary" type="button"
                   onClick={this.props.onCancel}
-                  disabled={this.state.working}>Cancel</button>
+                  disabled={this.props.working}>Cancel</button>
                 <button className="PatientInfo-button PatientInfo-button--primary" type="submit"
                   onClick={this.handleSubmit}
-                  disabled={this.state.working}>
-                  {this.state.working ? 'Sending...' : 'Invite'}
+                  disabled={this.props.working}>
+                  {this.props.working ? 'Sending...' : 'Invite'}
                 </button>
               </div>
-              <div className="PatientTeam-validationError">{this.state.error}</div>
+              <div className="PatientTeam-validationError">{this.props.error || this.state.error}</div>
               <div className="clear"></div>
             </div>
           </div>
@@ -148,9 +137,7 @@ var MemberInviteForm = React.createClass({
       });
       return;
     } else {
-      this.setState({
-        validationError: false
-      });
+      this.setState({error: null});
     }
 
     var permissions = {
@@ -164,33 +151,18 @@ var MemberInviteForm = React.createClass({
     }
 
     this.setState({
-      working: true,
       allowUpload: allowUpload,
-      error: null
     });
     var self = this;
-    this.props.onSubmit(email, permissions, function(err) {
-      if (err) {
-        if (err.status === 409) {
-          return self.setState({
-            working: false,
-            error: 'Looks like you\'ve already sent an invitation to that email'
-          });
-        }
-
-        return self.setState({
-          working: false,
-          error: 'Sorry! Something went wrong...'
-        });
-      }
-      self.props.trackMetric('Clicked Invite');
-      self.setState({working: false});
-    });
+    this.props.onSubmit(email, permissions);
+    self.props.trackMetric('Clicked Invite');
   }
 });
 
 var ConfirmDialog = React.createClass({
   propTypes: {
+    working: React.PropTypes.bool.isRequired,
+    error: React.PropTypes.string,
     message: React.PropTypes.node,
     buttonText: React.PropTypes.string,
     dismissText: React.PropTypes.string,
@@ -201,7 +173,6 @@ var ConfirmDialog = React.createClass({
 
   getInitialState: function() {
     return {
-      working: false,
       error: null
     };
   },
@@ -215,14 +186,14 @@ var ConfirmDialog = React.createClass({
         <div className="ModalOverlay-controls">
           <button className="PatientInfo-button PatientInfo-button--secondary" type="button"
             onClick={this.props.onCancel}
-            disabled={this.state.working}>{this.props.dismissText || 'Cancel'}</button>
+            disabled={this.props.working}>{this.props.dismissText || 'Cancel'}</button>
           <button className="PatientInfo-button PatientInfo-button--warning PatientInfo-button--primary" type="submit"
             onClick={this.handleSubmit}
-            disabled={this.state.working}>
-            {this.state.working ? this.props.buttonTextWorking : this.props.buttonText}
+            disabled={this.props.working}>
+            {this.props.working ? this.props.buttonTextWorking : this.props.buttonText}
           </button>
         </div>
-        <div className="PatientTeam-validationError">{this.state.error}</div>
+        <div className="PatientTeam-validationError">{this.props.error || this.state.error}</div>
       </div>
     );
   },
@@ -233,20 +204,10 @@ var ConfirmDialog = React.createClass({
     }
 
     this.setState({
-      working: true,
       error: null
     });
-    var self = this;
-    this.props.onSubmit(function(err) {
-      if (err) {
-        self.setState({
-          working: false,
-          error: 'Sorry! Something went wrong...'
-        });
-        return;
-      }
-      self.setState({working: false});
-    });
+
+    this.props.onSubmit();
   }
 });
 
@@ -254,12 +215,16 @@ var PatientTeam = React.createClass({
   propTypes: {
     user: React.PropTypes.object,
     patient: React.PropTypes.object,
-    pendingInvites: React.PropTypes.array,
+    pendingSentInvites: React.PropTypes.array,
     onChangeMemberPermissions: React.PropTypes.func,
     onRemoveMember: React.PropTypes.func,
     onInviteMember: React.PropTypes.func,
     onCancelInvite: React.PropTypes.func,
-    trackMetric: React.PropTypes.func.isRequired
+    trackMetric: React.PropTypes.func.isRequired, 
+    changingMemberPermissions: React.PropTypes.object.isRequired,
+    removingMember: React.PropTypes.object.isRequired,
+    invitingMember: React.PropTypes.object.isRequired,
+    cancellingInvite: React.PropTypes.object.isRequired
   },
 
   getInitialState: function() {
@@ -275,20 +240,16 @@ var PatientTeam = React.createClass({
     var self = this;
 
     var handleCancel = this.overlayClickHandler;
-    var handleSubmit = function(cb) {
-      self.props.onRemoveMember(self.props.user.userid, member.userid, function(err) {
-        if (err) {
-          return cb(err);
-        }
-        cb();
-        self.setState({
-          showModalOverlay: false,
-        });
+    var handleSubmit = function() {
+      self.props.onRemoveMember(self.props.user.userid, member.userid);
+      self.setState({
+        showModalOverlay: false,
       });
     };
 
     return (
       <ConfirmDialog
+        working={self.props.removingMember.inProgress}
         message={'Are you sure you want to remove this person? They will no longer be able to see or comment on your data.'}
         buttonText={'I\'m sure, remove them'}
         buttonTextWorking={'Removing...'}
@@ -314,7 +275,7 @@ var PatientTeam = React.createClass({
   handlePermissionChange: function(member) {
     var self = this;
 
-    return function(allowUpload, cb) {
+    return function(allowUpload) {
       var permissions = {
         view: {},
         note: {}
@@ -324,14 +285,10 @@ var PatientTeam = React.createClass({
         permissions.upload = {};
       }
 
-      self.props.onChangeMemberPermissions(self.props.user.userid, member.userid, permissions, function(err) {
-        if (err) {
-          return cb(err);
-        }
-        cb();
-        self.setState({
-          showModalOverlay: false,
-        });
+      self.props.onChangeMemberPermissions(self.props.user.userid, member.userid, permissions);
+
+      self.setState({
+        showModalOverlay: false,
       });
     };
   },
@@ -361,7 +318,6 @@ var PatientTeam = React.createClass({
     var iconClasses = cx(classes);
 
     return (
-      
       <li key={member.userid} className="PatientTeam-member">
         <div className="PatientInfo-head">
           <div className="PatientTeam-picture PatientInfo-picture"></div>
@@ -370,12 +326,15 @@ var PatientTeam = React.createClass({
               <div className="PatientInfo-block PatientInfo-block--withArrow"><div>{member.profile.fullName}</div></div>
               <a href="" className="PatientTeam-icon PatientTeam-icon--remove" title='Remove member' onClick={this.handleRemoveTeamMember(member)}><i className="icon-delete"></i></a>
               <div className="clear"></div>
-              <PermissionInputGroup onChange={this.handlePermissionChange(member)} value={allowUpload} />
+              <PermissionInputGroup 
+                onChange={this.handlePermissionChange(member)} 
+                value={allowUpload} 
+                working={this.props.changingMemberPermissions.inProgress}
+              />
             </div>
           </div>
         </div>
       </li>
-      
     );
 
   },
@@ -384,17 +343,19 @@ var PatientTeam = React.createClass({
     var self = this;
 
     var handleCancel = this.overlayClickHandler;
-    var handleSubmit = function(cb) {
-      self.props.onCancelInvite(invite.email, function(err) {
-        if (err) {
-          return cb(err);
-        }
-        cb();
-        self.setState({
-          showModalOverlay: false,
-        });
+    var handleSubmit = function() {
+      self.props.onCancelInvite(invite.email);
+      self.setState({
+        showModalOverlay: false,
       });
     };
+
+    var error = null;
+    var notification = this.props.cancellingInvite.notification; 
+
+    if (notification && notification.type === 'error') {
+      error = notification.message;
+    }
 
     return (
       <ConfirmDialog
@@ -403,7 +364,9 @@ var PatientTeam = React.createClass({
         dismissText={'No'}
         buttonTextWorking={'Canceling invitation...'}
         onSubmit={handleSubmit}
-        onCancel={handleCancel} />
+        onCancel={handleCancel}
+        working={this.props.cancellingInvite.inProgress}
+        error={error} />
     );
   },
 
@@ -424,7 +387,6 @@ var PatientTeam = React.createClass({
   renderPendingInvite: function(invite) {
 
     return (
-      
       <li key={invite.key} className="PatientTeam-member--fadeNew  PatientTeam-member">
         <div className="PatientInfo-head">
           <div className="PatientTeam-picture PatientInfo-picture"></div>
@@ -438,23 +400,17 @@ var PatientTeam = React.createClass({
           </div>
         </div>
       </li>
-      
     );
-
   },
 
   renderInviteForm: function() {
     var self = this;
 
-    var handleSubmit = function(email, permissions, cb) {
-      self.props.onInviteMember(email, permissions, function(err) {
-        if (err) {
-          return cb(err);
-        }
-        cb();
-        self.setState({
-          invite: false,
-        });
+    var handleSubmit = function(email, permissions) {
+      self.props.onInviteMember(email, permissions);
+
+      self.setState({
+        invite: false,
       });
     };
 
@@ -464,13 +420,21 @@ var PatientTeam = React.createClass({
       });
     };
 
+    var error = null;
+    var notification = this.props.cancellingInvite.notification; 
+
+    if (notification && notification.type === 'error') {
+      error = notification.message;
+    }
+
     return(
-      
       <MemberInviteForm
         onSubmit={handleSubmit}
         onCancel={handleCancel}
-        trackMetric={this.props.trackMetric}/>
-      
+        trackMetric={this.props.trackMetric}
+        working={this.props.invitingMember.inProgress}
+        error={error}
+      />
     );
 
   },
@@ -567,14 +531,14 @@ var PatientTeam = React.createClass({
     
     var editControls = _.isEmpty(members) ? null : this.renderEditControls();
 
-    var pendingInvites = [];
-    if (utils.getIn(this.props, ['pendingInvites'])) {
-      pendingInvites = _.map(this.props.pendingInvites, this.renderPendingInvite);
+    var pendingSentInvites = [];
+    if (utils.getIn(this.props, ['pendingSentInvites'])) {
+      pendingSentInvites = _.map(this.props.pendingSentInvites, this.renderPendingInvite);
     }
 
     var invite = this.state && this.state.invite ? this.renderInviteForm() : this.renderInvite();
 
-    var emptyList = !(members || pendingInvites);
+    var emptyList = !(members || pendingSentInvites);
     var listClass = cx({
       'PatientTeam-list': true,
       'PatientTeam-list--single': emptyList,
@@ -593,7 +557,7 @@ var PatientTeam = React.createClass({
         <div className="clear"></div>
         <ul className={listClass}>
           {members}
-          {pendingInvites}
+          {pendingSentInvites}
           {invite}
           <div className="clear"></div>
         </ul>

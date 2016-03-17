@@ -14,15 +14,20 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
-var React = require('react');
-var _ = require('lodash');
+import React from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
-var personUtils = require('../../core/personutils');
-var ModalOverlay = require('../../components/modaloverlay');
-var PatientInfo = require('./patientinfo');
-var PatientTeam = require('./patientteam');
+import * as actions from '../../redux/actions';
 
-var Patient = React.createClass({
+import _ from 'lodash';
+
+import personUtils from '../../core/personutils';
+import ModalOverlay from '../../components/modaloverlay';
+import PatientInfo from './patientinfo';
+import PatientTeam from './patientteam';
+
+const Patient = React.createClass({
   propTypes: {
     user: React.PropTypes.object,
     shareOnly: React.PropTypes.bool,
@@ -30,11 +35,15 @@ var Patient = React.createClass({
     patient: React.PropTypes.object,
     fetchingPatient: React.PropTypes.bool,
     onUpdatePatient: React.PropTypes.func,
-    pendingInvites: React.PropTypes.array,
+    pendingSentInvites: React.PropTypes.array,
     onChangeMemberPermissions: React.PropTypes.func,
+    changingMemberPermissions: React.PropTypes.object.isRequired,
     onRemoveMember: React.PropTypes.func,
+    removingMember: React.PropTypes.object.isRequired,
     onInviteMember: React.PropTypes.func,
+    invitingMember: React.PropTypes.object.isRequired,
     onCancelInvite: React.PropTypes.func,
+    cancellingInvite: React.PropTypes.object.isRequired,
     trackMetric: React.PropTypes.func.isRequired
   },
 
@@ -160,9 +169,44 @@ var Patient = React.createClass({
 
   renderPatientTeam: function() {
     return (
-      <PatientTeam {...this.props} />
+      <PatientTeam
+        user={this.props.user}
+        patient={this.props.patient}
+        pendingSentInvites={this.props.pendingSentInvites}
+        onChangeMemberPermissions={this.props.onChangeMemberPermissions}
+        onRemoveMember={this.props.onRemoveMember}
+        onInviteMember={this.props.onInviteMember}
+        onCancelInvite={this.props.onCancelInvite}
+        trackMetric={this.props.trackMetric}
+        changingMemberPermissions={this.props.changingMemberPermissions}
+        removingMember={this.props.removingMember}
+        invitingMember={this.props.invitingMember}
+        cancellingInvite={this.props.cancellingInvite}
+      />
     );
   },
+
+  doFetching: function(nextProps) {
+    if (this.props.trackMetric) {
+      this.props.trackMetric('Viewed Share');
+    }
+
+    if (!nextProps.fetchers) {
+      return
+    }
+
+    nextProps.fetchers.forEach(fetcher => { 
+      fetcher();
+    });
+  },
+
+  /**
+   * Before rendering for first time
+   * begin fetching any required data
+   */
+  componentWillMount: function() {
+    this.doFetching(this.props);
+  }
 });
 
-module.exports = Patient;
+export default Patient;

@@ -13,9 +13,11 @@
  * not, you can obtain one from Tidepool Project at tidepool.org.
  */
 
+/* global __TEST__ */
+
 var config = window.config;
 
-if (!config) {
+if (!config && !__TEST__) {
   throw new Error('Expected `config` on the global `window` object');
 }
 

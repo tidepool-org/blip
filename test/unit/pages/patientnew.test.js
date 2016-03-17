@@ -3,11 +3,17 @@
 /* global sinon */
 /* global it */
 
-var React = require('react');
-var TestUtils = require('react-addons-test-utils');
+import React from 'react';
+import TestUtils from 'react-addons-test-utils';
+
+import rewire from 'rewire';
+import rewireModule from '../../utils/rewireModule';
+
+import { PatientNew } from '../../../app/pages/patientnew';
+import { mapStateToProps } from '../../../app/pages/patientnew';
+
+var assert = chai.assert;
 var expect = chai.expect;
-var rewire = require('rewire');
-var rewireModule = require('../../utils/rewireModule');
 
 /**
  * Need to set window.config for config module
@@ -15,7 +21,7 @@ var rewireModule = require('../../utils/rewireModule');
 window.config = {};
 
 describe('PatientNew', function () {
-  var PatientNew = rewire('../../../app/pages/patientnew');
+  
 
   it('should be exposed as a module and be of type function', function() {
     expect(PatientNew).to.be.a('function');
@@ -90,6 +96,41 @@ describe('PatientNew', function () {
       var elem = TestUtils.renderIntoDocument(<PatientNew {...props}/>);
 
       expect(elem.isFormDisabled()).to.equal(true);
+    });
+  });
+
+  describe('mapStateToProps', () => {
+    const state = {
+      allUsersMap: {
+        a1b2c3: {
+          userid: 'a1b2c3'
+        }
+      },
+      loggedInUserId: 'a1b2c3',
+      working: {
+        creatingPatient: {inProgress: true, notification: 'Hi :)'},
+        fetchingUser: {inProgress: false}
+      }
+    };
+    const result = mapStateToProps({blip: state});
+    it('should be a function', () => {
+      assert.isFunction(mapStateToProps);
+    });
+
+    it('should map allUsersMap.a1b2c3 to user', () => {
+      expect(result.user).to.deep.equal(state.allUsersMap.a1b2c3);
+    });
+
+    it('should map working.fetchingUser.inProgress to fetchingUser', () => {
+      expect(result.fetchingUser).to.equal(state.working.fetchingUser.inProgress);
+    });
+
+    it('should map working.creatingPatient.inProgress to working', () => {
+      expect(result.working).to.equal(state.working.creatingPatient.inProgress);
+    });
+
+    it('should map working.creatingPatient.notification to notification', () => {
+      expect(result.notification).to.deep.equal(state.working.creatingPatient.notification);
     });
   });
 });

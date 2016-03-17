@@ -32,6 +32,32 @@ describe('personutils', function() {
     });
   });
 
+  describe('hasAcceptedTerms', function() {
+    it('should return true if the user has a string in the `termsAccepted` field', function() {
+      var person = {termsAccepted: 'foo'};
+
+      expect(personUtils.hasAcceptedTerms(person)).to.be.true;
+    });
+
+    it('should return true if the user has a date in the `termsAccepted` field', function() {
+      var person = {termsAccepted: '2015-01-01'};
+
+      expect(personUtils.hasAcceptedTerms(person)).to.be.true;
+    });
+
+    it('should return false if `termsAccepted` is an empty string', function() {
+      var person = {termsAccepted: ''};
+
+      expect(personUtils.hasAcceptedTerms(person)).to.be.false;
+    });
+
+    it('should return false if `termsAccepted` does not exist', function() {
+      var person = {};
+
+      expect(personUtils.hasAcceptedTerms(person)).to.be.false;
+    });
+  });
+
   describe('isPatient', function() {
     it('should return true if person has patient info', function() {
       var person = {

@@ -9,7 +9,11 @@ var React = require('react');
 var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
 
-var Profile = require('../../../app/pages/profile');
+var Profile = require('../../../app/pages/profile').Profile;
+import { mapStateToProps } from '../../../app/pages/profile';
+
+var assert = chai.assert;
+var expect = chai.expect;
 
 describe('Profile', function () {
   it('should be exposed as a module and be of type function', function() {
@@ -79,5 +83,28 @@ describe('Profile', function () {
     });
   });
 
+  describe('mapStateToProps', () => {
+    const state = {
+      allUsersMap: {
+        a1b2c3: {userid: 'a1b2c3'}
+      },
+      loggedInUserId: 'a1b2c3',
+      working: {
+        fetchingUser: {inProgress: false}
+      }
+    };
+    const result = mapStateToProps({blip: state});
 
+    it('should be a function', () => {
+      assert.isFunction(mapStateToProps);
+    });
+
+    it('should map allUsersMap.a1b2c3 to user', () => {
+      expect(result.user).to.deep.equal(state.allUsersMap.a1b2c3);
+    });
+
+    it('should map working.fetchingUser.inProgress to fetchingUser', () => {
+      expect(result.fetchingUser).to.equal(state.working.fetchingUser.inProgress);
+    });
+  });
 });

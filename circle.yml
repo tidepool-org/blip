@@ -1,5 +1,5 @@
 test:
   override:
     - node_modules/eslint/bin/eslint.js app mock test
-    - nvm exec 0.12 npm test
+    - nvm exec 0.12.0 npm test
     - nvm exec stable npm test
