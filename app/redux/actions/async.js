@@ -39,7 +39,7 @@ export function signup(api, accountDetails) {
     api.user.signup(accountDetails, (err, user) => {
       if (err) {
         let error = ErrorMessages.SIGNUP_ERROR;
-        if (err.status && err.status === 400) {
+        if (err.status && err.status === 409) {
           error = ErrorMessages.ACCOUNT_ALREADY_EXISTS;
         }
         dispatch(sync.signupFailure(error, err));
