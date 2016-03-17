@@ -22,6 +22,8 @@ import * as types from '../constants/actionTypes';
 
 export const notification = (state = initialState.notification, action) => {
   switch (action.type) {
+    case types.SHOW_NOTIFICATION: 
+      return update(state, { $set: action.payload.notification });
     case types.ACKNOWLEDGE_NOTIFICATION:
       if (!action.payload.acknowledgedNotification) {
         return update(state, { $set: null });

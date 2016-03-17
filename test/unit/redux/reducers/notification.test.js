@@ -36,6 +36,19 @@ import { notification as initialState } from '../../../../app/redux/reducers/ini
 var expect = chai.expect;
 
 describe('notification', () => {
+  describe('showNotification', () => {
+    it('should set notification to payload.notification', () => {
+      let notification = 'Some notification'
+      let initialStateForTest = null;
+      let tracked = mutationTracker.trackObj(initialStateForTest);
+
+      let action = actions.sync.showNotification(notification)
+
+      let state = reducer(initialStateForTest, action);
+      expect(state).to.equal(notification);
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+    });
+  });
   describe('acknowledgeNotification', () => {
     it('should clear notification state when no acknowledgeNotificationKey specified in payload', () => {
       let notification = 'Some notification'
