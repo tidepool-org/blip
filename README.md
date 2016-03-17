@@ -26,7 +26,6 @@ Table of contents:
     - [Less](#less)
     - [Icons](#icons)
     - [JSHint](#jshint)
-    - [Mock mode](#mock-mode)
     - [Perceived speed](#perceived-speed)
 - [Testing](#testing)
 - [Build and deployment](#build-and-deployment)
@@ -46,15 +45,14 @@ $ npm install
 
 ## Quick start
 
-Start the development server (in "mock mode") with:
+Start the development server (in "local mode") with:
 
 ```bash
-$ source config/mock.sh
+$ source config/local.sh
 $ npm start
 ```
 
-Open your web browser and navigate to `http://localhost:3000/`. You can see the
-mock data by logging in with email "**demo**" and password "**demo**".
+Open your web browser and navigate to `http://localhost:3000/`.
 
 ### Running local
 
@@ -224,41 +222,6 @@ You can also watch files and re-run JSHint on changes with:
 $ npm run jshint-watch
 ```
 
-### Mock mode
-
-For local development, demoing, or testing, you can run the app in "mock" mode by setting the environment variable `MOCK=true` (to turn it off use `MOCK=''`). In this mode, the app will not make any calls to external services, and use dummy data contained in `.json` files.
-
-All app objects (mostly app services) that make any external call should have their methods making these external calls patched by a mock. These are located in the `mock/` directory. To create one, return a `patchService(service)` function (see existing mocks for examples).
-
-Mock data is generated from `.json` files, which are combined into a JavaScript object that mirrors the directory structure of the data files (for example `patients/11.json` will be available at `data.patients['11']`). See the [blip-mock-data](https://github.com/tidepool-org/blip-mock-data) repository for more details.
-
-You can configure the behavior of mock services using **mock parameters**. These are passed through the URL query string.
-
-Note that because of the way URLs work, the query parameters MUST be before the '#'.
-
-For example:
-
-```
-http://localhost:3000/?auth.skip=11&api.patient.getall.delay=2000#/patients
-```
-
-With the URL above, mock services will receive the parameters:
-
-```javascript
-{
-  'auth.skip': 11,
-  'api.patient.getall.delay': 2000
-}
-```
-
-Mock parameters are very useful in development (for example, you don't necessarily want to sign in every time you refresh). They are helpful when testing (manually or automatically) different behaviors: What happens if this API call returns an empty list? What is displayed while we are waiting for data to come back from the server? Etc.
-
-To find out which mock parameters are available, please see the corresponding service and method in the `mock/` folder (look for calls to `getParam()`).
-
-The naming convention for these parameters is **all lower-case**, and **name-spaced with periods**. For example, to have the call to `api.patient.getAll()` return an empty list, I would use the name `api.patient.getall.empty`.
-
-If you would like to build the app with mock parameters "baked-in", you can also use the `MOCK_PARAMS` environement variable, which works like a query string (ex: `$ export MOCK_PARAMS='auth.skip=11&api.delay=1000'`). If the same parameter is set in the URL and the environment variable, the URL's value will be used.
-
 ### Perceived speed
 
 Fetching data from the server and rendering the UI to display that data is a classic pattern. The approach we try to follow (see [The Need for Speed](https://cloudup.com/blog/the-need-for-speed)) is to "render as soon as possible" and "save optimistically".
@@ -316,7 +279,7 @@ $ npm run server
 You can also build everything at once locally by simply running:
 
 ```bash
-$ source config/mock.sh
+$ source config/local.sh
 $ npm run build
 $ npm run server
 ```
