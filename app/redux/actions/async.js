@@ -84,12 +84,12 @@ export function login(api, credentials, options) {
                 } else {
                   user = update(user, { $merge: patient });
                   dispatch(sync.loginSuccess(user));
-                  dispatch(routeActions.push('/patients'));
+                  dispatch(routeActions.push('/patients?justLoggedIn=true'));
                 }
               });
             } else {
               dispatch(sync.loginSuccess(user));
-              dispatch(routeActions.push('/patients'));
+              dispatch(routeActions.push('/patients?justLoggedIn=true'));
             }
           }
         });
@@ -197,7 +197,7 @@ export function acceptTerms(api, acceptedDate) {
         dispatch(sync.acceptTermsFailure(ErrorMessages.STANDARD, err));
       } else {
         dispatch(sync.acceptTermsSuccess(loggedInUserId, acceptedDate));
-        dispatch(routeActions.push(`/patients`));
+        dispatch(routeActions.push(`/patients?justLoggedIn=true`));
       }
     })
   };

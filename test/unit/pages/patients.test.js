@@ -6,6 +6,7 @@
 window.config = {};
 
 import React from 'react';
+import { browserHistory } from 'react-router';
 import TestUtils from 'react-addons-test-utils';
 
 var assert = chai.assert;
@@ -38,6 +39,154 @@ describe('Patients', () => {
     });
   });
 
+  describe('componentWillReceiveProps', () => {
+    it('should redirect to patient data when justLogged query param is set and only one patient available', () => {
+      console.error = sinon.stub();
+      var props = {
+        trackMetric: sinon.stub(),
+        clearPatientInView: sinon.stub()
+      };
+      var elem = React.createElement(Patients, props);
+      var render = TestUtils.renderIntoDocument(elem);
+      
+      var nextProps = Object.assign({}, props, {
+          loading: false,
+          location: { query: {
+              justLoggedIn: true
+            }
+          },
+          patients: [ { userid: 1 } ],
+          showingWelcomeMessage: null
+      });
+
+      render.componentWillReceiveProps(nextProps);
+      expect(window.location.pathname).to.equal('/patients/1/data');
+    });
+
+    it('should not redirect to patient data when justLogged query param is set and more than one patient available', () => {
+      console.error = sinon.stub();
+      var props = {
+        trackMetric: sinon.stub(),
+        clearPatientInView: sinon.stub()
+      };
+      var elem = React.createElement(Patients, props);
+      var render = TestUtils.renderIntoDocument(elem);
+      var currentPath = window.location.pathname;
+      var nextProps = Object.assign({}, props, {
+          loading: false,
+          location: { query: {
+              justLoggedIn: true
+            }
+          },
+          patients: [ { userid: 1 }, { userid: 2 } ],
+          showingWelcomeMessage: null
+      });
+
+      render.componentWillReceiveProps(nextProps);
+      expect(window.location.pathname).to.equal(currentPath);
+    });
+
+    it('should not redirect to patient data when justLogged query param is set and zero patients available', () => {
+      console.error = sinon.stub();
+      var props = {
+        trackMetric: sinon.stub(),
+        clearPatientInView: sinon.stub(),
+        showWelcomeMessage: sinon.stub()
+      };
+      var elem = React.createElement(Patients, props);
+      var render = TestUtils.renderIntoDocument(elem);
+      var currentPath = window.location.pathname;
+      var nextProps = Object.assign({}, props, {
+          loading: false,
+          location: { query: {
+              justLoggedIn: true
+            }
+          },
+          patients: [],
+          invites: [],
+          showingWelcomeMessage: null
+      });
+
+      render.componentWillReceiveProps(nextProps);
+      expect(window.location.pathname).to.equal(currentPath);
+    });
+
+    it('should trigger showWelcomeMessage to patient data when justLogged query param is set and zero patients and zero invites available', () => {
+      console.error = sinon.stub();
+      var props = {
+        trackMetric: sinon.stub(),
+        clearPatientInView: sinon.stub(),
+        showWelcomeMessage: sinon.stub()
+      };
+      var elem = React.createElement(Patients, props);
+      var render = TestUtils.renderIntoDocument(elem);
+      var currentPath = window.location.pathname;
+      var nextProps = Object.assign({}, props, {
+          loading: false,
+          location: { query: {
+              justLoggedIn: true
+            }
+          },
+          patients: [],
+          invites: [],
+          showingWelcomeMessage: null
+      });
+
+      render.componentWillReceiveProps(nextProps);
+      expect(nextProps.showWelcomeMessage.callCount).to.equal(1);
+    });
+
+    it('should not trigger showWelcomeMessage to patient data when justLogged query param is set and one patient and one invite available', () => {
+      console.error = sinon.stub();
+      var props = {
+        trackMetric: sinon.stub(),
+        clearPatientInView: sinon.stub(),
+        showWelcomeMessage: sinon.stub()
+      };
+      var elem = React.createElement(Patients, props);
+      var render = TestUtils.renderIntoDocument(elem);
+      var currentPath = window.location.pathname;
+      var nextProps = Object.assign({}, props, {
+          loading: false,
+          location: { query: {
+              justLoggedIn: true
+            }
+          },
+          patients: [ { userId: 244 } ],
+          invites: [ { userId: 222 } ],
+          showingWelcomeMessage: null
+      });
+
+      render.componentWillReceiveProps(nextProps);
+      expect(nextProps.showWelcomeMessage.callCount).to.equal(0);
+    });
+
+    it('should not trigger showWelcomeMessage to patient data when justLogged query param is set and zero patients but one invite available', () => {
+      console.error = sinon.stub();
+      var props = {
+        trackMetric: sinon.stub(),
+        clearPatientInView: sinon.stub(),
+        showWelcomeMessage: sinon.stub()
+      };
+      var elem = React.createElement(Patients, props);
+      var render = TestUtils.renderIntoDocument(elem);
+      var currentPath = window.location.pathname;
+      var nextProps = Object.assign({}, props, {
+          loading: false,
+          location: { query: {
+              justLoggedIn: true
+            }
+          },
+          patients: [],
+          invites: [ { userId: 222 } ],
+          showingWelcomeMessage: null
+      });
+
+      render.componentWillReceiveProps(nextProps);
+      expect(nextProps.showWelcomeMessage.callCount).to.equal(0);
+    });
+  });
+
   describe('mapStateToProps', () => {
     it('should be a function', () => {
       assert.isFunction(mapStateToProps);
@@ -58,7 +207,7 @@ describe('Patients', () => {
         loggedInUserId: 'a1b2c3',
         memberInOtherCareTeams: ['d4e5f6', 'x1y2z3'],
         pendingReceivedInvites: ['g4h5i6'],
-        signupConfirmed: true,
+        showingWelcomeMessage: true,
         targetUserId: 'a1b2c3',
         working: {
           fetchingPatients: {inProgress: false},
@@ -84,21 +233,16 @@ describe('Patients', () => {
         ]);
       });
 
-      it('should map working.fetchingPatients.inProgress to fetchingPatients', () => {
-        expect(result.fetchingPatients).to.equal(state.working.fetchingPatients.inProgress);
+      it('should map fetchingPendingReceivedInvites + fetchingUser + fetchingPatients inProgress fields to loading', () => {
+        expect(result.loading).to.equal(
+          state.working.fetchingPendingReceivedInvites.inProgress ||
+          state.working.fetchingPatients.inProgress ||
+          state.working.fetchingUser.inProgress
+        );
       });
 
-      it('should map pendingReceivedInvites to invites', () => {
-        expect(result.invites).to.deep.equal(state.pendingReceivedInvites);
-      });
-
-      it('should map working.fetchingPendingReceivedInvites.inProgress to fetchingInvites', () => {
-        expect(result.fetchingInvites).to.equal(state.working.fetchingPendingReceivedInvites.inProgress);
-      });
-
-      it('should map signupConfirmed to showingWelcomeTitle & showingWelcomeSetup', () => {
-        expect(result.showingWelcomeTitle).to.equal(state.signupConfirmed);
-        expect(result.showingWelcomeSetup).to.equal(state.signupConfirmed);
+      it('should map showingWelcomeMessage to showingWelcomeMessage', () => {
+        expect(result.showingWelcomeMessage).to.equal(state.showingWelcomeMessage);
       });
     });
 
@@ -118,7 +262,7 @@ describe('Patients', () => {
         loggedInUserId: 'a1b2c3',
         memberInOtherCareTeams: ['d4e5f6', 'x1y2z3'],
         pendingReceivedInvites: ['g4h5i6'],
-        signupConfirmed: true,
+        showingWelcomeMessage: true,
         targetUserId: null,
         working: {
           fetchingPatients: {inProgress: false},
@@ -143,21 +287,16 @@ describe('Patients', () => {
         ]);
       });
 
-      it('should map working.fetchingPatients.inProgress to fetchingPatients', () => {
-        expect(result.fetchingPatients).to.equal(state.working.fetchingPatients.inProgress);
+      it('should map fetchingPendingReceivedInvites + fetchingUser + fetchingPatients inProgress fields to loading', () => {
+        expect(result.loading).to.equal(
+          state.working.fetchingPendingReceivedInvites.inProgress ||
+          state.working.fetchingPatients.inProgress ||
+          state.working.fetchingUser.inProgress
+        );
       });
 
-      it('should map pendingReceivedInvites to invites', () => {
-        expect(result.invites).to.deep.equal(state.pendingReceivedInvites);
-      });
-
-      it('should map working.fetchingPendingReceivedInvites.inProgress to fetchingInvites', () => {
-        expect(result.fetchingInvites).to.equal(state.working.fetchingPendingReceivedInvites.inProgress);
-      });
-
-      it('should map signupConfirmed to showingWelcomeTitle & showingWelcomeSetup', () => {
-        expect(result.showingWelcomeTitle).to.equal(state.signupConfirmed);
-        expect(result.showingWelcomeSetup).to.equal(state.signupConfirmed);
+      it('should map showingWelcomeMessage to showingWelcomeMessage', () => {
+        expect(result.showingWelcomeMessage).to.equal(state.showingWelcomeMessage);
       });
     });
   });

@@ -23,7 +23,7 @@
 
 import _ from 'lodash';
 
-import { signupConfirmed as reducer } from '../../../../app/redux/reducers/misc';
+import { showingWelcomeMessage as reducer } from '../../../../app/redux/reducers/misc';
 
 import actions from '../../../../app/redux/actions/index';
 
@@ -33,16 +33,28 @@ import { notification as initialState } from '../../../../app/redux/reducers/ini
 
 var expect = chai.expect;
 
-describe('signupConfirmed', () => {
-  describe('confirmSignupSuccess', () => {
-    it('should set state to true', () => {
+describe('showingWelcomeMessage', () => {
+  describe('showWelcomeMessage', () => {
+    it('should set state to false', () => {
       let initialStateForTest = false;
 
-      let action = actions.sync.confirmSignupSuccess()
+      let action = actions.sync.showWelcomeMessage()
 
       let state = reducer(initialStateForTest, action);
 
       expect(state).to.be.true;
+    });
+  });
+
+  describe('hideWelcomeMessage', () => {
+    it('should set state to false', () => {
+      let initialStateForTest = true;
+
+      let action = actions.sync.hideWelcomeMessage()
+
+      let state = reducer(initialStateForTest, action);
+
+      expect(state).to.be.false;
     });
   });
 });
