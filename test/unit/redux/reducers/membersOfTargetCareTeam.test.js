@@ -58,6 +58,21 @@ describe('membersOfTargetCareTeam', () => {
     });
   });
 
+  describe('removeMemberSuccess', () => {
+    it('should remove member from hash map', () => {
+      let patientId = 56
+
+      let initialStateForTest = [ 500, 234, 56];
+      
+      let action = actions.sync.removeMemberSuccess(patientId)
+
+      let state = reducer(initialStateForTest, action);
+
+      expect(Object.keys(state).length).to.equal(2);
+      expect(state[patientId]).to.be.undefined;
+    });
+  });
+
   describe('logoutRequest', () => {
     it('should set state to null', () => {
       let initialStateForTest = [1, 2 ,3];

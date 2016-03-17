@@ -1,5 +1,5 @@
 export const STANDARD = 'Sorry! Something went wrong...';
 export const ALREADY_SENT_TO_EMAIL = 'Looks like you\'ve already sent an invitation to that email.'
 export const SIGNUP_ERROR = 'An error occured while signing up.';
-export const ACCOUNT_ALREADY_EXISTS = 'An account already exists for that email.';
+export const ACCOUNT_ALREADY_EXISTS = SIGNUP_ERROR;
 export const EMAIL_NOT_VERIFIED = 'Looks like your email address has not been verified.';

@@ -101,6 +101,21 @@ api.user.signup = function(user, cb) {
     if (err) {
       return cb(err);
     }
+    
+    /**
+     * Because Platform Client handles this error slightly weirdly, and returns
+     * it in the account object we need to inspect the account object
+     * for the following object signature and then if found, call the 
+     * callback with an error based on the contents of the object
+     *
+     * @todo : consider when refactoring platform client
+     */
+    if(account.code && account.code === 409) {
+      return cb({
+        status: account.code,
+        error: account.reason
+      });
+    }
 
     var userId = account.userid;
 

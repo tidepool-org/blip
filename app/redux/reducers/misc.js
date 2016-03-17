@@ -40,9 +40,9 @@ export const passwordResetConfirmed = (state = initialState.passwordResetConfirm
   }
 };
 
-export const signupConfirmed = (state = initialState.signupConfirmed, action) => {
+export const showingWelcomeMessage = (state = initialState.showingWelcomeMessage, action) => {
   switch(action.type) {
-    case types.CONFIRM_SIGNUP_SUCCESS:
+    case types.SHOW_WELCOME_MESSAGE:
       return update(state, { $set: true });
     case types.HIDE_WELCOME_MESSAGE:
       return update(state, { $set: false });
@@ -183,6 +183,16 @@ export const membersOfTargetCareTeam = (state = initialState.membersOfTargetCare
       }
 
       return state;
+    case types.REMOVE_MEMBER_SUCCESS:
+      let members = [];
+      state.forEach((member) => {
+        let id = parseInt(member, 10);
+        if (id !== action.payload.removedMemberId) {
+          members.push(member);
+        }
+      });
+
+      return update(state, { $set: members });
     case types.LOGOUT_REQUEST:
       return update(state, { $set: [] });
     default:
@@ -199,6 +209,16 @@ export const memberInOtherCareTeams = (state = initialState.memberInOtherCareTea
     case types.ACCEPT_RECEIVED_INVITE_SUCCESS:
       let { creator } = action.payload.acceptedReceivedInvite;
       return update(state, { $push: [ creator.userid ] });
+    case types.REMOVE_PATIENT_SUCCESS:
+      let patients = [];
+      state.forEach((patient) => {
+        let id = parseInt(patient, 10);
+        if (id !== action.payload.removedPatientId) {
+          patients.push(patient);
+        }
+      });
+
+      return update(state, { $set: patients });
     case types.LOGOUT_REQUEST:
       return update(state, { $set: [] });
     default:
@@ -207,15 +227,24 @@ export const memberInOtherCareTeams = (state = initialState.memberInOtherCareTea
 };
 
 export const permissionsOfMembersInTargetCareTeam = (state = initialState.permissionsOfMembersInTargetCareTeam, action) => {
+  let permissions = {};
   switch(action.type) {
     case types.FETCH_PATIENT_SUCCESS:
       if (action.payload.patient.team) {
-        let permissions = {};
         action.payload.patient.team.forEach((t) => permissions[t.userid] = t.permissions);
         return update(state, { $set: permissions });
       }
         
       return state;
+    case types.REMOVE_MEMBER_SUCCESS:
+      Object.keys(state).forEach((p) => {
+        let id = parseInt(p, 10);
+        if (id !== action.payload.removedMemberId) {
+          permissions[p] = p.permissions
+        }
+      });
+
+      return update(state, { $set: permissions });
     case types.LOGOUT_REQUEST:
       return update(state, { $set: {} });
     default:
@@ -224,13 +253,20 @@ export const permissionsOfMembersInTargetCareTeam = (state = initialState.permis
 };
 
 export const membershipPermissionsInOtherCareTeams = (state = initialState.membershipPermissionsInOtherCareTeams, action) => {
+  let permissions = {};
   switch(action.type) {
     case types.FETCH_PATIENTS_SUCCESS:
-      let permissions = {};
       action.payload.patients.forEach((p) => permissions[p.userid] = p.permissions);
 
       return update(state, { $set: permissions });
     case types.REMOVE_PATIENT_SUCCESS:
+      Object.keys(state).forEach((p) => {
+        let id = parseInt(p, 10);
+        if (id !== action.payload.removedPatientId) {
+          permissions[p] = p.permissions
+        }
+      });
+
       return update(state, { $set: permissions });
     case types.LOGOUT_REQUEST:
       return update(state, { $set: {} });
