@@ -36,6 +36,7 @@ export let Patients = React.createClass({
     user: React.PropTypes.object,
     patients: React.PropTypes.array,
     invites: React.PropTypes.array,
+    loading: React.PropTypes.bool,
     showingWelcomeMessage: React.PropTypes.bool,
     onHideWelcomeSetup: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired,
