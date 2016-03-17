@@ -45,15 +45,14 @@ $ npm install
 
 ## Quick start
 
-Start the development server (in "mock mode") with:
+Start the development server (in "local mode") with:
 
 ```bash
-$ source config/mock.sh
+$ source config/local.sh
 $ npm start
 ```
 
-Open your web browser and navigate to `http://localhost:3000/`. You can see the
-mock data by logging in with email "**demo**" and password "**demo**".
+Open your web browser and navigate to `http://localhost:3000/`.
 
 ### Running local
 
@@ -280,7 +279,7 @@ $ npm run server
 You can also build everything at once locally by simply running:
 
 ```bash
-$ source config/mock.sh
+$ source config/local.sh
 $ npm run build
 $ npm run server
 ```
