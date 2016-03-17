@@ -50,7 +50,7 @@ export let Patients = React.createClass({
   render: function() {
     var welcomeTitle = this.renderWelcomeTitle();
 
-    if (this.isLoading() && !(this.props.showingWelcomeMessage)) {
+    if (this.isLoading()) {
       return (
         <div className="container-box-outer">
           <div className="patients js-patients-page">
