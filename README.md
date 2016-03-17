@@ -7,6 +7,7 @@ Blip is a web app for Type-1 Diabetes (T1D) built on top of the [Tidepool](http:
 Tech stack:
 
 - [React](http://facebook.github.io/react)
+- [Redux](http://redux.js.org/)
 - [LESS](http://lesscss.org/)
 - [D3.js](http://d3js.org/)
 
@@ -78,9 +79,11 @@ The following snippets of documentation should help you find your way around and
 
 ### Code organization
 
-- **App** (`app/app.js`): Expose a global `window.app` object where everything else is attached; create the main React component `app.component`
-- **Router** (`app/router.js`): Handle client-side URI routing (using [director](https://github.com/flatiron/director)); attached to the global `app` object
-- **Core** (`app/core`): Scripts and styles shared by all app components
+- **Bootstrap** (`app/bootstrap.js`): Where our application is "bootstrapped" into the HTML served. We initialise the API and then render the React application here
+- **Redux** (`app/redux`): Where our "redux" implementation lives. This code is responsible for state management of the application.
+- **Root** (`app/redux/containers/Root.js`): The Root component for our React application.
+- **Routes** (`app/routes.js`): Our route definitions for the application.
+- **Core** (`app/core`): Scripts and styles shared by all app components. This is where the API and various utilities lives.
 - **Components** (`app/components`): Reusable React components, the building-blocks of the application
 - **Pages** (`app/pages`): Higher-level React components that combine reusable components together; switch from page to page on route change
 - **Services** (`app/core/<service>.js`): Singletons used to interface with external services or to provide some common utility; they are attached to the global `app` object (for example, `app.api` which handles communicating with the backend)
@@ -249,6 +252,12 @@ To run the unit tests in Chrome, use:
 
 ```bash
 $ npm run browser-tests
+```
+
+To run the unit tests in watch, use:
+
+```bash
+$ npm run karma-watch
 ```
 
 ## Build and deployment
