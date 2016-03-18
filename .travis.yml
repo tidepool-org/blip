@@ -1,10 +1,24 @@
-sudo: false
-
+sudo: required
 language: node_js
+
+services:
+  - docker
 
 node_js:
   - "0.12.7"
   - "stable"
+
+addons:
+  apt:
+    packages:
+    - google-chrome-stable
+    - xvfb
+
+beforeInstall:
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
+  - sleep 3 # give xvfb some time to start
+  - docker-compose up -d
 
 script:
   - "npm run lint"
