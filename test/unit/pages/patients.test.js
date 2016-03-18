@@ -55,6 +55,7 @@ describe('Patients', () => {
               justLoggedIn: true
             }
           },
+          loggedInUserId: 20,
           patients: [ { userid: 1 } ],
           showingWelcomeMessage: null
       });
@@ -78,6 +79,7 @@ describe('Patients', () => {
               justLoggedIn: true
             }
           },
+          loggedInUserId: 20,
           patients: [ { userid: 1 }, { userid: 2 } ],
           showingWelcomeMessage: null
       });
@@ -102,6 +104,7 @@ describe('Patients', () => {
               justLoggedIn: true
             }
           },
+          loggedInUserId: 20,
           patients: [],
           invites: [],
           showingWelcomeMessage: null
@@ -127,6 +130,7 @@ describe('Patients', () => {
               justLoggedIn: true
             }
           },
+          loggedInUserId: 20,
           patients: [],
           invites: [],
           showingWelcomeMessage: null
@@ -152,6 +156,7 @@ describe('Patients', () => {
               justLoggedIn: true
             }
           },
+          loggedInUserId: 20,
           patients: [ { userId: 244 } ],
           invites: [ { userId: 222 } ],
           showingWelcomeMessage: null
@@ -177,6 +182,7 @@ describe('Patients', () => {
               justLoggedIn: true
             }
           },
+          loggedInUserId: 20,
           patients: [],
           invites: [ { userId: 222 } ],
           showingWelcomeMessage: null

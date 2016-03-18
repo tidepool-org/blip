@@ -18,6 +18,8 @@ import Terms from './pages/terms';
 
 import personUtils from './core/personutils';
 
+import actions from './redux/actions';
+
 /**
  * This function redirects any requests that land on pages that should only be
  * visible when logged in if the user is logged out
@@ -200,6 +202,40 @@ export const onIndexRouteEnter = (api, store) => (nextState, replace) => {
 }
 
 /**
+ * onEnter handler for all non specified routes
+ *
+ * This function redirects logged in users to patients
+ * and non-logged in users to the login page
+ *
+ * @param  {Object} nextState
+ * @param  {Function} replace
+ */
+export const onOtherRouteEnter = (api) => (nextState, replace) => {
+  if (api.user.isAuthenticated()) {
+    replace('/patients');
+  } else {
+    replace('/login');
+  }
+}
+
+/**
+ * onEnter handler for all non specified routes
+ *
+ * This function redirects logged in users to patients
+ * and non-logged in users to the login page
+ *
+ * @param  {Object} nextState
+ * @param  {Function} replace
+ */
+export const onLogoutEnter = (api, store) => (nextState, replace) => {
+  if (api.user.isAuthenticated()) {
+    store.dispatch(actions.async.logout(api));
+  } else {
+    replace('/login');
+  }
+}
+
+/**
  * Creates the route map with authentication associated with each route built in.
  *
  * @param  {Object} appContext
@@ -227,6 +263,8 @@ export const getRoutes = (appContext, store) => {
       <Route path='request-password-reset' component={RequestPasswordReset} onEnter={requireNoAuth(api)} />
       <Route path='confirm-password-reset' component={ConfirmPasswordReset} onEnter={requireNoAuth(api)} />
       <Route path='request-password-from-uploader' component={RequestPasswordReset} onEnter={onUploaderPasswordReset(api)} />
+      <Route path='logout' onEnter={onLogoutEnter(api, store)} />
+      <Route path='*' onEnter={onOtherRouteEnter(api)} />
     </Route>
   );
 }
