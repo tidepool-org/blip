@@ -1,4 +1,11 @@
-describe('Google demo test for Mocha', function() {
+/* global describe */
+/* global before */
+/* global after  */
+/* global beforeEach */
+/* global afterEach */
+/* global it */
+
+describe('Blip demo test for Mocha', function() {
 
   describe('with Nightwatch', function() {
     var app;
