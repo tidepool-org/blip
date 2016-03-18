@@ -106,9 +106,7 @@ export class AppComponent extends React.Component {
    * begin fetching any required data
    */
   componentWillMount() {
-    if (this.props.authenticated) {
-      this.doFetching(this.props);
-    }
+    this.doFetching(this.props);
   }
 
   /**
