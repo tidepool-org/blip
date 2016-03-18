@@ -4,7 +4,15 @@
 /* global it */
 
 import {
-  requireAuth, requireAuthAndNoPatient, requireNoAuth, requireNotVerified, onUploaderPasswordReset, hashToUrl, onIndexRouteEnter
+  requireAuth,
+  requireAuthAndNoPatient,
+  requireNoAuth,
+  requireNotVerified,
+  onUploaderPasswordReset,
+  hashToUrl,
+  onIndexRouteEnter,
+  onOtherRouteEnter,
+  onLogoutEnter
 } from '../../app/routes';
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
@@ -613,7 +621,7 @@ describe('routes', () => {
           pathname: '/',
           hash: '#/foobar'
         }
-      }
+      };
 
       let replace = sinon.stub();
 
@@ -630,7 +638,7 @@ describe('routes', () => {
           pathname: '/foo',
           hash: '#/foobar'
         }
-      }
+      };
 
       let replace = sinon.stub();
 
@@ -647,7 +655,7 @@ describe('routes', () => {
           pathname: '/foo',
           hash: ''
         }
-      }
+      };
 
       let replace = sinon.stub();
 
@@ -666,7 +674,7 @@ describe('routes', () => {
           pathname: '/',
           hash: '#/patients'
         }
-      }
+      };
 
       let api = {
         user: {
@@ -697,7 +705,7 @@ describe('routes', () => {
           pathname: '/',
           hash: '#/patient/435/data'
         }
-      }
+      };
 
       let api = {
         user: {
@@ -728,7 +736,7 @@ describe('routes', () => {
           pathname: '/',
           hash: ''
         }
-      }
+      };
 
       let api = {
         user: {
@@ -757,7 +765,7 @@ describe('routes', () => {
           pathname: '/',
           hash: ''
         }
-      }
+      };
 
       let api = {
         user: {
@@ -778,6 +786,88 @@ describe('routes', () => {
       onIndexRouteEnter(api, store)(nextState, replace);
 
       expect(replace.callCount).to.equal(0);
+    });
+  });
+
+  describe('onOtherRouteEnter', () => {
+    it('should update route to /patients if user is authenticated', () => {
+      let api = {
+        user: {
+          isAuthenticated: sinon.stub().returns(true)
+        }
+      };
+
+      let replace = sinon.stub();
+
+      expect(replace.callCount).to.equal(0);
+
+      onOtherRouteEnter(api)(null, replace);
+
+      expect(replace.withArgs('/patients').callCount).to.equal(1);
+    });
+
+    it('should update route to /login if user is not authenticated', () => {
+
+      let api = {
+        user: {
+          isAuthenticated: sinon.stub().returns(false)
+        }
+      };
+
+      let replace = sinon.stub();
+
+      expect(replace.callCount).to.equal(0);
+
+      onOtherRouteEnter(api)(null, replace);
+
+      expect(replace.withArgs('/login').callCount).to.equal(1);
+    })
+  });
+
+  describe('onLogoutEnter', () => {
+    // because the route will be updated as part of the async logout action triggered
+    it('should not update the route if the user is authenticated', () => {
+      let store = {
+        dispatch: sinon.stub()
+      };
+
+      let api = {
+        user: {
+          isAuthenticated: sinon.stub().returns(true)
+        }
+      };
+
+      let replace = sinon.stub();
+
+      expect(replace.callCount).to.equal(0);
+
+      onLogoutEnter(api, store)(null, replace);
+
+      expect(store.dispatch.callCount).to.equal(1);
+
+      expect(replace.callCount).to.equal(0);
+    });
+
+    it('should update the route to /login if the user is not authenticated', () => {
+      let store = {
+        dispatch: sinon.stub()
+      };
+
+      let api = {
+        user: {
+          isAuthenticated: sinon.stub().returns(false)
+        }
+      };
+
+      let replace = sinon.stub();
+
+      expect(replace.callCount).to.equal(0);
+
+      onLogoutEnter(api, store)(null, replace);
+
+      expect(store.dispatch.callCount).to.equal(0);
+
+      expect(replace.withArgs('/login').callCount).to.equal(1);
     });
   });
 });
