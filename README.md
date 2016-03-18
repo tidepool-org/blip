@@ -59,7 +59,7 @@ Open your web browser and navigate to `http://localhost:3000/`.
 
 When running locally, there is a workaround so you don't have to verify the e-mail address of a new user: if you create a new user and add the localhost secret +skip to the e-mail address - e.g. `me+skip@something.org` - this will then allow you to login straightaway, skipping the e-mail verification step.
 
-**NB: The UI will *not* display correctly for +skip-created users on the /email-verification route. For now, you must create a normal account (without +skip) if you want to work on that page, although we have plans to fix the way the +skip workaround operates on the backend to address this.**
+**NB: The UI is *not* guaranteed to display correctly for +skip-created users on all pages. For now, you must create a normal account (without +skip) if you want to work on the sign-up flow, although we have plans to fix the way the +skip workaround operates on the platform to address this.**
 
 ## Config
 
