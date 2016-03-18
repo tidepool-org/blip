@@ -23,6 +23,7 @@ beforeInstall:
 script:
   - "npm run lint"
   - "npm test"
+  - "npm run nightwatch"
 
 matrix:
   allow_failures:
