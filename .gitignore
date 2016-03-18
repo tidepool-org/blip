@@ -23,3 +23,4 @@ config/*
 !config/local.sh
 test/bin
 sauce_connect.log
+selenium-debug.log
