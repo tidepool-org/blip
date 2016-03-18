@@ -342,7 +342,7 @@ let getFetchers = (dispatchProps, ownProps, api) => {
 
 export function mapStateToProps(state) {
   var user = null;
-  var patients = [];
+  let patientMap = {};
 
   if (state.blip.allUsersMap) {
     if (state.blip.loggedInUserId) {
@@ -350,12 +350,20 @@ export function mapStateToProps(state) {
     }
 
     if (state.blip.targetUserId) {
-      patients.push(state.blip.allUsersMap[state.blip.targetUserId]);
+      patientMap[state.blip.targetUserId] = state.blip.allUsersMap[state.blip.targetUserId];
     }
 
     if (state.blip.memberInOtherCareTeams) {
       state.blip.memberInOtherCareTeams.forEach((key) => {
-        patients.push(state.blip.allUsersMap[key]);
+        patientMap[key] = state.blip.allUsersMap[key];
+      });
+    }
+
+    if (state.blip.membershipPermissionsInOtherCareTeams) {
+      var permissions = state.blip.membershipPermissionsInOtherCareTeams;
+      var keys = Object.keys(state.blip.membershipPermissionsInOtherCareTeams);
+      keys.forEach((key) => {
+        patientMap[key].permissions = permissions[key];
       });
     }
   }
@@ -371,7 +379,7 @@ export function mapStateToProps(state) {
     loading: fetchingUser || fetchingPatients || fetchingInvites,
     loggedInUserId: state.blip.loggedInUserId,
     fetchingUser: fetchingUser,
-    patients: patients,
+    patients: Object.keys(patientMap).map((key) => patientMap[key]),
     invites: state.blip.pendingReceivedInvites,
     showingWelcomeMessage: state.blip.showingWelcomeMessage
   }

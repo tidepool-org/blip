@@ -212,6 +212,10 @@ describe('Patients', () => {
         },
         loggedInUserId: 'a1b2c3',
         memberInOtherCareTeams: ['d4e5f6', 'x1y2z3'],
+        membershipPermissionsInOtherCareTeams: {
+          'd4e5f6': { view: {}},
+          'x1y2z3': { view: {}, upload: {} }
+        },
         pendingReceivedInvites: ['g4h5i6'],
         showingWelcomeMessage: true,
         targetUserId: 'a1b2c3',
@@ -232,10 +236,20 @@ describe('Patients', () => {
       });
 
       it('should extract the targetUserId and memberInOtherCareTeams as patients', () => {
+        var u1 = Object.assign({},
+          state.allUsersMap.d4e5f6,
+          { permissions: state.membershipPermissionsInOtherCareTeams.d4e5f6 }
+        );
+
+        var u2 = Object.assign({},
+          state.allUsersMap.x1y2z3,
+          { permissions: state.membershipPermissionsInOtherCareTeams.x1y2z3 }
+        );
+
         expect(result.patients).to.deep.equal([
           state.allUsersMap.a1b2c3,
-          state.allUsersMap.d4e5f6,
-          state.allUsersMap.x1y2z3
+          u1,
+          u2
         ]);
       });
 
