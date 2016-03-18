@@ -106,7 +106,9 @@ export class AppComponent extends React.Component {
    * begin fetching any required data
    */
   componentWillMount() {
-    this.doFetching(this.props);
+    if (this.props.authenticated) {
+      this.doFetching(this.props);
+    }
   }
 
   /**
@@ -170,7 +172,6 @@ export class AppComponent extends React.Component {
     return null;
   }
 
-  // TODO: find out wtf this is and what it does - theory: error messages
   renderNotification() {
     this.props.route.log('Rendering notification');
     var notification = this.state.notification || this.props.notification;

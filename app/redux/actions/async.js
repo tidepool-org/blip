@@ -106,10 +106,10 @@ export function login(api, credentials, options) {
 export function logout(api) {
   return (dispatch) => {
     dispatch(sync.logoutRequest());
-
     api.user.logout((err) => {
       if (err) {
         dispatch(sync.logoutFailure(ErrorMessages.STANDARD, err));
+        dispatch(routeActions.push('/login'));
       } else {
         dispatch(sync.logoutSuccess());
         dispatch(routeActions.push('/'));

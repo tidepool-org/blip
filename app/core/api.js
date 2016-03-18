@@ -147,6 +147,9 @@ api.user.logout = function(cb) {
   if (!api.user.isAuthenticated()) {
     api.log('not authenticated but still destroySession');
     tidepool.destroySession();
+    if (cb) {
+      cb();
+    }
     return;
   }
 

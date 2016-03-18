@@ -22,6 +22,8 @@ import * as types from '../constants/actionTypes';
 
 export const notification = (state = initialState.notification, action) => {
   switch (action.type) {
+    case types.SHOW_NOTIFICATION: 
+      return update(state, { $set: action.payload.notification });
     case types.ACKNOWLEDGE_NOTIFICATION:
       if (!action.payload.acknowledgedNotification) {
         return update(state, { $set: null });
@@ -46,6 +48,8 @@ export const showingWelcomeMessage = (state = initialState.showingWelcomeMessage
       return update(state, { $set: true });
     case types.HIDE_WELCOME_MESSAGE:
       return update(state, { $set: false });
+    case types.LOGOUT_REQUEST:
+      return update(state, { $set: null });
     default:
       return state;
   }
