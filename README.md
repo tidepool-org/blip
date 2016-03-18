@@ -190,6 +190,29 @@ To run the unit tests in watch, use:
 $ npm run karma-watch
 ```
 
+### Integration testing with Nightwatch
+
+#### Setup:
+
+1. [Install docker](https://www.docker.com/products/docker-toolbox 'Docker Toolbox')
+1. Launch the default docker machine: [Mac](https://docs.docker.com/engine/installation/mac/#from-your-shell) or
+   [Win](https://docs.docker.com/engine/installation/windows/#using-docker-from-windows-command-prompt-cmd-exe)
+1. Launch test containers with:
+ ```bash
+ $ docker-compose up -d
+ ```
+1. run Nightwatch with:
+```bash
+$ npm run nightwatch
+```
+by default this will run all the tests in the `integration` directory
+
+#### Teardown:
+1. Exit test containers with:
+```bash
+$ docker-compose down
+```
+
 ## Build and deployment
 
 The app is built as a static site in the `dist/` directory.
