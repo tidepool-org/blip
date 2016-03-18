@@ -51,15 +51,23 @@ export let Patients = React.createClass({
   render: function() {
     var welcomeTitle = this.renderWelcomeTitle();
 
-    if (this.isLoading()) {
-      return (
-        <div className="container-box-outer">
-          <div className="patients js-patients-page">
+    if (this.props.loading) {
+      if (this.props.location.query.justLoggedIn) {
+        return (
+          <div>
             {welcomeTitle}
             {this.renderLoadingIndicator()}
           </div>
-        </div>
-      );
+        );
+      } else {
+        return (
+          <div className="container-box-outer">
+            <div className="patients js-patients-page">
+              {this.renderLoadingIndicator()}
+            </div>
+          </div>
+        );
+      }
     }
 
     var welcomeSetup = this.renderWelcomeSetup();
@@ -262,10 +270,6 @@ export let Patients = React.createClass({
     else {
       this.props.trackMetric('Clicked Other Care Team');
     }
-  },
-
-  isLoading: function() {
-    return (this.props.loading);
   },
 
   isShowingWelcomeTitle: function() {
