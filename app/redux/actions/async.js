@@ -353,6 +353,7 @@ export function acceptReceivedInvite(api, invite) {
         dispatch(sync.acceptReceivedInviteFailure(ErrorMessages.STANDARD, err));
       } else {
         dispatch(sync.acceptReceivedInviteSuccess(invite));
+        dispatch(fetchPatient(api, invite.creator.userid));
       }
     });
   }

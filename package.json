@@ -12,7 +12,7 @@
     "build-app": "node buildapp",
     "build-config": "node buildconfig",
     "server": "node server",
-    "lint": "eslint app mock test"
+    "lint": "eslint app test"
   },
   "dependencies": {
     "async": "1.5.2",
@@ -58,7 +58,6 @@
     "babel-eslint": "5.0.0",
     "babel-plugin-rewire": "0.1.12",
     "babel-runtime": "5.8.35",
-    "blip-mock-data": "tidepool-org/blip-mock-data#v0.3.7",
     "chai": "3.5.0",
     "eslint": "1.10.3",
     "eslint-plugin-react": "4.2.3",
