@@ -33,7 +33,6 @@ export var EmailVerification = React.createClass({
     sent: React.PropTypes.bool,
     onSubmitResend: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
-    api: React.PropTypes.object.isRequired,
     working: React.PropTypes.bool.isRequired,
     notification: React.PropTypes.object
   },
@@ -188,8 +187,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.routes[0].api;
   return Object.assign({}, stateProps, dispatchProps, {
     onSubmitResend: dispatchProps.submitResend.bind(null, api),
-    trackMetric: ownProps.routes[0].trackMetric,
-    api: api,
+    trackMetric: ownProps.routes[0].trackMetric
   });
 };
 

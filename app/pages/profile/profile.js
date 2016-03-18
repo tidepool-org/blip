@@ -31,8 +31,8 @@ import PeopleList from '../../components/peoplelist';
 
 export var Profile = React.createClass({
   propTypes: {
-    user: React.PropTypes.object,
-    fetchingUser: React.PropTypes.bool,
+    user: React.PropTypes.object.isRequired,
+    fetchingUser: React.PropTypes.bool.isRequired,
     onSubmit: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired
   },

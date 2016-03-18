@@ -18,14 +18,22 @@ describe('Terms', () => {
       var elem = TestUtils.renderIntoDocument(<Terms/>);
 
       expect(elem).to.be.ok;
+      expect(console.error.callCount).to.equal(4);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `Terms`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `Terms`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `termsAccepted` was not specified in `Terms`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `authenticated` was not specified in `Terms`.')).to.equal(true);
     });
 
     it('should not console.error when trackMetric set', () => {
       console.error = sinon.stub();
       var props = {
-        trackMetric: () => {},
-        onSubmit: () => {},
+        trackMetric: sinon.stub(),
+        onSubmit: sinon.stub(),
+        ages: Terms.defaultProps.ages,
+        messages: Terms.defaultProps.messages,
+        termsAccepted: 'wow',
+        authenticated: false
       };
       var termsElem = React.createElement(Terms, props);
       var elem = TestUtils.renderIntoDocument(termsElem);

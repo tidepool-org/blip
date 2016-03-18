@@ -21,21 +21,23 @@ describe('Profile', function () {
   });
 
   describe('render', function() {
-    it('should console.error when required props are missing', function () {
-      console.error = sinon.stub();
-      var elem = TestUtils.renderIntoDocument(<Profile />);
-      expect(console.error.callCount).to.equal(2);
-    });
-
     it('should render without problems when required props are set', function () {
       console.error = sinon.stub();
       var props = {
+        user: {},
+        fetchingUser: false,
         onSubmit: sinon.stub(),
         trackMetric: sinon.stub()
       };
       var elem = React.createElement(Profile, props);
       var render = TestUtils.renderIntoDocument(elem);
       expect(console.error.callCount).to.equal(0);
+    });
+
+    it('should console.error when required props are missing', function () {
+      console.error = sinon.stub();
+      var elem = TestUtils.renderIntoDocument(<Profile />);
+      expect(console.error.callCount).to.equal(4);
     });
   });
 
