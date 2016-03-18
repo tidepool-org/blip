@@ -5,6 +5,7 @@
   "scripts": {
     "test": "./node_modules/karma/bin/karma start",
     "integration-tests": "./node_modules/.bin/cucumber.js integration/",
+    "nightwatch": "export API_HOST='http://localhost:8009' && npm run build && npm run install-selenium && ./node_modules/nightwatch/bin/nightwatch",
     "browser-tests": "./node_modules/karma/bin/karma start --browsers Chrome",
     "karma-watch": "./node_modules/karma/bin/karma start --no-single-run",
     "start": "webpack-dev-server --devtool eval-source-map --cache --colors --progress --port 3000",
@@ -12,7 +13,8 @@
     "build-app": "node buildapp",
     "build-config": "node buildconfig",
     "server": "node server",
-    "lint": "eslint app mock test"
+    "lint": "eslint app mock test",
+    "install-selenium": "./node_modules/selenium-standalone/bin/selenium-standalone install --version=2.53.0"
   },
   "dependencies": {
     "async": "0.9.0",
@@ -54,6 +56,7 @@
     "babel-eslint": "5.0.0-beta10",
     "blip-mock-data": "tidepool-org/blip-mock-data#v0.3.7",
     "chai": "3.5.0",
+    "chromedriver": "2.21.2",
     "cucumber": "0.9.4",
     "eslint": "1.10.3",
     "eslint-plugin-react": "3.16.1",
@@ -69,11 +72,13 @@
     "mocha": "2.4.5",
     "mocha-loader": "0.7.1",
     "moment": "2.11.2",
+    "nightwatch": "0.8.18",
     "phantomjs": "2.1.3",
     "react-addons-test-utils": "0.14.7",
     "rewire": "2.5.1",
     "rewire-webpack": "1.0.1",
     "salinity": "0.0.8",
+    "selenium-standalone": "5.0.0",
     "sinon": "1.17.3",
     "sinon-chai": "2.8.0",
     "webpack-dev-server": "1.14.1",

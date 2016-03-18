@@ -1,0 +1,38 @@
+tidepool-mongo:
+    image: mongo
+    ports:
+        - "27017:27017"
+
+tidepool-styx:
+    image: anderspitman/tidepool-styx
+    ports:
+        - "8009:8009"
+    links:
+        - tidepool-mongo
+        - tidepool-shoreline
+        - tidepool-gatekeeper
+        - tidepool-seagull
+        - tidepool-jellyfish
+
+tidepool-shoreline:
+    image: anderspitman/tidepool-shoreline
+    links:
+        - tidepool-mongo
+
+tidepool-gatekeeper:
+    image: anderspitman/tidepool-gatekeeper
+    links:
+        - tidepool-mongo
+
+tidepool-seagull:
+    image: anderspitman/tidepool-seagull
+    links:
+        - tidepool-mongo
+        - tidepool-shoreline
+
+tidepool-jellyfish:
+    image: anderspitman/tidepool-jellyfish
+    links:
+        - tidepool-mongo
+        - tidepool-shoreline
+        - tidepool-seagull
