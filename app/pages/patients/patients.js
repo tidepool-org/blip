@@ -33,17 +33,17 @@ import Invitation from '../../components/invitation';
 
 export let Patients = React.createClass({
   propTypes: {
-    user: React.PropTypes.object,
-    patients: React.PropTypes.array,
-    invites: React.PropTypes.array,
-    loading: React.PropTypes.bool,
+    user: React.PropTypes.object.isRequired,
+    patients: React.PropTypes.array.isRequired,
+    invites: React.PropTypes.array.isRequired,
+    loading: React.PropTypes.bool.isRequired,
     loggedInUserId: React.PropTypes.string,
     showingWelcomeMessage: React.PropTypes.bool,
     onHideWelcomeSetup: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired,
-    onAcceptInvitation: React.PropTypes.func,
-    onDismissInvitation: React.PropTypes.func,
-    onRemovePatient: React.PropTypes.func,
+    onAcceptInvitation: React.PropTypes.func.isRequired,
+    onDismissInvitation: React.PropTypes.func.isRequired,
+    onRemovePatient: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string,
     clearPatientInView: React.PropTypes.func.isRequired
   },

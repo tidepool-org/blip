@@ -32,9 +32,9 @@ var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 
 export let PatientNew = React.createClass({
   propTypes: {
-    user: React.PropTypes.object,
-    fetchingUser: React.PropTypes.bool,
-    working: React.PropTypes.bool,
+    user: React.PropTypes.object.isRequired,
+    fetchingUser: React.PropTypes.bool.isRequired,
+    working: React.PropTypes.bool.isRequired,
     notification: React.PropTypes.object,
     onSubmit: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired

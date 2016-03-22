@@ -18,16 +18,6 @@ describe('Signup', function () {
   });
 
   describe('render', function() {
-    it('should console.error 3 times when showing waitlist', function () {
-      console.error = sinon.stub();
-      var elem = TestUtils.renderIntoDocument(<Signup />);
-      expect(console.error.callCount).to.equal(4);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `Signup`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `api` was not specified in `Signup`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `Signup`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `working` was not specified in `Signup`.')).to.equal(true);
-    });
-
     it('should render without problems when required props are set', function () {
       console.error = sinon.stub();
       var props = {
@@ -39,6 +29,16 @@ describe('Signup', function () {
       var elem = React.createElement(Signup, props);
       var render = TestUtils.renderIntoDocument(elem);
       expect(console.error.callCount).to.equal(0);
+    });
+    
+    it('should console.error 3 times when showing waitlist', function () {
+      console.error = sinon.stub();
+      var elem = TestUtils.renderIntoDocument(<Signup />);
+      expect(console.error.callCount).to.equal(4);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `Signup`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `api` was not specified in `Signup`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `Signup`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `working` was not specified in `Signup`.')).to.equal(true);
     });
 
     it('should render signup-form when no key is set and no key is configured', function () {

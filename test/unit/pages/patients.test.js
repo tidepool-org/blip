@@ -23,19 +23,26 @@ describe('Patients', () => {
   describe('render', () => {
     it('should console.error when required props are missing', () => {
       console.error = sinon.stub();
-      var elem = TestUtils.renderIntoDocument(<Patients />);
-      expect(console.error.callCount).to.equal(2);
-    });
-
-    it('should render without problems when trackMetric is set', () => {
-      console.error = sinon.stub();
       var props = {
+        user: {},
+        patients: [],
+        invites: [],
+        loading: false,
         trackMetric: sinon.stub(),
+        onAcceptInvitation: sinon.stub(),
+        onDismissInvitation: sinon.stub(),
+        onRemovePatient: sinon.stub(),
         clearPatientInView: sinon.stub()
       };
-      var elem = React.createElement(Patients, props);
-      var render = TestUtils.renderIntoDocument(elem);
+
+      var elem = TestUtils.renderIntoDocument(<Patients {...props}/>);
       expect(console.error.callCount).to.equal(0);
+    });
+
+    it('should console.error when required props are missing', () => {
+      console.error = sinon.stub();
+      var elem = TestUtils.renderIntoDocument(<Patients />);
+      expect(console.error.callCount).to.equal(9);
     });
   });
 

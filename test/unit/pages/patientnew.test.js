@@ -30,9 +30,26 @@ describe('PatientNew', function () {
   describe('render', function() {
     it('should warn when required props are not present', function() {
       console.error = sinon.spy();
+      var props = {
+        user: {},
+        fetchingUser: false,
+        working: false,
+        onSubmit: sinon.stub(),
+        trackMetric: sinon.stub()
+      };
+      var elem = TestUtils.renderIntoDocument(<PatientNew {...props}/>);
+      expect(elem).to.be.ok;
+      expect(console.error.callCount).to.equal(0);
+    });
+
+    it('should warn when required props are not present', function() {
+      console.error = sinon.spy();
       var elem = TestUtils.renderIntoDocument(<PatientNew/>);
       expect(elem).to.be.ok;
-      expect(console.error.callCount).to.equal(2);
+      expect(console.error.callCount).to.equal(5);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `user` was not specified in `PatientNew`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingUser` was not specified in `PatientNew`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `working` was not specified in `PatientNew`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `PatientNew`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `PatientNew`.')).to.equal(true);
     });

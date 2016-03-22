@@ -40,29 +40,22 @@ describe('PatientData', function () {
   });
 
   describe('render', function() {
-    it('should warn when required props are not present', function() {
-      console.error = sinon.spy();
-      var elem = TestUtils.renderIntoDocument(<PatientData/>);
-      expect(elem).to.be.ok;
-      expect(console.error.callCount).to.equal(5);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingPatient` was not specified in `PatientData`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingPatientData` was not specified in `PatientData`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `queryParams` was not specified in `PatientData`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `PatientData`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `currentPatientInViewId` was not specified in `PatientData`.')).to.equal(true);
-    });
-
     it ('should not warn when required props are set', function() {
       var props = {
-        timePrefs: {
-          timezoneAware: false,
-          timezoneName: null
-        },
+        currentPatientInViewId: 'smestring',
+        patientDataMap: {},
+        patientNotesMap: {},
+        patient: {},
         fetchingPatient: false,
         fetchingPatientData: false,
+        isUserPatient: false,
         queryParams: {},
+        onFetchMessageThread: sinon.stub(),
+        onSaveComment: sinon.stub(),
+        onEditMessage: sinon.stub(),
+        onCreateMessage: sinon.stub(),
+        user: {},
         trackMetric: sinon.stub(),
-        currentPatientInViewId: '456kgkghs'
       };
 
       console.error = sinon.spy();
@@ -70,6 +63,27 @@ describe('PatientData', function () {
       var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);
+    });
+
+    it('should warn when required props are not present', function() {
+      console.error = sinon.spy();
+      var elem = TestUtils.renderIntoDocument(<PatientData/>);
+      expect(elem).to.be.ok;
+      expect(console.error.callCount).to.equal(14);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `currentPatientInViewId` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `patientDataMap` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `patientNotesMap` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `patient` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingPatient` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingPatientData` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `isUserPatient` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `queryParams` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `onFetchMessageThread` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSaveComment` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `onEditMessage` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `onCreateMessage` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `user` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `PatientData`.')).to.equal(true);
     });
 
     it ('should render the loading message and image when no data is present and fetchingPatient is true', function() {
