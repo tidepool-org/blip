@@ -30,14 +30,14 @@ import SimpleForm from '../../components/simpleform';
 
 export var ConfirmPasswordReset = React.createClass({
   propTypes: {
-    api: React.PropTypes.object.isRequired,
-    resetKey: React.PropTypes.string.isRequired,
-    onSubmit: React.PropTypes.func.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
     acknowledgeNotification: React.PropTypes.func.isRequired,
-    working: React.PropTypes.bool.isRequired,
+    api: React.PropTypes.object.isRequired,
+    notification: React.PropTypes.object,
+    onSubmit: React.PropTypes.func.isRequired,
+    resetKey: React.PropTypes.string.isRequired,
     success: React.PropTypes.bool.isRequired,
-    notification: React.PropTypes.object
+    trackMetric: React.PropTypes.func.isRequired,
+    working: React.PropTypes.bool.isRequired
   },
 
   formInputs: function() {
