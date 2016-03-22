@@ -29,12 +29,13 @@ import utils from '../../core/utils';
 
 export var EmailVerification = React.createClass({
   propTypes: {
+    acknowledgeNotification: React.PropTypes.func.isRequired,
+    notification: React.PropTypes.object.isRequired,
+    onSubmitResend: React.PropTypes.func.isRequired,
     resent: React.PropTypes.bool.isRequired,
     sent: React.PropTypes.bool.isRequired,
-    onSubmitResend: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
-    working: React.PropTypes.bool.isRequired,
-    notification: React.PropTypes.object.isRequired
+    working: React.PropTypes.bool.isRequired
   },
   componentWillUnmount: function() {
     this.props.acknowledgeNotification('resendingEmailVerification');
@@ -181,7 +182,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.routes[0].api;
-  return Object.assign({}, stateProps, dispatchProps, {
+  return Object.assign({}, stateProps, _.omit(dispatchProps, 'submitResend'), {
     onSubmitResend: dispatchProps.submitResend.bind(null, api),
     trackMetric: ownProps.routes[0].trackMetric
   });

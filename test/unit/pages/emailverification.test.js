@@ -20,10 +20,12 @@ describe('EmailVerification', function () {
     it('should render without problems when required props are present', function () {
       console.error = sinon.stub();
       var props = {
+        acknowledgeNotification: sinon.stub(),
+        notification: {},
+        onSubmitResend: sinon.stub(),
         resent: false,
         sent: true,
         trackMetric: sinon.stub(),
-        onSubmitResend: sinon.stub(),
         working: false
       };
       var elem = React.createElement(EmailVerification, props);
@@ -34,8 +36,12 @@ describe('EmailVerification', function () {
     it('should console.error when required props are missing', function () {
       console.error = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<EmailVerification />);
-      expect(console.error.callCount).to.equal(3);
+      expect(console.error.callCount).to.equal(7);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `acknowledgeNotification` was not specified in `EmailVerification`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `notification` was not specified in `EmailVerification`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmitResend` was not specified in `EmailVerification`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `resent` was not specified in `EmailVerification`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `sent` was not specified in `EmailVerification`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `EmailVerification`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `working` was not specified in `EmailVerification`.')).to.equal(true);
     });
