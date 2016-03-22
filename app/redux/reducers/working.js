@@ -15,6 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
+import _ from 'lodash';
 import update from 'react-addons-update';
 
 import * as types from '../constants/actionTypes';
@@ -116,7 +117,7 @@ export default (state = initialState, action) => {
           [key]: {
             $set: {
               inProgress: false,
-              notification: null
+              notification: _.get(action, ['payload', 'notification'], null)
             }
           }
         });
