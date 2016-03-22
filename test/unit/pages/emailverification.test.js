@@ -20,6 +20,8 @@ describe('EmailVerification', function () {
     it('should render without problems when required props are present', function () {
       console.error = sinon.stub();
       var props = {
+        resent: false,
+        sent: true,
         trackMetric: sinon.stub(),
         onSubmitResend: sinon.stub(),
         working: false
@@ -44,7 +46,7 @@ describe('EmailVerification', function () {
       resentEmailVerification: false,
       sentEmailVerification: false,
       working: {
-        resendingEmailVerification: {inProgress: true, notification: null}
+        resendingEmailVerification: {inProgress: true, notification: {type: 'alert', message: 'Hi!'}}
       }
     };
     const result = mapStateToProps({blip: state});
@@ -66,6 +68,21 @@ describe('EmailVerification', function () {
 
     it('should map sentEmailVerification to sent', () => {
       expect(result.sent).to.equal(state.sentEmailVerification);
+    });
+
+    describe('when some state is `null`', () => {
+      const state = {
+        resentEmailVerification: false,
+        sentEmailVerification: false,
+        working: {
+          resendingEmailVerification: {inProgress: true, notification: null}
+        }
+      };
+      const result = mapStateToProps({blip: state});
+
+      it('should map working.resendingEmailVerification.notification to empty object when null', () => {
+        expect(result.notification).to.deep.equal({});
+      });
     });
   });
 });

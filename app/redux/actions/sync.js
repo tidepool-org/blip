@@ -195,7 +195,13 @@ export function resendEmailVerificationRequest() {
 
 export function resendEmailVerificationSuccess() {
   return {
-    type: ActionTypes.RESEND_EMAIL_VERIFICATION_SUCCESS
+    type: ActionTypes.RESEND_EMAIL_VERIFICATION_SUCCESS,
+    payload: {
+      notification: {
+        type: 'alert',
+        message: 'We just sent you an email.'
+      }
+    }
   };
 }
 

@@ -29,12 +29,15 @@ import utils from '../../core/utils';
 
 export var EmailVerification = React.createClass({
   propTypes: {
-    resent: React.PropTypes.bool,
-    sent: React.PropTypes.bool,
+    resent: React.PropTypes.bool.isRequired,
+    sent: React.PropTypes.bool.isRequired,
     onSubmitResend: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
     working: React.PropTypes.bool.isRequired,
-    notification: React.PropTypes.object
+    notification: React.PropTypes.object.isRequired
+  },
+  componentWillUnmount: function() {
+    this.props.acknowledgeNotification('resendingEmailVerification');
   },
   formInputs: function() {
     return [
@@ -42,26 +45,16 @@ export var EmailVerification = React.createClass({
     ];
   },
   getInitialState: function() {
-    var state =  {
+    return {
       formValues: {},
-      validationErrors: {},
-      notification: null
+      validationErrors: {}
     };
-
-    if (this.props.resent) {
-      state.notification = {
-        type: 'alert',
-        message: 'We just sent you an email.'
-      };
-    }
-
-    return state;
   },
   render: function() {
     var content;
     var loginPage;
 
-    if (this.props.sent || this.props.resent) {
+    if (this.props.sent) {
       loginPage = 'signup';
       content = (
         <div className="EmailVerification-intro">
@@ -116,7 +109,7 @@ export var EmailVerification = React.createClass({
         submitButtonText={submitButtonText}
         submitDisabled={this.props.working}
         onSubmit={this.handleSubmit}
-        notification={this.state.notification || this.props.notification}/>
+        notification={this.props.notification}/>
     );
   },
   handleSubmit: function(formValues) {
@@ -138,8 +131,7 @@ export var EmailVerification = React.createClass({
     this.props.acknowledgeNotification('resendingEmailVerification');
     this.setState({
       formValues: formValues,
-      validationErrors: {},
-      notification: null
+      validationErrors: {}
     });
   },
   validateFormValues: function(formValues) {
@@ -170,8 +162,12 @@ export var EmailVerification = React.createClass({
  */
 
 export function mapStateToProps(state) {
+  let notification = {};
+  if (state.blip.working.resendingEmailVerification.notification) {
+    notification = state.blip.working.resendingEmailVerification.notification;
+  }
   return {
-    notification: state.blip.working.resendingEmailVerification.notification,
+    notification: notification,
     working: state.blip.working.resendingEmailVerification.inProgress,
     resent: state.blip.resentEmailVerification,
     sent: state.blip.sentEmailVerification

@@ -64,6 +64,7 @@ export function login(api, credentials, options) {
 
     api.user.login(credentials, options, (err) => {
       if (err) {
+        // TODO: factor these out into ErrorMessages!
         var error = (err.status === 401) ? 'Wrong username or password.' : 'An error occured while logging in.';
 
         if (err.status === 403) {
