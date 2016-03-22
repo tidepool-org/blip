@@ -27,7 +27,6 @@ describe('Login', function () {
         confirmSignup: sinon.stub(),
         fetchers: [],
         isInvite: false,
-        notification: {},
         onSubmit: sinon.stub(),
         trackMetric: sinon.stub(),
         working: false
@@ -40,12 +39,11 @@ describe('Login', function () {
     it('should console.error when required props are missing', function () {
       console.error = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<Login />);
-      expect(console.error.callCount).to.equal(8);
+      expect(console.error.callCount).to.equal(7);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `acknowledgeNotification` was not specified in `Login`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `confirmSignup` was not specified in `Login`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchers` was not specified in `Login`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `isInvite` was not specified in `Login`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `notification` was not specified in `Login`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `Login`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `Login`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `working` was not specified in `Login`.')).to.equal(true);
@@ -79,8 +77,8 @@ describe('Login', function () {
       };
       const result = mapStateToProps({blip: state});
 
-      it('should map working.loggingIn.notification to empty object when null', () => {
-        expect(result.notification).to.deep.equal({});
+      it('should map working.loggingIn.notification to notification', () => {
+        expect(result.notification).to.be.null;
       });
     });
   });

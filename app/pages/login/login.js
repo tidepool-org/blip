@@ -37,7 +37,7 @@ export let Login = React.createClass({
     confirmSignup: React.PropTypes.func.isRequired,
     fetchers: React.PropTypes.array.isRequired,
     isInvite: React.PropTypes.bool.isRequired,
-    notification: React.PropTypes.object.isRequired,
+    notification: React.PropTypes.object,
     onSubmit: React.PropTypes.func.isRequired,
     seedEmail: React.PropTypes.string,
     trackMetric: React.PropTypes.func.isRequired,
@@ -227,12 +227,8 @@ let getFetchers = (dispatchProps, ownProps, other, api) => {
 }
 
 export function mapStateToProps(state) {
-  let notification = {};
-  if (state.blip.working.loggingIn.notification) {
-    notification = state.blip.working.loggingIn.notification;
-  }
   return {
-    notification: notification,
+    notification: state.blip.working.loggingIn.notification,
     working: state.blip.working.loggingIn.inProgress,
   };
 }

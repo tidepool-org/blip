@@ -30,7 +30,7 @@ import utils from '../../core/utils';
 export var EmailVerification = React.createClass({
   propTypes: {
     acknowledgeNotification: React.PropTypes.func.isRequired,
-    notification: React.PropTypes.object.isRequired,
+    notification: React.PropTypes.object,
     onSubmitResend: React.PropTypes.func.isRequired,
     resent: React.PropTypes.bool.isRequired,
     sent: React.PropTypes.bool.isRequired,
@@ -163,12 +163,8 @@ export var EmailVerification = React.createClass({
  */
 
 export function mapStateToProps(state) {
-  let notification = {};
-  if (state.blip.working.resendingEmailVerification.notification) {
-    notification = state.blip.working.resendingEmailVerification.notification;
-  }
   return {
-    notification: notification,
+    notification: state.blip.working.resendingEmailVerification.notification,
     working: state.blip.working.resendingEmailVerification.inProgress,
     resent: state.blip.resentEmailVerification,
     sent: state.blip.sentEmailVerification
