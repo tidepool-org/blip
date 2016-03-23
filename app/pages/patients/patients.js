@@ -39,17 +39,17 @@ export let Patients = React.createClass({
     invites: React.PropTypes.array.isRequired,
     loading: React.PropTypes.bool.isRequired,
     location: React.PropTypes.object.isRequired,
-    loggedInUserId: React.PropTypes.string.isRequired,
+    loggedInUserId: React.PropTypes.string,
     onAcceptInvitation: React.PropTypes.func.isRequired,
     onDismissInvitation: React.PropTypes.func.isRequired,
     onHideWelcomeSetup: React.PropTypes.func.isRequired,
     onRemovePatient: React.PropTypes.func.isRequired,
     patients: React.PropTypes.array.isRequired,
     showWelcomeMessage: React.PropTypes.func.isRequired,
-    showingWelcomeMessage: React.PropTypes.bool.isRequired,
+    showingWelcomeMessage: React.PropTypes.bool,
     trackMetric: React.PropTypes.func.isRequired,
     uploadUrl: React.PropTypes.string.isRequired,
-    user: React.PropTypes.object.isRequired
+    user: React.PropTypes.object
   },
 
   render: function() {

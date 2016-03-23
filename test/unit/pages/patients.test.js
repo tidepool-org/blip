@@ -30,17 +30,14 @@ describe('Patients', () => {
         invites: [],
         loading: false,
         location: {},
-        loggedInUserId: '123',
         onAcceptInvitation: sinon.stub(),
         onDismissInvitation: sinon.stub(),
         onHideWelcomeSetup: sinon.stub(),
         onRemovePatient: sinon.stub(),
         patients: [],
         showWelcomeMessage: sinon.stub(),
-        showingWelcomeMessage: false,
         trackMetric: sinon.stub(),
-        uploadUrl: 'upload!',
-        user: {},
+        uploadUrl: 'upload!'
       };
 
       var elem = TestUtils.renderIntoDocument(<Patients {...props}/>);
@@ -50,24 +47,21 @@ describe('Patients', () => {
     it('should console.error when required props are missing', () => {
       console.error = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<Patients />);
-      expect(console.error.callCount).to.equal(17);
+      expect(console.error.callCount).to.equal(14);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `clearPatientInView` was not specified in `Patients`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchers` was not specified in `Patients`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingUser` was not specified in `Patients`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `invites` was not specified in `Patients`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `loading` was not specified in `Patients`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `location` was not specified in `Patients`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `loggedInUserId` was not specified in `Patients`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `onAcceptInvitation` was not specified in `Patients`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `onDismissInvitation` was not specified in `Patients`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `onHideWelcomeSetup` was not specified in `Patients`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `onRemovePatient` was not specified in `Patients`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `patients` was not specified in `Patients`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `showWelcomeMessage` was not specified in `Patients`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `showingWelcomeMessage` was not specified in `Patients`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `Patients`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `uploadUrl` was not specified in `Patients`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `user` was not specified in `Patients`.')).to.equal(true);
     });
   });
 
