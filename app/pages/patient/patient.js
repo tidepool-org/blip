@@ -29,22 +29,23 @@ import PatientTeam from './patientteam';
 
 const Patient = React.createClass({
   propTypes: {
-    user: React.PropTypes.object.isRequired,
-    shareOnly: React.PropTypes.bool,
-    fetchingUser: React.PropTypes.bool.isRequired,
-    patient: React.PropTypes.object.isRequired,
+    cancellingInvite: React.PropTypes.bool.isRequired,
+    changingMemberPermissions: React.PropTypes.bool.isRequired,
+    fetchers: React.PropTypes.array.isRequired,
     fetchingPatient: React.PropTypes.bool.isRequired,
-    onUpdatePatient: React.PropTypes.func.isRequired,
-    pendingSentInvites: React.PropTypes.array.isRequired,
-    onChangeMemberPermissions: React.PropTypes.func.isRequired,
-    changingMemberPermissions: React.PropTypes.object.isRequired,
-    onRemoveMember: React.PropTypes.func.isRequired,
-    removingMember: React.PropTypes.object.isRequired,
-    onInviteMember: React.PropTypes.func.isRequired,
-    invitingMember: React.PropTypes.object.isRequired,
+    fetchingUser: React.PropTypes.bool.isRequired,
+    invitingMember: React.PropTypes.bool.isRequired,
     onCancelInvite: React.PropTypes.func.isRequired,
-    cancellingInvite: React.PropTypes.object.isRequired,
-    trackMetric: React.PropTypes.func.isRequired
+    onChangeMemberPermissions: React.PropTypes.func.isRequired,
+    onInviteMember: React.PropTypes.func.isRequired,
+    onRemoveMember: React.PropTypes.func.isRequired,
+    onUpdatePatient: React.PropTypes.func.isRequired,
+    patient: React.PropTypes.object,
+    pendingSentInvites: React.PropTypes.array.isRequired,
+    removingMember: React.PropTypes.bool.isRequired,
+    shareOnly: React.PropTypes.bool,
+    trackMetric: React.PropTypes.func.isRequired,
+    user: React.PropTypes.object
   },
 
   getInitialState: function() {
@@ -170,18 +171,18 @@ const Patient = React.createClass({
   renderPatientTeam: function() {
     return (
       <PatientTeam
-        user={this.props.user}
+        cancellingInvite={this.props.cancellingInvite}
+        changingMemberPermissions={this.props.changingMemberPermissions}
+        invitingMember={this.props.invitingMember}
+        onCancelInvite={this.props.onCancelInvite}
+        onChangeMemberPermissions={this.props.onChangeMemberPermissions}
+        onInviteMember={this.props.onInviteMember}
+        onRemoveMember={this.props.onRemoveMember}
         patient={this.props.patient}
         pendingSentInvites={this.props.pendingSentInvites}
-        onChangeMemberPermissions={this.props.onChangeMemberPermissions}
-        onRemoveMember={this.props.onRemoveMember}
-        onInviteMember={this.props.onInviteMember}
-        onCancelInvite={this.props.onCancelInvite}
-        trackMetric={this.props.trackMetric}
-        changingMemberPermissions={this.props.changingMemberPermissions}
         removingMember={this.props.removingMember}
-        invitingMember={this.props.invitingMember}
-        cancellingInvite={this.props.cancellingInvite}
+        trackMetric={this.props.trackMetric}
+        user={this.props.user}
       />
     );
   },

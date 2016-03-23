@@ -1,0 +1,87 @@
+/* global chai */
+/* global describe */
+/* global sinon */
+/* global it */
+
+import React from 'react';
+import TestUtils from 'react-addons-test-utils';
+var assert = chai.assert;
+var expect = chai.expect;
+
+import { mapStateToProps } from '../../../app/pages/share/share';
+
+describe('PatientCareTeam', () => {
+  describe('mapStateToProps', () => {
+    const state = {
+      allUsersMap: {
+        a1b2c3: {userid: 'a1b2c3'},
+        d4e5f6: {userid: 'd4e5f6'},
+        foo: {userid: 'foo'},
+        bar: {userid: 'bar'}
+      },
+      currentPatientInViewId: 'a1b2c3',
+      loggedInUserId: 'a1b2c3',
+      membersOfTargetCareTeam: ['foo', 'bar'],
+      pendingSentInvites: [2,4,6,8, 'who do we appreciate'],
+      permissionsOfMembersInTargetCareTeam: {
+        foo: {view: {}, note: {}},
+        bar: {view: {}, note: {}, upload: {}}
+      },
+      targetUserId: 'a1b2c3',
+      working: {
+        cancellingSentInvite: {inProgress: true, notification: null},
+        fetchingPatient: {inProgress: false, notification: null},
+        fetchingUser: {inProgress: false, notification: null},
+        removingMember: {inProgress: true, notification: null},
+        sendingInvite: {inProgress: false, notification: null},
+        settingMemberPermissions: {inProgress: false, notification: null}
+      }
+    };
+    const result = mapStateToProps({blip: state});
+    it('should be a function', () => {
+      assert.isFunction(mapStateToProps);
+    });
+
+    it('should map allUsersMap.a1b2c3 to user', () => {
+      expect(result.user).to.deep.equal(state.allUsersMap.a1b2c3);
+    });
+
+    it('should map working.fetchingUser.inProgress to fetchingUser', () => {
+      expect(result.fetchingUser).to.equal(state.working.fetchingUser.inProgress);
+    });
+
+    it('should extract the currentPatientInViewId\'s info from allUsersMap and membersOfTargetCareTeam and permissionsOfMembersInTargetCareTeam', () => {
+      expect(result.patient).to.deep.equal({
+        userid: 'a1b2c3',
+        team: [
+          {userid: 'foo', permissions: state.permissionsOfMembersInTargetCareTeam.foo},
+          {userid: 'bar', permissions: state.permissionsOfMembersInTargetCareTeam.bar}
+        ]
+      });
+    });
+
+    it('should map working.fetchingPatient.inProgress to fetchingPatient', () => {
+      expect(result.fetchingPatient).to.equal(state.working.fetchingPatient.inProgress);
+    });
+
+    it('should map pendingSentInvites to pendingSentInvites', () => {
+      expect(result.pendingSentInvites).to.deep.equal(state.pendingSentInvites);
+    });
+
+    it('should map working.settingMemberPermissions.inProgress to changingMemberPermissions', () => {
+      expect(result.changingMemberPermissions).to.equal(state.working.settingMemberPermissions.inProgress);
+    });
+
+    it('should map working.removingMember.inProgress to removingMember', () => {
+      expect(result.removingMember).to.equal(state.working.removingMember.inProgress);
+    });
+
+    it('should map working.sendingInvite.inProgress to invitingMember', () => {
+      expect(result.invitingMember).to.equal(state.working.sendingInvite.inProgress);
+    });
+
+    it('should map working.cancellingSentInvite.inProgress to cancellingInvite', () => {
+      expect(result.cancellingInvite).to.equal(state.working.cancellingSentInvite.inProgress);
+    });
+  });
+});

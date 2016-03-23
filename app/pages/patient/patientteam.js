@@ -213,18 +213,18 @@ var ConfirmDialog = React.createClass({
 
 var PatientTeam = React.createClass({
   propTypes: {
-    user: React.PropTypes.object,
-    patient: React.PropTypes.object,
-    pendingSentInvites: React.PropTypes.array,
-    onChangeMemberPermissions: React.PropTypes.func,
-    onRemoveMember: React.PropTypes.func,
-    onInviteMember: React.PropTypes.func,
-    onCancelInvite: React.PropTypes.func,
-    trackMetric: React.PropTypes.func.isRequired, 
-    changingMemberPermissions: React.PropTypes.object.isRequired,
-    removingMember: React.PropTypes.object.isRequired,
-    invitingMember: React.PropTypes.object.isRequired,
-    cancellingInvite: React.PropTypes.object.isRequired
+    cancellingInvite: React.PropTypes.bool.isRequired,
+    changingMemberPermissions: React.PropTypes.bool.isRequired,
+    invitingMember: React.PropTypes.bool.isRequired,
+    onCancelInvite: React.PropTypes.func.isRequired,
+    onChangeMemberPermissions: React.PropTypes.func.isRequired,
+    onInviteMember: React.PropTypes.func.isRequired,
+    onRemoveMember: React.PropTypes.func.isRequired,
+    patient: React.PropTypes.object.isRequired,
+    pendingSentInvites: React.PropTypes.array.isRequired,
+    removingMember: React.PropTypes.bool.isRequired,
+    trackMetric: React.PropTypes.func.isRequired,
+    user: React.PropTypes.object.isRequired
   },
 
   getInitialState: function() {
@@ -249,7 +249,7 @@ var PatientTeam = React.createClass({
 
     return (
       <ConfirmDialog
-        working={self.props.removingMember.inProgress}
+        working={self.props.removingMember}
         message={'Are you sure you want to remove this person? They will no longer be able to see or comment on your data.'}
         buttonText={'I\'m sure, remove them'}
         buttonTextWorking={'Removing...'}
@@ -329,7 +329,7 @@ var PatientTeam = React.createClass({
               <PermissionInputGroup 
                 onChange={this.handlePermissionChange(member)} 
                 value={allowUpload} 
-                working={this.props.changingMemberPermissions.inProgress}
+                working={this.props.changingMemberPermissions}
               />
             </div>
           </div>
@@ -365,7 +365,7 @@ var PatientTeam = React.createClass({
         buttonTextWorking={'Canceling invitation...'}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
-        working={this.props.cancellingInvite.inProgress}
+        working={this.props.cancellingInvite}
         error={error} />
     );
   },
@@ -432,7 +432,7 @@ var PatientTeam = React.createClass({
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         trackMetric={this.props.trackMetric}
-        working={this.props.invitingMember.inProgress}
+        working={this.props.invitingMember}
         error={error}
       />
     );

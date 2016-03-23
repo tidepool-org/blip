@@ -8,7 +8,7 @@ import Login from './pages/login';
 import Signup from './pages/signup';
 import Profile from './pages/profile';
 import PatientProfile from './pages/patient/patientprofile';
-import PatientCareTeam from './pages/patient/patientcareteam'
+import Share from './pages/share/share';
 import PatientNew from './pages/patientnew';
 import PatientData from './pages/patientdata';
 import RequestPasswordReset from './pages/passwordreset/request';
@@ -241,7 +241,7 @@ export const getRoutes = (appContext, store) => {
       <Route path='patients' component={Patients} onEnter={requireAuth(api, store)} />
       <Route path='patients/new' component={PatientNew} onEnter={requireAuthAndNoPatient(api, store)} />
       <Route path='patients/:id/profile' component={PatientProfile} onEnter={requireAuth(api, store)} />
-      <Route path='patients/:id/share' component={PatientCareTeam} onEnter={requireAuth(api, store)} />
+      <Route path='patients/:id/share' component={Share} onEnter={requireAuth(api, store)} />
       <Route path='patients/:id/data' component={PatientData} onEnter={requireAuth(api, store)} />
       <Route path='request-password-reset' component={RequestPasswordReset} onEnter={requireNoAuth(api)} />
       <Route path='confirm-password-reset' component={ConfirmPasswordReset} onEnter={requireNoAuth(api)} />

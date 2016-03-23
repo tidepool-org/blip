@@ -10,21 +10,22 @@ var expect = chai.expect;
 var PatientTeam = require('../../../../app/pages/patient/patientteam');
 
 describe('PatientTeam', function () {
-  
-
   describe('render', function() {
-    it('should console.error when trackMetric not set', function () {
-      console.error = sinon.stub();
-      var elem = TestUtils.renderIntoDocument(<PatientTeam/>);
-
-      expect(elem).to.be.ok;
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `PatientTeam`.')).to.equal(true);
-    });
-
-    it('should not console.error when trackMetric set', function() {
+    it('should render without problems when required props are present', function() {
       console.error = sinon.stub();
       var props = {
-        trackMetric: function() {}
+        cancellingInvite: false,
+        changingMemberPermissions: false,
+        invitingMember: false,
+        onCancelInvite: sinon.stub(),
+        onChangeMemberPermissions: sinon.stub(),
+        onInviteMember: sinon.stub(),
+        onRemoveMember: sinon.stub(),
+        patient: {},
+        pendingSentInvites: [],
+        removingMember: false,
+        trackMetric: sinon.stub(),
+        user: {}
       };
       var patientElem = React.createElement(PatientTeam, props);
       var elem = TestUtils.renderIntoDocument(patientElem);
@@ -32,14 +33,31 @@ describe('PatientTeam', function () {
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);
     });
+
+    it('should warn when no props are set', function () {
+      console.error = sinon.stub();
+      var elem = TestUtils.renderIntoDocument(<PatientTeam/>);
+
+      expect(elem).to.be.ok;
+      expect(console.error.callCount).to.equal(12);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `cancellingInvite` was not specified in `PatientTeam`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `changingMemberPermissions` was not specified in `PatientTeam`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `invitingMember` was not specified in `PatientTeam`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `onCancelInvite` was not specified in `PatientTeam`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `onChangeMemberPermissions` was not specified in `PatientTeam`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `onInviteMember` was not specified in `PatientTeam`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `onRemoveMember` was not specified in `PatientTeam`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `patient` was not specified in `PatientTeam`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `pendingSentInvites` was not specified in `PatientTeam`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `removingMember` was not specified in `PatientTeam`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `PatientTeam`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `user` was not specified in `PatientTeam`.')).to.equal(true);
+    });
   });
 
   describe('getInitialState', function() {
-    it('should return an object when showModalOverlay is false', function() {
-      console.error = sinon.stub();
-      var props = {
-        trackMetric: function() {}
-      };
+    it('should return an object', function() {
+      var props = {};
       var patientElem = React.createElement(PatientTeam, props);
       var elem = TestUtils.renderIntoDocument(patientElem);
       var initialState = elem.getInitialState();
@@ -49,7 +67,6 @@ describe('PatientTeam', function () {
       expect(initialState.dialog).to.equal('');
       expect(initialState.invite).to.equal(false);
       expect(initialState.editing).to.equal(false);
-      expect(console.error.callCount).to.equal(0);
     });
   });
 });

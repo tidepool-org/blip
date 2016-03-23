@@ -6,7 +6,7 @@ import * as actions from '../../redux/actions';
 
 import _ from 'lodash';
 
-import Patient from './patient';
+import Patient from '../patient';
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux
@@ -19,7 +19,7 @@ let getFetchers = (dispatchProps, ownProps, api) => {
   ];
 };
 
-let mapStateToProps = state => {
+export function mapStateToProps(state) {
   let user = null;
   let patient = null;
 
@@ -57,12 +57,12 @@ let mapStateToProps = state => {
     patient: patient,
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
     pendingSentInvites: state.blip.pendingSentInvites,
-    changingMemberPermissions: state.blip.working.settingMemberPermissions,
-    removingMember: state.blip.working.removingMember,
-    invitingMember: state.blip.working.sendingInvite,
-    cancellingInvite: state.blip.working.cancellingSentInvite
-  }
-};
+    changingMemberPermissions: state.blip.working.settingMemberPermissions.inProgress,
+    removingMember: state.blip.working.removingMember.inProgress,
+    invitingMember: state.blip.working.sendingInvite.inProgress,
+    cancellingInvite: state.blip.working.cancellingSentInvite.inProgress
+  };
+}
 
 let mapDispatchToProps = dispatch => bindActionCreators({
   updatePatient: actions.async.updatePatient,
@@ -76,7 +76,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.routes[0].api;
-  return Object.assign({}, ownProps, stateProps, dispatchProps, {
+  return Object.assign({}, stateProps, {
     fetchers: getFetchers(dispatchProps, ownProps, api),
     onUpdatePatient: dispatchProps.updatePatient.bind(null, api),
     onChangeMemberPermissions: dispatchProps.changeMemberPermissions.bind(null, api),
