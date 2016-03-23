@@ -33,19 +33,23 @@ import Invitation from '../../components/invitation';
 
 export let Patients = React.createClass({
   propTypes: {
-    user: React.PropTypes.object.isRequired,
-    patients: React.PropTypes.array.isRequired,
+    clearPatientInView: React.PropTypes.func.isRequired,
+    fetchers: React.PropTypes.array.isRequired,
+    fetchingUser: React.PropTypes.bool.isRequired,
     invites: React.PropTypes.array.isRequired,
     loading: React.PropTypes.bool.isRequired,
-    loggedInUserId: React.PropTypes.string,
-    showingWelcomeMessage: React.PropTypes.bool,
-    onHideWelcomeSetup: React.PropTypes.func,
-    trackMetric: React.PropTypes.func.isRequired,
+    location: React.PropTypes.object.isRequired,
+    loggedInUserId: React.PropTypes.string.isRequired,
     onAcceptInvitation: React.PropTypes.func.isRequired,
     onDismissInvitation: React.PropTypes.func.isRequired,
+    onHideWelcomeSetup: React.PropTypes.func.isRequired,
     onRemovePatient: React.PropTypes.func.isRequired,
-    uploadUrl: React.PropTypes.string,
-    clearPatientInView: React.PropTypes.func.isRequired
+    patients: React.PropTypes.array.isRequired,
+    showWelcomeMessage: React.PropTypes.func.isRequired,
+    showingWelcomeMessage: React.PropTypes.bool.isRequired,
+    trackMetric: React.PropTypes.func.isRequired,
+    uploadUrl: React.PropTypes.string.isRequired,
+    user: React.PropTypes.object.isRequired
   },
 
   render: function() {
@@ -398,14 +402,20 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.routes[0].api;
-  return Object.assign({}, ownProps, stateProps, dispatchProps, {
-    fetchers: getFetchers(dispatchProps, ownProps, api),
-    uploadUrl: api.getUploadUrl(),
-    onAcceptInvitation: dispatchProps.acceptReceivedInvite.bind(null, api),
-    onDismissInvitation: dispatchProps.rejectReceivedInvite.bind(null, api),
-    onRemovePatient: dispatchProps.removePatient.bind(null, api),
-    trackMetric: ownProps.routes[0].trackMetric
-  });
+  return Object.assign(
+    {},
+    _.pick(dispatchProps, ['clearPatientInView', 'showWelcomeMessage', 'onHideWelcomeSetup']),
+    stateProps,
+    {
+      fetchers: getFetchers(dispatchProps, ownProps, api),
+      location: ownProps.location,
+      uploadUrl: api.getUploadUrl(),
+      onAcceptInvitation: dispatchProps.acceptReceivedInvite.bind(null, api),
+      onDismissInvitation: dispatchProps.rejectReceivedInvite.bind(null, api),
+      onRemovePatient: dispatchProps.removePatient.bind(null, api),
+      trackMetric: ownProps.routes[0].trackMetric
+    }
+  );
 };
 
 export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(Patients);
