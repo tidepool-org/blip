@@ -28,14 +28,14 @@ describe('PatientNew', function () {
   });
 
   describe('render', function() {
-    it('should warn when required props are not present', function() {
+    it('should not warn when required props are set', function() {
       console.error = sinon.spy();
       var props = {
-        user: {},
         fetchingUser: false,
-        working: false,
         onSubmit: sinon.stub(),
-        trackMetric: sinon.stub()
+        trackMetric: sinon.stub(),
+        user: {},
+        working: false
       };
       var elem = TestUtils.renderIntoDocument(<PatientNew {...props}/>);
       expect(elem).to.be.ok;
@@ -47,11 +47,11 @@ describe('PatientNew', function () {
       var elem = TestUtils.renderIntoDocument(<PatientNew/>);
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(5);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `user` was not specified in `PatientNew`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingUser` was not specified in `PatientNew`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `working` was not specified in `PatientNew`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `PatientNew`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `PatientNew`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `user` was not specified in `PatientNew`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `working` was not specified in `PatientNew`.')).to.equal(true);
     });
   });
 
@@ -69,50 +69,25 @@ describe('PatientNew', function () {
   });
 
   describe('isFormDisabled', function() {
-
-    it('should be false when fetching user is true', function() {
+    it('should be true when fetching user is true and user is falsey', function() {
       var props = {
-        fetchingUser: false,
-        user: { name: 'Foo' },
-        onSubmit: sinon.stub(),
-        trackMetric: sinon.stub()
+        fetchingUser: true
       };
-
-      console.error = sinon.spy();
       // Try out using the spread props syntax in JSX
       var elem = TestUtils.renderIntoDocument(<PatientNew {...props}/>);
 
-      expect(elem.isFormDisabled()).to.equal(false);
+      expect(elem.isFormDisabled()).to.equal(true);
     });
 
     it('should be false when fetching user is true and user is not falsey', function() {
       var props = {
         fetchingUser: true,
-        user: { name: 'Foo' },
-        onSubmit: sinon.stub(),
-        trackMetric: sinon.stub()
+        user: {}
       };
-
-      console.error = sinon.spy();
       // Try out using the spread props syntax in JSX
       var elem = TestUtils.renderIntoDocument(<PatientNew {...props}/>);
 
       expect(elem.isFormDisabled()).to.equal(false);
-    });
-
-    it('should be true when fetching user is true and user is falsey', function() {
-      var props = {
-        fetchingUser: true,
-        user: null,
-        onSubmit: sinon.stub(),
-        trackMetric: sinon.stub()
-      };
-
-      console.error = sinon.spy();
-      // Try out using the spread props syntax in JSX
-      var elem = TestUtils.renderIntoDocument(<PatientNew {...props}/>);
-
-      expect(elem.isFormDisabled()).to.equal(true);
     });
   });
 
