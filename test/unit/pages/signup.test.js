@@ -21,35 +21,34 @@ describe('Signup', function () {
     it('should render without problems when required props are set', function () {
       console.error = sinon.stub();
       var props = {
-        onSubmit: sinon.stub(),
+        acknowledgeNotification: sinon.stub(),
         api: {},
-        working: false,
-        trackMetric: sinon.stub()
+        configuredInviteKey: '',
+        onSubmit: sinon.stub(),
+        trackMetric: sinon.stub(),
+        working: false
       };
       var elem = React.createElement(Signup, props);
       var render = TestUtils.renderIntoDocument(elem);
       expect(console.error.callCount).to.equal(0);
     });
     
-    it('should console.error 3 times when showing waitlist', function () {
+    it('should console.error when required props not set', function () {
       console.error = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<Signup />);
-      expect(console.error.callCount).to.equal(4);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `Signup`.')).to.equal(true);
+      expect(console.error.callCount).to.equal(6);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `acknowledgeNotification` was not specified in `Signup`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `api` was not specified in `Signup`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `configuredInviteKey` was not specified in `Signup`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `Signup`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `Signup`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `working` was not specified in `Signup`.')).to.equal(true);
     });
 
     it('should render signup-form when no key is set and no key is configured', function () {
-      console.error = sinon.stub();
       var props = {
         configuredInviteKey: '',
-        inviteKey: '',
-        onSubmit: sinon.stub(),
-        api: {},
-        working: false,
-        trackMetric: sinon.stub()
+        inviteKey: ''
       };
       var elem = React.createElement(Signup, props);
       var render = TestUtils.renderIntoDocument(elem);
@@ -57,14 +56,9 @@ describe('Signup', function () {
     });
 
     it('should render waitlist form when key is set but is not valid', function () {
-      console.error = sinon.stub();
       var props = {
         configuredInviteKey: 'foobar',
-        inviteKey: 'wrong-key',
-        onSubmit: sinon.stub(),
-        api: {},
-        working: false,
-        trackMetric: sinon.stub()
+        inviteKey: 'wrong-key'
       };
       var elem = React.createElement(Signup, props);
       var render = TestUtils.renderIntoDocument(elem);
@@ -72,14 +66,9 @@ describe('Signup', function () {
     });
 
     it('should render signup-form when key is set and validates', function () {
-      console.error = sinon.stub();
       var props = {
         configuredInviteKey: 'foobar',
-        inviteKey: 'foobar',
-        onSubmit: sinon.stub(),
-        api: {},
-        working: false,
-        trackMetric: sinon.stub()
+        inviteKey: 'foobar'
       };
       var elem = React.createElement(Signup, props);
       var render = TestUtils.renderIntoDocument(elem);
@@ -87,15 +76,10 @@ describe('Signup', function () {
     });
 
     it('should render signup-form when both key and email are set, even if key doesn\'t match configured key', function () {
-      console.error = sinon.stub();
       var props = {
         configuredInviteKey: 'foobar',
         inviteKey: 'wrong-key',
-        inviteEmail: 'gordonmdent@gmail.com',
-        onSubmit: sinon.stub(),
-        api: {},
-        working: false,
-        trackMetric: sinon.stub()
+        inviteEmail: 'gordonmdent@gmail.com'
       };
       var elem = React.createElement(Signup, props);
       var render = TestUtils.renderIntoDocument(elem);
@@ -103,15 +87,10 @@ describe('Signup', function () {
     });
 
     it('should render signup-form when key is valid and email is empty', function () {
-      console.error = sinon.stub();
       var props = {
         configuredInviteKey: 'foobar',
         inviteKey: 'foobar',
-        inviteEmail: '',
-        onSubmit: sinon.stub(),
-        api: {},
-        working: false,
-        trackMetric: sinon.stub()
+        inviteEmail: ''
       };
       var elem = React.createElement(Signup, props);
       var render = TestUtils.renderIntoDocument(elem);
@@ -121,12 +100,7 @@ describe('Signup', function () {
 
   describe('getInitialState', function() {
     it('should return expected initial state', function() {
-      console.error = sinon.stub();
       var props = {
-        onSubmit: sinon.stub(),
-        api: {},
-        working: false,
-        trackMetric: sinon.stub(),
         inviteEmail: 'gordonmdent@gmail.com'
       };
       var elem = React.createElement(Signup, props);
@@ -135,7 +109,7 @@ describe('Signup', function () {
 
       expect(state.loading).to.equal(true);
       expect(state.showWaitList).to.equal(false);
-      expect(state.formValues.username).to.equal('gordonmdent@gmail.com');
+      expect(state.formValues.username).to.equal(props.inviteEmail);
       expect(Object.keys(state.validationErrors).length).to.equal(0);
       expect(state.notification).to.equal(null);
     });
