@@ -28,21 +28,23 @@ import PatientInfo from './patientinfo';
 import PatientTeam from './patientteam';
 
 const Patient = React.createClass({
+  // many things *not* required here because they aren't needed for 
+  // /patients/:id/profile although they are for /patients/:id/share
   propTypes: {
-    cancellingInvite: React.PropTypes.bool.isRequired,
-    changingMemberPermissions: React.PropTypes.bool.isRequired,
+    cancellingInvite: React.PropTypes.bool,
+    changingMemberPermissions: React.PropTypes.bool,
     fetchers: React.PropTypes.array.isRequired,
     fetchingPatient: React.PropTypes.bool.isRequired,
     fetchingUser: React.PropTypes.bool.isRequired,
-    invitingMember: React.PropTypes.bool.isRequired,
-    onCancelInvite: React.PropTypes.func.isRequired,
-    onChangeMemberPermissions: React.PropTypes.func.isRequired,
-    onInviteMember: React.PropTypes.func.isRequired,
-    onRemoveMember: React.PropTypes.func.isRequired,
-    onUpdatePatient: React.PropTypes.func.isRequired,
+    invitingMember: React.PropTypes.bool,
+    onCancelInvite: React.PropTypes.func,
+    onChangeMemberPermissions: React.PropTypes.func,
+    onInviteMember: React.PropTypes.func,
+    onRemoveMember: React.PropTypes.func,
+    onUpdatePatient: React.PropTypes.func,
     patient: React.PropTypes.object,
-    pendingSentInvites: React.PropTypes.array.isRequired,
-    removingMember: React.PropTypes.bool.isRequired,
+    pendingSentInvites: React.PropTypes.array,
+    removingMember: React.PropTypes.bool,
     shareOnly: React.PropTypes.bool,
     trackMetric: React.PropTypes.func.isRequired,
     user: React.PropTypes.object

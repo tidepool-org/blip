@@ -27,20 +27,9 @@ describe('Patient', function () {
     it('should render without problems when required props are present', function() {
       console.error = sinon.stub();
       var props = {
-        cancellingInvite: false,
-        changingMemberPermissions: false,
         fetchers: [],
         fetchingPatient: false,
         fetchingUser: false,
-        invitingMember: false,
-        onCancelInvite: sinon.stub(),
-        onChangeMemberPermissions: sinon.stub(),
-        onInviteMember: sinon.stub(),
-        onRemoveMember: sinon.stub(),
-        onUpdatePatient: sinon.stub(),
-        pendingSentInvites: [],
-        removingMember: false,
-        shareOnly: false,
         trackMetric: sinon.stub()
       };
       var patientElem = React.createElement(Patient, props);
@@ -55,20 +44,10 @@ describe('Patient', function () {
       var elem = TestUtils.renderIntoDocument(<Patient/>);
 
       expect(elem).to.be.ok;
-      expect(console.error.callCount).to.equal(14);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `cancellingInvite` was not specified in `Patient`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `changingMemberPermissions` was not specified in `Patient`.')).to.equal(true);
+      expect(console.error.callCount).to.equal(4);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchers` was not specified in `Patient`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingPatient` was not specified in `Patient`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingUser` was not specified in `Patient`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `invitingMember` was not specified in `Patient`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onCancelInvite` was not specified in `Patient`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onChangeMemberPermissions` was not specified in `Patient`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onInviteMember` was not specified in `Patient`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onRemoveMember` was not specified in `Patient`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onUpdatePatient` was not specified in `Patient`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `pendingSentInvites` was not specified in `Patient`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `removingMember` was not specified in `Patient`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `Patient`.')).to.equal(true);
     });
   });

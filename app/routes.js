@@ -7,7 +7,7 @@ import Patients from './pages/patients';
 import Login from './pages/login';
 import Signup from './pages/signup';
 import UserProfile from './pages/userprofile';
-import PatientProfile from './pages/patient/patientprofile';
+import PatientProfile from './pages/patientprofile/patientprofile';
 import Share from './pages/share/share';
 import PatientNew from './pages/patientnew';
 import PatientData from './pages/patientdata';
