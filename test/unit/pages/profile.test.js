@@ -9,15 +9,15 @@ var React = require('react');
 var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
 
-var Profile = require('../../../app/pages/profile').Profile;
-import { mapStateToProps } from '../../../app/pages/profile';
+var UserProfile = require('../../../app/pages/userprofile').UserProfile;
+import { mapStateToProps } from '../../../app/pages/userprofile';
 
 var assert = chai.assert;
 var expect = chai.expect;
 
-describe('Profile', function () {
+describe('UserProfile', function () {
   it('should be exposed as a module and be of type function', function() {
-    expect(Profile).to.be.a('function');
+    expect(UserProfile).to.be.a('function');
   });
 
   describe('render', function() {
@@ -29,14 +29,14 @@ describe('Profile', function () {
         onSubmit: sinon.stub(),
         trackMetric: sinon.stub()
       };
-      var elem = React.createElement(Profile, props);
+      var elem = React.createElement(UserProfile, props);
       var render = TestUtils.renderIntoDocument(elem);
       expect(console.error.callCount).to.equal(0);
     });
 
     it('should console.error when required props are missing', function () {
       console.error = sinon.stub();
-      var elem = TestUtils.renderIntoDocument(<Profile />);
+      var elem = TestUtils.renderIntoDocument(<UserProfile />);
       expect(console.error.callCount).to.equal(4);
     });
   });
@@ -54,7 +54,7 @@ describe('Profile', function () {
           username: 'foobar'
         }
       };
-      var elem = React.createElement(Profile, props);
+      var elem = React.createElement(UserProfile, props);
       var render = TestUtils.renderIntoDocument(elem);
       var state = render.getInitialState();
 
@@ -73,7 +73,7 @@ describe('Profile', function () {
           goBack: sinon.stub()
         }
       };
-      var elem = React.createElement(Profile, props);
+      var elem = React.createElement(UserProfile, props);
       var render = TestUtils.renderIntoDocument(elem);
       var backButton = TestUtils.findRenderedDOMComponentWithClass(render, 'js-back');
 

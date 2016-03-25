@@ -29,7 +29,7 @@ import personUtils from '../../core/personutils';
 import SimpleForm from '../../components/simpleform';
 import PeopleList from '../../components/peoplelist';
 
-export var Profile = React.createClass({
+export var UserProfile = React.createClass({
   propTypes: {
     user: React.PropTypes.object.isRequired,
     fetchingUser: React.PropTypes.bool.isRequired,
@@ -280,4 +280,4 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
     trackMetric: ownProps.routes[0].trackMetric
   });
 };
-export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(Profile);
+export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(UserProfile);

@@ -6,7 +6,7 @@ import AppComponent from './pages/app';
 import Patients from './pages/patients';
 import Login from './pages/login';
 import Signup from './pages/signup';
-import Profile from './pages/profile';
+import UserProfile from './pages/userprofile';
 import PatientProfile from './pages/patient/patientprofile';
 import Share from './pages/share/share';
 import PatientNew from './pages/patientnew';
@@ -237,7 +237,7 @@ export const getRoutes = (appContext, store) => {
       <Route path='terms' components={Terms} />
       <Route path='signup' component={Signup} onEnter={requireNoAuth(api)} />
       <Route path='email-verification' component={EmailVerification} onEnter={requireNotVerified(api, store)} />
-      <Route path='profile' component={Profile} onEnter={requireAuth(api, store)} />
+      <Route path='profile' component={UserProfile} onEnter={requireAuth(api, store)} />
       <Route path='patients' component={Patients} onEnter={requireAuth(api, store)} />
       <Route path='patients/new' component={PatientNew} onEnter={requireAuthAndNoPatient(api, store)} />
       <Route path='patients/:id/profile' component={PatientProfile} onEnter={requireAuth(api, store)} />
