@@ -140,17 +140,15 @@ export class AppComponent extends React.Component {
 
   renderNavbar() {
     this.props.route.log('Rendering navbar');
-    if (this.props.authenticated) {
-      var patient;
-      var getUploadUrl;
-
+    if (this.props.authenticated ||
+      (this.props.fetchingUser || this.props.fetchingPatient)) {
+      var patient, getUploadUrl;
       if (this.isPatientVisibleInNavbar()) {
         patient = this.props.patient;
         getUploadUrl = this.props.route.api.getUploadUrl.bind(this.props.route.api);
       }
 
       return (
-
         <div className="App-navbar">
           <Navbar
             user={this.props.user}
@@ -163,7 +161,6 @@ export class AppComponent extends React.Component {
             trackMetric={this.props.route.trackMetric}
             ref="navbar"/>
         </div>
-
       );
     }
 
