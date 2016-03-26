@@ -43,7 +43,7 @@ describe('App',  () => {
 
   describe('isPatientVisibleInNavbar', () => {
     it('should return true when page is /patients/454/data', () => {
-      var context = _.assign({}, childContext, {location: { pathname: '/patients/25' }});
+      var context = _.assign({}, childContext, {location: '/patients/25'});
       var elem = TestUtils.renderIntoDocument(<App {...context} />);
       expect(elem).to.be.ok;
       expect(elem.isPatientVisibleInNavbar()).to.be.true;
