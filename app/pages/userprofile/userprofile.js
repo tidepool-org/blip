@@ -31,10 +31,11 @@ import PeopleList from '../../components/peoplelist';
 
 export var UserProfile = React.createClass({
   propTypes: {
-    user: React.PropTypes.object.isRequired,
     fetchingUser: React.PropTypes.bool.isRequired,
+    history: React.PropTypes.object.isRequired,
     onSubmit: React.PropTypes.func.isRequired,
-    trackMetric: React.PropTypes.func.isRequired
+    trackMetric: React.PropTypes.func.isRequired,
+    user: React.PropTypes.object
   },
 
   formInputs: [
@@ -275,7 +276,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.routes[0].api;
-  return Object.assign({}, ownProps, stateProps, dispatchProps, {
+  return Object.assign({}, _.pick(ownProps, 'history'), stateProps, {
     onSubmit: dispatchProps.updateUser.bind(null, api),
     trackMetric: ownProps.routes[0].trackMetric
   });

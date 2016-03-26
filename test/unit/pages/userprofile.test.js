@@ -24,8 +24,8 @@ describe('UserProfile', function () {
     it('should render without problems when required props are set', function () {
       console.error = sinon.stub();
       var props = {
-        user: {},
         fetchingUser: false,
+        history: {},
         onSubmit: sinon.stub(),
         trackMetric: sinon.stub()
       };
@@ -38,27 +38,28 @@ describe('UserProfile', function () {
       console.error = sinon.stub();
       var elem = TestUtils.renderIntoDocument(<UserProfile />);
       expect(console.error.callCount).to.equal(4);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingUser` was not specified in `UserProfile`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `history` was not specified in `UserProfile`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `UserProfile`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `UserProfile`.')).to.equal(true);
     });
   });
 
   describe('getInitialState', function() {
     it('should return expected initial state', function() {
-      console.error = sinon.stub();
       var props = {
-        onSubmit: sinon.stub(),
-        trackMetric: sinon.stub(),
         user: {
           profile: {
             fullName: 'Gordon Dent'
           },
-          username: 'foobar'
+          username: 'foo@bar.com'
         }
       };
       var elem = React.createElement(UserProfile, props);
       var render = TestUtils.renderIntoDocument(elem);
       var state = render.getInitialState();
 
-      expect(state.formValues.username).to.equal('foobar');
+      expect(state.formValues.username).to.equal('foo@bar.com');
       expect(state.formValues.fullName).to.equal('Gordon Dent');
       expect(Object.keys(state.validationErrors).length).to.equal(0);
       expect(state.notification).to.equal(null);
@@ -67,11 +68,10 @@ describe('UserProfile', function () {
 
     it('should take a step back through history on clicking back button', function() {
       var props = {
-        onSubmit: sinon.stub(),
-        trackMetric: sinon.stub(),
         history: {
           goBack: sinon.stub()
-        }
+        },
+        trackMetric: sinon.stub()
       };
       var elem = React.createElement(UserProfile, props);
       var render = TestUtils.renderIntoDocument(elem);
