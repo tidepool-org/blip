@@ -53,6 +53,7 @@ describe('Login', function () {
   describe('mapStateToProps', () => {
     const state = {
       working: {
+        confirmingSignup: {inProgress: false, notification: null},
         loggingIn: {inProgress: false, notification: {type: 'alert', message: 'Hi!'}}
       }
     };
@@ -69,9 +70,21 @@ describe('Login', function () {
       expect(result.notification).to.equal(state.working.loggingIn.notification);
     });
 
+    it('should map working.confirmingSignup.notification to notification if working.loggingIn.notification is null', () => {
+      const anotherState = {
+        working: {
+          loggingIn: {inProgress: false, notification: null},
+          confirmingSignup: {inProgress: false, notification: {status: 500, body: 'Error :('}}
+        }
+      };
+      const anotherRes = mapStateToProps({blip: anotherState});
+      expect(anotherRes.notification).to.equal(anotherState.working.confirmingSignup.notification);
+    });
+
     describe('when some state is `null`', () => {
       const state = {
         working: {
+          confirmingSignup: {inProgress: false, notification: null},
           loggingIn: {inProgress: false, notification: null}
         }
       };

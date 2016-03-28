@@ -25,7 +25,8 @@ import * as actions from '../../redux/actions';
 import personUtils from '../../core/personutils';
 import utils from '../../core/utils';
 
-import usrMessages from '../../userMessages';
+import * as ErrorMessages from '../../redux/constants/errorMessages';
+import * as UserMessages from '../../redux/constants/usrMessages';
 
 // Components
 import Navbar from '../../components/navbar';
@@ -54,10 +55,6 @@ export class AppComponent extends React.Component {
 
   constructor(props) {
     super(props);
-
-    this.state = {
-      notification: null
-    };
   }
 
   hideNavbarDropdown() {
@@ -85,9 +82,6 @@ export class AppComponent extends React.Component {
   }
 
   closeNotification() {
-    this.setState({
-      notitication: null
-    });
     this.props.acknowledgeNotification();
   }
 
@@ -145,6 +139,7 @@ export class AppComponent extends React.Component {
     // but for now we just make sure we don't render the NavBar on a NoAuth route
     // such routes are where the LoginNav appears instead
     var LOGIN_NAV_ROUTES = [
+      '/',
       '/confirm-password-reset',
       '/email-verification',
       '/login',
@@ -183,23 +178,22 @@ export class AppComponent extends React.Component {
   }
 
   renderNotification() {
-    this.props.route.log('Rendering notification');
-    var notification = this.state.notification || this.props.notification;
+    var notification = this.props.notification;
     var handleClose;
 
     if (notification) {
-      if (notification.isDismissable) {
-        handleClose = this.closeNotification.bind(this);
+      this.props.route.log('Rendering notification');
+      if (notification.isDismissible) {
+        handleClose = this.props.onCloseNotification.bind(this);
       }
 
       return (
-
         <TidepoolNotification
           type={notification.type}
+          contents={notification.body}
+          link={notification.link}
           onClose={handleClose}>
-          {notification.message}
         </TidepoolNotification>
-
       );
     }
 
@@ -221,7 +215,6 @@ export class AppComponent extends React.Component {
         </div>
         {this.renderVersion()}
       </div>
-
     );
   }
 
@@ -266,8 +259,9 @@ let getFetchers = (dispatchProps, ownProps, api) => {
  */
 
 export function mapStateToProps(state) {
-  var user = null;
-  var patient = null;
+  let user = null;
+  let patient = null;
+
   if (state.blip.allUsersMap) {
     if (state.blip.loggedInUserId) {
       user = state.blip.allUsersMap[state.blip.loggedInUserId];
@@ -278,11 +272,49 @@ export function mapStateToProps(state) {
     }
   }
 
+  let displayNotification = null;
+
+  if (state.blip.notification !== null) {
+    const utcTime = UserMessages.MSG_UTC + new Date().toISOString();
+    const notificationFromWorking = _.get(
+      state.blip.working[_.get(state.blip.notification, 'key')],
+      'notification'
+    );
+    let displayMessage = _.get(
+      notificationFromWorking, 'message', ErrorMessages.ERR_GENERIC
+    );
+
+    const status = _.get(state.blip.notification, 'status');
+    if (status !== null) {
+      switch (status) {
+        case 401:
+          if (state.blip.isLoggedIn) {
+            displayMessage = ErrorMessages.ERR_AUTHORIZATION;
+          }
+          break;
+        case 500:
+          displayMessage = ErrorMessages.ERR_SERVICE_DOWN;
+          break;
+        case 503: 
+          displayMessage = ErrorMessages.ERR_OFFLINE;
+          break;
+      }
+    }
+    displayNotification = _.assign(
+      _.omit(state.blip.notification, 'key'),
+      {
+        type: _.get(notificationFromWorking, 'type'),
+        body: { message: displayMessage, utc: utcTime }
+      }
+    );
+  }
+
   return {
     authenticated: state.blip.isLoggedIn,
     fetchingUser: state.blip.working.fetchingUser.inProgress,
     fetchingPatient: state.blip.working.fetchingPatient.inProgress,
     loggingOut: state.blip.working.loggingOut.inProgress,
+    notification: displayNotification,
     termsAccepted: _.get(user, 'termsAccepted', null),
     user: user,
     patient: patient

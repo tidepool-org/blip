@@ -76,8 +76,8 @@ describe('PatientCareTeam', () => {
       expect(result.removingMember).to.equal(state.working.removingMember.inProgress);
     });
 
-    it('should map working.sendingInvite.inProgress to invitingMember', () => {
-      expect(result.invitingMember).to.equal(state.working.sendingInvite.inProgress);
+    it('should map working.sendingInvite to invitingMemberInfo', () => {
+      expect(result.invitingMemberInfo).to.equal(state.working.sendingInvite);
     });
 
     it('should map working.cancellingSentInvite.inProgress to cancellingInvite', () => {

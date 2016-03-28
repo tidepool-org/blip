@@ -1,10 +1,9 @@
+import _ from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import * as actions from '../../redux/actions';
-
-import _ from 'lodash';
 
 import Patient from '../patient';
 
@@ -59,12 +58,13 @@ export function mapStateToProps(state) {
     pendingSentInvites: state.blip.pendingSentInvites,
     changingMemberPermissions: state.blip.working.settingMemberPermissions.inProgress,
     removingMember: state.blip.working.removingMember.inProgress,
-    invitingMember: state.blip.working.sendingInvite.inProgress,
+    invitingMemberInfo: state.blip.working.sendingInvite,
     cancellingInvite: state.blip.working.cancellingSentInvite.inProgress
   };
 }
 
 let mapDispatchToProps = dispatch => bindActionCreators({
+  acknowledgeNotification: actions.sync.acknowledgeNotification,
   updatePatient: actions.async.updatePatient,
   changeMemberPermissions: actions.async.setMemberPermissions,
   removeMember: actions.async.removeMember,
@@ -76,7 +76,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.routes[0].api;
-  return Object.assign({}, stateProps, {
+  return Object.assign({}, _.pick(dispatchProps, 'acknowledgeNotification'), stateProps, {
     fetchers: getFetchers(dispatchProps, ownProps, api),
     onUpdatePatient: dispatchProps.updatePatient.bind(null, api),
     onChangeMemberPermissions: dispatchProps.changeMemberPermissions.bind(null, api),

@@ -14,9 +14,10 @@ describe('PatientTeam', function () {
     it('should render without problems when required props are present', function() {
       console.error = sinon.stub();
       var props = {
+        acknowledgeNotification: sinon.stub(),
         cancellingInvite: false,
         changingMemberPermissions: false,
-        invitingMember: false,
+        invitingMemberInfo: {inProgress: false, notification: null},
         onCancelInvite: sinon.stub(),
         onChangeMemberPermissions: sinon.stub(),
         onInviteMember: sinon.stub(),
@@ -39,10 +40,11 @@ describe('PatientTeam', function () {
       var elem = TestUtils.renderIntoDocument(<PatientTeam/>);
 
       expect(elem).to.be.ok;
-      expect(console.error.callCount).to.equal(12);
+      expect(console.error.callCount).to.equal(13);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `acknowledgeNotification` was not specified in `PatientTeam`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `cancellingInvite` was not specified in `PatientTeam`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `changingMemberPermissions` was not specified in `PatientTeam`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `invitingMember` was not specified in `PatientTeam`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `invitingMemberInfo` was not specified in `PatientTeam`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `onCancelInvite` was not specified in `PatientTeam`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `onChangeMemberPermissions` was not specified in `PatientTeam`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `onInviteMember` was not specified in `PatientTeam`.')).to.equal(true);

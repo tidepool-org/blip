@@ -228,7 +228,7 @@ let getFetchers = (dispatchProps, ownProps, other, api) => {
 
 export function mapStateToProps(state) {
   return {
-    notification: state.blip.working.loggingIn.notification,
+    notification: state.blip.working.loggingIn.notification || state.blip.working.confirmingSignup.notification,
     working: state.blip.working.loggingIn.inProgress,
   };
 }

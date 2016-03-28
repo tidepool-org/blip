@@ -21,7 +21,6 @@
 export const SHOW_WELCOME_MESSAGE = 'SHOW_WELCOME_MESSAGE';
 export const HIDE_WELCOME_MESSAGE = 'HIDE_WELCOME_MESSAGE';
 
-export const SHOW_NOTIFICATION = 'SHOW_NOTIFICATION'
 export const ACKNOWLEDGE_NOTIFICATION = 'ACKNOWLEDGE_NOTIFICATION';
 
 export const SET_TIME_PREFERENCES = 'SET_TIME_PREFERENCES';
@@ -78,7 +77,7 @@ export const LOGIN_FAILURE = 'LOGIN_FAILURE';
 // user.logout
 export const LOGOUT_REQUEST = 'LOGOUT_REQUEST';
 export const LOGOUT_SUCCESS = 'LOGOUT_SUCCESS';
-export const LOGOUT_FAILURE = 'LOGOUT_FAILURE';
+// no such thing as LOGOUT_FAILURE - we destroy session no matter what!
 
 // user.signup
 export const SIGNUP_REQUEST = 'SIGNUP_REQUEST';
@@ -168,5 +167,4 @@ export const UPDATE_USER_FAILURE = 'UPDATE_USER_FAILURE';
 // log api arror
 export const LOG_ERROR_REQUEST = 'LOG_ERROR_REQUEST';
 export const LOG_ERROR_SUCCESS = 'LOG_ERROR_SUCCESS';
-export const LOG_ERROR_FAILURE = 'LOG_ERROR_FAILURE';
-
+// no such thing as LOG_ERROR_FAILURE

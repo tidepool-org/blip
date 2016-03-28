@@ -34,7 +34,7 @@ export default (state = initialState, action) => {
           }
         });
       } else {
-        return state;
+        return initialState;
       }
 
     /**
@@ -138,7 +138,6 @@ export default (state = initialState, action) => {
     case types.FETCH_PATIENT_DATA_FAILURE:
     case types.FETCH_MESSAGE_THREAD_FAILURE:
     case types.LOGIN_FAILURE:
-    case types.LOGOUT_FAILURE:
     case types.SIGNUP_FAILURE:
     case types.CONFIRM_SIGNUP_FAILURE:
     case types.CONFIRM_PASSWORD_RESET_FAILURE:
@@ -163,7 +162,7 @@ export default (state = initialState, action) => {
               inProgress: false,
               notification: { 
                 type: 'error',
-                message: action.error
+                message: _.get(action, ['error', 'message'], null)
               }
             }
           }

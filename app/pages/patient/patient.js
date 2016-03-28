@@ -31,12 +31,13 @@ const Patient = React.createClass({
   // many things *not* required here because they aren't needed for 
   // /patients/:id/profile although they are for /patients/:id/share
   propTypes: {
+    acknowledgeNotification: React.PropTypes.func.isRequired,
     cancellingInvite: React.PropTypes.bool,
     changingMemberPermissions: React.PropTypes.bool,
     fetchers: React.PropTypes.array.isRequired,
     fetchingPatient: React.PropTypes.bool.isRequired,
     fetchingUser: React.PropTypes.bool.isRequired,
-    invitingMember: React.PropTypes.bool,
+    invitingMemberInfo: React.PropTypes.object,
     onCancelInvite: React.PropTypes.func,
     onChangeMemberPermissions: React.PropTypes.func,
     onInviteMember: React.PropTypes.func,
@@ -173,9 +174,10 @@ const Patient = React.createClass({
   renderPatientTeam: function() {
     return (
       <PatientTeam
+        acknowledgeNotification={this.props.acknowledgeNotification}
         cancellingInvite={this.props.cancellingInvite}
         changingMemberPermissions={this.props.changingMemberPermissions}
-        invitingMember={this.props.invitingMember}
+        invitingMemberInfo={this.props.invitingMemberInfo}
         onCancelInvite={this.props.onCancelInvite}
         onChangeMemberPermissions={this.props.onChangeMemberPermissions}
         onInviteMember={this.props.onInviteMember}

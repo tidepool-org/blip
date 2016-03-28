@@ -10,6 +10,7 @@ var defineEnvPlugin = new webpack.DefinePlugin({
   __UPLOAD_API__: JSON.stringify(process.env.UPLOAD_API || null),
   __API_HOST__: JSON.stringify(process.env.API_HOST || null),
   __INVITE_KEY__: JSON.stringify(process.env.INVITE_KEY || null),
+  __PASSWORD_MIN_LENGTH__: JSON.stringify(process.env.PASSWORD_MIN_LENGTH || null),
   __DEV__: isDev,
   __TEST__: false
 });

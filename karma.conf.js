@@ -1,3 +1,4 @@
+var path = require('path');
 var webpack = require('webpack');
 var RewirePlugin = require('rewire-webpack');
 
@@ -46,7 +47,9 @@ module.exports = function (config) {
       node: {
         fs: 'empty',
         module: 'empty'
-      }
+      },
+      resolve: { fallback: path.join(__dirname, 'node_modules') },
+      resolveLoader: { fallback: path.join(__dirname, 'node_modules') }
     },
     webpackServer: {
       noInfo: true // We don't want webpack output
