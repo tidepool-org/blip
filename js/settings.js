@@ -129,7 +129,7 @@ module.exports = function(opts) {
       }
       scheduleLabels = scheduleLabelsToKeep;
       sectionDiv.classed('d3-settings-section-basal', true);
-      container.column(sectionDiv, scheduleLabels[0], 'd3-settings-col-active');
+      container.column(sectionDiv, scheduleLabels[0], 'd3-settings-col-open');
       if (scheduleLabels.length > 1) {
         for (var i = 1; i < scheduleLabels.length; i++) {
           container.column(sectionDiv, scheduleLabels[i]);
@@ -146,7 +146,7 @@ module.exports = function(opts) {
     mainDiv.selectAll('.d3-settings-basal-schedule').selectAll('.d3-settings-col-label')
       .on('click', function() {
         d3.select(this).classed({
-          'd3-settings-col-active': true,
+          'd3-settings-col-open': true,
           'd3-settings-col-collapsed': false
         });
       });
@@ -231,19 +231,24 @@ module.exports = function(opts) {
     }
     // basal rates
     else {
+      var activeSchedule = container.currentSettings().activeSchedule;
+      var isActiveSchedule = (datatype === activeSchedule);
+      var displayName = isActiveSchedule ? datatype + ' (Active)' : datatype;
       columnDiv.classed({
         'd3-settings-basal-schedule': true
       });
       columnDiv.append('div')
         .attr('class', function() {
-          if (scheduleClass) {
+          // we are overriding the passed-in scheduleClass (that used to mark the top/open sched)
+          // in order to set the currently active sched as open by default
+          if (isActiveSchedule) {
             return 'd3-settings-col-label ' + scheduleClass;
           }
           else {
             return 'd3-settings-col-label d3-settings-col-collapsed';
           }
         })
-        .html((scheduleClass ? '<i class="icon-down"></i>' : '<i class="icon-right"></i>') + datatype);
+        .html((scheduleClass ? '<i class="icon-down"></i>' : '<i class="icon-right"></i>') + displayName);
     }
 
     var columnTable = columnDiv.append('table');
@@ -256,7 +261,6 @@ module.exports = function(opts) {
     }
     // basal rates
     else {
-
       container.tableHeaders(columnTable, opts.rowHeadersByType.basalSchedules)
         .tableRows(columnTable,
           _.findWhere(container.currentSettings().basalSchedules, {'name': datatype}).value,
@@ -277,7 +281,7 @@ module.exports = function(opts) {
 
     mainDiv.selectAll('.d3-settings-basal-schedule').selectAll('.d3-settings-col-label')
       .on('click', function() {
-        var current = d3.select(this).classed('d3-settings-col-active');
+        var current = d3.select(this).classed('d3-settings-col-open');
 
         d3.select(this).selectAll('i').classed({
           'icon-down': !current,
@@ -285,7 +289,7 @@ module.exports = function(opts) {
         });
 
         d3.select(this).classed({
-          'd3-settings-col-active': !current,
+          'd3-settings-col-open': !current,
           'd3-settings-col-collapsed': current
         });
       });
