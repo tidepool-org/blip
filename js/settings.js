@@ -231,6 +231,8 @@ module.exports = function(opts) {
     }
     // basal rates
     else {
+      var activeSchedule = container.currentSettings().activeSchedule;
+      var displayName = datatype === activeSchedule ? datatype + ' (Active)' : datatype;
       columnDiv.classed({
         'd3-settings-basal-schedule': true
       });
@@ -243,7 +245,7 @@ module.exports = function(opts) {
             return 'd3-settings-col-label d3-settings-col-collapsed';
           }
         })
-        .html((scheduleClass ? '<i class="icon-down"></i>' : '<i class="icon-right"></i>') + datatype);
+        .html((scheduleClass ? '<i class="icon-down"></i>' : '<i class="icon-right"></i>') + displayName);
     }
 
     var columnTable = columnDiv.append('table');
