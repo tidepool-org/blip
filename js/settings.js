@@ -129,7 +129,7 @@ module.exports = function(opts) {
       }
       scheduleLabels = scheduleLabelsToKeep;
       sectionDiv.classed('d3-settings-section-basal', true);
-      container.column(sectionDiv, scheduleLabels[0], 'd3-settings-col-active');
+      container.column(sectionDiv, scheduleLabels[0], 'd3-settings-col-open');
       if (scheduleLabels.length > 1) {
         for (var i = 1; i < scheduleLabels.length; i++) {
           container.column(sectionDiv, scheduleLabels[i]);
@@ -146,7 +146,7 @@ module.exports = function(opts) {
     mainDiv.selectAll('.d3-settings-basal-schedule').selectAll('.d3-settings-col-label')
       .on('click', function() {
         d3.select(this).classed({
-          'd3-settings-col-active': true,
+          'd3-settings-col-open': true,
           'd3-settings-col-collapsed': false
         });
       });
@@ -256,7 +256,6 @@ module.exports = function(opts) {
     }
     // basal rates
     else {
-
       container.tableHeaders(columnTable, opts.rowHeadersByType.basalSchedules)
         .tableRows(columnTable,
           _.findWhere(container.currentSettings().basalSchedules, {'name': datatype}).value,
@@ -277,7 +276,7 @@ module.exports = function(opts) {
 
     mainDiv.selectAll('.d3-settings-basal-schedule').selectAll('.d3-settings-col-label')
       .on('click', function() {
-        var current = d3.select(this).classed('d3-settings-col-active');
+        var current = d3.select(this).classed('d3-settings-col-open');
 
         d3.select(this).selectAll('i').classed({
           'icon-down': !current,
@@ -285,7 +284,7 @@ module.exports = function(opts) {
         });
 
         d3.select(this).classed({
-          'd3-settings-col-active': !current,
+          'd3-settings-col-open': !current,
           'd3-settings-col-collapsed': current
         });
       });
