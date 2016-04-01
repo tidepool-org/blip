@@ -232,13 +232,16 @@ module.exports = function(opts) {
     // basal rates
     else {
       var activeSchedule = container.currentSettings().activeSchedule;
-      var displayName = datatype === activeSchedule ? datatype + ' (Active)' : datatype;
+      var isActiveSchedule = (datatype === activeSchedule);
+      var displayName = isActiveSchedule ? datatype + ' (Active)' : datatype;
       columnDiv.classed({
         'd3-settings-basal-schedule': true
       });
       columnDiv.append('div')
         .attr('class', function() {
-          if (scheduleClass) {
+          // we are overriding the passed-in scheduleClass (that used to mark the top/open sched)
+          // in order to set the currently active sched as open by default
+          if (isActiveSchedule) {
             return 'd3-settings-col-label ' + scheduleClass;
           }
           else {
