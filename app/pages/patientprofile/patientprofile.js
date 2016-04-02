@@ -46,13 +46,14 @@ export function mapStateToProps(state) {
 }
 
 let mapDispatchToProps = dispatch => bindActionCreators({
+  acknowledgeNotification: actions.sync.acknowledgeNotification,
   fetchPatient: actions.async.fetchPatient,
   updatePatient: actions.async.updatePatient
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.routes[0].api;
-  return Object.assign({}, stateProps, {
+  return Object.assign({}, stateProps, _.pick(dispatchProps, 'acknowledgeNotification'), {
     fetchers: getFetchers(dispatchProps, ownProps, api),
     onUpdatePatient: dispatchProps.updatePatient.bind(null, api),
     trackMetric: ownProps.routes[0].trackMetric
