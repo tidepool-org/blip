@@ -30,11 +30,13 @@ import SimpleForm from '../../components/simpleform';
 
 export let Signup = React.createClass({
   propTypes: {
-    configuredInviteKey: React.PropTypes.string,
-    inviteKey: React.PropTypes.string,
-    inviteEmail: React.PropTypes.string,
-    onSubmit: React.PropTypes.func.isRequired,
+    acknowledgeNotification: React.PropTypes.func.isRequired,
     api: React.PropTypes.object.isRequired,
+    configuredInviteKey: React.PropTypes.string.isRequired,
+    inviteEmail: React.PropTypes.string,
+    inviteKey: React.PropTypes.string,
+    notification: React.PropTypes.object,
+    onSubmit: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
     working: React.PropTypes.bool.isRequired
   },

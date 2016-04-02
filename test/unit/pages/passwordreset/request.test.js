@@ -21,29 +21,29 @@ describe('RequestPasswordReset', function () {
   });
 
   describe('render', function() {
-    it('should console.error when required props are missing', function () {
-      console.error = sinon.stub();
-      var elem = TestUtils.renderIntoDocument(<RequestPasswordReset />);
-      expect(console.error.callCount).to.equal(5);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `api` was not specified in `RequestPasswordReset`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `RequestPasswordReset`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `RequestPasswordReset`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `acknowledgeNotification` was not specified in `RequestPasswordReset`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `working` was not specified in `RequestPasswordReset`.')).to.equal(true);
-    });
-
     it('should render without problems when required props are set', function () {
       console.error = sinon.stub();
       var props = {
+        acknowledgeNotification: sinon.stub(),
         api: {},
         onSubmit: sinon.stub(),
         trackMetric: sinon.stub(),
-        acknowledgeNotification: sinon.stub(),
         working: false
       };
       var elem = React.createElement(RequestPasswordReset, props);
       var render = TestUtils.renderIntoDocument(elem);
       expect(console.error.callCount).to.equal(0);
+    });
+
+    it('should console.error when required props are missing', function () {
+      console.error = sinon.stub();
+      var elem = TestUtils.renderIntoDocument(<RequestPasswordReset />);
+      expect(console.error.callCount).to.equal(5);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `acknowledgeNotification` was not specified in `RequestPasswordReset`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `api` was not specified in `RequestPasswordReset`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `RequestPasswordReset`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `RequestPasswordReset`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `working` was not specified in `RequestPasswordReset`.')).to.equal(true);
     });
   });
 
@@ -51,10 +51,10 @@ describe('RequestPasswordReset', function () {
     it('should return array with one entry for email', function() {
       console.error = sinon.stub();
       var props = {
+        acknowledgeNotification: sinon.stub(),
         api: {},
         onSubmit: sinon.stub(),
         trackMetric: sinon.stub(),
-        acknowledgeNotification: sinon.stub(),
         working: false
       };
       var elem = React.createElement(RequestPasswordReset, props);
@@ -71,10 +71,10 @@ describe('RequestPasswordReset', function () {
     it('should be in this expected format', function() {
       console.error = sinon.stub();
       var props = {
+        acknowledgeNotification: sinon.stub(),
         api: {},
         onSubmit: sinon.stub(),
         trackMetric: sinon.stub(),
-        acknowledgeNotification: sinon.stub(),
         working: false
       };
       var elem = React.createElement(RequestPasswordReset, props);
@@ -90,7 +90,7 @@ describe('RequestPasswordReset', function () {
   describe('mapStateToProps', () => {
     const state = {
       working: {
-        requestingPasswordReset: {inProgress: true, notification: null}
+        requestingPasswordReset: {inProgress: true, notification: {type: 'alert', message: 'Hi!'}}
       }
     };
     const result = mapStateToProps({blip: state});
@@ -104,6 +104,19 @@ describe('RequestPasswordReset', function () {
 
     it('should map working.requestingPasswordReset.inProgress to working', () => {
       expect(result.working).to.equal(state.working.requestingPasswordReset.inProgress);
+    });
+
+    describe('when some state is `null`', () => {
+    const state = {
+      working: {
+        requestingPasswordReset: {inProgress: true, notification: null}
+      }
+    };
+      const result = mapStateToProps({blip: state});
+
+      it('should map working.requestingPasswordReset.notification to notification', () => {
+        expect(result.notification).to.be.null;
+      });
     });
   });
 });

@@ -15,6 +15,7 @@
  * == BSD2 LICENSE ==
  */
 
+import _ from 'lodash';
 import update from 'react-addons-update';
 
 import * as types from '../constants/actionTypes';
@@ -33,7 +34,7 @@ export default (state = initialState, action) => {
           }
         });
       } else {
-        return state;
+        return initialState;
       }
 
     /**
@@ -116,7 +117,7 @@ export default (state = initialState, action) => {
           [key]: {
             $set: {
               inProgress: false,
-              notification: null
+              notification: _.get(action, ['payload', 'notification'], null)
             }
           }
         });
@@ -137,7 +138,6 @@ export default (state = initialState, action) => {
     case types.FETCH_PATIENT_DATA_FAILURE:
     case types.FETCH_MESSAGE_THREAD_FAILURE:
     case types.LOGIN_FAILURE:
-    case types.LOGOUT_FAILURE:
     case types.SIGNUP_FAILURE:
     case types.CONFIRM_SIGNUP_FAILURE:
     case types.CONFIRM_PASSWORD_RESET_FAILURE:
@@ -162,7 +162,7 @@ export default (state = initialState, action) => {
               inProgress: false,
               notification: { 
                 type: 'error',
-                message: action.error
+                message: _.get(action, ['error', 'message'], null)
               }
             }
           }

@@ -9,56 +9,57 @@ var React = require('react');
 var TestUtils = require('react-addons-test-utils');
 var expect = chai.expect;
 
-var Profile = require('../../../app/pages/profile').Profile;
-import { mapStateToProps } from '../../../app/pages/profile';
+var UserProfile = require('../../../app/pages/userprofile').UserProfile;
+import { mapStateToProps } from '../../../app/pages/userprofile';
 
 var assert = chai.assert;
 var expect = chai.expect;
 
-describe('Profile', function () {
+describe('UserProfile', function () {
   it('should be exposed as a module and be of type function', function() {
-    expect(Profile).to.be.a('function');
+    expect(UserProfile).to.be.a('function');
   });
 
   describe('render', function() {
     it('should render without problems when required props are set', function () {
       console.error = sinon.stub();
       var props = {
-        user: {},
         fetchingUser: false,
+        history: {},
         onSubmit: sinon.stub(),
         trackMetric: sinon.stub()
       };
-      var elem = React.createElement(Profile, props);
+      var elem = React.createElement(UserProfile, props);
       var render = TestUtils.renderIntoDocument(elem);
       expect(console.error.callCount).to.equal(0);
     });
 
     it('should console.error when required props are missing', function () {
       console.error = sinon.stub();
-      var elem = TestUtils.renderIntoDocument(<Profile />);
+      var elem = TestUtils.renderIntoDocument(<UserProfile />);
       expect(console.error.callCount).to.equal(4);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingUser` was not specified in `UserProfile`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `history` was not specified in `UserProfile`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `UserProfile`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `UserProfile`.')).to.equal(true);
     });
   });
 
   describe('getInitialState', function() {
     it('should return expected initial state', function() {
-      console.error = sinon.stub();
       var props = {
-        onSubmit: sinon.stub(),
-        trackMetric: sinon.stub(),
         user: {
           profile: {
             fullName: 'Gordon Dent'
           },
-          username: 'foobar'
+          username: 'foo@bar.com'
         }
       };
-      var elem = React.createElement(Profile, props);
+      var elem = React.createElement(UserProfile, props);
       var render = TestUtils.renderIntoDocument(elem);
       var state = render.getInitialState();
 
-      expect(state.formValues.username).to.equal('foobar');
+      expect(state.formValues.username).to.equal('foo@bar.com');
       expect(state.formValues.fullName).to.equal('Gordon Dent');
       expect(Object.keys(state.validationErrors).length).to.equal(0);
       expect(state.notification).to.equal(null);
@@ -67,13 +68,12 @@ describe('Profile', function () {
 
     it('should take a step back through history on clicking back button', function() {
       var props = {
-        onSubmit: sinon.stub(),
-        trackMetric: sinon.stub(),
         history: {
           goBack: sinon.stub()
-        }
+        },
+        trackMetric: sinon.stub()
       };
-      var elem = React.createElement(Profile, props);
+      var elem = React.createElement(UserProfile, props);
       var render = TestUtils.renderIntoDocument(elem);
       var backButton = TestUtils.findRenderedDOMComponentWithClass(render, 'js-back');
 

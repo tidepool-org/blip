@@ -57,7 +57,7 @@ describe('patientDataMap', () => {
 
 
   describe('clearPatientData', () => {
-    it('should set clear key in state', () => {
+    it('should state value to null for patientId key', () => {
       let initialStateForTest = {
         50 : [
           { value: 100 },

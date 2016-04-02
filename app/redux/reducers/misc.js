@@ -19,15 +19,49 @@ import update from 'react-addons-update';
 
 import initialState from './initialState';
 import * as types from '../constants/actionTypes';
+import actionWorkingMap from '../constants/actionWorkingMap';
 
 export const notification = (state = initialState.notification, action) => {
   switch (action.type) {
-    case types.SHOW_NOTIFICATION: 
-      return update(state, { $set: action.payload.notification });
-    case types.ACKNOWLEDGE_NOTIFICATION:
-      if (!action.payload.acknowledgedNotification) {
-        return update(state, { $set: null });
+    case types.FETCH_USER_FAILURE:
+    case types.FETCH_PENDING_SENT_INVITES_FAILURE:
+    case types.FETCH_PENDING_RECEIVED_INVITES_FAILURE:
+    case types.FETCH_PATIENTS_FAILURE:
+    case types.FETCH_PATIENT_FAILURE:
+    case types.FETCH_PATIENT_DATA_FAILURE:
+    case types.FETCH_MESSAGE_THREAD_FAILURE:
+    case types.LOGIN_FAILURE:
+    case types.LOGOUT_FAILURE:
+    case types.SIGNUP_FAILURE:
+    case types.CONFIRM_SIGNUP_FAILURE:
+    case types.CONFIRM_PASSWORD_RESET_FAILURE:
+    case types.ACCEPT_TERMS_FAILURE:
+    case types.RESEND_EMAIL_VERIFICATION_FAILURE:
+    case types.CREATE_PATIENT_FAILURE:
+    case types.REMOVE_PATIENT_FAILURE:
+    case types.REMOVE_MEMBER_FAILURE:
+    case types.REQUEST_PASSWORD_RESET_FAILURE:
+    case types.SEND_INVITE_FAILURE:
+    case types.CANCEL_SENT_INVITE_FAILURE:
+    case types.ACCEPT_RECEIVED_INVITE_FAILURE:
+    case types.REJECT_RECEIVED_INVITE_FAILURE:
+    case types.SET_MEMBER_PERMISSIONS_FAILURE:
+    case types.UPDATE_PATIENT_FAILURE:
+    case types.UPDATE_USER_FAILURE:
+      const err = _.get(action, 'error', null);
+      if (err) {
+        return {
+          key: actionWorkingMap(action.type),
+          isDismissible: true,
+          link: _.get(action, ['payload', 'link'], null),
+          status: _.get(err, 'status', null)
+        };
       }
+      else {
+        return null;
+      }
+    case types.ACKNOWLEDGE_NOTIFICATION:
+      return null;
     default:
       return state;
   }

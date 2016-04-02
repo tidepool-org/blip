@@ -108,7 +108,7 @@ api.user.signup = function(user, cb) {
      * for the following object signature and then if found, call the 
      * callback with an error based on the contents of the object
      *
-     * @todo : consider when refactoring platform client
+     * TODO: consider when refactoring platform client
      */
     if(account.code && account.code === 409) {
       return cb({

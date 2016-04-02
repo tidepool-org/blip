@@ -5,31 +5,32 @@
 
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
+
+import rewire from 'rewire';
+import rewireModule from '../../../utils/rewireModule';
+
 var expect = chai.expect;
 
-import Patient from '../../../../app/pages/patient/patient';
+var Patient = rewire('../../../../app/pages/patient/patient');
 import PatientTeam from '../../../../app/pages/patient/patientteam';
 
 describe('Patient', function () {
+  rewireModule(Patient, {
+    PatientInfo: React.createClass({
+      render: function() {
+        return (<div className='fake-patient-info-view'></div>);
+      }
+    })
+  });
+
   describe('render', function() {
-    it('should not console.error when trackMetric set', function() {
+    it('should render without problems when required props are present', function() {
       console.error = sinon.stub();
       var props = {
-        user: {},
-        shareOnly: false,
-        fetchingUser: false,
-        patient: {},
+        acknowledgeNotification: sinon.stub(),
+        fetchers: [],
         fetchingPatient: false,
-        onUpdatePatient: sinon.stub(),
-        pendingSentInvites: [],
-        onChangeMemberPermissions: sinon.stub(),
-        changingMemberPermissions: {},
-        onRemoveMember: sinon.stub(),
-        removingMember: {},
-        onInviteMember: sinon.stub(),
-        invitingMember: {},
-        onCancelInvite: sinon.stub(),
-        cancellingInvite: {},
+        fetchingUser: false,
         trackMetric: sinon.stub()
       };
       var patientElem = React.createElement(Patient, props);
@@ -44,46 +45,18 @@ describe('Patient', function () {
       var elem = TestUtils.renderIntoDocument(<Patient/>);
 
       expect(elem).to.be.ok;
-      expect(console.error.callCount).to.equal(16); //Account for PatientInfo errors on render too
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `user` was not specified in `Patient`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingUser` was not specified in `Patient`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `patient` was not specified in `Patient`.')).to.equal(true);
+      expect(console.error.callCount).to.equal(5);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `acknowledgeNotification` was not specified in `Patient`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchers` was not specified in `Patient`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingPatient` was not specified in `Patient`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onUpdatePatient` was not specified in `Patient`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `pendingSentInvites` was not specified in `Patient`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onChangeMemberPermissions` was not specified in `Patient`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `changingMemberPermissions` was not specified in `Patient`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onRemoveMember` was not specified in `Patient`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `removingMember` was not specified in `Patient`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onInviteMember` was not specified in `Patient`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `invitingMember` was not specified in `Patient`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onCancelInvite` was not specified in `Patient`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `cancellingInvite` was not specified in `Patient`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingUser` was not specified in `Patient`.')).to.equal(true);
       expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `Patient`.')).to.equal(true);
     });
   });
 
   describe('getInitialState', function() {
-    it('should return an object when showModalOverlay is false', function() {
-      console.error = sinon.stub();
-      var props = {
-        user: {},
-        shareOnly: false,
-        fetchingUser: false,
-        patient: {},
-        fetchingPatient: false,
-        onUpdatePatient: sinon.stub(),
-        pendingSentInvites: [],
-        onChangeMemberPermissions: sinon.stub(),
-        changingMemberPermissions: {},
-        onRemoveMember: sinon.stub(),
-        removingMember: {},
-        onInviteMember: sinon.stub(),
-        invitingMember: {},
-        onCancelInvite: sinon.stub(),
-        cancellingInvite: {},
-        trackMetric: sinon.stub()
-      };
+    it('should return an object', function() {
+      var props = {};
       var patientElem = React.createElement(Patient, props);
       var elem = TestUtils.renderIntoDocument(patientElem);
       var initialState = elem.getInitialState();
@@ -91,35 +64,30 @@ describe('Patient', function () {
       expect(Object.keys(initialState).length).to.equal(2);
       expect(initialState.showModalOverlay).to.equal(false);
       expect(initialState.dialog).to.equal('');
-      expect(console.error.callCount).to.equal(0);
     });
   });
 
   describe('renderPatientTeam', function() {
     it('should not render when user and patient ids are different', function() {
-      console.error = sinon.stub();
       var props = {
-        user: {
-          userid: 'foo'
-        },
-        patient: {
-          userid: 'bar',
-          team: []
-        },
-        shareOnly: true,
-        fetchingUser: false,
+        acknowledgeNotification: sinon.stub(),
+        cancellingInvite: false,
+        changingMemberPermissions: false,
+        fetchers: [],
         fetchingPatient: false,
-        onUpdatePatient: sinon.stub(),
-        pendingSentInvites: [],
-        onChangeMemberPermissions: sinon.stub(),
-        changingMemberPermissions: {},
-        onRemoveMember: sinon.stub(),
-        removingMember: {},
-        onInviteMember: sinon.stub(),
-        invitingMember: {},
+        fetchingUser: false,
+        invitingMemberInfo: {inProgress: false, notification: null},
         onCancelInvite: sinon.stub(),
-        cancellingInvite: {},
-        trackMetric: sinon.stub()
+        onChangeMemberPermissions: sinon.stub(),
+        onInviteMember: sinon.stub(),
+        onRemoveMember: sinon.stub(),
+        onUpdatePatient: sinon.stub(),
+        patient: {userid: 'bar', team: []},
+        pendingSentInvites: [],
+        removingMember: false,
+        shareOnly: true,
+        trackMetric: sinon.stub(),
+        user: {userid: 'foo'}
       };
       var patientElem = React.createElement(Patient, props);
       var elem = TestUtils.renderIntoDocument(patientElem);
@@ -128,33 +96,28 @@ describe('Patient', function () {
       };
 
       expect(getShareSection).to.throw(Error);
-      expect(console.error.callCount).to.equal(0);
     });
 
     it('should not render when shareOnly is false', function() {
-      console.error = sinon.stub();
       var props = {
-        user: {
-          userid: 'foo'
-        },
-        patient: {
-          userid: 'foo',
-          team: []
-        },
-        shareOnly: false,
-        fetchingUser: false,
+        acknowledgeNotification: sinon.stub(),
+        cancellingInvite: false,
+        changingMemberPermissions: false,
+        fetchers: [],
         fetchingPatient: false,
-        onUpdatePatient: sinon.stub(),
-        pendingSentInvites: [],
-        onChangeMemberPermissions: sinon.stub(),
-        changingMemberPermissions: {},
-        onRemoveMember: sinon.stub(),
-        removingMember: {},
-        onInviteMember: sinon.stub(),
-        invitingMember: {},
+        fetchingUser: false,
+        invitingMemberInfo: {inProgress: false, notification: null},
         onCancelInvite: sinon.stub(),
-        cancellingInvite: {},
-        trackMetric: sinon.stub()
+        onChangeMemberPermissions: sinon.stub(),
+        onInviteMember: sinon.stub(),
+        onRemoveMember: sinon.stub(),
+        onUpdatePatient: sinon.stub(),
+        patient: {userid: 'foo', team: []},
+        pendingSentInvites: [],
+        removingMember: false,
+        shareOnly: false,
+        trackMetric: sinon.stub(),
+        user: {userid: 'foo'}
       };
       var patientElem = React.createElement(Patient, props);
       var elem = TestUtils.renderIntoDocument(patientElem);
@@ -163,70 +126,60 @@ describe('Patient', function () {
       };
 
       expect(getShareSection).to.throw(Error);
-      expect(console.error.callCount).to.equal(0);
     });
 
     it('should render when shareOnly is true', function() {
-      console.error = sinon.stub();
       var props = {
-        user: {
-          userid: 'foo'
-        },
-        patient: {
-          userid: 'foo',
-          team: []
-        },
-        shareOnly: true,
-        fetchingUser: false,
+        acknowledgeNotification: sinon.stub(),
+        cancellingInvite: false,
+        changingMemberPermissions: false,
+        fetchers: [],
         fetchingPatient: false,
-        onUpdatePatient: sinon.stub(),
-        pendingSentInvites: [],
-        onChangeMemberPermissions: sinon.stub(),
-        changingMemberPermissions: {},
-        onRemoveMember: sinon.stub(),
-        removingMember: {},
-        onInviteMember: sinon.stub(),
-        invitingMember: {},
+        fetchingUser: false,
+        invitingMemberInfo: {inProgress: false, notification: null},
         onCancelInvite: sinon.stub(),
-        cancellingInvite: {},
-        trackMetric: sinon.stub()
+        onChangeMemberPermissions: sinon.stub(),
+        onInviteMember: sinon.stub(),
+        onRemoveMember: sinon.stub(),
+        onUpdatePatient: sinon.stub(),
+        patient: {userid: 'foo', team: []},
+        pendingSentInvites: [],
+        removingMember: false,
+        shareOnly: true,
+        trackMetric: sinon.stub(),
+        user: {userid: 'foo'}
       };
       var patientElem = React.createElement(Patient, props);
       var elem = TestUtils.renderIntoDocument(patientElem);
       var share = TestUtils.findRenderedDOMComponentWithClass(elem, 'PatientPage-teamSection');
 
       expect(share).to.be.ok;
-      expect(console.error.callCount).to.equal(0);
     });
 
     it('should transfer all props to patient-team', function() {
-      console.error = sinon.stub();
       var props = {
-        patient: {
-          userid: 'foo',
-          team: ['coffee', 'mug']
-        },
-        pendingSentInvites: [
-          { key: 'foo' },
-          { key: 'bar' },
-          { key: 'baz' }
-        ],
-        shareOnly: true,
-        user: {
-          userid: 'foo'
-        },
-        fetchingUser: false,
+        acknowledgeNotification: sinon.stub(),
+        cancellingInvite: false,
+        changingMemberPermissions: false,
+        fetchers: [],
         fetchingPatient: false,
-        onUpdatePatient: sinon.stub(),
-        onChangeMemberPermissions: sinon.stub(),
-        changingMemberPermissions: {},
-        onRemoveMember: sinon.stub(),
-        removingMember: {},
-        onInviteMember: sinon.stub(),
-        invitingMember: {},
+        fetchingUser: false,
+        invitingMemberInfo: {inProgress: false, notification: null},
         onCancelInvite: sinon.stub(),
-        cancellingInvite: {},
-        trackMetric: sinon.stub()
+        onChangeMemberPermissions: sinon.stub(),
+        onInviteMember: sinon.stub(),
+        onRemoveMember: sinon.stub(),
+        onUpdatePatient: sinon.stub(),
+        patient: {userid: 'foo', team: ['coffee', 'mug']},
+        pendingSentInvites: [
+          {key: 'foo'},
+          {key: 'bar'},
+          {key: 'baz'}
+        ],
+        removingMember: false,
+        shareOnly: true,
+        trackMetric: sinon.stub(),
+        user: {userid: 'foo'}
       };
       var patientElem = React.createElement(Patient, props);
       var elem = TestUtils.renderIntoDocument(patientElem);
@@ -241,7 +194,6 @@ describe('Patient', function () {
       expect(team.props.pendingSentInvites.length).to.equal(3);
       expect(team.props.user.userid).to.equal('foo');
       expect(team.props.trackMetric).to.be.ok;
-      expect(console.error.callCount).to.equal(0);
     });
   });
 });

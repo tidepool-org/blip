@@ -18,6 +18,7 @@
 import _ from 'lodash';
 
 import * as ActionTypes from '../constants/actionTypes';
+import * as UserMessages from '../constants/usrMessages';
 
 export function showWelcomeMessage() {
   return {
@@ -28,15 +29,6 @@ export function showWelcomeMessage() {
 export function hideWelcomeMessage() {
   return {
     type: ActionTypes.HIDE_WELCOME_MESSAGE
-  };
-}
-
-export function showNotification(notification) {
-  return {
-    type: ActionTypes.SHOW_NOTIFICATION,
-    payload: {
-      notification: notification
-    }
   };
 }
 
@@ -105,16 +97,6 @@ export function logoutRequest() {
 export function logoutSuccess() {
   return {
     type: ActionTypes.LOGOUT_SUCCESS,
-  };
-} 
-
-export function logoutFailure(error, apiError) {
-  return {
-    type: ActionTypes.LOGOUT_FAILURE,
-    error: error,
-    meta: {
-      apiError: apiError || null
-    }
   };
 }
 
@@ -195,7 +177,13 @@ export function resendEmailVerificationRequest() {
 
 export function resendEmailVerificationSuccess() {
   return {
-    type: ActionTypes.RESEND_EMAIL_VERIFICATION_SUCCESS
+    type: ActionTypes.RESEND_EMAIL_VERIFICATION_SUCCESS,
+    payload: {
+      notification: {
+        type: 'alert',
+        message: UserMessages.EMAIL_SENT
+      }
+    }
   };
 }
 
@@ -532,16 +520,6 @@ export function logErrorSuccess() {
   };
 }
 
-export function logErrorFailure(error, apiError) {
-  return {
-    type: ActionTypes.LOG_ERROR_FAILURE,
-    error: error,
-    meta: {
-      apiError: apiError || null
-    }
-  };
-}
-
 /**
  * Synchronous Action Handlers for Fetching
  */
@@ -564,31 +542,6 @@ export function fetchUserSuccess(user) {
 export function fetchUserFailure(error, apiError) {
   return {
     type: ActionTypes.FETCH_USER_FAILURE,
-    error: error,
-    meta: {
-      apiError: apiError || null
-    }
-  };
-}
-
-export function fetchPendingReceivedInvitesRequest() {
-  return {
-    type: ActionTypes.FETCH_PENDING_RECEIVED_INVITES_REQUEST
-  };
-}
-
-export function fetchPendingReceivedInvitesSuccess(pendingReceivedInvites) {
-  return {
-    type: ActionTypes.FETCH_PENDING_RECEIVED_INVITES_SUCCESS,
-    payload: {
-      pendingReceivedInvites: pendingReceivedInvites
-    }
-  };
-}
-
-export function fetchPendingReceivedInvitesFailure(error, apiError) {
-  return {
-    type: ActionTypes.FETCH_PENDING_RECEIVED_INVITES_FAILURE,
     error: error,
     meta: {
       apiError: apiError || null
@@ -621,24 +574,24 @@ export function fetchPendingSentInvitesFailure(error, apiError) {
   };
 }
 
-export function fetchPatientsRequest() {
+export function fetchPendingReceivedInvitesRequest() {
   return {
-    type: ActionTypes.FETCH_PATIENTS_REQUEST
+    type: ActionTypes.FETCH_PENDING_RECEIVED_INVITES_REQUEST
   };
 }
 
-export function fetchPatientsSuccess(patients) {
+export function fetchPendingReceivedInvitesSuccess(pendingReceivedInvites) {
   return {
-    type: ActionTypes.FETCH_PATIENTS_SUCCESS,
+    type: ActionTypes.FETCH_PENDING_RECEIVED_INVITES_SUCCESS,
     payload: {
-      patients: patients
+      pendingReceivedInvites: pendingReceivedInvites
     }
   };
 }
 
-export function fetchPatientsFailure(error, apiError) {
+export function fetchPendingReceivedInvitesFailure(error, apiError) {
   return {
-    type: ActionTypes.FETCH_PATIENTS_FAILURE,
+    type: ActionTypes.FETCH_PENDING_RECEIVED_INVITES_FAILURE,
     error: error,
     meta: {
       apiError: apiError || null
@@ -661,9 +614,35 @@ export function fetchPatientSuccess(patient) {
   };
 }
 
-export function fetchPatientFailure(error, apiError) {
+export function fetchPatientFailure(error, apiError, link) {
   return {
     type: ActionTypes.FETCH_PATIENT_FAILURE,
+    error: error,
+    payload: { link },
+    meta: {
+      apiError: apiError || null
+    }
+  };
+}
+
+export function fetchPatientsRequest() {
+  return {
+    type: ActionTypes.FETCH_PATIENTS_REQUEST
+  };
+}
+
+export function fetchPatientsSuccess(patients) {
+  return {
+    type: ActionTypes.FETCH_PATIENTS_SUCCESS,
+    payload: {
+      patients: patients
+    }
+  };
+}
+
+export function fetchPatientsFailure(error, apiError) {
+  return {
+    type: ActionTypes.FETCH_PATIENTS_FAILURE,
     error: error,
     meta: {
       apiError: apiError || null

@@ -43,7 +43,7 @@ describe('App',  () => {
 
   describe('isPatientVisibleInNavbar', () => {
     it('should return true when page is /patients/454/data', () => {
-      var context = _.assign({}, childContext, {location: { pathname: '/patients/25' }});
+      var context = _.assign({}, childContext, {location: '/patients/25'});
       var elem = TestUtils.renderIntoDocument(<App {...context} />);
       expect(elem).to.be.ok;
       expect(elem.isPatientVisibleInNavbar()).to.be.true;
@@ -75,25 +75,23 @@ describe('App',  () => {
   });
 
   describe('render', () => {
-    it('should render without problems',  () => {
-      console.error = sinon.stub();
+    it('should render without problems', () => {
       console.error = sinon.stub();
       
       var elem = TestUtils.renderIntoDocument(<App {...childContext} />);
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);
-      expect(console.error.callCount).to.equal(0);
       var app = TestUtils.findRenderedDOMComponentWithClass(elem, 'app');
       expect(app).to.be.ok;
     });
 
-    it('should render footer',  () => {
+    it('should render footer', () => {
       var elem = TestUtils.renderIntoDocument(<App {...childContext} />);
       var footer = TestUtils.findRenderedDOMComponentWithClass(elem, 'footer');
       expect(footer).to.be.ok;
     });
 
-    it('should not render a version element when version not set in config',  () => {
+    it('should not render a version element when version not set in config', () => {
       var props = _.clone(childContext);
       props.route.config = { VERSION : null };
       var elem = TestUtils.renderIntoDocument(<App {...props} />);
@@ -101,11 +99,10 @@ describe('App',  () => {
       expect(versionElems.length).to.equal(0);
     });
 
-    it('should render version when version present in config',  () => {
+    it('should render version when version present in config', () => {
       var props = _.clone(childContext);
       props.route.config = { VERSION : 1.4 };
       var elem = TestUtils.renderIntoDocument(<App {...props} />);
-      var elem = TestUtils.renderIntoDocument(<App {...childContext} />);
       var versionElems = TestUtils.scryRenderedDOMComponentsWithClass(elem, 'Navbar-version');
       expect(versionElems.length).to.equal(1);
     });

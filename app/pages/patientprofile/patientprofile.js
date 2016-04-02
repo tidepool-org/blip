@@ -6,7 +6,7 @@ import * as actions from '../../redux/actions';
 
 import _ from 'lodash';
 
-import Patient from './patient';
+import Patient from '../patient/';
 
 /**
  * Expose "Smart" Component that is connect-ed to Redux
@@ -17,7 +17,7 @@ let getFetchers = (dispatchProps, ownProps, api) => {
   ];
 };
 
-let mapStateToProps = state => {
+export function mapStateToProps(state) {
   let user = null;
   let patient = null;
 
@@ -41,35 +41,21 @@ let mapStateToProps = state => {
     user: user,
     fetchingUser: state.blip.working.fetchingUser.inProgress,
     patient: patient,
-    fetchingPatient: state.blip.working.fetchingPatient.inProgress,
-    pendingSentInvites: state.blip.pendingSentInvites,
-    changingMemberPermissions: state.blip.working.settingMemberPermissions,
-    removingMember: state.blip.working.removingMember,
-    invitingMember: state.blip.working.sendingInvite,
-    cancellingInvite: state.blip.working.cancellingSentInvite
+    fetchingPatient: state.blip.working.fetchingPatient.inProgress
   };
-};
+}
 
 let mapDispatchToProps = dispatch => bindActionCreators({
   fetchPatient: actions.async.fetchPatient,
-  updatePatient: actions.async.updatePatient,
-  changeMemberPermissions: actions.async.setMemberPermissions,
-  removeMember: actions.async.removeMember,
-  inviteMember: actions.async.sendInvite,
-  cancelInvite: actions.async.cancelSentInvite
+  updatePatient: actions.async.updatePatient
 }, dispatch);
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.routes[0].api;
-  return Object.assign({}, ownProps, stateProps, dispatchProps, {
+  return Object.assign({}, stateProps, {
     fetchers: getFetchers(dispatchProps, ownProps, api),
     onUpdatePatient: dispatchProps.updatePatient.bind(null, api),
-    onChangeMemberPermissions: dispatchProps.changeMemberPermissions.bind(null, api),
-    onRemoveMember: dispatchProps.removeMember.bind(null, api),
-    onInviteMember: dispatchProps.inviteMember.bind(null, api),
-    onCancelInvite: dispatchProps.cancelInvite.bind(null, api),
-    trackMetric: ownProps.routes[0].trackMetric,
-    shareOnly: false
+    trackMetric: ownProps.routes[0].trackMetric
   });
 };
 

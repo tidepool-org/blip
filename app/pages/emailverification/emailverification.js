@@ -29,12 +29,16 @@ import utils from '../../core/utils';
 
 export var EmailVerification = React.createClass({
   propTypes: {
-    resent: React.PropTypes.bool,
-    sent: React.PropTypes.bool,
+    acknowledgeNotification: React.PropTypes.func.isRequired,
+    notification: React.PropTypes.object,
     onSubmitResend: React.PropTypes.func.isRequired,
+    resent: React.PropTypes.bool.isRequired,
+    sent: React.PropTypes.bool.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
-    working: React.PropTypes.bool.isRequired,
-    notification: React.PropTypes.object
+    working: React.PropTypes.bool.isRequired
+  },
+  componentWillUnmount: function() {
+    this.props.acknowledgeNotification('resendingEmailVerification');
   },
   formInputs: function() {
     return [
@@ -42,26 +46,16 @@ export var EmailVerification = React.createClass({
     ];
   },
   getInitialState: function() {
-    var state =  {
+    return {
       formValues: {},
-      validationErrors: {},
-      notification: null
+      validationErrors: {}
     };
-
-    if (this.props.resent) {
-      state.notification = {
-        type: 'alert',
-        message: 'We just sent you an email.'
-      };
-    }
-
-    return state;
   },
   render: function() {
     var content;
     var loginPage;
 
-    if (this.props.sent || this.props.resent) {
+    if (this.props.sent) {
       loginPage = 'signup';
       content = (
         <div className="EmailVerification-intro">
@@ -116,7 +110,7 @@ export var EmailVerification = React.createClass({
         submitButtonText={submitButtonText}
         submitDisabled={this.props.working}
         onSubmit={this.handleSubmit}
-        notification={this.state.notification || this.props.notification}/>
+        notification={this.props.notification}/>
     );
   },
   handleSubmit: function(formValues) {
@@ -138,8 +132,7 @@ export var EmailVerification = React.createClass({
     this.props.acknowledgeNotification('resendingEmailVerification');
     this.setState({
       formValues: formValues,
-      validationErrors: {},
-      notification: null
+      validationErrors: {}
     });
   },
   validateFormValues: function(formValues) {
@@ -185,7 +178,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.routes[0].api;
-  return Object.assign({}, stateProps, dispatchProps, {
+  return Object.assign({}, stateProps, _.omit(dispatchProps, 'submitResend'), {
     onSubmitResend: dispatchProps.submitResend.bind(null, api),
     trackMetric: ownProps.routes[0].trackMetric
   });

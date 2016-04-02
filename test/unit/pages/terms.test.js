@@ -13,27 +13,12 @@ import { Terms } from '../../../app/pages/terms';
 describe('Terms', () => {
 
   describe('render', () => {
-    it('should console.error when trackMetric not set', () => {
-      console.error = sinon.stub();
-      var elem = TestUtils.renderIntoDocument(<Terms/>);
-
-      expect(elem).to.be.ok;
-      expect(console.error.callCount).to.equal(4);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `Terms`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `Terms`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `termsAccepted` was not specified in `Terms`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `authenticated` was not specified in `Terms`.')).to.equal(true);
-    });
-
-    it('should not console.error when trackMetric set', () => {
+    it('should not console.error when required props are set', () => {
       console.error = sinon.stub();
       var props = {
-        trackMetric: sinon.stub(),
+        authenticated: false,
         onSubmit: sinon.stub(),
-        ages: Terms.defaultProps.ages,
-        messages: Terms.defaultProps.messages,
-        termsAccepted: 'wow',
-        authenticated: false
+        trackMetric: sinon.stub()
       };
       var termsElem = React.createElement(Terms, props);
       var elem = TestUtils.renderIntoDocument(termsElem);
@@ -41,18 +26,23 @@ describe('Terms', () => {
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);
     });
+    it('should console.error when required props are not set', () => {
+      console.error = sinon.stub();
+      var elem = TestUtils.renderIntoDocument(<Terms/>);
 
+      expect(elem).to.be.ok;
+      expect(console.error.callCount).to.equal(3);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `authenticated` was not specified in `Terms`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmit` was not specified in `Terms`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `Terms`.')).to.equal(true);
+    });
   });
 
   describe('by default', function(){
-
     var elem;
 
     beforeEach(() => {
-      var props = {
-        trackMetric: () => {},
-        onSubmit: () => {}
-      };
+      var props = {};
       var termsElem = React.createElement(Terms, props);
       elem = TestUtils.renderIntoDocument(termsElem);
     });
@@ -100,17 +90,14 @@ describe('Terms', () => {
       expect(termsElems.length).to.equal(0);
     });
   });
-  describe('age confirmation', () => {
 
+  describe('age confirmation', () => {
     var termsElem;
 
     beforeEach(() => {
       var props = {
-        trackMetric: () => {},
-        onSubmit: () => {},
         authenticated: true,
-        termsAccepted: '',
-        fetchingUser: false
+        trackMetric: sinon.stub()
       };
       termsElem = React.createElement(Terms, props);
       termsElem = TestUtils.renderIntoDocument(termsElem);
@@ -123,8 +110,8 @@ describe('Terms', () => {
       TestUtils.Simulate.click(ageBtn);
       expect(termsElem.state.ageConfirmed).to.equal(true);
     });
-    it('shows iframes once button pressed ', () => {
 
+    it('shows iframes once button pressed ', () => {
       var ageBtn = TestUtils.findRenderedDOMComponentWithTag(termsElem, 'button');
       TestUtils.Simulate.click(ageBtn);
 
@@ -137,15 +124,15 @@ describe('Terms', () => {
       it('shows TOU and PP', () => {
         var overEighteen = TestUtils.scryRenderedDOMComponentsWithTag(termsElem,'input')[0];
         expect(overEighteen.props.value).to.equal(termsElem.props.ages.OF_AGE.value);
-        //continue
+        // continue
         var ageBtn = TestUtils.findRenderedDOMComponentWithTag(termsElem, 'button');
         TestUtils.Simulate.click(ageBtn);
 
-        //Check state
+        // check state
         expect(termsElem.state.ageConfirmed).to.equal(true);
         expect(termsElem.state.ageSelected).to.equal(termsElem.props.ages.OF_AGE.value);
 
-        //iframes shown with TOU and PP
+        // iframes shown with TOU and PP
         var iframes = TestUtils.scryRenderedDOMComponentsWithClass(termsElem, 'terms-iframe');
         expect(iframes).not.to.equal(null);
         expect(iframes.length).to.equal(2);
@@ -158,17 +145,17 @@ describe('Terms', () => {
         expect(termsElem.state.agreed).to.equal(false);
       });
     });
+
     describe('flow for between 13 and 17 years old', () => {
       it('shows TOU and PP and asks for parental consent also', () => {
-
-        //Select between 13 and 17
+        // select between 13 and 17
         var thirteenToSeventeenOpt = TestUtils.scryRenderedDOMComponentsWithTag(termsElem,'input')[1];
         TestUtils.Simulate.change(thirteenToSeventeenOpt);
-        //Select Continue
+        // select Continue
         var ageBtn = TestUtils.findRenderedDOMComponentWithTag(termsElem, 'button');
         TestUtils.Simulate.click(ageBtn);
 
-        //Check state
+        // check state
         expect(termsElem.state.ageConfirmed).to.equal(true);
         expect(termsElem.state.ageSelected).to.equal(termsElem.props.ages.WITH_CONSENT.value);
         expect(termsElem.state.agreed).to.equal(false);
@@ -187,20 +174,21 @@ describe('Terms', () => {
         expect(termsElem.state.agreed).to.equal(true);
         expect(termsElem.state.agreedOnBehalf).to.equal(true);
 
-        //now we should be able to click the button
+        // now we should be able to click the button
         var buttons = TestUtils.scryRenderedDOMComponentsWithTag(termsElem, 'button');
         expect(buttons[1].props.children).to.equal('Continue');
         expect(buttons[1].props.disabled).to.equal(false);
         expect(buttons[0].props.children).to.equal('Back');
       });
+
       it('will not allow TOU and PP confirmation if both checkboxes are not selected', () => {
-        //Select between 13 and 17
+        // select between 13 and 17
         var thirteenToSeventeenOpt = TestUtils.scryRenderedDOMComponentsWithTag(termsElem,'input')[1];
         TestUtils.Simulate.change(thirteenToSeventeenOpt);
-        //Select Continue
+        // select Continue
         var ageBtn = TestUtils.findRenderedDOMComponentWithTag(termsElem, 'button');
         TestUtils.Simulate.click(ageBtn);
-        //age confirmation is now true
+        // age confirmation is now true
         expect(termsElem.state.ageConfirmed).to.equal(true);
         expect(termsElem.state.ageSelected).to.equal(termsElem.props.ages.WITH_CONSENT.value);
         expect(termsElem.state.agreed).to.equal(false);
@@ -212,31 +200,31 @@ describe('Terms', () => {
 
         var agreed = checkboxes[0];
         var agreedOnBehalf = checkboxes[1];
-        //only check one
+        // only check one
         TestUtils.Simulate.change(agreedOnBehalf);
 
         expect(termsElem.state.agreed).to.equal(false);
         expect(termsElem.state.agreedOnBehalf).to.equal(true);
 
-        //now we should NOT be able to click the button
+        // now we should NOT be able to click the button
         var buttons = TestUtils.scryRenderedDOMComponentsWithTag(termsElem, 'button');
         expect(buttons[1].props.children).to.equal('Continue');
         expect(buttons[1].props.disabled).to.equal(true);
         expect(buttons[0].props.children).to.equal('Back');
 
-        //now switch to test the other way also
+        // now switch to test the other way also
         TestUtils.Simulate.change(agreedOnBehalf);
         TestUtils.Simulate.change(agreed);
         expect(termsElem.state.agreed).to.equal(true);
         expect(termsElem.state.agreedOnBehalf).to.equal(false);
 
-        //now we should STILL NOT be able to click the button
+        // now we should STILL NOT be able to click the button
         expect(buttons[1].props.children).to.equal('Continue');
         expect(buttons[1].props.disabled).to.equal(true);
         expect(buttons[0].props.children).to.equal('Back');
-
       });
     });
+
     describe('flow for under 12 login flow', () => {
       it('display sorry message', () => {
         // I am 12 years old or younger.
@@ -245,22 +233,22 @@ describe('Terms', () => {
         TestUtils.Simulate.change(underTwelveOpt);
         expect(underTwelveOpt.props.value).to.equal(termsElem.props.ages.NOT_OF_AGE.value);
 
-        //Continue
+        // select Continue
         var ageBtn = TestUtils.findRenderedDOMComponentWithTag(termsElem, 'button');
         TestUtils.Simulate.click(ageBtn);
 
-        //State check
+        // state check
         expect(termsElem.state.ageConfirmed).to.equal(true);
         expect(termsElem.state.ageSelected).to.equal(termsElem.props.ages.NOT_OF_AGE.value);
         expect(termsElem.state.agreed).to.equal(false);
 
-        //No TOU and PP shown
+        // no TOU and PP shown
         var iframes = TestUtils.scryRenderedDOMComponentsWithClass(termsElem, 'terms-iframe');
         expect(iframes).to.be.empty;
-        //Sorry Message shown
+        // sorry message shown
         var sorryMsg = TestUtils.findRenderedDOMComponentWithClass(termsElem, 'terms-sorry-message');
         expect(sorryMsg).not.to.equal(null);
-        //still not accepted
+        // still not accepted
         expect(termsElem.state.agreed).to.equal(false);
       });
     });
