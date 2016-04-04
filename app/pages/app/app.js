@@ -269,6 +269,16 @@ export function mapStateToProps(state) {
 
     if (state.blip.currentPatientInViewId) {
       patient = state.blip.allUsersMap[state.blip.currentPatientInViewId];
+      if (state.blip.targetUserId && state.blip.currentPatientInViewId === state.blip.targetUserId) {
+        const permsOfTargetOnTarget = _.get(
+          state.blip.permissionsOfMembersInTargetCareTeam,
+          state.blip.currentPatientInViewId,
+          null
+        );
+        if (permsOfTargetOnTarget) {
+          patient.permissions = permsOfTargetOnTarget;
+        }
+      }
     }
   }
 

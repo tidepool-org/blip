@@ -86,6 +86,24 @@ describe('targetUserId', () => {
     });
   });
 
+  describe('createPatientSuccess', () => {
+    it('should set state to newly created patient', () => {
+      let initialStateForTest = null;
+      const userid = 'a1b2c3';
+      const patient = {
+        profile: {fullName: 'Jane Doe', patient: {birthday: '1980-01-01', diagnosisDate: '1999-12-31'}},
+        team: [],
+        userid
+      };
+
+      let action = actions.sync.createPatientSuccess(userid, patient);
+
+      let state = reducer(initialStateForTest, action);
+
+      expect(state).to.equal(userid);
+    });
+  });
+
   describe('logoutRequest', () => {
     it('should set state to null', () => {
       let name = 'Jamie Foxx';

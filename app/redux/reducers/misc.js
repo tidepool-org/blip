@@ -123,7 +123,7 @@ export const allUsersMap = (state = initialState.allUsersMap, action) => {
   switch(action.type) {
     case types.FETCH_USER_SUCCESS:
     case types.LOGIN_SUCCESS:
-      return update(state, { [action.payload.user.userid]: { $set: _.omit(action.payload.user, ['team']) } });
+      return update(state, { [action.payload.user.userid]: { $set: _.omit(action.payload.user, ['permissions', 'team']) } });
     case types.FETCH_PATIENT_SUCCESS: 
       let intermediate;
 
@@ -185,15 +185,20 @@ export const currentPatientInViewId = (state = initialState.currentPatientInView
 
 export const targetUserId = (state = initialState.targetUserId, action) => {
   switch(action.type) {
+    case types.CREATE_PATIENT_SUCCESS:
+      const userId = _.get(action.payload, ['patient', 'userid'], null);
+      if (userId) {
+        return userId;
+      }
     case types.FETCH_USER_SUCCESS:
     case types.LOGIN_SUCCESS:
       if (_.get(action.payload.user, ['profile', 'patient'])) {
-        return update(state, { $set: action.payload.user.userid });
+        return _.get(action.payload, ['user', 'userid']);
       } else {
-        return update(state, { $set: null });
+        return null;
       }
     case types.LOGOUT_REQUEST:
-      return update(state, { $set: null });
+      return null;
     default:
       return state;
   }
@@ -268,12 +273,19 @@ export const permissionsOfMembersInTargetCareTeam = (state = initialState.permis
   let permissions = {};
   switch(action.type) {
     case types.FETCH_PATIENT_SUCCESS:
-      if (action.payload.patient.team) {
-        action.payload.patient.team.forEach((t) => permissions[t.userid] = t.permissions);
-        return update(state, { $set: permissions });
+      let newState = state;
+      const team = _.get(action.payload, ['patient', 'team']);
+      if (!_.isEmpty(team)) {
+        team.forEach((t) => permissions[t.userid] = t.permissions);
+        newState = update(newState, { $set: permissions });
       }
-        
-      return state;
+      const perms = _.get(action.payload, ['patient', 'permissions']);
+      if (!_.isEmpty(perms)) {
+        newState = update(newState, {
+          [action.payload.patient.userid]: { $set: perms }
+        });
+      }
+      return newState;
     case types.REMOVE_MEMBER_SUCCESS:
       Object.keys(state).forEach((p) => {
         let id = parseInt(p, 10);
