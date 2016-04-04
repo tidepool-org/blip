@@ -300,6 +300,8 @@ export function mapStateToProps(state) {
         case 401:
           if (state.blip.isLoggedIn) {
             displayMessage = ErrorMessages.ERR_AUTHORIZATION;
+          } else {
+            displayMessage = null;
           }
           break;
         case 500:
@@ -310,13 +312,17 @@ export function mapStateToProps(state) {
           break;
       }
     }
-    displayNotification = _.assign(
-      _.omit(state.blip.notification, 'key'),
-      {
-        type: _.get(notificationFromWorking, 'type'),
-        body: { message: displayMessage, utc: utcTime }
-      }
-    );
+    if (displayMessage) {
+      displayNotification = _.assign(
+        _.omit(state.blip.notification, 'key'),
+        {
+          type: _.get(notificationFromWorking, 'type'),
+          body: { message: displayMessage, utc: utcTime }
+        }
+      );
+    } else {
+      displayNotification = null;
+    }
   }
 
   return {
