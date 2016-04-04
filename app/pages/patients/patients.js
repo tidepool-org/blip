@@ -355,6 +355,10 @@ export function mapStateToProps(state) {
 
     if (state.blip.targetUserId) {
       patientMap[state.blip.targetUserId] = state.blip.allUsersMap[state.blip.targetUserId];
+      // to pass through the permissions of the logged-in user on the target (usually self)
+      if (state.blip.permissionsOfMembersInTargetCareTeam[state.blip.targetUserId]) {
+        patientMap[state.blip.targetUserId].permissions = state.blip.permissionsOfMembersInTargetCareTeam[state.blip.targetUserId];
+      }
     }
 
     if (state.blip.memberInOtherCareTeams) {

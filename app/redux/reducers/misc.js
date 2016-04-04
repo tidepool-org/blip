@@ -270,31 +270,39 @@ export const memberInOtherCareTeams = (state = initialState.memberInOtherCareTea
 };
 
 export const permissionsOfMembersInTargetCareTeam = (state = initialState.permissionsOfMembersInTargetCareTeam, action) => {
-  let permissions = {};
   switch(action.type) {
-    case types.FETCH_PATIENT_SUCCESS:
-      let newState = state;
+    case types.CREATE_PATIENT_SUCCESS: {
+      const userId = _.get(action.payload, 'userId');
+      if (userId) {
+        return update(state, {
+          [userId]: { $set: {root: {}}}
+        });
+      } else {
+        return state;
+      }
+    }
+    case types.FETCH_PATIENT_SUCCESS: {
       const team = _.get(action.payload, ['patient', 'team']);
       if (!_.isEmpty(team)) {
+        let permissions = {};
         team.forEach((t) => permissions[t.userid] = t.permissions);
-        newState = update(newState, { $set: permissions });
+        return update(state, { $merge: permissions });
       }
-      const perms = _.get(action.payload, ['patient', 'permissions']);
-      if (!_.isEmpty(perms)) {
-        newState = update(newState, {
-          [action.payload.patient.userid]: { $set: perms }
+    }
+    case types.FETCH_USER_SUCCESS:
+    case types.LOGIN_SUCCESS: {
+      const userId = _.get(action.payload, ['user', 'userid']);
+      const perms = _.get(action.payload, ['user', 'permissions']);
+      if (userId && !_.isEmpty(perms)) {
+        return update(state, {
+          [userId]: { $set: perms }
         });
+      } else {
+        return state;
       }
-      return newState;
+    }
     case types.REMOVE_MEMBER_SUCCESS:
-      Object.keys(state).forEach((p) => {
-        let id = parseInt(p, 10);
-        if (id !== action.payload.removedMemberId) {
-          permissions[p] = p.permissions
-        }
-      });
-
-      return update(state, { $set: permissions });
+      return _.omit(state, _.get(action.payload, 'removedMemberId', null));
     case types.LOGOUT_REQUEST:
       return update(state, { $set: {} });
     default:

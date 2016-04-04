@@ -223,6 +223,9 @@ describe('Patients', () => {
           'x1y2z3': { view: {}, upload: {} }
         },
         pendingReceivedInvites: ['g4h5i6'],
+        permissionsOfMembersInTargetCareTeam: {
+          a1b2c3: {root: {}}
+        },
         showingWelcomeMessage: true,
         targetUserId: 'a1b2c3',
         working: {
