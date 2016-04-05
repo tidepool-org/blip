@@ -18,7 +18,6 @@
 import _ from 'lodash';
 
 export default (api) => {
-  console.log(api);
   return ({ getState }) => (next) => (action) => {
     const err = _.get(action, 'error', {});
     if (!_.isEmpty(err)) {
