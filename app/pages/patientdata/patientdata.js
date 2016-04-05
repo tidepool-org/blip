@@ -42,23 +42,26 @@ import Messages from '../../components/messages';
 
 export let PatientData = React.createClass({
   propTypes: {
+    clearPatientData: React.PropTypes.func.isRequired,
     currentPatientInViewId: React.PropTypes.string.isRequired,
-    patientDataMap: React.PropTypes.object,
-    patientNotesMap: React.PropTypes.object,
-    patient: React.PropTypes.object,
-    messageThread: React.PropTypes.array,
+    fetchers: React.PropTypes.array.isRequired,
     fetchingPatient: React.PropTypes.bool.isRequired,
     fetchingPatientData: React.PropTypes.bool.isRequired,
-    isUserPatient: React.PropTypes.bool,
+    isUserPatient: React.PropTypes.bool.isRequired,
+    messageThread: React.PropTypes.array,
+    onCloseMessageThread: React.PropTypes.func.isRequired,
+    onCreateMessage: React.PropTypes.func.isRequired,
+    onEditMessage: React.PropTypes.func.isRequired,
+    onFetchMessageThread: React.PropTypes.func.isRequired,
+    onRefresh: React.PropTypes.func.isRequired,
+    onSaveComment: React.PropTypes.func.isRequired,
+    patient: React.PropTypes.object,
+    patientDataMap: React.PropTypes.object.isRequired,
+    patientNotesMap: React.PropTypes.object.isRequired,
     queryParams: React.PropTypes.object.isRequired,
-    uploadUrl: React.PropTypes.string,
-    onRefresh: React.PropTypes.func,
-    onFetchMessageThread: React.PropTypes.func,
-    onSaveComment: React.PropTypes.func,
-    onEditMessage: React.PropTypes.func,
-    onCreateMessage: React.PropTypes.func,
-    user: React.PropTypes.object,
-    trackMetric: React.PropTypes.func.isRequired
+    trackMetric: React.PropTypes.func.isRequired,
+    uploadUrl: React.PropTypes.string.isRequired,
+    user: React.PropTypes.object
   },
 
   getInitialState: function() {
@@ -208,7 +211,7 @@ export let PatientData = React.createClass({
   },
 
   isInsufficientPatientData: function() {
-    var data = this.state.processedPatientData.data;
+    var data = _.get(this.state.processedPatientData, 'data', {});
     // add additional checks against data and return false iff:
     // only messages data
     if (_.reject(data, function(d) { return d.type === 'message'; }).length === 0) {
@@ -555,7 +558,7 @@ export let PatientData = React.createClass({
       let processedData = utils.processPatientData(
         this, 
         combinedData, 
-        this.props.location.query
+        this.props.queryParams
       );
       this.setState({
         processedPatientData: processedData,
@@ -629,7 +632,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.routes[0].api;
-  return Object.assign({}, ownProps, stateProps, dispatchProps, {
+  return Object.assign({}, _.pick(dispatchProps, ['clearPatientData']), stateProps, {
     fetchers: getFetchers(dispatchProps, ownProps, api),
     uploadUrl: api.getUploadUrl(),
     onRefresh: dispatchProps.fetchPatientData.bind(null, api),

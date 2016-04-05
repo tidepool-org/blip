@@ -17,27 +17,31 @@ describe('EmailVerification', function () {
   });
 
   describe('render', function() {
-    it('should console.error when required props are missing', function () {
-      console.error = sinon.stub();
-      var elem = TestUtils.renderIntoDocument(<EmailVerification />);
-      expect(console.error.callCount).to.equal(4);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmitResend` was not specified in `EmailVerification`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `EmailVerification`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `api` was not specified in `EmailVerification`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `working` was not specified in `EmailVerification`.')).to.equal(true);
-    });
-
     it('should render without problems when required props are present', function () {
       console.error = sinon.stub();
       var props = {
-        trackMetric: sinon.stub(),
+        acknowledgeNotification: sinon.stub(),
         onSubmitResend: sinon.stub(),
-        api: {},
+        resent: false,
+        sent: true,
+        trackMetric: sinon.stub(),
         working: false
       };
       var elem = React.createElement(EmailVerification, props);
       var render = TestUtils.renderIntoDocument(elem);
       expect(console.error.callCount).to.equal(0);
+    });
+
+    it('should console.error when required props are missing', function () {
+      console.error = sinon.stub();
+      var elem = TestUtils.renderIntoDocument(<EmailVerification />);
+      expect(console.error.callCount).to.equal(6);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `acknowledgeNotification` was not specified in `EmailVerification`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSubmitResend` was not specified in `EmailVerification`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `resent` was not specified in `EmailVerification`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `sent` was not specified in `EmailVerification`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `EmailVerification`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `working` was not specified in `EmailVerification`.')).to.equal(true);
     });
   });
 
@@ -46,7 +50,7 @@ describe('EmailVerification', function () {
       resentEmailVerification: false,
       sentEmailVerification: false,
       working: {
-        resendingEmailVerification: {inProgress: true, notification: null}
+        resendingEmailVerification: {inProgress: true, notification: {type: 'alert', message: 'Hi!'}}
       }
     };
     const result = mapStateToProps({blip: state});
@@ -68,6 +72,21 @@ describe('EmailVerification', function () {
 
     it('should map sentEmailVerification to sent', () => {
       expect(result.sent).to.equal(state.sentEmailVerification);
+    });
+
+    describe('when some state is `null`', () => {
+      const state = {
+        resentEmailVerification: false,
+        sentEmailVerification: false,
+        working: {
+          resendingEmailVerification: {inProgress: true, notification: null}
+        }
+      };
+      const result = mapStateToProps({blip: state});
+
+      it('should map working.resendingEmailVerification.notification to notification', () => {
+        expect(result.notification).to.be.null;
+      });
     });
   });
 });

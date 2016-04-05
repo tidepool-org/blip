@@ -20,6 +20,7 @@
 
 .Navbar {
   display: flex;
+  height: @Navbar-height;
 }
 
 @Navbar-logoHeight: 40px;
@@ -78,18 +79,6 @@
   height: @Navbar-versionHeight;
   text-align: center;
   color: @gray-dark;
-}
-
-.Navbar-terms {
-  font-size: 14px;
-  line-height: @Navbar-versionHeight;
-  height: @Navbar-versionHeight;
-  text-align: center;
-  color: @gray-dark;
-}
-
-.Navbar-terms a {
-  &:extend(.link-secondary all);
 }
 
 // Buttons, icons, labels

@@ -18,7 +18,7 @@ import { render } from 'react-dom';
 import bows from 'bows';
 import _ from 'lodash';
 
-import store from './redux/store';
+import blipCreateStore from './redux/store';
 import AppRoot from './redux/containers/Root';
 
 import { getRoutes } from './routes';
@@ -88,6 +88,8 @@ appContext.start = () => {
 
   appContext.init(() => {
     appContext.log('Starting app...');
+
+    const store = blipCreateStore(appContext.api);
 
     appContext.component = render(
       <AppRoot store={store} routing={getRoutes(appContext, store)} />,

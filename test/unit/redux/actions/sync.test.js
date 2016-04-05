@@ -5,18 +5,19 @@
 /* global expect */
 /* global afterEach */
 
-import { isFSA } from 'flux-standard-action';
+import isTSA from 'tidepool-standard-action';
 
 import * as sync from '../../../../app/redux/actions/sync';
+import * as UserMessages from '../../../../app/redux/constants/usrMessages';
 
 describe('Actions', () => {
 
   describe('Synchronous Actions', () => {
     describe('showWelcomeMessage', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let action = sync.showWelcomeMessage();
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal SHOW_WELCOME_MESSAGE', () => {
@@ -26,10 +27,10 @@ describe('Actions', () => {
     });
 
     describe('hideWelcomeMessage', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let action = sync.hideWelcomeMessage();
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal HIDE_WELCOME_MESSAGE', () => {
@@ -38,24 +39,11 @@ describe('Actions', () => {
       });
     });
 
-    describe('showNotification', () => {
-      it('should be a FSA', () => {
-        let action = sync.showNotification('Fake notification');
-
-        expect(isFSA(action)).to.be.true;
-      });
-
-      it('type should equal SHOW_NOTIFICATION', () => {
-        let action = sync.showNotification();
-        expect(action.type).to.equal('SHOW_NOTIFICATION');
-      });
-    });
-
     describe('acknowledgeNotification', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let action = sync.acknowledgeNotification();
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal ACKNOWLEDGE_NOTIFICATION', () => {
@@ -67,11 +55,54 @@ describe('Actions', () => {
       });
     });
 
+    describe('closeMessageThread', () => {
+      it('should be a TSA', () => {
+        let action = sync.closeMessageThread();
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal CLOSE_MESSAGE_THREAD', () => {
+        let action = { type: 'CLOSE_MESSAGE_THREAD' };
+
+        expect(sync.closeMessageThread()).to.deep.equal(action);
+      });
+    });
+
+    describe('clearPatientData', () => {
+      const patientId = 'a1b2c3';
+      it('should be a TSA', () => {
+        let action = sync.clearPatientData(patientId);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should expect CLEAR_PATIENT_DATA', () => {
+        let action = { type: 'CLEAR_PATIENT_DATA', payload: { patientId } };
+
+        expect(sync.clearPatientData(patientId)).to.deep.equal(action);
+      });
+    });
+
+    describe('clearPatientInView', () => {
+      it('should be a TSA', () => {
+        let action = sync.clearPatientInView();
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should expect CLEAR_PATIENT_IN_VIEW', () => {
+        let action = { type: 'CLEAR_PATIENT_IN_VIEW' };
+
+        expect(sync.clearPatientInView()).to.deep.equal(action);
+      });
+    });
+
     describe('loginRequest', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let action = sync.loginRequest();
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal LOGIN_REQUEST', () => {
@@ -81,14 +112,14 @@ describe('Actions', () => {
     });
 
     describe('loginSuccess', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let user = {
           id: 27,
           name: 'Frankie'
         };
         let action = sync.loginSuccess(user);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal LOGIN_SUCCESS and payload should contain user', () => {
@@ -104,15 +135,15 @@ describe('Actions', () => {
     });
 
     describe('loginFailure', () => {
-      it('should be a FSA', () => {
-        let error = 'Error';
+      it('should be a TSA', () => {
+        let error = new Error(':(');
         let action = sync.loginFailure(error);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal LOGIN_FAILURE and error should equal passed error', () => {
-        let error = 'Error';
+        let error = new Error(':(');
         let action = sync.loginFailure(error);
 
         expect(action.type).to.equal('LOGIN_FAILURE');
@@ -121,10 +152,10 @@ describe('Actions', () => {
     });
 
     describe('logoutRequest', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let action = sync.logoutRequest();
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal LOGOUT_REQUEST', () => {
@@ -134,14 +165,14 @@ describe('Actions', () => {
     });
 
     describe('logoutSuccess', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let user = {
           id: 27,
           name: 'Frankie'
         };
         let action = sync.logoutSuccess(user);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal LOGOUT_SUCCESS', () => {
@@ -151,28 +182,11 @@ describe('Actions', () => {
       });
     });
 
-    describe('logoutFailure', () => {
-      it('should be a FSA', () => {
-        let error = 'Error';
-        let action = sync.logoutFailure(error);
-
-        expect(isFSA(action)).to.be.true;
-      });
-
-      it('type should equal LOGOUT_FAILURE and error should equal passed error', () => {
-        let error = 'Error';
-        let action = sync.logoutFailure(error);
-
-        expect(action.type).to.equal('LOGOUT_FAILURE');
-        expect(action.error).to.equal(error);
-      });
-    });
-
     describe('signupRequest', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let action = sync.signupRequest();
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal SIGNUP_REQUEST', () => {
@@ -182,14 +196,14 @@ describe('Actions', () => {
     });
 
     describe('signupSuccess', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let user = {
           id: 27,
           name: 'Frankie'
         };
         let action = sync.signupSuccess(user);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal SIGNUP_SUCCESS and payload should contain user', () => {
@@ -205,15 +219,15 @@ describe('Actions', () => {
     });
 
     describe('signupFailure', () => {
-      it('should be a FSA', () => {
-        let error = 'Error';
+      it('should be a TSA', () => {
+        let error = new Error(':(');
         let action = sync.signupFailure(error);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal SIGNUP_FAILURE and error should equal passed error', () => {
-        let error = 'Error';
+        let error = new Error(':(');
         let action = sync.signupFailure(error);
 
         expect(action.type).to.equal('SIGNUP_FAILURE');
@@ -221,11 +235,56 @@ describe('Actions', () => {
       });
     });
 
+    describe('confirmPasswordResetRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.confirmPasswordResetRequest();
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal CONFIRM_PASSWORD_RESET_REQUEST', () => {
+        let action = { type: 'CONFIRM_PASSWORD_RESET_REQUEST' };
+
+        expect(sync.confirmPasswordResetRequest()).to.deep.equal(action);
+      });
+    });
+
+    describe('confirmPasswordResetSuccess', () => {
+      it('should be a TSA', () => {
+        let action = sync.confirmPasswordResetSuccess();
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal CONFIRM_PASSWORD_RESET_SUCCESS', () => {
+        let action = { type: 'CONFIRM_PASSWORD_RESET_SUCCESS' };
+
+        expect(sync.confirmPasswordResetSuccess()).to.deep.equal(action);
+      });
+    });
+
+    describe('confirmPasswordResetFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error(':(');
+        let action = sync.confirmPasswordResetFailure(error);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal CONFIRM_PASSWORD_RESET_FAILURE and error should equal passed error', () => {
+        let error = new Error(':(');
+        let action = sync.confirmPasswordResetFailure(error);
+
+        expect(action.type).to.equal('CONFIRM_PASSWORD_RESET_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
     describe('confirmSignupRequest', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let action = sync.confirmSignupRequest();
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal CONFIRM_SIGNUP_REQUEST', () => {
@@ -235,14 +294,14 @@ describe('Actions', () => {
     });
 
     describe('confirmSignupSuccess', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let user = {
           id: 27,
           name: 'Frankie'
         };
         let action = sync.confirmSignupSuccess(user);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal CONFIRM_SIGNUP_SUCCESS', () => {
@@ -253,15 +312,15 @@ describe('Actions', () => {
     });
 
     describe('confirmSignupFailure', () => {
-      it('should be a FSA', () => {
-        let error = 'Error';
+      it('should be a TSA', () => {
+        let error = new Error(':(');
         let action = sync.confirmSignupFailure(error);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal CONFIRM_SIGNUP_FAILURE and error should equal passed error', () => {
-        let error = 'Error';
+        let error = new Error(':(');
         let action = sync.confirmSignupFailure(error);
 
         expect(action.type).to.equal('CONFIRM_SIGNUP_FAILURE');
@@ -269,11 +328,62 @@ describe('Actions', () => {
       });
     });
 
+    describe('resendEmailVerificationRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.resendEmailVerificationRequest();
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal RESEND_EMAIL_VERIFICATION_REQUEST', () => {
+        let action = { type: 'RESEND_EMAIL_VERIFICATION_REQUEST' };
+
+        expect(sync.resendEmailVerificationRequest()).to.deep.equal(action);
+      });
+    });
+
+    describe('resendEmailVerificationSuccess', () => {
+      it('should be a TSA', () => {
+        let action = sync.resendEmailVerificationSuccess();
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal RESEND_EMAIL_VERIFICATION_SUCCESS', () => {
+        let action = sync.resendEmailVerificationSuccess();
+
+        expect(action.type).to.equal('RESEND_EMAIL_VERIFICATION_SUCCESS');
+        expect(action.payload).to.deep.equal({
+          notification: {
+            type: 'alert',
+            message: UserMessages.EMAIL_SENT
+          }
+        });
+      });
+    });
+
+    describe('resendEmailVerificationFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error(':(');
+        let action = sync.resendEmailVerificationFailure(error);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal RESEND_EMAIL_VERIFICATION_FAILURE', () => {
+        let error = new Error(':(');
+        let action = sync.resendEmailVerificationFailure(error);
+
+        expect(action.type).to.equal('RESEND_EMAIL_VERIFICATION_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
     describe('acceptTermsRequest', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let action = sync.acceptTermsRequest();
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal ACCEPT_TERMS_REQUEST', () => {
@@ -283,12 +393,12 @@ describe('Actions', () => {
     });
 
     describe('acceptTermsSuccess', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let acceptedDate = new Date();
         let userId = 647;
         let action = sync.acceptTermsSuccess(userId, acceptedDate);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal ACCEPT_TERMS_SUCCESS', () => {
@@ -303,15 +413,15 @@ describe('Actions', () => {
     });
 
     describe('acceptTermsFailure', () => {
-      it('should be a FSA', () => {
-        let error = 'Error';
+      it('should be a TSA', () => {
+        let error = new Error(':(');
         let action = sync.acceptTermsFailure(error);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal ACCEPT_TERMS_FAILURE and error should equal passed error', () => {
-        let error = 'Error';
+        let error = new Error(':(');
         let action = sync.acceptTermsFailure(error);
 
         expect(action.type).to.equal('ACCEPT_TERMS_FAILURE');
@@ -320,10 +430,10 @@ describe('Actions', () => {
     });
 
     describe('createPatientRequest', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let action = sync.createPatientRequest();
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal CREATE_PATIENT_REQUEST', () => {
@@ -333,14 +443,14 @@ describe('Actions', () => {
     });
 
     describe('createPatientSuccess', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let userId = 540;
         let patient = {
           id: 540
         };
         let action = sync.createPatientSuccess(userId, patient);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal CREATE_PATIENT_SUCCESS', () => {
@@ -357,15 +467,15 @@ describe('Actions', () => {
     });
 
     describe('createPatientFailure', () => {
-      it('should be a FSA', () => {
-        let error = 'Error';
+      it('should be a TSA', () => {
+        let error = new Error(':(');
         let action = sync.createPatientFailure(error);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal CREATE_PATIENT_FAILURE and error should equal passed error', () => {
-        let error = 'Error';
+        let error = new Error(':(');
         let action = sync.createPatientFailure(error);
 
         expect(action.type).to.equal('CREATE_PATIENT_FAILURE');
@@ -374,10 +484,10 @@ describe('Actions', () => {
     });
 
     describe('removePatientRequest', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let action = sync.removePatientRequest();
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal REMOVE_PATIENT_REQUEST', () => {
@@ -387,11 +497,11 @@ describe('Actions', () => {
     });
 
     describe('removePatientSuccess', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let patientId = 540;
         let action = sync.removePatientSuccess(patientId);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal REMOVE_PATIENT_SUCCESS', () => {
@@ -404,15 +514,15 @@ describe('Actions', () => {
     });
 
     describe('removePatientFailure', () => {
-      it('should be a FSA', () => {
-        let error = 'Error';
+      it('should be a TSA', () => {
+        let error = new Error(':(');
         let action = sync.removePatientFailure(error);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal REMOVE_PATIENT_FAILURE and error should equal passed error', () => {
-        let error = 'Error';
+        let error = new Error(':(');
         let action = sync.removePatientFailure(error);
 
         expect(action.type).to.equal('REMOVE_PATIENT_FAILURE');
@@ -421,10 +531,10 @@ describe('Actions', () => {
     });
 
     describe('removeMemberRequest', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let action = sync.removeMemberRequest();
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal REMOVE_MEMBER_REQUEST', () => {
@@ -434,11 +544,11 @@ describe('Actions', () => {
     });
 
     describe('removeMemberSuccess', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let memberId = 540;
         let action = sync.removeMemberSuccess(memberId);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal REMOVE_MEMBER_SUCCESS', () => {
@@ -451,15 +561,15 @@ describe('Actions', () => {
     });
 
     describe('removeMemberFailure', () => {
-      it('should be a FSA', () => {
-        let error = 'Error';
+      it('should be a TSA', () => {
+        let error = new Error(':(');
         let action = sync.removeMemberFailure(error);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal REMOVE_MEMBER_FAILURE and error should equal passed error', () => {
-        let error = 'Error';
+        let error = new Error(':(');
         let action = sync.removeMemberFailure(error);
 
         expect(action.type).to.equal('REMOVE_MEMBER_FAILURE');
@@ -467,11 +577,56 @@ describe('Actions', () => {
       });
     });
 
+    describe('requestPasswordResetRequest', () => {
+      it('should be a TSA', () => {
+        let action = sync.requestPasswordResetRequest();
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal REQUEST_PASSWORD_RESET_REQUEST', () => {
+        let action = { type: 'REQUEST_PASSWORD_RESET_REQUEST' };
+
+        expect(sync.requestPasswordResetRequest()).to.deep.equal(action);
+      });
+    });
+
+    describe('requestPasswordResetSuccess', () => {
+      it('should be a TSA', () => {
+        let action = sync.requestPasswordResetSuccess();
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal REQUEST_PASSWORD_RESET_SUCCESS', () => {
+        let action = { type: 'REQUEST_PASSWORD_RESET_SUCCESS' };
+
+        expect(sync.requestPasswordResetSuccess()).to.deep.equal(action);
+      });
+    });
+
+    describe('requestPasswordResetFailure', () => {
+      it('should be a TSA', () => {
+        let error = new Error(':(');
+        let action = sync.requestPasswordResetFailure(error);
+
+        expect(isTSA(action)).to.be.true;
+      });
+
+      it('type should equal REQUEST_PASSWORD_RESET_FAILURE', () => {
+        let error = new Error(':(');
+        let action = sync.requestPasswordResetFailure(error);
+
+        expect(action.type).to.deep.equal('REQUEST_PASSWORD_RESET_FAILURE');
+        expect(action.error).to.equal(error);
+      });
+    });
+
     describe('sendInviteRequest', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let action = sync.sendInviteRequest();
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal SEND_INVITE_REQUEST', () => {
@@ -481,7 +636,7 @@ describe('Actions', () => {
     });
 
     describe('sendInviteSuccess', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let invite = {
           email: 'joe@google.com',
           permissions: {
@@ -491,7 +646,7 @@ describe('Actions', () => {
         };
         let action = sync.sendInviteSuccess(invite);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal SEND_INVITE_SUCCESS', () => {
@@ -510,15 +665,15 @@ describe('Actions', () => {
     });
 
     describe('sendInviteFailure', () => {
-      it('should be a FSA', () => {
-        let error = 'Error';
+      it('should be a TSA', () => {
+        let error = new Error(':(');
         let action = sync.sendInviteFailure(error);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal SEND_INVITE_FAILURE and error should equal passed error', () => {
-        let error = 'Error';
+        let error = new Error(':(');
         let action = sync.sendInviteFailure(error);
 
         expect(action.type).to.equal('SEND_INVITE_FAILURE');
@@ -527,10 +682,10 @@ describe('Actions', () => {
     });
 
     describe('cancelSentInviteRequest', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let action = sync.cancelSentInviteRequest();
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal CANCEL_SENT_INVITE_REQUEST', () => {
@@ -540,11 +695,11 @@ describe('Actions', () => {
     });
 
     describe('cancelSentInviteSuccess', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let email = 'a@b.com';
         let action = sync.cancelSentInviteSuccess(email);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal CANCEL_SENT_INVITE_SUCCESS', () => {
@@ -557,15 +712,15 @@ describe('Actions', () => {
     });
 
     describe('cancelSentInviteFailure', () => {
-      it('should be a FSA', () => {
-        let error = 'Error';
+      it('should be a TSA', () => {
+        let error = new Error(':(');
         let action = sync.cancelSentInviteFailure(error);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal CANCEL_SENT_INVITE_FAILURE and error should equal passed error', () => {
-        let error = 'Error';
+        let error = new Error(':(');
         let action = sync.cancelSentInviteFailure(error);
 
         expect(action.type).to.equal('CANCEL_SENT_INVITE_FAILURE');
@@ -574,10 +729,10 @@ describe('Actions', () => {
     });
 
     describe('acceptReceivedInviteRequest', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let action = sync.acceptReceivedInviteRequest();
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal ACCEPT_RECEIVED_INVITE_REQUEST', () => {
@@ -587,7 +742,7 @@ describe('Actions', () => {
     });
 
     describe('acceptReceivedInviteSuccess', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let invite = {
           email: 'joe@google.com',
           permissions: {
@@ -597,7 +752,7 @@ describe('Actions', () => {
         };
         let action = sync.acceptReceivedInviteSuccess(invite);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal ACCEPT_RECEIVED_INVITE_SUCCESS', () => {
@@ -616,15 +771,15 @@ describe('Actions', () => {
     });
 
     describe('acceptReceivedInviteFailure', () => {
-      it('should be a FSA', () => {
-        let error = 'Error';
+      it('should be a TSA', () => {
+        let error = new Error(':(');
         let action = sync.acceptReceivedInviteFailure(error);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal ACCEPT_RECEIVED_INVITE_FAILURE and error should equal passed error', () => {
-        let error = 'Error';
+        let error = new Error(':(');
         let action = sync.acceptReceivedInviteFailure(error);
 
         expect(action.type).to.equal('ACCEPT_RECEIVED_INVITE_FAILURE');
@@ -633,10 +788,10 @@ describe('Actions', () => {
     });
 
     describe('rejectReceivedInviteRequest', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let action = sync.rejectReceivedInviteRequest();
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal REJECT_RECEIVED_INVITE_REQUEST', () => {
@@ -646,7 +801,7 @@ describe('Actions', () => {
     });
 
     describe('rejectReceivedInviteSuccess', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let invite = {
           email: 'joe@google.com',
           permissions: {
@@ -656,7 +811,7 @@ describe('Actions', () => {
         };
         let action = sync.rejectReceivedInviteSuccess(invite);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal REJECT_RECEIVED_INVITE_SUCCESS', () => {
@@ -675,15 +830,15 @@ describe('Actions', () => {
     });
 
     describe('rejectReceivedInviteFailure', () => {
-      it('should be a FSA', () => {
-        let error = 'Error';
+      it('should be a TSA', () => {
+        let error = new Error(':(');
         let action = sync.rejectReceivedInviteFailure(error);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal REJECT_RECEIVED_INVITE_FAILURE and error should equal passed error', () => {
-        let error = 'Error';
+        let error = new Error(':(');
         let action = sync.rejectReceivedInviteFailure(error);
 
         expect(action.type).to.equal('REJECT_RECEIVED_INVITE_FAILURE');
@@ -692,10 +847,10 @@ describe('Actions', () => {
     });
 
     describe('setMemberPermissionsRequest', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let action = sync.setMemberPermissionsRequest();
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal SET_MEMBER_PERMISSIONS_REQUEST', () => {
@@ -705,7 +860,7 @@ describe('Actions', () => {
     });
 
     describe('setMemberPermissionsSuccess', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let memberId = 444;
         let permissions = {
           view: true,
@@ -713,7 +868,7 @@ describe('Actions', () => {
         };
         let action = sync.setMemberPermissionsSuccess(memberId, permissions);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal SET_MEMBER_PERMISSIONS_SUCCESS', () => {
@@ -731,15 +886,15 @@ describe('Actions', () => {
     });
 
     describe('setMemberPermissionsFailure', () => {
-      it('should be a FSA', () => {
-        let error = 'Error';
+      it('should be a TSA', () => {
+        let error = new Error(':(');
         let action = sync.setMemberPermissionsFailure(error);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal SET_MEMBER_PERMISSIONS_FAILURE and error should equal passed error', () => {
-        let error = 'Error';
+        let error = new Error(':(');
         let action = sync.setMemberPermissionsFailure(error);
 
         expect(action.type).to.equal('SET_MEMBER_PERMISSIONS_FAILURE');
@@ -748,10 +903,10 @@ describe('Actions', () => {
     });
 
     describe('updatePatientRequest', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let action = sync.updatePatientRequest();
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal UPDATE_PATIENT_REQUEST', () => {
@@ -761,13 +916,13 @@ describe('Actions', () => {
     });
 
     describe('updatePatientSuccess', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let patient = {
           name: 'Frank'
         };
         let action = sync.updatePatientSuccess(patient);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal UPDATE_PATIENT_SUCCESS', () => {
@@ -782,15 +937,15 @@ describe('Actions', () => {
     });
 
     describe('updatePatientFailure', () => {
-      it('should be a FSA', () => {
-        let error = 'Error';
+      it('should be a TSA', () => {
+        let error = new Error(':(');
         let action = sync.updatePatientFailure(error);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal UPDATE_PATIENT_FAILURE and error should equal passed error', () => {
-        let error = 'Error';
+        let error = new Error(':(');
         let action = sync.updatePatientFailure(error);
 
         expect(action.type).to.equal('UPDATE_PATIENT_FAILURE');
@@ -799,10 +954,10 @@ describe('Actions', () => {
     });
 
     describe('updateUserRequest', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let action = sync.updateUserRequest();
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal UPDATE_USER_REQUEST', () => {
@@ -812,14 +967,14 @@ describe('Actions', () => {
     });
 
     describe('updateUserSuccess', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let userId = 500;
         let user = {
           name: 'Frank'
         };
         let action = sync.updateUserSuccess(userId, user);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal UPDATE_USER_SUCCESS', () => {
@@ -836,15 +991,15 @@ describe('Actions', () => {
     });
 
     describe('updateUserFailure', () => {
-      it('should be a FSA', () => {
-        let error = 'Error';
+      it('should be a TSA', () => {
+        let error = new Error(':(');
         let action = sync.updateUserFailure(error);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal UPDATE_USER_FAILURE and error should equal passed error', () => {
-        let error = 'Error';
+        let error = new Error(':(');
         let action = sync.updateUserFailure(error);
 
         expect(action.type).to.equal('UPDATE_USER_FAILURE');
@@ -853,10 +1008,10 @@ describe('Actions', () => {
     });
 
     describe('logErrorRequest', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let action = sync.logErrorRequest();
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal LOG_ERROR_REQUEST', () => {
@@ -866,10 +1021,10 @@ describe('Actions', () => {
     });
 
     describe('logErrorSuccess', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let action = sync.logErrorSuccess();
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal LOG_ERROR_SUCCESS', () => {
@@ -879,28 +1034,11 @@ describe('Actions', () => {
       });
     });
 
-    describe('logErrorFailure', () => {
-      it('should be a FSA', () => {
-        let error = 'Error';
-        let action = sync.logErrorFailure(error);
-
-        expect(isFSA(action)).to.be.true;
-      });
-
-      it('type should equal LOG_ERROR_FAILURE and error should equal passed error', () => {
-        let error = 'Error';
-        let action = sync.logErrorFailure(error);
-
-        expect(action.type).to.equal('LOG_ERROR_FAILURE');
-        expect(action.error).to.equal(error);
-      });
-    });
-
     describe('fetchUserRequest', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let action = sync.fetchUserRequest();
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal FETCH_USER_REQUEST', () => {
@@ -910,14 +1048,14 @@ describe('Actions', () => {
     });
 
     describe('fetchUserSuccess', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let user = {
           id: 27,
           name: 'Frankie'
         };
         let action = sync.fetchUserSuccess(user);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal FETCH_USER_SUCCESS', () => {
@@ -933,15 +1071,15 @@ describe('Actions', () => {
     });
 
     describe('fetchUserFailure', () => {
-      it('should be a FSA', () => {
-        let error = 'Error';
+      it('should be a TSA', () => {
+        let error = new Error(':(');
         let action = sync.fetchUserFailure(error);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal FETCH_USER_FAILURE and error should equal passed error', () => {
-        let error = 'Error';
+        let error = new Error(':(');
         let action = sync.fetchUserFailure(error);
 
         expect(action.type).to.equal('FETCH_USER_FAILURE');
@@ -950,10 +1088,10 @@ describe('Actions', () => {
     });
 
     describe('fetchPendingSentInvitesRequest', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let action = sync.fetchPendingSentInvitesRequest();
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal FETCH_PENDING_SENT_INVITES_REQUEST', () => {
@@ -963,11 +1101,11 @@ describe('Actions', () => {
     });
 
     describe('fetchPendingSentInvitesSuccess', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let pendingSentInvites = [1, 2, 27];
         let action = sync.fetchPendingSentInvitesSuccess(pendingSentInvites);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal FETCH_PENDING_SENT_INVITES_SUCCESS', () => {
@@ -980,15 +1118,15 @@ describe('Actions', () => {
     });
 
     describe('fetchPendingSentInvitesFailure', () => {
-      it('should be a FSA', () => {
-        let error = 'Error';
+      it('should be a TSA', () => {
+        let error = new Error(':(');
         let action = sync.fetchPendingSentInvitesFailure(error);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal FETCH_PENDING_SENT_INVITES_FAILURE and error should equal passed error', () => {
-        let error = 'Error';
+        let error = new Error(':(');
         let action = sync.fetchPendingSentInvitesFailure(error);
 
         expect(action.type).to.equal('FETCH_PENDING_SENT_INVITES_FAILURE');
@@ -997,10 +1135,10 @@ describe('Actions', () => {
     });
 
     describe('fetchPendingReceivedInvitesRequest', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let action = sync.fetchPendingReceivedInvitesRequest();
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal FETCH_PENDING_RECEIVED_INVITES_REQUEST', () => {
@@ -1010,11 +1148,11 @@ describe('Actions', () => {
     });
 
     describe('fetchPendingReceivedInvitesSuccess', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let pendingReceivedInvites = [1, 2, 27];
         let action = sync.fetchPendingReceivedInvitesSuccess(pendingReceivedInvites);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal FETCH_PENDING_RECEIVED_INVITES_SUCCESS', () => {
@@ -1027,15 +1165,15 @@ describe('Actions', () => {
     });
 
     describe('fetchPendingReceivedInvitesFailure', () => {
-      it('should be a FSA', () => {
-        let error = 'Error';
+      it('should be a TSA', () => {
+        let error = new Error(':(');
         let action = sync.fetchPendingReceivedInvitesFailure(error);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal FETCH_PENDING_RECEIVED_INVITES_FAILURE and error should equal passed error', () => {
-        let error = 'Error';
+        let error = new Error(':(');
         let action = sync.fetchPendingReceivedInvitesFailure(error);
 
         expect(action.type).to.equal('FETCH_PENDING_RECEIVED_INVITES_FAILURE');
@@ -1044,10 +1182,10 @@ describe('Actions', () => {
     });
 
     describe('fetchPatientRequest', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let action = sync.fetchPatientRequest();
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal FETCH_PATIENT_REQUEST', () => {
@@ -1057,14 +1195,14 @@ describe('Actions', () => {
     });
 
     describe('fetchPatientSuccess', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let patient = {
           name: 'Bruce Lee',
           age: 24
         };
         let action = sync.fetchPatientSuccess(patient);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal FETCH_PATIENT_SUCCESS', () => {
@@ -1080,15 +1218,15 @@ describe('Actions', () => {
     });
 
     describe('fetchPatientFailure', () => {
-      it('should be a FSA', () => {
-        let error = 'Error';
+      it('should be a TSA', () => {
+        let error = new Error(':(');
         let action = sync.fetchPatientFailure(error);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal FETCH_PATIENT_FAILURE and error should equal passed error', () => {
-        let error = 'Error';
+        let error = new Error(':(');
         let action = sync.fetchPatientFailure(error);
 
         expect(action.type).to.equal('FETCH_PATIENT_FAILURE');
@@ -1097,10 +1235,10 @@ describe('Actions', () => {
     });
 
     describe('fetchPatientsRequest', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let action = sync.fetchPatientsRequest();
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal FETCH_PATIENTS_REQUEST', () => {
@@ -1110,7 +1248,7 @@ describe('Actions', () => {
     });
 
     describe('fetchPatientsSuccess', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let patients = [{
           id: 20,
           name: 'Bruce Lee',
@@ -1118,7 +1256,7 @@ describe('Actions', () => {
         }];
         let action = sync.fetchPatientsSuccess(patients);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal FETCH_PATIENTS_SUCCESS', () => {
@@ -1135,15 +1273,15 @@ describe('Actions', () => {
     });
 
     describe('fetchPatientsFailure', () => {
-      it('should be a FSA', () => {
-        let error = 'Error';
+      it('should be a TSA', () => {
+        let error = new Error(':(');
         let action = sync.fetchPatientsFailure(error);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal FETCH_PATIENTS_FAILURE and error should equal passed error', () => {
-        let error = 'Error';
+        let error = new Error(':(');
         let action = sync.fetchPatientsFailure(error);
 
         expect(action.type).to.equal('FETCH_PATIENTS_FAILURE');
@@ -1152,10 +1290,10 @@ describe('Actions', () => {
     });
 
     describe('fetchPatientDataRequest', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let action = sync.fetchPatientDataRequest();
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal FETCH_PATIENT_DATA_REQUEST', () => {
@@ -1165,7 +1303,7 @@ describe('Actions', () => {
     });
 
     describe('fetchPatientDataSuccess', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let patientData = [
           {
             id: 24,
@@ -1178,7 +1316,7 @@ describe('Actions', () => {
         ];
         let action = sync.fetchPatientDataSuccess(patientData);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal FETCH_PATIENT_DATA_SUCCESS', () => {
@@ -1202,15 +1340,15 @@ describe('Actions', () => {
     });
 
     describe('fetchPatientDataFailure', () => {
-      it('should be a FSA', () => {
-        let error = 'Error';
+      it('should be a TSA', () => {
+        let error = new Error(':(');
         let action = sync.fetchPatientDataFailure(error);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal FETCH_PATIENT_DATA_FAILURE and error should equal passed error', () => {
-        let error = 'Error';
+        let error = new Error(':(');
         let action = sync.fetchPatientDataFailure(error);
 
         expect(action.type).to.equal('FETCH_PATIENT_DATA_FAILURE');
@@ -1219,10 +1357,10 @@ describe('Actions', () => {
     });
 
     describe('fetchMessageThreadRequest', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let action = sync.fetchMessageThreadRequest();
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal FETCH_MESSAGE_THREAD_REQUEST', () => {
@@ -1232,7 +1370,7 @@ describe('Actions', () => {
     });
 
     describe('fetchMessageThreadSuccess', () => {
-      it('should be a FSA', () => {
+      it('should be a TSA', () => {
         let messageThread = [
           {
             id: 47,
@@ -1245,7 +1383,7 @@ describe('Actions', () => {
         ];
         let action = sync.fetchMessageThreadSuccess(messageThread);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal FETCH_MESSAGE_THREAD_SUCCESS', () => {
@@ -1267,15 +1405,15 @@ describe('Actions', () => {
     });
 
     describe('fetchMessageThreadFailure', () => {
-      it('should be a FSA', () => {
-        let error = 'Error';
+      it('should be a TSA', () => {
+        let error = new Error(':(');
         let action = sync.fetchMessageThreadFailure(error);
 
-        expect(isFSA(action)).to.be.true;
+        expect(isTSA(action)).to.be.true;
       });
 
       it('type should equal FETCH_MESSAGE_THREAD_FAILURE and error should equal passed error', () => {
-        let error = 'Error';
+        let error = new Error(':(');
         let action = sync.fetchMessageThreadFailure(error);
 
         expect(action.type).to.equal('FETCH_MESSAGE_THREAD_FAILURE');

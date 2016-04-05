@@ -16,15 +16,26 @@
  */
 
 import _ from 'lodash';
+import React from 'react';
+import { Link } from 'react-router';
 import sundial from 'sundial';
 import async from 'async';
 import utils from '../../core/utils';
 import * as ActionTypes from '../constants/actionTypes';
 import * as ErrorMessages from '../constants/errorMessages';
+import * as UserMessages from '../constants/usrMessages';
 import * as sync from './sync.js';
 import update from 'react-addons-update';
 
 import { routeActions } from 'react-router-redux';
+
+function createActionError(usrErrMessage, apiError) {
+  const err = new Error(usrErrMessage);
+  if (apiError && apiError.status) {
+    err.status = apiError.status;
+  }
+  return err;
+}
 
 /**
  * Signup Async Action Creator
@@ -38,104 +49,17 @@ export function signup(api, accountDetails) {
 
     api.user.signup(accountDetails, (err, user) => {
       if (err) {
-        let error = ErrorMessages.SIGNUP_ERROR;
+        let errMsg = ErrorMessages.SIGNUP_ERROR;
         if (err.status && err.status === 409) {
-          error = ErrorMessages.ACCOUNT_ALREADY_EXISTS;
+          errMsg = ErrorMessages.ERR_ACCOUNT_ALREADY_EXISTS;
         }
+        let error = createActionError(errMsg, err);
         dispatch(sync.signupFailure(error, err));
       } else {
         dispatch(sync.signupSuccess(user));
         dispatch(routeActions.push('/email-verification'));
       }
     });
-  };
-}
-
-/**
- * Login Async Action Creator
- * 
- * @param  {Object} api an instance of the API wrapper
- * @param  {Object} accountDetails contains email and password
- * @param  {?Object} options optionalArgument that contains options like remember
- */
-export function login(api, credentials, options) {
-  return (dispatch) => {
-    dispatch(sync.loginRequest());
-
-    api.user.login(credentials, options, (err) => {
-      if (err) {
-        var error = (err.status === 401) ? 'Wrong username or password.' : 'An error occured while logging in.';
-
-        if (err.status === 403) {
-          dispatch(sync.loginFailure(error, err, { isLoggedIn: false, emailVerificationSent: false }));
-          dispatch(routeActions.push('/email-verification'));
-        } else {
-          dispatch(sync.loginFailure(error, err));
-        }
-      } else {
-        api.user.get((err, user) => {
-          if (err) {
-            dispatch(sync.loginFailure(ErrorMessages.STANDARD, err));
-          } else {
-            if (_.get(user, ['profile', 'patient'])) {
-              api.patient.get(user.userid, (err, patient) => {
-                if (err) {
-                  dispatch(sync.loginFailure(ErrorMessages.STANDARD, err));
-                } else {
-                  user = update(user, { $merge: patient });
-                  dispatch(sync.loginSuccess(user));
-                  dispatch(routeActions.push('/patients?justLoggedIn=true'));
-                }
-              });
-            } else {
-              dispatch(sync.loginSuccess(user));
-              dispatch(routeActions.push('/patients?justLoggedIn=true'));
-            }
-          }
-        });
-      }
-    });
-  };
-}
-
-/**
- * Logout Async Action Creator
- * 
- * @param  {Object} api an instance of the API wrapper
- */
-export function logout(api) {
-  return (dispatch) => {
-    dispatch(sync.logoutRequest());
-    api.user.logout((err) => {
-      if (err) {
-        dispatch(sync.logoutFailure(ErrorMessages.STANDARD, err));
-        dispatch(routeActions.push('/login'));
-      } else {
-        dispatch(sync.logoutSuccess());
-        dispatch(routeActions.push('/'));
-      }
-    });
-  }
-}
-
-/**
- * Confirm PasswordReset Action Creator
- * 
- * @param  {Object} api an instance of the API wrapper
- * @param  {String} formValues
- */
-export function confirmPasswordReset(api, formValues) {
-  return (dispatch) => {
-    dispatch(sync.confirmPasswordResetRequest());
-
-    api.user.confirmPasswordReset(formValues, function(err) {
-      if (err) {
-        var message = 'We couldn\'t change your password. You may have mistyped your email, or the reset link may have expired.';
-        dispatch(sync.confirmPasswordResetFailure(message, err));
-      } else {
-        dispatch(sync.confirmPasswordResetSuccess())
-      }
-    })
   };
 }
 
@@ -151,7 +75,9 @@ export function confirmSignup(api, signupKey) {
 
     api.user.confirmSignUp(signupKey, function(err) {
       if (err) {
-        dispatch(sync.confirmSignupFailure(ErrorMessages.STANDARD, err));
+        dispatch(sync.confirmSignupFailure(
+          createActionError(ErrorMessages.ERR_CONFIRMING_SIGNUP, err), err
+        ));
       } else {
         dispatch(sync.confirmSignupSuccess())
       }
@@ -171,8 +97,9 @@ export function resendEmailVerification(api, email) {
 
     api.user.resendEmailVerification(email, function(err) {
       if (err) {
-        var message = 'An error occured while trying to resend your verification email.'
-        dispatch(sync.resendEmailVerificationFailure(message, err));
+        dispatch(sync.resendEmailVerificationFailure(
+          createActionError(ErrorMessages.ERR_RESENDING_EMAIL_VERIFICATION, err), err
+        ));
       } else {
         dispatch(sync.resendEmailVerificationSuccess())
       }
@@ -194,13 +121,82 @@ export function acceptTerms(api, acceptedDate) {
 
     api.user.acceptTerms({ termsAccepted: acceptedDate }, function(err, user) {
       if (err) {
-        dispatch(sync.acceptTermsFailure(ErrorMessages.STANDARD, err));
+        dispatch(sync.acceptTermsFailure(
+          createActionError(ErrorMessages.ERR_ACCEPTING_TERMS, err), err
+        ));
       } else {
         dispatch(sync.acceptTermsSuccess(loggedInUserId, acceptedDate));
-        dispatch(routeActions.push(`/patients?justLoggedIn=true`));
+        dispatch(routeActions.push('/patients?justLoggedIn=true'));
       }
     })
   };
+}
+
+/**
+ * Login Async Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ * @param  {Object} accountDetails contains email and password
+ * @param  {?Object} options optionalArgument that contains options like remember
+ */
+export function login(api, credentials, options) {
+  return (dispatch) => {
+    dispatch(sync.loginRequest());
+
+    api.user.login(credentials, options, (err) => {
+      if (err) {
+        var error = (err.status === 401) ? createActionError(ErrorMessages.ERR_LOGIN_CREDS, err) :
+          createActionError(ErrorMessages.ERR_LOGIN, err);
+
+        if (err.status === 403) {
+          dispatch(sync.loginFailure(null, err, { isLoggedIn: false, emailVerificationSent: false }));
+          dispatch(routeActions.push('/email-verification'));
+        } else {
+          dispatch(sync.loginFailure(error, err));
+        }
+      } else {
+        api.user.get((err, user) => {
+          if (err) {
+            dispatch(sync.loginFailure(
+              createActionError(ErrorMessages.ERR_FETCHING_USER, err), err
+            ));
+          } else {
+            if (_.get(user, ['profile', 'patient'])) {
+              api.patient.get(user.userid, (err, patient) => {
+                if (err) {
+                  dispatch(sync.loginFailure(
+                    createActionError(ErrorMessages.ERR_FETCHING_PATIENT, err), err
+                  ));
+                } else {
+                  user = update(user, { $merge: patient });
+                  dispatch(sync.loginSuccess(user));
+                  dispatch(routeActions.push('/patients?justLoggedIn=true'));
+                }
+              });
+            } else {
+              dispatch(sync.loginSuccess(user));
+              dispatch(routeActions.push('/patients?justLoggedIn=true'));
+            }
+          }
+        });
+      }
+    });
+  };
+}
+
+/**
+ * Logout Async Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ */
+export function logout(api) {
+  return (dispatch) => {
+    dispatch(sync.logoutRequest());
+    api.user.logout(() => {
+      dispatch(sync.logoutSuccess());
+      dispatch(routeActions.push('/'));
+    });
+  }
 }
 
 /**
@@ -216,34 +212,15 @@ export function createPatient(api, patient) {
 
     api.patient.post(patient, (err, createdPatient) => {
       if (err) {
-        dispatch(sync.createPatientFailure(ErrorMessages.STANDARD, err));
+        dispatch(sync.createPatientFailure(
+          createActionError(ErrorMessages.ERR_DSA_SETUP, err), err
+        ));
       } else {
         dispatch(sync.createPatientSuccess(loggedInUserId, createdPatient));
         dispatch(routeActions.push(`/patients/${createdPatient.userid}/data`));
       }
     });
   }
-}
-
-/**
- * Request PasswordReset Action Creator
- * 
- * @param  {Object} api an instance of the API wrapper
- * @param  {String} email
- */
-export function requestPasswordReset(api, email) {
-  return (dispatch) => {
-    dispatch(sync.requestPasswordResetRequest());
-
-    api.user.requestPasswordReset(email, function(err) {
-      if (err) {
-        let message = 'An error occurred whilst attempting to reset your password';
-        dispatch(sync.requestPasswordResetFailure(message, err));
-      } else {
-        dispatch(sync.requestPasswordResetSuccess())
-      }
-    })
-  };
 }
 
 /**
@@ -259,7 +236,9 @@ export function removePatient(api, patientId) {
 
     api.access.leaveGroup(patientId, (err) => {
       if (err) {
-        dispatch(sync.removePatientFailure(ErrorMessages.STANDARD, err));
+        dispatch(sync.removePatientFailure(
+          createActionError(ErrorMessages.ERR_REMOVING_MEMBERSHIP, err), err
+        ));
       } else {
         dispatch(sync.removePatientSuccess(patientId));
         dispatch(fetchPatients(api));
@@ -282,7 +261,9 @@ export function removeMember(api, patientId, memberId) {
 
     api.access.removeMember(memberId, (err) => {
       if (err) {
-        dispatch(sync.removeMemberFailure(ErrorMessages.STANDARD, err));
+        dispatch(sync.removeMemberFailure(
+          createActionError(ErrorMessages.ERR_REMOVING_MEMBER, err), err
+        ));
       } else {
         dispatch(sync.removeMemberSuccess(memberId));
         dispatch(fetchPatient(api, patientId));
@@ -305,9 +286,13 @@ export function sendInvite(api, email, permissions) {
     api.invitation.send(email, permissions, (err, invite) => {
       if (err) {
         if (err.status === 409) {
-          dispatch(sync.sendInviteFailure(ErrorMessages.ALREADY_SENT_TO_EMAIL, err));
+          dispatch(sync.sendInviteFailure(
+            createActionError(ErrorMessages.ERR_ALREADY_SENT_TO_EMAIL, err), err
+          ));
         } else {
-          dispatch(sync.sendInviteFailure(ErrorMessages.STANDARD, err));
+          dispatch(sync.sendInviteFailure(
+            createActionError(ErrorMessages.ERR_SENDING_INVITE, err), err
+          ));
         }
       } else {
         dispatch(sync.sendInviteSuccess(invite));
@@ -328,7 +313,9 @@ export function cancelSentInvite(api, email) {
 
     api.invitation.cancel(email, (err) => {
       if (err) {
-        dispatch(sync.cancelSentInviteFailure(ErrorMessages.STANDARD, err));
+        dispatch(sync.cancelSentInviteFailure(
+          createActionError(ErrorMessages.ERR_CANCELLING_INVITE, err), err
+        ));
       } else {
         dispatch(sync.cancelSentInviteSuccess(email));
       }
@@ -350,7 +337,9 @@ export function acceptReceivedInvite(api, invite) {
       invite.key, 
       invite.creator.userid, (err) => {
       if (err) {
-        dispatch(sync.acceptReceivedInviteFailure(ErrorMessages.STANDARD, err));
+        dispatch(sync.acceptReceivedInviteFailure(
+          createActionError(ErrorMessages.ERR_ACCEPTING_INVITE, err), err
+        ));
       } else {
         dispatch(sync.acceptReceivedInviteSuccess(invite));
         dispatch(fetchPatient(api, invite.creator.userid));
@@ -373,7 +362,9 @@ export function rejectReceivedInvite(api, invite) {
       invite.key, 
       invite.creator.userid, (err) => {
       if (err) {
-        dispatch(sync.rejectReceivedInviteFailure(ErrorMessages.STANDARD, err));
+        dispatch(sync.rejectReceivedInviteFailure(
+          createActionError(ErrorMessages.ERR_REJECTING_INVITE, err), err
+        ));
       } else {
         dispatch(sync.rejectReceivedInviteSuccess(invite));
       }
@@ -401,7 +392,9 @@ export function setMemberPermissions(api, patientId, memberId, permissions) {
       memberId, 
       permissions, (err) => {
       if (err) {
-        dispatch(sync.setMemberPermissionsFailure(ErrorMessages.STANDARD, err));
+        dispatch(sync.setMemberPermissionsFailure(
+          createActionError(ErrorMessages.ERR_CHANGING_PERMS, err), err
+        ));
       } else {
         dispatch(sync.setMemberPermissionsSuccess(memberId, permissions));
         dispatch(fetchPatient(api, patientId));
@@ -422,7 +415,9 @@ export function updatePatient(api, patient) {
     
     api.patient.put(patient, (err, updatedPatient) => {
       if (err) {
-        dispatch(sync.updatePatientFailure(ErrorMessages.STANDARD, err));
+        dispatch(sync.updatePatientFailure(
+          createActionError(ErrorMessages.ERR_UPDATING_PATIENT, err), err
+        ));
       } else {
         dispatch(sync.updatePatientSuccess(updatedPatient));
       }
@@ -457,12 +452,80 @@ export function updateUser(api, formValues) {
     
     api.user.put(userUpdates, (err, updatedUser) => {
       if (err) {
-        dispatch(sync.updateUserFailure(ErrorMessages.STANDARD, err));
+        dispatch(sync.updateUserFailure(
+          createActionError(ErrorMessages.ERR_UPDATING_USER, err), err
+        ));
       } else {
         dispatch(sync.updateUserSuccess(loggedInUserId, updatedUser));
       }
     });
   };
+}
+
+/**
+ * Request Password Reset Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ * @param  {String} email
+ */
+export function requestPasswordReset(api, email) {
+  return (dispatch) => {
+    dispatch(sync.requestPasswordResetRequest());
+
+    api.user.requestPasswordReset(email, function(err) {
+      if (err) {
+        dispatch(sync.requestPasswordResetFailure(
+          createActionError(ErrorMessages.ERR_REQUESTING_PASSWORD_RESET, err), err
+        ));
+      } else {
+        dispatch(sync.requestPasswordResetSuccess())
+      }
+    })
+  };
+}
+
+/**
+ * Confirm Password Reset Action Creator
+ *
+ * @param  {Object} api an instance of the API wrapper
+ * @param  {String} formValues
+ */
+export function confirmPasswordReset(api, formValues) {
+  return (dispatch) => {
+    dispatch(sync.confirmPasswordResetRequest());
+
+    api.user.confirmPasswordReset(formValues, function(err) {
+      if (err) {
+        dispatch(sync.confirmPasswordResetFailure(
+          createActionError(ErrorMessages.ERR_CONFIRMING_PASSWORD_RESET, err), err
+        ));
+      } else {
+        dispatch(sync.confirmPasswordResetSuccess())
+      }
+    })
+  };
+}
+
+/**
+ * Log Error Async Action Creator
+ *
+ * @param  {Object} api
+ * @param  {String} error
+ * @param  {String} message
+ * @param  {Object} properties - usually an error stack trace
+ */
+export function logError(api, error, message, properties) {
+  return (dispatch) => {
+    dispatch(sync.logErrorRequest());
+
+    api.errors.log(error, message, properties, (err) => {
+      if (err) {
+        dispatch(sync.logErrorFailure(ErrorMessages.STANDARD, err));
+      } else {
+        dispatch(sync.logErrorSuccess());
+      }
+    });
+  }
 }
 
 /**
@@ -477,18 +540,24 @@ export function fetchUser(api) {
     api.user.get((err, user) => {
       if (err) {
         if (err.status === 401) {
-          // No need to record anything if user is currently not authenticated
+          // no need to surface an error if user is currently not authenticated
           dispatch(sync.fetchUserFailure(null, err));
         } else {
-          dispatch(sync.fetchUserFailure(ErrorMessages.STANDARD, err));
+          dispatch(sync.fetchUserFailure(
+            createActionError(ErrorMessages.ERR_FETCHING_USER, err), err
+          ));
         }
       } else if (!utils.hasVerifiedEmail(user)) {
-        dispatch(sync.fetchUserFailure(ErrorMessages.EMAIL_NOT_VERIFIED));
+        dispatch(sync.fetchUserFailure(
+          createActionError(ErrorMessages.ERR_EMAIL_NOT_VERIFIED)
+        ));
       } else {
         if (_.get(user, ['profile', 'patient'])) {
           api.patient.get(user.userid, (err, patient) => {
             if (err) {
-              dispatch(sync.fetchUserFailure(ErrorMessages.STANDARD, err));
+              dispatch(sync.fetchUserFailure(
+                createActionError(ErrorMessages.ERR_FETCHING_USER, err), err
+              ));
             } else {
               user = update(user, { $merge: patient });
               dispatch(sync.fetchUserSuccess(user));
@@ -513,7 +582,9 @@ export function fetchPendingSentInvites(api) {
     
     api.invitation.getSent((err, pending) => {
       if (err) {
-        dispatch(sync.fetchPendingSentInvitesFailure(ErrorMessages.STANDARD, err));
+        dispatch(sync.fetchPendingSentInvitesFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_PENDING_SENT_INVITES, err), err
+        ));
       } else {
         dispatch(sync.fetchPendingSentInvitesSuccess(pending));
       }
@@ -532,7 +603,9 @@ export function fetchPendingReceivedInvites(api) {
     
     api.invitation.getReceived((err, pending) => {
       if (err) {
-        dispatch(sync.fetchPendingReceivedInvitesFailure(ErrorMessages.STANDARD, err));
+        dispatch(sync.fetchPendingReceivedInvitesFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_PENDING_RECEIVED_INVITES, err), err
+        ));
       } else {
         dispatch(sync.fetchPendingReceivedInvitesSuccess(pending));
       }
@@ -547,12 +620,29 @@ export function fetchPendingReceivedInvites(api) {
  * @param {String|Number} id
  */
 export function fetchPatient(api, id) {
-  return (dispatch) => {
+  return (dispatch, getState) => {
     dispatch(sync.fetchPatientRequest());
     
     api.patient.get(id, (err, patient) => {
       if (err) {
-        dispatch(sync.fetchPatientFailure(ErrorMessages.STANDARD, err));
+        let errMsg = ErrorMessages.ERR_FETCHING_PATIENT;
+        let link = null;
+        let status = _.get(err, 'status', null);
+        const { blip: { loggedInUserId } } = getState();
+        if (status === 404) {
+          if (id === loggedInUserId) {
+            errMsg = ErrorMessages.ERR_YOUR_ACCOUNT_NOT_CONFIGURED;
+            link = {
+              to: '/patients/new',
+              text: UserMessages.YOUR_ACCOUNT_DATA_SETUP
+            };
+          } else {
+            errMsg = ErrorMessages.ERR_ACCOUNT_NOT_CONFIGURED
+          }
+        }
+        dispatch(sync.fetchPatientFailure(
+          createActionError(errMsg, err), err, link
+        ));
       } else {
         dispatch(sync.fetchPatientSuccess(patient));
       }
@@ -571,7 +661,9 @@ export function fetchPatients(api) {
     
     api.patient.getAll((err, patients) => {
       if (err) {
-        dispatch(sync.fetchPatientsFailure(ErrorMessages.STANDARD, err));
+        dispatch(sync.fetchPatientsFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_PATIENTS, err), err
+        ));
       } else {
         dispatch(sync.fetchPatientsSuccess(patients));
       }
@@ -595,7 +687,9 @@ export function fetchPatientData(api, id) {
       teamNotes: api.team.getNotes.bind(api, id)
     }, (err, results) => {
       if (err) {
-        dispatch(sync.fetchPatientDataFailure(ErrorMessages.STANDARD, err));
+        dispatch(sync.fetchPatientDataFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_PATIENT_DATA, err), err
+        ));
       } else {
         let patientData = results.patientData || [];
         let notes = results.teamNotes || [];
@@ -617,32 +711,12 @@ export function fetchMessageThread(api, id ) {
     
     api.team.getMessageThread(id, (err, messageThread) => {
       if (err) {
-        dispatch(sync.fetchMessageThreadFailure(ErrorMessages.STANDARD, err));
+        dispatch(sync.fetchMessageThreadFailure(
+          createActionError(ErrorMessages.ERR_FETCHING_MESSAGE_THREAD, err), err
+        ));
       } else {
         dispatch(sync.fetchMessageThreadSuccess(messageThread));
       }
     });
   };
-}
-
-/**
- * Log Error Async Action Creator
- * 
- * @param  {Object} api
- * @param  {String} error
- * @param  {String} message
- * @param  {Object} properties - usually an error stack trace
- */
-export function logError(api, error, message, properties) {
-  return (dispatch) => {
-    dispatch(sync.logErrorRequest());
-
-    api.errors.log(error, message, properties, (err) => {
-      if (err) {
-        dispatch(sync.logErrorFailure(ErrorMessages.STANDARD, err));
-      } else {
-        dispatch(sync.logErrorSuccess());
-      }
-    });
-  }
 }

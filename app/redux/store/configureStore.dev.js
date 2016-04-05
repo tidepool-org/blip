@@ -27,6 +27,8 @@ import DevTools from '../containers/DevTools';
 import blipState from '../reducers/initialState';
 import reducers from '../reducers';
 
+import createErrorLogger from '../utils/logErrorMiddleware';
+
 function getDebugSessionKey() {
   const matches = window.location.href.match(/[?&]debug_session=([^&]+)\b/);
   return (matches && matches.length > 0)? matches[1] : null;
@@ -44,25 +46,35 @@ const loggerMiddleware = createLogger({
   collapsed: true,
 });
 
-const enhancer = compose(
-  applyMiddleware(
-    thunkMiddleware, 
-    loggerMiddleware,
-    reduxRouterMiddleware
-  ),
-  DevTools.instrument(),
-  // We can persist debug sessions this way
-  persistState(getDebugSessionKey())
-);
+
+const enhancer = (api) => {
+  return compose(
+    applyMiddleware(
+      thunkMiddleware,
+      loggerMiddleware,
+      reduxRouterMiddleware,
+      createErrorLogger(api)
+    ),
+    DevTools.instrument(),
+    // We can persist debug sessions this way
+    persistState(getDebugSessionKey())
+  );
+}
 
 let initialState = { blip: blipState };
 
-let store = createStore(reducer, initialState, enhancer);
+function _createStore(api) {
+  let store = createStore(reducer, initialState, enhancer(api));
 
-if (module.hot) {
-  module.hot.accept('../reducers', () =>
-    store.replaceReducer(require('../reducers'))
-  );
-};
+  if (module.hot) {
+    module.hot.accept('../reducers', () =>
+      store.replaceReducer(require('../reducers'))
+    );
+  };
 
-export default store;
+  return store;
+}
+
+export default (api) => {
+  return _createStore(api);
+}

@@ -33,19 +33,23 @@ import Invitation from '../../components/invitation';
 
 export let Patients = React.createClass({
   propTypes: {
-    user: React.PropTypes.object,
-    patients: React.PropTypes.array,
-    invites: React.PropTypes.array,
-    loading: React.PropTypes.bool,
+    clearPatientInView: React.PropTypes.func.isRequired,
+    fetchers: React.PropTypes.array.isRequired,
+    fetchingUser: React.PropTypes.bool.isRequired,
+    invites: React.PropTypes.array.isRequired,
+    loading: React.PropTypes.bool.isRequired,
+    location: React.PropTypes.object.isRequired,
     loggedInUserId: React.PropTypes.string,
+    onAcceptInvitation: React.PropTypes.func.isRequired,
+    onDismissInvitation: React.PropTypes.func.isRequired,
+    onHideWelcomeSetup: React.PropTypes.func.isRequired,
+    onRemovePatient: React.PropTypes.func.isRequired,
+    patients: React.PropTypes.array.isRequired,
+    showWelcomeMessage: React.PropTypes.func.isRequired,
     showingWelcomeMessage: React.PropTypes.bool,
-    onHideWelcomeSetup: React.PropTypes.func,
     trackMetric: React.PropTypes.func.isRequired,
-    onAcceptInvitation: React.PropTypes.func,
-    onDismissInvitation: React.PropTypes.func,
-    onRemovePatient: React.PropTypes.func,
-    uploadUrl: React.PropTypes.string,
-    clearPatientInView: React.PropTypes.func.isRequired
+    uploadUrl: React.PropTypes.string.isRequired,
+    user: React.PropTypes.object
   },
 
   render: function() {
@@ -351,6 +355,10 @@ export function mapStateToProps(state) {
 
     if (state.blip.targetUserId) {
       patientMap[state.blip.targetUserId] = state.blip.allUsersMap[state.blip.targetUserId];
+      // to pass through the permissions of the logged-in user on the target (usually self)
+      if (state.blip.permissionsOfMembersInTargetCareTeam[state.blip.targetUserId]) {
+        patientMap[state.blip.targetUserId].permissions = state.blip.permissionsOfMembersInTargetCareTeam[state.blip.targetUserId];
+      }
     }
 
     if (state.blip.memberInOtherCareTeams) {
@@ -398,14 +406,20 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.routes[0].api;
-  return Object.assign({}, ownProps, stateProps, dispatchProps, {
-    fetchers: getFetchers(dispatchProps, ownProps, api),
-    uploadUrl: api.getUploadUrl(),
-    onAcceptInvitation: dispatchProps.acceptReceivedInvite.bind(null, api),
-    onDismissInvitation: dispatchProps.rejectReceivedInvite.bind(null, api),
-    onRemovePatient: dispatchProps.removePatient.bind(null, api),
-    trackMetric: ownProps.routes[0].trackMetric
-  });
+  return Object.assign(
+    {},
+    _.pick(dispatchProps, ['clearPatientInView', 'showWelcomeMessage', 'onHideWelcomeSetup']),
+    stateProps,
+    {
+      fetchers: getFetchers(dispatchProps, ownProps, api),
+      location: ownProps.location,
+      uploadUrl: api.getUploadUrl(),
+      onAcceptInvitation: dispatchProps.acceptReceivedInvite.bind(null, api),
+      onDismissInvitation: dispatchProps.rejectReceivedInvite.bind(null, api),
+      onRemovePatient: dispatchProps.removePatient.bind(null, api),
+      trackMetric: ownProps.routes[0].trackMetric
+    }
+  );
 };
 
 export default connect(mapStateToProps, mapDispatchToProps, mergeProps)(Patients);

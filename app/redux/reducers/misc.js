@@ -19,15 +19,49 @@ import update from 'react-addons-update';
 
 import initialState from './initialState';
 import * as types from '../constants/actionTypes';
+import actionWorkingMap from '../constants/actionWorkingMap';
 
 export const notification = (state = initialState.notification, action) => {
   switch (action.type) {
-    case types.SHOW_NOTIFICATION: 
-      return update(state, { $set: action.payload.notification });
-    case types.ACKNOWLEDGE_NOTIFICATION:
-      if (!action.payload.acknowledgedNotification) {
-        return update(state, { $set: null });
+    case types.FETCH_USER_FAILURE:
+    case types.FETCH_PENDING_SENT_INVITES_FAILURE:
+    case types.FETCH_PENDING_RECEIVED_INVITES_FAILURE:
+    case types.FETCH_PATIENTS_FAILURE:
+    case types.FETCH_PATIENT_FAILURE:
+    case types.FETCH_PATIENT_DATA_FAILURE:
+    case types.FETCH_MESSAGE_THREAD_FAILURE:
+    case types.LOGIN_FAILURE:
+    case types.LOGOUT_FAILURE:
+    case types.SIGNUP_FAILURE:
+    case types.CONFIRM_SIGNUP_FAILURE:
+    case types.CONFIRM_PASSWORD_RESET_FAILURE:
+    case types.ACCEPT_TERMS_FAILURE:
+    case types.RESEND_EMAIL_VERIFICATION_FAILURE:
+    case types.CREATE_PATIENT_FAILURE:
+    case types.REMOVE_PATIENT_FAILURE:
+    case types.REMOVE_MEMBER_FAILURE:
+    case types.REQUEST_PASSWORD_RESET_FAILURE:
+    case types.SEND_INVITE_FAILURE:
+    case types.CANCEL_SENT_INVITE_FAILURE:
+    case types.ACCEPT_RECEIVED_INVITE_FAILURE:
+    case types.REJECT_RECEIVED_INVITE_FAILURE:
+    case types.SET_MEMBER_PERMISSIONS_FAILURE:
+    case types.UPDATE_PATIENT_FAILURE:
+    case types.UPDATE_USER_FAILURE:
+      const err = _.get(action, 'error', null);
+      if (err) {
+        return {
+          key: actionWorkingMap(action.type),
+          isDismissible: true,
+          link: _.get(action, ['payload', 'link'], null),
+          status: _.get(err, 'status', null)
+        };
       }
+      else {
+        return null;
+      }
+    case types.ACKNOWLEDGE_NOTIFICATION:
+      return null;
     default:
       return state;
   }
@@ -89,7 +123,7 @@ export const allUsersMap = (state = initialState.allUsersMap, action) => {
   switch(action.type) {
     case types.FETCH_USER_SUCCESS:
     case types.LOGIN_SUCCESS:
-      return update(state, { [action.payload.user.userid]: { $set: _.omit(action.payload.user, ['team']) } });
+      return update(state, { [action.payload.user.userid]: { $set: _.omit(action.payload.user, ['permissions', 'team']) } });
     case types.FETCH_PATIENT_SUCCESS: 
       let intermediate;
 
@@ -151,15 +185,20 @@ export const currentPatientInViewId = (state = initialState.currentPatientInView
 
 export const targetUserId = (state = initialState.targetUserId, action) => {
   switch(action.type) {
+    case types.CREATE_PATIENT_SUCCESS:
+      const userId = _.get(action.payload, ['patient', 'userid'], null);
+      if (userId) {
+        return userId;
+      }
     case types.FETCH_USER_SUCCESS:
     case types.LOGIN_SUCCESS:
       if (_.get(action.payload.user, ['profile', 'patient'])) {
-        return update(state, { $set: action.payload.user.userid });
+        return _.get(action.payload, ['user', 'userid']);
       } else {
-        return update(state, { $set: null });
+        return null;
       }
     case types.LOGOUT_REQUEST:
-      return update(state, { $set: null });
+      return null;
     default:
       return state;
   }
@@ -231,24 +270,39 @@ export const memberInOtherCareTeams = (state = initialState.memberInOtherCareTea
 };
 
 export const permissionsOfMembersInTargetCareTeam = (state = initialState.permissionsOfMembersInTargetCareTeam, action) => {
-  let permissions = {};
   switch(action.type) {
-    case types.FETCH_PATIENT_SUCCESS:
-      if (action.payload.patient.team) {
-        action.payload.patient.team.forEach((t) => permissions[t.userid] = t.permissions);
-        return update(state, { $set: permissions });
+    case types.CREATE_PATIENT_SUCCESS: {
+      const userId = _.get(action.payload, 'userId');
+      if (userId) {
+        return update(state, {
+          [userId]: { $set: {root: {}}}
+        });
+      } else {
+        return state;
       }
-        
-      return state;
+    }
+    case types.FETCH_PATIENT_SUCCESS: {
+      const team = _.get(action.payload, ['patient', 'team']);
+      if (!_.isEmpty(team)) {
+        let permissions = {};
+        team.forEach((t) => permissions[t.userid] = t.permissions);
+        return update(state, { $merge: permissions });
+      }
+    }
+    case types.FETCH_USER_SUCCESS:
+    case types.LOGIN_SUCCESS: {
+      const userId = _.get(action.payload, ['user', 'userid']);
+      const perms = _.get(action.payload, ['user', 'permissions']);
+      if (userId && !_.isEmpty(perms)) {
+        return update(state, {
+          [userId]: { $set: perms }
+        });
+      } else {
+        return state;
+      }
+    }
     case types.REMOVE_MEMBER_SUCCESS:
-      Object.keys(state).forEach((p) => {
-        let id = parseInt(p, 10);
-        if (id !== action.payload.removedMemberId) {
-          permissions[p] = p.permissions
-        }
-      });
-
-      return update(state, { $set: permissions });
+      return _.omit(state, _.get(action.payload, 'removedMemberId', null));
     case types.LOGOUT_REQUEST:
       return update(state, { $set: {} });
     default:

@@ -6,9 +6,9 @@ import AppComponent from './pages/app';
 import Patients from './pages/patients';
 import Login from './pages/login';
 import Signup from './pages/signup';
-import Profile from './pages/profile';
-import PatientProfile from './pages/patient/patientprofile';
-import PatientCareTeam from './pages/patient/patientcareteam'
+import UserProfile from './pages/userprofile';
+import PatientProfile from './pages/patientprofile/patientprofile';
+import Share from './pages/share/share';
 import PatientNew from './pages/patientnew';
 import PatientData from './pages/patientdata';
 import RequestPasswordReset from './pages/passwordreset/request';
@@ -237,11 +237,11 @@ export const getRoutes = (appContext, store) => {
       <Route path='terms' components={Terms} />
       <Route path='signup' component={Signup} onEnter={requireNoAuth(api)} />
       <Route path='email-verification' component={EmailVerification} onEnter={requireNotVerified(api, store)} />
-      <Route path='profile' component={Profile} onEnter={requireAuth(api, store)} />
+      <Route path='profile' component={UserProfile} onEnter={requireAuth(api, store)} />
       <Route path='patients' component={Patients} onEnter={requireAuth(api, store)} />
       <Route path='patients/new' component={PatientNew} onEnter={requireAuthAndNoPatient(api, store)} />
       <Route path='patients/:id/profile' component={PatientProfile} onEnter={requireAuth(api, store)} />
-      <Route path='patients/:id/share' component={PatientCareTeam} onEnter={requireAuth(api, store)} />
+      <Route path='patients/:id/share' component={Share} onEnter={requireAuth(api, store)} />
       <Route path='patients/:id/data' component={PatientData} onEnter={requireAuth(api, store)} />
       <Route path='request-password-reset' component={RequestPasswordReset} onEnter={requireNoAuth(api)} />
       <Route path='confirm-password-reset' component={ConfirmPasswordReset} onEnter={requireNoAuth(api)} />

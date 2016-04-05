@@ -33,9 +33,13 @@ import SimpleForm from '../../components/simpleform';
 
 export let Login = React.createClass({
   propTypes: {
+    acknowledgeNotification: React.PropTypes.func.isRequired,
+    confirmSignup: React.PropTypes.func.isRequired,
+    fetchers: React.PropTypes.array.isRequired,
+    isInvite: React.PropTypes.bool.isRequired,
+    notification: React.PropTypes.object,
     onSubmit: React.PropTypes.func.isRequired,
     seedEmail: React.PropTypes.string,
-    isInvite: React.PropTypes.bool,
     trackMetric: React.PropTypes.func.isRequired,
     working: React.PropTypes.bool.isRequired
   },
@@ -144,7 +148,7 @@ export let Login = React.createClass({
   },
 
   resetFormStateBeforeSubmit: function(formValues) {
-    this.props.acknowledgedNotification('loggingIn');
+    this.props.acknowledgeNotification('loggingIn');
     this.setState({
       formValues: formValues,
       validationErrors: {},
@@ -224,14 +228,14 @@ let getFetchers = (dispatchProps, ownProps, other, api) => {
 
 export function mapStateToProps(state) {
   return {
-    notification: state.blip.working.loggingIn.notification,
+    notification: state.blip.working.loggingIn.notification || state.blip.working.confirmingSignup.notification,
     working: state.blip.working.loggingIn.inProgress,
   };
 }
 
 let mapDispatchToProps = dispatch => bindActionCreators({
   onSubmit: actions.async.login,
-  acknowledgedNotification: actions.sync.acknowledgeNotification,
+  acknowledgeNotification: actions.sync.acknowledgeNotification,
   confirmSignup: actions.async.confirmSignup
 }, dispatch);
 
@@ -240,7 +244,7 @@ let mergeProps = (stateProps, dispatchProps, ownProps) => {
   let signupKey = utils.getSignupKey(ownProps.location);
   let isInvite = !_.isEmpty(utils.getInviteEmail(ownProps.location));
   let api = ownProps.routes[0].api;
-  return Object.assign({}, stateProps, dispatchProps, ownProps, {
+  return Object.assign({}, stateProps, dispatchProps, {
     fetchers: getFetchers(dispatchProps, ownProps, { signupKey }, api),
     isInvite: isInvite,
     seedEmail: seedEmail,

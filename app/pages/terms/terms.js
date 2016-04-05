@@ -23,12 +23,12 @@ import * as actions from '../../redux/actions';
 
 export class Terms extends React.Component {
   static propTypes = {
-    onSubmit: React.PropTypes.func.isRequired,
-    trackMetric: React.PropTypes.func.isRequired,
     ages: React.PropTypes.object.isRequired,
+    authenticated: React.PropTypes.bool.isRequired,
     messages: React.PropTypes.object.isRequired,
-    termsAccepted: React.PropTypes.string.isRequired,
-    authenticated: React.PropTypes.bool.isRequired
+    onSubmit: React.PropTypes.func.isRequired,
+    termsAccepted: React.PropTypes.string,
+    trackMetric: React.PropTypes.func.isRequired
   };
 
   static defaultProps = {
@@ -46,18 +46,18 @@ export class Terms extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {
-      agreed: false,
-      agreedOnBehalf: false,
-      ageConfirmed: false,
-      ageSelected: this.props.ages.OF_AGE.value //default
-    };
-  }
 
-  componentWillUpdate(nextProps, nextState) {
-    if (nextProps.termsAccepted && this.props.location.state && this.props.location.state.originalPath) {
-      this.props.history.push(this.props.location.state.originalPath)
+    function getDefaultState() {
+      return {
+        agreed: false,
+        agreedOnBehalf: false,
+        ageConfirmed: false,
+        ageSelected: props.ages.OF_AGE.value // default
+      }
     }
+
+    this.state = getDefaultState();
+    this.getDefaultState = getDefaultState.bind(this);
   }
 
   renderAgeConsentStep() {
@@ -154,7 +154,6 @@ export class Terms extends React.Component {
   }
 
   renderAgreeCheckboxes() {
-
     var onBehalf;
     if (this.state.ageSelected === this.props.ages.WITH_CONSENT.value) {
       onBehalf = (
@@ -207,11 +206,11 @@ export class Terms extends React.Component {
     }
 
     if (this.state.ageConfirmed) {
-      //assume we are good to go
+      // assume we are good to go
       content = this.renderTermsAndPrivacyStep();
 
       if (this.state.ageSelected === this.props.ages.NOT_OF_AGE.value) {
-        //unless they are NOT_OF_AGE
+        // unless they are NOT_OF_AGE
         content = this.renderSorryMessage();
       }
     }
@@ -251,7 +250,7 @@ export class Terms extends React.Component {
     if (e) {
       e.preventDefault();
     }
-    this.setState(this.getInitialState());
+    this.setState(this.getDefaultState());
     this.props.trackMetric('Back');
   }
 
@@ -264,7 +263,7 @@ export class Terms extends React.Component {
   }
 
   handleAgeChange(e) {
-    this.setState({ ageSelected: e.target.value});
+    this.setState({ageSelected: e.target.value});
   }
 
   handleAgreementChange() {
@@ -302,7 +301,6 @@ export function mapStateToProps(state) {
     authenticated: state.blip.isLoggedIn,
     termsAccepted: termsAccepted
   };
-
 };
 
 let mapDispatchToProps = dispatch => bindActionCreators({
@@ -311,7 +309,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.routes[0].api;
-  return Object.assign({}, ownProps, stateProps, dispatchProps, {
+  return Object.assign({}, stateProps, {
     onSubmit: dispatchProps.acceptTerms.bind(null, api),
     trackMetric: ownProps.routes[0].trackMetric
   });

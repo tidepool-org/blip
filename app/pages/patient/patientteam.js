@@ -133,7 +133,7 @@ var MemberInviteForm = React.createClass({
 
     if (!validateEmail(email)) {
       this.setState({
-        error: 'Invalid email address'
+        error: 'Invalid email address.'
       });
       return;
     } else {
@@ -161,20 +161,11 @@ var MemberInviteForm = React.createClass({
 
 var ConfirmDialog = React.createClass({
   propTypes: {
-    working: React.PropTypes.bool.isRequired,
-    error: React.PropTypes.string,
-    message: React.PropTypes.node,
     buttonText: React.PropTypes.string,
     dismissText: React.PropTypes.string,
-    buttonTextWorking: React.PropTypes.string,
-    onSubmit: React.PropTypes.func,
-    onCancel: React.PropTypes.func
-  },
-
-  getInitialState: function() {
-    return {
-      error: null
-    };
+    message: React.PropTypes.node,
+    onCancel: React.PropTypes.func,
+    onSubmit: React.PropTypes.func
   },
 
   render: function() {
@@ -185,15 +176,12 @@ var ConfirmDialog = React.createClass({
         </div>
         <div className="ModalOverlay-controls">
           <button className="PatientInfo-button PatientInfo-button--secondary" type="button"
-            onClick={this.props.onCancel}
-            disabled={this.props.working}>{this.props.dismissText || 'Cancel'}</button>
+            onClick={this.props.onCancel}>{this.props.dismissText || 'Cancel'}</button>
           <button className="PatientInfo-button PatientInfo-button--warning PatientInfo-button--primary" type="submit"
-            onClick={this.handleSubmit}
-            disabled={this.props.working}>
-            {this.props.working ? this.props.buttonTextWorking : this.props.buttonText}
+            onClick={this.handleSubmit}>
+            {this.props.buttonText}
           </button>
         </div>
-        <div className="PatientTeam-validationError">{this.props.error || this.state.error}</div>
       </div>
     );
   },
@@ -203,28 +191,25 @@ var ConfirmDialog = React.createClass({
       e.preventDefault();
     }
 
-    this.setState({
-      error: null
-    });
-
     this.props.onSubmit();
   }
 });
 
 var PatientTeam = React.createClass({
   propTypes: {
-    user: React.PropTypes.object,
-    patient: React.PropTypes.object,
-    pendingSentInvites: React.PropTypes.array,
-    onChangeMemberPermissions: React.PropTypes.func,
-    onRemoveMember: React.PropTypes.func,
-    onInviteMember: React.PropTypes.func,
-    onCancelInvite: React.PropTypes.func,
-    trackMetric: React.PropTypes.func.isRequired, 
-    changingMemberPermissions: React.PropTypes.object.isRequired,
-    removingMember: React.PropTypes.object.isRequired,
-    invitingMember: React.PropTypes.object.isRequired,
-    cancellingInvite: React.PropTypes.object.isRequired
+    acknowledgeNotification: React.PropTypes.func.isRequired,
+    cancellingInvite: React.PropTypes.bool.isRequired,
+    changingMemberPermissions: React.PropTypes.bool.isRequired,
+    invitingMemberInfo: React.PropTypes.object.isRequired,
+    onCancelInvite: React.PropTypes.func.isRequired,
+    onChangeMemberPermissions: React.PropTypes.func.isRequired,
+    onInviteMember: React.PropTypes.func.isRequired,
+    onRemoveMember: React.PropTypes.func.isRequired,
+    patient: React.PropTypes.object.isRequired,
+    pendingSentInvites: React.PropTypes.array.isRequired,
+    removingMember: React.PropTypes.bool.isRequired,
+    trackMetric: React.PropTypes.func.isRequired,
+    user: React.PropTypes.object.isRequired
   },
 
   getInitialState: function() {
@@ -249,12 +234,10 @@ var PatientTeam = React.createClass({
 
     return (
       <ConfirmDialog
-        working={self.props.removingMember.inProgress}
-        message={'Are you sure you want to remove this person? They will no longer be able to see or comment on your data.'}
         buttonText={'I\'m sure, remove them'}
-        buttonTextWorking={'Removing...'}
-        onSubmit={handleSubmit}
-        onCancel={handleCancel} />
+        message={'Are you sure you want to remove this person? They will no longer be able to see or comment on your data.'}
+        onCancel={handleCancel}
+        onSubmit={handleSubmit} />
     );
   },
 
@@ -329,14 +312,13 @@ var PatientTeam = React.createClass({
               <PermissionInputGroup 
                 onChange={this.handlePermissionChange(member)} 
                 value={allowUpload} 
-                working={this.props.changingMemberPermissions.inProgress}
+                working={this.props.changingMemberPermissions}
               />
             </div>
           </div>
         </div>
       </li>
     );
-
   },
 
   renderCancelInviteDialog: function(invite) {
@@ -350,23 +332,13 @@ var PatientTeam = React.createClass({
       });
     };
 
-    var error = null;
-    var notification = this.props.cancellingInvite.notification; 
-
-    if (notification && notification.type === 'error') {
-      error = notification.message;
-    }
-
     return (
       <ConfirmDialog
-        message={'Are you sure you want to cancel your invitation to ' + invite.email + '?'}
         buttonText={'Yes'}
         dismissText={'No'}
-        buttonTextWorking={'Canceling invitation...'}
-        onSubmit={handleSubmit}
+        message={'Are you sure you want to cancel your invitation to ' + invite.email + '?'}
         onCancel={handleCancel}
-        working={this.props.cancellingInvite.inProgress}
-        error={error} />
+        onSubmit={handleSubmit} />
     );
   },
 
@@ -385,7 +357,6 @@ var PatientTeam = React.createClass({
   },
 
   renderPendingInvite: function(invite) {
-
     return (
       <li key={invite.key} className="PatientTeam-member--fadeNew  PatientTeam-member">
         <div className="PatientInfo-head">
@@ -410,7 +381,7 @@ var PatientTeam = React.createClass({
       self.props.onInviteMember(email, permissions);
 
       self.setState({
-        invite: false,
+        invite: false
       });
     };
 
@@ -418,10 +389,11 @@ var PatientTeam = React.createClass({
       self.setState({
         invite: false
       });
+      self.props.acknowledgeNotification('sendingInvite');
     };
 
     var error = null;
-    var notification = this.props.cancellingInvite.notification; 
+    var notification = _.get(this.props.invitingMemberInfo, 'notification');
 
     if (notification && notification.type === 'error') {
       error = notification.message;
@@ -432,7 +404,7 @@ var PatientTeam = React.createClass({
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         trackMetric={this.props.trackMetric}
-        working={this.props.invitingMember.inProgress}
+        working={_.get(this.props.invitingMemberInfo, 'inProgress')}
         error={error}
       />
     );
@@ -462,7 +434,6 @@ var PatientTeam = React.createClass({
     };
 
     return (
-      
       <li className={classes}>
         <div className="PatientInfo-head">
           <div className="PatientTeam-picture PatientInfo-picture PatientTeam-picture--newMember"></div>
@@ -473,9 +444,7 @@ var PatientTeam = React.createClass({
           </div>
         </div>
       </li>
-      
     );
-
   },
 
   overlayClickHandler: function() {
@@ -485,16 +454,12 @@ var PatientTeam = React.createClass({
   },
 
   renderModalOverlay: function() {
-
     return (
-      
       <ModalOverlay
         show={this.state.showModalOverlay}
         dialog={this.state.dialog}
         overlayClickHandler={this.overlayClickHandler}/>
-      
     );
-
   },
 
   renderEditControls: function() {
@@ -536,7 +501,11 @@ var PatientTeam = React.createClass({
       pendingSentInvites = _.map(this.props.pendingSentInvites, this.renderPendingInvite);
     }
 
-    var invite = this.state && this.state.invite ? this.renderInviteForm() : this.renderInvite();
+    var inviteInProgress = _.get(this.props.invitingMemberInfo, 'inProgress', false);
+    var inviteError = _.get(this.props.invitingMemberInfo, 'notification', false);
+
+    var invite = (this.state.invite || inviteInProgress || inviteError)
+      ? this.renderInviteForm() : this.renderInvite();
 
     var emptyList = !(members || pendingSentInvites);
     var listClass = cx({

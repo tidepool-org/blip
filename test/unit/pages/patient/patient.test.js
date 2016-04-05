@@ -5,22 +5,58 @@
 
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
+
+import rewire from 'rewire';
+import rewireModule from '../../../utils/rewireModule';
+
 var expect = chai.expect;
 
-import Patient from '../../../../app/pages/patient/patient';
+var Patient = rewire('../../../../app/pages/patient/patient');
 import PatientTeam from '../../../../app/pages/patient/patientteam';
 
 describe('Patient', function () {
-  describe('getInitialState', function() {
-    it('should return an object when showModalOverlay is false', function() {
+  rewireModule(Patient, {
+    PatientInfo: React.createClass({
+      render: function() {
+        return (<div className='fake-patient-info-view'></div>);
+      }
+    })
+  });
+
+  describe('render', function() {
+    it('should render without problems when required props are present', function() {
       console.error = sinon.stub();
       var props = {
-        trackMetric: function() {},
-        changingMemberPermissions: {},
-        removingMember: {},
-        invitingMember: {},
-        cancellingInvite: {}
+        acknowledgeNotification: sinon.stub(),
+        fetchers: [],
+        fetchingPatient: false,
+        fetchingUser: false,
+        trackMetric: sinon.stub()
       };
+      var patientElem = React.createElement(Patient, props);
+      var elem = TestUtils.renderIntoDocument(patientElem);
+
+      expect(elem).to.be.ok;
+      expect(console.error.callCount).to.equal(0);
+    });
+
+    it('should warn when no props are set', function () {
+      console.error = sinon.stub();
+      var elem = TestUtils.renderIntoDocument(<Patient/>);
+
+      expect(elem).to.be.ok;
+      expect(console.error.callCount).to.equal(5);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `acknowledgeNotification` was not specified in `Patient`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchers` was not specified in `Patient`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingPatient` was not specified in `Patient`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingUser` was not specified in `Patient`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `Patient`.')).to.equal(true);
+    });
+  });
+
+  describe('getInitialState', function() {
+    it('should return an object', function() {
+      var props = {};
       var patientElem = React.createElement(Patient, props);
       var elem = TestUtils.renderIntoDocument(patientElem);
       var initialState = elem.getInitialState();
@@ -28,53 +64,30 @@ describe('Patient', function () {
       expect(Object.keys(initialState).length).to.equal(2);
       expect(initialState.showModalOverlay).to.equal(false);
       expect(initialState.dialog).to.equal('');
-      expect(console.error.callCount).to.equal(0);
-    });
-  });
-
-  describe('render', function() {
-    it('should console.error when trackMetric not set', function () {
-      console.error = sinon.stub();
-      var elem = TestUtils.renderIntoDocument(<Patient/>);
-
-      expect(elem).to.be.ok;
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `Patient`.')).to.equal(true);
-    });
-
-    it('should not console.error when trackMetric set', function() {
-      console.error = sinon.stub();
-      var props = {
-        trackMetric: function() {},
-        changingMemberPermissions: {},
-        removingMember: {},
-        invitingMember: {},
-        cancellingInvite: {}
-      };
-      var patientElem = React.createElement(Patient, props);
-      var elem = TestUtils.renderIntoDocument(patientElem);
-
-      expect(elem).to.be.ok;
-      expect(console.error.callCount).to.equal(0);
     });
   });
 
   describe('renderPatientTeam', function() {
     it('should not render when user and patient ids are different', function() {
-      console.error = sinon.stub();
       var props = {
-        user: {
-          userid: 'foo'
-        },
-        patient: {
-          userid: 'bar',
-          team: []
-        },
+        acknowledgeNotification: sinon.stub(),
+        cancellingInvite: false,
+        changingMemberPermissions: false,
+        fetchers: [],
+        fetchingPatient: false,
+        fetchingUser: false,
+        invitingMemberInfo: {inProgress: false, notification: null},
+        onCancelInvite: sinon.stub(),
+        onChangeMemberPermissions: sinon.stub(),
+        onInviteMember: sinon.stub(),
+        onRemoveMember: sinon.stub(),
+        onUpdatePatient: sinon.stub(),
+        patient: {userid: 'bar', team: []},
+        pendingSentInvites: [],
+        removingMember: false,
         shareOnly: true,
-        trackMetric: function() {},
-        changingMemberPermissions: {},
-        removingMember: {},
-        invitingMember: {},
-        cancellingInvite: {}
+        trackMetric: sinon.stub(),
+        user: {userid: 'foo'}
       };
       var patientElem = React.createElement(Patient, props);
       var elem = TestUtils.renderIntoDocument(patientElem);
@@ -83,25 +96,28 @@ describe('Patient', function () {
       };
 
       expect(getShareSection).to.throw(Error);
-      expect(console.error.callCount).to.equal(0);
     });
 
     it('should not render when shareOnly is false', function() {
-      console.error = sinon.stub();
       var props = {
-        user: {
-          userid: 'foo'
-        },
-        patient: {
-          userid: 'foo',
-          team: []
-        },
+        acknowledgeNotification: sinon.stub(),
+        cancellingInvite: false,
+        changingMemberPermissions: false,
+        fetchers: [],
+        fetchingPatient: false,
+        fetchingUser: false,
+        invitingMemberInfo: {inProgress: false, notification: null},
+        onCancelInvite: sinon.stub(),
+        onChangeMemberPermissions: sinon.stub(),
+        onInviteMember: sinon.stub(),
+        onRemoveMember: sinon.stub(),
+        onUpdatePatient: sinon.stub(),
+        patient: {userid: 'foo', team: []},
+        pendingSentInvites: [],
+        removingMember: false,
         shareOnly: false,
-        trackMetric: function() {},
-        changingMemberPermissions: {},
-        removingMember: {},
-        invitingMember: {},
-        cancellingInvite: {}
+        trackMetric: sinon.stub(),
+        user: {userid: 'foo'}
       };
       var patientElem = React.createElement(Patient, props);
       var elem = TestUtils.renderIntoDocument(patientElem);
@@ -110,59 +126,60 @@ describe('Patient', function () {
       };
 
       expect(getShareSection).to.throw(Error);
-      expect(console.error.callCount).to.equal(0);
     });
 
     it('should render when shareOnly is true', function() {
-      console.error = sinon.stub();
       var props = {
-        user: {
-          userid: 'foo'
-        },
-        patient: {
-          userid: 'foo',
-          team: []
-        },
+        acknowledgeNotification: sinon.stub(),
+        cancellingInvite: false,
+        changingMemberPermissions: false,
+        fetchers: [],
+        fetchingPatient: false,
+        fetchingUser: false,
+        invitingMemberInfo: {inProgress: false, notification: null},
+        onCancelInvite: sinon.stub(),
+        onChangeMemberPermissions: sinon.stub(),
+        onInviteMember: sinon.stub(),
+        onRemoveMember: sinon.stub(),
+        onUpdatePatient: sinon.stub(),
+        patient: {userid: 'foo', team: []},
+        pendingSentInvites: [],
+        removingMember: false,
         shareOnly: true,
-        trackMetric: function() {},
-        changingMemberPermissions: {},
-        removingMember: {},
-        invitingMember: {},
-        cancellingInvite: {}
+        trackMetric: sinon.stub(),
+        user: {userid: 'foo'}
       };
       var patientElem = React.createElement(Patient, props);
       var elem = TestUtils.renderIntoDocument(patientElem);
       var share = TestUtils.findRenderedDOMComponentWithClass(elem, 'PatientPage-teamSection');
 
       expect(share).to.be.ok;
-      expect(console.error.callCount).to.equal(0);
     });
 
     it('should transfer all props to patient-team', function() {
-      console.error = sinon.stub();
       var props = {
-        onCancelInvite: function() {},
-        onChangeMemberPermissions: function() {},
-        onInviteMember: function() {},
-        onRemoveMember: function() {},
-        patient: {
-          userid: 'foo',
-          team: ['coffee', 'mug']
-        },
+        acknowledgeNotification: sinon.stub(),
+        cancellingInvite: false,
+        changingMemberPermissions: false,
+        fetchers: [],
+        fetchingPatient: false,
+        fetchingUser: false,
+        invitingMemberInfo: {inProgress: false, notification: null},
+        onCancelInvite: sinon.stub(),
+        onChangeMemberPermissions: sinon.stub(),
+        onInviteMember: sinon.stub(),
+        onRemoveMember: sinon.stub(),
+        onUpdatePatient: sinon.stub(),
+        patient: {userid: 'foo', team: ['coffee', 'mug']},
         pendingSentInvites: [
-          { key: 'foo' },
-          { key: 'bar' },
-          { key: 'baz' }
+          {key: 'foo'},
+          {key: 'bar'},
+          {key: 'baz'}
         ],
+        removingMember: false,
         shareOnly: true,
-        trackMetric: function() {},
-        user: {
-          userid: 'foo'
-        },
-        changingMemberPermissions: {},
-        removingMember: {},
-        invitingMember: {},
-        cancellingInvite: {}
+        trackMetric: sinon.stub(),
+        user: {userid: 'foo'}
       };
       var patientElem = React.createElement(Patient, props);
       var elem = TestUtils.renderIntoDocument(patientElem);
@@ -177,7 +194,6 @@ describe('Patient', function () {
       expect(team.props.pendingSentInvites.length).to.equal(3);
       expect(team.props.user.userid).to.equal('foo');
       expect(team.props.trackMetric).to.be.ok;
-      expect(console.error.callCount).to.equal(0);
     });
   });
 });

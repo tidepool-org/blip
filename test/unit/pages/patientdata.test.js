@@ -12,6 +12,8 @@ import rewireModule from '../../utils/rewireModule';
 var assert = chai.assert;
 var expect = chai.expect;
 
+// We must remember to require the base module when mocking dependencies,
+// otherwise dependencies mocked will be bound to the wrong scope!
 var PD = rewire('../../../app/pages/patientdata/patientdata.js');
 import { mapStateToProps } from '../../../app/pages/patientdata/patientdata.js';
 
@@ -23,10 +25,6 @@ var PatientData = PD.PatientData;
 window.config = {};
 
 describe('PatientData', function () {
-  // We must remember to require the base module when mocking dependencies,
-  // otherwise dependencies mocked will be bound to the wrong scope!
-  
-
   rewireModule(PD, {
     Basics: React.createClass({
       render: function() {
@@ -40,29 +38,25 @@ describe('PatientData', function () {
   });
 
   describe('render', function() {
-    it('should warn when required props are not present', function() {
-      console.error = sinon.spy();
-      var elem = TestUtils.renderIntoDocument(<PatientData/>);
-      expect(elem).to.be.ok;
-      expect(console.error.callCount).to.equal(5);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingPatient` was not specified in `PatientData`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingPatientData` was not specified in `PatientData`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `queryParams` was not specified in `PatientData`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `PatientData`.')).to.equal(true);
-      expect(console.error.calledWith('Warning: Failed propType: Required prop `currentPatientInViewId` was not specified in `PatientData`.')).to.equal(true);
-    });
-
     it ('should not warn when required props are set', function() {
       var props = {
-        timePrefs: {
-          timezoneAware: false,
-          timezoneName: null
-        },
+        clearPatientData: sinon.stub(),
+        currentPatientInViewId: 'smestring',
+        fetchers: [],
         fetchingPatient: false,
         fetchingPatientData: false,
+        isUserPatient: false,
+        onCloseMessageThread: sinon.stub(),
+        onCreateMessage: sinon.stub(),
+        onEditMessage: sinon.stub(),
+        onFetchMessageThread: sinon.stub(),
+        onRefresh: sinon.stub(),
+        onSaveComment: sinon.stub(),
+        patientDataMap: {},
+        patientNotesMap: {},
         queryParams: {},
         trackMetric: sinon.stub(),
-        currentPatientInViewId: '456kgkghs'
+        uploadUrl: 'http://foo.com'
       };
 
       console.error = sinon.spy();
@@ -72,151 +66,344 @@ describe('PatientData', function () {
       expect(console.error.callCount).to.equal(0);
     });
 
-    it ('should render the loading message and image when no data is present and fetchingPatient is true', function() {
-      var props = {
-        timePrefs: {
-          timezoneAware: false,
-          timezoneName: null
-        },
-        fetchingPatient: false,
-        fetchingPatientData: true,
-        queryParams: {},
-        trackMetric: sinon.stub(),
-        currentPatientInViewId: '456kgkghs'
-      };
-
-      // Try out using the spread props syntax in JSX
-      var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+    it('should warn when required props are not present', function() {
+      console.error = sinon.spy();
+      var elem = TestUtils.renderIntoDocument(<PatientData/>);
       expect(elem).to.be.ok;
-      
-      var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-loading-image');
-      expect(x).to.be.ok;
-
-      var y = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-loading-message');
-      expect(y).to.be.ok;
+      expect(console.error.callCount).to.equal(17);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `clearPatientData` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `currentPatientInViewId` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchers` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingPatient` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingPatientData` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `isUserPatient` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `onCloseMessageThread` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `onCreateMessage` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `onEditMessage` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `onFetchMessageThread` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `onRefresh` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `onSaveComment` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `patientDataMap` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `patientNotesMap` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `queryParams` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `PatientData`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `uploadUrl` was not specified in `PatientData`.')).to.equal(true);
     });
 
-    it ('should render the no data message when no data is present and loading is false', function() {
-      var props = {
-        timePrefs: {
-          timezoneAware: false,
-          timezoneName: null
-        },
-        fetchingPatient: false,
-        fetchingPatientData: false,
-        queryParams: {},
-        trackMetric: sinon.stub(),
-        currentPatientInViewId: '456kgkghs'
-      };
+    describe('loading message', () => {
+      it('should render the loading message and image when fetchingPatient is true', function() {
+        var props = {
+          fetchingPatient: true,
+          fetchingPatientData: false
+        };
 
-      // Try out using the spread props syntax in JSX
-      var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+        // Try out using the spread props syntax in JSX
+        var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+        expect(elem).to.be.ok;
 
-      expect(elem).to.be.ok;
-      elem.setState({processingData: false});
+        var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-loading-image');
+        expect(x).to.be.ok;
 
-      var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message');
-      expect(x).to.be.ok;
+        var y = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-loading-message');
+        expect(y).to.be.ok;
+      });
+
+      it('should render the loading message and image when fetchingPatientData is true', function() {
+        var props = {
+          fetchingPatient: false,
+          fetchingPatientData: true
+        };
+
+        // Try out using the spread props syntax in JSX
+        var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+        expect(elem).to.be.ok;
+
+        var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-loading-image');
+        expect(x).to.be.ok;
+
+        var y = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-loading-message');
+        expect(y).to.be.ok;
+      });
+
+      it('should render the loading message and image when both fetchingPatient and fetchingPatientData are true', function() {
+        var props = {
+          fetchingPatient: true,
+          fetchingPatientData: true
+        };
+
+        // Try out using the spread props syntax in JSX
+        var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+        expect(elem).to.be.ok;
+
+        var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-loading-image');
+        expect(x).to.be.ok;
+
+        var y = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-loading-message');
+        expect(y).to.be.ok;
+      });
+
+      it('should still render the loading message and image when fetching is done but data is being processed', function() {
+        var props = {
+          fetchingPatient: false,
+          fetchingPatientData: false
+        };
+
+        // Try out using the spread props syntax in JSX
+        var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+        expect(elem).to.be.ok;
+
+        var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-loading-image');
+        expect(x).to.be.ok;
+
+        var y = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-loading-message');
+        expect(y).to.be.ok;
+      });
+
+      // this is THE REGRESSION TEST for the "data mismatch" bug
+      it('should continue to render the loading message when data has been fetched for someone else but not for current patient', () => {
+        var props = {
+          currentPatientInViewId: 41,
+          fetchingPatient: false,
+          fetchingPatientData: false
+        };
+
+        // Try out using the spread props syntax in JSX
+        var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+        // bypass the actual processing function since that's not what we're testing here!
+        elem.doProcessing = sinon.spy();
+        elem.componentWillReceiveProps({
+          patientDataMap: {
+            40: [{type: 'cbg'}]
+          },
+          patientNotesMap: {
+            40: []
+          }
+        });
+
+        expect(elem.doProcessing.callCount).to.equal(0);
+
+        var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-loading-image');
+        expect(x).to.be.ok;
+
+        var y = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-loading-message');
+        expect(y).to.be.ok;
+      });
+
+      it('should NOT render the loading message and image when fetching is done and data is processed', function() {
+        var props = {
+          fetchingPatient: false,
+          fetchingPatientData: false
+        };
+
+        // Try out using the spread props syntax in JSX
+        var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+        expect(elem).to.be.ok;
+        elem.setState({
+          processingData: false
+        });
+
+        expect(() => { TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-loading-image'); })
+          .to.throw('Did not find exactly one match (found: 0) for class:patient-data-loading-image');
+
+        expect(() => { TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-loading-message'); })
+          .to.throw('Did not find exactly one match (found: 0) for class:patient-data-loading-message');
+      });
     });
 
-    it ('should render the no data message when no data is present, isUserPatient and loading is false', function() {
-      var props = {
-        timePrefs: {
-          timezoneAware: false,
-          timezoneName: null
-        },
-        isUserPatient: true,
-        fetchingPatient: false,
-        fetchingPatientData: false,
-        queryParams: {},
-        trackMetric: sinon.stub(),
-        currentPatientInViewId: '456kgkghs'
-      };
+    describe('no data message', () => {
+      describe('logged-in user is not current patient targeted for viewing', () => {
+        it ('should render the no data message when no data is present and loading and processingData are false', function() {
+          var props = {
+            patient: {
+              profile: {
+                fullName: 'Fooey McBar'
+              }
+            },
+            fetchingPatient: false,
+            fetchingPatientData: false
+          };
 
-      // Try out using the spread props syntax in JSX
-      var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
-      expect(elem).to.be.ok;
-      elem.setState({processingData: false});
-      var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message-no-data');
-      expect(x).to.be.ok;
+          // Try out using the spread props syntax in JSX
+          var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+
+          expect(elem).to.be.ok;
+          elem.setState({processingData: false});
+
+          var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message');
+          expect(x).to.be.ok;
+
+          expect(x.getDOMNode().textContent).to.equal('Fooey McBar does not have any data yet.');
+        });
+
+        it ('should render the no data message when no data is present for current patient', function() {
+          var props = {
+            currentPatientInViewId: 40,
+            patient: {
+              userid: 40,
+              profile: {
+                fullName: 'Fooey McBar'
+              }
+            },
+            fetchingPatient: false,
+            fetchingPatientData: false
+          };
+
+          // Try out using the spread props syntax in JSX
+          var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+          // bypass the actual processing function since that's not what we're testing here!
+          elem.doProcessing = () => {
+            elem.setState({
+              processedPatientData: {data: []},
+              processingData: false
+            });
+          }
+          elem.componentWillReceiveProps({
+            patientDataMap: {
+              40: []
+            },
+            patientNotesMap: {
+              40: []
+            }
+          });
+
+          var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message');
+          expect(x).to.be.ok;
+
+          expect(x.getDOMNode().textContent).to.equal('Fooey McBar does not have any data yet.');
+        });
+      });
+
+      describe('logged-in user is viewing own data', () => {
+        it ('should render the no data message when no data is present and loading and processingData are false', function() {
+          var props = {
+            isUserPatient: true,
+            fetchingPatient: false,
+            fetchingPatientData: false
+          };
+
+          // Try out using the spread props syntax in JSX
+          var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+          expect(elem).to.be.ok;
+          elem.setState({processingData: false});
+          var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message-no-data');
+          expect(x).to.be.ok;
+        });
+
+        it ('should render the no data message when no data is present for current patient', function() {
+          var props = {
+            currentPatientInViewId: 40,
+            isUserPatient: true,
+            patient: {
+              userid: 40,
+              profile: {
+                fullName: 'Fooey McBar'
+              }
+            },
+            fetchingPatient: false,
+            fetchingPatientData: false
+          };
+
+          // Try out using the spread props syntax in JSX
+          var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+          // bypass the actual processing function since that's not what we're testing here!
+          elem.doProcessing = () => {
+            elem.setState({
+              processedPatientData: {data: []},
+              processingData: false
+            });
+          }
+          elem.componentWillReceiveProps({
+            patientDataMap: {
+              40: []
+            },
+            patientNotesMap: {
+              40: []
+            }
+          });
+
+          var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message-no-data');
+          expect(x).to.be.ok;
+        });
+      });
     });
 
-    it ('should render the no data message when no data is present, isUserPatient and loading is false', function() {
-      var props = {
-        timePrefs: {
-          timezoneAware: false,
-          timezoneName: null
-        },
-        patient: {
-          userid: 40
-        },
-        fetchingPatient: false,
-        fetchingPatientData: false,
-        queryParams: {},
-        trackMetric: sinon.stub(),
-        currentPatientInViewId: '456kgkghs'
-      };
 
-      // Try out using the spread props syntax in JSX
-      var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
-      expect(elem).to.be.ok;
-      
-      var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message');
-      expect(x).to.be.ok;
-    });
 
-    it ('should render the no data message when no data is present for current patient', function() {
-      var props = {
-        timePrefs: {
-          timezoneAware: false,
-          timezoneName: null
-        },
-        patient: {
-          userid: 40
-        },
-        patientData: {
-          41: { data: [] }
-        },
-        fetchingPatient: false,
-        fetchingPatientData: false,
-        queryParams: {},
-        trackMetric: sinon.stub(),
-        currentPatientInViewId: '456kgkghs'
-      };
+    describe('render data (finally!)', () => {
+      describe('logged-in user is not current patient targeted for viewing', () => {
+        it ('should render the default <Basics> when data is present for current patient', function() {
+          var props = {
+            currentPatientInViewId: 40,
+            patient: {
+              userid: 40,
+              profile: {
+                fullName: 'Fooey McBar'
+              }
+            },
+            fetchingPatient: false,
+            fetchingPatientData: false
+          };
 
-      // Try out using the spread props syntax in JSX
-      var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
-      expect(elem).to.be.ok;
-      
-      var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'patient-data-message');
-      expect(x).to.be.ok;
-    });
+          // Try out using the spread props syntax in JSX
+          var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+          // bypass the actual processing function since that's not what we're testing here!
+          elem.doProcessing = () => {
+            elem.setState({
+              processedPatientData: {data: [{type: 'cbg'}]},
+              processingData: false
+            });
+          }
+          elem.componentWillReceiveProps({
+            patientDataMap: {
+              40: []
+            },
+            patientNotesMap: {
+              40: []
+            }
+          });
 
-    it ('should render when data is present for current patient', function() {
-      var props = {
-        timePrefs: {
-          timezoneAware: false,
-          timezoneName: null
-        },
-        patient: {
-          userid: 40
-        },
-        patientData: {
-          40: { data: [ 1, 2] }
-        },
-        fetchingPatient: false,
-        fetchingPatientData: false,
-        queryParams: {},
-        trackMetric: sinon.stub(),
-        currentPatientInViewId: '456kgkghs'
-      };
+          var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-basics-view');
+          expect(x).to.be.ok;
+        });
+      });
 
-      var pdElem = React.createElement(PatientData, props);
-      var elem = TestUtils.renderIntoDocument(pdElem);
-      expect(elem).to.be.ok;
-      elem.setState({processingData: false, processedPatientData: { data: [ { type: 'data', value: 100 }]}});
-      var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-basics-view');
-      expect(x).to.be.ok;
+      describe('logged-in user is viewing own data', () => {
+        it ('should render the default <Basics> when data is present for current patient', function() {
+          var props = {
+            currentPatientInViewId: 40,
+            isUserPatient: true,
+            patient: {
+              userid: 40,
+              profile: {
+                fullName: 'Fooey McBar'
+              }
+            },
+            fetchingPatient: false,
+            fetchingPatientData: false
+          };
+
+          // Try out using the spread props syntax in JSX
+          var elem = TestUtils.renderIntoDocument(<PatientData {...props}/>);
+          // bypass the actual processing function since that's not what we're testing here!
+          elem.doProcessing = () => {
+            elem.setState({
+              processedPatientData: {data: [{type: 'cbg'}]},
+              processingData: false
+            });
+          }
+          elem.componentWillReceiveProps({
+            patientDataMap: {
+              40: []
+            },
+            patientNotesMap: {
+              40: []
+            }
+          });
+
+          var x = TestUtils.findRenderedDOMComponentWithClass(elem, 'fake-basics-view');
+          expect(x).to.be.ok;
+        });
+      });
     });
   });
 

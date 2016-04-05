@@ -12,16 +12,33 @@ var PatientInfo = require('../../../../app/pages/patient/patientinfo');
 describe('PatientInfo', function () {
 
   describe('render', function() {
-    it('should not console.error when trackMetric set', function() {
+    it('should render without problems when required props are present', () => {
       console.error = sinon.spy();
       var props = {
-        trackMetric: function() {}
+        fetchingPatient: false,
+        fetchingUser: false,
+        onUpdatePatient: sinon.stub(),
+        trackMetric: sinon.stub()
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);
+    });
+
+    it('should warn when no props are set', function() {
+      console.error = sinon.stub();
+      var props = {};
+
+      var patientInfoElem = React.createElement(PatientInfo, props);
+      var elem = TestUtils.renderIntoDocument(patientInfoElem);
+      expect(elem).to.be.ok;
+      expect(console.error.callCount).to.equal(4);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingPatient` was not specified in `PatientInfo`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `fetchingUser` was not specified in `PatientInfo`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `onUpdatePatient` was not specified in `PatientInfo`.')).to.equal(true);
+      expect(console.error.calledWith('Warning: Failed propType: Required prop `trackMetric` was not specified in `PatientInfo`.')).to.equal(true);
     });
   });
 
@@ -43,9 +60,7 @@ describe('PatientInfo', function () {
 
   describe('toggleEdit', function() {
     it('should change the value of editing from false to true and back', function() {
-      var props = {
-        trackMetric: function() {}
-      };
+      var props = {};
 
       var patientInfoElem = React.createElement(PatientInfo, props);
       var elem = TestUtils.renderIntoDocument(patientInfoElem);
@@ -66,8 +81,7 @@ describe('PatientInfo', function () {
         },
         patient: {
           userid: 'bar'
-        },
-        trackMetric: function() {}
+        }
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
@@ -83,8 +97,7 @@ describe('PatientInfo', function () {
         },
         patient: {
           userid: 1
-        },
-        trackMetric: function() {}
+        }
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
@@ -122,8 +135,7 @@ describe('PatientInfo', function () {
               birthday: '1984-05-18'
             }
           }
-        },
-        trackMetric: function() {}
+        }
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
@@ -149,8 +161,7 @@ describe('PatientInfo', function () {
               birthday: '1984-05-18'
             }
           }
-        },
-        trackMetric: function() {}
+        }
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
@@ -173,8 +184,7 @@ describe('PatientInfo', function () {
               birthday: '1984-05-18'
             }
           }
-        },
-        trackMetric: function() {}
+        }
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
@@ -223,8 +233,7 @@ describe('PatientInfo', function () {
               diagnosisDate: '1984-05-18'
             }
           }
-        },
-        trackMetric: function() {}
+        }
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
@@ -243,8 +252,7 @@ describe('PatientInfo', function () {
               diagnosisDate: '1984-05-18'
             }
           }
-        },
-        trackMetric: function() {}
+        }
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
@@ -268,8 +276,7 @@ describe('PatientInfo', function () {
               diagnosisDate: '1984-05-18'
             }
           }
-        },
-        trackMetric: function() {}
+        }
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
@@ -294,8 +301,7 @@ describe('PatientInfo', function () {
               about: 'I am a developer.'
             }
           }
-        },
-        trackMetric: function() {}
+        }
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
@@ -308,8 +314,7 @@ describe('PatientInfo', function () {
   describe('formValuesFromPatient', function() {
     it('should return empty object if patient is empty', function() {
       var props = {
-        patient: {},
-        trackMetric: function() {}
+        patient: {}
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
@@ -327,8 +332,7 @@ describe('PatientInfo', function () {
             patient: {
             }
           }
-        },
-        trackMetric: function() {}
+        }
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
@@ -346,8 +350,7 @@ describe('PatientInfo', function () {
           profile: {
             fullName: 'Joe Bloggs'
           }
-        },
-        trackMetric: function() {}
+        }
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
@@ -368,8 +371,7 @@ describe('PatientInfo', function () {
               birthday: '1995-05-01'
             }
           }
-        },
-        trackMetric: function() {}
+        }
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
@@ -390,8 +392,7 @@ describe('PatientInfo', function () {
               diagnosisDate: '2006-06-05'
             }
           }
-        },
-        trackMetric: function() {}
+        }
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
@@ -412,8 +413,7 @@ describe('PatientInfo', function () {
               about: 'I have a wonderful coffee mug.'
             }
           }
-        },
-        trackMetric: function() {}
+        }
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
@@ -437,8 +437,7 @@ describe('PatientInfo', function () {
               about: 'I have a wonderful coffee mug.'
             }
           }
-        },
-        trackMetric: function() {}
+        }
       };
 
       var patientInfoElem = React.createElement(PatientInfo, props);
@@ -459,7 +458,6 @@ describe('PatientInfo', function () {
     it('should throw an error with invalid birthday - non-leap year 29th Feb', function() {
       console.error = sinon.spy(); // Stub the error function
       var props = {
-        trackMetric: function() {},
         patient: {
           profile : {}
         }
@@ -484,7 +482,6 @@ describe('PatientInfo', function () {
     it('should throw an error with invalid birthday - non-existent date', function() {
       console.error = sinon.spy(); // Stub the error function
       var props = {
-        trackMetric: function() {},
         patient: {
           profile : {}
         }
@@ -508,7 +505,6 @@ describe('PatientInfo', function () {
 
     it('should convert valid birthday to YYYY-MM-DD equivalent', function() {
       var props = {
-        trackMetric: function() {},
         patient: {
           profile : {}
         }
@@ -540,7 +536,6 @@ describe('PatientInfo', function () {
     it('should throw an error with invalid diagnosisDate - non-leap year 29th Feb', function() {
       console.error = sinon.spy(); // Stub the error function
       var props = {
-        trackMetric: function() {},
         patient: {
           profile : {}
         }
@@ -565,7 +560,6 @@ describe('PatientInfo', function () {
     it('should throw an error with invalid diagnosisDate - non-existent date', function() {
       console.error = sinon.spy(); // Stub the error function
       var props = {
-        trackMetric: function() {},
         patient: {
           profile : {}
         }
@@ -589,7 +583,6 @@ describe('PatientInfo', function () {
 
     it('should convert valid diagnosisDate to YYYY-MM-DD equivalent', function() {
       var props = {
-        trackMetric: function() {},
         patient: {
           profile : {}
         }
@@ -620,7 +613,6 @@ describe('PatientInfo', function () {
 
     it('should remove empty about field', function() {
       var props = {
-        trackMetric: function() {},
         patient: {
           profile : {}
         }
@@ -638,7 +630,6 @@ describe('PatientInfo', function () {
 
     it('should prepare full form and return expected values', function() {
       var props = {
-        trackMetric: function() {},
         patient: {
           profile : {}
         }

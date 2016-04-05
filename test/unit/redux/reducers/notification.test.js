@@ -29,6 +29,8 @@ import { notification as reducer } from '../../../../app/redux/reducers/misc';
 
 import actions from '../../../../app/redux/actions/index';
 
+import * as ActionTypes from '../../../../app/redux/constants/actionTypes';
+
 import * as ErrorMessages from '../../../../app/redux/constants/errorMessages';
 
 import { notification as initialState } from '../../../../app/redux/reducers/initialState';
@@ -36,46 +38,350 @@ import { notification as initialState } from '../../../../app/redux/reducers/ini
 var expect = chai.expect;
 
 describe('notification', () => {
-  describe('showNotification', () => {
-    it('should set notification to payload.notification', () => {
-      let notification = 'Some notification'
-      let initialStateForTest = null;
-      let tracked = mutationTracker.trackObj(initialStateForTest);
+  const ERR = new Error('This is an error :(');
 
-      let action = actions.sync.showNotification(notification)
+  describe('loginFailure', () => {
+    it('should build a notification', () => {
+      let action = actions.sync.loginFailure(ERR);
 
-      let state = reducer(initialStateForTest, action);
-      expect(state).to.equal(notification);
-      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      let state = reducer(initialState, action);
+
+      expect(state).to.deep.equal({
+        key: 'loggingIn',
+        isDismissible: true,
+        link: null,
+        status: null
+      });
     });
   });
-  describe('acknowledgeNotification', () => {
-    it('should clear notification state when no acknowledgeNotificationKey specified in payload', () => {
-      let notification = 'Some notification'
-      let initialStateForTest = notification;
-      let tracked = mutationTracker.trackObj(initialStateForTest);
 
-      let action = actions.sync.acknowledgeNotification()
+  describe('signupFailure', () => {
+    it('should build a notification', () => {
+      let action = actions.sync.signupFailure(ERR);
 
-      expect(initialStateForTest).to.equal(notification);
+      let state = reducer(initialState, action);
 
-      let state = reducer(initialStateForTest, action);
-      expect(state).to.be.null;
-      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+      expect(state).to.deep.equal({
+        key: 'signingUp',
+        isDismissible: true,
+        link: null,
+        status: null
+      });
     });
+  });
 
-    it('should not clear notification state when a acknowledgeNotificationKey is specified in payload', () => {
-      let notification = 'Some notification'
-      let initialStateForTest = notification;
-      let tracked = mutationTracker.trackObj(initialStateForTest);
+  describe('confirmPasswordResetFailure', () => {
+    it('should build a notification', () => {
+      let action = actions.sync.confirmPasswordResetFailure(ERR);
 
-      let action = actions.sync.acknowledgeNotification('someAcknowledgementKey')
+      let state = reducer(initialState, action);
 
-      expect(initialStateForTest).to.equal(notification);
+      expect(state).to.deep.equal({
+        key: 'confirmingPasswordReset',
+        isDismissible: true,
+        link: null,
+        status: null
+      });
+    });
+  });
 
-      let state = reducer(initialStateForTest, action);
-      expect(state).to.equal(notification);
-      expect(mutationTracker.hasMutated(tracked)).to.be.false;
+  describe('confirmSignupFailure', () => {
+    it('should build a notification', () => {
+      let action = actions.sync.confirmSignupFailure(ERR);
+
+      let state = reducer(initialState, action);
+
+      expect(state).to.deep.equal({
+        key: 'confirmingSignup',
+        isDismissible: true,
+        link: null,
+        status: null
+      });
+    });
+  });
+
+  describe('resendEmailVerificationFailure', () => {
+    it('should build a notification', () => {
+      let action = actions.sync.resendEmailVerificationFailure(ERR);
+
+      let state = reducer(initialState, action);
+
+      expect(state).to.deep.equal({
+        key: 'resendingEmailVerification',
+        isDismissible: true,
+        link: null,
+        status: null
+      });
+    });
+  });
+
+  describe('acceptTermsFailure', () => {
+    it('should build a notification', () => {
+      let action = actions.sync.acceptTermsFailure(ERR);
+
+      let state = reducer(initialState, action);
+
+      expect(state).to.deep.equal({
+        key: 'acceptingTerms',
+        isDismissible: true,
+        link: null,
+        status: null
+      });
+    });
+  });
+
+  describe('createPatientFailure', () => {
+    it('should build a notification', () => {
+      let action = actions.sync.createPatientFailure(ERR);
+
+      let state = reducer(initialState, action);
+
+      expect(state).to.deep.equal({
+        key: 'creatingPatient',
+        isDismissible: true,
+        link: null,
+        status: null
+      });
+    });
+  });
+
+  describe('removePatientFailure', () => {
+    it('should build a notification', () => {
+      let action = actions.sync.removePatientFailure(ERR);
+
+      let state = reducer(initialState, action);
+
+      expect(state).to.deep.equal({
+        key: 'removingPatient',
+        isDismissible: true,
+        link: null,
+        status: null
+      });
+    });
+  });
+
+  describe('requestPasswordResetFailure', () => {
+    it('should build a notification', () => {
+      let action = actions.sync.requestPasswordResetFailure(ERR);
+
+      let state = reducer(initialState, action);
+
+      expect(state).to.deep.equal({
+        key: 'requestingPasswordReset',
+        isDismissible: true,
+        link: null,
+        status: null
+      });
+    });
+  });
+
+  describe('sendInviteFailure', () => {
+    it('should build a notification', () => {
+      let action = actions.sync.sendInviteFailure(ERR);
+
+      let state = reducer(initialState, action);
+
+      expect(state).to.deep.equal({
+        key: 'sendingInvite',
+        isDismissible: true,
+        link: null,
+        status: null
+      });
+    });
+  });
+
+  describe('cancelSentInviteFailure', () => {
+    it('should build a notification', () => {
+      let action = actions.sync.cancelSentInviteFailure(ERR);
+
+      let state = reducer(initialState, action);
+
+      expect(state).to.deep.equal({
+        key: 'cancellingSentInvite',
+        isDismissible: true,
+        link: null,
+        status: null
+      });
+    });
+  });
+
+  describe('acceptReceivedInviteFailure', () => {
+    it('should build a notification', () => {
+      let action = actions.sync.acceptReceivedInviteFailure(ERR);
+
+      let state = reducer(initialState, action);
+
+      expect(state).to.deep.equal({
+        key: 'acceptingReceivedInvite',
+        isDismissible: true,
+        link: null,
+        status: null
+      });
+    });
+  });
+
+  describe('rejectReceivedInviteFailure', () => {
+    it('should build a notification', () => {
+      let action = actions.sync.rejectReceivedInviteFailure(ERR);
+
+      let state = reducer(initialState, action);
+
+      expect(state).to.deep.equal({
+        key: 'rejectingReceivedInvite',
+        isDismissible: true,
+        link: null,
+        status: null
+      });
+    });
+  });
+
+  describe('setMemberPermissionsFailure', () => {
+    it('should build a notification', () => {
+      let action = actions.sync.setMemberPermissionsFailure(ERR);
+
+      let state = reducer(initialState, action);
+
+      expect(state).to.deep.equal({
+        key: 'settingMemberPermissions',
+        isDismissible: true,
+        link: null,
+        status: null
+      });
+    });
+  });
+
+  describe('updatePatientFailure', () => {
+    it('should build a notification', () => {
+      let action = actions.sync.updatePatientFailure(ERR);
+
+      let state = reducer(initialState, action);
+
+      expect(state).to.deep.equal({
+        key: 'updatingPatient',
+        isDismissible: true,
+        link: null,
+        status: null
+      });
+    });
+  });
+
+  describe('updateUserFailure', () => {
+    it('should build a notification', () => {
+      let action = actions.sync.updateUserFailure(ERR);
+
+      let state = reducer(initialState, action);
+
+      expect(state).to.deep.equal({
+        key: 'updatingUser',
+        isDismissible: true,
+        link: null,
+        status: null
+      });
+    });
+  });
+
+  describe('fetchUserFailure', () => {
+    it('should build a notification', () => {
+      let action = actions.sync.fetchUserFailure(ERR);
+
+      let state = reducer(initialState, action);
+
+      expect(state).to.deep.equal({
+        key: 'fetchingUser',
+        isDismissible: true,
+        link: null,
+        status: null
+      });
+    });
+  });
+
+  describe('fetchPendingSentInvitesFailure', () => {
+    it('should build a notification', () => {
+      let action = actions.sync.fetchPendingSentInvitesFailure(ERR);
+
+      let state = reducer(initialState, action);
+
+      expect(state).to.deep.equal({
+        key: 'fetchingPendingSentInvites',
+        isDismissible: true,
+        link: null,
+        status: null
+      });
+    });
+  });
+
+  describe('fetchPendingReceivedInvitesFailure', () => {
+    it('should build a notification', () => {
+      let action = actions.sync.fetchPendingReceivedInvitesFailure(ERR);
+
+      let state = reducer(initialState, action);
+
+      expect(state).to.deep.equal({
+        key: 'fetchingPendingReceivedInvites',
+        isDismissible: true,
+        link: null,
+        status: null
+      });
+    });
+  });
+
+  describe('fetchPatientFailure', () => {
+    it('should build a notification', () => {
+      let action = actions.sync.fetchPatientFailure(ERR);
+
+      let state = reducer(initialState, action);
+
+      expect(state).to.deep.equal({
+        key: 'fetchingPatient',
+        isDismissible: true,
+        link: null,
+        status: null
+      });
+    });
+  });
+
+  describe('fetchPatientsFailure', () => {
+    it('should build a notification', () => {
+      let action = actions.sync.fetchPatientsFailure(ERR);
+
+      let state = reducer(initialState, action);
+
+      expect(state).to.deep.equal({
+        key: 'fetchingPatients',
+        isDismissible: true,
+        link: null,
+        status: null
+      });
+    });
+  });
+
+  describe('fetchPatientDataFailure', () => {
+    it('should build a notification', () => {
+      let action = actions.sync.fetchPatientDataFailure(ERR);
+
+      let state = reducer(initialState, action);
+
+      expect(state).to.deep.equal({
+        key: 'fetchingPatientData',
+        isDismissible: true,
+        link: null,
+        status: null
+      });
+    });
+  });
+
+  describe('fetchMessageThreadFailure', () => {
+    it('should build a notification', () => {
+      let action = actions.sync.fetchMessageThreadFailure(ERR);
+
+      let state = reducer(initialState, action);
+
+      expect(state).to.deep.equal({
+        key: 'fetchingMessageThread',
+        isDismissible: true,
+        link: null,
+        status: null
+      });
     });
   });
 });

@@ -14,7 +14,11 @@ describe('NotificationElem', function () {
   describe('render', function() {
     it('should render without problems', function () {
       console.error = sinon.stub();
-      var elem = TestUtils.renderIntoDocument(<NotificationElem/>);
+      var props = {
+        contents: {},
+        onClose: sinon.stub()
+      }
+      var elem = TestUtils.renderIntoDocument(<NotificationElem {...props}/>);
 
       expect(elem).to.be.ok;
       expect(console.error.callCount).to.equal(0);

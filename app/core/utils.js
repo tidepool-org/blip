@@ -95,7 +95,7 @@ utils.objectDifference = (destination, source) => {
  * @return {Boolean}
  */
 utils.isOnSamePage = (oldProps, newProps) => {
-  return (oldProps.location.pathname === newProps.location.pathname);
+  return oldProps.location === newProps.location;
 }
 
 utils.buildExceptionDetails = () =>{

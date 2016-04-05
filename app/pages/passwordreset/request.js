@@ -33,12 +33,12 @@ import SimpleForm from '../../components/simpleform';
 
 export let RequestPasswordReset = React.createClass({
   propTypes: {
+    acknowledgeNotification: React.PropTypes.func.isRequired,
     api: React.PropTypes.object.isRequired,
+    notification: React.PropTypes.object,
     onSubmit: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
-    acknowledgeNotification: React.PropTypes.func.isRequired,
-    working: React.PropTypes.bool.isRequired,
-    notification: React.PropTypes.object
+    working: React.PropTypes.bool.isRequired
   },
 
   formInputs: function() {

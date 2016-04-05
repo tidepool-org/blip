@@ -32,12 +32,12 @@ var MODEL_DATE_FORMAT = 'YYYY-MM-DD';
 
 export let PatientNew = React.createClass({
   propTypes: {
-    user: React.PropTypes.object,
-    fetchingUser: React.PropTypes.bool,
-    working: React.PropTypes.bool,
+    fetchingUser: React.PropTypes.bool.isRequired,
     notification: React.PropTypes.object,
     onSubmit: React.PropTypes.func.isRequired,
-    trackMetric: React.PropTypes.func.isRequired
+    trackMetric: React.PropTypes.func.isRequired,
+    user: React.PropTypes.object,
+    working: React.PropTypes.bool.isRequired
   },
 
   formInputs: [
@@ -336,7 +336,7 @@ export let PatientNew = React.createClass({
     if (!dateObj) {
       return false;
     }
-    return !(_.isEmpty(dateObj.year) && dateObj.year.length === 4 || _.isEmpty(dateObj.month) || _.isEmpty(dateObj.day));
+    return (!_.isEmpty(dateObj.year) && dateObj.year.length === 4 && !_.isEmpty(dateObj.month) && !_.isEmpty(dateObj.day));
   },
 
   prepareFormValuesForSubmit: function(formValues) {
@@ -393,7 +393,7 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.routes[0].api;
-  return Object.assign({}, ownProps, stateProps, dispatchProps, {
+  return Object.assign({}, stateProps, {
     onSubmit: dispatchProps.createPatient.bind(null, api),
     trackMetric: ownProps.routes[0].trackMetric
   });
