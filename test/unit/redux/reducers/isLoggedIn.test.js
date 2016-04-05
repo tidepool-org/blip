@@ -27,9 +27,7 @@ import { isLoggedIn as reducer } from '../../../../app/redux/reducers/misc';
 
 import actions from '../../../../app/redux/actions/index';
 
-import * as ErrorMessages from '../../../../app/redux/constants/errorMessages';
-
-import { notification as initialState } from '../../../../app/redux/reducers/initialState';
+import { isLoggedIn as initialState } from '../../../../app/redux/reducers/initialState';
 
 var expect = chai.expect;
 
@@ -38,7 +36,7 @@ describe('isLoggedIn', () => {
     it('should set state to true', () => {
       let initialStateForTest = false;
 
-      let action = actions.sync.fetchUserSuccess()
+      let action = actions.sync.fetchUserSuccess();
 
       let state = reducer(initialStateForTest, action);
 
@@ -50,7 +48,7 @@ describe('isLoggedIn', () => {
     it('should set state to true', () => {
       let initialStateForTest = false;
 
-      let action = actions.sync.loginSuccess()
+      let action = actions.sync.loginSuccess();
 
       let state = reducer(initialStateForTest, action);
 
@@ -62,7 +60,7 @@ describe('isLoggedIn', () => {
     it('should set state to false', () => {
       let initialStateForTest = true;
 
-      let action = actions.sync.logoutRequest()
+      let action = actions.sync.logoutRequest();
 
       let state = reducer(initialStateForTest, action);
 

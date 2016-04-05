@@ -70,7 +70,7 @@ export const notification = (state = initialState.notification, action) => {
 export const passwordResetConfirmed = (state = initialState.passwordResetConfirmed, action) => {
   switch(action.type) {
     case types.CONFIRM_PASSWORD_RESET_SUCCESS:
-      return update(state, { $set: true });
+      return true;
     default:
       return state;
   }
@@ -93,9 +93,9 @@ export const isLoggedIn = (state = initialState.isLoggedIn, action) => {
   switch(action.type) {
     case types.FETCH_USER_SUCCESS:
     case types.LOGIN_SUCCESS:
-      return update(state, { $set: true });
+      return true;
     case types.LOGOUT_REQUEST:
-      return update(state, { $set: false });
+      return false;
     default:
       return state;
   }
@@ -104,7 +104,7 @@ export const isLoggedIn = (state = initialState.isLoggedIn, action) => {
 export const sentEmailVerification = (state = initialState.sentEmailVerification, action) => {
   switch(action.type) {
     case types.SIGNUP_SUCCESS:
-      return update(state, { $set: true });
+      return true;
     default:
       return state;
   }
@@ -113,7 +113,7 @@ export const sentEmailVerification = (state = initialState.sentEmailVerification
 export const resentEmailVerification = (state = initialState.resentEmailVerification, action) => {
   switch(action.type) {
     case types.RESEND_EMAIL_VERIFICATION_SUCCESS:
-      return update(state, { $set: true });
+      return true;
     default:
       return state;
   }

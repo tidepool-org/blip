@@ -27,9 +27,7 @@ import { passwordResetConfirmed as reducer } from '../../../../app/redux/reducer
 
 import actions from '../../../../app/redux/actions/index';
 
-import * as ErrorMessages from '../../../../app/redux/constants/errorMessages';
-
-import { notification as initialState } from '../../../../app/redux/reducers/initialState';
+import { passwordResetConfirmed as initialState } from '../../../../app/redux/reducers/initialState';
 
 var expect = chai.expect;
 
@@ -38,7 +36,7 @@ describe('passwordResetConfirmed', () => {
     it('should set state to true', () => {
       let initialStateForTest = false;
 
-      let action = actions.sync.confirmPasswordResetSuccess()
+      let action = actions.sync.confirmPasswordResetSuccess();
 
       let state = reducer(initialStateForTest, action);
 

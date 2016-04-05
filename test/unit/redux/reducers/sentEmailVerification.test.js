@@ -27,9 +27,7 @@ import { sentEmailVerification as reducer } from '../../../../app/redux/reducers
 
 import actions from '../../../../app/redux/actions/index';
 
-import * as ErrorMessages from '../../../../app/redux/constants/errorMessages';
-
-import { notification as initialState } from '../../../../app/redux/reducers/initialState';
+import { sentEmailVerification as initialState } from '../../../../app/redux/reducers/initialState';
 
 var expect = chai.expect;
 
@@ -38,7 +36,7 @@ describe('sentEmailVerification', () => {
     it('should set state to true', () => {
       let initialStateForTest = false;
 
-      let action = actions.sync.signupSuccess()
+      let action = actions.sync.signupSuccess();
 
       let state = reducer(initialStateForTest, action);
 
