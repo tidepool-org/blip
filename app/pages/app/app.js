@@ -196,7 +196,12 @@ export class AppComponent extends React.Component {
     var notification = this.props.notification;
     var handleClose;
 
-    if (notification) {
+    var shouldDisplayNotification = !_.includes(
+      ['/login', '/email-verification', '/signup'],
+      this.props.location
+    );
+
+    if (notification && shouldDisplayNotification) {
       this.props.context.log('Rendering notification');
       if (notification.isDismissible) {
         handleClose = this.props.onCloseNotification.bind(this);
@@ -325,12 +330,6 @@ export function mapStateToProps(state) {
         case 503: 
           displayMessage = ErrorMessages.ERR_OFFLINE;
           break;
-      }
-    }
-    // suppress the e-mail not verified error on /email-verification
-    if (_.get(state, ['routing', 'location', 'pathname']) === '/email-verification') {
-      if (displayMessage === ErrorMessages.ERR_EMAIL_NOT_VERIFIED) {
-        displayMessage = null;
       }
     }
     if (displayMessage) {
