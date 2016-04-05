@@ -44,13 +44,28 @@ require('../../../favicon.ico');
 
 export class AppComponent extends React.Component {
   static propTypes = {
-    route: React.PropTypes.shape({
-      log: React.PropTypes.func.isRequired,
+    authenticated: React.PropTypes.bool.isRequired,
+    children: React.PropTypes.object.isRequired,
+    fetchers: React.PropTypes.array.isRequired,
+    fetchingPatient: React.PropTypes.bool.isRequired,
+    fetchingUser: React.PropTypes.bool.isRequired,
+    location: React.PropTypes.string.isRequired,
+    loggingOut: React.PropTypes.bool.isRequired,
+    notification: React.PropTypes.object,
+    onAcceptTerms: React.PropTypes.func.isRequired,
+    onCloseNotification: React.PropTypes.func.isRequired,
+    onLogout: React.PropTypes.func.isRequired,
+    patient: React.PropTypes.object,
+    context: React.PropTypes.shape({
+      DEBUG: React.PropTypes.bool.isRequired,
       api: React.PropTypes.object.isRequired,
+      config: React.PropTypes.object.isRequired,
+      log: React.PropTypes.func.isRequired,
       personUtils: React.PropTypes.object.isRequired,
       trackMetric: React.PropTypes.func.isRequired,
-      DEBUG: React.PropTypes.bool.isRequired
-    }).isRequired
+    }).isRequired,
+    termsAccepted: React.PropTypes.string,
+    user: React.PropTypes.object
   };
 
   constructor(props) {
@@ -78,7 +93,7 @@ export class AppComponent extends React.Component {
   }
 
   logSupportContact() {
-    this.props.route.trackMetric('Clicked Give Feedback');
+    this.props.context.trackMetric('Clicked Give Feedback');
   }
 
   closeNotification() {
@@ -118,7 +133,7 @@ export class AppComponent extends React.Component {
    */
 
   renderOverlay() {
-    this.props.route.log('Rendering overlay');
+    this.props.context.log('Rendering overlay');
     if (this.props.loggingOut) {
       return (
         <LogoutOverlay ref="logoutOverlay" />
@@ -133,7 +148,7 @@ export class AppComponent extends React.Component {
   }
 
   renderNavbar() {
-    this.props.route.log('Rendering navbar');
+    this.props.context.log('Rendering navbar');
     // at some point we should refactor so that LoginNav and NavBar
     // have a common parent that can decide what to render
     // but for now we just make sure we don't render the NavBar on a NoAuth route
@@ -154,7 +169,7 @@ export class AppComponent extends React.Component {
         var patient, getUploadUrl;
         if (this.isPatientVisibleInNavbar()) {
           patient = this.props.patient;
-          getUploadUrl = this.props.route.api.getUploadUrl.bind(this.props.route.api);
+          getUploadUrl = this.props.context.api.getUploadUrl.bind(this.props.context.api);
         }
 
         return (
@@ -164,10 +179,10 @@ export class AppComponent extends React.Component {
               fetchingUser={this.props.fetchingUser}
               patient={patient}
               fetchingPatient={this.props.fetchingPatient}
-              currentPage={this.props.route.pathname}
+              currentPage={this.props.location}
               getUploadUrl={getUploadUrl}
               onLogout={this.props.onLogout}
-              trackMetric={this.props.route.trackMetric}
+              trackMetric={this.props.context.trackMetric}
               ref="navbar"/>
           </div>
         );
@@ -182,7 +197,7 @@ export class AppComponent extends React.Component {
     var handleClose;
 
     if (notification) {
-      this.props.route.log('Rendering notification');
+      this.props.context.log('Rendering notification');
       if (notification.isDismissible) {
         handleClose = this.props.onCloseNotification.bind(this);
       }
@@ -219,7 +234,7 @@ export class AppComponent extends React.Component {
   }
 
   renderVersion() {
-    var version = this.props.route.config.VERSION;
+    var version = this.props.context.config.VERSION;
     if (version) {
       version = 'v' + version + ' beta';
       return (
@@ -230,7 +245,7 @@ export class AppComponent extends React.Component {
   }
 
   render() {
-    this.props.route.log('Rendering AppComponent');
+    this.props.context.log('Rendering AppComponent');
     var overlay = this.renderOverlay();
     var navbar = this.renderNavbar();
     var notification = this.renderNotification();
@@ -320,8 +335,6 @@ export function mapStateToProps(state) {
           body: { message: displayMessage, utc: utcTime }
         }
       );
-    } else {
-      displayNotification = null;
     }
   }
 
@@ -347,12 +360,13 @@ let mapDispatchToProps = dispatch => bindActionCreators({
 
 let mergeProps = (stateProps, dispatchProps, ownProps) => {
   var api = ownProps.routes[0].api;
-  return Object.assign({}, ownProps, stateProps, dispatchProps, {
+  return Object.assign({}, _.pick(ownProps, ['children']), stateProps, {
+    context: ownProps.route,
     fetchers: getFetchers(dispatchProps, ownProps, api),
-    fetchUser: dispatchProps.fetchUser.bind(null, api),
     location: ownProps.location.pathname,
-    onLogout: dispatchProps.logout.bind(null, api),
     onAcceptTerms: dispatchProps.acceptTerms.bind(null, api),
+    onCloseNotification: dispatchProps.onCloseNotification,
+    onLogout: dispatchProps.logout.bind(null, api)
   });
 };
 
