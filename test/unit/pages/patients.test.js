@@ -66,12 +66,13 @@ describe('Patients', () => {
   });
 
   describe('componentWillReceiveProps', () => {
-    it('should redirect to patient data when justLogged query param is set and only one patient available', () => {
+    it('should not redirect to patient data when justLogged query param is set and only one patient if invites present', () => {
       var props = {};
       var elem = React.createElement(Patients, props);
       var render = TestUtils.renderIntoDocument(elem);
       
       var nextProps = Object.assign({}, props, {
+        invites: [1],
         loading: false,
         location: { query: {
             justLoggedIn: true
@@ -83,7 +84,7 @@ describe('Patients', () => {
       });
 
       render.componentWillReceiveProps(nextProps);
-      expect(window.location.pathname).to.equal('/patients/1/data');
+      expect(window.location.pathname).to.not.equal('/patients/1/data');
     });
 
     it('should not redirect to patient data when justLogged query param is set and more than one patient available', () => {
@@ -196,6 +197,28 @@ describe('Patients', () => {
 
       render.componentWillReceiveProps(nextProps);
       expect(nextProps.showWelcomeMessage.callCount).to.equal(0);
+    });
+
+    // NB: this test has to go last since it affects the global window.location.pathname!
+    it('should redirect to patient data when justLogged query param is set and only one patient available and no invites', () => {
+      var props = {};
+      var elem = React.createElement(Patients, props);
+      var render = TestUtils.renderIntoDocument(elem);
+
+      var nextProps = Object.assign({}, props, {
+        invites: [],
+        loading: false,
+        location: { query: {
+            justLoggedIn: true
+          }
+        },
+        loggedInUserId: 20,
+        patients: [ { userid: 1 } ],
+        showingWelcomeMessage: null
+      });
+
+      render.componentWillReceiveProps(nextProps);
+      expect(window.location.pathname).to.equal('/patients/1/data');
     });
   });
 
