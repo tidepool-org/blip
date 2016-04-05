@@ -192,9 +192,13 @@ $ npm run karma-watch
 
 ### Integration testing with Nightwatch
 
+#### Prerequisites:
+
+1. [Java JDK](http://www.oracle.com/technetwork/java/javase/downloads/index.html) (for Selenium)
+1. [Docker](https://www.docker.com/products/docker-toolbox 'Docker Toolbox')
+
 #### Setup:
 
-1. [Install docker](https://www.docker.com/products/docker-toolbox 'Docker Toolbox')
 1. Launch the default docker machine: [Mac](https://docs.docker.com/engine/installation/mac/#from-your-shell) or
    [Win](https://docs.docker.com/engine/installation/windows/#using-docker-from-windows-command-prompt-cmd-exe)
 1. Launch test containers with:
