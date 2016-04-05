@@ -23,6 +23,8 @@ import { syncHistory, routeReducer } from 'react-router-redux';
 import blipState from '../reducers/initialState';
 import reducers from '../reducers';
 
+import createErrorLogger from '../utils/logErrorMiddleware';
+
 const reduxRouterMiddleware = syncHistory(browserHistory);
 
 const reducer = combineReducers({
@@ -30,11 +32,18 @@ const reducer = combineReducers({
   routing: routeReducer
 });
 
-const createStoreWithMiddleware = applyMiddleware(
-  thunkMiddleware, 
-  reduxRouterMiddleware
-)(createStore);
-
 let initialState = { blip: blipState };
 
-export default createStoreWithMiddleware(reducer, initialState);
+function _createStore(api) {
+  const createStoreWithMiddleware = applyMiddleware(
+    thunkMiddleware,
+    reduxRouterMiddleware,
+    createErrorLogger(api)
+  )(createStore);
+
+  return createStoreWithMiddleware(reducer, initialState);
+}
+
+export default (api) => {
+  return _createStore(api);
+}
