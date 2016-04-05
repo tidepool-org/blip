@@ -304,30 +304,24 @@ export const permissionsOfMembersInTargetCareTeam = (state = initialState.permis
     case types.REMOVE_MEMBER_SUCCESS:
       return _.omit(state, _.get(action.payload, 'removedMemberId', null));
     case types.LOGOUT_REQUEST:
-      return update(state, { $set: {} });
+      return {};
     default:
       return state;
   }
 };
 
 export const membershipPermissionsInOtherCareTeams = (state = initialState.membershipPermissionsInOtherCareTeams, action) => {
-  let permissions = {};
   switch(action.type) {
-    case types.FETCH_PATIENTS_SUCCESS:
+    case types.FETCH_PATIENTS_SUCCESS: {
+      let permissions = {};
       action.payload.patients.forEach((p) => permissions[p.userid] = p.permissions);
 
       return update(state, { $set: permissions });
+    }
     case types.REMOVE_PATIENT_SUCCESS:
-      Object.keys(state).forEach((p) => {
-        let id = parseInt(p, 10);
-        if (id !== action.payload.removedPatientId) {
-          permissions[p] = p.permissions
-        }
-      });
-
-      return update(state, { $set: permissions });
+      return _.omit(state, _.get(action.payload, 'removedPatientId', null));
     case types.LOGOUT_REQUEST:
-      return update(state, { $set: {} });
+      return {};
     default:
       return state;
   }

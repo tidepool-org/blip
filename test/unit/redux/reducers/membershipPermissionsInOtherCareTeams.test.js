@@ -31,7 +31,7 @@ import actions from '../../../../app/redux/actions/index';
 
 import * as ErrorMessages from '../../../../app/redux/constants/errorMessages';
 
-import { notification as initialState } from '../../../../app/redux/reducers/initialState';
+import { membershipPermissionsInOtherCareTeams as initialState } from '../../../../app/redux/reducers/initialState';
 
 var expect = chai.expect;
 
@@ -39,46 +39,56 @@ describe('membershipPermissionsInOtherCareTeams', () => {
   describe('fetchPatientsSuccess', () => {
     it('should set state to a hash map of permissions in other care teams', () => {
       let patients = [
-          { userid: 1234, permissions: { view: {} } },
-          { userid: 250, permissions: { view: {}, notes: {} } }
+        { userid: 'a1b2c3', permissions: { view: {} } },
+        { userid: 'd4e5f6', permissions: { view: {}, note: {} } }
       ];
 
       let initialStateForTest = {};
+
+      let tracked = mutationTracker.trackObj(initialStateForTest);
       
-      let action = actions.sync.fetchPatientsSuccess(patients)
+      let action = actions.sync.fetchPatientsSuccess(patients);
 
       let state = reducer(initialStateForTest, action);
 
       expect(Object.keys(state).length).to.equal(2);
-      expect(Object.keys(state[1234]).length).to.equal(1);
-      expect(Object.keys(state[250]).length).to.equal(2);
+      expect(Object.keys(state.a1b2c3).length).to.equal(1);
+      expect(state.a1b2c3.view).to.exist;
+      expect(state.a1b2c3.note).to.not.exist;
+      expect(Object.keys(state.d4e5f6).length).to.equal(2);
+      expect(state.d4e5f6.view).to.exist;
+      expect(state.d4e5f6.note).to.exist;
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 
   describe('removePatientSuccess', () => {
     it('should remove member from hash map', () => {
-      let patientId = 50066
+      let patientId = 'a1b2c3';
 
       let initialStateForTest = {
-        50066: { foo: 'bar' },
-        24: { a: 1 },
-        67: { a: 1 },
+        a1b2c3: { foo: 'bar' },
+        d4e5f6: { a: 1 },
+        x1y2z3: { a: 1 }
       };
+
+      let tracked = mutationTracker.trackObj(initialStateForTest);
       
-      let action = actions.sync.removePatientSuccess(patientId)
+      let action = actions.sync.removePatientSuccess(patientId);
 
       let state = reducer(initialStateForTest, action);
 
       expect(Object.keys(state).length).to.equal(2);
-      expect(state[50066]).to.be.undefined;
+      expect(state.a1b2c3).to.be.undefined;
+      expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 
   describe('logoutRequest', () => {
-    it('should set state to null', () => {
+    it('should set state to empty object', () => {
       let initialStateForTest = {
-        3434: { view: {}, notes: {} },
-        250: { view: {}, notes: {} }
+        a1b2c3: { view: {}, note: {} },
+        d4e5f6: { view: {}, note: {} }
       };
 
       let tracked = mutationTracker.trackObj(initialStateForTest);
@@ -88,6 +98,7 @@ describe('membershipPermissionsInOtherCareTeams', () => {
       let state = reducer(initialStateForTest, action);
 
       expect(Object.keys(state).length).to.equal(0);
+      expect(state).to.deep.equal({});
       expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
