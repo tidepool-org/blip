@@ -172,12 +172,12 @@ export const currentPatientInViewId = (state = initialState.currentPatientInView
   switch(action.type) {
     case types.CREATE_PATIENT_SUCCESS:
     case types.FETCH_PATIENT_SUCCESS:
-      return update(state, { $set: action.payload.patient.userid });
+      return _.get(action.payload, ['patient', 'userid'], null);
     case types.UPDATE_PATIENT_SUCCESS:
-      return update(state, { $set: action.payload.updatedPatient.userid });
+      return _.get(action.payload, ['updatedPatient', 'userid'], null);
     case types.LOGOUT_REQUEST:
     case types.CLEAR_PATIENT_IN_VIEW:
-      return update(state, { $set: null });
+      return null;
     default:
       return state; 
   }
@@ -186,14 +186,11 @@ export const currentPatientInViewId = (state = initialState.currentPatientInView
 export const targetUserId = (state = initialState.targetUserId, action) => {
   switch(action.type) {
     case types.CREATE_PATIENT_SUCCESS:
-      const userId = _.get(action.payload, ['patient', 'userid'], null);
-      if (userId) {
-        return userId;
-      }
+      return _.get(action.payload, ['patient', 'userid'], null);
     case types.FETCH_USER_SUCCESS:
     case types.LOGIN_SUCCESS:
-      if (_.get(action.payload.user, ['profile', 'patient'])) {
-        return _.get(action.payload, ['user', 'userid']);
+      if (_.get(action.payload, ['user', 'profile', 'patient'])) {
+        return _.get(action.payload, ['user', 'userid'], null);
       } else {
         return null;
       }
@@ -208,9 +205,9 @@ export const loggedInUserId = (state = initialState.loggedInUserId, action) => {
   switch(action.type) {
     case types.FETCH_USER_SUCCESS:
     case types.LOGIN_SUCCESS:
-      return update(state, { $set: action.payload.user.userid });
+      return _.get(action.payload, ['user', 'userid'], null);
     case types.LOGOUT_REQUEST:
-      return update(state, { $set: null });
+      return null;
     default:
       return state;
   }

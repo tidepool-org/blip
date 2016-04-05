@@ -27,9 +27,7 @@ import { targetUserId as reducer } from '../../../../app/redux/reducers/misc';
 
 import actions from '../../../../app/redux/actions/index';
 
-import * as ErrorMessages from '../../../../app/redux/constants/errorMessages';
-
-import { notification as initialState } from '../../../../app/redux/reducers/initialState';
+import { targetUserId as initialState } from '../../../../app/redux/reducers/initialState';
 
 var expect = chai.expect;
 
@@ -37,22 +35,20 @@ describe('targetUserId', () => {
   describe('fetchUserSuccess', () => {
     it('should set state to user', () => {
       let initialStateForTest = null;
-      let name = 'Abbie Roads';
       let user = { userid: 203, profile: { patient: true } };
 
-      let action = actions.sync.fetchUserSuccess(user)
+      let action = actions.sync.fetchUserSuccess(user);
 
       let state = reducer(initialStateForTest, action);
 
       expect(state).to.equal(user.userid);
     });
 
-    it('should clear state if fetchedUser does not have patient object', () => {
-      let initialStateForTest = 99;
-      let name = 'Abbie Roads';
-      let user = { userid: 203, profile: null };
+    it('should clear state if fetched user does not have patient object', () => {
+      let initialStateForTest = 'a1b2c3';
+      let user = { userid: 'd4e5f6', profile: null };
 
-      let action = actions.sync.fetchUserSuccess(user)
+      let action = actions.sync.fetchUserSuccess(user);
 
       let state = reducer(initialStateForTest, action);
 
@@ -63,10 +59,9 @@ describe('targetUserId', () => {
   describe('loginSuccess', () => {
     it('should set state to user', () => {
       let initialStateForTest = null;
-      let name = 'Jamie Foxx';
       let user = { userid: 203, profile: { patient: true } };
 
-      let action = actions.sync.loginSuccess(user)
+      let action = actions.sync.loginSuccess(user);
 
       let state = reducer(initialStateForTest, action);
 
@@ -74,11 +69,10 @@ describe('targetUserId', () => {
     });
 
     it('should clear state if logged in user does not have patient object', () => {
-      let initialStateForTest = 101;
-      let name = 'Abbie Roads';
-      let user = { userid: 203, profile: null };
+      let initialStateForTest = 'a1b2c3';
+      let user = { userid: 'd4e5f6', profile: null };
 
-      let action = actions.sync.fetchUserSuccess(user)
+      let action = actions.sync.fetchUserSuccess(user);
 
       let state = reducer(initialStateForTest, action);
 
@@ -91,7 +85,10 @@ describe('targetUserId', () => {
       let initialStateForTest = null;
       const userid = 'a1b2c3';
       const patient = {
-        profile: {fullName: 'Jane Doe', patient: {birthday: '1980-01-01', diagnosisDate: '1999-12-31'}},
+        profile: {
+          fullName: 'Jane Doe',
+          patient: {birthday: '1980-01-01', diagnosisDate: '1999-12-31'}
+        },
         team: [],
         userid
       };
@@ -106,11 +103,10 @@ describe('targetUserId', () => {
 
   describe('logoutRequest', () => {
     it('should set state to null', () => {
-      let name = 'Jamie Foxx';
-      let user = { userid: 203, profile: { patient: true } };
+      let user = { userid: 'a1b2c3', profile: { patient: true } };
       let initialStateForTest = user.userid;
       
-      let action = actions.sync.logoutRequest()
+      let action = actions.sync.logoutRequest();
 
       let state = reducer(initialStateForTest, action);
 

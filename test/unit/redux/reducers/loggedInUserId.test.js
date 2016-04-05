@@ -27,20 +27,17 @@ import { loggedInUserId as reducer } from '../../../../app/redux/reducers/misc';
 
 import actions from '../../../../app/redux/actions/index';
 
-import * as ErrorMessages from '../../../../app/redux/constants/errorMessages';
-
-import { notification as initialState } from '../../../../app/redux/reducers/initialState';
+import { loggedInUserId as initialState } from '../../../../app/redux/reducers/initialState';
 
 var expect = chai.expect;
 
 describe('loggedInUserId', () => {
   describe('fetchUserSuccess', () => {
-    it('should set state to user', () => {
+    it('should set state to userid', () => {
       let initialStateForTest = null;
-      let name = 'Abbie Roads';
-      let user = { userid: 203, name : name };
+      let user = { userid: 'a1b2c3', name: 'Jamie Foxx' };
 
-      let action = actions.sync.fetchUserSuccess(user)
+      let action = actions.sync.fetchUserSuccess(user);
 
       let state = reducer(initialStateForTest, action);
 
@@ -49,12 +46,11 @@ describe('loggedInUserId', () => {
   });
 
   describe('loginSuccess', () => {
-    it('should set state to user', () => {
+    it('should set state to userid', () => {
       let initialStateForTest = null;
-      let name = 'Jamie Foxx';
-      let user = { userid: 'jkg8585hgkg', name : name };
+      let user = { userid: 'a1b2c3', name: 'Jamie Foxx' };
 
-      let action = actions.sync.loginSuccess(user)
+      let action = actions.sync.loginSuccess(user);
 
       let state = reducer(initialStateForTest, action);
 
@@ -64,11 +60,10 @@ describe('loggedInUserId', () => {
 
   describe('logoutRequest', () => {
     it('should set state to null', () => {
-      let name = 'Jamie Foxx';
-      let user = { userid: 500, name : name };
+      let user = { userid: 'a1b2c3', name: 'Jamie Foxx' };
       let initialStateForTest = user.userid;
       
-      let action = actions.sync.logoutRequest()
+      let action = actions.sync.logoutRequest();
 
       let state = reducer(initialStateForTest, action);
 

@@ -27,9 +27,7 @@ import { currentPatientInViewId as reducer } from '../../../../app/redux/reducer
 
 import actions from '../../../../app/redux/actions/index';
 
-import * as ErrorMessages from '../../../../app/redux/constants/errorMessages';
-
-import { notification as initialState } from '../../../../app/redux/reducers/initialState';
+import { currentPatientInViewId as initialState } from '../../../../app/redux/reducers/initialState';
 
 var expect = chai.expect;
 
@@ -37,10 +35,10 @@ describe('currentPatientInViewId', () => {
   describe('createPatientSuccess', () => {
     it('should set state to created patient', () => {
       let initialStateForTest = null;
-      let userId = 340;
+      let userId = 'a1b2c3';
       let patient = { userid: userId, name: 'Jess' };
 
-      let action = actions.sync.createPatientSuccess(userId, patient)
+      let action = actions.sync.createPatientSuccess(userId, patient);
 
       let state = reducer(initialStateForTest, action);
       
@@ -51,9 +49,9 @@ describe('currentPatientInViewId', () => {
   describe('fetchPatientSuccess', () => {
     it('should set state to fetched patient', () => {
       let initialStateForTest = null;
-      let patient = { userid: '506', name: 'Jess' };
+      let patient = { userid: 'a1b2c3', name: 'Jess' };
 
-      let action = actions.sync.fetchPatientSuccess(patient)
+      let action = actions.sync.fetchPatientSuccess(patient);
 
       let state = reducer(initialStateForTest, action);
 
@@ -63,8 +61,8 @@ describe('currentPatientInViewId', () => {
 
   describe('updatePatientSuccess', () => {
     it('should set state to fetched patient', () => {
-      let initialStateForTest = 400;
-      let updatedPatient = { userid: 600, name: 'Jessica', diagnosisDate: '01/01/2013' };
+      let initialStateForTest = 'a1b2c3';
+      let updatedPatient = { userid: 'd4e5f6', name: 'Jessica', diagnosisDate: '01/01/2013' };
       
       let action = actions.sync.updatePatientSuccess(updatedPatient);
       let state = reducer(initialStateForTest, action);
@@ -74,8 +72,8 @@ describe('currentPatientInViewId', () => {
   });
 
   describe('logoutRequest', () => {
-    it('should set state to fetched patient', () => {
-      let initialStateForTest = 290;
+    it('should set state to null', () => {
+      let initialStateForTest = 'a1b2c3';
 
       let action = actions.sync.logoutRequest();
 
@@ -86,8 +84,8 @@ describe('currentPatientInViewId', () => {
   });
 
   describe('clearPatientInView', () => {
-    it('should set state to fetched patient', () => {
-      let initialStateForTest = 'abcd100';
+    it('should set state to null', () => {
+      let initialStateForTest = 'a1b2c3';
 
       let action = actions.sync.clearPatientInView();
 
