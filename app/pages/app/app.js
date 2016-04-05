@@ -327,6 +327,12 @@ export function mapStateToProps(state) {
           break;
       }
     }
+    // suppress the e-mail not verified error on /email-verification
+    if (_.get(state, ['routing', 'location', 'pathname']) === '/email-verification') {
+      if (displayMessage === ErrorMessages.ERR_EMAIL_NOT_VERIFIED) {
+        displayMessage = null;
+      }
+    }
     if (displayMessage) {
       displayNotification = _.assign(
         _.omit(state.blip.notification, 'key'),
