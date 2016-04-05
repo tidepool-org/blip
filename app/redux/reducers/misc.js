@@ -79,11 +79,11 @@ export const passwordResetConfirmed = (state = initialState.passwordResetConfirm
 export const showingWelcomeMessage = (state = initialState.showingWelcomeMessage, action) => {
   switch(action.type) {
     case types.SHOW_WELCOME_MESSAGE:
-      return update(state, { $set: true });
+      return true;
     case types.HIDE_WELCOME_MESSAGE:
-      return update(state, { $set: false });
+      return false;
     case types.LOGOUT_REQUEST:
-      return update(state, { $set: null });
+      return null;
     default:
       return state;
   }
