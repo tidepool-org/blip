@@ -36,7 +36,7 @@ export let PatientNew = React.createClass({
     notification: React.PropTypes.object,
     onSubmit: React.PropTypes.func.isRequired,
     trackMetric: React.PropTypes.func.isRequired,
-    user: React.PropTypes.object.isRequired,
+    user: React.PropTypes.object,
     working: React.PropTypes.bool.isRequired
   },
 
@@ -336,7 +336,7 @@ export let PatientNew = React.createClass({
     if (!dateObj) {
       return false;
     }
-    return !(_.isEmpty(dateObj.year) && dateObj.year.length === 4 || _.isEmpty(dateObj.month) || _.isEmpty(dateObj.day));
+    return (!_.isEmpty(dateObj.year) && dateObj.year.length === 4 && !_.isEmpty(dateObj.month) && !_.isEmpty(dateObj.day));
   },
 
   prepareFormValuesForSubmit: function(formValues) {
