@@ -23,13 +23,9 @@
 
 import _ from 'lodash';
 
-import mutationTracker from 'object-invariant-test-helper';
-
 import { messageThread as reducer } from '../../../../app/redux/reducers/misc';
 
 import actions from '../../../../app/redux/actions/index';
-
-import * as ErrorMessages from '../../../../app/redux/constants/errorMessages';
 
 import { messageThread as initialState } from '../../../../app/redux/reducers/initialState';
 
@@ -47,9 +43,9 @@ describe('messageThread', () => {
             comment: 'Nice'
           }
         ]
-      }
+      };
 
-      let action = actions.sync.fetchMessageThreadSuccess(messageThread)
+      let action = actions.sync.fetchMessageThreadSuccess(messageThread);
 
       let state = reducer(initialStateForTest, action);
 
@@ -59,7 +55,7 @@ describe('messageThread', () => {
   });
 
   describe('closeMessageThread', () => {
-    it('should set state to true', () => {
+    it('should set state to null', () => {
       let initialStateForTest = {
         message: 'Cool',
         comments: [
@@ -69,19 +65,16 @@ describe('messageThread', () => {
         ]
       };
 
-      let tracked = mutationTracker.trackObj(initialStateForTest);
-
-      let action = actions.sync.closeMessageThread()
+      let action = actions.sync.closeMessageThread();
 
       let state = reducer(initialStateForTest, action);
 
       expect(state).to.be.null;
-      expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 
   describe('logoutRequest', () => {
-    it('should set state to false', () => {
+    it('should set state to null', () => {
       let initialStateForTest = {
         message: 'Cool',
         comments: [
@@ -91,14 +84,11 @@ describe('messageThread', () => {
         ]
       };
 
-      let tracked = mutationTracker.trackObj(initialStateForTest);
-
-      let action = actions.sync.logoutRequest()
+      let action = actions.sync.logoutRequest();
 
       let state = reducer(initialStateForTest, action);
 
       expect(state).to.be.null;
-      expect(mutationTracker.hasMutated(tracked)).to.be.false;
     });
   });
 });

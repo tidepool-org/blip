@@ -31,8 +31,6 @@ import actions from '../../../../app/redux/actions/index';
 
 import * as ActionTypes from '../../../../app/redux/constants/actionTypes';
 
-import * as ErrorMessages from '../../../../app/redux/constants/errorMessages';
-
 import { notification as initialState } from '../../../../app/redux/reducers/initialState';
 
 var expect = chai.expect;

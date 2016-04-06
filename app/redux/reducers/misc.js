@@ -330,10 +330,10 @@ export const bgPrefs = (state = initialState.bgPrefs, action) => {
 export const messageThread = (state = initialState.messageThread, action) => {
   switch(action.type) {
     case types.FETCH_MESSAGE_THREAD_SUCCESS:
-      return update(state, { $set: action.payload.messageThread });
+      return update(state, { $set: _.get(action.payload, 'messageThread', null) });
     case types.CLOSE_MESSAGE_THREAD:
     case types.LOGOUT_REQUEST:
-      return update(state, { $set: null });
+      return null;
     default:
       return state;
   }
@@ -341,17 +341,21 @@ export const messageThread = (state = initialState.messageThread, action) => {
 
 export const patientDataMap = (state = initialState.patientDataMap, action) => {
   switch(action.type) {
-    case types.FETCH_PATIENT_DATA_SUCCESS:
+    case types.FETCH_PATIENT_DATA_SUCCESS: {
+      const { patientId, patientData } = action.payload;
       return update(state, {
-        [action.payload.patientId]: { $set: action.payload.patientData }
+        [patientId]: { $set: patientData }
       });
-    case types.CLEAR_PATIENT_DATA:
+    }
+    case types.CLEAR_PATIENT_DATA: {
+      const { patientId } = action.payload;
       return update(state, {
-        [action.payload.patientId]: { $set: null }
+        [patientId]: { $set: null }
       });
+    }
     case types.LOGOUT_REQUEST:
     case types.FETCH_PATIENT_DATA_FAILURE:
-      return update(state, { $set: {} });
+      return {};
     default:
       return state;
   }
@@ -359,17 +363,21 @@ export const patientDataMap = (state = initialState.patientDataMap, action) => {
 
 export const patientNotesMap = (state = initialState.patientNotesMap, action) => {
   switch(action.type) {
-    case types.FETCH_PATIENT_DATA_SUCCESS:
+    case types.FETCH_PATIENT_DATA_SUCCESS: {
+      const { patientId, patientNotes } = action.payload;
       return update(state, {
-        [action.payload.patientId]: { $set: action.payload.patientNotes }
+        [patientId]: { $set: patientNotes }
       });
-    case types.CLEAR_PATIENT_DATA:
+    }
+    case types.CLEAR_PATIENT_DATA: {
+      const { patientId } = action.payload;
       return update(state, {
-        [action.payload.patientId]: { $set: null }
+        [patientId]: { $set: null }
       });
+    }
     case types.LOGOUT_REQUEST:
     case types.FETCH_PATIENT_DATA_FAILURE:
-      return update(state, { $set: {} });
+      return {};
     default:
       return state;
   }
